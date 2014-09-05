@@ -37,7 +37,7 @@ prefix			= C:\Ice-$(VERSION)
 #WINRT		        = yes
 
 #
-# Is the MFC library available? 
+# Is the MFC library available?
 # Set to no if you are using Visual Studio Express
 # A few Ice demos use MFC
 #
@@ -54,7 +54,7 @@ HAS_MFC                 = yes
 !if "$(PROCESSOR_ARCHITECTURE)" == "AMD64"
 THIRDPARTY_HOME = $(PROGRAMFILES) (x86)\ZeroC\Ice-$(VERSION)-ThirdParty
 !else
-THIRDPARTY_HOME = $(PROGRAMFILES)\ZeroC\Ice-$(VERSION)-ThirdParty 
+THIRDPARTY_HOME = $(PROGRAMFILES)\ZeroC\Ice-$(VERSION)-ThirdParty
 !endif
 !endif
 
@@ -85,7 +85,7 @@ CPP_COMPILER            = VC120
 !elseif ([cl 2>&1 | findstr "Version\ 15" > nul] == 0)
 !error Detected VC90
 !else
-!error Cannot detect C++ compiler 
+!error Cannot detect C++ compiler
 !endif
 
 #!message CPP_COMPILER set to $(CPP_COMPILER)
@@ -169,6 +169,12 @@ RCFLAGS		= -D_DEBUG
 SSL_OS_LIBS             = secur32.lib crypt32.lib
 EXPAT_LIBS              = libexpat.lib
 
+!if "$(STATICLIBS)" =="yes"
+SLICE_LIBS		= $(PRELIBS)slice$(LIBSUFFIX).lib $(MCPP_LIBS)
+!else
+SLICE_LIBS		= $(PRELIBS)slice$(LIBSUFFIX).lib
+!endif
+
 CPPFLAGS		= $(CPPFLAGS) -I"$(includedir)"
 ICECPPFLAGS		= -I"$(slicedir)"
 SLICE2CPPFLAGS		= $(ICECPPFLAGS) $(SLICE2CPPFLAGS)
@@ -196,7 +202,7 @@ SLICE2FREEZE		= $(ice_dir)\bin$(x64suffix)\slice2freeze.exe
 !endif
 
 #
-# In WinRT tests we don't want a dependency on SLICEPARSELIB, as we can build all 
+# In WinRT tests we don't want a dependency on SLICEPARSELIB, as we can build all
 # test configurations using the same slice2cpp and slice.lib.
 #
 !if "$(WINRT)" == "yes"
@@ -299,7 +305,7 @@ clean::
 
 !endif
 
-!endif 
+!endif
 
 clean::
 	-del /q *.obj *.bak *.ilk *.exp *.pdb *.tds *.idb

@@ -59,7 +59,7 @@ RES_FILE	= IceUtil.res
 $(DLLNAME):
 
 $(LIBNAME): $(OBJS)
-	$(AR) $(ARFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@
+	$(AR) $(ARFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ DbgHelp.lib
 
 !else
 

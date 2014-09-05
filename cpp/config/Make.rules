@@ -34,7 +34,7 @@ create_runpath_symlink	?= no
 
 #
 # Define LP64 as yes or no if you want force a 32 or 64 bit. The
-# default is platform-dependent. This property has no effect on 
+# default is platform-dependent. This property has no effect on
 # OS X. On OS X, use CXXARCHFLAGS bellow to establish the build
 # architectures.
 #
@@ -65,7 +65,7 @@ create_runpath_symlink	?= no
 # If you combine Ice with more GPL-incompatible software, or have
 # licensed Ice under a commercial (non-GPL) license, you should ponder
 # the licensing implications of using readline.
-# 
+#
 USE_READLINE		?= no
 
 #
@@ -96,13 +96,13 @@ USE_READLINE		?= no
 #OPENSSL_HOME		?= /opt/openssl
 
 #
-# If MCPP is not installed in a standard location where the compiler 
+# If MCPP is not installed in a standard location where the compiler
 # can find it, set MCPP_HOME to the Mcpp installation directory.
 #
 #MCPP_HOME		?= /opt/mcpp
 
 #
-# If libiconv is not installed in a standard location where the compiler 
+# If libiconv is not installed in a standard location where the compiler
 # can find it, set ICONV_HOME to the libiconv installation directory.
 #
 #ICONV_HOME		?= /opt/libiconv
@@ -133,7 +133,7 @@ THIRDPARTY_HOME	?= C:\Program Files (x86)\ZeroC\Ice-$(VERSION)-ThirdParty
 #DEFAULT_MUTEX_PROTOCOL  ?= PrioNone
 
 #
-# Define CPP11 as yes if you want to enable C++11 features in GCC or 
+# Define CPP11 as yes if you want to enable C++11 features in GCC or
 # Clang.
 #
 #CPP11     ?= yes
@@ -270,7 +270,7 @@ ICECPPFLAGS		= -I$(slicedir)
 
 SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 
-ifeq ($(ice_dir), /usr) 
+ifeq ($(ice_dir), /usr)
     LDFLAGS		= $(LDPLATFORMFLAGS) $(CXXFLAGS)
 else
     CPPFLAGS	+= -I$(includedir)
@@ -294,7 +294,7 @@ else
 endif
 
 ifeq ($(mkshlib),)
-    $(error You need to define mkshlib in Make.rules.$(UNAME)) 
+    $(error You need to define mkshlib in Make.rules.$(UNAME))
 endif
 
 ifeq ($(mktestname),)
@@ -316,7 +316,11 @@ else
 endif
 
 ifeq ($(SLICE_LIBS),)
-    SLICE_LIBS		= -lSlice $(BASELIBS)
+    ifeq ($(STATICLIBS),yes)
+        SLICE_LIBS = -lSlice -lmcpp $(BASELIBS)
+    else
+        SLICE_LIBS = -lSlice $(BASELIBS)
+    endif
 endif
 
 ifeq ($(ICESSL_LIBS),)
@@ -352,7 +356,7 @@ $(HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 
 %.h %.cpp: %.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	rm -f $(*F).h $(*F).cpp
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(*F).ice	
+	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(*F).ice
 
 %.h %.cpp: %.y
 	rm -f $(*F).h $(*F).cpp

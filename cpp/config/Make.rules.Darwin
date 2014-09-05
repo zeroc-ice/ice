@@ -24,7 +24,7 @@ ifeq ($(OPTIMIZE),yes)
      #
      ifeq ($(CXXARCHFLAGS),)
      	CXXARCHFLAGS	:= -arch i386 -arch x86_64
-     endif   
+     endif
      CXXFLAGS		:= $(CXXARCHFLAGS) -O2 -DNDEBUG $(CXXFLAGS)
 else
      CXXFLAGS		:= $(CXXARCHFLAGS) -g $(CXXFLAGS)
@@ -63,12 +63,18 @@ endif
 mklibfilename       	= $(if $(2),lib$(1).$(2).dylib,lib$(1).dylib)
 mksoname           	= $(if $(2),lib$(1).$(2).dylib,lib$(1).dylib)
 
-mklibname           	= lib$(1).dylib
+ifeq ($(STATICLIBS),yes)
+    mklibname   = lib$(1).a
+else
+    mklibname   = lib$(1).dylib
+endif
+mklib           = libtool -static -o $(1) $(2)
+
 curdir			= $(shell pwd)
 
 mkshlib     = $(CXX)  -dynamiclib $(shlibldflags) -o $(1) -install_name @rpath/$(2) $(3) $(4)
 
-BASELIBS		= -lIceUtil 
+BASELIBS		= -lIceUtil
 LIBS			= -lIce $(BASELIBS)
 
 ICONV_LIB               = -liconv

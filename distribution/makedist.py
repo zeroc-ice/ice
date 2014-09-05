@@ -25,7 +25,7 @@ excludeFiles = [ \
 
 #
 # Windows files that will be excluded from Unix source distributions.
-# 
+#
 excludeWindowsFiles = [ \
     "/vsaddin/",
     "*.rc",
@@ -51,7 +51,7 @@ excludeWindowsFiles = [ \
 
 #
 # Unix files that will be excluded from Windows source distributions.
-# 
+#
 # Don't remove C++ source Makefile from the Windows distribution since
 # the mingw build requires it.
 #
@@ -71,7 +71,7 @@ for l in ["/java", "/py", "/php", "/cs", "/cpp/demo"]:
     ]
 
 #
-# Files from the top-level, cpp, java, cs and js config directories to include in the demo 
+# Files from the top-level, cpp, java, cs and js config directories to include in the demo
 # source distribution config directory.
 #
 demoConfigFiles = [ \
@@ -204,12 +204,12 @@ def createDistfilesDist(platform, whichDestDir):
     if platform == "UNIX":
         fixVersion(os.path.join("src", "rpm", "icegridregistry.conf"), *versions)
         fixVersion(os.path.join("src", "rpm", "RPM_README"), *versions)
-        
+
         for root, dirnames, filenames in os.walk('src/deb'):
             for f in filenames:
                 fixVersion(os.path.join(root, f), *versions)
-        
-        
+
+
         for root, dirnames, filenames in os.walk('src/deb/all/debian'):
             for f in filenames:
                 fixVersion(os.path.join(root, f), *versions)
@@ -229,7 +229,7 @@ def createDistfilesDist(platform, whichDestDir):
             if fnmatch.fnmatch(f, "README*"):
                 fixVersion(filepath, *versions)
             fixFilePermission(filepath, verbose)
-            
+
         for d in dirnames:
             os.chmod(os.path.join(root, d), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) # rwxr-xr-x
 
@@ -251,13 +251,13 @@ def createSourceDist(platform, destDir):
 
     print "Creating " + platform + " git archive using " + tag + "...",
     sys.stdout.flush()
-    os.system("git archive --worktree-attributes --prefix=" + prefix + "/ " + tag + 
+    os.system("git archive --worktree-attributes --prefix=" + prefix + "/ " + tag +
               " | ( cd " + destDir + " && tar xfm - )")
     print "ok"
 
     print "Walking through distribution to fix permissions, versions, etc...",
     sys.stdout.flush()
-    
+
     current = os.getcwd()
     os.chdir(os.path.join(destDir, prefix))
 
@@ -273,7 +273,7 @@ def createSourceDist(platform, destDir):
 
     for root, dirnames, filenames in os.walk('.'):
         for f in filenames:
-            filepath = os.path.join(root, f) 
+            filepath = os.path.join(root, f)
             if f == "expect.py":
                 move(filepath, os.path.join(distDir, demoscriptDir, filepath))
                 continue
@@ -285,7 +285,7 @@ def createSourceDist(platform, destDir):
                 checkBisonVersion(filepath)
             elif f == "Scanner.cpp":
                 checkFlexVersion(filepath)
-                
+
             if platform == "Windows":
                 for name in ["README", "CHANGES", "LICENSE", "ICE_LICENSE", "RELEASE_NOTES"]:
                     if fnmatch.fnmatch(f, name) and not fnmatch.fnmatch(f, name + ".txt"):
@@ -370,12 +370,12 @@ def fixGitAttributes(checkout, autocrlf, excludes):
     oldFile.close()
     os.remove(origfile)
 
-###### UNIX distfiles 
+###### UNIX distfiles
 excludeForDistFiles = [ "fixCopyright.py", "fixVersion.py", "makedist.py" ]
 fixGitAttributes(True, False, excludeForDistFiles)
 createDistfilesDist("UNIX", distFilesDir)
 
-###### Windows distfiles 
+###### Windows distfiles
 fixGitAttributes(False, True, []) # No copy this time. Use the same .gitattributes file as the UNIX distfiles dist
 createDistfilesDist("Windows", winDistFilesDir)
 
@@ -429,7 +429,7 @@ for d in os.listdir('.'):
 
 copy(os.path.join(srcDir, "js", "bin"), os.path.join(demoDir, "demojs", "bin"))
 copy(os.path.join(srcDir, "js", "assets"), os.path.join(demoDir, "demojs", "assets"))
-copy(os.path.join(srcDir, "js", "node_modules", "http-proxy"), 
+copy(os.path.join(srcDir, "js", "node_modules", "http-proxy"),
      os.path.join(demoDir, "demojs", "node_modules", "http-proxy"));
 
 FixUtil.fileMatchAndReplace(os.path.join(demoDir, "demojs", "assets", "Makefile"),
@@ -472,7 +472,7 @@ for sd in os.listdir(winSrcDir):
 
 copy(os.path.join(winSrcDir, "js", "bin"), os.path.join(winDemoDir, "demojs", "bin"))
 copy(os.path.join(winSrcDir, "js", "assets"), os.path.join(winDemoDir, "demojs", "assets"))
-copy(os.path.join(winSrcDir, "js", "node_modules", "http-proxy"), 
+copy(os.path.join(winSrcDir, "js", "node_modules", "http-proxy"),
      os.path.join(winDemoDir, "demojs", "node_modules", "http-proxy"));
 
 for f in ["common.min.js", "common.min.js.gz", "common.css", "common.css.gz"]:
@@ -488,7 +488,7 @@ rmFiles = []
 
 projectSubstituteExprs = [(re.compile(re.escape('"README"')), '"README.txt"'),
                           (re.compile(re.escape("PublicKeyToken=1f998c50fec78381")), "PublicKeyToken=cdd571ade22f2f16"),
-                          (re.compile(re.escape("..\\..\\..\\..\\..\\certs\\winrt\\cacert.pem")), 
+                          (re.compile(re.escape("..\\..\\..\\..\\..\\certs\\winrt\\cacert.pem")),
                            "..\\..\\..\\..\\certs\\winrt\\cacert.pem")]
 
 for root, dirnames, filesnames in os.walk(winDemoDir):
@@ -506,7 +506,7 @@ for root, dirnames, filesnames in os.walk(winDemoDir):
         for m in [ "Makefile", ".depend", "*.exe.config" ]:
             if fnmatch.fnmatch(f, m):
                 rmFiles.append(os.path.join(root[len(winDemoDir) + 1:], f))
-        
+
 for d in ["democs", "demovb"]:
     for root, dirnames, filesnames in os.walk(os.path.join(winDemoDir, d)):
         for f in filesnames:
@@ -546,7 +546,7 @@ copy(os.path.join(distFilesDir, "src", "deb", "DEB_README"), \
 
 #
 # Everything should be clean now, we can create the source distributions archives
-# 
+#
 print "Archiving..."
 sys.stdout.flush()
 os.chdir(distDir)
@@ -558,7 +558,7 @@ move(os.path.join(distDir, "ice" + mmversion + "-" + version + ".tar.gz"), \
 
 for (dir, archiveDir) in [(demoscriptDir, "Ice-" + version + "-demos")]:
     tarArchive(dir, verbose, archiveDir)
-    
+
 for (dir, archiveDir) in [(demoscriptDir, "Ice-" + version + "-demos")]:
     zipArchive(dir, verbose, archiveDir)
 
@@ -577,8 +577,8 @@ os.rename(os.path.join(distDir, "demos.zip"), os.path.join(distDir, "Ice-" + ver
 #
 # Write source distribution report in README file.
 #
-writeSrcDistReport("Ice", version, tag, compareToDir, 
-                   [(srcDir + ".tar.gz", srcDir), 
+writeSrcDistReport("Ice", version, tag, compareToDir,
+                   [(srcDir + ".tar.gz", srcDir),
                     (demoDir + ".tar.gz", demoDir),
                     (rpmBuildDir + ".tar.gz", rpmBuildDir),
                     ("ice" + mmversion + "_" + version + ".orig.tar.gz", debSrcDir),

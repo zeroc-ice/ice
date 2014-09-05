@@ -1,0 +1,26 @@
+{
+  "name": "icejs",
+  "version": "3.5.1",
+  "main": "index.js",
+  "bin": {
+    "slice2js": "bin/cli.js"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "postinstall": "node installSlice2js.js",
+    "test": "slice2js --version"
+  },
+  "keywords": [
+    "Ice",
+    "IceJS"
+  ],
+  "slice2js": "3.5.1",
+  "author": "Zeroc, Inc.",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "license": "GPL 2.0"
+}

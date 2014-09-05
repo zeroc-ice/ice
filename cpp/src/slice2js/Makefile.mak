@@ -30,7 +30,7 @@ PDBFLAGS        = /pdb:$(NAME:.exe=.pdb)
 RES_FILE        = Slice2Js.res
 
 $(NAME): $(OBJS) Slice2Js.res
-	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)slice$(LIBSUFFIX).lib \
+	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(SETARGV) $(PREOUT)$@ $(SLICE_LIBS) 	 \
 		$(BASELIBS) $(RES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
