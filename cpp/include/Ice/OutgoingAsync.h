@@ -113,6 +113,7 @@ public:
     bool __wait();
     void __throwUserException();
     virtual void __invokeExceptionAsync(const Exception&);
+    void __invokeCompleted();
 
     static void __check(const AsyncResultPtr&, const ::IceProxy::Ice::Object*, const ::std::string&);
     static void __check(const AsyncResultPtr&, const Connection*, const ::std::string&);
@@ -143,7 +144,6 @@ protected:
                 const IceInternal::CallbackBasePtr&, const LocalObjectPtr&);
 
     void __invokeSentAsync();
-    void __invokeCompleted();
 
     void runTimerTask(); // Implementation of TimerTask::runTimerTask()
 
@@ -257,7 +257,7 @@ public:
     virtual void __finished(const Ice::Exception&);
     virtual void __invokeExceptionAsync(const Ice::Exception&);
 
-    void __finished();
+    bool __finished();
     bool __invoke(bool);
 
     BasicStream* __startWriteParams(Ice::FormatType format)
@@ -297,7 +297,7 @@ protected:
 
 private:
 
-    bool handleException(const Ice::Exception&);
+    void handleException(const Ice::Exception&);
 
     RequestHandlerPtr _handler;
     Ice::EncodingVersion _encoding;

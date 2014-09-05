@@ -982,6 +982,11 @@ namespace IceInternal
             base.invokeSent(cb);
         }
 
+        public new void invokeCompleted(Ice.AsyncCallback cb)
+        {
+            base.invokeCompleted(cb);
+        }
+
         public void finished(Ice.Exception exc)
         {
             lock(monitor_)
@@ -1004,15 +1009,9 @@ namespace IceInternal
             // NOTE: at this point, synchronization isn't needed, no other threads should be
             // calling on the callback.
             //
-
             try
             {
-                if(!handleException(exc))
-                {
-                    return; // Can't be retried immediately.
-                }
-            
-                invoke(false); // Retry the invocation
+                handleException(exc);
             }
             catch(Ice.Exception ex)
             {
@@ -1030,12 +1029,11 @@ namespace IceInternal
             }, connection);
         }
 
-        public void finished()
+        public Ice.AsyncCallback finished()
         {
             Debug.Assert(proxy_.ice_isTwoway()); // Can only be called for twoways.
 
             byte replyStatus;
-            Ice.AsyncCallback cb = null;
             try
             {
                 lock(monitor_)
@@ -1185,18 +1183,58 @@ namespace IceInternal
                     {
                         state_ |= StateOK;
                     }
-                    cb = completedCallback_;
                     System.Threading.Monitor.PulseAll(monitor_);
+
+                    if(completedCallback_ == null)
+                    {
+                        if(observer_ != null)
+                        {
+                            observer_.detach();
+                            observer_ = null;
+                        }
+                        return null;
+                    }
+                    return completedCallback_;
                 }
             }
-            catch(Ice.LocalException ex)
+            catch(Ice.LocalException exc)
             {
-                finished(ex);
-                return;
+                //
+                // We don't call finished(exc) here because we don't want
+                // to invoke the completion callback. The completion
+                // callback is invoked by the connection is this method
+                // returns true.
+                //
+                try
+                {
+                    handleException(exc);
+                    return null;
+                }
+                catch(Ice.LocalException ex)
+                {
+                    lock(monitor_)
+                    {
+                        state_ |= StateDone;
+                        exception_ = ex;
+                        if(waitHandle_ != null)
+                        {
+                            waitHandle_.Set();
+                        }
+                        System.Threading.Monitor.PulseAll(monitor_);
+                        
+                        if(completedCallback_ == null)
+                        {
+                            if(observer_ != null)
+                            {
+                                observer_.detach();
+                                observer_ = null;
+                            }
+                            return null;
+                        }
+                        return completedCallback_;
+                    }
+                }
             }
-
-            Debug.Assert(replyStatus == ReplyStatus.replyOK || replyStatus == ReplyStatus.replyUserException);
-            invokeCompleted(cb);
         }
 
         public bool invoke(bool synchronous)
@@ -1250,20 +1288,18 @@ namespace IceInternal
                             }
                         }
                     }
-                    break;
                 }
                 catch(RetryException)
                 {
 
                     proxy_.setRequestHandler__(_handler, null); // Clear request handler and retry.
+                    continue;
                 }
                 catch(Ice.Exception ex)
                 {
-                    if(!handleException(ex)) // This will throw if the invocation can't be retried.
-                    {
-                        break; // Can't be retried immediately.
-                    }
+                    handleException(ex);
                 }
+                break;
             }
             return sentSynchronously_;
         }
@@ -1376,7 +1412,7 @@ namespace IceInternal
             base.invokeExceptionAsync(ex);
         }
 
-        private bool handleException(Ice.Exception exc)
+        private void handleException(Ice.Exception exc)
         {
             try
             {
@@ -1385,15 +1421,16 @@ namespace IceInternal
                 {
                     observer_.retried(); // Invocation is being retried.
                 }
-                if(interval > 0)
-                {
-                    instance_.retryQueue().add(this, interval);
-                    return false; // Don't retry immediately, the retry queue will take care of the retry.
-                }
-                else
-                {
-                    return true; // Retry immediately.
-                }
+
+                //
+                // Schedule the retry. Note that we always schedule the retry
+                // on the retry queue even if the invocation can be retried
+                // immediately. This is required because it might not be safe
+                // to retry from this thread (this is for instance called by
+                // finished(BasicStream) which is called with the connection
+                // locked.
+                //
+                instance_.retryQueue().add(this, interval);
             }
             catch(Ice.Exception ex)
             {
@@ -1463,7 +1500,6 @@ namespace IceInternal
                     return this;
                 }
             }
-
 
             instance_.clientThreadPool().dispatch(() =>
             {

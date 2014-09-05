@@ -268,7 +268,7 @@ private:
 #endif
     IceInternal::SocketOperation parseMessage(IceInternal::BasicStream&, Int&, Int&, Byte&,
                                               IceInternal::ServantManagerPtr&, ObjectAdapterPtr&, 
-                                              IceInternal::OutgoingAsyncPtr&, ConnectionCallbackPtr&);
+                                              IceInternal::OutgoingAsyncPtr&, ConnectionCallbackPtr&, int&);
     void invokeAll(IceInternal::BasicStream&, Int, Int, Byte,
                    const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&);
 

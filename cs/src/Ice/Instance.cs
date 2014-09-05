@@ -1083,6 +1083,7 @@ namespace IceInternal
             ThreadPool serverThreadPool = null;
             ThreadPool clientThreadPool = null;
             AsyncIOThread asyncIOThread = null;
+            IceInternal.Timer timer = null;
 
 #if !SILVERLIGHT
             EndpointHostResolver endpointHostResolver = null;
@@ -1125,7 +1126,7 @@ namespace IceInternal
 
                 if(_timer != null)
                 {
-                    _timer.destroy();
+                    timer = _timer;
                     _timer = null;
                 }
 
@@ -1176,6 +1177,10 @@ namespace IceInternal
             //
             // Join with threads outside the synchronization.
             //
+            if(timer != null)
+            {
+                timer.destroy();
+            }
             if(clientThreadPool != null)
             {
                 clientThreadPool.joinWithAllThreads();

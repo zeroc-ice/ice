@@ -456,7 +456,7 @@ public class AsyncResultI implements Ice.AsyncResult
     {
     }
     
-    protected final void invokeCompleted()
+    public final void invokeCompleted()
     {
         //
         // Note: no need to change the _state here, specializations are responsible for

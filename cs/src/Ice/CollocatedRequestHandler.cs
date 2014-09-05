@@ -216,7 +216,11 @@ namespace IceInternal
 
             if(outAsync != null)
             {
-                outAsync.finished();
+                Ice.AsyncCallback cb = outAsync.finished();
+                if(cb != null)
+                {
+                    outAsync.invokeCompleted(cb);
+                }
             }
             _adapter.decDirectCount();
         }

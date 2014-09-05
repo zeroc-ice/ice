@@ -527,9 +527,9 @@ CollocatedRequestHandler::sendResponse(Int requestId, BasicStream* os, Byte)
         }
     }
 
-    if(outAsync)
+    if(outAsync && outAsync->__finished())
     {
-        outAsync->__finished();
+        outAsync->__invokeCompleted();
     }
     _adapter->decDirectCount();
 }

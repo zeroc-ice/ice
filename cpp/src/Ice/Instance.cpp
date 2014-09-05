@@ -1531,6 +1531,7 @@ IceInternal::Instance::destroy()
     ThreadPoolPtr serverThreadPool;
     ThreadPoolPtr clientThreadPool;
     EndpointHostResolverPtr endpointHostResolver;
+    IceUtil::TimerPtr timer;
     {
         IceUtil::RecMutex::Lock sync(*this);
 
@@ -1557,8 +1558,7 @@ IceInternal::Instance::destroy()
 
         if(_timer)
         {
-            _timer->destroy();
-            _timer = 0;
+            std::swap(_timer, timer);
         }
 
         if(_servantFactoryManager)
@@ -1610,6 +1610,10 @@ IceInternal::Instance::destroy()
     //
     // Join with the thread pool threads outside the synchronization.
     //
+    if(timer)
+    {
+        timer->destroy();
+    }
     if(clientThreadPool)
     {
         clientThreadPool->joinWithAllThreads();

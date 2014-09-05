@@ -608,12 +608,7 @@ IceInternal::OutgoingAsync::__finished(const Ice::Exception& exc)
     //
     try
     {
-        if(!handleException(exc)) // This will throw if the invocation can't be retried.
-        {
-            return; // Can't be retried immediately.
-        }
-
-        __invoke(false); // Retry the invocation
+        handleException(exc);
     }
     catch(const Ice::Exception& ex)
     {
@@ -640,9 +635,14 @@ IceInternal::OutgoingAsync::__invokeExceptionAsync(const Ice::Exception& ex)
     AsyncResult::__invokeExceptionAsync(ex);
 }
 
-void
+bool
 IceInternal::OutgoingAsync::__finished()
 {
+    //
+    // NOTE: this method is called from ConnectionI.parseMessage
+    // with the connection locked. Therefore, it must not invoke
+    // any user callbacks.
+    //
     assert(_proxy->ice_isTwoway()); // Can only be called for twoways.
 
     Ice::Byte replyStatus;
@@ -789,15 +789,43 @@ IceInternal::OutgoingAsync::__finished()
             _state |= OK;
         }
         _monitor.notifyAll();
-    }
-    catch(const LocalException& ex)
-    {
-        __finished(ex);
-        return;
-    }
 
-    assert(replyStatus == replyOK || replyStatus == replyUserException);
-    __invokeCompleted();
+        if(!_callback)
+        {
+            _observer.detach();
+            return false;
+        }
+        return true;
+    }
+    catch(const LocalException& exc)
+    {
+        //
+        // We don't call finished(exc) here because we don't want
+        // to invoke the completion callback. The completion
+        // callback is invoked by the connection is this method
+        // returns true.
+        //
+        try
+        {
+            handleException(exc);
+            return false; // Invocation will be retried.
+        }
+        catch(const Ice::Exception& ex)
+        {
+            IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+            _state |= Done;
+            _os.resize(0); // Clear buffer now, instead of waiting for AsyncResult deallocation
+            _exception.reset(ex.ice_clone());
+            _monitor.notifyAll();
+
+            if(!_callback)
+            {
+                _observer.detach();
+                return false;
+            }
+            return true;
+        }
+    }
 }
 
 bool
@@ -851,39 +879,38 @@ IceInternal::OutgoingAsync::__invoke(bool synchronous)
                     }
                 }
             }
-            break;
         }
         catch(const RetryException&)
         {
             _proxy->__setRequestHandler(_handler, 0); // Clear request handler and retry.
+            continue;
         }
         catch(const Ice::Exception& ex)
         {
-            if(!handleException(ex)) // This will throw if the invocation can't be retried.
-            {
-                break; // Can't be retried immediately.
-            }
+            handleException(ex);
         }
+        break;
     }
     return _sentSynchronously;
 }
 
-bool
+void
 IceInternal::OutgoingAsync::handleException(const Ice::Exception& exc)
 {
     try
     {
         int interval = _proxy->__handleException(exc, _handler, _mode, _sent, _cnt);
         _observer.retried(); // Invocation is being retried.
-        if(interval > 0)
-        {
-            _instance->retryQueue()->add(this, interval);
-            return false; // Don't retry immediately, the retry queue will take care of the retry.
-        }
-        else
-        {
-            return true; // Retry immediately.
-        }
+        
+        //
+        // Schedule the retry. Note that we always schedule the retry
+        // on the retry queue even if the invocation can be retried
+        // immediately. This is required because it might not be safe
+        // to retry from this thread (this is for instance called by
+        // finished(BasicStream) which is called with the connection
+        // locked.
+        //
+        _instance->retryQueue()->add(this, interval);
     }
     catch(const Ice::Exception& ex)
     {

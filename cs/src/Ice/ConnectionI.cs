@@ -1073,6 +1073,7 @@ namespace Ice
             StartCallback startCB = null;
             Queue<OutgoingMessage> sentCBs = null;
             MessageInfo info = new MessageInfo();
+            int dispatchCount = 0;
 
             IceInternal.ThreadPoolMessage msg = new IceInternal.ThreadPoolMessage(this);
             lock(this)
@@ -1234,7 +1235,7 @@ namespace Ice
                             _startCallback = null;
                             if(startCB != null)
                             {
-                                ++_dispatchCount;
+                                ++dispatchCount;
                             }
                         }
                     }
@@ -1249,19 +1250,15 @@ namespace Ice
                         if((readyOp & IceInternal.SocketOperation.Read) != 0)
                         {
                             newOp |= parseMessage(ref info);
+                            dispatchCount += info.messageDispatchCount;
                         }
 
                         if((readyOp & IceInternal.SocketOperation.Write) != 0)
                         {
-                            sentCBs = new Queue<OutgoingMessage>();
-                            newOp |= sendNextMessage(sentCBs);
-                            if(sentCBs.Count > 0)
+                            newOp |= sendNextMessage(out sentCBs);
+                            if(sentCBs != null)
                             {
-                                ++_dispatchCount;
-                            }
-                            else
-                            {
-                                sentCBs = null;
+                                ++dispatchCount;
                             }
                         }
 
@@ -1273,11 +1270,24 @@ namespace Ice
 
                         if(readyOp == 0)
                         {
+                            Debug.Assert(dispatchCount == 0);
                             return;
                         }
-
-                        msg.completed(ref current);
                     }
+
+                    if(_acmLastActivity > 0)
+                    {
+                        _acmLastActivity = IceInternal.Time.currentMonotonicTimeMillis();
+                    }
+
+                    if(dispatchCount == 0)
+                    {
+                        return; // Nothing to dispatch we're done!
+                    }
+
+                    _dispatchCount += dispatchCount;
+
+                    msg.completed(ref current);
                 }
                 catch(DatagramLimitException) // Expected.
                 {
@@ -1319,11 +1329,6 @@ namespace Ice
                     msg.finishIOScope(ref current);
                 }
 
-                if(_acmLastActivity > 0)
-                {
-                    _acmLastActivity = IceInternal.Time.currentMonotonicTimeMillis();
-                }
-
                 //
                 // Unlike C++/Java, this method is called from an IO thread of the .NET thread
                 // pool or from the communicator async IO thread. While it's fine to handle the
@@ -1341,7 +1346,7 @@ namespace Ice
 
         private void dispatch(StartCallback startCB, Queue<OutgoingMessage> sentCBs, MessageInfo info)
         {
-            int count = 0;
+            int dispatchedCount = 0;
 
             //
             // Notify the factory that the connection establishment and
@@ -1350,7 +1355,7 @@ namespace Ice
             if(startCB != null)
             {
                 startCB.connectionStartCompleted(this);
-                ++count;
+                ++dispatchedCount;
             }
 
             //
@@ -1366,10 +1371,15 @@ namespace Ice
                     }
                     if(m.receivedReply)
                     {
-                        ((IceInternal.OutgoingAsync)m.outAsync).finished();
+                        IceInternal.OutgoingAsync outAsync = (IceInternal.OutgoingAsync)m.outAsync;
+                        Ice.AsyncCallback cb = outAsync.finished();
+                        if(cb != null)
+                        {
+                            outAsync.invokeCompleted(cb);
+                        }
                     }
                 }
-                ++count;
+                ++dispatchedCount;
             }
 
             //
@@ -1378,8 +1388,8 @@ namespace Ice
             //
             if(info.outAsync != null)
             {
-                info.outAsync.finished();
-                ++count;
+                info.outAsync.invokeCompleted(info.completedCallback);
+                ++dispatchedCount;
             }
 
             if(info.heartbeatCallback != null)
@@ -1392,7 +1402,7 @@ namespace Ice
                 {
                     _logger.error("connection callback exception:\n" + ex + '\n' + _desc);
                 }
-                ++count;
+                ++dispatchedCount;
             }
 
             //
@@ -1406,7 +1416,7 @@ namespace Ice
                           info.adapter);
 
                 //
-                // Don't increase count, the dispatch count is
+                // Don't increase dispatchedCount, the dispatch count is
                 // decreased when the incoming reply is sent.
                 //
             }
@@ -1414,11 +1424,11 @@ namespace Ice
             //
             // Decrease dispatch count.
             //
-            if(count > 0)
+            if(dispatchedCount > 0)
             {
                 lock(this)
                 {
-                    _dispatchCount -= count;
+                    _dispatchCount -= dispatchedCount;
                     if(_dispatchCount == 0)
                     {
                         //
@@ -1508,7 +1518,12 @@ namespace Ice
                         }
                         if(message.receivedReply)
                         {
-                            ((IceInternal.OutgoingAsync)message.outAsync).finished();
+                            IceInternal.OutgoingAsync outAsync = (IceInternal.OutgoingAsync)message.outAsync;
+                            Ice.AsyncCallback cb = outAsync.finished();
+                            if(cb != null)
+                            {
+                                outAsync.invokeCompleted(cb);
+                            }
                         }
                         _sendStreams.RemoveFirst();
                     }
@@ -2179,8 +2194,10 @@ namespace Ice
             return true;
         }
 
-        private int sendNextMessage(Queue<OutgoingMessage> callbacks)
+        private int sendNextMessage(out Queue<OutgoingMessage> callbacks)
         {
+            callbacks = null;
+
             if(_sendStreams.Count == 0)
             {
                 return IceInternal.SocketOperation.None;
@@ -2205,6 +2222,10 @@ namespace Ice
                     _writeStream.swap(message.stream);
                     if(message.sent())
                     {
+                        if(callbacks == null)
+                        {
+                            callbacks = new Queue<OutgoingMessage>();
+                        }
                         callbacks.Enqueue(message);
                     }
                     _sendStreams.RemoveFirst();
@@ -2270,27 +2291,25 @@ namespace Ice
                         observerFinishWrite(_writeStream.getBuffer());
                     }
                 }
+
+                //
+                // If all the messages were sent and we are in the closing state, we schedule
+                // the close timeout to wait for the peer to close the connection.
+                //
+                if(_state == StateClosing && _shutdownInitiated)
+                {
+                    setState(StateClosingPending);
+                    int op = _transceiver.closing(true, _exception);
+                    if(op != 0)
+                    {
+                        return op;
+                    }
+                }
             }
             catch(Ice.LocalException ex)
             {
                 setState(StateClosed, ex);
-                return IceInternal.SocketOperation.None;
             }
-
-            //
-            // If all the messages were sent and we are in the closing state, we schedule
-            // the close timeout to wait for the peer to close the connection.
-            //
-            if(_state == StateClosing && _dispatchCount == 0)
-            {
-                setState(StateClosingPending);
-                int op = _transceiver.closing(true, _exception);
-                if(op != 0)
-                {
-                    return op;
-                }
-            }
-
             return IceInternal.SocketOperation.None;
         }
 
@@ -2419,7 +2438,9 @@ namespace Ice
             public IceInternal.ServantManager servantManager;
             public ObjectAdapter adapter;
             public IceInternal.OutgoingAsync outAsync;
+            public Ice.AsyncCallback completedCallback;
             public ConnectionCallback heartbeatCallback;
+            public int messageDispatchCount;
         }
 
         private int parseMessage(ref MessageInfo info)
@@ -2509,7 +2530,7 @@ namespace Ice
                             info.invokeNum = 1;
                             info.servantManager = _servantManager;
                             info.adapter = _adapter;
-                            ++_dispatchCount;
+                            ++info.messageDispatchCount;
                         }
                         break;
                     }
@@ -2533,7 +2554,7 @@ namespace Ice
                             }
                             info.servantManager = _servantManager;
                             info.adapter = _adapter;
-                            _dispatchCount += info.invokeNum;
+                            info.messageDispatchCount += info.invokeNum;
                         }
                         break;
                     }
@@ -2542,11 +2563,12 @@ namespace Ice
                     {
                         IceInternal.TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
                         info.requestId = info.stream.readInt();
-                        if(_asyncRequests.TryGetValue(info.requestId, out info.outAsync))
+                        IceInternal.OutgoingAsync outAsync = null;
+                        if(_asyncRequests.TryGetValue(info.requestId, out outAsync))
                         {
                             _asyncRequests.Remove(info.requestId);
 
-                            info.outAsync.istr__.swap(info.stream);
+                            outAsync.istr__.swap(info.stream);
 
                             //
                             // If we just received the reply for a request which isn't acknowledge as 
@@ -2554,14 +2576,18 @@ namespace Ice
                             // will be processed once the write callback is invoked for the message.
                             //
                             OutgoingMessage message = _sendStreams.Count > 0 ? _sendStreams.First.Value : null;
-                            if(message != null && message.outAsync == info.outAsync)
+                            if(message != null && message.outAsync == outAsync)
                             {
                                 message.receivedReply = true;
-                                info.outAsync = null;
                             }
                             else
                             {
-                                ++_dispatchCount;
+                                info.completedCallback = outAsync.finished();
+                                if(info.completedCallback != null)
+                                {
+                                    info.outAsync = outAsync;
+                                    ++info.messageDispatchCount;
+                                }
                             }
                             System.Threading.Monitor.PulseAll(this); // Notify threads blocked in close(false)
                         }
@@ -2574,7 +2600,7 @@ namespace Ice
                         if(_callback != null)
                         {
                             info.heartbeatCallback = _callback;
-                            ++_dispatchCount;
+                            ++info.messageDispatchCount;
                         }
                         break;
                     }

@@ -227,16 +227,12 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
                 TraceUtil.traceRecv(os, _logger, _traceLevels);
             }
 
-            outAsync = _asyncRequests.get(requestId);
-            if(outAsync != null)
-            {
-                _asyncRequests.remove(requestId);
-            }
+            outAsync = _asyncRequests.remove(requestId);
         }
 
-        if(outAsync != null)
+        if(outAsync != null && outAsync.finished(os))
         {
-            outAsync.finished(os);
+            outAsync.invokeCompleted();
         }
         _adapter.decDirectCount();
     }
@@ -500,13 +496,8 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         OutgoingAsync outAsync = null;
         synchronized(this)
         {
-            outAsync = _asyncRequests.get(requestId);
-            if(outAsync != null)
-            {
-                _asyncRequests.remove(requestId);
-            }
+            outAsync = _asyncRequests.remove(requestId);
         }
-
         if(outAsync != null)
         {
             outAsync.finished(ex);
