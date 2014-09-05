@@ -127,7 +127,7 @@ namespace IceInternal
                 return SocketOperation.None;
             }
 
-#if COMPACT || SILVERLIGHT || true
+#if COMPACT || SILVERLIGHT
             if(_writeResult != null)
             {
                 return SocketOperation.None;
@@ -139,12 +139,6 @@ namespace IceInternal
             //
             return SocketOperation.Write;
 #else
-            int packetSize = buf.b.remaining();
-            if(packetSize == 0)
-            {
-                return SocketOperation.None;
-            }
-
             if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
             {
                 //
