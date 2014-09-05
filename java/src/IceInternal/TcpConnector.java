@@ -14,30 +14,12 @@ final class TcpConnector implements Connector
     @Override
     public Transceiver connect()
     {
-        if(_instance.traceLevel() >= 2)
-        {
-            String s = "trying to establish " + _instance.protocol() + " connection to " + toString();
-            _instance.logger().trace(_instance.traceCategory(), s);
-        }
-
-        try
-        {
-            java.nio.channels.SocketChannel fd = Network.createTcpSocket();
-            Network.setBlock(fd, false);
-            Network.setTcpBufSize(fd, _instance.properties(), _instance.logger());
-            final java.net.InetSocketAddress addr = _proxy != null ? _proxy.getAddress() : _addr;
-            Network.doConnect(fd, addr, _sourceAddr);
-            return new TcpTransceiver(_instance, fd, _proxy, _addr);
-        }
-        catch(Ice.LocalException ex)
-        {
-            if(_instance.traceLevel() >= 2)
-            {
-                String s = "failed to establish " + _instance.protocol() + " connection to " + toString() + "\n" + ex;
-                _instance.logger().trace(_instance.traceCategory(), s);
-            }
-            throw ex;
-        }
+        java.nio.channels.SocketChannel fd = Network.createTcpSocket();
+        Network.setBlock(fd, false);
+        Network.setTcpBufSize(fd, _instance.properties(), _instance.logger());
+        final java.net.InetSocketAddress addr = _proxy != null ? _proxy.getAddress() : _addr;
+        Network.doConnect(fd, addr, _sourceAddr);
+        return new TcpTransceiver(_instance, fd, _proxy, _addr);
     }
 
     @Override

@@ -146,30 +146,37 @@ namespace IceSSL
 
         //
         // Return a server side transceiver for this endpoint, or null if a
-        // transceiver can only be created by an acceptor. In case a
-        // transceiver is created, this operation also returns a new
-        // "effective" endpoint, which might differ from this endpoint,
-        // for example, if a dynamic port number is assigned.
+        // transceiver can only be created by an acceptor.
         //
-        public override IceInternal.Transceiver transceiver(ref IceInternal.EndpointI endpoint)
+        public override IceInternal.Transceiver transceiver()
         {
-            endpoint = this;
             return null;
         }
 
         //
         // Return an acceptor for this endpoint, or null if no acceptor
-        // is available. In case an acceptor is created, this operation
-        // also returns a new "effective" endpoint, which might differ
-        // from this endpoint, for example, if a dynamic port number is
-        // assigned.
+        // is available.
         //
-        public override IceInternal.Acceptor acceptor(ref IceInternal.EndpointI endpoint, string adapterName)
+        public override IceInternal.Acceptor acceptor(string adapterName)
         {
-            AcceptorI p = new AcceptorI(_instance, adapterName, host_, port_);
-            endpoint =
-                new EndpointI(_instance, host_, p.effectivePort(), sourceAddr_, _timeout, connectionId_, _compress);
-            return p;
+            return new AcceptorI(_instance, adapterName, host_, port_);
+        }
+
+        //
+        // Return (potentially) new endpoint based on info from associated
+        // Transceiver or Acceptor, which might differ from this endpoint,
+        // for example, if a dynamic port number was assigned.
+        //
+        public override IceInternal.EndpointI endpoint(IceInternal.Transceiver transceiver)
+        {
+            return this;
+        }
+
+        public override IceInternal.EndpointI endpoint(IceInternal.Acceptor acceptor)
+        {
+            Debug.Assert(acceptor is AcceptorI);
+            AcceptorI p = (AcceptorI)acceptor;
+            return new EndpointI(_instance, host_, p.effectivePort(), sourceAddr_, _timeout, connectionId_, _compress);
         }
 
         public override string options()

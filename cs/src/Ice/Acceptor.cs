@@ -16,12 +16,13 @@ namespace IceInternal
     public interface Acceptor
     {
         void close();
-        void listen();
+        EndpointI listen(EndpointI endp);
         bool startAccept(AsyncCallback callback, object state);
         void finishAccept();
         Transceiver accept();
         string protocol();
         string ToString();
+        string toDetailedString();
     }
 
 }

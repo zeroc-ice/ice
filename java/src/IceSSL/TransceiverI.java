@@ -25,100 +25,86 @@ final class TransceiverI implements IceInternal.Transceiver
     @Override
     public int initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer, Ice.Holder<Boolean> moreData)
     {
-        try
+        if(_state == StateNeedConnect)
         {
-            if(_state == StateNeedConnect)
-            {
-                _state = StateConnectPending;
-                return IceInternal.SocketOperation.Connect;
-            }
-            else if(_state <= StateConnectPending)
-            {
-                IceInternal.Network.doFinishConnect(_fd);
-                _desc = IceInternal.Network.fdToString(_fd, _proxy, _addr);
+            _state = StateConnectPending;
+            return IceInternal.SocketOperation.Connect;
+        }
+        else if(_state <= StateConnectPending)
+        {
+            IceInternal.Network.doFinishConnect(_fd);
+            _desc = IceInternal.Network.fdToString(_fd, _proxy, _addr);
 
-                if(_proxy != null)
+            if(_proxy != null)
+            {
+                //
+                // Prepare the read & write buffers in advance.
+                //
+                _proxy.beginWriteConnectRequest(_addr, writeBuffer);
+                _proxy.beginReadConnectRequestResponse(readBuffer);
+
+                //
+                // Write the proxy connection message.
+                //
+                if(writeRaw(writeBuffer))
                 {
                     //
-                    // Prepare the read & write buffers in advance.
+                    // Write completed without blocking.
                     //
-                    _proxy.beginWriteConnectRequest(_addr, writeBuffer);
-                    _proxy.beginReadConnectRequestResponse(readBuffer);
+                    _proxy.endWriteConnectRequest(writeBuffer);
 
                     //
-                    // Write the proxy connection message.
+                    // Try to read the response.
                     //
-                    if(writeRaw(writeBuffer))
+                    if(readRaw(readBuffer))
                     {
                         //
-                        // Write completed without blocking.
+                        // Read completed without blocking - fall through.
                         //
-                        _proxy.endWriteConnectRequest(writeBuffer);
-
-                        //
-                        // Try to read the response.
-                        //
-                        if(readRaw(readBuffer))
-                        {
-                            //
-                            // Read completed without blocking - fall through.
-                            //
-                            _proxy.endReadConnectRequestResponse(readBuffer);
-                        }
-                        else
-                        {
-                            //
-                            // Return SocketOperationRead to indicate we need to complete the read.
-                            //
-                            _state = StateProxyConnectRequestPending; // Wait for proxy response
-                            return IceInternal.SocketOperation.Read;
-                        }
+                        _proxy.endReadConnectRequestResponse(readBuffer);
                     }
                     else
                     {
                         //
-                        // Return SocketOperationWrite to indicate we need to complete the write.
+                        // Return SocketOperationRead to indicate we need to complete the read.
                         //
-                        _state = StateProxyConnectRequest; // Send proxy connect request
-                        return IceInternal.SocketOperation.Write;
+                        _state = StateProxyConnectRequestPending; // Wait for proxy response
+                        return IceInternal.SocketOperation.Read;
                     }
                 }
-
-                _state = StateConnected;
-            }
-            else if(_state == StateProxyConnectRequest)
-            {
-                //
-                // Write completed.
-                //
-                _proxy.endWriteConnectRequest(writeBuffer);
-                _state = StateProxyConnectRequestPending; // Wait for proxy response
-                return IceInternal.SocketOperation.Read;
-            }
-            else if(_state == StateProxyConnectRequestPending)
-            {
-                //
-                // Read completed.
-                //
-                _proxy.endReadConnectRequestResponse(readBuffer);
-                _state = StateConnected;
+                else
+                {
+                    //
+                    // Return SocketOperationWrite to indicate we need to complete the write.
+                    //
+                    _state = StateProxyConnectRequest; // Send proxy connect request
+                    return IceInternal.SocketOperation.Write;
+                }
             }
 
-            assert(_state == StateConnected);
-
-            return handshakeNonBlocking();
+            _state = StateConnected;
         }
-        catch(Ice.LocalException ex)
+        else if(_state == StateProxyConnectRequest)
         {
-            if(_instance.traceLevel() >= 2)
-            {
-                StringBuilder s = new StringBuilder(128);
-                s.append("failed to establish " + protocol() + " connection\n");
-                s.append(IceInternal.Network.fdToString(_fd, _proxy, _addr));
-                _instance.logger().trace(_instance.traceCategory(), s.toString());
-            }
-            throw ex;
+            //
+            // Write completed.
+            //
+            _proxy.endWriteConnectRequest(writeBuffer);
+            _state = StateProxyConnectRequestPending; // Wait for proxy response
+            return IceInternal.SocketOperation.Read;
         }
+        else if(_state == StateProxyConnectRequestPending)
+        {
+            //
+            // Read completed.
+            //
+            _proxy.endReadConnectRequestResponse(readBuffer);
+            _state = StateConnected;
+        }
+
+        assert(_state == StateConnected);
+
+        return handshakeNonBlocking();
     }
 
     @Override
@@ -132,12 +118,6 @@ final class TransceiverI implements IceInternal.Transceiver
     @Override
     public void close()
     {
-        if(_state == StateHandshakeComplete && _instance.traceLevel() >= 1)
-        {
-            String s = "closing " + protocol() + " connection\n" + toString();
-            _instance.logger().trace(_instance.traceCategory(), s);
-        }
-
         assert(_fd != null);
 
         if(_state >= StateConnected)
@@ -206,6 +186,13 @@ final class TransceiverI implements IceInternal.Transceiver
     }
 
     @Override
+    public IceInternal.EndpointI bind(IceInternal.EndpointI endp)
+    {
+        assert(false);
+        return null;
+    }
+
+    @Override
     public int write(IceInternal.Buffer buf)
     {
         if(_state == StateProxyConnectRequest)
@@ -244,24 +231,11 @@ final class TransceiverI implements IceInternal.Transceiver
             return readRaw(buf) ? IceInternal.SocketOperation.None : IceInternal.SocketOperation.Read;
         }
 
-        int rem = 0;
-        if(_instance.traceLevel() >= 3)
-        {
-            rem = buf.b.remaining();
-        }
-
         //
         // Try to satisfy the request from data we've already decrypted.
         //
         int pos = buf.b.position();
         fill(buf.b);
-
-        if(_instance.traceLevel() >= 3 && buf.b.position() > pos)
-        {
-            String s = "received " + (buf.b.position() - pos) + " of " + rem + " bytes via " + protocol() +
-                "\n" + toString();
-            _instance.logger().trace(_instance.traceCategory(), s);
-        }
 
         //
         // Read and decrypt more data if necessary. Note that we might read
@@ -304,13 +278,6 @@ final class TransceiverI implements IceInternal.Transceiver
 
                 pos = buf.b.position();
                 fill(buf.b);
-
-                if(_instance.traceLevel() >= 3 && buf.b.position() > pos)
-                {
-                    String s = "received " + (buf.b.position() - pos) + " of " + rem + " bytes via " + protocol() +
-                        "\n" + toString();
-                    _instance.logger().trace(_instance.traceCategory(), s);
-                }
             }
         }
         catch(SSLException ex)
@@ -335,6 +302,12 @@ final class TransceiverI implements IceInternal.Transceiver
     public String toString()
     {
         return _desc;
+    }
+
+    @Override
+    public String toDetailedString()
+    {
+        return toString();
     }
 
     @Override
@@ -608,20 +581,6 @@ final class TransceiverI implements IceInternal.Transceiver
         //
         _instance.verifyPeer(getNativeConnectionInfo(), _fd, _host);
 
-        if(_instance.traceLevel() >= 1)
-        {
-            String s;
-            if(_incoming)
-            {
-                s = "accepted " + protocol() + " connection\n" + _desc;
-            }
-            else
-            {
-                s = protocol() + " connection established\n" + _desc;
-            }
-            _instance.logger().trace(_instance.traceCategory(), s);
-        }
-
         if(_instance.securityTraceLevel() >= 1)
         {
             _instance.traceConnection(_fd, _engine, _incoming);
@@ -661,20 +620,6 @@ final class TransceiverI implements IceInternal.Transceiver
                         throw new Ice.ConnectionLostException();
                     case OK:
                         break;
-                    }
-
-                    //
-                    // If the SSL engine consumed any of the application's message buffer,
-                    // then log it.
-                    //
-                    if(result.bytesConsumed() > 0)
-                    {
-                        if(_instance.traceLevel() >= 3)
-                        {
-                            String s = "sent " + result.bytesConsumed() + " of " + rem + " bytes via " +
-                                protocol() + "\n" + toString();
-                            _instance.logger().trace(_instance.traceCategory(), s);
-                        }
                     }
                 }
 
@@ -874,12 +819,6 @@ final class TransceiverI implements IceInternal.Transceiver
                 {
                     return false;
                 }
-
-                if(_instance.traceLevel() >= 3)
-                {
-                    String s = "sent " + ret + " of " + packetSize + " bytes via " + protocol() + "\n" + toString();
-                    _instance.logger().trace(_instance.traceCategory(), s);
-                }
             }
             catch(java.io.InterruptedIOException ex)
             {
@@ -912,16 +851,6 @@ final class TransceiverI implements IceInternal.Transceiver
                 if(ret == 0)
                 {
                     return false;
-                }
-
-                if(ret > 0)
-                {
-                    if(_instance.traceLevel() >= 3)
-                    {
-                        String s = "received " + ret + " of " + packetSize + " bytes via " + protocol() + "\n" +
-                            toString();
-                        _instance.logger().trace(_instance.traceCategory(), s);
-                    }
                 }
 
                 packetSize = buf.b.remaining();

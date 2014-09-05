@@ -36,26 +36,7 @@ IceSSL::ConnectorI::connect()
         ex.reason = "IceSSL: plug-in is not initialized";
         throw ex;
     }
-
-    if(_instance->traceLevel() >= 2)
-    {
-        Trace out(_instance->logger(), _instance->traceCategory());
-        out << "trying to establish " << _instance->protocol() << " connection to " << toString();
-    }
-
-    try
-    {
-        return new TransceiverI(_instance, IceInternal::createSocket(false, _addr), _proxy, _host, _addr, _sourceAddr);
-    }
-    catch(const Ice::LocalException& ex)
-    {
-        if(_instance->traceLevel() >= 2)
-        {
-            Trace out(_instance->logger(), _instance->traceCategory());
-            out << "failed to establish " << _instance->protocol() << " connection to " << toString() << "\n" << ex;
-        }
-        throw;
-    }
+    return new TransceiverI(_instance, IceInternal::createSocket(false, _addr), _proxy, _host, _addr, _sourceAddr);
 }
 
 Short

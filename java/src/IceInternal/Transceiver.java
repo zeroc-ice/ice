@@ -17,12 +17,14 @@ public interface Transceiver
     int closing(boolean initiator, Ice.LocalException ex);
     void close();
 
+    EndpointI bind(EndpointI endp);
     int write(Buffer buf);
     int read(Buffer buf, Ice.Holder<Boolean> moreData);
 
     String protocol();
     @Override
     String toString();
+    String toDetailedString();
     Ice.ConnectionInfo getInfo();
     void checkSendSize(Buffer buf, int messageSizeMax);
 }

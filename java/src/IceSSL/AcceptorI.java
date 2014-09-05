@@ -20,37 +20,17 @@ final class AcceptorI implements IceInternal.Acceptor
     @Override
     public void close()
     {
-        if(_instance.traceLevel() >= 1)
-        {
-            String s = "stopping to accept " + _instance.protocol() + " connections at " + toString();
-            _instance.logger().trace(_instance.traceCategory(), s);
-        }
-
         assert(_fd != null);
         IceInternal.Network.closeSocketNoThrow(_fd);
         _fd = null;
     }
 
     @Override
-    public void listen()
+    public IceInternal.EndpointI listen(IceInternal.EndpointI endp)
     {
-        // Nothing to do.
+        _addr = IceInternal.Network.doBind(_fd, _addr, _backlog);
 
-        if(_instance.traceLevel() >= 1)
-        {
-            StringBuffer s = new StringBuffer("listening for " + _instance.protocol() + " connections at ");
-            s.append(toString());
-
-            java.util.List<String> interfaces =
-                IceInternal.Network.getHostsForEndpointExpand(_addr.getAddress().getHostAddress(),
-                                                              _instance.protocolSupport(), true);
-            if(!interfaces.isEmpty())
-            {
-                s.append("\nlocal interfaces: ");
-                s.append(IceUtilInternal.StringUtil.joinString(interfaces, ", "));
-            }
-            _instance.logger().trace(_instance.traceCategory(), s.toString());
-        }
+        return endp.endpoint(this);
     }
 
     @Override
@@ -83,12 +63,6 @@ final class AcceptorI implements IceInternal.Acceptor
             throw ex;
         }
 
-        if(_instance.traceLevel() >= 1)
-        {
-            _instance.logger().trace(_instance.traceCategory(), "accepting " + _instance.protocol() + " connection\n" +
-                                     IceInternal.Network.fdToString(fd));
-        }
-
         return new TransceiverI(_instance, engine, fd, _adapterName);
     }
 
@@ -102,6 +76,23 @@ final class AcceptorI implements IceInternal.Acceptor
     public String toString()
     {
         return IceInternal.Network.addrToString(_addr);
+    }
+
+    @Override
+    public String toDetailedString()
+    {
+        StringBuffer s = new StringBuffer("local address = ");
+        s.append(toString());
+
+        java.util.List<String> intfs =
+            IceInternal.Network.getHostsForEndpointExpand(_addr.getAddress().getHostAddress(),
+                                                          _instance.protocolSupport(), true);
+        if(!intfs.isEmpty())
+        {
+            s.append("\nlocal interfaces = ");
+            s.append(IceUtilInternal.StringUtil.joinString(intfs, ", "));
+        }
+        return s.toString();
     }
 
     int effectivePort()
@@ -139,12 +130,6 @@ final class AcceptorI implements IceInternal.Acceptor
             }
             _addr = IceInternal.Network.getAddressForServer(host, port, _instance.protocolSupport(),
                                                             _instance.preferIPv6());
-            if(_instance.traceLevel() >= 2)
-            {
-                String s = "attempting to bind to " + _instance.protocol() + " socket " + toString();
-                _instance.logger().trace(_instance.traceCategory(), s);
-            }
-            _addr = IceInternal.Network.doBind(_fd, _addr, _backlog);
         }
         catch(RuntimeException ex)
         {

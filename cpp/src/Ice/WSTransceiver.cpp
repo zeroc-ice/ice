@@ -780,6 +780,12 @@ IceInternal::WSTransceiver::toString() const
     return _delegate->toString();
 }
 
+string
+IceInternal::WSTransceiver::toDetailedString() const
+{
+    return _delegate->toDetailedString();
+}
+
 Ice::ConnectionInfoPtr
 IceInternal::WSTransceiver::getInfo() const
 {

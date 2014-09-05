@@ -36,8 +36,10 @@ public:
     virtual bool datagram() const;
     virtual bool secure() const;
 
-    virtual TransceiverPtr transceiver(EndpointIPtr&) const;
-    virtual AcceptorPtr acceptor(EndpointIPtr&, const std::string&) const;
+    virtual TransceiverPtr transceiver() const;
+    virtual AcceptorPtr acceptor(const std::string&) const;
+    virtual EndpointIPtr endpoint(const TransceiverPtr&) const;
+    virtual EndpointIPtr endpoint(const AcceptorPtr&) const;
     virtual std::string options() const;
 
     virtual bool operator==(const Ice::LocalObject&) const;

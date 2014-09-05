@@ -165,18 +165,28 @@ IceInternal::StreamEndpointI::secure() const
 }
 
 TransceiverPtr
-IceInternal::StreamEndpointI::transceiver(EndpointIPtr& endp) const
+IceInternal::StreamEndpointI::transceiver() const
 {
-    endp = const_cast<StreamEndpointI*>(this);
     return 0;
 }
 
 AcceptorPtr
-IceInternal::StreamEndpointI::acceptor(EndpointIPtr& endp, const string&) const
+IceInternal::StreamEndpointI::acceptor(const string&) const
 {
-    StreamAcceptor* p = new StreamAcceptor(_instance, _host, _port);
-    endp = createEndpoint(_host, p->effectivePort(), _connectionId);
-    return p;
+    return new StreamAcceptor(_instance, _host, _port);
+}
+
+EndpointIPtr
+IceInternal::StreamEndpointI::endpoint(const TransceiverPtr&) const
+{
+    return const_cast<StreamEndpointI*>(this);
+}
+
+EndpointIPtr
+IceInternal::StreamEndpointI::endpoint(const AcceptorPtr& acceptor) const
+{
+    StreamAcceptor* p = dynamic_cast<StreamAcceptor*>(acceptor.get());
+    return createEndpoint(_host, p->effectivePort(), _connectionId);
 }
 
 string

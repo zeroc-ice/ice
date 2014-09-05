@@ -71,6 +71,7 @@ public:
     virtual void finishRead(IceInternal::Buffer&, bool&);
     virtual std::string protocol() const;
     virtual std::string toString() const;
+    virtual std::string toDetailedString() const;
     virtual Ice::ConnectionInfoPtr getInfo() const;
     virtual void checkSendSize(const IceInternal::Buffer&, size_t);
 
@@ -84,19 +85,19 @@ private:
     virtual NativeConnectionInfoPtr getNativeConnectionInfo() const;
 
     IceInternal::SocketOperation sslHandshake();
-    
+
     size_t decryptMessage(IceInternal::Buffer&);
     size_t encryptMessage(IceInternal::Buffer&);
-    
+
     bool writeRaw(IceInternal::Buffer&);
     bool readRaw(IceInternal::Buffer&);
-    
+
     friend class ConnectorI;
     friend class AcceptorI;
 
     const InstancePtr _instance;
     const SChannelEnginePtr _engine;
-    
+
     const IceInternal::NetworkProxyPtr _proxy;
     const std::string _host;
     const IceInternal::Address _addr;
@@ -107,13 +108,13 @@ private:
 
     State _state;
     std::string _desc;
-        
+
     //
     // Buffered encrypted data that has not been written.
     //
     IceInternal::Buffer _writeBuffer;
     size_t _bufferedW;
-    
+
     //
     // Buffered data that has not been decrypted.
     //

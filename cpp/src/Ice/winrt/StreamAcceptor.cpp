@@ -10,6 +10,7 @@
 #include <Ice/winrt/StreamAcceptor.h>
 #include <Ice/winrt/StreamTransceiver.h>
 
+#include <Ice/EndpointI.h>
 #include <Ice/ProtocolInstance.h>
 #include <Ice/LocalException.h>
 #include <Ice/LoggerUtil.h>
@@ -42,13 +43,6 @@ IceInternal::StreamAcceptor::setCompletedHandler(SocketOperationCompletedHandler
 void
 IceInternal::StreamAcceptor::close()
 {
-    if(_instance->traceLevel() >= 1)
-    {
-        Trace out(_instance->logger(), _instance->traceCategory());
-        out << "stopping to accept " << _instance->protocol() << " connections at " << toString();
-    }
-
-
     IceUtil::Mutex::Lock lock(_mutex);
     if(_acceptPending)
     {
@@ -70,22 +64,11 @@ IceInternal::StreamAcceptor::close()
     closeSocket(fd);
 }
 
-void
-IceInternal::StreamAcceptor::listen()
+EndpointIPtr
+IceInternal::StreamAcceptor::listen(const EndpointIPtr& endp)
 {
-    if(_instance->traceLevel() >= 1)
-    {
-        Trace out(_instance->logger(), _instance->traceCategory());
-        out << "accepting " << _instance->protocol() << " connections at " << toString();
-
-        vector<string> interfaces =
-            getHostsForEndpointExpand(inetAddrToString(_addr), _instance->protocolSupport(), true);
-        if(!interfaces.empty())
-        {
-            out << "\nlocal interfaces: ";
-            out << IceUtilInternal::joinString(interfaces, ", ");
-        }
-    }
+    const_cast<Address&>(_addr) = doBind(_fd, _addr);
+    return endp->endpoint(this);
 }
 
 void
@@ -140,11 +123,6 @@ IceInternal::StreamAcceptor::accept()
         _accepted.pop_front();
     }
 
-    if(_instance->traceLevel() >= 1)
-    {
-        Trace out(_instance->logger(), _instance->traceCategory());
-        out << "accepted " << _instance->protocol() << " connection\n" << fdToString(fd);
-    }
     return new StreamTransceiver(_instance, fd, true);
 }
 
@@ -158,6 +136,20 @@ string
 IceInternal::StreamAcceptor::toString() const
 {
     return addrToString(_addr);
+}
+
+string
+IceInternal::StreamAcceptor::toDetailedString() const
+{
+    ostringstream os;
+    os << "local address = " << toString();
+    vector<string> intfs = getHostsForEndpointExpand(inetAddrToString(_addr), _instance->protocolSupport(), true);
+    if(!intfs.empty())
+    {
+        os << "\nlocal interfaces = ";
+        os << IceUtilInternal::joinString(intfs, ", ");
+    }
+    return os.str();
 }
 
 int
@@ -179,13 +171,6 @@ IceInternal::StreamAcceptor::StreamAcceptor(const ProtocolInstancePtr& instance,
                 {
                     queueAcceptedSocket(args->Socket);
                 });
-
-    if(_instance->traceLevel() >= 2)
-    {
-        Trace out(_instance->logger(), _instance->traceCategory());
-        out << "attempting to bind to " << _instance->protocol() << " socket " << toString();
-    }
-    const_cast<Address&>(_addr) = doBind(_fd, _addr);
 }
 
 IceInternal::StreamAcceptor::~StreamAcceptor()

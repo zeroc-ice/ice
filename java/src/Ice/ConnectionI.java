@@ -954,7 +954,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         java.util.List<OutgoingMessage> sentCBs = null;
         MessageInfo info = null;
         int dispatchCount = 0;
-        
+
         synchronized(this)
         {
             if(_state >= StateClosed)
@@ -982,7 +982,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                     {
                         observerStartWrite(buf);
                     }
-                    writeOp = _transceiver.write(buf);
+                    writeOp = write(buf);
                     if(_observer != null && (writeOp & IceInternal.SocketOperation.Write) == 0)
                     {
                         observerFinishWrite(buf);
@@ -997,7 +997,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                         observerStartRead(buf);
                     }
 
-                    readOp = _transceiver.read(buf, _hasMoreData);
+                    readOp = read(buf);
                     if((readOp & IceInternal.SocketOperation.Read) != 0)
                     {
                         break;
@@ -1392,6 +1392,33 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
     public void finish()
     {
+        if(!_initialized)
+        {
+            if(_instance.traceLevels().network >= 2)
+            {
+                StringBuffer s = new StringBuffer("failed to ");
+                s.append(_connector != null ? "establish" : "accept");
+                s.append(" ");
+                s.append(_endpoint.protocol());
+                s.append(" connection\n");
+                s.append(toString());
+                s.append("\n");
+                s.append(_exception);
+                _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
+            }
+        }
+        else
+        {
+            if(_instance.traceLevels().network >= 1)
+            {
+                StringBuffer s = new StringBuffer("closed ");
+                s.append(_endpoint.protocol());
+                s.append(" connection\n");
+                s.append(toString());
+                _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
+            }
+        }
+
         if(_startCallback != null)
         {
             _startCallback.connectionStartFailed(this, _exception);
@@ -1448,6 +1475,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         synchronized(this)
         {
             setState(StateFinished);
+
             if(_dispatchCount == 0)
             {
                 reap();
@@ -1987,6 +2015,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         // initialized.
         //
         _desc = _transceiver.toString();
+        _initialized = true;
         setState(StateNotValidated);
 
         return true;
@@ -2022,7 +2051,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
                 if(_writeStream.pos() != _writeStream.size())
                 {
-                    int op = _transceiver.write(_writeStream.getBuffer());
+                    int op = write(_writeStream.getBuffer());
                     if(op != 0)
                     {
                         scheduleTimeout(op);
@@ -2052,7 +2081,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
                 if(_readStream.pos() != _readStream.size())
                 {
-                    int op = _transceiver.read(_readStream.getBuffer(), _hasMoreData);
+                    int op = read(_readStream.getBuffer());
                     if(op != 0)
                     {
                         scheduleTimeout(op);
@@ -2107,6 +2136,29 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         _readStream.resize(IceInternal.Protocol.headerSize, true);
         _readStream.pos(0);
         _readHeader = true;
+
+        if(_instance.traceLevels().network >= 1)
+        {
+            StringBuffer s = new StringBuffer();
+            if(_endpoint.datagram())
+            {
+                s.append("starting to ");
+                s.append(_connector != null ? "send" : "receive");
+                s.append(" ");
+                s.append(_endpoint.protocol());
+                s.append(" messages\n");
+                s.append(_transceiver.toDetailedString());
+            }
+            else
+            {
+                s.append(_connector != null ? "established" : "accepted");
+                s.append(" ");
+                s.append(_endpoint.protocol());
+                s.append(" connection\n");
+                s.append(toString());
+            }
+            _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
+        }
 
         return true;
     }
@@ -2192,7 +2244,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                 }
                 if(_writeStream.pos() != _writeStream.size())
                 {
-                    int op = _transceiver.write(_writeStream.getBuffer());
+                    int op = write(_writeStream.getBuffer());
                     if(op != 0)
                     {
                         return op;
@@ -2267,7 +2319,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         {
             observerStartWrite(message.stream.getBuffer());
         }
-        op = _transceiver.write(message.stream.getBuffer());
+        op = write(message.stream.getBuffer());
         if(op == 0)
         {
             if(_observer != null)
@@ -2856,6 +2908,54 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         }
     }
 
+    private int read(IceInternal.Buffer buf)
+    {
+        int start = buf.b.position();
+        int op = _transceiver.read(buf, _hasMoreData);
+        if(_instance.traceLevels().network >= 3 && buf.b.position() != start)
+        {
+            StringBuffer s = new StringBuffer("received ");
+            if(_endpoint.datagram())
+            {
+                s.append(buf.b.limit());
+            }
+            else
+            {
+                s.append(buf.b.position() - start);
+                s.append(" of ");
+                s.append(buf.b.limit() - start);
+            }
+            s.append(" bytes via ");
+            s.append(_endpoint.protocol());
+            s.append("\n");
+            s.append(toString());
+            _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
+        }
+        return op;
+    }
+
+    private int write(IceInternal.Buffer buf)
+    {
+        int start = buf.b.position();
+        int op = _transceiver.write(buf);
+        if(_instance.traceLevels().network >= 3 && buf.b.position() != start)
+        {
+            StringBuffer s = new StringBuffer("sent ");
+            s.append(buf.b.position() - start);
+            if(!_endpoint.datagram())
+            {
+                s.append(" of ");
+                s.append(buf.b.limit() - start);
+            }
+            s.append(" bytes via ");
+            s.append(_endpoint.protocol());
+            s.append("\n");
+            s.append(toString());
+            _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
+        }
+        return op;
+    }
+
     private static class OutgoingMessage
     {
         OutgoingMessage(IceInternal.BasicStream stream, boolean compress, boolean adopt)
@@ -2977,6 +3077,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
     private int _state; // The current state.
     private boolean _shutdownInitiated = false;
+    private boolean _initialized = false;
     private boolean _validated = false;
 
     private IceInternal.Incoming _incomingCache;

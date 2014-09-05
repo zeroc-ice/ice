@@ -23,12 +23,6 @@ namespace IceSSL
     {
         public void close()
         {
-            if(_instance.traceLevel() >= 1)
-            {
-                string s = "stopping to accept " + protocol() + " connections at " + ToString();
-                _instance.logger().trace(_instance.traceCategory(), s);
-            }
-
             Debug.Assert(_acceptFd == null);
 
             try
@@ -42,25 +36,11 @@ namespace IceSSL
             }
         }
 
-        public void listen()
+        public IceInternal.EndpointI listen(IceInternal.EndpointI endp)
         {
+            _addr = IceInternal.Network.doBind(_fd, _addr);
             IceInternal.Network.doListen(_fd, _backlog);
-
-            if(_instance.traceLevel() >= 1)
-            {
-                StringBuilder s = new StringBuilder("listening for " + protocol() + " connections at ");
-                s.Append(ToString());
-
-                List<string> interfaces =
-                    IceInternal.Network.getHostsForEndpointExpand(_addr.Address.ToString(),
-                                                                  _instance.protocolSupport(), true);
-                if(interfaces.Count != 0)
-                {
-                    s.Append("\nlocal interfaces: ");
-                    s.Append(String.Join(", ", interfaces.ToArray()));
-                }
-                _instance.logger().trace(_instance.traceCategory(), s.ToString());
-            }
+            return endp.endpoint(this);
         }
 
         public bool startAccept(IceInternal.AsyncCallback callback, object state)
@@ -119,13 +99,6 @@ namespace IceSSL
             IceInternal.Network.setBlock(_acceptFd, true); // SSL requires a blocking socket.
             IceInternal.Network.setTcpBufSize(_acceptFd, _instance.properties(), _instance.logger());
 
-            if(_instance.traceLevel() >= 1)
-            {
-                string s = "attempting to accept " + protocol() + " connection\n" +
-                    IceInternal.Network.fdToString(_acceptFd);
-                _instance.logger().trace(_instance.traceCategory(), s);
-            }
-
             Socket acceptFd = _acceptFd;
             _acceptFd = null;
             _acceptError = null;
@@ -140,6 +113,22 @@ namespace IceSSL
         public override string ToString()
         {
             return IceInternal.Network.addrToString(_addr);
+        }
+
+        public string toDetailedString()
+        {
+                StringBuilder s = new StringBuilder("local address = ");
+                s.Append(ToString());
+
+                List<string> intfs =
+                    IceInternal.Network.getHostsForEndpointExpand(_addr.Address.ToString(),
+                                                                  _instance.protocolSupport(), true);
+                if(intfs.Count != 0)
+                {
+                    s.Append("\nlocal interfaces = ");
+                    s.Append(String.Join(", ", intfs.ToArray()));
+                }
+                return s.ToString();
         }
 
         internal int effectivePort()
@@ -189,13 +178,6 @@ namespace IceSSL
                     //
                     IceInternal.Network.setReuseAddress(_fd, true);
                 }
-                if(_instance.traceLevel() >= 2)
-                {
-                    string s = "attempting to bind to " + _instance.protocol() + " socket " +
-                        IceInternal.Network.addrToString(_addr);
-                    _instance.logger().trace(_instance.traceCategory(), s);
-                }
-                _addr = IceInternal.Network.doBind(_fd, _addr);
             }
             catch(System.Exception)
             {

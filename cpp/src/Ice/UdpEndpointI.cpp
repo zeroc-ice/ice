@@ -144,18 +144,28 @@ IceInternal::UdpEndpointI::secure() const
 }
 
 TransceiverPtr
-IceInternal::UdpEndpointI::transceiver(EndpointIPtr& endp) const
+IceInternal::UdpEndpointI::transceiver() const
 {
-    UdpTransceiver* p = new UdpTransceiver(_instance, _host, _port, _mcastInterface, _connect);
-    endp = createEndpoint(_host, p->effectivePort(), _connectionId);
-    return p;
+    return new UdpTransceiver(_instance, _host, _port, _mcastInterface, _connect);
 }
 
 AcceptorPtr
-IceInternal::UdpEndpointI::acceptor(EndpointIPtr& endp, const string&) const
+IceInternal::UdpEndpointI::acceptor(const string&) const
 {
-    endp = const_cast<UdpEndpointI*>(this);
     return 0;
+}
+
+EndpointIPtr
+IceInternal::UdpEndpointI::endpoint(const TransceiverPtr& transceiver) const
+{
+    UdpTransceiver* p = dynamic_cast<UdpTransceiver*>(transceiver.get());
+    return createEndpoint(_host, p->effectivePort(), _connectionId);
+}
+
+EndpointIPtr
+IceInternal::UdpEndpointI::endpoint(const AcceptorPtr& acceptor) const
+{
+    return const_cast<UdpEndpointI*>(this);
 }
 
 string

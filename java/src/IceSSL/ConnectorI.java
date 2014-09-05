@@ -24,37 +24,19 @@ final class ConnectorI implements IceInternal.Connector
             throw ex;
         }
 
-        if(_instance.traceLevel() >= 2)
-        {
-            String s = "trying to establish " + _instance.protocol() + " connection to " + toString();
-            _instance.logger().trace(_instance.traceCategory(), s);
-        }
-
+        java.nio.channels.SocketChannel fd = IceInternal.Network.createTcpSocket();
+        IceInternal.Network.setBlock(fd, false);
+        IceInternal.Network.setTcpBufSize(fd, _instance.properties(), _instance.logger());
+        final java.net.InetSocketAddress addr = _proxy != null ? _proxy.getAddress() : _addr;
+        IceInternal.Network.doConnect(fd, addr, _sourceAddr);
         try
         {
-            java.nio.channels.SocketChannel fd = IceInternal.Network.createTcpSocket();
-            IceInternal.Network.setBlock(fd, false);
-            IceInternal.Network.setTcpBufSize(fd, _instance.properties(), _instance.logger());
-            final java.net.InetSocketAddress addr = _proxy != null ? _proxy.getAddress() : _addr;
-            IceInternal.Network.doConnect(fd, addr, _sourceAddr);
-            try
-            {
-                javax.net.ssl.SSLEngine engine = _instance.createSSLEngine(false, _addr);
-                return new TransceiverI(_instance, engine, fd, _proxy, _host, _addr);
-            }
-            catch(RuntimeException ex)
-            {
-                IceInternal.Network.closeSocketNoThrow(fd);
-                throw ex;
-            }
+            javax.net.ssl.SSLEngine engine = _instance.createSSLEngine(false, _addr);
+            return new TransceiverI(_instance, engine, fd, _proxy, _host, _addr);
         }
-        catch(Ice.LocalException ex)
+        catch(RuntimeException ex)
         {
-            if(_instance.traceLevel() >= 2)
-            {
-                String s = "failed to establish " + _instance.protocol() + " connection to " + toString() + "\n" + ex;
-                _instance.logger().trace(_instance.traceCategory(), s);
-            }
+            IceInternal.Network.closeSocketNoThrow(fd);
             throw ex;
         }
     }

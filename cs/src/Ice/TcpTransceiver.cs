@@ -32,72 +32,51 @@ namespace IceInternal
 
         public int initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData)
         {
-            try
+            if(_state == StateNeedConnect)
             {
-                if(_state == StateNeedConnect)
-                {
-                    _state = StateConnectPending;
-                    return SocketOperation.Connect;
-                }
-                else if(_state <= StateConnectPending)
-                {
-#if ICE_SOCKET_ASYNC_API
-                    if(_writeEventArgs.SocketError != SocketError.Success)
-                    {
-                        SocketException ex = new SocketException((int)_writeEventArgs.SocketError);
-                        if(Network.connectionRefused(ex))
-                        {
-                            throw new Ice.ConnectionRefusedException(ex);
-                        }
-                        else
-                        {
-                            throw new Ice.ConnectFailedException(ex);
-                        }
-                    }
-#else
-                    Network.doFinishConnectAsync(_fd, _writeResult);
-                    _writeResult = null;
-#endif
-                    _desc = Network.fdToString(_fd, _proxy, _addr);
-
-                    if(_proxy != null)
-                    {
-                        _state = StateProxyConnectRequest; // Send proxy connect request
-                        return SocketOperation.Write;
-                    }
-
-                    _state = StateConnected;
-                }
-                else if(_state == StateProxyConnectRequest)
-                {
-                    _state = StateProxyConnectRequestPending; // Wait for proxy response
-                    return SocketOperation.Read;
-                }
-                else if(_state == StateProxyConnectRequestPending)
-                {
-                    _state = StateConnected;
-                }
+                _state = StateConnectPending;
+                return SocketOperation.Connect;
             }
-            catch(Ice.LocalException ex)
+            else if(_state <= StateConnectPending)
             {
-                if(_instance.traceLevel() >= 2)
+#if ICE_SOCKET_ASYNC_API
+                if(_writeEventArgs.SocketError != SocketError.Success)
                 {
-                    System.Text.StringBuilder s = new System.Text.StringBuilder();
-                    s.Append("failed to establish " + protocol() + " connection\n");
-                    s.Append(Network.fdToString(_fd, _proxy, _addr));
-                    s.Append("\n");
-                    s.Append(ex.ToString());
-                    _instance.logger().trace(_instance.traceCategory(), s.ToString());
+                    SocketException ex = new SocketException((int)_writeEventArgs.SocketError);
+                    if(Network.connectionRefused(ex))
+                    {
+                        throw new Ice.ConnectionRefusedException(ex);
+                    }
+                    else
+                    {
+                        throw new Ice.ConnectFailedException(ex);
+                    }
                 }
-                throw;
+#else
+                Network.doFinishConnectAsync(_fd, _writeResult);
+                _writeResult = null;
+#endif
+                _desc = Network.fdToString(_fd, _proxy, _addr);
+
+                if(_proxy != null)
+                {
+                    _state = StateProxyConnectRequest; // Send proxy connect request
+                    return SocketOperation.Write;
+                }
+
+                _state = StateConnected;
+            }
+            else if(_state == StateProxyConnectRequest)
+            {
+                _state = StateProxyConnectRequestPending; // Wait for proxy response
+                return SocketOperation.Read;
+            }
+            else if(_state == StateProxyConnectRequestPending)
+            {
+                _state = StateConnected;
             }
 
             Debug.Assert(_state == StateConnected);
-            if(_instance.traceLevel() >= 1)
-            {
-                string s = protocol() + " connection established\n" + _desc;
-                _instance.logger().trace(_instance.traceCategory(), s);
-            }
             return SocketOperation.None;
         }
 
@@ -110,16 +89,6 @@ namespace IceInternal
 
         public void close()
         {
-            //
-            // If the transceiver is not connected, its description is simply "not connected",
-            // which isn't very helpful.
-            //
-            if(_state == StateConnected && _instance.traceLevel() >= 1)
-            {
-                string s = "closing " + protocol() + " connection\n" + ToString();
-                _instance.logger().trace(_instance.traceCategory(), s);
-            }
-
             Debug.Assert(_fd != null);
             try
             {
@@ -133,6 +102,12 @@ namespace IceInternal
             {
                 _fd = null;
             }
+        }
+
+        public EndpointI bind(EndpointI endp)
+        {
+            Debug.Assert(false);
+            return null;
         }
 
         public void destroy()
@@ -204,12 +179,6 @@ namespace IceInternal
                     }
 
                     Debug.Assert(ret > 0);
-
-                    if(_instance.traceLevel() >= 3)
-                    {
-                        string s = "sent " + ret + " of " + packetSize + " bytes via " + protocol() + "\n" + ToString();
-                        _instance.logger().trace(_instance.traceCategory(), s);
-                    }
                     buf.b.position(buf.b.position() + ret);
                     if(packetSize > buf.b.remaining())
                     {
@@ -276,14 +245,6 @@ namespace IceInternal
                     }
 
                     Debug.Assert(ret > 0);
-
-                    if(_instance.traceLevel() >= 3)
-                    {
-                        string s = "received " + ret + " of " + remaining + " bytes via " + protocol() + "\n" +
-                            ToString();
-                        _instance.logger().trace(_instance.traceCategory(), s);
-                    }
-
                     remaining -= ret;
                     buf.b.position(position += ret);
                 }
@@ -393,18 +354,6 @@ namespace IceInternal
                 }
 
                 Debug.Assert(ret > 0);
-
-                if(_instance.traceLevel() >= 3)
-                {
-                    int packetSize = buf.b.remaining();
-                    if(_maxReceivePacketSize > 0 && packetSize > _maxReceivePacketSize)
-                    {
-                        packetSize = _maxReceivePacketSize;
-                    }
-                    string s = "received " + ret + " of " + packetSize + " bytes via " + protocol() + "\n" + ToString();
-                    _instance.logger().trace(_instance.traceCategory(), s);
-                }
-
                 buf.b.position(buf.b.position() + ret);
 
                 if(_state == StateProxyConnectRequestPending)
@@ -546,18 +495,6 @@ namespace IceInternal
                     throw new Ice.ConnectionLostException();
                 }
                 Debug.Assert(ret > 0);
-
-                if(_instance.traceLevel() >= 3)
-                {
-                    int packetSize = buf.b.remaining();
-                    if(_maxSendPacketSize > 0 && packetSize > _maxSendPacketSize)
-                    {
-                        packetSize = _maxSendPacketSize;
-                    }
-                    string s = "sent " + ret + " of " + packetSize + " bytes via " + protocol() + "\n" + ToString();
-                    _instance.logger().trace(_instance.traceCategory(), s);
-                }
-
                 buf.b.position(buf.b.position() + ret);
 
                 if(_state == StateProxyConnectRequest)
@@ -611,6 +548,11 @@ namespace IceInternal
         public override string ToString()
         {
             return _desc;
+        }
+
+        public string toDetailedString()
+        {
+            return ToString();
         }
 
         //

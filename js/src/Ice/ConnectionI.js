@@ -100,7 +100,7 @@ var ConnectionI = Class({
         this._warnUdp = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
         this._acmLastActivity = this._monitor !== null && this._monitor.getACM().timeout > 0 ? Date.now() : -1;
         this._nextRequestId = 1;
-        this._batchAutoFlush = 
+        this._batchAutoFlush =
             initData.properties.getPropertyAsIntWithDefault("Ice.BatchAutoFlush", 1) > 0 ? true : false;
         this._batchStream = new BasicStream(instance, Protocol.currentProtocolEncoding, this._batchAutoFlush);
         this._batchStreamInUse = false;
@@ -121,6 +121,7 @@ var ConnectionI = Class({
 
         this._state = StateNotInitialized;
         this._shutdownInitiated = false;
+        this._initialized = false;
         this._validated = false;
 
         this._readProtocol = new ProtocolVersion();
@@ -184,7 +185,7 @@ var ConnectionI = Class({
         {
             return;
         }
-        
+
         if(this._acmLastActivity > 0)
         {
             this._acmLastActivity = Date.now();
@@ -305,23 +306,23 @@ var ConnectionI = Class({
         {
             //
             // If writing or reading, nothing to do, the connection
-            // timeout will kick-in if writes or reads don't progress. 
-            // This check is necessary because the actitivy timer is 
+            // timeout will kick-in if writes or reads don't progress.
+            // This check is necessary because the actitivy timer is
             // only set when a message is fully read/written.
             //
             return;
         }
-        
+
         //
-        // We send a heartbeat if there was no activity in the last 
-        // (timeout / 4) period. Sending a heartbeat sooner than 
-        // really needed is safer to ensure that the receiver will 
-        // receive in time the heartbeat. Sending the heartbeat if 
+        // We send a heartbeat if there was no activity in the last
+        // (timeout / 4) period. Sending a heartbeat sooner than
+        // really needed is safer to ensure that the receiver will
+        // receive in time the heartbeat. Sending the heartbeat if
         // there was no activity in the last (timeout / 2) period
         // isn't enough since monitor() is called only every (timeout
-        // / 2) period. 
+        // / 2) period.
         //
-        // Note that this doesn't imply that we are sending 4 heartbeats 
+        // Note that this doesn't imply that we are sending 4 heartbeats
         // per timeout period because the monitor() method is sill only
         // called every (timeout / 2) period.
         //
@@ -334,10 +335,10 @@ var ConnectionI = Class({
                 this.heartbeat(); // Send heartbeat if idle in the last timeout / 2 period.
             }
         }
-        
+
         if(acm.close != Ice.ACMClose.CloseOff && now >= (this._acmLastActivity + acm.timeout))
         {
-            if(acm.close == Ice.ACMClose.CloseOnIdleForceful || 
+            if(acm.close == Ice.ACMClose.CloseOnIdleForceful ||
                 (acm.close != Ice.ACMClose.CloseOnIdle && this._asyncRequests.size > 0))
             {
                 //
@@ -346,7 +347,7 @@ var ConnectionI = Class({
                 //
                 this.setState(StateClosed, new Ice.ConnectionTimeoutException());
             }
-            else if(acm.close != Ice.ACMClose.CloseOnInvocation && 
+            else if(acm.close != Ice.ACMClose.CloseOnInvocation &&
                     this._dispatchCount === 0 && this._batchStream.isEmpty() && this._asyncRequests.size === 0)
             {
                 //
@@ -538,7 +539,7 @@ var ConnectionI = Class({
                     this._batchStream.pos = Protocol.headerSize;
                     this._batchStream.writeInt(this._batchRequestNum);
 
-                    this.sendMessage(OutgoingMessage.createForStream(this._batchStream, this._batchRequestCompress, 
+                    this.sendMessage(OutgoingMessage.createForStream(this._batchStream, this._batchRequestCompress,
                                                                         true));
                 }
                 catch(ex)
@@ -716,7 +717,7 @@ var ConnectionI = Class({
     },
     getACM: function()
     {
-        return this._monitor !== null ? this._monitor.getACM() : 
+        return this._monitor !== null ? this._monitor.getACM() :
             new ACM(0, ACMClose.CloseOff, ACMHeartbeat.HeartbeatOff);
     },
     asyncRequestTimedOut: function(outAsync)
@@ -730,9 +731,9 @@ var ConnectionI = Class({
                 {
                     this._asyncRequests.delete(o.requestId);
                 }
-                
+
                 //
-                // If the request is being sent, don't remove it from the send streams, 
+                // If the request is being sent, don't remove it from the send streams,
                 // it will be removed once the sending is finished.
                 //
                 var isSent = i.timedOut();
@@ -898,7 +899,7 @@ var ConnectionI = Class({
         {
             if((operation & SocketOperation.Write) !== 0 && this._writeStream.buffer.remaining > 0)
             {
-                if(!this._transceiver.write(this._writeStream.buffer))
+                if(!this.write(this._writeStream.buffer))
                 {
                     Debug.assert(!this._writeStream.isEmpty());
                     this.scheduleTimeout(SocketOperation.Write, this._endpoint.timeout());
@@ -910,17 +911,17 @@ var ConnectionI = Class({
             {
                 if(this._readHeader) // Read header if necessary.
                 {
-                    if(!this._transceiver.read(this._readStream.buffer, this._hasMoreData))
+                    if(!this.read(this._readStream.buffer))
                     {
                         //
                         // We didn't get enough data to complete the header.
                         //
                         return;
                     }
-                    
+
                     Debug.assert(this._readStream.buffer.remaining === 0);
                     this._readHeader = false;
-                    
+
                     var pos = this._readStream.pos;
                     if(pos < Protocol.headerSize)
                     {
@@ -929,7 +930,7 @@ var ConnectionI = Class({
                         //
                         throw new Ice.IllegalMessageSizeException();
                     }
-                    
+
                     this._readStream.pos = 0;
                     var magic0 = this._readStream.readByte();
                     var magic1 = this._readStream.readByte();
@@ -942,13 +943,13 @@ var ConnectionI = Class({
                         bme.badMagic = Ice.Buffer.createNative([magic0, magic1, magic2, magic3]);
                         throw bme;
                     }
-                    
+
                     this._readProtocol.__read(this._readStream);
                     Protocol.checkSupportedProtocol(this._readProtocol);
-                    
+
                     this._readProtocolEncoding.__read(this._readStream);
                     Protocol.checkSupportedProtocolEncoding(this._readProtocolEncoding);
-                    
+
                     this._readStream.readByte(); // messageType
                     this._readStream.readByte(); // compress
                     var size = this._readStream.readInt();
@@ -966,7 +967,7 @@ var ConnectionI = Class({
                     }
                     this._readStream.pos = pos;
                 }
-                
+
                 if(this._readStream.pos != this._readStream.size)
                 {
                     if(this._endpoint.datagram())
@@ -975,7 +976,7 @@ var ConnectionI = Class({
                     }
                     else
                     {
-                        if(!this._transceiver.read(this._readStream.buffer, this._hasMoreData))
+                        if(!this.read(this._readStream.buffer))
                         {
                             Debug.assert(!this._readStream.isEmpty());
                             this.scheduleTimeout(SocketOperation.Read, this._endpoint.timeout());
@@ -1109,7 +1110,7 @@ var ConnectionI = Class({
             {
                 this.invokeAll(info.stream, info.invokeNum, info.requestId, info.compress, info.servantManager,
                             info.adapter);
-                
+
                 //
                 // Don't increase count, the dispatch count is
                 // decreased when the incoming reply is sent.
@@ -1169,6 +1170,34 @@ var ConnectionI = Class({
     {
         Debug.assert(this._state === StateClosed);
         this.unscheduleTimeout(SocketOperation.Read | SocketOperation.Write | SocketOperation.Connect);
+
+        var traceLevels = this._instance.traceLevels();
+        if(!this._initialized)
+        {
+            if(traceLevels.network >= 2)
+            {
+                var s = [];
+                s.push("failed to establish ");
+                s.push(this._endpoint.protocol());
+                s.push(" connection\n");
+                s.push(this.toString());
+                s.push("\n");
+                s.push(this._exception.toString());
+                this._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
+            }
+        }
+        else
+        {
+            if(traceLevels.network >= 1)
+            {
+                var s = [];
+                s.push("closed ");
+                s.push(this._endpoint.protocol());
+                s.push(" connection\n");
+                s.push(this.toString());
+                this._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
+            }
+        }
 
         if(this._startPromise !== null)
         {
@@ -1306,13 +1335,13 @@ var ConnectionI = Class({
         if(ex !== undefined)
         {
             Debug.assert(ex instanceof Ice.LocalException);
-            
+
             //
             // If setState() is called with an exception, then only closed
             // and closing states are permissible.
             //
             Debug.assert(state >= StateClosing);
-            
+
             if(this._state === state) // Don't switch twice.
             {
                 return;
@@ -1575,7 +1604,7 @@ var ConnectionI = Class({
     heartbeat: function()
     {
         Debug.assert(this._state === StateActive);
-        
+
         if(!this._endpoint.datagram())
         {
             var os = new BasicStream(this._instance, Protocol.currentProtocolEncoding);
@@ -1609,6 +1638,7 @@ var ConnectionI = Class({
         // Update the connection description once the transceiver is initialized.
         //
         this._desc = this._transceiver.toString();
+        this._initialized = true;
         this.setState(StateNotValidated);
         return true;
     },
@@ -1630,8 +1660,7 @@ var ConnectionI = Class({
                     this._writeStream.prepareWrite();
                 }
 
-                if(this._writeStream.pos != this._writeStream.size &&
-                    !this._transceiver.write(this._writeStream.buffer))
+                if(this._writeStream.pos != this._writeStream.size && !this.write(this._writeStream.buffer))
                 {
                     this.scheduleTimeout(SocketOperation.Write, this.connectTimeout());
                     return false;
@@ -1646,7 +1675,7 @@ var ConnectionI = Class({
                 }
 
                 if(this._readStream.pos !== this._readStream.size &&
-                    !this._transceiver.read(this._readStream.buffer, this._hasMoreData))
+                    !this.read(this._readStream.buffer))
                 {
                     this.scheduleTimeout(SocketOperation.Read, this.connectTimeout());
                     return false;
@@ -1692,6 +1721,28 @@ var ConnectionI = Class({
         this._readHeader = true;
         this._readStream.pos = 0;
 
+        var traceLevels = this._instance.traceLevels();
+        if(traceLevels.network >= 1)
+        {
+            var s = [];
+            if(this._endpoint.datagram())
+            {
+                s.push("starting to send ");
+                s.push(this._endpoint.protocol());
+                s.push(" messages\n");
+                s.push(this._transceiver.toDetailedString());
+            }
+            else
+            {
+                var s = [];
+                s.push("established ");
+                s.push(this._endpoint.protocol());
+                s.push(" connection\n");
+                s.push(this.toString());
+            }
+            this._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
+        }
+
         return true;
     },
     sendNextMessage: function()
@@ -1712,7 +1763,7 @@ var ConnectionI = Class({
                 var message = this._sendStreams.shift();
                 this._writeStream.swap(message.stream);
                 message.sent(this);
-                
+
                 //
                 // If there's nothing left to send, we're done.
                 //
@@ -1758,8 +1809,7 @@ var ConnectionI = Class({
                 //
                 // Send the message.
                 //
-                if(this._writeStream.pos != this._writeStream.size &&
-                    !this._transceiver.write(this._writeStream.buffer))
+                if(this._writeStream.pos != this._writeStream.size && !this.write(this._writeStream.buffer))
                 {
                     Debug.assert(!this._writeStream.isEmpty());
                     this.scheduleTimeout(SocketOperation.Write, this._endpoint.timeout());
@@ -1808,10 +1858,10 @@ var ConnectionI = Class({
         stream.writeInt(stream.size);
         stream.prepareWrite();
         message.prepared = true;
-        
+
         TraceUtil.trace("sending asynchronous request", message.stream, this._logger, this._traceLevels);
 
-        if(this._transceiver.write(message.stream.buffer))
+        if(this.write(message.stream.buffer))
         {
             //
             // Entire buffer was written immediately.
@@ -1829,7 +1879,7 @@ var ConnectionI = Class({
         this._writeStream.swap(message.stream);
         this._sendStreams.push(message);
         this.scheduleTimeout(SocketOperation.Write, this._endpoint.timeout());
-        
+
         return AsyncStatus.Queued;
     },
     parseMessage: function()
@@ -2134,6 +2184,54 @@ var ConnectionI = Class({
         {
             this._monitor.reap(this);
         }
+    },
+    read: function(buf)
+    {
+        var start = buf.position;
+        var ret = this._transceiver.read(buf, this._hasMoreData);
+        if(this._instance.traceLevels().network >= 3 && buf.position != start)
+        {
+            var s = [];
+            s.push("received ");
+            if(this._endpoint.datagram())
+            {
+                s.push(buf.limit);
+            }
+            else
+            {
+                s.push(buf.position - start);
+                s.push(" of ");
+                s.push(buf.limit - start);
+            }
+            s.push(" bytes via ");
+            s.push(this._endpoint.protocol());
+            s.push("\n");
+            s.push(this.toString());
+            this._instance.initializationData().logger.trace(this._instance.traceLevels().networkCat, s.join(""));
+        }
+        return ret;
+    },
+    write: function(buf)
+    {
+        var start = buf.position;
+        var ret = this._transceiver.write(buf);
+        if(this._instance.traceLevels().network >= 3 && buf.position != start)
+        {
+            var s = [];
+            s.push("sent ");
+            s.push(buf.position - start);
+            if(!this._endpoint.datagram())
+            {
+                s.push(" of ");
+                s.push(buf.limit - start);
+            }
+            s.push(" bytes via ");
+            s.push(this._endpoint.protocol());
+            s.push("\n");
+            s.push(this.toString());
+            this._instance.initializationData().logger.trace(this._instance.traceLevels().networkCat, s.join(""));
+        }
+        return ret;
     }
 });
 

@@ -9,6 +9,7 @@
 
 #include <Ice/WSAcceptor.h>
 #include <Ice/WSTransceiver.h>
+#include <Ice/WSEndpoint.h>
 
 using namespace std;
 using namespace Ice;
@@ -27,7 +28,7 @@ IceInternal::WSAcceptor::getAsyncInfo(IceInternal::SocketOperation status)
     return _delegate->getNativeInfo()->getAsyncInfo(status);
 }
 #elif defined(ICE_OS_WINRT)
-void 
+void
 IceInternal::WSAcceptor::setCompletedHandler(IceInternal::SocketOperationCompletedHandler^ handler)
 {
     _delegate->getNativeInfo()->setCompletedHandler(handler);
@@ -40,10 +41,12 @@ IceInternal::WSAcceptor::close()
     _delegate->close();
 }
 
-void
-IceInternal::WSAcceptor::listen()
+EndpointIPtr
+IceInternal::WSAcceptor::listen(const EndpointIPtr& endp)
 {
-    _delegate->listen();
+    WSEndpoint* p = dynamic_cast<WSEndpoint*>(endp.get());
+    EndpointIPtr endpoint = _delegate->listen(p->delegate());
+    return endp->endpoint(this);
 }
 
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
@@ -80,6 +83,12 @@ string
 IceInternal::WSAcceptor::toString() const
 {
     return _delegate->toString();
+}
+
+string
+IceInternal::WSAcceptor::toDetailedString() const
+{
+    return _delegate->toDetailedString();
 }
 
 IceInternal::WSAcceptor::WSAcceptor(const ProtocolInstancePtr& instance, const IceInternal::AcceptorPtr& del) :

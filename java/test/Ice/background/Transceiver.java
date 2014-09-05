@@ -73,6 +73,13 @@ final class Transceiver implements IceInternal.Transceiver
     }
 
     @Override
+    public IceInternal.EndpointI
+    bind(IceInternal.EndpointI endp)
+    {
+        return _transceiver.bind(endp);
+    }
+
+    @Override
     public int
     write(IceInternal.Buffer buf)
     {
@@ -152,6 +159,13 @@ final class Transceiver implements IceInternal.Transceiver
     }
 
     @Override
+    public String
+    toDetailedString()
+    {
+        return _transceiver.toDetailedString();
+    }
+
+    @Override
     public Ice.ConnectionInfo
     getInfo()
     {
@@ -163,6 +177,12 @@ final class Transceiver implements IceInternal.Transceiver
     checkSendSize(IceInternal.Buffer buf, int messageSizeMax)
     {
         _transceiver.checkSendSize(buf, messageSizeMax);
+    }
+
+    public IceInternal.Transceiver
+    delegate()
+    {
+        return _transceiver;
     }
 
     //

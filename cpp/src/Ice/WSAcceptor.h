@@ -33,7 +33,7 @@ public:
 #endif
 
     virtual void close();
-    virtual void listen();
+    virtual EndpointIPtr listen(const EndpointIPtr&);
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
     virtual void startAccept();
     virtual void finishAccept();
@@ -41,6 +41,9 @@ public:
     virtual TransceiverPtr accept();
     virtual std::string protocol() const;
     virtual std::string toString() const;
+    virtual std::string toDetailedString() const;
+
+    virtual AcceptorPtr delegate() const { return _delegate; }
 
 private:
 

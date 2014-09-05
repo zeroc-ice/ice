@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/UdpTransceiver.h>
+#include <Ice/EndpointI.h>
 #include <Ice/Connection.h>
 #include <Ice/ProtocolInstance.h>
 #include <Ice/LoggerUtil.h>
@@ -87,39 +88,19 @@ IceInternal::UdpTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeB
     }
     else if(_state <= StateConnectPending)
     {
-        try
-        {
 #if defined(ICE_USE_IOCP)
-            doFinishConnectAsync(_fd, _write);
+        doFinishConnectAsync(_fd, _write);
 #elif defined(ICE_OS_WINRT)
-            if(_write.count == SOCKET_ERROR)
-            {
-                checkConnectErrorCode(__FILE__, __LINE__, _write.error, _addr.host);
-            }
-#else
-            doFinishConnect(_fd);
-#endif
-            _state = StateConnected;
-        }
-        catch(const Ice::LocalException& ex)
+        if(_write.count == SOCKET_ERROR)
         {
-            if(_instance->traceLevel() >= 2)
-            {
-                Trace out(_instance->logger(), _instance->traceCategory());
-                out << "failed to connect " << _instance->protocol() << " socket\n" << toString() << "\n" << ex;
-            }
-            throw;
+            checkConnectErrorCode(__FILE__, __LINE__, _write.error, _addr.host);
         }
+#else
+        doFinishConnect(_fd);
+#endif
+        _state = StateConnected;
     }
 
-    if(_state == StateConnected)
-    {
-        if(_instance->traceLevel() >= 1)
-        {
-            Trace out(_instance->logger(), _instance->traceCategory());
-            out << "starting to send " << _instance->protocol() << " packets\n" << toString();
-        }
-    }
     assert(_state >= StateConnected);
     return SocketOperationNone;
 }
@@ -134,12 +115,6 @@ IceInternal::UdpTransceiver::closing(bool, const Ice::LocalException&)
 void
 IceInternal::UdpTransceiver::close()
 {
-    if(_state >= StateConnected && _instance->traceLevel() >= 1)
-    {
-        Trace out(_instance->logger(), _instance->traceCategory());
-        out << "closing " << _instance->protocol() << " connection\n" << toString();
-    }
-
 #ifdef ICE_OS_WINRT
     IceUtil::Mutex::Lock lock(_mutex);
     if(_readPending)
@@ -156,6 +131,55 @@ IceInternal::UdpTransceiver::close()
     _fd = INVALID_SOCKET;
 }
 
+EndpointIPtr
+IceInternal::UdpTransceiver::bind(const EndpointIPtr& endp)
+{
+    if(isMulticast(_addr))
+    {
+        setReuseAddress(_fd, true);
+        _mcastAddr = _addr;
+
+#ifdef _WIN32
+        //
+        // Windows does not allow binding to the mcast address itself
+        // so we bind to INADDR_ANY (0.0.0.0) instead. As a result,
+        // bi-directional connection won't work because the source
+        // address won't be the multicast address and the client will
+        // therefore reject the datagram.
+        //
+        const_cast<Address&>(_addr) = getAddressForServer("", _port, getProtocolSupport(_addr), false);
+#endif
+
+        const_cast<Address&>(_addr) = doBind(_fd, _addr);
+        if(getPort(_mcastAddr) == 0)
+        {
+            setPort(_mcastAddr, getPort(_addr));
+        }
+        setMcastGroup(_fd, _mcastAddr, _mcastInterface);
+    }
+    else
+    {
+#ifndef _WIN32
+        //
+        // Enable SO_REUSEADDR on Unix platforms to allow re-using
+        // the socket even if it's in the TIME_WAIT state. On
+        // Windows, this doesn't appear to be necessary and
+        // enabling SO_REUSEADDR would actually not be a good
+        // thing since it allows a second process to bind to an
+        // address even it's already bound by another process.
+        //
+        // TODO: using SO_EXCLUSIVEADDRUSE on Windows would
+        // probably be better but it's only supported by recent
+        // Windows versions (XP SP2, Windows Server 2003).
+        //
+        setReuseAddress(_fd, true);
+#endif
+        const_cast<Address&>(_addr) = doBind(_fd, _addr);
+    }
+
+    _bound = true;
+    return endp->endpoint(this);
+}
 
 SocketOperation
 IceInternal::UdpTransceiver::write(Buffer& buf)
@@ -227,12 +251,6 @@ repeat:
         SocketException ex(__FILE__, __LINE__);
         ex.error = getSocketErrno();
         throw ex;
-    }
-
-    if(_instance->traceLevel() >= 3)
-    {
-        Trace out(_instance->logger(), _instance->traceCategory());
-        out << "sent " << ret << " bytes via " << _instance->protocol() << '\n' << toString();
     }
 
     assert(ret == static_cast<ssize_t>(buf.b.size()));
@@ -339,12 +357,6 @@ repeat:
             Trace out(_instance->logger(), _instance->traceCategory());
             out << "connected " << _instance->protocol() << " socket\n" << toString();
         }
-    }
-
-    if(_instance->traceLevel() >= 3)
-    {
-        Trace out(_instance->logger(), _instance->traceCategory());
-        out << "received " << ret << " bytes via " << _instance->protocol() << '\n' << toString();
     }
 
     buf.b.resize(ret);
@@ -597,12 +609,6 @@ IceInternal::UdpTransceiver::finishWrite(Buffer& buf)
 #endif
     }
 
-    if(_instance->traceLevel() >= 3)
-    {
-        Trace out(_instance->logger(), _instance->traceCategory());
-        out << "sent " << _write.count << " bytes via " << _instance->protocol() << '\n' << toString();
-    }
-
     assert(_write.count == buf.b.size());
     buf.i = buf.b.end();
 }
@@ -738,12 +744,6 @@ IceInternal::UdpTransceiver::finishRead(Buffer& buf, bool&)
     int ret = _read.count;
 #endif
 
-    if(_instance->traceLevel() >= 3)
-    {
-        Trace out(_instance->logger(), _instance->traceCategory());
-        out << "received " << ret << " bytes via " << _instance->protocol() << '\n' << toString();
-    }
-
     buf.b.resize(ret);
     buf.i = buf.b.end();
 }
@@ -764,7 +764,11 @@ IceInternal::UdpTransceiver::toString() const
     }
 
     ostringstream s;
-    if(_state == StateNotConnected)
+    if(_incoming && !_bound)
+    {
+        s << "local address = " << addrToString(_addr);
+    }
+    else if(_state == StateNotConnected)
     {
         Address localAddr;
         fdToLocalAddress(_fd, localAddr);
@@ -791,6 +795,20 @@ IceInternal::UdpTransceiver::toString() const
         s << "\nmulticast address = " + addrToString(_mcastAddr);
     }
     return s.str();
+}
+
+string
+IceInternal::UdpTransceiver::toDetailedString() const
+{
+    ostringstream os;
+    os << toString();
+    vector<string> intfs = getHostsForEndpointExpand(inetAddrToString(_addr), _instance->protocolSupport(), true);
+    if(!intfs.empty())
+    {
+        os << "\nlocal interfaces = ";
+        os << IceUtilInternal::joinString(intfs, ", ");
+    }
+    return os.str();
 }
 
 Ice::ConnectionInfoPtr
@@ -866,7 +884,6 @@ IceInternal::UdpTransceiver::effectivePort() const
     return getPort(_addr);
 }
 
-
 IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
                                             const Address& addr,
 #ifdef ICE_OS_WINRT
@@ -881,6 +898,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
                                             ) :
     _instance(instance),
     _incoming(false),
+    _bound(false),
     _addr(addr),
     _state(StateNeedConnect)
 #if defined(ICE_USE_IOCP)
@@ -950,7 +968,10 @@ IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
                                             const string& mcastInterface, bool connect) :
     _instance(instance),
     _incoming(true),
+    _bound(false),
     _addr(getAddressForServer(host, port, instance->protocolSupport(), instance->preferIPv6())),
+    _mcastInterface(mcastInterface),
+    _port(port),
     _state(connect ? StateNeedConnect : StateNotConnected)
 #ifdef ICE_OS_WINRT
     , _readPending(false)
@@ -976,69 +997,6 @@ IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
             this->appendMessage(args);
         });
 #endif
-
-    if(_instance->traceLevel() >= 2)
-    {
-        Trace out(_instance->logger(), _instance->traceCategory());
-        out << "attempting to bind to " << _instance->protocol() << " socket " << addrToString(_addr);
-    }
-
-    if(isMulticast(_addr))
-    {
-        setReuseAddress(_fd, true);
-        _mcastAddr = _addr;
-
-#ifdef _WIN32
-        //
-        // Windows does not allow binding to the mcast address itself
-        // so we bind to INADDR_ANY (0.0.0.0) instead. As a result,
-        // bi-directional connection won't work because the source
-        // address won't be the multicast address and the client will
-        // therefore reject the datagram.
-        //
-        const_cast<Address&>(_addr) = getAddressForServer("", port, getProtocolSupport(_addr), false);
-#endif
-
-        const_cast<Address&>(_addr) = doBind(_fd, _addr);
-        if(getPort(_mcastAddr) == 0)
-        {
-            setPort(_mcastAddr, getPort(_addr));
-        }
-        setMcastGroup(_fd, _mcastAddr, mcastInterface);
-    }
-    else
-    {
-#ifndef _WIN32
-        //
-        // Enable SO_REUSEADDR on Unix platforms to allow re-using
-        // the socket even if it's in the TIME_WAIT state. On
-        // Windows, this doesn't appear to be necessary and
-        // enabling SO_REUSEADDR would actually not be a good
-        // thing since it allows a second process to bind to an
-        // address even it's already bound by another process.
-        //
-        // TODO: using SO_EXCLUSIVEADDRUSE on Windows would
-        // probably be better but it's only supported by recent
-        // Windows versions (XP SP2, Windows Server 2003).
-        //
-        setReuseAddress(_fd, true);
-#endif
-        const_cast<Address&>(_addr) = doBind(_fd, _addr);
-    }
-
-    if(_instance->traceLevel() >= 1)
-    {
-        Trace out(_instance->logger(), _instance->traceCategory());
-        out << "starting to receive " << _instance->protocol() << " packets\n" << toString();
-
-        vector<string> interfaces =
-            getHostsForEndpointExpand(inetAddrToString(_addr), _instance->protocolSupport(), true);
-        if(!interfaces.empty())
-        {
-            out << "\nlocal interfaces: ";
-            out << IceUtilInternal::joinString(interfaces, ", ");
-        }
-    }
 }
 
 IceInternal::UdpTransceiver::~UdpTransceiver()

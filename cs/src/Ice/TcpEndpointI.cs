@@ -115,21 +115,30 @@ namespace IceInternal
             return false;
         }
 
-        public override Transceiver transceiver(ref EndpointI endpoint)
+        public override Transceiver transceiver()
         {
-            endpoint = this;
             return null;
         }
 
-        public override Acceptor acceptor(ref EndpointI endpoint, string adapterName)
+        public override Acceptor acceptor(string adapterName)
         {
 #if SILVERLIGHT
             throw new Ice.FeatureNotSupportedException("server endpoint not supported for `" + ToString() + "'");
 #else
-            TcpAcceptor p = new TcpAcceptor(instance_, host_, port_);
-            endpoint = createEndpoint(host_, p.effectivePort(), connectionId_);
-            return p;
+            return new TcpAcceptor(instance_, host_, port_);
 #endif
+        }
+
+        public override EndpointI endpoint(Transceiver transceiver)
+        {
+            return this;
+        }
+
+        public override EndpointI endpoint(Acceptor acceptor)
+        {
+            Debug.Assert(acceptor is TcpAcceptor);
+            TcpAcceptor p = (TcpAcceptor)acceptor;
+            return createEndpoint(host_, p.effectivePort(), connectionId_);
         }
 
         public override string options()

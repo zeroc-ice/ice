@@ -306,6 +306,13 @@ final class WSTransceiver implements Transceiver
     }
 
     @Override
+    public EndpointI bind(EndpointI endp)
+    {
+        assert(false);
+        return null;
+    }
+
+    @Override
     public int write(Buffer buf)
     {
         if(_state < StateOpened)
@@ -447,6 +454,12 @@ final class WSTransceiver implements Transceiver
     public String toString()
     {
         return _delegate.toString();
+    }
+
+    @Override
+    public String toDetailedString()
+    {
+        return _delegate.toDetailedString();
     }
 
     @Override

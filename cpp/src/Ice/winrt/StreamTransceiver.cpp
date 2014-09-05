@@ -10,7 +10,6 @@
 #include <Ice/winrt/StreamTransceiver.h>
 #include <Ice/Connection.h>
 #include <Ice/ProtocolInstance.h>
-#include <Ice/TraceLevels.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Buffer.h>
 #include <Ice/LocalException.h>
@@ -61,7 +60,7 @@ IceInternal::StreamTransceiver::getNativeInfo()
     return this;
 }
 
-void 
+void
 IceInternal::StreamTransceiver::setCompletedHandler(SocketOperationCompletedHandler^ handler)
 {
     _completedHandler = handler;
@@ -79,32 +78,12 @@ IceInternal::StreamTransceiver::initialize(Buffer&, Buffer&,bool&)
     }
     else if(_state <= StateConnectPending)
     {
-        try
+         if(_write.count == SOCKET_ERROR)
         {
-            if(_write.count == SOCKET_ERROR)
-            {
-                checkConnectErrorCode(__FILE__, __LINE__, _write.error, _connectAddr.host);
-            }
-            _state = StateConnected;
-            _desc = fdToString(_fd);
+            checkConnectErrorCode(__FILE__, __LINE__, _write.error, _connectAddr.host);
         }
-        catch(const Ice::LocalException& ex)
-        {
-            if(_instance->traceLevel() >= 2)
-            {
-                Trace out(_instance->logger(), _instance->traceCategory());
-                out << "failed to establish " << _instance->protocol() << " connection\n";
-                out << "local address: <not available>\n";
-                out << "remote address: " << addrToString(_connectAddr) << "\n" << ex;
-            }
-            throw;
-        }
-
-        if(_instance->traceLevel() >= 1)
-        {
-            Trace out(_instance->logger(), _instance->traceCategory());
-            out << "" << _instance->protocol() << " connection established\n" << _desc;
-        }
+        _state = StateConnected;
+        _desc = fdToString(_fd);
     }
     assert(_state == StateConnected);
     return SocketOperationNone;
@@ -121,12 +100,6 @@ IceInternal::StreamTransceiver::closing(bool initiator, const Ice::LocalExceptio
 void
 IceInternal::StreamTransceiver::close()
 {
-    if(_state == StateConnected && _instance->traceLevel() >= 1)
-    {
-        Trace out(_instance->logger(), _instance->traceCategory());
-        out << "closing " << _instance->protocol() << " connection\n" << toString();
-    }
-
     assert(_fd != INVALID_SOCKET);
     try
     {
@@ -162,14 +135,14 @@ IceInternal::StreamTransceiver::startWrite(Buffer& buf)
             IAsyncAction^ action = safe_cast<StreamSocket^>(_fd)->ConnectAsync(
                 _connectAddr.host,
                 _connectAddr.port,
-                _instance->type() == IceSSL::EndpointType ? 
+                _instance->type() == IceSSL::EndpointType ?
                         //
                         // SocketProtectionLevel::Tls12 is new in Windows 8.1 SDK
                         //
 #if defined(_MSC_VER) && _MSC_VER >= 1800
                         SocketProtectionLevel::Tls12 :
 #else
-                        SocketProtectionLevel::Ssl : 
+                        SocketProtectionLevel::Ssl :
 #endif
                         SocketProtectionLevel::PlainSocket);
 
@@ -203,7 +176,7 @@ IceInternal::StreamTransceiver::startWrite(Buffer& buf)
 
     int packetSize = static_cast<int>(buf.b.end() - buf.i);
     if(_maxSendPacketSize > 0 && packetSize > _maxSendPacketSize)
-    { 
+    {
         packetSize = _maxSendPacketSize;
     }
     assert(packetSize > 0);
@@ -240,18 +213,6 @@ IceInternal::StreamTransceiver::finishWrite(Buffer& buf)
         checkErrorCode(__FILE__, __LINE__, _write.error);
     }
 
-    if(_instance->traceLevel() >= 3)
-    {
-        int packetSize = static_cast<int>(buf.b.end() - buf.i);
-        if(_maxSendPacketSize > 0 && packetSize > _maxSendPacketSize)
-        { 
-            packetSize = _maxSendPacketSize;
-        }
-        Trace out(_instance->logger(), _instance->traceCategory());
-        out << "sent " << _write.count << " of " << packetSize << " bytes via " << _instance->protocol() << "\n"
-            << toString();
-    }
-    
     buf.i += _write.count;
 }
 
@@ -308,18 +269,6 @@ IceInternal::StreamTransceiver::finishRead(Buffer& buf, bool& hasMoreData)
         checkErrorCode(__FILE__, __LINE__, ex->HResult);
     }
 
-    if(_instance->traceLevel() >= 3)
-    {
-        int packetSize = static_cast<int>(buf.b.end() - buf.i);
-        if(_maxReceivePacketSize > 0 && packetSize > _maxReceivePacketSize)
-        {
-            packetSize = _maxReceivePacketSize;
-        }
-        Trace out(_instance->logger(), _instance->traceCategory());
-        out << "received " << _read.count << " of " << packetSize << " bytes via " << _instance->protocol() << "\n"
-            << toString();
-    }
-
     buf.i += _read.count;
 }
 
@@ -335,7 +284,13 @@ IceInternal::StreamTransceiver::toString() const
     return _desc;
 }
 
-Ice::ConnectionInfoPtr 
+string
+IceInternal::StreamTransceiver::toDetailedString() const
+{
+    return toString();
+}
+
+Ice::ConnectionInfoPtr
 IceInternal::StreamTransceiver::getInfo() const
 {
     Ice::IPConnectionInfoPtr info;
@@ -422,7 +377,7 @@ IceInternal::StreamTransceiver::checkIfErrorOrCompleted(SocketOperation op, IAsy
         {
             checkConnectErrorCode(__FILE__, __LINE__, info->ErrorCode.Value, _connectAddr.host);
         }
-        else 
+        else
         {
             checkErrorCode(__FILE__, __LINE__, info->ErrorCode.Value);
         }

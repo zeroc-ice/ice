@@ -8,7 +8,7 @@
 // **********************************************************************
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, "Ice", 
+Ice.__M.require(module, "Ice",
     [
         "../Ice/Class",
         "../Ice/Address",
@@ -89,6 +89,14 @@ var TcpEndpointI = Class(Ice.Endpoint, {
         return s;
     },
     //
+    // Convert the endpoint to its Connector string form
+    //
+    toConnectorString: function()
+    {
+        var s = this._host + ":" + this._port;
+        return s;
+    },
+    //
     // Return the endpoint information.
     //
     getInfo: function()
@@ -114,6 +122,13 @@ var TcpEndpointI = Class(Ice.Endpoint, {
     type: function()
     {
         return Ice.TCPEndpointType;
+    },
+    //
+    // Return the protocol string
+    //
+    protocol: function()
+    {
+        return "tcp";
     },
     //
     // Return the timeout for the endpoint in milliseconds. 0 means
@@ -208,14 +223,7 @@ var TcpEndpointI = Class(Ice.Endpoint, {
     },
     connect: function()
     {
-        if(this._instance.traceLevels().network >= 2)
-        {
-            var msg = "trying to establish tcp connection to " + this._host + ":" + this._port;
-            this._instance.initializationData().logger.trace(this._instance.traceLevels().networkCat, msg);
-        }
-
-        return TcpTransceiver.createOutgoing(this._instance, new Address(this._host, this._port),
-                                                this._sourceAddr);
+        return TcpTransceiver.createOutgoing(this._instance, new Address(this._host, this._port), this._sourceAddr);
     },
     hashCode: function()
     {

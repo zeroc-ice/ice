@@ -112,18 +112,9 @@ internal class EndpointI : IceInternal.EndpointI
         return _endpoint.secure();
     }
 
-    public override IceInternal.Transceiver transceiver(ref IceInternal.EndpointI endpoint)
+    public override IceInternal.Transceiver transceiver()
     {
-        IceInternal.Transceiver transceiver = _endpoint.transceiver(ref endpoint);
-        if(endpoint == _endpoint)
-        {
-            endpoint = this;
-        }
-        else
-        {
-            endpoint = new EndpointI(endpoint);
-        }
-
+        IceInternal.Transceiver transceiver = _endpoint.transceiver();
         if(transceiver != null)
         {
             return new Transceiver(transceiver);
@@ -183,11 +174,31 @@ internal class EndpointI : IceInternal.EndpointI
         }
     }
 
-    public override IceInternal.Acceptor acceptor(ref IceInternal.EndpointI endpoint, string adapterName)
+    public override IceInternal.Acceptor acceptor(string adapterName)
     {
-        Acceptor p = new Acceptor(_endpoint.acceptor(ref endpoint, adapterName));
-        endpoint = new EndpointI(endpoint);
-        return p;
+        return new Acceptor(_endpoint.acceptor(adapterName));
+    }
+
+    public override IceInternal.EndpointI endpoint(IceInternal.Transceiver transceiver)
+    {
+        Debug.Assert(transceiver is Transceiver);
+        Transceiver p = (Transceiver)transceiver;
+        IceInternal.EndpointI endpt = _endpoint.endpoint(p.getDelegate());
+        if(endpt == _endpoint)
+        {
+            return this;
+        }
+        else
+        {
+            return new EndpointI(endpt);
+        }
+    }
+
+    public override IceInternal.EndpointI endpoint(IceInternal.Acceptor acceptor)
+    {
+        Debug.Assert(acceptor is Acceptor);
+        Acceptor p = (Acceptor)acceptor;
+        return new EndpointI(_endpoint.endpoint(p.getDelegate()));
     }
 
     public override List<IceInternal.EndpointI> expand()
@@ -250,6 +261,11 @@ internal class EndpointI : IceInternal.EndpointI
         }
 
         return _endpoint.CompareTo(p._endpoint);
+    }
+
+    public IceInternal.EndpointI getDelegate()
+    {
+        return _endpoint;
     }
 
     private IceInternal.EndpointI _endpoint;

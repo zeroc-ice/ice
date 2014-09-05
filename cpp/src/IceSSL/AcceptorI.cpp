@@ -16,6 +16,7 @@
 
 #include <IceSSL/Util.h>
 
+#include <Ice/EndpointI.h>
 #include <Ice/Communicator.h>
 #include <Ice/Exception.h>
 #include <Ice/LocalException.h>
@@ -54,20 +55,16 @@ IceSSL::AcceptorI::getAsyncInfo(IceInternal::SocketOperation)
 void
 IceSSL::AcceptorI::close()
 {
-    if(_instance->traceLevel() >= 1)
-    {
-        Trace out(_instance->logger(), _instance->traceCategory());
-        out << "stopping to accept " << _instance->protocol() << " connections at " << toString();
-    }
-
     SOCKET fd = _fd;
     _fd = INVALID_SOCKET;
     IceInternal::closeSocket(fd);
 }
 
-void
-IceSSL::AcceptorI::listen()
+IceInternal::EndpointIPtr
+IceSSL::AcceptorI::listen(const IceInternal::EndpointIPtr& endp)
 {
+    const_cast<IceInternal::Address&>(_addr) = IceInternal::doBind(_fd, _addr);
+
     try
     {
         IceInternal::doListen(_fd, _backlog);
@@ -78,20 +75,7 @@ IceSSL::AcceptorI::listen()
         throw;
     }
 
-    if(_instance->traceLevel() >= 1)
-    {
-        Trace out(_instance->logger(), _instance->traceCategory());
-        out << "listening for " << _instance->protocol() << " connections at " << toString();
-
-        vector<string> interfaces = 
-            IceInternal::getHostsForEndpointExpand(IceInternal::inetAddrToString(_addr), _instance->protocolSupport(),
-                                                   true);
-        if(!interfaces.empty())
-        {
-            out << "\nlocal interfaces: ";
-            out << IceUtilInternal::joinString(interfaces, ", ");
-        }
-    }
+    return endp->endpoint(this);
 }
 
 #ifdef ICE_USE_IOCP
@@ -101,20 +85,20 @@ IceSSL::AcceptorI::startAccept()
     LPFN_ACCEPTEX AcceptEx = NULL; // a pointer to the 'AcceptEx()' function
     GUID GuidAcceptEx = WSAID_ACCEPTEX; // The Guid
     DWORD dwBytes;
-    if(WSAIoctl(_fd, 
+    if(WSAIoctl(_fd,
                 SIO_GET_EXTENSION_FUNCTION_POINTER,
                 &GuidAcceptEx,
                 sizeof(GuidAcceptEx),
                 &AcceptEx,
                 sizeof(AcceptEx),
                 &dwBytes,
-                NULL, 
+                NULL,
                 NULL) == SOCKET_ERROR)
     {
         SocketException ex(__FILE__, __LINE__);
         ex.error = IceInternal::getSocketErrno();
         throw ex;
-    }        
+    }
 
     assert(_acceptFd == INVALID_SOCKET);
     _acceptFd = IceInternal::createSocket(false, _addr);
@@ -130,7 +114,7 @@ IceSSL::AcceptorI::startAccept()
     }
 }
 
-void 
+void
 IceSSL::AcceptorI::finishAccept()
 {
     if(static_cast<int>(_info.count) == SOCKET_ERROR || _fd == INVALID_SOCKET)
@@ -162,10 +146,10 @@ IceSSL::AcceptorI::accept()
     {
         SocketException ex(__FILE__, __LINE__);
         ex.error = _acceptError;
-        throw ex;        
+        throw ex;
     }
 
-    if(setsockopt(_acceptFd, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (char*)&_acceptFd, sizeof(_acceptFd)) == 
+    if(setsockopt(_acceptFd, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (char*)&_acceptFd, sizeof(_acceptFd)) ==
        SOCKET_ERROR)
     {
         IceInternal::closeSocketNoThrow(_acceptFd);
@@ -178,12 +162,6 @@ IceSSL::AcceptorI::accept()
     SOCKET fd = _acceptFd;
     _acceptFd = INVALID_SOCKET;
 #endif
-
-    if(_instance->traceLevel() >= 1)
-    {
-        Trace out(_instance->logger(), _instance->traceCategory());
-        out << "attempting to accept " << _instance->protocol() << " connection\n" << IceInternal::fdToString(fd);
-    }
 
     //
     // SSL handshaking is performed in TransceiverI::initialize, since
@@ -202,6 +180,20 @@ string
 IceSSL::AcceptorI::toString() const
 {
     return IceInternal::addrToString(_addr);
+}
+
+string
+IceSSL::AcceptorI::toDetailedString() const
+{
+    ostringstream os;
+    os << "local address = " << toString();
+    vector<string> intfs = getHostsForEndpointExpand(inetAddrToString(_addr), _instance->protocolSupport(), true);
+    if(!intfs.empty())
+    {
+        os << "\nlocal interfaces = ";
+        os << IceUtilInternal::joinString(intfs, ", ");
+    }
+    return os.str();
 }
 
 int
@@ -254,12 +246,6 @@ IceSSL::AcceptorI::AcceptorI(const InstancePtr& instance, const string& adapterN
     //
     IceInternal::setReuseAddress(_fd, true);
 #endif
-    if(_instance->traceLevel() >= 2)
-    {
-        Trace out(_instance->logger(), _instance->traceCategory());
-        out << "attempting to bind to " << _instance->protocol() << " socket " << toString();
-    }
-    const_cast<IceInternal::Address&>(_addr) = IceInternal::doBind(_fd, _addr);
 }
 
 IceSSL::AcceptorI::~AcceptorI()

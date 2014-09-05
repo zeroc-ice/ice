@@ -120,12 +120,9 @@ namespace IceInternal
 
         //
         // Return a server side transceiver for this endpoint, or null if a
-        // transceiver can only be created by an acceptor. In case a
-        // transceiver is created, this operation also returns a new
-        // "effective" endpoint, which might differ from this endpoint,
-        // for example, if a dynamic port number is assigned.
+        // transceiver can only be created by an acceptor.
         //
-        public abstract Transceiver transceiver(ref EndpointI endpoint);
+        public abstract Transceiver transceiver();
 
         //
         // Return a connector for this endpoint, or empty list if no connector
@@ -136,12 +133,17 @@ namespace IceInternal
 
         //
         // Return an acceptor for this endpoint, or null if no acceptors
-        // is available. In case an acceptor is created, this operation
-        // also returns a new "effective" endpoint, which might differ
-        // from this endpoint, for example, if a dynamic port number is
-        // assigned.
+        // is available.
         //
-        public abstract Acceptor acceptor(ref EndpointI endpoint, string adapterName);
+        public abstract Acceptor acceptor(string adapterName);
+
+        //
+        // Return (potentially) new endpoint based on info from associated
+        // Transceiver or Acceptor, which might differ from this endpoint,
+        // for example, if a dynamic port number was assigned.
+        //
+        public abstract EndpointI endpoint(Transceiver transceiver);
+        public abstract EndpointI endpoint(Acceptor acceptor);
 
         //
         // Expand endpoint out in to separate endpoints for each local

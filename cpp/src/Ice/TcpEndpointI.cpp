@@ -136,18 +136,28 @@ IceInternal::TcpEndpointI::secure() const
 }
 
 TransceiverPtr
-IceInternal::TcpEndpointI::transceiver(EndpointIPtr& endp) const
+IceInternal::TcpEndpointI::transceiver() const
 {
-    endp = const_cast<TcpEndpointI*>(this);
     return 0;
 }
 
 AcceptorPtr
-IceInternal::TcpEndpointI::acceptor(EndpointIPtr& endp, const string&) const
+IceInternal::TcpEndpointI::acceptor(const string&) const
 {
-    TcpAcceptor* p = new TcpAcceptor(_instance, _host, _port);
-    endp = createEndpoint(_host, p->effectivePort(), _connectionId);
-    return p;
+    return new TcpAcceptor(_instance, _host, _port);
+}
+
+EndpointIPtr
+IceInternal::TcpEndpointI::endpoint(const TransceiverPtr& transceiver) const
+{
+    return const_cast<TcpEndpointI*>(this);
+}
+
+EndpointIPtr
+IceInternal::TcpEndpointI::endpoint(const AcceptorPtr& acceptor) const
+{
+    TcpAcceptor* p = dynamic_cast<TcpAcceptor*>(acceptor.get());
+    return createEndpoint(_host, p->effectivePort(), _connectionId);
 }
 
 string

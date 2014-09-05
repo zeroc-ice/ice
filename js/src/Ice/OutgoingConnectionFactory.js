@@ -8,7 +8,7 @@
 // **********************************************************************
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, "Ice", 
+Ice.__M.require(module, "Ice",
     [
         "../Ice/Class",
         "../Ice/ArrayUtil",
@@ -687,7 +687,7 @@ var OutgoingConnectionFactory = Class({
         {
             return;
         }
-        
+
         var self = this;
         Promise.all(
             self._connectionsByEndpoint.map(
@@ -724,7 +724,7 @@ var OutgoingConnectionFactory = Class({
                 {
                     Debug.assert(self._connectionsByEndpoint.size === 0);
                 }
-                
+
                 Debug.assert(self._waitPromise !== null);
                 self._waitPromise.succeed();
                 self._monitor.destroy();
@@ -932,10 +932,22 @@ var ConnectCallback = Class({
     nextEndpoint: function()
     {
         var connection = null;
+        var traceLevels = this._factory._instance.traceLevels();
         try
         {
             Debug.assert(this._index < this._endpoints.length);
             this._current = this._endpoints[this._index++];
+
+            if(traceLevels.network >= 2)
+            {
+                var s = [];
+                s.push("trying to establish ");
+                s.push(this._current.protocol());
+                s.push(" connection to ");
+                s.push(this._current.toConnectorString());
+                this._factory._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
+            }
+
             connection = this._factory.createConnection(this._current.connect(), this._current);
             var self = this;
             connection.start().then(
@@ -950,6 +962,17 @@ var ConnectCallback = Class({
         }
         catch(ex)
         {
+            if(traceLevels.network >= 2)
+            {
+                var s = [];
+                s.push("failed to establish ");
+                s.push(this._current.protocol());
+                s.push(" connection to ");
+                s.push(this._current.toString());
+                s.push(ex.toString());
+                this._factory._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
+            }
+
             this.connectionStartFailed(connection, ex);
         }
     }

@@ -99,12 +99,9 @@ public:
 
     //
     // Return a server side transceiver for this endpoint, or null if a
-    // transceiver can only be created by an acceptor. In case a
-    // transceiver is created, this operation also returns a new
-    // "effective" endpoint, which might differ from this endpoint,
-    // for example, if a dynamic port number is assigned.
+    // transceiver can only be created by an acceptor.
     //
-    virtual TransceiverPtr transceiver(EndpointIPtr&) const = 0;
+    virtual TransceiverPtr transceiver() const = 0;
 
     //
     // Return connectors for this endpoint, or empty vector if no
@@ -117,12 +114,17 @@ public:
 
     //
     // Return an acceptor for this endpoint, or null if no acceptors
-    // is available. In case an acceptor is created, this operation
-    // also returns a new "effective" endpoint, which might differ
-    // from this endpoint, for example, if a dynamic port number is
-    // assigned.
+    // is available.
     //
-    virtual AcceptorPtr acceptor(EndpointIPtr&, const std::string&) const = 0;
+    virtual AcceptorPtr acceptor(const std::string&) const = 0;
+
+    //
+    // Return (potentially) new endpoint based on info from associated
+    // Transceiver or Acceptor, which might differ from this endpoint,
+    // for example, if a dynamic port number was assigned.
+    //
+    virtual EndpointIPtr endpoint(const TransceiverPtr&) const = 0;
+    virtual EndpointIPtr endpoint(const AcceptorPtr&) const = 0;
 
     //
     // Expand endpoint out in to separate endpoints for each local

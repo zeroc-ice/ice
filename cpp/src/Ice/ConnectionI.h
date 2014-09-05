@@ -53,8 +53,8 @@ namespace Ice
 
 class LocalException;
 
-class ConnectionI : public Connection, 
-                    public IceInternal::EventHandler, 
+class ConnectionI : public Connection,
+                    public IceInternal::EventHandler,
                     public IceInternal::ResponseHandler,
                     public IceUtil::Monitor<IceUtil::Mutex>
 {
@@ -165,14 +165,14 @@ public:
     void abortBatchRequest();
 
     virtual void flushBatchRequests(); // From Connection.
-    
+
     virtual AsyncResultPtr begin_flushBatchRequests();
     virtual AsyncResultPtr begin_flushBatchRequests(const CallbackPtr&, const LocalObjectPtr& = 0);
     virtual AsyncResultPtr begin_flushBatchRequests(const Callback_Connection_flushBatchRequestsPtr&,
-                                                    const LocalObjectPtr& = 0);    
+                                                    const LocalObjectPtr& = 0);
 #ifdef ICE_CPP11
     virtual AsyncResultPtr begin_flushBatchRequests(
-        const ::IceInternal::Function<void (const ::Ice::Exception&)>&, 
+        const ::IceInternal::Function<void (const ::Ice::Exception&)>&,
         const ::IceInternal::Function<void (bool)>& = ::IceInternal::Function<void (bool)>());
 #endif
 
@@ -183,7 +183,7 @@ public:
 
     virtual void setCallback(const ConnectionCallbackPtr&);
     virtual void setACM(const IceUtil::Optional<int>&,
-                        const IceUtil::Optional<ACMClose>&, 
+                        const IceUtil::Optional<ACMClose>&,
                         const IceUtil::Optional<ACMHeartbeat>&);
     virtual ACM getACM();
 
@@ -223,9 +223,9 @@ public:
 
     void exception(const LocalException&);
     virtual void invokeException(Ice::Int, const LocalException&, int);
-    
+
     void dispatch(const StartCallbackPtr&, const std::vector<OutgoingMessage>&, Byte, Int, Int,
-                  const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&, const IceInternal::OutgoingAsyncPtr&, 
+                  const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&, const IceInternal::OutgoingAsyncPtr&,
                   const ConnectionCallbackPtr&, IceInternal::BasicStream&);
     void finish();
 
@@ -267,7 +267,7 @@ private:
     void doUncompress(IceInternal::BasicStream&, IceInternal::BasicStream&);
 #endif
     IceInternal::SocketOperation parseMessage(IceInternal::BasicStream&, Int&, Int&, Byte&,
-                                              IceInternal::ServantManagerPtr&, ObjectAdapterPtr&, 
+                                              IceInternal::ServantManagerPtr&, ObjectAdapterPtr&,
                                               IceInternal::OutgoingAsyncPtr&, ConnectionCallbackPtr&, int&);
     void invokeAll(IceInternal::BasicStream&, Int, Int, Byte,
                    const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&);
@@ -278,8 +278,11 @@ private:
     Ice::ConnectionInfoPtr initConnectionInfo() const;
     Ice::Instrumentation::ConnectionState toConnectionState(State) const;
 
+    IceInternal::SocketOperation read(IceInternal::Buffer&);
+    IceInternal::SocketOperation write(IceInternal::Buffer&);
+
     void reap();
-    
+
     AsyncResultPtr __begin_flushBatchRequests(const IceInternal::CallbackBasePtr&, const LocalObjectPtr&);
 
     Ice::CommunicatorPtr _communicator;
@@ -292,7 +295,7 @@ private:
     const IceInternal::EndpointIPtr _endpoint;
 
     mutable Ice::ConnectionInfoPtr _info;
-    
+
     ObjectAdapterPtr _adapter;
     IceInternal::ServantManagerPtr _servantManager;
 
@@ -345,6 +348,7 @@ private:
 
     State _state; // The current state.
     bool _shutdownInitiated;
+    bool _initialized;
     bool _validated;
 
     Ice::ConnectionCallbackPtr _callback;

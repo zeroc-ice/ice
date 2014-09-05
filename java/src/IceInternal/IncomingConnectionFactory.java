@@ -224,6 +224,15 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             try
             {
                 transceiver = _acceptor.accept();
+
+                if(_instance.traceLevels().network >= 2)
+                {
+                    StringBuffer s = new StringBuffer("trying to accept ");
+                    s.append(_endpoint.protocol());
+                    s.append(" connection\n");
+                    s.append(transceiver.toString());
+                    _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
+                }
             }
             catch(Ice.SocketException ex)
             {
@@ -368,13 +377,19 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
 
         try
         {
-            EndpointIHolder h = new EndpointIHolder();
-            h.value = _endpoint;
-            _transceiver = _endpoint.transceiver(h);
-
+            _transceiver = _endpoint.transceiver();
             if(_transceiver != null)
             {
-                _endpoint = h.value;
+                if(_instance.traceLevels().network >= 2)
+                {
+                    StringBuffer s = new StringBuffer("attempting to bind to ");
+                    s.append(_endpoint.protocol());
+                    s.append(" socket\n");
+                    s.append(_transceiver.toString());
+                    _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
+                }
+                _endpoint = _transceiver.bind(_endpoint);
+
                 Ice.ConnectionI connection =
                     new Ice.ConnectionI(_adapter.getCommunicator(), _instance, null, _transceiver, null, _endpoint,
                                         _adapter);
@@ -383,11 +398,29 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             }
             else
             {
-                h.value = _endpoint;
-                _acceptor = _endpoint.acceptor(h, adapterName);
-                _endpoint = h.value;
+                _acceptor = _endpoint.acceptor(adapterName);
                 assert(_acceptor != null);
-                _acceptor.listen();
+
+                if(_instance.traceLevels().network >= 2)
+                {
+                    StringBuffer s = new StringBuffer("attempting to bind to ");
+                    s.append(_endpoint.protocol());
+                    s.append(" socket ");
+                    s.append(_acceptor.toString());
+                    _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
+                }
+
+                _endpoint = _acceptor.listen(_endpoint);
+
+                if(_instance.traceLevels().network >= 1)
+                {
+                    StringBuffer s = new StringBuffer("listening for ");
+                    s.append(_endpoint.protocol());
+                    s.append(" connections\n");
+                    s.append(_acceptor.toDetailedString());
+                    _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
+                }
+
                 ((Ice.ObjectAdapterI)_adapter).getThreadPool().initialize(this);
             }
         }
@@ -412,7 +445,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             {
                 try
                 {
-                    _acceptor.close();
+                    closeAcceptor();
                 }
                 catch(Ice.LocalException e)
                 {
@@ -548,7 +581,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                 assert(_state == StateClosed);
                 if(_acceptor != null)
                 {
-                    _acceptor.close();
+                    closeAcceptor();
                 }
                 break;
             }
@@ -556,6 +589,20 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
 
         _state = state;
         notifyAll();
+    }
+
+    private void
+    closeAcceptor()
+    {
+        if(_instance.traceLevels().network >= 1)
+        {
+            StringBuffer s = new StringBuffer("stopping to accept ");
+            s.append(_endpoint.protocol());
+            s.append(" connections at ");
+            s.append(_acceptor.toString());
+            _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
+        }
+        _acceptor.close();
     }
 
     private void

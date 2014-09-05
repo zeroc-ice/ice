@@ -9,6 +9,7 @@
 
 #include <Acceptor.h>
 #include <Transceiver.h>
+#include <EndpointI.h>
 
 using namespace std;
 
@@ -24,10 +25,12 @@ Acceptor::close()
     _acceptor->close();
 }
 
-void
-Acceptor::listen()
+IceInternal::EndpointIPtr
+Acceptor::listen(const IceInternal::EndpointIPtr& endp)
 {
-    _acceptor->listen();
+    EndpointI* p = dynamic_cast<EndpointI*>(endp.get());
+    IceInternal::EndpointIPtr endpoint = _acceptor->listen(p->delegate());
+    return endp->endpoint(this);
 }
 
 #ifdef ICE_USE_IOCP
@@ -60,6 +63,12 @@ string
 Acceptor::toString() const
 {
     return _acceptor->toString();
+}
+
+string
+Acceptor::toDetailedString() const
+{
+    return _acceptor->toDetailedString();
 }
 
 Acceptor::Acceptor(const IceInternal::AcceptorPtr& acceptor) : _acceptor(acceptor)

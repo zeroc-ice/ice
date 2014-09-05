@@ -33,7 +33,7 @@ public:
 
     virtual NativeInfoPtr getNativeInfo();
     virtual void setCompletedHandler(SocketOperationCompletedHandler^);
-    
+
     virtual SocketOperation initialize(Buffer&, Buffer&, bool&);
     virtual SocketOperation closing(bool, const Ice::LocalException&);
     virtual void close();
@@ -47,6 +47,7 @@ public:
 
     virtual std::string protocol() const;
     virtual std::string toString() const;
+    virtual std::string toDetailedString() const;
     virtual Ice::ConnectionInfoPtr getInfo() const;
     virtual void checkSendSize(const Buffer&, size_t);
 
@@ -61,9 +62,9 @@ private:
 
     friend class StreamConnector;
     friend class StreamAcceptor;
-    
+
     const ProtocolInstancePtr _instance;
-    
+
     State _state;
     std::string _desc;
     Address _connectAddr;

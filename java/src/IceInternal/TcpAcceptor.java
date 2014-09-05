@@ -20,37 +20,16 @@ class TcpAcceptor implements Acceptor
     @Override
     public void close()
     {
-        if(_instance.traceLevel() >= 1)
-        {
-            String s = "stopping to accept " + protocol() + " connections at " + toString();
-            _instance.logger().trace(_instance.traceCategory(), s);
-        }
-
         assert(_fd != null);
         Network.closeSocketNoThrow(_fd);
         _fd = null;
     }
 
     @Override
-    public void listen()
+    public EndpointI listen(EndpointI endp)
     {
-        // Nothing to do.
-
-        if(_instance.traceLevel() >= 1)
-        {
-            StringBuffer s = new StringBuffer("listening for " + protocol() + " connections at ");
-            s.append(toString());
-
-            java.util.List<String> interfaces =
-                Network.getHostsForEndpointExpand(_addr.getAddress().getHostAddress(), _instance.protocolSupport(),
-                                                  true);
-            if(!interfaces.isEmpty())
-            {
-                s.append("\nlocal interfaces: ");
-                s.append(IceUtilInternal.StringUtil.joinString(interfaces, ", "));
-            }
-            _instance.logger().trace(_instance.traceCategory(), s.toString());
-        }
+        _addr = Network.doBind(_fd, _addr, _backlog);
+        return endp.endpoint(this);
     }
 
     @Override
@@ -59,13 +38,6 @@ class TcpAcceptor implements Acceptor
         java.nio.channels.SocketChannel fd = Network.doAccept(_fd);
         Network.setBlock(fd, false);
         Network.setTcpBufSize(fd, _instance.properties(), _instance.logger());
-
-        if(_instance.traceLevel() >= 1)
-        {
-            String s = "accepted " + protocol() + " connection\n" + Network.fdToString(fd);
-            _instance.logger().trace(_instance.traceCategory(), s);
-        }
-
         return new TcpTransceiver(_instance, fd);
     }
 
@@ -79,6 +51,22 @@ class TcpAcceptor implements Acceptor
     public String toString()
     {
         return Network.addrToString(_addr);
+    }
+
+    @Override
+    public String toDetailedString()
+    {
+        StringBuffer s = new StringBuffer("local address = ");
+        s.append(toString());
+
+        java.util.List<String> intfs =
+            Network.getHostsForEndpointExpand(_addr.getAddress().getHostAddress(), _instance.protocolSupport(), true);
+        if(!intfs.isEmpty())
+        {
+            s.append("\nlocal interfaces = ");
+            s.append(IceUtilInternal.StringUtil.joinString(intfs, ", "));
+        }
+        return s.toString();
     }
 
     int effectivePort()
@@ -114,12 +102,6 @@ class TcpAcceptor implements Acceptor
             }
 
             _addr = Network.getAddressForServer(host, port, instance.protocolSupport(), instance.preferIPv6());
-            if(instance.traceLevel() >= 2)
-            {
-                String s = "attempting to bind to " + protocol() + " socket " + toString();
-                instance.logger().trace(instance.traceCategory(), s);
-            }
-            _addr = Network.doBind(_fd, _addr, _backlog);
         }
         catch(RuntimeException ex)
         {

@@ -11,7 +11,7 @@ var net = require("net");
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
 
-Ice.__M.require(module, "Ice", 
+Ice.__M.require(module, "Ice",
     [
         "../Ice/Class",
         "../Ice/Debug",
@@ -40,7 +40,6 @@ var TcpTransceiver = Ice.Class({
     __init__: function(instance)
     {
         var id = instance.initializationData();
-        this._traceLevels = instance.traceLevels();
         this._logger = id.logger;
         this._readBuffers = [];
         this._readPosition = 0;
@@ -68,8 +67,8 @@ var TcpTransceiver = Ice.Class({
             {
                 this._state = StateConnectPending;
                 this._fd = net.createConnection({port: this._addr.port,
-                                                    host: this._addr.host,
-                                                    localAddress: this._sourceAddr});
+                                                 host: this._addr.host,
+                                                 localAddress: this._sourceAddr});
 
                 var self = this;
                 this._fd.on("connect", function() { self.socketConnected(); });
@@ -111,25 +110,10 @@ var TcpTransceiver = Ice.Class({
             {
                 this._exception = translateError(this._state, err);
             }
-
-            if(this._traceLevels.network >= 2)
-            {
-                var s = [];
-                s.push("failed to establish tcp connection\n");
-                s.push(fdToString(this._fd, this._proxy, this._addr.host, this._addr.port));
-                this._logger.trace(this._traceLevels.networkCat, s.join(""));
-            }
-
             throw this._exception;
         }
 
         Debug.assert(this._state === StateConnected);
-        if(this._traceLevels.network >= 1)
-        {
-            var s = "tcp connection established\n" + this._desc;
-            this._logger.trace(this._traceLevels.networkCat, s);
-        }
-
         return SocketOperation.None;
     },
     register: function()
@@ -148,12 +132,6 @@ var TcpTransceiver = Ice.Class({
     },
     close: function()
     {
-        if(this._state > StateConnectPending && this._traceLevels.network >= 1)
-        {
-            this._logger.trace(this._traceLevels.networkCat, "closing " + this.type() + " connection\n" +
-                                this._desc);
-        }
-
         Debug.assert(this._fd !== null);
         try
         {
@@ -198,13 +176,6 @@ var TcpTransceiver = Ice.Class({
                     return;
                 }
 
-                if(self._traceLevels.network >= 3)
-                {
-                    self._logger.trace(self._traceLevels.networkCat, 
-                        "sent " + packetSize + " of " + byteBuffer.remaining + " bytes via " +
-                        self.type() + "\n" + self._desc);
-                }
-
                 byteBuffer.position = byteBuffer.position + packetSize;
                 if(this._maxSendPacketSize > 0 && byteBuffer.remaining > this._maxSendPacketSize)
                 {
@@ -219,13 +190,6 @@ var TcpTransceiver = Ice.Class({
 
             if(sync)
             {
-                if(self._traceLevels.network >= 3)
-                {
-                    self._logger.trace(self._traceLevels.networkCat, 
-                                       "sent " + packetSize + " of " + byteBuffer.remaining + " bytes via " +
-                                       self.type() + "\n" + self._desc);
-                }
-
                 byteBuffer.position = byteBuffer.position + packetSize;
 
                 if(this._maxSendPacketSize > 0 && byteBuffer.remaining > this._maxSendPacketSize)
@@ -291,14 +255,6 @@ var TcpTransceiver = Ice.Class({
                 }
             }
         }
-
-        var n = remaining - byteBuffer.remaining;
-        if(n > 0 && this._traceLevels.network >= 3)
-        {
-            var msg = "received " + n + " of " + remaining + " bytes via " + this.type() + "\n" + this._desc;
-            this._logger.trace(this._traceLevels.networkCat, msg);
-        }
-
         moreData.value = this._readBuffers.length > 0;
 
         return byteBuffer.remaining === 0;
@@ -445,7 +401,7 @@ TcpTransceiver.createOutgoing = function(instance, addr, sourceAddr)
     transceiver._fd = null;
     transceiver._addr = addr;
     transceiver._sourceAddr = sourceAddr;
-    transceiver._desc = "remote address: " + addr.host + ":" + addr.port + " <not connected>";
+    transceiver._desc = "local address = <not connected>\nremote address = " + addr.host + ":" + addr.port;
     transceiver._state = StateNeedConnect;
     transceiver._registered = false;
     transceiver._exception = null;

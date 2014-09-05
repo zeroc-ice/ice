@@ -11,7 +11,6 @@
 
 namespace IceInternal
 {
-
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -23,35 +22,16 @@ namespace IceInternal
     {
         public virtual void close()
         {
-            if(_instance.traceLevel() >= 1)
-            {
-                string s = "stopping to accept " + protocol() + " connections at " + ToString();
-                _instance.logger().trace(_instance.traceCategory(), s);
-            }
-
             Debug.Assert(_acceptFd == null);
             _fd.Close();
             _fd = null;
         }
 
-        public virtual void listen()
+        public virtual EndpointI listen(EndpointI endp)
         {
+            _addr = Network.doBind(_fd, _addr);
             Network.doListen(_fd, _backlog);
-
-            if(_instance.traceLevel() >= 1)
-            {
-                StringBuilder s = new StringBuilder("listening for " + protocol() + " connections at ");
-                s.Append(ToString());
-
-                List<string> interfaces =
-                    Network.getHostsForEndpointExpand(_addr.Address.ToString(), _instance.protocolSupport(), true);
-                if(interfaces.Count != 0)
-                {
-                    s.Append("\nlocal interfaces: ");
-                    s.Append(String.Join(", ", interfaces.ToArray()));
-                }
-                _instance.logger().trace(_instance.traceCategory(), s.ToString());
-            }
+            return endp.endpoint(this);
         }
 
         public virtual bool startAccept(AsyncCallback callback, object state)
@@ -100,13 +80,6 @@ namespace IceInternal
 #  if !COMPACT
             Network.setTcpBufSize(_acceptFd, _instance.properties(), _instance.logger());
 #  endif
-
-            if(_instance.traceLevel() >= 1)
-            {
-                string s = "accepted " + protocol() + " connection\n" + Network.fdToString(_acceptFd);
-                _instance.logger().trace(_instance.traceCategory(), s);
-            }
-
             Socket acceptFd = _acceptFd;
             _acceptFd = null;
             _acceptError = null;
@@ -121,6 +94,21 @@ namespace IceInternal
         public override string ToString()
         {
             return Network.addrToString(_addr);
+        }
+
+        public string toDetailedString()
+        {
+            StringBuilder s = new StringBuilder("local address = ");
+            s.Append(ToString());
+
+            List<string> intfs =
+                Network.getHostsForEndpointExpand(_addr.Address.ToString(), _instance.protocolSupport(), true);
+            if(intfs.Count != 0)
+            {
+                s.Append("\nlocal interfaces = ");
+                s.Append(String.Join(", ", intfs.ToArray()));
+            }
+            return s.ToString();
         }
 
         internal int effectivePort()
@@ -158,14 +146,6 @@ namespace IceInternal
                     //
                     Network.setReuseAddress(_fd, true);
                 }
-
-                if(_instance.traceLevel() >= 2)
-                {
-                    string s = "attempting to bind to " + _instance.protocol() + " socket " +
-                        Network.addrToString(_addr);
-                    _instance.logger().trace(_instance.traceCategory(), s);
-                }
-                _addr = Network.doBind(_fd, _addr);
             }
             catch(System.Exception)
             {

@@ -307,6 +307,12 @@ namespace IceInternal
             _state = StateClosed;
         }
 
+        public EndpointI bind(EndpointI endp)
+        {
+            Debug.Assert(false);
+            return null;
+        }
+
         public void destroy()
         {
             _delegate.destroy();
@@ -629,6 +635,11 @@ namespace IceInternal
         public override string ToString()
         {
             return _delegate.ToString();
+        }
+
+        public string toDetailedString()
+        {
+            return _delegate.toDetailedString();
         }
 
         internal WSTransceiver(ProtocolInstance instance, IceInternal.Transceiver del, string host, int port, string resource)

@@ -43,6 +43,11 @@ internal class Transceiver : IceInternal.Transceiver
         _transceiver.close();
     }
 
+    public IceInternal.EndpointI bind(IceInternal.EndpointI endp)
+    {
+        return _transceiver.bind(endp);
+    }
+
     public int write(IceInternal.Buffer buf)
     {
         if(!_configuration.writeReady() && buf.b.hasRemaining())
@@ -210,6 +215,11 @@ internal class Transceiver : IceInternal.Transceiver
         return _transceiver.ToString();
     }
 
+    public string toDetailedString()
+    {
+        return _transceiver.toDetailedString();
+    }
+
     public void checkSendSize(IceInternal.Buffer buf, int messageSizeMax)
     {
         _transceiver.checkSendSize(buf, messageSizeMax);
@@ -218,6 +228,11 @@ internal class Transceiver : IceInternal.Transceiver
     public void destroy()
     {
         _transceiver.destroy();
+    }
+
+    public IceInternal.Transceiver getDelegate()
+    {
+        return _transceiver;
     }
 
     //

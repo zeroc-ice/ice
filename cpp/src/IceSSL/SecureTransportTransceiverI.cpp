@@ -176,185 +176,152 @@ IceSSL::TransceiverI::getNativeInfo()
 IceInternal::SocketOperation
 IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& writeBuffer, bool&)
 {
-    try
+    if(_state == StateNeedConnect)
     {
-        if(_state == StateNeedConnect)
-        {
-            _state = StateConnectPending;
-            return IceInternal::SocketOperationConnect;
-        }
-        else if(_state <= StateConnectPending)
-        {
-            IceInternal::doFinishConnect(_fd);
-            _desc = IceInternal::fdToString(_fd, _proxy, _addr, true);
+        _state = StateConnectPending;
+        return IceInternal::SocketOperationConnect;
+    }
+    else if(_state <= StateConnectPending)
+    {
+        IceInternal::doFinishConnect(_fd);
+        _desc = IceInternal::fdToString(_fd, _proxy, _addr, true);
 
-            if(_proxy)
+        if(_proxy)
+        {
+            //
+            // Prepare the read & write buffers in advance.
+            //
+            _proxy->beginWriteConnectRequest(_addr, writeBuffer);
+            _proxy->beginReadConnectRequestResponse(readBuffer);
+
+            //
+            // Write the proxy connection message using TCP.
+            //
+            if(writeRaw(writeBuffer))
             {
                 //
-                // Prepare the read & write buffers in advance.
+                // Write completed without blocking.
                 //
-                _proxy->beginWriteConnectRequest(_addr, writeBuffer);
-                _proxy->beginReadConnectRequestResponse(readBuffer);
+                _proxy->endWriteConnectRequest(writeBuffer);
 
                 //
-                // Write the proxy connection message using TCP.
+                // Try to read the response using TCP.
                 //
-                if(writeRaw(writeBuffer))
+                if(readRaw(readBuffer))
                 {
                     //
-                    // Write completed without blocking.
+                    // Read completed without blocking - fall through.
                     //
-                    _proxy->endWriteConnectRequest(writeBuffer);
-
-                    //
-                    // Try to read the response using TCP.
-                    //
-                    if(readRaw(readBuffer))
-                    {
-                        //
-                        // Read completed without blocking - fall through.
-                        //
-                        _proxy->endReadConnectRequestResponse(readBuffer);
-                    }
-                    else
-                    {
-                        //
-                        // Return SocketOperationRead to indicate we need to complete the read.
-                        //
-                        _state = StateProxyConnectRequestPending; // Wait for proxy response
-                        return IceInternal::SocketOperationRead;
-                    }
+                    _proxy->endReadConnectRequestResponse(readBuffer);
                 }
                 else
                 {
                     //
-                    // Return SocketOperationWrite to indicate we need to complete the write.
+                    // Return SocketOperationRead to indicate we need to complete the read.
                     //
-                    _state = StateProxyConnectRequest; // Send proxy connect request
-                    return IceInternal::SocketOperationWrite;
+                    _state = StateProxyConnectRequestPending; // Wait for proxy response
+                    return IceInternal::SocketOperationRead;
                 }
-            }
-
-            _state = StateConnected;
-        }
-        else if(_state == StateProxyConnectRequest)
-        {
-            //
-            // Write completed.
-            //
-            _proxy->endWriteConnectRequest(writeBuffer);
-            _state = StateProxyConnectRequestPending; // Wait for proxy response
-            return IceInternal::SocketOperationRead;
-        }
-        else if(_state == StateProxyConnectRequestPending)
-        {
-            //
-            // Read completed.
-            //
-            _proxy->endReadConnectRequestResponse(readBuffer);
-            _state = StateConnected;
-        }
-
-        assert(_state == StateConnected);
-
-        OSStatus err = 0;
-        if(!_ssl)
-        {
-            //
-            // Initialize SSL context
-            //
-            _ssl = _engine->newContext(_incoming);
-            if((err = SSLSetIOFuncs(_ssl, socketRead, socketWrite)))
-            {
-                throw SecurityException(__FILE__, __LINE__, "IceSSL: setting IO functions failed\n" +
-                                        errorToString(err));
-            }
-
-            if((err = SSLSetConnection(_ssl, reinterpret_cast<SSLConnectionRef>(this))))
-            {
-                throw SecurityException(__FILE__, __LINE__, "IceSSL: setting SSL connection failed\n" +
-                                        errorToString(err));
-            }
-        }
-
-        SSLSessionState state;
-        SSLGetSessionState(_ssl, &state);
-
-        //
-        // SSL Handshake
-        //
-        while(state == kSSLHandshake || state == kSSLIdle)
-        {
-            err = SSLHandshake(_ssl);
-            if(err == noErr)
-            {
-                break; // We're done!
-            }
-            else if(err == errSSLWouldBlock)
-            {
-                assert(_flags & SSLWantRead || _flags & SSLWantWrite);
-                return _flags & SSLWantRead ? IceInternal::SocketOperationRead : IceInternal::SocketOperationWrite;
-            }
-            else if(err == errSSLPeerAuthCompleted)
-            {
-                assert(!_trust);
-                err = SSLCopyPeerTrust(_ssl, &_trust);
-                if(err == noErr)
-                {
-                    checkTrustResult(_trust, _engine, _instance);
-                    continue; // Call SSLHandshake to resume the handsake.
-                }
-                // Let it fall through, this will raise a SecurityException with the SSLCopyPeerTrust error.
-            }
-            else if(err == errSSLClosedGraceful || err == errSSLClosedAbort)
-            {
-                throw ConnectionLostException(__FILE__, __LINE__, 0);
-            }
-
-            IceInternal::Address remoteAddr;
-            string desc = "<not available>";
-            if(IceInternal::fdToRemoteAddress(_fd, remoteAddr))
-            {
-                desc = IceInternal::addrToString(remoteAddr);
-            }
-            ostringstream os;
-            os << "IceSSL: ssl error occurred for new " << (_incoming ? "incoming" : "outgoing") << " connection:\n"
-               << "remote address = " << desc << "\n" << errorToString(err);
-            throw ProtocolException(__FILE__, __LINE__, os.str());
-        }
-        _engine->verifyPeer(_fd, _host, getNativeConnectionInfo());
-        _state = StateHandshakeComplete;
-    }
-    catch(const Ice::LocalException& ex)
-    {
-        if(_instance->traceLevel() >= 2)
-        {
-            Trace out(_instance->logger(), _instance->traceCategory());
-            out << "failed to establish " << _instance->protocol() << " connection\n";
-            if(_incoming)
-            {
-                out << IceInternal::fdToString(_fd) << "\n" << ex;
             }
             else
             {
-                out << IceInternal::fdToString(_fd, _proxy, _addr, false) << "\n" << ex;
+                //
+                // Return SocketOperationWrite to indicate we need to complete the write.
+                //
+                _state = StateProxyConnectRequest; // Send proxy connect request
+                return IceInternal::SocketOperationWrite;
             }
         }
-        throw;
+
+        _state = StateConnected;
+    }
+    else if(_state == StateProxyConnectRequest)
+    {
+        //
+        // Write completed.
+        //
+        _proxy->endWriteConnectRequest(writeBuffer);
+        _state = StateProxyConnectRequestPending; // Wait for proxy response
+        return IceInternal::SocketOperationRead;
+    }
+    else if(_state == StateProxyConnectRequestPending)
+    {
+        //
+        // Read completed.
+        //
+        _proxy->endReadConnectRequestResponse(readBuffer);
+        _state = StateConnected;
     }
 
-    if(_instance->traceLevel() >= 1)
+    assert(_state == StateConnected);
+
+    OSStatus err = 0;
+    if(!_ssl)
     {
-        Trace out(_instance->logger(), _instance->traceCategory());
-        if(_incoming)
+        //
+        // Initialize SSL context
+        //
+        _ssl = _engine->newContext(_incoming);
+        if((err = SSLSetIOFuncs(_ssl, socketRead, socketWrite)))
         {
-            out << "accepted " << _instance->protocol() << " connection\n" << _desc;
+            throw SecurityException(__FILE__, __LINE__, "IceSSL: setting IO functions failed\n" +
+                                    errorToString(err));
         }
-        else
+
+        if((err = SSLSetConnection(_ssl, reinterpret_cast<SSLConnectionRef>(this))))
         {
-            out << _instance->protocol() << " connection established\n" << _desc;
+            throw SecurityException(__FILE__, __LINE__, "IceSSL: setting SSL connection failed\n" +
+                                    errorToString(err));
         }
     }
+
+    SSLSessionState state;
+    SSLGetSessionState(_ssl, &state);
+
+    //
+    // SSL Handshake
+    //
+    while(state == kSSLHandshake || state == kSSLIdle)
+    {
+        err = SSLHandshake(_ssl);
+        if(err == noErr)
+        {
+            break; // We're done!
+        }
+        else if(err == errSSLWouldBlock)
+        {
+            assert(_flags & SSLWantRead || _flags & SSLWantWrite);
+            return _flags & SSLWantRead ? IceInternal::SocketOperationRead : IceInternal::SocketOperationWrite;
+        }
+        else if(err == errSSLPeerAuthCompleted)
+        {
+            assert(!_trust);
+            err = SSLCopyPeerTrust(_ssl, &_trust);
+            if(err == noErr)
+            {
+                checkTrustResult(_trust, _engine, _instance);
+                continue; // Call SSLHandshake to resume the handsake.
+            }
+            // Let it fall through, this will raise a SecurityException with the SSLCopyPeerTrust error.
+        }
+        else if(err == errSSLClosedGraceful || err == errSSLClosedAbort)
+        {
+            throw ConnectionLostException(__FILE__, __LINE__, 0);
+        }
+
+        IceInternal::Address remoteAddr;
+        string desc = "<not available>";
+        if(IceInternal::fdToRemoteAddress(_fd, remoteAddr))
+        {
+            desc = IceInternal::addrToString(remoteAddr);
+        }
+        ostringstream os;
+        os << "IceSSL: ssl error occurred for new " << (_incoming ? "incoming" : "outgoing") << " connection:\n"
+           << "remote address = " << desc << "\n" << errorToString(err);
+        throw ProtocolException(__FILE__, __LINE__, os.str());
+    }
+    _engine->verifyPeer(_fd, _host, getNativeConnectionInfo());
+    _state = StateHandshakeComplete;
 
     if(_instance->engine()->securityTraceLevel() >= 1)
     {
@@ -396,12 +363,6 @@ IceSSL::TransceiverI::closing(bool initiator, const Ice::LocalException&)
 void
 IceSSL::TransceiverI::close()
 {
-    if(_state == StateHandshakeComplete && _instance->traceLevel() >= 1)
-    {
-        Trace out(_instance->logger(), _instance->traceCategory());
-        out << "closing " << _instance->protocol() << " connection\n" << toString();
-    }
-
     if(_trust)
     {
         CFRelease(_trust);
@@ -493,21 +454,6 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
             }
         }
 
-        if(_instance->traceLevel() >= 3)
-        {
-            Trace out(_instance->logger(), _instance->traceCategory());
-            out << "sent ";
-            if(_buffered)
-            {
-                out << _buffered << " of " << _buffered;
-            }
-            else
-            {
-                out << processed << " of " << packetSize;
-            }
-            out << " bytes via " << protocol() << "\n" << toString();
-        }
-
         if(_buffered)
         {
             buf.i += _buffered;
@@ -558,16 +504,6 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool&)
         assert(_fd != INVALID_SOCKET);
         size_t processed = 0;
         OSStatus err = SSLRead(_ssl, reinterpret_cast<void*>(buf.i), packetSize, &processed);
-
-        if(processed)
-        {
-            if(_instance->traceLevel() >= 3)
-            {
-                Trace out(_instance->logger(), _instance->traceCategory());
-                out << "received " << processed << " of " << packetSize << " bytes via " << protocol() << "\n"
-                    << toString();
-            }
-        }
 
         if(err)
         {
@@ -630,6 +566,12 @@ IceSSL::TransceiverI::toString() const
     return _desc;
 }
 
+string
+IceSSL::TransceiverI::toDetailedString() const
+{
+    return toString();
+}
+
 Ice::ConnectionInfoPtr
 IceSSL::TransceiverI::getInfo() const
 {
@@ -670,11 +612,6 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const
     {
         _state = StateConnected;
         _desc = IceInternal::fdToString(_fd, _proxy, _addr, true);
-        if(_instance->traceLevel() >= 1)
-        {
-            Trace out(_instance->logger(), _instance->traceCategory());
-            out << _instance->protocol() << " connection established\n" << _desc;
-        }
     }
     else
     {
@@ -790,12 +727,6 @@ IceSSL::TransceiverI::writeRaw(IceInternal::Buffer& buf)
             }
         }
 
-        if(_instance->traceLevel() >= 3)
-        {
-            Trace out(_instance->logger(), _instance->traceCategory());
-            out << "sent " << ret << " of " << packetSize << " bytes via " << protocol() << "\n" << toString();
-        }
-
         buf.i += ret;
 
         if(packetSize > buf.b.end() - buf.i)
@@ -847,12 +778,6 @@ IceSSL::TransceiverI::readRaw(IceInternal::Buffer& buf)
             {
                 throw SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
             }
-        }
-
-        if(_instance->traceLevel() >= 3)
-        {
-            Trace out(_instance->logger(), _instance->traceCategory());
-            out << "received " << ret << " of " << packetSize << " bytes via " << protocol() << "\n" << toString();
         }
 
         buf.i += ret;

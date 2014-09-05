@@ -23,27 +23,9 @@ using namespace IceInternal;
 TransceiverPtr
 IceInternal::StreamConnector::connect()
 {
-    if(_instance->traceLevel() >= 2)
-    {
-        Trace out(_instance->logger(), _instance->traceCategory());
-        out << "trying to establish " << _instance->protocol() << " connection to " << toString();
-    }
-
-    try
-    {
-        TransceiverPtr transceiver = new StreamTransceiver(_instance, createSocket(false, _addr), false);
-        dynamic_cast<StreamTransceiver*>(transceiver.get())->connect(_addr);
-        return transceiver;
-    }
-    catch(const Ice::LocalException& ex)
-    {
-        if(_instance->traceLevel() >= 2)
-        {
-            Trace out(_instance->logger(), _instance->traceCategory());
-            out << "failed to establish " << _instance->protocol() << " connection to " << toString() << "\n" << ex;
-        }
-        throw;
-    }
+    TransceiverPtr transceiver = new StreamTransceiver(_instance, createSocket(false, _addr), false);
+    dynamic_cast<StreamTransceiver*>(transceiver.get())->connect(_addr);
+    return transceiver;
 }
 
 Short
@@ -76,12 +58,12 @@ IceInternal::StreamConnector::operator==(const Connector& r) const
     {
         return false;
     }
-    
+
     if(_timeout != p->_timeout)
     {
         return false;
     }
-    
+
     if(_connectionId != p->_connectionId)
     {
         return false;
@@ -122,7 +104,7 @@ IceInternal::StreamConnector::operator<(const Connector& r) const
     {
         return false;
     }
-    
+
     if(_connectionId < p->_connectionId)
     {
         return true;
@@ -134,7 +116,7 @@ IceInternal::StreamConnector::operator<(const Connector& r) const
     return compareAddress(_addr, p->_addr) < 0;
 }
 
-IceInternal::StreamConnector::StreamConnector(const ProtocolInstancePtr& instance, const Address& addr, 
+IceInternal::StreamConnector::StreamConnector(const ProtocolInstancePtr& instance, const Address& addr,
                                               Ice::Int timeout, const string& connectionId) :
     _instance(instance),
     _addr(addr),

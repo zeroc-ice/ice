@@ -140,31 +140,40 @@ final class TcpEndpointI extends IPEndpointI
 
     //
     // Return a server side transceiver for this endpoint, or null if a
-    // transceiver can only be created by an acceptor. In case a
-    // transceiver is created, this operation also returns a new
-    // "effective" endpoint, which might differ from this endpoint,
-    // for example, if a dynamic port number is assigned.
+    // transceiver can only be created by an acceptor.
     //
     @Override
-    public Transceiver transceiver(EndpointIHolder endpoint)
+    public Transceiver transceiver()
     {
-        endpoint.value = this;
         return null;
     }
 
     //
     // Return an acceptor for this endpoint, or null if no acceptors
-    // is available. In case an acceptor is created, this operation
-    // also returns a new "effective" endpoint, which might differ
-    // from this endpoint, for example, if a dynamic port number is
-    // assigned.
+    // is available.
     //
     @Override
-    public Acceptor acceptor(EndpointIHolder endpoint, String adapterName)
+    public Acceptor acceptor(String adapterName)
     {
-        TcpAcceptor p = new TcpAcceptor(_instance, _host, _port);
-        endpoint.value = createEndpoint(_host, p.effectivePort(), _connectionId);
-        return p;
+        return new TcpAcceptor(_instance, _host, _port);
+    }
+
+    //
+    // Return (potentially) new endpoint based on info from associated
+    // Transceiver or Acceptor, which might differ from this endpoint,
+    // for example, if a dynamic port number was assigned.
+    //
+    @Override
+    public EndpointI endpoint(Transceiver transceiver)
+    {
+        return this;
+    }
+
+    @Override
+    public EndpointI endpoint(Acceptor acceptor)
+    {
+        TcpAcceptor p = (TcpAcceptor)acceptor;
+        return createEndpoint(_host, p.effectivePort(), _connectionId);
     }
 
     @Override

@@ -139,18 +139,9 @@ final class EndpointI extends IceInternal.EndpointI
 
     @Override
     public IceInternal.Transceiver
-    transceiver(IceInternal.EndpointIHolder endpoint)
+    transceiver()
     {
-        IceInternal.Transceiver transceiver = _endpoint.transceiver(endpoint);
-        if(endpoint.value == _endpoint)
-        {
-            endpoint.value = this;
-        }
-        else
-        {
-            endpoint.value = new EndpointI(_configuration, endpoint.value);
-        }
-
+        IceInternal.Transceiver transceiver = _endpoint.transceiver();
         if(transceiver != null)
         {
             return new Transceiver(_configuration, transceiver);
@@ -181,7 +172,7 @@ final class EndpointI extends IceInternal.EndpointI
         class Callback implements IceInternal.EndpointI_connectors
         {
             @Override
-            public void 
+            public void
             connectors(java.util.List<IceInternal.Connector> cons)
             {
                 java.util.List<IceInternal.Connector> connectors = new java.util.ArrayList<IceInternal.Connector>();
@@ -213,11 +204,33 @@ final class EndpointI extends IceInternal.EndpointI
 
     @Override
     public IceInternal.Acceptor
-    acceptor(IceInternal.EndpointIHolder endpoint, String adapterName)
+    acceptor(String adapterName)
     {
-        Acceptor p = new Acceptor(_configuration, _endpoint.acceptor(endpoint, adapterName));
-        endpoint.value = new EndpointI(_configuration, endpoint.value);
-        return p;
+        return new Acceptor(_configuration, _endpoint.acceptor(adapterName));
+    }
+
+    @Override
+    public IceInternal.EndpointI
+    endpoint(IceInternal.Transceiver transceiver)
+    {
+        Transceiver p = (Transceiver)transceiver;
+        IceInternal.EndpointI endpt = _endpoint.endpoint(p.delegate());
+        if(endpt == _endpoint)
+        {
+            return this;
+        }
+        else
+        {
+            return new EndpointI(_configuration, endpt);
+        }
+    }
+
+    @Override
+    public IceInternal.EndpointI
+    endpoint(IceInternal.Acceptor acceptor)
+    {
+        Acceptor p = (Acceptor)acceptor;
+        return new EndpointI(_configuration, _endpoint.endpoint(p.delegate()));
     }
 
     @Override
@@ -301,6 +314,12 @@ final class EndpointI extends IceInternal.EndpointI
         }
 
         return _endpoint.compareTo(p._endpoint);
+    }
+
+    public IceInternal.EndpointI
+    delegate()
+    {
+        return _endpoint;
     }
 
     private IceInternal.EndpointI _endpoint;

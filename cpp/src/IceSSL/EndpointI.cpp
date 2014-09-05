@@ -138,18 +138,28 @@ IceSSL::EndpointI::secure() const
 }
 
 IceInternal::TransceiverPtr
-IceSSL::EndpointI::transceiver(IceInternal::EndpointIPtr& endp) const
+IceSSL::EndpointI::transceiver() const
 {
-    endp = const_cast<EndpointI*>(this);
     return 0;
 }
 
 IceInternal::AcceptorPtr
-IceSSL::EndpointI::acceptor(IceInternal::EndpointIPtr& endp, const string& adapterName) const
+IceSSL::EndpointI::acceptor(const string& adapterName) const
 {
-    AcceptorI* p = new AcceptorI(_instance, adapterName, _host, _port);
-    endp = new EndpointI(_instance, _host, p->effectivePort(), _sourceAddr, _timeout, _connectionId, _compress);
-    return p;
+    return new AcceptorI(_instance, adapterName, _host, _port);
+}
+
+IceInternal::EndpointIPtr
+IceSSL::EndpointI::endpoint(const IceInternal::TransceiverPtr& transceiver) const
+{
+    return const_cast<EndpointI*>(this);
+}
+
+IceInternal::EndpointIPtr
+IceSSL::EndpointI::endpoint(const IceInternal::AcceptorPtr& acceptor) const
+{
+    AcceptorI* p = dynamic_cast<AcceptorI*>(acceptor.get());
+    return new EndpointI(_instance, _host, p->effectivePort(), _sourceAddr, _timeout, _connectionId, _compress);
 }
 
 string

@@ -225,6 +225,12 @@ Transceiver::toString() const
     return _transceiver->toString();
 }
 
+string
+Transceiver::toDetailedString() const
+{
+    return _transceiver->toDetailedString();
+}
+
 Ice::ConnectionInfoPtr
 Transceiver::getInfo() const
 {

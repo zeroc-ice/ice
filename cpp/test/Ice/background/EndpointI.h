@@ -27,10 +27,12 @@ public:
     virtual IceInternal::EndpointIPtr timeout(Ice::Int) const;
     virtual IceInternal::EndpointIPtr connectionId(const ::std::string&) const;
     virtual IceInternal::EndpointIPtr compress(bool) const;
-    virtual IceInternal::TransceiverPtr transceiver(IceInternal::EndpointIPtr&) const;
+    virtual IceInternal::TransceiverPtr transceiver() const;
     virtual std::vector<IceInternal::ConnectorPtr> connectors(Ice::EndpointSelectionType) const;
     virtual void connectors_async(Ice::EndpointSelectionType, const IceInternal::EndpointI_connectorsPtr&) const;
-    virtual IceInternal::AcceptorPtr acceptor(IceInternal::EndpointIPtr&, const std::string&) const;
+    virtual IceInternal::AcceptorPtr acceptor(const std::string&) const;
+    virtual IceInternal::EndpointIPtr endpoint(const IceInternal::TransceiverPtr&) const;
+    virtual IceInternal::EndpointIPtr endpoint(const IceInternal::AcceptorPtr&) const;
     virtual std::vector<IceInternal::EndpointIPtr> expand() const;
     virtual bool equivalent(const IceInternal::EndpointIPtr&) const;
 
@@ -49,9 +51,11 @@ public:
     virtual int hash() const;
     virtual std::string options() const;
 
+    IceInternal::EndpointIPtr delegate() const;
+
     using IceInternal::EndpointI::connectionId;
     using IceInternal::EndpointI::connectors;
-    
+
 private:
 
     EndpointI(const IceInternal::EndpointIPtr&);

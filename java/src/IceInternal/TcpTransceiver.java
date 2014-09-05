@@ -21,103 +21,84 @@ final class TcpTransceiver implements Transceiver
     @Override
     public int initialize(Buffer readBuffer, Buffer writeBuffer, Ice.Holder<Boolean> moreData)
     {
-        try
+        if(_state == StateNeedConnect)
         {
-            if(_state == StateNeedConnect)
-            {
-                _state = StateConnectPending;
-                return SocketOperation.Connect;
-            }
-            else if(_state <= StateConnectPending)
-            {
-                Network.doFinishConnect(_fd);
-                _desc = Network.fdToString(_fd, _proxy, _addr);
+            _state = StateConnectPending;
+            return SocketOperation.Connect;
+        }
+        else if(_state <= StateConnectPending)
+        {
+            Network.doFinishConnect(_fd);
+            _desc = Network.fdToString(_fd, _proxy, _addr);
 
-                if(_proxy != null)
+            if(_proxy != null)
+            {
+                //
+                // Prepare the read & write buffers in advance.
+                //
+                _proxy.beginWriteConnectRequest(_addr, writeBuffer);
+                _proxy.beginReadConnectRequestResponse(readBuffer);
+
+                //
+                // Write the proxy connection message.
+                //
+                if(write(writeBuffer) == SocketOperation.None)
                 {
                     //
-                    // Prepare the read & write buffers in advance.
+                    // Write completed without blocking.
                     //
-                    _proxy.beginWriteConnectRequest(_addr, writeBuffer);
-                    _proxy.beginReadConnectRequestResponse(readBuffer);
+                    _proxy.endWriteConnectRequest(writeBuffer);
 
                     //
-                    // Write the proxy connection message.
+                    // Try to read the response.
                     //
-                    if(write(writeBuffer) == SocketOperation.None)
+                    if(read(readBuffer, moreData) == SocketOperation.None)
                     {
                         //
-                        // Write completed without blocking.
+                        // Read completed without blocking - fall through.
                         //
-                        _proxy.endWriteConnectRequest(writeBuffer);
-
-                        //
-                        // Try to read the response.
-                        //
-                        if(read(readBuffer, moreData) == SocketOperation.None)
-                        {
-                            //
-                            // Read completed without blocking - fall through.
-                            //
-                            _proxy.endReadConnectRequestResponse(readBuffer);
-                        }
-                        else
-                        {
-                            //
-                            // Return SocketOperationRead to indicate we need to complete the read.
-                            //
-                            _state = StateProxyConnectRequestPending; // Wait for proxy response
-                            return SocketOperation.Read;
-                        }
+                        _proxy.endReadConnectRequestResponse(readBuffer);
                     }
                     else
                     {
                         //
-                        // Return SocketOperationWrite to indicate we need to complete the write.
+                        // Return SocketOperationRead to indicate we need to complete the read.
                         //
-                        _state = StateProxyConnectRequest; // Send proxy connect request
-                        return SocketOperation.Write;
+                        _state = StateProxyConnectRequestPending; // Wait for proxy response
+                        return SocketOperation.Read;
                     }
                 }
+                else
+                {
+                    //
+                    // Return SocketOperationWrite to indicate we need to complete the write.
+                    //
+                    _state = StateProxyConnectRequest; // Send proxy connect request
+                    return SocketOperation.Write;
+                }
+            }
 
-                _state = StateConnected;
-            }
-            else if(_state == StateProxyConnectRequest)
-            {
-                //
-                // Write completed.
-                //
-                _proxy.endWriteConnectRequest(writeBuffer);
-                _state = StateProxyConnectRequestPending; // Wait for proxy response
-                return SocketOperation.Read;
-            }
-            else if(_state == StateProxyConnectRequestPending)
-            {
-                //
-                // Read completed.
-                //
-                _proxy.endReadConnectRequestResponse(readBuffer);
-                _state = StateConnected;
-            }
+            _state = StateConnected;
         }
-        catch(Ice.LocalException ex)
+        else if(_state == StateProxyConnectRequest)
         {
-            if(_instance.traceLevel() >= 2)
-            {
-                StringBuilder s = new StringBuilder(128);
-                s.append("failed to establish " + _instance.protocol() + " connection\n");
-                s.append(Network.fdToString(_fd, _proxy, _addr));
-                _instance.logger().trace(_instance.traceCategory(), s.toString());
-            }
-            throw ex;
+            //
+            // Write completed.
+            //
+            _proxy.endWriteConnectRequest(writeBuffer);
+            _state = StateProxyConnectRequestPending; // Wait for proxy response
+            return SocketOperation.Read;
+        }
+        else if(_state == StateProxyConnectRequestPending)
+        {
+            //
+            // Read completed.
+            //
+            _proxy.endReadConnectRequestResponse(readBuffer);
+            _state = StateConnected;
         }
 
         assert(_state == StateConnected);
-        if(_instance.traceLevel() >= 1)
-        {
-            String s = _instance.protocol() + " connection established\n" + _desc;
-            _instance.logger().trace(_instance.traceCategory(), s);
-        }
         return SocketOperation.None;
     }
 
@@ -132,12 +113,6 @@ final class TcpTransceiver implements Transceiver
     @Override
     public void close()
     {
-        if(_state == StateConnected && _instance.traceLevel() >= 1)
-        {
-            String s = "closing " + _instance.protocol() + " connection\n" + toString();
-            _instance.logger().trace(_instance.traceCategory(), s);
-        }
-
         assert(_fd != null);
         try
         {
@@ -151,6 +126,13 @@ final class TcpTransceiver implements Transceiver
         {
             _fd = null;
         }
+    }
+
+    @Override
+    public EndpointI bind(EndpointI endp)
+    {
+        assert(false);
+        return null;
     }
 
     @Override
@@ -207,13 +189,6 @@ final class TcpTransceiver implements Transceiver
                     return SocketOperation.Write;
                 }
 
-                if(_instance.traceLevel() >= 3)
-                {
-                    String s = "sent " + ret + " of " + packetSize + " bytes via " + _instance.protocol() + "\n" +
-                        toString();
-                    _instance.logger().trace(_instance.traceCategory(), s);
-                }
-
                 if(packetSize == _maxSendPacketSize)
                 {
                     assert(buf.b.position() == buf.b.limit());
@@ -264,16 +239,6 @@ final class TcpTransceiver implements Transceiver
                     return SocketOperation.Read;
                 }
 
-                if(ret > 0)
-                {
-                    if(_instance.traceLevel() >= 3)
-                    {
-                        String s = "received " + ret + " of " + packetSize + " bytes via " + _instance.protocol() +
-                            "\n" + toString();
-                        _instance.logger().trace(_instance.traceCategory(), s);
-                    }
-                }
-
                 packetSize = buf.b.remaining();
             }
             catch(java.io.InterruptedIOException ex)
@@ -299,6 +264,12 @@ final class TcpTransceiver implements Transceiver
     public String toString()
     {
         return _desc;
+    }
+
+    @Override
+    public String toDetailedString()
+    {
+        return toString();
     }
 
     @Override
@@ -336,7 +307,7 @@ final class TcpTransceiver implements Transceiver
         _proxy = proxy;
         _addr = addr;
         _state = StateNeedConnect;
-        _desc = "";
+        _desc = Network.fdToString(_fd, _proxy, _addr);;
 
         _maxSendPacketSize = 0;
         if(System.getProperty("os.name").startsWith("Windows"))

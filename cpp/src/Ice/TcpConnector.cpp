@@ -22,28 +22,10 @@ using namespace IceInternal;
 TransceiverPtr
 IceInternal::TcpConnector::connect()
 {
-    if(_instance->traceLevel() >= 2)
-    {
-        Trace out(_instance->logger(), _instance->traceCategory());
-        out << "trying to establish " << _instance->protocol() << " connection to " << toString();
-    }
+    TransceiverPtr transceiver = new TcpTransceiver(_instance, createSocket(false, _addr), _proxy, _addr, _sourceAddr);
+    dynamic_cast<TcpTransceiver*>(transceiver.get())->connect();
+    return transceiver;
 
-    try
-    {
-        TransceiverPtr transceiver =
-            new TcpTransceiver(_instance, createSocket(false, _addr), _proxy, _addr, _sourceAddr);
-        dynamic_cast<TcpTransceiver*>(transceiver.get())->connect();
-        return transceiver;
-    }
-    catch(const Ice::LocalException& ex)
-    {
-        if(_instance->traceLevel() >= 2)
-        {
-            Trace out(_instance->logger(), _instance->traceCategory());
-            out << "failed to establish " << _instance->protocol() << " connection to " << toString() << "\n" << ex;
-        }
-        throw;
-    }
 }
 
 Short

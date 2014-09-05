@@ -18,40 +18,21 @@ namespace IceInternal
     {
         public Transceiver connect()
         {
-            if(_instance.traceLevel() >= 2)
-            {
-                string s = "trying to establish " + _instance.protocol() + " connection to " + ToString();
-                _instance.logger().trace(_instance.traceCategory(), s);
-            }
-
-            try
-            {
 #if SILVERLIGHT
-                Socket fd = Network.createSocket(false, _addr.AddressFamily == AddressFamily.InterNetworkV6 ?
-                                                 AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork);
+            Socket fd = Network.createSocket(false, _addr.AddressFamily == AddressFamily.InterNetworkV6 ?
+                                             AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork);
 #else
-                Socket fd = Network.createSocket(false, _addr.AddressFamily);
-                Network.setBlock(fd, false);
+            Socket fd = Network.createSocket(false, _addr.AddressFamily);
+            Network.setBlock(fd, false);
 #endif
 #if !COMPACT
-                Network.setTcpBufSize(fd, _instance.properties(), _instance.logger());
+            Network.setTcpBufSize(fd, _instance.properties(), _instance.logger());
 #endif
 
-                //
-                // Nonblocking connect is handled by the transceiver.
-                //
-                return new TcpTransceiver(_instance, fd, _addr, _proxy, _sourceAddr, false);
-            }
-            catch(Ice.LocalException ex)
-            {
-                if(_instance.traceLevel() >= 2)
-                {
-                    string s = "failed to establish " + _instance.protocol() + " connection to " + ToString() + "\n" +
-                        ex;
-                    _instance.logger().trace(_instance.traceCategory(), s);
-                }
-                throw;
-            }
+            //
+            // Nonblocking connect is handled by the transceiver.
+            //
+            return new TcpTransceiver(_instance, fd, _addr, _proxy, _sourceAddr, false);
         }
 
         public short type()

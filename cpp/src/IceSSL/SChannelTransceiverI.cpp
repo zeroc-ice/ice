@@ -637,180 +637,147 @@ IceSSL::TransceiverI::encryptMessage(IceInternal::Buffer& buffer)
 IceInternal::SocketOperation
 IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& writeBuffer, bool& hasMoreData)
 {
-    try
+    if(_state == StateNeedConnect)
     {
-        if(_state == StateNeedConnect)
+        _state = StateConnectPending;
+        return IceInternal::SocketOperationConnect;
+    }
+    else if(_state <= StateConnectPending)
+    {
+        IceInternal::doFinishConnectAsync(_fd, _write);
+
+        _desc = IceInternal::fdToString(_fd, _proxy, _addr, true);
+
+        if(_proxy)
         {
-            _state = StateConnectPending;
-            return IceInternal::SocketOperationConnect;
+            //
+            // Prepare the read & write buffers in advance.
+            //
+            _proxy->beginWriteConnectRequest(_addr, writeBuffer);
+            _proxy->beginReadConnectRequestResponse(readBuffer);
+
+            //
+            // Return SocketOperationWrite to indicate we need to start a write.
+            //
+            _state = StateProxyConnectRequest; // Send proxy connect request
+            return IceInternal::SocketOperationWrite;
         }
-        else if(_state <= StateConnectPending)
+
+        _state = StateConnected;
+    }
+    else if(_state == StateProxyConnectRequest)
+    {
+        //
+        // Write completed.
+        //
+        _proxy->endWriteConnectRequest(writeBuffer);
+        _state = StateProxyConnectRequestPending; // Wait for proxy response
+        return IceInternal::SocketOperationRead;
+    }
+    else if(_state == StateProxyConnectRequestPending)
+    {
+        //
+        // Read completed.
+        //
+        _proxy->endReadConnectRequestResponse(readBuffer);
+        _state = StateConnected;
+    }
+
+    assert(_state >= StateConnected && _state <= StateHandshakeWriteContinue);
+
+    if(!_credentialsInitialized)
+    {
+        _readBuffer.b.resize(2048);
+        _readBuffer.i = _readBuffer.b.begin();
+
+        _credentials = _engine->newCredentialsHandle(_incoming);
+        _credentialsInitialized = true;
+    }
+
+    IceInternal::SocketOperation op = sslHandshake();
+    if(op != IceInternal::SocketOperationNone)
+    {
+        return op;
+    }
+
+    if(!_incoming || _engine->getVerifyPeer() > 0)
+    {
+        //
+        // Build the peer certificate chain and verify it.
+        //
+        PCCERT_CONTEXT cert = 0;
+        SECURITY_STATUS err = QueryContextAttributes(&_ssl, SECPKG_ATTR_REMOTE_CERT_CONTEXT, &cert);
+        if(err && err != SEC_E_NO_CREDENTIALS)
         {
-            IceInternal::doFinishConnectAsync(_fd, _write);
+            throw ProtocolException(__FILE__, __LINE__, "IceSSL: certificate verification failure:" +
+                                    IceUtilInternal::lastErrorToString());
+        }
 
-            _desc = IceInternal::fdToString(_fd, _proxy, _addr, true);
-
-            if(_proxy)
+        if(!cert && (!_incoming || _engine->getVerifyPeer() == 2))
+        {
+            // Clients require server certificate if VerifyPeer>0
+            // and servers require client certificate if
+            // VerifyPeer=2
+            throw ProtocolException(__FILE__, __LINE__, "IceSSL: certificate required:" +
+                                    IceUtilInternal::lastErrorToString());
+        }
+        else if(cert) // Verify the remote certificate
+        {
+            try
             {
-                //
-                // Prepare the read & write buffers in advance.
-                //
-                _proxy->beginWriteConnectRequest(_addr, writeBuffer);
-                _proxy->beginReadConnectRequestResponse(readBuffer);
+                CERT_CHAIN_PARA chainP;
+                memset(&chainP, 0, sizeof(chainP));
+                chainP.cbSize = sizeof(chainP);
 
-                //
-                // Return SocketOperationWrite to indicate we need to start a write.
-                //
-                _state = StateProxyConnectRequest; // Send proxy connect request
-                return IceInternal::SocketOperationWrite;
-            }
-
-            _state = StateConnected;
-        }
-        else if(_state == StateProxyConnectRequest)
-        {
-            //
-            // Write completed.
-            //
-            _proxy->endWriteConnectRequest(writeBuffer);
-            _state = StateProxyConnectRequestPending; // Wait for proxy response
-            return IceInternal::SocketOperationRead;
-        }
-        else if(_state == StateProxyConnectRequestPending)
-        {
-            //
-            // Read completed.
-            //
-            _proxy->endReadConnectRequestResponse(readBuffer);
-            _state = StateConnected;
-        }
-
-        assert(_state >= StateConnected && _state <= StateHandshakeWriteContinue);
-
-        if(!_credentialsInitialized)
-        {
-            _readBuffer.b.resize(2048);
-            _readBuffer.i = _readBuffer.b.begin();
-
-            _credentials = _engine->newCredentialsHandle(_incoming);
-            _credentialsInitialized = true;
-        }
-
-        IceInternal::SocketOperation op = sslHandshake();
-        if(op != IceInternal::SocketOperationNone)
-        {
-            return op;
-        }
-
-        if(!_incoming || _engine->getVerifyPeer() > 0)
-        {
-            //
-            // Build the peer certificate chain and verify it.
-            //
-            PCCERT_CONTEXT cert = 0;
-            SECURITY_STATUS err = QueryContextAttributes(&_ssl, SECPKG_ATTR_REMOTE_CERT_CONTEXT, &cert);
-            if(err && err != SEC_E_NO_CREDENTIALS)
-            {
-                throw ProtocolException(__FILE__, __LINE__, "IceSSL: certificate verification failure:" +
-                                        IceUtilInternal::lastErrorToString());
-            }
-
-            if(!cert && (!_incoming || _engine->getVerifyPeer() == 2))
-            {
-                // Clients require server certificate if VerifyPeer>0
-                // and servers require client certificate if
-                // VerifyPeer=2
-                throw ProtocolException(__FILE__, __LINE__, "IceSSL: certificate required:" +
-                                        IceUtilInternal::lastErrorToString());
-            }
-            else if(cert) // Verify the remote certificate
-            {
-                try
+                PCCERT_CHAIN_CONTEXT certChain;
+                if(!CertGetCertificateChain(_engine->chainEngine(), cert, 0, 0, &chainP,
+                                            CERT_CHAIN_REVOCATION_CHECK_CACHE_ONLY, 0, &certChain))
                 {
-                    CERT_CHAIN_PARA chainP;
-                    memset(&chainP, 0, sizeof(chainP));
-                    chainP.cbSize = sizeof(chainP);
-
-                    PCCERT_CHAIN_CONTEXT certChain;
-                    if(!CertGetCertificateChain(_engine->chainEngine(), cert, 0, 0, &chainP,
-                                                CERT_CHAIN_REVOCATION_CHECK_CACHE_ONLY, 0, &certChain))
-                    {
-                        CertFreeCertificateContext(cert);
-                        throw IceUtilInternal::lastErrorToString();
-                    }
-
-                    CERT_SIMPLE_CHAIN* simpleChain = certChain->rgpChain[0];
-
-                    string trustError;
-                    if(simpleChain->TrustStatus.dwErrorStatus != CERT_TRUST_NO_ERROR)
-                    {
-                        trustError = trustStatusToString(certChain->TrustStatus.dwErrorStatus);
-                    }
-
-                    CertFreeCertificateChain(certChain);
                     CertFreeCertificateContext(cert);
-                    if(!trustError.empty())
-                    {
-                        throw trustError;
-                    }
+                    throw IceUtilInternal::lastErrorToString();
                 }
-                catch(const string& reason)
-                {
-                    if(_engine->getVerifyPeer() == 0)
-                    {
-                        if(_instance->traceLevel() >= 1)
-                        {
-                            _instance->logger()->trace(_instance->traceCategory(),
-                                                       "IceSSL: ignoring certificate verification failure\n" + reason);
-                        }
-                    }
-                    else
-                    {
-                        ostringstream os;
-                        os << "IceSSL: certificate verification failure\n" << reason;
-                        string msg = os.str();
-                        if(_instance->traceLevel() >= 1)
-                        {
-                            _instance->logger()->trace(_instance->traceCategory(), msg);
-                        }
-                        throw ProtocolException(__FILE__, __LINE__, msg);
-                    }
-                }
-            }
-        }
-        _engine->verifyPeer(_fd, _host, getNativeConnectionInfo());
-        _state = StateHandshakeComplete;
-    }
-    catch(const Ice::LocalException& ex)
-    {
-        if(_instance->traceLevel() >= 2)
-        {
-            Trace out(_instance->logger(), _instance->traceCategory());
-            out << "failed to establish " << _instance->protocol() << " connection\n";
-            if(_incoming)
-            {
-                out << IceInternal::fdToString(_fd) << "\n" << ex;
-            }
-            else
-            {
-                out << IceInternal::fdToString(_fd, _proxy, _addr, false) << "\n" << ex;
-            }
-        }
-        throw;
-    }
 
-    if(_instance->traceLevel() >= 1)
-    {
-        Trace out(_instance->logger(), _instance->traceCategory());
-        if(_incoming)
-        {
-            out << "accepted " << _instance->protocol() << " connection\n" << _desc;
-        }
-        else
-        {
-            out << _instance->protocol() << " connection established\n" << _desc;
+                CERT_SIMPLE_CHAIN* simpleChain = certChain->rgpChain[0];
+
+                string trustError;
+                if(simpleChain->TrustStatus.dwErrorStatus != CERT_TRUST_NO_ERROR)
+                {
+                    trustError = trustStatusToString(certChain->TrustStatus.dwErrorStatus);
+                }
+
+                CertFreeCertificateChain(certChain);
+                CertFreeCertificateContext(cert);
+                if(!trustError.empty())
+                {
+                    throw trustError;
+                }
+            }
+            catch(const string& reason)
+            {
+                if(_engine->getVerifyPeer() == 0)
+                {
+                    if(_instance->traceLevel() >= 1)
+                    {
+                        _instance->logger()->trace(_instance->traceCategory(),
+                                                   "IceSSL: ignoring certificate verification failure\n" + reason);
+                    }
+                }
+                else
+                {
+                    ostringstream os;
+                    os << "IceSSL: certificate verification failure\n" << reason;
+                    string msg = os.str();
+                    if(_instance->traceLevel() >= 1)
+                    {
+                        _instance->logger()->trace(_instance->traceCategory(), msg);
+                    }
+                    throw ProtocolException(__FILE__, __LINE__, msg);
+                }
+            }
         }
     }
+    _engine->verifyPeer(_fd, _host, getNativeConnectionInfo());
+    _state = StateHandshakeComplete;
 
     if(_instance->engine()->securityTraceLevel() >= 1)
     {
@@ -855,11 +822,6 @@ IceSSL::TransceiverI::closing(bool initiator, const Ice::LocalException&)
 void
 IceSSL::TransceiverI::close()
 {
-    if(_state == StateHandshakeComplete && _instance->traceLevel() >= 1)
-    {
-        Trace out(_instance->logger(), _instance->traceCategory());
-        out << "closing " << _instance->protocol() << " connection\n" << toString();
-    }
     if(_sslInitialized)
     {
         DeleteSecurityContext(&_ssl);
@@ -907,13 +869,6 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
 
         assert(_writeBuffer.i == _writeBuffer.b.end()); // Finished writing the encrypted data
 
-        if(_instance->traceLevel() >= 3)
-        {
-            Trace out(_instance->logger(), _instance->traceCategory());
-            out << "sent " << _bufferedW << " of " << (buf.b.end() - buf.i) << " bytes via " << _instance->protocol()
-                << '\n' << toString();
-        }
-
         buf.i += _bufferedW;
         _bufferedW = 0;
     }
@@ -947,12 +902,6 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool& hasMoreData)
             continue;
         }
 
-        if(_instance->traceLevel() >= 3)
-        {
-            Trace out(_instance->logger(), _instance->traceCategory());
-            out << "received " << decrypted << " of " << buf.b.end() - buf.i << " bytes via " << _instance->protocol()
-                << '\n' << toString();
-        }
         buf.i += decrypted;
     }
     hasMoreData = !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin();
@@ -1044,12 +993,6 @@ IceSSL::TransceiverI::finishWrite(IceInternal::Buffer& buf)
         _writeBuffer.i += _write.count;
         if(_writeBuffer.i == _writeBuffer.b.end())
         {
-            if(_instance->traceLevel() >= 3)
-            {
-                Trace out(_instance->logger(), _instance->traceCategory());
-                out << "sent " << _bufferedW << " of " << (buf.b.end() - buf.i) << " bytes via "
-                    << _instance->protocol() << '\n' << toString();
-            }
             buf.i += _bufferedW;
             _bufferedW = 0;
         }
@@ -1130,12 +1073,6 @@ IceSSL::TransceiverI::finishRead(IceInternal::Buffer& buf, bool& hasMoreData)
             size_t decrypted = decryptMessage(buf);
             if(decrypted > 0)
             {
-                if(_instance->traceLevel() >= 3)
-                {
-                    Trace out(_instance->logger(), _instance->traceCategory());
-                    out << "received " << decrypted << " of " << buf.b.end() - buf.i << " bytes via "
-                        << _instance->protocol()  << '\n' << toString();
-                }
                 buf.i += decrypted;
                 hasMoreData = !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin();
             }
@@ -1158,6 +1095,12 @@ string
 IceSSL::TransceiverI::toString() const
 {
     return _desc;
+}
+
+string
+IceSSL::TransceiverI::toDetailedString() const
+{
+    return toString();
 }
 
 Ice::ConnectionInfoPtr
@@ -1224,11 +1167,6 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const
     {
         _state = StateConnected;
         _desc = IceInternal::fdToString(_fd, _proxy, _addr, true);
-        if(_instance->traceLevel() >= 1)
-        {
-            Trace out(_instance->logger(), _instance->traceCategory());
-            out << _instance->protocol() << " connection established\n" << _desc;
-        }
     }
     else
     {

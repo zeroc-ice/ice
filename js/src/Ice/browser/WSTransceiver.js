@@ -40,7 +40,6 @@ var WSTransceiver = Ice.Class({
     __init__: function(instance)
     {
         var id = instance.initializationData();
-        this._traceLevels = instance.traceLevels();
         this._logger = id.logger;
         this._readBuffers = [];
         this._readPosition = 0;
@@ -105,23 +104,10 @@ var WSTransceiver = Ice.Class({
             {
                 this._exception = translateError(this._state, err);
             }
-
-            if(this._traceLevels.network >= 2)
-            {
-                var s = [];
-                s.push("failed to establish " + this.type() + " connection\n");
-                s.push(fdToString(this._addr));
-                this._logger.trace(this._traceLevels.networkCat, s.join(""));
-            }
             throw this._exception;
         }
 
         Debug.assert(this._state === StateConnected);
-        if(this._traceLevels.network >= 1)
-        {
-            this._logger.trace(this._traceLevels.networkCat, this.type() + 
-                                " connection established\n" + this._desc);
-        }
         return SocketOperation.None;
     },
     register: function()
@@ -152,24 +138,18 @@ var WSTransceiver = Ice.Class({
         }
 
         //
-        // WORKAROUND: With Firefox, calling close() if the websocket isn't connected 
+        // WORKAROUND: With Firefox, calling close() if the websocket isn't connected
         // yet doesn't close the connection. The server doesn't receive any close frame
         // and the underlying socket isn't closed causing the server to hang on closing
         // the connection until the browser exits.
         //
-        // To workaround this problem, we always wait for the socket to be connected 
+        // To workaround this problem, we always wait for the socket to be connected
         // or closed before closing the socket.
         //
         if(this._fd.readyState === WebSocket.CONNECTING && IsFirefox)
         {
             this._state = StateClosePending;
             return;
-        }
-        
-        if(this._state == StateConnected && this._traceLevels.network >= 1)
-        {
-            this._logger.trace(this._traceLevels.networkCat, "closing " + this.type() + " connection\n" + 
-                                this._desc);
         }
 
         Debug.assert(this._fd !== null);
@@ -210,7 +190,7 @@ var WSTransceiver = Ice.Class({
         var packetSize = byteBuffer.remaining;
         Debug.assert(packetSize > 0);
         Debug.assert(this._fd);
-        
+
         if(this._maxSendPacketSize > 0 && packetSize > this._maxSendPacketSize)
         {
             packetSize = this._maxSendPacketSize;
@@ -221,11 +201,6 @@ var WSTransceiver = Ice.Class({
             var slice = byteBuffer.b.slice(byteBuffer.position, byteBuffer.position + packetSize);
             this._fd.send(slice);
 
-            if(this._traceLevels.network >= 3)
-            {
-                this._logger.trace(this._traceLevels.networkCat, "sent " + packetSize + " of " +
-                                    byteBuffer.remaining + " bytes via " + this.type() + "\n" + this._desc);
-            }
             byteBuffer.position = byteBuffer.position + packetSize;
 
             if(this._maxSendPacketSize > 0 && byteBuffer.remaining > this._maxSendPacketSize)
@@ -269,10 +244,10 @@ var WSTransceiver = Ice.Class({
             {
                 avail = byteBuffer.remaining;
             }
-            
-            new Uint8Array(byteBuffer.b).set(new Uint8Array(this._readBuffers[0], this._readPosition, avail), 
+
+            new Uint8Array(byteBuffer.b).set(new Uint8Array(this._readBuffers[0], this._readPosition, avail),
                                                 byteBuffer.position);
-            
+
             byteBuffer.position += avail;
             this._readPosition += avail;
             if(this._readPosition === this._readBuffers[0].byteLength)
@@ -293,13 +268,6 @@ var WSTransceiver = Ice.Class({
             }
         }
 
-        var n = remaining - byteBuffer.remaining;
-        if(n > 0 && this._traceLevels.network >= 3)
-        {
-            var msg = "received " + n + " of " + remaining + " bytes via " + this.type() + "\n" + this._desc;
-            this._logger.trace(this._traceLevels.networkCat, msg);
-        }
-
         moreData.value = this._readBuffers.byteLength > 0;
 
         return byteBuffer.remaining === 0;
@@ -312,7 +280,7 @@ var WSTransceiver = Ice.Class({
     {
         Debug.assert(this._fd !== null);
         var info = this.createInfo();
-        
+
         //
         // The WebSocket API doens't provide this info
         //
@@ -371,7 +339,7 @@ var WSTransceiver = Ice.Class({
             this.close();
             return;
         }
-        
+
         this._exception = translateError(this._state, err);
         if(this._state < StateConnected)
         {
@@ -419,11 +387,11 @@ WSTransceiver.createOutgoing = function(instance, secure, addr, resource)
     transceiver._url = url;
     transceiver._fd = null;
     transceiver._addr = addr;
-    transceiver._desc = "remote address: " + addr.host + ":" + addr.port + " <not connected>";
+    transceiver._desc = "local address = <not available>\nremote address = " + addr.host + ":" + addr.port;
     transceiver._state = StateNeedConnect;
     transceiver._secure = secure;
     transceiver._exception = null;
-    
+
     return transceiver;
 };
 

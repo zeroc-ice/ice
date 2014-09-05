@@ -31,65 +31,49 @@ namespace IceSSL
 
         public int initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer, ref bool hasMoreData)
         {
-            try
+            if(_state == StateNeedConnect)
             {
-                if(_state == StateNeedConnect)
-                {
-                    Debug.Assert(_addr != null);
-                    _state = StateConnectPending;
-                    return IceInternal.SocketOperation.Connect;
-                }
-                else if(_state <= StateConnectPending)
-                {
-                    IceInternal.Network.doFinishConnectAsync(_fd, _writeResult);
-                    _writeResult = null;
-
-                    _desc = IceInternal.Network.fdToString(_fd, _proxy, _addr);
-                    if(_proxy != null)
-                    {
-                        _state = StateProxyConnectRequest; // Send proxy connect request
-                        return IceInternal.SocketOperation.Write;
-                    }
-
-                    _state = StateAuthenticatePending;
-                    return IceInternal.SocketOperation.Connect;
-                }
-                else if(_state == StateProxyConnectRequest)
-                {
-                    _state = StateProxyConnectRequestPending; // Wait for proxy response
-                    return IceInternal.SocketOperation.Read;
-                }
-                else if(_state == StateProxyConnectRequestPending)
-                {
-                    _state = StateAuthenticatePending;
-                    return IceInternal.SocketOperation.Connect;
-                }
-                else if(_state == StateNeedAuthenticate)
-                {
-                    _state = StateAuthenticatePending;
-                    return IceInternal.SocketOperation.Connect;
-                }
-                else if(_state <= StateAuthenticatePending)
-                {
-                    endAuthenticate();
-                    _writeResult = null;
-                    _state = StateConnected;
-                }
-                return IceInternal.SocketOperation.None;
+                Debug.Assert(_addr != null);
+                _state = StateConnectPending;
+                return IceInternal.SocketOperation.Connect;
             }
-            catch(Ice.LocalException e)
+            else if(_state <= StateConnectPending)
             {
-                if(_instance.traceLevel() >= 2)
+                IceInternal.Network.doFinishConnectAsync(_fd, _writeResult);
+                _writeResult = null;
+
+                _desc = IceInternal.Network.fdToString(_fd, _proxy, _addr);
+                if(_proxy != null)
                 {
-                    System.Text.StringBuilder s = new System.Text.StringBuilder();
-                    s.Append("failed to establish " + protocol() + " connection\n");
-                    s.Append(IceInternal.Network.fdToString(_fd, _proxy, _addr));
-                    s.Append("\n");
-                    s.Append(e.ToString());
-                    _instance.logger().trace(_instance.traceCategory(), s.ToString());
+                    _state = StateProxyConnectRequest; // Send proxy connect request
+                    return IceInternal.SocketOperation.Write;
                 }
-                throw;
+
+                _state = StateAuthenticatePending;
+                return IceInternal.SocketOperation.Connect;
             }
+            else if(_state == StateProxyConnectRequest)
+            {
+                _state = StateProxyConnectRequestPending; // Wait for proxy response
+                return IceInternal.SocketOperation.Read;
+            }
+            else if(_state == StateProxyConnectRequestPending)
+            {
+                _state = StateAuthenticatePending;
+                return IceInternal.SocketOperation.Connect;
+            }
+            else if(_state == StateNeedAuthenticate)
+            {
+                _state = StateAuthenticatePending;
+                return IceInternal.SocketOperation.Connect;
+            }
+            else if(_state <= StateAuthenticatePending)
+            {
+                endAuthenticate();
+                _writeResult = null;
+                _state = StateConnected;
+            }
+            return IceInternal.SocketOperation.None;
         }
 
         public int closing(bool initiator, Ice.LocalException ex)
@@ -101,12 +85,6 @@ namespace IceSSL
 
         public void close()
         {
-            if(_state == StateConnected && _instance.traceLevel() >= 1)
-            {
-                string s = "closing " + protocol() + " connection\n" + ToString();
-                _instance.logger().trace(_instance.traceCategory(), s);
-            }
-
             Debug.Assert(_fd != null);
             try
             {
@@ -131,6 +109,12 @@ namespace IceSSL
                 _fd = null;
                 _stream = null;
             }
+        }
+
+        public IceInternal.EndpointI bind(IceInternal.EndpointI endp)
+        {
+            Debug.Assert(false);
+            return null;
         }
 
         public void destroy()
@@ -232,18 +216,6 @@ namespace IceSSL
                 }
 
                 Debug.Assert(ret > 0);
-
-                if(_instance.traceLevel() >= 3)
-                {
-                    int packetSize = buf.b.remaining();
-                    if(_maxReceivePacketSize > 0 && packetSize > _maxReceivePacketSize)
-                    {
-                        packetSize = _maxReceivePacketSize;
-                    }
-                    string s = "received " + ret + " of " + packetSize + " bytes via ssl\n" + ToString();
-                    _instance.logger().trace(_instance.traceCategory(), s);
-                }
-
                 buf.b.position(buf.b.position() + ret);
 
                 if(_state == StateProxyConnectRequestPending)
@@ -397,13 +369,6 @@ namespace IceSSL
                     packetSize = _maxSendPacketSize;
                 }
 
-                if(_instance.traceLevel() >= 3)
-                {
-                    string s = "sent " + packetSize + " of " + packetSize + " bytes via " + protocol() + "\n" +
-                        ToString();
-                    _instance.logger().trace(_instance.traceCategory(), s);
-                }
-
                 buf.b.position(buf.b.position() + packetSize);
 
                 if(_state == StateProxyConnectRequest)
@@ -458,6 +423,11 @@ namespace IceSSL
         public override string ToString()
         {
             return _desc;
+        }
+
+        public string toDetailedString()
+        {
+            return ToString();
         }
 
         //
@@ -517,7 +487,7 @@ namespace IceSSL
                 {
                     _chainEngine.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
                 }
-                
+
                 foreach(X509Certificate2 cert in caCerts)
                 {
                     _chainEngine.ChainPolicy.ExtraStore.Add(cert);
@@ -655,20 +625,6 @@ namespace IceSSL
 
                 _instance.verifyPeer(getNativeConnectionInfo(), _fd, _host);
 
-                if(_instance.traceLevel() >= 1)
-                {
-                    string s;
-                    if(_adapterName == null)
-                    {
-                        s = protocol() + " connection established\n" + _desc;
-                    }
-                    else
-                    {
-                        s = "accepted " + protocol() + " connection\n" + _desc;
-                    }
-                    _instance.logger().trace(_instance.traceCategory(), s);
-                }
-
                 if(_instance.securityTraceLevel() >= 1)
                 {
                     _instance.traceStream(_stream, _desc);
@@ -718,7 +674,7 @@ namespace IceSSL
                 }
             }
 
-            X509Chain chain = _chainEngine == null ? chainEngine : _chainEngine; 
+            X509Chain chain = _chainEngine == null ? chainEngine : _chainEngine;
 
             //
             // The certificate chain is not available via SslStream, and it is destroyed
@@ -787,7 +743,7 @@ namespace IceSSL
                         if(status.Status == X509ChainStatusFlags.UntrustedRoot && _chainEngine != null && valid)
                         {
                             //
-                            // Untrusted root is OK when using our custom chain engine if 
+                            // Untrusted root is OK when using our custom chain engine if
                             // the CA certificate is present in the chain policy extra store.
                             //
                             X509ChainElement e = chain.ChainElements[chain.ChainElements.Count - 1];

@@ -86,16 +86,7 @@ namespace IceInternal
                 _state = StateConnected;
             }
 
-            if(_state == StateConnected)
-            {
-                if(_instance.traceLevel() >= 1)
-                {
-                    string s = "starting to send " + protocol() + " packets\n" + ToString();
-                    _instance.logger().trace(_instance.traceCategory(), s);
-                }
-                Debug.Assert(_state == StateConnected);
-            }
-
+            Debug.Assert(_state >= StateConnected);
             return SocketOperation.None;
         }
 
@@ -109,12 +100,6 @@ namespace IceInternal
 
         public void close()
         {
-            if(_state >= StateConnected && _instance.traceLevel() >= 1)
-            {
-                string s = "closing " + protocol() + " connection\n" + ToString();
-                _instance.logger().trace(_instance.traceCategory(), s);
-            }
-
             if(_fd != null)
             {
                 try
@@ -126,6 +111,63 @@ namespace IceInternal
                 }
                 _fd = null;
             }
+        }
+
+        public EndpointI bind(EndpointI endp)
+        {
+#if !SILVERLIGHT
+            if(Network.isMulticast((IPEndPoint)_addr))
+            {
+                Network.setReuseAddress(_fd, true);
+                _mcastAddr = (IPEndPoint)_addr;
+                if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
+                {
+                    //
+                    // Windows does not allow binding to the mcast address itself
+                    // so we bind to INADDR_ANY (0.0.0.0) instead. As a result,
+                    // bi-directional connection won't work because the source
+                    // address won't the multicast address and the client will
+                    // therefore reject the datagram.
+                    //
+                    if(_addr.AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        _addr = new IPEndPoint(IPAddress.Any, _port);
+                    }
+                    else
+                    {
+                        _addr = new IPEndPoint(IPAddress.IPv6Any, _port);
+                    }
+                }
+                _addr = Network.doBind(_fd, _addr);
+                if(_port == 0)
+                {
+                    _mcastAddr.Port = ((IPEndPoint)_addr).Port;
+                }
+                Network.setMcastGroup(_fd, _mcastAddr.Address, _mcastInterface);
+            }
+            else
+            {
+                if(AssemblyUtil.platform_ != AssemblyUtil.Platform.Windows)
+                {
+                    //
+                    // Enable SO_REUSEADDR on Unix platforms to allow re-using
+                    // the socket even if it's in the TIME_WAIT state. On
+                    // Windows, this doesn't appear to be necessary and
+                    // enabling SO_REUSEADDR would actually not be a good
+                    // thing since it allows a second process to bind to an
+                    // address even it's already bound by another process.
+                    //
+                    // TODO: using SO_EXCLUSIVEADDRUSE on Windows would
+                    // probably be better but it's only supported by recent
+                    // Windows versions (XP SP2, Windows Server 2003).
+                    //
+                    Network.setReuseAddress(_fd, true);
+                }
+                _addr = Network.doBind(_fd, _addr);
+            }
+#endif
+            _bound = true;
+            return endp.endpoint(this);
         }
 
         public void destroy()
@@ -207,14 +249,8 @@ namespace IceInternal
             }
 
             Debug.Assert(ret > 0);
-
-            if(_instance.traceLevel() >= 3)
-            {
-                string s = "sent " + ret + " bytes via " + protocol() + "\n" + ToString();
-                _instance.logger().trace(_instance.traceCategory(), s);
-            }
-
             Debug.Assert(ret == buf.b.limit());
+            buf.b.position(buf.b.limit());
             return SocketOperation.None;
 #endif
         }
@@ -327,12 +363,6 @@ namespace IceInternal
                     string s = "connected " + protocol() + " socket\n" + ToString();
                     _instance.logger().trace(_instance.traceCategory(), s);
                 }
-            }
-
-            if(_instance.traceLevel() >= 3)
-            {
-                string s = "received " + ret + " bytes via " + protocol() + "\n" + ToString();
-                _instance.logger().trace(_instance.traceCategory(), s);
             }
 
             buf.resize(ret, true);
@@ -510,15 +540,9 @@ namespace IceInternal
 
                 if(_instance.traceLevel() >= 1)
                 {
-                    string s = "connected udp socket\n" + ToString();
+                    string s = "connected " + protocol() + " socket\n" + ToString();
                     _instance.logger().trace(_instance.traceCategory(), s);
                 }
-            }
-
-            if(_instance.traceLevel() >= 3)
-            {
-                string s = "received " + ret + " bytes via udp\n" + ToString();
-                _instance.logger().trace(_instance.traceCategory(), s);
             }
 
             buf.resize(ret, true);
@@ -677,12 +701,6 @@ namespace IceInternal
             }
 
             Debug.Assert(ret > 0);
-
-            if(_instance.traceLevel() >= 3)
-            {
-                string s = "sent " + ret + " bytes via udp\n" + ToString();
-                _instance.logger().trace(_instance.traceCategory(), s);
-            }
             Debug.Assert(ret == buf.b.limit());
             buf.b.position(buf.b.position() + ret);
         }
@@ -754,7 +772,11 @@ namespace IceInternal
             }
 
             string s;
-            if(_state == StateNotConnected)
+            if(_incoming && !_bound)
+            {
+                s = "local address = " + Network.addrToString(_addr);
+            }
+            else if(_state == StateNotConnected)
             {
                 s = "local address = " + Network.localAddrToString(Network.getLocalAddress(_fd));
                 if(_peerAddr != null)
@@ -774,6 +796,19 @@ namespace IceInternal
             }
 #endif
             return s;
+        }
+
+        public string toDetailedString()
+        {
+            StringBuilder s = new StringBuilder(ToString());
+            List<string> intfs = Network.getHostsForEndpointExpand(
+                Network.endpointAddressToString(_addr), _instance.protocolSupport(), true);
+            if(intfs.Count != 0)
+            {
+                s.Append("\nlocal interfaces = ");
+                s.Append(String.Join(", ", intfs.ToArray()));
+            }
+            return s.ToString();
         }
 
         public int effectivePort()
@@ -852,11 +887,13 @@ namespace IceInternal
         //
         // Only for use by UdpEndpoint.
         //
-        internal UdpTransceiver(ProtocolInstance instance, string host, int port, string iface, bool connect)
+        internal UdpTransceiver(ProtocolInstance instance, string host, int port, string mcastInterface, bool connect)
         {
             _instance = instance;
             _state = connect ? StateNeedConnect : StateNotConnected;
+            _mcastInterface = mcastInterface;
             _incoming = true;
+            _port = port;
 
             try
             {
@@ -877,77 +914,6 @@ namespace IceInternal
 #if !SILVERLIGHT
                 Network.setBlock(_fd, false);
 #endif
-                if(_instance.traceLevel() >= 2)
-                {
-                    string s = "attempting to bind to " + instance.protocol() + " socket " +
-                        Network.addrToString(_addr);
-                    _instance.logger().trace(_instance.traceCategory(), s);
-                }
-
-#if !SILVERLIGHT
-                if(Network.isMulticast((IPEndPoint)_addr))
-                {
-                    Network.setReuseAddress(_fd, true);
-                    _mcastAddr = (IPEndPoint)_addr;
-                    if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
-                    {
-                        //
-                        // Windows does not allow binding to the mcast address itself
-                        // so we bind to INADDR_ANY (0.0.0.0) instead. As a result,
-                        // bi-directional connection won't work because the source
-                        // address won't the multicast address and the client will
-                        // therefore reject the datagram.
-                        //
-                        if(_addr.AddressFamily == AddressFamily.InterNetwork)
-                        {
-                            _addr = new IPEndPoint(IPAddress.Any, port);
-                        }
-                        else
-                        {
-                            _addr = new IPEndPoint(IPAddress.IPv6Any, port);
-                        }
-                    }
-                    _addr = Network.doBind(_fd, _addr);
-                    if(port == 0)
-                    {
-                        _mcastAddr.Port = ((IPEndPoint)_addr).Port;
-                    }
-                    Network.setMcastGroup(_fd, _mcastAddr.Address, iface);
-                }
-                else
-                {
-                    if(AssemblyUtil.platform_ != AssemblyUtil.Platform.Windows)
-                    {
-                        //
-                        // Enable SO_REUSEADDR on Unix platforms to allow re-using
-                        // the socket even if it's in the TIME_WAIT state. On
-                        // Windows, this doesn't appear to be necessary and
-                        // enabling SO_REUSEADDR would actually not be a good
-                        // thing since it allows a second process to bind to an
-                        // address even it's already bound by another process.
-                        //
-                        // TODO: using SO_EXCLUSIVEADDRUSE on Windows would
-                        // probably be better but it's only supported by recent
-                        // Windows versions (XP SP2, Windows Server 2003).
-                        //
-                        Network.setReuseAddress(_fd, true);
-                    }
-                    _addr = Network.doBind(_fd, _addr);
-                }
-#endif
-                if(_instance.traceLevel() >= 1)
-                {
-                    StringBuilder s = new StringBuilder("starting to receive " + instance.protocol() + " packets\n");
-                    s.Append(ToString());
-                    List<string> interfaces = Network.getHostsForEndpointExpand(
-                        Network.endpointAddressToString(_addr), instance.protocolSupport(), true);
-                    if(interfaces.Count != 0)
-                    {
-                        s.Append("\nlocal interfaces: ");
-                        s.Append(String.Join(", ", interfaces.ToArray()));
-                    }
-                    _instance.logger().trace(_instance.traceCategory(), s.ToString());
-                }
             }
             catch(Ice.LocalException)
             {
@@ -1085,6 +1051,9 @@ namespace IceInternal
         private EndPoint _peerAddr = null;
         private string _mcastInterface = null;
         private int _mcastTtl = -1;
+
+        private int _port = 0;
+        private bool _bound = false;
 
 #if ICE_SOCKET_ASYNC_API
         private SocketAsyncEventArgs _writeEventArgs;

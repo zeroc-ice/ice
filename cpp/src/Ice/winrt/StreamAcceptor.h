@@ -32,7 +32,7 @@ public:
     virtual void setCompletedHandler(SocketOperationCompletedHandler^);
 
     virtual void close();
-    virtual void listen();
+    virtual EndpointIPtr listen(const EndpointIPtr&);
 
     virtual void startAccept();
     virtual void finishAccept();
@@ -40,6 +40,7 @@ public:
     virtual TransceiverPtr accept();
     virtual std::string protocol() const;
     virtual std::string toString() const;
+    virtual std::string toDetailedString() const;
 
     int effectivePort() const;
 

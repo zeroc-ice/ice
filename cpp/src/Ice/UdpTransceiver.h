@@ -47,6 +47,7 @@ public:
     virtual SocketOperation initialize(Buffer&, Buffer&, bool&);
     virtual SocketOperation closing(bool, const Ice::LocalException&);
     virtual void close();
+    virtual EndpointIPtr bind(const EndpointIPtr&);
     virtual SocketOperation write(Buffer&);
     virtual SocketOperation read(Buffer&, bool&);
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
@@ -57,6 +58,7 @@ public:
 #endif
     virtual std::string protocol() const;
     virtual std::string toString() const;
+    virtual std::string toDetailedString() const;
     virtual Ice::ConnectionInfoPtr getInfo() const;
     virtual void checkSendSize(const Buffer&, size_t);
 
@@ -82,10 +84,13 @@ private:
 
     const ProtocolInstancePtr _instance;
     const bool _incoming;
+    bool _bound;
 
     const Address _addr;
     Address _mcastAddr;
+    const std::string _mcastInterface;
     Address _peerAddr;
+    int _port;
 
     State _state;
     int _rcvSize;

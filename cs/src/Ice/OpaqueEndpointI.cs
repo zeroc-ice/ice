@@ -193,14 +193,10 @@ namespace IceInternal
 
         //
         // Return a server side transceiver for this endpoint, or null if a
-        // transceiver can only be created by an acceptor. In case a
-        // transceiver is created, this operation also returns a new
-        // "effective" endpoint, which might differ from this endpoint,
-        // for example, if a dynamic port number is assigned.
+        // transceiver can only be created by an acceptor.
         //
-        public override Transceiver transceiver(ref EndpointI endpoint)
+        public override Transceiver transceiver()
         {
-            endpoint = null;
             return null;
         }
 
@@ -220,14 +216,25 @@ namespace IceInternal
 
         //
         // Return an acceptor for this endpoint, or null if no acceptors
-        // is available. In case an acceptor is created, this operation
-        // also returns a new "effective" endpoint, which might differ
-        // from this endpoint, for example, if a dynamic port number is
-        // assigned.
+        // is available.
         //
-        public override Acceptor acceptor(ref EndpointI endpoint, string adapterName)
+        public override Acceptor acceptor(string adapterName)
         {
-            endpoint = null;
+            return null;
+        }
+
+        //
+        // Return (potentially) new endpoint based on info from associated
+        // Transceiver or Acceptor, which might differ from this endpoint,
+        // for example, if a dynamic port number was assigned.
+        //
+        public override EndpointI endpoint(Transceiver transceiver)
+        {
+            return null;
+        }
+
+        public override EndpointI endpoint(Acceptor acceptor)
+        {
             return null;
         }
 

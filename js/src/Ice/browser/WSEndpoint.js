@@ -9,9 +9,9 @@
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
 
-Ice.__M.require(module, "Ice", 
+Ice.__M.require(module, "Ice",
     [
-        "../Ice/Class", 
+        "../Ice/Class",
         "../Ice/Address",
         "../Ice/HashUtil",
         "../Ice/StringUtil",
@@ -90,6 +90,14 @@ var WSEndpoint = Class(Ice.Endpoint, {
         return s;
     },
     //
+    // Convert the endpoint to its Connector string form
+    //
+    toConnectorString: function()
+    {
+        var s = this._host + ":" + this._port;
+        return s;
+    },
+    //
     // Return the endpoint information.
     //
     getInfo: function()
@@ -117,6 +125,13 @@ var WSEndpoint = Class(Ice.Endpoint, {
     type: function()
     {
         return this._secure ? Ice.WSSEndpointType : Ice.WSEndpointType;
+    },
+    //
+    // Return the protocol string
+    //
+    protocol: function()
+    {
+        return this._secure ? "wss" : "ws";
     },
     //
     // Return the timeout for the endpoint in milliseconds. 0 means
@@ -221,13 +236,6 @@ var WSEndpoint = Class(Ice.Endpoint, {
     },
     connect: function()
     {
-        if(this._instance.traceLevels().network >= 2)
-        {
-            this._instance.initializationData().logger.trace(this._instance.traceLevels().networkCat,
-                "trying to establish " + (this._secure ? "wss" : "ws") + " connection to " + this._host + ":" +
-                this._port);
-        }
-
         return WSTransceiver.createOutgoing(this._instance, this._secure, new Address(this._host, this._port),
                                             this._resource);
     },

@@ -22,7 +22,7 @@ public:
 
     OpaqueEndpointI(std::vector<std::string>&);
     OpaqueEndpointI(Ice::Short, BasicStream*);
-    
+
     virtual void streamWrite(BasicStream*) const;
     virtual Ice::EndpointInfoPtr getInfo() const;
     virtual Ice::Short type() const;
@@ -37,10 +37,12 @@ public:
     virtual bool datagram() const;
     virtual bool secure() const;
 
-    virtual TransceiverPtr transceiver(EndpointIPtr&) const;
+    virtual TransceiverPtr transceiver() const;
     virtual std::vector<ConnectorPtr> connectors(Ice::EndpointSelectionType) const;
     virtual void connectors_async(Ice::EndpointSelectionType, const EndpointI_connectorsPtr&) const;
-    virtual AcceptorPtr acceptor(EndpointIPtr&, const std::string&) const;
+    virtual AcceptorPtr acceptor(const std::string&) const;
+    virtual EndpointIPtr endpoint(const TransceiverPtr&) const;
+    virtual EndpointIPtr endpoint(const AcceptorPtr&) const;
     virtual std::vector<EndpointIPtr> expand() const;
     virtual bool equivalent(const EndpointIPtr&) const;
     virtual Ice::Int hash() const;

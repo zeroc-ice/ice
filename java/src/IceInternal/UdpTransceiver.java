@@ -41,12 +41,6 @@ final class UdpTransceiver implements Transceiver
     {
         assert(_fd != null);
 
-        if(_state >= StateConnected && _instance.traceLevel() >= 1)
-        {
-            String s = "closing " + _instance.protocol() + " connection\n" + toString();
-            _instance.logger().trace(_instance.traceCategory(), s);
-        }
-
         try
         {
             _fd.close();
@@ -55,6 +49,61 @@ final class UdpTransceiver implements Transceiver
         {
         }
         _fd = null;
+    }
+
+    @Override
+    public EndpointI bind(EndpointI endp)
+    {
+        if(_addr.getAddress().isMulticastAddress())
+        {
+            Network.setReuseAddress(_fd, true);
+            _mcastAddr = _addr;
+            if(System.getProperty("os.name").startsWith("Windows") ||
+               System.getProperty("java.vm.name").startsWith("OpenJDK"))
+            {
+                //
+                // Windows does not allow binding to the mcast address itself
+                // so we bind to INADDR_ANY (0.0.0.0) instead. As a result,
+                // bi-directional connection won't work because the source
+                // address won't be the multicast address and the client will
+                // therefore reject the datagram.
+                //
+                int protocol =
+                    _mcastAddr.getAddress().getAddress().length == 4 ? Network.EnableIPv4 : Network.EnableIPv6;
+                _addr = Network.getAddressForServer("", _port, protocol, _instance.preferIPv6());
+            }
+            _addr = Network.doBind(_fd, _addr);
+            configureMulticast(_mcastAddr, _mcastInterface, -1);
+
+            if(_port == 0)
+            {
+                _mcastAddr = new java.net.InetSocketAddress(_mcastAddr.getAddress(), _addr.getPort());
+            }
+        }
+        else
+        {
+            if(!System.getProperty("os.name").startsWith("Windows"))
+            {
+                //
+                // Enable SO_REUSEADDR on Unix platforms to allow
+                // re-using the socket even if it's in the TIME_WAIT
+                // state. On Windows, this doesn't appear to be
+                // necessary and enabling SO_REUSEADDR would actually
+                // not be a good thing since it allows a second
+                // process to bind to an address even it's already
+                // bound by another process.
+                //
+                // TODO: using SO_EXCLUSIVEADDRUSE on Windows would
+                // probably be better but it's only supported by recent
+                // Windows versions (XP SP2, Windows Server 2003).
+                //
+                Network.setReuseAddress(_fd, true);
+            }
+            _addr = Network.doBind(_fd, _addr);
+        }
+
+        _bound = true;
+        return endp.endpoint(this);
     }
 
     @Override
@@ -123,13 +172,8 @@ final class UdpTransceiver implements Transceiver
             return SocketOperation.Write;
         }
 
-        if(_instance.traceLevel() >= 3)
-        {
-            String s = "sent " + ret + " bytes via " + _instance.protocol() + "\n" + toString();
-            _instance.logger().trace(_instance.traceCategory(), s);
-        }
-
         assert(ret == buf.b.limit());
+        buf.b.position(buf.b.limit());
         return SocketOperation.None;
     }
 
@@ -195,12 +239,6 @@ final class UdpTransceiver implements Transceiver
             }
         }
 
-        if(_instance.traceLevel() >= 3)
-        {
-            String s = "received " + ret + " bytes via " + _instance.protocol() + "\n" + toString();
-            _instance.logger().trace(_instance.traceCategory(), s);
-        }
-
         buf.resize(ret, true);
         buf.b.position(ret);
 
@@ -222,7 +260,11 @@ final class UdpTransceiver implements Transceiver
         }
 
         String s;
-        if(_state == StateNotConnected)
+        if(_incoming && !_bound)
+        {
+            s = "local address = " + Network.addrToString(_addr);
+        }
+        else if(_state == StateNotConnected)
         {
             java.net.DatagramSocket socket = _fd.socket();
             s = "local address = " + Network.addrToString((java.net.InetSocketAddress)socket.getLocalSocketAddress());
@@ -241,6 +283,20 @@ final class UdpTransceiver implements Transceiver
             s += "\nmulticast address = " + Network.addrToString(_mcastAddr);
         }
         return s;
+    }
+
+    @Override
+    public String toDetailedString()
+    {
+        StringBuffer s = new StringBuffer(toString());
+        java.util.List<String> intfs =
+            Network.getHostsForEndpointExpand(_addr.getAddress().getHostAddress(), _instance.protocolSupport(), true);
+        if(!intfs.isEmpty())
+        {
+            s.append("\nlocal interfaces = ");
+            s.append(IceUtilInternal.StringUtil.joinString(intfs, ", "));
+        }
+        return s.toString();
     }
 
     @Override
@@ -326,12 +382,6 @@ final class UdpTransceiver implements Transceiver
             }
             Network.doConnect(_fd, _addr, sourceAddr);
             _state = StateConnected; // We're connected now
-
-            if(_instance.traceLevel() >= 1)
-            {
-                String s = "starting to send " + _instance.protocol() + " packets\n" + toString();
-                _instance.logger().trace(_instance.traceCategory(), s);
-            }
         }
         catch(Ice.LocalException ex)
         {
@@ -347,6 +397,9 @@ final class UdpTransceiver implements Transceiver
     {
         _instance = instance;
         _state = connect ? StateNeedConnect : StateNotConnected;
+        _mcastInterface = mcastInterface;
+        _incoming = true;
+        _port = port;
 
         try
         {
@@ -354,74 +407,6 @@ final class UdpTransceiver implements Transceiver
             _fd = Network.createUdpSocket(_addr);
             setBufSize(instance.properties());
             Network.setBlock(_fd, false);
-            if(_instance.traceLevel() >= 2)
-            {
-                String s = "attempting to bind to " + _instance.protocol() + " socket " + Network.addrToString(_addr);
-                _instance.logger().trace(_instance.traceCategory(), s);
-            }
-            if(_addr.getAddress().isMulticastAddress())
-            {
-                Network.setReuseAddress(_fd, true);
-                _mcastAddr = _addr;
-                if(System.getProperty("os.name").startsWith("Windows") ||
-                   System.getProperty("java.vm.name").startsWith("OpenJDK"))
-                {
-                    //
-                    // Windows does not allow binding to the mcast address itself
-                    // so we bind to INADDR_ANY (0.0.0.0) instead. As a result,
-                    // bi-directional connection won't work because the source
-                    // address won't be the multicast address and the client will
-                    // therefore reject the datagram.
-                    //
-                    int protocol =
-                        _mcastAddr.getAddress().getAddress().length == 4 ? Network.EnableIPv4 : Network.EnableIPv6;
-                    _addr = Network.getAddressForServer("", port, protocol, instance.preferIPv6());
-                }
-                _addr = Network.doBind(_fd, _addr);
-                configureMulticast(_mcastAddr, mcastInterface, -1);
-
-                if(port == 0)
-                {
-                    _mcastAddr = new java.net.InetSocketAddress(_mcastAddr.getAddress(), _addr.getPort());
-                }
-            }
-            else
-            {
-                if(!System.getProperty("os.name").startsWith("Windows"))
-                {
-                    //
-                    // Enable SO_REUSEADDR on Unix platforms to allow
-                    // re-using the socket even if it's in the TIME_WAIT
-                    // state. On Windows, this doesn't appear to be
-                    // necessary and enabling SO_REUSEADDR would actually
-                    // not be a good thing since it allows a second
-                    // process to bind to an address even it's already
-                    // bound by another process.
-                    //
-                    // TODO: using SO_EXCLUSIVEADDRUSE on Windows would
-                    // probably be better but it's only supported by recent
-                    // Windows versions (XP SP2, Windows Server 2003).
-                    //
-                    Network.setReuseAddress(_fd, true);
-                }
-                _addr = Network.doBind(_fd, _addr);
-            }
-
-            if(_instance.traceLevel() >= 1)
-            {
-                StringBuffer s = new StringBuffer("starting to receive " + _instance.protocol() + " packets\n");
-                s.append(toString());
-
-                java.util.List<String> interfaces =
-                    Network.getHostsForEndpointExpand(_addr.getAddress().getHostAddress(), instance.protocolSupport(),
-                                                      true);
-                if(!interfaces.isEmpty())
-                {
-                    s.append("\nlocal interfaces: ");
-                    s.append(IceUtilInternal.StringUtil.joinString(interfaces, ", "));
-                }
-                _instance.logger().trace(_instance.traceCategory(), s.toString());
-            }
         }
         catch(Ice.LocalException ex)
         {
@@ -624,7 +609,12 @@ final class UdpTransceiver implements Transceiver
     private java.nio.channels.DatagramChannel _fd;
     private java.net.InetSocketAddress _addr;
     private java.net.InetSocketAddress _mcastAddr = null;
+    private String _mcastInterface;
     private java.net.InetSocketAddress _peerAddr = null;
+
+    private boolean _incoming = false;
+    private int _port = 0;
+    private boolean _bound = false;
 
     //
     // The maximum IP datagram size is 65535. Subtract 20 bytes for the IP header and 8 bytes for the UDP header

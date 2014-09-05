@@ -20,6 +20,7 @@ namespace IceInternal
         void close();
         void destroy();
 
+        EndpointI bind(EndpointI endp);
         int write(Buffer buf);
         int read(Buffer buf, ref bool hasMoreData);
 
@@ -49,6 +50,7 @@ namespace IceInternal
         void finishWrite(Buffer buf);
 
         string protocol();
+        string toDetailedString();
         Ice.ConnectionInfo getInfo();
         void checkSendSize(Buffer buf, int messageSizeMax);
     }

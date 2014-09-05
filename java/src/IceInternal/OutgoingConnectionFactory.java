@@ -1082,11 +1082,32 @@ public final class OutgoingConnectionFactory
                     }
                 }
 
+                if(_factory._instance.traceLevels().network >= 2)
+                {
+                    StringBuffer s = new StringBuffer("trying to establish ");
+                    s.append(_current.endpoint.protocol());
+                    s.append(" connection to ");
+                    s.append(_current.connector.toString());
+                    _factory._instance.initializationData().logger.trace(_factory._instance.traceLevels().networkCat,
+                                                                         s.toString());
+                }
+
                 connection = _factory.createConnection(_current.connector.connect(), _current);
                 connection.start(this);
             }
             catch(Ice.LocalException ex)
             {
+                if(_factory._instance.traceLevels().network >= 2)
+                {
+                    StringBuffer s = new StringBuffer("failed to establish ");
+                    s.append(_current.endpoint.protocol());
+                    s.append(" connection to ");
+                    s.append(_current.connector.toString());
+                    s.append(ex);
+                    _factory._instance.initializationData().logger.trace(_factory._instance.traceLevels().networkCat,
+                                                                         s.toString());
+                }
+
                 connectionStartFailed(connection, ex);
             }
         }

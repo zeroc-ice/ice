@@ -9,19 +9,24 @@
 
 namespace IceInternal
 {
-    class WSAcceptor : IceInternal.Acceptor
+    using System.Diagnostics;
+
+    class WSAcceptor : Acceptor
     {
         public void close()
         {
             _delegate.close();
         }
 
-        public void listen()
+        public EndpointI listen(EndpointI endp)
         {
-            _delegate.listen();
+            Debug.Assert(endp is WSEndpoint);
+            WSEndpoint p = (WSEndpoint)endp;
+            EndpointI endpoint = _delegate.listen(p.getDelegate());
+            return endp.endpoint(this);
         }
 
-        public bool startAccept(IceInternal.AsyncCallback callback, object state)
+        public bool startAccept(AsyncCallback callback, object state)
         {
             return _delegate.startAccept(callback, state);
         }
@@ -31,7 +36,7 @@ namespace IceInternal
             _delegate.finishAccept();
         }
 
-        public IceInternal.Transceiver accept()
+        public Transceiver accept()
         {
             return new WSTransceiver(_instance, _delegate.accept());
         }
@@ -46,13 +51,23 @@ namespace IceInternal
             return _delegate.ToString();
         }
 
-        internal WSAcceptor(ProtocolInstance instance, IceInternal.Acceptor del)
+        public string toDetailedString()
+        {
+            return _delegate.toDetailedString();
+        }
+
+        public Acceptor getDelegate()
+        {
+            return _delegate;
+        }
+
+        internal WSAcceptor(ProtocolInstance instance, Acceptor del)
         {
             _instance = instance;
             _delegate = del;
         }
 
         private ProtocolInstance _instance;
-        private IceInternal.Acceptor _delegate;
+        private Acceptor _delegate;
     }
 }

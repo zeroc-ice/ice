@@ -49,11 +49,11 @@ public:
     class CreateConnectionCallback : virtual public IceUtil::Shared
     {
     public:
-        
+
         virtual void setConnection(const Ice::ConnectionIPtr&, bool) = 0;
         virtual void setException(const Ice::LocalException&) = 0;
     };
-    typedef IceUtil::Handle<CreateConnectionCallback> CreateConnectionCallbackPtr; 
+    typedef IceUtil::Handle<CreateConnectionCallback> CreateConnectionCallbackPtr;
 
     void destroy();
 
@@ -62,7 +62,7 @@ public:
     void waitUntilFinished();
 
     Ice::ConnectionIPtr create(const std::vector<EndpointIPtr>&, bool, Ice::EndpointSelectionType, bool&);
-    void create(const std::vector<EndpointIPtr>&, bool, Ice::EndpointSelectionType, 
+    void create(const std::vector<EndpointIPtr>&, bool, Ice::EndpointSelectionType,
                 const CreateConnectionCallbackPtr&);
     void setRouterInfo(const RouterInfoPtr&);
     void removeAdapter(const Ice::ObjectAdapterPtr&);
@@ -79,9 +79,9 @@ private:
         ConnectorInfo(const ConnectorPtr& c, const EndpointIPtr& e) : connector(c), endpoint(e)
         {
         }
-    
+
         bool operator==(const ConnectorInfo& other) const;
-    
+
         ConnectorPtr connector;
         EndpointIPtr endpoint;
     };
@@ -90,7 +90,7 @@ private:
     {
     public:
 
-        ConnectCallback(const OutgoingConnectionFactoryPtr&, const std::vector<EndpointIPtr>&, bool, 
+        ConnectCallback(const InstancePtr&, const OutgoingConnectionFactoryPtr&, const std::vector<EndpointIPtr>&, bool,
                         const CreateConnectionCallbackPtr&, Ice::EndpointSelectionType);
 
         virtual void connectionStartCompleted(const Ice::ConnectionIPtr&);
@@ -116,6 +116,7 @@ private:
 
     private:
 
+        const InstancePtr _instance;
         const OutgoingConnectionFactoryPtr _factory;
         const std::vector<EndpointIPtr> _endpoints;
         const bool _hasMore;
@@ -134,10 +135,10 @@ private:
     void incPendingConnectCount();
     void decPendingConnectCount();
     Ice::ConnectionIPtr getConnection(const std::vector<ConnectorInfo>&, const ConnectCallbackPtr&, bool&);
-    void finishGetConnection(const std::vector<ConnectorInfo>&, const ConnectorInfo&, const Ice::ConnectionIPtr&, 
+    void finishGetConnection(const std::vector<ConnectorInfo>&, const ConnectorInfo&, const Ice::ConnectionIPtr&,
                              const ConnectCallbackPtr&);
     void finishGetConnection(const std::vector<ConnectorInfo>&, const Ice::LocalException&, const ConnectCallbackPtr&);
-    
+
     bool addToPending(const ConnectCallbackPtr&, const std::vector<ConnectorInfo>&);
     void removeFromPending(const ConnectCallbackPtr&, const std::vector<ConnectorInfo>&);
 
@@ -159,10 +160,10 @@ private:
     int _pendingConnectCount;
 };
 
-class IncomingConnectionFactory : public EventHandler, 
+class IncomingConnectionFactory : public EventHandler,
                                   public Ice::ConnectionI::StartCallback,
                                   public IceUtil::Monitor<IceUtil::Mutex>
-                                      
+
 {
 public:
 
@@ -178,7 +179,7 @@ public:
     EndpointIPtr endpoint() const;
     std::list<Ice::ConnectionIPtr> connections() const;
     void flushAsyncBatchRequests(const CommunicatorBatchOutgoingAsyncPtr&);
-    
+
     //
     // Operations from EventHandler
     //
@@ -212,6 +213,7 @@ private:
     };
 
     void setState(State);
+    void closeAcceptor();
 
     const InstancePtr _instance;
     const FactoryACMMonitorPtr _monitor;

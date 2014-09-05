@@ -27,7 +27,7 @@ static string opaqueEndpointConnectionId;
 
 }
 
-IceInternal::OpaqueEndpointI::OpaqueEndpointI(vector<string>& args) : 
+IceInternal::OpaqueEndpointI::OpaqueEndpointI(vector<string>& args) :
     _type(-1), _rawEncoding(Encoding_1_0)
 {
     initWithOptions(args);
@@ -170,9 +170,8 @@ IceInternal::OpaqueEndpointI::secure() const
 }
 
 TransceiverPtr
-IceInternal::OpaqueEndpointI::transceiver(EndpointIPtr& endp) const
+IceInternal::OpaqueEndpointI::transceiver() const
 {
-    endp = const_cast<OpaqueEndpointI*>(this);
     return 0;
 }
 
@@ -190,10 +189,21 @@ IceInternal::OpaqueEndpointI::connectors_async(Ice::EndpointSelectionType, const
 }
 
 AcceptorPtr
-IceInternal::OpaqueEndpointI::acceptor(EndpointIPtr& endp, const string&) const
+IceInternal::OpaqueEndpointI::acceptor(const string&) const
 {
-    endp = const_cast<OpaqueEndpointI*>(this);
     return 0;
+}
+
+EndpointIPtr
+IceInternal::OpaqueEndpointI::endpoint(const TransceiverPtr&) const
+{
+    return const_cast<OpaqueEndpointI*>(this);
+}
+
+EndpointIPtr
+IceInternal::OpaqueEndpointI::endpoint(const AcceptorPtr&) const
+{
+    return const_cast<OpaqueEndpointI*>(this);
 }
 
 vector<EndpointIPtr>

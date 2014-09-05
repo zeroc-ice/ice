@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Diagnostics;
 using System.Net.Sockets;
 
 internal class Acceptor : IceInternal.Acceptor
@@ -17,9 +18,12 @@ internal class Acceptor : IceInternal.Acceptor
         _acceptor.close();
     }
 
-    public void listen()
+    public IceInternal.EndpointI listen(IceInternal.EndpointI endp)
     {
-        _acceptor.listen();
+        Debug.Assert(endp is EndpointI);
+        EndpointI p = (EndpointI)endp;
+        _acceptor.listen(p.getDelegate());
+        return endp.endpoint(this);
     }
 
     public bool startAccept(IceInternal.AsyncCallback callback, object state)
@@ -45,6 +49,16 @@ internal class Acceptor : IceInternal.Acceptor
     public override string ToString()
     {
         return _acceptor.ToString();
+    }
+
+    public string toDetailedString()
+    {
+        return _acceptor.toDetailedString();
+    }
+
+    public IceInternal.Acceptor getDelegate()
+    {
+        return _acceptor;
     }
 
     internal Acceptor(IceInternal.Acceptor acceptor)

@@ -19,7 +19,7 @@ public:
     virtual IceInternal::NativeInfoPtr getNativeInfo();
 
     virtual void close();
-    virtual void listen();
+    virtual IceInternal::EndpointIPtr listen(const IceInternal::EndpointIPtr&);
 #ifdef ICE_USE_IOCP
     virtual void startAccept();
     virtual void finishAccept();
@@ -27,6 +27,9 @@ public:
     virtual IceInternal::TransceiverPtr accept();
     virtual std::string protocol() const;
     virtual std::string toString() const;
+    virtual std::string toDetailedString() const;
+
+    IceInternal::AcceptorPtr delegate() const { return _acceptor; }
 
 private:
 

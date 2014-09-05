@@ -24,9 +24,11 @@ final class WSAcceptor implements IceInternal.Acceptor
     }
 
     @Override
-    public void listen()
+    public EndpointI listen(EndpointI endp)
     {
-        _delegate.listen();
+        WSEndpoint p = (WSEndpoint)endp;
+        EndpointI endpoint = _delegate.listen(p.delegate());
+        return endp.endpoint(this);
     }
 
     @Override
@@ -49,6 +51,17 @@ final class WSAcceptor implements IceInternal.Acceptor
     public String toString()
     {
         return _delegate.toString();
+    }
+
+    @Override
+    public String toDetailedString()
+    {
+        return _delegate.toDetailedString();
+    }
+
+    public Acceptor delegate()
+    {
+        return _delegate;
     }
 
     WSAcceptor(ProtocolInstance instance, IceInternal.Acceptor del)

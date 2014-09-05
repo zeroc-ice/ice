@@ -237,6 +237,15 @@ namespace IceInternal
 
                 try
                 {
+                    if(_instance.traceLevels().network >= 2)
+                    {
+                        StringBuilder s = new StringBuilder("trying to establish ");
+                        s.Append(ci.endpoint.protocol());
+                        s.Append(" connection to ");
+                        s.Append(ci.connector.ToString());
+                        _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
+                    }
+
                     connection = createConnection(ci.connector.connect(), ci);
                     connection.start(null);
 
@@ -270,6 +279,16 @@ namespace IceInternal
                 }
                 catch(Ice.LocalException ex)
                 {
+                    if(_instance.traceLevels().network >= 2)
+                    {
+                        StringBuilder s = new StringBuilder("failed to establish ");
+                        s.Append(ci.endpoint.protocol());
+                        s.Append(" connection to ");
+                        s.Append(ci.connector.ToString());
+                        s.Append(ex);
+                        _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
+                    }
+
                     if(observer != null)
                     {
                         observer.failed(ex.ice_name());
@@ -1186,7 +1205,7 @@ namespace IceInternal
                     Ice.Instrumentation.CommunicatorObserver obsv = _factory._instance.getObserver();
                     if(obsv != null)
                     {
-                        _observer = obsv.getConnectionEstablishmentObserver(_current.endpoint, 
+                        _observer = obsv.getConnectionEstablishmentObserver(_current.endpoint,
                                                                             _current.connector.ToString());
                         if(_observer != null)
                         {
@@ -1194,11 +1213,32 @@ namespace IceInternal
                         }
                     }
 
+                    if(_factory._instance.traceLevels().network >= 2)
+                    {
+                        StringBuilder s = new StringBuilder("trying to establish ");
+                        s.Append(_current.endpoint.protocol());
+                        s.Append(" connection to ");
+                        s.Append(_current.connector.ToString());
+                        _factory._instance.initializationData().logger.trace(
+                                            _factory._instance.traceLevels().networkCat, s.ToString());
+                    }
+
                     connection = _factory.createConnection(_current.connector.connect(), _current);
                     connection.start(this);
                 }
                 catch(Ice.LocalException ex)
                 {
+                    if(_factory._instance.traceLevels().network >= 2)
+                    {
+                        StringBuilder s = new StringBuilder("failed to establish ");
+                        s.Append(_current.endpoint.protocol());
+                        s.Append(" connection to ");
+                        s.Append(_current.connector.ToString());
+                        s.Append(ex);
+                        _factory._instance.initializationData().logger.trace(
+                                            _factory._instance.traceLevels().networkCat, s.ToString());
+                    }
+
                     connectionStartFailed(connection, ex);
                 }
             }
@@ -1506,6 +1546,15 @@ namespace IceInternal
                     try
                     {
                         transceiver = _acceptor.accept();
+
+                        if(_instance.traceLevels().network >= 2)
+                        {
+                            StringBuilder s = new StringBuilder("trying to accept ");
+                            s.Append(_endpoint.protocol());
+                            s.Append(" connection\n");
+                            s.Append(transceiver.ToString());
+                            _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
+                        }
                     }
                     catch(Ice.SocketException ex)
                     {
@@ -1651,19 +1700,48 @@ namespace IceInternal
 
             try
             {
-                _transceiver = _endpoint.transceiver(ref _endpoint);
+                _transceiver = _endpoint.transceiver();
                 if(_transceiver != null)
                 {
-                    Ice.ConnectionI connection = new Ice.ConnectionI(_adapter.getCommunicator(), _instance, null, 
+                    if(_instance.traceLevels().network >= 2)
+                    {
+                        StringBuilder s = new StringBuilder("attempting to bind to ");
+                        s.Append(_endpoint.protocol());
+                        s.Append(" socket\n");
+                        s.Append(_transceiver.ToString());
+                        _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
+                    }
+                    _endpoint = _transceiver.bind(_endpoint);
+
+                    Ice.ConnectionI connection = new Ice.ConnectionI(_adapter.getCommunicator(), _instance, null,
                                                                      _transceiver, null, _endpoint, _adapter);
                     connection.startAndWait();
                     _connections.Add(connection);
                 }
                 else
                 {
-                    _acceptor = _endpoint.acceptor(ref _endpoint, adapterName);
+                    _acceptor = _endpoint.acceptor(adapterName);
                     Debug.Assert(_acceptor != null);
-                    _acceptor.listen();
+
+                    if(_instance.traceLevels().network >= 2)
+                    {
+                        StringBuilder s = new StringBuilder("attempting to bind to ");
+                        s.Append(_endpoint.protocol());
+                        s.Append(" socket ");
+                        s.Append(_acceptor.ToString());
+                        _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
+                    }
+                    _endpoint = _acceptor.listen(_endpoint);
+
+                    if(_instance.traceLevels().network >= 1)
+                    {
+                        StringBuilder s = new StringBuilder("listening for ");
+                        s.Append(_endpoint.protocol());
+                        s.Append(" connections\n");
+                        s.Append(_acceptor.toDetailedString());
+                        _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
+                    }
+
                     ((Ice.ObjectAdapterI)_adapter).getThreadPool().initialize(this);
                 }
             }
@@ -1688,7 +1766,7 @@ namespace IceInternal
                 {
                     try
                     {
-                        _acceptor.close();
+                        closeAcceptor();
                     }
                     catch(Ice.LocalException)
                     {
@@ -1739,9 +1817,9 @@ namespace IceInternal
                             s.Append(_endpoint.protocol());
                             s.Append(" connections at ");
                             s.Append(_acceptor.ToString());
-                            _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, 
+                            _instance.initializationData().logger.trace(_instance.traceLevels().networkCat,
                                                                         s.ToString());
-                        }                
+                        }
                         ((Ice.ObjectAdapterI)_adapter).getThreadPool().register(this, SocketOperation.Read);
                     }
 
@@ -1766,9 +1844,9 @@ namespace IceInternal
                             s.Append(_endpoint.protocol());
                             s.Append(" connections at ");
                             s.Append(_acceptor.ToString());
-                            _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, 
+                            _instance.initializationData().logger.trace(_instance.traceLevels().networkCat,
                                                                         s.ToString());
-                        }                
+                        }
                         ((Ice.ObjectAdapterI)_adapter).getThreadPool().unregister(this, SocketOperation.Read);
                     }
 
@@ -1784,7 +1862,7 @@ namespace IceInternal
                     if(_acceptor != null)
                     {
                         ((Ice.ObjectAdapterI)_adapter).getThreadPool().finish(this);
-                        _acceptor.close();
+                        closeAcceptor();
                     }
                     else
                     {
@@ -1807,6 +1885,19 @@ namespace IceInternal
 
             _state = state;
             System.Threading.Monitor.PulseAll(this);
+        }
+
+        private void closeAcceptor()
+        {
+            if(_instance.traceLevels().network >= 1)
+            {
+                StringBuilder s = new StringBuilder("stopping to accept ");
+                s.Append(_endpoint.protocol());
+                s.Append(" connections at ");
+                s.Append(_acceptor.ToString());
+                _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
+            }
+            _acceptor.close();
         }
 
         private void warning(Ice.LocalException ex)

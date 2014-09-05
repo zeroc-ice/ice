@@ -46,115 +46,97 @@ IceInternal::TcpTransceiver::getAsyncInfo(SocketOperation status)
 SocketOperation
 IceInternal::TcpTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer, bool& hasMoreData)
 {
-    try
+    if(_state == StateNeedConnect)
     {
-        if(_state == StateNeedConnect)
-        {
-            _state = StateConnectPending;
-            return SocketOperationConnect;
-        }
-        else if(_state <= StateConnectPending)
-        {
+        _state = StateConnectPending;
+        return SocketOperationConnect;
+    }
+    else if(_state <= StateConnectPending)
+    {
 #ifdef ICE_USE_IOCP
-            doFinishConnectAsync(_fd, _write);
+        doFinishConnectAsync(_fd, _write);
 #else
-            doFinishConnect(_fd);
+        doFinishConnect(_fd);
 #endif
 
-            _desc = fdToString(_fd, _proxy, _addr, true);
+        _desc = fdToString(_fd, _proxy, _addr, true);
 
-            if(_proxy)
-            {
-                //
-                // Prepare the read & write buffers in advance.
-                //
-                _proxy->beginWriteConnectRequest(_addr, writeBuffer);
-                _proxy->beginReadConnectRequestResponse(readBuffer);
+        if(_proxy)
+        {
+            //
+            // Prepare the read & write buffers in advance.
+            //
+            _proxy->beginWriteConnectRequest(_addr, writeBuffer);
+            _proxy->beginReadConnectRequestResponse(readBuffer);
 
 #ifdef ICE_USE_IOCP
-                //
-                // Return SocketOperationWrite to indicate we need to start a write.
-                //
-                _state = StateProxyConnectRequest; // Send proxy connect request
-                return IceInternal::SocketOperationWrite;
+            //
+            // Return SocketOperationWrite to indicate we need to start a write.
+            //
+            _state = StateProxyConnectRequest; // Send proxy connect request
+            return IceInternal::SocketOperationWrite;
 #else
+            //
+            // Write the proxy connection message.
+            //
+            if(write(writeBuffer))
+            {
                 //
-                // Write the proxy connection message.
+                // Write completed without blocking.
                 //
-                if(write(writeBuffer))
+                _proxy->endWriteConnectRequest(writeBuffer);
+
+                //
+                // Try to read the response.
+                //
+                if(read(readBuffer, hasMoreData))
                 {
                     //
-                    // Write completed without blocking.
+                    // Read completed without blocking - fall through.
                     //
-                    _proxy->endWriteConnectRequest(writeBuffer);
-
-                    //
-                    // Try to read the response.
-                    //
-                    if(read(readBuffer, hasMoreData))
-                    {
-                        //
-                        // Read completed without blocking - fall through.
-                        //
-                        _proxy->endReadConnectRequestResponse(readBuffer);
-                    }
-                    else
-                    {
-                        //
-                        // Return SocketOperationRead to indicate we need to complete the read.
-                        //
-                        _state = StateProxyConnectRequestPending; // Wait for proxy response
-                        return SocketOperationRead;
-                    }
+                    _proxy->endReadConnectRequestResponse(readBuffer);
                 }
                 else
                 {
                     //
-                    // Return SocketOperationWrite to indicate we need to complete the write.
+                    // Return SocketOperationRead to indicate we need to complete the read.
                     //
-                    _state = StateProxyConnectRequest; // Send proxy connect request
-                    return SocketOperationWrite;
+                    _state = StateProxyConnectRequestPending; // Wait for proxy response
+                    return SocketOperationRead;
                 }
-#endif
             }
+            else
+            {
+                //
+                // Return SocketOperationWrite to indicate we need to complete the write.
+                //
+                _state = StateProxyConnectRequest; // Send proxy connect request
+                return SocketOperationWrite;
+            }
+#endif
+        }
 
-            _state = StateConnected;
-        }
-        else if(_state == StateProxyConnectRequest)
-        {
-            //
-            // Write completed.
-            //
-            _proxy->endWriteConnectRequest(writeBuffer);
-            _state = StateProxyConnectRequestPending; // Wait for proxy response
-            return SocketOperationRead;
-        }
-        else if(_state == StateProxyConnectRequestPending)
-        {
-            //
-            // Read completed.
-            //
-            _proxy->endReadConnectRequestResponse(readBuffer);
-            _state = StateConnected;
-        }
+        _state = StateConnected;
     }
-    catch(const Ice::LocalException& ex)
+    else if(_state == StateProxyConnectRequest)
     {
-        if(_instance->traceLevel() >= 2)
-        {
-            Trace out(_instance->logger(), _instance->traceCategory());
-            out << "failed to establish " << _instance->protocol() << " connection\n"
-                << fdToString(_fd, _proxy, _addr, false) << "\n" << ex;
-        }
-        throw;
+        //
+        // Write completed.
+        //
+        _proxy->endWriteConnectRequest(writeBuffer);
+        _state = StateProxyConnectRequestPending; // Wait for proxy response
+        return SocketOperationRead;
+    }
+    else if(_state == StateProxyConnectRequestPending)
+    {
+        //
+        // Read completed.
+        //
+        _proxy->endReadConnectRequestResponse(readBuffer);
+        _state = StateConnected;
     }
 
     assert(_state == StateConnected);
-    if(_instance->traceLevel() >= 1)
-    {
-        Trace out(_instance->logger(), _instance->traceCategory());
-        out << _instance->protocol() << " connection established\n" << _desc;
-    }
     return SocketOperationNone;
 }
 
@@ -169,16 +151,6 @@ IceInternal::TcpTransceiver::closing(bool initiator, const Ice::LocalException&)
 void
 IceInternal::TcpTransceiver::close()
 {
-    //
-    // If the transceiver is not connected, its description is simply "not connected",
-    // which isn't very helpful.
-    //
-    if(_state == StateConnected && _instance->traceLevel() >= 1)
-    {
-        Trace out(_instance->logger(), _instance->traceCategory());
-        out << "closing " << _instance->protocol() << " connection\n" << toString();
-    }
-
     assert(_fd != INVALID_SOCKET);
     try
     {
@@ -257,13 +229,6 @@ IceInternal::TcpTransceiver::write(Buffer& buf)
             }
         }
 
-        if(_instance->traceLevel() >= 3)
-        {
-            Trace out(_instance->logger(), _instance->traceCategory());
-            out << "sent " << ret << " of " << packetSize << " bytes via " << _instance->protocol() << '\n'
-                << toString();
-        }
-
         buf.i += ret;
 
         if(packetSize > buf.b.end() - buf.i)
@@ -329,13 +294,6 @@ IceInternal::TcpTransceiver::read(Buffer& buf, bool&)
                 ex.error = getSocketErrno();
                 throw ex;
             }
-        }
-
-        if(_instance->traceLevel() >= 3)
-        {
-            Trace out(_instance->logger(), _instance->traceCategory());
-            out << "received " << ret << " of " << packetSize << " bytes via " << _instance->protocol() << '\n'
-                << toString();
         }
 
         buf.i += ret;
@@ -414,19 +372,6 @@ IceInternal::TcpTransceiver::finishWrite(Buffer& buf)
         }
     }
 
-    if(_instance->traceLevel() >= 3)
-    {
-        int packetSize = static_cast<int>(buf.b.end() - buf.i);
-        if(_maxSendPacketSize > 0 && packetSize > _maxSendPacketSize)
-        {
-            packetSize = _maxSendPacketSize;
-        }
-        Trace out(_instance->logger(), _instance->traceCategory());
-
-        out << "sent " << _write.count << " of " << packetSize << " bytes via " << _instance->protocol() << '\n'
-            << toString();
-    }
-
     buf.i += _write.count;
 }
 
@@ -489,18 +434,6 @@ IceInternal::TcpTransceiver::finishRead(Buffer& buf, bool&)
         throw ex;
     }
 
-    if(_instance->traceLevel() >= 3)
-    {
-        int packetSize = static_cast<int>(buf.b.end() - buf.i);
-        if(_maxReceivePacketSize > 0 && packetSize > _maxReceivePacketSize)
-        {
-            packetSize = _maxReceivePacketSize;
-        }
-        Trace out(_instance->logger(), _instance->traceCategory());
-        out << "received " << _read.count << " of " << packetSize << " bytes via " << _instance->protocol() << '\n'
-            << toString();
-    }
-
     buf.i += _read.count;
 }
 #endif
@@ -515,6 +448,12 @@ string
 IceInternal::TcpTransceiver::toString() const
 {
     return _desc;
+}
+
+string
+IceInternal::TcpTransceiver::toDetailedString() const
+{
+    return toString();
 }
 
 Ice::ConnectionInfoPtr
@@ -622,11 +561,6 @@ IceInternal::TcpTransceiver::connect()
         {
             _state = StateConnected;
             _desc = fdToString(_fd, _proxy, _addr, true);
-            if(_instance->traceLevel() >= 1)
-            {
-                Trace out(_instance->logger(), _instance->traceCategory());
-                out << _instance->protocol() << " connection established\n" << _desc;
-            }
         }
         else
         {
