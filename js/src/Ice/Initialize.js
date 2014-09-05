@@ -18,8 +18,6 @@ Ice.__M.require(module, "Ice",
 
 var Protocol = Ice.Protocol;
 
-Ice.Globals = {}
-
 //
 // Ice.InitializationData
 //

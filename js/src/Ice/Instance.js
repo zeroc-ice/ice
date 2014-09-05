@@ -292,8 +292,10 @@ var Instance = Ice.Class({
                 this._initData.properties = Properties.createProperties();
             }
 
-            Ice.Globals.printStackTraces =
-                this._initData.properties.getPropertyAsIntWithDefault("Ice.PrintStackTraces", 0) > 0;
+            if(this._initData.properties.getPropertyAsIntWithDefault("Ice.PrintStackTraces", 0) > 0)
+            {
+                Ice.__printStackTraces = true;
+            }
 
             if(this._initData.logger === null)
             {

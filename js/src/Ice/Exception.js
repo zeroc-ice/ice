@@ -27,7 +27,7 @@ var Exception = Class(Error, {
         var s = this.ice_name();
         for(var key in this)
         {
-            if(key === "stack" || key.indexOf("_") === 0)
+            if(key == "stack" || key.indexOf("_") === 0)
             {
                 continue;
             }
@@ -40,7 +40,7 @@ var Exception = Class(Error, {
 
             s += "\n    " + key + ": \"" + value + "\"";
         }
-        if(Ice.Globals.printStackTraces === true && this.stack)
+        if(Ice.__printStackTraces === true && this.stack)
         {
             s += "\n" + this.stack;
         }
