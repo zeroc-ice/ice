@@ -638,7 +638,7 @@ public final class Instance
 
             synchronized(Instance.class)
             {
-                if(!_oneOffDone)
+                if(!_oneOfDone)
                 {
                     String stdOut = _initData.properties.getProperty("Ice.StdOut");
                     String stdErr = _initData.properties.getProperty("Ice.StdErr");
@@ -688,7 +688,7 @@ public final class Instance
 
                         }
                     }
-                    _oneOffDone = true;
+                    _oneOfDone = true;
                 }
             }
 
@@ -1152,7 +1152,7 @@ public final class Instance
 
             queueExecutor = _queueExecutor;
             _queueExecutor = null;
-                    
+
             _typeToClassMap.clear();
 
             _state = StateDestroyed;
@@ -1334,6 +1334,6 @@ public final class Instance
     final private String[] _packages;
     final private boolean _useApplicationClassLoader;
 
-    private static boolean _oneOffDone = false;
+    private static boolean _oneOfDone = false;
     private ExecutorService _queueExecutor;
 }

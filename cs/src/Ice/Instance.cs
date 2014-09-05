@@ -652,7 +652,7 @@ namespace IceInternal
 #if !SILVERLIGHT && !UNITY
                 lock(_staticLock)
                 {
-                    if(!_oneOffDone)
+                    if(!_oneOfDone)
                     {
                         string stdOut = _initData.properties.getProperty("Ice.StdOut");
                         string stdErr = _initData.properties.getProperty("Ice.StdErr");
@@ -700,7 +700,7 @@ namespace IceInternal
                             }
                         }
 
-                        _oneOffDone = true;
+                        _oneOfDone = true;
                     }
                 }
 #endif
@@ -1307,7 +1307,7 @@ namespace IceInternal
 #endif
 
 #if !SILVERLIGHT && !UNITY
-        private static bool _oneOffDone = false;
+        private static bool _oneOfDone = false;
 #endif
 
         private static System.Object _staticLock = new System.Object();

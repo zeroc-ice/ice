@@ -292,9 +292,12 @@ var Instance = Ice.Class({
                 this._initData.properties = Properties.createProperties();
             }
 
-            if(this._initData.properties.getPropertyAsIntWithDefault("Ice.PrintStackTraces", 0) > 0)
+            if(Ice.__oneOfDone === undefined)
             {
-                Ice.__printStackTraces = true;
+                Ice.__printStackTraces =
+                    this._initData.properties.getPropertyAsIntWithDefault("Ice.PrintStackTraces", 0) > 0;
+
+                Ice.__oneOfDone = true;
             }
 
             if(this._initData.logger === null)

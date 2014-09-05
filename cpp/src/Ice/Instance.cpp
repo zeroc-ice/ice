@@ -87,7 +87,7 @@ namespace
 {
 
 IceUtil::Mutex* staticMutex = 0;
-bool oneOffDone = false;
+bool oneOfDone = false;
 std::list<IceInternal::Instance*>* instanceList = 0;
 
 #ifndef _WIN32
@@ -908,7 +908,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                 _initData.properties = createProperties();
             }
 
-            if(!oneOffDone)
+            if(!oneOfDone)
             {
                 //
                 // StdOut and StdErr redirection
@@ -997,7 +997,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                     }
                 }
 #endif
-                oneOffDone = true;
+                oneOfDone = true;
             }
 
             if(instanceCount() == 1)
