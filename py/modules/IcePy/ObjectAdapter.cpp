@@ -1513,6 +1513,37 @@ adapterSetLocator(ObjectAdapterObject* self, PyObject* args)
     return Py_None;
 }
 
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+adapterGetLocator(ObjectAdapterObject* self)
+{
+    assert(self->adapter);
+    Ice::LocatorPrx locator;
+    try
+    {
+        locator = (*self->adapter)->getLocator();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    if(!locator)
+    {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
+    PyObject* locatorProxyType = lookupType("Ice.LocatorPrx");
+    assert(locatorProxyType);
+    return createProxy(locator, (*self->adapter)->getCommunicator(), locatorProxyType);
+}   
+
+
 #ifdef WIN32
 extern "C"
 #endif
@@ -1667,6 +1698,8 @@ static PyMethodDef AdapterMethods[] =
         PyDoc_STR(STRCAST("createIndirectProxy(identity) -> Ice.ObjectPrx")) },
     { STRCAST("setLocator"), reinterpret_cast<PyCFunction>(adapterSetLocator), METH_VARARGS,
         PyDoc_STR(STRCAST("setLocator(proxy) -> None")) },
+    { STRCAST("getLocator"), reinterpret_cast<PyCFunction>(adapterGetLocator), METH_NOARGS,
+      PyDoc_STR(STRCAST("getLocator() -> Ice.LocatorPrx")) },
     { STRCAST("refreshPublishedEndpoints"), reinterpret_cast<PyCFunction>(adapterRefreshPublishedEndpoints), METH_NOARGS,
         PyDoc_STR(STRCAST("refreshPublishedEndpoints() -> None")) },
     { STRCAST("getEndpoints"), reinterpret_cast<PyCFunction>(adapterGetEndpoints), METH_NOARGS,

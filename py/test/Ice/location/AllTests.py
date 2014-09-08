@@ -237,6 +237,7 @@ def allTests(communicator, ref):
     properties.setProperty("Ice.PrintAdapterReady", "0");
     adapter = communicator.createObjectAdapterWithEndpoints("Hello", "default");
     adapter.setLocator(locator);
+    assert(adapter.getLocator() == locator)
 
     id = Ice.Identity();
     id.name = Ice.generateUUID();

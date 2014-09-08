@@ -763,6 +763,9 @@ class ObjectAdapterI(ObjectAdapter):
     def setLocator(self, loc):
         self._impl.setLocator(loc)
 
+    def getLocator(self):
+        return self._impl.getLocator()
+    
     def refreshPublishedEndpoints(self):
         self._impl.refreshPublishedEndpoints()
 
