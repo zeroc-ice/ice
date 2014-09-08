@@ -481,22 +481,14 @@ local interface Communicator
      *
      * <p>createAdmin call only be called once; subsequent calls raise {@link InitializationException}.</p>
      *
-     * <p>If Ice.Admin.DelayCreation is 0 or not set, createAdmin is called by the communicator
-     * initialization, after initialization of all plugins, when Ice.Admin.Endpoints
-     * is set and either Ice.Admin.InstanceName is set or both Ice.Admin.ServerId and Ice.Default.Locator are
-     * set. Otherwise, it is necessary to call createAdmin directly or indirectly through {@link #getAdmin} 
-     * to create the Admin object. When createAdmin is called by the communicator initialization,
-     * the adminId passed to {@link #createAdmin} is <value of Ice.Admin.InstanceName>/admin, 
-     * or <UUID>/admin if Ice.Admin.InstanceName is not set.</p>
-     *
      * @param adminAdapter The object adapter used to host the Admin object; if null and
-     * Ice.Admin.Endpoint is set, use the Ice.Admin object adapter.
+     * Ice.Admin.Endpoints is set, create, activate and use the Ice.Admin object adapter.
      *
      * @param adminId The identity of the Admin object.
      *
      * @return A proxy to the main ("") facet of the Admin object. Never returns a null proxy.
      *
-     * @see #createAdmin
+     * @see #getAdmin
      * @see LocatorRegistry#setServerProcessProxy
      *
      **/
@@ -505,10 +497,17 @@ local interface Communicator
     /**
      *
      * Get a proxy to the main facet of the Admin object.
-     * getProxy calls {@link #createAdmin} to create the Admin object in the Ice.Admin adapter 
-     * if {@link #createAdmin} was not called previously, Ice.Admin.Endpoints is set and either
-     * Ice.Admin.InstanceName is set or both Ice.Admin.ServerId and Ice.Default.Locator are set.
      *
+     * getAdmin also creates the Admin object and creates and activates the Ice.Admin object 
+     * adapter to host this Admin object if Admin is enabled, an Admin object was not previously created 
+     * by {@link #createAdmin} or getAdmin, Ice.Admin.Endpoints is set and either 
+     * Ice.Admin.InstanceName is set or both Ice.Admin.ServerId and Ice.Default.Locator are set. 
+     * The identity of the Admin object created by getAdmin is  
+     * <value of Ice.Admin.InstanceName>/admin, or <UUID>/admin when Ice.Admin.InstanceName is not set.
+     *
+     * <p>If Ice.Admin.DelayCreation is 0 or not set, getAdmin is called by the communicator
+     * initialization, after initialization of all plugins.</p>
+
      * @return A proxy to the main ("") facet of the Admin object, or a null proxy if no 
      * Admin object is configured.
      *
