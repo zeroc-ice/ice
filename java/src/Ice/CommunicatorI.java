@@ -288,6 +288,14 @@ public final class CommunicatorI implements Communicator
         ri.__wait();
     }
 
+
+    @Override
+    public ObjectPrx
+    createAdmin(ObjectAdapter adminAdapter, Identity adminId)
+    {
+        return _instance.createAdmin(adminAdapter, adminId);
+    }
+
     @Override
     public ObjectPrx
     getAdmin()

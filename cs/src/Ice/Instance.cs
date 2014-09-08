@@ -352,88 +352,56 @@ namespace IceInternal
             return Ice.Util.identityToString(ident);
         }
 
-        public Ice.ObjectPrx
-        getAdmin()
-        {
-            Ice.ObjectAdapter adapter = null;
-            string serverId = null;
-            Ice.LocatorPrx defaultLocator = null;
 
+        public Ice.ObjectPrx
+        createAdmin(Ice.ObjectAdapter adminAdapter, Ice.Identity adminIdentity)
+        {
+            bool createAdapter = (adminAdapter == null);
+            
             lock(this)
             {
                 if(_state == StateDestroyed)
                 {
                     throw new Ice.CommunicatorDestroyedException();
                 }
-
-                string adminOA = "Ice.Admin";
-
+                
+                if(adminIdentity == null || string.IsNullOrEmpty(adminIdentity.name))
+                {
+                    throw new Ice.IllegalIdentityException(adminIdentity);
+                }
+    
                 if(_adminAdapter != null)
                 {
-                    return _adminAdapter.createProxy(_adminIdentity);
+                    throw new Ice.InitializationException("Admin already created");
                 }
-                else if(_initData.properties.getProperty(adminOA + ".Endpoints").Length == 0)
+                
+                if(!_adminEnabled)
                 {
-                    return null;
+                    throw new Ice.InitializationException("Admin is disabled");
                 }
-                else
+            
+                if(createAdapter)
                 {
-                    serverId = _initData.properties.getProperty("Ice.Admin.ServerId");
-                    string instanceName = _initData.properties.getProperty("Ice.Admin.InstanceName");
-
-                    defaultLocator = _referenceFactory.getDefaultLocator();
-
-                    if((defaultLocator != null && serverId.Length > 0) || instanceName.Length > 0)
+                    if(_initData.properties.getProperty("Ice.Admin.Endpoints").Length > 0)
                     {
-                        if(_adminIdentity == null)
-                        {
-                            if(instanceName.Length == 0)
-                            {
-                                instanceName = System.Guid.NewGuid().ToString();
-                            }
-                            _adminIdentity = new Ice.Identity("admin", instanceName);
-                            //
-                            // Afterwards, _adminIdentity is read-only
-                            //
-                        }
-
-                        //
-                        // Create OA
-                        //
-                        _adminAdapter = _objectAdapterFactory.createObjectAdapter(adminOA, null);
-
-                        //
-                        // Add all facets to OA
-                        //
-                        Dictionary<string, Ice.Object> filteredFacets = new Dictionary<string, Ice.Object>();
-
-                        foreach(KeyValuePair<string, Ice.Object> entry in _adminFacets)
-                        {
-                            if(_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(entry.Key))
-                            {
-                                _adminAdapter.addFacet(entry.Value, _adminIdentity, entry.Key);
-                            }
-                            else
-                            {
-                                filteredFacets.Add(entry.Key, entry.Value);
-                            }
-                        }
-                        _adminFacets = filteredFacets;
-
-                        adapter = _adminAdapter;
+                        adminAdapter = _objectAdapterFactory.createObjectAdapter("Ice.Admin", null);
+                    }
+                    else
+                    {
+                        throw new Ice.InitializationException("Ice.Admin.Endpoints is not set");
                     }
                 }
+       
+                _adminIdentity = adminIdentity;
+                _adminAdapter = adminAdapter;
+                addAllAdminFacets();
             }
-
-            if(adapter == null)
-            {
-                return null;
-            }
-            else
+ 
+            if(createAdapter)
             {
                 try
                 {
-                    adapter.activate();
+                    adminAdapter.activate();
                 }
                 catch(Ice.LocalException)
                 {
@@ -442,61 +410,85 @@ namespace IceInternal
                     // (can't call again getAdmin() after fixing the problem)
                     // since all the facets (servants) in the adapter are lost
                     //
-                    adapter.destroy();
+                    adminAdapter.destroy();
                     lock(this)
                     {
                         _adminAdapter = null;
                     }
                     throw;
                 }
-
-                Ice.ObjectPrx admin = adapter.createProxy(_adminIdentity);
-                if(defaultLocator != null && serverId.Length > 0)
-                {
-                    Ice.ProcessPrx process = Ice.ProcessPrxHelper.uncheckedCast(admin.ice_facet("Process"));
-                    try
-                    {
-                        //
-                        // Note that as soon as the process proxy is registered, the communicator might be
-                        // shutdown by a remote client and admin facets might start receiving calls.
-                        //
-                        defaultLocator.getRegistry().setServerProcessProxy(serverId, process);
-                    }
-                    catch(Ice.ServerNotFoundException)
-                    {
-                        if(_traceLevels.location >= 1)
-                        {
-                            System.Text.StringBuilder s = new System.Text.StringBuilder();
-                            s.Append("couldn't register server `" + serverId + "' with the locator registry:\n");
-                            s.Append("the server is not known to the locator registry");
-                            _initData.logger.trace(_traceLevels.locationCat, s.ToString());
-                        }
-
-                        throw new Ice.InitializationException("Locator knows nothing about server '" + serverId +
-                                                              "'");
-                    }
-                    catch(Ice.LocalException ex)
-                    {
-                        if(_traceLevels.location >= 1)
-                        {
-                            System.Text.StringBuilder s = new System.Text.StringBuilder();
-                            s.Append("couldn't register server `" + serverId + "' with the locator registry:\n" + ex);
-                            _initData.logger.trace(_traceLevels.locationCat, s.ToString());
-                        }
-                        throw; // TODO: Shall we raise a special exception instead of a non obvious local exception?
-                    }
-
-                    if(_traceLevels.location >= 1)
-                    {
-                        System.Text.StringBuilder s = new System.Text.StringBuilder();
-                        s.Append("registered server `" + serverId + "' with the locator registry");
-                        _initData.logger.trace(_traceLevels.locationCat, s.ToString());
-                    }
-                }
-                return admin;
             }
+            setServerProcessProxy(adminAdapter, adminIdentity);
+            return adminAdapter.createProxy(adminIdentity);
         }
-
+        
+        public Ice.ObjectPrx 
+        getAdmin()
+        {
+            Ice.ObjectAdapter adminAdapter;
+            Ice.Identity adminIdentity;
+            
+            lock(this)
+            {
+                if(_state == StateDestroyed)
+                {
+                    throw new Ice.CommunicatorDestroyedException();
+                }
+                
+                if(_adminAdapter != null)
+                {
+                    return _adminAdapter.createProxy(_adminIdentity);
+                }
+                else if(_adminEnabled)
+                {
+                    if(getAdminEnabledDefaultValue())
+                    {
+                        adminAdapter = _objectAdapterFactory.createObjectAdapter("Ice.Admin", null);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                    adminIdentity = new Ice.Identity("admin", _initData.properties.getProperty("Ice.Admin.InstanceName"));
+                    if(adminIdentity.category.Length == 0)
+                    {
+                        adminIdentity.category = System.Guid.NewGuid().ToString();
+                    }
+                    
+                    _adminIdentity = adminIdentity;
+                    _adminAdapter = adminAdapter;
+                    addAllAdminFacets();
+                    // continue below outside synchronization
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            
+            try
+            {
+                adminAdapter.activate();
+            }
+            catch(Ice.LocalException)
+            {
+                //
+                // We cleanup _adminAdapter, however this error is not recoverable
+                // (can't call again getAdmin() after fixing the problem)
+                // since all the facets (servants) in the adapter are lost
+                //
+                adminAdapter.destroy();
+                lock(this)
+                {
+                    _adminAdapter = null;
+                }
+                throw;
+            }
+            
+            setServerProcessProxy(adminAdapter, adminIdentity);
+            return adminAdapter.createProxy(adminIdentity);
+        }
+        
         public void
         addAdminFacet(Ice.Object servant, string facet)
         {
@@ -862,36 +854,53 @@ namespace IceInternal
 
                 _retryQueue = new RetryQueue(this);
 
-                string[] facetFilter = _initData.properties.getPropertyAsList("Ice.Admin.Facets");
-                if(facetFilter.Length > 0)
+                
+                // TODO: move facets after plugins are loaded
+
+                if(_initData.properties.getProperty("Ice.Admin.Enabled").Length == 0)
                 {
-                    foreach(string s in facetFilter)
-                    {
-                        _adminFacetFilter.Add(s);
-                    }
+                    _adminEnabled = getAdminEnabledDefaultValue();
                 }
-
-                _adminFacets.Add("Process", new ProcessI(communicator));
-
-                MetricsAdminI admin = new MetricsAdminI(_initData.properties, _initData.logger);
-                _adminFacets.Add("Metrics", admin);
-
-                PropertiesAdminI props = new PropertiesAdminI("Properties", _initData.properties, _initData.logger);
-                _adminFacets.Add("Properties", props);
+                else
+                {
+                    _adminEnabled = _initData.properties.getPropertyAsInt("Ice.Admin.Enabled") > 0;
+                }
+            
+                PropertiesAdminI propsAdmin = null;
+                MetricsAdminI metricsAdmin = null;
+                
+                if(_adminEnabled)
+                {
+                    string[] facetFilter = _initData.properties.getPropertyAsList("Ice.Admin.Facets");
+                    if(facetFilter.Length > 0)
+                    {
+                        foreach(string s in facetFilter)
+                        {
+                            _adminFacetFilter.Add(s);
+                        }
+                    }
+                    
+                    _adminFacets.Add("Process", new ProcessI(communicator));
+                    
+                    metricsAdmin = new MetricsAdminI(_initData.properties, _initData.logger);
+                    _adminFacets.Add("Metrics", metricsAdmin);
+                    
+                    propsAdmin= new PropertiesAdminI("Properties", _initData.properties, _initData.logger);
+                    _adminFacets.Add("Properties", propsAdmin);
+                }
 
                 //
                 // Setup the communicator observer only if the user didn't already set an
-                // Ice observer resolver and if the admininistrative endpoints are set.
+                // Ice observer resolver and Admin is enabled
                 //
-                if((_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains("Metrics")) &&
-                   _initData.properties.getProperty("Ice.Admin.Endpoints").Length > 0)
+                if(_adminEnabled && (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains("Metrics")))
                 {
-                    _observer = new CommunicatorObserverI(admin, _initData.observer);
+                    _observer = new CommunicatorObserverI(metricsAdmin, _initData.observer);
 
                     //
                     // Make sure the admin plugin receives property updates.
                     //
-                    props.addUpdateCallback(admin);
+                    propsAdmin.addUpdateCallback(metricsAdmin);
                 }
                 else
                 {
@@ -1261,6 +1270,90 @@ namespace IceInternal
             }
         }
 
+        internal void addAllAdminFacets()
+        {
+            lock(this)
+            {
+                Dictionary<string, Ice.Object> filteredFacets = new Dictionary<string, Ice.Object>();
+                
+                foreach(KeyValuePair<string, Ice.Object> entry in _adminFacets)
+                {
+                    if(_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(entry.Key))
+                    {
+                        _adminAdapter.addFacet(entry.Value, _adminIdentity, entry.Key);
+                    }
+                    else
+                    {
+                        filteredFacets.Add(entry.Key, entry.Value);
+                    }
+                }
+                _adminFacets = filteredFacets;
+            }
+        }
+          
+        internal void setServerProcessProxy(Ice.ObjectAdapter adminAdapter, Ice.Identity adminIdentity)
+        {
+            Ice.ObjectPrx admin = adminAdapter.createProxy(adminIdentity);
+            Ice.LocatorPrx locator = adminAdapter.getLocator();
+            string serverId = _initData.properties.getProperty("Ice.Admin.ServerId");
+            
+            if(locator != null && serverId.Length > 0)
+            {
+                Ice.ProcessPrx process = Ice.ProcessPrxHelper.uncheckedCast(admin.ice_facet("Process"));
+                try
+                {
+                    //
+                    // Note that as soon as the process proxy is registered, the communicator might be
+                    // shutdown by a remote client and admin facets might start receiving calls.
+                    //
+                    locator.getRegistry().setServerProcessProxy(serverId, process);
+                }
+                catch(Ice.ServerNotFoundException)
+                {
+                    if(_traceLevels.location >= 1)
+                    {
+                        System.Text.StringBuilder s = new System.Text.StringBuilder();
+                        s.Append("couldn't register server `" + serverId + "' with the locator registry:\n");
+                        s.Append("the server is not known to the locator registry");
+                        _initData.logger.trace(_traceLevels.locationCat, s.ToString());
+                    }
+                    
+                    throw new Ice.InitializationException("Locator knows nothing about server `" + serverId + "'");
+                }
+                catch(Ice.LocalException ex)
+                {
+                    if(_traceLevels.location >= 1)
+                    {
+                        System.Text.StringBuilder s = new System.Text.StringBuilder();
+                        s.Append("couldn't register server `" + serverId + "' with the locator registry:\n" + ex);
+                        _initData.logger.trace(_traceLevels.locationCat, s.ToString());
+                    }
+                    throw; // TODO: Shall we raise a special exception instead of a non obvious local exception?
+                }
+                
+                if(_traceLevels.location >= 1)
+                {
+                    System.Text.StringBuilder s = new System.Text.StringBuilder();
+                    s.Append("registered server `" + serverId + "' with the locator registry");
+                    _initData.logger.trace(_traceLevels.locationCat, s.ToString());
+                }
+            }
+        }
+
+        internal bool getAdminEnabledDefaultValue()
+        {
+            lock(this)
+            {
+                Ice.Properties props = _initData.properties;
+                
+                return props.getProperty("Ice.Admin.Endpoints").Length > 0 &&
+                    (props.getProperty("Ice.Admin.InstanceName").Length > 0 ||
+                     (props.getProperty("Ice.Admin.ServerId").Length > 0 && 
+                      (_referenceFactory.getDefaultLocator() != null 
+                       || props.getProperty("Ice.Default.Locator").Length > 0)));
+            }
+        }
+        
         private const int StateActive = 0;
         private const int StateDestroyInProgress = 1;
         private const int StateDestroyed = 2;
@@ -1297,6 +1390,7 @@ namespace IceInternal
         private RetryQueue _retryQueue;
         private EndpointFactoryManager _endpointFactoryManager;
         private Ice.PluginManager _pluginManager;
+        private bool _adminEnabled = false;
         private Ice.ObjectAdapter _adminAdapter;
         private Dictionary<string, Ice.Object> _adminFacets = new Dictionary<string, Ice.Object>();
         private HashSet<string> _adminFacetFilter = new HashSet<string>();

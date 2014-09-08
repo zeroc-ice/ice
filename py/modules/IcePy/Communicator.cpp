@@ -795,6 +795,56 @@ communicatorEndFlushBatchRequests(CommunicatorObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
+communicatorCreateAdmin(CommunicatorObject* self, PyObject* args)
+{
+    PyObject* adapter;
+    PyObject* identityType = lookupType("Ice.Identity");
+    PyObject* id;
+    if(!PyArg_ParseTuple(args, STRCAST("OO!"), &adapter, identityType, &id))
+    {
+        return 0;
+    }
+
+    Ice::ObjectAdapterPtr oa;
+
+    PyObject* adapterType = lookupType("Ice.ObjectAdapter");
+    if(adapter != Py_None && !PyObject_IsInstance(adapter, adapterType))
+    {
+        PyErr_Format(PyExc_ValueError, STRCAST("expected ObjectAdapter or None"));
+        return 0;
+    }
+
+    if(adapter != Py_None)
+    {
+        oa = unwrapObjectAdapter(adapter);
+    }
+
+    Ice::Identity identity;
+    if(!getIdentity(id, identity))
+    {
+        return 0;
+    }
+
+    assert(self->communicator);
+    Ice::ObjectPrx proxy;
+    try
+    {
+        proxy = (*self->communicator)->createAdmin(oa, identity);
+        assert(proxy);
+        
+        return createProxy(proxy, *self->communicator);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 communicatorGetAdmin(CommunicatorObject* self)
 {
     assert(self->communicator);
@@ -1475,6 +1525,8 @@ static PyMethodDef CommunicatorMethods[] =
         PyDoc_STR(STRCAST("begin_flushBatchRequests([_ex][, _sent]) -> Ice.AsyncResult")) },
     { STRCAST("end_flushBatchRequests"), reinterpret_cast<PyCFunction>(communicatorEndFlushBatchRequests),
         METH_VARARGS, PyDoc_STR(STRCAST("end_flushBatchRequests(Ice.AsyncResult) -> None")) },
+    { STRCAST("createAdmin"), reinterpret_cast<PyCFunction>(communicatorCreateAdmin), METH_VARARGS,
+        PyDoc_STR(STRCAST("createAdmin(adminAdapter, adminIdentity) -> Ice.ObjectPrx")) },
     { STRCAST("getAdmin"), reinterpret_cast<PyCFunction>(communicatorGetAdmin), METH_NOARGS,
         PyDoc_STR(STRCAST("getAdmin() -> Ice.ObjectPrx")) },
     { STRCAST("addAdminFacet"), reinterpret_cast<PyCFunction>(communicatorAddAdminFacet), METH_VARARGS,

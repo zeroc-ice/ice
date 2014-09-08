@@ -20,10 +20,13 @@ using Test;
 public class AllTests : TestCommon.TestApp
 {
     static void
-    testFacets(Ice.Communicator com)
+    testFacets(Ice.Communicator com, bool builtInFacets = true)
     {
-        test(com.findAdminFacet("Properties") != null);
-        test(com.findAdminFacet("Process") != null);
+        if(builtInFacets)
+        {
+            test(com.findAdminFacet("Properties") != null);
+            test(com.findAdminFacet("Process") != null);
+        }
 
         TestFacet f1 = new TestFacetI();
         TestFacet f2 = new TestFacetI();
@@ -112,6 +115,32 @@ public class AllTests : TestCommon.TestApp
             // Test: Verify that the operations work correctly with the Admin object disabled.
             //
             Ice.Communicator com = Ice.Util.initialize();
+            testFacets(com, false);
+            com.destroy();
+        }
+        {
+            //
+            // Test: Verify that the operations work correctly with Ice.Admin.Enabled=1
+            //
+            Ice.InitializationData init = new Ice.InitializationData();
+            init.properties = Ice.Util.createProperties();
+            init.properties.setProperty("Ice.Admin.Enabled", "1");
+            Ice.Communicator com = Ice.Util.initialize(init);
+            test(com.getAdmin() == null);
+            Ice.Identity id = com.stringToIdentity("test-admin");
+            try
+            {
+                com.createAdmin(null, id);
+                test(false);
+            }
+            catch(Ice.InitializationException)
+            {
+            }
+
+            Ice.ObjectAdapter adapter = com.createObjectAdapter("");
+            test(com.createAdmin(adapter, id) != null);
+            test(com.getAdmin() != null);
+
             testFacets(com);
             com.destroy();
         }

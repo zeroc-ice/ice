@@ -26,10 +26,9 @@ class ICE_API LoggerAdminLogger : public Ice::Logger
 public:
 
     //
-    // Add the associated LoggerAdmin facet to this communicator
+    // Return the associated Admin facet
     //
-    virtual void addAdminFacet(const CommunicatorPtr&) = 0;
-
+    virtual ObjectPtr getFacet() const = 0;
 
     //
     // Destroy this logger, in particular join any thread

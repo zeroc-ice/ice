@@ -660,6 +660,20 @@ public final class ObjectAdapterI implements ObjectAdapter
     }
 
     @Override
+    public synchronized LocatorPrx
+    getLocator()
+    {
+        if(_locatorInfo == null)
+        {
+            return null;
+        }
+        else
+        {
+            return _locatorInfo.getLocator();
+        }
+    }
+
+    @Override
     public void
     refreshPublishedEndpoints()
     {

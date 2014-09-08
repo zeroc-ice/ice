@@ -152,7 +152,7 @@ public:
     virtual std::string getPrefix();
     virtual LoggerPtr cloneWithPrefix(const std::string&);
 
-    virtual void addAdminFacet(const CommunicatorPtr&);
+    virtual ObjectPtr getFacet() const;
     virtual void destroy();
     
     const LoggerPtr& getLocalLogger() const
@@ -665,10 +665,10 @@ LoggerAdminLoggerI::cloneWithPrefix(const string& prefix)
     return _localLogger->cloneWithPrefix(prefix);
 }
 
-void
-LoggerAdminLoggerI::addAdminFacet(const CommunicatorPtr& communicator)
+ObjectPtr
+LoggerAdminLoggerI::getFacet() const
 {
-    communicator->addAdminFacet(_loggerAdmin, _loggerAdmin->getFacetName());
+    return _loggerAdmin;
 }
 
 void 

@@ -315,6 +315,7 @@ generated from the section label.
         <property name="ACM.Server" class="acm"/>
         <property name="Admin" class="objectadapter" />
         <property name="Admin.DelayCreation" />
+        <property name="Admin.Enabled" />
         <property name="Admin.Facets" />
         <property name="Admin.InstanceName" />
         <property name="Admin.Logger" />

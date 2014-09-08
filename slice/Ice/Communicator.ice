@@ -472,16 +472,47 @@ local interface Communicator
      **/
     ["async"] void flushBatchRequests();
 
+
     /**
      *
-     * Get a proxy to the main facet of the Admin object. When Ice.Admin.DelayCreation
-     * is greater than 0, it is necessary to call getAdmin() after the communicator is
-     * initialized to create the Admin object. Otherwise, the Admin object is created
-     * automatically after all the plug-ins are initialized.
+     * Add the Admin object with all its facets to the provided object adapter.
+     * If Ice.Admin.ServerId is set and the provided object adapter has a {@link Locator},
+     * createAdmin registers the Admin's Process facet with the {@link Locator}'s {@link LocatorRegistry}.
      *
-     * @return The main ("") facet of the Admin object; a null proxy if no
+     * <p>createAdmin call only be called once; subsequent calls raise {@link InitializationException}.</p>
+     *
+     * <p>If Ice.Admin.DelayCreation is 0 or not set, createAdmin is called by the communicator
+     * initialization, after initialization of all plugins, when Ice.Admin.Endpoints
+     * is set and either Ice.Admin.InstanceName is set or both Ice.Admin.ServerId and Ice.Default.Locator are
+     * set. Otherwise, it is necessary to call createAdmin directly or indirectly through {@link #getAdmin} 
+     * to create the Admin object. When createAdmin is called by the communicator initialization,
+     * the adminId passed to {@link #createAdmin} is <value of Ice.Admin.InstanceName>/admin, 
+     * or <UUID>/admin if Ice.Admin.InstanceName is not set.</p>
+     *
+     * @param adminAdapter The object adapter used to host the Admin object; if null and
+     * Ice.Admin.Endpoint is set, use the Ice.Admin object adapter.
+     *
+     * @param adminId The identity of the Admin object.
+     *
+     * @return A proxy to the main ("") facet of the Admin object. Never returns a null proxy.
+     *
+     * @see #createAdmin
+     * @see LocatorRegistry#setServerProcessProxy
+     *
+     **/
+    Object* createAdmin(ObjectAdapter adminAdapter, Identity adminId);
+
+    /**
+     *
+     * Get a proxy to the main facet of the Admin object.
+     * getProxy calls {@link #createAdmin} to create the Admin object in the Ice.Admin adapter 
+     * if {@link #createAdmin} was not called previously, Ice.Admin.Endpoints is set and either
+     * Ice.Admin.InstanceName is set or both Ice.Admin.ServerId and Ice.Default.Locator are set.
+     *
+     * @return A proxy to the main ("") facet of the Admin object, or a null proxy if no 
      * Admin object is configured.
      *
+     * @see #createAdmin
      **/
     ["cpp:const"] Object* getAdmin();
 

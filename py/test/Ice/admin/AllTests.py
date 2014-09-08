@@ -13,9 +13,11 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-def testFacets(com):
-    test(com.findAdminFacet("Properties") != None)
-    test(com.findAdminFacet("Process") != None)
+def testFacets(com, builtInFacets = True):
+    
+    if builtInFacets:
+        test(com.findAdminFacet("Properties") != None)
+        test(com.findAdminFacet("Process") != None)
 
     f1 = TestI.TestFacetI()
     f2 = TestI.TestFacetI()
@@ -32,13 +34,13 @@ def testFacets(com):
 
     try:
         com.addAdminFacet(f1, "Facet1")
-        test(false)
+        test(False)
     except Ice.AlreadyRegisteredException:
         pass # Expected
 
     try:
         com.removeAdminFacet("Bogus")
-        test(false)
+        test(False)
     except Ice.NotRegisteredException:
         pass # Expected
 
@@ -48,7 +50,7 @@ def testFacets(com):
 
     try:
         com.removeAdminFacet("Facet1")
-        test(false)
+        test(False)
     except Ice.NotRegisteredException:
         pass # Expected
 
@@ -84,6 +86,28 @@ def allTests(communicator):
     # Test: Verify that the operations work correctly with the Admin object disabled.
     #
     com = Ice.initialize()
+    testFacets(com, False)
+    com.destroy()
+
+    #
+    # Test: Verify that the operations work correctly when Ice.Admin is enabled.
+    #
+    init = Ice.InitializationData()
+    init.properties = Ice.createProperties()
+    init.properties.setProperty("Ice.Admin.Enabled", "1")
+    com = Ice.initialize(init)
+    test(com.getAdmin() == None)
+    identity = com.stringToIdentity("test-admin")
+    try:
+        com.createAdmin(None, identity)
+        test(False)
+    except Ice.InitializationException:
+        pass
+    
+    adapter = com.createObjectAdapter("")
+    test(com.createAdmin(adapter, identity) != None)
+    test(com.getAdmin() != None)
+
     testFacets(com)
     com.destroy()
     
@@ -146,8 +170,7 @@ def allTests(communicator):
     # Test: PropertiesAdmin::getProperties()
     #
     pd = pa.getPropertiesForPrefix("")
-    test(len(pd) == 6)
-    test(pd["Ice.Default.CollocationOptimized"] == "0")
+    test(len(pd) == 5)
     test(pd["Ice.Admin.Endpoints"] == "tcp -h 127.0.0.1")
     test(pd["Ice.Admin.InstanceName"] == "Test")
     test(pd["Prop1"] == "1")
@@ -216,18 +239,11 @@ def allTests(communicator):
     props["Ice.Admin.Facets"] = "Properties"
     com = factory.createCommunicator(props)
     obj = com.getAdmin()
-    # TODO: Remote the try/catch once ICE-4862 is fixed
-    try:
-        proc = Ice.ProcessPrx.checkedCast(obj, "Process")
-        test(proc == None)
-    except Ice.FacetNotExistException:
-        pass
-    try:
-        tf = Test.TestFacetPrx.checkedCast(obj, "TestFacet")
-        test(tf == None)
-    except Ice.FacetNotExistException:
-        pass
-
+   
+    proc = Ice.ProcessPrx.checkedCast(obj, "Process")
+    test(proc == None)
+    tf = Test.TestFacetPrx.checkedCast(obj, "TestFacet")
+    test(tf == None)
     com.destroy()
 
     #
@@ -240,17 +256,12 @@ def allTests(communicator):
     props["Ice.Admin.Facets"] = "Process"
     com = factory.createCommunicator(props)
     obj = com.getAdmin()
-    # TODO: Remote the try/catch once ICE-4862 is fixed
-    try:
-        pa = Ice.PropertiesAdminPrx.checkedCast(obj, "Properties")
-        test(pa == None)
-    except Ice.FacetNotExistException:
-        pass
-    try:
-        tf = Test.TestFacetPrx.checkedCast(obj, "TestFacet")
-        test(tf == None)
-    except Ice.FacetNotExistException:
-        pass
+   
+    pa = Ice.PropertiesAdminPrx.checkedCast(obj, "Properties")
+    test(pa == None)
+    tf = Test.TestFacetPrx.checkedCast(obj, "TestFacet")
+    test(tf == None)
+   
     com.destroy()
 
     #
@@ -263,17 +274,13 @@ def allTests(communicator):
     props["Ice.Admin.Facets"] = "TestFacet"
     com = factory.createCommunicator(props)
     obj = com.getAdmin()
-    # TODO: Remote the try/catch once ICE-4862 is fixed
-    try:
-        pa = Ice.PropertiesAdminPrx.checkedCast(obj, "Properties")
-        test(pa == None)
-    except Ice.FacetNotExistException:
-        pass
-    try:
-        proc = Ice.ProcessPrx.checkedCast(obj, "Process")
-        test(proc == None)
-    except Ice.FacetNotExistException:
-        pass
+    
+    pa = Ice.PropertiesAdminPrx.checkedCast(obj, "Properties")
+    test(pa == None)
+    
+    proc = Ice.ProcessPrx.checkedCast(obj, "Process")
+    test(proc == None)
+    
     com.destroy()
 
     #
@@ -290,13 +297,9 @@ def allTests(communicator):
     test(pa.getProperty("Ice.Admin.InstanceName") == "Test")
     tf = Test.TestFacetPrx.checkedCast(obj, "TestFacet")
     tf.op()
-    # TODO: Remote the try/catch once ICE-4862 is fixed
-    try:
-        proc = Ice.ProcessPrx.checkedCast(obj, "Process")
-        test(proc == None)
-    except Ice.FacetNotExistException:
-        pass
-
+    
+    proc = Ice.ProcessPrx.checkedCast(obj, "Process")
+    test(proc == None)
     com.destroy()
 
     #
@@ -309,12 +312,10 @@ def allTests(communicator):
     props["Ice.Admin.Facets"] = "TestFacet, Process"
     com = factory.createCommunicator(props)
     obj = com.getAdmin()
-    # TODO: Remote the try/catch once ICE-4862 is fixed
-    try:
-        pa = Ice.PropertiesAdminPrx.checkedCast(obj, "Properties")
-        test(pa == None)
-    except Ice.FacetNotExistException:
-        pass
+   
+    pa = Ice.PropertiesAdminPrx.checkedCast(obj, "Properties")
+    test(pa == None)
+   
     tf = Test.TestFacetPrx.checkedCast(obj, "TestFacet")
     tf.op()
     proc = Ice.ProcessPrx.checkedCast(obj, "Process")

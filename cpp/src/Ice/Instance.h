@@ -89,6 +89,7 @@ public:
     Ice::Identity stringToIdentity(const std::string&) const;
     std::string identityToString(const Ice::Identity&) const;
 
+    Ice::ObjectPrx createAdmin(const Ice::ObjectAdapterPtr&, const Ice::Identity&);
     Ice::ObjectPrx getAdmin();
     void addAdminFacet(const Ice::ObjectPtr&, const std::string&);
     Ice::ObjectPtr removeAdminFacet(const std::string&);
@@ -128,6 +129,10 @@ private:
     void updateThreadObservers();
     friend class ObserverUpdaterI;
 
+    void addAllAdminFacets();
+    void setServerProcessProxy(const Ice::ObjectAdapterPtr&, const Ice::Identity&);
+    bool getAdminEnabledDefaultValue() const;
+
     enum State
     {
         StateActive,
@@ -163,6 +168,7 @@ private:
     const Ice::ImplicitContextIPtr _implicitContext;
     IceUtil::StringConverterPtr _stringConverter;
     IceUtil::WstringConverterPtr _wstringConverter;
+    bool _adminEnabled;
     Ice::ObjectAdapterPtr _adminAdapter;
     Ice::FacetMap _adminFacets;
     Ice::Identity _adminIdentity;

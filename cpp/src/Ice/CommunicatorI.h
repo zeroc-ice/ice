@@ -73,6 +73,7 @@ public:
 
     virtual void end_flushBatchRequests(const AsyncResultPtr&);
 
+    virtual ObjectPrx createAdmin(const ObjectAdapterPtr&, const Identity&);
     virtual ObjectPrx getAdmin() const;
     virtual void addAdminFacet(const ObjectPtr&, const std::string&);
     virtual ObjectPtr removeAdminFacet(const std::string&);

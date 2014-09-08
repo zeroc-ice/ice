@@ -24,10 +24,13 @@ public class AllTests
     }
 
     static void
-    testFacets(Ice.Communicator com)
+    testFacets(Ice.Communicator com, boolean builtInFacets)
     {
-        test(com.findAdminFacet("Properties") != null);
-        test(com.findAdminFacet("Process") != null);
+        if(builtInFacets)
+        {
+            test(com.findAdminFacet("Properties") != null);
+            test(com.findAdminFacet("Process") != null);
+        }
 
         TestFacet f1 = new TestFacetI();
         TestFacet f2 = new TestFacetI();
@@ -91,7 +94,7 @@ public class AllTests
             init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
             Ice.Communicator com = Ice.Util.initialize(init);
-            testFacets(com);
+            testFacets(com, true);
             com.destroy();
         }
         {
@@ -104,7 +107,7 @@ public class AllTests
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
             init.properties.setProperty("Ice.Admin.Facets", "Properties");
             Ice.Communicator com = Ice.Util.initialize(init);
-            testFacets(com);
+            testFacets(com, true);
             com.destroy();
         }
         {
@@ -112,7 +115,33 @@ public class AllTests
             // Test: Verify that the operations work correctly with the Admin object disabled.
             //
             Ice.Communicator com = Ice.Util.initialize();
-            testFacets(com);
+            testFacets(com, false);
+            com.destroy();
+        }
+        {
+            //
+            // Test: Verify that the operations work correctly when Ice.Admin.Enabled is set
+            //
+            Ice.InitializationData init = new Ice.InitializationData();
+            init.properties = Ice.Util.createProperties();
+            init.properties.setProperty("Ice.Admin.Enabled", "1");
+            Ice.Communicator com = Ice.Util.initialize(init);
+
+            test(com.getAdmin() == null);
+            Ice.Identity id = com.stringToIdentity("test-admin");
+            try
+            {
+                com.createAdmin(null, id);
+                test(false);
+            }
+            catch(Ice.InitializationException ex)
+            {
+            }
+
+            Ice.ObjectAdapter adapter = com.createObjectAdapter("");
+            test(com.createAdmin(adapter, id) != null);
+            test(com.getAdmin() != null);
+            testFacets(com, true);
             com.destroy();
         }
         {
@@ -125,9 +154,9 @@ public class AllTests
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
             init.properties.setProperty("Ice.Admin.DelayCreation", "1");
             Ice.Communicator com = Ice.Util.initialize(init);
-            testFacets(com);
+            testFacets(com, true);
             com.getAdmin();
-            testFacets(com);
+            testFacets(com, true);
             com.destroy();
         }
         out.println("ok");

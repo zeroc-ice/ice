@@ -621,6 +621,20 @@ local interface ObjectAdapter
      **/
     void setLocator(Locator* loc);
 
+    
+     /**
+     * Get the Ice locator used with this object adapter. 
+     *
+     * @return  The locator used by this object adapter, or null if no locator is
+     * used by this object adapter.
+     *
+     * @see Locator
+     * @see #setLocator
+     *
+     **/
+    ["cpp:const"] Locator* getLocator();
+
+
     /**
      * Refresh the set of published endpoints. The run time re-reads
      * the PublishedEndpoints property if it is set and re-reads the

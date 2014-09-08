@@ -299,87 +299,55 @@ public final class Instance
         return Ice.Util.identityToString(ident);
     }
 
-    public Ice.ObjectPrx
-    getAdmin()
+    public synchronized Ice.ObjectPrx
+    createAdmin(Ice.ObjectAdapter adminAdapter, Ice.Identity adminIdentity)
     {
-        Ice.ObjectAdapter adapter = null;
-        String serverId = null;
-        Ice.LocatorPrx defaultLocator = null;
-
+        boolean createAdapter = (adminAdapter == null);
+    
         synchronized(this)
         {
             if(_state == StateDestroyed)
             {
                 throw new Ice.CommunicatorDestroyedException();
             }
-
-            final String adminOA = "Ice.Admin";
-
+            
+            if(adminIdentity == null || adminIdentity.name == null || adminIdentity.name.isEmpty())
+            {
+                throw new Ice.IllegalIdentityException(adminIdentity);
+            }
+    
             if(_adminAdapter != null)
             {
-                return _adminAdapter.createProxy(_adminIdentity);
+                throw new Ice.InitializationException("Admin already created");
             }
-            else if(_initData.properties.getProperty(adminOA + ".Endpoints").length() == 0)
+    
+            if(!_adminEnabled)
             {
-                return null;
+                throw new Ice.InitializationException("Admin is disabled");
             }
-            else
+            
+            if(createAdapter)
             {
-                serverId = _initData.properties.getProperty("Ice.Admin.ServerId");
-                String instanceName = _initData.properties.getProperty("Ice.Admin.InstanceName");
-
-                defaultLocator = _referenceFactory.getDefaultLocator();
-
-                if((defaultLocator != null && serverId.length() > 0) || instanceName.length() > 0)
+                if(!_initData.properties.getProperty("Ice.Admin.Endpoints").isEmpty())
                 {
-                    if(_adminIdentity == null)
-                    {
-                        if(instanceName.length() == 0)
-                        {
-                            instanceName = java.util.UUID.randomUUID().toString();
-                        }
-                        _adminIdentity = new Ice.Identity("admin", instanceName);
-                        //
-                        // Afterwards, _adminIdentity is read-only
-                        //
-                    }
-
-                    //
-                    // Create OA
-                    //
-                    _adminAdapter = _objectAdapterFactory.createObjectAdapter(adminOA, null);
-
-                    //
-                    // Add all facets to OA
-                    //
-                    java.util.Map<String, Ice.Object> filteredFacets = new java.util.HashMap<String, Ice.Object>();
-                    for(java.util.Map.Entry<String, Ice.Object> p : _adminFacets.entrySet())
-                    {
-                        if(_adminFacetFilter.isEmpty() || _adminFacetFilter.contains(p.getKey()))
-                        {
-                            _adminAdapter.addFacet(p.getValue(), _adminIdentity, p.getKey());
-                        }
-                        else
-                        {
-                            filteredFacets.put(p.getKey(), p.getValue());
-                        }
-                    }
-                    _adminFacets = filteredFacets;
-
-                    adapter = _adminAdapter;
+                    adminAdapter = _objectAdapterFactory.createObjectAdapter("Ice.Admin", null);
+                }
+                else
+                {
+                    throw new Ice.InitializationException("Ice.Admin.Endpoints is not set");
                 }
             }
+       
+            _adminIdentity = adminIdentity;
+            _adminAdapter = adminAdapter;
+            addAllAdminFacets();
         }
-
-        if(adapter == null)
-        {
-            return null;
-        }
-        else
+ 
+        if(createAdapter)
         {
             try
             {
-                adapter.activate();
+                adminAdapter.activate();
             }
             catch(Ice.LocalException ex)
             {
@@ -388,66 +356,83 @@ public final class Instance
                 // (can't call again getAdmin() after fixing the problem)
                 // since all the facets (servants) in the adapter are lost
                 //
-                adapter.destroy();
+                adminAdapter.destroy();
                 synchronized(this)
                 {
                     _adminAdapter = null;
                 }
                 throw ex;
             }
-
-            Ice.ObjectPrx admin = adapter.createProxy(_adminIdentity);
-            if(defaultLocator != null && serverId.length() > 0)
-            {
-                Ice.ProcessPrx process = Ice.ProcessPrxHelper.uncheckedCast(admin.ice_facet("Process"));
-
-                try
-                {
-                    //
-                    // Note that as soon as the process proxy is registered, the communicator might be
-                    // shutdown by a remote client and admin facets might start receiving calls.
-                    //
-                    defaultLocator.getRegistry().setServerProcessProxy(serverId, process);
-                }
-                catch(Ice.ServerNotFoundException ex)
-                {
-                    if(_traceLevels.location >= 1)
-                    {
-                        StringBuilder s = new StringBuilder(128);
-                        s.append("couldn't register server `");
-                        s.append(serverId);
-                        s.append("' with the locator registry:\n");
-                        s.append("the server is not known to the locator registry");
-                        _initData.logger.trace(_traceLevels.locationCat, s.toString());
-                    }
-
-                    throw new Ice.InitializationException("Locator knows nothing about server '" + serverId + "'");
-                }
-                catch(Ice.LocalException ex)
-                {
-                    if(_traceLevels.location >= 1)
-                    {
-                        StringBuilder s = new StringBuilder(128);
-                        s.append("couldn't register server `");
-                        s.append(serverId);
-                        s.append("' with the locator registry:\n");
-                        s.append(ex.toString());
-                        _initData.logger.trace(_traceLevels.locationCat, s.toString());
-                    }
-                    throw ex;
-                }
-
-                if(_traceLevels.location >= 1)
-                {
-                    StringBuilder s = new StringBuilder(128);
-                    s.append("registered server `");
-                    s.append(serverId);
-                    s.append("' with the locator registry");
-                    _initData.logger.trace(_traceLevels.locationCat, s.toString());
-                }
-            }
-            return admin;
         }
+        setServerProcessProxy(adminAdapter, adminIdentity);
+        return adminAdapter.createProxy(adminIdentity);
+    }
+
+    public Ice.ObjectPrx
+    getAdmin()
+    {
+        Ice.ObjectAdapter adminAdapter;
+        Ice.Identity adminIdentity;
+
+        synchronized(this)
+        {
+            if(_state == StateDestroyed)
+            {
+                throw new Ice.CommunicatorDestroyedException();
+            }
+    
+            if(_adminAdapter != null)
+            {
+                return _adminAdapter.createProxy(_adminIdentity);
+            }
+            else if(_adminEnabled)
+            {
+                if(getAdminEnabledDefaultValue())
+                {
+                    adminAdapter = _objectAdapterFactory.createObjectAdapter("Ice.Admin", null);
+                }
+                else
+                {
+                    return null;
+                }
+                adminIdentity = new Ice.Identity("admin", _initData.properties.getProperty("Ice.Admin.InstanceName"));
+                if(adminIdentity.category.isEmpty())
+                {
+                    adminIdentity.category = java.util.UUID.randomUUID().toString();
+                }
+            
+                _adminIdentity = adminIdentity;
+                _adminAdapter = adminAdapter;
+                addAllAdminFacets();
+                // continue below outside synchronization
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        try
+        {
+            adminAdapter.activate();
+        }
+        catch(Ice.LocalException ex)
+        {
+            //
+            // We cleanup _adminAdapter, however this error is not recoverable
+            // (can't call again getAdmin() after fixing the problem)
+            // since all the facets (servants) in the adapter are lost
+            //
+            adminAdapter.destroy();
+            synchronized(this)
+            {
+                _adminAdapter = null;
+            }
+            throw ex;
+        }
+        
+        setServerProcessProxy(adminAdapter, adminIdentity);
+        return adminAdapter.createProxy(adminIdentity);
     }
 
     public synchronized void
@@ -822,35 +807,51 @@ public final class Instance
             _retryQueue = new RetryQueue(this);
 
             //
-            // Add Process and Properties facets
+            // Add Process and Properties facets 
+            // TODO: move after we load the plugins!
             //
-            String[] facetFilter = _initData.properties.getPropertyAsList("Ice.Admin.Facets");
-            if(facetFilter.length > 0)
+            
+            if(_initData.properties.getProperty("Ice.Admin.Enabled").isEmpty())
             {
-                _adminFacetFilter.addAll(java.util.Arrays.asList(facetFilter));
+                _adminEnabled = getAdminEnabledDefaultValue();
             }
+            else
+            {
+                _adminEnabled = _initData.properties.getPropertyAsInt("Ice.Admin.Enabled") > 0;
+            }
+            
+            PropertiesAdminI propsAdmin = null;
+            MetricsAdminI metricsAdmin = null;
 
-            _adminFacets.put("Process", new ProcessI(communicator));
+            if(_adminEnabled)
+            {
+                String[] facetFilter = _initData.properties.getPropertyAsList("Ice.Admin.Facets");
+                if(facetFilter.length > 0)
+                {
+                    _adminFacetFilter.addAll(java.util.Arrays.asList(facetFilter));
+                }
 
-            MetricsAdminI admin = new MetricsAdminI(_initData.properties, _initData.logger);
-            _adminFacets.put("Metrics", admin);
+                _adminFacets.put("Process", new ProcessI(communicator));
 
-            PropertiesAdminI props = new PropertiesAdminI("Properties", _initData.properties, _initData.logger);
-            _adminFacets.put("Properties", props);
+                metricsAdmin = new MetricsAdminI(_initData.properties, _initData.logger);
+                _adminFacets.put("Metrics", metricsAdmin);
+                
+                propsAdmin = new PropertiesAdminI("Properties", _initData.properties, _initData.logger);
+                _adminFacets.put("Properties", propsAdmin);
+            }
 
             //
             // Setup the communicator observer only if the user didn't already set an
-            // Ice observer resolver and if the admininistrative endpoints are set.
+            // Ice observer resolver and Admin is enabled
             //
-            if((_adminFacetFilter.isEmpty() || _adminFacetFilter.contains("Metrics")) &&
-               _initData.properties.getProperty("Ice.Admin.Endpoints").length() > 0)
+            if(_adminEnabled && (_adminFacetFilter.isEmpty() || _adminFacetFilter.contains("Metrics")))
             {
-                _observer = new CommunicatorObserverI(admin, _initData.observer);
+                _observer = new CommunicatorObserverI(metricsAdmin, _initData.observer);
 
                 //
                 // Make sure the admin plugin receives property updates.
                 //
-                props.addUpdateCallback(admin);
+                propsAdmin.addUpdateCallback(metricsAdmin);
             }
             else
             {
@@ -1293,6 +1294,92 @@ public final class Instance
         return packages.toArray(new String[packages.size()]);
     }
 
+    private synchronized void
+    addAllAdminFacets()
+    {
+        java.util.Map<String, Ice.Object> filteredFacets = new java.util.HashMap<String, Ice.Object>();
+        for(java.util.Map.Entry<String, Ice.Object> p : _adminFacets.entrySet())
+        {
+            if(_adminFacetFilter.isEmpty() || _adminFacetFilter.contains(p.getKey()))
+            {
+                _adminAdapter.addFacet(p.getValue(), _adminIdentity, p.getKey());
+            }
+            else
+            {
+                filteredFacets.put(p.getKey(), p.getValue());
+            }
+        }
+        _adminFacets = filteredFacets;
+    }
+
+    private void
+    setServerProcessProxy(Ice.ObjectAdapter adminAdapter, Ice.Identity adminIdentity)
+    {
+        Ice.ObjectPrx admin = adminAdapter.createProxy(adminIdentity);
+        Ice.LocatorPrx locator = adminAdapter.getLocator();
+        String serverId = _initData.properties.getProperty("Ice.Admin.ServerId");
+    
+        if(locator != null && !serverId.isEmpty())
+        {
+            Ice.ProcessPrx process = Ice.ProcessPrxHelper.uncheckedCast(admin.ice_facet("Process"));
+            try
+            {
+                //
+                // Note that as soon as the process proxy is registered, the communicator might be
+                // shutdown by a remote client and admin facets might start receiving calls.
+                //
+                locator.getRegistry().setServerProcessProxy(serverId, process);
+            }
+            catch(Ice.ServerNotFoundException ex)
+            {
+                if(_traceLevels.location >= 1)
+                {
+                    StringBuilder s = new StringBuilder(128);
+                    s.append("couldn't register server `");
+                    s.append(serverId);
+                    s.append("' with the locator registry:\n");
+                    s.append("the server is not known to the locator registry");
+                    _initData.logger.trace(_traceLevels.locationCat, s.toString());
+                }
+                
+                throw new Ice.InitializationException("Locator knows nothing about server `" + serverId + "'");
+            }
+            catch(Ice.LocalException ex)
+            {
+                if(_traceLevels.location >= 1)
+                {
+                    StringBuilder s = new StringBuilder(128);
+                    s.append("couldn't register server `");
+                    s.append(serverId);
+                    s.append("' with the locator registry:\n");
+                    s.append(ex.toString());
+                    _initData.logger.trace(_traceLevels.locationCat, s.toString());
+                }
+                throw ex;
+            }
+            
+            if(_traceLevels.location >= 1)
+            {
+                StringBuilder s = new StringBuilder(128);
+                s.append("registered server `");
+                s.append(serverId);
+                s.append("' with the locator registry");
+                _initData.logger.trace(_traceLevels.locationCat, s.toString());
+            }
+        }
+    }
+
+    private synchronized boolean 
+    getAdminEnabledDefaultValue()
+    {
+        Ice.Properties props = _initData.properties;
+    
+        return !props.getProperty("Ice.Admin.Endpoints").isEmpty() &&
+            (!props.getProperty("Ice.Admin.InstanceName").isEmpty() ||
+             (!props.getProperty("Ice.Admin.ServerId").isEmpty() && 
+              (_referenceFactory.getDefaultLocator() != null || !props.getProperty("Ice.Default.Locator").isEmpty())));
+    } 
+
     private static final int StateActive = 0;
     private static final int StateDestroyInProgress = 1;
     private static final int StateDestroyed = 2;
@@ -1325,6 +1412,7 @@ public final class Instance
     private EndpointFactoryManager _endpointFactoryManager;
     private Ice.PluginManager _pluginManager;
 
+    private boolean _adminEnabled = false;
     private Ice.ObjectAdapter _adminAdapter;
     private java.util.Map<String, Ice.Object> _adminFacets = new java.util.HashMap<String, Ice.Object>();
     private java.util.Set<String> _adminFacetFilter = new java.util.HashSet<String>();

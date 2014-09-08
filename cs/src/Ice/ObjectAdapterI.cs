@@ -603,6 +603,23 @@ namespace Ice
             }
         }
 
+        public LocatorPrx getLocator()
+        {
+            lock(this)
+            {
+                checkForDeactivation();
+                
+                if(_locatorInfo == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return _locatorInfo.getLocator();
+                }
+            }
+        }
+
         public void refreshPublishedEndpoints()
         {
             IceInternal.LocatorInfo locatorInfo = null;

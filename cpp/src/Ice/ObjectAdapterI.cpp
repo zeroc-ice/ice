@@ -48,7 +48,7 @@ namespace
 {
 inline void checkIdentity(const Identity& ident)
 {
-    if(ident.name.size() == 0)
+    if(ident.name.empty())
     {
         throw IllegalIdentityException(__FILE__, __LINE__, ident);
     }
@@ -56,7 +56,7 @@ inline void checkIdentity(const Identity& ident)
 
 inline void checkServant(const ObjectPtr& servant)
 {
-    if(servant == 0)
+    if(!servant)
     {
         throw IllegalServantException(__FILE__, __LINE__, "cannot add null servant to Object Adapter");
     }
@@ -639,6 +639,22 @@ Ice::ObjectAdapterI::setLocator(const LocatorPrx& locator)
 
     _locatorInfo = _instance->locatorManager()->get(locator);
 }
+
+LocatorPrx
+Ice::ObjectAdapterI::getLocator() const
+{
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+    
+    if(!_locatorInfo)
+    {
+        return 0;
+    }
+    else
+    {
+        return _locatorInfo->getLocator();
+    }
+}
+
 
 void
 Ice::ObjectAdapterI::refreshPublishedEndpoints()

@@ -616,6 +616,9 @@ class CommunicatorI(Communicator):
     def end_flushBatchRequests(self, r):
         return self._impl.end_flushBatchRequests(r)
 
+    def createAdmin(self, adminAdapter, adminIdentity):
+        return self._impl.createAdmin(adminAdapter, adminIdentity)
+    
     def getAdmin(self):
         return self._impl.getAdmin()
 

@@ -80,6 +80,7 @@ public:
     virtual ObjectPrx createIndirectProxy(const Identity&) const;
 
     virtual void setLocator(const LocatorPrx&);
+    virtual Ice::LocatorPrx getLocator() const;
     virtual void refreshPublishedEndpoints();
 
     virtual EndpointSeq getEndpoints() const;

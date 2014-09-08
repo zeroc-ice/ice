@@ -205,6 +205,11 @@ namespace Ice
             outAsync.wait();
         }
 
+        public Ice.ObjectPrx createAdmin(ObjectAdapter adminAdapter, Identity adminIdentity)
+        {
+            return instance_.createAdmin(adminAdapter, adminIdentity);
+        }
+        
         public Ice.ObjectPrx getAdmin()
         {
             return instance_.getAdmin();

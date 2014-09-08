@@ -590,142 +590,222 @@ IceInternal::Instance::identityToString(const Identity& ident) const
 }
 
 Ice::ObjectPrx
-IceInternal::Instance::getAdmin()
+IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const Identity& adminIdentity)
 {
+    ObjectAdapterPtr adapter = adminAdapter;
+    bool createAdapter = !adminAdapter;
+    
     IceUtil::RecMutex::Lock sync(*this);
-
+    
     if(_state == StateDestroyed)
     {
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    const string adminOA = "Ice.Admin";
+    if(adminIdentity.name.empty())
+    {
+        throw Ice::IllegalIdentityException(__FILE__, __LINE__, adminIdentity);
+    }
+    
+    if(_adminAdapter)
+    {
+        throw InitializationException(__FILE__, __LINE__, "Admin already created");
+    }
+    
+    if(!_adminEnabled)
+    {
+        throw InitializationException(__FILE__, __LINE__, "Admin is disabled");
+    }
+    
+    if(createAdapter)
+    {
+        if(_initData.properties->getProperty("Ice.Admin.Endpoints") != "")
+        {
+            adapter = _objectAdapterFactory->createObjectAdapter("Ice.Admin", 0);
+        }
+        else
+        {
+            throw InitializationException(__FILE__, __LINE__, "Ice.Admin.Endpoints is not set");
+        }
+    }
 
-    if(_adminAdapter != 0)
+    _adminIdentity = adminIdentity;
+    _adminAdapter = adapter;
+    addAllAdminFacets();
+    sync.release();
+    
+    if(createAdapter)
+    {
+        try
+        {
+            adapter->activate();
+        }
+        catch(...)
+        {
+            //
+            // We clean it up, even through this error is not recoverable
+            // (can't call again createAdmin after fixing the problem since all the facets 
+            // in the adapter are lost)
+            //
+            adapter->destroy();       
+            sync.acquire();
+            _adminAdapter = 0;
+            throw;
+        }
+    }
+    setServerProcessProxy(adapter, adminIdentity);
+    return adapter->createProxy(adminIdentity);
+}
+
+Ice::ObjectPrx
+IceInternal::Instance::getAdmin()
+{
+    IceUtil::RecMutex::Lock sync(*this);
+    
+    if(_state == StateDestroyed)
+    {
+        throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+    
+    if(_adminAdapter)
     {
         return _adminAdapter->createProxy(_adminIdentity);
     }
-    else if(_initData.properties->getProperty(adminOA + ".Endpoints") == "")
+    else if(_adminEnabled)
     {
-        return 0;
-    }
-    else
-    {
-        string serverId = _initData.properties->getProperty("Ice.Admin.ServerId");
-        string instanceName = _initData.properties->getProperty("Ice.Admin.InstanceName");
-
-        Ice::LocatorPrx defaultLocator = _referenceFactory->getDefaultLocator();
-        if((defaultLocator != 0 && serverId != "") || instanceName != "")
+        ObjectAdapterPtr adapter;
+        if(getAdminEnabledDefaultValue())
         {
-            if(_adminIdentity.name == "")
-            {
-                _adminIdentity.name = "admin";
-                if(instanceName == "")
-                {
-                    instanceName = IceUtil::generateUUID();
-                }
-                _adminIdentity.category = instanceName;
-
-                //
-                // Afterwards, _adminIdentity is read-only
-                //
-            }
-
-            //
-            // Create OA
-            //
-            _adminAdapter = _objectAdapterFactory->createObjectAdapter(adminOA, 0);
-
-            //
-            // Add all facets to OA
-            //
-            FacetMap filteredFacets;
-
-            for(FacetMap::iterator p = _adminFacets.begin(); p != _adminFacets.end(); ++p)
-            {
-                if(_adminFacetFilter.empty() || _adminFacetFilter.find(p->first) != _adminFacetFilter.end())
-                {
-                    _adminAdapter->addFacet(p->second, _adminIdentity, p->first);
-                }
-                else
-                {
-                    filteredFacets[p->first] = p->second;
-                }
-            }
-            _adminFacets.swap(filteredFacets);
-
-            ObjectAdapterPtr adapter = _adminAdapter;
-            sync.release();
-
-            //
-            // Activate OA
-            //
-            try
-            {
-                adapter->activate();
-            }
-            catch(...)
-            {
-                //
-                // We cleanup _adminAdapter, however this error is not recoverable
-                // (can't call again getAdmin() after fixing the problem)
-                // since all the facets (servants) in the adapter are lost
-                //
-                adapter->destroy();
-                sync.acquire();
-                _adminAdapter = 0;
-                throw;
-            }
-
-            Ice::ObjectPrx admin = adapter->createProxy(_adminIdentity);
-            if(defaultLocator != 0 && serverId != "")
-            {
-                ProcessPrx process = ProcessPrx::uncheckedCast(admin->ice_facet("Process"));
-                try
-                {
-                    //
-                    // Note that as soon as the process proxy is registered, the communicator might be
-                    // shutdown by a remote client and admin facets might start receiving calls.
-                    //
-                    defaultLocator->getRegistry()->setServerProcessProxy(serverId, process);
-                }
-                catch(const ServerNotFoundException&)
-                {
-                    if(_traceLevels->location >= 1)
-                    {
-                        Trace out(_initData.logger, _traceLevels->locationCat);
-                        out << "couldn't register server `" + serverId + "' with the locator registry:\n";
-                        out << "the server is not known to the locator registry";
-                    }
-
-                    throw InitializationException(__FILE__, __LINE__, "Locator knows nothing about server '" +
-                                                                      serverId + "'");
-                }
-                catch(const LocalException& ex)
-                {
-                    if(_traceLevels->location >= 1)
-                    {
-                        Trace out(_initData.logger, _traceLevels->locationCat);
-                        out << "couldn't register server `" + serverId + "' with the locator registry:\n" << ex;
-                    }
-                    throw;
-                }
-            }
-
-            if(_traceLevels->location >= 1)
-            {
-                Trace out(_initData.logger, _traceLevels->locationCat);
-                out << "registered server `" + serverId + "' with the locator registry";
-            }
-
-            return admin;
+            adapter = _objectAdapterFactory->createObjectAdapter("Ice.Admin", 0);
         }
         else
         {
             return 0;
         }
+        
+        Identity adminIdentity;
+        adminIdentity.name = "admin";
+        adminIdentity.category = _initData.properties->getProperty("Ice.Admin.InstanceName");
+        if(adminIdentity.category.empty())
+        {
+            adminIdentity.category = IceUtil::generateUUID();
+        }
+        
+        _adminIdentity = adminIdentity;
+        _adminAdapter = adapter;
+        addAllAdminFacets();
+        sync.release();
+        try
+        {
+            adapter->activate();
+        }
+        catch(...)
+        {
+            //
+            // We clean it up, even through this error is not recoverable
+            // (can't call again createAdmin after fixing the problem since all the facets 
+            // in the adapter are lost)
+            //
+            adapter->destroy();       
+            sync.acquire();
+            _adminAdapter = 0;
+            throw;
+        }
+
+        setServerProcessProxy(adapter, adminIdentity);
+        return adapter->createProxy(adminIdentity);
+    } 
+    else
+    {
+        return 0;
     }
 }
+
+void
+IceInternal::Instance::addAllAdminFacets()
+{
+    // must be called with this locked
+   
+    //
+    // Add all facets to OA
+    //
+    FacetMap filteredFacets;
+    
+    for(FacetMap::iterator p = _adminFacets.begin(); p != _adminFacets.end(); ++p)
+    {
+        if(_adminFacetFilter.empty() || _adminFacetFilter.find(p->first) != _adminFacetFilter.end())
+        {
+            _adminAdapter->addFacet(p->second, _adminIdentity, p->first);
+        }
+        else
+        {
+            filteredFacets[p->first] = p->second;
+        }
+    }
+    _adminFacets.swap(filteredFacets);
+}
+
+void
+IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapter, const Identity& adminIdentity)
+{
+    ObjectPrx admin = adminAdapter->createProxy(adminIdentity);
+    LocatorPrx locator = adminAdapter->getLocator();
+    const string serverId = _initData.properties->getProperty("Ice.Admin.ServerId");
+    
+    if(locator && serverId != "")
+    {
+        ProcessPrx process = ProcessPrx::uncheckedCast(admin->ice_facet("Process"));
+        try
+        {
+            //
+            // Note that as soon as the process proxy is registered, the communicator might be
+            // shutdown by a remote client and admin facets might start receiving calls.
+            //
+            locator->getRegistry()->setServerProcessProxy(serverId, process);
+        }
+        catch(const ServerNotFoundException&)
+        {
+            if(_traceLevels->location >= 1)
+            {
+                Trace out(_initData.logger, _traceLevels->locationCat);
+                out << "couldn't register server `" + serverId + "' with the locator registry:\n";
+                out << "the server is not known to the locator registry";
+            }
+            
+            throw InitializationException(__FILE__, __LINE__, "Locator knows nothing about server `" +
+                                          serverId + "'");
+        }
+        catch(const LocalException& ex)
+        {
+            if(_traceLevels->location >= 1)
+            {
+                Trace out(_initData.logger, _traceLevels->locationCat);
+                out << "couldn't register server `" + serverId + "' with the locator registry:\n" << ex;
+            }
+            throw;
+        }
+
+        if(_traceLevels->location >= 1)
+        {
+            Trace out(_initData.logger, _traceLevels->locationCat);
+            out << "registered server `" + serverId + "' with the locator registry";
+        }
+    }
+}
+
+bool
+IceInternal::Instance::getAdminEnabledDefaultValue() const
+{
+    // must be called with this locked or during single-threaded initialization
+
+    const Ice::PropertiesPtr& props = _initData.properties;
+    
+    return props->getProperty("Ice.Admin.Endpoints") != "" &&
+        (props->getProperty("Ice.Admin.InstanceName") != "" || (props->getProperty("Ice.Admin.ServerId") != "" &&
+                                                                (_referenceFactory->getDefaultLocator() || 
+                                                                 props->getProperty("Ice.Default.Locator") != "")));  
+}
+
 
 void
 IceInternal::Instance::addAdminFacet(const Ice::ObjectPtr& servant, const string& facet)
@@ -894,7 +974,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     _collectObjects(false),
     _implicitContext(0),
     _stringConverter(IceUtil::getProcessStringConverter()),
-    _wstringConverter(IceUtil::getProcessWstringConverter())
+    _wstringConverter(IceUtil::getProcessWstringConverter()),
+    _adminEnabled(false)
 {
     try
     {
@@ -1277,63 +1358,83 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
     pluginManagerImpl->loadPlugins(argc, argv);
 
     //
-    // Add admin facets
+    // Create Admin facets, if enabled.
+    //
     // Note that any logger-dependent admin facet must be created after we load all plugins,
     // since one of these plugins can be a Logger plugin that sets a new logger during loading
     //
 
-    StringSeq facetSeq = _initData.properties->getPropertyAsList("Ice.Admin.Facets");
-
-    if(!facetSeq.empty())
+    if(_initData.properties->getProperty("Ice.Admin.Enabled") == "")
     {
-        _adminFacetFilter.insert(facetSeq.begin(), facetSeq.end());
+        _adminEnabled = getAdminEnabledDefaultValue();
     }
-    _adminFacets.insert(FacetMap::value_type("Process", new ProcessI(communicator)));
+    else
+    {
+        _adminEnabled = _initData.properties->getPropertyAsInt("Ice.Admin.Enabled") > 0;
+    }
 
-    string loggerFacetName = _initData.properties->getPropertyWithDefault("Ice.Admin.Logger", "Logger");
+    if(_adminEnabled)
+    {
+        StringSeq facetSeq = _initData.properties->getPropertyAsList("Ice.Admin.Facets");
+        
+        if(!facetSeq.empty())
+        {
+            _adminFacetFilter.insert(facetSeq.begin(), facetSeq.end());
+        }
+    }
 
-    bool insertLoggerFacet =
-        (_adminFacetFilter.empty() || _adminFacetFilter.find(loggerFacetName) != _adminFacetFilter.end()) &&
-        _initData.properties->getProperty("Ice.Admin.Endpoints") != "";
+    const string loggerFacetName = _initData.properties->getPropertyWithDefault("Ice.Admin.Logger", "Logger");
+  
+    // If it's the default value (Logger), we check that _adminEnabled is true and the facet is not
+    // filtered out; otherwise, we create and register the new Logger unconditionally, as its 
+    // associated Admin facet will be registered with a different communicator.
+    // 
+    bool addLoggerFacet = _adminEnabled && 
+        (_adminFacetFilter.empty() || _adminFacetFilter.find(loggerFacetName) != _adminFacetFilter.end());
 
-    if(loggerFacetName != "Logger" || insertLoggerFacet)
+    if(loggerFacetName != "Logger" || addLoggerFacet)
     {
         //
         // Set up a new Logger
         //
-        Ice::LoggerAdminLoggerPtr logger = createLoggerAdminLogger(loggerFacetName,
-                                                                   _initData.properties,
+        Ice::LoggerAdminLoggerPtr logger = createLoggerAdminLogger(loggerFacetName, _initData.properties, 
                                                                    _initData.logger);
         setLogger(logger);
-
-        if(insertLoggerFacet)
+        
+        if(addLoggerFacet)
         {
-            logger->addAdminFacet(communicator);
+            _adminFacets.insert(make_pair(loggerFacetName, logger->getFacet()));
         }
         //
-        // Else, this new logger & facet is useful for "slave" communicators like IceBox services.
+        // Else, this new logger & facet are useful for "slave" communicators like IceBox services.
         //
     }
 
-    PropertiesAdminIPtr props = new PropertiesAdminI("Properties", _initData.properties, _initData.logger);
-    _adminFacets.insert(FacetMap::value_type("Properties", props));
+    PropertiesAdminIPtr propsAdmin;
 
-    _metricsAdmin = new MetricsAdminI(_initData.properties, _initData.logger);
-    _adminFacets.insert(FacetMap::value_type("Metrics", _metricsAdmin));
+    if(_adminEnabled)
+    {
+        _adminFacets.insert(FacetMap::value_type("Process", new ProcessI(communicator)));
+        
+        propsAdmin = new PropertiesAdminI("Properties", _initData.properties, _initData.logger);
+        _adminFacets.insert(FacetMap::value_type("Properties", propsAdmin));
 
+        _metricsAdmin = new MetricsAdminI(_initData.properties, _initData.logger);
+        _adminFacets.insert(FacetMap::value_type("Metrics", _metricsAdmin));
+    }
+     
     //
     // Setup the communicator observer only if the user didn't already set an
-    // Ice observer resolver and if the admininistrative endpoints are set.
+    // Ice observer resolver and Admin is enabled
     //
-    if((_adminFacetFilter.empty() || _adminFacetFilter.find("Metrics") != _adminFacetFilter.end()) &&
-       _initData.properties->getProperty("Ice.Admin.Endpoints") != "")
+    if(_adminEnabled && (_adminFacetFilter.empty() || _adminFacetFilter.find("Metrics") != _adminFacetFilter.end()))
     {
         _observer = new CommunicatorObserverI(_metricsAdmin, _initData.observer);
-
+        
         //
         // Make sure the admin plugin receives property updates.
         //
-        props->addUpdateCallback(_metricsAdmin);
+        propsAdmin->addUpdateCallback(_metricsAdmin);
     }
     else
     {
@@ -1347,7 +1448,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
     {
         _observer->setObserverUpdater(new ObserverUpdaterI(this));
     }
-
+        
     //
     // Create threads.
     //
@@ -1445,9 +1546,13 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
     //
     // This must be done last as this call creates the Ice.Admin object adapter
     // and eventually register a process proxy with the Ice locator (allowing
-    // remote clients to invoke on Ice.Admin facets as soon as it's registered).
+    // remote clients to invoke Admin facets as soon as it's registered).
     //
-    if(_initData.properties->getPropertyAsIntWithDefault("Ice.Admin.DelayCreation", 0) <= 0)
+    // Note: getAdmin here can return 0 and do nothing in the event the
+    // application set Ice.Admin.Enabled but did not set Ice.Admin.Enpoints
+    // and one or more of the properties required to create the Admin object.
+    // 
+    if(_adminEnabled && _initData.properties->getPropertyAsIntWithDefault("Ice.Admin.DelayCreation", 0) <= 0)
     {
         getAdmin();
     }

@@ -15,20 +15,12 @@ using namespace std;
 using namespace Test;
 
 static void
-testFacets(const Ice::CommunicatorPtr& com, bool optionalBuiltInFacets = true)
+testFacets(const Ice::CommunicatorPtr& com, bool builtInFacets = true)
 {
-    //
-    // Properties and Process are always created,
-    // and findAdminFacet also returns "filtered out" facets
-    //
-    test(com->findAdminFacet("Properties"));
-    test(com->findAdminFacet("Process"));
-
-    if(optionalBuiltInFacets)
+    if(builtInFacets)
     {
-        //
-        // Optional built-in facets like Logger
-        // 
+        test(com->findAdminFacet("Properties"));
+        test(com->findAdminFacet("Process"));
         test(com->findAdminFacet("Logger"));
     }
     
@@ -200,6 +192,33 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         Ice::CommunicatorPtr com = Ice::initialize();
         testFacets(com, false);
+        com->destroy();
+    }
+    {
+        //
+        // Test: Verify that the operations work correctly when Ice.Admin.Enabled is set
+        //
+        Ice::InitializationData init;
+        init.properties = Ice::createProperties();
+        init.properties->setProperty("Ice.Admin.Enabled", "1");
+        Ice::CommunicatorPtr com = Ice::initialize(init);
+        test(!com->getAdmin());
+
+        Ice::Identity id = com->stringToIdentity("test-admin");
+        try
+        {
+            com->createAdmin(0, id);
+            test(false);
+        }
+        catch(const Ice::InitializationException&)
+        {
+        }
+
+        Ice::ObjectAdapterPtr adapter = com->createObjectAdapter("");
+        test(com->createAdmin(adapter, id));
+        test(com->getAdmin());
+       
+        testFacets(com);
         com->destroy();
     }
     {

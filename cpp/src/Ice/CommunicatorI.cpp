@@ -301,6 +301,11 @@ Ice::CommunicatorI::end_flushBatchRequests(const AsyncResultPtr& r)
 }
 
 ObjectPrx
+Ice::CommunicatorI::createAdmin(const ObjectAdapterPtr& adminAdapter, const Identity& adminId)
+{
+    return _instance->createAdmin(adminAdapter, adminId);
+}
+ObjectPrx
 Ice::CommunicatorI::getAdmin() const
 {
     return _instance->getAdmin();

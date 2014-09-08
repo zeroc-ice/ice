@@ -618,12 +618,18 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
             //
             // If the Logger is enabled on the IceBox communicator, we tell the service 
             // to create a LoggerAdmin's Logger, by setting the property Ice.Admin.Logger
-            // 
+            // to a non-default value
+
+            string loggerFacetName;
+
             if(_communicator->findAdminFacet("Logger") != 0)
             {
-                if(initData.properties->getPropertyWithDefault("Ice.Admin.Logger", "Logger") == "Logger")
+                loggerFacetName = initData.properties->getPropertyWithDefault("Ice.Admin.Logger", "Logger");
+                
+                if(loggerFacetName == "Logger")
                 {
-                    initData.properties->setProperty("Ice.Admin.Logger", string("IceBox.Service.") + service + ".Logger");
+                    loggerFacetName = "IceBox.Service." + service + ".Logger";
+                    initData.properties->setProperty("Ice.Admin.Logger", loggerFacetName);
                 }
             }
 
@@ -634,17 +640,17 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
             info.communicator = initialize(info.args, initData);
             communicator = info.communicator;
 
-            if(_communicator->findAdminFacet("Logger") != 0)
+            if(_communicator->findAdminFacet("Logger"))
             {
                 Ice::LoggerAdminLoggerPtr logger = Ice::LoggerAdminLoggerPtr::dynamicCast(communicator->getLogger());
-                assert(logger != 0); // a plugin reset Ice.Admin.Logger to its default??
-                if(logger != 0)
+                assert(logger); // a plugin reset Ice.Admin.Logger to its default??
+                if(logger)
                 {
                     //
                     // We add this admin facet to the IceBox main communicator, even though the associated logger
                     // "works" for the service's communicator
                     //
-                    logger->addAdminFacet(_communicator);
+                    _communicator->addAdminFacet(logger->getFacet(), loggerFacetName);
                 }
             }
 
