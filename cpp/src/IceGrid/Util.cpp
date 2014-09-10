@@ -78,6 +78,31 @@ IceGrid::getProperty(const PropertyDescriptorSeq& properties, const string& name
     return result;
 }
 
+int
+IceGrid::getPropertyAsInt(const PropertyDescriptorSeq& properties, const string& name, int def)
+{    
+    string strVal;
+    for(PropertyDescriptorSeq::const_iterator q = properties.begin(); q != properties.end(); ++q)
+    {
+        if(q->name == name)
+        {
+            strVal = q->value;
+        }
+    }
+    
+    int result = def;
+
+    if(!strVal.empty())
+    {
+        istringstream v(strVal);
+        if(!(v >> result) || !v.eof())
+        {
+            result = def;
+        }
+    }
+    return result;
+}
+
 bool
 IceGrid::hasProperty(const PropertyDescriptorSeq& properties, const string& name)
 {    

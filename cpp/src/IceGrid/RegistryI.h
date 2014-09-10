@@ -51,7 +51,7 @@ class RegistryI : public Registry
 {
 public:
 
-    RegistryI(const Ice::CommunicatorPtr&, const TraceLevelsPtr&, bool, bool, const std::string&);
+    RegistryI(const Ice::CommunicatorPtr&, const TraceLevelsPtr&, bool, bool, const std::string&, const std::string&);
     ~RegistryI();
 
     bool start();
@@ -73,7 +73,9 @@ public:
     void waitForShutdown();
     virtual void shutdown();
     
-    std::string getServerAdminCategory() const { return _instanceName + "-RegistryRouter"; }
+    std::string getServerAdminCategory() const { return _instanceName + "-RegistryServerAdminRouter"; }
+    std::string getNodeAdminCategory() const { return _instanceName + "-RegistryNodeAdminRouter"; }
+    std::string getReplicaAdminCategory() const { return _instanceName + "-RegistryReplicaAdminRouter"; }
 
     Ice::ObjectPrx createAdminCallbackProxy(const Ice::Identity&) const;
 
@@ -90,7 +92,8 @@ private:
     InternalRegistryPrx setupInternalRegistry();
     bool setupUserAccountMapper();
     Ice::ObjectAdapterPtr setupClientSessionFactory(const LocatorPrx&);
-    Ice::ObjectAdapterPtr setupAdminSessionFactory(const Ice::ObjectPtr&, const LocatorPrx&);
+    Ice::ObjectAdapterPtr setupAdminSessionFactory(const Ice::ObjectPtr&, const Ice::ObjectPtr&, 
+                                                   const Ice::ObjectPtr&, const LocatorPrx&);
 
     Glacier2::PermissionsVerifierPrx getPermissionsVerifier(const LocatorPrx&, const std::string&);
     Glacier2::SSLPermissionsVerifierPrx getSSLPermissionsVerifier(const LocatorPrx&, const std::string&);
@@ -104,6 +107,7 @@ private:
     const bool _nowarn;
     const bool _readonly;
     const std::string _initFromReplica;
+    const std::string _collocatedNodeName;
 
     DatabasePtr _database;
     Ice::ObjectAdapterPtr _clientAdapter;

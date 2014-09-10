@@ -25,8 +25,11 @@ class SessionServantManager : public Ice::ServantLocator, public IceUtil::Mutex
 {
 public:
 
-    SessionServantManager(const Ice::ObjectAdapterPtr&, const std::string&, bool, const std::string&,
-                          const Ice::ObjectPtr&, const AdminCallbackRouterPtr&);
+    SessionServantManager(const Ice::ObjectAdapterPtr&, const std::string&, bool, 
+                          const std::string&, const Ice::ObjectPtr&, 
+                          const std::string&, const Ice::ObjectPtr&,
+                          const std::string&, const Ice::ObjectPtr&,
+                          const AdminCallbackRouterPtr&);
 
     Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&);
     void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
@@ -74,6 +77,10 @@ private:
     const bool _checkConnection;
     const std::string _serverAdminCategory;
     const Ice::ObjectPtr _serverAdminRouter;
+    const std::string _nodeAdminCategory;
+    const Ice::ObjectPtr _nodeAdminRouter;
+    const std::string _replicaAdminCategory;
+    const Ice::ObjectPtr _replicaAdminRouter;
     const AdminCallbackRouterPtr _adminCallbackRouter;
 
     std::map<Ice::Identity, ServantInfo> _servants;

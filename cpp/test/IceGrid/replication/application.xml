@@ -19,7 +19,7 @@
         <property name="IceGrid.Node.Trace.Adapter" value="0"/> 
         <property name="Ice.Trace.Network" value="0"/>
         <property name="Ice.Warn.Connections" value="0"/>
-        <property name="Ice.Admin.Endpoints" value=""/>
+        <property name="Ice.Admin.Enabled" value="0"/>
 
         <property name="Ice.Default.EncodingVersion" value="${encoding}"/>
       </server>
@@ -58,7 +58,7 @@
         <property name="Ice.Warn.Connections" value="0"/>
         <property name="IceGrid.Registry.Trace.Locator" value="0"/> 
         <property name="IceGrid.Registry.UserAccounts" value="${test.dir}/useraccounts.txt"/>
-        <property name="Ice.Admin.Endpoints" value=""/>
+        <property name="Ice.Admin.Enabled" value="0"/>
 
         <property name="Ice.Default.EncodingVersion" value="${encoding}"/>
       </server>

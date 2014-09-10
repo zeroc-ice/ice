@@ -55,16 +55,17 @@ struct ToInternalServerDescriptor : std::unary_function<CommunicatorDescriptorPt
         PropertyDescriptorSeq communicatorProps = desc->propertySet.properties;
 
         //
-        // If this is a service communicator and the IceBox server has admin 
-        // endpoints configured, we ignore the server-lifetime attributes of 
-        // the service object adapters and assume it's set to false.
+        // If this is a service communicator and the IceBox server has Admin 
+        // enabled or Admin endpoints configured, we ignore the server-lifetime attributes 
+        // of the service object adapters and assume it's set to false.
         //
         bool ignoreServerLifetime = false;
         if(svc)
         {
             if(_iceVersion == 0 || _iceVersion >= 30300)
             {
-                if(getProperty(_desc->properties["config"], "Ice.Admin.Endpoints") != "")
+                if(getPropertyAsInt(_desc->properties["config"], "Ice.Admin.Enabled") > 0 ||
+                   getProperty(_desc->properties["config"], "Ice.Admin.Endpoints") != "")
                 {
                     ignoreServerLifetime = true;
                 }
@@ -538,6 +539,17 @@ NodeEntry::getSession() const
     return _session;
 }
 
+Ice::ObjectPrx
+NodeEntry::getAdminProxy() const
+{ 
+    Ice::ObjectPrx prx = getProxy();
+    assert(prx);
+    Ice::Identity adminId;
+    adminId.name = "NodeAdmin-" + _name ;
+    adminId.category = prx->ice_getIdentity().category;
+    return prx->ice_identity(adminId);
+}
+
 bool
 NodeEntry::canRemove()
 {
@@ -939,12 +951,18 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
     if(iceVersion == 0 || iceVersion >= 30300)
     {
         props.push_back(createProperty("Ice.Admin.ServerId", info.descriptor->id));
-        if(hasProperty(info.descriptor->propertySet.properties, "Ice.Admin.Endpoints"))
+        
+        if(hasProperty(info.descriptor->propertySet.properties, "Ice.Admin.Enabled"))
         {
-            if(getProperty(info.descriptor->propertySet.properties, "Ice.Admin.Endpoints") != "")
-            {
-                server->processRegistered = true;
-            }
+            // Ice.Admin.Enabled explicitely set, leave Ice.Admin.Endpoints alone
+            server->processRegistered = 
+                getPropertyAsInt(info.descriptor->propertySet.properties, "Ice.Admin.Enabled") > 0;
+        }
+        else if(hasProperty(info.descriptor->propertySet.properties, "Ice.Admin.Endpoints"))
+        {
+            // Ice.Admin.Endpoints explicitely set, check if not ""
+            server->processRegistered =
+                getProperty(info.descriptor->propertySet.properties, "Ice.Admin.Endpoints") != "";
         }
         else
         {
@@ -955,6 +973,10 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
     else
     {
         props.push_back(createProperty("Ice.ServerId", info.descriptor->id));
+        //
+        // Prior to Ice 3.3, use adapter's registerProcess to compute server->processRegistered;
+        // see ToInternalServerDescriptor::operator() above
+        //
     }
 
     props.push_back(createProperty("Ice.ProgramName", info.descriptor->id));

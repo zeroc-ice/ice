@@ -52,6 +52,8 @@ public:
     LoadInfo getLoadInfoAndLoadFactor(const std::string&, float&) const;
     NodeSessionIPtr getSession() const;
 
+    Ice::ObjectPrx getAdminProxy() const;
+
     bool canRemove();
     
     void loadServer(const ServerEntryPtr&, const ServerInfo&, const SessionIPtr&, int, bool);

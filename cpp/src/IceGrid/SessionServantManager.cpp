@@ -21,12 +21,20 @@ SessionServantManager::SessionServantManager(const Ice::ObjectAdapterPtr& adapte
                                              bool checkConnection,
                                              const string& serverAdminCategory,
                                              const Ice::ObjectPtr& serverAdminRouter,
+                                             const string& nodeAdminCategory,
+                                             const Ice::ObjectPtr& nodeAdminRouter,
+                                             const string& replicaAdminCategory,
+                                             const Ice::ObjectPtr& replicaAdminRouter,
                                              const AdminCallbackRouterPtr& adminCallbackRouter) : 
     _adapter(adapter),
     _instanceName(instanceName),
     _checkConnection(checkConnection),
     _serverAdminCategory(serverAdminCategory),
     _serverAdminRouter(serverAdminRouter),
+    _nodeAdminCategory(nodeAdminCategory),
+    _nodeAdminRouter(nodeAdminRouter),
+    _replicaAdminCategory(replicaAdminCategory),
+    _replicaAdminRouter(replicaAdminRouter),
     _adminCallbackRouter(adminCallbackRouter)
 {
 }
@@ -35,26 +43,43 @@ Ice::ObjectPtr
 SessionServantManager::locate(const Ice::Current& current, Ice::LocalObjectPtr&)
 {
     Lock sync(*this);
+    Ice::ObjectPtr servant;
+    bool plainServant = false;
+
     if(_serverAdminRouter && current.id.category == _serverAdminCategory)
     {
-        if(_checkConnection && _adminConnections.find(current.con) == _adminConnections.end())
-        {
-            return 0;
-        }
-        else
-        {
-            return _serverAdminRouter;
-        }
+        servant = _serverAdminRouter;
+    }
+    else if(_nodeAdminRouter && current.id.category == _nodeAdminCategory)
+    {
+        servant = _nodeAdminRouter;
+    }
+    else if(_replicaAdminRouter && current.id.category == _replicaAdminCategory)
+    {
+        servant = _replicaAdminRouter;
     }
     else
     {
+        plainServant = true;
+   
         map<Ice::Identity, ServantInfo>::const_iterator p = _servants.find(current.id);
         if(p == _servants.end() || (_checkConnection && p->second.connection != current.con))
         {
-            return 0;
+            servant = 0;
         }
-        return p->second.servant;
+        else
+        {
+            servant = p->second.servant;
+        }
     }
+    
+    if(!plainServant && servant && _checkConnection && 
+       _adminConnections.find(current.con) == _adminConnections.end())
+    {
+        servant = 0;
+    }
+
+    return servant;    
 }
 
 void

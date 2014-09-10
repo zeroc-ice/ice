@@ -35,6 +35,8 @@ public:
     const ReplicaSessionIPtr& getSession() const;
     InternalReplicaInfoPtr getInfo() const;
     InternalRegistryPrx getProxy() const;
+
+    Ice::ObjectPrx getAdminProxy() const;
     
 private:
     

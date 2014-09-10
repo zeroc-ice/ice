@@ -129,7 +129,7 @@ RegistryService::start(int argc, char* argv[], int& status)
 
     TraceLevelsPtr traceLevels = new TraceLevels(communicator(), "IceGrid.Registry");
     
-    _registry = new RegistryI(communicator(), traceLevels, nowarn, readonly, initFromReplica);
+    _registry = new RegistryI(communicator(), traceLevels, nowarn, readonly, initFromReplica, "");
     if(!_registry->start())
     {
         return false;
@@ -191,7 +191,21 @@ RegistryService::initializeCommunicator(int& argc, char* argv[],
             }
         }
     }
-    
+
+     
+    //
+    // Never create Admin object in Ice.Admin adapter
+    //
+    initData.properties->setProperty("Ice.Admin.Endpoints", "");
+
+    //
+    // Enable Admin unless explicitely disabled (or enabled) in configuration
+    //
+    if(initData.properties->getProperty("Ice.Admin.Enabled").empty())
+    {
+        initData.properties->setProperty("Ice.Admin.Enabled", "1");
+    }
+
     //
     // Setup the client thread pool size.
     //
@@ -201,6 +215,7 @@ RegistryService::initializeCommunicator(int& argc, char* argv[],
     // Close idle connections
     //
     initData.properties->setProperty("Ice.ACM.Close", "3");
+
 
     return Service::initializeCommunicator(argc, argv, initData);
 }

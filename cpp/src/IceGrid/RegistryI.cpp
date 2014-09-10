@@ -37,7 +37,7 @@
 #include <IceGrid/WellKnownObjectsManager.h>
 #include <IceGrid/FileCache.h>
 
-#include <IceGrid/RegistryServerAdminRouter.h>
+#include <IceGrid/RegistryAdminRouter.h>
 
 #include <fstream>
 
@@ -49,32 +49,6 @@ using namespace IceGrid;
 
 namespace
 {
-
-class DefaultServantLocator : public Ice::ServantLocator
-{
-public:
-
-    DefaultServantLocator(const ObjectPtr& servant) :
-        _servant(servant)
-    {
-    }
-
-    virtual ObjectPtr locate(const Current&, LocalObjectPtr&)
-    {
-        return _servant;
-    }
-
-    virtual void finished(const Current&, const ObjectPtr&, const LocalObjectPtr&)
-    {
-    }
-
-    virtual void deactivate(const string&)
-    {
-    }
-
-private:
-    ObjectPtr _servant;
-};
 
 class LookupI : public IceGrid::Lookup
 {
@@ -130,18 +104,54 @@ private:
     const WellKnownObjectsManagerPtr _wellKnownObjects;
 };
 
+class ProcessI : public Process
+{
+public:
+    
+    ProcessI(const RegistryIPtr&, const ProcessPtr&);
+
+    virtual void shutdown(const Current&);
+    virtual void writeMessage(const std::string&, Int, const Current&);
+    
+private:
+    
+    RegistryIPtr _registry;
+    ProcessPtr _origProcess;
+};
+
+
+ProcessI::ProcessI(const RegistryIPtr& registry, const ProcessPtr& origProcess) : 
+    _registry(registry),
+    _origProcess(origProcess)
+{
+}
+
+void
+ProcessI::shutdown(const Current&)
+{
+    _registry->shutdown();
+}
+
+void
+ProcessI::writeMessage(const string& message, Int fd, const Current& current)
+{
+    _origProcess->writeMessage(message, fd, current);
+}
+
 }
 
 RegistryI::RegistryI(const CommunicatorPtr& communicator,
                      const TraceLevelsPtr& traceLevels,
                      bool nowarn,
                      bool readonly,
-                     const string& initFromReplica) : 
+                     const string& initFromReplica,
+                     const string& collocatedNodeName) : 
     _communicator(communicator),
     _traceLevels(traceLevels),
     _nowarn(nowarn),
     _readonly(readonly),
     _initFromReplica(initFromReplica),
+    _collocatedNodeName(collocatedNodeName),
     _platform("IceGrid.Registry", communicator, traceLevels)
 {
 }
@@ -516,16 +526,21 @@ RegistryI::startImpl()
     // Create the session servant manager. The session servant manager is responsible
     // for managing sessions servants and to ensure that session servants are only 
     // accessed by the connection that created the session. The session servant manager
-    // also takes care of providing the router servant for server admin objects.
+    // also takes care of providing router servants for admin objects.
     //
     ObjectPtr serverAdminRouter = new RegistryServerAdminRouter(_database);
+    ObjectPtr nodeAdminRouter = new RegistryNodeAdminRouter(_collocatedNodeName, _database);
+    ObjectPtr replicaAdminRouter = new RegistryReplicaAdminRouter(_replicaName, _database);
     AdminCallbackRouterPtr adminCallbackRouter = new AdminCallbackRouter;
 
-    _servantManager = new SessionServantManager(_clientAdapter, _instanceName, true, getServerAdminCategory(), 
-                                                serverAdminRouter, adminCallbackRouter);
-
+    _servantManager = new SessionServantManager(_clientAdapter, _instanceName, true, 
+                                                getServerAdminCategory(), serverAdminRouter, 
+                                                getNodeAdminCategory(), nodeAdminRouter,
+                                                getReplicaAdminCategory(), replicaAdminRouter,
+                                                adminCallbackRouter);
+    
     _clientAdapter->addServantLocator(_servantManager, "");
-    _serverAdapter->addServantLocator(new DefaultServantLocator(adminCallbackRouter), "");
+    _serverAdapter->addDefaultServant(adminCallbackRouter, "");
     
     vector<string> verifierProperties;
     verifierProperties.push_back("IceGrid.Registry.PermissionsVerifier");
@@ -536,7 +551,8 @@ RegistryI::startImpl()
     Glacier2Internal::setupNullPermissionsVerifier(_communicator, _instanceName, verifierProperties);
 
     ObjectAdapterPtr sessionAdpt = setupClientSessionFactory(internalLocator);
-    ObjectAdapterPtr admSessionAdpt = setupAdminSessionFactory(serverAdminRouter, internalLocator);
+    ObjectAdapterPtr admSessionAdpt = setupAdminSessionFactory(serverAdminRouter, nodeAdminRouter, replicaAdminRouter, 
+                                                               internalLocator);
 
     _wellKnownObjects->finish();
     if(_master)
@@ -687,6 +703,21 @@ RegistryI::setupInternalRegistry()
     Ice::ObjectPrx proxy = _registryAdapter->add(internalRegistry, internalRegistryId);
     _wellKnownObjects->add(proxy, InternalRegistry::ice_staticId());
 
+    //
+    // Create Admin
+    //
+    if(_communicator->getProperties()->getPropertyAsInt("Ice.Admin.Enabled") > 0)
+    {
+        // Replace Admin facet
+        ProcessPtr origProcess = ProcessPtr::dynamicCast(_communicator->removeAdminFacet("Process"));
+        _communicator->addAdminFacet(new ProcessI(this, origProcess), "Process");
+  
+        Identity adminId;
+        adminId.name = "RegistryAdmin-" + _replicaName;
+        adminId.category = _instanceName;
+        _communicator->createAdmin(_registryAdapter, adminId);
+    }
+        
     InternalRegistryPrx registry = InternalRegistryPrx::uncheckedCast(proxy);
     _database->getReplicaCache().setInternalRegistry(registry);
     return registry;
@@ -735,7 +766,7 @@ RegistryI::setupClientSessionFactory(const IceGrid::LocatorPrx& locator)
     if(!properties->getProperty("IceGrid.Registry.SessionManager.Endpoints").empty())
     {
         adapter = _communicator->createObjectAdapter("IceGrid.Registry.SessionManager");
-        servantManager = new SessionServantManager(adapter, _instanceName, false, "", 0, 0);
+        servantManager = new SessionServantManager(adapter, _instanceName, false, "", 0, "", 0, "", 0, 0);
         adapter->addServantLocator(servantManager, "");
     }
 
@@ -773,7 +804,8 @@ RegistryI::setupClientSessionFactory(const IceGrid::LocatorPrx& locator)
 }
 
 Ice::ObjectAdapterPtr
-RegistryI::setupAdminSessionFactory(const Ice::ObjectPtr& router, const IceGrid::LocatorPrx& locator)
+RegistryI::setupAdminSessionFactory(const Ice::ObjectPtr& serverAdminRouter, const Ice::ObjectPtr& nodeAdminRouter, 
+                                    const Ice::ObjectPtr& replicaAdminRouter, const IceGrid::LocatorPrx& locator)
 {
     Ice::PropertiesPtr properties = _communicator->getProperties();
 
@@ -782,7 +814,10 @@ RegistryI::setupAdminSessionFactory(const Ice::ObjectPtr& router, const IceGrid:
     if(!properties->getProperty("IceGrid.Registry.AdminSessionManager.Endpoints").empty())
     {
         adapter = _communicator->createObjectAdapter("IceGrid.Registry.AdminSessionManager");
-        servantManager = new SessionServantManager(adapter, _instanceName, false, getServerAdminCategory(), router, 0);
+        servantManager = new SessionServantManager(adapter, _instanceName, false, 
+                                                   getServerAdminCategory(), serverAdminRouter, 
+                                                   getNodeAdminCategory(), nodeAdminRouter, 
+                                                   getReplicaAdminCategory(), replicaAdminRouter, 0);
         adapter->addServantLocator(servantManager, "");
     }
 

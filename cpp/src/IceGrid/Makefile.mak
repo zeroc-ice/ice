@@ -28,7 +28,8 @@ ADMIN_OBJS	= Client.obj \
 		  Util.obj \
                   $(SLICE_OBJS)
 
-COMMON_OBJS	= DescriptorBuilder.obj \
+COMMON_OBJS	= AdminRouter.obj \
+                  DescriptorBuilder.obj \
 		  DescriptorParser.obj \
 		  FileCache.obj \
 		  PlatformInfo.obj \
@@ -37,8 +38,8 @@ COMMON_OBJS	= DescriptorBuilder.obj \
                   $(SLICE_OBJS)
 
 NODE_OBJS	= Activator.obj \
-		  NodeI.obj \
-		  NodeServerAdminRouter.obj \
+		  NodeAdminRouter.obj \
+                  NodeI.obj \
 		  NodeSessionManager.obj \
 		  ServerAdapterI.obj \
 		  ServerI.obj
@@ -62,8 +63,8 @@ REGISTRY_OBJS	= AdapterCache.obj \
 		  PluginFacadeI.obj \
 		  QueryI.obj \
 		  ReapThread.obj \
-		  RegistryI.obj \
-		  RegistryServerAdminRouter.obj \
+		  RegistryAdminRouter.obj \
+                  RegistryI.obj \
 		  ReplicaCache.obj \
 		  ReplicaSessionI.obj \
 		  ReplicaSessionManager.obj \

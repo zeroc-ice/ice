@@ -48,7 +48,7 @@ SUBDIRS		= $(SUBDIRS) \
 		  gc \
 		  interceptor \
 		  logger \
-		  networkProxy
+		  networkProxy \
 		  properties \
 		  servantLocator \
 		  slicing \

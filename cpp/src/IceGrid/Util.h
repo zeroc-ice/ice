@@ -40,6 +40,8 @@ std::string toString(const std::vector<std::string>&, const std::string& = std::
 std::string toString(const Ice::Exception&);
 
 std::string getProperty(const PropertyDescriptorSeq&, const std::string&, const std::string& = std::string());
+int getPropertyAsInt(const PropertyDescriptorSeq&, const std::string&, int = 0);
+
 bool hasProperty(const PropertyDescriptorSeq&, const std::string&);
 PropertyDescriptor createProperty(const std::string&, const std::string& = std::string());
 std::string escapeProperty(const std::string&, bool = false);

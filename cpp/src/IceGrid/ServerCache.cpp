@@ -455,7 +455,7 @@ ServerEntry::getAdminProxy()
     //
     Ice::Identity adminId;
     adminId.name = _id;
-    adminId.category = _cache.getInstanceName() + "-NodeRouter";
+    adminId.category = _cache.getInstanceName() + "-NodeServerAdminRouter";
     try
     {
         return getProxy(true)->ice_identity(adminId);

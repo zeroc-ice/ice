@@ -682,6 +682,7 @@ interface Admin
     idempotent Object* getServerAdmin(string id)
         throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
+
     /**
      *
      * Enable or disable a server. A disabled server can't be started
@@ -1058,6 +1059,24 @@ interface Admin
     ["nonmutating", "cpp:const"] idempotent NodeInfo getNodeInfo(string name)
         throws NodeNotExistException, NodeUnreachableException;
 
+
+    /**
+     *
+     * Get a proxy to the IceGrid node's admin object.
+     *
+     * @param name The IceGrid node name
+     *
+     * @return A proxy to the IceGrid node's admin object
+     *
+     * @throws NodeNotExistException Raised if the node doesn't exist.
+     *
+     * @throws NodeUnreachableException Raised if the node could not be
+     * reached.
+     *
+     **/
+    ["cpp:const"] idempotent Object* getNodeAdmin(string name)
+         throws NodeNotExistException, NodeUnreachableException;
+
     /**
      *
      * Get the number of physical processor sockets for the machine
@@ -1156,6 +1175,20 @@ interface Admin
     
     /**
      *
+     * Get a proxy to the IceGrid registry's admin object
+     *
+     * @param name The registry name
+     *
+     * @return A proxy to the IceGrid registry's admin object
+     *
+     * @throws RegistryNotExistException Raised if the registry doesn't exist.
+     *
+     **/
+    ["cpp:const"] idempotent Object* getRegistryAdmin(string name) 
+        throws RegistryNotExistException;
+
+    /**
+     *
      * Shutdown an IceGrid registry.
      * 
      * @param name The registry name.
@@ -1171,7 +1204,7 @@ interface Admin
 
     /**
      *
-     * Get all the IceGrid registrys currently registered.
+     * Get all the IceGrid registries currently registered.
      *
      * @return The registry names.
      *

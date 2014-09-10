@@ -403,7 +403,7 @@ AdminI::getServerAdminCategory(const Current&) const
     return _registry->getServerAdminCategory();
 }
 
-Ice::ObjectPrx
+ObjectPrx
 AdminI::getServerAdmin(const string& id, const Current& current) const
 {
     ServerProxyWrapper proxy(_database, id); // Ensure that the server exists and loaded on the node.
@@ -774,6 +774,20 @@ AdminI::getNodeInfo(const string& name, const Ice::Current&) const
     return toNodeInfo(_database->getNode(name)->getInfo());
 }
 
+ObjectPrx
+AdminI::getNodeAdmin(const string& name, const Current& current) const
+{
+    //
+    // Check if the node exists
+    //
+    _database->getNode(name);
+    
+    Ice::Identity adminId;
+    adminId.name = name;
+    adminId.category = _registry->getNodeAdminCategory();
+    return current.adapter->createProxy(adminId);
+}
+
 bool
 AdminI::pingNode(const string& name, const Current&) const
 {
@@ -898,6 +912,23 @@ AdminI::getRegistryInfo(const string& name, const Ice::Current&) const
     {
         return toRegistryInfo(_database->getReplica(name)->getInfo());
     }
+}
+
+ObjectPrx
+AdminI::getRegistryAdmin(const string& name, const Current& current) const
+{
+    if(name != _registry->getName())
+    {
+        //
+        // Check if the replica exists
+        //
+        _database->getReplica(name);
+    }
+
+    Identity adminId;
+    adminId.name = name;
+    adminId.category = _registry->getReplicaAdminCategory();
+    return current.adapter->createProxy(adminId);
 }
 
 bool

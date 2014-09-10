@@ -279,3 +279,13 @@ ReplicaEntry::getProxy() const
     return _session->getInternalRegistry();
 }
 
+Ice::ObjectPrx
+ReplicaEntry::getAdminProxy() const
+{
+    Ice::ObjectPrx prx = getProxy();
+    assert(prx);
+    Ice::Identity adminId;
+    adminId.name = "RegistryAdmin-" + _name;
+    adminId.category = prx->ice_getIdentity().category;
+    return prx->ice_identity(adminId);
+}

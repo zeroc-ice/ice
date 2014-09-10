@@ -1181,7 +1181,7 @@ NodeI::createServerIdentity(const string& name) const
 string
 NodeI::getServerAdminCategory() const
 {
-    return _instanceName + "-NodeRouter";
+    return _instanceName + "-NodeServerAdminRouter";
 }
 
 vector<ServerCommandPtr>

@@ -75,6 +75,7 @@ public:
     virtual ObjectInfoSeq getAllObjectInfos(const std::string&, const ::Ice::Current&) const;
 
     virtual NodeInfo getNodeInfo(const std::string&, const Ice::Current&) const;
+    virtual Ice::ObjectPrx getNodeAdmin(const std::string&, const Ice::Current&) const;
     virtual bool pingNode(const std::string&, const Ice::Current&) const;
     virtual LoadInfo getNodeLoad(const std::string&, const Ice::Current&) const;
     virtual int getNodeProcessorSocketCount(const std::string&, const Ice::Current&) const;
@@ -83,6 +84,7 @@ public:
     virtual Ice::StringSeq getAllNodeNames(const ::Ice::Current&) const;
 
     virtual RegistryInfo getRegistryInfo(const std::string&, const Ice::Current&) const;
+    virtual Ice::ObjectPrx getRegistryAdmin(const std::string&, const Ice::Current&) const;
     virtual bool pingRegistry(const std::string&, const Ice::Current&) const;
     virtual void shutdownRegistry(const std::string&, const Ice::Current&);
     virtual Ice::StringSeq getAllRegistryNames(const ::Ice::Current&) const;

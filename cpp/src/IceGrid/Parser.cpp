@@ -2352,107 +2352,120 @@ void
 Parser::showLog(const string& id, const string& reader, bool tail, bool follow, int lineCount)
 {
     cout << endl;
+    
+    Ice::ObjectPrx admin;
 
     if(reader == "server")
     {
-        Ice::ObjectPrx serverAdmin = _admin->getServerAdmin(id);
+        admin = _admin->getServerAdmin(id);
+    }
+    else if(reader == "node")
+    {
+        admin = _admin->getNodeAdmin(id);
+    }
+    else if(reader == "registry")
+    {
+        admin = _admin->getRegistryAdmin(id);
+    }
 
-        Ice::LoggerAdminPrx loggerAdmin;
-        try
-        {
-             loggerAdmin = Ice::LoggerAdminPrx::checkedCast(serverAdmin, "Logger");
-        }
-        catch(const Ice::Exception&)
-        {
-            loggerAdmin = 0;
-        }
+    if(admin == 0)
+    {
+        error("cannot retrieve Admin proxy for " + reader + " `" + id + "'");
+        return;
+    }
+    
+    Ice::LoggerAdminPrx loggerAdmin;
+    
+    try
+    {
+        loggerAdmin = Ice::LoggerAdminPrx::checkedCast(admin, "Logger");
+    }
+    catch(const Ice::Exception&)
+    {
+    }
+    
+    if(loggerAdmin == 0)
+    {
+        error("cannot retrieve Logger admin facet for " + reader + " `" + id + "'");
+        return;
+    }
         
-        if(loggerAdmin == 0)
+    if(follow)
+    {
+        Ice::ObjectPrx adminCallbackTemplate = _session->getAdminCallbackTemplate();
+        
+        if(adminCallbackTemplate == 0)
         {
-            error("cannot retrieve Logger facet for server '" + id + "'");
+            error("cannot retriever Callback template from IceGrid registry");
             return;
         }
         
-        if(follow)
+        const Ice::EndpointSeq endpoints = adminCallbackTemplate->ice_getEndpoints(); 
+        string publishedEndpoints;
+        
+        for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
         {
-            Ice::ObjectPrx adminCallbackTemplate = _session->getAdminCallbackTemplate();
-            
-            if(adminCallbackTemplate == 0)
+            if(publishedEndpoints.empty())
             {
-                error("cannot retriever Callback template from IceGrid registry");
-                return;
+                publishedEndpoints = (*p)->toString();
             }
-            
-            const Ice::EndpointSeq endpoints = adminCallbackTemplate->ice_getEndpoints(); 
-            string publishedEndpoints;
-            
-            for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+            else
             {
-                if(publishedEndpoints.empty())
-                {
-                    publishedEndpoints = (*p)->toString();
-                }
-                else
-                {
-                    publishedEndpoints += ":" + (*p)->toString();
-                }
-            }
-
-            _communicator->getProperties()->setProperty("RemoteLoggerAdapter.PublishedEndpoints", publishedEndpoints);
-            
-            Ice::ObjectAdapterPtr adapter = 
-                _communicator->createObjectAdapter("RemoteLoggerAdapter");
-            
-            _session->ice_getConnection()->setAdapter(adapter);
-
-            Ice::Identity id;
-            id.name = "RemoteLogger-" + IceUtil::generateUUID();
-            id.category = adminCallbackTemplate->ice_getIdentity().category;
-
-            RemoteLoggerIPtr servant = new RemoteLoggerI;
-            Ice::RemoteLoggerPrx prx = 
-                Ice::RemoteLoggerPrx::uncheckedCast(adapter->add(servant, id));
-            adapter->activate();
-            
-            loggerAdmin->attachRemoteLogger(prx, Ice::LogMessageTypeSeq(), Ice::StringSeq(),
-                                            tail ? lineCount : -1);
-            
-            resetInterrupt();
-            {
-                Lock lock(*this);
-                while(!_interrupted)
-                {
-                    wait();
-                }
-            }
-
-            servant->destroy();
-            adapter->destroy();
-            
-            try
-            {
-                loggerAdmin->detachRemoteLogger(prx);
-            }
-            catch(const Ice::ObjectNotExistException&)
-            {
-                // ignored
-            }
-            catch(const Ice::RemoteLoggerNotAttachedException&)
-            {
-                // ignored
+                publishedEndpoints += ":" + (*p)->toString();
             }
         }
-        else
-        {
-            string prefix;
-            const Ice::LogMessageSeq logMessages = 
-                loggerAdmin->getLog(Ice::LogMessageTypeSeq(), Ice::StringSeq(), 
-                                    tail ? lineCount : -1, prefix);
+        
+        _communicator->getProperties()->setProperty("RemoteLoggerAdapter.PublishedEndpoints", publishedEndpoints);
+        
+        Ice::ObjectAdapterPtr adapter = _communicator->createObjectAdapter("RemoteLoggerAdapter");
+        
+        _session->ice_getConnection()->setAdapter(adapter);
+        
+        Ice::Identity id;
+        id.name = "RemoteLogger-" + IceUtil::generateUUID();
+        id.category = adminCallbackTemplate->ice_getIdentity().category;
+        
+        RemoteLoggerIPtr servant = new RemoteLoggerI;
+        Ice::RemoteLoggerPrx prx = 
+            Ice::RemoteLoggerPrx::uncheckedCast(adapter->add(servant, id));
+        adapter->activate();
+        
+        loggerAdmin->attachRemoteLogger(prx, Ice::LogMessageTypeSeq(), Ice::StringSeq(), tail ? lineCount : -1);
             
-            for(Ice::LogMessageSeq::const_iterator p = logMessages.begin(); p != logMessages.end(); ++p)
+        resetInterrupt();
+        {
+            Lock lock(*this);
+            while(!_interrupted)
             {
-                printLogMessage(prefix, *p);
+                wait();
             }
+        }
+        
+        servant->destroy();
+        adapter->destroy();
+        
+        try
+        {
+            loggerAdmin->detachRemoteLogger(prx);
+        }
+        catch(const Ice::ObjectNotExistException&)
+        {
+            // ignored
+        }
+        catch(const Ice::RemoteLoggerNotAttachedException&)
+        {
+            // ignored
+        }
+    }
+    else
+    {
+        string prefix;
+        const Ice::LogMessageSeq logMessages = loggerAdmin->getLog(Ice::LogMessageTypeSeq(), Ice::StringSeq(), 
+                                                                   tail ? lineCount : -1, prefix);
+            
+        for(Ice::LogMessageSeq::const_iterator p = logMessages.begin(); p != logMessages.end(); ++p)
+        {
+            printLogMessage(prefix, *p);
         }
     }
 }

@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <IceGrid/NodeServerAdminRouter.h>
+#include <IceGrid/NodeAdminRouter.h>
 #include <Ice/Ice.h>
 #include <IceGrid/ServerI.h>
 #include <IceGrid/ServerAdapterI.h>
@@ -16,45 +16,15 @@ using namespace IceGrid;
 using namespace Ice;
 using namespace std;
 
-namespace
-{
-
-class InvokeAMICallback : public AMI_Array_Object_ice_invoke
-{
-public:
-
-    InvokeAMICallback(const AMD_Object_ice_invokePtr& cb) :
-        _cb(cb)
-    {
-    }
-
-    virtual void ice_response(bool ok, const pair<const Byte*, const Byte*>& outParams)
-    {
-        _cb->ice_response(ok, outParams);
-    }
-    
-    virtual void ice_exception(const Ice::Exception&)
-    {
-        _cb->ice_exception(ObjectNotExistException(__FILE__, __LINE__)); // Server admin object is unreachable
-    }
-    
-private:
-    AMD_Object_ice_invokePtr _cb;
-};
-
-}
 
 IceGrid::NodeServerAdminRouter::NodeServerAdminRouter(const NodeIPtr& node) :
     _node(node)
 {
 }
 
-void
-IceGrid::NodeServerAdminRouter::ice_invoke_async(const AMD_Object_ice_invokePtr& cb, 
-                                                 const pair<const Byte*, const Byte*>& inParams,
-                                                 const Current& current)
+ObjectPrx
+IceGrid::NodeServerAdminRouter::getTarget(const Current& current)
 {
-    
     //
     // First, get the ServerI servant
     //
@@ -86,8 +56,6 @@ IceGrid::NodeServerAdminRouter::ice_invoke_async(const AMD_Object_ice_invokePtr&
         target = target->ice_facet(current.facet);
     }
 
-    //
-    // Call with AMI
-    //
-    target->ice_invoke_async(new InvokeAMICallback(cb), current.operation, current.mode, inParams, current.ctx);
+    return target;
 }
+
