@@ -1117,266 +1117,270 @@ namespace Ice
             int dispatchCount = 0;
 
             IceInternal.ThreadPoolMessage msg = new IceInternal.ThreadPoolMessage(this);
-            lock(this)
+            try
             {
-                if(!msg.startIOScope(ref current))
+                lock(this)
                 {
-                    return;
-                }
-
-                if(_state >= StateClosed)
-                {
-                    return;
-                }
-
-                int readyOp = current.operation;
-                try
-                {
-                    unscheduleTimeout(current.operation);
-
-                    int writeOp = IceInternal.SocketOperation.None;
-                    int readOp = IceInternal.SocketOperation.None;
-                    if((readyOp & IceInternal.SocketOperation.Write) != 0)
+                    if(!msg.startIOScope(ref current))
                     {
-                        if(_observer != null)
-                        {
-                            observerStartWrite(_writeStream.getBuffer());
-                        }
-                        writeOp = write(_writeStream.getBuffer());
-                        if(_observer != null && (writeOp & IceInternal.SocketOperation.Write) == 0)
-                        {
-                            observerFinishWrite(_writeStream.getBuffer());
-                        }
+                        return;
                     }
 
-                    while((readyOp & IceInternal.SocketOperation.Read) != 0)
+                    if(_state >= StateClosed)
                     {
-                        IceInternal.Buffer buf = _readStream.getBuffer();
-
-                        if(_observer != null && !_readHeader)
-                        {
-                            observerStartRead(buf);
-                        }
-
-                        readOp = read(buf);
-                        if((readOp & IceInternal.SocketOperation.Read) != 0)
-                        {
-                            break;
-                        }
-                        if(_observer != null && !_readHeader)
-                        {
-                            Debug.Assert(!buf.b.hasRemaining());
-                            observerFinishRead(buf);
-                        }
-
-                        if(_readHeader) // Read header if necessary.
-                        {
-                            _readHeader = false;
-
-                            if(_observer != null)
-                            {
-                                _observer.receivedBytes(IceInternal.Protocol.headerSize);
-                            }
-
-                            int pos = _readStream.pos();
-                            if(pos < IceInternal.Protocol.headerSize)
-                            {
-                                //
-                                // This situation is possible for small UDP packets.
-                                //
-                                throw new Ice.IllegalMessageSizeException();
-                            }
-
-                            _readStream.pos(0);
-                            byte[] m = new byte[4];
-                            m[0] = _readStream.readByte();
-                            m[1] = _readStream.readByte();
-                            m[2] = _readStream.readByte();
-                            m[3] = _readStream.readByte();
-                            if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1] ||
-                               m[2] != IceInternal.Protocol.magic[2] || m[3] != IceInternal.Protocol.magic[3])
-                            {
-                                Ice.BadMagicException ex = new Ice.BadMagicException();
-                                ex.badMagic = m;
-                                throw ex;
-                            }
-
-                            ProtocolVersion pv  = new ProtocolVersion();
-                            pv.read__(_readStream);
-                            IceInternal.Protocol.checkSupportedProtocol(pv);
-                            EncodingVersion ev = new EncodingVersion();
-                            ev.read__(_readStream);
-                            IceInternal.Protocol.checkSupportedProtocolEncoding(ev);
-
-                            _readStream.readByte(); // messageType
-                            _readStream.readByte(); // compress
-                            int size = _readStream.readInt();
-                            if(size < IceInternal.Protocol.headerSize)
-                            {
-                                throw new Ice.IllegalMessageSizeException();
-                            }
-                            if(size > _instance.messageSizeMax())
-                            {
-                                IceInternal.Ex.throwMemoryLimitException(size, _instance.messageSizeMax());
-                            }
-                            if(size > _readStream.size())
-                            {
-                                _readStream.resize(size, true);
-                            }
-                            _readStream.pos(pos);
-                        }
-
-                        if(buf.b.hasRemaining())
-                        {
-                            if(_endpoint.datagram())
-                            {
-                                throw new Ice.DatagramLimitException(); // The message was truncated.
-                            }
-                            continue;
-                        }
-                        break;
+                        return;
                     }
 
-                    int newOp = readOp | writeOp;
-                    readyOp &= ~newOp;
-                    Debug.Assert(readyOp != 0 || newOp != 0);
-
-                    if(_state <= StateNotValidated)
+                    int readyOp = current.operation;
+                    try
                     {
-                        if(newOp != 0)
-                        {
-                            //
-                            // Wait for all the transceiver conditions to be
-                            // satisfied before continuing.
-                            //
-                            scheduleTimeout(newOp);
-                            _threadPool.update(this, current.operation, newOp);
-                            return;
-                        }
+                        unscheduleTimeout(current.operation);
 
-                        if(_state == StateNotInitialized && !initialize(current.operation))
-                        {
-                            return;
-                        }
-
-                        if(_state <= StateNotValidated && !validate(current.operation))
-                        {
-                            return;
-                        }
-
-                        _threadPool.unregister(this, current.operation);
-
-                        //
-                        // We start out in holding state.
-                        //
-                        setState(StateHolding);
-                        if(_startCallback != null)
-                        {
-                            startCB = _startCallback;
-                            _startCallback = null;
-                            if(startCB != null)
-                            {
-                                ++dispatchCount;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        Debug.Assert(_state <= StateClosingPending);
-
-                        //
-                        // We parse messages first, if we receive a close
-                        // connection message we won't send more messages.
-                        //
-                        if((readyOp & IceInternal.SocketOperation.Read) != 0)
-                        {
-                            newOp |= parseMessage(ref info);
-                            dispatchCount += info.messageDispatchCount;
-                        }
-
+                        int writeOp = IceInternal.SocketOperation.None;
+                        int readOp = IceInternal.SocketOperation.None;
                         if((readyOp & IceInternal.SocketOperation.Write) != 0)
                         {
-                            newOp |= sendNextMessage(out sentCBs);
-                            if(sentCBs != null)
+                            if(_observer != null)
                             {
-                                ++dispatchCount;
+                                observerStartWrite(_writeStream.getBuffer());
+                            }
+                            writeOp = write(_writeStream.getBuffer());
+                            if(_observer != null && (writeOp & IceInternal.SocketOperation.Write) == 0)
+                            {
+                                observerFinishWrite(_writeStream.getBuffer());
                             }
                         }
 
-                        if(_state < StateClosed)
+                        while((readyOp & IceInternal.SocketOperation.Read) != 0)
                         {
-                            scheduleTimeout(newOp);
-                            _threadPool.update(this, current.operation, newOp);
+                            IceInternal.Buffer buf = _readStream.getBuffer();
+
+                            if(_observer != null && !_readHeader)
+                            {
+                                observerStartRead(buf);
+                            }
+
+                            readOp = read(buf);
+                            if((readOp & IceInternal.SocketOperation.Read) != 0)
+                            {
+                                break;
+                            }
+                            if(_observer != null && !_readHeader)
+                            {
+                                Debug.Assert(!buf.b.hasRemaining());
+                                observerFinishRead(buf);
+                            }
+
+                            if(_readHeader) // Read header if necessary.
+                            {
+                                _readHeader = false;
+
+                                if(_observer != null)
+                                {
+                                    _observer.receivedBytes(IceInternal.Protocol.headerSize);
+                                }
+
+                                int pos = _readStream.pos();
+                                if(pos < IceInternal.Protocol.headerSize)
+                                {
+                                    //
+                                    // This situation is possible for small UDP packets.
+                                    //
+                                    throw new Ice.IllegalMessageSizeException();
+                                }
+
+                                _readStream.pos(0);
+                                byte[] m = new byte[4];
+                                m[0] = _readStream.readByte();
+                                m[1] = _readStream.readByte();
+                                m[2] = _readStream.readByte();
+                                m[3] = _readStream.readByte();
+                                if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1] ||
+                                   m[2] != IceInternal.Protocol.magic[2] || m[3] != IceInternal.Protocol.magic[3])
+                                {
+                                    Ice.BadMagicException ex = new Ice.BadMagicException();
+                                    ex.badMagic = m;
+                                    throw ex;
+                                }
+
+                                ProtocolVersion pv  = new ProtocolVersion();
+                                pv.read__(_readStream);
+                                IceInternal.Protocol.checkSupportedProtocol(pv);
+                                EncodingVersion ev = new EncodingVersion();
+                                ev.read__(_readStream);
+                                IceInternal.Protocol.checkSupportedProtocolEncoding(ev);
+
+                                _readStream.readByte(); // messageType
+                                _readStream.readByte(); // compress
+                                int size = _readStream.readInt();
+                                if(size < IceInternal.Protocol.headerSize)
+                                {
+                                    throw new Ice.IllegalMessageSizeException();
+                                }
+                                if(size > _instance.messageSizeMax())
+                                {
+                                    IceInternal.Ex.throwMemoryLimitException(size, _instance.messageSizeMax());
+                                }
+                                if(size > _readStream.size())
+                                {
+                                    _readStream.resize(size, true);
+                                }
+                                _readStream.pos(pos);
+                            }
+
+                            if(buf.b.hasRemaining())
+                            {
+                                if(_endpoint.datagram())
+                                {
+                                    throw new Ice.DatagramLimitException(); // The message was truncated.
+                                }
+                                continue;
+                            }
+                            break;
                         }
 
-                        if(readyOp == 0)
+                        int newOp = readOp | writeOp;
+                        readyOp &= ~newOp;
+                        Debug.Assert(readyOp != 0 || newOp != 0);
+
+                        if(_state <= StateNotValidated)
                         {
-                            Debug.Assert(dispatchCount == 0);
-                            return;
+                            if(newOp != 0)
+                            {
+                                //
+                                // Wait for all the transceiver conditions to be
+                                // satisfied before continuing.
+                                //
+                                scheduleTimeout(newOp);
+                                _threadPool.update(this, current.operation, newOp);
+                                return;
+                            }
+
+                            if(_state == StateNotInitialized && !initialize(current.operation))
+                            {
+                                return;
+                            }
+
+                            if(_state <= StateNotValidated && !validate(current.operation))
+                            {
+                                return;
+                            }
+
+                            _threadPool.unregister(this, current.operation);
+
+                            //
+                            // We start out in holding state.
+                            //
+                            setState(StateHolding);
+                            if(_startCallback != null)
+                            {
+                                startCB = _startCallback;
+                                _startCallback = null;
+                                if(startCB != null)
+                                {
+                                    ++dispatchCount;
+                                }
+                            }
                         }
-                    }
-
-                    if(_acmLastActivity > 0)
-                    {
-                        _acmLastActivity = IceInternal.Time.currentMonotonicTimeMillis();
-                    }
-
-                    if(dispatchCount == 0)
-                    {
-                        return; // Nothing to dispatch we're done!
-                    }
-
-                    _dispatchCount += dispatchCount;
-
-                    msg.completed(ref current);
-                }
-                catch(DatagramLimitException) // Expected.
-                {
-                    if(_warnUdp)
-                    {
-                        _logger.warning("maximum datagram size of " + _readStream.pos() + " exceeded");
-                    }
-                    _readStream.resize(IceInternal.Protocol.headerSize, true);
-                    _readStream.pos(0);
-                    _readHeader = true;
-                    return;
-                }
-                catch(SocketException ex)
-                {
-                    setState(StateClosed, ex);
-                    return;
-                }
-                catch(LocalException ex)
-                {
-                    if(_endpoint.datagram())
-                    {
-                        if(_warn)
+                        else
                         {
-                            String s = "datagram connection exception:\n" + ex + '\n' + _desc;
-                            _logger.warning(s);
+                            Debug.Assert(_state <= StateClosingPending);
+
+                            //
+                            // We parse messages first, if we receive a close
+                            // connection message we won't send more messages.
+                            //
+                            if((readyOp & IceInternal.SocketOperation.Read) != 0)
+                            {
+                                newOp |= parseMessage(ref info);
+                                dispatchCount += info.messageDispatchCount;
+                            }
+
+                            if((readyOp & IceInternal.SocketOperation.Write) != 0)
+                            {
+                                newOp |= sendNextMessage(out sentCBs);
+                                if(sentCBs != null)
+                                {
+                                    ++dispatchCount;
+                                }
+                            }
+
+                            if(_state < StateClosed)
+                            {
+                                scheduleTimeout(newOp);
+                                _threadPool.update(this, current.operation, newOp);
+                            }
+
+                            if(readyOp == 0)
+                            {
+                                Debug.Assert(dispatchCount == 0);
+                                return;
+                            }
+                        }
+
+                        if(_acmLastActivity > 0)
+                        {
+                            _acmLastActivity = IceInternal.Time.currentMonotonicTimeMillis();
+                        }
+
+                        if(dispatchCount == 0)
+                        {
+                            return; // Nothing to dispatch we're done!
+                        }
+
+                        _dispatchCount += dispatchCount;
+
+                        msg.completed(ref current);
+                    }
+                    catch(DatagramLimitException) // Expected.
+                    {
+                        if(_warnUdp)
+                        {
+                            _logger.warning("maximum datagram size of " + _readStream.pos() + " exceeded");
                         }
                         _readStream.resize(IceInternal.Protocol.headerSize, true);
                         _readStream.pos(0);
                         _readHeader = true;
+                        return;
                     }
-                    else
+                    catch(SocketException ex)
                     {
                         setState(StateClosed, ex);
+                        return;
                     }
-                    return;
-                }
-                finally
-                {
-                    msg.finishIOScope(ref current);
-                }
+                    catch(LocalException ex)
+                    {
+                        if(_endpoint.datagram())
+                        {
+                            if(_warn)
+                            {
+                                String s = "datagram connection exception:\n" + ex + '\n' + _desc;
+                                _logger.warning(s);
+                            }
+                            _readStream.resize(IceInternal.Protocol.headerSize, true);
+                            _readStream.pos(0);
+                            _readHeader = true;
+                        }
+                        else
+                        {
+                            setState(StateClosed, ex);
+                        }
+                        return;
+                    }
 
-                IceInternal.ThreadPoolCurrent c = current;
-                _threadPool.dispatch(() =>
-                {
-                    dispatch(startCB, sentCBs, info);
-                    msg.destroy(ref c);
-                }, this);
+                    IceInternal.ThreadPoolCurrent c = current;
+                    _threadPool.dispatch(() =>
+                    {
+                        dispatch(startCB, sentCBs, info);
+                        msg.destroy(ref c);
+                    }, this);
+                }
             }
+            finally
+            {
+                msg.finishIOScope(ref current);
+            }
+
         }
 
         private void dispatch(StartCallback startCB, Queue<OutgoingMessage> sentCBs, MessageInfo info)
