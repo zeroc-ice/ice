@@ -14,17 +14,17 @@ SERVER		= $(call mktestname,server)
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-COBJS		= Test.o \
+SLICE_OBJS	= Test.o
+
+COBJS		= $(SLICE_OBJS) \
 		  Client.o \
 		  AllTests.o
 
-SOBJS		= Test.o \
+SOBJS		= $(SLICE_OBJS) \
 		  Server.o
 
-SRCS		= $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
-
-SLICE_SRCS	= Test.ice
+OBJS		= $(COBJS) \
+		  $(SOBJS)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -37,5 +37,3 @@ $(CLIENT): $(COBJS)
 $(SERVER): $(SOBJS)
 	rm -f $@
 	$(call mktest,$@,$(SOBJS),$(LIBS))
-
-include .depend

@@ -14,11 +14,7 @@ TARGETS		= client.exe server.exe
 C_SRCS		= AllTests.cs Client.cs ../../TestCommon/TestApp.cs
 S_SRCS		= Server.cs 
 
-SLICE_SRCS	= $(SDIR)/Test.ice
-
-SDIR		= .
-
-GDIR		= generated
+GEN_SRCS	= $(GDIR)/Test.cs
 
 include $(top_srcdir)/config/Make.rules.cs
 
@@ -31,5 +27,3 @@ client.exe: $(C_SRCS) $(GEN_SRCS)
 
 server.exe: $(S_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
-
-include .depend
