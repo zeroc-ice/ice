@@ -108,7 +108,7 @@ def remove(path, recurse = True):
 def checkGitVersion():
     # Ensure we're using git >= 1.8.3
     p = os.popen("git --version")
-    gitVersionMatch = re.search(".* ([0-9]+)\.([0-9b]+)\.([\.0-9]*)", p.read())
+    gitVersionMatch = re.search(".* ([0-9]+)\.([0-9b]+)\.([0-9]+).*", p.read())
     p.close()
     
     version = (int(gitVersionMatch.group(1)) * 10000) + \
