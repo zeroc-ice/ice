@@ -62,6 +62,7 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\MetricsAdminI.obj \
 		  $(ARCH)\$(CONFIG)\MetricsObserverI.obj \
 		  $(ARCH)\$(CONFIG)\Network.obj \
+		  $(ARCH)\$(CONFIG)\NetworkProxy.obj \
 		  $(ARCH)\$(CONFIG)\ObjectAdapterFactory.obj \
 		  $(ARCH)\$(CONFIG)\ObjectAdapterI.obj \
 		  $(ARCH)\$(CONFIG)\ObjectAdapter.obj \

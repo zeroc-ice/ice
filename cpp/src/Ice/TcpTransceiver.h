@@ -13,6 +13,7 @@
 #include <Ice/ProtocolInstanceF.h>
 #include <Ice/Transceiver.h>
 #include <Ice/Network.h>
+#include <Ice/StreamSocket.h>
 
 namespace IceInternal
 {
@@ -20,23 +21,11 @@ namespace IceInternal
 class TcpConnector;
 class TcpAcceptor;
 
-class TcpTransceiver : public Transceiver, public NativeInfo
+class TcpTransceiver : public Transceiver
 {
-    enum State
-    {
-        StateNeedConnect,
-        StateConnectPending,
-        StateProxyConnectRequest,
-        StateProxyConnectRequestPending,
-        StateConnected
-    };
-
 public:
 
     virtual NativeInfoPtr getNativeInfo();
-#ifdef ICE_USE_IOCP
-    virtual AsyncInfo* getAsyncInfo(SocketOperation);
-#endif
 
     virtual SocketOperation initialize(Buffer&, Buffer&, bool&);
     virtual SocketOperation closing(bool, const Ice::LocalException&);
@@ -57,29 +46,14 @@ public:
 
 private:
 
-    TcpTransceiver(const ProtocolInstancePtr&, SOCKET, const NetworkProxyPtr&, const Address&, const Address&);
-    TcpTransceiver(const ProtocolInstancePtr&, SOCKET);
+    TcpTransceiver(const ProtocolInstancePtr&, const StreamSocketPtr&);
     virtual ~TcpTransceiver();
-
-    void connect();
 
     friend class TcpConnector;
     friend class TcpAcceptor;
 
     const ProtocolInstancePtr _instance;
-    const NetworkProxyPtr _proxy;
-    const Address _addr;
-    const Address _sourceAddr;
-
-    State _state;
-    std::string _desc;
-
-#ifdef ICE_USE_IOCP
-    AsyncInfo _read;
-    AsyncInfo _write;
-    int _maxSendPacketSize;
-    int _maxReceivePacketSize;
-#endif
+    const StreamSocketPtr _stream;
 };
 
 }

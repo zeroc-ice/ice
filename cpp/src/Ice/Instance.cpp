@@ -27,6 +27,7 @@
 #include <Ice/PropertiesAdminI.h>
 #include <Ice/LoggerI.h>
 #include <Ice/Network.h>
+#include <Ice/NetworkProxy.h>
 #include <Ice/EndpointFactoryManager.h>
 #include <Ice/RetryQueue.h>
 #include <Ice/DynamicLibrary.h>
@@ -1203,21 +1204,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _proxyFactory = new ProxyFactory(this);
 
-        string proxyHost = _initData.properties->getProperty("Ice.SOCKSProxyHost");
-        int defaultIPv6 = 1; // IPv6 enabled by default.
-        if(!proxyHost.empty())
-        {
-#ifdef ICE_OS_WINRT
-            throw InitializationException(__FILE__, __LINE__, "SOCKS proxy not supported in WinRT");
-#else
-            int proxyPort = _initData.properties->getPropertyAsIntWithDefault("Ice.SOCKSProxyPort", 1080);
-            _networkProxy = new SOCKSNetworkProxy(proxyHost, proxyPort);
-            defaultIPv6 = 0; // IPv6 is not supported with SOCKS
-#endif
-        }
-
         bool ipv4 = _initData.properties->getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
-        bool ipv6 = _initData.properties->getPropertyAsIntWithDefault("Ice.IPv6", defaultIPv6) > 0;
+        bool ipv6 = _initData.properties->getPropertyAsIntWithDefault("Ice.IPv6", 1) > 0;
         if(!ipv4 && !ipv6)
         {
             throw InitializationException(__FILE__, __LINE__, "Both IPV4 and IPv6 support cannot be disabled.");
@@ -1236,12 +1224,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         }
         _preferIPv6 = _initData.properties->getPropertyAsInt("Ice.PreferIPv6Address") > 0;
 
-#ifndef ICE_OS_WINRT
-        if(ipv6 && SOCKSNetworkProxyPtr::dynamicCast(_networkProxy))
-        {
-            throw InitializationException(__FILE__, __LINE__, "IPv6 is not supported with SOCKS4 proxies");
-        }
-#endif
+        _networkProxy = IceInternal::createNetworkProxy(_initData.properties, _protocolSupport);
 
         _endpointFactoryManager = new EndpointFactoryManager(this);
 #ifndef ICE_OS_WINRT

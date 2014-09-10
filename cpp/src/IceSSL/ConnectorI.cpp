@@ -18,7 +18,9 @@
 #include <IceSSL/Util.h>
 #include <Ice/Communicator.h>
 #include <Ice/LocalException.h>
+#include <Ice/StreamSocket.h>
 #include <Ice/LoggerUtil.h>
+#include <Ice/NetworkProxy.h>
 
 using namespace std;
 using namespace Ice;
@@ -36,7 +38,9 @@ IceSSL::ConnectorI::connect()
         ex.reason = "IceSSL: plug-in is not initialized";
         throw ex;
     }
-    return new TransceiverI(_instance, IceInternal::createSocket(false, _addr), _proxy, _host, _addr, _sourceAddr);
+
+    IceInternal::StreamSocketPtr stream = new IceInternal::StreamSocket(_instance, _proxy, _addr, _sourceAddr);
+    return new TransceiverI(_instance, stream, _host, "");
 }
 
 Short

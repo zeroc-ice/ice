@@ -14,12 +14,7 @@ final class TcpConnector implements Connector
     @Override
     public Transceiver connect()
     {
-        java.nio.channels.SocketChannel fd = Network.createTcpSocket();
-        Network.setBlock(fd, false);
-        Network.setTcpBufSize(fd, _instance.properties(), _instance.logger());
-        final java.net.InetSocketAddress addr = _proxy != null ? _proxy.getAddress() : _addr;
-        Network.doConnect(fd, addr, _sourceAddr);
-        return new TcpTransceiver(_instance, fd, _proxy, _addr);
+        return new TcpTransceiver(_instance, new StreamSocket(_instance, _proxy, _addr, _sourceAddr));
     }
 
     @Override

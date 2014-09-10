@@ -642,7 +642,8 @@ namespace IceInternal
             return _delegate.toDetailedString();
         }
 
-        internal WSTransceiver(ProtocolInstance instance, IceInternal.Transceiver del, string host, int port, string resource)
+        internal 
+        WSTransceiver(ProtocolInstance instance, IceInternal.Transceiver del, string host, int port, string resource)
         {
             init(instance, del);
             _host = host;
@@ -652,8 +653,9 @@ namespace IceInternal
 
             //
             // For client connections, the sent frame payload must be
-            // masked. So we copy and send the message buffer data in chuncks
-            // of data whose size is up to the write buffer size.
+            // masked. So we copy and send the message buffer data in
+            // chuncks of data whose size is up to the write buffer
+            // size.
             //
             Socket fd = del.fd();
             _writeBufferSize = Math.Max(IceInternal.Network.getSendBufferSize(fd), 1024);

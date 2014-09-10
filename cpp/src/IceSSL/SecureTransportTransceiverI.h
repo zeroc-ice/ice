@@ -17,6 +17,7 @@
 
 #include <Ice/Transceiver.h>
 #include <Ice/Network.h>
+#include <Ice/StreamSocket.h>
 
 #ifdef ICE_USE_SECURE_TRANSPORT
 
@@ -29,18 +30,8 @@ namespace IceSSL
 class ConnectorI;
 class AcceptorI;
 
-class TransceiverI : public IceInternal::Transceiver, public IceInternal::NativeInfo
+class TransceiverI : public IceInternal::Transceiver
 {
-    enum State
-    {
-        StateNeedConnect,
-        StateConnectPending,
-        StateProxyConnectRequest,
-        StateProxyConnectRequestPending,
-        StateConnected,
-        StateHandshakeComplete
-    };
-
 public:
 
     virtual IceInternal::NativeInfoPtr getNativeInfo();
@@ -62,29 +53,20 @@ public:
 
 private:
 
-    TransceiverI(const InstancePtr&, SOCKET, const IceInternal::NetworkProxyPtr&, const std::string&,
-                 const IceInternal::Address&, const IceInternal::Address&);
-    TransceiverI(const InstancePtr&, SOCKET, const std::string&);
+    TransceiverI(const InstancePtr&, const IceInternal::StreamSocketPtr&, const std::string&, const std::string&);
     virtual ~TransceiverI();
 
     virtual NativeConnectionInfoPtr getNativeConnectionInfo() const;
-
-    bool writeRaw(IceInternal::Buffer&);
-    bool readRaw(IceInternal::Buffer&);
 
     friend class ConnectorI;
     friend class AcceptorI;
 
     const InstancePtr _instance;
     const SecureTransportEnginePtr _engine;
-
-    const IceInternal::NetworkProxyPtr _proxy;
     const std::string _host;
-    const IceInternal::Address _addr;
-    const IceInternal::Address _sourceAddr;
-
     const std::string _adapterName;
     const bool _incoming;
+    const IceInternal::StreamSocketPtr _stream;
 
     SSLContextRef _ssl;
     SecTrustRef _trust;
@@ -97,11 +79,8 @@ private:
     };
 
     mutable Ice::Byte _flags;
-
-    State _state;
-    std::string _desc;
     size_t _maxSendPacketSize;
-    size_t _maxReceivePacketSize;
+    size_t _maxRecvPacketSize;
 };
 typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;
 

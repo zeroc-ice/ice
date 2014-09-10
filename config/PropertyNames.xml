@@ -328,6 +328,7 @@ generated from the section label.
         <property name="ChangeUser" />
         <property name="ClientAccessPolicyProtocol" />
         <property name="Compression.Level" />
+        <property name="CollectObjects"/>
         <property name="Config" />
         <property name="ConsoleListener" />
         <property name="Default.CollocationOptimized" />
@@ -344,13 +345,14 @@ generated from the section label.
         <property name="Default.SlicedFormat" />
         <property name="Default.SourceAddress" />
         <property name="Default.Timeout" />
-        <property name="IPv4" />
-        <property name="IPv6" />
         <property name="EventLog.Source" />
         <property name="FactoryAssemblies" />
-        <property name="CollectObjects"/>
+        <property name="HTTPProxyHost" />
+        <property name="HTTPProxyPort" />
         <property name="ImplicitContext" />
         <property name="InitPlugins" />
+        <property name="IPv4" />
+        <property name="IPv6" />
         <property name="LogFile" />
         <property name="LogStdErr.Convert"/>
         <property name="MessageSizeMax" />

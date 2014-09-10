@@ -191,7 +191,7 @@ public:
 #else
     bool ioReady()
     {
-        return _handler->_registered & operation;
+        return (_handler->_registered & operation) != 0;
     }
 #endif
 

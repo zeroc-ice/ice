@@ -22,6 +22,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Properties.h>
+#include <Ice/StreamSocket.h>
 #include <IceUtil/StringUtil.h>
 
 #ifdef ICE_USE_IOCP
@@ -41,13 +42,8 @@ IceSSL::AcceptorI::getNativeInfo()
 
 #ifdef ICE_USE_IOCP
 IceInternal::AsyncInfo*
-#  ifndef NDEBUG
-IceSSL::AcceptorI::getAsyncInfo(IceInternal::SocketOperation status)
-#  else
 IceSSL::AcceptorI::getAsyncInfo(IceInternal::SocketOperation)
-#  endif
 {
-    assert(status == IceInternal::SocketOperationRead);
     return &_info;
 }
 #endif
@@ -167,7 +163,7 @@ IceSSL::AcceptorI::accept()
     // SSL handshaking is performed in TransceiverI::initialize, since
     // accept must not block.
     //
-    return new TransceiverI(_instance, fd, _adapterName);
+    return new TransceiverI(_instance, new IceInternal::StreamSocket(_instance, fd), "", _adapterName);
 }
 
 string

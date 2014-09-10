@@ -76,14 +76,10 @@ namespace IceInternal
                 throw _acceptError;
             }
 
-            Network.setBlock(_acceptFd, false);
-#  if !COMPACT
-            Network.setTcpBufSize(_acceptFd, _instance.properties(), _instance.logger());
-#  endif
             Socket acceptFd = _acceptFd;
             _acceptFd = null;
             _acceptError = null;
-            return new TcpTransceiver(_instance, acceptFd, null, null, null, true);
+            return new TcpTransceiver(_instance, new StreamSocket(_instance, acceptFd));
         }
 
         public string protocol()

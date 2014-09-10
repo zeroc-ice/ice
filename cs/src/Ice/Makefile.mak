@@ -60,6 +60,7 @@ SRCS		= Acceptor.cs \
 		  MetricsAdminI.cs \
 		  MetricsObserverI.cs \
 		  Network.cs \
+		  NetworkProxy.cs \
 		  Object.cs \
 		  ObjectAdapterFactory.cs \
 		  ObjectAdapterI.cs \
@@ -96,6 +97,7 @@ SRCS		= Acceptor.cs \
 		  SocketOperation.cs \
 		  Stream.cs \
 		  StreamI.cs \
+		  StreamSocket.cs \
 		  StreamWrapper.cs \
 		  StringUtil.cs \
 		  SysLoggerI.cs \

@@ -96,13 +96,10 @@ namespace IceSSL
                 throw _acceptError;
             }
 
-            IceInternal.Network.setBlock(_acceptFd, true); // SSL requires a blocking socket.
-            IceInternal.Network.setTcpBufSize(_acceptFd, _instance.properties(), _instance.logger());
-
             Socket acceptFd = _acceptFd;
             _acceptFd = null;
             _acceptError = null;
-            return new TransceiverI(_instance, acceptFd, "", true, true, _adapterName, null, null, null);
+            return new TransceiverI(_instance, new IceInternal.StreamSocket(_instance, acceptFd), "", _adapterName);
         }
 
         public string protocol()
@@ -117,18 +114,18 @@ namespace IceSSL
 
         public string toDetailedString()
         {
-                StringBuilder s = new StringBuilder("local address = ");
-                s.Append(ToString());
+            StringBuilder s = new StringBuilder("local address = ");
+            s.Append(ToString());
 
-                List<string> intfs =
-                    IceInternal.Network.getHostsForEndpointExpand(_addr.Address.ToString(),
-                                                                  _instance.protocolSupport(), true);
-                if(intfs.Count != 0)
-                {
-                    s.Append("\nlocal interfaces = ");
-                    s.Append(String.Join(", ", intfs.ToArray()));
-                }
-                return s.ToString();
+            List<string> intfs = IceInternal.Network.getHostsForEndpointExpand(_addr.Address.ToString(),
+                                                                               _instance.protocolSupport(), 
+                                                                               true);
+            if(intfs.Count != 0)
+            {
+                s.Append("\nlocal interfaces = ");
+                s.Append(String.Join(", ", intfs.ToArray()));
+            }
+            return s.ToString();
         }
 
         internal int effectivePort()

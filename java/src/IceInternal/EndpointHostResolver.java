@@ -40,11 +40,11 @@ class EndpointHostResolver
         NetworkProxy networkProxy = _instance.networkProxy();
         if(networkProxy == null)
         {
-            java.util.List<java.net.InetSocketAddress> addrs =
-                Network.getAddresses(host, port, _protocol, selType, _preferIPv6);
-            if(!addrs.isEmpty())
+            java.util.List<java.net.InetSocketAddress> addrs = Network.getAddresses(host, port, _protocol, selType,
+                                                                                    _preferIPv6, false);
+            if(addrs != null)
             {
-                return endpoint.connectors(addrs, null);
+                return endpoint.connectors(addrs, networkProxy);
             }
         }
 
@@ -62,12 +62,16 @@ class EndpointHostResolver
         java.util.List<Connector> connectors = null;
         try
         {
+            int protocol = _protocol;
             if(networkProxy != null)
             {
-                networkProxy = networkProxy.resolveHost();
+                networkProxy = networkProxy.resolveHost(_protocol);
+                if(networkProxy != null)
+                {
+                    protocol = networkProxy.getProtocolSupport();
+                }
             }
-
-            connectors = endpoint.connectors(Network.getAddresses(host, port, _protocol, selType, _preferIPv6),
+            connectors = endpoint.connectors(Network.getAddresses(host, port, protocol, selType, _preferIPv6, true), 
                                              networkProxy);
         }
         catch(Ice.LocalException ex)
@@ -88,8 +92,8 @@ class EndpointHostResolver
         return connectors;
     }
 
-    synchronized void resolve(final String host, final int port, final Ice.EndpointSelectionType selType, final IPEndpointI endpoint,
-            final EndpointI_connectors callback)
+    synchronized void resolve(final String host, final int port, final Ice.EndpointSelectionType selType, 
+                              final IPEndpointI endpoint, final EndpointI_connectors callback)
     {
         //
         // TODO: Optimize to avoid the lookup if the given host is a textual IPv4 or IPv6
@@ -98,6 +102,18 @@ class EndpointHostResolver
         //
 
         assert(!_destroyed);
+
+        NetworkProxy networkProxy = _instance.networkProxy();
+        if(networkProxy == null)
+        {
+            java.util.List<java.net.InetSocketAddress> addrs = Network.getAddresses(host, port, _protocol, selType,
+                                                                                    _preferIPv6, false);
+            if(addrs != null)
+            {
+                callback.connectors(endpoint.connectors(addrs, networkProxy));
+                return;
+            }
+        }
 
         final Ice.Instrumentation.ThreadObserver threadObserver = _observer;
         final Ice.Instrumentation.Observer observer = getObserver(endpoint);
@@ -134,19 +150,25 @@ class EndpointHostResolver
                                                         Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
                         }
 
+                        int protocol = _protocol;
                         NetworkProxy networkProxy = _instance.networkProxy();
                         if(networkProxy != null)
                         {
-                            networkProxy = networkProxy.resolveHost();
+                            networkProxy = networkProxy.resolveHost(_protocol);
+                            if(networkProxy != null)
+                            {
+                                protocol = networkProxy.getProtocolSupport();
+                            }
                         }
 
                         callback.connectors(endpoint.connectors(Network.getAddresses(host,
-                                                                                         port,
-                                                                                         _protocol,
-                                                                                         selType,
-                                                                                         _preferIPv6),
-                                                                    networkProxy));
-
+                                                                                     port,
+                                                                                     protocol,
+                                                                                     selType,
+                                                                                     _preferIPv6,
+                                                                                     true),
+                                                                networkProxy));
+                        
                         if(threadObserver != null)
                         {
                             threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
@@ -160,6 +182,12 @@ class EndpointHostResolver
                     }
                     catch(Ice.LocalException ex)
                     {
+                        if(threadObserver != null)
+                        {
+                            threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
+                                                        Ice.Instrumentation.ThreadState.ThreadStateIdle);
+                        }
+
                         if(observer != null)
                         {
                             observer.failed(ex.ice_name());

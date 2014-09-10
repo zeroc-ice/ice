@@ -46,24 +46,18 @@ final class AcceptorI implements IceInternal.Acceptor
             throw ex;
         }
 
-        java.nio.channels.SocketChannel fd = IceInternal.Network.doAccept(_fd);
-
-        javax.net.ssl.SSLEngine engine = null;
+        IceInternal.StreamSocket stream = new IceInternal.StreamSocket(_instance, IceInternal.Network.doAccept(_fd));
         try
         {
-            IceInternal.Network.setBlock(fd, false);
-            IceInternal.Network.setTcpBufSize(fd, _instance.properties(), _instance.logger());
-
-            java.net.InetSocketAddress peerAddr = (java.net.InetSocketAddress)fd.socket().getRemoteSocketAddress();
-            engine = _instance.createSSLEngine(true, peerAddr);
+            java.net.InetSocketAddress peerAddr = 
+                (java.net.InetSocketAddress)stream.fd().socket().getRemoteSocketAddress();
+            return new TransceiverI(_instance, _instance.createSSLEngine(true, peerAddr), stream, "", _adapterName);
         }
         catch(RuntimeException ex)
         {
-            IceInternal.Network.closeSocketNoThrow(fd);
+            stream.close();
             throw ex;
         }
-
-        return new TransceiverI(_instance, engine, fd, _adapterName);
     }
 
     @Override

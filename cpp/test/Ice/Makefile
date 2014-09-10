@@ -13,44 +13,45 @@ include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= proxy \
                   operations \
-		  exceptions \
-		  ami \
-		  info \
-		  inheritance \
-		  facets \
-		  objects \
-		  optional \
-		  faultTolerance \
-		  location \
-		  adapterDeactivation \
-		  slicing \
-		  gc \
-		  hash \
-		  checksum \
-		  stream \
-		  dispatcher \
-		  hold \
-		  custom \
-		  binding \
-		  retry \
-		  timeout \
-		  acm \
-		  servantLocator \
-		  interceptor \
-		  stringConverter \
-		  background \
-		  udp \
-		  defaultServant \
-		  defaultValue \
-		  threadPoolPriority \
-		  invoke \
-		  properties \
-		  plugin \
-		  admin \
-		  metrics \
-		  enums \
-		  echo \
-		  logger
+                  exceptions \
+                  ami \
+                  info \
+                  inheritance \
+                  facets \
+                  objects \
+                  optional \
+                  faultTolerance \
+                  location \
+                  adapterDeactivation \
+                  slicing \
+                  gc \
+                  hash \
+                  checksum \
+                  stream \
+                  dispatcher \
+                  hold \
+                  custom \
+                  binding \
+                  retry \
+                  timeout \
+                  acm \
+                  servantLocator \
+                  interceptor \
+                  stringConverter \
+                  background \
+                  udp \
+                  defaultServant \
+                  defaultValue \
+                  threadPoolPriority \
+                  invoke \
+                  properties \
+                  plugin \
+                  admin \
+                  metrics \
+                  enums \
+                  echo \
+                  logger \
+                  networkProxy
 
 .PHONY: $(EVERYTHING) $(SUBDIRS)
 

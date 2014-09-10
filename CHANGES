@@ -27,6 +27,10 @@ Changes since version 3.5.1
 General Changes
 ===============
 
+- Added support for HTTP proxies to the Ice core in C++, C# and
+  Java. This allows outgoing TCP & SSL connections to be mediated by
+  an HTTP network proxy service that supports HTTP CONNECT tunneling.
+
 - Added IceStorm::InvalidSubscriber exception which is throw by
   IceStorm subscribe/unsubscribe methods when an invalid subscriber
   (eg. null proxy) is passed.

@@ -18,6 +18,6 @@ IceUtil::Shared* IceInternal::upCast(Transceiver* p) { return p; }
 EndpointIPtr
 IceInternal::Transceiver::bind(const EndpointIPtr&)
 {
-	assert(false);
-	return 0;
+    assert(false);
+    return 0;
 }

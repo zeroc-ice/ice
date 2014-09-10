@@ -97,6 +97,7 @@ OBJS	       =  Acceptor.obj \
 		  MetricsAdminI.obj \
 		  MetricsObserverI.obj \
 		  Network.obj \
+		  NetworkProxy.obj \
                   Object.obj \
 		  ObjectAdapterFactory.obj \
 		  ObjectAdapterI.obj \
@@ -127,6 +128,7 @@ OBJS	       =  Acceptor.obj \
 		  SlicedData.obj \
 		  Stream.obj \
                   StreamI.obj \
+		  StreamSocket.obj \
 		  StringConverterPlugin.obj \
 		  TcpAcceptor.obj \
 		  TcpConnector.obj \

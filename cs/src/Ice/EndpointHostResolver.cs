@@ -68,13 +68,17 @@ namespace IceInternal
             List<Connector> connectors = null;
             try 
             {
+                int protocol = _protocol;
                 if(networkProxy != null)
                 {
-                    networkProxy = networkProxy.resolveHost();
+                    networkProxy = networkProxy.resolveHost(protocol);
+                    if(networkProxy != null)
+                    {
+                        protocol = networkProxy.getProtocolSupport();
+                    }
                 }
 
-                connectors = endpoint.connectors(Network.getAddresses(host, port, _protocol, selType, _preferIPv6, 
-                                                                      true), 
+                connectors = endpoint.connectors(Network.getAddresses(host, port, protocol, selType, _preferIPv6, true),
                                                  networkProxy);
             }
             catch(Ice.LocalException ex)
@@ -198,14 +202,19 @@ namespace IceInternal
                     }
 
                     NetworkProxy networkProxy = _instance.networkProxy();
+                    int protocol = _protocol;
                     if(networkProxy != null)
                     {
-                        networkProxy = networkProxy.resolveHost();
+                        networkProxy = networkProxy.resolveHost(protocol);
+                        if(networkProxy != null)
+                        {
+                            protocol = networkProxy.getProtocolSupport();
+                        }
                     }
 
                     r.callback.connectors(r.endpoint.connectors(Network.getAddresses(r.host, 
                                                                                      r.port, 
-                                                                                     _protocol, 
+                                                                                     protocol, 
                                                                                      r.selType, 
                                                                                      _preferIPv6, 
                                                                                      true),
@@ -224,6 +233,11 @@ namespace IceInternal
                 }
                 catch(Ice.LocalException ex)
                 {
+                    if(threadObserver != null)
+                    {
+                        threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForOther, 
+                                                    Ice.Instrumentation.ThreadState.ThreadStateIdle);
+                    }
                     if(r.observer != null)
                     {
                         r.observer.failed(ex.ice_name());

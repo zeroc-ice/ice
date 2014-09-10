@@ -46,7 +46,7 @@ tests = [
     ("Ice/facets", ["core"]),
     ("Ice/objects", ["core"]),
     ("Ice/optional", ["core"]),
-    ("Ice/binding", ["core"]),
+    ("Ice/binding", ["core", "nosocks"]),
     ("Ice/faultTolerance", ["core", "novalgrind"]), # valgrind reports leak with aborted servers
     ("Ice/location", ["core"]),
     ("Ice/adapterDeactivation", ["core"]),
@@ -59,9 +59,9 @@ tests = [
     ("Ice/hold", ["core"]),
     ("Ice/custom", ["core", "nossl", "nows"]),
     ("Ice/retry", ["core"]),
-    ("Ice/timeout", ["core", "nocompress"]),
+    ("Ice/timeout", ["core", "nocompress", "nosocks"]),
     ("Ice/acm", ["core"]),
-    ("Ice/background", ["core", "nomingw"]),
+    ("Ice/background", ["core", "nomingw", "nosocks"]),
     ("Ice/servantLocator", ["core"]),
     ("Ice/interceptor", ["core"]),
     ("Ice/stringConverter", ["core"]),
@@ -75,6 +75,7 @@ tests = [
     ("Ice/metrics", ["core", "nossl", "nows", "noipv6", "nocompress", "nomingw", "nosocks"]),
     ("Ice/enums", ["once"]),
     ("Ice/logger", ["once"]),
+    ("Ice/networkProxy", ["core", "noipv6", "nosocks"]),
     ("IceSSL/configuration", ["once", "novalgrind"]), # valgrind doesn't work well with openssl
     ("IceBox/configuration", ["core", "noipv6", "novc90", "nomingw", "nomx"]),
     ("IceBox/admin", ["core", "noipv6", "novc90", "nomingw", "nomx"]),

@@ -23,7 +23,7 @@ public final class SOCKSNetworkProxy implements NetworkProxy
     }
 
     @Override
-    public void beginWriteConnectRequest(java.net.InetSocketAddress endpoint, Buffer buf)
+    public void beginWrite(java.net.InetSocketAddress endpoint, Buffer buf)
     {
         final java.net.InetAddress addr = endpoint.getAddress();
         if(addr == null)
@@ -53,43 +53,54 @@ public final class SOCKSNetworkProxy implements NetworkProxy
     }
 
     @Override
-    public void endWriteConnectRequest(Buffer buf)
+    public int endWrite(Buffer buf)
     {
-        buf.reset();
+        // Once the request is sent, read the response 
+        return buf.b.hasRemaining() ? SocketOperation.Write : SocketOperation.Read;
     }
 
     @Override
-    public void beginReadConnectRequestResponse(Buffer buf)
+    public void beginRead(Buffer buf)
     {
         //
         // Read the SOCKS4 response whose size is 8 bytes.
         //
-        buf.resize(8, true);
-        buf.b.position(0);
+        if(!buf.b.hasRemaining())
+        {
+            buf.resize(8, true);
+            buf.b.position(0);
+        }
     }
 
     @Override
-    public void endReadConnectRequestResponse(Buffer buf)
+    public int endRead(Buffer buf)
     {
-        buf.b.position(0);
-        byte b1 = buf.b.get();
-        byte b2 = buf.b.get();
+        // We're done once we read the response
+        return buf.b.hasRemaining() ? SocketOperation.Read : SocketOperation.None;
+    }
+
+    @Override
+    public void finish(Buffer readBuffer, Buffer writeBuffer)
+    {
+        readBuffer.b.position(0);
+        byte b1 = readBuffer.b.get();
+        byte b2 = readBuffer.b.get();
         if(b1 != 0x00 || b2 != 0x5a)
         {
             throw new Ice.ConnectFailedException();
         }
-        buf.reset();
     }
 
     @Override
-    public NetworkProxy resolveHost()
+    public NetworkProxy resolveHost(int protocolSupport)
     {
         assert(_host != null);
-        return new SOCKSNetworkProxy(Network.getAddresses(_host,
-                                                          _port,
-                                                          Network.EnableIPv4,
+        return new SOCKSNetworkProxy(Network.getAddresses(_host, 
+                                                          _port, 
+                                                          protocolSupport, 
                                                           Ice.EndpointSelectionType.Random,
-                                                          false).get(0));
+                                                          false, 
+                                                          true).get(0));
     }
 
     @Override
@@ -103,6 +114,12 @@ public final class SOCKSNetworkProxy implements NetworkProxy
     public String getName()
     {
         return "SOCKS";
+    }
+
+    @Override
+    public int getProtocolSupport()
+    {
+        return Network.EnableIPv4;
     }
 
     private String _host;

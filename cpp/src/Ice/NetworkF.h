@@ -23,10 +23,6 @@ struct ICE_API Address;
 union Address;
 #endif
 
-class NetworkProxy;
-ICE_API IceUtil::Shared* upCast(NetworkProxy*);
-typedef Handle<NetworkProxy> NetworkProxyPtr;
-
 }
 
 #endif

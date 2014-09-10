@@ -14,6 +14,7 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h>
+#include <Ice/StreamSocket.h>
 #include <IceUtil/StringUtil.h>
 
 #ifdef ICE_USE_IOCP
@@ -144,7 +145,7 @@ IceInternal::TcpAcceptor::accept()
     SOCKET fd = doAccept(_fd);
 #endif
 
-    return new TcpTransceiver(_instance, fd);
+    return new TcpTransceiver(_instance, new StreamSocket(_instance, fd));
 }
 
 string

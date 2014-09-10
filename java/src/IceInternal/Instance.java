@@ -748,17 +748,8 @@ public final class Instance
 
             _proxyFactory = new ProxyFactory(this);
 
-            final String proxyHost = _initData.properties.getProperty("Ice.SOCKSProxyHost");
-            int defaultIPv6 = 1; // IPv6 enabled by default.
-            if(proxyHost.length() > 0)
-            {
-                final int proxyPort = _initData.properties.getPropertyAsIntWithDefault("Ice.SOCKSProxyPort", 1080);
-                _networkProxy = new SOCKSNetworkProxy(proxyHost, proxyPort);
-                defaultIPv6 = 0; // IPv6 is not supported with SOCKS
-            }
-
             boolean ipv4 = _initData.properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
-            boolean ipv6 = _initData.properties.getPropertyAsIntWithDefault("Ice.IPv6", defaultIPv6) > 0;
+            boolean ipv6 = _initData.properties.getPropertyAsIntWithDefault("Ice.IPv6", 1) > 0;
             if(!ipv4 && !ipv6)
             {
                 throw new Ice.InitializationException("Both IPV4 and IPv6 support cannot be disabled.");
@@ -777,11 +768,8 @@ public final class Instance
             }
             _preferIPv6 = _initData.properties.getPropertyAsInt("Ice.PreferIPv6Address") > 0;
 
-            if(ipv6 && _networkProxy instanceof SOCKSNetworkProxy)
-            {
-                throw new Ice.InitializationException("IPv6 is not supported with SOCKS4 proxies");
-            }
-
+            _networkProxy = createNetworkProxy(_initData.properties, _protocolSupport);
+        
             _endpointFactoryManager = new EndpointFactoryManager(this);
             ProtocolInstance tcpProtocolInstance = new ProtocolInstance(this, Ice.TCPEndpointType.value, "tcp");
             EndpointFactory tcpEndpointFactory = new TcpEndpointFactory(tcpProtocolInstance);
@@ -1379,6 +1367,30 @@ public final class Instance
              (!props.getProperty("Ice.Admin.ServerId").isEmpty() && 
               (_referenceFactory.getDefaultLocator() != null || !props.getProperty("Ice.Default.Locator").isEmpty())));
     } 
+
+    private NetworkProxy createNetworkProxy(Ice.Properties properties, int protocolSupport)
+    {
+        String proxyHost;
+        
+        proxyHost = properties.getProperty("Ice.SOCKSProxyHost");
+        if(!proxyHost.isEmpty())
+        {
+            if(protocolSupport == Network.EnableIPv6)
+            {
+                throw new Ice.InitializationException("IPv6 only is not supported with SOCKS4 proxies");
+            }
+            int proxyPort = properties.getPropertyAsIntWithDefault("Ice.SOCKSProxyPort", 1080);
+            return new SOCKSNetworkProxy(proxyHost, proxyPort);
+        }
+        
+        proxyHost = properties.getProperty("Ice.HTTPProxyHost");
+        if(!proxyHost.isEmpty())
+        {
+            return new HTTPNetworkProxy(proxyHost, properties.getPropertyAsIntWithDefault("Ice.HTTPProxyPort", 1080));
+        }
+    
+        return null;
+    }
 
     private static final int StateActive = 0;
     private static final int StateDestroyInProgress = 1;

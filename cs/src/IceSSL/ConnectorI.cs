@@ -29,23 +29,8 @@ namespace IceSSL
                 throw ex;
             }
 
-            Socket fd = IceInternal.Network.createSocket(false, _addr.AddressFamily);
-            IceInternal.Network.setBlock(fd, true); // SSL requires a blocking socket.
-
-            //
-            // Windows XP has an IPv6 bug that makes a socket appear to be unconnected if you
-            // set the socket's receive buffer size, and this in turn causes .NET to raise an
-            // exception that would prevent us from using SSL.
-            //
-            if(_addr.AddressFamily != AddressFamily.InterNetworkV6 || !IceInternal.AssemblyUtil.xp_)
-            {
-                IceInternal.Network.setTcpBufSize(fd, _instance.properties(), _instance.logger());
-            }
-
-            //
-            // Nonblocking connect is handled by the transceiver.
-            //
-            return new TransceiverI(_instance, fd, _host, false, false, null, _addr, _proxy, _sourceAddr);
+            return new TransceiverI(_instance, new IceInternal.StreamSocket(_instance, _proxy, _addr, _sourceAddr),
+                                    _host, "");
         }
 
         public short type()

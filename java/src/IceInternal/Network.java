@@ -673,7 +673,7 @@ public final class Network
                 throw new Ice.SocketException(ex);
             }
         }
-        return getAddresses(host, port, protocol, Ice.EndpointSelectionType.Ordered, preferIPv6).get(0);
+        return getAddresses(host, port, protocol, Ice.EndpointSelectionType.Ordered, preferIPv6, true).get(0);
     }
 
     public static int
@@ -781,8 +781,28 @@ public final class Network
     }
 
     public static java.util.List<java.net.InetSocketAddress>
-    getAddresses(String host, int port, int protocol, Ice.EndpointSelectionType selType, boolean preferIPv6)
+    getAddresses(String host, int port, int protocol, Ice.EndpointSelectionType selType, boolean preferIPv6, 
+                 boolean blocking)
     {
+        if(!blocking)
+        {
+            if(!isNumericAddress(host))
+            {
+                return null; // Can't get the address without blocking.
+            }
+
+            java.util.List<java.net.InetSocketAddress> addrs = new java.util.ArrayList<java.net.InetSocketAddress>();
+            try
+            {
+                addrs.add(new java.net.InetSocketAddress(java.net.InetAddress.getByName(host), port));
+            }
+            catch(java.net.UnknownHostException ex)
+            {
+                assert(false);
+            }
+            return addrs;
+        }
+
         java.util.List<java.net.InetSocketAddress> addresses = new java.util.ArrayList<java.net.InetSocketAddress>();
         try
         {

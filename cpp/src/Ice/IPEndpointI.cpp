@@ -14,6 +14,7 @@
 #include <Ice/PropertiesI.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/HashUtil.h>
+#include <Ice/NetworkProxy.h>
 #include <IceUtil/MutexPtrLock.h>
 
 using namespace std;
@@ -558,13 +559,16 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, Ice::En
     vector<ConnectorPtr> connectors;
     try
     {
+        ProtocolSupport protocol = _protocol;
         if(networkProxy)
         {
-            networkProxy = networkProxy->resolveHost();
+            networkProxy = networkProxy->resolveHost(_protocol);
+            if(networkProxy)
+            {
+                protocol = networkProxy->getProtocolSupport();
+            }
         }
-
-        connectors = endpoint->connectors(getAddresses(host, port, _protocol, selType, _preferIPv6, true),
-                                          networkProxy);
+        connectors = endpoint->connectors(getAddresses(host, port, protocol, selType, _preferIPv6, true), networkProxy);
     }
     catch(const Ice::LocalException& ex)
     {
@@ -666,16 +670,22 @@ IceInternal::EndpointHostResolver::run()
             }
 
             NetworkProxyPtr networkProxy = _instance->networkProxy();
+            ProtocolSupport protocol = _protocol;
             if(networkProxy)
             {
-                networkProxy = networkProxy->resolveHost();
+                networkProxy = networkProxy->resolveHost(_protocol);
+                if(networkProxy)
+                {
+                    protocol = networkProxy->getProtocolSupport();
+                }
             }
 
             r.callback->connectors(r.endpoint->connectors(getAddresses(r.host,
                                                                        r.port,
-                                                                       _protocol,
+                                                                       protocol,
                                                                        r.selType,
-                                                                       _preferIPv6, true),
+                                                                       _preferIPv6,
+                                                                       true),
                                                           networkProxy));
 
             if(threadObserver)
@@ -690,6 +700,10 @@ IceInternal::EndpointHostResolver::run()
         }
         catch(const Ice::LocalException& ex)
         {
+            if(threadObserver)
+            {
+                threadObserver->stateChanged(ThreadStateInUseForOther, ThreadStateIdle);
+            }
             if(r.observer)
             {
                 r.observer->failed(ex.ice_name());

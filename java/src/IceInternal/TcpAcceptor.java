@@ -35,10 +35,7 @@ class TcpAcceptor implements Acceptor
     @Override
     public Transceiver accept()
     {
-        java.nio.channels.SocketChannel fd = Network.doAccept(_fd);
-        Network.setBlock(fd, false);
-        Network.setTcpBufSize(fd, _instance.properties(), _instance.logger());
-        return new TcpTransceiver(_instance, fd);
+        return new TcpTransceiver(_instance, new StreamSocket(_instance, Network.doAccept(_fd)));
     }
 
     @Override

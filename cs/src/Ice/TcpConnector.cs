@@ -18,21 +18,7 @@ namespace IceInternal
     {
         public Transceiver connect()
         {
-#if SILVERLIGHT
-            Socket fd = Network.createSocket(false, _addr.AddressFamily == AddressFamily.InterNetworkV6 ?
-                                             AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork);
-#else
-            Socket fd = Network.createSocket(false, _addr.AddressFamily);
-            Network.setBlock(fd, false);
-#endif
-#if !COMPACT
-            Network.setTcpBufSize(fd, _instance.properties(), _instance.logger());
-#endif
-
-            //
-            // Nonblocking connect is handled by the transceiver.
-            //
-            return new TcpTransceiver(_instance, fd, _addr, _proxy, _sourceAddr, false);
+            return new TcpTransceiver(_instance, new StreamSocket(_instance, _proxy, _addr, _sourceAddr));
         }
 
         public short type()

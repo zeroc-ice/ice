@@ -13,6 +13,8 @@
 #include <Ice/ProtocolInstance.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Network.h>
+#include <Ice/NetworkProxy.h>
+#include <Ice/StreamSocket.h>
 #include <Ice/Exception.h>
 
 using namespace std;
@@ -22,10 +24,7 @@ using namespace IceInternal;
 TransceiverPtr
 IceInternal::TcpConnector::connect()
 {
-    TransceiverPtr transceiver = new TcpTransceiver(_instance, createSocket(false, _addr), _proxy, _addr, _sourceAddr);
-    dynamic_cast<TcpTransceiver*>(transceiver.get())->connect();
-    return transceiver;
-
+    return new TcpTransceiver(_instance, new StreamSocket(_instance, _proxy, _addr, _sourceAddr));
 }
 
 Short

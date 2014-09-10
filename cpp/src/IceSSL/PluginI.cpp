@@ -11,13 +11,11 @@
 #include <IceSSL/Instance.h>
 #include <IceSSL/SSLEngine.h>
 #include <IceSSL/EndpointI.h>
-#include <IceSSL/EndpointInfo.h>
 
 #include <Ice/WSEndpoint.h>
 #include <Ice/ProtocolPluginFacade.h>
 #include <Ice/ProtocolInstance.h>
 #include <Ice/LocalException.h>
-#include <Ice/Object.h>
 
 using namespace std;
 using namespace Ice;
@@ -53,15 +51,15 @@ IceSSL::PluginI::PluginI(const Ice::CommunicatorPtr& communicator)
     IceInternal::ProtocolPluginFacadePtr facade = IceInternal::getProtocolPluginFacade(communicator);
     
     //
-    // Register the endpoint factory. We have to do this now, rather than
-    // in initialize, because the communicator may need to interpret
-    // proxies before the plug-in is fully initialized.
+    // Register the endpoint factory. We have to do this now, rather
+    // than in initialize, because the communicator may need to
+    // interpret proxies before the plug-in is fully initialized.
     //
     IceInternal::EndpointFactoryPtr sslFactory = new EndpointFactoryI(new Instance(_engine, EndpointType, "ssl"));
     facade->addEndpointFactory(sslFactory);
     
-    IceInternal::ProtocolInstancePtr wssInstance = new IceInternal::ProtocolInstance(communicator, WSSEndpointType, "wss");
-    facade->addEndpointFactory(new IceInternal::WSEndpointFactory(wssInstance, sslFactory->clone(wssInstance)));
+    IceInternal::ProtocolInstancePtr wss = new IceInternal::ProtocolInstance(communicator, WSSEndpointType, "wss");
+    facade->addEndpointFactory(new IceInternal::WSEndpointFactory(wss, sslFactory->clone(wss)));
 }
 
 void

@@ -1370,12 +1370,6 @@ namespace Ice
                     msg.finishIOScope(ref current);
                 }
 
-                //
-                // Unlike C++/Java, this method is called from an IO thread of the .NET thread
-                // pool or from the communicator async IO thread. While it's fine to handle the
-                // non-blocking activity of the connection from these threads, the dispatching
-                // of the message must be taken care of by the Ice thread pool.
-                //
                 IceInternal.ThreadPoolCurrent c = current;
                 _threadPool.dispatch(() =>
                 {

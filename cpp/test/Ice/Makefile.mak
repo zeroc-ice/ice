@@ -53,7 +53,8 @@ SUBDIRS		= $(SUBDIRS) \
 		  defaultServant \
 		  interceptor \
 		  defaultValue \
-		  logger
+		  logger \
+		  networkProxy
 !endif
 
 

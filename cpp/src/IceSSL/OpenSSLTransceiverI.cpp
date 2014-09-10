@@ -68,98 +68,24 @@ Init init;
 IceInternal::NativeInfoPtr
 IceSSL::TransceiverI::getNativeInfo()
 {
-    return this;
+    return _stream;
 }
 
 IceInternal::SocketOperation
 IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& writeBuffer, bool&)
 {
-    if(_state == StateNeedConnect)
+    IceInternal::SocketOperation status = _stream->connect(readBuffer, writeBuffer);
+    if(status != IceInternal::SocketOperationNone)
     {
-        _state = StateConnectPending;
-        return IceInternal::SocketOperationConnect;
+        return status;
     }
-    else if(_state <= StateConnectPending)
-    {
-        IceInternal::doFinishConnect(_fd);
-
-        _desc = IceInternal::fdToString(_fd, _proxy, _addr, true);
-
-        if(_proxy)
-        {
-            //
-            // Prepare the read & write buffers in advance.
-            //
-            _proxy->beginWriteConnectRequest(_addr, writeBuffer);
-            _proxy->beginReadConnectRequestResponse(readBuffer);
-
-            //
-            // Write the proxy connection message using TCP.
-            //
-            if(writeRaw(writeBuffer))
-            {
-                //
-                // Write completed without blocking.
-                //
-                _proxy->endWriteConnectRequest(writeBuffer);
-
-                //
-                // Try to read the response using TCP.
-                //
-                if(readRaw(readBuffer))
-                {
-                    //
-                    // Read completed without blocking - fall through.
-                    //
-                    _proxy->endReadConnectRequestResponse(readBuffer);
-                }
-                else
-                {
-                    //
-                    // Return SocketOperationRead to indicate we need to complete the read.
-                    //
-                    _state = StateProxyConnectRequestPending; // Wait for proxy response
-                    return IceInternal::SocketOperationRead;
-                }
-            }
-            else
-            {
-                //
-                // Return SocketOperationWrite to indicate we need to complete the write.
-                //
-                _state = StateProxyConnectRequest; // Send proxy connect request
-                return IceInternal::SocketOperationWrite;
-            }
-        }
-
-        _state = StateConnected;
-    }
-    else if(_state == StateProxyConnectRequest)
-    {
-        //
-        // Write completed.
-        //
-        _proxy->endWriteConnectRequest(writeBuffer);
-        _state = StateProxyConnectRequestPending; // Wait for proxy response
-        return IceInternal::SocketOperationRead;
-    }
-    else if(_state == StateProxyConnectRequestPending)
-    {
-        //
-        // Read completed.
-        //
-        _proxy->endReadConnectRequestResponse(readBuffer);
-        _state = StateConnected;
-    }
-
-    assert(_state == StateConnected);
 
     if(!_ssl)
     {
         //
         // This static_cast is necessary due to 64bit windows. There SOCKET is a non-int type.
         //
-        BIO* bio = BIO_new_socket(static_cast<int>(_fd), 0);
+        BIO* bio = BIO_new_socket(static_cast<int>(_stream->fd()), 0);
         if(!bio)
         {
             SecurityException ex(__FILE__, __LINE__);
@@ -205,8 +131,10 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
             switch(SSL_get_error(_ssl, ret))
             {
             case SSL_ERROR_NONE:
+            {
                 assert(SSL_is_init_finished(_ssl));
                 break;
+            }
             case SSL_ERROR_ZERO_RETURN:
             {
                 ConnectionLostException ex(__FILE__, __LINE__);
@@ -266,7 +194,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
             {
                 IceInternal::Address remoteAddr;
                 string desc = "<not available>";
-                if(IceInternal::fdToRemoteAddress(_fd, remoteAddr))
+                if(IceInternal::fdToRemoteAddress(_stream->fd(), remoteAddr))
                 {
                     desc = IceInternal::addrToString(remoteAddr);
                 }
@@ -308,8 +236,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
             throw ex;
         }
     }
-    _engine->verifyPeer(_fd, _host, getNativeConnectionInfo());
-    _state = StateHandshakeComplete;
+    _engine->verifyPeer(_stream->fd(), _host, getNativeConnectionInfo());
 
     if(_engine->securityTraceLevel() >= 1)
     {
@@ -348,12 +275,6 @@ IceSSL::TransceiverI::closing(bool initiator, const Ice::LocalException&)
 void
 IceSSL::TransceiverI::close()
 {
-    if(_state == StateHandshakeComplete && _instance->traceLevel() >= 1)
-    {
-        Trace out(_instance->logger(), _instance->traceCategory());
-        out << "closing " << _instance->protocol() << " connection\n" << toString();
-    }
-
     if(_ssl)
     {
         int err = SSL_shutdown(_ssl);
@@ -370,28 +291,15 @@ IceSSL::TransceiverI::close()
         _ssl = 0;
     }
 
-    assert(_fd != INVALID_SOCKET);
-    try
-    {
-        IceInternal::closeSocket(_fd);
-        _fd = INVALID_SOCKET;
-    }
-    catch(const SocketException&)
-    {
-        _fd = INVALID_SOCKET;
-        throw;
-    }
+    _stream->close();
 }
 
 IceInternal::SocketOperation
 IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
 {
-    if(_state == StateProxyConnectRequest)
+    if(!_stream->isConnected())
     {
-        //
-        // We need to write the proxy message, but we have to use TCP and not SSL.
-        //
-        return writeRaw(buf) ? IceInternal::SocketOperationNone : IceInternal::SocketOperationWrite;
+        return _stream->write(buf);
     }
 
     if(buf.i == buf.b.end())
@@ -406,8 +314,6 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
     while(buf.i != buf.b.end())
     {
         ERR_clear_error(); // Clear any spurious errors.
-        assert(_fd != INVALID_SOCKET);
-
         int ret = SSL_write(_ssl, reinterpret_cast<const void*>(&*buf.i), packetSize);
         if(ret <= 0)
         {
@@ -479,12 +385,6 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
             }
         }
 
-        if(_instance->traceLevel() >= 3)
-        {
-            Trace out(_instance->logger(), _instance->traceCategory());
-            out << "sent " << ret << " of " << packetSize << " bytes via " << protocol() << "\n" << toString();
-        }
-
         buf.i += ret;
 
         if(packetSize > buf.b.end() - buf.i)
@@ -499,20 +399,17 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
 IceInternal::SocketOperation
 IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool&)
 {
+    if(!_stream->isConnected())
+    {
+        return _stream->read(buf);
+    }
+
     //
     // Note: we don't set the hasMoreData flag in this implementation.
     // We assume that OpenSSL doesn't read more SSL records than
     // necessary to fill the requested data and that the sender sends
     // Ice messages in individual SSL records.
     //
-
-    if(_state == StateProxyConnectRequestPending)
-    {
-        //
-        // We need to read the proxy reply, but we have to use TCP and not SSL.
-        //
-        return readRaw(buf) ? IceInternal::SocketOperationNone : IceInternal::SocketOperationRead;
-    }
 
     if(buf.i == buf.b.end())
     {
@@ -526,7 +423,6 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool&)
     while(buf.i != buf.b.end())
     {
         ERR_clear_error(); // Clear any spurious errors.
-        assert(_fd != INVALID_SOCKET);
         int ret = SSL_read(_ssl, reinterpret_cast<void*>(&*buf.i), packetSize);
         if(ret <= 0)
         {
@@ -539,17 +435,6 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool&)
             }
             case SSL_ERROR_ZERO_RETURN:
             {
-                //
-                // If the connection is lost when reading data, we shut
-                // down the write end of the socket. This helps to unblock
-                // threads that are stuck in send() or select() while
-                // sending data. Note: I don't really understand why
-                // send() or select() sometimes don't detect a connection
-                // loss. Therefore this helper to make them detect it.
-                //
-                //assert(_fd != INVALID_SOCKET);
-                //shutdownSocketReadWrite(_fd);
-
                 ConnectionLostException ex(__FILE__, __LINE__);
                 ex.error = 0;
                 throw ex;
@@ -586,14 +471,6 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool&)
 
                     if(IceInternal::connectionLost())
                     {
-                        //
-                        // See the commment above about shutting down the
-                        // socket if the connection is lost while reading
-                        // data.
-                        //
-                        //assert(_fd != INVALID_SOCKET);
-                        //shutdownSocketReadWrite(_fd);
-
                         ConnectionLostException ex(__FILE__, __LINE__);
                         ex.error = IceInternal::getSocketErrno();
                         throw ex;
@@ -644,12 +521,6 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool&)
             }
         }
 
-        if(_instance->traceLevel() >= 3)
-        {
-            Trace out(_instance->logger(), _instance->traceCategory());
-            out << "received " << ret << " of " << packetSize << " bytes via " << protocol() << "\n" << toString();
-        }
-
         buf.i += ret;
 
         if(packetSize > buf.b.end() - buf.i)
@@ -670,7 +541,7 @@ IceSSL::TransceiverI::protocol() const
 string
 IceSSL::TransceiverI::toString() const
 {
-    return _desc;
+    return _stream->toString();
 }
 
 string
@@ -694,64 +565,28 @@ IceSSL::TransceiverI::checkSendSize(const IceInternal::Buffer& buf, size_t messa
     }
 }
 
-IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const IceInternal::NetworkProxyPtr& proxy,
-                                   const string& host, const IceInternal::Address& addr,
-                                   const IceInternal::Address& sourceAddr) :
-    IceInternal::NativeInfo(fd),
+IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, const IceInternal::StreamSocketPtr& stream,
+                                   const string& host, const std::string& adapterName) :
     _instance(instance),
     _engine(OpenSSLEnginePtr::dynamicCast(instance->engine())),
-    _proxy(proxy),
     _host(host),
-    _addr(addr),
-    _sourceAddr(sourceAddr),
-    _incoming(false),
-    _ssl(0),
-    _state(StateNeedConnect)
-{
-    IceInternal::setBlock(fd, false);
-    IceInternal::setTcpBufSize(fd, _instance->properties(), _instance->logger());
-
-    IceInternal::Address connectAddr = proxy ? proxy->getAddress() : addr;
-    if(IceInternal::doConnect(_fd, connectAddr, _sourceAddr))
-    {
-        _state = StateConnected;
-        _desc = IceInternal::fdToString(_fd, _proxy, _addr, true);
-        if(_instance->traceLevel() >= 1)
-        {
-            Trace out(_instance->logger(), _instance->traceCategory());
-            out << _instance->protocol() << " connection established\n" << _desc;
-        }
-    }
-    else
-    {
-        _desc = IceInternal::fdToString(_fd, _proxy, _addr, true);
-    }
-}
-
-IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const string& adapterName) :
-    IceInternal::NativeInfo(fd),
-    _instance(instance),
-    _engine(OpenSSLEnginePtr::dynamicCast(instance->engine())),
     _adapterName(adapterName),
-    _incoming(true),
-    _ssl(0),
-    _state(StateConnected),
-    _desc(IceInternal::fdToString(fd))
+    _incoming(_host.empty()),
+    _stream(stream),
+    _ssl(0)
 {
-    IceInternal::setBlock(fd, false);
-    IceInternal::setTcpBufSize(fd, _instance->properties(), _instance->logger());
 }
 
 IceSSL::TransceiverI::~TransceiverI()
 {
-    assert(_fd == INVALID_SOCKET);
 }
 
 NativeConnectionInfoPtr
 IceSSL::TransceiverI::getNativeConnectionInfo() const
 {
     NativeConnectionInfoPtr info = new NativeConnectionInfo();
-    IceInternal::fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
+    IceInternal::fdToAddressAndPort(_stream->fd(), info->localAddress, info->localPort, info->remoteAddress, 
+                                    info->remotePort);
 
     if(_ssl != 0)
     {
@@ -797,145 +632,4 @@ IceSSL::TransceiverI::getNativeConnectionInfo() const
     return info;
 }
 
-bool
-IceSSL::TransceiverI::writeRaw(IceInternal::Buffer& buf)
-{
-    //
-    // It's impossible for packetSize to be more than an Int.
-    //
-    int packetSize = static_cast<int>(buf.b.end() - buf.i);
-#ifdef ICE_USE_IOCP
-    //
-    // Limit packet size to avoid performance problems on WIN32
-    //
-    if(_maxSendPacketSize > 0 && packetSize > _maxSendPacketSize)
-    {
-        packetSize = _maxSendPacketSize;
-    }
-#endif
-    while(buf.i != buf.b.end())
-    {
-        assert(_fd != INVALID_SOCKET);
-
-        ssize_t ret = ::send(_fd, reinterpret_cast<const char*>(&*buf.i), packetSize, 0);
-        if(ret == 0)
-        {
-            ConnectionLostException ex(__FILE__, __LINE__);
-            ex.error = 0;
-            throw ex;
-        }
-
-        if(ret == SOCKET_ERROR)
-        {
-            if(IceInternal::interrupted())
-            {
-                continue;
-            }
-
-            if(IceInternal::noBuffers() && packetSize > 1024)
-            {
-                packetSize /= 2;
-                continue;
-            }
-
-            if(IceInternal::wouldBlock())
-            {
-                return false;
-            }
-
-            if(IceInternal::connectionLost())
-            {
-                ConnectionLostException ex(__FILE__, __LINE__);
-                ex.error = IceInternal::getSocketErrno();
-                throw ex;
-            }
-            else
-            {
-                SocketException ex(__FILE__, __LINE__);
-                ex.error = IceInternal::getSocketErrno();
-                throw ex;
-            }
-        }
-
-        if(_instance->traceLevel() >= 3)
-        {
-            Trace out(_instance->logger(), _instance->traceCategory());
-            out << "sent " << ret << " of " << packetSize << " bytes via " << protocol() << "\n" << toString();
-        }
-
-        buf.i += ret;
-
-        if(packetSize > buf.b.end() - buf.i)
-        {
-            packetSize = static_cast<int>(buf.b.end() - buf.i);
-        }
-    }
-
-    return true;
-}
-
-bool
-IceSSL::TransceiverI::readRaw(IceInternal::Buffer& buf)
-{
-    //
-    // It's impossible for packetSize to be more than an Int.
-    //
-    int packetSize = static_cast<int>(buf.b.end() - buf.i);
-    while(buf.i != buf.b.end())
-    {
-        assert(_fd != INVALID_SOCKET);
-        ssize_t ret = ::recv(_fd, reinterpret_cast<char*>(&*buf.i), packetSize, 0);
-
-        if(ret == 0)
-        {
-            ConnectionLostException ex(__FILE__, __LINE__);
-            ex.error = 0;
-            throw ex;
-        }
-
-        if(ret == SOCKET_ERROR)
-        {
-            if(IceInternal::interrupted())
-            {
-                continue;
-            }
-
-            if(IceInternal::noBuffers() && packetSize > 1024)
-            {
-                packetSize /= 2;
-                continue;
-            }
-
-            if(IceInternal::wouldBlock())
-            {
-                return false;
-            }
-
-            if(IceInternal::connectionLost())
-            {
-                ConnectionLostException ex(__FILE__, __LINE__);
-                ex.error = IceInternal::getSocketErrno();
-                throw ex;
-            }
-            else
-            {
-                SocketException ex(__FILE__, __LINE__);
-                ex.error = IceInternal::getSocketErrno();
-                throw ex;
-            }
-        }
-
-        if(_instance->traceLevel() >= 3)
-        {
-            Trace out(_instance->logger(), _instance->traceCategory());
-            out << "received " << ret << " of " << packetSize << " bytes via " << protocol() << "\n" << toString();
-        }
-
-        buf.i += ret;
-
-        packetSize = static_cast<int>(buf.b.end() - buf.i);
-    }
-
-    return true;
-}
 #endif

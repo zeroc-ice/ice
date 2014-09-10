@@ -36,6 +36,7 @@
 #include <Ice/DynamicLibraryF.h>
 #include <Ice/PluginF.h>
 #include <Ice/NetworkF.h>
+#include <Ice/NetworkProxyF.h>
 #include <Ice/Initialize.h>
 #include <Ice/ImplicitContextI.h>
 #include <Ice/FacetMap.h>

@@ -49,7 +49,8 @@ SUBDIRS         = application \
 		  optional \
 		  metrics \
 		  enums \
-		  serialize
+		  serialize \
+		  networkProxy
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

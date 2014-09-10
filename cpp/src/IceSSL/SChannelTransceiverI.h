@@ -18,6 +18,7 @@
 #include <Ice/Transceiver.h>
 #include <Ice/Network.h>
 #include <Ice/Buffer.h>
+#include <Ice/StreamSocket.h>
 
 #ifdef ICE_USE_SCHANNEL
 
@@ -41,34 +42,23 @@ namespace IceSSL
 class ConnectorI;
 class AcceptorI;
 
-class TransceiverI : public IceInternal::Transceiver, public IceInternal::NativeInfo
+class TransceiverI : public IceInternal::Transceiver
 {
-    enum State
-    {
-        StateNeedConnect,
-        StateConnectPending,
-        StateProxyConnectRequest,
-        StateProxyConnectRequestPending,
-        StateConnected,
-        StateHandshakeReadContinue,
-        StateHandshakeWriteContinue,
-        StateHandshakeComplete
-    };
-
 public:
 
     virtual IceInternal::NativeInfoPtr getNativeInfo();
-    virtual IceInternal::AsyncInfo* getAsyncInfo(IceInternal::SocketOperation);
 
     virtual IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&, bool&);
     virtual IceInternal::SocketOperation closing(bool, const Ice::LocalException&);
     virtual void close();
     virtual IceInternal::SocketOperation write(IceInternal::Buffer&);
     virtual IceInternal::SocketOperation read(IceInternal::Buffer&, bool&);
+#ifdef ICE_USE_IOCP
     virtual bool startWrite(IceInternal::Buffer&);
     virtual void finishWrite(IceInternal::Buffer&);
     virtual void startRead(IceInternal::Buffer&);
     virtual void finishRead(IceInternal::Buffer&, bool&);
+#endif
     virtual std::string protocol() const;
     virtual std::string toString() const;
     virtual std::string toDetailedString() const;
@@ -77,9 +67,7 @@ public:
 
 private:
 
-    TransceiverI(const InstancePtr&, SOCKET, const IceInternal::NetworkProxyPtr&, const std::string&,
-                 const IceInternal::Address&, const IceInternal::Address&);
-    TransceiverI(const InstancePtr&, SOCKET, const std::string&);
+    TransceiverI(const InstancePtr&, const IceInternal::StreamSocketPtr&, const std::string&, const std::string&);
     virtual ~TransceiverI();
 
     virtual NativeConnectionInfoPtr getNativeConnectionInfo() const;
@@ -95,19 +83,21 @@ private:
     friend class ConnectorI;
     friend class AcceptorI;
 
+    enum State
+    {
+        StateHandshakeNotStarted,
+        StateHandshakeReadContinue,
+        StateHandshakeWriteContinue,
+        StateHandshakeComplete
+    };
+
     const InstancePtr _instance;
     const SChannelEnginePtr _engine;
-
-    const IceInternal::NetworkProxyPtr _proxy;
     const std::string _host;
-    const IceInternal::Address _addr;
-    const IceInternal::Address _sourceAddr;
-
     const std::string _adapterName;
     const bool _incoming;
-
+    const IceInternal::StreamSocketPtr _stream;
     State _state;
-    std::string _desc;
 
     //
     // Buffered encrypted data that has not been written.
@@ -129,13 +119,6 @@ private:
     bool _sslInitialized;
     CredHandle _credentials;
     bool _credentialsInitialized;
-
-#ifdef ICE_USE_IOCP
-    IceInternal::AsyncInfo _read;
-    IceInternal::AsyncInfo _write;
-    int _maxSendPacketSize;
-    int _maxReceivePacketSize;
-#endif
     SecPkgContext_StreamSizes _sizes;
 };
 typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;

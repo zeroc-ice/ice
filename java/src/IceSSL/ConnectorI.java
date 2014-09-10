@@ -24,19 +24,15 @@ final class ConnectorI implements IceInternal.Connector
             throw ex;
         }
 
-        java.nio.channels.SocketChannel fd = IceInternal.Network.createTcpSocket();
-        IceInternal.Network.setBlock(fd, false);
-        IceInternal.Network.setTcpBufSize(fd, _instance.properties(), _instance.logger());
-        final java.net.InetSocketAddress addr = _proxy != null ? _proxy.getAddress() : _addr;
-        IceInternal.Network.doConnect(fd, addr, _sourceAddr);
+        IceInternal.StreamSocket stream = new IceInternal.StreamSocket(_instance, _proxy, _addr, _sourceAddr);
         try
         {
             javax.net.ssl.SSLEngine engine = _instance.createSSLEngine(false, _addr);
-            return new TransceiverI(_instance, engine, fd, _proxy, _host, _addr);
+            return new TransceiverI(_instance, engine, stream, _host, "");
         }
         catch(RuntimeException ex)
         {
-            IceInternal.Network.closeSocketNoThrow(fd);
+            stream.close();
             throw ex;
         }
     }
