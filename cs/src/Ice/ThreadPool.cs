@@ -38,8 +38,10 @@ namespace IceInternal
         {
             if(_finishWithIO)
             {
-                // This must be called with the handler locked.
-                current.finishMessage(true);
+                lock(_mutex)
+                {
+                    current.finishMessage(true);
+                }
             }
         }
 
