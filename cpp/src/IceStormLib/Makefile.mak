@@ -19,8 +19,6 @@ SLICE_OBJS	= IceStorm.obj \
 
 OBJS		= $(SLICE_OBJS)
 
-SRCS		= $(OBJS:.obj=.cpp)
-
 HDIR		= $(headerdir)\IceStorm
 SDIR		= $(slicedir)\IceStorm
 
@@ -62,5 +60,3 @@ install:: all
 	copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"
 
 !endif
-
-!include .depend.mak

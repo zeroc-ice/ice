@@ -14,11 +14,7 @@ TARGETS		= client.exe server.exe
 C_SRCS		= Client.cs generated/Callback.cs CallbackI.cs
 S_SRCS		= Server.cs generated/Callback.cs CallbackI.cs 
 
-SLICE_SRCS	= $(SDIR)/Callback.ice
-
-SDIR		= .
-
-GDIR		= generated
+GEN_SRCS	= $(GDIR)/Callback.cs
 
 include $(top_srcdir)/config/Make.rules.cs
 
@@ -27,9 +23,7 @@ MCSFLAGS	:= $(MCSFLAGS) -target:exe
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --ice -I. -I$(slicedir)
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(call ref,Glacier2) $(subst /,$(DSEP),$^)
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(call ref,Glacier2) $^
 
 server.exe: $(S_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(call ref,Glacier2) $(subst /,$(DSEP),$^)
-
-include .depend
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(call ref,Glacier2) $^

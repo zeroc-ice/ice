@@ -9,19 +9,14 @@
 
 top_srcdir	= ../../..
 
-TARGETS		= $(OBJS)
+TARGETS		= $(SLICE_OBJS)
 
-OBJS		= CircularA.o \
+SLICE_OBJS	= CircularA.o \
 		  CircularB.o
 
-SRCS		= $(OBJS:.o=.cpp)
-
-SLICE_SRCS	= CircularA.ice \
-		  CircularB.ice
+OBJS		= $(SLICE_OBJS)
 
 include $(top_srcdir)/config/Make.rules
 
 SLICE2CPPFLAGS	:= -I. $(SLICE2CPPFLAGS)
 CPPFLAGS	:= -I. $(CPPFLAGS)
-
-include .depend

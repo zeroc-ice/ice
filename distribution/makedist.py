@@ -456,6 +456,10 @@ copyMatchingFiles(os.path.join(winSrcDir, "certs"), os.path.join(winDemoDir, "ce
 
 os.mkdir(os.path.join(winDemoDir, "config"))
 
+copy(os.path.join(winSrcDir, "config", "makedepend.vbs"), os.path.join(winDemoDir, "config"), False)
+copy(os.path.join(winSrcDir, "config", "makedepend-list.vbs"), os.path.join(winDemoDir, "config"), False)
+copy(os.path.join(winSrcDir, "config", "makedepend-slice.vbs"), os.path.join(winDemoDir, "config"), False)
+
 copy(os.path.join(winSrcDir, "config", "Make.common.rules.mak"), os.path.join(winDemoDir, "config"), False)
 copy(os.path.join(winSrcDir, "cpp", "config", "Make.rules.msvc"), os.path.join(winDemoDir, "config"), False)
 copy(os.path.join(winSrcDir, "java", "config", "common.xml"), os.path.join(winDemoDir, "config"), False)

@@ -28,10 +28,6 @@ OBJS		= Application.o \
 		  SessionHelper.o \
                   $(SLICE_OBJS)
 
-SRCS		= $(OBJS:.o=.cpp)
-
-SLICE_SRCS	= $(addprefix $(SDIR)/, $(SLICE_OBJS:.o=.ice))
-
 HDIR		= $(headerdir)/Glacier2
 SDIR		= $(slicedir)/Glacier2
 
@@ -55,5 +51,3 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 
 install:: all
 	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
-
-include .depend

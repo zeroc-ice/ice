@@ -17,19 +17,20 @@ DLLNAME         = registryplugin$(SOVERSION)$(LIBSUFFIX).dll
 
 TARGETS		= $(CLIENT) $(SERVER) $(LIBNAME) $(DLLNAME)
 
-OBJS		= Pricing.obj
+SLICE_OBJS	= Pricing.obj
 
-COBJS		= Client.obj
+COBJS		= $(SLICE_OBJS) \
+		  Client.obj
 
-SOBJS		= PricingI.obj \
+SOBJS		= $(SLICE_OBJS) \
+		  PricingI.obj \
 		  Server.obj
 
 POBJS		= RegistryPlugin.obj
 
-SRCS		= $(OBJS:.obj=.cpp) \
-		  $(COBJS:.obj=.cpp) \
-		  $(POBJS:.obj=.cpp) \
-		  $(SOBJS:.obj=.cpp)
+OBJS		= $(COBJS) \
+		  $(POBJS) \
+		  $(SOBJS)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -41,14 +42,14 @@ CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 !endif
 
-$(CLIENT): $(OBJS) $(COBJS)
-	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
+$(CLIENT): $(COBJS)
+	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
 	  icegrid$(LIBSUFFIX).lib glacier2$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(SERVER): $(OBJS) $(SOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(SERVER): $(SOBJS)
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
@@ -67,5 +68,3 @@ clean::
 	-if exist db\registry\__Freeze rmdir /q /s db\registry\__Freeze
 	-for %f in (db\registry\*) do if not %f == db\registry\.gitignore del /q %f
 	-for %f in (distrib servers tmp) do if exist db\node\%f rmdir /s /q db\node\%f
-
-!include .depend.mak

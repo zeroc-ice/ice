@@ -15,11 +15,7 @@ C_SRCS		= Client.cs \
                   AllTests.cs \
                   MyObjectI.cs
 
-SLICE_SRCS	= $(SDIR)/Test.ice
-
-SDIR		= .
-
-GDIR		= generated
+GEN_SRCS	= $(GDIR)/Test.cs
 
 include $(top_srcdir)/config/Make.rules.cs
 
@@ -27,6 +23,4 @@ MCSFLAGS	:= $(MCSFLAGS) -target:exe
 
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
-
-include .depend
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $^

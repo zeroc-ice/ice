@@ -17,21 +17,23 @@ DLLNAME		= testservice$(LIBSUFFIX).dll
 
 TARGETS		= $(CLIENT) $(SERVER) $(LIBNAME) $(DLLNAME)
 
-COBJS		= Test.obj \
+SLICE_OBJS	= Test.obj
+
+COBJS		= $(SLICE_OBJS) \
 		  Client.obj \
 		  AllTests.obj
 
-SOBJS		= Test.obj \
+SOBJS		= $(SLICE_OBJS) \
 		  TestI.obj \
 		  Server.obj
 
-SERVICE_OBJS	= Test.obj \
+SERVICE_OBJS	= $(SLICE_OBJS) \
 		  TestI.obj \
 		  Service.obj
 
-SRCS		= $(COBJS:.obj=.cpp) \
-		  $(SOBJS:.obj=.cpp) \
-		  $(SERVICE_OBJS:.obj=.cpp)
+OBJS		= $(COBJS) \
+		  $(SOBJS) \
+		  $(SERVICE_OBJS)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -45,8 +47,8 @@ SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 
 $(LIBNAME) : $(DLLNAME)
 
-$(DLLNAME): $(OBJS) $(SERVICE_OBJS)
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(SETARGV) $(OBJS) $(SERVICE_OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH) \
+$(DLLNAME): $(SERVICE_OBJS)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(SETARGV) $(SERVICE_OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH) \
 	  freeze$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
@@ -71,5 +73,3 @@ clean::
 	if exist db\node-1 rmdir /s /q db\node-1 
 	if exist db\node-2 rmdir /s /q db\node-2 
 	if exist db\replica-1 rmdir /s /q db\replica-1
-
-!include .depend.mak

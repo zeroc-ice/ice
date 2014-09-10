@@ -15,11 +15,7 @@ COMMON_SRCS	= Acceptor.cs Configuration.cs Connector.cs EndpointFactory.cs Endpo
 C_SRCS		= AllTests.cs Client.cs $(COMMON_SRCS)
 S_SRCS		= BackgroundControllerI.cs BackgroundI.cs Server.cs $(COMMON_SRCS)
 
-SLICE_SRCS	= $(SDIR)/Test.ice
-
-SDIR		= .
-
-GDIR		= generated
+GEN_SRCS	= $(GDIR)/Test.cs
 
 include $(top_srcdir)/config/Make.rules.cs
 
@@ -28,9 +24,7 @@ MCSFLAGS	:= $(MCSFLAGS) -target:exe
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --ice -I. -I$(slicedir)
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $^
 
 server.exe: $(S_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
-
-include .depend
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $^

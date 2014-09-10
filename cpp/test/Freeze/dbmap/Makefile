@@ -13,14 +13,14 @@ CLIENT		= client
 
 TARGETS		= $(CLIENT)
 
-OBJS		= Client.o \
-                  ByteIntMap.o \
-                  IntIdentityMap.o \
-                  IntIdentityMapWithIndex.o \
-                  SortedMap.o \
+SLICE_OBJS	= ByteIntMap.o \
+		  IntIdentityMap.o \
+		  IntIdentityMapWithIndex.o \
+		  SortedMap.o \
 		  WstringWstringMap.o
 
-SRCS		= $(OBJS:.o=.cpp)
+OBJS		= $(SLICE_OBJS) \
+		  Client.o
 
 GENPIC          = no
 
@@ -66,5 +66,3 @@ clean::
 	-rm -f SortedMap.h SortedMap.cpp
 	-rm -f WstringWstringMap.h WstringWstringMap.cpp
 	-rm -rf db/*
-
-include .depend

@@ -16,12 +16,8 @@ C_SRCS		= AllTests.cs Client.cs \
 S_SRCS		= TestI.cs Server.cs
 SAMD_SRCS	= TestAMDI.cs ServerAMD.cs
 
-SLICE_SRCS	= $(SDIR)/Test.ice
-SLICE_AMD_SRCS	= $(SDIR)/TestAMD.ice
-
-SDIR		= .
-
-GDIR		= generated
+GEN_SRCS	= $(GDIR)/Test.cs
+GEN_AMD_SRCS	= $(GDIR)/TestAMD.cs
 
 include $(top_srcdir)/config/Make.rules.cs
 
@@ -43,5 +39,3 @@ Serializable.dll:
 
 clean::
 	rm -f Serializable.dll
-
-include .depend

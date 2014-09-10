@@ -14,11 +14,7 @@ TARGETS		= client.exe server.exe
 C_SRCS		= Client.cs
 S_SRCS		= GreetI.cs Server.cs
 
-SLICE_SRCS	= $(SDIR)/Greet.ice
-
-SDIR		= .
-
-GDIR		= generated
+GEN_SRCS	= $(GDIR)/Greet.cs
 
 include $(top_srcdir)/config/Make.rules.cs
 
@@ -35,5 +31,3 @@ MyGreeting.dll: MyGreeting.cs
 
 clean::
 	rm -f MyGreeting.dll
-
-include .depend

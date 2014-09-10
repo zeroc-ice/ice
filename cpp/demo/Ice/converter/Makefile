@@ -15,38 +15,35 @@ SERVER		= server
 
 TARGETS		= $(CLIENT1) $(CLIENT2) $(SERVER)
 
-OBJS		= Greet.o
+SLICE_OBJS	= Greet.o
 
-C1OBJS		= Client.o \
+C1OBJS		= $(SLICE_OBJS) \
+		  Client.o \
 		  ClientWithConverter.o \
 		  StringConverterI.o
 
-C2OBJS		= Client.o \
+C2OBJS		= $(SLICE_OBJS) \
+		  Client.o \
 		  ClientWithoutConverter.o
 
-SOBJS		= GreetI.o \
+SOBJS		= $(SLICE_OBJS) \
+		  GreetI.o \
 		  Server.o
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
-
-SLICE_SRCS	= Greet.ice
+OBJS 		= $(C1OBJS) $(C2OBJS) $(SOBJS)
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
 
-$(CLIENT1): $(OBJS) $(C1OBJS)
+$(CLIENT1): $(C1OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(C1OBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(C1OBJS) $(LIBS)
 
-$(CLIENT2): $(OBJS) $(C2OBJS)
+$(CLIENT2): $(C2OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(C2OBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(C2OBJS) $(LIBS)
 
-$(SERVER): $(OBJS) $(SOBJS)
+$(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
-
-include .depend
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)

@@ -14,11 +14,7 @@ TARGETS		= client.exe testservice.dll
 C_SRCS		= Client.cs AllTests.cs
 S_SRCS		= TestI.cs TestServiceI.cs
 
-SLICE_SRCS	= $(SDIR)/Test.ice
-
-SDIR		= .
-
-GDIR		= generated
+GEN_SRCS	= $(GDIR)/Test.cs
 
 include $(top_srcdir)/config/Make.rules.cs
 
@@ -27,9 +23,7 @@ MCSFLAGS	:= $(MCSFLAGS) -target:exe
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --ice -I. -I$(slicedir)
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $^
 
 testservice.dll: $(S_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -target:library -out:$@ $(call ref,IceBox) $(call ref,Ice) $(subst /,$(DSEP),$^)
-
-include .depend
+	$(MCS) $(MCSFLAGS) -target:library -out:$@ $(call ref,IceBox) $(call ref,Ice) $^

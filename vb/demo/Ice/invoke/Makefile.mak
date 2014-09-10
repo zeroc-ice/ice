@@ -35,5 +35,3 @@ client.exe: $(C_SRCS) $(SLICE_ASSEMBLY)
 
 server.exe: $(S_SRCS) $(SLICE_ASSEMBLY)
 	$(VBC) $(VBCFLAGS) -out:$@ -r:"$(csbindir)\Ice.dll" -r:$(SLICE_ASSEMBLY) $(S_SRCS)
-
-!include .depend.mak

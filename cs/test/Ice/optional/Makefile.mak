@@ -54,5 +54,3 @@ $(SERIAL_DLL): SerializableClass.cs
 clean::
 	del /q $(SERIAL_DLL)
 !endif
-
-!include .depend.mak

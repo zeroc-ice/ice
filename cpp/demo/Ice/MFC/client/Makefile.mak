@@ -13,12 +13,12 @@ CLIENT		= client.exe
 
 TARGETS		= $(CLIENT)
 
-OBJS		= Hello.obj \
+SLICE_OBJS	= Hello.obj
+
+OBJS		= $(SLICE_OBJS) \
 		  HelloClient.obj \
 		  HelloClientDlg.obj \
 		  stdafx.obj
-		
-SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -28,8 +28,8 @@ CPPFLAGS	= -I. $(CPPFLAGS) -D_AFXDLL -DVC_EXTRALEAN -D_UNICODE
 PDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 !endif
 
-$(CLIENT): $(OBJS) $(COBJS) HelloClient.res
-	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) /entry:wWinMainCRTStartup /subsystem:windows $(OBJS) $(COBJS) HelloClient.res \
+$(CLIENT): $(OBJS) HelloClient.res
+	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) /entry:wWinMainCRTStartup /subsystem:windows $(OBJS) HelloClient.res \
 	  $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
@@ -37,5 +37,3 @@ $(CLIENT): $(OBJS) $(COBJS) HelloClient.res
 clean::
 	del /q Hello.cpp Hello.h
 	del /q HelloClient.res
-
-!include .depend.mak

@@ -13,12 +13,10 @@ CLIENT		= client.exe
 
 TARGETS		= $(CLIENT)
 
-OBJS		= Single.obj
+SLICE_OBJS		= Single.obj
 
-COBJS		= Client.obj
-
-SRCS		= $(OBJS:.obj=.cpp) \
-		  $(COBJS:.obj=.cpp)
+OBJS		= $(SLICE_OBJS) \
+		  Client.obj
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -29,8 +27,8 @@ LIBS		= icestorm$(LIBSUFFIX).lib $(LIBS)
 CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 !endif
 
-$(CLIENT): $(OBJS) $(COBJS)
-	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(CLIENT): $(OBJS)
+	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
@@ -52,5 +50,3 @@ clean::
 	if exist db\node rmdir /s /q db\node 
 	if exist db\registry rmdir /s /q db\registry 
 	if exist db\replica-1 rmdir /s /q db\replica-1
-
-!include .depend.mak

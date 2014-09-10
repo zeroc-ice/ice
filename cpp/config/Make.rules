@@ -337,8 +337,21 @@ EVERYTHING_EXCEPT_ALL   = depend clean install
 .SUFFIXES:
 .SUFFIXES:		.cpp .c .o
 
+ifneq ($(SLICE_OBJS),)
+-include $(addprefix .depend/, $(SLICE_OBJS:.o=.ice.d))
+endif
+
+ifneq ($(OBJS),)
+-include $(addprefix .depend/, $(OBJS:.o=.d))
+$(OBJS): $(OBJS:.o=.cpp)
+endif
+
+all:: $(TARGETS)
+
 .cpp.o:
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+	@mkdir -p .depend
+	@$(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $< > .depend/$(*F).d
 
 .c.o:
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
@@ -346,17 +359,23 @@ EVERYTHING_EXCEPT_ALL   = depend clean install
 $(HDIR)/%F.h: $(SDIR)/%F.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	rm -f $(HDIR)/$(*F)F.h $(*F)F.cpp
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $<
+	@mkdir -p .depend
+	@$(SLICE2CPP) $(SLICE2CPPFLAGS) --depend $< $< > .depend/$(*F)F.ice.d
 	mv $(*F)F.h $(HDIR)
 	rm -f $(*F)F.cpp
 
 $(HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	rm -f $(HDIR)/$(*F).h $(*F).cpp
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $<
+	@mkdir -p .depend
+	@$(SLICE2CPP) $(SLICE2CPPFLAGS) --depend $< $< > .depend/$(*F).ice.d
 	mv $(*F).h $(HDIR)
 
 %.h %.cpp: %.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	rm -f $(*F).h $(*F).cpp
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(*F).ice
+	@mkdir -p .depend
+	@$(SLICE2CPP) $(SLICE2CPPFLAGS) --depend $< $< > .depend/$(*F).ice.d
 
 %.h %.cpp: %.y
 	rm -f $(*F).h $(*F).cpp
@@ -372,35 +391,20 @@ $(HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	cat lex.yy.c >> $@
 	rm -f lex.yy.c
 
-all:: $(SRCS) $(TARGETS)
-
-depend:: $(SRCS) $(patsubst $(SDIR)/%.ice,$(HDIR)/%.h,$(wildcard $(SDIR)/*F.ice)) $(SLICE_SRCS)
-	-rm -f .depend .depend.mak
-	if test -n "$(SRCS)" ; then \
-		$(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | $(ice_dir)/config/makedepend.py; \
-	fi
-	if test -n "$(SLICE_SRCS)" ; then \
-		if test -n "$(HDIR)"; then \
-			$(SLICE2CPP) --depend $(SLICE2CPPFLAGS) $(SLICE_SRCS) | $(ice_dir)/config/makedepend.py "\$$(HDIR)"; \
-		else \
-			$(SLICE2CPP) --depend $(SLICE2CPPFLAGS) $(SLICE_SRCS) | $(ice_dir)/config/makedepend.py; \
-		fi \
-	fi
-
 clean::
 	-rm -f $(TARGETS)
-	-rm -f core *.o *.bak
+	-rm -f core *.o *.bak .depend/*.d
 
-ifneq ($(SLICE_SRCS),)
+ifneq ($(SLICE_OBJS),)
 clean::
-	rm -f $(addsuffix .cpp, $(basename $(notdir $(SLICE_SRCS))))
-	rm -f $(addsuffix .h, $(basename $(notdir $(SLICE_SRCS))))
+	rm -f $(addsuffix .cpp, $(basename $(notdir $(SLICE_OBJS))))
+	rm -f $(addsuffix .h, $(basename $(notdir $(SLICE_OBJS))))
 endif
 
 ifneq ($(HDIR),)
 clean::
 	rm -f $(addprefix $(HDIR), $(addsuffix .h, $(basename $(subst $(SDIR),, \
-	$(filter $(SDIR)/%.ice, $(SLICE_SRCS))))))
+	$(filter $(SDIR)/%.ice, $(SLICE_OBJS))))))
 endif
 
 ifneq ($(TEMPLATE_REPOSITORY),)

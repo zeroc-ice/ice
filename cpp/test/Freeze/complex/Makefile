@@ -13,16 +13,14 @@ CLIENT		= client
 
 TARGETS		= $(CLIENT)
 
-OBJS		= ComplexDict.o \
+SLICE_OBJS	= ComplexDict.o \
 		  Complex.o \
+
+OBJS		= $(SLICE_OBJS) \
 		  Grammar.o \
 		  Scanner.o \
 		  Parser.o \
 		  Client.o
-
-SRCS		= $(OBJS:.o=.cpp)
-
-SLICE_SRCS	= Complex.ice
 
 include $(top_srcdir)/config/Make.rules
 
@@ -42,5 +40,3 @@ ComplexDict.cpp: Complex.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 clean::
 	-rm -f ComplexDict.h ComplexDict.cpp
 	-rm -rf db/*
-
-include .depend

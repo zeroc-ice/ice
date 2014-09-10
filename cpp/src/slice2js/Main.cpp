@@ -187,8 +187,7 @@ compile(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->printMakefileDependencies(Preprocessor::JS, includePaths,
-                                                  "-D__SLICE2JS__"))
+            if(!icecpp->printMakefileDependencies(Preprocessor::JS,  output, includePaths, "-D__SLICE2JS__"))
             {
                 return EXIT_FAILURE;
             }

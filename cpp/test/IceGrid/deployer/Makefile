@@ -17,43 +17,39 @@ SVCSONAME	= $(call mksoname,TestService)
 
 TARGETS		= $(CLIENT) $(SERVER) $(SVCFILENAME) 
 
-OBJS		= Test.o
+SLICE_OBJS	= Test.o
 
-COBJS		= Client.o \
+COBJS		= $(SLICE_OBJS) \
+		  Client.o \
 		  AllTests.o
 
-SOBJS		= TestI.o \
+SOBJS		= $(SLICE_OBJS) \
+		  TestI.o \
 		  Server.o
 
-SERVICE_OBJS	= TestI.o \
+SERVICE_OBJS	= $(SLICE_OBJS) \
+		  TestI.o \
 		  Service.o
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp) \
-		  $(SERVICE_OBJS:.o=.cpp)
-
-SLICE_SRCS	= Test.ice
+OBJS		= $(COBJS) $(SOBJS) $(SERVICE_OBJS)
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 LINKWITH	:= -lIceBox $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
-$(CLIENT): $(OBJS) $(COBJS)
+$(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lIceGrid -lGlacier2 -lIceBox $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(COBJS) -lIceGrid -lGlacier2 -lIceBox $(LIBS)
 
-$(SERVER): $(OBJS) $(SOBJS)
+$(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
 
-$(SVCFILENAME): $(OBJS) $(SERVICE_OBJS)
+$(SVCFILENAME): $(SERVICE_OBJS)
 	rm -f $@
-	$(call mkshlib,$@,$(SVCSONAME),$(OBJS) $(SERVICE_OBJS), $(DB_RPATH_LINK) -lFreeze $(LINKWITH))
+	$(call mkshlib,$@,$(SVCSONAME),$(SERVICE_OBJS), $(DB_RPATH_LINK) -lFreeze $(LINKWITH))
 
 clean::
 	-rm -f build.txt log1.txt log2.txt log3.txt log4.txt
 	-rm -rf db/node db/registry db/replica-*
-
-include .depend

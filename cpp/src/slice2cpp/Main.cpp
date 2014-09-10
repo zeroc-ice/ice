@@ -220,7 +220,7 @@ compile(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->printMakefileDependencies(Preprocessor::CPlusPlus, includePaths,
+            if(!icecpp->printMakefileDependencies(Preprocessor::CPlusPlus, output, includePaths,
                                                   "-D__SLICE2CPP__", sourceExtension, headerExtension))
             {
                 return EXIT_FAILURE;

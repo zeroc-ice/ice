@@ -13,11 +13,7 @@ TARGETS		= client.exe
 
 C_SRCS		= Client.cs AllTests.cs ../../TestCommon/TestApp.cs
 
-SLICE_SRCS	= $(SDIR)/Test.ice
-
-SDIR		= .
-
-GDIR		= generated
+GEN_SRCS	= $(GDIR)/Test.cs
 
 include $(top_srcdir)/config/Make.rules.cs
 
@@ -33,5 +29,3 @@ Serializable.dll: Serializable.cs
 
 clean::
 	rm -f Serializable.dll
-
-include .depend

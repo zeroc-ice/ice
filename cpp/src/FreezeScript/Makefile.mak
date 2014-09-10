@@ -33,7 +33,7 @@ TRANSFORM_OBJS =  TransformAnalyzer.obj \
 DUMP_OBJS	= DumpDescriptors.obj \
 		  DumpDB.obj
 
-SRCS		= $(COMMON_OBJS:.obj=.cpp) $(TRANSFORM_OBJS:.obj=.cpp) $(DUMP_OBJS:.obj=.cpp)
+OBJS		= $(COMMON_OBJS) $(TRANSFORM_OBJS) $(DUMP_OBJS)
 
 HDIR		= $(headerdir)\FreezeScript
 
@@ -92,5 +92,3 @@ install:: all
 	copy $(DUMPDB:.exe=.pdb) "$(install_bindir)"
 
 !endif
-
-!include .depend.mak

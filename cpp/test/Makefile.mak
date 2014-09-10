@@ -20,7 +20,7 @@ SUBDIRS		= Ice
 SUBDIRS		= IceUtil \
 		  Slice \
 		  Ice \
-                  IceSSL \
+		  IceSSL \
 		  Glacier2 \
 		  Freeze \
 		  IceStorm \

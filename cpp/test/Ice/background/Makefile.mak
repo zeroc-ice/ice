@@ -16,17 +16,20 @@ DLLNAME		= testtransport$(SOVERSION)$(LIBSUFFIX).dll
 
 TARGETS		= $(CLIENT) $(SERVER) $(LIBNAME) $(DLLNAME)
 
-COBJS		= Configuration.obj \
-		  Test.obj \
+SLICE_OBJS = Test.obj
+
+COBJS		= $(SLICE_OBJS) \
+		  Configuration.obj \
 		  Client.obj \
 		  AllTests.obj
 
-SOBJS		= Configuration.obj \
-		  Test.obj \
+SOBJS		= $(SLICE_OBJS) \
+		  Configuration.obj \
 		  TestI.obj \
 		  Server.obj
 
-TRANSPORT_OBJS	= Configuration.obj \
+TRANSPORT_OBJS	= $(SLICE_OBJS) \
+		  Configuration.obj \
 		  Connector.obj \
 		  Acceptor.obj \
 		  EndpointI.obj \
@@ -34,9 +37,9 @@ TRANSPORT_OBJS	= Configuration.obj \
 		  EndpointFactory.obj \
 		  PluginI.obj
 
-SRCS		= $(TRANSPORT_OBJS:.obj=.cpp) \
-		  $(COBJS:.obj=.cpp) \
-		  $(SOBJS:.obj=.cpp)
+OBJS		= $(TRANSPORT_OBJS) \
+		  $(COBJS) \
+		  $(SOBJS)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -61,13 +64,11 @@ $(SERVER): $(SOBJS)
 
 $(LIBNAME) : $(DLLNAME)
 
-$(DLLNAME): $(OBJS) $(TRANSPORT_OBJS)
-	$(LINK) $(LD_DLLFLAGS) $(TPDBFLAGS) $(SETARGV) $(OBJS) $(TRANSPORT_OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH)
+$(DLLNAME): $(TRANSPORT_OBJS)
+	$(LINK) $(LD_DLLFLAGS) $(TPDBFLAGS) $(SETARGV) $(TRANSPORT_OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 clean::
 	del /q Test.cpp Test.h
-
-!include .depend.mak

@@ -9,19 +9,8 @@
 
 top_srcdir	= ../../..
 
-SLICE_SRCS	= Key.ice
+GEN_SRCS	= Key.php
+
+SLICE2PHPFLAGS  = --underscore
 
 include $(top_srcdir)/config/Make.rules.php
-
-SRCS	        = Key.php
-SLICE2PHPFLAGS  := --underscore $(SLICE2PHPFLAGS)
-
-all:: $(SRCS)
-
-%.php: %.ice
-	$(SLICE2PHP) $(SLICE2PHPFLAGS) $<
-
-clean::
-	rm -f $(SRCS)
-
-include .depend

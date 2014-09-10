@@ -23,7 +23,7 @@ TARGETS		= $(LIBNAME) $(DLLNAME) $(SERVER) $(ADMIN)
 
 SLICE_OBJS      = IceBox.obj
 
-OBJS		= Exception.obj \
+LIB_OBJS		= Exception.obj \
 		  $(SLICE_OBJS)
 
 SOBJS		= Service.obj \
@@ -31,9 +31,7 @@ SOBJS		= Service.obj \
 
 AOBJS		= Admin.obj
 
-SRCS		= $(OBJS:.obj=.cpp) \
-		  $(SOBJS:.obj=.cpp) \
-		  $(AOBJS:.obj=.cpp)
+OBJS		= $(LIB_OBJS) $(SOBJS) $(AOBJS)
 
 HDIR		= $(headerdir)\IceBox
 SDIR		= $(slicedir)\IceBox
@@ -56,8 +54,8 @@ ARES_FILE       = IceBoxAdmin.res
 
 $(LIBNAME): $(DLLNAME)
 
-$(DLLNAME): $(OBJS) IceBox.res
-	$(LINK) $(BASE):0x26000000 $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) $(RES_FILE)
+$(DLLNAME): $(LIB_OBJS) IceBox.res
+	$(LINK) $(BASE):0x26000000 $(LD_DLLFLAGS) $(PDBFLAGS) $(LIB_OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) $(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
@@ -96,5 +94,3 @@ install:: all
 	copy $(ADMIN:.exe=.pdb) "$(install_bindir)"
 
 !endif
-
-!include .depend.mak

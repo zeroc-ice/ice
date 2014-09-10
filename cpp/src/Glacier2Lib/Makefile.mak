@@ -27,8 +27,6 @@ OBJS		= Application.obj \
 		  SessionHelper.obj \
                   $(SLICE_OBJS)
 
-SRCS		= $(OBJS:.obj=.cpp)
-
 HDIR		= $(headerdir)\Glacier2
 SDIR		= $(slicedir)\Glacier2
 
@@ -73,5 +71,3 @@ install:: all
 	copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"
 
 !endif
-
-!include .depend.mak

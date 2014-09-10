@@ -105,27 +105,43 @@ SLICE2PYFLAGS	+= --ice
 
 Ice_%_ice.py: $(slicedir)/Ice/%.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) --prefix Ice_ --no-package $(SLICE2PYFLAGS) $<
+	@mkdir -p .depend
+	@$(SLICE2PY) --prefix Ice_ --no-package $(SLICE2PYFLAGS) --depend $< > .depend/Ice_$(*F).ice.d
 
 Ice_Metrics_ice.py: $(slicedir)/Ice/Metrics.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) --prefix Ice_ --checksum $(SLICE2PYFLAGS) $<
+	@mkdir -p .depend
+	@$(SLICE2PY) --prefix Ice_ --checksum $(SLICE2PYFLAGS) $< > .depend/Ice_$(*F).ice.d
 
 Glacier2_%_ice.py: $(slicedir)/Glacier2/%.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) --prefix Glacier2_ --no-package --checksum $(SLICE2PYFLAGS) $<
+	@mkdir -p .depend
+	@$(SLICE2PY) --prefix Glacier2_ --no-package --checksum $(SLICE2PYFLAGS) --depend $< > .depend/Glacier2_$(*F).ice.d
 
 Glacier2_Metrics_ice.py: $(slicedir)/Glacier2/Metrics.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) --prefix Glacier2_ --checksum $(SLICE2PYFLAGS) $<
+	@mkdir -p .depend
+	@$(SLICE2PY) --prefix Glacier2_ --checksum $(SLICE2PYFLAGS) --depend $< > .depend/Glacier2_$(*F).ice.d
 
 IceBox_%_ice.py: $(slicedir)/IceBox/%.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) --prefix IceBox_ --checksum $(SLICE2PYFLAGS) $<
+	@mkdir -p .depend
+	@$(SLICE2PY) --prefix IceBox_ --checksum $(SLICE2PYFLAGS) --depend $< > .depend/IceBox_$(*F).ice.d
 
 IceGrid_%_ice.py: $(slicedir)/IceGrid/%.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) --prefix IceGrid_ --checksum $(SLICE2PYFLAGS) $<
+	@mkdir -p .depend
+	@$(SLICE2PY) --prefix IceGrid_ --checksum $(SLICE2PYFLAGS) --depend $< > .depend/IceGrid_$(*F).ice.d
 
 IcePatch2_%_ice.py: $(slicedir)/IcePatch2/%.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) --prefix IcePatch2_ --checksum $(SLICE2PYFLAGS) $<
+	@mkdir -p .depend
+	@$(SLICE2PY) --prefix IcePatch2_ --checksum $(SLICE2PYFLAGS) --depend $< > .depend/IcePatch2_$(*F).ice.d
 
 IceStorm_%_ice.py: $(slicedir)/IceStorm/%.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) --prefix IceStorm_ --checksum $(SLICE2PYFLAGS) $<
+	@mkdir -p .depend
+	@$(SLICE2PY) --prefix IceStorm_ --checksum $(SLICE2PYFLAGS) --depend $< > .depend/IceStorm_$(*F).ice.d
 
 install:: $(ALL_SRCS)
 	@echo "Installing generated code"
@@ -135,28 +151,9 @@ install:: $(ALL_SRCS)
 	    $(INSTALL_DATA) -r $$i $(DESTDIR)$(install_pythondir) ; \
 	done
 
-depend::  $(ICE_SLICE) $(GLACIER2_SLICE) $(ICEBOX_SLICE) $(ICEGRID_SLICE) $(ICEPATCH2_SLICE) $(ICESTORM_SLICE)
-	-rm -f .depend .depend.mak
-	if test -n "$(ICE_SLICE)" ; then \
-	    $(SLICE2PY) --depend --prefix Ice_ $(SLICE2PYFLAGS) $(ICE_SLICE) | $(ice_dir)/config/makedepend.py; \
-	fi
-	if test -n "$(GLACIER2_SLICE)" ; then \
-	    $(SLICE2PY) --depend --prefix Glacier2_ $(SLICE2PYFLAGS) $(GLACIER2_SLICE) | $(ice_dir)/config/makedepend.py; \
-	fi
-	if test -n "$(ICEBOX_SLICE)" ; then \
-	    $(SLICE2PY) --depend --prefix IceBox_ $(SLICE2PYFLAGS) $(ICEBOX_SLICE) | $(ice_dir)/config/makedepend.py; \
-	fi
-	if test -n "$(ICEGRID_SLICE)" ; then \
-	    $(SLICE2PY) --depend --prefix IceGrid_ $(SLICE2PYFLAGS) $(ICEGRID_SLICE) | $(ice_dir)/config/makedepend.py; \
-	fi
-	if test -n "$(ICEPATCH2_SLICE)" ; then \
-	    $(SLICE2PY) --depend --prefix IcePatch2_ $(SLICE2PYFLAGS) $(ICEPATCH2_SLICE) | $(ice_dir)/config/makedepend.py; \
-	fi
-	if test -n "$(ICESTORM_SLICE)" ; then \
-	    $(SLICE2PY) --depend --prefix IceStorm_ $(SLICE2PYFLAGS) $(ICESTORM_SLICE) | $(ice_dir)/config/makedepend.py; \
-	fi
-
 clean::
 	rm -rf $(PACKAGES) *_ice.py
+	rm -f .depend/*.d
 
-include .depend
+
+-include $(wildcard .depend/*.d)

@@ -1699,7 +1699,7 @@ compile(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->printMakefileDependencies(Preprocessor::PHP, includePaths, "-D__SLICE2PHP__"))
+            if(!icecpp->printMakefileDependencies(Preprocessor::PHP, output, includePaths, "-D__SLICE2PHP__"))
             {
                 return EXIT_FAILURE;
             }

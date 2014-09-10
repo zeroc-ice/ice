@@ -165,31 +165,25 @@ EVERYTHING		= all depend clean install
 .SUFFIXES:
 .SUFFIXES:		.cpp .o .py
 
-all:: $(SRCS)
+ifneq ($(OBJS),)
+-include $(addprefix .depend/, $(OBJS:.o=.d))
 
-%_ice.py: $(slicedir)/%.ice
-	rm -f $(*F).py
-	$(SLICE2PY) $(SLICE2PYFLAGS) $<
+clean::
+	-rm -f .depend/*.d
+
+endif
 
 .cpp.o:
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+	@mkdir -p .depend
+	@$(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $< > .depend/$(*F).d
 
 clean::
 	-rm -f $(TARGETS)
 	-rm -f core *.o *.pyc *.bak
 	-rm -rf __pycache__
 
-all:: $(SRCS) $(TARGETS)
-
-ifneq ($(SRCS),)
-depend:: $(SRCS)
-	-rm -f .depend .depend.mak
-	if test -n "$(SRCS)" ; then \
-	    $(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | $(ice_dir)/config/makedepend.py; \
-	fi
-else
-depend::
-endif
+all:: $(TARGETS)
 
 ifneq ($(TEMPLATE_REPOSITORY),)
 clean::

@@ -279,7 +279,7 @@ Slice::Preprocessor::preprocess(bool keepComments, const string& extraArgs)
 }
 
 bool
-Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<string>& includePaths,
+Slice::Preprocessor::printMakefileDependencies(Language lang, const string& outputDir, const vector<string>& includePaths,
                                                const std::string& extraArgs, const string& cppSourceExt,
                                                const string& optValue)
 {
@@ -378,7 +378,17 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
     string result;
     if(lang != JavaXML)
     {
-        result = unprocessed.substr(0, pos);
+        if(!outputDir.empty())
+        {
+            result += outputDir + IceUtilInternal::separator;
+        }
+
+        if(lang == Python && !pyPrefix.empty())
+        {
+            result += pyPrefix;
+        }
+
+        result += unprocessed.substr(0, pos);
     }
 
     vector<string> fullIncludePaths;
@@ -579,10 +589,6 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
             //
             // Change .o[bj] suffix to .py suffix.
             //
-            if(pyPrefix.size() != 0)
-            {
-                result = pyPrefix + result;
-            }
             string::size_type pos;
             if((pos = result.find(suffix)) != string::npos)
             {

@@ -16,11 +16,8 @@ POLICY_TARGET	= $(POLICY).dll
 
 SRCS		= AssemblyInfo.cs
 
-SLICE_SRCS	= $(SDIR)/IceStorm.ice \
-			$(SDIR)/Metrics.ice
-
-SDIR		= $(slicedir)/IceStorm
-GDIR		= generated
+GEN_SRCS	= $(GDIR)/IceStorm.cs \
+			$(GDIR)/Metrics.cs
 
 include $(top_srcdir)/config/Make.rules.cs
 
@@ -31,7 +28,7 @@ MCSFLAGS	:= $(MCSFLAGS) /doc:$(assembliesdir)/$(PKG).xml /nowarn:1591
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) -I$(slicedir) --ice
 
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) $(call ref,Ice) $(subst /,$(DSEP),$^)
+	$(MCS) $(MCSFLAGS) $(call ref,Ice) $^
 
 install:: all
 	(cd $(assembliesdir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installpolicy,$(POLICY)); \
@@ -45,5 +42,3 @@ endif
 
 clean::
 	-rm -f $(assembliesdir)/$(PKG).xml
-
-include .depend

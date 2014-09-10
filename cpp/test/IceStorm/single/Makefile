@@ -14,30 +14,28 @@ SUBSCRIBER	= subscriber
 
 TARGETS		= $(PUBLISHER) $(SUBSCRIBER)
 
-OBJS		= Single.o
+SLICE_OBJS	= Single.o
 
-POBJS		= Publisher.o
+POBJS		= $(SLICE_OBJS) \
+		  Publisher.o
 
-SOBJS		= Subscriber.o
+SOBJS		= $(SLICE_OBJS) \
+		  Subscriber.o
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(POBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
-
-SLICE_SRCS	= Single.ice
+OBJS 		= $(POBJS) $(SOBJS)
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS) $(NO_DEPRECATED_FLAGS)
 LIBS		:= -lIceStorm $(LIBS)
 
-$(PUBLISHER): $(OBJS) $(POBJS)
+$(PUBLISHER): $(POBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(POBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(POBJS) $(LIBS)
 
-$(SUBSCRIBER): $(OBJS) $(SOBJS)
+$(SUBSCRIBER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
 
 clean::
 	-rm -f build.txt
@@ -45,5 +43,3 @@ clean::
 	-rm -rf 0.db/*
 	-rm -rf 1.db/*
 	-rm -rf 2.db/*
-
-include .depend

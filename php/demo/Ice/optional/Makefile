@@ -9,18 +9,6 @@
 
 top_srcdir	= ../../..
 
-SLICE_SRCS	= Contact.ice
+GEN_SRCS	= Contact.php
 
 include $(top_srcdir)/config/Make.rules.php
-
-SRCS	= Contact.php
-
-all:: $(SRCS)
-
-%.php: %.ice
-	$(SLICE2PHP) $(SLICE2PHPFLAGS) $<
-
-clean::
-	rm -f $(SRCS)
-
-include .depend

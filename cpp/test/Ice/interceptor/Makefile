@@ -13,16 +13,14 @@ CLIENT		= $(call mktestname,client)
 
 TARGETS		= $(CLIENT)
 
-OBJS		= Test.o \
-                  TestI.o \
+SLICE_OBJS	= Test.o
+
+OBJS		= $(SLICE_OBJS) \
+		  TestI.o \
 		  Client.o \
 		  InterceptorI.o \
 		  AMDInterceptorI.o \
 		  MyObjectI.o
-
-SRCS		= $(OBJS:.o=.cpp)
-
-SLICE_SRCS	= Test.ice
 
 include $(top_srcdir)/config/Make.rules
 
@@ -32,4 +30,3 @@ $(CLIENT): $(OBJS)
 	rm -f $@
 	$(call mktest,$@,$(OBJS),$(LIBS))
 
-include .depend

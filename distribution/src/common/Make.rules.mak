@@ -114,15 +114,60 @@ EVERYTHING		= all clean install
 .SUFFIXES:
 .SUFFIXES:		.ice .cpp .c .obj .res .rc
 
-.cpp.obj::
-	$(CXX) /c $(CPPFLAGS) $(CXXFLAGS) $<
+!if "$(SLICE_OBJS)" != ""
+
+SLICE_OBJS_DEPEND = $(SLICE_OBJS:.obj=.ice.d.mak)
+
+all:: .depend\ice.depend.mak
+
+.depend\ice.depend.mak: Makefile.mak
+	@echo Creating Slice dependencies list
+	@if not exist ".depend" mkdir .depend
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend-list.vbs $(SLICE_OBJS_DEPEND) > .depend\ice.depend.mak
+
+clean::
+	-del /q .depend\ice.depend.mak
+	-del /q .depend\*.ice.d.mak
+
+!endif
+
+!if exist(.depend\ice.depend.mak)
+!include .depend\ice.depend.mak
+!endif
+
+!if "$(OBJS)" != ""
+
+OBJS_DEPEND = $(OBJS:.obj=.d.mak)
+
+all:: .depend\depend.mak
+
+.depend\depend.mak: Makefile.mak
+	@echo Creating C++ dependencies list
+	@if not exist ".depend" mkdir .depend
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend-list.vbs $(OBJS_DEPEND) > .depend\depend.mak
+
+clean::
+	-del /q .depend\depend.mak
+	-del /q .depend\*.d.mak
+
+!endif
+
+!if exist(.depend\depend.mak)
+!include .depend\depend.mak
+!endif
+
+.cpp.obj:
+	$(CXX) /c $(CPPFLAGS) $(CXXFLAGS) /showIncludes $< | \
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend.vbs $<
 
 .c.obj:
-	$(CC) /c $(CPPFLAGS) $(CFLAGS) $<
+	$(CC) /c $(CPPFLAGS) $(CFLAGS) /showIncludes $< | \
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend.vbs $<
 
 .ice.cpp:
 	del /q $(*F).h $(*F).cpp
 	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) $(*F).ice
+	@"$(SLICE2CPP)" $(SLICE2CPPFLAGS) --depend $(*F).ice > .depend\$(*F).ice.d.mak
 
 .rc.res:
 	rc $(RCFLAGS) $<
@@ -134,7 +179,6 @@ all:: $(SRCS) $(TARGETS)
 
 clean::
 	-del /q $(TARGETS)
-
 !endif
 
 # Suffix set, we're using a debug build.

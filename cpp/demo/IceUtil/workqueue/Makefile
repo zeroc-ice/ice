@@ -15,8 +15,6 @@ TARGETS		= $(CLIENT)
 
 OBJS		= WorkQueue.o
 
-SRCS		= $(OBJS:.o=.cpp)
-
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
@@ -24,5 +22,3 @@ CPPFLAGS	:= -I. $(CPPFLAGS)
 $(CLIENT): $(OBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(BASELIBS)
-
-include .depend

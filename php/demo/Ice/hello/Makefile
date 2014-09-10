@@ -9,19 +9,6 @@
 
 top_srcdir	= ../../..
 
-SLICE_SRCS	= Hello.ice
+GEN_SRCS	= Hello.php
 
 include $(top_srcdir)/config/Make.rules.php
-
-SRCS	= Hello.php
-
-all:: $(SRCS)
-
-%.php: %.ice
-	$(SLICE2PHP) $(SLICE2PHPFLAGS) $<
-
-clean::
-	rm -f $(SRCS)
-
-
-include .depend

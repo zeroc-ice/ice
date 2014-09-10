@@ -37,10 +37,6 @@ OBJS		= AcceptorI.o \
 		  Util.o \
                   $(SLICE_OBJS)
 
-SRCS		= $(OBJS:.o=.cpp)
-
-SLICE_SRCS	= $(addprefix $(SDIR)/, $(SLICE_OBJS:.o=.ice))
-
 HDIR		= $(headerdir)/IceSSL
 SDIR  		= $(slicedir)/IceSSL
 
@@ -71,5 +67,3 @@ endif
 
 install:: all
 	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
-
-include .depend

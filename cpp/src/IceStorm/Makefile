@@ -27,7 +27,7 @@ SLICE_OBJS      = Election.o \
 		  V31Format.o \
 		  V32Format.o
 
-OBJS		= Instance.o \
+LIB_OBJS	= Instance.o \
 		  InstrumentationI.o \
 		  LLUMap.o \
 		  NodeI.o \
@@ -43,26 +43,24 @@ OBJS		= Instance.o \
 		  Util.o \
 		  V31FormatDB.o \
 		  V32FormatDB.o \
-                  $(SLICE_OBJS)
+		  $(SLICE_OBJS)
 
 AOBJS		= Admin.o \
 		  Grammar.o \
 		  Parser.o \
 		  Scanner.o \
-                  $(SLICE_OBJS)
+		  $(SLICE_OBJS)
 
 MOBJS		= LLUMap.o \
-                  Migrate.o \
-                  SubscriberMap.o \
-                  V31FormatDB.o \
+		  Migrate.o \
+		  SubscriberMap.o \
+		  V31FormatDB.o \
 		  V32FormatDB.o \
-                  $(SLICE_OBJS)
+		  $(SLICE_OBJS)
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(AOBJS:.o=.cpp) \
-		  $(MOBJS:.o=.cpp)
-
-SLICE_SRCS	= $(addprefix ../IceStorm/, $(SLICE_OBJS:.o=.ice))
+OBJS		= $(LIB_OBJS) \
+		  $(AOBJS) \
+		  $(MOBJS)
 
 HDIR		= $(headerdir)/IceStorm
 SDIR		= $(slicedir)/IceStorm
@@ -82,9 +80,9 @@ ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS	:= --ice --include-dir IceStorm --dll-export ICE_STORM_SERVICE_API $(SLICE2CPPFLAGS)
 LINKWITH	:= $(BZIP2_RPATH_LINK) -lIceStorm -lIceGrid -lGlacier2 -lFreeze -lIceBox -lIce -lIceUtil
 
-$(libdir)/$(LIBFILENAME): $(OBJS)
+$(libdir)/$(LIBFILENAME): $(LIB_OBJS)
 	rm -f $@
-	$(call mkshlib,$@,$(SONAME),$(OBJS),$(LINKWITH))
+	$(call mkshlib,$@,$(SONAME),$(LIB_OBJS),$(LINKWITH))
 
 $(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
 	rm -f $@
@@ -147,4 +145,3 @@ install:: all
 	$(call installprogram,$(MIGRATE),$(DESTDIR)$(install_bindir))
 	$(call installdata,$(top_srcdir)/../man/man1/icestormmigrate.1,$(DESTDIR)$(install_mandir))
 
-include .depend

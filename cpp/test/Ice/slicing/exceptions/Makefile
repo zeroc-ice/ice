@@ -30,11 +30,11 @@ SAMDOBJS	= TestAMD.o \
 		  TestAMDI.o \
 		  ServerAMD.o
 
-SRCS		= $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp) \
-		  $(SAMDOBJS:.o=.cpp)
+SLICE_OBJS	= Test.o TestAMD.o ClientPrivate.o ServerPrivate.o ServerPrivateAMD.o
 
-SLICE_SRCS	= Test.ice TestAMD.ice ClientPrivate.ice ServerPrivate.ice ServerPrivateAMD.ice
+OBJS 		= $(COBJS) \
+		  $(SOBJS) \
+		  $(SAMDOBJS)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -53,5 +53,3 @@ $(SERVER): $(SOBJS)
 $(SERVERAMD): $(SAMDOBJS)
 	rm -f $@
 	$(call mktest,$@,$(SAMDOBJS),$(LIBS))
-
-include .depend

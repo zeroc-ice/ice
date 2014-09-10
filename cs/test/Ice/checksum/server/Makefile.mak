@@ -31,5 +31,3 @@ SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -I. -I"$(slicedir)"
 
 server.exe: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(SRCS) $(GEN_SRCS)
-
-!include .depend.mak

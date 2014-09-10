@@ -34,5 +34,3 @@ client.exe: $(C_SRCS) $(SLICE_ASSEMBLY)
 helloservice.dll: $(S_SRCS) $(SLICE_ASSEMBLY)
 	$(VBC) $(VBCFLAGS) -target:library -out:$@ -r:"$(csbindir)\IceBox.dll" -r:"$(csbindir)\Ice.dll" \
 		-r:$(SLICE_ASSEMBLY) $(S_SRCS)
-
-!include .depend.mak

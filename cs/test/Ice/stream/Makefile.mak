@@ -34,5 +34,3 @@ client.exe: $(C_SRCS) $(GEN_SRCS) Serializable.dll
 
 Serializable.dll: Serializable.cs
 	$(MCS) $(MCSFLAGS) -target:library -out:Serializable.dll /keyfile:"$(KEYFILE)" Serializable.cs
-
-!include .depend.mak

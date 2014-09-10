@@ -27,9 +27,7 @@ OBJS		= Blobject.obj \
 		  RoutingTable.obj \
 		  ServerBlobject.obj \
 		  SessionRouterI.obj \
-                  $(SLICE_OBJS)
-
-SRCS		= $(OBJS:.obj=.cpp)
+		  $(SLICE_OBJS)
 
 !include $(top_srcdir)\config\Make.rules.mak
 
@@ -64,5 +62,3 @@ install:: all
 	copy $(ROUTER:.exe=.pdb) "$(install_bindir)"
 
 !endif
-
-!include .depend.mak

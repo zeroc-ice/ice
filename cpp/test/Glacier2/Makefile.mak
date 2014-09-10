@@ -11,14 +11,14 @@ top_srcdir	= ..\..
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-SUBDIRS		= router \
-		  attack \
-		  override \
-		  staticFiltering \
+SUBDIRS		= attack \
 		  dynamicFiltering \
+		  override \
+		  router \
 		  sessionControl \
 		  sessionHelper \
-		  ssl
+		  ssl \
+		  staticFiltering
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

@@ -16,26 +16,20 @@ S_SRCS		= Server.cs
 L_SRCS		= LoggerI.cs LoggerPluginFactoryI.cs
 H_SRCS		= HelloI.cs HelloPluginI.cs HelloPluginFactoryI.cs
 
-SLICE_SRCS	= $(SDIR)/Hello.ice
-
-SDIR		= .
-
-GDIR		= generated
+GEN_SRCS	= $(GDIR)/Hello.cs
 
 include $(top_srcdir)/config/Make.rules.cs
 
 MCSFLAGS	:= $(MCSFLAGS) -target:exe
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $^
 
 server.exe: $(S_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $^
 
 LoggerPlugin.dll: $(L_SRCS)
-	$(MCS) $(MCSFLAGS) -target:library -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
+	$(MCS) $(MCSFLAGS) -target:library -out:$@ $(call ref,Ice) $^
 
 HelloPlugin.dll: $(H_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -target:library -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
-
-include .depend
+	$(MCS) $(MCSFLAGS) -target:library -out:$@ $(call ref,Ice) $^

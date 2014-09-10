@@ -11,25 +11,25 @@ top_srcdir	= ..\..
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-SUBDIRS		= minimal \
-		  hello \
-		  latency \
-		  throughput \
-		  value \
-		  callback \
-		  nested \
-		  invoke \
+SUBDIRS		= async \
 		  bidir \
-		  session \
+		  callback \
+		  context \
 		  converter \
-		  async \
-		  multicast \
-		  nrvo \
-		  plugin \
+		  hello \
 		  interleaved \
-		  properties \
+		  invoke \
+		  latency \
+		  minimal \
+		  multicast \
+		  nested \
+		  nrvo \
 		  optional \
-		  context
+		  plugin \
+		  properties \
+		  session \
+		  throughput \
+		  value
 
 
 !if "$(HAS_MFC)" == "yes"

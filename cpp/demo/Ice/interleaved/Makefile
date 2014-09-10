@@ -14,18 +14,16 @@ SERVER		= server
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Throughput.o
+SLICE_OBJS	= Throughput.o
 
-COBJS		= Client.o
+COBJS		= $(SLICE_OBJS) \
+		  Client.o
 
-SOBJS		= Server.o \
+SOBJS		= $(SLICE_OBJS) \
+		  Server.o \
 		  ThroughputI.o
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
-
-SLICE_SRCS	= Throughput.ice
+OBJS 		= $(COBJS) $(SOBJS)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -40,12 +38,11 @@ endif
 CPPFLAGS         := -I. $(CPPFLAGS) $(EXTRA_CPPFLAGS)
 
 
-$(CLIENT): $(OBJS) $(COBJS)
+$(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
 
-$(SERVER): $(OBJS) $(SOBJS)
+$(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
 
-include .depend

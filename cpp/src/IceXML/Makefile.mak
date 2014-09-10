@@ -16,8 +16,6 @@ TARGETS		= $(LIBNAME) $(DLLNAME)
 
 OBJS		= Parser.obj
 
-SRCS		= $(OBJS:.obj=.cpp)
-
 !include $(top_srcdir)/config/Make.rules.mak
 
 CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_XML_API_EXPORTS -DWIN32_LEAN_AND_MEAN
@@ -53,5 +51,3 @@ install:: all
 	copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"
 
 !endif
-
-!include .depend.mak

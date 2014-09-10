@@ -18,9 +18,7 @@ SRCS		= LocatorI.cs \
 		  LookupI.cs \
 		  PluginI.cs
 
-SLICE_SRCS	= $(SDIR)/IceDiscovery.ice
-SDIR		= $(slicedir)/IceDiscovery
-GDIR		= generated
+GEN_SRCS	= $(GDIR)/IceDiscovery.cs
 
 include $(top_srcdir)/config/Make.rules.cs
 
@@ -31,7 +29,7 @@ MCSFLAGS	:= $(MCSFLAGS) /doc:$(assembliesdir)/$(PKG).xml /nowarn:1591
 SLICE2CSFLAGS   := $(SLICE2CSFLAGS) --ice -I$(slicedir)
 
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) $(call ref,Ice) $(subst /,$(DSEP),$^)
+	$(MCS) $(MCSFLAGS) $(call ref,Ice) $^
 
 $(GDIR)/IceDiscovery.cs: $(slicedir)/IceDiscovery/IceDiscovery.ice
 	$(SLICE2CS) --output-dir $(GDIR) $(SLICE2CSFLAGS) $<
@@ -48,5 +46,3 @@ endif
 
 clean::
 	-rm -f $(assembliesdir)/$(PKG).xml
-
-include .depend

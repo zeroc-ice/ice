@@ -12,23 +12,14 @@ top_srcdir = cpp
 
 SUBDIRS			= cpp java py js
 CLEAN_SUBDIRS		= js java py cpp
-DEPEND_SUBDIRS		= cpp py
 INSTALL_SUBDIRS		= cpp java py js
 TEST_SUBDIRS		= cpp java py js
 
-!if "$(CPP_COMPILER)" == "VC90"
-SUBDIRS			= $(SUBDIRS) php
-CLEAN_SUBDIRS		= php $(CLEAN_SUBDIRS)
-DEPEND_SUBDIRS		= $(DEPEND_SUBDIRS) php
-INSTALL_SUBDIRS		= $(INSTALL_SUBDIRS) php
-TEST_SUBDIRS		= $(TEST_SUBDIRS) php
-!else
 SUBDIRS			= $(SUBDIRS) cs vb vsaddin
 CLEAN_SUBDIRS		= cs vb vsaddin $(CLEAN_SUBDIRS)
 DEPEND_SUBDIRS		= $(DEPEND_SUBDIRS) cs vb
 INSTALL_SUBDIRS		= $(INSTALL_SUBDIRS) cs
 TEST_SUBDIRS		= $(TEST_SUBDIRS) cs
-!endif
 
 all::
 	@for %i in ( $(SUBDIRS) ) do \
@@ -39,11 +30,6 @@ clean::
 	@for %i in ( $(SUBDIRS) ) do \
 	    @echo "making clean in %i" && \
 	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) clean" || exit 1
-
-depend::
-	@for %i in ( $(DEPEND_SUBDIRS) ) do \
-	    @echo "making depend in %i" && \
-	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) depend" || exit 1
 
 install::
 	@for %i in ( $(TEST_SUBDIRS) ) do \

@@ -14,23 +14,17 @@ TARGETS		= client.exe server.exe
 C_SRCS		= Client.cs AllTests.cs generated/Test.cs
 S_SRCS		= Server.cs generated/Test.cs TestI.cs 
 
-SLICE_SRCS	= $(SDIR)/Test.ice
-
-SDIR		= .
-
-GDIR		= generated
+GEN_SRCS	= $(GDIR)/Test.cs
 
 include $(top_srcdir)/config/Make.rules.cs
 
 MCSFLAGS	:= $(MCSFLAGS) -target:exe
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,IceGrid) $(call ref,Ice) $(call ref,Glacier2) $(subst /,$(DSEP),$^)
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,IceGrid) $(call ref,Ice) $(call ref,Glacier2) $^
 
 server.exe: $(S_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(call ref,Glacier2) $(subst /,$(DSEP),$^)
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(call ref,Glacier2) $^
 
 clean::
 	-rm -rf db/node db/registry db/replica-*
-
-include .depend

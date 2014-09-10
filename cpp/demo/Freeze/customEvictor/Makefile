@@ -14,36 +14,35 @@ SERVER		= server
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Item.o
+SLICE_OBJS	= Item.o \
+		  ItemInfo.o \
+		  Database.o
 
-COBJS		= Client.o
+COBJS		= Item.o \
+		  Client.o
 
-SOBJS		= CurrentDatabase.o \
-		  Database.o \
+SOBJS		= $(SLICE_OBJS) \
+		  CurrentDatabase.o \
 		  Evictor.o \
 		  EvictorBase.o \
 		  ItemI.o \
-		  ItemInfo.o \
 		  Server.o \
 		  SimpleEvictor.o
 
-SRCS		= $(OBJS:.o=.cpp) \
-			  $(COBJS:.o=.cpp) \
-			  $(SOBJS:.o=.cpp)
-
-SLICE_SRCS	= Item.ice ItemInfo.ice
+OBJS 		= $(COBJS) \
+		  $(SOBJS)
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
 
-$(CLIENT): $(OBJS) $(COBJS)
+$(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
 
-$(SERVER): $(OBJS) $(SOBJS)
+$(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
 # The slice2freeze rules are structured like this to avoid issues with
 # parallel make.
@@ -55,5 +54,3 @@ Database.cpp: ItemInfo.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 clean::
 	-rm -rf db/__* db/items db/log* db/__Freeze
 	-rm -f Database.h Database.cpp
-
-include .depend

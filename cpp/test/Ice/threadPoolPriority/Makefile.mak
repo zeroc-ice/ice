@@ -15,21 +15,23 @@ SERVERCUSTOM	= servercustom.exe
 
 TARGETS		= $(CLIENT) $(SERVER) $(SERVERCUSTOM)
 
-COBJS		= Test.obj \
+SLICE_OBJS	= Test.obj
+
+COBJS		= $(SLICE_OBJS) \
 		  Client.obj \
 		  AllTests.obj
 
-SOBJS		= Test.obj \
+SOBJS		= $(SLICE_OBJS) \
 		  TestI.obj \
 		  Server.obj
 
-SCOBJS		= Test.obj \
+SCOBJS		= $(SLICE_OBJS) \
 		  TestI.obj \
 		  ServerCustomThreadPool.obj
 
-SRCS		= $(COBJS:.obj=.cpp) \
-		  $(SOBJS:.obj=.cpp) \
-		  $(SCOBJS:.obj=.cpp)
+OBJS		= $(COBJS) \
+		  $(SOBJS) \
+		  $(SCOBJS)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -58,5 +60,3 @@ $(SERVERCUSTOM): $(SCOBJS)
 
 clean::
 	del /q Test.cpp Test.h
-
-!include .depend.mak

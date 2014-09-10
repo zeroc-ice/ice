@@ -11,50 +11,52 @@ top_srcdir	= ..\..
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-SUBDIRS		= proxy \
-		  operations \
+SUBDIRS		= acm \
+		  adapterDeactivation \
+		  admin \
+		  ami \
+		  binding \
+		  dispatcher \
+		  echo \
+		  enums \
 		  exceptions \
+		  facets \
+		  hash \
+		  hold \
 		  info \
 		  inheritance \
-		  facets \
-		  objects \
-		  location \
-		  adapterDeactivation \
-		  hash \
-		  ami \
 		  invoke \
-		  dispatcher \
-		  hold \
-		  binding \
-		  retry \
-		  timeout \
-		  acm \
-		  udp \
-		  admin \
-		  plugin \
-		  stream \
+		  location \
 		  metrics \
+		  objects \
+		  operations \
 		  optional \
-		  enums \
-		  echo
+		  plugin \
+		  proxy \
+		  retry \
+		  stream \
+		  timeout \
+		  udp
 
 !if "$(WINRT)" != "yes"
 SUBDIRS		= $(SUBDIRS) \
-		  gc \
-		  slicing \
-		  faultTolerance \
-		  checksum \
-		  stringConverter \
 		  background \
-		  threadPoolPriority \
 		  custom \
-		  properties \
-		  servantLocator \
 		  defaultServant \
-		  interceptor \
 		  defaultValue \
+		  faultTolerance \
+		  gc \
+		  interceptor \
 		  logger \
 		  networkProxy
+		  properties \
+		  servantLocator \
+		  slicing \
+		  stringConverter \
+		  threadPoolPriority \
+  		  checksum \
+  		  defaultServant \
+  		  interceptor \
 !endif
 
 

@@ -14,24 +14,19 @@ SERVER		= server
 
 TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
 
-OBJS		= Casino.o
+SLICE_OBJS	= Casino.o CasinoStore.o
 
-COBJS		= Client.o \
+COBJS		= Casino.o \
+		  Client.o
 
-SOBJS		=  BankI.o \
+SOBJS		=  $(SLICE_OBJS) \
+		  BankI.o \
 		  BetI.o \
 		  BetResolver.o \
-		  CasinoStore.o \
 		  PlayerI.o \
 		  Server.o
 
-
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
-
-SLICE_SRCS	= Casino.ice \
-                  CasinoStore.ice
+OBJS 		= $(COBJS) $(SOBJS)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -39,15 +34,13 @@ CPPFLAGS	:= -I. $(CPPFLAGS)
 
 SLICE2CPPFLAGS	:= -I. $(SLICE2CPPFLAGS)
 
-$(CLIENT): $(OBJS) $(COBJS)
+$(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
 
-$(SERVER): $(OBJS) $(SOBJS)
+$(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
 clean::
 	-rm -rf db/__catalog db/__catalogIndexList db/bet db/bank db/player db/log.* db/__Freeze
-
-include .depend

@@ -14,12 +14,22 @@ SOURCE_DIR	= ..
 
 TARGETS         = $(LIBNAME)
 
+SLICE_SRCS	= ..\Metrics.cpp \
+		  ..\PermissionsVerifier.cpp \
+		  ..\PermissionsVerifierF.cpp \
+		  ..\Router.cpp \
+		  ..\RouterF.cpp \
+		  ..\Session.cpp \
+		  ..\SSLInfo.cpp
+
 OBJS		= $(ARCH)\$(CONFIG)\Metrics.obj \
 		  $(ARCH)\$(CONFIG)\PermissionsVerifier.obj \
+		  $(ARCH)\$(CONFIG)\PermissionsVerifierF.obj \
 		  $(ARCH)\$(CONFIG)\Router.obj \
+		  $(ARCH)\$(CONFIG)\RouterF.obj \
 		  $(ARCH)\$(CONFIG)\Session.obj \
-		  $(ARCH)\$(CONFIG)\SessionHelper.obj \
-		  $(ARCH)\$(CONFIG)\SSLInfo.obj
+		  $(ARCH)\$(CONFIG)\SSLInfo.obj \
+  		  $(ARCH)\$(CONFIG)\SessionHelper.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
 SRCS		= $(SRCS:x86\=)
@@ -34,14 +44,6 @@ SRCS		= $(SRCS) \
 HDIR		= $(headerdir)\Glacier2
 SDIR		= $(slicedir)\Glacier2
 
-SLICE_SRCS	= $(SDIR)/Metrics.ice \
-		  $(SDIR)/PermissionsVerifier.ice \
-		  $(SDIR)/PermissionsVerifierF.ice \
-		  $(SDIR)/Router.ice \
-		  $(SDIR)/RouterF.ice \
-		  $(SDIR)/Session.ice \
-		  $(SDIR)/SSLInfo.ice
-
 PDBNAME		= $(LIBNAME:.lib=.pdb)
 CPPFLAGS	= /Fd$(PDBNAME) -I..\.. $(CPPFLAGS) -DGLACIER2_API_EXPORTS -DWIN32_LEAN_AND_MEAN
 
@@ -51,16 +53,6 @@ SLICE2CPPFLAGS	= --ice --include-dir Glacier2 --dll-export GLACIER2_API $(SLICE2
 
 $(LIBNAME): $(OBJS) $(HDIR)\PermissionsVerifierF.h $(HDIR)\RouterF.h sdks
 	$(AR) $(ARFLAGS) $(OBJS) /out:$(LIBNAME)
-
-depend::
-	del /q .depend.mak
-
-.cpp.depend:
-	$(CXX) /Fo$(ARCH)\$(CONFIG)\ /Fd$(ARCH)\$(CONFIG)\ /Zs /showIncludes $(CXXFLAGS) $(CPPFLAGS) $< 2>&1 | python.exe $(ice_dir)/config/makedepend-winrt.py  $<
-
-depend:: $(ARCH)\$(CONFIG) $(SLICE_SRCS) $(SRCS) $(SRCS_DEPEND)
-	@if not "$(SLICE_SRCS)" == "" \
-		$(SLICE2CPP) --depend $(SLICE2CPPFLAGS) $(SLICE_SRCS) | python.exe $(ice_dir)\config\makedepend-winrt.py
 
 clean::
 	-del /q $(SOURCE_DIR)\PermissionsVerifierF.cpp $(HDIR)\PermissionsVerifierF.h
@@ -74,5 +66,3 @@ clean::
 	-del /q $(PDBNAME)
 
 install:: all
-
-!include .depend.mak

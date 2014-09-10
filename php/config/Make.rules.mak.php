@@ -39,7 +39,7 @@ USE_NAMESPACES		= no
 # Set PHP_HOME to your PHP source directory.
 #
 !if "$(PHP_HOME)" == ""
-PHP_HOME		= C:\php-5.5.15
+PHP_HOME		= C:\php-5.6.0
 !endif
 
 #
@@ -169,7 +169,7 @@ PHP_CPPFLAGS		= $(PHP_CPPFLAGS) -DZTS
 !endif
 
 ICECPPFLAGS		= -I"$(slicedir)"
-SLICE2PHPFLAGS		= $(ICECPPFLAGS)
+SLICE2PHPFLAGS		= $(ICECPPFLAGS) $(SLICE2PHPFLAGS)
 
 !if "$(USE_NAMESPACES)" == "yes"
 CPPFLAGS		= $(CPPFLAGS) -DICEPHP_USE_NAMESPACES
@@ -201,12 +201,52 @@ SLICEPARSERLIB		= $(ice_dir)\lib$(x64suffix)\sliced.lib
 EVERYTHING		= all clean install
 
 .SUFFIXES:
-.SUFFIXES:		.cpp .obj .php .res .rc
+.SUFFIXES:		.cpp .obj .php .res .rc .ice
 
 all:: $(SRCS)
 
-.cpp.obj::
-	$(CXX) /c $(CPPFLAGS) $(CXXFLAGS) $<
+!if "$(OBJS)" != ""
+
+OBJS_DEPEND = $(OBJS:.obj=.d.mak)
+
+all:: .depend\depend.mak
+
+.depend\depend.mak: Makefile.mak
+	@echo Creating C++ dependencies list
+	@if not exist ".depend" mkdir .depend
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend-list.vbs $(OBJS_DEPEND) > .depend\depend.mak
+!endif
+
+!if exist(.depend\depend.mak)
+!include .depend\depend.mak
+!endif
+
+!if "$(GEN_SRCS)" != ""
+
+DEPENDS = $(GEN_SRCS:.php=.ice.d.mak)
+
+all:: .depend\ice.depend.mak
+
+.depend\ice.depend.mak: Makefile.mak
+	@echo Creating Slice dependencies list
+	@if not exist ".depend" mkdir .depend
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend-list.vbs $(DEPENDS) > .depend\ice.depend.mak
+
+
+all:: $(GEN_SRCS)
+
+clean::
+	-del /q $(GEN_SRCS)
+
+!endif
+
+.cpp.obj:
+	$(CXX) /c $(CPPFLAGS) $(CXXFLAGS) /showIncludes $< | \
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend.vbs $<
+
+.ice.php:
+	"$(SLICE2PHP)" $(SLICE2PHPFLAGS) $<
+	"$(SLICE2PHP)" $(SLICE2PHPFLAGS) --depend $<> .depend\$(*F).ice.d.mak
 
 .rc.res:
 	rc $(RCFLAGS) $<

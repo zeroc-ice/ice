@@ -15,51 +15,50 @@ COLLOCATED	= collocated
 
 TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
 
-OBJS		= Library.o
+SLICE_OBJS	= Library.o \
+		  LibraryTypes.o
 
-COBJS		=  Client.o \
+COBJS		=  Library.o \
+		  Client.o \
 		  Grammar.o \
 		  Parser.o \
 		  RunParser.o \
 		  Scanner.o
 
-SOBJS		=  BookFactory.o \
+SOBJS		=  $(SLICE_OBJS) \
+		  BookFactory.o \
 		  LibraryI.o \
-		  LibraryTypes.o \
 		  Server.o
 
-COLOBJS		= BookFactory.o \
+COLOBJS		= $(SLICE_OBJS) \
+		  BookFactory.o \
 		  Collocated.o \
 		  Grammar.o \
 		  LibraryI.o \
-		  LibraryTypes.o \
 		  Parser.o \
 		  RunParser.o \
 		  Scanner.o
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp) \
-		  $(COLOBJS:.o=.cpp)
-
-SLICE_SRCS	= Library.ice
+OBJS 		= $(COBJS) \
+		  $(SOBJS) \
+		  $(COLOBJS)
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS) $(READLINE_FLAGS)
 SLICE2CPPFLAGS	:= --ice $(SLICE2CPPFLAGS)
 
-$(CLIENT): $(OBJS) $(COBJS)
+$(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS) $(READLINE_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS) $(READLINE_LIBS)
 
-$(SERVER): $(OBJS) $(SOBJS)
+$(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
-$(COLLOCATED): $(OBJS) $(COLOBJS)
+$(COLLOCATED): $(COLOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COLOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS) $(READLINE_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(COLOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS) $(READLINE_LIBS)
 
 # The slice2freeze rules are structured like this to avoid issues with
 # parallel make.
@@ -71,5 +70,3 @@ LibraryTypes.cpp: Library.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 clean::
 	-rm -rf db/*
 	-rm -f LibraryTypes.h LibraryTypes.cpp
-
-include .depend

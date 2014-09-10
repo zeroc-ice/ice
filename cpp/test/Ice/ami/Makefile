@@ -15,39 +15,37 @@ COLLOCATED	= $(call mktestname,collocated)
 
 TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
 
-OBJS		= Test.o \
+SLICE_OBJS	= Test.o
 
-COBJS		= Client.o \
+COBJS		= $(SLICE_OBJS) \
+		  Client.o \
 		  AllTests.o
 
-SOBJS		= TestI.o \
+SOBJS		= $(SLICE_OBJS) \
+		  TestI.o \
 		  Server.o
 
-COLOBJS		= TestI.o \
+COLOBJS		= $(SLICE_OBJS) \
+		  TestI.o \
 		  Collocated.o \
-		  AllTests.o \
+		  AllTests.o
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp) \
-		  $(COLOBJS:.o=.cpp)
-
-SLICE_SRCS	= Test.ice
+OBJS		= $(COBJS) \
+		  $(SOBJS) \
+		  $(COLOBJS)
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
-$(CLIENT): $(OBJS) $(COBJS)
+$(CLIENT): $(COBJS)
 	rm -f $@
-	$(call mktest,$@,$(OBJS) $(COBJS),$(LIBS))
+	$(call mktest,$@,$(COBJS),$(LIBS))
 
-$(SERVER): $(OBJS) $(SOBJS)
+$(SERVER): $(SOBJS)
 	rm -f $@
-	$(call mktest,$@,$(OBJS) $(SOBJS),$(LIBS))
+	$(call mktest,$@,$(SOBJS),$(LIBS))
 
-$(COLLOCATED): $(OBJS) $(COLOBJS)
+$(COLLOCATED): $(COLOBJS)
 	rm -f $@
-	$(call mktest,$@,$(OBJS) $(COLOBJS),$(LIBS))
-
-include .depend
+	$(call mktest,$@,$(COLOBJS),$(LIBS))

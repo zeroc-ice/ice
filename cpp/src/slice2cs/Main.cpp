@@ -214,7 +214,7 @@ compile(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->printMakefileDependencies(Preprocessor::CSharp, includePaths, 
+            if(!icecpp->printMakefileDependencies(Preprocessor::CSharp, output, includePaths, 
                                                   "-D__SLICE2CS__"))
             {
                 return EXIT_FAILURE;

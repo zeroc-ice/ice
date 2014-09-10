@@ -58,5 +58,3 @@ clean::
 
 install:: all
 	copy $(DLLNAME) "$(install_libdir)"
-
-!include .depend.mak

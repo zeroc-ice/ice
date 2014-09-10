@@ -20,21 +20,23 @@ PLUGINDLLNAME	= registryplugin$(SOVERSION)$(LIBSUFFIX).dll
 
 TARGETS		= $(CLIENT) $(SERVER) $(LIBNAME) $(DLLNAME) $(PLUGINLIBNAME) $(PLUGINDLLNAME)
 
-OBJS		= Test.obj
+SLICE_OBJS		= Test.obj
 
-COBJS		= Client.obj \
+COBJS		= $(SLICE_OBJS) \
+		  Client.obj \
 		  AllTests.obj
 
-SOBJS		= TestI.obj \
+SOBJS		= $(SLICE_OBJS) \
+		  TestI.obj \
 		  Server.obj
 
-SERVICE_OBJS	= TestI.obj \
+SERVICE_OBJS	= $(SLICE_OBJS) \
+		  TestI.obj \
 		  Service.obj
 
-SRCS		= $(OBJS:.obj=.cpp) \
-		  $(COBJS:.obj=.cpp) \
-		  $(SOBJS:.obj=.cpp) \
-		  $(SERVICE_OBJS:.obj=.cpp)
+OBJS		= $(COBJS) \
+		  $(SOBJS) \
+		  $(SERVICE_OBJS)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -49,10 +51,10 @@ SPDBFLAGS       = /pdb:$(SERVER:.exe=.pdb)
 
 $(LIBNAME) : $(DLLNAME)
 
-$(DLLNAME): $(OBJS) $(SERVICE_OBJS)
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(SETARGV) $(OBJS) $(SERVICE_OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH)
+$(DLLNAME): $(SERVICE_OBJS)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(SETARGV) $(SERVICE_OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
+		$(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 $(PLUGINLIBNAME) : $(PLUGINDLLNAME)
@@ -61,19 +63,19 @@ $(PLUGINDLLNAME): RegistryPlugin.obj
 	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(SETARGV) RegistryPlugin.obj $(PREOUT)$(PLUGINDLLNAME) $(PRELIBS)$(LINKWITH) \
 	  icegrid$(LIBSUFFIX).lib glacier2$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
+		$(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(PLUGINDLLNAME:.dll=.exp) del /q $(PLUGINDLLNAME:.dll=.exp)
 
-$(CLIENT): $(OBJS) $(COBJS)
-	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) \
+$(CLIENT): $(COBJS)
+	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) \
 	  icegrid$(LIBSUFFIX).lib glacier2$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
+		$(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(SERVER): $(OBJS) $(SOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(SERVER): $(SOBJS)
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
+		$(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 clean::
 	del /q Test.cpp Test.h
@@ -95,5 +97,3 @@ clean::
 	if exist db\node rmdir /s /q db\node 
 	if exist db\registry rmdir /s /q db\registry 
 	if exist db\replica-1 rmdir /s /q db\replica-1
-
-!include .depend.mak

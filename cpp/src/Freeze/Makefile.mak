@@ -14,7 +14,7 @@ DLLNAME		= $(top_srcdir)\bin\freeze$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
-SLICE_OBJS1     = BackgroundSaveEvictor.obj \
+SLICE_OBJS	= BackgroundSaveEvictor.obj \
 		  CatalogData.obj \
 		  Connection.obj \
 		  ConnectionF.obj \
@@ -24,13 +24,12 @@ SLICE_OBJS1     = BackgroundSaveEvictor.obj \
 		  EvictorStorage.obj \
 		  Exception.obj \
 		  Transaction.obj \
-		  TransactionalEvictor.obj
+		  TransactionalEvictor.obj \
+		  PingObject.obj
 
-SLICE_OBJS2     = PingObject.obj
-
-OBJS	        = BackgroundSaveEvictorI.obj \
+OBJS		= BackgroundSaveEvictorI.obj \
 		  Catalog.obj \
-                  CatalogIndexList.obj \
+		  CatalogIndexList.obj \
 		  ConnectionI.obj \
 		  EvictorI.obj \
 		  EvictorIteratorI.obj \
@@ -45,13 +44,13 @@ OBJS	        = BackgroundSaveEvictorI.obj \
 		  TransactionHolder.obj \
 		  TransactionI.obj \
 		  Util.obj \
-                  $(SLICE_OBJS1) \
-                  $(SLICE_OBJS2)
+		  $(SLICE_OBJS)
 
-SRCS		= $(OBJS:.obj=.cpp)
 
 HDIR		= $(headerdir)\Freeze
 SDIR		= $(slicedir)\Freeze
+
+all:: Catalog.cpp CatalogIndexList.cpp
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -113,5 +112,3 @@ install:: all
 	copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"
 
 !endif
-
-!include .depend.mak

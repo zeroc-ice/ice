@@ -41,8 +41,8 @@ public:
 
     enum Language { CPlusPlus, Java, JavaXML, CSharp, Python, Ruby, PHP, JS };
 
-    bool printMakefileDependencies(Language, const std::vector<std::string>&, const std::string& = "", const std::string& = "cpp",
-                                   const std::string& = "");
+    bool printMakefileDependencies(Language, const std::string&, const std::vector<std::string>&, 
+                                   const std::string& = "", const std::string& = "cpp", const std::string& = "");
 
     std::string getBaseName();
 

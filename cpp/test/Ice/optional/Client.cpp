@@ -9,7 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <TestCommon.h>
-#include <TestI.h>
+#include <Test.h>
 
 DEFINE_TEST("client")
 

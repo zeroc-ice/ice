@@ -15,21 +15,19 @@ VERIFIER	= verifier
 
 TARGETS		= $(CLIENT) $(SERVER) $(VERIFIER)
 
+SLICE_OBJS	= Test.o
+
 COBJS		= Client.o \
 		  AllTests.o \
-		  Test.o
+		  $(SLICE_OBJS)
 
 SOBJS		= Server.o \
-		  Test.o
+		  $(SLICE_OBJS)
 
 VOBJS		= PermissionsVerifier.o \
-		  Test.o
+		  $(SLICE_OBJS)
 
-SRCS		= $(COBJS:.o=.cpp) \
-		  $(VOBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
-
-SLICE_SRCS	= Test.ice
+OBJS 		= $(COBJS) $(SOBJS) $(VOBJS)
 
 GENPIC          = no
 
@@ -51,5 +49,3 @@ $(SERVER): $(SOBJS)
 
 clean::
 	-rm -rf db/node db/registry db/node-1 db/replica-*
-
-include .depend

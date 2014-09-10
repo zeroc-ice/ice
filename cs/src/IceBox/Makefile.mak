@@ -115,5 +115,3 @@ install:: all
 
 clean::
 	del /q $(ICEBOXNET).config
-
-!include .depend.mak

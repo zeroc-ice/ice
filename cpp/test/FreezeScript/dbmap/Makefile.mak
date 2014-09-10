@@ -13,13 +13,11 @@ CLIENT		= makedb.exe
 
 TARGETS		= $(CLIENT)
 
-OBJS		= TestOld.obj \
-                  makedb.obj \
-                  IntSMap.obj
+SLICE_OBJS	= IntSMap.obj \
+		  TestOld.obj
 
-SRCS		= $(OBJS:.obj=.cpp)
-
-SLICE_SRCS	= TestOld.ice
+OBJS		= $(SLICE_OBJS) \
+		  makedb.obj
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -40,8 +38,6 @@ IntSMap.h IntSMap.cpp: TestOld.ice "$(SLICE2FREEZE)" "$(SLICEPARSERLIB)"
 
 clean::
 	del /q IntSMap.h IntSMap.cpp
-
-clean::
 	del /q TestOld.cpp TestOld.h
 
 clean::
@@ -51,4 +47,3 @@ clean::
 	if exist db_check rmdir /s /q db_check
 	if exist db_tmp rmdir /s /q db_tmp
 
-!include .depend.mak

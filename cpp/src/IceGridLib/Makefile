@@ -29,13 +29,9 @@ SLICE_OBJS	= Admin.o \
 		  Session.o \
 		  UserAccountMapper.o
 
-LIB_OBJS	= DiscoveryPluginI.o \
+OBJS	= DiscoveryPluginI.o \
 		  PluginFacadeI.o \
                   $(SLICE_OBJS)
-
-SRCS		= $(LIB_OBJS:.o=.cpp)
-
-SLICE_SRCS	= $(addprefix $(SDIR)/, $(SLICE_OBJS:.o=.ice))
 
 HDIR		= $(headerdir)/IceGrid
 LOCAL_HDIR	= ../IceGrid
@@ -49,9 +45,9 @@ ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS 	:= --checksum --ice --include-dir IceGrid --dll-export ICE_GRID_API $(SLICE2CPPFLAGS)
 LINKWITH        := -lGlacier2 $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
-$(libdir)/$(LIBFILENAME): $(LIB_OBJS)
+$(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@
-	$(call mkshlib,$@,$(SONAME),$(LIB_OBJS),$(LINKWITH))
+	$(call mkshlib,$@,$(SONAME),$(OBJS),$(LINKWITH))
 
 $(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
 	rm -f $@
@@ -63,5 +59,3 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 
 install:: all
 	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
-
-include .depend

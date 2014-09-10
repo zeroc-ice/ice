@@ -38,5 +38,3 @@ serveramd.exe: $(SAMD_SRCS) $(GEN_AMD_SRCS)
 
 collocated.exe: $(COL_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(COL_SRCS) $(GEN_SRCS)
-
-!include .depend.mak

@@ -277,11 +277,52 @@ EVERYTHING		= all clean install
 .SUFFIXES:
 .SUFFIXES:		.cs .ice
 
-.ice.cs:
-	"$(SLICE2CS)" $(SLICE2CSFLAGS) $<
+!if "$(GEN_SRCS)" != ""
+GEN_DEPENDS = $(GEN_SRCS:.cs=.ice.d.mak)
+GEN_DEPENDS = $(GEN_DEPENDS:generated\=)
+DEPENDS = $(DEPENDS) $(GEN_DEPENDS)
+!endif
+
+!if "$(CGEN_SRCS)" != ""
+CGEN_DEPENDS = $(CGEN_SRCS:.cs=.ice.d.mak)
+CGEN_DEPENDS = $(CGEN_DEPENDS:generated\=)
+DEPENDS = $(DEPENDS) $(CGEN_DEPENDS)
+!endif
+
+!if "$(SGEN_SRCS)" != ""
+SGEN_DEPENDS = $(SGEN_SRCS:.cs=.ice.d.mak)
+SGEN_DEPENDS = $(SGEN_DEPENDS:generated\=)
+DEPENDS = $(DEPENDS) $(SGEN_DEPENDS)
+!endif
+
+!if "$(GEN_AMD_SRCS)" != ""
+GEN_AMD_DEPENDS = $(GEN_AMD_SRCS:.cs=.ice.d.mak)
+GEN_AMD_DEPENDS = $(GEN_AMD_DEPENDS:generated\=)
+DEPENDS = $(DEPENDS) $(GEN_AMD_DEPENDS)
+!endif
+
+!if "$(SAMD_GEN_SRCS)" != ""
+SAMD_GEN_DEPENDS = $(SAMD_GEN_SRCS:.cs=.ice.d.mak)
+SAMD_GEN_DEPENDS = $(SAMD_GEN_DEPENDS:generated\=)
+DEPENDS = $(DEPENDS) $(SAMD_GEN_DEPENDS)
+!endif
+
+!if "$(DEPENDS)" != ""
+all:: .depend\ice.depend.mak
+
+.depend\ice.depend.mak: Makefile.mak
+	@echo Creating Slice dependencies list
+	@if not exist ".depend" mkdir .depend
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend-list.vbs $(DEPENDS) > .depend\ice.depend.mak
+!endif
+
+!if exist(.depend\ice.depend.mak)
+!include .depend\ice.depend.mak
+!endif
 
 {$(SDIR)}.ice{$(GDIR)}.cs:
 	"$(SLICE2CS)" --output-dir $(GDIR) $(SLICE2CSFLAGS) $<
+	"$(SLICE2CS)" --output-dir $(GDIR) $(SLICE2CSFLAGS) --depend $<> .depend\$(*F).ice.d.mak
 
 all:: $(TARGETS)
 

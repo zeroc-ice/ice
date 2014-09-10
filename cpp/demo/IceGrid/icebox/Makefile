@@ -16,33 +16,29 @@ SONAME          = $(call mksoname,HelloService)
 
 TARGETS		= $(CLIENT) $(LIBFILENAME)
 
-OBJS		= Hello.o
+SLICE_OBJS	= Hello.o
 
-COBJS		= Client.o
+COBJS		= $(SLICE_OBJS) \
+		  Client.o
 
-SOBJS		= HelloI.o \
+SOBJS		= $(SLICE_OBJS) \
+		  HelloI.o \
 		  HelloServiceI.o
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
-
-SLICE_SRCS	= Hello.ice
+OBJS 		= $(COBJS) $(SOBJS)
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
 LINKWITH	:= -lIceBox $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
-$(LIBFILENAME): $(OBJS) $(SOBJS)
+$(LIBFILENAME): $(SOBJS)
 	rm -f $@
-	$(call mkshlib,$@,$(SONAME),$(OBJS) $(SOBJS),$(LINKWITH))
+	$(call mkshlib,$@,$(SONAME),$(SOBJS),$(LINKWITH))
 
-$(CLIENT): $(OBJS) $(COBJS)
+$(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
 
 clean::
 	-rm -rf db/node/* db/registry/*
-
-include .depend

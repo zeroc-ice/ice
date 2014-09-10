@@ -14,23 +14,17 @@ TARGETS		= publisher.exe subscriber.exe
 C_SRCS		= Publisher.cs
 S_SRCS		= Subscriber.cs
 
-SLICE_SRCS	= $(SDIR)/Clock.ice
-
-SDIR		= .
-
-GDIR		= generated
+GEN_SRCS	= $(GDIR)/Clock.cs
 
 include $(top_srcdir)/config/Make.rules.cs
 
 MCSFLAGS	:= $(MCSFLAGS) -target:exe
 
 publisher.exe: $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(call ref,IceStorm) $(subst /,$(DSEP),$^)
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(call ref,IceStorm) $^
 
 subscriber.exe: $(S_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(call ref,IceStorm) $(subst /,$(DSEP),$^)
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(call ref,IceStorm) $^
 
 clean::
 	-rm -rf db/*
-
-include .depend

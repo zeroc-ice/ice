@@ -122,35 +122,32 @@ SRCS		= Acceptor.cs \
 		  WSAcceptor.cs \
 		  WSConnector.cs \
 		  WSEndpoint.cs \
-		  WSTransceiver.cs
+		  WSTransceiver.cs \
 
-SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
-		  $(SDIR)/Communicator.ice \
-		  $(SDIR)/Connection.ice \
-		  $(SDIR)/Current.ice \
-		  $(SDIR)/Endpoint.ice \
-		  $(SDIR)/EndpointTypes.ice \
-		  $(SDIR)/FacetMap.ice \
-		  $(SDIR)/Identity.ice \
-		  $(SDIR)/ImplicitContext.ice \
-		  $(SDIR)/Instrumentation.ice \
-		  $(SDIR)/LocalException.ice \
-		  $(SDIR)/Locator.ice \
-		  $(SDIR)/Logger.ice \
-		  $(SDIR)/Metrics.ice \
-		  $(SDIR)/ObjectAdapter.ice \
-		  $(SDIR)/ObjectFactory.ice \
-		  $(SDIR)/Plugin.ice \
-		  $(SDIR)/Process.ice \
-		  $(SDIR)/Properties.ice \
-		  $(SDIR)/PropertiesAdmin.ice \
-		  $(SDIR)/Router.ice \
-		  $(SDIR)/ServantLocator.ice \
-		  $(SDIR)/SliceChecksumDict.ice \
-		  $(SDIR)/Version.ice \
-
-SDIR		= $(slicedir)/Ice
-GDIR		= generated
+GEN_SRCS	= $(GDIR)/BuiltinSequences.cs \
+		  $(GDIR)/Communicator.cs \
+		  $(GDIR)/Connection.cs \
+		  $(GDIR)/Current.cs \
+		  $(GDIR)/Endpoint.cs \
+		  $(GDIR)/EndpointTypes.cs \
+		  $(GDIR)/FacetMap.cs \
+		  $(GDIR)/Identity.cs \
+		  $(GDIR)/ImplicitContext.cs \
+		  $(GDIR)/Instrumentation.cs \
+		  $(GDIR)/LocalException.cs \
+		  $(GDIR)/Locator.cs \
+		  $(GDIR)/Logger.cs \
+		  $(GDIR)/Metrics.cs \
+		  $(GDIR)/ObjectAdapter.cs \
+		  $(GDIR)/ObjectFactory.cs \
+		  $(GDIR)/Plugin.cs \
+		  $(GDIR)/Process.cs \
+		  $(GDIR)/Properties.cs \
+		  $(GDIR)/PropertiesAdmin.cs \
+		  $(GDIR)/Router.cs \
+		  $(GDIR)/ServantLocator.cs \
+		  $(GDIR)/SliceChecksumDict.cs \
+		  $(GDIR)/Version.cs \
 
 include $(top_srcdir)/config/Make.rules.cs
 
@@ -167,7 +164,7 @@ endif
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --ice -I$(slicedir)
 
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) $(subst /,$(DSEP),$^)
+	$(MCS) $(MCSFLAGS) $^
 	$(INSTALL) $(LIBNAME).config $(assembliesdir)
 
 clean::
@@ -193,5 +190,3 @@ $(GDIR)/BuiltinSequences.cs: $(SDIR)/BuiltinSequences.ice $(SLICE2CPP) $(SLICEPA
 	rm -f $(GDIR)/BuiltinSequences.cs
 	$(SLICE2CS) $(SLICE2CSFLAGS) --stream $(SDIR)/BuiltinSequences.ice
 	mv BuiltinSequences.cs $(GDIR)
-
-include .depend

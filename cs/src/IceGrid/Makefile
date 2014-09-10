@@ -18,20 +18,17 @@ SRCS		= AssemblyInfo.cs \
 		  DiscoveryPluginI.cs \
 		  DiscoveryPluginFactoryI.cs
 
-SLICE_SRCS	= $(SDIR)/Admin.ice \
-		  $(SDIR)/Descriptor.ice \
-		  $(SDIR)/Discovery.ice \
-		  $(SDIR)/Exception.ice \
-		  $(SDIR)/FileParser.ice \
-		  $(SDIR)/Locator.ice \
-		  $(SDIR)/Observer.ice \
-		  $(SDIR)/Query.ice \
-		  $(SDIR)/Registry.ice \
-		  $(SDIR)/Session.ice \
-		  $(SDIR)/UserAccountMapper.ice
-
-SDIR		= $(slicedir)/IceGrid
-GDIR		= generated
+GEN_SRCS	= $(GDIR)/Admin.cs \
+		  $(GDIR)/Descriptor.cs \
+		  $(GDIR)/Discovery.cs \
+		  $(GDIR)/Exception.cs \
+		  $(GDIR)/FileParser.cs \
+		  $(GDIR)/Locator.cs \
+		  $(GDIR)/Observer.cs \
+		  $(GDIR)/Query.cs \
+		  $(GDIR)/Registry.cs \
+		  $(GDIR)/Session.cs \
+		  $(GDIR)/UserAccountMapper.cs
 
 include $(top_srcdir)/config/Make.rules.cs
 
@@ -42,7 +39,7 @@ MCSFLAGS	:= $(MCSFLAGS) /doc:$(assembliesdir)/$(PKG).xml /nowarn:1591
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --ice -I$(slicedir)
 
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) $(call ref,Glacier2) $(call ref,Ice) $(subst /,$(DSEP),$^)
+	$(MCS) $(MCSFLAGS) $(call ref,Glacier2) $(call ref,Ice) $^
 
 install:: all
 	(cd $(assembliesdir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installpolicy,$(POLICY)); \
@@ -56,5 +53,3 @@ endif
 
 clean::
 	-rm -f $(assembliesdir)/$(PKG).xml
-
-include .depend

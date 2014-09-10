@@ -21,11 +21,12 @@ SERVER		= $(NAME_PREFIX)server
 
 TARGETS		= $(SERVER)$(EXT)
 
-SOBJS		= BlobjectI.obj \
-		  Test.obj \
+SLICE_OBJS	= Test.obj
+
+OBJS		= $(SLICE_OBJS) \
+		  BlobjectI.obj \
 		  Server.obj
 
-SRCS		= $(SOBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -42,12 +43,10 @@ CPDBFLAGS        = /pdb:$(CLIENT).pdb
 SPDBFLAGS        = /pdb:$(SERVER).pdb
 !endif
 
-$(SERVER)$(EXT): $(SOBJS)
-	$(LINK) $(LD_TESTFLAGS) $(SPDBFLAGS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(SERVER)$(EXT): $(OBJS)
+	$(LINK) $(LD_TESTFLAGS) $(SPDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 clean::
 	del /q Test.cpp Test.h
-
-!include .depend.mak

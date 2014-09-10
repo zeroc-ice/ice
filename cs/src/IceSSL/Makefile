@@ -27,12 +27,8 @@ SRCS		= AcceptorI.cs \
 		  TrustManager.cs \
 		  Util.cs
 
-SLICE_SRCS	= $(SDIR)/ConnectionInfo.ice \
-		  $(SDIR)/EndpointInfo.ice
-
-
-SDIR		= $(slicedir)/IceSSL
-GDIR		= generated
+GEN_SRCS	= $(GDIR)/ConnectionInfo.cs \
+		  $(GDIR)/EndpointInfo.cs
 
 include $(top_srcdir)/config/Make.rules.cs
 
@@ -43,7 +39,7 @@ MCSFLAGS	:= $(MCSFLAGS) /doc:$(assembliesdir)/$(PKG).xml /nowarn:1591
 SLICE2CSFLAGS   := $(SLICE2CSFLAGS) --ice -I$(slicedir)
 
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) $(call ref,Ice) $(subst /,$(DSEP),$^)
+	$(MCS) $(MCSFLAGS) $(call ref,Ice) $^
 
 install:: all
 	(cd $(assembliesdir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installpolicy,$(POLICY)); \
@@ -57,5 +53,3 @@ endif
 
 clean::
 	-rm -f $(assembliesdir)/$(PKG).xml
-
-include .depend

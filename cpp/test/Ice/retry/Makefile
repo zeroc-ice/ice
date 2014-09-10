@@ -30,11 +30,11 @@ COLOBJS		= Test.o \
 		  InstrumentationI.o \
 		  AllTests.o
 
-SRCS		= $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp) \
-		  $(COLOBJS:.o=.cpp)
+SLICE_OBJS	= Test.o
 
-SLICE_SRCS	= Test.ice
+OBJS 		= $(COBJS) \
+		  $(SOBJS) \
+		  $(COLOBJS)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -51,5 +51,3 @@ $(SERVER): $(SOBJS)
 $(COLLOCATED): $(COLOBJS)
 	rm -f $@
 	$(call mktest,$@,$(COLOBJS),$(LIBS))
-
-include .depend

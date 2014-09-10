@@ -13,14 +13,13 @@ CLIENT		= client.exe
 
 TARGETS		= $(CLIENT)
 
-OBJS		= ComplexDict.obj \
-		  Complex.obj \
+SLICE_OBJS	= Complex.obj ComplexDict.obj
+
+OBJS		= $(SLICE_OBJS) \
 		  Grammar.obj \
 		  Scanner.obj \
 		  Parser.obj \
 		  Client.obj
-
-SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)\config\Make.rules.mak
 
@@ -58,5 +57,3 @@ clean::
 	del /q ComplexDict.h ComplexDict.cpp
 	-if exist db\__Freeze rmdir /q /s db\__Freeze
 	-for %f in (db\*) do if not %f == db\.gitignore del /q %f
-
-!include .depend.mak

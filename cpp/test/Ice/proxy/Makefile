@@ -33,12 +33,12 @@ COLOBJS		= Test.o \
 		  Collocated.o \
 		  AllTests.o
 
-SRCS		= $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp) \
-		  $(SAMDOBJS:.o=.cpp) \
-		  $(COLOBJS:.o=.cpp)
+SLICE_OBJS	= Test.o TestAMD.o
 
-SLICE_SRCS	= Test.ice TestAMD.ice
+OBJS 		= $(COBJS) \
+		  $(SOBJS) \
+		  $(SAMDOBJS) \
+		  $(COLOBJS)
 
 
 #
@@ -67,5 +67,3 @@ $(SERVERAMD): $(SAMDOBJS)
 $(COLLOCATED): $(COLOBJS)
 	rm -f $@
 	$(call mktest,$@,$(COLOBJS),$(LIBS))
-
-include .depend

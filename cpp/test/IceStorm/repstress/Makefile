@@ -15,36 +15,32 @@ CONTROL		= control
 
 TARGETS		= $(PUBLISHER) $(SUBSCRIBER) $(CONTROL)
 
-OBJS		= Single.o \
+SLICE_OBJS	= Single.o \
 		  Controller.o
 
-POBJS		= Publisher.o
+POBJS		= $(SLICE_OBJS) \
+		  Publisher.o
 
-SOBJS		= Subscriber.o
+SOBJS		= $(SLICE_OBJS) \
+		  Subscriber.o
 
 COBJS		= Control.o \
 		  Controller.o
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(COBJS:.o=.cpp) \
-		  $(POBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
-
-SLICE_SRCS	= Single.ice \
-		  Controller.ice
+OBJS 		= $(POBJS) $(SOBJS) $(COBJS)
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 LIBS		:= -lIceStorm $(LIBS)
 
-$(PUBLISHER): $(OBJS) $(POBJS)
+$(PUBLISHER): $(POBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(POBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(POBJS) $(LIBS)
 
-$(SUBSCRIBER): $(OBJS) $(SOBJS)
+$(SUBSCRIBER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
 
 $(CONTROL): $(COBJS)
 	rm -f $@
@@ -55,5 +51,3 @@ clean::
 	-rm -rf 0.db/*
 	-rm -rf 1.db/*
 	-rm -rf 2.db/*
-
-include .depend
