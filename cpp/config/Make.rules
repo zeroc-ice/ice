@@ -390,10 +390,6 @@ depend:: $(SRCS) $(patsubst $(SDIR)/%.ice,$(HDIR)/%.h,$(wildcard $(SDIR)/*F.ice)
 clean::
 	-rm -f $(TARGETS)
 	-rm -f core *.o *.bak
-<<<<<<< HEAD
-	-rm -rf .depend
-=======
->>>>>>> parent of 201d395... Fixed (ICE-3792) - dependencies in the repository are very crappy
 
 ifneq ($(SLICE_SRCS),)
 clean::
