@@ -13,18 +13,19 @@ CLIENT		= client
 
 TARGETS		= $(CLIENT)
 
-SLICE_OBJS	= IntLongMap.o
+OBJS		= Client.o IntLongMap.o
 
-OBJS		= $(SLICE_OBJS) \
-		  Client.o
+SRCS		= $(OBJS:.o=.cpp)
+
+SLICE_SRCS	=
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
 
-$(CLIENT): $(OBJS)
+$(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
 # The slice2freeze rules are structured like this to avoid issues with
 # parallel make.
@@ -37,3 +38,5 @@ clean::
 	-rm -f IntLongMap.h IntLongMap.cpp
 	-rm -rf db/__* db/data/* db/logs/* db/__Freeze
 	-rm -rf hotbackup hotbackup.1
+
+include .depend

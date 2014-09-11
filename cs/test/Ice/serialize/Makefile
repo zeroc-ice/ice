@@ -13,7 +13,11 @@ TARGETS		= client.exe
 
 C_SRCS		= Client.cs AllTests.cs ../../TestCommon/TestApp.cs
 
-GEN_SRCS	= $(GDIR)/Test.cs
+SLICE_SRCS	= $(SDIR)/Test.ice
+
+SDIR		= .
+
+GDIR		= generated
 
 include $(top_srcdir)/config/Make.rules.cs
 
@@ -23,3 +27,5 @@ SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --stream -I. -I$(slicedir)
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(C_SRCS) $(GEN_SRCS)
+
+include .depend

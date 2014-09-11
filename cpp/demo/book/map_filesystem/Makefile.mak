@@ -14,23 +14,22 @@ SERVER		= server.exe
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-SLICE_OBJS	= Filesystem.obj \
-		  FilesystemDB.obj \
-		  IdentityDirectoryEntryMap.obj \
-		  IdentityFileEntryMap.obj
+OBJS		= Filesystem.obj
 
-COBJS		= Filesystem.obj \
-		  Client.obj \
+COBJS		= Client.obj \
 		  Grammar.obj \
 		  Parser.obj \
 		  Scanner.obj
 
-SOBJS		= $(SLICE_OBJS) \
+SOBJS		= FilesystemDB.obj \
 		  FilesystemI.obj \
+		  IdentityDirectoryEntryMap.obj \
+		  IdentityFileEntryMap.obj \
 		  Server.obj
 
-OBJS		= $(COBJS) \
-		  $(SOBJS)
+SRCS		= $(OBJS:.obj=.cpp) \
+		  $(COBJS:.obj=.cpp) \
+		  $(SOBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -42,13 +41,13 @@ CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 !endif
 
-$(CLIENT): $(COBJS)
-	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(CLIENT): $(OBJS) $(COBJS)
+	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(SERVER): $(SOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
+$(SERVER): $(OBJS) $(SOBJS)
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
@@ -89,3 +88,5 @@ clean::
 clean::
 	-if exist db\__Freeze rmdir /q /s db\__Freeze
 	-for %f in (db\*) do if not %f == db\.gitignore del /q %f
+
+!include .depend.mak

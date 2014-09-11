@@ -20,23 +20,21 @@ HELLODLLNAME   	= helloplugin$(SOVERSION)$(LIBSUFFIX).dll
 
 TARGETS		= $(CLIENT) $(SERVER) $(LOGGERDLLNAME) $(HELLODLLNAME)
 
-SLICE_OBJS	= Hello.obj
+OBJS		= Hello.obj
 
-COBJS		= $(SLICE_OBJS) \
-		  Client.obj
+COBJS		= Client.obj
 
-SOBJS		= $(SLICE_OBJS) \
-		  Server.obj
+SOBJS		= Server.obj
 
 LOBJS		= LoggerPluginI.obj
 
-HOBJS		= $(SLICE_OBJS) \
-		  HelloPluginI.obj
+HOBJS		= HelloPluginI.obj
 
-OBJS		= $(COBJS) \
-		  $(SOBJS) \
-		  $(LOBJS) \
-		  $(HOBJS)
+SRCS		= $(OBJS:.obj=.cpp) \
+		  $(COBJS:.obj=.cpp) \
+		  $(SOBJS:.obj=.cpp) \
+		  $(LOBJS:.obj=.cpp) \
+		  $(HOBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -49,13 +47,13 @@ LPDBFLAGS        = /pdb:$(LOGGERDLLNAME:.dll=.pdb)
 HPDBFLAGS        = /pdb:$(HELLODLLNAME:.dll=.pdb)
 !endif
 
-$(CLIENT): $(COBJS)
-	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(CLIENT): $(OBJS) $(COBJS)
+	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(SERVER): $(SOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(SERVER): $(OBJS) $(SOBJS)
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
@@ -69,8 +67,8 @@ $(LOGGERDLLNAME): $(LOBJS)
 
 $(HELLOLIBNAME) : $(HELLODLLNAME)
 
-$(HELLODLLNAME): $(HOBJS)
-	$(LINK) $(LD_DLLFLAGS) $(HPDBFLAGS) $(SETARGV) $(HOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(HELLODLLNAME): $(OBJS) $(HOBJS)
+	$(LINK) $(LD_DLLFLAGS) $(HPDBFLAGS) $(SETARGV) $(OBJS) $(HOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(LOGGERDLLNAME:.dll=.exp) del /q $(LOGGERDLLNAME:.dll=.exp)
@@ -78,3 +76,5 @@ $(HELLODLLNAME): $(HOBJS)
 clean::
 	del /q Hello.cpp Hello.h
 	del /q $(LOGGERLIBNAME) $(HELLOLIBNAME)
+
+!include .depend.mak

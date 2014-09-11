@@ -31,6 +31,8 @@ OBJS		= AcceptorI.obj \
 		  Util.obj \
                   $(SLICE_OBJS)
 
+SRCS		= $(OBJS:.obj=.cpp)
+
 HDIR		= $(headerdir)\IceSSL
 SDIR		= $(slicedir)\IceSSL
 
@@ -72,3 +74,5 @@ install:: all
 	copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"
 
 !endif
+
+!include .depend.mak

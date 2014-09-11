@@ -141,5 +141,7 @@ endif
 
 install::
 
+depend::
+
 EVERYTHING		= all clean install lint
 EVERYTHING_EXCEPT_ALL	= install clean lint

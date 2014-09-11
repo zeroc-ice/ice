@@ -14,25 +14,28 @@ SERVER		= server
 
 TARGETS		= $(CLIENT) $(SERVER) 
 
-SLICE_OBJS	= Session.o
+COBJS		= Client.o \
+		  Session.o
 
-COBJS		= $(SLICE_OBJS) \
-		  Client.o
-
-SOBJS		= $(SLICE_OBJS) \
-		  Server.o \
+SOBJS		= Server.o \
+		  Session.o \
 		  SessionI.o
 
-OBJS 		= $(COBJS) $(SOBJS)
+SRCS		= $(COBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp)
+
+SLICE_SRCS	= Session.ice
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
-$(CLIENT): $(COBJS)
+$(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) -lGlacier2 $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lGlacier2 $(LIBS)
 
-$(SERVER): $(SOBJS)
+$(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lGlacier2 $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) -lGlacier2 $(LIBS)
+
+include .depend

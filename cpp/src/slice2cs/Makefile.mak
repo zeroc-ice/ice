@@ -16,6 +16,8 @@ TARGETS		= $(NAME)
 OBJS		= Gen.obj \
 		  Main.obj
 
+SRCS		= $(OBJS:.obj=.cpp)
+
 !include $(top_srcdir)/config/Make.rules.mak
 
 CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
@@ -45,3 +47,5 @@ install:: all
 	copy $(NAME:.exe=.pdb) "$(install_bindir)"
 
 !endif
+
+!include .depend.mak

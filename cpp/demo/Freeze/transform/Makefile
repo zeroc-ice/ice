@@ -16,14 +16,16 @@ RECREATE        = recreate
 
 TARGETS		= $(CREATE) $(READ) $(READNEW) $(RECREATE)
 
-SLICE_OBJS		= ContactData.o NewContactData.o
-
 CREATE_OBJS     = ContactData.o Contacts.o create.o
 READ_OBJS       = ContactData.o Contacts.o read.o
 READNEW_OBJS    = NewContactData.o NewContacts.o readnew.o
 RECREATE_OBJS   = NewContactData.o NewContacts.o recreate.o
 
 OBJS		= $(CREATE_OBJS) $(READ_OBJS) $(READNEW_OBJS) $(RECREATE_OBJS)
+
+SRCS		= $(OBJS:.o=.cpp)
+
+SLICE_SRCS	= ContactData.ice NewContactData.ice
 
 include $(top_srcdir)/config/Make.rules
 
@@ -66,3 +68,5 @@ cleandb::
 clean::
 	-rm -rf db/* dbnew/*
 	-rm -f Contacts.h Contacts.cpp NewContacts.h NewContacts.cpp
+
+include .depend

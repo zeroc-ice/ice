@@ -13,10 +13,10 @@ CLIENT		= client.exe
 
 TARGETS		= $(CLIENT)
 
-SLICE_OBJS	= Key.obj
-
-OBJS		= $(SLICE_OBJS) \
+COBJS		= Key.obj \
 		  Client.obj
+
+SRCS		= $(COBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -27,10 +27,12 @@ SLICE2CPPFLAGS	= --underscore --stream $(SLICE2CPPFLAGS)
 CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 !endif
 
-$(CLIENT): $(OBJS)
-	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(CLIENT): $(COBJS)
+	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 clean::
 	del /q Key.cpp Key.h
+
+!include .depend.mak

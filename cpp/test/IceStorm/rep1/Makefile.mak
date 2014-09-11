@@ -15,20 +15,18 @@ SUB		= sub.exe
 
 TARGETS		= $(PUBLISHER) $(SUBSCRIBER) $(SUB)
 
-SLICE_OBJS		= Single.obj
+OBJS		= Single.obj
 
-POBJS		= $(SLICE_OBJS) \
-		  Publisher.obj
+POBJS		= Publisher.obj
 
-SOBJS		= $(SLICE_OBJS) \
-		  Subscriber.obj
+SOBJS		= Subscriber.obj
 
-SUB_OBJS	= $(SLICE_OBJS) \
-		  Sub.obj
+SUB_OBJS	= Sub.obj
 
-OBJS		= $(POBJS) \
-		  $(SOBJS) \
-		  $(SUB_OBJS)
+SRCS		= $(OBJS:.obj=.cpp) \
+		  $(POBJS:.obj=.cpp) \
+		  $(SOBJS:.obj=.cpp) \
+		  $(SUB_OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -41,18 +39,18 @@ SPDBFLAGS        = /pdb:$(SUBSCRIBER:.exe=.pdb)
 SUB_PDBFLAGS     = /pdb:$(SUB:.exe=.pdb)
 !endif
 
-$(PUBLISHER): $(POBJS)
-	$(LINK) $(LD_EXEFLAGS) $(PPDBFLAGS) $(SETARGV) $(POBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(PUBLISHER): $(OBJS) $(POBJS)
+	$(LINK) $(LD_EXEFLAGS) $(PPDBFLAGS) $(SETARGV) $(OBJS) $(POBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(SUBSCRIBER): $(SOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(SUBSCRIBER): $(OBJS) $(SOBJS)
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(SUB): $(SUB_OBJS)
-	$(LINK) $(LD_EXEFLAGS) $(SUB_PDBFLAGS) $(SETARGV) $(SUB_OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(SUB): $(OBJS) $(SUB_OBJS)
+	$(LINK) $(LD_EXEFLAGS) $(SUB_PDBFLAGS) $(SETARGV) $(OBJS) $(SUB_OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
@@ -77,3 +75,5 @@ clean::
 	-for %f in (1.db\*) do if not %f == 1.db\.gitignore del /q %f
 	-if exist 2.db\__Freeze rmdir /q /s 2.db\__Freeze
 	-for %f in (2.db\*) do if not %f == 2.db\.gitignore del /q %f
+
+!include .depend.mak

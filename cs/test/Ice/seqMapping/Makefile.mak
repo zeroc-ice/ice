@@ -43,3 +43,5 @@ serveramd.exe: $(SAMD_SRCS) $(GEN_AMD_SRCS) Serializable.dll
 
 Serializable.dll: Serializable.cs
 	$(MCS) $(MCSFLAGS) -target:library -out:Serializable.dll /keyfile:"$(KEYFILE)" Serializable.cs
+
+!include .depend.mak

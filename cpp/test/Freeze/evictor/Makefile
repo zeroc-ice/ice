@@ -14,28 +14,32 @@ SERVER		= server
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-SLICE_OBJS	= Test.o
+OBJS		= Test.o
 
-COBJS		= $(SLICE_OBJS) \
-		  Client.o
+COBJS		= Client.o
 
-SOBJS		= $(SLICE_OBJS) \
-		  TestI.o \
+SOBJS		= TestI.o \
 		  Server.o
 
-OBJS 		= $(COBJS) $(SOBJS)
+SRCS		= $(OBJS:.o=.cpp) \
+		  $(COBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp)
+
+SLICE_SRCS	= Test.ice
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
-$(CLIENT): $(COBJS)
+$(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
 
-$(SERVER): $(SOBJS)
+$(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
 clean::
 	-rm -rf db/__catalog db/__catalogIndexList db/Test db/log.* db/__Freeze
+
+include .depend

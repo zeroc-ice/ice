@@ -25,3 +25,5 @@ Test2_ice.py: "Test2.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
 clean::
 	-rmdir /s /q Test
 	del /q $(SRCS)
+
+include .depend.mak

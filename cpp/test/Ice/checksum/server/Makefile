@@ -13,11 +13,14 @@ SERVER		= $(call mktestname,server)
 
 TARGETS		= $(SERVER)
 
-SLICE_OBJS	= Test.o Types.o
-
-OBJS		= $(SLICE_OBJS) \
+SOBJS		= Test.o \
+		  Types.o \
 		  TestI.o \
 		  Server.o
+
+SRCS		= $(SOBJS:.o=.cpp)
+
+SLICE_SRCS	= Test.ice Types.ice
 
 include $(top_srcdir)/config/Make.rules
 
@@ -25,6 +28,8 @@ CPPFLAGS	:= -I. -I../../../include $(CPPFLAGS)
 
 SLICE2CPPFLAGS  := --checksum $(SLICE2CPPFLAGS)
 
-$(SERVER): $(OBJS)
+$(SERVER): $(SOBJS)
 	rm -f $@
-	$(call mktest,$@,$(OBJS),$(LIBS))
+	$(call mktest,$@,$(SOBJS),$(LIBS))
+
+include .depend

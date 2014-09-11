@@ -70,32 +70,9 @@ SLICEPARSERLIB		= $(ice_dir)\lib$(x64suffix)\sliced.lib
 EVERYTHING		= all clean install
 
 .SUFFIXES:
-.SUFFIXES:		.php .ice
+.SUFFIXES:		.php
 
 all:: $(SRCS) $(TARGETS)
-
-
-!if "$(GEN_SRCS)" != ""
-
-DEPENDS = $(GEN_SRCS:.php=.ice.d.mak)
-
-all:: .depend\ice.depend.mak
-
-.depend\ice.depend.mak: Makefile.mak
-	@echo Creating Slice dependencies list
-	@if not exist ".depend" mkdir .depend
-	cscript /NoLogo $(top_srcdir)\..\config\makedepend-list.vbs $(DEPENDS) > .depend\ice.depend.mak
-
-all:: $(GEN_SRCS)
-
-clean::
-	-del /q $(GEN_SRCS)
-
-!endif
-
-.ice.php:
-	"$(SLICE2PHP)" $(SLICE2PHPFLAGS) $<
-	"$(SLICE2PHP)" $(SLICE2PHPFLAGS) --depend $<> .depend\$(*F).ice.d.mak
 
 clean::
 	del /q $(TARGETS) *.obj *.bak

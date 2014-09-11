@@ -14,15 +14,21 @@ TARGETS		= client.exe server.exe
 C_SRCS		= DiscoverReplyI.cs Client.cs
 S_SRCS		= DiscoverI.cs HelloI.cs Server.cs
 
-GEN_SRCS	= $(GDIR)/Discovery.cs \
-		  $(GDIR)/Hello.cs
+SLICE_SRCS	= $(SDIR)/Discovery.ice \
+		  $(SDIR)/Hello.ice
+
+SDIR		= .
+
+GDIR		= generated
 
 include $(top_srcdir)/config/Make.rules.cs
 
 MCSFLAGS	:= $(MCSFLAGS) -target:exe
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 server.exe: $(S_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
+
+include .depend

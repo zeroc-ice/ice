@@ -16,27 +16,31 @@ SVCSONAME	= $(call mksoname,TestService)
 
 TARGETS		= $(CLIENT) $(SVCFILENAME)
 
-SLICE_OBJS	= Test.o
+OBJS		= Test.o \
 
-COBJS		= $(SLICE_OBJS) \
-		  Client.o \
+COBJS		= Client.o \
 		  AllTests.o
 
-SERVICE_OBJS	= $(SLICE_OBJS) \
-		  TestI.o \
+SERVICE_OBJS	= TestI.o \
 		  Service.o
 
-OBJS 		= $(COBJS) $(SERVICE_OBJS)
+SRCS		= $(OBJS:.o=.cpp) \
+		  $(COBJS:.o=.cpp) \
+		  $(SERVICE_OBJS:.o=.cpp) \
+
+SLICE_SRCS	= Test.ice
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 LINKWITH	:= -lIceBox $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
-$(CLIENT): $(COBJS)
+$(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
 
-$(SVCFILENAME): $(SERVICE_OBJS)
+$(SVCFILENAME): $(OBJS) $(SERVICE_OBJS)
 	rm -f $@
-	$(call mkshlib,$@,$(SVCSONAME),$(SERVICE_OBJS), $(LINKWITH))
+	$(call mkshlib,$@,$(SVCSONAME),$(OBJS) $(SERVICE_OBJS), $(LINKWITH))
+
+include .depend

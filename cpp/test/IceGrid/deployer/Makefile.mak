@@ -17,24 +17,21 @@ DLLNAME		= testservice$(LIBSUFFIX).dll
 
 TARGETS		= $(CLIENT) $(SERVER) $(LIBNAME) $(DLLNAME)
 
-SLICE_OBJS		= Test.obj
+OBJS		= Test.obj
 
-COBJS		= $(SLICE_OBJS) \
-		  Client.obj \
+COBJS		= Client.obj \
 		  AllTests.obj
 
-SOBJS		= $(SLICE_OBJS) \
-		  TestI.obj \
+SOBJS		= TestI.obj \
 		  Server.obj
 
-SERVICE_OBJS	= $(SLICE_OBJS) \
-		  TestI.obj \
+SERVICE_OBJS	= TestI.obj \
 		  Service.obj
 
-
-OBJS		= $(COBJS) \
-		  $(SOBJS) \
-		  $(SERVICE_OBJS)
+SRCS		= $(OBJS:.obj=.cpp) \
+		  $(COBJS:.obj=.cpp) \
+		  $(SOBJS:.obj=.cpp) \
+		  $(SERVICE_OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -49,21 +46,21 @@ SPDBFLAGS       = /pdb:$(SERVER:.exe=.pdb)
 
 $(LIBNAME) : $(DLLNAME)
 
-$(DLLNAME): $(SERVICE_OBJS)
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(SETARGV) $(SERVICE_OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH) \
+$(DLLNAME): $(OBJS) $(SERVICE_OBJS)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(SETARGV) $(OBJS) $(SERVICE_OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH) \
 	  freeze$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
-$(CLIENT): $(COBJS)
-	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) \
+$(CLIENT): $(OBJS) $(COBJS)
+	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) \
 	  icegrid$(LIBSUFFIX).lib glacier2$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(SERVER): $(SOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(SERVER): $(OBJS) $(SOBJS)
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
@@ -87,3 +84,5 @@ clean::
 	if exist db\node rmdir /s /q db\node 
 	if exist db\registry rmdir /s /q db\registry 
 	if exist db\replica-1 rmdir /s /q db\replica-1
+
+!include .depend.mak

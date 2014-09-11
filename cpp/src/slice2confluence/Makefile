@@ -17,6 +17,8 @@ OBJS		= ConfluenceOutput.o \
 		  Gen.o \
 		  Main.o
 
+SRCS		= $(OBJS:.o=.cpp)
+
 ifeq ($(CPP11),yes)
 RPATH_DIR	= @loader_path/../../lib/c++11
 else
@@ -34,3 +36,4 @@ $(NAME): $(OBJS)
 install:: all
 	$(call installprogram,$(NAME),$(DESTDIR)$(install_bindir))
 
+include .depend

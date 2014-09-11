@@ -21,10 +21,10 @@ C2OBJS		= Client2.obj
 C3OBJS		= Client3.obj
 C4OBJS		= Client4.obj
 
-OBJS		= $(C1OBJS) \
-		  $(C2OBJS) \
-		  $(C3OBJS) \
-		  $(C4OBJS)
+SRCS		= $(C1OBJS:.obj=.cpp) \
+		  $(C2OBJS:.obj=.cpp) \
+		  $(C3OBJS:.obj=.cpp) \
+		  $(C4OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -56,3 +56,5 @@ $(CLIENT4): $(C4OBJS)
 	$(LINK) $(LD_EXEFLAGS) $(C4PDBFLAGS) $(SETARGV) $(C4OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
+
+!include .depend.mak

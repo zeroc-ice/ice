@@ -21,7 +21,7 @@ TARGETS   	= $(LIBTARGETS) $(SERVER) $(ADMIN)
 
 SLICE_OBJS      = IceBox.o
 
-LIB_OBJS		= Exception.o \
+OBJS		= Exception.o \
 		  $(SLICE_OBJS)
 
 SOBJS		= Service.o \
@@ -29,9 +29,11 @@ SOBJS		= Service.o \
 
 AOBJS		= Admin.o
 
-OBJS		= $(LIB_OBJS) \
-		  $(SOBJS) \
-		  $(AOBJS)
+SRCS		= $(OBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp) \
+		  $(AOBJS:.o=.cpp)
+
+SLICE_SRCS	= $(addprefix $(SDIR)/, $(SLICE_OBJS:.o=.ice))
 
 HDIR		= $(headerdir)/IceBox
 SDIR		= $(slicedir)/IceBox
@@ -48,9 +50,9 @@ CPPFLAGS	:= -I.. $(CPPFLAGS)
 SLICE2CPPFLAGS	:= --checksum --ice --dll-export ICE_BOX_API --include-dir IceBox $(SLICE2CPPFLAGS)
 LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
-$(libdir)/$(LIBFILENAME): $(LIB_OBJS)
+$(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@
-	$(call mkshlib,$@,$(SONAME),$(LIB_OBJS),$(LINKWITH))
+	$(call mkshlib,$@,$(SONAME),$(OBJS),$(LINKWITH))
 
 $(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
 	rm -f $@
@@ -75,3 +77,4 @@ install:: all
 	$(call installprogram,$(ADMIN),$(DESTDIR)$(install_bindir))
 	$(call installdata,$(top_srcdir)/../man/man1/iceboxadmin.1,$(DESTDIR)$(install_mandir))
 
+include .depend

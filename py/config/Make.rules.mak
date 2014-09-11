@@ -138,34 +138,12 @@ MT			= mt.exe
 EVERYTHING		= all clean install
 
 .SUFFIXES:
-.SUFFIXES:		.cpp .obj .py .res .rc .ice
+.SUFFIXES:		.cpp .obj .py .res .rc
 
 all:: $(SRCS)
 
-!if "$(OBJS)" != ""
-
-OBJS_DEPEND = $(OBJS:.obj=.d.mak)
-
-all:: .depend\depend.mak
-
-.depend\depend.mak: Makefile.mak
-	@echo Creating C++ dependencies list
-	@if not exist ".depend" mkdir .depend
-	cscript /NoLogo $(top_srcdir)\..\config\makedepend-list.vbs $(OBJS_DEPEND) > .depend\depend.mak
-
-clean::
-	del /q .depend\depend.mak
-	del /q .depend\*.d.mak
-
-!endif
-
-!if exist(.depend\depend.mak)
-!include .depend\depend.mak
-!endif
-
-.cpp.obj:
-	$(CXX) /c $(CPPFLAGS) $(CXXFLAGS) /showIncludes $< | \
-	cscript /NoLogo $(top_srcdir)\..\config\makedepend.vbs $<
+.cpp.obj::
+	$(CXX) /c $(CPPFLAGS) $(CXXFLAGS) $<
 
 .rc.res:
 	rc $(RCFLAGS) $<

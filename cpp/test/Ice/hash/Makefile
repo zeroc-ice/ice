@@ -13,15 +13,21 @@ CLIENT		= $(call mktestname,client)
 
 TARGETS		= $(CLIENT)
 
-SLICE_OBJS		= Test.o
+COBJS		= Client.o
 
-OBJS		= $(SLICE_OBJS) \
-		  Client.o
+OBJS		= Test.o
+
+SRCS		= $(COBJS:.o=.cpp) \
+		  $(OBJS:.o=.cpp)
+
+SLICE_SRCS	= Test.ice
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS) $(NO_DEPRECATED_FLAGS)
 
-$(CLIENT): $(OBJS)
+$(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(call mktest,$@,$(OBJS) $(LIBS))
+	$(call mktest,$@,$(COBJS),$(OBJS) $(LIBS))
+
+include .depend

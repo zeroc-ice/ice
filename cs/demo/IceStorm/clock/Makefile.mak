@@ -33,3 +33,5 @@ subscriber.exe: $(S_SRCS) $(GEN_SRCS)
 clean::
 	if exist db\__Freeze rmdir /q /s db\__Freeze
 	for %f in (db\*) do if not %f == db\.gitignore del /q %f
+
+!include .depend.mak

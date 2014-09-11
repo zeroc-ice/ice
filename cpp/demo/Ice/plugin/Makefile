@@ -20,32 +20,35 @@ HELLOSONAME	= $(call mksoname,HelloPlugin,$(SOVERSION))
 
 TARGETS		= $(CLIENT) $(SERVER) $(LOGGERFILENAME) $(LOGGERSONAME) $(HELLOFILENAME) $(HELLOSONAME)
 
-SLICE_OBJS	= Hello.o
+OBJS		= Hello.o
 
-COBJS		= $(SLICE_OBJS) \
-		  Client.o
+COBJS		= Client.o
 
-SOBJS		= $(SLICE_OBJS) \
-		  Server.o
+SOBJS		= Server.o
 
 LOBJS		= LoggerPluginI.o
 
-HOBJS		= $(SLICE_OBJS) \
-		  HelloPluginI.o
+HOBJS		= HelloPluginI.o
 
-OBJS 		= $(COBJS) $(SOBJS) $(LOBJS) $(HOBJS)
+SRCS		= $(OBJS:.o=.cpp) \
+		  $(COBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp) \
+		  $(LOBJS:.o=.cpp) \
+		  $(HOBJS:.o=.cpp)
+
+SLICE_SRCS	= Hello.ice
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
 
-$(CLIENT): $(COBJS)
+$(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
 
-$(SERVER): $(SOBJS)
+$(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
 $(LOGGERFILENAME): $(LOBJS)
 	rm -f $@
@@ -55,10 +58,12 @@ $(LOGGERSONAME): $(LOGGERFILENAME)
 	rm -f $@
 	ln -s $(LOGGERFILENAME) $@
 
-$(HELLOFILENAME): $(HOBJS)
+$(HELLOFILENAME): $(OBJS) $(HOBJS)
 	rm -f $@
-	$(call mkshlib,$@,$(HELLOSONAME),$(HOBJS),$(LIBS))
+	$(call mkshlib,$@,$(HELLOSONAME),$(OBJS) $(HOBJS),$(LIBS))
 
 $(HELLOSONAME): $(HELLOFILENAME)
 	rm -f $@
 	ln -s $(HELLOFILENAME) $@
+
+include .depend

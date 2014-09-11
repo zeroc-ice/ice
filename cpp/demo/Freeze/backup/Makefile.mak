@@ -13,9 +13,9 @@ CLIENT		= client.exe
 
 TARGETS		= $(CLIENT)
 
-SLICE_OBJS	= IntLongMap.obj
+OBJS		= Client.obj IntLongMap.obj
 
-OBJS		= $(SLICE_OBJS) Client.obj
+SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -43,3 +43,5 @@ clean::
 	-del /q  db\__*.*
 	-for %f in (db\data\*) do if not %f == db\data\.gitignore del /q %f
 	-for %f in (db\logs\*) do if not %f == db\logs\.gitignore del /q %f
+
+!include .depend.mak

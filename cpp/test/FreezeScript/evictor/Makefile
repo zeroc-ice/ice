@@ -13,10 +13,12 @@ CLIENT		= makedb
 
 TARGETS		= $(CLIENT)
 
-SLICE_OBJS	= TestOld.o
+OBJS		= TestOld.o \
+                  makedb.o
 
-OBJS		= $(SLICE_OBJS) \
-		  makedb.o
+SRCS		= $(OBJS:.o=.cpp)
+
+SLICE_SRCS	= TestOld.ice
 
 include $(top_srcdir)/config/Make.rules
 
@@ -28,3 +30,5 @@ $(CLIENT): $(OBJS)
 
 clean::
 	-rm -rf db/* db_tmp db_check
+
+include .depend

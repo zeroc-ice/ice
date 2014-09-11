@@ -14,18 +14,16 @@ SERVER		= server.exe
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-SLICE_OBJS	= Test.obj
-
-COBJS		= $(SLICE_OBJS) \
+COBJS		= Test.obj \
 		  Client.obj \
 		  AllTests.obj
 
-SOBJS		= $(SLICE_OBJS) \
+SOBJS		= Test.obj \
 		  TestI.obj \
 		  Server.obj
 
-OBJS		= $(COBJS) \
-		  $(SOBJS)
+SRCS		= $(COBJS:.obj=.cpp) \
+		  $(SOBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -54,3 +52,5 @@ clean::
 	if exist db\node rmdir /s /q db\node 
 	if exist db\registry rmdir /s /q db\registry 
 	if exist db\replica-1 rmdir /s /q db\replica-1
+
+!include .depend.mak

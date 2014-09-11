@@ -14,26 +14,29 @@ SERVER		= server
 
 TARGETS		= $(CLIENT) $(SERVER) 
 
-SLICE_OBJS	= Backend.o
+OBJS		= Backend.o \
+		  BackendI.o
 
-COBJS		= $(SLICE_OBJS) \
-		  Client.o
+COBJS		= Client.o
 
-SOBJS		= $(SLICE_OBJS) \
-		  BackendI.o \
-		  Server.o
+SOBJS		= Server.o
 
-OBJS		= $(COBJS) \
-		  $(SOBJS)
+SRCS		= $(OBJS:.o=.cpp) \
+		  $(COBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp)
+
+SLICE_SRCS	= Backend.ice
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
-$(CLIENT): $(COBJS)
+$(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) -lGlacier2 $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lGlacier2 $(LIBS)
 
-$(SERVER): $(SOBJS)
+$(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
+
+include .depend

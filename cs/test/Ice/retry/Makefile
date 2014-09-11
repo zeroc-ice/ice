@@ -15,7 +15,11 @@ C_SRCS		= AllTests.cs Client.cs ../../TestCommon/TestApp.cs Instrumentation.cs S
 S_SRCS		= RetryI.cs Server.cs SystemFailure.cs
 COL_SRCS	= AllTests.cs Collocated.cs ../../TestCommon/TestApp.cs Instrumentation.cs SystemFailure.cs RetryI.cs
 
-GEN_SRCS	= $(GDIR)/Test.cs
+SLICE_SRCS	= $(SDIR)/Test.ice
+
+SDIR		= .
+
+GDIR		= generated
 
 include $(top_srcdir)/config/Make.rules.cs
 
@@ -24,10 +28,12 @@ MCSFLAGS	:= $(MCSFLAGS) -target:exe
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --ice -I. -I$(slicedir)
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 server.exe: $(S_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 collocated.exe: $(COL_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
+
+include .depend

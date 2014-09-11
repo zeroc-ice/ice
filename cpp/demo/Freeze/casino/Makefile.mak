@@ -14,13 +14,11 @@ SERVER		= server.exe
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-SLICE_OBJS		= Casino.obj CasinoStore.obj
+OBJS		= Casino.obj
 
-COBJS		= Casino.obj \
-		  Client.obj \
+COBJS		= Client.obj \
 
-SOBJS		= $(SLICE_OBJS) \
-		  BankI.obj \
+SOBJS		= BankI.obj \
 		  BetI.obj \
 		  BetResolver.obj \
 		  CasinoStore.obj \
@@ -56,3 +54,5 @@ clean::
 	del /q CasinoStore.cpp CasinoStore.h
 	-if exist db\__Freeze rmdir /q /s db\__Freeze
 	-for %f in (db\*) do if not %f == db\DB_CONFIG del /q %f
+
+!include .depend.mak

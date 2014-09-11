@@ -14,6 +14,8 @@ SERVER		= server
 
 TARGETS		= $(CLIENT) $(SERVER)
 
+SLICE_SRCS	= HR.ice
+
 PROC_SRCS 	= CurrentSqlContext.pc \
 		  DeptFactoryI.pc \
 		  DeptI.pc \
@@ -21,16 +23,17 @@ PROC_SRCS 	= CurrentSqlContext.pc \
 		  Server.pc \
 		  Util.pc
 
-SLICE_OBJS	= HR.o
+OBJS		= HR.o
 
-COBJS		= $(SLICE_OBJS) \
-		  Client.o
+COBJS		= Client.o
 
-SOBJS		= $(SLICE_OBJS) \
-		  $(PROC_SRCS:.pc=.o)
+SOBJS		= $(PROC_SRCS:.pc=.o)
 
-OBJS		= $(COBJS) \
-		  $(SOBJS)
+SRCS		= $(OBJS:.o=.cpp) \
+		  $(COBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp)
+
+
 
 include $(top_srcdir)/config/Make.rules
 
@@ -50,13 +53,15 @@ ORACLE_LIBS     = -L$(ORACLE_HOME)/lib -lclntsh
 	proc threads=yes parse=none lines=yes code=cpp cpp_suffix=cpp close_on_commit=yes $<
 	rm -f tp* $*.lis
 
-$(CLIENT): $(COBJS)
+$(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
 
-$(SERVER): $(SOBJS)
+$(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(ORACLE_LIBS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(ORACLE_LIBS) $(LIBS)
 
 clean::
 	-rm -f $(GENERATED_PROC_FILES)
+
+include .depend

@@ -21,6 +21,8 @@ OBJS		= ClientUtil.obj \
 		  Util.obj \
                   $(SLICE_OBJS)
 
+SRCS		= $(OBJS:.obj=.cpp)
+
 HDIR		= $(headerdir)\IcePatch2
 SDIR		= $(slicedir)\IcePatch2
 
@@ -61,3 +63,5 @@ install:: all
 	copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"
 
 !endif
+
+!include .depend.mak

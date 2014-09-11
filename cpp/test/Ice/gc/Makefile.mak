@@ -13,10 +13,10 @@ CLIENT		= client.exe
 
 TARGETS		= $(CLIENT)
 
-SLICE_OBJS	= Test.obj
-
-OBJS		= $(SLICE_OBJS) \
+COBJS		= Test.obj \
 		  Client.obj
+
+SRCS		= $(COBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -26,8 +26,8 @@ CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 PDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 !endif
 
-$(CLIENT): $(OBJS)
-	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(SETARGV) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(CLIENT): $(COBJS)
+	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(SETARGV) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
@@ -36,3 +36,5 @@ clean::
 
 clean::
 	del /q seed
+
+!include .depend.mak

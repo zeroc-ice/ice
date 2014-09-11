@@ -21,7 +21,10 @@ C2OBJS		= Client2.o
 C3OBJS		= Client3.o
 C4OBJS		= Client4.o
 
-OBJS 		= $(C1OBJS) $(C2OBJS) $(C3OBJS) $(C4OBJS)
+SRCS		= $(C1OBJS:.o=.cpp) \
+		  $(C2OBJS:.o=.cpp) \
+		  $(C3OBJS:.o=.cpp) \
+		  $(C4OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -47,3 +50,5 @@ $(CLIENT4): $(C4OBJS)
 
 clean::
 	-rm -f seed
+
+include .depend

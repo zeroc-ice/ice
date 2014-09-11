@@ -29,6 +29,10 @@ OBJS		= Blobject.o \
 		  SessionRouterI.o \
                   $(SLICE_OBJS)
 
+SRCS		= $(OBJS:.o=.cpp)
+
+SLICE_SRCS	= $(SLICE_OBJS:.o=.ice)
+
 RPATH_DIR	= @loader_path/../lib
 
 include $(top_srcdir)/config/Make.rules
@@ -43,3 +47,5 @@ $(ROUTER): $(OBJS)
 install:: all
 	$(call installprogram,$(ROUTER),$(DESTDIR)$(install_bindir))
 	$(call installdata,$(top_srcdir)/../man/man1/glacier2router.1,$(DESTDIR)$(install_mandir))
+
+include .depend

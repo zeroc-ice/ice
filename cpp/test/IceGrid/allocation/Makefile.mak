@@ -11,25 +11,23 @@ top_srcdir	= ..\..\..
 
 CLIENT		= client.exe
 SERVER		= server.exe
-VERIFIER	= verifier.exe
+VERIFIER        = verifier.exe
 
 TARGETS		= $(CLIENT) $(SERVER) $(VERIFIER)
 
-SLICE_OBJS	= Test.obj
-
-COBJS		= $(SLICE_OBJS) \
+COBJS		= Test.obj \
 		  Client.obj \
 		  AllTests.obj
 
-SOBJS		= $(SLICE_OBJS) \
+SOBJS		= Test.obj \
 		  TestI.obj \
 		  Server.obj
 
 VOBJS		= PermissionsVerifier.obj
 
-OBJS		= $(COBJS) \
-		  $(SOBJS) \
-		  $(VOBJS)
+SRCS		= $(COBJS:.obj=.cpp) \
+		  $(SOBJS:.obj=.cpp) \
+		  $(VOBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -61,8 +59,10 @@ clean::
 	del /q Test.cpp Test.h
 
 clean::
-	if exist db\node rmdir /s /q db\node
-	if exist db\registry rmdir /s /q db\registry
+	if exist db\node rmdir /s /q db\node 
+	if exist db\registry rmdir /s /q db\registry 
 	if exist db\node-1 rmdir /s /q db\node-1
 	if exist db\node-2 rmdir /s /q db\node-2
 	if exist db\replica-1 rmdir /s /q db\replica-1
+
+!include .depend.mak

@@ -22,7 +22,9 @@ COBJS		= Client.o \
 
 POBJS		= Plugin.o
 
-OBJS 		= $(COBJS) $(POBJS)
+SRCS		= $(COBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp) \
+		  $(POBJS:.o=.cpp)
 
 LINKWITH        := -lIceUtil -lIce
 
@@ -45,3 +47,5 @@ $(PLUGINDIR)/$(SONAME): $(PLUGINDIR)/$(LIBFILENAME)
 $(PLUGINDIR)/$(LIBNAME): $(PLUGINDIR)/$(SONAME)
 	rm -f $@
 	ln -s $(SONAME) $@
+
+include .depend

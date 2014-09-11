@@ -15,38 +15,42 @@ SUB		= sub
 
 TARGETS		= $(PUBLISHER) $(SUBSCRIBER) $(SUB)
 
-SLICE_OBJS	= Single.o
+OBJS		= Single.o
 
-POBJS		= $(SLICE_OBJS) \
-		  Publisher.o
+POBJS		= Publisher.o
 
-SOBJS		= $(SLICE_OBJS) \
-		  Subscriber.o
+SOBJS		= Subscriber.o
 
-SUB_OBJS	= $(SLICE_OBJS) \
-		  Sub.o
+SUB_OBJS	= Sub.o
 
-OBJS 		= $(POBJS) $(SOBJS) $(SUB_OBJS)
+SRCS		= $(SUB_OBJS:.o=.cpp) \
+		  $(OBJS:.o=.cpp) \
+		  $(POBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp)
+
+SLICE_SRCS	= Single.ice
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 LIBS		:= -lIceStorm $(LIBS)
 
-$(PUBLISHER): $(POBJS)
+$(PUBLISHER): $(OBJS) $(POBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(POBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(POBJS) $(LIBS)
 
-$(SUBSCRIBER): $(SOBJS)
+$(SUBSCRIBER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
-$(SUB): $(SUB_OBJS)
+$(SUB): $(OBJS) $(SUB_OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SUB_OBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SUB_OBJS) $(LIBS)
 
 clean::
 	-rm -f build.txt
 	-rm -rf 0.db/*
 	-rm -rf 1.db/*
 	-rm -rf 2.db/*
+
+include .depend

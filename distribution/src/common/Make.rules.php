@@ -56,33 +56,29 @@ else
     SLICE2PHP 		= $(ice_dir)/$(binsubdir)/slice2php
 endif
 
-EVERYTHING		= all clean install
+EVERYTHING		= all depend clean install
 
 .SUFFIXES:
-.SUFFIXES:		.php .ice
+.SUFFIXES:		.php
 
-ifneq ($(GEN_SRCS),)
-
-all:: $(GEN_SRCS)
-
-clean::
-    -rm -f $(GEN_SRCS)
-    -rm -f .depend/*.d
-
--include $(addprefix .depend/, $(GEN_SRCS:.php=.ice.d))
-
-endif
+all:: $(SRCS)
 
 %.php: $(SDIR)/%.ice
 	rm -f $(*F).php
 	$(SLICE2PHP) $(SLICE2PHPFLAGS) $<
-    @mkdir -p .depend
-    @$(SLICE2PHP) $(SLICE2PHPFLAGS) --depend $< > .depend/$(*F).ice.d
 
 clean::
 	-rm -f $(TARGETS)
 	-rm -f core *.o *.bak
 
-all:: $(TARGETS)
+all:: $(SRCS) $(TARGETS)
+
+ifneq ($(SLICE_SRCS),)
+depend:: $(SLICE_SRCS)
+	rm -f .depend .depend.mak
+	$(SLICE2PHP) --depend $(SLICE2PHPFLAGS) $(SLICE_SRCS) | $(ice_dir)/config/makedepend.py
+else
+depend::
+endif
 
 install::

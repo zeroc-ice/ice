@@ -88,13 +88,15 @@ REGISTRY_SVR_OBJS = \
 		  $(REGISTRY_OBJS) \
 		  IceGridRegistry.obj
 
+SRCS            = $(ADMIN_OBJS:.obj=.cpp) \
+		  $(COMMON_OBJS:.obj=.cpp) \
+		  $(NODE_OBJS:.obj=.cpp) \
+		  $(REGISTRY_OBJS:.obj=.cpp) \
+		  IceGridNode.cpp \
+		  IceGridRegistry.cpp
+
 HDIR		= $(headerdir)\IceGrid
 SDIR		= $(slicedir)\IceGrid
-
-all:: StringApplicationInfoDict.cpp \
-	IdentityObjectInfoDict.cpp \
-	StringAdapterInfoDict.cpp \
-	SerialsDict.cpp
 
 SLICE2FREEZECMD = $(SLICE2FREEZE) -I.. --ice --include-dir IceGrid $(ICECPPFLAGS)
 
@@ -194,3 +196,5 @@ install:: all
 	copy $(REGISTRY_SERVER:.exe=.pdb) "$(install_bindir)"
 
 !endif
+
+!include .depend.mak

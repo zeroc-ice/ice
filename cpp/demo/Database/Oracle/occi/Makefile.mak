@@ -14,13 +14,13 @@ SERVER		= server.exe
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-SLICE_OBJS	= HR.obj
+SLICE_SRCS	= HR.ice
 
-COBJS		= $(SLICE_OBJS) \
-		  Client.obj
+OBJS		= HR.obj
 
-SOBJS		= $(SLICE_OBJS) \
-		  DbTypes.obj \
+COBJS		= Client.obj
+
+SOBJS		= DbTypes.obj \
 		  DbTypesMap.obj \
 		  DeptFactoryI.obj \
 		  DeptI.obj  \
@@ -29,8 +29,9 @@ SOBJS		= $(SLICE_OBJS) \
 		  Server.obj \
 		  Util.obj
 
-OBJS		= $(COBJS) \
-		  $(SOBJS)
+SRCS		= $(OBJS:.obj=.cpp) \
+		  $(COBJS:.obj=.cpp) \
+		  $(SOBJS:.obj=.cpp)
 
 !include $(top_srcdir)\config\Make.rules.mak
 
@@ -63,13 +64,13 @@ ORACLE_LIBS     = -LIBPATH:"$(ORACLE_HOME)\oci\lib\msvc\vc10" oraocci11$(LIBSUFF
 ORACLE_LIBS = $(ORACLE_LIBS) -LIBPATH:"$(ORACLE_HOME)\oci\lib\msvc" oci.lib
 
 
-$(CLIENT): $(COBJS)
-	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(CLIENT): $(OBJS) $(COBJS)
+	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 		$(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(SERVER): $(SOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) $(ORACLE_LIBS)
+$(SERVER): $(OBJS) $(SOBJS)
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) $(ORACLE_LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 		$(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
@@ -80,3 +81,5 @@ DbTypes.h DbTypes.cpp DbTypesMap.h DbTypesMap.cpp DbTypesOut.typ: DbTypes.typ
 clean::
 	del /q HR.cpp HR.h
 	del /q DbTypes.h DbTypes.cpp DbTypesMap.h DbTypesMap.cpp DbTypesOut.typ
+
+!include .depend.mak

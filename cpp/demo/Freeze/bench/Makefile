@@ -13,18 +13,19 @@ CLIENT		= client
 
 TARGETS		= $(CLIENT)
 
-SLICE_OBJS	= BenchTypes.o Test.o
+OBJS		= BenchTypes.o Client.o Test.o
 
-OBJS		= $(SLICE_OBJS) \
-		  Client.o
+SRCS		= $(OBJS:.o=.cpp)
+
+SLICE_SRCS	= Test.ice
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
 
-$(CLIENT): $(OBJS)
+$(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
 # The slice2freeze rules are structured like this to avoid issues with
 # parallel make.
@@ -45,3 +46,5 @@ BenchTypes.cpp: Test.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 clean::
 	-rm -rf db/*
 	-rm -f BenchTypes.h BenchTypes.cpp
+
+include .depend

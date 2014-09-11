@@ -18,20 +18,18 @@ TSPLIBNAME	= $(call mklibname,TestTransport)
 
 TARGETS		= $(CLIENT) $(SERVER) $(call mklibtargets,$(TSPFILENAME),$(TSPSONAME),$(TSPLIBNAME))
 
-SLICE_OBJS	= Test.o
-
-COBJS		= $(SLICE_OBJS) \
-		  Configuration.o \
+COBJS		= Configuration.o \
+		  Test.o \
 		  Client.o \
 		  AllTests.o
 
-SOBJS		= $(SLICE_OBJS) \
-		  Configuration.o \
+SOBJS		= Configuration.o \
+		  Test.o \
 		  TestI.o \
 		  Server.o
 
-TRANSPORT_OBJS	= $(SLICE_OBJS) \
-		  Configuration.o \
+TRANSPORT_OBJS	= Test.o \
+                  Configuration.o \
 		  Connector.o \
 		  Acceptor.o \
 		  EndpointI.o \
@@ -39,9 +37,11 @@ TRANSPORT_OBJS	= $(SLICE_OBJS) \
 		  EndpointFactory.o \
 		  PluginI.o
 
-OBJS		= $(COBJS) \
-		  $(SOBJS) \
-		  $(TRANSPORT_OBJS)
+SRCS		= $(TRANSPORT_OBJS:.o=.cpp) \
+		  $(COBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp)
+
+SLICE_SRCS	= Test.ice
 
 include $(top_srcdir)/config/Make.rules
 
@@ -58,7 +58,7 @@ $(SERVER): $(SOBJS)
 
 $(TSPFILENAME): $(TRANSPORT_OBJS)
 	rm -f $@
-	$(call mkshlib,$@,$(TSPSONAME),$(TRANSPORT_OBJS),$(LINKWITH))
+	$(call mkshlib,$@,$(TSPSONAME),$(OBJS) $(TRANSPORT_OBJS),$(LINKWITH))
 
 $(TSPSONAME): $(TSPFILENAME)
 	rm -f $@
@@ -67,3 +67,5 @@ $(TSPSONAME): $(TSPFILENAME)
 $(TSPLIBNAME): $(TSPSONAME)
 	rm -f $@
 	ln -s $(TSPSONAME) $@
+
+include .depend

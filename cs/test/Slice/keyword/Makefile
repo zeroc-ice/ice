@@ -13,7 +13,7 @@ TARGETS		= client.exe
 
 C_SRCS		= Client.cs
 
-GEN_SRCS	= $(GDIR)/Key.cs
+SLICE_SRCS	= $(SDIR)/Key.ice
 
 SDIR		= .
 
@@ -26,4 +26,6 @@ MCSFLAGS	:= $(MCSFLAGS) -target:exe
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --stream
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
+
+include .depend

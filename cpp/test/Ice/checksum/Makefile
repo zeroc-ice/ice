@@ -13,11 +13,14 @@ CLIENT		= $(call mktestname,client)
 
 TARGETS		= $(CLIENT)
 
-SLICE_OBJS	= Test.o Types.o
-
-OBJS		= $(SLICE_OBJS) \
+COBJS		= Test.o \
+		  Types.o \
 		  Client.o \
 		  AllTests.o
+
+SRCS		= $(COBJS:.o=.cpp)
+
+SLICE_SRCS	= Test.ice Types.ice
 
 include $(top_srcdir)/config/Make.rules
 
@@ -25,9 +28,9 @@ CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
 SLICE2CPPFLAGS  := --checksum $(SLICE2CPPFLAGS)
 
-$(CLIENT): $(OBJS)
+$(CLIENT): $(COBJS)
 	rm -f $@
-	$(call mktest,$@,$(OBJS),$(LIBS))
+	$(call mktest,$@,$(COBJS),$(LIBS))
 
 SUBDIRS		= server
 
@@ -46,3 +49,6 @@ $(EVERYTHING_EXCEPT_ALL)::
 	    echo "making $@ in $$subdir"; \
 	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
 	done
+
+
+include .depend

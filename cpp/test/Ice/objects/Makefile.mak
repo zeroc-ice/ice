@@ -23,25 +23,23 @@ COLLOCATED	= $(NAME_PREFIX)collocated
 
 TARGETS		= $(CLIENT)$(EXT) $(SERVER)$(EXT) $(COLLOCATED)$(EXT)
 
-SLICE_OBJS	= Test.obj
-
-COBJS		= $(SLICE_OBJS) \
+COBJS		= Test.obj \
 		  TestI.obj \
 		  Client.obj \
 		  AllTests.obj
 
-SOBJS		= $(SLICE_OBJS) \
+SOBJS		= Test.obj \
 		  TestI.obj \
 		  Server.obj
 
-COLOBJS		= $(SLICE_OBJS) \
+COLOBJS		= Test.obj \
 		  TestI.obj \
 		  Collocated.obj \
 		  AllTests.obj
 
-OBJS		= $(COBJS) \
-		  $(SOBJS) \
-		  $(COLOBJS)
+SRCS		= $(COBJS:.obj=.cpp) \
+		  $(SOBJS:.obj=.cpp) \
+		  $(COLOBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -76,3 +74,5 @@ $(COLLOCATED)$(EXT): $(COLOBJS)
 
 clean::
 	del /q Test.cpp Test.h
+
+!include .depend.mak

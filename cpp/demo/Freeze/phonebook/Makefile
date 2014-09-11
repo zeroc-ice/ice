@@ -16,49 +16,50 @@ COLLOCATED	= collocated
 
 TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
 
-SLICE_OBJS	= PhoneBook.o \
-		  NameIndex.o
+OBJS		= PhoneBook.o
 
-COBJS		= PhoneBook.o \
-		  Client.o \
+COBJS		= Client.o \
 		  Grammar.o \
 		  Parser.o \
 		  RunParser.o \
 		  Scanner.o
 
-SOBJS		= $(SLICE_OBJS) \
-		  ContactFactory.o \
+SOBJS		= ContactFactory.o \
+		  NameIndex.o \
 		  PhoneBookI.o \
 		  Server.o
 
-COLOBJS		= $(SLICE_OBJS) \
-		  Collocated.o \
+COLOBJS		= Collocated.o \
 		  ContactFactory.o \
 		  Grammar.o \
+		  NameIndex.o \
 		  Parser.o \
 		  PhoneBookI.o \
 		  RunParser.o \
 		  Scanner.o
 
-OBJS 		= $(COBJS) \
-		  $(SOBJS) \
-		  $(COLOBJS)
+SRCS		= $(OBJS:.o=.cpp) \
+		  $(COBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp) \
+		  $(COLOBJS:.o=.cpp)
+
+SLICE_SRCS	= PhoneBook.ice
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS) $(READLINE_FLAGS)
 
-$(CLIENT): $(COBJS)
+$(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS) $(READLINE_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS) $(READLINE_LIBS)
 
-$(SERVER): $(SOBJS)
+$(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
-$(COLLOCATED): $(COLOBJS)
+$(COLLOCATED): $(OBJS) $(COLOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COLOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS) $(READLINE_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COLOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS) $(READLINE_LIBS)
 
 # The slice2freeze rules are structured like this to avoid issues with
 # parallel make.
@@ -70,3 +71,5 @@ NameIndex.cpp: PhoneBook.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 clean::
 	-rm -f NameIndex.h NameIndex.cpp
 	-rm -rf db/*
+
+include .depend

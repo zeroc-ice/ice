@@ -210,7 +210,7 @@ compile(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->printMakefileDependencies(Preprocessor::Ruby, output, includePaths, 
+            if(!icecpp->printMakefileDependencies(Preprocessor::Ruby, includePaths, 
                                                   "-D__SLICE2RB__"))
             {
                 return EXIT_FAILURE;

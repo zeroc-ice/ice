@@ -14,35 +14,37 @@ SERVER		= server
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-SLICE_OBJS	= Filesystem.o \
-		  FilesystemDB.o \
-		  IdentityDirectoryEntryMap.o \
-		  IdentityFileEntryMap.o
+OBJS		= Filesystem.o
 
-COBJS		= Filesystem.o \
-		  Client.o \
+COBJS		= Client.o \
 		  Grammar.o \
 		  Parser.o \
 		  Scanner.o
 
-SOBJS		= $(SLICE_OBJS) \
+SOBJS		= FilesystemDB.o \
 		  FilesystemI.o \
+		  IdentityDirectoryEntryMap.o \
+		  IdentityFileEntryMap.o \
 		  Server.o
 
-OBJS 		= $(COBJS) $(SOBJS)
+SRCS		= $(OBJS:.o=.cpp) \
+		  $(COBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp)
+
+SLICE_SRCS	= Filesystem.ice FilesystemDB.ice
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS) $(READLINE_FLAGS)
 SLICE2CPPFLAGS	:= -I. $(SLICE2CPPFLAGS)
 
-$(CLIENT): $(COBJS)
+$(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS) $(READLINE_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS) $(READLINE_LIBS)
 
-$(SERVER): $(SOBJS)
+$(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
 IdentityFileEntryMap.h: IdentityFileEntryMap.cpp
 IdentityFileEntryMap.cpp: FilesystemDB.ice Filesystem.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
@@ -64,3 +66,5 @@ clean::
 
 clean::
 	-rm -rf db/*
+
+include .depend

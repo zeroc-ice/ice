@@ -14,11 +14,11 @@ CLIENTF		= clientFail
 
 TARGETS		= $(CLIENT) $(CLIENTF)
 
-COBJS		= Client.o
+OBJS		= Client.o
 
-CFOBJS		= ClientFail.o
+OBJFS		= ClientFail.o
 
-OBJS 		= $(COBJS) $(CFOBJS)
+SRCS		= $(OBJS:.o=.cpp) $(OBJFS:.o=.cpp)
 
 GENPIC          = no
 
@@ -26,14 +26,16 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
-$(CLIENT): $(COBJS)
+$(CLIENT): $(OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
-$(CLIENTF): $(CFOBJS)
+$(CLIENTF): $(OBJFS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(CFOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJFS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
 
 clean::
 	-rm -rf db/*
+
+include .depend

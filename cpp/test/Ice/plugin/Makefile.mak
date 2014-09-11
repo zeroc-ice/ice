@@ -28,8 +28,8 @@ COBJS		= Client.obj
 
 POBJS		= Plugin.obj
 
-OBJS		= $(COBJS) \
-		  $(POBJS)
+SRCS		= $(COBJS:.obj=.cpp) \
+		  $(POBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -64,3 +64,5 @@ $(CLIENT)$(EXT): $(COBJS)
 
 clean::
 	del /q $(PLUGINDIR)\*.ilk $(PLUGINDIR)\*.pdb
+
+!include .depend.mak

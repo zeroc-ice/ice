@@ -23,8 +23,12 @@ SAMD_SRCS	= MyDerivedClassAMDI.cs Server.cs
 STIE_SRCS	= MyDerivedClassTieI.cs Server.cs
 SAMD_TIE_SRCS	= MyDerivedClassAMDTieI.cs Server.cs
 
-GEN_SRCS	= $(GDIR)/Test.cs
-GEN_AMD_SRCS	= $(GDIR)/TestAMD.cs
+SLICE_SRCS	= $(SDIR)/Test.ice
+SLICE_AMD_SRCS	= $(SDIR)/TestAMD.ice
+
+SDIR		= .
+
+GDIR		= generated
 
 include $(top_srcdir)/config/Make.rules.cs
 
@@ -33,19 +37,21 @@ MCSFLAGS	:= $(MCSFLAGS) -target:exe
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --tie -I. -I$(slicedir)
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 server.exe: $(S_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 collocated.exe: $(COL_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 serveramd.exe: $(SAMD_SRCS) $(GEN_AMD_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 servertie.exe: $(STIE_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 serveramdtie.exe: $(SAMD_TIE_SRCS) $(GEN_AMD_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
+
+include .depend

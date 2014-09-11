@@ -14,30 +14,34 @@ SERVER		= server
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-SLICE_OBJS	= Counter.o
+OBJS		= Counter.o
 
-COBJS		= $(SLICE_OBJS) \
-		  Client.o \
+COBJS		= Client.o \
 		  CounterObserverI.o
 
-SOBJS		= $(SLICE_OBJS) \
-		  CounterI.o \
+SOBJS		= CounterI.o \
 		  Server.o
 
-OBJS 		= $(COBJS) $(SOBJS)
+SRCS		= $(OBJS:.o=.cpp) \
+		  $(COBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp)
+
+SLICE_SRCS	= Counter.ice
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
 IS_LIBS		:= -lIceStorm $(LIBS)
 
-$(CLIENT): $(COBJS)
+$(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
 
-$(SERVER): $(SOBJS)
+$(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(IS_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(IS_LIBS)
 
 clean::
 	-rm -rf db/*
+
+include .depend

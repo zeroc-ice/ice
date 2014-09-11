@@ -13,12 +13,12 @@ SERVER		= server.exe
 
 TARGETS		= $(SERVER)
 
-SLICE_OBJS	= Test.obj \
-		  Types.obj
-
-OBJS		= $(SLICE_OBJS) \
+SOBJS		= Test.obj \
+		  Types.obj \
 		  TestI.obj \
 		  Server.obj
+
+SRCS		= $(SOBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -29,11 +29,13 @@ CPPFLAGS	= -I. -I../../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 PDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 !endif
 
-$(SERVER): $(OBJS)
-	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(SETARGV) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(SERVER): $(SOBJS)
+	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(SETARGV) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 clean::
 	del /q Test.cpp Test.h
 	del /q Types.cpp Types.h
+
+!include .depend.mak

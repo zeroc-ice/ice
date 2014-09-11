@@ -16,50 +16,51 @@ COLLOCATED	= $(call mktestname,collocated)
 
 TARGETS		= $(CLIENT) $(SERVER) $(SERVERAMD) $(COLLOCATED)
 
+OBJS		= ExceptionsI.o
+
 COBJS		= Test.o \
 		  Client.o \
-		  AllTests.o \
-		  ExceptionsI.o
+		  AllTests.o
 
 SOBJS		= Test.o \
 		  TestI.o \
-		  Server.o \
-		  ExceptionsI.o
+		  Server.o
 
 SAMDOBJS	= TestAMD.o \
 		  TestAMDI.o \
-		  ServerAMD.o \
-		  ExceptionsI.o
+		  ServerAMD.o
 
 COLOBJS		= Test.o \
 		  TestI.o \
 		  Collocated.o \
-		  AllTests.o \
-		  ExceptionsI.o
+		  AllTests.o
 
-SLICE_OBJS	= Test.o TestAMD.o
+SRCS		= $(OBJS:.o=.cpp) \
+		  $(COBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp) \
+		  $(SAMDOBJS:.o=.cpp) \
+		  $(COLOBJS:.o=.cpp)
 
-OBJS		= $(COBJS) \
-		  $(SOBJS) \
-		  $(SAMDOBJS) \
-		  $(COLOBJS)
+SLICE_SRCS	= Test.ice TestAMD.ice
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
-$(CLIENT): $(COBJS)
+$(CLIENT): $(COBJS) $(OBJS)
 	rm -f $@
-	$(call mktest,$@,$(COBJS),$(LIBS))
+	$(call mktest,$@,$(COBJS) $(OBJS),$(LIBS))
 
-$(SERVER): $(SOBJS)
+$(SERVER): $(SOBJS) $(OBJS)
 	rm -f $@
-	$(call mktest,$@,$(SOBJS),$(LIBS))
+	$(call mktest,$@,$(SOBJS) $(OBJS),$(LIBS))
 
-$(SERVERAMD): $(SAMDOBJS)
+$(SERVERAMD): $(SAMDOBJS) $(OBJS)
 	rm -f $@
-	$(call mktest,$@,$(SAMDOBJS),$(LIBS))
+	$(call mktest,$@,$(SAMDOBJS) $(OBJS),$(LIBS))
 
-$(COLLOCATED): $(COLOBJS)
+$(COLLOCATED): $(COLOBJS) $(OBJS)
 	rm -f $@
-	$(call mktest,$@,$(COLOBJS),$(LIBS))
+	$(call mktest,$@,$(COLOBJS) $(OBJS),$(LIBS))
+
+include .depend

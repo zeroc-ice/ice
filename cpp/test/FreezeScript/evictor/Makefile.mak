@@ -13,12 +13,12 @@ CLIENT		= makedb.exe
 
 TARGETS		= $(CLIENT)
 
-SLICE_OBJS	= TestOld.obj
-
-OBJS		= $(SLICE_OBJS) \
-		  makedb.obj
+OBJS		= TestOld.obj \
+                  makedb.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
+
+SLICE_SRCS	= TestOld.ice
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -41,3 +41,5 @@ clean::
 	del /q db\*.db db\log.* db\__catalog db\__catalogIndexList
 	if exist db_check rmdir /s /q db_check
 	if exist db_tmp rmdir /s /q db_tmp
+
+!include .depend.mak

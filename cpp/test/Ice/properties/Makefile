@@ -13,15 +13,19 @@ CLIENT		= $(call mktestname,client)
 
 TARGETS		= $(CLIENT)
 
-OBJS		= Client.o
+COBJS		= Client.o
+
+SRCS		= $(COBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
-$(CLIENT): $(OBJS)
+$(CLIENT): $(COBJS)
 	rm -f $@
-	$(call mktest,$@,$(OBJS),$(LIBS))
+	$(call mktest,$@,$(COBJS),$(LIBS))
 
 clean::
 	-rm -f seed
+
+include .depend

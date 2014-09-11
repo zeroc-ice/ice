@@ -13,11 +13,13 @@ CLIENT		= makedb
 
 TARGETS		= $(CLIENT)
 
-SLICE_OBJS	= TestOld.o \
-		  IntSMap.o
+OBJS		= TestOld.o \
+                  makedb.o \
+                  IntSMap.o
 
-OBJS		= $(SLICE_OBJS) \
-		  makedb.o
+SRCS		= $(OBJS:.o=.cpp)
+
+SLICE_SRCS	= TestOld.ice
 
 include $(top_srcdir)/config/Make.rules
 
@@ -37,3 +39,5 @@ IntSMap.cpp: TestOld.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 clean::
 	-rm -f IntSMap.h IntSMap.cpp
 	-rm -rf db/* db_init db_check db_tmp
+
+include .depend

@@ -13,14 +13,14 @@ CLIENT		= client.exe
 
 TARGETS		= $(CLIENT)
 
-SLICE_OBJS	= ByteIntMap.obj \
-		  IntIdentityMap.obj \
-		  IntIdentityMapWithIndex.obj \
-		  SortedMap.obj \
+OBJS		= Client.obj \
+                  ByteIntMap.obj \
+                  IntIdentityMap.obj \
+                  IntIdentityMapWithIndex.obj \
+                  SortedMap.obj \
 		  WstringWstringMap.obj
 
-OBJS		= $(SLICE_OBJS) \
-		  Client.obj
+SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)\config\Make.rules.mak
 
@@ -63,3 +63,5 @@ clean::
 	del /q WstringWstringMap.h WstringWstringMap.cpp
 	-if exist db\__Freeze rmdir /q /s db\__Freeze
 	-for %f in (db\*) do if not %f == db\.gitignore del /q %f
+
+!include .depend.mak

@@ -37,3 +37,5 @@ LoggerPlugin.dll: $(L_SRCS)
 
 HelloPlugin.dll: $(H_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -target:library -out:$@ -r:"$(refdir)\Ice.dll" $(H_SRCS) $(GEN_SRCS)
+
+!include .depend.mak

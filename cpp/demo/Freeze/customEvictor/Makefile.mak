@@ -14,23 +14,24 @@ SERVER		= server.exe
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-SLICE_OBJS	= Item.obj \
-		  ItemInfo.obj \
-		  Database.obj
+OBJS            = Item.obj
 
-COBJS		= Item.obj \
-		  Client.obj
+COBJS		= Client.obj
 
-SOBJS		= $(SLICE_OBJS) \
-		  CurrentDatabase.obj \
+SOBJS		= CurrentDatabase.obj \
+		  Database.obj \
 		  Evictor.obj \
 		  EvictorBase.obj \
 		  ItemI.obj \
+		  ItemInfo.obj \
 		  Server.obj \
 		  SimpleEvictor.obj
 
-OBJS		= $(COBJS) \
-		  $(SOBJS)
+SRCS		= $(OBJS:.obj=.cpp) \
+				  $(COBJS:.obj=.cpp) \
+				  $(SOBJS:.obj=.cpp)
+
+SLICE_SRCS	= Item.ice ItemInfo.ice
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -42,13 +43,13 @@ SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 COPDBFLAGS       = /pdb:$(COLLOCATED:.exe=.pdb)
 !endif
 
-$(CLIENT): $(COBJS)
-	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(CLIENT): $(OBJS) $(COBJS)
+	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 		$(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(SERVER): $(SOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
+$(SERVER): $(OBJS) $(SOBJS)
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 		$(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
@@ -62,3 +63,5 @@ clean::
 	del /q Database.h Database.cpp
 	if exist db\__Freeze rmdir /q /s db\__Freeze
 	for %f in (db\*) do if not %f == db\DB_CONFIG del /q %f
+
+include .depend.mak

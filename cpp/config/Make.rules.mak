@@ -34,7 +34,7 @@ prefix			= C:\Ice-$(VERSION)
 #
 # Define if you want to build for WinRT
 #
-#WINRT 			= yes
+#WINRT		        = yes
 
 #
 # Is the MFC library available?
@@ -162,12 +162,12 @@ COMPSUFFIX  = _vc120
 !endif
 
 !if "$(OPTIMIZE)" != "yes"
-LIBSUFFIX		= d
-RCFLAGS			= -D_DEBUG
+LIBSUFFIX	= d
+RCFLAGS		= -D_DEBUG
 !endif
 
-SSL_OS_LIBS		= secur32.lib crypt32.lib
-EXPAT_LIBS		= libexpat.lib
+SSL_OS_LIBS             = secur32.lib crypt32.lib
+EXPAT_LIBS              = libexpat.lib
 
 !if "$(STATICLIBS)" =="yes"
 SLICE_LIBS		= $(PRELIBS)slice$(LIBSUFFIX).lib $(MCPP_LIBS)
@@ -214,101 +214,40 @@ MT 			= mt.exe
 EVERYTHING		= all clean install depend
 
 .SUFFIXES:
-.SUFFIXES:		.ice .cpp .c .obj .res .rc .h
+.SUFFIXES:		.ice .cpp .c .obj .res .rc .h .depend
 
-!if "$(SLICE_OBJS)" != ""
 
-SLICE_OBJS_DEPEND = $(SLICE_OBJS:.obj=.ice.d.mak)
-
-all:: .depend\ice.depend.mak
-
-.depend\ice.depend.mak: Makefile.mak
-	@echo Creating Slice dependencies list
-	@if not exist ".depend" mkdir .depend
-	cscript /NoLogo $(top_srcdir)\..\config\makedepend-list.vbs $(SLICE_OBJS_DEPEND) > .depend\ice.depend.mak
-!endif
-
-!if exist(.depend\ice.depend.mak)
-!include .depend\ice.depend.mak
-!endif
-
-!if "$(OBJS)" != ""
-
-OBJS_DEPEND = $(OBJS:.obj=.d.mak)
-
-all:: .depend\depend.mak
-
-.depend\depend.mak: Makefile.mak
-	@echo Creating C++ dependencies list
-	@if not exist ".depend" mkdir .depend
-	cscript /NoLogo $(top_srcdir)\..\config\makedepend-list.vbs $(OBJS_DEPEND) > .depend\depend.mak
-!endif
-
-!if exist(.depend\depend.mak)
-!include .depend\depend.mak
-!endif
-
-!if "$(WINRT)" != "yes"
-
-.cpp.obj:
-	del /q .depend\$(*F).d.mak
-	$(CXX) /c $(CPPFLAGS) $(CXXFLAGS) /showIncludes $< | \
-	cscript /NoLogo $(top_srcdir)\..\config\makedepend.vbs $<
+.cpp.obj::
+	$(CXX) /c $(CPPFLAGS) $(CXXFLAGS) $<
 
 .c.obj:
-	del /q .depend\$(*F).d.mak
-	$(CC) /c $(CPPFLAGS) $(CFLAGS) /showIncludes $< | \
-	cscript /NoLogo $(top_srcdir)\..\config\makedepend.vbs $<
+	$(CC) /c $(CPPFLAGS) $(CFLAGS) $<
 
-{$(SDIR)\}.ice.cpp:
+{$(SDIR)\}.ice{$(HDIR)}.h:
 	del /q $(HDIR)\$(*F).h $(*F).cpp
 	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) $<
 	move $(*F).h $(HDIR)
-	@"$(SLICE2CPP)" $(SLICE2CPPFLAGS) --depend $< > .depend\$(*F).ice.d.mak
 
 .ice.cpp:
 	del /q $(*F).h $(*F).cpp
 	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) $(*F).ice
-	@"$(SLICE2CPP)" $(SLICE2CPPFLAGS) --depend $(*F).ice > .depend\$(*F).ice.d.mak
 
-!else
+!if "$(WINRT)" == "yes"
 
-!if "$(SLICE_SRCS)" != ""
-
-SLICE_DEPENDS = $(SLICE_SRCS:.cpp=.ice.d.mak)
-SLICE_DEPENDS = $(SLICE_DEPENDS:..\=)
-
-all:: .depend\ice.depend.mak
-
-.depend\ice.depend.mak: Makefile.mak
-	@echo Creating Slice dependencies list
-	@if not exist ".depend" mkdir .depend
-	cscript /NoLogo $(top_srcdir)\..\config\makedepend-list.vbs $(SLICE_DEPENDS) > .depend\ice.depend.mak
-
-!if exist(.depend\ice.depend.mak)
-!include .depend\ice.depend.mak
-!endif
-
-!endif
-
-{..}.cpp{$(ARCH)\$(CONFIG)\}.obj:
+{..}.cpp{$(ARCH)\$(CONFIG)\}.obj::
 	@if not exist "$(ARCH)\$(CONFIG)" mkdir $(ARCH)\$(CONFIG)
-	$(CXX) /c /Fo$(ARCH)\$(CONFIG)\ $(CPPFLAGS) $(CXXFLAGS) /showIncludes $< | \
-	cscript /NoLogo $(top_srcdir)\..\config\makedepend.vbs $< "$$(ARCH)\$$(CONFIG)\"
+	$(CXX) /c /Fo$(ARCH)\$(CONFIG)\ $(CPPFLAGS) $(CXXFLAGS) $<
 
 {$(SDIR)\}.ice{..}.cpp:
 	@echo f
 	del /q $(HDIR)\$(*F).h ..\$(*F).cpp
-	"$(SLICE2CPP)" $(SLICE2CPPFLAGS)  $<
-	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) --depend $< | \
-		cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs "$(HDIR)\$(*F).h ..\$(*F).cpp: \" > .depend\$(*F).ice.d.mak
+	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) $<
 	move $(*F).h $(HDIR)
 	move $(*F).cpp ..
 
-.ice.cpp:
-	del /q $(*F).h $(*F).cpp
-	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) $(*F).ice
-	@"$(SLICE2CPP)" $(SLICE2CPPFLAGS) --depend $(*F).ice > .depend\$(*F).ice.d.mak
+!if "$(SRCS)" != ""
+SRCS_DEPEND 	= $(SRCS:.cpp=.depend)
+!endif
 
 !if "$(INCLUDE_DIR)" != ""
 .h{$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\}.h:
@@ -325,9 +264,6 @@ all:: $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)
 .rc.res:
 	rc $(RCFLAGS) $<
 
-!if "$(SLICE_OBJS)" != ""
-all:: $(SLICE_OBJS:.obj=.cpp)
-!endif
 
 all:: $(SRCS) $(TARGETS)
 
@@ -335,7 +271,6 @@ all:: $(SRCS) $(TARGETS)
 
 clean::
 	-del /q $(TARGETS)
-	-del /q .depend\*.mak
 
 !endif
 
@@ -376,3 +311,5 @@ clean::
 	-del /q *.obj *.bak *.ilk *.exp *.pdb *.tds *.idb
 
 install::
+
+depend::

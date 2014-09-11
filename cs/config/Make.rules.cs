@@ -69,17 +69,7 @@ else
     include $(top_srcdir)/../config/Make.common.rules
 endif
 
-ifeq ($(SDIR),)
-ifeq ($(PKG),)
-SDIR        = .
-else
-SDIR        = $(slicedir)/$(PKG)
-endif
-endif
-
-ifeq ($(GDIR),)
-GDIR        = generated
-endif
+DSEP = /
 
 bindir = $(top_srcdir)/bin
 
@@ -231,76 +221,23 @@ endif
 
 endif
 
+GEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_SRCS))))
+CGEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_C_SRCS))))
+SGEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_S_SRCS))))
+GEN_AMD_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_AMD_SRCS))))
+SAMD_GEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_SAMD_SRCS))))
+
 
 EVERYTHING		= all depend clean install
 
 .SUFFIXES:
 .SUFFIXES:		.cs .ice
 
-ifneq ($(GEN_SRCS),)
-
--include $(GEN_SRCS:$(GDIR)/%.cs=.depend/%.ice.d)
-
-all:: $(GEN_SRCS)
-
-clean::
-	-rm -f $(GEN_SRCS)
-	-rm -f .depend/*.ice.d
-endif
-
-ifneq ($(GEN_C_SRCS),)
-
--include $(GEN_C_SRCS:$(GDIR)/%.cs=.depend/%.ice.d)
-
-all:: $(GEN_C_SRCS)
-
-clean::
-	-rm -f $(GEN_C_SRCS)
-	-rm -f .depend/*.ice.d
-endif
-
-ifneq ($(GEN_S_SRCS),)
-
--include $(GEN_S_SRCS:$(GDIR)/%.cs=.depend/%.ice.d)
-
-all:: $(GEN_S_SRCS)
-
-clean::
-	-rm -f $(GEN_S_SRCS)
-	-rm -f .depend/*.ice.d
-endif
-
-ifneq ($(GEN_AMD_SRCS),)
-
--include $(GEN_AMD_SRCS:$(GDIR)/%.cs=.depend/%.ice.d)
-
-all:: $(GEN_AMD_SRCS)
-
-clean::
-	-rm -f $(GEN_AMD_SRCS)
-	-rm -f .depend/*.ice.d
-endif
-
-ifneq ($(GEN_SAMD_SRCS),)
-
--include $(GEN_SAMD_SRCS:$(GDIR)/%.cs=.depend/%.ice.d)
-
-all:: $(GEN_SAMD_SRCS)
-
-clean::
-	-rm -f $(GEN_SAMD_SRCS)
-	-rm -f .depend/*.ice.d
-endif
-
 %.cs: %.ice
 	$(SLICE2CS) $(SLICE2CSFLAGS) $<
-	@mkdir -p .depend
-	@$(SLICE2CS) $(SLICE2CSFLAGS) --depend $< > .depend/$(*F).ice.d
 
 $(GDIR)/%.cs: $(SDIR)/%.ice
 	$(SLICE2CS) --output-dir $(GDIR) $(SLICE2CSFLAGS) $<
-	@mkdir -p .depend
-	@$(SLICE2CS) --output-dir $(GDIR) $(SLICE2CSFLAGS) --depend $< > .depend/$(*F).ice.d
 
 all:: $(TARGETS)
 
@@ -314,8 +251,47 @@ ifneq ($(TARGETS_CONFIG),)
 all:: $(TARGETS_CONFIG)
 endif
 
+depend:: $(SLICE_SRCS) $(SLICE_C_SRCS) $(SLICE_S_SRCS) $(SLICE_AMD_SRCS) $(SLICE_SAMD_SRCS)
+	-rm -f .depend .depend.mak
+	if test -n "$(SLICE_SRCS)" ; then \
+	    $(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_SRCS) | $(ice_dir)/config/makedepend.py; \
+	fi
+	if test -n "$(SLICE_C_SRCS)" ; then \
+	    $(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_C_SRCS) | $(ice_dir)/config/makedepend.py; \
+	fi
+	if test -n "$(SLICE_S_SRCS)" ; then \
+	    $(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_S_SRCS) | $(ice_dir)/config/makedepend.py; \
+	fi
+	if test -n "$(SLICE_AMD_SRCS)" ; then \
+	    $(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_AMD_SRCS) | $(ice_dir)/config/makedepend.py; \
+	fi
+	if test -n "$(SLICE_SAMD_SRCS)" ; then \
+	    $(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_SAMD_SRCS) | $(ice_dir)/config/makedepend.py; \
+	fi
+
 clean::
 	-rm -f $(TARGETS) $(patsubst %,%.mdb,$(TARGETS)) *.bak *.dll *.pdb *.mdb
+
+ifneq ($(SLICE_SRCS),)
+clean::
+	-rm -f $(GEN_SRCS)
+endif
+ifneq ($(SLICE_C_SRCS),)
+clean::
+	-rm -f $(CGEN_SRCS)
+endif
+ifneq ($(SLICE_S_SRCS),)
+clean::
+	-rm -f $(SGEN_SRCS)
+endif
+ifneq ($(SLICE_AMD_SRCS),)
+clean::
+	-rm -f $(GEN_AMD_SRCS)
+endif
+ifneq ($(SLICE_SAMD_SRCS),)
+clean::
+	-rm -f $(SAMD_GEN_SRCS)
+endif
 
 ifneq ($(TARGETS_CONFIG),)
 clean::

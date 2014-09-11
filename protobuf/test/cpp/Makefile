@@ -56,7 +56,13 @@ $(SERVER): $(SOBJS)
 	$(PROTOBUF_HOME)/bin/protoc --cpp_out=. $(*F).proto
 	mv $(*F).pb.cc $(*F).pb.cpp
 
+depend::
+	for i in $(PROTO_SRCS); do \
+		echo "$${i%.proto}.pb.cpp: $$i" >> .depend; \
+	done
+
 clean::
 	rm -f $(addsuffix .pb.cpp, $(basename $(notdir $(PROTO_SRCS))))
 	rm -f $(addsuffix .pb.h, $(basename $(notdir $(PROTO_SRCS))))
 
+include .depend

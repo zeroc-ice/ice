@@ -16,6 +16,9 @@ TARGETS		= $(WQ) $(MATCH)
 
 OBJS		= WorkQueue.obj \
 		  Match.obj
+	
+
+SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -35,3 +38,5 @@ $(MATCH): Match.obj
 	$(LINK) $(LD_EXEFLAGS) $(MATCH_PDBFLAGS) $(SETARGV) Match.obj $(PREOUT)$@ $(PRELIBS)$(BASELIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
+
+!include .depend.mak

@@ -13,6 +13,8 @@ TARGETS		= client.exe
 
 C_SRCS		= Client.cs
 
+SDIR		= .
+
 include $(top_srcdir)/config/Make.rules.cs
 
 MCSFLAGS	:= $(MCSFLAGS) -target:exe
@@ -20,4 +22,9 @@ MCSFLAGS	:= $(MCSFLAGS) -target:exe
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) -I.
 
 client.exe: $(C_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
+
+depend::
+	touch .depend .depend.mak
+
+include .depend

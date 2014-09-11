@@ -326,12 +326,9 @@ LoggerAdminI::LoggerAdminI(const string& name, const PropertiesPtr& props) :
     _maxLogCount(props->getPropertyAsIntWithDefault("Ice.Admin.Logger.KeepLogs", 100)),
     _traceCount(0),
     _maxTraceCount(props->getPropertyAsIntWithDefault("Ice.Admin.Logger.KeepTraces", 100)),
-    _traceLevel(props->getPropertyAsInt("Ice.Trace.Admin.Logger"))
+    _traceLevel(props->getPropertyAsInt("Ice.Trace.Admin.Logger")),
+    _remoteCallCompleted(newCallback(this, &LoggerAdminI::remoteCallCompleted))
 {
-    //
-    // VC110 doesn't allow to use this in base member initializer
-    //
-    const_cast<CallbackPtr&>(_remoteCallCompleted) = newCallback(this, &LoggerAdminI::remoteCallCompleted);
     _oldestLog = _queue.end();
     _oldestTrace = _queue.end();
 }

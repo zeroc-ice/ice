@@ -9,7 +9,17 @@
 
 top_srcdir	= ..\..\..
 
-GEN_SRCS		= Key.php
-SLICE2PHPFLAGS  = --underscore
-
 !include $(top_srcdir)\config\Make.rules.mak.php
+
+SRCS		= Key.php
+SLICE2PHPFLAGS  = --underscore $(SLICE2PHPFLAGS)
+
+all:: $(SRCS)
+
+$(SRCS): $*.ice
+	-"$(SLICE2PHP)" $(SLICE2PHPFLAGS) $*.ice
+
+clean::
+	del /q $(SRCS)
+
+include .depend.mak

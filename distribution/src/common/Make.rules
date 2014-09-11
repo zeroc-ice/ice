@@ -114,28 +114,15 @@ EVERYTHING_EXCEPT_ALL   = clean
 .SUFFIXES:
 .SUFFIXES:		.cpp .c .o
 
-ifneq ($(SLICE_OBJS),)
--include $(addprefix .depend/, $(SLICE_OBJS:.o=.ice.d))
-endif
-
-ifneq ($(OBJS),)
--include $(addprefix .depend/, $(OBJS:.o=.d))
-$(OBJS): $(OBJS:.o=.cpp)
-endif
-
 .cpp.o:
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
-	@mkdir -p .depend
-	@$(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $< > .depend/$(*F).d
 
 .c.o:
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
 
 %.h %.cpp: %.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	rm -f $(*F).h $(*F).cpp
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(*F).ice
-	@mkdir -p .depend
-	@$(SLICE2CPP) $(SLICE2CPPFLAGS) --depend $< $< > .depend/$(*F).ice.d
+	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(*F).ice	
 
 %.h %.cpp: %.y
 	rm -f $(*F).h $(*F).cpp
@@ -156,7 +143,6 @@ all:: $(SRCS) $(TARGETS)
 clean::
 	-rm -f $(TARGETS)
 	-rm -f core *.o *.bak
-	-rm -f .depend/*.d
 
 ifneq ($(SLICE_SRCS),)
 clean::

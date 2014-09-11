@@ -11,13 +11,13 @@ top_srcdir	= ..\..
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-SUBDIRS		= federation \
+SUBDIRS		= single \
+		  federation \
 		  federation2 \
+		  stress \
 		  rep1 \
-		  repgrid \
 		  repstress \
-		  single \
-		  stress
+		  repgrid
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

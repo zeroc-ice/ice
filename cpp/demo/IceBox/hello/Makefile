@@ -16,27 +16,30 @@ SONAME          = $(call mksoname,HelloService)
 
 TARGETS		= $(CLIENT) $(LIBFILENAME)
 
-SLICE_OBJS	= Hello.o
+OBJS		= Hello.o
 
-COBJS		= $(SLICE_OBJS) \
-		  Client.o
+COBJS		= Client.o
 
-SOBJS		= $(SLICE_OBJS) \
-		  HelloI.o \
+SOBJS		= HelloI.o \
 		  HelloServiceI.o
 
-OBJS 		= $(COBJS) \
-		  $(SOBJS)
+SRCS		= $(OBJS:.o=.cpp) \
+		  $(COBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp)
+
+SLICE_SRCS	= Hello.ice
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
 LINKWITH	:= -lIceBox $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
-$(LIBFILENAME): $(SOBJS)
+$(LIBFILENAME): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(call mkshlib,$@,$(SONAME),$(SOBJS),$(LINKWITH))
+	$(call mkshlib,$@,$(SONAME),$(OBJS) $(SOBJS),$(LINKWITH))
 
-$(CLIENT): $(COBJS)
+$(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
+
+include .depend

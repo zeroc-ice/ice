@@ -16,6 +16,8 @@ TARGETS		= $(NAME)
 OBJS		= Gen.o \
 		  Main.o
 
+SRCS		= $(OBJS:.o=.cpp)
+
 ifeq ($(CPP11),yes)
 RPATH_DIR	= @loader_path/../../lib/c++11
 else
@@ -34,3 +36,4 @@ install:: all
 	$(call installprogram,$(NAME),$(DESTDIR)$(install_bindir))
 	$(call installdata,$(top_srcdir)/../man/man1/slice2cpp.1,$(DESTDIR)$(install_mandir))
 
+include .depend

@@ -537,7 +537,7 @@ compile(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->printMakefileDependencies(Preprocessor::Python, output, includePaths,
+            if(!icecpp->printMakefileDependencies(Preprocessor::Python, includePaths, 
                                                   "-D__SLICE2PY__", "", prefix))
             {
                 return EXIT_FAILURE;

@@ -73,3 +73,5 @@ Test.pb.h: Test.pb.cpp
 clean::
 	del /q Test.pb.h Test.pb.cpp
 	del /q Test.cpp Test.h
+
+!include .depend

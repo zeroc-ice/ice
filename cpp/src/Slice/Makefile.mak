@@ -31,6 +31,8 @@ OBJS		= Checksum.obj \
 		  Scanner.obj \
 		  Util.obj
 
+SRCS		= $(OBJS:.obj=.cpp)
+
 !include $(top_srcdir)/config/Make.rules.mak
 
 CPPFLAGS	= -I.. $(CPPFLAGS) -DSLICE_API_EXPORTS  -DWIN32_LEAN_AND_MEAN
@@ -90,3 +92,5 @@ install:: all
 	copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"
 
 !endif
+
+!include .depend.mak

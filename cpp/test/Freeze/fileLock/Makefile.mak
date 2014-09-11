@@ -13,12 +13,11 @@ CLIENT		= client.exe
 CLIENTF		= clientFail.exe
 TARGETS		= $(CLIENT) $(CLIENTF)
 
-COBJS		= Client.obj
+OBJS		= Client.obj
 
-CFOBJS		= ClientFail.obj
+OBJFS		= ClientFail.obj
 
-OBJS		= $(COBJS) \
-		  $(CFOBJS)
+SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)\config\Make.rules.mak
 
@@ -28,13 +27,13 @@ CPPFLAGS	= -I. -I..\..\include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 !endif
 
-$(CLIENT): $(COBJS)
-	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(SETARGV) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
+$(CLIENT): $(OBJS)
+	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(SETARGV) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(CLIENTF): $(CFOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(SETARGV) $(CFOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
+$(CLIENTF): $(OBJFS)
+	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(SETARGV) $(OBJFS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
@@ -42,3 +41,5 @@ $(CLIENTF): $(CFOBJS)
 clean::
 	-if exist db\__Freeze rmdir /q /s db\__Freeze
 	-for %f in (db\*) do if not %f == db\.gitignore del /q %f
+
+!include .depend.mak

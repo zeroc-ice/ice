@@ -17,8 +17,12 @@ COL_SRCS	= AllTests.cs Collocated.cs MyClassI.cs Twoways.cs TwowaysAMI.cs Twoway
 		  ../../TestCommon/TestApp.cs
 SAMD_SRCS	= MyClassAMDI.cs ServerAMD.cs Custom.cs
 
-GEN_SRCS	= $(GDIR)/Test.cs
-GEN_AMD_SRCS	= $(GDIR)/TestAMD.cs
+SLICE_SRCS	= $(SDIR)/Test.ice
+SLICE_AMD_SRCS	= $(SDIR)/TestAMD.ice
+
+SDIR		= .
+
+GDIR		= generated
 
 include $(top_srcdir)/config/Make.rules.cs
 
@@ -43,3 +47,5 @@ Serializable.dll:
 
 clean::
 	rm -f Serializable.dll
+
+include .depend

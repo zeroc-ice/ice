@@ -9,6 +9,7 @@
 
 SUBDIRS			= cpp java cs py rb php js
 CLEAN_SUBDIRS		= js java cs py rb php cpp
+DEPEND_SUBDIRS		= cpp cs py rb php
 INSTALL_SUBDIRS		= cpp java cs py rb php js
 
 all::
@@ -23,6 +24,13 @@ clean::
 	do \
 	    echo "making clean in $$subdir"; \
 	    ( cd $$subdir && $(MAKE) clean ) || exit 1; \
+	done
+
+depend::
+	@for subdir in $(DEPEND_SUBDIRS); \
+	do \
+	    echo "making depend in $$subdir"; \
+	    ( cd $$subdir && $(MAKE) depend ) || exit 1; \
 	done
 
 install::

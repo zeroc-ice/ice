@@ -16,11 +16,6 @@ COLLOCATED	= collocated.exe
 
 TARGETS		= $(CLIENT) $(SERVER) $(SERVERAMD) $(COLLOCATED)
 
-SLICE_OBJS		= Test.obj \
-		  TestAMD.obj \
-		  Wstring.obj \
-		  WstringAMD.obj
-
 COBJS           = Test.obj \
 		  Wstring.obj \
 		  Client.obj \
@@ -94,3 +89,5 @@ clean::
 	del /q TestAMD.cpp TestAMD.h
 	del /q Wstring.cpp Wstring.h
 	del /q WstringAMD.cpp WstringAMD.h
+
+!include .depend.mak

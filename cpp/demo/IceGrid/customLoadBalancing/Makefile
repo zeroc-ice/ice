@@ -18,31 +18,33 @@ LIBNAME		= $(call mklibname,RegistryPlugin)
 
 TARGETS		= $(CLIENT) $(SERVER) $(call mklibtargets,$(LIBFILENAME),$(SONAME),$(LIBNAME))
 
-SLICE_OBJS	= Pricing.o
+OBJS		= Pricing.o
 
-COBJS		= $(SLICE_OBJS) \
-		  Client.o
+COBJS		= Client.o
 
-SOBJS		= $(SLICE_OBJS) \
-		  PricingI.o \
+SOBJS		= PricingI.o \
 		  Server.o
 
 POBJS		= RegistryPlugin.o
 
-OBJS 		= $(COBJS) $(SOBJS) $(POBJS)
+SRCS		= $(OBJS:.o=.cpp) \
+		  $(COBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp) \
+
+SLICE_SRCS	= Pricing.ice
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
 LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
-$(CLIENT): $(COBJS)
+$(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) -lIceGrid -lGlacier2 $(LINKWITH)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lIceGrid -lGlacier2 $(LINKWITH)
 
-$(SERVER): $(SOBJS)
+$(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LINKWITH)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LINKWITH)
 
 $(LIBFILENAME): $(POBJS)
 	rm -f $@
@@ -58,3 +60,5 @@ $(LIBNAME): $(SONAME)
 
 clean::
 	-rm -rf db/node/* db/registry/*
+
+include .depend

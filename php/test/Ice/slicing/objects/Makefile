@@ -9,6 +9,18 @@
 
 top_srcdir	= ../../../..
 
-GEN_SRCS	= Test.php
+SLICE_SRCS	= Test.ice
 
 include $(top_srcdir)/config/Make.rules.php
+
+SRCS	= ClientPrivate.php Forward.php Test.php
+
+all:: $(SRCS)
+
+%.php: %.ice
+	$(SLICE2PHP) -I. $(SLICE2PHPFLAGS) $<
+
+clean::
+	rm -f $(SRCS)
+
+include .depend

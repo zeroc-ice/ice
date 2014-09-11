@@ -35,3 +35,5 @@ MyGreeting.dll: MyGreeting.cs
 
 clean::
 	del /q MyGreeting.dll
+
+!include .depend.mak

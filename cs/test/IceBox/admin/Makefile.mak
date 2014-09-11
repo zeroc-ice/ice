@@ -32,3 +32,5 @@ client.exe: $(C_SRCS) $(GEN_SRCS)
 testservice.dll: $(S_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -target:library -out:$@ -r:"$(refdir)\IceBox.dll" -r:"$(refdir)\Ice.dll" \
 		$(S_SRCS) $(GEN_SRCS)
+
+!include .depend.mak

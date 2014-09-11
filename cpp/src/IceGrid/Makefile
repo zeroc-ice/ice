@@ -15,7 +15,7 @@ REGISTRY_SERVER	= $(bindir)/icegridregistry
 
 TARGETS         = $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)
 
-SLICE_OBJS      = Internal.o \
+SLICE_OBJS      = Internal.o
 
 ADMIN_OBJS	= Client.o \
 		  DescriptorBuilder.o \
@@ -88,13 +88,14 @@ REGISTRY_SVR_OBJS = \
 		  $(REGISTRY_OBJS) \
 		  IceGridRegistry.o
 
-OBJS 		= $(SLICE_OBJS) \
-		  $(ADMIN_OBJS) \
-		  $(COMMON_OBJS) \
-		  $(NODE_OBJS) \
-		  $(REGISTRY_OBJS) \
-		  $(NODE_SVR_OBJS) \
-		  $(REGISTRY_SVR_OBJS)
+SRCS		= $(ADMIN_OBJS:.o=.cpp) \
+		  $(COMMON_OBJS:.o=.cpp) \
+		  $(NODE_OBJS:.o=.cpp) \
+		  $(REGISTRY_OBJS:.o=.cpp) \
+		  IceGridNode.cpp \
+		  IceGridRegistry.cpp
+
+SLICE_SRCS	= $(addprefix ../IceGrid/, $(SLICE_OBJS:.o=.ice))
 
 HDIR		= $(headerdir)/IceGrid
 SDIR		= $(slicedir)/IceGrid
@@ -106,8 +107,6 @@ RPATH_DIR	= @loader_path/../lib
 endif
 
 include $(top_srcdir)/config/Make.rules
-
-$(OBJS): StringApplicationInfoDict.cpp IdentityObjectInfoDict.cpp StringAdapterInfoDict.cpp SerialsDict.cpp
 
 CPPFLAGS	:= $(CPPFLAGS) -I.. $(OPENSSL_FLAGS) $(READLINE_FLAGS)
 ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
@@ -168,3 +167,6 @@ install:: all
 	$(call installdata,$(top_srcdir)/../man/man1/icegridnode.1,$(DESTDIR)$(install_mandir))
 	$(call installprogram,$(REGISTRY_SERVER),$(DESTDIR)$(install_bindir))
 	$(call installdata,$(top_srcdir)/../man/man1/icegridregistry.1,$(DESTDIR)$(install_mandir))
+
+
+include .depend

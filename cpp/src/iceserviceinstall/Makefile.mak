@@ -16,6 +16,8 @@ TARGETS         = $(TOOL)
 OBJS            = ServiceInstaller.obj \
                   Install.obj
 
+SRCS		= $(OBJS:.obj=.cpp)
+
 !include $(top_srcdir)\config\Make.rules.mak
 
 CPPFLAGS	= -I. -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
@@ -46,3 +48,7 @@ install:: all
 	copy $(TOOL:.exe=.pdb) "$(install_bindir)"
 
 !endif
+
+
+!include .depend.mak
+

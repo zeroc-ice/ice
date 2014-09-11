@@ -14,30 +14,34 @@ SUBSCRIBER	= subscriber
 
 TARGETS		= $(PUBLISHER) $(SUBSCRIBER)
 
-SLICE_OBJS	= Clock.o
+OBJS		= Clock.o
 
-POBJS		= $(SLICE_OBJS) \
-		  Publisher.o
+POBJS		= Publisher.o
 
-SOBJS		= $(SLICE_OBJS) \
-		  Subscriber.o
+SOBJS		= Subscriber.o
 
-OBJS 		= $(POBJS) $(SOBJS)
+SRCS		= $(OBJS:.o=.cpp) \
+		  $(POBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp)
+
+SLICE_SRCS	= Clock.ice
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
 LIBS		:= -lIceStorm $(LIBS)
 
-$(PUBLISHER): $(POBJS)
+$(PUBLISHER): $(OBJS) $(POBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(POBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(POBJS) $(LIBS)
 
-$(SUBSCRIBER): $(SOBJS)
+$(SUBSCRIBER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
 clean::
 	-rm -rf db1/*
 	-rm -rf db2/*
 	-rm -rf db3/*
+
+include .depend

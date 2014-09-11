@@ -20,11 +20,14 @@ SRCS		= Application.cs \
 		  SessionFactoryHelper.cs \
 		  SessionHelper.cs
 
-GEN_SRCS	=  $(GDIR)/Metrics.cs \
-		  $(GDIR)/PermissionsVerifier.cs \
-		  $(GDIR)/Router.cs \
-		  $(GDIR)/Session.cs \
-		  $(GDIR)/SSLInfo.cs
+SLICE_SRCS	=  $(SDIR)/Metrics.ice \
+		  $(SDIR)/PermissionsVerifier.ice \
+		  $(SDIR)/Router.ice \
+		  $(SDIR)/Session.ice \
+		  $(SDIR)/SSLInfo.ice
+
+SDIR		= $(slicedir)/Glacier2
+GDIR		= generated
 
 include $(top_srcdir)/config/Make.rules.cs
 
@@ -35,7 +38,7 @@ MCSFLAGS	:= $(MCSFLAGS) /doc:$(assembliesdir)/$(PKG).xml /nowarn:1591
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) -I$(slicedir) --ice
 
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) $(call ref,Ice) $^
+	$(MCS) $(MCSFLAGS) $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 install:: all
 	(cd $(assembliesdir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installpolicy,$(POLICY)); \
@@ -49,3 +52,5 @@ endif
 
 clean::
 	-rm -f $(assembliesdir)/$(PKG).xml
+
+include .depend

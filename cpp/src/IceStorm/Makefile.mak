@@ -26,7 +26,7 @@ SLICE_OBJS      = Election.obj \
 		  V31Format.obj \
 		  V32Format.obj
 
-LIB_OBJS		= Instance.obj \
+OBJS		= Instance.obj \
 		  InstrumentationI.obj \
 		  LLUMap.obj \
 		  NodeI.obj \
@@ -57,9 +57,9 @@ MOBJS		= LLUMap.obj \
 		  V32FormatDB.obj \
                   $(SLICE_OBJS)
 
-OBJS		= $(LIB_OBJS) \
-		  $(AOBJS) \
-		  $(MOBJS)
+SRCS		= $(OBJS:.obj=.cpp) \
+		  $(AOBJS:.obj=.cpp) \
+		  $(MOBJS:.obj=.cpp)
 
 HDIR		= $(headerdir)\IceStorm
 SDIR		= $(slicedir)\IceStorm
@@ -87,8 +87,8 @@ MRES_FILE       = IceStormMigrate.res
 
 $(LIBNAME): $(DLLNAME)
 
-$(DLLNAME): $(LIB_OBJS) $(RES_FILE)
-	$(LINK) $(BASE):0x2C000000 $(LD_DLLFLAGS) $(PDBFLAGS) $(LIB_OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) $(RES_FILE)
+$(DLLNAME): $(OBJS) $(RES_FILE)
+	$(LINK) $(BASE):0x2C000000 $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) $(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
@@ -174,3 +174,5 @@ install:: all
         copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"
 
 !endif
+
+!include .depend.mak

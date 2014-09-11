@@ -21,10 +21,10 @@ CLIENT		= $(NAME_PREFIX)client
 
 TARGETS		= $(CLIENT)$(EXT)
 
-SLICE_OBJS	= Test.obj
-
-OBJS		= $(SLICE_OBJS) \
+COBJS		= Test.obj \
 		  Client.obj
+
+SRCS		= $(COBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -41,10 +41,12 @@ LD_TESTFLAGS	= $(LD_DLLFLAGS) /export:dllMain
 CPDBFLAGS        = /pdb:$(CLIENT).pdb
 !endif
 
-$(CLIENT)$(EXT): $(OBJS)
-	$(LINK) $(LD_TESTFLAGS) $(CPDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(CLIENT)$(EXT): $(COBJS)
+	$(LINK) $(LD_TESTFLAGS) $(CPDBFLAGS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 clean::
 	del /q Test.cpp Test.h
+
+!include .depend.mak

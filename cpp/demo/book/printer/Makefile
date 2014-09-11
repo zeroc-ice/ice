@@ -14,24 +14,30 @@ SERVER		= server
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-SLICE_OBJS	= Printer.o
+SLICE_SRCS	= Printer.ice
 
-COBJS		= $(SLICE_OBJS) \
-		  Client.o
+OBJS		= Printer.o
 
-SOBJS		= $(SLICE_OBJS) \
-		  Server.o
+COBJS		= Client.o
 
-OBJS 		= $(COBJS) $(SOBJS)
+SOBJS		= Server.o
 
-CPPFLAGS	:= -I. $(CPPFLAGS)
+SRCS		= $(OBJS:.o=.cpp) \
+		  $(COBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
-$(CLIENT): $(COBJS)
-	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
+CPPFLAGS	:= -I. $(CPPFLAGS)
 
-$(SERVER): $(SOBJS)
+$(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
+
+$(SERVER): $(OBJS) $(SOBJS)
+	rm -f $@
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
+
+test::
+
+include .depend

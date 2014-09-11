@@ -1764,7 +1764,7 @@ compile(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->printMakefileDependencies(depend ? Preprocessor::Java : Preprocessor::JavaXML, output, includePaths,
+            if(!icecpp->printMakefileDependencies(depend ? Preprocessor::Java : Preprocessor::JavaXML, includePaths,
                                                   "-D__SLICE2FREEZEJ__"))
             {
                 u->destroy();

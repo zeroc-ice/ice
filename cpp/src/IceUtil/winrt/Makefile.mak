@@ -65,3 +65,5 @@ clean::
 	-del /q $(PDBNAME)
 
 install:: all
+
+!include .depend.mak

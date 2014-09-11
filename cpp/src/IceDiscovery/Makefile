@@ -22,6 +22,10 @@ OBJS		= LocatorI.o \
 		  PluginI.o \
                   $(SLICE_OBJS)
 
+SRCS		= $(OBJS:.o=.cpp)
+
+SLICE_SRCS	= $(addprefix $(SDIR)/, $(SLICE_OBJS:.o=.ice))
+
 HDIR		= $(headerdir)/IceDiscovery
 SDIR		= $(slicedir)/IceDiscovery
 
@@ -56,3 +60,5 @@ endif
 
 install:: all
 	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
+
+include .depend

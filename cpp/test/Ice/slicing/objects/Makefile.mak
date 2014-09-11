@@ -15,13 +15,6 @@ SERVERAMD	= serveramd.exe
 
 TARGETS		= $(CLIENT) $(SERVER) $(SERVERAMD)
 
-SLICE_OBJS	= Test.obj \
-		  TestAMD.obj \
-		  ClientPrivate.obj \
-		  ServerPrivate.obj \
-		  ServerPrivateAMD.obj \
-		  Forward.obj
-
 COBJS		= Test.obj \
 		  ClientPrivate.obj \
 		  Client.obj \
@@ -40,9 +33,9 @@ SAMDOBJS	= TestAMD.obj \
 		  ServerAMD.obj \
 		  Forward.obj
 
-OBJS		= $(COBJS) \
-		  $(SOBJS) \
-		  $(SAMDOBJS)
+SRCS		= $(COBJS:.obj=.cpp) \
+		  $(SOBJS:.obj=.cpp) \
+		  $(SAMDOBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -78,3 +71,5 @@ clean::
 	del /q ServerPrivate.cpp ServerPrivate.h
 	del /q ServerPrivateAMD.cpp ServerPrivateAMD.h
 	del /q Forward.cpp Forward.h
+
+!include .depend.mak

@@ -10,7 +10,7 @@
 top_srcdir	= ..\..
 
 LIBNAME		= php_ice$(LIBSUFFIX).lib
-DLLNAME		= $(libdir)\php_ice$(LIBSUFFIX).dll
+DLLNAME         = $(libdir)\php_ice$(LIBSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
@@ -24,6 +24,8 @@ OBJS		= Communicator.obj \
 		  Proxy.obj \
 		  Types.obj \
 		  Util.obj
+
+SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)\config\Make.rules.mak.php
 
@@ -47,3 +49,5 @@ clean::
 
 install:: all
 	copy $(DLLNAME) "$(install_libdir)"
+
+!include .depend.mak

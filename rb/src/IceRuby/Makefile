@@ -28,6 +28,8 @@ OBJS		= Communicator.o \
 		  Types.o \
 		  Util.o
 
+SRCS		= $(OBJS:.o=.cpp)
+
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I.. $(CPPFLAGS) $(ICE_FLAGS) $(RUBY_FLAGS)
@@ -47,3 +49,5 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 
 install:: all
 	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
+
+include .depend

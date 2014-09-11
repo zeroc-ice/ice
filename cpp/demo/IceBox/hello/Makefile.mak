@@ -16,17 +16,16 @@ DLLNAME         = helloservice$(LIBSUFFIX).dll
 
 TARGETS		= $(CLIENT) $(LIBNAME) $(DLLNAME)
 
-SLICE_OBJS	= Hello.obj
+OBJS		= Hello.obj
 
-COBJS		= $(SLICE_OBJS) \
-		  Client.obj
+COBJS		= Client.obj
 
-SOBJS		= $(SLICE_OBJS) \
-		  HelloI.obj \
+SOBJS		= HelloI.obj \
 		  HelloServiceI.obj
 
-OBJS		= $(COBJS) \
-		  $(SOBJS)
+SRCS		= $(OBJS:.obj=.cpp) \
+		  $(COBJS:.obj=.cpp) \
+		  $(SOBJS:.obj=.cpp)
 
 SLICE_SRCS	= Hello.ice
 
@@ -42,16 +41,18 @@ CPDBFLAGS       = /pdb:$(CLIENT:.exe=.pdb)
 
 $(LIBNAME) : $(DLLNAME)
 
-$(DLLNAME): $(SOBJS)
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(SETARGV) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
+$(DLLNAME): $(OBJS) $(SOBJS)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(SETARGV) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
-$(CLIENT): $(COBJS)
-	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(CLIENT): $(OBJS) $(COBJS)
+	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 clean::
 	del /q Hello.cpp Hello.h
+
+!include .depend.mak

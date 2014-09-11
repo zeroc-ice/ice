@@ -18,7 +18,10 @@ POLICY_TARGET	= $(POLICY).dll
 L_SRCS		= AssemblyInfo.cs
 I_SRCS		= AssemblyInfoExe.cs Server.cs ServiceManagerI.cs
 
-GEN_SRCS	= $(GDIR)/IceBox.cs
+SLICE_SRCS	= $(SDIR)/IceBox.ice
+
+SDIR		= $(slicedir)/IceBox
+GDIR		= generated
 
 include $(top_srcdir)/config/Make.rules.cs
 
@@ -34,7 +37,7 @@ $(ICEBOXNET): $(I_SRCS) $(assembliesdir)/$(LIBNAME)
 	$(MCS) $(EXE_MCSFLAGS) -out:$@ $(call ref,$(PKG)) $(call ref,Ice) $(I_SRCS)
 
 $(assembliesdir)/$(LIBNAME): $(L_SRCS) $(GEN_SRCS)
-	$(MCS) $(LIB_MCSFLAGS) $(call ref,Ice) $^
+	$(MCS) $(LIB_MCSFLAGS) $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 install:: all
 	(cd $(assembliesdir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installpolicy,$(POLICY)); \
@@ -53,3 +56,5 @@ endif
 
 clean::
 	-rm -f $(assembliesdir)/$(PKG).xml
+
+include .depend

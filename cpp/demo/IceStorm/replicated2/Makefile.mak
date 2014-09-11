@@ -14,16 +14,15 @@ SUBSCRIBER	= subscriber.exe
 
 TARGETS		= $(PUBLISHER) $(SUBSCRIBER)
 
-SLICE_OBJS	= Clock.obj
+OBJS		= Clock.obj
 
-POBJS		= $(SLICE_OBJS) \
-		  Publisher.obj
+POBJS		= Publisher.obj
 
-SOBJS		= $(SLICE_OBJS) \
-		  Subscriber.obj
+SOBJS		= Subscriber.obj
 
-OBJS		= $(POBJS) \
-		  $(SOBJS)
+SRCS		= $(OBJS:.obj=.cpp) \
+		  $(POBJS:.obj=.cpp) \
+		  $(SOBJS:.obj=.cpp)
 
 
 !include $(top_srcdir)/config/Make.rules.mak
@@ -35,14 +34,14 @@ PPDBFLAGS        = /pdb:$(PUBLISHER:.exe=.pdb)
 SPDBFLAGS        = /pdb:$(SUBSCRIBER:.exe=.pdb)
 !endif
 
-$(PUBLISHER): $(POBJS)
-	$(LINK) $(LD_EXEFLAGS) $(PPDBFLAGS) $(SETARGV) $(POBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
+$(PUBLISHER): $(OBJS) $(POBJS)
+	$(LINK) $(LD_EXEFLAGS) $(PPDBFLAGS) $(SETARGV) $(OBJS) $(POBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
 	    icestorm$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(SUBSCRIBER): $(SOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
+$(SUBSCRIBER): $(OBJS) $(SOBJS)
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
 	    icestorm$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
@@ -57,3 +56,5 @@ clean::
 	-for %f in (db2\*) do if not %f == db2\.gitignore del /q %f
 	-if exist db3\__Freeze rmdir /q /s db3\__Freeze
 	-for %f in (db3\*) do if not %f == db3\.gitignore del /q %f
+
+!include .depend.mak

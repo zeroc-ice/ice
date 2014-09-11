@@ -1,0 +1,6 @@
+This archive contains the Ice source code for the C++ language
+mapping.
+
+For build and installation instructions, please refer to the manual:
+
+http://doc.zeroc.com/display/Rel/Ice+3.5.1+Build+Instructions

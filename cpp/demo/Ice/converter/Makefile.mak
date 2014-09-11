@@ -15,24 +15,22 @@ SERVER		= server.exe
 
 TARGETS		= $(CLIENT1) $(CLIENT2) $(SERVER)
 
-SLICE_OBJS		= Greet.obj
+OBJS		= Greet.obj
 
-C1OBJS		= $(SLICE_OBJS) \
-		  Client.obj \
+C1OBJS		= Client.obj \
 		  ClientWithConverter.obj \
 		  StringConverterI.obj
 
 
-C2OBJS		= $(SLICE_OBJS) \
-		  Client.obj \
+C2OBJS		= Client.obj \
 		  ClientWithoutConverter.obj
 
-SOBJS		= $(SLICE_OBJS) \
-		  GreetI.obj \
+SOBJS		= GreetI.obj \
 		  Server.obj
 
-OBJS		= $(COBJS) \
-		  $(SOBJS)
+SRCS		= $(OBJS:.obj=.cpp) \
+		  $(COBJS:.obj=.cpp) \
+		  $(SOBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -44,20 +42,22 @@ C2PDBFLAGS        = /pdb:$(CLIENT2:.exe=.pdb)
 SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 !endif
 
-$(CLIENT1): $(C1OBJS)
-	$(LINK) $(LD_EXEFLAGS) $(C1PDBFLAGS) $(SETARGV) $(C1OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(CLIENT1): $(OBJS) $(C1OBJS)
+	$(LINK) $(LD_EXEFLAGS) $(C1PDBFLAGS) $(SETARGV) $(OBJS) $(C1OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 $(CLIENT2): $(OBJS) $(C2OBJS)
-	$(LINK) $(LD_EXEFLAGS) $(C2PDBFLAGS) $(SETARGV) $(C2OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	$(LINK) $(LD_EXEFLAGS) $(C2PDBFLAGS) $(SETARGV) $(OBJS) $(C2OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 $(SERVER): $(OBJS) $(SOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 clean::
 	del /q Greet.cpp Greet.h
+
+!include .depend.mak

@@ -25,6 +25,8 @@ P_SRCS		= BasePlugin.cs \
 		PluginTwoFactory.cs \
 		PluginTwoFailFactory.cs
 
+SDIR		= .
+
 include $(top_srcdir)/config/Make.rules.cs
 
 client.exe: $(C_SRCS)

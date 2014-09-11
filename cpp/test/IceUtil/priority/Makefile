@@ -20,6 +20,9 @@ OBJS		= TestBase.o \
 		  TestSuite.o \
 		  Client.o
 
+
+SRCS		= $(OBJS:.o=.cpp)
+
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
@@ -27,3 +30,5 @@ CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 $(CLIENT): $(OBJS)
 	rm -f $@
 	$(call mktest,$@,$(OBJS),$(BASELIBS))
+
+include .depend

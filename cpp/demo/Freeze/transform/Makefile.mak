@@ -16,17 +16,12 @@ RECREATE        = recreate.exe
 
 TARGETS		= $(CREATE) $(READ) $(READNEW) $(RECREATE)
 
-SLICE_OBJS	= ContactData.obj NewContactData.obj
-
 CREATE_OBJS     = ContactData.obj Contacts.obj create.obj
 READ_OBJS       = ContactData.obj Contacts.obj read.obj
 READNEW_OBJS    = NewContactData.obj NewContacts.obj readnew.obj
 RECREATE_OBJS   = NewContactData.obj NewContacts.obj recreate.obj
 
-OBJS		= $(CREATE_OBJS) \
-		  $(READ_OBJS) \
-		  $(READNEW_OBJS) \
-		  $(RECREATE_OBJS)
+SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -81,3 +76,5 @@ clean:: cleandb
         -del /q NewContactData.h NewContactData.cpp
         -del /q Contacts.h Contacts.cpp
         -del /q NewContacts.h NewContacts.cpp
+
+!include .depend.mak

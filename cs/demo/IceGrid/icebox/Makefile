@@ -14,17 +14,23 @@ TARGETS		= client.exe helloservice.dll
 C_SRCS		= Client.cs
 S_SRCS		= HelloI.cs HelloServiceI.cs
 
-GEN_SRCS	= $(GDIR)/Hello.cs
+SLICE_SRCS	= $(SDIR)/Hello.ice
+
+SDIR		= .
+
+GDIR		= generated
 
 include $(top_srcdir)/config/Make.rules.cs
 
 MCSFLAGS	:= $(MCSFLAGS) -target:exe
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 helloservice.dll: $(S_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -target:library -out:$@ $(call ref,IceBox) $(call ref,Ice) $^
+	$(MCS) $(MCSFLAGS) -target:library -out:$@ $(call ref,IceBox) $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 clean::
 	-rm -rf db/node/* db/registry/*
+
+include .depend

@@ -22,9 +22,9 @@ COBJS		= Client.o
 
 CALCOBJS	= Calc.o
 
-OBJS		= $(SOBJS) \
-		  $(COBJS) \
-		  $(CALCOBJS)
+SRCS		= $(SOBJS:.o=.cpp) \
+		  $(COBJS:.o=.cpp) \
+		  $(CALCOBJS:.o=.cpp)
 
 ifeq ($(CPP11),yes)
 RPATH_DIR	= @loader_path/../../lib/c++11
@@ -55,3 +55,5 @@ install:: all
 	$(call installdata,$(top_srcdir)/../man/man1/icepatch2client.1,$(DESTDIR)$(install_mandir))
 	$(call installprogram,$(CALC),$(DESTDIR)$(install_bindir))
 	$(call installdata,$(top_srcdir)/../man/man1/icepatch2calc.1,$(DESTDIR)$(install_mandir))
+
+include .depend

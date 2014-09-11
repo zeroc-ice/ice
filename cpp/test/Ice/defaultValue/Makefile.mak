@@ -15,7 +15,7 @@ CLIENT		= client.exe
 
 TARGETS		= $(LIBNAME) $(DLLNAME) $(CLIENT) 
 
-SLICE_OBJS	= Test.obj
+LOBJS 		= Test.obj
 
 COBJS		= Client.obj \
 		  AllTests.obj
@@ -38,8 +38,8 @@ LINKWITH        = $(LIBS)
 
 $(LIBNAME): $(DLLNAME)
 
-$(DLLNAME): $(SLICE_OBJS)
-	$(LINK) $(BASE):0x22000000 $(LD_DLLFLAGS) $(PDBFLAGS) $(SLICE_OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
+$(DLLNAME): $(LOBJS)
+	$(LINK) $(BASE):0x22000000 $(LD_DLLFLAGS) $(PDBFLAGS) $(LOBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
@@ -52,3 +52,5 @@ $(CLIENT): $(COBJS)
 
 clean::
 	del /q Test.cpp Test.h
+
+!include .depend.mak
