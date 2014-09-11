@@ -341,9 +341,17 @@ ifneq ($(SLICE_OBJS),)
 -include $(addprefix .depend/, $(SLICE_OBJS:.o=.ice.d))
 endif
 
+#
+# If dependencies has non been created yet make all OBJS depend 
+# on all SRCS, Slice generated files will be created before C++
+# compilation starts and  avoid problems with parallel make
+#
 ifneq ($(OBJS),)
+ifneq ($(shell test -d .depend && echo 0), 0)
+$(OBJS):$(OBJS:.o=.cpp)
+else
 -include $(addprefix .depend/, $(OBJS:.o=.d))
-$(OBJS): $(OBJS:.o=.cpp)
+endif
 endif
 
 all:: $(TARGETS)
@@ -393,7 +401,8 @@ $(HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 
 clean::
 	-rm -f $(TARGETS)
-	-rm -f core *.o *.bak .depend/*.d
+	-rm -f core *.o *.bak
+	-rm -rf .depend
 
 ifneq ($(SLICE_OBJS),)
 clean::
