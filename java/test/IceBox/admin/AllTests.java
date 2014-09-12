@@ -57,7 +57,7 @@ public class AllTests
             // Test: PropertiesAdmin::getProperties()
             //
             java.util.Map<String, String> pd = pa.getPropertiesForPrefix("");
-            System.err.println(pd.size());
+            test(pd.size() == 6);
             test(pd.get("Prop1").equals("1"));
             test(pd.get("Prop2").equals("2"));
             test(pd.get("Prop3").equals("3"));
