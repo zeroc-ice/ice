@@ -20,6 +20,14 @@ IceSSL.VerifyPeer=0
 Ice.Warn.Connections=1
 
 #
+# Enable thread pool serialization on the server side.
+# This makes the latency slightly lower on Windows as the
+# reply is sent to the client prior to the restart of the
+# read socket.
+#
+Ice.ThreadPool.Server.Serialize=1
+
+#
 # SSL Configuration
 #
 Ice.Plugin.IceSSL=IceSSL:createIceSSL
