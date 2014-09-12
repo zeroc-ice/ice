@@ -1115,7 +1115,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                         }
                     }
                 }
-            }, _refreshPeriod, _refreshPeriod, java.util.concurrent.TimeUnit.SECONDS);
+            }, 0, _refreshPeriod, java.util.concurrent.TimeUnit.SECONDS);
         }
     }
 

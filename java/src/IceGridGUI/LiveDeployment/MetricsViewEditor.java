@@ -256,7 +256,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                 node.fetchMetricsView();
             }
             
-        }, _refreshPeriod, _refreshPeriod, java.util.concurrent.TimeUnit.MILLISECONDS);
+        }, 0, _refreshPeriod, java.util.concurrent.TimeUnit.SECONDS);
     }
 
     synchronized static void stopRefresh()
