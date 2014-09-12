@@ -1071,7 +1071,7 @@ public final class OutgoingConnectionFactory
                 assert(_iter.hasNext());
                 _current = _iter.next();
 
-                Ice.Instrumentation.CommunicatorObserver obsv = _factory._instance.getObserver();
+                Ice.Instrumentation.CommunicatorObserver obsv = _factory._instance.initializationData().observer;
                 if(obsv != null)
                 {
                     _observer = obsv.getConnectionEstablishmentObserver(_current.endpoint,

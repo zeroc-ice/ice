@@ -186,6 +186,22 @@ namespace IceInternal
             _thread.Start();
         }
 
+        internal void updateObserver(Ice.Instrumentation.CommunicatorObserver obsv)
+        {
+            lock(this)
+            {
+                Debug.Assert(obsv != null);
+                _observer = obsv.getThreadObserver("Communicator", 
+                                                   _thread.Name,
+                                                   Ice.Instrumentation.ThreadState.ThreadStateIdle,
+                                                   _observer);
+                if(_observer != null)
+                {
+                    _observer.attach();
+                }
+            }
+        }
+
         public void Run()
         {
             Token token = null;
@@ -276,7 +292,25 @@ namespace IceInternal
                 {
                     try
                     {
-                        token.task.runTimerTask();
+                        Ice.Instrumentation.ThreadObserver threadObserver = _observer;
+                        if(threadObserver != null)
+                        {
+                            threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle,
+                                                        Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
+                            try
+                            {
+                                token.task.runTimerTask();
+                            }
+                            finally
+                            {
+                                threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
+                                                            Ice.Instrumentation.ThreadState.ThreadStateIdle);
+                            }
+                        }
+                        else
+                        {
+                            token.task.runTimerTask();
+                        }
                     }
                     catch(System.Exception ex)
                     {
@@ -367,6 +401,13 @@ namespace IceInternal
         private long _wakeUpTime = System.Int64.MaxValue;
         private int _tokenId = 0;
         private Thread _thread;
+
+        //
+        // We use a volatile to avoid synchronization when reading
+        // _observer. Reference assignement is atomic in Java so it
+        // also doesn't need to be synchronized.
+        // 
+        private volatile Ice.Instrumentation.ThreadObserver _observer;
 }
 
 }

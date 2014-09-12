@@ -414,7 +414,7 @@ public class AllTests : TestCommon.TestApp
             test(view["Connection"].Length == 1 && view["Connection"][0].current == 1 &&
                  view["Connection"][0].total == 1);
         }
-        test(view["Thread"].Length == 1 && view["Thread"][0].current == 4 && view["Thread"][0].total == 4);
+        test(view["Thread"].Length == 1 && view["Thread"][0].current == 5 && view["Thread"][0].total == 5);
         WriteLine("ok");
 
         Write("testing group by id...");
@@ -430,7 +430,7 @@ public class AllTests : TestCommon.TestApp
         metrics.ice_connectionId("Con1").ice_ping();
 
         view = clientMetrics.getMetricsView("View", out timestamp);
-        test(view["Thread"].Length == 4);
+        test(view["Thread"].Length == 5);
         if(!collocated)
         {
             test(view["Connection"].Length == 2);
@@ -454,7 +454,7 @@ public class AllTests : TestCommon.TestApp
 
         view = serverMetrics.getMetricsView("View", out timestamp);
         // With Ice for .NET, a new dispatching thread isn't necessarily created.
-        //test(view["Thread"].Length > 4);
+        //test(view["Thread"].Length > 5);
         if(!collocated)
         {
             test(view["Connection"].Length == 2);

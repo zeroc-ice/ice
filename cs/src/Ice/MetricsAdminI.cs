@@ -983,11 +983,6 @@ namespace IceInternal
             return _logger;
         }
 
-        public void setProperties(Ice.Properties properties)
-        {
-            _properties = properties;
-        }
-    
         public void updated(Dictionary<string, string> props)
         { 
             foreach(KeyValuePair<string, string> e in props)

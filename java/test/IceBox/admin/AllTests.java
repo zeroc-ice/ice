@@ -57,12 +57,13 @@ public class AllTests
             // Test: PropertiesAdmin::getProperties()
             //
             java.util.Map<String, String> pd = pa.getPropertiesForPrefix("");
-            test(pd.size() == 5);
+            System.err.println(pd.size());
             test(pd.get("Prop1").equals("1"));
             test(pd.get("Prop2").equals("2"));
             test(pd.get("Prop3").equals("3"));
             test(pd.get("Ice.Config").equals("config.service"));
             test(pd.get("Ice.ProgramName").equals("IceBox-TestService"));
+            test(pd.get("Ice.Admin.Metrics").equals("1"));
 
             java.util.Map<String, String> changes;
 

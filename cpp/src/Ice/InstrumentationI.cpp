@@ -891,17 +891,15 @@ InvocationObserverI::getCollocatedObserver(const Ice::ObjectAdapterPtr& adapter,
     return 0;
 }
 
-CommunicatorObserverI::CommunicatorObserverI(const IceInternal::MetricsAdminIPtr& metrics,
-                                             const Ice::Instrumentation::CommunicatorObserverPtr& delegate) : 
-    _metrics(metrics),
-    _logger(metrics->getLogger()),
-    _delegate(delegate),
-    _connections(metrics, "Connection"),
-    _dispatch(metrics, "Dispatch"),
-    _invocations(metrics, "Invocation"),
-    _threads(metrics, "Thread"),
-    _connects(metrics, "ConnectionEstablishment"),
-    _endpointLookups(metrics, "EndpointLookup")
+CommunicatorObserverI::CommunicatorObserverI(const InitializationData& initData) : 
+    _metrics(new MetricsAdminI(initData.properties, initData.logger)),
+    _delegate(initData.observer),
+    _connections(_metrics, "Connection"),
+    _dispatch(_metrics, "Dispatch"),
+    _invocations(_metrics, "Invocation"),
+    _threads(_metrics, "Thread"),
+    _connects(_metrics, "ConnectionEstablishment"),
+    _endpointLookups(_metrics, "EndpointLookup")
 {
     _invocations.registerSubMap<RemoteMetrics>("Remote", &InvocationMetrics::remotes);
     _invocations.registerSubMap<CollocatedMetrics>("Collocated", &InvocationMetrics::collocated);
@@ -934,7 +932,7 @@ CommunicatorObserverI::getConnectionEstablishmentObserver(const EndpointPtr& end
         }
         catch(const exception& ex)
         {
-            Error error(_logger);
+            Error error(_metrics->getLogger());
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
@@ -957,7 +955,7 @@ CommunicatorObserverI::getEndpointLookupObserver(const EndpointPtr& endpt)
         }
         catch(const exception& ex)
         {
-            Error error(_logger);
+            Error error(_metrics->getLogger());
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
@@ -984,7 +982,7 @@ CommunicatorObserverI::getConnectionObserver(const ConnectionInfoPtr& con,
         }
         catch(const exception& ex)
         {
-            Error error(_logger);
+            Error error(_metrics->getLogger());
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
@@ -1011,7 +1009,7 @@ CommunicatorObserverI::getThreadObserver(const string& parent,
         }
         catch(const exception& ex)
         {
-            Error error(_logger);
+            Error error(_metrics->getLogger());
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
@@ -1034,7 +1032,7 @@ CommunicatorObserverI::getInvocationObserver(const ObjectPrx& proxy, const strin
         }
         catch(const exception& ex)
         {
-            Error error(_logger);
+            Error error(_metrics->getLogger());
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
@@ -1057,7 +1055,7 @@ CommunicatorObserverI::getDispatchObserver(const Current& current, int size)
         }
         catch(const exception& ex)
         {
-            Error error(_logger);
+            Error error(_metrics->getLogger());
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
@@ -1065,7 +1063,7 @@ CommunicatorObserverI::getDispatchObserver(const Current& current, int size)
 }
 
 const IceInternal::MetricsAdminIPtr& 
-CommunicatorObserverI::getMetricsAdmin() const
+CommunicatorObserverI::getFacet() const
 {
     assert(_metrics);
     return _metrics;
@@ -1074,11 +1072,13 @@ CommunicatorObserverI::getMetricsAdmin() const
 void
 CommunicatorObserverI::destroy()
 {
-    _metrics = 0;
     _connections.destroy();
     _dispatch.destroy();
     _invocations.destroy();
     _threads.destroy();
     _connects.destroy();
     _endpointLookups.destroy();
+
+    _metrics->destroy();
+    _metrics = 0;
 }

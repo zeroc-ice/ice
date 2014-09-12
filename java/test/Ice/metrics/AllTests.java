@@ -424,10 +424,10 @@ public class AllTests
         MetricsPrx metrics = MetricsPrxHelper.checkedCast(communicator.stringToProxy("metrics:default -p 12010"));
         boolean collocated = metrics.ice_getConnection() == null;
 
-        int threadCount = 3;
+        int threadCount = 4;
         if(collocated && communicator.getProperties().getPropertyAsInt("Ice.BackgroundIO") > 0)
         {
-            threadCount = 5;
+            threadCount = 6;
         }
 
         out.print("testing metrics admin facet checkedCast... ");

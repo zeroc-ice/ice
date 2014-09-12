@@ -681,7 +681,7 @@ namespace IceInternal
                 current_.ctx[first] = second;
             }
 
-            Ice.Instrumentation.CommunicatorObserver obsv = instance_.getObserver();
+            Ice.Instrumentation.CommunicatorObserver obsv = instance_.initializationData().observer;
             if(obsv != null)
             {
                 // Read the encapsulation size.

@@ -593,29 +593,23 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
     };
 
     public
-    CommunicatorObserverI(IceInternal.MetricsAdminI metrics)
+    CommunicatorObserverI(Ice.InitializationData initData)
     {
-        this(metrics, null);
-    }
-
-    public
-    CommunicatorObserverI(IceInternal.MetricsAdminI metrics, Ice.Instrumentation.CommunicatorObserver delegate)
-    {
-        _metrics = metrics;
-        _delegate = delegate;
+        _metrics = new MetricsAdminI(initData.properties, initData.logger);
+        _delegate = initData.observer;
 
         _connections = new ObserverFactoryWithDelegate<ConnectionMetrics, ConnectionObserverI,
-            Ice.Instrumentation.ConnectionObserver>(metrics, "Connection", ConnectionMetrics.class);
+            Ice.Instrumentation.ConnectionObserver>(_metrics, "Connection", ConnectionMetrics.class);
         _dispatch = new ObserverFactoryWithDelegate<DispatchMetrics, DispatchObserverI,
-            Ice.Instrumentation.DispatchObserver>(metrics, "Dispatch", DispatchMetrics.class);
+            Ice.Instrumentation.DispatchObserver>(_metrics, "Dispatch", DispatchMetrics.class);
         _invocations = new ObserverFactoryWithDelegate<InvocationMetrics, InvocationObserverI,
-            Ice.Instrumentation.InvocationObserver>(metrics, "Invocation", InvocationMetrics.class);
+            Ice.Instrumentation.InvocationObserver>(_metrics, "Invocation", InvocationMetrics.class);
         _threads = new ObserverFactoryWithDelegate<ThreadMetrics, ThreadObserverI,
-            Ice.Instrumentation.ThreadObserver>(metrics, "Thread", ThreadMetrics.class);
+            Ice.Instrumentation.ThreadObserver>(_metrics, "Thread", ThreadMetrics.class);
         _connects = new ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI,
-            Ice.Instrumentation.Observer>(metrics, "ConnectionEstablishment", Metrics.class);
+            Ice.Instrumentation.Observer>(_metrics, "ConnectionEstablishment", Metrics.class);
         _endpointLookups = new ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI,
-            Ice.Instrumentation.Observer>(metrics, "EndpointLookup", Metrics.class);
+            Ice.Instrumentation.Observer>(_metrics, "EndpointLookup", Metrics.class);
 
         try
         {
@@ -811,7 +805,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         }
     }
 
-    public IceInternal.MetricsAdminI getMetricsAdmin()
+    public IceInternal.MetricsAdminI getFacet()
     {
         return _metrics;
     }

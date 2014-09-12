@@ -245,9 +245,11 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             return;
         }
 
-        assert (_instance.getObserver() != null);
-        _observer = _instance.getObserver().getConnectionObserver(initConnectionInfo(), _endpoint,
-                toConnectionState(_state), _observer);
+        assert (_instance.initializationData().observer != null);
+        _observer = _instance.initializationData().observer.getConnectionObserver(initConnectionInfo(), 
+                                                                                  _endpoint,
+                                                                                  toConnectionState(_state),
+                                                                                  _observer);
         if(_observer != null)
         {
             _observer.attach();
@@ -1881,14 +1883,16 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             }
         }
 
-        if(_instance.getObserver() != null)
+        if(_instance.initializationData().observer != null)
         {
             Ice.Instrumentation.ConnectionState oldState = toConnectionState(_state);
             Ice.Instrumentation.ConnectionState newState = toConnectionState(state);
             if(oldState != newState)
             {
-                _observer = _instance.getObserver().getConnectionObserver(initConnectionInfo(), _endpoint, newState,
-                        _observer);
+                _observer = _instance.initializationData().observer.getConnectionObserver(initConnectionInfo(), 
+                                                                                          _endpoint, 
+                                                                                          newState,
+                                                                                          _observer);
                 if(_observer != null)
                 {
                     _observer.attach();

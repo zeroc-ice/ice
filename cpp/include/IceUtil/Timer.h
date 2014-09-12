@@ -43,7 +43,7 @@ typedef IceUtil::Handle<TimerTask> TimerTaskPtr;
 // repeated execution. Tasks are executed by the dedicated timer thread 
 // sequentially.
 //
-class ICE_UTIL_API Timer : public virtual IceUtil::Shared, private virtual IceUtil::Thread
+class ICE_UTIL_API Timer : virtual public IceUtil::Shared, private IceUtil::Thread
 {
 public:
 
@@ -83,7 +83,10 @@ public:
     //
     bool cancel(const TimerTaskPtr&);
 
-private:
+protected:
+
+    virtual void run();
+    virtual void runTimerTask(const TimerTaskPtr&);
 
     struct Token
     {
@@ -94,8 +97,6 @@ private:
         inline Token(const IceUtil::Time&, const IceUtil::Time&, const TimerTaskPtr&);
         inline bool operator<(const Token& r) const;
     };
-
-    virtual void run();
 
     IceUtil::Monitor<IceUtil::Mutex> _monitor;
     bool _destroyed;

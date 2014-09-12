@@ -75,7 +75,7 @@ Instance::Instance(
             IceInternal::CommunicatorObserverIPtr::dynamicCast(communicator->getObserver());
         if(o)
         {
-            _observer = new TopicManagerObserverI(o->getMetricsAdmin());
+            _observer = new TopicManagerObserverI(o->getFacet());
         }
     }
     catch(...)

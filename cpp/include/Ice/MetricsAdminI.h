@@ -571,12 +571,13 @@ private:
 };
 typedef IceUtil::Handle<MetricsViewI> MetricsViewIPtr;
 
-class ICE_API MetricsAdminI : public IceMX::MetricsAdmin, public Ice::PropertiesAdminUpdateCallback, 
+class ICE_API MetricsAdminI : public IceMX::MetricsAdmin, public Ice::PropertiesAdminUpdateCallback,
                               private IceUtil::Mutex
 {
 public:
 
     MetricsAdminI(const ::Ice::PropertiesPtr&, const Ice::LoggerPtr&);
+    ~MetricsAdminI();
 
     void destroy();
 
@@ -637,8 +638,6 @@ public:
     std::vector<MetricsMapIPtr> getMaps(const std::string&) const;
 
     const Ice::LoggerPtr& getLogger() const;
-
-    void setProperties(const Ice::PropertiesPtr&);
 
 private:
 

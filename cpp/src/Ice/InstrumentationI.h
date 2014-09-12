@@ -214,9 +214,7 @@ class ICE_API CommunicatorObserverI : public Ice::Instrumentation::CommunicatorO
 {
 public:
 
-    CommunicatorObserverI(const IceInternal::MetricsAdminIPtr&,
-                          const Ice::Instrumentation::CommunicatorObserverPtr& = 
-                          Ice::Instrumentation::CommunicatorObserverPtr());
+    CommunicatorObserverI(const Ice::InitializationData&);
 
     virtual void setObserverUpdater(const Ice::Instrumentation::ObserverUpdaterPtr&);
  
@@ -241,14 +239,13 @@ public:
 
     virtual Ice::Instrumentation::DispatchObserverPtr getDispatchObserver(const Ice::Current&, Ice::Int);
 
-    const IceInternal::MetricsAdminIPtr& getMetricsAdmin() const;
+    const IceInternal::MetricsAdminIPtr& getFacet() const;
 
     void destroy();
 
 private:
 
     IceInternal::MetricsAdminIPtr _metrics;
-    Ice::LoggerPtr _logger;
     const Ice::Instrumentation::CommunicatorObserverPtr _delegate;
 
     ObserverFactoryWithDelegateT<ConnectionObserverI> _connections;

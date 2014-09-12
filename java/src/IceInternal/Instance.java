@@ -17,6 +17,116 @@ import Ice.CommunicatorDestroyedException;
 
 public final class Instance
 {
+    static private class ThreadObserverHelper
+    {
+        ThreadObserverHelper(String threadName)
+        {
+            _threadName = threadName;
+        }
+
+        synchronized public void updateObserver(Ice.Instrumentation.CommunicatorObserver obsv)
+        {
+            assert(obsv != null);
+            
+            _observer = obsv.getThreadObserver("Communicator", 
+                                               _threadName,
+                                               Ice.Instrumentation.ThreadState.ThreadStateIdle,
+                                               _observer);
+            if(_observer != null)
+            {
+                _observer.attach();
+            }
+        }
+
+        protected void beforeExecute()
+        {
+            _threadObserver = _observer;
+            if(_threadObserver != null)
+            {
+                _threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle,
+                                             Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
+            }
+        }
+
+        protected void afterExecute()
+        {
+            if(_threadObserver != null)
+            {
+                _threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
+                                             Ice.Instrumentation.ThreadState.ThreadStateIdle);
+                _threadObserver = null;
+            }
+        }
+
+        final private String _threadName;
+        //
+        // We use a volatile to avoid synchronization when reading
+        // _observer. Reference assignement is atomic in Java so it
+        // also doesn't need to be synchronized.
+        // 
+        private volatile Ice.Instrumentation.ThreadObserver _observer;
+        private Ice.Instrumentation.ThreadObserver _threadObserver;
+    };
+
+    static private class Timer extends java.util.concurrent.ScheduledThreadPoolExecutor
+    {
+        Timer(Ice.Properties props, String threadName)
+        {
+            super(1, Util.createThreadFactory(props, threadName)); // Single thread executor
+            setRemoveOnCancelPolicy(true);
+            setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
+            _observerHelper = new ThreadObserverHelper(threadName);
+        }
+
+        public void updateObserver(Ice.Instrumentation.CommunicatorObserver obsv)
+        {
+            _observerHelper.updateObserver(obsv);
+        }
+
+        @Override
+        protected void beforeExecute(Thread t, Runnable r)
+        {
+            _observerHelper.beforeExecute();
+        }
+
+        @Override
+        protected void afterExecute(Runnable t, Throwable e)
+        {
+            _observerHelper.afterExecute();
+        }
+
+        private final ThreadObserverHelper _observerHelper;
+    };
+
+    static private class QueueExecutor extends java.util.concurrent.ThreadPoolExecutor
+    {
+        QueueExecutor(Ice.Properties props, String threadName)
+        {
+            super(1, 1, 0, TimeUnit.MILLISECONDS, new java.util.concurrent.LinkedBlockingQueue<Runnable>(),
+                  Util.createThreadFactory(props, threadName));
+            _observerHelper = new ThreadObserverHelper(threadName);
+        }
+
+        public void updateObserver(Ice.Instrumentation.CommunicatorObserver obsv)
+        {
+            _observerHelper.updateObserver(obsv);
+        }
+
+        @Override
+        protected void beforeExecute(Thread t, Runnable r)
+        {
+            _observerHelper.beforeExecute();
+        }
+
+        @Override
+        protected void afterExecute(Runnable t, Throwable e)
+        {
+            _observerHelper.afterExecute();
+        }
+
+        private final ThreadObserverHelper _observerHelper;
+    };
+
     private class ObserverUpdaterI implements Ice.Instrumentation.ObserverUpdater
     {
         @Override
@@ -505,13 +615,6 @@ public final class Instance
         return result;
     }
 
-    public Ice.Instrumentation.CommunicatorObserver
-    getObserver()
-    {
-        return _observer; // Immutable
-    }
-
-
     public synchronized void
     setDefaultLocator(Ice.LocatorPrx locator)
     {
@@ -809,8 +912,6 @@ public final class Instance
             }
             
             PropertiesAdminI propsAdmin = null;
-            MetricsAdminI metricsAdmin = null;
-
             if(_adminEnabled)
             {
                 String[] facetFilter = _initData.properties.getPropertyAsList("Ice.Admin.Facets");
@@ -821,9 +922,6 @@ public final class Instance
 
                 _adminFacets.put("Process", new ProcessI(communicator));
 
-                metricsAdmin = new MetricsAdminI(_initData.properties, _initData.logger);
-                _adminFacets.put("Metrics", metricsAdmin);
-                
                 propsAdmin = new PropertiesAdminI("Properties", _initData.properties, _initData.logger);
                 _adminFacets.put("Properties", propsAdmin);
             }
@@ -832,25 +930,26 @@ public final class Instance
             // Setup the communicator observer only if the user didn't already set an
             // Ice observer resolver and Admin is enabled
             //
-            if(_adminEnabled && (_adminFacetFilter.isEmpty() || _adminFacetFilter.contains("Metrics")))
+            if((_adminEnabled && (_adminFacetFilter.isEmpty() || _adminFacetFilter.contains("Metrics"))) ||
+               _initData.properties.getPropertyAsInt("Ice.Admin.Metrics") > 0)
             {
-                _observer = new CommunicatorObserverI(metricsAdmin, _initData.observer);
+                CommunicatorObserverI observer = new CommunicatorObserverI(_initData);
+                _initData.observer = observer;
+                _adminFacets.put("Metrics", observer.getFacet());
 
                 //
                 // Make sure the admin plugin receives property updates.
                 //
-                propsAdmin.addUpdateCallback(metricsAdmin);
-            }
-            else
-            {
-                _observer = _initData.observer;
+                if(propsAdmin != null)
+                {
+                    propsAdmin.addUpdateCallback(observer.getFacet());
+                }
             }
 
             if(_initData.properties.getPropertyAsInt("Ice.BackgroundIO") > 0)
             {
-                _queueExecutor = Executors.newFixedThreadPool(1,
-                    Util.createThreadFactory(_initData.properties,
-                        Util.createThreadName(_initData.properties, "Ice.BackgroundIO")));
+                _queueExecutor = new QueueExecutor(_initData.properties, 
+                                                   Util.createThreadName(_initData.properties, "Ice.BackgroundIO"));
             }
             _cacheMessageBuffers = _initData.properties.getPropertyAsIntWithDefault("Ice.CacheMessageBuffers", 2);
         }
@@ -906,9 +1005,9 @@ public final class Instance
         //
         // Set observer updater
         //
-        if(_observer != null)
+        if(_initData.observer != null)
         {
-            _observer.setObserverUpdater(new ObserverUpdaterI());
+            _initData.observer.setObserverUpdater(new ObserverUpdaterI());
         }
 
         //
@@ -916,14 +1015,7 @@ public final class Instance
         //
         try
         {
-            java.util.concurrent.ScheduledThreadPoolExecutor executor =
-                new java.util.concurrent.ScheduledThreadPoolExecutor(1,
-                    Util.createThreadFactory(_initData.properties,
-                        Util.createThreadName(_initData.properties, "Ice.Timer")));
-
-            executor.setRemoveOnCancelPolicy(true);
-            executor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
-            _timer = executor;
+            _timer = new Timer(_initData.properties, Util.createThreadName(_initData.properties, "Ice.Timer"));
         }
         catch(RuntimeException ex)
         {
@@ -1051,9 +1143,9 @@ public final class Instance
             _retryQueue.destroy();
         }
 
-        if(_observer != null)
+        if(_initData.observer != null)
         {
-            _observer.setObserverUpdater(null);
+            _initData.observer.setObserverUpdater(null);
         }
 
         ThreadPool serverThreadPool = null;
@@ -1234,6 +1326,14 @@ public final class Instance
             {
                 _endpointHostResolver.updateObserver();
             }
+            if(_timer != null)
+            {
+                _timer.updateObserver(_initData.observer);
+            }
+            if(_queueExecutor != null)
+            {
+                _queueExecutor.updateObserver(_initData.observer);
+            }
         }
         catch(Ice.CommunicatorDestroyedException ex)
         {
@@ -1405,7 +1505,6 @@ public final class Instance
     private final ACMConfig _clientACM; // Immutable, not reset by destroy().
     private final ACMConfig _serverACM; // Immutable, not reset by destroy().
     private final Ice.ImplicitContextI _implicitContext;
-    private final Ice.Instrumentation.CommunicatorObserver _observer;
     private RouterManager _routerManager;
     private LocatorManager _locatorManager;
     private ReferenceFactory _referenceFactory;
@@ -1420,7 +1519,7 @@ public final class Instance
     private ThreadPool _serverThreadPool;
     private EndpointHostResolver _endpointHostResolver;
     private RetryQueue _retryQueue;
-    private java.util.concurrent.ScheduledExecutorService _timer;
+    private Timer _timer;
     private EndpointFactoryManager _endpointFactoryManager;
     private Ice.PluginManager _pluginManager;
 
@@ -1435,5 +1534,5 @@ public final class Instance
     final private boolean _useApplicationClassLoader;
 
     private static boolean _oneOfDone = false;
-    private ExecutorService _queueExecutor;
+    private QueueExecutor _queueExecutor;
 }

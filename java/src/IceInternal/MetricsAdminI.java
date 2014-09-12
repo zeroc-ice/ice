@@ -329,12 +329,6 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
         return _logger;
     }
 
-    public void
-    setProperties(Ice.Properties properties)
-    {
-        _properties = properties;
-    }
-
     @Override
     public void
     updated(java.util.Map<String, String> props)

@@ -156,7 +156,7 @@ Ice::CommunicatorI::getLogger() const
 Ice::Instrumentation::CommunicatorObserverPtr
 Ice::CommunicatorI::getObserver() const
 {
-    return _instance->getObserver();
+    return _instance->initializationData().observer;
 }
 
 RouterPrx

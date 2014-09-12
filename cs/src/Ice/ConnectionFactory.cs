@@ -219,7 +219,7 @@ namespace IceInternal
             // Try to establish the connection to the connectors.
             //
             DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-            Ice.Instrumentation.CommunicatorObserver obsv = _instance.getObserver();
+            Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
             ConnectorInfo ci = null;
             for(int i = 0; i < connectors.Count; ++i)
             {
@@ -1202,7 +1202,7 @@ namespace IceInternal
                     Debug.Assert(_iter < _connectors.Count);
                     _current = _connectors[_iter++];
 
-                    Ice.Instrumentation.CommunicatorObserver obsv = _factory._instance.getObserver();
+                    Ice.Instrumentation.CommunicatorObserver obsv = _factory._instance.initializationData().observer;
                     if(obsv != null)
                     {
                         _observer = obsv.getConnectionEstablishmentObserver(_current.endpoint,

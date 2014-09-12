@@ -74,7 +74,7 @@ Glacier2::Instance::Instance(const Ice::CommunicatorPtr& communicator, const Ice
     if(o)
     {
         const_cast<Glacier2::Instrumentation::RouterObserverPtr&>(_observer) = 
-            new RouterObserverI(o->getMetricsAdmin(), 
+            new RouterObserverI(o->getFacet(), 
                                 _properties->getPropertyWithDefault("Glacier2.InstanceName", "Glacier2"));
     }
 }

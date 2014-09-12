@@ -44,7 +44,7 @@ namespace IceInternal
         {
             lock(this)
             {
-                Ice.Instrumentation.CommunicatorObserver obsv = _instance.getObserver();
+                Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
                 if(obsv != null)
                 {
                     _observer = obsv.getThreadObserver("Communicator", 

@@ -575,12 +575,6 @@ namespace IceInternal
             }
         }
 
-        public Ice.Instrumentation.CommunicatorObserver
-        getObserver()
-        {
-            return _observer;
-        }
-
         public void
         setDefaultLocator(Ice.LocatorPrx locator)
         {
@@ -855,8 +849,6 @@ namespace IceInternal
                 }
             
                 PropertiesAdminI propsAdmin = null;
-                MetricsAdminI metricsAdmin = null;
-                
                 if(_adminEnabled)
                 {
                     string[] facetFilter = _initData.properties.getPropertyAsList("Ice.Admin.Facets");
@@ -870,9 +862,6 @@ namespace IceInternal
                     
                     _adminFacets.Add("Process", new ProcessI(communicator));
                     
-                    metricsAdmin = new MetricsAdminI(_initData.properties, _initData.logger);
-                    _adminFacets.Add("Metrics", metricsAdmin);
-                    
                     propsAdmin= new PropertiesAdminI("Properties", _initData.properties, _initData.logger);
                     _adminFacets.Add("Properties", propsAdmin);
                 }
@@ -881,18 +870,20 @@ namespace IceInternal
                 // Setup the communicator observer only if the user didn't already set an
                 // Ice observer resolver and Admin is enabled
                 //
-                if(_adminEnabled && (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains("Metrics")))
+                if((_adminEnabled && (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains("Metrics"))) || 
+                   _initData.properties.getPropertyAsInt("Ice.Admin.Metrics") > 0)
                 {
-                    _observer = new CommunicatorObserverI(metricsAdmin, _initData.observer);
-
+                    CommunicatorObserverI observer = new CommunicatorObserverI(_initData);
+                    _initData.observer = observer;
+                    _adminFacets.Add("Metrics", observer.getFacet());
+                    
                     //
                     // Make sure the admin plugin receives property updates.
                     //
-                    propsAdmin.addUpdateCallback(metricsAdmin);
-                }
-                else
-                {
-                    _observer = initData.observer;
+                    if(propsAdmin != null)
+                    {
+                        propsAdmin.addUpdateCallback(observer.getFacet());
+                    }
                 }
             }
             catch(Ice.LocalException)
@@ -916,9 +907,9 @@ namespace IceInternal
             //
             // Set observer updater
             //
-            if(_observer != null)
+            if(_initData.observer != null)
             {
-                _observer.setObserverUpdater(new ObserverUpdaterI(this));
+                _initData.observer.setObserverUpdater(new ObserverUpdaterI(this));
             }
 
             //
@@ -1072,9 +1063,9 @@ namespace IceInternal
                 _retryQueue.destroy();
             }
 
-            if(_observer != null)
+            if(_initData.observer != null)
             {
-                _observer.setObserverUpdater(null);
+                _initData.observer.setObserverUpdater(null);
             }
 
             ThreadPool serverThreadPool = null;
@@ -1252,6 +1243,10 @@ namespace IceInternal
                 {
                     _asyncIOThread.updateObserver();
                 }
+                if(_timer != null)
+                {
+                    _timer.updateObserver(_initData.observer);
+                }
             }
             catch(Ice.CommunicatorDestroyedException)
             {
@@ -1381,7 +1376,6 @@ namespace IceInternal
         private ACMConfig _clientACM; // Immutable, not reset by destroy().
         private ACMConfig _serverACM; // Immutable, not reset by destroy().
         private Ice.ImplicitContextI _implicitContext; // Immutable
-        private Ice.Instrumentation.CommunicatorObserver _observer; // Immutable
         private RouterManager _routerManager;
         private LocatorManager _locatorManager;
         private ReferenceFactory _referenceFactory;

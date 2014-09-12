@@ -58,12 +58,13 @@ public class AllTests
             // Test: PropertiesAdmin::getProperties()
             //
             Dictionary<string, string> pd = pa.getPropertiesForPrefix("");
-            test(pd.Count == 5);
+            test(pd.Count == 6);
             test(pd["Prop1"].Equals("1"));
             test(pd["Prop2"].Equals("2"));
             test(pd["Prop3"].Equals("3"));
             test(pd["Ice.Config"].Equals("config.service"));
             test(pd["Ice.ProgramName"].Equals("IceBox-TestService"));
+            test(pd["Ice.Admin.Metrics"].Equals("1"));
 
             Dictionary<string, string> changes;
 

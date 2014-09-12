@@ -222,7 +222,7 @@ Timer::run()
         {
             try
             {
-                token.task->runTimerTask();
+                runTimerTask(token.task);
             }
             catch(const IceUtil::Exception& e)
             {
@@ -242,4 +242,10 @@ Timer::run()
             }
         }
     }
+}
+
+void
+Timer::runTimerTask(const TimerTaskPtr& task)
+{
+    task->runTimerTask();
 }

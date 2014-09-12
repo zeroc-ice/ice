@@ -154,7 +154,7 @@ public final class CommunicatorI implements Communicator
     public Ice.Instrumentation.CommunicatorObserver
     getObserver()
     {
-        return _instance.getObserver();
+        return _instance.initializationData().observer;
     }
 
     @Override

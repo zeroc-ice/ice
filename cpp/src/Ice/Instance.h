@@ -54,6 +54,9 @@ class CommunicatorI;
 namespace IceInternal
 {
 
+class Timer;
+typedef IceUtil::Handle<Timer> TimerPtr;
+
 class MetricsAdminI;
 typedef IceUtil::Handle<MetricsAdminI> MetricsAdminIPtr;
 
@@ -95,11 +98,6 @@ public:
     void addAdminFacet(const Ice::ObjectPtr&, const std::string&);
     Ice::ObjectPtr removeAdminFacet(const std::string&);
     Ice::ObjectPtr findAdminFacet(const std::string&);
-
-    const Ice::Instrumentation::CommunicatorObserverPtr& getObserver() const
-    {
-        return _observer;
-    }
 
     const Ice::ImplicitContextIPtr& getImplicitContext() const
     {
@@ -162,7 +160,7 @@ private:
     ThreadPoolPtr _serverThreadPool;
     EndpointHostResolverPtr _endpointHostResolver;
     RetryQueuePtr _retryQueue;
-    IceUtil::TimerPtr _timer;
+    TimerPtr _timer;
     EndpointFactoryManagerPtr _endpointFactoryManager;
     DynamicLibraryListPtr _dynamicLibraryList;
     Ice::PluginManagerPtr _pluginManager;
@@ -175,7 +173,6 @@ private:
     Ice::Identity _adminIdentity;
     std::set<std::string> _adminFacetFilter;
     IceInternal::MetricsAdminIPtr _metricsAdmin;
-    Ice::Instrumentation::CommunicatorObserverPtr _observer;
 };
 
 class ProcessI : public Ice::Process

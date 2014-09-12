@@ -335,27 +335,16 @@ class ServiceManagerI : ServiceManagerDisp_
                 }
 
                 //
-                // If Ice metrics are enabled on the IceBox communicator, we also enable them on the 
-                // shared communicator.
+                // If Ice metrics are enabled on the IceBox communicator, we also enable them on
+                // the service communicator.
                 // 
-                IceInternal.MetricsAdminI metricsAdmin = null;
-                if(_communicator.getObserver() is IceInternal.CommunicatorObserverI)
+                if(_communicator.findAdminFacet("Metrics") != null && 
+                   initData.properties.getProperty("Ice.Admin.Metrics").Length == 0)
                 {
-                    metricsAdmin = new IceInternal.MetricsAdminI(initData.properties, Ice.Util.getProcessLogger());
-                    initData.observer = new IceInternal.CommunicatorObserverI(metricsAdmin);
+                    initData.properties.setProperty("Ice.Admin.Metrics", "1");
                 }
 
                 _sharedCommunicator = Ice.Util.initialize(initData);
-
-                //
-                // Ensure the metrics admin plugin uses the same property set as the
-                // communicator. This is necessary to correctly deal with runtime 
-                // property updates.
-                //
-                if(metricsAdmin != null)
-                {
-                    metricsAdmin.setProperties(_sharedCommunicator.getProperties());
-                }
             }
 
             foreach(StartServiceInfo s in servicesInfo)
@@ -534,16 +523,12 @@ class ServiceManagerI : ServiceManagerDisp_
             // commnunicator property set.
             //
             Ice.Communicator communicator;
-            IceInternal.MetricsAdminI metricsAdmin = null;
+            Ice.Object metricsAdmin = null;
             if(_communicator.getProperties().getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
             {
                 Debug.Assert(_sharedCommunicator != null);
                 communicator = _sharedCommunicator;
-                if(communicator.getObserver() is IceInternal.CommunicatorObserverI)
-                {
-                    IceInternal.CommunicatorObserverI o = (IceInternal.CommunicatorObserverI)communicator.getObserver();
-                    metricsAdmin = o.getMetricsAdmin();
-                }
+                metricsAdmin = _sharedCommunicator.findAdminFacet("Metrics");
             }
             else
             {
@@ -583,10 +568,10 @@ class ServiceManagerI : ServiceManagerDisp_
                 // If Ice metrics are enabled on the IceBox communicator, we also enable them on
                 // the service communicator.
                 // 
-                if(_communicator.getObserver() is IceInternal.CommunicatorObserverI)
+                if(_communicator.findAdminFacet("Metrics") != null && 
+                   initData.properties.getProperty("Ice.Admin.Metrics").Length == 0)
                 {
-                    metricsAdmin = new IceInternal.MetricsAdminI(initData.properties, initData.logger);
-                    initData.observer = new IceInternal.CommunicatorObserverI(metricsAdmin);
+                    initData.properties.setProperty("Ice.Admin.Metrics", "1");
                 }
 
                 //
@@ -596,15 +581,7 @@ class ServiceManagerI : ServiceManagerDisp_
                 info.communicator = Ice.Util.initialize(ref info.args, initData);
                 communicator = info.communicator;
 
-                //
-                // Ensure the metrics admin plugin uses the same property set as the
-                // communicator. This is necessary to correctly deal with runtime 
-                // property updates.
-                //
-                if(metricsAdmin != null)
-                {
-                    metricsAdmin.setProperties(communicator.getProperties());
-                }
+                metricsAdmin = communicator.findAdminFacet("Metrics");
             }
 
             try
@@ -630,7 +607,7 @@ class ServiceManagerI : ServiceManagerDisp_
                     _communicator.addAdminFacet(metricsAdmin, "IceBox.Service." + info.name + ".Metrics");
 
                     // Ensure the metrics admin facet is notified of property updates.
-                    propAdmin.addUpdateCallback(metricsAdmin);
+                    propAdmin.addUpdateCallback((Ice.PropertiesAdminUpdateCallback)metricsAdmin);
                 }
 
                 //

@@ -48,7 +48,7 @@ class EndpointHostResolver
             }
         }
 
-        Ice.Instrumentation.CommunicatorObserver obsv = _instance.getObserver();
+        Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
         Ice.Instrumentation.Observer observer = null;
         if(obsv != null)
         {
@@ -142,14 +142,14 @@ class EndpointHostResolver
                         }
                     }
 
+                    if(threadObserver != null)
+                    {
+                        threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle,
+                                                    Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
+                    }
+
                     try
                     {
-                        if(threadObserver != null)
-                        {
-                            threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle,
-                                                        Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
-                        }
-
                         int protocol = _protocol;
                         NetworkProxy networkProxy = _instance.networkProxy();
                         if(networkProxy != null)
@@ -167,33 +167,27 @@ class EndpointHostResolver
                                                                                      selType,
                                                                                      _preferIPv6,
                                                                                      true),
-                                                                networkProxy));
-                        
-                        if(threadObserver != null)
-                        {
-                            threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
-                                                        Ice.Instrumentation.ThreadState.ThreadStateIdle);
-                        }
-
-                        if(observer != null)
-                        {
-                            observer.detach();
-                        }
+                                                                networkProxy));                        
                     }
                     catch(Ice.LocalException ex)
+                    {
+                        if(observer != null)
+                        {
+                            observer.failed(ex.ice_name());
+                        }
+                        callback.exception(ex);
+                    }
+                    finally
                     {
                         if(threadObserver != null)
                         {
                             threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
                                                         Ice.Instrumentation.ThreadState.ThreadStateIdle);
                         }
-
                         if(observer != null)
                         {
-                            observer.failed(ex.ice_name());
                             observer.detach();
                         }
-                        callback.exception(ex);
                     }
                 }
             });
@@ -230,7 +224,7 @@ class EndpointHostResolver
 
     synchronized void updateObserver()
     {
-        Ice.Instrumentation.CommunicatorObserver obsv = _instance.getObserver();
+        Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
         if(obsv != null)
         {
             _observer = obsv.getThreadObserver("Communicator", _threadName,
@@ -246,7 +240,7 @@ class EndpointHostResolver
     private Ice.Instrumentation.Observer
     getObserver(IPEndpointI endpoint)
     {
-        Ice.Instrumentation.CommunicatorObserver obsv = _instance.getObserver();
+        Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
         if(obsv != null)
         {
             return obsv.getEndpointLookupObserver(endpoint);

@@ -414,9 +414,9 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     updateProps(clientProps, serverProps, update, props);
 
 #ifndef ICE_OS_WINRT
-    int threadCount = 3;
+    int threadCount = 4;
 #else
-    int threadCount = 2; // No endpoint host resolver thread with WinRT.
+    int threadCount = 3; // No endpoint host resolver thread with WinRT.
 #endif
 
     Ice::Long timestamp;

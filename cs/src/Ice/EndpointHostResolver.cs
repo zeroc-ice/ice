@@ -54,7 +54,7 @@ namespace IceInternal
                 }
             }
 
-            Ice.Instrumentation.CommunicatorObserver obsv = _instance.getObserver();
+            Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
             Ice.Instrumentation.Observer observer = null;
             if(obsv != null)
             {
@@ -136,7 +136,7 @@ namespace IceInternal
                 entry.endpoint = endpoint;
                 entry.callback = callback;
 
-                Ice.Instrumentation.CommunicatorObserver obsv = _instance.getObserver();
+                Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
                 if(obsv != null)
                 {
                     entry.observer = obsv.getEndpointLookupObserver(endpoint);
@@ -193,13 +193,14 @@ namespace IceInternal
                     threadObserver = _observer;
                 }
 
+                if(threadObserver != null)
+                {
+                    threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle, 
+                                                Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
+                }
+
                 try
                 {
-                    if(threadObserver != null)
-                    {
-                        threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle, 
-                                                    Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
-                    }
 
                     NetworkProxy networkProxy = _instance.networkProxy();
                     int protocol = _protocol;
@@ -219,19 +220,16 @@ namespace IceInternal
                                                                                      _preferIPv6, 
                                                                                      true),
                                                                 networkProxy));
-
-                    if(threadObserver != null)
-                    {
-                        threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForOther, 
-                                                    Ice.Instrumentation.ThreadState.ThreadStateIdle);
-                    }
-
-                    if(r.observer != null)
-                    {
-                        r.observer.detach();
-                    }
                 }
                 catch(Ice.LocalException ex)
+                {
+                    if(r.observer != null)
+                    {
+                        r.observer.failed(ex.ice_name());
+                    }
+                    r.callback.exception(ex);
+                }
+                finally
                 {
                     if(threadObserver != null)
                     {
@@ -240,10 +238,8 @@ namespace IceInternal
                     }
                     if(r.observer != null)
                     {
-                        r.observer.failed(ex.ice_name());
                         r.observer.detach();
                     }
-                    r.callback.exception(ex);
                 }
             }
 
@@ -270,7 +266,7 @@ namespace IceInternal
         {
             lock(this)
             {
-                Ice.Instrumentation.CommunicatorObserver obsv = _instance.getObserver();
+                Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
                 if(obsv != null)
                 {
                     _observer = obsv.getThreadObserver("Communicator", 

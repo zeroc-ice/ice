@@ -387,6 +387,10 @@ MetricsAdminI::MetricsAdminI(const PropertiesPtr& properties, const LoggerPtr& l
     updateViews();
 }
 
+MetricsAdminI::~MetricsAdminI()
+{
+}
+
 void
 MetricsAdminI::destroy()
 {
@@ -603,12 +607,6 @@ const LoggerPtr&
 MetricsAdminI::getLogger() const
 {
     return _logger;
-}
-
-void
-MetricsAdminI::setProperties(const ::Ice::PropertiesPtr& properties)
-{
-    _properties = properties;
 }
 
 MetricsViewIPtr

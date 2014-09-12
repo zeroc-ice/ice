@@ -1018,27 +1018,22 @@ namespace IceInternal
 
     public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
     {
-        public CommunicatorObserverI(IceInternal.MetricsAdminI metrics) : this(metrics, null)
+        public CommunicatorObserverI(Ice.InitializationData initData)
         {
-        }
-
-        public CommunicatorObserverI(IceInternal.MetricsAdminI metrics, 
-                                     Ice.Instrumentation.CommunicatorObserver del)
-        {
-            _metrics = metrics;
-            _delegate = del;
+            _metrics = new MetricsAdminI(initData.properties, initData.logger);
+            _delegate = initData.observer;
             _connections = new ObserverFactoryWithDelegate<ConnectionMetrics, ConnectionObserverI,
-                Ice.Instrumentation.ConnectionObserver>(metrics, "Connection");
+                Ice.Instrumentation.ConnectionObserver>(_metrics, "Connection");
             _dispatch = new ObserverFactoryWithDelegate<DispatchMetrics, DispatchObserverI,
-                Ice.Instrumentation.DispatchObserver>(metrics, "Dispatch");
+                Ice.Instrumentation.DispatchObserver>(_metrics, "Dispatch");
             _invocations = new ObserverFactoryWithDelegate<InvocationMetrics, InvocationObserverI,
-                Ice.Instrumentation.InvocationObserver>(metrics, "Invocation");
+                Ice.Instrumentation.InvocationObserver>(_metrics, "Invocation");
             _threads = new ObserverFactoryWithDelegate<ThreadMetrics, ThreadObserverI,
-                Ice.Instrumentation.ThreadObserver>(metrics, "Thread");
+                Ice.Instrumentation.ThreadObserver>(_metrics, "Thread");
             _connects = new ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI,
-                Ice.Instrumentation.Observer>(metrics, "ConnectionEstablishment");
+                Ice.Instrumentation.Observer>(_metrics, "ConnectionEstablishment");
             _endpointLookups = new ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI,
-                Ice.Instrumentation.Observer>(metrics, "EndpointLookup");
+                Ice.Instrumentation.Observer>(_metrics, "EndpointLookup");
 
             try
             {
@@ -1204,7 +1199,7 @@ namespace IceInternal
             }
         }
 
-        public IceInternal.MetricsAdminI getMetricsAdmin()
+        public IceInternal.MetricsAdminI getFacet()
         {
             return _metrics;
         }
