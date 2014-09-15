@@ -151,7 +151,7 @@ RouterService::start(int argc, char* argv[], int& status)
         serverAdapter = communicator()->createObjectAdapter("Glacier2.Server");
     }
 
-    string instanceName = communicator()->getProperties()->getPropertyWithDefault("Glacier.InstanceName", "Glacier2");
+    string instanceName = communicator()->getProperties()->getPropertyWithDefault("Glacier2.InstanceName", "Glacier2");
     
     vector<string> verifierProperties;
     verifierProperties.push_back("Glacier2.PermissionsVerifier");
@@ -218,8 +218,7 @@ RouterService::start(int argc, char* argv[], int& status)
         catch(const std::exception& ex)
         {
             ServiceError err(this);
-            err << "session manager `" << sessionManagerPropertyValue 
-                << "' is invalid\n:" << ex;
+            err << "session manager `" << sessionManagerPropertyValue << "' is invalid\n:" << ex;
             return false;
         }
         try
@@ -236,8 +235,7 @@ RouterService::start(int argc, char* argv[], int& status)
             if(!nowarn)
             {
                 ServiceWarning warn(this);
-                warn << "unable to contact session manager `" << sessionManagerPropertyValue << "'\n"
-                     << ex;
+                warn << "unable to contact session manager `" << sessionManagerPropertyValue << "'\n" << ex;
             }
             sessionManager = SessionManagerPrx::uncheckedCast(obj);
         }
