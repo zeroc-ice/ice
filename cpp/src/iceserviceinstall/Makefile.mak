@@ -22,7 +22,7 @@ SRCS		= $(OBJS:.obj=.cpp)
 
 CPPFLAGS	= -I. -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
-LINKWITH	= /MANIFEST /MANIFESTUAC:"level='requireAdministrator' uiAccess='false'" $(LIBS)
+LINKWITH	= /MANIFEST /MANIFESTUAC:"level='requireAdministrator' uiAccess='false'" authz.lib $(LIBS)
 
 !if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS       = /pdb:$(TOOL:.exe=.pdb)

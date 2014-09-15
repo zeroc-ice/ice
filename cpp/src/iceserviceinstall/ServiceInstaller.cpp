@@ -7,13 +7,13 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <ServiceInstaller.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
 
 #include <Aclapi.h>
 #include <Sddl.h>
+#include <authz.h>
 
 using namespace std;
 using namespace Ice;
@@ -49,7 +49,6 @@ IceServiceInstaller::IceServiceInstaller(int serviceType, const string& configFi
     _sid(0),
     _debug(false)
 {
-
     _serviceProperties->load(_configFile);
 
     //
@@ -505,7 +504,8 @@ IceServiceInstaller::fileExists(const string& path) const
         }
         else
         {
-            const char* msg = strerror(errno);
+            char msg[128];
+            strerror_s(msg, 128, errno);
             throw "Problem with " + path + ": " + msg;
         }
     }
@@ -514,38 +514,67 @@ IceServiceInstaller::fileExists(const string& path) const
 void
 IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, bool inherit, bool fullControl) const
 {
+    if(_debug)
+    {
+        Trace trace(_communicator->getLogger(), "IceServiceInstaller");
+        trace << "Granting access on " << path << " to " << _sidName;
+    }
+
     //
     // First retrieve the ACL for our file/directory/key
     //
-    PACL acl = 0;
+    PACL acl = 0; // will point to memory in sd
     PACL newAcl = 0;
     PSECURITY_DESCRIPTOR sd = 0;
-    //
-    // We don't support to use a string converter with this tool, so don't need to
-    // use string converters in calls to stringToWstring.
-    //
+
+    AUTHZ_RESOURCE_MANAGER_HANDLE manager = 0;
+    AUTHZ_CLIENT_CONTEXT_HANDLE clientContext = 0;
+
+    SECURITY_INFORMATION flags = DACL_SECURITY_INFORMATION | OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION;
+
     DWORD res = GetNamedSecurityInfoW(const_cast<wchar_t*>(IceUtil::stringToWstring(path).c_str()), type,
-                                      DACL_SECURITY_INFORMATION, 0, 0, &acl, 0, &sd);
+                                      flags, 0, 0, &acl, 0, &sd);
     if(res != ERROR_SUCCESS)
     {
         throw "Could not retrieve securify info for " + path + ": " + IceUtilInternal::errorToString(res);
     }
 
+    //
+    // Now check if _sid can access this file/dir/key
+    //
     try
     {
-        //
-        // Now check if _sid can read this file/dir/key
-        //
-        TRUSTEE_W trustee;
-        BuildTrusteeWithSidW(&trustee, _sid);
+        if(!AuthzInitializeResourceManager(AUTHZ_RM_FLAG_NO_AUDIT, 0, 0, 0, 0, &manager))
+        {
+            throw "AutzInitializeResourceManager failed: " + IceUtilInternal::lastErrorToString();
+        }
+
+        LUID unusedId = { 0 };
+        
+        if(!AuthzInitializeContextFromSid(0, _sid, manager, 0, unusedId, 0, &clientContext))
+        {
+            throw "AuthzInitializeContextFromSid failed: " + IceUtilInternal::lastErrorToString();
+        }
+
+        AUTHZ_ACCESS_REQUEST accessRequest = { 0 }; 
+        accessRequest.DesiredAccess = MAXIMUM_ALLOWED;
+        accessRequest.PrincipalSelfSid = 0;
+        accessRequest.ObjectTypeList = 0;
+        accessRequest.ObjectTypeListLength = 0;
+        accessRequest.OptionalArguments = 0; 
 
         ACCESS_MASK accessMask = 0;
-        res = GetEffectiveRightsFromAclW(acl, &trustee, &accessMask);
+        DWORD accessUnused = 0;
+        DWORD accessError = 0;
+        AUTHZ_ACCESS_REPLY accessReply = { 0 };
+        accessReply.ResultListLength = 1;
+        accessReply.GrantedAccessMask = &accessMask;
+        accessReply.SaclEvaluationResults = &accessUnused;
+        accessReply.Error = &accessError;
 
-        if(res != ERROR_SUCCESS)
+        if(!AuthzAccessCheck(0, clientContext, &accessRequest, 0, sd, 0, 0, &accessReply, 0))
         {
-            throw "Could not retrieve effective rights for " + _sidName + " on " + path + ": " + 
-                  IceUtilInternal::errorToString(res);
+            throw "AuthzAccessCheck failed: " + IceUtilInternal::lastErrorToString();
         }
 
         bool done = false;
@@ -563,7 +592,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
         }
         else
         {
-            done = (accessMask & READ_CONTROL);
+            done = (accessMask & READ_CONTROL) != 0;
         }
 
         if(done)
@@ -595,6 +624,9 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
             {
                 ea.grfInheritance = NO_INHERITANCE;
             }
+            
+            TRUSTEE_W trustee;
+            BuildTrusteeWithSidW(&trustee, _sid);
             ea.Trustee = trustee;
 
             //
@@ -605,11 +637,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
             {
                 throw "Could not modify ACL for " + path + ": " + IceUtilInternal::errorToString(res);
             }
-
-            //
-            // We don't support to use a string converter with this tool, so don't need to
-            // use string converters in calls to stringToWstring.
-            //
+            
             res = SetNamedSecurityInfoW(const_cast<wchar_t*>(IceUtil::stringToWstring(path).c_str()), type,
                                         DACL_SECURITY_INFORMATION, 0, 0, newAcl, 0);
             if(res != ERROR_SUCCESS)
@@ -627,11 +655,15 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
     }
     catch(...)
     {
+        AuthzFreeResourceManager(manager);
+        AuthzFreeContext(clientContext);
         LocalFree(sd);
         LocalFree(newAcl);
         throw;
     }
 
+    AuthzFreeResourceManager(manager);
+    AuthzFreeContext(clientContext);
     LocalFree(sd);
     LocalFree(newAcl);
 }
