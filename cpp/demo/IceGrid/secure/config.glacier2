@@ -11,7 +11,7 @@ Glacier2.PermissionsVerifier=DemoGlacier2/NullPermissionsVerifier
 
 Glacier2.SessionTimeout=30
 
-Ice.Default.Locator=DemoIceGrid/Locator:ssl -t 10000 -h localhost -p 4062
+Ice.Default.Locator=DemoIceGrid/Locator:ssl -h localhost -p 4062
 
 #
 # SSL Configuration

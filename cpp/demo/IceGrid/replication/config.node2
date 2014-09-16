@@ -1,7 +1,7 @@
 #
 # The IceGrid locator proxy.
 #
-Ice.Default.Locator=ReplicationDemoIceGrid/Locator:default -h localhost -p 12000 -t 10000:default -h localhost -p 12001 -t 10000:default -h localhost -p 12002 -t 10000
+Ice.Default.Locator=ReplicationDemoIceGrid/Locator:default -h localhost -p 12000:default -h localhost -p 12001:default -h localhost -p 12002
 
 #
 # To use the IceGrid discovery plugin comment out the default locator
@@ -15,8 +15,10 @@ Ice.Default.Locator=ReplicationDemoIceGrid/Locator:default -h localhost -p 12000
 # IceGrid node configuration.
 #
 IceGrid.Node.Name=node2
-IceGrid.Node.Endpoints=default -t 10000 -h localhost
+IceGrid.Node.Endpoints=default -h localhost
 IceGrid.Node.Data=db/node2
+
+Ice.Default.Timeout=10000
 
 Ice.StdErr=db/node2/stderr.txt
 Ice.StdOut=db/node2/stdout.txt

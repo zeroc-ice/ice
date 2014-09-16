@@ -1,7 +1,7 @@
 #
 # The IceGrid locator proxy.
 #
-Ice.Default.Locator=DemoIceGrid/Locator:default -h localhost -p 4061 -t 30000
+Ice.Default.Locator=DemoIceGrid/Locator:default -h localhost -p 4061
 
 #
 # To use the IceGrid discovery plugin comment out the default locator
