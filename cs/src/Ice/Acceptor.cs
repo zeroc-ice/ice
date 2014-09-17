@@ -16,7 +16,7 @@ namespace IceInternal
     public interface Acceptor
     {
         void close();
-        EndpointI listen(EndpointI endp);
+        EndpointI listen();
         bool startAccept(AsyncCallback callback, object state);
         void finishAccept();
         Transceiver accept();

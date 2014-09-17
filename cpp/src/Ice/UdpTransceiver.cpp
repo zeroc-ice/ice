@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/UdpTransceiver.h>
-#include <Ice/EndpointI.h>
+#include <Ice/UdpEndpointI.h>
 #include <Ice/Connection.h>
 #include <Ice/ProtocolInstance.h>
 #include <Ice/LoggerUtil.h>
@@ -33,6 +33,8 @@ using namespace Windows::Storage::Streams;
 using namespace Windows::Networking;
 using namespace Windows::Networking::Sockets;
 #endif
+
+IceUtil::Shared* IceInternal::upCast(UdpTransceiver* p) { return p; }
 
 NativeInfoPtr
 IceInternal::UdpTransceiver::getNativeInfo()
@@ -132,7 +134,7 @@ IceInternal::UdpTransceiver::close()
 }
 
 EndpointIPtr
-IceInternal::UdpTransceiver::bind(const EndpointIPtr& endp)
+IceInternal::UdpTransceiver::bind()
 {
     if(isMulticast(_addr))
     {
@@ -178,7 +180,9 @@ IceInternal::UdpTransceiver::bind(const EndpointIPtr& endp)
     }
 
     _bound = true;
-    return endp->endpoint(this);
+
+    _endpoint = _endpoint->endpoint(this);
+    return _endpoint;
 }
 
 SocketOperation
@@ -964,8 +968,9 @@ IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
 #endif
 }
 
-IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance, const string& host, int port,
-                                            const string& mcastInterface, bool connect) :
+IceInternal::UdpTransceiver::UdpTransceiver(const UdpEndpointIPtr& endpoint, const ProtocolInstancePtr& instance,
+                                            const string& host, int port, const string& mcastInterface, bool connect) :
+    _endpoint(endpoint),
     _instance(instance),
     _incoming(true),
     _bound(false),

@@ -155,7 +155,7 @@ namespace IceInternal
         //
         public override Transceiver transceiver()
         {
-            return new UdpTransceiver(instance_, host_, port_, _mcastInterface, _connect);
+            return new UdpTransceiver(this, instance_, host_, port_, _mcastInterface, _connect);
         }
 
         //
@@ -167,21 +167,10 @@ namespace IceInternal
             return null;
         }
 
-        //
-        // Return (potentially) new endpoint based on info from associated
-        // Transceiver or Acceptor, which might differ from this endpoint,
-        // for example, if a dynamic port number was assigned.
-        //
-        public override EndpointI endpoint(Transceiver transceiver)
+        public UdpEndpointI endpoint(UdpTransceiver transceiver)
         {
-            Debug.Assert(transceiver is UdpTransceiver);
-            UdpTransceiver p = (UdpTransceiver)transceiver;
-            return createEndpoint(host_, p.effectivePort(), connectionId_);
-        }
-
-        public override EndpointI endpoint(Acceptor acceptor)
-        {
-            return this;
+            return new UdpEndpointI(instance_, host_, transceiver.effectivePort(), sourceAddr_, _mcastInterface,
+                                    _mcastTtl, _connect, connectionId_, _compress);
         }
 
         public override string options()

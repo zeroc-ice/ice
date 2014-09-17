@@ -307,7 +307,7 @@ namespace IceInternal
             _state = StateClosed;
         }
 
-        public EndpointI bind(EndpointI endp)
+        public EndpointI bind()
         {
             Debug.Assert(false);
             return null;
@@ -642,7 +642,7 @@ namespace IceInternal
             return _delegate.toDetailedString();
         }
 
-        internal 
+        internal
         WSTransceiver(ProtocolInstance instance, IceInternal.Transceiver del, string host, int port, string resource)
         {
             init(instance, del);

@@ -159,24 +159,13 @@ namespace IceSSL
         //
         public override IceInternal.Acceptor acceptor(string adapterName)
         {
-            return new AcceptorI(_instance, adapterName, host_, port_);
+            return new AcceptorI(this, _instance, adapterName, host_, port_);
         }
 
-        //
-        // Return (potentially) new endpoint based on info from associated
-        // Transceiver or Acceptor, which might differ from this endpoint,
-        // for example, if a dynamic port number was assigned.
-        //
-        public override IceInternal.EndpointI endpoint(IceInternal.Transceiver transceiver)
+        public IceInternal.EndpointI endpoint(IceInternal.Acceptor acceptor)
         {
-            return this;
-        }
-
-        public override IceInternal.EndpointI endpoint(IceInternal.Acceptor acceptor)
-        {
-            Debug.Assert(acceptor is AcceptorI);
-            AcceptorI p = (AcceptorI)acceptor;
-            return new EndpointI(_instance, host_, p.effectivePort(), sourceAddr_, _timeout, connectionId_, _compress);
+            return new EndpointI(_instance, host_, acceptor.effectivePort(), sourceAddr_, _timeout, connectionId_,
+                                 _compress);
         }
 
         public override string options()

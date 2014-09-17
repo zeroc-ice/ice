@@ -47,7 +47,7 @@ public:
     virtual SocketOperation initialize(Buffer&, Buffer&, bool&);
     virtual SocketOperation closing(bool, const Ice::LocalException&);
     virtual void close();
-    virtual EndpointIPtr bind(const EndpointIPtr&);
+    virtual EndpointIPtr bind();
     virtual SocketOperation write(Buffer&);
     virtual SocketOperation read(Buffer&, bool&);
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
@@ -67,7 +67,8 @@ public:
 private:
 
     UdpTransceiver(const ProtocolInstancePtr&, const Address&, const Address&, const std::string&, int);
-    UdpTransceiver(const ProtocolInstancePtr&, const std::string&, int, const std::string&, bool);
+    UdpTransceiver(const UdpEndpointIPtr&, const ProtocolInstancePtr&, const std::string&, int, const std::string&,
+                   bool);
 
     virtual ~UdpTransceiver();
 
@@ -82,6 +83,7 @@ private:
     friend class UdpEndpointI;
     friend class UdpConnector;
 
+    UdpEndpointIPtr _endpoint;
     const ProtocolInstancePtr _instance;
     const bool _incoming;
     bool _bound;

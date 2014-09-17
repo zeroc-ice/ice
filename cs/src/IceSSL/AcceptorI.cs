@@ -36,11 +36,12 @@ namespace IceSSL
             }
         }
 
-        public IceInternal.EndpointI listen(IceInternal.EndpointI endp)
+        public IceInternal.EndpointI listen()
         {
             _addr = IceInternal.Network.doBind(_fd, _addr);
             IceInternal.Network.doListen(_fd, _backlog);
-            return endp.endpoint(this);
+            _endpoint = _endpoint.endpoint(this);
+            return _endpoint;
         }
 
         public bool startAccept(IceInternal.AsyncCallback callback, object state)
@@ -118,7 +119,7 @@ namespace IceSSL
             s.Append(ToString());
 
             List<string> intfs = IceInternal.Network.getHostsForEndpointExpand(_addr.Address.ToString(),
-                                                                               _instance.protocolSupport(), 
+                                                                               _instance.protocolSupport(),
                                                                                true);
             if(intfs.Count != 0)
             {
@@ -133,8 +134,9 @@ namespace IceSSL
             return _addr.Port;
         }
 
-        internal AcceptorI(Instance instance, string adapterName, string host, int port)
+        internal AcceptorI(EndpointI endpoint, Instance instance, string adapterName, string host, int port)
         {
+            _endpoint = endpoint;
             _instance = instance;
             _adapterName = adapterName;
             _backlog = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
@@ -183,6 +185,7 @@ namespace IceSSL
             }
         }
 
+        private EndpointI _endpoint;
         private Instance _instance;
         private string _adapterName;
         private Socket _fd;

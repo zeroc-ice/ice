@@ -22,6 +22,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+IceUtil::Shared* IceInternal::upCast(UdpEndpointI* p) { return p; }
+
 IceInternal::UdpEndpointI::UdpEndpointI(const ProtocolInstancePtr& instance, const string& host, Int port,
                                         const Address& sourceAddr, const string& mcastInterface, Int mttl, bool conn,
                                         const string& conId, bool co) :
@@ -146,7 +148,7 @@ IceInternal::UdpEndpointI::secure() const
 TransceiverPtr
 IceInternal::UdpEndpointI::transceiver() const
 {
-    return new UdpTransceiver(_instance, _host, _port, _mcastInterface, _connect);
+    return new UdpTransceiver(const_cast<UdpEndpointI*>(this), _instance, _host, _port, _mcastInterface, _connect);
 }
 
 AcceptorPtr
@@ -155,17 +157,11 @@ IceInternal::UdpEndpointI::acceptor(const string&) const
     return 0;
 }
 
-EndpointIPtr
-IceInternal::UdpEndpointI::endpoint(const TransceiverPtr& transceiver) const
+UdpEndpointIPtr
+IceInternal::UdpEndpointI::endpoint(const UdpTransceiverPtr& transceiver) const
 {
-    UdpTransceiver* p = dynamic_cast<UdpTransceiver*>(transceiver.get());
-    return createEndpoint(_host, p->effectivePort(), _connectionId);
-}
-
-EndpointIPtr
-IceInternal::UdpEndpointI::endpoint(const AcceptorPtr& acceptor) const
-{
-    return const_cast<UdpEndpointI*>(this);
+    return new UdpEndpointI(_instance, _host, transceiver->effectivePort(), _sourceAddr, _mcastInterface, _mcastTtl,
+                            _connect, _connectionId, _compress);
 }
 
 string

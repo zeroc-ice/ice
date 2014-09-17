@@ -150,7 +150,7 @@ final class UdpEndpointI extends IPEndpointI
     @Override
     public Transceiver transceiver()
     {
-        return new UdpTransceiver(_instance, _host, _port, _mcastInterface, _connect);
+        return new UdpTransceiver(this, _instance, _host, _port, _mcastInterface, _connect);
     }
 
     //
@@ -163,22 +163,10 @@ final class UdpEndpointI extends IPEndpointI
         return null;
     }
 
-    //
-    // Return (potentially) new endpoint based on info from associated
-    // Transceiver or Acceptor, which might differ from this endpoint,
-    // for example, if a dynamic port number was assigned.
-    //
-    @Override
-    public EndpointI endpoint(Transceiver transceiver)
+    public UdpEndpointI endpoint(UdpTransceiver transceiver)
     {
-        UdpTransceiver p = (UdpTransceiver)transceiver;
-        return createEndpoint(_host, p.effectivePort(), _connectionId);
-    }
-
-    @Override
-    public EndpointI endpoint(Acceptor acceptor)
-    {
-        return this;
+        return new UdpEndpointI(_instance, _host, transceiver.effectivePort(), _sourceAddr, _mcastInterface,_mcastTtl,
+                                _connect, _connectionId, _compress);
     }
 
     //

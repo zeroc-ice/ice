@@ -30,7 +30,7 @@ public:
 #endif
 
     virtual void close();
-    virtual EndpointIPtr listen(const EndpointIPtr&);
+    virtual EndpointIPtr listen();
 #ifdef ICE_USE_IOCP
     virtual void startAccept();
     virtual void finishAccept();
@@ -45,10 +45,11 @@ public:
 
 private:
 
-    TcpAcceptor(const ProtocolInstancePtr&, const std::string&, int);
+    TcpAcceptor(const TcpEndpointIPtr&, const ProtocolInstancePtr&, const std::string&, int);
     virtual ~TcpAcceptor();
     friend class TcpEndpointI;
 
+    TcpEndpointIPtr _endpoint;
     const ProtocolInstancePtr _instance;
     const Address _addr;
 

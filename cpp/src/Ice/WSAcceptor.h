@@ -33,7 +33,7 @@ public:
 #endif
 
     virtual void close();
-    virtual EndpointIPtr listen(const EndpointIPtr&);
+    virtual EndpointIPtr listen();
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
     virtual void startAccept();
     virtual void finishAccept();
@@ -47,10 +47,11 @@ public:
 
 private:
 
-    WSAcceptor(const ProtocolInstancePtr&, const AcceptorPtr&);
+    WSAcceptor(const WSEndpointPtr&, const ProtocolInstancePtr&, const AcceptorPtr&);
     virtual ~WSAcceptor();
     friend class WSEndpoint;
 
+    WSEndpointPtr _endpoint;
     const ProtocolInstancePtr _instance;
     const AcceptorPtr _delegate;
 };

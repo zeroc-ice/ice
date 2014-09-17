@@ -17,7 +17,7 @@ public interface Transceiver
     int closing(boolean initiator, Ice.LocalException ex);
     void close();
 
-    EndpointI bind(EndpointI endp);
+    EndpointI bind();
     int write(Buffer buf);
     int read(Buffer buf, Ice.Holder<Boolean> moreData);
 

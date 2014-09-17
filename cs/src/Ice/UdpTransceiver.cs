@@ -113,7 +113,7 @@ namespace IceInternal
             }
         }
 
-        public EndpointI bind(EndpointI endp)
+        public EndpointI bind()
         {
 #if !SILVERLIGHT
             if(Network.isMulticast((IPEndPoint)_addr))
@@ -167,7 +167,8 @@ namespace IceInternal
             }
 #endif
             _bound = true;
-            return endp.endpoint(this);
+            _endpoint = _endpoint.endpoint(this);
+            return _endpoint;
         }
 
         public void destroy()
@@ -887,8 +888,10 @@ namespace IceInternal
         //
         // Only for use by UdpEndpoint.
         //
-        internal UdpTransceiver(ProtocolInstance instance, string host, int port, string mcastInterface, bool connect)
+        internal UdpTransceiver(UdpEndpointI endpoint, ProtocolInstance instance, string host, int port,
+                                string mcastInterface, bool connect)
         {
+            _endpoint = endpoint;
             _instance = instance;
             _state = connect ? StateNeedConnect : StateNotConnected;
             _mcastInterface = mcastInterface;
@@ -1037,6 +1040,7 @@ namespace IceInternal
         }
 #endif
 
+        private UdpEndpointI _endpoint;
         private ProtocolInstance _instance;
         private int _state;
         private bool _incoming;

@@ -21,6 +21,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+IceUtil::Shared* IceInternal::upCast(TcpEndpointI* p) { return p; }
+
 IceInternal::TcpEndpointI::TcpEndpointI(const ProtocolInstancePtr& instance, const string& host, Int port,
                                         const Address& sourceAddr, Int timeout, const string& connectionId,
                                         bool compress) :
@@ -144,20 +146,14 @@ IceInternal::TcpEndpointI::transceiver() const
 AcceptorPtr
 IceInternal::TcpEndpointI::acceptor(const string&) const
 {
-    return new TcpAcceptor(_instance, _host, _port);
+    return new TcpAcceptor(const_cast<TcpEndpointI*>(this), _instance, _host, _port);
 }
 
-EndpointIPtr
-IceInternal::TcpEndpointI::endpoint(const TransceiverPtr& transceiver) const
+TcpEndpointIPtr
+IceInternal::TcpEndpointI::endpoint(const TcpAcceptorPtr& acceptor) const
 {
-    return const_cast<TcpEndpointI*>(this);
-}
-
-EndpointIPtr
-IceInternal::TcpEndpointI::endpoint(const AcceptorPtr& acceptor) const
-{
-    TcpAcceptor* p = dynamic_cast<TcpAcceptor*>(acceptor.get());
-    return createEndpoint(_host, p->effectivePort(), _connectionId);
+    return new TcpEndpointI(_instance, _host, acceptor->effectivePort(), _sourceAddr, _timeout, _connectionId,
+                            _compress);
 }
 
 string

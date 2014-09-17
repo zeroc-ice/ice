@@ -27,11 +27,10 @@ class Acceptor implements IceInternal.Acceptor
 
     @Override
     public IceInternal.EndpointI
-    listen(IceInternal.EndpointI endp)
+    listen()
     {
-        EndpointI p = (EndpointI)endp;
-        IceInternal.EndpointI endpoint = _acceptor.listen(p.delegate());
-        return endp.endpoint(this);
+        _endpoint = _endpoint.endpoint(_acceptor.listen());
+        return _endpoint;
     }
 
     @Override
@@ -68,12 +67,14 @@ class Acceptor implements IceInternal.Acceptor
         return _acceptor;
     }
 
-    Acceptor(Configuration configuration, IceInternal.Acceptor acceptor)
+    Acceptor(EndpointI endpoint, Configuration configuration, IceInternal.Acceptor acceptor)
     {
+        _endpoint = endpoint;
         _configuration = configuration;
         _acceptor = acceptor;
     }
 
+    private EndpointI _endpoint;
     final private IceInternal.Acceptor _acceptor;
     private Configuration _configuration;
 }

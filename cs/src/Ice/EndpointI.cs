@@ -138,14 +138,6 @@ namespace IceInternal
         public abstract Acceptor acceptor(string adapterName);
 
         //
-        // Return (potentially) new endpoint based on info from associated
-        // Transceiver or Acceptor, which might differ from this endpoint,
-        // for example, if a dynamic port number was assigned.
-        //
-        public abstract EndpointI endpoint(Transceiver transceiver);
-        public abstract EndpointI endpoint(Acceptor acceptor);
-
-        //
         // Expand endpoint out in to separate endpoints for each local
         // host if listening on INADDR_ANY on server side or if no host
         // was specified on client side.

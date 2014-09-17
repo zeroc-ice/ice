@@ -138,7 +138,7 @@ final class TransceiverI implements IceInternal.Transceiver
     }
 
     @Override
-    public IceInternal.EndpointI bind(IceInternal.EndpointI endp)
+    public IceInternal.EndpointI bind()
     {
         assert(false);
         return null;

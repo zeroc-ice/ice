@@ -18,8 +18,16 @@ namespace IceSSL
 {
 
 class Instance;
-IceUtil::Shared* upCast(IceSSL::Instance*);
+IceUtil::Shared* upCast(Instance*);
 typedef IceInternal::Handle<Instance> InstancePtr;
+
+class EndpointI;
+IceUtil::Shared* upCast(EndpointI*);
+typedef IceInternal::Handle<EndpointI> EndpointIPtr;
+
+class AcceptorI;
+IceUtil::Shared* upCast(AcceptorI*);
+typedef IceInternal::Handle<AcceptorI> AcceptorIPtr;
 
 }
 

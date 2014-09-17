@@ -52,7 +52,7 @@ final class UdpTransceiver implements Transceiver
     }
 
     @Override
-    public EndpointI bind(EndpointI endp)
+    public EndpointI bind()
     {
         if(_addr.getAddress().isMulticastAddress())
         {
@@ -103,7 +103,8 @@ final class UdpTransceiver implements Transceiver
         }
 
         _bound = true;
-        return endp.endpoint(this);
+        _endpoint = _endpoint.endpoint(this);
+        return _endpoint;
     }
 
     @Override
@@ -393,8 +394,10 @@ final class UdpTransceiver implements Transceiver
     //
     // Only for use by UdpEndpoint
     //
-    UdpTransceiver(ProtocolInstance instance, String host, int port, String mcastInterface, boolean connect)
+    UdpTransceiver(UdpEndpointI endpoint, ProtocolInstance instance, String host, int port, String mcastInterface,
+                   boolean connect)
     {
+        _endpoint = endpoint;
         _instance = instance;
         _state = connect ? StateNeedConnect : StateNotConnected;
         _mcastInterface = mcastInterface;
@@ -601,6 +604,7 @@ final class UdpTransceiver implements Transceiver
         }
     }
 
+    private UdpEndpointI _endpoint = null;
     private ProtocolInstance _instance;
 
     private int _state;

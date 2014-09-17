@@ -306,7 +306,7 @@ final class WSTransceiver implements Transceiver
     }
 
     @Override
-    public EndpointI bind(EndpointI endp)
+    public EndpointI bind()
     {
         assert(false);
         return null;

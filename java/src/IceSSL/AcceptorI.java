@@ -26,11 +26,11 @@ final class AcceptorI implements IceInternal.Acceptor
     }
 
     @Override
-    public IceInternal.EndpointI listen(IceInternal.EndpointI endp)
+    public IceInternal.EndpointI listen()
     {
         _addr = IceInternal.Network.doBind(_fd, _addr, _backlog);
-
-        return endp.endpoint(this);
+        _endpoint = _endpoint.endpoint(this);
+        return _endpoint;
     }
 
     @Override
@@ -49,7 +49,7 @@ final class AcceptorI implements IceInternal.Acceptor
         IceInternal.StreamSocket stream = new IceInternal.StreamSocket(_instance, IceInternal.Network.doAccept(_fd));
         try
         {
-            java.net.InetSocketAddress peerAddr = 
+            java.net.InetSocketAddress peerAddr =
                 (java.net.InetSocketAddress)stream.fd().socket().getRemoteSocketAddress();
             return new TransceiverI(_instance, _instance.createSSLEngine(true, peerAddr), stream, "", _adapterName);
         }
@@ -94,8 +94,9 @@ final class AcceptorI implements IceInternal.Acceptor
         return _addr.getPort();
     }
 
-    AcceptorI(Instance instance, String adapterName, String host, int port)
+    AcceptorI(EndpointI endpoint, Instance instance, String adapterName, String host, int port)
     {
+        _endpoint = endpoint;
         _instance = instance;
         _adapterName = adapterName;
         _backlog = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
@@ -149,6 +150,7 @@ final class AcceptorI implements IceInternal.Acceptor
         }
     }
 
+    private EndpointI _endpoint;
     private Instance _instance;
     private String _adapterName;
     private java.nio.channels.ServerSocketChannel _fd;

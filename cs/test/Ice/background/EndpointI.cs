@@ -176,29 +176,12 @@ internal class EndpointI : IceInternal.EndpointI
 
     public override IceInternal.Acceptor acceptor(string adapterName)
     {
-        return new Acceptor(_endpoint.acceptor(adapterName));
+        return new Acceptor(this, _endpoint.acceptor(adapterName));
     }
 
-    public override IceInternal.EndpointI endpoint(IceInternal.Transceiver transceiver)
+    public EndpointI endpoint(IceInternal.EndpointI delEndp)
     {
-        Debug.Assert(transceiver is Transceiver);
-        Transceiver p = (Transceiver)transceiver;
-        IceInternal.EndpointI endpt = _endpoint.endpoint(p.getDelegate());
-        if(endpt == _endpoint)
-        {
-            return this;
-        }
-        else
-        {
-            return new EndpointI(endpt);
-        }
-    }
-
-    public override IceInternal.EndpointI endpoint(IceInternal.Acceptor acceptor)
-    {
-        Debug.Assert(acceptor is Acceptor);
-        Acceptor p = (Acceptor)acceptor;
-        return new EndpointI(_endpoint.endpoint(p.getDelegate()));
+        return new EndpointI(delEndp);
     }
 
     public override List<IceInternal.EndpointI> expand()

@@ -9,8 +9,8 @@
 
 #include <Ice/winrt/StreamAcceptor.h>
 #include <Ice/winrt/StreamTransceiver.h>
+#include <Ice/winrt/StreamEndpointI.h>
 
-#include <Ice/EndpointI.h>
 #include <Ice/ProtocolInstance.h>
 #include <Ice/LocalException.h>
 #include <Ice/LoggerUtil.h>
@@ -65,10 +65,11 @@ IceInternal::StreamAcceptor::close()
 }
 
 EndpointIPtr
-IceInternal::StreamAcceptor::listen(const EndpointIPtr& endp)
+IceInternal::StreamAcceptor::listen()
 {
     const_cast<Address&>(_addr) = doBind(_fd, _addr);
-    return endp->endpoint(this);
+    _endpoint = _endpoint->endpoint(this);
+    return _endpoint;
 }
 
 void
@@ -158,7 +159,11 @@ IceInternal::StreamAcceptor::effectivePort() const
     return getPort(_addr);
 }
 
-IceInternal::StreamAcceptor::StreamAcceptor(const ProtocolInstancePtr& instance, const string& host, int port) :
+IceInternal::StreamAcceptor::StreamAcceptor(const StreamEndpointIPtr& endpoint,
+                                            const ProtocolInstancePtr& instance,
+                                            const string& host,
+                                            int port) :
+    _endpoint(endpoint),
     _instance(instance),
     _addr(getAddressForServer(host, port, _instance->protocolSupport(), instance->preferIPv6())),
     _acceptPending(false)

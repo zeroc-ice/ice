@@ -1630,7 +1630,7 @@ IceInternal::IncomingConnectionFactory::initialize(const string& oaName)
                 Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
                 out << "attempting to bind to " << _endpoint->protocol() << " socket\n" << _transceiver->toString();
             }
-            const_cast<EndpointIPtr&>(_endpoint) = _transceiver->bind(_endpoint);
+            const_cast<EndpointIPtr&>(_endpoint) = _transceiver->bind();
 
             ConnectionIPtr connection = new ConnectionI(_adapter->getCommunicator(), _instance, 0, _transceiver, 0,
                                                         _endpoint, _adapter);
@@ -1648,7 +1648,7 @@ IceInternal::IncomingConnectionFactory::initialize(const string& oaName)
                 out << "attempting to bind to " << _endpoint->protocol() << " socket " << _acceptor->toString();
             }
 
-            const_cast<EndpointIPtr&>(_endpoint) = _acceptor->listen(_endpoint);
+            const_cast<EndpointIPtr&>(_endpoint) = _acceptor->listen();
 
             if(_instance->traceLevels()->network >= 1)
             {

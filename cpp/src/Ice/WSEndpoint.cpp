@@ -19,6 +19,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+IceUtil::Shared* IceInternal::upCast(WSEndpoint* p) { return p; }
+
 IceInternal::WSEndpoint::WSEndpoint(const ProtocolInstancePtr& instance, const EndpointIPtr& del, const string& res) :
     _instance(instance), _delegate(IPEndpointIPtr::dynamicCast(del)), _resource(res)
 {
@@ -236,20 +238,12 @@ AcceptorPtr
 IceInternal::WSEndpoint::acceptor(const string& adapterName) const
 {
     AcceptorPtr delAcc = _delegate->acceptor(adapterName);
-    return new WSAcceptor(_instance, delAcc);
+    return new WSAcceptor(const_cast<WSEndpoint*>(this), _instance, delAcc);
 }
 
-EndpointIPtr
-IceInternal::WSEndpoint::endpoint(const TransceiverPtr& transceiver) const
+WSEndpointPtr
+IceInternal::WSEndpoint::endpoint(const EndpointIPtr& delEndp) const
 {
-    return const_cast<WSEndpoint*>(this);
-}
-
-EndpointIPtr
-IceInternal::WSEndpoint::endpoint(const AcceptorPtr& acceptor) const
-{
-    WSAcceptor* p = dynamic_cast<WSAcceptor*>(acceptor.get());
-    EndpointIPtr delEndp = _delegate->endpoint(p->delegate());
     return new WSEndpoint(_instance, delEndp, _resource);
 }
 

@@ -1711,7 +1711,7 @@ namespace IceInternal
                         s.Append(_transceiver.ToString());
                         _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
                     }
-                    _endpoint = _transceiver.bind(_endpoint);
+                    _endpoint = _transceiver.bind();
 
                     Ice.ConnectionI connection = new Ice.ConnectionI(_adapter.getCommunicator(), _instance, null,
                                                                      _transceiver, null, _endpoint, _adapter);
@@ -1731,7 +1731,7 @@ namespace IceInternal
                         s.Append(_acceptor.ToString());
                         _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
                     }
-                    _endpoint = _acceptor.listen(_endpoint);
+                    _endpoint = _acceptor.listen();
 
                     if(_instance.traceLevels().network >= 1)
                     {

@@ -119,14 +119,6 @@ public:
     virtual AcceptorPtr acceptor(const std::string&) const = 0;
 
     //
-    // Return (potentially) new endpoint based on info from associated
-    // Transceiver or Acceptor, which might differ from this endpoint,
-    // for example, if a dynamic port number was assigned.
-    //
-    virtual EndpointIPtr endpoint(const TransceiverPtr&) const = 0;
-    virtual EndpointIPtr endpoint(const AcceptorPtr&) const = 0;
-
-    //
     // Expand endpoint out in to separate endpoints for each local
     // host if listening on INADDR_ANY on server side.
     //

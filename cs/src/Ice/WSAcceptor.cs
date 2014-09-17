@@ -18,12 +18,10 @@ namespace IceInternal
             _delegate.close();
         }
 
-        public EndpointI listen(EndpointI endp)
+        public EndpointI listen()
         {
-            Debug.Assert(endp is WSEndpoint);
-            WSEndpoint p = (WSEndpoint)endp;
-            EndpointI endpoint = _delegate.listen(p.getDelegate());
-            return endp.endpoint(this);
+            _endpoint = _endpoint.endpoint(_delegate.listen());
+            return _endpoint;
         }
 
         public bool startAccept(AsyncCallback callback, object state)
@@ -61,12 +59,14 @@ namespace IceInternal
             return _delegate;
         }
 
-        internal WSAcceptor(ProtocolInstance instance, Acceptor del)
+        internal WSAcceptor(WSEndpoint endpoint, ProtocolInstance instance, Acceptor del)
         {
+            _endpoint = endpoint;
             _instance = instance;
             _delegate = del;
         }
 
+        private WSEndpoint _endpoint;
         private ProtocolInstance _instance;
         private Acceptor _delegate;
     }

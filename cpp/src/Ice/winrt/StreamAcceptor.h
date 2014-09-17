@@ -14,6 +14,7 @@
 #include <Ice/ProtocolInstanceF.h>
 #include <Ice/Acceptor.h>
 #include <Ice/Network.h>
+#include <Ice/winrt/StreamF.h>
 
 #include <IceUtil/Mutex.h>
 
@@ -21,8 +22,6 @@
 
 namespace IceInternal
 {
-
-class StreamEndpoint;
 
 class StreamAcceptor : public Acceptor, public NativeInfo
 {
@@ -32,7 +31,7 @@ public:
     virtual void setCompletedHandler(SocketOperationCompletedHandler^);
 
     virtual void close();
-    virtual EndpointIPtr listen(const EndpointIPtr&);
+    virtual EndpointIPtr listen();
 
     virtual void startAccept();
     virtual void finishAccept();
@@ -46,12 +45,13 @@ public:
 
 private:
 
-    StreamAcceptor(const ProtocolInstancePtr&, const std::string&, int);
+    StreamAcceptor(const StreamEndpointIPtr&, const ProtocolInstancePtr&, const std::string&, int);
     virtual ~StreamAcceptor();
     friend class StreamEndpointI;
 
     virtual void queueAcceptedSocket(Windows::Networking::Sockets::StreamSocket^);
 
+    StreamEndpointIPtr _endpoint;
     const ProtocolInstancePtr _instance;
     const Address _addr;
 

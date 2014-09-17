@@ -38,11 +38,11 @@ namespace IceSSL
             }
 
             _stream.setBlock(true); // SSL requires a blocking socket
-                
+
             if(_sslStream == null)
             {
                 NetworkStream ns = new NetworkStream(_stream.fd(), false);
-                _sslStream = new SslStream(ns, false, new RemoteCertificateValidationCallback(validationCallback), 
+                _sslStream = new SslStream(ns, false, new RemoteCertificateValidationCallback(validationCallback),
                                            null);
                 return IceInternal.SocketOperation.Connect;
             }
@@ -76,7 +76,7 @@ namespace IceSSL
             _stream.close();
         }
 
-        public IceInternal.EndpointI bind(IceInternal.EndpointI endp)
+        public IceInternal.EndpointI bind()
         {
             Debug.Assert(false);
             return null;
@@ -214,7 +214,7 @@ namespace IceSSL
             try
             {
                 _writeCallback = callback;
-                _writeResult = _sslStream.BeginWrite(buf.b.rawBytes(), buf.b.position(), packetSize, writeCompleted, 
+                _writeResult = _sslStream.BeginWrite(buf.b.rawBytes(), buf.b.position(), packetSize, writeCompleted,
                                                      state);
                 completed = packetSize == buf.b.remaining();
                 return _writeResult.CompletedSynchronously;
@@ -262,7 +262,7 @@ namespace IceSSL
                 finishAuthenticate();
                 return;
             }
-            
+
             Debug.Assert(_sslStream != null && _writeResult != null);
             int sent = _stream.getSendPacketSize(buf.b.remaining());
             try
@@ -359,7 +359,7 @@ namespace IceSSL
                 {
                     _chainEngine.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
                 }
-                
+
                 foreach(X509Certificate2 cert in caCerts)
                 {
                     _chainEngine.ChainPolicy.ExtraStore.Add(cert);
@@ -415,7 +415,7 @@ namespace IceSSL
                     //
                     // Client authentication.
                     //
-                    _writeResult = _sslStream.BeginAuthenticateAsClient(_host, 
+                    _writeResult = _sslStream.BeginAuthenticateAsClient(_host,
                                                                         _instance.certs(),
                                                                         _instance.protocols(),
                                                                         _instance.checkCRL() > 0,
@@ -436,8 +436,8 @@ namespace IceSSL
                         cert = certs[0];
                     }
 
-                    _writeResult = _sslStream.BeginAuthenticateAsServer(cert, 
-                                                                        _verifyPeer > 1, 
+                    _writeResult = _sslStream.BeginAuthenticateAsServer(cert,
+                                                                        _verifyPeer > 1,
                                                                         _instance.protocols(),
                                                                         _instance.checkCRL() > 0,
                                                                         writeCompleted,
@@ -526,7 +526,7 @@ namespace IceSSL
                 }
             }
 
-            X509Chain chain = _chainEngine == null ? chainEngine : _chainEngine; 
+            X509Chain chain = _chainEngine == null ? chainEngine : _chainEngine;
 
             //
             // The certificate chain is not available via SslStream, and it is destroyed
@@ -595,7 +595,7 @@ namespace IceSSL
                         if(status.Status == X509ChainStatusFlags.UntrustedRoot && _chainEngine != null && valid)
                         {
                             //
-                            // Untrusted root is OK when using our custom chain engine if 
+                            // Untrusted root is OK when using our custom chain engine if
                             // the CA certificate is present in the chain policy extra store.
                             //
                             X509ChainElement e = chain.ChainElements[chain.ChainElements.Count - 1];

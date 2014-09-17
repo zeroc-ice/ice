@@ -125,20 +125,14 @@ namespace IceInternal
 #if SILVERLIGHT
             throw new Ice.FeatureNotSupportedException("server endpoint not supported for `" + ToString() + "'");
 #else
-            return new TcpAcceptor(instance_, host_, port_);
+            return new TcpAcceptor(this, instance_, host_, port_);
 #endif
         }
 
-        public override EndpointI endpoint(Transceiver transceiver)
+        public TcpEndpointI endpoint(TcpAcceptor acceptor)
         {
-            return this;
-        }
-
-        public override EndpointI endpoint(Acceptor acceptor)
-        {
-            Debug.Assert(acceptor is TcpAcceptor);
-            TcpAcceptor p = (TcpAcceptor)acceptor;
-            return createEndpoint(host_, p.effectivePort(), connectionId_);
+            return new TcpEndpointI(instance_, host_, acceptor.effectivePort(), sourceAddr_, _timeout, connectionId_,
+                                    _compress);
         }
 
         public override string options()

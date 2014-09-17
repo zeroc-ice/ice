@@ -155,25 +155,13 @@ final class TcpEndpointI extends IPEndpointI
     @Override
     public Acceptor acceptor(String adapterName)
     {
-        return new TcpAcceptor(_instance, _host, _port);
+        return new TcpAcceptor(this, _instance, _host, _port);
     }
 
-    //
-    // Return (potentially) new endpoint based on info from associated
-    // Transceiver or Acceptor, which might differ from this endpoint,
-    // for example, if a dynamic port number was assigned.
-    //
-    @Override
-    public EndpointI endpoint(Transceiver transceiver)
+    public TcpEndpointI endpoint(TcpAcceptor acceptor)
     {
-        return this;
-    }
-
-    @Override
-    public EndpointI endpoint(Acceptor acceptor)
-    {
-        TcpAcceptor p = (TcpAcceptor)acceptor;
-        return createEndpoint(_host, p.effectivePort(), _connectionId);
+        return new TcpEndpointI(_instance, _host, acceptor.effectivePort(), _sourceAddr, _timeout,
+                                _connectionId, _compress);
     }
 
     @Override

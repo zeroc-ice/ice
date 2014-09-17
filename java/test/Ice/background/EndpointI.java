@@ -206,31 +206,13 @@ final class EndpointI extends IceInternal.EndpointI
     public IceInternal.Acceptor
     acceptor(String adapterName)
     {
-        return new Acceptor(_configuration, _endpoint.acceptor(adapterName));
+        return new Acceptor(this, _configuration, _endpoint.acceptor(adapterName));
     }
 
-    @Override
-    public IceInternal.EndpointI
-    endpoint(IceInternal.Transceiver transceiver)
+    public EndpointI
+    endpoint(IceInternal.EndpointI delEndp)
     {
-        Transceiver p = (Transceiver)transceiver;
-        IceInternal.EndpointI endpt = _endpoint.endpoint(p.delegate());
-        if(endpt == _endpoint)
-        {
-            return this;
-        }
-        else
-        {
-            return new EndpointI(_configuration, endpt);
-        }
-    }
-
-    @Override
-    public IceInternal.EndpointI
-    endpoint(IceInternal.Acceptor acceptor)
-    {
-        Acceptor p = (Acceptor)acceptor;
-        return new EndpointI(_configuration, _endpoint.endpoint(p.delegate()));
+        return new EndpointI(_configuration, delEndp);
     }
 
     @Override

@@ -16,7 +16,7 @@ using namespace IceInternal;
 IceUtil::Shared* IceInternal::upCast(Transceiver* p) { return p; }
 
 EndpointIPtr
-IceInternal::Transceiver::bind(const EndpointIPtr&)
+IceInternal::Transceiver::bind()
 {
     assert(false);
     return 0;

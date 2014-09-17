@@ -26,11 +26,10 @@ Acceptor::close()
 }
 
 IceInternal::EndpointIPtr
-Acceptor::listen(const IceInternal::EndpointIPtr& endp)
+Acceptor::listen()
 {
-    EndpointI* p = dynamic_cast<EndpointI*>(endp.get());
-    IceInternal::EndpointIPtr endpoint = _acceptor->listen(p->delegate());
-    return endp->endpoint(this);
+    _endpoint = _endpoint->endpoint(_acceptor->listen());
+    return _endpoint;
 }
 
 #ifdef ICE_USE_IOCP
@@ -71,6 +70,8 @@ Acceptor::toDetailedString() const
     return _acceptor->toDetailedString();
 }
 
-Acceptor::Acceptor(const IceInternal::AcceptorPtr& acceptor) : _acceptor(acceptor)
+Acceptor::Acceptor(const EndpointIPtr& endpoint, const IceInternal::AcceptorPtr& acceptor) :
+    _endpoint(endpoint),
+    _acceptor(acceptor)
 {
 }

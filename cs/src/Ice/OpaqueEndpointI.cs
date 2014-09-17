@@ -224,21 +224,6 @@ namespace IceInternal
         }
 
         //
-        // Return (potentially) new endpoint based on info from associated
-        // Transceiver or Acceptor, which might differ from this endpoint,
-        // for example, if a dynamic port number was assigned.
-        //
-        public override EndpointI endpoint(Transceiver transceiver)
-        {
-            return null;
-        }
-
-        public override EndpointI endpoint(Acceptor acceptor)
-        {
-            return null;
-        }
-
-        //
         // Expand endpoint out in to separate endpoints for each local
         // host if listening on INADDR_ANY on server side or if no host
         // was specified on client side.

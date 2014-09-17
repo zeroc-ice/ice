@@ -388,7 +388,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                     s.append(_transceiver.toString());
                     _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
                 }
-                _endpoint = _transceiver.bind(_endpoint);
+                _endpoint = _transceiver.bind();
 
                 Ice.ConnectionI connection =
                     new Ice.ConnectionI(_adapter.getCommunicator(), _instance, null, _transceiver, null, _endpoint,
@@ -410,7 +410,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                     _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
                 }
 
-                _endpoint = _acceptor.listen(_endpoint);
+                _endpoint = _acceptor.listen();
 
                 if(_instance.traceLevels().network >= 1)
                 {

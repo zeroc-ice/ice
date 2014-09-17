@@ -26,10 +26,11 @@ class TcpAcceptor implements Acceptor
     }
 
     @Override
-    public EndpointI listen(EndpointI endp)
+    public EndpointI listen()
     {
         _addr = Network.doBind(_fd, _addr, _backlog);
-        return endp.endpoint(this);
+        _endpoint = _endpoint.endpoint(this);
+        return _endpoint;
     }
 
     @Override
@@ -71,8 +72,9 @@ class TcpAcceptor implements Acceptor
         return _addr.getPort();
     }
 
-    TcpAcceptor(ProtocolInstance instance, String host, int port)
+    TcpAcceptor(TcpEndpointI endpoint, ProtocolInstance instance, String host, int port)
     {
+        _endpoint = endpoint;
         _instance = instance;
         _backlog = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
 
@@ -124,6 +126,7 @@ class TcpAcceptor implements Acceptor
         }
     }
 
+    private TcpEndpointI _endpoint;
     private ProtocolInstance _instance;
     private java.nio.channels.ServerSocketChannel _fd;
     private int _backlog;

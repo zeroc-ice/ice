@@ -43,9 +43,9 @@ internal class Transceiver : IceInternal.Transceiver
         _transceiver.close();
     }
 
-    public IceInternal.EndpointI bind(IceInternal.EndpointI endp)
+    public IceInternal.EndpointI bind()
     {
-        return _transceiver.bind(endp);
+        return _transceiver.bind();
     }
 
     public int write(IceInternal.Buffer buf)

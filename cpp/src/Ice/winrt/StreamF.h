@@ -7,23 +7,22 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ACCEPTOR_F_H
-#define ICE_ACCEPTOR_F_H
+#ifndef ICE_WINRT_STREAM_F_H
+#define ICE_WINRT_STREAM_F_H
 
 #include <IceUtil/Shared.h>
-
 #include <Ice/Handle.h>
 
 namespace IceInternal
 {
 
-class Acceptor;
-ICE_API IceUtil::Shared* upCast(Acceptor*);
-typedef Handle<Acceptor> AcceptorPtr;
+class StreamEndpointI;
+ICE_API IceUtil::Shared* upCast(StreamEndpointI*);
+typedef IceInternal::Handle<StreamEndpointI> StreamEndpointIPtr;
 
-class TcpAcceptor;
-ICE_API IceUtil::Shared* upCast(TcpAcceptor*);
-typedef Handle<TcpAcceptor> TcpAcceptorPtr;
+class StreamAcceptor;
+ICE_API IceUtil::Shared* upCast(StreamAcceptor*);
+typedef IceInternal::Handle<StreamAcceptor> StreamAcceptorPtr;
 
 }
 

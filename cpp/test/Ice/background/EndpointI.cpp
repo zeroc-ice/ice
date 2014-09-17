@@ -198,10 +198,10 @@ EndpointI::connectors_async(Ice::EndpointSelectionType selType, const IceInterna
 IceInternal::AcceptorPtr
 EndpointI::acceptor(const string& adapterName) const
 {
-    return new Acceptor(_endpoint->acceptor(adapterName));
+    return new Acceptor(const_cast<EndpointI*>(this), _endpoint->acceptor(adapterName));
 }
 
-IceInternal::EndpointIPtr
+/*IceInternal::EndpointIPtr
 EndpointI::endpoint(const IceInternal::TransceiverPtr& transceiver) const
 {
     Transceiver* p = dynamic_cast<Transceiver*>(transceiver.get());
@@ -214,13 +214,12 @@ EndpointI::endpoint(const IceInternal::TransceiverPtr& transceiver) const
     {
         return new EndpointI(endpt);
     }
-}
+}*/
 
-IceInternal::EndpointIPtr
-EndpointI::endpoint(const IceInternal::AcceptorPtr& acceptor) const
+EndpointIPtr
+EndpointI::endpoint(const IceInternal::EndpointIPtr& delEndp) const
 {
-    Acceptor* p = dynamic_cast<Acceptor*>(acceptor.get());
-    return new EndpointI(_endpoint->endpoint(p->delegate()));
+    return new EndpointI(delEndp);
 }
 
 vector<IceInternal::EndpointIPtr>

@@ -158,25 +158,13 @@ final class EndpointI extends IceInternal.IPEndpointI
     @Override
     public IceInternal.Acceptor acceptor(String adapterName)
     {
-        return new AcceptorI(_instance, adapterName, _host, _port);
+        return new AcceptorI(this, _instance, adapterName, _host, _port);
     }
 
-    //
-    // Return (potentially) new endpoint based on info from associated
-    // Transceiver or Acceptor, which might differ from this endpoint,
-    // for example, if a dynamic port number was assigned.
-    //
-    @Override
-    public IceInternal.EndpointI endpoint(IceInternal.Transceiver transceiver)
+    public EndpointI endpoint(AcceptorI acceptor)
     {
-        return this;
-    }
-
-    @Override
-    public IceInternal.EndpointI endpoint(IceInternal.Acceptor acceptor)
-    {
-        AcceptorI p = (AcceptorI)acceptor;
-        return new EndpointI(_instance, _host, p.effectivePort(), _sourceAddr, _timeout, _connectionId, _compress);
+        return new EndpointI(_instance, _host, acceptor.effectivePort(), _sourceAddr, _timeout, _connectionId,
+                             _compress);
     }
 
 

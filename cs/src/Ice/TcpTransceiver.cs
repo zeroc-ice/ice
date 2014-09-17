@@ -39,7 +39,7 @@ namespace IceInternal
             _stream.close();
         }
 
-        public EndpointI bind(EndpointI endp)
+        public EndpointI bind()
         {
             Debug.Assert(false);
             return null;

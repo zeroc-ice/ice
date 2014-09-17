@@ -27,11 +27,12 @@ namespace IceInternal
             _fd = null;
         }
 
-        public virtual EndpointI listen(EndpointI endp)
+        public virtual EndpointI listen()
         {
             _addr = Network.doBind(_fd, _addr);
             Network.doListen(_fd, _backlog);
-            return endp.endpoint(this);
+            _endpoint = _endpoint.endpoint(this);
+            return _endpoint;
         }
 
         public virtual bool startAccept(AsyncCallback callback, object state)
@@ -112,8 +113,9 @@ namespace IceInternal
             return _addr.Port;
         }
 
-        internal TcpAcceptor(ProtocolInstance instance, string host, int port)
+        internal TcpAcceptor(TcpEndpointI endpoint, ProtocolInstance instance, string host, int port)
         {
+            _endpoint = endpoint;
             _instance = instance;
             _backlog = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
 
@@ -150,6 +152,7 @@ namespace IceInternal
             }
         }
 
+        private TcpEndpointI _endpoint;
         private ProtocolInstance _instance;
         private Socket _fd;
         private Socket _acceptFd;

@@ -74,9 +74,9 @@ final class Transceiver implements IceInternal.Transceiver
 
     @Override
     public IceInternal.EndpointI
-    bind(IceInternal.EndpointI endp)
+    bind()
     {
-        return _transceiver.bind(endp);
+        return _transceiver.bind();
     }
 
     @Override

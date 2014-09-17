@@ -9,7 +9,7 @@
 
 #include <Ice/TcpAcceptor.h>
 #include <Ice/TcpTransceiver.h>
-#include <Ice/EndpointI.h>
+#include <Ice/TcpEndpointI.h>
 #include <Ice/ProtocolInstance.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/LocalException.h>
@@ -24,6 +24,8 @@
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
+
+IceUtil::Shared* IceInternal::upCast(TcpAcceptor* p) { return p; }
 
 NativeInfoPtr
 IceInternal::TcpAcceptor::getNativeInfo()
@@ -53,7 +55,7 @@ IceInternal::TcpAcceptor::close()
 }
 
 EndpointIPtr
-IceInternal::TcpAcceptor::listen(const EndpointIPtr& endp)
+IceInternal::TcpAcceptor::listen()
 {
     const_cast<Address&>(_addr) = doBind(_fd, _addr);
 
@@ -67,7 +69,8 @@ IceInternal::TcpAcceptor::listen(const EndpointIPtr& endp)
         throw;
     }
 
-    return endp->endpoint(this);
+    _endpoint = _endpoint->endpoint(this);
+    return _endpoint;
 }
 
 #ifdef ICE_USE_IOCP
@@ -180,7 +183,11 @@ IceInternal::TcpAcceptor::effectivePort() const
     return getPort(_addr);
 }
 
-IceInternal::TcpAcceptor::TcpAcceptor(const ProtocolInstancePtr& instance, const string& host, int port) :
+IceInternal::TcpAcceptor::TcpAcceptor(const TcpEndpointIPtr& endpoint,
+                                      const ProtocolInstancePtr& instance,
+                                      const string& host,
+                                      int port) :
+    _endpoint(endpoint),
     _instance(instance),
     _addr(getAddressForServer(host, port, _instance->protocolSupport(), instance->preferIPv6()))
 #ifdef ICE_USE_IOCP

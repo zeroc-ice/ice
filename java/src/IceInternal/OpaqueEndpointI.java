@@ -210,23 +210,6 @@ final class OpaqueEndpointI extends EndpointI
     }
 
     //
-    // Return (potentially) new endpoint based on info from associated
-    // Transceiver or Acceptor, which might differ from this endpoint,
-    // for example, if a dynamic port number was assigned.
-    //
-    @Override
-    public EndpointI endpoint(Transceiver transceiver)
-    {
-        return null;
-    }
-
-    @Override
-    public EndpointI endpoint(Acceptor acceptor)
-    {
-        return null;
-    }
-
-    //
     // Expand endpoint out in to separate endpoints for each local
     // host if listening on INADDR_ANY on server side or if no host
     // was specified on client side.

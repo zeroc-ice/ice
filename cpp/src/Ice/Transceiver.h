@@ -30,7 +30,7 @@ public:
     virtual SocketOperation initialize(Buffer&, Buffer&, bool&) = 0;
     virtual SocketOperation closing(bool, const Ice::LocalException&) = 0;
     virtual void close() = 0;
-    virtual EndpointIPtr bind(const EndpointIPtr&);
+    virtual EndpointIPtr bind();
     virtual SocketOperation write(Buffer&) = 0;
     virtual SocketOperation read(Buffer&, bool&) = 0;
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)

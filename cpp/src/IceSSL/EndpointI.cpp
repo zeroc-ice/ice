@@ -21,6 +21,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceSSL;
 
+IceUtil::Shared* IceSSL::upCast(EndpointI* p) { return p; }
+
 IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& ho, Int po,
                              const IceInternal::Address& sourceAddr, Int ti, const string& conId, bool co) :
     IceInternal::IPEndpointI(instance, ho, po, sourceAddr, conId),
@@ -146,20 +148,13 @@ IceSSL::EndpointI::transceiver() const
 IceInternal::AcceptorPtr
 IceSSL::EndpointI::acceptor(const string& adapterName) const
 {
-    return new AcceptorI(_instance, adapterName, _host, _port);
+    return new AcceptorI(const_cast<EndpointI*>(this), _instance, adapterName, _host, _port);
 }
 
-IceInternal::EndpointIPtr
-IceSSL::EndpointI::endpoint(const IceInternal::TransceiverPtr& transceiver) const
+EndpointIPtr
+IceSSL::EndpointI::endpoint(const AcceptorIPtr& acceptor) const
 {
-    return const_cast<EndpointI*>(this);
-}
-
-IceInternal::EndpointIPtr
-IceSSL::EndpointI::endpoint(const IceInternal::AcceptorPtr& acceptor) const
-{
-    AcceptorI* p = dynamic_cast<AcceptorI*>(acceptor.get());
-    return new EndpointI(_instance, _host, p->effectivePort(), _sourceAddr, _timeout, _connectionId, _compress);
+    return new EndpointI(_instance, _host, acceptor->effectivePort(), _sourceAddr, _timeout, _connectionId, _compress);
 }
 
 string

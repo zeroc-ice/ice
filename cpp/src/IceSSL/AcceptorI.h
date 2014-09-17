@@ -20,8 +20,6 @@
 namespace IceSSL
 {
 
-class EndpointI;
-
 class AcceptorI : public IceInternal::Acceptor, public IceInternal::NativeInfo
 {
 public:
@@ -32,7 +30,7 @@ public:
 #endif
 
     virtual void close();
-    virtual IceInternal::EndpointIPtr listen(const IceInternal::EndpointIPtr&);
+    virtual IceInternal::EndpointIPtr listen();
 #ifdef ICE_USE_IOCP
     virtual void startAccept();
     virtual void finishAccept();
@@ -46,10 +44,11 @@ public:
 
 private:
 
-    AcceptorI(const InstancePtr&, const std::string&, const std::string&, int);
+    AcceptorI(const EndpointIPtr&, const InstancePtr&, const std::string&, const std::string&, int);
     virtual ~AcceptorI();
     friend class EndpointI;
 
+    EndpointIPtr _endpoint;
     const InstancePtr _instance;
     const std::string _adapterName;
     const IceInternal::Address _addr;

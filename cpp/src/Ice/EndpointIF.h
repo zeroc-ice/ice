@@ -20,6 +20,18 @@ class EndpointI;
 ICE_API IceUtil::Shared* upCast(EndpointI*);
 typedef Handle<EndpointI> EndpointIPtr;
 
+class TcpEndpointI;
+ICE_API IceUtil::Shared* upCast(TcpEndpointI*);
+typedef Handle<TcpEndpointI> TcpEndpointIPtr;
+
+class UdpEndpointI;
+ICE_API IceUtil::Shared* upCast(UdpEndpointI*);
+typedef Handle<UdpEndpointI> UdpEndpointIPtr;
+
+class WSEndpoint;
+ICE_API IceUtil::Shared* upCast(WSEndpoint*);
+typedef Handle<WSEndpoint> WSEndpointPtr;
+
 class EndpointI_connectors;
 ICE_API IceUtil::Shared* upCast(EndpointI_connectors*);
 typedef Handle<EndpointI_connectors> EndpointI_connectorsPtr;

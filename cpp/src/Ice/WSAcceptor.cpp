@@ -42,11 +42,10 @@ IceInternal::WSAcceptor::close()
 }
 
 EndpointIPtr
-IceInternal::WSAcceptor::listen(const EndpointIPtr& endp)
+IceInternal::WSAcceptor::listen()
 {
-    WSEndpoint* p = dynamic_cast<WSEndpoint*>(endp.get());
-    EndpointIPtr endpoint = _delegate->listen(p->delegate());
-    return endp->endpoint(this);
+    _endpoint = _endpoint->endpoint(_delegate->listen());
+    return _endpoint;
 }
 
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
@@ -91,8 +90,11 @@ IceInternal::WSAcceptor::toDetailedString() const
     return _delegate->toDetailedString();
 }
 
-IceInternal::WSAcceptor::WSAcceptor(const ProtocolInstancePtr& instance, const IceInternal::AcceptorPtr& del) :
-    _instance(instance), _delegate(del)
+IceInternal::WSAcceptor::WSAcceptor(const WSEndpointPtr& endpoint, const ProtocolInstancePtr& instance,
+                                    const AcceptorPtr& del) :
+    _endpoint(endpoint),
+    _instance(instance),
+    _delegate(del)
 {
 }
 

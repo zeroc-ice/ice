@@ -194,18 +194,6 @@ IceInternal::OpaqueEndpointI::acceptor(const string&) const
     return 0;
 }
 
-EndpointIPtr
-IceInternal::OpaqueEndpointI::endpoint(const TransceiverPtr&) const
-{
-    return const_cast<OpaqueEndpointI*>(this);
-}
-
-EndpointIPtr
-IceInternal::OpaqueEndpointI::endpoint(const AcceptorPtr&) const
-{
-    return const_cast<OpaqueEndpointI*>(this);
-}
-
 vector<EndpointIPtr>
 IceInternal::OpaqueEndpointI::expand() const
 {

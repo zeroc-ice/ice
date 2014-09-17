@@ -39,12 +39,12 @@ public:
 
     virtual IceInternal::TransceiverPtr transceiver() const;
     virtual IceInternal::AcceptorPtr acceptor(const std::string&) const;
-    virtual IceInternal::EndpointIPtr endpoint(const IceInternal::TransceiverPtr&) const;
-    virtual IceInternal::EndpointIPtr endpoint(const IceInternal::AcceptorPtr&) const;
     virtual std::string options() const;
 
     virtual bool operator==(const Ice::LocalObject&) const;
     virtual bool operator<(const Ice::LocalObject&) const;
+
+    virtual EndpointIPtr endpoint(const AcceptorIPtr&) const;
 
     using IceInternal::IPEndpointI::connectionId;
 

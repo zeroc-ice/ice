@@ -13,7 +13,7 @@ public interface Acceptor
 {
     java.nio.channels.ServerSocketChannel fd();
     void close();
-    EndpointI listen(EndpointI endp);
+    EndpointI listen();
     Transceiver accept();
     String protocol();
     @Override

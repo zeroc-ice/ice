@@ -11,6 +11,7 @@
 #define TEST_ACCEPTOR_H
 
 #include <Ice/Acceptor.h>
+#include <EndpointI.h>
 
 class Acceptor : public IceInternal::Acceptor
 {
@@ -19,7 +20,7 @@ public:
     virtual IceInternal::NativeInfoPtr getNativeInfo();
 
     virtual void close();
-    virtual IceInternal::EndpointIPtr listen(const IceInternal::EndpointIPtr&);
+    virtual IceInternal::EndpointIPtr listen();
 #ifdef ICE_USE_IOCP
     virtual void startAccept();
     virtual void finishAccept();
@@ -33,9 +34,10 @@ public:
 
 private:
 
-    Acceptor(const IceInternal::AcceptorPtr&);
+    Acceptor(const EndpointIPtr&, const IceInternal::AcceptorPtr&);
     friend class EndpointI;
 
+    EndpointIPtr _endpoint;
     const IceInternal::AcceptorPtr _acceptor;
 };
 

@@ -111,14 +111,6 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
     public abstract Acceptor acceptor(String adapterName);
 
     //
-    // Return (potentially) new endpoint based on info from associated
-    // Transceiver or Acceptor, which might differ from this endpoint,
-    // for example, if a dynamic port number was assigned.
-    //
-    public abstract EndpointI endpoint(Transceiver transceiver);
-    public abstract EndpointI endpoint(Acceptor acceptor);
-
-    //
     // Expand endpoint out in to separate endpoints for each local
     // host if listening on INADDR_ANY.
     //

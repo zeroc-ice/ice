@@ -20,7 +20,7 @@ namespace IceInternal
         void close();
         void destroy();
 
-        EndpointI bind(EndpointI endp);
+        EndpointI bind();
         int write(Buffer buf);
         int read(Buffer buf, ref bool hasMoreData);
 

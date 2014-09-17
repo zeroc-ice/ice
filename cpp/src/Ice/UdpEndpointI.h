@@ -38,12 +38,12 @@ public:
 
     virtual TransceiverPtr transceiver() const;
     virtual AcceptorPtr acceptor(const std::string&) const;
-    virtual EndpointIPtr endpoint(const TransceiverPtr&) const;
-    virtual EndpointIPtr endpoint(const AcceptorPtr&) const;
     virtual std::string options() const;
 
     virtual bool operator==(const Ice::LocalObject&) const;
     virtual bool operator<(const Ice::LocalObject&) const;
+
+    UdpEndpointIPtr endpoint(const UdpTransceiverPtr&) const;
 
     using IPEndpointI::connectionId;
 

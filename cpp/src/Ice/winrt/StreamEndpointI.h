@@ -14,6 +14,7 @@
 #include <Ice/IPEndpointI.h>
 #include <Ice/EndpointFactory.h>
 #include <Ice/Network.h> // for IceIternal::Address
+#include <Ice/winrt/StreamF.h>
 
 namespace IceInternal
 {
@@ -38,12 +39,12 @@ public:
 
     virtual TransceiverPtr transceiver() const;
     virtual AcceptorPtr acceptor(const std::string&) const;
-    virtual EndpointIPtr endpoint(const TransceiverPtr&) const;
-    virtual EndpointIPtr endpoint(const AcceptorPtr&) const;
     virtual std::string options() const;
 
     virtual bool operator==(const Ice::LocalObject&) const;
     virtual bool operator<(const Ice::LocalObject&) const;
+
+    StreamEndpointIPtr endpoint(const StreamAcceptorPtr&) const;
 
     using IPEndpointI::connectionId;
 

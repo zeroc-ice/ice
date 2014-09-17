@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceSSL/AcceptorI.h>
+#include <IceSSL/EndpointI.h>
 #include <IceSSL/Instance.h>
 
 #include <IceSSL/OpenSSLTransceiverI.h>
@@ -16,7 +17,6 @@
 
 #include <IceSSL/Util.h>
 
-#include <Ice/EndpointI.h>
 #include <Ice/Communicator.h>
 #include <Ice/Exception.h>
 #include <Ice/LocalException.h>
@@ -32,6 +32,8 @@
 using namespace std;
 using namespace Ice;
 using namespace IceSSL;
+
+IceUtil::Shared* IceSSL::upCast(AcceptorI* p) { return p; }
 
 IceInternal::NativeInfoPtr
 IceSSL::AcceptorI::getNativeInfo()
@@ -57,7 +59,7 @@ IceSSL::AcceptorI::close()
 }
 
 IceInternal::EndpointIPtr
-IceSSL::AcceptorI::listen(const IceInternal::EndpointIPtr& endp)
+IceSSL::AcceptorI::listen()
 {
     const_cast<IceInternal::Address&>(_addr) = IceInternal::doBind(_fd, _addr);
 
@@ -71,7 +73,8 @@ IceSSL::AcceptorI::listen(const IceInternal::EndpointIPtr& endp)
         throw;
     }
 
-    return endp->endpoint(this);
+    _endpoint = _endpoint->endpoint(this);
+    return _endpoint;
 }
 
 #ifdef ICE_USE_IOCP
@@ -205,7 +208,9 @@ IceSSL::AcceptorI::effectivePort() const
     }
 }
 
-IceSSL::AcceptorI::AcceptorI(const InstancePtr& instance, const string& adapterName, const string& host, int port) :
+IceSSL::AcceptorI::AcceptorI(const EndpointIPtr& endpoint, const InstancePtr& instance, const string& adapterName,
+                             const string& host, int port) :
+    _endpoint(endpoint),
     _instance(instance),
     _adapterName(adapterName),
     _addr(IceInternal::getAddressForServer(host, port, instance->protocolSupport(), instance->preferIPv6()))

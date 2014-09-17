@@ -14,6 +14,10 @@
 #include <Test.h>
 #include <Configuration.h>
 
+
+class EndpointI;
+typedef IceUtil::Handle<EndpointI> EndpointIPtr;
+
 class EndpointI : public IceInternal::EndpointI
 {
 public:
@@ -31,8 +35,7 @@ public:
     virtual std::vector<IceInternal::ConnectorPtr> connectors(Ice::EndpointSelectionType) const;
     virtual void connectors_async(Ice::EndpointSelectionType, const IceInternal::EndpointI_connectorsPtr&) const;
     virtual IceInternal::AcceptorPtr acceptor(const std::string&) const;
-    virtual IceInternal::EndpointIPtr endpoint(const IceInternal::TransceiverPtr&) const;
-    virtual IceInternal::EndpointIPtr endpoint(const IceInternal::AcceptorPtr&) const;
+
     virtual std::vector<IceInternal::EndpointIPtr> expand() const;
     virtual bool equivalent(const IceInternal::EndpointIPtr&) const;
 
@@ -52,6 +55,7 @@ public:
     virtual std::string options() const;
 
     IceInternal::EndpointIPtr delegate() const;
+    EndpointIPtr endpoint(const IceInternal::EndpointIPtr&) const;
 
     using IceInternal::EndpointI::connectionId;
     using IceInternal::EndpointI::connectors;

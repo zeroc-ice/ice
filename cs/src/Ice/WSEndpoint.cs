@@ -219,19 +219,11 @@ namespace IceInternal
         public override Acceptor acceptor(string adapterName)
         {
             Acceptor delAcc = _delegate.acceptor(adapterName);
-            return new WSAcceptor(_instance, delAcc);
+            return new WSAcceptor(this, _instance, delAcc);
         }
 
-        public override EndpointI endpoint(Transceiver transceiver)
+        public WSEndpoint endpoint(EndpointI delEndp)
         {
-            return this;
-        }
-
-        public override EndpointI endpoint(Acceptor acceptor)
-        {
-            Debug.Assert(acceptor is WSAcceptor);
-            WSAcceptor p = (WSAcceptor)acceptor;
-            EndpointI delEndp = _delegate.endpoint(p.getDelegate());
             return new WSEndpoint(_instance, delEndp, _resource);
         }
 

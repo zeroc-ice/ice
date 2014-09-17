@@ -207,20 +207,11 @@ final class WSEndpoint extends IceInternal.EndpointI
     public Acceptor acceptor(String adapterName)
     {
         Acceptor delAcc = _delegate.acceptor(adapterName);
-        return new WSAcceptor(_instance, delAcc);
+        return new WSAcceptor(this, _instance, delAcc);
     }
 
-    @Override
-    public EndpointI endpoint(Transceiver transceiver)
+    public WSEndpoint endpoint(EndpointI delEndp)
     {
-        return this;
-    }
-
-    @Override
-    public EndpointI endpoint(Acceptor acceptor)
-    {
-        WSAcceptor p = (WSAcceptor)acceptor;
-        EndpointI delEndp = _delegate.endpoint(p.delegate());
         return new WSEndpoint(_instance, delEndp, _resource);
     }
 

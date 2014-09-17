@@ -18,12 +18,10 @@ internal class Acceptor : IceInternal.Acceptor
         _acceptor.close();
     }
 
-    public IceInternal.EndpointI listen(IceInternal.EndpointI endp)
+    public IceInternal.EndpointI listen()
     {
-        Debug.Assert(endp is EndpointI);
-        EndpointI p = (EndpointI)endp;
-        _acceptor.listen(p.getDelegate());
-        return endp.endpoint(this);
+        _endpoint = _endpoint.endpoint(_acceptor.listen());
+        return _endpoint;
     }
 
     public bool startAccept(IceInternal.AsyncCallback callback, object state)
@@ -61,10 +59,12 @@ internal class Acceptor : IceInternal.Acceptor
         return _acceptor;
     }
 
-    internal Acceptor(IceInternal.Acceptor acceptor)
+    internal Acceptor(EndpointI endpoint, IceInternal.Acceptor acceptor)
     {
+        _endpoint = endpoint;
         _acceptor = acceptor;
     }
 
+    private EndpointI _endpoint;
     private IceInternal.Acceptor _acceptor;
 }

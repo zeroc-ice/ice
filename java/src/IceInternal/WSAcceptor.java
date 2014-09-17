@@ -24,11 +24,10 @@ final class WSAcceptor implements IceInternal.Acceptor
     }
 
     @Override
-    public EndpointI listen(EndpointI endp)
+    public EndpointI listen()
     {
-        WSEndpoint p = (WSEndpoint)endp;
-        EndpointI endpoint = _delegate.listen(p.delegate());
-        return endp.endpoint(this);
+        _endpoint = _endpoint.endpoint(_delegate.listen());
+        return _endpoint;
     }
 
     @Override
@@ -64,12 +63,14 @@ final class WSAcceptor implements IceInternal.Acceptor
         return _delegate;
     }
 
-    WSAcceptor(ProtocolInstance instance, IceInternal.Acceptor del)
+    WSAcceptor(WSEndpoint endpoint, ProtocolInstance instance, IceInternal.Acceptor del)
     {
+        _endpoint = endpoint;
         _instance = instance;
         _delegate = del;
     }
 
+    private WSEndpoint _endpoint;
     private ProtocolInstance _instance;
     private IceInternal.Acceptor _delegate;
 }
