@@ -53,7 +53,8 @@ public:
 
     Gen(const std::string&,
         const std::vector<std::string>&,
-        const std::string&);
+        const std::string&,
+        bool);
     ~Gen();
 
     void generate(const UnitPtr&);
@@ -65,6 +66,7 @@ private:
 
     std::vector<std::string> _includePaths;
     std::string _fileBase;
+    bool _icejs;
     
     void printHeader();
 
@@ -86,7 +88,7 @@ private:
 
     private:
 
-        bool _allowIcePrefix;
+        bool _icejs;
         bool _seenClass;
         bool _seenCompactId;
         bool _seenOperation;
@@ -103,7 +105,7 @@ private:
     {
     public:
 
-        TypesVisitor(::IceUtilInternal::Output&, std::vector< std::string>);
+        TypesVisitor(::IceUtilInternal::Output&, std::vector< std::string>, bool);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
@@ -120,15 +122,19 @@ private:
         std::string encodeTypeForOperation(const TypePtr&);
 
         std::vector<std::string> _seenModules;
+        bool _icejs;
     };
     
     class ExportVisitor : public JsVisitor
     {
     public:
 
-        ExportVisitor(::IceUtilInternal::Output&);
+        ExportVisitor(::IceUtilInternal::Output&, bool);
 
         virtual bool visitModuleStart(const ModulePtr&);
+    private:
+
+        bool _icejs;
     };
 };
 

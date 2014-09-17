@@ -71,6 +71,7 @@ usage(const char* n)
         "-d, --debug             Print debug messages.\n"
         "--ice                   Permit `Ice' prefix (for building Ice source code only).\n"
         "--underscore            Permit underscores in Slice identifiers.\n"
+        "--icejs                 Build icejs module\n"
         ;
 }
 
@@ -89,6 +90,7 @@ compile(int argc, char* argv[])
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
     opts.addOpt("", "underscore");
+    opts.addOpt("", "icejs");
 
     vector<string> args;
     try
@@ -145,6 +147,8 @@ compile(int argc, char* argv[])
 
     bool underscore = opts.isSet("underscore");
 
+    bool icejs = opts.isSet("icejs");
+    
     if(args.empty())
     {
         getErrorStream() << argv[0] << ": error: no input file" << endl;
@@ -241,7 +245,7 @@ compile(int argc, char* argv[])
                 {
                     try
                     {
-                        Gen gen(icecpp->getBaseName(), includePaths, output);
+                        Gen gen(icecpp->getBaseName(), includePaths, output, icejs);
                         gen.generate(p);
                     }
                     catch(const Slice::FileException& ex)

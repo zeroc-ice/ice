@@ -36,7 +36,7 @@ INSTALL_SRCS	:= IceGrid.js $(GEN_SRCS)
 
 include $(top_srcdir)/config/Make.rules.js
 
-SLICE2JSFLAGS	:= $(SLICE2JSFLAGS) --ice -I$(slicedir)
+SLICE2JSFLAGS	:= $(SLICE2JSFLAGS) --ice -I$(slicedir) --icejs
 
 lint:: $(INSTALL_SRCS)
 	jshint $(LINTFLAGS) $(INSTALL_SRCS)

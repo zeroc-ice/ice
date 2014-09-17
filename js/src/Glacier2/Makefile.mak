@@ -28,7 +28,7 @@ INSTALL_SRCS	= Glacier2.js $(GEN_SRCS)
 
 !include $(top_srcdir)\config\Make.rules.mak.js
 
-SLICE2JSFLAGS	= $(SLICE2JSFLAGS) --ice -I"$(slicedir)"
+SLICE2JSFLAGS	= $(SLICE2JSFLAGS) --ice -I"$(slicedir)" --icejs
 
 MODULEDIR       = $(install_moduledir)\$(LIBNAME)
 

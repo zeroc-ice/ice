@@ -571,8 +571,9 @@ Slice::JsVisitor::writeDocComment(const ContainedPtr& p, const string& deprecate
     _out << nl << " **/";
 }
 
-Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir) :
-    _includePaths(includePaths)
+Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir, bool icejs) :
+    _includePaths(includePaths),
+    _icejs(icejs)
 {
     _fileBase = base;
     string::size_type pos = base.find_last_of("/\\");
@@ -618,38 +619,51 @@ Slice::Gen::generate(const UnitPtr& p)
         return;
     }
 
-    _out.zeroIndent();
-    _out << nl << "/* slice2js browser-bundle-skip */";
-    _out.restoreIndent();
+    if(_icejs)
+    {
+        _out.zeroIndent();
+        _out << nl << "/* slice2js browser-bundle-skip */";
+        _out.restoreIndent();
+    }
     _out << nl << "(function(module, require, exports)";
     _out << sb;
-    _out.zeroIndent();
-    _out << nl << "/* slice2js browser-bundle-skip-end */";
-    _out.restoreIndent();
-    
-    RequireVisitor requireVisitor(_out, _includePaths, p->allowIcePrefix());
+    if(_icejs)
+    {
+        _out.zeroIndent();
+        _out << nl << "/* slice2js browser-bundle-skip-end */";
+        _out.restoreIndent();
+    }
+    RequireVisitor requireVisitor(_out, _includePaths, _icejs);
     p->visit(&requireVisitor, false);
     vector<string> seenModules = requireVisitor.writeRequires(p);
 
-    TypesVisitor typesVisitor(_out, seenModules);
+    TypesVisitor typesVisitor(_out, seenModules, _icejs);
     p->visit(&typesVisitor, false);
-
+    
     //
     // Export the top-level modules.
     //
-    ExportVisitor exportVisitor(_out);
+    ExportVisitor exportVisitor(_out, _icejs);
     p->visit(&exportVisitor, false);
     
-    _out.zeroIndent();
-    _out << nl << "/* slice2js browser-bundle-skip */";
-    _out.restoreIndent();
-    _out << eb;
+    if(_icejs)
+    {
+        _out.zeroIndent();
+        _out << nl << "/* slice2js browser-bundle-skip */";
+        _out.restoreIndent();
+    }
+     _out << eb;
+    
     _out << nl << "(typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? module : undefined,"
          << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? require : window.Ice.__require,"
          << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? exports : window));";
-    _out.zeroIndent();
-    _out << nl << "/* slice2js browser-bundle-skip-end */";
-    _out.restoreIndent();
+         
+    if(_icejs)
+    {
+        _out.zeroIndent();
+        _out << nl << "/* slice2js browser-bundle-skip-end */";
+        _out.restoreIndent();
+    }
 }
 
 void
@@ -679,9 +693,9 @@ Slice::Gen::printHeader()
 }
 
 Slice::Gen::RequireVisitor::RequireVisitor(IceUtilInternal::Output& out, vector<string> includePaths, 
-                                           bool allowIcePrefix) : 
+                                           bool icejs) : 
     JsVisitor(out),
-    _allowIcePrefix(allowIcePrefix),
+    _icejs(icejs),
     _seenClass(false),
     _seenCompactId(false),
     _seenOperation(false),
@@ -780,7 +794,7 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
     vector<string> seenModules;
 
     map<string, vector<string> > requires;
-    if(_allowIcePrefix)
+    if(_icejs)
     {
         requires["Ice"] = vector<string>();
 
@@ -829,8 +843,6 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
     {
         requires["Ice"] = vector<string>();
         requires["Ice"].push_back("icejs");
-        requires["IceMX"] = vector<string>();
-        requires["IceMX"].push_back("icejs");
     }
     
     StringList includes = p->includeFiles();
@@ -839,7 +851,7 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
         set<string> modules = p->getTopLevelModules(*i);
         for(set<string>::const_iterator j = modules.begin(); j != modules.end(); ++j)
         {
-            if(!_allowIcePrefix && iceBuiltinModule(*j))
+            if(!_icejs && iceBuiltinModule(*j))
             {
                 if(requires.find(*j) == requires.end())
                 {
@@ -858,13 +870,16 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
         }
     }
     
-    _out.zeroIndent();
-    _out << nl << "/* slice2js browser-bundle-skip */";
-    _out.restoreIndent();
-    if(!_allowIcePrefix)
+    if(_icejs)
+    {
+        _out.zeroIndent();
+        _out << nl << "/* slice2js browser-bundle-skip */";
+        _out.restoreIndent();
+    }
+    
+    if(!_icejs)
     {
         _out << nl << "var Ice = require(\"icejs\").Ice;";
-        _out << nl << "var IceMX = require(\"icejs\").IceMX;";
         _out << nl << "var __M = Ice.__M;";
     }
     else
@@ -874,10 +889,15 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
     
     for(map<string, vector<string> >::const_iterator i = requires.begin(); i != requires.end(); ++i)
     {
+        if(!_icejs && i->first == "Ice")
+        {
+            continue;
+        }
+        
         if(i->second.size() == 1)
         {
             _out << nl << "var " << i->first << " = require(\"";
-            if(_allowIcePrefix && iceBuiltinModule(i->first))
+            if(_icejs && iceBuiltinModule(i->first))
             {
                 _out << "../";
             }
@@ -891,7 +911,7 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
             for(vector<string>::const_iterator j = i->second.begin(); j != i->second.end();)
             {
                 _out << nl << '"';
-                if(_allowIcePrefix && iceBuiltinModule(i->first))
+                if(_icejs && iceBuiltinModule(i->first))
                 {
                     _out << "../";
                 }
@@ -910,16 +930,19 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
     
     _out << nl << "var Slice = Ice.Slice;";
     
-    _out.zeroIndent();
-    _out << nl << "/* slice2js browser-bundle-skip-end */";
-    _out.restoreIndent();
-    
+    if(_icejs)
+    {
+        _out.zeroIndent();
+        _out << nl << "/* slice2js browser-bundle-skip-end */";
+        _out.restoreIndent();
+    }
     return seenModules;
 }
 
-Slice::Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& out, vector<string> seenModules) :
+Slice::Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& out, vector<string> seenModules, bool icejs) :
     JsVisitor(out),
-    _seenModules(seenModules)
+    _seenModules(seenModules),
+    _icejs(icejs)
 {
 }
 
@@ -931,7 +954,7 @@ Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
     //
     // var Foo = __M.module("Foo");
     //
-    // For an inner module we  write
+    // For a nested module we write
     //
     // Foo.Bar = __M.module("Foo.Bar");
     //    
@@ -939,24 +962,29 @@ Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
     vector<string>::const_iterator i = find(_seenModules.begin(), _seenModules.end(), scoped);
     if(i == _seenModules.end())
     {
-        _out.zeroIndent();
-        _out << nl << "/* slice2js browser-bundle-skip */";
-        _out.restoreIndent();
-
+        if(_icejs)
+        {
+            _out.zeroIndent();
+            _out << nl << "/* slice2js browser-bundle-skip */";
+            _out.restoreIndent();
+        }
+        
         _seenModules.push_back(scoped);
         const bool topLevel = UnitPtr::dynamicCast(p->container());
+        _out << sp;
+        _out << nl;
         if(topLevel)
         {
-            _out << nl << "var " << scoped << " = __M.module(\"" << scoped << "\");";
+            _out << "var ";
         }
-        else
-        {
-            _out << nl << scoped << " = __M.module(\"" << scoped << "\");";
-        }
+        _out << scoped << " = __M.module(\"" << scoped << "\");";
 
+        if(_icejs)
+        {
             _out.zeroIndent();
             _out << nl << "/* slice2js browser-bundle-skip-end */";
             _out.restoreIndent();
+        }
     }    
     return true;
 }
@@ -1867,8 +1895,9 @@ Slice::Gen::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
     return "???";
 }
 
-Slice::Gen::ExportVisitor::ExportVisitor(IceUtilInternal::Output& out)
-    : JsVisitor(out)
+Slice::Gen::ExportVisitor::ExportVisitor(IceUtilInternal::Output& out, bool icejs) :
+    JsVisitor(out),
+    _icejs(icejs)
 {
 }
 
@@ -1880,13 +1909,19 @@ Slice::Gen::ExportVisitor::visitModuleStart(const ModulePtr& p)
     {
         const string localScope = getLocalScope(p->scope());
         const string name = localScope.empty() ? fixId(p->name()) : localScope + "." + p->name();
-        _out.zeroIndent();
-        _out << nl << "/* slice2js browser-bundle-skip */";
-        _out.restoreIndent();
+        if(_icejs)
+        {
+            _out.zeroIndent();
+            _out << nl << "/* slice2js browser-bundle-skip */";
+            _out.restoreIndent();
+        }
         _out << nl << "exports." << name << " = " << name << ";";
-        _out.zeroIndent();
-        _out << nl << "/* slice2js browser-bundle-skip-end */";
-        _out.restoreIndent();
+        if(_icejs)
+        {
+            _out.zeroIndent();
+            _out << nl << "/* slice2js browser-bundle-skip-end */";
+            _out.restoreIndent();
+        }
     }
     return false;
 }

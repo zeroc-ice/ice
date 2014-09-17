@@ -27,8 +27,6 @@ var __M =
 
 var Ice = __M.module("Ice");
 
-Ice.__ICE_NODEJS__ = false;
-
 Ice.__require = function()
 {
     return window;
@@ -36,5 +34,3 @@ Ice.__require = function()
 
 Ice.Slice = Ice.Slice || {};
 Ice.__M = __M;
-
-module.exports.Ice = Ice;

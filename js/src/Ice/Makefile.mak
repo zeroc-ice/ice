@@ -140,7 +140,7 @@ ServantLocator.js:
 	
 ObjectFactory.js:
 	
-SLICE2JSFLAGS	= $(SLICE2JSFLAGS) --ice -I"$(slicedir)"
+SLICE2JSFLAGS	= $(SLICE2JSFLAGS) --ice -I"$(slicedir)" --icejs
 
 MODULEDIR	= $(install_moduledir)\$(LIBNAME)
 

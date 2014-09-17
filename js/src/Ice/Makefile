@@ -143,7 +143,7 @@ ServantLocator.js:
 	
 ObjectFactory.js:
 	
-SLICE2JSFLAGS	:= $(SLICE2JSFLAGS) --ice -I$(slicedir)
+SLICE2JSFLAGS	:= $(SLICE2JSFLAGS) --ice -I$(slicedir) --icejs
 
 lint:: $(SRCS)
 	jshint $(LINTFLAGS) $(NODEJS_SRCS) $(BROWSER_SRCS) $(GEN_SRCS) $(COMMON_SRCS)

@@ -56,7 +56,6 @@ var __M =
 };
 
 var Ice = __M.module("Ice");
-Ice.__ICE_NODEJS__ = true;
 Ice.Slice = {};
 Ice.__M = __M;
-module.exports.Ice = Ice;
+exports.Ice = Ice;
