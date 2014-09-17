@@ -98,6 +98,7 @@ public:
     void addAdminFacet(const Ice::ObjectPtr&, const std::string&);
     Ice::ObjectPtr removeAdminFacet(const std::string&);
     Ice::ObjectPtr findAdminFacet(const std::string&);
+    Ice::FacetMap findAllAdminFacets();
 
     const Ice::ImplicitContextIPtr& getImplicitContext() const
     {
@@ -130,7 +131,6 @@ private:
 
     void addAllAdminFacets();
     void setServerProcessProxy(const Ice::ObjectAdapterPtr&, const Ice::Identity&);
-    bool getAdminEnabledDefaultValue() const;
 
     enum State
     {

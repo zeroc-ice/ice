@@ -40,6 +40,13 @@ public class LoggerI implements Ice.Logger
     }
 
     @Override
+    public String
+    getPrefix()
+    {
+        return "";
+    }
+
+    @Override
     public Ice.Logger
     cloneWithPrefix(String prefix)
     {

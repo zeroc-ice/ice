@@ -11,9 +11,8 @@ package IceInternal;
 
 public class PropertiesAdminI extends Ice._PropertiesAdminDisp implements Ice.NativePropertiesAdmin
 {
-    public PropertiesAdminI(String name, Ice.Properties properties, Ice.Logger logger)
+    public PropertiesAdminI(Ice.Properties properties, Ice.Logger logger)
     {
-        _name = name;
         _properties = properties;
         _logger = logger;
     }
@@ -139,7 +138,7 @@ public class PropertiesAdminI extends Ice._PropertiesAdminDisp implements Ice.Na
                 }
             }
 
-            _logger.trace(_name, out.toString());
+            _logger.trace(_traceCategory, out.toString());
         }
 
         //
@@ -205,9 +204,10 @@ public class PropertiesAdminI extends Ice._PropertiesAdminDisp implements Ice.Na
         _updateCallbacks.remove(cb);
     }
 
-    private final String _name;
     private final Ice.Properties _properties;
     private final Ice.Logger _logger;
     private java.util.List<Ice.PropertiesAdminUpdateCallback> _updateCallbacks =
         new java.util.ArrayList<Ice.PropertiesAdminUpdateCallback>();
+
+    static private final String _traceCategory = "Admin.Properties";
 }

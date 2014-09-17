@@ -35,6 +35,11 @@ public sealed class DummyLogger : Ice.Logger
     {
     }
 
+    public string getPrefix()
+    {   
+        return "";
+    }   
+    
     public Ice.Logger cloneWithPrefix(string prefix)
     {
         return new DummyLogger();

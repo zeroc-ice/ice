@@ -441,7 +441,7 @@ namespace IceInternal
                 }
                 else if(_adminEnabled)
                 {
-                    if(getAdminEnabledDefaultValue())
+                    if(_initData.properties.getProperty("Ice.Admin.Endpoints").Length > 0)
                     {
                         adminAdapter = _objectAdapterFactory.createObjectAdapter("Ice.Admin", null);
                     }
@@ -572,6 +572,35 @@ namespace IceInternal
                     result = _adminAdapter.findFacet(_adminIdentity, facet);
                 }
                 return result;
+            }
+        }
+        
+        public Dictionary<string, Ice.Object> 
+        findAllAdminFacets()
+        {
+            lock(this)
+            {
+                if(_state == StateDestroyed)
+                {
+                    throw new Ice.CommunicatorDestroyedException();
+                }
+              
+                if(_adminAdapter == null)
+                {
+                    return new Dictionary<string, Ice.Object>(_adminFacets);
+                }
+                else
+                {
+                    Dictionary<string, Ice.Object> result = _adminAdapter.findAllFacets(_adminIdentity);
+                    if(_adminFacets.Count > 0)
+                    {
+                        foreach(KeyValuePair<string, Ice.Object> p in _adminFacets)
+                        {
+                            result.Add(p.Key, p.Value);
+                        }
+                    }
+                    return result;
+                }
             }
         }
 
@@ -835,47 +864,89 @@ namespace IceInternal
                 _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 
                 _retryQueue = new RetryQueue(this);
+            }
+            catch(Ice.LocalException)
+            {
+                destroy();
+                throw;
+            }
+        }
 
-                
-                // TODO: move facets after plugins are loaded
-
-                if(_initData.properties.getProperty("Ice.Admin.Enabled").Length == 0)
-                {
-                    _adminEnabled = getAdminEnabledDefaultValue();
-                }
-                else
-                {
-                    _adminEnabled = _initData.properties.getPropertyAsInt("Ice.Admin.Enabled") > 0;
-                }
+        public void finishSetup(ref string[] args, Ice.Communicator communicator)
+        {
+            //
+            // Load plug-ins.
+            //
+            Debug.Assert(_serverThreadPool == null);
+#if !SILVERLIGHT
+            Ice.PluginManagerI pluginManagerImpl = (Ice.PluginManagerI)_pluginManager;
+            pluginManagerImpl.loadPlugins(ref args);
+#endif
+            //
+            // Create Admin facets, if enabled.
+            //
+            // Note that any logger-dependent admin facet must be created after we load all plugins,
+            // since one of these plugins can be a Logger plugin that sets a new logger during loading
+            //
             
-                PropertiesAdminI propsAdmin = null;
-                if(_adminEnabled)
+            if(_initData.properties.getProperty("Ice.Admin.Enabled").Length == 0)
+            {
+                _adminEnabled = _initData.properties.getProperty("Ice.Admin.Endpoints").Length > 0;
+            }
+            else
+            {
+                _adminEnabled = _initData.properties.getPropertyAsInt("Ice.Admin.Enabled") > 0;
+            }
+
+            string[] facetFilter = _initData.properties.getPropertyAsList("Ice.Admin.Facets");
+            if(facetFilter.Length > 0)
+            {
+                foreach(string s in facetFilter)
                 {
-                    string[] facetFilter = _initData.properties.getPropertyAsList("Ice.Admin.Facets");
-                    if(facetFilter.Length > 0)
-                    {
-                        foreach(string s in facetFilter)
-                        {
-                            _adminFacetFilter.Add(s);
-                        }
-                    }
-                    
-                    _adminFacets.Add("Process", new ProcessI(communicator));
-                    
-                    propsAdmin= new PropertiesAdminI("Properties", _initData.properties, _initData.logger);
-                    _adminFacets.Add("Properties", propsAdmin);
+                    _adminFacetFilter.Add(s);
+                }
+            }
+
+            if(_adminEnabled)
+            {
+                //
+                // Process facet
+                // 
+                string processFacetName = "Process";
+                if(_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(processFacetName))
+                {
+                    _adminFacets.Add(processFacetName, new ProcessI(communicator));
+                }
+                
+                //
+                // Logger facet
+                // 
+                string loggerFacetName = "Logger";
+                if(_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(loggerFacetName))
+                {
+                    // TODO
                 }
 
                 //
-                // Setup the communicator observer only if the user didn't already set an
-                // Ice observer resolver and Admin is enabled
+                // Properties facet
+                // 
+                string propertiesFacetName = "Properties";
+                PropertiesAdminI propsAdmin = null;
+                if(_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(propertiesFacetName))
+                {
+                     propsAdmin= new PropertiesAdminI(_initData.properties, _initData.logger);
+                    _adminFacets.Add(propertiesFacetName, propsAdmin);
+                }
+                    
                 //
-                if((_adminEnabled && (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains("Metrics"))) || 
-                   _initData.properties.getPropertyAsInt("Ice.Admin.Metrics") > 0)
+                // Metrics facet
+                //
+                string metricsFacetName = "Metrics";
+                if(_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(metricsFacetName))
                 {
                     CommunicatorObserverI observer = new CommunicatorObserverI(_initData);
                     _initData.observer = observer;
-                    _adminFacets.Add("Metrics", observer.getFacet());
+                    _adminFacets.Add(metricsFacetName, observer.getFacet());
                     
                     //
                     // Make sure the admin plugin receives property updates.
@@ -886,23 +957,6 @@ namespace IceInternal
                     }
                 }
             }
-            catch(Ice.LocalException)
-            {
-                destroy();
-                throw;
-            }
-        }
-
-        public void finishSetup(ref string[] args)
-        {
-            //
-            // Load plug-ins.
-            //
-            Debug.Assert(_serverThreadPool == null);
-#if !SILVERLIGHT
-            Ice.PluginManagerI pluginManagerImpl = (Ice.PluginManagerI)_pluginManager;
-            pluginManagerImpl.loadPlugins(ref args);
-#endif
 
             //
             // Set observer updater
@@ -1323,20 +1377,6 @@ namespace IceInternal
             }
         }
 
-        internal bool getAdminEnabledDefaultValue()
-        {
-            lock(this)
-            {
-                Ice.Properties props = _initData.properties;
-                
-                return props.getProperty("Ice.Admin.Endpoints").Length > 0 &&
-                    (props.getProperty("Ice.Admin.InstanceName").Length > 0 ||
-                     (props.getProperty("Ice.Admin.ServerId").Length > 0 && 
-                      (_referenceFactory.getDefaultLocator() != null 
-                       || props.getProperty("Ice.Default.Locator").Length > 0)));
-            }
-        }
-        
         private NetworkProxy createNetworkProxy(Ice.Properties props, int protocolSupport)
         {
             string proxyHost;

@@ -98,10 +98,8 @@ IcePy::LoggerWrapper::getPrefix()
     {
         throwPythonException();
     }
-    return getString(tmp.get());
-    
+    return getString(tmp.get());    
 }
-
 
 
 Ice::LoggerPtr
@@ -291,6 +289,29 @@ loggerError(LoggerObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
+loggerGetPrefix(LoggerObject* self)
+{
+    string prefix;
+
+    assert(self->logger);
+    try
+    {
+        prefix = (*self->logger)->getPrefix();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    return createString(prefix);
+}
+
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 loggerCloneWithPrefix(LoggerObject* self, PyObject* args)
 {
     PyObject* prefixObj;
@@ -346,6 +367,8 @@ static PyMethodDef LoggerMethods[] =
         PyDoc_STR(STRCAST("warning(message) -> None")) },
     { STRCAST("error"), reinterpret_cast<PyCFunction>(loggerError), METH_VARARGS,
         PyDoc_STR(STRCAST("error(message) -> None")) },
+    { STRCAST("getPrefix"), reinterpret_cast<PyCFunction>(loggerGetPrefix), METH_NOARGS,
+      PyDoc_STR(STRCAST("getPrefix() -> string")) },
     { STRCAST("cloneWithPrefix"), reinterpret_cast<PyCFunction>(loggerCloneWithPrefix), METH_VARARGS,
         PyDoc_STR(STRCAST("cloneWithPrefix(prefix) -> Ice.Logger")) },
     { 0, 0 } /* sentinel */

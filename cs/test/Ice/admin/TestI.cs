@@ -119,9 +119,12 @@ public class RemoteCommunicatorFactoryI : RemoteCommunicatorFactoryDisp_
         RemoteCommunicatorI servant = new RemoteCommunicatorI(communicator);
         Ice.Object propFacet = communicator.findAdminFacet("Properties");
 
-        Ice.NativePropertiesAdmin admin = (Ice.NativePropertiesAdmin)propFacet;
-        Debug.Assert(admin != null);
-        admin.addUpdateCallback(servant);
+        if(propFacet != null)
+        {
+            Ice.NativePropertiesAdmin admin = (Ice.NativePropertiesAdmin)propFacet;
+            Debug.Assert(admin != null);
+            admin.addUpdateCallback(servant);
+        }
 
         Ice.ObjectPrx proxy = current.adapter.addWithUUID(servant);
         return RemoteCommunicatorPrxHelper.uncheckedCast(proxy);

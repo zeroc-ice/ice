@@ -15,7 +15,7 @@ namespace Ice
 
     public sealed class SysLoggerI :  Logger
     {
-        public SysLoggerI(string ident, string facilityString)
+        public SysLoggerI(string prefix, string facilityString)
         {
             int facility;
             if(facilityString.Equals("LOG_KERN"))
@@ -102,17 +102,17 @@ namespace Ice
             {
                 throw new Ice.InitializationException("Invalid value for Ice.SyslogFacility: " + facilityString);
             }
-            initialize(ident, facility);
+            initialize(prefix, facility);
         }
         
-        private SysLoggerI(string ident, int facility)
+        private SysLoggerI(string prefix, int facility)
         {
-            initialize(ident, facility);
+            initialize(prefix, facility);
         }
 
-        private void initialize(string ident, int facility)
+        private void initialize(string prefix, int facility)
         {
-            _ident = ident;
+            _prefix = prefix;
             _facility = facility;
             
             //
@@ -152,6 +152,11 @@ namespace Ice
             log(LOG_ERR, message);
         }
 
+        public string getPrefix()
+        {
+            return _prefix;
+        }
+
         public Logger cloneWithPrefix(string prefix)
         {
             return new SysLoggerI(prefix, _facility);
@@ -171,7 +176,7 @@ namespace Ice
                 
                 int priority = (_facility << 3) | severity;
                 
-                string msg = '<' + priority + '>' + _ident + ": " + message;
+                string msg = '<' + priority + '>' + _prefix + ": " + message;
                 
                 byte[] buf = new byte[msg.Length];
                 for(int i = 0; i < msg.Length; i++)
@@ -187,7 +192,7 @@ namespace Ice
             }
         }
         
-        private string _ident;
+        private string _prefix;
         private int _facility;
         private UdpClient _socket;
         private System.Net.IPAddress _host;

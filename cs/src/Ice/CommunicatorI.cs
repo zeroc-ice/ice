@@ -230,6 +230,11 @@ namespace Ice
             return instance_.findAdminFacet(facet);
         }
 
+        public Dictionary<string, Ice.Object> findAllAdminFacets()
+        {
+            return instance_.findAllAdminFacets();
+        }
+
         public void Dispose()
         {
             destroy();
@@ -266,7 +271,7 @@ namespace Ice
         {
             try
             {
-                instance_.finishSetup(ref args);
+                instance_.finishSetup(ref args, this);
             }
             catch(System.Exception)
             {

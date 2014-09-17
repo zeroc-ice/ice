@@ -64,7 +64,7 @@ public class AllTests
             test(pd["Prop3"].Equals("3"));
             test(pd["Ice.Config"].Equals("config.service"));
             test(pd["Ice.ProgramName"].Equals("IceBox-TestService"));
-            test(pd["Ice.Admin.Metrics"].Equals("1"));
+            test(pd["Ice.Admin.Enabled"].Equals("1"));
 
             Dictionary<string, string> changes;
 

@@ -84,6 +84,11 @@ class LoggerI : Ice.Logger
         }
     }
 
+    public string getPrefix()
+    {
+        return "";
+    }
+
     public Ice.Logger cloneWithPrefix(string prefix)
     {
         return this;

@@ -14,30 +14,39 @@
 
 using namespace std;
 using namespace Ice;
-using namespace IceInternal;
 
-Ice::PropertiesAdminI::PropertiesAdminI(const string& name, const PropertiesPtr& properties, const LoggerPtr& logger) :
-    _name(name), _properties(properties), _logger(logger)
+namespace 
+{
+
+const char* traceCategory = "Admin.Properties";
+
+}
+
+namespace IceInternal
+{
+
+PropertiesAdminI::PropertiesAdminI(const PropertiesPtr& properties, const LoggerPtr& logger) :
+    _properties(properties), _logger(logger)
 {
 }
 
 string
-Ice::PropertiesAdminI::getProperty(const string& name, const Ice::Current&)
+PropertiesAdminI::getProperty(const string& name, const Current&)
 {
     Lock sync(*this);
     return _properties->getProperty(name);
 }
 
-Ice::PropertyDict
-Ice::PropertiesAdminI::getPropertiesForPrefix(const string& prefix, const Ice::Current&)
+PropertyDict
+PropertiesAdminI::getPropertiesForPrefix(const string& prefix, const Current&)
 {
     Lock sync(*this);
     return _properties->getPropertiesForPrefix(prefix);
 }
 
 void
-Ice::PropertiesAdminI::setProperties_async(const AMD_PropertiesAdmin_setPropertiesPtr& cb, const PropertyDict& props,
-                                           const Ice::Current&)
+PropertiesAdminI::setProperties_async(const AMD_PropertiesAdmin_setPropertiesPtr& cb, const PropertyDict& props,
+                                           const Current&)
 {
     Lock sync(*this);
     
@@ -93,7 +102,7 @@ Ice::PropertiesAdminI::setProperties_async(const AMD_PropertiesAdmin_setProperti
     
     if(traceLevel > 0 && (!added.empty() || !changed.empty() || !removed.empty()))
     {
-        Trace out(_logger, _name);
+        Trace out(_logger, traceCategory);
         
         out << "Summary of property changes";
         
@@ -182,15 +191,17 @@ Ice::PropertiesAdminI::setProperties_async(const AMD_PropertiesAdmin_setProperti
 }
 
 void
-Ice::PropertiesAdminI::addUpdateCallback(const PropertiesAdminUpdateCallbackPtr& cb)
+PropertiesAdminI::addUpdateCallback(const PropertiesAdminUpdateCallbackPtr& cb)
 {
     Lock sync(*this);
     _updateCallbacks.push_back(cb);
 }
 
 void
-Ice::PropertiesAdminI::removeUpdateCallback(const PropertiesAdminUpdateCallbackPtr& cb)
+PropertiesAdminI::removeUpdateCallback(const PropertiesAdminUpdateCallbackPtr& cb)
 {
     Lock sync(*this);
     _updateCallbacks.erase(remove(_updateCallbacks.begin(), _updateCallbacks.end(), cb), _updateCallbacks.end());
+}
+
 }

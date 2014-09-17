@@ -17,7 +17,7 @@ import java.io.IOException;
 public final class SysLoggerI implements Logger
 {
     public
-    SysLoggerI(String ident, String facilityString)
+    SysLoggerI(String prefix, String facilityString)
     {
         int facility;
         if(facilityString.equals("LOG_KERN"))
@@ -104,19 +104,19 @@ public final class SysLoggerI implements Logger
         {
             throw new Ice.InitializationException("Invalid value for Ice.SyslogFacility: " + facilityString);
         }
-        initialize(ident, facility);
+        initialize(prefix, facility);
     }
 
     private
-    SysLoggerI(String ident, int facility)
+    SysLoggerI(String prefix, int facility)
     {
-        initialize(ident, facility);
+        initialize(prefix, facility);
     }
 
     private void
-    initialize(String ident, int facility)
+    initialize(String prefix, int facility)
     {
-        _ident = ident;
+        _prefix = prefix;
         _facility = facility;
 
         //
@@ -163,6 +163,14 @@ public final class SysLoggerI implements Logger
         log(LOG_ERR, message);
     }
 
+    
+    @Override
+    public String
+    getPrefix()
+    {
+        return _prefix;
+    }
+
     @Override
     public Logger
     cloneWithPrefix(String prefix)
@@ -185,7 +193,7 @@ public final class SysLoggerI implements Logger
 
             int priority = (_facility << 3) | severity;
 
-            String msg = '<' + Integer.toString(priority) + '>' + _ident + ": " + message;
+            String msg = '<' + Integer.toString(priority) + '>' + _prefix + ": " + message;
 
             byte buf[] = msg.getBytes();
             DatagramPacket p = new DatagramPacket(buf, buf.length, _host, _port);
@@ -197,7 +205,7 @@ public final class SysLoggerI implements Logger
         }
     }
 
-    private String _ident;
+    private String _prefix;
     private int _facility;
     private DatagramSocket _socket;
     private InetAddress _host;

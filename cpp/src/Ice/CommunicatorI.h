@@ -78,6 +78,7 @@ public:
     virtual void addAdminFacet(const ObjectPtr&, const std::string&);
     virtual ObjectPtr removeAdminFacet(const std::string&);
     virtual ObjectPtr findAdminFacet(const std::string&);
+    virtual FacetMap findAllAdminFacets();
 
 private:
 

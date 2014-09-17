@@ -21,9 +21,11 @@ namespace Ice
     {
         public LoggerI(string prefix)
         {
+            _prefix = prefix;
+
             if(prefix.Length > 0)
             {
-                _prefix = prefix + ": ";
+                _formattedPrefix = prefix + ": ";
             }
             
             _date = "d";
@@ -45,7 +47,7 @@ namespace Ice
             s.Append(' ');
             s.Append(System.DateTime.Now.ToString(_time, CultureInfo.CurrentCulture));
             s.Append(' ');
-            s.Append(_prefix);
+            s.Append(_formattedPrefix);
             s.Append(category);
             s.Append(": ");
             s.Append(message);
@@ -64,7 +66,7 @@ namespace Ice
             s.Append(' ');
             s.Append(System.DateTime.Now.ToString(_time, CultureInfo.CurrentCulture));
             s.Append(' ');
-            s.Append(_prefix);
+            s.Append(_formattedPrefix);
             s.Append("warning: ");
             s.Append(message);
             s.Replace("\n", "\n   ");
@@ -82,7 +84,7 @@ namespace Ice
             s.Append(' ');
             s.Append(System.DateTime.Now.ToString(_time, CultureInfo.CurrentCulture));
             s.Append(' ');
-            s.Append(_prefix);
+            s.Append(_formattedPrefix);
             s.Append("error: ");
             s.Append(message);
             s.Replace("\n", "\n   ");
@@ -93,11 +95,17 @@ namespace Ice
             }
         }
 
+        public string getPrefix()
+        {
+            return _prefix;
+        }
+
         public abstract Logger cloneWithPrefix(string prefix);
 
         protected abstract void write(string message);
 
         internal string _prefix = "";
+        internal string _formattedPrefix = "";
         internal string _date = null;
         internal string _time = null;
 

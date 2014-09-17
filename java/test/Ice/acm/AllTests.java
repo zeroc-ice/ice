@@ -92,6 +92,11 @@ public class AllTests
             }
         }
 
+        public String getPrefix()
+        {
+            return "";
+        }
+
         public Ice.Logger cloneWithPrefix(String prefix)
         {
             return this;

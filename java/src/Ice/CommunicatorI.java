@@ -323,6 +323,13 @@ public final class CommunicatorI implements Communicator
     {
         return _instance.findAdminFacet(facet);
     }
+    
+    @Override
+    public java.util.Map<String, Ice.Object>
+    findAllAdminFacets()
+    {
+        return _instance.findAllAdminFacets();
+    }
 
     CommunicatorI(InitializationData initData)
     {
@@ -355,7 +362,7 @@ public final class CommunicatorI implements Communicator
     {
         try
         {
-            _instance.finishSetup(args);
+            _instance.finishSetup(args, this);
         }
         catch(RuntimeException ex)
         {

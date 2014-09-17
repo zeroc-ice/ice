@@ -63,6 +63,9 @@ class LoggerI(Ice.Logger):
         finally:
             self.m.release()
 
+    def getPrefix(self):
+        return ""
+
     def cloneWithPrefix(self, prefix):
         return self
 

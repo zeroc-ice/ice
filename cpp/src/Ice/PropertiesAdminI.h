@@ -16,28 +16,27 @@
 #include <Ice/NativePropertiesAdmin.h>
 #include <Ice/LoggerF.h>
 
-namespace Ice
+namespace IceInternal
 {
 
-class ICE_API PropertiesAdminI : public PropertiesAdmin, public NativePropertiesAdmin, private IceUtil::RecMutex
+class PropertiesAdminI : public Ice::PropertiesAdmin, public Ice::NativePropertiesAdmin, private IceUtil::RecMutex
 {
 public:
 
-    PropertiesAdminI(const std::string&, const PropertiesPtr&, const LoggerPtr&);
+    PropertiesAdminI(const Ice::PropertiesPtr&, const Ice::LoggerPtr&);
 
-    virtual std::string getProperty(const std::string&, const Current&);
-    virtual PropertyDict getPropertiesForPrefix(const std::string&, const Current&);
-    virtual void setProperties_async(const AMD_PropertiesAdmin_setPropertiesPtr&, const PropertyDict&, const Current&);
+    virtual std::string getProperty(const std::string&, const Ice::Current&);
+    virtual Ice::PropertyDict getPropertiesForPrefix(const std::string&, const Ice::Current&);
+    virtual void setProperties_async(const Ice::AMD_PropertiesAdmin_setPropertiesPtr&, const Ice::PropertyDict&, const Ice::Current&);
 
-    virtual void addUpdateCallback(const PropertiesAdminUpdateCallbackPtr&);
-    virtual void removeUpdateCallback(const PropertiesAdminUpdateCallbackPtr&);
+    virtual void addUpdateCallback(const Ice::PropertiesAdminUpdateCallbackPtr&);
+    virtual void removeUpdateCallback(const Ice::PropertiesAdminUpdateCallbackPtr&);
 
 private:
 
-    const std::string _name;
-    const PropertiesPtr _properties;
-    const LoggerPtr _logger;
-    std::vector<PropertiesAdminUpdateCallbackPtr> _updateCallbacks;
+    const Ice::PropertiesPtr _properties;
+    const Ice::LoggerPtr _logger;
+    std::vector<Ice::PropertiesAdminUpdateCallbackPtr> _updateCallbacks;
 };
 typedef IceUtil::Handle<PropertiesAdminI> PropertiesAdminIPtr;
 

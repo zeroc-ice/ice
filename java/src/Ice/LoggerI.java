@@ -14,9 +14,11 @@ public class LoggerI implements Logger
     public
     LoggerI(String prefix, String file)
     {
+        _prefix = prefix;
+
         if(prefix.length() > 0)
         {
-            _prefix = prefix + ": ";
+            _formattedPrefix = prefix + ": ";
         }
 
         _lineSeparator = System.getProperty("line.separator");
@@ -55,7 +57,7 @@ public class LoggerI implements Logger
         s.append(_date.format(new java.util.Date()));
         s.append(_time.format(new java.util.Date()));
         s.append(' ');
-        s.append(_prefix);
+        s.append(_formattedPrefix);
         s.append(category);
         s.append(": ");
         s.append(message);
@@ -71,7 +73,7 @@ public class LoggerI implements Logger
         s.append(_date.format(new java.util.Date()));
         s.append(_time.format(new java.util.Date()));
         s.append(' ');
-        s.append(_prefix);
+        s.append(_formattedPrefix);
         s.append("warning: ");
         s.append(Thread.currentThread().getName());
         s.append(": ");
@@ -88,12 +90,20 @@ public class LoggerI implements Logger
         s.append(_date.format(new java.util.Date()));
         s.append(_time.format(new java.util.Date()));
         s.append(' ');
-        s.append(_prefix);
+        s.append(_formattedPrefix);
         s.append("error: ");
         s.append(Thread.currentThread().getName());
         s.append(": ");
         s.append(message);
         write(s, true);
+    }
+
+    
+    @Override
+    public String
+    getPrefix()
+    {
+        return _prefix;
     }
 
     @Override
@@ -134,6 +144,7 @@ public class LoggerI implements Logger
     }
 
     String _prefix = "";
+    String _formattedPrefix = "";
     String _file = "";
     String _lineSeparator;
     java.text.DateFormat _date;

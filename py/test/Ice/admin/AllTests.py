@@ -18,7 +18,9 @@ def testFacets(com, builtInFacets = True):
     if builtInFacets:
         test(com.findAdminFacet("Properties") != None)
         test(com.findAdminFacet("Process") != None)
-
+        test(com.findAdminFacet("Logger") != None)
+        test(com.findAdminFacet("Metrics") != None)
+        
     f1 = TestI.TestFacetI()
     f2 = TestI.TestFacetI()
     f3 = TestI.TestFacetI()
@@ -31,6 +33,21 @@ def testFacets(com, builtInFacets = True):
     test(com.findAdminFacet("Facet2") == f2)
     test(com.findAdminFacet("Facet3") == f3)
     test(com.findAdminFacet("Bogus") == None)
+
+    facetMap = com.findAllAdminFacets()
+    if builtInFacets:
+        test(len(facetMap) == 7)
+        test("Properties" in facetMap)
+        test(isinstance(facetMap["Properties"], Ice.NativePropertiesAdmin)) 
+        test("Process" in facetMap)
+        test("Logger" in facetMap)
+        test("Metrics" in facetMap)
+
+    test(len(facetMap) >=3)
+     
+    test("Facet1" in facetMap)
+    test("Facet2" in facetMap)
+    test("Facet3" in facetMap)
 
     try:
         com.addAdminFacet(f1, "Facet1")
@@ -66,8 +83,10 @@ def allTests(communicator):
     init.properties = Ice.createProperties()
     init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1")
     init.properties.setProperty("Ice.Admin.InstanceName", "Test")
+    init.properties.setProperty("Ice.ProgramName", "MyTestProgram")
     com = Ice.initialize(init)
     testFacets(com)
+    test(com.getLogger().getPrefix() == "MyTestProgram")
     com.destroy()
 
     #
@@ -79,7 +98,7 @@ def allTests(communicator):
     init.properties.setProperty("Ice.Admin.InstanceName", "Test")
     init.properties.setProperty("Ice.Admin.Facets", "Properties")
     com = Ice.initialize(init)
-    testFacets(com)
+    testFacets(com, False)
     com.destroy()
     
     #

@@ -7,15 +7,13 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Options.h>
+#include <IceUtil/StringUtil.h>
 #include <Ice/Ice.h>
 #include <Ice/DynamicLibrary.h>
 #include <Ice/SliceChecksums.h>
 #include <Ice/Initialize.h>
 #include <Ice/Instance.h>
-#include <Ice/PropertiesAdminI.h>
-#include <Ice/LoggerAdminI.h>
 #include <IceBox/ServiceManagerI.h>
 
 using namespace Ice;
@@ -75,12 +73,33 @@ struct StartServiceInfo
 
 IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc, char* argv[]) :
     _communicator(communicator),
+    _adminEnabled(false),
     _pendingStatusChanges(false),
     _traceServiceObserver(0),
     _observerCompletedCB(newCallback(this, &ServiceManagerI::observerCompleted))
 { 
     _logger = _communicator->getLogger();
-    _traceServiceObserver = _communicator->getProperties()->getPropertyAsInt("IceBox.Trace.ServiceObserver");
+
+    PropertiesPtr props = _communicator->getProperties();
+    _traceServiceObserver = props->getPropertyAsInt("IceBox.Trace.ServiceObserver");
+    
+    if(props->getProperty("Ice.Admin.Enabled") == "")
+    {
+        _adminEnabled = props->getProperty("Ice.Admin.Endpoints") != "";
+    }
+    else
+    {
+        _adminEnabled = props->getPropertyAsInt("Ice.Admin.Enabled") > 0;
+    }
+    
+    if(_adminEnabled)
+    {
+        StringSeq facetSeq = props->getPropertyAsList("Ice.Admin.Facets");
+        if(!facetSeq.empty())
+        {
+            _adminFacetFilter.insert(facetSeq.begin(), facetSeq.end());
+        }
+    }
 
     for(int i = 1; i < argc; i++)
     {
@@ -355,6 +374,7 @@ IceBox::ServiceManagerI::start()
         {
             InitializationData initData;
             initData.properties = createServiceProperties("SharedCommunicator");
+           
             for(vector<StartServiceInfo>::iterator q = servicesInfo.begin(); q != servicesInfo.end(); ++q)
             {
                 if(properties->getPropertyAsInt("IceBox.UseSharedCommunicator." + q->name) <= 0)
@@ -396,17 +416,26 @@ IceBox::ServiceManagerI::start()
                 q->args = initData.properties->parseCommandLineOptions(q->name, q->args);
             }
 
-            //
-            // If Ice metrics are enabled on the IceBox communicator, we also enable them on
-            // the service communicator.
-            // 
-            if(_communicator->findAdminFacet("Metrics") && 
-               initData.properties->getProperty("Ice.Admin.Metrics").empty())
-            {
-                initData.properties->setProperty("Ice.Admin.Metrics", "1");
-            }
+            const string facetNamePrefix = "IceBox.SharedCommunicator.";
+            bool addFacets = configureAdmin(initData.properties, facetNamePrefix); 
 
             _sharedCommunicator = initialize(initData);
+
+            if(addFacets)
+            {
+                // Add all facets created on shared communicator to the IceBox communicator
+                // but renamed <prefix>.<facet-name>, except for the Process facet which is
+                // never added.
+                
+                FacetMap facets = _sharedCommunicator->findAllAdminFacets();
+                for(FacetMap::const_iterator p = facets.begin(); p != facets.end(); ++p)
+                {
+                    if(p->first != "Process")
+                    {
+                        _communicator->addAdminFacet(p->second, facetNamePrefix + p->first);
+                    }
+                }
+            }
         }
 
         //
@@ -538,12 +567,11 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     // property set.
     //
     Ice::CommunicatorPtr communicator;
-    Ice::ObjectPtr metricsAdmin;
+   
     if(_communicator->getProperties()->getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
     {
         assert(_sharedCommunicator);
         communicator = _sharedCommunicator;
-        metricsAdmin = _sharedCommunicator->findAdminFacet("Metrics");
     }
     else
     {
@@ -587,34 +615,14 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
                 //
                 initData.logger = _logger->cloneWithPrefix(initData.properties->getProperty("Ice.ProgramName"));
             }
-
+            
             //
-            // If Ice metrics are enabled on the IceBox communicator, we also enable them on
-            // the service communicator.
-            // 
-            if(_communicator->findAdminFacet("Metrics") && 
-               initData.properties->getProperty("Ice.Admin.Metrics").empty())
-            {
-                initData.properties->setProperty("Ice.Admin.Metrics", "1");
-            }
-
+            // If Admin is enabled on the IceBox communicator, for each service that does not set
+            // Ice.Admin.Enabled, we set Ice.Admin.Enabled=1 to have this service create facets; then
+            // we add these facets to the IceBox Admin object as IceBox.Service.<service>.<facet>. 
             //
-            // If the Logger is enabled on the IceBox communicator, we tell the service 
-            // to create a LoggerAdmin's Logger, by setting the property Ice.Admin.Logger
-            // to a non-default value
-
-            string loggerFacetName;
-
-            if(_communicator->findAdminFacet("Logger") != 0)
-            {
-                loggerFacetName = initData.properties->getPropertyWithDefault("Ice.Admin.Logger", "Logger");
-                
-                if(loggerFacetName == "Logger")
-                {
-                    loggerFacetName = "IceBox.Service." + service + ".Logger";
-                    initData.properties->setProperty("Ice.Admin.Logger", loggerFacetName);
-                }
-            }
+            const string serviceFacetNamePrefix = "IceBox.Service." + service + ".";
+            bool addFacets = configureAdmin(initData.properties, serviceFacetNamePrefix);            
 
             //
             // Remaining command line options are passed to the communicator. This is
@@ -623,21 +631,21 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
             info.communicator = initialize(info.args, initData);
             communicator = info.communicator;
 
-            if(_communicator->findAdminFacet("Logger"))
+            if(addFacets)
             {
-                Ice::LoggerAdminLoggerPtr logger = Ice::LoggerAdminLoggerPtr::dynamicCast(communicator->getLogger());
-                assert(logger); // a plugin reset Ice.Admin.Logger to its default??
-                if(logger)
+                // Add all facets created on the service communicator to the IceBox communicator
+                // but renamed IceBox.Service.<service>.<facet-name>, except for the Process facet
+                // which is never added
+                
+                FacetMap facets = communicator->findAllAdminFacets();
+                for(FacetMap::const_iterator p = facets.begin(); p != facets.end(); ++p)
                 {
-                    //
-                    // We add this admin facet to the IceBox main communicator, even though the associated logger
-                    // "works" for the service's communicator
-                    //
-                    _communicator->addAdminFacet(logger->getFacet(), loggerFacetName);
+                    if(p->first != "Process")
+                    {
+                        _communicator->addAdminFacet(p->second, serviceFacetNamePrefix + p->first);
+                    }
                 }
             }
-
-            metricsAdmin = communicator->findAdminFacet("Metrics");
         }
         catch(const Exception& ex)
         {
@@ -653,29 +661,6 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 
     try
     {
-        //
-        // Add a PropertiesAdmin facet to the service manager's communicator that provides
-        // access to this service's property set. We do this prior to instantiating the
-        // service so that the service's constructor is able to access the facet (e.g.,
-        // in case it wants to set a callback).
-        //
-        string facetName = "IceBox.Service." + info.name + ".Properties";
-        PropertiesAdminIPtr propAdmin = 
-            new PropertiesAdminI(facetName, communicator->getProperties(), communicator->getLogger());
-        _communicator->addAdminFacet(propAdmin, facetName);
-
-        //
-        // If a metrics admin facet is setup for the service, register
-        // it with the IceBox communicator.
-        //
-        if(metricsAdmin)
-        {
-            _communicator->addAdminFacet(metricsAdmin, "IceBox.Service." + info.name + ".Metrics");
-
-            // Ensure the metrics admin facet is notified of property updates.
-            propAdmin->addUpdateCallback(Ice::PropertiesAdminUpdateCallbackPtr::dynamicCast(metricsAdmin));
-        }
-
         //
         // Invoke the factory function.
         //
@@ -750,27 +735,8 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
         info.status = Started;
         _services.push_back(info);
     }
-    catch(const ObjectAdapterDeactivatedException&)
-    {
-        //
-        // Can be raised by addAdminFacet if the service manager communicator has been shut down.
-        //
-        if(info.communicator)
-        {
-            destroyServiceCommunicator(info.name, info.communicator);
-        }
-    }
     catch(const Exception&)
     {
-        try
-        {
-            _communicator->removeAdminFacet("IceBox.Service." + info.name + ".Properties");
-        }
-        catch(const LocalException&)
-        {
-            // Ignored
-        }
-
         if(info.communicator)
         {
             destroyServiceCommunicator(info.name, info.communicator);
@@ -833,15 +799,6 @@ IceBox::ServiceManagerI::stopAll()
     {
         ServiceInfo& info = *p;
 
-        try
-        {
-            _communicator->removeAdminFacet("IceBox.Service." + info.name + ".Properties");
-        }
-        catch(const LocalException&)
-        {
-            // Ignored
-        }
-        
         if(info.communicator)
         {
             try
@@ -888,6 +845,8 @@ IceBox::ServiceManagerI::stopAll()
 
         if(info.communicator)
         {
+            removeAdminFacets("IceBox.Service." + info.name + ".");
+
             try
             {
                 info.communicator->destroy();
@@ -920,6 +879,8 @@ IceBox::ServiceManagerI::stopAll()
 
     if(_sharedCommunicator)
     {
+        removeAdminFacets("IceBox.SharedCommunicator.");
+
         try
         {
             _sharedCommunicator->destroy();
@@ -990,7 +951,13 @@ IceBox::ServiceManagerI::createServiceProperties(const string& service)
     if(communicatorProperties->getPropertyAsInt("IceBox.InheritProperties") > 0)
     {
         properties = communicatorProperties->clone();
-        properties->setProperty("Ice.Admin.Endpoints", ""); // Inherit all except Ice.Admin.Endpoints!
+
+        // Inherit all except Ice.Admin.xxx properties
+        PropertyDict pd = properties->getPropertiesForPrefix("Ice.Admin.");
+        for(PropertyDict::const_iterator p = pd.begin(); p != pd.end(); ++p)
+        {
+            properties->setProperty(p->first, "");
+        }
     }
     else
     {
@@ -1057,6 +1024,8 @@ IceBox::ServiceManagerI::destroyServiceCommunicator(const string& service, const
         out << ex;
     }
 
+    removeAdminFacets("IceBox.Service." + service + ".");
+
     try
     {
         communicator->destroy();
@@ -1068,3 +1037,58 @@ IceBox::ServiceManagerI::destroyServiceCommunicator(const string& service, const
         out << ex;
     }
 }
+
+bool
+IceBox::ServiceManagerI::configureAdmin(const PropertiesPtr& properties, const string& prefix)
+{
+    if(_adminEnabled && properties->getProperty("Ice.Admin.Enabled").empty())
+    {
+        StringSeq facetNames;
+        for(set<string>::const_iterator p = _adminFacetFilter.begin(); p != _adminFacetFilter.end(); ++p)
+        {
+            if(p->find(prefix) == 0) // found
+            {
+                facetNames.push_back(p->substr(prefix.size()));
+            }
+        }
+        
+        if(_adminFacetFilter.empty() || !facetNames.empty())
+        {
+            properties->setProperty("Ice.Admin.Enabled", "1");
+            
+            if(!facetNames.empty())
+            {
+                // TODO: need joinString with escape!
+                properties->setProperty("Ice.Admin.Facets", IceUtilInternal::joinString(facetNames, " "));
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+void
+IceBox::ServiceManagerI::removeAdminFacets(const string& prefix)
+{
+    try
+    {
+        FacetMap facets = _communicator->findAllAdminFacets();
+        
+        for(FacetMap::const_iterator p = facets.begin(); p != facets.end(); ++p)
+        {
+            if(p->first.find(prefix) == 0)
+            {
+                _communicator->removeAdminFacet(p->first);
+            }
+        }
+    }
+    catch(const CommunicatorDestroyedException&)
+    {
+        // Ignored
+    }
+    catch(const ObjectAdapterDeactivatedException&)
+    {
+        // Ignored
+    }
+}
+       

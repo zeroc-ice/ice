@@ -26,6 +26,31 @@ class ServiceManagerI : ServiceManagerDisp_
     {
         _communicator = communicator;
         _logger = _communicator.getLogger();
+
+        Ice.Properties props = _communicator.getProperties();
+
+        if(props.getProperty("Ice.Admin.Enabled").Length == 0)
+        {
+            _adminEnabled = props.getProperty("Ice.Admin.Endpoints").Length > 0;
+        }
+        else
+        {
+            _adminEnabled = props.getPropertyAsInt("Ice.Admin.Enabled") > 0;
+        }
+        
+        if(_adminEnabled)
+        {
+            string[] facetFilter = props.getPropertyAsList("Ice.Admin.Facets");
+            if(facetFilter.Length > 0)
+            {
+                _adminFacetFilter = new HashSet<string>(facetFilter);
+            }
+            else
+            {
+                _adminFacetFilter = new HashSet<string>();
+            }
+        }
+
         _argv = args;
         _traceServiceObserver = _communicator.getProperties().getPropertyAsInt("IceBox.Trace.ServiceObserver");
     }
@@ -334,17 +359,24 @@ class ServiceManagerI : ServiceManagerDisp_
                     service.args = initData.properties.parseCommandLineOptions(service.name, service.args);
                 }
 
-                //
-                // If Ice metrics are enabled on the IceBox communicator, we also enable them on
-                // the service communicator.
-                // 
-                if(_communicator.findAdminFacet("Metrics") != null && 
-                   initData.properties.getProperty("Ice.Admin.Metrics").Length == 0)
-                {
-                    initData.properties.setProperty("Ice.Admin.Metrics", "1");
-                }
+                string facetNamePrefix = "IceBox.SharedCommunicator.";
+                bool addFacets = configureAdmin(initData.properties, facetNamePrefix); 
 
                 _sharedCommunicator = Ice.Util.initialize(initData);
+
+                if(addFacets)
+                {
+                    // Add all facets created on shared communicator to the IceBox communicator
+                    // but renamed <prefix>.<facet-name>, except for the Process facet which is
+                    // never added.
+                    foreach(KeyValuePair<string, Ice.Object> p in _sharedCommunicator.findAllAdminFacets())
+                    {
+                        if(!p.Key.Equals("Process"))
+                        {
+                            _communicator.addAdminFacet(p.Value, facetNamePrefix + p.Key);
+                        }
+                    }
+                }
             }
 
             foreach(StartServiceInfo s in servicesInfo)
@@ -523,12 +555,10 @@ class ServiceManagerI : ServiceManagerDisp_
             // commnunicator property set.
             //
             Ice.Communicator communicator;
-            Ice.Object metricsAdmin = null;
             if(_communicator.getProperties().getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
             {
                 Debug.Assert(_sharedCommunicator != null);
                 communicator = _sharedCommunicator;
-                metricsAdmin = _sharedCommunicator.findAdminFacet("Metrics");
             }
             else
             {
@@ -563,17 +593,15 @@ class ServiceManagerI : ServiceManagerDisp_
                 {
                     initData.logger = _logger.cloneWithPrefix(initData.properties.getProperty("Ice.ProgramName"));
                 }
-
+                
                 //
-                // If Ice metrics are enabled on the IceBox communicator, we also enable them on
-                // the service communicator.
-                // 
-                if(_communicator.findAdminFacet("Metrics") != null && 
-                   initData.properties.getProperty("Ice.Admin.Metrics").Length == 0)
-                {
-                    initData.properties.setProperty("Ice.Admin.Metrics", "1");
-                }
-
+                // If Admin is enabled on the IceBox communicator, for each service that does not set
+                // Ice.Admin.Enabled, we set Ice.Admin.Enabled=1 to have this service create facets; then
+                // we add these facets to the IceBox Admin object as IceBox.Service.<service>.<facet>. 
+                //
+                string serviceFacetNamePrefix = "IceBox.Service." + service + ".";
+                bool addFacets = configureAdmin(initData.properties, serviceFacetNamePrefix);   
+               
                 //
                 // Remaining command line options are passed to the communicator. This is
                 // necessary for Ice plug-in properties (e.g.: IceSSL).
@@ -581,35 +609,23 @@ class ServiceManagerI : ServiceManagerDisp_
                 info.communicator = Ice.Util.initialize(ref info.args, initData);
                 communicator = info.communicator;
 
-                metricsAdmin = communicator.findAdminFacet("Metrics");
+                if(addFacets)
+                {
+                    // Add all facets created on the service communicator to the IceBox communicator
+                    // but renamed IceBox.Service.<service>.<facet-name>, except for the Process facet
+                    // which is never added
+                    foreach(KeyValuePair<string, Ice.Object> p in communicator.findAllAdminFacets())
+                    {
+                        if(!p.Key.Equals("Process"))
+                        {
+                            _communicator.addAdminFacet(p.Value, serviceFacetNamePrefix + p.Key);
+                        }
+                    }
+                }   
             }
 
             try
             {   
-                //
-                // Add a PropertiesAdmin facet to the service manager's communicator that provides
-                // access to this service's property set. We do this prior to instantiating the
-                // service so that the service's constructor is able to access the facet (e.g.,
-                // in case it wants to set a callback).
-                //
-                string facetName = "IceBox.Service." + info.name + ".Properties";
-                IceInternal.PropertiesAdminI propAdmin = new IceInternal.PropertiesAdminI(facetName, 
-                                                                                          communicator.getProperties(), 
-                                                                                          communicator.getLogger());
-                _communicator.addAdminFacet(propAdmin, facetName);
-                
-                //
-                // If a metrics admin facet is setup for the service, register
-                // it with the IceBox communicator.
-                //
-                if(metricsAdmin != null)
-                {
-                    _communicator.addAdminFacet(metricsAdmin, "IceBox.Service." + info.name + ".Metrics");
-
-                    // Ensure the metrics admin facet is notified of property updates.
-                    propAdmin.addUpdateCallback((Ice.PropertiesAdminUpdateCallback)metricsAdmin);
-                }
-
                 //
                 // Instantiate the service.
                 //
@@ -709,27 +725,8 @@ class ServiceManagerI : ServiceManagerDisp_
                 info.status = ServiceStatus.Started;
                 _services.Add(info);
             }
-            catch(Ice.ObjectAdapterDeactivatedException)
-            {
-                //
-                // Can be raised by addAdminFacet if the service manager communicator has been shut down.
-                //
-                if(info.communicator != null)
-                {
-                    destroyServiceCommunicator(service, info.communicator);
-                }
-            }
             catch(System.Exception ex)
             {
-                try
-                {
-                    _communicator.removeAdminFacet("IceBox.Service." + service + ".Properties");
-                }
-                catch(Ice.LocalException)
-                {
-                    // Ignored
-                }
-
                 if(info.communicator != null)
                 {
                     destroyServiceCommunicator(service, info.communicator);
@@ -775,15 +772,6 @@ class ServiceManagerI : ServiceManagerDisp_
                     }
                 }
 
-                try
-                {
-                    _communicator.removeAdminFacet("IceBox.Service." + info.name + ".Properties");
-                }
-                catch(Ice.LocalException)
-                {
-                    // Ignored
-                }
-
                 if(info.communicator != null)
                 {
                     destroyServiceCommunicator(info.name, info.communicator);
@@ -792,6 +780,8 @@ class ServiceManagerI : ServiceManagerDisp_
 
             if(_sharedCommunicator != null)
             {
+                removeAdminFacets("IceBox.SharedCommunicator.");
+
                 try
                 {
                     _sharedCommunicator.destroy();
@@ -958,7 +948,11 @@ class ServiceManagerI : ServiceManagerDisp_
         if(communicatorProperties.getPropertyAsInt("IceBox.InheritProperties") > 0)
         {
             properties = communicatorProperties.ice_clone_();
-            properties.setProperty("Ice.Admin.Endpoints", ""); // Inherit all except Ice.Admin.Endpoints!
+            // Inherit all except Ice.Admin.xxx properties
+            foreach(string p in properties.getPropertiesForPrefix("Ice.Admin.").Keys)
+            {
+                properties.setProperty(p, "");
+            }
         }
         else
         {
@@ -999,6 +993,8 @@ class ServiceManagerI : ServiceManagerDisp_
                                 + service + "\n" + e.ToString());
             }
 
+            removeAdminFacets("IceBox.Service." + service + ".");
+
             try
             {
                 communicator.destroy();
@@ -1011,7 +1007,59 @@ class ServiceManagerI : ServiceManagerDisp_
         }
     }
 
+    private bool configureAdmin(Ice.Properties properties, string prefix)
+    {
+        if(_adminEnabled && properties.getProperty("Ice.Admin.Enabled").Length == 0)
+        {
+            List<string> facetNames = new List<string>();
+            foreach(string p in _adminFacetFilter)
+            {
+                if(p.StartsWith(prefix))
+                {
+                    facetNames.Add(p.Substring(prefix.Length));
+                }
+            }
+        
+            if(_adminFacetFilter.Count == 0 || facetNames.Count > 0)
+            {
+                properties.setProperty("Ice.Admin.Enabled", "1");
+                
+                if(facetNames.Count > 0)
+                {
+                    // TODO: need String.Join with escape!
+                    properties.setProperty("Ice.Admin.Facets", String.Join(" ", facetNames.ToArray()));
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void removeAdminFacets(string prefix)
+    {
+        try
+        {
+            foreach(string p in _communicator.findAllAdminFacets().Keys)
+            {
+                if(p.StartsWith(prefix))
+                {
+                    _communicator.removeAdminFacet(p);
+                }
+            }
+        }
+        catch(Ice.CommunicatorDestroyedException)
+        {
+            // Ignored
+        }
+        catch(Ice.ObjectAdapterDeactivatedException)
+        {
+            // Ignored
+        }
+    }
+
     private Ice.Communicator _communicator;
+    private bool _adminEnabled = false;
+    private HashSet<string> _adminFacetFilter = null;
     private Ice.Communicator _sharedCommunicator = null;
     private Ice.Logger _logger;
     private string[] _argv; // Filtered server argument vector

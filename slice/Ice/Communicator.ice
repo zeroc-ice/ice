@@ -21,6 +21,7 @@
 #include <Ice/ImplicitContextF.ice>
 #include <Ice/Current.ice>
 #include <Ice/Properties.ice>
+#include <Ice/FacetMap.ice>
 
 /**
  *
@@ -499,11 +500,9 @@ local interface Communicator
      * Get a proxy to the main facet of the Admin object.
      *
      * getAdmin also creates the Admin object and creates and activates the Ice.Admin object 
-     * adapter to host this Admin object if Admin is enabled, an Admin object was not previously created 
-     * by {@link #createAdmin} or getAdmin, Ice.Admin.Endpoints is set and either 
-     * Ice.Admin.InstanceName is set or both Ice.Admin.ServerId and Ice.Default.Locator are set. 
-     * The identity of the Admin object created by getAdmin is  
-     * <value of Ice.Admin.InstanceName>/admin, or <UUID>/admin when Ice.Admin.InstanceName is not set.
+     * adapter to host this Admin object if Ice.Admin.Enpoints is set. The identity of the Admin 
+     * object created by getAdmin is <value of Ice.Admin.InstanceName>/admin, or <UUID>/admin 
+     * when Ice.Admin.InstanceName is not set.
      *
      * <p>If Ice.Admin.DelayCreation is 0 or not set, getAdmin is called by the communicator
      * initialization, after initialization of all plugins.</p>
@@ -549,6 +548,19 @@ local interface Communicator
      *
      **/
     Object findAdminFacet(string facet);
+   
+    /**
+     *
+     * Returns a map of all facets of the Admin object.
+     *
+     * @return A collection containing all the facet names and
+     * servants of the Admin object.
+     *
+     * @see #findAdminFacet
+     *
+     **/
+    FacetMap findAllAdminFacets();
+
 };
 
 };

@@ -29,9 +29,8 @@ namespace IceInternal
 {
     sealed public class PropertiesAdminI : Ice.PropertiesAdminDisp_, Ice.NativePropertiesAdmin
     {
-        public PropertiesAdminI(string name, Ice.Properties properties, Ice.Logger logger)
+        public PropertiesAdminI(Ice.Properties properties, Ice.Logger logger)
         {
-            _name = name;
             _properties = properties;
             _logger = logger;
         }
@@ -156,7 +155,7 @@ namespace IceInternal
                         }
                     }
 
-                    _logger.trace(_name, message.ToString());
+                    _logger.trace(_traceCategory, message.ToString());
                 }
 
                 //
@@ -232,9 +231,10 @@ namespace IceInternal
             }
         }
 
-        private readonly string _name;
         private readonly Ice.Properties _properties;
         private readonly Ice.Logger _logger;
         private List<Ice.PropertiesAdminUpdateCallback> _updateCallbacks = new List<Ice.PropertiesAdminUpdateCallback>();
+
+        private static readonly string _traceCategory = "Admin.Properties";
     }
 }

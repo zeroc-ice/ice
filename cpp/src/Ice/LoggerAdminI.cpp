@@ -25,11 +25,13 @@ using namespace std;
 namespace
 {
 
-class LoggerAdminI : public LoggerAdmin
+const char* traceCategory = "Admin.Logger";
+
+class LoggerAdminI : public Ice::LoggerAdmin
 {
 public:
 
-    LoggerAdminI(const string&, const PropertiesPtr&);
+    LoggerAdminI(const PropertiesPtr&);
     
     virtual void attachRemoteLogger(const RemoteLoggerPrx&, const LogMessageTypeSeq&, 
                                     const StringSeq&, Int, const Current&);
@@ -43,11 +45,6 @@ public:
     vector<RemoteLoggerPrx> log(const LogMessage&);
     
     void deadRemoteLogger(const RemoteLoggerPrx&, const LoggerPtr&, const LocalException&, const string&);
-
-    const string& getFacetName() const
-    {
-        return _facetName;
-    }
 
     const int getTraceLevel() const
     {
@@ -64,8 +61,6 @@ private:
     bool removeRemoteLogger(const RemoteLoggerPrx&);
     
     void remoteCallCompleted(const AsyncResultPtr&);
-
-    const string _facetName;
 
     IceUtil::Mutex _mutex;
     list<LogMessage> _queue;
@@ -139,11 +134,11 @@ public:
 typedef IceUtil::Handle<Job> JobPtr;
 
 
-class LoggerAdminLoggerI : public LoggerAdminLogger
+class LoggerAdminLoggerI : public IceInternal::LoggerAdminLogger
 {
 public:
     
-    LoggerAdminLoggerI(const std::string&, const PropertiesPtr&, const LoggerPtr&);
+    LoggerAdminLoggerI(const PropertiesPtr&, const LoggerPtr&);
 
     virtual void print(const std::string&);
     virtual void trace(const std::string&, const std::string&);
@@ -153,20 +148,21 @@ public:
     virtual LoggerPtr cloneWithPrefix(const std::string&);
 
     virtual ObjectPtr getFacet() const;
+   
     virtual void destroy();
-    
+   
     const LoggerPtr& getLocalLogger() const
     {
         return _localLogger;
     }
-
+ 
     void run();
     
 private:
 
     void log(const LogMessage&);
     
-    const LoggerPtr _localLogger;
+    LoggerPtr _localLogger;
     const LoggerAdminIPtr _loggerAdmin;
      
     IceUtil::Monitor<IceUtil::Mutex> _monitor;
@@ -320,8 +316,7 @@ createSendLogCommunicator(const CommunicatorPtr& communicator, const LoggerPtr& 
 // LoggerAdminI
 //
 
-LoggerAdminI::LoggerAdminI(const string& name, const PropertiesPtr& props) :
-    _facetName(name),
+LoggerAdminI::LoggerAdminI(const PropertiesPtr& props) :
     _logCount(0),
     _maxLogCount(props->getPropertyAsIntWithDefault("Ice.Admin.Logger.KeepLogs", 100)),
     _traceCount(0),
@@ -371,7 +366,7 @@ LoggerAdminI::attachRemoteLogger(const RemoteLoggerPrx& prx,
         {
             if(_traceLevel > 0)
             {
-                Trace trace(logger, _facetName);
+                Trace trace(logger, traceCategory);
                 trace << "rejecting `" << remoteLogger << "' with RemoteLoggerAlreadyAttachedException";
             }
 
@@ -386,7 +381,7 @@ LoggerAdminI::attachRemoteLogger(const RemoteLoggerPrx& prx,
     
     if(_traceLevel > 0)
     {
-        Trace trace(logger, _facetName);
+        Trace trace(logger, traceCategory);
         trace << "attached `" << remoteLogger << "'";
     }
 
@@ -423,7 +418,7 @@ LoggerAdminI::detachRemoteLogger(const RemoteLoggerPrx& remoteLogger, const Curr
 
     if(_traceLevel > 0)
     {
-        Trace trace(current.adapter->getCommunicator()->getLogger(), _facetName);
+        Trace trace(current.adapter->getCommunicator()->getLogger(), traceCategory);
         trace << "detached `" << remoteLogger << "'";
     }
 }
@@ -563,7 +558,7 @@ LoggerAdminI::deadRemoteLogger(const RemoteLoggerPrx& remoteLogger,
     {
         if(_traceLevel > 0)
         {
-            Trace trace(logger, _facetName);
+            Trace trace(logger, traceCategory);
             trace << "detached `" << remoteLogger << "' because " << operation << " raised:\n" << ex;
         }
     }
@@ -586,7 +581,7 @@ LoggerAdminI::remoteCallCompleted(const AsyncResultPtr& r)
         if(_traceLevel > 1)
         {
             LoggerPtr logger = LoggerPtr::dynamicCast(r->getCookie());
-            Trace trace(logger, _facetName);
+            Trace trace(logger, traceCategory);
             trace << r->getOperation() << " on `" << r->getProxy() << "' completed successfully";
         }
     }
@@ -599,22 +594,30 @@ LoggerAdminI::remoteCallCompleted(const AsyncResultPtr& r)
 }
 
 
-
 //
 // LoggerAdminLoggerI
 //
 
-LoggerAdminLoggerI::LoggerAdminLoggerI(const string& facetName, 
-                                       const PropertiesPtr& props, 
+LoggerAdminLoggerI::LoggerAdminLoggerI(const PropertiesPtr& props, 
                                        const LoggerPtr& localLogger) :
-    _localLogger(localLogger),
-    _loggerAdmin(new LoggerAdminI(facetName, props)),
+    _loggerAdmin(new LoggerAdminI(props)),
     _destroyed(false)
 {
     //
     // There is currently no way to have a null local logger
     //
-    assert(_localLogger != 0);
+    assert(localLogger != 0);
+
+    LoggerAdminLoggerI* wrapper = dynamic_cast<LoggerAdminLoggerI*>(localLogger.get());
+    if(wrapper)
+    {
+        // use the underlying local logger
+       _localLogger = wrapper->getLocalLogger();
+    }
+    else
+    {
+        _localLogger = localLogger;
+    }
 }
 
 void
@@ -723,7 +726,7 @@ LoggerAdminLoggerI::run()
 {
     if(_loggerAdmin->getTraceLevel() > 1)
     {
-        Trace trace(_localLogger, _loggerAdmin->getFacetName());
+        Trace trace(_localLogger, traceCategory);
         trace << "send log thread started";
     }
 
@@ -748,7 +751,7 @@ LoggerAdminLoggerI::run()
         {
             if(_loggerAdmin->getTraceLevel() > 1)
             {
-                Trace trace(_localLogger, _loggerAdmin->getFacetName());
+                Trace trace(_localLogger, traceCategory);
                 trace << "sending log message to `" << *p << "'";
             }
             
@@ -768,7 +771,7 @@ LoggerAdminLoggerI::run()
 
     if(_loggerAdmin->getTraceLevel() > 1)
     {
-        Trace trace(_localLogger, _loggerAdmin->getFacetName());
+        Trace trace(_localLogger, traceCategory);
         trace << "send log thread completed";
     }
 }
@@ -799,11 +802,10 @@ namespace IceInternal
 {
 
 LoggerAdminLoggerPtr 
-createLoggerAdminLogger(const string& facetName, 
-                        const PropertiesPtr& props, 
+createLoggerAdminLogger(const PropertiesPtr& props, 
                         const LoggerPtr& localLogger)
 {
-    return new LoggerAdminLoggerI(facetName, props, localLogger);
+    return new LoggerAdminLoggerI(props, localLogger);
 }
 
 }

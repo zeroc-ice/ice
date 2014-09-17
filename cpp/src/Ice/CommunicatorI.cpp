@@ -329,6 +329,12 @@ Ice::CommunicatorI::findAdminFacet(const string& facet)
     return _instance->findAdminFacet(facet);
 }
 
+Ice::FacetMap
+Ice::CommunicatorI::findAllAdminFacets()
+{
+    return _instance->findAllAdminFacets();
+}
+
 Ice::CommunicatorI::CommunicatorI(const InitializationData& initData)
 {
     __setNoDelete(true);

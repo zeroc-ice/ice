@@ -753,7 +753,7 @@ IceInternal::Instance::getAdmin()
     else if(_adminEnabled)
     {
         ObjectAdapterPtr adapter;
-        if(getAdminEnabledDefaultValue())
+        if(_initData.properties->getProperty("Ice.Admin.Endpoints") != "")
         {
             adapter = _objectAdapterFactory->createObjectAdapter("Ice.Admin", 0);
         }
@@ -871,20 +871,6 @@ IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapte
     }
 }
 
-bool
-IceInternal::Instance::getAdminEnabledDefaultValue() const
-{
-    // must be called with this locked or during single-threaded initialization
-
-    const Ice::PropertiesPtr& props = _initData.properties;
-    
-    return props->getProperty("Ice.Admin.Endpoints") != "" &&
-        (props->getProperty("Ice.Admin.InstanceName") != "" || (props->getProperty("Ice.Admin.ServerId") != "" &&
-                                                                (_referenceFactory->getDefaultLocator() || 
-                                                                 props->getProperty("Ice.Default.Locator") != "")));  
-}
-
-
 void
 IceInternal::Instance::addAdminFacet(const Ice::ObjectPtr& servant, const string& facet)
 {
@@ -953,7 +939,10 @@ IceInternal::Instance::findAdminFacet(const string& facet)
 
     ObjectPtr result;
 
-    if(_adminAdapter == 0 || (!_adminFacetFilter.empty() && _adminFacetFilter.find(facet) == _adminFacetFilter.end()))
+    //
+    // If the _adminAdapter was not yet created, or this facet is filtered out, we check _adminFacets
+    //
+    if(!_adminAdapter || (!_adminFacetFilter.empty() && _adminFacetFilter.find(facet) == _adminFacetFilter.end()))
     {
         FacetMap::iterator p = _adminFacets.find(facet);
         if(p != _adminFacets.end())
@@ -963,10 +952,37 @@ IceInternal::Instance::findAdminFacet(const string& facet)
     }
     else
     {
+        // Otherwise, just check the _adminAdapter
         result = _adminAdapter->findFacet(_adminIdentity, facet);
     }
 
     return result;
+}
+
+FacetMap
+IceInternal::Instance::findAllAdminFacets()
+{
+    IceUtil::RecMutex::Lock sync(*this);
+
+    if(_state == StateDestroyed)
+    {
+        throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
+    if(!_adminAdapter)
+    {
+        return _adminFacets;
+    }
+    else
+    {
+        FacetMap result = _adminAdapter->findAllFacets(_adminIdentity);
+        if(!_adminFacets.empty())
+        {
+            // Also returns filtered facets
+            result.insert(_adminFacets.begin(), _adminFacets.end());
+        }
+        return result;
+    }
 }
 
 void
@@ -1423,90 +1439,83 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
     // Note that any logger-dependent admin facet must be created after we load all plugins,
     // since one of these plugins can be a Logger plugin that sets a new logger during loading
     //
-
+    
     if(_initData.properties->getProperty("Ice.Admin.Enabled") == "")
     {
-        _adminEnabled = getAdminEnabledDefaultValue();
+        _adminEnabled = _initData.properties->getProperty("Ice.Admin.Endpoints") != "";
     }
     else
     {
         _adminEnabled = _initData.properties->getPropertyAsInt("Ice.Admin.Enabled") > 0;
     }
 
+    StringSeq facetSeq = _initData.properties->getPropertyAsList("Ice.Admin.Facets");   
+    if(!facetSeq.empty())
+    {
+        _adminFacetFilter.insert(facetSeq.begin(), facetSeq.end());
+    }
+    
     if(_adminEnabled)
     {
-        StringSeq facetSeq = _initData.properties->getPropertyAsList("Ice.Admin.Facets");
-        
-        if(!facetSeq.empty())
+        //
+        // Process facet
+        //
+        const string processFacetName = "Process";
+        if(_adminFacetFilter.empty() || _adminFacetFilter.find(processFacetName) != _adminFacetFilter.end())
         {
-            _adminFacetFilter.insert(facetSeq.begin(), facetSeq.end());
+            _adminFacets.insert(make_pair(processFacetName, new ProcessI(communicator)));
         }
-    }
 
-    const string loggerFacetName = _initData.properties->getPropertyWithDefault("Ice.Admin.Logger", "Logger");
-  
-    // If it's the default value (Logger), we check that _adminEnabled is true and the facet is not
-    // filtered out; otherwise, we create and register the new Logger unconditionally, as its 
-    // associated Admin facet will be registered with a different communicator.
-    // 
-    bool addLoggerFacet = _adminEnabled && 
-        (_adminFacetFilter.empty() || _adminFacetFilter.find(loggerFacetName) != _adminFacetFilter.end());
-
-    if(loggerFacetName != "Logger" || addLoggerFacet)
-    {
         //
-        // Set up a new Logger
+        // Logger facet
         //
-        Ice::LoggerAdminLoggerPtr logger = createLoggerAdminLogger(loggerFacetName, _initData.properties, 
-                                                                   _initData.logger);
-        setLogger(logger);
-        
-        if(addLoggerFacet)
+        const string loggerFacetName = "Logger";
+        if(_adminFacetFilter.empty() || _adminFacetFilter.find(loggerFacetName) != _adminFacetFilter.end())
         {
+            LoggerAdminLoggerPtr logger = createLoggerAdminLogger(_initData.properties, _initData.logger);
+            setLogger(logger);
             _adminFacets.insert(make_pair(loggerFacetName, logger->getFacet()));
         }
-        //
-        // Else, this new logger & facet are useful for "slave" communicators like IceBox services.
-        //
-    }
 
-    PropertiesAdminIPtr propsAdmin;
-    if(_adminEnabled)
-    {
-        _adminFacets.insert(FacetMap::value_type("Process", new ProcessI(communicator)));
-        
-        propsAdmin = new PropertiesAdminI("Properties", _initData.properties, _initData.logger);
-        _adminFacets.insert(FacetMap::value_type("Properties", propsAdmin));
-    }
-
-    //
-    // Setup the communicator observer if Admin is enabled and the
-    // facet isn't filtered or if Ice.Admin.Metrics is enabled.
-    //
-    if((_adminEnabled && (_adminFacetFilter.empty() || _adminFacetFilter.find("Metrics") != _adminFacetFilter.end())) ||
-       _initData.properties->getPropertyAsInt("Ice.Admin.Metrics"))
-    {
-        CommunicatorObserverIPtr observer = new CommunicatorObserverI(_initData);
-        _initData.observer = observer;
-        _adminFacets.insert(FacetMap::value_type("Metrics", observer->getFacet()));
-        
         //
-        // Make sure the metrics admin facet receives property updates.
+        // Properties facet
         //
-        if(propsAdmin)
+        const string propertiesFacetName = "Properties";
+        PropertiesAdminIPtr propsAdmin;
+        if(_adminFacetFilter.empty() || _adminFacetFilter.find(propertiesFacetName) != _adminFacetFilter.end())
         {
-            propsAdmin->addUpdateCallback(observer->getFacet());
+            propsAdmin = new PropertiesAdminI(_initData.properties, _initData.logger);
+            _adminFacets.insert(make_pair(propertiesFacetName, propsAdmin));
+        }
+
+        // 
+        // Metrics facet
+        //
+        const string metricsFacetName = "Metrics";
+        if(_adminFacetFilter.empty() || _adminFacetFilter.find(metricsFacetName) != _adminFacetFilter.end())
+        {
+            CommunicatorObserverIPtr observer = new CommunicatorObserverI(_initData);
+            _initData.observer = observer;
+            _adminFacets.insert(make_pair(metricsFacetName, observer->getFacet()));
+        
+            //
+            // Make sure the metrics admin facet receives property updates.
+            //
+            if(propsAdmin)
+            {
+                propsAdmin->addUpdateCallback(observer->getFacet());
+            }
         }
     }
         
-    //
+    // 
     // Set observer updater
     //
     if(_initData.observer)
     {
         _initData.observer->setObserverUpdater(new ObserverUpdaterI(this));
     }
-
+        
     //
     // Create threads.
     //
@@ -1675,7 +1684,7 @@ IceInternal::Instance::destroy()
         _initData.observer->setObserverUpdater(0); // Break cyclic reference count.
     }
 
-    Ice::LoggerAdminLoggerPtr logger = Ice::LoggerAdminLoggerPtr::dynamicCast(_initData.logger);
+    LoggerAdminLoggerPtr logger = LoggerAdminLoggerPtr::dynamicCast(_initData.logger);
     if(logger)
     {
         //

@@ -22,6 +22,7 @@ testFacets(const Ice::CommunicatorPtr& com, bool builtInFacets = true)
         test(com->findAdminFacet("Properties"));
         test(com->findAdminFacet("Process"));
         test(com->findAdminFacet("Logger"));
+        test(com->findAdminFacet("Metrics"));
     }
     
     TestFacetPtr f1 = new TestFacetI;
@@ -37,6 +38,25 @@ testFacets(const Ice::CommunicatorPtr& com, bool builtInFacets = true)
     test(com->findAdminFacet("Facet3") == f3);
     test(!com->findAdminFacet("Bogus"));
 
+    const Ice::FacetMap facetMap = com->findAllAdminFacets();
+    
+    if(builtInFacets)
+    {
+        test(facetMap.size() == 7);
+        test(facetMap.find("Properties") != facetMap.end());
+        test(facetMap.find("Process") != facetMap.end());
+        test(facetMap.find("Logger") != facetMap.end());
+        test(facetMap.find("Metrics") != facetMap.end());
+    }
+    else
+    {
+        test(facetMap.size() >= 3);
+    }
+    test(facetMap.find("Facet1") != facetMap.end());
+    test(facetMap.find("Facet2") != facetMap.end());
+    test(facetMap.find("Facet3") != facetMap.end());
+   
+     
     try
     {
         com->addAdminFacet(f1, "Facet1");

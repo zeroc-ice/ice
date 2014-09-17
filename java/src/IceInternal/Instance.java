@@ -497,7 +497,7 @@ public final class Instance
             }
             else if(_adminEnabled)
             {
-                if(getAdminEnabledDefaultValue())
+                if(!_initData.properties.getProperty("Ice.Admin.Endpoints").isEmpty())
                 {
                     adminAdapter = _objectAdapterFactory.createObjectAdapter("Ice.Admin", null);
                 }
@@ -613,6 +613,30 @@ public final class Instance
         }
 
         return result;
+    }
+
+    public synchronized java.util.Map<String, Ice.Object>
+    findAllAdminFacets()
+    {
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
+
+        if(_adminAdapter == null)
+        {
+            return new java.util.HashMap<String, Ice.Object>(_adminFacets);
+        }
+        else
+        {
+            java.util.Map<String, Ice.Object> result = _adminAdapter.findAllFacets(_adminIdentity);
+            if(!_adminFacets.isEmpty())
+            {
+                // Also returns filtered facets
+                result.putAll(_adminFacets);
+            }
+            return result;
+        }
     }
 
     public synchronized void
@@ -897,55 +921,6 @@ public final class Instance
 
             _retryQueue = new RetryQueue(this);
 
-            //
-            // Add Process and Properties facets 
-            // TODO: move after we load the plugins!
-            //
-            
-            if(_initData.properties.getProperty("Ice.Admin.Enabled").isEmpty())
-            {
-                _adminEnabled = getAdminEnabledDefaultValue();
-            }
-            else
-            {
-                _adminEnabled = _initData.properties.getPropertyAsInt("Ice.Admin.Enabled") > 0;
-            }
-            
-            PropertiesAdminI propsAdmin = null;
-            if(_adminEnabled)
-            {
-                String[] facetFilter = _initData.properties.getPropertyAsList("Ice.Admin.Facets");
-                if(facetFilter.length > 0)
-                {
-                    _adminFacetFilter.addAll(java.util.Arrays.asList(facetFilter));
-                }
-
-                _adminFacets.put("Process", new ProcessI(communicator));
-
-                propsAdmin = new PropertiesAdminI("Properties", _initData.properties, _initData.logger);
-                _adminFacets.put("Properties", propsAdmin);
-            }
-
-            //
-            // Setup the communicator observer only if the user didn't already set an
-            // Ice observer resolver and Admin is enabled
-            //
-            if((_adminEnabled && (_adminFacetFilter.isEmpty() || _adminFacetFilter.contains("Metrics"))) ||
-               _initData.properties.getPropertyAsInt("Ice.Admin.Metrics") > 0)
-            {
-                CommunicatorObserverI observer = new CommunicatorObserverI(_initData);
-                _initData.observer = observer;
-                _adminFacets.put("Metrics", observer.getFacet());
-
-                //
-                // Make sure the admin plugin receives property updates.
-                //
-                if(propsAdmin != null)
-                {
-                    propsAdmin.addUpdateCallback(observer.getFacet());
-                }
-            }
-
             if(_initData.properties.getPropertyAsInt("Ice.BackgroundIO") > 0)
             {
                 _queueExecutor = new QueueExecutor(_initData.properties, 
@@ -993,7 +968,7 @@ public final class Instance
     }
 
     public void
-    finishSetup(Ice.StringSeqHolder args)
+    finishSetup(Ice.StringSeqHolder args, Ice.Communicator communicator)
     {
         //
         // Load plug-ins.
@@ -1001,6 +976,79 @@ public final class Instance
         assert(_serverThreadPool == null);
         Ice.PluginManagerI pluginManagerImpl = (Ice.PluginManagerI)_pluginManager;
         pluginManagerImpl.loadPlugins(args);
+
+        //
+        // Create Admin facets, if enabled.
+        //
+        // Note that any logger-dependent admin facet must be created after we load all plugins,
+        // since one of these plugins can be a Logger plugin that sets a new logger during loading
+        //
+            
+        if(_initData.properties.getProperty("Ice.Admin.Enabled").isEmpty())
+        {
+            _adminEnabled = !_initData.properties.getProperty("Ice.Admin.Endpoints").isEmpty();
+        }
+        else
+        {
+            _adminEnabled = _initData.properties.getPropertyAsInt("Ice.Admin.Enabled") > 0;
+        }
+
+        String[] facetFilter = _initData.properties.getPropertyAsList("Ice.Admin.Facets");
+        if(facetFilter.length > 0)
+        {
+            _adminFacetFilter.addAll(java.util.Arrays.asList(facetFilter));
+        }
+        
+        if(_adminEnabled)
+        {        
+            //
+            // Process facet
+            // 
+            String processFacetName = "Process";
+            if(_adminFacetFilter.isEmpty() || _adminFacetFilter.contains(processFacetName))
+            {
+                _adminFacets.put(processFacetName, new ProcessI(communicator));
+            }
+            
+            //
+            // Logger facet
+            //
+            String loggerFacetName = "Logger";
+            if(_adminFacetFilter.isEmpty() || _adminFacetFilter.contains(loggerFacetName))
+            {
+                // TODO
+            }
+
+            //
+            // Properties facet
+            //
+            String propertiesFacetName = "Properties";
+            PropertiesAdminI propsAdmin = null;
+            if(_adminFacetFilter.isEmpty() || _adminFacetFilter.contains(propertiesFacetName))
+            {
+                propsAdmin = new PropertiesAdminI(_initData.properties, _initData.logger);
+                _adminFacets.put(propertiesFacetName, propsAdmin);
+            }
+
+            //
+            // Metrics facet
+            //
+            String metricsFacetName = "Metrics";
+            if(_adminFacetFilter.isEmpty() || _adminFacetFilter.contains(metricsFacetName))
+            {
+                 CommunicatorObserverI observer = new CommunicatorObserverI(_initData);
+                 _initData.observer = observer;
+                 _adminFacets.put(metricsFacetName, observer.getFacet());
+                 
+                 //
+                 // Make sure the admin plugin receives property updates.
+                 //
+                 if(propsAdmin != null)
+                 {
+                     propsAdmin.addUpdateCallback(observer.getFacet());
+                 }
+            }
+        }
 
         //
         // Set observer updater
@@ -1456,17 +1504,6 @@ public final class Instance
             }
         }
     }
-
-    private synchronized boolean 
-    getAdminEnabledDefaultValue()
-    {
-        Ice.Properties props = _initData.properties;
-    
-        return !props.getProperty("Ice.Admin.Endpoints").isEmpty() &&
-            (!props.getProperty("Ice.Admin.InstanceName").isEmpty() ||
-             (!props.getProperty("Ice.Admin.ServerId").isEmpty() && 
-              (_referenceFactory.getDefaultLocator() != null || !props.getProperty("Ice.Default.Locator").isEmpty())));
-    } 
 
     private NetworkProxy createNetworkProxy(Ice.Properties properties, int protocolSupport)
     {

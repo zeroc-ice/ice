@@ -30,6 +30,8 @@ public class AllTests
         {
             test(com.findAdminFacet("Properties") != null);
             test(com.findAdminFacet("Process") != null);
+            // test(com.findAdminFacet("Logger") != null);
+            test(com.findAdminFacet("Metrics") != null);
         }
 
         TestFacet f1 = new TestFacetI();
@@ -44,6 +46,23 @@ public class AllTests
         test(com.findAdminFacet("Facet2") == f2);
         test(com.findAdminFacet("Facet3") == f3);
         test(com.findAdminFacet("Bogus") == null);
+
+        java.util.Map<String, Ice.Object> facetMap = com.findAllAdminFacets();
+        if(builtInFacets)
+        {
+            test(facetMap.size() == 6);
+            test(facetMap.containsKey("Properties"));
+            test(facetMap.containsKey("Process"));
+            // test(facetMap.containsKey("Logger"));
+            test(facetMap.containsKey("Metrics"));
+        }
+        else
+        {
+            test(facetMap.size() >= 3);
+        }
+        test(facetMap.containsKey("Facet1"));
+        test(facetMap.containsKey("Facet2"));
+        test(facetMap.containsKey("Facet3"));
 
         try
         {
@@ -107,7 +126,7 @@ public class AllTests
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
             init.properties.setProperty("Ice.Admin.Facets", "Properties");
             Ice.Communicator com = Ice.Util.initialize(init);
-            testFacets(com, true);
+            testFacets(com, false);
             com.destroy();
         }
         {

@@ -73,7 +73,12 @@ private:
     Ice::PropertiesPtr createServiceProperties(const std::string&);
     void destroyServiceCommunicator(const std::string&, const Ice::CommunicatorPtr&);
     
+    bool configureAdmin(const Ice::PropertiesPtr&, const std::string&);
+    void removeAdminFacets(const std::string&);
+
     ::Ice::CommunicatorPtr _communicator;
+    bool _adminEnabled;
+    std::set<std::string> _adminFacetFilter;
     ::Ice::CommunicatorPtr _sharedCommunicator;
     ::Ice::LoggerPtr _logger;
     ::Ice::StringSeq _argv; // Filtered server argument vector, not including program name

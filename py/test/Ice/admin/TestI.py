@@ -94,8 +94,8 @@ class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
         #
         servant = RemoteCommunicatorI(communicator)
         admin = communicator.findAdminFacet("Properties")
-        test(admin != None)
-        admin.addUpdateCallback(servant)
+        if admin != None:
+            admin.addUpdateCallback(servant)
 
         proxy = current.adapter.addWithUUID(servant)
         return Test.RemoteCommunicatorPrx.uncheckedCast(proxy)

@@ -15,37 +15,31 @@
 #include <Ice/PropertiesF.h>
 #include <Ice/CommunicatorF.h>
 
-namespace Ice
+namespace IceInternal
 {
 
 //
 // A logger that works in tandem with a "Logger" admin facet.
 //
-class ICE_API LoggerAdminLogger : public Ice::Logger
+class LoggerAdminLogger : public Ice::Logger
 {
 public:
 
     //
     // Return the associated Admin facet
     //
-    virtual ObjectPtr getFacet() const = 0;
+    virtual Ice::ObjectPtr getFacet() const = 0;
 
     //
     // Destroy this logger, in particular join any thread
     // that this logger may have started
     //
-    virtual void destroy() = 0;
-    
+    virtual void destroy() = 0; 
 };
-typedef IceInternal::Handle<LoggerAdminLogger> LoggerAdminLoggerPtr;
+typedef Handle<LoggerAdminLogger> LoggerAdminLoggerPtr;
 
-}
-
-namespace IceInternal
-{
-
-Ice::LoggerAdminLoggerPtr 
-createLoggerAdminLogger(const std::string&, const Ice::PropertiesPtr&, const Ice::LoggerPtr&);
+LoggerAdminLoggerPtr 
+createLoggerAdminLogger(const Ice::PropertiesPtr&, const Ice::LoggerPtr&);
 
 }
 

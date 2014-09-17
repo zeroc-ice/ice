@@ -26,6 +26,8 @@ public class AllTests : TestCommon.TestApp
         {
             test(com.findAdminFacet("Properties") != null);
             test(com.findAdminFacet("Process") != null);
+              // test(com.findAdminFacet("Logger") != null);
+            test(com.findAdminFacet("Metrics") != null);
         }
 
         TestFacet f1 = new TestFacetI();
@@ -40,6 +42,23 @@ public class AllTests : TestCommon.TestApp
         test(com.findAdminFacet("Facet2") == f2);
         test(com.findAdminFacet("Facet3") == f3);
         test(com.findAdminFacet("Bogus") == null);
+
+        Dictionary<string, Ice.Object> facetMap = com.findAllAdminFacets();
+        if(builtInFacets)
+        {
+            test(facetMap.Count == 6);
+            test(facetMap.ContainsKey("Properties"));
+            test(facetMap.ContainsKey("Process"));
+            // test(facetMap.ContainsKey("Logger"));
+            test(facetMap.ContainsKey("Metrics"));
+        }
+        else
+        {
+            test(facetMap.Count >= 3);
+        }
+        test(facetMap.ContainsKey("Facet1"));
+        test(facetMap.ContainsKey("Facet2"));
+        test(facetMap.ContainsKey("Facet3"));
 
         try
         {
@@ -107,7 +126,7 @@ public class AllTests : TestCommon.TestApp
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
             init.properties.setProperty("Ice.Admin.Facets", "Properties");
             Ice.Communicator com = Ice.Util.initialize(init);
-            testFacets(com);
+            testFacets(com, false);
             com.destroy();
         }
         {

@@ -628,6 +628,9 @@ class CommunicatorI(Communicator):
     def findAdminFacet(self, facet):
         return self._impl.findAdminFacet(facet)
 
+    def findAllAdminFacets(self):
+        return self._impl.findAllAdminFacets()
+
     def removeAdminFacet(self, facet):
         return self._impl.removeAdminFacet(facet)
 
@@ -793,6 +796,9 @@ class LoggerI(Logger):
 
     def error(self, message):
         return self._impl.error(message)
+
+    def getPrefix(self):
+        return self._impl.getPrefix()
 
     def cloneWithPrefix(self, prefix):
         logger = self._impl.cloneWithPrefix(prefix)

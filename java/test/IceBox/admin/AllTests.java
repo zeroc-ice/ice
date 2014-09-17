@@ -63,7 +63,7 @@ public class AllTests
             test(pd.get("Prop3").equals("3"));
             test(pd.get("Ice.Config").equals("config.service"));
             test(pd.get("Ice.ProgramName").equals("IceBox-TestService"));
-            test(pd.get("Ice.Admin.Metrics").equals("1"));
+            test(pd.get("Ice.Admin.Enabled").equals("1"));
 
             java.util.Map<String, String> changes;
 
