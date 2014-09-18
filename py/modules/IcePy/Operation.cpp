@@ -16,6 +16,7 @@
 #include <Proxy.h>
 #include <Thread.h>
 #include <Types.h>
+#include <Connection.h>
 #include <Util.h>
 #include <Ice/Communicator.h>
 #include <Ice/IncomingAsync.h>
@@ -2549,7 +2550,7 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
             memcpy(buf, &out[0], sz);
         }
 #endif
-        
+
         if(PyTuple_SET_ITEM(result.get(), 1, op.get()) < 0)
         {
             throwPythonException();
@@ -3618,7 +3619,7 @@ IcePy::BlobjectUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, 
     {
         throwPythonException();
     }
- 
+
     PyObjectHandle ip;
 
 #if PY_VERSION_HEX >= 0x03000000
@@ -4008,6 +4009,45 @@ IcePy::FlushCallback::sent(bool sentSynchronously)
         AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
         callSent(_sent, sentSynchronously, true);
     }
+}
+
+IcePy::GetConnectionCallback::GetConnectionCallback(const Ice::CommunicatorPtr& communicator,
+                                                    PyObject* response, PyObject* ex, const string& op) :
+    _communicator(communicator), _response(response), _ex(ex), _op(op)
+{
+    assert(_response);
+    Py_INCREF(_response);
+    Py_XINCREF(_ex);
+}
+
+IcePy::GetConnectionCallback::~GetConnectionCallback()
+{
+    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
+
+    Py_DECREF(_response);
+    Py_XDECREF(_ex);
+}
+
+void
+IcePy::GetConnectionCallback::response(const Ice::ConnectionPtr& conn)
+{
+    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
+
+    PyObjectHandle pyConn = createConnection(conn, _communicator);
+    PyObjectHandle args = Py_BuildValue(STRCAST("(O)"), pyConn.get());
+    PyObjectHandle tmp = PyObject_Call(_response, args.get(), 0);
+    if(PyErr_Occurred())
+    {
+        handleException(); // Callback raised an exception.
+    }
+}
+
+void
+IcePy::GetConnectionCallback::exception(const Ice::Exception& ex)
+{
+    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
+
+    callException(_ex, ex);
 }
 
 //

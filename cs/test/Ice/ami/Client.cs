@@ -21,7 +21,7 @@ public class Client
 {
     private static int run(string[] args, Ice.Communicator communicator)
     {
-        AllTests.allTests(communicator);
+        AllTests.allTests(communicator, false);
         return 0;
     }
 

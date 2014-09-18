@@ -17,7 +17,7 @@ public class OutgoingAsync extends AsyncResultI implements OutgoingAsyncMessageC
         _proxy = (Ice.ObjectPrxHelperBase) prx;
         _encoding = Protocol.getCompatibleEncoding(_proxy.__reference().getEncoding());
     }
-    
+
     public OutgoingAsync(Ice.ObjectPrx prx, String operation, CallbackBase cb, IceInternal.BasicStream is,
             IceInternal.BasicStream os)
     {
@@ -26,8 +26,8 @@ public class OutgoingAsync extends AsyncResultI implements OutgoingAsyncMessageC
         _proxy = (Ice.ObjectPrxHelperBase) prx;
         _encoding = Protocol.getCompatibleEncoding(_proxy.__reference().getEncoding());
     }
-    
-    public void prepare(String operation, Ice.OperationMode mode, java.util.Map<String, String> ctx, 
+
+    public void prepare(String operation, Ice.OperationMode mode, java.util.Map<String, String> ctx,
                         boolean explicitCtx, boolean synchronous)
     {
         _handler = null;
@@ -200,7 +200,7 @@ public class OutgoingAsync extends AsyncResultI implements OutgoingAsyncMessageC
             _monitor.notifyAll();
 
             // Don't call the sent call is already sent.
-            return !alreadySent && _callback != null && _callback.__hasSentCallback(); 
+            return !alreadySent && _callback != null && _callback.__hasSentCallback();
         }
     }
 
@@ -264,7 +264,7 @@ public class OutgoingAsync extends AsyncResultI implements OutgoingAsyncMessageC
         // with the connection locked. Therefore, it must not invoke
         // any user callbacks.
         //
-        
+
         assert (_proxy.ice_isTwoway()); // Can only be called for twoways.
 
         byte replyStatus;
@@ -279,14 +279,14 @@ public class OutgoingAsync extends AsyncResultI implements OutgoingAsyncMessageC
                     _childObserver.detach();
                     _childObserver = null;
                 }
-                
+
                 if(_timeoutRequestHandler != null)
                 {
                     _future.cancel(false);
                     _future = null;
                     _timeoutRequestHandler = null;
                 }
-                
+
                 // _is can already be initialized if the invocation is retried
                 if(_is == null)
                 {
@@ -294,7 +294,7 @@ public class OutgoingAsync extends AsyncResultI implements OutgoingAsyncMessageC
                 }
                 _is.swap(is);
                 replyStatus = _is.readByte();
-                
+
                 switch(replyStatus)
                 {
                     case ReplyStatus.replyOK:
@@ -422,7 +422,7 @@ public class OutgoingAsync extends AsyncResultI implements OutgoingAsyncMessageC
                 }
                 _state |= StateDone;
                 _monitor.notifyAll();
-                
+
                 if(_callback == null)
                 {
                     if(_observer != null)
@@ -579,7 +579,7 @@ public class OutgoingAsync extends AsyncResultI implements OutgoingAsyncMessageC
             _os.writeEncaps(encaps);
         }
     }
-    
+
     public void cacheMessageBuffers()
     {
         if(_proxy.__reference().getInstance().cacheMessageBuffers() > 0)
@@ -597,11 +597,11 @@ public class OutgoingAsync extends AsyncResultI implements OutgoingAsyncMessageC
                 _is.reset();
             }
             _os.reset();
-       
+
             _proxy.cacheMessageBuffers(_is, _os);
         }
     }
-    
+
     @Override
     public void invokeExceptionAsync(final Ice.Exception ex)
     {
@@ -621,7 +621,7 @@ public class OutgoingAsync extends AsyncResultI implements OutgoingAsyncMessageC
 
         super.invokeExceptionAsync(ex);
     }
-    
+
     private void handleException(Ice.Exception exc)
     {
         try
@@ -632,7 +632,7 @@ public class OutgoingAsync extends AsyncResultI implements OutgoingAsyncMessageC
             {
                 _observer.retried(); // Invocation is being retried.
             }
-        
+
             //
             // Schedule the retry. Note that we always schedule the retry
             // on the retry queue even if the invocation can be retried
@@ -654,10 +654,10 @@ public class OutgoingAsync extends AsyncResultI implements OutgoingAsyncMessageC
     }
 
     protected Ice.ObjectPrxHelperBase _proxy;
+    protected RequestHandler _handler;
+    protected int _cnt;
 
-    private RequestHandler _handler;
     private Ice.EncodingVersion _encoding;
-    private int _cnt;
     private Ice.OperationMode _mode;
     private boolean _sent;
     //

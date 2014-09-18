@@ -25,7 +25,7 @@
 namespace IceInternal
 {
 
-class ConnectRequestHandler : public RequestHandler, 
+class ConnectRequestHandler : public RequestHandler,
                               public Reference::GetConnectionCallback,
                               public RouterInfo::AddProxyCallback,
                               public IceUtil::Monitor<IceUtil::Mutex>

@@ -48,7 +48,6 @@ public:
 
 private:
 
-
     IceUtil::UniquePtr<Ice::LocalException> _ex;
 };
 
@@ -72,7 +71,7 @@ public:
 
     virtual Ice::ConnectionIPtr getConnection() = 0;
     virtual Ice::ConnectionIPtr waitForConnection() = 0;
-    
+
 protected:
 
     RequestHandler(const ReferencePtr&);

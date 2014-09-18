@@ -101,6 +101,13 @@ public class AMI
         }
 
         public void
+        connection(Ice.AsyncResult result)
+        {
+            test(result.getProxy().end_ice_getConnection(result) != null);
+            called();
+        }
+
+        public void
         op(Ice.AsyncResult result)
         {
             TestIntfPrxHelper.uncheckedCast(result.getProxy()).end_op(result);
@@ -205,6 +212,24 @@ public class AMI
         }
 
         public void
+        connectionEx(Ice.AsyncResult result)
+        {
+            try
+            {
+                result.getProxy().end_ice_getConnection(result);
+                test(false);
+            }
+            catch(Ice.NoEndpointException ex)
+            {
+                called();
+            }
+            catch(Ice.Exception ex)
+            {
+                test(false);
+            }
+        }
+
+        public void
         opEx(Ice.AsyncResult result)
         {
             try
@@ -253,6 +278,13 @@ public class AMI
         ids(String[] ids)
         {
             test(ids.length == 2);
+            called();
+        }
+
+        public void
+        connection(Ice.Connection conn)
+        {
+            test(conn != null);
             called();
         }
 
@@ -313,6 +345,12 @@ public class AMI
 
         public void
         ids(String[] ids)
+        {
+            test(false);
+        }
+
+        public void
+        connection(Ice.Connection conn)
         {
             test(false);
         }
@@ -549,9 +587,10 @@ public class AMI
     }
 
     public static void
-    run(Application app, Ice.Communicator communicator, TestIntfPrx p, TestIntfControllerPrx testController)
+    run(Application app, Ice.Communicator communicator, boolean collocated, TestIntfPrx p,
+        TestIntfControllerPrx testController)
     {
-    
+
         PrintWriter out = app.getWriter();
 
         out.print("testing response callback... ");
@@ -560,12 +599,12 @@ public class AMI
             final ResponseCallback cb = new ResponseCallback();
             java.util.Map<String, String> ctx = new java.util.HashMap<String, String>();
 
-            p.begin_ice_isA("::Test::TestIntf", 
+            p.begin_ice_isA("::Test::TestIntf",
                 (boolean r) -> cb.isA(r),
                 (Ice.Exception ex) -> test(false));
             cb.check();
-            
-            p.begin_ice_isA("::Test::TestIntf", 
+
+            p.begin_ice_isA("::Test::TestIntf",
                 (boolean r) -> cb.isA(r),
                 (Ice.Exception ex) -> test(false));
             cb.check();
@@ -574,8 +613,8 @@ public class AMI
                 () -> cb.ping(),
                 (Ice.Exception ex) -> test(false));
             cb.check();
-            
-            p.begin_ice_ping(ctx, 
+
+            p.begin_ice_ping(ctx,
                 () -> cb.ping(),
                 (Ice.Exception ex) -> test(false));
             cb.check();
@@ -584,8 +623,8 @@ public class AMI
                 (String id) -> cb.id(id),
                 (Ice.Exception ex) -> test(false));
             cb.check();
-            
-            p.begin_ice_id(ctx, 
+
+            p.begin_ice_id(ctx,
                 (String id) -> cb.id(id),
                 (Ice.Exception ex) -> test(false));
             cb.check();
@@ -594,18 +633,26 @@ public class AMI
                 (String[] ids) -> cb.ids(ids),
                 (Ice.Exception ex) -> test(false));
             cb.check();
-            
+
             p.begin_ice_ids(ctx,
                 (String[] ids) -> cb.ids(ids),
                 (Ice.Exception ex) -> test(false));
             cb.check();
 
+            if(!collocated)
+            {
+                p.begin_ice_getConnection(
+                    (Ice.Connection conn) -> cb.connection(conn),
+                    (Ice.Exception ex) -> test(false));
+                cb.check();
+            }
+
             p.begin_op(
                 () -> cb.op(),
                 (Ice.Exception ex) -> test(false));
             cb.check();
-            
-            p.begin_op(ctx, 
+
+            p.begin_op(ctx,
                 () -> cb.op(),
                 (Ice.Exception ex) -> test(false));
             cb.check();
@@ -614,8 +661,8 @@ public class AMI
                 (int r) -> cb.opWithResult(r),
                 (Ice.Exception ex) -> test(false));
             cb.check();
-            
-            p.begin_opWithResult(ctx, 
+
+            p.begin_opWithResult(ctx,
                 (int r) -> cb.opWithResult(r),
                 (Ice.Exception ex) -> test(false));
             cb.check();
@@ -625,8 +672,8 @@ public class AMI
                 (Ice.UserException ex) -> cb.opWithUE(ex),
                 (Ice.Exception ex) -> test(false));
             cb.check();
-            
-            p.begin_opWithUE(ctx, 
+
+            p.begin_opWithUE(ctx,
                 () -> test(false),
                 (Ice.UserException ex) -> cb.opWithUE(ex),
                 (Ice.Exception ex) -> test(false));
@@ -640,7 +687,7 @@ public class AMI
             TestIntfPrx i = TestIntfPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
             final ExceptionCallback cb = new ExceptionCallback();
 
-            i.begin_ice_isA("::Test::TestIntf", 
+            i.begin_ice_isA("::Test::TestIntf",
                 (boolean r) -> test(false),
                 (Ice.Exception ex) -> cb.ex(ex));
             cb.check();
@@ -660,6 +707,14 @@ public class AMI
                 (Ice.Exception ex) -> cb.ex(ex));
             cb.check();
 
+            if(!collocated)
+            {
+                i.begin_ice_getConnection(
+                    (Ice.Connection conn) -> test(false),
+                    (Ice.Exception ex) -> cb.ex(ex));
+                cb.check();
+            }
+
             i.begin_op(
                 () -> test(false),
                 (Ice.Exception ex) -> cb.ex(ex));
@@ -672,7 +727,7 @@ public class AMI
         {
             final SentCallback cb = new SentCallback();
 
-            p.begin_ice_isA("", 
+            p.begin_ice_isA("",
                 (boolean r) -> cb.isA(r),
                 (Ice.Exception ex) -> cb.ex(ex),
                 (boolean ss) -> cb.sent(ss));
@@ -965,7 +1020,7 @@ public class AMI
             }
             out.println("ok");
         }
-        
+
         out.print("testing null callbacks...");
         try
         {
@@ -978,27 +1033,27 @@ public class AMI
         {
             // Excepted when response and exception callback are both null.
         }
-        
+
         try
         {
             p.begin_ice_ping(() -> {}, null);
-    
+
         }
         catch(IllegalArgumentException ex)
         {
             test(false);
         }
-        
+
         try
         {
             p.begin_ice_ping(null, (Ice.Exception ex) -> {});
-    
+
         }
         catch(IllegalArgumentException ex)
         {
             test(false);
         }
-        
+
         try
         {
             IceInternal.Functional_BoolCallback response = null;
@@ -1010,27 +1065,27 @@ public class AMI
         {
             // Excepted when response and exception callback are both null.
         }
-        
+
         try
         {
             p.begin_ice_isA("::Test::TestIntf", (boolean v) -> {}, null);
-    
+
         }
         catch(IllegalArgumentException ex)
         {
             test(false);
         }
-        
+
         try
         {
             p.begin_ice_isA("::Test::TestIntf", null, (Ice.Exception ex) -> {});
-    
+
         }
         catch(IllegalArgumentException ex)
         {
             test(false);
         }
-        
+
         try
         {
             IceInternal.Functional_VoidCallback response = null;
@@ -1043,7 +1098,7 @@ public class AMI
             // an operation that throws user exceptions both user exception callback
             // an local exception callback must be present.
         }
-        
+
         try
         {
             IceInternal.Functional_VoidCallback response = null;
@@ -1056,7 +1111,7 @@ public class AMI
             // an operation that throws user exceptions both user exception callback
             // an local exception callback must be present.
         }
-        
+
         try
         {
             IceInternal.Functional_VoidCallback response = null;

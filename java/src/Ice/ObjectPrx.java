@@ -1136,6 +1136,46 @@ public interface ObjectPrx
     Connection ice_getConnection();
 
     /**
+     * Asynchronously gets the connection for this proxy. The call does not block.
+     *
+     * @return The asynchronous result object.
+     **/
+    AsyncResult begin_ice_getConnection();
+
+    /**
+     * Asynchronously gets the connection for this proxy. The call does not block.
+     *
+     * @return The asynchronous result object.
+     **/
+    AsyncResult begin_ice_getConnection(Callback __cb);
+
+    /**
+     * Asynchronously gets the connection for this proxy. The call does not block.
+     *
+     * @param cb The callback object to notify the application when the operation is complete.
+     * @return The asynchronous result object.
+     **/
+    AsyncResult begin_ice_getConnection(Callback_Object_ice_getConnection __cb);
+
+    /**
+     * Asynchronously gets the connection for this proxy. The call does not block.
+     *
+     * @param __responseCb The callback object to notify the application when the there is a response available.
+     * @param __exceptionCb The callback object to notify the application when the there is an exception getting
+     * connection.
+     * @return The asynchronous result object.
+     **/
+    AsyncResult begin_ice_getConnection(IceInternal.Functional_GenericCallback1<Ice.Connection> __responseCb,
+                                        IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb);
+
+    /**
+     * Completes the asynchronous get connection.
+     *
+     * @param __result The asynchronous result.
+     **/
+    Ice.Connection end_ice_getConnection(AsyncResult __result);
+
+    /**
      * Returns the cached {@link Connection} for this proxy. If the proxy does not yet have an established
      * connection, it does not attempt to create a connection.
      *

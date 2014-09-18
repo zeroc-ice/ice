@@ -18,8 +18,8 @@ using namespace std;
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
-    void allTests(const Ice::CommunicatorPtr&);
-    allTests(communicator);
+    void allTests(const Ice::CommunicatorPtr&, bool);
+    allTests(communicator, false);
     return EXIT_SUCCESS;
 }
 

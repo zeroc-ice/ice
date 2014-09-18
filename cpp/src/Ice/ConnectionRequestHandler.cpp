@@ -29,8 +29,8 @@ ConnectionRequestHandler::ConnectionRequestHandler(const ReferencePtr& reference
     }
 }
 
-ConnectionRequestHandler::ConnectionRequestHandler(const ReferencePtr& reference, 
-                                                   const Ice::ConnectionIPtr& connection, 
+ConnectionRequestHandler::ConnectionRequestHandler(const ReferencePtr& reference,
+                                                   const Ice::ConnectionIPtr& connection,
                                                    bool compress) :
     RequestHandler(reference),
     _connection(connection),
@@ -68,13 +68,13 @@ ConnectionRequestHandler::sendAsyncRequest(const OutgoingAsyncMessageCallbackPtr
     return out->__send(_connection, _compress, _response);
 }
 
-void 
+void
 ConnectionRequestHandler::requestTimedOut(OutgoingMessageCallback* out)
 {
     _connection->requestTimedOut(out);
 }
 
-void 
+void
 ConnectionRequestHandler::asyncRequestTimedOut(const OutgoingAsyncMessageCallbackPtr& outAsync)
 {
     _connection->asyncRequestTimedOut(outAsync);

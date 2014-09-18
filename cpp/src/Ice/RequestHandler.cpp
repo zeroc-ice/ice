@@ -13,8 +13,7 @@
 using namespace std;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(RequestHandler* obj) { return obj; }
-
+IceUtil::Shared* IceInternal::upCast(RequestHandler* p) { return p; }
 
 RetryException::RetryException(const Ice::LocalException& ex)
 {
@@ -37,7 +36,7 @@ RequestHandler::~RequestHandler()
 {
 }
 
-RequestHandler::RequestHandler(const ReferencePtr& reference) : 
+RequestHandler::RequestHandler(const ReferencePtr& reference) :
     _reference(reference),
     _response(reference->getMode() == Reference::ModeTwoway)
 {

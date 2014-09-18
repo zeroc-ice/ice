@@ -238,7 +238,7 @@ namespace IceInternal
             _adapter.decDirectCount();
             return true;
         }
-        
+
         public void
         invokeException(int requestId, Ice.LocalException ex, int invokeNum)
         {

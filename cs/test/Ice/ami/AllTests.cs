@@ -114,6 +114,14 @@ public class AllTests : TestCommon.TestApp
         }
 
         public void
+        connection(Ice.AsyncResult result)
+        {
+            test(result.AsyncState == _cookie);
+            test(result.getProxy().end_ice_getConnection(result) != null);
+            called();
+        }
+
+        public void
         op(Ice.AsyncResult result)
         {
             test(result.AsyncState == _cookie);
@@ -225,6 +233,25 @@ public class AllTests : TestCommon.TestApp
         }
 
         public void
+        connectionEx(Ice.AsyncResult result)
+        {
+            test(result.AsyncState == _cookie);
+            try
+            {
+                result.getProxy().end_ice_getConnection(result);
+                test(false);
+            }
+            catch(Ice.NoEndpointException)
+            {
+                called();
+            }
+            catch(Ice.Exception)
+            {
+                test(false);
+            }
+        }
+
+        public void
         opEx(Ice.AsyncResult result)
         {
             test(result.AsyncState == _cookie);
@@ -276,6 +303,13 @@ public class AllTests : TestCommon.TestApp
         ids(string[] ids)
         {
             test(ids.Length == 2);
+            called();
+        }
+
+        public void
+        connection(Ice.Connection conn)
+        {
+            test(conn != null);
             called();
         }
 
@@ -337,6 +371,12 @@ public class AllTests : TestCommon.TestApp
 
         public void
         ids(string[] ids)
+        {
+            test(false);
+        }
+
+        public void
+        connection(Ice.Connection conn)
         {
             test(false);
         }
@@ -622,7 +662,7 @@ public class AllTests : TestCommon.TestApp
     override
     public void run(Ice.Communicator communicator)
 #else
-    public static void allTests(Ice.Communicator communicator)
+    public static void allTests(Ice.Communicator communicator, bool collocated)
 #endif
     {
         string sref = "test:default -p 12010";
@@ -662,6 +702,12 @@ public class AllTests : TestCommon.TestApp
             test(p.end_ice_ids(result).Length == 2);
             result = p.begin_ice_ids(ctx);
             test(p.end_ice_ids(result).Length == 2);
+
+            if(!collocated)
+            {
+                result = p.begin_ice_getConnection();
+                test(p.end_ice_getConnection(result) != null);
+            }
 
             result = p.begin_op();
             p.end_op(result);
@@ -738,6 +784,14 @@ public class AllTests : TestCommon.TestApp
             p.begin_ice_ids(ctx, cbWC.ids, cookie);
             cbWC.check();
 
+            if(!collocated)
+            {
+                p.begin_ice_getConnection(cb.connection, null);
+                cb.check();
+                p.begin_ice_getConnection(cbWC.connection, cookie);
+                cbWC.check();
+            }
+
             p.begin_op(cb.op, null);
             cb.check();
             p.begin_op(cbWC.op, cookie);
@@ -792,6 +846,12 @@ public class AllTests : TestCommon.TestApp
             cb.check();
             p.begin_ice_ids(ctx).whenCompleted(cb.ids, null);
             cb.check();
+
+            if(!collocated)
+            {
+                p.begin_ice_getConnection().whenCompleted(cb.connection, null);
+                cb.check();
+            }
 
             p.begin_op().whenCompleted(cb.op, null);
             cb.check();
@@ -867,6 +927,16 @@ public class AllTests : TestCommon.TestApp
                     cb.ids(ids);
                 }, null);
             cb.check();
+
+            if(!collocated)
+            {
+                p.begin_ice_getConnection().whenCompleted(
+                    (Ice.Connection conn) =>
+                    {
+                        cb.connection(conn);
+                    }, null);
+                cb.check();
+            }
 
             p.begin_op().whenCompleted(
                 () =>
@@ -993,6 +1063,14 @@ public class AllTests : TestCommon.TestApp
             i.begin_ice_ids(cbWC.idsEx, cookie);
             cbWC.check();
 
+            if(!collocated)
+            {
+                i.begin_ice_getConnection(cb.connectionEx, null);
+                cb.check();
+                i.begin_ice_getConnection(cbWC.connectionEx, cookie);
+                cbWC.check();
+            }
+
             i.begin_op(cb.opEx, null);
             cb.check();
             i.begin_op(cbWC.opEx, cookie);
@@ -1018,6 +1096,12 @@ public class AllTests : TestCommon.TestApp
             i.begin_ice_ids().whenCompleted(cb.ids, cb.ex);
             cb.check();
 
+            if(!collocated)
+            {
+                i.begin_ice_getConnection().whenCompleted(cb.connection, cb.ex);
+                cb.check();
+            }
+
             i.begin_op().whenCompleted(cb.op, cb.ex);
             cb.check();
         }
@@ -1030,7 +1114,7 @@ public class AllTests : TestCommon.TestApp
             ExceptionCallback cb = new ExceptionCallback();
 
             i.begin_ice_isA("::Test::TestIntf").whenCompleted(
-                (bool r) => 
+                (bool r) =>
                 {
                     cb.isA(r);
                 },
@@ -1041,7 +1125,7 @@ public class AllTests : TestCommon.TestApp
             cb.check();
 
             i.begin_ice_ping().whenCompleted(
-                () => 
+                () =>
                 {
                     cb.ping();
                 },
@@ -1052,7 +1136,7 @@ public class AllTests : TestCommon.TestApp
             cb.check();
 
             i.begin_ice_id().whenCompleted(
-                (string id) => 
+                (string id) =>
                 {
                     cb.id(id);
                 },
@@ -1063,7 +1147,7 @@ public class AllTests : TestCommon.TestApp
             cb.check();
 
             i.begin_ice_ids().whenCompleted(
-                (string[] ids) => 
+                (string[] ids) =>
                 {
                     cb.ids(ids);
                 },
@@ -1073,8 +1157,22 @@ public class AllTests : TestCommon.TestApp
                 });
             cb.check();
 
+            if(!collocated)
+            {
+                i.begin_ice_getConnection().whenCompleted(
+                    (Ice.Connection conn) =>
+                    {
+                        cb.connection(conn);
+                    },
+                    (Ice.Exception ex) =>
+                    {
+                        cb.ex(ex);
+                    });
+                cb.check();
+            }
+
             i.begin_op().whenCompleted(
-                () => 
+                () =>
                 {
                     cb.op();
                 },
@@ -1239,7 +1337,7 @@ public class AllTests : TestCommon.TestApp
                 {
                     cb.isA(r);
                 },
-                (Ice.Exception ex) => 
+                (Ice.Exception ex) =>
                 {
                     cb.ex(ex);
                 }
@@ -1255,7 +1353,7 @@ public class AllTests : TestCommon.TestApp
                 {
                     cb.ping();
                 },
-                (Ice.Exception ex) => 
+                (Ice.Exception ex) =>
                 {
                     cb.ex(ex);
                 }
@@ -1271,7 +1369,7 @@ public class AllTests : TestCommon.TestApp
                 {
                     cb.id(id);
                 },
-                (Ice.Exception ex) => 
+                (Ice.Exception ex) =>
                 {
                     cb.ex(ex);
                 }
@@ -1287,7 +1385,7 @@ public class AllTests : TestCommon.TestApp
                 {
                     cb.ids(ids);
                 },
-                (Ice.Exception ex) => 
+                (Ice.Exception ex) =>
                 {
                     cb.ex(ex);
                 }
@@ -1303,7 +1401,7 @@ public class AllTests : TestCommon.TestApp
                 {
                     cb.op();
                 },
-                (Ice.Exception ex) => 
+                (Ice.Exception ex) =>
                 {
                     cb.ex(ex);
                 }
@@ -1446,14 +1544,14 @@ public class AllTests : TestCommon.TestApp
                 Thrower cb = new Thrower(throwEx[i]);
 
                 p.begin_op().whenCompleted(
-                    () => 
+                    () =>
                     {
                         cb.op();
                     }, null);
                 cb.check();
 
                 q.begin_op().whenCompleted(
-                    () => 
+                    () =>
                     {
                         cb.op();
                     },
@@ -1464,7 +1562,7 @@ public class AllTests : TestCommon.TestApp
                 cb.check();
 
                 p.begin_op().whenCompleted(
-                    () => 
+                    () =>
                     {
                         cb.noOp();
                     },
@@ -1587,7 +1685,7 @@ public class AllTests : TestCommon.TestApp
                 b1.opBatch();
                 FlushCallback cb = new FlushCallback(cookie);
                 Ice.AsyncResult r = b1.begin_ice_flushBatchRequests(
-                    (Ice.AsyncResult result) => 
+                    (Ice.AsyncResult result) =>
                     {
                         cb.completedAsync(result);
                     }, cookie);
@@ -1613,7 +1711,7 @@ public class AllTests : TestCommon.TestApp
                 b1.ice_getConnection().close(false);
                 FlushExCallback cb = new FlushExCallback(cookie);
                 Ice.AsyncResult r = b1.begin_ice_flushBatchRequests(
-                    (Ice.AsyncResult result) => 
+                    (Ice.AsyncResult result) =>
                     {
                         cb.completedAsync(result);
                     }, cookie);
@@ -1780,7 +1878,7 @@ public class AllTests : TestCommon.TestApp
                     b1.opBatch();
                     FlushCallback cb = new FlushCallback(cookie);
                     Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
-                        (Ice.AsyncResult result) => 
+                        (Ice.AsyncResult result) =>
                         {
                             cb.completedAsync(result);
                         }, cookie);
@@ -1805,7 +1903,7 @@ public class AllTests : TestCommon.TestApp
                     b1.ice_getConnection().close(false);
                     FlushExCallback cb = new FlushExCallback(cookie);
                     Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
-                        (Ice.AsyncResult result) => 
+                        (Ice.AsyncResult result) =>
                         {
                             cb.completedAsync(result);
                         }, cookie);
@@ -2103,7 +2201,7 @@ public class AllTests : TestCommon.TestApp
                     b1.opBatch();
                     FlushCallback cb = new FlushCallback(cookie);
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
-                        (Ice.AsyncResult result) => 
+                        (Ice.AsyncResult result) =>
                         {
                             cb.completedAsync(result);
                         }, cookie);
@@ -2128,7 +2226,7 @@ public class AllTests : TestCommon.TestApp
                     b1.ice_getConnection().close(false);
                     FlushCallback cb = new FlushCallback(cookie);
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
-                        (Ice.AsyncResult result) => 
+                        (Ice.AsyncResult result) =>
                         {
                             cb.completedAsync(result);
                         }, cookie);
@@ -2157,7 +2255,7 @@ public class AllTests : TestCommon.TestApp
                     b2.opBatch();
                     FlushCallback cb = new FlushCallback(cookie);
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
-                        (Ice.AsyncResult result) => 
+                        (Ice.AsyncResult result) =>
                         {
                             cb.completedAsync(result);
                         }, cookie);
@@ -2188,7 +2286,7 @@ public class AllTests : TestCommon.TestApp
                     b1.ice_getConnection().close(false);
                     FlushCallback cb = new FlushCallback(cookie);
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
-                        (Ice.AsyncResult result) => 
+                        (Ice.AsyncResult result) =>
                         {
                             cb.completedAsync(result);
                         }, cookie);
@@ -2219,7 +2317,7 @@ public class AllTests : TestCommon.TestApp
                     b2.ice_getConnection().close(false);
                     FlushCallback cb = new FlushCallback(cookie);
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
-                        (Ice.AsyncResult result) => 
+                        (Ice.AsyncResult result) =>
                         {
                             cb.completedAsync(result);
                         }, cookie);
@@ -2382,7 +2480,7 @@ public class AllTests : TestCommon.TestApp
             }
             WriteLine("ok");
         }
-    
+
         Write("testing AsyncResult operations... ");
         Flush();
         {
@@ -2401,7 +2499,7 @@ public class AllTests : TestCommon.TestApp
                     {
                         test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted_() ||
                              !r1.sentSynchronously() && !r1.isCompleted_());
-                        
+
                         test(!r2.sentSynchronously() && !r2.isCompleted_());
 
                         test(!r1.IsCompleted && !r1.CompletedSynchronously);
@@ -2509,13 +2607,13 @@ public class AllTests : TestCommon.TestApp
 
                 //
                 // Send multiple opWithPayload, followed by a close and followed by multiple opWithPaylod.
-                // The goal is to make sure that none of the opWithPayload fail even if the server closes 
+                // The goal is to make sure that none of the opWithPayload fail even if the server closes
                 // the connection gracefully in between.
-                // 
+                //
                 int maxQueue = 2;
                 bool done = false;
                 while(!done && maxQueue < 50)
-                { 
+                {
                     done = true;
                     p.ice_ping();
                     List<Ice.AsyncResult> results = new List<Ice.AsyncResult>();

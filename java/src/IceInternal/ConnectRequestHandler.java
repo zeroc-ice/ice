@@ -201,7 +201,7 @@ public class ConnectRequestHandler
             return _connection;
         }
     }
-    
+
     @Override
     synchronized public
     ConnectionI waitForConnection()

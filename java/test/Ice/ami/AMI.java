@@ -100,6 +100,13 @@ public class AMI
         }
 
         public void
+        connection(Ice.AsyncResult result)
+        {
+            test(result.getProxy().end_ice_getConnection(result) != null);
+            called();
+        }
+
+        public void
         op(Ice.AsyncResult result)
         {
             TestIntfPrxHelper.uncheckedCast(result.getProxy()).end_op(result);
@@ -204,6 +211,24 @@ public class AMI
         }
 
         public void
+        connectionEx(Ice.AsyncResult result)
+        {
+            try
+            {
+                result.getProxy().end_ice_getConnection(result);
+                test(false);
+            }
+            catch(Ice.NoEndpointException ex)
+            {
+                called();
+            }
+            catch(Ice.LocalException ex)
+            {
+                test(false);
+            }
+        }
+
+        public void
         opEx(Ice.AsyncResult result)
         {
             try
@@ -252,6 +277,13 @@ public class AMI
         ids(String[] ids)
         {
             test(ids.length == 2);
+            called();
+        }
+
+        public void
+        connection(Ice.Connection conn)
+        {
+            test(conn != null);
             called();
         }
 
@@ -312,6 +344,12 @@ public class AMI
 
         public void
         ids(String[] ids)
+        {
+            test(false);
+        }
+
+        public void
+        connection(Ice.Connection conn)
         {
             test(false);
         }
@@ -548,11 +586,12 @@ public class AMI
     }
 
     public static void
-    run(Application app, Ice.Communicator communicator, TestIntfPrx p, TestIntfControllerPrx testController)
+    run(Application app, Ice.Communicator communicator, boolean collocated, TestIntfPrx p,
+        TestIntfControllerPrx testController)
     {
-    
+
         PrintWriter out = app.getWriter();
-        
+
         out.print("testing begin/end invocation... ");
         out.flush();
         {
@@ -578,6 +617,12 @@ public class AMI
             test(p.end_ice_ids(result).length == 2);
             result = p.begin_ice_ids(ctx);
             test(p.end_ice_ids(result).length == 2);
+
+            if(!collocated)
+            {
+                result = p.begin_ice_getConnection();
+                test(p.end_ice_getConnection(result) != null);
+            }
 
             result = p.begin_op();
             p.end_op(result);
@@ -700,6 +745,20 @@ public class AMI
                     }
                 });
             cb.check();
+
+            if(!collocated)
+            {
+                p.begin_ice_getConnection(new Ice.Callback()
+                {
+                    @Override
+                    public void
+                    completed(Ice.AsyncResult r)
+                    {
+                        cb.connection(r);
+                    }
+                });
+                cb.check();
+            }
 
             p.begin_op(new Ice.Callback()
                 {
@@ -911,6 +970,27 @@ public class AMI
                     }
                 });
             cb.check();
+
+            if(!collocated)
+            {
+                p.begin_ice_getConnection(new Ice.Callback_Object_ice_getConnection()
+                    {
+                        @Override
+                        public void
+                        response(Ice.Connection conn)
+                        {
+                            cb.connection(conn);
+                        }
+
+                        @Override
+                        public void
+                        exception(Ice.LocalException ex)
+                        {
+                            test(false);
+                        }
+                    });
+                cb.check();
+            }
 
             p.begin_op(new Callback_TestIntf_op()
                 {
@@ -1131,6 +1211,20 @@ public class AMI
                 });
             cb.check();
 
+            if(!collocated)
+            {
+                i.begin_ice_getConnection(new Ice.Callback()
+                {
+                    @Override
+                    public void
+                    completed(Ice.AsyncResult r)
+                    {
+                        cb.connectionEx(r);
+                    }
+                });
+                cb.check();
+            }
+
             i.begin_op(new Ice.Callback()
                 {
                     @Override
@@ -1221,6 +1315,27 @@ public class AMI
                     }
                 });
             cb.check();
+
+            if(!collocated)
+            {
+                i.begin_ice_getConnection(new Ice.Callback_Object_ice_getConnection()
+                    {
+                        @Override
+                        public void
+                        response(Ice.Connection conn)
+                        {
+                            test(false);
+                        }
+
+                        @Override
+                        public void
+                        exception(Ice.LocalException ex)
+                        {
+                            cb.ex(ex);
+                        }
+                    });
+                cb.check();
+            }
 
             i.begin_op(new Callback_TestIntf_op()
                 {
@@ -2198,7 +2313,7 @@ public class AMI
                     {
                         test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted() ||
                              !r1.sentSynchronously() && !r1.isCompleted());
-                        
+
                         test(!r2.sentSynchronously() && !r2.isCompleted());
                     }
                 }
@@ -2298,9 +2413,9 @@ public class AMI
 
                 //
                 // Send multiple opWithPayload, followed by a close and followed by multiple opWithPaylod.
-                // The goal is to make sure that none of the opWithPayload fail even if the server closes 
+                // The goal is to make sure that none of the opWithPayload fail even if the server closes
                 // the connection gracefully in between.
-                // 
+                //
                 int maxQueue = 2;
                 boolean done = false;
                 while(!done && maxQueue < 50)

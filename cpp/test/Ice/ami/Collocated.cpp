@@ -34,8 +34,8 @@ run(int, char**, const Ice::CommunicatorPtr& communicator,
     adapter2->add(testController, communicator->stringToIdentity("testController"));
     adapter2->activate();
 
-    void allTests(const Ice::CommunicatorPtr&);
-    allTests(communicator);
+    void allTests(const Ice::CommunicatorPtr&, bool);
+    allTests(communicator, true);
 
     return EXIT_SUCCESS;
 }

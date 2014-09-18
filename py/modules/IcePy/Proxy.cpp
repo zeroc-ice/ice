@@ -1735,6 +1735,114 @@ proxyIceGetConnection(ProxyObject* self)
 extern "C"
 #endif
 static PyObject*
+proxyBeginIceGetConnection(ProxyObject* self, PyObject* args, PyObject* kwds)
+{
+    assert(self->proxy);
+
+    static char* argNames[] =
+    {
+        const_cast<char*>("_response"),
+        const_cast<char*>("_ex"),
+        0
+    };
+
+    PyObject* response = Py_None;
+    PyObject* ex = Py_None;
+    if(!PyArg_ParseTupleAndKeywords(args, kwds, STRCAST("|OO"), argNames, &response, &ex))
+    {
+        return 0;
+    }
+
+    if(response == Py_None)
+    {
+        response = 0;
+    }
+    if(ex == Py_None)
+    {
+        ex = 0;
+    }
+
+    if(!response && ex)
+    {
+        PyErr_Format(PyExc_RuntimeError,
+            STRCAST("response callback must also be provided when exception callback is used"));
+        return 0;
+    }
+
+    Ice::Callback_Object_ice_getConnectionPtr cb;
+    if(response || ex)
+    {
+        GetConnectionCallbackPtr d = new GetConnectionCallback(*self->communicator, response, ex, "ice_getConnection");
+        cb = Ice::newCallback_Object_ice_getConnection(d, &GetConnectionCallback::response,
+                                                       &GetConnectionCallback::exception);
+    }
+
+    Ice::AsyncResultPtr result;
+    try
+    {
+        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
+
+        if(cb)
+        {
+            result = (*self->proxy)->begin_ice_getConnection(cb);
+        }
+        else
+        {
+            result = (*self->proxy)->begin_ice_getConnection();
+        }
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    PyObjectHandle communicator = getCommunicatorWrapper(*self->communicator);
+    return createAsyncResult(result, reinterpret_cast<PyObject*>(self), 0, communicator.get());
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyEndIceGetConnection(ProxyObject* self, PyObject* args)
+{
+    assert(self->proxy);
+
+    PyObject* result;
+    if(!PyArg_ParseTuple(args, STRCAST("O!"), &AsyncResultType, &result))
+    {
+        return 0;
+    }
+
+    Ice::AsyncResultPtr r = getAsyncResult(result);
+    Ice::ConnectionPtr con;
+    try
+    {
+        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking invocations.
+        con = (*self->proxy)->end_ice_getConnection(r);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    if(con)
+    {
+        return createConnection(con, *self->communicator);
+    }
+    else
+    {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 proxyIceGetCachedConnection(ProxyObject* self)
 {
     assert(self->proxy);
@@ -2438,6 +2546,10 @@ static PyMethodDef ProxyMethods[] =
         PyDoc_STR(STRCAST("ice_connectionId(string) -> Ice.ObjectPrx")) },
     { STRCAST("ice_getConnection"), reinterpret_cast<PyCFunction>(proxyIceGetConnection), METH_NOARGS,
         PyDoc_STR(STRCAST("ice_getConnection() -> Ice.Connection")) },
+    { STRCAST("begin_ice_getConnection"), reinterpret_cast<PyCFunction>(proxyBeginIceGetConnection),
+        METH_VARARGS | METH_KEYWORDS, PyDoc_STR(STRCAST("begin_ice_getConnection([_response][, _ex]) -> Ice.AsyncResult")) },
+    { STRCAST("end_ice_getConnection"), reinterpret_cast<PyCFunction>(proxyEndIceGetConnection), METH_VARARGS,
+        PyDoc_STR(STRCAST("end_ice_getConnection(Ice.AsyncResult) -> Ice.Connection")) },
     { STRCAST("ice_getCachedConnection"), reinterpret_cast<PyCFunction>(proxyIceGetCachedConnection), METH_NOARGS,
         PyDoc_STR(STRCAST("ice_getCachedConnection() -> Ice.Connection")) },
     { STRCAST("ice_flushBatchRequests"), reinterpret_cast<PyCFunction>(proxyIceFlushBatchRequests), METH_NOARGS,

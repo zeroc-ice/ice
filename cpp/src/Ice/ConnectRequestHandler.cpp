@@ -28,27 +28,27 @@ namespace
 class FlushRequestsWithException : public DispatchWorkItem
 {
 public:
-    
+
     FlushRequestsWithException(const Ice::ConnectionPtr& connection, const ConnectRequestHandlerPtr& handler) :
         DispatchWorkItem(connection), _handler(handler)
     {
     }
-    
+
     virtual void
     run()
     {
         _handler->flushRequestsWithException();
     }
-    
+
 private:
-    
+
     const ConnectRequestHandlerPtr _handler;
 };
 
 class FlushSentRequests : public DispatchWorkItem
 {
 public:
-    
+
     FlushSentRequests(const Ice::ConnectionPtr& connection, const vector<OutgoingAsyncMessageCallbackPtr>& callbacks) :
         DispatchWorkItem(connection), _callbacks(callbacks)
     {
@@ -115,7 +115,7 @@ ConnectRequestHandler::prepareBatchRequest(BasicStream* os)
         {
             wait();
         }
-        
+
         try
         {
             if(!initialized())
@@ -146,7 +146,7 @@ ConnectRequestHandler::finishBatchRequest(BasicStream* os)
 
             _batchStream.swap(*os);
 
-            if(!_batchAutoFlush && 
+            if(!_batchAutoFlush &&
                _batchStream.b.size() + _batchRequestsSize > _reference->getInstance()->messageSizeMax())
             {
                 Ex::throwMemoryLimitException(__FILE__, __LINE__, _batchStream.b.size() + _batchRequestsSize,
@@ -259,7 +259,7 @@ ConnectRequestHandler::requestTimedOut(OutgoingMessageCallback* out)
     _connection->requestTimedOut(out);
 }
 
-void 
+void
 ConnectRequestHandler::asyncRequestTimedOut(const OutgoingAsyncMessageCallbackPtr& outAsync)
 {
     {
@@ -298,7 +298,7 @@ ConnectRequestHandler::getConnection()
     else
     {
         return _connection;
-    }     
+    }
 }
 
 Ice::ConnectionIPtr
@@ -309,7 +309,7 @@ ConnectRequestHandler::waitForConnection()
     {
         throw RetryException(*_exception.get());
     }
-    
+
     //
     // Wait for the connection establishment to complete or fail.
     //
@@ -326,7 +326,7 @@ ConnectRequestHandler::waitForConnection()
     else
     {
         return _connection;
-    }     
+    }
 }
 
 void
@@ -340,7 +340,7 @@ ConnectRequestHandler::setConnection(const Ice::ConnectionIPtr& connection, bool
         _connection = connection;
         _compress = compress;
     }
-    
+
     //
     // If this proxy is for a non-local object, and we are using a router, then
     // add this proxy to the router info object.
@@ -369,7 +369,7 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
 
     //
     // If some requests were queued, we notify them of the failure. This is done from a thread
-    // from the client thread pool since this will result in ice_exception callbacks to be 
+    // from the client thread pool since this will result in ice_exception callbacks to be
     // called.
     //
     if(!_requests.empty())
@@ -384,7 +384,7 @@ void
 ConnectRequestHandler::addedProxy()
 {
     //
-    // The proxy was added to the router info, we're now ready to send the 
+    // The proxy was added to the router info, we're now ready to send the
     // queued requests.
     //
     flushRequests();
@@ -406,7 +406,7 @@ ConnectRequestHandler::initialized()
         {
             wait();
         }
-        
+
         if(_exception.get())
         {
             _exception->ice_throw();
@@ -425,17 +425,17 @@ ConnectRequestHandler::flushRequests()
     {
         Lock sync(*this);
         assert(_connection && !_initialized);
-        
+
         while(_batchRequestInProgress)
         {
             wait();
         }
-            
+
         //
         // We set the _flushing flag to true to prevent any additional queuing. Callers
         // might block for a little while as the queued requests are being sent but this
         // shouldn't be an issue as the request sends are non-blocking.
-        // 
+        //
         _flushing = true;
     }
 
@@ -486,7 +486,7 @@ ConnectRequestHandler::flushRequests()
         // RetryException. We handle the exception like it
         // was an exception that occured while sending the
         // request.
-        // 
+        //
         Lock sync(*this);
         assert(!_exception.get() && !_requests.empty());
         _exception.reset(ex.get()->ice_clone());
@@ -504,11 +504,11 @@ ConnectRequestHandler::flushRequests()
     {
         _reference->getInstance()->clientThreadPool()->dispatch(new FlushSentRequests(_connection, sentCallbacks));
     }
-        
+
     //
     // We've finished sending the queued requests and the request handler now sends
-    // the requests over the connection directly. It's time to substitute the 
-    // request handler of the proxy with the more efficient connection request 
+    // the requests over the connection directly. It's time to substitute the
+    // request handler of the proxy with the more efficient connection request
     // handler which does not have any synchronization. This also breaks the cyclic
     // reference count with the proxy.
     //
@@ -538,11 +538,11 @@ ConnectRequestHandler::flushRequestsWithException()
     for(deque<Request>::const_iterator p = _requests.begin(); p != _requests.end(); ++p)
     {
         if(p->out)
-        {            
+        {
             p->out->finished(*_exception.get());
         }
         else if(p->outAsync)
-        {            
+        {
             p->outAsync->__finished(*_exception.get());
         }
         else

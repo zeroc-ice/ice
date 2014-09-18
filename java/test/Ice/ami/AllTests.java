@@ -27,9 +27,9 @@ public class AllTests
             throw new RuntimeException();
         }
     }
-    
+
     public static void
-    allTests(Application app)
+    allTests(Application app, boolean collocated)
     {
         Ice.Communicator communicator = app.communicator();
         PrintWriter out = app.getWriter();
@@ -47,22 +47,22 @@ public class AllTests
         TestIntfControllerPrx testController = TestIntfControllerPrxHelper.uncheckedCast(obj);
 
         out.println("testing with new AMI mapping... ");
-        test.Ice.ami.AMI.run(app, communicator, p, testController);
-        
+        test.Ice.ami.AMI.run(app, communicator, collocated, p, testController);
+
         //
         // Use reflection to load TwowaysLambdaAMI as that is only supported with Java >= 1.8
-        // 
+        //
         try
         {
             Class<?> cls = IceInternal.Util.findClass("test.Ice.ami.lambda.AMI", null);
             if(cls != null)
             {
-                java.lang.reflect.Method run = cls.getDeclaredMethod("run", 
-                    new Class<?>[]{test.Util.Application.class, Ice.Communicator.class, TestIntfPrx.class, 
+                java.lang.reflect.Method run = cls.getDeclaredMethod("run",
+                    new Class<?>[]{test.Util.Application.class, Ice.Communicator.class, boolean.class, TestIntfPrx.class,
                                    TestIntfControllerPrx.class});
                 out.println("testing with lambda AMI mapping... ");
                 out.flush();
-                run.invoke(null, app, communicator, p, testController);
+                run.invoke(null, app, communicator, collocated, p, testController);
             }
         }
         catch(java.lang.NoSuchMethodException ex)
@@ -77,7 +77,7 @@ public class AllTests
         {
             throw new RuntimeException(ex);
         }
-        
+
         p.shutdown();
     }
 }

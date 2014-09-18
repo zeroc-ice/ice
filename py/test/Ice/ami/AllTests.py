@@ -52,6 +52,10 @@ class ResponseCallback(CallbackBase):
         test(len(ids) == 2)
         self.called()
 
+    def connection(self, conn):
+        test(conn != None)
+        self.called()
+
     def op(self):
         self.called()
 
@@ -92,6 +96,11 @@ class ResponseCallbackWC(CallbackBase):
     def ids(self, ids, cookie):
         test(cookie == self._cookie)
         test(len(ids) == 2)
+        self.called()
+
+    def connection(self, conn, cookie):
+        test(cookie == self._cookie)
+        test(conn != None)
         self.called()
 
     def op(self, cookie):
@@ -324,6 +333,9 @@ def allTests(communicator):
     result = p.begin_ice_ids(_ctx=ctx)
     test(len(p.end_ice_ids(result)) == 2)
 
+    result = p.begin_ice_getConnection()
+    test(p.end_ice_getConnection(result) != None)
+
     result = p.begin_op()
     p.end_op(result)
     result = p.begin_op(_ctx=ctx)
@@ -392,6 +404,11 @@ def allTests(communicator):
     p.begin_ice_ids(cb.ids, cb.ex, _ctx=ctx)
     cb.check()
     p.begin_ice_ids(lambda ids: cbWC.ids(ids, cookie), lambda ex: cbWC.ex(ex, cookie), _ctx=ctx)
+    cbWC.check()
+
+    p.begin_ice_getConnection(cb.connection, cb.ex)
+    cb.check()
+    p.begin_ice_getConnection(lambda conn: cbWC.connection(conn, cookie), lambda ex: cbWC.ex(ex, cookie))
     cbWC.check()
 
     p.begin_op(cb.op, cb.ex)
@@ -485,6 +502,11 @@ def allTests(communicator):
     i.begin_ice_ids(cb.response, cb.ex)
     cb.check()
     i.begin_ice_ids(lambda ids: cbWC.response(ids, cookie), lambda ex: cbWC.ex(ex, cookie))
+    cbWC.check()
+
+    i.begin_ice_getConnection(cb.response, cb.ex)
+    cb.check()
+    i.begin_ice_getConnection(lambda conn: cbWC.response(conn, cookie), lambda ex: cbWC.ex(ex, cookie))
     cbWC.check()
 
     i.begin_op(cb.response, cb.ex)

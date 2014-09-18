@@ -63,7 +63,7 @@ public:
 
     virtual Ice::ConnectionIPtr getConnection();
     virtual Ice::ConnectionIPtr waitForConnection();
-    
+
     void invokeRequest(Outgoing*);
     AsyncStatus invokeAsyncRequest(OutgoingAsync*);
     void invokeBatchRequests(BatchOutgoing*);
@@ -77,7 +77,7 @@ public:
 private:
 
     void handleException(Ice::Int, const Ice::Exception&);
-    
+
     const Ice::ObjectAdapterIPtr _adapter;
     const bool _dispatcher;
     const Ice::LoggerPtr _logger;

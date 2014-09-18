@@ -2392,6 +2392,129 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     /**
+     * Asynchronously gets the connection for this proxy. The call does not block.
+     *
+     * @return The asynchronous result object.
+     **/
+    @Override
+    public AsyncResult
+    begin_ice_getConnection()
+    {
+        AsyncResult result = begin_ice_getConnectionInternal(null);
+        return result;
+    }
+
+    /**
+     * Asynchronously gets the connection for this proxy. The call does not block.
+     *
+     * @param __cb The callback object to notify the application when the flush is complete.
+     * @return The asynchronous result object.
+     **/
+    @Override
+    public AsyncResult
+    begin_ice_getConnection(Callback __cb)
+    {
+        AsyncResult result = begin_ice_getConnectionInternal(__cb);
+        return result;
+    }
+
+    /**
+     * Asynchronously gets the connection for this proxy. The call does not block.
+     *
+     * @param __cb The callback object to notify the application when the flush is complete.
+     * @return The asynchronous result object.
+     **/
+    @Override
+    public AsyncResult
+    begin_ice_getConnection(Callback_Object_ice_getConnection __cb)
+    {
+        AsyncResult result = begin_ice_getConnectionInternal(__cb);
+        return result;
+    }
+
+    private class FunctionalCallback_Object_ice_getConnection
+        extends IceInternal.Functional_TwowayCallbackArg1<Ice.Connection>
+    {
+        FunctionalCallback_Object_ice_getConnection(
+            IceInternal.Functional_GenericCallback1<Ice.Connection> __responseCb,
+            IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
+        {
+            super(__responseCb, __exceptionCb, null);
+        }
+
+        @Override
+        public final void __completed(AsyncResult __result)
+        {
+            ObjectPrxHelperBase.__ice_getConnection_completed(this, __result);
+        }
+    }
+
+    /**
+     * Asynchronously gets the connection for this proxy. The call does not block.
+     *
+     * @param __responseCb The callback object to notify the application when the there is a response available.
+     * @param __exceptionCb The callback object to notify the application when the there is an exception getting
+     * connection.
+     * @return The asynchronous result object.
+     **/
+    @Override
+    public AsyncResult
+    begin_ice_getConnection(IceInternal.Functional_GenericCallback1<Ice.Connection> __responseCb,
+                            IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
+    {
+        return begin_ice_getConnectionInternal(
+            new FunctionalCallback_Object_ice_getConnection(__responseCb, __exceptionCb));
+    }
+
+    private static final String __ice_getConnection_name = "ice_getConnection";
+
+    private AsyncResult
+    begin_ice_getConnectionInternal(IceInternal.CallbackBase __cb)
+    {
+        IceInternal.GetConnectionOutgoingAsync __result =
+            new IceInternal.GetConnectionOutgoingAsync(this, __ice_getConnection_name, __cb);
+        try
+        {
+            __result.__invoke();
+        }
+        catch(Exception __ex)
+        {
+            __result.invokeExceptionAsync(__ex);
+        }
+        return __result;
+    }
+
+    @Override
+    public Ice.Connection
+    end_ice_getConnection(AsyncResult __iresult)
+    {
+        IceInternal.AsyncResultI __result = (IceInternal.AsyncResultI)__iresult;
+        IceInternal.AsyncResultI.check(__result, this, __ice_getConnection_name);
+        __result.__wait();
+        return ice_getCachedConnection();
+    }
+
+    static public final void __ice_getConnection_completed(TwowayCallbackArg1<Ice.Connection> __cb, AsyncResult __result)
+    {
+        Ice.Connection __ret = null;
+        try
+        {
+            __ret = __result.getProxy().end_ice_getConnection(__result);
+        }
+        catch(LocalException __ex)
+        {
+            __cb.exception(__ex);
+            return;
+        }
+        catch(SystemException __ex)
+        {
+            __cb.exception(__ex);
+            return;
+        }
+        __cb.response(__ret);
+    }
+
+    /**
      * Returns the cached {@link Connection} for this proxy. If the proxy does not yet have an established
      * connection, it does not attempt to create a connection.
      *
@@ -2531,7 +2654,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public void
     end_ice_flushBatchRequests(AsyncResult __iresult)
     {
-        IceInternal.AsyncResultI __result = (IceInternal.AsyncResultI)__iresult; 
+        IceInternal.AsyncResultI __result = (IceInternal.AsyncResultI)__iresult;
         IceInternal.AsyncResultI.check(__result, this, __ice_flushBatchRequests_name);
         __result.__wait();
     }
@@ -2767,7 +2890,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             }
         }
     }
-    
+
     public void
     cacheMessageBuffers(IceInternal.BasicStream is, IceInternal.BasicStream os)
     {

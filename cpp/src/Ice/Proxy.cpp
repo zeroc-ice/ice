@@ -40,6 +40,7 @@ const string ice_ids_name = "ice_ids";
 const string ice_id_name = "ice_id";
 const string ice_isA_name = "ice_isA";
 const string ice_invoke_name = "ice_invoke";
+const string ice_getConnection_name = "ice_getConnection";
 const string ice_flushBatchRequests_name = "ice_flushBatchRequests";
 
 }
@@ -470,6 +471,49 @@ IceProxy::Ice::Object::__begin_ice_invoke(
         ::std::function<void (bool, const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&)> _response;
     };
     return begin_ice_invoke(operation, mode, inParams, ctx, new Cpp11CB(response, exception, sent), 0);
+}
+
+Ice::AsyncResultPtr
+IceProxy::Ice::Object::begin_ice_getConnection(
+    const ::IceInternal::Function<void (const ::Ice::ConnectionPtr&)>& response,
+    const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception)
+{
+    class Cpp11CB : public ::IceInternal::Cpp11FnCallbackNC
+    {
+    public:
+
+        Cpp11CB(const ::IceInternal::Function<void (const ::Ice::ConnectionPtr&)>& responseFunc,
+                const ::std::function<void (const ::Ice::Exception&)>& exceptionFunc) :
+            ::IceInternal::Cpp11FnCallbackNC(exceptionFunc, nullptr),
+            _response(responseFunc)
+        {
+            CallbackBase::checkCallback(true, responseFunc || exceptionFunc != nullptr);
+        }
+
+        virtual void completed(const ::Ice::AsyncResultPtr& __result) const
+        {
+            ::Ice::ObjectPrx __proxy = ::Ice::ObjectPrx::uncheckedCast(__result->getProxy());
+            ::Ice::ConnectionPtr __ret;
+            try
+            {
+                __ret = __proxy->end_ice_getConnection(__result);
+            }
+            catch(const ::Ice::Exception& ex)
+            {
+                Cpp11FnCallbackNC::exception(__result, ex);
+                return;
+            }
+            if(_response != nullptr)
+            {
+                _response(__ret);
+            }
+        }
+
+    private:
+
+        ::std::function<void (const ::Ice::ConnectionPtr&)> _response;
+    };
+    return begin_ice_getConnectionInternal(new Cpp11CB(response, exception), 0);
 }
 
 #endif
@@ -1438,6 +1482,31 @@ IceProxy::Ice::Object::ice_getConnection()
             }
         }
     }
+}
+
+AsyncResultPtr
+IceProxy::Ice::Object::begin_ice_getConnectionInternal(const ::IceInternal::CallbackBasePtr& del,
+                                                       const ::Ice::LocalObjectPtr& cookie)
+{
+    ::IceInternal::GetConnectionOutgoingAsyncPtr __result =
+        new ::IceInternal::GetConnectionOutgoingAsync(this, ice_getConnection_name, del, cookie);
+    try
+    {
+        __result->__invoke();
+    }
+    catch(const Exception& __ex)
+    {
+        __result->__invokeExceptionAsync(__ex);
+    }
+    return __result;
+}
+
+ConnectionPtr
+IceProxy::Ice::Object::end_ice_getConnection(const AsyncResultPtr& __result)
+{
+    AsyncResult::__check(__result, this, ice_getConnection_name);
+    __result->__wait();
+    return ice_getCachedConnection();
 }
 
 ConnectionPtr

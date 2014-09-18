@@ -33,7 +33,7 @@ public class Collocated
         adapter2.add(new TestControllerI(adapter), communicator.stringToIdentity("testController"));
         adapter2.activate();
 
-        AllTests.allTests(communicator);
+        AllTests.allTests(communicator, true);
         return 0;
     }
 

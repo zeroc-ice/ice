@@ -21,7 +21,7 @@ import Ice.ConnectionI;
 public class QueueRequestHandler implements RequestHandler
 {
     public
-    QueueRequestHandler(Instance instance, RequestHandler delegate) 
+    QueueRequestHandler(Instance instance, RequestHandler delegate)
     {
         _executor = instance.getQueueExecutor();
         assert(delegate != null);
@@ -34,7 +34,7 @@ public class QueueRequestHandler implements RequestHandler
     {
         try
         {
-            Future<Void> future = _executor.submit(new Callable<Void>() 
+            Future<Void> future = _executor.submit(new Callable<Void>()
             {
                 @Override
                 public Void call() throws RetryException
@@ -81,7 +81,7 @@ public class QueueRequestHandler implements RequestHandler
     {
         try
         {
-            Future<Void> future = _executor.submit(new Callable<Void>() 
+            Future<Void> future = _executor.submit(new Callable<Void>()
             {
                 @Override
                 public Void call()

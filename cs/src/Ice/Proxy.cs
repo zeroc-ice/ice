@@ -48,6 +48,12 @@ namespace Ice
     public delegate void Callback_Object_ice_invoke(bool ret__, byte[] outEncaps);
 
     /// <summary>
+    /// Delegate for a successful <code>ice_getConnection</code> invocation.
+    /// <param name="ret__">The connection used by the proxy.</param>
+    /// </summary>
+    public delegate void Callback_Object_ice_getConnection(Connection ret__);
+
+    /// <summary>
     /// Callback object for Blobject AMI invocations.
     /// </summary>
     public abstract class AMI_Object_ice_invoke : AMICallbackBase
@@ -714,6 +720,27 @@ namespace Ice
         Connection ice_getConnection();
 
         /// <summary>
+        /// Asynchronously gets the connection for this proxy.
+        /// </summary>
+        /// <returns>An asynchronous result object.</returns>
+        AsyncResult<Callback_Object_ice_getConnection> begin_ice_getConnection();
+
+        /// <summary>
+        /// Asynchronously gets the connection for this proxy.
+        /// </summary>
+        /// <param name="cb__">A callback to be invoked when the invocation completes.</param>
+        /// <param name="cookie__">Application-specific data to be stored in the result.</param>
+        /// <returns>An asynchronous result object.</returns>
+        AsyncResult begin_ice_getConnection(AsyncCallback cb__, object cookie__);
+
+        /// <summary>
+        /// Asynchronously gets the connection for this proxy.
+        /// </summary>
+        /// <param name="r__">The asynchronous result object returned by <code>begin_ice_getConnection</code>.</param>
+        /// <returns>The connection.</returns>
+        Connection end_ice_getConnection(AsyncResult r__);
+
+        /// <summary>
         /// Returns the cached Connection for this proxy. If the proxy does not yet have an established
         /// connection, it does not attempt to create a connection.
         /// </summary>
@@ -887,7 +914,7 @@ namespace Ice
         }
 
         protected IceInternal.TwowayOutgoingAsync<T>
-        getTwowayOutgoingAsync<T>(string operation, IceInternal.ProxyTwowayCallback<T> cb, 
+        getTwowayOutgoingAsync<T>(string operation, IceInternal.ProxyTwowayCallback<T> cb,
             object cookie) {
             bool haveEntry = false;
             IceInternal.BasicStream iss = null;
@@ -918,7 +945,7 @@ namespace Ice
         }
 
         protected IceInternal.OnewayOutgoingAsync<T>
-        getOnewayOutgoingAsync<T>(string operation, IceInternal.ProxyOnewayCallback<T> cb, 
+        getOnewayOutgoingAsync<T>(string operation, IceInternal.ProxyOnewayCallback<T> cb,
             object cookie) {
             bool haveEntry = false;
             IceInternal.BasicStream iss = null;
@@ -1275,7 +1302,7 @@ namespace Ice
                     outAsync__.cacheMessageBuffers();
                 }
             }
-        } 
+        }
 
         private AsyncResult<Callback_Object_ice_id> begin_ice_id(Dictionary<string, string> context__,
                                                                     bool explicitCtx__,
@@ -2199,6 +2226,70 @@ namespace Ice
             }
         }
 
+        public AsyncResult<Callback_Object_ice_getConnection> begin_ice_getConnection()
+        {
+            return begin_ice_getConnectionInternal(null, null);
+        }
+
+        internal const string __ice_getConnection_name = "ice_getConnection";
+
+        public AsyncResult begin_ice_getConnection(Ice.AsyncCallback cb__, object cookie__)
+        {
+            return begin_ice_getConnectionInternal(cb__, cookie__);
+        }
+
+        public Connection end_ice_getConnection(Ice.AsyncResult r__)
+        {
+            IceInternal.GetConnectionOutgoingAsync outAsync__ = (IceInternal.GetConnectionOutgoingAsync)r__;
+            IceInternal.GetConnectionOutgoingAsync.check(outAsync__, this, __ice_getConnection_name);
+            outAsync__.wait();
+            return ice_getCachedConnection();
+        }
+
+        private AsyncResult<Callback_Object_ice_getConnection> begin_ice_getConnectionInternal(Ice.AsyncCallback cb__,
+                                                                                               object cookie__)
+        {
+            IceInternal.GetConnectionOutgoingAsync result__ =
+                new IceInternal.GetConnectionOutgoingAsync(this, __ice_getConnection_name,
+                                                           ice_getConnection_completed__, cookie__);
+            if(cb__ != null)
+            {
+                result__.whenCompletedWithAsyncCallback(cb__);
+            }
+            try
+            {
+                result__.invoke();
+            }
+            catch(Ice.Exception ex__)
+            {
+                result__.invokeExceptionAsync(ex__);
+            }
+            return result__;
+        }
+
+        private void ice_getConnection_completed__(AsyncResult r__,
+                                                   Callback_Object_ice_getConnection cb__,
+                                                   Ice.ExceptionCallback excb__)
+        {
+            Connection ret__;
+            try
+            {
+                ret__ = end_ice_getConnection(r__);
+            }
+            catch(Ice.Exception ex__)
+            {
+                if(excb__ != null)
+                {
+                    excb__(ex__);
+                }
+                return;
+            }
+            if(cb__ != null)
+            {
+                cb__(ret__);
+            }
+        }
+
         /// <summary>
         /// Returns the cached Connection for this proxy. If the proxy does not yet have an established
         /// connection, it does not attempt to create a connection.
@@ -2516,7 +2607,7 @@ namespace Ice
                 }
             }
 
-            
+
             return (new IceInternal.ConnectRequestHandler(_reference, this)).connect();
         }
 

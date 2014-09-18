@@ -50,6 +50,10 @@ class CommunicatorBatchOutgoingAsync;
 ICE_API IceUtil::Shared* upCast(CommunicatorBatchOutgoingAsync*);
 typedef IceInternal::Handle<CommunicatorBatchOutgoingAsync> CommunicatorBatchOutgoingAsyncPtr;
 
+class GetConnectionOutgoingAsync;
+ICE_API IceUtil::Shared* upCast(GetConnectionOutgoingAsync*);
+typedef IceInternal::Handle<GetConnectionOutgoingAsync> GetConnectionOutgoingAsyncPtr;
+
 }
 
 #endif

@@ -86,7 +86,7 @@ namespace IceInternal
         {
             lock(this)
             {
-                if(!initialized()) // This can't throw until _batchRequestInProgress = false 
+                if(!initialized()) // This can't throw until _batchRequestInProgress = false
                 {
                     Debug.Assert(_batchRequestInProgress);
                     _batchRequestInProgress = false;
@@ -111,13 +111,13 @@ namespace IceInternal
         {
             lock(this)
             {
-                if(!initialized()) // This can't throw until _batchRequestInProgress = false 
+                if(!initialized()) // This can't throw until _batchRequestInProgress = false
                 {
                     Debug.Assert(_batchRequestInProgress);
                     _batchRequestInProgress = false;
                     System.Threading.Monitor.PulseAll(this);
 
-                    BasicStream dummy = new BasicStream(_reference.getInstance(), Ice.Util.currentProtocolEncoding, 
+                    BasicStream dummy = new BasicStream(_reference.getInstance(), Ice.Util.currentProtocolEncoding,
                                                         _batchAutoFlush);
                     _batchStream.swap(dummy);
                     _batchRequestsSize = Protocol.requestBatchHdr.Length;
@@ -392,7 +392,7 @@ namespace IceInternal
                 // RetryException. We handle the exception like it
                 // was an exception that occured while sending the
                 // request.
-                // 
+                //
                 lock(this)
                 {
                     Debug.Assert(_exception == null && _requests.Count > 0);

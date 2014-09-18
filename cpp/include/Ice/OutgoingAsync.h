@@ -122,7 +122,7 @@ public:
     virtual void __invokeException(const Exception&); // Required to be public for AsynchronousException
     void __invokeSent(); // Required to be public for AsynchronousSent
 
-    void __attachRemoteObserver(const Ice::ConnectionInfoPtr& c, const Ice::EndpointPtr& endpt, 
+    void __attachRemoteObserver(const Ice::ConnectionInfoPtr& c, const Ice::EndpointPtr& endpt,
                                 Ice::Int requestId, Ice::Int sz)
     {
         _childObserver.attach(_observer.getRemoteObserver(c, endpt, requestId, sz));
@@ -130,9 +130,9 @@ public:
 
     void __attachCollocatedObserver(const Ice::ObjectAdapterPtr& adapter, Ice::Int requestId)
     {
-        _childObserver.attach(_observer.getCollocatedObserver(adapter, 
-                                                               requestId, 
-                                                               static_cast<Ice::Int>(_os.b.size() - 
+        _childObserver.attach(_observer.getCollocatedObserver(adapter,
+                                                               requestId,
+                                                               static_cast<Ice::Int>(_os.b.size() -
                                                                                      IceInternal::headerSize - 4)));
     }
 
@@ -213,9 +213,9 @@ public:
 
     //
     // Called by the connection when the message is confirmed sent. The connection is locked
-    // when this is called so this method can call the sent callback. Instead, this method
+    // when this is called so this method can't call the sent callback. Instead, this method
     // returns true if there's a sent callback and false otherwise. If true is returned, the
-    // connection will call the __invokeSentCallback() method bellow (which in turn should 
+    // connection will call the __invokeSentCallback() method bellow (which in turn should
     // call the sent callback).
     //
     virtual bool __sent() = 0;
@@ -294,14 +294,16 @@ public:
 protected:
 
     Ice::ObjectPrx _proxy;
+    RequestHandlerPtr _handler;
+    int _cnt;
 
 private:
 
     void handleException(const Ice::Exception&);
 
-    RequestHandlerPtr _handler;
+
     Ice::EncodingVersion _encoding;
-    int _cnt;
+
     bool _sent;
     Ice::OperationMode _mode;
 };
@@ -336,7 +338,7 @@ public:
     }
 
 private:
-    
+
     Ice::ObjectPrx _proxy;
 };
 
@@ -371,6 +373,26 @@ private:
     void check(bool);
 
     int _useCount;
+};
+
+class ICE_API GetConnectionOutgoingAsync : public OutgoingAsync
+{
+public:
+
+    GetConnectionOutgoingAsync(const Ice::ObjectPrx&, const std::string&, const CallbackBasePtr&,
+                               const Ice::LocalObjectPtr&);
+
+    void __invoke();
+
+    virtual AsyncStatus __send(const Ice::ConnectionIPtr&, bool, bool);
+    virtual AsyncStatus __invokeCollocated(CollocatedRequestHandler*);
+    virtual bool __sent();
+    virtual void __invokeSent();
+    virtual void __finished(const Ice::Exception&);
+
+private:
+
+    void handleException(const Ice::Exception&);
 };
 
 //
@@ -467,7 +489,7 @@ template<typename Callable, typename = void> struct callable_type
     static const int value = 1;
 };
 
-template<class Callable> struct callable_type<Callable, typename ::std::enable_if< ::std::is_class<Callable>::value && 
+template<class Callable> struct callable_type<Callable, typename ::std::enable_if< ::std::is_class<Callable>::value &&
                                                                                    !::std::is_bind_expression<Callable>::value>::type>
 {
     template<typename T, T> struct TypeCheck;
@@ -491,7 +513,7 @@ template<class Callable> struct callable_type<Callable, typename ::std::enable_i
     enum { value = sizeof(check<Callable>(0)) };
 };
 
-template<> struct callable_type<void(*)(const ::Ice::AsyncResultPtr&)> 
+template<> struct callable_type<void(*)(const ::Ice::AsyncResultPtr&)>
 {
     static const int value = 2;
 };
@@ -514,11 +536,11 @@ public:
     template<typename T> Function(T f, typename ::std::enable_if<is_callable<T, S>::value>::type* = 0) : std::function<S>(f)
     {
     }
-    
+
     Function()
     {
     }
-    
+
     Function(::std::nullptr_t) : ::std::function<S>(nullptr)
     {
     }
@@ -553,7 +575,7 @@ newCallback(T* instance,
 
 ICE_API CallbackPtr
 newCallback(const ::IceInternal::Function<void (const AsyncResultPtr&)>&,
-            const ::IceInternal::Function<void (const AsyncResultPtr&)>& = 
+            const ::IceInternal::Function<void (const AsyncResultPtr&)>& =
                ::IceInternal::Function<void (const AsyncResultPtr&)>());
 #endif
 
@@ -565,7 +587,7 @@ newCallback(const ::IceInternal::Function<void (const AsyncResultPtr&)>&,
 // Interfaces for the deprecated AMI mapping.
 //
 
-class ICE_API AMISentCallback 
+class ICE_API AMISentCallback
 {
 public:
 

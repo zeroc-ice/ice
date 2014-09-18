@@ -22,7 +22,7 @@ public class Collocated extends test.Util.Application
         adapter2.add(new TestControllerI(adapter), communicator().stringToIdentity("testController"));
         adapter2.activate();
 
-        AllTests.allTests(this);
+        AllTests.allTests(this, true);
         return 0;
     }
 
