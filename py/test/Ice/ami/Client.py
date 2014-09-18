@@ -25,7 +25,7 @@ def test(b):
         raise RuntimeError('test assertion failed')
 
 def run(args, communicator):
-    AllTests.allTests(communicator)
+    AllTests.allTests(communicator, False)
     return True
 
 try:

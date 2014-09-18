@@ -296,7 +296,7 @@ class Thrower(CallbackBase):
         self.called()
         throwEx(self._t)
 
-def allTests(communicator):
+def allTests(communicator, collocated):
     sref = "test:default -p 12010"
     obj = communicator.stringToProxy(sref)
     test(obj)
@@ -333,8 +333,9 @@ def allTests(communicator):
     result = p.begin_ice_ids(_ctx=ctx)
     test(len(p.end_ice_ids(result)) == 2)
 
-    result = p.begin_ice_getConnection()
-    test(p.end_ice_getConnection(result) != None)
+    if not collocated:
+        result = p.begin_ice_getConnection()
+        test(p.end_ice_getConnection(result) != None)
 
     result = p.begin_op()
     p.end_op(result)
@@ -406,10 +407,11 @@ def allTests(communicator):
     p.begin_ice_ids(lambda ids: cbWC.ids(ids, cookie), lambda ex: cbWC.ex(ex, cookie), _ctx=ctx)
     cbWC.check()
 
-    p.begin_ice_getConnection(cb.connection, cb.ex)
-    cb.check()
-    p.begin_ice_getConnection(lambda conn: cbWC.connection(conn, cookie), lambda ex: cbWC.ex(ex, cookie))
-    cbWC.check()
+    if not collocated:
+        p.begin_ice_getConnection(cb.connection, cb.ex)
+        cb.check()
+        p.begin_ice_getConnection(lambda conn: cbWC.connection(conn, cookie), lambda ex: cbWC.ex(ex, cookie))
+        cbWC.check()
 
     p.begin_op(cb.op, cb.ex)
     cb.check()
@@ -504,10 +506,11 @@ def allTests(communicator):
     i.begin_ice_ids(lambda ids: cbWC.response(ids, cookie), lambda ex: cbWC.ex(ex, cookie))
     cbWC.check()
 
-    i.begin_ice_getConnection(cb.response, cb.ex)
-    cb.check()
-    i.begin_ice_getConnection(lambda conn: cbWC.response(conn, cookie), lambda ex: cbWC.ex(ex, cookie))
-    cbWC.check()
+    if not collocated:
+        i.begin_ice_getConnection(cb.response, cb.ex)
+        cb.check()
+        i.begin_ice_getConnection(lambda conn: cbWC.response(conn, cookie), lambda ex: cbWC.ex(ex, cookie))
+        cbWC.check()
 
     i.begin_op(cb.response, cb.ex)
     cb.check()
@@ -682,185 +685,187 @@ def allTests(communicator):
     cb.check()
     test(p.waitForBatch(2))
 
-    #
-    # Exception without cookie.
-    #
-    test(p.opBatchCount() == 0)
-    b1 = p.ice_batchOneway()
-    b1.opBatch()
-    b1.ice_getConnection().close(False)
-    cb = FlushExCallback()
-    r = b1.begin_ice_flushBatchRequests(cb.exception, cb.sent)
-    cb.check()
-    test(not r.isSent())
-    test(r.isCompleted())
-    test(p.opBatchCount() == 0)
+    if p.ice_getConnection(): # No collocation optimization
+        #
+        # Exception without cookie.
+        #
+        test(p.opBatchCount() == 0)
+        b1 = p.ice_batchOneway()
+        b1.opBatch()
+        b1.ice_getConnection().close(False)
+        cb = FlushExCallback()
+        r = b1.begin_ice_flushBatchRequests(cb.exception, cb.sent)
+        cb.check()
+        test(not r.isSent())
+        test(r.isCompleted())
+        test(p.opBatchCount() == 0)
 
-    #
-    # Exception with cookie.
-    #
-    test(p.opBatchCount() == 0)
-    b1 = p.ice_batchOneway()
-    b1.opBatch()
-    b1.ice_getConnection().close(False)
-    cb = FlushExCallback(cookie)
-    r = b1.begin_ice_flushBatchRequests(lambda ex: cb.exceptionWC(ex, cookie), lambda ss: cb.sentWC(ss, cookie))
-    cb.check()
-    test(p.opBatchCount() == 0)
-
-    print("ok")
-
-    sys.stdout.write("testing batch requests with connection... ")
-    sys.stdout.flush()
-
-    cookie = 5
-
-    #
-    # Without cookie.
-    #
-    test(p.opBatchCount() == 0)
-    b1 = p.ice_batchOneway()
-    b1.opBatch()
-    b1.opBatch()
-    cb = FlushCallback()
-    r = b1.ice_getConnection().begin_flushBatchRequests(cb.exception, cb.sent)
-    cb.check()
-    test(r.isSent())
-    test(r.isCompleted())
-    test(p.waitForBatch(2))
-
-    #
-    # With cookie.
-    #
-    test(p.opBatchCount() == 0)
-    b1 = p.ice_batchOneway()
-    b1.opBatch()
-    b1.opBatch()
-    cb = FlushCallback(cookie)
-    r = b1.ice_getConnection().begin_flushBatchRequests(lambda ex: cb.exceptionWC(ex, cookie),
-                                                        lambda ss: cb.sentWC(ss, cookie))
-    cb.check()
-    test(p.waitForBatch(2))
-
-    #
-    # Exception without cookie.
-    #
-    test(p.opBatchCount() == 0)
-    b1 = p.ice_batchOneway()
-    b1.opBatch()
-    b1.ice_getConnection().close(False)
-    cb = FlushExCallback()
-    r = b1.ice_getConnection().begin_flushBatchRequests(cb.exception, cb.sent)
-    cb.check()
-    test(not r.isSent())
-    test(r.isCompleted())
-    test(p.opBatchCount() == 0)
-
-    #
-    # Exception with cookie.
-    #
-    test(p.opBatchCount() == 0)
-    b1 = p.ice_batchOneway()
-    b1.opBatch()
-    b1.ice_getConnection().close(False)
-    cb = FlushExCallback(cookie)
-    r = b1.ice_getConnection().begin_flushBatchRequests(lambda ex: cb.exceptionWC(ex, cookie),
-                                                        lambda ss: cb.sentWC(ss, cookie))
-    cb.check()
-    test(p.opBatchCount() == 0)
+        #
+        # Exception with cookie.
+        #
+        test(p.opBatchCount() == 0)
+        b1 = p.ice_batchOneway()
+        b1.opBatch()
+        b1.ice_getConnection().close(False)
+        cb = FlushExCallback(cookie)
+        r = b1.begin_ice_flushBatchRequests(lambda ex: cb.exceptionWC(ex, cookie), lambda ss: cb.sentWC(ss, cookie))
+        cb.check()
+        test(p.opBatchCount() == 0)
 
     print("ok")
 
-    sys.stdout.write("testing batch requests with communicator... ")
-    sys.stdout.flush()
+    if p.ice_getConnection(): # No collocation optimization
+        sys.stdout.write("testing batch requests with connection... ")
+        sys.stdout.flush()
 
-    #
-    # 1 connection.
-    #
-    test(p.opBatchCount() == 0)
-    b1 = p.ice_batchOneway()
-    b1.opBatch()
-    b1.opBatch()
-    cb = FlushCallback()
-    r = communicator.begin_flushBatchRequests(cb.exception, cb.sent)
-    cb.check()
-    test(r.isSent())
-    test(r.isCompleted())
-    test(p.waitForBatch(2))
+        cookie = 5
 
-    #
-    # 1 connection.
-    #
-    test(p.opBatchCount() == 0)
-    b1 = p.ice_batchOneway()
-    b1.opBatch()
-    b1.ice_getConnection().close(False)
-    cb = FlushCallback()
-    r = communicator.begin_flushBatchRequests(cb.exception, cb.sent)
-    cb.check()
-    test(r.isSent()) # Exceptions are ignored!
-    test(r.isCompleted())
-    test(p.opBatchCount() == 0)
+        #
+        # Without cookie.
+        #
+        test(p.opBatchCount() == 0)
+        b1 = p.ice_batchOneway()
+        b1.opBatch()
+        b1.opBatch()
+        cb = FlushCallback()
+        r = b1.ice_getConnection().begin_flushBatchRequests(cb.exception, cb.sent)
+        cb.check()
+        test(r.isSent())
+        test(r.isCompleted())
+        test(p.waitForBatch(2))
 
-    #
-    # 2 connections.
-    #
-    test(p.opBatchCount() == 0)
-    b1 = p.ice_batchOneway()
-    b2 = p.ice_connectionId("2").ice_batchOneway()
-    b2.ice_getConnection() # Ensure connection is established.
-    b1.opBatch()
-    b1.opBatch()
-    b2.opBatch()
-    b2.opBatch()
-    cb = FlushCallback()
-    r = communicator.begin_flushBatchRequests(cb.exception, cb.sent)
-    cb.check()
-    test(r.isSent())
-    test(r.isCompleted())
-    test(p.waitForBatch(4))
+        #
+        # With cookie.
+        #
+        test(p.opBatchCount() == 0)
+        b1 = p.ice_batchOneway()
+        b1.opBatch()
+        b1.opBatch()
+        cb = FlushCallback(cookie)
+        r = b1.ice_getConnection().begin_flushBatchRequests(lambda ex: cb.exceptionWC(ex, cookie),
+                                                            lambda ss: cb.sentWC(ss, cookie))
+        cb.check()
+        test(p.waitForBatch(2))
 
-    #
-    # 2 connections - 1 failure.
-    #
-    # All connections should be flushed even if there are failures on some connections.
-    # Exceptions should not be reported.
-    #
-    test(p.opBatchCount() == 0)
-    b1 = p.ice_batchOneway()
-    b2 = p.ice_connectionId("2").ice_batchOneway()
-    b2.ice_getConnection() # Ensure connection is established.
-    b1.opBatch()
-    b2.opBatch()
-    b1.ice_getConnection().close(False)
-    cb = FlushCallback()
-    r = communicator.begin_flushBatchRequests(cb.exception, cb.sent)
-    cb.check()
-    test(r.isSent()) # Exceptions are ignored!
-    test(r.isCompleted())
-    test(p.waitForBatch(1))
+        #
+        # Exception without cookie.
+        #
+        test(p.opBatchCount() == 0)
+        b1 = p.ice_batchOneway()
+        b1.opBatch()
+        b1.ice_getConnection().close(False)
+        cb = FlushExCallback()
+        r = b1.ice_getConnection().begin_flushBatchRequests(cb.exception, cb.sent)
+        cb.check()
+        test(not r.isSent())
+        test(r.isCompleted())
+        test(p.opBatchCount() == 0)
 
-    #
-    # 2 connections - 2 failures.
-    #
-    # The sent callback should be invoked even if all connections fail.
-    #
-    test(p.opBatchCount() == 0)
-    b1 = p.ice_batchOneway()
-    b2 = p.ice_connectionId("2").ice_batchOneway()
-    b2.ice_getConnection() # Ensure connection is established.
-    b1.opBatch()
-    b2.opBatch()
-    b1.ice_getConnection().close(False)
-    b2.ice_getConnection().close(False)
-    cb = FlushCallback()
-    r = communicator.begin_flushBatchRequests(cb.exception, cb.sent)
-    cb.check()
-    test(r.isSent()) # Exceptions are ignored!
-    test(r.isCompleted())
-    test(p.opBatchCount() == 0)
+        #
+        # Exception with cookie.
+        #
+        test(p.opBatchCount() == 0)
+        b1 = p.ice_batchOneway()
+        b1.opBatch()
+        b1.ice_getConnection().close(False)
+        cb = FlushExCallback(cookie)
+        r = b1.ice_getConnection().begin_flushBatchRequests(lambda ex: cb.exceptionWC(ex, cookie),
+                                                            lambda ss: cb.sentWC(ss, cookie))
+        cb.check()
+        test(p.opBatchCount() == 0)
 
-    print("ok")
+        print("ok")
+
+        sys.stdout.write("testing batch requests with communicator... ")
+        sys.stdout.flush()
+
+        #
+        # 1 connection.
+        #
+        test(p.opBatchCount() == 0)
+        b1 = p.ice_batchOneway()
+        b1.opBatch()
+        b1.opBatch()
+        cb = FlushCallback()
+        r = communicator.begin_flushBatchRequests(cb.exception, cb.sent)
+        cb.check()
+        test(r.isSent())
+        test(r.isCompleted())
+        test(p.waitForBatch(2))
+
+        #
+        # 1 connection.
+        #
+        test(p.opBatchCount() == 0)
+        b1 = p.ice_batchOneway()
+        b1.opBatch()
+        b1.ice_getConnection().close(False)
+        cb = FlushCallback()
+        r = communicator.begin_flushBatchRequests(cb.exception, cb.sent)
+        cb.check()
+        test(r.isSent()) # Exceptions are ignored!
+        test(r.isCompleted())
+        test(p.opBatchCount() == 0)
+
+        #
+        # 2 connections.
+        #
+        test(p.opBatchCount() == 0)
+        b1 = p.ice_batchOneway()
+        b2 = p.ice_connectionId("2").ice_batchOneway()
+        b2.ice_getConnection() # Ensure connection is established.
+        b1.opBatch()
+        b1.opBatch()
+        b2.opBatch()
+        b2.opBatch()
+        cb = FlushCallback()
+        r = communicator.begin_flushBatchRequests(cb.exception, cb.sent)
+        cb.check()
+        test(r.isSent())
+        test(r.isCompleted())
+        test(p.waitForBatch(4))
+
+        #
+        # 2 connections - 1 failure.
+        #
+        # All connections should be flushed even if there are failures on some connections.
+        # Exceptions should not be reported.
+        #
+        test(p.opBatchCount() == 0)
+        b1 = p.ice_batchOneway()
+        b2 = p.ice_connectionId("2").ice_batchOneway()
+        b2.ice_getConnection() # Ensure connection is established.
+        b1.opBatch()
+        b2.opBatch()
+        b1.ice_getConnection().close(False)
+        cb = FlushCallback()
+        r = communicator.begin_flushBatchRequests(cb.exception, cb.sent)
+        cb.check()
+        test(r.isSent()) # Exceptions are ignored!
+        test(r.isCompleted())
+        test(p.waitForBatch(1))
+
+        #
+        # 2 connections - 2 failures.
+        #
+        # The sent callback should be invoked even if all connections fail.
+        #
+        test(p.opBatchCount() == 0)
+        b1 = p.ice_batchOneway()
+        b2 = p.ice_connectionId("2").ice_batchOneway()
+        b2.ice_getConnection() # Ensure connection is established.
+        b1.opBatch()
+        b2.opBatch()
+        b1.ice_getConnection().close(False)
+        b2.ice_getConnection().close(False)
+        cb = FlushCallback()
+        r = communicator.begin_flushBatchRequests(cb.exception, cb.sent)
+        cb.check()
+        test(r.isSent()) # Exceptions are ignored!
+        test(r.isCompleted())
+        test(p.opBatchCount() == 0)
+
+        print("ok")
 
     sys.stdout.write("testing AsyncResult operations... ")
     sys.stdout.flush()
@@ -893,10 +898,11 @@ def allTests(communicator):
         test(r1 == r1)
         test(r1 != r2)
 
-        test((r1.sentSynchronously() and r1.isSent() and not r1.isCompleted()) or
-             (not r1.sentSynchronously() and not r1.isCompleted()));
+        if p.ice_getConnection():
+            test((r1.sentSynchronously() and r1.isSent() and not r1.isCompleted()) or
+                 (not r1.sentSynchronously() and not r1.isCompleted()));
 
-        test(not r2.sentSynchronously() and not r2.isCompleted());
+            test(not r2.sentSynchronously() and not r2.isCompleted());
     except Exception as ex:
         testController.resumeAdapter()
         raise ex
@@ -948,17 +954,18 @@ def allTests(communicator):
     test(r.getProxy() == p2)
     p2.end_ice_flushBatchRequests(r)
 
-    #
-    # Batch request via connection
-    #
-    con = p.ice_getConnection()
-    p2 = p.ice_batchOneway()
-    p2.ice_ping()
-    r = con.begin_flushBatchRequests()
-    test(r.getConnection() == con)
-    test(r.getCommunicator() == communicator)
-    test(r.getProxy() == None) # Expected
-    con.end_flushBatchRequests(r)
+    if p.ice_getConnection():
+        #
+        # Batch request via connection
+        #
+        con = p.ice_getConnection()
+        p2 = p.ice_batchOneway()
+        p2.ice_ping()
+        r = con.begin_flushBatchRequests()
+        test(r.getConnection() == con)
+        test(r.getCommunicator() == communicator)
+        test(r.getProxy() == None) # Expected
+        con.end_flushBatchRequests(r)
 
     #
     # Batch request via communicator
@@ -973,47 +980,48 @@ def allTests(communicator):
 
     print("ok")
 
-    sys.stdout.write("testing close connection with sending queue... ")
-    sys.stdout.flush()
+    if p.ice_getConnection():
+        sys.stdout.write("testing close connection with sending queue... ")
+        sys.stdout.flush()
 
-    if sys.version_info[0] == 2:
-        b = [chr(random.randint(0, 255)) for x in range(0, 10*1024)] # Make sure the request doesn't compress too well.
-        seq = ''.join(b)
-    else:
-        b = [random.randint(0, 255) for x in range(0, 10*1024)] # Make sure the request doesn't compress too well.
-        seq = bytes(b)
-
-    #
-    # Send multiple opWithPayload, followed by a close and followed by multiple opWithPaylod.
-    # The goal is to make sure that none of the opWithPayload fail even if the server closes
-    # the connection gracefully in between.
-    #
-    maxQueue = 2
-    done = False
-    while not done and maxQueue < 50:
-        done = True
-        p.ice_ping()
-        results = []
-        for i in range(0, maxQueue):
-            results.append(p.begin_opWithPayload(seq))
-        if not p.begin_close(False).isSent():
-            for i in range(0, maxQueue):
-                r = p.begin_opWithPayload(seq)
-                results.append(r)
-                if r.isSent():
-                    done = False
-                    maxQueue = maxQueue * 2
-                    break
+        if sys.version_info[0] == 2:
+            b = [chr(random.randint(0, 255)) for x in range(0, 10*1024)] # Make sure the request doesn't compress too well.
+            seq = ''.join(b)
         else:
-            maxQueue = maxQueue * 2
-            done = False
-        for r in results:
-            r.waitForCompleted()
-            try:
-                r.throwLocalException()
-            except Ice.LocalException:
-                test(False)
+            b = [random.randint(0, 255) for x in range(0, 10*1024)] # Make sure the request doesn't compress too well.
+            seq = bytes(b)
 
-    print("ok")
+        #
+        # Send multiple opWithPayload, followed by a close and followed by multiple opWithPaylod.
+        # The goal is to make sure that none of the opWithPayload fail even if the server closes
+        # the connection gracefully in between.
+        #
+        maxQueue = 2
+        done = False
+        while not done and maxQueue < 50:
+            done = True
+            p.ice_ping()
+            results = []
+            for i in range(0, maxQueue):
+                results.append(p.begin_opWithPayload(seq))
+            if not p.begin_close(False).isSent():
+                for i in range(0, maxQueue):
+                    r = p.begin_opWithPayload(seq)
+                    results.append(r)
+                    if r.isSent():
+                        done = False
+                        maxQueue = maxQueue * 2
+                        break
+            else:
+                maxQueue = maxQueue * 2
+                done = False
+            for r in results:
+                r.waitForCompleted()
+                try:
+                    r.throwLocalException()
+                except Ice.LocalException:
+                    test(False)
+
+        print("ok")
 
     p.shutdown()
