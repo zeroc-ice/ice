@@ -124,8 +124,8 @@ parseProtocols(const StringSeq& protocols)
     return v;
 }
 
-const ALG_ID supportedChipers[] = { CALG_3DES, CALG_AES_128, CALG_AES_256, CALG_DES, CALG_RC2, CALG_RC4 };
-const int supportedChipersSize = sizeof(supportedChipers)/sizeof(ALG_ID);
+const ALG_ID supportedCiphers[] = { CALG_3DES, CALG_AES_128, CALG_AES_256, CALG_DES, CALG_RC2, CALG_RC4 };
+const int supportedCiphersSize = sizeof(supportedCiphers)/sizeof(ALG_ID);
 
 ALG_ID
 algorithmId(const string& name)
@@ -208,9 +208,9 @@ SChannelEngine::initialize()
         os << "enabling SSL ciphersuites:";
         if(_ciphers.empty())
         {
-            for(int i = 0; i < supportedChipersSize; ++i)
+            for(int i = 0; i < supportedCiphersSize; ++i)
             {
-                os << "\n " << getCipherName(supportedChipers[i]);
+                os << "\n " << getCipherName(supportedCiphers[i]);
             }
         }
         else

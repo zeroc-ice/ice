@@ -1293,7 +1293,7 @@ IceSSL::SecureTransportEngine::newContext(bool incoming)
     if(_chain && (err = SSLSetCertificate(ssl, _chain)))
     {        
         throw SecurityException(__FILE__, __LINE__, 
-                                "IceSSL: error while set the SSL context certificate:\n" + errorToString(err));
+                                "IceSSL: error while setting the SSL context certificate:\n" + errorToString(err));
     }
     
 
@@ -1301,7 +1301,7 @@ IceSSL::SecureTransportEngine::newContext(bool incoming)
     {
         if((err = SSLSetEnabledCiphers(ssl, &_ciphers[0], _ciphers.size())))
         {
-            throw SecurityException(__FILE__, __LINE__, "IceSSL: error while set ciphers:\n" + errorToString(err));
+            throw SecurityException(__FILE__, __LINE__, "IceSSL: error while setting ciphers:\n" + errorToString(err));
         }
     }
     
@@ -1309,7 +1309,7 @@ IceSSL::SecureTransportEngine::newContext(bool incoming)
                                                   kSSLSessionOptionBreakOnServerAuth,
                                   true)))
     {
-        throw SecurityException(__FILE__, __LINE__, "IceSSL: error while set SSL option:\n" + errorToString(err));
+        throw SecurityException(__FILE__, __LINE__, "IceSSL: error while setting SSL option:\n" + errorToString(err));
     }
     
     if(_protocolVersionMax != kSSLProtocolUnknown)
@@ -1317,7 +1317,7 @@ IceSSL::SecureTransportEngine::newContext(bool incoming)
         if((err = SSLSetProtocolVersionMax(ssl, _protocolVersionMax)))
         {
             throw SecurityException(__FILE__, __LINE__, 
-                                    "IceSSL: error while set SSL protocol version max:\n" + errorToString(err));
+                                    "IceSSL: error while setting SSL protocol version max:\n" + errorToString(err));
         }
     }
     
@@ -1326,7 +1326,7 @@ IceSSL::SecureTransportEngine::newContext(bool incoming)
         if((err = SSLSetProtocolVersionMin(ssl, _protocolVersionMin)))
         {
             throw SecurityException(__FILE__, __LINE__, 
-                                    "IceSSL: error while set SSL protocol version min:\n" + errorToString(err));
+                                    "IceSSL: error while setting SSL protocol version min:\n" + errorToString(err));
         }
     }
     
