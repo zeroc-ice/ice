@@ -138,7 +138,7 @@ Install::run(int argc, char* argv[])
                 }
             }
 
-            _debug = properties->getPropertyAsInt("Debug") != 0;
+            _debug = properties->getPropertyAsInt("Debug") > 0;
 
             installer.install(properties);
         }

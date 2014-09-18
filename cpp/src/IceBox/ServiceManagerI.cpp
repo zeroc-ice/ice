@@ -77,12 +77,12 @@ IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc
     _pendingStatusChanges(false),
     _traceServiceObserver(0),
     _observerCompletedCB(newCallback(this, &ServiceManagerI::observerCompleted))
-{ 
+{
     _logger = _communicator->getLogger();
 
     PropertiesPtr props = _communicator->getProperties();
     _traceServiceObserver = props->getPropertyAsInt("IceBox.Trace.ServiceObserver");
-    
+
     if(props->getProperty("Ice.Admin.Enabled") == "")
     {
         _adminEnabled = props->getProperty("Ice.Admin.Endpoints") != "";
@@ -91,7 +91,7 @@ IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc
     {
         _adminEnabled = props->getPropertyAsInt("Ice.Admin.Enabled") > 0;
     }
-    
+
     if(_adminEnabled)
     {
         StringSeq facetSeq = props->getPropertyAsList("Ice.Admin.Facets");
@@ -374,7 +374,7 @@ IceBox::ServiceManagerI::start()
         {
             InitializationData initData;
             initData.properties = createServiceProperties("SharedCommunicator");
-           
+
             for(vector<StartServiceInfo>::iterator q = servicesInfo.begin(); q != servicesInfo.end(); ++q)
             {
                 if(properties->getPropertyAsInt("IceBox.UseSharedCommunicator." + q->name) <= 0)
@@ -417,7 +417,7 @@ IceBox::ServiceManagerI::start()
             }
 
             const string facetNamePrefix = "IceBox.SharedCommunicator.";
-            bool addFacets = configureAdmin(initData.properties, facetNamePrefix); 
+            bool addFacets = configureAdmin(initData.properties, facetNamePrefix);
 
             _sharedCommunicator = initialize(initData);
 
@@ -426,7 +426,7 @@ IceBox::ServiceManagerI::start()
                 // Add all facets created on shared communicator to the IceBox communicator
                 // but renamed <prefix>.<facet-name>, except for the Process facet which is
                 // never added.
-                
+
                 FacetMap facets = _sharedCommunicator->findAllAdminFacets();
                 for(FacetMap::const_iterator p = facets.begin(); p != facets.end(); ++p)
                 {
@@ -567,7 +567,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     // property set.
     //
     Ice::CommunicatorPtr communicator;
-   
+
     if(_communicator->getProperties()->getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
     {
         assert(_sharedCommunicator);
@@ -591,38 +591,38 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
                 // read the service config file if it's specified with --Ice.Config.
                 //
                 initData.properties = createProperties(info.args, initData.properties);
-                
+
                 //
                 // Next, parse the service "<service>.*" command line options (the Ice command
                 // line options were parsed by the createProperties above)
                 //
                 info.args = initData.properties->parseCommandLineOptions(service, info.args);
             }
-            
+
             //
             // Clone the logger to assign a new prefix. If one of the built-in loggers is configured
             // don't set any logger.
             //
-            if(initData.properties->getProperty("Ice.LogFile").empty() 
+            if(initData.properties->getProperty("Ice.LogFile").empty()
 #ifndef _WIN32
-               && initData.properties->getPropertyAsInt("Ice.UseSyslog") == 0
+               && initData.properties->getPropertyAsInt("Ice.UseSyslog") <= 0
 #endif
                )
             {
                 //
-                // When _logger is a LoggerAdminLogger, cloneWithPrefix returns a clone of the 
+                // When _logger is a LoggerAdminLogger, cloneWithPrefix returns a clone of the
                 // underlying local logger, not of the LoggerAdminLogger itself
                 //
                 initData.logger = _logger->cloneWithPrefix(initData.properties->getProperty("Ice.ProgramName"));
             }
-            
+
             //
             // If Admin is enabled on the IceBox communicator, for each service that does not set
             // Ice.Admin.Enabled, we set Ice.Admin.Enabled=1 to have this service create facets; then
-            // we add these facets to the IceBox Admin object as IceBox.Service.<service>.<facet>. 
+            // we add these facets to the IceBox Admin object as IceBox.Service.<service>.<facet>.
             //
             const string serviceFacetNamePrefix = "IceBox.Service." + service + ".";
-            bool addFacets = configureAdmin(initData.properties, serviceFacetNamePrefix);            
+            bool addFacets = configureAdmin(initData.properties, serviceFacetNamePrefix);
 
             //
             // Remaining command line options are passed to the communicator. This is
@@ -636,7 +636,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
                 // Add all facets created on the service communicator to the IceBox communicator
                 // but renamed IceBox.Service.<service>.<facet-name>, except for the Process facet
                 // which is never added
-                
+
                 FacetMap facets = communicator->findAllAdminFacets();
                 for(FacetMap::const_iterator p = facets.begin(); p != facets.end(); ++p)
                 {
@@ -678,7 +678,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
             LoggerOutputBase s;
             s << "ServiceManager: exception in entry point `" + entryPoint + "' for service " << info.name << ":\n";
             s << ex;
-            
+
             FailureException e(__FILE__, __LINE__);
             e.reason = s.str();
             throw e;
@@ -687,19 +687,19 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
         {
             ostringstream s;
             s << "ServiceManager: unknown exception in entry point `" + entryPoint + "' for service " << info.name;
-            
+
             FailureException e(__FILE__, __LINE__);
             e.reason = s.str();
             throw e;
         }
-            
+
         //
         // Start the service.
         //
         try
         {
             info.service->start(info.name, communicator, info.args);
-            
+
             //
             // There is no need to notify the observers since the 'start all'
             // (that indirectly calls this function) occurs before the creation of
@@ -979,7 +979,7 @@ IceBox::ServiceManagerI::createServiceProperties(const string& service)
 void
 ServiceManagerI::observerCompleted(const Ice::AsyncResultPtr& result)
 {
-     try 
+     try
      {
          result->throwLocalException();
      }
@@ -991,7 +991,7 @@ ServiceManagerI::observerCompleted(const Ice::AsyncResultPtr& result)
         //
         // It's possible to remove several times the same observer, e.g. multiple concurrent
         // requests that fail
-        //        
+        //
         set<ServiceObserverPrx>::iterator p = _observers.find(observer);
         if(p != _observers.end())
         {
@@ -1051,11 +1051,11 @@ IceBox::ServiceManagerI::configureAdmin(const PropertiesPtr& properties, const s
                 facetNames.push_back(p->substr(prefix.size()));
             }
         }
-        
+
         if(_adminFacetFilter.empty() || !facetNames.empty())
         {
             properties->setProperty("Ice.Admin.Enabled", "1");
-            
+
             if(!facetNames.empty())
             {
                 // TODO: need joinString with escape!
@@ -1073,7 +1073,7 @@ IceBox::ServiceManagerI::removeAdminFacets(const string& prefix)
     try
     {
         FacetMap facets = _communicator->findAllAdminFacets();
-        
+
         for(FacetMap::const_iterator p = facets.begin(); p != facets.end(); ++p)
         {
             if(p->first.find(prefix) == 0)
@@ -1091,4 +1091,4 @@ IceBox::ServiceManagerI::removeAdminFacets(const string& prefix)
         // Ignored
     }
 }
-       
+

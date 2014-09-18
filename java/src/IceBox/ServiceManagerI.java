@@ -20,7 +20,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
     {
         _communicator = communicator;
         _logger = _communicator.getLogger();
-        
+
         Ice.Properties props = _communicator.getProperties();
 
         if(props.getProperty("Ice.Admin.Enabled").isEmpty())
@@ -31,7 +31,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
         {
             _adminEnabled = props.getPropertyAsInt("Ice.Admin.Enabled") > 0;
         }
-        
+
         if(_adminEnabled)
         {
             String[] facetFilter = props.getPropertyAsList("Ice.Admin.Facets");
@@ -377,9 +377,9 @@ public class ServiceManagerI extends _ServiceManagerDisp
                     //
                     service.args = initData.properties.parseCommandLineOptions(service.name, service.args);
                 }
-                
+
                 String facetNamePrefix = "IceBox.SharedCommunicator.";
-                boolean addFacets = configureAdmin(initData.properties, facetNamePrefix); 
+                boolean addFacets = configureAdmin(initData.properties, facetNamePrefix);
 
                 _sharedCommunicator = Ice.Util.initialize(initData);
 
@@ -621,7 +621,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 // don't set any logger.
                 //
                 if(initData.properties.getProperty("Ice.LogFile").length() == 0 &&
-                   (initData.properties.getPropertyAsInt("Ice.UseSyslog") == 0 ||
+                   (initData.properties.getPropertyAsInt("Ice.UseSyslog") <= 0 ||
                     System.getProperty("os.name").startsWith("Windows")))
                 {
                     initData.logger = _logger.cloneWithPrefix(initData.properties.getProperty("Ice.ProgramName"));
@@ -630,11 +630,11 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 //
                 // If Admin is enabled on the IceBox communicator, for each service that does not set
                 // Ice.Admin.Enabled, we set Ice.Admin.Enabled=1 to have this service create facets; then
-                // we add these facets to the IceBox Admin object as IceBox.Service.<service>.<facet>. 
+                // we add these facets to the IceBox Admin object as IceBox.Service.<service>.<facet>.
                 //
                 String serviceFacetNamePrefix = "IceBox.Service." + service + ".";
-                boolean addFacets = configureAdmin(initData.properties, serviceFacetNamePrefix);   
-                
+                boolean addFacets = configureAdmin(initData.properties, serviceFacetNamePrefix);
+
                 //
                 // Remaining command line options are passed to the communicator. This is
                 // necessary for Ice plug-in properties (e.g.: IceSSL).
@@ -1108,7 +1108,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                             + service + "\n" + sw.toString());
         }
     }
-    
+
     private boolean configureAdmin(Ice.Properties properties, String prefix)
     {
         if(_adminEnabled && properties.getProperty("Ice.Admin.Enabled").isEmpty())
@@ -1121,11 +1121,11 @@ public class ServiceManagerI extends _ServiceManagerDisp
                     facetNames.add(p.substring(prefix.length()));
                 }
             }
-        
+
             if(_adminFacetFilter.isEmpty() || !facetNames.isEmpty())
             {
                 properties.setProperty("Ice.Admin.Enabled", "1");
-                
+
                 if(!facetNames.isEmpty())
                 {
                     // TODO: need joinString with escape!

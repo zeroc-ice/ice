@@ -118,9 +118,9 @@ findType(const Slice::UnitPtr& u, const string& type)
 static void
 transformDb(bool evictor,  const Ice::CommunicatorPtr& communicator,
             const FreezeScript::ObjectFactoryPtr& objectFactory,
-            DbEnv& dbEnv, DbEnv& dbEnvNew, const string& dbName, 
+            DbEnv& dbEnv, DbEnv& dbEnvNew, const string& dbName,
             const Freeze::ConnectionPtr& connectionNew, vector<Db*>& dbs,
-            const Slice::UnitPtr& oldUnit, const Slice::UnitPtr& newUnit, 
+            const Slice::UnitPtr& oldUnit, const Slice::UnitPtr& newUnit,
             DbTxn* txnNew, bool purgeObjects, bool suppress, string descriptors)
 {
     if(evictor)
@@ -139,10 +139,10 @@ transformDb(bool evictor,  const Ice::CommunicatorPtr& communicator,
             Dbt dbKey, dbValue;
             dbKey.set_flags(DB_DBT_MALLOC);
             dbValue.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
-            
+
             Dbc* dbc = 0;
             db.cursor(0, &dbc, 0);
-            
+
             while(dbc->get(&dbKey, &dbValue, DB_NEXT) == 0)
             {
                 string s(static_cast<char*>(dbKey.get_data()), dbKey.get_size());
@@ -152,11 +152,11 @@ transformDb(bool evictor,  const Ice::CommunicatorPtr& communicator,
                 }
                 free(dbKey.get_data());
             }
-            
+
             dbc->close();
             db.close(0);
         }
-        
+
         //
         // Transform each database. We must delay closing the new databases
         // until after the transaction is committed or aborted.
@@ -164,14 +164,14 @@ transformDb(bool evictor,  const Ice::CommunicatorPtr& communicator,
         for(vector<string>::iterator p = dbNames.begin(); p != dbNames.end(); ++p)
         {
             string name = p->c_str();
-            
+
             Db db(&dbEnv, 0);
             db.open(0, dbName.c_str(), name.c_str(), DB_BTREE, DB_RDONLY, FREEZE_SCRIPT_DB_MODE);
-            
+
             Db* dbNew = new Db(&dbEnvNew, 0);
             dbs.push_back(dbNew);
             dbNew->open(txnNew, dbName.c_str(), name.c_str(), DB_BTREE, DB_CREATE | DB_EXCL, FREEZE_SCRIPT_DB_MODE);
-            
+
             //
             // Execute the transformation descriptors.
             //
@@ -179,10 +179,10 @@ transformDb(bool evictor,  const Ice::CommunicatorPtr& communicator,
             string facet = (name == "$default" ? string("") : name);
             FreezeScript::transformDatabase(communicator, objectFactory, oldUnit, newUnit, &db, dbNew, txnNew, 0,
                                             dbName, facet, purgeObjects, cerr, suppress, istr);
-            
+
             db.close(0);
         }
-        
+
         Freeze::Catalog catalogNew(connectionNew, Freeze::catalogName());
         Freeze::CatalogData catalogData = { true, "::Ice::Identity", "Object" };
         catalogNew.put(Freeze::Catalog::value_type(dbName, catalogData));
@@ -194,18 +194,18 @@ transformDb(bool evictor,  const Ice::CommunicatorPtr& communicator,
         //
         Db db(&dbEnv, 0);
         db.open(0, dbName.c_str(), 0, DB_BTREE, DB_RDONLY, FREEZE_SCRIPT_DB_MODE);
-        
+
         Db* dbNew = new Db(&dbEnvNew, 0);
         dbs.push_back(dbNew);
         dbNew->open(txnNew, dbName.c_str(), 0, DB_BTREE, DB_CREATE | DB_EXCL, FREEZE_SCRIPT_DB_MODE);
-        
+
         //
         // Execute the transformation descriptors.
         //
         istringstream istr(descriptors);
         FreezeScript::transformDatabase(communicator, objectFactory, oldUnit, newUnit, &db, dbNew, txnNew,
                                         connectionNew, dbName, "", purgeObjects, cerr, suppress, istr);
-        
+
         db.close(0);
     }
 }
@@ -429,7 +429,7 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
     {
         Ice::PropertiesPtr props = communicator->getProperties();
         string prefix = "Freeze.DbEnv." + args[0];
-        if(props->getPropertyAsIntWithDefault(prefix + ".DbPrivate", 1) == 0)
+        if(props->getPropertyAsIntWithDefault(prefix + ".DbPrivate", 1) <= 0)
         {
             props->setProperty(prefix + ".LockFile", "0");
         }
@@ -483,7 +483,7 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
     // If no input file was provided, then we need to analyze the Slice types.
     //
     string descriptors;
-    
+
     if(inputFile.empty())
     {
         ostringstream out;
@@ -576,17 +576,17 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
                 // If we are not generating an output file, we have to stop now.
                 //
                 if(outputFile.empty() && (!oldKeyType || !newKeyType || !oldValueType || !newValueType))
-                {   
+                {
                     return EXIT_FAILURE;
                 }
-                
+
                 analyzer.addDatabase(p->first, oldKeyType, newKeyType, oldValueType, newValueType);
             }
         }
         else
         {
             string oldKeyName, newKeyName, oldValueName, newValueName;
-           
+
             string::size_type pos;
 
             if(!evictor && (keyTypeNames.empty() || valueTypeNames.empty()))
@@ -634,7 +634,7 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
                     newValueName = valueTypeNames.substr(pos + 1);
                 }
             }
-            
+
             if(evictor)
             {
                 if(oldKeyName.empty())
@@ -683,7 +683,7 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
             // Stop now if any of the types could not be found.
             //
             if(!oldKeyType || !newKeyType || !oldValueType || !newValueType)
-            {   
+            {
                 return EXIT_FAILURE;
             }
 
@@ -839,7 +839,7 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
         }
         else
         {
-            transformDb(evictor, communicator, objectFactory, dbEnv, dbEnvNew, dbName, connectionNew, dbs, 
+            transformDb(evictor, communicator, objectFactory, dbEnv, dbEnvNew, dbName, connectionNew, dbs,
                         oldUnit, newUnit, txnNew, purgeObjects, suppress, descriptors);
         }
     }

@@ -37,7 +37,7 @@ class ServiceManagerI : ServiceManagerDisp_
         {
             _adminEnabled = props.getPropertyAsInt("Ice.Admin.Enabled") > 0;
         }
-        
+
         if(_adminEnabled)
         {
             string[] facetFilter = props.getPropertyAsList("Ice.Admin.Facets");
@@ -360,7 +360,7 @@ class ServiceManagerI : ServiceManagerDisp_
                 }
 
                 string facetNamePrefix = "IceBox.SharedCommunicator.";
-                bool addFacets = configureAdmin(initData.properties, facetNamePrefix); 
+                bool addFacets = configureAdmin(initData.properties, facetNamePrefix);
 
                 _sharedCommunicator = Ice.Util.initialize(initData);
 
@@ -546,7 +546,7 @@ class ServiceManagerI : ServiceManagerDisp_
             info.name = service;
             info.status = ServiceStatus.Stopped;
             info.args = args;
-            
+
             //
             // If IceBox.UseSharedCommunicator.<name> is defined, create a
             // communicator for the service. The communicator inherits
@@ -588,20 +588,20 @@ class ServiceManagerI : ServiceManagerDisp_
                 // don't set any logger.
                 //
                 if(initData.properties.getProperty("Ice.LogFile").Length == 0 &&
-                   (initData.properties.getPropertyAsInt("Ice.UseSyslog") == 0 ||
+                   (initData.properties.getPropertyAsInt("Ice.UseSyslog") <= 0 ||
                     IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows))
                 {
                     initData.logger = _logger.cloneWithPrefix(initData.properties.getProperty("Ice.ProgramName"));
                 }
-                
+
                 //
                 // If Admin is enabled on the IceBox communicator, for each service that does not set
                 // Ice.Admin.Enabled, we set Ice.Admin.Enabled=1 to have this service create facets; then
-                // we add these facets to the IceBox Admin object as IceBox.Service.<service>.<facet>. 
+                // we add these facets to the IceBox Admin object as IceBox.Service.<service>.<facet>.
                 //
                 string serviceFacetNamePrefix = "IceBox.Service." + service + ".";
-                bool addFacets = configureAdmin(initData.properties, serviceFacetNamePrefix);   
-               
+                bool addFacets = configureAdmin(initData.properties, serviceFacetNamePrefix);
+
                 //
                 // Remaining command line options are passed to the communicator. This is
                 // necessary for Ice plug-in properties (e.g.: IceSSL).
@@ -621,11 +621,11 @@ class ServiceManagerI : ServiceManagerDisp_
                             _communicator.addAdminFacet(p.Value, serviceFacetNamePrefix + p.Key);
                         }
                     }
-                }   
+                }
             }
 
             try
-            {   
+            {
                 //
                 // Instantiate the service.
                 //
@@ -1019,11 +1019,11 @@ class ServiceManagerI : ServiceManagerDisp_
                     facetNames.Add(p.Substring(prefix.Length));
                 }
             }
-        
+
             if(_adminFacetFilter.Count == 0 || facetNames.Count > 0)
             {
                 properties.setProperty("Ice.Admin.Enabled", "1");
-                
+
                 if(facetNames.Count > 0)
                 {
                     // TODO: need String.Join with escape!

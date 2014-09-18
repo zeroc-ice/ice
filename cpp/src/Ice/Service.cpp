@@ -155,14 +155,14 @@ typedef IceUtil::Handle<SMEventLogger> SMEventLoggerPtr;
 class SMEventLoggerIWrapper : public Ice::Logger
 {
 public:
-    
+
     SMEventLoggerIWrapper(const SMEventLoggerPtr& logger, const string& prefix) :
         _logger(logger),
         _prefix(prefix)
     {
         assert(_logger);
     }
-    
+
     virtual void
     print(const string& message)
     {
@@ -186,7 +186,7 @@ public:
     {
         _logger->error(_prefix, message);
     }
-    
+
     virtual string
     getPrefix()
     {
@@ -198,9 +198,9 @@ public:
     {
         return new SMEventLoggerIWrapper(_logger, prefix);
     }
-    
+
 private:
-    
+
     SMEventLoggerPtr _logger;
     const string _prefix;
 };
@@ -271,7 +271,7 @@ public:
         //
         err = RegSetValueExW(hKey, L"EventMessageFile", 0, REG_EXPAND_SZ, reinterpret_cast<unsigned char*>(path),
                              static_cast<DWORD>((wcslen(path) * sizeof(wchar_t)) + 1));
-        
+
         if(err == ERROR_SUCCESS)
         {
             //
@@ -279,7 +279,7 @@ public:
             // types.
             //
             DWORD typesSupported = EVENTLOG_ERROR_TYPE | EVENTLOG_WARNING_TYPE | EVENTLOG_INFORMATION_TYPE;
-            err = RegSetValueExW(hKey, L"TypesSupported", 0, REG_DWORD, 
+            err = RegSetValueExW(hKey, L"TypesSupported", 0, REG_DWORD,
                                  reinterpret_cast<unsigned char*>(&typesSupported), sizeof(typesSupported));
         }
         if(err != ERROR_SUCCESS)
@@ -300,7 +300,7 @@ public:
         // Don't need to use a wide string converter as the wide string is passed
         // to Windows API.
         //
-        LONG err = RegDeleteKeyW(HKEY_LOCAL_MACHINE, 
+        LONG err = RegDeleteKeyW(HKEY_LOCAL_MACHINE,
 			IceUtil::stringToWstring(createKey(source), stringConverter).c_str());
         if(err != ERROR_SUCCESS)
         {
@@ -322,7 +322,7 @@ public:
         s.append(message);
         print(s);
     }
-    
+
     void
     print(const string& message)
     {
@@ -352,7 +352,7 @@ public:
         s.append(message);
         trace(prefix, s);
     }
-    
+
     void
     trace(const string& category, const string& message)
     {
@@ -390,7 +390,7 @@ public:
         s.append(message);
         warning(s);
     }
-    
+
     void
     warning(const string& message)
     {
@@ -437,7 +437,7 @@ public:
         //
         ReportEventW(_source, EVENTLOG_ERROR_TYPE, 0, EVENT_LOGGER_MSG, 0, 1, 0, messages, 0);
     }
-    
+
     static void
     setModuleHandle(HMODULE module)
     {
@@ -705,7 +705,7 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initializa
 #endif
 
     //
-    // If no logger has been set yet, we set it to the process logger. If the 
+    // If no logger has been set yet, we set it to the process logger. If the
     // process logger is the default logger, we change it to a logger which is
     // using the program name for the prefix.
     //
@@ -714,10 +714,10 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initializa
         _logger = getProcessLogger();
         if(LoggerIPtr::dynamicCast(_logger))
         {
-            const bool convert = 
-                initData.properties->getPropertyAsIntWithDefault("Ice.LogStdErr.Convert", 1) == 1 &&
+            const bool convert =
+                initData.properties->getPropertyAsIntWithDefault("Ice.LogStdErr.Convert", 1) > 0 &&
                 initData.properties->getProperty("Ice.StdErr").empty();
-                
+
             _logger = new LoggerI(initData.properties->getProperty("Ice.ProgramName"), "", convert,
                                   IceUtil::getProcessStringConverter());
             setProcessLogger(_logger);
@@ -727,7 +727,7 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initializa
     return run(argc, argv, initData);
 }
 
-int 
+int
 Ice::Service::main(int argc, char* const argv[], const InitializationData& initializationData)
 {
     IceUtilInternal::ArgVector av(argc, argv);

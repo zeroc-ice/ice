@@ -115,7 +115,7 @@ namespace IceInternal
             if(val.Length > 0)
             {
                 overrideCompress = true;
-                overrideCompressValue = properties.getPropertyAsInt("Ice.Override.Compress") != 0;
+                overrideCompressValue = properties.getPropertyAsInt("Ice.Override.Compress") > 0;
                 if(!BasicStream.compressible() && overrideCompressValue)
                 {
                     string lib = AssemblyUtil.runtime_ == AssemblyUtil.Runtime.Mono ? "bzip2 library" : "bzip2.dll";

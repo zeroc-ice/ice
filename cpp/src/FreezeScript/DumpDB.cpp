@@ -186,7 +186,7 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
         //
         Ice::PropertiesPtr props = communicator->getProperties();
         string prefix = "Freeze.DbEnv." + args[0];
-        if(props->getPropertyAsIntWithDefault(prefix + ".DbPrivate", 1) == 0)
+        if(props->getPropertyAsIntWithDefault(prefix + ".DbPrivate", 1) <= 0)
         {
             props->setProperty(prefix + ".LockFile", "0");
         }
@@ -315,7 +315,7 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
     {
         selectExpr = opts.optArg("select");
     }
-    
+
     if(outputFile.empty() && args.size() != 2)
     {
         usage(appName);

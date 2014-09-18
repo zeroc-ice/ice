@@ -37,11 +37,11 @@ const int never = 3;
 
 //
 // createEvictor functions
-// 
+//
 
 Freeze::TransactionalEvictorPtr
-Freeze::createTransactionalEvictor(const ObjectAdapterPtr& adapter, 
-                                   const string& envName, 
+Freeze::createTransactionalEvictor(const ObjectAdapterPtr& adapter,
+                                   const string& envName,
                                    const string& filename,
                                    const FacetTypeMap& facetTypes,
                                    const ServantInitializerPtr& initializer,
@@ -52,9 +52,9 @@ Freeze::createTransactionalEvictor(const ObjectAdapterPtr& adapter,
 }
 
 TransactionalEvictorPtr
-Freeze::createTransactionalEvictor(const ObjectAdapterPtr& adapter, 
-                                   const string& envName, 
-                                   DbEnv& dbEnv, 
+Freeze::createTransactionalEvictor(const ObjectAdapterPtr& adapter,
+                                   const string& envName,
+                                   DbEnv& dbEnv,
                                    const string& filename,
                                    const FacetTypeMap& facetTypes,
                                    const ServantInitializerPtr& initializer,
@@ -69,9 +69,9 @@ Freeze::createTransactionalEvictor(const ObjectAdapterPtr& adapter,
 // TransactionalEvictorI
 //
 
-Freeze::TransactionalEvictorI::TransactionalEvictorI(const ObjectAdapterPtr& adapter, 
-                                                     const string& envName, 
-                                                     DbEnv* dbEnv, 
+Freeze::TransactionalEvictorI::TransactionalEvictorI(const ObjectAdapterPtr& adapter,
+                                                     const string& envName,
+                                                     DbEnv* dbEnv,
                                                      const string& filename,
                                                      const FacetTypeMap& facetTypes,
                                                      const ServantInitializerPtr& initializer,
@@ -80,7 +80,7 @@ Freeze::TransactionalEvictorI::TransactionalEvictorI(const ObjectAdapterPtr& ada
     EvictorI<TransactionalEvictorElement>(adapter, envName, dbEnv, filename, facetTypes, initializer, indices, createDb),
     _currentEvictorSize(0)
 {
-    
+
     class DispatchInterceptorAdapter : public Ice::DispatchInterceptor
     {
     public:
@@ -96,16 +96,16 @@ Freeze::TransactionalEvictorI::TransactionalEvictorI(const ObjectAdapterPtr& ada
         }
 
     private:
-        
+
         TransactionalEvictorIPtr _evictor;
     };
 
     _interceptor = new DispatchInterceptorAdapter(this);
 
-    string propertyPrefix = string("Freeze.Evictor.") + envName + '.' + _filename; 
-    
+    string propertyPrefix = string("Freeze.Evictor.") + envName + '.' + _filename;
+
     _rollbackOnUserException = _communicator->getProperties()->
-        getPropertyAsIntWithDefault(propertyPrefix + ".RollbackOnUserException", 0) != 0;
+        getPropertyAsIntWithDefault(propertyPrefix + ".RollbackOnUserException", 0) > 0;
 }
 
 
@@ -113,7 +113,7 @@ TransactionPtr
 Freeze::TransactionalEvictorI::getCurrentTransaction() const
 {
     DeactivateController::Guard deactivateGuard(_deactivateController);
-    
+
     TransactionalEvictorContextPtr ctx = _dbEnv->getCurrent();
     if(ctx == 0)
     {
@@ -139,14 +139,14 @@ Freeze::TransactionalEvictorI::addFacet(const ObjectPtr& servant, const Identity
     checkIdentity(ident);
     checkServant(servant);
     DeactivateController::Guard deactivateGuard(_deactivateController);
-   
+
     ObjectStore<TransactionalEvictorElement>* store = findStore(facet, _createDb);
     if(store == 0)
     {
         throw NotFoundException(__FILE__, __LINE__, "addFacet: could not open database for facet '"
                                 + facet + "'");
     }
-     
+
     Ice::Long currentTime = 0;
 
     if(store->keepStats())
@@ -156,9 +156,9 @@ Freeze::TransactionalEvictorI::addFacet(const ObjectPtr& servant, const Identity
 
     Statistics stats = { currentTime };
     ObjectRecord rec = { servant, stats };
-  
+
     TransactionIPtr tx = beforeQuery();
-        
+
     if(store->keepStats())
     {
         updateStats(rec.stats, currentTime);
@@ -175,7 +175,7 @@ Freeze::TransactionalEvictorI::addFacet(const ObjectPtr& servant, const Identity
         }
         throw ex;
     }
-    
+
     ObjectPrx obj = _adapter->createProxy(ident);
     if(!facet.empty())
     {
@@ -189,11 +189,11 @@ Freeze::TransactionalEvictorI::removeFacet(const Identity& ident, const string& 
 {
     checkIdentity(ident);
     DeactivateController::Guard deactivateGuard(_deactivateController);
-   
+
     ObjectPtr servant = 0;
     bool removed = false;
     ObjectStore<TransactionalEvictorElement>* store = findStore(facet, false);
-   
+
     if(store != 0)
     {
         TransactionalEvictorContextPtr ctx = _dbEnv->getCurrent();
@@ -206,9 +206,9 @@ Freeze::TransactionalEvictorI::removeFacet(const Identity& ident, const string& 
                 throw DatabaseException(__FILE__, __LINE__, "inactive transaction");
             }
         }
-        
+
         removed = store->remove(ident, tx);
-            
+
         if(removed)
         {
             if(ctx != 0)
@@ -227,7 +227,7 @@ Freeze::TransactionalEvictorI::removeFacet(const Identity& ident, const string& 
             }
         }
     }
-    
+
     if(!removed)
     {
         NotRegisteredException ex(__FILE__, __LINE__);
@@ -266,7 +266,7 @@ Freeze::TransactionalEvictorI::hasFacet(const Identity& ident, const string& fac
     }
 
     TransactionIPtr tx = beforeQuery();
-    
+
     if(tx == 0)
     {
         TransactionalEvictorElementPtr element = store->getIfPinned(ident);
@@ -288,38 +288,38 @@ Freeze::TransactionalEvictorI::hasAnotherFacet(const Identity& ident, const stri
     DeactivateController::Guard deactivateGuard(_deactivateController);
 
     //
-    // If the object exists in another store, throw FacetNotExistException 
+    // If the object exists in another store, throw FacetNotExistException
     // instead of returning 0 (== ObjectNotExistException)
-    // 
+    //
     StoreMap storeMapCopy;
     {
         Lock sync(*this);
         storeMapCopy = _storeMap;
-    }       
+    }
 
     TransactionIPtr tx = beforeQuery();
-        
+
     for(StoreMap::iterator p = storeMapCopy.begin(); p != storeMapCopy.end(); ++p)
     {
         //
         // Do not check again the given facet
         //
         if((*p).first != facet)
-        { 
+        {
             ObjectStore<TransactionalEvictorElement>* store = (*p).second;
-            
+
             if(tx == 0 && store->getIfPinned(ident) != 0)
             {
                 return true;
             }
-            
+
             if(store->dbHasObject(ident, tx))
             {
                 return true;
             }
         }
     }
-    
+
     return false;
 }
 
@@ -357,7 +357,7 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
 #endif
         {
         }
-        
+
         ~CtxHolder() ICE_NOEXCEPT_FALSE
         {
             if(_ownCtx)
@@ -382,7 +382,7 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
         const SharedDbEnvPtr& _dbEnv;
 #endif
     };
-    
+
 
     DeactivateController::Guard deactivateGuard(_deactivateController);
 
@@ -400,15 +400,15 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
     ObjectPtr cachedServant = 0;
 
     TransactionalEvictorContext::ServantHolder servantHolder;
-  
+
     if(sample == 0)
     {
         if(ctx != 0)
-        { 
+        {
             try
             {
                 servantHolder.init(ctx, current, store);
-            }                    
+            }
             catch(const DeadlockException& dx)
             {
                 assert(dx.tx == ctx->transaction());
@@ -422,9 +422,9 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
             //
             // find / load read-only servant
             //
-            
+
             cachedServant = loadCachedServant(current.id, store);
-            
+
             if(cachedServant == 0)
             {
                 servantNotFound(__FILE__, __LINE__, current);
@@ -436,16 +436,16 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
     assert(sample != 0);
 
     int operationAttributes = sample->ice_operationAttributes(current.operation);
-   
+
     if(operationAttributes < 0)
     {
         throw OperationNotExistException(__FILE__, __LINE__);
     }
-             
+
     bool readOnly = (operationAttributes & 0x1) == 0;
-                
+
     int txMode = (operationAttributes & 0x6) >> 1;
-                
+
     bool ownCtx = false;
 
     //
@@ -489,7 +489,7 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
             throw OperationNotExistException(__FILE__, __LINE__);
         }
     }
-    
+
     if(ctx == 0 && !ownCtx)
     {
         //
@@ -499,7 +499,7 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
         if(cachedServant == 0)
         {
             cachedServant = loadCachedServant(current.id, store);
-            
+
             if(cachedServant == 0)
             {
                 servantNotFound(__FILE__, __LINE__, current);
@@ -512,9 +512,9 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
         //
         // Create a new transaction; retry on DeadlockException
         //
-        
+
         bool tryAgain = false;
-        
+
         do
         {
             TransactionPtr tx;
@@ -525,7 +525,7 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
                 {
                     ctx = _dbEnv->createCurrent();
                 }
-                
+
 #ifndef NDEBUG
                 CtxHolder ctxHolder(ownCtx, ctx, _dbEnv);
 #else
@@ -534,7 +534,7 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
                 tx = ctx->transaction();
 
                 try
-                {                   
+                {
                     TransactionalEvictorContext::ServantHolder sh;
                     if(servantHolder.initialized())
                     {
@@ -547,7 +547,7 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
                     {
                         sh.init(ctx, current, store);
                     }
-   
+
                     if(sh.servant() == 0)
                     {
                         servantNotFound(__FILE__, __LINE__, current);
@@ -557,7 +557,7 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
                     {
                         sh.markReadWrite();
                     }
-                               
+
                     try
                     {
                         DispatchStatus dispatchStatus = sh.servant()->ice_dispatch(request, ctx);
@@ -577,7 +577,7 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
                                 ctx->rollback();
                             }
                         }
-                        
+
                         return dispatchStatus;
                     }
                     catch(...)
@@ -591,7 +591,7 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
                     }
                     //
                     // servant holder destructor runs here and may throw (if !rolled back)
-                    // 
+                    //
                 }
                 catch(const DeadlockException& dx)
                 {
@@ -609,7 +609,7 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
                     }
                     throw;
                 }
-                
+
                 //
                 // commit occurs here (when ownCtx)
                 //
@@ -654,7 +654,7 @@ Freeze::TransactionalEvictorI::deactivate(const string&)
     {
         {
             Lock sync(*this);
-     
+
             //
             // Set the evictor size to zero, meaning that we will evict
             // everything possible.
@@ -701,7 +701,7 @@ Freeze::TransactionalEvictorI::beforeQuery()
             throw DatabaseException(__FILE__, __LINE__,"inactive transaction");
         }
     }
-    
+
     return tx;
 }
 
@@ -728,12 +728,12 @@ Freeze::TransactionalEvictorI::loadCachedServant(const Identity& ident, ObjectSt
     for(;;)
     {
         TransactionalEvictorElementPtr element = store->pin(ident);
-        
+
         if(element == 0)
         {
             return 0;
         }
-        
+
         Lock sync(*this);
         if(element->stale())
         {
@@ -742,9 +742,9 @@ Freeze::TransactionalEvictorI::loadCachedServant(const Identity& ident, ObjectSt
             //
             continue;
         }
-        
+
         fixEvictPosition(element);
-                
+
         //
         // if _evictorSize is 0, I may evict myself ... no big deal
         //
@@ -760,7 +760,7 @@ Freeze::TransactionalEvictorI::evict(const Identity& ident, ObjectStore<Transact
     // Important: we can't wait for the DB (even indirectly) with 'this' locked
     //
     TransactionalEvictorElementPtr element = store->getIfPinned(ident, true);
-    
+
     if(element != 0)
     {
         Lock sync(*this);
@@ -773,7 +773,7 @@ Freeze::TransactionalEvictorI::evict(const Identity& ident, ObjectStore<Transact
     return 0;
 }
 
-void 
+void
 Freeze::TransactionalEvictorI::evict(const TransactionalEvictorElementPtr& element)
 {
     //
@@ -782,7 +782,7 @@ Freeze::TransactionalEvictorI::evict(const TransactionalEvictorElementPtr& eleme
     assert(!element->_stale);
     element->_stale = true;
     element->_store.unpin(element->_cachePosition);
-  
+
     if(element->_inEvictor)
     {
         element->_inEvictor = false;
@@ -791,7 +791,7 @@ Freeze::TransactionalEvictorI::evict(const TransactionalEvictorElementPtr& eleme
     }
 }
 
-void 
+void
 Freeze::TransactionalEvictorI::fixEvictPosition(const TransactionalEvictorElementPtr& element)
 {
     //
@@ -799,7 +799,7 @@ Freeze::TransactionalEvictorI::fixEvictPosition(const TransactionalEvictorElemen
     //
 
     assert(!element->_stale);
-    
+
     if(element->_inEvictor)
     {
         _evictorList.erase(element->_evictPosition);
@@ -823,10 +823,10 @@ Freeze::TransactionalEvictorI::servantNotFound(const char* file, int line, const
     if(_trace >= 2)
     {
         Trace out(_communicator->getLogger(), "Freeze.Evictor");
-        out << "could not find \"" << _communicator->identityToString(current.id) 
-            << "\" with facet \"" <<  current.facet + "\""; 
+        out << "could not find \"" << _communicator->identityToString(current.id)
+            << "\" with facet \"" <<  current.facet + "\"";
     }
-    
+
     if(hasAnotherFacet(current.id, current.facet))
     {
         throw FacetNotExistException(file, line, current.id, current.facet, current.operation);
@@ -853,7 +853,7 @@ Freeze::TransactionalEvictorElement::~TransactionalEvictorElement()
 {
 }
 
-void 
+void
 Freeze::TransactionalEvictorElement::init(ObjectStore<TransactionalEvictorElement>::Position p)
 {
     _stale = false;

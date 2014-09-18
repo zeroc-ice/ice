@@ -337,14 +337,14 @@ abstract class EvictorI implements Evictor
 
         _trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Evictor");
         _txTrace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Transaction");
-        _deadlockWarning = _communicator.getProperties().getPropertyAsInt("Freeze.Warn.Deadlocks") != 0;
+        _deadlockWarning = _communicator.getProperties().getPropertyAsInt("Freeze.Warn.Deadlocks") > 0;
 
         _errorPrefix = "Freeze Evictor DbEnv(\"" + envName + "\") Db(\"" + _filename + "\"): ";
 
         String propertyPrefix = "Freeze.Evictor." + envName + '.' + _filename;
 
         boolean populateEmptyIndices =
-            _communicator.getProperties().getPropertyAsIntWithDefault(propertyPrefix + ".PopulateEmptyIndices", 0) != 0;
+            _communicator.getProperties().getPropertyAsIntWithDefault(propertyPrefix + ".PopulateEmptyIndices", 0) > 0;
 
         //
         // Instantiate all Dbs in 2 steps:

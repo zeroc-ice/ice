@@ -49,14 +49,14 @@ public:
                        const CommunicatorPtr&,
                        const StringSeq&);
 
-    virtual void start(const CommunicatorPtr&, 
-                       const ObjectAdapterPtr&, 
+    virtual void start(const CommunicatorPtr&,
                        const ObjectAdapterPtr&,
-                       const string&, 
+                       const ObjectAdapterPtr&,
+                       const string&,
                        const Ice::Identity&,
                        const string&);
 
-    virtual TopicManagerPrx getTopicManager() const;    
+    virtual TopicManagerPrx getTopicManager() const;
 
     virtual void stop();
 
@@ -73,11 +73,11 @@ private:
 class FinderI : public IceStorm::Finder
 {
 public:
-    
+
     FinderI(const TopicManagerPrx& topicManager) : _topicManager(topicManager)
     {
     }
-    
+
     virtual TopicManagerPrx
     getTopicManager(const Ice::Current&)
     {
@@ -157,7 +157,7 @@ ServiceI::start(
     topicManagerId.category = instanceName;
     topicManagerId.name = "TopicManager";
 
-    if(properties->getPropertyAsIntWithDefault(name+ ".Transient", 0))
+    if(properties->getPropertyAsIntWithDefault(name+ ".Transient", 0) > 0)
     {
         _instance = new Instance(instanceName, name, communicator, publishAdapter, topicAdapter, 0);
         try
@@ -215,7 +215,7 @@ ServiceI::start(
         // We support two possible deployments. The first is a manual
         // deployment, the second is IceGrid.
         //
-        // Here we check for the manual deployment 
+        // Here we check for the manual deployment
         const string prefix = name + ".Nodes.";
         Ice::PropertyDict props = properties->getPropertiesForPrefix(prefix);
         if(!props.empty())
@@ -332,10 +332,10 @@ ServiceI::start(
             }
             Ice::ObjectAdapterPtr nodeAdapter = communicator->createObjectAdapter(name + ".Node");
 
-            _instance = new Instance(instanceName, name, communicator, publishAdapter, topicAdapter, 
+            _instance = new Instance(instanceName, name, communicator, publishAdapter, topicAdapter,
                                      nodeAdapter, nodes[id]);
             _instance->observers()->setMajority(static_cast<unsigned int>(nodes.size())/2);
-            
+
             // Trace replication information.
             TraceLevelsPtr traceLevels = _instance->traceLevels();
             if(traceLevels->election > 0)
@@ -361,7 +361,7 @@ ServiceI::start(
                 // indirect proxies.
                 _managerProxy = TopicManagerPrx::uncheckedCast(topicAdapter->createIndirectProxy(topicManagerId));
             }
-            
+
             _manager = new TopicManagerImpl(_instance);
             topicAdapter->add(_manager->getServant(), topicManagerId);
 
@@ -392,9 +392,9 @@ ServiceI::start(
         }
     }
 
-    topicAdapter->add(new FinderI(TopicManagerPrx::uncheckedCast(topicAdapter->createProxy(topicManagerId))), 
+    topicAdapter->add(new FinderI(TopicManagerPrx::uncheckedCast(topicAdapter->createProxy(topicManagerId))),
                       communicator->stringToIdentity("IceStorm/Finder"));
-        
+
     topicAdapter->activate();
     publishAdapter->activate();
 }

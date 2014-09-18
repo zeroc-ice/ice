@@ -299,7 +299,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
 
         String propertyPrefix = "Freeze.Evictor." + envName + '.' + filename;
         _rollbackOnUserException = _communicator.getProperties().
-            getPropertyAsIntWithDefault(propertyPrefix + ".RollbackOnUserException", 0) != 0;
+            getPropertyAsIntWithDefault(propertyPrefix + ".RollbackOnUserException", 0) > 0;
     }
 
     TransactionalEvictorI(Ice.ObjectAdapter adapter, String envName, String filename,

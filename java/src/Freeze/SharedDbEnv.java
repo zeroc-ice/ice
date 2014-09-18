@@ -335,7 +335,7 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
                 //
                 config.setLockDetectMode(com.sleepycat.db.LockDetectMode.YOUNGEST);
 
-                if(properties.getPropertyAsInt(propertyPrefix + ".DbRecoverFatal") != 0)
+                if(properties.getPropertyAsInt(propertyPrefix + ".DbRecoverFatal") > 0)
                 {
                     config.setRunFatalRecovery(true);
                 }
@@ -344,12 +344,12 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
                     config.setRunRecovery(true);
                 }
 
-                if(properties.getPropertyAsIntWithDefault(propertyPrefix + ".DbPrivate", 1) != 0)
+                if(properties.getPropertyAsIntWithDefault(propertyPrefix + ".DbPrivate", 1) > 0)
                 {
                     config.setPrivate(true);
                 }
 
-                if(properties.getPropertyAsIntWithDefault(propertyPrefix + ".OldLogsAutoDelete", 1) != 0)
+                if(properties.getPropertyAsIntWithDefault(propertyPrefix + ".OldLogsAutoDelete", 1) > 0)
                 {
                     config.setLogAutoRemove(true);
                 }

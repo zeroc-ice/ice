@@ -97,14 +97,14 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     if(!value.empty())
     {
         const_cast<bool&>(overrideCompress) = true;
-        const_cast<bool&>(overrideCompressValue) = properties->getPropertyAsInt("Ice.Override.Compress");
+        const_cast<bool&>(overrideCompressValue) = properties->getPropertyAsInt("Ice.Override.Compress") > 0;
     }
 
     value = properties->getProperty("Ice.Override.Secure");
     if(!value.empty())
     {
         const_cast<bool&>(overrideSecure) = true;
-        const_cast<bool&>(overrideSecureValue) = properties->getPropertyAsInt("Ice.Override.Secure");
+        const_cast<bool&>(overrideSecureValue) = properties->getPropertyAsInt("Ice.Override.Secure") > 0;
     }
 
     const_cast<bool&>(defaultCollocationOptimization) =

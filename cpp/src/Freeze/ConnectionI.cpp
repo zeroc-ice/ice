@@ -85,10 +85,10 @@ Freeze::ConnectionI::close()
     {
         (*_mapList.begin())->close();
     }
-    
+
     _dbEnv = 0;
 }
-    
+
 CommunicatorPtr
 Freeze::ConnectionI::getCommunicator() const
 {
@@ -171,7 +171,7 @@ Freeze::ConnectionI::ConnectionI(const SharedDbEnvPtr& dbEnv) :
     _envName(dbEnv->getEnvName()),
     _trace(_communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Map")),
     _txTrace(_communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Transaction")),
-    _deadlockWarning(_communicator->getProperties()->getPropertyAsInt("Freeze.Warn.Deadlocks") != 0),
+    _deadlockWarning(_communicator->getProperties()->getPropertyAsInt("Freeze.Warn.Deadlocks") > 0),
     _refCountMutex(new SharedMutex),
     _refCount(0)
 {
@@ -199,14 +199,14 @@ Freeze::ConnectionI::unregisterMap(MapHelperI* m)
     _mapList.remove(m);
 }
 
-Freeze::ConnectionPtr 
+Freeze::ConnectionPtr
 Freeze::createConnection(const CommunicatorPtr& communicator, const string& envName)
 {
-    
+
     return new ConnectionI(SharedDbEnv::get(communicator, envName, 0));
 }
 
-Freeze::ConnectionPtr 
+Freeze::ConnectionPtr
 Freeze::createConnection(const CommunicatorPtr& communicator, const string& envName, DbEnv& dbEnv)
 {
     return new ConnectionI(SharedDbEnv::get(communicator, envName, &dbEnv));

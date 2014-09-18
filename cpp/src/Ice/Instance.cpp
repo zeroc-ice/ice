@@ -188,13 +188,13 @@ private:
 
 
 //
-// Timer specialization which supports the thread observer 
+// Timer specialization which supports the thread observer
 //
 class Timer : public IceUtil::Timer
 {
 public:
 
-    Timer(int priority) : IceUtil::Timer(priority) 
+    Timer(int priority) : IceUtil::Timer(priority)
     {
     }
 
@@ -220,9 +220,9 @@ Timer::updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr& obsv)
 {
     IceUtil::Mutex::Lock sync(_mutex);
     assert(obsv);
-    _observer.attach(obsv->getThreadObserver("Communicator", 
-                                             "Ice.Timer", 
-                                             Ice::Instrumentation::ThreadStateIdle, 
+    _observer.attach(obsv->getThreadObserver("Communicator",
+                                             "Ice.Timer",
+                                             Ice::Instrumentation::ThreadStateIdle,
                                              _observer.get()));
     _hasObserver = _observer.get();
 }
@@ -239,7 +239,7 @@ Timer::runTimerTask(const IceUtil::TimerTaskPtr& task)
         }
         if(threadObserver)
         {
-            threadObserver->stateChanged(Ice::Instrumentation::ThreadStateIdle, 
+            threadObserver->stateChanged(Ice::Instrumentation::ThreadStateIdle,
                                          Ice::Instrumentation::ThreadStateInUseForOther);
         }
         try
@@ -250,13 +250,13 @@ Timer::runTimerTask(const IceUtil::TimerTaskPtr& task)
         {
             if(threadObserver)
             {
-                threadObserver->stateChanged(Ice::Instrumentation::ThreadStateInUseForOther, 
+                threadObserver->stateChanged(Ice::Instrumentation::ThreadStateInUseForOther,
                                              Ice::Instrumentation::ThreadStateIdle);
             }
         }
         if(threadObserver)
         {
-            threadObserver->stateChanged(Ice::Instrumentation::ThreadStateInUseForOther, 
+            threadObserver->stateChanged(Ice::Instrumentation::ThreadStateInUseForOther,
                                          Ice::Instrumentation::ThreadStateIdle);
         }
     }
@@ -673,9 +673,9 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
 {
     ObjectAdapterPtr adapter = adminAdapter;
     bool createAdapter = !adminAdapter;
-    
+
     IceUtil::RecMutex::Lock sync(*this);
-    
+
     if(_state == StateDestroyed)
     {
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
@@ -685,17 +685,17 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
     {
         throw Ice::IllegalIdentityException(__FILE__, __LINE__, adminIdentity);
     }
-    
+
     if(_adminAdapter)
     {
         throw InitializationException(__FILE__, __LINE__, "Admin already created");
     }
-    
+
     if(!_adminEnabled)
     {
         throw InitializationException(__FILE__, __LINE__, "Admin is disabled");
     }
-    
+
     if(createAdapter)
     {
         if(_initData.properties->getProperty("Ice.Admin.Endpoints") != "")
@@ -712,7 +712,7 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
     _adminAdapter = adapter;
     addAllAdminFacets();
     sync.release();
-    
+
     if(createAdapter)
     {
         try
@@ -723,10 +723,10 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
         {
             //
             // We clean it up, even through this error is not recoverable
-            // (can't call again createAdmin after fixing the problem since all the facets 
+            // (can't call again createAdmin after fixing the problem since all the facets
             // in the adapter are lost)
             //
-            adapter->destroy();       
+            adapter->destroy();
             sync.acquire();
             _adminAdapter = 0;
             throw;
@@ -740,12 +740,12 @@ Ice::ObjectPrx
 IceInternal::Instance::getAdmin()
 {
     IceUtil::RecMutex::Lock sync(*this);
-    
+
     if(_state == StateDestroyed)
     {
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
-    
+
     if(_adminAdapter)
     {
         return _adminAdapter->createProxy(_adminIdentity);
@@ -761,7 +761,7 @@ IceInternal::Instance::getAdmin()
         {
             return 0;
         }
-        
+
         Identity adminIdentity;
         adminIdentity.name = "admin";
         adminIdentity.category = _initData.properties->getProperty("Ice.Admin.InstanceName");
@@ -769,7 +769,7 @@ IceInternal::Instance::getAdmin()
         {
             adminIdentity.category = IceUtil::generateUUID();
         }
-        
+
         _adminIdentity = adminIdentity;
         _adminAdapter = adapter;
         addAllAdminFacets();
@@ -782,10 +782,10 @@ IceInternal::Instance::getAdmin()
         {
             //
             // We clean it up, even through this error is not recoverable
-            // (can't call again createAdmin after fixing the problem since all the facets 
+            // (can't call again createAdmin after fixing the problem since all the facets
             // in the adapter are lost)
             //
-            adapter->destroy();       
+            adapter->destroy();
             sync.acquire();
             _adminAdapter = 0;
             throw;
@@ -793,7 +793,7 @@ IceInternal::Instance::getAdmin()
 
         setServerProcessProxy(adapter, adminIdentity);
         return adapter->createProxy(adminIdentity);
-    } 
+    }
     else
     {
         return 0;
@@ -804,12 +804,12 @@ void
 IceInternal::Instance::addAllAdminFacets()
 {
     // must be called with this locked
-   
+
     //
     // Add all facets to OA
     //
     FacetMap filteredFacets;
-    
+
     for(FacetMap::iterator p = _adminFacets.begin(); p != _adminFacets.end(); ++p)
     {
         if(_adminFacetFilter.empty() || _adminFacetFilter.find(p->first) != _adminFacetFilter.end())
@@ -849,8 +849,8 @@ IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapte
                 out << "couldn't register server `" + serverId + "' with the locator registry:\n";
                 out << "the server is not known to the locator registry";
             }
-            
-            throw InitializationException(__FILE__, __LINE__, "Locator `" + _proxyFactory->proxyToString(locator) + 
+
+            throw InitializationException(__FILE__, __LINE__, "Locator `" + _proxyFactory->proxyToString(locator) +
                                           "' knows nothing about server `" + serverId + "'");
         }
         catch(const LocalException& ex)
@@ -1205,7 +1205,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                 }
 #else
                 logStdErrConvert =
-                    _initData.properties->getPropertyAsIntWithDefault("Ice.LogStdErr.Convert", 1) == 1 &&
+                    _initData.properties->getPropertyAsIntWithDefault("Ice.LogStdErr.Convert", 1) > 0 &&
                     _initData.properties->getProperty("Ice.StdErr").empty();
 #endif
             }
@@ -1439,7 +1439,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
     // Note that any logger-dependent admin facet must be created after we load all plugins,
     // since one of these plugins can be a Logger plugin that sets a new logger during loading
     //
-    
+
     if(_initData.properties->getProperty("Ice.Admin.Enabled") == "")
     {
         _adminEnabled = _initData.properties->getProperty("Ice.Admin.Endpoints") != "";
@@ -1449,12 +1449,12 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
         _adminEnabled = _initData.properties->getPropertyAsInt("Ice.Admin.Enabled") > 0;
     }
 
-    StringSeq facetSeq = _initData.properties->getPropertyAsList("Ice.Admin.Facets");   
+    StringSeq facetSeq = _initData.properties->getPropertyAsList("Ice.Admin.Facets");
     if(!facetSeq.empty())
     {
         _adminFacetFilter.insert(facetSeq.begin(), facetSeq.end());
     }
-    
+
     if(_adminEnabled)
     {
         //
@@ -1488,7 +1488,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
             _adminFacets.insert(make_pair(propertiesFacetName, propsAdmin));
         }
 
-        // 
+        //
         // Metrics facet
         //
         const string metricsFacetName = "Metrics";
@@ -1497,7 +1497,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
             CommunicatorObserverIPtr observer = new CommunicatorObserverI(_initData);
             _initData.observer = observer;
             _adminFacets.insert(make_pair(metricsFacetName, observer->getFacet()));
-        
+
             //
             // Make sure the metrics admin facet receives property updates.
             //
@@ -1507,15 +1507,15 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
             }
         }
     }
-        
-    // 
+
+    //
     // Set observer updater
     //
     if(_initData.observer)
     {
         _initData.observer->setObserverUpdater(new ObserverUpdaterI(this));
     }
-        
+
     //
     // Create threads.
     //
@@ -1618,7 +1618,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
     // Note: getAdmin here can return 0 and do nothing in the event the
     // application set Ice.Admin.Enabled but did not set Ice.Admin.Enpoints
     // and one or more of the properties required to create the Admin object.
-    // 
+    //
     if(_adminEnabled && _initData.properties->getPropertyAsIntWithDefault("Ice.Admin.DelayCreation", 0) <= 0)
     {
         getAdmin();
@@ -1678,7 +1678,7 @@ IceInternal::Instance::destroy()
     {
         CommunicatorObserverIPtr observer = CommunicatorObserverIPtr::dynamicCast(_initData.observer);
         if(observer)
-        {        
+        {
             observer->destroy(); // Break cyclic reference counts. Don't clear _observer, it's immutable.
         }
         _initData.observer->setObserverUpdater(0); // Break cyclic reference count.

@@ -40,7 +40,7 @@ public:
     CheckpointThread(SharedDbEnv&, const Time&, Int, Int);
 
     virtual void run();
-  
+
     void terminate();
 
 private:
@@ -62,7 +62,7 @@ struct MapKey
     Ice::CommunicatorPtr communicator;
 };
 
-inline bool 
+inline bool
 operator<(const MapKey& lhs, const MapKey& rhs)
 {
     return (lhs.communicator < rhs.communicator) ||
@@ -79,11 +79,11 @@ dbErrCallback(const char* prefix, char* msg)
 #else
 void
 dbErrCallback(const ::DbEnv* /*ignored*/, const char* prefix, const char* msg)
-#endif    
+#endif
 {
     const Freeze::SharedDbEnv* env = reinterpret_cast<const Freeze::SharedDbEnv*>(prefix);
     assert(env != 0);
-    
+
     Ice::Trace out(env->getCommunicator()->getLogger(), "Berkeley DB");
     out << "DbEnv \"" << env->getEnvName() << "\": " << msg;
 }
@@ -123,7 +123,7 @@ SharedDbEnvMap* sharedDbEnvMap;
 
 }
 
-Freeze::SharedDbEnvPtr 
+Freeze::SharedDbEnvPtr
 Freeze::SharedDbEnv::get(const CommunicatorPtr& communicator, const string& envName, DbEnv* env)
 {
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(mapMutex);
@@ -149,14 +149,14 @@ Freeze::SharedDbEnv::get(const CommunicatorPtr& communicator, const string& envN
     // MapKey not found, let's create and open a new DbEnv
     //
     IceUtil::UniquePtr<SharedDbEnv> result(new SharedDbEnv(envName, communicator, env));
-    
+
     //
     // Insert it into the map
     //
     pair<SharedDbEnvMap::iterator, bool> insertResult;
     insertResult = sharedDbEnvMap->insert(SharedDbEnvMap::value_type(key, result.get()));
     assert(insertResult.second);
-    
+
     return result.release();
 }
 
@@ -179,7 +179,7 @@ Freeze::SharedDbEnv::~SharedDbEnv()
     catch(...)
     {
         Error out(_communicator->getLogger());
-        out << "Freeze DbEnv close error: unknown exception"; 
+        out << "Freeze DbEnv close error: unknown exception";
     }
 
 #ifdef _WIN32
@@ -199,7 +199,7 @@ Freeze::SharedDbEnv::~SharedDbEnv()
 }
 
 
-Freeze::MapDb* 
+Freeze::MapDb*
 Freeze::SharedDbEnv::getSharedMapDb(const string& dbName,
                                     const string& key,
                                     const string& value,
@@ -210,7 +210,7 @@ Freeze::SharedDbEnv::getSharedMapDb(const string& dbName,
     //
     // We don't want to lock to retrieve the catalog or catalog index
     //
-    
+
     if(dbName == _catalog->dbName())
     {
         _catalog->checkTypes(key, value);
@@ -221,7 +221,7 @@ Freeze::SharedDbEnv::getSharedMapDb(const string& dbName,
         _catalogIndexList->checkTypes(key, value);
         return _catalogIndexList;
     }
-    
+
     IceUtil::Mutex::Lock lock(_mutex);
 
     SharedDbMap::iterator p = _sharedDbMap.find(dbName);
@@ -232,7 +232,7 @@ Freeze::SharedDbEnv::getSharedMapDb(const string& dbName,
         db->connectIndices(indices);
         return db;
     }
-  
+
 
     //
     // key not found, let's create and open a new Db
@@ -242,19 +242,19 @@ Freeze::SharedDbEnv::getSharedMapDb(const string& dbName,
     // Since we're going to put this SharedDb in the map no matter
     // what, we use our own transaction and connection to do so
     //
-    
+
     ConnectionIPtr insertConnection = new ConnectionI(this);
-    
-    IceUtil::UniquePtr<MapDb> result(new MapDb(insertConnection, dbName, key, value, 
+
+    IceUtil::UniquePtr<MapDb> result(new MapDb(insertConnection, dbName, key, value,
                                      keyCompare, indices, createDb));
-    
+
     //
     // Insert it into the map
     //
     pair<SharedDbMap::iterator, bool> insertResult;
     insertResult = _sharedDbMap.insert(SharedDbMap::value_type(dbName, result.get()));
     assert(insertResult.second);
-    
+
     return result.release();
 }
 
@@ -300,7 +300,7 @@ void Freeze::SharedDbEnv::__decRef()
             lock.release();
             mapLock.acquire();
             lock.acquire();
-         
+
             //
             // Now, maybe another thread has deleted 'this'; let's check
             // we're still in the map
@@ -310,9 +310,9 @@ void Freeze::SharedDbEnv::__decRef()
             {
                 return;
             }
-            
+
             SharedDbEnvMap::iterator p = sharedDbEnvMap->find(key);
-            
+
             if(p == sharedDbEnvMap->end() || p->second != this)
             {
                 //
@@ -353,7 +353,7 @@ void Freeze::SharedDbEnv::__decRef()
 
 Freeze::TransactionalEvictorContextPtr
 Freeze::SharedDbEnv::createCurrent()
-{    
+{
     assert(getCurrent() == 0);
 
     Freeze::TransactionalEvictorContextPtr ctx = new TransactionalEvictorContext(this);
@@ -368,7 +368,7 @@ Freeze::SharedDbEnv::createCurrent()
         throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, err);
     }
 #endif
-    
+
     //
     // Give one refcount to this thread!
     //
@@ -427,15 +427,15 @@ Freeze::SharedDbEnv::setCurrentTransaction(const Freeze::TransactionPtr& tx)
         //
         // Release thread's refcount
         //
-        ctx->__decRef();    
+        ctx->__decRef();
     }
 
     if(tx != 0)
     {
         if(ctx == 0 || ctx->transaction().get() != txi.get())
         {
-            ctx = new TransactionalEvictorContext(txi); 
-       
+            ctx = new TransactionalEvictorContext(txi);
+
 #ifdef _WIN32
             if(TlsSetValue(_tsdKey, ctx.get()) == 0)
             {
@@ -497,7 +497,7 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
     string propertyPrefix = string("Freeze.DbEnv.") + envName;
     string dbHome = properties->getPropertyWithDefault(propertyPrefix + ".DbHome", envName);
 
-    string encoding = properties->getPropertyWithDefault(propertyPrefix + ".EncodingVersion", 
+    string encoding = properties->getPropertyWithDefault(propertyPrefix + ".EncodingVersion",
                                                          encodingVersionToString(Ice::currentEncoding));
     _encoding = stringToEncodingVersion(encoding);
     IceInternal::checkSupportedEncoding(_encoding);
@@ -530,32 +530,32 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
         {
             _envHolder.reset(new DbEnv(0));
             _env = _envHolder.get();
-            
+
             if(_trace >= 1)
             {
                 Trace out(_communicator->getLogger(), "Freeze.DbEnv");
                 out << "opening database environment \"" << envName << "\"";
             }
-            
+
             _env->set_errpfx(reinterpret_cast<char*>(this));
-            
+
             _env->set_errcall(dbErrCallback);
-                
+
 #ifdef _WIN32
             //
             // Berkeley DB may use a different C++ runtime
             //
             _env->set_alloc(::malloc, ::realloc, ::free);
 #endif
-                
+
             //
             // Deadlock detection
             //
             _env->set_lk_detect(DB_LOCK_YOUNGEST);
-                
+
             u_int32_t flags = DB_INIT_LOCK | DB_INIT_LOG | DB_INIT_MPOOL | DB_INIT_TXN;
-                
-            if(properties->getPropertyAsInt(propertyPrefix + ".DbRecoverFatal") != 0)
+
+            if(properties->getPropertyAsInt(propertyPrefix + ".DbRecoverFatal") > 0)
             {
                 flags |= DB_RECOVER_FATAL | DB_CREATE;
             }
@@ -563,8 +563,8 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
             {
                 flags |= DB_RECOVER | DB_CREATE;
             }
-                
-            if(properties->getPropertyAsIntWithDefault(propertyPrefix + ".DbPrivate", 1) != 0)
+
+            if(properties->getPropertyAsIntWithDefault(propertyPrefix + ".DbPrivate", 1) > 0)
             {
                 flags |= DB_PRIVATE;
             }
@@ -572,8 +572,8 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
             //
             // Auto delete
             //
-            bool autoDelete = (properties->getPropertyAsIntWithDefault(propertyPrefix + ".OldLogsAutoDelete", 1) != 0); 
-                
+            bool autoDelete = (properties->getPropertyAsIntWithDefault(propertyPrefix + ".OldLogsAutoDelete", 1) > 0);
+
             if(autoDelete)
             {
 #if (DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR < 7)
@@ -585,23 +585,23 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
                 _env->log_set_config(DB_LOG_AUTO_REMOVE, 1);
 #endif
             }
-            
+
             //
             // Threading
-            // 
+            //
             flags |= DB_THREAD;
 
             //
             // Berkeley DB expects file paths to be UTF8 encoded.
             //
             _env->open(nativeToUTF8(dbHome, getProcessStringConverter()).c_str(), flags, FREEZE_DB_MODE);
-       
+
             //
             // Default checkpoint period is every 120 seconds
             //
             Int checkpointPeriod = properties->getPropertyAsIntWithDefault(propertyPrefix + ".CheckpointPeriod", 120);
             Int kbyte = properties->getPropertyAsIntWithDefault(propertyPrefix + ".PeriodicCheckpointMinSize", 0);
-        
+
             if(checkpointPeriod > 0)
             {
                 _thread = new CheckpointThread(*this, Time::seconds(checkpointPeriod), kbyte, _trace);
@@ -613,12 +613,12 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
         //
         _catalog = new MapDb(_communicator, _encoding, catalogName(), Catalog::keyTypeId(),
                              Catalog::valueTypeId(), _env);
-        _catalogIndexList = new MapDb(_communicator, _encoding, catalogIndexListName(), 
+        _catalogIndexList = new MapDb(_communicator, _encoding, catalogIndexListName(),
                                       CatalogIndexList::keyTypeId(), CatalogIndexList::valueTypeId(), _env);
     }
     catch(const ::DbException& dx)
     {
-        cleanup();       
+        cleanup();
         throw DatabaseException(__FILE__, __LINE__, dx.what());
     }
 }
@@ -676,7 +676,7 @@ Freeze::SharedDbEnv::cleanup()
     //
     // And finally close env
     //
-    
+
     if(_envHolder.get() != 0)
     {
         try
@@ -691,11 +691,11 @@ Freeze::SharedDbEnv::cleanup()
 }
 
 
-Freeze::CheckpointThread::CheckpointThread(SharedDbEnv& dbEnv, const Time& checkpointPeriod, Int kbyte, Int trace) : 
+Freeze::CheckpointThread::CheckpointThread(SharedDbEnv& dbEnv, const Time& checkpointPeriod, Int kbyte, Int trace) :
     Thread("Freeze checkpoint thread"),
-    _dbEnv(dbEnv), 
-    _done(false), 
-    _checkpointPeriod(checkpointPeriod), 
+    _dbEnv(dbEnv),
+    _done(false),
+    _checkpointPeriod(checkpointPeriod),
     _kbyte(kbyte),
     _trace(trace)
 {
@@ -712,11 +712,11 @@ Freeze::CheckpointThread::terminate()
         _done = true;
         notify();
     }
-    
+
     getThreadControl().join();
 }
 
-void 
+void
 Freeze::CheckpointThread::run()
 {
     for(;;)

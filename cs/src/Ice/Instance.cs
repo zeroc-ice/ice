@@ -357,29 +357,29 @@ namespace IceInternal
         createAdmin(Ice.ObjectAdapter adminAdapter, Ice.Identity adminIdentity)
         {
             bool createAdapter = (adminAdapter == null);
-            
+
             lock(this)
             {
                 if(_state == StateDestroyed)
                 {
                     throw new Ice.CommunicatorDestroyedException();
                 }
-                
+
                 if(adminIdentity == null || string.IsNullOrEmpty(adminIdentity.name))
                 {
                     throw new Ice.IllegalIdentityException(adminIdentity);
                 }
-    
+
                 if(_adminAdapter != null)
                 {
                     throw new Ice.InitializationException("Admin already created");
                 }
-                
+
                 if(!_adminEnabled)
                 {
                     throw new Ice.InitializationException("Admin is disabled");
                 }
-            
+
                 if(createAdapter)
                 {
                     if(_initData.properties.getProperty("Ice.Admin.Endpoints").Length > 0)
@@ -391,12 +391,12 @@ namespace IceInternal
                         throw new Ice.InitializationException("Ice.Admin.Endpoints is not set");
                     }
                 }
-       
+
                 _adminIdentity = adminIdentity;
                 _adminAdapter = adminAdapter;
                 addAllAdminFacets();
             }
- 
+
             if(createAdapter)
             {
                 try
@@ -421,20 +421,20 @@ namespace IceInternal
             setServerProcessProxy(adminAdapter, adminIdentity);
             return adminAdapter.createProxy(adminIdentity);
         }
-        
-        public Ice.ObjectPrx 
+
+        public Ice.ObjectPrx
         getAdmin()
         {
             Ice.ObjectAdapter adminAdapter;
             Ice.Identity adminIdentity;
-            
+
             lock(this)
             {
                 if(_state == StateDestroyed)
                 {
                     throw new Ice.CommunicatorDestroyedException();
                 }
-                
+
                 if(_adminAdapter != null)
                 {
                     return _adminAdapter.createProxy(_adminIdentity);
@@ -454,7 +454,7 @@ namespace IceInternal
                     {
                         adminIdentity.category = System.Guid.NewGuid().ToString();
                     }
-                    
+
                     _adminIdentity = adminIdentity;
                     _adminAdapter = adminAdapter;
                     addAllAdminFacets();
@@ -465,7 +465,7 @@ namespace IceInternal
                     return null;
                 }
             }
-            
+
             try
             {
                 adminAdapter.activate();
@@ -484,11 +484,11 @@ namespace IceInternal
                 }
                 throw;
             }
-            
+
             setServerProcessProxy(adminAdapter, adminIdentity);
             return adminAdapter.createProxy(adminIdentity);
         }
-        
+
         public void
         addAdminFacet(Ice.Object servant, string facet)
         {
@@ -574,8 +574,8 @@ namespace IceInternal
                 return result;
             }
         }
-        
-        public Dictionary<string, Ice.Object> 
+
+        public Dictionary<string, Ice.Object>
         findAllAdminFacets()
         {
             lock(this)
@@ -584,7 +584,7 @@ namespace IceInternal
                 {
                     throw new Ice.CommunicatorDestroyedException();
                 }
-              
+
                 if(_adminAdapter == null)
                 {
                     return new Dictionary<string, Ice.Object>(_adminFacets);
@@ -750,7 +750,7 @@ namespace IceInternal
                             new Ice.ConsoleLoggerI(_initData.properties.getProperty("Ice.ProgramName"));
 #  else
                         bool console =
-                            _initData.properties.getPropertyAsIntWithDefault("Ice.ConsoleListener", 1) == 1;
+                            _initData.properties.getPropertyAsIntWithDefault("Ice.ConsoleListener", 1) > 0;
                         _initData.logger =
                             new Ice.TraceLoggerI(_initData.properties.getProperty("Ice.ProgramName"), console);
 #  endif
@@ -888,7 +888,7 @@ namespace IceInternal
             // Note that any logger-dependent admin facet must be created after we load all plugins,
             // since one of these plugins can be a Logger plugin that sets a new logger during loading
             //
-            
+
             if(_initData.properties.getProperty("Ice.Admin.Enabled").Length == 0)
             {
                 _adminEnabled = _initData.properties.getProperty("Ice.Admin.Endpoints").Length > 0;
@@ -911,16 +911,16 @@ namespace IceInternal
             {
                 //
                 // Process facet
-                // 
+                //
                 string processFacetName = "Process";
                 if(_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(processFacetName))
                 {
                     _adminFacets.Add(processFacetName, new ProcessI(communicator));
                 }
-                
+
                 //
                 // Logger facet
-                // 
+                //
                 string loggerFacetName = "Logger";
                 if(_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(loggerFacetName))
                 {
@@ -929,7 +929,7 @@ namespace IceInternal
 
                 //
                 // Properties facet
-                // 
+                //
                 string propertiesFacetName = "Properties";
                 PropertiesAdminI propsAdmin = null;
                 if(_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(propertiesFacetName))
@@ -937,7 +937,7 @@ namespace IceInternal
                      propsAdmin= new PropertiesAdminI(_initData.properties, _initData.logger);
                     _adminFacets.Add(propertiesFacetName, propsAdmin);
                 }
-                    
+
                 //
                 // Metrics facet
                 //
@@ -947,7 +947,7 @@ namespace IceInternal
                     CommunicatorObserverI observer = new CommunicatorObserverI(_initData);
                     _initData.observer = observer;
                     _adminFacets.Add(metricsFacetName, observer.getFacet());
-                    
+
                     //
                     // Make sure the admin plugin receives property updates.
                     //
@@ -1312,7 +1312,7 @@ namespace IceInternal
             lock(this)
             {
                 Dictionary<string, Ice.Object> filteredFacets = new Dictionary<string, Ice.Object>();
-                
+
                 foreach(KeyValuePair<string, Ice.Object> entry in _adminFacets)
                 {
                     if(_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(entry.Key))
@@ -1327,13 +1327,13 @@ namespace IceInternal
                 _adminFacets = filteredFacets;
             }
         }
-          
+
         internal void setServerProcessProxy(Ice.ObjectAdapter adminAdapter, Ice.Identity adminIdentity)
         {
             Ice.ObjectPrx admin = adminAdapter.createProxy(adminIdentity);
             Ice.LocatorPrx locator = adminAdapter.getLocator();
             string serverId = _initData.properties.getProperty("Ice.Admin.ServerId");
-            
+
             if(locator != null && serverId.Length > 0)
             {
                 Ice.ProcessPrx process = Ice.ProcessPrxHelper.uncheckedCast(admin.ice_facet("Process"));
@@ -1354,7 +1354,7 @@ namespace IceInternal
                         s.Append("the server is not known to the locator registry");
                         _initData.logger.trace(_traceLevels.locationCat, s.ToString());
                     }
-                    
+
                     throw new Ice.InitializationException("Locator knows nothing about server `" + serverId + "'");
                 }
                 catch(Ice.LocalException ex)
@@ -1367,7 +1367,7 @@ namespace IceInternal
                     }
                     throw; // TODO: Shall we raise a special exception instead of a non obvious local exception?
                 }
-                
+
                 if(_traceLevels.location >= 1)
                 {
                     System.Text.StringBuilder s = new System.Text.StringBuilder();
@@ -1380,7 +1380,7 @@ namespace IceInternal
         private NetworkProxy createNetworkProxy(Ice.Properties props, int protocolSupport)
         {
             string proxyHost;
-        
+
             proxyHost = props.getProperty("Ice.SOCKSProxyHost");
             if(proxyHost.Length > 0)
             {
@@ -1391,13 +1391,13 @@ namespace IceInternal
                 int proxyPort = props.getPropertyAsIntWithDefault("Ice.SOCKSProxyPort", 1080);
                 return new SOCKSNetworkProxy(proxyHost, proxyPort);
             }
-            
+
             proxyHost = props.getProperty("Ice.HTTPProxyHost");
             if(proxyHost.Length > 0)
             {
                 return new HTTPNetworkProxy(proxyHost, props.getPropertyAsIntWithDefault("Ice.HTTPProxyPort", 1080));
             }
-            
+
             return null;
         }
 
