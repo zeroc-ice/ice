@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public class BatchOutgoingAsync extends AsyncResultI implements OutgoingAsyncMessageCallback
+public class BatchOutgoingAsync extends OutgoingAsyncBase implements OutgoingAsyncMessageCallback
 {
     BatchOutgoingAsync(Ice.Communicator communicator, Instance instance, String operation, CallbackBase callback)
     {
@@ -92,6 +92,13 @@ public class BatchOutgoingAsync extends AsyncResultI implements OutgoingAsyncMes
             }
         }
         invokeException(exc);
+    }
+
+    @Override
+    public void
+    processRetry(boolean destroyed)
+    {
+        // Does not implement retry
     }
 
     @Override

@@ -23,18 +23,18 @@ namespace IceInternal
 class RetryTask : public IceUtil::TimerTask
 {
 public:
-    
-    RetryTask(const RetryQueuePtr&, const OutgoingAsyncPtr&);
-    
+
+    RetryTask(const RetryQueuePtr&, const OutgoingAsyncMessageCallbackPtr&);
+
     virtual void runTimerTask();
     void destroy();
-    
+
     bool operator<(const RetryTask&) const;
-    
+
 private:
-    
+
     const RetryQueuePtr _queue;
-    const OutgoingAsyncPtr _outAsync;
+    const OutgoingAsyncMessageCallbackPtr _outAsync;
 };
 typedef IceUtil::Handle<RetryTask> RetryTaskPtr;
 
@@ -43,8 +43,8 @@ class RetryQueue : public IceUtil::Shared, public IceUtil::Mutex
 public:
 
     RetryQueue(const InstancePtr&);
-    
-    void add(const OutgoingAsyncPtr&, int);
+
+    void add(const OutgoingAsyncMessageCallbackPtr&, int);
     void destroy();
 
 private:

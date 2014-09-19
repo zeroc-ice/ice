@@ -305,8 +305,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final boolean
     end_ice_isA(AsyncResult __iresult)
     {
-        IceInternal.AsyncResultI __result = (IceInternal.AsyncResultI)__iresult;
-        IceInternal.AsyncResultI.check(__result, this, __ice_isA_name);
+        IceInternal.OutgoingAsyncBase __result = (IceInternal.OutgoingAsyncBase)__iresult;
+        IceInternal.OutgoingAsyncBase.check(__result, this, __ice_isA_name);
         try
         {
             if(!__result.__wait())
@@ -797,8 +797,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final String[]
     end_ice_ids(AsyncResult __iresult)
     {
-        IceInternal.AsyncResultI __result = (IceInternal.AsyncResultI) __iresult;
-        IceInternal.AsyncResultI.check(__result, this, __ice_ids_name);
+        IceInternal.OutgoingAsyncBase __result = (IceInternal.OutgoingAsyncBase) __iresult;
+        IceInternal.OutgoingAsyncBase.check(__result, this, __ice_ids_name);
         try
         {
             if(!__result.__wait())
@@ -1073,8 +1073,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final String
     end_ice_id(AsyncResult __iresult)
     {
-        IceInternal.AsyncResultI __result = (IceInternal.AsyncResultI) __iresult;
-        IceInternal.AsyncResultI.check(__result, this, __ice_id_name);
+        IceInternal.OutgoingAsyncBase __result = (IceInternal.OutgoingAsyncBase) __iresult;
+        IceInternal.OutgoingAsyncBase.check(__result, this, __ice_id_name);
         try
         {
             if(!__result.__wait())
@@ -1468,8 +1468,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final boolean
     end_ice_invoke(ByteSeqHolder outParams, AsyncResult __iresult)
     {
-        IceInternal.AsyncResultI __result = (IceInternal.AsyncResultI) __iresult;
-        IceInternal.AsyncResultI.check(__result, this, __ice_invoke_name);
+        IceInternal.OutgoingAsyncBase __result = (IceInternal.OutgoingAsyncBase) __iresult;
+        IceInternal.OutgoingAsyncBase.check(__result, this, __ice_invoke_name);
         try
         {
             boolean ok = __result.__wait();
@@ -2488,8 +2488,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public Ice.Connection
     end_ice_getConnection(AsyncResult __iresult)
     {
-        IceInternal.AsyncResultI __result = (IceInternal.AsyncResultI)__iresult;
-        IceInternal.AsyncResultI.check(__result, this, __ice_getConnection_name);
+        IceInternal.OutgoingAsyncBase __result = (IceInternal.OutgoingAsyncBase)__iresult;
+        IceInternal.OutgoingAsyncBase.check(__result, this, __ice_getConnection_name);
         __result.__wait();
         return ice_getCachedConnection();
     }
@@ -2654,8 +2654,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public void
     end_ice_flushBatchRequests(AsyncResult __iresult)
     {
-        IceInternal.AsyncResultI __result = (IceInternal.AsyncResultI)__iresult;
-        IceInternal.AsyncResultI.check(__result, this, __ice_flushBatchRequests_name);
+        IceInternal.OutgoingAsyncBase __result = (IceInternal.OutgoingAsyncBase)__iresult;
+        IceInternal.OutgoingAsyncBase.check(__result, this, __ice_flushBatchRequests_name);
         __result.__wait();
     }
 
@@ -2780,8 +2780,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final void
     __end(AsyncResult __iresult, String operation)
     {
-        IceInternal.AsyncResultI __result = (IceInternal.AsyncResultI)__iresult;
-        IceInternal.AsyncResultI.check(__result, this, operation);
+        IceInternal.OutgoingAsyncBase __result = (IceInternal.OutgoingAsyncBase)__iresult;
+        IceInternal.OutgoingAsyncBase.check(__result, this, operation);
         try
         {
             boolean ok = __result.__wait();

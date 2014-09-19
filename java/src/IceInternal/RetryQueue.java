@@ -17,7 +17,7 @@ public class RetryQueue
     }
 
     synchronized public void
-    add(OutgoingAsync outAsync, int interval)
+    add(OutgoingAsyncMessageCallback outAsync, int interval)
     {
         RetryTask task = new RetryTask(this, outAsync);
         task.setFuture(_instance.timer().schedule(task, interval, java.util.concurrent.TimeUnit.MILLISECONDS));

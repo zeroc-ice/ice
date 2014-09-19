@@ -283,8 +283,8 @@ public final class CommunicatorI implements Communicator
     public void
     end_flushBatchRequests(AsyncResult r)
     {
-        IceInternal.AsyncResultI ri = (IceInternal.AsyncResultI)r;
-        IceInternal.AsyncResultI.check(ri, this, __flushBatchRequests_name);
+        IceInternal.OutgoingAsyncBase ri = (IceInternal.OutgoingAsyncBase)r;
+        IceInternal.OutgoingAsyncBase.check(ri, this, __flushBatchRequests_name);
         ri.__wait();
     }
 

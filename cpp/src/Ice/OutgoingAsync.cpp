@@ -618,6 +618,26 @@ IceInternal::OutgoingAsync::__finished(const Ice::Exception& exc)
 }
 
 void
+IceInternal::OutgoingAsync::__processRetry(bool destroyed)
+{
+    if(destroyed)
+    {
+        __invokeExceptionAsync(CommunicatorDestroyedException(__FILE__, __LINE__));
+    }
+    else
+    {
+        try
+        {
+            __invoke(false);
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            __invokeExceptionAsync(ex);
+        }
+    }
+}
+
+void
 IceInternal::OutgoingAsync::__invokeExceptionAsync(const Ice::Exception& ex)
 {
     if((_state & Done) == 0 && _handler)
@@ -986,6 +1006,12 @@ IceInternal::BatchOutgoingAsync::__finished(const Ice::Exception& exc)
     __invokeException(exc);
 }
 
+void
+IceInternal::BatchOutgoingAsync::__processRetry(bool destroyed)
+{
+    // Does not support retry
+}
+
 IceInternal::ProxyBatchOutgoingAsync::ProxyBatchOutgoingAsync(const Ice::ObjectPrx& proxy,
                                                               const std::string& operation,
                                                               const CallbackBasePtr& delegate,
@@ -1208,13 +1234,15 @@ IceInternal::CommunicatorBatchOutgoingAsync::check(bool userThread)
     }
 }
 
-IceInternal::GetConnectionOutgoingAsync::GetConnectionOutgoingAsync(const Ice::ObjectPrx& proxy,
+IceInternal::GetConnectionOutgoingAsync::GetConnectionOutgoingAsync(const Ice::ObjectPrx& prx,
                                                                     const std::string& operation,
                                                                     const CallbackBasePtr& delegate,
                                                                     const Ice::LocalObjectPtr& cookie) :
-    OutgoingAsync(proxy, operation, delegate, cookie)
+    AsyncResult(prx->ice_getCommunicator(), prx->__reference()->getInstance(), operation, delegate, cookie),
+    _proxy(prx),
+    _cnt(0)
 {
-    _observer.attach(proxy.get(), operation, 0);
+    _observer.attach(prx.get(), operation, 0);
 }
 
 void
@@ -1281,6 +1309,26 @@ IceInternal::GetConnectionOutgoingAsync::__finished(const Ice::Exception& exc)
     catch(const Ice::Exception& ex)
     {
         __invokeException(ex);
+    }
+}
+
+void
+IceInternal::GetConnectionOutgoingAsync::__processRetry(bool destroyed)
+{
+    if(destroyed)
+    {
+        __invokeExceptionAsync(CommunicatorDestroyedException(__FILE__, __LINE__));
+    }
+    else
+    {
+        try
+        {
+            __invoke();
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            __invokeExceptionAsync(ex);
+        }
     }
 }
 

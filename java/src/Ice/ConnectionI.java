@@ -651,8 +651,8 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     @Override
     public void end_flushBatchRequests(AsyncResult ir)
     {
-        IceInternal.AsyncResultI r = (IceInternal.AsyncResultI) ir;
-        IceInternal.AsyncResultI.check(r, this, __flushBatchRequests_name);
+        IceInternal.OutgoingAsyncBase r = (IceInternal.OutgoingAsyncBase) ir;
+        IceInternal.OutgoingAsyncBase.check(r, this, __flushBatchRequests_name);
         r.__wait();
     }
 

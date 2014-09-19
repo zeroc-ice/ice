@@ -21,10 +21,10 @@ import Ice.UserException;
  * With this object, an application can obtain several attributes of the
  * invocation and discover its outcome.
  **/
-public class AsyncResultI implements Ice.AsyncResult
+public class OutgoingAsyncBase implements Ice.AsyncResult
 {
-    protected AsyncResultI(Communicator communicator, IceInternal.Instance instance, String op,
-                          IceInternal.CallbackBase del)
+    protected OutgoingAsyncBase(Communicator communicator, IceInternal.Instance instance, String op,
+                                IceInternal.CallbackBase del)
     {
         _communicator = communicator;
         _instance = instance;
@@ -35,9 +35,9 @@ public class AsyncResultI implements Ice.AsyncResult
         _exception = null;
         _callback = del;
     }
-    
-    protected AsyncResultI(Communicator communicator, Instance instance, String op, CallbackBase del, BasicStream is,
-            BasicStream os)
+
+    protected OutgoingAsyncBase(Communicator communicator, Instance instance, String op, CallbackBase del,
+                                BasicStream is, BasicStream os)
     {
         _communicator = communicator;
         _instance = instance;
@@ -455,7 +455,7 @@ public class AsyncResultI implements Ice.AsyncResult
     public void cacheMessageBuffers()
     {
     }
-    
+
     public final void invokeCompleted()
     {
         //
@@ -493,7 +493,7 @@ public class AsyncResultI implements Ice.AsyncResult
                     Thread.currentThread().setContextClassLoader(null);
                 }
             }
-            
+
             cacheMessageBuffers();
         }
 
@@ -520,7 +520,7 @@ public class AsyncResultI implements Ice.AsyncResult
                             new Ice.InvocationTimeoutException());
         }
     }
-    
+
     private static void check(AsyncResult r, String operation)
     {
         if(r == null)
@@ -548,7 +548,7 @@ public class AsyncResultI implements Ice.AsyncResult
         String s = "error raised by AMI callback:\n" + IceInternal.Ex.toString(error);
         _instance.initializationData().logger.error(s);
     }
-    
+
     protected Communicator _communicator;
     protected IceInternal.Instance _instance;
     protected String _operation;

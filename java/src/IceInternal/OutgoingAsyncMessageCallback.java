@@ -44,6 +44,11 @@ public interface OutgoingAsyncMessageCallback
     void finished(Ice.Exception ex);
 
     //
+    // Called by the retry queue to process retry.
+    //
+    void processRetry(boolean destroyed);
+
+    //
     // Helper to dispatch the cancellation exception.
     //
     void dispatchInvocationCancel(Ice.LocalException ex, ThreadPool threadPool, Ice.Connection connection);

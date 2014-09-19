@@ -231,6 +231,11 @@ public:
     virtual void __finished(const Ice::Exception&) = 0;
 
     //
+    // Called by the retry queue to process retry.
+    //
+    virtual void __processRetry(bool destroyed) = 0;
+
+    //
     // Helper to dispatch invocation timeout.
     //
     void __dispatchInvocationTimeout(const ThreadPoolPtr&, const Ice::ConnectionPtr&);
@@ -255,6 +260,7 @@ public:
     virtual bool __sent();
     virtual void __invokeSent();
     virtual void __finished(const Ice::Exception&);
+    virtual void __processRetry(bool);
     virtual void __invokeExceptionAsync(const Ice::Exception&);
 
     bool __finished();
@@ -294,8 +300,6 @@ public:
 protected:
 
     Ice::ObjectPrx _proxy;
-    RequestHandlerPtr _handler;
-    int _cnt;
 
 private:
 
@@ -304,6 +308,8 @@ private:
 
     Ice::EncodingVersion _encoding;
 
+    RequestHandlerPtr _handler;
+    int _cnt;
     bool _sent;
     Ice::OperationMode _mode;
 };
@@ -320,6 +326,7 @@ public:
     virtual bool __sent();
     virtual void __invokeSent();
     virtual void __finished(const Ice::Exception&);
+    virtual void __processRetry(bool);
 };
 
 class ICE_API ProxyBatchOutgoingAsync : public BatchOutgoingAsync
@@ -375,7 +382,7 @@ private:
     int _useCount;
 };
 
-class ICE_API GetConnectionOutgoingAsync : public OutgoingAsync
+class ICE_API GetConnectionOutgoingAsync :  public OutgoingAsyncMessageCallback, public Ice::AsyncResult
 {
 public:
 
@@ -384,15 +391,26 @@ public:
 
     void __invoke();
 
+    virtual Ice::ObjectPrx
+    getProxy() const
+    {
+        return _proxy;
+    }
+
     virtual AsyncStatus __send(const Ice::ConnectionIPtr&, bool, bool);
     virtual AsyncStatus __invokeCollocated(CollocatedRequestHandler*);
     virtual bool __sent();
     virtual void __invokeSent();
     virtual void __finished(const Ice::Exception&);
+    virtual void __processRetry(bool);
 
 private:
 
     void handleException(const Ice::Exception&);
+
+    Ice::ObjectPrx _proxy;
+    RequestHandlerPtr _handler;
+    int _cnt;
 };
 
 //

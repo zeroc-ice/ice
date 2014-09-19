@@ -18,7 +18,7 @@ using namespace IceInternal;
 
 IceUtil::Shared* IceInternal::upCast(RetryQueue* p) { return p; }
 
-IceInternal::RetryTask::RetryTask(const RetryQueuePtr& queue, const OutgoingAsyncPtr& outAsync) :
+IceInternal::RetryTask::RetryTask(const RetryQueuePtr& queue, const OutgoingAsyncMessageCallbackPtr& outAsync) :
     _queue(queue), _outAsync(outAsync)
 {
 }
@@ -28,21 +28,14 @@ IceInternal::RetryTask::runTimerTask()
 {
     if(_queue->remove(this))
     {
-        try
-        {
-            _outAsync->__invoke(false);
-        }
-        catch(const Ice::LocalException& ex)
-        {
-            _outAsync->__invokeExceptionAsync(ex);
-        }
+        _outAsync->__processRetry(false);
     }
 }
 
 void
 IceInternal::RetryTask::destroy()
 {
-    _outAsync->__invokeExceptionAsync(CommunicatorDestroyedException(__FILE__, __LINE__));
+    _outAsync->__processRetry(true);
 }
 
 bool
@@ -56,7 +49,7 @@ IceInternal::RetryQueue::RetryQueue(const InstancePtr& instance) : _instance(ins
 }
 
 void
-IceInternal::RetryQueue::add(const OutgoingAsyncPtr& out, int interval)
+IceInternal::RetryQueue::add(const OutgoingAsyncMessageCallbackPtr& out, int interval)
 {
     Lock sync(*this);
     RetryTaskPtr task = new RetryTask(this, out);
@@ -66,7 +59,7 @@ IceInternal::RetryQueue::add(const OutgoingAsyncPtr& out, int interval)
     }
     catch(const IceUtil::IllegalArgumentException&) // Expected if the communicator destroyed the timer.
     {
-        throw CommunicatorDestroyedException(__FILE__, __LINE__); 
+        throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
     _requests.insert(task);
 }

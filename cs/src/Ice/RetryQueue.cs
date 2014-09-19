@@ -13,7 +13,7 @@ namespace IceInternal
 
     public class RetryTask : TimerTask
     {
-        public RetryTask(RetryQueue retryQueue, OutgoingAsync outAsync)
+        public RetryTask(RetryQueue retryQueue, OutgoingAsyncMessageCallback outAsync)
         {
             _retryQueue = retryQueue;
             _outAsync = outAsync;
@@ -23,24 +23,17 @@ namespace IceInternal
         {
             if(_retryQueue.remove(this))
             {
-                try
-                {
-                    _outAsync.invoke(false);
-                }
-                catch(Ice.LocalException ex)
-                {
-                    _outAsync.invokeExceptionAsync(ex);
-                }
+                _outAsync.processRetry(false);
             }
         }
 
         public void destroy()
         {
-            _outAsync.invokeExceptionAsync(new Ice.CommunicatorDestroyedException());
+            _outAsync.processRetry(true);
         }
 
         private RetryQueue _retryQueue;
-        private OutgoingAsync _outAsync;
+        private OutgoingAsyncMessageCallback _outAsync;
     }
 
     public class RetryQueue
@@ -50,7 +43,7 @@ namespace IceInternal
             _instance = instance;
         }
 
-        public void add(OutgoingAsync outAsync, int interval)
+        public void add(OutgoingAsyncMessageCallback outAsync, int interval)
         {
             lock(this)
             {

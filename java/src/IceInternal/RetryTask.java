@@ -11,7 +11,7 @@ package IceInternal;
 
 class RetryTask implements Runnable
 {
-    RetryTask(RetryQueue queue, OutgoingAsync outAsync)
+    RetryTask(RetryQueue queue, OutgoingAsyncMessageCallback outAsync)
     {
         _queue = queue;
         _outAsync = outAsync;
@@ -23,14 +23,7 @@ class RetryTask implements Runnable
     {
         if(_queue.remove(this))
         {
-            try
-            {
-                _outAsync.invoke(false);
-            }
-            catch(Ice.LocalException ex)
-            {
-                _outAsync.invokeExceptionAsync(ex);
-            }
+            _outAsync.processRetry(false);
         }
     }
 
@@ -38,7 +31,7 @@ class RetryTask implements Runnable
     destroy()
     {
         _future.cancel(false);
-        _outAsync.invokeExceptionAsync(new Ice.CommunicatorDestroyedException());
+        _outAsync.processRetry(true);
     }
 
     public void setFuture(java.util.concurrent.Future<?> future)
@@ -47,6 +40,6 @@ class RetryTask implements Runnable
     }
 
     private final RetryQueue _queue;
-    private final OutgoingAsync _outAsync;
+    private final OutgoingAsyncMessageCallback _outAsync;
     private java.util.concurrent.Future<?> _future;
 }

@@ -125,6 +125,11 @@ namespace IceInternal
         void finished(Ice.Exception ex);
 
         //
+        // Called by the retry queue to process retry.
+        //
+        void processRetry(bool destroyed);
+
+        //
         // Helper to dispatch invocation timeout.
         //
         void dispatchInvocationCancel(Ice.LocalException ex, ThreadPool threadPool, Ice.Connection connection);
@@ -1019,6 +1024,25 @@ namespace IceInternal
             }
         }
 
+        public virtual void processRetry(bool destroyed)
+        {
+            if(destroyed)
+            {
+                invokeExceptionAsync(new Ice.CommunicatorDestroyedException());
+            }
+            else
+            {
+                try
+                {
+                    invoke(false);
+                }
+                catch(Ice.LocalException ex)
+                {
+                    invokeExceptionAsync(ex);
+                }
+            }
+        }
+
         public void
         dispatchInvocationCancel(Ice.LocalException ex, ThreadPool threadPool, Ice.Connection connection)
         {
@@ -1458,9 +1482,9 @@ namespace IceInternal
         }
 
         protected Ice.ObjectPrxHelperBase proxy_;
-        protected RequestHandler handler_;
-        protected int cnt_;
 
+        private RequestHandler handler_;
+        private int cnt_;
         private Ice.EncodingVersion _encoding;
         private Ice.OperationMode _mode;
         private bool _sent;
@@ -1634,14 +1658,18 @@ namespace IceInternal
         private ProxyOnewayCallback<T> _completed;
     }
 
-    public class GetConnectionOutgoingAsync : TwowayOutgoingAsync<Ice.Callback_Object_ice_getConnection>
+    public class GetConnectionOutgoingAsync : OutgoingAsyncBase, OutgoingAsyncMessageCallback,
+                                              Ice.AsyncResult<Ice.Callback_Object_ice_getConnection>
     {
-        public GetConnectionOutgoingAsync(Ice.ObjectPrxHelperBase proxy, string operation,
+        public GetConnectionOutgoingAsync(Ice.ObjectPrxHelperBase prx, string operation,
                                           ProxyTwowayCallback<Ice.Callback_Object_ice_getConnection> cb,
                                           object cookie) :
-            base(proxy, operation, cb, cookie)
+            base(prx.ice_getCommunicator(), prx.reference__().getInstance(), operation, cookie)
         {
-            observer_ = ObserverHelper.get(proxy, operation);
+            proxy_ = prx;
+            completed_ = cb;
+            cnt_ = 0;
+            observer_ = ObserverHelper.get(prx, operation);
         }
 
         public void invoke()
@@ -1666,22 +1694,22 @@ namespace IceInternal
             }
         }
 
-        public override bool send(Ice.ConnectionI connection, bool compress, bool response,
-                                  out Ice.AsyncCallback sentCallback)
+        public bool send(Ice.ConnectionI connection, bool compress, bool response,
+                         out Ice.AsyncCallback sentCallback)
         {
             sent();
             sentCallback = null;
             return false;
         }
 
-        public override bool invokeCollocated(CollocatedRequestHandler handler, out Ice.AsyncCallback sentCallback)
+        public bool invokeCollocated(CollocatedRequestHandler handler, out Ice.AsyncCallback sentCallback)
         {
             sent();
             sentCallback = null;
             return false;
         }
 
-        public override Ice.AsyncCallback sent()
+        public Ice.AsyncCallback sent()
         {
             lock(monitor_)
             {
@@ -1692,12 +1720,12 @@ namespace IceInternal
             return null;
         }
 
-        public override void invokeSent(Ice.AsyncCallback cb)
+        new public void invokeSent(Ice.AsyncCallback cb)
         {
             // No sent callback
         }
 
-        public override void finished(Ice.Exception exc)
+        public void finished(Ice.Exception exc)
         {
             try
             {
@@ -1707,6 +1735,120 @@ namespace IceInternal
             {
                 invokeExceptionAsync(ex);
             }
+        }
+
+        public void processRetry(bool destroyed)
+        {
+            if(destroyed)
+            {
+                invokeExceptionAsync(new Ice.CommunicatorDestroyedException());
+            }
+            else
+            {
+                try
+                {
+                    invoke();
+                }
+                catch(Ice.LocalException ex)
+                {
+                    invokeExceptionAsync(ex);
+                }
+            }
+        }
+
+        public void
+        dispatchInvocationCancel(Ice.LocalException ex, ThreadPool threadPool, Ice.Connection connection)
+        {
+            GetConnectionOutgoingAsync self = this;
+            threadPool.dispatch(() =>
+            {
+                self.finished(ex);
+            }, connection);
+        }
+
+        new public Ice.AsyncResult<Ice.Callback_Object_ice_getConnection>
+        whenCompleted(Ice.ExceptionCallback excb)
+        {
+            lock(monitor_)
+            {
+                if(excb == null)
+                {
+                    throw new System.ArgumentException("callback is null");
+                }
+                setCompletedCallback(getCompletedCallback());
+                exceptionCallback_ = excb;
+                if((state_ & StateDone) == 0)
+                {
+                    return this;
+                }
+            }
+
+            instance_.clientThreadPool().dispatch(() =>
+            {
+                try
+                {
+                    completedCallback_(this);
+                }
+                catch(System.Exception ex)
+                {
+                    warning(ex);
+                }
+            }, null);
+            return this;
+        }
+
+        virtual public Ice.AsyncResult<Ice.Callback_Object_ice_getConnection>
+        whenCompleted(Ice.Callback_Object_ice_getConnection cb, Ice.ExceptionCallback excb)
+        {
+            lock(monitor_)
+            {
+                if(cb == null && excb == null)
+                {
+                    throw new System.ArgumentException("callback is null");
+                }
+                setCompletedCallback(getCompletedCallback());
+                responseCallback_ = cb;
+                exceptionCallback_ = excb;
+                if((state_ & StateDone) == 0)
+                {
+                    return this;
+                }
+            }
+
+            instance_.clientThreadPool().dispatch(() =>
+            {
+                try
+                {
+                    completedCallback_(this);
+                }
+                catch(System.Exception ex)
+                {
+                    warning(ex);
+                }
+            }, null);
+            return this;
+        }
+
+        new public Ice.AsyncResult<Ice.Callback_Object_ice_getConnection> whenSent(Ice.SentCallback cb)
+        {
+            // Sent callback not supported
+            Debug.Assert(false);
+            return this;
+        }
+
+        public override Ice.ObjectPrx getProxy()
+        {
+            return proxy_;
+        }
+
+        protected override Ice.AsyncCallback getCompletedCallback()
+        {
+            return completed__;
+        }
+
+        private void completed__(Ice.AsyncResult result)
+        {
+            completed_(this, responseCallback_, exceptionCallback_);
         }
 
         private void handleException(Ice.Exception exc)
@@ -1729,6 +1871,13 @@ namespace IceInternal
                 throw ex;
             }
         }
+
+        private Ice.ObjectPrxHelperBase proxy_;
+        private ProxyTwowayCallback<Ice.Callback_Object_ice_getConnection> completed_;
+        private int cnt_;
+
+        private Ice.Callback_Object_ice_getConnection responseCallback_ = null;
+        private RequestHandler handler_ = null;
     }
 
     public class BatchOutgoingAsync : OutgoingAsyncBase, OutgoingAsyncMessageCallback, TimerTask
@@ -1807,6 +1956,11 @@ namespace IceInternal
                 }
             }
             invokeException(exc);
+        }
+
+        public virtual void processRetry(bool destroyed)
+        {
+            // Does not support retry
         }
 
         public void

@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public class OutgoingAsync extends AsyncResultI implements OutgoingAsyncMessageCallback
+public class OutgoingAsync extends OutgoingAsyncBase implements OutgoingAsyncMessageCallback
 {
     public OutgoingAsync(Ice.ObjectPrx prx, String operation, CallbackBase cb)
     {
@@ -241,6 +241,26 @@ public class OutgoingAsync extends AsyncResultI implements OutgoingAsyncMessageC
         catch(Ice.Exception ex)
         {
             invokeException(ex);
+        }
+    }
+
+    @Override
+    public void processRetry(boolean destroyed)
+    {
+        if(destroyed)
+        {
+            invokeExceptionAsync(new Ice.CommunicatorDestroyedException());
+        }
+        else
+        {
+            try
+            {
+                invoke(false);
+            }
+            catch(Ice.LocalException ex)
+            {
+                invokeExceptionAsync(ex);
+            }
         }
     }
 
@@ -654,9 +674,9 @@ public class OutgoingAsync extends AsyncResultI implements OutgoingAsyncMessageC
     }
 
     protected Ice.ObjectPrxHelperBase _proxy;
-    protected RequestHandler _handler;
-    protected int _cnt;
 
+    private RequestHandler _handler;
+    private int _cnt;
     private Ice.EncodingVersion _encoding;
     private Ice.OperationMode _mode;
     private boolean _sent;

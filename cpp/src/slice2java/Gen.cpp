@@ -4740,8 +4740,8 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << sb;
         if(op->returnsData())
         {
-            out << nl << "IceInternal.AsyncResultI __result = (IceInternal.AsyncResultI)__iresult;";
-            out << nl << "IceInternal.AsyncResultI.check(__result, this, __" << op->name() << "_name);";
+            out << nl << "IceInternal.OutgoingAsyncBase __result = (IceInternal.OutgoingAsyncBase)__iresult;";
+            out << nl << "IceInternal.OutgoingAsyncBase.check(__result, this, __" << op->name() << "_name);";
             out << nl << "try";
             out << sb;
 

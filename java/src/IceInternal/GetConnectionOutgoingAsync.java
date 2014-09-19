@@ -9,11 +9,13 @@
 
 package IceInternal;
 
-public class GetConnectionOutgoingAsync extends IceInternal.OutgoingAsync
+public class GetConnectionOutgoingAsync extends OutgoingAsyncBase implements OutgoingAsyncMessageCallback
 {
-    public GetConnectionOutgoingAsync(Ice.ObjectPrxHelperBase prx, String operation, CallbackBase callback)
+    public GetConnectionOutgoingAsync(Ice.ObjectPrxHelperBase prx, String operation, CallbackBase cb)
     {
-        super(prx, operation, callback);
+        super(prx.ice_getCommunicator(), ((Ice.ObjectPrxHelperBase) prx).__reference().getInstance(), operation, cb);
+        _proxy = (Ice.ObjectPrxHelperBase) prx;
+        _cnt = 0;
         _observer = ObserverHelper.get(prx, operation);
     }
 
@@ -36,6 +38,12 @@ public class GetConnectionOutgoingAsync extends IceInternal.OutgoingAsync
             }
             break;
         }
+    }
+
+    @Override
+    public Ice.ObjectPrx getProxy()
+    {
+        return _proxy;
     }
 
     @Override
@@ -84,6 +92,39 @@ public class GetConnectionOutgoingAsync extends IceInternal.OutgoingAsync
         }
     }
 
+    @Override
+    public void processRetry(boolean destroyed)
+    {
+        if(destroyed)
+        {
+            invokeExceptionAsync(new Ice.CommunicatorDestroyedException());
+        }
+        else
+        {
+            try
+            {
+                __invoke();
+            }
+            catch(Ice.LocalException ex)
+            {
+                invokeExceptionAsync(ex);
+            }
+        }
+    }
+
+    @Override
+    public void dispatchInvocationCancel(final Ice.LocalException ex, ThreadPool threadPool, Ice.Connection connection)
+    {
+        threadPool.dispatch(new DispatchWorkItem(connection)
+        {
+            @Override
+            public void run()
+            {
+                GetConnectionOutgoingAsync.this.finished(ex);
+            }
+        });
+    }
+
     private void handleException(Ice.Exception exc)
     {
        try
@@ -105,4 +146,8 @@ public class GetConnectionOutgoingAsync extends IceInternal.OutgoingAsync
             throw ex;
         }
     }
+
+    private Ice.ObjectPrxHelperBase _proxy;
+    private RequestHandler _handler = null;
+    private int _cnt;
 }
