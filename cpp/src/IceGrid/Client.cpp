@@ -573,7 +573,7 @@ Client::run(StringSeq& originalArgs)
                     }
                     lookupEndpoints = os.str();
                 }
-                
+
                 ObjectPrx prx = communicator()->stringToProxy("IceGrid/Lookup -d:" + lookupEndpoints);
                 LookupPrx lookupPrx = LookupPrx::uncheckedCast(prx->ice_collocationOptimized(false));
 
@@ -822,9 +822,7 @@ Client::run(StringSeq& originalArgs)
             //
             if(registry->ice_getIdentity() == localRegistry->ice_getIdentity())
             {
-                properties->setProperty("CollocInternal.AdapterId", IceUtil::generateUUID());
-                ObjectAdapterPtr colloc = communicator()->createObjectAdapter("CollocInternal");
-                colloc->setLocator(0);
+                ObjectAdapterPtr colloc = communicator()->createObjectAdapter(""); // colloc-only adapter
                 ObjectPrx router = colloc->addWithUUID(new ReuseConnectionRouter(locator));
                 communicator()->setDefaultRouter(RouterPrx::uncheckedCast(router));
                 registry = registry->ice_router(communicator()->getDefaultRouter());

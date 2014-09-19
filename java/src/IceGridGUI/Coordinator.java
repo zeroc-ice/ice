@@ -1252,7 +1252,7 @@ public class Coordinator
         {
             v.close();
         }
-        
+
         _logout.setEnabled(false);
         _showLiveDeploymentFilters.setEnabled(false);
         _openApplicationFromRegistry.setEnabled(false);
@@ -1271,8 +1271,8 @@ public class Coordinator
 
     void
     login(final SessionKeeper sessionKeeper,
-          final SessionKeeper.ConnectionInfo info, 
-          final JDialog parent, 
+          final SessionKeeper.ConnectionInfo info,
+          final JDialog parent,
           final Cursor oldCursor)
     {
 
@@ -1298,7 +1298,7 @@ public class Coordinator
             }
             catch(java.lang.Exception e)
             {
-                JOptionPane.showMessageDialog(parent, e.toString(), "Failed to access data directory", 
+                JOptionPane.showMessageDialog(parent, e.toString(), "Failed to access data directory",
                                               JOptionPane.ERROR_MESSAGE);
                 parent.setCursor(oldCursor);
                 return;
@@ -1391,12 +1391,12 @@ public class Coordinator
                 }
 
                 @Override
-                public void 
+                public void
                 run()
                 {
                     try
                     {
-                        UntrustedCertificateDialog dialog = new UntrustedCertificateDialog(parent, _info, _validDate, 
+                        UntrustedCertificateDialog dialog = new UntrustedCertificateDialog(parent, _info, _validDate,
                                                                                            _validAlternateName,
                                                                                            _trustedCA);
                         Utils.addEscapeListener(dialog);
@@ -1437,7 +1437,7 @@ public class Coordinator
 
                 //
                 // Compare the server certificate with a previous accepted certificate if
-                // any, the transient certificate is reset by Coordinator.login, and is only 
+                // any, the transient certificate is reset by Coordinator.login, and is only
                 // useful in case the connection is retry, because a timeout or ACM closed
                 // it while the certificate verifier was waiting for the user decision.
                 //
@@ -1601,13 +1601,13 @@ public class Coordinator
                     }
                     return false;
                 }
-            
+
                 if(validDate && validAlternateName && trustedCA)
                 {
                     return true;
                 }
-            
-                TrustDecision decision = new AcceptInvalidCertDialog().show(info, validDate, validAlternateName, 
+
+                TrustDecision decision = new AcceptInvalidCertDialog().show(info, validDate, validAlternateName,
                                                                             trustedCA);
 
                 if(decision == TrustDecision.YesThisTime)
@@ -1621,7 +1621,7 @@ public class Coordinator
                     {
                         String CN = "";
                         LdapName dn = new LdapName(cert.getSubjectX500Principal().getName());
-                        for(Rdn rdn: dn.getRdns()) 
+                        for(Rdn rdn: dn.getRdns())
                         {
                             if(rdn.getType().toUpperCase().equals("CN"))
                             {
@@ -1630,7 +1630,7 @@ public class Coordinator
                             }
                         }
                         _trustedServerKeyStore.setCertificateEntry(CN, info.nativeCerts[0]);
-                        _trustedServerKeyStore.store(new FileOutputStream(getDataDirectory() + "/ServerCerts.jks"), 
+                        _trustedServerKeyStore.store(new FileOutputStream(getDataDirectory() + "/ServerCerts.jks"),
                                                      new char[]{});
                         sessionKeeper.certificateManager(parent).load();
                         return true;
@@ -1664,7 +1664,7 @@ public class Coordinator
                 }
                 return false;
             }
-            
+
             private KeyStore _trustedCaKeyStore;
             private KeyStore _trustedServerKeyStore;
         }
@@ -1685,7 +1685,7 @@ public class Coordinator
                             @Override
                             public void run()
                             {
-                                JOptionPane.showMessageDialog(parent, ex.toString(), 
+                                JOptionPane.showMessageDialog(parent, ex.toString(),
                                                               "Error creating certificate verifier",
                                                               JOptionPane.ERROR_MESSAGE);
                                 parent.setCursor(oldCursor);
@@ -1710,7 +1710,7 @@ public class Coordinator
 	        finderId.category = "Ice";
 	        finderId.name = info.getDirect() ? "LocatorFinder" : "RouterFinder";
 	        String finderString = "\"" + _communicator.identityToString(finderId) + "\"";
-	         
+
 	        if (info.getSSL())
 	        {
 	        	finderString += " -s:";
@@ -1719,7 +1719,7 @@ public class Coordinator
 	        {
 	        	finderString += " :";
 	        }
-	        
+
 	        String endpointString = "";
 	        if(info.getDefaultEndpoint())
 	        {
@@ -1822,12 +1822,12 @@ public class Coordinator
                                     _communicator.stringToProxy(finderStr));
                             info.setInstanceName(finder.getRouter().ice_getIdentity().category);
                             info.save();
-                            
+
                             Ice.Identity routerId = new Ice.Identity();
                             routerId.category = info.getInstanceName();
                             routerId.name = "router";
                             String proxyStr = "\"" + _communicator.identityToString(routerId) + "\":";
-                            proxyStr += endpointStr;                            
+                            proxyStr += endpointStr;
                             Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.uncheckedCast(
                                                                                 _communicator.stringToProxy(proxyStr));
 
@@ -1836,7 +1836,7 @@ public class Coordinator
                             //
                             _communicator.setDefaultRouter(router);
 
-                            
+
                             Glacier2.SessionPrx s;
                             if(info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType)
                             {
@@ -1869,7 +1869,7 @@ public class Coordinator
                             {
                                 router = Glacier2.RouterPrxHelper.uncheckedCast(router.ice_preferSecure(true));
 
-                                s = router.createSession(info.getUsername(), info.getPassword() != null ? 
+                                s = router.createSession(info.getUsername(), info.getPassword() != null ?
                                                                                 new String(info.getPassword()) : "");
 
                                 if(s == null)
@@ -1921,7 +1921,7 @@ public class Coordinator
                                         String msg = e.reason;
                                         if(msg.length() == 0)
                                         {
-                                            msg = info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType ? 
+                                            msg = info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType ?
                                                                  "Invalid credentials" : "Invalid username/password";
                                         }
                                         if(info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType)
@@ -2026,7 +2026,7 @@ public class Coordinator
                 {
                     return _locator;
                 }
-    
+
                 private IceGrid.LocatorPrx _locator;
                 private RegistryPrx _registry;
                 private RegistryPrx _currentRegistry;
@@ -2056,10 +2056,10 @@ public class Coordinator
                             {
                                 Ice.LocatorFinderPrx finder = LocatorFinderPrxHelper.uncheckedCast(
                                         _communicator.stringToProxy(finderStr));
-                                        
+
                                 info.setInstanceName(finder.getLocator().ice_getIdentity().category);
                                 info.save();
-                                    
+
                                 //
                                 // The client uses the locator only without routing
                                 //
@@ -2068,7 +2068,7 @@ public class Coordinator
                                 locatorId.name = "Locator";
                                 String proxyStr = "\"" + _communicator.identityToString(locatorId) + "\":";
                                 proxyStr += endpointStr;
-                                    
+
                                 cb.setLocator(
                                         IceGrid.LocatorPrxHelper.checkedCast(_communicator.stringToProxy(proxyStr)));
 
@@ -2128,13 +2128,13 @@ public class Coordinator
                             }
 
                             cb.setRegistry(cb.getCurrentRegistry());
-                            if(info.getConnectToMaster() && 
+                            if(info.getConnectToMaster() &&
                                !cb.getCurrentRegistry().ice_getIdentity().name.equals("Registry"))
                             {
                                 Ice.Identity masterRegistryId = new Ice.Identity();
                                 masterRegistryId.category = info.getInstanceName();
                                 masterRegistryId.name = "Registry";
-                
+
                                 cb.setRegistry(RegistryPrxHelper.
                                     uncheckedCast(_communicator.stringToProxy(
                                                     "\"" + _communicator.identityToString(masterRegistryId) + "\"")));
@@ -2147,11 +2147,7 @@ public class Coordinator
                             //
                             if(cb.getRegistry().ice_getIdentity().equals(cb.getCurrentRegistry().ice_getIdentity()))
                             {
-                                Ice.Properties properties = _communicator.getProperties();
-                                properties.setProperty("CollocInternal.AdapterId", 
-                                                       java.util.UUID.randomUUID().toString());
-                                Ice.ObjectAdapter colloc = _communicator.createObjectAdapter("CollocInternal");
-                                colloc.setLocator(null);
+                                Ice.ObjectAdapter colloc = _communicator.createObjectAdapter("");
                                 Ice.ObjectPrx router = colloc.addWithUUID(new ReuseConnectionRouter(cb.getLocator()));
                                 _communicator.setDefaultRouter(Ice.RouterPrxHelper.uncheckedCast(router));
                                 cb.setRegistry(RegistryPrxHelper.uncheckedCast(cb.getRegistry().ice_router(
@@ -2173,7 +2169,7 @@ public class Coordinator
                                         cb.setRegistry(RegistryPrxHelper.uncheckedCast(
                                                                             cb.getRegistry().ice_preferSecure(true)));
 
-                                        cb.setSession(cb.getRegistry().createAdminSession(info.getUsername(), 
+                                        cb.setSession(cb.getRegistry().createAdminSession(info.getUsername(),
                                                     info.getPassword() != null ? new String(info.getPassword()) : ""));
                                         assert cb.getSession() != null;
                                     }
@@ -2196,7 +2192,7 @@ public class Coordinator
                                                 String msg = e.reason;
                                                 if(msg.length() == 0)
                                                 {
-                                                    msg = info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType ? 
+                                                    msg = info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType ?
                                                                          "Invalid credentials" : "Invalid username/password";
                                                 }
 
@@ -2217,7 +2213,7 @@ public class Coordinator
                                         });
                                     return;
                                 }
-                                
+
                                 catch(final Ice.LocalException e)
                                 {
                                     if(cb.getRegistry().ice_getIdentity().equals(cb.getCurrentRegistry().ice_getIdentity()))
@@ -2256,7 +2252,7 @@ public class Coordinator
                                                     }
                                                     else
                                                     {
-                                                        cb.loginFailed();                                                        
+                                                        cb.loginFailed();
                                                     }
                                                 }
                                             });
@@ -2281,7 +2277,7 @@ public class Coordinator
                 }).start();
         }
     }
-    
+
     void destroySession(AdminSessionPrx session, boolean routed)
     {
         _liveDeploymentRoot.closeAllShowLogDialogs();
@@ -2745,7 +2741,7 @@ public class Coordinator
                         {
                             return;
                         }
-                        
+
                         java.util.List<IGraphView> views = new java.util.ArrayList<IGraphView>(_graphViews);
                         for(IGraphView v : views)
                         {
@@ -2991,7 +2987,7 @@ public class Coordinator
         _saveToRegistryWithoutRestart = new AbstractAction("Save to Registry (No server restart)")
             {
                 @Override
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     getCurrentTab().saveToRegistry(false);
                 }
@@ -3268,16 +3264,16 @@ public class Coordinator
         Class<?> c1 = IceInternal.Util.findClass("IceGridGUI.LiveDeployment.GraphView", null);
         if(c1 == null)
         {
-            JOptionPane.showMessageDialog(_mainFrame, 
+            JOptionPane.showMessageDialog(_mainFrame,
                                           "IceGrid Admin was built without Metrics Graph Support",
-                                          "IceGrid Admin Info", 
+                                          "IceGrid Admin Info",
                                           JOptionPane.INFORMATION_MESSAGE);
         }
         else if(IceInternal.Util.findClass("javafx.embed.swing.JFXPanel", null) == null)
         {
-            JOptionPane.showMessageDialog(_mainFrame, 
+            JOptionPane.showMessageDialog(_mainFrame,
                                           "The Metrics Graph view requires JavaFX 2",
-                                          "IceGrid Admin Info", 
+                                          "IceGrid Admin Info",
                                           JOptionPane.INFORMATION_MESSAGE);
         }
         else
@@ -3386,7 +3382,7 @@ public class Coordinator
             pos = Ice.Util.stringVersion().lastIndexOf('.');
             assert(pos != -1);
         }
-        
+
         String version = Ice.Util.stringVersion().substring(0, pos);
         BareBonesBrowserLaunch.openURL("http://doc.zeroc.com/display/Rel/Ice+" + version + "+IceGrid+Admin");
     }
@@ -3435,7 +3431,7 @@ public class Coordinator
             {
                 return;
             }
-            
+
             java.util.List<IGraphView> views = new java.util.ArrayList<IGraphView>(_graphViews);
             for(IGraphView v : views)
             {
@@ -3607,7 +3603,7 @@ public class Coordinator
         _newServerMenu.setEnabled(false);
         _newServiceMenu.setEnabled(false);
         _newTemplateMenu.setEnabled(false);
-        
+
         _appMenu.setEnabled(true);
 
         _metricsViewMenu.setEnabled(availableActions[IceGridGUI.LiveDeployment.TreeNode.ENABLE_METRICS_VIEW] ||
@@ -3746,7 +3742,7 @@ public class Coordinator
             }
             else
             {
-                _dataDir = System.getProperty("user.home") + File.separator + ".ZeroC" + File.separator + "IceGrid Admin" + 
+                _dataDir = System.getProperty("user.home") + File.separator + ".ZeroC" + File.separator + "IceGrid Admin" +
                                                                                             File.separator + "KeyStore";
             }
         }
@@ -3766,7 +3762,7 @@ public class Coordinator
     {
         return _executor;
     }
-    
+
     public boolean needsSaving()
     {
         boolean v = false;
@@ -3784,7 +3780,7 @@ public class Coordinator
         }
         return v;
     }
-    
+
     //
     // May run in any thread
     //
@@ -3800,8 +3796,8 @@ public class Coordinator
     static class UntrustedCertificateDialog extends JDialog
     {
         public UntrustedCertificateDialog(java.awt.Window owner, IceSSL.NativeConnectionInfo info, boolean validDate,
-                                          boolean validAlternateName, boolean trustedCA) 
-                                            throws java.security.GeneralSecurityException, java.io.IOException, 
+                                          boolean validAlternateName, boolean trustedCA)
+                                            throws java.security.GeneralSecurityException, java.io.IOException,
                                                    javax.naming.InvalidNameException
         {
             super(owner, "Connection Security Warning - IceGrid Admin");
@@ -3816,7 +3812,7 @@ public class Coordinator
                 builder.border(Borders.DIALOG);
                 builder.rowGroupingEnabled(true);
                 builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
-                
+
                 builder.append(new JLabel("The validation of the SSL Certificate provided by the server has failed"));
 
                 if(validDate)
@@ -3835,18 +3831,18 @@ public class Coordinator
                 }
                 else
                 {
-                    builder.append(new JLabel("The subject alternate name doesn't match the connection remote address.", 
+                    builder.append(new JLabel("The subject alternate name doesn't match the connection remote address.",
                                    _warnIcon, SwingConstants.LEADING));
                 }
 
                 if(trustedCA)
                 {
-                    builder.append(new JLabel("The server certificate is signed by a trusted CA.", _infoIcon, 
+                    builder.append(new JLabel("The server certificate is signed by a trusted CA.", _infoIcon,
                                    SwingConstants.LEADING));
                 }
                 else
                 {
-                    builder.append(new JLabel("The server certificate is not signed by a trusted CA.", _warnIcon, 
+                    builder.append(new JLabel("The server certificate is not signed by a trusted CA.", _warnIcon,
                                    SwingConstants.LEADING));
                 }
                 contentPane.add(builder.getPanel());
@@ -3888,7 +3884,7 @@ public class Coordinator
                     }
                 });
             getRootPane().setDefaultButton(noButton);
-            JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(yesAlwaysButton, yesButton, 
+            JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(yesAlwaysButton, yesButton,
                                                                               noButton).build();
             buttonBar.setBorder(Borders.DIALOG);
             contentPane.add(buttonBar);
@@ -3907,7 +3903,7 @@ public class Coordinator
         private TrustDecision _decision = TrustDecision.No;
         private static Icon _infoIcon = new ImageIcon(Utils.iconToImage(UIManager.getIcon("OptionPane.informationIcon")).
                                                                getScaledInstance(16, 16, java.awt.Image.SCALE_SMOOTH ));
-                
+
         private static Icon _warnIcon = new ImageIcon(Utils.iconToImage(UIManager.getIcon("OptionPane.warningIcon")).
                                                                getScaledInstance(16, 16, java.awt.Image.SCALE_SMOOTH ));
     }
