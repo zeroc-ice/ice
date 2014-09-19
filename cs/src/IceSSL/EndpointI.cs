@@ -162,7 +162,7 @@ namespace IceSSL
             return new AcceptorI(this, _instance, adapterName, host_, port_);
         }
 
-        public IceInternal.EndpointI endpoint(IceInternal.Acceptor acceptor)
+        public EndpointI endpoint(AcceptorI acceptor)
         {
             return new EndpointI(_instance, host_, acceptor.effectivePort(), sourceAddr_, _timeout, connectionId_,
                                  _compress);
