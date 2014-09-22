@@ -152,10 +152,8 @@ public class OutgoingAsync extends OutgoingAsyncBase implements OutgoingAsyncMes
     @Override
     public int invokeCollocated(CollocatedRequestHandler handler)
     {
-        // The BasicStream cannot be cached if background io is enabled,
-        // the proxy is not a twoway or there is an invocation timeout set.
-        if(_proxy.__reference().getInstance().queueRequests() || !_proxy.ice_isTwoway() ||
-           _proxy.__reference().getInvocationTimeout() > 0)
+        // The BasicStream cannot be cached if the proxy is not a twoway or there is an invocation timeout set.
+        if(!_proxy.ice_isTwoway() || _proxy.__reference().getInvocationTimeout() > 0)
         {
             // Disable caching by marking the streams as cached!
             _state |= StateCachedBuffers;
@@ -606,7 +604,8 @@ public class OutgoingAsync extends OutgoingAsyncBase implements OutgoingAsyncMes
         {
             synchronized(_monitor)
             {
-                if((_state & StateCachedBuffers) > 0) {
+                if((_state & StateCachedBuffers) > 0)
+                {
                     return;
                 }
                 _state |= StateCachedBuffers;

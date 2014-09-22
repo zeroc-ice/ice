@@ -925,8 +925,13 @@ public final class Instance
             {
                 _queueExecutor = new QueueExecutor(_initData.properties, 
                                                    Util.createThreadName(_initData.properties, "Ice.BackgroundIO"));
+                // Caching message buffers is not supported with background IO.
+                _cacheMessageBuffers = 0;
             }
-            _cacheMessageBuffers = _initData.properties.getPropertyAsIntWithDefault("Ice.CacheMessageBuffers", 2);
+            else
+            {
+                _cacheMessageBuffers = _initData.properties.getPropertyAsIntWithDefault("Ice.CacheMessageBuffers", 2);
+            }
         }
         catch(Ice.LocalException ex)
         {
