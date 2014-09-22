@@ -39,7 +39,7 @@ LINKWITH        = $(LIBS)
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(LOBJS)
-	$(LINK) $(BASE):0x22000000 $(LD_DLLFLAGS) $(PDBFLAGS) $(LOBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(LOBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
