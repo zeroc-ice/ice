@@ -688,9 +688,19 @@ var ConnectionI = Class({
     {
         if(this._state > StateClosing)
         {
-            return;
+            try
+            {
+                callback.closed(this);
+            }
+            catch(ex)
+            {
+                this._logger.error("connection callback exception:\n" + ex + '\n' + this._desc);
+            }
         }
-        this._callback = callback;
+        else
+        {
+            this._callback = callback;
+        }
     },
     setACM: function(timeout, close, heartbeat)
     {

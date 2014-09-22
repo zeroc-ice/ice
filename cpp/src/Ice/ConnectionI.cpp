@@ -1177,12 +1177,37 @@ Ice::ConnectionI::flushAsyncBatchRequests(const BatchOutgoingAsyncPtr& outAsync)
 void
 Ice::ConnectionI::setCallback(const ConnectionCallbackPtr& callback)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-    if(_state > StateClosing)
+    bool closed = false;
     {
-        return;
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        if(_state > StateClosing)
+        {
+            closed = true;
+            return;
+        }
+        else
+        {
+            _callback = callback;
+        }
     }
-    _callback = callback;
+
+    if(closed)
+    {
+        try
+        {
+            callback->closed(this);
+        }
+        catch(const std::exception& ex)
+        {
+            Error out(_instance->initializationData().logger);
+            out << "connection callback exception:\n" << ex << '\n' << _desc;
+        }
+        catch(...)
+        {
+            Error out(_instance->initializationData().logger);
+            out << "connection callback exception:\nunknown c++ exception" << '\n' << _desc;
+        }
+    }
 }
 
 void

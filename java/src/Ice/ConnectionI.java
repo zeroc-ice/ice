@@ -246,7 +246,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         }
 
         assert (_instance.initializationData().observer != null);
-        _observer = _instance.initializationData().observer.getConnectionObserver(initConnectionInfo(), 
+        _observer = _instance.initializationData().observer.getConnectionObserver(initConnectionInfo(),
                                                                                   _endpoint,
                                                                                   toConnectionState(_state),
                                                                                   _observer);
@@ -716,11 +716,30 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     @Override
     synchronized public void setCallback(ConnectionCallback callback)
     {
-        if(_state > StateClosing)
+        boolean closed = false;
+        synchronized(this)
         {
-            return;
+            if(_state > StateClosing)
+            {
+                closed = true;
+            }
+            else
+            {
+                _callback = callback;
+            }
         }
-        _callback = callback;
+
+        if(closed)
+        {
+            try
+            {
+                callback.closed(this);
+            }
+            catch(Exception ex)
+            {
+                _logger.error("connection callback exception:\n" + ex + '\n' + _desc);
+            }
+        }
     }
 
     @Override
@@ -1889,8 +1908,8 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             Ice.Instrumentation.ConnectionState newState = toConnectionState(state);
             if(oldState != newState)
             {
-                _observer = _instance.initializationData().observer.getConnectionObserver(initConnectionInfo(), 
-                                                                                          _endpoint, 
+                _observer = _instance.initializationData().observer.getConnectionObserver(initConnectionInfo(),
+                                                                                          _endpoint,
                                                                                           newState,
                                                                                           _observer);
                 if(_observer != null)
