@@ -489,7 +489,7 @@ Client::run(StringSeq& originalArgs)
         host = opts.optArg("host");
     }
 
-    string instanceName = communicator()->getProperties()->getProperty("IceGridAdmin.InstaceName");
+    string instanceName = communicator()->getProperties()->getProperty("IceGridAdmin.InstanceName");
     if(!opts.optArg("instanceName").empty())
     {
         instanceName = opts.optArg("instanceName");
@@ -800,7 +800,7 @@ Client::run(StringSeq& originalArgs)
                     else
                     {
                         //
-                        // If we can't contact the master, use to the local registry.
+                        // If we can't contact the master, use the local registry.
                         //
                         registry = localRegistry;
                         string name = registry->ice_getIdentity().name;
