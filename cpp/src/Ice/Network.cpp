@@ -51,15 +51,18 @@
 #  include <sys/sockio.h>
 #endif
 
+#if defined(_WIN32)
+#   ifndef SIO_LOOPBACK_FAST_PATH
+#       define SIO_LOOPBACK_FAST_PATH _WSAIOW(IOC_VENDOR,16)
+#   endif
+#endif
+
 #if defined(__MINGW32__)
 //
 // Work-around for missing definitions in MinGW Windows headers
 //
 #   ifndef IPV6_V6ONLY
 #       define IPV6_V6ONLY 27
-#   endif
-#   ifndef SIO_LOOPBACK_FAST_PATH
-#       define SIO_LOOPBACK_FAST_PATH _WSAIOW(IOC_VENDOR,16)
 #   endif
 
 extern "C"

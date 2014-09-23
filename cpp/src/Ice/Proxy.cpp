@@ -482,7 +482,7 @@ IceProxy::Ice::Object::begin_ice_getConnection(
     {
     public:
 
-        Cpp11CB(const ::IceInternal::Function<void (const ::Ice::ConnectionPtr&)>& responseFunc,
+        Cpp11CB(const ::std::function<void (const ::Ice::ConnectionPtr&)>& responseFunc,
                 const ::std::function<void (const ::Ice::Exception&)>& exceptionFunc) :
             ::IceInternal::Cpp11FnCallbackNC(exceptionFunc, nullptr),
             _response(responseFunc)
