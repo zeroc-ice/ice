@@ -838,7 +838,7 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport, Ice::En
             // to Windows API.
             //
             addr.host = ref new HostName(ref new String(
-                                             IceUtil::stringToWstring(host, 
+                                             IceUtil::stringToWstring(host,
                                                                       IceUtil::getProcessStringConverter()).c_str()));
         }
         stringstream os;
@@ -1958,7 +1958,7 @@ IceInternal::doBind(SOCKET fd, const Address& addr)
             }
             else
             {
-                checkResultAndWait(listener->BindEndpointAsync(addr.host, addr.port)); 
+                checkResultAndWait(listener->BindEndpointAsync(addr.host, addr.port));
             }
             local.host = addr.host;
             local.port = listener->Information->LocalPort;
@@ -1973,7 +1973,7 @@ IceInternal::doBind(SOCKET fd, const Address& addr)
             }
             else
             {
-                checkResultAndWait(datagram->BindEndpointAsync(addr.host, addr.port)); 
+                checkResultAndWait(datagram->BindEndpointAsync(addr.host, addr.port));
             }
             local.host = datagram->Information->LocalAddress;
             local.port = datagram->Information->LocalPort;

@@ -129,8 +129,9 @@ IceInternal::UdpTransceiver::close()
 #endif
 
     assert(_fd != INVALID_SOCKET);
-    closeSocket(_fd);
+    SOCKET fd = _fd;
     _fd = INVALID_SOCKET;
+    closeSocket(fd);
 }
 
 EndpointIPtr

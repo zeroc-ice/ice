@@ -445,7 +445,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             {
                 try
                 {
-                    closeAcceptor();
+                    closeAcceptor(false);
                 }
                 catch(Ice.LocalException e)
                 {
@@ -581,7 +581,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                 assert(_state == StateClosed);
                 if(_acceptor != null)
                 {
-                    closeAcceptor();
+                    closeAcceptor(true);
                 }
                 break;
             }
@@ -592,9 +592,9 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
     }
 
     private void
-    closeAcceptor()
+    closeAcceptor(boolean trace)
     {
-        if(_instance.traceLevels().network >= 1)
+        if(trace && _instance.traceLevels().network >= 1)
         {
             StringBuffer s = new StringBuffer("stopping to accept ");
             s.append(_endpoint.protocol());

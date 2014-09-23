@@ -213,7 +213,7 @@ private:
     };
 
     void setState(State);
-    void closeAcceptor();
+    void closeAcceptor(bool);
 
     const InstancePtr _instance;
     const FactoryACMMonitorPtr _monitor;

@@ -1766,7 +1766,7 @@ namespace IceInternal
                 {
                     try
                     {
-                        closeAcceptor();
+                        closeAcceptor(false);
                     }
                     catch(Ice.LocalException)
                     {
@@ -1862,7 +1862,7 @@ namespace IceInternal
                     if(_acceptor != null)
                     {
                         ((Ice.ObjectAdapterI)_adapter).getThreadPool().finish(this);
-                        closeAcceptor();
+                        closeAcceptor(true);
                     }
                     else
                     {
@@ -1887,9 +1887,9 @@ namespace IceInternal
             System.Threading.Monitor.PulseAll(this);
         }
 
-        private void closeAcceptor()
+        private void closeAcceptor(bool trace)
         {
-            if(_instance.traceLevels().network >= 1)
+            if(trace && _instance.traceLevels().network >= 1)
             {
                 StringBuilder s = new StringBuilder("stopping to accept ");
                 s.Append(_endpoint.protocol());

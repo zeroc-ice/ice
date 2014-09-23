@@ -1678,7 +1678,7 @@ IceInternal::IncomingConnectionFactory::initialize(const string& oaName)
         {
             try
             {
-                closeAcceptor();
+                closeAcceptor(false);
             }
             catch(const Ice::LocalException&)
             {
@@ -1768,7 +1768,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
             //
             if(_acceptor)
             {
-                closeAcceptor();
+                closeAcceptor(true);
             }
 #endif
             for_each(_connections.begin(), _connections.end(),
@@ -1782,7 +1782,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
 #if !defined(ICE_USE_IOCP) && !defined(ICE_OS_WINRT)
             if(_acceptor)
             {
-                closeAcceptor();
+                closeAcceptor(true);
             }
 #endif
             break;
@@ -1794,9 +1794,9 @@ IceInternal::IncomingConnectionFactory::setState(State state)
 }
 
 void
-IceInternal::IncomingConnectionFactory::closeAcceptor()
+IceInternal::IncomingConnectionFactory::closeAcceptor(bool trace)
 {
-    if(_instance->traceLevels()->network >= 1)
+    if(trace && _instance->traceLevels()->network >= 1)
     {
         Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
         out << "stopping to accept " << _endpoint->protocol() << " connections at " << _acceptor->toString();
