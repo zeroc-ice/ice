@@ -295,6 +295,7 @@ public class AllTests
             {
                 // Expected
             }
+            ic.destroy();
 
             ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(2);
             
