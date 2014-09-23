@@ -9,7 +9,7 @@
 
 var __M = require("../Ice/ModuleRegistry").Ice.__M;
 
-module.exports.IceGrid = __M.require(module, "IceGrid",
+module.exports.IceGrid = __M.require(module,
     [
         "../IceGrid/Admin",
         "../IceGrid/Descriptor",
@@ -21,4 +21,4 @@ module.exports.IceGrid = __M.require(module, "IceGrid",
         "../IceGrid/Registry",
         "../IceGrid/Session",
         "../IceGrid/UserAccountMapper"
-    ]);
+    ]).IceGrid;

@@ -19,9 +19,9 @@ var __M =
         }
         return m;
     },
-    require: function(m, name)
+    require: function(name)
     {
-        return window[name];
+        return window;
     }
 };
 

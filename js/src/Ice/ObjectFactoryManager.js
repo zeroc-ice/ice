@@ -8,7 +8,7 @@
 // **********************************************************************
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, "Ice", ["../Ice/Class", "../Ice/HashMap", "../Ice/LocalException"]);
+Ice.__M.require(module, ["../Ice/Class", "../Ice/HashMap", "../Ice/LocalException"]);
     
 var HashMap = Ice.HashMap;
 var AlreadyRegisteredException = Ice.AlreadyRegisteredException;

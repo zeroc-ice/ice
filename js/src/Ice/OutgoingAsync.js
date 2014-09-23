@@ -8,7 +8,7 @@
 // **********************************************************************
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, "Ice",
+Ice.__M.require(module,
     [
         "../Ice/Class",
         "../Ice/AsyncStatus",

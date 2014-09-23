@@ -10,7 +10,7 @@
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
 var __M = Ice.__M;
-__M.require(module, "Ice",
+__M.require(module,
     [
         "../Ice/Class",
         "../Ice/Current",

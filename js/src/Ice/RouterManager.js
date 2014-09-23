@@ -8,7 +8,7 @@
 // **********************************************************************
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, "Ice", ["../Ice/Class", "../Ice/HashMap", "../Ice/RouterInfo", "../Ice/Router"]);
+Ice.__M.require(module, ["../Ice/Class", "../Ice/HashMap", "../Ice/RouterInfo", "../Ice/Router"]);
 
 var HashMap = Ice.HashMap;
 var RouterInfo = Ice.RouterInfo;

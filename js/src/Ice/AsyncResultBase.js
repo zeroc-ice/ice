@@ -8,7 +8,7 @@
 // **********************************************************************
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, "Ice", ["../Ice/Class", "../Ice/Debug", "../Ice/Promise", "../Ice/Exception"]);
+Ice.__M.require(module, ["../Ice/Class", "../Ice/Debug", "../Ice/Promise", "../Ice/Exception"]);
 
 var Promise = Ice.Promise;
 

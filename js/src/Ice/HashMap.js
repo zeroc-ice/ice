@@ -9,7 +9,7 @@
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
 var __M = Ice.__M;
-__M.require(module, "Ice", ["../Ice/Class", "../Ice/StringUtil"]);
+__M.require(module, ["../Ice/Class", "../Ice/StringUtil"]);
 var StringUtil = Ice.StringUtil;
 
 function setInternal(map, key, value, hash, index)

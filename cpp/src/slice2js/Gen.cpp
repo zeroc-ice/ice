@@ -612,13 +612,6 @@ Slice::Gen::~Gen()
 void
 Slice::Gen::generate(const UnitPtr& p)
 {
-    if(p->hasOnlyClassDecls())
-    {
-        // Don't generate any code if the Slice file only contains
-        // forward declarations.
-        return;
-    }
-
     if(_icejs)
     {
         _out.zeroIndent();
@@ -905,7 +898,7 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
         }
         else
         {
-            _out << nl << "var " << i->first << " = __M.require(module, \"" << i->first << "\", ";
+            _out << nl << "var " << i->first << " = __M.require(module, ";
             _out << nl << "[";
             _out.inc();
             for(vector<string>::const_iterator j = i->second.begin(); j != i->second.end();)
@@ -922,7 +915,7 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
                 }
             }
             _out.dec();
-            _out << nl << "]);";
+            _out << nl << "])." << i->first << ";";
             _out << nl;
         }
         seenModules.push_back(i->first);

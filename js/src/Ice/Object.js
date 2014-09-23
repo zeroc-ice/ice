@@ -13,7 +13,7 @@
 // Using IceObject in this file to avoid collisions with the native Object.
 //
 var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, "Ice", 
+Ice.__M.require(module,
     [
         "../Ice/Class",
         "../Ice/DispatchStatus",

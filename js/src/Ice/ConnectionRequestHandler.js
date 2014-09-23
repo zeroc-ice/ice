@@ -8,7 +8,7 @@
 // **********************************************************************
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, "Ice", ["../Ice/Promise", "../Ice/Class", "../Ice/ReferenceMode"]);
+Ice.__M.require(module, ["../Ice/Promise", "../Ice/Class", "../Ice/ReferenceMode"]);
 
 var Promise = Ice.Promise;
 var ReferenceMode = Ice.ReferenceMode;

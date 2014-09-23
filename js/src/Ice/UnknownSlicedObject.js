@@ -8,7 +8,7 @@
 // **********************************************************************
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, "Ice", ["../Ice/Object", "../Ice/Class"]);
+Ice.__M.require(module, ["../Ice/Object", "../Ice/Class"]);
     
 var SliceInfo = function()
 {

@@ -19,7 +19,7 @@
 var Node = { Buffer: global.Buffer };
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, "Ice", ["../Ice/Long", "../Ice/Class"]);
+Ice.__M.require(module, ["../Ice/Long", "../Ice/Class"]);
 
 var Long = Ice.Long;
 

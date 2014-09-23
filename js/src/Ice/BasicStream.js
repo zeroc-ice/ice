@@ -9,7 +9,7 @@
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
 var __M = Ice.__M;
-__M.require(module, "Ice",
+__M.require(module,
     [
         "../Ice/Class",
         "../Ice/Debug",
@@ -27,7 +27,7 @@ __M.require(module, "Ice",
         "../Ice/CompactIdRegistry",
         "../Ice/ArrayUtil",
         "../Ice/UnknownSlicedObject"
-    ]);
+    ]).Ice;
 
 var Debug = Ice.Debug;
 var ExUtil = Ice.ExUtil;

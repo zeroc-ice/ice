@@ -8,7 +8,7 @@
 // **********************************************************************
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, "Ice", ["../Ice/Class", "../Ice/HashMap", "../Ice/OptionalFormat"]);
+Ice.__M.require(module, ["../Ice/Class", "../Ice/HashMap", "../Ice/OptionalFormat"]);
 
 var Class = Ice.Class;
 var defineProperty = Object.defineProperty;

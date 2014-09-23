@@ -8,7 +8,7 @@
 // **********************************************************************
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, "Ice", ["../Ice/Class", "../Ice/Exception"]);
+Ice.__M.require(module, ["../Ice/Class", "../Ice/Exception"]);
 
 Ice.AssertionFailedException = Ice.Class(Error, 
     {

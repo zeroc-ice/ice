@@ -21,18 +21,14 @@ var __M =
         }
         return m;
     },
-    require: function(m, name, paths)
+    require: function(m, paths)
     {
-        var i = 0, length = paths.length, _m, o;
+        var i = 0, length = paths.length, o;
         for(; i < length; ++i)
         {
-            o = m.require(paths[i])[name];
-            if(o)
-            {
-                _m = o;
-            }
+            o = m.require(paths[i]);
         }
-        return _m;
+        return o;
     },
     type: function(scoped)
     {

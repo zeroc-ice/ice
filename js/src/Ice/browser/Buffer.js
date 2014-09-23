@@ -9,7 +9,7 @@
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
 
-Ice.__M.require(module, "Ice", ["../Ice/Class", "../Ice/Long"]);
+Ice.__M.require(module, ["../Ice/Class", "../Ice/Long"]);
 
 var Long = Ice.Long;
 

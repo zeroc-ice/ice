@@ -10,7 +10,7 @@
 
 var __M = require("../Ice/ModuleRegistry").Ice.__M;
 
-module.exports.Ice = __M.require(module, "Ice",
+module.exports.Ice = __M.require(module,
     [
         "../Ice/TcpEndpointFactory", // Must be loaded before Communicator and Instance
         "../Ice/Initialize",
@@ -39,6 +39,6 @@ module.exports.Ice = __M.require(module, "Ice",
         "../Ice/ArrayUtil",
         "../Ice/UnknownSlicedObject",
         "../Ice/Process"
-    ]);
+    ]).Ice;
 
 module.exports.IceMX = require("../Ice/Metrics").IceMX;

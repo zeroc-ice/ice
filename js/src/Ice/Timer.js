@@ -8,7 +8,7 @@
 // **********************************************************************
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, "Ice", ["../Ice/HashMap", "../Ice/LocalException", "../Ice/Class"]);
+Ice.__M.require(module, ["../Ice/HashMap", "../Ice/LocalException", "../Ice/Class"]);
 
 var HashMap = Ice.HashMap;
 var CommunicatorDestroyedException = Ice.CommunicatorDestroyedException;

@@ -8,7 +8,7 @@
 // **********************************************************************
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, "Ice", ["../Ice/Class", "../Ice/TcpEndpointI", "../Ice/Endpoint"]);
+Ice.__M.require(module, ["../Ice/Class", "../Ice/TcpEndpointI", "../Ice/Endpoint"]);
 
 var TcpEndpointI = Ice.TcpEndpointI;
 var TCPEndpointType = Ice.TCPEndpointType;

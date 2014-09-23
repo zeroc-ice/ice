@@ -9,7 +9,7 @@
 
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, "Ice", ["../Ice/Class", "../Ice/Endpoint", "../Ice/browser/WSEndpoint"]);
+Ice.__M.require(module, ["../Ice/Class", "../Ice/Endpoint", "../Ice/browser/WSEndpoint"]);
 
 var WSEndpoint = Ice.WSEndpoint;
 

@@ -8,7 +8,7 @@
 // **********************************************************************
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, "Ice", ["../Ice/Class", "../Ice/Exception", "../Ice/Debug", "../Ice/LocalException"]);
+Ice.__M.require(module, ["../Ice/Class", "../Ice/Exception", "../Ice/Debug", "../Ice/LocalException"]);
 
 var RetryException = Ice.Class(Error, {
     __init__: function(ex)

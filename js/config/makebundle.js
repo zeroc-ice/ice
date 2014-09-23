@@ -169,7 +169,7 @@ Parser.transverse = function(object, depend, file)
                         (value.callee.object.name == "__M" || 
                         (value.callee.object.property && value.callee.object.property.name == "__M")))
                 {
-                    value.arguments[2].elements.forEach(
+                    value.arguments[1].elements.forEach(
                         function(arg){
                             Parser.add(depend, arg.value + ".js");
                         });
