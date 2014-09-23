@@ -89,7 +89,7 @@ public class Server extends Ice.Application
         {
             _timestamp = System.currentTimeMillis();
         }
-        
+
         long getTimestamp()
         {
             return _timestamp;
@@ -114,7 +114,10 @@ public class Server extends Ice.Application
              // The configured timeout must be greater than 600. This is 601 * 2.
             final long sessionTimeout = 1202;
             final SessionI session = new SessionI();
-            final SessionPrx proxy = SessionPrxHelper.uncheckedCast(current.adapter.addWithUUID(session));
+            final Ice.Identity ident = new Ice.Identity();
+            ident.name = java.util.UUID.randomUUID().toString();
+            ident.category = "session";
+            final SessionPrx proxy = SessionPrxHelper.uncheckedCast(current.adapter.add(session, ident));
             _executor.scheduleWithFixedDelay(new Runnable()
                 {
                     @Override
@@ -129,7 +132,7 @@ public class Server extends Ice.Application
                         }
                     }
                 }, sessionTimeout, sessionTimeout, TimeUnit.SECONDS);
-            
+
             return proxy;
         }
     };

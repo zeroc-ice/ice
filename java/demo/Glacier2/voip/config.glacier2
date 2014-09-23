@@ -40,6 +40,11 @@ Glacier2.PermissionsVerifier=VoipVerifier:tcp -h localhost -p 10001
 Glacier2.SessionTimeout=1202
 
 #
+# Only allow access to back end "sesion" objects.
+#
+Glacier2.Filter.Category.Accept=session
+
+#
 # Security Tracing
 #
 # 0 = no security tracing

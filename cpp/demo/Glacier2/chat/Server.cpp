@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <IceUtil/IceUtil.h> // For generateUUID.
 #include <Glacier2/Glacier2.h>
 #include <ChatSessionI.h>
 
@@ -33,7 +34,8 @@ public:
     virtual Glacier2::SessionPrx
     create(const string& userId, const Glacier2::SessionControlPrx&, const Ice::Current& current)
     {
-        return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(new ChatSessionI(userId)));
+        Ice::Identity ident = { IceUtil::generateUUID(), "session" };
+        return Glacier2::SessionPrx::uncheckedCast(current.adapter->add(new ChatSessionI(userId), ident));
     }
 };
 
@@ -51,14 +53,14 @@ public:
         }
 
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("ChatServer");
-        
+
         Glacier2::PermissionsVerifierPtr dpv = new DummyPermissionsVerifierI;
         adapter->add(dpv, communicator()->stringToIdentity("ChatSessionVerifier"));
         Glacier2::SessionManagerPtr csm = new ChatSessionManagerI;
         adapter->add(csm, communicator()->stringToIdentity("ChatSessionManager"));
         adapter->activate();
         communicator()->waitForShutdown();
-        
+
         return EXIT_SUCCESS;
     }
 };
