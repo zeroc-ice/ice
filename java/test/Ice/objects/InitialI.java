@@ -24,7 +24,6 @@ import test.Ice.objects.Test.Initial;
 import test.Ice.objects.Test.Compact;
 import test.Ice.objects.Test.CompactExt;
 
-
 public final class InitialI extends Initial
 {
     public
@@ -162,6 +161,34 @@ public final class InitialI extends Initial
     getCompact(Ice.Current current)
     {
         return new CompactExt();
+    }
+
+    @Override
+    public test.Ice.objects.Test.Inner.A
+    getInnerA(Ice.Current current)
+    {
+        return new test.Ice.objects.Test.Inner.A(_b1);
+    }
+
+    @Override
+    public test.Ice.objects.Test.Inner.Sub.A
+    getInnerSubA(Ice.Current current)
+    {
+        return new test.Ice.objects.Test.Inner.Sub.A(new test.Ice.objects.Test.Inner.A(_b1));
+    }
+
+    @Override
+    public void throwInnerEx(Ice.Current current)
+        throws test.Ice.objects.Test.Inner.Ex
+    {
+        throw new test.Ice.objects.Test.Inner.Ex("Inner::Ex");
+    }
+
+    @Override
+    public void throwInnerSubEx(Ice.Current current)
+        throws test.Ice.objects.Test.Inner.Sub.Ex
+    {
+        throw new test.Ice.objects.Test.Inner.Sub.Ex("Inner::Sub::Ex");
     }
 
     @Override

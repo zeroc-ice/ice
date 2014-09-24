@@ -20,22 +20,22 @@ public sealed class InitialI : Initial
         _d = new DI();
         _e = new EI();
         _f = new FI(_e);
-        
+
         _b1.theA = _b2; // Cyclic reference to another B
         _b1.theB = _b1; // Self reference.
         _b1.theC = null; // Null reference.
-        
+
         _b2.theA = _b2; // Self reference, using base.
         _b2.theB = _b1; // Cyclic reference to another B
         _b2.theC = _c; // Cyclic reference to a C.
-        
+
         _c.theB = _b2; // Cyclic reference to a B.
-        
+
         _d.theA = _b1; // Reference to a B.
         _d.theB = _b2; // Reference to a B.
         _d.theC = null; // Reference to a C.
     }
-    
+
     public override void getAll(out B b1, out B b2, out C c, out D d, Ice.Current current)
     {
         b1 = _b1;
@@ -43,17 +43,17 @@ public sealed class InitialI : Initial
         c = _c;
         d = _d;
     }
-    
+
     public override B getB1(Ice.Current current)
     {
         return _b1;
     }
-    
+
     public override B getB2(Ice.Current current)
     {
         return _b2;
     }
-    
+
     public override C getC(Ice.Current current)
     {
         return _c;
@@ -73,17 +73,17 @@ public sealed class InitialI : Initial
     {
         return _f;
     }
-    
+
     public override I getI(Ice.Current current)
     {
         return new II();
     }
-    
+
     public override I getJ(Ice.Current current)
     {
         return new JI();
     }
-    
+
     public override I getH(Ice.Current current)
     {
         return new HI();
@@ -92,7 +92,7 @@ public sealed class InitialI : Initial
     public override void setI(I theI, Ice.Current current)
     {
     }
-    
+
     public override Base[] opBaseSeq(Base[] inS, out Base[] outS, Ice.Current current)
     {
         outS = inS;
@@ -108,7 +108,29 @@ public sealed class InitialI : Initial
     {
         _adapter.getCommunicator().shutdown();
     }
-    
+
+    public override Test.Inner.A
+    getInnerA(Ice.Current current)
+    {
+        return new Test.Inner.A(_b1);
+    }
+
+    public override Test.Inner.Sub.A
+    getInnerSubA(Ice.Current current)
+    {
+        return new Test.Inner.Sub.A(new Test.Inner.A(_b1));
+    }
+
+    public override void throwInnerEx(Ice.Current current)
+    {
+        throw new Test.Inner.Ex("Inner::Ex");
+    }
+
+    public override void throwInnerSubEx(Ice.Current current)
+    {
+        throw new Test.Inner.Sub.Ex("Inner::Sub::Ex");
+    }
+
     private Ice.ObjectAdapter _adapter;
     private B _b1;
     private B _b2;
