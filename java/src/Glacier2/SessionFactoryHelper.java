@@ -11,7 +11,7 @@ package Glacier2;
 
 /**
  * A helper class for using Glacier2 with GUI applications.
- * 
+ *
  * Applications should create a session factory for each Glacier2 router to which the application will
  * connect. To connect with the Glacier2 router, call {@link SessionFactory#connect}. The callback object is
  * notified of the various life cycle events. Once the session is torn down for whatever reason, the application
@@ -21,7 +21,7 @@ public class SessionFactoryHelper
 {
     /**
      * Creates a SessionFactory object.
-     * 
+     *
      * @param callback The callback object for notifications.
      * @throws {@link Ice.InitializationException}
      */
@@ -34,7 +34,7 @@ public class SessionFactoryHelper
 
     /**
      * Creates a SessionFactory object.
-     * 
+     *
      * @param initData The initialization data to use when creating the communicator.
      * @param callback The callback object for notifications.
      * @throws {@link Ice.InitializationException}
@@ -246,8 +246,8 @@ public class SessionFactoryHelper
      * Connect the Glacier2 session using user name and password credentials.
      *
      * Once the connection is established, {@link SessionCallback#connected} is called on the callback object;
-     * upon failure, {@link SessionCallback#connectFailed) is called with the exception. 
-     * 
+     * upon failure, {@link SessionCallback#connectFailed) is called with the exception.
+     *
      * @param username The user name.
      * @param password The password.
      * @return The connected session.
@@ -271,9 +271,18 @@ public class SessionFactoryHelper
 
         if(initData.properties.getProperty("Ice.Default.Router").length() == 0)
         {
+            boolean useFinder = _identity == null;
+
             StringBuffer sb = new StringBuffer();
             sb.append("\"");
-            sb.append(Ice.Util.identityToString(_identity));
+            if(useFinder)
+            {
+                sb.append("Ice/RouterFinder");
+            }
+            else
+            {
+                sb.append(Ice.Util.identityToString(_identity));
+            }
             sb.append("\"");
             sb.append(":");
 
@@ -310,7 +319,14 @@ public class SessionFactoryHelper
                 sb.append(_timeout);
             }
 
-            initData.properties.setProperty("Ice.Default.Router", sb.toString());
+            if(useFinder)
+            {
+                initData.properties.setProperty("SessionHelper.RouterFinder", sb.toString());
+            }
+            else
+            {
+                initData.properties.setProperty("Ice.Default.Router", sb.toString());
+            }
             //
             // If using a secure connection setup the IceSSL plug-in, if IceSSL
             // plug-in has already been setup we don't want to override the
@@ -327,7 +343,7 @@ public class SessionFactoryHelper
     private SessionCallback _callback;
     private String _routerHost = "localhost";
     private Ice.InitializationData _initData;
-    private Ice.Identity _identity = new Ice.Identity("router", "Glacier2");
+    private Ice.Identity _identity = null;
     private boolean _secure = true;
     private int _port = 0;
     private int _timeout = 10000;

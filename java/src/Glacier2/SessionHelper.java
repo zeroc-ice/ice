@@ -501,6 +501,66 @@ public class SessionHelper
             return;
         }
 
+        if(_communicator.getDefaultRouter() != null)
+        {
+            completeConnect(factory);
+        }
+        else
+        {
+            Ice.RouterFinderPrx finder = Ice.RouterFinderPrxHelper.uncheckedCast(
+                _communicator.stringToProxy(_communicator.getProperties().getProperty("SessionHelper.RouterFinder")));
+            finder.begin_getRouter(new Ice.Callback()
+                                     {
+                                        @Override
+                                        public void completed(Ice.AsyncResult result)
+                                        {
+                                            try
+                                            {
+                                                Ice.RouterPrx router =
+                                                    Ice.RouterFinderPrxHelper.uncheckedCast(
+                                                        result.getProxy()).end_getRouter(result);
+                                                _communicator.setDefaultRouter(router);
+                                            }
+                                            catch(final Ice.Exception ex)
+                                            {
+                                                Ice.Communicator communicator = null;
+                                                synchronized(SessionHelper.this)
+                                                {
+                                                    communicator = _communicator;
+                                                    _communicator = null;
+                                                }
+
+                                                if(communicator != null)
+                                                {
+                                                    try
+                                                    {
+                                                        communicator.destroy();
+                                                    }
+                                                    catch(Throwable ex1)
+                                                    {
+                                                    }
+                                                }
+
+                                                dispatchCallback(new Runnable()
+                                                {
+                                                    @Override
+                                                    public void run()
+                                                    {
+                                                        _callback.connectFailed(SessionHelper.this, ex);
+                                                    }
+                                                }, null);
+                                                return;
+                                            }
+
+                                            completeConnect(factory);
+                                        }
+                                     });
+        }
+    }
+
+    private void
+    completeConnect(final ConnectStrategy factory)
+    {
         new Thread(new Runnable()
         {
             @Override

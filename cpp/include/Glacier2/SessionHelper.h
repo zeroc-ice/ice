@@ -35,9 +35,9 @@ const int GLACIER2_TCP_PORT = 4063;
 
 class GLACIER2_API SessionHelper : public IceUtil::Shared
 {
-    
+
 public:
-    
+
     virtual void destroy() = 0;
     virtual Ice::CommunicatorPtr communicator() const = 0;
     virtual std::string categoryForClient() const = 0;
@@ -45,7 +45,7 @@ public:
     virtual Glacier2::SessionPrx session() const = 0;
     virtual bool isConnected() const = 0;
     virtual Ice::ObjectAdapterPtr objectAdapter() = 0;
-    
+
     bool operator==(const Glacier2::SessionHelper&) const;
     bool operator!=(const Glacier2::SessionHelper&) const;
 };
@@ -67,26 +67,26 @@ class GLACIER2_API SessionFactoryHelper : public IceUtil::Shared
 {
 
 public:
-    
+
     SessionFactoryHelper(const SessionCallbackPtr& callback);
     SessionFactoryHelper(const Ice::InitializationData&, const SessionCallbackPtr&);
     SessionFactoryHelper(const Ice::PropertiesPtr&, const SessionCallbackPtr&);
 
     void setRouterIdentity(const Ice::Identity&);
     Ice::Identity getRouterIdentity() const;
-    
+
     void setRouterHost(const std::string&);
     std::string getRouterHost() const;
-    
+
     void setSecure(bool);
     bool getSecure() const;
-    
+
     void setTimeout(int);
     int getTimeout() const;
-    
+
     void setPort(int port);
     int getPort() const;
-    
+
     Ice::InitializationData getInitializationData() const;
 
     void setConnectContext(std::map<std::string, std::string> context);
@@ -95,7 +95,7 @@ public:
     SessionHelperPtr connect(const std::string&,  const std::string&);
 
 private:
-    
+
     Ice::InitializationData createInitData();
     void setDefaultProperties();
 

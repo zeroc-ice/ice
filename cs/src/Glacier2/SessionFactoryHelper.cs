@@ -236,9 +236,9 @@ public class SessionFactoryHelper
 
     /// <summary>
     /// Connects to the Glacier2 router using the associated SSL credentials.
-    /// 
+    ///
     /// Once the connection is established, SesssionCallback.connected is called on
-    /// the callback object; upon failure, SessionCallback.connectFailed is called 
+    /// the callback object; upon failure, SessionCallback.connectFailed is called
     /// with the exception.
     /// </summary>
     /// <returns>The connected session.</returns>
@@ -258,7 +258,7 @@ public class SessionFactoryHelper
     ///
     /// Once the connection is established, SessionCallback.connected is called on
     /// the callback object; upon failure, SessionCallback.connectFailed is called
-    /// with the exception. 
+    /// with the exception.
     /// </summary>
     /// <param name="username">The user name.</param>
     /// <param name="password">The password.</param>
@@ -285,9 +285,17 @@ public class SessionFactoryHelper
 
         if(initData.properties.getProperty("Ice.Default.Router").Length == 0)
         {
+            bool useFinder = _identity == null;
             StringBuilder sb = new StringBuilder();
             sb.Append("\"");
-            sb.Append(Ice.Util.identityToString(_identity));
+            if(useFinder)
+            {
+                sb.Append("Ice/RouterFinder");
+            }
+            else
+            {
+                sb.Append(Ice.Util.identityToString(_identity));
+            }
             sb.Append("\"");
             sb.Append(":");
             if(_secure)
@@ -321,7 +329,14 @@ public class SessionFactoryHelper
                 sb.Append(" -t ");
                 sb.Append(_timeout);
             }
-            initData.properties.setProperty("Ice.Default.Router", sb.ToString());
+            if(useFinder)
+            {
+                initData.properties.setProperty("SessionHelper.RouterFinder", sb.ToString());
+            }
+            else
+            {
+                initData.properties.setProperty("Ice.Default.Router", sb.ToString());
+            }
             //
             // If using a secure connection setup the IceSSL plug-in, if IceSSL
             // plug-in has already been setup we don't want to override the
@@ -344,7 +359,7 @@ public class SessionFactoryHelper
     private SessionCallback _callback;
     private string _routerHost = "localhost";
     private Ice.InitializationData _initData;
-    private Ice.Identity _identity = new Ice.Identity("router", "Glacier2");
+    private Ice.Identity _identity = null;
     private bool _secure = true;
     private int _port = 0;
     private int _timeout = 10000;

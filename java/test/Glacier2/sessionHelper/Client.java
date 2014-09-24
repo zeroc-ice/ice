@@ -108,10 +108,6 @@ public class Client extends test.Util.Application
             out.print("testing SessionHelper connect with wrong userid/password... ");
             out.flush();
 
-            _factory.setRouterHost("127.0.0.1");
-            _factory.setPort(12347);
-            _factory.setRouterIdentity(Ice.Util.stringToIdentity("Glacier2/router"));
-            _factory.setSecure(false);
             _session = _factory.connect("userid", "xxx");
             while(true)
             {
@@ -126,6 +122,7 @@ public class Client extends test.Util.Application
             }
         }
 
+        _initData.properties.setProperty("Ice.Default.Router", "");
         _factory = new Glacier2.SessionFactoryHelper(_initData, new Glacier2.SessionCallback()
             {
                 @Override
@@ -172,7 +169,6 @@ public class Client extends test.Util.Application
             out.flush();
             _factory.setRouterHost("127.0.0.1");
             _factory.setPort(12347);
-            _factory.setRouterIdentity(Ice.Util.stringToIdentity("Glacier2/router"));
             _factory.setSecure(false);
             _session = _factory.connect("userid", "abc123");
             while(true)
@@ -387,7 +383,6 @@ public class Client extends test.Util.Application
 
             _factory.setRouterHost("127.0.0.1");
             _factory.setPort(12347);
-            _factory.setRouterIdentity(Ice.Util.stringToIdentity("Glacier2/router"));
             _factory.setSecure(false);
             _session = _factory.connect("userid", "abc123");
             while(true)

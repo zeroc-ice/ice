@@ -24,11 +24,11 @@ using namespace Test;
 
 namespace
 {
-    
+
 class Notify
 {
 public:
-    
+
     virtual void notify() = 0;
 };
 
@@ -38,13 +38,13 @@ class Dispatcher : public Ice::Dispatcher, public IceUtil::Thread
 {
 
 public:
-    
+
     Dispatcher():
         _destroyed(false)
     {
     }
-    
-    virtual void 
+
+    virtual void
     dispatch(const Ice::DispatcherCallPtr& call,
              const Ice::ConnectionPtr&)
     {
@@ -55,7 +55,7 @@ public:
         }
         _queue.push_back(call);
     }
-    
+
     virtual void
     destroy()
     {
@@ -63,7 +63,7 @@ public:
         _destroyed = true;
         _monitor.notify();
     }
-    
+
     virtual void
     run()
     {
@@ -77,9 +77,9 @@ public:
             item->run();
         }
     }
-    
+
 private:
-    
+
     Ice::DispatcherCallPtr
     nextItem()
     {
@@ -108,7 +108,7 @@ class SuccessSessionCallback : public Glacier2::SessionCallback
 {
 
 public:
-    
+
     virtual void
     connected(const Glacier2::SessionHelperPtr&)
     {
@@ -140,7 +140,7 @@ class AfterShutdownSessionCallback : public Glacier2::SessionCallback
 {
 
 public:
-    
+
     virtual void
     connected(const Glacier2::SessionHelperPtr&)
     {
@@ -182,8 +182,8 @@ class FailSessionCallback : public Glacier2::SessionCallback
 {
 
 public:
-    
-    virtual void 
+
+    virtual void
     connected(const Glacier2::SessionHelperPtr&)
     {
         test(false);
@@ -217,7 +217,7 @@ public:
     createdCommunicator(const Glacier2::SessionHelperPtr& session)
     {
         test(session->communicator());
-    }    
+    }
 };
 
 class SessionHelperClient : public Ice::Application, public Notify
@@ -229,11 +229,11 @@ public:
         instance = this;
         _initData.properties = Ice::createProperties(argc, argv, communicator()->getProperties());
         _initData.properties->setProperty("Ice.Default.Router", "Glacier2/router:default -p 12347");
-       
+
         DispatcherPtr dispatcher = new Dispatcher();
         dispatcher->start();
         _initData.dispatcher = dispatcher;
-        
+
         _factory = new Glacier2::SessionFactoryHelper(_initData, new FailSessionCallback());
 
         //
@@ -245,19 +245,15 @@ public:
 
             cout << "testing SessionHelper connect with wrong userid/password... " << flush;
 
-            _factory->setRouterHost("localhost");
-            _factory->setPort(12347);
-
-            _factory->setRouterIdentity(communicator()->stringToIdentity("Glacier2/router"));
-            _factory->setSecure(false);
             _session = _factory->connect("userid", "xxx");
-            
+
             //
             // Wait for connectFailed callback
             //
             _monitor.wait();
         }
-        
+
+        _initData.properties->setProperty("Ice.Default.Router", "");
         _factory = new Glacier2::SessionFactoryHelper(_initData, new SuccessSessionCallback());
 
         {
@@ -265,10 +261,9 @@ public:
             cout << "testing SessionHelper connect... " << flush;
             _factory->setRouterHost("localhost");
             _factory->setPort(12347);
-            _factory->setRouterIdentity(communicator()->stringToIdentity("Glacier2/router"));
             _factory->setSecure(false);
             _session = _factory->connect("userid", "abc123");
-            
+
             //
             // Wait for connect callback
             //
@@ -350,7 +345,7 @@ public:
 //                 cout << "ok" << endl;
 //             }
 //             catch(const std::exception& ex)
-//             {                
+//             {
 //                 cout << ex.what() << endl;
 //             }
 //             catch(const std::string& msg)
@@ -407,13 +402,12 @@ public:
         //
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
 
-        
+
         {
             IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
             cout << "testing SessionHelper connect after router shutdown... " << flush;
             _factory->setRouterHost("localhost");
             _factory->setPort(12347);
-            _factory->setRouterIdentity(communicator()->stringToIdentity("Glacier2/router"));
             _factory->setSecure(false);
             _session = _factory->connect("userid", "abc123");
 
@@ -434,7 +428,7 @@ public:
             _session->destroy();
             cout << "ok" << endl;
         }
-        
+
         if(dispatcher)
         {
             dispatcher->destroy();
@@ -452,7 +446,7 @@ public:
     }
 
 private:
-    
+
     Glacier2::SessionHelperPtr _session;
     Glacier2::SessionFactoryHelperPtr _factory;
     Ice::InitializationData _initData;

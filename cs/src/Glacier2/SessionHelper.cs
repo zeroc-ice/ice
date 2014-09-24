@@ -34,7 +34,7 @@ public class SessionHelper
             try
             {
                 _router.begin_refreshSession().whenCompleted(
-                    (Ice.Exception ex) => 
+                    (Ice.Exception ex) =>
                     {
                         _session.destroy();
                     });
@@ -60,7 +60,7 @@ public class SessionHelper
 
         public void heartbeat(Ice.Connection con)
         {
-                
+
         }
 
         public void closed(Ice.Connection con)
@@ -431,12 +431,49 @@ public class SessionHelper
                         dispatchCallback(() =>
                             {
                                 _callback.connectFailed(this, ex);
-                            }, 
+                            },
                             null);
                     })).Start();
             return;
         }
 
+        if(_communicator.getDefaultRouter() != null)
+        {
+            completeConnect(factory);
+        }
+        else
+        {
+            Ice.RouterFinderPrx finder = Ice.RouterFinderPrxHelper.uncheckedCast(
+                _communicator.stringToProxy(_communicator.getProperties().getProperty("SessionHelper.RouterFinder")));
+            finder.begin_getRouter().whenCompleted(
+                (Ice.RouterPrx router) =>
+                {
+                    _communicator.setDefaultRouter(router);
+                    completeConnect(factory);
+                },
+                (Ice.Exception ex) =>
+                {
+                    new Thread(new ThreadStart(() =>
+                    {
+                        try
+                        {
+                            _communicator.destroy();
+                        }
+                        catch(Exception)
+                        {
+                        }
+                        dispatchCallback(() =>
+                            {
+                                _callback.connectFailed(this, ex);
+                            }, null);
+                    })).Start();
+                });
+        }
+    }
+
+    private void
+    completeConnect(ConnectStrategy factory)
+    {
         new Thread(new ThreadStart(() =>
         {
                 try

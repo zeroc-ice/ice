@@ -20,12 +20,12 @@ using namespace std;
 namespace
 {
 
-class ConnectStrategy : public IceUtil::Shared
+class ConnectStrategy : public Ice::LocalObject
 {
 
 public:
-    
-    virtual Glacier2::SessionPrx connect(const Glacier2::RouterPrx& router) = 0;    
+
+    virtual Glacier2::SessionPrx connect(const Glacier2::RouterPrx& router) = 0;
 };
 typedef IceUtil::Handle< ConnectStrategy> ConnectStrategyPtr;
 
@@ -33,21 +33,21 @@ class Disconnected : public Ice::DispatcherCall
 {
 
 public:
-    
+
     Disconnected(const Glacier2::SessionHelperPtr& session, const Glacier2::SessionCallbackPtr& callback) :
         _session(session),
         _callback(callback)
     {
     }
-    
-    
+
+
     virtual
     void run()
     {
 
         _callback->disconnected(_session);
     }
-    
+
 private:
 
     const Glacier2::SessionHelperPtr _session;
@@ -56,9 +56,9 @@ private:
 
 class SessionHelperI : public Glacier2::SessionHelper
 {
-    
+
 public:
-    
+
     SessionHelperI(const Glacier2::SessionCallbackPtr&, const Ice::InitializationData&);
     void destroy();
     Ice::CommunicatorPtr communicator() const;
@@ -67,27 +67,29 @@ public:
     Glacier2::SessionPrx session() const;
     bool isConnected() const;
     Ice::ObjectAdapterPtr objectAdapter();
-    
+
     friend class DestroyInternal;
     friend class ConnectThread;
     friend class DispatchCallThread;
     friend class Glacier2::SessionFactoryHelper;
 
 private:
-    
+
     void destroy(const IceUtil::ThreadPtr&);
 
     Ice::ObjectAdapterPtr internalObjectAdapter();
     void connected(const Glacier2::RouterPrx&, const Glacier2::SessionPrx&);
     void destroyInternal(const Ice::DispatcherCallPtr&);
     void connectFailed();
-    
+
     void connect(const std::map<std::string, std::string>&);
     void connect(const std::string&, const std::string&, const std::map<std::string, std::string>&);
-    
+
     void connectImpl(const ConnectStrategyPtr&);
     void dispatchCallback(const Ice::DispatcherCallPtr&, const Ice::ConnectionPtr&);
     void dispatchCallbackAndWait(const Ice::DispatcherCallPtr&, const Ice::ConnectionPtr&);
+
+    void finderCompleted(const Ice::AsyncResultPtr& result);
 
     IceUtil::Mutex _mutex;
     Ice::CommunicatorPtr _communicator;
@@ -145,27 +147,27 @@ class DestroyInternal : public IceUtil::Thread
 {
 
 public:
-    
+
     DestroyInternal(const SessionHelperIPtr& session, const Glacier2::SessionCallbackPtr& callback) :
         _session(session),
         _disconnected(new Disconnected(session, callback))
     {
     }
-    
+
     virtual void run()
     {
         _session->destroyInternal(_disconnected);
     }
-    
+
 private:
-    
+
     const SessionHelperIPtr _session;
     const Ice::DispatcherCallPtr _disconnected;
 };
 
 }
 
-SessionHelperI::SessionHelperI(const Glacier2::SessionCallbackPtr& callback, 
+SessionHelperI::SessionHelperI(const Glacier2::SessionCallbackPtr& callback,
                                const Ice::InitializationData& initData) :
     _connected(false),
     _destroy(false),
@@ -269,13 +271,13 @@ SessionHelperI::objectAdapter()
 
 bool
 Glacier2::SessionHelper::operator==(const Glacier2::SessionHelper& other) const
-{    
+{
     return this == &other;
 }
 
 bool
 Glacier2::SessionHelper::operator!=(const Glacier2::SessionHelper& other) const
-{    
+{
     return this != &other;
 }
 
@@ -301,20 +303,20 @@ class ConnectStrategySecureConnection : public ConnectStrategy
 {
 
 public:
-    
+
     ConnectStrategySecureConnection(const map<string, string>& context) :
         _context(context)
     {
     }
-    
+
     virtual Glacier2::SessionPrx
     connect(const Glacier2::RouterPrx& router)
     {
         return router->createSessionFromSecureConnection(_context);
     }
-    
+
 private:
-    
+
     const map<string, string> _context;
 };
 
@@ -322,22 +324,22 @@ class ConnectStrategyUserPassword : public ConnectStrategy
 {
 
 public:
-    
+
     ConnectStrategyUserPassword(const string& user, const string& password, const map<string, string>& context) :
         _user(user),
         _password(password),
         _context(context)
     {
     }
-    
+
     virtual Glacier2::SessionPrx
     connect(const Glacier2::RouterPrx& router)
     {
         return router->createSession(_user, _password, _context);
     }
-    
+
 private:
-    
+
     const string _user;
     const string _password;
     const map<string, string> _context;
@@ -373,7 +375,7 @@ SessionHelperI::destroyInternal(const Ice::DispatcherCallPtr& disconnected)
 
         communicator = _communicator;
     }
-    
+
     if(router)
     {
         try
@@ -404,7 +406,7 @@ SessionHelperI::destroyInternal(const Ice::DispatcherCallPtr& disconnected)
             }
         }
     }
-    
+
     if(communicator)
     {
         try
@@ -427,7 +429,7 @@ SessionHelperI::connectFailed()
         IceUtil::Mutex::Lock sync(_mutex);
         communicator = _communicator;
     }
-    
+
     if(communicator)
     {
         try
@@ -442,12 +444,12 @@ SessionHelperI::connectFailed()
 
 namespace
 {
-    
+
 class ConnectFailed : public Ice::DispatcherCall
 {
 
 public:
-    
+
     ConnectFailed(const Glacier2::SessionCallbackPtr& callback, const Glacier2::SessionHelperPtr& session,
                   const Ice::Exception& ex) :
         _callback(callback),
@@ -455,16 +457,16 @@ public:
     {
         _ex.reset(ex.ice_clone());
     }
-    
+
     virtual void
     run()
     {
         const Ice::Exception* ex(_ex.get());
         _callback->connectFailed(_session, *ex);
     }
-    
+
 private:
-    
+
     const Glacier2::SessionCallbackPtr _callback;
     const Glacier2::SessionHelperPtr _session;
     IceUtil::UniquePtr<Ice::Exception> _ex;
@@ -472,15 +474,15 @@ private:
 
 class CreatedCommunicator : public Ice::DispatcherCall
 {
-    
+
 public:
-    
+
     CreatedCommunicator(const Glacier2::SessionCallbackPtr& callback, const Glacier2::SessionHelperPtr& session) :
         _callback(callback),
         _session(session)
     {
     }
-    
+
     virtual void
     run()
     {
@@ -488,7 +490,7 @@ public:
     }
 
 private:
-    
+
     const Glacier2::SessionCallbackPtr _callback;
     const Glacier2::SessionHelperPtr _session;
 };
@@ -497,7 +499,7 @@ class ConnectThread : public IceUtil::Thread
 {
 
 public:
-    
+
     ConnectThread(const Glacier2::SessionCallbackPtr& callback, const SessionHelperIPtr& session,
                   const ConnectStrategyPtr& factory, const Ice::CommunicatorPtr& communicator) :
         _callback(callback),
@@ -506,33 +508,33 @@ public:
         _communicator(communicator)
     {
     }
-    
+
     virtual void
     run()
     {
+        try
+        {
+            _session->dispatchCallbackAndWait(new CreatedCommunicator(_callback, _session), 0);
+            Glacier2::RouterPrx routerPrx = Glacier2::RouterPrx::uncheckedCast(_communicator->getDefaultRouter());
+            Glacier2::SessionPrx session = _factory->connect(routerPrx);
+            _session->connected(routerPrx, session);
+        }
+        catch(const Ice::Exception& ex)
+        {
             try
             {
-                _session->dispatchCallbackAndWait(new CreatedCommunicator(_callback, _session), 0);
-                Glacier2::RouterPrx routerPrx = Glacier2::RouterPrx::uncheckedCast(_communicator->getDefaultRouter());
-                Glacier2::SessionPrx session = _factory->connect(routerPrx);
-                _session->connected(routerPrx, session);
+                _session->connectFailed();
             }
-            catch(const Ice::Exception& ex)
+            catch(...)
             {
-                try
-                {
-                    _session->connectFailed();
-                }
-                catch(...)
-                {
-                }
-
-                _session->dispatchCallback(new ConnectFailed(_callback, _session, ex), 0);
             }
+
+            _session->dispatchCallback(new ConnectFailed(_callback, _session, ex), 0);
+        }
     }
-    
+
 private:
-    
+
     const Glacier2::SessionCallbackPtr _callback;
     const SessionHelperIPtr _session;
     const ConnectStrategyPtr _factory;
@@ -544,7 +546,7 @@ class DispatchCallThread : public IceUtil::Thread
 {
 
 public:
-    
+
     DispatchCallThread(const SessionHelperIPtr& session, const Ice::DispatcherCallPtr& call,
                        const Ice::ConnectionPtr& conn) :
         _session(session),
@@ -552,14 +554,14 @@ public:
         _conn(conn)
     {
     }
-    
+
     virtual void run()
     {
         _session->dispatchCallback(_call, _conn);
     }
-    
+
 private:
-    
+
     const SessionHelperIPtr _session;
     const Ice::DispatcherCallPtr _call;
     const Ice::ConnectionPtr _conn;
@@ -584,24 +586,53 @@ SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
         return;
     }
 
+    if(_communicator->getDefaultRouter())
+    {
+        IceUtil::ThreadPtr connectThread = new ConnectThread(_callback, this, factory, _communicator);
+        connectThread->start().detach();
+    }
+    else
+    {
+        Ice::RouterFinderPrx finder = Ice::RouterFinderPrx::uncheckedCast(
+            _communicator->stringToProxy(_communicator->getProperties()->getProperty("SessionHelper.RouterFinder")));
+        finder->begin_getRouter(Ice::newCallback(this, &SessionHelperI::finderCompleted), factory);
+    }
+}
+
+void
+SessionHelperI::finderCompleted(const Ice::AsyncResultPtr& result)
+{
+    try
+    {
+        Ice::RouterPrx router = Ice::RouterFinderPrx::uncheckedCast(result->getProxy())->end_getRouter(result);
+        _communicator->setDefaultRouter(router);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        connectFailed();
+        dispatchCallback(new ConnectFailed(_callback, this, ex), 0);
+        return;
+    }
+
+    ConnectStrategyPtr factory = ConnectStrategyPtr::dynamicCast(result->getCookie());
     IceUtil::ThreadPtr connectThread = new ConnectThread(_callback, this, factory, _communicator);
     connectThread->start().detach();
 }
 
 namespace
 {
-    
+
 class Connected : public Ice::DispatcherCall
 {
 
 public:
-    
+
     Connected(const Glacier2::SessionCallbackPtr& callback, const Glacier2::SessionHelperPtr& session) :
         _callback(callback),
         _session(session)
     {
     }
-    
+
     virtual void
     run()
     {
@@ -616,7 +647,7 @@ public:
     }
 
 private:
-    
+
     const Glacier2::SessionCallbackPtr _callback;
     const Glacier2::SessionHelperPtr _session;
 };
@@ -634,12 +665,12 @@ public:
     {
     }
 
-    virtual void 
+    virtual void
     closed(const Ice::ConnectionPtr&)
     {
         _sessionHelper->destroy();
     }
-    
+
 private:
 
     SessionHelperIPtr _sessionHelper;
@@ -724,32 +755,32 @@ SessionHelperI::dispatchCallback(const Ice::DispatcherCallPtr& call, const Ice::
     {
         call->run();
     }
-    
+
 }
 
 namespace
 {
-    
+
 class DispatcherCallWait : public Ice::DispatcherCall
 {
 
 public:
-    
+
     DispatcherCallWait(IceUtilInternal::CountDownLatch& cdl, const Ice::DispatcherCallPtr& call) :
         _cdl(cdl),
         _call(call)
     {
     }
-    
+
     virtual void
     run()
     {
         _call->run();
         _cdl.countDown();
     }
-    
+
 private:
-    
+
     IceUtilInternal::CountDownLatch& _cdl;
     const Ice::DispatcherCallPtr _call;
 };
@@ -779,14 +810,12 @@ Glacier2::SessionFactoryHelper::SessionFactoryHelper(const SessionCallbackPtr& c
     _timeout(10000),
     _callback(callback)
 {
-    _identity.name = "router";
-    _identity.category = "Glacier2";
     _initData.properties = Ice::createProperties();
     setDefaultProperties();
 }
 
 Glacier2::SessionFactoryHelper::SessionFactoryHelper(const Ice::InitializationData& initData,
-                                           const SessionCallbackPtr& callback) :
+                                                     const SessionCallbackPtr& callback) :
     _routerHost("localhost"),
     _secure(true),
     _port(0),
@@ -794,8 +823,6 @@ Glacier2::SessionFactoryHelper::SessionFactoryHelper(const Ice::InitializationDa
     _initData(initData),
     _callback(callback)
 {
-    _identity.name = "router";
-    _identity.category = "Glacier2";
     if(!initData.properties)
     {
         _initData.properties = Ice::createProperties();
@@ -803,7 +830,8 @@ Glacier2::SessionFactoryHelper::SessionFactoryHelper(const Ice::InitializationDa
     setDefaultProperties();
 }
 
-Glacier2::SessionFactoryHelper::SessionFactoryHelper(const Ice::PropertiesPtr& properties, const SessionCallbackPtr& callback) :
+Glacier2::SessionFactoryHelper::SessionFactoryHelper(const Ice::PropertiesPtr& properties,
+                                                     const SessionCallbackPtr& callback) :
     _routerHost("localhost"),
     _secure(true),
     _port(0),
@@ -815,8 +843,6 @@ Glacier2::SessionFactoryHelper::SessionFactoryHelper(const Ice::PropertiesPtr& p
         throw Ice::InitializationException(
             __FILE__, __LINE__, "Attempt to create a SessionFactoryHelper with a null Properties argument");
     }
-    _identity.name = "router";
-    _identity.category = "Glacier2";
     _initData.properties = properties;
     setDefaultProperties();
 }
@@ -936,18 +962,26 @@ Glacier2::SessionFactoryHelper::createInitData()
     {
         ostringstream os;
         os << "\"";
-        
+
         //
         // TODO replace with identityToString, we cannot use the Communicator::identityToString
         // current implementation because we need to do that before the communicator has been
         // initialized.
         //
-        if(!_identity.category.empty())
+        bool useFinder = _identity.category.empty() && _identity.name.empty();
+        if(useFinder)
         {
-            os << _identity.category << "/";
+            os << "Ice/RouterFinder";
         }
-        os << _identity.name;
-        
+        else
+        {
+            if(!_identity.category.empty())
+            {
+                os << _identity.category << "/";
+            }
+            os << _identity.name;
+        }
+
         os << "\"";
         os << ":";
         if(_secure)
@@ -958,7 +992,7 @@ Glacier2::SessionFactoryHelper::createInitData()
         {
             os << "tcp -p ";
         }
-        
+
         if(_port != 0)
         {
             os << _port;
@@ -982,7 +1016,15 @@ Glacier2::SessionFactoryHelper::createInitData()
             os << " -t ";
             os << _timeout;
         }
-        initData.properties->setProperty("Ice.Default.Router", os.str());
+
+        if(useFinder)
+        {
+            initData.properties->setProperty("SessionHelper.RouterFinder", os.str());
+        }
+        else
+        {
+            initData.properties->setProperty("Ice.Default.Router", os.str());
+        }
 #ifndef ICE_OS_WINRT
         //
         // If using a secure connection setup the IceSSL plug-in, if IceSSL
