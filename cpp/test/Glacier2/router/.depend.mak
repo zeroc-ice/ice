@@ -194,7 +194,7 @@ CallbackI.obj: \
     "$(includedir)\Ice\Service.h" \
     "CallbackI.h" \
     "Callback.h" \
-    "..\..\include\TestCommon.h" \
+    "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \
@@ -328,7 +328,7 @@ Client.obj: \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\PermissionsVerifier.h" \
-    "..\..\include\TestCommon.h" \
+    "$(top_srcdir)\test\include\TestCommon.h" \
     "CallbackI.h" \
     "Callback.h" \
 

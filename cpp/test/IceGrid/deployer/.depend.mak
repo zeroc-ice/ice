@@ -188,7 +188,7 @@ Client.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\include\TestCommon.h" \
+    "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \
@@ -327,7 +327,7 @@ AllTests.obj: \
     "$(includedir)\IceGrid\UserAccountMapper.h" \
     "$(includedir)\IceGrid\PluginFacade.h" \
     "$(includedir)\IceGrid\Discovery.h" \
-    "..\..\include\TestCommon.h" \
+    "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \
@@ -569,7 +569,7 @@ Server.obj: \
     "$(includedir)\Ice\Service.h" \
     "TestI.h" \
     "Test.h" \
-    "..\..\include\TestCommon.h" \
+    "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \

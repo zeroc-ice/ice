@@ -202,7 +202,7 @@ Client.obj: \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\PermissionsVerifier.h" \
     "Test.h" \
-    "..\..\include\TestCommon.h" \
+    "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \

@@ -57,7 +57,7 @@ ThreadPriority.obj: \
     "$(includedir)\IceUtil\UniquePtr.h" \
     "ThreadPriority.h" \
     "TestBase.h" \
-    "..\..\include\TestCommon.h" \
+    "$(top_srcdir)\test\include\TestCommon.h" \
 
 TimerPriority.obj: \
 	TimerPriority.cpp \
@@ -88,7 +88,7 @@ TimerPriority.obj: \
     "$(includedir)\IceUtil\UniquePtr.h" \
     "TimerPriority.h" \
     "TestBase.h" \
-    "..\..\include\TestCommon.h" \
+    "$(top_srcdir)\test\include\TestCommon.h" \
 
 PriorityInversion.obj: \
 	PriorityInversion.cpp \
@@ -107,7 +107,7 @@ PriorityInversion.obj: \
     "$(includedir)\IceUtil\Monitor.h" \
     "$(includedir)\IceUtil\Cond.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
-    "..\..\include\TestCommon.h" \
+    "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \
@@ -160,6 +160,6 @@ Client.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
-    "..\..\include\TestCommon.h" \
+    "$(top_srcdir)\test\include\TestCommon.h" \
     "TestSuite.h" \
     "TestBase.h" \

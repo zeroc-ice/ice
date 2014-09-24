@@ -14,7 +14,7 @@ Client.obj: \
     "$(includedir)\IceUtil\ThreadException.h" \
     "$(includedir)\IceUtil\MutexProtocol.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
-    "..\..\include\TestCommon.h" \
+    "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \

@@ -352,6 +352,9 @@ ifeq ($(wildcard .depend/*.d),)
 $(OBJS):$(OBJS:.o=.cpp)
 else
 -include $(addprefix .depend/, $(OBJS:.o=.d))
+
+clean::
+	rm -f .depend/*.d
 endif
 
 endif

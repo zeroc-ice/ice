@@ -205,7 +205,7 @@ Client.obj: \
     "$(includedir)\Glacier2\Metrics.h" \
     "$(includedir)\Glacier2\Application.h" \
     "$(includedir)\Glacier2\SessionHelper.h" \
-    "..\..\include\TestCommon.h" \
+    "$(top_srcdir)\test\include\TestCommon.h" \
     "Callback.h" \
 
 Server.obj: \

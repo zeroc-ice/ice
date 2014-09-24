@@ -195,7 +195,7 @@ Client.obj: \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\UUID.h" \
-    "..\..\include\TestCommon.h" \
+    "$(top_srcdir)\test\include\TestCommon.h" \
     "Test.h" \
 
 AllTests.obj: \
@@ -334,7 +334,7 @@ AllTests.obj: \
     "$(includedir)\IceGrid\UserAccountMapper.h" \
     "$(includedir)\IceGrid\PluginFacade.h" \
     "$(includedir)\IceGrid\Discovery.h" \
-    "..\..\include\TestCommon.h" \
+    "$(top_srcdir)\test\include\TestCommon.h" \
     "Test.h" \
 
 TestI.obj: \

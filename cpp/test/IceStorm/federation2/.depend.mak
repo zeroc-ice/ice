@@ -319,7 +319,7 @@ Subscriber.obj: \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
     "Event.h" \
-    "..\..\include\TestCommon.h" \
+    "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \
