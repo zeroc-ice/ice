@@ -360,6 +360,8 @@ all:: $(TARGETS)
 
 .cpp.o:
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+	@mkdir -p .depend
+	@$(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $< > .depend/$(*F).d
 
 .c.o:
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
