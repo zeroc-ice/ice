@@ -49,13 +49,6 @@ CPPFLAGS        = /Fd$(PDBNAME) $(CPPFLAGS) -DICE_UTIL_API_EXPORTS -I..\..\ -DWI
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-depend::
-	del /q .depend.mak
-
-.cpp.depend:
-	$(CXX) /Fo$(ARCH)\$(CONFIG)\ /Zs /showIncludes $(CXXFLAGS) $(CPPFLAGS) $< 2>&1 | python.exe $(ice_dir)/config/makedepend-winrt.py $<
-
-depend:: $(ARCH)\$(CONFIG) $(SRCS_DEPEND)
 
 $(LIBNAME): $(OBJS) sdks
 	$(AR) $(ARFLAGS) $(OBJS) /out:$(LIBNAME)
@@ -66,4 +59,3 @@ clean::
 
 install:: all
 
-!include .depend.mak

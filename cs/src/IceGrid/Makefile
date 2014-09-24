@@ -56,5 +56,3 @@ endif
 
 clean::
 	-rm -f $(assembliesdir)/$(PKG).xml
-
-include .depend

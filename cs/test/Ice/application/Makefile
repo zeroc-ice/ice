@@ -23,8 +23,3 @@ SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) -I.
 
 client.exe: $(C_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
-
-depend::
-	touch .depend .depend.mak
-
-include .depend

@@ -16,17 +16,18 @@ DLLNAME		= testservice$(LIBSUFFIX).dll
 
 TARGETS		= $(CLIENT) $(LIBNAME) $(DLLNAME)
 
-OBJS		= Test.obj
+SLICE_OBJS	= .\Test.obj
 
-COBJS		= Client.obj \
-		  AllTests.obj
+COBJS		= $(SLICE_OBJS) \
+		  .\Client.obj \
+		  .\AllTests.obj
 
-SERVICE_OBJS	= TestI.obj \
-		  Service.obj
+SERVICE_OBJS	= $(SLICE_OBJS) \
+		  .\TestI.obj \
+		  .\Service.obj
 
-SRCS		= $(OBJS:.obj=.cpp) \
-		  $(COBJS:.obj=.cpp) \
-		  $(SERVICE_OBJS:.obj=.cpp)
+OBJS		= $(COBJS) \
+		  $(SERVICE_OBJS)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -41,15 +42,15 @@ SPDBFLAGS       = /pdb:$(SERVER:.exe=.pdb)
 
 $(LIBNAME) : $(DLLNAME)
 
-$(DLLNAME): $(OBJS) $(SERVICE_OBJS)
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(SETARGV) $(OBJS) $(SERVICE_OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH) \
+$(DLLNAME): $(SERVICE_OBJS)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(SETARGV) $(SERVICE_OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH) \
 	  freeze$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
-$(CLIENT): $(OBJS) $(COBJS)
-	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) \
+$(CLIENT): $(COBJS)
+	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) \
 	  icegrid$(LIBSUFFIX).lib glacier2$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
@@ -69,5 +70,3 @@ all::
 	@echo debug > build.txt
 
 !endif
-
-!include .depend.mak

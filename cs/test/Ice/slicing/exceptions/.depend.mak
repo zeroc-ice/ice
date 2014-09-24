@@ -1,5 +1,18 @@
-generated/Test.cs: ./Test.ice "$(SLICE2CS)" "$(SLICEPARSERLIB)"
-generated/ClientPrivate.cs: ./ClientPrivate.ice ./Test.ice "$(SLICE2CS)" "$(SLICEPARSERLIB)"
-generated/ServerPrivate.cs: ./ServerPrivate.ice ./Test.ice "$(SLICE2CS)" "$(SLICEPARSERLIB)"
-generated/TestAMD.cs: ./TestAMD.ice "$(SLICE2CS)" "$(SLICEPARSERLIB)"
-generated/ServerPrivateAMD.cs: ./ServerPrivateAMD.ice ./TestAMD.ice "$(SLICE2CS)" "$(SLICEPARSERLIB)"
+
+Test.cs: \
+    .\Test.ice
+
+ClientPrivate.cs: \
+    .\ClientPrivate.ice \
+    ./Test.ice
+
+ServerPrivate.cs: \
+    .\ServerPrivate.ice \
+    ./Test.ice
+
+TestAMD.cs: \
+    .\TestAMD.ice
+
+ServerPrivateAMD.cs: \
+    .\ServerPrivateAMD.ice \
+    ./TestAMD.ice

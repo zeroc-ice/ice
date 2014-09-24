@@ -138,7 +138,7 @@ endif
 
 CPPFLAGS		=
 ICECPPFLAGS		= -I$(slicedir)
-SLICE2PHPFLAGS		= $(ICECPPFLAGS)
+SLICE2PHPFLAGS		:= $(SLICE2PHPFLAGS) $(ICECPPFLAGS)
 LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
 
 ifeq ("$(USE_NAMESPACES)","yes")
@@ -169,33 +169,35 @@ endif
 #
 mkphplibname		= $(subst lib,,$(call mklibname,$(1)))
 
-EVERYTHING		= all depend clean install
+EVERYTHING		= all clean install
 
 .SUFFIXES:
 .SUFFIXES:		.cpp .o .py .php
 
-all:: $(SRCS)
+all:: $(SLICE_SRCS:.ice=.php)
 
-%.php: $(SDIR)/%.ice
-	rm -f $(*F).php
+%.php: %.ice
 	$(SLICE2PHP) $(SLICE2PHPFLAGS) $<
+	@mkdir -p .depend
+	@$(SLICE2PHP) $(SLICE2PHPFLAGS) --depend $< > .depend/$(*F).ice.d
 
 .cpp.o:
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+	@mkdir -p .depend
+	@$(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $< > .depend/$(*F).d
 
 clean::
 	-rm -f $(TARGETS)
 	-rm -f core *.o *.bak
 
-all:: $(SRCS) $(TARGETS)
-
 ifneq ($(SLICE_SRCS),)
-depend:: $(SLICE_SRCS)
-	rm -f .depend .depend.mak
-	$(SLICE2PHP) --depend $(SLICE2PHPFLAGS) $(SLICE_SRCS) | $(ice_dir)/config/makedepend.py
-else
-depend::
+clean::
+	-rm $(SLICE_SRCS:.ice=.php)
 endif
+
+all:: $(TARGETS)
+
+include $(wildcard .depend/*.d)
 
 ifneq ($(TEMPLATE_REPOSITORY),)
 clean::

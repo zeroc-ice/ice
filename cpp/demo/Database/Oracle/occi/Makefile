@@ -14,13 +14,13 @@ SERVER		= server
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-SLICE_SRCS	= HR.ice
+SLICE_OBJS	= HR.o
 
-OBJS		= HR.o
+COBJS		= $(SLICE_OBJS) \
+		  Client.o
 
-COBJS		= Client.o
-
-SOBJS		= DbTypes.o \
+SOBJS		= $(SLICE_OBJS) \
+		  DbTypes.o \
 		  DbTypesMap.o \
 		  DeptFactoryI.o \
 		  DeptI.o  \
@@ -29,9 +29,8 @@ SOBJS		= DbTypes.o \
 		  Server.o \
 		  Util.o
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
+OBJS		= $(COBJS) \
+		  $(SOBJS)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -39,13 +38,13 @@ CPPFLAGS	:= -I. -I$(ORACLE_HOME)/rdbms/public $(CPPFLAGS)
 
 ORACLE_LIBS     = -L$(ORACLE_HOME)/lib -locci -lclntsh
 
-$(CLIENT): $(OBJS) $(COBJS)
+$(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
 
-$(SERVER): $(OBJS) $(SOBJS)
+$(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(ORACLE_LIBS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(ORACLE_LIBS) $(LIBS)
 
 
 DbTypes.h DbTypes.cpp DbTypesMap.h DbTypesMap.cpp DbTypesOut.typ: DbTypes.typ
@@ -55,7 +54,3 @@ DbTypes.h DbTypes.cpp DbTypesMap.h DbTypesMap.cpp DbTypesOut.typ: DbTypes.typ
 
 clean::
 	-rm -f DbTypes.h DbTypes.cpp DbTypesMap.h DbTypesMap.cpp DbTypesOut.typ
-
-include .depend
-
-

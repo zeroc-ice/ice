@@ -29,5 +29,3 @@ client.exe: $(C_SRCS) $(GEN_SRCS)
 
 helloservice.dll: $(S_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -target:library -out:$@ $(call ref,IceBox) $(call ref,Ice) $(subst /,$(DSEP),$^)
-
-include .depend

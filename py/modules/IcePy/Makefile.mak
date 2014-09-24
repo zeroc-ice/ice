@@ -14,27 +14,25 @@ DLLNAME		= $(top_srcdir)\python\IcePy$(PYLIBSUFFIX).pyd
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
-OBJS		= Communicator.obj \
-		  Connection.obj \
-		  ConnectionInfo.obj \
-		  Current.obj \
-		  Endpoint.obj \
-		  EndpointInfo.obj \
-		  ImplicitContext.obj \
-		  Init.obj \
-		  Logger.obj \
-		  ObjectAdapter.obj \
-		  ObjectFactory.obj \
-		  Operation.obj \
-		  Properties.obj \
-		  PropertiesAdmin.obj \
-		  Proxy.obj \
-		  Slice.obj \
-		  Thread.obj \
-		  Types.obj \
-		  Util.obj
-
-SRCS		= $(OBJS:.obj=.cpp)
+OBJS		= .\Communicator.obj \
+		  .\Connection.obj \
+		  .\ConnectionInfo.obj \
+		  .\Current.obj \
+		  .\Endpoint.obj \
+		  .\EndpointInfo.obj \
+		  .\ImplicitContext.obj \
+		  .\Init.obj \
+		  .\Logger.obj \
+		  .\ObjectAdapter.obj \
+		  .\ObjectFactory.obj \
+		  .\Operation.obj \
+		  .\Properties.obj \
+		  .\PropertiesAdmin.obj \
+		  .\Proxy.obj \
+		  .\Slice.obj \
+		  .\Thread.obj \
+		  .\Types.obj \
+		  .\Util.obj
 
 !include $(top_srcdir)\config\Make.rules.mak
 
@@ -58,5 +56,3 @@ clean::
 
 install:: all
 	copy $(DLLNAME) "$(install_libdir)"
-
-!include .depend.mak

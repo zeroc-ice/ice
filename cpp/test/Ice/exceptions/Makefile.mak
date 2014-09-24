@@ -24,30 +24,34 @@ COLLOCATED	= $(NAME_PREFIX)collocated
 
 TARGETS		= $(CLIENT)$(EXT) $(SERVER)$(EXT) $(SERVERAMD)$(EXT) $(COLLOCATED)$(EXT)
 
-OBJS		= ExceptionsI.obj
+SLICE_OBJS	= .\Test.obj .\TestAMD.obj
+COMMON_OBJS	= .\ExceptionsI.obj
 
-COBJS		= Test.obj \
-		  Client.obj \
-		  AllTests.obj
+COBJS		= $(COMMON_OBJS) \
+		  .\Test.obj \
+		  .\Client.obj \
+		  .\AllTests.obj
 
-SOBJS		= Test.obj \
-		  TestI.obj \
-		  Server.obj
+SOBJS		= $(COMMON_OBJS) \
+		  .\Test.obj \
+		  .\TestI.obj \
+		  .\Server.obj
 
-SAMDOBJS	= TestAMD.obj \
-		  TestAMDI.obj \
-		  ServerAMD.obj
+SAMDOBJS	= $(COMMON_OBJS) \
+		  .\TestAMD.obj \
+		  .\TestAMDI.obj \
+		  .\ServerAMD.obj
 
-COLOBJS		= Test.obj \
-		  TestI.obj \
-		  Collocated.obj \
-		  AllTests.obj
+COLOBJS		= $(COMMON_OBJS) \
+		  .\Test.obj \
+		  .\TestI.obj \
+		  .\Collocated.obj \
+		  .\AllTests.obj
 
-SRCS		= $(OBJS:.obj=.cpp) \
-		  $(COBJS:.obj=.cpp) \
-		  $(SOBJS:.obj=.cpp) \
-		  $(SAMDOBJS:.obj=.cpp) \
-		  $(COLOBJS:.obj=.cpp)
+OBJS		= $(COBJS) \
+		  $(SOBJS) \
+		  $(SAMDOBJS) \
+		  $(COLOBJS)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -66,28 +70,26 @@ SAPDBFLAGS       = /pdb:$(SERVERAMD).pdb
 COPDBFLAGS       = /pdb:$(COLLOCATED).pdb
 !endif
 
-$(CLIENT)$(EXT): $(COBJS) $(OBJS)
-	$(LINK) $(LD_TESTFLAGS) $(CPDBFLAGS) $(COBJS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(CLIENT)$(EXT): $(COBJS)
+	$(LINK) $(LD_TESTFLAGS) $(CPDBFLAGS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(SERVER)$(EXT): $(SOBJS) $(OBJS)
-	$(LINK) $(LD_TESTFLAGS) $(SPDBFLAGS) $(SOBJS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(SERVER)$(EXT): $(SOBJS) 
+	$(LINK) $(LD_TESTFLAGS) $(SPDBFLAGS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 $(SERVERAMD)$(EXT): $(SAMDOBJS) $(OBJS)
-	$(LINK) $(LD_TESTFLAGS) $(SAPDBFLAGS) $(SAMDOBJS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	$(LINK) $(LD_TESTFLAGS) $(SAPDBFLAGS) $(SAMDOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(COLLOCATED)$(EXT): $(COLOBJS) $(OBJS)
-	$(LINK) $(LD_TESTFLAGS) $(COPDBFLAGS) $(COLOBJS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(COLLOCATED)$(EXT): $(COLOBJS)
+	$(LINK) $(LD_TESTFLAGS) $(COPDBFLAGS) $(COLOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 clean::
 	del /q Test.cpp Test.h
 	del /q TestAMD.cpp TestAMD.h
-
-!include .depend.mak

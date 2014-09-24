@@ -1,1 +1,3 @@
-generated/Clock.cs: ./Clock.ice "$(SLICE2CS)" "$(SLICEPARSERLIB)"
+
+Clock.cs: \
+    .\Clock.ice

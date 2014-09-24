@@ -25,16 +25,16 @@ OBJS		= $(ARCH)\$(CONFIG)\Admin.obj \
 		  $(ARCH)\$(CONFIG)\Session.obj \
 		  $(ARCH)\$(CONFIG)\UserAccountMapper.obj
 
-SLICE_SRCS	= $(SDIR)/Admin.ice \
-		  $(SDIR)/Descriptor.ice \
-		  $(SDIR)/Exception.ice \
-		  $(SDIR)/FileParser.ice \
-		  $(SDIR)/Locator.ice \
-		  $(SDIR)/Observer.ice \
-		  $(SDIR)/Query.ice \
-		  $(SDIR)/Registry.ice \
-		  $(SDIR)/Session.ice \
-		  $(SDIR)/UserAccountMapper.ice
+SLICE_SRCS	= IceGrid\Admin.ice \
+		  IceGrid\Descriptor.ice \
+		  IceGrid\Exception.ice \
+		  IceGrid\FileParser.ice \
+		  IceGrid\Locator.ice \
+		  IceGrid\Observer.ice \
+		  IceGrid\Query.ice \
+		  IceGrid\Registry.ice \
+		  IceGrid\Session.ice \
+		  IceGrid\UserAccountMapper.ice
 
 SRCS		= $(OBJS:.obj=.cpp)
 SRCS		= $(SRCS:x86\=)
@@ -55,16 +55,6 @@ SLICE2CPPFLAGS	= --checksum --ice --include-dir IceGrid --dll-export ICE_GRID_AP
 $(LIBNAME): $(OBJS) sdks
 	$(AR) $(ARFLAGS) $(OBJS) /out:$(LIBNAME)
 
-depend::
-	del /q .depend.mak
-
-.cpp.depend:
-	$(CXX) /Fo$(ARCH)\$(CONFIG)\ /Fd$(ARCH)\$(CONFIG)\ /Zs /showIncludes $(CXXFLAGS) $(CPPFLAGS) $< 2>&1 | python.exe $(ice_dir)/config/makedepend-winrt.py  $<
-
-depend:: $(ARCH)\$(CONFIG) $(SLICE_SRCS) $(SRCS) $(SRCS_DEPEND)
-	@if not "$(SLICE_SRCS)" == "" \
-		$(SLICE2CPP) --depend $(SLICE2CPPFLAGS) $(SLICE_SRCS) | python.exe $(ice_dir)\config\makedepend-winrt.py
-
 clean::
 	-del /q $(SOURCE_DIR)\Admin.cpp $(HDIR)\Admin.h
 	-del /q $(SOURCE_DIR)\Descriptor.cpp $(HDIR)\Descriptor.h
@@ -80,5 +70,3 @@ clean::
 	-del /q $(PDBNAME)
 
 install:: all
-
-!include .depend.mak

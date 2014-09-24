@@ -32,5 +32,3 @@ helloservice.dll: $(S_SRCS) $(GEN_SRCS)
 
 clean::
 	-rm -rf db/node/* db/registry/*
-
-include .depend

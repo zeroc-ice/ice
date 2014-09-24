@@ -20,6 +20,7 @@ SRCS		= LocatorI.cs \
 
 GEN_SRCS	= $(GDIR)\IceDiscovery.cs
 
+SDIR		= $(slicedir)\IceDiscovery
 GDIR		= generated
 
 !include $(top_srcdir)\config\Make.rules.mak.cs
@@ -32,10 +33,6 @@ SLICE2CSFLAGS   = $(SLICE2CSFLAGS) --ice -I$(slicedir)
 
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -r:$(refdir)\Ice.dll $(SRCS) $(GEN_SRCS)
-
-$(GDIR)\IceDiscovery.cs: $(slicedir)\IceDiscovery\IceDiscovery.ice $(SLICE2CS) $(SLICEPARSERLIB)
-	del /q $(*F).cs
-	"$(SLICE2CS)" --output-dir $(GDIR) $(SLICE2CSFLAGS) $(slicedir)\IceDiscovery\IceDiscovery.ice
 
 !if "$(DEBUG)" == "yes"
 clean::
@@ -54,5 +51,3 @@ install:: all
 !if "$(DEBUG)" == "yes"
 	copy $(assembliesdir)\$(PKG).pdb "$(install_assembliesdir)"
 !endif
-
-!include .depend.mak

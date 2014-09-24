@@ -14,17 +14,19 @@ SERVER		= $(call mktestname,server)
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-COBJS		= Test.o \
+SLICE_OBJS	= Test.o
+
+COBJS		= $(SLICE_OBJS) \
 		  TestI.o \
 		  Client.o \
 		  AllTests.o
 
-SOBJS		= Test.o \
+SOBJS		= $(SLICE_OBJS) \
 		  TestI.o \
 		  Server.o
 
-SRCS		= $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
+OBJS		= $(COBJS) \
+		  $(SOBJS)
 
 SLICE_SRCS	= Test.ice
 
@@ -39,5 +41,3 @@ $(CLIENT): $(COBJS)
 $(SERVER): $(SOBJS)
 	rm -f $@
 	$(call mktest,$@,$(SOBJS),$(LIBS))
-
-include .depend

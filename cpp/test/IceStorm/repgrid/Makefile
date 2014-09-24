@@ -13,26 +13,20 @@ CLIENT		= client
 
 TARGETS		= $(CLIENT)
 
-OBJS		= Single.o
+SLICE_OBJS	= Single.o
 
-COBJS		= Client.o
-
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(COBJS:.o=.cpp)
-
-SLICE_SRCS	= Single.ice
+OBJS		= $(SLICE_OBJS) \
+		  Client.o
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 LIBS		:= -lIceStorm $(LIBS)
 
-$(CLIENT): $(OBJS) $(COBJS)
+$(CLIENT): $(OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
 
 clean::
 	-rm -f build.txt
 	-rm -rf db/node/* db/registry/* db/replica-1/*
-
-include .depend

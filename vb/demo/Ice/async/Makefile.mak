@@ -16,7 +16,6 @@ S_SRCS		= HelloI.vb Server.vb WorkQueue.vb
 
 GEN_SRCS	= $(GDIR)\Hello.cs
 
-SLICE_SRCS	= $(SDIR)/Hello.ice
 
 SLICE_ASSEMBLY  = helloSlice.dll
 
@@ -33,5 +32,3 @@ client.exe: $(C_SRCS) $(SLICE_ASSEMBLY)
 
 server.exe: $(S_SRCS) $(SLICE_ASSEMBLY)
 	$(VBC) $(VBCFLAGS) -out:$@ -r:"$(csbindir)\Ice.dll" -r:$(SLICE_ASSEMBLY) $(S_SRCS)
-
-!include .depend.mak

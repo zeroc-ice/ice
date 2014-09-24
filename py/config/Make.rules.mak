@@ -135,12 +135,35 @@ SLICEPARSERLIB          = $(ice_dir)\lib$(x64suffix)\sliced.lib
 
 MT			= mt.exe
 
-EVERYTHING		= all clean install
+EVERYTHING		= all clean install depend
 
 .SUFFIXES:
-.SUFFIXES:		.cpp .obj .py .res .rc
+.SUFFIXES:		.cpp .obj .py .res .rc .d .ice
 
-all:: $(SRCS)
+DEPEND_DIR = .depend.mak
+
+depend::
+
+!if exist(.depend.mak)
+!include .depend.mak
+!endif
+
+!if "$(OBJS)" != ""
+depend::
+	@del /q .depend.mak
+
+OBJS_DEPEND = $(OBJS:.obj=.d)
+OBJS_DEPEND = $(OBJS_DEPEND:.\=.depend.mak\)
+
+depend:: $(OBJS_DEPEND)
+
+!endif
+
+.cpp{$(DEPEND_DIR)}.d:
+	@echo Generating dependencies for $<
+	@$(CXX) /E $(CPPFLAGS) $(CXXFLAGS) /showIncludes $< 1>$(*F).i 2>$(*F).d && \
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend.vbs $(*F).cpp $(top_srcdir)
+	@del /q $(*F).d $(*F).i
 
 .cpp.obj::
 	$(CXX) /c $(CPPFLAGS) $(CXXFLAGS) $<

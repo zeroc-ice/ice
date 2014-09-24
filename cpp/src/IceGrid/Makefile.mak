@@ -15,85 +15,87 @@ REGISTRY_SERVER	= $(top_srcdir)\bin\icegridregistry.exe
 
 TARGETS         = $(ADMIN) $(NODE_SERVER) $(REGISTRY_SERVER)
 
-SLICE_OBJS      = Internal.obj
+SLICE_OBJS      = .\Internal.obj
 
-ADMIN_OBJS	= Client.obj \
-		  DescriptorBuilder.obj \
-		  DescriptorHelper.obj \
-		  DescriptorParser.obj \
-		  FileParserI.obj \
-		  Grammar.obj \
-		  Parser.obj \
-		  Scanner.obj \
-		  Util.obj \
-                  $(SLICE_OBJS)
+all:: StringApplicationInfoDict.h StringApplicationInfoDict.cpp \
+	  IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp \
+	  StringAdapterInfoDict.h StringAdapterInfoDict.cpp \
+	  SerialsDict.h SerialsDict.cpp
 
-COMMON_OBJS	= AdminRouter.obj \
-                  DescriptorBuilder.obj \
-		  DescriptorParser.obj \
-		  FileCache.obj \
-		  PlatformInfo.obj \
-		  SessionManager.obj \
-		  TraceLevels.obj \
-                  $(SLICE_OBJS)
+ADMIN_OBJS	= .\Client.obj \
+		  .\DescriptorBuilder.obj \
+		  .\DescriptorHelper.obj \
+		  .\DescriptorParser.obj \
+		  .\FileParserI.obj \
+		  .\Grammar.obj \
+		  .\Parser.obj \
+		  .\Scanner.obj \
+		  .\Util.obj \
+		  $(SLICE_OBJS)
 
-NODE_OBJS	= Activator.obj \
-		  NodeAdminRouter.obj \
-                  NodeI.obj \
-		  NodeSessionManager.obj \
-		  ServerAdapterI.obj \
-		  ServerI.obj
+COMMON_OBJS	= .\AdminRouter.obj \
+		  .\DescriptorBuilder.obj \
+		  .\DescriptorParser.obj \
+		  .\FileCache.obj \
+		  .\PlatformInfo.obj \
+		  .\SessionManager.obj \
+		  .\TraceLevels.obj \
+		  $(SLICE_OBJS)
 
-REGISTRY_OBJS	= AdapterCache.obj \
-		  AdminCallbackRouter.obj \
-		  AdminI.obj \
-		  AdminSessionI.obj \
-		  Allocatable.obj \
-		  AllocatableObjectCache.obj \
-		  Database.obj \
-		  DescriptorHelper.obj \
-		  FileUserAccountMapperI.obj \
-		  IdentityObjectInfoDict.obj \
-		  InternalRegistryI.obj \
-		  LocatorI.obj \
-		  LocatorRegistryI.obj \
-		  NodeCache.obj \
-		  NodeSessionI.obj \
-		  ObjectCache.obj \
-		  PluginFacadeI.obj \
-		  QueryI.obj \
-		  ReapThread.obj \
-		  RegistryAdminRouter.obj \
-                  RegistryI.obj \
-		  ReplicaCache.obj \
-		  ReplicaSessionI.obj \
-		  ReplicaSessionManager.obj \
-		  SerialsDict.obj \
-		  ServerCache.obj \
-		  SessionI.obj \
-		  SessionServantManager.obj \
-		  StringAdapterInfoDict.obj \
-		  StringApplicationInfoDict.obj \
-		  Topics.obj \
-		  Util.obj \
-		  WellKnownObjectsManager.obj
+NODE_OBJS	= .\Activator.obj \
+		  .\NodeAdminRouter.obj \
+		  .\NodeI.obj \
+		  .\NodeSessionManager.obj \
+		  .\ServerAdapterI.obj \
+		  .\ServerI.obj
+
+REGISTRY_OBJS	= .\AdapterCache.obj \
+		  .\AdminCallbackRouter.obj \
+		  .\AdminI.obj \
+		  .\AdminSessionI.obj \
+		  .\Allocatable.obj \
+		  .\AllocatableObjectCache.obj \
+		  .\Database.obj \
+		  .\DescriptorHelper.obj \
+		  .\FileUserAccountMapperI.obj \
+		  .\IdentityObjectInfoDict.obj \
+		  .\InternalRegistryI.obj \
+		  .\LocatorI.obj \
+		  .\LocatorRegistryI.obj \
+		  .\NodeCache.obj \
+		  .\NodeSessionI.obj \
+		  .\ObjectCache.obj \
+		  .\PluginFacadeI.obj \
+		  .\QueryI.obj \
+		  .\ReapThread.obj \
+		  .\RegistryAdminRouter.obj \
+		  .\RegistryI.obj \
+		  .\ReplicaCache.obj \
+		  .\ReplicaSessionI.obj \
+		  .\ReplicaSessionManager.obj \
+		  .\SerialsDict.obj \
+		  .\ServerCache.obj \
+		  .\SessionI.obj \
+		  .\SessionServantManager.obj \
+		  .\StringAdapterInfoDict.obj \
+		  .\StringApplicationInfoDict.obj \
+		  .\Topics.obj \
+		  .\Util.obj \
+		  .\WellKnownObjectsManager.obj
 
 NODE_SVR_OBJS	= $(COMMON_OBJS) \
 		  $(NODE_OBJS) \
 		  $(REGISTRY_OBJS) \
-		  IceGridNode.obj
+		  .\IceGridNode.obj
 
 REGISTRY_SVR_OBJS = \
 		  $(COMMON_OBJS) \
 		  $(REGISTRY_OBJS) \
-		  IceGridRegistry.obj
+		  .\IceGridRegistry.obj
 
-SRCS            = $(ADMIN_OBJS:.obj=.cpp) \
-		  $(COMMON_OBJS:.obj=.cpp) \
-		  $(NODE_OBJS:.obj=.cpp) \
-		  $(REGISTRY_OBJS:.obj=.cpp) \
-		  IceGridNode.cpp \
-		  IceGridRegistry.cpp
+OBJS            = $(ADMIN_OBJS) \
+		  $(NODE_SVR_OBJS) \
+		  $(REGISTRY_SVR_OBJS)
 
 HDIR		= $(headerdir)\IceGrid
 SDIR		= $(slicedir)\IceGrid
@@ -196,5 +198,3 @@ install:: all
 	copy $(REGISTRY_SERVER:.exe=.pdb) "$(install_bindir)"
 
 !endif
-
-!include .depend.mak

@@ -13,14 +13,14 @@ SERVER		= server.exe
 
 TARGETS		= $(SERVER)
 
-OBJS		= Hello.obj \
-		  HelloI.obj \
-		  HelloServer.obj \
-		  HelloServerDlg.obj \
-		  LogI.obj \
-		  stdafx.obj
-		
-SRCS		= $(OBJS:.obj=.cpp)
+SLICE_OBJS	= .\Hello.obj
+
+OBJS		= $(SLICE_OBJS) \
+		  .\HelloI.obj \
+		  .\HelloServer.obj \
+		  .\HelloServerDlg.obj \
+		  .\LogI.obj \
+		  .\stdafx.obj
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -39,5 +39,3 @@ $(SERVER): $(OBJS) $(COBJS) HelloServer.res
 clean::
 	del /q Hello.cpp Hello.h
 	del /q HelloServer.res
-
-!include .depend.mak

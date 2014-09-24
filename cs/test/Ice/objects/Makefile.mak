@@ -37,5 +37,3 @@ server.exe: $(S_SRCS) $(GEN_SRCS)
 
 collocated.exe: $(COL_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(COL_SRCS) $(GEN_SRCS)
-
-!include .depend.mak

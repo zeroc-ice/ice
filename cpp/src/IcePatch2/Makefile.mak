@@ -15,16 +15,16 @@ CALC		= $(top_srcdir)\bin\icepatch2calc.exe
 
 TARGETS         = $(SERVER) $(CLIENT) $(CALC)
 
-SOBJS		= FileServerI.obj \
-		  Server.obj
+SOBJS		= .\FileServerI.obj \
+		  .\Server.obj
 
-COBJS		= Client.obj
+COBJS		= .\Client.obj
 
-CALCOBJS	= Calc.obj
+CALCOBJS	= .\Calc.obj
 
-SRCS		= $(SOBJS:.obj=.cpp) \
-		  $(COBJS:.obj=.cpp) \
-		  $(CALCOBJS:.obj=.cpp)
+OBJS		= $(SOBJS) \
+		  $(COBJS) \
+		  $(CALCOBJS)
 
 !include $(top_srcdir)\config\Make.rules.mak
 
@@ -80,5 +80,3 @@ install:: all
 	copy $(CALC:.exe=.pdb) "$(install_bindir)"
 
 !endif
-
-!include .depend.mak

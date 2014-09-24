@@ -1,1 +1,0 @@
-generated/Test.cs: ./Test.ice $(SLICE2CS) $(SLICEPARSERLIB)

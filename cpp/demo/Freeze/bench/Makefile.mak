@@ -13,9 +13,13 @@ CLIENT		= client.exe
 
 TARGETS		= $(CLIENT)
 
-OBJS		= BenchTypes.obj Client.obj Test.obj
+SLICE_OBJS	= .\Test.obj
 
-SRCS		= $(OBJS:.obj=.cpp)
+OBJS		= $(SLICE_OBJS) \
+		  .\Client.obj \
+		  .\BenchTypes.obj
+
+all:: BenchTypes.cpp BenchTypes.h
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -48,5 +52,3 @@ clean::
 	-del /q Test.cpp Test.h
 	-if exist db\__Freeze rmdir /q /s db\__Freeze
 	-for %f in (db\*) do if not %f == db\.gitignore del /q %f
-
-!include .depend.mak

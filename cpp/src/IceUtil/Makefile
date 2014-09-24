@@ -38,8 +38,6 @@ OBJS		= ArgVector.o \
 		  Unicode.o \
 		  UUID.o
 
-SRCS		= $(OBJS:.o=.cpp)
-
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS        := $(CPPFLAGS) $(ICEUTIL_FLAGS) -DICE_UTIL_API_EXPORTS -I..
@@ -65,5 +63,3 @@ endif
 
 install:: all
 	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
-
-include .depend

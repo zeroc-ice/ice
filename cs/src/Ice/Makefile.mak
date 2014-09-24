@@ -196,5 +196,3 @@ $(GDIR)\BuiltinSequences.cs: "$(SDIR)\BuiltinSequences.ice" "$(SLICE2CS)" "$(SLI
 	del /q $(GDIR)\BuiltinSequences.cs
 	"$(SLICE2CS)" $(SLICE2CSFLAGS) --stream "$(SDIR)\BuiltinSequences.ice"
 	move BuiltinSequences.cs $(GDIR)
-
-!include .depend.mak

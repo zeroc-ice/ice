@@ -13,14 +13,18 @@ CLIENT		= client.exe
 
 TARGETS		= $(CLIENT)
 
-OBJS		= Client.obj \
-                  ByteIntMap.obj \
-                  IntIdentityMap.obj \
-                  IntIdentityMapWithIndex.obj \
-                  SortedMap.obj \
-		  WstringWstringMap.obj
+OBJS		= .\ByteIntMap.obj \
+		  .\IntIdentityMap.obj \
+		  .\IntIdentityMapWithIndex.obj \
+		  .\SortedMap.obj \
+		  .\WstringWstringMap.obj \
+		  .\Client.obj
 
-SRCS		= $(OBJS:.obj=.cpp)
+all:: 		  ByteIntMap.cpp ByteIntMap.h \
+		  IntIdentityMap.cpp IntIdentityMap.h \
+		  IntIdentityMapWithIndex.cpp IntIdentityMapWithIndex.h \
+		  SortedMap.cpp SortedMap.h \
+		  WstringWstringMap.cpp WstringWstringMap.h
 
 !include $(top_srcdir)\config\Make.rules.mak
 
@@ -63,5 +67,3 @@ clean::
 	del /q WstringWstringMap.h WstringWstringMap.cpp
 	-if exist db\__Freeze rmdir /q /s db\__Freeze
 	-for %f in (db\*) do if not %f == db\.gitignore del /q %f
-
-!include .depend.mak

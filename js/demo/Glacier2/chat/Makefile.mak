@@ -9,7 +9,7 @@
 
 top_srcdir	= ..\..\..
 
-TARGETS = Chat.js
+GEN_SRCS = Chat.js
 
 !include $(top_srcdir)\config\Make.rules.mak.js
 

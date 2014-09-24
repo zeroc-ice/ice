@@ -14,14 +14,12 @@ DLLNAME		= $(top_srcdir)\bin\icepatch2$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
-SLICE_OBJS	= FileInfo.obj \
-		  FileServer.obj
+SLICE_OBJS	= .\FileInfo.obj \
+		  .\FileServer.obj
 
-OBJS		= ClientUtil.obj \
-		  Util.obj \
-                  $(SLICE_OBJS)
-
-SRCS		= $(OBJS:.obj=.cpp)
+OBJS		= .\ClientUtil.obj \
+		  .\Util.obj \
+		  $(SLICE_OBJS)
 
 HDIR		= $(headerdir)\IcePatch2
 SDIR		= $(slicedir)\IcePatch2
@@ -63,5 +61,3 @@ install:: all
 	copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"
 
 !endif
-
-!include .depend.mak

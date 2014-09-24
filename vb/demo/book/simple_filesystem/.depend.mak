@@ -1,1 +1,3 @@
-generated/Filesystem.cs: ./Filesystem.ice "$(SLICE2CS)" "$(SLICEPARSERLIB)"
+
+Filesystem.cs: \
+    .\Filesystem.ice

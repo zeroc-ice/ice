@@ -14,24 +14,22 @@ DLLNAME		= $(top_srcdir)\bin\icessl$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
-SLICE_OBJS      = ConnectionInfo.obj \
-                  EndpointInfo.obj
+SLICE_OBJS	= .\ConnectionInfo.obj \
+                  .\EndpointInfo.obj
 
-OBJS		= AcceptorI.obj \
-		  Certificate.obj \
-		  ConnectorI.obj \
-		  EndpointI.obj \
-		  Instance.obj \
-		  PluginI.obj \
-		  RFC2253.obj \
-		  SChannelEngine.obj \
-		  SChannelTransceiverI.obj \
-		  SSLEngine.obj \
-		  TrustManager.obj \
-		  Util.obj \
-                  $(SLICE_OBJS)
-
-SRCS		= $(OBJS:.obj=.cpp)
+OBJS		= $(SLICE_OBJS) \
+		  .\AcceptorI.obj \
+		  .\Certificate.obj \
+		  .\ConnectorI.obj \
+		  .\EndpointI.obj \
+		  .\Instance.obj \
+		  .\PluginI.obj \
+		  .\RFC2253.obj \
+		  .\SChannelEngine.obj \
+		  .\SChannelTransceiverI.obj \
+		  .\SSLEngine.obj \
+		  .\TrustManager.obj \
+		  .\Util.obj
 
 HDIR		= $(headerdir)\IceSSL
 SDIR		= $(slicedir)\IceSSL
@@ -68,11 +66,13 @@ install:: all
 	copy $(DLLNAME) "$(install_bindir)"
 
 
+info:
+	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) $(SDIR)/ConnectionInfo.ice
+	move ConnectionInfo.h $(HDIR)
+
 !if "$(GENERATE_PDB)" == "yes"
 
 install:: all
 	copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"
 
 !endif
-
-!include .depend.mak

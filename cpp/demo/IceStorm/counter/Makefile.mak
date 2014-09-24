@@ -14,18 +14,18 @@ SERVER		= server.exe
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Counter.obj
+SLICE_OBJS	= .\Counter.obj
 
-COBJS		= Client.obj \
-		  CounterObserverI.obj
+COBJS		= $(SLICE_OBJS) \
+		  .\Client.obj \
+		  .\CounterObserverI.obj
 
-SOBJS		=  CounterI.obj \
-		  Server.obj
+SOBJS		= $(SLICE_OBJS) \
+		  .\CounterI.obj \
+		  .\Server.obj
 
-SRCS		= $(OBJS:.obj=.cpp) \
-		  $(COBJS:.obj=.cpp) \
-		  $(SOBJS:.obj=.cpp)
-
+OBJS		= $(COBJS) \
+		  $(SOBJS)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -36,13 +36,13 @@ PPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 !endif
 
-$(CLIENT): $(OBJS) $(COBJS)
-	$(LINK) $(LD_EXEFLAGS) $(PPDBFLAGS) $(SETARGV) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(CLIENT): $(COBJS)
+	$(LINK) $(LD_EXEFLAGS) $(PPDBFLAGS) $(SETARGV) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(SERVER): $(OBJS) $(SOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
+$(SERVER): $(SOBJS)
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
 	    icestorm$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
@@ -53,5 +53,3 @@ clean::
 clean::
 	-if exist db\__Freeze rmdir /q /s db\__Freeze
 	-for %f in (db\*) do if not %f == db\.gitignore del /q %f
-
-!include .depend.mak

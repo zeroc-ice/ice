@@ -40,5 +40,3 @@ collocated.exe: $(COL_SRCS) $(GEN_SRCS)
 
 serveramd.exe: $(SAMD_SRCS) $(GEN_AMD_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
-
-include .depend

@@ -15,26 +15,26 @@ COLLOCATED	= $(call mktestname,collocated)
 
 TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
 
-COBJS		= Test.o \
+SLICE_OBJS	= Test.o
+
+COBJS		= $(SLICE_OBJS) \
 		  Client.o \
 		  InstrumentationI.o \
 		  AllTests.o
 
-SOBJS		= Test.o \
+SOBJS		= $(SLICE_OBJS) \
 		  TestI.o \
 		  Server.o
 
-COLOBJS		= Test.o \
+COLOBJS		= $(SLICE_OBJS) \
 		  TestI.o \
 		  Collocated.o \
 		  InstrumentationI.o \
 		  AllTests.o
 
-SRCS		= $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp) \
-		  $(COLOBJS:.o=.cpp)
-
-SLICE_SRCS	= Test.ice
+OBJS		= $(COBJS) \
+		  $(SOBJS) \
+		  $(COLOBJS)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -51,5 +51,3 @@ $(SERVER): $(SOBJS)
 $(COLLOCATED): $(COLOBJS)
 	rm -f $@
 	$(call mktest,$@,$(COLOBJS),$(LIBS))
-
-include .depend

@@ -1,2 +1,6 @@
-generated/Discovery.cs: ./Discovery.ice "$(SLICE2CS)" "$(SLICEPARSERLIB)"
-generated/Hello.cs: ./Hello.ice "$(SLICE2CS)" "$(SLICEPARSERLIB)"
+
+Discovery.cs: \
+    .\Discovery.ice
+
+Hello.cs: \
+    .\Hello.ice

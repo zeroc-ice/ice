@@ -15,50 +15,50 @@ LIBNAME		= $(call mklibname,Ice)
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
 SLICE_OBJS	= BuiltinSequences.o \
-                  Communicator.o \
-                  CommunicatorF.o \
-                  Connection.o \
-                  ConnectionF.o \
-                  Current.o \
-                  Endpoint.o \
-                  EndpointF.o \
-                  EndpointTypes.o \
-                  FacetMap.o \
-                  Identity.o \
-                  ImplicitContext.o \
-                  ImplicitContextF.o \
-                  Instrumentation.o \
-                  InstrumentationF.o \
-                  LocalException.o \
-                  Locator.o \
-                  LocatorF.o \
-                  Logger.o \
-                  LoggerF.o \
-                  Metrics.o \
-                  ObjectAdapter.o \
-                  ObjectAdapterF.o \
-                  ObjectFactory.o \
-                  ObjectFactoryF.o \
-                  Plugin.o \
-                  PluginF.o \
-                  Process.o \
-                  ProcessF.o \
-                  Properties.o \
-                  PropertiesAdmin.o \
-                  PropertiesF.o \
-                  RemoteLogger.o \
-                  Router.o \
-                  RouterF.o \
-                  ServantLocator.o \
-                  ServantLocatorF.o \
-                  SliceChecksumDict.o \
-                  Version.o
+		  Communicator.o \
+		  CommunicatorF.o \
+		  Connection.o \
+		  ConnectionF.o \
+		  Current.o \
+		  Endpoint.o \
+		  EndpointF.o \
+		  EndpointTypes.o \
+		  FacetMap.o \
+		  Identity.o \
+		  ImplicitContext.o \
+		  ImplicitContextF.o \
+		  Instrumentation.o \
+		  InstrumentationF.o \
+		  LocalException.o \
+		  Locator.o \
+		  LocatorF.o \
+		  Logger.o \
+		  LoggerF.o \
+		  Metrics.o \
+		  ObjectAdapter.o \
+		  ObjectAdapterF.o \
+		  ObjectFactory.o \
+		  ObjectFactoryF.o \
+		  Plugin.o \
+		  PluginF.o \
+		  Process.o \
+		  ProcessF.o \
+		  Properties.o \
+		  PropertiesAdmin.o \
+		  PropertiesF.o \
+		  RemoteLogger.o \
+		  Router.o \
+		  RouterF.o \
+		  ServantLocator.o \
+		  ServantLocatorF.o \
+		  SliceChecksumDict.o \
+		  Version.o
 
-OBJS            = Acceptor.o \
+OBJS		= Acceptor.o \
 		  ACM.o \
 		  Application.o \
-                  Base64.o \
-                  BasicStream.o \
+		  Base64.o \
+		  BasicStream.o \
 		  Buffer.o \
 		  CollocatedRequestHandler.o \
 		  CommunicatorI.o \
@@ -66,12 +66,12 @@ OBJS            = Acceptor.o \
 		  ConnectionI.o \
 		  ConnectionRequestHandler.o \
 		  Connector.o \
-                  ConnectRequestHandler.o \
+		  ConnectRequestHandler.o \
 		  DefaultsAndOverrides.o \
-                  DeprecatedStringConverter.o \
-                  DispatchInterceptor.o \
+		  DeprecatedStringConverter.o \
+		  DispatchInterceptor.o \
 		  DynamicLibrary.o \
-                  EndpointFactory.o \
+		  EndpointFactory.o \
 		  EndpointFactoryManager.o \
 		  EndpointI.o \
 		  EventHandler.o \
@@ -79,43 +79,43 @@ OBJS            = Acceptor.o \
 		  FactoryTable.o \
 		  FactoryTableInit.o \
 		  GCObject.o \
-                  HttpParser.o \
+		  HttpParser.o \
 		  ImplicitContextI.o \
 		  Incoming.o \
-                  IncomingAsync.o \
+		  IncomingAsync.o \
 		  Initialize.o \
 		  Instance.o \
-                  InstrumentationI.o \
+		  InstrumentationI.o \
 		  IPEndpointI.o \
 		  LocalObject.o \
 		  LocatorInfo.o \
-                  LoggerAdminI.o \
-                  LoggerI.o \
+		  LoggerAdminI.o \
+		  LoggerI.o \
 		  LoggerUtil.o \
 		  MetricsAdminI.o \
 		  MetricsObserverI.o \
 		  Network.o \
 		  NetworkProxy.o \
-                  Object.o \
+		  Object.o \
 		  ObjectAdapterFactory.o \
 		  ObjectAdapterI.o \
 		  ObjectFactoryManager.o \
 		  ObserverHelper.o \
 		  OpaqueEndpointI.o \
 		  Outgoing.o \
-                  OutgoingAsync.o \
+		  OutgoingAsync.o \
 		  PluginManagerI.o \
 		  PropertiesAdminI.o \
-		  PropertiesI.o \
+	 	  PropertiesI.o \
 		  PropertyNames.o \
 		  Protocol.o \
 		  ProtocolInstance.o \
 		  ProtocolPluginFacade.o \
 		  Proxy.o \
-                  ProxyFactory.o \
+		  ProxyFactory.o \
 		  Reference.o \
-                  ReferenceFactory.o \
-                  RequestHandler.o \
+		  ReferenceFactory.o \
+		  RequestHandler.o \
 		  ResponseHandler.o \
 		  RetryQueue.o \
 		  RouterInfo.o \
@@ -125,35 +125,30 @@ OBJS            = Acceptor.o \
 		  SliceChecksums.o \
 		  SlicedData.o \
 		  Stream.o \
-                  StreamI.o \
+		  StreamI.o \
 		  StreamSocket.o \
 		  StringConverterPlugin.o \
 		  TcpAcceptor.o \
 		  TcpConnector.o \
 		  TcpEndpointI.o \
 		  TcpTransceiver.o \
-	          ThreadPool.o \
+		  ThreadPool.o \
 		  TraceLevels.o \
 		  TraceUtil.o \
 		  Transceiver.o \
 		  UdpConnector.o \
 		  UdpEndpointI.o \
 		  UdpTransceiver.o \
-                  WSAcceptor.o \
+		  WSAcceptor.o \
 		  WSConnector.o \
 		  WSEndpoint.o \
 		  WSTransceiver.o \
-                  $(SLICE_OBJS)
+		  $(SLICE_OBJS)
 
 ifeq ($(findstring MINGW,$(shell uname)),)
 OBJS		:= $(OBJS) \
 		  SysLoggerI.o
 endif
-
-SRCS		= $(OBJS:.o=.cpp) \
-		  DLLMain.cpp
-
-SLICE_SRCS	= $(addprefix $(SDIR)/, $(SLICE_OBJS:.o=.ice))
 
 HDIR		= $(headerdir)/Ice
 SDIR		= $(slicedir)/Ice
@@ -188,5 +183,3 @@ endif
 
 install:: all
 	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
-
-include .depend

@@ -14,26 +14,26 @@ DUMPDB		= $(top_srcdir)\bin\dumpdb.exe
 
 TARGETS		= $(TRANSFORMDB) $(DUMPDB)
 
-COMMON_OBJS	= Grammar.obj \
-		  Scanner.obj \
-		  AssignVisitor.obj \
-		  Data.obj \
-		  Error.obj \
-		  Functions.obj \
-		  Exception.obj \
-		  Parser.obj \
-		  Print.obj \
-		  Util.obj
+COMMON_OBJS	= .\Grammar.obj \
+		  .\Scanner.obj \
+		  .\AssignVisitor.obj \
+		  .\Data.obj \
+		  .\Error.obj \
+		  .\Functions.obj \
+		  .\Exception.obj \
+		  .\Parser.obj \
+		  .\Print.obj \
+		  .\Util.obj
 
-TRANSFORM_OBJS =  TransformAnalyzer.obj \
-		  TransformVisitor.obj \
-		  Transformer.obj \
-		  transformdb.obj
+TRANSFORM_OBJS =  .\TransformAnalyzer.obj \
+		  .\TransformVisitor.obj \
+		  .\Transformer.obj \
+		  .\transformdb.obj
 
-DUMP_OBJS	= DumpDescriptors.obj \
-		  DumpDB.obj
+DUMP_OBJS	= .\DumpDescriptors.obj \
+		  .\DumpDB.obj
 
-SRCS		= $(COMMON_OBJS:.obj=.cpp) $(TRANSFORM_OBJS:.obj=.cpp) $(DUMP_OBJS:.obj=.cpp)
+OBJS		= $(COMMON_OBJS) $(TRANSFORM_OBJS) $(DUMP_OBJS)
 
 HDIR		= $(headerdir)\FreezeScript
 
@@ -92,5 +92,3 @@ install:: all
 	copy $(DUMPDB:.exe=.pdb) "$(install_bindir)"
 
 !endif
-
-!include .depend.mak

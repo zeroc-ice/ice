@@ -51,5 +51,3 @@ servertie.exe: $(STIE_SRCS) $(GEN_SRCS)
 
 serveramdtie.exe: $(SAMD_TIE_SRCS) $(GEN_AMD_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(SAMD_TIE_SRCS) $(GEN_AMD_SRCS)
-
-!include .depend.mak

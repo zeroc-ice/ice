@@ -12,15 +12,3 @@ top_srcdir	= ../../..
 SLICE_SRCS	= Value.ice
 
 include $(top_srcdir)/config/Make.rules.php
-
-SRCS	= Value.php
-
-all:: $(SRCS)
-
-%.php: %.ice
-	$(SLICE2PHP) $(SLICE2PHPFLAGS) $<
-
-clean::
-	rm -f $(SRCS)
-
-include .depend

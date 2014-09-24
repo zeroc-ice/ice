@@ -16,42 +16,48 @@ COLLOCATED	= collocated.exe
 
 TARGETS		= $(CLIENT) $(SERVER) $(SERVERAMD) $(COLLOCATED)
 
-COBJS           = Test.obj \
-		  Wstring.obj \
-		  Client.obj \
-		  AllTests.obj \
-		  MyByteSeq.obj \
-		  StringConverterI.obj 
 
-SOBJS           = Test.obj \
-		  Wstring.obj \
-		  TestI.obj \
-		  WstringI.obj \
-		  Server.obj \
-		  MyByteSeq.obj \
-		  StringConverterI.obj
+SLICE_OBJS	= .\Test.obj \
+		  .\TestAMD.obj \
+		  .\Wstring.obj \
+		  .\WstringAMD.obj
 
-SAMDOBJS        = TestAMD.obj \
-		  TestAMDI.obj \
-		  WstringAMD.obj \
-		  WstringAMDI.obj \
-		  ServerAMD.obj \
-		  MyByteSeq.obj \
-		  StringConverterI.obj
+COBJS           = .\Test.obj \
+		  .\Wstring.obj \
+		  .\Client.obj \
+		  .\AllTests.obj \
+		  .\MyByteSeq.obj \
+		  .\StringConverterI.obj 
 
-COLOBJS         = Test.obj \
-		  Wstring.obj \
-		  TestI.obj \
-		  WstringI.obj \
-		  Collocated.obj \
-		  AllTests.obj \
-		  MyByteSeq.obj \
-		  StringConverterI.obj
+SOBJS           = .\Test.obj \
+		  .\Wstring.obj \
+		  .\TestI.obj \
+		  .\WstringI.obj \
+		  .\Server.obj \
+		  .\MyByteSeq.obj \
+		  .\StringConverterI.obj
 
-SRCS		= $(COBJS:.obj=.cpp) \
-		  $(SOBJS:.obj=.cpp) \
-		  $(SAMDOBJS:.obj=.cpp) \
-		  $(COLOBJS:.obj=.cpp)
+SAMDOBJS        = .\TestAMD.obj \
+		  .\TestAMDI.obj \
+		  .\WstringAMD.obj \
+		  .\WstringAMDI.obj \
+		  .\ServerAMD.obj \
+		  .\MyByteSeq.obj \
+		  .\StringConverterI.obj
+
+COLOBJS         = .\Test.obj \
+		  .\Wstring.obj \
+		  .\TestI.obj \
+		  .\WstringI.obj \
+		  .\Collocated.obj \
+		  .\AllTests.obj \
+		  .\MyByteSeq.obj \
+		  .\StringConverterI.obj
+
+OBJS 		= $(COBJS) \
+		  $(SOBJS) \
+		  $(SAMDOBJS) \
+		  $(COLOBJS)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -89,5 +95,3 @@ clean::
 	del /q TestAMD.cpp TestAMD.h
 	del /q Wstring.cpp Wstring.h
 	del /q WstringAMD.cpp WstringAMD.h
-
-!include .depend.mak

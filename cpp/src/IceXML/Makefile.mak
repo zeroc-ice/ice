@@ -14,7 +14,7 @@ DLLNAME		= $(top_srcdir)\bin\icexml$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
-OBJS		= Parser.obj
+OBJS		= .\Parser.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
 
@@ -53,5 +53,3 @@ install:: all
 	copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"
 
 !endif
-
-!include .depend.mak

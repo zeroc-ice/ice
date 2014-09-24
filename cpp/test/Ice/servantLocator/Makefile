@@ -16,6 +16,9 @@ COLLOCATED	= $(call mktestname,collocated)
 
 TARGETS		= $(CLIENT) $(SERVER) $(SERVERAMD) $(COLLOCATED)
 
+SLICE_OBJS	= Test.o \
+		  TestAMD.o
+
 COBJS		= Test.o \
 		  Client.o \
 		  AllTests.o
@@ -36,13 +39,10 @@ COLOBJS		= Test.o \
 		  Collocated.o \
 		  AllTests.o
 
-SRCS		= $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp) \
-		  $(SAMDOBJS:.o=.cpp) \
-		  $(COLOBJS:.o=.cpp)
-
-SLICE_SRCS	= Test.ice \
-		  TestAMD.ice
+OBJS		= $(COBJS) \
+		  $(SOBJS) \
+		  $(SAMDOBJS) \
+		  $(COLOBJS)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -63,5 +63,3 @@ $(SERVERAMD): $(SAMDOBJS)
 $(COLLOCATED): $(COLOBJS)
 	rm -f $@
 	$(call mktest,$@,$(COLOBJS),$(LIBS))
-
-include .depend

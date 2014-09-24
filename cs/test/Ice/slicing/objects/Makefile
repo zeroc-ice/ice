@@ -39,5 +39,3 @@ server.exe: $(S_SRCS) $(GEN_SRCS) $(SGEN_SRCS)
 
 serveramd.exe: $(SAMD_SRCS) $(GEN_AMD_SRCS) $(SAMD_GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
-
-include .depend

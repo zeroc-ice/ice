@@ -9,13 +9,13 @@
 
 top_srcdir	= ..\..\..
 
-TARGETS = Hello.js
+GEN_SRCS = Hello.js
 
 !if "$(OPTIMIZE)" == "yes"
-TARGETS = $(TARGETS) browser\Client.min.js
+TARGETS = $(GEN_SRCS) browser\Client.min.js
 
 !if "$(GZIP_PATH)" != ""
-TARGETS = $(TARGETS) browser\Client.min.js.gz
+TARGETS = $(GEN_SRCS) browser\Client.min.js.gz
 !endif
 
 !endif

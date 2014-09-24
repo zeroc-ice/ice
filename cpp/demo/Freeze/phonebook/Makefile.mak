@@ -15,32 +15,36 @@ COLLOCATED	= collocated.exe
 
 TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
 
-OBJS		= PhoneBook.obj
+SLICE_OBJS	= .\PhoneBook.obj
 
-COBJS		= Client.obj \
-		  Grammar.obj \
-		  Parser.obj \
-		  RunParser.obj \
-		  Scanner.obj
+COBJS		= $(SLICE_OBJS) \
+		  .\Client.obj \
+		  .\Grammar.obj \
+		  .\Parser.obj \
+		  .\RunParser.obj \
+		  .\Scanner.obj
 
-SOBJS		= ContactFactory.obj \
-		  NameIndex.obj \
-		  PhoneBookI.obj \
-		  Server.obj
+SOBJS		= $(SLICE_OBJS) \
+		  .\NameIndex.obj \
+		  .\ContactFactory.obj \
+		  .\PhoneBookI.obj \
+		  .\Server.obj
 
-COLOBJS		= Collocated.obj \
-		  ContactFactory.obj \
-		  Grammar.obj \
-		  NameIndex.obj \
-		  Parser.obj \
-		  PhoneBookI.obj \
-		  RunParser.obj \
-		  Scanner.obj
+COLOBJS		= $(SLICE_OBJS) \
+		  .\NameIndex.obj \
+		  .\Collocated.obj \
+		  .\ContactFactory.obj \
+		  .\Grammar.obj \
+		  .\Parser.obj \
+		  .\PhoneBookI.obj \
+		  .\RunParser.obj \
+		  .\Scanner.obj
 
-SRCS		= $(OBJS:.obj=.cpp) \
-		  $(COBJS:.obj=.cpp) \
-		  $(SOBJS:.obj=.cpp) \
-		  $(COLOBJS:.obj=.cpp)
+OBJS		= $(COBJS) \
+		  $(SOBJS) \
+		  $(COLOBJS)
+
+all:: NameIndex.cpp NameIndex.h
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -52,18 +56,18 @@ SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 COPDBFLAGS       = /pdb:$(COLLOCATED:.exe=.pdb)
 !endif
 
-$(CLIENT): $(OBJS) $(COBJS)
-	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(CLIENT): $(COBJS)
+	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(SERVER): $(OBJS) $(SOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
+$(SERVER): $(SOBJS)
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(COLLOCATED): $(OBJS) $(COLOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(COPDBFLAGS) $(SETARGV) $(OBJS) $(COLOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
+$(COLLOCATED): $(COLOBJS)
+	$(LINK) $(LD_EXEFLAGS) $(COPDBFLAGS) $(SETARGV) $(COLOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
@@ -92,5 +96,3 @@ clean::
 	-del /q NameIndex.h NameIndex.cpp
 	-if exist db\__Freeze rmdir /q /s db\__Freeze
 	-for %f in (db\*) do if not %f == db\.gitignore del /q %f
-
-!include .depend.mak

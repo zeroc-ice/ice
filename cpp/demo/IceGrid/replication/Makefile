@@ -14,32 +14,29 @@ SERVER		= server
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Hello.o
+SLICE_OBJS	= Hello.o
 
-COBJS		= Client.o
+COBJS		= $(SLICE_OBJS) \
+		  Client.o
 
-SOBJS		= HelloI.o \
+SOBJS		= $(SLICE_OBJS) \
+		  HelloI.o \
 		  Server.o
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp) \
-
-SLICE_SRCS	= Hello.ice
+OBJS		= $(COBJS) \
+		  $(SOBJS)
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
 
-$(CLIENT): $(OBJS) $(COBJS)
+$(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lIceGrid -lGlacier2 $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(COBJS) -lIceGrid -lGlacier2 $(LIBS)
 
-$(SERVER): $(OBJS) $(SOBJS)
+$(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
 
 clean::
 	-rm -rf db/master/* db/node1/* db/node2/* db/replica1/* db/replica2/*
-
-include .depend

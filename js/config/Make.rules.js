@@ -115,10 +115,14 @@ endif
 %.js: $(SDIR)/%.ice $(SLICE2JS) $(SLICEPARSERLIB)
 	rm -f $(*F).js
 	$(SLICE2JS) $(SLICE2JSFLAGS) $<
+	@mkdir -p .depend
+	@$(SLICE2JS) $(SLICE2JSFLAGS) --depend $< > .depend/$(*F).ice.d
 
 %.js: %.ice $(SLICE2JS) $(SLICEPARSERLIB)
 	rm -f $(*F).js
 	$(SLICE2JS) $(SLICE2JSFLAGS) $<
+	@mkdir -p .depend
+	@$(SLICE2JS) $(SLICE2JSFLAGS) $< > .depend/$(*F).ice.d
 
 index.html: $(GEN_SRCS) $(top_srcdir)/test/Common/index.html
 	cp $(top_srcdir)/test/Common/index.html .
@@ -141,7 +145,7 @@ endif
 
 install::
 
-depend::
+include $(wildcard .depend/*.d)
 
 EVERYTHING		= all clean install lint
 EVERYTHING_EXCEPT_ALL	= install clean lint

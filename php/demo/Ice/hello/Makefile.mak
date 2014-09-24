@@ -9,16 +9,6 @@
 
 top_srcdir	= ..\..\..
 
+SLICE_SRCS		= Hello.ice
+
 !include $(top_srcdir)\config\Make.rules.mak.php
-
-SRCS		= Hello.php
-
-all:: $(SRCS)
-
-$(SRCS): $*.ice
-	-"$(SLICE2PHP)" $(SLICE2PHPFLAGS) $*.ice
-
-clean::
-	del /q $(SRCS)
-
-include .depend.mak

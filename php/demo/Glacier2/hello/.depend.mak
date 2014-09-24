@@ -1,1 +1,3 @@
-Hello.php: Hello.ice "$(SLICE2PHP)" "$(SLICEPARSERLIB)"
+
+Hello.php: \
+    Hello.ice

@@ -13,15 +13,3 @@ SLICE_SRCS	= Test.ice \
 		  CTypes.ice
 
 include $(top_srcdir)/config/Make.rules.php
-
-SRCS		= Test.php CTypes.php
-
-all:: $(SRCS)
-
-%.php: %.ice
-	$(SLICE2PHP) $(SLICE2PHPFLAGS) --checksum $<
-
-clean::
-	rm -f $(SRCS)
-
-include .depend

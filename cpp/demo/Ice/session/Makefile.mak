@@ -14,18 +14,19 @@ SERVER		= server.exe
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Session.obj
+SLICE_OBJS	= .\Session.obj
 
-COBJS		= Client.obj
+COBJS		= $(SLICE_OBJS) \
+		  .\Client.obj
 
-SOBJS		= ReapTask.obj \
-		  Server.obj \
-		  SessionFactoryI.obj \
-		  SessionI.obj
+SOBJS		= $(SLICE_OBJS) \
+		  .\ReapTask.obj \
+		  .\Server.obj \
+		  .\SessionFactoryI.obj \
+		  .\SessionI.obj
 
-SRCS		= $(OBJS:.obj=.cpp) \
-		  $(COBJS:.obj=.cpp) \
-		  $(SOBJS:.obj=.cpp)
+OBJS		= $(COBJS) \
+		  $(SOBJS)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -36,17 +37,15 @@ CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 !endif
 
-$(CLIENT): $(OBJS) $(COBJS)
-	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(CLIENT): $(COBJS)
+	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(SERVER): $(OBJS) $(SOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(SERVER): $(SOBJS)
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 clean::
 	del /q Session.cpp Session.h
-
-!include .depend.mak

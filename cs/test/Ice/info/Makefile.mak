@@ -35,5 +35,3 @@ client.exe: $(C_SRCS) $(GEN_SRCS)
 
 server.exe: $(S_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(S_SRCS) $(GEN_SRCS)
-
-!include .depend.mak

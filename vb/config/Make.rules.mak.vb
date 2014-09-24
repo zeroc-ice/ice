@@ -105,8 +105,55 @@ EVERYTHING		= all clean depend
 .SUFFIXES:
 .SUFFIXES:		.cs .vb .ice
 
-.ice.cs:
-	"$(SLICE2CS)" $(SLICE2CSFLAGS) $<
+DEPEND_DIR 		= .depend.mak
+
+!if "$(GEN_SRCS)" != ""
+GEN_DEPENDS = $(GEN_SRCS:.cs=.d)
+GEN_DEPENDS = $(GEN_DEPENDS:generated\=.depend.mak\)
+DEPENDS = $(DEPENDS) $(GEN_DEPENDS)
+!endif
+
+!if "$(CGEN_SRCS)" != ""
+CGEN_DEPENDS = $(CGEN_SRCS:.cs=.d)
+CGEN_DEPENDS = $(CGEN_DEPENDS:generated\=.depend.mak\)
+DEPENDS = $(DEPENDS) $(CGEN_DEPENDS)
+!endif
+
+!if "$(SGEN_SRCS)" != ""
+SGEN_DEPENDS = $(SGEN_SRCS:.cs=.d)
+SGEN_DEPENDS = $(SGEN_DEPENDS:generated\=.depend.mak\)
+DEPENDS = $(DEPENDS) $(SGEN_DEPENDS)
+!endif
+
+!if "$(GEN_AMD_SRCS)" != ""
+GEN_AMD_DEPENDS = $(GEN_AMD_SRCS:.cs=.d)
+GEN_AMD_DEPENDS = $(GEN_AMD_DEPENDS:generated\=.depend.mak\)
+DEPENDS = $(DEPENDS) $(GEN_AMD_DEPENDS)
+!endif
+
+!if "$(SAMD_GEN_SRCS)" != ""
+SAMD_GEN_DEPENDS = $(SAMD_GEN_SRCS:.cs=.d)
+SAMD_GEN_DEPENDS = $(SAMD_GEN_DEPENDS:generated\=.depend.mak\)
+DEPENDS = $(DEPENDS) $(SAMD_GEN_DEPENDS)
+!endif
+
+!if exist(.depend.mak)
+!include .depend.mak
+!endif
+
+depend::
+
+!if "$(DEPENDS)" != ""
+depend::
+	@del /q .depend.mak
+
+depend:: $(DEPENDS)
+!endif
+
+{$(SDIR)}.ice{$(DEPEND_DIR)}.d:
+	@echo Generating dependencies for $<
+	@"$(SLICE2CS)" --output-dir $(GDIR) $(SLICE2CSFLAGS) --depend $< |\
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice
 
 {$(SDIR)\}.ice{$(GDIR)}.cs:
 	"$(SLICE2CS)" --output-dir $(GDIR) $(SLICE2CSFLAGS) $<
@@ -120,13 +167,6 @@ all:: $(TARGETS) $(SLICE_ASSEMBLY)
 
 clean::
 	del /q $(TARGETS) $(SLICE_ASSEMBLY) *.pdb
-
-!if "$(SLICE_SRCS)" != ""
-depend::
-	"$(SLICE2CS)" --depend $(SLICE2CSFLAGS) $(SLICE_SRCS) | python $(ice_dir)\config\makedepend.py -n
-!else
-depend::
-!endif
 
 !if "$(GEN_SRCS)" != ""
 clean::

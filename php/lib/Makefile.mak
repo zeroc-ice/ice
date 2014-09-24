@@ -99,6 +99,8 @@ ALL_SRCS	= $(ICE_SRCS) \
 		  $(ICEPATCH2_SRCS) \
 		  $(ICESTORM_SRCS)
 
+DEPENDS		= $(ALL_SRCS:.php=.d)
+
 MODULES		= Glacier2 Ice IceBox IceGrid IcePatch2 IceStorm
 !if "$(USE_NAMESPACES)" == "yes"
 MODULE_SRCS	= Glacier2.php Ice_ns.php IceBox.php IceGrid.php IcePatch2.php IceStorm.php
@@ -116,6 +118,38 @@ $(MODULES):
 $(ALL_SRCS): $(MODULES) {$(slicedir)}$*.ice "$(SLICE2PHP)" "$(SLICEPARSERLIB)"
 	-"$(SLICE2PHP)" $(SLICE2PHPFLAGS) --output-dir $(*D) "$(slicedir)\$*.ice"
 
+{$(slicedir)\Ice\}.ice{Ice\}.d:
+	@echo Generating dependencies for $<
+	@"$(SLICE2PHP)" $(SLICE2PHPFLAGS) --output-dir Ice --depend "$<" | \
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice
+
+{$(slicedir)\Glacier2\}.ice{Glacier2\}.d:
+	@echo Generating dependencies for $<
+	@"$(SLICE2PHP)" $(SLICE2PHPFLAGS) --output-dir Glacier2 --depend "$<" | \
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice
+
+{$(slicedir)\IceBox\}.ice{IceBox\}.d:
+	@echo Generating dependencies for $<
+	@"$(SLICE2PHP)" $(SLICE2PHPFLAGS) --output-dir IceBox --depend "$<" | \
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice
+
+{$(slicedir)\IceGrid\}.ice{IceGrid\}.d:
+	@echo Generating dependencies for $<
+	@"$(SLICE2PHP)" $(SLICE2PHPFLAGS) --output-dir IceGrid --depend "$<" | \
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice
+
+{$(slicedir)\IcePatch2\}.ice{IcePatch2\}.d:
+	@echo Generating dependencies for $<
+	@"$(SLICE2PHP)" $(SLICE2PHPFLAGS) --output-dir IcePatch2 --depend "$<" | \
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice
+
+{$(slicedir)\IceStorm\}.ice{IceStorm\}.d:
+	@echo Generating dependencies for $<
+	@"$(SLICE2PHP)" $(SLICE2PHPFLAGS) --output-dir IceStorm --depend "$<" | \
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice
+
+depend:: $(DEPENDS)
+
 install:: $(ALL_SRCS)
 	@echo "Installing generated code"
 	@for %i in ( $(MODULES) ) do \
@@ -128,5 +162,3 @@ install:: $(ALL_SRCS)
 
 clean::
 	-rmdir /S /Q $(MODULES)
-
-include .depend.mak

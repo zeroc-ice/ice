@@ -50,5 +50,3 @@ install:: all
 !if "$(DEBUG)" == "yes"
 	copy $(assembliesdir)\$(PKG).pdb "$(install_assembliesdir)"
 !endif
-
-!include .depend.mak

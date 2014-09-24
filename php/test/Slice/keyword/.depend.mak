@@ -1,1 +1,3 @@
-Key.php: Key.ice "$(SLICE2PHP)" "$(SLICEPARSERLIB)"
+
+Key.php: \
+    Key.ice

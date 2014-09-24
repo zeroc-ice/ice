@@ -9,7 +9,7 @@
 
 top_srcdir	= ..\..\..
 
-TARGETS = Hello.js
+GEN_SRCS = Hello.js
 
 !include $(top_srcdir)\config\Make.rules.mak.js
 

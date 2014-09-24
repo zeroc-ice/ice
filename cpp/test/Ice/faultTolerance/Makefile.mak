@@ -14,16 +14,18 @@ SERVER		= server.exe
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-COBJS		= Test.obj \
-		  Client.obj \
-		  AllTests.obj
+SLICE_OBJS	= .\Test.obj
 
-SOBJS		= Test.obj \
-		  TestI.obj \
-		  Server.obj
+COBJS		= $(SLICE_OBJS) \
+		  .\Client.obj \
+		  .\AllTests.obj
 
-SRCS		= $(COBJS:.obj=.cpp) \
-		  $(SOBJS:.obj=.cpp)
+SOBJS		= $(SLICE_OBJS) \
+		  .\TestI.obj \
+		  .\Server.obj
+
+OBJS		= $(COBJS) \
+		  $(SOBJS)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -46,5 +48,3 @@ $(SERVER): $(SOBJS)
 
 clean::
 	del /q Test.cpp Test.h
-
-!include .depend.mak

@@ -15,8 +15,6 @@ TARGETS		= $(SERVER)
 
 OBJS		= Server.o
 
-SRCS		= $(OBJS:.o=.cpp)
-
 include $(top_srcdir)/config/Make.rules
 
 $(SERVER): $(OBJS)
@@ -25,5 +23,3 @@ $(SERVER): $(OBJS)
 
 clean::
 	-rm -rf db/node db/registry db/replica-*
-
-include .depend

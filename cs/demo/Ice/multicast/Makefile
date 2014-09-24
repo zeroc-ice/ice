@@ -30,5 +30,3 @@ client.exe: $(C_SRCS) $(GEN_SRCS)
 
 server.exe: $(S_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
-
-include .depend

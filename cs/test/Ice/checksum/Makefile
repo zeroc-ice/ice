@@ -39,5 +39,3 @@ $(EVERYTHING)::
 
 test::
 	@python $(top_srcdir)/allTests.py
-
-include .depend

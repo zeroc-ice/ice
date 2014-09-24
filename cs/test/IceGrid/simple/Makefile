@@ -32,5 +32,3 @@ server.exe: $(S_SRCS) $(GEN_SRCS)
 
 clean::
 	-rm -rf db/node db/registry db/replica-*
-
-include .depend

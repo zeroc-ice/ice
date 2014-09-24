@@ -9,13 +9,13 @@
 
 top_srcdir	= ..\..
 
-TARGETS = Chat.js ChatSession.js
+GEN_SRCS = Chat.js ChatSession.js
 
 !if "$(OPTIMIZE)" == "yes"
-TARGETS = $(TARGETS) Client.min.js
+TARGETS = $(GEN_SRCS) Client.min.js
 
 !if "$(GZIP_PATH)" != ""
-TARGETS = $(TARGETS) Client.min.js.gz
+TARGETS = $(GEN_SRCS) Client.min.js.gz
 !endif
 
 !endif

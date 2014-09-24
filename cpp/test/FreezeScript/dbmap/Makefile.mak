@@ -13,13 +13,13 @@ CLIENT		= makedb.exe
 
 TARGETS		= $(CLIENT)
 
-OBJS		= TestOld.obj \
-                  makedb.obj \
-                  IntSMap.obj
+SLICE_OBJS	= .\TestOld.obj
 
-SRCS		= $(OBJS:.obj=.cpp)
+OBJS		= $(SLICE_OBJS) \
+		  .\IntSMap.obj \
+		  .\makedb.obj
 
-SLICE_SRCS	= TestOld.ice
+all:: IntSMap.cpp IntSMap.h
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -50,5 +50,3 @@ clean::
 	if exist db_init rmdir /s /q db_init
 	if exist db_check rmdir /s /q db_check
 	if exist db_tmp rmdir /s /q db_tmp
-
-!include .depend.mak

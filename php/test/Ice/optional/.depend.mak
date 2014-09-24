@@ -1,2 +1,7 @@
-ClientPrivate.php: ClientPrivate.ice ./Test.ice "$(SLICE2PHP)" "$(SLICEPARSERLIB)"
-Test.php: Test.ice "$(SLICE2PHP)" "$(SLICEPARSERLIB)"
+
+ClientPrivate.php: \
+    ClientPrivate.ice \
+    ./Test.ice
+
+Test.php: \
+    Test.ice

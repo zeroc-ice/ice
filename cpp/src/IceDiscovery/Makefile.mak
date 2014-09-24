@@ -14,14 +14,13 @@ DLLNAME		= $(top_srcdir)\bin\icediscovery$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).d
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
-SLICE_OBJS      = IceDiscovery.obj 
+SDIR 		= $(slicedir)\IceDiscovery
+SLICE_OBJS	= .\IceDiscovery.obj 
 
-OBJS		= LocatorI.obj \
-		  LookupI.obj \
-		  PluginI.obj \
-                  $(SLICE_OBJS)
-
-SRCS		= $(OBJS:.obj=.cpp)
+OBJS		= .\LocatorI.obj \
+		  .\LookupI.obj \
+		  .\PluginI.obj \
+		  $(SLICE_OBJS)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -64,5 +63,3 @@ install:: all
 	copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"
 
 !endif
-
-!include .depend.mak

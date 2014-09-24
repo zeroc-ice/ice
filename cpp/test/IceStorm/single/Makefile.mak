@@ -14,15 +14,16 @@ SUBSCRIBER	= subscriber.exe
 
 TARGETS		= $(PUBLISHER) $(SUBSCRIBER)
 
-OBJS		= Single.obj
+SLICE_OBJS	= .\Single.obj
 
-POBJS		= Publisher.obj
+POBJS		= $(SLICE_OBJS) \
+		  .\Publisher.obj
 
-SOBJS		= Subscriber.obj
+SOBJS		= $(SLICE_OBJS) \
+		  .\Subscriber.obj
 
-SRCS		= $(OBJS:.obj=.cpp) \
-		  $(POBJS:.obj=.cpp) \
-		  $(SOBJS:.obj=.cpp)
+OBJS		= $(POBJS) \
+		  $(SOBJS)
 
 
 !include $(top_srcdir)/config/Make.rules.mak
@@ -35,13 +36,13 @@ PPDBFLAGS        = /pdb:$(PUBLISHER:.exe=.pdb)
 SPDBFLAGS        = /pdb:$(SUBSCRIBER:.exe=.pdb)
 !endif
 
-$(PUBLISHER): $(OBJS) $(POBJS)
-	$(LINK) $(LD_EXEFLAGS) $(PPDBFLAGS) $(SETARGV) $(OBJS) $(POBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(PUBLISHER): $(POBJS)
+	$(LINK) $(LD_EXEFLAGS) $(PPDBFLAGS) $(SETARGV) $(POBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(SUBSCRIBER): $(OBJS) $(SOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(SUBSCRIBER): $(SOBJS)
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
@@ -68,5 +69,3 @@ clean::
 	-for %f in (1.db\*) do if not %f == 1.db\.gitignore del /q %f
 	-if exist 2.db\__Freeze rmdir /q /s 2.db\__Freeze
 	-for %f in (2.db\*) do if not %f == 2.db\.gitignore del /q %f
-
-!include .depend.mak

@@ -15,35 +15,34 @@ VERIFIER	= verifier
 
 TARGETS		= $(CLIENT) $(SERVER) $(VERIFIER)
 
-OBJS		= Test.o
+SLICE_OBJS	= Test.o
 
-COBJS		= Client.o \
+COBJS		= $(SLICE_OBJS) \
+		  Client.o \
 		  AllTests.o
 
-SOBJS		= TestI.o \
+SOBJS		= $(SLICE_OBJS) \
+		  TestI.o \
 		  Server.o
 
 VOBJS		= PermissionsVerifier.o
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp) \
-		  $(VOBJS:.o=.cpp)
-
-SLICE_SRCS	= Test.ice
+OBJS		= $(COBJS) \
+		  $(SOBJS) \
+		  $(VOBJS)
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
-$(CLIENT): $(OBJS) $(COBJS)
+$(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lIceGrid -lGlacier2 $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(COBJS) -lIceGrid -lGlacier2 $(LIBS)
 
-$(SERVER): $(OBJS) $(SOBJS)
+$(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
 
 $(VERIFIER): $(VOBJS)
 	rm -f $@
@@ -51,5 +50,3 @@ $(VERIFIER): $(VOBJS)
 
 clean::
 	-rm -rf db/node db/registry db/node-1 db/node-2 db/replica-*
-
-include .depend

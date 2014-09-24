@@ -214,8 +214,52 @@ MT 			= mt.exe
 EVERYTHING		= all clean install depend
 
 .SUFFIXES:
-.SUFFIXES:		.ice .cpp .c .obj .res .rc .h .depend
+.SUFFIXES:		.ice .cpp .c .obj .res .rc .h .d
 
+DEPEND_DIR = .depend.mak
+SLICE_DEPEND_DIR = .depend.mak\slice
+
+depend::
+
+
+!if "$(WINRT)" != "yes"
+
+!if "$(SLICE_OBJS)" != "" || "$(OBJS)" != ""
+depend::
+	@del /q .depend.mak
+!endif
+
+!if "$(SLICE_OBJS)" != ""
+SLICE_SRCS = $(SLICE_OBJS:.obj=.cpp)
+SLICE_SRCS = $(SLICE_SRCS:.\=)
+
+all:: $(SLICE_SRCS)
+
+SLICE_OBJS_DEPEND = $(SLICE_OBJS:.obj=.d)
+SLICE_OBJS_DEPEND = $(SLICE_OBJS_DEPEND:.\=.depend.mak\slice\)
+depend:: $(SLICE_SRCS) $(SLICE_OBJS_DEPEND)
+!endif
+
+!if "$(OBJS)" != ""
+all::$(OBJS:.obj=.cpp)
+OBJS_DEPEND = $(OBJS:.obj=.d)
+OBJS_DEPEND = $(OBJS_DEPEND:.\=.depend.mak\)
+depend:: $(OBJS:.obj=.cpp) $(OBJS_DEPEND)
+!endif
+
+.cpp{$(DEPEND_DIR)}.d:
+	@echo Generating dependencies for $<
+	@$(CXX) /E $(CPPFLAGS) $(CXXFLAGS) /showIncludes $< 1>$(*F).i 2>$(*F).d && \
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend.vbs $(*F).cpp $(top_srcdir)
+	@del /q $(*F).d $(*F).i
+
+{$(SDIR)\}.ice{$(SLICE_DEPEND_DIR)\}.d:
+	@echo Generating dependencies for $<
+	@"$(SLICE2CPP)" $(SLICE2CPPFLAGS) --depend $< | cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice
+
+.ice{$(SLICE_DEPEND_DIR)\}.d:
+	@echo Generating dependencies for $<
+	@"$(SLICE2CPP)" $(SLICE2CPPFLAGS) --depend $(*F).ice | cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice
 
 .cpp.obj::
 	$(CXX) /c $(CPPFLAGS) $(CXXFLAGS) $<
@@ -223,7 +267,12 @@ EVERYTHING		= all clean install depend
 .c.obj:
 	$(CC) /c $(CPPFLAGS) $(CFLAGS) $<
 
-{$(SDIR)\}.ice{$(HDIR)}.h:
+{$(SDIR)\}.ice{$(HDIR)\}.h:
+	del /q $(HDIR)\$(*F).h $(*F).cpp
+	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) $<
+	move $(*F).h $(HDIR)
+
+{$(SDIR)\}.ice.cpp:
 	del /q $(HDIR)\$(*F).h $(*F).cpp
 	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) $<
 	move $(*F).h $(HDIR)
@@ -232,22 +281,51 @@ EVERYTHING		= all clean install depend
 	del /q $(*F).h $(*F).cpp
 	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) $(*F).ice
 
-!if "$(WINRT)" == "yes"
+!else
+
+!if "$(SLICE_SRCS)" != "" || "$(SRCS)" != ""
+depend::
+	@del /q .depend.mak
+!endif
+
+!if "$(SLICE_SRCS)" != ""
+depend:: $(SLICE_SRCS:.ice=.d)
+!endif
+
+!if "$(SRCS)" != ""
+OBJS_DEPEND = $(SRCS:.cpp=.d)
+OBJS_DEPEND = $(OBJS_DEPEND:..\=.depend.mak\)
+depend:: $(SRCS) $(OBJS_DEPEND)
+!endif
+
+{..}.cpp{$(DEPEND_DIR)}.d:
+	@if not exist "$(ARCH)\$(CONFIG)" mkdir $(ARCH)\$(CONFIG)
+	@echo Generating dependencies for $<
+	@$(CXX) /E /Fo$(ARCH)\$(CONFIG)\ $(CPPFLAGS) $(CXXFLAGS) /showIncludes $< 1>$(*F).i 2>$(*F).d && \
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend.vbs $< $(top_srcdir)
+	@del /q $(*F).d $(*F).i
 
 {..}.cpp{$(ARCH)\$(CONFIG)\}.obj::
 	@if not exist "$(ARCH)\$(CONFIG)" mkdir $(ARCH)\$(CONFIG)
 	$(CXX) /c /Fo$(ARCH)\$(CONFIG)\ $(CPPFLAGS) $(CXXFLAGS) $<
 
+{$(slicedir)\Glacier2\}.ice{Glacier2\}.d:
+	@echo Generating dependencies for $<
+	@"$(SLICE2CPP)" $(SLICE2CPPFLAGS) --depend $< | cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice "..\"
+
+{$(slicedir)\IceStorm\}.ice{IceStorm\}.d:
+	@echo Generating dependencies for $<
+	@"$(SLICE2CPP)" $(SLICE2CPPFLAGS) --depend $< | cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice "..\"
+
+{$(slicedir)\IceGrid\}.ice{IceGrid\}.d:
+	@echo Generating dependencies for $<
+	@"$(SLICE2CPP)" $(SLICE2CPPFLAGS) --depend $< | cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice "..\"
+
 {$(SDIR)\}.ice{..}.cpp:
-	@echo f
 	del /q $(HDIR)\$(*F).h ..\$(*F).cpp
 	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) $<
 	move $(*F).h $(HDIR)
 	move $(*F).cpp ..
-
-!if "$(SRCS)" != ""
-SRCS_DEPEND 	= $(SRCS:.cpp=.depend)
-!endif
 
 !if "$(INCLUDE_DIR)" != ""
 .h{$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\}.h:
@@ -261,11 +339,15 @@ all:: $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)
 
 !endif
 
+!if exist(.depend.mak)
+!include .depend.mak
+!endif
+
 .rc.res:
 	rc $(RCFLAGS) $<
 
 
-all:: $(SRCS) $(TARGETS)
+all:: $(TARGETS)
 
 !if "$(TARGETS)" != ""
 

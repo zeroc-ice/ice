@@ -75,9 +75,9 @@ IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc
     _communicator(communicator),
     _adminEnabled(false),
     _pendingStatusChanges(false),
-    _traceServiceObserver(0),
-    _observerCompletedCB(newCallback(this, &ServiceManagerI::observerCompleted))
+    _traceServiceObserver(0)
 {
+    const_cast<CallbackPtr&>(_observerCompletedCB) = newCallback(this, &ServiceManagerI::observerCompleted);
     _logger = _communicator->getLogger();
 
     PropertiesPtr props = _communicator->getProperties();

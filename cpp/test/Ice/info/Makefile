@@ -40,5 +40,3 @@ $(CLIENT): $(COBJS)
 $(SERVER): $(SOBJS)
 	rm -f $@
 	$(call mktest,$@,$(SOBJS),$(ICESSL_LIBS) $(LIBS))
-
-include .depend

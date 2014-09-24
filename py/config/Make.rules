@@ -170,9 +170,13 @@ all:: $(SRCS)
 %_ice.py: $(slicedir)/%.ice
 	rm -f $(*F).py
 	$(SLICE2PY) $(SLICE2PYFLAGS) $<
+	@mkdir -p .depend
+	@$(SLICE2PY) $(SLICE2PYFLAGS) $< > .depend/$(*F).ice.d
 
 .cpp.o:
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+	@mkdir -p .depend
+	@$(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $< > .depend/$(*F).d
 
 clean::
 	-rm -f $(TARGETS)
@@ -181,15 +185,7 @@ clean::
 
 all:: $(SRCS) $(TARGETS)
 
-ifneq ($(SRCS),)
-depend:: $(SRCS)
-	-rm -f .depend .depend.mak
-	if test -n "$(SRCS)" ; then \
-	    $(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | $(ice_dir)/config/makedepend.py; \
-	fi
-else
-depend::
-endif
+include $(wildcard .depend/*.d)
 
 ifneq ($(TEMPLATE_REPOSITORY),)
 clean::

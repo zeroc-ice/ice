@@ -16,6 +16,11 @@ COLLOCATED	= $(call mktestname,collocated)
 
 TARGETS		= $(CLIENT) $(SERVER) $(SERVERAMD) $(COLLOCATED)
 
+SLICE_OBJS	= Test.o \
+		  TestAMD.o \
+		  Wstring.o \
+		  WstringAMD.o
+
 COBJS		= Test.o \
 		  Wstring.o \
 		  Client.o \
@@ -48,15 +53,10 @@ COLOBJS		= Test.o \
 		  MyByteSeq.o \
 		  StringConverterI.o
 
-SRCS		= $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp) \
-		  $(SAMDOBJS:.o=.cpp) \
-		  $(COLOBJS:.o=.cpp)
-
-SLICE_SRCS	= Test.ice \
-		  TestAMD.ice \
-		  Wstring.ice \
-		  WstringAMD.ice
+OBJS		= $(COBJS) \
+		  $(SOBJS) \
+		  $(SAMDOBJS) \
+		  $(COLOBJS)
 
 GENPIC          = no
 
@@ -94,5 +94,3 @@ $(SERVERAMD): $(SAMDOBJS)
 $(COLLOCATED): $(COLOBJS)
 	rm -f $@
 	$(call mktest,$@,$(COLOBJS),$(LIBS))
-
-include .depend

@@ -24,30 +24,32 @@ COLLOCATED	= $(NAME_PREFIX)collocated
 
 TARGETS		= $(CLIENT)$(EXT) $(SERVER)$(EXT) $(SERVERAMD)$(EXT) $(COLLOCATED)$(EXT)
 
-COBJS		= Test.obj \
-		  Client.obj \
-		  AllTests.obj
+SLICE_OBJS	= .\Test.obj .\TestAMD.obj
 
-SOBJS		= Test.obj \
-		  TestI.obj \
-		  ServantLocatorI.obj \
-		  Server.obj
+COBJS		= .\Test.obj \
+		  .\Client.obj \
+		  .\AllTests.obj
 
-SAMDOBJS	= TestAMD.obj \
-		  TestAMDI.obj \
-		  ServantLocatorI.obj \
-		  ServerAMD.obj
+SOBJS		= .\Test.obj \
+		  .\TestI.obj \
+		  .\ServantLocatorI.obj \
+		  .\Server.obj
 
-COLOBJS		= Test.obj \
-		  TestI.obj \
-		  ServantLocatorI.obj \
-		  Collocated.obj \
-		  AllTests.obj
+SAMDOBJS	= .\TestAMD.obj \
+		  .\TestAMDI.obj \
+		  .\ServantLocatorI.obj \
+		  .\ServerAMD.obj
 
-SRCS		= $(COBJS:.obj=.cpp) \
-		  $(SOBJS:.obj=.cpp) \
-		  $(SAMDOBJS:.obj=.cpp) \
-		  $(COLOBJS:.obj=.cpp)
+COLOBJS		= .\Test.obj \
+		  .\TestI.obj \
+		  .\ServantLocatorI.obj \
+		  .\Collocated.obj \
+		  .\AllTests.obj
+
+OBJS		= $(COBJS) \
+		  $(SOBJS) \
+		  $(SAMDOBJS) \
+		  $(COLOBJS)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -89,5 +91,3 @@ $(COLLOCATED)$(EXT): $(COLOBJS)
 clean::
 	del /q Test.cpp Test.h
 	del /q TestAMD.cpp TestAMD.h
-
-!include .depend.mak

@@ -35,5 +35,3 @@ MyGreeting.dll: MyGreeting.cs
 
 clean::
 	rm -f MyGreeting.dll
-
-include .depend

@@ -1,1 +1,3 @@
-generated/Printer.cs: ./Printer.ice "$(SLICE2CS)" "$(SLICEPARSERLIB)"
+
+Printer.cs: \
+    .\Printer.ice

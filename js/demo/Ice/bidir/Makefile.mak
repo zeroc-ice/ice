@@ -9,7 +9,7 @@
 
 top_srcdir	= ..\..\..
 
-TARGETS = Callback.js
+GEN_SRCS = Callback.js
 
 !include $(top_srcdir)\config\Make.rules.mak.js
 

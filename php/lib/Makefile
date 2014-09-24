@@ -120,47 +120,38 @@ SLICE2PHPFLAGS	+= --ice
 Ice/%.php: $(slicedir)/Ice/%.ice
 	@mkdir -p $(notdir $(<D))
 	$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) $<
+	@mkdir -p .depend
+	@$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) $< > .depend/Ice_$(*F).ice.d
 
 Glacier2/%.php: $(slicedir)/Glacier2/%.ice
 	@mkdir -p $(notdir $(<D))
 	$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) $<
+	@mkdir -p .depend
+	@$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) $< > .depend/Glacier2_$(*F).ice.d
 
 IceBox/%.php: $(slicedir)/IceBox/%.ice
 	@mkdir -p $(notdir $(<D))
 	$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) $<
+	@mkdir -p .depend
+	@$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) $< > .depend/IceBox_$(*F).ice.d
 
 IceGrid/%.php: $(slicedir)/IceGrid/%.ice
 	@mkdir -p $(notdir $(<D))
 	$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) $<
+	@mkdir -p .depend
+	@$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) $< > .depend/IceGrid_$(*F).ice.d
 
 IcePatch2/%.php: $(slicedir)/IcePatch2/%.ice
 	@mkdir -p $(notdir $(<D))
 	$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) $<
+	@mkdir -p .depend
+	@$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) $< > .depend/IcePatch2_$(*F).ice.d
 
 IceStorm/%.php: $(slicedir)/IceStorm/%.ice
 	@mkdir -p $(notdir $(<D))
 	$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) $<
-
-depend::  $(ICE_SLICE) $(GLACIER2_SLICE) $(ICEBOX_SLICE) $(ICEGRID_SLICE) $(ICEPATCH2_SLICE) $(ICESTORM_SLICE)
-	-rm -f .depend .depend.mak
-	if test -n "$(ICE_SLICE)" ; then \
-	    $(SLICE2PHP) --depend $(SLICE2PHPFLAGS) $(ICE_SLICE) | $(ice_dir)/config/makedepend.py Ice; \
-	fi
-	if test -n "$(GLACIER2_SLICE)" ; then \
-	    $(SLICE2PHP) --depend $(SLICE2PHPFLAGS) $(GLACIER2_SLICE) | $(ice_dir)/config/makedepend.py Glacier2; \
-	fi
-	if test -n "$(ICEBOX_SLICE)" ; then \
-	    $(SLICE2PHP) --depend $(SLICE2PHPFLAGS) $(ICEBOX_SLICE) | $(ice_dir)/config/makedepend.py IceBox; \
-	fi
-	if test -n "$(ICEGRID_SLICE)" ; then \
-	    $(SLICE2PHP) --depend $(SLICE2PHPFLAGS) $(ICEGRID_SLICE) | $(ice_dir)/config/makedepend.py IceGrid; \
-	fi
-	if test -n "$(ICEPATCH2_SLICE)" ; then \
-	    $(SLICE2PHP) --depend $(SLICE2PHPFLAGS) $(ICEPATCH2_SLICE) | $(ice_dir)/config/makedepend.py IcePatch2; \
-	fi
-	if test -n "$(ICESTORM_SLICE)" ; then \
-	    $(SLICE2PHP) --depend $(SLICE2PHPFLAGS) $(ICESTORM_SLICE) | $(ice_dir)/config/makedepend.py IceStorm; \
-	fi
+	@mkdir -p .depend
+	@$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) $< > .depend/IceStorm_$(*F).ice.d
 
 install:: $(ALL_SRCS)
 	@echo "Installing generated code"
@@ -175,5 +166,3 @@ install:: $(ALL_SRCS)
 
 clean::
 	rm -rf $(MODULES)
-
-include .depend

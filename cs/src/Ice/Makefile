@@ -187,11 +187,10 @@ install:: all
 	 $(call installdata,$(PKG).xml,$(DESTDIR)$(install_assembliesdir)))
 
 clean::
+	echo $(GEN_SRCS)
 	-rm -f $(assembliesdir)/$(PKG).xml
 
 $(GDIR)/BuiltinSequences.cs: $(SDIR)/BuiltinSequences.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	rm -f $(GDIR)/BuiltinSequences.cs
 	$(SLICE2CS) $(SLICE2CSFLAGS) --stream $(SDIR)/BuiltinSequences.ice
 	mv BuiltinSequences.cs $(GDIR)
-
-include .depend

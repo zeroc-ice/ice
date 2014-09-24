@@ -15,24 +15,30 @@ SERVERAMD	= serveramd.exe
 
 TARGETS		= $(CLIENT) $(SERVER) $(SERVERAMD)
 
-COBJS		= Test.obj \
-		  Client.obj \
-		  ClientPrivate.obj \
-		  AllTests.obj
+SLICE_OBJS	= .\ClientPrivate.obj \
+		  .\ServerPrivate.obj \
+		  .\ServerPrivateAMD.obj \
+		  .\Test.obj \
+		  .\TestAMD.obj
 
-SOBJS		= Test.obj \
-    		  ServerPrivate.obj \
-		  TestI.obj \
-		  Server.obj
+COBJS		= .\Test.obj \
+		  .\Client.obj \
+		  .\ClientPrivate.obj \
+		  .\AllTests.obj
 
-SAMDOBJS	= TestAMD.obj \
-    		  ServerPrivateAMD.obj \
-		  TestAMDI.obj \
-		  ServerAMD.obj
+SOBJS		= .\Test.obj \
+ 		  .\ServerPrivate.obj \
+		  .\TestI.obj \
+		  .\Server.obj
 
-SRCS		= $(COBJS:.obj=.cpp) \
-		  $(SOBJS:.obj=.cpp) \
-		  $(SAMDOBJS:.obj=.cpp)
+SAMDOBJS	= .\TestAMD.obj \
+		  .\ServerPrivateAMD.obj \
+		  .\TestAMDI.obj \
+		  .\ServerAMD.obj
+
+OBJS		= $(COBJS) \
+		  $(SOBJS) \
+		  $(SAMDOBJS)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -67,5 +73,3 @@ clean::
 	del /q ClientPrivate.cpp ClientPrivate.h
 	del /q ServerPrivate.cpp ServerPrivate.h
 	del /q ServerPrivateAMD.cpp ServerPrivateAMD.h
-
-!include .depend.mak

@@ -32,5 +32,3 @@ subscriber.exe: $(S_SRCS) $(GEN_SRCS)
 
 clean::
 	-rm -rf db/*
-
-include .depend

@@ -16,16 +16,18 @@ CLIENT		= client.exe
 
 TARGETS		= $(LIBNAME) $(DLLNAME) $(CLIENT)
 
-LOBJS           = Test.obj \
-                  TestI.obj
+SLICE_OBJS	= .\Test.obj
 
-COBJS		= Client.obj \
-		  InterceptorI.obj \
-		  AMDInterceptorI.obj \
-		  MyObjectI.obj
+LOBJS           = $(SLICE_OBJS) \
+                  .\TestI.obj
 
-SRCS		= $(COBJS:.obj=.cpp) \
-		  $(LOBJS:.obj=.cpp)
+COBJS		= .\Client.obj \
+		  .\InterceptorI.obj \
+		  .\AMDInterceptorI.obj \
+		  .\MyObjectI.obj
+
+OBJS		= $(COBJS) \
+		  $(LOBJS)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -55,5 +57,3 @@ $(CLIENT): $(COBJS)
 
 clean::
 	del /q Test.cpp Test.h
-
-!include .depend.mak

@@ -17,8 +17,6 @@ TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(li
 
 OBJS		= Parser.o
 
-SRCS		= $(OBJS:.o=.cpp)
-
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_XML_API_EXPORTS $(EXPAT_FLAGS)
@@ -39,6 +37,3 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 
 install:: all
 	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
-
-
-include .depend

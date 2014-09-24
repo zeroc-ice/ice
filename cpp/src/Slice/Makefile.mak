@@ -14,24 +14,22 @@ DLLNAME		= $(top_srcdir)\bin\slice$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
-OBJS		= Checksum.obj \
-		  CPlusPlusUtil.obj \
-		  CsUtil.obj \
-		  DotNetNames.obj \
-		  FileTracker.obj \
-		  Grammar.obj \
-		  JavaUtil.obj \
-		  MD5.obj \
-		  MD5I.obj \
-		  Parser.obj \
-		  PHPUtil.obj \
-		  Preprocessor.obj \
-		  PythonUtil.obj \
-		  RubyUtil.obj \
-		  Scanner.obj \
-		  Util.obj
-
-SRCS		= $(OBJS:.obj=.cpp)
+OBJS		= .\Checksum.obj \
+		  .\CPlusPlusUtil.obj \
+		  .\CsUtil.obj \
+		  .\DotNetNames.obj \
+		  .\FileTracker.obj \
+		  .\Grammar.obj \
+		  .\JavaUtil.obj \
+		  .\MD5.obj \
+		  .\MD5I.obj \
+		  .\Parser.obj \
+		  .\PHPUtil.obj \
+		  .\Preprocessor.obj \
+		  .\PythonUtil.obj \
+		  .\RubyUtil.obj \
+		  .\Scanner.obj \
+		  .\Util.obj
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -92,5 +90,3 @@ install:: all
 	copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"
 
 !endif
-
-!include .depend.mak

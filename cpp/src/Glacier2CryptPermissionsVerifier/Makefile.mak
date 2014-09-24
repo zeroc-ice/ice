@@ -14,9 +14,7 @@ DLLNAME		= $(top_srcdir)\bin\glacier2cryptpermissionsverifier$(SOVERSION)$(LIBSU
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
-OBJS		= CryptPermissionsVerifierI.obj
-
-SRCS		= $(OBJS:.obj=.cpp)
+OBJS		= .\CryptPermissionsVerifierI.obj
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -53,5 +51,3 @@ install:: all
 	copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"
 
 !endif
-
-!include .depend.mak

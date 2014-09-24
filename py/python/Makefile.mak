@@ -11,72 +11,107 @@ top_srcdir	= ..
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-ICE_SRCS	= Ice_BuiltinSequences_ice.py \
-		  Ice_Communicator_ice.py \
-		  Ice_CommunicatorF_ice.py \
-		  Ice_Connection_ice.py \
-		  Ice_ConnectionF_ice.py \
-		  Ice_Current_ice.py \
-		  Ice_Endpoint_ice.py \
-		  Ice_EndpointF_ice.py \
-		  Ice_EndpointTypes_ice.py \
-		  Ice_FacetMap_ice.py \
-		  Ice_Identity_ice.py \
-		  Ice_ImplicitContext_ice.py \
-		  Ice_ImplicitContextF_ice.py \
-		  Ice_Instrumentation_ice.py \
-		  Ice_InstrumentationF_ice.py \
-		  Ice_LocalException_ice.py \
-		  Ice_Locator_ice.py \
-		  Ice_LocatorF_ice.py \
-		  Ice_Logger_ice.py \
-		  Ice_LoggerF_ice.py \
-		  Ice_Metrics_ice.py \
-		  Ice_ObjectAdapter_ice.py \
-		  Ice_ObjectAdapterF_ice.py \
-		  Ice_ObjectFactory_ice.py \
-		  Ice_ObjectFactoryF_ice.py \
-		  Ice_Plugin_ice.py \
-		  Ice_PluginF_ice.py \
-		  Ice_Process_ice.py \
-		  Ice_ProcessF_ice.py \
-		  Ice_Properties_ice.py \
-		  Ice_PropertiesAdmin_ice.py \
-		  Ice_PropertiesF_ice.py \
-		  Ice_Router_ice.py \
-		  Ice_RouterF_ice.py \
-		  Ice_ServantLocator_ice.py \
-		  Ice_ServantLocatorF_ice.py \
-		  Ice_SliceChecksumDict_ice.py \
-		  Ice_Version_ice.py \
+ICE_SDIR	= Ice
 
-GLACIER2_SRCS	=
-		  Glacier2_RouterF_ice.py \
-		  Glacier2_Router_ice.py \
-		  Glacier2_Session_ice.py \
-		  Glacier2_PermissionsVerifierF_ice.py \
-		  Glacier2_PermissionsVerifier_ice.py \
-		  Glacier2_SSLInfo_ice.py \
-		  Glacier2_Metrics_ice.py
+ICE_SLICES	= Ice\BuiltinSequences.ice \
+		  Ice\Communicator.ice \
+		  Ice\CommunicatorF.ice \
+		  Ice\Connection.ice \
+		  Ice\ConnectionF.ice \
+		  Ice\Current.ice \
+		  Ice\Endpoint.ice \
+		  Ice\EndpointF.ice \
+		  Ice\EndpointTypes.ice \
+		  Ice\FacetMap.ice \
+		  Ice\Identity.ice \
+		  Ice\ImplicitContext.ice \
+		  Ice\ImplicitContextF.ice \
+		  Ice\Instrumentation.ice \
+		  Ice\InstrumentationF.ice \
+		  Ice\LocalException.ice \
+		  Ice\Locator.ice \
+		  Ice\LocatorF.ice \
+		  Ice\Logger.ice \
+		  Ice\LoggerF.ice \
+		  Ice\Metrics.ice \
+		  Ice\ObjectAdapter.ice \
+		  Ice\ObjectAdapterF.ice \
+		  Ice\ObjectFactory.ice \
+		  Ice\ObjectFactoryF.ice \
+		  Ice\Plugin.ice \
+		  Ice\PluginF.ice \
+		  Ice\Process.ice \
+		  Ice\ProcessF.ice \
+		  Ice\Properties.ice \
+		  Ice\PropertiesAdmin.ice \
+		  Ice\PropertiesF.ice \
+		  Ice\Router.ice \
+		  Ice\RouterF.ice \
+		  Ice\ServantLocator.ice \
+		  Ice\ServantLocatorF.ice \
+		  Ice\SliceChecksumDict.ice \
+		  Ice\Version.ice \
 
-ICEBOX_SRCS	= IceBox_IceBox_ice.py
+ICE_SRCS = $(ICE_SLICES:.ice=_ice.py)
+ICE_SRCS = $(ICE_SRCS:Ice\=Ice_)
 
-ICEGRID_SRCS	= IceGrid_Admin_ice.py \
-		  IceGrid_Descriptor_ice.py \
-		  IceGrid_Exception_ice.py \
-		  IceGrid_FileParser_ice.py \
-		  IceGrid_Locator_ice.py \
-		  IceGrid_Observer_ice.py \
-		  IceGrid_Query_ice.py \
-		  IceGrid_Registry_ice.py \
-		  IceGrid_Session_ice.py \
-		  IceGrid_UserAccountMapper_ice.py
+GLACIER2_SDIR	= Glacier2
 
-ICEPATCH2_SRCS	= IcePatch2_FileInfo_ice.py \
-		  IcePatch2_FileServer_ice.py
+GLACIER2_SLICES = Glacier2\Metrics.ice \
+		  Glacier2\PermissionsVerifier.ice \
+		  Glacier2\PermissionsVerifierF.ice \
+		  Glacier2\Router.ice \
+		  Glacier2\RouterF.ice \
+		  Glacier2\Session.ice \
+		  Glacier2\SSLInfo.ice \
 
-ICESTORM_SRCS	= IceStorm_IceStorm_ice.py \
-		  IceStorm_Metrics_ice.py
+GLACIER2_SRCS	= $(GLACIER2_SLICES:.ice=_ice.py)
+GLACIER2_SRCS	= $(GLACIER2_SRCS:Glacier2\=Glacier2_)
+
+ICEBOX_SDIR	= IceBox
+
+ICEBOX_SLICES	= IceBox\IceBox.ice
+ICEBOX_SRCS	= $(ICEBOX_SLICES:.ice=_ice.py)
+ICEBOX_SRCS	= $(ICEBOX_SRCS:IceBox\=IceBox_)
+
+ICEGRID_SDIR	= IceGrid
+
+ICEGRID_SLICES	= IceGrid\Admin.ice \
+		  IceGrid\Descriptor.ice \
+		  IceGrid\Exception.ice \
+		  IceGrid\FileParser.ice \
+		  IceGrid\Locator.ice \
+		  IceGrid\Observer.ice \
+		  IceGrid\Query.ice \
+		  IceGrid\Registry.ice \
+		  IceGrid\Session.ice \
+		  IceGrid\UserAccountMapper.ice \
+
+ICEGRID_SRCS	= $(ICEGRID_SLICES:.ice=_ice.py)
+ICEGRID_SRCS	= $(ICEGRID_SRCS:IceGrid\=IceGrid_)
+
+ICEPATCH2_SDIR	= IcePatch2
+
+ICEPATCH2_SLICES = IcePatch2\FileInfo.ice \
+		  IcePatch2\FileServer.ice
+
+ICEPATCH2_SRCS	= $(ICEPATCH2_SLICES:.ice=_ice.py)
+ICEPATCH2_SRCS	= $(ICEPATCH2_SRCS:IcePatch2\=IcePatch2_)
+
+ICESTORM_SDIR	= IceStorm
+
+ICESTORM_SLICES	= IceStorm\Metrics.ice \
+		  IceStorm\IceStorm.ice
+
+ICESTORM_SRCS	= $(ICESTORM_SLICES:.ice=_ice.py)
+ICESTORM_SRCS	= $(ICESTORM_SRCS:IceStorm\=IceStorm_)
+
+DEPENDS		= $(ICE_SLICES:.ice=.d) \
+		  $(GLACIER2_SLICES:.ice=.d) \
+		  $(ICEBOX_SLICES:.ice=.d) \
+		  $(ICEGRID_SLICES:.ice=.d) \
+		  $(ICEPATCH2_SLICES:.ice=.d) \
+		  $(ICESTORM_SLICES:.ice=.d)
 
 ALL_SRCS	= $(ICE_SRCS) \
 		  $(GLACIER2_SRCS) \
@@ -90,6 +125,41 @@ PACKAGES	= IceBox IceGrid IcePatch2 IceStorm IceMX
 SLICE2PYFLAGS   = $(SLICE2PYFLAGS) --ice
 
 all:: $(ALL_SRCS)
+
+depend::
+	del /q .depend.mak
+
+{$(slicedir)\$(ICE_SDIR)\}.ice{$(ICE_SDIR)\}.d:
+	@echo Generating dependencies for $<
+	@"$(SLICE2PY)" --prefix Ice_ --no-package $(SLICE2PYFLAGS) --depend "$<" | \
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice
+
+{$(slicedir)\$(GLACIER2_SDIR)\}.ice{$(GLACIER2_SDIR)\}.d:
+	@echo Generating dependencies for $<
+	@"$(SLICE2PY)" --prefix Glacier2_ --no-package $(SLICE2PYFLAGS) --depend "$<" | \
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice
+
+{$(slicedir)\$(ICEBOX_SDIR)\}.ice{$(ICEBOX_SDIR)\}.d:
+	@echo Generating dependencies for $<
+	@"$(SLICE2PY)" --prefix IceBox_ --no-package $(SLICE2PYFLAGS) --depend "$<" | \
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice
+
+{$(slicedir)\$(ICEGRID_SDIR)\}.ice{$(ICEGRID_SDIR)\}.d:
+	@echo Generating dependencies for $<
+	@"$(SLICE2PY)" --prefix IceGrid_ --no-package $(SLICE2PYFLAGS) --depend "$<" | \
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice
+
+{$(slicedir)\$(ICEPATCH2_SDIR)\}.ice{$(ICEPATCH2_SDIR)\}.d:
+	@echo Generating dependencies for $<
+	@"$(SLICE2PY)" --prefix IcePatch2_ --no-package $(SLICE2PYFLAGS) --depend "$<" | \
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice
+
+{$(slicedir)\$(ICESTORM_SDIR)\}.ice{$(ICESTORM_SDIR)\}.d:
+	@echo Generating dependencies for $<
+	@"$(SLICE2PY)" --prefix IceStorm_ --no-package $(SLICE2PYFLAGS) --depend "$<" | \
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice
+
+depend:: $(DEPENDS)
 
 Ice_LocalException_ice.py: "$(slicedir)/Ice/LocalException.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
 	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Ice_ --no-package "$(slicedir)/Ice/LocalException.ice"
@@ -166,12 +236,6 @@ Ice_Locator_ice.py: "$(slicedir)/Ice/Locator.ice" "$(SLICE2PY)" "$(SLICEPARSERLI
 Ice_LocatorF_ice.py: "$(slicedir)/Ice/LocatorF.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
 	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Ice_ --no-package "$(slicedir)/Ice/LocatorF.ice"
 
-Ice_StatsF_ice.py: "$(slicedir)/Ice/StatsF.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
-	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Ice_ --no-package "$(slicedir)/Ice/StatsF.ice"
-
-Ice_Stats_ice.py: "$(slicedir)/Ice/Stats.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
-	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Ice_ --no-package "$(slicedir)/Ice/Stats.ice"
-
 Ice_Process_ice.py: "$(slicedir)/Ice/Process.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
 	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Ice_ --no-package "$(slicedir)/Ice/Process.ice"
 
@@ -211,7 +275,6 @@ Ice_InstrumentationF_ice.py: "$(slicedir)/Ice/InstrumentationF.ice" "$(SLICE2PY)
 Ice_Metrics_ice.py: "$(slicedir)/Ice/Metrics.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
 	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Ice_ --no-package --checksum "$(slicedir)/Ice/Metrics.ice"
 
-
 Glacier2_RouterF_ice.py: "$(slicedir)/Glacier2/RouterF.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
 	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Glacier2_ --no-package --checksum "$(slicedir)/Glacier2/RouterF.ice"
 
@@ -233,10 +296,8 @@ Glacier2_SSLInfo_ice.py: "$(slicedir)/Glacier2/SSLInfo.ice" "$(SLICE2PY)" "$(SLI
 Glacier2_Metrics_ice.py: "$(slicedir)/Glacier2/Metrics.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
 	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Glacier2_ --no-package --checksum "$(slicedir)/Glacier2/Metrics.ice"
 
-
 IceBox_IceBox_ice.py: "$(slicedir)/IceBox/IceBox.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
 	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceBox_ --checksum "$(slicedir)/IceBox/IceBox.ice"
-
 
 IceGrid_Admin_ice.py: "$(slicedir)/IceGrid/Admin.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
 	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceGrid_ --checksum "$(slicedir)/IceGrid/Admin.ice"
@@ -268,20 +329,17 @@ IceGrid_Session_ice.py: "$(slicedir)/IceGrid/Session.ice" "$(SLICE2PY)" "$(SLICE
 IceGrid_UserAccountMapper_ice.py: "$(slicedir)/IceGrid/UserAccountMapper.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
 	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceGrid_ --checksum "$(slicedir)/IceGrid/UserAccountMapper.ice"
 
-
 IcePatch2_FileInfo_ice.py: "$(slicedir)/IcePatch2/FileInfo.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
 	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IcePatch2_ --checksum "$(slicedir)/IcePatch2/FileInfo.ice"
 
 IcePatch2_FileServer_ice.py: "$(slicedir)/IcePatch2/FileServer.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
 	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IcePatch2_ --checksum "$(slicedir)/IcePatch2/FileServer.ice"
 
-
 IceStorm_IceStorm_ice.py: "$(slicedir)/IceStorm/IceStorm.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
 	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceStorm_ --checksum "$(slicedir)/IceStorm/IceStorm.ice"
 
 IceStorm_Metrics_ice.py: "$(slicedir)/IceStorm/Metrics.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
 	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceStorm_ --checksum "$(slicedir)/IceStorm/Metrics.ice"
-
 
 install:: $(ALL_SRCS)
 	@echo "Installing generated code"
@@ -296,4 +354,4 @@ clean::
 	-rmdir /s /q $(PACKAGES)
 	del /q *_ice.py
 
-include .depend.mak
+#include .depend.mak

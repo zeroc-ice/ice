@@ -24,12 +24,12 @@ PLUGINDIR	= plugins
 
 TARGETS		= $(CLIENT)$(EXT) $(PLUGINDIR)\$(LIBNAME) $(PLUGINDIR)\$(DLLNAME)
 
-COBJS		= Client.obj
+COBJS		= .\Client.obj
 
-POBJS		= Plugin.obj
+POBJS		= .\Plugin.obj
 
-SRCS		= $(COBJS:.obj=.cpp) \
-		  $(POBJS:.obj=.cpp)
+OBJS		= $(COBJS) \
+		  $(POBJS)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -64,5 +64,3 @@ $(CLIENT)$(EXT): $(COBJS)
 
 clean::
 	del /q $(PLUGINDIR)\*.ilk $(PLUGINDIR)\*.pdb
-
-!include .depend.mak

@@ -15,23 +15,23 @@ SERVERCUSTOM	= $(call mktestname,servercustom)
 
 TARGETS		= $(CLIENT) $(SERVER) $(SERVERCUSTOM)
 
-COBJS		= Test.o \
+SLICE_OBJS	= Test.o
+
+COBJS		= $(SLICE_OBJS) \
 		  Client.o \
 		  AllTests.o
 
-SOBJS		= Test.o \
+SOBJS		= $(SLICE_OBJS) \
 		  TestI.o \
 		  Server.o
 
-SCOBJS		= ServerCustomThreadPool.o \
-		  Test.o \
+SCOBJS		= $(SLICE_OBJS) \
+		  ServerCustomThreadPool.o \
 		  TestI.o
 
-SRCS		= $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp) \
-		  $(SCOBJS:.o=.cpp)
-
-SLICE_SRCS	= Test.ice
+OBJS		= $(COBJS) \
+		  $(SOBJS) \
+		  $(SCOBJS)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -48,5 +48,3 @@ $(SERVER): $(SOBJS)
 $(SERVERCUSTOM): $(SCOBJS)
 	rm -f $@
 	$(call mktest,$@,$(SCOBJS),$(LIBS))
-
-include .depend

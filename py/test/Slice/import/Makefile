@@ -30,5 +30,3 @@ Test2_ice.py: Test2.ice $(SLICE2PY) $(SLICEPARSERLIB)
 
 clean::
 	rm -rf $(SRCS) Test
-
-include .depend

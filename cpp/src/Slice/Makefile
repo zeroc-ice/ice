@@ -31,8 +31,6 @@ OBJS		= Checksum.o \
 		  Util.o \
 		  ../Slice/Grammar.o
 
-SRCS		= $(OBJS:.o=.cpp)
-
 include $(top_srcdir)/config/Make.rules
 
 
@@ -60,5 +58,3 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 install:: all
 	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
 endif
-
-include .depend

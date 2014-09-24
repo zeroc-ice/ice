@@ -1,2 +1,6 @@
-generated/Test.cs: ./Test.ice "$(SLICE2CS)" "$(SLICEPARSERLIB)"
-generated/TestAMD.cs: ./TestAMD.ice "$(SLICE2CS)" "$(SLICEPARSERLIB)"
+
+Test.cs: \
+    .\Test.ice
+
+TestAMD.cs: \
+    .\TestAMD.ice

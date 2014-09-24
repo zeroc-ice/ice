@@ -9,7 +9,7 @@
 
 top_srcdir	= ..\..\..
 
-TARGETS = Throughput.js
+GEN_SRCS = Throughput.js
 
 !include $(top_srcdir)\config\Make.rules.mak.js
 

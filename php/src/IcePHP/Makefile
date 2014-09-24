@@ -25,8 +25,6 @@ OBJS		= Communicator.o \
 		  Types.o \
 		  Util.o
 
-SRCS		= $(OBJS:.o=.cpp)
-
 include $(top_srcdir)/config/Make.rules.php
 
 CPPFLAGS	:= -I. $(CPPFLAGS) $(ICE_FLAGS) $(PHP_FLAGS) -DPHP_DEBUG
@@ -39,11 +37,3 @@ $(libdir)/$(LIBNAME): $(OBJS)
 
 install:: all
 	$(call installphplib,$(libdir)/$(LIBNAME),$(DESTDIR)$(install_libdir))
-
-depend:: $(SRCS)
-	-rm -f .depend .depend.mak
-	if test -n "$(SRCS)" ; then \
-	    $(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | $(ice_dir)/config/makedepend.py; \
-	fi
-
-include .depend

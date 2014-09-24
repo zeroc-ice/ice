@@ -1,1 +1,3 @@
-generated/Contact.cs: ./Contact.ice "$(SLICE2CS)" "$(SLICEPARSERLIB)"
+
+Contact.cs: \
+    .\Contact.ice

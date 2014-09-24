@@ -106,16 +106,39 @@ install:: all
 !endif
 !endif
 
-EVERYTHING		= all clean install lint
+EVERYTHING		= all clean install lint depend
 
 .SUFFIXES:
-.SUFFIXES:		.js .ice
+.SUFFIXES:		.js .ice .d
+
+depend::
+
+!if exist(.depend.mak)
+!include .depend.mak
+
+depend::
+	@del /q .depend.mak
+!endif
+
+!if "$(GEN_SRCS)" != ""
+depend:: $(GEN_SRCS:.js=.d)
+!endif
+
+.ice.d:
+	@echo Generating dependencies for $<
+	@"$(SLICE2JS)" $(SLICE2JSFLAGS) --depend $< |\
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice
+
+{$(SDIR)}.ice.d:
+	@echo Generating dependencies for $<
+	@"$(SLICE2JS)" $(SLICE2JSFLAGS) $< --depend $< |\
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice
 
 .ice.js:
-        "$(SLICE2JS)" $(SLICE2JSFLAGS) $<
+	"$(SLICE2JS)" $(SLICE2JSFLAGS) $<
 
 {$(SDIR)}.ice.js:
-        "$(SLICE2JS)" $(SLICE2JSFLAGS) $<
+	"$(SLICE2JS)" $(SLICE2JSFLAGS) $<
 
 all:: $(TARGETS)
 
@@ -146,8 +169,8 @@ $(libdir)/$(LIBNAME).min.js: $(libdir)/$(LIBNAME).js
 
 !if "$(GZIP_PATH)" != ""
 $(libdir)/$(LIBNAME)$(jslibsuffix).gz: $(libdir)/$(LIBNAME)$(jslibsuffix)
-        @del /q $(libdir)\$(LIBNAME)$(jslibsuffix).gz
-        "$(GZIP_PATH)" -c9 $(libdir)\$(LIBNAME)$(jslibsuffix) > $(libdir)\$(LIBNAME)$(jslibsuffix).gz
+	@del /q $(libdir)\$(LIBNAME)$(jslibsuffix).gz
+	"$(GZIP_PATH)" -c9 $(libdir)\$(LIBNAME)$(jslibsuffix) > $(libdir)\$(LIBNAME)$(jslibsuffix).gz
 !endif
 
 !if "$(INSTALL_SRCS)" != ""

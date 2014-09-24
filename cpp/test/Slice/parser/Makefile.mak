@@ -9,12 +9,13 @@
 
 top_srcdir	= ..\..\..
 
+
+SLICE_OBJS	= .\CircularA.obj \
+		  .\CircularB.obj
+
+OBJS 		= $(SLICE_OBJS)
+
 TARGETS		= $(OBJS)
-
-OBJS		= CircularA.obj \
-		  CircularB.obj
-
-SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -24,5 +25,3 @@ CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 clean::
 	del /q CircularA.cpp CircularA.h
 	del /q CircularB.cpp CircularB.h
-
-!include .depend.mak

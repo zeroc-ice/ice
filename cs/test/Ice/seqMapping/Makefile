@@ -47,5 +47,3 @@ Serializable.dll:
 
 clean::
 	rm -f Serializable.dll
-
-include .depend

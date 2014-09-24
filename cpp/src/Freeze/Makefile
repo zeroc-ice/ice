@@ -15,7 +15,7 @@ LIBNAME		= $(call mklibname,Freeze)
 
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
-SLICE_OBJS1     = BackgroundSaveEvictor.o \
+SLICE_OBJS     = BackgroundSaveEvictor.o \
 		  CatalogData.o \
 		  Connection.o \
 		  ConnectionF.o \
@@ -25,9 +25,8 @@ SLICE_OBJS1     = BackgroundSaveEvictor.o \
 		  EvictorStorage.o \
 		  Exception.o \
 		  Transaction.o \
-		  TransactionalEvictor.o
-
-SLICE_OBJS2     = PingObject.o
+		  TransactionalEvictor.o \
+		  PingObject.o
 
 OBJS	        = BackgroundSaveEvictorI.o \
 		  Catalog.o \
@@ -46,13 +45,7 @@ OBJS	        = BackgroundSaveEvictorI.o \
 		  TransactionHolder.o \
 		  TransactionI.o \
 		  Util.o \
-                  $(SLICE_OBJS1) \
-                  $(SLICE_OBJS2)
-
-SRCS		= $(OBJS:.o=.cpp)
-
-SLICE_SRCS	= $(addprefix $(SDIR)/, $(SLICE_OBJS1:.o=.ice)) \
-                  $(addprefix ../Freeze/, $(SLICE_OBJS2:.o=.ice))
+                  $(SLICE_OBJS)
 
 HDIR		= $(headerdir)/Freeze
 SDIR		= $(slicedir)/Freeze
@@ -99,5 +92,3 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 
 install:: all
 	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
-
-include .depend

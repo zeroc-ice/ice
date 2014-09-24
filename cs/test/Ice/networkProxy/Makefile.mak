@@ -15,6 +15,7 @@ C_SRCS		= AllTests.cs Client.cs ..\..\TestCommon\TestApp.cs
 S_SRCS		= Server.cs 
 
 GEN_SRCS	= $(GDIR)\Test.cs
+GDIR		= generated
 
 SDIR		= .
 
@@ -29,5 +30,3 @@ client.exe: $(C_SRCS) $(GEN_SRCS)
 
 server.exe: $(S_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(S_SRCS) $(GEN_SRCS)
-
-!include .depend.mak

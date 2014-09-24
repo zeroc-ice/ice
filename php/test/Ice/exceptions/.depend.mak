@@ -1,1 +1,4 @@
-Test.php: Test.ice "$(slicedir)/Ice/BuiltinSequences.ice" "$(SLICE2PHP)" "$(SLICEPARSERLIB)"
+
+Test.php: \
+    Test.ice \
+    $(slicedir)/Ice/BuiltinSequences.ice

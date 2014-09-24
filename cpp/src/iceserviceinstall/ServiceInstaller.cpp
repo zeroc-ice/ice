@@ -97,7 +97,7 @@ IceServiceInstaller::IceServiceInstaller(int serviceType, const string& configFi
 void
 IceServiceInstaller::install(const PropertiesPtr& properties)
 {
-    _debug = properties->getPropertyAsInt("Debug") > 0;
+    _debug = properties->getPropertyAsInt("Debug") != 0;
 
     initializeSid(properties->getPropertyWithDefault("ObjectName", "NT Authority\\LocalService"));
 
@@ -142,7 +142,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
 
     if(_serviceType == icegridregistry)
     {
-        if(properties->getPropertyAsInt("DependOnRegistry") > 0)
+        if(properties->getPropertyAsInt("DependOnRegistry") != 0)
         {
             throw "The IceGrid registry service can't depend on itself";
         }
@@ -181,14 +181,14 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
 
         grantPermissions("MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Perflib", SE_REGISTRY_KEY, true);
 
-        if(properties->getPropertyAsInt("DependOnRegistry") > 0)
+        if(properties->getPropertyAsInt("DependOnRegistry") != 0)
         {
             dependency = "icegridregistry." + _icegridInstanceName;
         }
     }
     else if(_serviceType == glacier2router)
     {
-        if(properties->getPropertyAsInt("DependOnRegistry") > 0)
+        if(properties->getPropertyAsInt("DependOnRegistry") != 0)
         {
             if(_icegridInstanceName == "")
             {
@@ -202,7 +202,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
     {
         grantPermissions(_configFile);
     }
-
+    
     string eventLog = properties->getProperty("EventLog");
     if(eventLog == "")
     {
@@ -263,7 +263,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
         command += _configFile + "\"";
     }
 
-    bool autoStart = properties->getPropertyAsIntWithDefault("AutoStart", 1) > 0;
+    bool autoStart = properties->getPropertyAsIntWithDefault("AutoStart", 1) != 0;
     string password = properties->getProperty("Password");
 
     //
@@ -550,18 +550,18 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
         }
 
         LUID unusedId = { 0 };
-
+        
         if(!AuthzInitializeContextFromSid(0, _sid, manager, 0, unusedId, 0, &clientContext))
         {
             throw "AuthzInitializeContextFromSid failed: " + IceUtilInternal::lastErrorToString();
         }
 
-        AUTHZ_ACCESS_REQUEST accessRequest = { 0 };
+        AUTHZ_ACCESS_REQUEST accessRequest = { 0 }; 
         accessRequest.DesiredAccess = MAXIMUM_ALLOWED;
         accessRequest.PrincipalSelfSid = 0;
         accessRequest.ObjectTypeList = 0;
         accessRequest.ObjectTypeListLength = 0;
-        accessRequest.OptionalArguments = 0;
+        accessRequest.OptionalArguments = 0; 
 
         ACCESS_MASK accessMask = 0;
         DWORD accessUnused = 0;
@@ -624,7 +624,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
             {
                 ea.grfInheritance = NO_INHERITANCE;
             }
-
+            
             TRUSTEE_W trustee;
             BuildTrusteeWithSidW(&trustee, _sid);
             ea.Trustee = trustee;
@@ -637,7 +637,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
             {
                 throw "Could not modify ACL for " + path + ": " + IceUtilInternal::errorToString(res);
             }
-
+            
             res = SetNamedSecurityInfoW(const_cast<wchar_t*>(IceUtil::stringToWstring(path).c_str()), type,
                                         DACL_SECURITY_INFORMATION, 0, 0, newAcl, 0);
             if(res != ERROR_SUCCESS)
@@ -830,7 +830,7 @@ IceServiceInstaller::removeSource(const string& source) const
             // use string converters in calls to stringToWstring.
             //
             LONG delRes = RegDeleteKeyW(HKEY_LOCAL_MACHINE,
-                                        IceUtil::stringToWstring(createSource(source,
+                                        IceUtil::stringToWstring(createSource(source, 
                                             IceUtil::wstringToString(subkey))).c_str());
             if(delRes == ERROR_SUCCESS)
             {

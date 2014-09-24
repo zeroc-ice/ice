@@ -14,41 +14,37 @@ DLLNAME		= $(top_srcdir)\bin\freeze$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
-SLICE_OBJS1     = BackgroundSaveEvictor.obj \
-		  CatalogData.obj \
-		  Connection.obj \
-		  ConnectionF.obj \
-		  DB.obj \
-		  Evictor.obj \
-		  EvictorF.obj \
-		  EvictorStorage.obj \
-		  Exception.obj \
-		  Transaction.obj \
-		  TransactionalEvictor.obj
+SLICE_OBJS	= .\BackgroundSaveEvictor.obj \
+		  .\CatalogData.obj \
+		  .\Connection.obj \
+		  .\ConnectionF.obj \
+		  .\DB.obj \
+		  .\Evictor.obj \
+		  .\EvictorF.obj \
+		  .\EvictorStorage.obj \
+		  .\Exception.obj \
+		  .\Transaction.obj \
+		  .\TransactionalEvictor.obj \
+		  .\PingObject.obj
 
-SLICE_OBJS2     = PingObject.obj
-
-OBJS	        = BackgroundSaveEvictorI.obj \
-		  Catalog.obj \
-                  CatalogIndexList.obj \
-		  ConnectionI.obj \
-		  EvictorI.obj \
-		  EvictorIteratorI.obj \
-		  Index.obj \
-		  IndexI.obj \
-		  MapDb.obj \
-		  MapI.obj \
-		  ObjectStore.obj \
-		  SharedDbEnv.obj \
-		  TransactionalEvictorContext.obj \
-		  TransactionalEvictorI.obj \
-		  TransactionHolder.obj \
-		  TransactionI.obj \
-		  Util.obj \
-                  $(SLICE_OBJS1) \
-                  $(SLICE_OBJS2)
-
-SRCS		= $(OBJS:.obj=.cpp)
+OBJS		= .\BackgroundSaveEvictorI.obj \
+		  .\Catalog.obj \
+		  .\CatalogIndexList.obj \
+		  .\ConnectionI.obj \
+		  .\EvictorI.obj \
+		  .\EvictorIteratorI.obj \
+		  .\Index.obj \
+		  .\IndexI.obj \
+		  .\MapDb.obj \
+		  .\MapI.obj \
+		  .\ObjectStore.obj \
+		  .\SharedDbEnv.obj \
+		  .\TransactionalEvictorContext.obj \
+		  .\TransactionalEvictorI.obj \
+		  .\TransactionHolder.obj \
+		  .\TransactionI.obj \
+		  .\Util.obj \
+		  $(SLICE_OBJS)
 
 HDIR		= $(headerdir)\Freeze
 SDIR		= $(slicedir)\Freeze
@@ -113,5 +109,3 @@ install:: all
 	copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"
 
 !endif
-
-!include .depend.mak

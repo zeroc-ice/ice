@@ -13,9 +13,7 @@ CLIENT		= client.exe
 
 TARGETS		= $(CLIENT)
 
-OBJS		= Client.obj
-
-SRCS		= $(OBJS:.obj=.cpp)
+OBJS		= .\Client.obj
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -29,5 +27,3 @@ $(CLIENT): $(OBJS)
 	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(SETARGV) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(BASELIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
-
-!include .depend.mak

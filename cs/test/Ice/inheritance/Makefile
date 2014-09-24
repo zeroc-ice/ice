@@ -36,5 +36,3 @@ server.exe: $(S_SRCS) $(GEN_SRCS)
 
 collocated.exe: $(COL_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
-
-include .depend

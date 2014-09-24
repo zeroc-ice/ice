@@ -331,11 +331,32 @@ ifeq ($(ICEWS_LIBS),)
     ICEWS_LIBS          = -lIceWS
 endif
 
-EVERYTHING		= all depend clean install
-EVERYTHING_EXCEPT_ALL   = depend clean install
+EVERYTHING		= all clean install
+EVERYTHING_EXCEPT_ALL   = clean install
 
 .SUFFIXES:
 .SUFFIXES:		.cpp .c .o
+
+ifneq ($(SLICE_OBJS),)
+-include $(addprefix .depend/, $(SLICE_OBJS:.o=.ice.d))
+endif
+
+#
+# If dependencies has non been created yet make all OBJS depend 
+# on all SRCS, Slice generated files will be created before C++
+# compilation starts and  avoid problems with parallel make
+#
+ifneq ($(OBJS),)
+
+ifeq ($(wildcard .depend/*.d),)
+$(OBJS):$(OBJS:.o=.cpp)
+else
+-include $(addprefix .depend/, $(OBJS:.o=.d))
+endif
+
+endif
+
+all:: $(TARGETS)
 
 .cpp.o:
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
@@ -347,16 +368,24 @@ $(HDIR)/%F.h: $(SDIR)/%F.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	rm -f $(HDIR)/$(*F)F.h $(*F)F.cpp
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $<
 	mv $(*F)F.h $(HDIR)
-	rm -f $(*F)F.cpp
+	@touch $(*F)F.cpp
+	@mkdir -p .depend
+	@$(SLICE2CPP) $(SLICE2CPPFLAGS) --depend $< > .depend/$(*F).ice.d
 
 $(HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	rm -f $(HDIR)/$(*F).h $(*F).cpp
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $<
 	mv $(*F).h $(HDIR)
+	@touch $(*F).cpp
+	@mkdir -p .depend
+	@$(SLICE2CPP) $(SLICE2CPPFLAGS) --depend $< > .depend/$(*F).ice.d
 
 %.h %.cpp: %.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	rm -f $(*F).h $(*F).cpp
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(*F).ice
+	@touch $(*F).cpp
+	@mkdir -p .depend
+	@$(SLICE2CPP) $(SLICE2CPPFLAGS) --depend $(*F).ice > .depend/$(*F).ice.d
 
 %.h %.cpp: %.y
 	rm -f $(*F).h $(*F).cpp
@@ -372,35 +401,19 @@ $(HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	cat lex.yy.c >> $@
 	rm -f lex.yy.c
 
-all:: $(SRCS) $(TARGETS)
-
-depend:: $(SRCS) $(patsubst $(SDIR)/%.ice,$(HDIR)/%.h,$(wildcard $(SDIR)/*F.ice)) $(SLICE_SRCS)
-	-rm -f .depend .depend.mak
-	if test -n "$(SRCS)" ; then \
-		$(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | $(ice_dir)/config/makedepend.py; \
-	fi
-	if test -n "$(SLICE_SRCS)" ; then \
-		if test -n "$(HDIR)"; then \
-			$(SLICE2CPP) --depend $(SLICE2CPPFLAGS) $(SLICE_SRCS) | $(ice_dir)/config/makedepend.py "\$$(HDIR)"; \
-		else \
-			$(SLICE2CPP) --depend $(SLICE2CPPFLAGS) $(SLICE_SRCS) | $(ice_dir)/config/makedepend.py; \
-		fi \
-	fi
-
 clean::
 	-rm -f $(TARGETS)
 	-rm -f core *.o *.bak
 
-ifneq ($(SLICE_SRCS),)
+ifneq ($(SLICE_OBJS),)
 clean::
-	rm -f $(addsuffix .cpp, $(basename $(notdir $(SLICE_SRCS))))
-	rm -f $(addsuffix .h, $(basename $(notdir $(SLICE_SRCS))))
+	rm -f $(addsuffix .cpp, $(basename $(notdir $(SLICE_OBJS))))
+	rm -f $(addsuffix .h, $(basename $(notdir $(SLICE_OBJS))))
 endif
 
 ifneq ($(HDIR),)
 clean::
-	rm -f $(addprefix $(HDIR), $(addsuffix .h, $(basename $(subst $(SDIR),, \
-	$(filter $(SDIR)/%.ice, $(SLICE_SRCS))))))
+	rm -f $(addprefix $(HDIR)/, $(addsuffix .h, $(basename $(SLICE_OBJS))))
 endif
 
 ifneq ($(TEMPLATE_REPOSITORY),)

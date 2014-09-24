@@ -26,19 +26,19 @@ ADMIN_OBJS	= Client.o \
 		  Parser.o \
 		  Scanner.o \
 		  Util.o \
-                  $(SLICE_OBJS)
+		  $(SLICE_OBJS)
 
 COMMON_OBJS	= AdminRouter.o \
-                  DescriptorBuilder.o \
+		  DescriptorBuilder.o \
 		  DescriptorParser.o \
 		  FileCache.o \
 		  PlatformInfo.o \
 		  SessionManager.o \
 		  TraceLevels.o \
-                  $(SLICE_OBJS)
+		  $(SLICE_OBJS)
 
 NODE_OBJS	= Activator.o \
-                  NodeAdminRouter.o \
+		  NodeAdminRouter.o \
 		  NodeI.o \
 		  NodeSessionManager.o \
 		  ServerAdapterI.o \
@@ -64,7 +64,7 @@ REGISTRY_OBJS   = AdminCallbackRouter.o \
 		  QueryI.o \
 		  ReapThread.o \
 		  RegistryAdminRouter.o \
-                  RegistryI.o \
+		  RegistryI.o \
 		  ReplicaCache.o \
 		  ReplicaSessionI.o \
 		  ReplicaSessionManager.o \
@@ -88,14 +88,11 @@ REGISTRY_SVR_OBJS = \
 		  $(REGISTRY_OBJS) \
 		  IceGridRegistry.o
 
-SRCS		= $(ADMIN_OBJS:.o=.cpp) \
-		  $(COMMON_OBJS:.o=.cpp) \
-		  $(NODE_OBJS:.o=.cpp) \
-		  $(REGISTRY_OBJS:.o=.cpp) \
-		  IceGridNode.cpp \
-		  IceGridRegistry.cpp
-
-SLICE_SRCS	= $(addprefix ../IceGrid/, $(SLICE_OBJS:.o=.ice))
+OBJS		= $(ADMIN_OBJS) \
+		  $(COMMON_OBJS) \
+		  $(NODE_OBJS) \
+		  $(NODE_SVR_OBJS) \
+		  $(REGISTRY_SVR_OBJS)
 
 HDIR		= $(headerdir)/IceGrid
 SDIR		= $(slicedir)/IceGrid
@@ -167,6 +164,3 @@ install:: all
 	$(call installdata,$(top_srcdir)/../man/man1/icegridnode.1,$(DESTDIR)$(install_mandir))
 	$(call installprogram,$(REGISTRY_SERVER),$(DESTDIR)$(install_bindir))
 	$(call installdata,$(top_srcdir)/../man/man1/icegridregistry.1,$(DESTDIR)$(install_mandir))
-
-
-include .depend

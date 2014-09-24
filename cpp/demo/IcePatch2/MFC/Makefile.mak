@@ -13,11 +13,9 @@ CLIENT		= client.exe
 
 TARGETS		= $(CLIENT)
 
-OBJS		= PatchClient.obj \
-		  PatchClientDlg.obj \
-		  stdafx.obj
-		
-SRCS		= $(OBJS:.obj=.cpp)
+OBJS		= .\PatchClient.obj \
+		  .\PatchClientDlg.obj \
+		  .\stdafx.obj
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -28,13 +26,11 @@ LINKWITH	= icepatch2$(LIBSUFFIX).lib $(LIBS)
 PDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 !endif
 
-$(CLIENT): $(OBJS) $(COBJS) PatchClient.res
-	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) /entry:wWinMainCRTStartup /subsystem:windows $(OBJS) $(COBJS) \
+$(CLIENT): $(OBJS) PatchClient.res
+	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) /entry:wWinMainCRTStartup /subsystem:windows $(OBJS) \
 	  PatchClient.res $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
             $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 clean::
 	del /q PatchClient.res
-
-!include .depend.mak

@@ -20,11 +20,7 @@ SLICE_OBJS	= FileInfo.o \
 
 OBJS		= ClientUtil.o \
 		  Util.o \
-                  $(SLICE_OBJS)
-
-SRCS		= $(OBJS:.o=.cpp)
-
-SLICE_SRCS	= $(addprefix $(SDIR)/, $(SLICE_OBJS:.o=.ice))
+		  $(SLICE_OBJS)
 
 HDIR		= $(headerdir)/IcePatch2
 SDIR		= $(slicedir)/IcePatch2
@@ -49,5 +45,3 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 
 install:: all
 	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
-
-include .depend

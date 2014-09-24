@@ -16,7 +16,6 @@ C_SRCS		= AllTests.cs Client.cs $(COMMON_SRCS)
 S_SRCS		= BackgroundControllerI.cs BackgroundI.cs Server.cs $(COMMON_SRCS)
 
 GEN_SRCS	= $(GDIR)\Test.cs
-GEN_AMD_SRCS	= $(GDIR)\TestAMD.cs
 
 SDIR		= .
 
@@ -33,5 +32,3 @@ client.exe: $(C_SRCS) $(GEN_SRCS)
 
 server.exe: $(S_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(S_SRCS) $(GEN_SRCS)
-
-!include .depend.mak

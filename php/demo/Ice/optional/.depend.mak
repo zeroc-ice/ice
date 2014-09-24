@@ -1,1 +1,3 @@
-Contact.php: Contact.ice "$(SLICE2PHP)" "$(SLICEPARSERLIB)"
+
+Contact.php: \
+    Contact.ice

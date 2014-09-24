@@ -14,32 +14,29 @@ SERVER		= server
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Session.o
+SLICE_OBJS	= Session.o
 
-COBJS		= Client.o
+COBJS		= $(SLICE_OBJS) \
+		  Client.o
 
-SOBJS		= ReapTask.o \
+SOBJS		= $(SLICE_OBJS) \
+		  ReapTask.o \
 		  Server.o \
 		  SessionFactoryI.o \
 		  SessionI.o
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
-
-SLICE_SRCS	= Session.ice
+OBJS		= $(COBJS) \
+		  $(SOBJS)
 
 include $(top_srcdir)/config/Make.rules
 
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
 
-$(CLIENT): $(OBJS) $(COBJS)
+$(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
 
-$(SERVER): $(OBJS) $(SOBJS)
+$(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
-
-include .depend
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)

@@ -14,31 +14,29 @@ DLLNAME 	= $(top_srcdir)\bin\iceutil$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
-OBJS		= ArgVector.obj \
-		  Cond.obj \
-		  ConvertUTF.obj \
-		  CountDownLatch.obj \
-		  CtrlCHandler.obj \
-		  Exception.obj \
-		  FileUtil.obj \
-		  InputUtil.obj \
-		  MutexProtocol.obj \
-		  Options.obj \
-		  OutputUtil.obj \
-		  Random.obj \
-		  RecMutex.obj \
-		  SHA1.obj \
-		  Shared.obj \
-		  StringConverter.obj \
-		  StringUtil.obj \
-		  Thread.obj \
-		  ThreadException.obj \
-		  Time.obj \
-		  Timer.obj \
-		  Unicode.obj \
-		  UUID.obj
-
-SRCS		= $(OBJS:.obj=.cpp)
+OBJS		= .\ArgVector.obj \
+		  .\Cond.obj \
+		  .\ConvertUTF.obj \
+		  .\CountDownLatch.obj \
+		  .\CtrlCHandler.obj \
+		  .\Exception.obj \
+		  .\FileUtil.obj \
+		  .\InputUtil.obj \
+		  .\MutexProtocol.obj \
+		  .\Options.obj \
+		  .\OutputUtil.obj \
+		  .\Random.obj \
+		  .\RecMutex.obj \
+		  .\SHA1.obj \
+		  .\Shared.obj \
+		  .\StringConverter.obj \
+		  .\StringUtil.obj \
+		  .\Thread.obj \
+		  .\ThreadException.obj \
+		  .\Time.obj \
+		  .\Timer.obj \
+		  .\Unicode.obj \
+		  .\UUID.obj
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -88,5 +86,3 @@ install:: all
 	copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"
 
 !endif
-
-!include .depend.mak

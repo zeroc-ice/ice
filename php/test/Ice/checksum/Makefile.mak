@@ -9,16 +9,8 @@
 
 top_srcdir	= ..\..\..
 
+SLICE2PHPFLAGS = --checksum
+
+SLICE_SRCS		= Test.ice CTypes.ice
+
 !include $(top_srcdir)\config\Make.rules.mak.php
-
-SRCS		= Test.php CTypes.php
-
-all:: $(SRCS)
-
-$(SRCS): $*.ice
-	-"$(SLICE2PHP)" $(SLICE2PHPFLAGS) --checksum $*.ice
-
-clean::
-	del /q $(SRCS)
-
-include .depend.mak

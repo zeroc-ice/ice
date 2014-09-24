@@ -14,20 +14,18 @@ DLLNAME		= $(top_srcdir)\bin\glacier2$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 
 TARGETS 	= $(LIBNAME) $(DLLNAME)
 
-SLICE_OBJS      = Metrics.obj \
-		  PermissionsVerifierF.obj \
-		  PermissionsVerifier.obj \
-		  Router.obj \
-		  RouterF.obj \
-		  Session.obj \
-		  SSLInfo.obj
+SLICE_OBJS	= .\Metrics.obj \
+		  .\PermissionsVerifierF.obj \
+		  .\PermissionsVerifier.obj \
+		  .\Router.obj \
+		  .\RouterF.obj \
+		  .\Session.obj \
+		  .\SSLInfo.obj
 
-OBJS		= Application.obj \
-                  NullPermissionsVerifier.obj \
-		  SessionHelper.obj \
-                  $(SLICE_OBJS)
-
-SRCS		= $(OBJS:.obj=.cpp)
+OBJS		= .\Application.obj \
+		  .\NullPermissionsVerifier.obj \
+		  .\SessionHelper.obj \
+		  $(SLICE_OBJS)
 
 HDIR		= $(headerdir)\Glacier2
 SDIR		= $(slicedir)\Glacier2
@@ -73,5 +71,3 @@ install:: all
 	copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"
 
 !endif
-
-!include .depend.mak

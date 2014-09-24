@@ -497,7 +497,10 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
             if(pos != string::npos)
             {
                 string name = result.substr(0, pos);
-                result.replace(0, pos + suffix.size() - 1, name + "." + cppHeaderExt + " " + name + "." + cppSourceExt);
+                result.replace(0, pos + suffix.size() - 1, name + "." + cppSourceExt);
+
+                result += "\n";
+                result += name + "." + cppHeaderExt + ": " + name + "." + cppSourceExt;
             }
             break;
         }

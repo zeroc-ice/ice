@@ -17,49 +17,49 @@ MIGRATE		= $(top_srcdir)\bin\icestormmigrate.exe
 
 TARGETS		= $(LIBNAME) $(DLLNAME) $(ADMIN) $(MIGRATE)
 
-SLICE_OBJS      = Election.obj \
-		  IceStormInternal.obj \
-		  Instrumentation.obj \
-		  LinkRecord.obj \
-		  LLURecord.obj \
-		  SubscriberRecord.obj \
-		  V31Format.obj \
-		  V32Format.obj
+SLICE_OBJS      = .\Election.obj \
+		  .\IceStormInternal.obj \
+		  .\Instrumentation.obj \
+		  .\LinkRecord.obj \
+		  .\LLURecord.obj \
+		  .\SubscriberRecord.obj \
+		  .\V31Format.obj \
+		  .\V32Format.obj
 
-OBJS		= Instance.obj \
-		  InstrumentationI.obj \
-		  LLUMap.obj \
-		  NodeI.obj \
-		  Observers.obj \
-		  Service.obj \
-		  Subscriber.obj \
-		  SubscriberMap.obj \
-		  TopicI.obj \
-		  TopicManagerI.obj \
-		  TraceLevels.obj \
-		  TransientTopicI.obj \
-		  TransientTopicManagerI.obj \
-		  Util.obj \
-		  V31FormatDB.obj \
-		  V32FormatDB.obj \
+LIB_OBJS	= .\Instance.obj \
+		  .\InstrumentationI.obj \
+		  .\LLUMap.obj \
+		  .\NodeI.obj \
+		  .\Observers.obj \
+		  .\Service.obj \
+		  .\Subscriber.obj \
+		  .\SubscriberMap.obj \
+		  .\TopicI.obj \
+		  .\TopicManagerI.obj \
+		  .\TraceLevels.obj \
+		  .\TransientTopicI.obj \
+		  .\TransientTopicManagerI.obj \
+		  .\Util.obj \
+		  .\V31FormatDB.obj \
+		  .\V32FormatDB.obj \
                   $(SLICE_OBJS)
 
-AOBJS		= Admin.obj \
-		  Grammar.obj \
-		  Parser.obj \
-		  Scanner.obj \
+AOBJS		= .\Admin.obj \
+		  .\Grammar.obj \
+		  .\Parser.obj \
+		  .\Scanner.obj \
                   $(SLICE_OBJS)
 
-MOBJS		= LLUMap.obj \
-                  Migrate.obj \
-                  SubscriberMap.obj \
-                  V31FormatDB.obj \
-		  V32FormatDB.obj \
+MOBJS		= .\LLUMap.obj \
+                  .\Migrate.obj \
+                  .\SubscriberMap.obj \
+                  .\V31FormatDB.obj \
+		  .\V32FormatDB.obj \
                   $(SLICE_OBJS)
 
-SRCS		= $(OBJS:.obj=.cpp) \
-		  $(AOBJS:.obj=.cpp) \
-		  $(MOBJS:.obj=.cpp)
+OBJS		= $(LIB_OBJS) \
+		  $(AOBJS) \
+		  $(MOBJS)
 
 HDIR		= $(headerdir)\IceStorm
 SDIR		= $(slicedir)\IceStorm
@@ -87,8 +87,8 @@ MRES_FILE       = IceStormMigrate.res
 
 $(LIBNAME): $(DLLNAME)
 
-$(DLLNAME): $(OBJS) $(RES_FILE)
-	$(LINK) $(BASE):0x2C000000 $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) $(RES_FILE)
+$(DLLNAME): $(LIB_OBJS) $(RES_FILE)
+	$(LINK) $(BASE):0x2C000000 $(LD_DLLFLAGS) $(PDBFLAGS) $(LIB_OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) $(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
@@ -174,5 +174,3 @@ install:: all
         copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"
 
 !endif
-
-!include .depend.mak

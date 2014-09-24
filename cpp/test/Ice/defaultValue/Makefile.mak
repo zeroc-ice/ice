@@ -15,14 +15,13 @@ CLIENT		= client.exe
 
 TARGETS		= $(LIBNAME) $(DLLNAME) $(CLIENT) 
 
-LOBJS 		= Test.obj
+SLICE_OBJS	= .\Test.obj
 
-COBJS		= Client.obj \
-		  AllTests.obj
+COBJS		= .\Client.obj \
+		  .\AllTests.obj
 
-
-SRCS		= $(LOBJS:.obj=.cpp) \
-		   $(COBJS:.obj=.cpp)
+OBJS		= $(SLICE_OBJS) \
+		  $(COBJS)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -38,8 +37,8 @@ LINKWITH        = $(LIBS)
 
 $(LIBNAME): $(DLLNAME)
 
-$(DLLNAME): $(LOBJS)
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(LOBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
+$(DLLNAME): $(SLICE_OBJS)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(SLICE_OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
@@ -52,5 +51,3 @@ $(CLIENT): $(COBJS)
 
 clean::
 	del /q Test.cpp Test.h
-
-!include .depend.mak

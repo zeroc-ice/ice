@@ -12,12 +12,12 @@ top_srcdir	= ..\..
 !include $(top_srcdir)\config\Make.rules.mak
 
 SUBDIRS		= bench \
-                  backup \
-                  casino \
-                  customEvictor \
+		  backup \
+		  casino \
+		  customEvictor \
 		  library \
 		  phonebook \
-                  transform
+		  transform
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

@@ -12,24 +12,22 @@ top_srcdir	= ..\..
 ROUTER		= $(top_srcdir)\bin\glacier2router.exe
 TARGETS         = $(ROUTER)
 
-SLICE_OBJS      = Instrumentation.obj
+SLICE_OBJS      = .\Instrumentation.obj
 
-OBJS		= Blobject.obj \
-		  ClientBlobject.obj \
-		  FilterI.obj \
-		  FilterManager.obj \
-		  Glacier2Router.obj \
-		  Instance.obj \
-		  InstrumentationI.obj \
-		  ProxyVerifier.obj \
-		  RequestQueue.obj \
-		  RouterI.obj \
-		  RoutingTable.obj \
-		  ServerBlobject.obj \
-		  SessionRouterI.obj \
-                  $(SLICE_OBJS)
-
-SRCS		= $(OBJS:.obj=.cpp)
+OBJS		= .\Blobject.obj \
+		  .\ClientBlobject.obj \
+		  .\FilterI.obj \
+		  .\FilterManager.obj \
+		  .\Glacier2Router.obj \
+		  .\Instance.obj \
+		  .\InstrumentationI.obj \
+		  .\ProxyVerifier.obj \
+		  .\RequestQueue.obj \
+		  .\RouterI.obj \
+		  .\RoutingTable.obj \
+		  .\ServerBlobject.obj \
+		  .\SessionRouterI.obj \
+		  $(SLICE_OBJS)
 
 !include $(top_srcdir)\config\Make.rules.mak
 
@@ -64,5 +62,3 @@ install:: all
 	copy $(ROUTER:.exe=.pdb) "$(install_bindir)"
 
 !endif
-
-!include .depend.mak

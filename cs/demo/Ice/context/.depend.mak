@@ -1,1 +1,3 @@
-generated/Context.cs: ./Context.ice "$(SLICE2CS)" "$(SLICEPARSERLIB)"
+
+Context.cs: \
+    .\Context.ice

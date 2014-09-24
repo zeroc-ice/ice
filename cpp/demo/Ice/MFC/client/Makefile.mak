@@ -13,12 +13,12 @@ CLIENT		= client.exe
 
 TARGETS		= $(CLIENT)
 
-OBJS		= Hello.obj \
-		  HelloClient.obj \
-		  HelloClientDlg.obj \
-		  stdafx.obj
-		
-SRCS		= $(OBJS:.obj=.cpp)
+SLICE_OBJS	= .\Hello.obj
+
+OBJS		= $(SLICE_OBJS) \
+		  .\HelloClient.obj \
+		  .\HelloClientDlg.obj \
+		  .\stdafx.obj
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -37,5 +37,3 @@ $(CLIENT): $(OBJS) $(COBJS) HelloClient.res
 clean::
 	del /q Hello.cpp Hello.h
 	del /q HelloClient.res
-
-!include .depend.mak

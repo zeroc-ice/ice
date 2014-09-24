@@ -233,11 +233,12 @@ EVERYTHING		= all depend clean install
 .SUFFIXES:
 .SUFFIXES:		.cs .ice
 
-%.cs: %.ice
-	$(SLICE2CS) $(SLICE2CSFLAGS) $<
+include $(wildcard .depend/*.d)
 
 $(GDIR)/%.cs: $(SDIR)/%.ice
 	$(SLICE2CS) --output-dir $(GDIR) $(SLICE2CSFLAGS) $<
+	@mkdir -p .depend
+	@$(SLICE2CS) --output-dir $(GDIR) $(SLICE2CSFLAGS) --depend $< > .depend/$(*F).ice.d
 
 all:: $(TARGETS)
 
@@ -250,24 +251,6 @@ endif
 ifneq ($(TARGETS_CONFIG),)
 all:: $(TARGETS_CONFIG)
 endif
-
-depend:: $(SLICE_SRCS) $(SLICE_C_SRCS) $(SLICE_S_SRCS) $(SLICE_AMD_SRCS) $(SLICE_SAMD_SRCS)
-	-rm -f .depend .depend.mak
-	if test -n "$(SLICE_SRCS)" ; then \
-	    $(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_SRCS) | $(ice_dir)/config/makedepend.py; \
-	fi
-	if test -n "$(SLICE_C_SRCS)" ; then \
-	    $(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_C_SRCS) | $(ice_dir)/config/makedepend.py; \
-	fi
-	if test -n "$(SLICE_S_SRCS)" ; then \
-	    $(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_S_SRCS) | $(ice_dir)/config/makedepend.py; \
-	fi
-	if test -n "$(SLICE_AMD_SRCS)" ; then \
-	    $(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_AMD_SRCS) | $(ice_dir)/config/makedepend.py; \
-	fi
-	if test -n "$(SLICE_SAMD_SRCS)" ; then \
-	    $(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_SAMD_SRCS) | $(ice_dir)/config/makedepend.py; \
-	fi
 
 clean::
 	-rm -f $(TARGETS) $(patsubst %,%.mdb,$(TARGETS)) *.bak *.dll *.pdb *.mdb

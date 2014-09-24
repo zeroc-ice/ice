@@ -16,9 +16,6 @@ TARGETS		= $(WQ) $(MATCH)
 
 OBJS		= WorkQueue.o \
 		  Match.o
-
-SRCS		= $(OBJS:.o=.cpp)
-
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
@@ -30,5 +27,3 @@ $(WQ): WorkQueue.o
 $(MATCH): Match.o
 	rm -f $@
 	$(call mktest,$@,Match.o,$(BASELIBS))
-
-include .depend

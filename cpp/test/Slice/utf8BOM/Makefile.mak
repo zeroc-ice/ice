@@ -11,9 +11,7 @@ top_srcdir	= ..\..\..
 
 TARGETS		= $(OBJS)
 
-OBJS		= Test.obj
-
-SRCS		= $(OBJS:.obj=.cpp)
+OBJS		= .\Test.obj
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -22,5 +20,3 @@ CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
 clean::
 	del /q Test.cpp Test.h
-
-!include .depend.mak

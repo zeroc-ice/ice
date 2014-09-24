@@ -9,7 +9,7 @@
 
 top_srcdir	= ..\..\..
 
-TARGETS = Latency.js
+GEN_SRCS = Latency.js
 
 !include $(top_srcdir)\config\Make.rules.mak.js
 

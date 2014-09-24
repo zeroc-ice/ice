@@ -22,17 +22,19 @@ SERVER		= $(NAME_PREFIX)server
 
 TARGETS		= $(CLIENT)$(EXT) $(SERVER)$(EXT)
 
-COBJS		= Test.obj \
-		  TestI.obj \
-		  Client.obj \
-		  AllTests.obj
+SLICE_OBJS	= .\Test.obj
 
-SOBJS		= Test.obj \
-		  TestI.obj \
-		  Server.obj
+COBJS		= $(SLICE_OBJS) \
+		  .\TestI.obj \
+		  .\Client.obj \
+		  .\AllTests.obj
 
-SRCS		= $(COBJS:.obj=.cpp) \
-		  $(SOBJS:.obj=.cpp)
+SOBJS		= $(SLICE_OBJS) \
+		  .\TestI.obj \
+		  .\Server.obj
+
+OBJS		= $(COBJS) \
+		  $(SOBJS)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -49,17 +51,15 @@ CPDBFLAGS        = /pdb:$(CLIENT).pdb
 SPDBFLAGS        = /pdb:$(SERVER).pdb
 !endif
 
-$(CLIENT)$(EXT): $(COBJS) $(OBJS)
-	$(LINK) $(LD_TESTFLAGS) $(CPDBFLAGS) $(COBJS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(CLIENT)$(EXT): $(COBJS)
+	$(LINK) $(LD_TESTFLAGS) $(CPDBFLAGS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(SERVER)$(EXT): $(SOBJS) $(OBJS)
-	$(LINK) $(LD_TESTFLAGS) $(SPDBFLAGS) $(SOBJS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(SERVER)$(EXT): $(SOBJS)
+	$(LINK) $(LD_TESTFLAGS) $(SPDBFLAGS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 clean::
 	del /q Test.cpp Test.h
-
-!include .depend.mak

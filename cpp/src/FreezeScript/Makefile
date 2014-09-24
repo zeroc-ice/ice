@@ -33,7 +33,7 @@ TRANSFORM_OBJS = TransformAnalyzer.o \
 DUMP_OBJS	= DumpDescriptors.o \
 		  DumpDB.o
 
-SRCS		= $(COMMON_OBJS:.o=.cpp) $(TRANSFORM_OBJS:.o=.cpp) $(DUMP_OBJS:.o=.cpp)
+objs		= $(COMMON_OBJS) $(TRANSFORM_OBJS) $(DUMP_OBJS)
 
 HDIR		= $(headerdir)/FreezeScript
 
@@ -61,5 +61,3 @@ install:: all
 	$(call installdata,$(top_srcdir)/../man/man1/transformdb.1,$(DESTDIR)$(install_mandir))
 	$(call installprogram,$(DUMPDB),$(DESTDIR)$(install_bindir))
 	$(call installdata,$(top_srcdir)/../man/man1/dumpdb.1,$(DESTDIR)$(install_mandir))
-
-include .depend

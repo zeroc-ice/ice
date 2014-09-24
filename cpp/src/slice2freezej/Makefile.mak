@@ -13,9 +13,7 @@ NAME		= $(top_srcdir)\bin\slice2freezej.exe
 
 TARGETS		= $(NAME)
 
-OBJS		= Main.obj
-
-SRCS		= $(OBJS:.obj=.cpp)
+OBJS		= .\Main.obj
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -46,5 +44,3 @@ install:: all
 	copy $(NAME:.exe=.pdb) "$(install_bindir)"
 
 !endif
-
-!include .depend.mak

@@ -15,6 +15,8 @@ SERVERAMD	= $(call mktestname,serveramd)
 
 TARGETS		= $(CLIENT) $(SERVER) $(SERVERAMD)
 
+SLICE_SRCS	= Test.o TestAMD.o ClientPrivate.o ServerPrivate.o ServerPrivateAMD.o Forward.o
+
 COBJS		= Test.o \
 		  ClientPrivate.o \
 		  Client.o \
@@ -33,11 +35,9 @@ SAMDOBJS	= TestAMD.o \
 		  ServerAMD.o \
 		  Forward.o
 
-SRCS		= $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp) \
-		  $(SAMDOBJS:.o=.cpp)
-
-SLICE_SRCS	= Test.ice TestAMD.ice ClientPrivate.ice ServerPrivate.ice ServerPrivateAMD.ice Forward.ice
+OBJS		= $(COBJS) \
+		  $(SOBJS) \
+		  $(SAMDOBJS)
 
 #
 # the long allTests function crashes when built with Sun CC 5.9 on x86 with -O,
@@ -62,5 +62,3 @@ $(SERVER): $(SOBJS)
 $(SERVERAMD): $(SAMDOBJS)
 	rm -f $@
 	$(call mktest,$@,$(SAMDOBJS),$(LIBS))
-
-include .depend

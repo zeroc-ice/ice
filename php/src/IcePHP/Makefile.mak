@@ -14,18 +14,16 @@ DLLNAME         = $(libdir)\php_ice$(LIBSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
-OBJS		= Communicator.obj \
-		  Connection.obj \
-		  Endpoint.obj \
-		  Init.obj \
-		  Logger.obj \
-		  Operation.obj \
-		  Properties.obj \
-		  Proxy.obj \
-		  Types.obj \
-		  Util.obj
-
-SRCS		= $(OBJS:.obj=.cpp)
+OBJS		= .\Communicator.obj \
+		  .\Connection.obj \
+		  .\Endpoint.obj \
+		  .\Init.obj \
+		  .\Logger.obj \
+		  .\Operation.obj \
+		  .\Properties.obj \
+		  .\Proxy.obj \
+		  .\Types.obj \
+		  .\Util.obj
 
 !include $(top_srcdir)\config\Make.rules.mak.php
 
@@ -49,5 +47,3 @@ clean::
 
 install:: all
 	copy $(DLLNAME) "$(install_libdir)"
-
-!include .depend.mak

@@ -1,1 +1,3 @@
-generated/Test.cs: ./Test.ice "$(SLICE2CS)" "$(SLICEPARSERLIB)"
+
+Test.cs: \
+    .\Test.ice

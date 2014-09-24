@@ -126,47 +126,50 @@ LOCAL_OBJS	= $(ARCH)\$(CONFIG)\StreamAcceptor.obj \
 		  $(ARCH)\$(CONFIG)\EndpointInfo.obj \
 		  $(ARCH)\$(CONFIG)\ConnectionInfo.obj \
 
-SLICE_CORE_SRCS	= $(slicedir)\Ice\BuiltinSequences.ice \
-		  $(slicedir)\Ice\CommunicatorF.ice \
-		  $(slicedir)\Ice\Communicator.ice \
-		  $(slicedir)\Ice\ConnectionF.ice \
-		  $(slicedir)\Ice\Connection.ice \
-		  $(slicedir)\Ice\Current.ice \
-		  $(slicedir)\Ice\Endpoint.ice \
-		  $(slicedir)\Ice\EndpointF.ice \
-		  $(slicedir)\Ice\EndpointTypes.ice \
-		  $(slicedir)\Ice\FacetMap.ice \
-		  $(slicedir)\Ice\Identity.ice \
-		  $(slicedir)\Ice\ImplicitContextF.ice \
-		  $(slicedir)\Ice\ImplicitContext.ice \
-		  $(slicedir)\Ice\LocalException.ice \
-		  $(slicedir)\Ice\LocatorF.ice \
-		  $(slicedir)\Ice\Locator.ice \
-		  $(slicedir)\Ice\LoggerF.ice \
-		  $(slicedir)\Ice\Logger.ice \
-		  $(slicedir)\Ice\ObjectAdapterF.ice \
-		  $(slicedir)\Ice\ObjectAdapter.ice \
-		  $(slicedir)\Ice\ObjectFactoryF.ice \
-		  $(slicedir)\Ice\ObjectFactory.ice \
-		  $(slicedir)\Ice\PluginF.ice \
-		  $(slicedir)\Ice\Plugin.ice \
-		  $(slicedir)\Ice\ProcessF.ice \
-		  $(slicedir)\Ice\Process.ice \
-		  $(slicedir)\Ice\PropertiesF.ice \
-		  $(slicedir)\Ice\Properties.ice \
-		  $(slicedir)\Ice\PropertiesAdmin.ice \
-		  $(slicedir)\Ice\RemoteLogger.ice \
-		  $(slicedir)\Ice\Router.ice \
-		  $(slicedir)\Ice\RouterF.ice \
-		  $(slicedir)\Ice\ServantLocatorF.ice \
-		  $(slicedir)\Ice\ServantLocator.ice \
-		  $(slicedir)\Ice\SliceChecksumDict.ice \
-		  $(slicedir)\Ice\Version.ice \
-		  $(slicedir)\Ice\Metrics.ice \
-		  $(slicedir)\Ice\Instrumentation.ice
+SLICE_CORE_SRCS	= Ice\BuiltinSequences.ice \
+		  Ice\CommunicatorF.ice \
+		  Ice\Communicator.ice \
+		  Ice\ConnectionF.ice \
+		  Ice\Connection.ice \
+		  Ice\Current.ice \
+		  Ice\Endpoint.ice \
+		  Ice\EndpointF.ice \
+		  Ice\EndpointTypes.ice \
+		  Ice\FacetMap.ice \
+		  Ice\Identity.ice \
+		  Ice\ImplicitContextF.ice \
+		  Ice\ImplicitContext.ice \
+		  Ice\LocalException.ice \
+		  Ice\LocatorF.ice \
+		  Ice\Locator.ice \
+		  Ice\LoggerF.ice \
+		  Ice\Logger.ice \
+		  Ice\ObjectAdapterF.ice \
+		  Ice\ObjectAdapter.ice \
+		  Ice\ObjectFactoryF.ice \
+		  Ice\ObjectFactory.ice \
+		  Ice\PluginF.ice \
+		  Ice\Plugin.ice \
+		  Ice\ProcessF.ice \
+		  Ice\Process.ice \
+		  Ice\PropertiesF.ice \
+		  Ice\Properties.ice \
+		  Ice\PropertiesAdmin.ice \
+		  Ice\RemoteLogger.ice \
+		  Ice\Router.ice \
+		  Ice\RouterF.ice \
+		  Ice\ServantLocatorF.ice \
+		  Ice\ServantLocator.ice \
+		  Ice\SliceChecksumDict.ice \
+		  Ice\Version.ice \
+		  Ice\Metrics.ice \
+		  Ice\Instrumentation.ice
 
-SLICE_SSL_SRCS	= $(slicedir)\IceSSL\EndpointInfo.ice \
-		  $(slicedir)\IceSSL\ConnectionInfo.ice
+
+
+SLICE_SSL_SRCS	= IceSSL\EndpointInfo.ice \
+		  IceSSL\ConnectionInfo.ice
+
 
 SRCS		= $(OBJS:.obj=.cpp)
 SRCS		= $(SRCS:x86\=)
@@ -208,6 +211,10 @@ SSL_SLICE2CPPFLAGS 	= --ice --include-dir IceSSL --dll-export ICE_SSL_API $(SLIC
 
 !include $(top_srcdir)\config\Make.rules.mak
 
+depend:: $(SLICE_CORE_SRCS:.ice=.d)
+
+depend:: $(SLICE_SSL_SRCS:.ice=.d)
+
 $(LIBNAME): $(LOCAL_OBJS) $(OBJS) sdks
 	$(AR) $(ARFLAGS) $(OBJS) $(LOCAL_OBJS) /out:$(LIBNAME)
 
@@ -215,32 +222,38 @@ Service.obj: $(SOURCE_DIR)\EventLoggerMsg.h
 
 Ice.res: $(SOURCE_DIR)\EventLoggerMsg.rc
 
+.cpp.d:
+	@if not exist "$(ARCH)\$(CONFIG)" mkdir $(ARCH)\$(CONFIG)
+	@echo Generating dependencies for $<
+	$(CXX) /E /Fo$(ARCH)\$(CONFIG)\ $(CPPFLAGS) $(CXXFLAGS) /showIncludes $< 1>$(*F).i 2>$(*F).d && \
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend.vbs $(*F).cpp $(top_srcdir)
+	@del /q $(*F).d $(*F).i
+
 .cpp{$(ARCH)\$(CONFIG)\}.obj::
 	@if not exist "$(ARCH)\$(CONFIG)" mkdir $(ARCH)\$(CONFIG)
 	$(CXX) /c /Fo$(ARCH)\$(CONFIG)\ $(CPPFLAGS) $(CXXFLAGS) $<
 
+{$(slicedir)\Ice\}.ice{Ice\}.d:
+	@echo Generating dependencies for $<
+	@"$(SLICE2CPP)" $(CORE_SLICE2CPPFLAGS) --depend $< | \
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice "..\"
+
 {$(slicedir)\Ice}.ice.cpp:
-	@echo c
 	del /q $(headerdir)\Ice\$(*F).h $(*F).cpp
 	"$(SLICE2CPP)" $(CORE_SLICE2CPPFLAGS) $<
 	move $(*F).h $(headerdir)\Ice
 	move $(*F).cpp ..
 
+{$(slicedir)\IceSSL\}.ice{IceSSL\}.d:
+	@echo Generating dependencies for $<
+	@"$(SLICE2CPP)" $(CORE_SLICE2CPPFLAGS) --depend $< | \
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice
+
 {$(slicedir)\IceSSL}.ice.cpp:
-	@echo d
 	del /q $(headerdir)\IceSSL\$(*F).h $(*F).cpp
 	"$(SLICE2CPP)" $(SSL_SLICE2CPPFLAGS) $<
 	move $(*F).h $(headerdir)\IceSSL
 
-depend::
-	del /q .depend.mak
-
-.cpp.depend:
-	$(CXX) /Fo$(ARCH)\$(CONFIG)\ /Fd$(ARCH)\$(CONFIG)\ /Zs /showIncludes $(CXXFLAGS) $(CPPFLAGS) $< 2>&1 | python.exe $(ice_dir)/config/makedepend-winrt.py $<
-
-depend:: $(ARCH)\$(CONFIG) $(SLICE_CORE_SRCS) $(SLICE_SSL_SRCS) $(SRCS) $(SRCS_DEPEND)
-	$(SLICE2CPP) --depend $(CORE_SLICE2CPPFLAGS) $(SLICE_CORE_SRCS) | python.exe $(ice_dir)\config\makedepend-winrt.py "$$(headerdir)\Ice"
-	$(SLICE2CPP) --depend $(SSL_SLICE2CPPFLAGS) $(SLICE_SSL_SRCS) | python.exe $(ice_dir)\config\makedepend-winrt.py "$$(headerdir)\IceSSL" "." 
 
 # These files are not automatically generated because VC2008 Express doesn't have mc.exe
 #EventLoggerMsg.h EventLoggerMsg.rc: EventLoggerMsg.mc
@@ -290,5 +303,3 @@ clean::
 	-del /q $(PDBNAME)
 
 install:: all
-
-!include .depend.mak

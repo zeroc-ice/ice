@@ -1,1 +1,3 @@
-generated/Greet.cs: ./Greet.ice "$(SLICE2CS)" "$(SLICEPARSERLIB)"
+
+Greet.cs: \
+    .\Greet.ice

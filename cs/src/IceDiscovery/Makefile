@@ -19,6 +19,7 @@ SRCS		= LocatorI.cs \
 		  PluginI.cs
 
 SLICE_SRCS	= $(SDIR)/IceDiscovery.ice
+
 SDIR		= $(slicedir)/IceDiscovery
 GDIR		= generated
 
@@ -33,9 +34,6 @@ SLICE2CSFLAGS   := $(SLICE2CSFLAGS) --ice -I$(slicedir)
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) $(call ref,Ice) $(subst /,$(DSEP),$^)
 
-$(GDIR)/IceDiscovery.cs: $(slicedir)/IceDiscovery/IceDiscovery.ice
-	$(SLICE2CS) --output-dir $(GDIR) $(SLICE2CSFLAGS) $<
-
 install:: all
 	(cd $(assembliesdir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installpolicy,$(POLICY)); \
 	 $(call installmdb,$(LIBNAME).mdb); \
@@ -48,5 +46,3 @@ endif
 
 clean::
 	-rm -f $(assembliesdir)/$(PKG).xml
-
-include .depend

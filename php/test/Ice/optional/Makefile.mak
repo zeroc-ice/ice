@@ -9,17 +9,7 @@
 
 top_srcdir	= ..\..\..
 
+SLICE_SRCS		= ClientPrivate.ice Test.ice
+SLICE2PHPFLAGS  = -I.
+
 !include $(top_srcdir)\config\Make.rules.mak.php
-
-SRCS		= ClientPrivate.php Test.php
-SLICE2PHPFLAGS  = -I. $(SLICE2PHPFLAGS)
-
-all:: $(SRCS)
-
-$(SRCS): $*.ice
-	-"$(SLICE2PHP)" $(SLICE2PHPFLAGS) $*.ice
-
-clean::
-	del /q $(SRCS)
-
-include .depend.mak

@@ -53,5 +53,3 @@ servertie.exe: $(STIE_SRCS) $(GEN_SRCS)
 
 serveramdtie.exe: $(SAMD_TIE_SRCS) $(GEN_AMD_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
-
-include .depend

@@ -37,5 +37,3 @@ LoggerPlugin.dll: $(L_SRCS)
 
 HelloPlugin.dll: $(H_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -target:library -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
-
-include .depend

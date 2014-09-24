@@ -39,5 +39,3 @@ $(CLIENT): $(OBJS) $(COBJS)
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(call mktest,$@,$(OBJS) $(SOBJS), $(LIBS))
-
-include .depend

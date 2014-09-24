@@ -16,8 +16,8 @@ LIBNAME		= $(call mklibname,IceSSL)
 
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
-SLICE_OBJS      = ConnectionInfo.o \
-                  EndpointInfo.o
+SLICE_OBJS	= ConnectionInfo.o \
+		  EndpointInfo.o
 
 OBJS		= AcceptorI.o \
 		  Certificate.o \
@@ -28,18 +28,12 @@ OBJS		= AcceptorI.o \
 		  OpenSSLTransceiverI.o \
 		  PluginI.o \
 		  RFC2253.o \
-		  SChannelEngine.o \
-		  SChannelTransceiverI.o \
 		  SecureTransportEngine.o \
 		  SecureTransportTransceiverI.o \
 		  SSLEngine.o \
 		  TrustManager.o \
 		  Util.o \
-                  $(SLICE_OBJS)
-
-SRCS		= $(OBJS:.o=.cpp)
-
-SLICE_SRCS	= $(addprefix $(SDIR)/, $(SLICE_OBJS:.o=.ice))
+		  $(SLICE_OBJS)
 
 HDIR		= $(headerdir)/IceSSL
 SDIR  		= $(slicedir)/IceSSL
@@ -71,5 +65,3 @@ endif
 
 install:: all
 	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
-
-include .depend

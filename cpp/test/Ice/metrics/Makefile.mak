@@ -24,26 +24,28 @@ COLLOCATED	= $(NAME_PREFIX)collocated
 
 TARGETS		= $(CLIENT)$(EXT) $(SERVER)$(EXT) $(SERVERAMD)$(EXT) $(COLLOCATED)$(EXT)
 
-COBJS		= Test.obj \
-		  Client.obj \
-		  AllTests.obj
+SLICE_OBJS	= .\Test.obj .\TestAMD.obj
 
-SOBJS		= Test.obj \
-		  TestI.obj \
-		  Server.obj
+COBJS		= .\Test.obj \
+		  .\Client.obj \
+		  .\AllTests.obj
 
-SAMDOBJS	= TestAMD.obj \
-		  TestAMDI.obj \
-		  ServerAMD.obj
+SOBJS		= .\Test.obj \
+		  .\TestI.obj \
+		  .\Server.obj
 
-COLOBJS		= Test.obj \
-		  TestI.obj \
-		  AllTests.obj \
-		  Collocated.obj
+SAMDOBJS	= .\TestAMD.obj \
+		  .\TestAMDI.obj \
+		  .\ServerAMD.obj
 
-SRCS		= $(COBJS:.obj=.cpp) \
-		  $(SOBJS:.obj=.cpp) \
-		  $(SAMDOBJS:.obj=.cpp)
+COLOBJS		= .\Test.obj \
+		  .\TestI.obj \
+		  .\AllTests.obj \
+		  .\Collocated.obj
+
+OBJS		= $(COBJS) \
+		  $(SOBJS) \
+		  $(SAMDOBJS)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -84,5 +86,3 @@ $(COLLOCATED)$(EXT): $(COLOBJS)
 clean::
 	del /q Test.cpp Test.h
 	del /q TestAMD.cpp TestAMD.h
-
-!include .depend.mak
