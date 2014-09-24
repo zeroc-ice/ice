@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import Ice, Test, math, threading
+import Ice, Test, threading
 
 def test(b):
     if not b:
@@ -33,86 +33,53 @@ class CallbackBase:
         self._cond.notify()
         self._cond.release()
 
-class AMI_MyClass_opVoidI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self):
+class Callback(CallbackBase):
+    def sent(self, sentSynchronously):
         self.called()
 
-    def ice_exception(self, ex):
+    def noException(self, ex):
         test(False)
 
-class AMI_MyClass_opIdempotentI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
+def onewaysAMI(communicator, proxy):
 
-    def ice_response(self):
-        self.called()
+    p = Test.MyClassPrx.uncheckedCast(proxy.ice_oneway())
 
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyClass_opNonmutatingI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self):
-        self.called()
-
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyClass_opVoidExI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self):
-        test(False)
-
-    def ice_exception(self, ex):
-        test(isinstance(ex, Ice.NoEndpointException))
-        self.called()
-
-class AMI_MyClass_opByteExI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self, r, b):
-        test(False)
-
-    def ice_exception(self, ex):
-        test(isinstance(ex, Ice.TwowayOnlyException))
-        self.called()
-
-def onewaysAMI(communicator, p):
-
-    p = Test.MyClassPrx.uncheckedCast(p.ice_oneway())
-
-    cb = AMI_MyClass_opVoidI()
-    p.opVoid_async(cb)
-    # Let's check if we can reuse the same callback object for another call.
-    p.opVoid_async(cb)
-
-    cb = AMI_MyClass_opIdempotentI()
-    p.opIdempotent_async(cb)
-
-    cb = AMI_MyClass_opNonmutatingI()
-    p.opNonmutating_async(cb)
-
-    # Check that a call to a void operation raises NoEndpointException
-    # in the ice_exception() callback instead of at the point of call.
-    indirect = Test.MyClassPrx.uncheckedCast(p.ice_adapterId("dummy"))
-    cb = AMI_MyClass_opVoidExI()
-    try:
-        indirect.opVoid_async(cb)
-    except Ice.Exception:
-        test(False)
+    cb = Callback()
+    p.begin_ice_ping(None, cb.noException, cb.sent)
     cb.check()
 
-    cb = AMI_MyClass_opByteExI()
     try:
-        p.opByte_async(cb, 0, 0)
-    except Ice.Exception:
+        p.begin_ice_isA(Test.MyClass.ice_staticId())
         test(False)
+    except RuntimeError:
+        pass
+
+    try:
+        p.begin_ice_id()
+        test(False)
+    except RuntimeError:
+        pass
+
+    try:
+        p.begin_ice_ids()
+        test(False)
+    except RuntimeError:
+        pass
+
+    cb = Callback()
+    p.begin_opVoid(None, cb.noException, cb.sent)
     cb.check()
+
+    cb = Callback()
+    p.begin_opIdempotent(None, cb.noException, cb.sent)
+    cb.check()
+
+    cb = Callback()
+    p.begin_opNonmutating(None, cb.noException, cb.sent)
+    cb.check()
+
+    try:
+        p.begin_opByte(0xff, 0x0f)
+        test(False)
+    except RuntimeError:
+        pass

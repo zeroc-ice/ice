@@ -48,7 +48,7 @@ module Mod
     };
 };
 
-["ami"] interface Thrower
+interface Thrower
 {
     void shutdown();
     bool supportsUndeclaredExceptions();
@@ -78,7 +78,7 @@ module Mod
     void throwAfterException() throws A;
 };
 
-["ami"] interface WrongOperation
+interface WrongOperation
 {
     void noSuchOperation();
 };

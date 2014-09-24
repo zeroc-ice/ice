@@ -63,22 +63,6 @@ class smwpTest11Class extends M::smwpBaseClass implements M::smwpBaseInterface
                   out M::smwpClass o6)
         throws M::smwpException;
 
-    ["ami"]
-    M::smwpStruct
-    smwpTest11Op2(M::smwpEnum i1,
-                  M::smwpStruct i2,
-                  M::smwpStructSeq i3,
-                  M::smwpStringStructDict i4,
-                  M::smwpInterface i5,
-                  M::smwpClass i6,
-                  out M::smwpEnum o1,
-                  out M::smwpStruct o2,
-                  out M::smwpStructSeq o3,
-                  out M::smwpStringStructDict o4,
-                  out M::smwpInterface o5,
-                  out M::smwpClass o6)
-        throws M::smwpException;
-
     ["amd"]
     M::smwpStruct
     smwpTest11Op3(M::smwpEnum i1,

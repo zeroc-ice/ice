@@ -65,7 +65,7 @@ interface Relay
     void unknownPreservedAsKnownPreserved() throws KnownPreserved;
 };
 
-["ami", "format:sliced"]
+["format:sliced"]
 interface TestIntf
 {
     void baseAsBase() throws Base;

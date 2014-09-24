@@ -33,11 +33,6 @@ public class AllTests
             out.flush();
             TwowaysAMI.twowaysAMI(cl);
             out.println("ok");
-
-            out.print("testing twoway operations with new AMI mapping... ");
-            out.flush();
-            TwowaysAMI.twowaysAMI(cl);
-            out.println("ok");
         }
 
         return cl;

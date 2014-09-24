@@ -63,22 +63,6 @@ class smwpTest13Class extends smwpBaseClass implements smwpBaseInterface
                   out smwpClass o6)
         throws smwpException;
 
-    ["ami"]
-    smwpStruct
-    smwpTest13Op2(smwpEnum i1,
-                  smwpStruct i2,
-                  smwpStructSeq i3,
-                  smwpStringStructDict i4,
-                  smwpInterface i5,
-                  smwpClass i6,
-                  out smwpEnum o1,
-                  out smwpStruct o2,
-                  out smwpStructSeq o3,
-                  out smwpStringStructDict o4,
-                  out smwpInterface o5,
-                  out smwpClass o6)
-        throws smwpException;
-
     ["amd"]
     smwpStruct
     smwpTest13Op3(smwpEnum i1,

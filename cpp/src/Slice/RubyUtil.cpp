@@ -540,27 +540,6 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << "], _ctx)";
             _out.dec();
             _out << nl << "end";
-
-/* If AMI/AMD is ever implemented...
-            if(p->hasMetaData("ami") || (*oli)->hasMetaData("ami"))
-            {
-                _out << sp << nl << "def " << fixedOpName << "_async(_cb";
-                if(!inParams.empty())
-                {
-                    _out << ", " << inParams;
-                }
-                _out << ", _ctx=nil)";
-                _out.inc();
-                _out << nl << name << "_mixin::OP_" << (*oli)->name() << ".invokeAsync(self, _cb, [" << inParams;
-                if(!inParams.empty() && inParams.find(',') == string::npos)
-                {
-                    _out << ", ";
-                }
-                _out << "], _ctx)";
-                _out.dec();
-                _out << nl << "end";
-            }
-*/
         }
         _out.dec();
         _out << nl << "end"; // End of mix-in module for proxy.

@@ -10,14 +10,13 @@
 #include <Ice/Ice.h>
 #include <TestCommon.h>
 #include <Test.h>
-#include <limits>
 
 using namespace std;
 
 namespace
 {
 
-class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
+class CallbackBase : public Ice::LocalObject
 {
 public:
 
@@ -32,10 +31,10 @@ public:
 
     void check()
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_m);
         while(!_called)
         {
-            wait();
+            _m.wait();
         }
         _called = false;
     }
@@ -44,103 +43,39 @@ protected:
 
     void called()
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_m);
         assert(!_called);
         _called = true;
-        notify();
+        _m.notify();
     }
 
 private:
 
+    IceUtil::Monitor<IceUtil::Mutex> _m;
     bool _called;
 };
 
-class AMI_MyClass_onewayOpVoidI : public Test::AMI_MyClass_opVoid, public CallbackBase
+typedef IceUtil::Handle<CallbackBase> CallbackBasePtr;
+
+class Callback : public CallbackBase
 {
 public:
 
-    virtual void ice_response()
+    Callback()
+    {
+    }
+
+    void sent(bool)
     {
         called();
     }
 
-    virtual void ice_exception(const ::Ice::Exception&)
+    void noException(const Ice::Exception&)
     {
         test(false);
     }
 };
-
-typedef IceUtil::Handle<AMI_MyClass_onewayOpVoidI> AMI_MyClass_onewayOpVoidIPtr;
-
-class AMI_MyClass_onewayOpIdempotentI : public Test::AMI_MyClass_opIdempotent, public CallbackBase
-{
-public:
-
-    virtual void ice_response()
-    {
-        called();
-    }
-
-    virtual void ice_exception(const ::Ice::Exception&)
-    {
-        test(false);
-    }
-};
-
-typedef IceUtil::Handle<AMI_MyClass_onewayOpIdempotentI> AMI_MyClass_onewayOpIdempotentIPtr;
-
-class AMI_MyClass_onewayOpNonmutatingI : public Test::AMI_MyClass_opNonmutating, public CallbackBase
-{
-public:
-
-    virtual void ice_response()
-    {
-        called();
-    }
-
-    virtual void ice_exception(const ::Ice::Exception&)
-    {
-        test(false);
-    }
-};
-
-typedef IceUtil::Handle<AMI_MyClass_onewayOpNonmutatingI> AMI_MyClass_onewayOpNonmutatingIPtr;
-
-class AMI_MyClass_onewayOpVoidExI : public Test::AMI_MyClass_opVoid, public CallbackBase
-{
-public:
-
-    virtual void ice_response()
-    {
-        test(false);
-    }
-
-    virtual void ice_exception(const ::Ice::Exception& ex)
-    {
-        test(dynamic_cast<const ::Ice::NoEndpointException*>(&ex));
-        called();
-    }
-};
-
-typedef IceUtil::Handle<AMI_MyClass_onewayOpVoidExI> AMI_MyClass_onewayOpVoidExIPtr;
-
-class AMI_MyClass_onewayOpByteExI : public Test::AMI_MyClass_opByte, public CallbackBase
-{
-public:
-
-    virtual void ice_response(::Ice::Byte, ::Ice::Byte)
-    {
-        test(false);
-    }
-
-    virtual void ice_exception(const ::Ice::Exception& ex)
-    {
-        test(dynamic_cast<const ::Ice::TwowayOnlyException*>(&ex));
-        called();
-    }
-};
-
-typedef IceUtil::Handle<AMI_MyClass_onewayOpByteExI> AMI_MyClass_onewayOpByteExIPtr;
+typedef IceUtil::Handle<Callback> CallbackPtr;
 
 }
 
@@ -150,41 +85,155 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
     Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(proxy->ice_oneway());
 
     {
-        AMI_MyClass_onewayOpVoidIPtr cb = new AMI_MyClass_onewayOpVoidI();
-        p->opVoid_async(cb);
-        // Let's check if we can reuse the same callback object for another call.
-        p->opVoid_async(cb);
+        CallbackPtr cb = new Callback;
+        Ice::Callback_Object_ice_pingPtr callback =
+            Ice::newCallback_Object_ice_ping(cb, &Callback::noException, &Callback::sent);
+        p->begin_ice_ping(callback);
+        cb->check();
     }
 
     {
-        AMI_MyClass_onewayOpIdempotentIPtr cb = new AMI_MyClass_onewayOpIdempotentI();
-        p->opIdempotent_async(cb);
-    }
-
-    {
-        AMI_MyClass_onewayOpNonmutatingIPtr cb = new AMI_MyClass_onewayOpNonmutatingI();
-        p->opNonmutating_async(cb);
-    }
-
-    {
-        // Check that a call to a void operation raises NoEndpointException
-        // in the ice_exception() callback instead of at the point of call.
-        Test::MyClassPrx indirect = Test::MyClassPrx::uncheckedCast(p->ice_adapterId("dummy"));
-        AMI_MyClass_onewayOpVoidExIPtr cb = new AMI_MyClass_onewayOpVoidExI();
         try
         {
-            indirect->opVoid_async(cb);
-        }
-        catch(const Ice::Exception&)
-        {
+            p->begin_ice_isA(Test::MyClass::ice_staticId());
             test(false);
         }
+        catch(const IceUtil::IllegalArgumentException&)
+        {
+        }
+    }
+    
+    {
+        try
+        {
+            p->begin_ice_id();
+            test(false);
+        }
+        catch(const IceUtil::IllegalArgumentException&)
+        {
+        }
+    }
+    
+    {
+        try
+        {
+            p->begin_ice_ids();
+            test(false);
+        }
+        catch(const IceUtil::IllegalArgumentException&)
+        {
+        }
+    }
+
+    {
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opVoidPtr callback =
+            Test::newCallback_MyClass_opVoid(cb, &Callback::noException, &Callback::sent);
+        p->begin_opVoid(callback);
         cb->check();
     }
 
     {
-        AMI_MyClass_onewayOpByteExIPtr cb = new AMI_MyClass_onewayOpByteExI();
-        p->opByte_async(cb, 0, 0);
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opIdempotentPtr callback =
+            Test::newCallback_MyClass_opIdempotent(cb, &Callback::noException, &Callback::sent);
+        p->begin_opIdempotent(callback);
         cb->check();
     }
+
+    {
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opNonmutatingPtr callback =
+            Test::newCallback_MyClass_opNonmutating(cb, &Callback::noException, &Callback::sent);
+        p->begin_opNonmutating(callback);
+        cb->check();
+    }
+
+    {
+        try
+        {
+            p->begin_opByte(Ice::Byte(0xff), Ice::Byte(0x0f));
+            test(false);
+        }
+        catch(const IceUtil::IllegalArgumentException&)
+        {
+        }
+    }
+#ifdef ICE_CPP11
+    {
+        CallbackPtr cb = new Callback;
+        p->begin_ice_ping(nullptr, 
+                          [=](const Ice::Exception& ex){ cb->noException(ex); },
+                          [=](bool sent){ cb->sent(sent); });
+        cb->check();
+    }
+
+    {
+        try
+        {
+            p->begin_ice_isA(Test::MyClass::ice_staticId(), [=](bool){ test(false); });
+            test(false);
+        }
+        catch(const IceUtil::IllegalArgumentException&)
+        {
+        }
+    }
+    
+    {
+        try
+        {
+            p->begin_ice_id([=](const string&){ test(false); });
+            test(false);
+        }
+        catch(const IceUtil::IllegalArgumentException&)
+        {
+        }
+    }
+    
+    {
+        try
+        {
+            p->begin_ice_ids([=](const Ice::StringSeq&){ test(false); });
+            test(false);
+        }
+        catch(const IceUtil::IllegalArgumentException&)
+        {
+        }
+    }
+
+    {
+        CallbackPtr cb = new Callback;
+        p->begin_opVoid(nullptr, 
+                        [=](const Ice::Exception& ex){ cb->noException(ex); },
+                        [=](bool sent){ cb->sent(sent); });
+        cb->check();
+    }
+
+    {
+        CallbackPtr cb = new Callback;
+        p->begin_opIdempotent(nullptr, 
+                              [=](const Ice::Exception& ex){ cb->noException(ex); },
+                              [=](bool sent){ cb->sent(sent); });
+        cb->check();
+    }
+
+    {
+        CallbackPtr cb = new Callback;
+        p->begin_opNonmutating(nullptr, 
+                               [=](const Ice::Exception& ex){ cb->noException(ex); },
+                               [=](bool sent){ cb->sent(sent); });
+        cb->check();
+    }
+
+    {
+        try
+        {
+            p->begin_opByte(Ice::Byte(0xff), Ice::Byte(0x0f), [=](const Ice::Byte&, const Ice::Byte&){ test(false); });
+            test(false);
+        }
+        catch(const IceUtil::IllegalArgumentException&)
+        {
+        }
+    }
+#endif
 }

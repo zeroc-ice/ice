@@ -37,19 +37,9 @@ def allTests(communicator):
     TwowaysAMI.twowaysAMI(communicator, cl)
     print("ok")
     
-    sys.stdout.write("testing twoway operations with new AMI mapping... ")
-    sys.stdout.flush()
-    TwowaysNewAMI.twowaysNewAMI(communicator, cl)
-    print("ok")
-    
     sys.stdout.write("testing oneway operations with AMI... ")
     sys.stdout.flush()
     OnewaysAMI.onewaysAMI(communicator, cl)
-    print("ok")
-    
-    sys.stdout.write("testing oneway operations with new AMI mapping... ")
-    sys.stdout.flush()
-    OnewaysNewAMI.onewaysNewAMI(communicator, cl)
     print("ok")
     
     sys.stdout.write("testing batch oneway operations...  ")

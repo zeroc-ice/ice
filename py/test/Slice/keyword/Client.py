@@ -58,11 +58,10 @@ def testtypes():
     d = _and.execPrx.uncheckedCast(None)
     assert "_finally" in dir(_and.execPrx)
     d1 = execI()
-    e = _and.forPrx.uncheckedCast(None)
-    assert "foo_async" in dir(_and.forPrx)
+
     e1 = forI()
     f = _and.ifPrx.uncheckedCast(None)
-    assert "foo_async" in dir(_and.ifPrx)
+
     assert "_finally" in dir(_and.ifPrx)
     assert "_elif" in dir(_and.ifPrx)
     f1 = ifI()

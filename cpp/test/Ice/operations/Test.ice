@@ -75,7 +75,7 @@ dictionary<MyStruct, MyEnum> MyStructMyEnumD;
 
 exception SomeException {};
 
-["ami"] class MyClass
+class MyClass
 {
     void shutdown();
 
@@ -173,7 +173,7 @@ exception SomeException {};
     ["nonmutating"] idempotent void opNonmutating();
 };
 
-["ami"] class MyDerivedClass extends MyClass
+class MyDerivedClass extends MyClass
 {
     void opDerived();
 };

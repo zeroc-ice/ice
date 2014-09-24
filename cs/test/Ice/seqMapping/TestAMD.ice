@@ -147,7 +147,7 @@ sequence<En> AEnS;
 ["clr:serializable:Serialize.Large"] sequence<byte> SerialLarge;
 ["clr:serializable:Serialize.Struct"] sequence<byte> SerialStruct;
 
-["ami", "amd"] class MyClass
+["amd"] class MyClass
 {
     void shutdown();
 

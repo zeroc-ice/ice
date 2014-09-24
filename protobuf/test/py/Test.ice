@@ -16,7 +16,7 @@ module Test
 
 ["python:protobuf:Test_pb2.Message"] sequence<byte> Message;
 
-["ami"] class MyClass
+class MyClass
 {
     void shutdown();
 

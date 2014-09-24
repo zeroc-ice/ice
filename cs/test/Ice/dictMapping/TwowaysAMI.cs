@@ -23,9 +23,9 @@ public class TwowaysAMI
         }
     }
 
-    private class Callback
+    private class CallbackBase
     {
-        internal Callback()
+        internal CallbackBase()
         {
             _called = false;
         }
@@ -56,732 +56,314 @@ public class TwowaysAMI
         private bool _called;
     }
 
-    private class AMI_MyClass_opNVI : Test.AMI_MyClass_opNV
+    private class Callback
     {
-        public AMI_MyClass_opNVI(Dictionary<int, int> i)
+        public void opNVI(Ice.AsyncResult result)
         {
-            _i = i;
-        }
-
-        public override void ice_response(Dictionary<int, int> r, Dictionary<int, int> o)
-        {
-            test(Ice.CollectionComparer.Equals(_i, o));
-            test(Ice.CollectionComparer.Equals(_i, r));
+            Dictionary<int, int> i = (Dictionary<int, int>)result.AsyncState;
+            Dictionary<int, int> o;
+            Dictionary<int, int> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opNV(out o, result);
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void opNRI(Ice.AsyncResult result)
         {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Dictionary<int, int> _i;
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opNRI : Test.AMI_MyClass_opNR
-    {
-        public AMI_MyClass_opNRI(Dictionary<string, string> i)
-        {
-            _i = i;
-        }
-
-        public override void ice_response(Dictionary<string, string> r, Dictionary<string, string> o)
-        {
-            test(Ice.CollectionComparer.Equals(_i, o));
-            test(Ice.CollectionComparer.Equals(_i, r));
+            Dictionary<string, string> i = (Dictionary<string, string>)result.AsyncState;
+            Dictionary<string, string> o;
+            Dictionary<string, string> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opNR(out o, result);
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void opNDVI(Ice.AsyncResult result)
         {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Dictionary<string, string> _i;
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opNDVI : Test.AMI_MyClass_opNDV
-    {
-        public AMI_MyClass_opNDVI(Dictionary<string, Dictionary<int, int>> i)
-        {
-            _i = i;
-        }
-
-        public override void ice_response(Dictionary<string, Dictionary<int, int>> r,
-                                          Dictionary<string, Dictionary<int, int>> o)
-        {
-            foreach(string key in _i.Keys)
+            Dictionary<string, Dictionary<int, int>> i = (Dictionary<string, Dictionary<int, int>>)result.AsyncState;
+            Dictionary<string, Dictionary<int, int>> o;
+            Dictionary<string, Dictionary<int, int>> r = 
+                MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opNDV(out o, result);
+            foreach(string key in i.Keys)
             {
-                test(Ice.CollectionComparer.Equals(_i[key], o[key]));
-                test(Ice.CollectionComparer.Equals(_i[key], r[key]));
+                test(Ice.CollectionComparer.Equals(i[key], o[key]));
+                test(Ice.CollectionComparer.Equals(i[key], r[key]));
             }
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void opNDRI(Ice.AsyncResult result)
         {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Dictionary<string, Dictionary<int, int>> _i;
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opNDRI : Test.AMI_MyClass_opNDR
-    {
-        public AMI_MyClass_opNDRI(Dictionary<string, Dictionary<string, string>> i)
-        {
-            _i = i;
-        }
-
-        public override void ice_response(Dictionary<string, Dictionary<string, string>> r,
-                                          Dictionary<string, Dictionary<string, string>> o)
-        {
-            foreach(string key in _i.Keys)
+            Dictionary<string, Dictionary<string, string>> i = 
+                (Dictionary<string, Dictionary<string, string>>)result.AsyncState;
+            Dictionary<string, Dictionary<string, string>> o;
+            Dictionary<string, Dictionary<string, string>> r = 
+                MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opNDR(out o, result);
+            foreach(string key in i.Keys)
             {
-                test(Ice.CollectionComparer.Equals(_i[key], o[key]));
-                test(Ice.CollectionComparer.Equals(_i[key], r[key]));
+                test(Ice.CollectionComparer.Equals(i[key], o[key]));
+                test(Ice.CollectionComparer.Equals(i[key], r[key]));
             }
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void opOVI(Ice.AsyncResult result)
         {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Dictionary<string, Dictionary<string, string>> _i;
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opOVI : Test.AMI_MyClass_opOV
-    {
-        public AMI_MyClass_opOVI(OV i)
-        {
-            _i = i;
-        }
-
-        public override void ice_response(OV r, OV o)
-        {
-            test(Ice.CollectionComparer.Equals(_i, o));
-            test(Ice.CollectionComparer.Equals(_i, r));
+            OV i = (OV)result.AsyncState;
+            OV o;
+            OV r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opOV(out o, result);
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void opORI(Ice.AsyncResult result)
         {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private OV _i;
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opORI : Test.AMI_MyClass_opOR
-    {
-        public AMI_MyClass_opORI(OR i)
-        {
-            _i = i;
-        }
-
-        public override void ice_response(OR r, OR o)
-        {
-            test(Ice.CollectionComparer.Equals(_i, o));
-            test(Ice.CollectionComparer.Equals(_i, r));
+            OR i = (OR)result.AsyncState;
+            OR o;
+            OR r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opOR(out o, result);
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void opODVI(Ice.AsyncResult result)
         {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private OR _i;
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opODVI : Test.AMI_MyClass_opODV
-    {
-        public AMI_MyClass_opODVI(ODV i)
-        {
-            _i = i;
-        }
-
-        public override void ice_response(ODV r, ODV o)
-        {
-            test(Ice.CollectionComparer.Equals(_i, o));
-            test(Ice.CollectionComparer.Equals(_i, r));
+            ODV i = (ODV)result.AsyncState;
+            ODV o;
+            ODV r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opODV(out o, result);
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void opODRI(Ice.AsyncResult result)
         {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private ODV _i;
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opODRI : Test.AMI_MyClass_opODR
-    {
-        public AMI_MyClass_opODRI(ODR i)
-        {
-            _i = i;
-        }
-
-        public override void ice_response(ODR r, ODR o)
-        {
-            test(Ice.CollectionComparer.Equals(_i, o));
-            test(Ice.CollectionComparer.Equals(_i, r));
+            ODR i = (ODR)result.AsyncState;
+            ODR o;
+            ODR r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opODR(out o, result);
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void opNODVI(Ice.AsyncResult result)
         {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private ODR _i;
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opNODVI : Test.AMI_MyClass_opNODV
-    {
-        public AMI_MyClass_opNODVI(Dictionary<string, ODV> i)
-        {
-            _i = i;
-        }
-
-        public override void ice_response(Dictionary<string, ODV> r, Dictionary<string, ODV> o)
-        {
-            test(Ice.CollectionComparer.Equals(_i, o));
-            test(Ice.CollectionComparer.Equals(_i, r));
+            Dictionary<string, ODV> i = (Dictionary<string, ODV>)result.AsyncState;
+            Dictionary<string, ODV> o;
+            Dictionary<string, ODV> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opNODV(out o, result);
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void opNODRI(Ice.AsyncResult result)
         {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Dictionary<string, ODV> _i;
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opNODRI : Test.AMI_MyClass_opNODR
-    {
-        public AMI_MyClass_opNODRI(Dictionary<string, ODR> i)
-        {
-            _i = i;
-        }
-
-        public override void ice_response(Dictionary<string, ODR> r, Dictionary<string, ODR> o)
-        {
-            test(Ice.CollectionComparer.Equals(_i, o));
-            test(Ice.CollectionComparer.Equals(_i, r));
+            Dictionary<string, ODR> i = (Dictionary<string, ODR>)result.AsyncState;
+            Dictionary<string, ODR> o;
+            Dictionary<string, ODR> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opNODR(out o, result);
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void opONDVI(Ice.AsyncResult result)
         {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Dictionary<string, ODR> _i;
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opONDVI : Test.AMI_MyClass_opONDV
-    {
-        public AMI_MyClass_opONDVI(ONDV i)
-        {
-            _i = i;
-        }
-
-        public override void ice_response(ONDV r, ONDV o)
-        {
-            foreach(string key in _i.Keys)
+            ONDV i = (ONDV)result.AsyncState;
+            ONDV o;
+            ONDV r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opONDV(out o, result);
+            foreach(string key in i.Keys)
             {
-                foreach(string s in _i[key].Keys)
+                foreach(string s in i[key].Keys)
                 {
-                    test(Ice.CollectionComparer.Equals(_i[key][s], o[key][s]));
-                    test(Ice.CollectionComparer.Equals(_i[key][s], r[key][s]));
+                    test(Ice.CollectionComparer.Equals(i[key][s], o[key][s]));
+                    test(Ice.CollectionComparer.Equals(i[key][s], r[key][s]));
                 }
             }
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void opONDRI(Ice.AsyncResult result)
         {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private ONDV _i;
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opONDRI : Test.AMI_MyClass_opONDR
-    {
-        public AMI_MyClass_opONDRI(ONDR i)
-        {
-            _i = i;
-        }
-
-        public override void ice_response(ONDR r, ONDR o)
-        {
-            foreach(string key in _i.Keys)
+            ONDR i = (ONDR)result.AsyncState;
+            ONDR o;
+            ONDR r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opONDR(out o, result);
+            foreach(string key in i.Keys)
             {
-                foreach(string s in _i[key].Keys)
+                foreach(string s in i[key].Keys)
                 {
-                    test(Ice.CollectionComparer.Equals(_i[key][s], o[key][s]));
-                    test(Ice.CollectionComparer.Equals(_i[key][s], r[key][s]));
+                    test(Ice.CollectionComparer.Equals(i[key][s], o[key][s]));
+                    test(Ice.CollectionComparer.Equals(i[key][s], r[key][s]));
                 }
             }
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void opNDAISI(Ice.AsyncResult result)
         {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private ONDR _i;
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opNDAISI : Test.AMI_MyClass_opNDAIS
-    {
-        public AMI_MyClass_opNDAISI(Dictionary<string, int[]> i)
-        {
-            _i = i;
-        }
-
-        public override void ice_response(Dictionary<string, int[]> r, Dictionary<string, int[]> o)
-        {
-            foreach(string key in _i.Keys)
+            Dictionary<string, int[]> i = (Dictionary<string, int[]>)result.AsyncState;
+            Dictionary<string, int[]> o;
+            Dictionary<string, int[]> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opNDAIS(out o, result);
+            foreach(string key in i.Keys)
             {
-                test(Ice.CollectionComparer.Equals(_i[key], o[key]));
-                test(Ice.CollectionComparer.Equals(_i[key], r[key]));
+                test(Ice.CollectionComparer.Equals(i[key], o[key]));
+                test(Ice.CollectionComparer.Equals(i[key], r[key]));
             }
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void opNDCISI(Ice.AsyncResult result)
         {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Dictionary<string, int[]> _i;
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opNDCISI : Test.AMI_MyClass_opNDCIS
-    {
-        public AMI_MyClass_opNDCISI(Dictionary<string, CIS> i)
-        {
-            _i = i;
-        }
-
-        public override void ice_response(Dictionary<string, CIS> r, Dictionary<string, CIS> o)
-        {
-            foreach(string key in _i.Keys)
+            Dictionary<string, CIS> i = (Dictionary<string, CIS>)result.AsyncState;
+            Dictionary<string, CIS> o;
+            Dictionary<string, CIS> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opNDCIS(out o, result);
+            foreach(string key in i.Keys)
             {
-                test(Ice.CollectionComparer.Equals(_i[key], o[key]));
-                test(Ice.CollectionComparer.Equals(_i[key], r[key]));
+                test(Ice.CollectionComparer.Equals(i[key], o[key]));
+                test(Ice.CollectionComparer.Equals(i[key], r[key]));
             }
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void opNDGISI(Ice.AsyncResult result)
         {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Dictionary<string, CIS> _i;
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opNDGISI : Test.AMI_MyClass_opNDGIS
-    {
-        public AMI_MyClass_opNDGISI(Dictionary<string, List<int>> i)
-        {
-            _i = i;
-        }
-
-        public override void ice_response(Dictionary<string, List<int>> r, Dictionary<string, List<int>> o)
-        {
-            foreach(string key in _i.Keys)
+            Dictionary<string, List<int>> i = (Dictionary<string, List<int>>)result.AsyncState;
+            Dictionary<string, List<int>> o;
+            Dictionary<string, List<int>> r = 
+                MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opNDGIS(out o, result);
+            foreach(string key in i.Keys)
             {
-                test(Ice.CollectionComparer.Equals(_i[key], o[key]));
-                test(Ice.CollectionComparer.Equals(_i[key], r[key]));
+                test(Ice.CollectionComparer.Equals(i[key], o[key]));
+                test(Ice.CollectionComparer.Equals(i[key], r[key]));
             }
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void opNDASSI(Ice.AsyncResult result)
         {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Dictionary<string, List<int>> _i;
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opNDASSI : Test.AMI_MyClass_opNDASS
-    {
-        public AMI_MyClass_opNDASSI(Dictionary<string, string[]> i)
-        {
-            _i = i;
-        }
-
-        public override void ice_response(Dictionary<string, string[]> r, Dictionary<string, string[]> o)
-        {
-            foreach(string key in _i.Keys)
+            Dictionary<string, string[]> i = (Dictionary<string,string[]>)result.AsyncState;
+            Dictionary<string, string[]> o;
+            Dictionary<string, string[]> r = 
+                MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opNDASS(out o, result);
+            foreach(string key in i.Keys)
             {
-                test(Ice.CollectionComparer.Equals(_i[key], o[key]));
-                test(Ice.CollectionComparer.Equals(_i[key], r[key]));
+                test(Ice.CollectionComparer.Equals(i[key], o[key]));
+                test(Ice.CollectionComparer.Equals(i[key], r[key]));
             }
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void opNDCSSI(Ice.AsyncResult result)
         {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Dictionary<string, string[]> _i;
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opNDCSSI : Test.AMI_MyClass_opNDCSS
-    {
-        public AMI_MyClass_opNDCSSI(Dictionary<string, CSS> i)
-        {
-            _i = i;
-        }
-
-        public override void ice_response(Dictionary<string, CSS> r, Dictionary<string, CSS> o)
-        {
-            foreach(string key in _i.Keys)
+            Dictionary<string, CSS> i = (Dictionary<string,CSS>)result.AsyncState;
+            Dictionary<string, CSS> o;
+            Dictionary<string, CSS> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opNDCSS(out o, result);
+            foreach(string key in i.Keys)
             {
-                test(Ice.CollectionComparer.Equals(_i[key], o[key]));
-                test(Ice.CollectionComparer.Equals(_i[key], r[key]));
+                test(Ice.CollectionComparer.Equals(i[key], o[key]));
+                test(Ice.CollectionComparer.Equals(i[key], r[key]));
             }
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void opNDGSSI(Ice.AsyncResult result)
         {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Dictionary<string, CSS> _i;
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opNDGSSI : Test.AMI_MyClass_opNDGSS
-    {
-        public AMI_MyClass_opNDGSSI(Dictionary<string, List<string>> i)
-        {
-            _i = i;
-        }
-
-        public override void ice_response(Dictionary<string, List<string>> r, Dictionary<string, List<string>> o)
-        {
-            foreach(string key in _i.Keys)
+            Dictionary<string, List<string>> i = (Dictionary<string,List<string>>)result.AsyncState;
+            Dictionary<string, List<string>> o;
+            Dictionary<string, List<string>> r = 
+                MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opNDGSS(out o, result);
+            foreach(string key in i.Keys)
             {
-                test(Ice.CollectionComparer.Equals(_i[key], o[key]));
-                test(Ice.CollectionComparer.Equals(_i[key], r[key]));
+                test(Ice.CollectionComparer.Equals(i[key], o[key]));
+                test(Ice.CollectionComparer.Equals(i[key], r[key]));
             }
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void opODAISI(Ice.AsyncResult result)
         {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Dictionary<string, List<string>> _i;
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opODAISI : Test.AMI_MyClass_opODAIS
-    {
-        public AMI_MyClass_opODAISI(ODAIS i)
-        {
-            _i = i;
-        }
-
-        public override void ice_response(ODAIS r, ODAIS o)
-        {
-            foreach(string key in _i.Keys)
+            ODAIS i = (ODAIS)result.AsyncState;
+            ODAIS o;
+            ODAIS r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opODAIS(out o, result);
+            foreach(string key in i.Keys)
             {
-                test(Ice.CollectionComparer.Equals(_i[key], o[key]));
-                test(Ice.CollectionComparer.Equals(_i[key], r[key]));
+                test(Ice.CollectionComparer.Equals(i[key], o[key]));
+                test(Ice.CollectionComparer.Equals(i[key], r[key]));
             }
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void opODCISI(Ice.AsyncResult result)
         {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private ODAIS _i;
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opODCISI : Test.AMI_MyClass_opODCIS
-    {
-        public AMI_MyClass_opODCISI(ODCIS i)
-        {
-            _i = i;
-        }
-
-        public override void ice_response(ODCIS r, ODCIS o)
-        {
-            foreach(string key in _i.Keys)
+            ODCIS i = (ODCIS)result.AsyncState;
+            ODCIS o;
+            ODCIS r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opODCIS(out o, result);
+            foreach(string key in i.Keys)
             {
-                test(Ice.CollectionComparer.Equals(_i[key], o[key]));
-                test(Ice.CollectionComparer.Equals(_i[key], r[key]));
+                test(Ice.CollectionComparer.Equals(i[key], o[key]));
+                test(Ice.CollectionComparer.Equals(i[key], r[key]));
             }
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void opODGISI(Ice.AsyncResult result)
         {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private ODCIS _i;
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opODGISI : Test.AMI_MyClass_opODGIS
-    {
-        public AMI_MyClass_opODGISI(ODGIS i)
-        {
-            _i = i;
-        }
-
-        public override void ice_response(ODGIS r, ODGIS o)
-        {
-            foreach(string key in _i.Keys)
+            ODGIS i = (ODGIS)result.AsyncState;
+            ODGIS o;
+            ODGIS r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opODGIS(out o, result);
+            foreach(string key in i.Keys)
             {
-                test(Ice.CollectionComparer.Equals(_i[key], o[key]));
-                test(Ice.CollectionComparer.Equals(_i[key], r[key]));
+                test(Ice.CollectionComparer.Equals(i[key], o[key]));
+                test(Ice.CollectionComparer.Equals(i[key], r[key]));
             }
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void opODASSI(Ice.AsyncResult result)
         {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private ODGIS _i;
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opODASSI : Test.AMI_MyClass_opODASS
-    {
-        public AMI_MyClass_opODASSI(ODASS i)
-        {
-            _i = i;
-        }
-
-        public override void ice_response(ODASS r, ODASS o)
-        {
-            foreach(string key in _i.Keys)
+            ODASS i = (ODASS)result.AsyncState;
+            ODASS o;
+            ODASS r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opODASS(out o, result);
+            foreach(string key in i.Keys)
             {
-                test(Ice.CollectionComparer.Equals(_i[key], o[key]));
-                test(Ice.CollectionComparer.Equals(_i[key], r[key]));
+                test(Ice.CollectionComparer.Equals(i[key], o[key]));
+                test(Ice.CollectionComparer.Equals(i[key], r[key]));
             }
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void opODCSSI(Ice.AsyncResult result)
         {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private ODASS _i;
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opODCSSI : Test.AMI_MyClass_opODCSS
-    {
-        public AMI_MyClass_opODCSSI(ODCSS i)
-        {
-            _i = i;
-        }
-
-        public override void ice_response(ODCSS r, ODCSS o)
-        {
-            foreach(string key in _i.Keys)
+            ODCSS i = (ODCSS)result.AsyncState;
+            ODCSS o;
+            ODCSS r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opODCSS(out o, result);
+            foreach(string key in i.Keys)
             {
-                test(Ice.CollectionComparer.Equals(_i[key], o[key]));
-                test(Ice.CollectionComparer.Equals(_i[key], r[key]));
+                test(Ice.CollectionComparer.Equals(i[key], o[key]));
+                test(Ice.CollectionComparer.Equals(i[key], r[key]));
             }
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void opODGSSI(Ice.AsyncResult result)
         {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private ODCSS _i;
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opODGSSI : Test.AMI_MyClass_opODGSS
-    {
-        public AMI_MyClass_opODGSSI(ODGSS i)
-        {
-            _i = i;
-        }
-
-        public override void ice_response(ODGSS r, ODGSS o)
-        {
-            foreach(string key in _i.Keys)
+            ODGSS i = (ODGSS)result.AsyncState;
+            ODGSS o;
+            ODGSS r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opODGSS(out o, result);
+            foreach(string key in i.Keys)
             {
-                test(Ice.CollectionComparer.Equals(_i[key], o[key]));
-                test(Ice.CollectionComparer.Equals(_i[key], r[key]));
+                test(Ice.CollectionComparer.Equals(i[key], o[key]));
+                test(Ice.CollectionComparer.Equals(i[key], r[key]));
             }
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
         public virtual void check()
         {
             callback.check();
         }
 
-        private ODGSS _i;
-        private Callback callback = new Callback();
+        private CallbackBase callback = new CallbackBase();
     }
 
     internal static void twowaysAMI(Ice.Communicator communicator, Test.MyClassPrx p)
@@ -791,8 +373,8 @@ public class TwowaysAMI
             i[0] = 1;
             i[1] = 0;
 
-            AMI_MyClass_opNVI cb = new AMI_MyClass_opNVI(i);
-            p.opNV_async(cb, i);
+            Callback cb = new Callback();
+            p.begin_opNV(i, null, cb.opNVI, i);
             cb.check();
         }
 
@@ -801,8 +383,8 @@ public class TwowaysAMI
             i["a"] = "b";
             i["b"] = "a";
 
-            AMI_MyClass_opNRI cb = new AMI_MyClass_opNRI(i);
-            p.opNR_async(cb, i);
+            Callback cb = new Callback();
+            p.begin_opNR(i, null, cb.opNRI, i);
             cb.check();
         }
 
@@ -814,8 +396,8 @@ public class TwowaysAMI
             i["a"] = id;
             i["b"] = id;
 
-            AMI_MyClass_opNDVI cb = new AMI_MyClass_opNDVI(i);
-            p.opNDV_async(cb, i);
+            Callback cb = new Callback();
+            p.begin_opNDV(i, null, cb.opNDVI, i);
             cb.check();
         }
 
@@ -827,8 +409,8 @@ public class TwowaysAMI
             i["a"] = id;
             i["b"] = id;
 
-            AMI_MyClass_opNDRI cb = new AMI_MyClass_opNDRI(i);
-            p.opNDR_async(cb, i);
+            Callback cb = new Callback();
+            p.begin_opNDR(i, null, cb.opNDRI, i);
             cb.check();
         }
 
@@ -837,8 +419,8 @@ public class TwowaysAMI
             i[0] = 1;
             i[1] = 0;
 
-            AMI_MyClass_opOVI cb = new AMI_MyClass_opOVI(i);
-            p.opOV_async(cb, i);
+            Callback cb = new Callback();
+            p.begin_opOV(i, null, cb.opOVI, i);
             cb.check();
         }
 
@@ -847,8 +429,8 @@ public class TwowaysAMI
             i["a"] = "b";
             i["b"] = "a";
 
-            AMI_MyClass_opORI cb = new AMI_MyClass_opORI(i);
-            p.opOR_async(cb, i);
+            Callback cb = new Callback();
+            p.begin_opOR(i, null, cb.opORI, i);
             cb.check();
         }
 
@@ -860,8 +442,8 @@ public class TwowaysAMI
             i["a"] = id;
             i["b"] = id;
 
-            AMI_MyClass_opODVI cb = new AMI_MyClass_opODVI(i);
-            p.opODV_async(cb, i);
+            Callback cb = new Callback();
+            p.begin_opODV(i, null, cb.opODVI, i);
             cb.check();
         }
 
@@ -873,8 +455,8 @@ public class TwowaysAMI
             i["a"] = id;
             i["b"] = id;
 
-            AMI_MyClass_opODRI cb = new AMI_MyClass_opODRI(i);
-            p.opODR_async(cb, i);
+            Callback cb = new Callback();
+            p.begin_opODR(i, null, cb.opODRI, i);
             cb.check();
         }
 
@@ -889,8 +471,8 @@ public class TwowaysAMI
             i["a"] = id;
             i["b"] = id;
 
-            AMI_MyClass_opNODVI cb = new AMI_MyClass_opNODVI(i);
-            p.opNODV_async(cb, i);
+            Callback cb = new Callback();
+            p.begin_opNODV(i, null, cb.opNODVI, i);
             cb.check();
         }
 
@@ -905,8 +487,8 @@ public class TwowaysAMI
             i["a"] = id;
             i["b"] = id;
 
-            AMI_MyClass_opNODRI cb = new AMI_MyClass_opNODRI(i);
-            p.opNODR_async(cb, i);
+            Callback cb = new Callback();
+            p.begin_opNODR(i, null, cb.opNODRI, i);
             cb.check();
         }
 
@@ -922,8 +504,8 @@ public class TwowaysAMI
             i["a"] = id;
             i["b"] = id;
 
-            AMI_MyClass_opONDVI cb = new AMI_MyClass_opONDVI(i);
-            p.opONDV_async(cb, i);
+            Callback cb = new Callback();
+            p.begin_opONDV(i, null, cb.opONDVI, i);
             cb.check();
         }
 
@@ -939,8 +521,8 @@ public class TwowaysAMI
             i["a"] = id;
             i["b"] = id;
 
-            AMI_MyClass_opONDRI cb = new AMI_MyClass_opONDRI(i);
-            p.opONDR_async(cb, i);
+            Callback cb = new Callback();
+            p.begin_opONDR(i, null, cb.opONDRI, i);
             cb.check();
         }
 
@@ -950,8 +532,8 @@ public class TwowaysAMI
             i["a"] = ii;
             i["b"] = ii;
 
-            AMI_MyClass_opNDAISI cb = new AMI_MyClass_opNDAISI(i);
-            p.opNDAIS_async(cb, i);
+            Callback cb = new Callback();
+            p.begin_opNDAIS(i, null, cb.opNDAISI, i);
             cb.check();
         }
 
@@ -963,8 +545,8 @@ public class TwowaysAMI
             i["a"] = ii;
             i["b"] = ii;
 
-            AMI_MyClass_opNDCISI cb = new AMI_MyClass_opNDCISI(i);
-            p.opNDCIS_async(cb, i);
+            Callback cb = new Callback();
+            p.begin_opNDCIS(i, null, cb.opNDCISI, i);
             cb.check();
         }
 
@@ -976,8 +558,8 @@ public class TwowaysAMI
             i["a"] = ii;
             i["b"] = ii;
 
-            AMI_MyClass_opNDGISI cb = new AMI_MyClass_opNDGISI(i);
-            p.opNDGIS_async(cb, i);
+            Callback cb = new Callback();
+            p.begin_opNDGIS(i, null, cb.opNDGISI, i);
             cb.check();
         }
 
@@ -987,8 +569,8 @@ public class TwowaysAMI
             i["a"] = ii;
             i["b"] = ii;
 
-            AMI_MyClass_opNDASSI cb = new AMI_MyClass_opNDASSI(i);
-            p.opNDASS_async(cb, i);
+            Callback cb = new Callback();
+            p.begin_opNDASS(i, null, cb.opNDASSI, i);
             cb.check();
         }
 
@@ -1000,8 +582,8 @@ public class TwowaysAMI
             i["a"] = ii;
             i["b"] = ii;
 
-            AMI_MyClass_opNDCSSI cb = new AMI_MyClass_opNDCSSI(i);
-            p.opNDCSS_async(cb, i);
+            Callback cb = new Callback();
+            p.begin_opNDCSS(i, null, cb.opNDCSSI, i);
             cb.check();
         }
 
@@ -1013,8 +595,8 @@ public class TwowaysAMI
             i["a"] = ii;
             i["b"] = ii;
 
-            AMI_MyClass_opNDGSSI cb = new AMI_MyClass_opNDGSSI(i);
-            p.opNDGSS_async(cb, i);
+            Callback cb = new Callback();
+            p.begin_opNDGSS(i, null, cb.opNDGSSI, i);
             cb.check();
         }
 
@@ -1024,8 +606,8 @@ public class TwowaysAMI
             i["a"] = ii;
             i["b"] = ii;
 
-            AMI_MyClass_opODAISI cb = new AMI_MyClass_opODAISI(i);
-            p.opODAIS_async(cb, i);
+            Callback cb = new Callback();
+            p.begin_opODAIS(i, null, cb.opODAISI, i);
             cb.check();
         }
 
@@ -1037,8 +619,8 @@ public class TwowaysAMI
             i["a"] = ii;
             i["b"] = ii;
 
-            AMI_MyClass_opODCISI cb = new AMI_MyClass_opODCISI(i);
-            p.opODCIS_async(cb, i);
+            Callback cb = new Callback();
+            p.begin_opODCIS(i, null, cb.opODCISI, i);
             cb.check();
         }
 
@@ -1050,8 +632,8 @@ public class TwowaysAMI
             i["a"] = ii;
             i["b"] = ii;
 
-            AMI_MyClass_opODGISI cb = new AMI_MyClass_opODGISI(i);
-            p.opODGIS_async(cb, i);
+            Callback cb = new Callback();
+            p.begin_opODGIS(i, null, cb.opODGISI, i);
             cb.check();
         }
 
@@ -1061,8 +643,8 @@ public class TwowaysAMI
             i["a"] = ii;
             i["b"] = ii;
 
-            AMI_MyClass_opODASSI cb = new AMI_MyClass_opODASSI(i);
-            p.opODASS_async(cb, i);
+            Callback cb = new Callback();
+            p.begin_opODASS(i, null, cb.opODASSI, i);
             cb.check();
         }
 
@@ -1074,8 +656,8 @@ public class TwowaysAMI
             i["a"] = ii;
             i["b"] = ii;
 
-            AMI_MyClass_opODCSSI cb = new AMI_MyClass_opODCSSI(i);
-            p.opODCSS_async(cb, i);
+            Callback cb = new Callback();
+            p.begin_opODCSS(i, null, cb.opODCSSI, i);
             cb.check();
         }
 
@@ -1087,8 +669,8 @@ public class TwowaysAMI
             i["a"] = ii;
             i["b"] = ii;
 
-            AMI_MyClass_opODGSSI cb = new AMI_MyClass_opODGSSI(i);
-            p.opODGSS_async(cb, i);
+            Callback cb = new Callback();
+            p.begin_opODGSS(i, null, cb.opODGSSI, i);
             cb.check();
         }
     }

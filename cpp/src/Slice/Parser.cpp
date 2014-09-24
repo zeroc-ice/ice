@@ -1870,14 +1870,14 @@ Slice::Container::hasAsyncOps() const
         if(cl && !cl->isLocal())
         {
             OperationList ops = cl->operations();
-            if(!ops.empty() && (cl->hasMetaData("ami") || cl->hasMetaData("amd")))
+            if(!ops.empty() && cl->hasMetaData("amd"))
             {
                 return true;
             }
             for(OperationList::const_iterator i = ops.begin(); i != ops.end(); ++i)
             {
                 OperationPtr op = *i;
-                if(op->hasMetaData("ami") || op->hasMetaData("amd"))
+                if(op->hasMetaData("amd"))
                 {
                     return true;
                 }

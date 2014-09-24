@@ -4913,73 +4913,6 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 
             out << eb;
         }
-
-        if(cl->hasMetaData("ami") || op->hasMetaData("ami"))
-        {
-            vector<string> paramsAMI = getParamsAsync(op, package, false, true);
-            vector<string> argsAMI = getInOutArgs(op, InParam);
-            const string contextDoc = "@param __ctx The Context map to send with the invocation.";
-
-            //
-            // Write two versions of the old asynchronous operation - with and without a
-            // context parameter.
-            //
-            out << sp;
-            writeDocCommentAsync(out, op, InParam);
-            out << nl << "public boolean " << op->name() << "_async" << spar << paramsAMI << epar;
-            out << sb;
-            if(op->returnsData())
-            {
-                out << nl << "Ice.AsyncResult __r;";
-                out << nl << "try";
-                out << sb;
-                out << nl << "__checkTwowayOnly(__" << op->name() << "_name);";
-                out << nl << "__r = begin_" << op->name() << spar << argsAMI << "null" << "false"
-                    << "false" << "__cb" << epar << ';';
-                out << eb;
-                out << nl << "catch(Ice.TwowayOnlyException ex)";
-                out << sb;
-                out << nl << "IceInternal.OutgoingAsync __r2 = getOutgoingAsync(__" << op->name() << "_name, __cb);";
-                out << nl << "__r = __r2;";
-                out << nl << "__r2.invokeExceptionAsync(ex);";
-                out << eb;
-            }
-            else
-            {
-                out << nl << "Ice.AsyncResult __r = begin_" << op->name() << spar << argsAMI << "null" << "false"
-                    << "false" << "__cb" << epar << ';';
-            }
-            out << nl << "return __r.sentSynchronously();";
-            out << eb;
-
-            out << sp;
-            writeDocCommentAsync(out, op, InParam, contextDoc);
-            out << nl << "public boolean " << op->name() << "_async" << spar << paramsAMI << contextParam << epar;
-            out << sb;
-            if(op->returnsData())
-            {
-                out << nl << "Ice.AsyncResult __r;";
-                out << nl << "try";
-                out << sb;
-                out << nl << "__checkTwowayOnly(__" << op->name() << "_name);";
-                out << nl << "__r = begin_" << op->name() << spar << argsAMI << "__ctx" << "true"
-                    << "false" << "__cb" << epar << ';';
-                out << eb;
-                out << nl << "catch(Ice.TwowayOnlyException ex)";
-                out << sb;
-                out << nl << "IceInternal.OutgoingAsync __r2 = getOutgoingAsync(__" << op->name() << "_name, __cb);";
-                out << nl << "__r = __r2;";
-                out << nl << "__r2.invokeExceptionAsync(ex);";
-                out << eb;
-            }
-            else
-            {
-                out << nl << "Ice.AsyncResult __r = begin_" << op->name() << spar << argsAMI << "__ctx" << "true"
-                    << "false" << "__cb" << epar << ';';
-            }
-            out << nl << "return __r.sentSynchronously();";
-            out << eb;
-        }
     }
 
     out << sp << nl << "public static " << name << "Prx checkedCast(Ice.ObjectPrx __obj)";
@@ -6090,22 +6023,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         out << nl << "public Ice.AsyncResult begin_" << p->name() << spar << inParams << contextParam
             << typeSafeCallbackParam << epar << ';';
     }
-
-    if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
-    {
-        vector<string> paramsAMI = getParamsAsync(p, package, false, true);
-
-        //
-        // Write two versions of the operation - with and without a
-        // context parameter.
-        //
-        out << sp;
-        writeDocCommentAsync(out, p, InParam);
-        out << nl << "public boolean " << p->name() << "_async" << spar << paramsAMI << epar << ';';
-        out << sp;
-        writeDocCommentAsync(out, p, InParam, contextDoc);
-        out << nl << "public boolean " << p->name() << "_async" << spar << paramsAMI << contextParam << epar << ';';
-    }
 }
 
 Slice::Gen::DispatcherVisitor::DispatcherVisitor(const string& dir, bool stream) :
@@ -6659,79 +6576,6 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             out << sb;
             out << eb;
         }
-
-        close();
-    }
-
-    if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
-    {
-        string baseClass = "Callback_" + cl->name() + "_" + name;
-        string classNameAMI = "AMI_" + cl->name();
-        string absoluteAMI = getAbsolute(cl, "", "AMI_", "_" + name);
-
-        open(absoluteAMI, p->file());
-
-        Output& out = output();
-
-        TypePtr ret = p->returnType();
-
-        ExceptionList throws = p->throws();
-
-        vector<string> params = getParamsAsyncCB(p, classPkg, false, true);
-        vector<string> args = getInOutArgs(p, OutParam);
-
-        writeDocCommentOp(out, p);
-        out << sp << nl << "public abstract class " << classNameAMI << '_' << name
-            << " extends " << baseClass;
-        out << sb;
-        out << sp;
-        writeDocCommentAsync(out, p, OutParam);
-        out << nl << "public abstract void ice_response" << spar << params << epar << ';';
-        out << sp << nl << "/**";
-        out << nl << " * ice_exception indicates to the caller that";
-        out << nl << " * the operation completed with an exception.";
-        out << nl << " * @param ex The Ice run-time exception to be raised.";
-        out << nl << " **/";
-        out << nl << "public abstract void ice_exception(Ice.LocalException ex);";
-        if(!throws.empty())
-        {
-            out << sp << nl << "/**";
-            out << nl << " * ice_exception indicates to the caller that";
-            out << nl << " * the operation completed with an exception.";
-            out << nl << " * @param ex The user exception to be raised.";
-            out << nl << " **/";
-            out << nl << "public abstract void ice_exception(Ice.UserException ex);";
-        }
-
-        out << sp << nl << "public final void response" << spar << params << epar;
-        out << sb;
-        out << nl << "ice_response" << spar;
-        if(ret)
-        {
-            out << "__ret";
-        }
-        out << args << epar << ';';
-        out << eb;
-        if(!throws.empty())
-        {
-            out << sp << nl << "public final void exception(Ice.UserException __ex)";
-            out << sb;
-            out << nl << "ice_exception(__ex);";
-            out << eb;
-        }
-        out << sp << nl << "public final void exception(Ice.LocalException __ex)";
-        out << sb;
-        out << nl << "ice_exception(__ex);";
-        out << eb;
-        out << sp << nl << "@Override public final void sent(boolean sentSynchronously)";
-        out << sb;
-        out << nl << "if(!sentSynchronously && this instanceof Ice.AMISentCallback)";
-        out << sb;
-        out << nl << "((Ice.AMISentCallback)this).ice_sent();";
-        out << eb;
-        out << eb;
-
-        out << eb;
 
         close();
     }

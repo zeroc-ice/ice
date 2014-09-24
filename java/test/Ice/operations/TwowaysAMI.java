@@ -8,42 +8,44 @@
 // **********************************************************************
 
 package test.Ice.operations;
-import test.Ice.operations.Test.AMI_MyClass_opBool;
-import test.Ice.operations.Test.AMI_MyClass_opBoolS;
-import test.Ice.operations.Test.AMI_MyClass_opBoolSS;
-import test.Ice.operations.Test.AMI_MyClass_opByte;
-import test.Ice.operations.Test.AMI_MyClass_opByteBoolD;
-import test.Ice.operations.Test.AMI_MyClass_opByteS;
-import test.Ice.operations.Test.AMI_MyClass_opByteSS;
-import test.Ice.operations.Test.AMI_MyClass_opContext;
-import test.Ice.operations.Test.AMI_MyClass_opDoubleMarshaling;
-import test.Ice.operations.Test.AMI_MyClass_opFloatDouble;
-import test.Ice.operations.Test.AMI_MyClass_opFloatDoubleS;
-import test.Ice.operations.Test.AMI_MyClass_opFloatDoubleSS;
-import test.Ice.operations.Test.AMI_MyClass_opIdempotent;
-import test.Ice.operations.Test.AMI_MyClass_opIntS;
-import test.Ice.operations.Test.AMI_MyClass_opLongFloatD;
-import test.Ice.operations.Test.AMI_MyClass_opMyClass;
-import test.Ice.operations.Test.AMI_MyClass_opMyEnum;
-import test.Ice.operations.Test.AMI_MyClass_opNonmutating;
-import test.Ice.operations.Test.AMI_MyClass_opShortIntD;
-import test.Ice.operations.Test.AMI_MyClass_opShortIntLong;
-import test.Ice.operations.Test.AMI_MyClass_opShortIntLongS;
-import test.Ice.operations.Test.AMI_MyClass_opShortIntLongSS;
-import test.Ice.operations.Test.AMI_MyClass_opString;
-import test.Ice.operations.Test.AMI_MyClass_opStringMyEnumD;
-import test.Ice.operations.Test.AMI_MyClass_opMyEnumStringD;
-import test.Ice.operations.Test.AMI_MyClass_opStringS;
-import test.Ice.operations.Test.AMI_MyClass_opStringSS;
-import test.Ice.operations.Test.AMI_MyClass_opStringSSS;
-import test.Ice.operations.Test.AMI_MyClass_opStringStringD;
-import test.Ice.operations.Test.AMI_MyClass_opStruct;
-import test.Ice.operations.Test.AMI_MyClass_opVoid;
-import test.Ice.operations.Test.AMI_MyDerivedClass_opDerived;
-import test.Ice.operations.Test.AMI_MyClass_opMyStructMyEnumD;
+
+import test.Ice.operations.Test.Callback_MyClass_opVoid;
+import test.Ice.operations.Test.Callback_MyClass_opBool;
+import test.Ice.operations.Test.Callback_MyClass_opBoolS;
+import test.Ice.operations.Test.Callback_MyClass_opBoolSS;
+import test.Ice.operations.Test.Callback_MyClass_opByte;
+import test.Ice.operations.Test.Callback_MyClass_opByteBoolD;
+import test.Ice.operations.Test.Callback_MyClass_opByteS;
+import test.Ice.operations.Test.Callback_MyClass_opByteSS;
+import test.Ice.operations.Test.Callback_MyClass_opFloatDouble;
+import test.Ice.operations.Test.Callback_MyClass_opFloatDoubleS;
+import test.Ice.operations.Test.Callback_MyClass_opFloatDoubleSS;
+import test.Ice.operations.Test.Callback_MyClass_opIdempotent;
+import test.Ice.operations.Test.Callback_MyClass_opIntS;
+import test.Ice.operations.Test.Callback_MyClass_opLongFloatD;
+import test.Ice.operations.Test.Callback_MyClass_opMyClass;
+import test.Ice.operations.Test.Callback_MyClass_opMyEnum;
+import test.Ice.operations.Test.Callback_MyClass_opNonmutating;
+import test.Ice.operations.Test.Callback_MyClass_opShortIntD;
+import test.Ice.operations.Test.Callback_MyClass_opShortIntLong;
+import test.Ice.operations.Test.Callback_MyClass_opShortIntLongS;
+import test.Ice.operations.Test.Callback_MyClass_opShortIntLongSS;
+import test.Ice.operations.Test.Callback_MyClass_opString;
+import test.Ice.operations.Test.Callback_MyClass_opStringMyEnumD;
+import test.Ice.operations.Test.Callback_MyClass_opMyEnumStringD;
+import test.Ice.operations.Test.Callback_MyClass_opStringS;
+import test.Ice.operations.Test.Callback_MyClass_opStringSS;
+import test.Ice.operations.Test.Callback_MyClass_opStringSSS;
+import test.Ice.operations.Test.Callback_MyClass_opStringStringD;
+import test.Ice.operations.Test.Callback_MyClass_opStruct;
+import test.Ice.operations.Test.Callback_MyClass_opMyStructMyEnumD;
+import test.Ice.operations.Test.Callback_MyClass_opDoubleMarshaling;
+import test.Ice.operations.Test.Callback_MyDerivedClass_opDerived;
 import test.Ice.operations.Test.AnotherStruct;
+import test.Ice.operations.Test.MyClass;
 import test.Ice.operations.Test.MyClassPrx;
 import test.Ice.operations.Test.MyClassPrxHelper;
+import test.Ice.operations.Test.MyDerivedClass;
 import test.Ice.operations.Test.MyDerivedClassPrx;
 import test.Ice.operations.Test.MyDerivedClassPrxHelper;
 import test.Ice.operations.Test.MyEnum;
@@ -68,8 +70,7 @@ class TwowaysAMI
             _called = false;
         }
 
-        public synchronized void
-        check()
+        public synchronized void check()
         {
             while(!_called)
             {
@@ -85,8 +86,7 @@ class TwowaysAMI
             _called = false;
         }
 
-        public synchronized void
-        called()
+        public synchronized void called()
         {
             assert(!_called);
             _called = true;
@@ -96,24 +96,21 @@ class TwowaysAMI
         private boolean _called;
     }
 
-    private static class AMI_MyClass_opVoidI extends AMI_MyClass_opVoid
+    private static class pingI extends Ice.Callback_Object_ice_ping
     {
         @Override
-        public void
-        ice_response()
+        public void response()
         {
             callback.called();
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -121,25 +118,22 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opVoidExI extends AMI_MyClass_opVoid
+    private static class isAI extends Ice.Callback_Object_ice_isA
     {
         @Override
-        public void
-        ice_response()
+        public void response(boolean r)
+        {
+            test(r);
+            callback.called();
+        }
+
+        @Override
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        @Override
-        public void
-        ice_exception(Ice.LocalException ex)
-        {
-            test(ex instanceof Ice.NoEndpointException);
-            callback.called();
-        }
-
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -147,11 +141,78 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opByteI extends AMI_MyClass_opByte
+    private static class idI extends Ice.Callback_Object_ice_id
     {
         @Override
-        public void
-        ice_response(byte r, byte b)
+        public void response(String id)
+        {
+            test(id.equals(MyDerivedClass.ice_staticId()));
+            callback.called();
+        }
+
+        @Override
+        public void exception(Ice.LocalException ex)
+        {
+            test(false);
+        }
+
+        public void check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class idsI extends Ice.Callback_Object_ice_ids
+    {
+        @Override
+        public void response(String[] ids)
+        {
+            test(ids.length == 3);
+            callback.called();
+        }
+
+        @Override
+        public void exception(Ice.LocalException ex)
+        {
+            test(false);
+        }
+
+        public void check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class opVoidI extends Callback_MyClass_opVoid
+    {
+        @Override
+        public void response()
+        {
+            callback.called();
+        }
+
+        @Override
+        public void exception(Ice.LocalException ex)
+        {
+            test(false);
+        }
+
+        public void check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class opByteI extends Callback_MyClass_opByte
+    {
+        @Override
+        public void response(byte r, byte b)
         {
             test(b == (byte)0xf0);
             test(r == (byte)0xff);
@@ -159,14 +220,12 @@ class TwowaysAMI
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -174,37 +233,10 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opByteExI extends AMI_MyClass_opByte
+    private static class opBoolI extends Callback_MyClass_opBool
     {
         @Override
-        public void
-        ice_response(byte r, byte b)
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        ice_exception(Ice.LocalException ex)
-        {
-            test(ex instanceof Ice.NoEndpointException);
-            callback.called();
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class AMI_MyClass_opBoolI extends AMI_MyClass_opBool
-    {
-        @Override
-        public void
-        ice_response(boolean r, boolean b)
+        public void response(boolean r, boolean b)
         {
             test(b);
             test(!r);
@@ -212,14 +244,12 @@ class TwowaysAMI
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -227,11 +257,10 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opShortIntLongI extends AMI_MyClass_opShortIntLong
+    private static class opShortIntLongI extends Callback_MyClass_opShortIntLong
     {
         @Override
-        public void
-        ice_response(long r, short s, int i, long l)
+        public void response(long r, short s, int i, long l)
         {
             test(s == 10);
             test(i == 11);
@@ -241,14 +270,12 @@ class TwowaysAMI
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -256,11 +283,10 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opFloatDoubleI extends AMI_MyClass_opFloatDouble
+    private static class opFloatDoubleI extends Callback_MyClass_opFloatDouble
     {
         @Override
-        public void
-        ice_response(double r, float f, double d)
+        public void response(double r, float f, double d)
         {
             test(f == 3.14f);
             test(d == 1.1E10);
@@ -269,14 +295,12 @@ class TwowaysAMI
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -284,11 +308,10 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opStringI extends AMI_MyClass_opString
+    private static class opStringI extends Callback_MyClass_opString
     {
         @Override
-        public void
-        ice_response(String r, String s)
+        public void response(String r, String s)
         {
             test(s.equals("world hello"));
             test(r.equals("hello world"));
@@ -296,14 +319,12 @@ class TwowaysAMI
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -311,11 +332,10 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opMyEnumI extends AMI_MyClass_opMyEnum
+    private static class opMyEnumI extends Callback_MyClass_opMyEnum
     {
         @Override
-        public void
-        ice_response(MyEnum r, MyEnum e)
+        public void response(MyEnum r, MyEnum e)
         {
             test(e == MyEnum.enum2);
             test(r == MyEnum.enum3);
@@ -323,14 +343,12 @@ class TwowaysAMI
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -338,16 +356,15 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opMyClassI extends AMI_MyClass_opMyClass
+    private static class opMyClassI extends Callback_MyClass_opMyClass
     {
-        AMI_MyClass_opMyClassI(Ice.Communicator communicator)
+        opMyClassI(Ice.Communicator communicator)
         {
             _communicator = communicator;
         }
 
         @Override
-        public void
-        ice_response(MyClassPrx r, MyClassPrx c1, MyClassPrx c2)
+        public void response(MyClassPrx r, MyClassPrx c1, MyClassPrx c2)
         {
             test(c1.ice_getIdentity().equals(_communicator.stringToIdentity("test")));
             test(c2.ice_getIdentity().equals(_communicator.stringToIdentity("noSuchIdentity")));
@@ -370,14 +387,12 @@ class TwowaysAMI
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -386,16 +401,15 @@ class TwowaysAMI
         private Ice.Communicator _communicator;
     }
 
-    private static class AMI_MyClass_opStructI extends AMI_MyClass_opStruct
+    private static class opStructI extends Callback_MyClass_opStruct
     {
-        AMI_MyClass_opStructI(Ice.Communicator communicator)
+        opStructI(Ice.Communicator communicator)
         {
             _communicator = communicator;
         }
 
         @Override
-        public void
-        ice_response(Structure rso, Structure so)
+        public void response(Structure rso, Structure so)
         {
             test(rso.p == null);
             test(rso.e == MyEnum.enum2);
@@ -411,14 +425,12 @@ class TwowaysAMI
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -427,11 +439,10 @@ class TwowaysAMI
         private Ice.Communicator _communicator;
     }
 
-    private static class AMI_MyClass_opByteSI extends AMI_MyClass_opByteS
+    private static class opByteSI extends Callback_MyClass_opByteS
     {
         @Override
-        public void
-        ice_response(byte[] rso, byte[] bso)
+        public void response(byte[] rso, byte[] bso)
         {
             test(bso.length == 4);
             test(bso[0] == (byte)0x22);
@@ -451,14 +462,12 @@ class TwowaysAMI
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -466,11 +475,10 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opBoolSI extends AMI_MyClass_opBoolS
+    private static class opBoolSI extends Callback_MyClass_opBoolS
     {
         @Override
-        public void
-        ice_response(boolean[] rso, boolean[] bso)
+        public void response(boolean[] rso, boolean[] bso)
         {
             test(bso.length == 4);
             test(bso[0]);
@@ -485,14 +493,12 @@ class TwowaysAMI
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -500,12 +506,10 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opShortIntLongSI extends AMI_MyClass_opShortIntLongS
+    private static class opShortIntLongSI extends Callback_MyClass_opShortIntLongS
     {
         @Override
-        public void
-        ice_response(long[] rso, short[] sso, int[] iso,
-                     long[] lso)
+        public void response(long[] rso, short[] sso, int[] iso, long[] lso)
         {
             test(sso.length == 3);
             test(sso[0] == 1);
@@ -531,14 +535,12 @@ class TwowaysAMI
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -546,11 +548,10 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opFloatDoubleSI extends AMI_MyClass_opFloatDoubleS
+    private static class opFloatDoubleSI extends Callback_MyClass_opFloatDoubleS
     {
         @Override
-        public void
-        ice_response(double[] rso, float[] fso, double[] dso)
+        public void response(double[] rso, float[] fso, double[] dso)
         {
             test(fso.length == 2);
             test(fso[0] == 3.14f);
@@ -569,14 +570,12 @@ class TwowaysAMI
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -584,11 +583,10 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opStringSI extends AMI_MyClass_opStringS
+    private static class opStringSI extends Callback_MyClass_opStringS
     {
         @Override
-        public void
-        ice_response(String[] rso, String[] sso)
+        public void response(String[] rso, String[] sso)
         {
             test(sso.length == 4);
             test(sso[0].equals("abc"));
@@ -603,14 +601,12 @@ class TwowaysAMI
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -618,11 +614,10 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opByteSSI extends AMI_MyClass_opByteSS
+    private static class opByteSSI extends Callback_MyClass_opByteSS
     {
         @Override
-        public void
-        ice_response(byte[][] rso, byte[][] bso)
+        public void response(byte[][] rso, byte[][] bso)
         {
             test(bso.length == 2);
             test(bso[0].length == 1);
@@ -647,14 +642,12 @@ class TwowaysAMI
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -662,11 +655,11 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opBoolSSI extends AMI_MyClass_opBoolSS
+    private static class opBoolSSI extends Callback_MyClass_opBoolSS
     {
         @Override
         public void
-        ice_response(boolean[][] rso, boolean[][] bso)
+        response(boolean[][] rso, boolean[][] bso)
         {
             test(bso.length == 4);
             test(bso[0].length == 1);
@@ -693,7 +686,7 @@ class TwowaysAMI
 
         @Override
         public void
-        ice_exception(Ice.LocalException ex)
+        exception(Ice.LocalException ex)
         {
             test(false);
         }
@@ -707,11 +700,11 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opShortIntLongSSI extends AMI_MyClass_opShortIntLongSS
+    private static class opShortIntLongSSI extends Callback_MyClass_opShortIntLongSS
     {
         @Override
         public void
-        ice_response(long[][] rso, short[][] sso, int[][] iso, long[][] lso)
+        response(long[][] rso, short[][] sso, int[][] iso, long[][] lso)
         {
             test(rso.length == 1);
             test(rso[0].length == 2);
@@ -743,7 +736,7 @@ class TwowaysAMI
 
         @Override
         public void
-        ice_exception(Ice.LocalException ex)
+        exception(Ice.LocalException ex)
         {
             test(false);
         }
@@ -757,11 +750,10 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opFloatDoubleSSI extends AMI_MyClass_opFloatDoubleSS
+    private static class opFloatDoubleSSI extends Callback_MyClass_opFloatDoubleSS
     {
         @Override
-        public void
-        ice_response(double[][] rso, float[][] fso, double[][] dso)
+        public void response(double[][] rso, float[][] fso, double[][] dso)
         {
             test(fso.length == 3);
             test(fso[0].length == 1);
@@ -787,14 +779,12 @@ class TwowaysAMI
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -802,11 +792,10 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opStringSSI extends AMI_MyClass_opStringSS
+    private static class opStringSSI extends Callback_MyClass_opStringSS
     {
         @Override
-        public void
-        ice_response(String[][] rso, String[][] sso)
+        public void response(String[][] rso, String[][] sso)
         {
             test(sso.length == 5);
             test(sso[0].length == 1);
@@ -827,14 +816,12 @@ class TwowaysAMI
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -842,11 +829,10 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opStringSSSI extends AMI_MyClass_opStringSSS
+    private static class opStringSSSI extends Callback_MyClass_opStringSSS
     {
         @Override
-        public void
-        ice_response(String[][][] rsso, String[][][] ssso)
+        public void response(String[][][] rsso, String[][][] ssso)
         {
             test(ssso.length == 5);
             test(ssso[0].length == 2);
@@ -884,14 +870,12 @@ class TwowaysAMI
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -899,11 +883,10 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opByteBoolDI extends AMI_MyClass_opByteBoolD
+    private static class opByteBoolDI extends Callback_MyClass_opByteBoolD
     {
         @Override
-        public void
-        ice_response(java.util.Map<Byte, Boolean> ro, java.util.Map<Byte, Boolean> _do)
+        public void response(java.util.Map<Byte, Boolean> ro, java.util.Map<Byte, Boolean> _do)
         {
             java.util.Map<Byte, Boolean> di1 = new java.util.HashMap<Byte, Boolean>();
             di1.put((byte)10, Boolean.TRUE);
@@ -918,14 +901,12 @@ class TwowaysAMI
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -933,11 +914,10 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opShortIntDI extends AMI_MyClass_opShortIntD
+    private static class opShortIntDI extends Callback_MyClass_opShortIntD
     {
         @Override
-        public void
-        ice_response(java.util.Map<Short, Integer> ro, java.util.Map<Short, Integer> _do)
+        public void response(java.util.Map<Short, Integer> ro, java.util.Map<Short, Integer> _do)
         {
             java.util.Map<Short, Integer> di1 = new java.util.HashMap<Short, Integer>();
             di1.put((short)110, -1);
@@ -952,14 +932,12 @@ class TwowaysAMI
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -967,11 +945,10 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opLongFloatDI extends AMI_MyClass_opLongFloatD
+    private static class opLongFloatDI extends Callback_MyClass_opLongFloatD
     {
         @Override
-        public void
-        ice_response(java.util.Map<Long, Float> ro, java.util.Map<Long, Float> _do)
+        public void response(java.util.Map<Long, Float> ro, java.util.Map<Long, Float> _do)
         {
             java.util.Map<Long, Float> di1 = new java.util.HashMap<Long, Float>();
             di1.put(999999110L, new Float(-1.1f));
@@ -986,14 +963,12 @@ class TwowaysAMI
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -1001,11 +976,10 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opStringStringDI extends AMI_MyClass_opStringStringD
+    private static class opStringStringDI extends Callback_MyClass_opStringStringD
     {
         @Override
-        public void
-        ice_response(java.util.Map<String, String> ro, java.util.Map<String, String> _do)
+        public void response(java.util.Map<String, String> ro, java.util.Map<String, String> _do)
         {
             java.util.Map<String, String> di1 = new java.util.HashMap<String, String>();
             di1.put("foo", "abc -1.1");
@@ -1020,14 +994,12 @@ class TwowaysAMI
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -1035,11 +1007,10 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opStringMyEnumDI extends AMI_MyClass_opStringMyEnumD
+    private static class opStringMyEnumDI extends Callback_MyClass_opStringMyEnumD
     {
         @Override
-        public void
-        ice_response(java.util.Map<String, MyEnum> ro, java.util.Map<String, MyEnum> _do)
+        public void response(java.util.Map<String, MyEnum> ro, java.util.Map<String, MyEnum> _do)
         {
             java.util.Map<String, MyEnum> di1 = new java.util.HashMap<String, MyEnum>();
             di1.put("abc", MyEnum.enum1);
@@ -1054,14 +1025,12 @@ class TwowaysAMI
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -1069,11 +1038,10 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opMyEnumStringDI extends AMI_MyClass_opMyEnumStringD
+    private static class opMyEnumStringDI extends Callback_MyClass_opMyEnumStringD
     {
         @Override
-        public void
-        ice_response(java.util.Map<MyEnum, String> ro, java.util.Map<MyEnum, String> _do)
+        public void response(java.util.Map<MyEnum, String> ro, java.util.Map<MyEnum, String> _do)
         {
             java.util.Map<MyEnum, String> di1 = new java.util.HashMap<MyEnum, String>();
             di1.put(MyEnum.enum1, "abc");
@@ -1086,14 +1054,12 @@ class TwowaysAMI
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -1101,11 +1067,10 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opMyStructMyEnumDI extends AMI_MyClass_opMyStructMyEnumD
+    private static class opMyStructMyEnumDI extends Callback_MyClass_opMyStructMyEnumD
     {
         @Override
-        public void
-        ice_response(java.util.Map<MyStruct, MyEnum> ro, java.util.Map<MyStruct, MyEnum> _do)
+        public void response(java.util.Map<MyStruct, MyEnum> ro, java.util.Map<MyStruct, MyEnum> _do)
         {
             MyStruct s11 = new MyStruct(1, 1);
             MyStruct s12 = new MyStruct(1, 2);
@@ -1124,14 +1089,12 @@ class TwowaysAMI
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -1139,16 +1102,15 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opIntSI extends AMI_MyClass_opIntS
+    private static class opIntSI extends Callback_MyClass_opIntS
     {
-        AMI_MyClass_opIntSI(int l)
+        opIntSI(int l)
         {
             _l = l;
         }
 
         @Override
-        public void
-        ice_response(int[] r)
+        public void response(int[] r)
         {
             test(r.length == _l);
             for(int j = 0; j < r.length; ++j)
@@ -1159,14 +1121,12 @@ class TwowaysAMI
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -1175,88 +1135,21 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opContextEqualI extends AMI_MyClass_opContext
-    {
-        AMI_MyClass_opContextEqualI(java.util.Map<String, String> d)
-        {
-            _d = d;
-        }
-
-        @Override
-        public void
-        ice_response(java.util.Map<String, String> r)
-        {
-            test(r.equals(_d));
-            callback.called();
-        }
-
-        @Override
-        public void
-        ice_exception(Ice.LocalException ex)
-        {
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private java.util.Map<String, String> _d;
-        private Callback callback = new Callback();
-    }
-
-    private static class AMI_MyClass_opContextNotEqualI extends AMI_MyClass_opContext
-    {
-        AMI_MyClass_opContextNotEqualI(java.util.Map<String, String> d)
-        {
-            _d = d;
-        }
-
-        @Override
-        public void
-        ice_response(java.util.Map<String, String> r)
-        {
-            test(!r.equals(_d));
-            callback.called();
-        }
-
-        @Override
-        public void
-        ice_exception(Ice.LocalException ex)
-        {
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private java.util.Map<String, String> _d;
-        private Callback callback = new Callback();
-    }
-
-    private static class AMI_MyDerivedClass_opDerivedI extends AMI_MyDerivedClass_opDerived
+    private static class opDerivedI extends Callback_MyDerivedClass_opDerived
     {
         @Override
-        public void
-        ice_response()
+        public void response()
         {
             callback.called();
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -1264,24 +1157,21 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opDoubleMarshalingI extends AMI_MyClass_opDoubleMarshaling
+    private static class opDoubleMarshalingI extends Callback_MyClass_opDoubleMarshaling
     {
         @Override
-        public void
-        ice_response()
+        public void response()
         {
             callback.called();
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -1289,24 +1179,21 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opIdempotentI extends AMI_MyClass_opIdempotent
+    private static class opIdempotentI extends Callback_MyClass_opIdempotent
     {
         @Override
-        public void
-        ice_response()
+        public void response()
         {
             callback.called();
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -1314,24 +1201,21 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opNonmutatingI extends AMI_MyClass_opNonmutating
+    private static class opNonmutatingI extends Callback_MyClass_opNonmutating
     {
         @Override
-        public void
-        ice_response()
+        public void response()
         {
             callback.called();
         }
 
         @Override
-        public void
-        ice_exception(Ice.LocalException ex)
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -1345,112 +1229,87 @@ class TwowaysAMI
         Ice.Communicator communicator = app.communicator();
 
         {
-            // Check that a call to a void operation raises NoEndpointException
-            // in the ice_exception() callback instead of at the point of call.
-            MyClassPrx indirect = MyClassPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
-            AMI_MyClass_opVoidExI cb = new AMI_MyClass_opVoidExI();
-            try
-            {
-                test(!indirect.opVoid_async(cb));
-            }
-            catch(java.lang.Exception ex)
-            {
-                ex.printStackTrace();
-                test(false);
-            }
+            pingI cb = new pingI();
+            p.begin_ice_ping(cb);
             cb.check();
         }
 
         {
-            // Check that a call to a twoway operation raises NoEndpointException
-            // in the ice_exception() callback instead of at the point of call.
-            MyClassPrx indirect = MyClassPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
-            AMI_MyClass_opByteExI cb = new AMI_MyClass_opByteExI();
-            try
-            {
-                test(!(indirect.opByte_async(cb, (byte)0, (byte)0)));
-            }
-            catch(java.lang.Exception ex)
-            {
-                test(false);
-            }
+            isAI cb = new isAI();
+            p.begin_ice_isA(MyClass.ice_staticId(), cb);
             cb.check();
         }
 
         {
-            AMI_MyClass_opVoidI cb = new AMI_MyClass_opVoidI();
-            p.opVoid_async(cb);
-            cb.check();
-            // Let's check if we can reuse the same callback object for another call.
-            p.opVoid_async(cb);
+            idI cb = new idI();
+            p.begin_ice_id(cb);
             cb.check();
         }
 
         {
-            // Check that CommunicatorDestroyedException is raised directly.
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = communicator.getProperties()._clone();
-            Ice.Communicator ic = app.initialize(initData);
-            Ice.ObjectPrx obj = ic.stringToProxy(p.toString());
-            MyClassPrx p2 = MyClassPrxHelper.checkedCast(obj);
-
-            ic.destroy();
-
-            AMI_MyClass_opVoidI cb = new AMI_MyClass_opVoidI();
-            try
-            {
-                test(!p2.opVoid_async(cb));
-                test(false);
-            }
-            catch(Ice.CommunicatorDestroyedException ex)
-            {
-                // Expected.
-            }
-        }
-
-
-        {
-            AMI_MyClass_opByteI cb = new AMI_MyClass_opByteI();
-            p.opByte_async(cb, (byte)0xff, (byte)0x0f);
+            idsI cb = new idsI();
+            p.begin_ice_ids(cb);
             cb.check();
         }
 
         {
-            AMI_MyClass_opBoolI cb = new AMI_MyClass_opBoolI();
-            p.opBool_async(cb, true, false);
+            Ice.AsyncResult r = p.begin_opVoid();
+            p.end_opVoid(r);
+        }
+
+        {
+            opVoidI cb = new opVoidI();
+            p.begin_opVoid(cb);
             cb.check();
         }
 
         {
-            AMI_MyClass_opShortIntLongI cb = new AMI_MyClass_opShortIntLongI();
-            p.opShortIntLong_async(cb, (short)10, 11, 12L);
+            Ice.AsyncResult r = p.begin_opByte((byte)0xff, (byte)0x0f);
+            Ice.ByteHolder p3 = new Ice.ByteHolder();
+            byte ret = p.end_opByte(p3, r);
+            test(p3.value == (byte)0xf0);
+            test(ret == (byte)0xff);
+        }
+
+        {
+            opByteI cb = new opByteI();
+            p.begin_opByte((byte)0xff, (byte)0x0f, cb);
             cb.check();
         }
 
         {
-            AMI_MyClass_opFloatDoubleI cb = new AMI_MyClass_opFloatDoubleI();
-            p.opFloatDouble_async(cb, 3.14f, 1.1E10);
-            cb.check();
-            // Let's check if we can reuse the same callback object for another call.
-            p.opFloatDouble_async(cb, 3.14f, 1.1E10);
+            opBoolI cb = new opBoolI();
+            p.begin_opBool(true, false, cb);
             cb.check();
         }
 
         {
-            AMI_MyClass_opStringI cb = new AMI_MyClass_opStringI();
-            p.opString_async(cb, "hello", "world");
+            opShortIntLongI cb = new opShortIntLongI();
+            p.begin_opShortIntLong((short)10, 11, 12L, cb);
             cb.check();
         }
 
         {
-            AMI_MyClass_opMyEnumI cb = new AMI_MyClass_opMyEnumI();
-            p.opMyEnum_async(cb, MyEnum.enum2);
+            opFloatDoubleI cb = new opFloatDoubleI();
+            p.begin_opFloatDouble(3.14f, 1.1E10, cb);
             cb.check();
         }
 
         {
-            AMI_MyClass_opMyClassI cb = new AMI_MyClass_opMyClassI(communicator);
-            p.opMyClass_async(cb, p);
+            opStringI cb = new opStringI();
+            p.begin_opString("hello", "world", cb);
+            cb.check();
+        }
+
+        {
+            opMyEnumI cb = new opMyEnumI();
+            p.begin_opMyEnum(MyEnum.enum2, cb);
+            cb.check();
+        }
+
+        {
+            opMyClassI cb = new opMyClassI(communicator);
+            p.begin_opMyClass(p, cb);
             cb.check();
         }
 
@@ -1466,8 +1325,8 @@ class TwowaysAMI
             si2.s = new AnotherStruct();
             si2.s.s = "def";
 
-            AMI_MyClass_opStructI cb = new AMI_MyClass_opStructI(communicator);
-            p.opStruct_async(cb, si1, si2);
+            opStructI cb = new opStructI(communicator);
+            p.begin_opStruct(si1, si2, cb);
             cb.check();
         }
 
@@ -1487,8 +1346,8 @@ class TwowaysAMI
                     (byte)0xf4
                 };
 
-            AMI_MyClass_opByteSI cb = new AMI_MyClass_opByteSI();
-            p.opByteS_async(cb, bsi1, bsi2);
+            opByteSI cb = new opByteSI();
+            p.begin_opByteS(bsi1, bsi2, cb);
             cb.check();
         }
 
@@ -1496,8 +1355,8 @@ class TwowaysAMI
             final boolean[] bsi1 = { true, true, false };
             final boolean[] bsi2 = { false };
 
-            AMI_MyClass_opBoolSI cb = new AMI_MyClass_opBoolSI();
-            p.opBoolS_async(cb, bsi1, bsi2);
+            opBoolSI cb = new opBoolSI();
+            p.begin_opBoolS(bsi1, bsi2, cb);
             cb.check();
         }
 
@@ -1506,8 +1365,8 @@ class TwowaysAMI
             final int[] isi = { 5, 6, 7, 8 };
             final long[] lsi = { 10, 30, 20 };
 
-            AMI_MyClass_opShortIntLongSI cb = new AMI_MyClass_opShortIntLongSI();
-            p.opShortIntLongS_async(cb, ssi, isi, lsi);
+            opShortIntLongSI cb = new opShortIntLongSI();
+            p.begin_opShortIntLongS(ssi, isi, lsi, cb);
             cb.check();
         }
 
@@ -1515,8 +1374,8 @@ class TwowaysAMI
             final float[] fsi = { 3.14f, 1.11f };
             final double[] dsi = { 1.1E10, 1.2E10, 1.3E10 };
 
-            AMI_MyClass_opFloatDoubleSI cb = new AMI_MyClass_opFloatDoubleSI();
-            p.opFloatDoubleS_async(cb, fsi, dsi);
+            opFloatDoubleSI cb = new opFloatDoubleSI();
+            p.begin_opFloatDoubleS(fsi, dsi, cb);
             cb.check();
         }
 
@@ -1524,8 +1383,8 @@ class TwowaysAMI
             final String[] ssi1 = { "abc", "de", "fghi" };
             final String[] ssi2 = { "xyz" };
 
-            AMI_MyClass_opStringSI cb = new AMI_MyClass_opStringSI();
-            p.opStringS_async(cb, ssi1, ssi2);
+            opStringSI cb = new opStringSI();
+            p.begin_opStringS(ssi1, ssi2, cb);
             cb.check();
         }
 
@@ -1541,8 +1400,8 @@ class TwowaysAMI
                     { (byte)0xf2, (byte)0xf1 }
                 };
 
-            AMI_MyClass_opByteSSI cb = new AMI_MyClass_opByteSSI();
-            p.opByteSS_async(cb, bsi1, bsi2);
+            opByteSSI cb = new opByteSSI();
+            p.begin_opByteSS(bsi1, bsi2, cb);
             cb.check();
         }
 
@@ -1559,8 +1418,8 @@ class TwowaysAMI
                     { false, false, true }
                 };
 
-            AMI_MyClass_opBoolSSI cb = new AMI_MyClass_opBoolSSI();
-            p.opBoolSS_async(cb, bsi1, bsi2);
+            opBoolSSI cb = new opBoolSSI();
+            p.begin_opBoolSS(bsi1, bsi2, cb);
             cb.check();
         }
 
@@ -1581,8 +1440,8 @@ class TwowaysAMI
                     {496, 1729},
                 };
 
-            AMI_MyClass_opShortIntLongSSI cb = new AMI_MyClass_opShortIntLongSSI();
-            p.opShortIntLongSS_async(cb, ssi, isi, lsi);
+            opShortIntLongSSI cb = new opShortIntLongSSI();
+            p.begin_opShortIntLongSS(ssi, isi, lsi, cb);
             cb.check();
         }
 
@@ -1598,8 +1457,8 @@ class TwowaysAMI
                     { 1.1E10, 1.2E10, 1.3E10 }
                 };
 
-            AMI_MyClass_opFloatDoubleSSI cb = new AMI_MyClass_opFloatDoubleSSI();
-            p.opFloatDoubleSS_async(cb, fsi, dsi);
+            opFloatDoubleSSI cb = new opFloatDoubleSSI();
+            p.begin_opFloatDoubleSS(fsi, dsi, cb);
             cb.check();
         }
 
@@ -1616,8 +1475,8 @@ class TwowaysAMI
                     { "xyz" }
                 };
 
-            AMI_MyClass_opStringSSI cb = new AMI_MyClass_opStringSSI();
-            p.opStringSS_async(cb, ssi1, ssi2);
+            opStringSSI cb = new opStringSSI();
+            p.begin_opStringSS(ssi1, ssi2, cb);
             cb.check();
         }
 
@@ -1658,8 +1517,8 @@ class TwowaysAMI
                 }
             };
 
-            AMI_MyClass_opStringSSSI cb = new AMI_MyClass_opStringSSSI();
-            p.opStringSSS_async(cb, sssi1, sssi2);
+            opStringSSSI cb = new opStringSSSI();
+            p.begin_opStringSSS(sssi1, sssi2, cb);
             cb.check();
         }
 
@@ -1672,8 +1531,8 @@ class TwowaysAMI
             di2.put((byte)11, Boolean.FALSE);
             di2.put((byte)101, Boolean.TRUE);
 
-            AMI_MyClass_opByteBoolDI cb = new AMI_MyClass_opByteBoolDI();
-            p.opByteBoolD_async(cb, di1, di2);
+            opByteBoolDI cb = new opByteBoolDI();
+            p.begin_opByteBoolD(di1, di2, cb);
             cb.check();
         }
 
@@ -1686,8 +1545,8 @@ class TwowaysAMI
             di2.put((short)111, -100);
             di2.put((short)1101, 0);
 
-            AMI_MyClass_opShortIntDI cb = new AMI_MyClass_opShortIntDI();
-            p.opShortIntD_async(cb, di1, di2);
+            opShortIntDI cb = new opShortIntDI();
+            p.begin_opShortIntD(di1, di2, cb);
             cb.check();
         }
 
@@ -1700,8 +1559,8 @@ class TwowaysAMI
             di2.put(999999120L, new Float(-100.4f));
             di2.put(999999130L, new Float(0.5f));
 
-            AMI_MyClass_opLongFloatDI cb = new AMI_MyClass_opLongFloatDI();
-            p.opLongFloatD_async(cb, di1, di2);
+            opLongFloatDI cb = new opLongFloatDI();
+            p.begin_opLongFloatD(di1, di2, cb);
             cb.check();
         }
 
@@ -1714,8 +1573,8 @@ class TwowaysAMI
             di2.put("FOO", "abc -100.4");
             di2.put("BAR", "abc 0.5");
 
-            AMI_MyClass_opStringStringDI cb = new AMI_MyClass_opStringStringDI();
-            p.opStringStringD_async(cb, di1, di2);
+            opStringStringDI cb = new opStringStringDI();
+            p.begin_opStringStringD(di1, di2, cb);
             cb.check();
         }
 
@@ -1728,8 +1587,8 @@ class TwowaysAMI
             di2.put("qwerty", MyEnum.enum3);
             di2.put("Hello!!", MyEnum.enum2);
 
-            AMI_MyClass_opStringMyEnumDI cb = new AMI_MyClass_opStringMyEnumDI();
-            p.opStringMyEnumD_async(cb, di1, di2);
+            opStringMyEnumDI cb = new opStringMyEnumDI();
+            p.begin_opStringMyEnumD(di1, di2, cb);
             cb.check();
         }
 
@@ -1740,8 +1599,8 @@ class TwowaysAMI
             di2.put(MyEnum.enum2, "Hello!!");
             di2.put(MyEnum.enum3, "qwerty");
 
-            AMI_MyClass_opMyEnumStringDI cb = new AMI_MyClass_opMyEnumStringDI();
-            p.opMyEnumStringD_async(cb, di1, di2);
+            opMyEnumStringDI cb = new opMyEnumStringDI();
+            p.begin_opMyEnumStringD(di1, di2, cb);
             cb.check();
         }
 
@@ -1758,8 +1617,8 @@ class TwowaysAMI
             di2.put(s22, MyEnum.enum3);
             di2.put(s23, MyEnum.enum2);
 
-            AMI_MyClass_opMyStructMyEnumDI cb = new AMI_MyClass_opMyStructMyEnumDI();
-            p.opMyStructMyEnumD_async(cb, di1, di2);
+            opMyStructMyEnumDI cb = new opMyStructMyEnumDI();
+            p.begin_opMyStructMyEnumD(di1, di2, cb);
             cb.check();
         }
 
@@ -1773,8 +1632,8 @@ class TwowaysAMI
                 {
                     s[i] = i;
                 }
-                AMI_MyClass_opIntSI cb = new AMI_MyClass_opIntSI(l);
-                p.opIntS_async(cb, s);
+                opIntSI cb = new opIntSI(l);
+                p.begin_opIntS(s, cb);
                 cb.check();
             }
         }
@@ -1786,27 +1645,27 @@ class TwowaysAMI
             ctx.put("three", "THREE");
             {
                 test(p.ice_getContext().isEmpty());
-                AMI_MyClass_opContextNotEqualI cb = new AMI_MyClass_opContextNotEqualI(ctx);
-                p.opContext_async(cb);
-                cb.check();
+                Ice.AsyncResult r = p.begin_opContext();
+                java.util.Map<String, String> c = p.end_opContext(r);
+                test(!c.equals(ctx));
             }
             {
                 test(p.ice_getContext().isEmpty());
-                AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
-                p.opContext_async(cb, ctx);
-                cb.check();
+                Ice.AsyncResult r = p.begin_opContext(ctx);
+                java.util.Map<String, String> c = p.end_opContext(r);
+                test(c.equals(ctx));
             }
             MyClassPrx p2 = MyClassPrxHelper.checkedCast(p.ice_context(ctx));
             test(p2.ice_getContext().equals(ctx));
             {
-                AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
-                p2.opContext_async(cb);
-                cb.check();
+                Ice.AsyncResult r = p2.begin_opContext();
+                java.util.Map<String, String> c = p2.end_opContext(r);
+                test(c.equals(ctx));
             }
             {
-                AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
-                p2.opContext_async(cb, ctx);
-                cb.check();
+                Ice.AsyncResult r = p2.begin_opContext(ctx);
+                java.util.Map<String, String> c = p2.end_opContext(r);
+                test(c.equals(ctx));
             }
         }
 
@@ -1834,18 +1693,18 @@ class TwowaysAMI
                 ic.getImplicitContext().setContext(ctx);
                 test(ic.getImplicitContext().getContext().equals(ctx));
                 {
-                    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
-                    p3.opContext_async(cb);
-                    cb.check();
+                    Ice.AsyncResult r = p3.begin_opContext();
+                    java.util.Map<String, String> c = p3.end_opContext(r);
+                    test(c.equals(ctx));
                 }
 
                 ic.getImplicitContext().put("zero", "ZERO");
 
                 ctx = ic.getImplicitContext().getContext();
                 {
-                    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
-                    p3.opContext_async(cb);
-                    cb.check();
+                    Ice.AsyncResult r = p3.begin_opContext();
+                    java.util.Map<String, String> c = p3.end_opContext(r);
+                    test(c.equals(ctx));
                 }
 
                 java.util.Map<String, String> prxContext = new java.util.HashMap<String, String>();
@@ -1860,16 +1719,16 @@ class TwowaysAMI
 
                 ic.getImplicitContext().setContext(null);
                 {
-                    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(prxContext);
-                    p3.opContext_async(cb);
-                    cb.check();
+                    Ice.AsyncResult r = p3.begin_opContext();
+                    java.util.Map<String, String> c = p3.end_opContext(r);
+                    test(c.equals(prxContext));
                 }
 
                 ic.getImplicitContext().setContext(ctx);
                 {
-                    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(combined);
-                    p3.opContext_async(cb);
-                    cb.check();
+                    Ice.AsyncResult r = p3.begin_opContext();
+                    java.util.Map<String, String> c = p3.end_opContext(r);
+                    test(c.equals(combined));
                 }
 
                 ic.destroy();
@@ -1883,28 +1742,28 @@ class TwowaysAMI
             {
                 ds[i] = d;
             }
-            AMI_MyClass_opDoubleMarshalingI cb = new AMI_MyClass_opDoubleMarshalingI();
-            p.opDoubleMarshaling_async(cb, d, ds);
+            opDoubleMarshalingI cb = new opDoubleMarshalingI();
+            p.begin_opDoubleMarshaling(d, ds, cb);
             cb.check();
         }
 
         {
-            AMI_MyClass_opIdempotentI cb = new AMI_MyClass_opIdempotentI();
-            p.opIdempotent_async(cb);
+            opIdempotentI cb = new opIdempotentI();
+            p.begin_opIdempotent(cb);
             cb.check();
         }
 
         {
-            AMI_MyClass_opNonmutatingI cb = new AMI_MyClass_opNonmutatingI();
-            p.opNonmutating_async(cb);
+            opNonmutatingI cb = new opNonmutatingI();
+            p.begin_opNonmutating(cb);
             cb.check();
         }
 
         {
             MyDerivedClassPrx derived = MyDerivedClassPrxHelper.checkedCast(p);
             test(derived != null);
-            AMI_MyDerivedClass_opDerivedI cb = new AMI_MyDerivedClass_opDerivedI();
-            derived.opDerived_async(cb);
+            opDerivedI cb = new opDerivedI();
+            derived.begin_opDerived(cb);
             cb.check();
         }
     }

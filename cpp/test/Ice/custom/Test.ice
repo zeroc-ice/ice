@@ -138,7 +138,7 @@ class DictClass
     DoubleBuffer doubleBuf;
 };
 
-["ami"] class TestIntf
+class TestIntf
 {
     ["cpp:array"] DoubleSeq opDoubleArray(["cpp:array"] DoubleSeq inSeq, out ["cpp:array"] DoubleSeq outSeq);
 

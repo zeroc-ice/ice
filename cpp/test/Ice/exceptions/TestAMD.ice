@@ -71,7 +71,7 @@ module Mod
 };
 
 
-["ami", "amd"] interface Thrower
+["amd"] interface Thrower
 {
     void shutdown();
     bool supportsUndeclaredExceptions();
@@ -106,7 +106,7 @@ module Mod
     void throwH();
 };
 
-["ami", "amd"] interface WrongOperation
+["amd"] interface WrongOperation
 {
     void noSuchOperation();
 };

@@ -49,11 +49,6 @@ public class AllTests : TestCommon.TestApp
             Flush();
             TwowaysAMI.twowaysAMI(communicator, cl);
             WriteLine("ok");
-
-            Write("testing twoway operations with new AMI mapping... ");
-            Flush();
-            TwowaysNewAMI.twowaysAMI(communicator, cl);
-            WriteLine("ok");
         }
 #if SILVERLIGHT
         cl.shutdown();

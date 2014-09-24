@@ -40,20 +40,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
     twowaysAMI(communicator, derived);
     cout << "ok" << endl;
 
-    cout << "testing twoway operations with new AMI mapping... " << flush;
-    void twowaysNewAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrx&);
-    twowaysNewAMI(communicator, cl);
-    twowaysNewAMI(communicator, derived);
-    cout << "ok" << endl;
-
     cout << "testing oneway operations with AMI... " << flush;
     void onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrx&);
     onewaysAMI(communicator, cl);
-    cout << "ok" << endl;
-
-    cout << "testing oneway operations with new AMI mapping... " << flush;
-    void onewaysNewAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrx&);
-    onewaysNewAMI(communicator, cl);
     cout << "ok" << endl;
 
     cout << "testing batch oneway operations... " << flush;

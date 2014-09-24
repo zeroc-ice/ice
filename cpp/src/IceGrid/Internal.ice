@@ -246,7 +246,7 @@ interface Server extends FileReader
      * @throws DeploymentException Raised if the server can't be updated.
      *
      **/
-    ["ami"] bool checkUpdate(InternalServerDescriptor svr, bool noRestart)
+    bool checkUpdate(InternalServerDescriptor svr, bool noRestart)
         throws DeploymentException;
 
     /**

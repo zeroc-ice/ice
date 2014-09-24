@@ -9,12 +9,10 @@
 
 package test.Ice.operations;
 
-import test.Ice.operations.Test.AMI_MyClass_opByte;
-import test.Ice.operations.Test.AMI_MyClass_opIdempotent;
-import test.Ice.operations.Test.AMI_MyClass_opNonmutating;
-import test.Ice.operations.Test.AMI_MyClass_opVoid;
+import test.Ice.operations.Test.Callback_MyClass_opIdempotent;
+import test.Ice.operations.Test.Callback_MyClass_opNonmutating;
+import test.Ice.operations.Test.Callback_MyClass_opVoid;
 import test.Ice.operations.Test.MyClassPrx;
-import test.Ice.operations.Test.MyClassPrxHelper;
 
 class OnewaysAMI
 {
@@ -27,15 +25,14 @@ class OnewaysAMI
         }
     }
 
-    private static class Callback
+    private static class CallbackBase
     {
-        Callback()
+        CallbackBase()
         {
             _called = false;
         }
 
-        public synchronized void
-        check()
+        public synchronized void check()
         {
             while(!_called)
             {
@@ -50,9 +47,8 @@ class OnewaysAMI
 
             _called = false;
         }
-        
-        public synchronized void
-        called()
+
+        public synchronized void called()
         {
             assert(!_called);
             _called = true;
@@ -62,152 +58,187 @@ class OnewaysAMI
         private boolean _called;
     }
 
-    private static class AMI_MyClass_opVoidI extends AMI_MyClass_opVoid
+    static class Callback extends CallbackBase
     {
-        @Override
+        public Callback()
+        {
+        }
+
         public void
-        ice_response()
+        sent(boolean sentSynchronously)
+        {
+            called();
+        }
+
+        void noException(Ice.LocalException ex)
         {
             test(false);
         }
-
-        @Override
-        public void
-        ice_exception(Ice.LocalException ex)
-        {
-            test(false);
-        }
-    }
-
-    private static class AMI_MyClass_opIdempotentI extends AMI_MyClass_opIdempotent
-    {
-        @Override
-        public void
-        ice_response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        ice_exception(Ice.LocalException ex)
-        {
-            test(false);
-        }
-    }
-
-    private static class AMI_MyClass_opNonmutatingI extends AMI_MyClass_opNonmutating
-    {
-        @Override
-        public void
-        ice_response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        ice_exception(Ice.LocalException ex)
-        {
-            test(false);
-        }
-    }
-
-    private static class AMI_MyClass_opVoidExI extends AMI_MyClass_opVoid
-    {
-        @Override
-        public void
-        ice_response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        ice_exception(Ice.LocalException ex)
-        {
-            test(ex instanceof Ice.NoEndpointException);
-            callback.called();
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class AMI_MyClass_opByteExI extends AMI_MyClass_opByte
-    {
-        @Override
-        public void
-        ice_response(byte r, byte b)
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        ice_exception(Ice.LocalException ex)
-        {
-            test(ex instanceof Ice.TwowayOnlyException);
-            callback.called();
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
     }
 
     static void
-    onewaysAMI(test.Util.Application app, MyClassPrx p)
+    onewaysAMI(test.Util.Application app, MyClassPrx proxy)
     {
-        p = MyClassPrxHelper.uncheckedCast(p.ice_oneway());
+        MyClassPrx p = (MyClassPrx)proxy.ice_oneway();
 
         {
-            AMI_MyClass_opVoidI cb = new AMI_MyClass_opVoidI();
-            p.opVoid_async(cb);
-            // Let's check if we can reuse the same callback object for another call.
-            p.opVoid_async(cb);
+            final Callback cb = new Callback();
+            Ice.Callback_Object_ice_ping callback = new Ice.Callback_Object_ice_ping()
+                {
+                    @Override
+                    public void
+                    response()
+                    {
+                        test(false);
+                    }
+
+                    @Override
+                    public void
+                    exception(Ice.LocalException ex)
+                    {
+                        cb.noException(ex);
+                    }
+
+                    @Override
+                    public void
+                    sent(boolean sentSynchronously)
+                    {
+                        cb.sent(sentSynchronously);
+                    }
+                };
+            p.begin_ice_ping(callback);
+            cb.check();
         }
 
         {
-            AMI_MyClass_opIdempotentI cb = new AMI_MyClass_opIdempotentI();
-            p.opIdempotent_async(cb);
-        }
-
-        {
-            AMI_MyClass_opNonmutatingI cb = new AMI_MyClass_opNonmutatingI();
-            p.opNonmutating_async(cb);
-        }
-
-        {
-            // Check that a call to a void operation raises NoEndpointException
-            // in the ice_exception() callback instead of at the point of call.
-            MyClassPrx indirect = MyClassPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
-            AMI_MyClass_opVoidExI cb = new AMI_MyClass_opVoidExI();
             try
             {
-                indirect.opVoid_async(cb);
-            }
-            catch(java.lang.Exception ex)
-            {
+                p.begin_ice_isA("::Test::MyClass");
                 test(false);
             }
+            catch(java.lang.IllegalArgumentException ex)
+            {
+            }
+        }
+
+        {
+            try
+            {
+                p.begin_ice_id();
+                test(false);
+            }
+            catch(java.lang.IllegalArgumentException ex)
+            {
+            }
+        }
+
+        {
+            try
+            {
+                p.begin_ice_ids();
+                test(false);
+            }
+            catch(java.lang.IllegalArgumentException ex)
+            {
+            }
+        }
+
+        {
+            final Callback cb = new Callback();
+            Callback_MyClass_opVoid callback = new Callback_MyClass_opVoid()
+                {
+                    @Override
+                    public void
+                    response()
+                    {
+                        test(false);
+                    }
+
+                    @Override
+                    public void
+                    exception(Ice.LocalException ex)
+                    {
+                        cb.noException(ex);
+                    }
+
+                    @Override
+                    public void
+                    sent(boolean sentSynchronously)
+                    {
+                        cb.sent(sentSynchronously);
+                    }
+                };
+            p.begin_opVoid(callback);
             cb.check();
         }
 
         {
-            AMI_MyClass_opByteExI cb = new AMI_MyClass_opByteExI();
-            p.opByte_async(cb, (byte)0xff, (byte)0x0f);
+            final Callback cb = new Callback();
+            Callback_MyClass_opIdempotent callback = new Callback_MyClass_opIdempotent()
+                {
+                    @Override
+                    public void
+                    response()
+                    {
+                        test(false);
+                    }
+
+                    @Override
+                    public void
+                    exception(Ice.LocalException ex)
+                    {
+                        cb.noException(ex);
+                    }
+
+                    @Override
+                    public void
+                    sent(boolean sentSynchronously)
+                    {
+                        cb.sent(sentSynchronously);
+                    }
+                };
+            p.begin_opIdempotent(callback);
             cb.check();
         }
 
+        {
+            final Callback cb = new Callback();
+            Callback_MyClass_opNonmutating callback = new Callback_MyClass_opNonmutating()
+                {
+                    @Override
+                    public void
+                    response()
+                    {
+                        test(false);
+                    }
+
+                    @Override
+                    public void
+                    exception(Ice.LocalException ex)
+                    {
+                        cb.noException(ex);
+                    }
+
+                    @Override
+                    public void
+                    sent(boolean sentSynchronously)
+                    {
+                        cb.sent(sentSynchronously);
+                    }
+                };
+            p.begin_opNonmutating(callback);
+            cb.check();
+        }
+
+        {
+            try
+            {
+                p.begin_opByte((byte)0xff, (byte)0x0f);
+                test(false);
+            }
+            catch(java.lang.IllegalArgumentException ex)
+            {
+            }
+        }
     }
 }

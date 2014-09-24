@@ -11,11 +11,11 @@ top_srcdir	= ..\..\..
 
 TARGETS		= client.exe server.exe collocated.exe serveramd.exe servertie.exe serveramdtie.exe
 
-C_SRCS		= AllTests.cs Client.cs Twoways.cs TwowaysAMI.cs TwowaysNewAMI.cs BatchOneways.cs Oneways.cs \
-		  BatchOnewaysAMI.cs OnewaysAMI.cs OnewaysNewAMI.cs ..\..\TestCommon\TestApp.cs
+C_SRCS		= AllTests.cs Client.cs Twoways.cs TwowaysAMI.cs BatchOneways.cs Oneways.cs \
+		  BatchOnewaysAMI.cs OnewaysAMI.cs ..\..\TestCommon\TestApp.cs
 S_SRCS		= MyDerivedClassI.cs Server.cs
-COL_SRCS	= AllTests.cs Collocated.cs MyDerivedClassI.cs Twoways.cs TwowaysAMI.cs TwowaysNewAMI.cs \
-		  BatchOneways.cs BatchOnewaysAMI.cs Oneways.cs OnewaysAMI.cs OnewaysNewAMI.cs \
+COL_SRCS	= AllTests.cs Collocated.cs MyDerivedClassI.cs Twoways.cs TwowaysAMI.cs \
+		  BatchOneways.cs BatchOnewaysAMI.cs Oneways.cs OnewaysAMI.cs \
 		  ..\..\TestCommon\TestApp.cs
 SAMD_SRCS	= MyDerivedClassAMDI.cs Server.cs
 STIE_SRCS	= MyDerivedClassTieI.cs Server.cs

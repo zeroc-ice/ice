@@ -19,7 +19,7 @@ module Test
 
 ["cpp:type:test::Message"] sequence<byte> Message;
 
-["ami"] class MyClass
+class MyClass
 {
     void shutdown();
 

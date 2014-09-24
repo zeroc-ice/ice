@@ -24,9 +24,7 @@ COBJS		= Test.o \
 		  Twoways.o \
 		  Oneways.o \
 		  TwowaysAMI.o \
-		  TwowaysNewAMI.o \
 		  OnewaysAMI.o \
-		  OnewaysNewAMI.o \
 		  BatchOneways.o \
 		  BatchOnewaysAMI.o
 
@@ -45,9 +43,7 @@ COLOBJS		= Test.o \
 		  Twoways.o \
 		  Oneways.o \
 		  TwowaysAMI.o \
-		  TwowaysNewAMI.o \
 		  OnewaysAMI.o \
-		  OnewaysNewAMI.o \
 		  BatchOneways.o \
 		  BatchOnewaysAMI.o
 

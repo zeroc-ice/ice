@@ -33,7 +33,7 @@ interface decimal
 class delegate
 {
     int if;
-    ["ami"] void foo(case* else, out int event);
+    void foo(case* else, out int event);
 };
 
 class explicit extends delegate implements decimal, case
@@ -55,7 +55,6 @@ class optionalMembers
     optional(8) explicit* null;
 };
 
-["ami"]
 interface optionalParams
 {
     optional(1) break for(optional(2) as goto,

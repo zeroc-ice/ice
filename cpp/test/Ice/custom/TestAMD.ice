@@ -136,7 +136,7 @@ struct BufferStruct
     DoubleBuffer doubleBuf;
 };
 
-["amd", "ami"] class TestIntf
+["amd"] class TestIntf
 {
     DoubleSeq opDoubleArray(["cpp:array"] DoubleSeq inSeq, out DoubleSeq outSeq);
 

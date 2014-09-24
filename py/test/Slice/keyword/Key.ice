@@ -32,7 +32,7 @@ module and
     class for
     {
         int lambda;
-        ["ami"] void foo(exec* from, out int global);
+        void foo(exec* from, out int global);
     };
 
     class if extends for implements exec, del

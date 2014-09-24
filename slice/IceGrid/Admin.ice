@@ -471,7 +471,7 @@ interface Admin
      * doesn't exist.
      *
      **/
-    ["ami"] void syncApplicationWithoutRestart(ApplicationDescriptor descriptor)
+    void syncApplicationWithoutRestart(ApplicationDescriptor descriptor)
         throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
 
     /**
@@ -495,7 +495,7 @@ interface Admin
      * doesn't exist.
      *
      **/
-    ["ami"] void updateApplicationWithoutRestart(ApplicationUpdateDescriptor descriptor)
+    void updateApplicationWithoutRestart(ApplicationUpdateDescriptor descriptor)
         throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
 
     /**

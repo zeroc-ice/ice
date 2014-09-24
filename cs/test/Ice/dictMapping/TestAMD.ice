@@ -52,7 +52,7 @@ dictionary<string, GSS> NDGSS;
 ["clr:collection"] dictionary<string, CSS> ODCSS;
 ["clr:collection"] dictionary<string, GSS> ODGSS;
 
-["ami", "amd"] class MyClass
+["amd"] class MyClass
 {
     void shutdown();
 

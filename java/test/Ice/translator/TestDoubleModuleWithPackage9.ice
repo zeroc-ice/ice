@@ -61,22 +61,6 @@ class dmwpTest9Class extends dmwpBaseClass implements dmwpBaseInterface
                  out dmwpClass o6)
         throws dmwpException;
 
-    ["ami"]
-    dmwpStruct
-    dmwpTest9Op2(dmwpEnum i1,
-                 dmwpStruct i2,
-                 dmwpStructSeq i3,
-                 dmwpStringStructDict i4,
-                 dmwpInterface i5,
-                 dmwpClass i6,
-                 out dmwpEnum o1,
-                 out dmwpStruct o2,
-                 out dmwpStructSeq o3,
-                 out dmwpStringStructDict o4,
-                 out dmwpInterface o5,
-                 out dmwpClass o6)
-        throws dmwpException;
-
     ["amd"]
     dmwpStruct
     dmwpTest9Op3(dmwpEnum i1,

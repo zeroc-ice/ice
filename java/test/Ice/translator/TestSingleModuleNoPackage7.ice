@@ -61,22 +61,6 @@ class smnpTest7Class extends smnpBaseClass implements smnpBaseInterface
                  out smnpClass o6)
         throws smnpException;
 
-    ["ami"]
-    smnpStruct
-    smnpTest7Op2(smnpEnum i1,
-                 smnpStruct i2,
-                 smnpStructSeq i3,
-                 smnpStringStructDict i4,
-                 smnpInterface i5,
-                 smnpClass i6,
-                 out smnpEnum o1,
-                 out smnpStruct o2,
-                 out smnpStructSeq o3,
-                 out smnpStringStructDict o4,
-                 out smnpInterface o5,
-                 out smnpClass o6)
-        throws smnpException;
-
     ["amd"]
     smnpStruct
     smnpTest7Op3(smnpEnum i1,

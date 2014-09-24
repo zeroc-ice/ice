@@ -37,7 +37,7 @@ exception D
     int dMem;
 };
 
-["ami", "amd"] interface Thrower
+["amd"] interface Thrower
 {
     void shutdown();
     bool supportsUndeclaredExceptions();
@@ -64,7 +64,7 @@ exception D
     void throwAfterException() throws A;
 };
 
-["ami", "amd"] interface WrongOperation
+["amd"] interface WrongOperation
 {
     void noSuchOperation();
 };

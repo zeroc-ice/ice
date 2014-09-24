@@ -15,13 +15,13 @@ sequence<byte> ByteSeq;
 
 class Latency
 {
-    ["ami"] void ping();
+    void ping();
 
     //
     // A simple latency test with a payload. The payload size is set
     // programmatically.
     //
-    ["ami"] void withData(ByteSeq payLoad);
+    void withData(ByteSeq payLoad);
 
     void shutdown();
 };

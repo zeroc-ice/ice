@@ -10,8 +10,9 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Collections.Generic;
 
-class OnewaysAMI
+public class OnewaysAMI
 {
     private static void test(bool b)
     {
@@ -21,14 +22,14 @@ class OnewaysAMI
         }
     }
 
-    private class Callback
+    private class CallbackBase
     {
-        internal Callback()
+        internal CallbackBase()
         {
             _called = false;
         }
 
-        public void check()
+        public virtual void check()
         {
             lock(this)
             {
@@ -36,12 +37,11 @@ class OnewaysAMI
                 {
                     System.Threading.Monitor.Wait(this);
                 }
-
                 _called = false;
             }
         }
 
-        public void called()
+        public virtual void called()
         {
             lock(this)
             {
@@ -54,128 +54,154 @@ class OnewaysAMI
         private bool _called;
     }
 
-    private class AMI_MyClass_opVoidI : Test.AMI_MyClass_opVoid
+    private class Callback : CallbackBase
     {
-        public override void ice_response()
+        public Callback()
         {
-            test(false);
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void
+        sent(bool sentSynchronously)
+        {
+            called();
+        }
+
+        public void noException(Ice.Exception ex)
         {
             test(false);
         }
     }
 
-    private class AMI_MyClass_opIdempotentI : Test.AMI_MyClass_opIdempotent
+    internal static void onewaysAMI(Ice.Communicator communicator, Test.MyClassPrx proxy)
     {
-        public override void ice_response()
-        {
-            test(false);
-        }
-
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-    }
-
-    private class AMI_MyClass_opNonmutatingI : Test.AMI_MyClass_opNonmutating
-    {
-        public override void ice_response()
-        {
-            test(false);
-        }
-
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-    }
-
-    private class AMI_MyClass_opVoidExI : Test.AMI_MyClass_opVoid
-    {
-        public override void ice_response()
-        {
-            test(false);
-        }
-
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(ex is Ice.NoEndpointException);
-            callback.called();
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opByteExI : Test.AMI_MyClass_opByte
-    {
-        public override void ice_response(byte r, byte b)
-        {
-            test(false);
-        }
-
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(ex is Ice.TwowayOnlyException);
-            callback.called();
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    internal static void onewaysAMI(Ice.Communicator communicator, Test.MyClassPrx p)
-    {
-        p = Test.MyClassPrxHelper.uncheckedCast(p.ice_oneway());
+        Test.MyClassPrx p = Test.MyClassPrxHelper.uncheckedCast(proxy.ice_oneway());
 
         {
-            AMI_MyClass_opVoidI cb = new AMI_MyClass_opVoidI();
-            p.opVoid_async(cb);
-            // Let's check if we can reuse the same callback object for another call.
-            p.opVoid_async(cb);
+            Callback cb = new Callback();
+            p.begin_ice_ping().whenCompleted(cb.noException).whenSent(cb.sent);
+            cb.check();
         }
 
         {
-            AMI_MyClass_opIdempotentI cb = new AMI_MyClass_opIdempotentI();
-            p.opIdempotent_async(cb);
+            Callback cb = new Callback();
+            p.begin_ice_ping().whenCompleted(
+                (Ice.Exception ex) =>
+                {
+                    cb.noException(ex);
+                }
+            ).whenSent(
+                (bool sentSynchronously) =>
+                {
+                    cb.sent(sentSynchronously);
+                });
+            cb.check();
         }
 
         {
-            AMI_MyClass_opNonmutatingI cb = new AMI_MyClass_opNonmutatingI();
-            p.opNonmutating_async(cb);
-        }
-
-        {
-            // Check that a call to a void operation raises NoEndpointException
-            // in the ice_exception() callback instead of at the point of call.
-            Test.MyClassPrx indirect = Test.MyClassPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
-            AMI_MyClass_opVoidExI cb = new AMI_MyClass_opVoidExI();
             try
             {
-                indirect.opVoid_async(cb);
-            }
-            catch(System.Exception)
-            {
+                p.begin_ice_isA("::Test::MyClass");
                 test(false);
             }
+            catch(System.ArgumentException)
+            {
+            }
+        }
+    
+        {
+            try
+            {
+                p.begin_ice_id();
+                test(false);
+            }
+            catch(System.ArgumentException)
+            {
+            }
+        }
+    
+        {
+            try
+            {
+                p.begin_ice_ids();
+                test(false);
+            }
+            catch(System.ArgumentException)
+            {
+            }
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opVoid().whenCompleted(cb.noException).whenSent(cb.sent);
             cb.check();
         }
 
         {
-            AMI_MyClass_opByteExI cb = new AMI_MyClass_opByteExI();
-            p.opByte_async(cb, (byte)0xff, (byte)0x0f);
+            Callback cb = new Callback();
+            p.begin_opVoid().whenCompleted(
+                (Ice.Exception ex) =>
+                {
+                    cb.noException(ex);
+                }
+            ).whenSent(
+                (bool sentSynchronously) =>
+                {
+                    cb.sent(sentSynchronously);
+                });
             cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opIdempotent().whenCompleted(cb.noException).whenSent(cb.sent);
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opIdempotent().whenCompleted(
+                (Ice.Exception ex) =>
+                {
+                    cb.noException(ex);
+                }
+            ).whenSent(
+                (bool sentSynchronously) =>
+                {
+                    cb.sent(sentSynchronously);
+                });
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opNonmutating().whenCompleted(cb.noException).whenSent(cb.sent);
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opNonmutating().whenCompleted(
+                (Ice.Exception ex) =>
+                {
+                    cb.noException(ex);
+                }
+            ).whenSent(
+                (bool sentSynchronously) =>
+                {
+                    cb.sent(sentSynchronously);
+                });
+            cb.check();
+        }
+
+        {
+            try
+            {
+                p.begin_opByte((byte)0xff, (byte)0x0f);
+                test(false);
+            }
+            catch(System.ArgumentException)
+            {
+            }
         }
     }
 }

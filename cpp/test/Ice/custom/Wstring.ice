@@ -26,7 +26,7 @@ exception WstringException
     string reason;
 };
 
-["ami"] class WstringClass
+class WstringClass
 {
     string opString(string s1, out string s2);
 
@@ -57,7 +57,7 @@ dictionary<["cpp:type:wstring"] string, ["cpp:type:wstring"] string> WstringWStr
     string reason;
 };
 
-["ami", "cpp:type:wstring"] class WstringClass
+["cpp:type:wstring"] class WstringClass
 {
     string opString(string s1, out string s2);
 

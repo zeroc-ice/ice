@@ -4803,28 +4803,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     _out << sp;
     _out << nl << retS << " end_" << p->name() << spar << getParamsAsyncCB(p, true) << "Ice.AsyncResult r__" << epar
          << ';';
-
-    if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
-    {
-        vector<string> paramsAMI = getParamsAsync(p, false);
-
-        //
-        // Write two versions of the operation - with and without a
-        // context parameter.
-        //
-        _out << sp;
-        if(!deprecateReason.empty())
-        {
-            _out << nl << "[_System.Obsolete(\"" << deprecateReason << "\")]";
-        }
-        _out << nl << "bool " << p->name() << "_async" << spar << paramsAMI << epar << ';';
-        if(!deprecateReason.empty())
-        {
-            _out << nl << "[_System.Obsolete(\"" << deprecateReason << "\")]";
-        }
-        _out << nl << "bool " << p->name() << "_async" << spar << paramsAMI
-             << "_System.Collections.Generic.Dictionary<string, string> ctx__" << epar << ';';
-    }
 }
 
 Slice::Gen::AsyncDelegateVisitor::AsyncDelegateVisitor(IceUtilInternal::Output& out)
@@ -5514,89 +5492,6 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << sb;
             _out << nl << "cb__();";
             _out << eb;
-            _out << eb;
-        }
-
-        //
-        // Old AMI mapping.
-        //
-        if(containingClass->hasMetaData("ami") || op->hasMetaData("ami"))
-        {
-            vector<string> paramsAMI = getParamsAsync(op, false);
-            vector<string> argsAMI = getArgsAsync(op);
-            vector<string> argsNewAMI = getArgsAsync(op, true);
-
-            string opName = op->name();
-            string flatName = "__" + opName + "_name";
-
-            //
-            // Write two versions of the operation - with and without a
-            // context parameter
-            //
-            _out << sp;
-            writeDocCommentAsync(op, InParam);
-            _out << nl << "public bool " << opName << "_async" << spar << paramsAMI << epar;
-            _out << sb;
-            if(op->returnsData())
-            {
-                _out << nl << "Ice.AsyncResult<" << delType << "> result__;";
-                _out << nl << "try";
-                _out << sb;
-                _out << nl << "checkTwowayOnly__(" << flatName << ");";
-                _out << nl << "result__ = begin_" << opName << spar << argsNewAMI << epar << ";";
-                _out << eb;
-                _out << nl << "catch(Ice.TwowayOnlyException ex)";
-                _out << sb;
-                _out << nl << "result__ = new IceInternal.TwowayOutgoingAsync<" << delType << ">(this, "
-                     << flatName << ", " << op->name() << "_completed__, null);";
-                _out << nl << "((IceInternal.OutgoingAsyncBase)result__).invokeExceptionAsync(ex);";
-                _out << eb;
-            }
-            else
-            {
-                _out << nl << "Ice.AsyncResult<" << delType << "> result__ = begin_" << opName << spar << argsNewAMI
-                     << epar << ";";
-            }
-            _out << nl << "result__.whenCompleted(cb__.response__, cb__.exception__);";
-            _out << nl << "if(cb__ is Ice.AMISentCallback)";
-            _out << sb;
-            _out << nl << "result__.whenSent((Ice.AsyncCallback)cb__.sent__);";
-            _out << eb;
-            _out << nl << "return result__.sentSynchronously();";
-            _out << eb;
-
-            _out << sp;
-            writeDocCommentAsync(op, InParam,
-                                 "<param name=\"ctx__\">The Context map to send with the invocation.</param>");
-            _out << nl << "public bool " << opName << "_async" << spar << paramsAMI
-                 << "_System.Collections.Generic.Dictionary<string, string> ctx__" << epar;
-            _out << sb;
-            if(op->returnsData())
-            {
-                _out << nl << "Ice.AsyncResult<" << delType << "> result__;";
-                _out << nl << "try";
-                _out << sb;
-                _out << nl << "checkTwowayOnly__(" << flatName << ");";
-                _out << nl << "result__ = begin_" << opName << spar << argsNewAMI << "ctx__" << epar << ";";
-                _out << eb;
-                _out << nl << "catch(Ice.TwowayOnlyException ex)";
-                _out << sb;
-                _out << nl << "result__ = new IceInternal.TwowayOutgoingAsync<" << delType << ">(this, "
-                     << flatName << ", " << op->name() << "_completed__, null);";
-                _out << nl << "((IceInternal.OutgoingAsyncBase)result__).invokeExceptionAsync(ex);";
-                _out << eb;
-            }
-            else
-            {
-                _out << nl << "Ice.AsyncResult<" << delType << "> result__ = begin_" << opName << spar << argsNewAMI
-                     << "ctx__" << epar << ";";
-            }
-            _out << nl << "result__.whenCompleted(cb__.response__, cb__.exception__);";
-            _out << nl << "if(cb__ is Ice.AMISentCallback)";
-            _out << sb;
-            _out << nl << "result__.whenSent((Ice.AsyncCallback)cb__.sent__);";
-            _out << eb;
-            _out << nl << "return result__.sentSynchronously();";
             _out << eb;
         }
     }
@@ -6293,30 +6188,6 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
     }
 
     string name = p->name();
-
-    if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
-    {
-        vector<string> params = getParamsAsyncCB(p);
-        vector<string> args = getArgsAsyncCB(p);
-
-        _out << sp;
-        writeDocCommentOp(p);
-        emitComVisibleAttribute();
-        emitGeneratedCodeAttribute();
-        _out << nl << "public abstract class AMI_" << cl->name() << '_' << name << " : Ice.AMICallbackBase";
-        _out << sb;
-        _out << sp;
-        writeDocCommentAsync(p, OutParam);
-        _out << nl << "public abstract void ice_response" << spar << params << epar << ';';
-
-        _out << sp;
-        _out << nl << "public void response__" << spar << params << epar;
-        _out << sb;
-        _out << nl << "ice_response" << spar << args << epar << ';';
-        _out << eb;
-
-        _out << eb;
-    }
 
     if(cl->hasMetaData("amd") || p->hasMetaData("amd"))
     {

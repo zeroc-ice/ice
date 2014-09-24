@@ -183,7 +183,7 @@ class Recursive {
     optional(0) RecursiveSeq value;
 };
 
-["ami", "amd"]
+["amd"]
 class Initial
 {
     void shutdown();

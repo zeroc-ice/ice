@@ -102,7 +102,7 @@ exception PreservedException
 {
 };
 
-["ami", "format:sliced"]
+["format:sliced"]
 interface TestIntf
 {
     Object SBaseAsObject();

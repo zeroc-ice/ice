@@ -64,15 +64,6 @@ module MetadataTest
         StringDict opStringDict(StringDict inArg, out StringDict outArg);
         StringMap opStringMap(StringMap inArg, out StringMap outArg);
 
-        ["ami"] IntSeq opIntSeqAMI(IntSeq inArg, out IntSeq outArg);
-        ["ami"] IntList opIntListAMI(IntList inArg, out IntList outArg);
-
-        ["ami"] ObjectSeq opObjectSeqAMI(ObjectSeq inArg, out ObjectSeq outArg);
-        ["ami"] ObjectList opObjectListAMI(ObjectList inArg, out ObjectList outArg);
-
-        ["ami"] StringDict opStringDictAMI(StringDict inArg, out StringDict outArg);
-        ["ami"] StringMap opStringMapAMI(StringMap inArg, out StringMap outArg);
-
         ["amd"] IntSeq opIntSeqAMD(IntSeq inArg, out IntSeq outArg);
         ["amd"] IntList opIntListAMD(IntList inArg, out IntList outArg);
 
@@ -101,22 +92,6 @@ module MetadataTest
         ["java:type:java.util.IdentityHashMap<String, String>"] StringMap
         opStringMap2(["java:type:java.util.IdentityHashMap<String, String>"] StringMap inArg,
                      out ["java:type:java.util.IdentityHashMap<String, String>"] StringMap outArg);
-
-        ["ami", "java:type:java.util.LinkedList<Integer>"] IntSeq
-        opIntSeq2AMI(["java:type:java.util.ArrayList<Integer>"] IntSeq inArg,
-                     out ["java:type:Test.CustomList<Integer>"] IntSeq outArg);
-
-        ["ami", "java:type:java.util.ArrayList<Integer>"] IntList
-        opIntList2AMI(["java:type:java.util.ArrayList<Integer>"] IntList inArg,
-                      out ["java:type:Test.CustomList<Integer>"] IntList outArg);
-
-        ["ami", "java:type:java.util.LinkedList<Ice.Object>"] ObjectSeq
-        opObjectSeq2AMI(["java:type:java.util.ArrayList<Ice.Object>"] ObjectSeq inArg,
-                        out ["java:type:Test.CustomList<Ice.Object>"] ObjectSeq outArg);
-
-        ["ami", "java:type:java.util.ArrayList<Ice.Object>"] ObjectList
-        opObjectList2AMI(["java:type:java.util.ArrayList<Ice.Object>"] ObjectList inArg,
-                         out ["java:type:Test.CustomList<Ice.Object>"] ObjectList outArg);
 
         ["amd", "java:type:java.util.LinkedList<Integer>"] IntSeq
         opIntSeq2AMD(["java:type:java.util.ArrayList<Integer>"] IntSeq inArg,

@@ -16,7 +16,7 @@ module Test
 
 ["java:protobuf:test.TestPB.Message"] sequence<byte> Message;
 
-["ami"] class MyClass
+class MyClass
 {
     void shutdown();
 

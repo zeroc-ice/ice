@@ -61,22 +61,6 @@ class dmnpTest6Class extends dmnpBaseClass implements dmnpBaseInterface
                  out dmnpClass o6)
         throws dmnpException;
 
-    ["ami"]
-    dmnpStruct
-    dmnpTest6Op2(dmnpEnum i1,
-                 dmnpStruct i2,
-                 dmnpStructSeq i3,
-                 dmnpStringStructDict i4,
-                 dmnpInterface i5,
-                 dmnpClass i6,
-                 out dmnpEnum o1,
-                 out dmnpStruct o2,
-                 out dmnpStructSeq o3,
-                 out dmnpStringStructDict o4,
-                 out dmnpInterface o5,
-                 out dmnpClass o6)
-        throws dmnpException;
-
     ["amd"]
     dmnpStruct
     dmnpTest6Op3(dmnpEnum i1,

@@ -149,7 +149,7 @@ sequence<En> AEnS;
 ["clr:serializable:Serialize.Struct"] sequence<byte> SerialStruct;
 #endif
 
-["ami"] class MyClass
+class MyClass
 {
     void shutdown();
 

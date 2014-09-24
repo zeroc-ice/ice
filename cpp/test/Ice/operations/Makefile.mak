@@ -33,8 +33,6 @@ COBJS		= .\Test.obj \
 		  .\Oneways.obj \
 		  .\TwowaysAMI.obj \
 		  .\OnewaysAMI.obj \
-		  .\TwowaysNewAMI.obj \
-		  .\OnewaysNewAMI.obj \
 		  .\BatchOneways.obj \
 		  .\BatchOnewaysAMI.obj
 
@@ -54,8 +52,6 @@ COLOBJS		= .\Test.obj \
 		  .\Oneways.obj \
 		  .\TwowaysAMI.obj \
 		  .\OnewaysAMI.obj \
-		  .\TwowaysNewAMI.obj \
-		  .\OnewaysNewAMI.obj \
 		  .\BatchOneways.obj \
 		  .\BatchOnewaysAMI.obj
 

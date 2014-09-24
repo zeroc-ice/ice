@@ -2465,127 +2465,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         }
         C << eb;
     }
-
-    if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
-    {
-        string classNameAMI = "AMI_" + cl->name();
-        string classScope = fixKwd(cl->scope());
-        string classScopedAMI = classScope + classNameAMI;
-        string opScopedAMI = classScopedAMI + "_" + name;
-
-        H << nl << "bool " << name << "_async" << spar << ("const " + opScopedAMI + "Ptr&")
-          << paramsAMI << epar << ';';
-        H << nl << "bool " << name << "_async" << spar << ("const " + opScopedAMI + "Ptr&")
-          << paramsAMI << "const ::Ice::Context&" << epar << ';';
-
-        C << sp << nl << "bool" << nl << "IceProxy" << scope << name << "_async" << spar
-          << ("const " + opScopedAMI + "Ptr& __cb") << paramsDeclAMI << epar;
-        C << sb;
-        if(p->returnsData())
-        {
-            C << nl << delNameScoped << "Ptr __del;";
-            C << nl << "if(dynamic_cast< ::Ice::AMISentCallback*>(__cb.get()))";
-            C << sb;
-            C << nl << " __del = " << classScope << "new" << delName << "(__cb, &" << opScopedAMI << "::__response, &"
-              << opScopedAMI << "::__exception, &" << opScopedAMI << "::__sent);";
-            C << eb;
-            C << nl << "else";
-            C << sb;
-            C << nl << " __del = " << classScope << "new" << delName << "(__cb, &" << opScopedAMI << "::__response, &"
-              << opScopedAMI << "::__exception);";
-            C << eb;
-        }
-        else
-        {
-            C << nl << "::IceInternal::CallbackBasePtr __del;";
-            C << nl << "if(dynamic_cast< ::Ice::AMISentCallback*>(__cb.get()))";
-            C << sb;
-            C << nl << " __del = " << classScope << "new" << delName << "(__cb, &" << opScopedAMI << "::__response, &"
-              << opScopedAMI << "::__exception, &" << opScopedAMI << "::__sent);";
-            C << eb;
-            C << nl << "else";
-            C << sb;
-            C << nl << " __del = " << classScope << "new" << delName << "(__cb, &" << opScopedAMI << "::__response, &"
-              << opScopedAMI << "::__exception);";
-            C << eb;
-        }
-
-        if(p->returnsData())
-        {
-            C << nl << "::Ice::AsyncResultPtr __ar;";
-            C << nl << "try";
-            C << sb;
-            C << nl << "__checkTwowayOnly(" << flatName <<  ");"; 
-            C << nl << "__ar = begin_" << name << spar << argsAMI << "0, __del" << epar << ';';
-            C << eb;
-            C << nl << "catch(const ::Ice::TwowayOnlyException& ex)";
-            C << sb;
-            C << nl << "__ar = new ::IceInternal::OutgoingAsync(this, " << flatName << ", __del, 0);";
-            C << nl << "__ar->__invokeExceptionAsync(ex);";
-            C << eb;
-        }
-        else
-        {
-            C << nl << "::Ice::AsyncResultPtr __ar = begin_" << name << spar << argsAMI << "0, __del" << epar << ';';
-        }
-        C << nl << "return __ar->sentSynchronously();";
-        C << eb;
-
-        C << sp << nl << "bool" << nl << "IceProxy" << scope << name << "_async" << spar
-          << ("const " + opScopedAMI + "Ptr& __cb") << paramsDeclAMI << "const ::Ice::Context& __ctx"
-          << epar;
-        C << sb;
-        if(p->returnsData())
-        {
-            C << nl << delNameScoped << "Ptr __del;";
-            C << nl << "if(dynamic_cast< ::Ice::AMISentCallback*>(__cb.get()))";
-            C << sb;
-            C << nl << " __del = " << classScope << "new" << delName << "(__cb, &" << opScopedAMI << "::__response, &"
-              << opScopedAMI << "::__exception, &" << opScopedAMI << "::__sent);";
-            C << eb;
-            C << nl << "else";
-            C << sb;
-            C << nl << " __del = " << classScope << "new" << delName << "(__cb, &" << opScopedAMI << "::__response, &"
-              << opScopedAMI << "::__exception);";
-            C << eb;
-        }
-        else
-        {
-            C << nl << "::IceInternal::CallbackBasePtr __del;";
-            C << nl << "if(dynamic_cast< ::Ice::AMISentCallback*>(__cb.get()))";
-            C << sb;
-            C << nl << " __del = " << classScope << "new" << delName << "(__cb, &" << opScopedAMI << "::__response, &"
-              << opScopedAMI << "::__exception, &" << opScopedAMI << "::__sent);";
-            C << eb;
-            C << nl << "else";
-            C << sb;
-            C << nl << " __del = " << classScope << "new" << delName << "(__cb, &" << opScopedAMI << "::__response, &"
-              << opScopedAMI << "::__exception);";
-            C << eb;
-        }
-
-        if(p->returnsData())
-        {
-            C << nl << "::Ice::AsyncResultPtr __ar;";
-            C << nl << "try";
-            C << sb;
-            C << nl << "__checkTwowayOnly(" << flatName <<  ");"; 
-            C << nl << "__ar = begin_" << name << spar << argsAMI << "&__ctx" << "__del" << epar << ';';
-            C << eb;
-            C << nl << "catch(const ::Ice::TwowayOnlyException& ex)";
-            C << sb;
-            C << nl << "__ar = new ::IceInternal::OutgoingAsync(this, " << flatName << ", __del, 0);";
-            C << nl << "__ar->__invokeExceptionAsync(ex);";
-            C << eb;
-        }
-        else
-        {
-            C << nl << "::Ice::AsyncResultPtr __ar = begin_" << name << spar << argsAMI << "&__ctx" << "__del" << epar
-              << ';';
-        }
-        C << nl << "return __ar->sentSynchronously();";
-        C << eb;
-    }
 }
 
 Slice::Gen::ObjectDeclVisitor::ObjectDeclVisitor(Output& h, Output& c, const string& dllExport) :
@@ -4838,7 +4717,7 @@ Slice::Gen::AsyncVisitor::AsyncVisitor(Output& h, Output&, const string& dllExpo
 bool
 Slice::Gen::AsyncVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasNonLocalClassDecls() || (!p->hasContentsWithMetaData("ami") && !p->hasContentsWithMetaData("amd")))
+    if(!p->hasNonLocalClassDecls() || !p->hasContentsWithMetaData("amd"))
     {
         return false;
     }
@@ -4879,8 +4758,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
     ContainerPtr container = p->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
 
-    if(cl->isLocal() ||
-       (!cl->hasMetaData("ami") && !p->hasMetaData("ami") && !cl->hasMetaData("amd") && !p->hasMetaData("amd")))
+    if(cl->isLocal() || (!cl->hasMetaData("amd") && !p->hasMetaData("amd")))
     {
         return;
     }
@@ -4888,10 +4766,8 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
     string name = p->name();
 
     string className = cl->name();
-    string classNameAMI = "AMI_" + className;
     string classNameAMD = "AMD_" + className;
     string classScope = fixKwd(cl->scope());
-    string classScopedAMI = classScope + classNameAMI;
     string classScopedAMD = classScope + classNameAMD;
     string proxyName = classScope + className + "Prx";
 
@@ -4946,33 +4822,6 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 
     paramsInvoke.push_back("const ::Ice::Context*");
     paramsDeclInvoke.push_back("const ::Ice::Context* __ctx");
-
-    if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
-    {
-        H << sp << nl << "class " << _dllExport << classNameAMI << '_' << name <<" : public ::Ice::AMICallbackBase";
-        H << sb;
-        H.dec();
-        H << nl << "public:";
-        H.inc();
-        H << sp;
-        H << nl << "virtual void ice_response" << spar << params << epar << " = 0;";
-        H << sp;
-        H << nl << "void __response" << spar << paramsDecl << epar;
-        H << sb;
-        H << nl << "ice_response" << spar << args << epar << ';';
-        H << eb;
-        H << nl << "void __exception(const ::Ice::Exception& ex)";
-        H << sb;
-        H << nl << "ice_exception(ex);";
-        H << eb;
-        H << nl << "void __sent(bool sentSynchronously)";
-        H << sb;
-        H << nl << "::Ice::AMICallbackBase::__sent(sentSynchronously);";
-        H << eb;
-        H << eb << ';';
-        H << sp << nl << "typedef ::IceUtil::Handle< " << classScopedAMI << '_' << name << "> " << classNameAMI
-          << '_' << name  << "Ptr;";
-    }
 
     if(cl->hasMetaData("amd") || p->hasMetaData("amd"))
     {
@@ -5501,7 +5350,7 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
 
     bool ami = false;
     ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
-    if(cl->hasMetaData("ami") || p->hasMetaData("ami") || cl->hasMetaData("amd") || p->hasMetaData("amd"))
+    if(cl->hasMetaData("amd") || p->hasMetaData("amd"))
     {
         ami = true;
     }

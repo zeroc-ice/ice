@@ -62,7 +62,7 @@ dictionary<string, string> StringStringD;
 dictionary<string, MyEnum> StringMyEnumD;
 dictionary<MyEnum, string> MyEnumStringD;
 
-["ami"] class MyClass
+class MyClass
 {
     void shutdown();
 
@@ -152,7 +152,7 @@ dictionary<MyEnum, string> MyEnumStringD;
     ["nonmutating"] idempotent void opNonmutating();
 };
 
-["ami"] class MyDerivedClass extends MyClass
+class MyDerivedClass extends MyClass
 {
     void opDerived();
 };

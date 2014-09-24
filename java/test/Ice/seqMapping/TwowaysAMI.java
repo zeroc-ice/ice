@@ -59,11 +59,11 @@ class TwowaysAMI
         private boolean _called;
     }
 
-    private static class AMI_MyClass_opSerialSmallJavaNull extends AMI_MyClass_opSerialSmallJava
+    private static class Callback_MyClass_opSerialSmallJavaNull extends Callback_MyClass_opSerialSmallJava
     {
         @Override
         public void
-        ice_response(Small r, Small o)
+        response(Small r, Small o)
         {
             test(o == null);
             test(r == null);
@@ -72,7 +72,7 @@ class TwowaysAMI
 
         @Override
         public void
-        ice_exception(Ice.LocalException ex)
+        exception(Ice.LocalException ex)
         {
             test(ex instanceof Ice.OperationNotExistException); // OK, talking to non-Java server.
         }
@@ -86,11 +86,11 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opSerialSmallJavaI extends AMI_MyClass_opSerialSmallJava
+    private static class Callback_MyClass_opSerialSmallJavaI extends Callback_MyClass_opSerialSmallJava
     {
         @Override
         public void
-        ice_response(Small r, Small o)
+        response(Small r, Small o)
         {
             test(o.i == 99);
             test(r.i == 99);
@@ -99,7 +99,7 @@ class TwowaysAMI
 
         @Override
         public void
-        ice_exception(Ice.LocalException ex)
+        exception(Ice.LocalException ex)
         {
             test(ex instanceof Ice.OperationNotExistException); // OK, talking to non-Java server.
         }
@@ -113,11 +113,11 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opSerialLargeJavaI extends AMI_MyClass_opSerialLargeJava
+    private static class Callback_MyClass_opSerialLargeJavaI extends Callback_MyClass_opSerialLargeJava
     {
         @Override
         public void
-        ice_response(Large r, Large o)
+        response(Large r, Large o)
         {
             test(o.d1 == 1.0);
             test(o.d2 == 2.0);
@@ -144,7 +144,7 @@ class TwowaysAMI
 
         @Override
         public void
-        ice_exception(Ice.LocalException ex)
+        exception(Ice.LocalException ex)
         {
             test(ex instanceof Ice.OperationNotExistException); // OK, talking to non-Java server.
         }
@@ -158,11 +158,11 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private static class AMI_MyClass_opSerialStructJavaI extends AMI_MyClass_opSerialStructJava
+    private static class Callback_MyClass_opSerialStructJavaI extends Callback_MyClass_opSerialStructJava
     {
         @Override
         public void
-        ice_response(Struct r, Struct o)
+        response(Struct r, Struct o)
         {
             test(o.o == null);
             test(o.o2 != null);
@@ -181,7 +181,7 @@ class TwowaysAMI
 
         @Override
         public void
-        ice_exception(Ice.LocalException ex)
+        exception(Ice.LocalException ex)
         {
             test(ex instanceof Ice.OperationNotExistException); // OK, talking to non-Java server.
         }
@@ -201,8 +201,8 @@ class TwowaysAMI
         {
             Small i = null;
 
-            AMI_MyClass_opSerialSmallJavaNull cb = new AMI_MyClass_opSerialSmallJavaNull();
-            p.opSerialSmallJava_async(cb, i);
+            Callback_MyClass_opSerialSmallJavaNull cb = new Callback_MyClass_opSerialSmallJavaNull();
+            p.begin_opSerialSmallJava(i, cb);
             test(cb.check());
         }
 
@@ -210,8 +210,8 @@ class TwowaysAMI
             Small i = new Small();
             i.i = 99;
 
-            AMI_MyClass_opSerialSmallJavaI cb = new AMI_MyClass_opSerialSmallJavaI();
-            p.opSerialSmallJava_async(cb, i);
+            Callback_MyClass_opSerialSmallJavaI cb = new Callback_MyClass_opSerialSmallJavaI();
+            p.begin_opSerialSmallJava(i, cb);
             test(cb.check());
         }
 
@@ -228,8 +228,8 @@ class TwowaysAMI
             i.d9 = 9.0;
             i.d10 = 10.0;
 
-            AMI_MyClass_opSerialLargeJavaI cb = new AMI_MyClass_opSerialLargeJavaI();
-            p.opSerialLargeJava_async(cb, i);
+            Callback_MyClass_opSerialLargeJavaI cb = new Callback_MyClass_opSerialLargeJavaI();
+            p.begin_opSerialLargeJava(i, cb);
             test(cb.check());
         }
 
@@ -240,8 +240,8 @@ class TwowaysAMI
             i.s = null;
             i.s2 = "Hello";
 
-            AMI_MyClass_opSerialStructJavaI cb = new AMI_MyClass_opSerialStructJavaI();
-            p.opSerialStructJava_async(cb, i);
+            Callback_MyClass_opSerialStructJavaI cb = new Callback_MyClass_opSerialStructJavaI();
+            p.begin_opSerialStructJava(i, cb);
             test(cb.check());
         }
     }

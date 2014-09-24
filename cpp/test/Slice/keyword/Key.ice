@@ -38,7 +38,7 @@ interface char
 class switch
 {
     int if;
-    ["ami"] void foo(char* export, out int volatile);
+    void foo(char* export, out int volatile);
 };
 
 class do extends switch implements char, break

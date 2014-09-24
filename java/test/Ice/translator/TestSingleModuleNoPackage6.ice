@@ -61,22 +61,6 @@ class smnpTest6Class extends M::smnpBaseClass implements M::smnpBaseInterface
                  out M::smnpClass o6)
         throws M::smnpException;
 
-    ["ami"]
-    M::smnpStruct
-    smnpTest6Op2(M::smnpEnum i1,
-                 M::smnpStruct i2,
-                 M::smnpStructSeq i3,
-                 M::smnpStringStructDict i4,
-                 M::smnpInterface i5,
-                 M::smnpClass i6,
-                 out M::smnpEnum o1,
-                 out M::smnpStruct o2,
-                 out M::smnpStructSeq o3,
-                 out M::smnpStringStructDict o4,
-                 out M::smnpInterface o5,
-                 out M::smnpClass o6)
-        throws M::smnpException;
-
     ["amd"]
     M::smnpStruct
     smnpTest6Op3(M::smnpEnum i1,

@@ -22,9 +22,9 @@ public class TwowaysAMI
         }
     }
 
-    private class Callback
+    private class CallbackBase
     {
-        internal Callback()
+        internal CallbackBase()
         {
             _called = false;
         }
@@ -37,7 +37,6 @@ public class TwowaysAMI
                 {
                     System.Threading.Monitor.Wait(this);
                 }
-
                 _called = false;
             }
         }
@@ -55,257 +54,114 @@ public class TwowaysAMI
         private bool _called;
     }
 
-    private class AMI_MyClass_opVoidI : Test.AMI_MyClass_opVoid
+    private class Callback : CallbackBase
     {
-        public override void ice_response()
+        public Callback()
         {
-            callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public Callback(Ice.Communicator c)
         {
-            Console.WriteLine(ex.ToString());
-            test(false);
+            _communicator = c;
         }
 
-        public virtual void check()
+        public Callback(int l)
         {
-            callback.check();
+            _l = l;
         }
 
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opIdempotentI : Test.AMI_MyClass_opIdempotent
-    {
-        public override void ice_response()
+        public Callback(Dictionary<string, string> d)
         {
-            callback.called();
+            _d = d;
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void ice_ping()
         {
-            test(false);
+            called();
         }
 
-        public virtual void check()
+        public void ice_isA(bool r)
         {
-            callback.check();
+            test(r);
+            called();
         }
 
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opNonmutatingI : Test.AMI_MyClass_opNonmutating
-    {
-        public override void ice_response()
+        public void ice_ids(string[] ids)
         {
-            callback.called();
+            test(ids.Length == 3);
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void ice_id(string id)
         {
-            test(false);
+            test(id.Equals(Test.MyDerivedClass.ice_staticId()));
+            called();
         }
 
-        public virtual void check()
+        public void opVoid()
         {
-            callback.check();
+            called();
         }
 
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opVoidExI : Test.AMI_MyClass_opVoid
-    {
-        public override void ice_response()
+        public void opContext()
         {
-            test(false);
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(ex is Ice.NoEndpointException);
-            callback.called();
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opByteI : Test.AMI_MyClass_opByte
-    {
-        public override void ice_response(byte r, byte b)
+        public void opByte(byte r, byte b)
         {
             test(b == 0xf0);
             test(r == 0xff);
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opByteExI : Test.AMI_MyClass_opByte
-    {
-        public override void ice_response(byte r, byte b)
-        {
-            test(false);
-        }
-
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(ex is Ice.NoEndpointException);
-            callback.called();
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opBoolI : Test.AMI_MyClass_opBool
-    {
-        public override void ice_response(bool r, bool b)
+        public void opBool(bool r, bool b)
         {
             test(b);
             test(!r);
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opShortIntLongI : Test.AMI_MyClass_opShortIntLong
-    {
-        public override void ice_response(long r, short s, int i, long l)
+        public void opShortIntLong(long r, short s, int i, long l)
         {
             test(s == 10);
             test(i == 11);
             test(l == 12);
             test(r == 12);
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opFloatDoubleI : Test.AMI_MyClass_opFloatDouble
-    {
-        public override void ice_response(double r, float f, double d)
+        public void opFloatDouble(double r, float f, double d)
         {
             test(f == 3.14f);
             test(d == 1.1e10);
             test(r == 1.1e10);
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opStringI : Test.AMI_MyClass_opString
-    {
-        public override void ice_response(string r, string s)
+        public void opString(string r, string s)
         {
             test(s.Equals("world hello"));
             test(r.Equals("hello world"));
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opMyEnumI : Test.AMI_MyClass_opMyEnum
-    {
-        public override void ice_response(Test.MyEnum r, Test.MyEnum e)
+        public void opMyEnum(Test.MyEnum r, Test.MyEnum e)
         {
             test(e == Test.MyEnum.enum2);
             test(r == Test.MyEnum.enum3);
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opMyClassI : Test.AMI_MyClass_opMyClass
-    {
-        public AMI_MyClass_opMyClassI(Ice.Communicator comunicator)
-        {
-            _communicator = comunicator;
-        }
-
-        public override void ice_response(Test.MyClassPrx r, Test.MyClassPrx c1, Test.MyClassPrx c2)
+        public void opMyClass(Test.MyClassPrx r, Test.MyClassPrx c1, Test.MyClassPrx c2)
         {
             test(c1.ice_getIdentity().Equals(_communicator.stringToIdentity("test")));
             test(c2.ice_getIdentity().Equals(_communicator.stringToIdentity("noSuchIdentity")));
             test(r.ice_getIdentity().Equals(_communicator.stringToIdentity("test")));
-            // We can't do the callbacks below in thread per connection mode.
+
+            //
+            // We can't do the callbacks below in connection serialization mode.
+            //
             if(_communicator.getProperties().getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
             {
                 r.opVoid();
@@ -319,62 +175,28 @@ public class TwowaysAMI
                 {
                 }
             }
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-        private Ice.Communicator _communicator;
-    }
-
-    private class AMI_MyClass_opStructI : Test.AMI_MyClass_opStruct
-    {
-        public AMI_MyClass_opStructI(Ice.Communicator comunicator)
-        {
-            _communicator = comunicator;
-        }
-
-        public override void ice_response(Test.Structure rso, Test.Structure so)
+        public void opStruct(Test.Structure rso, Test.Structure so)
         {
             test(rso.p == null);
             test(rso.e == Test.MyEnum.enum2);
             test(rso.s.s.Equals("def"));
             test(so.e == Test.MyEnum.enum3);
             test(so.s.s.Equals("a new string"));
-            // We can't do the callbacks below in thread per connection mode.
+
+            //
+            // We can't do the callbacks below in connection serialization mode.
+            //
             if(_communicator.getProperties().getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
             {
                 so.p.opVoid();
             }
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-        private Ice.Communicator _communicator;
-    }
-
-    private class AMI_MyClass_opByteSI : Test.AMI_MyClass_opByteS
-    {
-        public override void ice_response(Test.ByteS rso, Test.ByteS bso)
+        public void opByteS(Test.ByteS rso, Test.ByteS bso)
         {
             test(bso.Count == 4);
             test(bso[0] == 0x22);
@@ -390,25 +212,10 @@ public class TwowaysAMI
             test(rso[5] == 0xf2);
             test(rso[6] == 0xf3);
             test(rso[7] == 0xf4);
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opBoolSI : Test.AMI_MyClass_opBoolS
-    {
-        public override void ice_response(Test.BoolS rso, Test.BoolS bso)
+        public void opBoolS(Test.BoolS rso, Test.BoolS bso)
         {
             test(bso.Count == 4);
             test(bso[0]);
@@ -419,25 +226,10 @@ public class TwowaysAMI
             test(!rso[0]);
             test(rso[1]);
             test(rso[2]);
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opShortIntLongSI : Test.AMI_MyClass_opShortIntLongS
-    {
-        public override void ice_response(Test.LongS rso, Test.ShortS sso, Test.IntS iso, Test.LongS lso)
+        public void opShortIntLongS(Test.LongS rso, Test.ShortS sso, Test.IntS iso, Test.LongS lso)
         {
             test(sso.Count == 3);
             test(sso[0] == 1);
@@ -459,25 +251,10 @@ public class TwowaysAMI
             test(rso[0] == 10);
             test(rso[1] == 30);
             test(rso[2] == 20);
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opFloatDoubleSI : Test.AMI_MyClass_opFloatDoubleS
-    {
-        public override void ice_response(Test.DoubleS rso, Test.FloatS fso, Test.DoubleS dso)
+        public void opFloatDoubleS(Test.DoubleS rso, Test.FloatS fso, Test.DoubleS dso)
         {
             test(fso.Count == 2);
             test(fso[0] == 3.14f);
@@ -492,25 +269,10 @@ public class TwowaysAMI
             test(rso[2] == 1.3e10);
             test((float) rso[3] == 3.14f);
             test((float) rso[4] == 1.11f);
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opStringSI : Test.AMI_MyClass_opStringS
-    {
-        public override void ice_response(Test.StringS rso, Test.StringS sso)
+        public void opStringS(Test.StringS rso, Test.StringS sso)
         {
             test(sso.Count == 4);
             test(sso[0].Equals("abc"));
@@ -521,25 +283,10 @@ public class TwowaysAMI
             test(rso[0].Equals("fghi"));
             test(rso[1].Equals("de"));
             test(rso[2].Equals("abc"));
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opByteSSI : Test.AMI_MyClass_opByteSS
-    {
-        public override void ice_response(Test.ByteSS rso, Test.ByteSS bso)
+        public void opByteSS(Test.ByteSS rso, Test.ByteSS bso)
         {
             test(bso.Count == 2);
             test(bso[0].Count == 1);
@@ -560,25 +307,10 @@ public class TwowaysAMI
             test(rso[3].Count == 2);
             test(rso[3][0] == 0xf2);
             test(rso[3][1] == 0xf1);
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opBoolSSI : Test.AMI_MyClass_opBoolSS
-    {
-        public override void ice_response(Test.BoolSS rso, Test.BoolSS bso)
+        public void opBoolSS(Test.BoolSS rso, Test.BoolSS bso)
         {
             test(bso.Count == 4);
             test(bso[0].Count == 1);
@@ -600,25 +332,10 @@ public class TwowaysAMI
             test(!rso[1][0]);
             test(rso[2].Count == 1);
             test(rso[2][0]);
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opShortIntLongSSI : Test.AMI_MyClass_opShortIntLongSS
-    {
-        public override void ice_response(Test.LongSS rso, Test.ShortSS sso, Test.IntSS iso, Test.LongSS lso)
+        public void opShortIntLongSS(Test.LongSS rso, Test.ShortSS sso, Test.IntSS iso, Test.LongSS lso)
         {
             test(rso.Count == 1);
             test(rso[0].Count == 2);
@@ -645,25 +362,10 @@ public class TwowaysAMI
             test(lso[1].Count == 2);
             test(lso[1][0] == 496);
             test(lso[1][1] == 1729);
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opFloatDoubleSSI : Test.AMI_MyClass_opFloatDoubleSS
-    {
-        public override void ice_response(Test.DoubleSS rso, Test.FloatSS fso, Test.DoubleSS dso)
+        public void opFloatDoubleSS(Test.DoubleSS rso, Test.FloatSS fso, Test.DoubleSS dso)
         {
             test(fso.Count == 3);
             test(fso[0].Count == 1);
@@ -685,25 +387,10 @@ public class TwowaysAMI
             test(rso[1][0] == 1.1e10);
             test(rso[1][1] == 1.2e10);
             test(rso[1][2] == 1.3e10);
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opStringSSI : Test.AMI_MyClass_opStringSS
-    {
-        public override void ice_response(Test.StringSS rso, Test.StringSS sso)
+        public void opStringSS(Test.StringSS rso, Test.StringSS sso)
         {
             test(sso.Count == 5);
             test(sso[0].Count == 1);
@@ -720,25 +407,10 @@ public class TwowaysAMI
             test(rso[0][0].Equals("xyz"));
             test(rso[1].Count == 0);
             test(rso[2].Count == 0);
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opStringSSSI : Test.AMI_MyClass_opStringSSS
-    {
-        public override void ice_response(Test.StringSS[] rsso, Test.StringSS[] ssso)
+        public void opStringSSS(Test.StringSS[] rsso, Test.StringSS[] ssso)
         {
             test(ssso.Length == 5);
             test(ssso[0].Count == 2);
@@ -772,25 +444,10 @@ public class TwowaysAMI
             test(rsso[2][0][0].Equals(""));
             test(rsso[2][0][1].Equals(""));
             test(rsso[2][1][0].Equals("abcd"));
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opByteBoolDI : Test.AMI_MyClass_opByteBoolD
-    {
-        public override void ice_response(Dictionary<byte, bool> ro, Dictionary<byte, bool> _do)
+        public void opByteBoolD(Dictionary<byte, bool> ro, Dictionary<byte, bool> _do)
         {
             Dictionary<byte, bool> di1 = new Dictionary<byte, bool>();
             di1[10] = true;
@@ -801,25 +458,10 @@ public class TwowaysAMI
             test(ro[11] == false);
             test(ro[100] == false);
             test(ro[101] == true);
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opShortIntDI : Test.AMI_MyClass_opShortIntD
-    {
-        public override void ice_response(Dictionary<short, int> ro, Dictionary<short, int> _do)
+        public void opShortIntD(Dictionary<short, int> ro, Dictionary<short, int> _do)
         {
             Dictionary<short, int> di1 = new Dictionary<short, int>();
             di1[110] = -1;
@@ -830,25 +472,10 @@ public class TwowaysAMI
             test(ro[111] == -100);
             test(ro[1100] == 123123);
             test(ro[1101] == 0);
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opLongFloatDI : Test.AMI_MyClass_opLongFloatD
-    {
-        public override void ice_response(Dictionary<long, float> ro, Dictionary<long, float> _do)
+        public void opLongFloatD(Dictionary<long, float> ro, Dictionary<long, float> _do)
         {
             Dictionary<long, float> di1 = new Dictionary<long, float>();
             di1[999999110L] = -1.1f;
@@ -859,25 +486,10 @@ public class TwowaysAMI
             test(ro[999999120L] == -100.4f);
             test(ro[999999111L] == 123123.2f);
             test(ro[999999130L] == 0.5f);
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opStringStringDI : Test.AMI_MyClass_opStringStringD
-    {
-        public override void ice_response(Dictionary<string, string> ro, Dictionary<string, string> _do)
+        public void opStringStringD(Dictionary<string, string> ro, Dictionary<string, string> _do)
         {
             Dictionary<string, string> di1 = new Dictionary<string, string>();
             di1["foo"] = "abc -1.1";
@@ -888,25 +500,10 @@ public class TwowaysAMI
             test(ro["FOO"].Equals("abc -100.4"));
             test(ro["bar"].Equals("abc 123123.2"));
             test(ro["BAR"].Equals("abc 0.5"));
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opStringMyEnumDI : Test.AMI_MyClass_opStringMyEnumD
-    {
-        public override void ice_response(Dictionary<string, Test.MyEnum> ro, Dictionary<string, Test.MyEnum> _do)
+        public void opStringMyEnumD(Dictionary<string, Test.MyEnum> ro, Dictionary<string, Test.MyEnum> _do)
         {
             Dictionary<string, Test.MyEnum> di1 = new Dictionary<string, Test.MyEnum>();
             di1["abc"] = Test.MyEnum.enum1;
@@ -917,25 +514,10 @@ public class TwowaysAMI
             test(ro["qwerty"] == Test.MyEnum.enum3);
             test(ro[""] == Test.MyEnum.enum2);
             test(ro["Hello!!"] == Test.MyEnum.enum2);
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opMyEnumStringDI : Test.AMI_MyClass_opMyEnumStringD
-    {
-        public override void ice_response(Dictionary<Test.MyEnum, string> ro, Dictionary<Test.MyEnum, string> _do)
+        public void opMyEnumStringD(Dictionary<Test.MyEnum, string> ro, Dictionary<Test.MyEnum, string> _do)
         {
             Dictionary<Test.MyEnum, string> di1 = new Dictionary<Test.MyEnum, string>();
             di1[Test.MyEnum.enum1] = "abc";
@@ -944,26 +526,11 @@ public class TwowaysAMI
             test(ro[Test.MyEnum.enum1].Equals("abc"));
             test(ro[Test.MyEnum.enum2].Equals("Hello!!"));
             test(ro[Test.MyEnum.enum3].Equals("qwerty"));
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opMyStructMyEnumDI : Test.AMI_MyClass_opMyStructMyEnumD
-    {
-        public override void ice_response(Dictionary<Test.MyStruct, Test.MyEnum> ro,
-                                          Dictionary<Test.MyStruct, Test.MyEnum> _do)
+        public void opMyStructMyEnumD(Dictionary<Test.MyStruct, Test.MyEnum> ro,
+                                      Dictionary<Test.MyStruct, Test.MyEnum> _do)
         {
             Test.MyStruct s11 = new Test.MyStruct(1, 1);
             Test.MyStruct s12 = new Test.MyStruct(1, 2);
@@ -978,234 +545,328 @@ public class TwowaysAMI
             test(ro[s12] == Test.MyEnum.enum2);
             test(ro[s22] == Test.MyEnum.enum3);
             test(ro[s23] == Test.MyEnum.enum2);
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMI_MyClass_opIntSI : Test.AMI_MyClass_opIntS
-    {
-        internal AMI_MyClass_opIntSI(int l)
-        {
-            _l = l;
-            callback = new Callback();
-        }
-
-        public override void ice_response(Test.IntS r)
+        public void opIntS(Test.IntS r)
         {
             test(r.Count == _l);
             for(int j = 0; j < r.Count; ++j)
             {
                 test(r[j] == -j);
             }
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private int _l;
-        private Callback callback;
-    }
-
-    private class AMI_MyClass_opContextEqualI : Test.AMI_MyClass_opContext
-    {
-        internal AMI_MyClass_opContextEqualI(Dictionary<string, string> d)
-        {
-            _d = d;
-            callback = new Callback();
-        }
-
-        public override void ice_response(Dictionary<string, string> r)
-        {
-            test(Ice.CollectionComparer.Equals(r, _d));
-            callback.called();
-        }
-
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Dictionary<string, string> _d;
-        private Callback callback;
-    }
-
-    private class AMI_MyClass_opContextNotEqualI : Test.AMI_MyClass_opContext
-    {
-        internal AMI_MyClass_opContextNotEqualI(Dictionary<string, string> d)
-        {
-            _d = d;
-            callback = new Callback();
-        }
-
-        public override void ice_response(Dictionary<string, string> r)
+        public void opContextNotEqual(Dictionary<string, string> r)
         {
             test(!Ice.CollectionComparer.Equals(r, _d));
-            callback.called();
+            called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void opContextEqual(Dictionary<string, string> r)
+        {
+            test(Ice.CollectionComparer.Equals(r, _d));
+            called();
+        }
+
+        public void opIdempotent()
+        {
+            called();
+        }
+
+        public void opNonmutating()
+        {
+            called();
+        }
+
+        public void opDerived()
+        {
+            called();
+        }
+
+        public void exCB(Ice.Exception ex)
         {
             test(false);
         }
 
-        public virtual void check()
-        {
-            callback.check();
-        }
-
+        private Ice.Communicator _communicator;
+        private int _l;
         private Dictionary<string, string> _d;
-        private Callback callback;
-    }
-
-    private class AMI_MyDerivedClass_opDerivedI : Test.AMI_MyDerivedClass_opDerived
-    {
-        public override void ice_response()
-        {
-            callback.called();
-        }
-
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
     }
 
     internal static void twowaysAMI(Ice.Communicator communicator, Test.MyClassPrx p)
     {
         {
-            // Check that a call to a void operation raises NoEndpointException
-            // in the ice_exception() callback instead of at the point of call.
-            Test.MyClassPrx indirect = Test.MyClassPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
-            AMI_MyClass_opVoidExI cb = new AMI_MyClass_opVoidExI();
-            try
-            {
-                test(!indirect.opVoid_async(cb));
-            }
-            catch(Ice.Exception)
-            {
-                test(false);
-            }
+            Ice.AsyncResult r = p.begin_ice_ping();
+            p.end_ice_ping(r);
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_ice_ping().whenCompleted(cb.ice_ping, cb.exCB);
             cb.check();
         }
 
         {
-            // Check that a call to a twoway operation raises NoEndpointException
-            // in the ice_exception() callback instead of at the point of call.
-            Test.MyClassPrx indirect = Test.MyClassPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
-            AMI_MyClass_opByteExI cb = new AMI_MyClass_opByteExI();
-            try
-            {
-                test(!indirect.opByte_async(cb, (byte)0, (byte)0));
-            }
-            catch(Ice.Exception)
-            {
-                test(false);
-            }
+            Callback cb = new Callback();
+            p.begin_ice_ping().whenCompleted(
+                () =>
+                {
+                    cb.ice_ping();
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
         {
-            AMI_MyClass_opVoidI cb = new AMI_MyClass_opVoidI();
-            p.opVoid_async(cb);
-            cb.check();
-            // Let's check if we can reuse the callback object for another call.
-            p.opVoid_async(cb);
-            cb.check();
+            Ice.AsyncResult r = p.begin_ice_isA(Test.MyClass.ice_staticId());
+            test(p.end_ice_isA(r));
         }
 
         {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = communicator.getProperties().ice_clone_();
-            Ice.Communicator ic = Ice.Util.initialize(initData);
-
-            Ice.ObjectPrx obj = ic.stringToProxy(p.ToString());
-            Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(obj);
-
-            ic.destroy();
-
-            AMI_MyClass_opVoidI cb = new AMI_MyClass_opVoidI();
-            try
-            {
-                test(!p2.opVoid_async(cb));
-                test(false);
-            }
-            catch(Ice.CommunicatorDestroyedException)
-            {
-                // Expected.
-            }
-        }
-
-        {
-            AMI_MyClass_opByteI cb = new AMI_MyClass_opByteI();
-            p.opByte_async(cb, 0xff, 0x0f);
+            Callback cb = new Callback();
+            p.begin_ice_isA(Test.MyClass.ice_staticId()).whenCompleted(cb.ice_isA, cb.exCB);
             cb.check();
         }
 
         {
-            AMI_MyClass_opBoolI cb = new AMI_MyClass_opBoolI();
-            p.opBool_async(cb, true, false);
+            Callback cb = new Callback();
+            p.begin_ice_isA(Test.MyClass.ice_staticId()).whenCompleted(
+                (bool v) =>
+                {
+                    cb.ice_isA(v);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
         {
-            AMI_MyClass_opShortIntLongI cb = new AMI_MyClass_opShortIntLongI();
-            p.opShortIntLong_async(cb, (short) 10, 11, 12L);
+            Ice.AsyncResult r = p.begin_ice_ids();
+            test(p.end_ice_ids(r).Length == 3);
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_ice_ids().whenCompleted(cb.ice_ids, cb.exCB);
             cb.check();
         }
 
         {
-            AMI_MyClass_opFloatDoubleI cb = new AMI_MyClass_opFloatDoubleI();
-            p.opFloatDouble_async(cb, 3.14f, 1.1e10);
+            Callback cb = new Callback();
+            p.begin_ice_ids().whenCompleted(
+                (string[] ids) =>
+                {
+                    cb.ice_ids(ids);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
         {
-            AMI_MyClass_opStringI cb = new AMI_MyClass_opStringI();
-            p.opString_async(cb, "hello", "world");
+            Ice.AsyncResult r = p.begin_ice_id();
+            test(p.end_ice_id(r).Equals(Test.MyDerivedClass.ice_staticId()));
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_ice_id().whenCompleted(cb.ice_id, cb.exCB);
             cb.check();
         }
 
         {
-            AMI_MyClass_opMyEnumI cb = new AMI_MyClass_opMyEnumI();
-            p.opMyEnum_async(cb, Test.MyEnum.enum2);
+            Callback cb = new Callback();
+            p.begin_ice_id().whenCompleted(
+                (string id) =>
+                {
+                    cb.ice_id(id);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
         {
-            AMI_MyClass_opMyClassI cb = new AMI_MyClass_opMyClassI(communicator);
-            p.opMyClass_async(cb, p);
+            Ice.AsyncResult r = p.begin_opVoid();
+            p.end_opVoid(r);
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opVoid().whenCompleted(cb.opVoid, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opVoid().whenCompleted(
+                () =>
+                {
+                    cb.opVoid();
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Ice.AsyncResult r = p.begin_opByte(0xff, 0x0f);
+            byte p3;
+            byte ret = p.end_opByte(out p3, r);
+            test(p3 == 0xf0);
+            test(ret == 0xff);
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opByte(0xff, 0x0f).whenCompleted(cb.opByte, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opByte(0xff, 0x0f).whenCompleted(
+                (byte r, byte b) =>
+                {
+                    cb.opByte(r, b);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opBool(true, false).whenCompleted(cb.opBool, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opBool(true, false).whenCompleted(
+                (bool r, bool b) =>
+                {
+                    cb.opBool(r, b);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opShortIntLong(10, 11, 12).whenCompleted(cb.opShortIntLong, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opShortIntLong(10, 11, 12).whenCompleted(
+                (long r, short s, int i, long l) =>
+                {
+                    cb.opShortIntLong(r, s, i, l);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opFloatDouble(3.14f, 1.1E10).whenCompleted(cb.opFloatDouble, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opFloatDouble(3.14f, 1.1E10).whenCompleted(
+                (double r, float f, double d) =>
+                {
+                    cb.opFloatDouble(r, f, d);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opString("hello", "world").whenCompleted(cb.opString, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opString("hello", "world").whenCompleted(
+                (string r, string s) =>
+                {
+                    cb.opString(r, s);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opMyEnum(Test.MyEnum.enum2).whenCompleted(cb.opMyEnum, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opMyEnum(Test.MyEnum.enum2).whenCompleted(
+                (Test.MyEnum r, Test.MyEnum e) =>
+                {
+                    cb.opMyEnum(r, e);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback(communicator);
+            p.begin_opMyClass(p).whenCompleted(cb.opMyClass, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback(communicator);
+            p.begin_opMyClass(p).whenCompleted(
+                (Test.MyClassPrx r, Test.MyClassPrx c1, Test.MyClassPrx c2) =>
+                {
+                    cb.opMyClass(r, c1, c2);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
@@ -1221,74 +882,223 @@ public class TwowaysAMI
             si2.s = new Test.AnotherStruct();
             si2.s.s = "def";
 
-            AMI_MyClass_opStructI cb = new AMI_MyClass_opStructI(communicator);
-            p.opStruct_async(cb, si1, si2);
+            Callback cb = new Callback(communicator);
+            p.begin_opStruct(si1, si2).whenCompleted(cb.opStruct, cb.exCB);
             cb.check();
         }
 
         {
-            Test.ByteS bsi1 = new Test.ByteS(new byte[] { 0x01, 0x11, 0x12, 0x22 });
-            Test.ByteS bsi2 = new Test.ByteS(new byte[] { 0xf1, 0xf2, 0xf3, 0xf4 });
+            Test.Structure si1 = new Test.Structure();
+            si1.p = p;
+            si1.e = Test.MyEnum.enum3;
+            si1.s = new Test.AnotherStruct();
+            si1.s.s = "abc";
+            Test.Structure si2 = new Test.Structure();
+            si2.p = null;
+            si2.e = Test.MyEnum.enum2;
+            si2.s = new Test.AnotherStruct();
+            si2.s.s = "def";
 
-            AMI_MyClass_opByteSI cb = new AMI_MyClass_opByteSI();
-            p.opByteS_async(cb, bsi1, bsi2);
+            Callback cb = new Callback(communicator);
+            p.begin_opStruct(si1, si2).whenCompleted(
+                (Test.Structure rso, Test.Structure so) =>
+                {
+                    cb.opStruct(rso, so);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
         {
-            Test.BoolS bsi1 = new Test.BoolS(new bool[] { true, true, false });
-            Test.BoolS bsi2 = new Test.BoolS(new bool[] { false });
+            byte[] tbsi1 = new byte[] { 0x01, 0x11, 0x12, 0x22 };
+            Test.ByteS bsi1 = new Test.ByteS(tbsi1);
+            byte[] tbsi2 = new byte[] { 0xf1, 0xf2, 0xf3, 0xf4 };
+            Test.ByteS bsi2 = new Test.ByteS(tbsi2);
 
-            AMI_MyClass_opBoolSI cb = new AMI_MyClass_opBoolSI();
-            p.opBoolS_async(cb, bsi1, bsi2);
+            Callback cb = new Callback();
+            p.begin_opByteS(bsi1, bsi2).whenCompleted(cb.opByteS, cb.exCB);
             cb.check();
         }
 
         {
-            Test.ShortS ssi = new Test.ShortS(new short[] { 1, 2, 3 });
-            Test.IntS isi = new Test.IntS(new int[] { 5, 6, 7, 8 });
-            Test.LongS lsi = new Test.LongS(new long[] { 10, 30, 20 });
+            byte[] tbsi1 = new byte[] { 0x01, 0x11, 0x12, 0x22 };
+            Test.ByteS bsi1 = new Test.ByteS(tbsi1);
+            byte[] tbsi2 = new byte[] { 0xf1, 0xf2, 0xf3, 0xf4 };
+            Test.ByteS bsi2 = new Test.ByteS(tbsi2);
 
-            AMI_MyClass_opShortIntLongSI cb = new AMI_MyClass_opShortIntLongSI();
-            p.opShortIntLongS_async(cb, ssi, isi, lsi);
+            Callback cb = new Callback();
+            p.begin_opByteS(bsi1, bsi2).whenCompleted(
+                (Test.ByteS rso, Test.ByteS bso) =>
+                {
+                    cb.opByteS(rso, bso);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
         {
-            Test.FloatS fsi = new Test.FloatS(new float[] { 3.14f, 1.11f });
-            Test.DoubleS dsi = new Test.DoubleS(new double[] { 1.1e10, 1.2e10, 1.3e10 });
+            bool[] tbsi1 = new bool[] { true, true, false };
+            Test.BoolS bsi1 = new Test.BoolS(tbsi1);
+            bool[] tbsi2 = new bool[] { false };
+            Test.BoolS bsi2 = new Test.BoolS(tbsi2);
 
-            AMI_MyClass_opFloatDoubleSI cb = new AMI_MyClass_opFloatDoubleSI();
-            p.opFloatDoubleS_async(cb, fsi, dsi);
+            Callback cb = new Callback();
+            p.begin_opBoolS(bsi1, bsi2).whenCompleted(cb.opBoolS, cb.exCB);
             cb.check();
         }
 
         {
-            Test.StringS ssi1 = new Test.StringS(new string[] { "abc", "de", "fghi" });
-            Test.StringS ssi2 = new Test.StringS(new string[] { "xyz" });
+            bool[] tbsi1 = new bool[] { true, true, false };
+            Test.BoolS bsi1 = new Test.BoolS(tbsi1);
+            bool[] tbsi2 = new bool[] { false };
+            Test.BoolS bsi2 = new Test.BoolS(tbsi2);
 
-            AMI_MyClass_opStringSI cb = new AMI_MyClass_opStringSI();
-            p.opStringS_async(cb, ssi1, ssi2);
+            Callback cb = new Callback();
+            p.begin_opBoolS(bsi1, bsi2).whenCompleted(
+                (Test.BoolS rso, Test.BoolS bso) =>
+                {
+                    cb.opBoolS(rso, bso);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
         {
-            Test.ByteSS bsi1 = new Test.ByteSS();
-            bsi1.Add(new Test.ByteS());
-            bsi1.Add(new Test.ByteS());
-            bsi1[0].Add(0x01);
-            bsi1[0].Add(0x11);
-            bsi1[0].Add(0x12);
-            bsi1[1].Add(0xff);
-            Test.ByteSS bsi2 = new Test.ByteSS();
-            bsi2.Add(new Test.ByteS());
-            bsi2.Add(new Test.ByteS());
-            bsi2[0].Add(0x0e);
-            bsi2[1].Add(0xf2);
-            bsi2[1].Add(0xf1);
+            short[] tssi = new short[] { 1, 2, 3 };
+            Test.ShortS ssi = new Test.ShortS(tssi);
+            int[] tisi = new int[] { 5, 6, 7, 8 };
+            Test.IntS isi = new Test.IntS(tisi);
+            long[] tlsi = new long[] { 10, 30, 20 };
+            Test.LongS lsi = new Test.LongS(tlsi);
 
-            AMI_MyClass_opByteSSI cb = new AMI_MyClass_opByteSSI();
-            p.opByteSS_async(cb, bsi1, bsi2);
+            Callback cb = new Callback();
+            p.begin_opShortIntLongS(ssi, isi, lsi).whenCompleted(cb.opShortIntLongS, cb.exCB);
+            cb.check();
+        }
+
+        {
+            short[] tssi = new short[] { 1, 2, 3 };
+            Test.ShortS ssi = new Test.ShortS(tssi);
+            int[] tisi = new int[] { 5, 6, 7, 8 };
+            Test.IntS isi = new Test.IntS(tisi);
+            long[] tlsi = new long[] { 10, 30, 20 };
+            Test.LongS lsi = new Test.LongS(tlsi);
+
+            Callback cb = new Callback();
+            p.begin_opShortIntLongS(ssi, isi, lsi).whenCompleted(
+                (Test.LongS rso, Test.ShortS sso, Test.IntS iso, Test.LongS lso) =>
+                {
+                    cb.opShortIntLongS(rso, sso, iso, lso);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            float[] tfsi = new float[] { 3.14f, 1.11f };
+            Test.FloatS fsi = new Test.FloatS(tfsi);
+            double[] tdsi = new double[] { 1.1e10, 1.2e10, 1.3e10 };
+            Test.DoubleS dsi = new Test.DoubleS(tdsi);
+
+            Callback cb = new Callback();
+            p.begin_opFloatDoubleS(fsi, dsi).whenCompleted(cb.opFloatDoubleS, cb.exCB);
+            cb.check();
+        }
+
+        {
+            float[] tfsi = new float[] { 3.14f, 1.11f };
+            Test.FloatS fsi = new Test.FloatS(tfsi);
+            double[] tdsi = new double[] { 1.1e10, 1.2e10, 1.3e10 };
+            Test.DoubleS dsi = new Test.DoubleS(tdsi);
+
+            Callback cb = new Callback();
+            p.begin_opFloatDoubleS(fsi, dsi).whenCompleted(
+                (Test.DoubleS rso, Test.FloatS fso, Test.DoubleS dso) =>
+                {
+                    cb.opFloatDoubleS(rso, fso, dso);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            string[] tssi1 = new string[] { "abc", "de", "fghi" };
+            Test.StringS ssi1 = new Test.StringS(tssi1);
+            string[] tssi2 = new string[] { "xyz" };
+            Test.StringS ssi2 = new Test.StringS(tssi2);
+
+            Callback cb = new Callback();
+            p.begin_opStringS(ssi1, ssi2).whenCompleted(cb.opStringS, cb.exCB);
+            cb.check();
+        }
+
+        {
+            string[] tssi1 = new string[] { "abc", "de", "fghi" };
+            Test.StringS ssi1 = new Test.StringS(tssi1);
+            string[] tssi2 = new string[] { "xyz" };
+            Test.StringS ssi2 = new Test.StringS(tssi2);
+
+            Callback cb = new Callback();
+            p.begin_opStringS(ssi1, ssi2).whenCompleted(
+                (Test.StringS rso, Test.StringS sso) =>
+                {
+                    cb.opStringS(rso, sso);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Test.ByteS s11 = new Test.ByteS(new byte[] { 0x01, 0x11, 0x12 });
+            Test.ByteS s12 = new Test.ByteS(new byte[] { 0xff });
+            Test.ByteSS bsi1 = new Test.ByteSS(new Test.ByteS[] { s11, s12 });
+
+            Test.ByteS s21 = new Test.ByteS(new byte[] { 0x0e });
+            Test.ByteS s22 = new Test.ByteS(new byte[] { 0xf2, 0xf1 });
+            Test.ByteSS bsi2 = new Test.ByteSS(new Test.ByteS[] { s21, s22 });
+
+            Callback cb = new Callback();
+            p.begin_opByteSS(bsi1, bsi2).whenCompleted(cb.opByteSS, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Test.ByteS s11 = new Test.ByteS(new byte[] { 0x01, 0x11, 0x12 });
+            Test.ByteS s12 = new Test.ByteS(new byte[] { 0xff });
+            Test.ByteSS bsi1 = new Test.ByteSS(new Test.ByteS[] { s11, s12 });
+
+            Test.ByteS s21 = new Test.ByteS(new byte[] { 0x0e });
+            Test.ByteS s22 = new Test.ByteS(new byte[] { 0xf2, 0xf1 });
+            Test.ByteSS bsi2 = new Test.ByteSS(new Test.ByteS[] { s21, s22 });
+
+            Callback cb = new Callback();
+            p.begin_opByteSS(bsi1, bsi2).whenCompleted(
+                (Test.ByteSS rso, Test.ByteSS bso) =>
+                {
+                    cb.opByteSS(rso, bso);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
@@ -1301,8 +1111,30 @@ public class TwowaysAMI
             Test.BoolS s21 = new Test.BoolS(new bool[] {false, false, true});
             Test.BoolSS bsi2 = new Test.BoolSS(new Test.BoolS[] {s21});
 
-            AMI_MyClass_opBoolSSI cb = new AMI_MyClass_opBoolSSI();
-            p.opBoolSS_async(cb, bsi1, bsi2);
+            Callback cb = new Callback();
+            p.begin_opBoolSS(bsi1, bsi2).whenCompleted(cb.opBoolSS, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Test.BoolS s11 = new Test.BoolS(new bool[] {true});
+            Test.BoolS s12 = new Test.BoolS(new bool[] {false});
+            Test.BoolS s13 = new Test.BoolS(new bool[] {true, true});
+            Test.BoolSS bsi1 = new Test.BoolSS(new Test.BoolS[] {s11, s12, s13});
+
+            Test.BoolS s21 = new Test.BoolS(new bool[] {false, false, true});
+            Test.BoolSS bsi2 = new Test.BoolSS(new Test.BoolS[] {s21});
+
+            Callback cb = new Callback();
+            p.begin_opBoolSS(bsi1, bsi2).whenCompleted(
+                (Test.BoolSS rso, Test.BoolSS bso) =>
+                {
+                    cb.opBoolSS(rso, bso);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
@@ -1319,39 +1151,126 @@ public class TwowaysAMI
             Test.LongS l11 = new Test.LongS(new long[] {496, 1729});
             Test.LongSS lsi = new Test.LongSS(new Test.LongS[] {l11});
 
-            AMI_MyClass_opShortIntLongSSI cb = new AMI_MyClass_opShortIntLongSSI();
-            p.opShortIntLongSS_async(cb, ssi, isi, lsi);
-        }
-
-        {
-            Test.FloatSS fsi = new Test.FloatSS();
-            fsi.Add(new Test.FloatS(new float[] { 3.14f }));
-            fsi.Add(new Test.FloatS(new float[] { 1.11f }));
-            fsi.Add(new Test.FloatS(new float[] { }));
-
-            Test.DoubleSS dsi = new Test.DoubleSS();
-            dsi.Add(new Test.DoubleS(new double[] { 1.1E10, 1.2E10, 1.3E10 }));
-
-            AMI_MyClass_opFloatDoubleSSI cb = new AMI_MyClass_opFloatDoubleSSI();
-            p.opFloatDoubleSS_async(cb, fsi, dsi);
+            Callback cb = new Callback();
+            p.begin_opShortIntLongSS(ssi, isi, lsi).whenCompleted(cb.opShortIntLongSS, cb.exCB);
             cb.check();
         }
 
         {
-            Test.StringSS ssi1 = new Test.StringSS();
-            ssi1.Add(new Test.StringS());
-            ssi1.Add(new Test.StringS());
-            ssi1[0].Add("abc");
-            ssi1[1].Add("de");
-            ssi1[1].Add("fghi");
-            Test.StringSS ssi2 = new Test.StringSS();
-            ssi2.Add(new Test.StringS());
-            ssi2.Add(new Test.StringS());
-            ssi2.Add(new Test.StringS());
-            ssi2[2].Add("xyz");
+            Test.ShortS s11 = new Test.ShortS(new short[] {1, 2, 5});
+            Test.ShortS s12 = new Test.ShortS(new short[] {13});
+            Test.ShortS s13 = new Test.ShortS(new short[] {});
+            Test.ShortSS ssi = new Test.ShortSS(new Test.ShortS[] {s11, s12, s13});
 
-            AMI_MyClass_opStringSSI cb = new AMI_MyClass_opStringSSI();
-            p.opStringSS_async(cb, ssi1, ssi2);
+            Test.IntS i11 = new Test.IntS(new int[] {24, 98});
+            Test.IntS i12 = new Test.IntS(new int[] {42});
+            Test.IntSS isi = new Test.IntSS(new Test.IntS[] {i11, i12});
+
+            Test.LongS l11 = new Test.LongS(new long[] {496, 1729});
+            Test.LongSS lsi = new Test.LongSS(new Test.LongS[] {l11});
+
+            Callback cb = new Callback();
+            p.begin_opShortIntLongSS(ssi, isi, lsi).whenCompleted(
+                (Test.LongSS rso, Test.ShortSS sso, Test.IntSS iso, Test.LongSS lso) =>
+                {
+                    cb.opShortIntLongSS(rso, sso, iso, lso);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Test.FloatS f11 = new Test.FloatS(new float[] { 3.14f });
+            Test.FloatS f12 = new Test.FloatS(new float[] { 1.11f });
+            Test.FloatS f13 = new Test.FloatS(new float[] { });
+            Test.FloatSS fsi = new Test.FloatSS(new Test.FloatS[] { f11, f12, f13 });
+
+            Test.DoubleS d11 = new Test.DoubleS(new double[] { 1.1e10, 1.2e10, 1.3e10 });
+            Test.DoubleSS dsi = new Test.DoubleSS(new Test.DoubleS[] { d11 });
+
+            Callback cb = new Callback();
+            p.begin_opFloatDoubleSS(fsi, dsi).whenCompleted(cb.opFloatDoubleSS, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Test.FloatS f11 = new Test.FloatS(new float[] { 3.14f });
+            Test.FloatS f12 = new Test.FloatS(new float[] { 1.11f });
+            Test.FloatS f13 = new Test.FloatS(new float[] { });
+            Test.FloatSS fsi = new Test.FloatSS(new Test.FloatS[] { f11, f12, f13 });
+
+            Test.DoubleS d11 = new Test.DoubleS(new double[] { 1.1e10, 1.2e10, 1.3e10 });
+            Test.DoubleSS dsi = new Test.DoubleSS(new Test.DoubleS[] { d11 });
+
+            Callback cb = new Callback();
+            p.begin_opFloatDoubleSS(fsi, dsi).whenCompleted(
+                (Test.DoubleSS rso, Test.FloatSS fso, Test.DoubleSS dso) =>
+                {
+                    cb.opFloatDoubleSS(rso, fso, dso);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Test.StringS s11 = new Test.StringS();
+            s11.Add("abc");
+            Test.StringS s12 = new Test.StringS();
+            s12.Add("de");
+            s12.Add("fghi");
+            Test.StringSS ssi1 = new Test.StringSS();
+            ssi1.Add(s11);
+            ssi1.Add(s12);
+
+            Test.StringS s21 = new Test.StringS();
+            Test.StringS s22 = new Test.StringS();
+            Test.StringS s23 = new Test.StringS();
+            s23.Add("xyz");
+            Test.StringSS ssi2 = new Test.StringSS();
+            ssi2.Add(s21);
+            ssi2.Add(s22);
+            ssi2.Add(s23);
+
+            Callback cb = new Callback();
+            p.begin_opStringSS(ssi1, ssi2).whenCompleted(cb.opStringSS, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Test.StringS s11 = new Test.StringS();
+            s11.Add("abc");
+            Test.StringS s12 = new Test.StringS();
+            s12.Add("de");
+            s12.Add("fghi");
+            Test.StringSS ssi1 = new Test.StringSS();
+            ssi1.Add(s11);
+            ssi1.Add(s12);
+
+            Test.StringS s21 = new Test.StringS();
+            Test.StringS s22 = new Test.StringS();
+            Test.StringS s23 = new Test.StringS();
+            s23.Add("xyz");
+            Test.StringSS ssi2 = new Test.StringSS();
+            ssi2.Add(s21);
+            ssi2.Add(s22);
+            ssi2.Add(s23);
+
+            Callback cb = new Callback();
+            p.begin_opStringSS(ssi1, ssi2).whenCompleted(
+                (Test.StringSS rso, Test.StringSS sso) =>
+                {
+                    cb.opStringSS(rso, sso);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
@@ -1373,8 +1292,39 @@ public class TwowaysAMI
             sssi2[1].Add(new Test.StringS());
             sssi2[1][0].Add("");
 
-            AMI_MyClass_opStringSSSI cb = new AMI_MyClass_opStringSSSI();
-            p.opStringSSS_async(cb, sssi1, sssi2);
+            Callback cb = new Callback();
+            p.begin_opStringSSS(sssi1, sssi2).whenCompleted(cb.opStringSSS, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Test.StringSS[] sssi1 = { new Test.StringSS(), new Test.StringSS() };
+            sssi1[0].Add(new Test.StringS());
+            sssi1[0].Add(new Test.StringS());
+            sssi1[0][0].Add("abc");
+            sssi1[0][0].Add("de");
+            sssi1[0][1].Add("xyz");
+            sssi1[1].Add(new Test.StringS());
+            sssi1[1][0].Add("hello");
+            Test.StringSS[] sssi2 = { new Test.StringSS(), new Test.StringSS(), new Test.StringSS() };
+            sssi2[0].Add(new Test.StringS());
+            sssi2[0].Add(new Test.StringS());
+            sssi2[0][0].Add("");
+            sssi2[0][0].Add("");
+            sssi2[0][1].Add("abcd");
+            sssi2[1].Add(new Test.StringS());
+            sssi2[1][0].Add("");
+
+            Callback cb = new Callback();
+            p.begin_opStringSSS(sssi1, sssi2).whenCompleted(
+                (Test.StringSS[] rsso, Test.StringSS[] ssso) =>
+                {
+                    cb.opStringSSS(rsso, ssso);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
@@ -1383,12 +1333,34 @@ public class TwowaysAMI
             di1[10] = true;
             di1[100] = false;
             Dictionary<byte, bool> di2 = new Dictionary<byte, bool>();
-            // di2[10] = true; // Disabled since new dictionary mapping.
+            di2[10] = true;
             di2[11] = false;
             di2[101] = true;
 
-            AMI_MyClass_opByteBoolDI cb = new AMI_MyClass_opByteBoolDI();
-            p.opByteBoolD_async(cb, di1, di2);
+            Callback cb = new Callback();
+            p.begin_opByteBoolD(di1, di2).whenCompleted(cb.opByteBoolD, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Dictionary<byte, bool> di1 = new Dictionary<byte, bool>();
+            di1[10] = true;
+            di1[100] = false;
+            Dictionary<byte, bool> di2 = new Dictionary<byte, bool>();
+            di2[10] = true;
+            di2[11] = false;
+            di2[101] = true;
+
+            Callback cb = new Callback();
+            p.begin_opByteBoolD(di1, di2).whenCompleted(
+                (Dictionary<byte, bool> ro, Dictionary<byte, bool> _do) =>
+                {
+                    cb.opByteBoolD(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
@@ -1397,12 +1369,34 @@ public class TwowaysAMI
             di1[110] = -1;
             di1[1100] = 123123;
             Dictionary<short, int> di2 = new Dictionary<short, int>();
-            // di2[110] = -1; // Disabled since new dictionary mapping.
+            di2[110] = -1;
             di2[111] = -100;
             di2[1101] = 0;
 
-            AMI_MyClass_opShortIntDI cb = new AMI_MyClass_opShortIntDI();
-            p.opShortIntD_async(cb, di1, di2);
+            Callback cb = new Callback();
+            p.begin_opShortIntD(di1, di2).whenCompleted(cb.opShortIntD, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Dictionary<short, int> di1 = new Dictionary<short, int>();
+            di1[110] = -1;
+            di1[1100] = 123123;
+            Dictionary<short, int> di2 = new Dictionary<short, int>();
+            di2[110] = -1;
+            di2[111] = -100;
+            di2[1101] = 0;
+
+            Callback cb = new Callback();
+            p.begin_opShortIntD(di1, di2).whenCompleted(
+                (Dictionary<short, int> ro, Dictionary<short, int> _do) =>
+                {
+                    cb.opShortIntD(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
@@ -1411,12 +1405,34 @@ public class TwowaysAMI
             di1[999999110L] = -1.1f;
             di1[999999111L] = 123123.2f;
             Dictionary<long, float> di2 = new Dictionary<long, float>();
-            // di2[999999110L] = -1.1f; // Disabled since new dictionary mapping.
+            di2[999999110L] = -1.1f;
             di2[999999120L] = -100.4f;
             di2[999999130L] = 0.5f;
 
-            AMI_MyClass_opLongFloatDI cb = new AMI_MyClass_opLongFloatDI();
-            p.opLongFloatD_async(cb, di1, di2);
+            Callback cb = new Callback();
+            p.begin_opLongFloatD(di1, di2).whenCompleted(cb.opLongFloatD, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Dictionary<long, float> di1 = new Dictionary<long, float>();
+            di1[999999110L] = -1.1f;
+            di1[999999111L] = 123123.2f;
+            Dictionary<long, float> di2 = new Dictionary<long, float>();
+            di2[999999110L] = -1.1f;
+            di2[999999120L] = -100.4f;
+            di2[999999130L] = 0.5f;
+
+            Callback cb = new Callback();
+            p.begin_opLongFloatD(di1, di2).whenCompleted(
+                (Dictionary<long, float> ro, Dictionary<long, float> _do) =>
+                {
+                    cb.opLongFloatD(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
@@ -1425,12 +1441,34 @@ public class TwowaysAMI
             di1["foo"] = "abc -1.1";
             di1["bar"] = "abc 123123.2";
             Dictionary<string, string> di2 = new Dictionary<string, string>();
-            // di2["foo"] = "abc -1.1"; // Disabled since new dictionary mapping
+            di2["foo"] = "abc -1.1";
             di2["FOO"] = "abc -100.4";
             di2["BAR"] = "abc 0.5";
 
-            AMI_MyClass_opStringStringDI cb = new AMI_MyClass_opStringStringDI();
-            p.opStringStringD_async(cb, di1, di2);
+            Callback cb = new Callback();
+            p.begin_opStringStringD(di1, di2).whenCompleted(cb.opStringStringD, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Dictionary<string, string> di1 = new Dictionary<string, string>();
+            di1["foo"] = "abc -1.1";
+            di1["bar"] = "abc 123123.2";
+            Dictionary<string, string> di2 = new Dictionary<string, string>();
+            di2["foo"] = "abc -1.1";
+            di2["FOO"] = "abc -100.4";
+            di2["BAR"] = "abc 0.5";
+
+            Callback cb = new Callback();
+            p.begin_opStringStringD(di1, di2).whenCompleted(
+                (Dictionary<string, string> ro, Dictionary<string, string> _do) =>
+                {
+                    cb.opStringStringD(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
@@ -1439,12 +1477,34 @@ public class TwowaysAMI
             di1["abc"] = Test.MyEnum.enum1;
             di1[""] = Test.MyEnum.enum2;
             Dictionary<string, Test.MyEnum> di2 = new Dictionary<string, Test.MyEnum>();
-            // di2["abc"] = Test.MyEnum.enum1; // Disabled since new dictionary mapping
+            di2["abc"] = Test.MyEnum.enum1;
             di2["qwerty"] = Test.MyEnum.enum3;
             di2["Hello!!"] = Test.MyEnum.enum2;
 
-            AMI_MyClass_opStringMyEnumDI cb = new AMI_MyClass_opStringMyEnumDI();
-            p.opStringMyEnumD_async(cb, di1, di2);
+            Callback cb = new Callback();
+            p.begin_opStringMyEnumD(di1, di2).whenCompleted(cb.opStringMyEnumD, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Dictionary<string, Test.MyEnum> di1 = new Dictionary<string, Test.MyEnum>();
+            di1["abc"] = Test.MyEnum.enum1;
+            di1[""] = Test.MyEnum.enum2;
+            Dictionary<string, Test.MyEnum> di2 = new Dictionary<string, Test.MyEnum>();
+            di2["abc"] = Test.MyEnum.enum1;
+            di2["qwerty"] = Test.MyEnum.enum3;
+            di2["Hello!!"] = Test.MyEnum.enum2;
+
+            Callback cb = new Callback();
+            p.begin_opStringMyEnumD(di1, di2).whenCompleted(
+                (Dictionary<string, Test.MyEnum> ro, Dictionary<string, Test.MyEnum> _do) =>
+                {
+                    cb.opStringMyEnumD(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
@@ -1455,8 +1515,28 @@ public class TwowaysAMI
             di2[Test.MyEnum.enum2] = "Hello!!";
             di2[Test.MyEnum.enum3] = "qwerty";
 
-            AMI_MyClass_opMyEnumStringDI cb = new AMI_MyClass_opMyEnumStringDI();
-            p.opMyEnumStringD_async(cb, di1, di2);
+            Callback cb = new Callback();
+            p.begin_opMyEnumStringD(di1, di2).whenCompleted(cb.opMyEnumStringD, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Dictionary<Test.MyEnum, string> di1 = new Dictionary<Test.MyEnum, string>();
+            di1[Test.MyEnum.enum1] = "abc";
+            Dictionary<Test.MyEnum, string> di2 = new Dictionary<Test.MyEnum, string>();
+            di2[Test.MyEnum.enum2] = "Hello!!";
+            di2[Test.MyEnum.enum3] = "qwerty";
+
+            Callback cb = new Callback();
+            p.begin_opMyEnumStringD(di1, di2).whenCompleted(
+                (Dictionary<Test.MyEnum, string> ro, Dictionary<Test.MyEnum, string> _do) =>
+                {
+                    cb.opMyEnumStringD(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
@@ -1466,19 +1546,49 @@ public class TwowaysAMI
             Dictionary<Test.MyStruct, Test.MyEnum> di1 = new Dictionary<Test.MyStruct, Test.MyEnum>();
             di1[s11] = Test.MyEnum.enum1;
             di1[s12] = Test.MyEnum.enum2;
+
             Test.MyStruct s22 = new Test.MyStruct(2, 2);
             Test.MyStruct s23 = new Test.MyStruct(2, 3);
             Dictionary<Test.MyStruct, Test.MyEnum> di2 = new Dictionary<Test.MyStruct, Test.MyEnum>();
+            di2[s11] = Test.MyEnum.enum1;
             di2[s22] = Test.MyEnum.enum3;
             di2[s23] = Test.MyEnum.enum2;
 
-            AMI_MyClass_opMyStructMyEnumDI cb = new AMI_MyClass_opMyStructMyEnumDI();
-            p.opMyStructMyEnumD_async(cb, di1, di2);
+            Callback cb = new Callback();
+            p.begin_opMyStructMyEnumD(di1, di2).whenCompleted(cb.opMyStructMyEnumD, cb.exCB);
             cb.check();
         }
 
         {
-            int[] lengths = new int[] {0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000};
+            Test.MyStruct s11 = new Test.MyStruct(1, 1);
+            Test.MyStruct s12 = new Test.MyStruct(1, 2);
+            Dictionary<Test.MyStruct, Test.MyEnum> di1 = new Dictionary<Test.MyStruct, Test.MyEnum>();
+            di1[s11] = Test.MyEnum.enum1;
+            di1[s12] = Test.MyEnum.enum2;
+
+            Test.MyStruct s22 = new Test.MyStruct(2, 2);
+            Test.MyStruct s23 = new Test.MyStruct(2, 3);
+            Dictionary<Test.MyStruct, Test.MyEnum> di2 = new Dictionary<Test.MyStruct, Test.MyEnum>();
+            di2[s11] = Test.MyEnum.enum1;
+            di2[s22] = Test.MyEnum.enum3;
+            di2[s23] = Test.MyEnum.enum2;
+
+            Callback cb = new Callback();
+            p.begin_opMyStructMyEnumD(di1, di2).whenCompleted(
+                (Dictionary<Test.MyStruct, Test.MyEnum> ro,
+                 Dictionary<Test.MyStruct, Test.MyEnum> _do) =>
+                {
+                    cb.opMyStructMyEnumD(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            int[] lengths = new int[] { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
 
             for(int l = 0; l < lengths.Length; ++l)
             {
@@ -1487,8 +1597,34 @@ public class TwowaysAMI
                 {
                     s.Add(i);
                 }
-                AMI_MyClass_opIntSI cb = new AMI_MyClass_opIntSI(lengths[l]);
-                p.opIntS_async(cb, s);
+
+                Callback cb = new Callback(lengths[l]);
+                p.begin_opIntS(s).whenCompleted(cb.opIntS, cb.exCB);
+                cb.check();
+            }
+        }
+
+        {
+            int[] lengths = new int[] { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
+
+            for(int l = 0; l < lengths.Length; ++l)
+            {
+                Test.IntS s = new Test.IntS();
+                for(int i = 0; i < lengths[l]; ++i)
+                {
+                    s.Add(i);
+                }
+
+                Callback cb = new Callback(lengths[l]);
+                p.begin_opIntS(s).whenCompleted(
+                    (Test.IntS r) =>
+                    {
+                        cb.opIntS(r);
+                    },
+                    (Ice.Exception ex) =>
+                    {
+                         cb.exCB(ex);
+                    });
                 cb.check();
             }
         }
@@ -1500,26 +1636,91 @@ public class TwowaysAMI
             ctx["three"] = "THREE";
             {
                 test(p.ice_getContext().Count == 0);
-                AMI_MyClass_opContextNotEqualI cb = new AMI_MyClass_opContextNotEqualI(ctx);
-                p.opContext_async(cb);
+                Callback cb = new Callback(ctx);
+                p.begin_opContext().whenCompleted(cb.opContextNotEqual, cb.exCB);
                 cb.check();
             }
             {
                 test(p.ice_getContext().Count == 0);
-                AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
-                p.opContext_async(cb, ctx);
-                cb.check();
-            }
-            Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
-            test(Ice.CollectionComparer.Equals(p2.ice_getContext(), ctx));
-            {
-                AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
-                p2.opContext_async(cb);
+                Callback cb = new Callback(ctx);
+                p.begin_opContext(ctx).whenCompleted(cb.opContextEqual, cb.exCB);
                 cb.check();
             }
             {
-                AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
-                p2.opContext_async(cb, ctx);
+                Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
+                test(Ice.CollectionComparer.Equals(p2.ice_getContext(), ctx));
+                Callback cb = new Callback(ctx);
+                p2.begin_opContext().whenCompleted(cb.opContextEqual, cb.exCB);
+                cb.check();
+            }
+            {
+                Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
+                Callback cb = new Callback(ctx);
+                p2.begin_opContext(ctx).whenCompleted(cb.opContextEqual, cb.exCB);
+                cb.check();
+            }
+        }
+
+        {
+            Dictionary<string, string> ctx = new Dictionary<string, string>();
+            ctx["one"] = "ONE";
+            ctx["two"] = "TWO";
+            ctx["three"] = "THREE";
+            {
+                test(p.ice_getContext().Count == 0);
+                Callback cb = new Callback(ctx);
+                p.begin_opContext().whenCompleted(
+                    (Dictionary<string, string> r) =>
+                    {
+                        cb.opContextNotEqual(r);
+                    },
+                    (Ice.Exception ex) =>
+                    {
+                         cb.exCB(ex);
+                    });
+                cb.check();
+            }
+            {
+                test(p.ice_getContext().Count == 0);
+                Callback cb = new Callback(ctx);
+                p.begin_opContext(ctx).whenCompleted(
+                    (Dictionary<string, string> r) =>
+                    {
+                        cb.opContextEqual(r);
+                    },
+                    (Ice.Exception ex) =>
+                    {
+                         cb.exCB(ex);
+                    });
+                cb.check();
+            }
+            {
+                Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
+                test(Ice.CollectionComparer.Equals(p2.ice_getContext(), ctx));
+                Callback cb = new Callback(ctx);
+                p2.begin_opContext().whenCompleted(
+                    (Dictionary<string, string> r) =>
+                    {
+                        cb.opContextEqual(r);
+                    },
+                    (Ice.Exception ex) =>
+                    {
+                         cb.exCB(ex);
+                    });
+                cb.check();
+            }
+            {
+                Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
+                Callback cb = new Callback(ctx);
+                p2.begin_opContext(ctx).whenCompleted(
+                    (Dictionary<string, string> r) =>
+                    {
+                        cb.opContextEqual(r);
+                    },
+                    (Ice.Exception ex) =>
+                    {
+                         cb.exCB(ex);
+                    });
                 cb.check();
             }
         }
@@ -1544,30 +1745,30 @@ public class TwowaysAMI
                 ctx["three"] = "THREE";
 
                 Test.MyClassPrx p3 = Test.MyClassPrxHelper.uncheckedCast(
-                    ic.stringToProxy("test:default -p 12010"));
+                                        ic.stringToProxy("test:default -p 12010"));
 
                 ic.getImplicitContext().setContext(ctx);
                 test(Ice.CollectionComparer.Equals(ic.getImplicitContext().getContext(), ctx));
                 {
-                    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
-                    p3.opContext_async(cb);
-                    cb.check();
+                    Ice.AsyncResult r = p3.begin_opContext();
+                    Dictionary<string, string> c = p3.end_opContext(r);
+                    test(Ice.CollectionComparer.Equals(c, ctx));
                 }
 
                 ic.getImplicitContext().put("zero", "ZERO");
 
                 ctx = ic.getImplicitContext().getContext();
                 {
-                    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
-                    p3.opContext_async(cb);
-                    cb.check();
+                    Ice.AsyncResult r = p3.begin_opContext();
+                    Dictionary<string, string> c = p3.end_opContext(r);
+                    test(Ice.CollectionComparer.Equals(c, ctx));
                 }
 
                 Dictionary<string, string> prxContext = new Dictionary<string, string>();
                 prxContext["one"] = "UN";
                 prxContext["four"] = "QUATRE";
 
-                Dictionary<string, string> combined = new Dictionary<string, string>(prxContext);
+                Dictionary<string, string> combined = prxContext;
                 foreach(KeyValuePair<string, string> e in ctx)
                 {
                     try
@@ -1581,44 +1782,98 @@ public class TwowaysAMI
                 }
                 test(combined["one"].Equals("UN"));
 
-                p3 = Test.MyClassPrxHelper.uncheckedCast(p3.ice_context(prxContext));
+                p3 = Test.MyClassPrxHelper.uncheckedCast(p.ice_context(prxContext));
 
                 ic.getImplicitContext().setContext(null);
                 {
-                    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(prxContext);
-                    p3.opContext_async(cb);
-                    cb.check();
+                    Ice.AsyncResult r = p3.begin_opContext();
+                    Dictionary<string, string> c = p3.end_opContext(r);
+                    test(Ice.CollectionComparer.Equals(c, prxContext));
                 }
 
                 ic.getImplicitContext().setContext(ctx);
                 {
-                    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(combined);
-                    p3.opContext_async(cb);
-                    cb.check();
+                    Ice.AsyncResult r = p3.begin_opContext();
+                    Dictionary<string, string> c = p3.end_opContext(r);
+                    test(Ice.CollectionComparer.Equals(c, combined));
                 }
 
-                ic.getImplicitContext().setContext(null);
+                //ic.getImplicitContext().setContext(null);
                 ic.destroy();
             }
         }
 
         {
-            AMI_MyClass_opIdempotentI cb = new AMI_MyClass_opIdempotentI();
-            p.opIdempotent_async(cb);
+            Ice.AsyncResult r = p.begin_opIdempotent();
+            p.end_opIdempotent(r);
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opIdempotent().whenCompleted(cb.opIdempotent, cb.exCB);
             cb.check();
         }
 
         {
-            AMI_MyClass_opNonmutatingI cb = new AMI_MyClass_opNonmutatingI();
-            p.opNonmutating_async(cb);
+            Callback cb = new Callback();
+            p.begin_opIdempotent().whenCompleted(
+                () =>
+                {
+                    cb.opIdempotent();
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Ice.AsyncResult r = p.begin_opNonmutating();
+            p.end_opNonmutating(r);
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opNonmutating().whenCompleted(cb.opNonmutating, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opNonmutating().whenCompleted(
+                () =>
+                {
+                    cb.opNonmutating();
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
         {
             Test.MyDerivedClassPrx derived = Test.MyDerivedClassPrxHelper.checkedCast(p);
             test(derived != null);
-            AMI_MyDerivedClass_opDerivedI cb = new AMI_MyDerivedClass_opDerivedI();
-            derived.opDerived_async(cb);
+            Callback cb = new Callback();
+            derived.begin_opDerived().whenCompleted(cb.opDerived, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Test.MyDerivedClassPrx derived = Test.MyDerivedClassPrxHelper.checkedCast(p);
+            test(derived != null);
+            Callback cb = new Callback();
+            derived.begin_opDerived().whenCompleted(
+                () =>
+                {
+                    cb.opDerived();
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
     }

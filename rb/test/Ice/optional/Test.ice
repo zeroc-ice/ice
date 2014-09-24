@@ -178,7 +178,6 @@ class Recursive {
     optional(0) RecursiveSeq value;
 };
 
-["ami"]
 class Initial
 {
     void shutdown();

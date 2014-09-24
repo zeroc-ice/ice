@@ -66,20 +66,9 @@ public class AllTests : TestCommon.TestApp
         TwowaysAMI.twowaysAMI(communicator, derivedProxy);
         WriteLine("ok");
 
-        Write("testing twoway operations with new AMI mapping... ");
-        Flush();
-        TwowaysNewAMI.twowaysNewAMI(communicator, cl);
-        TwowaysNewAMI.twowaysNewAMI(communicator, derivedProxy);
-        WriteLine("ok");
-
         Write("testing oneway operations with AMI... ");
         Flush();
         OnewaysAMI.onewaysAMI(communicator, cl);
-        WriteLine("ok");
-
-        Write("testing oneway operations with new AMI mapping... ");
-        Flush();
-        OnewaysNewAMI.onewaysNewAMI(communicator, cl);
         WriteLine("ok");
 
         Write("testing batch oneway operations... ");

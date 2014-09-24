@@ -49,7 +49,7 @@ module Mod
 };
 
 
-["ami"] interface Thrower
+interface Thrower
 {
     void shutdown();
     bool supportsUndeclaredExceptions();
@@ -76,7 +76,7 @@ module Mod
     idempotent void throwLocalExceptionIdempotent();
 };
 
-["ami"] interface WrongOperation
+interface WrongOperation
 {
     void noSuchOperation();
 };

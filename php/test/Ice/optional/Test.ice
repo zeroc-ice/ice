@@ -171,7 +171,6 @@ class F extends E
     optional(1) A af;
 };
 
-["ami"]
 class Initial
 {
     void shutdown();
