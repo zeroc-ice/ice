@@ -22,7 +22,7 @@ final class TcpEndpointI extends IPEndpointI
     public TcpEndpointI(ProtocolInstance instance)
     {
         super(instance);
-        _timeout = -2;
+        _timeout = _instance.defaultTimeout();
         _compress = false;
     }
 
@@ -252,23 +252,8 @@ final class TcpEndpointI extends IPEndpointI
     public void fillEndpointInfo(Ice.IPEndpointInfo info)
     {
         super.fillEndpointInfo(info);
-        if(info instanceof Ice.TCPEndpointInfo)
-        {
-            Ice.TCPEndpointInfo tcpInfo = (Ice.TCPEndpointInfo)info;
-            tcpInfo.timeout = _timeout;
-            tcpInfo.compress = _compress;
-        }
-    }
-
-    @Override
-    public void initWithOptions(java.util.ArrayList<String> args, boolean oaEndpoint)
-    {
-        super.initWithOptions(args, oaEndpoint);
-
-        if(_timeout == -2)
-        {
-            _timeout = _instance.defaultTimeout();
-        }
+        info.timeout = _timeout;
+        info.compress = _compress;
     }
 
     @Override
@@ -300,7 +285,7 @@ final class TcpEndpointI extends IPEndpointI
                         if(_timeout < 1)
                         {
                             throw new Ice.EndpointParseException("invalid timeout value `" + argument +
-                                                             "' in endpoint " + endpoint);
+                                                                 "' in endpoint " + endpoint);
                         }
                     }
                     catch(NumberFormatException ex)

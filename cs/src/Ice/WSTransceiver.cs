@@ -441,7 +441,7 @@ namespace IceInternal
             }
             while(postRead(buf));
 
-            hasMoreData = _readBufferPos < _readBuffer.b.position();
+            hasMoreData |= _readBufferPos < _readBuffer.b.position();
 
             s = !buf.b.hasRemaining() ? IceInternal.SocketOperation.None : IceInternal.SocketOperation.Read;
 

@@ -25,11 +25,14 @@ Ice.__M.require(module,
         "../Ice/OutgoingConnectionFactory",
         "../Ice/Promise",
         "../Ice/Properties",
+        "../Ice/ProtocolInstance",
         "../Ice/ProxyFactory",
         "../Ice/RetryQueue",
         "../Ice/RouterManager",
         "../Ice/Timer",
         "../Ice/TraceLevels",
+        "../Ice/TcpEndpointFactory",
+        "../Ice/WSEndpointFactory",
         "../Ice/Reference",
         "../Ice/LocalException",
         "../Ice/Exception",
@@ -37,13 +40,7 @@ Ice.__M.require(module,
         "../Ice/ACM"
     ]);
 
-//
-// We don't load the endpoint factories here, instead the Ice.js
-// file for NodeJS loads the TcpEndpointFactory and the Ice.js
-// file for the web browser includes the IceWS endpoint factory.
-//
-//require("Ice/TcpEndpointFactory");
-//require("Ice/WSEndpointFactory");
+var IceSSL = Ice.__M.require(module, ["../Ice/EndpointInfo"]).IceSSL;
 
 var AsyncResultBase = Ice.AsyncResultBase;
 var Debug = Ice.Debug;
@@ -341,16 +338,21 @@ var Instance = Ice.Class({
 
             this._endpointFactoryManager = new EndpointFactoryManager(this);
 
-            if(typeof(Ice.TcpEndpointFactory) !== "undefined")
-            {
-                this._endpointFactoryManager.add(new Ice.TcpEndpointFactory(this));
-            }
+            var tcpInstance = new Ice.ProtocolInstance(this, Ice.TCPEndpointType, "tcp", false);
+            var tcpEndpointFactory = new Ice.TcpEndpointFactory(tcpInstance);
+            this._endpointFactoryManager.add(tcpEndpointFactory);
 
-            if(typeof(Ice.WSEndpointFactory) !== "undefined")
-            {
-                this._endpointFactoryManager.add(new Ice.WSEndpointFactory(this, false));
-                this._endpointFactoryManager.add(new Ice.WSEndpointFactory(this, true));
-            }
+            var wsInstance = new Ice.ProtocolInstance(this, Ice.WSEndpointType, "ws", false);
+            var wsEndpointFactory = new Ice.WSEndpointFactory(wsInstance, tcpEndpointFactory.clone(wsInstance));
+            this._endpointFactoryManager.add(wsEndpointFactory);
+
+            var sslInstance = new Ice.ProtocolInstance(this, IceSSL.EndpointType, "ssl", true);
+            var sslEndpointFactory = new Ice.TcpEndpointFactory(sslInstance);
+            this._endpointFactoryManager.add(sslEndpointFactory);
+            
+            var wssInstance = new Ice.ProtocolInstance(this, Ice.WSSEndpointType, "wss", true);
+            var wssEndpointFactory = new Ice.WSEndpointFactory(wssInstance, sslEndpointFactory.clone(wssInstance));
+            this._endpointFactoryManager.add(wssEndpointFactory);
 
             this._outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
             this._servantFactoryManager = new ObjectFactoryManager();

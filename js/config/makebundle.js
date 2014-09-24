@@ -211,7 +211,7 @@ Parser.dir = function(base, depends)
             }
             catch(e)
             {
-                throw e;
+                throw new Error(fullpath + ": " + e.toString())
             }
         }
     }

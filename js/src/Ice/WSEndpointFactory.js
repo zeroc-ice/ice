@@ -7,36 +7,40 @@
 //
 // **********************************************************************
 
-
 var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, ["../Ice/Class", "../Ice/Endpoint", "../Ice/browser/WSEndpoint"]);
+Ice.__M.require(module, ["../Ice/Class", "../Ice/WSEndpoint"]);
 
 var WSEndpoint = Ice.WSEndpoint;
 
 var WSEndpointFactory = Ice.Class({
-    __init__:function(instance, secure)
+    __init__:function(instance, delegate)
     {
         this._instance = instance;
-        this._secure = secure;
+        this._delegate = delegate;
     },
     type: function()
     {
-        return this._secure ? Ice.WSSEndpointType : Ice.WSEndpointType;
+        return this._instance.type();
     },
     protocol: function()
     {
-        return this._secure ? "wss" : "ws";
+        return this._instance.protocol();
     },
-    create: function(str, oaEndpoint)
+    create: function(args, oaEndpoint)
     {
-        return WSEndpoint.fromString(this._instance, this._secure, str, oaEndpoint);
+        var e = new WSEndpoint(this._instance, this._delegate.create(args, oaEndpoint));
+        e.initWithOptions(args);
+        return e;
     },
     read: function(s)
     {
-        return WSEndpoint.fromStream(s, this._secure);
+        var e = new WSEndpoint(this._instance, this._delegate.read(s));
+        e.initWithStream(s);
+        return e;
     },
     destroy: function()
     {
+        this._delegate.destroy();
         this._instance = null;
     }
 });

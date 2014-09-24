@@ -8,10 +8,9 @@
 // **********************************************************************
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, ["../Ice/Class", "../Ice/TcpEndpointI", "../Ice/Endpoint"]);
+Ice.__M.require(module, ["../Ice/Class", "../Ice/TcpEndpointI"]);
 
 var TcpEndpointI = Ice.TcpEndpointI;
-var TCPEndpointType = Ice.TCPEndpointType;
 
 var TcpEndpointFactory = Ice.Class({
     __init__: function(instance)
@@ -20,23 +19,31 @@ var TcpEndpointFactory = Ice.Class({
     },
     type: function()
     {
-        return TCPEndpointType;
+        return this._instance.type();
     },
     protocol: function()
     {
-        return "tcp";
+        return this._instance.protocol();
     },
-    create: function(str, oaEndpoint)
+    create: function(args, oaEndpoint)
     {
-        return TcpEndpointI.fromString(this._instance, str, oaEndpoint);
+        var e = new TcpEndpointI(this._instance);
+        e.initWithOptions(args, oaEndpoint);
+        return e;
     },
     read: function(s)
     {
-        return TcpEndpointI.fromStream(s);
+        var e = new TcpEndpointI(this._instance);
+        e.initWithStream(s);
+        return e;
     },
     destroy: function()
     {
         this._instance = null;
+    },
+    clone:function(instance)
+    {
+        return new TcpEndpointFactory(instance);
     }
 });
 

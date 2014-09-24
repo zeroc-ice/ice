@@ -12,7 +12,6 @@ var __M = require("../Ice/ModuleRegistry").Ice.__M;
 
 module.exports.Ice = __M.require(module,
     [
-        "../Ice/TcpEndpointFactory", // Must be loaded before Communicator and Instance
         "../Ice/Initialize",
         "../Ice/Communicator",
         "../Ice/HashMap",
@@ -42,3 +41,5 @@ module.exports.Ice = __M.require(module,
     ]).Ice;
 
 module.exports.IceMX = require("../Ice/Metrics").IceMX;
+
+module.exports.IceSSL = require("../Ice/EndpointInfo").IceSSL;

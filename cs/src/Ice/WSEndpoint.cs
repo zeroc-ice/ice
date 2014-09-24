@@ -72,8 +72,6 @@ namespace IceInternal
         public override Ice.EndpointInfo getInfo()
         {
             InfoI info = new InfoI(this);
-            info.timeout = _delegate.timeout();
-            info.compress = _delegate.compress();
             _delegate.fillEndpointInfo(info);
             info.resource = _resource;
             return info;

@@ -36,7 +36,7 @@ Ice.Promise.try(
         var secure = false;
         var timeout = -1;
         var delay = 0;
-        
+
         return Demo.HelloPrx.checkedCast(proxy).then(
             function(twoway)
             {

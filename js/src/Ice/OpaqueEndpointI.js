@@ -17,7 +17,7 @@ Ice.__M.require(module,
         "../Ice/HashUtil",
         "../Ice/Protocol",
         "../Ice/StringUtil",
-        "../Ice/Endpoint",
+        "../Ice/EndpointI",
         "../Ice/LocalException"
     ]);
 
@@ -26,28 +26,25 @@ var Debug = Ice.Debug;
 var HashUtil = Ice.HashUtil;
 var Protocol = Ice.Protocol;
 var StringUtil = Ice.StringUtil;
+var EndpointParseException = Ice.EndpointParseException;
 
 var Class = Ice.Class;
 
-var OpaqueEndpointI = Class(Ice.Endpoint, {
+var OpaqueEndpointI = Class(Ice.EndpointI, {
+    __init__: function(type)
+    {
+        this._rawEncoding = Ice.Encoding_1_0;
+        this._type = type === undefined ? -1 : type;
+        this._rawBytes = null;
+    },
     //
     // Marshal the endpoint
     //
     streamWrite: function(s)
     {
-        s.writeShort(this._type);
         s.startWriteEncaps(this._rawEncoding, Ice.FormatType.DefaultFormat);
         s.writeBlob(this._rawBytes);
         s.endWriteEncaps();
-    },
-    //
-    // Convert the endpoint to its string form
-    //
-    toString: function()
-    {
-        var val = Base64.encode(this._rawBytes);
-        return "opaque -t " + this._type + " -e " + Ice.encodingVersionToString(this._rawEncoding) +
-                " -v " + val;
     },
     //
     // Return the endpoint information.
@@ -159,7 +156,23 @@ var OpaqueEndpointI = Class(Ice.Endpoint, {
     },
     hashCode: function()
     {
+        if(this._hashCode === undefined)
+        {
+            var h = 5381;
+            h = HashUtil.addNumber(h, this._type);
+            h = HashUtil.addHashable(h, this._rawEncoding);
+            h = HashUtil.addArray(h, this._rawBytes, HashUtil.addNumber);
+            this._hashCode = h;
+        }
         return this._hashCode;
+    },
+    options: function()
+    {
+        var s = ""
+        s+= " -t " + this._type;
+        s += " -e " + Ice.encodingVersionToString(this._rawEncoding);
+        s += " -v " + Base64.encode(this._rawBytes);
+        return s;
     },
     //
     // Compare endpoints for sorting purposes
@@ -266,56 +279,19 @@ var OpaqueEndpointI = Class(Ice.Endpoint, {
 
         return 0;
     },
-    calcHashValue: function()
+    checkOption: function(option, argument, endpoint)
     {
-        var h = 5381;
-        h = HashUtil.addNumber(h, this._type);
-        h = HashUtil.addHashable(h, this._rawEncoding);
-        h = HashUtil.addArray(h, this._rawBytes, HashUtil.addNumber);
-        this._hashCode = h;
-    }
-});
-
-OpaqueEndpointI.fromString = function(str)
-{
-    var result = new OpaqueEndpointI();
-
-    result._rawEncoding = Protocol.Encoding_1_0;
-
-    var topt = 0;
-    var vopt = 0;
-
-    var arr = str.split(/[ \t\n\r]+/);
-    var i = 0;
-    while(i < arr.length)
-    {
-        if(arr[i].length === 0)
-        {
-            i++;
-            continue;
-        }
-
-        var option = arr[i++];
-        if(option.length != 2 && option.charAt(0) != '-')
-        {
-            throw new Ice.EndpointParseException("expected an endpoint option but found `" + option +
-                                                "' in endpoint `opaque " + str + "'");
-        }
-
-        var argument = null;
-        if(i < arr.length && arr[i].charAt(0) != '-')
-        {
-            argument = arr[i++];
-        }
-
         switch(option.charAt(1))
         {
             case 't':
             {
+                if(this._type > -1)
+                {
+                    throw new EndpointParseException("multiple -t options in endpoint " + endpoint);
+                }
                 if(argument === null)
                 {
-                    throw new Ice.EndpointParseException("no argument provided for -t option in endpoint `opaque " +
-                                                        str + "'");
+                    throw new EndpointParseException("no argument provided for -t option in endpoint " + endpoint);
                 }
 
                 var type;
@@ -326,102 +302,87 @@ OpaqueEndpointI.fromString = function(str)
                 }
                 catch(ex)
                 {
-                    throw new Ice.EndpointParseException("invalid type value `" + argument +
-                                                        "' in endpoint `opaque " + str + "'");
+                    throw new EndpointParseException("invalid type value `" + argument + "' in endpoint " + endpoint);
                 }
 
                 if(type < 0 || type > 65535)
                 {
-                    throw new Ice.EndpointParseException("type value `" + argument +
-                                                        "' out of range in endpoint `opaque " + str + "'");
+                    throw new EndpointParseException("type value `" + argument + "' out of range in endpoint " +
+                                                     endpoint);
                 }
 
-                result._type = type;
-                ++topt;
-                if(topt > 1)
-                {
-                    throw new Ice.EndpointParseException("multiple -t options in endpoint `opaque " + str + "'");
-                }
-                break;
+                this._type = type;
+                return true;
             }
 
             case 'v':
             {
+                if(this._rawBytes)
+                {
+                    throw new EndpointParseException("multiple -v options in endpoint " + endpoint);
+                }
                 if(argument === null || argument.length === 0)
                 {
-                    throw new Ice.EndpointParseException("no argument provided for -v option in endpoint `opaque " +
-                                                        str + "'");
+                    throw new EndpointParseException("no argument provided for -v option in endpoint " + endpoint);
                 }
                 for(var j = 0; j < argument.length; ++j)
                 {
                     if(!Base64.isBase64(argument.charAt(j)))
                     {
-                        throw new Ice.EndpointParseException("invalid base64 character `" + argument.charAt(j) +
+                        throw new EndpointParseException("invalid base64 character `" + argument.charAt(j) +
                                                             "' (ordinal " + argument.charCodeAt(j) +
-                                                            ") in endpoint `opaque " + str + "'");
+                                                            ") in endpoint " + endpoint);
                     }
                 }
-                result._rawBytes = Base64.decode(argument);
-                ++vopt;
-                if(vopt > 1)
-                {
-                    throw new Ice.EndpointParseException("multiple -v options in endpoint `opaque " + str + "'");
-                }
-                break;
+                this._rawBytes = Base64.decode(argument);
+                return true;
             }
 
             case 'e':
             {
                 if(argument === null)
                 {
-                    throw new Ice.EndpointParseException("no argument provided for -e option in endpoint `opaque " +
-                                                        str + "'");
+                    throw new EndpointParseException("no argument provided for -e option in endpoint " + endpoint);
                 }
                 try
                 {
-                    result._rawEncoding = Ice.stringToEncodingVersion(argument);
+                    this._rawEncoding = Ice.stringToEncodingVersion(argument);
                 }
                 catch(e)
                 {
-                    throw new Ice.EndpointParseException("invalid encoding version `" + argument +
-                                                        "' in endpoint `opaque " + str + "':\n" + e.str);
+                    throw new EndpointParseException("invalid encoding version `" + argument +
+                                                     "' in endpoint " + endpoint + ":\n" + e.str);
                 }
-                break;
+                return true;
             }
 
             default:
             {
-                throw new Ice.EndpointParseException("invalid option `" + option + "' in endpoint `opaque " +
-                                                        str + "'");
+                return false;
             }
         }
-    }
-
-    if(topt != 1)
+    },
+    initWithOptions: function(args)
     {
-        throw new Ice.EndpointParseException("no -t option in endpoint `opaque " + str + "'");
-    }
-    if(vopt != 1)
+        Ice.EndpointI.prototype.initWithOptions.call(this, args);
+        Debug.assert(this._rawEncoding);
+        
+        if(this._type < 0)
+        {
+            throw new EndpointParseException("no -t option in endpoint `" + this + "'");
+        }
+        if(this._rawBytes === null || this._rawBytes.length == 0)
+        {
+            throw new EndpointParseException("no -v option in endpoint `" + this + "'");
+        }
+    },
+    initWithStream: function(s)
     {
-        throw new Ice.EndpointParseException("no -v option in endpoint `opaque " + str + "'");
+        this._rawEncoding = s.getReadEncoding();
+        var sz = s.getReadEncapsSize();
+        this._rawBytes = s.readBlob(sz);
     }
-    result.calcHashValue();
-    return result;
-};
-
-OpaqueEndpointI.fromStream = function(type, s)
-{
-    var result = new OpaqueEndpointI();
-    result._type = type;
-    result._rawEncoding = s.startReadEncaps();
-    var sz = s.getReadEncapsSize();
-    result._rawBytes = s.readBlob(sz);
-    s.endReadEncaps();
-    result.calcHashValue();
-    return result;
-};
-
-Ice.OpaqueEndpointI = OpaqueEndpointI;
+});
 
 var OpaqueEndpointInfoI = Class(Ice.OpaqueEndpointInfo, {
     __init__: function(timeout, compress, rawEncoding, rawBytes, type)
@@ -443,4 +404,5 @@ var OpaqueEndpointInfoI = Class(Ice.OpaqueEndpointInfo, {
     }
 });
 
+Ice.OpaqueEndpointI = OpaqueEndpointI;
 module.exports.Ice = Ice;

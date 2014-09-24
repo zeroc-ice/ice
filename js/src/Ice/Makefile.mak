@@ -11,7 +11,7 @@ top_srcdir	= ..\..
 
 LIBNAME = Ice
 
-MODULES = $(LIBNAME) IceMX
+MODULES = $(LIBNAME) IceMX IceSSL
 
 GEN_SRCS = \
 	BuiltinSequences.js \
@@ -20,6 +20,8 @@ GEN_SRCS = \
 	Current.js \
 	Endpoint.js \
 	EndpointF.js \
+	EndpointInfo.js \
+	EndpointI.js \
 	EndpointTypes.js \
 	Identity.js \
 	LocalException.js \
@@ -50,6 +52,7 @@ COMMON_SRCS = \
 	ConnectRequestHandler.js \
 	DefaultsAndOverrides.js \
 	DispatchStatus.js \
+	EndpointI.js \
 	EndpointFactoryManager.js \
 	EnumBase.js \
 	Exception.js \
@@ -62,6 +65,7 @@ COMMON_SRCS = \
 	IncomingAsync.js \
 	Initialize.js \
 	Instance.js \
+	IPEndpointI.js \
 	LocatorInfo.js \
 	LocatorManager.js \
 	LocatorTable.js \
@@ -84,6 +88,7 @@ COMMON_SRCS = \
 	Property.js \
 	PropertyNames.js \
 	Protocol.js \
+	ProtocolInstance.js \
 	ProxyFactory.js \
 	Reference.js \
 	ReferenceMode.js \
@@ -96,25 +101,25 @@ COMMON_SRCS = \
 	StreamHelpers.js \
 	StringUtil.js \
 	Struct.js \
+	TcpEndpointFactory.js \
+	TcpEndpointI.js \
 	Timer.js \
 	TraceLevels.js \
 	TraceUtil.js \
 	UnknownSlicedObject.js \
-	UUID.js
+	UUID.js \
+	WSEndpoint.js \
+	WSEndpointFactory.js
 
 NODEJS_SRCS = \
 	Buffer.js \
 	Ice.js \
 	ModuleRegistry.js \
-	TcpEndpointFactory.js \
-	TcpEndpointI.js \
 	TcpTransceiver.js
 
 BROWSER_SRCS = \
 	browser\Buffer.js \
 	browser\ModuleRegistry.js \
-	browser\WSEndpoint.js \
-	browser\WSEndpointFactory.js \
 	browser\WSTransceiver.js
 
 !if "$(OPTIMIZE)" != "yes"
@@ -143,6 +148,11 @@ ObjectFactory.js:
 SLICE2JSFLAGS	= $(SLICE2JSFLAGS) --ice -I"$(slicedir)" --icejs
 
 MODULEDIR	= $(install_moduledir)\$(LIBNAME)
+
+# NOTE: we include IceSSL generated code in the Ice.js module to allow
+# parsing SSL endpoints.
+EndpointInfo.js : "$(slicedir)\IceSSL\EndpointInfo.ice"
+        "$(SLICE2JS)" $(SLICE2JSFLAGS) "$(slicedir)\IceSSL\EndpointInfo.ice"
 
 install:: all
 	@if not exist $(MODULEDIR) \

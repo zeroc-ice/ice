@@ -452,29 +452,33 @@ class Expect (object):
            The exit status is returned. A negative exit status means
            the application was killed by a signal.
         """
-        if self.p is not None:
+        if self.p is None:
+            return self.exitstatus
 
-            # Unfortunately, with the subprocess module there is no
-            # better method of doing a timed wait.
-            if timeout is not None:
-                end = time.time() + timeout
-                while time.time() < end and self.p.poll() is None:
-                    time.sleep(0.1)
-                if self.p.poll() is None:
-                    raise TIMEOUT ('timedwait exceeded timeout')
+        # Unfortunately, with the subprocess module there is no
+        # better method of doing a timed wait.
+        if timeout is not None:
+            end = time.time() + timeout
+            while time.time() < end and self.p and self.p.poll() is None:
+                time.sleep(0.1)
+            if self.p and self.p.poll() is None:
+                raise TIMEOUT ('timedwait exceeded timeout')
 
-            self.exitstatus = self.p.wait()
+        if self.p is None:
+            return self.exitstatus
 
-            # A Windows application killed with CTRL_BREAK. Fudge the exit status.
-            if win32 and self.exitstatus != 0 and self.killed is not None:
-                self.exitstatus = -self.killed
-            self.p = None
-            self.r.join()
-            # Simulate a match on EOF
-            self.buf = self.r.getbuf()
-            self.before = self.buf
-            self.after = ""
-            self.r = None
+        self.exitstatus = self.p.wait()
+
+        # A Windows application killed with CTRL_BREAK. Fudge the exit status.
+        if win32 and self.exitstatus != 0 and self.killed is not None:
+            self.exitstatus = -self.killed
+        self.p = None
+        self.r.join()
+        # Simulate a match on EOF
+        self.buf = self.r.getbuf()
+        self.before = self.buf
+        self.after = ""
+        self.r = None
         return self.exitstatus
 
     def terminate(self):

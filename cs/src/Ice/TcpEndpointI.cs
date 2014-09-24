@@ -28,7 +28,7 @@ namespace IceInternal
         public TcpEndpointI(ProtocolInstance instance) :
             base(instance)
         {
-            _timeout = -2;
+            _timeout = instance.defaultTimeout();
             _compress = false;
         }
 
@@ -214,22 +214,8 @@ namespace IceInternal
         public override void fillEndpointInfo(Ice.IPEndpointInfo info)
         {
             base.fillEndpointInfo(info);
-            if(info is Ice.TCPEndpointInfo)
-            {
-                Ice.TCPEndpointInfo tcpInfo = (Ice.TCPEndpointInfo)info;
-                tcpInfo.timeout = _timeout;
-                tcpInfo.compress = _compress;
-            }
-        }
-
-        public override void initWithOptions(List<string> args, bool oaEndpoint)
-        {
-            base.initWithOptions(args, oaEndpoint);
-
-            if(_timeout == -2)
-            {
-                _timeout = instance_.defaultTimeout();
-            }
+            info.timeout = _timeout;
+            info.compress = _compress;
         }
 
         protected override bool checkOption(string option, string argument, string endpoint)

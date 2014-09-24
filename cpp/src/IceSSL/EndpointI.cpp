@@ -35,7 +35,7 @@ IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& ho, Int 
 IceSSL::EndpointI::EndpointI(const InstancePtr& instance) :
     IceInternal::IPEndpointI(instance),
     _instance(instance),
-    _timeout(-2),
+    _timeout(instance->defaultTimeout()),
     _compress(false)
 {
 }
@@ -279,23 +279,8 @@ void
 IceSSL::EndpointI::fillEndpointInfo(IPEndpointInfo* info) const
 {
     IPEndpointI::fillEndpointInfo(info);
-    EndpointInfo* sslInfo = dynamic_cast<EndpointInfo*>(info);
-    if(sslInfo)
-    {
-        sslInfo->timeout = _timeout;
-        sslInfo->compress = _compress;
-    }
-}
-
-void
-IceSSL::EndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
-{
-    IPEndpointI::initWithOptions(args, oaEndpoint);
-
-    if(_timeout == -2)
-    {
-        const_cast<Int&>(_timeout) = _instance->defaultTimeout();
-    }
+    info->timeout = _timeout;
+    info->compress = _compress;
 }
 
 bool

@@ -49,7 +49,7 @@ RemoteCommunicatorI::createObjectAdapter(int timeout, int close, int heartbeat, 
         properties->setProperty(name + ".ACM.Heartbeat", toString(heartbeat));
     }
     properties->setProperty(name + ".ThreadPool.Size", "2");
-    ObjectAdapterPtr adapter = com->createObjectAdapterWithEndpoints(name, protocol + " -h 127.0.0.1");
+    ObjectAdapterPtr adapter = com->createObjectAdapterWithEndpoints(name, protocol);
     return RemoteObjectAdapterPrx::uncheckedCast(current.adapter->addWithUUID(new RemoteObjectAdapterI(adapter)));
 }
 

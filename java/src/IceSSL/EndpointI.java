@@ -24,7 +24,7 @@ final class EndpointI extends IceInternal.IPEndpointI
     {
         super(instance);
         _instance = instance;
-        _timeout = -2;
+        _timeout = instance.defaultTimeout();
         _compress = false;
     }
 
@@ -256,23 +256,8 @@ final class EndpointI extends IceInternal.IPEndpointI
     public void fillEndpointInfo(Ice.IPEndpointInfo info)
     {
         super.fillEndpointInfo(info);
-        if(info instanceof IceSSL.EndpointInfo)
-        {
-            IceSSL.EndpointInfo sslInfo = (IceSSL.EndpointInfo)info;
-            sslInfo.timeout = _timeout;
-            sslInfo.compress = _compress;
-        }
-    }
-
-    @Override
-    public void initWithOptions(java.util.ArrayList<String> args, boolean oaEndpoint)
-    {
-        super.initWithOptions(args, oaEndpoint);
-
-        if(_timeout == -2)
-        {
-            _timeout = _instance.defaultTimeout();
-        }
+        info.timeout = _timeout;
+        info.compress = _compress;
     }
 
     @Override

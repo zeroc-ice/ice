@@ -143,34 +143,35 @@
 
     var run = function(out, id)
     {
+        var communicator = Ice.initialize(id);
         return Promise.try(
             function()
             {
-                var communicator = Ice.initialize(id);
                 out.writeLine("testing bidir callbacks with synchronous dispatch...");
-                return allTests(out, communicator).then(
-                    function()
-                    {
-                        return communicator.destroy();
-                    }
-                ).then(
-                    function()
-                    {
-                        communicator = Ice.initialize(id);
-                        return Test.EchoPrx.checkedCast(
-                            communicator.stringToProxy("__echo:default -p 12010"));
-                    }
-                ).then(
-                    function(prx)
-                    {
-                        return prx.shutdown();
-                    }
-                ).then(
-                    function()
-                    {
-                        return communicator.destroy();
-                    });
-            });
+                return allTests(out, communicator)
+            }
+        ).then(
+            function()
+            {
+                return communicator.destroy();
+            }
+        ).then(
+            function()
+            {
+                communicator = Ice.initialize(id);
+                return Test.EchoPrx.checkedCast(communicator.stringToProxy("__echo:default -p 12010"));
+            }
+        ).then(
+            function(prx)
+            {
+                return prx.shutdown();
+            }
+        ).finally(
+            function()
+            {
+                return communicator.destroy();
+            }
+        );
     };
     exports.__test__ = run;
     exports.__runEchoServer__ = true;

@@ -494,19 +494,18 @@
 
     var run = function(out, id)
     {
+        var c = Ice.initialize(id);
         return Promise.try(
             function()
             {
-                var c = Ice.initialize(id);
-                return allTests(out, c).finally(
-                    function()
-                    {
-                        if(c)
-                        {
-                            return c.destroy();
-                        }
-                    });
-            });
+                return allTests(out, c);
+            }
+        ).finally(
+            function()
+            {
+                return c.destroy();
+            }
+        );
     };
     exports.__test__ = run;
     exports.__runServer__ = true;

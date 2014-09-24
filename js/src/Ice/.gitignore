@@ -3,6 +3,7 @@ BuiltinSequences.js
 Connection.js
 Current.js
 Endpoint.js
+EndpointInfo.js
 EndpointTypes.js
 Identity.js
 LocalException.js

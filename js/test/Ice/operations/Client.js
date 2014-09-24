@@ -71,30 +71,29 @@
 
     var run = function(out, id)
     {
+        //
+        // We must set MessageSizeMax to an explicit value,
+        // because we run tests to check whether
+        // Ice.MemoryLimitException is raised as expected.
+        //
+        id.properties.setProperty("Ice.MessageSizeMax", "100");
+        var c = Ice.initialize(id);
         return Promise.try(
             function()
             {
-                //
-                // We must set MessageSizeMax to an explicit value,
-                // because we run tests to check whether
-                // Ice.MemoryLimitException is raised as expected.
-                //
-                id.properties.setProperty("Ice.MessageSizeMax", "100");
-                var c = Ice.initialize(id);
-                return allTests(out, c, Test, false).then(
-                    function(cl)
-                    {
-                        return cl.shutdown();
-                    }
-                ).finally(
-                    function()
-                    {
-                        if(c)
-                        {
-                            return c.destroy();
-                        }
-                    });
-            });
+                return allTests(out, c, Test, false);
+            }
+        ).then(
+            function(cl)
+            {
+                return cl.shutdown();
+            }
+        ).finally(
+            function()
+            {
+                return c.destroy();
+            }
+        );
     };
     exports.__test__ = run
     exports.__clientAllTests__ = allTests;

@@ -476,17 +476,19 @@
 
     var run = function(out, id)
     {
+        id.properties.setProperty("Ice.MessageSizeMax", "10");
+        var c = Ice.initialize(id);
         return Promise.try(
             function()
             {
-                id.properties.setProperty("Ice.MessageSizeMax", "10");
-                var c = Ice.initialize(id);
-                return allTests(out, c, Test).finally(
-                    function()
-                    {
-                        return c.destroy();
-                    });
-            });
+                return allTests(out, c, Test);
+            }
+        ).finally(
+            function()
+            {
+                return c.destroy();
+            }
+        );
     };
     exports.__test__ = run;
     exports.__clientAllTests__ = allTests;

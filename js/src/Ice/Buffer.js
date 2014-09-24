@@ -301,8 +301,8 @@ var Buffer = Ice.Class({
         {
             throw new Error(__BufferUnderflowException__);
         }
-        var buffer = new Node.Buffer(length);
         length = length === undefined ? (this.b.length - position) : length;
+        var buffer = new Node.Buffer(length);
         this.b.slice(position, position + length).copy(buffer);
         return buffer;
     },

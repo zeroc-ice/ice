@@ -916,33 +916,26 @@
                 }
 
                 var p1, pstr;
-                if(defaultProtocol == "tcp")
-                {
-                    // Legal TCP endpoint expressed as opaque endpoint
-                    p1 = communicator.stringToProxy("test -e 1.1:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
-                    pstr = communicator.proxyToString(p1);
-                    test(pstr === "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");
-                }
-                else
-                {
-                    // Legal WS endpoint expressed as opaque endpoint
-                    p1 = communicator.stringToProxy("test -e 1.1:opaque -t 4 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAAA=");
-                    pstr = communicator.proxyToString(p1);
-                    test(pstr === "test -t -e 1.1:ws -h 127.0.0.1 -p 12010 -t 10000");
-                }
+                
+                // Legal TCP endpoint expressed as opaque endpoint
+                p1 = communicator.stringToProxy("test -e 1.1:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
+                pstr = communicator.proxyToString(p1);
+                test(pstr === "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");
+
+                // Legal WS endpoint expressed as opaque endpoint
+                p1 = communicator.stringToProxy("test -e 1.1:opaque -t 4 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAAA=");
+                pstr = communicator.proxyToString(p1);
+                test(pstr === "test -t -e 1.1:ws -h 127.0.0.1 -p 12010 -t 10000");
 
                 var p2;
+
                 // Opaque endpoint encoded with 1.1 encoding.
-                if(defaultProtocol == "tcp")
-                {
-                    p2 = communicator.stringToProxy("test:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
-                    test(communicator.proxyToString(p2) === "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");
-                }
-                else
-                {
-                    p2 = communicator.stringToProxy("test:opaque -e 1.1 -t 4 -v CTEyNy4wLjAuMeouAAAQJwAAAAA==");
-                    test(communicator.proxyToString(p2) === "test -t -e 1.1:ws -h 127.0.0.1 -p 12010 -t 10000");
-                }
+
+                p2 = communicator.stringToProxy("test:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
+                test(communicator.proxyToString(p2) === "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");
+
+                p2 = communicator.stringToProxy("test:opaque -e 1.1 -t 4 -v CTEyNy4wLjAuMeouAAAQJwAAAAA=");
+                test(communicator.proxyToString(p2) === "test -t -e 1.1:ws -h 127.0.0.1 -p 12010 -t 10000");
 
                 if(communicator.getProperties().getPropertyAsInt("Ice.IPv6") === 0)
                 {
@@ -958,18 +951,13 @@
                     */
 
                     // Two legal TCP endpoints expressed as opaque endpoints
-                    if(defaultProtocol == "tcp")
-                    {
-                        p1 = communicator.stringToProxy("test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
-                        pstr = communicator.proxyToString(p1);
-                        test(pstr === "test -t -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
-                    }
-                    else
-                    {
-                        p1 = communicator.stringToProxy("test -e 1.0:opaque -t 4 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAAA=:opaque -t 4 -e 1.0 -v CTEyNy4wLjAuMusuAAAQJwAAAAA=");
-                        pstr = communicator.proxyToString(p1);
-                        test(pstr === "test -t -e 1.0:ws -h 127.0.0.1 -p 12010 -t 10000:ws -h 127.0.0.2 -p 12011 -t 10000");
-                    }
+                    p1 = communicator.stringToProxy("test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
+                    pstr = communicator.proxyToString(p1);
+                    test(pstr === "test -t -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
+
+                    p1 = communicator.stringToProxy("test -e 1.0:opaque -t 4 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAAA=:opaque -t 4 -e 1.0 -v CTEyNy4wLjAuMusuAAAQJwAAAAA=");
+                    pstr = communicator.proxyToString(p1);
+                    test(pstr === "test -t -e 1.0:ws -h 127.0.0.1 -p 12010 -t 10000:ws -h 127.0.0.2 -p 12011 -t 10000");
 
                     //
                     // Test that an SSL endpoint and a nonsense endpoint get
@@ -977,14 +965,7 @@
                     //
                     p1 = communicator.stringToProxy("test -e 1.0:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
                     pstr = communicator.proxyToString(p1);
-                    if(!ssl)
-                    {
-                        test(pstr === "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
-                    }
-                    else
-                    {
-                        test(pstr === "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -e 1.0 -v abch");
-                    }
+                    test(pstr === "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
 
                     //
                     // Try to invoke on the SSL endpoint to verify that we get a
@@ -1031,14 +1012,7 @@
                         function(p2)
                         {
                             var pstr = communicator.proxyToString(p2);
-                            if(!ssl)
-                            {
-                                test(pstr === "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
-                            }
-                            else
-                            {
-                                test(pstr === "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -e 1.0 -v abch");
-                            }
+                            test(pstr === "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
                         });
                 }
             }
@@ -1053,17 +1027,18 @@
 
     var run = function(out, id)
     {
+        var communicator = Ice.initialize(id);
         return Promise.try(
             function()
             {
-                var communicator = Ice.initialize(id);
-                return allTests(communicator, out).finally(
-                    function()
-                    {
-                        communicator.destroy();
-                    });
-
-            });
+                return allTests(communicator, out);
+            }
+        ).finally(
+            function()
+            {
+                communicator.destroy();
+            }
+        );
     };
     exports.__test__ = run;
     exports.__runServer__ = true;

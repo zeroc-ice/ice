@@ -1863,6 +1863,7 @@ var RoutableReference = Class(Reference, {
             Debug.assert(this._adapterId.length === 0);
             for(var i = 0; i < this._endpoints.length; ++i)
             {
+                s.writeShort(this._endpoints[i].type());
                 this._endpoints[i].streamWrite(s);
             }
         }
@@ -2197,11 +2198,11 @@ var RoutableReference = Class(Reference, {
         var endpoints = [];
 
         //
-        // Filter out opaque endpoints.
+        // Filter out opaque endpoints or endpoints which can't connect.
         //
         for(var i = 0; i < allEndpoints.length; ++i)
         {
-            if(!(allEndpoints[i] instanceof OpaqueEndpointI))
+            if(!(allEndpoints[i] instanceof OpaqueEndpointI) && allEndpoints[i].connectable())
             {
                 endpoints.push(allEndpoints[i]);
             }

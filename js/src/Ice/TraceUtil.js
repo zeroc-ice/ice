@@ -351,7 +351,7 @@ function printRequestHeader(s, stream)
     }
 
     var ver = stream.skipEncaps();
-    if(!ver.equals(Protocol.Encoding_1_0))
+    if(!ver.equals(Ice.Encoding_1_0))
     {
         s.push("\nencoding = ");
         s.push(Ice.encodingVersionToString(ver));

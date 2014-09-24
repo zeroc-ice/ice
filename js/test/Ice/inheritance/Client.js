@@ -77,9 +77,9 @@
                 out.write("getting proxies for interface hierarchy... ");
 
                 return Promise.all(initial.iaop(),
-                                    initial.ib1op(),
-                                    initial.ib2op(),
-                                    initial.icop());
+                                   initial.ib1op(),
+                                   initial.ib2op(),
+                                   initial.icop());
             }
         ).then(
             function(r1, r2, r3, r4)
@@ -279,19 +279,18 @@
 
     var run = function(out, id)
     {
+        var c = Ice.initialize(id);
         return Promise.try(
             function()
             {
-                var c = Ice.initialize(id);
-                return allTests(out, c).finally(
-                    function()
-                    {
-                        if(c)
-                        {
-                            return c.destroy();
-                        }
-                    });
-            });
+                return allTests(out, c);
+            }
+        ).finally(
+            function()
+            {
+                return c.destroy();
+            }
+        );
     };
     exports.__test__ = run;
     exports.__clientAllTests__ = allTests;

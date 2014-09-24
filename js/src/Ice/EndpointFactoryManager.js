@@ -61,22 +61,14 @@ var EndpointFactoryManager = Ice.Class({
             throw new EndpointParseException("value has no non-whitespace characters");
         }
 
-        var protocol;
-        var rest = "";
-        var i, length;
-        var pos = s.search(/[ \t\n\r]+/);
-        if(pos === -1)
+        var arr = s.split(/[ \t\n\r]+/);
+        if(arr.length === 0)
         {
-            protocol = s;
+            throw new EndpointParseException("value has no non-whitespace characters");
         }
-        else
-        {
-            protocol = s.substring(0, pos);
-            if(pos < s.length)
-            {
-                rest = s.substring(pos);
-            }
-        }
+
+        var protocol = arr[0];
+        arr.splice(0, 1);
 
         if(protocol === "default")
         {
@@ -87,7 +79,13 @@ var EndpointFactoryManager = Ice.Class({
         {
             if(this._factories[i].protocol() === protocol)
             {
-                return this._factories[i].create(rest, oaEndpoint);
+                var e = this._factories[i].create(arr, oaEndpoint);
+                if(arr.length > 0)
+                {
+                    throw new EndpointParseException("unrecognized argument `" + arr[0] + "' in endpoint `" + 
+                                                     str + "'");
+                }
+                return e;
             }
         }
 
@@ -97,7 +95,13 @@ var EndpointFactoryManager = Ice.Class({
         //
         if(protocol === "opaque")
         {
-            var ue = OpaqueEndpointI.fromString(rest);
+            var ue = new OpaqueEndpointI();
+            ue.initWithOptions(arr);
+            if(arr.length > 0)
+            {
+                throw new EndpointParseException("unrecognized argument `" + arr[0] + "' in endpoint `" + str + "'");
+            }
+
             for(i = 0, length =  this._factories.length; i < length; ++i)
             {
                 if(this._factories[i].type() == ue.type())
@@ -108,10 +112,14 @@ var EndpointFactoryManager = Ice.Class({
                     // the actual endpoint.
                     //
                     var bs = new BasicStream(this._instance, Protocol.currentProtocolEncoding, true);
+                    bs.writeShort(ue.type());
                     ue.streamWrite(bs);
                     bs.pos = 0;
                     bs.readShort(); // type
-                    return this._factories[i].read(bs);
+                    bs.startReadEncaps();
+                    var e = this._factories[i].read(bs);
+                    bs.endReadEncaps();
+                    return e;
                 }
             }
             return ue; // Endpoint is opaque, but we don't have a factory for its type.
@@ -122,15 +130,21 @@ var EndpointFactoryManager = Ice.Class({
     read: function(s)
     {
         var type = s.readShort();
-
         for(var i = 0; i < this._factories.length; ++i)
         {
             if(this._factories[i].type() == type)
             {
-                return this._factories[i].read(s);
+                s.startReadEncaps();
+                var e = this._factories[i].read(s);
+                s.endReadEncaps();
+                return e;
             }
         }
-        return OpaqueEndpointI.fromStream(type, s);
+        s.startReadEncaps();
+        var e = new OpaqueEndpointI(type);
+        e.initWithStream(s);
+        s.endReadEncaps();
+        return e;
     },
     destroy: function()
     {

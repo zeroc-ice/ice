@@ -53,7 +53,6 @@ protected:
     virtual void streamWriteImpl(IceInternal::BasicStream*) const;
     virtual void hashInit(Ice::Int&) const;
     virtual void fillEndpointInfo(Ice::IPEndpointInfo*) const;
-    virtual void initWithOptions(std::vector<std::string>&, bool);
     virtual bool checkOption(const std::string&, const std::string&, const std::string&);
 
     virtual IceInternal::ConnectorPtr createConnector(const IceInternal::Address&,

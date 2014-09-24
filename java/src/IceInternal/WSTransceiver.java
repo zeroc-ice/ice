@@ -427,7 +427,7 @@ final class WSTransceiver implements Transceiver
         }
         while(postRead(buf));
 
-        moreData.value = _readBufferPos < _readBuffer.b.position();
+        moreData.value |= _readBufferPos < _readBuffer.b.position();
 
         s = !buf.b.hasRemaining() ? SocketOperation.None : SocketOperation.Read;
 

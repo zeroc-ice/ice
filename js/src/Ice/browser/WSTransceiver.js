@@ -39,11 +39,10 @@ var IsFirefox = navigator.userAgent.indexOf("Firefox") !== -1;
 var WSTransceiver = Ice.Class({
     __init__: function(instance)
     {
-        var id = instance.initializationData();
-        this._logger = id.logger;
+        this._logger = instance.logger();
         this._readBuffers = [];
         this._readPosition = 0;
-        this._maxSendPacketSize = id.properties.getPropertyAsIntWithDefault("Ice.TCP.SndSize", 512 * 1204);
+        this._maxSendPacketSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", 512 * 1204);
     },
     setCallbacks: function(connectedCallback, bytesAvailableCallback, bytesWrittenCallback)
     {

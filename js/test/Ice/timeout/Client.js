@@ -429,34 +429,36 @@
 
     var run = function(out, id)
     {
+        //
+        // For this test, we want to disable retries.
+        //
+        id.properties.setProperty("Ice.RetryIntervals", "-1");
+
+        //
+        // We don't want connection warnings because of the timeout
+        //
+        id.properties.setProperty("Ice.Warn.Connections", "0");
+
+        //
+        // We need to send messages large enough to cause the transport
+        // buffers to fill up.
+        //
+        id.properties.setProperty("Ice.MessageSizeMax", "10000");
+
+        id.properties.setProperty("Ice.RetryIntervals", "-1");
+
+        var c = Ice.initialize(id);
         return Promise.try(
             function()
             {
-                //
-                // For this test, we want to disable retries.
-                //
-                id.properties.setProperty("Ice.RetryIntervals", "-1");
-
-                //
-                // We don't want connection warnings because of the timeout
-                //
-                id.properties.setProperty("Ice.Warn.Connections", "0");
-
-                //
-                // We need to send messages large enough to cause the transport
-                // buffers to fill up.
-                //
-                id.properties.setProperty("Ice.MessageSizeMax", "10000");
-
-                id.properties.setProperty("Ice.RetryIntervals", "-1");
-
-                var c = Ice.initialize(id);
-                return allTests(out, c).finally(
-                    function()
-                    {
-                        return c.destroy();
-                    });
-            });
+                return allTests(out, c);
+            }
+        ).finally(
+            function()
+            {
+                return c.destroy();
+            }
+        );
     };
     exports.__test__ = run;
     exports.__runServer__ = true;

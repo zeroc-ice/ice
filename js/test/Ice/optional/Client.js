@@ -960,19 +960,18 @@
 
     var run = function(out, id)
     {
+        var c = Ice.initialize(id);
         return Promise.try(
             function()
             {
-                var c = Ice.initialize(id);
-                return allTests(out, c, Test).finally(
-                    function()
-                    {
-                        if(c)
-                        {
-                            return c.destroy();
-                        }
-                    });
-            });
+                return allTests(out, c, Test);
+            }
+        ).finally(
+            function()
+            {
+                return c.destroy();
+            }
+        );
     };
     exports.__clientAllTests__ = allTests;
     exports.__test__ = run;

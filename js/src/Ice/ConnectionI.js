@@ -1869,7 +1869,14 @@ var ConnectionI = Class({
         stream.prepareWrite();
         message.prepared = true;
 
-        TraceUtil.trace("sending asynchronous request", message.stream, this._logger, this._traceLevels);
+        if(message.outAsync)
+        {
+            TraceUtil.trace("sending asynchronous request", message.stream, this._logger, this._traceLevels);
+        }
+        else
+        {
+            TraceUtil.traceSend(message.stream, this._logger, this._traceLevels);
+        }
 
         if(this.write(message.stream.buffer))
         {

@@ -29,7 +29,7 @@ namespace IceSSL
             base(instance)
         {
             _instance = instance;
-            _timeout = -2;
+            _timeout = instance.defaultTimeout();
             _compress = false;
         }
 
@@ -250,22 +250,8 @@ namespace IceSSL
         public override void fillEndpointInfo(Ice.IPEndpointInfo info)
         {
             base.fillEndpointInfo(info);
-            if(info is IceSSL.EndpointInfo)
-            {
-                IceSSL.EndpointInfo sslInfo = (IceSSL.EndpointInfo)info;
-                sslInfo.timeout = _timeout;
-                sslInfo.compress = _compress;
-            }
-        }
-
-        public override void initWithOptions(List<string> args, bool oaEndpoint)
-        {
-            base.initWithOptions(args, oaEndpoint);
-
-            if(_timeout == -2)
-            {
-                _timeout = _instance.defaultTimeout();
-            }
+            info.timeout = _timeout;
+            info.compress = _compress;
         }
 
         protected override bool checkOption(string option, string argument, string endpoint)

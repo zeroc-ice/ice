@@ -426,33 +426,37 @@
 
     var allTests = function(out, communicator)
     {
-        //
-        // Skip this test with IE it open too many connections IE doesn't allow more 
-        // than 6 connections.
-        //
-        if(typeof(navigator) !== "undefined" && 
-           (navigator.userAgent.indexOf("MSIE") != -1 || navigator.userAgent.indexOf("Trident/7.0") != -1))
-        {
-            return;
-        }
-
         var ref = "communicator:default -p 12010";
         var com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
         
         var tests = [];
-        tests.push(new InvocationHeartbeatTest(com, out));
-        tests.push(new InvocationHeartbeatOnHoldTest(com, out));
-        tests.push(new InvocationNoHeartbeatTest(com, out));
-        tests.push(new InvocationHeartbeatCloseOnIdleTest(com, out));
-
-        tests.push(new CloseOnIdleTest(com, out));
-        tests.push(new CloseOnInvocationTest(com, out));
-        tests.push(new CloseOnIdleAndInvocationTest(com, out));
-        tests.push(new ForcefullCloseOnIdleAndInvocationTest(com, out));
-        
-        tests.push(new HeartbeatOnIdleTest(com, out));
-        tests.push(new HeartbeatAlwaysTest(com, out));
-        tests.push(new SetACMTest(com, out));
+        //
+        // Skip some tests with IE it opens too many connections and
+        // IE doesn't allow more than 6 connections.
+        //
+        if(typeof(navigator) !== "undefined" && 
+           (navigator.userAgent.indexOf("MSIE") != -1 || navigator.userAgent.indexOf("Trident/7.0") != -1))
+        {
+            tests.push(new HeartbeatOnIdleTest(com, out));
+            tests.push(new HeartbeatAlwaysTest(com, out));
+            tests.push(new SetACMTest(com, out));
+        }
+        else
+        {
+            tests.push(new InvocationHeartbeatTest(com, out));
+            tests.push(new InvocationHeartbeatOnHoldTest(com, out));
+            tests.push(new InvocationNoHeartbeatTest(com, out));
+            tests.push(new InvocationHeartbeatCloseOnIdleTest(com, out));
+            
+            tests.push(new CloseOnIdleTest(com, out));
+            tests.push(new CloseOnInvocationTest(com, out));
+            tests.push(new CloseOnIdleAndInvocationTest(com, out));
+            tests.push(new ForcefullCloseOnIdleAndInvocationTest(com, out));
+            
+            tests.push(new HeartbeatOnIdleTest(com, out));
+            tests.push(new HeartbeatAlwaysTest(com, out));
+            tests.push(new SetACMTest(com, out));
+        }
         
         var promises = [];
         for(var test in tests)
@@ -504,23 +508,19 @@
 
     var run = function(out, id)
     {
+        id.properties.setProperty("Ice.Warn.Connections", "0");
+        var c = Ice.initialize(id);
         return Promise.try(
             function()
             {
-                id.properties.setProperty("Ice.Warn.Connections", "0");
-                var c = Ice.initialize(id);
-                var p = allTests(out, c);
-                if(p !== undefined)
-                {
-                    p.finally(function()
-                    {
-                        if(c)
-                        {
-                            return c.destroy();
-                        }
-                    });
-                }
-            });
+                return allTests(out, c);
+            }
+        ).finally(
+            function()
+            {
+                return c.destroy();
+            }
+        );
     };
     exports.__test__ = run;
     exports.__runServer__ = true;

@@ -49,49 +49,51 @@
 
     var run = function(out, id)
     {
-       return Promise.try(
+        id.properties.setProperty("Ice.MessageSizeMax", "10");
+        id.properties.setProperty("Ice.Warn.Dispatch", "0");
+        var communicator = Ice.initialize(id);
+        return Promise.try(
             function()
             {
-                id.properties.setProperty("Ice.MessageSizeMax", "10");
-                id.properties.setProperty("Ice.Warn.Dispatch", "0");
-                var communicator = Ice.initialize(id);
                 out.writeLine("testing bidir callbacks with synchronous dispatch...");
-                return allTests(out, communicator, false).then(
-                    function()
-                    {
-                        return communicator.destroy();
-                    }
-                ).then(
-                    function()
-                    {
-                        communicator = Ice.initialize(id);
-                        out.writeLine("testing bidir callbacks with asynchronous dispatch...");
-                        return allTests(out, communicator, true);
-                    }
-                ).then(
-                    function()
-                    {
-                        return communicator.destroy();
-                    }
-                ).then(
-                    function()
-                    {
-                        communicator = Ice.initialize(id);
-                        var ref = "__echo:default -p 12010";
-                        var base = communicator.stringToProxy(ref);
-                        return Test.EchoPrx.checkedCast(base);
-                    }
-                ).then(
-                    function(prx)
-                    {
-                        return prx.shutdown();
-                    }
-                ).then(
-                    function()
-                    {
-                        return communicator.destroy();
-                    });
-            });
+                return allTests(out, communicator, false);
+            }
+        ).then(
+            function()
+            {
+                return communicator.destroy();
+            }
+        ).then(
+            function()
+            {
+                communicator = Ice.initialize(id);
+                out.writeLine("testing bidir callbacks with asynchronous dispatch...");
+                return allTests(out, communicator, true);
+            }
+        ).then(
+            function()
+            {
+                return communicator.destroy();
+            }
+        ).then(
+            function()
+            {
+                communicator = Ice.initialize(id);
+                var ref = "__echo:default -p 12010";
+                var base = communicator.stringToProxy(ref);
+                return Test.EchoPrx.checkedCast(base);
+            }
+        ).then(
+            function(prx)
+            {
+                return prx.shutdown();
+            }
+        ).finally(
+            function()
+            {
+                return communicator.destroy();
+            }
+        );
         return p;
     };
     exports.__test__ = run;

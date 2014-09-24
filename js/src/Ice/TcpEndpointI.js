@@ -11,124 +11,38 @@ var Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.__M.require(module,
     [
         "../Ice/Class",
-        "../Ice/Address",
+        "../Ice/Debug",
         "../Ice/HashUtil",
         "../Ice/StringUtil",
+        "../Ice/IPEndpointI",
         "../Ice/TcpTransceiver",
-        "../Ice/Endpoint",
-        "../Ice/LocalException"
+        "../Ice/LocalException",
+        "../Ice/EndpointInfo"
     ]);
 
-var Address = Ice.Address;
+var IceSSL = Ice.__M.require(module, ["../Ice/EndpointInfo"]).IceSSL;
+
+var Debug = Ice.Debug;
 var HashUtil = Ice.HashUtil;
 var StringUtil = Ice.StringUtil;
-var TcpTransceiver = Ice.TcpTransceiver;
+var TcpTransceiver = typeof(Ice.TcpTransceiver) !== "undefined" ? Ice.TcpTransceiver : null;
 var Class = Ice.Class;
 
-var TcpEndpointI = Class(Ice.Endpoint, {
+var TcpEndpointI = Class(Ice.IPEndpointI, {
     __init__: function(instance, ho, po, sif, ti, conId, co)
     {
-        this._instance = instance;
-        this._host = ho;
-        this._port = po;
-        this._sourceAddr = sif;
-        this._timeout = ti;
-        this._connectionId = conId;
-        this._compress = co;
-        this.calcHashValue();
-    },
-    //
-    // Convert the endpoint to its string form
-    //
-    toString: function()
-    {
-        //
-        // WARNING: Certain features, such as proxy validation in Glacier2,
-        // depend on the format of proxy strings. Changes to toString() and
-        // methods called to generate parts of the reference string could break
-        // these features. Please review for all features that depend on the
-        // format of proxyToString() before changing this and related code.
-        //
-        var s = "tcp";
-
-        if(this._host !== null && this._host.length > 0)
-        {
-            s += " -h ";
-            var addQuote = this._host.indexOf(':') != -1;
-            if(addQuote)
-            {
-                s += "\"";
-            }
-            s += this._host;
-            if(addQuote)
-            {
-                s += "\"";
-            }
-        }
-
-        s += " -p " + this._port;
-
-        if(this._sourceAddr !== null && this._sourceAddr.length > 0)
-        {
-            s += " --sourceAddr " + this._sourceAddr;
-        }
-
-        if(this._timeout == -1)
-        {
-            s += " -t infinite";
-        }
-        else
-        {
-            s += " -t " + this._timeout;
-        }
-
-        if(this._compress)
-        {
-            s += " -z";
-        }
-        return s;
-    },
-    //
-    // Convert the endpoint to its Connector string form
-    //
-    toConnectorString: function()
-    {
-        var s = this._host + ":" + this._port;
-        return s;
+        Ice.IPEndpointI.call(this, instance, ho, po, sif, conId);
+        this._timeout = ti === undefined ? (instance ? instance.defaultTimeout() : undefined) : ti;
+        this._compress = co === undefined ? false : co;
     },
     //
     // Return the endpoint information.
     //
     getInfo: function()
     {
-        return new TCPEndpointInfoI(this._timeout, this._compress, this._host, this._port, this._sourceAddr);
-    },
-    //
-    // Marshal the endpoint
-    //
-    streamWrite: function(s)
-    {
-        s.writeShort(Ice.TCPEndpointType);
-        s.startWriteEncaps();
-        s.writeString(this._host);
-        s.writeInt(this._port);
-        s.writeInt(this._timeout);
-        s.writeBool(this._compress);
-        s.endWriteEncaps();
-    },
-    //
-    // Return the endpoint type
-    //
-    type: function()
-    {
-        return Ice.TCPEndpointType;
-    },
-    //
-    // Return the protocol string
-    //
-    protocol: function()
-    {
-        return "tcp";
+        var info = this.secure() ? new IceSSL.EndpointInfo() : new Ice.TCPEndpointInfo();
+        fillEndpointInfo(info);
+        return info;
     },
     //
     // Return the timeout for the endpoint in milliseconds. 0 means
@@ -166,7 +80,7 @@ var TcpEndpointI = Class(Ice.Endpoint, {
         }
         else
         {
-            return new TcpEndpointI(this._instance, this._host, this._port, this._sourceAddr, this._timeout,
+            return new TcpEndpointI(this._instance, this._host, this._port, this._sourceAddr, this._timeout, 
                                     connectionId, this._compress);
         }
     },
@@ -191,7 +105,7 @@ var TcpEndpointI = Class(Ice.Endpoint, {
         }
         else
         {
-            return new TcpEndpointI(this._instance, this._host, this._port, this._sourceAddr, this._timeout,
+            return new TcpEndpointI(this._instance, this._host, this._port, this._sourceAddr, this._timeout, 
                                     this._connectionId, compress);
         }
     },
@@ -202,79 +116,42 @@ var TcpEndpointI = Class(Ice.Endpoint, {
     {
         return false;
     },
-    //
-    // Return true if the endpoint is secure.
-    //
-    secure: function()
+    connectable: function()
     {
-        return false;
-    },
-    //
-    // Return a server side transceiver for this endpoint, or null if a
-    // transceiver can only be created by an acceptor. In case a
-    // transceiver is created, this operation also returns a new
-    // "effective" endpoint, which might differ from this endpoint,
-    // for example, if a dynamic port number is assigned.
-    //
-    transceiver: function(endpoint)
-    {
-        endpoint.value = this;
-        return null;
+        return !this.secure(); // We don't support SSL, we can only connect with plain TCP
     },
     connect: function()
     {
-        return TcpTransceiver.createOutgoing(this._instance, new Address(this._host, this._port), this._sourceAddr);
-    },
-    hashCode: function()
-    {
-        return this._hashCode;
+        Debug.assert(!this.secure());
+        return TcpTransceiver.createOutgoing(this._instance, this.getAddress(), this._sourceAddr);
     },
     //
-    // Compare endpoints for sorting purposes
+    // Convert the endpoint to its string form
     //
-    equals: function(p)
+    options: function()
     {
-        if(!(p instanceof TcpEndpointI))
+        //
+        // WARNING: Certain features, such as proxy validation in Glacier2,
+        // depend on the format of proxy strings. Changes to toString() and
+        // methods called to generate parts of the reference string could break
+        // these features. Please review for all features that depend on the
+        // format of proxyToString() before changing this and related code.
+        //
+        var s = Ice.IPEndpointI.prototype.options.call(this);
+        if(this._timeout == -1)
         {
-            return false;
+            s += " -t infinite";
+        }
+        else
+        {
+            s += " -t " + this._timeout;
         }
 
-        if(this === p)
+        if(this._compress)
         {
-            return true;
+            s += " -z";
         }
-
-        if(this._host !== p._host)
-        {
-            return false;
-        }
-
-        if(this._port !== p._port)
-        {
-            return false;
-        }
-
-        if(this._sourceAddr !== p._sourceAddr)
-        {
-            return false;
-        }
-
-        if(this._timeout !== p._timeout)
-        {
-            return false;
-        }
-
-        if(this._connectionId !== p._connectionId)
-        {
-            return false;
-        }
-
-        if(this._compress !== p._compress)
-        {
-            return false;
-        }
-
-        return true;
+        return s;
     },
     compareTo: function(p)
     {
@@ -293,15 +170,6 @@ var TcpEndpointI = Class(Ice.Endpoint, {
             return this.type() < p.type() ? -1 : 1;
         }
 
-        if(this._port < p._port)
-        {
-            return -1;
-        }
-        else if(p._port < this._port)
-        {
-            return 1;
-        }
-
         if(this._timeout < p._timeout)
         {
             return -1;
@@ -309,11 +177,6 @@ var TcpEndpointI = Class(Ice.Endpoint, {
         else if(p._timeout < this._timeout)
         {
             return 1;
-        }
-
-        if(this._connectionId != p._connectionId)
-        {
-            return this._connectionId < p._connectionId ? -1 : 1;
         }
 
         if(!this._compress && p._compress)
@@ -325,129 +188,66 @@ var TcpEndpointI = Class(Ice.Endpoint, {
             return 1;
         }
 
-        if(this._host == p._host)
-        {
-            return 0;
-        }
-        else
-        {
-            return this._host < p._host ? -1 : 1;
-        }
-
-        if(this._sourceAddr == p._sourceAddr)
-        {
-            return 0;
-        }
-        else
-        {
-            return this._sourceAddr < p._sourceAddr ? -1 : 1;
-        }
+        return Ice.IPEndpointI.prototype.compareTo.call(this, p);
     },
-    calcHashValue: function()
+    streamWriteImpl: function(s)
     {
-        var h = 5381;
-        h = HashUtil.addNumber(h, Ice.TCPEndpointType);
-        h = HashUtil.addString(h, this._host);
-        h = HashUtil.addNumber(h, this._port);
-        h = HashUtil.addString(h, this._sourceAddr);
+        Ice.IPEndpointI.prototype.streamWriteImpl.call(this, s);
+        s.writeInt(this._timeout);
+        s.writeBool(this._compress);
+    },
+    hashInit: function(h)
+    {
+        h = Ice.IPEndpointI.prototype.hashInit.call(this, h);
         h = HashUtil.addNumber(h, this._timeout);
-        h = HashUtil.addString(h, this._connectionId);
         h = HashUtil.addBoolean(h, this._compress);
-        this._hashCode = h;
-    }
-});
-
-TcpEndpointI.fromString = function(instance, str, oaEndpoint)
-{
-    var host = null;
-    var port = 0;
-    var sourceAddr = null;
-    var timeout = -2;
-    var compress = false;
-
-    var arr = str.split(/[ \t\n\r]+/);
-
-    var i = 0;
-    while(i < arr.length)
+        return h;
+    },
+    fillEndpointInfo: function(info)
     {
-        if(arr[i].length === 0)
+        Ice.IPEndpointI.prototype.fillEndpointInfo.call(this, info);
+        info.timeout = this._timeout;
+        info.compress = this._compress;
+    },
+    initWithStream: function(s)
+    {
+        Ice.IPEndpointI.prototype.initWithStream.call(this, s);
+        this._timeout = s.readInt();
+        this._compress = s.readBool();
+    },
+    checkOption: function(option, argument, endpoint)
+    {
+        if(Ice.IPEndpointI.prototype.checkOption.call(this, option, argument, endpoint))
         {
-            i++;
-            continue;
+            return true;
         }
-
-        var option = arr[i++];
-        var argument = null;
-        if(i < arr.length && arr[i].charAt(0) != '-')
-        {
-            argument = arr[i++];
-            if(argument.charAt(0) == '\"' && argument.charAt(argument.length - 1) == '\"')
-            {
-                argument = argument.substring(1, argument.length - 1);
-            }
-        }
-
-        if(option === "-h")
+        
+        if(option === "-t")
         {
             if(argument === null)
             {
-                throw new Ice.EndpointParseException(
-                    "no argument provided for -h option in endpoint `tcp " + str + "'");
-            }
-
-            host = argument;
-        }
-        else if(option === "-p")
-        {
-            if(argument === null)
-            {
-                throw new Ice.EndpointParseException(
-                    "no argument provided for -p option in endpoint `tcp " + str + "'");
-            }
-
-            try
-            {
-                port = StringUtil.toInt(argument);
-            }
-            catch(ex)
-            {
-                throw new Ice.EndpointParseException("invalid port value `" + argument +
-                                                        "' in endpoint `tcp " + str + "'");
-            }
-
-            if(port < 0 || port > 65535)
-            {
-                throw new Ice.EndpointParseException("port value `" + argument +
-                                                        "' out of range in endpoint `tcp " + str + "'");
-            }
-        }
-        else if(option === "-t")
-        {
-            if(argument === null)
-            {
-                throw new Ice.EndpointParseException(
-                    "no argument provided for -t option in endpoint `tcp " + str + "'");
+                throw new Ice.EndpointParseException("no argument provided for -t option in endpoint " + endpoint);
             }
 
             if(argument == "infinite")
             {
-                timeout = -1;
+                this._timeout = -1;
             }
             else
             {
                 var invalid = false;
                 try
                 {
-                    timeout = StringUtil.toInt(argument);
+                    this._timeout = StringUtil.toInt(argument);
                 }
                 catch(ex)
                 {
                     invalid = true;
                 }
-                if(invalid || timeout < 1)
+                if(invalid || this._timeout < 1)
                 {
-                    throw new Ice.EndpointParseException(
-                        "invalid timeout value `" + argument + "' in endpoint `tcp " + str + "'");
+                    throw new Ice.EndpointParseException("invalid timeout value `" + argument + "' in endpoint " + 
+                                                         endpoint);
                 }
             }
         }
@@ -455,99 +255,23 @@ TcpEndpointI.fromString = function(instance, str, oaEndpoint)
         {
             if(argument !== null)
             {
-                throw new Ice.EndpointParseException("unexpected argument `" + argument +
-                                                        "' provided for -z option in `tcp " + str + "'");
+                throw new Ice.EndpointParseException("unexpected argument `" + argument + 
+                                                     "' provided for -z option in " + endpoint);
             }
 
-            compress = true;
-        }
-        else if(option === "--sourceAddress")
-        {
-            if(argument === null)
-            {
-                throw new Ice.EndpointParseException(
-                    "no argument provided for --sourceAddress option in endpoint `tcp " + str + "'");
-            }
-
-            sourceAddr = argument;
+            this._compress = true;
         }
         else
         {
-            throw new Ice.EndpointParseException("unknown option `" + option + "' in `tcp " + str + "'");
+            return false;
         }
-    }
-
-    if(host === null)
+        return true;
+    },
+    createEndpoint: function(host, port, conId)
     {
-        host = instance.defaultsAndOverrides().defaultHost;
+        return new TcpEndpointI(this._instance, host, port, this._sourceAddr, this._timeout, conId, this._compress);
     }
-    else if(host == "*")
-    {
-        if(oaEndpoint)
-        {
-            host = null;
-        }
-        else
-        {
-            throw new Ice.EndpointParseException("`-h *' not valid for proxy endpoint `tcp " + str + "'");
-        }
-    }
-
-    if(host === null)
-    {
-        host = "";
-    }
-
-    if(sourceAddr === null)
-    {
-        if(!oaEndpoint)
-        {
-            sourceAddr = instance.defaultsAndOverrides().defaultSourceAddress;
-        }
-    }
-    else if(oaEndpoint)
-    {
-        throw new Ice.EndpointParseException("`--sourceAddress not valid for object adapter endpoint `tcp " +
-                                                str + "'");
-    }
-
-    if(timeout == -2)
-    {
-        timeout = instance.defaultsAndOverrides().defaultTimeout;
-    }
-
-    return new TcpEndpointI(instance, host, port, sourceAddr, timeout, "", compress);
-};
-
-TcpEndpointI.fromStream = function(s)
-{
-    s.startReadEncaps();
-    var host = s.readString();
-    var port = s.readInt();
-    var timeout = s.readInt();
-    var compress = s.readBool();
-    s.endReadEncaps();
-    return new TcpEndpointI(s.instance, host, port, null, timeout, "", compress);
-};
+});
 
 Ice.TcpEndpointI = TcpEndpointI;
 module.exports.Ice = Ice;
-
-var TCPEndpointInfoI = Class(Ice.TCPEndpointInfo, {
-    __init__: function(timeout, compress, host, port, sourceAddr)
-    {
-        Ice.TCPEndpointInfo.call(this, timeout, compress, host, port, sourceAddr);
-    },
-    type: function()
-    {
-        return Ice.TCPEndpointType;
-    },
-    datagram: function()
-    {
-        return false;
-    },
-    secure: function()
-    {
-        return false;
-    }
-});

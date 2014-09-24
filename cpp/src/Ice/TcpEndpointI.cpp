@@ -34,7 +34,7 @@ IceInternal::TcpEndpointI::TcpEndpointI(const ProtocolInstancePtr& instance, con
 
 IceInternal::TcpEndpointI::TcpEndpointI(const ProtocolInstancePtr& instance) :
     IPEndpointI(instance),
-    _timeout(-2),
+    _timeout(instance->defaultTimeout()),
     _compress(false)
 {
 }
@@ -279,23 +279,8 @@ void
 IceInternal::TcpEndpointI::fillEndpointInfo(IPEndpointInfo* info) const
 {
     IPEndpointI::fillEndpointInfo(info);
-    TCPEndpointInfo* tcpInfo = dynamic_cast<TCPEndpointInfo*>(info);
-    if(tcpInfo)
-    {
-        tcpInfo->timeout = _timeout;
-        tcpInfo->compress = _compress;
-    }
-}
-
-void
-IceInternal::TcpEndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
-{
-    IPEndpointI::initWithOptions(args, oaEndpoint);
-
-    if(_timeout == -2)
-    {
-        const_cast<Int&>(_timeout) = _instance->defaultTimeout();
-    }
+    info->timeout = _timeout;
+    info->compress = _compress;
 }
 
 bool

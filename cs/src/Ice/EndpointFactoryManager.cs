@@ -147,6 +147,7 @@ namespace IceInternal
                     ue.streamWrite(bs);
                     Buffer buf = bs.getBuffer();
                     buf.b.position(0);
+                    buf.b.limit(buf.size());
                     bs.readShort(); // type
                     bs.startReadEncaps();
                     EndpointI e = factory.read(bs);

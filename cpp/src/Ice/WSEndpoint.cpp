@@ -37,8 +37,7 @@ IceInternal::WSEndpoint::WSEndpoint(const ProtocolInstancePtr& instance, const E
     }
 }
 
-IceInternal::WSEndpoint::WSEndpoint(const ProtocolInstancePtr& instance, const EndpointIPtr& del,
-                                  BasicStream* s) :
+IceInternal::WSEndpoint::WSEndpoint(const ProtocolInstancePtr& instance, const EndpointIPtr& del, BasicStream* s) :
     _instance(instance), _delegate(IPEndpointIPtr::dynamicCast(del))
 {
     s->read(const_cast<string&>(_resource), false);
@@ -79,8 +78,6 @@ IceInternal::WSEndpoint::getInfo() const
     };
 
     WSEndpointInfoPtr info = new InfoI(const_cast<WSEndpoint*>(this));
-    info->timeout = _delegate->timeout();
-    info->compress = _delegate->compress();
     _delegate->fillEndpointInfo(info.get());
     info->resource = _resource;
     return info;

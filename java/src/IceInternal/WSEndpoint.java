@@ -35,7 +35,6 @@ final class WSEndpoint extends IceInternal.EndpointI
     {
         _instance = instance;
         _delegate = (IPEndpointI)del;
-
         _resource = s.readString();
     }
 
@@ -62,9 +61,6 @@ final class WSEndpoint extends IceInternal.EndpointI
                     return WSEndpoint.this.secure();
                 }
             };
-
-        info.timeout = _delegate.timeout();
-        info.compress = _delegate.compress();
         _delegate.fillEndpointInfo(info);
         info.resource = _resource;
         return info;

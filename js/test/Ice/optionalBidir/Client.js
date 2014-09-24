@@ -51,7 +51,7 @@
 
     var run = function(out, id)
     {
-         var communicator;
+        var communicator = null;
         return Promise.try(
             function()
             {
@@ -91,7 +91,10 @@
         ).finally(
             function()
             {
-                return communicator.destroy();
+                if(communicator)
+                {
+                    return communicator.destroy();
+                }
             });
     };
     exports.__test__ = run;
