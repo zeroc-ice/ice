@@ -179,6 +179,7 @@ public class Client
                 Console.Out.Write("testing SessionHelper connect with wrong userid/password... ");
                 Console.Out.Flush();
 
+                _factory.setSecure(false);
                 _session = _factory.connect("userid", "xxx");
                 while(true)
                 {

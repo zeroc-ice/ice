@@ -42,10 +42,11 @@ public class SessionHelper
      * @param callback The callback for notifications about session establishment.
      * @param initData The {@link Ice.InitializationData} for initializing the communicator.
      */
-    public SessionHelper(SessionCallback callback, Ice.InitializationData initData)
+    public SessionHelper(SessionCallback callback, Ice.InitializationData initData, String finderStr)
     {
         _callback = callback;
         _initData = initData;
+        _finderStr = finderStr;
     }
 
     /**
@@ -501,71 +502,30 @@ public class SessionHelper
             return;
         }
 
-        if(_communicator.getDefaultRouter() != null)
-        {
-            completeConnect(factory);
-        }
-        else
-        {
-            Ice.RouterFinderPrx finder = Ice.RouterFinderPrxHelper.uncheckedCast(
-                _communicator.stringToProxy(_communicator.getProperties().getProperty("SessionHelper.RouterFinder")));
-            finder.begin_getRouter(new Ice.Callback()
-                                     {
-                                        @Override
-                                        public void completed(Ice.AsyncResult result)
-                                        {
-                                            try
-                                            {
-                                                Ice.RouterPrx router =
-                                                    Ice.RouterFinderPrxHelper.uncheckedCast(
-                                                        result.getProxy()).end_getRouter(result);
-                                                _communicator.setDefaultRouter(router);
-                                            }
-                                            catch(final Ice.Exception ex)
-                                            {
-                                                Ice.Communicator communicator = null;
-                                                synchronized(SessionHelper.this)
-                                                {
-                                                    communicator = _communicator;
-                                                    _communicator = null;
-                                                }
-
-                                                if(communicator != null)
-                                                {
-                                                    try
-                                                    {
-                                                        communicator.destroy();
-                                                    }
-                                                    catch(Throwable ex1)
-                                                    {
-                                                    }
-                                                }
-
-                                                dispatchCallback(new Runnable()
-                                                {
-                                                    @Override
-                                                    public void run()
-                                                    {
-                                                        _callback.connectFailed(SessionHelper.this, ex);
-                                                    }
-                                                }, null);
-                                                return;
-                                            }
-
-                                            completeConnect(factory);
-                                        }
-                                     });
-        }
-    }
-
-    private void
-    completeConnect(final ConnectStrategy factory)
-    {
+        final Ice.RouterFinderPrx finder =
+            Ice.RouterFinderPrxHelper.uncheckedCast(_communicator.stringToProxy(_finderStr));
         new Thread(new Runnable()
         {
             @Override
             public void run()
             {
+                if(_communicator.getDefaultRouter() == null)
+                {
+                    try
+                    {
+                        _communicator.setDefaultRouter(finder.getRouter());
+                    }
+                    catch(Exception ex)
+                    {
+                        //
+                        // In case of error getting router identity from RouterFinder use
+                        // default identity.
+                        //
+                        Ice.Identity ident = new Ice.Identity("router", "Glacier2");
+                        _communicator.setDefaultRouter(Ice.RouterPrxHelper.uncheckedCast(finder.ice_identity(ident)));
+                    }
+                }
+
                 try
                 {
                     dispatchCallbackAndWait(new Runnable()
@@ -650,6 +610,7 @@ public class SessionHelper
     private Glacier2.RouterPrx _router;
     private Glacier2.SessionPrx _session;
     private String _category;
+    private String _finderStr;
 
     private final SessionCallback _callback;
     private boolean _destroy = false;

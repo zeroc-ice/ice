@@ -78,10 +78,11 @@ public class SessionHelper
     /// establishment.</param>
     /// <param name="initData">The Ice.InitializationData for initializing
     /// the communicator.</param>
-    public SessionHelper(SessionCallback callback, Ice.InitializationData initData)
+    public SessionHelper(SessionCallback callback, Ice.InitializationData initData, string finderStr)
     {
         _callback = callback;
         _initData = initData;
+        _finderStr = finderStr;
     }
 
     /// <summary>
@@ -437,71 +438,51 @@ public class SessionHelper
             return;
         }
 
-        if(_communicator.getDefaultRouter() != null)
-        {
-            completeConnect(factory);
-        }
-        else
-        {
-            Ice.RouterFinderPrx finder = Ice.RouterFinderPrxHelper.uncheckedCast(
-                _communicator.stringToProxy(_communicator.getProperties().getProperty("SessionHelper.RouterFinder")));
-            finder.begin_getRouter().whenCompleted(
-                (Ice.RouterPrx router) =>
-                {
-                    _communicator.setDefaultRouter(router);
-                    completeConnect(factory);
-                },
-                (Ice.Exception ex) =>
-                {
-                    new Thread(new ThreadStart(() =>
-                    {
-                        try
-                        {
-                            _communicator.destroy();
-                        }
-                        catch(Exception)
-                        {
-                        }
-                        dispatchCallback(() =>
-                            {
-                                _callback.connectFailed(this, ex);
-                            }, null);
-                    })).Start();
-                });
-        }
-    }
-
-    private void
-    completeConnect(ConnectStrategy factory)
-    {
+        Ice.RouterFinderPrx finder = Ice.RouterFinderPrxHelper.uncheckedCast(_communicator.stringToProxy(_finderStr));
         new Thread(new ThreadStart(() =>
         {
+            if(_communicator.getDefaultRouter() == null)
+            {
                 try
                 {
-                    dispatchCallbackAndWait(() =>
-                        {
-                            _callback.createdCommunicator(this);
-                        });
-
-                    Glacier2.RouterPrx routerPrx = Glacier2.RouterPrxHelper.uncheckedCast(
-                        _communicator.getDefaultRouter());
-                    Glacier2.SessionPrx session = factory(routerPrx);
-                    connected(routerPrx, session);
+                    _communicator.setDefaultRouter(finder.getRouter());
                 }
-                catch (Exception ex)
+                catch(Exception)
                 {
-                    try
-                    {
-                        _communicator.destroy();
-                    }
-                    catch(Exception)
-                    {
-                    }
-                    dispatchCallback(() =>
-                        {
-                            _callback.connectFailed(this, ex);
-                        }, null);
+                    // In case of error getting router identity from RouterFinder use
+                    // default identity.
+                    //
+                    Ice.Identity ident = new Ice.Identity("router", "Glacier2");
+                    _communicator.setDefaultRouter(Ice.RouterPrxHelper.uncheckedCast(finder.ice_identity(ident)));
                 }
+            }
+
+            try
+            {
+                dispatchCallbackAndWait(() =>
+                    {
+                        _callback.createdCommunicator(this);
+                    });
+
+                Glacier2.RouterPrx routerPrx = Glacier2.RouterPrxHelper.uncheckedCast(
+                    _communicator.getDefaultRouter());
+                Glacier2.SessionPrx session = factory(routerPrx);
+                connected(routerPrx, session);
+            }
+            catch(Exception ex)
+            {
+                try
+                {
+                    _communicator.destroy();
+                }
+                catch(Exception)
+                {
+                }
+                dispatchCallback(() =>
+                    {
+                        _callback.connectFailed(this, ex);
+                    }, null);
+            }
         })).Start();
     }
 
@@ -554,6 +535,7 @@ public class SessionHelper
     private Glacier2.SessionPrx _session;
     private bool _connected = false;
     private string _category;
+    private string _finderStr;
 
     private readonly SessionCallback _callback;
     private bool _destroy = false;

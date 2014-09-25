@@ -237,7 +237,7 @@ public class SessionFactoryHelper
     synchronized public SessionHelper
     connect()
     {
-        SessionHelper session = new SessionHelper(_callback, createInitData());
+        SessionHelper session = new SessionHelper(_callback, createInitData(), getRouterFinderStr());
         session.connect(_context);
         return session;
     }
@@ -255,7 +255,7 @@ public class SessionFactoryHelper
     synchronized public SessionHelper
     connect(final String username, final String password)
     {
-        SessionHelper session = new SessionHelper(_callback, createInitData());
+        SessionHelper session = new SessionHelper(_callback, createInitData(), getRouterFinderStr());
         session.connect(username, password, _context);
         return session;
     }
@@ -269,75 +269,74 @@ public class SessionFactoryHelper
         Ice.InitializationData initData = (Ice.InitializationData)_initData.clone();
         initData.properties = initData.properties._clone();
 
-        if(initData.properties.getProperty("Ice.Default.Router").length() == 0)
+        if(initData.properties.getProperty("Ice.Default.Router").length() == 0 && _identity != null)
         {
-            boolean useFinder = _identity == null;
+            initData.properties.setProperty("Ice.Default.Router", getProxyStr(_identity));
+        }
 
-            StringBuffer sb = new StringBuffer();
-            sb.append("\"");
-            if(useFinder)
-            {
-                sb.append("Ice/RouterFinder");
-            }
-            else
-            {
-                sb.append(Ice.Util.identityToString(_identity));
-            }
-            sb.append("\"");
-            sb.append(":");
+        //
+        // If using a secure connection setup the IceSSL plug-in, if IceSSL
+        // plug-in has already been setup we don't want to override the
+        // configuration so it can be loaded from a custom location.
+        //
+        if(_secure && initData.properties.getProperty("Ice.Plugin.IceSSL").length() == 0)
+        {
+            initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
+        }
 
+        return initData;
+    }
+
+    private String
+    getRouterFinderStr()
+    {
+        Ice.Identity ident = new Ice.Identity("RouterFinder", "Ice");
+        return getProxyStr(ident);
+    }
+
+    private String
+    getProxyStr(Ice.Identity ident)
+    {
+        StringBuffer sb = new StringBuffer();
+        sb.append("\"");
+        sb.append(Ice.Util.identityToString(ident));
+        sb.append("\"");
+        sb.append(":");
+
+        if(_secure)
+        {
+            sb.append("ssl -p ");
+        }
+        else
+        {
+            sb.append("tcp -p ");
+        }
+
+        if(_port != 0)
+        {
+            sb.append(_port);
+        }
+        else
+        {
             if(_secure)
             {
-                sb.append("ssl -p ");
+                sb.append(GLACIER2_SSL_PORT);
             }
             else
             {
-                sb.append("tcp -p ");
-            }
-
-            if(_port != 0)
-            {
-                sb.append(_port);
-            }
-            else
-            {
-                if(_secure)
-                {
-                    sb.append(GLACIER2_SSL_PORT);
-                }
-                else
-                {
-                    sb.append(GLACIER2_TCP_PORT);
-                }
-            }
-
-            sb.append(" -h ");
-            sb.append(_routerHost);
-            if(_timeout > 0)
-            {
-                sb.append(" -t ");
-                sb.append(_timeout);
-            }
-
-            if(useFinder)
-            {
-                initData.properties.setProperty("SessionHelper.RouterFinder", sb.toString());
-            }
-            else
-            {
-                initData.properties.setProperty("Ice.Default.Router", sb.toString());
-            }
-            //
-            // If using a secure connection setup the IceSSL plug-in, if IceSSL
-            // plug-in has already been setup we don't want to override the
-            // configuration so it can be loaded from a custom location.
-            //
-            if(_secure && initData.properties.getProperty("Ice.Plugin.IceSSL").length() == 0)
-            {
-                initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
+                sb.append(GLACIER2_TCP_PORT);
             }
         }
-        return initData;
+
+        sb.append(" -h ");
+        sb.append(_routerHost);
+        if(_timeout > 0)
+        {
+            sb.append(" -t ");
+            sb.append(_timeout);
+        }
+
+        return sb.toString();
     }
 
     private SessionCallback _callback;

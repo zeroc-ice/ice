@@ -97,6 +97,8 @@ public:
 private:
 
     Ice::InitializationData createInitData();
+    std::string getRouterFinderStr();
+    std::string createProxyStr(const Ice::Identity& ident);
     void setDefaultProperties();
 
     IceUtil::Mutex _mutex;
