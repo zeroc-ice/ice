@@ -32,7 +32,7 @@ namespace Ice
             _time = "HH:mm:ss:fff";
         }
 
-        public void print( string message)
+        public void print(string message)
         {
             lock(_globalMutex)
             {

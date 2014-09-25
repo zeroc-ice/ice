@@ -162,18 +162,6 @@ exception RemoteLoggerAlreadyAttachedException
 
 /**
  *
- * An exception thrown by {@link LoggerAdmin#detachRemoteLogger} to report
- * that the provided {@link RemoteLogger} was not attached to this
- * {@link LoggerAdmin}.
- *
- **/
-exception RemoteLoggerNotAttachedException
-{
-};
-
-
-/**
- *
  * The interface of the admin object that allows an Ice application the attach its 
  * {@link RemoteLogger} to the {@Logger} of this admin object's Ice communicator. 
  *
@@ -189,11 +177,11 @@ interface LoggerAdmin
      * @param prx A proxy to the remote logger.
      *
      * @param messageTypes The list of message types that the remote logger wishes to receive.
-     * An empty list means no filtering / send all message types.
+     * An empty list means no filtering (send all message types).
      *
      * @param traceCategories The categories of traces that the remote logger wishes to receive.
      * This parameter is ignored if messageTypes is not empty and does not include trace.
-     * An empty list means no filtering / send all trace categories. 
+     * An empty list means no filtering (send all trace categories). 
      *
      * @param messageMax The maximum number of log messages (of all types) to be provided 
      * to {@link RemoteLogger#init}. A negative value requests all messages available.
@@ -213,23 +201,21 @@ interface LoggerAdmin
      *
      * @param prx A proxy to the remote logger.
      *
-     * @throws RemoteLoggerNotAttachedException Raised if this remote logger is not
-     * attached to this admin object.
+     * @return True if the provided remote logger proxy was detached, and false otherwise.
      *
      **/
-   void detachRemoteLogger(RemoteLogger* prx) 
-       throws RemoteLoggerNotAttachedException;
+    bool detachRemoteLogger(RemoteLogger* prx);
 
     /**
      *
-     * getLog retrieves log messages recently logged
+     * getLog retrieves log messages recently logged.
      *
-     * @param messageTypes The list of message types that the caller wishes to receive.
-     * An empty list means no filtering / send all message types.
+     * @param messageTypes The list of message types that the caller wishes to receive. 
+     * An empty list means no filtering (send all message types).
      *
      * @param traceCategories The categories of traces that caller wish to receive.
      * This parameter is ignored if messageTypes is not empty and does not include trace.
-     * An empty list means no filtering / send all trace categories. 
+     * An empty list means no filtering (send all trace categories). 
      *
      * @param messageMax The maximum number of log messages (of all types) to be returned. 
      * A negative value requests all messages available.

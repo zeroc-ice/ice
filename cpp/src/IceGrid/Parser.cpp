@@ -243,6 +243,7 @@ const char* _commandsHelp[][3] = {
 { 0, 0, 0 }
 };
 
+int loggerCallbackCount = 0;
 
 void writeMessage(const string& message, bool indent)
 {
@@ -2422,7 +2423,9 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
         _session->ice_getConnection()->setAdapter(adapter);
         
         Ice::Identity id;
-        id.name = "RemoteLogger-" + IceUtil::generateUUID();
+        ostringstream name;
+        name << "RemoteLogger-" << loggerCallbackCount++;
+        id.name = name.str();
         id.category = adminCallbackTemplate->ice_getIdentity().category;
         
         RemoteLoggerIPtr servant = new RemoteLoggerI;
@@ -2449,10 +2452,6 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
             loggerAdmin->detachRemoteLogger(prx);
         }
         catch(const Ice::ObjectNotExistException&)
-        {
-            // ignored
-        }
-        catch(const Ice::RemoteLoggerNotAttachedException&)
         {
             // ignored
         }

@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public class PropertiesAdminI extends Ice._PropertiesAdminDisp implements Ice.NativePropertiesAdmin
+class PropertiesAdminI extends Ice._PropertiesAdminDisp implements Ice.NativePropertiesAdmin
 {
     public PropertiesAdminI(Ice.Properties properties, Ice.Logger logger)
     {

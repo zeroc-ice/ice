@@ -27,9 +27,9 @@ public interface NativePropertiesAdmin
 
 namespace IceInternal
 {
-    sealed public class PropertiesAdminI : Ice.PropertiesAdminDisp_, Ice.NativePropertiesAdmin
+    sealed class PropertiesAdminI : Ice.PropertiesAdminDisp_, Ice.NativePropertiesAdmin
     {
-        public PropertiesAdminI(Ice.Properties properties, Ice.Logger logger)
+        internal PropertiesAdminI(Ice.Properties properties, Ice.Logger logger)
         {
             _properties = properties;
             _logger = logger;

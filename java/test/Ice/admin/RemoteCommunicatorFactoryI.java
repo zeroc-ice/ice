@@ -13,6 +13,7 @@ import test.Ice.admin.Test.*;
 
 public class RemoteCommunicatorFactoryI extends _RemoteCommunicatorFactoryDisp
 {
+    @Override
     public RemoteCommunicatorPrx createCommunicator(java.util.Map<String, String> props, Ice.Current current)
     {
         //
@@ -23,6 +24,37 @@ public class RemoteCommunicatorFactoryI extends _RemoteCommunicatorFactoryDisp
         for(java.util.Map.Entry<String, String> e : props.entrySet())
         {
             init.properties.setProperty(e.getKey(), e.getValue());
+        }
+
+        if(init.properties.getPropertyAsInt("NullLogger") > 0)
+        {
+            init.logger = new Ice.Logger() {
+                    @Override public void print(String message)
+                    {
+                    }
+
+                    @Override public void trace(String category, String message)
+                    {
+                    }
+
+                    @Override public void warning(String message)
+                    {
+                    }
+
+                    @Override public void error(String message)
+                    {
+                    }
+
+                    @Override public String getPrefix()
+                    {
+                        return "NullLogger";
+                    }
+                    
+                    @Override public Ice.Logger cloneWithPrefix(String prefix)
+                    {
+                        return this;
+                    }
+                };
         }
 
         //
@@ -53,6 +85,7 @@ public class RemoteCommunicatorFactoryI extends _RemoteCommunicatorFactoryDisp
         return RemoteCommunicatorPrxHelper.uncheckedCast(proxy);
     }
 
+    @Override
     public void shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();

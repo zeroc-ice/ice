@@ -7,14 +7,10 @@
 //
 // **********************************************************************
 
-package test.Ice.admin;
+package IceInternal;
 
-import test.Ice.admin.Test.*;
-
-public class TestFacetI extends _TestFacetDisp
+interface LoggerAdminLogger extends Ice.Logger
 {
-    @Override
-    public void op(Ice.Current current)
-    {
-    }
+    Ice.Object getFacet();
+    void destroy();
 }

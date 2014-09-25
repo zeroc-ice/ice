@@ -54,6 +54,26 @@ public class RemoteCommunicatorI : RemoteCommunicatorDisp_, Ice.PropertiesAdminU
         }
     }
 
+    override public void print(string message, Ice.Current current)
+    {
+        _communicator.getLogger().print(message);
+    }
+    
+    override public void trace(string category, string message, Ice.Current current)
+    {
+        _communicator.getLogger().trace(category, message);
+    }
+
+    override public void warning(string message, Ice.Current current)
+    {
+        _communicator.getLogger().warning(message);
+    }
+
+    override public void error(string message, Ice.Current current)
+    {
+        _communicator.getLogger().error(message);
+    }
+
     override public void shutdown(Ice.Current current)
     {
         _communicator.shutdown();
@@ -102,6 +122,11 @@ public class RemoteCommunicatorFactoryI : RemoteCommunicatorFactoryDisp_
             init.properties.setProperty(e.Key, e.Value);
         }
 
+        if(init.properties.getPropertyAsInt("NullLogger") > 0)
+        {
+            init.logger = new NullLogger();
+        }
+
         //
         // Initialize a new communicator.
         //
@@ -133,5 +158,34 @@ public class RemoteCommunicatorFactoryI : RemoteCommunicatorFactoryDisp_
     override public void shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
+    }
+
+    private class NullLogger : Ice.Logger
+    {
+        public void print(string message)
+        {
+        }
+        
+        public void trace(string category, string message)
+        {
+        }
+
+        public void warning(string message)
+        {
+        }
+
+        public void error(string message)
+        {
+        }
+
+        public string getPrefix()
+        {
+            return "NullLogger";
+        }
+
+        public Ice.Logger cloneWithPrefix(string prefix)
+        {
+            return this;
+        }
     }
 }

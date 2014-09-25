@@ -1175,7 +1175,7 @@ interface Admin
     
     /**
      *
-     * Get a proxy to the IceGrid registry's admin object
+     * Get a proxy to the IceGrid registry's admin object.
      *
      * @param name The registry name
      *

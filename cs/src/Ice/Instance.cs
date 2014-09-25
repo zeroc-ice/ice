@@ -924,7 +924,9 @@ namespace IceInternal
                 string loggerFacetName = "Logger";
                 if(_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(loggerFacetName))
                 {
-                    // TODO
+                    LoggerAdminLogger logger = new LoggerAdminLoggerI(_initData.properties, _initData.logger);
+                    setLogger(logger);
+                    _adminFacets.Add(loggerFacetName, logger.getFacet());
                 }
 
                 //
@@ -1120,6 +1122,12 @@ namespace IceInternal
             if(_initData.observer != null)
             {
                 _initData.observer.setObserverUpdater(null);
+            }
+
+            LoggerAdminLogger logger = _initData.logger as LoggerAdminLogger;
+            if(logger != null)
+            {
+                logger.destroy();
             }
 
             ThreadPool serverThreadPool = null;

@@ -472,7 +472,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         com->print("rprint");
         remoteLogger->wait(4);
 
-        logger->detachRemoteLogger(myProxy);
+        test(logger->detachRemoteLogger(myProxy));
+        test(!logger->detachRemoteLogger(myProxy));
 
         //
         // Use Error + Trace with "traceCat" filter with 4 limit

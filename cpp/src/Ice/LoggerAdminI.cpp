@@ -35,9 +35,9 @@ public:
     
     virtual void attachRemoteLogger(const RemoteLoggerPrx&, const LogMessageTypeSeq&, 
                                     const StringSeq&, Int, const Current&);
-
-    virtual void detachRemoteLogger(const RemoteLoggerPrx&, const Current&);
-
+    
+    virtual bool detachRemoteLogger(const RemoteLoggerPrx&, const Current&);
+    
     virtual LogMessageSeq getLog(const LogMessageTypeSeq&, const StringSeq&, Int, string&, const Current&);
 
     void destroy();
@@ -51,16 +51,11 @@ public:
         return _traceLevel;
     }
 
-    const CallbackPtr& getRemoteCallCompleted() const
-    {
-        return _remoteCallCompleted;
-    }
-
 private:
 
     bool removeRemoteLogger(const RemoteLoggerPrx&);
-
-    void remoteCallCompleted(const AsyncResultPtr&);
+    
+    void initCompleted(const AsyncResultPtr&);
 
     IceUtil::Mutex _mutex;
     list<LogMessage> _queue;
@@ -111,9 +106,10 @@ private:
 
     RemoteLoggerMap _remoteLoggerMap;
 
-    const CallbackPtr _remoteCallCompleted;
+    const CallbackPtr _initCompleted;
 
     CommunicatorPtr _sendLogCommunicator;
+    bool _destroyed;
 };
 typedef IceUtil::Handle<LoggerAdminI> LoggerAdminIPtr;
 
@@ -161,6 +157,8 @@ public:
 private:
 
     void log(const LogMessage&);
+
+    void logCompleted(const AsyncResultPtr&);
     
     LoggerPtr _localLogger;
     const LoggerAdminIPtr _loggerAdmin;
@@ -169,7 +167,8 @@ private:
 
     bool _destroyed;
     IceUtil::ThreadPtr _sendLogThread;
-    std::deque<JobPtr> _jobQueue;
+    std::deque<JobPtr> _jobQueue;   
+    const CallbackPtr _logCompleted;
 };
 typedef IceUtil::Handle<LoggerAdminLoggerI> LoggerAdminLoggerIPtr;
 
@@ -199,16 +198,13 @@ void
 filterLogMessages(LogMessageSeq& logMessages, const set<LogMessageType>& messageTypes,
                   const set<string>& traceCategories, Int messageMax)
 {
-    if(messageMax == 0)
-    {
-        logMessages.clear();
-    }
-
+    assert(!logMessages.empty() && messageMax != 0);
+   
     //
     // Filter only if one of the 3 filters is set; messageMax < 0 means "give me all"
     // that match the other filters, if any.
     //
-    else if(!messageTypes.empty() || !traceCategories.empty() || messageMax > 0)
+    if(!messageTypes.empty() || !traceCategories.empty() || messageMax > 0)
     {
         int count = 0;
         LogMessageSeq::reverse_iterator p = logMessages.rbegin();
@@ -320,10 +316,17 @@ LoggerAdminI::LoggerAdminI(const PropertiesPtr& props) :
     _logCount(0),
     _maxLogCount(props->getPropertyAsIntWithDefault("Ice.Admin.Logger.KeepLogs", 100)),
     _traceCount(0),
-    _maxTraceCount(props->getPropertyAsIntWithDefault("Ice.Admin.Logger.KeepTraces", 100)),
-    _traceLevel(props->getPropertyAsInt("Ice.Trace.Admin.Logger"))
+    _maxTraceCount(props->getPropertyAsIntWithDefault("Ice.Admin.Logger.KeepTraces", 100)),   
+    _traceLevel(props->getPropertyAsInt("Ice.Trace.Admin.Logger")),
+#if !defined(_MSC_VER) || (_MSC_VER >= 1700)
+    _initCompleted(newCallback(this, &LoggerAdminI::initCompleted)),
+#endif
+    _destroyed(false)
 {
-    const_cast<CallbackPtr&>(_remoteCallCompleted) = newCallback(this, &LoggerAdminI::remoteCallCompleted);
+#if defined(_MSC_VER) && (MSV_VER < 1700)
+    const_cast<CallbackPtr&>(_initCompleted) = newCallback(this, &LoggerAdminI::initCompleted);
+#endif
+
     _oldestLog = _queue.end();
     _oldestTrace = _queue.end();
 }
@@ -339,7 +342,12 @@ LoggerAdminI::attachRemoteLogger(const RemoteLoggerPrx& prx,
     {
         return; // can't send this null RemoteLogger anything!
     }
-
+    
+    //
+    // In C++, LoggerAdminI does not keep a "logger" data member to avoid a hard-to-break circular
+    // reference, so we retrieve the logger from Current
+    //
+    
     LoggerAdminLoggerIPtr logger = LoggerAdminLoggerIPtr::dynamicCast(current.adapter->getCommunicator()->getLogger());
     if(!logger)
     {
@@ -349,7 +357,6 @@ LoggerAdminI::attachRemoteLogger(const RemoteLoggerPrx& prx,
     }
 
     RemoteLoggerPrx remoteLogger = prx->ice_twoway();
-    // TODO set invocation timeout
 
     Filters filters(messageTypes, categories);
     LogMessageSeq initLogMessages;
@@ -358,6 +365,11 @@ LoggerAdminI::attachRemoteLogger(const RemoteLoggerPrx& prx,
 
         if(!_sendLogCommunicator)
         {
+            if(_destroyed)
+            {
+                throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+            }
+
             _sendLogCommunicator =
                 createSendLogCommunicator(current.adapter->getCommunicator(), logger->getLocalLogger());
         }
@@ -385,11 +397,14 @@ LoggerAdminI::attachRemoteLogger(const RemoteLoggerPrx& prx,
         trace << "attached `" << remoteLogger << "'";
     }
 
-    filterLogMessages(initLogMessages, filters.messageTypes, filters.traceCategories, messageMax);
+    if(!initLogMessages.empty())
+    {
+        filterLogMessages(initLogMessages, filters.messageTypes, filters.traceCategories, messageMax);
+    }
 
     try
     {
-        remoteLogger->begin_init(logger->getPrefix(), initLogMessages, _remoteCallCompleted, logger);
+        remoteLogger->begin_init(logger->getPrefix(), initLogMessages, _initCompleted, logger);
     }
     catch(const LocalException& ex)
     {
@@ -398,12 +413,12 @@ LoggerAdminI::attachRemoteLogger(const RemoteLoggerPrx& prx,
     }
 }
 
-void
+bool
 LoggerAdminI::detachRemoteLogger(const RemoteLoggerPrx& remoteLogger, const Current& current)
 {
     if(remoteLogger == 0)
     {
-        throw RemoteLoggerNotAttachedException();
+        return false;
     }
 
     //
@@ -411,21 +426,24 @@ LoggerAdminI::detachRemoteLogger(const RemoteLoggerPrx& remoteLogger, const Curr
     //
     bool found = removeRemoteLogger(remoteLogger);
 
-    if(!found)
-    {
-        throw RemoteLoggerNotAttachedException();
-    }
-
     if(_traceLevel > 0)
     {
         Trace trace(current.adapter->getCommunicator()->getLogger(), traceCategory);
-        trace << "detached `" << remoteLogger << "'";
+        if(found)
+        {
+            trace << "detached `" << remoteLogger << "'";
+        }
+        else
+        {
+            trace << "cannot detach `" << remoteLogger << "': not found";
+        }
     }
+    
+    return found;
 }
 
-LogMessageSeq
-LoggerAdminI::getLog(const LogMessageTypeSeq& messageTypes,
-                     const StringSeq& categories,
+LogMessageSeq 
+LoggerAdminI::getLog(const LogMessageTypeSeq& messageTypes, const StringSeq& categories,
                      Int messageMax, string& prefix, const Current& current)
 {
     LogMessageSeq logMessages;
@@ -440,20 +458,37 @@ LoggerAdminI::getLog(const LogMessageTypeSeq& messageTypes,
 
     LoggerPtr logger = current.adapter->getCommunicator()->getLogger();
     prefix = logger->getPrefix();
-
-    Filters filters(messageTypes, categories);
-    filterLogMessages(logMessages, filters.messageTypes, filters.traceCategories, messageMax);
+    
+    if(!logMessages.empty())
+    {
+        Filters filters(messageTypes, categories);
+        filterLogMessages(logMessages, filters.messageTypes, filters.traceCategories, messageMax);
+    }
+    
     return logMessages;
 }
 
 void
 LoggerAdminI::destroy()
 {
-    IceUtil::Mutex::Lock lock(_mutex);
-    if(_sendLogCommunicator)
+    CommunicatorPtr sendLogCommunicator;
     {
-        _sendLogCommunicator->destroy();
-        _sendLogCommunicator = 0;
+        IceUtil::Mutex::Lock lock(_mutex);
+        if(!_destroyed)
+        {
+            _destroyed = true; 
+            sendLogCommunicator = _sendLogCommunicator;
+            _sendLogCommunicator = 0;
+        }
+    }
+    
+    //
+    // Destroy outside lock to avoid deadlock when there are outstanding two-way log calls sent to 
+    // remote logggers
+    //
+    if(sendLogCommunicator)
+    {
+        sendLogCommunicator->destroy();
     }
 }
 
@@ -572,27 +607,26 @@ LoggerAdminI::removeRemoteLogger(const RemoteLoggerPrx& remoteLogger)
 }
 
 void
-LoggerAdminI::remoteCallCompleted(const AsyncResultPtr& r)
+LoggerAdminI::initCompleted(const AsyncResultPtr& r)
 {
-    try
+    RemoteLoggerPrx remoteLogger = RemoteLoggerPrx::uncheckedCast(r->getProxy());
+    
+try 
     {
-        r->throwLocalException();
+        remoteLogger->end_init(r);
 
         if(_traceLevel > 1)
         {
             LoggerPtr logger = LoggerPtr::dynamicCast(r->getCookie());
             Trace trace(logger, traceCategory);
-            trace << r->getOperation() << " on `" << r->getProxy() << "' completed successfully";
+            trace << r->getOperation() << " on `" << remoteLogger << "' completed successfully";
         }
     }
     catch(const LocalException& ex)
     {
-        deadRemoteLogger(RemoteLoggerPrx::uncheckedCast(r->getProxy()),
-                         LoggerPtr::dynamicCast(r->getCookie()),
-                         ex, r->getOperation());
+        deadRemoteLogger(remoteLogger, LoggerPtr::dynamicCast(r->getCookie()), ex, r->getOperation());
     }
 }
-
 
 //
 // LoggerAdminLoggerI
@@ -602,7 +636,15 @@ LoggerAdminLoggerI::LoggerAdminLoggerI(const PropertiesPtr& props,
                                        const LoggerPtr& localLogger) :
     _loggerAdmin(new LoggerAdminI(props)),
     _destroyed(false)
+#if !defined(_MSC_VER) || (_MSC_VER >= 1700)
+    , _logCompleted(newCallback(this, &LoggerAdminLoggerI::logCompleted))
+#endif
 {
+   
+#if defined(_MSC_VER) && (MSV_VER < 1700)
+    const_cast<CallbackPtr&>(_logCompleted) = newCallback(this, &LoggerAdminLoggerI::logCompleted);
+#endif
+
     //
     // There is currently no way to have a null local logger
     //
@@ -760,7 +802,7 @@ LoggerAdminLoggerI::run()
                 //
                 // *p is a proxy associated with the _sendLogCommunicator
                 //
-                (*p)->begin_log(job->logMessage, _loggerAdmin->getRemoteCallCompleted(), _localLogger);
+                (*p)->begin_log(job->logMessage, _logCompleted);
             }
             catch(const LocalException& ex)
             {
@@ -776,6 +818,30 @@ LoggerAdminLoggerI::run()
     }
 }
 
+void
+LoggerAdminLoggerI::logCompleted(const AsyncResultPtr& r)
+{
+    RemoteLoggerPrx remoteLogger = RemoteLoggerPrx::uncheckedCast(r->getProxy());
+    
+    try 
+    {
+        remoteLogger->end_log(r);
+
+        if(_loggerAdmin->getTraceLevel() > 1)
+        {
+            Trace trace(_localLogger, traceCategory);
+            trace << r->getOperation() << " on `" << remoteLogger << "' completed successfully";
+        }
+    }
+    catch(const CommunicatorDestroyedException&)
+    {
+        // expected if there are outstanding calls during communicator destruction
+    }
+    catch(const LocalException& ex)
+    {
+        _loggerAdmin->deadRemoteLogger(remoteLogger, _localLogger, ex, r->getOperation());
+    }
+}
 
 //
 // SendLogThread

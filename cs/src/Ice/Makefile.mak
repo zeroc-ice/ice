@@ -55,6 +55,8 @@ SRCS		= Acceptor.cs \
 		  InstrumentationI.cs \
 		  IPEndpointI.cs \
 		  LocatorInfo.cs \
+                  LoggerAdminI.cs \
+                  LoggerAdminLoggerI.cs \
 		  LoggerI.cs \
 		  LoggerPlugin.cs \
 		  MetricsAdminI.cs \
@@ -145,6 +147,7 @@ GEN_SRCS	= $(GDIR)\BuiltinSequences.cs \
 		  $(GDIR)\Process.cs \
 		  $(GDIR)\Properties.cs \
 		  $(GDIR)\PropertiesAdmin.cs \
+                  $(GDIR)\RemoteLogger.cs \
 		  $(GDIR)\Router.cs \
 		  $(GDIR)\ServantLocator.cs \
 		  $(GDIR)\SliceChecksumDict.cs \

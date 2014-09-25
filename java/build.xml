@@ -70,6 +70,7 @@
                 <include name="Process.ice" />
                 <include name="PropertiesAdmin.ice" />
                 <include name="Properties.ice" />
+                <include name="RemoteLogger.ice" />
                 <include name="Router.ice" />
                 <include name="ServantLocator.ice" />
                 <include name="SliceChecksumDict.ice" />

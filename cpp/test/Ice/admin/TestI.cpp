@@ -24,16 +24,20 @@ class NullLogger : public Ice::Logger
 public:
 
     virtual void print(const string&)
-    {}
+    {
+    }
 
     virtual void trace(const string&, const string&)
-    {}
+    {
+    }
 
     virtual void warning(const string&)
-    {}
+    {
+    }
 
     virtual void error(const string&)
-    {}
+    {
+    }
 
     virtual string getPrefix()
     {
@@ -42,7 +46,7 @@ public:
     
     virtual Ice::LoggerPtr cloneWithPrefix(const string&)
     {
-        return new NullLogger;
+        return this;
     }
 };
 
@@ -150,7 +154,7 @@ RemoteCommunicatorFactoryI::createCommunicator(const Ice::PropertyDict& props, c
         init.properties->setProperty(p->first, p->second);
     }
 
-    if(init.properties->getPropertyAsInt("NullLogger") != 0)
+    if(init.properties->getPropertyAsInt("NullLogger") > 0)
     {
         init.logger = new NullLogger;
     }

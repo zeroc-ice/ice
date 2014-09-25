@@ -21,6 +21,14 @@ interface RemoteCommunicator
 
     Ice::PropertyDict getChanges();
 
+    //
+    // Logger operations
+    //
+    void print(string message);
+    void trace(string category, string message);
+    void warning(string message);
+    void error(string message);
+
     void shutdown();
 
     void waitForShutdown();

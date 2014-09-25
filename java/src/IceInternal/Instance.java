@@ -10,10 +10,7 @@
 package IceInternal;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import Ice.CommunicatorDestroyedException;
 
 public final class Instance
 {
@@ -1021,7 +1018,9 @@ public final class Instance
             String loggerFacetName = "Logger";
             if(_adminFacetFilter.isEmpty() || _adminFacetFilter.contains(loggerFacetName))
             {
-                // TODO
+                LoggerAdminLogger logger = new LoggerAdminLoggerI(_initData.properties, _initData.logger);
+                setLogger(logger);
+                _adminFacets.put(loggerFacetName, logger.getFacet());
             }
 
             //
@@ -1201,6 +1200,14 @@ public final class Instance
             _initData.observer.setObserverUpdater(null);
         }
 
+        if(_initData.logger instanceof LoggerAdminLogger)
+        {
+            //
+            // This only disables the remote logging; we don't set or reset _initData.logger
+            //
+            ((LoggerAdminLogger)_initData.logger).destroy();
+        }
+        
         ThreadPool serverThreadPool = null;
         ThreadPool clientThreadPool = null;
         EndpointHostResolver endpointHostResolver = null;

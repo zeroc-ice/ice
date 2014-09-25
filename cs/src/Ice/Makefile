@@ -54,7 +54,9 @@ SRCS		= Acceptor.cs \
 		  InstrumentationI.cs \
 		  IPEndpointI.cs \
 		  LocatorInfo.cs \
-		  LoggerI.cs \
+                  LoggerAdminI.cs \
+                  LoggerAdminLoggerI.cs \
+                  LoggerI.cs \
 		  LoggerPlugin.cs \
 		  MetricsAdminI.cs \
 		  MetricsObserverI.cs \
@@ -144,6 +146,7 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/Process.ice \
 		  $(SDIR)/Properties.ice \
 		  $(SDIR)/PropertiesAdmin.ice \
+                  $(SDIR)/RemoteLogger.ice \
 		  $(SDIR)/Router.ice \
 		  $(SDIR)/ServantLocator.ice \
 		  $(SDIR)/SliceChecksumDict.ice \
