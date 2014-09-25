@@ -774,6 +774,24 @@ OpenSSLEngine::initialize()
             }
         }
 
+        if(securityTraceLevel() >= 1)
+        {
+            ostringstream os;
+            os << "enabling SSL ciphersuites:";
+            
+            SSL* ssl = SSL_new(_ctx);
+            STACK_OF(SSL_CIPHER)* ciphers =  SSL_get_ciphers(ssl);
+            if(ciphers)
+            {
+                for(int i = 0, length = sk_SSL_CIPHER_num(ciphers); i < length; ++i)
+                {
+                    os << "\n" << SSL_CIPHER_get_name(sk_SSL_CIPHER_value(ciphers, i));
+                }
+            }
+            SSL_free(ssl);
+            getLogger()->trace(securityTraceCategory(), os.str());
+        }
+
         //
         // Determine whether a certificate is required from the peer.
         //
