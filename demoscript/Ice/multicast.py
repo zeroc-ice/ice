@@ -72,15 +72,17 @@ def run(clientCmd, serverCmd):
         sys.stdout.write("testing multicast discovery (IPv6)... ")
         sys.stdout.flush()
 
+        endpoint = 'udp -h \\"ff15::1:1\\" -p 10000'
         #
-        # On OS X, using the site-local address doesn't work, the server fails with 
-        # a "Can't assign requested address" error, instead we use a link-local address
-	# with on loopback.
+        # On OS X, if the host doesn't have global scoped IPv6
+        # address, the system can't figure out the default interface
+        # to use when joining the multicast group. We specify it
+        # explicitly here to the loopback, this makes sure the demos
+        # work also on hosts on hosts without a global scope address.
         #
         if Util.isDarwin():
-            endpoint = 'udp -h \\"ff02::1:1\\" -p 10000 --interface \\"::1\\"'
-        else:
-            endpoint = 'udp -h \\"ff15::1:1\\" -p 10000'
+            endpoint += ' --interface \\"::1\\"'
+
         serverCmd += ' --Ice.IPv6=1 --Discover.Endpoints="%s"' % (endpoint)
         clientCmd += ' --Ice.IPv6=1 --Discover.Proxy="discover:%s"' % (endpoint)
             
