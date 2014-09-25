@@ -31,20 +31,50 @@ public class RetryQueue
     synchronized public void
     destroy()
     {
+         java.util.HashSet<RetryTask> keep = new java.util.HashSet<RetryTask>();
         for(RetryTask task : _requests)
         {
-            task.destroy();
+            if(!task.destroy())
+            {
+                keep.add(task);
+            }
         }
-        _requests.clear();
+        _requests = keep;
         _instance = null;
+
+        //
+        // Wait for the tasks to be executed, it shouldn't take long
+        // since they couldn't be canceled. If interrupted, we
+        // preserve the interrupt.
+        //
+        boolean interrupted = false;
+        while(!_requests.isEmpty())
+        {
+            try
+            {
+                wait();
+            }
+            catch(InterruptedException ex)
+            {
+                interrupted = true;
+            }
+        }
+        if(interrupted)
+        {
+            Thread.currentThread().interrupt();
+        }
     }
 
-    synchronized boolean
+    synchronized void
     remove(RetryTask task)
     {
-        return _requests.remove(task);
+        _requests.remove(task);
+        if(_instance == null && _requests.isEmpty())
+        {
+            notify();
+        }
     }
 
     private Instance _instance;
-    final private java.util.HashSet<RetryTask> _requests = new java.util.HashSet<RetryTask>();
+    private java.util.HashSet<RetryTask> _requests = new java.util.HashSet<RetryTask>();
 }

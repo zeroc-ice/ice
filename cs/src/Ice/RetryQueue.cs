@@ -10,6 +10,7 @@
 namespace IceInternal
 {
     using System.Collections.Generic;
+    using System.Diagnostics;
 
     public class RetryTask : TimerTask
     {
@@ -21,10 +22,15 @@ namespace IceInternal
 
         public void runTimerTask()
         {
-            if(_retryQueue.remove(this))
-            {
-                _outAsync.processRetry(false);
-            }
+            _outAsync.processRetry(false);
+
+            //
+            // NOTE: this must be called last, destroy() blocks until all task
+            // are removed to prevent the client thread pool to be destroyed
+            // (we still need the client thread pool at this point to call
+            // exception callbacks with CommunicatorDestroyedException).
+            //
+            _retryQueue.remove(this);
         }
 
         public void destroy()
@@ -62,22 +68,39 @@ namespace IceInternal
         {
             lock(this)
             {
+                Dictionary<RetryTask, object> keep = new Dictionary<RetryTask, object>();
                 foreach(RetryTask task in _requests.Keys)
                 {
-                    _instance.timer().cancel(task);
-                    task.destroy();
+                    if(_instance.timer().cancel(task))
+                    {
+                        task.destroy();
+                    }
+                    else
+                    {
+                        keep.Add(task, null);
+                    }
                 }
-                _requests.Clear();
+                _requests = keep;
                 _instance = null;
+                while(_requests.Count > 0)
+                {
+                    System.Threading.Monitor.Wait(this);
+                }
             }
         }
 
-        public bool
+        public void
         remove(RetryTask task)
         {
             lock(this)
             {
-                return _requests.Remove(task);
+                Debug.Assert(_requests.ContainsKey(task));
+                _requests.Remove(task);
+                if(_instance == null && _requests.Count == 0)
+                {
+                    // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
+                    System.Threading.Monitor.Pulse(this);
+                }
             }
         }
 

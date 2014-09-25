@@ -21,17 +21,26 @@ class RetryTask implements Runnable
     public void
     run()
     {
-        if(_queue.remove(this))
-        {
-            _outAsync.processRetry(false);
-        }
+        _outAsync.processRetry(false);
+
+        //
+        // NOTE: this must be called last, destroy() blocks until all task
+        // are removed to prevent the client thread pool to be destroyed
+        // (we still need the client thread pool at this point to call
+        // exception callbacks with CommunicatorDestroyedException).
+        //
+        _queue.remove(this);
     }
 
-    public void
+    public boolean
     destroy()
     {
-        _future.cancel(false);
-        _outAsync.processRetry(true);
+        if(_future.cancel(false))
+        {
+            _outAsync.processRetry(true);
+            return true;
+        }
+        return false;
     }
 
     public void setFuture(java.util.concurrent.Future<?> future)

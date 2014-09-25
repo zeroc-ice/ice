@@ -25,16 +25,17 @@ var RetryQueue = Class({
             throw new Ice.CommunicatorDestroyedException();
         }
         var task = new RetryTask(this, outAsync);
-        this._instance.timer().schedule(function()
-            {
-                task.run();
-            }, interval);
+        task.token = this._instance.timer().schedule(function()
+                                                     {
+                                                         task.run();
+                                                     }, interval);
         this._requests.push(task);
     },
     destroy: function()
     {
         for(var i = 0; i < this._requests.length; ++i)
         {
+            this._instance.timer().cancel(this._requests[i].token);
             this._requests[i].destroy();
         }
         this._requests = [];
@@ -46,9 +47,7 @@ var RetryQueue = Class({
         if(idx >= 0)
         {
             this._requests.splice(idx, 1);
-            return true;
         }
-        return false;
     }
 });
 Ice.RetryQueue = RetryQueue;
@@ -61,17 +60,15 @@ var RetryTask = Class({
     },
     run: function()
     {
-        if(this.queue.remove(this))
+        try
         {
-            try
-            {
-                this.outAsync.__invoke();
-            }
-            catch(ex)
-            {
-                this.outAsync.__invokeException(ex);
-            }
+            this.outAsync.__invoke();
         }
+        catch(ex)
+        {
+            this.outAsync.__invokeException(ex);
+        }
+        this.queue.remove(this);
     },
     destroy: function()
     {

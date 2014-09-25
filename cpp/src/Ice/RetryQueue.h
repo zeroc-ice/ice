@@ -38,7 +38,7 @@ private:
 };
 typedef IceUtil::Handle<RetryTask> RetryTaskPtr;
 
-class RetryQueue : public IceUtil::Shared, public IceUtil::Mutex
+class RetryQueue : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
@@ -49,7 +49,7 @@ public:
 
 private:
 
-    bool remove(const RetryTaskPtr&);
+    void remove(const RetryTaskPtr&);
     friend class RetryTask;
 
     InstancePtr _instance;

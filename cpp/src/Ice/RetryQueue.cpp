@@ -26,10 +26,15 @@ IceInternal::RetryTask::RetryTask(const RetryQueuePtr& queue, const OutgoingAsyn
 void
 IceInternal::RetryTask::runTimerTask()
 {
-    if(_queue->remove(this))
-    {
-        _outAsync->__processRetry(false);
-    }
+    _outAsync->__processRetry(false);
+
+    //
+    // NOTE: this must be called last, destroy() blocks until all task
+    // are removed to prevent the client thread pool to be destroyed
+    // (we still need the client thread pool at this point to call
+    // exception callbacks with CommunicatorDestroyedException).
+    //
+    _queue->remove(this);
 }
 
 void
@@ -72,19 +77,39 @@ void
 IceInternal::RetryQueue::destroy()
 {
     Lock sync(*this);
-    for(set<RetryTaskPtr>::const_iterator p = _requests.begin(); p != _requests.end(); ++p)
+    assert(_instance);
+
+    set<RetryTaskPtr>::const_iterator p = _requests.begin();
+    while(p != _requests.end())
     {
-        _instance->timer()->cancel(*p);
-        (*p)->destroy();
+        if(_instance->timer()->cancel(*p))
+        {
+            (*p)->destroy();
+            _requests.erase(p++);
+        }
+        else
+        {
+            ++p;
+        }
     }
-    _requests.clear();
+
     _instance = 0;
+    while(!_requests.empty())
+    {
+        wait();
+    }
 }
 
-bool
+void
 IceInternal::RetryQueue::remove(const RetryTaskPtr& task)
 {
     Lock sync(*this);
-    return _requests.erase(task) > 0;
+    assert(_requests.find(task) != _requests.end());
+    _requests.erase(task);
+    if(!_instance && _requests.empty())
+    {
+        notify(); // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
+    }
 }
+
 
