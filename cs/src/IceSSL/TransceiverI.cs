@@ -167,6 +167,10 @@ namespace IceSSL
                 Debug.Assert(ret > 0);
                 buf.b.position(buf.b.position() + ret);
             }
+            catch(Ice.LocalException)
+            {
+                throw;
+            }
             catch(IOException ex)
             {
                 if(IceInternal.Network.connectionLost(ex))
@@ -343,24 +347,25 @@ namespace IceSSL
                 _verifyPeer = 0;
             }
 
+            _chain = new X509Chain(_instance.engine().certStore() == "LocalMachine");
+
+            if(_instance.checkCRL() == 0)
+            {
+                _chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
+            }
+
             X509Certificate2Collection caCerts = _instance.engine().caCerts();
             if(caCerts != null)
             {
-                _chainEngine = new X509Chain(_instance.engine().certStore() == "LocalMachine");
-
                 //
                 // We need to set this flag to be able to use a
                 // certificate authority from the extra store.
                 //
-                _chainEngine.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
-                if(_instance.checkCRL() == 0)
-                {
-                    _chainEngine.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
-                }
+                _chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
 
                 foreach(X509Certificate2 cert in caCerts)
                 {
-                    _chainEngine.ChainPolicy.ExtraStore.Add(cert);
+                    _chain.ChainPolicy.ExtraStore.Add(cert);
                 }
             }
         }
@@ -383,7 +388,15 @@ namespace IceSSL
             if(_sslStream != null)
             {
                 info.cipher = _sslStream.CipherAlgorithm.ToString();
-                info.nativeCerts = _chain;
+                if(_chain.ChainElements != null && _chain.ChainElements.Count > 0)
+                {
+                    info.nativeCerts = new X509Certificate2[_chain.ChainElements.Count];
+                    for(int i = 0; i < _chain.ChainElements.Count; ++i)
+                    {
+                        info.nativeCerts[i] = _chain.ChainElements[i].Certificate;
+                    }
+                }
+
                 List<string> certs = new List<string>();
                 if(info.nativeCerts != null)
                 {
@@ -511,33 +524,15 @@ namespace IceSSL
         private bool validationCallback(object sender, X509Certificate certificate, X509Chain chainEngine,
                                         SslPolicyErrors policyErrors)
         {
-
             SslPolicyErrors sslPolicyErrors = policyErrors;
             bool valid = false;
-            if(_chainEngine != null && certificate != null)
+            if(certificate != null)
             {
                 sslPolicyErrors = SslPolicyErrors.None;
-                valid = _chainEngine.Build(new X509Certificate2(certificate));
-                if(_chainEngine.ChainStatus.Length > 0)
+                valid = _chain.Build(new X509Certificate2(certificate));
+                if(_chain.ChainStatus.Length > 0)
                 {
                     sslPolicyErrors = SslPolicyErrors.RemoteCertificateChainErrors;
-                }
-            }
-
-            X509Chain chain = _chainEngine == null ? chainEngine : _chainEngine;
-
-            //
-            // The certificate chain is not available via SslStream, and it is destroyed
-            // after this callback returns, so we keep a reference to each of the
-            // certificates.
-            //
-            if(chain != null)
-            {
-                _chain = new X509Certificate2[chain.ChainElements.Count];
-                int i = 0;
-                foreach(X509ChainElement e in chain.ChainElements)
-                {
-                    _chain[i++] = e.Certificate;
                 }
             }
 
@@ -578,26 +573,20 @@ namespace IceSSL
 
             if((errors & (int)SslPolicyErrors.RemoteCertificateChainErrors) > 0)
             {
-                if(chain == null && IceInternal.AssemblyUtil.platform_ != IceInternal.AssemblyUtil.Platform.Windows)
+                if(_chain.ChainStatus != null)
                 {
-                    //
-                    // Mono doesn't supply the certificate chain.
-                    //
-                    errors ^= (int)SslPolicyErrors.RemoteCertificateChainErrors;
-                }
-                else if(chain != null && chain.ChainStatus != null)
-                {
-                    int errorCount = chain.ChainStatus.Length;
-                    foreach(X509ChainStatus status in chain.ChainStatus)
+                    int errorCount = _chain.ChainStatus.Length;
+                    foreach(X509ChainStatus status in _chain.ChainStatus)
                     {
-                        if(status.Status == X509ChainStatusFlags.UntrustedRoot && _chainEngine != null && valid)
+                        if(status.Status == X509ChainStatusFlags.UntrustedRoot && 
+                           _instance.engine().caCerts() != null && valid)
                         {
                             //
                             // Untrusted root is OK when using our custom chain engine if
                             // the CA certificate is present in the chain policy extra store.
                             //
-                            X509ChainElement e = chain.ChainElements[chain.ChainElements.Count - 1];
-                            if(_chainEngine.ChainPolicy.ExtraStore.Contains(e.Certificate))
+                            X509ChainElement e = _chain.ChainElements[_chain.ChainElements.Count - 1];
+                            if(_chain.ChainPolicy.ExtraStore.Contains(e.Certificate))
                             {
                                 --errorCount;
                             }
@@ -669,7 +658,6 @@ namespace IceSSL
                 _instance.logger().trace(_instance.securityTraceCategory(), "SSL certificate validation status:" +
                                          message);
             }
-
             return true;
         }
 
@@ -701,7 +689,6 @@ namespace IceSSL
         private IAsyncResult _readResult;
         private IceInternal.AsyncCallback _readCallback;
         private IceInternal.AsyncCallback _writeCallback;
-        private X509Certificate2[] _chain;
-        private X509Chain _chainEngine;
+        private X509Chain _chain;
     }
 }
