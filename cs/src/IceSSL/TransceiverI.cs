@@ -143,22 +143,18 @@ namespace IceSSL
 
         public void finishRead(IceInternal.Buffer buf)
         {
-            if(_stream == null) // Transceiver was closed
-            {
-                _readResult = null;
-                return;
-            }
-            else if(!_stream.isConnected())
+            if(!_stream.isConnected())
             {
                 _stream.finishRead(buf);
                 return;
             }
-            else if(!_sslStream.IsAuthenticated)
+            else if(_sslStream == null) // Transceiver was closed
             {
+                _readResult = null;
                 return;
             }
 
-            Debug.Assert(_sslStream != null && _readResult != null);
+            Debug.Assert(_readResult != null);
             try
             {
                 int ret = _sslStream.EndRead(_readResult);
@@ -200,7 +196,9 @@ namespace IceSSL
             {
                 return _stream.startWrite(buf, callback, state, out completed);
             }
-            else if(!_authenticated)
+
+            Debug.Assert(_sslStream != null);
+            if(!_authenticated)
             {
                 completed = false;
                 return startAuthenticate(callback, state);
@@ -243,7 +241,12 @@ namespace IceSSL
 
         public void finishWrite(IceInternal.Buffer buf)
         {
-            if(_stream == null) // Transceiver was closed
+            if(!_stream.isConnected())
+            {
+                _stream.finishWrite(buf);
+                return;
+            }
+            else if(_sslStream == null) // Transceiver was closed
             {
                 if(_stream.getSendPacketSize(buf.b.remaining()) == buf.b.remaining()) // Sent last packet
                 {
@@ -252,18 +255,13 @@ namespace IceSSL
                 _writeResult = null;
                 return;
             }
-            else if(!_stream.isConnected())
-            {
-                _stream.finishWrite(buf);
-                return;
-            }
             else if(!_authenticated)
             {
                 finishAuthenticate();
                 return;
             }
 
-            Debug.Assert(_sslStream != null && _writeResult != null);
+            Debug.Assert(_writeResult != null);
             int sent = _stream.getSendPacketSize(buf.b.remaining());
             try
             {
