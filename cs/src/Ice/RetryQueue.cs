@@ -62,13 +62,13 @@ namespace IceInternal
         {
             lock(this)
             {
-                _instance = null;
                 foreach(RetryTask task in _requests.Keys)
                 {
                     _instance.timer().cancel(task);
                     task.destroy();
                 }
                 _requests.Clear();
+                _instance = null;
             }
         }
 

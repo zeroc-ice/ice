@@ -31,12 +31,12 @@ public class RetryQueue
     synchronized public void
     destroy()
     {
-        _instance = null;
         for(RetryTask task : _requests)
         {
             task.destroy();
         }
         _requests.clear();
+        _instance = null;
     }
 
     synchronized boolean

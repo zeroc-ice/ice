@@ -72,13 +72,13 @@ void
 IceInternal::RetryQueue::destroy()
 {
     Lock sync(*this);
-    _instance = 0;
     for(set<RetryTaskPtr>::const_iterator p = _requests.begin(); p != _requests.end(); ++p)
     {
         _instance->timer()->cancel(*p);
         (*p)->destroy();
     }
     _requests.clear();
+    _instance = 0;
 }
 
 bool

@@ -33,12 +33,12 @@ var RetryQueue = Class({
     },
     destroy: function()
     {
-        this._instance = null; 
         for(var i = 0; i < this._requests.length; ++i)
         {
             this._requests[i].destroy();
         }
         this._requests = [];
+        this._instance = null; 
     },
     remove: function(task)
     {
