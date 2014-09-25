@@ -280,6 +280,9 @@ public class QueryController
                 if(ex instanceof Demo.BookNotRentedException)
                 {
                     error = "The book is no longer rented.";
+
+                    desc.rentedBy = "";
+                    postDataChanged(false);
                 }
                 else
                 {
@@ -324,6 +327,10 @@ public class QueryController
                 else if(ex instanceof Demo.BookRentedException)
                 {
                     error = "That book is already rented.";
+
+                    Demo.BookRentedException bre = (Demo.BookRentedException)ex;
+                    desc.rentedBy = bre.renter;
+                    postDataChanged(false);
                 }
                 else
                 {
