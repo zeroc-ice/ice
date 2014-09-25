@@ -241,6 +241,15 @@ var ProxyFactory = Ice.Class({
         }
 
         //
+        // Don't retry if the communicator is destroyed or object adapter
+        // deactivated.
+        //
+        if(ex instanceof Ice.CommunicatorDestroyedException || ex instanceof Ice.ObjectAdapterDeactivatedException)
+        {
+            throw ex;
+        }
+
+        //
         // Don't retry invocation timeouts.
         //
         if(ex instanceof Ice.InvocationTimeoutException)

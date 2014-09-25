@@ -189,6 +189,16 @@ namespace IceInternal
                 throw ex;
             }
 
+
+            //
+            // Don't retry if the communicator is destroyed or object adapter
+            // deactivated.
+            //
+            if(ex is Ice.CommunicatorDestroyedException || ex is Ice.ObjectAdapterDeactivatedException)
+            {
+                throw ex;
+            }
+
             //
             // Don't retry invocation timeouts.
             //

@@ -211,6 +211,16 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
     }
 
     //
+    // Don't retry if the communicator is destroyed or object adapter
+    // deactivated.
+    //
+    if(dynamic_cast<const CommunicatorDestroyedException*>(&ex) ||
+       dynamic_cast<const ObjectAdapterDeactivatedException*>(&ex))
+    {
+        ex.ice_throw();
+    }
+
+    //
     // Don't retry invocation timeouts.
     //
     if(dynamic_cast<const InvocationTimeoutException*>(&ex))

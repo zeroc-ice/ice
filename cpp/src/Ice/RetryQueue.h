@@ -52,7 +52,7 @@ private:
     bool remove(const RetryTaskPtr&);
     friend class RetryTask;
 
-    const InstancePtr _instance;
+    InstancePtr _instance;
     std::set<RetryTaskPtr> _requests;
 };
 

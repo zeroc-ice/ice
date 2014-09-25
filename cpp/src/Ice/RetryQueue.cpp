@@ -52,6 +52,10 @@ void
 IceInternal::RetryQueue::add(const OutgoingAsyncMessageCallbackPtr& out, int interval)
 {
     Lock sync(*this);
+    if(!_instance)
+    {
+        throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
     RetryTaskPtr task = new RetryTask(this, out);
     try
     {
@@ -68,6 +72,7 @@ void
 IceInternal::RetryQueue::destroy()
 {
     Lock sync(*this);
+    _instance = 0;
     for(set<RetryTaskPtr>::const_iterator p = _requests.begin(); p != _requests.end(); ++p)
     {
         _instance->timer()->cancel(*p);

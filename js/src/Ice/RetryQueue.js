@@ -20,6 +20,10 @@ var RetryQueue = Class({
     },
     add: function(outAsync, interval)
     {
+        if(this._instance === null)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
         var task = new RetryTask(this, outAsync);
         this._instance.timer().schedule(function()
             {
@@ -29,6 +33,7 @@ var RetryQueue = Class({
     },
     destroy: function()
     {
+        this._instance = null; 
         for(var i = 0; i < this._requests.length; ++i)
         {
             this._requests[i].destroy();

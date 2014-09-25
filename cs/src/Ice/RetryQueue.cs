@@ -47,6 +47,10 @@ namespace IceInternal
         {
             lock(this)
             {
+                if(_instance == null)
+                {
+                    throw new Ice.CommunicatorDestroyedException();
+                }
                 RetryTask task = new RetryTask(this, outAsync);
                 _instance.timer().schedule(task, interval);
                 _requests.Add(task, null);
@@ -58,6 +62,7 @@ namespace IceInternal
         {
             lock(this)
             {
+                _instance = null;
                 foreach(RetryTask task in _requests.Keys)
                 {
                     _instance.timer().cancel(task);
