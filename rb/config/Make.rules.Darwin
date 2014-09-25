@@ -25,11 +25,7 @@ mkrbsoname           	= $(if $(2),$(1).$(2).bundle,$(1).bundle)
 
 mkrblibname           	= $(1).bundle
 
-XCODE_PATH  = $(shell xcode-select --print-path)
-SDKS_DIR    = $(XCODE_PATH)/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk
-RUBY_FLAGS  = -I$(SDKS_DIR)/System/Library/Frameworks/Ruby.framework/Versions/Current/Headers/
-RUBY_LIBS   = -L$(SDKS_DIR)/System/Library/Frameworks/Ruby.framework/Versions/Current/usr/lib $(RUBY_LIB)
-
+RUBY_FLAGS              += -Wno-unknown-pragmas
 
 ifneq ($(embedded_runpath_prefix),)
   mkshlib = $(CXX)  -dynamic -bundle $(shlibldflags) -o $(1) $(3) $(4)
