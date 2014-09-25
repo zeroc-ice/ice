@@ -1035,7 +1035,7 @@ IceSSL::SecureTransportEngine::initialize()
 
             if(!cert)
             {
-                const string prop = propPrefix + "SecureTransport.FindCert";
+                const string prop = propPrefix + "FindCert";
                 string val = properties->getProperty(prop);
                 if(!val.empty())
                 {

@@ -572,6 +572,7 @@ generated from the section label.
         <property name="DH.[any]" />
         <property name="DHParams" />
         <property name="EntropyDaemon" />
+        <property name="FindCert" />
         <property name="FindCert.[any]" />
         <property name="ImportCert.[any]" deprecated="true"/>
         <property name="InitOpenSSL" />
@@ -590,8 +591,6 @@ generated from the section label.
         <property name="ProtocolVersionMax" />
         <property name="ProtocolVersionMin" />
         <property name="Random" />
-        <property name="SecureTransport.FindCert"/>
-        <property name="SChannel.FindCert.[any]"/>
         <property name="Trace.Security" />
         <property name="TrustOnly" />
         <property name="TrustOnly.Client" />

@@ -530,7 +530,7 @@ SChannelEngine::initialize()
         _allCerts.insert(_allCerts.end(), _certs.begin(), _certs.end());
     }
 
-    const string findPrefix = prefix + "SChannel.FindCert.";
+    const string findPrefix = prefix + "FindCert.";
     map<string, string> certProps = properties->getPropertiesForPrefix(findPrefix);
     if(!certProps.empty())
     {
