@@ -3268,7 +3268,8 @@ public class BasicStream
                 //
                 if(!_sliceObjects)
                 {
-                    throw new Ice.NoObjectFactoryException("object slicing is disabled", _typeId);
+                    throw new Ice.NoObjectFactoryException("no object factory found and object slicing is disabled", 
+                                                           _typeId);
                 }
 
                 //
@@ -3590,9 +3591,9 @@ public class BasicStream
             {
                 if(_current.sliceType == SliceType.ObjectSlice)
                 {
-                    throw new Ice.NoObjectFactoryException(
-                        "compact format prevents slicing (the sender should use the sliced format instead)",
-                        _current.typeId);
+                    throw new Ice.NoObjectFactoryException("no object factory found and compact format prevents " + 
+                                                           "slicing (the sender should use the sliced format instead)",
+                                                           _current.typeId);
                 }
                 else
                 {
@@ -3754,7 +3755,8 @@ public class BasicStream
                 //
                 if(!_sliceObjects)
                 {
-                    throw new Ice.NoObjectFactoryException("object slicing is disabled", _current.typeId);
+                    throw new Ice.NoObjectFactoryException("no object factory found and object slicing is disabled", 
+                                                           _current.typeId);
                 }
 
                 //

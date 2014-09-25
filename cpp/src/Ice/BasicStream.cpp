@@ -2368,7 +2368,8 @@ IceInternal::BasicStream::EncapsDecoder10::readInstance()
         //
         if(!_sliceObjects)
         {
-            throw NoObjectFactoryException(__FILE__, __LINE__, "object slicing is disabled", _typeId);
+            throw NoObjectFactoryException(__FILE__, __LINE__, "no object factory found and object slicing is disabled",
+                                           _typeId);
         }
 
         //
@@ -2667,10 +2668,10 @@ IceInternal::BasicStream::EncapsDecoder11::skipSlice()
     {
         if(_current->sliceType == ObjectSlice)
         {
-            throw NoObjectFactoryException(
-                __FILE__, __LINE__,
-                "compact format prevents slicing (the sender should use the sliced format instead)",
-                _current->typeId);
+            throw NoObjectFactoryException(__FILE__, __LINE__, 
+                                           "no object factory found and compact format prevents "  
+                                           "slicing (the sender should use the sliced format instead)",
+                                           _current->typeId);
         }
         else
         {
@@ -2834,7 +2835,8 @@ IceInternal::BasicStream::EncapsDecoder11::readInstance(Int index, PatchFunc pat
         //
         if(!_sliceObjects)
         {
-            throw NoObjectFactoryException(__FILE__, __LINE__, "object slicing is disabled", _current->typeId);
+            throw NoObjectFactoryException(__FILE__, __LINE__, "no object factory found and object slicing is disabled",
+                                           _current->typeId);
         }
 
         //

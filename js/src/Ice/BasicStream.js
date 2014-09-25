@@ -508,7 +508,8 @@ var EncapsDecoder10 = Class(EncapsDecoder, {
             //
             if(!this._sliceObjects)
             {
-                throw new Ice.NoObjectFactoryException("object slicing is disabled", this._typeId);
+                throw new Ice.NoObjectFactoryException("no object factory found and object slicing is disabled", 
+                                                       this._typeId);
             }
 
             //
@@ -792,9 +793,9 @@ var EncapsDecoder11 = Class(EncapsDecoder, {
         {
             if(this._current.sliceType === SliceType.ObjectSlice)
             {
-                throw new Ice.NoObjectFactoryException(
-                    "compact format prevents slicing (the sender should use the sliced format instead)", 
-                    this._current.typeId);
+                throw new Ice.NoObjectFactoryException("no object factory found and compact format prevents slicing " + 
+                                                       "(the sender should use the sliced format instead)", 
+                                                       this._current.typeId);
             }
             
             if(this._current.typeId.indexOf("::") === 0)
@@ -935,7 +936,8 @@ var EncapsDecoder11 = Class(EncapsDecoder, {
             //
             if(!this._sliceObjects)
             {
-                throw new Ice.NoObjectFactoryException("object slicing is disabled", this._current.typeId);
+                throw new Ice.NoObjectFactoryException("no object factory found and object slicing is disabled", 
+                                                       this._current.typeId);
             }
 
             //
