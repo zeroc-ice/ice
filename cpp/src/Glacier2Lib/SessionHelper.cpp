@@ -521,7 +521,7 @@ public:
             {
                 _communicator->setDefaultRouter(_finder->getRouter());
             }
-            catch(const Ice::Exception& ex)
+            catch(const Ice::Exception&)
             {
                 //
                 // In case of error getting router identity from RouterFinder use
