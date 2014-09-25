@@ -749,40 +749,6 @@ public interface ObjectPrx
     boolean end_ice_invoke(ByteSeqHolder outParams, AsyncResult __result);
 
     /**
-     * Invokes an operation dynamically and asynchronously.
-     *
-     * @param cb The callback object to notify when the operation completes.
-     * @param operation The name of the operation to invoke.
-     * @param mode The operation mode (normal or idempotent).
-     * @param inParams The encoded in-parameters for the operation.
-     * @return If the operation was invoked synchronously (because there
-     * was no need to queue the request), the return value is <code>true</code>;
-     * otherwise, if the invocation was queued, the return value is <code>false</code>.
-     *
-     * @see AMI_Object_ice_invoke
-     * @see OperationMode
-     **/
-    boolean ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams);
-
-    /**
-     * Invokes an operation dynamically and asynchronously.
-     *
-     * @param cb The callback object to notify when the operation completes.
-     * @param operation The name of the operation to invoke.
-     * @param mode The operation mode (normal or idempotent).
-     * @param inParams The encoded in-parameters for the operation.
-     * @param context The context map for the invocation.
-     * @return If the operation was invoked synchronously (because there
-     * was no need to queue the request), the return value is <code>true</code>;
-     * otherwise, if the invocation was queued, the return value is <code>false</code>.
-     *
-     * @see AMI_Object_ice_invoke
-     * @see OperationMode
-     **/
-    boolean ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams,
-                             java.util.Map<String, String> context);
-
-    /**
      * Returns the identity embedded in this proxy.
      *
      * @return The identity of the target object.
@@ -1192,15 +1158,6 @@ public interface ObjectPrx
      * Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.
      **/
     void ice_flushBatchRequests();
-
-    /**
-     * Asynchronously flushes any pending batched requests for this communicator. The call does not block.
-     *
-     * @param cb The callback object to notify the application when the flush is complete.
-     * @return <code>true</code> if the requests were flushed immediately without blocking; <code>false</code>
-     * if the requests could not be flushed immediately.
-     **/
-    boolean ice_flushBatchRequests_async(AMI_Object_ice_flushBatchRequests cb);
 
     /**
      * Asynchronously flushes any pending batched requests for this communicator. The call does not block.

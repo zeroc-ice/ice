@@ -744,56 +744,6 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
     return ice_invoke(operation, mode, inPair, outEncaps, context);
 }
 
-
-bool
-IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
-                                        const string& operation,
-                                        OperationMode mode,
-                                        const vector<Byte>& inEncaps)
-{
-    Callback_Object_ice_invokePtr del;
-    if(dynamic_cast< ::Ice::AMISentCallback*>(cb.get()))
-    {
-        del = newCallback_Object_ice_invoke(cb,
-                                            &AMI_Object_ice_invoke::__response,
-                                            &AMI_Object_ice_invoke::__exception,
-                                            &AMI_Object_ice_invoke::__sent);
-    }
-    else
-    {
-        del = newCallback_Object_ice_invoke(cb,
-                                            &AMI_Object_ice_invoke::__response,
-                                            &AMI_Object_ice_invoke::__exception);
-    }
-    ::Ice::AsyncResultPtr result = begin_ice_invoke(operation, mode, inEncaps, del);
-    return result->sentSynchronously();
-}
-
-bool
-IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
-                                        const string& operation,
-                                        OperationMode mode,
-                                        const vector<Byte>& inEncaps,
-                                        const Context& context)
-{
-    Callback_Object_ice_invokePtr del;
-    if(dynamic_cast< ::Ice::AMISentCallback*>(cb.get()))
-    {
-        del = newCallback_Object_ice_invoke(cb,
-                                            &AMI_Object_ice_invoke::__response,
-                                            &AMI_Object_ice_invoke::__exception,
-                                            &AMI_Object_ice_invoke::__sent);
-    }
-    else
-    {
-        del = newCallback_Object_ice_invoke(cb,
-                                            &AMI_Object_ice_invoke::__response,
-                                            &AMI_Object_ice_invoke::__exception);
-    }
-    ::Ice::AsyncResultPtr result = begin_ice_invoke(operation, mode, inEncaps, context, del);
-    return result->sentSynchronously();
-}
-
 AsyncResultPtr
 IceProxy::Ice::Object::begin_ice_invoke(const string& operation,
                                         OperationMode mode,
@@ -855,55 +805,6 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
         vector<Byte>(v, v + sz).swap(outEncaps);
     }
     return ok;
-}
-
-bool
-IceProxy::Ice::Object::ice_invoke_async(const AMI_Array_Object_ice_invokePtr& cb,
-                                        const string& operation,
-                                        OperationMode mode,
-                                        const pair<const Byte*, const Byte*>& inEncaps)
-{
-    Callback_Object_ice_invokePtr del;
-    if(dynamic_cast< ::Ice::AMISentCallback*>(cb.get()))
-    {
-        del = newCallback_Object_ice_invoke(cb,
-                                            &AMI_Array_Object_ice_invoke::__response,
-                                            &AMI_Array_Object_ice_invoke::__exception,
-                                            &AMI_Array_Object_ice_invoke::__sent);
-    }
-    else
-    {
-        del = newCallback_Object_ice_invoke(cb,
-                                            &AMI_Array_Object_ice_invoke::__response,
-                                            &AMI_Array_Object_ice_invoke::__exception);
-    }
-    ::Ice::AsyncResultPtr result = begin_ice_invoke(operation, mode, inEncaps, del);
-    return result->sentSynchronously();
-}
-
-bool
-IceProxy::Ice::Object::ice_invoke_async(const AMI_Array_Object_ice_invokePtr& cb,
-                                        const string& operation,
-                                        OperationMode mode,
-                                        const pair<const Byte*, const Byte*>& inEncaps,
-                                        const Context& context)
-{
-    Callback_Object_ice_invokePtr del;
-    if(dynamic_cast< ::Ice::AMISentCallback*>(cb.get()))
-    {
-        del = newCallback_Object_ice_invoke(cb,
-                                            &AMI_Array_Object_ice_invoke::__response,
-                                            &AMI_Array_Object_ice_invoke::__exception,
-                                            &AMI_Array_Object_ice_invoke::__sent);
-    }
-    else
-    {
-        del = newCallback_Object_ice_invoke(cb,
-                                            &AMI_Array_Object_ice_invoke::__response,
-                                            &AMI_Array_Object_ice_invoke::__exception);
-    }
-    ::Ice::AsyncResultPtr result = begin_ice_invoke(operation, mode, inEncaps, context, del);
-    return result->sentSynchronously();
 }
 
 AsyncResultPtr
@@ -1536,24 +1437,6 @@ IceProxy::Ice::Object::ice_flushBatchRequests()
 {
     BatchOutgoing __og(this, ice_flushBatchRequests_name);
     __og.invoke();
-}
-
-bool
-IceProxy::Ice::Object::ice_flushBatchRequests_async(const AMI_Object_ice_flushBatchRequestsPtr& cb)
-{
-    Callback_Object_ice_flushBatchRequestsPtr __del;
-    if(dynamic_cast< AMISentCallback*>(cb.get()))
-    {
-        __del = newCallback_Object_ice_flushBatchRequests(cb,
-                                                          &AMI_Object_ice_flushBatchRequests::__exception,
-                                                          &AMI_Object_ice_flushBatchRequests::__sent);
-    }
-    else
-    {
-        __del = newCallback_Object_ice_flushBatchRequests(cb, &AMI_Object_ice_flushBatchRequests::__exception);
-    }
-    ::Ice::AsyncResultPtr result = begin_ice_flushBatchRequestsInternal(__del, 0);
-    return result->sentSynchronously();
 }
 
 ::Ice::AsyncResultPtr

@@ -85,72 +85,6 @@ typedef ::IceUtil::Handle< Callback_Object_ice_flushBatchRequests_Base> Callback
 class Callback_Object_ice_getConnection_Base : virtual public ::IceInternal::CallbackBase { };
 typedef ::IceUtil::Handle< Callback_Object_ice_getConnection_Base> Callback_Object_ice_getConnectionPtr;
 
-//
-// Deprecated AMI callbacks
-//
-
-class ICE_API AMI_Object_ice_invoke : public Ice::AMICallbackBase
-{
-public:
-
-    virtual void ice_response(bool, const std::vector<Ice::Byte>&) = 0;
-
-    void __response(bool ok, const std::vector<Ice::Byte>& outParams)
-    {
-        ice_response(ok, outParams);
-    }
-
-    void __exception(const Ice::Exception& ex)
-    {
-        ice_exception(ex);
-    }
-
-    void __sent(bool sentSynchronously)
-    {
-        AMICallbackBase::__sent(sentSynchronously);
-    }
-};
-typedef IceUtil::Handle<AMI_Object_ice_invoke> AMI_Object_ice_invokePtr;
-
-class ICE_API AMI_Array_Object_ice_invoke : public Ice::AMICallbackBase
-{
-public:
-
-    virtual void ice_response(bool, const std::pair<const Byte*, const Byte*>&) = 0;
-
-    void __response(bool ok, const std::pair<const Byte*, const Byte*>& outParams)
-    {
-        ice_response(ok, outParams);
-    }
-
-    void __exception(const Ice::Exception& ex)
-    {
-        ice_exception(ex);
-    }
-
-    void __sent(bool sentSynchronously)
-    {
-        AMICallbackBase::__sent(sentSynchronously);
-    }
-};
-typedef IceUtil::Handle<AMI_Array_Object_ice_invoke> AMI_Array_Object_ice_invokePtr;
-
-class ICE_API AMI_Object_ice_flushBatchRequests : public Ice::AMICallbackBase
-{
-public:
-
-    void __exception(const Ice::Exception& ex)
-    {
-        ice_exception(ex);
-    }
-
-    void __sent(bool sentSynchronously)
-    {
-        AMICallbackBase::__sent(sentSynchronously);
-    }
-};
-typedef IceUtil::Handle<AMI_Object_ice_flushBatchRequests> AMI_Object_ice_flushBatchRequestsPtr;
-
 }
 
 #ifdef ICE_CPP11
@@ -584,11 +518,6 @@ public:
         return ice_invoke(operation, mode, inParams, outParams, &context);
     }
 
-    bool ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&, const ::std::string&, ::Ice::OperationMode,
-                          const ::std::vector< ::Ice::Byte>&);
-    bool ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&, const ::std::string&, ::Ice::OperationMode,
-                          const ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
-
 #ifdef ICE_CPP11
     ::Ice::AsyncResultPtr begin_ice_invoke(
         const ::std::string& operation,
@@ -713,11 +642,6 @@ public:
     {
         return ice_invoke(operation, mode, inParams, outParams, &context);
     }
-
-    bool ice_invoke_async(const ::Ice::AMI_Array_Object_ice_invokePtr&, const ::std::string&, ::Ice::OperationMode,
-                          const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&);
-    bool ice_invoke_async(const ::Ice::AMI_Array_Object_ice_invokePtr&, const ::std::string&, ::Ice::OperationMode,
-                          const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&, const ::Ice::Context&);
 
     ::Ice::AsyncResultPtr begin_ice_invoke(const ::std::string& operation,
                                            ::Ice::OperationMode mode,
@@ -874,7 +798,6 @@ public:
     ::Ice::ConnectionPtr ice_getCachedConnection() const;
 
     void ice_flushBatchRequests();
-    bool ice_flushBatchRequests_async(const ::Ice::AMI_Object_ice_flushBatchRequestsPtr&);
 
 #ifdef ICE_CPP11
     ::Ice::AsyncResultPtr begin_ice_flushBatchRequests(

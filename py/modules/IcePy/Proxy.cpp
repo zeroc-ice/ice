@@ -2074,52 +2074,9 @@ AMI_Object_ice_flushBatchRequestsI::sent(bool)
 extern "C"
 #endif
 static PyObject*
-proxyIceFlushBatchRequestsAsync(ProxyObject* self, PyObject* args)
-{
-    assert(self->proxy);
-
-    PyObject* pycb;
-    if(!PyArg_ParseTuple(args, STRCAST("O"), &pycb))
-    {
-        return 0;
-    }
-
-    AMI_Object_ice_flushBatchRequestsIPtr d = new AMI_Object_ice_flushBatchRequestsI(pycb);
-    Ice::Callback_Object_ice_flushBatchRequestsPtr cb =
-        Ice::newCallback_Object_ice_flushBatchRequests(d, &AMI_Object_ice_flushBatchRequestsI::exception,
-                                                       &AMI_Object_ice_flushBatchRequestsI::sent);
-
-    bool result = false;
-    try
-    {
-        Ice::AsyncResultPtr r = (*self->proxy)->begin_ice_flushBatchRequests(cb);
-        result = r->sentSynchronously();
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return 0;
-    }
-
-    PyRETURN_BOOL(result);
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
 proxyIceInvoke(ProxyObject* self, PyObject* args)
 {
     return iceInvoke(reinterpret_cast<PyObject*>(self), args);
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
-proxyIceInvokeAsync(ProxyObject* self, PyObject* args)
-{
-    return iceInvokeAsync(reinterpret_cast<PyObject*>(self), args);
 }
 
 #ifdef WIN32
@@ -2554,16 +2511,12 @@ static PyMethodDef ProxyMethods[] =
         PyDoc_STR(STRCAST("ice_getCachedConnection() -> Ice.Connection")) },
     { STRCAST("ice_flushBatchRequests"), reinterpret_cast<PyCFunction>(proxyIceFlushBatchRequests), METH_NOARGS,
         PyDoc_STR(STRCAST("ice_flushBatchRequests() -> void")) },
-    { STRCAST("ice_flushBatchRequests_async"), reinterpret_cast<PyCFunction>(proxyIceFlushBatchRequestsAsync),
-        METH_VARARGS, PyDoc_STR(STRCAST("ice_flushBatchRequests_async(cb) -> bool")) },
     { STRCAST("begin_ice_flushBatchRequests"), reinterpret_cast<PyCFunction>(proxyBeginIceFlushBatchRequests),
         METH_VARARGS | METH_KEYWORDS, PyDoc_STR(STRCAST("begin_ice_flushBatchRequests([_ex][, _sent]) -> Ice.AsyncResult")) },
     { STRCAST("end_ice_flushBatchRequests"), reinterpret_cast<PyCFunction>(proxyEndIceFlushBatchRequests), METH_VARARGS,
         PyDoc_STR(STRCAST("end_ice_flushBatchRequests(Ice.AsyncResult) -> void")) },
     { STRCAST("ice_invoke"), reinterpret_cast<PyCFunction>(proxyIceInvoke), METH_VARARGS,
         PyDoc_STR(STRCAST("ice_invoke(operation, mode, inParams) -> bool, outParams")) },
-    { STRCAST("ice_invoke_async"), reinterpret_cast<PyCFunction>(proxyIceInvokeAsync), METH_VARARGS,
-        PyDoc_STR(STRCAST("ice_invoke_async(cb, operation, mode, inParams) -> bool")) },
     { STRCAST("begin_ice_invoke"), reinterpret_cast<PyCFunction>(proxyBeginIceInvoke), METH_VARARGS | METH_KEYWORDS,
         PyDoc_STR(STRCAST("begin_ice_invoke(op, mode, inParams[, _response][, _ex][, _sent][, _ctx]) -> Ice.AsyncResult")) },
     { STRCAST("end_ice_invoke"), reinterpret_cast<PyCFunction>(proxyEndIceInvoke), METH_VARARGS,

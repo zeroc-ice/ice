@@ -600,30 +600,6 @@ newCallback(const ::IceInternal::Function<void (const AsyncResultPtr&)>&,
 //
 // Operation callbacks are specified in Proxy.h
 //
-
-//
-// Interfaces for the deprecated AMI mapping.
-//
-
-class ICE_API AMISentCallback
-{
-public:
-
-    virtual ~AMISentCallback() { }
-
-    virtual void ice_sent() = 0;
-};
-
-class ICE_API AMICallbackBase : virtual public IceUtil::Shared
-{
-public:
-
-    virtual void ice_exception(const Exception&) = 0;
-
-    void __exception(const Exception&);
-    void __sent(bool);
-};
-
 }
 
 #endif

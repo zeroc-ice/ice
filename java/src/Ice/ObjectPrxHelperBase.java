@@ -1513,52 +1513,6 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     /**
-     * Invokes an operation dynamically and asynchronously.
-     *
-     * @param cb The callback object to notify when the operation completes.
-     * @param operation The name of the operation to invoke.
-     * @param mode The operation mode (normal or idempotent).
-     * @param inParams The encoded in-parameters for the operation.
-     * @return If the operation was invoked synchronously (because there
-     * was no need to queue the request), the return value is <code>true</code>;
-     * otherwise, if the invocation was queued, the return value is <code>false</code>.
-     *
-     * @see AMI_Object_ice_invoke
-     * @see OperationMode
-     **/
-    @Override
-    public final boolean
-    ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams)
-    {
-        AsyncResult __result = begin_ice_invoke(operation, mode, inParams, cb);
-        return __result.sentSynchronously();
-    }
-
-    /**
-     * Invokes an operation dynamically and asynchronously.
-     *
-     * @param cb The callback object to notify when the operation completes.
-     * @param operation The name of the operation to invoke.
-     * @param mode The operation mode (normal or idempotent).
-     * @param inParams The encoded in-parameters for the operation.
-     * @param __context The context map for the invocation.
-     * @return If the operation was invoked synchronously (because there
-     * was no need to queue the request), the return value is <code>true</code>;
-     * otherwise, if the invocation was queued, the return value is <code>false</code>.
-     *
-     * @see AMI_Object_ice_invoke
-     * @see OperationMode
-     **/
-    @Override
-    public final boolean
-    ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams,
-                     java.util.Map<String, String> context)
-    {
-        AsyncResult __result = begin_ice_invoke(operation, mode, inParams, context, cb);
-        return __result.sentSynchronously();
-    }
-
-    /**
      * Returns the identity embedded in this proxy.
      *
      * @return The identity of the target object.
@@ -2556,21 +2510,6 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     ice_flushBatchRequests()
     {
         end_ice_flushBatchRequests(begin_ice_flushBatchRequests());
-    }
-
-    /**
-     * Asynchronously flushes any pending batched requests for this communicator. The call does not block.
-     *
-     * @param cb The callback object to notify the application when the flush is complete.
-     * @return <code>true</code> if the requests were flushed immediately without blocking; <code>false</code>
-     * if the requests could not be flushed immediately.
-     **/
-    @Override
-    public boolean
-    ice_flushBatchRequests_async(AMI_Object_ice_flushBatchRequests cb)
-    {
-        AsyncResult result = begin_ice_flushBatchRequests(cb);
-        return result.sentSynchronously();
     }
 
     /**

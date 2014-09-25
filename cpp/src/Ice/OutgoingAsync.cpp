@@ -1475,20 +1475,3 @@ IceInternal::CallbackBase::checkCallback(bool obj, bool cb)
         throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "callback cannot be null");
     }
 }
-
-void
-Ice::AMICallbackBase::__exception(const ::Ice::Exception& ex)
-{
-    ice_exception(ex);
-}
-
-void
-Ice::AMICallbackBase::__sent(bool sentSynchronously)
-{
-    if(!sentSynchronously)
-    {
-        dynamic_cast<AMISentCallback*>(this)->ice_sent();
-    }
-}
-
-

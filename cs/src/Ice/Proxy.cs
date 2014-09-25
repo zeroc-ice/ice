@@ -54,38 +54,6 @@ namespace Ice
     public delegate void Callback_Object_ice_getConnection(Connection ret__);
 
     /// <summary>
-    /// Callback object for Blobject AMI invocations.
-    /// </summary>
-    public abstract class AMI_Object_ice_invoke : AMICallbackBase
-    {
-         /// <summary>
-         /// The Ice run time calls <code>ice_response</code> when an asynchronous operation invocation
-         /// completes successfully or raises a user exception.
-         /// </summary>
-         /// <param name="ok">Indicates the result of the invocation. If true, the operation
-         /// completed succesfully; if false, the operation raised a user exception.</param>
-         /// <param name="outEncaps">Contains the encoded out-parameters of the operation (if any) if ok
-         /// is true; otherwise, if ok is false, contains the
-         /// encoded user exception raised by the operation.</param>
-        public abstract void ice_response(bool ok, byte[] outEncaps);
-
-        public void response__(bool ok, byte[] outEncaps)
-        {
-            ice_response(ok, outEncaps);
-        }
-    }
-
-    /// <summary>
-    /// Callback object for ObjectPrx.ice_flushBatchRequests_async.
-    /// </summary>
-    public abstract class AMI_Object_ice_flushBatchRequests : AMICallbackBase
-    {
-        //
-        // Subclass must override ice_exception, which is inherited from AMICallbackBase.
-        //
-    }
-
-    /// <summary>
     /// Base interface of all object proxies.
     /// </summary>
     public interface ObjectPrx
@@ -335,32 +303,6 @@ namespace Ice
         /// it throws it directly.</returns>
         bool ice_invoke(string operation, OperationMode mode, byte[] inEncaps, out byte[] outEncaps,
                         Dictionary<string, string> context__);
-
-        /// <summary>
-        /// Invokes an operation dynamically and asynchronously.
-        /// </summary>
-        /// <param name="cb">The callback object to notify when the operation completes.</param>
-        /// <param name="operation">The name of the operation to invoke.</param>
-        /// <param name="mode">The operation mode (normal or idempotent).</param>
-        /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
-        /// <returns> If the operation was invoked synchronously (because there
-        /// was no need to queue the request), the return value is true;
-        /// otherwise, if the invocation was queued, the return value is false.</returns>
-        bool ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inEncaps);
-
-        /// <summary>
-        /// Invokes an operation dynamically and asynchronously.
-        /// </summary>
-        /// <param name="cb">The callback object to notify when the operation completes.</param>
-        /// <param name="operation">The name of the operation to invoke.</param>
-        /// <param name="mode">The operation mode (normal or idempotent).</param>
-        /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
-        /// <param name="context">The context dictionary for the invocation.</param>
-        /// <returns> If the operation was invoked synchronously (because there
-        /// was no need to queue the request), the return value is true;
-        /// otherwise, if the invocation was queued, the return value is false.</returns>
-        bool ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inEncaps,
-                              Dictionary<string, string> context);
 
         /// <summary>
         /// Invokes an operation dynamically.
@@ -754,14 +696,6 @@ namespace Ice
         /// Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.
         /// </summary>
         void ice_flushBatchRequests();
-
-        /// <summary>
-        /// Asynchronously flushes any pending batched requests for this communicator. The call does not block.
-        /// </summary>
-        /// <param name="cb">The callback object to notify the application when the flush is complete.</param>
-        /// <returns>True if the requests were flushed immediately without blocking; false
-        /// if the requests could not be flushed immediately.</returns>
-        bool ice_flushBatchRequests_async(AMI_Object_ice_flushBatchRequests cb);
 
         AsyncResult begin_ice_flushBatchRequests();
         AsyncResult begin_ice_flushBatchRequests(AsyncCallback cb__, object cookie__);
@@ -1395,50 +1329,6 @@ namespace Ice
                                 Dictionary<string, string> context,  bool explicitCtx)
         {
             return end_ice_invoke(out outEncaps, begin_ice_invoke(operation, mode, inEncaps, context, explicitCtx, true, null, null));
-        }
-
-        /// <summary>
-        /// Invokes an operation dynamically and asynchronously.
-        /// </summary>
-        /// <param name="cb">The callback object to notify when the operation completes.</param>
-        /// <param name="operation">The name of the operation to invoke.</param>
-        /// <param name="mode">The operation mode (normal or idempotent).</param>
-        /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
-        /// <returns> If the operation was invoked synchronously (because there
-        /// was no need to queue the request), the return value is true;
-        /// otherwise, if the invocation was queued, the return value is false.</returns>
-        public bool ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inEncaps)
-        {
-            AsyncResult<Callback_Object_ice_invoke> result = begin_ice_invoke(operation, mode, inEncaps);
-            result.whenCompleted(cb.response__, cb.exception__);
-            if(cb is Ice.AMISentCallback)
-            {
-                result.whenSent((Ice.AsyncCallback)cb.sent__);
-            }
-            return result.sentSynchronously();
-        }
-
-        /// <summary>
-        /// Invokes an operation dynamically and asynchronously.
-        /// </summary>
-        /// <param name="cb">The callback object to notify when the operation completes.</param>
-        /// <param name="operation">The name of the operation to invoke.</param>
-        /// <param name="mode">The operation mode (normal or idempotent).</param>
-        /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
-        /// <param name="context">The context dictionary for the invocation.</param>
-        /// <returns> If the operation was invoked synchronously (because there
-        /// was no need to queue the request), the return value is true;
-        /// otherwise, if the invocation was queued, the return value is false.</returns>
-        public bool ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inEncaps,
-                                     Dictionary<string, string> context)
-        {
-            AsyncResult<Callback_Object_ice_invoke> result = begin_ice_invoke(operation, mode, inEncaps, context);
-            result.whenCompleted(cb.response__, cb.exception__);
-            if(cb is Ice.AMISentCallback)
-            {
-                result.whenSent((Ice.AsyncCallback)cb.sent__);
-            }
-            return result.sentSynchronously();
         }
 
         public AsyncResult<Callback_Object_ice_invoke> begin_ice_invoke(string operation,
@@ -2325,22 +2215,6 @@ namespace Ice
         public void ice_flushBatchRequests()
         {
             end_ice_flushBatchRequests(begin_ice_flushBatchRequests());
-        }
-
-        /// <summary>
-        /// Asynchronously flushes any pending batched requests for this communicator. The call does not block.
-        /// </summary>
-        /// <param name="cb">The callback object to notify the application when the flush is complete.</param>
-        /// <returns>True if the requests were flushed immediately without blocking; false
-        /// if the requests could not be flushed immediately.</returns>
-        public bool ice_flushBatchRequests_async(AMI_Object_ice_flushBatchRequests cb)
-        {
-            Ice.AsyncResult result = begin_ice_flushBatchRequests().whenCompleted(cb.exception__);
-            if(cb is Ice.AMISentCallback)
-            {
-                result.whenSent((Ice.AsyncCallback)cb.sent__);
-            }
-            return result.sentSynchronously();
         }
 
         internal const string __ice_flushBatchRequests_name = "ice_flushBatchRequests";
