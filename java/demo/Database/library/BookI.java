@@ -78,7 +78,16 @@ class BookI extends _BookDisp
 
         try
         {
-            java.sql.PreparedStatement stmt = context.prepareStatement("UPDATE books SET title = ? WHERE id = ?");
+            // First make sure the book still exists.
+            java.sql.PreparedStatement stmt = context.prepareStatement("SELECT * FROM books WHERE id = ?");
+            stmt.setInt(1, id);
+            java.sql.ResultSet rs = stmt.executeQuery();
+            if(!rs.next())
+            {
+                throw new Ice.ObjectNotExistException();
+            }
+
+            stmt = context.prepareStatement("UPDATE books SET title = ? WHERE id = ?");
             stmt.setString(1, title);
             stmt.setInt(2, id);
             int count = stmt.executeUpdate();
@@ -102,8 +111,17 @@ class BookI extends _BookDisp
 
         try
         {
-            // First destroy each of the authors_books records.
-            java.sql.PreparedStatement stmt = context.prepareStatement("DELETE FROM authors_books WHERE book_id = ?");
+            // First make sure the book still exists.
+            java.sql.PreparedStatement stmt = context.prepareStatement("SELECT * FROM books WHERE id = ?");
+            stmt.setInt(1, id);
+            java.sql.ResultSet rs = stmt.executeQuery();
+            if(!rs.next())
+            {
+                throw new Ice.ObjectNotExistException();
+            }
+
+            // Next destroy each of the authors_books records.
+            stmt = context.prepareStatement("DELETE FROM authors_books WHERE book_id = ?");
             stmt.setInt(1, id);
             stmt.executeUpdate();
 
