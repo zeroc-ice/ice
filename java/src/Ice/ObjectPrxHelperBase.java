@@ -2752,6 +2752,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final IceInternal.RequestHandler
     __getRequestHandler()
     {
+        IceInternal.RequestHandler handler;
         if(_reference.getCacheConnection())
         {
             synchronized(this)
@@ -2761,11 +2762,14 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                     return _requestHandler;
                 }
                 _requestHandler = createRequestHandler();
-                return _requestHandler;
+                handler = _requestHandler;
             }
         }
-
-        return createRequestHandler();
+        else
+        {
+            handler = createRequestHandler();
+        }
+        return handler.connect();
     }
 
     public void
@@ -2775,56 +2779,16 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         {
             synchronized(this)
             {
-                if(previous == _requestHandler)
+                if(_requestHandler != handler)
                 {
-                    if(handler != null)
-                    {
-                        if(_reference.getInstance().queueRequests())
-                        {
-                            _requestHandler = new QueueRequestHandler(_reference.getInstance(), handler);
-                        }
-                        else
-                        {
-                            _requestHandler = handler;
-                        }
-                    }
-                    else
-                    {
-                        _requestHandler = null;
-                    }
-                }
-                else if(previous != null && _requestHandler != null)
-                {
-                    try
-                    {
-                        //
-                        // If both request handlers point to the same connection, we also
-                        // update the request handler. See bug ICE-5489 for reasons why
-                        // this can be useful.
-                        //
-                        if(previous.getConnection() == _requestHandler.getConnection())
-                        {
-                            if(handler != null)
-                            {
-                                if(_reference.getInstance().queueRequests())
-                                {
-                                    _requestHandler = new QueueRequestHandler(_reference.getInstance(), handler);
-                                }
-                                else
-                                {
-                                    _requestHandler = handler;
-                                }
-                            }
-                            else
-                            {
-                                _requestHandler = null;
-                            }
-                        }
-                    }
-                    catch(Ice.Exception ex)
-                    {
-                        // Ignore
-                    }
+                    //
+                    // Update the request handler only if "previous" is the same
+                    // as the current request handler. This is called after
+                    // connection binding by the connect request handler. We only
+                    // replace the request handler if the current handler is the
+                    // connect request handler.
+                    //
+                    _requestHandler = _requestHandler.update(previous, handler);
                 }
             }
         }
@@ -2855,7 +2819,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             }
         }
 
-        IceInternal.RequestHandler handler = (new IceInternal.ConnectRequestHandler(_reference, this)).connect();
+        IceInternal.RequestHandler handler = new IceInternal.ConnectRequestHandler(_reference, this);
         if(_reference.getInstance().queueRequests())
         {
             handler = new QueueRequestHandler(_reference.getInstance(), handler);

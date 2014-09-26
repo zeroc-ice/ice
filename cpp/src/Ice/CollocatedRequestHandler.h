@@ -41,8 +41,10 @@ class CollocatedRequestHandler : public RequestHandler, public ResponseHandler, 
 public:
 
     CollocatedRequestHandler(const ReferencePtr&, const Ice::ObjectAdapterPtr&);
-
     virtual ~CollocatedRequestHandler();
+
+    virtual RequestHandlerPtr connect();
+    virtual RequestHandlerPtr update(const RequestHandlerPtr&, const RequestHandlerPtr&);
 
     virtual void prepareBatchRequest(BasicStream*);
     virtual void finishBatchRequest(BasicStream*);

@@ -91,19 +91,36 @@ ConnectRequestHandler::~ConnectRequestHandler()
 RequestHandlerPtr
 ConnectRequestHandler::connect()
 {
+    Ice::ObjectPrx proxy = _proxy;
+
     _reference->getConnection(this);
 
-    Lock sync(*this);
-    if(initialized())
+    try
     {
-        assert(_connection);
-        return new ConnectionRequestHandler(_reference, _connection, _compress);
+        Lock sync(*this);
+        if(!initialized())
+        {
+            _updateRequestHandler = true; // The proxy request handler will be updated when the connection is set.
+            return this;
+        }
     }
-    else
+    catch(const Ice::LocalException&)
     {
-        _updateRequestHandler = true; // The proxy request handler will be updated when the connection is set.
-        return this;
+        proxy->__setRequestHandler(this, 0);
+        throw;
     }
+
+    assert(_connection);
+
+    RequestHandlerPtr handler = new ConnectionRequestHandler(_reference, _connection, _compress);
+    proxy->__setRequestHandler(this, handler);
+    return handler;
+}
+
+RequestHandlerPtr
+ConnectRequestHandler::update(const RequestHandlerPtr& previousHandler, const RequestHandlerPtr& newHandler)
+{
+    return previousHandler.get() == this ? newHandler : this;
 }
 
 void
@@ -335,8 +352,6 @@ ConnectRequestHandler::setConnection(const Ice::ConnectionIPtr& connection, bool
     {
         Lock sync(*this);
         assert(!_exception.get() && !_connection);
-        assert(_updateRequestHandler || _requests.empty());
-
         _connection = connection;
         _compress = compress;
     }
@@ -362,8 +377,6 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
 {
     Lock sync(*this);
     assert(!_initialized && !_exception.get());
-    assert(_updateRequestHandler || _requests.empty());
-
     _exception.reset(ex.ice_clone());
     _proxy = 0; // Break cyclic reference count.
 

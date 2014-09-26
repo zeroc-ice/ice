@@ -24,6 +24,9 @@ public:
     ConnectionRequestHandler(const ReferencePtr&, const Ice::ObjectPrx&);
     ConnectionRequestHandler(const ReferencePtr&, const Ice::ConnectionIPtr&, bool);
 
+    virtual RequestHandlerPtr connect();
+    virtual RequestHandlerPtr update(const RequestHandlerPtr&, const RequestHandlerPtr&);
+
     virtual void prepareBatchRequest(BasicStream*);
     virtual void finishBatchRequest(BasicStream*);
     virtual void abortBatchRequest();

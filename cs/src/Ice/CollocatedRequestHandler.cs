@@ -42,6 +42,16 @@ namespace IceInternal
             _batchStream = new BasicStream(@ref.getInstance(), Ice.Util.currentProtocolEncoding, _batchAutoFlush);
         }
 
+        public RequestHandler connect()
+        {
+            return this;
+        }
+
+        public RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler)
+        {
+            return previousHandler == this ? newHandler : this;
+        }
+
         public void
         prepareBatchRequest(BasicStream os)
         {

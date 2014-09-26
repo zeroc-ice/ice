@@ -31,24 +31,44 @@ public class ConnectRequestHandler
         BasicStream os = null;
     }
 
-    public RequestHandler
+    @Override
+    public RequestHandler 
     connect()
     {
+        Ice.ObjectPrxHelperBase proxy = _proxy;
+        
         _reference.getConnection(this);
-
-        synchronized(this)
+        
+        try
         {
-            if(initialized())
+            synchronized(this)
             {
-                assert(_connection != null);
-                return new ConnectionRequestHandler(_reference, _connection, _compress);
-            }
-            else
-            {
-                _updateRequestHandler = true; // The proxy request handler will be updated when the connection is set.
-                return this;
+                if(!initialized())
+                {
+                    // The proxy request handler will be updated when the connection is set.
+                    _updateRequestHandler = true;
+                    return this;
+                }
             }
         }
+        catch(Ice.LocalException ex)
+        {
+            proxy.__setRequestHandler(this, null);
+            throw ex;
+        }
+        
+        assert(_connection != null);
+        
+        RequestHandler handler = new ConnectionRequestHandler(_reference, _connection, _compress);
+        proxy.__setRequestHandler(this, handler);
+        return handler;
+    }
+
+    @Override
+    public RequestHandler 
+    update(RequestHandler previousHandler, RequestHandler newHandler)
+    {
+        return previousHandler == this ? newHandler : this;
     }
 
     @Override
@@ -233,8 +253,6 @@ public class ConnectRequestHandler
         synchronized(this)
         {
             assert(_exception == null && _connection == null);
-            assert(_updateRequestHandler || _requests.isEmpty());
-
             _connection = connection;
             _compress = compress;
         }
@@ -260,8 +278,6 @@ public class ConnectRequestHandler
     setException(final Ice.LocalException ex)
     {
         assert(!_initialized && _exception == null);
-        assert(_updateRequestHandler || _requests.isEmpty());
-
         _exception = ex;
         _proxy = null; // Break cyclic reference count.
 

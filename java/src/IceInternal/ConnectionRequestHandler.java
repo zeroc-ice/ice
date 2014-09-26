@@ -12,6 +12,41 @@ package IceInternal;
 public class ConnectionRequestHandler implements RequestHandler
 {
     @Override
+    public RequestHandler 
+    connect()
+    {
+        assert(false); // This request handler is only created after connection binding.
+        return null;
+    }
+    
+    @Override
+    public RequestHandler 
+    update(RequestHandler previousHandler, RequestHandler newHandler)
+    {
+        try
+        {
+            if(previousHandler == this)
+            {
+                return newHandler;
+            }
+            else if(previousHandler.getConnection() == _connection)
+            {
+                //
+                // If both request handlers point to the same connection, we also
+                // update the request handler. See bug ICE-5489 for reasons why
+                // this can be useful.
+                //
+                return newHandler;
+            }
+        }
+        catch(Ice.Exception ex)
+        {
+            // Ignore
+        }
+        return this;
+    }
+    
+    @Override
     public void
     prepareBatchRequest(BasicStream out)
         throws RetryException

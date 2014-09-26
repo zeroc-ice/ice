@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using Ice.Instrumentation;
 
@@ -15,6 +16,37 @@ namespace IceInternal
 {
     public class ConnectionRequestHandler : RequestHandler
     {
+        public RequestHandler connect()
+        {
+            Debug.Assert(false); // This request handler is only created after connection binding.
+            return null;
+        }
+
+        public RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler)
+        {
+            try
+            {
+                if(previousHandler == this)
+                {
+                    return newHandler;
+                }
+                else if(previousHandler.getConnection() == _connection)
+                {
+                    //
+                    // If both request handlers point to the same connection, we also
+                    // update the request handler. See bug ICE-5489 for reasons why
+                    // this can be useful.
+                    //
+                    return newHandler;
+                }
+            }
+            catch(Ice.Exception)
+            {
+                // Ignore
+            }
+            return this;
+        }
+
         public void prepareBatchRequest(BasicStream @out)
         {
             _connection.prepareBatchRequest(@out);

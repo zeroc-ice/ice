@@ -57,6 +57,9 @@ public:
 
     virtual ~RequestHandler();
 
+    virtual RequestHandlerPtr connect() = 0;
+    virtual RequestHandlerPtr update(const RequestHandlerPtr&, const RequestHandlerPtr&) = 0;
+
     virtual void prepareBatchRequest(BasicStream*) = 0;
     virtual void finishBatchRequest(BasicStream*) = 0;
     virtual void abortBatchRequest() = 0;

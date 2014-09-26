@@ -1622,6 +1622,7 @@ operator<<(ostream& os, const ::IceProxy::Ice::Object& p)
 ::IceInternal::RequestHandlerPtr
 IceProxy::Ice::Object::__getRequestHandler()
 {
+    RequestHandlerPtr handler;
     if(_reference->getCacheConnection())
     {
         IceUtil::Mutex::Lock sync(_mutex);
@@ -1629,11 +1630,14 @@ IceProxy::Ice::Object::__getRequestHandler()
         {
             return _requestHandler;
         }
-        _requestHandler = createRequestHandler(); // async = true to avoid blocking with the proxy mutex locked.
-        return _requestHandler;
+        handler = createRequestHandler();
+        _requestHandler = handler;
     }
-
-    return createRequestHandler();
+    else
+    {
+        handler = createRequestHandler();
+    }
+    return handler->connect();
 }
 
 void
@@ -1643,28 +1647,16 @@ IceProxy::Ice::Object::__setRequestHandler(const ::IceInternal::RequestHandlerPt
     if(_reference->getCacheConnection())
     {
         IceUtil::Mutex::Lock sync(_mutex);
-        if(previous.get() == _requestHandler.get())
+        if(_requestHandler.get() != handler.get())
         {
-            _requestHandler = handler;
-        }
-        else if(previous && _requestHandler)
-        {
-            try
-            {
-                //
-                // If both request handlers point to the same connection, we also
-                // update the request handler. See bug ICE-5489 for reasons why
-                // this can be useful.
-                //
-                if(previous->getConnection() == _requestHandler->getConnection())
-                {
-                    _requestHandler = handler;
-                }
-            }
-            catch(const Exception&)
-            {
-                // Ignore
-            }
+            //
+            // Update the request handler only if "previous" is the same
+            // as the current request handler. This is called after
+            // connection binding by the connect request handler. We only
+            // replace the request handler if the current handler is the
+            // connect request handler.
+            //
+            _requestHandler = _requestHandler->update(previous, handler);
         }
     }
 }
@@ -1687,8 +1679,7 @@ IceProxy::Ice::Object::createRequestHandler()
         }
     }
 
-    ConnectRequestHandlerPtr handler = new ::IceInternal::ConnectRequestHandler(_reference, this);
-    return handler->connect();
+    return new ::IceInternal::ConnectRequestHandler(_reference, this);
 }
 
 void

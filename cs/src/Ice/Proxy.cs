@@ -2420,6 +2420,7 @@ namespace Ice
 
         public IceInternal.RequestHandler getRequestHandler__()
         {
+            IceInternal.RequestHandler handler;
             if(_reference.getCacheConnection())
             {
                 lock(this)
@@ -2429,12 +2430,14 @@ namespace Ice
                         return _requestHandler;
                     }
                     _requestHandler = createRequestHandler();
-                    return _requestHandler;
+                    handler = _requestHandler;
                 }
             }
-
-
-            return createRequestHandler();
+            else
+            {
+                handler = createRequestHandler();
+            }
+            return handler.connect();
         }
 
         public void setRequestHandler__(IceInternal.RequestHandler previous, IceInternal.RequestHandler handler)
@@ -2443,28 +2446,16 @@ namespace Ice
             {
                 lock(this)
                 {
-                    if(previous == _requestHandler)
+                    if(_requestHandler != handler)
                     {
-                        _requestHandler = handler;
-                    }
-                    else if(previous != null && _requestHandler != null)
-                    {
-                        try
-                        {
-                            //
-                            // If both request handlers point to the same connection, we also
-                            // update the request handler. See bug ICE-5489 for reasons why
-                            // this can be useful.
-                            //
-                            if(previous.getConnection() == _requestHandler.getConnection())
-                            {
-                                _requestHandler = handler;
-                            }
-                        }
-                        catch(Exception)
-                        {
-                            // Ignore
-                        }
+                        //
+                        // Update the request handler only if "previous" is the same
+                        // as the current request handler. This is called after
+                        // connection binding by the connect request handler. We only
+                        // replace the request handler if the current handler is the
+                        // connect request handler.
+                        //
+                        _requestHandler = _requestHandler.update(previous, handler);
                     }
                 }
             }
@@ -2481,8 +2472,7 @@ namespace Ice
                 }
             }
 
-
-            return (new IceInternal.ConnectRequestHandler(_reference, this)).connect();
+            return new IceInternal.ConnectRequestHandler(_reference, this);
         }
 
         //

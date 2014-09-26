@@ -14,6 +14,9 @@ namespace IceInternal
 {
     public interface RequestHandler
     {
+        RequestHandler connect();
+        RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler);
+
         void prepareBatchRequest(BasicStream @out);
         void finishBatchRequest(BasicStream @out);
         void abortBatchRequest();

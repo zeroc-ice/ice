@@ -29,6 +29,76 @@ public class QueueRequestHandler implements RequestHandler
     }
 
     @Override
+    public RequestHandler 
+    connect()
+    {
+        try
+        {
+            Future<Void> future = _executor.submit(new Callable<Void>()
+            {
+                @Override
+                public Void call() throws RetryException
+                {
+                    _delegate.connect();
+                    return null;
+                }
+            });
+
+            //
+            // Just wait for connect() to complete, don't return the
+            // request handler returned by connect() since it's not 
+            // interrupt safe.
+            //
+            future.get();
+        }
+        catch(RejectedExecutionException e)
+        {
+            throw new CommunicatorDestroyedException();
+        }
+        catch(InterruptedException e)
+        {
+            throw new Ice.OperationInterruptedException();
+        }
+        catch(ExecutionException e)
+        {
+            try
+            {
+                throw e.getCause();
+            }
+            catch(RuntimeException ex)
+            {
+                throw ex;
+            }
+            catch(Throwable ex)
+            {
+                assert(false);
+            }
+        }
+        return this;
+    }
+    
+    @Override
+    public RequestHandler 
+    update(RequestHandler previousHandler, RequestHandler newHandler)
+    {
+        //
+        // Only update to new handler if the previous handler matches this one.
+        //
+        if(previousHandler == this)
+        {
+            if(newHandler != null)
+            {
+                return new QueueRequestHandler(_delegate.getReference().getInstance(), newHandler);
+            }
+            else
+            {
+                return null;
+            }
+        }
+        return this;
+    }
+    
+    @Override
     public void
     prepareBatchRequest(final BasicStream out) throws RetryException
     {

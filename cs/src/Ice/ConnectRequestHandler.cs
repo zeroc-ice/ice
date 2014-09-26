@@ -38,22 +38,38 @@ namespace IceInternal
 
         public RequestHandler connect()
         {
+            Ice.ObjectPrxHelperBase proxy = _proxy;
+
             _reference.getConnection(this);
 
-            lock(this)
+            try
             {
-                if(initialized())
+                lock(this)
                 {
-                    Debug.Assert(_connection != null);
-                    return new ConnectionRequestHandler(_reference, _connection, _compress);
-                }
-                else
-                {
-                    // The proxy request handler will be updated when the connection is set.
-                    _updateRequestHandler = true;
-                    return this;
+                    if(!initialized())
+                    {
+                        // The proxy request handler will be updated when the connection is set.
+                        _updateRequestHandler = true;
+                        return this;
+                    }
                 }
             }
+            catch(Ice.LocalException ex)
+            {
+                proxy.setRequestHandler__(this, null);
+                throw ex;
+            }
+
+            Debug.Assert(_connection != null);
+
+            RequestHandler handler = new ConnectionRequestHandler(_reference, _connection, _compress);
+            proxy.setRequestHandler__(this, handler);
+            return handler;
+        }
+
+        public RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler)
+        {
+            return previousHandler == this ? newHandler : this;
         }
 
         public void prepareBatchRequest(BasicStream os)
@@ -226,8 +242,6 @@ namespace IceInternal
             lock(this)
             {
                 Debug.Assert(_exception == null && _connection == null);
-                Debug.Assert(_updateRequestHandler || _requests.Count == 0);
-
                 _connection = connection;
                 _compress = compress;
             }
@@ -253,8 +267,6 @@ namespace IceInternal
             lock(this)
             {
                 Debug.Assert(!_initialized && _exception == null);
-                Debug.Assert(_updateRequestHandler || _requests.Count == 0);
-
                 _exception = ex;
                 _proxy = null; // Break cyclic reference count.
 

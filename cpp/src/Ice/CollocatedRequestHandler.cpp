@@ -150,6 +150,18 @@ CollocatedRequestHandler::~CollocatedRequestHandler()
 {
 }
 
+RequestHandlerPtr
+CollocatedRequestHandler::connect()
+{
+    return this;
+}
+
+RequestHandlerPtr
+CollocatedRequestHandler::update(const RequestHandlerPtr& previousHandler, const RequestHandlerPtr& newHandler)
+{
+    return previousHandler.get() == this ? newHandler : this;
+}
+
 void
 CollocatedRequestHandler::prepareBatchRequest(BasicStream* os)
 {

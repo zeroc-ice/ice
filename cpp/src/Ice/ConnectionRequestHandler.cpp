@@ -38,6 +38,40 @@ ConnectionRequestHandler::ConnectionRequestHandler(const ReferencePtr& reference
 {
 }
 
+RequestHandlerPtr
+ConnectionRequestHandler::connect()
+{
+    assert(false); // This request handler is only created after connection binding.
+    return 0;
+}
+
+RequestHandlerPtr
+ConnectionRequestHandler::update(const RequestHandlerPtr& previousHandler, const RequestHandlerPtr& newHandler)
+{
+    assert(previousHandler);
+    try
+    {
+        if(previousHandler.get() == this)
+        {
+            return newHandler;
+        }
+        else if(previousHandler->getConnection() == _connection)
+        {
+            //
+            // If both request handlers point to the same connection, we also
+            // update the request handler. See bug ICE-5489 for reasons why
+            // this can be useful.
+            //
+            return newHandler;
+        }
+    }
+    catch(const Ice::Exception&)
+    {
+        // Ignore.
+    }
+    return this;
+}
+
 void
 ConnectionRequestHandler::prepareBatchRequest(BasicStream* out)
 {

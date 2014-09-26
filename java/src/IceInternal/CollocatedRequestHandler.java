@@ -58,6 +58,20 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
     }
 
     @Override
+    public RequestHandler 
+    connect()
+    {
+        return this;
+    }
+    
+    @Override
+    public RequestHandler 
+    update(RequestHandler previousHandler, RequestHandler newHandler)
+    {
+        return previousHandler == this ? newHandler : this;
+    }
+    
+    @Override
     synchronized public void
     prepareBatchRequest(BasicStream os)
     {
