@@ -78,20 +78,14 @@ class BookI extends _BookDisp
 
         try
         {
-            // First make sure the book still exists.
-            java.sql.PreparedStatement stmt = context.prepareStatement("SELECT * FROM books WHERE id = ?");
-            stmt.setInt(1, id);
-            java.sql.ResultSet rs = stmt.executeQuery();
-            if(!rs.next())
-            {
-                throw new Ice.ObjectNotExistException();
-            }
-
-            stmt = context.prepareStatement("UPDATE books SET title = ? WHERE id = ?");
+            java.sql.PreparedStatement stmt = context.prepareStatement("UPDATE books SET title = ? WHERE id = ?");
             stmt.setString(1, title);
             stmt.setInt(2, id);
             int count = stmt.executeUpdate();
-            assert count == 1;
+            if(count == 0)
+            {
+                throw new Ice.ObjectNotExistException();
+            }
         }
         catch(java.sql.SQLException e)
         {
@@ -111,7 +105,7 @@ class BookI extends _BookDisp
 
         try
         {
-            // First make sure the book still exists.
+            // First make sure the book still exists
             java.sql.PreparedStatement stmt = context.prepareStatement("SELECT * FROM books WHERE id = ?");
             stmt.setInt(1, id);
             java.sql.ResultSet rs = stmt.executeQuery();
@@ -134,7 +128,7 @@ class BookI extends _BookDisp
                 Integer authid;
                 stmt = context.prepareStatement("SELECT * FROM authors WHERE name = ?");
                 stmt.setString(1, author);
-                java.sql.ResultSet rs = stmt.executeQuery();
+                rs = stmt.executeQuery();
                 if(rs.next())
                 {
                     // If there is a result, then the database
