@@ -409,6 +409,11 @@ public final class Instance
     public synchronized Ice.ObjectPrx
     createAdmin(Ice.ObjectAdapter adminAdapter, Ice.Identity adminIdentity)
     {
+        if(Thread.interrupted())
+        {
+            throw new Ice.OperationInterruptedException();
+        }
+
         boolean createAdapter = (adminAdapter == null);
     
         synchronized(this)
@@ -478,6 +483,11 @@ public final class Instance
     public Ice.ObjectPrx
     getAdmin()
     {
+        if(Thread.interrupted())
+        {
+            throw new Ice.OperationInterruptedException();
+        }
+
         Ice.ObjectAdapter adminAdapter;
         Ice.Identity adminIdentity;
 
@@ -1137,6 +1147,11 @@ public final class Instance
     public void
     destroy()
     {
+        if(Thread.interrupted())
+        {
+            throw new Ice.OperationInterruptedException();
+        }
+
         synchronized(this)
         {
             //
@@ -1181,12 +1196,7 @@ public final class Instance
             }
             catch (InterruptedException e)
             {
-                //
-                // Restore the interrupt, otherwise the instance will be
-                // left in an undefined state. The thread joins below will
-                // interrupt which is fine.
-                //
-                Thread.currentThread().interrupt();
+                throw new Ice.OperationInterruptedException();
             }
         }
 

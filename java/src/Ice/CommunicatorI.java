@@ -203,8 +203,7 @@ public final class CommunicatorI implements Communicator
     public void
     flushBatchRequests()
     {
-        AsyncResult r = begin_flushBatchRequests();
-        end_flushBatchRequests(r);
+        end_flushBatchRequests(begin_flushBatchRequests());
     }
 
     @Override

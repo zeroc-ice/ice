@@ -310,7 +310,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
     void invokeAsyncRequest(OutgoingAsync outAsync, boolean synchronous)
     {
         int requestId = 0;
-        if(_reference.getInvocationTimeout() > 0 || _response)
+        if((_reference.getInstance().queueRequests() || _reference.getInvocationTimeout() > 0) || _response)
         {
             synchronized(this)
             {
@@ -319,7 +319,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
                     requestId = ++_requestId;
                     _asyncRequests.put(requestId, outAsync);
                 }
-                if(_reference.getInvocationTimeout() > 0)
+                if(_reference.getInstance().queueRequests() || _reference.getInvocationTimeout() > 0)
                 {
                     _sendAsyncRequests.put(outAsync, requestId);
                 }
@@ -367,7 +367,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
             invokeNum = _batchRequestNum;
             if(_batchRequestNum > 0)
             {
-                if(_reference.getInvocationTimeout() > 0)
+                if(_reference.getInstance().queueRequests() || _reference.getInvocationTimeout() > 0)
                 {
                     _sendAsyncRequests.put(outAsync, 0);
                 }
@@ -406,7 +406,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
     private boolean
     sentAsync(final OutgoingAsyncMessageCallback outAsync)
     {
-        if(_reference.getInvocationTimeout() > 0)
+        if(_reference.getInstance().queueRequests() || _reference.getInvocationTimeout() > 0)
         {
             synchronized(this)
             {
@@ -564,6 +564,9 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
 
     private int _requestId;
 
+    // A map of outstanding requests that can be canceled. A request
+    // can be canceled if it has an invocation timeout, or we support
+    // interrupts.
     private java.util.Map<OutgoingAsyncMessageCallback, Integer> _sendAsyncRequests =
         new java.util.HashMap<OutgoingAsyncMessageCallback, Integer>();
 

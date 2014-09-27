@@ -125,6 +125,15 @@ public class GetConnectionOutgoingAsync extends OutgoingAsyncBase implements Out
         });
     }
 
+    @Override
+    protected void cancelRequest()
+    {
+        if(_handler != null)
+        {
+            _handler.asyncRequestCanceled(this, new Ice.OperationInterruptedException());
+        }
+    }
+
     private void handleException(Ice.Exception exc)
     {
        try

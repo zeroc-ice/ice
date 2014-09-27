@@ -144,6 +144,11 @@ public final class ObjectAdapterFactory
     public synchronized Ice.ObjectAdapter
     createObjectAdapter(String name, Ice.RouterPrx router)
     {
+        if(Thread.interrupted())
+        {
+            throw new Ice.OperationInterruptedException();
+        }
+
         if(_instance == null)
         {
             throw new Ice.ObjectAdapterDeactivatedException();

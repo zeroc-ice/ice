@@ -155,6 +155,11 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     @Override
     synchronized public void close(boolean force)
     {
+        if(Thread.interrupted())
+        {
+            throw new Ice.OperationInterruptedException();
+        }
+
         if(force)
         {
             setState(StateClosed, new ForcedCloseConnectionException());
@@ -645,6 +650,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         {
             result.invokeExceptionAsync(__ex);
         }
+
         return result;
     }
 
@@ -2567,6 +2573,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
                 case IceInternal.Protocol.replyMsg:
                 {
+                    
                     IceInternal.TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
                     info.requestId = info.stream.readInt();
                     IceInternal.OutgoingAsync outAsync = _asyncRequests.remove(info.requestId);

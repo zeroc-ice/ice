@@ -640,6 +640,15 @@ public class OutgoingAsync extends OutgoingAsyncBase implements OutgoingAsyncMes
 
         super.invokeExceptionAsync(ex);
     }
+    
+    @Override
+    protected void cancelRequest()
+    {
+        if(_handler != null)
+        {
+            _handler.asyncRequestCanceled(this, new Ice.OperationInterruptedException());
+        }
+    }
 
     private void handleException(Ice.Exception exc)
     {
@@ -686,4 +695,6 @@ public class OutgoingAsync extends OutgoingAsyncBase implements OutgoingAsyncMes
 
 
     private static final java.util.Map<String, String> _emptyContext = new java.util.HashMap<String, String>();
+
+
 }

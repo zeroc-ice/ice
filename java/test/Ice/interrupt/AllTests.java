@@ -21,9 +21,13 @@ import test.Ice.interrupt.Test.TestIntfControllerPrx;
 import test.Ice.interrupt.Test.TestIntfControllerPrxHelper;
 import test.Ice.interrupt.Test.TestIntfPrx;
 import test.Ice.interrupt.Test.TestIntfPrxHelper;
+import Ice.AsyncResult;
+import Ice.Callback_Communicator_flushBatchRequests;
+import Ice.Callback_Connection_flushBatchRequests;
+import Ice.Callback_Object_ice_flushBatchRequests;
+import Ice.Callback_Object_ice_getConnection;
+import Ice.Connection;
 import Ice.LocalException;
-import Ice.OperationInterruptedException;
-import Ice.UserException;
 
 public class AllTests
 {
@@ -88,7 +92,7 @@ public class AllTests
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 
-        TestIntfPrx p = TestIntfPrxHelper.uncheckedCast(obj);
+        final TestIntfPrx p = TestIntfPrxHelper.uncheckedCast(obj);
 
         sref = "testController:tcp -p 12011";
         obj = communicator.stringToProxy(sref);
@@ -103,64 +107,72 @@ public class AllTests
             mainThread.interrupt();
             try
             {
+                // Synchronous invocations are interruption points. If the
+                // interrupt flag is set at the start of the operation
+                // OperationInterruptedException must be thrown.
                 p.op();
-                //
-                // It is possible that the thread isn't interrupted. However, it shouldn't
-                // be possible for the call to return and the interrupt swallowed.
-                //
-                test(mainThread.isInterrupted());
-                // Clear the interrupt at this point.
-                Thread.interrupted();
+                test(false);
             }
             catch(Ice.OperationInterruptedException ex)
             {
                 // Expected
+                test(!mainThread.isInterrupted());
+            }
+
+            // Same test with the AMI API.
+            try
+            {
+                Ice.AsyncResult r = p.begin_op();
+                mainThread.interrupt();
+                p.end_op(r);
+                test(false);
+            }
+            catch(Ice.OperationInterruptedException ex)
+            {
+                // Expected
+                test(!mainThread.isInterrupted());
             }
 
             final CallbackBase cb = new CallbackBase();
             mainThread.interrupt();
-            final boolean responseCalled[] = new boolean[1]; 
-            responseCalled[0] = false;
-            p.begin_sleep(500, new Callback_TestIntf_sleep()
+            p.begin_op(new Callback_TestIntf_op()
             {
                 @Override
                 public void response()
                 {
-                    responseCalled[0] = true;
                     cb.called();
                 }
                 
                 @Override
-                public void exception(LocalException ex)
-                {
-                    test(ex instanceof OperationInterruptedException);
-                    cb.called();
-                }
-
-                @Override
-                public void exception(UserException ex)
+                public void exception(Ice.LocalException ex)
                 {
                     test(false);
                 }
             });
-            boolean interrupted = false;
-            if(mainThread.isInterrupted())
-            {
-                //
-                // The AMI request will receive a response.
-                //
-                Thread.interrupted();
-                interrupted = true;
-            }
+            test(Thread.interrupted());
             cb.check();
-            if(interrupted)
+
+            p.begin_op(new Ice.Callback()
             {
-                test(responseCalled[0]);
-            }
+                @Override
+                public void completed(AsyncResult r)
+                {
+                    try
+                    {
+                        Thread.currentThread().interrupt();
+                        p.end_op(r);
+                        test(false);
+                    }
+                    catch(Ice.OperationInterruptedException ex)
+                    {
+                        // Expected
+                        test(!Thread.currentThread().isInterrupted());
+                    }
+                }
+            });
 
             ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(1);
             executor.submit(new Runnable() {
-
                 @Override
                 public void run()
                 {
@@ -190,24 +202,27 @@ public class AllTests
             {
                 test(false);
             }
-            
+
+            executor.submit(new Runnable() {
+                @Override
+                public void run()
+                {
+                    try
+                    {
+                        Thread.sleep(500);
+                    }
+                    catch(InterruptedException e)
+                    {
+                        test(false);
+                    }
+                    mainThread.interrupt();
+                }
+            });
 
             try
             {
-                Ice.AsyncResult r = p.begin_sleep(250);
-                Thread.currentThread().interrupt();
-                r.waitForCompleted();
-                test(false);
-            }
-            catch(Ice.OperationInterruptedException ex)
-            {
-                // Expected
-            }
-
-            try
-            {
-                Ice.AsyncResult r = p.begin_sleep(250);
-                Thread.currentThread().interrupt();
+                test(!mainThread.isInterrupted());
+                Ice.AsyncResult r = p.begin_sleep(2000);
                 p.end_sleep(r);
                 test(false);
             }
@@ -216,6 +231,52 @@ public class AllTests
                 // Expected
             }
             catch(test.Ice.interrupt.Test.InterruptedException e)
+            {
+                test(false);
+            }
+
+            // Test waitForCompleted is an interruption point.
+            try
+            {
+                Ice.AsyncResult r = p.begin_op();
+                try
+                {
+                    Thread.currentThread().interrupt();
+                    r.waitForCompleted();
+                    test(false);
+                }
+                catch(Ice.OperationInterruptedException ex)
+                {
+                    // Expected
+                }
+    
+                // end_ should still work.
+                p.end_op(r);
+            }
+            catch(Ice.OperationInterruptedException ex)
+            {
+                test(false);
+            }
+
+            // Test waitForSent is an interruption point.
+            try
+            {
+                Ice.AsyncResult r = p.begin_op();
+                try
+                {
+                    Thread.currentThread().interrupt();
+                    r.waitForSent();
+                    test(false);
+                }
+                catch(Ice.OperationInterruptedException ex)
+                {
+                    // Expected
+                }
+    
+                // end_ should still work.
+                p.end_op(r);
+            }
+            catch(Ice.OperationInterruptedException ex)
             {
                 test(false);
             }
@@ -245,11 +306,11 @@ public class AllTests
 
                 testController.holdAdapter();
                 Ice.AsyncResult r = null;
+                // The sequence needs to be large enough to fill the write/recv buffers
+                byte[] seq = new byte[20000000];
+                r = p.begin_opWithPayload(seq);
                 try
                 {
-                    // The sequence needs to be large enough to fill the write/recv buffers
-                    byte[] seq = new byte[20000000];
-                    r = p.begin_opWithPayload(seq);
                     r.waitForSent();
                     test(false);
                 }
@@ -261,7 +322,6 @@ public class AllTests
                 // Resume the adapter.
                 //
                 testController.resumeAdapter();
-                
                 r.waitForSent();
                 r.waitForCompleted();
                 p.end_opWithPayload(r);
@@ -272,6 +332,196 @@ public class AllTests
             //
             executor.shutdown();
             executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        }
+        out.println("ok");
+        
+        if(p.ice_getCachedConnection() != null)
+        {
+            out.print("testing getConnection interrupt... ");
+            out.flush();
+            {
+                final Thread mainThread = Thread.currentThread();
+    
+                p.ice_getConnection().close(false);
+    
+                AsyncResult r = p.begin_ice_getConnection();
+                mainThread.interrupt();
+                try
+                {
+                    p.end_ice_getConnection(r);
+                    test(false);
+                }
+                catch(Ice.OperationInterruptedException ex)
+                {
+                    // Expected
+                }
+                
+                p.ice_getConnection().close(false);
+                
+                final CallbackBase cb = new CallbackBase();
+                mainThread.interrupt();
+                p.begin_ice_getConnection(new Callback_Object_ice_getConnection()
+                {
+                    @Override
+                    public void exception(LocalException ex)
+                    {
+                        test(false);
+                    }
+                    
+                    @Override
+                    public void response(Connection con)
+                    {
+                        cb.called();
+                    }
+                });
+                test(Thread.interrupted());
+                cb.check();
+            }
+            out.println("ok");
+        }
+
+        out.print("testing batch proxy flush interrupt... ");
+        out.flush();
+        {
+            final TestIntfPrx p2 = TestIntfPrxHelper.uncheckedCast(p.ice_batchOneway());
+            final Thread mainThread = Thread.currentThread();
+
+            p2.op();
+            p2.op();
+            p2.op();
+            
+            AsyncResult r = p2.begin_ice_flushBatchRequests();
+            mainThread.interrupt();
+            try
+            {
+                p2.end_ice_flushBatchRequests(r);
+                test(false);
+            }
+            catch(Ice.OperationInterruptedException ex)
+            {
+                // Expected
+            }
+            
+            p2.op();
+            p2.op();
+            p2.op();            
+
+            final CallbackBase cb = new CallbackBase();
+            mainThread.interrupt();
+            p2.begin_ice_flushBatchRequests(new Callback_Object_ice_flushBatchRequests()
+            {
+                @Override
+                public void sent(boolean sentSynchronously)
+                {
+                    cb.called();
+                }
+
+                @Override
+                public void exception(LocalException ex)
+                {
+                    test(false);
+                }
+            });
+            test(Thread.interrupted());
+            cb.check();            
+        }
+        out.println("ok");
+
+        if(p.ice_getCachedConnection() != null)
+        {
+            out.print("testing batch connection flush interrupt... ");
+            out.flush();
+            {
+                final TestIntfPrx p2 = TestIntfPrxHelper.uncheckedCast(p.ice_batchOneway());
+                final Thread mainThread = Thread.currentThread();
+    
+                p2.op();
+                p2.op();
+                p2.op();
+                
+                AsyncResult r = p2.ice_getConnection().begin_flushBatchRequests();
+                mainThread.interrupt();
+                try
+                {
+                    p2.ice_getCachedConnection().end_flushBatchRequests(r);
+                    test(false);
+                }
+                catch(Ice.OperationInterruptedException ex)
+                {
+                    // Expected
+                }
+                
+                p2.op();
+                p2.op();
+                p2.op();            
+    
+                final CallbackBase cb = new CallbackBase();
+                Ice.Connection con = p2.ice_getConnection();
+                mainThread.interrupt();
+                con.begin_flushBatchRequests(new Callback_Connection_flushBatchRequests()
+                {
+                    @Override
+                    public void sent(boolean sentSynchronously)
+                    {
+                        cb.called();
+                    }
+    
+                    @Override
+                    public void exception(LocalException ex)
+                    {
+                        test(false);
+                    }
+                });
+                test(Thread.interrupted());
+                cb.check();
+            }
+            out.println("ok");
+        }
+        
+        out.print("testing batch communicator flush interrupt... ");
+        out.flush();
+        {
+            final TestIntfPrx p2 = TestIntfPrxHelper.uncheckedCast(p.ice_batchOneway());
+            final Thread mainThread = Thread.currentThread();
+
+            p2.op();
+            p2.op();
+            p2.op();
+            
+            AsyncResult r = communicator.begin_flushBatchRequests();
+            mainThread.interrupt();
+            try
+            {
+                communicator.end_flushBatchRequests(r);
+                test(false);
+            }
+            catch(Ice.OperationInterruptedException ex)
+            {
+                // Expected
+            }
+            
+            p2.op();
+            p2.op();
+            p2.op();            
+            
+            final CallbackBase cb = new CallbackBase();
+            mainThread.interrupt();
+            communicator.begin_flushBatchRequests(new Callback_Communicator_flushBatchRequests()
+            {
+                @Override
+                public void sent(boolean sentSynchronously)
+                {
+                    cb.called();
+                }
+
+                @Override
+                public void exception(LocalException ex)
+                {
+                    test(false);
+                }
+            });
+            test(Thread.interrupted());
+            cb.check();
         }
         out.println("ok");
 
@@ -335,7 +585,7 @@ public class AllTests
                 }
                 
                 @Override
-                public void exception(LocalException ex)
+                public void exception(Ice.LocalException ex)
                 {
                     test(false);
                     
@@ -387,13 +637,13 @@ public class AllTests
                 }
                 
                 @Override
-                public void exception(LocalException ex)
+                public void exception(Ice.LocalException ex)
                 {        
                     test(false);
                 }
 
                 @Override
-                public void exception(UserException ex)
+                public void exception(Ice.UserException ex)
                 {
                     test(ex instanceof test.Ice.interrupt.Test.InterruptedException);
                     cb.called();
@@ -430,9 +680,41 @@ public class AllTests
             Ice.Communicator ic = app.initialize(initData);
             final Ice.ObjectAdapter adapter = ic.createObjectAdapter("ClientTestAdapter");
             adapter.activate();
-            
-            Runnable interruptMainThread = new Runnable() {
 
+            try
+            {
+                mainThread.interrupt();
+                adapter.waitForHold();
+                test(false);
+            }
+            catch(Ice.OperationInterruptedException e)
+            {
+                // Expected.
+            }
+
+            try
+            {
+                mainThread.interrupt();
+                adapter.waitForDeactivate();
+                test(false);
+            }
+            catch(Ice.OperationInterruptedException e)
+            {
+                // Expected.
+            }
+
+            try
+            {
+                mainThread.interrupt();
+                ic.waitForShutdown();
+                test(false);
+            }
+            catch(Ice.OperationInterruptedException e)
+            {
+                // Expected.
+            }
+
+            Runnable interruptMainThread = new Runnable() {
                 @Override
                 public void run()
                 {
@@ -447,6 +729,7 @@ public class AllTests
                     mainThread.interrupt();
                 }                
             };
+
             executor.execute(interruptMainThread);
             try
             {
@@ -486,7 +769,7 @@ public class AllTests
             executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         }
         out.println("ok");
-
+        
         p.shutdown();
     }
 }

@@ -14,7 +14,6 @@ public class Collocated extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("ControllerAdapter");
         TestControllerI controller = new TestControllerI(adapter);

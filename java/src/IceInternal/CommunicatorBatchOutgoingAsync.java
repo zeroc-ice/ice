@@ -9,6 +9,13 @@
 
 package IceInternal;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
+
+import Ice.CommunicatorDestroyedException;
+
 public class CommunicatorBatchOutgoingAsync extends OutgoingAsyncBase
 {
     public CommunicatorBatchOutgoingAsync(Ice.Communicator communicator, Instance instance, String operation,
@@ -34,7 +41,7 @@ public class CommunicatorBatchOutgoingAsync extends OutgoingAsyncBase
         _observer = ObserverHelper.get(instance, operation);
     }
 
-    public void flushConnection(Ice.ConnectionI con)
+    public void flushConnection(final Ice.ConnectionI con)
     {
         class BatchOutgoingAsyncI extends BatchOutgoingAsync
         {
@@ -88,7 +95,12 @@ public class CommunicatorBatchOutgoingAsync extends OutgoingAsyncBase
                     }
                 }
             }
-        };
+            
+            @Override
+            protected void cancelRequest()
+            {
+            }
+        }
 
         synchronized(_monitor)
         {
@@ -97,7 +109,59 @@ public class CommunicatorBatchOutgoingAsync extends OutgoingAsyncBase
 
         try
         {
-            int status = con.flushAsyncBatchRequests(new BatchOutgoingAsyncI());
+            int status;
+            if(_instance.queueRequests())
+            {
+                Future<Integer> future = _instance.getQueueExecutor().submit(new Callable<Integer>()
+                {
+                    @Override
+                    public Integer call() throws RetryException
+                    {
+                        return con.flushAsyncBatchRequests(new BatchOutgoingAsyncI());
+                    }
+                });
+
+                boolean interrupted = false;
+                while(true)
+                {
+                    try 
+                    {
+                        status = future.get();
+                        if(interrupted)
+                        {
+                            Thread.currentThread().interrupt();
+                        }
+                        break;
+                    }
+                    catch(InterruptedException ex)
+                    {
+                        interrupted = true;
+                    }
+                    catch(RejectedExecutionException e)
+                    {
+                        throw new CommunicatorDestroyedException();
+                    }
+                    catch(ExecutionException e)
+                    {
+                        try
+                        {
+                            throw e.getCause();
+                        }
+                        catch(RuntimeException ex)
+                        {
+                            throw ex;
+                        }
+                        catch(Throwable ex)
+                        {
+                            assert(false);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                status = con.flushAsyncBatchRequests(new BatchOutgoingAsyncI());
+            }
             if((status & AsyncStatus.Sent) > 0)
             {
                 _sentSynchronously = false;
@@ -151,6 +215,11 @@ public class CommunicatorBatchOutgoingAsync extends OutgoingAsyncBase
                 invokeSentInternal();
             }
         }
+    }
+
+    @Override
+    protected void cancelRequest()
+    {
     }
 
     private int _useCount;

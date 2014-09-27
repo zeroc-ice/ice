@@ -21,7 +21,7 @@ import Ice.UserException;
  * With this object, an application can obtain several attributes of the
  * invocation and discover its outcome.
  **/
-public class OutgoingAsyncBase implements Ice.AsyncResult
+public abstract class OutgoingAsyncBase implements Ice.AsyncResult
 {
     protected OutgoingAsyncBase(Communicator communicator, IceInternal.Instance instance, String op,
                                 IceInternal.CallbackBase del)
@@ -106,6 +106,10 @@ public class OutgoingAsyncBase implements Ice.AsyncResult
     {
         synchronized(_monitor)
         {
+            if(Thread.interrupted())
+            {
+                throw new Ice.OperationInterruptedException();
+            }
             while((_state & StateDone) == 0)
             {
                 try
@@ -148,6 +152,10 @@ public class OutgoingAsyncBase implements Ice.AsyncResult
     {
         synchronized(_monitor)
         {
+            if(Thread.interrupted())
+            {
+                throw new Ice.OperationInterruptedException();
+            }
             while((_state & StateSent) == 0 && _exception == null)
             {
                 try
@@ -235,36 +243,44 @@ public class OutgoingAsyncBase implements Ice.AsyncResult
 
     public final boolean __wait()
     {
-        synchronized(_monitor)
+        try 
         {
-            if((_state & StateEndCalled) > 0)
+            synchronized(_monitor)
             {
-                throw new java.lang.IllegalArgumentException("end_ method called more than once");
-            }
-            _state |= StateEndCalled;
-            while((_state & StateDone) == 0)
-            {
-                try
+                if((_state & StateEndCalled) > 0)
+                {
+                    throw new java.lang.IllegalArgumentException("end_ method called more than once");
+                }
+    
+                _state |= StateEndCalled;
+                if(Thread.interrupted())
+                {
+                    throw new InterruptedException();
+                }
+                while((_state & StateDone) == 0)
                 {
                     _monitor.wait();
                 }
-                catch(InterruptedException ex)
+    
+                if(_exception != null)
                 {
-                    //
-                    // Remove the EndCalled flag since it should be possible to
-                    // call end_* again on the AsyncResult.
-                    //
-                    _state &= ~StateEndCalled;
-                    throw new Ice.OperationInterruptedException();
+                    //throw (LocalException)_exception.fillInStackTrace();
+                    throw _exception;
                 }
+    
+                return (_state & StateOK) > 0;
             }
-            if(_exception != null)
-            {
-                //throw (LocalException)_exception.fillInStackTrace();
-                throw _exception;
-            }
-            return (_state & StateOK) > 0;
         }
+        catch(InterruptedException ex)
+        {
+            // This must be called outside of the monitor as the
+            // invocation will potentially want to lock the
+            // connection (which in turn may want to lock the outgoing
+            // to notify that the message has been sent).
+            cancelRequest();
+            throw new Ice.OperationInterruptedException();
+        }
+
     }
 
     public final void throwUserException()
@@ -405,14 +421,13 @@ public class OutgoingAsyncBase implements Ice.AsyncResult
         try
         {
             _instance.clientThreadPool().dispatch(new IceInternal.DispatchWorkItem(_cachedConnection)
+            {
+                @Override
+                public void run()
                 {
-                    @Override
-                    public void
-                    run()
-                    {
-                        invokeSentInternal();
-                    }
-                });
+                    invokeSentInternal();
+                }
+            });
         }
         catch(CommunicatorDestroyedException exc)
         {
@@ -548,6 +563,8 @@ public class OutgoingAsyncBase implements Ice.AsyncResult
         String s = "error raised by AMI callback:\n" + IceInternal.Ex.toString(error);
         _instance.initializationData().logger.error(s);
     }
+    
+    abstract protected void cancelRequest();
 
     protected Communicator _communicator;
     protected IceInternal.Instance _instance;

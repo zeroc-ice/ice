@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public class BatchOutgoingAsync extends OutgoingAsyncBase implements OutgoingAsyncMessageCallback
+abstract public class BatchOutgoingAsync extends OutgoingAsyncBase implements OutgoingAsyncMessageCallback
 {
     BatchOutgoingAsync(Ice.Communicator communicator, Instance instance, String operation, CallbackBase callback)
     {

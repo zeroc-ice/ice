@@ -143,6 +143,11 @@ public final class ObjectAdapterI implements ObjectAdapter
     public void
     waitForHold()
     {
+        if(Thread.interrupted())
+        {
+            throw new Ice.OperationInterruptedException();
+        }
+
         while(true)
         {
             java.util.List<IceInternal.IncomingConnectionFactory> incomingConnectionFactories;
@@ -218,6 +223,11 @@ public final class ObjectAdapterI implements ObjectAdapter
     public void
     deactivate()
     {
+        if(Thread.interrupted())
+        {
+            throw new Ice.OperationInterruptedException();
+        }
+
         IceInternal.OutgoingConnectionFactory outgoingConnectionFactory;
         java.util.List<IceInternal.IncomingConnectionFactory> incomingConnectionFactories;
         IceInternal.LocatorInfo locatorInfo;
@@ -310,6 +320,11 @@ public final class ObjectAdapterI implements ObjectAdapter
     public void
     waitForDeactivate()
     {
+        if(Thread.interrupted())
+        {
+            throw new Ice.OperationInterruptedException();
+        }
+
         try
         {
             IceInternal.IncomingConnectionFactory[] incomingConnectionFactories;
@@ -360,6 +375,11 @@ public final class ObjectAdapterI implements ObjectAdapter
     public void
     destroy()
     {
+        if(Thread.interrupted())
+        {
+            throw new Ice.OperationInterruptedException();
+        }
+
         synchronized(this)
         {
             //

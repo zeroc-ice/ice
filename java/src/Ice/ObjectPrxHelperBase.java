@@ -11,9 +11,13 @@ package Ice;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import Ice.Instrumentation.InvocationObserver;
 import IceInternal.QueueRequestHandler;
+import IceInternal.RequestHandler;
 import IceInternal.RetryException;
 
 /**
@@ -2280,6 +2284,10 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     {
         final InvocationObserver observer = IceInternal.ObserverHelper.get(this, "ice_getConnection");
         int cnt = 0;
+        if(Thread.interrupted())
+        {
+            throw new Ice.OperationInterruptedException(); 
+        }
         try
         {
             while(true)
@@ -2779,7 +2787,11 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         {
             synchronized(this)
             {
-                if(_requestHandler != handler)
+                if(_requestHandler == null)
+                {
+                    _requestHandler = handler;
+                }
+                else if(_requestHandler != handler)
                 {
                     //
                     // Update the request handler only if "previous" is the same

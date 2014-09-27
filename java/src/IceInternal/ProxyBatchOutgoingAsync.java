@@ -22,11 +22,10 @@ public class ProxyBatchOutgoingAsync extends BatchOutgoingAsync
     {
         Protocol.checkSupportedProtocol(_proxy.__reference().getProtocol());
 
-        RequestHandler handler = null;
         try
         {
-            handler = _proxy.__getRequestHandler();
-            int status = handler.sendAsyncRequest(this);
+            _handler = _proxy.__getRequestHandler();
+            int status = _handler.sendAsyncRequest(this);
             if((status & AsyncStatus.Sent) > 0)
             {
                 _sentSynchronously = true;
@@ -41,7 +40,7 @@ public class ProxyBatchOutgoingAsync extends BatchOutgoingAsync
                 {
                     if((_state & StateDone) == 0)
                     {
-                        int invocationTimeout = handler.getReference().getInvocationTimeout();
+                        int invocationTimeout = _handler.getReference().getInvocationTimeout();
                         if(invocationTimeout > 0)
                         {
                             _future = _instance.timer().schedule(new Runnable()
@@ -52,7 +51,7 @@ public class ProxyBatchOutgoingAsync extends BatchOutgoingAsync
                                     timeout();
                                 }
                             }, invocationTimeout, java.util.concurrent.TimeUnit.MILLISECONDS);
-                            _timeoutRequestHandler = handler;
+                            _timeoutRequestHandler = _handler;
                         }
                     }
                 }
@@ -65,7 +64,7 @@ public class ProxyBatchOutgoingAsync extends BatchOutgoingAsync
             // isn't useful, there were no batch requests associated with
             // the proxy's request handler.
             //
-            _proxy.__setRequestHandler(handler, null);
+            _proxy.__setRequestHandler(_handler, null);
         }
         catch(Ice.Exception ex)
         {
@@ -73,7 +72,7 @@ public class ProxyBatchOutgoingAsync extends BatchOutgoingAsync
             {
                 _observer.failed(ex.ice_name());
             }
-            _proxy.__setRequestHandler(handler, null); // Clear request handler
+            _proxy.__setRequestHandler(_handler, null); // Clear request handler
             throw ex; // Throw to notify the user lthat batch requests were potentially lost.
         }
     }
@@ -84,5 +83,15 @@ public class ProxyBatchOutgoingAsync extends BatchOutgoingAsync
         return _proxy;
     }
 
+    @Override
+    protected void cancelRequest()
+    {
+        if(_handler != null)
+        {
+            _handler.asyncRequestCanceled(this, new Ice.OperationInterruptedException());
+        }
+    }
+
     private Ice.ObjectPrxHelperBase _proxy;
+    private RequestHandler _handler = null;
 }

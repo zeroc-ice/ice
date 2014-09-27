@@ -86,88 +86,76 @@ public final class OutgoingConnectionFactory
     waitUntilFinished()
         throws InterruptedException
     {
-        try
+        java.util.Map<Connector, java.util.List<Ice.ConnectionI> > connections = null;
+        synchronized(this)
         {
-            java.util.Map<Connector, java.util.List<Ice.ConnectionI> > connections = null;
-            synchronized(this)
+            //
+            // First we wait until the factory is destroyed. We also
+            // wait until there are no pending connections
+            // anymore. Only then we can be sure the _connections
+            // contains all connections.
+            //
+            while(!_destroyed || !_pending.isEmpty() || _pendingConnectCount > 0)
             {
-                //
-                // First we wait until the factory is destroyed. We also
-                // wait until there are no pending connections
-                // anymore. Only then we can be sure the _connections
-                // contains all connections.
-                //
-                while(!_destroyed || !_pending.isEmpty() || _pendingConnectCount > 0)
-                {
-                    wait();
-                }
-
-                //
-                // We want to wait until all connections are finished outside the
-                // thread synchronization.
-                //
-                connections = new java.util.HashMap<Connector, java.util.List<Ice.ConnectionI> >(_connections);
+                wait();
             }
 
             //
-            // Now we wait until the destruction of each connection is finished.
+            // We want to wait until all connections are finished outside the
+            // thread synchronization.
             //
-            for(java.util.List<Ice.ConnectionI> connectionList : connections.values())
+            connections = new java.util.HashMap<Connector, java.util.List<Ice.ConnectionI> >(_connections);
+        }
+
+        //
+        // Now we wait until the destruction of each connection is finished.
+        //
+        for(java.util.List<Ice.ConnectionI> connectionList : connections.values())
+        {
+            for(Ice.ConnectionI connection : connectionList)
             {
-                for(Ice.ConnectionI connection : connectionList)
+                try
                 {
-                    try
+                    connection.waitUntilFinished();
+                }
+                catch(InterruptedException e)
+                {
+                    //
+                    // Force close all of the connections.
+                    //
+                    for(java.util.List<Ice.ConnectionI> l : connections.values())
                     {
-                        connection.waitUntilFinished();
-                    }
-                    catch(InterruptedException e)
-                    {
-                        //
-                        // Force close all of the connections.
-                        //
-                        for(java.util.List<Ice.ConnectionI> l : connections.values())
+                        for(Ice.ConnectionI c : l)
                         {
-                            for(Ice.ConnectionI c : l)
-                            {
-                                c.close(true);
-                            }
+                            c.close(true);
                         }
-                        throw e;
                     }
+                    throw e;
                 }
-            }
-
-            synchronized(this)
-            {
-                // Ensure all the connections are finished and reapable at this point.
-                java.util.List<Ice.ConnectionI> cons = _monitor.swapReapedConnections();
-                if(cons != null)
-                {
-                    int size = 0;
-                    for(java.util.List<Ice.ConnectionI> connectionList : _connections.values())
-                    {
-                        size += connectionList.size();
-                    }
-                    assert(cons.size() == size);
-                    _connections.clear();
-                    _connectionsByEndpoint.clear();
-                }
-                else
-                {
-                    assert(_connections.isEmpty());
-                    assert(_connectionsByEndpoint.isEmpty());
-                }
-                _monitor.destroy();
             }
         }
-        catch(InterruptedException ex)
+
+        synchronized(this)
         {
-            // Here wait() or waitUntilFinished() were interrupted. Clear the connections
-            // and such and continue along.
-            _connections.clear();
-            _connectionsByEndpoint.clear();
+            // Ensure all the connections are finished and reapable at this point.
+            java.util.List<Ice.ConnectionI> cons = _monitor.swapReapedConnections();
+            if(cons != null)
+            {
+                int size = 0;
+                for(java.util.List<Ice.ConnectionI> connectionList : _connections.values())
+                {
+                    size += connectionList.size();
+                }
+                assert(cons.size() == size);
+                _connections.clear();
+                _connectionsByEndpoint.clear();
+            }
+            else
+            {
+                assert(_connections.isEmpty());
+                assert(_connectionsByEndpoint.isEmpty());
+            }
             _monitor.destroy();
-            throw ex;
         }
     }
 
