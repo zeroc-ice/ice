@@ -170,7 +170,6 @@ final class TransceiverI implements IceInternal.Transceiver
         //
         // Try to satisfy the request from data we've already decrypted.
         //
-        int pos = buf.b.position();
         fill(buf.b);
 
         //
@@ -210,7 +209,6 @@ final class TransceiverI implements IceInternal.Transceiver
                 }
                 }
 
-                pos = buf.b.position();
                 fill(buf.b);
             }
         }

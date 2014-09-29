@@ -6,9 +6,9 @@
 TaskManager.Endpoints=tcp -p 10000
 
 #
-# BackgroundIO must be enabled to use interrupt.
+# ThreadInterruptSafe must be enabled to use interrupt.
 #
-Ice.BackgroundIO=1
+Ice.ThreadInterruptSafe=1
 
 #
 # Only listen on the localhost interface by default.

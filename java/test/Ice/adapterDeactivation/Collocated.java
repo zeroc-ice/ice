@@ -28,7 +28,7 @@ public class Collocated extends test.Util.Application
     {
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties(argsH);
-        if(initData.properties.getPropertyAsInt("Ice.BackgroundIO") > 0)
+        if(initData.properties.getPropertyAsInt("Ice.ThreadInterruptSafe") > 0)
         {
             initData.properties.setProperty("Ice.ThreadPool.Server.Size", "2");
         }

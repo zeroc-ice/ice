@@ -928,7 +928,7 @@ public final class Instance
 
             _retryQueue = new RetryQueue(this);
 
-            if(_initData.properties.getPropertyAsInt("Ice.BackgroundIO") > 0)
+            if(_initData.properties.getPropertyAsInt("Ice.ThreadInterruptSafe") > 0)
             {
                 _queueExecutor = new QueueExecutor(_initData.properties, 
                                                    Util.createThreadName(_initData.properties, "Ice.BackgroundIO"));

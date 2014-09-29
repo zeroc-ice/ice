@@ -598,6 +598,7 @@ public class OutgoingAsync extends OutgoingAsyncBase implements OutgoingAsyncMes
         }
     }
 
+    @Override
     public void cacheMessageBuffers()
     {
         if(_proxy.__reference().getInstance().cacheMessageBuffers() > 0)

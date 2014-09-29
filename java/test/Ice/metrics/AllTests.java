@@ -425,7 +425,7 @@ public class AllTests
         boolean collocated = metrics.ice_getConnection() == null;
 
         int threadCount = 4;
-        if(collocated && communicator.getProperties().getPropertyAsInt("Ice.BackgroundIO") > 0)
+        if(collocated && communicator.getProperties().getPropertyAsInt("Ice.ThreadInterruptSafe") > 0)
         {
             threadCount = 6;
         }

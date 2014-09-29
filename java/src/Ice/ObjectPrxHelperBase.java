@@ -11,13 +11,9 @@ package Ice;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import Ice.Instrumentation.InvocationObserver;
 import IceInternal.QueueRequestHandler;
-import IceInternal.RequestHandler;
 import IceInternal.RetryException;
 
 /**
