@@ -18,11 +18,13 @@ well as how to make oneway and batched invocations.
 
    > <Ice installation directory>\bin\policyserver 127.0.0.1 clientaccesspolicy.xml
 
-4) In Visual Studio, open the `hello.Web' project and start the
-   Silverlight client using the "Debug > Start new instance"
-   command.
+4) In Visual Studio, open the `hello.Web' project. Open the properties
+   using "Project -> hello.Web Properties". Under the Web tab choose
+   "Specific Page" as the "Start Action" and helloTestPage.html as the
+   page.
 
-5) In the browser window, open helloTestPage.html
+5) Start the Silverlight client using the "Debug > Start new instance"
+   command.
 
 
 ==========================================================================
