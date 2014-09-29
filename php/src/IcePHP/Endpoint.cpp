@@ -16,7 +16,7 @@ using namespace IcePHP;
 ZEND_EXTERN_MODULE_GLOBALS(ice)
 
 //
-// Class entries represent the PHP class implementations we have registered.
+// Class entries representing the PHP class implementations we have registered.
 //
 static zend_class_entry* endpointClassEntry = 0;
 
@@ -24,6 +24,7 @@ static zend_class_entry* endpointInfoClassEntry = 0;
 static zend_class_entry* ipEndpointInfoClassEntry = 0;
 static zend_class_entry* tcpEndpointInfoClassEntry = 0;
 static zend_class_entry* udpEndpointInfoClassEntry = 0;
+static zend_class_entry* wsEndpointInfoClassEntry = 0;
 static zend_class_entry* opaqueEndpointInfoClassEntry = 0;
 
 //
@@ -196,7 +197,7 @@ handleEndpointInfoAlloc(zend_class_entry* ce TSRMLS_DC)
 {
     zend_object_value result;
 
-    Wrapper<Ice::EndpointPtr>* obj = Wrapper<Ice::EndpointPtr>::create(ce TSRMLS_CC);
+    Wrapper<Ice::EndpointInfoPtr>* obj = Wrapper<Ice::EndpointInfoPtr>::create(ce TSRMLS_CC);
     assert(obj);
 
     result.handle = zend_objects_store_put(obj, 0, (zend_objects_free_object_storage_t)handleEndpointInfoFreeStorage,
@@ -265,12 +266,15 @@ bool
 IcePHP::endpointInit(TSRMLS_D)
 {
     //
-    // We register an interface and a class that implements the interface. This allows
-    // applications to safely include the Slice-generated code for the type.
+    // Although the Endpoint and EndpointInfo types are defined in Slice, we need to
+    // define implementations at the time the PHP extension is loaded; we can't wait
+    // to do this until after the generated code has been loaded. Consequently, we
+    // define our own placeholder versions of the Slice types so that we can subclass
+    // them. This essentially means that the generated code for these types is ignored.
     //
 
     //
-    // Register the Endpoint interface.
+    // Define the Endpoint interface.
     //
     zend_class_entry ce;
 #ifdef ICEPHP_USE_NAMESPACES
@@ -281,7 +285,7 @@ IcePHP::endpointInit(TSRMLS_D)
     zend_class_entry* endpointInterface = zend_register_internal_interface(&ce TSRMLS_CC);
 
     //
-    // Register the Endpoint class.
+    // Define a concrete Endpoint implementation class.
     //
     INIT_CLASS_ENTRY(ce, "IcePHP_Endpoint", _endpointMethods);
     ce.create_object = handleEndpointAlloc;
@@ -290,7 +294,7 @@ IcePHP::endpointInit(TSRMLS_D)
     zend_class_implements(endpointClassEntry TSRMLS_CC, 1, endpointInterface);
 
     //
-    // Register the EndpointInfo class.
+    // Define the EndpointInfo class.
     //
 #ifdef ICEPHP_USE_NAMESPACES
     INIT_NS_CLASS_ENTRY(ce, "Ice", "EndpointInfo", _endpointInfoMethods);
@@ -306,7 +310,7 @@ IcePHP::endpointInit(TSRMLS_D)
                                ZEND_ACC_PUBLIC TSRMLS_CC);
 
     //
-    // Register the IPEndpointInfo class.
+    // Define the IPEndpointInfo class.
     //
 #ifdef ICEPHP_USE_NAMESPACES
     INIT_NS_CLASS_ENTRY(ce, "Ice", "IPEndpointInfo", NULL);
@@ -319,9 +323,11 @@ IcePHP::endpointInit(TSRMLS_D)
                                  ZEND_ACC_PUBLIC TSRMLS_CC);
     zend_declare_property_long(ipEndpointInfoClassEntry, STRCAST("port"), sizeof("port") - 1, 0,
                                ZEND_ACC_PUBLIC TSRMLS_CC);
+    zend_declare_property_string(ipEndpointInfoClassEntry, STRCAST("sourceAddress"), sizeof("sourceAddress") - 1,
+                                 STRCAST(""), ZEND_ACC_PUBLIC TSRMLS_CC);
 
     //
-    // Register the TCPEndpointInfo class.
+    // Define the TCPEndpointInfo class.
     //
 #ifdef ICEPHP_USE_NAMESPACES
     INIT_NS_CLASS_ENTRY(ce, "Ice", "TCPEndpointInfo", NULL);
@@ -332,7 +338,7 @@ IcePHP::endpointInit(TSRMLS_D)
     tcpEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, ipEndpointInfoClassEntry, NULL TSRMLS_CC);
 
     //
-    // Register the UDPEndpointInfo class.
+    // Define the UDPEndpointInfo class.
     //
 #ifdef ICEPHP_USE_NAMESPACES
     INIT_NS_CLASS_ENTRY(ce, "Ice", "UDPEndpointInfo", NULL);
@@ -347,7 +353,20 @@ IcePHP::endpointInit(TSRMLS_D)
                                ZEND_ACC_PUBLIC TSRMLS_CC);
 
     //
-    // Register the OpaqueEndpointInfo class.
+    // Define the WSEndpointInfo class.
+    //
+#ifdef ICEPHP_USE_NAMESPACES
+    INIT_NS_CLASS_ENTRY(ce, "Ice", "WSEndpointInfo", NULL);
+#else
+    INIT_CLASS_ENTRY(ce, "Ice_WSEndpointInfo", NULL);
+#endif
+    ce.create_object = handleEndpointInfoAlloc;
+    wsEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, ipEndpointInfoClassEntry, NULL TSRMLS_CC);
+    zend_declare_property_string(udpEndpointInfoClassEntry, STRCAST("resource"), sizeof("resource") - 1,
+                                 STRCAST(""), ZEND_ACC_PUBLIC TSRMLS_CC);
+
+    //
+    // Define the OpaqueEndpointInfo class.
     //
 #ifdef ICEPHP_USE_NAMESPACES
     INIT_NS_CLASS_ENTRY(ce, "Ice", "OpaqueEndpointInfo", NULL);
@@ -422,6 +441,14 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p TSRMLS_DC)
             add_property_long(zv, STRCAST("mcastTtl"), static_cast<long>(info->mcastTtl));
         }
     }
+    else if(Ice::WSEndpointInfoPtr::dynamicCast(p))
+    {
+        Ice::WSEndpointInfoPtr info = Ice::WSEndpointInfoPtr::dynamicCast(p);
+        if((status = object_init_ex(zv, wsEndpointInfoClassEntry)) == SUCCESS)
+        {
+            add_property_string(zv, STRCAST("resource"), const_cast<char*>(info->resource.c_str()), 1);
+        }
+    }
     else if(Ice::OpaqueEndpointInfoPtr::dynamicCast(p))
     {
         Ice::OpaqueEndpointInfoPtr info = Ice::OpaqueEndpointInfoPtr::dynamicCast(p);
@@ -464,6 +491,7 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p TSRMLS_DC)
         Ice::IPEndpointInfoPtr info = Ice::IPEndpointInfoPtr::dynamicCast(p);
         add_property_string(zv, STRCAST("host"), const_cast<char*>(info->host.c_str()), 1);
         add_property_long(zv, STRCAST("port"), static_cast<long>(info->port));
+        add_property_string(zv, STRCAST("sourceAddress"), const_cast<char*>(info->sourceAddress.c_str()), 1);
     }
 
     add_property_long(zv, STRCAST("timeout"), static_cast<long>(p->timeout));

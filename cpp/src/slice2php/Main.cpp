@@ -144,7 +144,12 @@ CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
         startNamespace(p);
 
         string type = getTypeVar(p);
-        _out << sp << nl << "if(!isset(" << type << "))";
+        _out << sp << nl << "global " << type << ';';
+        if(!p->isLocal())
+        {
+            _out << nl << "global " << type << "Prx;";
+        }
+        _out << nl << "if(!isset(" << type << "))";
         _out << sb;
         _out << nl << type << " = IcePHP_declareClass('" << scoped << "');";
         if(!p->isLocal())
@@ -177,6 +182,12 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     bool isAbstract = isInterface || p->allOperations().size() > 0; // Don't use isAbstract() - see bug 3739
 
     startNamespace(p);
+
+    _out << sp << nl << "global " << type << ';';
+    if(!p->isLocal())
+    {
+        _out << nl << "global " << prxType << ';';
+    }
 
     //
     // Define the class.
@@ -613,6 +624,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     startNamespace(p);
 
+    _out << sp << nl << "global " << type << ';';
     _out << sp << nl << "if(!class_exists('" << escapeName(abs) << "'))";
     _out << sb;
     _out << nl << "class " << name << " extends ";
@@ -774,6 +786,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
 
     startNamespace(p);
 
+    _out << sp << nl << "global " << type << ';';
     _out << sp << nl << "if(!class_exists('" << escapeName(abs) << "'))";
     _out << sb;
 
@@ -853,6 +866,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     // Emit the type information.
     //
     string scoped = p->scoped();
+    _out << sp << nl << "global " << type << ';';
     _out << sp << nl << "if(!isset(" << type << "))";
     _out << sb;
     _out << nl << type << " = IcePHP_defineSequence('" << scoped << "', ";
@@ -907,6 +921,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     // Emit the type information.
     //
     string scoped = p->scoped();
+    _out << sp << nl << "global " << type << ';';
     _out << sp << nl << "if(!isset(" << type << "))";
     _out << sb;
     _out << nl << type << " = IcePHP_defineDictionary('" << scoped << "', ";
@@ -930,6 +945,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
 
     startNamespace(p);
 
+    _out << sp << nl << "global " << type << ';';
     _out << sp << nl << "if(!class_exists('" << escapeName(abs) << "'))";
     _out << sb;
     _out << nl << "class " << name;

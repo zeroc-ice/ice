@@ -9,6 +9,8 @@
 
 top_srcdir	= ../../..
 
+SLICE2PHPFLAGS  = --checksum
+
 SLICE_SRCS	= Test.ice \
 		  CTypes.ice
 

@@ -39,15 +39,18 @@ function allTests($communicator)
     $udpEndpointType = $NS ? constant("Ice\\UDPEndpointType") : constant("Ice_UDPEndpointType");
     $udpEndpointInfoClass = $NS ? "Ice\\UDPEndpointInfo" : "Ice_UDPEndpointInfo";
     $sslEndpointType = 2;
+    $wsEndpointType = $NS ? constant("Ice\\WSEndpointType") : constant("Ice_WSEndpointType");
+    $wssEndpointType = $NS ? constant("Ice\\WSSEndpointType") : constant("Ice_WSSEndpointType");
     $protocolVersionClass = $NS ? "Ice\\ProtocolVersion" : "Ice_ProtocolVersion";
     $encodingVersionClass = $NS ? "Ice\\EncodingVersion" : "Ice_EncodingVersion";
 
     echo "testing proxy endpoint information... ";
     flush();
     {
-        $p1 = $communicator->stringToProxy("test -t:default -h tcphost -p 10000 -t 1200 -z:" .
-                                           "udp -h udphost -p 10001 --interface eth0 --ttl 5:" .
-                                           "opaque -e 1.8 -t 100 -v ABCD");
+        $p1 = $communicator->stringToProxy(
+                "test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:" .
+                "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:" .
+                "opaque -e 1.8 -t 100 -v ABCD");
 
         $endps = $p1->ice_getEndpoints();
 
@@ -56,17 +59,23 @@ function allTests($communicator)
         test($ipEndpoint->host == "tcphost");
         test($ipEndpoint->port == 10000);
         test($ipEndpoint->timeout == 1200);
+        test($ipEndpoint->sourceAddress == "10.10.10.10");
         test($ipEndpoint->compress);
         test(!$ipEndpoint->datagram());
-        test($ipEndpoint->type() == $tcpEndpointType && !$ipEndpoint->secure() ||
-             $ipEndpoint->type() == $sslEndpointType && $ipEndpoint->secure());
-        test($ipEndpoint->type() == $tcpEndpointType && ($ipEndpoint instanceof $tcpEndpointInfoClass)  ||
-             $ipEndpoint->type() == $sslEndpointType);
+        test(($ipEndpoint->type() == $tcpEndpointType && !$ipEndpoint->secure()) ||
+             ($ipEndpoint->type() == $sslEndpointType && $ipEndpoint->secure()) ||
+             ($ipEndpoint->type() == $wsEndpointType && !$ipEndpoint->secure()) ||
+             ($ipEndpoint->type() == $wssEndpointType && $ipEndpoint->secure()));
+        test(($ipEndpoint->type() == $tcpEndpointType && ($ipEndpoint instanceof $tcpEndpointInfoClass)) ||
+             ($ipEndpoint->type() == $sslEndpointType && ($ipEndpoint instanceof $ipEndpointInfoClass)) ||
+             ($ipEndpoint->type() == $wsEndpointType && ($ipEndpoint instanceof $ipEndpointInfoClass)) ||
+             ($ipEndpoint->type() == $wssEndpointType && ($ipEndpoint instanceof $ipEndpointInfoClass)));
 
         $udpEndpoint = $endps[1]->getInfo();
         test($udpEndpoint instanceof $udpEndpointInfoClass);
         test($udpEndpoint->host == "udphost");
         test($udpEndpoint->port == 10001);
+        test($udpEndpoint->sourceAddress == "10.10.10.10");
         test($udpEndpoint->mcastInterface == "eth0");
         test($udpEndpoint->mcastTtl == 5);
         test($udpEndpoint->timeout == -1);
