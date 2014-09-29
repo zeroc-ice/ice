@@ -13,7 +13,6 @@ top_srcdir	= ..
 
 install::
 	copy templates.xml "$(install_configdir)"
-	copy convertssl.py "$(install_configdir)"
 	copy upgradeicegrid33.py "$(install_configdir)"
 	copy upgradeicegrid35.py "$(install_configdir)"
 	copy icegridregistry.cfg "$(install_configdir)"

@@ -1,3 +1,4 @@
+usr/share/java/ant-ice-@ver@.jar usr/share/java/ant-ice.jar
 usr/share/java/Freeze-@ver@.jar usr/share/java/Freeze.jar
 usr/share/java/Glacier2-@ver@.jar usr/share/java/Glacier2.jar
 usr/share/java/Ice-@ver@.jar usr/share/java/Ice.jar

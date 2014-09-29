@@ -1,0 +1,76 @@
+--- a/cpp/Makefile
++++ b/cpp/Makefile
+@@ -11,11 +11,7 @@
+ 
+ include $(top_srcdir)/config/Make.rules
+ 
+-SUBDIRS		= config src include test
+-
+-ifeq ($(shell uname | grep MINGW),)
+-SUBDIRS		:= $(SUBDIRS) demo
+-endif
++SUBDIRS		= config src include
+ 
+ INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir) $(install_includedir) \
+ 	$(install_configdir) $(install_mandir)
+--- a/cs/Makefile
++++ b/cs/Makefile
+@@ -11,7 +11,7 @@
+ 
+ include $(top_srcdir)/config/Make.rules.cs
+ 
+-SUBDIRS		= src test demo
++SUBDIRS		= src
+ 
+ INSTALL_SUBDIRS	= $(install_bindir) $(install_assembliesdir) $(install_mandir)
+ 
+--- a/js/Makefile
++++ b/js/Makefile
+@@ -11,7 +11,7 @@
+ 
+ include $(top_srcdir)/config/Make.rules.js
+ 
+-SUBDIRS		= src assets test demo
++SUBDIRS		= src assets
+ 
+ INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir) $(install_moduledir)
+ 
+--- a/php/Makefile
++++ b/php/Makefile
+@@ -11,7 +11,7 @@
+ 
+ include $(top_srcdir)/config/Make.rules.php
+ 
+-SUBDIRS		= src lib demo test
++SUBDIRS		= src lib
+ INSTALL_SUBDIRS = $(install_phpdir) $(install_libdir)
+ 
+ install:: install-common
+--- a/py/Makefile
++++ b/py/Makefile
+@@ -11,7 +11,7 @@
+ 
+ include $(top_srcdir)/config/Make.rules
+ 
+-SUBDIRS		= modules python test
++SUBDIRS		= modules python
+ 
+ INSTALL_SUBDIRS = $(install_pythondir) $(install_libdir)
+ 
+--- a/Makefile
++++ b/Makefile
+@@ -7,10 +7,10 @@
+ #
+ # **********************************************************************
+ 
+-SUBDIRS			= cpp java cs py rb php js
+-CLEAN_SUBDIRS		= js java cs py rb php cpp
+-DEPEND_SUBDIRS		= cpp cs py rb php
+-INSTALL_SUBDIRS		= cpp java cs py rb php js
++SUBDIRS			= cpp java py rb php js
++CLEAN_SUBDIRS		= js java py rb php cpp
++DEPEND_SUBDIRS		= cpp py rb php
++INSTALL_SUBDIRS		= cpp java py rb php js
+ 
+ all::
+ 	@for subdir in $(SUBDIRS); \

@@ -20,20 +20,16 @@ def usage():
     print "-v               Be verbose."
     print "-b DIR           Directory to build the packages"
     print "-d DIR           Directory with Ice source distribution"
-    print "-p [core|all]    Distribution you want to build"
-    print "                     * core builds the core distribution"
-    print "                     * all builds the main distribution"
-    print ""
     print "Example:"
     print ""
-    print "makeubuntupackages.py -p all -b ./tmp -d ./dist-HEAD"
+    print "makeubuntupackages.py -b ./tmp -d ./dist-HEAD"
     print
 
 #
 # Check arguments
 #
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "hvb:d:p:")
+    opts, args = getopt.getopt(sys.argv[1:], "hvb:d:")
 except getopt.GetoptError:
     print sys.argv[0] + ": unknown option"
     print
@@ -44,7 +40,6 @@ except getopt.GetoptError:
 verbose = 0
 buildDir = None
 distributionDir = None
-distribution = None
 
 
 for (o, a) in opts:
@@ -57,8 +52,6 @@ for (o, a) in opts:
         buildDir = a
     elif o == "-d":
         distributionDir = a
-    elif o == "-p":
-        distribution = a
 
 if buildDir == None:
     print "Missing -b argument"
@@ -70,19 +63,9 @@ if distributionDir == None:
     usage()
     sys.exit(1)
 
-if distribution == None:
-    print "Missing -p argument"
-    usage()
-    sys.exit(1)
 
-if distribution != "all" and distribution != "core":
-    print "Unknown distribution: " + distribution
-    usage()
-    sys.exit(1)
-
-
-sourceDir = "ice3.5-3.5.1" if distribution == "all" else "ice3.5++-3.5.1"
-distFile = "ice3.5_3.5.1.orig.tar.gz" if distribution == "all" else "ice3.5++_3.5.1.orig.tar.gz"
+sourceDir = "ice3.5-3.5.1"
+distFile = "ice3.5_3.5.1.orig.tar.gz"
 distFiles = "distfiles-3.5.1.tar.gz"
 
 buildDir = os.path.abspath(os.path.join(os.getcwd(), buildDir))
@@ -122,6 +105,5 @@ runCommand("tar zxf %s " % (distFile), verbose)
 shutil.copy(distFile, buildDir)
 
 os.chdir(sourceDir)
-runCommand("tar zxf %s distfiles-3.5.1/src/deb/%s/debian --strip-components 4" \
-    % (distFiles, distribution), verbose)
+runCommand("tar zxf %s distfiles-3.5.1/src/deb/debian --strip-components 3" % distFiles, verbose)
 runCommand("dpkg-buildpackage", verbose)

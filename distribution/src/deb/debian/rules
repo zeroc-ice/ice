@@ -12,17 +12,19 @@ export OPTIMIZE=yes
 export prefix=/usr
 export CLASSPATH=/usr/share/java/proguard.jar
 export DESTDIR=$(CURDIR)/debian/tmp
-export GACINSTALL=yes
-export GAC_ROOT=$(prefix)/lib
 export APPEND_VERSION_SUFFIX=yes
+export NODE=nodejs
 
 %:
-	dh $@ --with python2 --with php5
+	dh $@ --with python2 --with php5 --with javahelper
 
 override_dh_auto_build:
 	make embedded_runpath_prefix="" PYTHON_LIBS="" install
 
 override_dh_install:
+	mkdir -p $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH)
+	mv $(DESTDIR)$(prefix)/lib/lib*.so* $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH)
+	
 	mkdir -p $(DESTDIR)$(prefix)/bin
 	cp java/bin/icegridgui.deb $(DESTDIR)$(prefix)/bin/icegridgui && \
 	chmod 755 $(DESTDIR)$(prefix)/bin/icegridgui

@@ -1,9 +1,0 @@
-usr/bin/slice2cs
-usr/share/man/man1/slice2cs.1
-usr/lib/mono/Glacier2/*
-usr/lib/mono/IceBox/*
-usr/lib/mono/IceGrid/*
-usr/lib/mono/IcePatch2/*
-usr/lib/mono/IceStorm/*
-usr/lib/mono/Ice/*
-usr/lib/pkgconfig/

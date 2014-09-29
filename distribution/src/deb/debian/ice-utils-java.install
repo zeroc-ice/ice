@@ -1,0 +1,6 @@
+usr/bin/iceca
+usr/share/man/man1/iceca.1
+usr/lib/ImportKey.class usr/share/Ice-@ver@
+
+usr/bin/icegridgui
+usr/share/java/IceGridGUI-@ver@.jar

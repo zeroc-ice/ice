@@ -1,24 +1,26 @@
 usr/bin/dumpdb
 usr/share/man/man1/dumpdb.1
+
 usr/bin/iceboxadmin
 usr/share/man/man1/iceboxadmin.1
-usr/bin/iceca
-usr/share/man/man1/iceca.1
+
 usr/bin/icegridadmin
 usr/share/man/man1/icegridadmin.1
-usr/bin/icegridgui
+
 usr/bin/icepatch2calc
 usr/share/man/man1/icepatch2calc.1
+
 usr/bin/icepatch2client
 usr/share/man/man1/icepatch2client.1
+
 usr/bin/icestormadmin
 usr/share/man/man1/icestormadmin.1
+
 usr/bin/icestormmigrate
 usr/share/man/man1/icestormmigrate.1
+
 usr/bin/slice2html
 usr/share/man/man1/slice2html.1
+
 usr/bin/transformdb
 usr/share/man/man1/transformdb.1
-usr/lib/ImportKey.class usr/share/Ice-@ver@
-usr/config/convertssl.py usr/share/Ice-@ver@
-usr/share/java/IceGridGUI-@ver@.jar

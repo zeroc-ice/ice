@@ -154,6 +154,20 @@ for path in os.environ["PATH"].split(os.pathsep):
     elif os.path.exists(os.path.join(path, "php5")):
         phpCmd = "php5"
         break
+#
+# The NodeJS interpreter is called "nodejs" on some platforms 
+# (e.g., Ubuntu)
+#
+nodeCmd = "node"
+for path in os.environ["PATH"].split(os.pathsep):
+    #
+    # Stop if we find "php" in the PATH first.
+    #
+    if os.path.exists(os.path.join(path, "node")):
+        break
+    elif os.path.exists(os.path.join(path, "nodejs")):
+        phpCmd = "nodejs"
+        break
 
 #
 # This is set by the choice of init method. If not set, before it is

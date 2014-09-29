@@ -209,10 +209,10 @@ def createDistfilesDist(platform, whichDestDir):
             for f in filenames:
                 fixVersion(os.path.join(root, f), *versions)
 
-
         for root, dirnames, filenames in os.walk('src/deb/all/debian'):
             for f in filenames:
                 fixVersion(os.path.join(root, f), *versions)
+    
     #
     # Fix OS X installer files.
     #
@@ -285,7 +285,7 @@ def createSourceDist(platform, destDir):
                 checkBisonVersion(filepath)
             elif f == "Scanner.cpp":
                 checkFlexVersion(filepath)
-
+            
             if platform == "Windows":
                 for name in ["README", "CHANGES", "LICENSE", "ICE_LICENSE", "RELEASE_NOTES"]:
                     if fnmatch.fnmatch(f, name) and not fnmatch.fnmatch(f, name + ".txt"):
@@ -305,7 +305,7 @@ def createSourceDist(platform, destDir):
 def checkBisonVersion(filename):
     f = open(filename, "r")
     for line in f.readlines():
-	if re.search("#define YYBISON_VERSION", line) and not re.search("2.4.1", line):
+        if re.search("#define YYBISON_VERSION", line) and not re.search("2.4.1", line):
             print "Bison version mistmatch in `" + filename + "'"
             print "required Bison 2.4.1"
             print "Found " + line

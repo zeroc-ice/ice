@@ -116,6 +116,7 @@ COMMON_SRCS = \
 	WSEndpointFactory.js
 
 NODEJS_SRCS = \
+	Debug.js \
 	Buffer.js \
 	Ice.js \
 	ModuleRegistry.js \
