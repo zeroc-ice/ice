@@ -583,53 +583,31 @@ var ObjectPrx = Ice.Class({
     },
     __getRequestHandler: function()
     {
+        var handler;
         if(this._reference.getCacheConnection())
         {
             if(this._requestHandler !== null)
             {
                 return this._requestHandler;
             }
-            this._requestHandler = this.__createRequestHandler();
-            return this._requestHandler;
+            this._requestHandler = new ConnectRequestHandler(this._reference, this);
+            handler = this._requestHandler;
         }
         else
         {
-            return this.__createRequestHandler();
+            handler = new ConnectRequestHandler(this._reference, this);
         }
+        return handler.connect();
     },
     __setRequestHandler: function(previous, handler)
     {
-        if(this._reference.getCacheConnection())
+        if(this._reference.getCacheConnection() && previous !== null)
         {
-            if(previous === this._requestHandler)
+            if(this._requestHandler && this._requestHandler !== handler)
             {
-                this._requestHandler = handler;
-            }
-            else if(previous !== null && this._requestHandler !== null)
-            {
-                try
-                {
-                    //
-                    // If both request handlers point to the same connection, we also
-                    // update the request handler. See bug ICE-5489 for reasons why
-                    // this can be useful.
-                    //
-                    if(previous.getConnection() == this._requestHandler.getConnection())
-                    {
-                        this._requestHandler = handler;
-                    }
-                }
-                catch(ex)
-                {
-                    // Ignore
-                }
+                this._requestHandler = this._requestHandler.update(previous, handler);
             }
         }
-    },
-    __createRequestHandler: function()
-    {
-        var handler = new ConnectRequestHandler(this._reference, this);
-        return handler.connect();
     },
     //
     // Only for use by IceInternal.ProxyFactory

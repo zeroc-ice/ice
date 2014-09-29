@@ -63,27 +63,41 @@ var ConnectRequestHandler = Ice.Class({
     connect: function()
     {
         var self = this;
-        this._reference.getConnection().then(
-            function(connection, compress)
-            {
-                self.setConnection(connection, compress);
-            }).exception(
-                function(ex)
+        var proxy = this._proxy;
+        try
+        {
+            this._reference.getConnection().then(
+                function(connection, compress)
                 {
-                    self.setException(ex);
-                });
+                    self.setConnection(connection, compress);
+                }).exception(
+                    function(ex)
+                    {
+                        self.setException(ex);
+                    });
+            
+            if(!this.initialized())
+            {
+                // The proxy request handler will be updated when the connection is set.
+                this._updateRequestHandler = true;
+                return this;
+            }
+        }
+        catch(ex)
+        {
+            proxy.__setRequestHandler(this, null);
+            throw ex;
+        }
 
-        if(this.initialized())
-        {
-            Debug.assert(this._connection !== null);
-            return new ConnectionRequestHandler(this._reference, this._connection, this._compress);
-        }
-        else
-        {
-            // The proxy request handler will be updated when the connection is set.
-            this._updateRequestHandler = true;
-            return this;
-        }
+        Debug.Assert(_connection != null);
+        
+        var handler = new ConnectionRequestHandler(this._reference, this._connection, this._compress);
+        proxy.setRequestHandler__(this, handler);
+        return handler;
+    },
+    update: function(previousHandler, newHandler)
+    {
+        return previousHandler === this ? newHandler : this;
     },
     prepareBatchRequest: function(os)
     {

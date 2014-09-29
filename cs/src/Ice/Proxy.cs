@@ -2442,11 +2442,11 @@ namespace Ice
 
         public void setRequestHandler__(IceInternal.RequestHandler previous, IceInternal.RequestHandler handler)
         {
-            if(_reference.getCacheConnection())
+            if(_reference.getCacheConnection() && previous != null)
             {
                 lock(this)
                 {
-                    if(_requestHandler != handler)
+                    if(_requestHandler != null && _requestHandler != handler)
                     {
                         //
                         // Update the request handler only if "previous" is the same

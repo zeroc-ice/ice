@@ -92,11 +92,10 @@ RequestHandlerPtr
 ConnectRequestHandler::connect()
 {
     Ice::ObjectPrx proxy = _proxy;
-
-    _reference->getConnection(this);
-
     try
     {
+        _reference->getConnection(this);
+
         Lock sync(*this);
         if(!initialized())
         {

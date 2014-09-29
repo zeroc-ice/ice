@@ -36,11 +36,10 @@ public class ConnectRequestHandler
     connect()
     {
         Ice.ObjectPrxHelperBase proxy = _proxy;
-        
-        _reference.getConnection(this);
-        
         try
         {
+            _reference.getConnection(this);
+        
             synchronized(this)
             {
                 if(!initialized())

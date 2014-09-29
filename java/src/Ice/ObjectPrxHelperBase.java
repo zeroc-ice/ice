@@ -2783,15 +2783,11 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public void
     __setRequestHandler(IceInternal.RequestHandler previous, IceInternal.RequestHandler handler)
     {
-        if(_reference.getCacheConnection())
+        if(_reference.getCacheConnection() && previous != null)
         {
             synchronized(this)
             {
-                if(_requestHandler == null)
-                {
-                    _requestHandler = handler;
-                }
-                else if(_requestHandler != handler)
+                if(_requestHandler != null && _requestHandler != handler)
                 {
                     //
                     // Update the request handler only if "previous" is the same

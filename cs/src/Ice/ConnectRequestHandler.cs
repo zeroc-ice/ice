@@ -39,11 +39,10 @@ namespace IceInternal
         public RequestHandler connect()
         {
             Ice.ObjectPrxHelperBase proxy = _proxy;
-
-            _reference.getConnection(this);
-
             try
             {
+                _reference.getConnection(this);
+
                 lock(this)
                 {
                     if(!initialized())

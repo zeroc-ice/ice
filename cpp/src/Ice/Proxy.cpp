@@ -1644,10 +1644,10 @@ void
 IceProxy::Ice::Object::__setRequestHandler(const ::IceInternal::RequestHandlerPtr& previous,
                                            const ::IceInternal::RequestHandlerPtr& handler)
 {
-    if(_reference->getCacheConnection())
+    if(_reference->getCacheConnection() && previous)
     {
         IceUtil::Mutex::Lock sync(_mutex);
-        if(_requestHandler.get() != handler.get())
+        if(_requestHandler && _requestHandler.get() != handler.get())
         {
             //
             // Update the request handler only if "previous" is the same

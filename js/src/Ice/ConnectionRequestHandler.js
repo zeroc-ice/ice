@@ -21,6 +21,34 @@ var ConnectionRequestHandler = Ice.Class({
         this._connection = connection;
         this._compress = compress;
     },
+    // connect : function()
+    // {
+    // This request handler is only created after connection binding.
+    // }
+    update: function(previousHandler, newHandler)
+    {
+        try
+        {
+            if(previousHandler === this)
+            {
+                return newHandler;
+            }
+            else if(previousHandler.getConnection() === this._connection)
+            {
+                //
+                // If both request handlers point to the same connection, we also
+                // update the request handler. See bug ICE-5489 for reasons why
+                // this can be useful.
+                //
+                return newHandler;
+            }
+        }
+        catch(ex)
+        {
+            // Ignore
+        }
+        return this;
+    },
     prepareBatchRequest: function(out)
     {
         this._connection.prepareBatchRequest(out);
