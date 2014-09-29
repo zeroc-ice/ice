@@ -186,10 +186,12 @@ namespace IceInternal
                 return SocketOperation.None;
             }
 #if COMPACT || SILVERLIGHT
+#  if !ICE_SOCKET_ASYNC_API
             if(_writeResult != null)
             {
                 return SocketOperation.None;
             }
+#  endif
             //
             // Silverlight and the Compact .NET Framework don't support the use of synchronous socket
             // operations on a non-blocking socket. Returning SocketOperation.Write here forces the
@@ -557,10 +559,12 @@ namespace IceInternal
                 Debug.Assert(_addr != null);
                 completed = false;
 #if ICE_SOCKET_ASYNC_API
+#  if !SILVERLIGHT
                 if(_sourceAddr != null)
                 {
                     _fd.Bind(_sourceAddr);
                 }
+#  endif
                 _writeEventArgs.UserToken = state;
                 return !_fd.ConnectAsync(_writeEventArgs);
 #else

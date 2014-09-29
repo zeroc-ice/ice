@@ -12,7 +12,9 @@ using System.Collections.Generic;
 
 namespace Ice
 {
+#if !SILVERLIGHT
     [Serializable]
+#endif
     public abstract class DictionaryBase<KT, VT> : System.Collections.IDictionary
     {
         protected Dictionary<KT, VT> dict_;

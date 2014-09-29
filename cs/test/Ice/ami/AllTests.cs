@@ -665,6 +665,9 @@ public class AllTests : TestCommon.TestApp
     public static void allTests(Ice.Communicator communicator, bool collocated)
 #endif
     {
+#if SILVERLIGHT
+        bool collocated = false;
+#endif
         string sref = "test:default -p 12010";
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);

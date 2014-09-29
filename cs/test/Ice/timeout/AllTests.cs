@@ -55,6 +55,13 @@ public class AllTests : TestCommon.TestApp
     {
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties();
+        
+        //
+        // We need to send messages large enough to cause the transport
+        // buffers to fill up.
+        //
+        initData.properties.setProperty("Ice.MessageSizeMax", "20000");
+
         //
         // For this test, we want to disable retries.
         //

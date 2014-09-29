@@ -3015,7 +3015,15 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         emitComVisibleAttribute();
         emitPartialTypeAttributes();
+
+        _out.zeroIndent();
+        _out << nl << "#if !SILVERLIGHT";
+        _out.restoreIndent();
         _out << nl << "[_System.Serializable]";
+        _out.zeroIndent();
+        _out << nl << "#endif";
+        _out.restoreIndent();
+
         if(p->allOperations().size() > 0) // See bug 4747
         {
             _out << nl << "[_System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1012\")]";
@@ -3380,7 +3388,13 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     emitGeneratedCodeAttribute();
     if(isSerializable(p->type()))
     {
+        _out.zeroIndent();
+        _out << nl << "#if !SILVERLIGHT";
+        _out.restoreIndent();
         _out << nl << "[_System.Serializable]";
+        _out.zeroIndent();
+        _out << nl << "#endif";
+        _out.restoreIndent();
     }
     _out << nl << "public class " << name
          << " : Ice.CollectionBase<" << s << ">, _System.ICloneable";
@@ -3463,7 +3477,15 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     // Suppress FxCop diagnostic about a missing constructor MyException(String).
     //
     _out << nl << "[_System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1032\")]";
+
+    _out.zeroIndent();
+    _out << nl << "#if !SILVERLIGHT";
+    _out.restoreIndent();
     _out << nl << "[_System.Serializable]";
+    _out.zeroIndent();
+    _out << nl << "#endif";
+    _out.restoreIndent();
+
     emitPartialTypeAttributes();
     _out << nl << "public partial class " << name << " : ";
     if(base)
@@ -3563,6 +3585,10 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     }
     _out << eb;
 
+    _out.zeroIndent();
+    _out << nl << "#if !SILVERLIGHT";
+    _out.restoreIndent();
+
     _out << sp;
     emitGeneratedCodeAttribute();
     _out << nl << "public " << name << "(_System.Runtime.Serialization.SerializationInfo info__, "
@@ -3574,6 +3600,10 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         writeSerializeDeserializeCode(_out, (*q)->type(), name, (*q)->optional(), (*q)->tag(), false);
     }
     _out << eb;
+
+    _out.zeroIndent();
+    _out << nl << "#endif";
+    _out.restoreIndent();
 
     if(!allDataMembers.empty())
     {
@@ -3681,6 +3711,10 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     if(!dataMembers.empty())
     {
+        _out.zeroIndent();
+        _out << nl << "#if !SILVERLIGHT";
+        _out.restoreIndent();
+
         _out << sp;
         emitGeneratedCodeAttribute();
         _out << nl << "public override void GetObjectData(_System.Runtime.Serialization.SerializationInfo info__, "
@@ -3693,6 +3727,10 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         }
         _out << sp << nl << "base.GetObjectData(info__, context__);";
         _out << eb;
+
+        _out.zeroIndent();
+        _out << nl << "#endif";
+        _out.restoreIndent();
     }
 
     _out << sp << nl << "#endregion"; // Object members
@@ -3992,7 +4030,15 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     emitAttributes(p);
     emitPartialTypeAttributes();
+
+    _out.zeroIndent();
+    _out << nl << "#if !SILVERLIGHT";
+    _out.restoreIndent();
     _out << nl << "[_System.Serializable]";
+    _out.zeroIndent();
+    _out << nl << "#endif";
+    _out.restoreIndent();
+
     _out << nl << "public partial " << (isValueType(p) ? "struct" : "class") << ' ' << name;
 
     StringList baseNames;
@@ -4327,7 +4373,13 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     emitGeneratedCodeAttribute();
     if(isSerializable(p->keyType()) && isSerializable(p->valueType()))
     {
+        _out.zeroIndent();
+        _out << nl << "#if !SILVERLIGHT";
+        _out.restoreIndent();
         _out << nl << "[_System.Serializable]";
+        _out.zeroIndent();
+        _out << nl << "#endif";
+        _out.restoreIndent();
     }
     _out << nl << "public class " << name
          << " : Ice.DictionaryBase<" << ks << ", " << vs << ">, _System.ICloneable";
@@ -4496,7 +4548,13 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
     if(!isSerializable(p->type()))
     {
+        _out.zeroIndent();
+        _out << nl << "#if !SILVERLIGHT";
+        _out.restoreIndent();
         _out << nl << "[_System.NonSerialized]";
+        _out.zeroIndent();
+        _out << nl << "#endif";
+        _out.restoreIndent();
     }
 
     if(isProperty)
@@ -5157,13 +5215,13 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         if(!inParams.empty())
         {
             for(ParamDeclList::const_iterator p = inParams.begin(); p != inParams.end(); ++p) {
-                _out << fixId((*p)->name()) << ", ";    
+                _out << fixId((*p)->name()) << ", ";
             }
         }
         _out << "context__, explicitCtx__, true, null, null));";
         _out << eb;
     }
-    
+
     if(!ops.empty())
     {
         _out << sp << nl << "#endregion"; // Synchronous operations

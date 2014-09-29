@@ -10,7 +10,7 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.Serialization;
-    
+
 namespace IceInternal
 {
     public class Ex
@@ -25,7 +25,7 @@ namespace IceInternal
         public static void throwMemoryLimitException(int requested, int maximum)
         {
             throw new Ice.MemoryLimitException("requested " + requested + " bytes, maximum allowed is " + maximum +
-                                               " bytes (see Ice.MessageSizeMax)"); 
+                                               " bytes (see Ice.MessageSizeMax)");
         }
     }
 }
@@ -35,7 +35,9 @@ namespace Ice
     /// <summary>
     /// Base class for Ice exceptions.
     /// </summary>
+#if !SILVERLIGHT
     [System.Serializable]
+#endif
     public abstract class Exception : System.Exception, System.ICloneable
     {
         /// <summary>
@@ -59,12 +61,14 @@ namespace Ice
         /// <param name="ex">The inner exception.</param>
         public Exception(System.Exception ex) : base("", ex) {}
 
+#if !SILVERLIGHT
         /// <summary>
         /// Initializes a new instance of the exception with serialized data.
         /// </summary>
         /// <param name="info">Holds the serialized object data about the exception being thrown.</param>
         /// <param name="context">Contains contextual information about the source or destination.</param>
         protected Exception(SerializationInfo info, StreamingContext context) : base(info, context) {}
+#endif
 
         /// <summary>
         /// Returns the name of this exception.
@@ -117,7 +121,9 @@ namespace Ice
     /// <summary>
     /// Base class for local exceptions.
     /// </summary>
+#if !SILVERLIGHT
     [System.Serializable]
+#endif
     public abstract class LocalException : Exception
     {
         /// <summary>
@@ -132,18 +138,22 @@ namespace Ice
         /// <param name="ex">The inner exception.</param>
         public LocalException(System.Exception ex) : base(ex) {}
 
+#if !SILVERLIGHT
         /// <summary>
         /// Initializes a new instance of the exception with serialized data.
         /// </summary>
         /// <param name="info">Holds the serialized object data about the exception being thrown.</param>
         /// <param name="context">Contains contextual information about the source or destination.</param>
         protected LocalException(SerializationInfo info, StreamingContext context) : base(info, context) {}
+#endif
     }
 
     /// <summary>
     /// Base class for Ice run-time exceptions.
     /// </summary>
+#if !SILVERLIGHT
     [System.Serializable]
+#endif
     public abstract class SystemException : Exception
     {
         /// <summary>
@@ -158,18 +168,22 @@ namespace Ice
         /// <param name="ex">The inner exception.</param>
         public SystemException(System.Exception ex) : base(ex) {}
 
+#if !SILVERLIGHT
         /// <summary>
         /// Initializes a new instance of the exception with serialized data.
         /// </summary>
         /// <param name="info">Holds the serialized object data about the exception being thrown.</param>
         /// <param name="context">Contains contextual information about the source or destination.</param>
         protected SystemException(SerializationInfo info, StreamingContext context) : base(info, context) {}
+#endif
     }
 
     /// <summary>
     /// Base class for Slice user exceptions.
     /// </summary>
+#if !SILVERLIGHT
     [System.Serializable]
+#endif
     public abstract class UserException : Exception
     {
         /// <summary>
@@ -184,12 +198,14 @@ namespace Ice
         /// <param name="ex">The inner exception.</param>
         public UserException(System.Exception ex) : base(ex) {}
 
+#if !SILVERLIGHT
         /// <summary>
         /// Initializes a new instance of the exception with serialized data.
         /// </summary>
         /// <param name="info">Holds the serialized object data about the exception being thrown.</param>
         /// <param name="context">Contains contextual information about the source or destination.</param>
         protected UserException(SerializationInfo info, StreamingContext context) : base(info, context) {}
+#endif
 
         public virtual void write__(IceInternal.BasicStream os__)
         {
@@ -226,7 +242,7 @@ namespace Ice
 
         protected abstract void writeImpl__(IceInternal.BasicStream os__);
         protected abstract void readImpl__(IceInternal.BasicStream is__);
-        
+
         protected virtual void writeImpl__(OutputStream os__)
         {
             throw new MarshalException("exception was not generated with stream support");
@@ -252,7 +268,7 @@ namespace IceInternal
         {
             return _ex;
         }
-        
+
         private Ice.LocalException _ex;
     }
 }

@@ -129,11 +129,13 @@ namespace IceInternal
 #endif
         }
 
+#if !SILVERLIGHT
         public TcpEndpointI endpoint(TcpAcceptor acceptor)
         {
             return new TcpEndpointI(instance_, host_, acceptor.effectivePort(), sourceAddr_, _timeout, connectionId_,
                                     _compress);
         }
+#endif
 
         public override string options()
         {

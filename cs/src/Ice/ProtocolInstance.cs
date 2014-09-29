@@ -106,6 +106,7 @@ namespace IceInternal
             return instance_.messageSizeMax();
         }
 
+#if !SILVERLIGHT
         public List<Connector> resolve(string host, int port, Ice.EndpointSelectionType type, IPEndpointI endpt)
         {
             return instance_.endpointHostResolver().resolve(host, port, type, endpt);
@@ -116,6 +117,7 @@ namespace IceInternal
         {
             instance_.endpointHostResolver().resolve(host, port, type, endpt, callback);
         }
+#endif
 
         protected Instance instance_;
         protected int traceLevel_;

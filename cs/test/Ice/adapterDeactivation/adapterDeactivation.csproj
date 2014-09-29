@@ -74,7 +74,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="generated\Test.cs" />
+    <Compile Include="generated\sl\Test.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -108,7 +108,7 @@
       <FlavorProperties GUID="{A1591282-1198-4647-A2B1-27E5FF5F6F3B}">
         <SilverlightProjectProperties />
       </FlavorProperties>
-      <UserProperties ZerocIce_Enabled="True" ZerocIce_ProjectVersion="1" ZerocIce_OutputDir=".\generated" />
+      <UserProperties ZerocIce_OutputDir=".\generated\sl" ZerocIce_ProjectVersion="1" ZerocIce_Enabled="True" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

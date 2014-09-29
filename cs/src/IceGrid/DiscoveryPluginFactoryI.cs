@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#if !SILVERLIGHT
 namespace IceGrid
 {
     class DiscoveryPluginFactoryI : Ice.PluginFactory
@@ -18,3 +19,4 @@ namespace IceGrid
         }
     }
 }
+#endif

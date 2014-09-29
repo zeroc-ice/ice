@@ -12,7 +12,9 @@ using System.Collections.Generic;
 
 namespace Ice
 {
+#if !SILVERLIGHT
     [Serializable]
+#endif
     public abstract class CollectionBase<T> : System.Collections.IList
     {
         protected List<T> list_;

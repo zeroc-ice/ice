@@ -114,7 +114,7 @@ namespace IceInternal
 
         public int endWrite(Buffer buf)
         {
-            // Once the request is sent, read the response 
+            // Once the request is sent, read the response
             return buf.b.hasRemaining() ? SocketOperation.Write : SocketOperation.Read;
         }
 
@@ -210,7 +210,11 @@ namespace IceInternal
             str.Append(addr);
             str.Append("\r\n\r\n");
 
+#if SILVERLIGHT
+            byte[] b = System.Text.Encoding.UTF8.GetBytes(str.ToString());
+#else
             byte[] b = System.Text.Encoding.ASCII.GetBytes(str.ToString());
+#endif
 
             //
             // HTTP connect request
@@ -224,7 +228,7 @@ namespace IceInternal
 
         public int endWrite(Buffer buf)
         {
-            // Once the request is sent, read the response 
+            // Once the request is sent, read the response
             return buf.b.hasRemaining() ? SocketOperation.Write : SocketOperation.Read;
         }
 

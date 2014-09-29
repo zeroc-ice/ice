@@ -21,7 +21,7 @@ namespace IceInternal
     using System.Diagnostics;
     using System.Net;
     using System.Net.Sockets;
-    
+
     public sealed class StreamSocket
     {
         public StreamSocket(ProtocolInstance instance, NetworkProxy proxy, EndPoint addr, EndPoint sourceAddr)
@@ -31,7 +31,7 @@ namespace IceInternal
             _sourceAddr = sourceAddr;
             _fd = Network.createSocket(false, (_proxy != null ? _proxy.getAddress() : _addr).AddressFamily);
             _state = StateNeedConnect;
-            
+
             init(instance);
         }
 
@@ -43,11 +43,13 @@ namespace IceInternal
             init(instance);
         }
 
+#if !SILVERLIGHT
         public void setBlock(bool block)
         {
             Network.setBlock(_fd, block);
         }
-        
+#endif
+
         public int connect(Buffer readBuffer, Buffer writeBuffer, ref bool moreData)
         {
             if(_state == StateNeedConnect)
@@ -91,13 +93,13 @@ namespace IceInternal
             else if(_state == StateProxyConnected)
             {
                 _proxy.finish(readBuffer, writeBuffer);
-            
+
                 readBuffer.clear();
                 writeBuffer.clear();
-            
+
                 _state = StateConnected;
             }
-            
+
             Debug.Assert(_state == StateConnected);
             return SocketOperation.None;
         }
@@ -106,12 +108,12 @@ namespace IceInternal
         {
             return _state == StateConnected;
         }
-    
+
         public Socket fd()
         {
             return _fd;
         }
-        
+
         public int getSendPacketSize(int length)
         {
             return _maxSendPacketSize > 0 ? System.Math.Min(length, _maxSendPacketSize) : length;
@@ -184,7 +186,7 @@ namespace IceInternal
                 _readEventArgs.SetBuffer(buf.b.rawBytes(), buf.b.position(), packetSize);
                 return !_fd.ReceiveAsync(_readEventArgs);
 #else
-                _readResult = _fd.BeginReceive(buf.b.rawBytes(), buf.b.position(), packetSize, SocketFlags.None, 
+                _readResult = _fd.BeginReceive(buf.b.rawBytes(), buf.b.position(), packetSize, SocketFlags.None,
                                                readCompleted, state);
                 return _readResult.CompletedSynchronously;
 #endif
@@ -332,7 +334,7 @@ namespace IceInternal
 #else
             Debug.Assert(_fd != null && _writeResult != null);
 #endif
-            
+
             if(_state < StateConnected && _state != StateProxyWrite)
             {
                 return;
@@ -394,7 +396,7 @@ namespace IceInternal
                 _fd = null;
             }
         }
-        
+
         public void destroy()
         {
 #if ICE_SOCKET_ASYNC_API
@@ -421,7 +423,7 @@ namespace IceInternal
             // to schedule an asynchronous operation.
             //
             return 0;
-#endif
+#else
             int read = 0;
             while(buf.hasRemaining())
             {
@@ -454,12 +456,13 @@ namespace IceInternal
                 }
             }
             return read;
+#endif
         }
 
         private int write(ByteBuffer buf)
         {
             Debug.Assert(_fd != null);
-            
+
 #if COMPACT || SILVERLIGHT
             //
             // Silverlight and the Compact .NET Frameworks don't
@@ -552,16 +555,18 @@ namespace IceInternal
 
         private void init(ProtocolInstance instance)
         {
+#if !SILVERLIGHT
             Network.setBlock(_fd, false);
+#endif
             Network.setTcpBufSize(_fd, instance.properties(), instance.logger());
-            
+
 #if ICE_SOCKET_ASYNC_API
             _readEventArgs = new SocketAsyncEventArgs();
             _readEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
 
             _writeEventArgs = new SocketAsyncEventArgs();
             _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
-#if SILVERLIGHT
+#  if SILVERLIGHT
             String policy = instance.properties().getProperty("Ice.ClientAccessPolicyProtocol");
             if(policy.Equals("Http"))
             {
@@ -570,9 +575,9 @@ namespace IceInternal
             }
             else if(!String.IsNullOrEmpty(policy))
             {
-                _instance.logger().warning("Ignoring invalid Ice.ClientAccessPolicyProtocol value `" + policy + "'");
+                instance.logger().warning("Ignoring invalid Ice.ClientAccessPolicyProtocol value `" + policy + "'");
             }
-#endif
+#  endif
 #endif
 
             //

@@ -75,14 +75,13 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="BatchOneways.cs" />
+    <Compile Include="BatchOnewaysAMI.cs" />
     <Compile Include="generated\sl\Test.cs" />
     <Compile Include="Oneways.cs" />
     <Compile Include="OnewaysAMI.cs" />
-    <Compile Include="OnewaysNewAMI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Twoways.cs" />
     <Compile Include="TwowaysAMI.cs" />
-    <Compile Include="TwowaysNewAMI.cs" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -116,7 +115,7 @@
       <FlavorProperties GUID="{A1591282-1198-4647-A2B1-27E5FF5F6F3B}">
         <SilverlightProjectProperties />
       </FlavorProperties>
-      <UserProperties ZerocIce_Enabled="True" ZerocIce_ProjectVersion="1" ZerocIce_OutputDir=".\generated\sl" />
+      <UserProperties ZerocIce_OutputDir=".\generated\sl" ZerocIce_ProjectVersion="1" ZerocIce_Enabled="True" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
