@@ -668,19 +668,12 @@ rm -rf $RPM_BUILD_ROOT
 %files java
 %defattr(-, root, root, -)
 %{_javadir}/Ice-%{version}.jar
-%{_javadir}/Ice.jar
 %{_javadir}/Freeze-%{version}.jar
-%{_javadir}/Freeze.jar
 %{_javadir}/Glacier2-%{version}.jar
-%{_javadir}/Glacier2.jar
 %{_javadir}/IceBox-%{version}.jar
-%{_javadir}/IceBox.jar
 %{_javadir}/IceGrid-%{version}.jar
-%{_javadir}/IceGrid.jar
 %{_javadir}/IcePatch2-%{version}.jar
-%{_javadir}/IcePatch2.jar
 %{_javadir}/IceStorm-%{version}.jar
-%{_javadir}/IceStorm.jar
 %endif
 
 #
@@ -889,6 +882,13 @@ fi
 %{_mandir}/man1/slice2freezej.1.gz
 %{_javadir}/ant-ice-%{version}.jar
 %{_javadir}/ant-ice.jar
+%{_javadir}/Ice.jar
+%{_javadir}/Freeze.jar
+%{_javadir}/Glacier2.jar
+%{_javadir}/IceBox.jar
+%{_javadir}/IceGrid.jar
+%{_javadir}/IcePatch2.jar
+%{_javadir}/IceStorm.jar
 
 %files python
 %defattr(-, root, root, -)
