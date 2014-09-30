@@ -753,11 +753,7 @@ CiphersHelper::ciphers()
 SSLProtocol
 parseProtocol(const string& prot)
 {
-    if(prot == "ssl2" || prot == "sslv2")
-    {
-        return kSSLProtocol2;
-    }
-    else if(prot == "ssl3" || prot == "sslv3")
+    if(prot == "ssl3" || prot == "sslv3")
     {
         return kSSLProtocol3;
     }
