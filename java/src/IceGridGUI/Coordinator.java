@@ -2235,27 +2235,43 @@ public class Coordinator
                                     }
                                     else
                                     {
-                                        SwingUtilities.invokeLater(new Runnable()
+                                        while(true)
+                                        {
+                                            try
                                             {
-                                                @Override
-                                                public void run()
-                                                {
-                                                    if(JOptionPane.showConfirmDialog(
-                                                        parent,
-                                                        "Unable to connect to the Master Registry:\n " + e.toString()
-                                                        + "\n\nDo you want to connect to a Slave Registry?",
-                                                        "Cannot connect to Master Registry",
-                                                        JOptionPane.YES_NO_OPTION,
-                                                        JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION)
+                                                SwingUtilities.invokeAndWait(new Runnable()
                                                     {
-                                                        cb.setRegistry(cb.getCurrentRegistry());
-                                                    }
-                                                    else
-                                                    {
-                                                        cb.loginFailed();
-                                                    }
-                                                }
-                                            });
+                                                        @Override
+                                                        public void run()
+                                                        {
+                                                            if(JOptionPane.showConfirmDialog(
+                                                                parent,
+                                                                "Unable to connect to the Master Registry:\n " + e.toString()
+                                                                + "\n\nDo you want to connect to a Slave Registry?",
+                                                                "Cannot connect to Master Registry",
+                                                                JOptionPane.YES_NO_OPTION,
+                                                                JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION)
+                                                            {
+                                                                cb.setRegistry(cb.getCurrentRegistry());
+                                                            }
+                                                            else
+                                                            {
+                                                                cb.loginFailed();
+                                                            }
+                                                        }
+                                                    });
+                                                break;
+                                            }
+                                            catch(java.lang.InterruptedException ex)
+                                            {
+                                                // Ignore and retry
+                                            }
+                                            catch(java.lang.reflect.InvocationTargetException ex)
+                                            {
+                                                cb.loginFailed();
+                                                break;
+                                            }
+                                        }
                                         if(cb.failed())
                                         {
                                             return;

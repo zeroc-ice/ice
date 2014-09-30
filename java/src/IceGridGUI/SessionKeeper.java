@@ -1180,6 +1180,133 @@ public class SessionKeeper
             _nextButton.requestFocusInWindow();
         }
 
+        public void discoveryEndpoints()
+        {
+            JOptionPane messagePane = new JOptionPane("Searching for nearby registries", 
+                                          JOptionPane.DEFAULT_OPTION,
+                                          JOptionPane.INFORMATION_MESSAGE, null, new Object[] {},
+                                          null);
+            final JDialog searchingDialog = messagePane.createDialog(ConnectionWizardDialog.this, 
+                         "Please wait...");
+            searchingDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+
+            new Thread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    // Search for endpoints
+                    Ice.Properties properties = _coordinator.getCommunicator().getProperties();
+                    boolean ipv4 = properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
+                    String address;
+                    if (ipv4)
+                    {
+                        address = properties.getPropertyWithDefault("IceGridAdmin.Discovery.Address", "239.255.0.1");
+                    }
+                    else
+                    {
+                        address = properties.getPropertyWithDefault("IceGridAdmin.Discovery.Address", "ff15::1");
+                    }
+
+                    String intf = properties.getProperty("IceGridAdmin.Discovery.Interface");
+                    String lookupEndpoints = properties.getProperty("IceGridAdmin.Discovery.Lookup");
+
+                    if(lookupEndpoints.isEmpty())
+                    {
+                        StringBuilder s = new StringBuilder();
+                        s.append("udp -h \"").append(address).append("\" -p ");
+                        s.append(4061);
+                        if(!intf.isEmpty())
+                        {
+                            s.append(" --interface \"").append(intf);
+                        }
+                        lookupEndpoints = s.toString();
+                    }
+
+                    Ice.ObjectPrx prx = _coordinator.getWizardCommunicator().stringToProxy(
+                    "IceGrid/Lookup -d:" + lookupEndpoints);
+                    LookupPrx lookupPrx = LookupPrxHelper.uncheckedCast(
+                    prx.ice_collocationOptimized(false));
+
+
+                    if(properties.getProperty("IceGridAdmin.Discovery.Reply.Endpoints").isEmpty())
+                    {
+                        StringBuilder s = new StringBuilder();
+                        s.append("udp");
+                        if(!intf.isEmpty())
+                        {
+                            s.append(" -h \"").append(intf).append("\"");
+                        }
+                        properties.setProperty("IceGridAdmin.Discovery.Reply.Endpoints", s.toString());
+                    }
+
+                    Ice.ObjectAdapter adapter = 
+                                    _coordinator.getCommunicator().createObjectAdapter("IceGridAdmin.Discovery.Reply");
+                    adapter.activate();
+
+                    LookupReplyI reply = new LookupReplyI();
+                    LookupReplyPrx replyPrx =  
+                                        LookupReplyPrxHelper.uncheckedCast(adapter.addWithUUID(reply).ice_datagram());
+
+                    synchronized(this)
+                    {
+                        int retryCount = 3; // Send several findLocator queries.
+                        try
+                        {
+                            while(--retryCount >= 0)
+                            {
+                                lookupPrx.findLocator("", replyPrx);
+                                try
+                                {
+                                    wait(300);
+                                }
+                                catch(InterruptedException ex)
+                                {
+                                }
+
+                                if(!reply.getLocators().isEmpty())
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        catch(Ice.LocalException ex)
+                        {
+                            System.err.println("IceGrid registry discovery failed:\n" + ex);
+                        }
+                        adapter.destroy();
+
+                        List<LocatorPrx> locators = reply.getLocators();
+                        _directDiscoveryEndpointModel.clear();
+                        if(!locators.isEmpty())
+                        {
+                            _directDiscoveryDiscoveredEndpoint.setEnabled(true);
+                            for(LocatorPrx l : locators)
+                            {
+                                _directDiscoveryEndpointModel.addElement(l);
+                            }
+
+                        }
+                        else
+                        {
+                            _directDiscoveryDiscoveredEndpoint.setEnabled(false);
+                            _directDiscoveryManualEndpoint.setSelected(true);
+                        }
+                    }
+
+                    SwingUtilities.invokeLater(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            searchingDialog.dispose();
+                        }
+                    });
+                }
+            }).start();
+            searchingDialog.setVisible(true);
+        }
+
         private void initialize(String title, final JDialog parent)
         {
             setTitle(title);
@@ -1262,6 +1389,7 @@ public class SessionKeeper
                 		{
                 			_directDiscoveryEndpointList.setEnabled(true);
                 			validatePanel();
+                            discoveryEndpoints();
                 		}
                 	});
                 _directDiscoveryDiscoveredEndpoint.setSelected(true);
@@ -1964,137 +2092,13 @@ public class SessionKeeper
                             
                             case DirectMasterStep:
                             {
-                            	 JOptionPane messagePane = new JOptionPane(
-                            	            "Searching for nearby registries",
-                            	            JOptionPane.DEFAULT_OPTION,
-                            	            JOptionPane.INFORMATION_MESSAGE, null, new Object[] {},
-                            	            null);
-                            	 final JDialog searchingDialog = messagePane.createDialog(ConnectionWizardDialog.this, 
-                            			 "Please wait...");
-                            	 searchingDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-
-                            	 new Thread(new Runnable()
-                                 {
-                                     @Override
-                                    public void run()
-                                     {
-                                         // Search for endpoints
-                                         Ice.Properties properties = _coordinator.getCommunicator().getProperties();
-                                         boolean ipv4 = properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
-                                         String address;
-                                         if (ipv4)
-                                         {
-                                             address = properties.getPropertyWithDefault(
-                                            		 "IceGridAdmin.Discovery.Address", "239.255.0.1");
-                                         }
-                                         else
-                                         {
-                                             address = properties.getPropertyWithDefault(
-                                            		 "IceGridAdmin.Discovery.Address", "ff15::1");
-                                         }
-
-                                         String intf = properties.getProperty("IceGridAdmin.Discovery.Interface");
-                                         String lookupEndpoints = properties.getProperty(
-                                        		 "IceGridAdmin.Discovery.Lookup");
-
-                                         if(lookupEndpoints.isEmpty())
-                                         {
-                                             StringBuilder s = new StringBuilder();
-                                             s.append("udp -h \"").append(address).append("\" -p ");
-                                             s.append(4061);
-                                             if(!intf.isEmpty())
-                                             {
-                                                 s.append(" --interface \"").append(intf);
-                                             }
-                                             lookupEndpoints = s.toString();
-                                         }
-                                         
-                                         Ice.ObjectPrx prx = _coordinator.getWizardCommunicator().stringToProxy(
-                                                 "IceGrid/Lookup -d:" + lookupEndpoints);
-                                         LookupPrx lookupPrx = LookupPrxHelper.uncheckedCast(
-                                                 prx.ice_collocationOptimized(false));
-
-
-                                         if(properties.getProperty("IceGridAdmin.Discovery.Reply.Endpoints").isEmpty())
-                                         {
-                                             StringBuilder s = new StringBuilder();
-                                             s.append("udp");
-                                             if(!intf.isEmpty())
-                                             {
-                                                 s.append(" -h \"").append(intf).append("\"");
-                                             }
-                                             properties.setProperty("IceGridAdmin.Discovery.Reply.Endpoints", 
-                                                     s.toString());
-                                         }
-
-                                         Ice.ObjectAdapter adapter = _coordinator.getCommunicator().createObjectAdapter(
-                                                 "IceGridAdmin.Discovery.Reply");
-                                         adapter.activate();
-
-                                         LookupReplyI reply = new LookupReplyI();
-                                         LookupReplyPrx replyPrx =  LookupReplyPrxHelper.uncheckedCast(
-                                                 adapter.addWithUUID(reply).ice_datagram());
-
-                                         synchronized(this)
-                                         {
-                                             int retryCount = 3; // Send several findLocator queries.
-                                             try
-                                             {
-                                                 while(--retryCount >= 0)
-                                                 {
-                                                     lookupPrx.findLocator("", replyPrx);
-                                                     try
-                                                     {
-                                                         wait(300);
-                                                     }
-                                                     catch(InterruptedException ex)
-                                                     {
-                                                     }
-
-                                                     if(!reply.getLocators().isEmpty())
-                                                     {
-                                                         break;
-                                                     }
-                                                 }
-                                             }
-                                             catch(Ice.LocalException ex)
-                                             {
-                                                 System.err.println("IceGrid registry discovery failed:\n" + ex);
-                                             }
-                                             adapter.destroy();
-
-                                             List<LocatorPrx> locators = reply.getLocators();
-                                             _directDiscoveryEndpointModel.clear();
-                                             if (!locators.isEmpty())
-                                             {
-                                                _directDiscoveryDiscoveredEndpoint.setEnabled(true);
-                                                 for(LocatorPrx l : locators)
-                                                 {
-                                                     _directDiscoveryEndpointModel.addElement(l);
-                                                 }
-
-                                             }
-                                             else
-                                             {
-                                                _directDiscoveryDiscoveredEndpoint.setEnabled(false);
-                                                _directDiscoveryManualEndpoint.setSelected(true);
-                                             }
-                                         }
-                                         SwingUtilities.invokeLater(new Runnable()
-                                         {
-                                             @Override
-                                            public void run()
-                                             {
-                                                 searchingDialog.dispose();
-                                                 _cardLayout.show(_cardPanel, 
-                                                         WizardStep.DirectDiscoveryChooseStep.toString());
-                                                 _wizardSteps.push(WizardStep.DirectDiscoveryChooseStep);
-                                             }
-                                         });
-                                     }
-                                 }).start();
-                            	 searchingDialog.setVisible(true);
-                            	 break;
+                                _cardLayout.show(_cardPanel, WizardStep.DirectDiscoveryChooseStep.toString());
+                                _wizardSteps.push(WizardStep.DirectDiscoveryChooseStep);
+                                if(_directDiscoveryDiscoveredEndpoint.isSelected())
+                                {
+                                    discoveryEndpoints();
+                                }
+                                break;
                             }
 
                             case DirectDiscoveryChooseStep:
@@ -2967,6 +2971,7 @@ public class SessionKeeper
             {
                 if(_conf.getDirect())
                 {
+                    _directDiscoveryManualEndpoint.setSelected(true);
                     _directConnection.setSelected(true);
                     _directConnectToMaster.setSelected(_conf.getConnectToMaster());
                     _directInstanceName.setText(_conf.getInstanceName());
