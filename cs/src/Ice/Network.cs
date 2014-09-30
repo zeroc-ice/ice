@@ -856,7 +856,14 @@ namespace IceInternal
                 }
 
 #if SILVERLIGHT
-                addresses.Add(new DnsEndPoint(host, port));
+                if(protocol != EnableIPv6)
+                {
+                    addresses.Add(new DnsEndPoint(host, port, AddressFamily.InterNetwork));
+                }
+                if(protocol != EnableIPv4)
+                {
+                    addresses.Add(new DnsEndPoint(host, port, AddressFamily.InterNetworkV6));
+                }
 #else
 # if COMPACT
                 foreach(IPAddress a in Dns.GetHostEntry(host).AddressList)
