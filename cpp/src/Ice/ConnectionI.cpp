@@ -1191,7 +1191,7 @@ Ice::ConnectionI::setCallback(const ConnectionCallbackPtr& callback)
         }
     }
 
-    if(closed)
+    if(closed && callback)
     {
         try
         {

@@ -735,7 +735,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             }
         }
 
-        if(closed)
+        if(closed && callback != null)
         {
             try
             {
@@ -2573,7 +2573,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
                 case IceInternal.Protocol.replyMsg:
                 {
-                    
+
                     IceInternal.TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
                     info.requestId = info.stream.readInt();
                     IceInternal.OutgoingAsync outAsync = _asyncRequests.remove(info.requestId);

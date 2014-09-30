@@ -776,7 +776,7 @@ namespace Ice
                 }
             }
 
-            if(closed)
+            if(closed && callback != null)
             {
                 try
                 {
