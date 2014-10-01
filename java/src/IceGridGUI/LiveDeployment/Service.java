@@ -10,12 +10,14 @@
 package IceGridGUI.LiveDeployment;
 
 import java.awt.Component;
+
 import javax.swing.Icon;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeCellRenderer;
+
 import IceGrid.*;
 import IceGridGUI.*;
 
@@ -33,10 +35,11 @@ public class Service extends ListArrayTreeNode
 
         if(serverState != null)
         {
-            actions[RETRIEVE_LOG] = _serviceDescriptor.logs.length > 0;
+            actions[RETRIEVE_LOG_FILE] = _serviceDescriptor.logs.length > 0;
         }
         if(serverState == ServerState.Active)
         {
+            actions[RETRIEVE_ICE_LOG] = serverState == ServerState.Active;
             if(((Server)_parent).hasServiceObserver())
             {
                 actions[START] = !_started;
@@ -163,7 +166,34 @@ public class Service extends ListArrayTreeNode
     }
 
     @Override
-    public void retrieveLog()
+    public void retrieveIceLog()
+    {
+        if(_showIceLogDialog == null)
+        {
+            Ice.ObjectPrx serverAdmin = ((Server)_parent).getServerAdmin();
+            if(serverAdmin == null)
+            {
+                JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), "Admin not available", 
+                        "No Admin for server " + _parent.getId(), JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        
+            // TODO: add support for shared communicator
+            
+            Ice.LoggerAdminPrx loggerAdmin = Ice.LoggerAdminPrxHelper.uncheckedCast(
+                    serverAdmin.ice_facet("IceBox.Service." + _id + ".Logger"));
+            String title = "Service " + _parent.getId() + "/" + _id + " Ice log";
+            _showIceLogDialog = new ShowIceLogDialog(this, title, loggerAdmin, _parent.getId() + "-" + _id, 
+                    getRoot().getLogMaxLines(), getRoot().getLogInitialLines());
+        }      
+        else
+        {
+            _showIceLogDialog.toFront();
+        }
+    }
+    
+    @Override
+    public void retrieveLogFile()
     {
         assert _serviceDescriptor.logs.length > 0;
 
@@ -194,7 +224,7 @@ public class Service extends ListArrayTreeNode
         {
             final String fPath = path;
 
-            getRoot().openShowLogDialog(new ShowLogDialog.FileIteratorFactory()
+            getRoot().openShowLogFileDialog(new ShowLogFileDialog.FileIteratorFactory()
                 {
                     @Override
                     public FileIteratorPrx open(int count)
@@ -274,13 +304,21 @@ public class Service extends ListArrayTreeNode
             _popup.add(la.get(START));
             _popup.add(la.get(STOP));
             _popup.addSeparator();
-            _popup.add(la.get(RETRIEVE_LOG));
+            _popup.add(la.get(RETRIEVE_ICE_LOG));
+            _popup.add(la.get(RETRIEVE_LOG_FILE));
         }
 
         la.setTarget(this);
         return _popup;
     }
-
+    
+    @Override
+    public void clearShowIceLogDialog()
+    {
+        _showIceLogDialog = null;
+    }
+    
+    
     Service(Server parent, String serviceName, Utils.Resolver resolver, ServiceInstanceDescriptor descriptor,
             ServiceDescriptor serviceDescriptor, PropertySetDescriptor serverInstancePSDescriptor)
     {
@@ -299,6 +337,14 @@ public class Service extends ListArrayTreeNode
         createDbEnvs();
     }
 
+    void stopShowIceLogDialog()
+    {
+        if(_showIceLogDialog != null)
+        {
+            _showIceLogDialog.stop();
+        }
+    }
+    
     boolean updateAdapter(AdapterDynamicInfo info)
     {
         for(Adapter p : _adapters)
@@ -619,6 +665,8 @@ public class Service extends ListArrayTreeNode
     private boolean _started = false;
     private boolean _metricsRetrieved = false;
 
+    private ShowIceLogDialog _showIceLogDialog;
+    
     static private ServiceEditor _editor;
     static private DefaultTreeCellRenderer _cellRenderer;
     static private JPopupMenu _popup;

@@ -40,6 +40,7 @@ import com.jgoodies.forms.util.LayoutStyle;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+
 import Ice.LocatorFinderPrxHelper;
 import IceGrid.*;
 
@@ -426,6 +427,7 @@ public class Coordinator
             _nodeMenu = new JMenu("Node");
             _nodeMenu.setEnabled(false);
             toolsMenu.add(_nodeMenu);
+            _nodeMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_ICE_LOG));
             _nodeMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_STDOUT));
             _nodeMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_STDERR));
             _nodeMenu.addSeparator();
@@ -439,6 +441,7 @@ public class Coordinator
             toolsMenu.add(_registryMenu);
             _registryMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.ADD_OBJECT));
             _registryMenu.addSeparator();
+            _registryMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_ICE_LOG));
             _registryMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_STDOUT));
             _registryMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_STDERR));
             _registryMenu.addSeparator();
@@ -459,9 +462,10 @@ public class Coordinator
             _serverMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.PATCH_SERVER));
             _serverMenu.addSeparator();
             _serverMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.WRITE_MESSAGE));
+            _serverMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_ICE_LOG));
             _serverMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_STDOUT));
             _serverMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_STDERR));
-            _serverMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_LOG));
+            _serverMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_LOG_FILE));
             _serverMenu.addSeparator();
             _signalMenu = new JMenu("Send Signal");
             _serverMenu.add(_signalMenu);
@@ -484,7 +488,8 @@ public class Coordinator
             _serviceMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.START));
             _serviceMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.STOP));
             _serviceMenu.addSeparator();
-            _serviceMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_LOG));
+            _serviceMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_ICE_LOG));
+            _serviceMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_LOG_FILE));
 
             //
             // Help menu
@@ -2574,9 +2579,14 @@ public class Coordinator
         return file;
     }
 
-    public JFileChooser getSaveLogChooser()
+    public JFileChooser getSaveLogFileChooser()
     {
-        return _saveLogChooser;
+        return _saveLogFileChooser;
+    }
+    
+    public JFileChooser getSaveIceLogChooser()
+    {
+        return _saveIceLogChooser;
     }
 
     static private Ice.Properties createProperties(Ice.StringSeqHolder args)
@@ -2650,7 +2660,6 @@ public class Coordinator
         }
 
         _saveXMLChooser = new JFileChooser(_prefs.get("current directory", null));
-
         _saveXMLChooser.addChoosableFileFilter(new FileFilter()
             {
                 @Override
@@ -2665,10 +2674,12 @@ public class Coordinator
                     return ".xml files";
                 }
             });
+        
+        _openChooser = new JFileChooser(_saveXMLChooser.getCurrentDirectory());
+        _openChooser.addChoosableFileFilter(_saveXMLChooser.getChoosableFileFilters()[1]);
 
-        _saveLogChooser = new JFileChooser(_prefs.get("current directory", null));
-
-        _saveLogChooser.addChoosableFileFilter(new FileFilter()
+        _saveLogFileChooser = new JFileChooser(_prefs.get("current directory", null));
+        _saveLogFileChooser.addChoosableFileFilter(new FileFilter()
             {
                 @Override
                 public boolean accept(File f)
@@ -2686,12 +2697,24 @@ public class Coordinator
                     return ".out .err .log .txt files";
                 }
             });
+        
+        _saveIceLogChooser = new JFileChooser(_prefs.get("current directory", null));
+        _saveIceLogChooser.addChoosableFileFilter(new FileFilter()
+            {
+                @Override
+                public boolean accept(File f)
+                {
+                    return f.isDirectory() || f.getName().endsWith(".csv");
+                }
 
+                @Override
+                public String getDescription()
+                {
+                    return ".cvs files";
+                }
+            });
+        
         javax.swing.UIManager.put("FileChooser.readOnly", Boolean.TRUE);
-
-        _openChooser = new JFileChooser(_saveXMLChooser.getCurrentDirectory());
-
-        _openChooser.addChoosableFileFilter(_saveXMLChooser.getChoosableFileFilters()[1]);
 
         final int MENU_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
@@ -3595,7 +3618,8 @@ public class Coordinator
         _serverMenu.setEnabled(availableActions[IceGridGUI.LiveDeployment.TreeNode.OPEN_DEFINITION]);
 
         _serviceMenu.setEnabled(node instanceof IceGridGUI.LiveDeployment.Service &&
-                                (availableActions[IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_LOG] ||
+                                (availableActions[IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_ICE_LOG] ||
+                                 availableActions[IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_LOG_FILE] ||
                                  availableActions[IceGridGUI.LiveDeployment.TreeNode.START] ||
                                  availableActions[IceGridGUI.LiveDeployment.TreeNode.STOP]));
     }
@@ -3998,7 +4022,8 @@ public class Coordinator
 
     private JFileChooser _openChooser;
     private JFileChooser _saveXMLChooser;
-    private JFileChooser _saveLogChooser;
+    private JFileChooser _saveLogFileChooser;
+    private JFileChooser _saveIceLogChooser;
 
     private Process _icegridadminProcess;
     private String _fileParser;

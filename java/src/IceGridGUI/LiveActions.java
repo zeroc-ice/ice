@@ -124,6 +124,17 @@ public class LiveActions
             };
         _array[TreeNode.WRITE_MESSAGE].putValue(Action.SHORT_DESCRIPTION, "Write message to stdout or stderr");
 
+        
+        _array[TreeNode.RETRIEVE_ICE_LOG] = new AbstractAction("Retrieve Ice log")
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                _target.retrieveIceLog();
+            }
+        };
+        _array[TreeNode.RETRIEVE_ICE_LOG].putValue(Action.SHORT_DESCRIPTION, "Attach RemoteLogger to Ice logger");
+
 
         _array[TreeNode.RETRIEVE_STDOUT] = new AbstractAction("Retrieve stdout")
             {
@@ -133,7 +144,7 @@ public class LiveActions
                     _target.retrieveOutput(true);
                 }
             };
-        _array[TreeNode.RETRIEVE_STDOUT].putValue(Action.SHORT_DESCRIPTION, "Retrieve stdout");
+        _array[TreeNode.RETRIEVE_STDOUT].putValue(Action.SHORT_DESCRIPTION, "Retrieve stdout if redirected to file");
 
         _array[TreeNode.RETRIEVE_STDERR] = new AbstractAction("Retrieve stderr")
             {
@@ -143,17 +154,17 @@ public class LiveActions
                     _target.retrieveOutput(false);
                 }
             };
-        _array[TreeNode.RETRIEVE_STDERR].putValue(Action.SHORT_DESCRIPTION, "Retrieve stderr");
+        _array[TreeNode.RETRIEVE_STDERR].putValue(Action.SHORT_DESCRIPTION, "Retrieve stderr if redirected to file");
 
-        _array[TreeNode.RETRIEVE_LOG] = new AbstractAction("Retrieve Log")
+        _array[TreeNode.RETRIEVE_LOG_FILE] = new AbstractAction("Retrieve log file")
             {
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
-                    _target.retrieveLog();
+                    _target.retrieveLogFile();
                 }
             };
-        _array[TreeNode.RETRIEVE_LOG].putValue(Action.SHORT_DESCRIPTION, "Retrieve log file from the server");
+        _array[TreeNode.RETRIEVE_LOG_FILE].putValue(Action.SHORT_DESCRIPTION, "Retrieve log file");
 
         _array[TreeNode.SHUTDOWN_NODE] = new AbstractAction("Shutdown")
             {

@@ -17,6 +17,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeCellRenderer;
+
 import java.text.NumberFormat;
 
 import IceGrid.*;
@@ -32,15 +33,81 @@ class Node extends ListTreeNode
     {
         boolean[] actions = new boolean[IceGridGUI.LiveDeployment.TreeNode.ACTION_COUNT];
         actions[SHUTDOWN_NODE] = _up;
+        actions[RETRIEVE_ICE_LOG] = _up;
         actions[RETRIEVE_STDOUT] = _up;
         actions[RETRIEVE_STDERR] = _up;
         return actions;
     }
 
     @Override
+    public void retrieveIceLog()
+    {
+        if(_showIceLogDialog == null)
+        {
+            final String prefix = "Retrieving Admin proxy for Node " + _id + "...";
+            final String errorTitle = "Failed to retrieve Admin Proxy for Node " + _id;
+            getRoot().getCoordinator().getStatusBar().setText(prefix);
+        
+            Callback_Admin_getNodeAdmin cb = new Callback_Admin_getNodeAdmin()
+            {
+                @Override
+                public void response(Ice.ObjectPrx prx)
+                {
+                    final Ice.LoggerAdminPrx loggerAdmin = Ice.LoggerAdminPrxHelper.uncheckedCast(prx.ice_facet("Logger"));
+                    final String title = "Node " + _id + " Ice log";
+                    final String defaultFileName = "node-" + _id;
+                    
+                    SwingUtilities.invokeLater(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            success(prefix);
+                            if(_showIceLogDialog == null)
+                            {
+                                _showIceLogDialog = new ShowIceLogDialog(Node.this, title, loggerAdmin, defaultFileName, 
+                                            getRoot().getLogMaxLines(), getRoot().getLogInitialLines());
+                            }
+                            else
+                            {
+                                _showIceLogDialog.toFront();
+                            }
+                        }
+                    });
+                }
+                
+                @Override
+                public void exception(Ice.UserException e)
+                {
+                    amiFailure(prefix, errorTitle, e);
+                }
+
+                @Override
+                public void exception(Ice.LocalException e)
+                {
+                    amiFailure(prefix, errorTitle, e.toString());
+                }
+            };
+        
+            try
+            {
+                getRoot().getCoordinator().getSession().getAdmin().begin_getNodeAdmin(_id, cb);
+            }
+            catch(Ice.LocalException e)
+            {
+                failure(prefix, errorTitle, e.toString());
+            }
+        }
+        else
+        {
+            _showIceLogDialog.toFront();
+        }
+    }
+    
+    @Override
     public void retrieveOutput(final boolean stdout)
     {
-        getRoot().openShowLogDialog(new ShowLogDialog.FileIteratorFactory()
+        getRoot().openShowLogFileDialog(new ShowLogFileDialog.FileIteratorFactory()
             {
                 @Override
                 public FileIteratorPrx open(int count)
@@ -130,6 +197,7 @@ class Node extends ListTreeNode
         if(_popup == null)
         {
             _popup = new JPopupMenu();
+            _popup.add(la.get(RETRIEVE_ICE_LOG));
             _popup.add(la.get(RETRIEVE_STDOUT));
             _popup.add(la.get(RETRIEVE_STDERR));
             _popup.addSeparator();
@@ -198,6 +266,13 @@ class Node extends ListTreeNode
 
         return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
+    
+    @Override
+    public void clearShowIceLogDialog()
+    {
+        _showIceLogDialog = null;
+    }
+    
 
     Node(Root parent, NodeDynamicInfo info)
     {
@@ -565,6 +640,11 @@ class Node extends ListTreeNode
         _up = false;
         _info.servers.clear();
         _info.adapters.clear();
+        
+        if(_showIceLogDialog != null)
+        {
+            _showIceLogDialog.stop();
+        }
 
         if(_children.isEmpty())
         {
@@ -951,6 +1031,8 @@ class Node extends ListTreeNode
     private boolean _up = false;
     private NodeDynamicInfo _info;
     private boolean _windows = false;
+    
+    private ShowIceLogDialog _showIceLogDialog;
 
     static private DefaultTreeCellRenderer _cellRenderer;
     static private Icon _nodeUp;

@@ -16,9 +16,10 @@ import javax.swing.Icon;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
-
+import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
+
 import java.util.prefs.Preferences;
 
 import IceGrid.*;
@@ -105,8 +106,6 @@ public class Root extends ListArrayTreeNode
             }
             return child;
         }
-
-        private boolean _filtered;
     }
 
     private boolean matchFilter(TreeNode n)
@@ -150,6 +149,12 @@ public class Root extends ListArrayTreeNode
     public String getApplicationNameFilter()
     {
         return _applicationNameFilter;
+    }
+    
+    @Override
+    public void clearShowIceLogDialog()
+    {
+        _showIceLogDialog = null;
     }
 
     public Root(Coordinator coordinator)
@@ -205,6 +210,7 @@ public class Root extends ListArrayTreeNode
         boolean[] actions = new boolean[IceGridGUI.LiveDeployment.TreeNode.ACTION_COUNT];
         actions[ADD_OBJECT] = _coordinator.connectedToMaster();
         actions[SHUTDOWN_REGISTRY] = true;
+        actions[RETRIEVE_ICE_LOG] = true;
         actions[RETRIEVE_STDOUT] = true;
         actions[RETRIEVE_STDERR] = true;
         return actions;
@@ -341,8 +347,6 @@ public class Root extends ListArrayTreeNode
 
     public void applicationInit(String instanceName, String replicaName, java.util.List<ApplicationInfo> applications)
     {
-        closeAllShowLogDialogs();
-
         _instanceName = instanceName;
         _replicaName = replicaName;
         _label = instanceName + " (" + _replicaName + ")";
@@ -765,6 +769,7 @@ public class Root extends ListArrayTreeNode
             _popup = new JPopupMenu();
             _popup.add(la.get(ADD_OBJECT));
             _popup.addSeparator();
+            _popup.add(la.get(RETRIEVE_ICE_LOG));
             _popup.add(la.get(RETRIEVE_STDOUT));
             _popup.add(la.get(RETRIEVE_STDERR));
             _popup.addSeparator();
@@ -1039,9 +1044,74 @@ public class Root extends ListArrayTreeNode
     }
 
     @Override
+    public void retrieveIceLog()
+    {
+        if(_showIceLogDialog == null)
+        {
+            final String prefix = "Retrieving Admin proxy for Registry...";
+            final String errorTitle = "Failed to retrieve Admin Proxy for Registry";
+            _coordinator.getStatusBar().setText(prefix);
+        
+            Callback_Admin_getRegistryAdmin cb = new Callback_Admin_getRegistryAdmin()
+            {
+                @Override
+                public void response(Ice.ObjectPrx prx)
+                {
+                    final Ice.LoggerAdminPrx loggerAdmin = Ice.LoggerAdminPrxHelper.uncheckedCast(prx.ice_facet("Logger"));
+                    final String title = "Registry " + _label + " Ice log";
+                    final String defaultFileName = "registry-" + _instanceName + "-" + _replicaName;
+                
+                    SwingUtilities.invokeLater(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            success(prefix);
+                            if(_showIceLogDialog == null)
+                            {
+                                _showIceLogDialog = new ShowIceLogDialog(Root.this, title, loggerAdmin, defaultFileName, 
+                                            getLogMaxLines(), getLogInitialLines());
+                            }
+                            else
+                            {
+                                _showIceLogDialog.toFront();
+                            }
+                        }
+                    });
+                }
+                
+                @Override
+                public void exception(Ice.UserException e)
+                {
+                    amiFailure(prefix, errorTitle, e);
+                }
+
+                @Override
+                public void exception(Ice.LocalException e)
+                {
+                    amiFailure(prefix, errorTitle, e.toString());
+                }
+            };
+        
+            try
+            {
+                _coordinator.getSession().getAdmin().begin_getRegistryAdmin(_replicaName, cb);
+            }
+            catch(Ice.LocalException e)
+            {
+                failure(prefix, errorTitle, e.toString());
+            }
+        }
+        else
+        {
+            _showIceLogDialog.toFront();
+        }
+    }
+    
+    @Override
     public void retrieveOutput(final boolean stdout)
     {
-        getRoot().openShowLogDialog(new ShowLogDialog.FileIteratorFactory()
+        getRoot().openShowLogFileDialog(new ShowLogFileDialog.FileIteratorFactory()
             {
                 @Override
                 public FileIteratorPrx open(int count)
@@ -1080,16 +1150,26 @@ public class Root extends ListArrayTreeNode
         ApplicationInfo app = _infoMap.get(applicationName);
         return app.descriptor.propertySets.get(name);
     }
-
-    void openShowLogDialog(ShowLogDialog.FileIteratorFactory factory)
+    
+    void addShowIceLogDialog(String title, ShowIceLogDialog dialog)
     {
-        ShowLogDialog d = _showLogDialogMap.get(factory.getTitle());
+        _showIceLogDialogMap.put(title, dialog);
+    }
+    
+    void removeShowIceLogDialog(String title)
+    {
+        _showIceLogDialogMap.remove(title);
+    }
+    
+    void openShowLogFileDialog(ShowLogFileDialog.FileIteratorFactory factory)
+    {
+        ShowLogFileDialog d = _showLogFileDialogMap.get(factory.getTitle());
         if(d == null)
         {
-            d = new ShowLogDialog(this, factory, _logMaxLines, _logMaxSize, _logInitialLines, _logMaxReadSize,
+            d = new ShowLogFileDialog(this, factory, _logMaxLines, _logMaxSize, _logInitialLines, _logMaxReadSize,
                                   _logPeriod);
 
-            _showLogDialogMap.put(factory.getTitle(), d);
+            _showLogFileDialogMap.put(factory.getTitle(), d);
         }
         else
         {
@@ -1097,20 +1177,26 @@ public class Root extends ListArrayTreeNode
         }
     }
 
-    void removeShowLogDialog(String title)
+    void removeShowLogFileDialog(String title)
     {
-        _showLogDialogMap.remove(title);
+        _showLogFileDialogMap.remove(title);
     }
 
     public void closeAllShowLogDialogs()
     {
-        for(ShowLogDialog p : _showLogDialogMap.values())
+        for(ShowIceLogDialog p : _showIceLogDialogMap.values())
         {
             p.close(false);
         }
-        _showLogDialogMap.clear();
+        _showIceLogDialogMap.clear();
+        
+        for(ShowLogFileDialog p : _showLogFileDialogMap.values())
+        {
+            p.close(false);
+        }
+        _showLogFileDialogMap.clear();
     }
-
+    
     public int getMessageSizeMax()
     {
         return _messageSizeMax;
@@ -1126,7 +1212,25 @@ public class Root extends ListArrayTreeNode
 
         storeLogPrefs();
     }
-
+    
+    public void setLogPrefs(int maxLines, int initialLines)
+    {
+        _logMaxLines = maxLines;
+        _logInitialLines = initialLines;
+        
+        storeLogPrefs();
+    }
+    
+    public int getLogMaxLines()
+    {
+        return _logMaxLines;
+    }
+    
+    public int getLogInitialLines()
+    {
+        return _logInitialLines;
+    }
+    
     private void loadLogPrefs()
     {
         Preferences logPrefs = _coordinator.getPrefs().node("Log");
@@ -1174,6 +1278,7 @@ public class Root extends ListArrayTreeNode
         _treeModel.nodesWereInserted(this, new int[]{_slaves.size() + i});
     }
 
+    @SuppressWarnings("rawtypes")
     private void removeNodes(int[] toRemoveIndices, java.util.List toRemove)
     {
         if(toRemove.size() > 0)
@@ -1236,17 +1341,20 @@ public class Root extends ListArrayTreeNode
     private ObjectDialog _showObjectDialog;
 
     //
-    // ShowLogDialog
+    // ShowLogFileDialog and ShowIceLogFileDialog
     //
-    final int _messageSizeMax;
-
-    java.util.Map<String, ShowLogDialog> _showLogDialogMap = new java.util.HashMap<String, ShowLogDialog>();
-
+    private final int _messageSizeMax;
+    
+    private final java.util.Map<String, ShowIceLogDialog> _showIceLogDialogMap = new java.util.HashMap<String, ShowIceLogDialog>();
+    private final java.util.Map<String, ShowLogFileDialog> _showLogFileDialogMap = new java.util.HashMap<String, ShowLogFileDialog>();
+   
     int _logMaxLines;
     int _logMaxSize;
     int _logInitialLines;
     int _logMaxReadSize;
     int _logPeriod;
+    
+    private ShowIceLogDialog _showIceLogDialog;
 
     private ApplicationDetailsDialog _applicationDetailsDialog;
 

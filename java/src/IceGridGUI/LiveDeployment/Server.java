@@ -19,6 +19,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeCellRenderer;
+
 import IceGrid.*;
 import IceGridGUI.*;
 
@@ -40,13 +41,13 @@ public class Server extends ListArrayTreeNode
             actions[STOP] = _state != ServerState.Inactive;
             actions[ENABLE] = !_enabled;
             actions[DISABLE] = _enabled;
-            actions[WRITE_MESSAGE] = _state != ServerState.Inactive;
+            actions[WRITE_MESSAGE] = _state == ServerState.Active;
+            actions[RETRIEVE_ICE_LOG] = _state == ServerState.Active;
             actions[RETRIEVE_STDOUT] = true;
             actions[RETRIEVE_STDERR] = true;
-            actions[RETRIEVE_LOG] = _serverDescriptor.logs.length > 0;
+            actions[RETRIEVE_LOG_FILE] = _serverDescriptor.logs.length > 0;
 
-            actions[PATCH_SERVER] =
-                !_serverDescriptor.distrib.icepatch.equals("");
+            actions[PATCH_SERVER] = !_serverDescriptor.distrib.icepatch.equals("");
 
             if(_state != ServerState.Inactive)
             {
@@ -180,9 +181,33 @@ public class Server extends ListArrayTreeNode
     }
 
     @Override
+    public void retrieveIceLog()
+    {
+        if(_showIceLogDialog == null)
+        {
+            Ice.ObjectPrx serverAdmin = getServerAdmin();
+            if(serverAdmin == null)
+            {
+                JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), "Admin not available", 
+                        "No Admin for server " + _id, JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        
+            Ice.LoggerAdminPrx loggerAdmin = Ice.LoggerAdminPrxHelper.uncheckedCast(serverAdmin.ice_facet("Logger"));
+            String title = "Server " + _id + " Ice log";
+            _showIceLogDialog = new ShowIceLogDialog(this, title, loggerAdmin, _id, getRoot().getLogMaxLines(),
+                    getRoot().getLogInitialLines());
+       }
+        else
+        {
+            _showIceLogDialog.toFront();
+        }
+    }
+    
+    @Override
     public void retrieveOutput(final boolean stdout)
     {
-        getRoot().openShowLogDialog(new ShowLogDialog.FileIteratorFactory()
+        getRoot().openShowLogFileDialog(new ShowLogFileDialog.FileIteratorFactory()
             {
                 @Override
                 public FileIteratorPrx open(int count)
@@ -217,7 +242,7 @@ public class Server extends ListArrayTreeNode
     }
 
     @Override
-    public void retrieveLog()
+    public void retrieveLogFile()
     {
         assert _serverDescriptor.logs.length > 0;
 
@@ -248,7 +273,7 @@ public class Server extends ListArrayTreeNode
         {
             final String fPath = path;
 
-            getRoot().openShowLogDialog(new ShowLogDialog.FileIteratorFactory()
+            getRoot().openShowLogFileDialog(new ShowLogFileDialog.FileIteratorFactory()
                 {
                     @Override
                     public FileIteratorPrx open(int count)
@@ -598,9 +623,10 @@ public class Server extends ListArrayTreeNode
             _popup.add(la.get(PATCH_SERVER));
             _popup.addSeparator();
             _popup.add(la.get(WRITE_MESSAGE));
+            _popup.add(la.get(RETRIEVE_ICE_LOG));
             _popup.add(la.get(RETRIEVE_STDOUT));
             _popup.add(la.get(RETRIEVE_STDERR));
-            _popup.add(la.get(RETRIEVE_LOG));
+            _popup.add(la.get(RETRIEVE_LOG_FILE));
             _popup.addSeparator();
 
             _signalMenu = new JMenu("Send Signal");
@@ -737,6 +763,12 @@ public class Server extends ListArrayTreeNode
         return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
+    @Override
+    public void clearShowIceLogDialog()
+    {
+        _showIceLogDialog = null;
+    }
+    
     Server(Node parent, String serverId, Utils.Resolver resolver, ServerInstanceDescriptor instanceDescriptor,
            ServerDescriptor serverDescriptor, ApplicationDescriptor application, ServerState state, int pid,
            boolean enabled)
@@ -964,6 +996,14 @@ public class Server extends ListArrayTreeNode
                     rebuild(this, false);
                 }
             }
+            
+            if(_state == ServerState.Inactive)
+            {
+                if(_showIceLogDialog != null)
+                {
+                    _showIceLogDialog.stop();
+                }
+            }
 
             if(_serverDescriptor instanceof IceBoxDescriptor)
             {
@@ -1094,18 +1134,12 @@ public class Server extends ListArrayTreeNode
                 {
                     for(Service service: _services)
                     {
+                        service.stopShowIceLogDialog();
                         service.stopped();
                     }
                 }
             }
-            else if(_state == null || _state == ServerState.Inactive)
-            {
-                for(Service service: _services)
-                {
-                    service.stopped();
-                }
-            }
-
+            
             if(fireEvent)
             {
                 getRoot().getTreeModel().nodeChanged(this);
@@ -1257,8 +1291,7 @@ public class Server extends ListArrayTreeNode
 
         if(descriptor.template.length() > 0)
         {
-            TemplateDescriptor templateDescriptor
-                = _application.serviceTemplates.get(descriptor.template);
+            TemplateDescriptor templateDescriptor = _application.serviceTemplates.get(descriptor.template);
 
             assert templateDescriptor != null;
 
@@ -1350,6 +1383,7 @@ public class Server extends ListArrayTreeNode
     private boolean _metricsRetrieved = false;
 
     private IceBox.ServiceObserverPrx _serviceObserver;
+    private ShowIceLogDialog _showIceLogDialog;
 
     static private DefaultTreeCellRenderer _cellRenderer;
     static private Icon[][][] _icons;

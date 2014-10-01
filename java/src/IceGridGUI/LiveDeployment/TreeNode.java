@@ -47,23 +47,25 @@ public abstract class TreeNode extends TreeNodeBase
 
     public static final int WRITE_MESSAGE = 11;
 
-    public static final int RETRIEVE_STDOUT = 12;
-    public static final int RETRIEVE_STDERR = 13;
-    public static final int RETRIEVE_LOG = 14;
+    public static final int RETRIEVE_ICE_LOG = 12;
+    public static final int RETRIEVE_STDOUT = 13;
+    public static final int RETRIEVE_STDERR = 14;
+    public static final int RETRIEVE_LOG_FILE = 15;
+    
 
-    public static final int SHUTDOWN_NODE = 15;
-    public static final int SHUTDOWN_REGISTRY = 16;
+    public static final int SHUTDOWN_NODE = 16;
+    public static final int SHUTDOWN_REGISTRY = 17;
 
-    public static final int PATCH_SERVER = 17;
+    public static final int PATCH_SERVER = 18;
 
-    public static final int ADD_OBJECT = 18;
+    public static final int ADD_OBJECT = 19;
 
-    public static final int OPEN_DEFINITION = 19;
+    public static final int OPEN_DEFINITION = 20;
 
-    static public final int ENABLE_METRICS_VIEW = 20;
-    static public final int DISABLE_METRICS_VIEW = 21;
+    public static final int ENABLE_METRICS_VIEW = 21;
+    public static final int DISABLE_METRICS_VIEW = 22;
 
-    static public final int ACTION_COUNT = 22;
+    public static final int ACTION_COUNT = 23;
 
     public boolean[] getAvailableActions()
     {
@@ -90,11 +92,15 @@ public abstract class TreeNode extends TreeNodeBase
     {
         assert false;
     }
+    public void retrieveIceLog()
+    {
+        assert false;
+    }
     public void retrieveOutput(boolean stdout)
     {
         assert false;
     }
-    public void retrieveLog()
+    public void retrieveLogFile()
     {
         assert false;
     }
@@ -127,6 +133,11 @@ public abstract class TreeNode extends TreeNodeBase
     {
         assert false;
     }
+    
+    public void clearShowIceLogDialog()
+    {
+        assert false;
+    }
 
     //
     // Helpers
@@ -138,7 +149,19 @@ public abstract class TreeNode extends TreeNodeBase
                 @Override
                 public void run()
                 {
-                    getCoordinator().getStatusBar().setText(prefix + "done.");
+                    success(prefix);
+                }
+            });
+    }
+    
+    protected void amiSuccess(final String prefix, final String detail)
+    {
+        SwingUtilities.invokeLater(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                   success(prefix, detail);
                 }
             });
     }
@@ -211,7 +234,7 @@ public abstract class TreeNode extends TreeNodeBase
 
     protected void failure(String prefix, String title, String message)
     {
-        getCoordinator().getStatusBar().setText(prefix + "failed!");
+        getCoordinator().getStatusBar().setText(prefix + " failed!");
 
         JOptionPane.showMessageDialog(
             getCoordinator().getMainFrame(),
@@ -219,7 +242,17 @@ public abstract class TreeNode extends TreeNodeBase
             title,
             JOptionPane.ERROR_MESSAGE);
     }
-
+    
+    protected void success(String prefix, String detail)
+    {
+        getCoordinator().getStatusBar().setText(prefix + " done (" + detail + ").");
+    }
+    
+    protected void success(String prefix)
+    {
+        getCoordinator().getStatusBar().setText(prefix + " done.");
+    }
+    
     void reparent(TreeNode newParent)
     {
         assert newParent != null;

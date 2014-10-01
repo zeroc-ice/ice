@@ -83,7 +83,7 @@ class Slave extends TreeNode
     @Override
     public void retrieveOutput(final boolean stdout)
     {
-        getRoot().openShowLogDialog(new ShowLogDialog.FileIteratorFactory()
+        getRoot().openShowLogFileDialog(new ShowLogFileDialog.FileIteratorFactory()
             {
                 @Override
                 public FileIteratorPrx open(int count)

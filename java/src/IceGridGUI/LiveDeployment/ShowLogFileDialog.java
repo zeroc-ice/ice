@@ -39,7 +39,7 @@ import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 import IceGrid.*;
 import IceGridGUI.*;
 
-class ShowLogDialog extends JDialog
+class ShowLogFileDialog extends JDialog
 {
     static interface FileIteratorFactory
     {
@@ -60,7 +60,7 @@ class ShowLogDialog extends JDialog
             setLineWrap(true);
         }
 
-        public void appendLines(final String[] lines, final int maxLines, final int maxSize)
+        void appendLines(final String[] lines, final int maxLines, final int maxSize)
         {
             SwingUtilities.invokeLater(new Runnable()
                 {
@@ -86,7 +86,7 @@ class ShowLogDialog extends JDialog
                 });
         }
 
-        public void removeLines(int maxLines, int maxSize)
+        void removeLines(int maxLines, int maxSize)
         {
             javax.swing.text.Document doc = getDocument();
             javax.swing.text.Element rootElt = doc.getDefaultRootElement();
@@ -145,7 +145,7 @@ class ShowLogDialog extends JDialog
                         }
 
                         JOptionPane.showMessageDialog(
-                            ShowLogDialog.this,
+                            ShowLogFileDialog.this,
                             message,
                             _factory.getTitle() + ": cannot open file",
                             JOptionPane.ERROR_MESSAGE);
@@ -405,7 +405,7 @@ class ShowLogDialog extends JDialog
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
-                        JFileChooser fileChooser = _root.getCoordinator().getSaveLogChooser();
+                        JFileChooser fileChooser = _root.getCoordinator().getSaveLogFileChooser();
 
                         fileChooser.setSelectedFile(new java.io.File(fileChooser.getCurrentDirectory(),
                                                                      _factory.getDefaultFilename()));
@@ -414,7 +414,7 @@ class ShowLogDialog extends JDialog
 
                         while(file == null)
                         {
-                            int result = fileChooser.showSaveDialog(ShowLogDialog.this);
+                            int result = fileChooser.showSaveDialog(ShowLogFileDialog.this);
                             if(result == JFileChooser.APPROVE_OPTION)
                             {
                                 file = fileChooser.getSelectedFile();
@@ -441,7 +441,7 @@ class ShowLogDialog extends JDialog
                                     catch(java.io.IOException io)
                                     {
                                         JOptionPane.showMessageDialog(
-                                            ShowLogDialog.this,
+                                            ShowLogFileDialog.this,
                                             io.toString(),
                                             "Cannot write file",
                                             JOptionPane.ERROR_MESSAGE);
@@ -518,7 +518,7 @@ class ShowLogDialog extends JDialog
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
-                        new ShowLogPrefsDialog(ShowLogDialog.this);
+                        new ShowPrefsDialog(ShowLogFileDialog.this);
                     }
                 });
         }
@@ -553,7 +553,7 @@ class ShowLogDialog extends JDialog
         }
     }
 
-    ShowLogDialog(Root root, FileIteratorFactory factory, int maxLines, int maxSize, int initialLines, int maxReadSize,
+    ShowLogFileDialog(Root root, FileIteratorFactory factory, int maxLines, int maxSize, int initialLines, int maxReadSize,
                   int period)
     {
         super(root.getCoordinator().getMainFrame(), factory.getTitle() + " - IceGrid Admin", false);
@@ -738,7 +738,7 @@ class ShowLogDialog extends JDialog
 
         if(notifyRoot)
         {
-            _root.removeShowLogDialog(_factory.getTitle());
+            _root.removeShowLogFileDialog(_factory.getTitle());
         }
         dispose();
     }

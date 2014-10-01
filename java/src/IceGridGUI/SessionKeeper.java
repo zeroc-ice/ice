@@ -407,7 +407,7 @@ public class SessionKeeper
 
         Ice.Object removeCallback(String name, String facet)
         {
-            if(_adminCallbackCategory == null)
+            if(_adminCallbackCategory == null || _adapter == null)
             {
                 return null;
             }
