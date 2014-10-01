@@ -1180,7 +1180,7 @@ Ice::ConnectionI::setCallback(const ConnectionCallbackPtr& callback)
     bool closed = false;
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        if(_state > StateClosing)
+        if(_state >= StateClosed)
         {
             closed = true;
             return;

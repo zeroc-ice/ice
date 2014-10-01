@@ -686,7 +686,12 @@ var ConnectionI = Class({
     },
     setCallback: function(callback)
     {
-        if(this._state > StateClosing)
+        if(callback === null)
+        {
+            return;
+        }
+
+        if(this._state >= StateClosed)
         {
             try
             {
@@ -708,7 +713,7 @@ var ConnectionI = Class({
         {
             return;
         }
-        
+
         if(this._state == StateActive)
         {
             this._monitor.remove(this);

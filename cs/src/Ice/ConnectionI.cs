@@ -766,7 +766,7 @@ namespace Ice
             bool closed = false;
             lock(this)
             {
-                if(_state > StateClosing)
+                if(_state >= StateClosed)
                 {
                     closed = true;
                 }
@@ -803,7 +803,7 @@ namespace Ice
                     _monitor.remove(this);
                 }
                 _monitor = _monitor.acm(timeout, close, heartbeat);
-                
+
                 if(_monitor.getACM().timeout <= 0)
                 {
                     _acmLastActivity = -1; // Disable the recording of last activity.
@@ -812,7 +812,7 @@ namespace Ice
                 {
                     _acmLastActivity = IceInternal.Time.currentMonotonicTimeMillis();
                 }
-                
+
                 if(_state == StateActive)
                 {
                     _monitor.add(this);
