@@ -68,51 +68,6 @@ import IceGrid.*;
 @SuppressWarnings("unchecked")
 public class SessionKeeper
 {
-
-    private class LookupReplyI extends _LookupReplyDisp
-    {
-        @Override
-        public synchronized void
-        foundLocator(LocatorPrx locator, Ice.Current curr)
-        {
-            for(LocatorPrx l : _locators)
-            {
-                if(l.ice_getIdentity().equals(locator.ice_getIdentity()))
-                {
-                    List<Ice.Endpoint> newEndpoints =  new ArrayList<Ice.Endpoint>(Arrays.asList(l.ice_getEndpoints()));
-                    for(Ice.Endpoint p : locator.ice_getEndpoints())
-                    {
-                        //
-                        //  Only add unknown endpoints
-                        //
-                        boolean found = false;
-                        for(Ice.Endpoint q : newEndpoints)
-                        {
-                            if(p.equals(q))
-                            {
-                                found = true;
-                                break;
-                            }
-                        }
-                        if(!found)
-                        {
-                            newEndpoints.add(p);
-                        }
-                    }
-                    l = (LocatorPrx) l.ice_endpoints(newEndpoints.toArray(new Ice.Endpoint[newEndpoints.size()]));
-                }
-            }
-            _locators.add(locator);
-        }
-
-        synchronized List<LocatorPrx>
-        getLocators()
-        {
-            return _locators;
-        }
-
-        private List<LocatorPrx> _locators = new ArrayList<LocatorPrx>();
-    }
     //
     // An AdminSessionPrx and various objects associated with that session
     //
@@ -1180,131 +1135,190 @@ public class SessionKeeper
             _nextButton.requestFocusInWindow();
         }
 
-        public void discoveryEndpoints()
+        public void destroyDisconveryAdapter()
         {
-            JOptionPane messagePane = new JOptionPane("Searching for nearby registries", 
-                                          JOptionPane.DEFAULT_OPTION,
-                                          JOptionPane.INFORMATION_MESSAGE, null, new Object[] {},
-                                          null);
-            final JDialog searchingDialog = messagePane.createDialog(ConnectionWizardDialog.this, 
-                         "Please wait...");
-            searchingDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+            synchronized(SessionKeeper.this)
+            {
+                if(_discoveryAdapter != null)
+                {
+                    SwingUtilities.invokeLater(new Runnable()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                if(_directDiscoveryEndpointModel.size() > 0)
+                                {
+                                    _discoveryStatus.setText("");
+                                }
+                                else
+                                {
+                                    _discoveryStatus.setText("No registries found");
+                                }
+                            }
+                        });
+                    _discoveryAdapter.destroy();
+                    _discoveryAdapter = null;
+                }
+            }
+        }
 
+        public void refreshDiscoveryEndpoints()
+        {
+            final Ice.Communicator communicator = _coordinator.getCommunicator();
+            if(_discoveryLookupReply == null)
+            {
+                _discoveryLookupReply = new _LookupReplyDisp()
+                    {
+                        @Override
+                        public void foundLocator(final LocatorPrx locator, Ice.Current curr)
+                        {
+                            SwingUtilities.invokeLater(new Runnable()
+                                {
+                                    @Override
+                                    public void run()
+                                    {
+                                        try
+                                        {
+                                            Ice.Endpoint[] endps = locator.ice_getEndpoints();
+                                            for(Ice.Endpoint e : endps)
+                                            {
+                                                LocatorPrx prx = LocatorPrxHelper.uncheckedCast(
+                                                            communicator.stringToProxy(
+                                                                communicator.identityToString(locator.ice_getIdentity()) + 
+                                                                ":" + e.toString()));
+                                        
+                                                if(_directDiscoveryEndpointModel.indexOf(prx) == -1)
+                                                {
+                                                    _directDiscoveryEndpointModel.addElement(prx);
+                                                }
+                                            }
+
+                                            if(_directDiscoveryEndpointModel.size() > 0 && 
+                                                _directDiscoveryEndpointList.getSelectedIndex() == -1)
+                                            {
+                                                _directDiscoveryEndpointList.setSelectedIndex(0);
+                                            }
+                                        }
+                                        catch(Ice.LocalException ex)
+                                        {
+                                        }
+                                    }
+                                });
+                        }
+                    };
+            }
+
+            _discoveryStatus.setText("Searching for registries...");
+
+            //
+            // If there isn't any search in progress clear the endpoint list.
+            //
+            synchronized(SessionKeeper.this)
+            {
+                if(_discoveryAdapter == null)
+                {
+                    _directDiscoveryEndpointModel.clear();
+                }
+            }
+
+            final Ice.Properties properties = communicator.getProperties();
+            final String intf = properties.getProperty("IceGridAdmin.Discovery.Interface");
+            String lookupEndpoints = properties.getProperty("IceGridAdmin.Discovery.Lookup");
+
+            if(lookupEndpoints.isEmpty())
+            {
+                StringBuilder s = new StringBuilder();
+                s.append("udp -h \"");
+                s.append(properties.getPropertyWithDefault("IceGridAdmin.Discovery.Address", 
+                            (properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0) ? "239.255.0.1" : "ff15::1"));
+                s.append("\" -p ");
+                s.append(4061);
+                if(!intf.isEmpty())
+                {
+                    s.append(" --interface \"").append(intf);
+                }
+                lookupEndpoints = s.toString();
+            }
+
+            final LookupPrx lookupPrx = LookupPrxHelper.uncheckedCast(
+                communicator.stringToProxy("IceGrid/Lookup -d:" + lookupEndpoints).ice_collocationOptimized(false)
+                                                                                  .ice_router(null));
+            
             new Thread(new Runnable()
             {
                 @Override
                 public void run()
                 {
-                    // Search for endpoints
-                    Ice.Properties properties = _coordinator.getCommunicator().getProperties();
-                    boolean ipv4 = properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
-                    String address;
-                    if (ipv4)
+                    synchronized(SessionKeeper.this)
                     {
-                        address = properties.getPropertyWithDefault("IceGridAdmin.Discovery.Address", "239.255.0.1");
-                    }
-                    else
-                    {
-                        address = properties.getPropertyWithDefault("IceGridAdmin.Discovery.Address", "ff15::1");
-                    }
-
-                    String intf = properties.getProperty("IceGridAdmin.Discovery.Interface");
-                    String lookupEndpoints = properties.getProperty("IceGridAdmin.Discovery.Lookup");
-
-                    if(lookupEndpoints.isEmpty())
-                    {
-                        StringBuilder s = new StringBuilder();
-                        s.append("udp -h \"").append(address).append("\" -p ");
-                        s.append(4061);
-                        if(!intf.isEmpty())
+                        //
+                        // If search is in progress when refresh is hit, cancel the 
+                        // finish task we will schedule a new one with this new
+                        // search.
+                        // 
+                        if(_discoveryFinishTask != null)
                         {
-                            s.append(" --interface \"").append(intf);
+                            _discoveryFinishTask.cancel();
                         }
-                        lookupEndpoints = s.toString();
-                    }
 
-                    Ice.ObjectPrx prx = _coordinator.getWizardCommunicator().stringToProxy(
-                    "IceGrid/Lookup -d:" + lookupEndpoints);
-                    LookupPrx lookupPrx = LookupPrxHelper.uncheckedCast(
-                    prx.ice_collocationOptimized(false));
-
-
-                    if(properties.getProperty("IceGridAdmin.Discovery.Reply.Endpoints").isEmpty())
-                    {
-                        StringBuilder s = new StringBuilder();
-                        s.append("udp");
-                        if(!intf.isEmpty())
+                        if(_discoveryAdapter == null)
                         {
-                            s.append(" -h \"").append(intf).append("\"");
+                            if(properties.getProperty("IceGridAdmin.Discovery.Reply.Endpoints").isEmpty())
+                            {
+                                StringBuilder s = new StringBuilder();
+                                s.append("udp");
+                                if(!intf.isEmpty())
+                                {
+                                    s.append(" -h \"").append(intf).append("\"");
+                                }
+                                properties.setProperty("IceGridAdmin.Discovery.Reply.Endpoints", s.toString());
+                            }
+
+                            _discoveryAdapter = communicator.createObjectAdapter("IceGridAdmin.Discovery.Reply");
+                            _discoveryAdapter.activate();
+                            _discoveryReplyPrx =  
+                                LookupReplyPrxHelper.uncheckedCast(
+                                                _discoveryAdapter.addWithUUID(_discoveryLookupReply).ice_datagram());
                         }
-                        properties.setProperty("IceGridAdmin.Discovery.Reply.Endpoints", s.toString());
-                    }
 
-                    Ice.ObjectAdapter adapter = 
-                                    _coordinator.getCommunicator().createObjectAdapter("IceGridAdmin.Discovery.Reply");
-                    adapter.activate();
-
-                    LookupReplyI reply = new LookupReplyI();
-                    LookupReplyPrx replyPrx =  
-                                        LookupReplyPrxHelper.uncheckedCast(adapter.addWithUUID(reply).ice_datagram());
-
-                    synchronized(this)
-                    {
-                        int retryCount = 3; // Send several findLocator queries.
                         try
                         {
-                            while(--retryCount >= 0)
+                            lookupPrx.findLocator("", _discoveryReplyPrx);
+                        }
+                        catch(final Ice.LocalException ex)
+                        {
+                            ex.printStackTrace();
+                            destroyDisconveryAdapter();
+                            SwingUtilities.invokeLater(new Runnable()
                             {
-                                lookupPrx.findLocator("", replyPrx);
-                                try
+                                @Override
+                                public void run()
                                 {
-                                    wait(300);
+                                    JOptionPane.showMessageDialog(ConnectionWizardDialog.this,
+                                                                  ex.toString(),
+                                                                 "Error while loopup locator endpoints",
+                                                                 JOptionPane.ERROR_MESSAGE);
                                 }
-                                catch(InterruptedException ex)
-                                {
-                                }
-
-                                if(!reply.getLocators().isEmpty())
-                                {
-                                    break;
-                                }
-                            }
+                            });
                         }
-                        catch(Ice.LocalException ex)
-                        {
-                            System.err.println("IceGrid registry discovery failed:\n" + ex);
-                        }
-                        adapter.destroy();
 
-                        List<LocatorPrx> locators = reply.getLocators();
-                        _directDiscoveryEndpointModel.clear();
-                        if(!locators.isEmpty())
-                        {
-                            _directDiscoveryDiscoveredEndpoint.setEnabled(true);
-                            for(LocatorPrx l : locators)
+                        //
+                        // We schedule a timer task to destroy the discovery adapter after 2
+                        // seconds, the user doesn't need to wait, discovered proxies are
+                        // added as they are found.
+                        //
+                        _discoveryFinishTask = new java.util.TimerTask()
                             {
-                                _directDiscoveryEndpointModel.addElement(l);
-                            }
-
-                        }
-                        else
-                        {
-                            _directDiscoveryDiscoveredEndpoint.setEnabled(false);
-                            _directDiscoveryManualEndpoint.setSelected(true);
-                        }
+                                @Override
+                                public void run()
+                                {
+                                    destroyDisconveryAdapter();
+                                }
+                            };
+                        new java.util.Timer().schedule(_discoveryFinishTask, 2000);
                     }
-
-                    SwingUtilities.invokeLater(new Runnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            searchingDialog.dispose();
-                        }
-                    });
                 }
             }).start();
-            searchingDialog.setVisible(true);
         }
 
         private void initialize(String title, final JDialog parent)
@@ -1361,14 +1375,26 @@ public class SessionKeeper
 
             // Direct Discovery Endpoint List
             {
-            	FormLayout layout = new FormLayout("pref:grow", "pref");
-                DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                builder.border(Borders.DIALOG);
-                builder.rowGroupingEnabled(false);
-
                 _directDiscoveryEndpointModel = new DefaultListModel<LocatorPrx>();
                 _directDiscoveryEndpointList = new JList<LocatorPrx>(_directDiscoveryEndpointModel);
                 _directDiscoveryEndpointList.setVisibleRowCount(7);
+                _directDiscoveryEndpointList.addMouseListener(
+                    new MouseAdapter()
+                        {
+                            @Override
+                            public void mouseClicked(MouseEvent e)
+                            {
+                                if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
+                                {
+                                    Object obj = _directDiscoveryEndpointModel.getElementAt(
+                                                            _directDiscoveryEndpointList.locationToIndex(e.getPoint()));
+                                    if(obj != null && obj instanceof LocatorPrx)
+                                    {
+                                        _nextButton.doClick(0);
+                                    }
+                                }
+                            }
+                        });
                 
                 _directDiscoveryEndpointList.addListSelectionListener(new ListSelectionListener()
                 {
@@ -1379,8 +1405,6 @@ public class SessionKeeper
                 	}
                 });
                 
-                JScrollPane endpointListScroll = createStrippedScrollPane(_directDiscoveryEndpointList);
-                
                 ButtonGroup group = new ButtonGroup();
                 _directDiscoveryDiscoveredEndpoint = new JRadioButton(new AbstractAction("Discovered Endpoints")
                 	{
@@ -1388,29 +1412,60 @@ public class SessionKeeper
                         public void actionPerformed(ActionEvent e)
                 		{
                 			_directDiscoveryEndpointList.setEnabled(true);
+                            _discoveryStatus.setEnabled(true);
+                            _discoveryRefresh.setEnabled(true);
                 			validatePanel();
-                            discoveryEndpoints();
+                            refreshDiscoveryEndpoints();
                 		}
                 	});
                 _directDiscoveryDiscoveredEndpoint.setSelected(true);
                 group.add(_directDiscoveryDiscoveredEndpoint);
+
+                JPanel discoveryStatus;
+                {
+                    FormLayout layout = new FormLayout("pref:grow, 2dlu, pref", "");
+                    DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+
+                    _discoveryStatus = new JLabel();
+                    _discoveryRefresh = new JButton(new AbstractAction("Refresh")
+                    {
+                        @Override
+                        public void actionPerformed(ActionEvent e)
+                        {
+                            refreshDiscoveryEndpoints();
+                        }
+                    });
+
+                    builder.rowGroupingEnabled(true);
+                    builder.append(_discoveryStatus, _discoveryRefresh);
+                    discoveryStatus = builder.getPanel();
+                }
                 
                 _directDiscoveryManualEndpoint = new JRadioButton(new AbstractAction("Manual Endpoint")
                 	{
                     	@Override
                         public void actionPerformed(ActionEvent e)
                     	{
+                            destroyDisconveryAdapter();
                     		_directDiscoveryEndpointList.setEnabled(false);
+                            _discoveryStatus.setEnabled(false);
+                            _discoveryRefresh.setEnabled(false);
                     		validatePanel();
                     	}
                 	});
                 group.add(_directDiscoveryManualEndpoint);
                
-                builder.append(_directDiscoveryDiscoveredEndpoint);
-                builder.append(endpointListScroll);
-                builder.append(_directDiscoveryManualEndpoint);
-                
-                _cardPanel.add(builder.getPanel(), WizardStep.DirectDiscoveryChooseStep.toString());
+                {
+                    FormLayout layout = new FormLayout("pref:grow", "pref");
+                    DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+                    builder.border(Borders.DIALOG);
+                    builder.rowGroupingEnabled(false);
+                    builder.append(_directDiscoveryDiscoveredEndpoint);
+                    builder.append(createStrippedScrollPane(_directDiscoveryEndpointList));
+                    builder.append(discoveryStatus);
+                    builder.append(_directDiscoveryManualEndpoint);
+                    _cardPanel.add(builder.getPanel(), WizardStep.DirectDiscoveryChooseStep.toString());
+                }
             }
 
             // Direct Instance Panel
@@ -1424,11 +1479,8 @@ public class SessionKeeper
                 _directConnectToMaster.setSelected(true); // on by default
                 builder.append(_directConnectToMaster);
                 builder.append(new JLabel("You need to connect to a Master Registry to change definitions."));
-
-
                 _cardPanel.add(builder.getPanel(), WizardStep.DirectMasterStep.toString());
             }
-
 
             // Direct Endpoint panel
             {
@@ -2096,7 +2148,7 @@ public class SessionKeeper
                                 _wizardSteps.push(WizardStep.DirectDiscoveryChooseStep);
                                 if(_directDiscoveryDiscoveredEndpoint.isSelected())
                                 {
-                                    discoveryEndpoints();
+                                    refreshDiscoveryEndpoints();
                                 }
                                 break;
                             }
@@ -2217,10 +2269,10 @@ public class SessionKeeper
                                     id.name = "Locator";
                                     id.category = _directInstanceName.getText();
                                     StringBuilder endpoint = new StringBuilder();
-                                    endpoint.append(_coordinator.getWizardCommunicator().identityToString(id));
+                                    endpoint.append(_coordinator.getCommunicator().identityToString(id));
                                     endpoint.append(":");
                                     endpoint.append(_directCustomEndpointValue.getText());
-                                    _coordinator.getWizardCommunicator().stringToProxy(endpoint.toString());
+                                    _coordinator.getCommunicator().stringToProxy(endpoint.toString());
                                     if(containsSecureEndpoints(endpoint.toString()))
                                     {
                                         _cardLayout.show(_cardPanel, WizardStep.X509CertificateStep.toString());
@@ -2274,10 +2326,10 @@ public class SessionKeeper
                                     id.name = "router";
                                     id.category = _routedInstanceName.getText();
                                     StringBuilder endpoint = new StringBuilder();
-                                    endpoint.append(_coordinator.getWizardCommunicator().identityToString(id));
+                                    endpoint.append(_coordinator.getCommunicator().identityToString(id));
                                     endpoint.append(":");
                                     endpoint.append(_routedCustomEndpointValue.getText());
-                                    _coordinator.getWizardCommunicator().stringToProxy(endpoint.toString());
+                                    _coordinator.getCommunicator().stringToProxy(endpoint.toString());
                                     if(containsSecureEndpoints(endpoint.toString()))
                                     {
                                         _cardLayout.show(_cardPanel, WizardStep.X509CertificateStep.toString());
@@ -2407,6 +2459,8 @@ public class SessionKeeper
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
+                        destroyDisconveryAdapter();
+
                         ConnectionInfo inf = getConfiguration();
                         if(inf == null)
                         {
@@ -2578,6 +2632,7 @@ public class SessionKeeper
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
+                        destroyDisconveryAdapter();
                         dispose();
                     }
                 };
@@ -3115,7 +3170,7 @@ public class SessionKeeper
                     id.name = "Locator";
                     id.category = _directInstanceName.getText();
                     StringBuilder endpoint = new StringBuilder();
-                    endpoint.append(_coordinator.getWizardCommunicator().identityToString(id));
+                    endpoint.append(_coordinator.getCommunicator().identityToString(id));
                     endpoint.append(":");
                     endpoint.append(_directCustomEndpointValue.getText());
                     return containsSecureEndpoints(endpoint.toString());
@@ -3133,7 +3188,7 @@ public class SessionKeeper
                     id.name = "router";
                     id.category = _routedInstanceName.getText();
                     StringBuilder endpoint = new StringBuilder();
-                    endpoint.append(_coordinator.getWizardCommunicator().identityToString(id));
+                    endpoint.append(_coordinator.getCommunicator().identityToString(id));
                     endpoint.append(":");
                     endpoint.append(_routedCustomEndpointValue.getText());
                     return containsSecureEndpoints(endpoint.toString());
@@ -3160,6 +3215,13 @@ public class SessionKeeper
         private JList<LocatorPrx> _directDiscoveryEndpointList;
         private DefaultListModel<LocatorPrx> _directDiscoveryEndpointModel;
         private JRadioButton _directDiscoveryDiscoveredEndpoint;
+        private JLabel _discoveryStatus;
+        private JButton _discoveryRefresh;
+        
+        private java.util.TimerTask _discoveryFinishTask;
+        private Ice.ObjectAdapter _discoveryAdapter;
+        private LookupReplyPrx _discoveryReplyPrx;
+        private _LookupReplyDisp _discoveryLookupReply;
         private JRadioButton _directDiscoveryManualEndpoint;
 
         // Direct Endpoints panel components
@@ -3233,7 +3295,7 @@ public class SessionKeeper
     {
         try
         {
-            for(Ice.Endpoint endpoint : _coordinator.getWizardCommunicator().stringToProxy(str).ice_getEndpoints())
+            for(Ice.Endpoint endpoint : _coordinator.getCommunicator().stringToProxy(str).ice_getEndpoints())
             {
                 if(endpoint.getInfo().secure())
                 {
@@ -3318,7 +3380,7 @@ public class SessionKeeper
                     id.name = inf.getDirect() ? "Locator" : "router";
                     id.category = inf.getInstanceName();
                     StringBuilder endpoint = new StringBuilder();
-                    endpoint.append(_coordinator.getWizardCommunicator().identityToString(id));
+                    endpoint.append(_coordinator.getCommunicator().identityToString(id));
                     endpoint.append(":");
                     endpoint.append(inf.getEndpoint());
                     ssl = containsSecureEndpoints(endpoint.toString());
@@ -3620,9 +3682,8 @@ public class SessionKeeper
                             }
                         });
 
-                JScrollPane registryListScroll = createStrippedScrollPane(_connectionList);
                 _connectionList.setFixedCellWidth(500);
-                builder.append(registryListScroll);
+                builder.append(createStrippedScrollPane(_connectionList));
 
                 savedConfigurationsPanel = builder.getPanel();
             }
