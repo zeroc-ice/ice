@@ -194,6 +194,13 @@ public class OutgoingAsync extends OutgoingAsyncBase implements OutgoingAsyncMes
                 _state |= StateDone | StateOK;
                 // _os.resize(0, false); // Don't clear the buffer now, it's
                 // needed for the collocation optimization
+                
+                // For oneway requests after the data has been sent the buffers
+                // can be reused unless this is a collocated invocation. For
+                // collocated invocations the buffer won't be reused as the
+                // because it has already been marked as cached in
+                // invokeCollocated.
+                cacheMessageBuffers();
             }
             _monitor.notifyAll();
 
