@@ -93,23 +93,9 @@ public class GetConnectionOutgoingAsync extends OutgoingAsyncBase implements Out
     }
 
     @Override
-    public void processRetry(boolean destroyed)
+    void processRetry()
     {
-        if(destroyed)
-        {
-            invokeExceptionAsync(new Ice.CommunicatorDestroyedException());
-        }
-        else
-        {
-            try
-            {
-                __invoke();
-            }
-            catch(Ice.LocalException ex)
-            {
-                invokeExceptionAsync(ex);
-            }
-        }
+        __invoke();
     }
 
     @Override

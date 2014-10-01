@@ -92,6 +92,6 @@ public class ProxyBatchOutgoingAsync extends BatchOutgoingAsync
         }
     }
 
-    private Ice.ObjectPrxHelperBase _proxy;
+    final private Ice.ObjectPrxHelperBase _proxy;
     private RequestHandler _handler = null;
 }

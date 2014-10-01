@@ -618,26 +618,6 @@ IceInternal::OutgoingAsync::__finished(const Ice::Exception& exc)
 }
 
 void
-IceInternal::OutgoingAsync::__processRetry(bool destroyed)
-{
-    if(destroyed)
-    {
-        __invokeExceptionAsync(CommunicatorDestroyedException(__FILE__, __LINE__));
-    }
-    else
-    {
-        try
-        {
-            __invoke(false);
-        }
-        catch(const Ice::LocalException& ex)
-        {
-            __invokeExceptionAsync(ex);
-        }
-    }
-}
-
-void
 IceInternal::OutgoingAsync::__invokeExceptionAsync(const Ice::Exception& ex)
 {
     if((_state & Done) == 0 && _handler)
@@ -654,6 +634,12 @@ IceInternal::OutgoingAsync::__invokeExceptionAsync(const Ice::Exception& ex)
         }
     }
     AsyncResult::__invokeExceptionAsync(ex);
+}
+
+void
+IceInternal::OutgoingAsync::__processRetry()
+{
+    __invoke(false);
 }
 
 bool
@@ -850,7 +836,7 @@ IceInternal::OutgoingAsync::__finished()
 }
 
 bool
-IceInternal::OutgoingAsync::__invoke(bool synchronous)
+IceInternal::OutgoingAsync::__invoke(bool userThread)
 {
     const Reference::Mode mode = _proxy->__reference()->getMode();
     if(mode == Reference::ModeBatchOneway || mode == Reference::ModeBatchDatagram)
@@ -870,7 +856,7 @@ IceInternal::OutgoingAsync::__invoke(bool synchronous)
             AsyncStatus status = _handler->sendAsyncRequest(this);
             if(status & AsyncStatusSent)
             {
-                if(synchronous)
+                if(userThread)
                 {
                     _sentSynchronously = true;
                     if(status & AsyncStatusInvokeSentCallback)
@@ -1007,9 +993,9 @@ IceInternal::BatchOutgoingAsync::__finished(const Ice::Exception& exc)
 }
 
 void
-IceInternal::BatchOutgoingAsync::__processRetry(bool destroyed)
+IceInternal::BatchOutgoingAsync::__processRetry()
 {
-    // Does not support retry
+    assert(false); // Retries are never scheduled
 }
 
 IceInternal::ProxyBatchOutgoingAsync::ProxyBatchOutgoingAsync(const Ice::ObjectPrx& proxy,
@@ -1200,6 +1186,12 @@ IceInternal::CommunicatorBatchOutgoingAsync::ready()
 }
 
 void
+IceInternal::CommunicatorBatchOutgoingAsync::__processRetry()
+{
+    assert(false); // Retries are never scheduled
+}
+
+void
 IceInternal::CommunicatorBatchOutgoingAsync::check(bool userThread)
 {
     {
@@ -1313,23 +1305,9 @@ IceInternal::GetConnectionOutgoingAsync::__finished(const Ice::Exception& exc)
 }
 
 void
-IceInternal::GetConnectionOutgoingAsync::__processRetry(bool destroyed)
+IceInternal::GetConnectionOutgoingAsync::__processRetry()
 {
-    if(destroyed)
-    {
-        __invokeExceptionAsync(CommunicatorDestroyedException(__FILE__, __LINE__));
-    }
-    else
-    {
-        try
-        {
-            __invoke();
-        }
-        catch(const Ice::LocalException& ex)
-        {
-            __invokeExceptionAsync(ex);
-        }
-    }
+    __invoke();
 }
 
 void

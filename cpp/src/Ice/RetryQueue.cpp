@@ -18,7 +18,7 @@ using namespace IceInternal;
 
 IceUtil::Shared* IceInternal::upCast(RetryQueue* p) { return p; }
 
-IceInternal::RetryTask::RetryTask(const RetryQueuePtr& queue, const OutgoingAsyncMessageCallbackPtr& outAsync) :
+IceInternal::RetryTask::RetryTask(const RetryQueuePtr& queue, const AsyncResultPtr& outAsync) :
     _queue(queue), _outAsync(outAsync)
 {
 }
@@ -26,7 +26,14 @@ IceInternal::RetryTask::RetryTask(const RetryQueuePtr& queue, const OutgoingAsyn
 void
 IceInternal::RetryTask::runTimerTask()
 {
-    _outAsync->__processRetry(false);
+    try
+    {
+        _outAsync->__processRetry();
+    }
+    catch(const Ice::LocalException& ex)
+    {
+        _outAsync->__invokeExceptionAsync(ex);
+    }
 
     //
     // NOTE: this must be called last, destroy() blocks until all task
@@ -40,7 +47,7 @@ IceInternal::RetryTask::runTimerTask()
 void
 IceInternal::RetryTask::destroy()
 {
-    _outAsync->__processRetry(true);
+    _outAsync->__invokeExceptionAsync(CommunicatorDestroyedException(__FILE__, __LINE__));
 }
 
 bool
@@ -54,7 +61,7 @@ IceInternal::RetryQueue::RetryQueue(const InstancePtr& instance) : _instance(ins
 }
 
 void
-IceInternal::RetryQueue::add(const OutgoingAsyncMessageCallbackPtr& out, int interval)
+IceInternal::RetryQueue::add(const AsyncResultPtr& out, int interval)
 {
     Lock sync(*this);
     if(!_instance)

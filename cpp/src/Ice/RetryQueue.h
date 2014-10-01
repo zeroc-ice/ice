@@ -24,7 +24,7 @@ class RetryTask : public IceUtil::TimerTask
 {
 public:
 
-    RetryTask(const RetryQueuePtr&, const OutgoingAsyncMessageCallbackPtr&);
+    RetryTask(const RetryQueuePtr&, const Ice::AsyncResultPtr&);
 
     virtual void runTimerTask();
     void destroy();
@@ -34,7 +34,7 @@ public:
 private:
 
     const RetryQueuePtr _queue;
-    const OutgoingAsyncMessageCallbackPtr _outAsync;
+    const Ice::AsyncResultPtr _outAsync;
 };
 typedef IceUtil::Handle<RetryTask> RetryTaskPtr;
 
@@ -44,7 +44,7 @@ public:
 
     RetryQueue(const InstancePtr&);
 
-    void add(const OutgoingAsyncMessageCallbackPtr&, int);
+    void add(const Ice::AsyncResultPtr&, int);
     void destroy();
 
 private:

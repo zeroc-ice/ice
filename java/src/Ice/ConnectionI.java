@@ -785,7 +785,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     }
 
     synchronized public boolean asyncRequestCanceled(IceInternal.OutgoingAsyncMessageCallback outAsync,
-            Ice.LocalException ex)
+                                                     Ice.LocalException ex)
     {
         java.util.Iterator<OutgoingMessage> it = _sendStreams.iterator();
         while(it.hasNext())

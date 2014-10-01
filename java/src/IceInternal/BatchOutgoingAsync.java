@@ -96,9 +96,9 @@ abstract public class BatchOutgoingAsync extends OutgoingAsyncBase implements Ou
 
     @Override
     public void
-    processRetry(boolean destroyed)
+    processRetry()
     {
-        // Does not implement retry
+        assert(false); // Retries are never scheduled
     }
 
     @Override

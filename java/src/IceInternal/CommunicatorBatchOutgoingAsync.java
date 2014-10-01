@@ -218,6 +218,13 @@ public class CommunicatorBatchOutgoingAsync extends OutgoingAsyncBase
     }
 
     @Override
+    public void
+    processRetry()
+    {
+        assert(false); // Retries are never scheduled
+    }
+
+    @Override
     protected void cancelRequest()
     {
     }

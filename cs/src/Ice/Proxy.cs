@@ -819,8 +819,11 @@ namespace Ice
             }
         }
 
-        private AsyncResult<Callback_Object_ice_isA> begin_ice_isA(string id, Dictionary<string, string> context__,
-                                                                   bool explicitCtx__, bool synchronous__, Ice.AsyncCallback cb__,
+        private AsyncResult<Callback_Object_ice_isA> begin_ice_isA(string id, 
+                                                                   Dictionary<string, string> context__,
+                                                                   bool explicitCtx__,
+                                                                   bool synchronous__,
+                                                                   Ice.AsyncCallback cb__, 
                                                                    object cookie__)
         {
             checkAsyncTwowayOnly__(__ice_isA_name);
@@ -995,10 +998,10 @@ namespace Ice
         }
 
         private AsyncResult<Callback_Object_ice_ping> begin_ice_ping(Dictionary<string, string> context__,
-                                                                 bool explicitCtx__,
-                                                                 bool synchronous__,
-                                                                 Ice.AsyncCallback cb__,
-                                                                 object cookie__)
+                                                                     bool explicitCtx__,
+                                                                     bool synchronous__,
+                                                                     Ice.AsyncCallback cb__,
+                                                                     object cookie__)
         {
             IceInternal.OnewayOutgoingAsync<Callback_Object_ice_ping> result__ =
                 getOnewayOutgoingAsync<Callback_Object_ice_ping>(__ice_ping_name, ice_ping_completed__, cookie__);
@@ -1111,10 +1114,10 @@ namespace Ice
         }
 
         private AsyncResult<Callback_Object_ice_ids> begin_ice_ids(Dictionary<string, string> context__,
-                                                                      bool explicitCtx__,
-                                                                      bool synchronous__,
-                                                                      Ice.AsyncCallback cb__,
-                                                                      object cookie__)
+                                                                   bool explicitCtx__,
+                                                                   bool synchronous__,
+                                                                   Ice.AsyncCallback cb__,
+                                                                   object cookie__)
         {
             checkAsyncTwowayOnly__(__ice_ids_name);
 
@@ -1239,10 +1242,10 @@ namespace Ice
         }
 
         private AsyncResult<Callback_Object_ice_id> begin_ice_id(Dictionary<string, string> context__,
-                                                                    bool explicitCtx__,
-                                                                    bool synchronous__,
-                                                                    Ice.AsyncCallback cb__,
-                                                                    object cookie__)
+                                                                 bool explicitCtx__,
+                                                                 bool synchronous__,
+                                                                 Ice.AsyncCallback cb__,
+                                                                 object cookie__)
         {
             checkAsyncTwowayOnly__(__ice_id_name);
 

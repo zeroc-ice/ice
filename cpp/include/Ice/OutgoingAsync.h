@@ -131,10 +131,15 @@ public:
     void __attachCollocatedObserver(const Ice::ObjectAdapterPtr& adapter, Ice::Int requestId)
     {
         _childObserver.attach(_observer.getCollocatedObserver(adapter,
-                                                               requestId,
-                                                               static_cast<Ice::Int>(_os.b.size() -
-                                                                                     IceInternal::headerSize - 4)));
+                                                              requestId,
+                                                              static_cast<Ice::Int>(_os.b.size() -
+                                                                                    IceInternal::headerSize - 4)));
     }
+
+    //
+    // Called by the retry queue to process retry.
+    //
+    virtual void __processRetry() = 0;
 
 protected:
 
@@ -231,11 +236,6 @@ public:
     virtual void __finished(const Ice::Exception&) = 0;
 
     //
-    // Called by the retry queue to process retry.
-    //
-    virtual void __processRetry(bool destroyed) = 0;
-
-    //
     // Helper to dispatch invocation timeout.
     //
     void __dispatchInvocationTimeout(const ThreadPoolPtr&, const Ice::ConnectionPtr&);
@@ -260,8 +260,8 @@ public:
     virtual bool __sent();
     virtual void __invokeSent();
     virtual void __finished(const Ice::Exception&);
-    virtual void __processRetry(bool);
     virtual void __invokeExceptionAsync(const Ice::Exception&);
+    virtual void __processRetry();
 
     bool __finished();
     bool __invoke(bool);
@@ -297,16 +297,12 @@ public:
         return &_is;
     }
 
-protected:
-
-    Ice::ObjectPrx _proxy;
-
 private:
 
     void handleException(const Ice::Exception&);
 
-
-    Ice::EncodingVersion _encoding;
+    const Ice::ObjectPrx _proxy;
+    const Ice::EncodingVersion _encoding;
 
     RequestHandlerPtr _handler;
     int _cnt;
@@ -326,7 +322,7 @@ public:
     virtual bool __sent();
     virtual void __invokeSent();
     virtual void __finished(const Ice::Exception&);
-    virtual void __processRetry(bool);
+    virtual void __processRetry();
 };
 
 class ICE_API ProxyBatchOutgoingAsync : public BatchOutgoingAsync
@@ -346,7 +342,7 @@ public:
 
 private:
 
-    Ice::ObjectPrx _proxy;
+    const Ice::ObjectPrx _proxy;
 };
 
 class ICE_API ConnectionBatchOutgoingAsync : public BatchOutgoingAsync
@@ -375,6 +371,8 @@ public:
     void flushConnection(const Ice::ConnectionIPtr&);
     void ready();
 
+    virtual void __processRetry();
+
 private:
 
     void check(bool);
@@ -402,7 +400,7 @@ public:
     virtual bool __sent();
     virtual void __invokeSent();
     virtual void __finished(const Ice::Exception&);
-    virtual void __processRetry(bool);
+    virtual void __processRetry();
 
 private:
 
@@ -507,8 +505,9 @@ template<typename Callable, typename = void> struct callable_type
     static const int value = 1;
 };
 
-template<class Callable> struct callable_type<Callable, typename ::std::enable_if< ::std::is_class<Callable>::value &&
-                                                                                   !::std::is_bind_expression<Callable>::value>::type>
+template<class Callable> struct callable_type<Callable, typename ::std::enable_if< 
+                                                            ::std::is_class<Callable>::value &&
+                                                            !::std::is_bind_expression<Callable>::value>::type>
 {
     template<typename T, T> struct TypeCheck;
     template<typename T> struct AsyncResultCallback
@@ -551,7 +550,8 @@ template<class S> class Function : public std::function<S>
 
 public:
 
-    template<typename T> Function(T f, typename ::std::enable_if<is_callable<T, S>::value>::type* = 0) : std::function<S>(f)
+    template<typename T> Function(T f, typename ::std::enable_if<is_callable<T, S>::value>::type* = 0) 
+        : std::function<S>(f)
     {
     }
 

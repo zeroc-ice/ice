@@ -658,8 +658,7 @@ var ConnectionI = Class({
 
         try
         {
-            status = this.sendMessage(OutgoingMessage.create(outAsync, outAsync.__os(), this._batchRequestCompress,
-                                                                0));
+            status = this.sendMessage(OutgoingMessage.create(outAsync, outAsync.__os(), this._batchRequestCompress, 0));
         }
         catch(ex)
         {

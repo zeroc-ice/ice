@@ -21,6 +21,9 @@ public interface OutgoingAsyncMessageCallback
     int send(Ice.ConnectionI conection, boolean compress, boolean response)
         throws RetryException;
 
+    //
+    // Called by the collocated request handler to invoke the request.
+    //
     int invokeCollocated(CollocatedRequestHandler handler);
 
     //
@@ -42,11 +45,6 @@ public interface OutgoingAsyncMessageCallback
     // Called by the connection when the request failed.
     //
     void finished(Ice.Exception ex);
-
-    //
-    // Called by the retry queue to process retry.
-    //
-    void processRetry(boolean destroyed);
 
     //
     // Helper to dispatch the cancellation exception.

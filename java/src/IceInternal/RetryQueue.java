@@ -17,7 +17,7 @@ public class RetryQueue
     }
 
     synchronized public void
-    add(OutgoingAsyncMessageCallback outAsync, int interval)
+    add(OutgoingAsyncBase outAsync, int interval)
     {
         if(_instance == null)
         {

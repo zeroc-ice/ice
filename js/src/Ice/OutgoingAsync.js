@@ -529,10 +529,10 @@ var ProxyBatchOutgoingAsync = Ice.Class(BatchOutgoingAsync, {
                 {
                     var self = this;
                     this._timeoutToken = this._instance.timer().schedule(function() 
-                                                                            { 
-                                                                                self.__runTimerTask(); 
-                                                                            }, 
-                                                                            invocationTimeout);
+                                                                         { 
+                                                                             self.__runTimerTask(); 
+                                                                         }, 
+                                                                         invocationTimeout);
                     this._timeoutRequestHandler = handler;
                 }
             }

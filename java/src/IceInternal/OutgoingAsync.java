@@ -243,23 +243,9 @@ public class OutgoingAsync extends OutgoingAsyncBase implements OutgoingAsyncMes
     }
 
     @Override
-    public void processRetry(boolean destroyed)
+    void processRetry()
     {
-        if(destroyed)
-        {
-            invokeExceptionAsync(new Ice.CommunicatorDestroyedException());
-        }
-        else
-        {
-            try
-            {
-                invoke(false);
-            }
-            catch(Ice.LocalException ex)
-            {
-                invokeExceptionAsync(ex);
-            }
-        }
+        invoke(false);
     }
 
     @Override
@@ -489,7 +475,7 @@ public class OutgoingAsync extends OutgoingAsyncBase implements OutgoingAsyncMes
         }
     }
 
-    public final boolean invoke(boolean synchronous)
+    public final boolean invoke(boolean userThread)
     {
         int mode = _proxy.__reference().getMode();
         if(mode == Reference.ModeBatchOneway || mode == Reference.ModeBatchDatagram)
@@ -513,7 +499,7 @@ public class OutgoingAsync extends OutgoingAsyncBase implements OutgoingAsyncMes
                 int status = _handler.sendAsyncRequest(this);
                 if((status & AsyncStatus.Sent) > 0)
                 {
-                    if(synchronous)
+                    if(userThread)
                     {
                         _sentSynchronously = true;
                         if((status & AsyncStatus.InvokeSentCallback) > 0)
@@ -682,20 +668,18 @@ public class OutgoingAsync extends OutgoingAsyncBase implements OutgoingAsyncMes
         }
     }
 
-    protected Ice.ObjectPrxHelperBase _proxy;
+    final private Ice.ObjectPrxHelperBase _proxy;
+    final private Ice.EncodingVersion _encoding;
 
     private RequestHandler _handler;
     private int _cnt;
-    private Ice.EncodingVersion _encoding;
     private Ice.OperationMode _mode;
     private boolean _sent;
+
     //
     // If true this AMI request is being used for a generated synchronous invocation.
     //
     private boolean _synchronous;
 
-
     private static final java.util.Map<String, String> _emptyContext = new java.util.HashMap<String, String>();
-
-
 }

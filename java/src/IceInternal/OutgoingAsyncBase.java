@@ -264,8 +264,7 @@ public abstract class OutgoingAsyncBase implements Ice.AsyncResult
     
                 if(_exception != null)
                 {
-                    //throw (LocalException)_exception.fillInStackTrace();
-                    throw _exception;
+                    throw (Ice.Exception)_exception.fillInStackTrace();
                 }
     
                 return (_state & StateOK) > 0;
@@ -280,7 +279,6 @@ public abstract class OutgoingAsyncBase implements Ice.AsyncResult
             cancelRequest();
             throw new Ice.OperationInterruptedException();
         }
-
     }
 
     public final void throwUserException()
@@ -396,14 +394,14 @@ public abstract class OutgoingAsyncBase implements Ice.AsyncResult
             }
         }
     }
-
+    
     void attachCollocatedObserver(Ice.ObjectAdapter adapter, int requestId)
     {
         if(_observer != null)
         {
             _childObserver = _observer.getCollocatedObserver(adapter,
-                                                              requestId,
-                                                              _os.size() - IceInternal.Protocol.headerSize - 4);
+                                                             requestId,
+                                                             _os.size() - IceInternal.Protocol.headerSize - 4);
             if(_childObserver != null)
             {
                 _childObserver.attach();
@@ -411,7 +409,9 @@ public abstract class OutgoingAsyncBase implements Ice.AsyncResult
         }
     }
 
-    final void invokeSentAsync()
+    abstract void processRetry();
+    
+    final protected void invokeSentAsync()
     {
         //
         // This is called when it's not safe to call the sent callback synchronously
@@ -531,8 +531,8 @@ public abstract class OutgoingAsyncBase implements Ice.AsyncResult
 
         if(handler != null)
         {
-            handler.asyncRequestCanceled((IceInternal.OutgoingAsyncMessageCallback)this,
-                            new Ice.InvocationTimeoutException());
+            handler.asyncRequestCanceled((IceInternal.OutgoingAsyncMessageCallback)this, 
+                                         new Ice.InvocationTimeoutException());
         }
     }
 
