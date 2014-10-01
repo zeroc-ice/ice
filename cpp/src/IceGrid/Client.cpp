@@ -529,7 +529,7 @@ Client::run(StringSeq& originalArgs)
                 ostringstream os;
                 os << "Ice/LocatorFinder" << (ssl ? " -s" : "");
                 os << ":tcp -h \"" << host << "\" -p " << (port == 0 ? 4061 : port) << " -t " << timeout;
-                os << ":ssl -h \"" << host << "\" -p " << (port == 0 ? 4063 : port) << " -t " << timeout;
+                os << ":ssl -h \"" << host << "\" -p " << (port == 0 ? 4062 : port) << " -t " << timeout;
                 LocatorFinderPrx finder = LocatorFinderPrx::uncheckedCast(communicator()->stringToProxy(os.str()));
                 try
                 {
