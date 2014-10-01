@@ -508,8 +508,6 @@ public abstract class OutgoingAsyncBase implements Ice.AsyncResult
                     Thread.currentThread().setContextClassLoader(null);
                 }
             }
-
-            cacheMessageBuffers();
         }
 
         if(_observer != null)
