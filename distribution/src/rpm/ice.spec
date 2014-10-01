@@ -60,7 +60,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %define soversion 35
 %define dotnetversion 3.5.1
-%define dotnetpolicyversion 3.5
+%define mmversion 3.5
 
 %define commonversion 1.4.0
 %define formsversion 1.6.0
@@ -551,25 +551,25 @@ ant -Dprefix=$RPM_BUILD_ROOT install
 
 mkdir -p $RPM_BUILD_ROOT%{_javadir}
 mv $RPM_BUILD_ROOT/lib/Ice.jar $RPM_BUILD_ROOT%{_javadir}/Ice-%{version}.jar
-ln -s  Ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/Ice.jar 
+ln -s  Ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/Ice-{mmversion}.jar 
 
 mv $RPM_BUILD_ROOT/lib/Freeze.jar $RPM_BUILD_ROOT%{_javadir}/Freeze-%{version}.jar
-ln -s  Freeze-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/Freeze.jar
+ln -s  Freeze-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/Freeze-{mmversion}.jar
 
 mv $RPM_BUILD_ROOT/lib/Glacier2.jar $RPM_BUILD_ROOT%{_javadir}/Glacier2-%{version}.jar
-ln -s  Glacier2-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/Glacier2.jar
+ln -s  Glacier2-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/Glacier2-{mmversion}.jar
 
 mv $RPM_BUILD_ROOT/lib/IceBox.jar $RPM_BUILD_ROOT%{_javadir}/IceBox-%{version}.jar
-ln -s  IceBox-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/IceBox.jar
+ln -s  IceBox-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/IceBox-{mmversion}.jar
 
 mv $RPM_BUILD_ROOT/lib/IceGrid.jar $RPM_BUILD_ROOT%{_javadir}/IceGrid-%{version}.jar
-ln -s  IceGrid-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/IceGrid.jar
+ln -s  IceGrid-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/IceGrid-{mmversion}.jar
 
 mv $RPM_BUILD_ROOT/lib/IcePatch2.jar $RPM_BUILD_ROOT%{_javadir}/IcePatch2-%{version}.jar
-ln -s  IcePatch2-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/IcePatch2.jar
+ln -s  IcePatch2-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/IcePatch2-{mmversion}.jar
 
 mv $RPM_BUILD_ROOT/lib/IceStorm.jar $RPM_BUILD_ROOT%{_javadir}/IceStorm-%{version}.jar
-ln -s  IceStorm-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/IceStorm.jar
+ln -s  IceStorm-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/IceStorm-{mmversion}.jar
 
 %if %{mono}
 #
@@ -641,18 +641,18 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/lib/mono/gac/IcePatch2/%{dotnetversion}.*/
 %dir %{_prefix}/lib/mono/gac/IceStorm
 %{_prefix}/lib/mono/gac/IceStorm/%{dotnetversion}.*/
-%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Glacier2
-%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Glacier2/0.*/
-%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Ice
-%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Ice/0.*/
-%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceBox
-%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceBox/0.*/
-%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceGrid
-%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceGrid/0.*/
-%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IcePatch2
-%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IcePatch2/0.*/
-%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceStorm
-%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceStorm/0.*/
+%dir %{_prefix}/lib/mono/gac/policy.%{mmversion}.Glacier2
+%{_prefix}/lib/mono/gac/policy.%{mmversion}.Glacier2/0.*/
+%dir %{_prefix}/lib/mono/gac/policy.%{mmversion}.Ice
+%{_prefix}/lib/mono/gac/policy.%{mmversion}.Ice/0.*/
+%dir %{_prefix}/lib/mono/gac/policy.%{mmversion}.IceBox
+%{_prefix}/lib/mono/gac/policy.%{mmversion}.IceBox/0.*/
+%dir %{_prefix}/lib/mono/gac/policy.%{mmversion}.IceGrid
+%{_prefix}/lib/mono/gac/policy.%{mmversion}.IceGrid/0.*/
+%dir %{_prefix}/lib/mono/gac/policy.%{mmversion}.IcePatch2
+%{_prefix}/lib/mono/gac/policy.%{mmversion}.IcePatch2/0.*/
+%dir %{_prefix}/lib/mono/gac/policy.%{mmversion}.IceStorm
+%{_prefix}/lib/mono/gac/policy.%{mmversion}.IceStorm/0.*/
 %endif
 
 #
@@ -668,12 +668,26 @@ rm -rf $RPM_BUILD_ROOT
 %files java
 %defattr(-, root, root, -)
 %{_javadir}/Ice-%{version}.jar
+%{_javadir}/Ice-%{mmversion}.jar
+
 %{_javadir}/Freeze-%{version}.jar
+%{_javadir}/Freeze-%{mmversion}.jar
+
 %{_javadir}/Glacier2-%{version}.jar
+%{_javadir}/Glacier2-%{mmversion}.jar
+
 %{_javadir}/IceBox-%{version}.jar
+%{_javadir}/IceBox-%{mmversion}.jar
+
 %{_javadir}/IceGrid-%{version}.jar
+%{_javadir}/IceGrid-%{mmversion}.jar
+
 %{_javadir}/IcePatch2-%{version}.jar
+%{_javadir}/IcePatch2-%{mmversion}.jar
+
 %{_javadir}/IceStorm-%{version}.jar
+%{_javadir}/IceStorm-%{mmversion}.jar
+
 %endif
 
 #
@@ -882,13 +896,6 @@ fi
 %{_mandir}/man1/slice2freezej.1.gz
 %{_javadir}/ant-ice-%{version}.jar
 %{_javadir}/ant-ice.jar
-%{_javadir}/Ice.jar
-%{_javadir}/Freeze.jar
-%{_javadir}/Glacier2.jar
-%{_javadir}/IceBox.jar
-%{_javadir}/IceGrid.jar
-%{_javadir}/IcePatch2.jar
-%{_javadir}/IceStorm.jar
 
 %files python
 %defattr(-, root, root, -)
