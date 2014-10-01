@@ -23,9 +23,7 @@ final class ThreadPoolWorkQueue extends EventHandler
     }
 
     @Override
-    protected synchronized void
-    finalize()
-        throws Throwable
+    protected synchronized void finalize() throws Throwable
     {
         try
         {
@@ -40,16 +38,14 @@ final class ThreadPoolWorkQueue extends EventHandler
         }
     }
 
-    synchronized
-    void destroy()
+    synchronized void destroy()
     {
         assert(!_destroyed);
         _destroyed = true;
         _selector.wakeup();
     }
 
-    synchronized void
-    queue(ThreadPoolWorkItem item)
+    synchronized void queue(ThreadPoolWorkItem item)
     {
         if(_destroyed)
         {
@@ -61,8 +57,7 @@ final class ThreadPoolWorkQueue extends EventHandler
     }
 
     @Override
-    public void
-    message(ThreadPoolCurrent current)
+    public void message(ThreadPoolCurrent current)
     {
         ThreadPoolWorkItem workItem = null;
         synchronized(this)
@@ -91,15 +86,13 @@ final class ThreadPoolWorkQueue extends EventHandler
     }
 
     @Override
-    public void
-    finished(ThreadPoolCurrent current)
+    public void finished(ThreadPoolCurrent current)
     {
         assert(false);
     }
 
     @Override
-    public String
-    toString()
+    public String toString()
     {
         return "work queue";
     }
@@ -113,11 +106,12 @@ final class ThreadPoolWorkQueue extends EventHandler
     // Return the number of pending events.
     synchronized int size()
     {
+        int sz = _workItems.size();
         if(_destroyed)
         {
-            return 1;
+            sz++;
         }
-        return _workItems.size();
+        return sz;
     }
     
     synchronized void update(List<EventHandlerOpPair> handlers)
