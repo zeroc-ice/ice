@@ -752,29 +752,29 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     synchronized public void setACM(Ice.IntOptional timeout, Ice.Optional<ACMClose> close,
             Ice.Optional<ACMHeartbeat> heartbeat)
     {
-        if(_monitor != null)
+        if(_monitor == null || _state >= StateClosed)
         {
-            if(_state == StateActive)
-            {
-                _monitor.remove(this);
-            }
-            _monitor = _monitor.acm(timeout, close, heartbeat);
+            return;
+        }
 
-            if(_monitor.getACM().timeout <= 0)
-            {
-                _acmLastActivity = -1; // Disable the recording of last
-                                       // activity.
-            }
-            else if(_state == StateActive && _acmLastActivity == -1)
-            {
-                _acmLastActivity = IceInternal.Time.currentMonotonicTimeMillis();
-            }
-
-            if(_state == StateActive)
-            {
-                _monitor.add(this);
-            }
-
+        if(_state == StateActive)
+        {
+            _monitor.remove(this);
+        }
+        _monitor = _monitor.acm(timeout, close, heartbeat);
+        
+        if(_monitor.getACM().timeout <= 0)
+        {
+            _acmLastActivity = -1; // Disable the recording of last activity.
+        }
+        else if(_state == StateActive && _acmLastActivity == -1)
+        {
+            _acmLastActivity = IceInternal.Time.currentMonotonicTimeMillis();
+        }
+        
+        if(_state == StateActive)
+        {
+            _monitor.add(this);
         }
     }
 

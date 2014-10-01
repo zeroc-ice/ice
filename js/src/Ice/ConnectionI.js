@@ -704,25 +704,27 @@ var ConnectionI = Class({
     },
     setACM: function(timeout, close, heartbeat)
     {
-        if(this._monitor !== null)
+        if(this._monitor === null || this._state >= StateClosed)
         {
-            if(this._state == StateActive)
-            {
-                this._monitor.remove(this);
-            }
-            this._monitor = this._monitor.acm(timeout, close, heartbeat);
-            if(this._state == StateActive)
-            {
-                this._monitor.add(this);
-            }
-            if(this._monitor.getACM().timeout <= 0)
-            {
-                this._acmLastActivity = -1; // Disable the recording of last activity.
-            }
-            else if(this._state == StateActive && this._acmLastActivity == -1)
-            {
-                this._acmLastActivity = Date.now();
-            }
+            return;
+        }
+        
+        if(this._state == StateActive)
+        {
+            this._monitor.remove(this);
+        }
+        this._monitor = this._monitor.acm(timeout, close, heartbeat);
+        if(this._state == StateActive)
+        {
+            this._monitor.add(this);
+        }
+        if(this._monitor.getACM().timeout <= 0)
+        {
+            this._acmLastActivity = -1; // Disable the recording of last activity.
+        }
+        else if(this._state == StateActive && this._acmLastActivity == -1)
+        {
+            this._acmLastActivity = Date.now();
         }
     },
     getACM: function()

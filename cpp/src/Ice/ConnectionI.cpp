@@ -1216,27 +1216,29 @@ Ice::ConnectionI::setACM(const IceUtil::Optional<int>& timeout,
                          const IceUtil::Optional<Ice::ACMHeartbeat>& heartbeat)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-    if(_monitor)
+    if(!_monitor || _state >= StateClosed)
     {
-        if(_state == StateActive)
-        {
-            _monitor->remove(this);
-        }
-        _monitor = _monitor->acm(timeout, close, heartbeat);
+        return;
+    }
 
-        if(_monitor->getACM().timeout <= 0)
-        {
-            _acmLastActivity = IceUtil::Time(); // Disable the recording of last activity.
-        }
-        else if(_acmLastActivity == IceUtil::Time() && _state == StateActive)
-        {
-            _acmLastActivity = IceUtil::Time::now(IceUtil::Time::Monotonic);
-        }
+    if(_state == StateActive)
+    {
+        _monitor->remove(this);
+    }
+    _monitor = _monitor->acm(timeout, close, heartbeat);
 
-        if(_state == StateActive)
-        {
-            _monitor->add(this);
-        }
+    if(_monitor->getACM().timeout <= 0)
+    {
+        _acmLastActivity = IceUtil::Time(); // Disable the recording of last activity.
+    }
+    else if(_acmLastActivity == IceUtil::Time() && _state == StateActive)
+    {
+        _acmLastActivity = IceUtil::Time::now(IceUtil::Time::Monotonic);
+    }
+
+    if(_state == StateActive)
+    {
+        _monitor->add(this);
     }
 }
 
