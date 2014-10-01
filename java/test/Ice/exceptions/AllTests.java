@@ -1408,7 +1408,6 @@ public class AllTests
             out.println("ok");
         }
 
-
         out.print("catching object not exist exception with mapping... ");
         out.flush();
 

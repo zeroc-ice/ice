@@ -167,7 +167,7 @@ setTcpLoopbackFastPath(SOCKET fd)
         WSAIoctl(fd, SIO_LOOPBACK_FAST_PATH, &OptionValue, sizeof(OptionValue), NULL, 0, &NumberOfBytesReturned, 0, 0);
     if(status == SOCKET_ERROR)
     {
-	// On platforms that do not support fast path (< Windows 8), WSAEONOTSUPP is expected.
+	    // On platforms that do not support fast path (< Windows 8), WSAEONOTSUPP is expected.
         DWORD LastError = ::GetLastError();
         if(LastError != WSAEOPNOTSUPP)
         {
