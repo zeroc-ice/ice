@@ -9,31 +9,17 @@
 
 package IceInternal;
 
-import java.util.concurrent.ExecutorService;
+import java.util.List;
 
 final class ThreadPoolWorkQueue extends EventHandler
 {
     ThreadPoolWorkQueue(Instance instance, ThreadPool threadPool, Selector selector)
     {
-        _executor = instance.getQueueExecutor();
         _threadPool = threadPool;
         _selector = selector;
         _destroyed = false;
-
-        Network.SocketPair pair = Network.createPipe();
-        _fdIntrRead = (java.nio.channels.ReadableByteChannel)pair.source;
-        _fdIntrWrite = pair.sink;
-        try
-        {
-            pair.source.configureBlocking(false);
-        }
-        catch(java.io.IOException ex)
-        {
-            throw new Ice.SyscallException(ex);
-        }
-
-        _selector.initialize(this);
-        _selector.update(this, SocketOperation.None, SocketOperation.Read);
+        
+        _registered = SocketOperation.Read;
     }
 
     @Override
@@ -54,37 +40,15 @@ final class ThreadPoolWorkQueue extends EventHandler
         }
     }
 
-    public synchronized void
-    close()
-    {
-        try
-        {
-            _fdIntrWrite.close();
-        }
-        catch(java.io.IOException ex)
-        {
-        }
-        _fdIntrWrite = null;
-
-        try
-        {
-            _fdIntrRead.close();
-        }
-        catch(java.io.IOException ex)
-        {
-        }
-        _fdIntrRead = null;
-    }
-
-    public synchronized
+    synchronized
     void destroy()
     {
         assert(!_destroyed);
         _destroyed = true;
-        postMessage();
+        _selector.wakeup();
     }
 
-    public synchronized void
+    synchronized void
     queue(ThreadPoolWorkItem item)
     {
         if(_destroyed)
@@ -93,25 +57,13 @@ final class ThreadPoolWorkQueue extends EventHandler
         }
         assert(item != null);
         _workItems.add(item);
-        postMessage();
+        _selector.wakeup();
     }
 
     @Override
     public void
     message(ThreadPoolCurrent current)
     {
-        java.nio.ByteBuffer buf = java.nio.ByteBuffer.allocate(1);
-        try
-        {
-            buf.rewind();
-            int ret = _fdIntrRead.read(buf);
-            assert(ret > 0);
-        }
-        catch(java.io.IOException ex)
-        {
-            throw new Ice.SocketException(ex);
-        }
-
         ThreadPoolWorkItem workItem = null;
         synchronized(this)
         {
@@ -123,7 +75,7 @@ final class ThreadPoolWorkQueue extends EventHandler
             else
             {
                 assert(_destroyed);
-                postMessage();
+                _selector.wakeup();
             }
         }
 
@@ -153,63 +105,36 @@ final class ThreadPoolWorkQueue extends EventHandler
     }
 
     @Override
-    public java.nio.channels.SelectableChannel
-    fd()
+    public java.nio.channels.SelectableChannel fd()
     {
-        return (java.nio.channels.SelectableChannel)_fdIntrRead;
+        return null;
     }
 
-    public void
-    postMessage()
+    // Return the number of pending events.
+    synchronized int size()
     {
-        if(_executor != null)
+        if(_destroyed)
         {
-            _executor.submit(new Runnable() {
-
-                @Override
-                public void run()
-                {
-                    postMessageInternal();
-                }
-            });
+            return 1;
         }
-        else {
-            postMessageInternal();
-        }
+        return _workItems.size();
     }
-
-    private void
-    postMessageInternal()
+    
+    synchronized void update(List<EventHandlerOpPair> handlers)
     {
-        java.nio.ByteBuffer buf = java.nio.ByteBuffer.allocate(1);
-        buf.put(0, (byte)0);
-        while(buf.hasRemaining())
+        int sz = size();
+        while(sz > 0)
         {
-            try
-            {
-                _fdIntrWrite.write(buf);
-            }
-            //
-            // This is thrown if the thread is interrupted.
-            //
-            catch(java.nio.channels.ClosedChannelException ex)
-            {
-                break;
-            }
-            catch(java.io.IOException ex)
-            {
-                throw new Ice.SocketException(ex);
-            }
+            handlers.add(_opPair);
+            --sz;
         }
     }
 
     private final ThreadPool _threadPool;
-    private final Selector _selector;
-    boolean _destroyed;
+    private boolean _destroyed;
+    private Selector _selector;
 
-    private java.nio.channels.ReadableByteChannel _fdIntrRead;
-    private java.nio.channels.WritableByteChannel _fdIntrWrite;
-
+    private EventHandlerOpPair _opPair = new EventHandlerOpPair(this, SocketOperation.Read);
     private java.util.LinkedList<ThreadPoolWorkItem> _workItems = new java.util.LinkedList<ThreadPoolWorkItem>();
-    private ExecutorService _executor;
+
 }

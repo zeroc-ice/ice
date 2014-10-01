@@ -15,7 +15,7 @@ public final class Selector
     {
     }
 
-    public Selector(Instance instance)
+    Selector(Instance instance)
     {
         _instance = instance;
         _selecting = false;
@@ -37,7 +37,7 @@ public final class Selector
         _keys = _selector.selectedKeys();
     }
 
-    public void destroy()
+    void destroy()
     {
         try
         {
@@ -49,12 +49,12 @@ public final class Selector
         _selector = null;
     }
 
-    public void initialize(EventHandler handler)
+    void initialize(EventHandler handler)
     {
         updateImpl(handler);
     }
 
-    public void update(EventHandler handler, int remove, int add)
+    void update(EventHandler handler, int remove, int add)
     {
         int previous = handler._registered;
         handler._registered = handler._registered & ~remove;
@@ -67,7 +67,7 @@ public final class Selector
         updateImpl(handler);
     }
 
-    public void enable(EventHandler handler, int status)
+    void enable(EventHandler handler, int status)
     {
         if((handler._disabled & status) == 0)
         {
@@ -81,7 +81,7 @@ public final class Selector
         }
     }
 
-    public void disable(EventHandler handler, int status)
+    void disable(EventHandler handler, int status)
     {
         if((handler._disabled & status) != 0)
         {
@@ -95,7 +95,7 @@ public final class Selector
         }
     }
 
-    public void finish(EventHandler handler)
+    void finish(EventHandler handler)
     {
         if(handler._registered != 0)
         {
@@ -111,7 +111,7 @@ public final class Selector
         }
     }
 
-    public void startSelect()
+    void startSelect()
     {
         if(_interrupted)
         {
@@ -125,12 +125,12 @@ public final class Selector
         _selecting = true;
     }
 
-    public void finishSelect()
+    void finishSelect()
     {
         _selecting = false;
     }
 
-    public void select(java.util.List<EventHandlerOpPair> handlers, long timeout)
+    void select(java.util.List<EventHandlerOpPair> handlers, long timeout)
         throws TimeoutException
     {
         while(true)
@@ -192,7 +192,6 @@ public final class Selector
         }
 
         handlers.clear();
-
         if(_interrupted) // Interrupted, we have to process the interrupt before returning any handlers
         {
             return;
@@ -225,7 +224,7 @@ public final class Selector
         }
 
         _spuriousWakeUp = 0;
-
+        
         for(java.nio.channels.SelectionKey key : _keys)
         {
             EventHandler handler = (EventHandler)key.attachment();
@@ -244,6 +243,11 @@ public final class Selector
             }
         }
         _keys.clear();
+    }
+    
+    void wakeup()
+    {
+        _selector.wakeup();
     }
 
     private void updateImpl(EventHandler handler)
@@ -297,7 +301,7 @@ public final class Selector
         _changes.clear();
     }
 
-    int toJavaOps(EventHandler handler, int o)
+    private int toJavaOps(EventHandler handler, int o)
     {
         int op = 0;
         if((o & SocketOperation.Read) != 0)
@@ -322,7 +326,7 @@ public final class Selector
         return op;
     }
 
-    int fromJavaOps(int o)
+    private int fromJavaOps(int o)
     {
         int op = 0;
         if((o & (java.nio.channels.SelectionKey.OP_READ | java.nio.channels.SelectionKey.OP_ACCEPT)) != 0)
@@ -343,10 +347,9 @@ public final class Selector
     final private Instance _instance;
 
     private java.nio.channels.Selector _selector;
-
     private java.util.Set<java.nio.channels.SelectionKey> _keys;
     private java.util.HashSet<EventHandler> _changes = new java.util.HashSet<EventHandler>();
     private boolean _selecting;
     private boolean _interrupted;
-    private int _spuriousWakeUp;
+    private int _spuriousWakeUp;    
 }

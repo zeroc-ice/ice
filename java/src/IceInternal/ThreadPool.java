@@ -191,7 +191,6 @@ public final class ThreadPool
         _priority = priority;
 
         _workQueue = new ThreadPoolWorkQueue(_instance, this, _selector);
-
         _nextHandler = _handlers.iterator();
 
         if(_instance.traceLevels().threadPool >= 1)
@@ -378,14 +377,8 @@ public final class ThreadPool
         }
 
         //
-        // TODO: MJN: InterruptedException leads to a leak as the
-        // work queue and selector are not destroyed?
-        //
-
-        //
         // Destroy the selector
         //
-        _workQueue.close();
         _selector.destroy();
     }
 
@@ -417,21 +410,25 @@ public final class ThreadPool
             }
             else if(select)
             {
-                try
+                if(_workQueue.size() == 0)
                 {
-                    _selector.select(handlers, _serverIdleTime);
-                }
-                catch(Selector.TimeoutException ex)
-                {
-                    synchronized(this)
+                    try
                     {
-                        if(!_destroyed && _inUse == 0)
+                        _selector.select(handlers, _serverIdleTime);
+                    }
+                    catch(Selector.TimeoutException ex)
+                    {
+                        synchronized(this)
                         {
-                            _workQueue.queue(new ShutdownWorkItem()); // Select timed-out.
+                            if(!_destroyed && _inUse == 0)
+                            {
+                                _workQueue.queue(new ShutdownWorkItem()); // Select timed-out.
+                            }
+                            continue;
                         }
-                        continue;
                     }
                 }
+                _workQueue.update(handlers);
             }
 
             synchronized(this)
