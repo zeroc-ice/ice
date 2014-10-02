@@ -1689,50 +1689,12 @@ public class Coordinator
             }
             return;
         }
-        final String finderStr;
-        final String endpointStr;
-        {
-	        Ice.Identity finderId = new Ice.Identity();
-	        finderId.category = "Ice";
-	        finderId.name = info.getDirect() ? "LocatorFinder" : "RouterFinder";
-	        String finderString = "\"" + _communicator.identityToString(finderId) + "\"";
-
-	        if (info.getSSL())
-	        {
-	        	finderString += " -s:";
-	        }
-	        else
-	        {
-	        	finderString += " :";
-	        }
-
-	        String endpointString = "";
-	        if(info.getDefaultEndpoint())
-	        {
-	        	if(info.getSSL())
-	        	{
-	        		endpointString += "ssl";
-	        	}
-	        	else
-	        	{
-	        		endpointString += "tcp";
-	        	}
-	        	String host = info.getHost();
-	        	if(host.indexOf('"') == -1)
-	        	{
-	        		host = "\"" + host + "\"";
-	        	}
-	        	endpointString += " -h " + host + " -p " + info.getPort();
-	        }
-	        else
-	        {
-	        	endpointString += info.getEndpoint();
-	        }
-	        finderString += endpointString;
-	        finderStr = new String(finderString);
-	        endpointStr = new String(endpointString);
-        }
-
+        
+        final String finderStr = "Ice/" + (info.getDirect() ? "LocatorFinder" : "RouterFinder") + ":" +
+            (info.getDefaultEndpoint() ?
+                ((info.getSSL() ? "ssl" : "tcp") + " -h " + info.getHost() + " -p " + info.getPort()) :
+                info.getEndpoint());
+        
         class ConnectionCallback
         {
             synchronized public void setSession(AdminSessionPrx session)
@@ -1808,14 +1770,8 @@ public class Coordinator
                                     _communicator.stringToProxy(finderStr));
                             info.setInstanceName(finder.getRouter().ice_getIdentity().category);
                             info.save();
-
-                            Ice.Identity routerId = new Ice.Identity();
-                            routerId.category = info.getInstanceName();
-                            routerId.name = "router";
-                            String proxyStr = "\"" + _communicator.identityToString(routerId) + "\":";
-                            proxyStr += endpointStr;
                             Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.uncheckedCast(
-                                                                                _communicator.stringToProxy(proxyStr));
+                                            finder.ice_identity(new Ice.Identity("router", info.getInstanceName())));
 
                             //
                             // The session must be routed through this router
@@ -2049,14 +2005,8 @@ public class Coordinator
                                 //
                                 // The client uses the locator only without routing
                                 //
-                                Ice.Identity locatorId = new Ice.Identity();
-                                locatorId.category = info.getInstanceName();
-                                locatorId.name = "Locator";
-                                String proxyStr = "\"" + _communicator.identityToString(locatorId) + "\":";
-                                proxyStr += endpointStr;
-
-                                cb.setLocator(
-                                        IceGrid.LocatorPrxHelper.checkedCast(_communicator.stringToProxy(proxyStr)));
+                                cb.setLocator(IceGrid.LocatorPrxHelper.checkedCast(
+                                            finder.ice_identity(new Ice.Identity("Locator", info.getInstanceName()))));
 
                                 if(cb.getLocator() == null)
                                 {
@@ -2104,7 +2054,7 @@ public class Coordinator
                                         {
                                             JOptionPane.showMessageDialog(
                                                 parent,
-                                                "Could not contact '" + endpointStr + "': " + e.toString(),
+                                                "Could not create session: " + e.toString(),
                                                 "Login failed",
                                                 JOptionPane.ERROR_MESSAGE);
                                             cb.loginFailed();
