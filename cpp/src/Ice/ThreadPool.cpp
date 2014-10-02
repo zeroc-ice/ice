@@ -524,7 +524,11 @@ void
 IceInternal::ThreadPool::destroy()
 {
     Lock sync(*this);
-    assert(!_destroyed);
+    if(_destroyed) 
+    {
+        return;
+    }
+    
     _destroyed = true;
     _workQueue->destroy();
 }

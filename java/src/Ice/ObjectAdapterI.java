@@ -13,6 +13,8 @@ import java.util.Map;
 
 public final class ObjectAdapterI implements ObjectAdapter
 {
+
+
     @Override
     public String
     getName()
@@ -29,7 +31,7 @@ public final class ObjectAdapterI implements ObjectAdapter
     {
         return _communicator;
     }
-
+    
     @Override
     public void
     activate()
@@ -43,18 +45,10 @@ public final class ObjectAdapterI implements ObjectAdapter
             checkForDeactivation();
 
             //
-            // If some threads are waiting on waitForHold(), we set this
-            // flag to ensure the threads will start again the wait for
-            // all the incoming connection factories.
+            // If we've previously been initialized we just need to activate the
+            // incoming connection factories and we're done.
             //
-            _waitForHoldRetry = _waitForHold > 0;
-
-            //
-            // If the one off initializations of the adapter are already
-            // done, we just need to activate the incoming connection
-            // factories and we're done.
-            //
-            if(_activateOneOffDone)
+            if(_state != StateUninitialized)
             {
                 for(IceInternal.IncomingConnectionFactory factory : _incomingConnectionFactories)
                 {
@@ -66,11 +60,11 @@ public final class ObjectAdapterI implements ObjectAdapter
             //
             // One off initializations of the adapter: update the
             // locator registry and print the "adapter ready"
-            // message. We set the _waitForActivate flag to prevent
+            // message. We set set state to StateWaitActivate to prevent
             // deactivation from other threads while these one off
             // initializations are done.
             //
-            _waitForActivate = true;
+            _state = StateWaitActivate;
 
             locatorInfo = _locatorInfo;
             if(!_noConfig)
@@ -97,7 +91,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             //
             synchronized(this)
             {
-                _waitForActivate = false;
+                _state = StateUninitialized;
                 notifyAll();
             }
             throw ex;
@@ -110,15 +104,13 @@ public final class ObjectAdapterI implements ObjectAdapter
 
         synchronized(this)
         {
-            assert(_deactivated == DeactivatedState.Steady); // Not possible if _waitForActivate = true;
+            assert(_state == StateWaitActivate);
 
             //
             // Signal threads waiting for the activation.
             //
-            _waitForActivate = false;
+            _state = StateActive;
             notifyAll();
-
-            _activateOneOffDone = true;
 
             for(IceInternal.IncomingConnectionFactory factory : _incomingConnectionFactories)
             {
@@ -132,13 +124,13 @@ public final class ObjectAdapterI implements ObjectAdapter
     hold()
     {
         checkForDeactivation();
-
+        _state = StateHeld;
         for(IceInternal.IncomingConnectionFactory factory : _incomingConnectionFactories)
         {
             factory.hold();
         }
     }
-
+    
     @Override
     public void
     waitForHold()
@@ -148,76 +140,27 @@ public final class ObjectAdapterI implements ObjectAdapter
             throw new Ice.OperationInterruptedException();
         }
 
-        while(true)
+        java.util.List<IceInternal.IncomingConnectionFactory> incomingConnectionFactories;
+        synchronized(this)
         {
-            java.util.List<IceInternal.IncomingConnectionFactory> incomingConnectionFactories;
-            synchronized(this)
+            checkForDeactivation();
+            incomingConnectionFactories =
+                new java.util.ArrayList<IceInternal.IncomingConnectionFactory>(_incomingConnectionFactories);
+        }
+
+        for(IceInternal.IncomingConnectionFactory factory : incomingConnectionFactories)
+        {
+            try
             {
-                checkForDeactivation();
-
-                incomingConnectionFactories =
-                    new java.util.ArrayList<IceInternal.IncomingConnectionFactory>(_incomingConnectionFactories);
-
-                ++_waitForHold;
+                factory.waitUntilHolding();
             }
-
-            for(IceInternal.IncomingConnectionFactory factory : incomingConnectionFactories)
+            catch(InterruptedException ex)
             {
-                try
-                {
-                    factory.waitUntilHolding();
-                }
-                catch(InterruptedException ex)
-                {
-                    synchronized(this)
-                    {
-                        if(--_waitForHold == 0)
-                        {
-                            notifyAll();
-                        }
-                    }
-                    throw new Ice.OperationInterruptedException();
-                }
-            }
-
-            synchronized(this)
-            {
-                if(--_waitForHold == 0)
-                {
-                    notifyAll();
-                }
-
-                //
-                // If we don't need to retry, we're done. Otherwise, we wait until
-                // all the waiters finish waiting on the connections and we try
-                // again waiting on all the connections. This is necessary in the
-                // case activate() is called by another thread while waitForHold()
-                // waits on the some connection, if we didn't retry, waitForHold()
-                // could return only after waiting on a subset of the connections.
-                //
-                if(!_waitForHoldRetry)
-                {
-                    return;
-                }
-                else
-                {
-                    while(_waitForHold > 0)
-                    {
-                        checkForDeactivation();
-                        try
-                        {
-                            wait();
-                        }
-                        catch(InterruptedException ex)
-                        {
-                            throw new Ice.OperationInterruptedException();
-                        }
-                    }
-                    _waitForHoldRetry = false;
-                }
+                throw new Ice.OperationInterruptedException();
             }
         }
     }
+
 
     @Override
     public void
@@ -237,7 +180,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             // Ignore deactivation requests if the object adapter has
             // already been deactivated.
             //
-            if(_deactivated != DeactivatedState.Steady)
+            if(_state >= StateDeactivating)
             {
                 return;
             }
@@ -247,7 +190,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             // Wait for activation to complete. This is necessary to not
             // get out of order locator updates.
             //
-            while(_waitForActivate)
+            while(_state == StateWaitActivate)
             {
                 try
                 {
@@ -277,7 +220,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             outgoingConnectionFactory = _instance.outgoingConnectionFactory();
             locatorInfo = _locatorInfo;
 
-            _deactivated = DeactivatedState.Deactivating;
+            _state = StateDeactivating;
         }
 
         try
@@ -311,7 +254,7 @@ public final class ObjectAdapterI implements ObjectAdapter
 
         synchronized(this)
         {
-            _deactivated = DeactivatedState.Deactivated;
+            _state = StateDeactivated;
             notifyAll();
         }
     }
@@ -330,7 +273,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             IceInternal.IncomingConnectionFactory[] incomingConnectionFactories;
             synchronized(this)
             {
-                if(_destroyed)
+                if(_state == StateDestroyed)
                 {
                     return;
                 }
@@ -340,7 +283,7 @@ public final class ObjectAdapterI implements ObjectAdapter
                 // for the return of all direct method calls using this
                 // adapter.
                 //
-                while((_deactivated != DeactivatedState.Deactivated) || _directCount > 0)
+                while((_state != StateDeactivated) || _directCount > 0)
                 {
                     wait();
                 }
@@ -368,7 +311,7 @@ public final class ObjectAdapterI implements ObjectAdapter
     public synchronized boolean
     isDeactivated()
     {
-        return _deactivated == DeactivatedState.Deactivated;
+        return _state >= StateDeactivated;
     }
 
     @Override
@@ -378,35 +321,6 @@ public final class ObjectAdapterI implements ObjectAdapter
         if(Thread.interrupted())
         {
             throw new Ice.OperationInterruptedException();
-        }
-
-        synchronized(this)
-        {
-            //
-            // Another thread is in the process of destroying the object
-            // adapter. Wait for it to finish.
-            //
-            while(_destroying)
-            {
-                try
-                {
-                    wait();
-                }
-                catch(InterruptedException ex)
-                {
-                    throw new Ice.OperationInterruptedException();
-                }
-            }
-
-            //
-            // Object adpater is already destroyed.
-            //
-            if(_destroyed)
-            {
-                return;
-            }
-
-            _destroying = true;
         }
 
         //
@@ -433,10 +347,6 @@ public final class ObjectAdapterI implements ObjectAdapter
             }
             catch (InterruptedException e)
             {
-                synchronized(this)
-                {
-                     _destroying = false;
-                }
                 throw new Ice.OperationInterruptedException();
             }
         }
@@ -446,10 +356,16 @@ public final class ObjectAdapterI implements ObjectAdapter
         synchronized(this)
         {
             //
+            // If destroy is already complete, we're done.
+            //
+            if(_state == StateDestroyed)
+            {
+                return;
+            }
+            //
             // Signal that destroying is complete.
             //
-            _destroying = false;
-            _destroyed = true;
+            _state = StateDestroyed;
             notifyAll();
 
             _incomingConnectionFactories.clear();
@@ -945,19 +861,12 @@ public final class ObjectAdapterI implements ObjectAdapter
                    IceInternal.ObjectAdapterFactory objectAdapterFactory, String name,
                    RouterPrx router, boolean noConfig)
     {
-        _deactivated = DeactivatedState.Steady;
         _instance = instance;
         _communicator = communicator;
         _objectAdapterFactory = objectAdapterFactory;
         _servantManager = new IceInternal.ServantManager(instance, name);
-        _activateOneOffDone = false;
         _name = name;
         _directCount = 0;
-        _waitForActivate = false;
-        _waitForHold = 0;
-        _waitForHoldRetry = false;
-        _destroying = false;
-        _destroyed = false;
         _noConfig = noConfig;
 
         if(_noConfig)
@@ -997,8 +906,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             //
             // These need to be set to prevent finalizer from complaining.
             //
-            _deactivated = DeactivatedState.Deactivated;
-            _destroyed = true;
+            _state = StateDestroyed;
             _instance = null;
             _incomingConnectionFactories = null;
 
@@ -1157,12 +1065,12 @@ public final class ObjectAdapterI implements ObjectAdapter
     {
         try
         {
-            if(_deactivated != DeactivatedState.Deactivated)
+            if(_state < StateDeactivated)
             {
                 _instance.initializationData().logger.warning("object adapter `" + getName() +
                                                             "' has not been deactivated");
             }
-            else if(!_destroyed)
+            else if(_state != StateDestroyed)
             {
                 _instance.initializationData().logger.warning("object adapter `" + getName() + "' has not been destroyed");
             }
@@ -1172,7 +1080,6 @@ public final class ObjectAdapterI implements ObjectAdapter
                 //IceUtilInternal.Assert.FinalizerAssert(_servantManager == null); // Not cleared, it needs to be immutable.
                 //IceUtilInternal.Assert.FinalizerAssert(_incomingConnectionFactories.isEmpty());
                 IceUtilInternal.Assert.FinalizerAssert(_directCount == 0);
-                IceUtilInternal.Assert.FinalizerAssert(!_waitForActivate);
             }
         }
         catch(java.lang.Exception ex)
@@ -1241,7 +1148,7 @@ public final class ObjectAdapterI implements ObjectAdapter
     private void
     checkForDeactivation()
     {
-        if(_deactivated != DeactivatedState.Steady)
+        if(_state >= StateDeactivating)
         {
             ObjectAdapterDeactivatedException ex = new ObjectAdapterDeactivatedException();
             ex.name = getName();
@@ -1673,21 +1580,22 @@ public final class ObjectAdapterI implements ObjectAdapter
 
         return noProps;
     }
-
-    private enum DeactivatedState
-    {
-        Steady,
-        Deactivating,
-        Deactivated
-    }
-    private DeactivatedState _deactivated;
+    
+    private static final int StateUninitialized = 0; // Just constructed.
+    private static final int StateHeld = 1;
+    private static final int StateWaitActivate = 2;
+    private static final int StateActive = 3;
+    private static final int StateDeactivating = 4;
+    private static final int StateDeactivated = 5;
+    private static final int StateDestroyed  = 6;
+    
+    private int _state = StateUninitialized;
     private IceInternal.Instance _instance;
     private Communicator _communicator;
     private IceInternal.ObjectAdapterFactory _objectAdapterFactory;
     private IceInternal.ThreadPool _threadPool;
     private IceInternal.ACMConfig _acm;
     private IceInternal.ServantManager _servantManager;
-    private boolean _activateOneOffDone;
     final private String _name;
     final private String _id;
     final private String _replicaGroupId;
@@ -1699,12 +1607,7 @@ public final class ObjectAdapterI implements ObjectAdapter
     private java.util.List<IceInternal.EndpointI> _publishedEndpoints =
         new java.util.ArrayList<IceInternal.EndpointI>();
     private IceInternal.LocatorInfo _locatorInfo;
-    private int _directCount;
-    private boolean _waitForActivate;
-    private int _waitForHold;
-    private boolean _waitForHoldRetry;
-    private boolean _destroying;
-    private boolean _destroyed;
+    private int _directCount; // The number of direct proxies dispatching on this object adapter.
     private boolean _noConfig;
     private Identity _processId = null;
 }

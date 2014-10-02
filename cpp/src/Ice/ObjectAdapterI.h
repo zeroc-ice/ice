@@ -23,7 +23,6 @@
 #include <Ice/ObjectF.h>
 #include <Ice/RouterInfoF.h>
 #include <Ice/EndpointIF.h>
-#include <Ice/ConnectorF.h>
 #include <Ice/LocatorInfoF.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/OutgoingAsyncF.h>
@@ -117,30 +116,33 @@ private:
     void updateLocatorRegistry(const IceInternal::LocatorInfoPtr&, const Ice::ObjectPrx&, bool);
     bool filterProperties(Ice::StringSeq&);
 
-    bool _deactivated;
+    enum State
+    {
+        StateUninitialized,
+        StateHeld,
+        StateWaitActivate,
+        StateActive,
+        StateDeactivating,
+        StateDeactivated,
+        StateDestroyed
+    };
+    State _state;
     IceInternal::InstancePtr _instance;
     CommunicatorPtr _communicator;
     IceInternal::ObjectAdapterFactoryPtr _objectAdapterFactory;
     IceInternal::ThreadPoolPtr _threadPool;
     IceInternal::ACMConfig _acm;
     IceInternal::ServantManagerPtr _servantManager;
-    bool _activateOneOffDone;
     const std::string _name;
     const std::string _id;
     const std::string _replicaGroupId;
     IceInternal::ReferencePtr _reference;
     std::vector<IceInternal::IncomingConnectionFactoryPtr> _incomingConnectionFactories;
-    std::vector<IceInternal::ConnectorPtr> _connectors;
     std::vector<IceInternal::EndpointIPtr> _routerEndpoints;
     IceInternal::RouterInfoPtr _routerInfo;
     std::vector<IceInternal::EndpointIPtr> _publishedEndpoints;
     IceInternal::LocatorInfoPtr _locatorInfo;
     int _directCount; // The number of direct proxies dispatching on this object adapter.
-    bool _waitForActivate;
-    int  _waitForHold;
-    bool _waitForHoldRetry;
-    bool _destroying;
-    bool _destroyed;
     bool _noConfig;
     Identity _processId;
 };

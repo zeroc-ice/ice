@@ -252,7 +252,10 @@ namespace IceInternal
         {
             lock(this)
             {
-                Debug.Assert(!_destroyed);
+                if(_destroyed)
+                {
+                    return;
+                }
                 _destroyed = true;
                 System.Threading.Monitor.PulseAll(this);
             }

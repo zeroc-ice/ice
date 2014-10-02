@@ -332,7 +332,14 @@ public sealed class ServantManager
         Ice.Logger logger = null;
         lock(this)
         {
-            Debug.Assert(instance_ != null); // Must not be called after destruction.
+            //
+            // If the ServantManager has already been destroyed, we're done.
+            //
+            if(instance_ == null)
+            {
+                return;
+            }
+            
             logger = instance_.initializationData().logger;
             _servantMapMap.Clear();
 

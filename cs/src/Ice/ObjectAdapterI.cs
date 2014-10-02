@@ -41,18 +41,10 @@ namespace Ice
                 checkForDeactivation();
                 
                 //
-                // If some threads are waiting on waitForHold(), we set this
-                // flag to ensure the threads will start again the wait for
-                // all the incoming connection factories.
+                // If we've previously been initialized we just need to activate the
+                // incoming connection factories and we're done.
                 //
-                _waitForHoldRetry = _waitForHold > 0;
-
-                //
-                // If the one off initializations of the adapter are already
-                // done, we just need to activate the incoming connection
-                // factories and we're done.
-                //
-                if(_activateOneOffDone)
+                if(state_ != StateUninitialized)
                 {
                     foreach(IceInternal.IncomingConnectionFactory icf in _incomingConnectionFactories)
                     {
@@ -62,13 +54,14 @@ namespace Ice
                 }
 
                 //
-                // One off initializations of the adapter: update the locator
-                // registry and print the "adapter ready" message. We set the
-                // _waitForActivate flag to prevent deactivation from other
-                // threads while these one off initializations are done.
+                // One off initializations of the adapter: update the
+                // locator registry and print the "adapter ready"
+                // message. We set set state to StateWaitActivate to prevent
+                // deactivation from other threads while these one off
+                // initializations are done.
                 //
-                _waitForActivate = true;
-                
+                state_ = StateWaitActivate;
+
                 locatorInfo = _locatorInfo;
                 if(!_noConfig)
                 {
@@ -94,7 +87,7 @@ namespace Ice
                 //
                 lock(this)
                 {
-                    _waitForActivate = false;
+                    state_ = StateUninitialized;
                     System.Threading.Monitor.PulseAll(this);
                 }
                 throw;
@@ -107,16 +100,14 @@ namespace Ice
 
             lock(this)
             {
-                Debug.Assert(!_deactivated); // Not possible if _waitForActivate = true;
+                Debug.Assert(state_ == StateWaitActivate); 
             
                 //
                 // Signal threads waiting for the activation.
                 //
-                _waitForActivate = false;
+                state_ = StateActive;
                 System.Threading.Monitor.PulseAll(this);
 
-                _activateOneOffDone = true;
-            
                 foreach(IceInternal.IncomingConnectionFactory icf in _incomingConnectionFactories)
                 {
                     icf.activate();
@@ -129,7 +120,7 @@ namespace Ice
             lock(this)
             {
                 checkForDeactivation();
-                
+                 state_ = StateHeld;
                 foreach(IceInternal.IncomingConnectionFactory factory in _incomingConnectionFactories)
                 {
                     factory.hold();
@@ -139,53 +130,18 @@ namespace Ice
         
         public void waitForHold()
         {
-            while(true)
+            List<IceInternal.IncomingConnectionFactory> incomingConnectionFactories;
+            lock(this)
             {
-                List<IceInternal.IncomingConnectionFactory> incomingConnectionFactories;
-                lock(this)
-                {
-                    checkForDeactivation();
-                    
-                    incomingConnectionFactories =
-                        new List<IceInternal.IncomingConnectionFactory>(_incomingConnectionFactories);
-                    
-                    ++_waitForHold;
-                }
-
-                foreach(IceInternal.IncomingConnectionFactory factory in incomingConnectionFactories)
-                {
-                    factory.waitUntilHolding();
-                }
+                checkForDeactivation();
                 
-                lock(this)
-                {
-                    if(--_waitForHold == 0)
-                    {
-                        System.Threading.Monitor.PulseAll(this);
-                    }
-            
-                    //
-                    // If we don't need to retry, we're done. Otherwise, we wait until 
-                    // all the waiters finish waiting on the connections and we try 
-                    // again waiting on all the conncetions. This is necessary in the 
-                    // case activate() is called by another thread while waitForHold()
-                    // waits on the some connection, if we didn't retry, waitForHold() 
-                    // could return only after waiting on a subset of the connections.
-                    //
-                    if(!_waitForHoldRetry)
-                    {
-                        return;
-                    }
-                    else 
-                    {
-                        while(_waitForHold > 0)
-                        {
-                            checkForDeactivation();
-                            System.Threading.Monitor.Wait(this);
-                        }
-                        _waitForHoldRetry = false;
-                    }
-                }
+                incomingConnectionFactories =
+                    new List<IceInternal.IncomingConnectionFactory>(_incomingConnectionFactories);
+            }
+
+            foreach(IceInternal.IncomingConnectionFactory factory in incomingConnectionFactories)
+            {
+                factory.waitUntilHolding();
             }
         }
         
@@ -201,7 +157,7 @@ namespace Ice
                 // Ignore deactivation requests if the object adapter has
                 // already been deactivated.
                 //
-                if(_deactivated)
+                if(state_ >= StateDeactivating)
                 {
                     return;
                 }
@@ -211,7 +167,7 @@ namespace Ice
                 // Wait for activation to complete. This is necessary to not 
                 // get out of order locator updates.
                 //
-                while(_waitForActivate)
+                while(state_ == StateWaitActivate)
                 {
                     System.Threading.Monitor.Wait(this);
                 }
@@ -234,8 +190,7 @@ namespace Ice
                 outgoingConnectionFactory = instance_.outgoingConnectionFactory();
                 locatorInfo = _locatorInfo;
 
-                _deactivated = true;
-                System.Threading.Monitor.PulseAll(this);
+                state_ = StateDeactivating;
             }
 
             try
@@ -266,6 +221,12 @@ namespace Ice
             // requests being dispatched.
             //
             outgoingConnectionFactory.removeAdapter(this);
+
+            lock(this)
+            {
+                state_ = StateDeactivated;
+                System.Threading.Monitor.PulseAll(this);
+            }
         }
         
         public void waitForDeactivate()
@@ -273,7 +234,7 @@ namespace Ice
             IceInternal.IncomingConnectionFactory[] incomingConnectionFactories = null;
             lock(this)
             {
-                if(_destroyed)
+                if(state_ == StateDestroyed)
                 {
                     return;
                 }
@@ -283,7 +244,7 @@ namespace Ice
                 // for the return of all direct method calls using this
                 // adapter.
                 //
-                while(!_deactivated || _directCount > 0)
+                while((state_ != StateDeactivated) || _directCount > 0)
                 {
                     System.Threading.Monitor.Wait(this);
                 }
@@ -305,34 +266,12 @@ namespace Ice
         {
             lock(this)
             {
-                return _deactivated;
+                return state_ >= StateDeactivated;
             }
         }
 
         public void destroy()
         {
-            lock(this)
-            {
-                //
-                // Another thread is in the process of destroying the object
-                // adapter. Wait for it to finish.
-                //
-                while(_destroying)
-                {
-                    System.Threading.Monitor.Wait(this);
-                }
-
-                //
-                // Object adpater is already destroyed.
-                //
-                if(_destroyed)
-                {
-                    return;
-                }
-
-                _destroying = true;
-            }
-
             //
             // Deactivate and wait for completion.
             //
@@ -359,10 +298,16 @@ namespace Ice
             lock(this)
             {
                 //
+                // If destroy is already complete, we're done.
+                //
+                if(state_ == StateDestroyed)
+                {
+                    return;
+                }
+                //
                 // Signal that destroying is complete.
                 //
-                _destroying = false;
-                _destroyed = true;
+                state_ = StateDestroyed;
                 System.Threading.Monitor.PulseAll(this);
                 
                 //
@@ -873,21 +818,16 @@ namespace Ice
                               IceInternal.ObjectAdapterFactory objectAdapterFactory, string name, 
                               RouterPrx router, bool noConfig)
         {
-            _deactivated = false;
             instance_ = instance;
             _communicator = communicator;
             _objectAdapterFactory = objectAdapterFactory;
             _servantManager = new IceInternal.ServantManager(instance, name);
-            _activateOneOffDone = false;
             _name = name;
             _incomingConnectionFactories = new List<IceInternal.IncomingConnectionFactory>();
             _publishedEndpoints = new List<IceInternal.EndpointI>();
             _routerEndpoints = new List<IceInternal.EndpointI>();
             _routerInfo = null;
             _directCount = 0;
-            _waitForActivate = false;
-            _waitForHold = 0;
-            _waitForHoldRetry = false;
             _noConfig = noConfig;
             _processId = null;
             
@@ -928,7 +868,7 @@ namespace Ice
                 //
                 // These need to be set to prevent warnings/asserts in the destructor.
                 //
-                _deactivated = true;
+                state_ = StateDestroyed;
                 instance_ = null;
                 _incomingConnectionFactories = null;
 
@@ -1169,7 +1109,7 @@ namespace Ice
 
         private void checkForDeactivation()
         {
-            if(_deactivated)
+            if(state_ >= StateDeactivating)
             {
                 ObjectAdapterDeactivatedException ex = new ObjectAdapterDeactivatedException();
                 ex.name = getName();
@@ -1597,14 +1537,21 @@ namespace Ice
             return noProps;
         }
         
-        private bool _deactivated;
+        private const int StateUninitialized = 0; // Just constructed.
+        private const int StateHeld = 1;
+        private const int StateWaitActivate = 2;
+        private const int StateActive = 3;
+        private const int StateDeactivating = 4;
+        private const int StateDeactivated = 5;
+        private const int StateDestroyed  = 6;
+        
+        private int state_ = StateUninitialized;
         private IceInternal.Instance instance_;
         private Communicator _communicator;
         private IceInternal.ObjectAdapterFactory _objectAdapterFactory;
         private IceInternal.ThreadPool _threadPool;
         private IceInternal.ACMConfig _acm;
         private IceInternal.ServantManager _servantManager;
-        private bool _activateOneOffDone;
         private readonly string _name;
         private readonly string _id;
         private readonly string _replicaGroupId;
@@ -1614,12 +1561,7 @@ namespace Ice
         private IceInternal.RouterInfo _routerInfo;
         private List<IceInternal.EndpointI> _publishedEndpoints;
         private IceInternal.LocatorInfo _locatorInfo;
-        private int _directCount;
-        private bool _waitForActivate;
-        private int _waitForHold;
-        private bool _waitForHoldRetry;
-        private bool _destroying;
-        private bool _destroyed;
+        private int _directCount;  // The number of direct proxies dispatching on this object adapter.
         private bool _noConfig;
         private Identity _processId;
     }

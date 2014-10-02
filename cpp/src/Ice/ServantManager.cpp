@@ -444,9 +444,14 @@ IceInternal::ServantManager::destroy()
     Ice::LoggerPtr logger;
 
     {
-        IceUtil::Mutex::Lock sync(*this);
-        
-        assert(_instance); // Must not be called after destruction.
+        IceUtil::Mutex::Lock sync(*this);        
+        //
+        // If the ServantManager has already been destroyed, we're done.
+        //
+        if(!_instance)
+        {
+            return;
+        }
         
         logger = _instance->initializationData().logger;
         servantMapMap.swap(_servantMapMap);

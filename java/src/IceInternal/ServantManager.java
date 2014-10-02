@@ -277,7 +277,14 @@ public final class ServantManager
         Ice.Logger logger = null;
         synchronized(this)
         {
-            assert(_instance != null); // Must not be called after destruction.
+            //
+            // If the ServantManager has already been destroyed, we're done.
+            //
+            if(_instance == null)
+            {
+                return;
+            }
+
             logger = _instance.initializationData().logger;
             _servantMapMap.clear();
 

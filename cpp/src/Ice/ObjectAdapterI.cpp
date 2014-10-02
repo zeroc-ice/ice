@@ -91,18 +91,10 @@ Ice::ObjectAdapterI::activate()
         checkForDeactivation();
 
         //
-        // If some threads are waiting on waitForHold(), we set this
-        // flag to ensure the threads will start again the wait for
-        // all the incoming connection factories.
+        // If we've previously been initialized we just need to activate the
+        // incoming connection factories and we're done.
         //
-        _waitForHoldRetry = _waitForHold > 0;
-
-        //
-        // If the one off initializations of the adapter are already
-        // done, we just need to activate the incoming connection
-        // factories and we're done.
-        //
-        if(_activateOneOffDone)
+        if(_state != StateUninitialized)
         {
             for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
                      Ice::voidMemFun(&IncomingConnectionFactory::activate));
@@ -110,12 +102,13 @@ Ice::ObjectAdapterI::activate()
         }
         
         //
-        // One off initializations of the adapter: update the locator
-        // registry and print the "adapter ready" message. We set the
-        // _waitForActivate flag to prevent deactivation from other
-        // threads while these one off initializations are done.
+        // One off initializations of the adapter: update the
+        // locator registry and print the "adapter ready"
+        // message. We set set state to StateWaitActivate to prevent
+        // deactivation from other threads while these one off
+        // initializations are done.
         //
-        _waitForActivate = true;
+        _state = StateWaitActivate;
 
         locatorInfo = _locatorInfo;
         if(!_noConfig)
@@ -142,7 +135,7 @@ Ice::ObjectAdapterI::activate()
         //
         {
             IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-            _waitForActivate = false;
+            _state = StateUninitialized;
             notifyAll();
         }
         throw;
@@ -155,15 +148,13 @@ Ice::ObjectAdapterI::activate()
 
     {
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-        assert(!_deactivated); // Not possible if _waitForActivate = true;
+        assert(_state == StateWaitActivate);
 
         //
         // Signal threads waiting for the activation.
         //
-        _waitForActivate = false;
+        _state = StateActive;
         notifyAll();
-
-        _activateOneOffDone = true;
 
         for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
                  Ice::voidMemFun(&IncomingConnectionFactory::activate));
@@ -176,6 +167,7 @@ Ice::ObjectAdapterI::hold()
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     checkForDeactivation();
+    _state = StateHeld;
         
     for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
              Ice::voidMemFun(&IncomingConnectionFactory::hold));
@@ -184,52 +176,17 @@ Ice::ObjectAdapterI::hold()
 void
 Ice::ObjectAdapterI::waitForHold()
 {
-    while(true)
+    vector<IncomingConnectionFactoryPtr> incomingConnectionFactories;
     {
-        vector<IncomingConnectionFactoryPtr> incomingConnectionFactories;
-        {
-            IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-            
-            checkForDeactivation();
-            
-            incomingConnectionFactories = _incomingConnectionFactories;
-
-            ++_waitForHold;
-        }
+        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
         
-        for_each(incomingConnectionFactories.begin(), incomingConnectionFactories.end(),
-                 Ice::constVoidMemFun(&IncomingConnectionFactory::waitUntilHolding));
+        checkForDeactivation();
         
-        {
-            IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-            if(--_waitForHold == 0)
-            {
-                notifyAll();
-            }
-            
-            //
-            // If we don't need to retry, we're done. Otherwise, we wait until 
-            // all the waiters finish waiting on the connections and we try 
-            // again waiting on all the conncetions. This is necessary in the 
-            // case activate() is called by another thread while waitForHold()
-            // waits on the some connection, if we didn't retry, waitForHold() 
-            // could return only after waiting on a subset of the connections.
-            //
-            if(!_waitForHoldRetry)
-            {
-                return;
-            }
-            else
-            {
-                while(_waitForHold > 0)
-                {
-                    checkForDeactivation();
-                    wait();
-                }
-                _waitForHoldRetry = false;
-            }
-        }
+        incomingConnectionFactories = _incomingConnectionFactories;
     }
+    
+    for_each(incomingConnectionFactories.begin(), incomingConnectionFactories.end(),
+             Ice::constVoidMemFun(&IncomingConnectionFactory::waitUntilHolding));
 }
 
 void
@@ -245,7 +202,7 @@ Ice::ObjectAdapterI::deactivate()
         // Ignore deactivation requests if the object adapter has already
         // been deactivated.
         //
-        if(_deactivated)
+        if(_state >= StateDeactivating)
         {
             return;
         }
@@ -254,7 +211,7 @@ Ice::ObjectAdapterI::deactivate()
         // Wait for activation to complete. This is necessary to not 
         // get out of order locator updates.
         //
-        while(_waitForActivate)
+        while(_state == StateWaitActivate)
         {
             wait();
         }
@@ -276,9 +233,7 @@ Ice::ObjectAdapterI::deactivate()
         outgoingConnectionFactory = _instance->outgoingConnectionFactory();
         locatorInfo = _locatorInfo;
 
-        _deactivated = true;
-
-        notifyAll();
+        _state = StateDeactivating;
     }
 
     try
@@ -307,6 +262,12 @@ Ice::ObjectAdapterI::deactivate()
     // requests being dispatched.
     //
     outgoingConnectionFactory->removeAdapter(this);
+
+    {
+        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        _state = StateDeactivated;
+        notifyAll();
+    }
 }
 
 void
@@ -316,7 +277,7 @@ Ice::ObjectAdapterI::waitForDeactivate()
 
     {
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-        if(_destroyed)
+        if(_state == StateDestroyed)
         {
             return;
         }
@@ -325,7 +286,7 @@ Ice::ObjectAdapterI::waitForDeactivate()
         // Wait for deactivation of the adapter itself, and for
         // the return of all direct method calls using this adapter.
         //
-        while(!_deactivated || _directCount > 0)
+        while((_state != StateDeactivated) || _directCount > 0)
         {
             wait();
         }
@@ -346,35 +307,12 @@ Ice::ObjectAdapterI::isDeactivated() const
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
-    return _deactivated;
+    return _state >= StateDeactivated;
 }
 
 void
 Ice::ObjectAdapterI::destroy()
 {
-    {
-        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-
-        //
-        // Another thread is in the process of destroying the object
-        // adapter. Wait for it to finish.
-        //
-        while(_destroying)
-        {
-            wait();
-        }
-
-        //
-        // Object adapter is already destroyed.
-        //
-        if(_destroyed)
-        {
-            return;
-        }
-
-        _destroying = true;
-    }
-
     //
     // Deactivate and wait for completion.
     //
@@ -400,12 +338,18 @@ Ice::ObjectAdapterI::destroy()
 
     {
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        //
+        // If destroy is already complete, we're done.
+        //
+        if(_state == StateDestroyed)
+        {
+            return;
+        }
 
         //
         // Signal that destroy is complete.
         //
-        _destroying = false;
-        _destroyed = true;
+        _state = StateDestroyed;
         notifyAll();
 
         //
@@ -912,19 +856,13 @@ Ice::ObjectAdapterI::getACM() const
 Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const CommunicatorPtr& communicator,
                                     const ObjectAdapterFactoryPtr& objectAdapterFactory, const string& name,
                                     /*const RouterPrx& router,*/ bool noConfig) :
-    _deactivated(false),
+    _state(StateUninitialized),
     _instance(instance),
     _communicator(communicator),
     _objectAdapterFactory(objectAdapterFactory),
     _servantManager(new ServantManager(instance, name)),
-    _activateOneOffDone(false),
     _name(name),
     _directCount(0),
-    _waitForActivate(false),
-    _waitForHold(0),
-    _waitForHoldRetry(false),
-    _destroying(false),
-    _destroyed(false),
     _noConfig(noConfig)
 {
 }
@@ -1096,12 +1034,12 @@ Ice::ObjectAdapterI::initialize(const RouterPrx& router)
 
 Ice::ObjectAdapterI::~ObjectAdapterI()
 {
-    if(!_deactivated)
+    if(_state < StateDeactivated)
     {
         Warning out(_instance->initializationData().logger);
         out << "object adapter `" << getName() << "' has not been deactivated";
     }
-    else if(!_destroyed)
+    else if(_state != StateDestroyed)
     {
         Warning out(_instance->initializationData().logger);
         out << "object adapter `" << getName() << "' has not been destroyed";
@@ -1112,7 +1050,6 @@ Ice::ObjectAdapterI::~ObjectAdapterI()
         assert(!_threadPool);
         assert(_incomingConnectionFactories.empty());
         assert(_directCount == 0);
-        assert(!_waitForActivate);
     }
 }
 
@@ -1169,7 +1106,7 @@ Ice::ObjectAdapterI::newIndirectProxy(const Identity& ident, const string& facet
 void
 Ice::ObjectAdapterI::checkForDeactivation() const
 {
-    if(_deactivated)
+    if(_state >= StateDeactivating)
     {
         ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
         ex.name = getName();

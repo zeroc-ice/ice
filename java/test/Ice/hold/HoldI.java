@@ -45,21 +45,20 @@ public final class HoldI extends _HoldDisp
         }
         else
         {
-            _timer.schedule(new java.util.TimerTask() 
-                            {
-                                @Override
-                                public void 
-                                run()
-                                {
-                                    try
-                                    {
-                                        putOnHold(0, null);
-                                    }
-                                    catch(Ice.ObjectAdapterDeactivatedException ex)
-                                    {
-                                    }
-                                }
-                            }, milliSeconds);
+            _timer.schedule(new java.util.TimerTask()
+            {
+                @Override
+                public void run()
+                {
+                    try
+                    {
+                        putOnHold(0, null);
+                    }
+                    catch(Ice.ObjectAdapterDeactivatedException ex)
+                    {
+                    }
+                }
+            }, milliSeconds);
         }
     }
 
@@ -67,27 +66,28 @@ public final class HoldI extends _HoldDisp
     public void
     waitForHold(final Ice.Current current)
     {
-        _timer.schedule(new java.util.TimerTask() 
-                        {
-                            @Override
-                            public void 
-                            run()
-                            {
-                                try
-                                {
-                                    current.adapter.waitForHold();
-                                    current.adapter.activate();
-                                }
-                                catch(Ice.ObjectAdapterDeactivatedException ex)
-                                {
-                                    //
-                                    // This shouldn't occur. The test ensures all the waitForHold timers are 
-                                    // finished before shutting down the communicator.
-                                    //
-                                    test(false);
-                                }
-                            }
-                        }, 0);
+        _timer.schedule(new java.util.TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                try
+                {
+                    current.adapter.waitForHold();
+
+                    current.adapter.activate();
+                }
+                catch(Ice.ObjectAdapterDeactivatedException ex)
+                {
+                    //
+                    // This shouldn't occur. The test ensures all the
+                    // waitForHold timers are
+                    // finished before shutting down the communicator.
+                    //
+                    test(false);
+                }
+            }
+        }, 0);
     }
 
 

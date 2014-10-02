@@ -255,7 +255,11 @@ public final class ThreadPool
     public synchronized void
     destroy()
     {
-        assert(!_destroyed);
+        if(_destroyed)
+        {
+            return;
+        }
+
         _destroyed = true;
         _workQueue.destroy();
     }
