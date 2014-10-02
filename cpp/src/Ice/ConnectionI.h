@@ -229,6 +229,8 @@ public:
                   const ConnectionCallbackPtr&, IceInternal::BasicStream&);
     void finish();
 
+    void closeCallback(const ConnectionCallbackPtr&);
+
 private:
 
     enum State

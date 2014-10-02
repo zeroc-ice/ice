@@ -685,20 +685,21 @@ var ConnectionI = Class({
     },
     setCallback: function(callback)
     {
-        if(callback === null)
-        {
-            return;
-        }
-
         if(this._state >= StateClosed)
         {
-            try
+            if(callback !== null)
             {
-                callback.closed(this);
-            }
-            catch(ex)
-            {
-                this._logger.error("connection callback exception:\n" + ex + '\n' + this._desc);
+                var self = this;
+                setTimeout(function() {
+                    try
+                    {
+                        callback.closed(this);
+                    }
+                    catch(ex)
+                    {
+                        self._logger.error("connection callback exception:\n" + ex + '\n' + self._desc);
+                    }
+                }, 0);
             }
         }
         else

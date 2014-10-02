@@ -1177,36 +1177,58 @@ Ice::ConnectionI::flushAsyncBatchRequests(const BatchOutgoingAsyncPtr& outAsync)
 void
 Ice::ConnectionI::setCallback(const ConnectionCallbackPtr& callback)
 {
-    bool closed = false;
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
         if(_state >= StateClosed)
         {
-            closed = true;
-            return;
+            if(callback)
+            {
+                class CallbackWorkItem : public DispatchWorkItem
+                {
+                public:
+
+                    CallbackWorkItem(const ConnectionIPtr& connection, const ConnectionCallbackPtr& callback) :
+                        _connection(connection),
+                        _callback(callback)
+                    {
+                    }
+
+                    virtual void run()
+                    {
+                        _connection->closeCallback(_callback);
+                    }
+
+                private:
+
+                    const ConnectionIPtr _connection;
+                    const ConnectionCallbackPtr _callback;
+                };
+                _threadPool->dispatch(new CallbackWorkItem(this, callback));
+            }
         }
         else
         {
             _callback = callback;
         }
     }
+}
 
-    if(closed && callback)
+void
+Ice::ConnectionI::closeCallback(const ConnectionCallbackPtr& callback)
+{
+    try
     {
-        try
-        {
-            callback->closed(this);
-        }
-        catch(const std::exception& ex)
-        {
-            Error out(_instance->initializationData().logger);
-            out << "connection callback exception:\n" << ex << '\n' << _desc;
-        }
-        catch(...)
-        {
-            Error out(_instance->initializationData().logger);
-            out << "connection callback exception:\nunknown c++ exception" << '\n' << _desc;
-        }
+        callback->closed(this);
+    }
+    catch(const std::exception& ex)
+    {
+        Error out(_instance->initializationData().logger);
+        out << "connection callback exception:\n" << ex << '\n' << _desc;
+    }
+    catch(...)
+    {
+        Error out(_instance->initializationData().logger);
+        out << "connection callback exception:\nunknown c++ exception" << '\n' << _desc;
     }
 }
 
@@ -2178,20 +2200,7 @@ Ice::ConnectionI::finish()
 
     if(_callback)
     {
-        try
-        {
-            _callback->closed(this);
-        }
-        catch(const std::exception& ex)
-        {
-            Error out(_instance->initializationData().logger);
-            out << "connection callback exception:\n" << ex << '\n' << _desc;
-        }
-        catch(...)
-        {
-            Error out(_instance->initializationData().logger);
-            out << "connection callback exception:\nunknown c++ exception" << '\n' << _desc;
-        }
+        closeCallback(_callback);
         _callback = 0;
     }
 

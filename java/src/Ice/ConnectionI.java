@@ -720,30 +720,39 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     }
 
     @Override
-    synchronized public void setCallback(ConnectionCallback callback)
+    synchronized public void setCallback(final ConnectionCallback callback)
     {
-        boolean closed = false;
         synchronized(this)
         {
             if(_state >= StateClosed)
             {
-                closed = true;
+                if(callback != null)
+                {
+                    class CallbackWorkItem extends IceInternal.DispatchWorkItem
+                    {
+                        public CallbackWorkItem()
+                        {
+                        }
+
+                        @Override
+                        public void run()
+                        {
+                            try
+                            {
+                                callback.closed(ConnectionI.this);
+                            }
+                            catch(Exception ex)
+                            {
+                                _logger.error("connection callback exception:\n" + ex + '\n' + _desc);
+                            }
+                        }
+                    };
+                    _threadPool.dispatch(new CallbackWorkItem());
+                }
             }
             else
             {
                 _callback = callback;
-            }
-        }
-
-        if(closed && callback != null)
-        {
-            try
-            {
-                callback.closed(this);
-            }
-            catch(Exception ex)
-            {
-                _logger.error("connection callback exception:\n" + ex + '\n' + _desc);
             }
         }
     }

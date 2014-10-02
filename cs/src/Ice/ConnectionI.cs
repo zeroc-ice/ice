@@ -763,28 +763,28 @@ namespace Ice
 
         public void setCallback(ConnectionCallback callback)
         {
-            bool closed = false;
             lock(this)
             {
                 if(_state >= StateClosed)
                 {
-                    closed = true;
+                    if(callback != null)
+                    {
+                        _threadPool.dispatch(() =>
+                        {
+                            try
+                            {
+                                callback.closed(this);
+                            }
+                            catch(System.Exception ex)
+                            {
+                                _logger.error("connection callback exception:\n" + ex + '\n' + _desc);
+                            }
+                        } , null);
+                    }
                 }
                 else
                 {
                     _callback = callback;
-                }
-            }
-
-            if(closed && callback != null)
-            {
-                try
-                {
-                    callback.closed(this);
-                }
-                catch(System.Exception ex)
-                {
-                    _logger.error("connection callback exception:\n" + ex + '\n' + _desc);
                 }
             }
         }
