@@ -20,16 +20,17 @@ def usage():
     print "-v               Be verbose."
     print "-b DIR           Directory to build the packages"
     print "-d DIR           Directory with Ice source distribution"
+    print "-k KEYID         Id of the Key used to sign the packages"
     print "Example:"
     print ""
-    print "makeubuntupackages.py -b ./tmp -d ./dist-HEAD"
+    print "makeubuntupackages.py -b trusty -d dist-HEAD -k 748BB043"
     print
 
 #
 # Check arguments
 #
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "hvb:d:")
+    opts, args = getopt.getopt(sys.argv[1:], "hvb:d:k:")
 except getopt.GetoptError:
     print sys.argv[0] + ": unknown option"
     print
@@ -40,7 +41,7 @@ except getopt.GetoptError:
 verbose = 0
 buildDir = None
 distributionDir = None
-
+keyid = None
 
 for (o, a) in opts:
     if o == "-h":
@@ -52,6 +53,8 @@ for (o, a) in opts:
         buildDir = a
     elif o == "-d":
         distributionDir = a
+    elif o == "-k":
+        keyid = a
 
 if buildDir == None:
     print "Missing -b argument"
@@ -63,10 +66,14 @@ if distributionDir == None:
     usage()
     sys.exit(1)
 
+if keyid == None:
+    print "Missing -k argument"
+    usage()
+    sys.exit(1)
 
-sourceDir = "ice3.5-3.5.1"
-distFile = "ice3.5_3.5.1.orig.tar.gz"
-distFiles = "distfiles-3.5.1.tar.gz"
+sourceDir = "ice@mmver@-@ver@"
+distFile = "ice@mmver@_@ver@.orig.tar.gz"
+distFiles = "distfiles-@ver@.tar.gz"
 
 buildDir = os.path.abspath(os.path.join(os.getcwd(), buildDir))
 sourceDir = os.path.abspath(os.path.join(buildDir, sourceDir))
@@ -105,5 +112,6 @@ runCommand("tar zxf %s " % (distFile), verbose)
 shutil.copy(distFile, buildDir)
 
 os.chdir(sourceDir)
-runCommand("tar zxf %s distfiles-3.5.1/src/deb/debian --strip-components 3" % distFiles, verbose)
-runCommand("dpkg-buildpackage", verbose)
+runCommand("tar zxf %s distfiles-@ver@/src/deb/debian --strip-components 3" % distFiles, verbose)
+
+runCommand("dpkg-buildpackage -k%s" % keyid, verbose)

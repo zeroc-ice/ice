@@ -201,6 +201,7 @@ def createDistfilesDist(platform, whichDestDir):
     sys.stdout.flush()
 
     fixVersion(os.path.join("bin", "makebindist.py"), *versions)
+    fixVersion(os.path.join("bin", "makeubuntupackages.py"), *versions)
     if platform == "UNIX":
         fixVersion(os.path.join("src", "rpm", "icegridregistry.conf"), *versions)
         fixVersion(os.path.join("src", "rpm", "RPM_README"), *versions)
