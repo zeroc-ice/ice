@@ -71,44 +71,35 @@ public class Server extends ListArrayTreeNode
     public void start()
     {
         final String prefix = "Starting server '" + _id + "'...";
+        final String errorTitle = "Failed to start " + _id;
+
         getCoordinator().getStatusBar().setText(prefix);
-
-        Callback_Admin_startServer cb = new Callback_Admin_startServer()
-            {
-                //
-                // Called by another thread!
-                //
-                @Override
-                public void response()
-                {
-                    amiSuccess(prefix);
-                }
-
-                @Override
-                public void exception(Ice.UserException e)
-                {
-                    amiFailure(prefix, "Failed to start " + _id, e);
-                }
-
-                @Override
-                public void exception(Ice.LocalException e)
-                {
-                    amiFailure(prefix, "Failed to start " + _id, e.toString());
-                }
-            };
-
         try
         {
-            getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            getCoordinator().getAdmin().begin_startServer(_id, cb);
+            getCoordinator().getAdmin().begin_startServer(_id, new Ice.Callback()
+                {
+                    @Override
+                    public void completed(final Ice.AsyncResult r)
+                    {
+                        try
+                        {
+                            getCoordinator().getAdmin().end_startServer(r);
+                            amiSuccess(prefix);
+                        }
+                        catch(Ice.UserException ex)
+                        {
+                            amiFailure(prefix, errorTitle, ex);
+                        }
+                        catch(Ice.LocalException ex)
+                        {
+                            amiFailure(prefix, errorTitle, ex.toString());
+                        }
+                    }
+                });
         }
-        catch(Ice.LocalException e)
+        catch(Ice.LocalException ex)
         {
-            failure(prefix, "Failed to start " + _id, e.toString());
-        }
-        finally
-        {
-            getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            failure(prefix, errorTitle, ex.toString());
         }
     }
 
@@ -116,45 +107,36 @@ public class Server extends ListArrayTreeNode
     public void stop()
     {
         final String prefix = "Stopping server '" + _id + "'...";
+        final String errorTitle = "Failed to stop " + _id;        
         getCoordinator().getStatusBar().setText(prefix);
-
-        Callback_Admin_stopServer cb = new Callback_Admin_stopServer()
-            {
-                //
-                // Called by another thread!
-                //
-                @Override
-                public void response()
-                {
-                    amiSuccess(prefix);
-                    rebuild(Server.this, false);
-                }
-
-                @Override
-                public void exception(Ice.UserException e)
-                {
-                    amiFailure(prefix, "Failed to stop " + _id, e);
-                }
-
-                @Override
-                public void exception(Ice.LocalException e)
-                {
-                    amiFailure(prefix, "Failed to stop " + _id, e.toString());
-                }
-            };
-
         try
         {
-            getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            getCoordinator().getAdmin().begin_stopServer(_id, cb);
+            getCoordinator().getAdmin().begin_stopServer(_id, 
+                new Ice.Callback()
+                    {
+                        @Override
+                        public void completed(final Ice.AsyncResult r)
+                        {
+                            try
+                            {
+                                getCoordinator().getAdmin().end_stopServer(r);
+                                amiSuccess(prefix);
+                                rebuild(Server.this, false);
+                            }
+                            catch(Ice.UserException ex)
+                            {
+                                amiFailure(prefix, errorTitle, ex);
+                            }
+                            catch(Ice.LocalException ex)
+                            {
+                                amiFailure(prefix, errorTitle, ex.toString());
+                            }
+                        }
+                    });
         }
-        catch(Ice.LocalException e)
+        catch(Ice.LocalException ex)
         {
-            failure(prefix, "Failed to stop " + _id, e.toString());
-        }
-        finally
-        {
-            getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            failure(prefix, errorTitle, ex.toString());
         }
     }
 
@@ -303,39 +285,35 @@ public class Server extends ListArrayTreeNode
     public void signal(final String s)
     {
         final String prefix = "Sending '" + s + "' to server '" + _id + "'...";
+        final String errorTitle = "Failed to deliver signal " + s + " to " + _id;
         getCoordinator().getStatusBar().setText(prefix);
-
-        Callback_Admin_sendSignal cb = new Callback_Admin_sendSignal()
-            {
-                //
-                // Called by another thread!
-                //
-                @Override
-                public void response()
-                {
-                    amiSuccess(prefix);
-                }
-
-                @Override
-                public void exception(Ice.UserException e)
-                {
-                    amiFailure(prefix, "Failed to deliver signal " + s + " to " + _id, e);
-                }
-
-                @Override
-                public void exception(Ice.LocalException e)
-                {
-                    amiFailure(prefix, "Failed to deliver signal " + s + " to " + _id, e.toString());
-                }
-            };
-
         try
         {
-            getCoordinator().getAdmin().begin_sendSignal(_id, s, cb);
+            getCoordinator().getAdmin().begin_sendSignal(_id, s,
+                new Ice.Callback()
+                    {
+                        @Override
+                        public void completed(final Ice.AsyncResult r)
+                        {
+                            try
+                            {
+                                getCoordinator().getAdmin().end_sendSignal(r);
+                                amiSuccess(prefix);
+                            }
+                            catch(Ice.UserException ex)
+                            {
+                                amiFailure(prefix, errorTitle, ex);
+                            }
+                            catch(Ice.LocalException ex)
+                            {
+                                amiFailure(prefix, errorTitle, ex.toString());
+                            }
+                        }
+                    });
         }
-        catch(Ice.LocalException e)
+        catch(Ice.LocalException ex)
         {
-            failure(prefix, "Failed to deliver signal " + s + " to " + _id, e.toString());
+            failure(prefix, errorTitle, ex.toString());
         }
     }
 
@@ -361,91 +339,71 @@ public class Server extends ListArrayTreeNode
         }
 
         final String prefix = "Patching server '" + _id + "'...";
+        final String errorTitle = "Failed to patch " + _id;
+
         getCoordinator().getStatusBar().setText(prefix);
-
-        Callback_Admin_patchServer cb = new Callback_Admin_patchServer()
-            {
-                //
-                // Called by another thread!
-                //
-                @Override
-                public void response()
-                {
-                    amiSuccess(prefix);
-                }
-
-                @Override
-                public void exception(Ice.UserException e)
-                {
-                    amiFailure(prefix, "Failed to patch " + _id, e);
-                }
-
-                @Override
-                public void exception(Ice.LocalException e)
-                {
-                    amiFailure(prefix, "Failed to patch " + _id, e.toString());
-                }
-            };
-
         try
         {
-            getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            getCoordinator().getAdmin().begin_patchServer(_id, shutdown == JOptionPane.YES_OPTION, cb);
+            getCoordinator().getAdmin().begin_patchServer(_id, shutdown == JOptionPane.YES_OPTION, 
+                new Ice.Callback()
+                {
+                    @Override
+                    public void completed(final Ice.AsyncResult r)
+                    {
+                        try
+                        {
+                            getCoordinator().getAdmin().end_patchServer(r);
+                            amiSuccess(prefix);
+                        }
+                        catch(Ice.UserException ex)
+                        {
+                            amiFailure(prefix, errorTitle, ex);
+                        }
+                        catch(Ice.LocalException ex)
+                        {
+                            amiFailure(prefix, errorTitle, ex.toString());
+                        }
+                    }
+                });
         }
-        catch(Ice.LocalException e)
+        catch(Ice.LocalException ex)
         {
-            failure(prefix, "Failed to patch " + _id, e.toString());
-        }
-        finally
-        {
-            getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            failure(prefix, errorTitle, ex.toString());
         }
     }
 
     private void enableServer(boolean enable)
     {
         final String prefix = (enable ?  "Enabling" : "Disabling") + " server '" + _id + "'...";
-
-        final String action = enable ? "enable" : "disable";
-
+        final String errorTitle = "Failed to " + (enable ? "enable" : "disable") + " " + _id;
         getCoordinator().getStatusBar().setText(prefix);
-
-        Callback_Admin_enableServer cb = new Callback_Admin_enableServer()
-            {
-                //
-                // Called by another thread!
-                //
-                @Override
-                public void response()
-                {
-                    amiSuccess(prefix);
-                }
-
-                @Override
-                public void exception(Ice.UserException e)
-                {
-                    amiFailure(prefix, "Failed to " + action + " " + _id, e);
-                }
-
-                @Override
-                public void exception(Ice.LocalException e)
-                {
-                    amiFailure(prefix, "Failed to " + action + " " + _id, e.toString());
-                }
-            };
-
         try
         {
-            getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            getCoordinator().getAdmin().begin_enableServer(_id, enable, cb);
+            getCoordinator().getAdmin().begin_enableServer(_id, enable,
+                new Ice.Callback()
+                {
+                    @Override
+                    public void completed(final Ice.AsyncResult r)
+                    {
+                        try
+                        {
+                            getCoordinator().getAdmin().end_enableServer(r);
+                            amiSuccess(prefix);
+                        }
+                        catch(Ice.UserException ex)
+                        {
+                            amiFailure(prefix, errorTitle, ex);
+                        }
+                        catch(Ice.LocalException ex)
+                        {
+                            amiFailure(prefix, errorTitle, ex.toString());
+                        }
+                    }
+                });
         }
-        catch(Ice.LocalException e)
+        catch(Ice.LocalException ex)
         {
-            failure(prefix, "Failed to " + action + " " + _id, e.toString());
-        }
-        finally
-        {
-            getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            failure(prefix, errorTitle, ex.toString());
         }
     }
 

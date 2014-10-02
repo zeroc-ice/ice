@@ -102,10 +102,7 @@ class ObjectDialog extends JDialog
                             type = _typeCombo.getSelectedItem().toString();
                         }
 
-                        if(root.addObject(_proxy.getText(), type))
-                        {
-                            setVisible(false);
-                        }
+                        root.addObject(_proxy.getText(), type, ObjectDialog.this);
                     }
                     else
                     {

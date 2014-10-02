@@ -13,6 +13,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 
 import javax.swing.Icon;
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
@@ -220,46 +221,34 @@ public class Root extends ListArrayTreeNode
     public void shutdownRegistry()
     {
         final String prefix = "Shutting down registry '" + _replicaName + "'...";
-        getCoordinator().getStatusBar().setText(prefix);
-
-        Callback_Admin_shutdownRegistry cb = new Callback_Admin_shutdownRegistry()
-            {
-                //
-                // Called by another thread!
-                //
-                @Override
-                public void response()
-                {
-                    amiSuccess(prefix);
-                }
-
-                @Override
-                public void exception(Ice.UserException e)
-                {
-                    amiFailure(prefix, "Failed to shutdown " + _replicaName, e);
-                }
-
-                @Override
-                public void exception(Ice.LocalException e)
-                {
-                    amiFailure(prefix, "Failed to shutdown " + _replicaName,
-                               e.toString());
-                }
-            };
-
+        final String errorTitle = "Failed to shutdown " + _replicaName;
+        _coordinator.getStatusBar().setText(prefix);
         try
         {
-            _coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-
-            _coordinator.getAdmin().begin_shutdownRegistry(_replicaName, cb);
+            _coordinator.getAdmin().begin_shutdownRegistry(_replicaName, new Ice.Callback()
+                {
+                    @Override
+                    public void completed(final Ice.AsyncResult r)
+                    {
+                        try
+                        {
+                            _coordinator.getAdmin().end_shutdownRegistry(r);
+                            amiSuccess(prefix);
+                        }
+                        catch(Ice.UserException ex)
+                        {
+                            amiFailure(prefix, errorTitle, ex);
+                        }
+                        catch(Ice.LocalException ex)
+                        {
+                            amiFailure(prefix, errorTitle, ex.toString());
+                        }
+                    }
+                });
         }
-        catch(Ice.LocalException e)
+        catch(Ice.LocalException ex)
         {
-            failure(prefix, "Failed to shutdown " + _replicaName, e.toString());
-        }
-        finally
-        {
-            _coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            failure(prefix, errorTitle, ex.toString());
         }
     }
 
@@ -392,46 +381,36 @@ public class Root extends ListArrayTreeNode
         }
 
         final String prefix = "Patching application '" + applicationName + "'...";
+        final String errorTitle = "Failed to patch '" + applicationName;
 
         _coordinator.getStatusBar().setText(prefix);
-        Callback_Admin_patchApplication cb = new Callback_Admin_patchApplication()
-            {
-                //
-                // Called by another thread!
-                //
-                @Override
-                public void response()
-                {
-                    amiSuccess(prefix);
-                }
-
-                @Override
-                public void exception(Ice.UserException e)
-                {
-                    amiFailure(prefix, "Failed to patch '"
-                               + applicationName + "'", e);
-                }
-
-                @Override
-                public void exception(Ice.LocalException e)
-                {
-                    amiFailure(prefix, "Failed to patch '" +
-                               applicationName + "'", e.toString());
-                }
-            };
-
         try
         {
-            _coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            _coordinator.getAdmin().begin_patchApplication(applicationName, shutdown == JOptionPane.YES_OPTION, cb);
+            _coordinator.getAdmin().begin_patchApplication(applicationName, shutdown == JOptionPane.YES_OPTION,
+                new Ice.Callback()
+                    {
+                        @Override
+                        public void completed(final Ice.AsyncResult r)
+                        {
+                            try
+                            {
+                                _coordinator.getAdmin().end_patchApplication(r);
+                                amiSuccess(prefix);
+                            }
+                            catch(Ice.UserException ex)
+                            {
+                                amiFailure(prefix, errorTitle, ex);
+                            }
+                            catch(Ice.LocalException ex)
+                            {
+                                amiFailure(prefix,  errorTitle, ex.toString());
+                            }
+                        }
+                    });
         }
-        catch(Ice.LocalException e)
+        catch(Ice.LocalException ex)
         {
-            failure(prefix, "Failed to patch " + _id, e.toString());
-        }
-        finally
-        {
-            _coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            failure(prefix, errorTitle, ex.toString());
         }
     }
 
@@ -864,7 +843,7 @@ public class Root extends ListArrayTreeNode
         return _info;
     }
 
-    boolean addObject(String strProxy, String type)
+    void addObject(String strProxy, final String type, final JDialog dialog)
     {
         Ice.ObjectPrx proxy = null;
 
@@ -879,7 +858,6 @@ public class Root extends ListArrayTreeNode
                 "Cannot parse proxy '" + strProxy + "'",
                 "addObject failed",
                 JOptionPane.ERROR_MESSAGE);
-            return false;
         }
 
         if(proxy == null)
@@ -889,64 +867,71 @@ public class Root extends ListArrayTreeNode
                 "You must provide a non-null proxy",
                 "addObject failed",
                 JOptionPane.ERROR_MESSAGE);
-            return false;
         }
 
         String strIdentity = Ice.Util.identityToString(proxy.ice_getIdentity());
 
-        String prefix = "Adding well-known object '" + strIdentity + "'...";
+        final String prefix = "Adding well-known object '" + strIdentity + "'...";
+        final AdminPrx admin = _coordinator.getAdmin();
+        Ice.Callback cb = new Ice.Callback()
+        {
+            @Override
+            public void completed(final Ice.AsyncResult r)
+            {
+                try
+                {
+                    if(type == null)
+                    {
+                        admin.end_addObject(r);
+                    }
+                    else
+                    {
+                        admin.end_addObjectWithType(r);
+                    }
+                    
+                    amiSuccess(prefix);
+                    
+                    SwingUtilities.invokeLater(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            dialog.setVisible(false);
+                        }
+                    });
+                }
+                catch(ObjectExistsException e)
+                {
+                    amiFailure(prefix, "addObject failed",
+                               "An object with this identity is already registered as a well-known object");
+                }
+                catch(DeploymentException ex)
+                {
+                    amiFailure(prefix, "addObject failed", "Deployment exception: " + ex.reason);
+                }
+                catch(Ice.LocalException ex)
+                {
+                    amiFailure(prefix, "addObject failed", ex.toString());
+                }
+            }
+        };
+
+        _coordinator.getStatusBar().setText(prefix);
         try
         {
-            _coordinator.getStatusBar().setText(prefix);
-            _coordinator.getMainFrame().setCursor(
-                Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-
             if(type == null)
             {
-                _coordinator.getAdmin().addObject(proxy);
+                admin.begin_addObject(proxy, cb);
             }
             else
             {
-                _coordinator.getAdmin().addObjectWithType(proxy, type);
+                admin.begin_addObjectWithType(proxy, type, cb);
             }
         }
-        catch(ObjectExistsException e)
+        catch(Ice.LocalException ex)
         {
-            _coordinator.getStatusBar().setText(prefix + "failed.");
-            JOptionPane.showMessageDialog(
-                _coordinator.getMainFrame(),
-                "An object with this identity is already registered as a well-known object",
-                "addObject failed",
-                JOptionPane.ERROR_MESSAGE);
-            return false;
+            failure(prefix, "addObject failed", ex.toString());
         }
-        catch(DeploymentException e)
-        {
-            _coordinator.getStatusBar().setText(prefix + "failed.");
-            JOptionPane.showMessageDialog(
-                _coordinator.getMainFrame(),
-                "Deployment exception: " + e.reason,
-                "addObject failed",
-                JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-        catch(Ice.LocalException e)
-        {
-            _coordinator.getStatusBar().setText(prefix + "failed.");
-            JOptionPane.showMessageDialog(
-                _coordinator.getMainFrame(),
-                e.toString(),
-                "addObject failed",
-                JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-        finally
-        {
-            _coordinator.getMainFrame().setCursor(
-                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        }
-        _coordinator.getStatusBar().setText(prefix + "done.");
-        return true;
     }
 
     void removeObject(String strProxy)
@@ -956,91 +941,72 @@ public class Root extends ListArrayTreeNode
         final String strIdentity = Ice.Util.identityToString(identity);
 
         final String prefix = "Removing well-known object '" + strIdentity + "'...";
+        final String errorTitle = "Failed to remove object '" + strIdentity + "'";
+
         _coordinator.getStatusBar().setText(prefix);
-
-        Callback_Admin_removeObject cb = new Callback_Admin_removeObject()
-            {
-                //
-                // Called by another thread!
-                //
-                @Override
-                public void response()
-                {
-                    amiSuccess(prefix);
-                }
-
-                @Override
-                public void exception(Ice.UserException e)
-                {
-                    amiFailure(prefix, "Failed to remove object '" + strIdentity + "'", e);
-                }
-
-                @Override
-                public void exception(Ice.LocalException e)
-                {
-                    amiFailure(prefix, "Failed to remove object '" + strIdentity + "'",
-                               e.toString());
-                }
-            };
-
         try
         {
-            _coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            _coordinator.getAdmin().begin_removeObject(identity, cb);
+            _coordinator.getAdmin().begin_removeObject(identity,
+                new Ice.Callback()
+                    {
+                        @Override
+                        public void completed(final Ice.AsyncResult r)
+                        {
+                            try
+                            {
+                                _coordinator.getAdmin().end_removeObject(r);
+                                amiSuccess(prefix);
+                            }
+                            catch(Ice.UserException ex)
+                            {
+                                amiFailure(prefix, errorTitle, ex);
+                            }
+                            catch(Ice.LocalException ex)
+                            {
+                                amiFailure(prefix, errorTitle, ex.toString());
+                            }
+                        }
+                    });
         }
-        catch(Ice.LocalException e)
+        catch(Ice.LocalException ex)
         {
-            failure(prefix, "Failed to remove object '" + strIdentity + "'", e.toString());
-        }
-        finally
-        {
-            _coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            failure(prefix, errorTitle, ex.toString());
         }
     }
 
     void removeAdapter(final String adapterId)
     {
         final String prefix = "Removing adapter '" + adapterId + "'...";
+        final String errorTitle = "Failed to remove adapter '" + adapterId + "'";
         _coordinator.getStatusBar().setText(prefix);
-
-        Callback_Admin_removeAdapter cb = new Callback_Admin_removeAdapter()
-            {
-                //
-                // Called by another thread!
-                //
-                @Override
-                public void response()
-                {
-                    amiSuccess(prefix);
-                }
-
-                @Override
-                public void exception(Ice.UserException e)
-                {
-                    amiFailure(prefix, "Failed to remove adapter '" + adapterId + "'", e);
-                }
-
-                @Override
-                public void exception(Ice.LocalException e)
-                {
-                    amiFailure(prefix, "Failed to remove adapter '" + adapterId + "'",
-                               e.toString());
-                }
-            };
-
         try
         {
-            _coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            _coordinator.getAdmin().begin_removeAdapter(adapterId, cb);
+            _coordinator.getAdmin().begin_removeAdapter(adapterId, new Ice.Callback()
+                {
+                    @Override
+                    public void completed(final Ice.AsyncResult r)
+                    {
+                        try
+                        {
+                            _coordinator.getAdmin().end_removeAdapter(r);
+                            amiSuccess(prefix);
+                        }
+                        catch(Ice.UserException ex)
+                        {
+                            amiFailure(prefix, errorTitle, ex);
+                        }
+                        catch(Ice.LocalException ex)
+                        {
+                            amiFailure(prefix, errorTitle, ex.toString());
+                        }
+                    }
+                });
         }
-        catch(Ice.LocalException e)
+        catch(Ice.LocalException ex)
         {
-            failure(prefix, "Failed to remove adapter '" + adapterId + "'", e.toString());
+            failure(prefix, errorTitle, ex.toString());
         }
-        finally
-        {
-            _coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        }
+
     }
 
     @Override
