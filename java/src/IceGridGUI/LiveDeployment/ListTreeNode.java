@@ -17,9 +17,9 @@ import java.util.Enumeration;
 abstract class ListTreeNode extends TreeNode
 {
     @Override
-    public Enumeration children()
+    public Enumeration<Object> children()
     {
-        return new Enumeration()
+        return new Enumeration<Object>()
             {
                 @Override
                 public boolean hasMoreElements()

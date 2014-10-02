@@ -23,9 +23,9 @@ import IceGridGUI.*;
 abstract class Communicator extends TreeNode implements DescriptorHolder
 {
     @Override
-    public Enumeration children()
+    public Enumeration<Object> children()
     {
-        return new Enumeration()
+        return new Enumeration<Object>()
             {
                 @Override
                 public boolean hasMoreElements()
