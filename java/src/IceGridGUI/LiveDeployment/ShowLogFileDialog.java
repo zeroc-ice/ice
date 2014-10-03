@@ -518,7 +518,7 @@ class ShowLogFileDialog extends JDialog
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
-                        new ShowPrefsDialog(ShowLogFileDialog.this);
+                        new LogPrefsDialog(ShowLogFileDialog.this);
                     }
                 });
         }

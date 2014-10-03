@@ -217,7 +217,16 @@ class ShowIceLogDialog extends JDialog
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
-                        new ShowPrefsDialog(ShowIceLogDialog.this);
+                        new LogPrefsDialog(ShowIceLogDialog.this);
+                    }
+                });
+            editMenu.addSeparator();
+            editMenu.add(new AbstractAction("Filter...")
+                {
+                    @Override
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        new LogFilterDialog(ShowIceLogDialog.this);
                     }
                 });
         }
@@ -617,6 +626,8 @@ class ShowIceLogDialog extends JDialog
         
         _parent.getRoot().addShowIceLogDialog(_title, this);
         
+        setVisible(true);
+        
         play();
     }
 
@@ -633,7 +644,14 @@ class ShowIceLogDialog extends JDialog
         if(_remoteLogger == null)
         {
             _tableModel.setRowCount(0); 
-            setVisible(true);
+            if(_messageTypeFilter != null || _traceCategoryFilter != null)
+            {
+                setTitle(_title + " (Filtered) - IceGrid Admin");
+            }
+            else
+            {
+                setTitle(_title + " (No filter) - IceGrid Admin");
+            }
             
             _playItem.setSelected(true);
             _playButton.setSelected(true);
@@ -686,7 +704,7 @@ class ShowIceLogDialog extends JDialog
              
             try
             {
-                _loggerAdmin.begin_attachRemoteLogger(_remoteLoggerPrx,  null, null, _initialMessages, cb);
+                _loggerAdmin.begin_attachRemoteLogger(_remoteLoggerPrx,  _messageTypeFilter, _traceCategoryFilter, _initialMessages, cb);
             }
             catch(LocalException ex)
             {
@@ -780,6 +798,29 @@ class ShowIceLogDialog extends JDialog
         
         _parent.getRoot().setLogPrefs(_maxMessages, _initialMessages);
     }
+    
+    LogMessageType[] getMessageTypeFilter()
+    {
+        return _messageTypeFilter;
+    }
+    
+    String[] getTraceCategoryFilter()
+    {
+        return _traceCategoryFilter;
+    }
+    
+    void setFilters(LogMessageType[] messageTypeFilter, String[] traceCategoryFilter)
+    {
+        _messageTypeFilter = messageTypeFilter;
+        _traceCategoryFilter = traceCategoryFilter;
+        
+        if(_remoteLogger != null)
+        {
+            stop();
+            play();
+        }
+        // otherwise, leave it in stopped mode
+    }
 
     void stop()
     {
@@ -820,6 +861,9 @@ class ShowIceLogDialog extends JDialog
    
     private int _maxMessages;
     private int _initialMessages;
+    
+    private LogMessageType[] _messageTypeFilter;
+    private String[] _traceCategoryFilter;
    
     private Action _play;
     private Action _pause;

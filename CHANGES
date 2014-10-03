@@ -27,6 +27,16 @@ Changes since version 3.5.1
 General Changes
 ===============
 
+- Added "Logger" facet to Admin, which allows remote applications
+  to attach RemoteLogger objects and receive log messages. Both
+  the icegridadmin command-line utility and IceGrid Admin use this
+  new facet to retrieve the logs of Ice servers, IceBox services,
+  IceGrid nodes and IceGrid registries.
+
+- The Admin object can now be hosted in an application-supplied
+  object adapter using the new property Ice.Admin.Enabled and the
+  new operation Ice::Communicator::createAdmin.
+
 - Added methods to proxies to asynchronously get the connection
   associated with the proxy. The current synchronous methods can block
   as they may cause the connection to be established.

@@ -713,7 +713,7 @@
     <target name="icegridadmin-compile" depends="icestorm-compile, icegrid-compile, icebox-compile"
             unless="ice.bin.dist">
         <javac srcdir="${src.dir}/IceGridGUI" destdir="${lib.dir}"
-            source="1.6" target="1.6" debug="${debug}"
+            source="1.7" target="1.7" debug="${debug}"
             classpath="${jgoodies.looks}:${jgoodies.forms}:${jgoodies.common}"
             deprecation="on">
             <compilerarg value="${javac.lint}"/>
@@ -724,7 +724,7 @@
     <target name="icegridadmin-compile-javafx" depends="icegridadmin-compile, config-init-javafx"
             unless="ice.bin.dist" if="javafx-available">
         <javac srcdir="${src.dir}/IceGridGUI" destdir="${lib.dir}"
-            source="1.6" target="1.6" debug="${debug}"
+            source="1.7" target="1.7" debug="${debug}"
             classpath="${jgoodies.looks}:${jgoodies.forms}:${jgoodies.common}:${javafx.jar}"
             deprecation="on">
             <compilerarg value="${javac.lint}"/>

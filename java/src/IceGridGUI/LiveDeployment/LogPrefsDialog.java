@@ -26,9 +26,9 @@ import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.util.LayoutStyle;
 
-class ShowPrefsDialog extends JDialog
+class LogPrefsDialog extends JDialog
 {
-    ShowPrefsDialog(final ShowLogFileDialog dialog)
+    LogPrefsDialog(final ShowLogFileDialog dialog)
     {
         super(dialog, "Preferences - IceGrid Admin", true);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -121,7 +121,7 @@ class ShowPrefsDialog extends JDialog
         setVisible(true);
     }
     
-    ShowPrefsDialog(final ShowIceLogDialog dialog)
+    LogPrefsDialog(final ShowIceLogDialog dialog)
     {
         super(dialog, "Preferences - IceGrid Admin", true);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);

@@ -11,7 +11,6 @@ package IceInternal;
 
 final class LoggerAdminI extends Ice._LoggerAdminDisp
 {
-    
     @Override
     public void attachRemoteLogger(Ice.RemoteLoggerPrx prx, Ice.LogMessageType[] messageTypes, String[] categories,
             int messageMax, Ice.Current current)
@@ -432,7 +431,7 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
     private int _oldestTrace = -1;
     private int _oldestLog = -1;
 
-    private class Filters
+    private static class Filters
     {
         Filters(Ice.LogMessageType[] m, String[] c)
         {
@@ -444,7 +443,7 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
         final java.util.Set<String> traceCategories;
     }
 
-    private class RemoteLoggerData
+    private static class RemoteLoggerData
     {
         RemoteLoggerData(Ice.RemoteLoggerPrx prx, Filters f)
         {

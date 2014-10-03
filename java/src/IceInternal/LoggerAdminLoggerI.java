@@ -231,7 +231,7 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable
         return java.util.Calendar.getInstance().getTimeInMillis() * 1000;
     }
     
-    private class Job
+    private static class Job
     {
         Job(java.util.List<Ice.RemoteLoggerPrx> r, Ice.LogMessage l)
         {
