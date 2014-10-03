@@ -1975,7 +1975,6 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         }
 
         initData.properties->setProperty("IceSSL.Ciphers", "DSS");
-        initData.properties->setProperty("IceSSL.Trace.Security", "1");
 
         CommunicatorPtr comm = initialize(initData);
         Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
@@ -1992,7 +1991,6 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
             d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
         }
         d["IceSSL.VerifyPeer"] = "2";
-        d["IceSSL.Trace.Security"] = "1";
 
         Test::ServerPrx server = fact->createServer(d);
         try
