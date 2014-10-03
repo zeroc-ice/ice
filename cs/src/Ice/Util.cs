@@ -550,7 +550,7 @@ namespace Ice
         /// <returns>The Ice version.</returns>
         public static string stringVersion()
         {
-            return "3.5.1"; // "A.B.C", with A=major, B=minor, C=patch
+            return "3.6.51"; // "A.B.C", with A=major, B=minor, C=patch
         }
 
         /// <summary>
@@ -561,7 +561,7 @@ namespace Ice
         /// <returns>The Ice version.</returns>
         public static int intVersion()
         {
-            return 30501; // AABBCC, with AA=major, BB=minor, CC=patch
+            return 30651; // AABBCC, with AA=major, BB=minor, CC=patch
         }
 
         /// <summary>

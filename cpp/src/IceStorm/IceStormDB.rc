@@ -1,17 +1,17 @@
 #include "winver.h"
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 3,5,1,0
- PRODUCTVERSION 3,5,1,0
+ FILEVERSION 3,6,51,0
+ PRODUCTVERSION 3,6,51,0
  FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
 #ifdef _DEBUG
  FILEFLAGS VS_FF_DEBUG
- #define INTERNALNAME "icestormdb35d\0"
- #define ORIGINALFILENAME "icestormdb35d.dll\0"
+ #define INTERNALNAME "icestormdb36d\0"
+ #define ORIGINALFILENAME "icestormdb36d.dll\0"
 #else
  FILEFLAGS 0x0L
- #define INTERNALNAME "icestormdb35\0"
- #define ORIGINALFILENAME "icestormdb35.dll\0"
+ #define INTERNALNAME "icestormdb36\0"
+ #define ORIGINALFILENAME "icestormdb36.dll\0"
 #endif
  FILEOS 0x4L
  FILETYPE VFT_DLL
@@ -23,12 +23,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "ZeroC, Inc.\0"
             VALUE "FileDescription", "IceStorm DB DLL\0"
-            VALUE "FileVersion", "3.5.1\0"
+            VALUE "FileVersion", "3.6.51\0"
             VALUE "InternalName", INTERNALNAME
             VALUE "LegalCopyright", "Copyright (c) 2003-2014 ZeroC, Inc.  All rights reserved.\0"
             VALUE "OriginalFilename", ORIGINALFILENAME
             VALUE "ProductName", "Ice\0"
-            VALUE "ProductVersion", "3.5.1\0"
+            VALUE "ProductVersion", "3.6.51\0"
         END
     END
     BLOCK "VarFileInfo"

@@ -22,7 +22,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCopyright("Copyright © 2012-2014 ZeroC, Inc.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("3.5.1")]
+[assembly: AssemblyVersion("3.6.51")]
 
 [assembly: ComVisible(false)]
 [assembly: Guid("ddd45a23-8a57-4389-aad4-401a2ae2a7fa")]

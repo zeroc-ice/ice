@@ -49,7 +49,7 @@
     </PostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ice, Version=3.5.1.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL" />
+    <Reference Include="Ice, Version=3.6.51.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>

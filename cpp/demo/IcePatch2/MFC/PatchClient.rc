@@ -118,8 +118,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 3,5,1,0
- PRODUCTVERSION 3,5,1,0
+ FILEVERSION 3,6,51,0
+ PRODUCTVERSION 3,6,51,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -136,12 +136,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "ZeroC, Inc.\0"
             VALUE "FileDescription", "Ice Patch Client\0"
-            VALUE "FileVersion", "3.5.1\0"
+            VALUE "FileVersion", "3.6.51\0"
             VALUE "InternalName", "PatchClient.exe\0"
             VALUE "LegalCopyright", "Copyright (c) 2003-2014 ZeroC, Inc.  All rights reserved.\0"
             VALUE "OriginalFilename", "PatchClient.exe\0"
             VALUE "ProductName", "Ice\0"
-            VALUE "ProductVersion", "3.5.1\0"
+            VALUE "ProductVersion", "3.6.51\0"
         END
     END
     BLOCK "VarFileInfo"

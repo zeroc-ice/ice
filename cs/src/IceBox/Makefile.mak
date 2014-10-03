@@ -76,11 +76,11 @@ iceboxnetconfig:
       <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
          <dependentAssembly>
             <assemblyIdentity name="Ice"  culture="neutral" publicKeyToken="$(publicKeyToken)"/>
-            <codeBase version="3.5.1.0" href="$(assembliesRelativeDir)\Ice.dll"/>
+            <codeBase version="3.6.51.0" href="$(assembliesRelativeDir)\Ice.dll"/>
          </dependentAssembly>
          <dependentAssembly>
             <assemblyIdentity name="IceBox"  culture="neutral" publicKeyToken="$(publicKeyToken)"/>
-            <codeBase version="3.5.1.0" href="$(assembliesRelativeDir)\IceBox.dll"/>
+            <codeBase version="3.6.51.0" href="$(assembliesRelativeDir)\IceBox.dll"/>
          </dependentAssembly>
          <!-- 
            This allows iceboxnet to load the IceSSL plug-in using a strong name. We omit the
@@ -89,7 +89,7 @@ iceboxnetconfig:
 	 -->
          <dependentAssembly>
             <assemblyIdentity name="IceSSL"/>
-            <codeBase version="3.5.1.0" href="$(assembliesRelativeDir)\IceSSL.dll"/>
+            <codeBase version="3.6.51.0" href="$(assembliesRelativeDir)\IceSSL.dll"/>
          </dependentAssembly>
       </assemblyBinding>
    </runtime>

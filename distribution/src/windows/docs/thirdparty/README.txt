@@ -1,9 +1,9 @@
-Ice 3.5.1 Third Party Packages
+Ice 3.6.51 Third Party Packages
 ------------------------------
 
 This distribution contains the development kit (including binaries)
-for the open-source packages used by Ice 3.5.1 on Windows. Its primary
-purpose is to simplify building Ice 3.5.1 from sources.
+for the open-source packages used by Ice 3.6.51 on Windows. Its primary
+purpose is to simplify building Ice 3.6.51 from sources.
 
 The following versions of the third party software were used to
 create this package:
