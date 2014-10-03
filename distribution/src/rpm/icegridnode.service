@@ -13,7 +13,6 @@ After=syslog.target network.target icegridregistry.service
 
 [Service]
 ExecStart=/bin/icegridnode --Ice.Config=/etc/icegridnode.conf
-ExecReload=/bin/kill -HUP $MAINPID
 KillMode=process
 User=ice
 
