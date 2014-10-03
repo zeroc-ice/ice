@@ -75,18 +75,24 @@ install_moduledir = $(prefix)\node_modules\icejs
 
 !if "$(ice_src_dist)" != ""
 !if "$(ice_cpp_dir)" == "$(ice_dir)\cpp"
-SLICE2JS                = $(ice_cpp_dir)\bin\slice2js.exe
+SLICE2PHP               = $(ice_cpp_dir)\bin\slice2js.exe
 SLICEPARSERLIB          = $(ice_cpp_dir)\lib\slice.lib
 !if !exist ("$(SLICEPARSERLIB)")
 SLICEPARSERLIB          = $(ice_cpp_dir)\lib\sliced.lib
 !endif
 !else
-SLICE2JS                = $(ice_cpp_dir)\bin$(x64suffix)\slice2js.exe
-SLICEPARSERLIB          = $(SLICE2JS)
+SLICE2PHP               = $(ice_cpp_dir)\bin$(x64suffix)\slice2js.exe
+SLICEPARSERLIB          = $(ice_cpp_dir)\lib$(x64suffix)\slice.lib
+!if !exist ("$(SLICEPARSERLIB)")
+SLICEPARSERLIB          = $(ice_cpp_dir)\lib$(x64suffix)\sliced.lib
+!endif
 !endif
 !else
-SLICE2JS                = $(ice_js_dir)\bin$(x64suffix)\slice2js.exe
-SLICEPARSERLIB          = $(SLICE2JS)
+SLICE2PHP               = $(ice_dir)\bin$(x64suffix)\slice2js.exe
+SLICEPARSERLIB          = $(ice_dir)\lib$(x64suffix)\slice.lib
+!if !exist ("$(SLICEPARSERLIB)")
+SLICEPARSERLIB          = $(ice_dir)\lib$(x64suffix)\sliced.lib
+!endif
 !endif
 
 !if "$(OPTIMIZE)" == "yes"

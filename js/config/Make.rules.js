@@ -95,7 +95,7 @@ ifdef ice_src_dist
         SLICE2JS 	= $(ice_cpp_dir)/$(binsubdir)/slice2js
     endif
 else
-    SLICE2JS 		= $(ice_js_dir)/$(binsubdir)/slice2js
+    SLICE2JS 		= $(ice_dir)/$(binsubdir)/slice2js
 endif
 
 all:: $(TARGETS)
