@@ -1,0 +1,19 @@
+#
+# Copyright (c) 2007-2014 ZeroC, Inc. All rights reserved.
+#
+
+[Unit]
+Description=The Glacier2 router daemon.\
+Glacier2 is the firewall traversal service for the Internet\
+Communications Engine (Ice).
+Documentation=man:glacier2router(1)
+Documentation=http://doc.zeroc.com/display/Ice/Getting+Started+with+Glacier2
+After=syslog.target network.target icegridregistry.service icegridnode.service
+
+[Service]
+ExecStart=/usr/bin/glacier2router --Ice.Config=/etc/glacier2router.conf
+KillMode=process
+User=ice
+
+[Install]
+WantedBy=multi-user.target

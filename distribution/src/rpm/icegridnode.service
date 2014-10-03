@@ -12,7 +12,7 @@ Documentation=http://doc.zeroc.com/display/Ice/icegridnode
 After=syslog.target network.target icegridregistry.service
 
 [Service]
-ExecStart=/bin/icegridnode --Ice.Config=/etc/icegridnode.conf
+ExecStart=/usr/bin/icegridnode --Ice.Config=/etc/icegridnode.conf
 KillMode=process
 User=ice
 

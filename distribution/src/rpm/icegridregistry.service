@@ -13,7 +13,7 @@ Before=icegridnode.service
 After=syslog.target network.target
 
 [Service]
-ExecStart=/bin/icegridregistry --Ice.Config=/etc/icegridregistry.conf
+ExecStart=/usr/bin/icegridregistry --Ice.Config=/etc/icegridregistry.conf
 KillMode=process
 User=ice
 
