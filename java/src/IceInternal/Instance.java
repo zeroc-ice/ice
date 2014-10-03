@@ -1140,7 +1140,7 @@ public final class Instance
             getAdmin();
         }
     }
-
+    
     //
     // Only for use by Ice.CommunicatorI
     //
@@ -1151,27 +1151,6 @@ public final class Instance
         {
             throw new Ice.OperationInterruptedException();
         }
-
-        synchronized(this)
-        {
-            //
-            // If the _state is not StateActive then the instance is
-            // either being destroyed, or has already been destroyed.
-            //
-            if(_state != StateActive)
-            {
-                return;
-            }
-
-            //
-            // We cannot set state to StateDestroyed otherwise instance
-            // methods called during the destroy process (such as
-            // outgoingConnectionFactory() from
-            // ObjectAdapterI::deactivate() will cause an exception.
-            //
-            _state = StateDestroyInProgress;
-        }
-
 
         if(_objectAdapterFactory != null)
         {
@@ -1222,6 +1201,7 @@ public final class Instance
         ThreadPool clientThreadPool = null;
         EndpointHostResolver endpointHostResolver = null;
         ExecutorService queueExecutor = null;
+        boolean checkUnused = false;
         synchronized(this)
         {
             _objectAdapterFactory = null;
@@ -1306,6 +1286,10 @@ public final class Instance
 
             _typeToClassMap.clear();
 
+            if(_state != StateDestroyed)
+            {
+                checkUnused = true;
+            }
             _state = StateDestroyed;
         }
 
@@ -1335,6 +1319,7 @@ public final class Instance
         if(queueExecutor != null)
         {
             queueExecutor.shutdown();
+
             try
             {
                 queueExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
@@ -1346,7 +1331,7 @@ public final class Instance
             queueExecutor = null;
         }
 
-        if(_initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
+        if(checkUnused && _initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
         {
             java.util.List<String> unusedProperties = ((Ice.PropertiesI)_initData.properties).getUnusedProperties();
             if(unusedProperties.size() != 0)
@@ -1552,8 +1537,7 @@ public final class Instance
     }
 
     private static final int StateActive = 0;
-    private static final int StateDestroyInProgress = 1;
-    private static final int StateDestroyed = 2;
+    private static final int StateDestroyed = 1;
     private int _state;
 
     private final Ice.InitializationData _initData; // Immutable, not reset by destroy().

@@ -276,7 +276,18 @@ public abstract class Application
         {
             try
             {
-                _communicator.destroy();
+                try
+                {
+                    _communicator.destroy();
+                }
+                catch(Ice.OperationInterruptedException ex)
+                {
+                    Util.getProcessLogger().error(IceInternal.Ex.toString(ex));
+                    // Retry communicator destroy in case of an operation
+                    // interrupt exception, but don't do so in a loop
+                    // otherwise it could go on forever.
+                    _communicator.destroy();
+                }
             }
             catch(LocalException ex)
             {

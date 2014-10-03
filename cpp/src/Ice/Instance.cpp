@@ -1628,27 +1628,6 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
 void
 IceInternal::Instance::destroy()
 {
-    {
-        IceUtil::RecMutex::Lock sync(*this);
-
-        //
-        // If the _state is not StateActive then the instance is
-        // either being destroyed, or has already been destroyed.
-        //
-        if(_state != StateActive)
-        {
-            return;
-        }
-
-        //
-        // We cannot set state to StateDestroyed otherwise instance
-        // methods called during the destroy process (such as
-        // outgoingConnectionFactory() from
-        // ObjectAdapterI::deactivate() will cause an exception.
-        //
-        _state = StateDestroyInProgress;
-    }
-
     if(_objectAdapterFactory)
     {
         _objectAdapterFactory->shutdown();
@@ -1697,6 +1676,7 @@ IceInternal::Instance::destroy()
     ThreadPoolPtr clientThreadPool;
     EndpointHostResolverPtr endpointHostResolver;
     TimerPtr timer;
+    bool checkUnused = false;
     {
         IceUtil::RecMutex::Lock sync(*this);
 
@@ -1769,6 +1749,10 @@ IceInternal::Instance::destroy()
         _adminAdapter = 0;
         _adminFacets.clear();
 
+        if(_state != StateDestroyed)
+        {
+            checkUnused = true;
+        }
         _state = StateDestroyed;
     }
 
@@ -1794,7 +1778,7 @@ IceInternal::Instance::destroy()
     }
 #endif
 
-    if(_initData.properties->getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
+    if(checkUnused && _initData.properties->getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
     {
         set<string> unusedProperties = static_cast<PropertiesI*>(_initData.properties.get())->getUnusedProperties();
         if(unusedProperties.size() != 0)

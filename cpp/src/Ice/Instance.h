@@ -135,7 +135,6 @@ private:
     enum State
     {
         StateActive,
-        StateDestroyInProgress,
         StateDestroyed
     };
     State _state;

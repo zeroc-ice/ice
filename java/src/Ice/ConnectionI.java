@@ -1735,7 +1735,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         // If setState() is called with an exception, then only closed
         // and closing states are permissible.
         //
-        assert (state >= StateClosing);
+        assert state >= StateClosing;
 
         if(_state == state) // Don't switch twice.
         {

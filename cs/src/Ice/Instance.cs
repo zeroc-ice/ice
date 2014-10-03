@@ -1072,28 +1072,8 @@ namespace IceInternal
         //
         // Only for use by Ice.CommunicatorI
         //
-        public bool destroy()
+        public void destroy()
         {
-            lock(this)
-            {
-                //
-                // If the _state is not StateActive then the instance is
-                // either being destroyed, or has already been destroyed.
-                //
-                if(_state != StateActive)
-                {
-                    return false;
-                }
-
-                //
-                // We cannot set state to StateDestroyed otherwise instance
-                // methods called during the destroy process (such as
-                // outgoingConnectionFactory() from
-                // ObjectAdapterI::deactivate() will cause an exception.
-                //
-                _state = StateDestroyInProgress;
-            }
-
             if(_objectAdapterFactory != null)
             {
                 _objectAdapterFactory.shutdown();
@@ -1134,6 +1114,7 @@ namespace IceInternal
             ThreadPool clientThreadPool = null;
             AsyncIOThread asyncIOThread = null;
             IceInternal.Timer timer = null;
+            bool checkUnused = false;
 
 #if !SILVERLIGHT
             EndpointHostResolver endpointHostResolver = null;
@@ -1221,6 +1202,11 @@ namespace IceInternal
                 _adminAdapter = null;
                 _adminFacets.Clear();
 
+                if(_state != StateDestroyed)
+                {
+                    checkUnused = true;
+                }
+
                 _state = StateDestroyed;
             }
 
@@ -1249,7 +1235,7 @@ namespace IceInternal
                 endpointHostResolver.joinWithThread();
             }
 #endif
-            if(_initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
+            if(checkUnused && _initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
             {
                 List<string> unusedProperties = ((Ice.PropertiesI)_initData.properties).getUnusedProperties();
                 if (unusedProperties.Count != 0)
@@ -1263,8 +1249,6 @@ namespace IceInternal
                     _initData.logger.warning(message.ToString());
                 }
             }
-
-            return true;
         }
 
         internal void updateConnectionObservers()
@@ -1410,8 +1394,7 @@ namespace IceInternal
         }
 
         private const int StateActive = 0;
-        private const int StateDestroyInProgress = 1;
-        private const int StateDestroyed = 2;
+        private const int StateDestroyed = 1;
         private int _state;
         private Ice.InitializationData _initData; // Immutable, not reset by destroy().
         private TraceLevels _traceLevels; // Immutable, not reset by destroy().
