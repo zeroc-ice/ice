@@ -70,13 +70,20 @@ var _suffixes =
     "ThreadPool.Serialize"
 ];
 
+var StateUninitialized = 0; // Just constructed.
+//var StateHeld = 1;
+//var StateWaitActivate = 2;
+//var StateActive = 3;
+//var StateDeactivating = 4;
+var StateDeactivated = 5;
+var StateDestroyed  = 6;
+
 //
 // Only for use by IceInternal.ObjectAdapterFactory
 //
 var ObjectAdapterI = Ice.Class({
     __init__: function(instance, communicator, objectAdapterFactory, name, router, noConfig, promise)
     {
-        this._deactivated = false;
         this._instance = instance;
         this._communicator = communicator;
         this._objectAdapterFactory = objectAdapterFactory;
@@ -84,7 +91,7 @@ var ObjectAdapterI = Ice.Class({
         this._name = name;
         this._routerEndpoints = [];
         this._routerInfo = null;
-        this._destroyed = false;
+        this._state = StateUninitialized;
         this._noConfig = noConfig;
 
         if(this._noConfig)
@@ -275,9 +282,9 @@ var ObjectAdapterI = Ice.Class({
     deactivate: function()
     {
         var promise = new AsyncResultBase(this._communicator, "deactivate", null, null, this);
-        if(!this._deactivated)
+        if(this._state < StateDeactivated)
         {
-            this._deactivated = true;
+            this._state = StateDeactivated;
             this._instance.outgoingConnectionFactory().removeAdapter(this);
         }
         return promise.succeed(promise);
@@ -289,22 +296,25 @@ var ObjectAdapterI = Ice.Class({
     },
     isDeactivated: function()
     {
-        return this._deactivated;
+        return this._state >= StateDeactivated;
     },
     destroy: function()
     {
         var promise = new AsyncResultBase(this._communicator, "destroy", null, null, this);
-        if(!this._deactivated)
+        var self = this;
+        var destroyInternal = function()
         {
-            this.deactivate();
-        }
-        if(!this._destroyed)
-        {
-            this._destroyed = true;
-            this._servantManager.destroy();
-            this._objectAdapterFactory.removeObjectAdapter(this);
-        }
-        return promise.succeed(promise);
+            if(self._state < StateDestroyed)
+            {
+                self._state = StateDestroyed;
+                self._servantManager.destroy();
+                self._objectAdapterFactory.removeObjectAdapter(self);
+            }
+            return promise.succeed(promise);
+        };
+
+        return this._state < StateDeactivated ?
+            this.deactivate().then(destroyInternal) : destroyInternal();        
     },
     add: function(object, ident)
     {
@@ -474,7 +484,7 @@ var ObjectAdapterI = Ice.Class({
     },
     checkForDeactivation: function(promise)
     {
-        if(this._deactivated)
+        if(this._state >= StateDeactivated)
         {
             var ex = new Ice.ObjectAdapterDeactivatedException();
             ex.name = this.getName();
