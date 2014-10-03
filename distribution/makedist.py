@@ -180,7 +180,7 @@ winDemoDir = os.path.join(distDir, "demos")
 srcDir = os.path.join(distDir, "Ice-" + version)
 winSrcDir = os.path.join(distDir, "Ice")
 rpmBuildDir = os.path.join(distDir, "Ice-rpmbuild-" + version)
-debSrcDir = os.path.join(distDir, "ice" + mmversion + "-" + version)
+debSrcDir = os.path.join(distDir, "zeroc-ice" + mmversion + "-" + version)
 distFilesDir = os.path.join(distDir, "distfiles-" + version)
 winDistFilesDir = os.path.join(distDir, "distfiles")
 os.mkdir(demoscriptDir)
@@ -210,10 +210,10 @@ def createDistfilesDist(platform, whichDestDir):
             for f in filenames:
                 fixVersion(os.path.join(root, f), *versions)
 
-        for root, dirnames, filenames in os.walk('src/deb/all/debian'):
-            for f in filenames:
-                fixVersion(os.path.join(root, f), *versions)
-    
+    with open(os.path.join(srcDir, "ICE_LICENSE"), "r") as license:
+        FixUtil.fileMatchAndReplace(os.path.join("src", "deb", "debian", "copyright"),
+                                [(re.compile("@ice-license@"), license.read().replace("\n", "\n "))],
+                                False)
     #
     # Fix OS X installer files.
     #
@@ -371,6 +371,10 @@ def fixGitAttributes(checkout, autocrlf, excludes):
     oldFile.close()
     os.remove(origfile)
 
+###### UNIX source code distribution
+fixGitAttributes(True, False, excludeFiles + excludeWindowsFiles)
+createSourceDist("UNIX", distDir)
+
 ###### UNIX distfiles
 excludeForDistFiles = [ "fixCopyright.py", "fixVersion.py", "makedist.py" ]
 fixGitAttributes(True, False, excludeForDistFiles)
@@ -379,10 +383,6 @@ createDistfilesDist("UNIX", distFilesDir)
 ###### Windows distfiles
 fixGitAttributes(False, True, []) # No copy this time. Use the same .gitattributes file as the UNIX distfiles dist
 createDistfilesDist("Windows", winDistFilesDir)
-
-###### UNIX source code distribution
-fixGitAttributes(True, False, excludeFiles + excludeWindowsFiles)
-createSourceDist("UNIX", distDir)
 
 # Move the demoscript directory and the associated top level demo script.
 os.chdir(srcDir)
@@ -554,8 +554,8 @@ os.chdir(distDir)
 for d in [srcDir, demoDir, distFilesDir, rpmBuildDir, debSrcDir]:
     tarArchive(d, verbose)
 
-move(os.path.join(distDir, "ice" + mmversion + "-" + version + ".tar.gz"), \
-     os.path.join(distDir, "ice" + mmversion + "_" + version + ".orig.tar.gz"))
+move(os.path.join(distDir, "zeroc-ice" + mmversion + "-" + version + ".tar.gz"), \
+     os.path.join(distDir, "zeroc-ice" + mmversion + "_" + version + ".orig.tar.gz"))
 
 for (dir, archiveDir) in [(demoscriptDir, "Ice-" + version + "-demos")]:
     tarArchive(dir, verbose, archiveDir)
@@ -582,7 +582,7 @@ writeSrcDistReport("Ice", version, tag, compareToDir,
                    [(srcDir + ".tar.gz", srcDir),
                     (demoDir + ".tar.gz", demoDir),
                     (rpmBuildDir + ".tar.gz", rpmBuildDir),
-                    ("ice" + mmversion + "_" + version + ".orig.tar.gz", debSrcDir),
+                    ("zeroc-ice" + mmversion + "_" + version + ".orig.tar.gz", debSrcDir),
                     (demoscriptDir + ".tar.gz", demoscriptDir),
                     (os.path.join(distDir, "distfiles-" + version + ".zip"), winDistFilesDir),
                     (os.path.join(distDir, "Ice-" + version + ".zip"), winSrcDir),

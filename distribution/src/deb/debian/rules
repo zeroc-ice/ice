@@ -32,18 +32,18 @@ override_dh_install:
 	mkdir -p $(DESTDIR)/etc/php5/mods-available
 
 	mkdir -p $(DESTDIR)/etc
-	cp debian/glacier2.glacier2router.conf $(DESTDIR)/etc/glacier2router.conf
-	cp debian/icegrid.icegridnode.conf $(DESTDIR)/etc/icegridnode.conf
-	cp debian/icegrid.icegridregistry.conf $(DESTDIR)/etc/icegridregistry.conf
+	cp debian/zeroc-glacier2.glacier2router.conf $(DESTDIR)/etc/glacier2router.conf
+	cp debian/zeroc-icegrid.icegridnode.conf $(DESTDIR)/etc/icegridnode.conf
+	cp debian/zeroc-icegrid.icegridregistry.conf $(DESTDIR)/etc/icegridregistry.conf
 
 	mkdir -p $(DESTDIR)/etc/init.d
-	cp debian/glacier2.glacier2router $(DESTDIR)/etc/init.d/glacier2router
+	cp debian/zeroc-glacier2.glacier2router $(DESTDIR)/etc/init.d/glacier2router
 	chmod 755 $(DESTDIR)/etc/init.d/glacier2router
 
-	cp debian/icegrid.icegridnode $(DESTDIR)/etc/init.d/icegridnode
+	cp debian/zeroc-icegrid.icegridnode $(DESTDIR)/etc/init.d/icegridnode
 	chmod 755 $(DESTDIR)/etc/init.d/icegridnode
 
-	cp debian/icegrid.icegridregistry $(DESTDIR)/etc/init.d/icegridregistry
+	cp debian/zeroc-icegrid.icegridregistry $(DESTDIR)/etc/init.d/icegridregistry
 	chmod 755 $(DESTDIR)/etc/init.d/icegridregistry
 
 	mkdir -p $(DESTDIR)/var/lib/ice/icegrid/registry

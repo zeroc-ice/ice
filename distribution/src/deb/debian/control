@@ -1,4 +1,4 @@
-Source: ice@mmver@
+Source: zeroc-ice@mmver@
 Priority: extra
 Maintainer: ZeroC, Inc. <support@zeroc.com>
 Build-Depends: debhelper (>= 9.0.0),
@@ -22,26 +22,26 @@ Build-Depends: debhelper (>= 9.0.0),
 Standards-Version: 3.9.4
 Homepage: http://www.zeroc.com
 
-Package: ice
+Package: zeroc-ice
 Architecture: all
 Section: web
-Depends: ice@mmver@-common (=${binary:Version}),
- libice@mmver@++ (=${binary:Version}),
- libfreeze@mmver@++ (=${binary:Version}),
- libice@mmver@-java (=${binary:Version}),
- libfreeze@mmver@-java (=${binary:Version}),
- libjs-ice@mmver@ (=${binary:Version}),
- node-ice@mmver@ (=${binary:Version}),
- php5-ice@mmver@ (=${binary:Version}),
- python-ice@mmver@ (=${binary:Version}),
- ruby-ice@mmver@ (=${binary:Version}),
- glacier2 (=${binary:Version}),
- icebox (=${binary:Version}),
- icegrid (=${binary:Version}),
- libicestorm@mmver@++ (=${binary:Version}),
- icepatch2 (=${binary:Version}),
- ice-utils (=${binary:Version}),
- ice-utils-java (=${binary:Version})
+Depends: zeroc-ice-slice (=${binary:Version}),
+ libzeroc-ice@mmver@ (=${binary:Version}),
+ libzeroc-freeze@mmver@ (=${binary:Version}),
+ libzeroc-ice@mmver@-java (=${binary:Version}),
+ libzeroc-freeze@mmver@-java (=${binary:Version}),
+ libjs-zeroc-ice (=${binary:Version}),
+ node-zeroc-ice (=${binary:Version}),
+ php5-zeroc-ice (=${binary:Version}),
+ python-zeroc-ice (=${binary:Version}),
+ ruby-zeroc-ice (=${binary:Version}),
+ zeroc-glacier2 (=${binary:Version}),
+ zeroc-icebox (=${binary:Version}),
+ zeroc-icegrid (=${binary:Version}),
+ libzeroc-icestorm@mmver@ (=${binary:Version}),
+ zeroc-icepatch2 (=${binary:Version}),
+ zeroc-ice-utils (=${binary:Version}),
+ zeroc-ice-utils-java (=${binary:Version})
 Description: Ice (Internet Communications Engine)
  Ice is a modern object-oriented toolkit that enables you to build
  distributed applications with minimal effort. Ice allows you to focus
@@ -52,26 +52,26 @@ Description: Ice (Internet Communications Engine)
  transmission, or retrying failed connection attempts (to name but a
  few of dozens of such low-level details).
 
-Package: ice-dev
+Package: zeroc-ice-dev
 Architecture: all
 Section: devel
-Depends: libice++-dev (=${binary:Version}),
- libice-java-dev (=${binary:Version}),
- libjs-ice-dev (=${binary:Version}),
- php5-ice-dev (=${binary:Version}),
- python-ice-dev (=${binary:Version}),
- ruby-ice-dev (=${binary:Version}),
+Depends: libzeroc-ice-dev (=${binary:Version}),
+ libzeroc-ice-java-dev (=${binary:Version}),
+ libjs-zeroc-ice-dev (=${binary:Version}),
+ php5-zeroc-ice-dev (=${binary:Version}),
+ python-zeroc-ice-dev (=${binary:Version}),
+ ruby-zeroc-ice-dev (=${binary:Version}),
 Description: Ice development packages
  Ice development packages.
 
-Package: ice@mmver@-common
+Package: zeroc-ice-slice
 Architecture: all
 Section: libs
 Depends: ${misc:Depends}
-Description: Files common to all Ice packages
- Files common to all Ice packages.
+Description: Slice files used by ZeroC Ice packages
+ Slice files used by ZeroC Ice packages.
 
-Package: libice@mmver@++
+Package: libzeroc-ice@mmver@
 Architecture: any
 Multi-Arch: same
 Section: libs
@@ -80,58 +80,64 @@ Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: The Ice run time for C++
  The Ice run time for C++.
 
-Package: libfreeze@mmver@++
+Package: libzeroc-freeze@mmver@
 Architecture: any
 Multi-Arch: same
 Section: libs
 Pre-Depends: ${misc:Pre-Depends} 
-Depends: ${shlibs:Depends}, ${misc:Depends}, libice@mmver@++ (=${binary:Version}), 
+Depends: ${shlibs:Depends}, ${misc:Depends}, 
+ libzeroc-ice@mmver@ (=${binary:Version}), 
  libdb5.3++ (>=5.3.28)
 Description: Freeze persistence service C++ run-time
  Freeze persistence service C++ run-time.
 
-Package: libice++-dev
+Package: libzeroc-ice-dev
 Architecture: any
 Multi-Arch: no
 Section: devel
-Depends: ${shlibs:Depends}, ${misc:Depends}, ice@mmver@-common (=${binary:Version}), 
- libice@mmver@++ (=${binary:Version}), libfreeze@mmver@++ (=${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, 
+ zeroc-ice-slice (=${binary:Version}), 
+ libzeroc-ice@mmver@ (=${binary:Version}), 
+ libzeroc-freeze@mmver@ (=${binary:Version})
 Description: Tools, libraries and headers for developing Ice applications in C++
  Tools, libraries and headers for developing Ice applications in C++.
 
-Package: libice@mmver@-java
+Package: libzeroc-ice@mmver@-java
 Architecture: all
 Section: java
 Depends: ${java:Depends}, ${misc:Depends}
 Description: The Ice run time for Java
  The Ice run time for Java.
 
-Package: libfreeze@mmver@-java
+Package: libzeroc-freeze@mmver@-java
 Architecture: all
 Section: java
-Depends: ${java:Depends},${misc:Depends}, libice@mmver@-java (=${binary:Version}), 
+Depends: ${java:Depends},${misc:Depends}, 
+ libzeroc-ice@mmver@-java (=${binary:Version}), 
  libdb5.3-java (>=5.3.28)
 Description: Freeze persistence service Java run-time
  Freeze persistence service Java run-time.
 
-Package: libice-java-dev
+Package: libzeroc-ice-java-dev
 Architecture: any
 Multi-Arch: foreign
 Section: devel
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${java:Depends}, 
- ice@mmver@-common (=${binary:Version}), libice@mmver@++ (=${binary:Version}), 
- libice@mmver@-java (=${binary:Version}), libfreeze@mmver@-java (=${binary:Version})
+ zeroc-ice-slice (=${binary:Version}), 
+ libzeroc-ice@mmver@ (=${binary:Version}), 
+ libzeroc-ice@mmver@-java (=${binary:Version}), 
+ libzeroc-freeze@mmver@-java (=${binary:Version})
 Description: Tools for developing Ice applications in Java
  Tools for developing Ice applications in Java.
 
-Package: libjs-ice@mmver@
+Package: libjs-zeroc-ice
 Architecture: all
 Section: web
 Depends: ${misc:Depends}
 Description: JavaScript Ice run time for web browsers
  JavaScript Ice run time for web browsers.
 
-Package: node-ice@mmver@
+Package: node-zeroc-ice
 Architecture: all
 Section: web
 Depends: ${misc:Depends}, nodejs
@@ -142,123 +148,143 @@ Package: libjs-ice-dev
 Architecture: any
 Multi-Arch: foreign
 Section: devel
-Depends: ${misc:Depends}, ${shlibs:Depends}, libjs-ice@mmver@ (=${binary:Version}), 
- node-ice@mmver@ (=${binary:Version})
+Depends: ${misc:Depends}, ${shlibs:Depends},
+ libzeroc-ice@mmver@ (=${binary:Version}),
+ libjs-zeroc-ice (=${binary:Version}),
+ node-zeroc-ice (=${binary:Version})
 Description: Tools for developing Ice applications in JavaScript
  Tools for developing Ice applications in JavaScript.
 
-Package: php5-ice@mmver@
+Package: php5-zeroc-ice
 Architecture: any
 Multi-Arch: no
 Section: php
-Depends: ${shlibs:Depends}, ${misc:Depends}, libice@mmver@++ (=${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, 
+ libzeroc-ice@mmver@ (=${binary:Version})
 Description: The Ice run time for PHP
  The Ice run time for PHP.
 
-Package: php5-ice-dev
+Package: php5-zeroc-ice-dev
 Architecture: any
 Multi-Arch: foreign
 Section: devel
-Depends: php5-cli | php5, ice@mmver@-common (=${binary:Version}), ${shlibs:Depends}, 
- libice@mmver@++ (=${binary:Version}), php5-ice@mmver@ (=${binary:Version})
+Depends: php5-cli | php5, ${shlibs:Depends},
+ zeroc-ice-slice (=${binary:Version})
+ libzeroc-ice@mmver@ (=${binary:Version}), 
+ php5-zeroc-ice (=${binary:Version})
 Description: Tools for developing Ice applications in PHP
  Tools for developing Ice applications in PHP.
 
-Package: python-ice@mmver@
+Package: python-zeroc-ice
 Architecture: any
 Multi-Arch: no
 Section: python
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, ice@mmver@-common (=${binary:Version}),
- libice@mmver@++ (=${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends},
+ zeroc-ice-slice (=${binary:Version}),
+ libzeroc-ice@mmver@ (=${binary:Version})
 XS-Python-Version: 2.7
 Description: The Ice run time for Python
  The Ice run time for Python.
 
-Package: python-ice-dev
+Package: python-zeroc-ice-dev
 Architecture: any
 Multi-Arch: foreign
 Section: devel
-Depends: ${shlibs:Depends}, ${misc:Depends}, ice@mmver@-common (=${binary:Version}), 
- libice@mmver@++ (=${binary:Version}), python-ice@mmver@ (=${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, 
+ zeroc-ice-slice (=${binary:Version}), 
+ libzeroc-ice@mmver@ (=${binary:Version}),
+ python-zeroc-ice (=${binary:Version})
 Description: Tools for developing Ice applications in Python
  Tools for developing Ice applications in Python.
 
-Package: ruby-ice@mmver@
+Package: ruby-zeroc-ice
 Architecture: any
 Multi-Arch: no
 Section: ruby
-Depends: ${shlibs:Depends}, ${misc:Depends}, ruby1.9.1, ice@mmver@-common (=${binary:Version}),
- libice@mmver@++ (=${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, ruby1.9.1,
+ zeroc-ice-slice (=${binary:Version}),
+ libzeroc-ice@mmver@ (=${binary:Version})
 Description: The Ice run time for Ruby
  The Ice run time for Ruby.
 
-Package: ruby-ice-dev
+Package: ruby-zeroc-ice-dev
 Architecture: any
 Multi-Arch: foreign
 Section: devel
-Depends: ${shlibs:Depends}, ${misc:Depends}, ice@mmver@-common (=${binary:Version}), 
- libice@mmver@++ (=${binary:Version}), ruby-ice@mmver@ (=${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends},
+ zeroc-ice-slice (=${binary:Version}), 
+ libzeroc-ice@mmver@ (=${binary:Version}),
+ ruby-zeroc-ice (=${binary:Version})
 Description: Tools for developing Ice applications in Ruby
  Tools for developing Ice applications in Ruby.
 
-Package: glacier2
+Package: zeroc-glacier2
 Architecture: any
 Multi-Arch: foreign
 Section: web
-Depends: ${shlibs:Depends}, ${misc:Depends}, libice@mmver@++ (=${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends},
+ libzeroc-ice@mmver@ (=${binary:Version})
 Description: The Glacier2 router daemon
  Glacier2 is the firewall traversal service for the Internet Communications
  Engine (Ice).
 
-Package: icebox
+Package: zeroc-icebox
 Architecture: any
 Multi-Arch: no
 Section: web
-Depends: ${shlibs:Depends}, ${misc:Depends}, libice@mmver@++ (=${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends},
+ libzeroc-ice@mmver@ (=${binary:Version})
 Description: IceBox C++ server
  IceBox C++ server.
 
-Package: icegrid
+Package: zeroc-icegrid
 Architecture: any
 Multi-Arch: foreign
 Section: web
-Depends: ${shlibs:Depends}, ${misc:Depends}, libice@mmver@++ (=${binary:Version}), 
- libicestorm@mmver@ (=${binary:Version}), libfreeze@mmver@++ (=${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, 
+ libzeroc-ice@mmver@ (=${binary:Version}), 
+ libzeroc-icestorm@mmver@ (=${binary:Version}), 
+ libzeroc-freeze@mmver@ (=${binary:Version})
 Description: IceGrid is the server deployment and monitoring for Ice
  IceGrid is the server deployment and monitoring for the Internet 
  Communications Engine (Ice).
 
-Package: libicestorm@mmver@
+Package: libzeroc-icestorm@mmver@
 Architecture: any
 Multi-Arch: same
 Section: web
 Pre-Depends: ${misc:Pre-Depends} 
-Depends: ${shlibs:Depends}, ${misc:Depends}, libice@mmver@++ (=${binary:Version}),
- libfreeze@mmver@++ (=${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, 
+ libzeroc-ice@mmver@ (=${binary:Version}),
+ libzeroc-freeze@mmver@ (=${binary:Version})
 Description: IceStorm publish–subscribe event distribution service for Ice
  IceStorm publish–subscribe event distribution service for the Internet 
  Communications Engine (Ice).
 
-Package: icepatch2
+Package: zeroc-icepatch2
 Architecture: any
 Multi-Arch: foreign
 Section: web
-Depends: ${shlibs:Depends}, ${misc:Depends}, libice@mmver@++ (=${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends},
+ libzeroc-ice@mmver@ (=${binary:Version})
 Description: The software distribution and patching service for Ice.
  The software distribution and patching service for the Internet 
  Communications Engine (Ice).
 
-Package: ice-utils
+Package: zeroc-ice-utils
 Architecture: any
 Multi-Arch: foreign
 Section: admin
-Depends: ${shlibs:Depends}, ${misc:Depends}, libice@mmver@++ (=${binary:Version}), 
- libfreeze@mmver@++ (=${binary:Version}), libicestorm@mmver@ (=${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, 
+ libzeroc-ice@mmver@ (=${binary:Version}), 
+ libzeroc-freeze@mmver@ (=${binary:Version}), 
+ libzeroc-icestorm@mmver@ (=${binary:Version})
 Description: Ice utilities and admin tools
  Ice utilities and admin tools.
 
-Package: ice-utils-java
+Package: zeroc-ice-utils-java
 Architecture: all
 Section: admin
-Depends: ${java:Depends}, ${misc:Depends}, ${python:Depends}, ice-utils (=${binary:Version})
+Depends: ${java:Depends}, ${misc:Depends}, ${python:Depends}, 
+ zeroc-ice-utils (=${binary:Version})
 Description: IceGrid Admin graphical client for IceGrid

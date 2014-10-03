@@ -71,8 +71,8 @@ if keyid == None:
     usage()
     sys.exit(1)
 
-sourceDir = "ice@mmver@-@ver@"
-distFile = "ice@mmver@_@ver@.orig.tar.gz"
+sourceDir = "zeroc-ice@mmver@-@ver@"
+distFile = "zeroc-ice@mmver@_@ver@.orig.tar.gz"
 distFiles = "distfiles-@ver@.tar.gz"
 
 buildDir = os.path.abspath(os.path.join(os.getcwd(), buildDir))
