@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+using System;
 using System.Diagnostics;
 using Test;
 
@@ -20,8 +21,9 @@ public sealed class HoldI : HoldDisp_
         }
     }
 
-    public HoldI(Ice.ObjectAdapter adapter)
+    public HoldI(Timer timer, Ice.ObjectAdapter adapter)
     {
+        _timer = timer;
         _adapter = adapter;
     }
 
@@ -39,54 +41,38 @@ public sealed class HoldI : HoldDisp_
         }
         else
         {
-            new DelayedTask(milliSeconds, delegate()
+            _timer.schedule(() =>
+            {
+                try
                 {
-                    try
-                    {
-                        putOnHold(0, null);
-                    }
-                    catch(Ice.ObjectAdapterDeactivatedException)
-                    {
-                    }
-                });
+                    putOnHold(0, null);
+                }
+                catch(Ice.ObjectAdapterDeactivatedException)
+                {
+                }
+            }, milliSeconds);
         }
     }
 
     public override void
     waitForHold(Ice.Current current)
     {
-        lock(this)
+        _timer.schedule(() =>
         {
-            if(++_waitForHold == 1)
+            try
             {
-                new DelayedTask(1, delegate()
-                    {
-                        while(true)
-                        {
-                            lock(this)
-                            {
-                                if(--_waitForHold < 0)
-                                {
-                                    return;
-                                }
-                            }
-                            try
-                            {
-                                current.adapter.waitForHold();
-                                current.adapter.activate();
-                            }
-                            catch(Ice.ObjectAdapterDeactivatedException)
-                            {
-                                //
-                                // This shouldn't occur. The test ensures all the waitForHold timers are
-                                // finished before shutting down the communicator.
-                                //
-                                test(false);
-                            }
-                        }
-                    });
+                current.adapter.waitForHold();
+                current.adapter.activate();
             }
-        }
+            catch(Ice.ObjectAdapterDeactivatedException)
+            {
+                //
+                // This shouldn't occur. The test ensures all the waitForHold timers are
+                // finished before shutting down the communicator.
+                //
+                test(false);
+            }
+        }, 0);
     }
 
     public override int
@@ -119,33 +105,7 @@ public sealed class HoldI : HoldDisp_
         _adapter.getCommunicator().shutdown();
     }
 
-    //
-    // The .NET Compact Framework doesn't support the System.Timers.Timer class,
-    // but a simple thread does what we need in this test.
-    //
-    private delegate void Task();
-
-    private class DelayedTask
-    {
-        internal DelayedTask(int timeout, Task task)
-        {
-            _timeout = timeout;
-            _task = task;
-            System.Threading.Thread t = new System.Threading.Thread(new System.Threading.ThreadStart(run));
-            t.Start();
-        }
-
-        private void run()
-        {
-            System.Threading.Thread.Sleep(_timeout);
-            _task();
-        }
-
-        private int _timeout;
-        private Task _task;
-    }
-
     private Ice.ObjectAdapter _adapter;
     private int _last = 0;
-    private int _waitForHold = 0;
+    private Timer _timer;
 }

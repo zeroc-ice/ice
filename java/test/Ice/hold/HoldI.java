@@ -115,12 +115,7 @@ public final class HoldI extends _HoldDisp
     synchronized public void
     setOneway(int value, int expected, Ice.Current current)
     {
-        if(_last != expected)
-        {
-            System.err.println("_last = " + _last + " expected = " + expected + " value = " + value);
-            _adapter.getCommunicator().shutdown();
-            test(false);
-        }
+        test(_last == expected);
         _last = value;
     }
 
