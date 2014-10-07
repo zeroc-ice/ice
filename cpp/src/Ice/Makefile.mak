@@ -174,13 +174,10 @@ $(DLLNAME): $(OBJS) Ice.res
 		$(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
-Service.obj: EventLoggerMsg.h
-
 Ice.res: EventLoggerMsg.rc
 
-# These files are not automatically generated because VC2008 Express doesn't have mc.exe
-#EventLoggerMsg.h EventLoggerMsg.rc: EventLoggerMsg.mc
-#	mc EventLoggerMsg.mc
+..\..\src\Ice\EventLoggerMsg.h EventLoggerMsg.rc: EventLoggerMsg.mc
+        mc EventLoggerMsg.mc
 
 clean::
 	-del /q BuiltinSequences.cpp $(HDIR)\BuiltinSequences.h
@@ -223,6 +220,7 @@ clean::
 	-del /q SliceChecksumDict.cpp $(HDIR)\SliceChecksumDict.h
 	-del /q Version.cpp $(HDIR)\Version.h
 	-del /q Ice.res
+        -del /q EventLoggerMsg.h EventLoggerMsg.rc
 
 install:: all
 	copy $(LIBNAME) "$(install_libdir)"

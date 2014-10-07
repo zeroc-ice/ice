@@ -163,7 +163,9 @@ COMPSUFFIX  = _vc120
 
 !if "$(OPTIMIZE)" != "yes"
 LIBSUFFIX	= d
-RCFLAGS		= -D_DEBUG
+RCFLAGS		= -nologo -D_DEBUG
+!else
+RCFLAGS         = -nologo
 !endif
 
 SSL_OS_LIBS             = secur32.lib crypt32.lib
