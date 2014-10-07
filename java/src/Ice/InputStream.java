@@ -63,6 +63,13 @@ public interface InputStream
     byte[] readByteSeq();
 
     /**
+     * Extracts a sequence of byte values from the stream as a ByteBuffer.
+     *
+     * @return The ByteBuffer wrapping the sequence.
+     **/
+    java.nio.ByteBuffer readByteBuffer();
+
+    /**
      * Extracts a serializable Java object from the stream.
      *
      * @return The deserialized Java object.
@@ -84,6 +91,13 @@ public interface InputStream
     short[] readShortSeq();
 
     /**
+     * Extracts a sequence of short values from the stream as a ShortBuffer.
+     *
+     * @return The ShortBuffer wrapping the sequence.
+     **/
+    java.nio.ShortBuffer readShortBuffer();
+
+    /**
      * Extracts an integer value from the stream.
      *
      * @return The extracted integer.
@@ -96,6 +110,13 @@ public interface InputStream
      * @return The extracted integer sequence.
      **/
     int[] readIntSeq();
+
+    /**
+     * Extracts a sequence of int values from the stream as a IntBuffer.
+     *
+     * @return The IntBuffer wrapping the sequence.
+     **/
+    java.nio.IntBuffer readIntBuffer();
 
     /**
      * Extracts a long value from the stream.
@@ -112,6 +133,13 @@ public interface InputStream
     long[] readLongSeq();
 
     /**
+     * Extracts a sequence of long values from the stream as a LongBuffer.
+     *
+     * @return The LongBuffer wrapping the sequence.
+     **/
+    java.nio.LongBuffer readLongBuffer();
+
+    /**
      * Extracts a float value from the stream.
      *
      * @return The extracted float value.
@@ -126,6 +154,13 @@ public interface InputStream
     float[] readFloatSeq();
 
     /**
+     * Extracts a sequence of float values from the stream as a FloatBuffer.
+     *
+     * @return The FloatBuffer wrapping the sequence.
+     **/
+    java.nio.FloatBuffer readFloatBuffer();
+
+    /**
      * Extracts a double value from the stream.
      *
      * @return The extracted double value.
@@ -138,6 +173,13 @@ public interface InputStream
      * @return The extracted float sequence.
      **/
     double[] readDoubleSeq();
+
+    /**
+     * Extracts a sequence of double values from the stream as a DoubleBuffer.
+     *
+     * @return The DoubleBuffer wrapping the sequence.
+     **/
+    java.nio.DoubleBuffer readDoubleBuffer();
 
     /**
      * Extracts a string from the stream.

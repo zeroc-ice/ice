@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <Ice/BuiltinSequences.ice>
+
 [["java:package:test.Ice.custom"]]
 module Test
 {
@@ -27,6 +29,13 @@ sequence<C> CSeq;
 ["java:type:java.util.ArrayList<Float>"] sequence<float> FloatSeq;
 ["java:type:java.util.ArrayList<Double>"] sequence<double> DoubleSeq;
 ["java:type:java.util.ArrayList<String>"] sequence<string> StringSeq;
+
+["java:buffer"] sequence<byte> ByteBuffer;
+["java:buffer"] sequence<short> ShortBuffer;
+["java:buffer"] sequence<int> IntBuffer;
+["java:buffer"] sequence<long> LongBuffer;
+["java:buffer"] sequence<float> FloatBuffer;
+["java:buffer"] sequence<double> DoubleBuffer;
 
 enum E { E1, E2, E3 };
 ["java:type:java.util.ArrayList<E>"] sequence<E> ESeq;
@@ -59,6 +68,13 @@ class TestIntf
     SSeq opSSeq(SSeq inSeq, out SSeq outSeq);
     DSeq opDSeq(DSeq inSeq, out DSeq outSeq);
     StringSeqSeq opStringSeqSeq(StringSeqSeq inSeq, out StringSeqSeq outSeq);
+
+    ByteBuffer opByteBufferSeq(ByteBuffer inSeq, out ByteBuffer outSeq);
+    ShortBuffer opShortBufferSeq(ShortBuffer inSeq, out ShortBuffer outSeq);
+    IntBuffer opIntBufferSeq(IntBuffer inSeq, out IntBuffer outSeq);
+    LongBuffer opLongBufferSeq(LongBuffer inSeq, out LongBuffer outSeq);
+    FloatBuffer opFloatBufferSeq(FloatBuffer inSeq, out FloatBuffer outSeq);
+    DoubleBuffer opDoubleBufferSeq(DoubleBuffer inSeq, out DoubleBuffer outSeq);
 
     void shutdown();
 

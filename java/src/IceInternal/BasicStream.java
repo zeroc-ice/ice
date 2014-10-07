@@ -859,6 +859,21 @@ public class BasicStream
     }
 
     public void
+    writeByteBuffer(java.nio.ByteBuffer v)
+    {
+        if(v == null || v.remaining() == 0)
+        {
+            writeSize(0);
+        }
+        else
+        {
+            writeSize(v.remaining());
+            expand(v.remaining());
+            _buf.b.put(v);
+        }
+    }
+
+    public void
     writeSerializable(java.io.Serializable o)
     {
         if(o == null)
@@ -932,6 +947,23 @@ public class BasicStream
         else
         {
             v.clear();
+        }
+    }
+
+    public java.nio.ByteBuffer
+    readByteBuffer()
+    {
+        try
+        {
+            final int sz = readAndCheckSeqSize(1);
+            java.nio.ByteBuffer v = _buf.b.slice();
+            v.limit(sz);
+            _buf.b.position(_buf.b.position() + sz);
+            return v.asReadOnlyBuffer();
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new Ice.UnmarshalOutOfBoundsException();
         }
     }
 
@@ -1156,6 +1188,25 @@ public class BasicStream
         }
     }
 
+    public void
+    writeShortBuffer(java.nio.ShortBuffer v)
+    {
+        if(v == null || v.remaining() == 0)
+        {
+            writeSize(0);
+        }
+        else
+        {
+            int sz = v.remaining();
+            writeSize(sz);
+            expand(sz * 2);
+
+            java.nio.ShortBuffer shortBuf = _buf.b.asShortBuffer();
+            shortBuf.put(v);
+            _buf.b.position(_buf.b.position() + sz * 2);
+        }
+    }
+
     public short
     readShort()
     {
@@ -1211,6 +1262,24 @@ public class BasicStream
         else
         {
             v.clear();
+        }
+    }
+
+    public java.nio.ShortBuffer
+    readShortBuffer()
+    {
+        try
+        {
+            final int sz = readAndCheckSeqSize(2);
+            java.nio.ShortBuffer shortBuf = _buf.b.asShortBuffer();
+            java.nio.ShortBuffer v = shortBuf.slice();
+            v.limit(sz);
+            _buf.b.position(_buf.b.position() + sz * 2);
+            return v.asReadOnlyBuffer();
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new Ice.UnmarshalOutOfBoundsException();
         }
     }
 
@@ -1281,6 +1350,25 @@ public class BasicStream
         }
     }
 
+    public void
+    writeIntBuffer(java.nio.IntBuffer v)
+    {
+        if(v == null || v.remaining() == 0)
+        {
+            writeSize(0);
+        }
+        else
+        {
+            int sz = v.remaining();
+            writeSize(sz);
+            expand(sz * 4);
+
+            java.nio.IntBuffer intBuf = _buf.b.asIntBuffer();
+            intBuf.put(v);
+            _buf.b.position(_buf.b.position() + sz * 4);
+        }
+    }
+
     public int
     readInt()
     {
@@ -1336,6 +1424,24 @@ public class BasicStream
         else
         {
             v.clear();
+        }
+    }
+
+    public java.nio.IntBuffer
+    readIntBuffer()
+    {
+        try
+        {
+            final int sz = readAndCheckSeqSize(4);
+            java.nio.IntBuffer intBuf = _buf.b.asIntBuffer();
+            java.nio.IntBuffer v = intBuf.slice();
+            v.limit(sz);
+            _buf.b.position(_buf.b.position() + sz * 4);
+            return v.asReadOnlyBuffer();
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new Ice.UnmarshalOutOfBoundsException();
         }
     }
 
@@ -1400,6 +1506,25 @@ public class BasicStream
         }
     }
 
+    public void
+    writeLongBuffer(java.nio.LongBuffer v)
+    {
+        if(v == null || v.remaining() == 0)
+        {
+            writeSize(0);
+        }
+        else
+        {
+            int sz = v.remaining();
+            writeSize(sz);
+            expand(sz * 8);
+
+            java.nio.LongBuffer longBuf = _buf.b.asLongBuffer();
+            longBuf.put(v);
+            _buf.b.position(_buf.b.position() + sz * 8);
+        }
+    }
+
     public long
     readLong()
     {
@@ -1455,6 +1580,24 @@ public class BasicStream
         else
         {
             v.clear();
+        }
+    }
+
+    public java.nio.LongBuffer
+    readLongBuffer()
+    {
+        try
+        {
+            final int sz = readAndCheckSeqSize(8);
+            java.nio.LongBuffer longBuf = _buf.b.asLongBuffer();
+            java.nio.LongBuffer v = longBuf.slice();
+            v.limit(sz);
+            _buf.b.position(_buf.b.position() + sz * 8);
+            return v.asReadOnlyBuffer();
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new Ice.UnmarshalOutOfBoundsException();
         }
     }
 
@@ -1519,6 +1662,25 @@ public class BasicStream
         }
     }
 
+    public void
+    writeFloatBuffer(java.nio.FloatBuffer v)
+    {
+        if(v == null || v.remaining() == 0)
+        {
+            writeSize(0);
+        }
+        else
+        {
+            int sz = v.remaining();
+            writeSize(sz);
+            expand(sz * 4);
+
+            java.nio.FloatBuffer floatBuf = _buf.b.asFloatBuffer();
+            floatBuf.put(v);
+            _buf.b.position(_buf.b.position() + sz * 4);
+        }
+    }
+
     public float
     readFloat()
     {
@@ -1574,6 +1736,24 @@ public class BasicStream
         else
         {
             v.clear();
+        }
+    }
+
+    public java.nio.FloatBuffer
+    readFloatBuffer()
+    {
+        try
+        {
+            final int sz = readAndCheckSeqSize(4);
+            java.nio.FloatBuffer floatBuf = _buf.b.asFloatBuffer();
+            java.nio.FloatBuffer v = floatBuf.slice();
+            v.limit(sz);
+            _buf.b.position(_buf.b.position() + sz * 4);
+            return v.asReadOnlyBuffer();
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new Ice.UnmarshalOutOfBoundsException();
         }
     }
 
@@ -1638,6 +1818,25 @@ public class BasicStream
         }
     }
 
+    public void
+    writeDoubleBuffer(java.nio.DoubleBuffer v)
+    {
+        if(v == null || v.remaining() == 0)
+        {
+            writeSize(0);
+        }
+        else
+        {
+            int sz = v.remaining();
+            writeSize(sz);
+            expand(sz * 8);
+
+            java.nio.DoubleBuffer doubleBuf = _buf.b.asDoubleBuffer();
+            doubleBuf.put(v);
+            _buf.b.position(_buf.b.position() + sz * 8);
+        }
+    }
+
     public double
     readDouble()
     {
@@ -1693,6 +1892,24 @@ public class BasicStream
         else
         {
             v.clear();
+        }
+    }
+
+    public java.nio.DoubleBuffer
+    readDoubleBuffer()
+    {
+        try
+        {
+            final int sz = readAndCheckSeqSize(8);
+            java.nio.DoubleBuffer doubleBuf = _buf.b.asDoubleBuffer();
+            java.nio.DoubleBuffer v = doubleBuf.slice();
+            v.limit(sz);
+            _buf.b.position(_buf.b.position() + sz * 8);
+            return v.asReadOnlyBuffer();
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new Ice.UnmarshalOutOfBoundsException();
         }
     }
 
@@ -3268,7 +3485,7 @@ public class BasicStream
                 //
                 if(!_sliceObjects)
                 {
-                    throw new Ice.NoObjectFactoryException("no object factory found and object slicing is disabled", 
+                    throw new Ice.NoObjectFactoryException("no object factory found and object slicing is disabled",
                                                            _typeId);
                 }
 
@@ -3591,7 +3808,7 @@ public class BasicStream
             {
                 if(_current.sliceType == SliceType.ObjectSlice)
                 {
-                    throw new Ice.NoObjectFactoryException("no object factory found and compact format prevents " + 
+                    throw new Ice.NoObjectFactoryException("no object factory found and compact format prevents " +
                                                            "slicing (the sender should use the sliced format instead)",
                                                            _current.typeId);
                 }
@@ -3755,7 +3972,7 @@ public class BasicStream
                 //
                 if(!_sliceObjects)
                 {
-                    throw new Ice.NoObjectFactoryException("no object factory found and object slicing is disabled", 
+                    throw new Ice.NoObjectFactoryException("no object factory found and object slicing is disabled",
                                                            _current.typeId);
                 }
 

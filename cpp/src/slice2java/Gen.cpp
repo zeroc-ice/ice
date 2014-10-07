@@ -4554,7 +4554,19 @@ Slice::Gen::HolderVisitor::visitSequence(const SequencePtr& p)
         if(p->findMetaData(prefix, meta))
         {
             return; // No holders for protobuf types.
+        }
+    }
 
+    if(builtin &&
+       (builtin->kind() == Builtin::KindByte || builtin->kind() == Builtin::KindShort ||
+        builtin->kind() == Builtin::KindInt || builtin->kind() == Builtin::KindLong ||
+        builtin->kind() == Builtin::KindFloat || builtin->kind() == Builtin::KindDouble))
+    {
+        string meta;
+        string prefix = "java:buffer";
+        if(p->findMetaData(prefix, meta))
+        {
+            return; // No holders for buffer types.
         }
     }
 
@@ -4644,7 +4656,7 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
         }
         out << eb;
     }
-    else 
+    else
     {
         out << sp << nl << "public" << nl << name << "Holder()";
         out << sb;
@@ -5119,6 +5131,20 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         return;
     }
 
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+    if(builtin &&
+       (builtin->kind() == Builtin::KindByte || builtin->kind() == Builtin::KindShort ||
+        builtin->kind() == Builtin::KindInt || builtin->kind() == Builtin::KindLong ||
+        builtin->kind() == Builtin::KindFloat || builtin->kind() == Builtin::KindDouble))
+    {
+        string prefix = "java:buffer";
+        string meta;
+        if(p->findMetaData(prefix, meta))
+        {
+            return; // No holders for buffer types.
+        }
+    }
+
     string name = p->name();
     string absolute = getAbsolute(p);
     string helper = getAbsolute(p, "", "", "Helper");
@@ -5444,7 +5470,7 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
     if(!inArgs.empty())
     {
         for(vector<string>::const_iterator p = inArgs.begin(); p != inArgs.end(); ++p) {
-            out << *p << ", ";    
+            out << *p << ", ";
         }
     }
     out << "__ctx, __explicitCtx, true, null));";

@@ -16,6 +16,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.nio.ByteBuffer;
+import java.nio.ShortBuffer;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
+import java.nio.FloatBuffer;
+import java.nio.DoubleBuffer;
 
 import test.Ice.custom.Test.BoolSeqHolder;
 import test.Ice.custom.Test.ByteSeqHolder;
@@ -243,6 +249,102 @@ public class AllTests
             List<List<String>> listR = t.opStringSeqSeq(seq, listH);
             test(listH.value.equals(listR));
             test(listH.value.equals(seq));
+        }
+
+        {
+            final byte[] fullSeq = new byte[] {0, 1, 2, 3, 4, 5, 6, 7};
+            final byte[] usedSeq = new byte[] {2, 3, 4, 5};
+
+            ByteBuffer buffer = ByteBuffer.wrap(fullSeq, 2, 4);
+            Ice.Holder<ByteBuffer> bufferH = new Ice.Holder<ByteBuffer>();
+            ByteBuffer bufferR = t.opByteBufferSeq(buffer, bufferH);
+
+            byte[] arr = new byte[bufferH.value.limit()];
+            bufferH.value.get(arr, 0, bufferH.value.limit());
+            test(Arrays.equals(arr, usedSeq));
+            arr = new byte[bufferR.limit()];
+            bufferR.get(arr, 0, bufferR.limit());
+            test(Arrays.equals(arr, usedSeq));
+        }
+
+        {
+            final short[] fullSeq = new short[] {0, 1, 2, 3, 4, 5, 6, 7};
+            final short[] usedSeq = new short[] {2, 3, 4, 5};
+
+            ShortBuffer buffer = ShortBuffer.wrap(fullSeq, 2, 4);
+            Ice.Holder<ShortBuffer> bufferH = new Ice.Holder<ShortBuffer>();
+            ShortBuffer bufferR = t.opShortBufferSeq(buffer, bufferH);
+
+            short[] arr = new short[bufferH.value.limit()];
+            bufferH.value.get(arr, 0, bufferH.value.limit());
+            test(Arrays.equals(arr, usedSeq));
+            arr = new short[bufferR.limit()];
+            bufferR.get(arr, 0, bufferR.limit());
+            test(Arrays.equals(arr, usedSeq));
+        }
+
+        {
+            final int[] fullSeq = new int[] {0, 1, 2, 3, 4, 5, 6, 7};
+            final int[] usedSeq = new int[] {2, 3, 4, 5};
+
+            IntBuffer buffer = IntBuffer.wrap(fullSeq, 2, 4);
+            Ice.Holder<IntBuffer> bufferH = new Ice.Holder<IntBuffer>();
+            IntBuffer bufferR = t.opIntBufferSeq(buffer, bufferH);
+
+            int[] arr = new int[bufferH.value.limit()];
+            bufferH.value.get(arr, 0, bufferH.value.limit());
+            test(Arrays.equals(arr, usedSeq));
+            arr = new int[bufferR.limit()];
+            bufferR.get(arr, 0, bufferR.limit());
+            test(Arrays.equals(arr, usedSeq));
+        }
+
+        {
+            final long[] fullSeq = new long[] {0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L};
+            final long[] usedSeq = new long[] {2L, 3L, 4L, 5L};
+
+            LongBuffer buffer = LongBuffer.wrap(fullSeq, 2, 4);
+            Ice.Holder<LongBuffer> bufferH = new Ice.Holder<LongBuffer>();
+            LongBuffer bufferR = t.opLongBufferSeq(buffer, bufferH);
+
+            long[] arr = new long[bufferH.value.limit()];
+            bufferH.value.get(arr, 0, bufferH.value.limit());
+            test(Arrays.equals(arr, usedSeq));
+            arr = new long[bufferR.limit()];
+            bufferR.get(arr, 0, bufferR.limit());
+            test(Arrays.equals(arr, usedSeq));
+        }
+
+        {
+            final float[] fullSeq = new float[] {0, 1, 2, 3, 4, 5, 6, 7};
+            final float[] usedSeq = new float[] {2, 3, 4, 5};
+
+            FloatBuffer buffer = FloatBuffer.wrap(fullSeq, 2, 4);
+            Ice.Holder<FloatBuffer> bufferH = new Ice.Holder<FloatBuffer>();
+            FloatBuffer bufferR = t.opFloatBufferSeq(buffer, bufferH);
+
+            float[] arr = new float[bufferH.value.limit()];
+            bufferH.value.get(arr, 0, bufferH.value.limit());
+            test(Arrays.equals(arr, usedSeq));
+            arr = new float[bufferR.limit()];
+            bufferR.get(arr, 0, bufferR.limit());
+            test(Arrays.equals(arr, usedSeq));
+        }
+
+        {
+            final double[] fullSeq = new double[] {0, 1, 2, 3, 4, 5, 6, 7};
+            final double[] usedSeq = new double[] {2, 3, 4, 5};
+
+            DoubleBuffer buffer = DoubleBuffer.wrap(fullSeq, 2, 4);
+            Ice.Holder<DoubleBuffer> bufferH = new Ice.Holder<DoubleBuffer>();
+            DoubleBuffer bufferR = t.opDoubleBufferSeq(buffer, bufferH);
+
+            double[] arr = new double[bufferH.value.limit()];
+            bufferH.value.get(arr, 0, bufferH.value.limit());
+            test(Arrays.equals(arr, usedSeq));
+            arr = new double[bufferR.limit()];
+            bufferR.get(arr, 0, bufferR.limit());
+            test(Arrays.equals(arr, usedSeq));
         }
 
         out.println("ok");

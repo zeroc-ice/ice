@@ -88,6 +88,13 @@ public class InputStreamI implements InputStream
     }
 
     @Override
+    public java.nio.ByteBuffer
+    readByteBuffer()
+    {
+        return _is.readByteBuffer();
+    }
+
+    @Override
     public java.io.Serializable
     readSerializable()
     {
@@ -109,6 +116,13 @@ public class InputStreamI implements InputStream
     }
 
     @Override
+    public java.nio.ShortBuffer
+    readShortBuffer()
+    {
+        return _is.readShortBuffer();
+    }
+
+    @Override
     public int
     readInt()
     {
@@ -120,6 +134,13 @@ public class InputStreamI implements InputStream
     readIntSeq()
     {
         return _is.readIntSeq();
+    }
+
+    @Override
+    public java.nio.IntBuffer
+    readIntBuffer()
+    {
+        return _is.readIntBuffer();
     }
 
     @Override
@@ -137,6 +158,13 @@ public class InputStreamI implements InputStream
     }
 
     @Override
+    public java.nio.LongBuffer
+    readLongBuffer()
+    {
+        return _is.readLongBuffer();
+    }
+
+    @Override
     public float
     readFloat()
     {
@@ -151,6 +179,13 @@ public class InputStreamI implements InputStream
     }
 
     @Override
+    public java.nio.FloatBuffer
+    readFloatBuffer()
+    {
+        return _is.readFloatBuffer();
+    }
+
+    @Override
     public double
     readDouble()
     {
@@ -162,6 +197,13 @@ public class InputStreamI implements InputStream
     readDoubleSeq()
     {
         return _is.readDoubleSeq();
+    }
+
+    @Override
+    public java.nio.DoubleBuffer
+    readDoubleBuffer()
+    {
+        return _is.readDoubleBuffer();
     }
 
     @Override

@@ -55,6 +55,14 @@ public interface OutputStream
     void writeByteSeq(byte[] v);
 
     /**
+     * Writes a ByteBuffer to the stream.
+     *
+     * @param v The ByteBuffer to write.
+     * Passing <code>null</code> causes an empty sequence to be written to the stream.
+     **/
+    void writeByteBuffer(java.nio.ByteBuffer v);
+
+    /**
      * Writes a serializable Java object to the stream.
      *
      * @param o The serializable object to write.
@@ -77,6 +85,14 @@ public interface OutputStream
     void writeShortSeq(short[] v);
 
     /**
+     * Writes a ShortBuffer to the stream.
+     *
+     * @param v The ShortBuffer to write.
+     * Passing <code>null</code> causes an empty sequence to be written to the stream.
+     **/
+    void writeShortBuffer(java.nio.ShortBuffer v);
+
+    /**
      * Writes an integer to the stream.
      *
      * @param v The integer to write to the stream.
@@ -90,6 +106,14 @@ public interface OutputStream
      * Passing <code>null</code> causes an empty sequence to be written to the stream.
      **/
     void writeIntSeq(int[] v);
+
+    /**
+     * Writes a IntBuffer to the stream.
+     *
+     * @param v The IntBuffer to write.
+     * Passing <code>null</code> causes an empty sequence to be written to the stream.
+     **/
+    void writeIntBuffer(java.nio.IntBuffer v);
 
     /**
      * Writes a long to the stream.
@@ -107,6 +131,14 @@ public interface OutputStream
     void writeLongSeq(long[] v);
 
     /**
+     * Writes a LongBuffer to the stream.
+     *
+     * @param v The LongBuffer to write.
+     * Passing <code>null</code> causes an empty sequence to be written to the stream.
+     **/
+    void writeLongBuffer(java.nio.LongBuffer v);
+
+    /**
      * Writes a float to the stream.
      *
      * @param v The float to write to the stream.
@@ -122,6 +154,14 @@ public interface OutputStream
     void writeFloatSeq(float[] v);
 
     /**
+     * Writes a FloatBuffer to the stream.
+     *
+     * @param v The FloatBuffer to write.
+     * Passing <code>null</code> causes an empty sequence to be written to the stream.
+     **/
+    void writeFloatBuffer(java.nio.FloatBuffer v);
+
+    /**
      * Writes a double to the stream.
      *
      * @param v The double to write to the stream.
@@ -135,6 +175,14 @@ public interface OutputStream
      * Passing <code>null</code> causes an empty sequence to be written to the stream.
      **/
     void writeDoubleSeq(double[] v);
+
+    /**
+     * Writes a DoubleBuffer to the stream.
+     *
+     * @param v The DoubleBuffer to write.
+     * Passing <code>null</code> causes an empty sequence to be written to the stream.
+     **/
+    void writeDoubleBuffer(java.nio.DoubleBuffer v);
 
     /**
      * Writes a string to the stream.

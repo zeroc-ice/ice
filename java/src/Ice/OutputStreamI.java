@@ -74,6 +74,13 @@ public class OutputStreamI implements OutputStream
 
     @Override
     public void
+    writeByteBuffer(java.nio.ByteBuffer v)
+    {
+        _os.writeByteBuffer(v);
+    }
+
+    @Override
+    public void
     writeSerializable(java.io.Serializable v)
     {
         _os.writeSerializable(v);
@@ -95,6 +102,13 @@ public class OutputStreamI implements OutputStream
 
     @Override
     public void
+    writeShortBuffer(java.nio.ShortBuffer v)
+    {
+        _os.writeShortBuffer(v);
+    }
+
+    @Override
+    public void
     writeInt(int v)
     {
         _os.writeInt(v);
@@ -105,6 +119,13 @@ public class OutputStreamI implements OutputStream
     writeIntSeq(int[] v)
     {
         _os.writeIntSeq(v);
+    }
+
+    @Override
+    public void
+    writeIntBuffer(java.nio.IntBuffer v)
+    {
+        _os.writeIntBuffer(v);
     }
 
     @Override
@@ -123,6 +144,13 @@ public class OutputStreamI implements OutputStream
 
     @Override
     public void
+    writeLongBuffer(java.nio.LongBuffer v)
+    {
+        _os.writeLongBuffer(v);
+    }
+
+    @Override
+    public void
     writeFloat(float v)
     {
         _os.writeFloat(v);
@@ -137,6 +165,13 @@ public class OutputStreamI implements OutputStream
 
     @Override
     public void
+    writeFloatBuffer(java.nio.FloatBuffer v)
+    {
+        _os.writeFloatBuffer(v);
+    }
+
+    @Override
+    public void
     writeDouble(double v)
     {
         _os.writeDouble(v);
@@ -147,6 +182,13 @@ public class OutputStreamI implements OutputStream
     writeDoubleSeq(double[] v)
     {
         _os.writeDoubleSeq(v);
+    }
+
+    @Override
+    public void
+    writeDoubleBuffer(java.nio.DoubleBuffer v)
+    {
+        _os.writeDoubleBuffer(v);
     }
 
     @Override

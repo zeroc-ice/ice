@@ -44,6 +44,34 @@ hashAdd(long& hashCode, const std::string& value)
     }
 }
 
+string
+typeToBufferString(const TypePtr& type)
+{
+    static const char* builtinBufferTable[] =
+    {
+        "java.nio.ByteBuffer",
+        "???",
+        "java.nio.ShortBuffer",
+        "java.nio.IntBuffer",
+        "java.nio.LongBuffer",
+        "java.nio.FloatBuffer",
+        "java.nio.DoubleBuffer",
+        "???",
+        "???",
+        "???",
+        "???"
+    };
+
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    if(!builtin)
+    {
+        return "???";
+    }
+    else
+    {
+        return builtinBufferTable[builtin->kind()];
+    }
+}
 }
 
 long
@@ -827,6 +855,20 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
                 }
             }
 
+            if(builtin &&
+               (builtin->kind() == Builtin::KindByte || builtin->kind() == Builtin::KindShort ||
+                builtin->kind() == Builtin::KindInt || builtin->kind() == Builtin::KindLong ||
+                builtin->kind() == Builtin::KindFloat || builtin->kind() == Builtin::KindDouble))
+            {
+                string prefix = "java:buffer";
+                string meta;
+                string ignore;
+                if(seq->findMetaData(prefix, meta) || findMetaData(prefix, metaData, ignore))
+                {
+                    return string("Ice.Holder<") + typeToBufferString(seq->type()) + ">";
+                }
+            }
+
             //
             // Only use the type's generated holder if the instance and
             // formal types match.
@@ -858,10 +900,25 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
                 {
                     return meta.substr(prefix.size());
                 }
+
                 prefix = "java:protobuf:";
                 if(seq->findMetaData(prefix, meta))
                 {
                     return meta.substr(prefix.size());
+                }
+            }
+
+            if(builtin &&
+               (builtin->kind() == Builtin::KindByte || builtin->kind() == Builtin::KindShort ||
+                builtin->kind() == Builtin::KindInt || builtin->kind() == Builtin::KindLong ||
+                builtin->kind() == Builtin::KindFloat || builtin->kind() == Builtin::KindDouble))
+            {
+                string prefix = "java:buffer";
+                string meta;
+                string ignore;
+                if(seq->findMetaData(prefix, meta) || findMetaData(prefix, metaData, ignore))
+                {
+                    return typeToBufferString(seq->type());
                 }
             }
 
@@ -2067,6 +2124,103 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         }
     }
 
+    if(builtin &&
+       (builtin->kind() == Builtin::KindByte || builtin->kind() == Builtin::KindShort ||
+        builtin->kind() == Builtin::KindInt || builtin->kind() == Builtin::KindLong ||
+        builtin->kind() == Builtin::KindFloat || builtin->kind() == Builtin::KindDouble))
+    {
+        string meta;
+        static const string bytebuffer = "java:buffer";
+        if(seq->findMetaData(bytebuffer, meta) || findMetaData(bytebuffer, metaData, meta))
+        {
+            switch(builtin->kind())
+            {
+                case Builtin::KindByte:
+                {
+                    if(marshal)
+                    {
+                        out << nl << stream << ".writeByteBuffer(" << v << ");";
+                    }
+                    else
+                    {
+                        out << nl << v << " = " << stream << ".readByteBuffer();";
+                    }
+                    break;
+                }
+                case Builtin::KindShort:
+                {
+                    if(marshal)
+                    {
+                        out << nl << stream << ".writeShortBuffer(" << v << ");";
+                    }
+                    else
+                    {
+                        out << nl << v << " = " << stream << ".readShortBuffer();";
+                    }
+                    break;
+                }
+                case Builtin::KindInt:
+                {
+                    if(marshal)
+                    {
+                        out << nl << stream << ".writeIntBuffer(" << v << ");";
+                    }
+                    else
+                    {
+                        out << nl << v << " = " << stream << ".readIntBuffer();";
+                    }
+                    break;
+                }
+                case Builtin::KindLong:
+                {
+                    if(marshal)
+                    {
+                        out << nl << stream << ".writeLongBuffer(" << v << ");";
+                    }
+                    else
+                    {
+                        out << nl << v << " = " << stream << ".readLongBuffer();";
+                    }
+                    break;
+                }
+                case Builtin::KindFloat:
+                {
+                    if(marshal)
+                    {
+                        out << nl << stream << ".writeFloatBuffer(" << v << ");";
+                    }
+                    else
+                    {
+                        out << nl << v << " = " << stream << ".readFloatBuffer();";
+                    }
+                    break;
+                }
+                case Builtin::KindDouble:
+                {
+                    if(marshal)
+                    {
+                        out << nl << stream << ".writeDoubleBuffer(" << v << ");";
+                    }
+                    else
+                    {
+                        out << nl << v << " = " << stream << ".readDoubleBuffer();";
+                    }
+                    break;
+                }
+                case Builtin::KindBool:
+                case Builtin::KindString:
+                case Builtin::KindObject:
+                case Builtin::KindObjectProxy:
+                case Builtin::KindLocalObject:
+                {
+                    assert(false);
+                    break;
+                }
+            }
+            return;
+        }
+    }
+
     bool customType = false;
     string instanceType;
 
@@ -3152,6 +3306,103 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
         }
     }
 
+    if(builtin &&
+       (builtin->kind() == Builtin::KindByte || builtin->kind() == Builtin::KindShort ||
+        builtin->kind() == Builtin::KindInt || builtin->kind() == Builtin::KindLong ||
+        builtin->kind() == Builtin::KindFloat || builtin->kind() == Builtin::KindDouble))
+    {
+        string meta;
+        static const string bytebuffer = "java:buffer";
+        if(seq->findMetaData(bytebuffer, meta) || findMetaData(bytebuffer, metaData, meta))
+        {
+            switch(builtin->kind())
+            {
+                case Builtin::KindByte:
+                {
+                    if(marshal)
+                    {
+                        out << nl << stream << ".writeByteBuffer(" << v << ");";
+                    }
+                    else
+                    {
+                        out << nl << v << " = " << stream << ".readByteBuffer();";
+                    }
+                    break;
+                }
+                case Builtin::KindShort:
+                {
+                    if(marshal)
+                    {
+                        out << nl << stream << ".writeShortBuffer(" << v << ");";
+                    }
+                    else
+                    {
+                        out << nl << v << " = " << stream << ".readShortBuffer();";
+                    }
+                    break;
+                }
+                case Builtin::KindInt:
+                {
+                    if(marshal)
+                    {
+                        out << nl << stream << ".writeIntBuffer(" << v << ");";
+                    }
+                    else
+                    {
+                        out << nl << v << " = " << stream << ".readIntBuffer();";
+                    }
+                    break;
+                }
+                case Builtin::KindLong:
+                {
+                    if(marshal)
+                    {
+                        out << nl << stream << ".writeLongBuffer(" << v << ");";
+                    }
+                    else
+                    {
+                        out << nl << v << " = " << stream << ".readLongBuffer();";
+                    }
+                    break;
+                }
+                case Builtin::KindFloat:
+                {
+                    if(marshal)
+                    {
+                        out << nl << stream << ".writeFloatBuffer(" << v << ");";
+                    }
+                    else
+                    {
+                        out << nl << v << " = " << stream << ".readFloatBuffer();";
+                    }
+                    break;
+                }
+                case Builtin::KindDouble:
+                {
+                    if(marshal)
+                    {
+                        out << nl << stream << ".writeDoubleBuffer(" << v << ");";
+                    }
+                    else
+                    {
+                        out << nl << v << " = " << stream << ".readDoubleBuffer();";
+                    }
+                    break;
+                }
+                case Builtin::KindBool:
+                case Builtin::KindString:
+                case Builtin::KindObject:
+                case Builtin::KindObjectProxy:
+                case Builtin::KindLocalObject:
+                {
+                    assert(false);
+                    break;
+                }
+            }
+            return;
+        }
+    }
+
     //
     // We have to determine whether it's possible to use the
     // type's generated helper class for this marshal/unmarshal
@@ -3610,6 +3861,22 @@ Slice::JavaGenerator::hasTypeMetaData(const TypePtr& type, const StringList& loc
                 }
             }
         }
+
+        if(findMetaData("java:buffer", localMetaData, directive))
+        {
+            SequencePtr seq = SequencePtr::dynamicCast(cont);
+            if(seq)
+            {
+                BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+                if(builtin &&
+                   (builtin->kind() == Builtin::KindByte || builtin->kind() == Builtin::KindShort ||
+                    builtin->kind() == Builtin::KindInt || builtin->kind() == Builtin::KindLong ||
+                    builtin->kind() == Builtin::KindFloat || builtin->kind() == Builtin::KindDouble))
+                {
+                    return true;
+                }
+            }
+        }
     }
 
     return false;
@@ -3893,6 +4160,7 @@ Slice::JavaGenerator::MetaDataVisitor::visitSequence(const SequencePtr& p)
 {
     static const string protobuf = "java:protobuf:";
     static const string serializable = "java:serializable:";
+    static const string bytebuffer = "java:buffer";
     StringList metaData = getMetaData(p);
     const string file =  p->file();
     const string line = p->line();
@@ -3914,6 +4182,21 @@ Slice::JavaGenerator::MetaDataVisitor::visitSequence(const SequencePtr& p)
                     _history.insert(s);
                     emitWarning(file, line, "ignoring invalid metadata `" + s + "': " +
                                 "this metadata can only be used with a byte sequence");
+                }
+            }
+            else if(s.find(bytebuffer) == 0)
+            {
+                metaData.remove(s);
+
+                BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+                if(!builtin ||
+                   (builtin->kind() != Builtin::KindByte && builtin->kind() != Builtin::KindShort &&
+                    builtin->kind() != Builtin::KindInt && builtin->kind() != Builtin::KindLong &&
+                    builtin->kind() != Builtin::KindFloat && builtin->kind() != Builtin::KindDouble))
+                {
+                    _history.insert(s);
+                    emitWarning(file, line, "ignoring invalid metadata `" + s + "': " +
+                                "this metadata can not be used with this type");
                 }
             }
         }
@@ -3969,6 +4252,10 @@ Slice::JavaGenerator::MetaDataVisitor::getMetaData(const ContainedPtr& cont)
                     {
                         string rest = s.substr(prefix.size());
                         if(rest == "getset")
+                        {
+                            result.push_back(s);
+                        }
+                        else if(rest == "buffer")
                         {
                             result.push_back(s);
                         }
@@ -4030,6 +4317,23 @@ Slice::JavaGenerator::MetaDataVisitor::validateType(const SyntaxTreeBasePtr& p, 
                 str = b->typeId();
             }
             emitWarning(file, line, "invalid metadata for " + str);
+        }
+        else if(i->find("java:buffer") == 0)
+        {
+            SequencePtr seq = SequencePtr::dynamicCast(p);
+            if(seq)
+            {
+                BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+                if(builtin &&
+                   (builtin->kind() == Builtin::KindByte || builtin->kind() == Builtin::KindShort ||
+                    builtin->kind() == Builtin::KindInt || builtin->kind() == Builtin::KindLong ||
+                    builtin->kind() == Builtin::KindFloat || builtin->kind() == Builtin::KindDouble))
+                {
+                    continue;
+                }
+
+            }
+            emitWarning(file, line, "ignoring invalid metadata `" + *i + "'");
         }
         else if(i->find("java:protobuf:") == 0 || i->find("java:serializable:") == 0)
         {

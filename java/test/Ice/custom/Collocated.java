@@ -31,6 +31,7 @@ public class Collocated extends test.Util.Application
         initData.properties = Ice.Util.createProperties(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.custom");
         initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
+	initData.properties.setProperty("Ice.CacheMessageBuffers", "0");
         return initData;
     }
 

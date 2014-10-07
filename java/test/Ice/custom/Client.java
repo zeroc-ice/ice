@@ -28,6 +28,7 @@ public class Client extends test.Util.Application
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.custom");
+        initData.properties.setProperty("Ice.CacheMessageBuffers", "0");
         return initData;
     }
 

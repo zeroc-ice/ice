@@ -13,6 +13,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.nio.ByteBuffer;
+import java.nio.ShortBuffer;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
+import java.nio.FloatBuffer;
+import java.nio.DoubleBuffer;
 
 import test.Ice.custom.Test.BoolSeqHolder;
 import test.Ice.custom.Test.ByteSeqHolder;
@@ -162,6 +168,66 @@ public final class TestI extends TestIntf
     {
         outSeq.value = inSeq;
         return inSeq;
+    }
+
+    @Override
+    public ByteBuffer
+    opByteBufferSeq(ByteBuffer inSeq, Ice.Holder<ByteBuffer> outSeq, Ice.Current current)
+    {
+        byte[] arr = new byte[inSeq.limit()];
+        inSeq.get(arr);
+        outSeq.value = ByteBuffer.wrap(arr);
+        return ByteBuffer.wrap(arr);
+    }
+
+    @Override
+    public ShortBuffer
+    opShortBufferSeq(ShortBuffer inSeq, Ice.Holder<ShortBuffer> outSeq, Ice.Current current)
+    {
+        short[] arr = new short[inSeq.limit()];
+        inSeq.get(arr);
+        outSeq.value = ShortBuffer.wrap(arr);
+        return ShortBuffer.wrap(arr);
+    }
+
+    @Override
+    public IntBuffer
+    opIntBufferSeq(IntBuffer inSeq, Ice.Holder<IntBuffer> outSeq, Ice.Current current)
+    {
+        int[] arr = new int[inSeq.limit()];
+        inSeq.get(arr);
+        outSeq.value = IntBuffer.wrap(arr);
+        return IntBuffer.wrap(arr);
+    }
+
+    @Override
+    public LongBuffer
+    opLongBufferSeq(LongBuffer inSeq, Ice.Holder<LongBuffer> outSeq, Ice.Current current)
+    {
+        long[] arr = new long[inSeq.limit()];
+        inSeq.get(arr);
+        outSeq.value = LongBuffer.wrap(arr);
+        return LongBuffer.wrap(arr);
+    }
+
+    @Override
+    public FloatBuffer
+    opFloatBufferSeq(FloatBuffer inSeq, Ice.Holder<FloatBuffer> outSeq, Ice.Current current)
+    {
+        float[] arr = new float[inSeq.limit()];
+        inSeq.get(arr);
+        outSeq.value = FloatBuffer.wrap(arr);
+        return FloatBuffer.wrap(arr);
+    }
+
+    @Override
+    public DoubleBuffer
+    opDoubleBufferSeq(DoubleBuffer inSeq, Ice.Holder<DoubleBuffer> outSeq, Ice.Current current)
+    {
+        double[] arr = new double[inSeq.limit()];
+        inSeq.get(arr);
+        outSeq.value = DoubleBuffer.wrap(arr);
+        return DoubleBuffer.wrap(arr);
     }
 
     @Override
