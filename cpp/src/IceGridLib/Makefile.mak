@@ -64,6 +64,7 @@ clean::
 	-del /q FileParser.cpp $(HDIR)\FileParser.h
 	-del /q Locator.cpp $(HDIR)\Locator.h
 	-del /q Observer.cpp $(HDIR)\Observer.h
+	-del /q PluginFacade.cpp $(HDIR)\PluginFacade.h
 	-del /q Query.cpp $(HDIR)\Query.h
 	-del /q Registry.cpp $(HDIR)\Registry.h
 	-del /q Session.cpp $(HDIR)\Session.h

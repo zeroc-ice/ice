@@ -33,4 +33,5 @@ $(CLIENT): $(OBJS)
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 clean::
+	del /q Forward.cpp Forward.h
 	del /q Test.cpp Test.h
