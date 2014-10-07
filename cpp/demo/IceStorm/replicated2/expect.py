@@ -30,11 +30,11 @@ Util.cleanDbDir("db3")
 print("ok")
 
 if Util.defaultHost:
-    a1 = ' --IceBox.Service.IceStorm="IceStormService,36:createIceStorm --Ice.Config=config.s1 %s"' \
+    a1 = ' --IceBox.Service.IceStorm="IceStormService,36b:createIceStorm --Ice.Config=config.s1 %s"' \
         % Util.defaultHost
-    a2 = ' --IceBox.Service.IceStorm="IceStormService,36:createIceStorm --Ice.Config=config.s2 %s"' \
+    a2 = ' --IceBox.Service.IceStorm="IceStormService,36b:createIceStorm --Ice.Config=config.s2 %s"' \
         % Util.defaultHost
-    a3 = ' --IceBox.Service.IceStorm="IceStormService,36:createIceStorm --Ice.Config=config.s3 %s"' \
+    a3 = ' --IceBox.Service.IceStorm="IceStormService,36b:createIceStorm --Ice.Config=config.s3 %s"' \
         % Util.defaultHost
 else:
     a1 = ''
