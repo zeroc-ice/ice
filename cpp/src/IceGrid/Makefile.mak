@@ -104,11 +104,9 @@ SLICE2FREEZECMD = $(SLICE2FREEZE) -I.. --ice --include-dir IceGrid $(ICECPPFLAGS
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-LINKWITH 	= $(LIBS) glacier2$(LIBSUFFIX).lib
-ALINKWITH 	= $(LINKWITH) icegrid$(LIBSUFFIX).lib icexml$(LIBSUFFIX).lib icepatch2$(LIBSUFFIX).lib \
-		  icebox$(LIBSUFFIX).lib
-NLINKWITH	= $(ALINKWITH) freeze$(LIBSUFFIX).lib icestorm$(LIBSUFFIX).lib icebox$(LIBSUFFIX).lib \
-		  icessl$(LIBSUFFIX).lib icestormservice$(LIBSUFFIX).lib  libeay32.lib pdh.lib ws2_32.lib
+LINKWITH 	= $(LIBS)
+ALINKWITH 	= $(LIBS)
+NLINKWITH	= $(LIBS) advapi32.lib pdh.lib ws2_32.lib
 
 SLICE2CPPFLAGS	= --checksum --ice --include-dir IceGrid $(SLICE2CPPFLAGS)
 CPPFLAGS	= -I. -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN -Zm200

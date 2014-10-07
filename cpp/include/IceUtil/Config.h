@@ -145,10 +145,6 @@
 #endif
 
 #ifdef _WIN32
-#   if !defined(ICE_STATIC_LIBS) && defined(_MSC_VER) && (!defined(_DLL) || !defined(_MT))
-#       error "Only multi-threaded DLL libraries can be used with Ice!"
-#   endif
-
 #   include <windows.h>
 
 #   if defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x600)
@@ -174,6 +170,21 @@
 #endif
 
 #ifdef _MSC_VER
+#   if !defined(ICE_STATIC_LIBS) && (!defined(_DLL) || !defined(_MT))
+#       error "Only multi-threaded DLL libraries can be used with Ice!"
+#   endif
+//
+//  Automatically link with IceUtil[D].lib
+//
+#   if defined(ICE_STATIC_LIBS)
+#      pragma comment(lib, "IceUtil.lib")
+#   elif !defined(ICE_UTIL_API_EXPORTS)
+#      if defined(_DEBUG)
+#          pragma comment(lib, "IceUtilD.lib")
+#      else
+#          pragma comment(lib, "IceUtil.lib")
+#      endif
+#   endif
 //
 // Move some warnings to level 4
 //

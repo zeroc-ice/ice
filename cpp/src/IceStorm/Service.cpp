@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+#define ICE_STORM_SERVICE_API_EXPORTS
+
 #include <IceUtil/DisableWarnings.h>
 
 #include <Ice/PluginManagerI.h> // For loadPlugin
@@ -16,7 +18,6 @@
 #include <IceStorm/TransientTopicManagerI.h>
 #include <IceStorm/Instance.h>
 
-#define ICE_STORM_API ICE_DECLSPEC_EXPORT
 #include <IceStorm/Service.h>
 
 #include <IceStorm/Observers.h>

@@ -18,6 +18,21 @@
 #include <vector>
 #include <list>
 
+//
+// Automatically link IceSSL[D].lib with Visual C++
+//
+#ifdef _MSC_VER
+#   if defined(ICE_STATIC_LIBS)
+#      error("IceSSL Plugin does not support static libraries")
+#   elif !defined(ICE_SSL_API_EXPORTS)
+#      if defined(_DEBUG)
+#          pragma comment(lib, "IceSSLD.lib")
+#      else
+#          pragma comment(lib, "IceSSL.lib")
+#      endif
+#   endif
+#endif
+
 // For struct sockaddr_storage
 #ifdef _WIN32
 #   include <winsock2.h>

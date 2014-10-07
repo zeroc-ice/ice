@@ -14,7 +14,8 @@ include $(top_srcdir)/config/Make.rules
 SUBDIRS		= IceUtil \
 		  Slice \
 		  Ice \
-                  IceSSL
+		  IceSSL \
+		  IceDiscovery
 
 ifeq ($(findstring MINGW,$(UNAME)),)
 SUBDIRS		:= $(SUBDIRS) \
@@ -23,10 +24,8 @@ SUBDIRS		:= $(SUBDIRS) \
 		   Freeze \
 		   FreezeScript \
 		   Glacier2 \
-		   IceGrid \
-		   IceDiscovery
+		   IceGrid
 endif
-
 
 .PHONY: $(EVERYTHING) $(SUBDIRS)
 

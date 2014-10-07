@@ -40,7 +40,7 @@ $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS) IcePatch2.res
 	$(LINK) $(BASE):0x29000000 $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) $(BZIP2_LIBS) \
-		$(OPENSSL_LIBS) $(RES_FILE)
+	    $(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest

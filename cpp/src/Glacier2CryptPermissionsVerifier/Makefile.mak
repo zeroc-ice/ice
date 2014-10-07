@@ -20,7 +20,7 @@ OBJS		= .\CryptPermissionsVerifierI.obj
 
 CPPFLAGS	= -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
-LINKWITH	= $(LIBS) glacier2$(LIBSUFFIX).lib libeay32.lib
+LINKWITH	= $(LIBS) libeay32.lib
 
 !if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS	= /pdb:$(DLLNAME:.dll=.pdb)

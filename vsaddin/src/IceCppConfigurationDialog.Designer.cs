@@ -39,14 +39,6 @@ namespace Ice.VisualStudio
         {
             this.components = new System.ComponentModel.Container();
             this.chkEnableBuilder = new System.Windows.Forms.CheckBox();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.chkFreeze = new System.Windows.Forms.CheckBox();
-            this.chkIceStorm = new System.Windows.Forms.CheckBox();
-            this.chkIceSSL = new System.Windows.Forms.CheckBox();
-            this.chkIcePatch2 = new System.Windows.Forms.CheckBox();
-            this.chkIceGrid = new System.Windows.Forms.CheckBox();
-            this.chkIceBox = new System.Windows.Forms.CheckBox();
-            this.chkGlacier2 = new System.Windows.Forms.CheckBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.chkChecksum = new System.Windows.Forms.CheckBox();
             this.chkIcePrefix = new System.Windows.Forms.CheckBox();
@@ -62,7 +54,6 @@ namespace Ice.VisualStudio
             this.outputDirView = new Ice.VisualStudio.OutputDirView();
             this.includePathView = new Ice.VisualStudio.IncludePathView();
             this.extraCompilerOptions = new Ice.VisualStudio.ExtraCompilerOptionsView();
-            this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.grouDllExportSymbol.SuspendLayout();
             this.SuspendLayout();
@@ -77,99 +68,6 @@ namespace Ice.VisualStudio
             this.chkEnableBuilder.Text = "Enable Ice Builder";
             this.chkEnableBuilder.UseVisualStyleBackColor = true;
             this.chkEnableBuilder.CheckedChanged += new System.EventHandler(this.chkEnableBuilder_CheckedChanged);
-            // 
-            // groupBox3
-            // 
-            this.groupBox3.Controls.Add(this.chkFreeze);
-            this.groupBox3.Controls.Add(this.chkIceStorm);
-            this.groupBox3.Controls.Add(this.chkIceSSL);
-            this.groupBox3.Controls.Add(this.chkIcePatch2);
-            this.groupBox3.Controls.Add(this.chkIceGrid);
-            this.groupBox3.Controls.Add(this.chkIceBox);
-            this.groupBox3.Controls.Add(this.chkGlacier2);
-            this.groupBox3.Location = new System.Drawing.Point(4, 474);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(487, 70);
-            this.groupBox3.TabIndex = 8;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Link project with these additional libraries:";
-            // 
-            // chkFreeze
-            // 
-            this.chkFreeze.AutoSize = true;
-            this.chkFreeze.Location = new System.Drawing.Point(7, 19);
-            this.chkFreeze.Name = "chkFreeze";
-            this.chkFreeze.Size = new System.Drawing.Size(58, 17);
-            this.chkFreeze.TabIndex = 0;
-            this.chkFreeze.Text = "Freeze";
-            this.chkFreeze.UseVisualStyleBackColor = true;
-            this.chkFreeze.CheckedChanged += new System.EventHandler(this.component_Changed);
-            // 
-            // chkIceStorm
-            // 
-            this.chkIceStorm.AutoSize = true;
-            this.chkIceStorm.Location = new System.Drawing.Point(7, 42);
-            this.chkIceStorm.Name = "chkIceStorm";
-            this.chkIceStorm.Size = new System.Drawing.Size(68, 17);
-            this.chkIceStorm.TabIndex = 6;
-            this.chkIceStorm.Text = "IceStorm";
-            this.chkIceStorm.UseVisualStyleBackColor = true;
-            this.chkIceStorm.CheckedChanged += new System.EventHandler(this.component_Changed);
-            // 
-            // chkIceSSL
-            // 
-            this.chkIceSSL.AutoSize = true;
-            this.chkIceSSL.Location = new System.Drawing.Point(364, 19);
-            this.chkIceSSL.Name = "chkIceSSL";
-            this.chkIceSSL.Size = new System.Drawing.Size(61, 17);
-            this.chkIceSSL.TabIndex = 5;
-            this.chkIceSSL.Text = "IceSSL";
-            this.chkIceSSL.UseVisualStyleBackColor = true;
-            this.chkIceSSL.CheckedChanged += new System.EventHandler(this.component_Changed);
-            // 
-            // chkIcePatch2
-            // 
-            this.chkIcePatch2.AutoSize = true;
-            this.chkIcePatch2.Location = new System.Drawing.Point(281, 19);
-            this.chkIcePatch2.Name = "chkIcePatch2";
-            this.chkIcePatch2.Size = new System.Drawing.Size(75, 17);
-            this.chkIcePatch2.TabIndex = 4;
-            this.chkIcePatch2.Text = "IcePatch2";
-            this.chkIcePatch2.UseVisualStyleBackColor = true;
-            this.chkIcePatch2.CheckedChanged += new System.EventHandler(this.component_Changed);
-            // 
-            // chkIceGrid
-            // 
-            this.chkIceGrid.AutoSize = true;
-            this.chkIceGrid.Location = new System.Drawing.Point(213, 19);
-            this.chkIceGrid.Name = "chkIceGrid";
-            this.chkIceGrid.Size = new System.Drawing.Size(60, 17);
-            this.chkIceGrid.TabIndex = 3;
-            this.chkIceGrid.Text = "IceGrid";
-            this.chkIceGrid.UseVisualStyleBackColor = true;
-            this.chkIceGrid.CheckedChanged += new System.EventHandler(this.component_Changed);
-            // 
-            // chkIceBox
-            // 
-            this.chkIceBox.AutoSize = true;
-            this.chkIceBox.Location = new System.Drawing.Point(146, 19);
-            this.chkIceBox.Name = "chkIceBox";
-            this.chkIceBox.Size = new System.Drawing.Size(59, 17);
-            this.chkIceBox.TabIndex = 2;
-            this.chkIceBox.Text = "IceBox";
-            this.chkIceBox.UseVisualStyleBackColor = true;
-            this.chkIceBox.CheckedChanged += new System.EventHandler(this.component_Changed);
-            // 
-            // chkGlacier2
-            // 
-            this.chkGlacier2.AutoSize = true;
-            this.chkGlacier2.Location = new System.Drawing.Point(73, 19);
-            this.chkGlacier2.Name = "chkGlacier2";
-            this.chkGlacier2.Size = new System.Drawing.Size(65, 17);
-            this.chkGlacier2.TabIndex = 1;
-            this.chkGlacier2.Text = "Glacier2";
-            this.chkGlacier2.UseVisualStyleBackColor = true;
-            this.chkGlacier2.CheckedChanged += new System.EventHandler(this.component_Changed);
             // 
             // groupBox4
             // 
@@ -219,7 +117,7 @@ namespace Ice.VisualStudio
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(297, 10);
+            this.label1.Location = new System.Drawing.Point(297, -62);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(67, 13);
             this.label1.TabIndex = 1;
@@ -242,7 +140,7 @@ namespace Ice.VisualStudio
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(333, 550);
+            this.btnCancel.Location = new System.Drawing.Point(333, 478);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 10;
@@ -272,7 +170,7 @@ namespace Ice.VisualStudio
             // 
             // btnOk
             // 
-            this.btnOk.Location = new System.Drawing.Point(250, 550);
+            this.btnOk.Location = new System.Drawing.Point(250, 478);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(75, 23);
             this.btnOk.TabIndex = 9;
@@ -282,7 +180,7 @@ namespace Ice.VisualStudio
             // 
             // btnApply
             // 
-            this.btnApply.Location = new System.Drawing.Point(416, 550);
+            this.btnApply.Location = new System.Drawing.Point(416, 478);
             this.btnApply.Name = "btnApply";
             this.btnApply.Size = new System.Drawing.Size(75, 23);
             this.btnApply.TabIndex = 11;
@@ -317,7 +215,7 @@ namespace Ice.VisualStudio
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(494, 583);
+            this.ClientSize = new System.Drawing.Size(494, 520);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.comboBoxVerboseLevel);
             this.Controls.Add(this.outputDirView);
@@ -326,7 +224,6 @@ namespace Ice.VisualStudio
             this.Controls.Add(this.btnApply);
             this.Controls.Add(this.btnOk);
             this.Controls.Add(this.grouDllExportSymbol);
-            this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.chkEnableBuilder);
@@ -336,8 +233,6 @@ namespace Ice.VisualStudio
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Ice Configuration";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.formClosing);
-            this.groupBox3.ResumeLayout(false);
-            this.groupBox3.PerformLayout();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
             this.grouDllExportSymbol.ResumeLayout(false);
@@ -350,19 +245,11 @@ namespace Ice.VisualStudio
         #endregion
 
         private System.Windows.Forms.CheckBox chkEnableBuilder;
-        private System.Windows.Forms.GroupBox groupBox3;
-        private System.Windows.Forms.CheckBox chkIceStorm;
-        private System.Windows.Forms.CheckBox chkIceSSL;
-        private System.Windows.Forms.CheckBox chkIcePatch2;
-        private System.Windows.Forms.CheckBox chkIceGrid;
-        private System.Windows.Forms.CheckBox chkIceBox;
-        private System.Windows.Forms.CheckBox chkGlacier2;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.CheckBox chkIcePrefix;
         private System.Windows.Forms.CheckBox chkStreaming;
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.ToolTip toolTip;
-        private System.Windows.Forms.CheckBox chkFreeze;
         private System.Windows.Forms.GroupBox grouDllExportSymbol;
         private System.Windows.Forms.TextBox txtDllExportSymbol;
         private System.Windows.Forms.CheckBox chkChecksum;

@@ -158,7 +158,7 @@ CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_API_EXPORTS -DWIN32_LEAN_AND_MEAN -bigobj
 CPPFLAGS	= $(CPPFLAGS) -DCOMPSUFFIX=\"$(COMPSUFFIX)\"
 !endif
 SLICE2CPPFLAGS	= --ice --include-dir Ice --dll-export ICE_API $(SLICE2CPPFLAGS)
-LINKWITH        = $(BASELIBS) $(BZIP2_LIBS) $(ICE_OS_LIBS) ws2_32.lib Iphlpapi.lib
+LINKWITH        =  $(BASELIBS) $(BZIP2_LIBS) $(ICE_OS_LIBS)
 
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 LD_DLLFLAGS	= $(LD_DLLFLAGS) /entry:"ice_DLL_Main"

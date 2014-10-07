@@ -46,7 +46,7 @@ $(CLIENT): $(COBJS)
 		$(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 $(SERVER): $(SOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) 
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 		$(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 

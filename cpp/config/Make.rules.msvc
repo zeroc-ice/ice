@@ -101,35 +101,21 @@ LDFLAGS         = $(LDFLAGS) /debug /incremental:no
 LD_DLLFLAGS	= $(LDFLAGS) /dll
 LD_EXEFLAGS	= $(LDFLAGS)
 
-!if "$(WINRT)" == "yes"
-ICE_OS_LIBS     = kernel32.lib user32.lib
-ICEUTIL_OS_LIBS = $(ICE_OS_LIBS)
-!else
-ICE_OS_LIBS     = rpcrt4.lib advapi32.lib
-ICEUTIL_OS_LIBS = $(ICE_OS_LIBS) DbgHelp.lib
-BZIP2_LIBS      = libbz2$(LIBSUFFIX).lib
-DB_LIBS         = libdb53$(LIBSUFFIX).lib
-MCPP_LIBS       = mcpp$(LIBSUFFIX).lib
-!endif
-
-!if "$(WINRT)" != "yes"
-BASELIBS	= iceutil$(LIBSUFFIX).lib $(ICE_OS_LIBS)
-LIBS		= ice$(LIBSUFFIX).lib $(BASELIBS)
-!else
-BASELIBS	= iceutil.lib $(ICE_OS_LIBS)
-LIBS		= ice.lib $(BASELIBS)
-!endif
+#
+# With MSVC, we link automatically all Ice libraries using pragma comment
+#
+BASELIBS        =
+LIBS            =
 
 !if "$(WINRT)" == "yes"
 
-SDK_VERSION		= $(SHORT_VERSION)
-SDK_NAME		= Ice
 SDK_REG_FILE		= $(SDK_NAME).reg
 SDK_MANIFEST		= SDKManifest.xml
 
 !if "$(CPP_COMPILER)" == "VC110"
 TARGET_PLATFORM_VERSION = 8.0
 MIN_VS_VERSION = 11.0
+SDK_PREFIX = \8.0
 !elseif "$(CPP_COMPILER)" == "VC120"
 TARGET_PLATFORM_VERSION = 8.1
 MIN_VS_VERSION = 12.0
@@ -219,11 +205,6 @@ $(SDK_PROPS_PATH)\$(SDK_PROPS_FILE): $(SDK_PROPS_PATH)
     <IncludePath>$$(IceWinRTHome)\Designtime\CommonConfiguration\Neutral\include;$$(IncludePath)</IncludePath>
     <LibraryPath>$$(IceWinRTHome)\Designtime\$$(ConfigurationPrefix)\$$(PlatformTarget);$$(LibraryPath)</LibraryPath> 
  </PropertyGroup>
- <ItemDefinitionGroup>
-    <Link>
-      <AdditionalDependencies>icegrid.lib;icestorm.lib;glacier2.lib;ice.lib;iceutil.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
 </Project>
 <<KEEP
 	move $(SDK_PROPS_FILE) $(SDK_PROPS_PATH)

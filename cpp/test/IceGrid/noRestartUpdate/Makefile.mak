@@ -38,7 +38,7 @@ OBJS		= $(COBJS) \
 !include $(top_srcdir)/config/Make.rules.mak
 
 CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
-LINKWITH	= $(LIBS) icebox$(LIBSUFFIX).lib icegrid$(LIBSUFFIX).lib glacier2$(LIBSUFFIX).lib
+LINKWITH	= $(LIBS)   
 
 !if "$(GENERATE_PDB)" == "yes"
 CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
@@ -49,7 +49,7 @@ $(LIBNAME) : $(DLLNAME)
 
 $(DLLNAME): $(SERVICE_OBJS)
 	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(SETARGV) $(SERVICE_OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH) \
-	  freeze$(LIBSUFFIX).lib
+	  
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)

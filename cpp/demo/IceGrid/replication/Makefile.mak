@@ -37,7 +37,7 @@ SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 
 $(CLIENT): $(COBJS)
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
-	  icegrid$(LIBSUFFIX).lib glacier2$(LIBSUFFIX).lib
+	   
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 

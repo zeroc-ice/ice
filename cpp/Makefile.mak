@@ -12,6 +12,7 @@ top_srcdir	= .
 !include $(top_srcdir)/config/Make.rules.mak
 
 !if "$(WINRT)" != "yes"
+
 SUBDIRS		= config src include test demo
 
 INSTALL_SUBDIRS	= "$(install_bindir)" "$(install_libdir)" "$(install_includedir)" "$(install_configdir)"
@@ -65,6 +66,6 @@ $(EVERYTHING)::
 install::
 	xcopy /s /y "$(top_srcdir)\SDKs" "$(prefix)\SDKs"
 	@echo Register SDK "$(SDK_NAME)" in Windows registry "$(SDK_KEY)"
-	@reg ADD "$(SDK_KEY)" /ve /d "$(prefix)\SDKs\$(SDK_NAME)\$(SDK_VERSION)" /f || \
+	@reg ADD "$(SDK_KEY)" /ve /d "$(prefix)\SDKs$(SDK_PREFIX)\$(SDK_NAME)\$(SDK_VERSION)" /f || \
 	echo "Could not add registry keyword $(SDK_KEY)" && exit 1
 !endif

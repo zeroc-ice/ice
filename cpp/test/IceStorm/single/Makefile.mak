@@ -29,7 +29,7 @@ OBJS		= $(POBJS) \
 !include $(top_srcdir)/config/Make.rules.mak
 
 CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
-LIBS		= icestorm$(LIBSUFFIX).lib $(LIBS)
+LIBS		=  $(LIBS)
 
 !if "$(GENERATE_PDB)" == "yes"
 PPDBFLAGS        = /pdb:$(PUBLISHER:.exe=.pdb)

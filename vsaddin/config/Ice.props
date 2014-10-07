@@ -2,7 +2,7 @@
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">  
 
     <PropertyGroup Condition="!Exists('$(IceSourceHome)')">
-        <IceHome>$(Registry:HKEY_LOCAL_MACHINE\Software\ZeroC\Ice 3.6.51@InstallDir)</IceHome>
+        <IceHome>$(Registry:HKEY_LOCAL_MACHINE\Software\ZeroC\Ice 3.6b@InstallDir)</IceHome>
         <IceInclude>$(IceHome)\include</IceInclude>
     </PropertyGroup>
     
@@ -17,13 +17,13 @@
     </PropertyGroup>
     
     <PropertyGroup Condition="!Exists('$(IceSourceHome)') And '$(Platform)' == 'Win32' And '$(PlatformToolset)' == 'v120'">
-        <IceLib>$(IceHome)\lib\vc120</IceLib>
-        <IceBin>$(IceHome)\bin\vc120</IceBin>
+        <IceLib>$(IceHome)\lib</IceLib>
+        <IceBin>$(IceHome)\bin</IceBin>
     </PropertyGroup>
     
     <PropertyGroup Condition="!Exists('$(IceSourceHome)') And '$(Platform)' != 'Win32' And '$(PlatformToolset)' == 'v120'">
-        <IceLib>$(IceHome)\lib\vc120\$(Platform)</IceLib>
-        <IceBin>$(IceHome)\bin\vc120\$(Platform)</IceBin>
+        <IceLib>$(IceHome)\lib\$(Platform)</IceLib>
+        <IceBin>$(IceHome)\bin\$(Platform)</IceBin>
     </PropertyGroup>
 
     <PropertyGroup Condition="Exists('$(IceSourceHome)')">

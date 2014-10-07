@@ -20,6 +20,21 @@
 #include <set>
 #include <stdio.h>
 
+//
+// Automatically link Slice[D].lib with Visual C++
+//
+#ifdef _MSC_VER
+#   if defined(ICE_STATIC_LIBS)
+#      pragma comment(lib, "Slice.lib")
+#   elif !defined(SLICE_API_EXPORTS)
+#      if defined(_DEBUG)
+#          pragma comment(lib, "SliceD.lib")
+#      else
+#          pragma comment(lib, "Slice.lib")
+#      endif
+#   endif
+#endif
+
 #ifndef SLICE_API
 #   ifdef SLICE_API_EXPORTS
 #       define SLICE_API ICE_DECLSPEC_EXPORT

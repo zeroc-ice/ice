@@ -15,12 +15,17 @@ top_srcdir	= ..
 
 SUBDIRS		= Ice
 
-!else
-
+!elseif "$(CPP_COMPILER)" == "VC100"
 SUBDIRS		= IceUtil \
 		  Slice \
 		  Ice \
-                  IceSSL \
+		  IceSSL \
+		  IceDiscovery
+!else
+SUBDIRS		= IceUtil \
+		  Slice \
+		  Ice \
+		  IceSSL \
 		  Glacier2 \
 		  Freeze \
 		  IceStorm \

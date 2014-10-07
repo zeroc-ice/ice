@@ -43,22 +43,22 @@ RECREATE_PDBFLAGS      = /pdb:$(RECREATE:.exe=.pdb)
 
 
 $(CREATE): $(CREATE_OBJS)
-	$(LINK) $(LD_EXEFLAGS) $(CREATE_PDBFLAGS) $(SETARGV) $(CREATE_OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
+	$(LINK) $(LD_EXEFLAGS) $(CREATE_PDBFLAGS) $(SETARGV) $(CREATE_OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) 
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 $(READ): $(READ_OBJS)
-	$(LINK) $(LD_EXEFLAGS) $(READ_PDBFLAGS) $(SETARGV) $(READ_OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
+	$(LINK) $(LD_EXEFLAGS) $(READ_PDBFLAGS) $(SETARGV) $(READ_OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) 
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 $(READNEW): $(READNEW_OBJS)
-	$(LINK) $(LD_EXEFLAGS) $(READNEW_PDBFLAGS) $(SETARGV) $(READNEW_OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
+	$(LINK) $(LD_EXEFLAGS) $(READNEW_PDBFLAGS) $(SETARGV) $(READNEW_OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) 
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 $(RECREATE): $(RECREATE_OBJS)
-	$(LINK) $(LD_EXEFLAGS) $(RECREATE_PDBFLAGS) $(SETARGV) $(RECREATE_OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
+	$(LINK) $(LD_EXEFLAGS) $(RECREATE_PDBFLAGS) $(SETARGV) $(RECREATE_OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) 
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 

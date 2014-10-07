@@ -170,7 +170,7 @@ def getCppCompiler():
             config = open(os.path.join(toplevel, "config", "Make.rules.mak"), "r")
         if config != None:
             compiler = re.search("CPP_COMPILER[\t\s]*= ([A-Z0-9]*)", config.read()).group(1)
-            if compiler != "VC90" and compiler != "VC100" and compiler != "VC110" and compiler != "VC120":
+            if compiler != "VC100" and compiler != "VC110" and compiler != "VC120":
                 compiler = ""
 
         if compiler == "":
@@ -179,9 +179,7 @@ def getCppCompiler():
                 print("Cannot detect C++ compiler")
                 sys.exit(1)
             l = p.stdout.readline().decode("utf-8").strip()
-            if l.find("Version 15") != -1:
-                compiler = "VC90"
-            elif l.find("Version 16") != -1:
+            if l.find("Version 16") != -1:
                 compiler = "VC100"
             elif l.find("Version 17") != -1:
                 compiler = "VC110"
@@ -251,8 +249,6 @@ def configurePaths():
             if getMapping() != "py":
                 if getCppCompiler() == "VC110":
                     subdir = "vc110"
-                elif getCppCompiler() == "VC120":
-                    subdir = "vc120"
 
             if subdir:
                 binDir = os.path.join(binDir, subdir)
@@ -371,6 +367,9 @@ def getIceDir(subdir = None):
         return os.path.join(toplevel, subdir)
     else:
         return toplevel
+
+def isBinDist():
+    getIceDir() != os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 def isWin32():
     return sys.platform == "win32"

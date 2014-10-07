@@ -95,7 +95,7 @@ def getCppCompiler():
     else:
         config = open(os.path.join(toplevel, "cpp", "config", "Make.rules.mak"), "r")
         compiler = re.search("CPP_COMPILER[\t\s]*= ([A-Z0-9]*)", config.read()).group(1)
-        if compiler != "VC90" and compiler != "VC100" and compiler != "VC110" and compiler != "VC120":
+        if compiler != "VC100" and compiler != "VC110" and compiler != "VC120":
             compiler = ""
 
         if compiler == "":
@@ -104,9 +104,7 @@ def getCppCompiler():
                 print("Cannot detect C++ compiler")
                 sys.exit(1)
             l = p.stdout.readline().decode("utf-8").strip()
-            if l.find("Version 15") != -1:
-                compiler = "VC90"
-            elif l.find("Version 16") != -1:
+            if l.find("Version 16") != -1:
                 compiler = "VC100"
             elif l.find("Version 17") != -1:
                 compiler = "VC110"
@@ -124,22 +122,20 @@ def isMINGW():
     # we check for this variable to detect the Ruby MINGW environment.
     return "RI_DEVKIT" in os.environ
 
-def isVC90():
+def isVC100():
     if not isWin32():
         return False
-    return getCppCompiler() == "VC90"
+    return getCppCompiler() == "VC100"
 
-def isVS2012():
+def isVC110():
     if not isWin32():
         return False
-    compiler = getCppCompiler()
-    return compiler == "VC110"
+    return getCppCompiler() == "VC110"
 
-def isVS2013():
+def isVC120():
     if not isWin32():
         return False
-    compiler = getCppCompiler()
-    return compiler == "VC120"
+    return getCppCompiler() == "VC120"
 
 #
 # The PHP interpreter is called "php5" on some platforms (e.g., SLES).
@@ -1534,10 +1530,8 @@ def getCppBinDir(lang = None):
         if lang == None:
             lang = getDefaultMapping()
         if lang == "cpp":
-          if isVS2012():
+          if isVC110():
             binDir = os.path.join(binDir, "vc110")
-          elif isVS2013():
-            binDir = os.path.join(binDir, "vc120")
         if x64:
             if isSolaris():
                 if isSparc():
@@ -1967,8 +1961,8 @@ def runTests(start, expanded, num = 0, script = False):
                 print("%s*** test only supported under Win32%s" % (prefix, suffix))
                 continue
 
-            if isVC90() and "novc90" in config:
-                print("%s*** test not supported with VC++ 9.0%s" % (prefix, suffix))
+            if isVC100() and "novc100" in config:
+                print("%s*** test not supported with VC++ 10.0%s" % (prefix, suffix))
                 continue
 
             if isMINGW() and "nomingw" in config:
@@ -1976,7 +1970,7 @@ def runTests(start, expanded, num = 0, script = False):
                 continue
 
             if isWin32() and "nowin32" in config:
-                print("%s*** test not supported with MINGW%s" % (prefix, suffix))
+                print("%s*** test not supported with Win32%s" % (prefix, suffix))
                 continue
 
             # If this is mono and we're running ssl protocol tests

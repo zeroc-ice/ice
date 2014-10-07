@@ -17,6 +17,14 @@ SUBDIRS		= IceUtil\winrt \
 		  Glacier2Lib\winrt \
 		  IceStormLib\winrt \
 		  IceGridLib\winrt
+!elseif "$(CPP_COMPILER)" == "VC100"
+SUBDIRS		= IceUtil \
+		  Slice \
+		  slice2cpp \
+		  slice2py \
+		  Ice \
+		  IceSSL \
+		  IceDiscovery \
 !else
 SUBDIRS		= IceUtil \
 		  Slice \

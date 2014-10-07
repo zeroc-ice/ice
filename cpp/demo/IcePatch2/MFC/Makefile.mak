@@ -20,7 +20,7 @@ OBJS		= .\PatchClient.obj \
 !include $(top_srcdir)/config/Make.rules.mak
 
 CPPFLAGS	= -I. $(CPPFLAGS) -D_AFXDLL -DVC_EXTRALEAN -D_UNICODE
-LINKWITH	= icepatch2$(LIBSUFFIX).lib $(LIBS)
+LINKWITH	=  $(LIBS)
 
 !if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)

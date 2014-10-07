@@ -10,6 +10,7 @@
 #pragma once
 
 [["cpp:header-ext:h"]]
+[["cpp:include:IcePatch2/Config.h"]]
 
 #include <Ice/BuiltinSequences.ice>
 

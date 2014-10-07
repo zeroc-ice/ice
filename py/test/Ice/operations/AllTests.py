@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import Ice, Test, Twoways, TwowaysAMI, TwowaysNewAMI, Oneways, OnewaysAMI, OnewaysNewAMI, BatchOneways, sys
+import Ice, Test, Twoways, TwowaysAMI, Oneways, OnewaysAMI, BatchOneways, sys
 import BatchOnewaysAMI
 
 def test(b):

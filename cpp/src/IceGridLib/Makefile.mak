@@ -36,7 +36,7 @@ SDIR		= $(slicedir)\IceGrid
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-LINKWITH 	= $(LIBS) glacier2$(LIBSUFFIX).lib
+LINKWITH 	= $(LIBS)
 
 SLICE2CPPFLAGS	= --checksum --ice --include-dir IceGrid --dll-export ICE_GRID_API $(SLICE2CPPFLAGS)
 CPPFLAGS        = -I.. $(CPPFLAGS)

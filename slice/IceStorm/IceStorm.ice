@@ -10,6 +10,7 @@
 #pragma once
 
 [["cpp:header-ext:h"]]
+[["cpp:include:IceStorm/Config.h"]]
 
 #include <Ice/Identity.ice>
 #include <Ice/SliceChecksumDict.ice>

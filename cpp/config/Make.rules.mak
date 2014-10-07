@@ -60,9 +60,12 @@ THIRDPARTY_HOME = $(PROGRAMFILES)\ZeroC\Ice-$(VERSION)-ThirdParty
 
 #
 # Define if you want the Ice DLLs to have compiler specific names.
-# Will be unset by default.
+# Will be set to yes by default when CPP_COMPILER=VC100, and unset
+# otherwise
 #
-#UNIQUE_DLL_NAMES	= yes
+#UNIQUE_DLL_NAMES       = yes
+
+
 
 
 # ----------------------------------------------------------------------
@@ -92,6 +95,14 @@ CPP_COMPILER            = VC120
 !elseif "$(CPP_COMPILER)" != "VC100" && "$(CPP_COMPILER)" != "VC110" && "$(CPP_COMPILER)" != "VC120"
 !error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be one of: VC100, VC110 or VC120.
 !endif
+
+#
+# With VC100, we want unique dll names by default
+#
+!if "$(CPP_COMPILER)" == "VC100" && "$(UNIQUE_DLL_NAMES)" == ""
+UNIQUE_DLL_NAMES        = yes
+!endif
+
 
 #
 # Common definitions
@@ -168,14 +179,17 @@ RCFLAGS		= -nologo -D_DEBUG
 RCFLAGS         = -nologo
 !endif
 
-SSL_OS_LIBS             = secur32.lib crypt32.lib
-EXPAT_LIBS              = libexpat.lib
+!if "$(WINRT)" != "yes"
+ICEUTIL_OS_LIBS         = rpcrt4.lib advapi32.lib DbgHelp.lib
+ICE_OS_LIBS             = advapi32.lib ws2_32.lib Iphlpapi.lib
+SSL_OS_LIBS             = advapi32.lib secur32.lib crypt32.lib ws2_32.lib
 
-!if "$(STATICLIBS)" =="yes"
-SLICE_LIBS		= $(PRELIBS)slice$(LIBSUFFIX).lib $(MCPP_LIBS)
-!else
-SLICE_LIBS		= $(PRELIBS)slice$(LIBSUFFIX).lib
+BZIP2_LIBS              = libbz2$(LIBSUFFIX).lib
+DB_LIBS                 = libdb53$(LIBSUFFIX).lib
+MCPP_LIBS               = mcpp$(LIBSUFFIX).lib
+EXPAT_LIBS              = libexpat.lib
 !endif
+
 
 CPPFLAGS		= $(CPPFLAGS) -I"$(includedir)"
 ICECPPFLAGS		= -I"$(slicedir)"
@@ -292,6 +306,14 @@ depend::
 
 !if "$(SLICE_SRCS)" != ""
 depend:: $(SLICE_SRCS:.ice=.d)
+!else
+
+!if "$(SLICE_OBJS)" != ""
+SLICE_SRCS = $(SLICE_OBJS:.obj=.cpp)
+SLICE_SRCS = $(SLICE_SRCS:.\=)
+all:: $(SLICE_SRCS)
+!endif
+
 !endif
 
 !if "$(SRCS)" != ""
@@ -328,6 +350,10 @@ depend:: $(SRCS) $(OBJS_DEPEND)
 	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) $<
 	move $(*F).h $(HDIR)
 	move $(*F).cpp ..
+
+.ice.cpp:
+	del /q $(*F).h $(*F).cpp
+	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) $(*F).ice
 
 !if "$(INCLUDE_DIR)" != ""
 .h{$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\}.h:

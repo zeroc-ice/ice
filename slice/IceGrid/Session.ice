@@ -10,6 +10,7 @@
 #pragma once
 
 [["cpp:header-ext:h"]]
+[["cpp:include:IceGrid/Config.h"]]
 
 #include <Glacier2/Session.ice>
 #include <IceGrid/Exception.ice>

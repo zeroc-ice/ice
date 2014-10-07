@@ -10,6 +10,7 @@
 #pragma once
 
 [["cpp:header-ext:h"]]
+[["cpp:include:Glacier2/Config.h"]]
 
 #include <Glacier2/SSLInfo.ice>
 

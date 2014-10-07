@@ -33,6 +33,21 @@
 #endif
 
 //
+// Automatically link Ice[D].lib with Visual C++
+//
+#ifdef _MSC_VER
+#   if defined(ICE_STATIC_LIBS)
+#      pragma comment(lib, "Ice.lib")
+#   elif !defined(ICE_API_EXPORTS)
+#      if defined(_DEBUG)
+#          pragma comment(lib, "IceD.lib")
+#      else
+#          pragma comment(lib, "Ice.lib")
+#      endif
+#   endif
+#endif
+
+//
 // Define the Ice and IceInternal namespace, so that we can use the following
 // everywhere in our code:
 //

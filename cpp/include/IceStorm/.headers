@@ -1,3 +1,4 @@
 SDK_HEADERS = \
+ $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Config.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\IceStorm.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Metrics.h \

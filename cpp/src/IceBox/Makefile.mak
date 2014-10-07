@@ -63,13 +63,13 @@ $(DLLNAME): $(LIB_OBJS) IceBox.res
 
 $(SERVER): $(SOBJS) IceBoxExe.res
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SOBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
-		icebox$(LIBSUFFIX).lib $(SRES_FILE)
+		$(SRES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 $(ADMIN): $(AOBJS) IceBoxAdmin.res
 	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(AOBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
-		icebox$(LIBSUFFIX).lib $(ARES_FILE)
+		$(ARES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 

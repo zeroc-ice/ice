@@ -10,24 +10,27 @@
 top_srcdir = cpp
 !include cpp/config/Make.rules.mak
 
-SUBDIRS			= cpp java py js
-CLEAN_SUBDIRS		= js java py cpp
-DEPEND_SUBDIRS		= cpp py
-INSTALL_SUBDIRS		= cpp java py js
-TEST_SUBDIRS		= cpp java py js
 
-!if "$(CPP_COMPILER)" == "VC90"
-SUBDIRS			= $(SUBDIRS) php
-CLEAN_SUBDIRS		= php $(CLEAN_SUBDIRS)
-DEPEND_SUBDIRS		= $(DEPEND_SUBDIRS) php
-INSTALL_SUBDIRS		= $(INSTALL_SUBDIRS) php
-TEST_SUBDIRS		= $(TEST_SUBDIRS) php
+!if "$(CPP_COMPILER)" == "VC100"
+SUBDIRS			= cpp py
+CLEAN_SUBDIRS		= py cpp
+DEPEND_SUBDIRS		= cpp py
+INSTALL_SUBDIRS		= cpp py
+TEST_SUBDIRS		= cpp py
 !else
-SUBDIRS			= $(SUBDIRS) cs vb vsaddin
-CLEAN_SUBDIRS		= cs vb vsaddin $(CLEAN_SUBDIRS)
-DEPEND_SUBDIRS		= $(DEPEND_SUBDIRS) cs vb
-INSTALL_SUBDIRS		= $(INSTALL_SUBDIRS) cs
-TEST_SUBDIRS		= $(TEST_SUBDIRS) cs
+SUBDIRS			= cpp java js cs vb vsaddin
+CLEAN_SUBDIRS		= vsaddin vb cs js java cpp
+DEPEND_SUBDIRS		= cpp java js cs vb
+INSTALL_SUBDIRS		= cpp java js cs
+TEST_SUBDIRS		= cpp java js cs
+!endif
+
+!if "$(CPP_COMPILER)" == "VC110"
+SUBDIRS			= $(SUBDIRS) php
+CLEAN_SUBDIRS		= php $(SUBDIRS)
+DEPEND_SUBDIRS		= $(SUBDIRS) php
+INSTALL_SUBDIRS		= $(SUBDIRS) php
+TEST_SUBDIRS		= $(SUBDIRS) php
 !endif
 
 all::
@@ -74,10 +77,6 @@ vb::
 py::
 	@echo "making all in py" && \
 	cmd /c "cd py && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) all" || exit 1
-
-rb::
-	@echo "making all in rb" && \
-	cmd /c "cd rb && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) all" || exit 1
 
 php::
 	@echo "making all in php" && \

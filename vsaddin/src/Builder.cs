@@ -786,24 +786,6 @@ namespace Ice.VisualStudio
             if(Util.isCppProject(project))
             {
                 Util.addIceCppConfigurations(project);
-                if(components.Count == 0)
-                {
-                    components = 
-                        new ComponentList(Util.getProjectProperty(project, Util.PropertyIceComponents));
-                }
-
-                if(!components.Contains("Ice"))
-                {
-                    components.Add("Ice");
-                }
-                if(!Util.isWinRTProject(project))
-                {
-                    if(!components.Contains("IceUtil"))
-                    {
-                        components.Add("IceUtil");
-                    }
-                }
-                Util.addIceCppLibs(project, components);
             }
             else
             {                
@@ -1249,20 +1231,9 @@ namespace Ice.VisualStudio
             VCCLCompilerTool compilerTool =
                     (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
 
-            bool staticLib = conf.ConfigurationType == Microsoft.VisualStudio.VCProjectEngine.ConfigurationTypes.typeStaticLibrary;
-            LinkerAdapter linkerAdapter;
-            if(staticLib)
-            {
-                linkerAdapter = new StaticLinkerAdapter((VCLibrarianTool)(((IVCCollection)conf.Tools).Item("VCLibrarianTool")));
-            }
-            else
-            {
-                linkerAdapter = new DynamicLinkerAdapter((VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool")));
-            }
-
             if(!_opening)
             {
-                Util.checkCppRunTimeLibrary(this, project, compilerTool, linkerAdapter);
+                Util.checkCppRunTimeLibrary(this, project, compilerTool);
             }
             string sliceCompiler = getSliceCompilerPath(project);
             return buildCppProject(project, project.ProjectItems, sliceCompiler, force, ref buildedItems);

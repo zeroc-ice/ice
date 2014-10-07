@@ -7,6 +7,10 @@
 //
 // **********************************************************************
 
+#pragma once
+
+[["cpp:header-ext:h"]]
+
 #include <Ice/BuiltinSequences.ice>
 
 /**

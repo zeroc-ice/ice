@@ -11,7 +11,7 @@ top_srcdir	= ../..
 
 LIBFILENAME  = $(call mklibfilename,IceStormService,$(VERSION))
 SONAME       = $(call mksoname,IceStormService,$(SOVERSION))
-LIBNAME	= $(call mklibname,IceStormService)
+LIBNAME	     = $(call mklibname,IceStormService)
 
 ADMIN		= $(bindir)/icestormadmin
 MIGRATE		= $(bindir)/icestormmigrate
@@ -75,9 +75,9 @@ SLICE2FREEZECMD = $(SLICE2FREEZE) -I../.. --ice --include-dir IceStorm $(ICECPPF
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= $(CPPFLAGS) -I.. -DICESTORM_SERVICE_API_EXPORTS $(READLINE_FLAGS)
+CPPFLAGS	:= $(CPPFLAGS) -I.. $(READLINE_FLAGS)
 ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
-SLICE2CPPFLAGS	:= --ice --include-dir IceStorm --dll-export ICE_STORM_SERVICE_API $(SLICE2CPPFLAGS)
+SLICE2CPPFLAGS	:= --ice --include-dir IceStorm $(SLICE2CPPFLAGS)
 LINKWITH	:= $(BZIP2_RPATH_LINK) -lIceStorm -lIceGrid -lGlacier2 -lFreeze -lIceBox -lIce -lIceUtil
 
 $(libdir)/$(LIBFILENAME): $(LIB_OBJS)

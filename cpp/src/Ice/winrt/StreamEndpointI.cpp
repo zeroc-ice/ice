@@ -62,6 +62,8 @@ private:
 
 }
 
+IceUtil::Shared* IceInternal::upCast(StreamEndpointI* p) { return p; }
+
 IceInternal::StreamEndpointI::StreamEndpointI(const ProtocolInstancePtr& instance, const string& ho, Int po, Int ti,
                                               const string& conId, bool co) :
     IPEndpointI(instance, ho, po, Address(), conId),

@@ -24,10 +24,10 @@ OBJS		= .\LocatorI.obj \
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_DISCOVERY_API_EXPORTS -DWIN32_LEAN_AND_MEAN
-SLICE2CPPFLAGS	= --ice --include-dir IceDiscovery --dll-export ICE_DISCOVERY_API $(SLICE2CPPFLAGS)
+CPPFLAGS	= -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
+SLICE2CPPFLAGS	= --ice --include-dir IceDiscovery $(SLICE2CPPFLAGS)
 
-LINKWITH        = $(LIBS) ws2_32.lib
+LINKWITH        = $(LIBS)
 
 !if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)

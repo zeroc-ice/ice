@@ -10,6 +10,7 @@
 #pragma once
 
 [["cpp:header-ext:h"]]
+[["cpp:include:IceBox/Config.h"]]
 
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/CommunicatorF.ice>

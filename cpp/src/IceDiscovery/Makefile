@@ -27,10 +27,10 @@ SDIR		= $(slicedir)/IceDiscovery
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_DISCOVERY_API_EXPORTS
-SLICE2CPPFLAGS	:= --ice --include-dir IceDiscovery --dll-export ICE_DISCOVERY_API $(SLICE2CPPFLAGS)
+CPPFLAGS	:= -I.. $(CPPFLAGS)
+SLICE2CPPFLAGS	:= --ice --include-dir IceDiscovery $(SLICE2CPPFLAGS)
 
-LINKWITH        := $(BZIP2_RPATH_LINK) -lIce -lIceUtil $(CXXLIBS)
+LINKWITH        := -lIce -lIceUtil $(CXXLIBS)
 
 ifeq ($(STATICLIBS),yes)
 $(libdir)/$(LIBNAME): $(OBJS)

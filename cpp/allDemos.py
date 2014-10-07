@@ -44,7 +44,10 @@ demos = [
     "Ice/properties",
     "Ice/optional",
     "Ice/context",
-    "IceStorm/clock",
+]
+
+if not Util.isWin32() or not Util.isVC100()
+    demos += ["IceStorm/clock",
     "IceStorm/counter",
     "IceStorm/replicated",
     "IceStorm/replicated2",
@@ -66,8 +69,7 @@ demos = [
     "book/evictor_filesystem",
     "book/simple_filesystem",
     "book/printer",
-    "book/lifecycle",
-]
+    "book/lifecycle"]
 
 if not Util.isNoServices():
     demos += ["IceBox/hello", "IceGrid/icebox"]

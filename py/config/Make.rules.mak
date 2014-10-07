@@ -89,7 +89,10 @@ PYLIBSUFFIX     = _$(LIBSUFFIX)
 RCFLAGS		= -D_DEBUG
 !endif
 
-ICE_LIBS		= ice$(LIBSUFFIX).lib iceutil$(LIBSUFFIX).lib slice$(LIBSUFFIX).lib
+#
+# Import libraries are located automatically
+#
+ICE_LIBS		= 
 
 !if "$(ice_src_dist)" != ""
 ICE_CPPFLAGS		= -I"$(ice_cpp_dir)\include"

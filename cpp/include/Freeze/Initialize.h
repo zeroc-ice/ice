@@ -17,6 +17,22 @@
 #include <Freeze/Transaction.h>
 
 //
+// Automatically link Freeze[D].lib with Visual C++
+//
+#ifdef _MSC_VER
+#   if defined(ICE_STATIC_LIBS)
+#      pragma comment(lib, "Freeze.lib")
+#   elif !defined(FREEZE_API_EXPORTS)
+#      if defined(_DEBUG)
+#          pragma comment(lib, "FreezeD.lib")
+#      else
+#          pragma comment(lib, "Freeze.lib")
+#      endif
+#   endif
+#endif
+
+
+//
 // Berkeley DB's DbEnv and DbTxn
 //
 class DbEnv;

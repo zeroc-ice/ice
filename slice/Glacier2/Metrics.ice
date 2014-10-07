@@ -7,6 +7,11 @@
 //
 // **********************************************************************
 
+#pragma once
+
+[["cpp:header-ext:h"]]
+[["cpp:include:Glacier2/Config.h"]]
+
 #include <Ice/Metrics.ice>
 
 module IceMX

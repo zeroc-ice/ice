@@ -27,7 +27,7 @@ SDIR		= $(slicedir)\IceStorm
 CPPFLAGS	= -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 ICECPPFLAGS	= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS	= --ice --include-dir IceStorm --checksum --dll-export ICE_STORM_LIB_API $(SLICE2CPPFLAGS)
-LINKWITH 	= $(LIBS) $(DBLINKWITH) icestorm$(LIBSUFFIX).lib icegrid$(LIBSUFFIX).lib icebox$(LIBSUFFIX).lib
+LINKWITH 	= $(LIBS)
 
 !if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)

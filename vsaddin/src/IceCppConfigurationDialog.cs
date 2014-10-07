@@ -29,24 +29,6 @@ namespace Ice.VisualStudio
             _project = project;
             _winRT = Util.isWinRTProject(_project);
 
-            if(_winRT)
-            {
-                chkFreeze.Enabled = false;
-                chkFreeze.Checked = false;
-                chkGlacier2.Enabled = false;
-                chkGlacier2.Checked = false;
-                chkIceBox.Enabled = false;
-                chkIceBox.Checked = false;
-                chkIceGrid.Enabled = false;
-                chkIceGrid.Checked = false;
-                chkIcePatch2.Enabled = false;
-                chkIcePatch2.Checked = false;
-                chkIceSSL.Enabled = false;
-                chkIceSSL.Checked = false;
-                chkIceStorm.Enabled = false;
-                chkIceStorm.Checked = false;
-            }
-
             outputDirView.init(this, _project);
             includePathView.init(this, _project);
             extraCompilerOptions.init(this, project);
@@ -123,77 +105,10 @@ namespace Ice.VisualStudio
 
             includePathView.load();
 
-            loadComponents();
             txtDllExportSymbol.Text = Util.getProjectProperty(_project, Util.PropertyIceDllExport);
 
             btnApply.Enabled = false;
             Cursor = Cursors.Default;
-        }
-
-        private void loadComponents()
-        {
-            ComponentList selectedComponents = Util.getIceCppComponents(_project);
-            foreach(String s in Util.getCppNames())
-            {
-                if(selectedComponents.Contains(s))
-                {
-                    checkComponent(s, true);
-                }
-                else
-                {
-                    checkComponent(s, false);
-                }
-            }
-        }
-
-        private void checkComponent(String component, bool check)
-        {
-            if(editingIncludeDir())
-            {
-                endEditIncludeDir(true);
-            }
-            switch(component)
-            {
-                case "Freeze":
-                {
-                    chkFreeze.Checked = check;
-                    break;
-                }
-                case "Glacier2":
-                {
-                    chkGlacier2.Checked = check;
-                    break;
-                }
-                case "IceBox":
-                {
-                    chkIceBox.Checked = check;
-                    break;
-                }
-                case "IceGrid":
-                {
-                    chkIceGrid.Checked = check;
-                    break;
-                }
-                case "IcePatch2":
-                {
-                    chkIcePatch2.Checked = check;
-                    break;
-                }
-                case "IceSSL":
-                {
-                    chkIceSSL.Checked = check;
-                    break;
-                }
-                case "IceStorm":
-                {
-                    chkIceStorm.Checked = check;
-                    break;
-                }
-                default:
-                {
-                    break;
-                }
-            }
         }
         
         private void chkEnableBuilder_CheckedChanged(object sender, EventArgs e)
@@ -209,41 +124,6 @@ namespace Ice.VisualStudio
                 {
                     _initialized = false;
                     setEnabled(chkEnableBuilder.Checked);
-                    ComponentList components;
-                    if(chkEnableBuilder.Checked)
-                    {
-                        //
-                        // Enable the components that were previously enabled if any.
-                        //
-                        components = 
-                            new ComponentList(Util.getProjectProperty(_project, Util.PropertyIceComponents));
-
-                        //
-                        // If there isn't a previous set of componets, we enable the default components.
-                        //
-                        if(components.Count == 0)
-                        {
-                            components.Add("Ice");
-                            components.Add("IceUtil");
-                        }
-                        for(int i = 0; i < components.Count; ++i)
-                        {
-                            checkComponent(components[i], true);
-                        }
-                    }
-                    else
-                    {
-                        components = iceComponents();
-                    }
-
-                    //
-                    // Enable / Disable the given set of components
-                    //
-                    for(int i = 0; i < components.Count; ++i)
-                    {
-                        checkComponent(components[i], chkEnableBuilder.Checked);
-                    }
-
                     chkEnableBuilder.Enabled = true;
                     _initialized = true;
                     needSave();
@@ -270,17 +150,6 @@ namespace Ice.VisualStudio
 
             extraCompilerOptions.setEnabled(enabled);
             txtDllExportSymbol.Enabled = enabled;
-
-            if(!_winRT)
-            {
-                chkFreeze.Enabled = _staticLib ? false : enabled;
-                chkIceBox.Enabled = _staticLib ? false : enabled;
-                chkIcePatch2.Enabled = _staticLib ? false : enabled;
-                chkIceSSL.Enabled = _staticLib ? false : enabled;
-                chkGlacier2.Enabled = _staticLib ? false : enabled;
-                chkIceGrid.Enabled = _staticLib ? false : enabled;
-                chkIceStorm.Enabled = _staticLib ? false : enabled;
-            }
         }
         
         private void formClosing(object sender, FormClosingEventArgs e)
@@ -419,40 +288,6 @@ namespace Ice.VisualStudio
             }
         }
 
-        private ComponentList iceComponents()
-        {
-            ComponentList components = new ComponentList();
-            if(chkFreeze.Checked)
-            {
-                components.Add("Freeze");
-            }
-            if(chkGlacier2.Checked)
-            {
-                components.Add("Glacier2");
-            }
-            if(chkIceBox.Checked)
-            {
-                components.Add("IceBox");
-            }
-            if(chkIceGrid.Checked)
-            {
-                components.Add("IceGrid");
-            }
-            if(chkIcePatch2.Checked)
-            {
-                components.Add("IcePatch2");
-            }
-            if(chkIceSSL.Checked)
-            {
-                components.Add("IceSSL");
-            }
-            if(chkIceStorm.Checked)
-            {
-                components.Add("IceStorm");
-            }
-            return components;
-        }
-
         //
         // Apply unsaved changes, returns true if new settings are all applied correctly,
         // otherwise returns false.
@@ -471,33 +306,20 @@ namespace Ice.VisualStudio
                     endEditIncludeDir(true);
                 }
 
+                bool changed = false;
                 //
                 // This must be the first setting to be updated, as other settings cannot be
                 // updated if the add-in is disabled.
                 //
-                bool enabling = false;
                 if(chkEnableBuilder.Checked && !Util.isSliceBuilderEnabled(_project))
                 {
-                    Util.addBuilderToProject(_project, iceComponents());
-                    if(!_winRT)
-                    {
-                        _changed = true;
-                        _initialized = false;
-                        loadComponents();
-                        _initialized = true;
-                        enabling = true;
-                    }
+                    Util.addBuilderToProject(_project, new ComponentList());
                 }
 
-                bool changed = false;
+                
                 if(!outputDirView.apply(ref changed))
                 {
                     return false;
-                }
-
-                if(changed)
-                {
-                    _changed = true;
                 }
 
                 if(chkIcePrefix.Checked != Util.getProjectPropertyAsBool(_project, Util.PropertyIcePrefix))
@@ -545,69 +367,7 @@ namespace Ice.VisualStudio
                 {
                     Util.setProjectProperty(_project, Util.PropertyIceDllExport, txtDllExportSymbol.Text);
                     _changed = true;
-                }
-
-                ComponentList components = new ComponentList();
-                if(!enabling)
-                {
-                    
-                    if(!_winRT && chkFreeze.Checked != Util.hasIceCppLib(_project, "Freeze"))
-                    {
-                        componentChanged("Freeze", chkFreeze.Checked);
-                        if(!chkFreeze.Checked)
-                        {
-                            components.Add("Freeze");
-                        }
-                    }
-                    if(!_winRT && chkGlacier2.Checked != Util.hasIceCppLib(_project, "Glacier2"))
-                    {
-                        componentChanged("Glacier2", chkGlacier2.Checked);
-                        if(!chkGlacier2.Checked)
-                        {
-                            components.Add("Glacier2");
-                        }
-                    }
-                    if(!_winRT && chkIceBox.Checked != Util.hasIceCppLib(_project, "IceBox"))
-                    {
-                        componentChanged("IceBox", chkIceBox.Checked);
-                        if(!chkIceBox.Checked)
-                        {
-                            components.Add("IceBox");
-                        }
-                    }
-                    if(!_winRT && chkIceGrid.Checked != Util.hasIceCppLib(_project, "IceGrid"))
-                    {
-                        componentChanged("IceGrid", chkIceGrid.Checked);
-                        if(!chkIceGrid.Checked)
-                        {
-                            components.Add("IceGrid");
-                        }
-                    }
-                    if(!_winRT && chkIcePatch2.Checked != Util.hasIceCppLib(_project, "IcePatch2"))
-                    {
-                        componentChanged("IcePatch2", chkIcePatch2.Checked);
-                        if(!chkIcePatch2.Checked)
-                        {
-                            components.Add("IcePatch2");
-                        }
-                    }
-                    if(!_winRT && chkIceSSL.Checked != Util.hasIceCppLib(_project, "IceSSL"))
-                    {
-                        componentChanged("IceSSL", chkIceSSL.Checked);
-                        if(!chkIceSSL.Checked)
-                        {
-                            components.Add("IceSSL");
-                        }
-                    }
-                    if(!_winRT && chkIceStorm.Checked != Util.hasIceCppLib(_project, "IceStorm"))
-                    {
-                        componentChanged("IceStorm", chkIceStorm.Checked);
-                        if(!chkIceStorm.Checked)
-                        {
-                            components.Add("IceStorm");
-                        }
-                    }
-                }
+                }                
 
                 //
                 // This must be the last setting to be updated, as we want to update 
@@ -615,7 +375,7 @@ namespace Ice.VisualStudio
                 //
                 if(!chkEnableBuilder.Checked && Util.isSliceBuilderEnabled(_project))
                 {
-                    Util.removeBuilderFromProject(_project, components);
+                    Util.removeBuilderFromProject(_project, new ComponentList());
                     _initialized = false;
                     load();
                     _initialized = true;
@@ -686,53 +446,7 @@ namespace Ice.VisualStudio
             {
                 return true;
             }
-
-            if(!_staticLib && !_winRT)
-            {
-                // Ice libraries
-                if(chkFreeze.Checked != Util.hasIceCppLib(_project, "Freeze"))
-                {
-                    return true;
-                }
-                if(chkGlacier2.Checked != Util.hasIceCppLib(_project, "Glacier2"))
-                {
-                    return true;
-                }
-                if(chkIceBox.Checked != Util.hasIceCppLib(_project, "IceBox"))
-                {
-                    return true;
-                }
-                if(chkIceGrid.Checked != Util.hasIceCppLib(_project, "IceGrid"))
-                {
-                    return true;
-                }
-                if(chkIcePatch2.Checked != Util.hasIceCppLib(_project, "IcePatch2"))
-                {
-                    return true;
-                }
-                if(chkIceSSL.Checked != Util.hasIceCppLib(_project, "IceSSL"))
-                {
-                    return true;
-                }
-                if(chkIceStorm.Checked != Util.hasIceCppLib(_project, "IceStorm"))
-                {
-                    return true;
-                }
-            }
             return false;
-        }
-
-        private void componentChanged(String name, bool isChecked)
-        {
-            if(isChecked)
-            {
-                Util.addIceCppLibs(_project, new ComponentList(name));
-            }
-            else
-            {
-                Util.removeIceCppLibs(_project, new ComponentList(name));
-            }
-            _changed = true;
         }
 
         private bool _initialized;

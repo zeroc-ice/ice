@@ -306,37 +306,8 @@ namespace Ice.VisualStudio
     {
         public enum msgLevel{ msgError, msgInfo, msgDebug };
 
-        public static string MajorVersion
-        {
-            get
-            {
-                if (_majorVersion == null)
-                {
-                    string[] tokens = Assembly.GetExecutingAssembly().GetName().Version.ToString().Split('.');
-                    Debug.Assert(tokens.Length > 1);
-                    _majorVersion = tokens[0];
-                }
-                return _majorVersion;
-            }
-        }
-        private static string _majorVersion = null;
-
-        public static string MinorVersion
-        {
-            get
-            {
-                if (_minorVersion == null)
-                {
-                    string[] tokens = Assembly.GetExecutingAssembly().GetName().Version.ToString().Split('.');
-                    Debug.Assert(tokens.Length > 1);
-                    _minorVersion = tokens[1];
-                }
-                return _minorVersion;
-            }
-        }
-        private static string _minorVersion = null;
-
-        public const string ProjectVersion = "1";
+        public const string ProjectVersion = "3.6";
+        public const string Version = "3.6";
 
         public const string slice2cs = "slice2cs.exe";
         public const string slice2cpp = "slice2cpp.exe";
@@ -361,8 +332,7 @@ namespace Ice.VisualStudio
 
         private static readonly string[] silverlightNames =
         {
-            "Glacier2", "Ice", "IceGrid", "IcePatch2", 
-            "IceStorm"
+            "Glacier2", "Ice", "IceGrid", "IcePatch2", "IceStorm"
         };
 
         public static string[] getSilverlightNames()
@@ -496,10 +466,9 @@ namespace Ice.VisualStudio
             string propSheetFileName = "$(ALLUSERSPROFILE)\\ZeroC\\Ice.props";
 
             //
-            // All project configurations must include ice.vsprops (vc90) or IceCommon.props (vc100 | vc110)
+            // All project configurations must include Ice.props
             //
             IVCCollection configurations = (IVCCollection)vcProj.Configurations;
-            string[] cppComponents = Util.getCppNames();
             foreach(VCConfiguration vcConfig in configurations)
             {
                 VCPropertySheet newSheet = findPropertySheet(vcConfig.PropertySheets as IVCCollection, "ice");
@@ -702,21 +671,28 @@ namespace Ice.VisualStudio
         {
             if(!Builder.commandLine)
             {
-                string sdkId = component + ", Version=" + Util.MajorVersion + "." + Util.MinorVersion;
-                VCReference reference = (VCReference)((VCReferences)project.VCReferences).Item(sdkId);
+                string sdkId = component + ", Version=" + Util.Version;
+                try
+                {
+                    VCReference reference = (VCReference)((VCReferences)project.VCReferences).Item(sdkId);
 #if VS2012
-                //
-                // VS2012 bug 
-                //
-                if(reference != null)
-                {
-                    reference.Remove();
-                }
-                project.AddSdkReference(sdkId);
-#else
-                if(reference == null)
-                {
+                    //
+                    // VS2012 bug 
+                    //
+                    if(reference != null)
+                    {
+                        reference.Remove();
+                    }
                     project.AddSdkReference(sdkId);
+#else
+                    if(reference == null)
+                    {
+                        project.AddSdkReference(sdkId);
+                    }
+                }
+                catch(Exception ex)
+                {
+                    Util.write(project, msgLevel.msgError, "Error adding SDK `" + sdkId + "'");
                 }
 #endif
             }
@@ -726,7 +702,7 @@ namespace Ice.VisualStudio
         {
             if(!Builder.commandLine)
             {
-                string sdkId = component + ", Version=" + Util.MajorVersion + "." + Util.MinorVersion;
+                string sdkId = component + ", Version=" + Util.Version;
                 VCReference reference = (VCReference)((VCReferences)project.VCReferences).Item(sdkId);
                 if (reference != null)
                 {
@@ -735,42 +711,6 @@ namespace Ice.VisualStudio
                 }
             }
             return false;
-        }
-
-        public static void addCppLib(LinkerAdapter tool, string component, bool debug)
-        {
-            if(tool == null || String.IsNullOrEmpty(component))
-            {
-                return;
-            }
-
-            if(Array.BinarySearch(Util.getCppNames(), component, StringComparer.CurrentCultureIgnoreCase) < 0)
-            {
-                return;
-            }
-
-            string libName = component;
-            if(debug)
-            {
-                libName += "d";
-            }
-            libName += ".lib";
-
-            libName = libName.ToLower();
-
-            string additionalDependencies = tool.AdditionalDependencies;
-            if(String.IsNullOrEmpty(additionalDependencies))
-            {
-                additionalDependencies = "";
-            }
-
-            ComponentList components = new ComponentList(additionalDependencies.Split(' '));
-            if(!components.Contains(libName))
-            {
-                components.Add(libName);
-                additionalDependencies = components.ToString(' ');
-                tool.AdditionalDependencies = additionalDependencies;
-            }
         }
 
         public static bool removeCppLib(LinkerAdapter tool, string component, bool debug)
@@ -1696,8 +1636,6 @@ namespace Ice.VisualStudio
             return empty;
         }
 
-
-
         //
         // The CopyLocal property doesn't work consistently, as sometimes it is set to false
         // when the reference isn't found. This happens when project demos are fisrt 
@@ -1988,6 +1926,11 @@ namespace Ice.VisualStudio
                     Util.removeIceCppLibraryDir(linkerAdapter, "$(IceHome)");
                     Util.removeCppIncludes(compilerTool, "$(IceHome)", Util.getProjectOutputDirRaw(p));
                 }
+
+                //
+                // Since 3.6 it isn't required to add Ice libraries to project configurations.
+                //
+                removeIceCppLibs(p, new ComponentList(Util.getCppNames()));
             }
 
             // This feature was made more general for 3.4.1.2.
@@ -2061,82 +2004,6 @@ namespace Ice.VisualStudio
             }
 
             return preCompiledHeader;
-        }
-
-        public static ComponentList getIceCppComponents(Project project)
-        {
-            ComponentList components = new ComponentList();
-            VCProject vcProject = (VCProject)project.Object;
-            bool winrt = isWinRTProject(project);
-            if(!winrt)
-            {
-                ConfigurationManager configManager = project.ConfigurationManager;
-                Configuration activeConfig = (Configuration)configManager.ActiveConfiguration;
-
-                IVCCollection configurations = (IVCCollection)vcProject.Configurations;
-                foreach(VCConfiguration conf in configurations)
-                {
-                    if(conf == null)
-                    {
-                        continue;
-                    }
-                    if(String.IsNullOrEmpty(conf.Name))
-                    {
-                        continue;
-                    }
-                    if(!conf.Name.Equals(activeConfig.ConfigurationName + "|" + activeConfig.PlatformName))
-                    {
-                        continue;
-                    }
-
-                    VCCLCompilerTool compilerTool =
-                        (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
-                    VCLinkerTool linkerTool = (VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool"));
-                    if(linkerTool == null || compilerTool == null)
-                    {
-                        break;
-                    }
-
-                    if(String.IsNullOrEmpty(linkerTool.AdditionalDependencies))
-                    {
-                        break;
-                    }
-
-                    bool debug = isDebug(compilerTool.RuntimeLibrary); 
-
-                    List<string> componentNames = new List<string>(linkerTool.AdditionalDependencies.Split(' '));
-                    foreach(string s in componentNames)
-                    {
-                        if(String.IsNullOrEmpty(s))
-                        {
-                            continue;
-                        }
-
-                        int index = s.LastIndexOf('.');
-                        if(index <= 0)
-                        {
-                            continue;
-                        }
-
-                        string libName = s.Substring(0, index);
-                        if(libName.EndsWith("d"))
-                        {
-                            libName = libName.Substring(0, libName.Length - 1);
-                        }
-                        if(String.IsNullOrEmpty(libName))
-                        {
-                            continue;
-                        }
-
-                        if(Array.BinarySearch(Util.getCppNames(), libName, StringComparer.CurrentCultureIgnoreCase) < 0)
-                        {
-                            continue;
-                        }
-                        components.Add(libName.Trim());
-                    }
-                }
-            }
-            return components;
         }
 
         public static ComponentList getIceSilverlightComponents(Project project)
@@ -2232,62 +2099,10 @@ namespace Ice.VisualStudio
                     Util.removeIcePropertySheet(conf);
                 }
             }
-            Util.removeIceCppLibs(project);
-        }
-
-        public static void addIceCppLibs(Project project, ComponentList components)
-        {
-            if(!isCppProject(project))
+            if(winrt)
             {
-                return;
+                Util.removeSdkReference((VCProject)project.Object, "Ice");
             }
-            bool winrt = isWinRTProject(project);
-            VCProject vcProject = (VCProject)project.Object;
-            if(!winrt)
-            {
-                IVCCollection configurations = (IVCCollection)vcProject.Configurations;
-
-                foreach(VCConfiguration conf in configurations)
-                {
-                    if(conf == null)
-                    {
-                        continue;
-                    }
-                    VCCLCompilerTool compilerTool =
-                        (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
-                    bool staticLib = conf.ConfigurationType == Microsoft.VisualStudio.VCProjectEngine.ConfigurationTypes.typeStaticLibrary;
-                    LinkerAdapter linkerAdapter;
-                    if(staticLib)
-                    {
-                       linkerAdapter = new StaticLinkerAdapter((VCLibrarianTool)(((IVCCollection)conf.Tools).Item("VCLibrarianTool")));
-                    }
-                    else
-                    { 
-                        linkerAdapter = new DynamicLinkerAdapter((VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool")));
-                    }
-
-                    if(compilerTool == null || linkerAdapter == null)
-                    {
-                        continue;
-                    }
-
-                    bool debug = isDebug(compilerTool.RuntimeLibrary);
-
-                    foreach(string component in components)
-                    {
-                        if(String.IsNullOrEmpty(component))
-                        {
-                            continue;
-                        }
-                        Util.addCppLib(linkerAdapter, component, debug);
-                    }
-                }
-            }
-        }
-
-        public static ComponentList removeIceCppLibs(Project project)
-        {
-            return Util.removeIceCppLibs(project, new ComponentList(Util.getCppNames()));
         }
 
         public static ComponentList removeIceCppLibs(Project project, ComponentList components)
@@ -2354,10 +2169,6 @@ namespace Ice.VisualStudio
                     }
                 }
             }
-            else
-            {
-                Util.removeSdkReference((VCProject)project.Object, "Ice");
-            }
             return removed;
         }
 
@@ -2374,89 +2185,6 @@ namespace Ice.VisualStudio
                 {
                     found = true;
                     break;
-                }
-            }
-            return found;
-        }
-
-        //
-        // Return true if at least one of the C++ project configurations contains
-        // the library corresponding to the given component.
-        //
-        public static bool hasIceCppLib(Project project, string component)
-        {
-            if(!isCppProject(project))
-            {
-                return false;
-            }
-
-            if(Array.BinarySearch(Util.getCppNames(), component, StringComparer.CurrentCultureIgnoreCase) < 0)
-            {
-                return false;
-            }
-
-            bool winrt = isWinRTProject(project);
-            VCProject vcProject = (VCProject)project.Object;
-            bool found = false;
-            if(!winrt)
-            {
-                IVCCollection configurations = (IVCCollection)vcProject.Configurations;                
-
-                foreach(VCConfiguration conf in configurations)
-                {
-                    if(conf == null)
-                    {
-                        continue;
-                    }
-
-                    VCCLCompilerTool compilerTool =
-                        (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
-                    bool staticLib = conf.ConfigurationType == Microsoft.VisualStudio.VCProjectEngine.ConfigurationTypes.typeStaticLibrary;
-                    LinkerAdapter linkerAdapter;
-                    if(staticLib)
-                    {
-                        linkerAdapter = new StaticLinkerAdapter((VCLibrarianTool)(((IVCCollection)conf.Tools).Item("VCLibrarianTool")));
-                    }
-                    else
-                    {
-                        linkerAdapter = new DynamicLinkerAdapter((VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool")));
-                    }
-
-                    if(compilerTool == null || linkerAdapter == null)
-                    {
-                        continue;
-                    }
-
-                    bool debug = false;
-                    if(!String.IsNullOrEmpty(compilerTool.PreprocessorDefinitions))
-                    {
-                        debug = (compilerTool.PreprocessorDefinitions.Contains("DEBUG") &&
-                                 !compilerTool.PreprocessorDefinitions.Contains("NDEBUG"));
-                    }
-                    if(!debug)
-                    {
-                        debug = conf.Name.Contains("Debug");
-                    }
-
-                    string libName = component;
-                    if(debug)
-                    {
-                        libName += "d";
-                    }
-                    libName += ".lib";
-
-                    string additionalDependencies = linkerAdapter.AdditionalDependencies;
-                    if(String.IsNullOrEmpty(additionalDependencies))
-                    {
-                        continue;
-                    }
-
-                    ComponentList components = new ComponentList(additionalDependencies.Split(' '));
-                    if(components.Contains(libName))
-                    {
-                        found = true;
-                        break;
-                    }
                 }
             }
             return found;
@@ -3272,8 +3000,7 @@ namespace Ice.VisualStudio
             return rt == runtimeLibraryOption.rtMultiThreadedDebugDLL || rt == runtimeLibraryOption.rtMultiThreadedDLL;
         }
 
-        static public bool checkCppRunTimeLibrary(Builder builder, Project project, VCCLCompilerTool compilerTool,
-                                                  LinkerAdapter linkerTool)
+        static public bool checkCppRunTimeLibrary(Builder builder, Project project, VCCLCompilerTool compilerTool)
         {
             //
             // Check the project run time library for the active configuration.
@@ -3283,75 +3010,6 @@ namespace Ice.VisualStudio
                 builder.addError(project, "", TaskErrorCategory.Error, 0, 0,
                     "The selected C++ Runtime Library is not supported by Ice; Ice requires /MD or /MDd.");
                 return false;
-            }
-
-            if(isWinRTProject(project))
-            {
-                return true;
-            }
-
-            //
-            // Ensure that linker settings match the Runtime Library settings.
-            //
-            ComponentList components = Util.getIceCppComponents(project);
-            bool debug = Util.isDebug(compilerTool.RuntimeLibrary);
-            string additionalDependencies = String.IsNullOrEmpty(linkerTool.AdditionalDependencies) ? "" : linkerTool.AdditionalDependencies;
-
-            //
-            // For each component we need to check that the correct 
-            // library version (debug/release) is used.
-            //
-            foreach(string c in components)
-            {
-                string debugName = c + "d.lib";
-                string releaseName = c + ".lib";
-
-                if((debug && additionalDependencies.Contains(debugName)) ||
-                   (!debug && additionalDependencies.Contains(releaseName)))
-                {
-                    continue;
-                }
-
-                if(debug)
-                {
-                    if(additionalDependencies.Contains(releaseName))
-                    {
-                        additionalDependencies = additionalDependencies.Replace(releaseName, debugName);
-                    }
-                    else
-                    {
-                        if(!String.IsNullOrEmpty(additionalDependencies) &&
-                           !additionalDependencies.TrimEnd().EndsWith(";"))
-                        {
-                            additionalDependencies += ";";
-                        }
-                        additionalDependencies += debugName;
-                    }
-                }
-                else
-                {
-                    if(additionalDependencies.Contains(debugName))
-                    {
-                        additionalDependencies = additionalDependencies.Replace(debugName, releaseName);
-                    }
-                    else
-                    {
-                        if(!String.IsNullOrEmpty(additionalDependencies) &&
-                           !additionalDependencies.TrimEnd().EndsWith(";"))
-                        {
-                            additionalDependencies += ";";
-                        }
-                        additionalDependencies += releaseName;
-                    }
-                }
-            }
-
-            //
-            // If the linker settings has changed we update it.
-            //
-            if(!additionalDependencies.Equals(linkerTool.AdditionalDependencies))
-            {
-                linkerTool.AdditionalDependencies = additionalDependencies;
             }
             return true;
         }

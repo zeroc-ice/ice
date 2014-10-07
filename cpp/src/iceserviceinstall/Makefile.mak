@@ -20,7 +20,8 @@ OBJS            = .\ServiceInstaller.obj \
 
 CPPFLAGS	= -I. -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
-LINKWITH	= /MANIFEST /MANIFESTUAC:"level='requireAdministrator' uiAccess='false'" authz.lib $(LIBS)
+LINKWITH	= /MANIFEST /MANIFESTUAC:"level='requireAdministrator' uiAccess='false'" \
+                  authz.lib advapi32.lib $(LIBS)
 
 !if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS       = /pdb:$(TOOL:.exe=.pdb)

@@ -34,7 +34,7 @@ OBJS		= .\Blobject.obj \
 CPPFLAGS	= -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 SLICE2CPPFLAGS	= --include-dir Glacier2 $(SLICE2CPPFLAGS)
 
-LINKWITH 	= $(LIBS) $(OPENSSL_LIBS) glacier2$(LIBSUFFIX).lib icessl$(LIBSUFFIX).lib
+LINKWITH 	= $(LIBS)
 
 !if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS        = /pdb:$(ROUTER:.exe=.pdb)

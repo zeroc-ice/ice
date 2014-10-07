@@ -25,6 +25,21 @@
 #    endif
 #endif
 
+//
+// Automatically link IceXML[D].lib with Visual C++
+//
+#ifdef _MSC_VER
+#   if defined(ICE_STATIC_LIBS)
+#      pragma comment(lib, "IceXML.lib")
+#   elif !defined(ICE_XML_API_EXPORTS)
+#      if defined(_DEBUG)
+#          pragma comment(lib, "IceXMLD.lib")
+#      else
+#          pragma comment(lib, "IceXML.lib")
+#      endif
+#   endif
+#endif
+
 namespace IceXML
 {
 

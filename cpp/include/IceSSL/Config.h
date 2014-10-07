@@ -7,6 +7,9 @@
 //
 // **********************************************************************
 
+#ifndef ICE_SSL_CONFIG_H
+#define ICE_SSL_CONFIG_H
+
 #include <Ice/Config.h>
 
 #if defined(__APPLE__)
@@ -15,4 +18,6 @@
 #  define ICE_USE_SCHANNEL 1
 #else
 #  define ICE_USE_OPENSSL 1
+#endif
+
 #endif

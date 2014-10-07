@@ -68,12 +68,12 @@ SLICE2FREEZECMD = $(SLICE2FREEZE) -I.. --ice --include-dir IceStorm $(ICECPPFLAG
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-CPPFLAGS	= -I.. -DICE_STORM_SERVICE_API_EXPORTS $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
+CPPFLAGS	= -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 ICECPPFLAGS	= $(ICECPPFLAGS) -I..
-SLICE2CPPFLAGS	= --ice --include-dir IceStorm --dll-export ICE_STORM_SERVICE_API $(SLICE2CPPFLAGS)
-LINKWITH 	= $(LIBS) icestorm$(LIBSUFFIX).lib icegrid$(LIBSUFFIX).lib icebox$(LIBSUFFIX).lib freeze$(LIBSUFFIX).lib
-ALINKWITH 	= $(LIBS) icestorm$(LIBSUFFIX).lib
-MLINKWITH 	= freeze$(LIBSUFFIX).lib icestorm$(LIBSUFFIX).lib $(LIBS)
+SLICE2CPPFLAGS	= --ice --include-dir IceStorm $(SLICE2CPPFLAGS)
+LINKWITH 	= $(LIBS)
+ALINKWITH 	= $(LIBS) 
+MLINKWITH 	= $(LIBS)
 
 !if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)

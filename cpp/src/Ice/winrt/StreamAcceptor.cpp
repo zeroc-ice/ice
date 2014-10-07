@@ -28,6 +28,8 @@ using namespace Windows::Storage::Streams;
 using namespace Windows::Networking;
 using namespace Windows::Networking::Sockets;
 
+IceUtil::Shared* IceInternal::upCast(StreamAcceptor* p) { return p; }
+
 NativeInfoPtr
 IceInternal::StreamAcceptor::getNativeInfo()
 {

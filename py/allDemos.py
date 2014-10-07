@@ -36,12 +36,16 @@ demos = [
     "Ice/session",
     "Ice/throughput",
     "Ice/value",
-    "IceStorm/clock",
-    "IceGrid/simple",
-    "Glacier2/callback",
     "book/printer",
     "book/simple_filesystem"
 ]
+
+#
+# In Windows service demos only run when using a bin dist,
+# we don't build Ice services with VC100
+#
+if not Util.isWin32() or Util.isBinDist():
+    demos += ["IceStorm/clock", "IceGrid/simple", "Glacier2/callback"]
 
 if __name__ == "__main__":
     Util.run(demos)
