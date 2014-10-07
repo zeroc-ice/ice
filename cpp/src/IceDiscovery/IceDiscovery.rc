@@ -6,12 +6,12 @@ VS_VERSION_INFO VERSIONINFO
  FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
 #ifdef _DEBUG
  FILEFLAGS VS_FF_DEBUG
- #define INTERNALNAME "icediscovery36d\0"
- #define ORIGINALFILENAME "icediscovery36d.dll\0"
+ #define INTERNALNAME "icediscovery36bd\0"
+ #define ORIGINALFILENAME "icediscovery36bd.dll\0"
 #else
  FILEFLAGS 0x0L
- #define INTERNALNAME "icediscovery36\0"
- #define ORIGINALFILENAME "icediscovery36.dll\0"
+ #define INTERNALNAME "icediscovery36b\0"
+ #define ORIGINALFILENAME "icediscovery36b.dll\0"
 #endif
  FILEOS 0x4L
  FILETYPE VFT_DLL
@@ -23,12 +23,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "ZeroC, Inc.\0"
             VALUE "FileDescription", "Ice Discovery DLL\0"
-            VALUE "FileVersion", "3.6.51\0"
+            VALUE "FileVersion", "3.6b\0"
             VALUE "InternalName", INTERNALNAME
             VALUE "LegalCopyright", "Copyright (c) 2003-2013 ZeroC, Inc.  All rights reserved.\0"
             VALUE "OriginalFilename", ORIGINALFILENAME
             VALUE "ProductName", "Ice\0"
-            VALUE "ProductVersion", "3.6.51\0"
+            VALUE "ProductVersion", "3.6b\0"
         END
     END
     BLOCK "VarFileInfo"

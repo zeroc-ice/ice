@@ -143,8 +143,8 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_home, "demo", "Ice", "plugin", "Ice
                     [("loggerplugin([0-9]+b?)", FixUtil.soVersion(version))])
 
 for f in FixUtil.find("*.vcxproj"):
-    FixUtil.fileMatchAndReplace(f, [("IceWinRT\\\\([0-9]+\.[0-9]+)@", FixUtil.shortVersion(version)),
-                                    ("IceWinRT, Version=([0-9]+\.[0-9]+)", FixUtil.shortVersion(version))])
+    FixUtil.fileMatchAndReplace(f, [("Ice\\\\([0-9]+\.[0-9]+)@", FixUtil.shortVersion(version)),
+                                    ("Ice, Version=([0-9]+\.[0-9]+)", FixUtil.shortVersion(version))])
 
 for f in FixUtil.find("*.rc"):
     FixUtil.fileMatchAndReplace(f, 

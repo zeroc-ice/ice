@@ -19,12 +19,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "ZeroC, Inc.\0"
             VALUE "FileDescription", "Slice To C++ Translator\0"
-            VALUE "FileVersion", "3.6.51\0"
+            VALUE "FileVersion", "3.6b\0"
             VALUE "InternalName", "slice2cpp\0"
             VALUE "LegalCopyright", "Copyright (c) 2003-2014 ZeroC, Inc.  All rights reserved.\0"
             VALUE "OriginalFilename", "slice2cpp.exe\0"
             VALUE "ProductName", "Ice\0"
-            VALUE "ProductVersion", "3.6.51\0"
+            VALUE "ProductVersion", "3.6b\0"
         END
     END
     BLOCK "VarFileInfo"

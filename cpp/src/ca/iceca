@@ -118,7 +118,7 @@ if sys.argv[script] == "import":
         checkLocations = [".", 
                           os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), "..", "lib")),
                           os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), "..", "..", "lib")),
-                          "/usr/share/Ice-3.6.51"]
+                          "/usr/share/Ice-3.6b"]
         for bindir in checkLocations:
             bindir = os.path.normpath(bindir)
             if os.path.exists(os.path.join(bindir, "ImportKey.class")):

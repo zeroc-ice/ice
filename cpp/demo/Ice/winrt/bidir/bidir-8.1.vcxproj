@@ -211,7 +211,7 @@
     <Text Include="README.txt" />
   </ItemGroup>
   <ItemGroup>
-    <SDKReference Include="Ice, Version=3.5" />
+    <SDKReference Include="Ice, Version=3.6" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
