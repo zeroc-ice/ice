@@ -11,6 +11,7 @@ package com.zeroc.library;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -19,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
@@ -104,6 +106,7 @@ public class LibraryActivity extends SessionActivity
         {
             _querydata = data;
             _adapter.notifyDataSetChanged();
+            _search.setEnabled(true);
         }
 
         public void onError()
@@ -147,12 +150,37 @@ public class LibraryActivity extends SessionActivity
             {
             }
         });
+        _text.setOnEditorActionListener(new EditText.OnEditorActionListener() 
+        {
+
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
+            {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) 
+                {
+                    _search.performClick();
+                    _search.setPressed(true);
+                    new Handler().postDelayed(new Runnable() 
+                    {
+                        @Override
+                        public void run() 
+                        {
+                            _search.setPressed(false);
+                        }
+                    }, 100);
+                    return true;
+                }
+                return false;
+            }
+            
+        });
 
         _search = (Button)findViewById(R.id.search);
         _search.setOnClickListener(new android.view.View.OnClickListener()
         {
             public void onClick(android.view.View v)
             {
+                _searchTable.setEmptyView(findViewById(R.id.no_match));
                 String queryString = _text.getText().toString().trim();
                 // If there is no query, we're done.
                 if(queryString.length() == 0)
@@ -175,6 +203,7 @@ public class LibraryActivity extends SessionActivity
                 }
                 // This immediately calls back on the _callback object with an
                 // empty dataset which clears the current query list.
+                _search.setEnabled(false);
                 _queryController = _sessionController.createQuery(_queryListener, type, queryString);
             }
         });
@@ -188,6 +217,7 @@ public class LibraryActivity extends SessionActivity
         _adapter = new LibraryListAdapter();
 
         _searchTable = (ListView)findViewById(R.id.list);
+        _searchTable.setEmptyView(null);
         _searchTable.setAdapter(_adapter);
         _searchTable.setOnItemClickListener(new OnItemClickListener()
         {
