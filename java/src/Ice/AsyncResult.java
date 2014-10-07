@@ -25,14 +25,17 @@ public interface AsyncResult
     public Communicator getCommunicator();
 
     /**
-     * Returns the connection that was used for the invocation.
+     * Returns the connection that was used to call the <code>begin_</code> method, or nil
+     * if this AsyncResult object was not obtained via an asynchronous connection invocation
+     * (such as <code>begin_flushBatchRequests</code>).
      *
      * @return The connection.
      **/
     public Connection getConnection();
 
     /**
-     * Returns the proxy that was used to call the <code>begin_</code> method.
+     * Returns the proxy that was used to call the <code>begin_</code> method, or nil
+     * if this AsyncResult object was not obtained via an asynchronous proxy invocation.
      *
      * @return The proxy.
      **/
