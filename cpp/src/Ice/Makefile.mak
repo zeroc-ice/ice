@@ -220,7 +220,7 @@ clean::
 	-del /q SliceChecksumDict.cpp $(HDIR)\SliceChecksumDict.h
 	-del /q Version.cpp $(HDIR)\Version.h
 	-del /q Ice.res
-        -del /q EventLoggerMsg.h EventLoggerMsg.rc
+        -del /q EventLoggerMsg.h EventLoggerMsg.rc MSG00001.bin
 
 install:: all
 	copy $(LIBNAME) "$(install_libdir)"
