@@ -130,7 +130,7 @@ local interface ObjectAdapter
      * Wait until the object adapter has deactivated. Calling
      * {@link #deactivate} initiates object adapter deactivation, and
      * {@link #waitForDeactivate} only returns when deactivation has
-     * been completed. 
+     * been completed.
      *
      * @see #deactivate
      * @see #waitForHold
@@ -158,7 +158,7 @@ local interface ObjectAdapter
      * and waits for it to finish. Subsequent calls to {@link destroy} are
      * ignored. Once {@link destroy} has returned, it is possible to create
      * another object adapter with the same name.
-     * 
+     *
      * @see #deactivate
      * @see #waitForDeactivate
      * @see Communicator#destroy
@@ -609,21 +609,21 @@ local interface ObjectAdapter
      * Set an Ice locator for this object adapter. By doing so, the
      * object adapter will register itself with the locator registry
      * when it is activated for the first time. Furthermore, the proxies
-     * created by this object adapter will contain the adapter name
-     * instead of its endpoints.
+     * created by this object adapter will contain the adapter identifier
+     * instead of its endpoints. The adapter identifier must be configured
+     * using the AdapterId property.
      *
      * @param loc The locator used by this object adapter.
      *
      * @see #createDirectProxy
      * @see Locator
      * @see LocatorRegistry
-     * 
+     *
      **/
     void setLocator(Locator* loc);
 
-    
      /**
-     * Get the Ice locator used by this object adapter. 
+     * Get the Ice locator used by this object adapter.
      *
      * @return  The locator used by this object adapter, or null if no locator is
      * used by this object adapter.
@@ -633,7 +633,6 @@ local interface ObjectAdapter
      *
      **/
     ["cpp:const"] Locator* getLocator();
-
 
     /**
      * Refresh the set of published endpoints. The run time re-reads
@@ -672,4 +671,3 @@ local interface ObjectAdapter
 };
 
 };
-
