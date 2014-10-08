@@ -28,7 +28,7 @@ SOBJS		= $(SLICE_OBJS) Server.o
 
 LOBJS		= LoggerPluginI.o
 
-HOBJS		= $($(SLICE_OBJS) HelloPluginI.o
+HOBJS		= $(SLICE_OBJS) HelloPluginI.o
 
 OBJS		= $(COBJS) \
 		  $(SOBJS) \
