@@ -388,15 +388,11 @@ namespace IceInternal
             lock(this)
             {
                 Debug.Assert(!_destroyed);
-                if(_workItems.Count == 0)
-                {
-                    System.Threading.Monitor.Pulse(this);
-                }
-
                 _workItems.Enqueue(() => 
                     { 
                         dispatchFromThisThread(call, con); 
                     });
+                System.Threading.Monitor.Pulse(this);
 
                 //
                 // If this is a dynamic thread pool which can still grow and if all threads are

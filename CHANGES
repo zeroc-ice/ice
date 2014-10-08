@@ -211,6 +211,9 @@ C++ Changes
 C# Changes
 ==========
 
+- Fixed a bug where under certain circumstances the thread pool could
+  serialize dispatch.
+
 - Added support for TCP Loopback Fast Path on Windows platforms that
   support it.
 
