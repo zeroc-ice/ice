@@ -138,14 +138,16 @@ Client.obj: \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
-    "..\..\src\IceGrid\Parser.h" \
+    "Parser.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Query.h" \
-    "..\..\src\IceGrid\FileParserI.h" \
+    "FileParserI.h" \
     "$(includedir)\IceGrid\FileParser.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
@@ -238,19 +240,21 @@ DescriptorBuilder.obj: \
     "$(includedir)\Ice\Logger.h" \
     "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\LocalException.h" \
-    "..\..\src\IceGrid\DescriptorBuilder.h" \
+    "DescriptorBuilder.h" \
     "..\..\src\IceXML\Parser.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\Ice\FactoryTableInit.h" \
     "$(includedir)\Ice\DefaultObjectFactory.h" \
     "$(includedir)\Ice\ObjectFactory.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "$(includedir)\IceGrid\Config.h" \
+    "Util.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceGrid\Exception.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceUtil\Random.h" \
 
 DescriptorHelper.obj: \
@@ -366,20 +370,22 @@ DescriptorHelper.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\IceGrid\DescriptorHelper.h" \
+    "DescriptorHelper.h" \
     "$(includedir)\IceUtil\OutputUtil.h" \
     "..\..\src\IceXML\Parser.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "Internal.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "Util.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\Random.h" \
 
@@ -499,21 +505,24 @@ DescriptorParser.obj: \
     "..\..\src\IceXML\Parser.h" \
     "$(includedir)\IcePatch2\Util.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
+    "$(includedir)\IcePatch2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
-    "..\..\src\IceGrid\DescriptorParser.h" \
-    "..\..\src\IceGrid\DescriptorBuilder.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "DescriptorParser.h" \
+    "DescriptorBuilder.h" \
+    "Util.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\Random.h" \
 
 FileParserI.obj: \
 	FileParserI.cpp \
-    "..\..\src\IceGrid\FileParserI.h" \
+    "FileParserI.h" \
     "$(includedir)\IceGrid\FileParser.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
@@ -592,9 +601,11 @@ FileParserI.obj: \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
-    "..\..\src\IceGrid\DescriptorParser.h" \
+    "DescriptorParser.h" \
     "..\..\src\IceXML\Parser.h" \
     "$(includedir)\Ice\ObjectAdapter.h" \
     "$(includedir)\Ice\LocatorF.h" \
@@ -714,12 +725,14 @@ Grammar.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\IceGrid\Parser.h" \
+    "Parser.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Query.h" \
 
@@ -846,25 +859,28 @@ Parser.obj: \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
     "..\..\src\IceXML\Parser.h" \
-    "..\..\src\IceGrid\Parser.h" \
+    "Parser.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Query.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "Util.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\Random.h" \
-    "..\..\src\IceGrid\DescriptorParser.h" \
-    "..\..\src\IceGrid\DescriptorHelper.h" \
+    "DescriptorParser.h" \
+    "DescriptorHelper.h" \
     "$(includedir)\IceUtil\OutputUtil.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "Internal.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
     "$(includedir)\IceBox\IceBox.h" \
+    "$(includedir)\IceBox\Config.h" \
 
 Scanner.obj: \
 	Scanner.cpp \
@@ -980,15 +996,17 @@ Scanner.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\IceGrid\Parser.h" \
+    "Parser.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Query.h" \
-    "..\..\src\IceGrid\Grammar.h" \
+    "Grammar.h" \
 
 Util.obj: \
 	Util.cpp \
@@ -1105,23 +1123,26 @@ Util.obj: \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\IcePatch2\Util.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "$(includedir)\IcePatch2\Config.h" \
+    "Util.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceGrid\Exception.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceUtil\Random.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "Internal.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
 
 Internal.obj: \
 	Internal.cpp \
-    "..\..\src\IceGrid\Internal.h" \
+    "Internal.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -1199,9 +1220,11 @@ Internal.obj: \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
@@ -1213,7 +1236,7 @@ Internal.obj: \
 
 AdminRouter.obj: \
 	AdminRouter.cpp \
-    "..\..\src\IceGrid\AdminRouter.h" \
+    "AdminRouter.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -1407,11 +1430,12 @@ FileCache.obj: \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\FacetMap.h" \
     "..\..\src\IceUtil\FileUtil.h" \
-    "..\..\src\IceGrid\FileCache.h" \
+    "FileCache.h" \
     "$(includedir)\IceGrid\Exception.h" \
     "$(includedir)\Ice\FactoryTableInit.h" \
     "$(includedir)\Ice\DefaultObjectFactory.h" \
     "$(includedir)\Ice\ObjectFactory.h" \
+    "$(includedir)\IceGrid\Config.h" \
 
 PlatformInfo.obj: \
 	PlatformInfo.cpp \
@@ -1499,8 +1523,8 @@ PlatformInfo.obj: \
     "$(includedir)\Ice\LoggerUtil.h" \
     "$(includedir)\Ice\Logger.h" \
     "$(includedir)\Ice\Plugin.h" \
-    "..\..\src\IceGrid\PlatformInfo.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "PlatformInfo.h" \
+    "Internal.h" \
     "$(includedir)\Ice\FactoryTableInit.h" \
     "$(includedir)\Ice\DefaultObjectFactory.h" \
     "$(includedir)\Ice\ObjectFactory.h" \
@@ -1508,14 +1532,16 @@ PlatformInfo.obj: \
     "$(includedir)\Ice\Locator.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
+    "TraceLevels.h" \
     "$(includedir)\IcePatch2\Util.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
@@ -1542,6 +1568,7 @@ PlatformInfo.obj: \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
+    "$(includedir)\IcePatch2\Config.h" \
 
 SessionManager.obj: \
 	SessionManager.cpp \
@@ -1656,12 +1683,14 @@ SessionManager.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\IceGrid\SessionManager.h" \
+    "SessionManager.h" \
     "$(includedir)\IceGrid\Query.h" \
     "$(includedir)\IceGrid\Exception.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "$(includedir)\IceGrid\Config.h" \
+    "Internal.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
@@ -1749,7 +1778,7 @@ TraceLevels.obj: \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
+    "TraceLevels.h" \
 
 Activator.obj: \
 	Activator.cpp \
@@ -1867,30 +1896,33 @@ Activator.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\IceGrid\Activator.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "Activator.h" \
+    "Internal.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "TraceLevels.h" \
+    "Util.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\Random.h" \
-    "..\..\src\IceGrid\ServerI.h" \
+    "ServerI.h" \
     "$(includedir)\Freeze\EvictorF.h" \
     "$(includedir)\IcePatch2\Util.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
+    "$(includedir)\IcePatch2\Config.h" \
 
 NodeAdminRouter.obj: \
 	NodeAdminRouter.cpp \
-    "..\..\src\IceGrid\NodeAdminRouter.h" \
-    "..\..\src\IceGrid\NodeI.h" \
+    "NodeAdminRouter.h" \
+    "NodeI.h" \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -1964,24 +1996,27 @@ NodeAdminRouter.obj: \
     "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "$(includedir)\IcePatch2\Config.h" \
+    "Internal.h" \
     "$(includedir)\Ice\ProcessF.h" \
     "$(includedir)\Ice\Locator.h" \
     "$(includedir)\Ice\Properties.h" \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
-    "..\..\src\IceGrid\PlatformInfo.h" \
+    "PlatformInfo.h" \
     "$(includedir)\IceGrid\UserAccountMapper.h" \
-    "..\..\src\IceGrid\FileCache.h" \
-    "..\..\src\IceGrid\AdminRouter.h" \
+    "FileCache.h" \
+    "AdminRouter.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
     "$(includedir)\Ice\Initialize.h" \
@@ -2018,10 +2053,10 @@ NodeAdminRouter.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\IceGrid\ServerI.h" \
+    "ServerI.h" \
     "$(includedir)\Freeze\EvictorF.h" \
-    "..\..\src\IceGrid\Activator.h" \
-    "..\..\src\IceGrid\ServerAdapterI.h" \
+    "Activator.h" \
+    "ServerAdapterI.h" \
 
 NodeI.obj: \
 	NodeI.cpp \
@@ -2139,32 +2174,35 @@ NodeI.obj: \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\IcePatch2\Util.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
+    "$(includedir)\IcePatch2\Config.h" \
     "$(includedir)\IcePatch2\ClientUtil.h" \
     "$(includedir)\IcePatch2\FileServer.h" \
-    "..\..\src\IceGrid\NodeI.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "NodeI.h" \
+    "Internal.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
-    "..\..\src\IceGrid\PlatformInfo.h" \
+    "PlatformInfo.h" \
     "$(includedir)\IceGrid\UserAccountMapper.h" \
-    "..\..\src\IceGrid\FileCache.h" \
-    "..\..\src\IceGrid\Activator.h" \
-    "..\..\src\IceGrid\ServerI.h" \
+    "FileCache.h" \
+    "Activator.h" \
+    "ServerI.h" \
     "$(includedir)\Freeze\EvictorF.h" \
-    "..\..\src\IceGrid\ServerAdapterI.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "ServerAdapterI.h" \
+    "Util.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\Random.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
-    "..\..\src\IceGrid\NodeSessionManager.h" \
-    "..\..\src\IceGrid\SessionManager.h" \
+    "TraceLevels.h" \
+    "NodeSessionManager.h" \
+    "SessionManager.h" \
     "$(includedir)\IceGrid\Query.h" \
 
 NodeSessionManager.obj: \
@@ -2280,26 +2318,29 @@ NodeSessionManager.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\IceGrid\NodeSessionManager.h" \
-    "..\..\src\IceGrid\SessionManager.h" \
+    "NodeSessionManager.h" \
+    "SessionManager.h" \
     "$(includedir)\IceGrid\Query.h" \
     "$(includedir)\IceGrid\Exception.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "$(includedir)\IceGrid\Config.h" \
+    "Internal.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
-    "..\..\src\IceGrid\NodeI.h" \
+    "TraceLevels.h" \
+    "NodeI.h" \
     "$(includedir)\IcePatch2\FileServer.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
-    "..\..\src\IceGrid\PlatformInfo.h" \
+    "$(includedir)\IcePatch2\Config.h" \
+    "PlatformInfo.h" \
     "$(includedir)\IceGrid\UserAccountMapper.h" \
-    "..\..\src\IceGrid\FileCache.h" \
+    "FileCache.h" \
 
 ServerAdapterI.obj: \
 	ServerAdapterI.cpp \
@@ -2414,27 +2455,30 @@ ServerAdapterI.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\IceGrid\ServerAdapterI.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "ServerAdapterI.h" \
+    "Internal.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
-    "..\..\src\IceGrid\ServerI.h" \
+    "ServerI.h" \
     "$(includedir)\Freeze\EvictorF.h" \
-    "..\..\src\IceGrid\Activator.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
-    "..\..\src\IceGrid\NodeI.h" \
+    "Activator.h" \
+    "TraceLevels.h" \
+    "NodeI.h" \
     "$(includedir)\IcePatch2\FileServer.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
-    "..\..\src\IceGrid\PlatformInfo.h" \
+    "$(includedir)\IcePatch2\Config.h" \
+    "PlatformInfo.h" \
     "$(includedir)\IceGrid\UserAccountMapper.h" \
-    "..\..\src\IceGrid\FileCache.h" \
+    "FileCache.h" \
 
 ServerI.obj: \
 	ServerI.cpp \
@@ -2551,31 +2595,34 @@ ServerI.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\IceGrid\ServerI.h" \
+    "ServerI.h" \
     "$(includedir)\Freeze\EvictorF.h" \
-    "..\..\src\IceGrid\Activator.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "Activator.h" \
+    "Internal.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
-    "..\..\src\IceGrid\NodeI.h" \
+    "TraceLevels.h" \
+    "NodeI.h" \
     "$(includedir)\IcePatch2\FileServer.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
-    "..\..\src\IceGrid\PlatformInfo.h" \
+    "$(includedir)\IcePatch2\Config.h" \
+    "PlatformInfo.h" \
     "$(includedir)\IceGrid\UserAccountMapper.h" \
-    "..\..\src\IceGrid\FileCache.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "FileCache.h" \
+    "Util.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\Random.h" \
-    "..\..\src\IceGrid\ServerAdapterI.h" \
-    "..\..\src\IceGrid\DescriptorHelper.h" \
+    "ServerAdapterI.h" \
+    "DescriptorHelper.h" \
     "$(includedir)\IceUtil\OutputUtil.h" \
     "..\..\src\IceXML\Parser.h" \
     "$(includedir)\IcePatch2\Util.h" \
@@ -2669,32 +2716,34 @@ AdapterCache.obj: \
     "$(includedir)\Ice\DefaultObjectFactory.h" \
     "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\Ice\ProcessF.h" \
-    "..\..\src\IceGrid\AdapterCache.h" \
-    "..\..\src\IceGrid\Cache.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "AdapterCache.h" \
+    "Cache.h" \
+    "Util.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceGrid\Exception.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
+    "$(includedir)\Glacier2\Config.h" \
+    "TraceLevels.h" \
     "$(includedir)\IceGrid\Query.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "Internal.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
-    "..\..\src\IceGrid\NodeSessionI.h" \
-    "..\..\src\IceGrid\ServerCache.h" \
-    "..\..\src\IceGrid\Allocatable.h" \
-    "..\..\src\IceGrid\NodeCache.h" \
+    "NodeSessionI.h" \
+    "ServerCache.h" \
+    "Allocatable.h" \
+    "NodeCache.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
-    "..\..\src\IceGrid\SessionI.h" \
-    "..\..\src\IceGrid\ReapThread.h" \
+    "SessionI.h" \
+    "ReapThread.h" \
     "$(includedir)\Ice\LocalException.h" \
-    "..\..\src\IceGrid\SessionServantManager.h" \
-    "..\..\src\IceGrid\AdminCallbackRouter.h" \
+    "SessionServantManager.h" \
+    "AdminCallbackRouter.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
     "$(includedir)\Ice\Initialize.h" \
@@ -2728,7 +2777,7 @@ AdapterCache.obj: \
 
 AdminCallbackRouter.obj: \
 	AdminCallbackRouter.cpp \
-    "..\..\src\IceGrid\AdminCallbackRouter.h" \
+    "AdminCallbackRouter.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -2967,29 +3016,33 @@ AdminI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceUtil\DisableWarnings.h" \
-    "..\..\src\IceGrid\AdminI.h" \
+    "AdminI.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
-    "..\..\src\IceGrid\RegistryI.h" \
+    "RegistryI.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
     "$(includedir)\IceGrid\Query.h" \
     "$(includedir)\IceGrid\Locator.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "Internal.h" \
     "$(includedir)\IceGrid\Observer.h" \
-    "..\..\src\IceGrid\PlatformInfo.h" \
-    "..\..\src\IceGrid\ReplicaSessionManager.h" \
-    "..\..\src\IceGrid\SessionManager.h" \
+    "PlatformInfo.h" \
+    "ReplicaSessionManager.h" \
+    "SessionManager.h" \
     "$(includedir)\IceGrid\PluginFacade.h" \
     "$(includedir)\Glacier2\PermissionsVerifierF.h" \
     "..\..\src\IceStorm\Service.h" \
     "$(includedir)\IceBox\IceBox.h" \
+    "$(includedir)\IceBox\Config.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
-    "..\..\src\IceGrid\Database.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "Database.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Freeze\EvictorF.h" \
@@ -3006,39 +3059,39 @@ AdminI.obj: \
     "$(includedir)\Freeze\TransactionHolder.h" \
     "$(includedir)\Freeze\Catalog.h" \
     "$(includedir)\Freeze\CatalogData.h" \
-    "..\..\src\IceGrid\ServerCache.h" \
-    "..\..\src\IceGrid\Allocatable.h" \
-    "..\..\src\IceGrid\Cache.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "ServerCache.h" \
+    "Allocatable.h" \
+    "Cache.h" \
+    "Util.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\Random.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
-    "..\..\src\IceGrid\NodeCache.h" \
+    "TraceLevels.h" \
+    "NodeCache.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
-    "..\..\src\IceGrid\ReplicaCache.h" \
-    "..\..\src\IceGrid\ObjectCache.h" \
-    "..\..\src\IceGrid\AllocatableObjectCache.h" \
-    "..\..\src\IceGrid\AdapterCache.h" \
-    "..\..\src\IceGrid\Topics.h" \
-    "..\..\src\IceGrid\PluginFacadeI.h" \
-    "..\..\src\IceGrid\StringApplicationInfoDict.h" \
-    "..\..\src\IceGrid\StringAdapterInfoDict.h" \
-    "..\..\src\IceGrid\IdentityObjectInfoDict.h" \
-    "..\..\src\IceGrid\DescriptorParser.h" \
-    "..\..\src\IceGrid\DescriptorHelper.h" \
+    "ReplicaCache.h" \
+    "ObjectCache.h" \
+    "AllocatableObjectCache.h" \
+    "AdapterCache.h" \
+    "Topics.h" \
+    "PluginFacadeI.h" \
+    "StringApplicationInfoDict.h" \
+    "StringAdapterInfoDict.h" \
+    "IdentityObjectInfoDict.h" \
+    "DescriptorParser.h" \
+    "DescriptorHelper.h" \
     "$(includedir)\IceUtil\OutputUtil.h" \
     "..\..\src\IceXML\Parser.h" \
-    "..\..\src\IceGrid\AdminSessionI.h" \
-    "..\..\src\IceGrid\SessionI.h" \
-    "..\..\src\IceGrid\ReapThread.h" \
-    "..\..\src\IceGrid\SessionServantManager.h" \
-    "..\..\src\IceGrid\AdminCallbackRouter.h" \
+    "AdminSessionI.h" \
+    "SessionI.h" \
+    "ReapThread.h" \
+    "SessionServantManager.h" \
+    "AdminCallbackRouter.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \
     "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
-    "..\..\src\IceGrid\NodeSessionI.h" \
+    "NodeSessionI.h" \
 
 AdminSessionI.obj: \
 	AdminSessionI.cpp \
@@ -3155,42 +3208,46 @@ AdminSessionI.obj: \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\DisableWarnings.h" \
-    "..\..\src\IceGrid\RegistryI.h" \
+    "RegistryI.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Session.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Query.h" \
     "$(includedir)\IceGrid\Locator.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "Internal.h" \
     "$(includedir)\IceGrid\Observer.h" \
-    "..\..\src\IceGrid\PlatformInfo.h" \
-    "..\..\src\IceGrid\ReplicaSessionManager.h" \
-    "..\..\src\IceGrid\SessionManager.h" \
+    "PlatformInfo.h" \
+    "ReplicaSessionManager.h" \
+    "SessionManager.h" \
     "$(includedir)\IceGrid\PluginFacade.h" \
     "$(includedir)\Glacier2\PermissionsVerifierF.h" \
     "..\..\src\IceStorm\Service.h" \
     "$(includedir)\IceBox\IceBox.h" \
+    "$(includedir)\IceBox\Config.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
-    "..\..\src\IceGrid\AdminSessionI.h" \
-    "..\..\src\IceGrid\SessionI.h" \
-    "..\..\src\IceGrid\ReapThread.h" \
-    "..\..\src\IceGrid\SessionServantManager.h" \
-    "..\..\src\IceGrid\AdminCallbackRouter.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "AdminSessionI.h" \
+    "SessionI.h" \
+    "ReapThread.h" \
+    "SessionServantManager.h" \
+    "AdminCallbackRouter.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \
     "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
-    "..\..\src\IceGrid\Topics.h" \
-    "..\..\src\IceGrid\AdminI.h" \
-    "..\..\src\IceGrid\Database.h" \
+    "Topics.h" \
+    "AdminI.h" \
+    "Database.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Freeze\EvictorF.h" \
@@ -3207,29 +3264,29 @@ AdminSessionI.obj: \
     "$(includedir)\Freeze\TransactionHolder.h" \
     "$(includedir)\Freeze\Catalog.h" \
     "$(includedir)\Freeze\CatalogData.h" \
-    "..\..\src\IceGrid\ServerCache.h" \
-    "..\..\src\IceGrid\Allocatable.h" \
-    "..\..\src\IceGrid\Cache.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "ServerCache.h" \
+    "Allocatable.h" \
+    "Cache.h" \
+    "Util.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\Random.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
-    "..\..\src\IceGrid\NodeCache.h" \
-    "..\..\src\IceGrid\ReplicaCache.h" \
-    "..\..\src\IceGrid\ObjectCache.h" \
-    "..\..\src\IceGrid\AllocatableObjectCache.h" \
-    "..\..\src\IceGrid\AdapterCache.h" \
-    "..\..\src\IceGrid\PluginFacadeI.h" \
-    "..\..\src\IceGrid\StringApplicationInfoDict.h" \
-    "..\..\src\IceGrid\StringAdapterInfoDict.h" \
-    "..\..\src\IceGrid\IdentityObjectInfoDict.h" \
+    "TraceLevels.h" \
+    "NodeCache.h" \
+    "ReplicaCache.h" \
+    "ObjectCache.h" \
+    "AllocatableObjectCache.h" \
+    "AdapterCache.h" \
+    "PluginFacadeI.h" \
+    "StringApplicationInfoDict.h" \
+    "StringAdapterInfoDict.h" \
+    "IdentityObjectInfoDict.h" \
     "$(includedir)\IceSSL\Plugin.h" \
     "$(includedir)\IceSSL\Config.h" \
     "$(includedir)\IceSSL\ConnectionInfo.h" \
 
 Allocatable.obj: \
 	Allocatable.cpp \
-    "..\..\src\IceGrid\Allocatable.h" \
+    "Allocatable.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -3304,16 +3361,18 @@ Allocatable.obj: \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Exception.h" \
-    "..\..\src\IceGrid\SessionI.h" \
-    "..\..\src\IceGrid\ReapThread.h" \
+    "$(includedir)\IceGrid\Config.h" \
+    "SessionI.h" \
+    "ReapThread.h" \
     "$(includedir)\Ice\Logger.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\LoggerUtil.h" \
     "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\LoggerF.h" \
-    "..\..\src\IceGrid\SessionServantManager.h" \
-    "..\..\src\IceGrid\AdminCallbackRouter.h" \
+    "SessionServantManager.h" \
+    "AdminCallbackRouter.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
     "$(includedir)\Ice\Initialize.h" \
@@ -3442,26 +3501,28 @@ AllocatableObjectCache.obj: \
     "$(includedir)\Ice\Logger.h" \
     "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\LocalException.h" \
-    "..\..\src\IceGrid\AllocatableObjectCache.h" \
-    "..\..\src\IceGrid\Cache.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "AllocatableObjectCache.h" \
+    "Cache.h" \
+    "Util.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\Ice\FactoryTableInit.h" \
     "$(includedir)\Ice\DefaultObjectFactory.h" \
     "$(includedir)\Ice\ObjectFactory.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceGrid\Exception.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
-    "..\..\src\IceGrid\Allocatable.h" \
+    "$(includedir)\Glacier2\Config.h" \
+    "TraceLevels.h" \
+    "Allocatable.h" \
     "$(includedir)\IceGrid\Session.h" \
-    "..\..\src\IceGrid\SessionI.h" \
-    "..\..\src\IceGrid\ReapThread.h" \
-    "..\..\src\IceGrid\SessionServantManager.h" \
-    "..\..\src\IceGrid\AdminCallbackRouter.h" \
+    "SessionI.h" \
+    "ReapThread.h" \
+    "SessionServantManager.h" \
+    "AdminCallbackRouter.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
     "$(includedir)\Ice\Initialize.h" \
@@ -3584,7 +3645,7 @@ Database.obj: \
     "$(includedir)\Ice\FacetMap.h" \
     "$(includedir)\Ice\ObjectAdapter.h" \
     "$(includedir)\Ice\Endpoint.h" \
-    "..\..\src\IceGrid\Database.h" \
+    "Database.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Ice\Ice.h" \
@@ -3632,43 +3693,46 @@ Database.obj: \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "Internal.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
-    "..\..\src\IceGrid\ServerCache.h" \
+    "ServerCache.h" \
     "$(includedir)\IceGrid\Query.h" \
-    "..\..\src\IceGrid\Allocatable.h" \
-    "..\..\src\IceGrid\Cache.h" \
-    "..\..\src\IceGrid\Util.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
-    "..\..\src\IceGrid\NodeCache.h" \
+    "Allocatable.h" \
+    "Cache.h" \
+    "Util.h" \
+    "TraceLevels.h" \
+    "NodeCache.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
-    "..\..\src\IceGrid\ReplicaCache.h" \
+    "ReplicaCache.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
-    "..\..\src\IceGrid\ObjectCache.h" \
-    "..\..\src\IceGrid\AllocatableObjectCache.h" \
-    "..\..\src\IceGrid\AdapterCache.h" \
-    "..\..\src\IceGrid\Topics.h" \
-    "..\..\src\IceGrid\PluginFacadeI.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "ObjectCache.h" \
+    "AllocatableObjectCache.h" \
+    "AdapterCache.h" \
+    "Topics.h" \
+    "PluginFacadeI.h" \
     "$(includedir)\IceGrid\PluginFacade.h" \
-    "..\..\src\IceGrid\StringApplicationInfoDict.h" \
-    "..\..\src\IceGrid\StringAdapterInfoDict.h" \
-    "..\..\src\IceGrid\IdentityObjectInfoDict.h" \
-    "..\..\src\IceGrid\DescriptorHelper.h" \
+    "StringApplicationInfoDict.h" \
+    "StringAdapterInfoDict.h" \
+    "IdentityObjectInfoDict.h" \
+    "DescriptorHelper.h" \
     "$(includedir)\IceUtil\OutputUtil.h" \
     "..\..\src\IceXML\Parser.h" \
-    "..\..\src\IceGrid\NodeSessionI.h" \
-    "..\..\src\IceGrid\ReplicaSessionI.h" \
+    "NodeSessionI.h" \
+    "ReplicaSessionI.h" \
     "$(includedir)\IceGrid\IceGrid.h" \
     "$(includedir)\IceGrid\FileParser.h" \
     "$(includedir)\IceGrid\Locator.h" \
     "$(includedir)\IceGrid\UserAccountMapper.h" \
     "$(includedir)\IceGrid\Discovery.h" \
-    "..\..\src\IceGrid\SerialsDict.h" \
+    "SerialsDict.h" \
 
 FileUserAccountMapperI.obj: \
 	FileUserAccountMapperI.cpp \
@@ -3678,7 +3742,7 @@ FileUserAccountMapperI.obj: \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\Exception.h" \
-    "..\..\src\IceGrid\FileUserAccountMapperI.h" \
+    "FileUserAccountMapperI.h" \
     "$(includedir)\IceGrid\UserAccountMapper.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\Config.h" \
@@ -3745,6 +3809,7 @@ FileUserAccountMapperI.obj: \
     "$(includedir)\Ice\FactoryTableInit.h" \
     "$(includedir)\Ice\DefaultObjectFactory.h" \
     "$(includedir)\Ice\ObjectFactory.h" \
+    "$(includedir)\IceGrid\Config.h" \
 
 IdentityObjectInfoDict.obj: \
 	IdentityObjectInfoDict.cpp \
@@ -3790,7 +3855,7 @@ IdentityObjectInfoDict.obj: \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "..\..\src\IceGrid\IdentityObjectInfoDict.h" \
+    "IdentityObjectInfoDict.h" \
     "$(includedir)\Freeze\Map.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
@@ -3870,7 +3935,9 @@ IdentityObjectInfoDict.obj: \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
 
 InternalRegistryI.obj: \
@@ -3987,30 +4054,34 @@ InternalRegistryI.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\IceGrid\RegistryI.h" \
+    "RegistryI.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Session.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Query.h" \
     "$(includedir)\IceGrid\Locator.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "Internal.h" \
     "$(includedir)\IceGrid\Observer.h" \
-    "..\..\src\IceGrid\PlatformInfo.h" \
-    "..\..\src\IceGrid\ReplicaSessionManager.h" \
-    "..\..\src\IceGrid\SessionManager.h" \
+    "PlatformInfo.h" \
+    "ReplicaSessionManager.h" \
+    "SessionManager.h" \
     "$(includedir)\IceGrid\PluginFacade.h" \
     "$(includedir)\Glacier2\PermissionsVerifierF.h" \
     "..\..\src\IceStorm\Service.h" \
     "$(includedir)\IceBox\IceBox.h" \
+    "$(includedir)\IceBox\Config.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
-    "..\..\src\IceGrid\InternalRegistryI.h" \
-    "..\..\src\IceGrid\Database.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "InternalRegistryI.h" \
+    "Database.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Freeze\EvictorF.h" \
@@ -4027,29 +4098,29 @@ InternalRegistryI.obj: \
     "$(includedir)\Freeze\TransactionHolder.h" \
     "$(includedir)\Freeze\Catalog.h" \
     "$(includedir)\Freeze\CatalogData.h" \
-    "..\..\src\IceGrid\ServerCache.h" \
-    "..\..\src\IceGrid\Allocatable.h" \
-    "..\..\src\IceGrid\Cache.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "ServerCache.h" \
+    "Allocatable.h" \
+    "Cache.h" \
+    "Util.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\Random.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
-    "..\..\src\IceGrid\NodeCache.h" \
+    "TraceLevels.h" \
+    "NodeCache.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
-    "..\..\src\IceGrid\ReplicaCache.h" \
-    "..\..\src\IceGrid\ObjectCache.h" \
-    "..\..\src\IceGrid\AllocatableObjectCache.h" \
-    "..\..\src\IceGrid\AdapterCache.h" \
-    "..\..\src\IceGrid\Topics.h" \
-    "..\..\src\IceGrid\PluginFacadeI.h" \
-    "..\..\src\IceGrid\StringApplicationInfoDict.h" \
-    "..\..\src\IceGrid\StringAdapterInfoDict.h" \
-    "..\..\src\IceGrid\IdentityObjectInfoDict.h" \
-    "..\..\src\IceGrid\WellKnownObjectsManager.h" \
-    "..\..\src\IceGrid\ReapThread.h" \
-    "..\..\src\IceGrid\NodeSessionI.h" \
-    "..\..\src\IceGrid\ReplicaSessionI.h" \
-    "..\..\src\IceGrid\FileCache.h" \
+    "ReplicaCache.h" \
+    "ObjectCache.h" \
+    "AllocatableObjectCache.h" \
+    "AdapterCache.h" \
+    "Topics.h" \
+    "PluginFacadeI.h" \
+    "StringApplicationInfoDict.h" \
+    "StringAdapterInfoDict.h" \
+    "IdentityObjectInfoDict.h" \
+    "WellKnownObjectsManager.h" \
+    "ReapThread.h" \
+    "NodeSessionI.h" \
+    "ReplicaSessionI.h" \
+    "FileCache.h" \
     "$(includedir)\IceSSL\IceSSL.h" \
     "$(includedir)\IceSSL\Plugin.h" \
     "$(includedir)\IceSSL\Config.h" \
@@ -4170,19 +4241,21 @@ LocatorI.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\IceGrid\LocatorI.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "LocatorI.h" \
+    "Internal.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
     "$(includedir)\IceGrid\Locator.h" \
-    "..\..\src\IceGrid\Database.h" \
+    "Database.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Freeze\EvictorF.h" \
@@ -4199,32 +4272,33 @@ LocatorI.obj: \
     "$(includedir)\Freeze\TransactionHolder.h" \
     "$(includedir)\Freeze\Catalog.h" \
     "$(includedir)\Freeze\CatalogData.h" \
-    "..\..\src\IceGrid\ServerCache.h" \
+    "ServerCache.h" \
     "$(includedir)\IceGrid\Query.h" \
-    "..\..\src\IceGrid\Allocatable.h" \
-    "..\..\src\IceGrid\Cache.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "Allocatable.h" \
+    "Cache.h" \
+    "Util.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\Random.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
-    "..\..\src\IceGrid\NodeCache.h" \
+    "TraceLevels.h" \
+    "NodeCache.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
-    "..\..\src\IceGrid\ReplicaCache.h" \
+    "ReplicaCache.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
-    "..\..\src\IceGrid\ObjectCache.h" \
-    "..\..\src\IceGrid\AllocatableObjectCache.h" \
-    "..\..\src\IceGrid\AdapterCache.h" \
-    "..\..\src\IceGrid\Topics.h" \
-    "..\..\src\IceGrid\PluginFacadeI.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "ObjectCache.h" \
+    "AllocatableObjectCache.h" \
+    "AdapterCache.h" \
+    "Topics.h" \
+    "PluginFacadeI.h" \
     "$(includedir)\IceGrid\PluginFacade.h" \
-    "..\..\src\IceGrid\StringApplicationInfoDict.h" \
-    "..\..\src\IceGrid\StringAdapterInfoDict.h" \
-    "..\..\src\IceGrid\IdentityObjectInfoDict.h" \
-    "..\..\src\IceGrid\SessionI.h" \
-    "..\..\src\IceGrid\ReapThread.h" \
-    "..\..\src\IceGrid\SessionServantManager.h" \
-    "..\..\src\IceGrid\AdminCallbackRouter.h" \
+    "StringApplicationInfoDict.h" \
+    "StringAdapterInfoDict.h" \
+    "IdentityObjectInfoDict.h" \
+    "SessionI.h" \
+    "ReapThread.h" \
+    "SessionServantManager.h" \
+    "AdminCallbackRouter.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \
@@ -4345,21 +4419,23 @@ LocatorRegistryI.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\IceGrid\LocatorRegistryI.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "LocatorRegistryI.h" \
+    "Internal.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
-    "..\..\src\IceGrid\ReplicaSessionManager.h" \
-    "..\..\src\IceGrid\SessionManager.h" \
+    "ReplicaSessionManager.h" \
+    "SessionManager.h" \
     "$(includedir)\IceGrid\Query.h" \
-    "..\..\src\IceGrid\Database.h" \
+    "Database.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Freeze\EvictorF.h" \
@@ -4376,27 +4452,28 @@ LocatorRegistryI.obj: \
     "$(includedir)\Freeze\TransactionHolder.h" \
     "$(includedir)\Freeze\Catalog.h" \
     "$(includedir)\Freeze\CatalogData.h" \
-    "..\..\src\IceGrid\ServerCache.h" \
-    "..\..\src\IceGrid\Allocatable.h" \
-    "..\..\src\IceGrid\Cache.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "ServerCache.h" \
+    "Allocatable.h" \
+    "Cache.h" \
+    "Util.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\Random.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
-    "..\..\src\IceGrid\NodeCache.h" \
+    "TraceLevels.h" \
+    "NodeCache.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
-    "..\..\src\IceGrid\ReplicaCache.h" \
+    "ReplicaCache.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
-    "..\..\src\IceGrid\ObjectCache.h" \
-    "..\..\src\IceGrid\AllocatableObjectCache.h" \
-    "..\..\src\IceGrid\AdapterCache.h" \
-    "..\..\src\IceGrid\Topics.h" \
-    "..\..\src\IceGrid\PluginFacadeI.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "ObjectCache.h" \
+    "AllocatableObjectCache.h" \
+    "AdapterCache.h" \
+    "Topics.h" \
+    "PluginFacadeI.h" \
     "$(includedir)\IceGrid\PluginFacade.h" \
-    "..\..\src\IceGrid\StringApplicationInfoDict.h" \
-    "..\..\src\IceGrid\StringAdapterInfoDict.h" \
-    "..\..\src\IceGrid\IdentityObjectInfoDict.h" \
+    "StringApplicationInfoDict.h" \
+    "StringAdapterInfoDict.h" \
+    "IdentityObjectInfoDict.h" \
 
 NodeCache.obj: \
 	NodeCache.cpp \
@@ -4482,33 +4559,35 @@ NodeCache.obj: \
     "$(includedir)\Ice\LoggerUtil.h" \
     "$(includedir)\Ice\Logger.h" \
     "$(includedir)\Ice\Plugin.h" \
-    "..\..\src\IceGrid\NodeCache.h" \
+    "NodeCache.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
-    "..\..\src\IceGrid\Cache.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "Cache.h" \
+    "Util.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\Ice\FactoryTableInit.h" \
     "$(includedir)\Ice\DefaultObjectFactory.h" \
     "$(includedir)\Ice\ObjectFactory.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceGrid\Exception.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceUtil\Random.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "TraceLevels.h" \
+    "Internal.h" \
     "$(includedir)\Ice\ProcessF.h" \
     "$(includedir)\Ice\Locator.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
-    "..\..\src\IceGrid\SessionI.h" \
-    "..\..\src\IceGrid\ReapThread.h" \
+    "SessionI.h" \
+    "ReapThread.h" \
     "$(includedir)\Ice\LocalException.h" \
-    "..\..\src\IceGrid\SessionServantManager.h" \
-    "..\..\src\IceGrid\AdminCallbackRouter.h" \
+    "SessionServantManager.h" \
+    "AdminCallbackRouter.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
     "$(includedir)\Ice\Initialize.h" \
@@ -4538,18 +4617,20 @@ NodeCache.obj: \
     "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\UUID.h" \
-    "..\..\src\IceGrid\NodeSessionI.h" \
-    "..\..\src\IceGrid\ServerCache.h" \
+    "NodeSessionI.h" \
+    "ServerCache.h" \
     "$(includedir)\IceGrid\Query.h" \
-    "..\..\src\IceGrid\Allocatable.h" \
-    "..\..\src\IceGrid\ReplicaCache.h" \
+    "Allocatable.h" \
+    "ReplicaCache.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
-    "..\..\src\IceGrid\DescriptorHelper.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "DescriptorHelper.h" \
     "$(includedir)\IceUtil\OutputUtil.h" \
     "..\..\src\IceXML\Parser.h" \
     "$(includedir)\IcePatch2\Util.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
+    "$(includedir)\IcePatch2\Config.h" \
 
 NodeSessionI.obj: \
 	NodeSessionI.cpp \
@@ -4665,18 +4746,20 @@ NodeSessionI.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\IceGrid\NodeSessionI.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "NodeSessionI.h" \
+    "Internal.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
-    "..\..\src\IceGrid\Database.h" \
+    "Database.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Freeze\EvictorF.h" \
@@ -4693,28 +4776,29 @@ NodeSessionI.obj: \
     "$(includedir)\Freeze\TransactionHolder.h" \
     "$(includedir)\Freeze\Catalog.h" \
     "$(includedir)\Freeze\CatalogData.h" \
-    "..\..\src\IceGrid\ServerCache.h" \
+    "ServerCache.h" \
     "$(includedir)\IceGrid\Query.h" \
-    "..\..\src\IceGrid\Allocatable.h" \
-    "..\..\src\IceGrid\Cache.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "Allocatable.h" \
+    "Cache.h" \
+    "Util.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\Random.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
-    "..\..\src\IceGrid\NodeCache.h" \
+    "TraceLevels.h" \
+    "NodeCache.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
-    "..\..\src\IceGrid\ReplicaCache.h" \
+    "ReplicaCache.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
-    "..\..\src\IceGrid\ObjectCache.h" \
-    "..\..\src\IceGrid\AllocatableObjectCache.h" \
-    "..\..\src\IceGrid\AdapterCache.h" \
-    "..\..\src\IceGrid\Topics.h" \
-    "..\..\src\IceGrid\PluginFacadeI.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "ObjectCache.h" \
+    "AllocatableObjectCache.h" \
+    "AdapterCache.h" \
+    "Topics.h" \
+    "PluginFacadeI.h" \
     "$(includedir)\IceGrid\PluginFacade.h" \
-    "..\..\src\IceGrid\StringApplicationInfoDict.h" \
-    "..\..\src\IceGrid\StringAdapterInfoDict.h" \
-    "..\..\src\IceGrid\IdentityObjectInfoDict.h" \
+    "StringApplicationInfoDict.h" \
+    "StringAdapterInfoDict.h" \
+    "IdentityObjectInfoDict.h" \
 
 ObjectCache.obj: \
 	ObjectCache.cpp \
@@ -4801,34 +4885,36 @@ ObjectCache.obj: \
     "$(includedir)\Ice\Logger.h" \
     "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\LocalException.h" \
-    "..\..\src\IceGrid\ObjectCache.h" \
-    "..\..\src\IceGrid\Cache.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "ObjectCache.h" \
+    "Cache.h" \
+    "Util.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\Ice\FactoryTableInit.h" \
     "$(includedir)\Ice\DefaultObjectFactory.h" \
     "$(includedir)\Ice\ObjectFactory.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceGrid\Exception.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "$(includedir)\Glacier2\Config.h" \
+    "TraceLevels.h" \
+    "Internal.h" \
     "$(includedir)\Ice\ProcessF.h" \
     "$(includedir)\Ice\Locator.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
-    "..\..\src\IceGrid\NodeSessionI.h" \
-    "..\..\src\IceGrid\ServerCache.h" \
+    "NodeSessionI.h" \
+    "ServerCache.h" \
     "$(includedir)\IceGrid\Query.h" \
-    "..\..\src\IceGrid\Allocatable.h" \
-    "..\..\src\IceGrid\SessionI.h" \
-    "..\..\src\IceGrid\ReapThread.h" \
-    "..\..\src\IceGrid\SessionServantManager.h" \
-    "..\..\src\IceGrid\AdminCallbackRouter.h" \
+    "Allocatable.h" \
+    "SessionI.h" \
+    "ReapThread.h" \
+    "SessionServantManager.h" \
+    "AdminCallbackRouter.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
     "$(includedir)\Ice\Initialize.h" \
@@ -4863,7 +4949,7 @@ ObjectCache.obj: \
 
 PluginFacadeI.obj: \
 	PluginFacadeI.cpp \
-    "..\..\src\IceGrid\PluginFacadeI.h" \
+    "PluginFacadeI.h" \
     "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -4942,17 +5028,19 @@ PluginFacadeI.obj: \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
-    "..\..\src\IceGrid\PlatformInfo.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "PlatformInfo.h" \
+    "Internal.h" \
     "$(includedir)\Ice\ProcessF.h" \
     "$(includedir)\Ice\Locator.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
-    "..\..\src\IceGrid\NodeSessionI.h" \
-    "..\..\src\IceGrid\Database.h" \
+    "NodeSessionI.h" \
+    "Database.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Ice\Ice.h" \
@@ -5005,30 +5093,31 @@ PluginFacadeI.obj: \
     "$(includedir)\Freeze\TransactionHolder.h" \
     "$(includedir)\Freeze\Catalog.h" \
     "$(includedir)\Freeze\CatalogData.h" \
-    "..\..\src\IceGrid\ServerCache.h" \
+    "ServerCache.h" \
     "$(includedir)\IceGrid\Query.h" \
-    "..\..\src\IceGrid\Allocatable.h" \
-    "..\..\src\IceGrid\Cache.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "Allocatable.h" \
+    "Cache.h" \
+    "Util.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\Random.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
-    "..\..\src\IceGrid\NodeCache.h" \
+    "TraceLevels.h" \
+    "NodeCache.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
-    "..\..\src\IceGrid\ReplicaCache.h" \
+    "ReplicaCache.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
-    "..\..\src\IceGrid\ObjectCache.h" \
-    "..\..\src\IceGrid\AllocatableObjectCache.h" \
-    "..\..\src\IceGrid\AdapterCache.h" \
-    "..\..\src\IceGrid\Topics.h" \
-    "..\..\src\IceGrid\StringApplicationInfoDict.h" \
-    "..\..\src\IceGrid\StringAdapterInfoDict.h" \
-    "..\..\src\IceGrid\IdentityObjectInfoDict.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "ObjectCache.h" \
+    "AllocatableObjectCache.h" \
+    "AdapterCache.h" \
+    "Topics.h" \
+    "StringApplicationInfoDict.h" \
+    "StringAdapterInfoDict.h" \
+    "IdentityObjectInfoDict.h" \
 
 QueryI.obj: \
 	QueryI.cpp \
-    "..\..\src\IceGrid\Internal.h" \
+    "Internal.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -5106,16 +5195,18 @@ QueryI.obj: \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
-    "..\..\src\IceGrid\QueryI.h" \
+    "QueryI.h" \
     "$(includedir)\IceGrid\Query.h" \
-    "..\..\src\IceGrid\Database.h" \
+    "Database.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Ice\Ice.h" \
@@ -5168,27 +5259,28 @@ QueryI.obj: \
     "$(includedir)\Freeze\TransactionHolder.h" \
     "$(includedir)\Freeze\Catalog.h" \
     "$(includedir)\Freeze\CatalogData.h" \
-    "..\..\src\IceGrid\ServerCache.h" \
-    "..\..\src\IceGrid\Allocatable.h" \
-    "..\..\src\IceGrid\Cache.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "ServerCache.h" \
+    "Allocatable.h" \
+    "Cache.h" \
+    "Util.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\Random.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
-    "..\..\src\IceGrid\NodeCache.h" \
+    "TraceLevels.h" \
+    "NodeCache.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
-    "..\..\src\IceGrid\ReplicaCache.h" \
+    "ReplicaCache.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
-    "..\..\src\IceGrid\ObjectCache.h" \
-    "..\..\src\IceGrid\AllocatableObjectCache.h" \
-    "..\..\src\IceGrid\AdapterCache.h" \
-    "..\..\src\IceGrid\Topics.h" \
-    "..\..\src\IceGrid\PluginFacadeI.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "ObjectCache.h" \
+    "AllocatableObjectCache.h" \
+    "AdapterCache.h" \
+    "Topics.h" \
+    "PluginFacadeI.h" \
     "$(includedir)\IceGrid\PluginFacade.h" \
-    "..\..\src\IceGrid\StringApplicationInfoDict.h" \
-    "..\..\src\IceGrid\StringAdapterInfoDict.h" \
-    "..\..\src\IceGrid\IdentityObjectInfoDict.h" \
+    "StringApplicationInfoDict.h" \
+    "StringAdapterInfoDict.h" \
+    "IdentityObjectInfoDict.h" \
 
 ReapThread.obj: \
 	ReapThread.cpp \
@@ -5303,12 +5395,12 @@ ReapThread.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\IceGrid\ReapThread.h" \
+    "ReapThread.h" \
 
 RegistryAdminRouter.obj: \
 	RegistryAdminRouter.cpp \
-    "..\..\src\IceGrid\RegistryAdminRouter.h" \
-    "..\..\src\IceGrid\Database.h" \
+    "RegistryAdminRouter.h" \
+    "Database.h" \
     "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -5440,35 +5532,38 @@ RegistryAdminRouter.obj: \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "Internal.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
-    "..\..\src\IceGrid\ServerCache.h" \
+    "ServerCache.h" \
     "$(includedir)\IceGrid\Query.h" \
-    "..\..\src\IceGrid\Allocatable.h" \
-    "..\..\src\IceGrid\Cache.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "Allocatable.h" \
+    "Cache.h" \
+    "Util.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\Random.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
-    "..\..\src\IceGrid\NodeCache.h" \
+    "TraceLevels.h" \
+    "NodeCache.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
-    "..\..\src\IceGrid\ReplicaCache.h" \
+    "ReplicaCache.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
-    "..\..\src\IceGrid\ObjectCache.h" \
-    "..\..\src\IceGrid\AllocatableObjectCache.h" \
-    "..\..\src\IceGrid\AdapterCache.h" \
-    "..\..\src\IceGrid\Topics.h" \
-    "..\..\src\IceGrid\PluginFacadeI.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "ObjectCache.h" \
+    "AllocatableObjectCache.h" \
+    "AdapterCache.h" \
+    "Topics.h" \
+    "PluginFacadeI.h" \
     "$(includedir)\IceGrid\PluginFacade.h" \
-    "..\..\src\IceGrid\StringApplicationInfoDict.h" \
-    "..\..\src\IceGrid\StringAdapterInfoDict.h" \
-    "..\..\src\IceGrid\IdentityObjectInfoDict.h" \
-    "..\..\src\IceGrid\AdminRouter.h" \
+    "StringApplicationInfoDict.h" \
+    "StringAdapterInfoDict.h" \
+    "IdentityObjectInfoDict.h" \
+    "AdminRouter.h" \
 
 RegistryI.obj: \
 	RegistryI.cpp \
@@ -5597,8 +5692,10 @@ RegistryI.obj: \
     "..\..\src\IceStorm\Service.h" \
     "$(includedir)\IceBox\IceBox.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
+    "$(includedir)\IceBox\Config.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
+    "$(includedir)\IceStorm\Config.h" \
     "$(includedir)\IceSSL\IceSSL.h" \
     "$(includedir)\IceSSL\Plugin.h" \
     "$(includedir)\IceSSL\Config.h" \
@@ -5606,9 +5703,10 @@ RegistryI.obj: \
     "$(includedir)\IceSSL\EndpointInfo.h" \
     "$(includedir)\Glacier2\PermissionsVerifier.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Glacier2\NullPermissionsVerifier.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
-    "..\..\src\IceGrid\Database.h" \
+    "TraceLevels.h" \
+    "Database.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Freeze\EvictorF.h" \
@@ -5628,58 +5726,59 @@ RegistryI.obj: \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "Internal.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
-    "..\..\src\IceGrid\ServerCache.h" \
+    "ServerCache.h" \
     "$(includedir)\IceGrid\Query.h" \
-    "..\..\src\IceGrid\Allocatable.h" \
-    "..\..\src\IceGrid\Cache.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "Allocatable.h" \
+    "Cache.h" \
+    "Util.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\Random.h" \
-    "..\..\src\IceGrid\NodeCache.h" \
+    "NodeCache.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
-    "..\..\src\IceGrid\ReplicaCache.h" \
-    "..\..\src\IceGrid\ObjectCache.h" \
-    "..\..\src\IceGrid\AllocatableObjectCache.h" \
-    "..\..\src\IceGrid\AdapterCache.h" \
-    "..\..\src\IceGrid\Topics.h" \
-    "..\..\src\IceGrid\PluginFacadeI.h" \
+    "ReplicaCache.h" \
+    "ObjectCache.h" \
+    "AllocatableObjectCache.h" \
+    "AdapterCache.h" \
+    "Topics.h" \
+    "PluginFacadeI.h" \
     "$(includedir)\IceGrid\PluginFacade.h" \
-    "..\..\src\IceGrid\StringApplicationInfoDict.h" \
-    "..\..\src\IceGrid\StringAdapterInfoDict.h" \
-    "..\..\src\IceGrid\IdentityObjectInfoDict.h" \
-    "..\..\src\IceGrid\ReapThread.h" \
+    "StringApplicationInfoDict.h" \
+    "StringAdapterInfoDict.h" \
+    "IdentityObjectInfoDict.h" \
+    "ReapThread.h" \
     "$(includedir)\IceGrid\Discovery.h" \
     "$(includedir)\IceGrid\Locator.h" \
-    "..\..\src\IceGrid\RegistryI.h" \
-    "..\..\src\IceGrid\PlatformInfo.h" \
-    "..\..\src\IceGrid\ReplicaSessionManager.h" \
-    "..\..\src\IceGrid\SessionManager.h" \
+    "RegistryI.h" \
+    "PlatformInfo.h" \
+    "ReplicaSessionManager.h" \
+    "SessionManager.h" \
     "$(includedir)\Glacier2\PermissionsVerifierF.h" \
-    "..\..\src\IceGrid\LocatorI.h" \
-    "..\..\src\IceGrid\LocatorRegistryI.h" \
-    "..\..\src\IceGrid\AdminI.h" \
-    "..\..\src\IceGrid\QueryI.h" \
-    "..\..\src\IceGrid\SessionI.h" \
-    "..\..\src\IceGrid\SessionServantManager.h" \
-    "..\..\src\IceGrid\AdminCallbackRouter.h" \
+    "LocatorI.h" \
+    "LocatorRegistryI.h" \
+    "AdminI.h" \
+    "QueryI.h" \
+    "SessionI.h" \
+    "SessionServantManager.h" \
+    "AdminCallbackRouter.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \
     "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
-    "..\..\src\IceGrid\AdminSessionI.h" \
-    "..\..\src\IceGrid\InternalRegistryI.h" \
-    "..\..\src\IceGrid\FileUserAccountMapperI.h" \
+    "AdminSessionI.h" \
+    "InternalRegistryI.h" \
+    "FileUserAccountMapperI.h" \
     "$(includedir)\IceGrid\UserAccountMapper.h" \
-    "..\..\src\IceGrid\WellKnownObjectsManager.h" \
-    "..\..\src\IceGrid\FileCache.h" \
-    "..\..\src\IceGrid\RegistryAdminRouter.h" \
-    "..\..\src\IceGrid\AdminRouter.h" \
+    "WellKnownObjectsManager.h" \
+    "FileCache.h" \
+    "RegistryAdminRouter.h" \
+    "AdminRouter.h" \
 
 ReplicaCache.obj: \
 	ReplicaCache.cpp \
@@ -5765,22 +5864,24 @@ ReplicaCache.obj: \
     "$(includedir)\Ice\LoggerUtil.h" \
     "$(includedir)\Ice\Logger.h" \
     "$(includedir)\Ice\Plugin.h" \
-    "..\..\src\IceGrid\ReplicaCache.h" \
-    "..\..\src\IceGrid\Cache.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "ReplicaCache.h" \
+    "Cache.h" \
+    "Util.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\Ice\FactoryTableInit.h" \
     "$(includedir)\Ice\DefaultObjectFactory.h" \
     "$(includedir)\Ice\ObjectFactory.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceGrid\Exception.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceUtil\Random.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "TraceLevels.h" \
+    "Internal.h" \
     "$(includedir)\Ice\ProcessF.h" \
     "$(includedir)\Ice\Locator.h" \
     "$(includedir)\IceGrid\Observer.h" \
@@ -5789,8 +5890,9 @@ ReplicaCache.obj: \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
     "$(includedir)\Ice\Metrics.h" \
-    "..\..\src\IceGrid\ReplicaSessionI.h" \
-    "..\..\src\IceGrid\Topics.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "ReplicaSessionI.h" \
+    "Topics.h" \
 
 ReplicaSessionI.obj: \
 	ReplicaSessionI.cpp \
@@ -5905,18 +6007,20 @@ ReplicaSessionI.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\IceGrid\ReplicaSessionI.h" \
+    "ReplicaSessionI.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Session.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "Internal.h" \
     "$(includedir)\IceGrid\Observer.h" \
-    "..\..\src\IceGrid\Database.h" \
+    "Database.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Freeze\EvictorF.h" \
@@ -5933,31 +6037,32 @@ ReplicaSessionI.obj: \
     "$(includedir)\Freeze\TransactionHolder.h" \
     "$(includedir)\Freeze\Catalog.h" \
     "$(includedir)\Freeze\CatalogData.h" \
-    "..\..\src\IceGrid\ServerCache.h" \
+    "ServerCache.h" \
     "$(includedir)\IceGrid\Query.h" \
-    "..\..\src\IceGrid\Allocatable.h" \
-    "..\..\src\IceGrid\Cache.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "Allocatable.h" \
+    "Cache.h" \
+    "Util.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\Random.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
-    "..\..\src\IceGrid\NodeCache.h" \
+    "TraceLevels.h" \
+    "NodeCache.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
-    "..\..\src\IceGrid\ReplicaCache.h" \
+    "ReplicaCache.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
-    "..\..\src\IceGrid\ObjectCache.h" \
-    "..\..\src\IceGrid\AllocatableObjectCache.h" \
-    "..\..\src\IceGrid\AdapterCache.h" \
-    "..\..\src\IceGrid\Topics.h" \
-    "..\..\src\IceGrid\PluginFacadeI.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "ObjectCache.h" \
+    "AllocatableObjectCache.h" \
+    "AdapterCache.h" \
+    "Topics.h" \
+    "PluginFacadeI.h" \
     "$(includedir)\IceGrid\PluginFacade.h" \
-    "..\..\src\IceGrid\StringApplicationInfoDict.h" \
-    "..\..\src\IceGrid\StringAdapterInfoDict.h" \
-    "..\..\src\IceGrid\IdentityObjectInfoDict.h" \
-    "..\..\src\IceGrid\WellKnownObjectsManager.h" \
+    "StringApplicationInfoDict.h" \
+    "StringAdapterInfoDict.h" \
+    "IdentityObjectInfoDict.h" \
+    "WellKnownObjectsManager.h" \
     "$(includedir)\IceGrid\Locator.h" \
-    "..\..\src\IceGrid\PlatformInfo.h" \
+    "PlatformInfo.h" \
 
 ReplicaSessionManager.obj: \
 	ReplicaSessionManager.cpp \
@@ -6072,21 +6177,23 @@ ReplicaSessionManager.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\IceGrid\ReplicaSessionManager.h" \
-    "..\..\src\IceGrid\SessionManager.h" \
+    "ReplicaSessionManager.h" \
+    "SessionManager.h" \
     "$(includedir)\IceGrid\Query.h" \
     "$(includedir)\IceGrid\Exception.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "$(includedir)\IceGrid\Config.h" \
+    "Internal.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
-    "..\..\src\IceGrid\Database.h" \
+    "TraceLevels.h" \
+    "Database.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Freeze\EvictorF.h" \
@@ -6103,27 +6210,28 @@ ReplicaSessionManager.obj: \
     "$(includedir)\Freeze\TransactionHolder.h" \
     "$(includedir)\Freeze\Catalog.h" \
     "$(includedir)\Freeze\CatalogData.h" \
-    "..\..\src\IceGrid\ServerCache.h" \
-    "..\..\src\IceGrid\Allocatable.h" \
-    "..\..\src\IceGrid\Cache.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "ServerCache.h" \
+    "Allocatable.h" \
+    "Cache.h" \
+    "Util.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\Random.h" \
-    "..\..\src\IceGrid\NodeCache.h" \
+    "NodeCache.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
-    "..\..\src\IceGrid\ReplicaCache.h" \
+    "ReplicaCache.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
-    "..\..\src\IceGrid\ObjectCache.h" \
-    "..\..\src\IceGrid\AllocatableObjectCache.h" \
-    "..\..\src\IceGrid\AdapterCache.h" \
-    "..\..\src\IceGrid\Topics.h" \
-    "..\..\src\IceGrid\PluginFacadeI.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "ObjectCache.h" \
+    "AllocatableObjectCache.h" \
+    "AdapterCache.h" \
+    "Topics.h" \
+    "PluginFacadeI.h" \
     "$(includedir)\IceGrid\PluginFacade.h" \
-    "..\..\src\IceGrid\StringApplicationInfoDict.h" \
-    "..\..\src\IceGrid\StringAdapterInfoDict.h" \
-    "..\..\src\IceGrid\IdentityObjectInfoDict.h" \
-    "..\..\src\IceGrid\WellKnownObjectsManager.h" \
+    "StringApplicationInfoDict.h" \
+    "StringAdapterInfoDict.h" \
+    "IdentityObjectInfoDict.h" \
+    "WellKnownObjectsManager.h" \
     "$(includedir)\IceGrid\Locator.h" \
 
 SerialsDict.obj: \
@@ -6170,7 +6278,7 @@ SerialsDict.obj: \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "..\..\src\IceGrid\SerialsDict.h" \
+    "SerialsDict.h" \
     "$(includedir)\Freeze\Map.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
@@ -6332,16 +6440,18 @@ ServerCache.obj: \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Ice\FacetMap.h" \
     "$(includedir)\Ice\LocalException.h" \
-    "..\..\src\IceGrid\ServerCache.h" \
+    "ServerCache.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\Ice\FactoryTableInit.h" \
     "$(includedir)\Ice\DefaultObjectFactory.h" \
     "$(includedir)\Ice\ObjectFactory.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "$(includedir)\IceGrid\Config.h" \
+    "Internal.h" \
     "$(includedir)\Ice\ProcessF.h" \
     "$(includedir)\Ice\Locator.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Exception.h" \
@@ -6349,21 +6459,21 @@ ServerCache.obj: \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
     "$(includedir)\IceGrid\Query.h" \
-    "..\..\src\IceGrid\Allocatable.h" \
-    "..\..\src\IceGrid\Cache.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "Allocatable.h" \
+    "Cache.h" \
+    "Util.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\Random.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
-    "..\..\src\IceGrid\NodeCache.h" \
+    "TraceLevels.h" \
+    "NodeCache.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
-    "..\..\src\IceGrid\AdapterCache.h" \
-    "..\..\src\IceGrid\ObjectCache.h" \
-    "..\..\src\IceGrid\AllocatableObjectCache.h" \
-    "..\..\src\IceGrid\SessionI.h" \
-    "..\..\src\IceGrid\ReapThread.h" \
-    "..\..\src\IceGrid\SessionServantManager.h" \
-    "..\..\src\IceGrid\AdminCallbackRouter.h" \
+    "AdapterCache.h" \
+    "ObjectCache.h" \
+    "AllocatableObjectCache.h" \
+    "SessionI.h" \
+    "ReapThread.h" \
+    "SessionServantManager.h" \
+    "AdminCallbackRouter.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
     "$(includedir)\Ice\Initialize.h" \
@@ -6394,7 +6504,7 @@ ServerCache.obj: \
     "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\UUID.h" \
-    "..\..\src\IceGrid\DescriptorHelper.h" \
+    "DescriptorHelper.h" \
     "$(includedir)\IceUtil\OutputUtil.h" \
     "..\..\src\IceXML\Parser.h" \
 
@@ -6512,31 +6622,33 @@ SessionI.obj: \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\IceUtil\UUID.h" \
-    "..\..\src\IceGrid\SessionI.h" \
-    "..\..\src\IceGrid\ReapThread.h" \
+    "SessionI.h" \
+    "ReapThread.h" \
     "$(includedir)\IceGrid\Session.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Exception.h" \
-    "..\..\src\IceGrid\SessionServantManager.h" \
-    "..\..\src\IceGrid\AdminCallbackRouter.h" \
+    "$(includedir)\IceGrid\Config.h" \
+    "SessionServantManager.h" \
+    "AdminCallbackRouter.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \
     "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
-    "..\..\src\IceGrid\QueryI.h" \
+    "QueryI.h" \
     "$(includedir)\IceGrid\Query.h" \
-    "..\..\src\IceGrid\LocatorI.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "LocatorI.h" \
+    "Internal.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Locator.h" \
-    "..\..\src\IceGrid\Database.h" \
+    "Database.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Freeze\EvictorF.h" \
@@ -6553,26 +6665,27 @@ SessionI.obj: \
     "$(includedir)\Freeze\TransactionHolder.h" \
     "$(includedir)\Freeze\Catalog.h" \
     "$(includedir)\Freeze\CatalogData.h" \
-    "..\..\src\IceGrid\ServerCache.h" \
-    "..\..\src\IceGrid\Allocatable.h" \
-    "..\..\src\IceGrid\Cache.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "ServerCache.h" \
+    "Allocatable.h" \
+    "Cache.h" \
+    "Util.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\Random.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
-    "..\..\src\IceGrid\NodeCache.h" \
-    "..\..\src\IceGrid\ReplicaCache.h" \
+    "TraceLevels.h" \
+    "NodeCache.h" \
+    "ReplicaCache.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
-    "..\..\src\IceGrid\ObjectCache.h" \
-    "..\..\src\IceGrid\AllocatableObjectCache.h" \
-    "..\..\src\IceGrid\AdapterCache.h" \
-    "..\..\src\IceGrid\Topics.h" \
-    "..\..\src\IceGrid\PluginFacadeI.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "ObjectCache.h" \
+    "AllocatableObjectCache.h" \
+    "AdapterCache.h" \
+    "Topics.h" \
+    "PluginFacadeI.h" \
     "$(includedir)\IceGrid\PluginFacade.h" \
-    "..\..\src\IceGrid\StringApplicationInfoDict.h" \
-    "..\..\src\IceGrid\StringAdapterInfoDict.h" \
-    "..\..\src\IceGrid\IdentityObjectInfoDict.h" \
+    "StringApplicationInfoDict.h" \
+    "StringAdapterInfoDict.h" \
+    "IdentityObjectInfoDict.h" \
     "$(includedir)\IceSSL\Plugin.h" \
     "$(includedir)\IceSSL\Config.h" \
     "$(includedir)\IceSSL\ConnectionInfo.h" \
@@ -6646,8 +6759,8 @@ SessionServantManager.obj: \
     "$(includedir)\Ice\LocatorF.h" \
     "$(includedir)\Ice\FacetMap.h" \
     "$(includedir)\Ice\Endpoint.h" \
-    "..\..\src\IceGrid\SessionServantManager.h" \
-    "..\..\src\IceGrid\AdminCallbackRouter.h" \
+    "SessionServantManager.h" \
+    "AdminCallbackRouter.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
     "$(includedir)\Ice\Initialize.h" \
@@ -6701,6 +6814,7 @@ SessionServantManager.obj: \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
 
 StringAdapterInfoDict.obj: \
 	StringAdapterInfoDict.cpp \
@@ -6746,7 +6860,7 @@ StringAdapterInfoDict.obj: \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "..\..\src\IceGrid\StringAdapterInfoDict.h" \
+    "StringAdapterInfoDict.h" \
     "$(includedir)\Freeze\Map.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
@@ -6826,7 +6940,9 @@ StringAdapterInfoDict.obj: \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
 
 StringApplicationInfoDict.obj: \
@@ -6873,7 +6989,7 @@ StringApplicationInfoDict.obj: \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "..\..\src\IceGrid\StringApplicationInfoDict.h" \
+    "StringApplicationInfoDict.h" \
     "$(includedir)\Freeze\Map.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
@@ -6953,7 +7069,9 @@ StringApplicationInfoDict.obj: \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
 
 Topics.obj: \
@@ -7069,20 +7187,23 @@ Topics.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\IceGrid\Topics.h" \
+    "Topics.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "Internal.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
-    "..\..\src\IceGrid\DescriptorHelper.h" \
+    "DescriptorHelper.h" \
     "$(includedir)\IceUtil\OutputUtil.h" \
     "..\..\src\IceXML\Parser.h" \
 
@@ -7160,8 +7281,9 @@ WellKnownObjectsManager.obj: \
     "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
-    "..\..\src\IceGrid\WellKnownObjectsManager.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "$(includedir)\Glacier2\Config.h" \
+    "WellKnownObjectsManager.h" \
+    "Internal.h" \
     "$(includedir)\Ice\IncomingAsync.h" \
     "$(includedir)\Ice\ProcessF.h" \
     "$(includedir)\Ice\Locator.h" \
@@ -7171,12 +7293,13 @@ WellKnownObjectsManager.obj: \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
     "$(includedir)\IceGrid\Locator.h" \
-    "..\..\src\IceGrid\Database.h" \
+    "Database.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Ice\Ice.h" \
@@ -7229,28 +7352,29 @@ WellKnownObjectsManager.obj: \
     "$(includedir)\Freeze\TransactionHolder.h" \
     "$(includedir)\Freeze\Catalog.h" \
     "$(includedir)\Freeze\CatalogData.h" \
-    "..\..\src\IceGrid\ServerCache.h" \
+    "ServerCache.h" \
     "$(includedir)\IceGrid\Query.h" \
-    "..\..\src\IceGrid\Allocatable.h" \
-    "..\..\src\IceGrid\Cache.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "Allocatable.h" \
+    "Cache.h" \
+    "Util.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\Random.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
-    "..\..\src\IceGrid\NodeCache.h" \
+    "TraceLevels.h" \
+    "NodeCache.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
-    "..\..\src\IceGrid\ReplicaCache.h" \
+    "ReplicaCache.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
-    "..\..\src\IceGrid\ObjectCache.h" \
-    "..\..\src\IceGrid\AllocatableObjectCache.h" \
-    "..\..\src\IceGrid\AdapterCache.h" \
-    "..\..\src\IceGrid\Topics.h" \
-    "..\..\src\IceGrid\PluginFacadeI.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "ObjectCache.h" \
+    "AllocatableObjectCache.h" \
+    "AdapterCache.h" \
+    "Topics.h" \
+    "PluginFacadeI.h" \
     "$(includedir)\IceGrid\PluginFacade.h" \
-    "..\..\src\IceGrid\StringApplicationInfoDict.h" \
-    "..\..\src\IceGrid\StringAdapterInfoDict.h" \
-    "..\..\src\IceGrid\IdentityObjectInfoDict.h" \
+    "StringApplicationInfoDict.h" \
+    "StringAdapterInfoDict.h" \
+    "IdentityObjectInfoDict.h" \
 
 IceGridNode.obj: \
 	IceGridNode.cpp \
@@ -7368,41 +7492,46 @@ IceGridNode.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\IceGrid\Activator.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "Activator.h" \
+    "Internal.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
-    "..\..\src\IceGrid\NodeAdminRouter.h" \
-    "..\..\src\IceGrid\NodeI.h" \
+    "NodeAdminRouter.h" \
+    "NodeI.h" \
     "$(includedir)\IcePatch2\FileServer.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
-    "..\..\src\IceGrid\PlatformInfo.h" \
+    "$(includedir)\IcePatch2\Config.h" \
+    "PlatformInfo.h" \
     "$(includedir)\IceGrid\UserAccountMapper.h" \
-    "..\..\src\IceGrid\FileCache.h" \
-    "..\..\src\IceGrid\AdminRouter.h" \
-    "..\..\src\IceGrid\RegistryI.h" \
+    "FileCache.h" \
+    "AdminRouter.h" \
+    "RegistryI.h" \
     "$(includedir)\IceGrid\Query.h" \
     "$(includedir)\IceGrid\Locator.h" \
-    "..\..\src\IceGrid\ReplicaSessionManager.h" \
-    "..\..\src\IceGrid\SessionManager.h" \
+    "ReplicaSessionManager.h" \
+    "SessionManager.h" \
     "$(includedir)\IceGrid\PluginFacade.h" \
     "$(includedir)\Glacier2\PermissionsVerifierF.h" \
     "..\..\src\IceStorm\Service.h" \
     "$(includedir)\IceBox\IceBox.h" \
+    "$(includedir)\IceBox\Config.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
-    "..\..\src\IceGrid\FileUserAccountMapperI.h" \
-    "..\..\src\IceGrid\NodeSessionManager.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
-    "..\..\src\IceGrid\DescriptorParser.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "FileUserAccountMapperI.h" \
+    "NodeSessionManager.h" \
+    "TraceLevels.h" \
+    "DescriptorParser.h" \
+    "Util.h" \
     "$(includedir)\IceUtil\Random.h" \
     "$(includedir)\IcePatch2\Util.h" \
 
@@ -7521,29 +7650,33 @@ IceGridRegistry.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\IceGrid\RegistryI.h" \
+    "RegistryI.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Session.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Query.h" \
     "$(includedir)\IceGrid\Locator.h" \
-    "..\..\src\IceGrid\Internal.h" \
+    "Internal.h" \
     "$(includedir)\IceGrid\Observer.h" \
-    "..\..\src\IceGrid\PlatformInfo.h" \
-    "..\..\src\IceGrid\ReplicaSessionManager.h" \
-    "..\..\src\IceGrid\SessionManager.h" \
+    "PlatformInfo.h" \
+    "ReplicaSessionManager.h" \
+    "SessionManager.h" \
     "$(includedir)\IceGrid\PluginFacade.h" \
     "$(includedir)\Glacier2\PermissionsVerifierF.h" \
     "..\..\src\IceStorm\Service.h" \
     "$(includedir)\IceBox\IceBox.h" \
+    "$(includedir)\IceBox\Config.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
-    "..\..\src\IceGrid\TraceLevels.h" \
-    "..\..\src\IceGrid\Util.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "TraceLevels.h" \
+    "Util.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\Random.h" \

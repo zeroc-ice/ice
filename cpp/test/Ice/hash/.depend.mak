@@ -192,7 +192,7 @@ Client.obj: \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\IceUtil\Random.h" \
     "Test.h" \
-    "$(top_srcdir)\test\include\TestCommon.h" \
+    "..\..\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \

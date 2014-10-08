@@ -422,5 +422,6 @@ HelloServiceI.obj: \
     "HelloServiceI.h" \
     "$(includedir)\IceBox\IceBox.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
+    "$(includedir)\IceBox\Config.h" \
     "HelloI.h" \
     "Hello.h" \

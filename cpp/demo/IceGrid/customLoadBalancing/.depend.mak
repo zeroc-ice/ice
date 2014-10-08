@@ -194,7 +194,9 @@ Client.obj: \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\FileParser.h" \
     "$(includedir)\IceGrid\Locator.h" \
@@ -325,7 +327,9 @@ RegistryPlugin.obj: \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\FileParser.h" \
     "$(includedir)\IceGrid\Locator.h" \

@@ -88,6 +88,7 @@ IceStorm.obj: \
     "$(includedir)\IceStorm\Metrics.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
+    "$(includedir)\IceStorm\Config.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\IceUtil\DisableWarnings.h" \
@@ -166,6 +167,7 @@ Metrics.obj: \
     "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
+    "$(includedir)\IceStorm\Config.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \

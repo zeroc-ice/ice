@@ -196,7 +196,7 @@ Client.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "$(top_srcdir)\test\include\TestCommon.h" \
+    "..\..\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \
@@ -326,7 +326,7 @@ AllTests.obj: \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\UUID.h" \
-    "$(top_srcdir)\test\include\TestCommon.h" \
+    "..\..\include\TestCommon.h" \
     "Test.h" \
 
 TestI.obj: \
@@ -559,7 +559,7 @@ ServerLocator.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "$(top_srcdir)\test\include\TestCommon.h" \
+    "..\..\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \
@@ -685,7 +685,7 @@ Server.obj: \
     "$(includedir)\Ice\Service.h" \
     "ServerLocator.h" \
     "Test.h" \
-    "$(top_srcdir)\test\include\TestCommon.h" \
+    "..\..\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \

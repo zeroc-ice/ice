@@ -1,7 +1,7 @@
 
 ServiceInstaller.obj: \
 	ServiceInstaller.cpp \
-    "..\..\src\iceserviceinstall\ServiceInstaller.h" \
+    "ServiceInstaller.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -238,7 +238,7 @@ Install.obj: \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\IceUtil\Options.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
-    "..\..\src\iceserviceinstall\ServiceInstaller.h" \
+    "ServiceInstaller.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \

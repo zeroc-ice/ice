@@ -2,7 +2,7 @@
 Gen.obj: \
 	Gen.cpp \
     "$(includedir)\IceUtil\DisableWarnings.h" \
-    "..\..\src\slice2java\Gen.h" \
+    "Gen.h" \
     "$(includedir)\Slice\Parser.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -37,6 +37,6 @@ Main.obj: \
     "$(includedir)\Slice\Parser.h" \
     "$(includedir)\Slice\Util.h" \
     "$(includedir)\IceUtil\OutputUtil.h" \
-    "..\..\src\slice2java\Gen.h" \
+    "Gen.h" \
     "$(includedir)\Slice\JavaUtil.h" \
     "$(includedir)\Slice\Checksum.h" \

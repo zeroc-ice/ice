@@ -8,7 +8,7 @@ FileServerI.obj: \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
-    "..\..\src\IcePatch2\FileServerI.h" \
+    "FileServerI.h" \
     "$(includedir)\IcePatch2\Util.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\Config.h" \
@@ -117,6 +117,7 @@ FileServerI.obj: \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
+    "$(includedir)\IcePatch2\Config.h" \
     "$(includedir)\IcePatch2\FileServer.h" \
 
 Server.obj: \
@@ -236,9 +237,10 @@ Server.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
-    "..\..\src\IcePatch2\FileServerI.h" \
+    "FileServerI.h" \
     "$(includedir)\IcePatch2\Util.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
+    "$(includedir)\IcePatch2\Config.h" \
     "$(includedir)\IcePatch2\FileServer.h" \
 
 Client.obj: \
@@ -359,6 +361,7 @@ Client.obj: \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\IcePatch2\Util.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
+    "$(includedir)\IcePatch2\Config.h" \
     "$(includedir)\IcePatch2\ClientUtil.h" \
     "$(includedir)\IcePatch2\FileServer.h" \
 
@@ -481,3 +484,4 @@ Calc.obj: \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
+    "$(includedir)\IcePatch2\Config.h" \

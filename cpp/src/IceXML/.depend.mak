@@ -1,7 +1,7 @@
 
 Parser.obj: \
 	Parser.cpp \
-    "..\..\src\IceXML\Parser.h" \
+    "Parser.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\Handle.h" \

@@ -151,6 +151,8 @@ OBJS	       =  .\Acceptor.obj \
 HDIR		= $(headerdir)\Ice
 SDIR		= $(slicedir)\Ice
 
+all:: EventLoggerMsg.h
+
 !include $(top_srcdir)\config\Make.rules.mak
 
 CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_API_EXPORTS -DWIN32_LEAN_AND_MEAN -bigobj
@@ -176,7 +178,7 @@ $(DLLNAME): $(OBJS) Ice.res
 
 Ice.res: EventLoggerMsg.rc
 
-..\..\src\Ice\EventLoggerMsg.h EventLoggerMsg.rc: EventLoggerMsg.mc
+EventLoggerMsg.h EventLoggerMsg.rc: EventLoggerMsg.mc
         mc EventLoggerMsg.mc
 
 clean::
@@ -220,7 +222,7 @@ clean::
 	-del /q SliceChecksumDict.cpp $(HDIR)\SliceChecksumDict.h
 	-del /q Version.cpp $(HDIR)\Version.h
 	-del /q Ice.res
-        -del /q EventLoggerMsg.h EventLoggerMsg.rc MSG00001.bin
+	-del /q EventLoggerMsg.h EventLoggerMsg.rc MSG00001.bin
 
 install:: all
 	copy $(LIBNAME) "$(install_libdir)"

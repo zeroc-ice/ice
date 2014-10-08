@@ -81,6 +81,7 @@ Chat.obj: \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\SlicedData.h" \
 
@@ -208,6 +209,7 @@ Client.obj: \
     "$(includedir)\Glacier2\Router.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Glacier2\PermissionsVerifier.h" \
     "$(includedir)\Glacier2\Metrics.h" \
     "$(includedir)\Glacier2\Application.h" \
@@ -331,6 +333,7 @@ ChatSessionI.obj: \
     "Chat.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
 
 Server.obj: \
 	Server.cpp \
@@ -456,6 +459,7 @@ Server.obj: \
     "$(includedir)\Glacier2\Router.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Glacier2\PermissionsVerifier.h" \
     "$(includedir)\Glacier2\Metrics.h" \
     "$(includedir)\Glacier2\Application.h" \

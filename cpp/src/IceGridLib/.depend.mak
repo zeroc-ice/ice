@@ -228,9 +228,10 @@ DiscoveryPluginI.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\IceGridLib\DiscoveryPluginI.h" \
+    "DiscoveryPluginI.h" \
     "$(includedir)\IceGrid\Discovery.h" \
     "$(includedir)\IceGrid\Locator.h" \
+    "$(includedir)\IceGrid\Config.h" \
 
 PluginFacadeI.obj: \
 	PluginFacadeI.cpp \
@@ -312,7 +313,9 @@ PluginFacadeI.obj: \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\FileParser.h" \
     "$(includedir)\IceGrid\Locator.h" \
@@ -405,7 +408,9 @@ Admin.obj: \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\SlicedData.h" \
@@ -485,6 +490,7 @@ Descriptor.obj: \
     "$(includedir)\Ice\DefaultObjectFactory.h" \
     "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
@@ -566,6 +572,7 @@ Discovery.obj: \
     "$(includedir)\IceGrid\Locator.h" \
     "$(includedir)\Ice\Locator.h" \
     "$(includedir)\Ice\ProcessF.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\SliceChecksums.h" \
@@ -607,6 +614,7 @@ Exception.obj: \
     "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\Ice\BasicStream.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\Ice\InstanceF.h" \
@@ -705,7 +713,9 @@ FileParser.obj: \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\SlicedData.h" \
@@ -787,6 +797,7 @@ Locator.obj: \
     "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\Ice\Locator.h" \
     "$(includedir)\Ice\ProcessF.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\SliceChecksums.h" \
@@ -869,7 +880,9 @@ Observer.obj: \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\Properties.h" \
@@ -960,7 +973,9 @@ PluginFacade.obj: \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\SlicedData.h" \
@@ -1041,6 +1056,7 @@ Query.obj: \
     "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
@@ -1121,9 +1137,11 @@ Registry.obj: \
     "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\IceGrid\Exception.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Session.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Ice\Properties.h" \
     "$(includedir)\Ice\PropertiesAdmin.h" \
@@ -1210,7 +1228,9 @@ Session.obj: \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\SlicedData.h" \
     "$(includedir)\Ice\SliceChecksums.h" \
@@ -1289,6 +1309,7 @@ UserAccountMapper.obj: \
     "$(includedir)\Ice\FactoryTableInit.h" \
     "$(includedir)\Ice\DefaultObjectFactory.h" \
     "$(includedir)\Ice\ObjectFactory.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\SliceChecksums.h" \

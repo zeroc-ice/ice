@@ -7,7 +7,7 @@ Checksum.obj: \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\Exception.h" \
-    "..\..\src\Slice\MD5.h" \
+    "MD5.h" \
     "$(includedir)\IceUtil\OutputUtil.h" \
 
 CPlusPlusUtil.obj: \
@@ -49,7 +49,7 @@ FileTracker.obj: \
 
 Grammar.obj: \
 	Grammar.cpp \
-    "..\..\src\Slice\GrammarUtil.h" \
+    "GrammarUtil.h" \
     "$(includedir)\Slice\Parser.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -70,18 +70,18 @@ JavaUtil.obj: \
     "$(includedir)\IceUtil\OutputUtil.h" \
     "$(includedir)\Slice\FileTracker.h" \
     "$(includedir)\Slice\Util.h" \
-    "..\..\src\Slice\MD5.h" \
+    "MD5.h" \
     "$(includedir)\IceUtil\Functional.h" \
 
 MD5.obj: \
 	MD5.cpp \
-    "..\..\src\Slice\MD5.h" \
+    "MD5.h" \
     "$(includedir)\IceUtil\Config.h" \
-    "..\..\src\Slice\MD5I.h" \
+    "MD5I.h" \
 
 MD5I.obj: \
 	MD5I.cpp \
-    "..\..\src\Slice\MD5I.h" \
+    "MD5I.h" \
 
 Parser.obj: \
 	Parser.cpp \
@@ -93,7 +93,7 @@ Parser.obj: \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\Slice\Parser.h" \
     "$(includedir)\IceUtil\Shared.h" \
-    "..\..\src\Slice\GrammarUtil.h" \
+    "GrammarUtil.h" \
     "$(includedir)\Slice\Util.h" \
     "$(includedir)\IceUtil\OutputUtil.h" \
 
@@ -175,12 +175,12 @@ Scanner.obj: \
 	Scanner.cpp \
     "$(includedir)\IceUtil\ScannerConfig.h" \
     "$(includedir)\IceUtil\Config.h" \
-    "..\..\src\Slice\GrammarUtil.h" \
+    "GrammarUtil.h" \
     "$(includedir)\Slice\Parser.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\Exception.h" \
-    "..\..\src\Slice\Grammar.h" \
+    "Grammar.h" \
     "$(includedir)\IceUtil\InputUtil.h" \
 
 Util.obj: \

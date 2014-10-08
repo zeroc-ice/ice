@@ -195,7 +195,7 @@ Client.obj: \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\UUID.h" \
-    "$(top_srcdir)\test\include\TestCommon.h" \
+    "..\..\include\TestCommon.h" \
     "Test.h" \
 
 AllTests.obj: \
@@ -323,7 +323,9 @@ AllTests.obj: \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\FileParser.h" \
     "$(includedir)\IceGrid\Locator.h" \
@@ -334,7 +336,7 @@ AllTests.obj: \
     "$(includedir)\IceGrid\UserAccountMapper.h" \
     "$(includedir)\IceGrid\PluginFacade.h" \
     "$(includedir)\IceGrid\Discovery.h" \
-    "$(top_srcdir)\test\include\TestCommon.h" \
+    "..\..\include\TestCommon.h" \
     "Test.h" \
 
 TestI.obj: \

@@ -310,7 +310,7 @@ AllTests.obj: \
     "$(includedir)\IceSSL\Plugin.h" \
     "$(includedir)\IceSSL\Config.h" \
     "$(includedir)\IceSSL\ConnectionInfo.h" \
-    "$(top_srcdir)\test\include\TestCommon.h" \
+    "..\..\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \
@@ -438,7 +438,7 @@ TestI.obj: \
     "$(includedir)\Ice\Service.h" \
     "TestI.h" \
     "Test.h" \
-    "$(top_srcdir)\test\include\TestCommon.h" \
+    "..\..\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \

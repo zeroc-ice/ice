@@ -1,8 +1,8 @@
 
 Communicator.obj: \
 	Communicator.cpp \
-    "..\..\src\IcePHP\Communicator.h" \
-    "..\..\src\IcePHP\Config.h" \
+    "Communicator.h" \
+    "Config.h" \
     "$(ice_cpp_dir)\include\Ice\Ice.h" \
     "$(ice_cpp_dir)\include\Ice\Config.h" \
     "$(ice_cpp_dir)\include\IceUtil\Config.h" \
@@ -114,21 +114,21 @@ Communicator.obj: \
     "$(ice_cpp_dir)\include\Ice\NativePropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\Metrics.h" \
     "$(ice_cpp_dir)\include\Ice\Service.h" \
-    "..\..\src\IcePHP\Logger.h" \
-    "..\..\src\IcePHP\Properties.h" \
-    "..\..\src\IcePHP\Proxy.h" \
-    "..\..\src\IcePHP\Types.h" \
-    "..\..\src\IcePHP\Operation.h" \
+    "Logger.h" \
+    "Properties.h" \
+    "Proxy.h" \
+    "Types.h" \
+    "Operation.h" \
     "$(ice_cpp_dir)\include\IceUtil\OutputUtil.h" \
-    "..\..\src\IcePHP\Util.h" \
+    "Util.h" \
     "$(ice_cpp_dir)\include\IceUtil\Options.h" \
     "$(ice_cpp_dir)\include\IceUtil\RecMutex.h" \
     "$(ice_cpp_dir)\include\IceUtil\StringUtil.h" \
 
 Connection.obj: \
 	Connection.cpp \
-    "..\..\src\IcePHP\Connection.h" \
-    "..\..\src\IcePHP\Config.h" \
+    "Connection.h" \
+    "Config.h" \
     "$(ice_cpp_dir)\include\Ice\Ice.h" \
     "$(ice_cpp_dir)\include\Ice\Config.h" \
     "$(ice_cpp_dir)\include\IceUtil\Config.h" \
@@ -240,17 +240,17 @@ Connection.obj: \
     "$(ice_cpp_dir)\include\Ice\NativePropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\Metrics.h" \
     "$(ice_cpp_dir)\include\Ice\Service.h" \
-    "..\..\src\IcePHP\Endpoint.h" \
-    "..\..\src\IcePHP\Types.h" \
-    "..\..\src\IcePHP\Communicator.h" \
-    "..\..\src\IcePHP\Operation.h" \
+    "Endpoint.h" \
+    "Types.h" \
+    "Communicator.h" \
+    "Operation.h" \
     "$(ice_cpp_dir)\include\IceUtil\OutputUtil.h" \
-    "..\..\src\IcePHP\Util.h" \
+    "Util.h" \
 
 Endpoint.obj: \
 	Endpoint.cpp \
-    "..\..\src\IcePHP\Endpoint.h" \
-    "..\..\src\IcePHP\Config.h" \
+    "Endpoint.h" \
+    "Config.h" \
     "$(ice_cpp_dir)\include\Ice\Ice.h" \
     "$(ice_cpp_dir)\include\Ice\Config.h" \
     "$(ice_cpp_dir)\include\IceUtil\Config.h" \
@@ -362,12 +362,12 @@ Endpoint.obj: \
     "$(ice_cpp_dir)\include\Ice\NativePropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\Metrics.h" \
     "$(ice_cpp_dir)\include\Ice\Service.h" \
-    "..\..\src\IcePHP\Util.h" \
+    "Util.h" \
 
 Init.obj: \
 	Init.cpp \
-    "..\..\src\IcePHP\Communicator.h" \
-    "..\..\src\IcePHP\Config.h" \
+    "Communicator.h" \
+    "Config.h" \
     "$(ice_cpp_dir)\include\Ice\Ice.h" \
     "$(ice_cpp_dir)\include\Ice\Config.h" \
     "$(ice_cpp_dir)\include\IceUtil\Config.h" \
@@ -479,20 +479,20 @@ Init.obj: \
     "$(ice_cpp_dir)\include\Ice\NativePropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\Metrics.h" \
     "$(ice_cpp_dir)\include\Ice\Service.h" \
-    "..\..\src\IcePHP\Connection.h" \
-    "..\..\src\IcePHP\Endpoint.h" \
-    "..\..\src\IcePHP\Logger.h" \
-    "..\..\src\IcePHP\Operation.h" \
-    "..\..\src\IcePHP\Properties.h" \
-    "..\..\src\IcePHP\Proxy.h" \
-    "..\..\src\IcePHP\Types.h" \
+    "Connection.h" \
+    "Endpoint.h" \
+    "Logger.h" \
+    "Operation.h" \
+    "Properties.h" \
+    "Proxy.h" \
+    "Types.h" \
     "$(ice_cpp_dir)\include\IceUtil\OutputUtil.h" \
-    "..\..\src\IcePHP\Util.h" \
+    "Util.h" \
 
 Logger.obj: \
 	Logger.cpp \
-    "..\..\src\IcePHP\Logger.h" \
-    "..\..\src\IcePHP\Config.h" \
+    "Logger.h" \
+    "Config.h" \
     "$(ice_cpp_dir)\include\Ice\Ice.h" \
     "$(ice_cpp_dir)\include\Ice\Config.h" \
     "$(ice_cpp_dir)\include\IceUtil\Config.h" \
@@ -604,12 +604,12 @@ Logger.obj: \
     "$(ice_cpp_dir)\include\Ice\NativePropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\Metrics.h" \
     "$(ice_cpp_dir)\include\Ice\Service.h" \
-    "..\..\src\IcePHP\Util.h" \
+    "Util.h" \
 
 Operation.obj: \
 	Operation.cpp \
-    "..\..\src\IcePHP\Operation.h" \
-    "..\..\src\IcePHP\Config.h" \
+    "Operation.h" \
+    "Config.h" \
     "$(ice_cpp_dir)\include\Ice\Ice.h" \
     "$(ice_cpp_dir)\include\Ice\Config.h" \
     "$(ice_cpp_dir)\include\IceUtil\Config.h" \
@@ -721,18 +721,18 @@ Operation.obj: \
     "$(ice_cpp_dir)\include\Ice\NativePropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\Metrics.h" \
     "$(ice_cpp_dir)\include\Ice\Service.h" \
-    "..\..\src\IcePHP\Communicator.h" \
-    "..\..\src\IcePHP\Proxy.h" \
-    "..\..\src\IcePHP\Types.h" \
+    "Communicator.h" \
+    "Proxy.h" \
+    "Types.h" \
     "$(ice_cpp_dir)\include\IceUtil\OutputUtil.h" \
-    "..\..\src\IcePHP\Util.h" \
+    "Util.h" \
     "$(ice_cpp_dir)\include\Slice\PHPUtil.h" \
     "$(ice_cpp_dir)\include\Slice\Parser.h" \
 
 Properties.obj: \
 	Properties.cpp \
-    "..\..\src\IcePHP\Properties.h" \
-    "..\..\src\IcePHP\Config.h" \
+    "Properties.h" \
+    "Config.h" \
     "$(ice_cpp_dir)\include\Ice\Ice.h" \
     "$(ice_cpp_dir)\include\Ice\Config.h" \
     "$(ice_cpp_dir)\include\IceUtil\Config.h" \
@@ -844,12 +844,12 @@ Properties.obj: \
     "$(ice_cpp_dir)\include\Ice\NativePropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\Metrics.h" \
     "$(ice_cpp_dir)\include\Ice\Service.h" \
-    "..\..\src\IcePHP\Util.h" \
+    "Util.h" \
 
 Proxy.obj: \
 	Proxy.cpp \
-    "..\..\src\IcePHP\Proxy.h" \
-    "..\..\src\IcePHP\Config.h" \
+    "Proxy.h" \
+    "Config.h" \
     "$(ice_cpp_dir)\include\Ice\Ice.h" \
     "$(ice_cpp_dir)\include\Ice\Config.h" \
     "$(ice_cpp_dir)\include\IceUtil\Config.h" \
@@ -961,18 +961,18 @@ Proxy.obj: \
     "$(ice_cpp_dir)\include\Ice\NativePropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\Metrics.h" \
     "$(ice_cpp_dir)\include\Ice\Service.h" \
-    "..\..\src\IcePHP\Communicator.h" \
-    "..\..\src\IcePHP\Types.h" \
-    "..\..\src\IcePHP\Operation.h" \
+    "Communicator.h" \
+    "Types.h" \
+    "Operation.h" \
     "$(ice_cpp_dir)\include\IceUtil\OutputUtil.h" \
-    "..\..\src\IcePHP\Connection.h" \
-    "..\..\src\IcePHP\Endpoint.h" \
-    "..\..\src\IcePHP\Util.h" \
+    "Connection.h" \
+    "Endpoint.h" \
+    "Util.h" \
 
 Types.obj: \
 	Types.cpp \
-    "..\..\src\IcePHP\Types.h" \
-    "..\..\src\IcePHP\Config.h" \
+    "Types.h" \
+    "Config.h" \
     "$(ice_cpp_dir)\include\Ice\Ice.h" \
     "$(ice_cpp_dir)\include\Ice\Config.h" \
     "$(ice_cpp_dir)\include\IceUtil\Config.h" \
@@ -1084,19 +1084,19 @@ Types.obj: \
     "$(ice_cpp_dir)\include\Ice\NativePropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\Metrics.h" \
     "$(ice_cpp_dir)\include\Ice\Service.h" \
-    "..\..\src\IcePHP\Communicator.h" \
-    "..\..\src\IcePHP\Operation.h" \
+    "Communicator.h" \
+    "Operation.h" \
     "$(ice_cpp_dir)\include\IceUtil\OutputUtil.h" \
-    "..\..\src\IcePHP\Proxy.h" \
-    "..\..\src\IcePHP\Util.h" \
+    "Proxy.h" \
+    "Util.h" \
     "$(ice_cpp_dir)\include\IceUtil\InputUtil.h" \
     "$(ice_cpp_dir)\include\Slice\PHPUtil.h" \
     "$(ice_cpp_dir)\include\Slice\Parser.h" \
 
 Util.obj: \
 	Util.cpp \
-    "..\..\src\IcePHP\Util.h" \
-    "..\..\src\IcePHP\Config.h" \
+    "Util.h" \
+    "Config.h" \
     "$(ice_cpp_dir)\include\Ice\Ice.h" \
     "$(ice_cpp_dir)\include\Ice\Config.h" \
     "$(ice_cpp_dir)\include\IceUtil\Config.h" \

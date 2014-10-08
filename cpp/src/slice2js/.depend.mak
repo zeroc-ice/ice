@@ -8,8 +8,8 @@ Gen.obj: \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\InputUtil.h" \
-    "..\..\src\slice2js\Gen.h" \
-    "..\..\src\slice2js\JsUtil.h" \
+    "Gen.h" \
+    "JsUtil.h" \
     "$(includedir)\Slice\Parser.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\OutputUtil.h" \
@@ -21,7 +21,7 @@ Gen.obj: \
 
 JsUtil.obj: \
 	JsUtil.cpp \
-    "..\..\src\slice2js\JsUtil.h" \
+    "JsUtil.h" \
     "$(includedir)\Slice\Parser.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -51,5 +51,5 @@ Main.obj: \
     "$(includedir)\Slice\Parser.h" \
     "$(includedir)\Slice\Util.h" \
     "$(includedir)\IceUtil\OutputUtil.h" \
-    "..\..\src\slice2js\Gen.h" \
-    "..\..\src\slice2js\JsUtil.h" \
+    "Gen.h" \
+    "JsUtil.h" \

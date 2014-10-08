@@ -126,6 +126,7 @@ ClientUtil.obj: \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\IcePatch2\FileServer.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
+    "$(includedir)\IcePatch2\Config.h" \
     "$(includedir)\IcePatch2\Util.h" \
 
 Util.obj: \
@@ -254,6 +255,7 @@ Util.obj: \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
+    "$(includedir)\IcePatch2\Config.h" \
 
 FileInfo.obj: \
 	FileInfo.cpp \
@@ -278,6 +280,7 @@ FileInfo.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IcePatch2\Config.h" \
     "$(includedir)\Ice\BasicStream.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\Ice\InstanceF.h" \
@@ -377,5 +380,6 @@ FileServer.obj: \
     "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
+    "$(includedir)\IcePatch2\Config.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\IceUtil\DisableWarnings.h" \

@@ -76,3 +76,7 @@ js/lib
 *.keychain
 
 .depend
+
+cpp/src/Ice/EventLoggerMsg.h
+cpp/src/Ice/EventLoggerMsg.rc
+*.bin

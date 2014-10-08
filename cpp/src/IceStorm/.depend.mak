@@ -108,7 +108,7 @@ V32Format.cpp: \
 
 Instance.obj: \
 	Instance.cpp \
-    "..\..\src\IceStorm\Instance.h" \
+    "Instance.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
@@ -169,7 +169,7 @@ Instance.obj: \
     "$(includedir)\Ice\ObserverHelper.h" \
     "$(includedir)\Ice\Instrumentation.h" \
     "$(includedir)\Ice\ThreadPoolF.h" \
-    "..\..\src\IceStorm\Election.h" \
+    "Election.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Outgoing.h" \
@@ -181,16 +181,17 @@ Instance.obj: \
     "$(includedir)\Ice\DefaultObjectFactory.h" \
     "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
-    "..\..\src\IceStorm\SubscriberRecord.h" \
+    "SubscriberRecord.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
     "$(includedir)\Ice\Metrics.h" \
-    "..\..\src\IceStorm\LLURecord.h" \
-    "..\..\src\IceStorm\Instrumentation.h" \
-    "..\..\src\IceStorm\TraceLevels.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "LLURecord.h" \
+    "Instrumentation.h" \
+    "TraceLevels.h" \
     "$(includedir)\Ice\LoggerF.h" \
-    "..\..\src\IceStorm\Observers.h" \
+    "Observers.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
     "$(includedir)\Ice\Initialize.h" \
@@ -236,9 +237,9 @@ Instance.obj: \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\UUID.h" \
-    "..\..\src\IceStorm\Replica.h" \
-    "..\..\src\IceStorm\NodeI.h" \
-    "..\..\src\IceStorm\InstrumentationI.h" \
+    "Replica.h" \
+    "NodeI.h" \
+    "InstrumentationI.h" \
     "$(includedir)\Ice\MetricsObserverI.h" \
     "..\..\src\IceUtil\StopWatch.h" \
     "$(includedir)\Ice\MetricsAdminI.h" \
@@ -247,7 +248,7 @@ Instance.obj: \
 
 InstrumentationI.obj: \
 	InstrumentationI.cpp \
-    "..\..\src\IceStorm\InstrumentationI.h" \
+    "InstrumentationI.h" \
     "$(includedir)\Ice\MetricsObserverI.h" \
     "..\..\src\IceUtil\StopWatch.h" \
     "$(includedir)\IceUtil\Time.h" \
@@ -335,10 +336,11 @@ InstrumentationI.obj: \
     "$(includedir)\Ice\Dispatcher.h" \
     "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\MetricsFunctional.h" \
-    "..\..\src\IceStorm\Instrumentation.h" \
+    "Instrumentation.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
+    "$(includedir)\IceStorm\Config.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\Communicator.h" \
     "$(includedir)\Ice\RouterF.h" \
@@ -393,7 +395,7 @@ LLUMap.obj: \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "..\..\src\IceStorm\LLUMap.h" \
+    "LLUMap.h" \
     "$(includedir)\Freeze\Map.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
@@ -469,11 +471,11 @@ LLUMap.obj: \
     "$(includedir)\Freeze\Exception.h" \
     "$(includedir)\Freeze\Connection.h" \
     "$(includedir)\Freeze\Transaction.h" \
-    "..\..\src\IceStorm\LLURecord.h" \
+    "LLURecord.h" \
 
 NodeI.obj: \
 	NodeI.cpp \
-    "..\..\src\IceStorm\NodeI.h" \
+    "NodeI.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
@@ -592,21 +594,22 @@ NodeI.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\IceStorm\Election.h" \
-    "..\..\src\IceStorm\SubscriberRecord.h" \
+    "Election.h" \
+    "SubscriberRecord.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
-    "..\..\src\IceStorm\LLURecord.h" \
-    "..\..\src\IceStorm\Replica.h" \
-    "..\..\src\IceStorm\Instance.h" \
-    "..\..\src\IceStorm\Instrumentation.h" \
-    "..\..\src\IceStorm\Observers.h" \
-    "..\..\src\IceStorm\TraceLevels.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "LLURecord.h" \
+    "Replica.h" \
+    "Instance.h" \
+    "Instrumentation.h" \
+    "Observers.h" \
+    "TraceLevels.h" \
 
 Observers.obj: \
 	Observers.cpp \
-    "..\..\src\IceStorm\Observers.h" \
+    "Observers.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -725,16 +728,17 @@ Observers.obj: \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\UUID.h" \
-    "..\..\src\IceStorm\Election.h" \
-    "..\..\src\IceStorm\SubscriberRecord.h" \
+    "Election.h" \
+    "SubscriberRecord.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
-    "..\..\src\IceStorm\LLURecord.h" \
-    "..\..\src\IceStorm\Replica.h" \
-    "..\..\src\IceStorm\Instance.h" \
-    "..\..\src\IceStorm\Instrumentation.h" \
-    "..\..\src\IceStorm\TraceLevels.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "LLURecord.h" \
+    "Replica.h" \
+    "Instance.h" \
+    "Instrumentation.h" \
+    "TraceLevels.h" \
 
 Service.obj: \
 	Service.cpp \
@@ -770,8 +774,8 @@ Service.obj: \
     "$(includedir)\IceUtil\ThreadException.h" \
     "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\IceUtil\MutexProtocol.h" \
-    "..\..\src\IceStorm\TopicI.h" \
-    "..\..\src\IceStorm\IceStormInternal.h" \
+    "TopicI.h" \
+    "IceStormInternal.h" \
     "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\Ice\ProxyFactoryF.h" \
     "$(includedir)\Ice\ConnectionIF.h" \
@@ -819,12 +823,13 @@ Service.obj: \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
     "$(includedir)\Ice\Metrics.h" \
-    "..\..\src\IceStorm\Election.h" \
-    "..\..\src\IceStorm\SubscriberRecord.h" \
-    "..\..\src\IceStorm\LLURecord.h" \
-    "..\..\src\IceStorm\Instrumentation.h" \
-    "..\..\src\IceStorm\TopicManagerI.h" \
-    "..\..\src\IceStorm\Replica.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "Election.h" \
+    "SubscriberRecord.h" \
+    "LLURecord.h" \
+    "Instrumentation.h" \
+    "TopicManagerI.h" \
+    "Replica.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
     "$(includedir)\Ice\Initialize.h" \
@@ -864,29 +869,31 @@ Service.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
-    "..\..\src\IceStorm\TransientTopicManagerI.h" \
-    "..\..\src\IceStorm\Instance.h" \
-    "..\..\src\IceStorm\Service.h" \
+    "TransientTopicManagerI.h" \
+    "Instance.h" \
+    "Service.h" \
     "$(includedir)\IceBox\IceBox.h" \
-    "..\..\src\IceStorm\Observers.h" \
+    "$(includedir)\IceBox\Config.h" \
+    "Observers.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \
     "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\UUID.h" \
-    "..\..\src\IceStorm\TraceLevels.h" \
+    "TraceLevels.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "..\..\src\IceStorm\NodeI.h" \
-    "..\..\src\IceStorm\TransientTopicI.h" \
+    "NodeI.h" \
+    "TransientTopicI.h" \
     "$(includedir)\IceGrid\Locator.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Query.h" \
     "$(includedir)\IceGrid\Exception.h" \
 
 Subscriber.obj: \
 	Subscriber.cpp \
-    "..\..\src\IceStorm\Subscriber.h" \
-    "..\..\src\IceStorm\IceStormInternal.h" \
+    "Subscriber.h" \
+    "IceStormInternal.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -961,16 +968,17 @@ Subscriber.obj: \
     "$(includedir)\IceStorm\Metrics.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
-    "..\..\src\IceStorm\Election.h" \
-    "..\..\src\IceStorm\SubscriberRecord.h" \
-    "..\..\src\IceStorm\LLURecord.h" \
-    "..\..\src\IceStorm\Instrumentation.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "Election.h" \
+    "SubscriberRecord.h" \
+    "LLURecord.h" \
+    "Instrumentation.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
-    "..\..\src\IceStorm\Instance.h" \
+    "Instance.h" \
     "$(includedir)\Ice\PropertiesF.h" \
-    "..\..\src\IceStorm\TraceLevels.h" \
+    "TraceLevels.h" \
     "$(includedir)\Ice\LoggerF.h" \
-    "..\..\src\IceStorm\NodeI.h" \
+    "NodeI.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \
@@ -1015,8 +1023,8 @@ Subscriber.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\IceStorm\Replica.h" \
-    "..\..\src\IceStorm\Util.h" \
+    "Replica.h" \
+    "Util.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Freeze\EvictorF.h" \
@@ -1078,7 +1086,7 @@ SubscriberMap.obj: \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "..\..\src\IceStorm\SubscriberMap.h" \
+    "SubscriberMap.h" \
     "$(includedir)\Freeze\Map.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
@@ -1154,10 +1162,11 @@ SubscriberMap.obj: \
     "$(includedir)\Freeze\Exception.h" \
     "$(includedir)\Freeze\Connection.h" \
     "$(includedir)\Freeze\Transaction.h" \
-    "..\..\src\IceStorm\SubscriberRecord.h" \
+    "SubscriberRecord.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
+    "$(includedir)\IceStorm\Config.h" \
 
 TopicI.obj: \
 	TopicI.cpp \
@@ -1289,31 +1298,32 @@ TopicI.obj: \
     "$(includedir)\Freeze\TransactionHolder.h" \
     "$(includedir)\Freeze\Catalog.h" \
     "$(includedir)\Freeze\CatalogData.h" \
-    "..\..\src\IceStorm\TopicI.h" \
-    "..\..\src\IceStorm\IceStormInternal.h" \
+    "TopicI.h" \
+    "IceStormInternal.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
-    "..\..\src\IceStorm\Election.h" \
-    "..\..\src\IceStorm\SubscriberRecord.h" \
-    "..\..\src\IceStorm\LLURecord.h" \
-    "..\..\src\IceStorm\Instrumentation.h" \
-    "..\..\src\IceStorm\Instance.h" \
-    "..\..\src\IceStorm\Subscriber.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "Election.h" \
+    "SubscriberRecord.h" \
+    "LLURecord.h" \
+    "Instrumentation.h" \
+    "Instance.h" \
+    "Subscriber.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
-    "..\..\src\IceStorm\TraceLevels.h" \
-    "..\..\src\IceStorm\NodeI.h" \
+    "TraceLevels.h" \
+    "NodeI.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \
     "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\UUID.h" \
-    "..\..\src\IceStorm\Replica.h" \
-    "..\..\src\IceStorm\Observers.h" \
-    "..\..\src\IceStorm\SubscriberMap.h" \
-    "..\..\src\IceStorm\LLUMap.h" \
-    "..\..\src\IceStorm\Util.h" \
+    "Replica.h" \
+    "Observers.h" \
+    "SubscriberMap.h" \
+    "LLUMap.h" \
+    "Util.h" \
 
 TopicManagerI.obj: \
 	TopicManagerI.cpp \
@@ -1445,37 +1455,38 @@ TopicManagerI.obj: \
     "$(includedir)\Freeze\TransactionHolder.h" \
     "$(includedir)\Freeze\Catalog.h" \
     "$(includedir)\Freeze\CatalogData.h" \
-    "..\..\src\IceStorm\TopicManagerI.h" \
+    "TopicManagerI.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
-    "..\..\src\IceStorm\Replica.h" \
-    "..\..\src\IceStorm\Election.h" \
-    "..\..\src\IceStorm\SubscriberRecord.h" \
-    "..\..\src\IceStorm\LLURecord.h" \
-    "..\..\src\IceStorm\Instrumentation.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "Replica.h" \
+    "Election.h" \
+    "SubscriberRecord.h" \
+    "LLURecord.h" \
+    "Instrumentation.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
-    "..\..\src\IceStorm\TopicI.h" \
-    "..\..\src\IceStorm\IceStormInternal.h" \
-    "..\..\src\IceStorm\TraceLevels.h" \
-    "..\..\src\IceStorm\Instance.h" \
-    "..\..\src\IceStorm\NodeI.h" \
+    "TopicI.h" \
+    "IceStormInternal.h" \
+    "TraceLevels.h" \
+    "Instance.h" \
+    "NodeI.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \
     "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\UUID.h" \
-    "..\..\src\IceStorm\Observers.h" \
-    "..\..\src\IceStorm\Subscriber.h" \
-    "..\..\src\IceStorm\SubscriberMap.h" \
-    "..\..\src\IceStorm\LLUMap.h" \
-    "..\..\src\IceStorm\Util.h" \
+    "Observers.h" \
+    "Subscriber.h" \
+    "SubscriberMap.h" \
+    "LLUMap.h" \
+    "Util.h" \
     "$(includedir)\Ice\SliceChecksums.h" \
 
 TraceLevels.obj: \
 	TraceLevels.cpp \
-    "..\..\src\IceStorm\TraceLevels.h" \
+    "TraceLevels.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\Handle.h" \
@@ -1552,8 +1563,8 @@ TraceLevels.obj: \
 TransientTopicI.obj: \
 	TransientTopicI.cpp \
     "$(includedir)\IceUtil\DisableWarnings.h" \
-    "..\..\src\IceStorm\TransientTopicI.h" \
-    "..\..\src\IceStorm\IceStormInternal.h" \
+    "TransientTopicI.h" \
+    "IceStormInternal.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -1628,17 +1639,18 @@ TransientTopicI.obj: \
     "$(includedir)\IceStorm\Metrics.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
-    "..\..\src\IceStorm\Election.h" \
-    "..\..\src\IceStorm\SubscriberRecord.h" \
-    "..\..\src\IceStorm\LLURecord.h" \
-    "..\..\src\IceStorm\Instance.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "Election.h" \
+    "SubscriberRecord.h" \
+    "LLURecord.h" \
+    "Instance.h" \
     "$(includedir)\Ice\PropertiesF.h" \
-    "..\..\src\IceStorm\Instrumentation.h" \
-    "..\..\src\IceStorm\Subscriber.h" \
+    "Instrumentation.h" \
+    "Subscriber.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
-    "..\..\src\IceStorm\TraceLevels.h" \
+    "TraceLevels.h" \
     "$(includedir)\Ice\LoggerF.h" \
-    "..\..\src\IceStorm\Util.h" \
+    "Util.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
     "$(includedir)\Ice\Initialize.h" \
@@ -1697,8 +1709,8 @@ TransientTopicI.obj: \
 TransientTopicManagerI.obj: \
 	TransientTopicManagerI.cpp \
     "$(includedir)\IceUtil\DisableWarnings.h" \
-    "..\..\src\IceStorm\TransientTopicManagerI.h" \
-    "..\..\src\IceStorm\IceStormInternal.h" \
+    "TransientTopicManagerI.h" \
+    "IceStormInternal.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -1773,16 +1785,17 @@ TransientTopicManagerI.obj: \
     "$(includedir)\IceStorm\Metrics.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
-    "..\..\src\IceStorm\Election.h" \
-    "..\..\src\IceStorm\SubscriberRecord.h" \
-    "..\..\src\IceStorm\LLURecord.h" \
-    "..\..\src\IceStorm\TransientTopicI.h" \
-    "..\..\src\IceStorm\TraceLevels.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "Election.h" \
+    "SubscriberRecord.h" \
+    "LLURecord.h" \
+    "TransientTopicI.h" \
+    "TraceLevels.h" \
     "$(includedir)\Ice\PropertiesF.h" \
     "$(includedir)\Ice\LoggerF.h" \
-    "..\..\src\IceStorm\Instance.h" \
-    "..\..\src\IceStorm\Instrumentation.h" \
-    "..\..\src\IceStorm\Subscriber.h" \
+    "Instance.h" \
+    "Instrumentation.h" \
+    "Subscriber.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
@@ -1826,7 +1839,7 @@ TransientTopicManagerI.obj: \
 
 Util.obj: \
 	Util.cpp \
-    "..\..\src\IceStorm\Util.h" \
+    "Util.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -1954,8 +1967,8 @@ Util.obj: \
     "$(includedir)\Freeze\TransactionHolder.h" \
     "$(includedir)\Freeze\Catalog.h" \
     "$(includedir)\Freeze\CatalogData.h" \
-    "..\..\src\IceStorm\LLURecord.h" \
-    "..\..\src\IceStorm\LLUMap.h" \
+    "LLURecord.h" \
+    "LLUMap.h" \
 
 V31FormatDB.obj: \
 	V31FormatDB.cpp \
@@ -2001,7 +2014,7 @@ V31FormatDB.obj: \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "..\..\src\IceStorm\V31FormatDB.h" \
+    "V31FormatDB.h" \
     "$(includedir)\Freeze\Map.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
@@ -2077,15 +2090,16 @@ V31FormatDB.obj: \
     "$(includedir)\Freeze\Exception.h" \
     "$(includedir)\Freeze\Connection.h" \
     "$(includedir)\Freeze\Transaction.h" \
-    "..\..\src\IceStorm\V31Format.h" \
-    "..\..\src\IceStorm\LinkRecord.h" \
-    "..\..\src\IceStorm\IceStormInternal.h" \
+    "V31Format.h" \
+    "LinkRecord.h" \
+    "IceStormInternal.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
-    "..\..\src\IceStorm\Election.h" \
-    "..\..\src\IceStorm\SubscriberRecord.h" \
-    "..\..\src\IceStorm\LLURecord.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "Election.h" \
+    "SubscriberRecord.h" \
+    "LLURecord.h" \
 
 V32FormatDB.obj: \
 	V32FormatDB.cpp \
@@ -2131,7 +2145,7 @@ V32FormatDB.obj: \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "..\..\src\IceStorm\V32FormatDB.h" \
+    "V32FormatDB.h" \
     "$(includedir)\Freeze\Map.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
@@ -2207,19 +2221,20 @@ V32FormatDB.obj: \
     "$(includedir)\Freeze\Exception.h" \
     "$(includedir)\Freeze\Connection.h" \
     "$(includedir)\Freeze\Transaction.h" \
-    "..\..\src\IceStorm\V32Format.h" \
-    "..\..\src\IceStorm\LinkRecord.h" \
-    "..\..\src\IceStorm\IceStormInternal.h" \
+    "V32Format.h" \
+    "LinkRecord.h" \
+    "IceStormInternal.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
-    "..\..\src\IceStorm\Election.h" \
-    "..\..\src\IceStorm\SubscriberRecord.h" \
-    "..\..\src\IceStorm\LLURecord.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "Election.h" \
+    "SubscriberRecord.h" \
+    "LLURecord.h" \
 
 Election.obj: \
 	Election.cpp \
-    "..\..\src\IceStorm\Election.h" \
+    "Election.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -2290,18 +2305,19 @@ Election.obj: \
     "$(includedir)\Ice\DefaultObjectFactory.h" \
     "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
-    "..\..\src\IceStorm\SubscriberRecord.h" \
+    "SubscriberRecord.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
     "$(includedir)\Ice\Metrics.h" \
-    "..\..\src\IceStorm\LLURecord.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "LLURecord.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\IceUtil\DisableWarnings.h" \
 
 IceStormInternal.obj: \
 	IceStormInternal.cpp \
-    "..\..\src\IceStorm\IceStormInternal.h" \
+    "IceStormInternal.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -2376,15 +2392,16 @@ IceStormInternal.obj: \
     "$(includedir)\IceStorm\Metrics.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
-    "..\..\src\IceStorm\Election.h" \
-    "..\..\src\IceStorm\SubscriberRecord.h" \
-    "..\..\src\IceStorm\LLURecord.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "Election.h" \
+    "SubscriberRecord.h" \
+    "LLURecord.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\IceUtil\DisableWarnings.h" \
 
 Instrumentation.obj: \
 	Instrumentation.cpp \
-    "..\..\src\IceStorm\Instrumentation.h" \
+    "Instrumentation.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -2459,12 +2476,13 @@ Instrumentation.obj: \
     "$(includedir)\IceStorm\Metrics.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
+    "$(includedir)\IceStorm\Config.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\IceUtil\DisableWarnings.h" \
 
 LinkRecord.obj: \
 	LinkRecord.cpp \
-    "..\..\src\IceStorm\LinkRecord.h" \
+    "LinkRecord.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -2534,21 +2552,22 @@ LinkRecord.obj: \
     "$(includedir)\Ice\FactoryTableInit.h" \
     "$(includedir)\Ice\DefaultObjectFactory.h" \
     "$(includedir)\Ice\ObjectFactory.h" \
-    "..\..\src\IceStorm\IceStormInternal.h" \
+    "IceStormInternal.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
-    "..\..\src\IceStorm\Election.h" \
-    "..\..\src\IceStorm\SubscriberRecord.h" \
-    "..\..\src\IceStorm\LLURecord.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "Election.h" \
+    "SubscriberRecord.h" \
+    "LLURecord.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\IceUtil\DisableWarnings.h" \
 
 LLURecord.obj: \
 	LLURecord.cpp \
-    "..\..\src\IceStorm\LLURecord.h" \
+    "LLURecord.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -2594,7 +2613,7 @@ LLURecord.obj: \
 
 SubscriberRecord.obj: \
 	SubscriberRecord.cpp \
-    "..\..\src\IceStorm\SubscriberRecord.h" \
+    "SubscriberRecord.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -2669,12 +2688,13 @@ SubscriberRecord.obj: \
     "$(includedir)\IceStorm\Metrics.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
+    "$(includedir)\IceStorm\Config.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\IceUtil\DisableWarnings.h" \
 
 V31Format.obj: \
 	V31Format.cpp \
-    "..\..\src\IceStorm\V31Format.h" \
+    "V31Format.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -2744,22 +2764,23 @@ V31Format.obj: \
     "$(includedir)\Ice\FactoryTableInit.h" \
     "$(includedir)\Ice\DefaultObjectFactory.h" \
     "$(includedir)\Ice\ObjectFactory.h" \
-    "..\..\src\IceStorm\LinkRecord.h" \
-    "..\..\src\IceStorm\IceStormInternal.h" \
+    "LinkRecord.h" \
+    "IceStormInternal.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
-    "..\..\src\IceStorm\Election.h" \
-    "..\..\src\IceStorm\SubscriberRecord.h" \
-    "..\..\src\IceStorm\LLURecord.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "Election.h" \
+    "SubscriberRecord.h" \
+    "LLURecord.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\IceUtil\DisableWarnings.h" \
 
 V32Format.obj: \
 	V32Format.cpp \
-    "..\..\src\IceStorm\V32Format.h" \
+    "V32Format.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -2829,16 +2850,17 @@ V32Format.obj: \
     "$(includedir)\Ice\FactoryTableInit.h" \
     "$(includedir)\Ice\DefaultObjectFactory.h" \
     "$(includedir)\Ice\ObjectFactory.h" \
-    "..\..\src\IceStorm\LinkRecord.h" \
-    "..\..\src\IceStorm\IceStormInternal.h" \
+    "LinkRecord.h" \
+    "IceStormInternal.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
-    "..\..\src\IceStorm\Election.h" \
-    "..\..\src\IceStorm\SubscriberRecord.h" \
-    "..\..\src\IceStorm\LLURecord.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "Election.h" \
+    "SubscriberRecord.h" \
+    "LLURecord.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\IceUtil\DisableWarnings.h" \
 
@@ -2960,9 +2982,10 @@ Admin.obj: \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
-    "..\..\src\IceStorm\Parser.h" \
+    "Parser.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
+    "$(includedir)\IceStorm\Config.h" \
 
 Grammar.obj: \
 	Grammar.cpp \
@@ -3077,10 +3100,11 @@ Grammar.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\IceStorm\Parser.h" \
+    "Parser.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
+    "$(includedir)\IceStorm\Config.h" \
 
 Parser.obj: \
 	Parser.cpp \
@@ -3196,14 +3220,15 @@ Parser.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\IceStorm\Parser.h" \
+    "Parser.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
-    "..\..\src\IceStorm\IceStormInternal.h" \
-    "..\..\src\IceStorm\Election.h" \
-    "..\..\src\IceStorm\SubscriberRecord.h" \
-    "..\..\src\IceStorm\LLURecord.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "IceStormInternal.h" \
+    "Election.h" \
+    "SubscriberRecord.h" \
+    "LLURecord.h" \
 
 Scanner.obj: \
 	Scanner.cpp \
@@ -3319,11 +3344,12 @@ Scanner.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\IceStorm\Parser.h" \
+    "Parser.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
-    "..\..\src\IceStorm\Grammar.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "Grammar.h" \
 
 Migrate.obj: \
 	Migrate.cpp \
@@ -3455,17 +3481,18 @@ Migrate.obj: \
     "$(includedir)\Freeze\TransactionHolder.h" \
     "$(includedir)\Freeze\Catalog.h" \
     "$(includedir)\Freeze\CatalogData.h" \
-    "..\..\src\IceStorm\IceStormInternal.h" \
+    "IceStormInternal.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
-    "..\..\src\IceStorm\Election.h" \
-    "..\..\src\IceStorm\SubscriberRecord.h" \
-    "..\..\src\IceStorm\LLURecord.h" \
-    "..\..\src\IceStorm\SubscriberMap.h" \
-    "..\..\src\IceStorm\LLUMap.h" \
-    "..\..\src\IceStorm\V32FormatDB.h" \
-    "..\..\src\IceStorm\V32Format.h" \
-    "..\..\src\IceStorm\LinkRecord.h" \
-    "..\..\src\IceStorm\V31FormatDB.h" \
-    "..\..\src\IceStorm\V31Format.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "Election.h" \
+    "SubscriberRecord.h" \
+    "LLURecord.h" \
+    "SubscriberMap.h" \
+    "LLUMap.h" \
+    "V32FormatDB.h" \
+    "V32Format.h" \
+    "LinkRecord.h" \
+    "V31FormatDB.h" \
+    "V31Format.h" \

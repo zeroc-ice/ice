@@ -73,6 +73,7 @@ CryptPermissionsVerifierI.obj: \
     "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \

@@ -1,7 +1,7 @@
 
 Client.obj: \
 	Client.cpp \
-    "$(top_srcdir)\test\include\TestCommon.h" \
+    "..\..\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \

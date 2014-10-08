@@ -11,7 +11,7 @@ Instrumentation.cpp: \
 
 Blobject.obj: \
 	Blobject.cpp \
-    "..\..\src\Glacier2\Blobject.h" \
+    "Blobject.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -123,22 +123,23 @@ Blobject.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\Glacier2\RequestQueue.h" \
-    "..\..\src\Glacier2\Instrumentation.h" \
-    "..\..\src\Glacier2\Instance.h" \
-    "..\..\src\Glacier2\ProxyVerifier.h" \
-    "..\..\src\Glacier2\SessionRouterI.h" \
+    "RequestQueue.h" \
+    "Instrumentation.h" \
+    "Instance.h" \
+    "ProxyVerifier.h" \
+    "SessionRouterI.h" \
     "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Glacier2\PermissionsVerifierF.h" \
     "$(includedir)\Glacier2\Router.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Glacier2\PermissionsVerifier.h" \
 
 ClientBlobject.obj: \
 	ClientBlobject.cpp \
-    "..\..\src\Glacier2\ClientBlobject.h" \
-    "..\..\src\Glacier2\Blobject.h" \
+    "ClientBlobject.h" \
+    "Blobject.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -250,20 +251,21 @@ ClientBlobject.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\Glacier2\RequestQueue.h" \
-    "..\..\src\Glacier2\Instrumentation.h" \
-    "..\..\src\Glacier2\Instance.h" \
-    "..\..\src\Glacier2\ProxyVerifier.h" \
-    "..\..\src\Glacier2\SessionRouterI.h" \
+    "RequestQueue.h" \
+    "Instrumentation.h" \
+    "Instance.h" \
+    "ProxyVerifier.h" \
+    "SessionRouterI.h" \
     "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Glacier2\PermissionsVerifierF.h" \
     "$(includedir)\Glacier2\Router.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Glacier2\PermissionsVerifier.h" \
-    "..\..\src\Glacier2\FilterManager.h" \
-    "..\..\src\Glacier2\FilterI.h" \
-    "..\..\src\Glacier2\RoutingTable.h" \
+    "FilterManager.h" \
+    "FilterI.h" \
+    "RoutingTable.h" \
 
 FilterI.obj: \
 	FilterI.cpp \
@@ -345,12 +347,13 @@ FilterI.obj: \
     "$(includedir)\Ice\PluginF.h" \
     "$(includedir)\Ice\ImplicitContextF.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\src\Glacier2\FilterI.h" \
+    "FilterI.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Ice\FactoryTableInit.h" \
     "$(includedir)\Ice\DefaultObjectFactory.h" \
     "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
 
 FilterManager.obj: \
 	FilterManager.cpp \
@@ -442,10 +445,10 @@ FilterManager.obj: \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "..\..\src\Glacier2\FilterManager.h" \
-    "..\..\src\Glacier2\Instance.h" \
+    "FilterManager.h" \
+    "Instance.h" \
     "$(includedir)\Ice\PropertiesF.h" \
-    "..\..\src\Glacier2\RequestQueue.h" \
+    "RequestQueue.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
     "$(includedir)\Ice\Initialize.h" \
@@ -476,16 +479,17 @@ FilterManager.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\Glacier2\Instrumentation.h" \
-    "..\..\src\Glacier2\ProxyVerifier.h" \
-    "..\..\src\Glacier2\SessionRouterI.h" \
+    "Instrumentation.h" \
+    "ProxyVerifier.h" \
+    "SessionRouterI.h" \
     "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Glacier2\PermissionsVerifierF.h" \
     "$(includedir)\Glacier2\Router.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Glacier2\PermissionsVerifier.h" \
-    "..\..\src\Glacier2\FilterI.h" \
+    "FilterI.h" \
 
 Glacier2Router.obj: \
 	Glacier2Router.cpp \
@@ -604,26 +608,27 @@ Glacier2Router.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
-    "..\..\src\Glacier2\Instance.h" \
-    "..\..\src\Glacier2\RequestQueue.h" \
-    "..\..\src\Glacier2\Instrumentation.h" \
-    "..\..\src\Glacier2\ProxyVerifier.h" \
-    "..\..\src\Glacier2\SessionRouterI.h" \
+    "Instance.h" \
+    "RequestQueue.h" \
+    "Instrumentation.h" \
+    "ProxyVerifier.h" \
+    "SessionRouterI.h" \
     "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Glacier2\PermissionsVerifierF.h" \
     "$(includedir)\Glacier2\Router.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Glacier2\PermissionsVerifier.h" \
-    "..\..\src\Glacier2\RouterI.h" \
-    "..\..\src\Glacier2\ClientBlobject.h" \
-    "..\..\src\Glacier2\Blobject.h" \
-    "..\..\src\Glacier2\ServerBlobject.h" \
+    "RouterI.h" \
+    "ClientBlobject.h" \
+    "Blobject.h" \
+    "ServerBlobject.h" \
     "$(includedir)\Glacier2\NullPermissionsVerifier.h" \
 
 Instance.obj: \
 	Instance.cpp \
-    "..\..\src\Glacier2\SessionRouterI.h" \
+    "SessionRouterI.h" \
     "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\Shared.h" \
@@ -740,12 +745,13 @@ Instance.obj: \
     "$(includedir)\Glacier2\Router.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Glacier2\PermissionsVerifier.h" \
-    "..\..\src\Glacier2\Instrumentation.h" \
-    "..\..\src\Glacier2\Instance.h" \
-    "..\..\src\Glacier2\RequestQueue.h" \
-    "..\..\src\Glacier2\ProxyVerifier.h" \
-    "..\..\src\Glacier2\InstrumentationI.h" \
+    "Instrumentation.h" \
+    "Instance.h" \
+    "RequestQueue.h" \
+    "ProxyVerifier.h" \
+    "InstrumentationI.h" \
     "$(includedir)\Ice\MetricsObserverI.h" \
     "..\..\src\IceUtil\StopWatch.h" \
     "$(includedir)\Ice\MetricsAdminI.h" \
@@ -755,7 +761,7 @@ Instance.obj: \
 
 InstrumentationI.obj: \
 	InstrumentationI.cpp \
-    "..\..\src\Glacier2\InstrumentationI.h" \
+    "InstrumentationI.h" \
     "$(includedir)\Ice\MetricsObserverI.h" \
     "..\..\src\IceUtil\StopWatch.h" \
     "$(includedir)\IceUtil\Time.h" \
@@ -843,8 +849,9 @@ InstrumentationI.obj: \
     "$(includedir)\Ice\Dispatcher.h" \
     "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\MetricsFunctional.h" \
-    "..\..\src\Glacier2\Instrumentation.h" \
+    "Instrumentation.h" \
     "$(includedir)\Glacier2\Metrics.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "..\..\src\Ice\InstrumentationI.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\Communicator.h" \
@@ -858,7 +865,7 @@ InstrumentationI.obj: \
 
 ProxyVerifier.obj: \
 	ProxyVerifier.cpp \
-    "..\..\src\Glacier2\ProxyVerifier.h" \
+    "ProxyVerifier.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -973,7 +980,7 @@ ProxyVerifier.obj: \
 
 RequestQueue.obj: \
 	RequestQueue.cpp \
-    "..\..\src\Glacier2\RequestQueue.h" \
+    "RequestQueue.h" \
     "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\Shared.h" \
@@ -1085,15 +1092,16 @@ RequestQueue.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\Glacier2\Instrumentation.h" \
-    "..\..\src\Glacier2\Instance.h" \
-    "..\..\src\Glacier2\ProxyVerifier.h" \
-    "..\..\src\Glacier2\SessionRouterI.h" \
+    "Instrumentation.h" \
+    "Instance.h" \
+    "ProxyVerifier.h" \
+    "SessionRouterI.h" \
     "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Glacier2\PermissionsVerifierF.h" \
     "$(includedir)\Glacier2\Router.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Glacier2\PermissionsVerifier.h" \
 
 RouterI.obj: \
@@ -1101,8 +1109,8 @@ RouterI.obj: \
     "$(includedir)\IceUtil\Random.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\Exception.h" \
-    "..\..\src\Glacier2\FilterManager.h" \
-    "..\..\src\Glacier2\Instance.h" \
+    "FilterManager.h" \
+    "Instance.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
@@ -1161,7 +1169,7 @@ RouterI.obj: \
     "$(includedir)\Ice\ObserverHelper.h" \
     "$(includedir)\Ice\Instrumentation.h" \
     "$(includedir)\Ice\ThreadPoolF.h" \
-    "..\..\src\Glacier2\RequestQueue.h" \
+    "RequestQueue.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
     "$(includedir)\Ice\Initialize.h" \
@@ -1213,25 +1221,26 @@ RouterI.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\Glacier2\Instrumentation.h" \
-    "..\..\src\Glacier2\ProxyVerifier.h" \
-    "..\..\src\Glacier2\SessionRouterI.h" \
+    "Instrumentation.h" \
+    "ProxyVerifier.h" \
+    "SessionRouterI.h" \
     "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Glacier2\PermissionsVerifierF.h" \
     "$(includedir)\Glacier2\Router.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Glacier2\PermissionsVerifier.h" \
-    "..\..\src\Glacier2\FilterI.h" \
-    "..\..\src\Glacier2\RoutingTable.h" \
-    "..\..\src\Glacier2\RouterI.h" \
-    "..\..\src\Glacier2\ClientBlobject.h" \
-    "..\..\src\Glacier2\Blobject.h" \
-    "..\..\src\Glacier2\ServerBlobject.h" \
+    "FilterI.h" \
+    "RoutingTable.h" \
+    "RouterI.h" \
+    "ClientBlobject.h" \
+    "Blobject.h" \
+    "ServerBlobject.h" \
 
 RoutingTable.obj: \
 	RoutingTable.cpp \
-    "..\..\src\Glacier2\RoutingTable.h" \
+    "RoutingTable.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -1343,13 +1352,13 @@ RoutingTable.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\Glacier2\ProxyVerifier.h" \
-    "..\..\src\Glacier2\Instrumentation.h" \
+    "ProxyVerifier.h" \
+    "Instrumentation.h" \
 
 ServerBlobject.obj: \
 	ServerBlobject.cpp \
-    "..\..\src\Glacier2\ServerBlobject.h" \
-    "..\..\src\Glacier2\Blobject.h" \
+    "ServerBlobject.h" \
+    "Blobject.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -1461,21 +1470,22 @@ ServerBlobject.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\Glacier2\RequestQueue.h" \
-    "..\..\src\Glacier2\Instrumentation.h" \
-    "..\..\src\Glacier2\Instance.h" \
-    "..\..\src\Glacier2\ProxyVerifier.h" \
-    "..\..\src\Glacier2\SessionRouterI.h" \
+    "RequestQueue.h" \
+    "Instrumentation.h" \
+    "Instance.h" \
+    "ProxyVerifier.h" \
+    "SessionRouterI.h" \
     "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Glacier2\PermissionsVerifierF.h" \
     "$(includedir)\Glacier2\Router.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Glacier2\PermissionsVerifier.h" \
 
 SessionRouterI.obj: \
 	SessionRouterI.cpp \
-    "..\..\src\Glacier2\SessionRouterI.h" \
+    "SessionRouterI.h" \
     "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\Shared.h" \
@@ -1592,17 +1602,18 @@ SessionRouterI.obj: \
     "$(includedir)\Glacier2\Router.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Glacier2\PermissionsVerifier.h" \
-    "..\..\src\Glacier2\Instrumentation.h" \
-    "..\..\src\Glacier2\FilterManager.h" \
-    "..\..\src\Glacier2\Instance.h" \
-    "..\..\src\Glacier2\RequestQueue.h" \
-    "..\..\src\Glacier2\ProxyVerifier.h" \
-    "..\..\src\Glacier2\FilterI.h" \
-    "..\..\src\Glacier2\RouterI.h" \
-    "..\..\src\Glacier2\ClientBlobject.h" \
-    "..\..\src\Glacier2\Blobject.h" \
-    "..\..\src\Glacier2\ServerBlobject.h" \
+    "Instrumentation.h" \
+    "FilterManager.h" \
+    "Instance.h" \
+    "RequestQueue.h" \
+    "ProxyVerifier.h" \
+    "FilterI.h" \
+    "RouterI.h" \
+    "ClientBlobject.h" \
+    "Blobject.h" \
+    "ServerBlobject.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceSSL\IceSSL.h" \
     "$(includedir)\IceSSL\Plugin.h" \
@@ -1612,7 +1623,7 @@ SessionRouterI.obj: \
 
 Instrumentation.obj: \
 	Instrumentation.cpp \
-    "..\..\src\Glacier2\Instrumentation.h" \
+    "Instrumentation.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \

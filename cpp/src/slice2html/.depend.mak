@@ -10,7 +10,7 @@ Gen.obj: \
     "$(includedir)\Slice\FileTracker.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\Slice\Parser.h" \
-    "..\..\src\slice2html\Gen.h" \
+    "Gen.h" \
     "$(includedir)\IceUtil\OutputUtil.h" \
 
 Main.obj: \
@@ -33,4 +33,4 @@ Main.obj: \
     "$(includedir)\Slice\Parser.h" \
     "$(includedir)\Slice\Util.h" \
     "$(includedir)\IceUtil\OutputUtil.h" \
-    "..\..\src\slice2html\Gen.h" \
+    "Gen.h" \

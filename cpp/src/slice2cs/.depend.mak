@@ -7,7 +7,7 @@ Gen.obj: \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "..\..\src\slice2cs\Gen.h" \
+    "Gen.h" \
     "$(includedir)\Slice\CsUtil.h" \
     "$(includedir)\Slice\Parser.h" \
     "$(includedir)\IceUtil\Shared.h" \
@@ -39,5 +39,5 @@ Main.obj: \
     "$(includedir)\Slice\Parser.h" \
     "$(includedir)\Slice\Util.h" \
     "$(includedir)\IceUtil\OutputUtil.h" \
-    "..\..\src\slice2cs\Gen.h" \
+    "Gen.h" \
     "$(includedir)\Slice\CsUtil.h" \

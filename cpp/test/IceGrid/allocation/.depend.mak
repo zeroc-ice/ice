@@ -188,7 +188,7 @@ Client.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "$(top_srcdir)\test\include\TestCommon.h" \
+    "..\..\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \
@@ -317,7 +317,9 @@ AllTests.obj: \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Exception.h" \
+    "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\FileParser.h" \
     "$(includedir)\IceGrid\Locator.h" \
@@ -330,7 +332,7 @@ AllTests.obj: \
     "$(includedir)\IceGrid\Discovery.h" \
     "$(includedir)\Glacier2\Router.h" \
     "$(includedir)\Glacier2\PermissionsVerifier.h" \
-    "$(top_srcdir)\test\include\TestCommon.h" \
+    "..\..\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \
@@ -571,7 +573,7 @@ Server.obj: \
     "$(includedir)\Ice\Service.h" \
     "TestI.h" \
     "Test.h" \
-    "$(top_srcdir)\test\include\TestCommon.h" \
+    "..\..\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \
@@ -695,3 +697,4 @@ PermissionsVerifier.obj: \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Glacier2\PermissionsVerifier.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \

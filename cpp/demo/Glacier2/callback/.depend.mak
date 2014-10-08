@@ -315,6 +315,7 @@ Client.obj: \
     "$(includedir)\Glacier2\Router.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Glacier2\PermissionsVerifier.h" \
     "$(includedir)\Glacier2\Metrics.h" \
     "$(includedir)\Glacier2\Application.h" \

@@ -50,7 +50,9 @@ Do While Not stream.AtEndOfStream
 
         line = fs.GetAbsolutePathName(line)
         If InStr(1, line, topSrcDir) Then
-            If InStr(1, line, cppSrcDir) > 0 Then
+            If InStr(1, line, workDir & "\") > 0 Then
+                line = Right(line, len(line) - len(workDir) -1)
+            Elseif InStr(1, line, cppSrcDir) > 0 Then
                 line = WScript.Arguments(1) & "\src" & Right(line, len(line) - len(cppSrcDir))
             Elseif InStr(1, line, cppIncludeDir) > 0 Then
                 line = "$(includedir)" & Right(line, len(line) - len(cppIncludeDir))
@@ -58,8 +60,6 @@ Do While Not stream.AtEndOfStream
                 line = "$(ice_cpp_dir)\include" & Right(line, len(line) - len(iceCppIncludeDir))
             Elseif InStr(1, line, cppTestIncludeDir) > 0 Then
                 line = "..\..\include" & Right(line, len(line) - len(cppTestIncludeDir))
-            Elseif InStr(1, line, workDir) > 0 Then
-                line = Right(line, len(line) - len(workDir) -1)
             End If
 
             line = "    """ & line & """ \"

@@ -237,6 +237,7 @@ PatchClientDlg.obj: \
     "$(includedir)\IcePatch2\ClientUtil.h" \
     "$(includedir)\IcePatch2\FileServer.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
+    "$(includedir)\IcePatch2\Config.h" \
 
 stdafx.obj: \
 	stdafx.cpp \

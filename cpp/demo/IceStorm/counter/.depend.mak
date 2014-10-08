@@ -424,6 +424,7 @@ CounterI.obj: \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
+    "$(includedir)\IceStorm\Config.h" \
     "Counter.h" \
 
 Server.obj: \
@@ -542,5 +543,6 @@ Server.obj: \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
+    "$(includedir)\IceStorm\Config.h" \
     "CounterI.h" \
     "Counter.h" \

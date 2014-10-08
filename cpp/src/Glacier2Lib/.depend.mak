@@ -150,6 +150,7 @@ Application.obj: \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Glacier2\Router.h" \
     "$(includedir)\Glacier2\PermissionsVerifier.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
@@ -235,6 +236,7 @@ NullPermissionsVerifier.obj: \
     "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Glacier2\NullPermissionsVerifier.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
@@ -395,6 +397,7 @@ SessionHelper.obj: \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Glacier2\Router.h" \
     "$(includedir)\Glacier2\PermissionsVerifier.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
@@ -479,6 +482,7 @@ Metrics.obj: \
     "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\IceUtil\DisableWarnings.h" \
 
@@ -620,6 +624,7 @@ PermissionsVerifier.obj: \
     "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\SlicedData.h" \
     "$(includedir)\IceUtil\DisableWarnings.h" \
@@ -701,6 +706,7 @@ Router.obj: \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Glacier2\PermissionsVerifier.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\SlicedData.h" \
@@ -844,6 +850,7 @@ Session.obj: \
     "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\SlicedData.h" \
     "$(includedir)\IceUtil\DisableWarnings.h" \
@@ -871,6 +878,7 @@ SSLInfo.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Ice\BasicStream.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\Ice\InstanceF.h" \

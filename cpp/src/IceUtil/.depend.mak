@@ -1,7 +1,7 @@
 
 ArgVector.obj: \
 	ArgVector.cpp \
-    "..\..\src\IceUtil\ArgVector.h" \
+    "ArgVector.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\DisableWarnings.h" \
 
@@ -15,8 +15,8 @@ Cond.obj: \
 
 ConvertUTF.obj: \
 	ConvertUTF.cpp \
-    "..\..\src\IceUtil\ConvertUTF.h" \
-    "..\..\src\IceUtil\Unicode.h" \
+    "ConvertUTF.h" \
+    "Unicode.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\IceUtil\Exception.h" \
@@ -54,11 +54,14 @@ Exception.obj: \
     "$(includedir)\IceUtil\Lock.h" \
     "$(includedir)\IceUtil\MutexProtocol.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
+    "$(includedir)\IceUtil\StringConverter.h" \
+    "$(includedir)\IceUtil\Shared.h" \
+    "$(includedir)\IceUtil\Handle.h" \
 
 FileUtil.obj: \
 	FileUtil.cpp \
     "$(includedir)\IceUtil\DisableWarnings.h" \
-    "..\..\src\IceUtil\FileUtil.h" \
+    "FileUtil.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Handle.h" \
@@ -93,7 +96,7 @@ OutputUtil.obj: \
 	OutputUtil.cpp \
     "$(includedir)\IceUtil\OutputUtil.h" \
     "$(includedir)\IceUtil\Config.h" \
-    "..\..\src\IceUtil\FileUtil.h" \
+    "FileUtil.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\Exception.h" \
@@ -147,7 +150,7 @@ StringConverter.obj: \
     "$(includedir)\IceUtil\MutexProtocol.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "..\..\src\IceUtil\Unicode.h" \
+    "Unicode.h" \
 
 StringUtil.obj: \
 	StringUtil.cpp \
@@ -203,13 +206,13 @@ Timer.obj: \
 
 Unicode.obj: \
 	Unicode.cpp \
-    "..\..\src\IceUtil\Unicode.h" \
+    "Unicode.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Handle.h" \
-    "..\..\src\IceUtil\ConvertUTF.h" \
+    "ConvertUTF.h" \
 
 UUID.obj: \
 	UUID.cpp \

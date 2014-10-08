@@ -1,9 +1,9 @@
 
 Grammar.obj: \
 	Grammar.cpp \
-    "..\..\src\FreezeScript\GrammarUtil.h" \
-    "..\..\src\FreezeScript\Parser.h" \
-    "..\..\src\FreezeScript\Data.h" \
+    "GrammarUtil.h" \
+    "Parser.h" \
+    "Data.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -116,15 +116,15 @@ Grammar.obj: \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Slice\Parser.h" \
-    "..\..\src\FreezeScript\Error.h" \
+    "Error.h" \
 
 Scanner.obj: \
 	Scanner.cpp \
     "$(includedir)\IceUtil\ScannerConfig.h" \
     "$(includedir)\IceUtil\Config.h" \
-    "..\..\src\FreezeScript\GrammarUtil.h" \
-    "..\..\src\FreezeScript\Parser.h" \
-    "..\..\src\FreezeScript\Data.h" \
+    "GrammarUtil.h" \
+    "Parser.h" \
+    "Data.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
@@ -236,14 +236,14 @@ Scanner.obj: \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Slice\Parser.h" \
-    "..\..\src\FreezeScript\Error.h" \
-    "..\..\src\FreezeScript\Grammar.h" \
+    "Error.h" \
+    "Grammar.h" \
     "$(includedir)\IceUtil\InputUtil.h" \
 
 AssignVisitor.obj: \
 	AssignVisitor.cpp \
-    "..\..\src\FreezeScript\AssignVisitor.h" \
-    "..\..\src\FreezeScript\Data.h" \
+    "AssignVisitor.h" \
+    "Data.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -356,14 +356,14 @@ AssignVisitor.obj: \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Slice\Parser.h" \
-    "..\..\src\FreezeScript\Error.h" \
-    "..\..\src\FreezeScript\Util.h" \
+    "Error.h" \
+    "Util.h" \
     "$(includedir)\Freeze\CatalogData.h" \
 
 Data.obj: \
 	Data.cpp \
     "$(includedir)\IceUtil\DisableWarnings.h" \
-    "..\..\src\FreezeScript\Data.h" \
+    "Data.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -476,22 +476,22 @@ Data.obj: \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Slice\Parser.h" \
-    "..\..\src\FreezeScript\Error.h" \
-    "..\..\src\FreezeScript\Util.h" \
+    "Error.h" \
+    "Util.h" \
     "$(includedir)\Freeze\CatalogData.h" \
-    "..\..\src\FreezeScript\Exception.h" \
+    "Exception.h" \
     "$(includedir)\IceUtil\InputUtil.h" \
 
 Error.obj: \
 	Error.cpp \
-    "..\..\src\FreezeScript\Error.h" \
+    "Error.h" \
     "$(includedir)\Slice\Parser.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\Exception.h" \
-    "..\..\src\FreezeScript\Exception.h" \
-    "..\..\src\FreezeScript\Util.h" \
+    "Exception.h" \
+    "Util.h" \
     "$(includedir)\Ice\Initialize.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
     "$(includedir)\Ice\ProxyF.h" \
@@ -558,8 +558,8 @@ Error.obj: \
 
 Functions.obj: \
 	Functions.cpp \
-    "..\..\src\FreezeScript\Functions.h" \
-    "..\..\src\FreezeScript\Data.h" \
+    "Functions.h" \
+    "Data.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -672,22 +672,22 @@ Functions.obj: \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Slice\Parser.h" \
-    "..\..\src\FreezeScript\Error.h" \
-    "..\..\src\FreezeScript\Util.h" \
+    "Error.h" \
+    "Util.h" \
     "$(includedir)\Freeze\CatalogData.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
 
 Exception.obj: \
 	Exception.cpp \
-    "..\..\src\FreezeScript\Exception.h" \
+    "Exception.h" \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\IceUtil\Config.h" \
 
 Parser.obj: \
 	Parser.cpp \
-    "..\..\src\FreezeScript\Parser.h" \
-    "..\..\src\FreezeScript\Data.h" \
+    "Parser.h" \
+    "Data.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -800,13 +800,13 @@ Parser.obj: \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Slice\Parser.h" \
-    "..\..\src\FreezeScript\Error.h" \
-    "..\..\src\FreezeScript\GrammarUtil.h" \
+    "Error.h" \
+    "GrammarUtil.h" \
 
 Print.obj: \
 	Print.cpp \
-    "..\..\src\FreezeScript\Print.h" \
-    "..\..\src\FreezeScript\Data.h" \
+    "Print.h" \
+    "Data.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -919,14 +919,14 @@ Print.obj: \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Slice\Parser.h" \
-    "..\..\src\FreezeScript\Error.h" \
-    "..\..\src\FreezeScript\Util.h" \
+    "Error.h" \
+    "Util.h" \
     "$(includedir)\Freeze\CatalogData.h" \
     "$(includedir)\IceUtil\OutputUtil.h" \
 
 Util.obj: \
 	Util.cpp \
-    "..\..\src\FreezeScript\Util.h" \
+    "Util.h" \
     "$(includedir)\Slice\Parser.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -995,7 +995,7 @@ Util.obj: \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Freeze\CatalogData.h" \
-    "..\..\src\FreezeScript\Exception.h" \
+    "Exception.h" \
     "$(includedir)\Freeze\Catalog.h" \
     "$(includedir)\Freeze\Map.h" \
     "$(includedir)\Ice\Ice.h" \
@@ -1055,14 +1055,14 @@ Util.obj: \
 
 TransformAnalyzer.obj: \
 	TransformAnalyzer.cpp \
-    "..\..\src\FreezeScript\TransformAnalyzer.h" \
+    "TransformAnalyzer.h" \
     "$(includedir)\Slice\Parser.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\IceUtil\OutputUtil.h" \
-    "..\..\src\FreezeScript\Util.h" \
+    "Util.h" \
     "$(includedir)\Ice\Initialize.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
     "$(includedir)\Ice\ProxyF.h" \
@@ -1129,8 +1129,8 @@ TransformAnalyzer.obj: \
 
 TransformVisitor.obj: \
 	TransformVisitor.cpp \
-    "..\..\src\FreezeScript\TransformVisitor.h" \
-    "..\..\src\FreezeScript\Data.h" \
+    "TransformVisitor.h" \
+    "Data.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -1243,14 +1243,14 @@ TransformVisitor.obj: \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Slice\Parser.h" \
-    "..\..\src\FreezeScript\Error.h" \
-    "..\..\src\FreezeScript\Util.h" \
+    "Error.h" \
+    "Util.h" \
     "$(includedir)\Freeze\CatalogData.h" \
     "$(includedir)\IceUtil\InputUtil.h" \
 
 Transformer.obj: \
 	Transformer.cpp \
-    "..\..\src\FreezeScript\Transformer.h" \
+    "Transformer.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -1365,15 +1365,15 @@ Transformer.obj: \
     "$(includedir)\Slice\Parser.h" \
     "$(includedir)\Freeze\Connection.h" \
     "$(includedir)\Freeze\Transaction.h" \
-    "..\..\src\FreezeScript\Data.h" \
-    "..\..\src\FreezeScript\Error.h" \
-    "..\..\src\FreezeScript\Parser.h" \
-    "..\..\src\FreezeScript\TransformVisitor.h" \
-    "..\..\src\FreezeScript\AssignVisitor.h" \
-    "..\..\src\FreezeScript\Print.h" \
-    "..\..\src\FreezeScript\Functions.h" \
-    "..\..\src\FreezeScript\Exception.h" \
-    "..\..\src\FreezeScript\Util.h" \
+    "Data.h" \
+    "Error.h" \
+    "Parser.h" \
+    "TransformVisitor.h" \
+    "AssignVisitor.h" \
+    "Print.h" \
+    "Functions.h" \
+    "Exception.h" \
+    "Util.h" \
     "$(includedir)\Freeze\CatalogData.h" \
     "$(includedir)\Freeze\Catalog.h" \
     "$(includedir)\Freeze\Map.h" \
@@ -1388,7 +1388,7 @@ Transformer.obj: \
 
 transformdb.obj: \
 	transformdb.cpp \
-    "..\..\src\FreezeScript\Transformer.h" \
+    "Transformer.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -1503,12 +1503,12 @@ transformdb.obj: \
     "$(includedir)\Slice\Parser.h" \
     "$(includedir)\Freeze\Connection.h" \
     "$(includedir)\Freeze\Transaction.h" \
-    "..\..\src\FreezeScript\Data.h" \
-    "..\..\src\FreezeScript\Error.h" \
-    "..\..\src\FreezeScript\TransformAnalyzer.h" \
+    "Data.h" \
+    "Error.h" \
+    "TransformAnalyzer.h" \
     "$(includedir)\IceUtil\OutputUtil.h" \
-    "..\..\src\FreezeScript\Exception.h" \
-    "..\..\src\FreezeScript\Util.h" \
+    "Exception.h" \
+    "Util.h" \
     "$(includedir)\Freeze\CatalogData.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Freeze\EvictorF.h" \
@@ -1524,9 +1524,9 @@ transformdb.obj: \
 
 DumpDescriptors.obj: \
 	DumpDescriptors.cpp \
-    "..\..\src\FreezeScript\DumpDescriptors.h" \
-    "..\..\src\FreezeScript\Parser.h" \
-    "..\..\src\FreezeScript\Data.h" \
+    "DumpDescriptors.h" \
+    "Parser.h" \
+    "Data.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -1639,21 +1639,21 @@ DumpDescriptors.obj: \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Slice\Parser.h" \
-    "..\..\src\FreezeScript\Error.h" \
+    "Error.h" \
     "..\..\src\IceXML\Parser.h" \
-    "..\..\src\FreezeScript\AssignVisitor.h" \
-    "..\..\src\FreezeScript\Print.h" \
-    "..\..\src\FreezeScript\Functions.h" \
-    "..\..\src\FreezeScript\Exception.h" \
-    "..\..\src\FreezeScript\Util.h" \
+    "AssignVisitor.h" \
+    "Print.h" \
+    "Functions.h" \
+    "Exception.h" \
+    "Util.h" \
     "$(includedir)\Freeze\CatalogData.h" \
     "$(includedir)\IceUtil\InputUtil.h" \
 
 DumpDB.obj: \
 	DumpDB.cpp \
-    "..\..\src\FreezeScript\DumpDescriptors.h" \
-    "..\..\src\FreezeScript\Parser.h" \
-    "..\..\src\FreezeScript\Data.h" \
+    "DumpDescriptors.h" \
+    "Parser.h" \
+    "Data.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -1766,11 +1766,11 @@ DumpDB.obj: \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Slice\Parser.h" \
-    "..\..\src\FreezeScript\Error.h" \
+    "Error.h" \
     "..\..\src\IceXML\Parser.h" \
-    "..\..\src\FreezeScript\Util.h" \
+    "Util.h" \
     "$(includedir)\Freeze\CatalogData.h" \
-    "..\..\src\FreezeScript\Exception.h" \
+    "Exception.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Freeze\EvictorF.h" \
     "$(includedir)\Freeze\ConnectionF.h" \

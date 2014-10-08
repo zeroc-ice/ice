@@ -135,7 +135,7 @@ Client.obj: \
     "$(includedir)\Freeze\TransactionHolder.h" \
     "$(includedir)\Freeze\Catalog.h" \
     "$(includedir)\Freeze\CatalogData.h" \
-    "$(top_srcdir)\test\include\TestCommon.h" \
+    "..\..\include\TestCommon.h" \
 
 ClientFail.obj: \
 	ClientFail.cpp \
@@ -273,4 +273,4 @@ ClientFail.obj: \
     "$(includedir)\Freeze\TransactionHolder.h" \
     "$(includedir)\Freeze\Catalog.h" \
     "$(includedir)\Freeze\CatalogData.h" \
-    "$(top_srcdir)\test\include\TestCommon.h" \
+    "..\..\include\TestCommon.h" \

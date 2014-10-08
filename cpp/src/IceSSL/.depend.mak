@@ -134,7 +134,7 @@ EndpointInfo.obj: \
 
 AcceptorI.obj: \
 	AcceptorI.cpp \
-    "..\..\src\IceSSL\AcceptorI.h" \
+    "AcceptorI.h" \
     "..\..\src\Ice\TransceiverF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -204,8 +204,8 @@ AcceptorI.obj: \
     "$(includedir)\Ice\ThreadPoolF.h" \
     "$(includedir)\Ice\LoggerF.h" \
     "..\..\src\Ice\ProtocolInstanceF.h" \
-    "..\..\src\IceSSL\InstanceF.h" \
-    "..\..\src\IceSSL\EndpointI.h" \
+    "InstanceF.h" \
+    "EndpointI.h" \
     "..\..\src\Ice\IPEndpointI.h" \
     "..\..\src\Ice\IPEndpointIF.h" \
     "..\..\src\Ice\EndpointI.h" \
@@ -215,7 +215,7 @@ AcceptorI.obj: \
     "..\..\src\Ice\EndpointFactory.h" \
     "..\..\src\Ice\EndpointFactoryF.h" \
     "$(includedir)\IceSSL\EndpointInfo.h" \
-    "..\..\src\IceSSL\Instance.h" \
+    "Instance.h" \
     "..\..\src\Ice\ProtocolInstance.h" \
     "..\..\src\Ice\Instance.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
@@ -249,16 +249,16 @@ AcceptorI.obj: \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
     "$(includedir)\Ice\ResponseHandlerF.h" \
-    "..\..\src\IceSSL\SSLEngineF.h" \
+    "SSLEngineF.h" \
     "$(includedir)\IceSSL\Plugin.h" \
     "$(includedir)\IceSSL\Config.h" \
     "$(includedir)\IceSSL\ConnectionInfo.h" \
-    "..\..\src\IceSSL\OpenSSLTransceiverI.h" \
+    "OpenSSLTransceiverI.h" \
     "..\..\src\Ice\Transceiver.h" \
     "..\..\src\Ice\StreamSocket.h" \
-    "..\..\src\IceSSL\SecureTransportTransceiverI.h" \
-    "..\..\src\IceSSL\SChannelTransceiverI.h" \
-    "..\..\src\IceSSL\Util.h" \
+    "SecureTransportTransceiverI.h" \
+    "SChannelTransceiverI.h" \
+    "Util.h" \
     "$(includedir)\Ice\Communicator.h" \
     "$(includedir)\Ice\IncomingAsync.h" \
     "$(includedir)\Ice\RouterF.h" \
@@ -342,12 +342,12 @@ Certificate.obj: \
     "$(includedir)\Ice\ThreadPoolF.h" \
     "$(includedir)\Ice\Connection.h" \
     "$(includedir)\Ice\Endpoint.h" \
-    "..\..\src\IceSSL\Util.h" \
-    "..\..\src\IceSSL\RFC2253.h" \
+    "Util.h" \
+    "RFC2253.h" \
 
 ConnectorI.obj: \
 	ConnectorI.cpp \
-    "..\..\src\IceSSL\ConnectorI.h" \
+    "ConnectorI.h" \
     "..\..\src\Ice\TransceiverF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -416,8 +416,8 @@ ConnectorI.obj: \
     "$(includedir)\Ice\ThreadPoolF.h" \
     "$(includedir)\Ice\LoggerF.h" \
     "..\..\src\Ice\ProtocolInstanceF.h" \
-    "..\..\src\IceSSL\InstanceF.h" \
-    "..\..\src\IceSSL\Instance.h" \
+    "InstanceF.h" \
+    "Instance.h" \
     "..\..\src\Ice\ProtocolInstance.h" \
     "..\..\src\Ice\EndpointIF.h" \
     "..\..\src\Ice\IPEndpointIF.h" \
@@ -455,23 +455,23 @@ ConnectorI.obj: \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
     "$(includedir)\Ice\ResponseHandlerF.h" \
-    "..\..\src\IceSSL\SSLEngineF.h" \
+    "SSLEngineF.h" \
     "$(includedir)\IceSSL\Plugin.h" \
     "$(includedir)\IceSSL\Config.h" \
     "$(includedir)\IceSSL\ConnectionInfo.h" \
-    "..\..\src\IceSSL\OpenSSLTransceiverI.h" \
+    "OpenSSLTransceiverI.h" \
     "..\..\src\Ice\Transceiver.h" \
     "..\..\src\Ice\StreamSocket.h" \
-    "..\..\src\IceSSL\SecureTransportTransceiverI.h" \
-    "..\..\src\IceSSL\SChannelTransceiverI.h" \
-    "..\..\src\IceSSL\EndpointI.h" \
+    "SecureTransportTransceiverI.h" \
+    "SChannelTransceiverI.h" \
+    "EndpointI.h" \
     "..\..\src\Ice\IPEndpointI.h" \
     "..\..\src\Ice\EndpointI.h" \
     "..\..\src\Ice\AcceptorF.h" \
     "..\..\src\Ice\EndpointFactory.h" \
     "..\..\src\Ice\EndpointFactoryF.h" \
     "$(includedir)\IceSSL\EndpointInfo.h" \
-    "..\..\src\IceSSL\Util.h" \
+    "Util.h" \
     "$(includedir)\Ice\Communicator.h" \
     "$(includedir)\Ice\IncomingAsync.h" \
     "$(includedir)\Ice\RouterF.h" \
@@ -485,7 +485,7 @@ ConnectorI.obj: \
 
 EndpointI.obj: \
 	EndpointI.cpp \
-    "..\..\src\IceSSL\EndpointI.h" \
+    "EndpointI.h" \
     "..\..\src\Ice\IPEndpointI.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\Shared.h" \
@@ -562,13 +562,13 @@ EndpointI.obj: \
     "..\..\src\Ice\ProtocolInstanceF.h" \
     "..\..\src\Ice\EndpointFactory.h" \
     "..\..\src\Ice\EndpointFactoryF.h" \
-    "..\..\src\IceSSL\InstanceF.h" \
+    "InstanceF.h" \
     "$(includedir)\IceSSL\EndpointInfo.h" \
-    "..\..\src\IceSSL\AcceptorI.h" \
+    "AcceptorI.h" \
     "..\..\src\Ice\Acceptor.h" \
-    "..\..\src\IceSSL\ConnectorI.h" \
+    "ConnectorI.h" \
     "..\..\src\Ice\Connector.h" \
-    "..\..\src\IceSSL\Instance.h" \
+    "Instance.h" \
     "..\..\src\Ice\ProtocolInstance.h" \
     "..\..\src\Ice\Instance.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
@@ -602,7 +602,7 @@ EndpointI.obj: \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
     "$(includedir)\Ice\ResponseHandlerF.h" \
-    "..\..\src\IceSSL\SSLEngineF.h" \
+    "SSLEngineF.h" \
     "$(includedir)\IceSSL\Plugin.h" \
     "$(includedir)\IceSSL\Config.h" \
     "$(includedir)\IceSSL\ConnectionInfo.h" \
@@ -612,8 +612,8 @@ EndpointI.obj: \
 Instance.obj: \
 	Instance.cpp \
     "$(includedir)\IceUtil\Config.h" \
-    "..\..\src\IceSSL\Instance.h" \
-    "..\..\src\IceSSL\InstanceF.h" \
+    "Instance.h" \
+    "InstanceF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\Ice\Handle.h" \
     "$(includedir)\IceUtil\Handle.h" \
@@ -715,13 +715,13 @@ Instance.obj: \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
     "$(includedir)\Ice\ResponseHandlerF.h" \
-    "..\..\src\IceSSL\SSLEngineF.h" \
+    "SSLEngineF.h" \
     "$(includedir)\IceSSL\Plugin.h" \
     "$(includedir)\IceSSL\Config.h" \
     "$(includedir)\IceSSL\ConnectionInfo.h" \
-    "..\..\src\IceSSL\SSLEngine.h" \
-    "..\..\src\IceSSL\Util.h" \
-    "..\..\src\IceSSL\TrustManagerF.h" \
+    "SSLEngine.h" \
+    "Util.h" \
+    "TrustManagerF.h" \
     "..\..\src\Ice\Network.h" \
     "$(includedir)\Ice\Properties.h" \
     "$(includedir)\Ice\IncomingAsync.h" \
@@ -729,7 +729,7 @@ Instance.obj: \
 
 PluginI.obj: \
 	PluginI.cpp \
-    "..\..\src\IceSSL\PluginI.h" \
+    "PluginI.h" \
     "$(includedir)\IceSSL\Plugin.h" \
     "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -797,9 +797,9 @@ PluginI.obj: \
     "$(includedir)\Ice\ThreadPoolF.h" \
     "$(includedir)\Ice\Connection.h" \
     "$(includedir)\Ice\Endpoint.h" \
-    "..\..\src\IceSSL\SSLEngineF.h" \
-    "..\..\src\IceSSL\Instance.h" \
-    "..\..\src\IceSSL\InstanceF.h" \
+    "SSLEngineF.h" \
+    "Instance.h" \
+    "InstanceF.h" \
     "..\..\src\Ice\ProtocolInstance.h" \
     "..\..\src\Ice\ProtocolInstanceF.h" \
     "$(includedir)\Ice\PropertiesF.h" \
@@ -838,11 +838,11 @@ PluginI.obj: \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
     "$(includedir)\Ice\ResponseHandlerF.h" \
-    "..\..\src\IceSSL\SSLEngine.h" \
-    "..\..\src\IceSSL\Util.h" \
-    "..\..\src\IceSSL\TrustManagerF.h" \
+    "SSLEngine.h" \
+    "Util.h" \
+    "TrustManagerF.h" \
     "..\..\src\Ice\Network.h" \
-    "..\..\src\IceSSL\EndpointI.h" \
+    "EndpointI.h" \
     "..\..\src\Ice\IPEndpointI.h" \
     "..\..\src\Ice\EndpointI.h" \
     "..\..\src\Ice\TransceiverF.h" \
@@ -924,11 +924,11 @@ RFC2253.obj: \
     "$(includedir)\Ice\ThreadPoolF.h" \
     "$(includedir)\Ice\Connection.h" \
     "$(includedir)\Ice\Endpoint.h" \
-    "..\..\src\IceSSL\RFC2253.h" \
+    "RFC2253.h" \
 
 SChannelEngine.obj: \
 	SChannelEngine.cpp \
-    "..\..\src\IceSSL\SSLEngine.h" \
+    "SSLEngine.h" \
     "$(includedir)\IceSSL\Plugin.h" \
     "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -996,9 +996,9 @@ SChannelEngine.obj: \
     "$(includedir)\Ice\ThreadPoolF.h" \
     "$(includedir)\Ice\Connection.h" \
     "$(includedir)\Ice\Endpoint.h" \
-    "..\..\src\IceSSL\Util.h" \
-    "..\..\src\IceSSL\SSLEngineF.h" \
-    "..\..\src\IceSSL\TrustManagerF.h" \
+    "Util.h" \
+    "SSLEngineF.h" \
+    "TrustManagerF.h" \
     "..\..\src\Ice\Network.h" \
     "..\..\src\Ice\NetworkF.h" \
     "..\..\src\Ice\NetworkProxyF.h" \
@@ -1029,11 +1029,11 @@ SChannelEngine.obj: \
 
 SChannelTransceiverI.obj: \
 	SChannelTransceiverI.cpp \
-    "..\..\src\IceSSL\SChannelTransceiverI.h" \
+    "SChannelTransceiverI.h" \
     "$(includedir)\IceSSL\Config.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
-    "..\..\src\IceSSL\InstanceF.h" \
+    "InstanceF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\Ice\Handle.h" \
     "$(includedir)\IceUtil\Handle.h" \
@@ -1098,7 +1098,7 @@ SChannelTransceiverI.obj: \
     "$(includedir)\Ice\ThreadPoolF.h" \
     "$(includedir)\Ice\Connection.h" \
     "$(includedir)\Ice\Endpoint.h" \
-    "..\..\src\IceSSL\SSLEngineF.h" \
+    "SSLEngineF.h" \
     "..\..\src\Ice\Transceiver.h" \
     "..\..\src\Ice\TransceiverF.h" \
     "..\..\src\Ice\EndpointIF.h" \
@@ -1109,7 +1109,7 @@ SChannelTransceiverI.obj: \
     "..\..\src\Ice\ProtocolInstanceF.h" \
     "..\..\src\Ice\StreamSocket.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "..\..\src\IceSSL\Instance.h" \
+    "Instance.h" \
     "..\..\src\Ice\ProtocolInstance.h" \
     "..\..\src\Ice\ConnectorF.h" \
     "..\..\src\Ice\IPEndpointIF.h" \
@@ -1143,9 +1143,9 @@ SChannelTransceiverI.obj: \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
     "$(includedir)\Ice\ResponseHandlerF.h" \
-    "..\..\src\IceSSL\SSLEngine.h" \
-    "..\..\src\IceSSL\Util.h" \
-    "..\..\src\IceSSL\TrustManagerF.h" \
+    "SSLEngine.h" \
+    "Util.h" \
+    "TrustManagerF.h" \
     "$(includedir)\Ice\Communicator.h" \
     "$(includedir)\Ice\IncomingAsync.h" \
     "$(includedir)\Ice\RouterF.h" \
@@ -1158,7 +1158,7 @@ SChannelTransceiverI.obj: \
 
 SSLEngine.obj: \
 	SSLEngine.cpp \
-    "..\..\src\IceSSL\SSLEngine.h" \
+    "SSLEngine.h" \
     "$(includedir)\IceSSL\Plugin.h" \
     "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -1226,16 +1226,16 @@ SSLEngine.obj: \
     "$(includedir)\Ice\ThreadPoolF.h" \
     "$(includedir)\Ice\Connection.h" \
     "$(includedir)\Ice\Endpoint.h" \
-    "..\..\src\IceSSL\Util.h" \
-    "..\..\src\IceSSL\SSLEngineF.h" \
-    "..\..\src\IceSSL\TrustManagerF.h" \
+    "Util.h" \
+    "SSLEngineF.h" \
+    "TrustManagerF.h" \
     "..\..\src\Ice\Network.h" \
     "..\..\src\Ice\NetworkF.h" \
     "..\..\src\Ice\NetworkProxyF.h" \
     "$(includedir)\Ice\PropertiesF.h" \
     "..\..\src\Ice\ProtocolInstanceF.h" \
-    "..\..\src\IceSSL\TrustManager.h" \
-    "..\..\src\IceSSL\RFC2253.h" \
+    "TrustManager.h" \
+    "RFC2253.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\Ice\Communicator.h" \
     "$(includedir)\Ice\GCObject.h" \
@@ -1260,7 +1260,7 @@ SSLEngine.obj: \
 
 TrustManager.obj: \
 	TrustManager.cpp \
-    "..\..\src\IceSSL\TrustManager.h" \
+    "TrustManager.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
@@ -1281,7 +1281,7 @@ TrustManager.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
-    "..\..\src\IceSSL\TrustManagerF.h" \
+    "TrustManagerF.h" \
     "$(includedir)\IceSSL\Plugin.h" \
     "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\Ice\Plugin.h" \
@@ -1329,7 +1329,7 @@ TrustManager.obj: \
     "$(includedir)\Ice\ThreadPoolF.h" \
     "$(includedir)\Ice\Connection.h" \
     "$(includedir)\Ice\Endpoint.h" \
-    "..\..\src\IceSSL\RFC2253.h" \
+    "RFC2253.h" \
     "$(includedir)\Ice\Properties.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
@@ -1359,7 +1359,7 @@ TrustManager.obj: \
 Util.obj: \
 	Util.cpp \
     "$(includedir)\IceUtil\Config.h" \
-    "..\..\src\IceSSL\Util.h" \
+    "Util.h" \
     "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
     "$(includedir)\IceUtil\ThreadException.h" \

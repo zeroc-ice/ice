@@ -740,7 +740,7 @@ Client.obj: \
     "$(includedir)\Freeze\TransactionHolder.h" \
     "$(includedir)\Freeze\Catalog.h" \
     "$(includedir)\Freeze\CatalogData.h" \
-    "$(top_srcdir)\test\include\TestCommon.h" \
+    "..\..\include\TestCommon.h" \
     "ByteIntMap.h" \
     "IntIdentityMap.h" \
     "IntIdentityMapWithIndex.h" \

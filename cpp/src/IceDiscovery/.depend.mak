@@ -5,7 +5,7 @@ IceDiscovery.cpp: \
 
 LocatorI.obj: \
 	LocatorI.cpp \
-    "..\..\src\IceDiscovery\LocatorI.h" \
+    "LocatorI.h" \
     "$(includedir)\Ice\Locator.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
@@ -78,8 +78,8 @@ LocatorI.obj: \
     "$(includedir)\Ice\DefaultObjectFactory.h" \
     "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\Ice\ProcessF.h" \
-    "..\..\src\IceDiscovery\LookupI.h" \
-    "..\..\src\IceDiscovery\IceDiscovery.h" \
+    "LookupI.h" \
+    "IceDiscovery.h" \
     "$(includedir)\Ice\Properties.h" \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
@@ -183,9 +183,9 @@ LookupI.obj: \
     "$(includedir)\Ice\PropertiesF.h" \
     "$(includedir)\Ice\Dispatcher.h" \
     "$(includedir)\Ice\Plugin.h" \
-    "..\..\src\IceDiscovery\LookupI.h" \
-    "..\..\src\IceDiscovery\IceDiscovery.h" \
-    "..\..\src\IceDiscovery\LocatorI.h" \
+    "LookupI.h" \
+    "IceDiscovery.h" \
+    "LocatorI.h" \
     "$(includedir)\Ice\Locator.h" \
     "$(includedir)\Ice\FactoryTableInit.h" \
     "$(includedir)\Ice\DefaultObjectFactory.h" \
@@ -312,14 +312,14 @@ PluginI.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\IceDiscovery\PluginI.h" \
-    "..\..\src\IceDiscovery\LookupI.h" \
-    "..\..\src\IceDiscovery\IceDiscovery.h" \
-    "..\..\src\IceDiscovery\LocatorI.h" \
+    "PluginI.h" \
+    "LookupI.h" \
+    "IceDiscovery.h" \
+    "LocatorI.h" \
 
 IceDiscovery.obj: \
 	IceDiscovery.cpp \
-    "..\..\src\IceDiscovery\IceDiscovery.h" \
+    "IceDiscovery.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \

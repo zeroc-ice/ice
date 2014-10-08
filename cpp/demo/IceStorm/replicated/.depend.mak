@@ -198,6 +198,7 @@ Publisher.obj: \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
+    "$(includedir)\IceStorm\Config.h" \
     "Clock.h" \
 
 Subscriber.obj: \
@@ -323,4 +324,5 @@ Subscriber.obj: \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
+    "$(includedir)\IceStorm\Config.h" \
     "Clock.h" \

@@ -200,7 +200,7 @@ Client.obj: \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\Random.h" \
-    "$(top_srcdir)\test\include\TestCommon.h" \
+    "..\..\include\TestCommon.h" \
     "Test.h" \
 
 TestI.obj: \
@@ -341,7 +341,7 @@ TestI.obj: \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "Test.h" \
-    "$(top_srcdir)\test\include\TestCommon.h" \
+    "..\..\include\TestCommon.h" \
 
 Server.obj: \
 	Server.cpp \

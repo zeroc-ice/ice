@@ -121,9 +121,10 @@ Service.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "..\..\src\IceBox\ServiceManagerI.h" \
+    "ServiceManagerI.h" \
     "$(includedir)\IceBox\IceBox.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
+    "$(includedir)\IceBox\Config.h" \
     "$(includedir)\Ice\DynamicLibraryF.h" \
 
 ServiceManagerI.obj: \
@@ -262,8 +263,9 @@ ServiceManagerI.obj: \
     "..\..\src\Ice\NetworkF.h" \
     "..\..\src\Ice\NetworkProxyF.h" \
     "..\..\src\Ice\ImplicitContextI.h" \
-    "..\..\src\IceBox\ServiceManagerI.h" \
+    "ServiceManagerI.h" \
     "$(includedir)\IceBox\IceBox.h" \
+    "$(includedir)\IceBox\Config.h" \
 
 Admin.obj: \
 	Admin.cpp \
@@ -383,3 +385,4 @@ Admin.obj: \
     "$(includedir)\IceUtil\Options.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceBox\IceBox.h" \
+    "$(includedir)\IceBox\Config.h" \

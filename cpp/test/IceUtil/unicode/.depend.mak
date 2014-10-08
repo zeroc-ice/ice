@@ -26,4 +26,4 @@ Client.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
-    "$(top_srcdir)\test\include\TestCommon.h" \
+    "..\..\include\TestCommon.h" \
