@@ -208,6 +208,15 @@ C++ Changes
 - Added ice_staticId() to the ProxyHandle template.
 
 
+Java Changes
+============
+
+- Added new Slice metadata "java:buffer" to specify the use of 
+  java.nio.Buffer types in the generated code for sequences of byte,
+  short, int, long, float and double. For example, java.nio.ByteBuffer
+  instead of byte[].
+
+
 C# Changes
 ==========
 
