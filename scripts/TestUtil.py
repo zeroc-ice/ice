@@ -689,7 +689,7 @@ def getGlacier2Router():
     return getIceExe("glacier2router")
 
 def getIceExe(name):
-    if isVC90() or isMINGW():
+    if isMINGW():
         return os.path.join(getServiceDir(), name)
     else:
         return os.path.join(getCppBinDir(), name)

@@ -46,7 +46,7 @@ demos = [
     "Ice/context",
 ]
 
-if not Util.isWin32() or not Util.isVC100()
+if not Util.isWin32() or not Util.isVC100():
     demos += ["IceStorm/clock",
     "IceStorm/counter",
     "IceStorm/replicated",
