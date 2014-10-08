@@ -437,7 +437,7 @@ FixUtil.fileMatchAndReplace(os.path.join(demoDir, "demojs", "assets", "Makefile"
                             [(re.compile("top_srcdir.*= .."), "top_srcdir      = ../..")],
                             False)
 os.chdir(os.path.join(demoDir, "demojs", "assets"))
-if os.system("make > /dev/null") != 0:
+if os.system("MAKEDIST=yes make > /dev/null") != 0:
     print "Error building JS assets"
     sys.exit(1)
 os.chdir(srcDir)

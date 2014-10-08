@@ -79,13 +79,17 @@ installmodule	= if test ! -d $(1)/$(3) ; \
 		      cp $$f $(1)/$(3); \
 		  done;
 
-
+#
+# While makedist generates assets we don't want to include this file, to
+# avoid problems with ICE_HOME settings
+#
+ifneq ($(MAKEDIST),yes)
 ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
     include $(top_srcdir)/config/Make.common.rules
 else
     include $(top_srcdir)/../config/Make.common.rules
 endif
-
+endif
 
 ifdef ice_src_dist
     ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
