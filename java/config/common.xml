@@ -378,6 +378,7 @@
     </path>
 
     <!-- Set jgoodies.common to the path name of the Jgoodies Common JAR file -->
+    
     <condition property="jgoodies.common" value="/usr/share/java/jgoodies-common-${jgoodies-common.version}.jar">
         <and>
             <not><os family="windows"/></not>
@@ -386,6 +387,16 @@
             <available file="/usr/share/java/jgoodies-common-${jgoodies-common.version}.jar"/>
         </and>
     </condition>
+
+    <condition property="jgoodies.common" value="/usr/share/java/jgoodies-common.jar">
+        <and>
+            <not><os family="windows"/></not>
+            <not><isset property="jgoodies.common"/></not>
+            <not><available classname="com.jgoodies.common.base.SystemUtils"/></not>
+            <available file="/usr/share/java/jgoodies-common.jar"/>
+        </and>
+    </condition>
+
     <condition property="jgoodies.common"
                value="${thirdparty.home}/lib/jgoodies-common-${jgoodies-common.version}.jar">
         <and>
@@ -405,6 +416,16 @@
             <available file="/usr/share/java/jgoodies-forms-${jgoodies-forms.version}.jar"/>
         </and>
     </condition>
+    
+    <condition property="jgoodies.forms" value="/usr/share/java/jgoodies-forms.jar">
+        <and>
+            <not><os family="windows"/></not>
+            <not><isset property="jgoodies.forms"/></not>
+            <not><available classname="com.jgoodies.forms.builder.DefaultFormBuilder"/></not>
+            <available file="/usr/share/java/jgoodies-forms.jar"/>
+        </and>
+    </condition>
+
     <condition property="jgoodies.forms"
                value="${thirdparty.home}/lib/jgoodies-forms-${jgoodies-forms.version}.jar">
         <and>
@@ -422,6 +443,14 @@
             <not><isset property="jgoodies.looks"/></not>
             <not><available classname="com.jgoodies.looks.Options"/></not>
             <available file="/usr/share/java/jgoodies-looks-${jgoodies-looks.version}.jar"/>
+        </and>
+    </condition>
+    <condition property="jgoodies.looks" value="/usr/share/java/jgoodies-looks.jar">
+        <and>
+            <not><os family="windows"/></not>
+            <not><isset property="jgoodies.looks"/></not>
+            <not><available classname="com.jgoodies.looks.Options"/></not>
+            <available file="/usr/share/java/jgoodies-looks.jar"/>
         </and>
     </condition>
     <condition property="jgoodies.looks"
