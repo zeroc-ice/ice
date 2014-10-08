@@ -344,7 +344,7 @@ class Node extends ListTreeNode
         ApplicationData data = new ApplicationData();
         data.descriptor = nodeDesc;
         @SuppressWarnings("unchecked")
-        Utils.Resolver resolver = new Utils.Resolver(new java.util.Map[]{appDesc.variables, nodeDesc.variables});
+        Utils.Resolver resolver = new Utils.Resolver(new java.util.Map[]{nodeDesc.variables, appDesc.variables});
         data.resolver = resolver;
         data.resolver.put("application", appDesc.name);
         data.resolver.put("node", _id);
