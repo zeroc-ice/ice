@@ -34,6 +34,13 @@
    #undef _FILE_OFFSET_BITS
 #endif
 
+//
+// COMPILERFIX: Mingw headers fail to find some definitions if
+// wincrypt.h isn't included before ruby.h
+//
+#ifdef _WIN32
+#   include <wincrypt.h>
+#endif
 
 #include <ruby.h>
 

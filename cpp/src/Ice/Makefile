@@ -121,7 +121,6 @@ OBJS		= Acceptor.o \
 		  RouterInfo.o \
 		  Selector.o \
 		  ServantManager.o \
-		  Service.o \
 		  SliceChecksums.o \
 		  SlicedData.o \
 		  Stream.o \
@@ -147,6 +146,7 @@ OBJS		= Acceptor.o \
 
 ifeq ($(findstring MINGW,$(shell uname)),)
 OBJS		:= $(OBJS) \
+		  Service.o \
 		  SysLoggerI.o
 endif
 

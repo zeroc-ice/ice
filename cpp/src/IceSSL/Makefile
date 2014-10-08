@@ -24,16 +24,28 @@ OBJS		= AcceptorI.o \
 		  ConnectorI.o \
 		  EndpointI.o \
 		  Instance.o \
-		  OpenSSLEngine.o \
-		  OpenSSLTransceiverI.o \
 		  PluginI.o \
 		  RFC2253.o \
-		  SecureTransportEngine.o \
-		  SecureTransportTransceiverI.o \
 		  SSLEngine.o \
 		  TrustManager.o \
 		  Util.o \
 		  $(SLICE_OBJS)
+
+ifneq ($(findstring MINGW,$(shell uname)),)
+OBJS		:= $(OBJS) \
+		SChannelEngine.o \
+		SChannelTransceiverI.o
+else
+ifeq ($(shell uname),Darwin)
+OBJS		:= $(OBJS) \
+		SecureTransportEngine.o \
+		SecureTransportTransceiverI.o
+else
+OBJS		:= $(OBJS) \
+		OpenSSLEngine.o \
+		OpenSSLTransceiverI.o
+endif
+endif
 
 HDIR		= $(headerdir)/IceSSL
 SDIR  		= $(slicedir)/IceSSL
