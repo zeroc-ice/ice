@@ -59,23 +59,23 @@ install::$(TARGETS)
 	    @if not exist %i \
 		@echo "Creating %i ..." && \
 		mkdir %i
+	copy $(TARGETS) $(install_bindir)\$(PKG).dll
 
+!if "$(DISABLE_SYSTEM_INSTALL)" != "yes"
+install::	
 	@if not exist $(ADDIN_PREFIX) \
 	    @echo "Creating $(ADDIN_PREFIX) ..." && \
 	    mkdir $(ADDIN_PREFIX)
   	copy ..\config\Ice-$(VS).AddIn $(ADDIN_PREFIX)
   	cscript ..\config\fixinstalldir.vbs "$(prefix)\" "$(ADDIN_PREFIX)\Ice-$(VS).AddIn"
 
-	copy $(TARGETS) $(install_bindir)\$(PKG).dll
-
 	@if exist "$(VSINSTALLDIR)\ItemTemplates\CSharp\1033" \
-		copy ..\templates\Slice.zip "$(VSINSTALLDIR)\ItemTemplates\CSharp\1033\"
+	copy ..\templates\Slice.zip "$(VSINSTALLDIR)\ItemTemplates\CSharp\1033\"
 
 	@echo Adding key "$(DOTNET_ASSEMBLIES_KEY)" in Windows registry
 	@reg ADD "$(DOTNET_ASSEMBLIES_KEY)" /ve /d "$(prefix)\Assemblies" /f || \
 	echo "Could not add registry keyword $(DOTNET_ASSEMBLIES_KEY)" && exit 1
 
-install::
 	@if not exist $(ALLUSERSPROFILE)\ZeroC \
 	    @echo "Creating $(ALLUSERSPROFILE)\ZeroC ..." && \
 	    mkdir $(ALLUSERSPROFILE)\ZeroC
@@ -110,13 +110,13 @@ install::
 		copy ..\templates\Slice.zip "$(VSINSTALLDIR)\ItemTemplates\CSharp\Web\1033\"
 	devenv.exe /installvstemplates
 
-#
-# Ice.props use this registry keyword to define IceHome macro.
-#
-install::
+	#
+	# Ice.props use this registry keyword to define IceHome macro.
+	#
 	@echo Adding key "$(INSTALL_KEY)" in Windows registry
 	@reg ADD "$(INSTALL_KEY)" /v InstallDir /d "$(prefix)" /f || \
 	echo "Could not add registry keyword $(SDK_KEY)" && exit 1
+!endif
 
 clean::
 	-del /q $(TARGETS) $(PDBS)

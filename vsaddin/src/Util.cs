@@ -689,12 +689,12 @@ namespace Ice.VisualStudio
                     {
                         project.AddSdkReference(sdkId);
                     }
-                }
-                catch(Exception ex)
-                {
-                    Util.write(project, msgLevel.msgError, "Error adding SDK `" + sdkId + "'");
-                }
 #endif
+                }
+                catch(Exception)
+                {
+                    Util.write(null, msgLevel.msgError, "Error adding SDK `" + sdkId + "'");
+                }
             }
         }
 
