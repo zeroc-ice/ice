@@ -1190,12 +1190,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                         scheduleTimeout(newOp);
                         _threadPool.update(this, current.operation, newOp);
                     }
-
-                    if(readyOp == 0)
-                    {
-                        assert(dispatchCount == 0);
-                        return;
-                    }
                 }
 
                 if(_acmLastActivity > 0)

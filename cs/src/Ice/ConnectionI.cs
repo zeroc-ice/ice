@@ -1327,12 +1327,6 @@ namespace Ice
                                 scheduleTimeout(newOp);
                                 _threadPool.update(this, current.operation, newOp);
                             }
-
-                            if(readyOp == 0)
-                            {
-                                Debug.Assert(dispatchCount == 0);
-                                return;
-                            }
                         }
 
                         if(_acmLastActivity > 0)

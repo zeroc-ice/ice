@@ -1878,12 +1878,6 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     scheduleTimeout(newOp);
                     _threadPool->update(this, current.operation, newOp);
                 }
-
-                if(!readyOp)
-                {
-                    assert(dispatchCount == 0);
-                    return;
-                }
             }
 
             if(_acmLastActivity != IceUtil::Time())
