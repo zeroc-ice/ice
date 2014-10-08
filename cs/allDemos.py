@@ -40,6 +40,8 @@ demos = [
     "Ice/value",
     "Ice/optional",
     "Ice/context",
+    "IceDiscovery/hello",
+    "IceDiscovery/replication",
     "IceBox/hello",
     "IceStorm/clock",
     "IceGrid/simple",

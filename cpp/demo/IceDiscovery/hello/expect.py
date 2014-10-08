@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -20,7 +20,7 @@ if len(path) == 0:
 sys.path.append(path[0])
 
 from demoscript import Util
-from demoscript.Ice import hello
+from demoscript.IceDiscovery import hello
 
 server = Util.spawn('./server --Ice.PrintAdapterReady --Ice.Warn.Connections=0')
 server.expect('.* ready')

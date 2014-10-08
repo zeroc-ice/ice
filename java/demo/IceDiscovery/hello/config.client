@@ -44,8 +44,7 @@ Ice.Trace.Locator=1
 #
 Ice.Plugin.IceSSL=IceSSL:IceSSL.PluginFactory
 IceSSL.DefaultDir=../../../../certs
-IceSSL.ImportCert.CurrentUser.Root=cacert.pem
-IceSSL.CertFile=c_rsa1024.pfx
+IceSSL.Keystore=client.jks
 IceSSL.Password=password
 
 #

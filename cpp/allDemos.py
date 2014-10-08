@@ -44,6 +44,8 @@ demos = [
     "Ice/properties",
     "Ice/optional",
     "Ice/context",
+    "IceDiscovery/hello",
+    "IceDiscovery/replication",
 ]
 
 if not Util.isWin32() or not Util.isVC100():
