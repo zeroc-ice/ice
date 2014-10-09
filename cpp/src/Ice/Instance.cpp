@@ -1012,31 +1012,6 @@ IceInternal::Instance::setDefaultRouter(const Ice::RouterPrx& defaultRouter)
 }
 
 void
-IceInternal::Instance::setStringConverter(const IceUtil::StringConverterPtr& stringConverter)
-{
-    //
-    // No locking, as it can only be called during plug-in loading
-    //
-    _stringConverter = stringConverter;
-}
-
-void
-IceInternal::Instance::setWstringConverter(const IceUtil::WstringConverterPtr& wstringConverter)
-{
-    //
-    // No locking, as it can only be called during plug-in loading
-    //
-    if(wstringConverter == 0)
-    {
-        _wstringConverter = new IceUtil::UnicodeWstringConverter;
-    }
-    else
-    {
-        _wstringConverter = wstringConverter;
-    }
-}
-
-void
 IceInternal::Instance::setLogger(const Ice::LoggerPtr& logger)
 {
     //
@@ -1360,11 +1335,14 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _retryQueue = new RetryQueue(this);
 
-        if(_wstringConverter == 0)
+        //
+        // When _wstringConverter isn't set, use the default Unicode wstring converter
+        //
+        if(!_wstringConverter)
         {
-            _wstringConverter = new IceUtil::UnicodeWstringConverter();
+            _wstringConverter = new IceUtil::UnicodeWstringConverter;
         }
-
+    
         __setNoDelete(false);
     }
     catch(...)
@@ -1433,6 +1411,21 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
     assert(pluginManagerImpl);
     pluginManagerImpl->loadPlugins(argc, argv);
 
+    //
+    // Reset _stringConverter and _wstringConverter, in case a plugin changed them
+    //
+    _stringConverter = IceUtil::getProcessStringConverter();
+
+    IceUtil::WstringConverterPtr newWstringConverter = IceUtil::getProcessWstringConverter();
+    if(newWstringConverter)
+    {
+        _wstringConverter = newWstringConverter;
+    }
+    else if(!dynamic_cast<IceUtil::UnicodeWstringConverter*>(_wstringConverter.get()))
+    {
+        _wstringConverter = new IceUtil::UnicodeWstringConverter;
+    }
+    
     //
     // Create Admin facets, if enabled.
     //

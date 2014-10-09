@@ -9,59 +9,24 @@
 
 #include <Ice/Config.h>
 
+// For deprecated StringConverterPlugin
+#include <IceUtil/DisableWarnings.h>
+#include <Ice/DeprecatedStringConverter.h>
+
 #include <IceUtil/IceUtil.h>
 #include <IceUtil/StringUtil.h>
 
-#include <Ice/Plugin.h>
+#include <Ice/Communicator.h>
 #include <Ice/Initialize.h>
-#include <Ice/Instance.h>
 #include <Ice/LocalException.h>
 #include <Ice/LoggerUtil.h>
-#include <Ice/Communicator.h>
 
-using namespace IceUtil;
 using namespace IceUtilInternal;
 using namespace Ice;
 using namespace std;
 
-
-namespace
-{
-
-class StringConverterPlugin : public Ice::Plugin
-{
-public:
-
-    StringConverterPlugin(const CommunicatorPtr& communicator,
-                          const StringConverterPtr& stringConverter, 
-                          const WstringConverterPtr& wstringConverter)
-    {
-        if(communicator == 0)
-        {
-            throw PluginInitializationException(__FILE__, __LINE__, "Communicator cannot be null");
-        }
-        
-        IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
-        
-        IceUtil::setProcessStringConverter(stringConverter);
-        instance->setStringConverter(stringConverter);
-        IceUtil::setProcessWstringConverter(wstringConverter);
-        instance->setWstringConverter(wstringConverter);
-    }
-
-    virtual void initialize()
-    {
-    }
-
-    virtual void destroy()
-    {
-    }
-};
-
-}
-
 //
-// The entry point for the "string converter" plug-in built-in the Ice library
+// The entry point for the string converter plugin built-in the Ice library
 //
 extern "C"
 {
@@ -113,7 +78,7 @@ createStringConverter(const CommunicatorPtr& communicator, const string& name, c
             return 0;
         }
 
-        stringConverter = new WindowsStringConverter(static_cast<unsigned int>(cp));
+        stringConverter = new IceUtil::WindowsStringConverter(static_cast<unsigned int>(cp));
 #else
         StringSeq iconvArgs;
 
@@ -140,18 +105,18 @@ createStringConverter(const CommunicatorPtr& communicator, const string& name, c
         {
             case 0:
             {
-                stringConverter = new IconvStringConverter<char>;
+                stringConverter = new IceUtil::IconvStringConverter<char>;
                 break;
             }
             case 1:
             {
-                stringConverter = new IconvStringConverter<char>(iconvArgs[0].c_str());
+                stringConverter = new IceUtil::IconvStringConverter<char>(iconvArgs[0].c_str());
                 break;
             }
             case 2:
             {
-                stringConverter = new IconvStringConverter<char>(iconvArgs[0].c_str());
-                wstringConverter = new IconvStringConverter<wchar_t>(iconvArgs[1].c_str());
+                stringConverter = new IceUtil::IconvStringConverter<char>(iconvArgs[0].c_str());
+                wstringConverter = new IceUtil::IconvStringConverter<wchar_t>(iconvArgs[1].c_str());
                 break;
             }
             default:

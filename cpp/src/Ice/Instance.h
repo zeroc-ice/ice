@@ -108,15 +108,12 @@ public:
     void setDefaultLocator(const Ice::LocatorPrx&);
     void setDefaultRouter(const Ice::RouterPrx&);
 
-    IceUtil::StringConverterPtr getStringConverter() const { return _stringConverter; }
-    void setStringConverter(const IceUtil::StringConverterPtr&);
-
-    IceUtil::WstringConverterPtr getWstringConverter() const { return _wstringConverter; }
-    void setWstringConverter(const IceUtil::WstringConverterPtr&);
-
     void setLogger(const Ice::LoggerPtr&);
     void setThreadHook(const Ice::ThreadNotificationPtr&);
 
+    IceUtil::StringConverterPtr getStringConverter() const { return _stringConverter; }
+    IceUtil::WstringConverterPtr getWstringConverter() const { return _wstringConverter; }
+   
 private:
 
     Instance(const Ice::CommunicatorPtr&, const Ice::InitializationData&);

@@ -10,27 +10,51 @@
 #include <Ice/DeprecatedStringConverter.h>
 #include <Ice/Initialize.h>
 #include <Ice/Instance.h>
+#include <IceUtil/StringConverter.h>
+
+namespace Ice
+{
+
+StringConverterPlugin::StringConverterPlugin(const CommunicatorPtr& /*notused*/, 
+                                             const StringConverterPtr& stringConverter, 
+                                             const WstringConverterPtr& wstringConverter) 
+{
+    IceUtil::setProcessStringConverter(stringConverter);
+    IceUtil::setProcessWstringConverter(wstringConverter);
+}
+    
+void StringConverterPlugin::initialize()
+{
+    // no op
+}
+    
+void StringConverterPlugin::destroy()
+{
+    // no op
+}
 
 std::string
-Ice::nativeToUTF8(const Ice::StringConverterPtr& converter, const std::string& s)
+nativeToUTF8(const StringConverterPtr& converter, const std::string& s)
 {
     return IceUtil::nativeToUTF8(s, converter);
 }
 
 std::string
-Ice::nativeToUTF8(const Ice::CommunicatorPtr& communicator, const std::string& s)
+nativeToUTF8(const CommunicatorPtr& communicator, const std::string& s)
 {
     return IceUtil::nativeToUTF8(s, IceInternal::getInstance(communicator)->getStringConverter());
 }
 
 std::string
-Ice::UTF8toNative(const Ice::StringConverterPtr& converter, const std::string& s)
+UTF8toNative(const StringConverterPtr& converter, const std::string& s)
 {
     return IceUtil::UTF8ToNative(s, converter);
 }
 
 std::string
-Ice::UTF8ToNative(const Ice::CommunicatorPtr& communicator, const std::string& s)
+UTF8ToNative(const CommunicatorPtr& communicator, const std::string& s)
 {
     return IceUtil::UTF8ToNative(s, IceInternal::getInstance(communicator)->getStringConverter());
+}
+
 }
