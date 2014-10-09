@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import sys, os, re, getopt, time, string, threading, atexit, platform
+import sys, os, re, getopt, time, string, threading, atexit, platform, traceback
 
 # Global flags and their default values.
 protocol = ""                   # If unset, default to TCP. Valid values are "tcp", "ssl", "ws" or "wss".
@@ -151,7 +151,7 @@ for path in os.environ["PATH"].split(os.pathsep):
         phpCmd = "php5"
         break
 #
-# The NodeJS interpreter is called "nodejs" on some platforms 
+# The NodeJS interpreter is called "nodejs" on some platforms
 # (e.g., Ubuntu)
 #
 nodeCmd = "node"
@@ -723,7 +723,7 @@ sslConfigTree = {
             "colloc" : " --IceSSL.CertFile=c_rsa1024.pfx --IceSSL.CheckCertName=0"
             },
         }
-        
+
 if isDarwin():
     sslConfigTree["cpp"]["client"] += " --IceSSL.Keychain=client.keychain --IceSSL.KeychainPassword=password"
     #
@@ -732,7 +732,7 @@ if isDarwin():
     sslConfigTree["cpp"]["server"] += " --IceSSL.Keychain=server.keychain --IceSSL.KeychainPassword=password " + \
         "--IceSSL.ProtocolVersionMax=tls1_1"
     sslConfigTree["cpp"]["colloc"] += " --IceSSL.Keychain=colloc.keychain --IceSSL.KeychainPassword=password"
-    
+
 sslConfigTree["py"] = sslConfigTree["cpp"]
 sslConfigTree["rb"] = sslConfigTree["cpp"]
 sslConfigTree["php"] = sslConfigTree["cpp"]
@@ -1081,7 +1081,14 @@ def _spawn(cmd, env=None, cwd=None, startReader=True, lang=None):
     if printenv:
         dumpenv(env, lang)
 
-    return Expect.Expect(cmd, startReader=startReader, env=env, logfile=tracefile, cwd=cwd)
+    try:
+        process = Expect.Expect(cmd, startReader=startReader, env=env, logfile=tracefile, cwd=cwd)
+    except:
+        print("Command failed:\n" + cmd)
+        traceback.print_exc(file=sys.stderr)
+        sys.exit(1)
+
+    return process
 
 def spawn(cmd, cwd=None):
     # Spawn given command with test environment.
