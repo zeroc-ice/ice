@@ -43,7 +43,6 @@ Table of Contents
   1. Patches
      - bzip2
      - mcpp
-     - OpenSSL
   2. Packages
      - Berkeley DB
      - expat
@@ -142,10 +141,15 @@ If you have not already applied the patch for bzip2, please read the
 
 - Microsoft Visual Studio
 
-  To build bzip2, change to the source directory and use the
-  replacement makefile included in this archive:
+  1) Open a Visual Studio command prompt and set the
+     CPP_COMPILER variable to VC100, VC110 or VC120
 
-  > nmake /f ..\bzip2\Makefile.mak
+     > set CPP_COMPILER=VC100
+
+  2) Change to the source directory and use the
+     replacement makefile included in this archive:
+
+     > nmake /f ..\bzip2\Makefile.mak
 
 - MinGW
 
@@ -153,7 +157,7 @@ If you have not already applied the patch for bzip2, please read the
 
   2) Add MinGW from the Ruby Development Kit to your PATH:
 
-     > C:\RubyDevKit-4.5.2\devkitvars.bat
+     > C:\DevKit-mingw64-64-4.7.2\devkitvars.bat
 
   3) Change to the bzip2 source directory and use the replacement
      makefile included in this archive:
@@ -201,7 +205,7 @@ Follow these instructions for building mcpp:
 
   3) Add MinGW from the Ruby Development Kit to your PATH:
 
-     > C:\RubyDevKit-4.5.2\devkitvars.bat
+     > C:\DevKit-mingw64-64-4.7.2\devkitvars.bat
 
   4) Build the mcpp library:
 

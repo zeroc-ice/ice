@@ -10,7 +10,7 @@ create this package:
 
  - Berkeley 5.3.28
  - OpenSSL 1.0.1i
- - Expat 2.0.1
+ - Expat 2.1.0
  - Bzip2 1.0.6
  - MCPP 2.7.2
  - JGoodies Forms 1.8.0
