@@ -24,8 +24,8 @@ public final class Instance
         synchronized public void updateObserver(Ice.Instrumentation.CommunicatorObserver obsv)
         {
             assert(obsv != null);
-            
-            _observer = obsv.getThreadObserver("Communicator", 
+
+            _observer = obsv.getThreadObserver("Communicator",
                                                _threadName,
                                                Ice.Instrumentation.ThreadState.ThreadStateIdle,
                                                _observer);
@@ -60,7 +60,7 @@ public final class Instance
         // We use a volatile to avoid synchronization when reading
         // _observer. Reference assignement is atomic in Java so it
         // also doesn't need to be synchronized.
-        // 
+        //
         private volatile Ice.Instrumentation.ThreadObserver _observer;
         private Ice.Instrumentation.ThreadObserver _threadObserver;
     };
@@ -415,29 +415,29 @@ public final class Instance
         }
 
         boolean createAdapter = (adminAdapter == null);
-    
+
         synchronized(this)
         {
             if(_state == StateDestroyed)
             {
                 throw new Ice.CommunicatorDestroyedException();
             }
-            
+
             if(adminIdentity == null || adminIdentity.name == null || adminIdentity.name.isEmpty())
             {
                 throw new Ice.IllegalIdentityException(adminIdentity);
             }
-    
+
             if(_adminAdapter != null)
             {
                 throw new Ice.InitializationException("Admin already created");
             }
-    
+
             if(!_adminEnabled)
             {
                 throw new Ice.InitializationException("Admin is disabled");
             }
-            
+
             if(createAdapter)
             {
                 if(!_initData.properties.getProperty("Ice.Admin.Endpoints").isEmpty())
@@ -449,12 +449,12 @@ public final class Instance
                     throw new Ice.InitializationException("Ice.Admin.Endpoints is not set");
                 }
             }
-       
+
             _adminIdentity = adminIdentity;
             _adminAdapter = adminAdapter;
             addAllAdminFacets();
         }
- 
+
         if(createAdapter)
         {
             try
@@ -497,7 +497,7 @@ public final class Instance
             {
                 throw new Ice.CommunicatorDestroyedException();
             }
-    
+
             if(_adminAdapter != null)
             {
                 return _adminAdapter.createProxy(_adminIdentity);
@@ -517,7 +517,7 @@ public final class Instance
                 {
                     adminIdentity.category = java.util.UUID.randomUUID().toString();
                 }
-            
+
                 _adminIdentity = adminIdentity;
                 _adminAdapter = adminAdapter;
                 addAllAdminFacets();
@@ -547,7 +547,7 @@ public final class Instance
             }
             throw ex;
         }
-        
+
         setServerProcessProxy(adminAdapter, adminIdentity);
         return adminAdapter.createProxy(adminIdentity);
     }
@@ -903,7 +903,7 @@ public final class Instance
             _preferIPv6 = _initData.properties.getPropertyAsInt("Ice.PreferIPv6Address") > 0;
 
             _networkProxy = createNetworkProxy(_initData.properties, _protocolSupport);
-        
+
             _endpointFactoryManager = new EndpointFactoryManager(this);
             ProtocolInstance tcpProtocolInstance = new ProtocolInstance(this, Ice.TCPEndpointType.value, "tcp");
             EndpointFactory tcpEndpointFactory = new TcpEndpointFactory(tcpProtocolInstance);
@@ -930,7 +930,7 @@ public final class Instance
 
             if(_initData.properties.getPropertyAsInt("Ice.ThreadInterruptSafe") > 0)
             {
-                _queueExecutor = new QueueExecutor(_initData.properties, 
+                _queueExecutor = new QueueExecutor(_initData.properties,
                                                    Util.createThreadName(_initData.properties, "Ice.BackgroundIO"));
                 // Caching message buffers is not supported with background IO.
                 _cacheMessageBuffers = 0;
@@ -995,7 +995,7 @@ public final class Instance
         // Note that any logger-dependent admin facet must be created after we load all plugins,
         // since one of these plugins can be a Logger plugin that sets a new logger during loading
         //
-            
+
         if(_initData.properties.getProperty("Ice.Admin.Enabled").isEmpty())
         {
             _adminEnabled = !_initData.properties.getProperty("Ice.Admin.Endpoints").isEmpty();
@@ -1010,18 +1010,18 @@ public final class Instance
         {
             _adminFacetFilter.addAll(java.util.Arrays.asList(facetFilter));
         }
-        
+
         if(_adminEnabled)
-        {        
+        {
             //
             // Process facet
-            // 
+            //
             String processFacetName = "Process";
             if(_adminFacetFilter.isEmpty() || _adminFacetFilter.contains(processFacetName))
             {
                 _adminFacets.put(processFacetName, new ProcessI(communicator));
             }
-            
+
             //
             // Logger facet
             //
@@ -1053,7 +1053,7 @@ public final class Instance
                  CommunicatorObserverI observer = new CommunicatorObserverI(_initData);
                  _initData.observer = observer;
                  _adminFacets.put(metricsFacetName, observer.getFacet());
-                 
+
                  //
                  // Make sure the admin plugin receives property updates.
                  //
@@ -1140,7 +1140,7 @@ public final class Instance
             getAdmin();
         }
     }
-    
+
     //
     // Only for use by Ice.CommunicatorI
     //
@@ -1196,11 +1196,12 @@ public final class Instance
             //
             ((LoggerAdminLogger)_initData.logger).destroy();
         }
-        
+
         ThreadPool serverThreadPool = null;
         ThreadPool clientThreadPool = null;
         EndpointHostResolver endpointHostResolver = null;
         ExecutorService queueExecutor = null;
+        Ice.PluginManager pluginManager = null;
         boolean checkUnused = false;
         synchronized(this)
         {
@@ -1272,11 +1273,8 @@ public final class Instance
                 _endpointFactoryManager = null;
             }
 
-            if(_pluginManager != null)
-            {
-                _pluginManager.destroy();
-                _pluginManager = null;
-            }
+            pluginManager = _pluginManager;
+            _pluginManager = null;
 
             _adminAdapter = null;
             _adminFacets.clear();
@@ -1344,6 +1342,14 @@ public final class Instance
                 }
                 _initData.logger.warning(message.toString());
             }
+        }
+
+        //
+        // Destroy last so that a Logger plugin can receive all log/traces before its destruction.
+        //
+        if(pluginManager != null)
+        {
+            pluginManager.destroy();
         }
     }
 
@@ -1461,7 +1467,7 @@ public final class Instance
         Ice.ObjectPrx admin = adminAdapter.createProxy(adminIdentity);
         Ice.LocatorPrx locator = adminAdapter.getLocator();
         String serverId = _initData.properties.getProperty("Ice.Admin.ServerId");
-    
+
         if(locator != null && !serverId.isEmpty())
         {
             Ice.ProcessPrx process = Ice.ProcessPrxHelper.uncheckedCast(admin.ice_facet("Process"));
@@ -1484,7 +1490,7 @@ public final class Instance
                     s.append("the server is not known to the locator registry");
                     _initData.logger.trace(_traceLevels.locationCat, s.toString());
                 }
-                
+
                 throw new Ice.InitializationException("Locator knows nothing about server `" + serverId + "'");
             }
             catch(Ice.LocalException ex)
@@ -1500,7 +1506,7 @@ public final class Instance
                 }
                 throw ex;
             }
-            
+
             if(_traceLevels.location >= 1)
             {
                 StringBuilder s = new StringBuilder(128);
@@ -1515,7 +1521,7 @@ public final class Instance
     private NetworkProxy createNetworkProxy(Ice.Properties properties, int protocolSupport)
     {
         String proxyHost;
-        
+
         proxyHost = properties.getProperty("Ice.SOCKSProxyHost");
         if(!proxyHost.isEmpty())
         {
@@ -1526,13 +1532,13 @@ public final class Instance
             int proxyPort = properties.getPropertyAsIntWithDefault("Ice.SOCKSProxyPort", 1080);
             return new SOCKSNetworkProxy(proxyHost, proxyPort);
         }
-        
+
         proxyHost = properties.getProperty("Ice.HTTPProxyHost");
         if(!proxyHost.isEmpty())
         {
             return new HTTPNetworkProxy(proxyHost, properties.getPropertyAsIntWithDefault("Ice.HTTPProxyPort", 1080));
         }
-    
+
         return null;
     }
 

@@ -1114,6 +1114,7 @@ namespace IceInternal
             ThreadPool clientThreadPool = null;
             AsyncIOThread asyncIOThread = null;
             IceInternal.Timer timer = null;
+            Ice.PluginManager pluginManager = null;
             bool checkUnused = false;
 
 #if !SILVERLIGHT
@@ -1193,11 +1194,8 @@ namespace IceInternal
                     _endpointFactoryManager = null;
                 }
 
-                if(_pluginManager != null)
-                {
-                    _pluginManager.destroy();
-                    _pluginManager = null;
-                }
+                pluginManager = _pluginManager;
+                _pluginManager = null;
 
                 _adminAdapter = null;
                 _adminFacets.Clear();
@@ -1248,6 +1246,14 @@ namespace IceInternal
                     }
                     _initData.logger.warning(message.ToString());
                 }
+            }
+
+            //
+            // Destroy last so that a Logger plugin can receive all log/traces before its destruction.
+            //
+            if(pluginManager != null)
+            {
+                pluginManager.destroy();
             }
         }
 

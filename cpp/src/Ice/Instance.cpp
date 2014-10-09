@@ -1676,6 +1676,7 @@ IceInternal::Instance::destroy()
     ThreadPoolPtr clientThreadPool;
     EndpointHostResolverPtr endpointHostResolver;
     TimerPtr timer;
+    PluginManagerPtr pluginManager;
     bool checkUnused = false;
     {
         IceUtil::RecMutex::Lock sync(*this);
@@ -1695,6 +1696,7 @@ IceInternal::Instance::destroy()
             _clientThreadPool->destroy();
             std::swap(_clientThreadPool, clientThreadPool);
         }
+
         if(_endpointHostResolver)
         {
             _endpointHostResolver->destroy();
@@ -1736,11 +1738,7 @@ IceInternal::Instance::destroy()
             _endpointFactoryManager = 0;
         }
 
-        if(_pluginManager)
-        {
-            _pluginManager->destroy();
-            _pluginManager = 0;
-        }
+        std::swap(_pluginManager, pluginManager);
 
         // No destroy function defined.
         // _dynamicLibraryList->destroy();
@@ -1790,6 +1788,14 @@ IceInternal::Instance::destroy()
                 out << "\n    " << *p;
             }
         }
+    }
+
+    //
+    // Destroy last so that a Logger plugin can receive all log/traces before its destruction.
+    //
+    if(pluginManager)
+    {
+        pluginManager->destroy();
     }
 }
 
