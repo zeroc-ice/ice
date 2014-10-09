@@ -122,12 +122,22 @@ else
 endif
 
 libdir			= $(top_srcdir)/ruby
+ifeq ($(UNAME),MINGW)
+ifneq ($(findstring x64,$(RUBY_ARCH)),)
+install_rubydir		= $(prefix)/ruby/x64
+install_libdir		= $(prefix)/ruby/x64
+else
+install_rubydir		= $(prefix)/ruby
+install_libdir		= $(prefix)/ruby
+endif
+else
 ifneq ($(prefix), /usr)
 install_rubydir		= $(prefix)/ruby
 install_libdir		= $(prefix)/ruby
 else
 install_rubydir		= $(RUBY_LIB_DIR)
 install_libdir		= $(RUBY_LIB_DIR)/$(RUBY_ARCH)
+endif
 endif
 install_bindir		= $(prefix)/$(binsubdir)
 
