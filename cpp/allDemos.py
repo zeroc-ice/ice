@@ -46,10 +46,7 @@ demos = [
     "Ice/value",
     "IceDiscovery/hello",
     "IceDiscovery/replication",
-]
-
-if not Util.isWin32() or not Util.isVC100():
-    demos += ["IceStorm/clock",
+    "IceStorm/clock",
     "IceStorm/counter",
     "IceStorm/replicated",
     "IceStorm/replicated2",
