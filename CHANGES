@@ -1,5 +1,5 @@
 ======================================================================
-CHANGES for Ice 3.5
+CHANGES for Ice 3.6
 ======================================================================
 
 The entries below contain brief descriptions of the changes in a
@@ -27,6 +27,11 @@ Changes since version 3.5.1
 General Changes
 ===============
 
+- Removed the "old" asynchronous invocation API that was deprecated
+  in Ice 3.4.
+
+- Added the WebSocket transports to the Ice core.
+
 - Added "Logger" facet to Admin, which allows remote applications
   to attach RemoteLogger objects and receive log messages. Both
   the icegridadmin command-line utility and IceGrid Admin use this
@@ -45,18 +50,12 @@ General Changes
   Java. This allows outgoing TCP & SSL connections to be mediated by
   an HTTP network proxy service that supports HTTP CONNECT tunneling.
 
-- Added IceStorm::InvalidSubscriber exception which is throw by
-  IceStorm subscribe/unsubscribe methods when an invalid subscriber
-  (eg. null proxy) is passed.
-
-- Added Ice.Default.Timeout property to the set the timeout for
-  stringified proxy endpoint that do not have timeout explicitly set.
-  The default setting for the property is 60 seconds. It is also now
-  possible to set an infinite timeout using "-t infinite" in the 
-  endpoint configuration.
+- Added IceStorm::InvalidSubscriber exception which is thrown by
+  the subscribe/unsubscribe operations when an invalid subscriber
+  (such as a null proxy) is passed.
 
 - Added Ice.Default.SourceAddress property and --sourceAddress
-  endpoint setting to control the interface used for the outgoing
+  endpoint setting to control the interface used for an outgoing
   connection.
 
 - The signatures of Ice::OutputStream startSize() and endSize() have
@@ -67,91 +66,104 @@ General Changes
   set these properties to connect to an IceStorm instance running on
   a given host and port.
 
-- Added IceStorm finder interface (in the IceStorm/IceStorm.ice slice
-  file) to enable clients to easily find the proxy of the topic
-  manager with just the endpoint information of the IceStorm
-  service. The client doesn't have to know the instance name.
+- Added IceStorm finder interface (defined in IceStorm/IceStorm.ice)
+  to enable clients to easily find the proxy of the topic manager with
+  just the endpoint information of the IceStorm service. The client
+  doesn't need to know the instance name.
   
   IceStorm provides an Ice object with the identity `IceStorm/Finder'
   that implements this interface.
 
 - Added support for IceGridDiscovery to the IceGrid administrative
   utilities. Also added IceGridAdmin.Host and IceGridAdmin.Port
-  properties, you can set these properties to connect to an IceGrid
+  properties; you can set these properties to connect to an IceGrid
   registry running on a given host and port.
 
-- Added Ice locator and router finder interfaces to enable clients to
-  easily find proxies for the locator or router (in Ice/Locator.ice
-  and Ice/Router.ice slice files).
+- Added "finder" interfaces for locators and routers to enable clients
+  to easily find proxies for the locator or router (defined in
+  Ice/Locator.ice and Ice/Router.ice).
 
-  Glacier2 and IceGrid implement those interfaces and provide finder
-  Ice objects with respectively the identity `Ice/RouterFinder' and
-  `Ice/LocatorFinder'. Clients can use those objects to connect to
-  Glacier2 and IceGrid with just the endpoint information (they don't
-  need to know the instance name of the Glacier2 or IceGrid service).
+  Glacier2 and IceGrid implement these interfaces and provide finder
+  Ice objects with the identities `Ice/RouterFinder' and
+  `Ice/LocatorFinder', respectively. Clients can use these objects to
+  connect to Glacier2 and IceGrid with just the endpoint information
+  (they don't need to know the instance name of the Glacier2 or
+  IceGrid service).
 
-- Added IceGrid discovery plugin. This plugin enables Ice applications
+- Added IceGrid discovery plug-in, which enables Ice applications
   to discover IceGrid registries running on the network using UDP
   multicast. See the release notes or Ice manual for more information.
 
-- The collocation optimization has been significanly improved to
+- Collocation optimization has been significanly improved to
   remove limitations. It now works with AMI, AMD, blobjects and
   batching. Collocated requests are now always marshaled and
-  un-marshalled but they don't go through any transport.
+  unmarshaled but they don't go through any transport.
 
 - Fixed a bug where retries might fail if the request failed right
   after connection establishment.
 
 - New garbage collection support for object graphs with cycles. 
 
-  There's no more background thread to collect objects. Instead,
+  Ice no longer uses a background thread to collect objects. Instead,
   Ice::Object now has a new ice_collectable method to indicate whether
-  or not the object graph can be collected or not. When a graph is
-  marked as collectable with this method, you shouldn't update the
-  structure of the object graph.
+  or not the object graph can be collected. When a graph is marked as
+  collectable with this method, you shouldn't update the structure of
+  the object graph.
 
-  Ice tries to collect the graph each time a reference count for an
-  object part of the cycle is dropped.
+  Ice tries to collect the graph each time a reference count is
+  dropped for an object in the cycle.
 
   By default, object collection is turned off. When it's turned on
-  with Ice.CollectObjects=1, the Ice runtime calls
-  ice_collectable(true) on all the objects it un-marshals.
+  with Ice.CollectObjects=1, the Ice run time calls
+  ice_collectable(true) on all the objects it unmarshals.
 
-- Added support for connection closure and heartbeat callback. The
-  callback is invoked when the connection is closed or when a
-  heartbeat is received.
+  The properties Ice.GC.Interval and Ice.Trace.GC are no longer
+  supported, nor is the Ice::collectGarbage() function.
+
+- Added callbacks for connection closure and heartbeats. The callback
+  is invoked when the connection is closed or when a heartbeat is
+  received.
 
 - Active connection management improvements:
 
- * Active connection management now support sending heartbeats over
-   the Ice connection. Depending on the configuration, heartbeats are
-   sent when there are long invocations in progress, when the
-   connection is idle or at regular time intervals.
+  * Active connection management now supports sending heartbeats over
+    the Ice connection. Depending on the configuration, heartbeats are
+    sent when there are long invocations in progress, when the
+    connection is idle, or at regular time intervals.
 
- * Connection closure by active connection management can be
-   configured to close connections under certain conditions. For
-   example, a connection can be closed gracefuly or forcefuly if it's
-   idle for the activement connection management period.
+  * Connection closure by active connection management can be
+    configured to close connections under certain conditions. For
+    example, a connection can be closed gracefully or forcefully if
+    it's idle for the active connection management period.
 
- * The ACM properties to configure the ACM timeout have been
-   deprecated, you should now use the <prefix>.Timeout property where
-   <prefix> can be Ice.ACM, Ice.ACM.Client, Ice.ACM.Server or <object
-   adpater>.ACM.
+  * The ACM properties to configure the ACM timeout have been
+    deprecated. You should now use the <prefix>.Timeout property where
+    <prefix> can be Ice.ACM, Ice.ACM.Client, Ice.ACM.Server or <object
+    adapter>.ACM.
 
   See the release notes or Ice manual for more information.
 
 - Added support for invocation timeouts. Invocation timeouts can be
-  set on a per-proxy basis with the proxy ice_invocationTimeout
+  set on a per-proxy basis with the ice_invocationTimeout proxy
   method. By default, there's no invocation timeout meaning that an
   invocation will never timeout if the connection between the client
-  and server is alive. See the release notes and Ice manual for more
-  information.
+  and server is alive. An invocation timeout does not cause a
+  connection to be closed. See the release notes and Ice manual for
+  more information.
 
-- Added IceDiscovery plugin. This plugin provides a UDP multicast
-  based Ice locator implementation. This can be used as an alternative
-  to IceGrid when running few clients and servers on the same network
+- With the addition of invocation timeouts, the existing connection
+  timeout mechanism no longer applies to invocations. Connection
+  timeouts are now enabled by default using the new property
+  Ice.Default.Timeout, which specifies the timeout for stringified
+  proxy endpoints that do not have a timeout explicitly set. The
+  default setting for the property is 60 seconds. It is also now
+  possible to set an infinite timeout using "-t infinite" in the
+  endpoint configuration.
+
+- Added IceDiscovery plug-in, which provides a UDP multicast-based Ice
+  locator implementation. This can be used as an alternative to
+  IceGrid when running few clients and servers on the same network
   and if you don't want to deploy a central service such as IceGrid.
-
   See the release notes or Ice manual for more information.
 
 - Added support for IceGrid custom load balancing with the addition of
@@ -173,37 +185,59 @@ General Changes
   to classes. It also supports the use of compact type IDs for
   classes.
 
+- Removed the Ice::Stats interface, which was deprecated in Ice 3.5
+  and replaced by the new metrics facility.
+
 
 C++ Changes
 ===========
+
+- Significant changes to the IceSSL plug-in:
+
+  * Now uses the native SecureTransport API on OS X
+
+  * Now uses the native SChannel API on Windows
+
+  OpenSSL is only used in IceSSL on Linux.
+
+  Refer to the release notes for important information about upgrading
+  existing applications.
+
+- Added support for the IceSSL.FindCert property on Windows and OS X.
+
+- Added the new metadata tag "cpp:view-type:Type", where Type is
+  a type that can safely provide a "view" into the Ice unmarshaling
+  buffer and thereby avoid extra copies. This tag can only be applied
+  to operation parameters of type string, sequence and dictionary,
+  and only has an effect in situations where the Ice data buffer is
+  guaranteed to still exist. Refer to the Ice manual for more details.
 
 - Added support for TCP Loopback Fast Path on Windows platforms that
   support it.
 
 - Fixed a bug where the communicator destruction could raise an
-  Ice::NullHandleException if a custom observer was setup.
+  Ice::NullHandleException if a custom observer was present.
 
 - Fixed a bug where the selector wouldn't check for EPOLLERR on
-  Linux. This could cause the selector thread to loop indefinetely if
-  this condition occured (which is the case with UDP connected
-  sockets).
+  Linux. This could cause the selector thread to spin if this condition
+  occurred (which is the case with UDP connected sockets).
 
-- Added per process string converters for narrow and wide strings,
-  setProcessStringConverter and getProcessStringConverter in IceUtil
-  namespace can be used to establish and access the process narrow
-  string converter, likewise setProcessWstringConverter and 
-  getProcessWstringConverter can be used to establish and access the
-  process wide string converter.
+- Added per-process string converters for narrow and wide strings.
+  The functions setProcessStringConverter and getProcessStringConverter
+  in the IceUtil namespace can be used to establish and access the
+  process narrow string converter. Likewise setProcessWstringConverter
+  and getProcessWstringConverter can be used to establish and access
+  the process wide string converter.
   
-- Added Ice.LogStdErr.Convert property which control whenever or not
-  the default StdErr logger convert messages from native narrow encoding
-  to the console code page, the default value is 1 meaning by default
-  messages are converted to the console code page encoding, the property
-  doesn't affect non Windows OS.
+- Added Ice.LogStdErr.Convert property which controls whether or not
+  the default StdErr logger converts messages from native narrow
+  encoding to the console code page. The default value is 1, meaning
+  by default messages are converted to the console code page encoding.
+  The property is only used on Windows.
   
-- Added IceUtil::nativeToWnative and IceUtil::wnativeToNative functions
-  which allow to convert between narrow and wide strings, stringToWstring
-  and wstringToString have been deprecated.
+- Added IceUtil::nativeToWnative and IceUtil::wnativeToNative
+  functions which allow you to convert between narrow and wide
+  strings. stringToWstring and wstringToString have been deprecated.
 
 - Added ice_staticId() to the ProxyHandle template.
 
@@ -211,14 +245,35 @@ C++ Changes
 Java Changes
 ============
 
-- Added new Slice metadata "java:buffer" to specify the use of 
+- Added new Slice metadata "java:buffer" to enable the use of
   java.nio.Buffer types in the generated code for sequences of byte,
-  short, int, long, float and double. For example, java.nio.ByteBuffer
-  instead of byte[].
+  short, int, long, float and double. For example, sequence<byte>
+  maps to java.nio.ByteBuffer instead of byte[].
+
+- Changed the Ice core to allow applications to safely interrupt
+  threads that are calling Ice APIs. The new property
+  Ice.ThreadInterruptSafe must be enabled in order to use
+  thread interrupts. Ice raises the new exception
+  Ice.OperationInterruptedException if an API call is interrupted.
+  See the Ice manual for more information on this topic.
+
+- Added support for Java 8.
+
+- Java 8 lambda expressions can be used as callbacks for asynchronous
+  proxy invocations.
 
 
 C# Changes
 ==========
+
+- Fixed a security vulnerability in IceSSL in which an untrusted
+  self-signed CA certificate was accepted.
+
+- Added IceSSL.CertAuthFile property, which allows you to specify a
+  CA certificate without having to import it into a certificate store.
+
+- Deprecated the IceSSL.ImportCert property. Certificates should be
+  imported using standard Windows tools.
 
 - Fixed a bug where under certain circumstances the thread pool could
   serialize dispatch.
@@ -238,15 +293,19 @@ C# Changes
   that data members whose types are proxies cannot be serialized;
   these members will be set to null after deserialization.
 
-- It is now possible for users to provide a base class for a Slice
+- It is now possible for users to provide a base class for a Slice-
   generated class with .NET partial classes.
 
-- Fixed leak in C# transport. The leak occured for each Ice
+- Fixed leak in C# transport. The leak occurred for each Ice
   connection.
   
+- Mono is no longer an officially-supported platform for Ice for .NET.
+
 
 Python Changes
 ==============
+
+- Added support for Python 3.4.
 
 - Changed the semantics of Ice.Unset so that it evaluates as false in
   a boolean context.
@@ -260,17 +319,27 @@ Python Changes
 Ruby Changes
 ============
 
+- Added support for Ruby 2.1.
+
 - Added ice_staticId() to generated proxy classes.
   
 
 PHP Changes
 ===========
 
+- Added support for PHP 5.6.
+
 - Added ice_staticId() to generated proxy helper classes.
 
 - Generated interfaces now extend the Object base interface.
 
 - Added ObjectPrxHelper class.
+
+
+JavaScript Changes
+==================
+
+- JavaScript is now an officially-supported language mapping.
 
 
 ======================================================================
