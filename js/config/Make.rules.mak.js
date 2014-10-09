@@ -163,12 +163,12 @@ index.html: $(GEN_SRCS) $(top_srcdir)\test\Common\index.html
 
 $(libdir)/$(LIBNAME).js: $(SRCS)
 	@del /q $(libdir)\$(LIBNAME).js
-	$(NODE) $(top_srcdir)\config\makebundle.js $(SRCS) > $(libdir)\$(LIBNAME).js
+	"$(NODE)" $(top_srcdir)\config\makebundle.js "$(MODULES)" $(SRCS) > $(libdir)\$(LIBNAME).js
 
 !if "$(OPTIMIZE)" == "yes"
 $(libdir)/$(LIBNAME).min.js: $(libdir)/$(LIBNAME).js
 	@del /q $(libdir)\$(LIBNAME).min.js
-	$(NODE) $(top_srcdir)\config\makebundle.js $(SRCS) > $(libdir)\$(LIBNAME).tmp.js
+	"$(NODE)" $(top_srcdir)\config\makebundle.js "$(MODULES)" $(SRCS) > $(libdir)\$(LIBNAME).tmp.js
 	java -jar $(CLOSURE_PATH)\compiler.jar $(CLOSUREFLAGS) --js $(libdir)\$(LIBNAME).js --js_output_file $(libdir)\$(LIBNAME).min.js
 	del /q $(libdir)\$(LIBNAME).tmp.js
 !endif
@@ -181,7 +181,7 @@ $(libdir)/$(LIBNAME)$(jslibsuffix).gz: $(libdir)/$(LIBNAME)$(jslibsuffix)
 
 !if "$(INSTALL_SRCS)" != ""
 lint: $(INSTALL_SRCS)
-	$(NODE) "$(JSHINT_PATH)\bin\jshint" $(LINTFLAGS) $(INSTALL_SRCS)
+	"$(NODE)" "$(JSHINT_PATH)\bin\jshint" $(LINTFLAGS) $(INSTALL_SRCS)
 !else
 lint::
 !endif
