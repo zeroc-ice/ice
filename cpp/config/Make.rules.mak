@@ -260,7 +260,7 @@ depend:: $(SLICE_SRCS) $(SLICE_OBJS_DEPEND)
 all::$(OBJS:.obj=.cpp)
 OBJS_DEPEND = $(OBJS:.obj=.d)
 OBJS_DEPEND = $(OBJS_DEPEND:.\=.depend.mak\)
-depend:: $(OBJS:.obj=.cpp) $(OBJS_DEPEND)
+depend:: $(OBJS:.obj=.cpp) $(RC_SRCS:.rc=.h) $(OBJS_DEPEND)
 !endif
 
 .cpp{$(DEPEND_DIR)}.d:

@@ -553,5 +553,6 @@ Service.obj: \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\IceBox\IceBox.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
+    "$(includedir)\IceBox\Config.h" \
     "TestI.h" \
     "Test.h" \

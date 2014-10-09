@@ -193,6 +193,7 @@ Publisher.obj: \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
+    "$(includedir)\IceStorm\Config.h" \
     "Event.h" \
 
 Subscriber.obj: \
@@ -312,6 +313,7 @@ Subscriber.obj: \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
+    "$(includedir)\IceStorm\Config.h" \
     "$(includedir)\IceUtil\Options.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\Random.h" \

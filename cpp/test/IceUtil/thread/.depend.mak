@@ -58,7 +58,7 @@ CreateTest.obj: \
     "$(includedir)\IceUtil\UniquePtr.h" \
     "CreateTest.h" \
     "TestBase.h" \
-    "..\..\include\TestCommon.h" \
+    "$(top_srcdir)\test\include\TestCommon.h" \
 
 AliveTest.obj: \
 	AliveTest.cpp \
@@ -89,7 +89,7 @@ AliveTest.obj: \
     "$(includedir)\IceUtil\UniquePtr.h" \
     "AliveTest.h" \
     "TestBase.h" \
-    "..\..\include\TestCommon.h" \
+    "$(top_srcdir)\test\include\TestCommon.h" \
 
 StartTest.obj: \
 	StartTest.cpp \
@@ -120,7 +120,7 @@ StartTest.obj: \
     "$(includedir)\IceUtil\UniquePtr.h" \
     "StartTest.h" \
     "TestBase.h" \
-    "..\..\include\TestCommon.h" \
+    "$(top_srcdir)\test\include\TestCommon.h" \
 
 RecMutexTest.obj: \
 	RecMutexTest.cpp \
@@ -151,7 +151,7 @@ RecMutexTest.obj: \
     "$(includedir)\IceUtil\UniquePtr.h" \
     "RecMutexTest.h" \
     "TestBase.h" \
-    "..\..\include\TestCommon.h" \
+    "$(top_srcdir)\test\include\TestCommon.h" \
 
 MutexTest.obj: \
 	MutexTest.cpp \
@@ -182,7 +182,7 @@ MutexTest.obj: \
     "$(includedir)\IceUtil\UniquePtr.h" \
     "MutexTest.h" \
     "TestBase.h" \
-    "..\..\include\TestCommon.h" \
+    "$(top_srcdir)\test\include\TestCommon.h" \
 
 MonitorMutexTest.obj: \
 	MonitorMutexTest.cpp \
@@ -213,7 +213,7 @@ MonitorMutexTest.obj: \
     "$(includedir)\IceUtil\UniquePtr.h" \
     "MonitorMutexTest.h" \
     "TestBase.h" \
-    "..\..\include\TestCommon.h" \
+    "$(top_srcdir)\test\include\TestCommon.h" \
 
 MonitorRecMutexTest.obj: \
 	MonitorRecMutexTest.cpp \
@@ -244,7 +244,7 @@ MonitorRecMutexTest.obj: \
     "$(includedir)\IceUtil\UniquePtr.h" \
     "MonitorRecMutexTest.h" \
     "TestBase.h" \
-    "..\..\include\TestCommon.h" \
+    "$(top_srcdir)\test\include\TestCommon.h" \
 
 CountDownLatchTest.obj: \
 	CountDownLatchTest.cpp \
@@ -275,7 +275,7 @@ CountDownLatchTest.obj: \
     "$(includedir)\IceUtil\UniquePtr.h" \
     "CountDownLatchTest.h" \
     "TestBase.h" \
-    "..\..\include\TestCommon.h" \
+    "$(top_srcdir)\test\include\TestCommon.h" \
 
 TestSuite.obj: \
 	TestSuite.cpp \
@@ -321,6 +321,6 @@ Client.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
-    "..\..\include\TestCommon.h" \
+    "$(top_srcdir)\test\include\TestCommon.h" \
     "TestSuite.h" \
     "TestBase.h" \

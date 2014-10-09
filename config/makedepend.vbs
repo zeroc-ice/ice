@@ -59,7 +59,7 @@ Do While Not stream.AtEndOfStream
             Elseif InStr(1, line, iceCppIncludeDir) > 0 Then
                 line = "$(ice_cpp_dir)\include" & Right(line, len(line) - len(iceCppIncludeDir))
             Elseif InStr(1, line, cppTestIncludeDir) > 0 Then
-                line = "..\..\include" & Right(line, len(line) - len(cppTestIncludeDir))
+                line = "$(top_srcdir)\test\include" & Right(line, len(line) - len(cppTestIncludeDir))
             End If
 
             line = "    """ & line & """ \"

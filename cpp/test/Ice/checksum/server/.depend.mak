@@ -392,7 +392,7 @@ Server.obj: \
     "TestI.h" \
     "Test.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
-    "..\..\include\TestCommon.h" \
+    "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \

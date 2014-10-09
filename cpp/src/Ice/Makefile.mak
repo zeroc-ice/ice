@@ -151,7 +151,7 @@ OBJS	       =  .\Acceptor.obj \
 HDIR		= $(headerdir)\Ice
 SDIR		= $(slicedir)\Ice
 
-all:: EventLoggerMsg.h
+RC_SRCS		= EventLoggerMsg.rc
 
 !include $(top_srcdir)\config\Make.rules.mak
 

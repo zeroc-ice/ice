@@ -274,6 +274,7 @@ Publisher.obj: \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
+    "$(includedir)\IceStorm\Config.h" \
     "Single.h" \
     "Controller.h" \
 
@@ -401,6 +402,7 @@ Subscriber.obj: \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
+    "$(includedir)\IceStorm\Config.h" \
     "Single.h" \
     "Controller.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
