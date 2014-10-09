@@ -94,7 +94,7 @@ General Changes
   to discover IceGrid registries running on the network using UDP
   multicast. See the release notes or Ice manual for more information.
 
-- Collocation optimization has been significanly improved to
+- Collocation optimization has been significantly improved to
   remove limitations. It now works with AMI, AMD, blobjects and
   batching. Collocated requests are now always marshaled and
   unmarshaled but they don't go through any transport.
