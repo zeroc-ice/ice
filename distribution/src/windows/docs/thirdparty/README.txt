@@ -46,8 +46,7 @@ This distribution provides:
  - DLLs and exes for Bzip2 built using Visual Studio 2010 in the
    bin and bin\x64 directories.
 
- - DLL for Bzip2 built using MinGW 4.7.2 in the bin and bin\x64
-   directory.
+ - DLL for Bzip2 built using MinGW 4.7.2 in the bin\x64 directory.
 
  - JAR files for Berkeley DB, JGoodies Common, JGoodies Looks and
    JGoodies Forms in lib directory.
