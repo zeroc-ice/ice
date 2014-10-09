@@ -1553,20 +1553,25 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
     _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
 
     //
-    // Get default router and locator proxies. Don't move this
-    // initialization before the plug-in initialization!!! The proxies
-    // might depend on endpoint factories to be installed by plug-ins.
+    // The default router/locator may have been set during the loading of plugins.
+    // Therefore we make sure it is not already set before checking the property.
     //
-    RouterPrx router = RouterPrx::uncheckedCast(_proxyFactory->propertyToProxy("Ice.Default.Router"));
-    if(router)
+    if(!_referenceFactory->getDefaultRouter())
     {
-        _referenceFactory = _referenceFactory->setDefaultRouter(router);
+        RouterPrx router = RouterPrx::uncheckedCast(_proxyFactory->propertyToProxy("Ice.Default.Router"));
+        if(router)
+        {
+            _referenceFactory = _referenceFactory->setDefaultRouter(router);
+        }
     }
 
-    LocatorPrx locator = LocatorPrx::uncheckedCast(_proxyFactory->propertyToProxy("Ice.Default.Locator"));
-    if(locator)
+    if(!_referenceFactory->getDefaultLocator())
     {
-        _referenceFactory = _referenceFactory->setDefaultLocator(locator);
+        LocatorPrx locator = LocatorPrx::uncheckedCast(_proxyFactory->propertyToProxy("Ice.Default.Locator"));
+        if(locator)
+        {
+            _referenceFactory = _referenceFactory->setDefaultLocator(locator);
+        }
     }
 
     //

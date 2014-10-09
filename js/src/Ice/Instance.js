@@ -349,7 +349,7 @@ var Instance = Ice.Class({
             var sslInstance = new Ice.ProtocolInstance(this, IceSSL.EndpointType, "ssl", true);
             var sslEndpointFactory = new Ice.TcpEndpointFactory(sslInstance);
             this._endpointFactoryManager.add(sslEndpointFactory);
-            
+
             var wssInstance = new Ice.ProtocolInstance(this, Ice.WSSEndpointType, "wss", true);
             var wssEndpointFactory = new Ice.WSEndpointFactory(wssInstance, sslEndpointFactory.clone(wssInstance));
             this._endpointFactoryManager.add(wssEndpointFactory);
@@ -361,11 +361,6 @@ var Instance = Ice.Class({
 
             this._retryQueue = new RetryQueue(this);
 
-            //
-            // Get default router and locator proxies. Don't move this
-            // initialization before the plug-in initialization!!! The proxies
-            // might depend on endpoint factories to be installed by plug-ins.
-            //
             var router = Ice.RouterPrx.uncheckedCast(this._proxyFactory.propertyToProxy("Ice.Default.Router"));
             if(router !== null)
             {
