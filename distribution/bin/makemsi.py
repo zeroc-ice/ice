@@ -94,16 +94,25 @@ def usage():
     print(r"                              is C:\proguard")
     print("")
     print(r"  --php-home=<path>           PHP source location, default location")
-    print(r"                              is C:\php-5.4.20")
+    print(r"                              is C:\php-5.6.1")
     print("")
     print(r"  --php-bin-home=<path>       PHP binaries location, default location")
-    print(r"                              is C:\Program Files\PHP")
+    print(r"                              is C:\Program Files (x86)\PHP")
     print("")
     print(r"  --ruby-home                 Ruby location, default location is")
     print(r"                              C:\Ruby193")
     print("")
     print(r"  --ruby-devkit-home          Ruby DevKit location, default location is")
     print(r"                              C:\RubyDevKit-4.5.2")
+    print("")
+    print(r"  --nodejs-home               NodeJS location, default location is")
+    print(r"                              C:\Program Files (x86)\nodejs")
+    print("")
+    print(r"  --gzip-home                 Gzip location, default location is")
+    print(r"                              C:\Program Files (x86)\GnuWin32")
+    print("")
+    print(r"  --closure-home              Google closure compiler location, default location is")
+    print(r"                              C:\closure")
     print("")
     print(r"  --skip-build                Skip build and go directly to installer creation,")
     print(r"                              existing build will be used")
@@ -125,7 +134,7 @@ def usage():
     print(r"makemsi.py --verbose")
     print("")
 
-version = "3.5.1"
+version = "3.6b"
 verbose = False
 
 args = None
@@ -136,6 +145,11 @@ phpHome = None
 phpBinHome = None
 rubyHome = None
 rubyDevKitHome = None
+nodejsHome = None
+nodejsExe = None
+gzipHome = None
+gzipExe = None
+closureHome = None
 skipBuild = False
 skipInstaller = False
 
@@ -156,7 +170,8 @@ keyFile = None
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", ["help", "verbose", "proguard-home=", "php-home=", "php-bin-home=", \
-                                                  "ruby-home=", "ruby-devkit-home=", "skip-build", "skip-installer", \
+                                                  "ruby-home=", "ruby-devkit-home=", "nodejs-home", "gzip-home", 
+                                                  "closure-home", "skip-build", "skip-installer", \
                                                   "filter-languages=", "filter-compilers=", "filter-archs=", \
                                                   "filter-confs=", "filter-profiles=", "filter-languages=", \
                                                   "filter-compilers=", "filter-archs=", "filter-confs=", \
@@ -186,6 +201,12 @@ for o, a in opts:
         rubyHome = a
     elif o == "--ruby-devkit-home":
         rubyDevKitHome = a
+    elif o == "--nodejs-home":
+        nodejsHome = a
+    elif o == "--gzip-home":
+        gzipHome = a
+    elif o == "--closure-home":
+        closureHome = a
     elif o == "--skip-build":
         skipBuild = True
     elif o == "--skip-installer":
@@ -231,10 +252,10 @@ if thirdPartyHome is None:
     sys.exit(1)
 
 if not certFile:
-    if os.path.exists("c:\\release\\authenticode\\zeroc2013.pfx"):
-        certFile = "c:\\release\\authenticode\\zeroc2013.pfx"
-    elif os.path.exists(os.path.join(os.getcwd(), "..", "..", "release", "authenticode", "zeroc2013.pfx")):
-        certFile = os.path.join(os.getcwd(), "..", "..", "release", "authenticode", "zeroc2013.pfx")
+    if os.path.exists("c:\\release\\authenticode\\zeroc2014.pfx"):
+        certFile = "c:\\release\\authenticode\\zeroc2014.pfx"
+    elif os.path.exists(os.path.join(os.getcwd(), "..", "..", "release", "authenticode", "zeroc2014.pfx")):
+        certFile = os.path.join(os.getcwd(), "..", "..", "release", "authenticode", "zeroc2014.pfx")
 else:
     if not os.path.isabs(certFile):
         certFile = os.path.abspath(os.path.join(os.getcwd(), certFile))
@@ -298,6 +319,41 @@ if phpBinHome:
         print("--php-bin-home points to nonexistent directory")
         sys.exit(1)
 
+if nodejsHome:
+    if not os.path.isabs(nodejsHome):
+        nodejsHome = os.path.abspath(os.path.join(os.getcwd(), nodejsHome))
+
+    nodejsExe = os.path.join(nodejsHome, "node.exe")
+    if not os.path.exists(nodejsExe):
+        #
+        # Invalid proguard-home setting
+        #
+        print("node.exe not found in " + nodejsHome)
+        sys.exit(1)
+
+if gzipHome:
+    if not os.path.isabs(gzipHome):
+        gzipHome = os.path.abspath(os.path.join(os.getcwd(), gzipHome))
+
+    gzipExe = os.path.join(gzipHome, "bin", "gzip.exe")
+    if not os.path.exists(gzipExe):
+        #
+        # Invalid proguard-home setting
+        #
+        print("node.exe not found in " + os.path.join(gzipHome, "bin"))
+        sys.exit(1)
+
+if closureHome:
+    if not os.path.isabs(closureHome):
+        closureHome = os.path.abspath(os.path.join(os.getcwd(), closureHome))
+
+    if not os.path.exists(closureHome):
+        #
+        # Invalid proguard-home setting
+        #
+        print("--closure-home points to nonexistent directory")
+        sys.exit(1)
+
 if not os.path.exists(sourceArchive):
     print("Couldn't find %s in %s" % (os.path.basename(sourceArchive), os.path.dirname(sourceArchive)))
     sys.exit(1)
@@ -312,42 +368,41 @@ if not os.path.exists(demoArchive):
 #
 builds = {
     "MINGW": {
-        "x86": {
+        "amd64": {
             "release": ["cpp", "rb"]}},
-    "VC90": {
-        "x86": {
-            "release": ["cpp", "cs", "php", "vsaddin"]}},
     "VC100": {
         "x86": {
-            "release": ["cpp", "cs", "java", "py", "vsaddin"], 
-            "debug": ["cpp"]},
+            "release": ["cpp", "py"]},
         "amd64": {
-            "release": ["cpp", "py"], 
-            "debug": ["cpp"]}},
+            "release": ["cpp", "py"]}},
     "VC110": {
         "x86": {
-            "release": ["cpp", "vsaddin"], 
+            "release": ["cpp", "php", "vsaddin"], 
             "debug": ["cpp"]},
         "amd64": {
-            "release": ["cpp"], 
-            "debug": ["cpp"]},
-        "arm": {
             "release": ["cpp"], 
             "debug": ["cpp"]}},
     "VC120": {
         "x86": {
-            "release": ["cpp", "vsaddin"], 
+            "release": ["cpp", "java", "js", "cs", "vsaddin"], 
             "debug": ["cpp"]},
         "amd64": {
             "release": ["cpp"], 
-            "debug": ["cpp"]},
-        "arm": {
-            "release": ["cpp"], 
             "debug": ["cpp"]}}}
+
+winrtBuilds = {
+    "VC110": {
+        "x86": {"release": ["cpp"], "debug": ["cpp"],},
+        "amd64": {"release": ["cpp"], "debug": ["cpp"],},
+        "arm": {"release": ["cpp"], "debug": ["cpp"],}},
+    "VC120": {
+        "x86": {"release": ["cpp"], "debug": ["cpp"],},
+        "amd64": {"release": ["cpp"], "debug": ["cpp"],},
+        "arm": {"release": ["cpp"], "debug": ["cpp"],}}}
             
 if not skipBuild:
     
-    for compiler in ["MINGW", "VC90", "VC100", "VC110", "VC120"]:
+    for compiler in ["MINGW", "VC100", "VC110", "VC120"]:
 
         if filterCompilers and compiler not in filterCompilers:
             continue
@@ -424,7 +479,7 @@ if not skipBuild:
                             #
                             # Python installation not detected
                             #
-                            print("Python 3.3 for arch %s not found" % arch)
+                            print("Python 3.4 for arch %s not found" % arch)
                             sys.exit(1)
                         env["PYTHON_HOME"] = pythonHome
 
@@ -454,10 +509,10 @@ if not skipBuild:
 
                     if lang == "php":
                         if phpHome is None:
-                            if not os.path.exists(r"C:\php-5.4.20"):
+                            if not os.path.exists(r"C:\php-5.6.1"):
                                 print("PHP source distribution not found")
                                 sys.exit(1)
-                            phpHome = r"C:\php-5.4.20"
+                            phpHome = r"C:\php-5.6.1"
 
                         if phpBinHome is None:
                             if not os.path.exists(r"C:\Program Files (x86)\PHP"):
@@ -468,26 +523,48 @@ if not skipBuild:
                         env["PHP_HOME"] = phpHome
                         env["PHP_BIN_HOME"] = phpBinHome
 
+                    if lang == "js":
+                        if nodejsExe is None:
+                            nodejsHome = r"C:\Program Files (x86)\nodejs"
+                            nodejsExe = os.path.join(nodejsHome, "node.exe")
+                            if not os.path.exists(nodejsExe):
+                                print("NodeJS not found in default location: `" + nodejsHome + "'")
+                                sys.exit(1)
+
+                        if gzipExe is None:
+                            gzipHome = r"C:\Program Files (x86)\GnuWin32"
+                            gzipExe = os.path.join(gzipHome, "bin", "gzip.exe")
+                            if not os.path.exists(gzipExe):
+                                print("Gzip executable not found in default location `" + os.path.join(gzipHome, "bin") + "'")
+                                sys.exit(1)
+                            
+                        if closureHome is None:
+                            closureHome = r"C:\closure"
+                            if not os.path.exists(closureHome):
+                                print("Google closure compiler not found in default location `" + closureHome + "'")
+                                sys.exit(1)
+                            
+                        env["NODE"] = nodejsExe
+                        env["GZIP_PATH"] = gzipExe
+                        env["CLOSURE_PATH"] = closureHome
+
                     if compiler == "MINGW":
                         if rubyDevKitHome is None:
-                            if not os.path.exists(r"C:\RubyDevKit-4.5.2"):
+                            if not os.path.exists(r"C:\DevKit-mingw64-64-4.7.2"):
                                 print("Ruby DevKit not found")
                                 sys.exit(1)
-                            rubyDevKitHome = r"C:\RubyDevKit-4.5.2"
+                            rubyDevKitHome = r"C:\DevKit-mingw64-64-4.7.2"
 
                     if lang == "rb":
                         if rubyHome is None:
-                            if not os.path.exists(r"C:\Ruby193"):
+                            if not os.path.exists(r"C:\Ruby21-x64"):
                                 print("Ruby not found")
                                 sys.exit(1)
-                            rubyHome = r"C:\Ruby193"
+                            rubyHome = r"C:\Ruby21-x64"
 
                     if lang == "vsaddin":
-                        if compiler == "VC90":
-                            env["VS"] = "VS2008"
-                        elif compiler == "VC100":
-                            env["VS"] = "VS2010"
-                        elif compiler == "VC110":
+                        env["DISABLE_SYSTEM_INSTALL"] = "yes"
+                        if compiler == "VC110":
                             env["VS"] = "VS2012"
                         elif compiler == "VC120":
                             env["VS"] = "VS2013"
@@ -511,33 +588,20 @@ if not skipBuild:
                             rules += ".cs"
                         elif lang == "php":
                             rules += ".php"
+                        elif lang == "js":
+                            rules += ".js"
 
                         setMakefileOption(os.path.join(sourceDir, lang, "config", rules), "prefix", installDir)
 
                     if lang == "cpp" and compiler in ["VC110", "VC120"]:
-                        for profile in ["DESKTOP", "WINRT"]:
+                        if filterProfiles and profile not in filterProfiles:
+                            continue
 
-                            if filterProfiles and profile not in filterProfiles:
-                                continue
+                        if rFilterProfiles and profile in rFilterProfiles:
+                            continue
 
-                            if rFilterProfiles and profile in rFilterProfiles:
-                                continue
-
-                            if profile == "DESKTOP":
-                                if arch == "arm":
-                                    command = "\"%s\" %s  && nmake /f Makefile.mak install" % (vcvars, "x86")
-                                    executeCommand(command, env)
-                                else:
-                                    command = "\"%s\" %s  && nmake /f Makefile.mak install" % (vcvars, arch)
-                                    executeCommand(command, env)
-                            elif profile == "WINRT":
-                                if arch == "arm":
-                                    command = "\"%s\" %s  && nmake /f Makefile.mak install" % (vcvars, "x86_arm")
-                                else:
-                                    command = "\"%s\" %s  && nmake /f Makefile.mak install" % (vcvars, arch)
-                                newEnv = env.copy()
-                                newEnv["WINRT"] = "yes"
-                                executeCommand(command, newEnv)
+                        command = "\"%s\" %s  && nmake /f Makefile.mak install" % (vcvars, arch)
+                        executeCommand(command, env)
 
                     elif compiler == "MINGW":
                         prefix = installDir
@@ -553,7 +617,7 @@ if not skipBuild:
                             executeCommand(command, env)
 
                     elif lang == "cs":
-                        for profile in [".NET", "SILVERLIGHT", "COMPACT"]:
+                        for profile in [".NET", "SILVERLIGHT"]:
 
                             if filterProfiles and profile not in filterProfiles:
                                 continue
@@ -561,17 +625,11 @@ if not skipBuild:
                             if rFilterProfiles and profile in rFilterProfiles:
                                 continue
 
-                            if profile == ".NET" and compiler == "VC100":
+                            if profile == ".NET" and compiler == "VC120":
                                 executeCommand(command, env)
-                            elif profile == "SILVERLIGHT" and compiler == "VC100":
+                            elif profile == "SILVERLIGHT" and compiler == "VC120":
                                 newEnv = env.copy()
                                 newEnv["SILVERLIGHT"] = "yes"
-                                executeCommand(command, newEnv)
-                            elif profile == "COMPACT" and compiler == "VC90":
-                                newEnv = env.copy()
-                                newEnv["COMPACT"] = "yes"
-                                command = "\"%s\" %s  && nmake /f Makefile.mak install prefix=\"%s\"" % \
-                                          (getVcVarsAll("VC90"), arch, installDir)
                                 executeCommand(command, newEnv)
                     else:
                         executeCommand(command, env)
@@ -613,15 +671,15 @@ if os.path.exists(installerDir):
 os.makedirs(installerDir)
 
 for arch in ["x86", "amd64", "arm"]:
-    for compiler in ["VC100", "MINGW", "VC90", "VC110", "VC120"]:
+    for compiler in ["VC100", "MINGW", "VC110", "VC120"]:
         for conf in ["release", "debug"]:
 
             buildDir = os.path.join(iceBuildHome, "build-%s-%s-%s" % (arch, compiler, conf))
             sourceDir = os.path.join(buildDir, "Ice-%s-src" % version)
             installDir = os.path.join(buildDir, "Ice-%s" % version)
 
-            if compiler == "VC100" and arch == "x86" and conf == "release":
-                for d in ["Assemblies", "bin", "config", "include", "lib", "python", "slice", "vsaddin"]:
+            if compiler == "VC120" and arch == "x86" and conf == "release":
+                for d in ["Assemblies", "bin", "config", "include", "lib", "node_modules", "python", "slice", "vsaddin"]:
                     for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
                         for f in filenames:
                             if f in filterFiles:
@@ -644,7 +702,7 @@ for arch in ["x86", "amd64", "arm"]:
                 copy(os.path.join(sourceDir, "vsaddin", "icon", "newslice.ico"), \
                         os.path.join(installerDir, "icon", "newslice.ico"), verbose = verbose)
 
-            if compiler == "VC100" and arch == "x86" and conf == "debug":
+            if compiler == "VC120" and arch == "x86" and conf == "debug":
                 for d in ["bin", "lib"]:
                     for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
                         for f in filenames:
@@ -654,17 +712,7 @@ for arch in ["x86", "amd64", "arm"]:
                             if not os.path.exists(targetFile):
                                 copy(os.path.join(root, f), targetFile, verbose = verbose)
 
-            if compiler == "VC100" and arch == "amd64" and conf == "release":
-                for d in ["bin", "lib", "python"]:
-                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
-                        for f in filenames:
-                            if f in filterFiles:
-                                continue
-                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                            if not os.path.exists(targetFile):
-                                copy(os.path.join(root, f), targetFile, verbose = verbose)
-
-            if compiler == "VC100" and arch == "amd64" and conf == "debug":
+            if compiler == "VC120" and arch == "amd64" and conf == "release":
                 for d in ["bin", "lib"]:
                     for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
                         for f in filenames:
@@ -674,30 +722,9 @@ for arch in ["x86", "amd64", "arm"]:
                             if not os.path.exists(targetFile):
                                 copy(os.path.join(root, f), targetFile, verbose = verbose)
 
-            if compiler == "MINGW" and arch == "x86" and conf == "release":
-                for d in ["ruby", "bin"]:
-                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
-                        for f in filenames:
-                            if f in filterFiles:
-                                continue
-                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                            if not os.path.exists(targetFile):
-                                copy(os.path.join(root, f), targetFile, verbose = verbose)
-
-            if compiler == "VC90" and arch == "x86" and conf == "release":
-                for d in ["Assemblies", "php", "bin", "vsaddin"]:
-                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
-                        for f in filenames:
-                            if f in filterFiles:
-                                continue
-                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                            if not os.path.exists(targetFile):
-                                copy(os.path.join(root, f), targetFile, verbose = verbose)
-
-
-            if compiler in ["VC110", "VC120"] and arch == "x86" and conf == "release":
-                for d in ["vsaddin"]:
-                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
+            if compiler == "VC120" and arch == "amd64" and conf == "debug":
+                for d in ["bin", "lib"]:
+                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
                         for f in filenames:
                             if f in filterFiles:
                                 continue
@@ -706,7 +733,7 @@ for arch in ["x86", "amd64", "arm"]:
                                 copy(os.path.join(root, f), targetFile, verbose = verbose)
 
             #
-            # VC110 binaries and libaries
+            # VC110 x86 binaries and libaries
             #
             if compiler == "VC110" and arch == "x86":
                 for d in ["bin", "lib"]:
@@ -719,7 +746,21 @@ for arch in ["x86", "amd64", "arm"]:
                                                         os.path.basename(targetFile))
                             if not os.path.exists(targetFile):
                                 copy(os.path.join(root, f), targetFile, verbose = verbose)
-
+                #
+                # VC110 php & vsaddin
+                #
+                if conf == "release":
+                    for d in ["php", "vsaddin"]:
+                        for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
+                            for f in filenames:
+                                if f in filterFiles:
+                                    continue
+                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                                if not os.path.exists(targetFile):
+                                    copy(os.path.join(root, f), targetFile, verbose = verbose)
+            #
+            # VC110 amd64 binaries and libaries
+            #
             if compiler == "VC110" and arch == "amd64":
                 for d in ["bin", "lib"]:
                     for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
@@ -733,54 +774,53 @@ for arch in ["x86", "amd64", "arm"]:
                                 copy(os.path.join(root, f), targetFile, verbose = verbose)
 
 
-                        #
-            # VC120 binaries and libaries
             #
-            if compiler == "VC120" and arch == "x86":
-                for d in ["bin", "lib"]:
+            # VC100 binaries and libaries
+            #
+            if compiler == "VC100" and arch == "x86" and conf == "release":
+                for d in ["bin", "lib", "python"]:
                     for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
                         for f in filenames:
                             if f in filterFiles:
                                 continue
                             targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                            targetFile = os.path.join(os.path.dirname(targetFile), "vc120", \
-                                                        os.path.basename(targetFile))
                             if not os.path.exists(targetFile):
                                 copy(os.path.join(root, f), targetFile, verbose = verbose)
 
-            if compiler == "VC120" and arch == "amd64":
-                for d in ["bin", "lib"]:
+
+            if compiler == "VC100" and arch == "amd64":
+                for d in ["bin", "lib", "python"]:
                     for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
                         for f in filenames:
                             if f in filterFiles:
                                 continue
                             targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                            targetFile = os.path.join(os.path.dirname(os.path.dirname(targetFile)), "vc120", "x64", \
-                                                        os.path.basename(targetFile))
                             if not os.path.exists(targetFile):
                                 copy(os.path.join(root, f), targetFile, verbose = verbose)
 
-
             #
-            # WinRT SDKs
+            # MINGW binaries
             #
-            if compiler == "VC110":
-                for root, dirnames, filenames in os.walk(os.path.join(installDir, "SDKs", "Ice")):
-                    for f in filenames:
-                        if f in filterFiles:
-                            continue
-                        targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                        if not os.path.exists(targetFile):
-                            copy(os.path.join(root, f), targetFile, verbose = verbose)
+            if compiler == "MINGW" and arch == "x86" and conf == "release":
+                for d in ["bin", "lib", "ruby"]:
+                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
+                        for f in filenames:
+                            if f in filterFiles:
+                                continue
+                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                            if not os.path.exists(targetFile):
+                                copy(os.path.join(root, f), targetFile, verbose = verbose)
 
-            if compiler == "VC120":
-                for root, dirnames, filenames in os.walk(os.path.join(installDir, "SDKs", "8.1")):
-                    for f in filenames:
-                        if f in filterFiles:
-                            continue
-                        targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                        if not os.path.exists(targetFile):
-                            copy(os.path.join(root, f), targetFile, verbose = verbose)
+            if compiler == "MINGW" and arch == "amd64":
+                for d in ["bin", "lib", "ruby"]:
+                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
+                        for f in filenames:
+                            if f in filterFiles:
+                                continue
+                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                            if not os.path.exists(targetFile):
+                                copy(os.path.join(root, f), targetFile, verbose = verbose)
+
 
 #
 # docs dir
