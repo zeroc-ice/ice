@@ -129,7 +129,7 @@ addresses in the steps below:
 
    In config.icebox:
 
-   IceBox.ServiceManager.Endpoints=tcp -h <I> -p 9998
+   Ice.Admin.Endpoints=tcp -h <I> -p 9996
 
 If you experience any network delays or errors, edit all of the
 configuration files and enable the Ice.Trace.Network property. Running

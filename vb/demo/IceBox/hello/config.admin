@@ -1,12 +1,4 @@
 #
-# The IceBox instance name is used to set the category field of the
-# IceBox ServiceManager identity.
+# Proxy to the IceBox ServiceManager:
 #
-IceBox.InstanceName=DemoIceBox
-
-#
-# The IceBox server endpoint configuration
-#
-IceBox.ServiceManager.Endpoints=tcp -h localhost -p 9998
-
-
+IceBoxAdmin.ServiceManager.Proxy=DemoIceBox/admin -f IceBox.ServiceManager:tcp -p 9996 -h localhost

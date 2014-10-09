@@ -1,35 +1,12 @@
 #
-# The IceBox ServiceManager object can be provided by configuring 
-# IceBox.ServiceManager.Endpoints (and optionally
-# IceBox.InstanceName), or as a facet of the Ice.Admin object
-# (or both if you like). Make sure to keep config.admin
-# synchronized with these settings.
-# 
-
-#
-# IceBox.ServiceManager configuration
-#
-
-#
-# The IceBox instance name is used to set the category field of the
-# IceBox ServiceManager identity.
-#
-#IceBox.InstanceName=DemoIceBox
-
-#
-# The IceBox server endpoint configuration
-#
-#IceBox.ServiceManager.Endpoints=tcp -p 9998 -h localhost
-
-#
-# Ice.Admin configuration
+# The IceBox ServiceManager is provided as a facet of the Ice.Admin object.
 #
 
 #
 # Enable Ice.Admin object:
 #
-Ice.Admin.InstanceName=DemoIceBox
 Ice.Admin.Endpoints=tcp -p 9996 -h localhost
+Ice.Admin.InstanceName=DemoIceBox
 
 #
 # The hello service

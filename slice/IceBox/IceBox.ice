@@ -27,7 +27,7 @@
  **/
 module IceBox
 {
-    
+
 /**
  *
  * This exception is a general failure notification. It is thrown
@@ -153,7 +153,7 @@ interface ServiceManager
     /**
      *
      * Start an individual service.
-     * 
+     *
      * @param service The service name.
      *
      **/
@@ -163,18 +163,18 @@ interface ServiceManager
     /**
      *
      * Stop an individual service.
-     * 
+     *
      * @param service The service name.
      *
      **/
     void stopService(string service)
         throws AlreadyStoppedException, NoSuchServiceException;
 
-    
+
     /**
      *
      * Registers a new observer with the ServiceManager.
-     * 
+     *
      * @param observer The new observer
      *
      **/

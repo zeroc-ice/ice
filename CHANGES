@@ -72,7 +72,7 @@ General Changes
   to enable clients to easily find the proxy of the topic manager with
   just the endpoint information of the IceStorm service. The client
   doesn't need to know the instance name.
-  
+
   IceStorm provides an Ice object with the identity `IceStorm/Finder'
   that implements this interface.
 
@@ -104,7 +104,7 @@ General Changes
 - Fixed a bug where retries might fail if the request failed right
   after connection establishment.
 
-- New garbage collection support for object graphs with cycles. 
+- New garbage collection support for object graphs with cycles.
 
   Ice no longer uses a background thread to collect objects. Instead,
   Ice::Object now has a new ice_collectable method to indicate whether
@@ -190,6 +190,8 @@ General Changes
 - Removed the Ice::Stats interface, which was deprecated in Ice 3.5
   and replaced by the new metrics facility.
 
+- The IceBox.ServiceManager object adapter has been deprecated.
+  Use Ice.Admin and the IceBox.ServiceManager facet instead.
 
 C++ Changes
 ===========
@@ -230,13 +232,13 @@ C++ Changes
   process narrow string converter. Likewise setProcessWstringConverter
   and getProcessWstringConverter can be used to establish and access
   the process wide string converter.
-  
+
 - Added Ice.LogStdErr.Convert property which controls whether or not
   the default StdErr logger converts messages from native narrow
   encoding to the console code page. The default value is 1, meaning
   by default messages are converted to the console code page encoding.
   The property is only used on Windows.
-  
+
 - Added IceUtil::nativeToWnative and IceUtil::wnativeToNative
   functions which allow you to convert between narrow and wide
   strings. stringToWstring and wstringToString have been deprecated.
@@ -300,7 +302,7 @@ C# Changes
 
 - Fixed leak in C# transport. The leak occurred for each Ice
   connection.
-  
+
 - Mono is no longer an officially-supported platform for Ice for .NET.
 
 
@@ -316,7 +318,7 @@ Python Changes
   use of implicit relative imports for nested Slice modules.
 
 - Added ice_staticId() to generated proxy classes.
-  
+
 
 Ruby Changes
 ============
@@ -324,7 +326,7 @@ Ruby Changes
 - Added support for Ruby 2.1.
 
 - Added ice_staticId() to generated proxy classes.
-  
+
 
 PHP Changes
 ===========
@@ -398,7 +400,7 @@ General Changes
 
 - Fixed the graphical IceGrid administrative tool to run and build
   in JVMs without JavaFX support.
-  
+
 - IceGrid node now initializes the process supplementary groups.
 
 - Added man pages for Ice executable tools and commands.
@@ -406,7 +408,7 @@ General Changes
 - Added ability to list IceStorm topic subscribers.
 
 - Fixed a bug in the graphical IceGrid administrative tool that caused
-  the "Save" and "Save to File" commands to produce an empty file 
+  the "Save" and "Save to File" commands to produce an empty file
   without reporting any errors.
 
 - The Visual Studio Add-in now supports configuration-specific
@@ -429,10 +431,10 @@ C++ Changes
 
 - Fixed a bug in slice2cpp that generated invalid C++ code for C++11
   asynchronous invocations.
-  
+
 - Fixed a bug in slice2cpp that generated invalid C++ code when using
   "cpp:virtual" metadata.
-  
+
 - Fixed a bug in slice2cpp that generated invalid C++ code when a
   Slice operation has more than ten output parameters.
 

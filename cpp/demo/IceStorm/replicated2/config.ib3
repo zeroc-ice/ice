@@ -1,7 +1,8 @@
 #
-# The IceBox server endpoint configuration
+# Enable Ice.Admin object
 #
-IceBox.ServiceManager.Endpoints=tcp -p 9993
+Ice.Admin.Endpoints=tcp -p 9993
+Ice.Admin.InstanceName=icebox3
 
 #
 # The IceStorm service

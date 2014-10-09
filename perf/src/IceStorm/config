@@ -1,4 +1,6 @@
-IceBox.ServiceManager.Endpoints=tcp -p 9998
+Ice.Admin.Endpoints=tcp -p 9996
+Ice.Admin.InstanceName=icebox
+
 IceBox.Service.IceStorm=IceStormService,31:createIceStorm
 Freeze.DbEnv.IceStorm.DbHome=db
 

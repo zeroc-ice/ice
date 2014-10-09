@@ -34,7 +34,7 @@ must have a name attribute. Property elements may also have a property
 class attribute. The property class attribute allows you to define a
 list of properties that are repeatedly defined for different property
 categories. Here's how it works:
- 
+
  - Define a property class with the list of property suffixes common to
    that class.
 
@@ -42,13 +42,13 @@ categories. Here's how it works:
 
 The generated code will take each property that has a class attribute
 and expand it by creating new properties for each suffix in the
-specified class. The new property names are constructed as follows: 
+specified class. The new property names are constructed as follows:
 
-generated property name = 
-    relevant section name + 
-    property name containing the class attribute + 
-    the suffix in the class. 
-    
+generated property name =
+    relevant section name +
+    property name containing the class attribute +
+    the suffix in the class.
+
 Let's illustrate by comparing a case using classes vs. without
 classes:
 
@@ -103,7 +103,7 @@ described above `in addition to' the property containing the property
 class.
 
 Property elements may also include the deprecated and deprecatedBy
-attributes. A property that has a deprecated attribute with the value 
+attributes. A property that has a deprecated attribute with the value
 "true" will be marked internally as deprecated and Ice may issue warnings
 if a deprecated property is used. The deprecatedBy attribute allows the
 Ice run time to transparently replace the deprecated property name with a
@@ -439,11 +439,11 @@ generated from the section label.
 
     <section name="IceBox">
         <property name="InheritProperties" />
-        <property name="InstanceName" />
+        <property name="InstanceName" deprecated="true" />
         <property name="LoadOrder" />
         <property name="PrintServicesReady" />
         <property name="Service.[any]" />
-        <property name="ServiceManager" class="objectadapter" />
+        <property name="ServiceManager" class="deprecatedobjectadapter" />
         <property name="Trace.ServiceObserver" />
         <property name="UseSharedCommunicator.[any]" />
     </section>
@@ -540,7 +540,7 @@ generated from the section label.
         <property name="SQL.UserName" />
         <property name="SQL.Password" />
 </section>
-    
+
     <section name="IcePatch2">
         <property class="objectadapter" />
         <property name="ChunkSize" deprecated="true" deprecatedBy="IcePatch2Client.ChunkSize"/>
@@ -549,7 +549,7 @@ generated from the section label.
         <property name="Remove" deprecated="true" deprecatedBy="IcePatch2Client.Remove"/>
         <property name="Thorough" deprecated="true" deprecatedBy="IcePatch2Client.Thorough"/>
     </section>
-    
+
     <section name="IcePatch2Client">
         <property name="ChunkSize" />
         <property name="Directory" />
