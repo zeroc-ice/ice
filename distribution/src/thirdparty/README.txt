@@ -77,14 +77,13 @@ these recommendations:
 bzip2
 -----
 
-The bzip2-1.0.6 distribution does not directly support creating DLLs.
-The file bzlib.patch in this archive contains a patch for bzlib.h that
-allows bzip2 to be compiled into a DLL.
+The file bzip2/patch.bzip2-1.0.6 in this archive contains updates to allow
+compile bzip2 as a DLL with VC and MINGW compilers
 
 After extracting the bzip2 source distribution, change to the
 top-level directory and apply the patch as shown below:
 
-  > patch -p0 bzlib.h < ..\bzip2\bzlib.patch
+  > patch -p0 < ..\bzip2\patch.bzip2-1.0.6
 
 
 mcpp
@@ -146,10 +145,9 @@ If you have not already applied the patch for bzip2, please read the
 
      > set CPP_COMPILER=VC100
 
-  2) Change to the source directory and use the
-     replacement makefile included in this archive:
+  2) Change to the source directory and build:
 
-     > nmake /f ..\bzip2\Makefile.mak
+     > nmake /f Makefile.mak
 
 - MinGW
 
@@ -163,8 +161,7 @@ If you have not already applied the patch for bzip2, please read the
      makefile included in this archive:
 
      > cd bzip2-1.0.6
-     > bash
-     > make -f ../bzip2/Makefile
+     > make -f Makefile-libbz2_so
 
 
 mcpp
