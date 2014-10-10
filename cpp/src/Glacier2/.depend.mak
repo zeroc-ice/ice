@@ -35,14 +35,21 @@ Blobject.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
+    "$(includedir)\Ice\Plugin.h" \
+    "$(includedir)\Ice\LoggerF.h" \
+    "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Initialize.h" \
-    "$(includedir)\Ice\PropertiesF.h" \
-    "$(includedir)\Ice\Proxy.h" \
+    "$(includedir)\IceUtil\Timer.h" \
+    "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
     "$(includedir)\IceUtil\ThreadException.h" \
     "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\IceUtil\MutexProtocol.h" \
+    "$(includedir)\IceUtil\Monitor.h" \
+    "$(includedir)\IceUtil\Cond.h" \
+    "$(includedir)\Ice\PropertiesF.h" \
+    "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\Ice\ProxyFactoryF.h" \
     "$(includedir)\Ice\ConnectionIF.h" \
     "$(includedir)\Ice\RequestHandlerF.h" \
@@ -50,16 +57,14 @@ Blobject.obj: \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
-    "$(includedir)\Ice\OutgoingAsync.h" \
-    "$(includedir)\IceUtil\Monitor.h" \
-    "$(includedir)\IceUtil\Cond.h" \
-    "$(includedir)\IceUtil\Timer.h" \
-    "$(includedir)\IceUtil\Thread.h" \
+    "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
-    "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\Ice\InstanceF.h" \
-    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\Ice\InstanceF.h" \
+    "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\ObserverHelper.h" \
+    "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BasicStream.h" \
@@ -72,19 +77,12 @@ Blobject.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\Ice\ObserverHelper.h" \
-    "$(includedir)\Ice\Instrumentation.h" \
-    "$(includedir)\Ice\ThreadPoolF.h" \
-    "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "$(includedir)\Ice\Dispatcher.h" \
-    "$(includedir)\Ice\BuiltinSequences.h" \
-    "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
-    "$(includedir)\Ice\Outgoing.h" \
     "$(includedir)\Ice\Incoming.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
@@ -108,6 +106,8 @@ Blobject.obj: \
     "$(includedir)\Ice\Endpoint.h" \
     "$(includedir)\Ice\ServantLocator.h" \
     "$(includedir)\Ice\SlicedData.h" \
+    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\Ice\OutgoingAsyncF.h" \
     "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\Application.h" \
     "$(includedir)\Ice\Connection.h" \
@@ -163,14 +163,21 @@ ClientBlobject.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
+    "$(includedir)\Ice\Plugin.h" \
+    "$(includedir)\Ice\LoggerF.h" \
+    "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Initialize.h" \
-    "$(includedir)\Ice\PropertiesF.h" \
-    "$(includedir)\Ice\Proxy.h" \
+    "$(includedir)\IceUtil\Timer.h" \
+    "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
     "$(includedir)\IceUtil\ThreadException.h" \
     "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\IceUtil\MutexProtocol.h" \
+    "$(includedir)\IceUtil\Monitor.h" \
+    "$(includedir)\IceUtil\Cond.h" \
+    "$(includedir)\Ice\PropertiesF.h" \
+    "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\Ice\ProxyFactoryF.h" \
     "$(includedir)\Ice\ConnectionIF.h" \
     "$(includedir)\Ice\RequestHandlerF.h" \
@@ -178,16 +185,14 @@ ClientBlobject.obj: \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
-    "$(includedir)\Ice\OutgoingAsync.h" \
-    "$(includedir)\IceUtil\Monitor.h" \
-    "$(includedir)\IceUtil\Cond.h" \
-    "$(includedir)\IceUtil\Timer.h" \
-    "$(includedir)\IceUtil\Thread.h" \
+    "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
-    "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\Ice\InstanceF.h" \
-    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\Ice\InstanceF.h" \
+    "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\ObserverHelper.h" \
+    "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BasicStream.h" \
@@ -200,19 +205,12 @@ ClientBlobject.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\Ice\ObserverHelper.h" \
-    "$(includedir)\Ice\Instrumentation.h" \
-    "$(includedir)\Ice\ThreadPoolF.h" \
-    "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "$(includedir)\Ice\Dispatcher.h" \
-    "$(includedir)\Ice\BuiltinSequences.h" \
-    "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
-    "$(includedir)\Ice\Outgoing.h" \
     "$(includedir)\Ice\Incoming.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
@@ -236,6 +234,8 @@ ClientBlobject.obj: \
     "$(includedir)\Ice\Endpoint.h" \
     "$(includedir)\Ice\ServantLocator.h" \
     "$(includedir)\Ice\SlicedData.h" \
+    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\Ice\OutgoingAsyncF.h" \
     "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\Application.h" \
     "$(includedir)\Ice\Connection.h" \
@@ -302,17 +302,17 @@ FilterI.obj: \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
-    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\IceUtil\Monitor.h" \
     "$(includedir)\IceUtil\Cond.h" \
-    "$(includedir)\IceUtil\Timer.h" \
-    "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
-    "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\Ice\InstanceF.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
-    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\Ice\InstanceF.h" \
+    "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\ObserverHelper.h" \
+    "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BasicStream.h" \
@@ -326,12 +326,8 @@ FilterI.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\Ice\ObserverHelper.h" \
-    "$(includedir)\Ice\Instrumentation.h" \
-    "$(includedir)\Ice\ThreadPoolF.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
-    "$(includedir)\Ice\Outgoing.h" \
     "$(includedir)\Ice\Incoming.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
@@ -390,17 +386,17 @@ FilterManager.obj: \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
-    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\IceUtil\Monitor.h" \
     "$(includedir)\IceUtil\Cond.h" \
-    "$(includedir)\IceUtil\Timer.h" \
-    "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
-    "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\Ice\InstanceF.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
-    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\Ice\InstanceF.h" \
+    "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\ObserverHelper.h" \
+    "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BasicStream.h" \
@@ -414,12 +410,8 @@ FilterManager.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\Ice\ObserverHelper.h" \
-    "$(includedir)\Ice\Instrumentation.h" \
-    "$(includedir)\Ice\ThreadPoolF.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
-    "$(includedir)\Ice\Outgoing.h" \
     "$(includedir)\Ice\Incoming.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
@@ -443,6 +435,8 @@ FilterManager.obj: \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\Functional.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
+    "$(includedir)\IceUtil\Thread.h" \
+    "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "FilterManager.h" \
@@ -451,9 +445,9 @@ FilterManager.obj: \
     "RequestQueue.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
+    "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\Initialize.h" \
     "$(includedir)\Ice\Dispatcher.h" \
-    "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\LoggerUtil.h" \
     "$(includedir)\Ice\RemoteLogger.h" \
@@ -465,6 +459,8 @@ FilterManager.obj: \
     "$(includedir)\Ice\Endpoint.h" \
     "$(includedir)\Ice\ServantLocator.h" \
     "$(includedir)\Ice\SlicedData.h" \
+    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\Ice\OutgoingAsyncF.h" \
     "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\Application.h" \
     "$(includedir)\Ice\Connection.h" \
@@ -525,10 +521,17 @@ Glacier2Router.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
+    "$(includedir)\Ice\Plugin.h" \
+    "$(includedir)\Ice\LoggerF.h" \
+    "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Initialize.h" \
+    "$(includedir)\IceUtil\Timer.h" \
+    "$(includedir)\IceUtil\Thread.h" \
+    "$(includedir)\IceUtil\Mutex.h" \
+    "$(includedir)\IceUtil\Monitor.h" \
+    "$(includedir)\IceUtil\Cond.h" \
     "$(includedir)\Ice\PropertiesF.h" \
     "$(includedir)\Ice\Proxy.h" \
-    "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\Ice\ProxyFactoryF.h" \
     "$(includedir)\Ice\ConnectionIF.h" \
     "$(includedir)\Ice\RequestHandlerF.h" \
@@ -536,16 +539,14 @@ Glacier2Router.obj: \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
-    "$(includedir)\Ice\OutgoingAsync.h" \
-    "$(includedir)\IceUtil\Monitor.h" \
-    "$(includedir)\IceUtil\Cond.h" \
-    "$(includedir)\IceUtil\Timer.h" \
-    "$(includedir)\IceUtil\Thread.h" \
+    "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
-    "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\Ice\InstanceF.h" \
-    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\Ice\InstanceF.h" \
+    "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\ObserverHelper.h" \
+    "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BasicStream.h" \
@@ -558,19 +559,12 @@ Glacier2Router.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\Ice\ObserverHelper.h" \
-    "$(includedir)\Ice\Instrumentation.h" \
-    "$(includedir)\Ice\ThreadPoolF.h" \
-    "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "$(includedir)\Ice\Dispatcher.h" \
-    "$(includedir)\Ice\BuiltinSequences.h" \
-    "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
-    "$(includedir)\Ice\Outgoing.h" \
     "$(includedir)\Ice\Incoming.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
@@ -594,6 +588,8 @@ Glacier2Router.obj: \
     "$(includedir)\Ice\Endpoint.h" \
     "$(includedir)\Ice\ServantLocator.h" \
     "$(includedir)\Ice\SlicedData.h" \
+    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\Ice\OutgoingAsyncF.h" \
     "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\Application.h" \
     "$(includedir)\Ice\Connection.h" \
@@ -661,7 +657,11 @@ Instance.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
+    "$(includedir)\Ice\Plugin.h" \
+    "$(includedir)\Ice\LoggerF.h" \
+    "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Initialize.h" \
+    "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\Ice\PropertiesF.h" \
     "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\Ice\ProxyFactoryF.h" \
@@ -671,13 +671,14 @@ Instance.obj: \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
-    "$(includedir)\Ice\OutgoingAsync.h" \
-    "$(includedir)\IceUtil\Timer.h" \
+    "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
-    "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\Ice\InstanceF.h" \
-    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\Ice\InstanceF.h" \
+    "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\ObserverHelper.h" \
+    "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BasicStream.h" \
@@ -690,19 +691,12 @@ Instance.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\Ice\ObserverHelper.h" \
-    "$(includedir)\Ice\Instrumentation.h" \
-    "$(includedir)\Ice\ThreadPoolF.h" \
-    "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "$(includedir)\Ice\Dispatcher.h" \
-    "$(includedir)\Ice\BuiltinSequences.h" \
-    "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
-    "$(includedir)\Ice\Outgoing.h" \
     "$(includedir)\Ice\Incoming.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
@@ -726,6 +720,8 @@ Instance.obj: \
     "$(includedir)\Ice\Endpoint.h" \
     "$(includedir)\Ice\ServantLocator.h" \
     "$(includedir)\Ice\SlicedData.h" \
+    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\Ice\OutgoingAsyncF.h" \
     "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\Application.h" \
     "$(includedir)\Ice\Connection.h" \
@@ -804,15 +800,14 @@ InstrumentationI.obj: \
     "$(includedir)\Ice\RequestHandlerF.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ReferenceF.h" \
-    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\IceUtil\Monitor.h" \
     "$(includedir)\IceUtil\Cond.h" \
-    "$(includedir)\IceUtil\Timer.h" \
-    "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
-    "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\Ice\InstanceF.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\Ice\InstanceF.h" \
+    "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\ObserverHelper.h" \
     "$(includedir)\Ice\BasicStream.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\Ice\Object.h" \
@@ -824,12 +819,9 @@ InstrumentationI.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\Ice\ObserverHelper.h" \
-    "$(includedir)\Ice\ThreadPoolF.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
-    "$(includedir)\Ice\Outgoing.h" \
     "$(includedir)\Ice\Incoming.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
@@ -843,6 +835,8 @@ InstrumentationI.obj: \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Initialize.h" \
+    "$(includedir)\IceUtil\Timer.h" \
+    "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\Ice\PropertiesF.h" \
     "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
@@ -889,14 +883,21 @@ ProxyVerifier.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
+    "$(includedir)\Ice\Plugin.h" \
+    "$(includedir)\Ice\LoggerF.h" \
+    "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Initialize.h" \
-    "$(includedir)\Ice\PropertiesF.h" \
-    "$(includedir)\Ice\Proxy.h" \
+    "$(includedir)\IceUtil\Timer.h" \
+    "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
     "$(includedir)\IceUtil\ThreadException.h" \
     "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\IceUtil\MutexProtocol.h" \
+    "$(includedir)\IceUtil\Monitor.h" \
+    "$(includedir)\IceUtil\Cond.h" \
+    "$(includedir)\Ice\PropertiesF.h" \
+    "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\Ice\ProxyFactoryF.h" \
     "$(includedir)\Ice\ConnectionIF.h" \
     "$(includedir)\Ice\RequestHandlerF.h" \
@@ -904,16 +905,14 @@ ProxyVerifier.obj: \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
-    "$(includedir)\Ice\OutgoingAsync.h" \
-    "$(includedir)\IceUtil\Monitor.h" \
-    "$(includedir)\IceUtil\Cond.h" \
-    "$(includedir)\IceUtil\Timer.h" \
-    "$(includedir)\IceUtil\Thread.h" \
+    "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
-    "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\Ice\InstanceF.h" \
-    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\Ice\InstanceF.h" \
+    "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\ObserverHelper.h" \
+    "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BasicStream.h" \
@@ -926,19 +925,12 @@ ProxyVerifier.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\Ice\ObserverHelper.h" \
-    "$(includedir)\Ice\Instrumentation.h" \
-    "$(includedir)\Ice\ThreadPoolF.h" \
-    "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "$(includedir)\Ice\Dispatcher.h" \
-    "$(includedir)\Ice\BuiltinSequences.h" \
-    "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
-    "$(includedir)\Ice\Outgoing.h" \
     "$(includedir)\Ice\Incoming.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
@@ -962,6 +954,8 @@ ProxyVerifier.obj: \
     "$(includedir)\Ice\Endpoint.h" \
     "$(includedir)\Ice\ServantLocator.h" \
     "$(includedir)\Ice\SlicedData.h" \
+    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\Ice\OutgoingAsyncF.h" \
     "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\Application.h" \
     "$(includedir)\Ice\Connection.h" \
@@ -1012,7 +1006,11 @@ RequestQueue.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
+    "$(includedir)\Ice\Plugin.h" \
+    "$(includedir)\Ice\LoggerF.h" \
+    "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Initialize.h" \
+    "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\Ice\PropertiesF.h" \
     "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\Ice\ProxyFactoryF.h" \
@@ -1022,13 +1020,14 @@ RequestQueue.obj: \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
-    "$(includedir)\Ice\OutgoingAsync.h" \
-    "$(includedir)\IceUtil\Timer.h" \
+    "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
-    "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\Ice\InstanceF.h" \
-    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\Ice\InstanceF.h" \
+    "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\ObserverHelper.h" \
+    "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BasicStream.h" \
@@ -1041,19 +1040,12 @@ RequestQueue.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\Ice\ObserverHelper.h" \
-    "$(includedir)\Ice\Instrumentation.h" \
-    "$(includedir)\Ice\ThreadPoolF.h" \
-    "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "$(includedir)\Ice\Dispatcher.h" \
-    "$(includedir)\Ice\BuiltinSequences.h" \
-    "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
-    "$(includedir)\Ice\Outgoing.h" \
     "$(includedir)\Ice\Incoming.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
@@ -1077,6 +1069,8 @@ RequestQueue.obj: \
     "$(includedir)\Ice\Endpoint.h" \
     "$(includedir)\Ice\ServantLocator.h" \
     "$(includedir)\Ice\SlicedData.h" \
+    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\Ice\OutgoingAsyncF.h" \
     "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\Application.h" \
     "$(includedir)\Ice\Connection.h" \
@@ -1143,16 +1137,16 @@ RouterI.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ReferenceF.h" \
-    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\IceUtil\Monitor.h" \
     "$(includedir)\IceUtil\Cond.h" \
-    "$(includedir)\IceUtil\Timer.h" \
-    "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
-    "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\Ice\InstanceF.h" \
-    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\Ice\InstanceF.h" \
+    "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\ObserverHelper.h" \
+    "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BasicStream.h" \
@@ -1166,23 +1160,21 @@ RouterI.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\Ice\ObserverHelper.h" \
-    "$(includedir)\Ice\Instrumentation.h" \
-    "$(includedir)\Ice\ThreadPoolF.h" \
     "RequestQueue.h" \
+    "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
-    "$(includedir)\Ice\Initialize.h" \
+    "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\LoggerF.h" \
+    "$(includedir)\Ice\BuiltinSequences.h" \
+    "$(includedir)\Ice\Initialize.h" \
+    "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "$(includedir)\Ice\Dispatcher.h" \
-    "$(includedir)\Ice\BuiltinSequences.h" \
-    "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
-    "$(includedir)\Ice\Outgoing.h" \
     "$(includedir)\Ice\Incoming.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
@@ -1206,6 +1198,8 @@ RouterI.obj: \
     "$(includedir)\Ice\Endpoint.h" \
     "$(includedir)\Ice\ServantLocator.h" \
     "$(includedir)\Ice\SlicedData.h" \
+    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\Ice\OutgoingAsyncF.h" \
     "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\Application.h" \
     "$(includedir)\Ice\Connection.h" \
@@ -1264,14 +1258,21 @@ RoutingTable.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
+    "$(includedir)\Ice\Plugin.h" \
+    "$(includedir)\Ice\LoggerF.h" \
+    "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Initialize.h" \
-    "$(includedir)\Ice\PropertiesF.h" \
-    "$(includedir)\Ice\Proxy.h" \
+    "$(includedir)\IceUtil\Timer.h" \
+    "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
     "$(includedir)\IceUtil\ThreadException.h" \
     "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\IceUtil\MutexProtocol.h" \
+    "$(includedir)\IceUtil\Monitor.h" \
+    "$(includedir)\IceUtil\Cond.h" \
+    "$(includedir)\Ice\PropertiesF.h" \
+    "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\Ice\ProxyFactoryF.h" \
     "$(includedir)\Ice\ConnectionIF.h" \
     "$(includedir)\Ice\RequestHandlerF.h" \
@@ -1279,16 +1280,14 @@ RoutingTable.obj: \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
-    "$(includedir)\Ice\OutgoingAsync.h" \
-    "$(includedir)\IceUtil\Monitor.h" \
-    "$(includedir)\IceUtil\Cond.h" \
-    "$(includedir)\IceUtil\Timer.h" \
-    "$(includedir)\IceUtil\Thread.h" \
+    "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
-    "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\Ice\InstanceF.h" \
-    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\Ice\InstanceF.h" \
+    "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\ObserverHelper.h" \
+    "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BasicStream.h" \
@@ -1301,19 +1300,12 @@ RoutingTable.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\Ice\ObserverHelper.h" \
-    "$(includedir)\Ice\Instrumentation.h" \
-    "$(includedir)\Ice\ThreadPoolF.h" \
-    "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "$(includedir)\Ice\Dispatcher.h" \
-    "$(includedir)\Ice\BuiltinSequences.h" \
-    "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
-    "$(includedir)\Ice\Outgoing.h" \
     "$(includedir)\Ice\Incoming.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
@@ -1337,6 +1329,8 @@ RoutingTable.obj: \
     "$(includedir)\Ice\Endpoint.h" \
     "$(includedir)\Ice\ServantLocator.h" \
     "$(includedir)\Ice\SlicedData.h" \
+    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\Ice\OutgoingAsyncF.h" \
     "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\Application.h" \
     "$(includedir)\Ice\Connection.h" \
@@ -1382,14 +1376,21 @@ ServerBlobject.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
+    "$(includedir)\Ice\Plugin.h" \
+    "$(includedir)\Ice\LoggerF.h" \
+    "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Initialize.h" \
-    "$(includedir)\Ice\PropertiesF.h" \
-    "$(includedir)\Ice\Proxy.h" \
+    "$(includedir)\IceUtil\Timer.h" \
+    "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
     "$(includedir)\IceUtil\ThreadException.h" \
     "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\IceUtil\MutexProtocol.h" \
+    "$(includedir)\IceUtil\Monitor.h" \
+    "$(includedir)\IceUtil\Cond.h" \
+    "$(includedir)\Ice\PropertiesF.h" \
+    "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\Ice\ProxyFactoryF.h" \
     "$(includedir)\Ice\ConnectionIF.h" \
     "$(includedir)\Ice\RequestHandlerF.h" \
@@ -1397,16 +1398,14 @@ ServerBlobject.obj: \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
-    "$(includedir)\Ice\OutgoingAsync.h" \
-    "$(includedir)\IceUtil\Monitor.h" \
-    "$(includedir)\IceUtil\Cond.h" \
-    "$(includedir)\IceUtil\Timer.h" \
-    "$(includedir)\IceUtil\Thread.h" \
+    "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
-    "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\Ice\InstanceF.h" \
-    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\Ice\InstanceF.h" \
+    "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\ObserverHelper.h" \
+    "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BasicStream.h" \
@@ -1419,19 +1418,12 @@ ServerBlobject.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\Ice\ObserverHelper.h" \
-    "$(includedir)\Ice\Instrumentation.h" \
-    "$(includedir)\Ice\ThreadPoolF.h" \
-    "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "$(includedir)\Ice\Dispatcher.h" \
-    "$(includedir)\Ice\BuiltinSequences.h" \
-    "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
-    "$(includedir)\Ice\Outgoing.h" \
     "$(includedir)\Ice\Incoming.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
@@ -1455,6 +1447,8 @@ ServerBlobject.obj: \
     "$(includedir)\Ice\Endpoint.h" \
     "$(includedir)\Ice\ServantLocator.h" \
     "$(includedir)\Ice\SlicedData.h" \
+    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\Ice\OutgoingAsyncF.h" \
     "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\Application.h" \
     "$(includedir)\Ice\Connection.h" \
@@ -1518,7 +1512,11 @@ SessionRouterI.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
+    "$(includedir)\Ice\Plugin.h" \
+    "$(includedir)\Ice\LoggerF.h" \
+    "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Initialize.h" \
+    "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\Ice\PropertiesF.h" \
     "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\Ice\ProxyFactoryF.h" \
@@ -1528,13 +1526,14 @@ SessionRouterI.obj: \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
-    "$(includedir)\Ice\OutgoingAsync.h" \
-    "$(includedir)\IceUtil\Timer.h" \
+    "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
-    "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\Ice\InstanceF.h" \
-    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\Ice\InstanceF.h" \
+    "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\ObserverHelper.h" \
+    "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BasicStream.h" \
@@ -1547,19 +1546,12 @@ SessionRouterI.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\Ice\ObserverHelper.h" \
-    "$(includedir)\Ice\Instrumentation.h" \
-    "$(includedir)\Ice\ThreadPoolF.h" \
-    "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "$(includedir)\Ice\Dispatcher.h" \
-    "$(includedir)\Ice\BuiltinSequences.h" \
-    "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
-    "$(includedir)\Ice\Outgoing.h" \
     "$(includedir)\Ice\Incoming.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
@@ -1583,6 +1575,8 @@ SessionRouterI.obj: \
     "$(includedir)\Ice\Endpoint.h" \
     "$(includedir)\Ice\ServantLocator.h" \
     "$(includedir)\Ice\SlicedData.h" \
+    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\Ice\OutgoingAsyncF.h" \
     "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\Application.h" \
     "$(includedir)\Ice\Connection.h" \
