@@ -2,43 +2,43 @@
 
 import os, sys
 
-verbose = True
+rootDir = "/opt/Ice-@ver@-ThirdParty"
 volname = "ThirdParty-@ver@"
 
-def runCommand(cmd, verbose):
-    if len(cmd) > 0:
-        if verbose:
-            print(cmd)
-        if os.system(cmd) != 0:
-            sys.exit(1)
+def runCommand(cmd):
+    print(cmd)
+    if os.system(cmd) != 0:
+        sys.exit(1)
 
-runCommand("mkdir -p packages", verbose)
+for f in ["packages", "scratch.dmg.sparseimage", ("%s.dmg" % volname), ("installer/%s.pkg" % volname)]:
+    runCommand("rm -rf %s" % f)
 
-runCommand("pkgbuild --root /opt/Ice-@ver@-ThirdParty " +
+runCommand("mkdir -p packages")
+
+#
+# Copy README,THIRD_PARTY_LICENSE and SOURCES to the root dir
+#
+for f in ["README.txt", "SOURCES.txt", "THIRD_PARTY_LICENSE.txt"]:
+    runCommand("cp resources/%s %s" % (f, rootDir))
+
+runCommand("pkgbuild --root " + rootDir + " " +
            "--identifier=com.zeroc.ice@ver@-thirdparty " +
            "--install-location=/Library/Developer/Ice-@ver@-ThirdParty " +
-           "packages/com.zeroc.ice-@ver@-thirdParty.pkg", verbose)
+           "packages/com.zeroc.ice-@ver@-thirdParty.pkg")
 
 runCommand("productbuild --distribution=Distribution.xml " +
            "--package-path=packages " +
-           "--resources=resources  installer/ThirdParty-@ver@.pkg", verbose)
+           "--resources=resources  installer/%s.pkg" % volname)
+runCommand("rm -rf packages")
 
-runCommand("rm -rf packages", verbose)
+runCommand("hdiutil create scratch.dmg -volname \"%s\" -type SPARSE -fs HFS+" % volname)
+runCommand("hdid scratch.dmg.sparseimage")
+runCommand("ditto -rsrc installer \"/Volumes/%s\"" % volname)
+runCommand("hdiutil detach \"/Volumes/%s\"" % volname)
 
-if os.path.exists("scratch.dmg.sparseimage"):
-    os.remove("scratch.dmg.sparseimage")
+runCommand("hdiutil convert  scratch.dmg.sparseimage -format UDZO -o %s.dmg -imagekey zlib-devel=9" % volname)
+runCommand("rm scratch.dmg.sparseimage")
 
-runCommand("hdiutil create scratch.dmg -volname \"%s\" -type SPARSE -fs HFS+" % volname, verbose)
-runCommand("hdid scratch.dmg.sparseimage", verbose)
-runCommand("ditto -rsrc installer \"/Volumes/%s\"" % volname, verbose)
-runCommand("hdiutil detach \"/Volumes/%s\"" % volname, verbose)
+runCommand("rm -rf installer/%s.pkg" % volname)
 
-if os.path.exists(volname + ".dmg"):
-    os.remove(volname + ".dmg")
-
-runCommand("hdiutil convert  scratch.dmg.sparseimage -format UDZO -o %s.dmg -imagekey zlib-devel=9" % volname, verbose)
-runCommand("rm scratch.dmg.sparseimage", verbose)
-
-os.remove("installer/ThirdParty-@ver@.pkg")
-
-print("ok")
+print("Package %s.dmg created ok" % volname)
