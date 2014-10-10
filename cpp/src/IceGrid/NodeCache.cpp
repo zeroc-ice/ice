@@ -28,14 +28,14 @@ namespace IceGrid
 
 struct ToInternalServerDescriptor : std::unary_function<CommunicatorDescriptorPtr&, void>
 {
-    ToInternalServerDescriptor(const InternalServerDescriptorPtr& descriptor, const InternalNodeInfoPtr& node, 
+    ToInternalServerDescriptor(const InternalServerDescriptorPtr& descriptor, const InternalNodeInfoPtr& node,
                                int iceVersion) :
         _desc(descriptor),
         _node(node),
         _iceVersion(iceVersion)
     {
     }
-    
+
     void
     operator()(const CommunicatorDescriptorPtr& desc)
     {
@@ -55,8 +55,8 @@ struct ToInternalServerDescriptor : std::unary_function<CommunicatorDescriptorPt
         PropertyDescriptorSeq communicatorProps = desc->propertySet.properties;
 
         //
-        // If this is a service communicator and the IceBox server has Admin 
-        // enabled or Admin endpoints configured, we ignore the server-lifetime attributes 
+        // If this is a service communicator and the IceBox server has Admin
+        // enabled or Admin endpoints configured, we ignore the server-lifetime attributes
         // of the service object adapters and assume it's set to false.
         //
         bool ignoreServerLifetime = false;
@@ -76,7 +76,7 @@ struct ToInternalServerDescriptor : std::unary_function<CommunicatorDescriptorPt
         //
         for(AdapterDescriptorSeq::const_iterator q = desc->adapters.begin(); q != desc->adapters.end(); ++q)
         {
-            _desc->adapters.push_back(new InternalAdapterDescriptor(q->id, 
+            _desc->adapters.push_back(new InternalAdapterDescriptor(q->id,
                                                                     ignoreServerLifetime ? false : q->serverLifetime));
 
             props.push_back(createProperty("# Object adapter " + q->name));
@@ -160,7 +160,7 @@ struct ToInternalServerDescriptor : std::unary_function<CommunicatorDescriptorPt
         {
             if(p->name == name)
             {
-                value = p->value; 
+                value = p->value;
                 p = properties.erase(p);
             }
             else
@@ -183,7 +183,7 @@ class LoadCB : virtual public IceUtil::Shared
 {
 public:
 
-    LoadCB(const TraceLevelsPtr& traceLevels, const ServerEntryPtr& server, const string& node, int timeout) : 
+    LoadCB(const TraceLevelsPtr& traceLevels, const ServerEntryPtr& server, const string& node, int timeout) :
         _traceLevels(traceLevels), _server(server), _id(server->getId()), _node(node), _timeout(timeout)
     {
     }
@@ -194,7 +194,7 @@ public:
         if(_traceLevels && _traceLevels->server > 1)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-            out << "loaded `" << _id << "' on node `" << _node << "'";  
+            out << "loaded `" << _id << "' on node `" << _node << "'";
         }
 
         //
@@ -238,7 +238,7 @@ public:
     }
 
 private:
-    
+
     const TraceLevelsPtr _traceLevels;
     const ServerEntryPtr _server;
     const string _id;
@@ -250,7 +250,7 @@ class DestroyCB : virtual public IceUtil::Shared
 {
 public:
 
-    DestroyCB(const TraceLevelsPtr& traceLevels, const ServerEntryPtr& server, const string& node) : 
+    DestroyCB(const TraceLevelsPtr& traceLevels, const ServerEntryPtr& server, const string& node) :
         _traceLevels(traceLevels), _server(server), _id(server->getId()), _node(node)
     {
     }
@@ -261,7 +261,7 @@ public:
         if(_traceLevels && _traceLevels->server > 1)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-            out << "unloaded `" << _id << "' on node `" << _node << "'";        
+            out << "unloaded `" << _id << "' on node `" << _node << "'";
         }
         _server->destroyCallback();
     }
@@ -299,7 +299,7 @@ public:
     }
 
 private:
-    
+
     const TraceLevelsPtr _traceLevels;
     const ServerEntryPtr _server;
     const string _id;
@@ -335,7 +335,7 @@ NodeCache::get(const string& name, bool create) const
     return entry;
 }
 
-NodeEntry::NodeEntry(NodeCache& cache, const std::string& name) : 
+NodeEntry::NodeEntry(NodeCache& cache, const std::string& name) :
     _cache(cache),
     _ref(0),
     _name(name),
@@ -412,7 +412,7 @@ NodeEntry::setSession(const NodeSessionIPtr& session)
                 sync.acquire();
             }
         }
-        
+
         //
         // Clear the saved proxy, the node has established a session
         // so we won't need anymore to try to register it with this
@@ -427,7 +427,7 @@ NodeEntry::setSession(const NodeSessionIPtr& session)
             return;
         }
     }
-    
+
     _session = session;
     notifyAll();
 
@@ -494,7 +494,7 @@ NodeEntry::getLoadInfoAndLoadFactor(const string& application, float& loadFactor
     {
         throw NodeNotExistException(); // The node doesn't exist in the given application.
     }
-    
+
     //
     // TODO: Cache the load factors? Parsing the load factor for each
     // call could be costly.
@@ -541,7 +541,7 @@ NodeEntry::getSession() const
 
 Ice::ObjectPrx
 NodeEntry::getAdminProxy() const
-{ 
+{
     Ice::ObjectPrx prx = getProxy();
     assert(prx);
     Ice::Identity adminId;
@@ -577,7 +577,7 @@ NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, con
             // call can deactivate the server and it can take some
             // time to deactivate, up to "deactivation-timeout"
             // seconds).
-            // 
+            //
             if(timeout > 0)
             {
                 node = NodePrx::uncheckedCast(node->ice_invocationTimeout(timeout * 1000));
@@ -600,7 +600,7 @@ NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, con
             desc = getInternalServerDescriptor(info);
         }
         assert(desc);
-        
+
         if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 2)
         {
             Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
@@ -616,7 +616,7 @@ NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, con
             node->begin_loadServerWithoutRestart(desc, _cache.getReplicaName(),
                                                  newCallback_Node_loadServerWithoutRestart(
                                                      new LoadCB(_cache.getTraceLevels(), entry, _name, sessionTimeout),
-                                                     &LoadCB::response, 
+                                                     &LoadCB::response,
                                                      &LoadCB::exception));
         }
         else
@@ -624,7 +624,7 @@ NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, con
             node->begin_loadServer(desc, _cache.getReplicaName(),
                                    newCallback_Node_loadServer(
                                        new LoadCB(_cache.getTraceLevels(), entry, _name, sessionTimeout),
-                                       &LoadCB::response, 
+                                       &LoadCB::response,
                                        &LoadCB::exception));
         }
     }
@@ -650,22 +650,22 @@ NodeEntry::destroyServer(const ServerEntryPtr& entry, const ServerInfo& info, in
             // call can deactivate the server and it can take some
             // time to deactivate, up to "deactivation-timeout"
             // seconds).
-            // 
+            //
             if(timeout > 0)
             {
                 node = NodePrx::uncheckedCast(node->ice_invocationTimeout(timeout * 1000));
             }
         }
-        
+
         if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 2)
         {
             Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
-            out << "unloading `" << info.descriptor->id << "' on node `" << _name << "'";       
+            out << "unloading `" << info.descriptor->id << "' on node `" << _name << "'";
         }
 
         node->begin_destroyServer(info.descriptor->id, info.uuid, info.revision, _cache.getReplicaName(),
                                   newCallback_Node_destroyServer(new DestroyCB(_cache.getTraceLevels(), entry, _name),
-                                                                 &DestroyCB::response, 
+                                                                 &DestroyCB::response,
                                                                  &DestroyCB::exception));
     }
     catch(const NodeUnreachableException& ex)
@@ -691,7 +691,7 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& server, const SessionIP
 {
     Lock sync(*this);
     checkSession();
-    
+
     ServerInfo info = server;
     try
     {
@@ -735,7 +735,7 @@ NodeEntry::__decRef()
                           // create Ptr with the mutex locked.
         assert(_ref > 0);
         --_ref;
-        
+
         if(_ref == 1)
         {
             doRemove = canRemove();
@@ -758,7 +758,7 @@ NodeEntry::__decRef()
 
 void
 NodeEntry::checkSession() const
-{ 
+{
     if(_session)
     {
         if(_session->isDestroyed())
@@ -776,7 +776,7 @@ NodeEntry::checkSession() const
         //
         // If the node proxy is set, we attempt to get the node to
         // register with this registry.
-        //      
+        //
         assert(!_registering);
 
         if(_cache.getTraceLevels() && _cache.getTraceLevels()->node > 0)
@@ -790,11 +790,11 @@ NodeEntry::checkSession() const
         // call otherwise if the callback is call immediately we'll
         // hang in the while loop.
         //
-        _registering = true; 
+        _registering = true;
         NodeEntry* self = const_cast<NodeEntry*>(this);
-        _proxy->begin_registerWithReplica(_cache.getReplicaCache().getInternalRegistry(), 
-                                          newCallback_Node_registerWithReplica(self, 
-                                                                               &NodeEntry::finishedRegistration, 
+        _proxy->begin_registerWithReplica(_cache.getReplicaCache().getInternalRegistry(),
+                                          newCallback_Node_registerWithReplica(self,
+                                                                               &NodeEntry::finishedRegistration,
                                                                                &NodeEntry::finishedRegistration));
         _proxy = 0; // Registration with the proxy is only attempted once.
     }
@@ -806,7 +806,7 @@ NodeEntry::checkSession() const
             break; // Consider the node down if it doesn't respond promptly.
         }
     }
-    
+
     if(!_session || _session->isDestroyed())
     {
         throw NodeUnreachableException(_name, "the node is not active");
@@ -817,7 +817,7 @@ void
 NodeEntry::setProxy(const NodePrx& node)
 {
     Lock sync(*this);
-    
+
     //
     // If the node has already established a session with the
     // registry, no need to remember its proxy, we don't need to get
@@ -845,7 +845,7 @@ NodeEntry::finishedRegistration()
         {
             out << "node `" << _name << "' session creation failed";
         }
-    }    
+    }
 
     if(_registering)
     {
@@ -862,7 +862,7 @@ NodeEntry::finishedRegistration(const Ice::Exception& ex)
     {
         Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->nodeCat);
         out << "node `" << _name << "' session creation failed:\n" << ex;
-    }    
+    }
 
     if(_registering)
     {
@@ -893,7 +893,7 @@ NodeEntry::getServerDescriptor(const ServerInfo& server, const SessionIPtr& sess
     }
     else
     {
-        return ServerHelper(server.descriptor).instantiate(resolve, PropertyDescriptorSeq(), 
+        return ServerHelper(server.descriptor).instantiate(resolve, PropertyDescriptorSeq(),
                                                            PropertySetDescriptorDict());
     }
 }
@@ -921,12 +921,12 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
     server->applicationDistrib = info.descriptor->applicationDistrib;
     if(!info.descriptor->distrib.icepatch.empty())
     {
-        server->distrib = new InternalDistributionDescriptor(info.descriptor->distrib.icepatch, 
+        server->distrib = new InternalDistributionDescriptor(info.descriptor->distrib.icepatch,
                                                              info.descriptor->distrib.directories);
     }
     server->options = info.descriptor->options;
     server->envs = info.descriptor->envs;
-   
+
     // server->logs: assigned for each communicator (see below)
     // server->adapters: assigned for each communicator (see below)
     // server->dbEnvs: assigned for each communicator (see below)
@@ -937,7 +937,7 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
     //
     PropertyDescriptorSeq& props = server->properties["config"];
     props.push_back(createProperty("# Server configuration"));
-    
+
     //
     // For newer versions of Ice, we generate Ice.Admin properties:
     //
@@ -951,11 +951,11 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
     if(iceVersion == 0 || iceVersion >= 30300)
     {
         props.push_back(createProperty("Ice.Admin.ServerId", info.descriptor->id));
-        
+
         if(hasProperty(info.descriptor->propertySet.properties, "Ice.Admin.Enabled"))
         {
             // Ice.Admin.Enabled explicitely set, leave Ice.Admin.Endpoints alone
-            server->processRegistered = 
+            server->processRegistered =
                 getPropertyAsInt(info.descriptor->propertySet.properties, "Ice.Admin.Enabled") > 0;
         }
         else if(hasProperty(info.descriptor->propertySet.properties, "Ice.Admin.Endpoints"))
@@ -994,13 +994,13 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
             const string path = _session->getInfo()->dataDir + "/servers/" + server->id + "/config/config_" + s->name;
 
             //
-            // We escape the path here because the command-line option --Ice.Config=xxx will be parsed an encoded 
+            // We escape the path here because the command-line option --Ice.Config=xxx will be parsed an encoded
             // (escaped) property
             // For example, \\server\dir\file.cfg needs to become \\\server\dir\file.cfg or \\\\server\\dir\\file.cfg.
             //
-            props.push_back(createProperty("IceBox.Service." + s->name, s->entry + " --Ice.Config='" 
+            props.push_back(createProperty("IceBox.Service." + s->name, s->entry + " --Ice.Config='"
                                            + escapeProperty(path) + "'"));
-            
+
             if(servicesStr.empty())
             {
                 servicesStr = s->name;
@@ -1010,10 +1010,7 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
                 servicesStr += " " + s->name;
             }
         }
-        if(!hasProperty(info.descriptor->propertySet.properties, "IceBox.InstanceName"))
-        {
-            props.push_back(createProperty("IceBox.InstanceName", server->id));
-        }
+
         props.push_back(createProperty("IceBox.LoadOrder", servicesStr));
 
         if(iceVersion != 0 && iceVersion < 30300)
@@ -1035,11 +1032,16 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
                 props.push_back(createProperty("IceBox.ServiceManager.Endpoints", "tcp -h 127.0.0.1"));
             }
         }
+        if(!hasProperty(info.descriptor->propertySet.properties, "IceBox.InstanceName") &&
+            hasProperty(iceBox->propertySet.properties, "IceBox.ServiceManager.Endpoints"))
+        {
+            props.push_back(createProperty("IceBox.InstanceName", server->id));
+        }
     }
 
     //
     // Now, for each communicator of the descriptor, add the necessary
-    // logs, adapters, db envs and properties to the internal server 
+    // logs, adapters, db envs and properties to the internal server
     // descriptor.
     //
     forEachCommunicator(ToInternalServerDescriptor(server, _session->getInfo(), iceVersion))(info.descriptor);
