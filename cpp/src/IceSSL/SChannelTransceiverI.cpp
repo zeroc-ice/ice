@@ -245,12 +245,12 @@ IceSSL::TransceiverI::sslHandshake()
                 
             err = InitializeSecurityContext(&_credentials, 0, const_cast<char *>(_host.c_str()), flags, 0, 0, 0, 0,
                                             &_ssl, &outBufferDesc, &ctxFlags, 0);
-            _sslInitialized = true;
             if(err != SEC_E_OK && err != SEC_I_CONTINUE_NEEDED)
             {
                 throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" +
                                         IceUtilInternal::lastErrorToString());
             }
+            _sslInitialized = true;
                 
             //
             // Copy the data to the write buffer
@@ -294,7 +294,10 @@ IceSSL::TransceiverI::sslHandshake()
             {
                 err = AcceptSecurityContext(&_credentials, (_sslInitialized ? &_ssl : 0), &inBufferDesc, flags, 0,
                                             &_ssl, &outBufferDesc, &ctxFlags, 0);
-                _sslInitialized = true;
+                if(err == SEC_I_CONTINUE_NEEDED || err == SEC_E_OK)
+                {
+                    _sslInitialized = true;
+                }
             }
             else
             {
