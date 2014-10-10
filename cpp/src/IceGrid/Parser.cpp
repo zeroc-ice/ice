@@ -249,6 +249,64 @@ int loggerCallbackCount = 0;
 IceUtil::StringConverterPtr windowsConsoleConverter = 0;
 #endif
 
+void outputNewline()
+{
+#ifdef _WIN32
+    fprintf_s(stdout, "\n");
+#else
+    cout << nl;
+#endif
+}
+
+void flushOutput()
+{
+#ifdef _WIN32
+    fflush(stdout);
+#else
+    cout << flush;
+#endif
+}
+
+void outputString(const string& s)
+{
+#ifdef _WIN32
+    if(windowsConsoleConverter)
+    {
+        try
+        {
+            // Convert from UTF-8 to console CP
+            string consoleString;
+            windowsConsoleConverter->fromUTF8(reinterpret_cast<const IceUtil::Byte*>(s.data()),
+                                              reinterpret_cast<const IceUtil::Byte*>(s.data() + s.size()), 
+                                              consoleString);
+            
+            // We cannot use cout here as writing to console using cout
+            // will do its own conversion and will corrupt the messages.
+            //
+            fprintf_s(stdout, "%s", consoleString.c_str());
+        }
+        catch(const IceUtil::IllegalConversionException&)
+        {
+            //
+            // If there is a problem with the encoding conversions we just
+            // write the original message without encoding conversions.
+            //
+            fprintf_s(stdout, "%s", s.c_str());
+        }
+    }
+    else
+    {
+        //
+        // Use fprintf_s to avoid encoding conversion when stdout is connected
+        // to Windows console.
+        //
+        fprintf_s(stdout, "%s", s.c_str());
+    }
+#else
+    cout << s;
+#endif
+}
+
 void writeMessage(const string& message, bool indent)
 {
     string s = message;
@@ -263,44 +321,9 @@ void writeMessage(const string& message, bool indent)
         }
     }
     
-#ifdef _WIN32
-    if(windowsConsoleConverter)
-    {
-        try
-        {
-            // Convert from UTF-8 to console CP
-            string consoleString;
-            windowsConsoleConverter->fromUTF8(reinterpret_cast<const IceUtil::Byte*>(s.data()),
-                                              reinterpret_cast<const IceUtil::Byte*>(s.data() + s.size()), 
-                                              consoleString);
-
-            // We cannot use cout here as writing to console using cout
-            // will do its own conversion and will corrupt the messages.
-            //
-            fprintf_s(stdout, "%s\n", consoleString.c_str());
-        }
-        catch(const IceUtil::IllegalConversionException&)
-        {
-            //
-            // If there is a problem with the encoding conversions we just
-            // write the original message without encoding conversions.
-            //
-            fprintf_s(stdout, "%s\n", s.c_str());
-        }
-        fflush(stdout);
-    }
-    else
-    {
-        //
-        // Use fprintf_s to avoid encoding conversion when stdout is connected
-        // to Windows console.
-        //
-        fprintf_s(stdout, "%s\n", s.c_str());
-        fflush(stdout);
-    }
-#else
-    cout << s << endl;
-#endif
+    outputString(s);
+    outputNewline();
+    flushOutput();
 }
 
 void printLogMessage(const string& p, const Ice::LogMessage& logMessage)
@@ -2318,7 +2341,9 @@ Parser::showFile(const string& id, const string& reader, const string& filename,
                 eof = it->read(maxBytes, lines);
                 for(Ice::StringSeq::const_iterator p = lines.begin(); i < lineCount && p != lines.end(); ++p, ++i)
                 {
-                    cout << endl << *p << flush;
+                    outputNewline();
+                    outputString(*p);
+                    flushOutput();
                 }
             }
         }
@@ -2330,7 +2355,9 @@ Parser::showFile(const string& id, const string& reader, const string& filename,
                 eof = it->read(maxBytes, lines);
                 for(Ice::StringSeq::const_iterator p = lines.begin(); p != lines.end(); ++p)
                 {
-                    cout << endl << *p << flush;
+                    outputNewline();
+                    outputString(*p);
+                    flushOutput();
                 }
             }
         }
@@ -2342,14 +2369,14 @@ Parser::showFile(const string& id, const string& reader, const string& filename,
                 bool eof = it->read(maxBytes, lines);
                 for(Ice::StringSeq::const_iterator p = lines.begin(); p != lines.end(); ++p)
                 {
-                    cout << *p;
+                    outputString(*p);
                     if((p + 1) != lines.end())
                     {
-                        cout << endl;
+                        outputNewline();
                     }
                     else
                     {
-                        cout << flush;
+                        flushOutput();
                     }
                 }
                 
@@ -2367,7 +2394,8 @@ Parser::showFile(const string& id, const string& reader, const string& filename,
         
         if(lines.empty() || !lines.back().empty())
         {
-            cout << endl;
+            outputNewline();
+            flushOutput();
         }
         
         it->destroy();
@@ -2391,7 +2419,7 @@ Parser::showFile(const string& id, const string& reader, const string& filename,
 void
 Parser::showLog(const string& id, const string& reader, bool tail, bool follow, int lineCount)
 {
-    cout << endl;
+    outputNewline();
     
     Ice::ObjectPrx admin;
 
