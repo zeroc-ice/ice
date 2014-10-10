@@ -117,37 +117,37 @@ all:: $(ALL_SRCS)
 
 SLICE2PHPFLAGS	+= --ice 
 
-Ice/%.php: $(slicedir)/Ice/%.ice
+Ice/%.php: $(slicedir)/Ice/%.ice $(SLICE2PHP) $(SLICEPARSERLIB)
 	@mkdir -p $(notdir $(<D))
 	$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) $<
 	@mkdir -p .depend
 	@$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) --depend $< > .depend/Ice_$(*F).ice.d
 
-Glacier2/%.php: $(slicedir)/Glacier2/%.ice
+Glacier2/%.php: $(slicedir)/Glacier2/%.ice $(SLICE2PHP) $(SLICEPARSERLIB)
 	@mkdir -p $(notdir $(<D))
 	$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) $<
 	@mkdir -p .depend
 	@$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) --depend $< > .depend/Glacier2_$(*F).ice.d
 
-IceBox/%.php: $(slicedir)/IceBox/%.ice
+IceBox/%.php: $(slicedir)/IceBox/%.ice $(SLICE2PHP) $(SLICEPARSERLIB)
 	@mkdir -p $(notdir $(<D))
 	$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) $<
 	@mkdir -p .depend
 	@$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) --depend $< > .depend/IceBox_$(*F).ice.d
 
-IceGrid/%.php: $(slicedir)/IceGrid/%.ice
+IceGrid/%.php: $(slicedir)/IceGrid/%.ice $(SLICE2PHP) $(SLICEPARSERLIB)
 	@mkdir -p $(notdir $(<D))
 	$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) $<
 	@mkdir -p .depend
 	@$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) --depend $< > .depend/IceGrid_$(*F).ice.d
 
-IcePatch2/%.php: $(slicedir)/IcePatch2/%.ice
+IcePatch2/%.php: $(slicedir)/IcePatch2/%.ice $(SLICE2PHP) $(SLICEPARSERLIB)
 	@mkdir -p $(notdir $(<D))
 	$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) $<
 	@mkdir -p .depend
 	@$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) --depend $< > .depend/IcePatch2_$(*F).ice.d
 
-IceStorm/%.php: $(slicedir)/IceStorm/%.ice
+IceStorm/%.php: $(slicedir)/IceStorm/%.ice $(SLICE2PHP) $(SLICEPARSERLIB)
 	@mkdir -p $(notdir $(<D))
 	$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) $<
 	@mkdir -p .depend

@@ -174,6 +174,7 @@ EVERYTHING		= all clean install
 .SUFFIXES:
 .SUFFIXES:		.cpp .o .py .php
 
+$(SLICE_SRCS:.ice=.php): $(SLICE2PHP) $(SLICEPARSERLIB)
 all:: $(SLICE_SRCS:.ice=.php)
 
 %.php: %.ice
