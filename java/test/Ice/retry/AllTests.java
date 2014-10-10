@@ -139,7 +139,7 @@ public class AllTests
         retry1.op(false);
         out.println("ok");
 
-        int invocationCount = 3;
+        Instrumentation.testInvocationCount(3);
 
         out.print("calling operation to kill connection with second proxy... ");
         out.flush();
@@ -155,7 +155,7 @@ public class AllTests
         catch(Ice.ConnectionLostException ex)
         {
         }
-        Instrumentation.testInvocationCount(invocationCount + 1);
+        Instrumentation.testInvocationCount(1);
         Instrumentation.testFailureCount(1);
         Instrumentation.testRetryCount(0);
         out.println("ok");
@@ -163,8 +163,8 @@ public class AllTests
         out.print("calling regular operation with first proxy again... ");
         out.flush();
         retry1.op(false);
-        Instrumentation.testInvocationCount(invocationCount + 2);
-        Instrumentation.testFailureCount(1);
+        Instrumentation.testInvocationCount(1);
+        Instrumentation.testFailureCount(0);
         Instrumentation.testRetryCount(0);
         out.println("ok");
 
@@ -174,66 +174,67 @@ public class AllTests
         out.print("calling regular AMI operation with first proxy... ");
         retry1.begin_op(false, cb1);
         cb1.check();
-        Instrumentation.testInvocationCount(invocationCount + 3);
-        Instrumentation.testFailureCount(1);
+        Instrumentation.testInvocationCount(1);
+        Instrumentation.testFailureCount(0);
         Instrumentation.testRetryCount(0);
         out.println("ok");
 
         out.print("calling AMI operation to kill connection with second proxy... ");
         retry2.begin_op(true, cb2);
         cb2.check();
-        Instrumentation.testInvocationCount(invocationCount + 4);
-        Instrumentation.testFailureCount(2);
+        Instrumentation.testInvocationCount(1);
+        Instrumentation.testFailureCount(1);
         Instrumentation.testRetryCount(0);
         out.println("ok");
 
         out.print("calling regular AMI operation with first proxy again... ");
         retry1.begin_op(false, cb1);
         cb1.check();
-        Instrumentation.testInvocationCount(invocationCount + 5);
-        Instrumentation.testFailureCount(2);
+        Instrumentation.testInvocationCount(1);
+        Instrumentation.testFailureCount(0);
         Instrumentation.testRetryCount(0);
         out.println("ok");
 
         out.print("testing idempotent operation... ");
-        test(retry1.opIdempotent(0) == 4);
-        Instrumentation.testInvocationCount(invocationCount + 6);
-        Instrumentation.testFailureCount(2);
+        test(retry1.opIdempotent(4) == 4);
+        Instrumentation.testInvocationCount(1);
+        Instrumentation.testFailureCount(0);
         Instrumentation.testRetryCount(4);
-        test(retry1.end_opIdempotent(retry1.begin_opIdempotent(4)) == 8);
-        Instrumentation.testInvocationCount(invocationCount + 7);
-        Instrumentation.testFailureCount(2);
-        Instrumentation.testRetryCount(8);
+        test(retry1.end_opIdempotent(retry1.begin_opIdempotent(4)) == 4);
+        Instrumentation.testInvocationCount(1);
+        Instrumentation.testFailureCount(0);
+        Instrumentation.testRetryCount(4);
         out.println("ok");
 
         out.print("testing non-idempotent operation... ");
         try
         {
-            retry1.opNotIdempotent(8);
+            retry1.opNotIdempotent();
             test(false);
         }
         catch(Ice.LocalException ex)
         {
         }
-        Instrumentation.testInvocationCount(invocationCount + 8);
-        Instrumentation.testFailureCount(3);
-        Instrumentation.testRetryCount(8);
+        Instrumentation.testInvocationCount(1);
+        Instrumentation.testFailureCount(1);
+        Instrumentation.testRetryCount(0);
         try
         {
-            retry1.end_opNotIdempotent(retry1.begin_opNotIdempotent(9));
+            retry1.end_opNotIdempotent(retry1.begin_opNotIdempotent());
             test(false);
         }
         catch(Ice.LocalException ex)
         {
         }
-        Instrumentation.testInvocationCount(invocationCount + 9);
-        Instrumentation.testFailureCount(4);
-        Instrumentation.testRetryCount(8);
+        Instrumentation.testInvocationCount(1);
+        Instrumentation.testFailureCount(1);
+        Instrumentation.testRetryCount(0);
         out.println("ok");
 
         if(retry1.ice_getConnection() == null)
         {
-            invocationCount = invocationCount + 10;
+            Instrumentation.testInvocationCount(1);
+
             out.print("testing system exception... ");
             try
             {
@@ -243,9 +244,9 @@ public class AllTests
             catch(SystemFailure ex)
             {
             }
-            Instrumentation.testInvocationCount(invocationCount + 1);
-            Instrumentation.testFailureCount(5);
-            Instrumentation.testRetryCount(8);
+            Instrumentation.testInvocationCount(1);
+            Instrumentation.testFailureCount(1);
+            Instrumentation.testRetryCount(0);
             try
             {
                 retry1.end_opSystemException(retry1.begin_opSystemException());
@@ -254,11 +255,40 @@ public class AllTests
             catch(SystemFailure ex)
             {
             }
-            Instrumentation.testInvocationCount(invocationCount + 2);
-            Instrumentation.testFailureCount(6);
-            Instrumentation.testRetryCount(8);
+            Instrumentation.testInvocationCount(1);
+            Instrumentation.testFailureCount(1);
+            Instrumentation.testRetryCount(0);
             out.println("ok");
         }
+
+        out.print("testing invocation timeout and retries... ");
+        out.flush();
+        try
+        {
+            // No more than 2 retries before timeout kicks-in
+            ((RetryPrx)retry1.ice_invocationTimeout(50)).opIdempotent(4);
+            test(false);
+        }
+        catch(Ice.InvocationTimeoutException ex)
+        {
+            Instrumentation.testRetryCount(2);
+            retry1.opIdempotent(-1); // Reset the counter
+            Instrumentation.testRetryCount(-1);
+        }
+        try
+        {
+            // No more than 2 retries before timeout kicks-in
+            RetryPrx prx = (RetryPrx)retry1.ice_invocationTimeout(50);
+            prx.end_opIdempotent(prx.begin_opIdempotent(4));
+            test(false);
+        }
+        catch(Ice.InvocationTimeoutException ex)
+        {
+            Instrumentation.testRetryCount(2);
+            retry1.opIdempotent(-1); // Reset the counter
+            Instrumentation.testRetryCount(-1);
+        }
+        out.println("ok");
 
         return retry1;
     }

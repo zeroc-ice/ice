@@ -22,6 +22,7 @@ SRCS		= Acceptor.cs \
 		  AssemblyInfo.cs \
 		  AssemblyUtil.cs \
 		  AsyncIOThread.cs \
+		  AsyncResult.cs \
 		  Base64.cs \
 		  BasicStream.cs \
 		  Buffer.cs \

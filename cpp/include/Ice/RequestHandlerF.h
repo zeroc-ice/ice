@@ -20,6 +20,10 @@ class RequestHandler;
 ICE_API IceUtil::Shared* upCast(RequestHandler*);
 typedef IceInternal::Handle<RequestHandler> RequestHandlerPtr;
 
+class CancellationHandler;
+ICE_API IceUtil::Shared* upCast(CancellationHandler*);
+typedef IceInternal::Handle<CancellationHandler> CancellationHandlerPtr;
+
 }
 
 #endif

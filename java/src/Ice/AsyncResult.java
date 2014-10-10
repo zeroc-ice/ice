@@ -16,6 +16,13 @@ package Ice;
  **/
 public interface AsyncResult
 {
+    /**
+     * If not completed, cancels the request. This is a local
+     * operation, it won't cancel the request on the server side. The
+     * request won't be sent if it was waiting to be sent or the
+     * response will be ignored if it received after the callback.
+     **/
+    public void cancel();
 
     /**
      * Returns the communicator that sent the invocation.

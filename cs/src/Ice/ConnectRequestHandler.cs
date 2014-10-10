@@ -26,12 +26,12 @@ namespace IceInternal
                 this.os.swap(os);
             }
 
-            internal Request(OutgoingAsyncMessageCallback outAsync)
+            internal Request(OutgoingAsyncBase outAsync)
             {
                 this.outAsync = outAsync;
             }
 
-            internal OutgoingAsyncMessageCallback outAsync = null;
+            internal OutgoingAsyncBase outAsync = null;
             internal BasicStream os = null;
             internal Ice.AsyncCallback sentCallback = null;
         }
@@ -143,7 +143,7 @@ namespace IceInternal
             _connection.abortBatchRequest();
         }
 
-        public bool sendAsyncRequest(OutgoingAsyncMessageCallback outAsync, out Ice.AsyncCallback sentCallback)
+        public bool sendAsyncRequest(OutgoingAsyncBase outAsync, out Ice.AsyncCallback sentCallback)
         {
             lock(this)
             {
@@ -152,6 +152,7 @@ namespace IceInternal
                     if(!initialized())
                     {
                         _requests.AddLast(new Request(outAsync));
+                        outAsync.cancelable(this);
                         sentCallback = null;
                         return false;
                     }
@@ -164,7 +165,7 @@ namespace IceInternal
             return outAsync.send(_connection, _compress, _response, out sentCallback);
         }
 
-        public void asyncRequestCanceled(OutgoingAsyncMessageCallback outAsync, Ice.LocalException ex)
+        public void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
         {
             lock(this)
             {
@@ -182,8 +183,12 @@ namespace IceInternal
                         if(request.outAsync == outAsync)
                         {
                             _requests.Remove(p);
-                            outAsync.dispatchInvocationCancel(ex, _reference.getInstance().clientThreadPool(), null);
-                            return; // We're done
+                            Ice.AsyncCallback cb = outAsync.completed(ex);
+                            if(cb != null)
+                            {
+                                outAsync.invokeCompletedAsync(cb);
+                            }
+                            return;
                         }
                         p = p.Next;
                     }
@@ -476,7 +481,11 @@ namespace IceInternal
             {
                 if(request.outAsync != null)
                 {
-                    request.outAsync.finished(_exception);
+                    Ice.AsyncCallback cb = request.outAsync.completed(_exception);
+                    if(cb != null)
+                    {
+                        request.outAsync.invokeCompleted(cb);
+                    }
                 }
             }
             _requests.Clear();

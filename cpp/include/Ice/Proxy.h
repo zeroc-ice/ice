@@ -21,7 +21,7 @@
 #include <Ice/ObjectF.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/ReferenceF.h>
-#include <Ice/OutgoingAsync.h>
+#include <Ice/AsyncResult.h>
 //#include <Ice/RouterF.h> // Can't include RouterF.h here, otherwise we have cyclic includes
 //#include <Ice/LocatorF.h> // Can't include RouterF.h here, otherwise we have cyclic includes
 #include <Ice/Current.h>
@@ -1377,8 +1377,6 @@ public:
         CallbackBase::checkCallback(instance, cb || excb != 0);
     }
 };
-
-
 
 template<class T, typename CT>
 class TwowayCallback : public Callback<T, CT>

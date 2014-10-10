@@ -16,25 +16,31 @@
 #include <Ice/RetryQueueF.h>
 #include <Ice/OutgoingAsyncF.h>
 #include <Ice/InstanceF.h>
+#include <Ice/RequestHandler.h> // For CancellationHandler
 
 namespace IceInternal
 {
 
-class RetryTask : public IceUtil::TimerTask
+class RetryTask : public IceUtil::TimerTask, public CancellationHandler
 {
 public:
 
-    RetryTask(const RetryQueuePtr&, const Ice::AsyncResultPtr&);
+    RetryTask(const RetryQueuePtr&, const ProxyOutgoingAsyncBasePtr&);
 
     virtual void runTimerTask();
+
+    virtual void requestCanceled(OutgoingBase*, const Ice::LocalException&);
+    virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, const Ice::LocalException&);
+
     void destroy();
 
     bool operator<(const RetryTask&) const;
 
+
 private:
 
     const RetryQueuePtr _queue;
-    const Ice::AsyncResultPtr _outAsync;
+    const ProxyOutgoingAsyncBasePtr _outAsync;
 };
 typedef IceUtil::Handle<RetryTask> RetryTaskPtr;
 
@@ -44,12 +50,13 @@ public:
 
     RetryQueue(const InstancePtr&);
 
-    void add(const Ice::AsyncResultPtr&, int);
+    void add(const ProxyOutgoingAsyncBasePtr&, int);
     void destroy();
 
 private:
 
     void remove(const RetryTaskPtr&);
+    bool cancel(const RetryTaskPtr&);
     friend class RetryTask;
 
     InstancePtr _instance;

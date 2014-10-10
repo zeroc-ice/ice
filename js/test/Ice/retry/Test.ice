@@ -20,7 +20,7 @@ interface Retry
     void opNotIdempotent(int c);
     void opSystemException();
 
-    void shutdown();
+    idempotent void shutdown();
 };
 
 };

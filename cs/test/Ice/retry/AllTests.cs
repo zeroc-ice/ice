@@ -96,7 +96,7 @@ public class AllTests : TestCommon.TestApp
         retry1.op(false);
         WriteLine("ok");
 
-        int invocationCount = 3;
+        Instrumentation.testInvocationCount(3);
 
         Write("calling operation to kill connection with second proxy... ");
         Flush();
@@ -112,7 +112,7 @@ public class AllTests : TestCommon.TestApp
         catch(Ice.ConnectionLostException)
         {
         }
-        Instrumentation.testInvocationCount(invocationCount + 1);
+        Instrumentation.testInvocationCount(1);
         Instrumentation.testFailureCount(1);
         Instrumentation.testRetryCount(0);
         WriteLine("ok");
@@ -120,8 +120,8 @@ public class AllTests : TestCommon.TestApp
         Write("calling regular operation with first proxy again... ");
         Flush();
         retry1.op(false);
-        Instrumentation.testInvocationCount(invocationCount + 2);
-        Instrumentation.testFailureCount(1);
+        Instrumentation.testInvocationCount(1);
+        Instrumentation.testFailureCount(0);
         Instrumentation.testRetryCount(0);
         WriteLine("ok");
 
@@ -138,8 +138,8 @@ public class AllTests : TestCommon.TestApp
                 test(false);
             });
         cb.check();
-        Instrumentation.testInvocationCount(invocationCount + 3);
-        Instrumentation.testFailureCount(1);
+        Instrumentation.testInvocationCount(1);
+        Instrumentation.testFailureCount(0);
         Instrumentation.testRetryCount(0);
         WriteLine("ok");
 
@@ -155,8 +155,8 @@ public class AllTests : TestCommon.TestApp
                 cb.called();
             });
         cb.check();
-        Instrumentation.testInvocationCount(invocationCount + 4);
-        Instrumentation.testFailureCount(2);
+        Instrumentation.testInvocationCount(1);
+        Instrumentation.testFailureCount(1);
         Instrumentation.testRetryCount(0);
         WriteLine("ok");
 
@@ -171,50 +171,51 @@ public class AllTests : TestCommon.TestApp
                 test(false);
             });
         cb.check();
-        Instrumentation.testInvocationCount(invocationCount + 5);
-        Instrumentation.testFailureCount(2);
+        Instrumentation.testInvocationCount(1);
+        Instrumentation.testFailureCount(0);
         Instrumentation.testRetryCount(0);
         WriteLine("ok");
 
         Write("testing idempotent operation... ");
-        test(retry1.opIdempotent(0) == 4);
-        Instrumentation.testInvocationCount(invocationCount + 6);
-        Instrumentation.testFailureCount(2);
+        test(retry1.opIdempotent(4) == 4);
+        Instrumentation.testInvocationCount(1);
+        Instrumentation.testFailureCount(0);
         Instrumentation.testRetryCount(4);
-        test(retry1.end_opIdempotent(retry1.begin_opIdempotent(4)) == 8);
-        Instrumentation.testInvocationCount(invocationCount + 7);
-        Instrumentation.testFailureCount(2);
-        Instrumentation.testRetryCount(8);
+        test(retry1.end_opIdempotent(retry1.begin_opIdempotent(4)) == 4);
+        Instrumentation.testInvocationCount(1);
+        Instrumentation.testFailureCount(0);
+        Instrumentation.testRetryCount(4);
         WriteLine("ok");
 
         Write("testing non-idempotent operation... ");
         try
         {
-            retry1.opNotIdempotent(8);
+            retry1.opNotIdempotent();
             test(false);
         }
         catch(Ice.LocalException)
         {
         }
-        Instrumentation.testInvocationCount(invocationCount + 8);
-        Instrumentation.testFailureCount(3);
-        Instrumentation.testRetryCount(8);
+        Instrumentation.testInvocationCount(1);
+        Instrumentation.testFailureCount(1);
+        Instrumentation.testRetryCount(0);
         try
         {
-            retry1.end_opNotIdempotent(retry1.begin_opNotIdempotent(9));
+            retry1.end_opNotIdempotent(retry1.begin_opNotIdempotent());
             test(false);
         }
         catch(Ice.LocalException)
         {
         }
-        Instrumentation.testInvocationCount(invocationCount + 9);
-        Instrumentation.testFailureCount(4);
-        Instrumentation.testRetryCount(8);
+        Instrumentation.testInvocationCount(1);
+        Instrumentation.testFailureCount(1);
+        Instrumentation.testRetryCount(0);
         WriteLine("ok");
 
         if(retry1.ice_getConnection() == null)
         {
-            invocationCount = invocationCount + 10;
+            Instrumentation.testInvocationCount(1);
+
             Write("testing system exception... ");
             try
             {
@@ -224,9 +225,9 @@ public class AllTests : TestCommon.TestApp
             catch(SystemFailure)
             {
             }
-            Instrumentation.testInvocationCount(invocationCount + 1);
-            Instrumentation.testFailureCount(5);
-            Instrumentation.testRetryCount(8);
+            Instrumentation.testInvocationCount(1);
+            Instrumentation.testFailureCount(1);
+            Instrumentation.testRetryCount(0);
             try
             {
                 retry1.end_opSystemException(retry1.begin_opSystemException());
@@ -235,11 +236,40 @@ public class AllTests : TestCommon.TestApp
             catch(SystemFailure)
             {
             }
-            Instrumentation.testInvocationCount(invocationCount + 2);
-            Instrumentation.testFailureCount(6);
-            Instrumentation.testRetryCount(8);
+            Instrumentation.testInvocationCount(1);
+            Instrumentation.testFailureCount(1);
+            Instrumentation.testRetryCount(0);
             WriteLine("ok");
         }
+
+        Write("testing invocation timeout and retries... ");
+        Flush();
+        try
+        {
+            // No more than 2 retries before timeout kicks-in
+            ((Test.RetryPrx)retry1.ice_invocationTimeout(50)).opIdempotent(4);
+            test(false);
+        }
+        catch(Ice.InvocationTimeoutException)
+        {
+            Instrumentation.testRetryCount(2);
+            retry1.opIdempotent(-1); // Reset the counter
+            Instrumentation.testRetryCount(-1);
+        }
+        try
+        {
+            // No more than 2 retries before timeout kicks-in
+            Test.RetryPrx prx = (Test.RetryPrx)retry1.ice_invocationTimeout(50);
+            prx.end_opIdempotent(prx.begin_opIdempotent(4));
+            test(false);
+        }
+        catch(Ice.InvocationTimeoutException)
+        {
+            Instrumentation.testRetryCount(2);
+            retry1.opIdempotent(-1); // Reset the counter
+            Instrumentation.testRetryCount(-1);
+        }
+        WriteLine("ok");
 
 #if SILVERLIGHT
         retry1.shutdown();

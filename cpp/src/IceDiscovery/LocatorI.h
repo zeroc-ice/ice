@@ -13,6 +13,8 @@
 #include <Ice/Locator.h>
 #include <Ice/ProxyF.h>
 
+#include <set>
+
 namespace IceDiscovery
 {
 

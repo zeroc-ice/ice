@@ -12,9 +12,9 @@ namespace IceInternal
     using System.Collections.Generic;
     using System.Diagnostics;
 
-    public class RetryTask : TimerTask
+    public class RetryTask : TimerTask, CancellationHandler
     {
-        public RetryTask(RetryQueue retryQueue, OutgoingAsyncBase outAsync)
+        public RetryTask(RetryQueue retryQueue, ProxyOutgoingAsyncBase outAsync)
         {
             _retryQueue = retryQueue;
             _outAsync = outAsync;
@@ -22,14 +22,7 @@ namespace IceInternal
 
         public void runTimerTask()
         {
-            try
-            {
-                _outAsync.processRetry();
-            }
-            catch(Ice.LocalException ex)
-            {
-                _outAsync.invokeExceptionAsync(ex);
-            }
+            _outAsync.retry();
 
             //
             // NOTE: this must be called last, destroy() blocks until all task
@@ -40,13 +33,34 @@ namespace IceInternal
             _retryQueue.remove(this);
         }
 
+        public void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
+        {
+            Debug.Assert(_outAsync == outAsync);
+            if(_retryQueue.cancel(this))
+            {
+                //
+                // We just retry the outgoing async now rather than marking it
+                // as finished. The retry will check for the cancellation
+                // exception and terminate appropriately the request.
+                //
+                _outAsync.retry();
+            }
+        }
+
         public void destroy()
         {
-            _outAsync.invokeExceptionAsync(new Ice.CommunicatorDestroyedException());
+            try
+            {
+                _outAsync.abort(new Ice.CommunicatorDestroyedException());
+            }
+            catch(Ice.CommunicatorDestroyedException)
+            {
+                // Abort can throw if there's no callback, just ignore in this case
+            }
         }
 
         private RetryQueue _retryQueue;
-        private OutgoingAsyncBase _outAsync;
+        private ProxyOutgoingAsyncBase _outAsync;
     }
 
     public class RetryQueue
@@ -56,7 +70,7 @@ namespace IceInternal
             _instance = instance;
         }
 
-        public void add(OutgoingAsyncBase outAsync, int interval)
+        public void add(ProxyOutgoingAsyncBase outAsync, int interval)
         {
             lock(this)
             {
@@ -67,11 +81,11 @@ namespace IceInternal
                 RetryTask task = new RetryTask(this, outAsync);
                 _instance.timer().schedule(task, interval);
                 _requests.Add(task, null);
+                outAsync.cancelable(task);
             }
         }
 
-        public void
-        destroy()
+        public void destroy()
         {
             lock(this)
             {
@@ -96,8 +110,7 @@ namespace IceInternal
             }
         }
 
-        public void
-        remove(RetryTask task)
+        public void remove(RetryTask task)
         {
             lock(this)
             {
@@ -108,6 +121,23 @@ namespace IceInternal
                     // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
                     System.Threading.Monitor.Pulse(this);
                 }
+            }
+        }
+
+        public bool cancel(RetryTask task)
+        {
+            lock(this)
+            {
+                if(_requests.Remove(task))
+                {
+                    if(_instance == null && _requests.Count == 0)
+                    {
+                        // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
+                        System.Threading.Monitor.Pulse(this);
+                    }
+                    return _instance.timer().cancel(task);
+                }
+                return false;
             }
         }
 

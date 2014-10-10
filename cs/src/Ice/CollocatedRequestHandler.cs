@@ -165,12 +165,12 @@ namespace IceInternal
             }
         }
 
-        public bool sendAsyncRequest(OutgoingAsyncMessageCallback outAsync, out Ice.AsyncCallback sentCallback)
+        public bool sendAsyncRequest(OutgoingAsyncBase outAsync, out Ice.AsyncCallback sentCallback)
         {
             return outAsync.invokeCollocated(this, out sentCallback);
         }
 
-        public void asyncRequestCanceled(OutgoingAsyncMessageCallback outAsync, Ice.LocalException ex)
+        public void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
         {
             lock(this)
             {
@@ -182,8 +182,12 @@ namespace IceInternal
                         _asyncRequests.Remove(requestId);
                     }
                     _sendAsyncRequests.Remove(outAsync);
-                    outAsync.dispatchInvocationCancel(ex, _reference.getInstance().clientThreadPool(), null);
-                    return; // We're done
+                    Ice.AsyncCallback cb = outAsync.completed(ex);
+                    if(cb != null)
+                    {
+                        outAsync.invokeCompletedAsync(cb);
+                    }
+                    return;
                 }
                 if(outAsync is OutgoingAsync)
                 {
@@ -194,8 +198,12 @@ namespace IceInternal
                         if(e.Value == o)
                         {
                             _asyncRequests.Remove(e.Key);
-                            outAsync.dispatchInvocationCancel(ex, _reference.getInstance().clientThreadPool(), null);
-                            return; // We're done
+                            Ice.AsyncCallback cb = outAsync.completed(ex);
+                            if(cb != null)
+                            {
+                                outAsync.invokeCompletedAsync(cb);
+                            }
+                            return;
                         }
                     }
                 }
@@ -204,7 +212,8 @@ namespace IceInternal
 
         public void sendResponse(int requestId, BasicStream os, byte status)
         {
-            OutgoingAsync outAsync = null;
+            Ice.AsyncCallback cb = null;
+            OutgoingAsync outAsync;
             lock(this)
             {
                 Debug.Assert(_response);
@@ -219,18 +228,15 @@ namespace IceInternal
 
                 if(_asyncRequests.TryGetValue(requestId, out outAsync))
                 {
-                    os.swap(outAsync.istr__);
                     _asyncRequests.Remove(requestId);
+                    outAsync.getIs().swap(os);
+                    cb = outAsync.completed();
                 }
             }
 
-            if(outAsync != null)
+            if(cb != null)
             {
-                Ice.AsyncCallback cb = outAsync.finished();
-                if(cb != null)
-                {
-                    outAsync.invokeCompleted(cb);
-                }
+                outAsync.invokeCompleted(cb);
             }
             _adapter.decDirectCount();
         }
@@ -252,21 +258,7 @@ namespace IceInternal
         public void
         invokeException(int requestId, Ice.LocalException ex, int invokeNum)
         {
-            if(requestId > 0)
-            {
-                OutgoingAsync outAsync = null;
-                lock(this)
-                {
-                    if(_asyncRequests.TryGetValue(requestId, out outAsync))
-                    {
-                        _asyncRequests.Remove(requestId);
-                    }
-                }
-                if(outAsync != null)
-                {
-                    outAsync.finished(ex);
-                }
-            }
+            handleException(requestId, ex);
             _adapter.decDirectCount();
         }
 
@@ -288,7 +280,7 @@ namespace IceInternal
             return null;
         }
 
-        public void invokeAsyncRequest(OutgoingAsync outAsync, bool synchronous, out Ice.AsyncCallback sentCallback)
+        public bool invokeAsyncRequest(OutgoingAsync outAsync, bool synchronous, out Ice.AsyncCallback sentCallback)
         {
             int requestId = 0;
             if(_reference.getInvocationTimeout() > 0 || _response)
@@ -304,6 +296,7 @@ namespace IceInternal
                     {
                         _sendAsyncRequests.Add(outAsync, requestId);
                     }
+                    outAsync.cancelable(this);
                 }
             }
 
@@ -321,7 +314,7 @@ namespace IceInternal
                     {
                         if(sentAsync(outAsync))
                         {
-                            invokeAll(outAsync.ostr__, requestId, 1, false);
+                            invokeAll(outAsync.getOs(), requestId, 1, false);
                         }
                     }, null);
                 }
@@ -331,7 +324,7 @@ namespace IceInternal
                     {
                         if(sentAsync(outAsync))
                         {
-                            invokeAll(outAsync.ostr__, requestId, 1, false);
+                            invokeAll(outAsync.getOs(), requestId, 1, false);
                         }
                     }, null);
                 }
@@ -339,7 +332,7 @@ namespace IceInternal
                 {
                     if(sentAsync(outAsync))
                     {
-                        invokeAll(outAsync.ostr__, requestId, 1, false);
+                        invokeAll(outAsync.getOs(), requestId, 1, false);
                     }
                 }
                 sentCallback = null;
@@ -350,14 +343,15 @@ namespace IceInternal
                 {
                     if(sentAsync(outAsync))
                     {
-                        invokeAll(outAsync.ostr__, requestId, 1, false);
+                        invokeAll(outAsync.getOs(), requestId, 1, false);
                     }
                 }, null);
                 sentCallback = null;
             }
+            return false;
         }
 
-        public bool invokeAsyncBatchRequests(BatchOutgoingAsync outAsync, out Ice.AsyncCallback sentCallback)
+        public bool invokeAsyncBatchRequests(OutgoingAsyncBase outAsync, out Ice.AsyncCallback sentCallback)
         {
             int invokeNum;
             lock(this)
@@ -373,10 +367,11 @@ namespace IceInternal
                     if(_reference.getInvocationTimeout() > 0)
                     {
                         _sendAsyncRequests.Add(outAsync, 0);
+                        outAsync.cancelable(this);
                     }
 
                     Debug.Assert(!_batchStream.isEmpty());
-                    _batchStream.swap(outAsync.ostr__);
+                    _batchStream.swap(outAsync.getOs());
 
                     //
                     // Reset the batch stream.
@@ -397,7 +392,7 @@ namespace IceInternal
                 {
                     if(sentAsync(outAsync))
                     {
-                        invokeAll(outAsync.ostr__, 0, invokeNum, true);
+                        invokeAll(outAsync.getOs(), 0, invokeNum, true);
                     }
                 }, null);
                 sentCallback = null;
@@ -411,7 +406,7 @@ namespace IceInternal
         }
 
 
-        private bool sentAsync(OutgoingAsyncMessageCallback outAsync)
+        private bool sentAsync(OutgoingAsyncBase outAsync)
         {
             if(_reference.getInvocationTimeout() > 0)
             {
@@ -492,18 +487,20 @@ namespace IceInternal
                 return; // Ignore exception for oneway messages.
             }
 
-            OutgoingAsync outAsync = null;
+            OutgoingAsync outAsync;
+            Ice.AsyncCallback cb = null;
             lock(this)
             {
                 if(_asyncRequests.TryGetValue(requestId, out outAsync))
                 {
                     _asyncRequests.Remove(requestId);
+                    cb = outAsync.completed(ex);
                 }
             }
 
-            if(outAsync != null)
+            if(cb != null)
             {
-                outAsync.finished(ex);
+                outAsync.invokeCompleted(cb);
             }
         }
 
@@ -517,8 +514,7 @@ namespace IceInternal
 
         private int _requestId;
 
-        private Dictionary<OutgoingAsyncMessageCallback, int> _sendAsyncRequests =
-            new Dictionary<OutgoingAsyncMessageCallback, int>();
+        private Dictionary<OutgoingAsyncBase, int> _sendAsyncRequests = new Dictionary<OutgoingAsyncBase, int>();
         private Dictionary<int, OutgoingAsync> _asyncRequests = new Dictionary<int, OutgoingAsync>();
 
         private BasicStream _batchStream;

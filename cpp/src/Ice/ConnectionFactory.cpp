@@ -24,6 +24,7 @@
 #include <Ice/RouterInfo.h>
 #include <Ice/LocalException.h>
 #include <Ice/Functional.h>
+#include <Ice/OutgoingAsync.h>
 #include <IceUtil/Random.h>
 #include <iterator>
 
@@ -432,7 +433,7 @@ IceInternal::OutgoingConnectionFactory::removeAdapter(const ObjectAdapterPtr& ad
 }
 
 void
-IceInternal::OutgoingConnectionFactory::flushAsyncBatchRequests(const CommunicatorBatchOutgoingAsyncPtr& outAsync)
+IceInternal::OutgoingConnectionFactory::flushAsyncBatchRequests(const CommunicatorFlushBatchPtr& outAsync)
 {
     list<ConnectionIPtr> c;
 
@@ -1357,7 +1358,7 @@ IceInternal::IncomingConnectionFactory::connections() const
 }
 
 void
-IceInternal::IncomingConnectionFactory::flushAsyncBatchRequests(const CommunicatorBatchOutgoingAsyncPtr& outAsync)
+IceInternal::IncomingConnectionFactory::flushAsyncBatchRequests(const CommunicatorFlushBatchPtr& outAsync)
 {
     list<ConnectionIPtr> c = connections(); // connections() is synchronized, so no need to synchronize here.
 

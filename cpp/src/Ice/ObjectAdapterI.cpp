@@ -743,7 +743,7 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
 }
 
 void
-Ice::ObjectAdapterI::flushAsyncBatchRequests(const CommunicatorBatchOutgoingAsyncPtr& outAsync)
+Ice::ObjectAdapterI::flushAsyncBatchRequests(const CommunicatorFlushBatchPtr& outAsync)
 {
     vector<IncomingConnectionFactoryPtr> f;
     {

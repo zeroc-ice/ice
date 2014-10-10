@@ -10,6 +10,7 @@
 #ifndef ICE_INITIALIZE_H
 #define ICE_INITIALIZE_H
 
+#include <IceUtil/Timer.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/PropertiesF.h>
 #include <Ice/InstanceF.h>

@@ -977,6 +977,66 @@ def allTests(communicator, collocated):
     test(r.getCommunicator() == communicator)
     test(r.getProxy() == None) # Expected
     communicator.end_flushBatchRequests(r)
+    
+    if(p.ice_getConnection()):
+        r1 = None;
+        r2 = None;
+
+        if sys.version_info[0] == 2:
+            b = [chr(random.randint(0, 255)) for x in range(0, 1024)] # Make sure the request doesn't compress too well.
+            seq = ''.join(b)
+        else:
+            b = [random.randint(0, 255) for x in range(0, 1024)] # Make sure the request doesn't compress too well.
+            seq = bytes(b) 
+            
+        testController.holdAdapter()
+        while(True):
+            r = p.begin_opWithPayload(seq)
+            if not r.sentSynchronously():
+                break
+        
+        test(not r.isSent())
+        
+        r1 = p.begin_ice_ping()
+        r2 = p.begin_ice_id()
+        r1.cancel()
+        r2.cancel()
+        try:
+            p.end_ice_ping(r1)
+            test(false)
+        except(Ice.InvocationCanceledException):
+            pass
+
+        try:
+            p.end_ice_id(r2)
+            test(false)
+        except(Ice.InvocationCanceledException):
+            pass
+        
+        testController.resumeAdapter()
+        p.ice_ping()
+        test(not r1.isSent() and r1.isCompleted())
+        test(not r2.isSent() and r2.isCompleted())
+
+        testController.holdAdapter()
+
+        r1 = p.begin_op()
+        r2 = p.begin_ice_id()
+        r1.waitForSent()
+        r2.waitForSent()
+        r1.cancel()
+        r2.cancel()
+        try:
+            p.end_op(r1)
+            test(false)
+        except:
+            pass
+        try:
+            p.end_ice_id(r2)
+            test(false)
+        except:
+            pass
+        testController.resumeAdapter()
 
     print("ok")
 

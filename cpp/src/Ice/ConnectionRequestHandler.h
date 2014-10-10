@@ -31,11 +31,11 @@ public:
     virtual void finishBatchRequest(BasicStream*);
     virtual void abortBatchRequest();
 
-    virtual bool sendRequest(OutgoingMessageCallback*);
-    virtual AsyncStatus sendAsyncRequest(const OutgoingAsyncMessageCallbackPtr&);
+    virtual bool sendRequest(OutgoingBase*);
+    virtual AsyncStatus sendAsyncRequest(const OutgoingAsyncBasePtr&);
 
-    virtual void requestTimedOut(OutgoingMessageCallback*);
-    virtual void asyncRequestTimedOut(const OutgoingAsyncMessageCallbackPtr&);
+    virtual void requestCanceled(OutgoingBase*, const Ice::LocalException&);
+    virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, const Ice::LocalException&);
 
     virtual Ice::ConnectionIPtr getConnection();
     virtual Ice::ConnectionIPtr waitForConnection();

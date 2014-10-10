@@ -17,10 +17,10 @@ interface Retry
     void op(bool kill);
 
     idempotent int opIdempotent(int c);
-    void opNotIdempotent(int c);
+    void opNotIdempotent();
     void opSystemException();
 
-    void shutdown();
+    idempotent void shutdown();
 };
 
 };

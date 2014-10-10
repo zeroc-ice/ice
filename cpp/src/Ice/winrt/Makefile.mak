@@ -7,13 +7,14 @@
 #
 # **********************************************************************
 
-top_srcdir		= ..\..\..
+top_srcdir	= ..\..\..
 LIBNAME		= $(SDK_LIBRARY_PATH)\ice.lib
 TARGETS		= $(LIBNAME)
 SOURCE_DIR	= ..
 
 OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\ACM.obj \
+		  $(ARCH)\$(CONFIG)\AsyncResult.obj \
 		  $(ARCH)\$(CONFIG)\Base64.obj \
 		  $(ARCH)\$(CONFIG)\Buffer.obj \
 		  $(ARCH)\$(CONFIG)\BasicStream.obj \

@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public interface RequestHandler
+public interface RequestHandler extends CancellationHandler
 {
     RequestHandler connect();
     RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler);
@@ -19,10 +19,8 @@ public interface RequestHandler
     void finishBatchRequest(BasicStream out);
     void abortBatchRequest();
 
-    int sendAsyncRequest(OutgoingAsyncMessageCallback out)
+    int sendAsyncRequest(OutgoingAsyncBase out)
         throws RetryException;
-
-    boolean asyncRequestCanceled(OutgoingAsyncMessageCallback outAsync, Ice.LocalException ex);
 
     Reference getReference();
 

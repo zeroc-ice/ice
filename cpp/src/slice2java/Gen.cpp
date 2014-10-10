@@ -4752,8 +4752,8 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << sb;
         if(op->returnsData())
         {
-            out << nl << "IceInternal.OutgoingAsyncBase __result = (IceInternal.OutgoingAsyncBase)__iresult;";
-            out << nl << "IceInternal.OutgoingAsyncBase.check(__result, this, __" << op->name() << "_name);";
+            out << nl << "IceInternal.OutgoingAsync __result = IceInternal.OutgoingAsync.check(__iresult, this, __" 
+                << op->name() << "_name);";
             out << nl << "try";
             out << sb;
 
@@ -5737,11 +5737,11 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
             out << nl << "__result.writeEmptyParams();";
         }
 
-        out << nl << "__result.invoke(true);";
+        out << nl << "__result.invoke();";
         out << eb;
         out << nl << "catch(Ice.Exception __ex)";
         out << sb;
-        out << nl << "__result.invokeExceptionAsync(__ex);";
+        out << nl << "__result.abort(__ex);";
         out << eb;
         out << nl << "return __result;";
         out << eb;

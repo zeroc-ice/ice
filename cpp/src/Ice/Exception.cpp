@@ -502,6 +502,13 @@ Ice::InvocationTimeoutException::ice_print(ostream& out) const
 }
 
 void
+Ice::InvocationCanceledException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\ninvocation canceled";
+}
+
+void
 Ice::ProtocolException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);

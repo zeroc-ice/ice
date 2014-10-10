@@ -36,9 +36,15 @@ public final class RetryI extends _RetryDisp
 
     @Override
     public int
-    opIdempotent(int counter, Ice.Current current)
+    opIdempotent(int nRetry, Ice.Current current)
     {
-        if(counter + nRetry > _counter)
+        if(nRetry < 0)
+        {
+            _counter = 0;
+            return 0;
+        }
+
+        if(nRetry > _counter)
         {
             ++_counter;
             if(current.con != null)
@@ -49,20 +55,18 @@ public final class RetryI extends _RetryDisp
             {
                 throw new Ice.ConnectionLostException();
             }
+            return 0;
         }
-        return _counter;
+
+        int counter = _counter;
+        _counter = 0;
+        return counter;
     }
     
     @Override
     public void
-    opNotIdempotent(int counter, Ice.Current current)
+    opNotIdempotent(Ice.Current current)
     {
-        if(_counter != counter)
-        {
-            return;
-        }
-        
-        ++_counter;
         if(current.con != null)
         {
             current.con.close(true);
@@ -88,5 +92,4 @@ public final class RetryI extends _RetryDisp
     }
 
     private int _counter;
-    static final int nRetry = 4;
 }

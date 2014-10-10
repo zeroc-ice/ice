@@ -286,11 +286,11 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             IceInternal.BasicStream __os = __result.startWriteParams(Ice.FormatType.DefaultFormat);
             __os.writeString(__id);
             __result.endWriteParams();
-            __result.invoke(true);
+            __result.invoke();
         }
         catch(Exception __ex)
         {
-            __result.invokeExceptionAsync(__ex);
+            __result.abort(__ex);
         }
         return __result;
     }
@@ -305,8 +305,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final boolean
     end_ice_isA(AsyncResult __iresult)
     {
-        IceInternal.OutgoingAsyncBase __result = (IceInternal.OutgoingAsyncBase)__iresult;
-        IceInternal.OutgoingAsyncBase.check(__result, this, __ice_isA_name);
+        IceInternal.OutgoingAsync __result = IceInternal.OutgoingAsync.check(__iresult, this, __ice_isA_name);
         try
         {
             if(!__result.__wait())
@@ -544,11 +543,11 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         {
             __result.prepare(__ice_ping_name, OperationMode.Nonmutating, __context, __explicitCtx, __synchronous);
             __result.writeEmptyParams();
-            __result.invoke(true);
+            __result.invoke();
         }
         catch(Exception __ex)
         {
-            __result.invokeExceptionAsync(__ex);
+            __result.abort(__ex);
         }
         return __result;
     }
@@ -777,11 +776,11 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         {
             __result.prepare(__ice_ids_name, OperationMode.Nonmutating, __context, __explicitCtx, __synchronous);
             __result.writeEmptyParams();
-            __result.invoke(true);
+            __result.invoke();
         }
         catch(Exception __ex)
         {
-            __result.invokeExceptionAsync(__ex);
+            __result.abort(__ex);
         }
         return __result;
     }
@@ -797,8 +796,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final String[]
     end_ice_ids(AsyncResult __iresult)
     {
-        IceInternal.OutgoingAsyncBase __result = (IceInternal.OutgoingAsyncBase) __iresult;
-        IceInternal.OutgoingAsyncBase.check(__result, this, __ice_ids_name);
+        IceInternal.OutgoingAsync __result = IceInternal.OutgoingAsync.check(__iresult, this, __ice_ids_name);
         try
         {
             if(!__result.__wait())
@@ -1054,11 +1052,11 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         {
             __result.prepare(__ice_id_name, OperationMode.Nonmutating, __context, __explicitCtx, __synchronous);
             __result.writeEmptyParams();
-            __result.invoke(true);
+            __result.invoke();
         }
         catch(Exception __ex)
         {
-            __result.invokeExceptionAsync(__ex);
+            __result.abort(__ex);
         }
         return __result;
     }
@@ -1073,8 +1071,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final String
     end_ice_id(AsyncResult __iresult)
     {
-        IceInternal.OutgoingAsyncBase __result = (IceInternal.OutgoingAsyncBase) __iresult;
-        IceInternal.OutgoingAsyncBase.check(__result, this, __ice_id_name);
+        IceInternal.OutgoingAsync __result = IceInternal.OutgoingAsync.check(__iresult, this, __ice_id_name);
         try
         {
             if(!__result.__wait())
@@ -1444,11 +1441,11 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         {
             __result.prepare(operation, mode, __context, __explicitCtx, __synchronous);
             __result.writeParamEncaps(inParams);
-            __result.invoke(true);
+            __result.invoke();
         }
         catch(Exception __ex)
         {
-            __result.invokeExceptionAsync(__ex);
+            __result.abort(__ex);
         }
         return __result;
     }
@@ -1468,8 +1465,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final boolean
     end_ice_invoke(ByteSeqHolder outParams, AsyncResult __iresult)
     {
-        IceInternal.OutgoingAsyncBase __result = (IceInternal.OutgoingAsyncBase) __iresult;
-        IceInternal.OutgoingAsyncBase.check(__result, this, __ice_invoke_name);
+        IceInternal.OutgoingAsync __result = IceInternal.OutgoingAsync.check(__iresult, this, __ice_invoke_name);
         try
         {
             boolean ok = __result.__wait();
@@ -2427,49 +2423,47 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     private static final String __ice_getConnection_name = "ice_getConnection";
 
     private AsyncResult
-    begin_ice_getConnectionInternal(IceInternal.CallbackBase __cb)
+    begin_ice_getConnectionInternal(IceInternal.CallbackBase cb)
     {
-        IceInternal.GetConnectionOutgoingAsync __result =
-            new IceInternal.GetConnectionOutgoingAsync(this, __ice_getConnection_name, __cb);
+        IceInternal.ProxyGetConnection result = new IceInternal.ProxyGetConnection(this, __ice_getConnection_name, cb);
         try
         {
-            __result.__invoke();
+            result.invoke();
         }
-        catch(Exception __ex)
+        catch(Exception ex)
         {
-            __result.invokeExceptionAsync(__ex);
+            result.abort(ex);
         }
-        return __result;
+        return result;
     }
 
     @Override
     public Ice.Connection
-    end_ice_getConnection(AsyncResult __iresult)
+    end_ice_getConnection(AsyncResult r)
     {
-        IceInternal.OutgoingAsyncBase __result = (IceInternal.OutgoingAsyncBase)__iresult;
-        IceInternal.OutgoingAsyncBase.check(__result, this, __ice_getConnection_name);
-        __result.__wait();
+        IceInternal.ProxyGetConnection result = IceInternal.ProxyGetConnection.check(r, this, __ice_getConnection_name);
+        result.__wait();
         return ice_getCachedConnection();
     }
 
-    static public final void __ice_getConnection_completed(TwowayCallbackArg1<Ice.Connection> __cb, AsyncResult __result)
+    static public final void __ice_getConnection_completed(TwowayCallbackArg1<Ice.Connection> cb, AsyncResult result)
     {
-        Ice.Connection __ret = null;
+        Ice.Connection ret = null;
         try
         {
-            __ret = __result.getProxy().end_ice_getConnection(__result);
+            ret = result.getProxy().end_ice_getConnection(result);
         }
-        catch(LocalException __ex)
+        catch(LocalException ex)
         {
-            __cb.exception(__ex);
+            cb.exception(ex);
             return;
         }
-        catch(SystemException __ex)
+        catch(SystemException ex)
         {
-            __cb.exception(__ex);
+            cb.exception(ex);
             return;
         }
-        __cb.response(__ret);
+        cb.response(ret);
     }
 
     /**
@@ -2578,28 +2572,26 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     private static final String __ice_flushBatchRequests_name = "ice_flushBatchRequests";
 
     private AsyncResult
-    begin_ice_flushBatchRequestsInternal(IceInternal.CallbackBase __cb)
+    begin_ice_flushBatchRequestsInternal(IceInternal.CallbackBase cb)
     {
-        IceInternal.ProxyBatchOutgoingAsync __result =
-            new IceInternal.ProxyBatchOutgoingAsync(this, __ice_flushBatchRequests_name, __cb);
+        IceInternal.ProxyFlushBatch result = new IceInternal.ProxyFlushBatch(this, __ice_flushBatchRequests_name, cb);
         try
         {
-            __result.__invoke();
+            result.invoke();
         }
-        catch(Exception __ex)
+        catch(Exception ex)
         {
-            __result.invokeExceptionAsync(__ex);
+            result.abort(ex);
         }
-        return __result;
+        return result;
     }
 
     @Override
     public void
-    end_ice_flushBatchRequests(AsyncResult __iresult)
+    end_ice_flushBatchRequests(AsyncResult r)
     {
-        IceInternal.OutgoingAsyncBase __result = (IceInternal.OutgoingAsyncBase)__iresult;
-        IceInternal.OutgoingAsyncBase.check(__result, this, __ice_flushBatchRequests_name);
-        __result.__wait();
+        IceInternal.ProxyFlushBatch result = IceInternal.ProxyFlushBatch.check(r, this, __ice_flushBatchRequests_name);
+        result.__wait();
     }
 
     /**
@@ -2721,34 +2713,34 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     public final void
-    __end(AsyncResult __iresult, String operation)
+    __end(AsyncResult r, String operation)
     {
-        IceInternal.OutgoingAsyncBase __result = (IceInternal.OutgoingAsyncBase)__iresult;
-        IceInternal.OutgoingAsyncBase.check(__result, this, operation);
+        IceInternal.ProxyOutgoingAsyncBase result = IceInternal.ProxyOutgoingAsyncBase.check(r, this, operation);
         try
         {
-            boolean ok = __result.__wait();
+            boolean ok = result.__wait();
             if(_reference.getMode() == IceInternal.Reference.ModeTwoway)
             {
+                IceInternal.OutgoingAsync outAsync = (IceInternal.OutgoingAsync)result;
                 if(!ok)
                 {
                     try
                     {
-                        __result.throwUserException();
+                        outAsync.throwUserException();
                     }
-                    catch(UserException __ex)
+                    catch(UserException ex)
                     {
-                        throw new UnknownUserException(__ex.ice_name(), __ex);
+                        throw new UnknownUserException(ex.ice_name(), ex);
                     }
                 }
-                __result.readEmptyParams();
+                outAsync.readEmptyParams();
             }
         }
         finally
         {
-            if(__result != null)
+            if(result != null)
             {
-                __result.cacheMessageBuffers();
+                result.cacheMessageBuffers();
             }
         }
     }

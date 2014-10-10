@@ -1701,6 +1701,21 @@ public class AllTests : TestCommon.TestApp
                 test(r.isSent());
                 test(r.IsCompleted);
                 test(p.waitForBatch(2));
+
+                FlushCallback cb2 = new FlushCallback(cookie);
+                Ice.AsyncResult r2 = b1.begin_ice_flushBatchRequests(
+                    (Ice.AsyncResult result) =>
+                    {
+                        cb2.completedAsync(result);
+                    }, cookie);
+                r2.whenSent(
+                    (Ice.AsyncResult result) =>
+                    {
+                        cb2.sentAsync(result);
+                    });
+                cb2.check();
+                test(r2.isSent());
+                test(r2.IsCompleted);
             }
 
             if(p.ice_getConnection() != null)
@@ -2595,6 +2610,86 @@ public class AllTests : TestCommon.TestApp
                     test(r.getCommunicator() == communicator);
                     test(r.getProxy() == null); // Expected
                     communicator.end_flushBatchRequests(r);
+                }
+            }
+
+            if(p.ice_getConnection() != null)
+            {
+                Ice.AsyncResult r1 = null;
+                Ice.AsyncResult r2 = null;
+                testController.holdAdapter();
+                try
+                {
+                    Ice.AsyncResult r = null;
+                    byte[] seq = new byte[10024];
+                    (new System.Random()).NextBytes(seq);
+                    for(int i = 0; i < 200; ++i) // 2MB
+                    {
+                        r = p.begin_opWithPayload(seq);
+                    }
+
+                    test(!r.isSent());
+
+                    r1 = p.begin_ice_ping();
+                    r2 = p.begin_ice_id();
+                    r1.cancel();
+                    r2.cancel();
+                    try
+                    {
+                        p.end_ice_ping(r1);
+                        test(false);
+                    }
+                    catch(Ice.InvocationCanceledException)
+                    {
+                    }
+                    try
+                    {
+                        p.end_ice_id(r2);
+                        test(false);
+                    }
+                    catch(Ice.InvocationCanceledException)
+                    {
+                    }
+
+                }
+                finally
+                {
+                    testController.resumeAdapter();
+                    p.ice_ping();
+                    test(!r1.isSent() && r1.isCompleted_());
+                    test(!r2.isSent() && r2.isCompleted_());
+                }
+
+
+                testController.holdAdapter();
+                try
+                {
+                    r1 = p.begin_op();
+                    r2 = p.begin_ice_id();
+                    r1.waitForSent();
+                    r2.waitForSent();
+                    r1.cancel();
+                    r2.cancel();
+                    try
+                    {
+                        p.end_op(r1);
+                        test(false);
+                    }
+                    catch(Ice.InvocationCanceledException)
+                    {
+                    }
+                    try
+                    {
+                        p.end_ice_id(r2);
+                        test(false);
+                    }
+                    catch(Ice.InvocationCanceledException)
+                    {
+                    }
+                }
+                finally
+                {
+                    testController.resumeAdapter();
                 }
             }
         }

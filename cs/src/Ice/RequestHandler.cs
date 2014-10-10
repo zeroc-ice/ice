@@ -12,7 +12,12 @@ using Ice.Instrumentation;
 
 namespace IceInternal
 {
-    public interface RequestHandler
+    public interface CancellationHandler
+    {
+        void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex);
+    }
+
+    public interface RequestHandler : CancellationHandler
     {
         RequestHandler connect();
         RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler);
@@ -21,9 +26,7 @@ namespace IceInternal
         void finishBatchRequest(BasicStream @out);
         void abortBatchRequest();
 
-        bool sendAsyncRequest(OutgoingAsyncMessageCallback @out, out Ice.AsyncCallback cb);
-
-        void asyncRequestCanceled(OutgoingAsyncMessageCallback outAsync, Ice.LocalException ex);
+        bool sendAsyncRequest(OutgoingAsyncBase @out, out Ice.AsyncCallback cb);
 
         Reference getReference();
 

@@ -30,6 +30,7 @@
 #include <Ice/TraceLevelsF.h>
 #include <Ice/OutgoingAsyncF.h>
 #include <Ice/EventHandler.h>
+#include <Ice/RequestHandler.h>
 #include <Ice/ResponseHandler.h>
 #include <Ice/Dispatcher.h>
 #include <Ice/ObserverHelper.h>
@@ -43,8 +44,7 @@ namespace IceInternal
 {
 
 class Outgoing;
-class BatchOutgoing;
-class OutgoingMessageCallback;
+class OutgoingBase;
 
 }
 
@@ -56,6 +56,7 @@ class LocalException;
 class ConnectionI : public Connection,
                     public IceInternal::EventHandler,
                     public IceInternal::ResponseHandler,
+                    public IceInternal::CancellationHandler,
                     public IceUtil::Monitor<IceUtil::Mutex>
 {
     class Observer : public IceInternal::ObserverHelperT<Ice::Instrumentation::ConnectionObserver>
@@ -89,7 +90,7 @@ public:
         {
         }
 
-        OutgoingMessage(IceInternal::OutgoingMessageCallback* o, IceInternal::BasicStream* str, bool comp, int rid) :
+        OutgoingMessage(IceInternal::OutgoingBase* o, IceInternal::BasicStream* str, bool comp, int rid) :
             stream(str), out(o), compress(comp), requestId(rid), adopted(false)
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
             , isSent(false), invokeSent(false), receivedReply(false)
@@ -97,7 +98,7 @@ public:
         {
         }
 
-        OutgoingMessage(const IceInternal::OutgoingAsyncMessageCallbackPtr& o, IceInternal::BasicStream* str,
+        OutgoingMessage(const IceInternal::OutgoingAsyncBasePtr& o, IceInternal::BasicStream* str,
                         bool comp, int rid) :
             stream(str), out(0), outAsync(o), compress(comp), requestId(rid), adopted(false)
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
@@ -107,13 +108,13 @@ public:
         }
 
         void adopt(IceInternal::BasicStream*);
-        void timedOut(bool);
+        void canceled(bool);
         bool sent();
-        void finished(const Ice::LocalException&);
+        void completed(const Ice::LocalException&);
 
         IceInternal::BasicStream* stream;
-        IceInternal::OutgoingMessageCallback* out;
-        IceInternal::OutgoingAsyncMessageCallbackPtr outAsync;
+        IceInternal::OutgoingBase* out;
+        IceInternal::OutgoingAsyncBasePtr outAsync;
         bool compress;
         int requestId;
         bool adopted;
@@ -178,8 +179,8 @@ public:
 
     virtual void end_flushBatchRequests(const AsyncResultPtr&);
 
-    bool flushBatchRequests(IceInternal::BatchOutgoing*);
-    IceInternal::AsyncStatus flushAsyncBatchRequests(const IceInternal::BatchOutgoingAsyncPtr&);
+    bool flushBatchRequests(IceInternal::OutgoingBase*);
+    IceInternal::AsyncStatus flushAsyncBatchRequests(const IceInternal::OutgoingAsyncBasePtr&);
 
     virtual void setCallback(const ConnectionCallbackPtr&);
     virtual void setACM(const IceUtil::Optional<int>&,
@@ -187,8 +188,8 @@ public:
                         const IceUtil::Optional<ACMHeartbeat>&);
     virtual ACM getACM();
 
-    void requestTimedOut(IceInternal::OutgoingMessageCallback*);
-    void asyncRequestTimedOut(const IceInternal::OutgoingAsyncMessageCallbackPtr&);
+    virtual void requestCanceled(IceInternal::OutgoingBase*, const LocalException&);
+    virtual void asyncRequestCanceled(const IceInternal::OutgoingAsyncBasePtr&, const LocalException&);
 
     virtual void sendResponse(Int, IceInternal::BasicStream*, Byte);
     virtual void sendNoResponse();

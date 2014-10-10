@@ -57,6 +57,7 @@ SLICE_OBJS	= BuiltinSequences.o \
 OBJS		= Acceptor.o \
 		  ACM.o \
 		  Application.o \
+	 	  AsyncResult.o \
 		  Base64.o \
 		  BasicStream.o \
 		  Buffer.o \

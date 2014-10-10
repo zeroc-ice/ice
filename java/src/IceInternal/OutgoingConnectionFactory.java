@@ -265,7 +265,7 @@ public final class OutgoingConnectionFactory
     }
 
     public void
-    flushAsyncBatchRequests(CommunicatorBatchOutgoingAsync outAsync)
+    flushAsyncBatchRequests(CommunicatorFlushBatch outAsync)
     {
         java.util.List<Ice.ConnectionI> c = new java.util.LinkedList<Ice.ConnectionI>();
 

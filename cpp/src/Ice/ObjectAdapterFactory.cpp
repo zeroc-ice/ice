@@ -211,7 +211,7 @@ IceInternal::ObjectAdapterFactory::removeObjectAdapter(const ObjectAdapterPtr& a
 }
 
 void
-IceInternal::ObjectAdapterFactory::flushAsyncBatchRequests(const CommunicatorBatchOutgoingAsyncPtr& outAsync) const
+IceInternal::ObjectAdapterFactory::flushAsyncBatchRequests(const CommunicatorFlushBatchPtr& outAsync) const
 {
     list<ObjectAdapterIPtr> adapters;
     {

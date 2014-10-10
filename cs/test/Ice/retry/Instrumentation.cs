@@ -129,8 +129,14 @@ public class Instrumentation
     static private void
     testEqual(ref int value, int expected)
     {
+        if(expected < 0)
+        {
+            value = 0;
+            return;
+        }
+
         int retry = 0;
-        while(retry < 100)
+        while(++retry < 100)
         {
             lock(mutex)
             {
@@ -147,6 +153,7 @@ public class Instrumentation
             System.Diagnostics.Debug.Assert(false);
             throw new System.Exception();
         }
+        value = 0;
     }
     
     static public void

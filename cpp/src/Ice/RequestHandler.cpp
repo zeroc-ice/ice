@@ -14,6 +14,7 @@ using namespace std;
 using namespace IceInternal;
 
 IceUtil::Shared* IceInternal::upCast(RequestHandler* p) { return p; }
+IceUtil::Shared* IceInternal::upCast(CancellationHandler* p) { return p; }
 
 RetryException::RetryException(const Ice::LocalException& ex)
 {
@@ -30,10 +31,6 @@ RetryException::get() const
 {
     assert(_ex.get());
     return _ex.get();
-}
-
-RequestHandler::~RequestHandler()
-{
 }
 
 RequestHandler::RequestHandler(const ReferencePtr& reference) :

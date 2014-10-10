@@ -37,7 +37,7 @@ public class Client
             initData.properties = Ice.Util.createProperties(ref args);
             initData.observer = Instrumentation.getObserver();
 
-            initData.properties.setProperty("Ice.RetryIntervals", "0 10 20 30");
+            initData.properties.setProperty("Ice.RetryIntervals", "0 1 100 1");
 
             //
             // This test kills connections, so we don't want warnings.

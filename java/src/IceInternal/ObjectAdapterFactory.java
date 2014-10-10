@@ -218,7 +218,7 @@ public final class ObjectAdapterFactory
     }
 
     public void
-    flushAsyncBatchRequests(CommunicatorBatchOutgoingAsync outAsync)
+    flushAsyncBatchRequests(CommunicatorFlushBatch outAsync)
     {
         java.util.List<Ice.ObjectAdapterI> adapters;
         synchronized(this)

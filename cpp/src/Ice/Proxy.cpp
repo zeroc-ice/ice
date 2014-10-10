@@ -217,15 +217,15 @@ IceProxy::Ice::Object::begin_ice_isA(const string& typeId,
     OutgoingAsyncPtr __result = new OutgoingAsync(this, ice_isA_name, del, cookie);
     try
     {
-        __result->__prepare(ice_isA_name, Nonmutating, ctx);
-        IceInternal::BasicStream* __os = __result->__startWriteParams(DefaultFormat);
+        __result->prepare(ice_isA_name, Nonmutating, ctx);
+        IceInternal::BasicStream* __os = __result->startWriteParams(DefaultFormat);
         __os->write(typeId);
-        __result->__endWriteParams();
-        __result->__invoke(true);
+        __result->endWriteParams();
+        __result->invoke();
     }
     catch(const Exception& __ex)
     {
-        __result->__invokeExceptionAsync(__ex);
+        __result->abort(__ex);
     }
     return __result;
 }
@@ -233,12 +233,11 @@ IceProxy::Ice::Object::begin_ice_isA(const string& typeId,
 #ifdef ICE_CPP11
 
 Ice::AsyncResultPtr
-IceProxy::Ice::Object::__begin_ice_isA(
-    const ::std::string& typeId,
-    const ::Ice::Context* ctx,
-    const ::IceInternal::Function<void (bool)>& response,
-    const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception,
-    const ::IceInternal::Function<void (bool)>& sent)
+IceProxy::Ice::Object::__begin_ice_isA(const ::std::string& typeId,
+                                       const ::Ice::Context* ctx,
+                                       const ::IceInternal::Function<void (bool)>& response,
+                                       const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception,
+                                       const ::IceInternal::Function<void (bool)>& sent)
 {
     class Cpp11CB : public ::IceInternal::Cpp11FnCallbackNC
     {
@@ -281,11 +280,10 @@ IceProxy::Ice::Object::__begin_ice_isA(
 }
 
 Ice::AsyncResultPtr
-IceProxy::Ice::Object::__begin_ice_id(
-    const ::Ice::Context* ctx,
-    const ::IceInternal::Function<void (const ::std::string&)>& response,
-    const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception,
-    const ::IceInternal::Function<void (bool)>& sent)
+IceProxy::Ice::Object::__begin_ice_id(const ::Ice::Context* ctx,
+                                      const ::IceInternal::Function<void (const ::std::string&)>& response,
+                                      const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception,
+                                      const ::IceInternal::Function<void (bool)>& sent)
 {
     class Cpp11CB : public ::IceInternal::Cpp11FnCallbackNC
     {
@@ -573,13 +571,13 @@ IceProxy::Ice::Object::begin_ice_ping(const Context* ctx,
     OutgoingAsyncPtr __result = new OutgoingAsync(this, ice_ping_name, del, cookie);
     try
     {
-        __result->__prepare(ice_ping_name, Nonmutating, ctx);
-        __result->__writeEmptyParams();
-        __result->__invoke(true);
+        __result->prepare(ice_ping_name, Nonmutating, ctx);
+        __result->writeEmptyParams();
+        __result->invoke();
     }
     catch(const Exception& __ex)
     {
-        __result->__invokeExceptionAsync(__ex);
+        __result->abort(__ex);
     }
     return __result;
 }
@@ -647,13 +645,13 @@ IceProxy::Ice::Object::begin_ice_ids(const Context* ctx,
     OutgoingAsyncPtr __result = new OutgoingAsync(this, ice_ids_name, del, cookie);
     try
     {
-        __result->__prepare(ice_ids_name, Nonmutating, ctx);
-        __result->__writeEmptyParams();
-        __result->__invoke(true);
+        __result->prepare(ice_ids_name, Nonmutating, ctx);
+        __result->writeEmptyParams();
+        __result->invoke();
     }
     catch(const Exception& __ex)
     {
-        __result->__invokeExceptionAsync(__ex);
+        __result->abort(__ex);
     }
     return __result;
 }
@@ -690,13 +688,13 @@ IceProxy::Ice::Object::begin_ice_id(const Context* ctx,
     OutgoingAsyncPtr __result = new OutgoingAsync(this, ice_id_name, del, cookie);
     try
     {
-        __result->__prepare(ice_id_name, Nonmutating, ctx);
-        __result->__writeEmptyParams();
-        __result->__invoke(true);
+        __result->prepare(ice_id_name, Nonmutating, ctx);
+        __result->writeEmptyParams();
+        __result->invoke();
     }
     catch(const Exception& __ex)
     {
-        __result->__invokeExceptionAsync(__ex);
+        __result->abort(__ex);
     }
     return __result;
 }
@@ -818,13 +816,13 @@ IceProxy::Ice::Object::begin_ice_invoke(const string& operation,
     OutgoingAsyncPtr __result = new OutgoingAsync(this, ice_invoke_name, del, cookie);
     try
     {
-        __result->__prepare(operation, mode, ctx);
-        __result->__writeParamEncaps(inEncaps.first, static_cast<Int>(inEncaps.second - inEncaps.first));
-        __result->__invoke(true);
+        __result->prepare(operation, mode, ctx);
+        __result->writeParamEncaps(inEncaps.first, static_cast<Int>(inEncaps.second - inEncaps.first));
+        __result->invoke();
     }
     catch(const Exception& __ex)
     {
-        __result->__invokeExceptionAsync(__ex);
+        __result->abort(__ex);
     }
     return __result;
 }
@@ -1389,17 +1387,16 @@ AsyncResultPtr
 IceProxy::Ice::Object::begin_ice_getConnectionInternal(const ::IceInternal::CallbackBasePtr& del,
                                                        const ::Ice::LocalObjectPtr& cookie)
 {
-    ::IceInternal::GetConnectionOutgoingAsyncPtr __result =
-        new ::IceInternal::GetConnectionOutgoingAsync(this, ice_getConnection_name, del, cookie);
+    ProxyGetConnectionPtr result = new ProxyGetConnection(this, ice_getConnection_name, del, cookie);
     try
     {
-        __result->__invoke();
+        result->invoke();
     }
-    catch(const Exception& __ex)
+    catch(const Exception& ex)
     {
-        __result->__invokeExceptionAsync(__ex);
+        result->abort(ex);
     }
-    return __result;
+    return result;
 }
 
 ConnectionPtr
@@ -1435,32 +1432,31 @@ IceProxy::Ice::Object::ice_getCachedConnection() const
 void
 IceProxy::Ice::Object::ice_flushBatchRequests()
 {
-    BatchOutgoing __og(this, ice_flushBatchRequests_name);
-    __og.invoke();
+    FlushBatch og(this, ice_flushBatchRequests_name);
+    og.invoke();
 }
 
 ::Ice::AsyncResultPtr
 IceProxy::Ice::Object::begin_ice_flushBatchRequestsInternal(const ::IceInternal::CallbackBasePtr& del,
                                                             const ::Ice::LocalObjectPtr& cookie)
 {
-    ::IceInternal::ProxyBatchOutgoingAsyncPtr __result =
-        new ::IceInternal::ProxyBatchOutgoingAsync(this, ice_flushBatchRequests_name, del, cookie);
+    ProxyFlushBatchPtr result = new ProxyFlushBatch(this, ice_flushBatchRequests_name, del, cookie);
     try
     {
-        __result->__invoke();
+        result->invoke();
     }
-    catch(const Exception& __ex)
+    catch(const Exception& ex)
     {
-        __result->__invokeExceptionAsync(__ex);
+        result->abort(ex);
     }
-    return __result;
+    return result;
 }
 
 void
-IceProxy::Ice::Object::end_ice_flushBatchRequests(const AsyncResultPtr& __result)
+IceProxy::Ice::Object::end_ice_flushBatchRequests(const AsyncResultPtr& result)
 {
-    AsyncResult::__check(__result, this, ice_flushBatchRequests_name);
-    __result->__wait();
+    AsyncResult::__check(result, this, ice_flushBatchRequests_name);
+    result->__wait();
 }
 
 Int

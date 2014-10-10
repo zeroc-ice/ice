@@ -69,17 +69,17 @@ public class ConnectionRequestHandler implements RequestHandler
     }
 
     @Override
-    public int sendAsyncRequest(OutgoingAsyncMessageCallback out)
+    public int sendAsyncRequest(OutgoingAsyncBase out)
         throws RetryException
     {
         return out.send(_connection, _compress, _response);
     }
 
     @Override
-    public boolean
-    asyncRequestCanceled(OutgoingAsyncMessageCallback outgoingAsync, Ice.LocalException ex)
+    public void
+    asyncRequestCanceled(OutgoingAsyncBase outgoingAsync, Ice.LocalException ex)
     {
-        return _connection.asyncRequestCanceled(outgoingAsync, ex);
+        _connection.asyncRequestCanceled(outgoingAsync, ex);
     }
 
     @Override
@@ -103,8 +103,8 @@ public class ConnectionRequestHandler implements RequestHandler
         return _connection;
     }
 
-    public ConnectionRequestHandler(Reference ref, Ice.ConnectionI connection,
-            boolean compress) {
+    public ConnectionRequestHandler(Reference ref, Ice.ConnectionI connection, boolean compress) 
+    {
         _reference = ref;
         _response = _reference.getMode() == Reference.ModeTwoway;
         _connection = connection;

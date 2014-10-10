@@ -91,27 +91,27 @@ ConnectionRequestHandler::abortBatchRequest()
 }
 
 bool
-ConnectionRequestHandler::sendRequest(OutgoingMessageCallback* out)
+ConnectionRequestHandler::sendRequest(OutgoingBase* out)
 {
     return out->send(_connection, _compress, _response) && !_response; // Finished if sent and no response
 }
 
 AsyncStatus
-ConnectionRequestHandler::sendAsyncRequest(const OutgoingAsyncMessageCallbackPtr& out)
+ConnectionRequestHandler::sendAsyncRequest(const OutgoingAsyncBasePtr& out)
 {
-    return out->__send(_connection, _compress, _response);
+    return out->send(_connection, _compress, _response);
 }
 
 void
-ConnectionRequestHandler::requestTimedOut(OutgoingMessageCallback* out)
+ConnectionRequestHandler::requestCanceled(OutgoingBase* out, const Ice::LocalException& ex)
 {
-    _connection->requestTimedOut(out);
+    _connection->requestCanceled(out, ex);
 }
 
 void
-ConnectionRequestHandler::asyncRequestTimedOut(const OutgoingAsyncMessageCallbackPtr& outAsync)
+ConnectionRequestHandler::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, const Ice::LocalException& ex)
 {
-    _connection->asyncRequestTimedOut(outAsync);
+    _connection->asyncRequestCanceled(outAsync, ex);
 }
 
 Ice::ConnectionIPtr

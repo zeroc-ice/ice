@@ -1983,6 +1983,14 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 test(r->isSent());
                 test(r->isCompleted());
                 test(p->waitForBatch(2));
+
+                // Ensure it also works with a twoway proxy
+                cb = new FlushCallback();
+                r = p->ice_getConnection()->begin_flushBatchRequests(
+                    Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync));
+                cb->check();
+                test(r->isSent());
+                test(r->isCompleted());
             }
 
             {
@@ -2656,6 +2664,73 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 test(!r->getProxy()); // Expected
                 communicator->end_flushBatchRequests(r);
             }
+        }
+
+        if(p->ice_getConnection())
+        {
+            testController->holdAdapter();
+
+            Ice::AsyncResultPtr r;
+            Ice::ByteSeq seq;
+            seq.resize(1024); // Make sure the request doesn't compress too well.
+            for(Ice::ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
+            {
+                *q = static_cast<Ice::Byte>(IceUtilInternal::random(255));
+            }
+            while((r = p->begin_opWithPayload(seq))->sentSynchronously());
+
+            test(!r->isSent());
+
+            Ice::AsyncResultPtr r1 = p->begin_ice_ping();
+            Ice::AsyncResultPtr r2 = p->begin_ice_id();
+            r1->cancel();
+            r2->cancel();
+            try
+            {
+                p->end_ice_ping(r1);
+                test(false);
+            }
+            catch(const Ice::InvocationCanceledException&)
+            {
+            }
+            try
+            {
+                p->end_ice_id(r2);
+                test(false);
+            }
+            catch(const Ice::InvocationCanceledException&)
+            {
+            }
+
+            testController->resumeAdapter();
+            p->ice_ping();
+            test(!r1->isSent() && r1->isCompleted());
+            test(!r2->isSent() && r2->isCompleted());
+            
+            testController->holdAdapter();
+            r1 = p->begin_op();
+            r2 = p->begin_ice_id();
+            r1->waitForSent();
+            r2->waitForSent();
+            r1->cancel();
+            r2->cancel();
+            try
+            {
+                p->end_op(r1);
+                test(false);
+            }
+            catch(const Ice::InvocationCanceledException&)
+            {
+            }
+            try
+            {
+                p->end_ice_id(r2);
+                test(false);
+            }
+            catch(const Ice::InvocationCanceledException&)
+            {
+            }
+            testController->resumeAdapter();
         }
     }
     cout << "ok" << endl;

@@ -11,13 +11,6 @@
 #include <TestI.h>
 #include <SystemFailure.h>
 
-namespace
-{
-
-const int nRetry = 4; // See Ice.RetryIntervals configuration in Client.cpp/Collocated.cpp
-
-}
-
 RetryI::RetryI() : _counter(0)
 {
 }
@@ -39,9 +32,15 @@ RetryI::op(bool kill, const Ice::Current& current)
 }
 
 int
-RetryI::opIdempotent(int counter, const Ice::Current& current)
+RetryI::opIdempotent(int nRetry, const Ice::Current& current)
 {
-    if(counter + nRetry > _counter)
+    if(nRetry < 0)
+    {
+        _counter = 0;
+        return 0;
+    }
+
+    if(nRetry > _counter)
     {
         ++_counter;
         if(current.con)
@@ -52,19 +51,16 @@ RetryI::opIdempotent(int counter, const Ice::Current& current)
         {
             throw Ice::ConnectionLostException(__FILE__, __LINE__);
         }
+        return 0;
     }
-    return _counter;
+    int counter = _counter;
+    _counter = 0;
+    return counter;
 }
 
 void
-RetryI::opNotIdempotent(int counter, const Ice::Current& current)
+RetryI::opNotIdempotent(const Ice::Current& current)
 {
-    if(_counter != counter)
-    {
-        return;
-    }
-
-    ++_counter;
     if(current.con)
     {
         current.con->close(true);

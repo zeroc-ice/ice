@@ -15,6 +15,8 @@
 #include <Ice/Stream.h>
 #include <IceUtil/OutputUtil.h>
 
+#include <set>
+
 namespace IcePy
 {
 

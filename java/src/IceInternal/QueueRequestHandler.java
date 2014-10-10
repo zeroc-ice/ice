@@ -124,7 +124,7 @@ public class QueueRequestHandler implements RequestHandler
 
     @Override
     public int
-    sendAsyncRequest(final OutgoingAsyncMessageCallback out) throws RetryException
+    sendAsyncRequest(final OutgoingAsyncBase out) throws RetryException
     {
         try
         {
@@ -148,15 +148,16 @@ public class QueueRequestHandler implements RequestHandler
     }
 
     @Override
-    public boolean
-    asyncRequestCanceled(final OutgoingAsyncMessageCallback outAsync, final Ice.LocalException ex)
+    public void
+    asyncRequestCanceled(final OutgoingAsyncBase outAsync, final Ice.LocalException ex)
     {
-        return performCallable(new Callable<Boolean>()
+        performCallable(new Callable<Void>()
         {
             @Override
-            public Boolean call()
+            public Void call()
             {
-                return _delegate.asyncRequestCanceled(outAsync, ex);
+                _delegate.asyncRequestCanceled(outAsync, ex);
+                return null;
             }
         });
     }

@@ -16,6 +16,8 @@
 #include <IceGrid/Query.h>
 #include <IceGrid/Internal.h>
 
+#include <set>
+
 namespace IceGrid
 {
 

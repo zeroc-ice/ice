@@ -705,7 +705,7 @@ namespace Ice
             }
         }
 
-        public void flushAsyncBatchRequests(IceInternal.CommunicatorBatchOutgoingAsync outAsync)
+        public void flushAsyncBatchRequests(IceInternal.CommunicatorFlushBatch outAsync)
         {
             List<IceInternal.IncomingConnectionFactory> f;
             lock(this)

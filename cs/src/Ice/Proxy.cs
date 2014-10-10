@@ -789,8 +789,7 @@ namespace Ice
 
         public bool end_ice_isA(AsyncResult r__)
         {
-            IceInternal.OutgoingAsync outAsync__ = (IceInternal.OutgoingAsync)r__;
-            IceInternal.OutgoingAsync.check(outAsync__, this, __ice_isA_name);
+            IceInternal.OutgoingAsync outAsync__ = IceInternal.OutgoingAsync.check(r__, this, __ice_isA_name);
             try
             {
                 if(!outAsync__.wait())
@@ -841,11 +840,11 @@ namespace Ice
                 IceInternal.BasicStream os__ = result__.startWriteParams(FormatType.DefaultFormat);
                 os__.writeString(id);
                 result__.endWriteParams();
-                result__.invoke(true);
+                result__.invoke();
             }
             catch(Ice.Exception ex__)
             {
-                result__.invokeExceptionAsync(ex__);
+                result__.abort(ex__);
             }
             return result__;
         }
@@ -1014,11 +1013,11 @@ namespace Ice
             {
                 result__.prepare(__ice_ping_name, OperationMode.Nonmutating, context__, explicitCtx__, synchronous__);
                 result__.writeEmptyParams();
-                result__.invoke(true);
+                result__.invoke();
             }
             catch(Ice.Exception ex__)
             {
-                result__.invokeExceptionAsync(ex__);
+                result__.abort(ex__);
             }
             return result__;
         }
@@ -1083,8 +1082,7 @@ namespace Ice
 
         public string[] end_ice_ids(AsyncResult r__)
         {
-            IceInternal.OutgoingAsync outAsync__ = (IceInternal.OutgoingAsync)r__;
-            IceInternal.OutgoingAsync.check(outAsync__, this, __ice_ids_name);
+            IceInternal.OutgoingAsync outAsync__ = IceInternal.OutgoingAsync.check(r__, this, __ice_ids_name);
             try
             {
                 if(!outAsync__.wait())
@@ -1132,11 +1130,11 @@ namespace Ice
             {
                 result__.prepare(__ice_ids_name, OperationMode.Nonmutating, context__, explicitCtx__, synchronous__);
                 result__.writeEmptyParams();
-                result__.invoke(true);
+                result__.invoke();
             }
             catch(Ice.Exception ex__)
             {
-                result__.invokeExceptionAsync(ex__);
+                result__.abort(ex__);
             }
             return result__;
         }
@@ -1211,8 +1209,7 @@ namespace Ice
 
         public string end_ice_id(AsyncResult r__)
         {
-            IceInternal.OutgoingAsync outAsync__ = (IceInternal.OutgoingAsync)r__;
-            IceInternal.OutgoingAsync.check(outAsync__, this, __ice_id_name);
+            IceInternal.OutgoingAsync outAsync__ = IceInternal.OutgoingAsync.check(r__, this, __ice_id_name);
             try
             {
                 if(!outAsync__.wait())
@@ -1260,11 +1257,11 @@ namespace Ice
             {
                 result__.prepare(__ice_id_name, OperationMode.Nonmutating, context__, explicitCtx__, synchronous__);
                 result__.writeEmptyParams();
-                result__.invoke(true);
+                result__.invoke();
             }
             catch(Ice.Exception ex__)
             {
-                result__.invokeExceptionAsync(ex__);
+                result__.abort(ex__);
             }
             return result__;
         }
@@ -1365,8 +1362,7 @@ namespace Ice
 
         public bool end_ice_invoke(out byte[] outEncaps, AsyncResult r__)
         {
-            IceInternal.OutgoingAsync outAsync__ = (IceInternal.OutgoingAsync)r__;
-            IceInternal.OutgoingAsync.check(outAsync__, this, __ice_invoke_name);
+            IceInternal.OutgoingAsync outAsync__ = IceInternal.OutgoingAsync.check(r__, this, __ice_invoke_name);
             try
             {
                 bool ok = outAsync__.wait();
@@ -1410,11 +1406,11 @@ namespace Ice
             {
                 result__.prepare(operation, mode, context__, explicitCtx__, synchronous__);
                 result__.writeParamEncaps(inEncaps);
-                result__.invoke(true);
+                result__.invoke();
             }
             catch(Ice.Exception ex__)
             {
-                result__.invokeExceptionAsync(ex__);
+                result__.abort(ex__);
             }
             return result__;
         }
@@ -2126,60 +2122,63 @@ namespace Ice
 
         internal const string __ice_getConnection_name = "ice_getConnection";
 
-        public AsyncResult begin_ice_getConnection(Ice.AsyncCallback cb__, object cookie__)
+        public AsyncResult begin_ice_getConnection(Ice.AsyncCallback cb, object cookie)
         {
-            return begin_ice_getConnectionInternal(cb__, cookie__);
+            return begin_ice_getConnectionInternal(cb, cookie);
         }
 
-        public Connection end_ice_getConnection(Ice.AsyncResult r__)
+        public Connection end_ice_getConnection(Ice.AsyncResult r)
         {
-            IceInternal.GetConnectionOutgoingAsync outAsync__ = (IceInternal.GetConnectionOutgoingAsync)r__;
-            IceInternal.GetConnectionOutgoingAsync.check(outAsync__, this, __ice_getConnection_name);
-            outAsync__.wait();
+            IceInternal.ProxyGetConnection outAsync = 
+                IceInternal.ProxyGetConnection.check(r, this, __ice_getConnection_name);
+            outAsync.wait();
             return ice_getCachedConnection();
         }
 
-        private AsyncResult<Callback_Object_ice_getConnection> begin_ice_getConnectionInternal(Ice.AsyncCallback cb__,
-                                                                                               object cookie__)
+        private AsyncResult<Callback_Object_ice_getConnection> begin_ice_getConnectionInternal(Ice.AsyncCallback cb,
+                                                                                               object cookie)
         {
-            IceInternal.GetConnectionOutgoingAsync result__ =
-                new IceInternal.GetConnectionOutgoingAsync(this, __ice_getConnection_name,
-                                                           ice_getConnection_completed__, cookie__);
-            if(cb__ != null)
+            IceInternal.ProxyGetConnection result = new IceInternal.ProxyGetConnection(this, 
+                                                                                       __ice_getConnection_name, 
+                                                                                       ice_getConnection_completed__, 
+                                                                                       cookie);
+            if(cb != null)
             {
-                result__.whenCompletedWithAsyncCallback(cb__);
+                result.whenCompletedWithAsyncCallback(cb);
             }
             try
             {
-                result__.invoke();
+                result.invoke();
             }
-            catch(Ice.Exception ex__)
+            catch(Ice.Exception ex)
             {
-                result__.invokeExceptionAsync(ex__);
+                result.abort(ex);
             }
-            return result__;
+            return result;
         }
 
-        private void ice_getConnection_completed__(AsyncResult r__,
-                                                   Callback_Object_ice_getConnection cb__,
-                                                   Ice.ExceptionCallback excb__)
+
+
+        private void ice_getConnection_completed__(AsyncResult r,
+                                                   Callback_Object_ice_getConnection cb,
+                                                   Ice.ExceptionCallback excb)
         {
-            Connection ret__;
+            Connection ret;
             try
             {
-                ret__ = end_ice_getConnection(r__);
+                ret = end_ice_getConnection(r);
             }
-            catch(Ice.Exception ex__)
+            catch(Ice.Exception ex)
             {
-                if(excb__ != null)
+                if(excb != null)
                 {
-                    excb__(ex__);
+                    excb(ex);
                 }
                 return;
             }
-            if(cb__ != null)
+            if(cb != null)
             {
-                cb__(ret__);
+                cb(ret);
             }
         }
 
@@ -2227,30 +2226,31 @@ namespace Ice
             return begin_ice_flushBatchRequests(null, null);
         }
 
-        public AsyncResult begin_ice_flushBatchRequests(Ice.AsyncCallback cb__, object cookie__)
+        public AsyncResult begin_ice_flushBatchRequests(Ice.AsyncCallback cb, object cookie)
         {
-            IceInternal.ProxyBatchOutgoingAsync result__ =
-                new IceInternal.ProxyBatchOutgoingAsync(this, __ice_flushBatchRequests_name, cookie__);
-            if(cb__ != null)
+            IceInternal.ProxyFlushBatch result = new IceInternal.ProxyFlushBatch(this, 
+                                                                                 __ice_flushBatchRequests_name, 
+                                                                                 cookie);
+            if(cb != null)
             {
-                result__.whenCompletedWithAsyncCallback(cb__);
+                result.whenCompletedWithAsyncCallback(cb);
             }
             try
             {
-                result__.invoke();
+                result.invoke();
             }
-            catch(Ice.Exception ex__)
+            catch(Ice.Exception ex)
             {
-                result__.invokeExceptionAsync(ex__);
+                result.abort(ex);
             }
-            return result__;
+            return result;
         }
 
-        public void end_ice_flushBatchRequests(Ice.AsyncResult r__)
+        public void end_ice_flushBatchRequests(Ice.AsyncResult r)
         {
-            IceInternal.BatchOutgoingAsync outAsync__ = (IceInternal.BatchOutgoingAsync)r__;
-            IceInternal.BatchOutgoingAsync.check(outAsync__, this, __ice_flushBatchRequests_name);
-            outAsync__.wait();
+            IceInternal.ProxyFlushBatch outAsync = 
+                IceInternal.ProxyFlushBatch.check(r, this, __ice_flushBatchRequests_name);
+            outAsync.wait();
         }
 
         /// <summary>
@@ -2389,15 +2389,15 @@ namespace Ice
             }
         }
 
-        public void end__(AsyncResult result, string operation)
+        public void end__(AsyncResult r, string operation)
         {
-            IceInternal.OutgoingAsync outAsync = (IceInternal.OutgoingAsync)result;
-            IceInternal.OutgoingAsync.check(outAsync, this, operation);
+            IceInternal.ProxyOutgoingAsyncBase result = IceInternal.ProxyOutgoingAsyncBase.check(r, this, operation);
             try
             {
-                bool ok = outAsync.wait();
+                bool ok = result.wait();
                 if(_reference.getMode() == IceInternal.Reference.Mode.ModeTwoway)
                 {
+                    IceInternal.OutgoingAsync outAsync = (IceInternal.OutgoingAsync)result;
                     if(!ok)
                     {
                         try
@@ -2414,9 +2414,9 @@ namespace Ice
             }
             finally
             {
-                if(outAsync != null)
+                if(result != null)
                 {
-                    outAsync.cacheMessageBuffers();
+                    result.cacheMessageBuffers();
                 }
             }
         }

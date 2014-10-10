@@ -35,38 +35,63 @@ namespace IceInternal
 
 class CollocatedRequestHandler; // Forward declaration
 
-class ICE_API OutgoingMessageCallback : private IceUtil::noncopyable
+class ICE_API OutgoingBase : private IceUtil::noncopyable
 {
 public:
 
-    virtual ~OutgoingMessageCallback() { }
+    virtual ~OutgoingBase() { }
  
     virtual bool send(const Ice::ConnectionIPtr&, bool, bool) = 0;
     virtual void invokeCollocated(CollocatedRequestHandler*) = 0;
 
     virtual void sent() = 0;
-    virtual void finished(const Ice::Exception&) = 0;
+    virtual void completed(const Ice::Exception&) = 0;
+
+    BasicStream* os() { return &_os; }
+
+    void attachRemoteObserver(const Ice::ConnectionInfoPtr& c, const Ice::EndpointPtr& endpt, Ice::Int requestId)
+    {
+        const Ice::Int size = static_cast<Ice::Int>(_os.b.size() - IceInternal::headerSize - 4);
+        _childObserver.attach(_observer.getRemoteObserver(c, endpt, requestId, size));
+    }
+
+    void attachCollocatedObserver(const Ice::ObjectAdapterPtr& adapter, Ice::Int requestId)
+    {
+        const Ice::Int size = static_cast<Ice::Int>(_os.b.size() - IceInternal::headerSize - 4);
+        _childObserver.attach(_observer.getCollocatedObserver(adapter, requestId, size));
+    }
+
+protected:
+
+    OutgoingBase(Instance*, const std::string&);
+
+    BasicStream _os;
+    IceUtil::UniquePtr<Ice::Exception> _exception;
+    bool _sent;
+    InvocationObserver _observer;
+    ObserverHelperT<Ice::Instrumentation::ChildInvocationObserver> _childObserver;
+
+    IceUtil::Monitor<IceUtil::Mutex> _monitor;
 };
 
-class ICE_API Outgoing : public OutgoingMessageCallback
+class ICE_API Outgoing : public OutgoingBase
 {
 public:
 
     Outgoing(IceProxy::Ice::Object*, const std::string&, Ice::OperationMode, const Ice::Context*);
     ~Outgoing();
 
-    bool invoke(); // Returns true if ok, false if user exception.
-    void abort(const Ice::LocalException&);
-
     virtual bool send(const Ice::ConnectionIPtr&, bool, bool);
     virtual void invokeCollocated(CollocatedRequestHandler*);
-    virtual void sent();
-    virtual void finished(const Ice::Exception&);
 
-    void finished(BasicStream&);
+    virtual void sent();
+    virtual void completed(const Ice::Exception&);
+
+    bool invoke(); // Returns true if ok, false if user exception.
+    void abort(const Ice::LocalException&);
+    void completed(BasicStream&);
 
     // Inlined for speed optimization.
-    BasicStream* os() { return &_os; }
     BasicStream* startReadParams()
     {
         _is.startReadEncaps();
@@ -117,20 +142,6 @@ public:
 
     void throwUserException();
 
-    void attachRemoteObserver(const Ice::ConnectionInfoPtr& c, const Ice::EndpointPtr& endpt,
-                              Ice::Int requestId, Ice::Int size)
-    {
-        _childObserver.attach(_observer.getRemoteObserver(c, endpt, requestId, size));
-    }
-
-    void attachCollocatedObserver(const Ice::ObjectAdapterPtr& adapter, Ice::Int requestId)
-    {
-        _childObserver.attach(_observer.getCollocatedObserver(adapter, 
-                                                               requestId, 
-                                                               static_cast<Ice::Int>(_os.b.size() - 
-                                                                                     IceInternal::headerSize - 4)));
-    }
-
 private:
 
     //
@@ -140,9 +151,7 @@ private:
     IceProxy::Ice::Object* _proxy;
     Ice::OperationMode _mode;
     RequestHandlerPtr _handler;
-    IceUtil::UniquePtr<Ice::Exception> _exception;
-    InvocationObserver _observer;
-    ObserverHelperT<Ice::Instrumentation::ChildInvocationObserver> _childObserver;
+    IceUtil::Time _invocationTimeoutDeadline;
 
     enum
     {
@@ -156,60 +165,27 @@ private:
 
     Ice::EncodingVersion _encoding;
     BasicStream _is;
-    BasicStream _os;
-    bool _sent;
-
-    //
-    // NOTE: we use an attribute for the monitor instead of inheriting
-    // from the monitor template.  Otherwise, the template would be
-    // exported from the DLL on Windows and could cause linker errors
-    // because of multiple definition of IceUtil::Monitor<IceUtil::Mutex>, 
-    // see bug 1541.
-    //
-    IceUtil::Monitor<IceUtil::Mutex> _monitor;
 };
 
-class BatchOutgoing : public OutgoingMessageCallback
+class FlushBatch : public OutgoingBase
 {
 public:
 
-    BatchOutgoing(IceProxy::Ice::Object*, const std::string&);
-    BatchOutgoing(Ice::ConnectionI*, Instance*, const std::string&);
+    FlushBatch(IceProxy::Ice::Object*, const std::string&);
+    FlushBatch(Ice::ConnectionI*, Instance*, const std::string&);
     
     void invoke();
 
     virtual bool send(const Ice::ConnectionIPtr&, bool, bool);
     virtual void invokeCollocated(CollocatedRequestHandler*);
+
     virtual void sent();
-    virtual void finished(const Ice::Exception&);
-    
-    BasicStream* os() { return &_os; }
-
-    void attachRemoteObserver(const Ice::ConnectionInfoPtr& connection, const Ice::EndpointPtr& endpt, Ice::Int sz)
-    {
-        _childObserver.attach(_observer.getRemoteObserver(connection, endpt, 0, sz));
-    }
-
-    void attachCollocatedObserver(const Ice::ObjectAdapterPtr& adapter, Ice::Int requestId)
-    {
-        _childObserver.attach(_observer.getCollocatedObserver(adapter, 
-                                                               requestId, 
-                                                               static_cast<Ice::Int>(_os.b.size() - 
-                                                                                     IceInternal::headerSize - 4)));
-    }
+    virtual void completed(const Ice::Exception&);
 
 private:
 
-    IceUtil::Monitor<IceUtil::Mutex> _monitor;
     IceProxy::Ice::Object* _proxy;
     Ice::ConnectionI* _connection;
-    bool _sent;
-    IceUtil::UniquePtr<Ice::Exception> _exception;
-
-    BasicStream _os;
-
-    InvocationObserver _observer;
-    ObserverHelperT<Ice::Instrumentation::ChildInvocationObserver> _childObserver;
 };
 
 }

@@ -112,7 +112,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     retry1->op(false);
     cout << "ok" << endl;
 
-    int invocationCount = 3;
+    testInvocationCount(3);
 
     cout << "calling operation to kill connection with second proxy... " << flush;
     try
@@ -127,15 +127,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
     catch(const Ice::ConnectionLostException&)
     {
     }
-    testInvocationCount(invocationCount + 1);
+    testInvocationCount(1);
     testFailureCount(1);
     testRetryCount(0);
     cout << "ok" << endl;
 
     cout << "calling regular operation with first proxy again... " << flush;
     retry1->op(false);
-    testInvocationCount(invocationCount + 2);
-    testFailureCount(1);
+    testInvocationCount(1);
+    testFailureCount(0);
     testRetryCount(0);
     cout << "ok" << endl;
 
@@ -145,66 +145,66 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "calling regular AMI operation with first proxy... " << flush;
     retry1->begin_op(false, newCallback_Retry_op(cb1, &CallbackSuccess::response, &CallbackSuccess::exception));
     cb1->check();
-    testInvocationCount(invocationCount + 3);
-    testFailureCount(1);
+    testInvocationCount(1);
+    testFailureCount(0);
     testRetryCount(0);
     cout << "ok" << endl;
 
     cout << "calling AMI operation to kill connection with second proxy... " << flush;
     retry2->begin_op(true, newCallback_Retry_op(cb2, &CallbackFail::response, &CallbackFail::exception));
     cb2->check();
-    testInvocationCount(invocationCount + 4);
-    testFailureCount(2);
+    testInvocationCount(1);
+    testFailureCount(1);
     testRetryCount(0);
     cout << "ok" << endl;
 
     cout << "calling regular AMI operation with first proxy again... " << flush;
     retry1->begin_op(false, newCallback_Retry_op(cb1, &CallbackSuccess::response, &CallbackSuccess::exception));
     cb1->check();
-    testInvocationCount(invocationCount + 5);
-    testFailureCount(2);
+    testInvocationCount(1);
+    testFailureCount(0);
     testRetryCount(0);
     cout << "ok" << endl;
     
     cout << "testing idempotent operation... " << flush;
-    test(retry1->opIdempotent(0) == 4);
-    testInvocationCount(invocationCount + 6);
-    testFailureCount(2);
+    test(retry1->opIdempotent(4) == 4);
+    testInvocationCount(1);
+    testFailureCount(0);
     testRetryCount(4);
-    test(retry1->end_opIdempotent(retry1->begin_opIdempotent(4)) == 8);
-    testInvocationCount(invocationCount + 7);
-    testFailureCount(2);
-    testRetryCount(8);
+    test(retry1->end_opIdempotent(retry1->begin_opIdempotent(4)) == 4);
+    testInvocationCount(1);
+    testFailureCount(0);
+    testRetryCount(4);
     cout << "ok" << endl;
 
     cout << "testing non-idempotent operation... " << flush;
     try
     {
-        retry1->opNotIdempotent(8);
+        retry1->opNotIdempotent();
         test(false);
     }
     catch(const Ice::LocalException&)
     {
     }
-    testInvocationCount(invocationCount + 8);
-    testFailureCount(3);
-    testRetryCount(8);
+    testInvocationCount(1);
+    testFailureCount(1);
+    testRetryCount(0);
     try
     {
-        retry1->end_opNotIdempotent(retry1->begin_opNotIdempotent(9));
+        retry1->end_opNotIdempotent(retry1->begin_opNotIdempotent());
         test(false);
     }
     catch(const Ice::LocalException&)
     {
     }
-    testInvocationCount(invocationCount + 9);
-    testFailureCount(4);
-    testRetryCount(8);
+    testInvocationCount(1);
+    testFailureCount(1);
+    testRetryCount(0);
     cout << "ok" << endl;
 
     if(!retry1->ice_getConnection())
     {
-        invocationCount = invocationCount + 10;
+        testInvocationCount(-1);
         cout << "testing system exception... " << flush;
         try
         {
@@ -214,9 +214,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         catch(const SystemFailure&)
         {
         }
-        test(invocationCount + 1);
-        testFailureCount(5);
-        testRetryCount(8);
+        testInvocationCount(1);
+        testFailureCount(1);
+        testRetryCount(0);
         try
         {
             retry1->end_opSystemException(retry1->begin_opSystemException());
@@ -225,11 +225,38 @@ allTests(const Ice::CommunicatorPtr& communicator)
         catch(const SystemFailure&)
         {
         }
-        testInvocationCount(invocationCount + 2);
-        testFailureCount(6);
-        testRetryCount(8);
+        testInvocationCount(1);
+        testFailureCount(1);
+        testRetryCount(0);
         cout << "ok" << endl;
     }
+
+    cout << "testing invocation timeout and retries... " << flush;
+    try
+    {
+        retry1->ice_invocationTimeout(50)->opIdempotent(4);  // No more than 2 retries before timeout kicks-in
+        test(false);
+    }
+    catch(const Ice::InvocationTimeoutException&)
+    {
+        testRetryCount(2);
+        retry1->opIdempotent(-1); // Reset the counter
+        testRetryCount(-1);
+    }
+    try
+    {
+        // No more than 2 retries before timeout kicks-in
+        RetryPrx prx = retry1->ice_invocationTimeout(50);
+        prx->end_opIdempotent(prx->begin_opIdempotent(4));
+        test(false);
+    }
+    catch(const Ice::InvocationTimeoutException&)
+    {
+        testRetryCount(2);
+        retry1->opIdempotent(-1);
+        testRetryCount(-1);
+    }
+    cout << "ok" << endl;
 
     return retry1;
 }

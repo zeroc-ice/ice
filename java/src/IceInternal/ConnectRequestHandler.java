@@ -22,12 +22,12 @@ public class ConnectRequestHandler
             this.os.swap(os);
         }
 
-        Request(OutgoingAsyncMessageCallback out)
+        Request(OutgoingAsyncBase out)
         {
             this.outAsync = out;
         }
 
-        OutgoingAsyncMessageCallback outAsync = null;
+        OutgoingAsyncBase outAsync = null;
         BasicStream os = null;
     }
 
@@ -149,7 +149,7 @@ public class ConnectRequestHandler
 
     @Override
     public int
-    sendAsyncRequest(OutgoingAsyncMessageCallback out)
+    sendAsyncRequest(OutgoingAsyncBase out)
         throws RetryException
     {
         synchronized(this)
@@ -159,6 +159,7 @@ public class ConnectRequestHandler
                 if(!initialized())
                 {
                     _requests.add(new Request(out));
+                    out.cancelable(this);
                     return AsyncStatus.Queued;
                 }
             }
@@ -171,14 +172,14 @@ public class ConnectRequestHandler
     }
 
     @Override
-    public boolean
-    asyncRequestCanceled(OutgoingAsyncMessageCallback outAsync, Ice.LocalException ex)
+    public void
+    asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
     {
         synchronized(this)
         {
             if(_exception != null)
             {
-                return false; // The request has been notified of a failure already.
+                return; // The request has been notified of a failure already.
             }
 
             if(!initialized())
@@ -190,14 +191,17 @@ public class ConnectRequestHandler
                     if(request.outAsync == outAsync)
                     {
                         it.remove();
-                        outAsync.dispatchInvocationCancel(ex, _reference.getInstance().clientThreadPool(), null);
-                        return true; // We're done
+                        if(outAsync.completed(ex))
+                        {
+                            outAsync.invokeCompletedAsync();
+                        }
+                        return;
                     }
                 }
                 assert(false); // The request has to be queued if it timed out and we're not initialized yet.
             }
         }
-        return _connection.asyncRequestCanceled(outAsync, ex);
+        _connection.asyncRequestCanceled(outAsync, ex);
     }
 
     @Override
@@ -394,8 +398,7 @@ public class ConnectRequestHandler
             _flushing = true;
         }
 
-        final java.util.List<OutgoingAsyncMessageCallback> sentCallbacks =
-            new java.util.ArrayList<OutgoingAsyncMessageCallback>();
+        final java.util.List<OutgoingAsyncBase> sentCallbacks = new java.util.ArrayList<OutgoingAsyncBase>();
         try
         {
             java.util.Iterator<Request> p = _requests.iterator(); // _requests is immutable when _flushing = true
@@ -476,7 +479,7 @@ public class ConnectRequestHandler
                 @Override
                 public void run()
                 {
-                    for(OutgoingAsyncMessageCallback callback : sentCallbacks)
+                    for(OutgoingAsyncBase callback : sentCallbacks)
                     {
                         callback.invokeSent();
                     }
@@ -546,7 +549,10 @@ public class ConnectRequestHandler
         {
             if(request.outAsync != null)
             {
-                request.outAsync.finished(_exception);
+                if(request.outAsync.completed(_exception))
+                {
+                    request.outAsync.invokeCompleted();
+                }
             }
         }
         _requests.clear();

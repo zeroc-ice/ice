@@ -59,6 +59,7 @@ WINDOWS_OBJS   =  .\DLLMain.obj
 OBJS	       =  .\Acceptor.obj \
 		  .\ACM.obj \
 		  .\Application.obj \
+		  .\AsyncResult.obj \
 		  .\Base64.obj \
 		  .\BasicStream.obj \
 		  .\Buffer.obj \

@@ -31,10 +31,10 @@ typedef IceUtil::Handle<ObjectAdapterI> ObjectAdapterIPtr;
 namespace IceInternal
 {
 
+class OutgoingBase;
 class Outgoing;
-class BatchOutgoing;
+class OutgoingAsyncBase;
 class OutgoingAsync;
-class BatchOutgoingAsync;
 
 class CollocatedRequestHandler : public RequestHandler, public ResponseHandler, private IceUtil::Monitor<IceUtil::Mutex>
 {
@@ -50,11 +50,11 @@ public:
     virtual void finishBatchRequest(BasicStream*);
     virtual void abortBatchRequest();
 
-    virtual bool sendRequest(OutgoingMessageCallback*);
-    virtual AsyncStatus sendAsyncRequest(const OutgoingAsyncMessageCallbackPtr&);
+    virtual bool sendRequest(OutgoingBase*);
+    virtual AsyncStatus sendAsyncRequest(const OutgoingAsyncBasePtr&);
 
-    virtual void requestTimedOut(OutgoingMessageCallback*);
-    virtual void asyncRequestTimedOut(const OutgoingAsyncMessageCallbackPtr&);
+    virtual void requestCanceled(OutgoingBase*, const Ice::LocalException&);
+    virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, const Ice::LocalException&);
 
     virtual void sendResponse(Ice::Int, BasicStream*, Ice::Byte);
     virtual void sendNoResponse();
@@ -68,11 +68,11 @@ public:
 
     void invokeRequest(Outgoing*);
     AsyncStatus invokeAsyncRequest(OutgoingAsync*);
-    void invokeBatchRequests(BatchOutgoing*);
-    AsyncStatus invokeAsyncBatchRequests(BatchOutgoingAsync*);
+    void invokeBatchRequests(OutgoingBase*);
+    AsyncStatus invokeAsyncBatchRequests(OutgoingAsyncBase*);
 
-    bool sent(OutgoingMessageCallback*);
-    bool sentAsync(OutgoingAsyncMessageCallback*);
+    bool sent(OutgoingBase*);
+    bool sentAsync(OutgoingAsyncBase*);
 
     void invokeAll(BasicStream*, Ice::Int, Ice::Int, bool);
 
@@ -88,8 +88,8 @@ private:
 
     int _requestId;
 
-    std::map<OutgoingMessageCallback*, Ice::Int> _sendRequests;
-    std::map<OutgoingAsyncMessageCallbackPtr, Ice::Int> _sendAsyncRequests;
+    std::map<OutgoingBase*, Ice::Int> _sendRequests;
+    std::map<OutgoingAsyncBasePtr, Ice::Int> _sendAsyncRequests;
 
     std::map<Ice::Int, Outgoing*> _requests;
     std::map<Ice::Int, OutgoingAsyncPtr> _asyncRequests;

@@ -20,7 +20,7 @@ public:
 
     virtual void op(bool, const Ice::Current&);
     virtual int opIdempotent(int, const Ice::Current&);
-    virtual void opNotIdempotent(int, const Ice::Current&);
+    virtual void opNotIdempotent(const Ice::Current&);
     virtual void opSystemException(const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 

@@ -143,6 +143,12 @@ Ice::Instrumentation::CommunicatorObserverPtr communicatorObserver = new Communi
 void
 testEqual(int& value, int expected)
 {
+    if(expected < 0)
+    {
+        value = 0;
+        return;
+    }
+
     int retry = 0;
     while(++retry < 100)
     {
@@ -160,6 +166,7 @@ testEqual(int& value, int expected)
         std::cerr << "value = " << value << ", expected = " << expected << std::endl;
         test(false);
     }
+    value = 0;
 }
 
 }

@@ -149,8 +149,14 @@ public class Instrumentation
     static private void
     testEqual(Ice.IntHolder value, int expected)
     {
+        if(expected < 0)
+        {
+            value.value = 0;
+            return;
+        }
+
         int retry = 0;
-        while(retry < 100)
+        while(++retry < 100)
         {
             synchronized(Instrumentation.class)
             {
@@ -172,6 +178,7 @@ public class Instrumentation
             System.err.println("value = " + value.value + ", expected = " + expected);
             test(false);
         }
+        value.value = 0;
     }
     
     static public void

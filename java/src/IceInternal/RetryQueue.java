@@ -16,8 +16,7 @@ public class RetryQueue
         _instance = instance;
     }
 
-    synchronized public void
-    add(OutgoingAsyncBase outAsync, int interval)
+    synchronized public void add(ProxyOutgoingAsyncBase outAsync, int interval)
     {
         if(_instance == null)
         {
@@ -26,10 +25,10 @@ public class RetryQueue
         RetryTask task = new RetryTask(this, outAsync);
         task.setFuture(_instance.timer().schedule(task, interval, java.util.concurrent.TimeUnit.MILLISECONDS));
         _requests.add(task);
+        outAsync.cancelable(task);
     }
 
-    synchronized public void
-    destroy()
+    synchronized public void destroy()
     {
          java.util.HashSet<RetryTask> keep = new java.util.HashSet<RetryTask>();
         for(RetryTask task : _requests)
@@ -65,14 +64,14 @@ public class RetryQueue
         }
     }
 
-    synchronized void
-    remove(RetryTask task)
+    synchronized boolean remove(RetryTask task)
     {
-        _requests.remove(task);
+        boolean removed = _requests.remove(task);
         if(_instance == null && _requests.isEmpty())
         {
             notify();
         }
+        return removed;
     }
 
     private Instance _instance;

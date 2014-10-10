@@ -9,26 +9,18 @@
 
 package IceInternal;
 
-class RetryTask implements Runnable
+class RetryTask implements Runnable, CancellationHandler
 {
-    RetryTask(RetryQueue queue, OutgoingAsyncBase outAsync)
+    RetryTask(RetryQueue queue, ProxyOutgoingAsyncBase outAsync)
     {
         _queue = queue;
         _outAsync = outAsync;
     }
 
     @Override
-    public void
-    run()
+    public void run()
     {
-        try
-        {
-            _outAsync.processRetry();
-        }
-        catch(Ice.LocalException ex)
-        {
-            _outAsync.invokeExceptionAsync(ex);
-        }
+        _outAsync.retry();
         
         //
         // NOTE: this must be called last, destroy() blocks until all task
@@ -39,12 +31,32 @@ class RetryTask implements Runnable
         _queue.remove(this);
     }
 
-    public boolean
-    destroy()
+    @Override
+    public void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
+    {
+        if(_queue.remove(this) && _future.cancel(false))
+        {
+            //
+            // We just retry the outgoing async now rather than marking it
+            // as finished. The retry will check for the cancellation
+            // exception and terminate appropriately the request.
+            //
+            _outAsync.retry();
+        }
+    }
+
+    public boolean destroy()
     {
         if(_future.cancel(false))
         {
-            _outAsync.invokeExceptionAsync(new Ice.CommunicatorDestroyedException());
+            try
+            {
+                _outAsync.abort(new Ice.CommunicatorDestroyedException());
+            }
+            catch(Ice.CommunicatorDestroyedException ex)
+            {
+                // Abort can throw if there's no callback, just ignore in this case
+            }
             return true;
         }
         return false;
@@ -56,6 +68,6 @@ class RetryTask implements Runnable
     }
 
     private final RetryQueue _queue;
-    private final OutgoingAsyncBase _outAsync;
+    private final ProxyOutgoingAsyncBase _outAsync;
     private java.util.concurrent.Future<?> _future;
 }

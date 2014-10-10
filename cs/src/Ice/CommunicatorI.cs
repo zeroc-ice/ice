@@ -177,8 +177,8 @@ namespace Ice
             // This callback object receives the results of all invocations
             // of Connection.begin_flushBatchRequests.
             //
-            IceInternal.CommunicatorBatchOutgoingAsync result =
-                new IceInternal.CommunicatorBatchOutgoingAsync(this, instance_, __flushBatchRequests_name, cookie);
+            IceInternal.CommunicatorFlushBatch result = 
+                new IceInternal.CommunicatorFlushBatch(this, instance_, __flushBatchRequests_name, cookie);
 
             if(cb != null)
             {
@@ -200,8 +200,8 @@ namespace Ice
 
         public void end_flushBatchRequests(AsyncResult result)
         {
-            IceInternal.OutgoingAsyncBase outAsync = (IceInternal.OutgoingAsyncBase)result;
-            IceInternal.OutgoingAsyncBase.check(outAsync, this, __flushBatchRequests_name);
+            IceInternal.CommunicatorFlushBatch outAsync = 
+                IceInternal.CommunicatorFlushBatch.check(result, this, __flushBatchRequests_name);
             outAsync.wait();
         }
 

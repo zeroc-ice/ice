@@ -202,7 +202,7 @@ namespace IceInternal
             //
             // Don't retry invocation timeouts.
             //
-            if(ex is Ice.InvocationTimeoutException)
+            if(ex is Ice.InvocationTimeoutException || ex is Ice.InvocationCanceledException) 
             {
                 throw ex;
             }

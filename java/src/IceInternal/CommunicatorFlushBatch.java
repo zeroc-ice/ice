@@ -16,12 +16,29 @@ import java.util.concurrent.RejectedExecutionException;
 
 import Ice.CommunicatorDestroyedException;
 
-public class CommunicatorBatchOutgoingAsync extends OutgoingAsyncBase
+public class CommunicatorFlushBatch extends IceInternal.AsyncResultI
 {
-    public CommunicatorBatchOutgoingAsync(Ice.Communicator communicator, Instance instance, String operation,
-                                          CallbackBase callback)
+    public static CommunicatorFlushBatch check(Ice.AsyncResult r, Ice.Communicator com, String operation)
     {
-        super(communicator, instance, operation, callback);
+        check(r, operation);
+        if(!(r instanceof CommunicatorFlushBatch))
+        {
+            throw new IllegalArgumentException("Incorrect AsyncResult object for end_" + operation + " method");
+        }
+        if(r.getCommunicator() != com)
+        {
+            throw new IllegalArgumentException("Communicator for call to end_" + operation +
+                                               " does not match communicator that was used to call corresponding " +
+                                               "begin_" + operation + " method");
+        }
+        return (CommunicatorFlushBatch)r;
+    }
+
+    public CommunicatorFlushBatch(Ice.Communicator communicator, Instance instance, String op, CallbackBase callback)
+    {
+        super(communicator, instance, op, callback);
+
+        _observer = ObserverHelper.get(instance, op);
 
         //
         // _useCount is initialized to 1 to prevent premature callbacks.
@@ -29,34 +46,22 @@ public class CommunicatorBatchOutgoingAsync extends OutgoingAsyncBase
         // been initiated.
         //
         _useCount = 1;
-
-        //
-        // Assume all connections are flushed synchronously.
-        //
-        _sentSynchronously = true;
-
-        //
-        // Attach observer
-        //
-        _observer = ObserverHelper.get(instance, operation);
     }
 
     public void flushConnection(final Ice.ConnectionI con)
     {
-        class BatchOutgoingAsyncI extends BatchOutgoingAsync
+        class FlushBatch extends OutgoingAsyncBase
         {
-            public
-            BatchOutgoingAsyncI()
+            public FlushBatch()
             {
-                super(CommunicatorBatchOutgoingAsync.this._communicator,
-                      CommunicatorBatchOutgoingAsync.this._instance,
-                      CommunicatorBatchOutgoingAsync.this._operation,
+                super(CommunicatorFlushBatch.this.getCommunicator(), 
+                      CommunicatorFlushBatch.this._instance, 
+                      CommunicatorFlushBatch.this.getOperation(), 
                       null);
             }
 
             @Override
-            public boolean
-            sent()
+            public boolean sent()
             {
                 if(_childObserver != null)
                 {
@@ -69,8 +74,7 @@ public class CommunicatorBatchOutgoingAsync extends OutgoingAsyncBase
 
             // TODO: MJN: This is missing a test.
             @Override
-            public void
-            finished(Ice.Exception ex)
+            public boolean completed(Ice.Exception ex)
             {
                 if(_childObserver != null)
                 {
@@ -79,37 +83,23 @@ public class CommunicatorBatchOutgoingAsync extends OutgoingAsyncBase
                     _childObserver = null;
                 }
                 doCheck(false);
+                return false;
             }
 
-            @Override
-            public void
-            attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt, int requestId, int size)
+            @Override 
+            protected Ice.Instrumentation.InvocationObserver getObserver()
             {
-                if(CommunicatorBatchOutgoingAsync.this._observer != null)
-                {
-                    _childObserver = CommunicatorBatchOutgoingAsync.this._observer.getRemoteObserver(info, endpt,
-                                                                                                      requestId, size);
-                    if(_childObserver != null)
-                    {
-                        _childObserver.attach();
-                    }
-                }
-            }
-            
-            @Override
-            protected void cancelRequest()
-            {
+                return CommunicatorFlushBatch.this._observer;
             }
         }
 
-        synchronized(_monitor)
+        synchronized(this)
         {
             ++_useCount;
         }
 
         try
         {
-            int status;
             if(_instance.queueRequests())
             {
                 Future<Integer> future = _instance.getQueueExecutor().submit(new Callable<Integer>()
@@ -117,7 +107,7 @@ public class CommunicatorBatchOutgoingAsync extends OutgoingAsyncBase
                     @Override
                     public Integer call() throws RetryException
                     {
-                        return con.flushAsyncBatchRequests(new BatchOutgoingAsyncI());
+                        return con.flushAsyncBatchRequests(new FlushBatch());
                     }
                 });
 
@@ -126,7 +116,7 @@ public class CommunicatorBatchOutgoingAsync extends OutgoingAsyncBase
                 {
                     try 
                     {
-                        status = future.get();
+                        future.get();
                         if(interrupted)
                         {
                             Thread.currentThread().interrupt();
@@ -160,11 +150,7 @@ public class CommunicatorBatchOutgoingAsync extends OutgoingAsyncBase
             }
             else
             {
-                status = con.flushAsyncBatchRequests(new BatchOutgoingAsyncI());
-            }
-            if((status & AsyncStatus.Sent) > 0)
-            {
-                _sentSynchronously = false;
+                con.flushAsyncBatchRequests(new FlushBatch());
             }
         }
         catch(Ice.LocalException ex)
@@ -181,52 +167,27 @@ public class CommunicatorBatchOutgoingAsync extends OutgoingAsyncBase
 
     private void doCheck(boolean userThread)
     {
-        synchronized(_monitor)
+        synchronized(this)
         {
             assert(_useCount > 0);
             if(--_useCount > 0)
             {
                 return;
             }
-            _state |= StateDone | StateOK | StateSent;
-            _os.resize(0, false); // Clear buffer now, instead of waiting for AsyncResult deallocation
-            _monitor.notifyAll();
         }
 
-        if(_callback == null || !_callback.__hasSentCallback())
+        if(sent(true))
         {
-            if(_observer != null)
+            if(userThread)
             {
-                _observer.detach();
-                _observer = null;
-            }
-        }
-        else
-        {
-            //
-            // sentSynchronously_ is immutable here.
-            //
-            if(!_sentSynchronously || !userThread)
-            {
-                invokeSentAsync();
+                _sentSynchronously = true;
+                invokeSent();
             }
             else
             {
-                invokeSentInternal();
+                invokeSentAsync();
             }
         }
-    }
-
-    @Override
-    public void
-    processRetry()
-    {
-        assert(false); // Retries are never scheduled
-    }
-
-    @Override
-    protected void cancelRequest()
-    {
     }
 
     private int _useCount;

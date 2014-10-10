@@ -434,7 +434,7 @@ namespace IceInternal
             }
         }
 
-        public void flushAsyncBatchRequests(CommunicatorBatchOutgoingAsync outAsync)
+        public void flushAsyncBatchRequests(CommunicatorFlushBatch outAsync)
         {
             ICollection<Ice.ConnectionI> c = new List<Ice.ConnectionI>();
 
@@ -1418,7 +1418,7 @@ namespace IceInternal
             }
         }
 
-        public void flushAsyncBatchRequests(CommunicatorBatchOutgoingAsync outAsync)
+        public void flushAsyncBatchRequests(CommunicatorFlushBatch outAsync)
         {
             //
             // connections() is synchronized, no need to synchronize here.

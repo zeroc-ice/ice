@@ -13,8 +13,6 @@ import java.util.Map;
 
 public final class ObjectAdapterI implements ObjectAdapter
 {
-
-
     @Override
     public String
     getName()
@@ -751,7 +749,7 @@ public final class ObjectAdapterI implements ObjectAdapter
     }
 
     public void
-    flushAsyncBatchRequests(IceInternal.CommunicatorBatchOutgoingAsync outAsync)
+    flushAsyncBatchRequests(IceInternal.CommunicatorFlushBatch outAsync)
     {
         java.util.List<IceInternal.IncomingConnectionFactory> f;
         synchronized(this)

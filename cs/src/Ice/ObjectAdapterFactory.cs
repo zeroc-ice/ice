@@ -212,7 +212,7 @@ namespace IceInternal
             }
         }
 
-        public void flushAsyncBatchRequests(CommunicatorBatchOutgoingAsync outAsync)
+        public void flushAsyncBatchRequests(CommunicatorFlushBatch outAsync)
         {
             List<Ice.ObjectAdapterI> adapters;
             lock(this)

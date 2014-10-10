@@ -881,6 +881,15 @@ public class AMI
                     test(r.isSent());
                     test(r.isCompleted());
                     test(p.waitForBatch(2));
+
+                    final FlushCallback cb2 = new FlushCallback();
+                    Ice.AsyncResult r2 = b1.ice_getConnection().begin_flushBatchRequests(
+                        null,
+                        (Ice.Exception ex) -> cb2.exception(ex),
+                        (boolean sentSynchronously) -> cb2.sent(sentSynchronously));
+                    cb2.check();
+                    test(r2.isSent());
+                    test(r2.isCompleted());
                 }
 
                 {

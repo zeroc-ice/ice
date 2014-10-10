@@ -263,8 +263,10 @@ public final class CommunicatorI implements Communicator
         // This callback object receives the results of all invocations
         // of Connection.begin_flushBatchRequests.
         //
-        IceInternal.CommunicatorBatchOutgoingAsync result =
-            new IceInternal.CommunicatorBatchOutgoingAsync(this, _instance, __flushBatchRequests_name, cb);
+        IceInternal.CommunicatorFlushBatch result = new IceInternal.CommunicatorFlushBatch(this, 
+                                                                                           _instance, 
+                                                                                           __flushBatchRequests_name, 
+                                                                                           cb);
 
         connectionFactory.flushAsyncBatchRequests(result);
         adapterFactory.flushAsyncBatchRequests(result);
@@ -282,8 +284,8 @@ public final class CommunicatorI implements Communicator
     public void
     end_flushBatchRequests(AsyncResult r)
     {
-        IceInternal.OutgoingAsyncBase ri = (IceInternal.OutgoingAsyncBase)r;
-        IceInternal.OutgoingAsyncBase.check(ri, this, __flushBatchRequests_name);
+        IceInternal.CommunicatorFlushBatch ri =
+            IceInternal.CommunicatorFlushBatch.check(r, this, __flushBatchRequests_name);
         ri.__wait();
     }
 

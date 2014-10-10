@@ -24,7 +24,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/Logger.h>
 #include <Ice/ObjectAdapter.h>
-#include <Ice/OutgoingAsync.h>
+#include <Ice/AsyncResult.h>
 #include <Ice/Properties.h>
 #include <Ice/Proxy.h>
 #include <Slice/PythonUtil.h>
@@ -814,6 +814,25 @@ asyncResultGetCommunicator(AsyncResultObject* self)
 extern "C"
 #endif
 static PyObject*
+asyncResultCancel(AsyncResultObject* self)
+{
+    try
+    {
+        (*self->result)->cancel();
+    }
+    catch(...)
+    {
+        assert(false);
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 asyncResultGetConnection(AsyncResultObject* self)
 {
     if(self->connection)
@@ -1255,6 +1274,8 @@ static PyMethodDef AMDCallbackMethods[] =
 
 static PyMethodDef AsyncResultMethods[] =
 {
+    { STRCAST("cancel"), reinterpret_cast<PyCFunction>(asyncResultCancel), METH_NOARGS,
+      PyDoc_STR(STRCAST("cancels the invocation")) },
     { STRCAST("getCommunicator"), reinterpret_cast<PyCFunction>(asyncResultGetCommunicator), METH_NOARGS,
       PyDoc_STR(STRCAST("returns the communicator for the invocation")) },
     { STRCAST("getConnection"), reinterpret_cast<PyCFunction>(asyncResultGetConnection), METH_NOARGS,

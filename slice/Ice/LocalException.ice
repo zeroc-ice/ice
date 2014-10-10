@@ -641,6 +641,18 @@ local exception InvocationTimeoutException extends TimeoutException
 
 /**
  *
+ * This exception indicates that an asynchronous invocation failed
+ * because it was canceled explicitly by the user using the
+ * <tt>Ice::AsyncResult::cancel</tt> method.
+ *
+ **/
+["cpp:ice_print"]
+local exception InvocationCanceledException
+{
+};
+
+/**
+ *
  * A generic exception base for all kinds of protocol error
  * conditions.
  *

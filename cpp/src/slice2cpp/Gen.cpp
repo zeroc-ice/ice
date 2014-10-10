@@ -373,8 +373,7 @@ Slice::Gen::generate(const UnitPtr& p)
     {
         H << "\n#include <Ice/Proxy.h>";
         H << "\n#include <Ice/GCObject.h>";
-        H << "\n#include <Ice/Outgoing.h>";
-        H << "\n#include <Ice/OutgoingAsync.h>";
+        H << "\n#include <Ice/AsyncResult.h>";
         H << "\n#include <Ice/Incoming.h>";
         if(p->hasContentsWithMetaData("amd"))
         {
@@ -382,11 +381,14 @@ Slice::Gen::generate(const UnitPtr& p)
         }
         C << "\n#include <Ice/LocalException.h>";
         C << "\n#include <Ice/ObjectFactory.h>";
+        C << "\n#include <Ice/Outgoing.h>";
+        C << "\n#include <Ice/OutgoingAsync.h>";
     }
     else if(p->hasLocalClassDefsWithAsync())
     {
         H << "\n#include <Ice/Proxy.h>";
-        H << "\n#include <Ice/OutgoingAsync.h>";
+        H << "\n#include <Ice/AsyncResult.h>";
+        C << "\n#include <Ice/OutgoingAsync.h>";
     }
     else if(p->hasNonLocalClassDecls())
     {
@@ -2184,26 +2186,26 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << flatName << ", __del, __cookie);";
     C << nl << "try";
     C << sb;
-    C << nl << "__result->__prepare(" << flatName << ", " << operationModeToString(p->sendMode()) << ", __ctx);";
+    C << nl << "__result->prepare(" << flatName << ", " << operationModeToString(p->sendMode()) << ", __ctx);";
     if(inParams.empty())
     {
-        C << nl << "__result->__writeEmptyParams();";
+        C << nl << "__result->writeEmptyParams();";
     }
     else 
     {
-        C << nl << "::IceInternal::BasicStream* __os = __result->__startWriteParams(" << opFormatTypeToString(p) <<");";
+        C << nl << "::IceInternal::BasicStream* __os = __result->startWriteParams(" << opFormatTypeToString(p) <<");";
         writeMarshalCode(C, inParams, 0, TypeContextInParam);
         if(p->sendsClasses(false))
         {
             C << nl << "__os->writePendingObjects();";
         }
-        C << nl << "__result->__endWriteParams();";
+        C << nl << "__result->endWriteParams();";
     }
-    C << nl << "__result->__invoke(true);";
+    C << nl << "__result->invoke();";
     C << eb;
     C << nl << "catch(const ::Ice::Exception& __ex)";
     C << sb;
-    C << nl << "__result->__invokeExceptionAsync(__ex);";
+    C << nl << "__result->abort(__ex);";
     C << eb;
     C << nl << "return __result;";
     C << eb;

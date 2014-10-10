@@ -21,6 +21,7 @@
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/Router.h>
+#include <Ice/OutgoingAsync.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/UUID.h>
@@ -198,8 +199,7 @@ Ice::CommunicatorI::getPluginManager() const
 void
 Ice::CommunicatorI::flushBatchRequests()
 {
-    AsyncResultPtr r = begin_flushBatchRequests();
-    end_flushBatchRequests(r);
+    end_flushBatchRequests(begin_flushBatchRequests());
 }
 
 AsyncResultPtr
@@ -223,9 +223,8 @@ Ice::CommunicatorI::begin_flushBatchRequests(const Callback_Communicator_flushBa
 
 #ifdef ICE_CPP11
 AsyncResultPtr
-Ice::CommunicatorI::begin_flushBatchRequests(
-    const IceInternal::Function<void (const Exception&)>& exception,
-    const IceInternal::Function<void (bool)>& sent)
+Ice::CommunicatorI::begin_flushBatchRequests(const IceInternal::Function<void (const Exception&)>& exception,
+                                             const IceInternal::Function<void (bool)>& sent)
 {
     class Cpp11CB : public IceInternal::Cpp11FnCallbackNC
     {
@@ -268,8 +267,7 @@ const ::std::string __flushBatchRequests_name = "flushBatchRequests";
 }
 
 AsyncResultPtr
-Ice::CommunicatorI::__begin_flushBatchRequests(const IceInternal::CallbackBasePtr& cb,
-                                                     const LocalObjectPtr& cookie)
+Ice::CommunicatorI::__begin_flushBatchRequests(const IceInternal::CallbackBasePtr& cb, const LocalObjectPtr& cookie)
 {
     OutgoingConnectionFactoryPtr connectionFactory = _instance->outgoingConnectionFactory();
     ObjectAdapterFactoryPtr adapterFactory = _instance->objectAdapterFactory();
@@ -278,8 +276,11 @@ Ice::CommunicatorI::__begin_flushBatchRequests(const IceInternal::CallbackBasePt
     // This callback object receives the results of all invocations
     // of Connection::begin_flushBatchRequests.
     //
-    CommunicatorBatchOutgoingAsyncPtr result =
-        new CommunicatorBatchOutgoingAsync(this, _instance, __flushBatchRequests_name, cb, cookie);
+    CommunicatorFlushBatchPtr result = new CommunicatorFlushBatch(this, 
+                                                                  _instance, 
+                                                                  __flushBatchRequests_name, 
+                                                                  cb, 
+                                                                  cookie);
 
     connectionFactory->flushAsyncBatchRequests(result);
     adapterFactory->flushAsyncBatchRequests(result);

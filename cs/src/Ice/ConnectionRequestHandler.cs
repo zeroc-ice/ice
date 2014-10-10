@@ -61,13 +61,13 @@ namespace IceInternal
         {
             _connection.abortBatchRequest();
         }
-
-        public bool sendAsyncRequest(OutgoingAsyncMessageCallback outAsync, out Ice.AsyncCallback sentCallback)
+        
+        public bool sendAsyncRequest(OutgoingAsyncBase outAsync, out Ice.AsyncCallback sentCallback)
         {
             return outAsync.send(_connection, _compress, _response, out sentCallback);
         }
 
-        public void asyncRequestCanceled(OutgoingAsyncMessageCallback outAsync, Ice.LocalException ex)
+        public void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
         {
             _connection.asyncRequestCanceled(outAsync, ex);
         }

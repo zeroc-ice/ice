@@ -31,7 +31,7 @@ namespace IceInternal
 
 class BasicStream;
 
-class OutgoingMessageCallback;
+class OutgoingBase;
 
 //
 // An exception wrapper, which is used to notify that the request
@@ -51,11 +51,17 @@ private:
     IceUtil::UniquePtr<Ice::LocalException> _ex;
 };
 
-class RequestHandler : virtual public ::IceUtil::Shared
+class CancellationHandler : virtual public IceUtil::Shared
 {
 public:
 
-    virtual ~RequestHandler();
+    virtual void requestCanceled(OutgoingBase*, const Ice::LocalException&) = 0;
+    virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, const Ice::LocalException&) = 0;
+};
+
+class RequestHandler : public CancellationHandler
+{
+public:
 
     virtual RequestHandlerPtr connect() = 0;
     virtual RequestHandlerPtr update(const RequestHandlerPtr&, const RequestHandlerPtr&) = 0;
@@ -64,11 +70,8 @@ public:
     virtual void finishBatchRequest(BasicStream*) = 0;
     virtual void abortBatchRequest() = 0;
 
-    virtual bool sendRequest(OutgoingMessageCallback*) = 0;
-    virtual AsyncStatus sendAsyncRequest(const OutgoingAsyncMessageCallbackPtr&) = 0;
-
-    virtual void requestTimedOut(OutgoingMessageCallback*) = 0;
-    virtual void asyncRequestTimedOut(const OutgoingAsyncMessageCallbackPtr&) = 0;
+    virtual bool sendRequest(OutgoingBase*) = 0;
+    virtual AsyncStatus sendAsyncRequest(const OutgoingAsyncBasePtr&) = 0;
 
     const ReferencePtr& getReference() const { return _reference; } // Inlined for performances.
 
