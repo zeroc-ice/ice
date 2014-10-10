@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<installer-gui-script minSpecVersion="2">
+    <title>Ice @ver@ Third Party Packages</title>
+    <options hostArchitectures="i386,x86_64"/>
+    <options customize="never"/>
+    <domains enable_anywhere="false" enable_currentUserHome="false" enable_localSystem="true"/>
+    <welcome file="README.txt"/>
+    <license file="THIRD_PARTY_LICENSE.txt"/>
+    <allowed-os-versions>
+        <os-version min="10.8" />
+    </allowed-os-versions>
+    <product id="com.zeroc.ice@ver@-thirdparty" version="@ver@"/>
+    <choices-outline>
+        <line choice="default">
+            <line choice="com.zeroc.ice@ver@-thirdparty"/>
+        </line>
+    </choices-outline>
+    <choice id="default"/>
+    <choice id="com.zeroc.ice@ver@-thirdparty" visible="false">
+        <pkg-ref id="com.zeroc.ice@ver@-thirdparty"/>
+    </choice>
+    <pkg-ref id="com.zeroc.ice@ver@-thirdparty" version="@ver@" onConclusion="none">
+        com.zeroc.ice-@ver@-thirdParty.pkg
+    </pkg-ref>
+</installer-gui-script>
