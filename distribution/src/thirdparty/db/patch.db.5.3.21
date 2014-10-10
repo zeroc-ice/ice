@@ -1,5 +1,8 @@
-diff -r -c -N ../db-5.3.21.NC-old/src/dbinc/atomic.h ./src/dbinc/atomic.h
-*** ../db-5.3.21.NC-old/src/dbinc/atomic.h	2012-05-11 19:57:53.000000000 +0200
+#
+# Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
+#
+diff -r -c -N ../db-5.3.28.NC-old/src/dbinc/atomic.h ./src/dbinc/atomic.h
+*** ../db-5.3.28.NC-old/src/dbinc/atomic.h	2012-05-11 19:57:53.000000000 +0200
 --- ./src/dbinc/atomic.h	2013-02-04 18:47:26.000000000 +0100
 ***************
 *** 70,76 ****
@@ -69,8 +72,8 @@ diff -r -c -N ../db-5.3.21.NC-old/src/dbinc/atomic.h ./src/dbinc/atomic.h
   #else
   #define atomic_inc(env, p)	__atomic_inc(env, p)
   #define atomic_dec(env, p)	__atomic_dec(env, p)
-diff -r -c -N ../db-5.3.21.NC-old/src/mp/mp_fget.c ./src/mp/mp_fget.c
-*** ../db-5.3.21.NC-old/src/mp/mp_fget.c	2012-05-11 19:57:53.000000000 +0200
+diff -r -c -N ../db-5.3.28.NC-old/src/mp/mp_fget.c ./src/mp/mp_fget.c
+*** ../db-5.3.28.NC-old/src/mp/mp_fget.c	2012-05-11 19:57:53.000000000 +0200
 --- ./src/mp/mp_fget.c	2013-02-04 18:48:28.000000000 +0100
 ***************
 *** 649,655 ****
@@ -106,8 +109,8 @@ diff -r -c -N ../db-5.3.21.NC-old/src/mp/mp_fget.c ./src/mp/mp_fget.c
   		MUTEX_LOCK(env, alloc_bhp->mtx_buf);
   		alloc_bhp->priority = bhp->priority;
   		alloc_bhp->pgno = bhp->pgno;
-diff -r -c -N ../db-5.3.21.NC-old/src/mp/mp_mvcc.c ./src/mp/mp_mvcc.c
-*** ../db-5.3.21.NC-old/src/mp/mp_mvcc.c	2012-05-11 19:57:53.000000000 +0200
+diff -r -c -N ../db-5.3.28.NC-old/src/mp/mp_mvcc.c ./src/mp/mp_mvcc.c
+*** ../db-5.3.28.NC-old/src/mp/mp_mvcc.c	2012-05-11 19:57:53.000000000 +0200
 --- ./src/mp/mp_mvcc.c	2013-02-04 18:48:28.000000000 +0100
 ***************
 *** 276,282 ****
@@ -143,8 +146,8 @@ diff -r -c -N ../db-5.3.21.NC-old/src/mp/mp_mvcc.c ./src/mp/mp_mvcc.c
   		F_CLR(alloc_bhp, BH_FROZEN);
   	}
   
-diff -r -c -N ../db-5.3.21.NC-old/src/mp/mp_region.c ./src/mp/mp_region.c
-*** ../db-5.3.21.NC-old/src/mp/mp_region.c	2012-05-11 19:57:53.000000000 +0200
+diff -r -c -N ../db-5.3.28.NC-old/src/mp/mp_region.c ./src/mp/mp_region.c
+*** ../db-5.3.28.NC-old/src/mp/mp_region.c	2012-05-11 19:57:53.000000000 +0200
 --- ./src/mp/mp_region.c	2013-02-04 18:48:28.000000000 +0100
 ***************
 *** 245,251 ****
@@ -180,8 +183,8 @@ diff -r -c -N ../db-5.3.21.NC-old/src/mp/mp_region.c ./src/mp/mp_region.c
   #ifdef HAVE_STATISTICS
   		hp->hash_io_wait = 0;
   		hp->hash_frozen = hp->hash_thawed = hp->hash_frozen_freed = 0;
-diff -r -c -N ../db-5.3.21.NC-old/src/mutex/mut_method.c ./src/mutex/mut_method.c
-*** ../db-5.3.21.NC-old/src/mutex/mut_method.c	2012-05-11 19:57:53.000000000 +0200
+diff -r -c -N ../db-5.3.28.NC-old/src/mutex/mut_method.c ./src/mutex/mut_method.c
+*** ../db-5.3.28.NC-old/src/mutex/mut_method.c	2012-05-11 19:57:53.000000000 +0200
 --- ./src/mutex/mut_method.c	2013-02-04 18:48:28.000000000 +0100
 ***************
 *** 474,480 ****
@@ -200,8 +203,8 @@ diff -r -c -N ../db-5.3.21.NC-old/src/mutex/mut_method.c ./src/mutex/mut_method.
   	MUTEX_UNLOCK(env, mtx);
   
   	return (ret);
-diff -r -c -N ../db-5.3.21.NC-old/src/mutex/mut_tas.c ./src/mutex/mut_tas.c
-*** ../db-5.3.21.NC-old/src/mutex/mut_tas.c	2012-05-11 19:57:54.000000000 +0200
+diff -r -c -N ../db-5.3.28.NC-old/src/mutex/mut_tas.c ./src/mutex/mut_tas.c
+*** ../db-5.3.28.NC-old/src/mutex/mut_tas.c	2012-05-11 19:57:54.000000000 +0200
 --- ./src/mutex/mut_tas.c	2013-02-04 18:48:28.000000000 +0100
 ***************
 *** 47,53 ****

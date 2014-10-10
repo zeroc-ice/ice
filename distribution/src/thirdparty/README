@@ -6,12 +6,12 @@ Introduction
 ------------
 
 This archive contains the source code distributions, including any
-source patches, for the third-party packages required to build Ice on
-Linux, OS X and Solaris.
+source patches, for the third-party packages required to build Ice
+on Linux and OS X.
 
 Note: this archive does not contain third-party packages that Ice 
-depends on but that are usually included on these systems, such as bzip2
-and OpenSSL. 
+depends on but that are usually included on these systems, such as
+bzip2 and OpenSSL. 
 
 This document provides instructions for applying patches and for
 configuring these third-party packages on each of the supported
@@ -35,8 +35,6 @@ Table of Contents
      - mcpp
   3. Instructions for OS X
      - Berkeley DB
-     - mcpp
-  4. Instructions for Solaris
      - mcpp
 
 
@@ -64,15 +62,15 @@ building mcpp.
 Berkeley DB
 -----------
 
-The file db/patch.db.5.3.21 in this archive contains several fixes
-required to build Berkeley DB with Apple Clang 4.2. This patch is
+The file db/patch.db.5.3.28 in this archive contains several fixes
+required to build Berkeley DB with Apple Clang. This patch is
 not needed if you use another C++ compiler.
 
 After extracting the Berkeley DB source distribution, change to the
 top-level directory and apply the patch as shown below:
 
-  $ cd db-5.3.21.NC
-  $ patch -p0 < ../db/patch.db.5.3.21
+  $ cd db-5.3.28.NC
+  $ patch -p0 < ../db/patch.db.5.3.28
 
 Follow the platform-specific instructions below for configuring and
 building Berkeley DB.
@@ -114,8 +112,8 @@ Berkeley DB
 -----------
 
 Berkeley DB must be configured with C++ support enabled.  If you
-intend to use Ice for Java with Berkeley DB, you must also enable Java
-support.
+intend to use Ice for Java with Berkeley DB, you must also enable
+Java support.
 
   $ export CXX=clang++
   $ ../dist/configure --enable-cxx --enable-static=no
@@ -148,45 +146,3 @@ For builds with support for both i386 and x86_64 architectures, use:
   $ export CFLAGS="-O3 -fno-common -arch i386 -arch x86_64"
   $ ./configure --enable-mcpplib --disable-shared
   (and --prefix=<dir> if you like)
-
-
-======================================================================
-4. Instructions for Solaris
-======================================================================
-
-Berkeley DB
------------
-
-Berkeley DB must be configured with C++ support enabled. If you intend
-to use Ice for Java with Berkeley DB, you must also enable Java
-support:
- 
- $ ../dist/configure --enable-cxx --enable-static=no
- (plus --prefix=<dir> and/or --enable-java if you like)
- 
-For 64-bit builds, use:
- 
- $ export CFLAGS="-m64 -O"
- $ export CXXFLAGS="-m64 -O"
- $ export LDFLAGS="-m64"
- $ ../dist/configure --enable-cxx --enable-static=no
- (plus --prefix=<dir> and/or --enable-java if you like)
-
-
-mcpp
-----
-
-Ice requires the library version of mcpp, so configure mcpp as shown
-below:
-
-  $ ./configure CFLAGS=-xcode=pic32 --enable-mcpplib --disable-shared
-  (and --prefix=<dir> if you like)
-
-For 64-bit builds, use:
-
-  $ ./configure CFLAGS="-xcode=pic32 -m64" --enable-mcpplib --disable-shared
-  (and --prefix=<dir> if you like)
-
-On 64-bit platforms, after installation it is necessary to rename the
-library installation directory from $(prefix)/lib to
-$(prefix)/lib/sparcv9 for SPARC or $(prefix)/lib/amd64 for x86.
