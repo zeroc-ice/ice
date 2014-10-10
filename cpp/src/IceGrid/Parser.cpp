@@ -245,6 +245,10 @@ const char* _commandsHelp[][3] = {
 
 int loggerCallbackCount = 0;
 
+#ifdef _WIN32
+IceUtil::StringConverterPtr windowsConsoleConverter = 0;
+#endif
+
 void writeMessage(const string& message, bool indent)
 {
     string s = message;
@@ -259,9 +263,44 @@ void writeMessage(const string& message, bool indent)
         }
     }
     
-    // TODO: Console handling on Windows
+#ifdef _WIN32
+    if(windowsConsoleConverter)
+    {
+        try
+        {
+            // Convert from UTF-8 to console CP
+            string consoleString;
+            windowsConsoleConverter->fromUTF8(reinterpret_cast<const IceUtil::Byte*>(s.data()),
+                                              reinterpret_cast<const IceUtil::Byte*>(s.data() + s.size()), 
+                                              consoleString);
 
+            // We cannot use cout here as writing to console using cout
+            // will do its own conversion and will corrupt the messages.
+            //
+            fprintf_s(stdout, "%s\n", consoleString.c_str());
+        }
+        catch(const IceUtil::IllegalConversionException&)
+        {
+            //
+            // If there is a problem with the encoding conversions we just
+            // write the original message without encoding conversions.
+            //
+            fprintf_s(stdout, "%s\n", s.c_str());
+        }
+        fflush(stdout);
+    }
+    else
+    {
+        //
+        // Use fprintf_s to avoid encoding conversion when stdout is connected
+        // to Windows console.
+        //
+        fprintf_s(stdout, "%s\n", s.c_str());
+        fflush(stdout);
+    }
+#else
     cout << s << endl;
+#endif
 }
 
 void printLogMessage(const string& p, const Ice::LogMessage& logMessage)
@@ -2792,6 +2831,13 @@ Parser::Parser(const CommunicatorPtr& communicator,
         _helpCommands[category][""] += help;
         _helpCommands[category][cmd] += help;
     }
+
+#ifdef _WIN32
+    if(!windowsConsoleConverter)
+    {
+        windowsConsoleConverter = new IceUtil::WindowsStringConverter(GetConsoleOutputCP());
+    }
+#endif
 }
 
 void

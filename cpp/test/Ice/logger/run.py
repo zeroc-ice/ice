@@ -45,7 +45,7 @@ out = subprocess.Popen([os.path.join(os.getcwd(), "client3")], stdout=subprocess
 test(out, b'aplicaci\xc3\xb3n', "UTF8")
 print("ok")
 
-sys.stdout.write("testing logger UTF8 output with ISO-8859-15 narow string converter... ")
+sys.stdout.write("testing logger UTF8 output with ISO-8859-15 narrow string converter... ")
 p = subprocess.Popen([os.path.join(os.getcwd(), "client4")], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=env)
 #
 # In Windows expected output is UTF8, because the console output code page is set to UTF-8
