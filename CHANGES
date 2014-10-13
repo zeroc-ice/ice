@@ -351,6 +351,10 @@ JavaScript Changes
 
 - JavaScript is now an officially-supported language mapping.
 
+- Added the following methods to AsyncResult for consistency with the
+  other language mappings: cancel, isCompleted, isSent,
+  throwLocalException, sentSynchronously.
+
 
 ======================================================================
 Changes since version 3.5.0
