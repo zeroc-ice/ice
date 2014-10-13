@@ -27,6 +27,11 @@ Changes since version 3.5.1
 General Changes
 ===============
 
+- Added a cancel() method to AsyncResult. Calling it prevents a queued
+  asynchronous request from being sent, or ignores the reply if the
+  request has already been sent. It does not cancel the request in the
+  server.
+
 - Removed the "old" asynchronous invocation API that was deprecated
   in Ice 3.4.
 
@@ -192,6 +197,7 @@ General Changes
 
 - The IceBox.ServiceManager object adapter has been deprecated.
   Use Ice.Admin and the IceBox.ServiceManager facet instead.
+
 
 C++ Changes
 ===========
