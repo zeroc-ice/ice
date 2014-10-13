@@ -254,7 +254,7 @@ void outputNewline()
 #ifdef _WIN32
     fprintf_s(stdout, "\n");
 #else
-    cout << nl;
+    cout << endl;
 #endif
 }
 
