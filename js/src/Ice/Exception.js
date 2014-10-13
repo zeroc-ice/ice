@@ -10,6 +10,48 @@
 var Ice = require("../Ice/Class").Ice;
 var Class = Ice.Class;
 
+var toString = function(key, object, objectTable, ident)
+{
+    ident += "  "
+    if(object === null)
+    {
+        return "\n" + ident + key + ": (null)"
+    }
+    if(object === undefined)
+    {
+        return "\n" + ident + key + ": (undefined)"
+    }
+    if(key == "stack" || typeof object == "function")
+    {
+        return "";
+    }
+    if(typeof object != "object")
+    {
+        return "\n" + ident + key + ": \"" + object + "\"";
+    }
+    if(objectTable.indexOf(object) != -1)
+    {
+        return "\n" + ident + key + ": (recursive)";
+    }
+
+    objectTable.push(object);
+    var s = "\n" + ident + key + ":";
+    for(var k in object)
+    {
+        if(key.indexOf("_") === 0)
+        {
+            continue;
+        }
+
+        if(typeof object[k] == "function")
+        {
+            continue;
+        }
+        s += ident + toString(k, object[k], objectTable, ident);
+    }
+    return s;
+};
+
 //
 // Ice.Exception
 //
@@ -30,19 +72,9 @@ var Exception = Class(Error, {
         var s = this.ice_name();
         for(var key in this)
         {
-            if(key == "stack" || key.indexOf("_") === 0)
-            {
-                continue;
-            }
-
-            var value = this[key];
-            if(typeof value === "function")
-            {
-                continue;
-            }
-
-            s += "\n    " + key + ": \"" + value + "\"";
+            s += toString(key, this[key], [], "");
         }
+        
         if(Ice.__printStackTraces === true && this.stack)
         {
             s += "\n" + this.stack;
