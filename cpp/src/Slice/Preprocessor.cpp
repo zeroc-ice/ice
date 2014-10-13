@@ -369,7 +369,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
     //
     // Get the main output file name.
     //
-#ifdef _WIN32
+#ifdef _MSC_VER
      string suffix = ".obj:";
 #else
      string suffix = ".o:";

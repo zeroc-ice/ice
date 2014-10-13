@@ -25,11 +25,7 @@ endif
 ICE_WIN32_WINNT := 0x601
 
 CXXFLAGS       	= $(CXXARCHFLAGS) -mthreads -fvisibility=hidden -Wall -Werror -D_WIN32_WINNT=$(ICE_WIN32_WINNT) -DWIN32_LEAN_AND_MEAN
-LDFLAGS         = -Wl,-no-undefined 
-
-ifeq ($(CXX), i686-pc-mingw32-c++)
-    LDPLATFORMFLAGS := $(LDFLAGS) -static-libstdc++ -static-libgcc
-endif
+LDFLAGS         = -Wl,-no-undefined
 
 ifeq ($(OPTIMIZE),yes)
     CXXFLAGS		+= -O2 -DNDEBUG
@@ -78,9 +74,9 @@ installprogram		= $(INSTALL_PROGRAM) $(1) $(2); \
 CPPFLAGS		:= -I"$(THIRDPARTY_HOME)/include" $(CPPFLAGS) 
 LDPLATFORMFLAGS		:= -L"$(THIRDPARTY_HOME)/$(libsubdir)" $(LDFLAGS)
 
-SSL_OS_LIBS            = -lsecur32 -lcrypt32 -lws2_32
+SSL_OS_LIBS		= -lsecur32 -lcrypt32 -lws2_32
 
-ICEWS_OS_LIBS          = -lws2_32
+ICEWS_OS_LIBS		= -lws2_32
 
 ifeq ($(LP64),yes)
     MCPP_LIBS           = -L"$(THIRDPARTY_HOME)/lib/mingw$(lp64suffix)" -lmcpp
@@ -99,4 +95,4 @@ SLICE_LIBS		= -lslice$(SOVERSION)$(COMPSUFFIX) $(BASELIBS)
 ICEUTIL_OS_LIBS		= -lrpcrt4  -ladvapi32
 ICE_OS_LIBS		= $(ICEUTIL_OS_LIBS) -lIphlpapi -lws2_32
 
-EXE_EXT = .exe
+EXE_EXT                 = .exe
