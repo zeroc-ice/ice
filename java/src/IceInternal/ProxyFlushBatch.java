@@ -31,12 +31,6 @@ public class ProxyFlushBatch extends ProxyOutgoingAsyncBase
     }
 
     @Override
-    public boolean sent()
-    {
-        return sent(true); // Overriden because the flush is done even if using a two-way proxy.
-    }
-
-    @Override
     public int send(Ice.ConnectionI connection, boolean compress, boolean response)
     {
         _cachedConnection = connection;

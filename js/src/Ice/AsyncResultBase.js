@@ -29,10 +29,6 @@ var AsyncResultBase = Ice.Class(Promise, {
             this._proxy = proxy;
             this._adapter = adapter;
         }
-    },
-    __invokeException: function(ex)
-    {
-        this.fail(ex);
     }
 });
 

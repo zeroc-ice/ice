@@ -90,7 +90,7 @@ public:
 
     virtual Ice::ObjectPrx getProxy() const;
 
-    virtual bool sent();
+    using OutgoingAsyncBase::sent;
     virtual bool completed(const Ice::Exception&);
 
     void retry();
@@ -131,6 +131,8 @@ public:
     OutgoingAsync(const Ice::ObjectPrx&, const std::string&, const CallbackBasePtr&, const Ice::LocalObjectPtr&);
 
     void prepare(const std::string&, Ice::OperationMode, const Ice::Context*);
+
+    virtual bool sent();
 
     virtual AsyncStatus send(const Ice::ConnectionIPtr&, bool, bool);
     virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*);
@@ -184,8 +186,6 @@ class ICE_API ProxyFlushBatch : public ProxyOutgoingAsyncBase
 public:
 
     ProxyFlushBatch(const Ice::ObjectPrx&, const std::string&, const CallbackBasePtr&, const Ice::LocalObjectPtr&);
-
-    virtual bool sent();
 
     virtual AsyncStatus send(const Ice::ConnectionIPtr&, bool, bool);
     virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*);

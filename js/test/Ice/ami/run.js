@@ -7,20 +7,4 @@
 //
 // **********************************************************************
 
-#pragma once
-
-module Test
-{
-
-interface Retry
-{
-    void op(bool kill);
-
-    idempotent int opIdempotent(int c);
-    void opNotIdempotent();
-    void opSystemException();
-
-    idempotent void shutdown();
-};
-
-};
+require("../../Common/Common").run(module.require);

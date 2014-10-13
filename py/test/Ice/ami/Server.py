@@ -20,7 +20,7 @@ import Test, TestI
 
 def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
-    communicator.getProperties().setProperty("ControllerAdapter.Endpoints", "tcp -p 12011")
+    communicator.getProperties().setProperty("ControllerAdapter.Endpoints", "default -p 12011")
     communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1")
 
     adapter = communicator.createObjectAdapter("TestAdapter")

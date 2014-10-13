@@ -303,7 +303,7 @@ def allTests(communicator, collocated):
 
     p = Test.TestIntfPrx.uncheckedCast(obj)
 
-    sref = "testController:tcp -p 12011"
+    sref = "testController:default -p 12011"
     obj = communicator.stringToProxy(sref)
     test(obj)
 

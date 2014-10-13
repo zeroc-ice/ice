@@ -65,9 +65,9 @@ var ConnectionRequestHandler = Ice.Class({
     {
         return out.__send(this._connection, this._compress, this._response);
     },
-    asyncRequestTimedOut: function(out)
+    asyncRequestCanceled: function(out)
     {
-        return this._connection.asyncRequestTimedOut(out);
+        return this._connection.asyncRequestCanceled(out);
     },
     getReference: function()
     {

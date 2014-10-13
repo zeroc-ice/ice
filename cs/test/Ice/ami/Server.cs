@@ -22,7 +22,7 @@ public class Server
     private static int run(string[] args, Ice.Communicator communicator)
     {
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
-        communicator.getProperties().setProperty("ControllerAdapter.Endpoints", "tcp -p 12011");
+        communicator.getProperties().setProperty("ControllerAdapter.Endpoints", "default -p 12011");
         communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
 
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

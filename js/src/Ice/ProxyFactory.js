@@ -252,7 +252,7 @@ var ProxyFactory = Ice.Class({
         //
         // Don't retry invocation timeouts.
         //
-        if(ex instanceof Ice.InvocationTimeoutException)
+        if(ex instanceof Ice.InvocationTimeoutException || ex instanceof Ice.InvocationCanceledException)
         {
             throw ex;
         }

@@ -1522,19 +1522,19 @@ public class AMI
                             response()
                             {
                             }
-
+                            
                             @Override
                             public void
                             exception(Ice.LocalException ex)
                             {
-                                    cb2.ex(ex);
+                                cb2.ex(ex);
                             }
 
                             @Override
                             public void
                             sent(boolean ss)
                             {
-                                    cb2.sent(ss);
+                                cb2.sent(ss);
                             }
                         });
                     cbs.add(cb2);

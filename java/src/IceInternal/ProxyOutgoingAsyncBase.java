@@ -37,12 +37,6 @@ public abstract class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
     }
 
     @Override
-    public boolean sent()
-    {
-        return sent(!_proxy.ice_isTwoway());
-    }
-
-    @Override
     public boolean completed(Ice.Exception exc)
     {
         if(_childObserver != null)

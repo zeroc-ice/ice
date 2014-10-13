@@ -34,8 +34,8 @@ var Debug = Ice.Debug;
 var FormatType = Ice.FormatType;
 var HashMap = Ice.HashMap;
 var OutgoingAsync = Ice.OutgoingAsync;
-var ProxyBatchOutgoingAsync = Ice.ProxyBatchOutgoingAsync;
-var GetConnectionOutgoingAsync = Ice.GetConnectionOutgoingAsync;
+var ProxyFlushBatch = Ice.ProxyFlushBatch;
+var ProxyGetConnection = Ice.ProxyGetConnection;
 var RefMode = Ice.ReferenceMode;
 var OperationMode = Ice.OperationMode;
 
@@ -419,16 +419,16 @@ var ObjectPrx = Ice.Class({
     },
     ice_getConnection: function()
     {
-        var __r = new GetConnectionOutgoingAsync(this);
+        var r = new ProxyGetConnection(this, "ice_getConnection");
         try
         {
-            this.__getRequestHandler().sendAsyncRequest(__r);
+            r.__invoke();
         }
-        catch(__ex)
+        catch(ex)
         {
-            this.__handleLocalException(__r, __ex);
+            r.__abort(ex);
         }
-        return __r;
+        return r;
     },
     ice_getCachedConnection: function()
     {
@@ -436,16 +436,16 @@ var ObjectPrx = Ice.Class({
     },
     ice_flushBatchRequests: function()
     {
-        var __r = new ProxyBatchOutgoingAsync(this, "ice_flushBatchRequests");
+        var r = new ProxyFlushBatch(this, "ice_flushBatchRequests");
         try
         {
-            __r.__invoke();
+            r.__invoke();
         }
-        catch(__ex)
+        catch(ex)
         {
-            this.__handleLocalException(__r, __ex);
+            r.__abort(ex);
         }
-        return __r;
+        return r;
     },
     equals: function(r)
     {
@@ -493,16 +493,16 @@ var ObjectPrx = Ice.Class({
         // also always be retried if the retry count isn't reached.
         //
         if(ex instanceof Ice.LocalException &&
-            (!sent ||
+           (!sent ||
             mode == OperationMode.Nonmutating || mode == OperationMode.Idempotent ||
             ex instanceof Ice.CloseConnectionException || ex instanceof Ice.ObjectNotExistException))
         {
             try
             {
                 return this._reference.getInstance().proxyFactory().checkRetryAfterException(ex,
-                                                                                                this._reference,
-                                                                                                sleep,
-                                                                                                cnt);
+                                                                                             this._reference,
+                                                                                             sleep,
+                                                                                             cnt);
             }
             catch(exc)
             {
@@ -530,56 +530,6 @@ var ObjectPrx = Ice.Class({
         {
             throw new Error("`" + name + "' can only be called with a twoway proxy");
         }
-    },
-    ice_invoke: function(operation, mode, inParams, ctx, explicitCtx)
-    {
-        if(explicitCtx && ctx === null)
-        {
-            ctx = new Ice.HashMap();
-        }
-
-        var self = this;
-
-        var completedFn = function(__res)
-            {
-                try
-                {
-                    var results = [];
-                    if((__r._state & AsyncResult.OK) === 0)
-                    {
-                        results.push(false);
-                    }
-                    else
-                    {
-                        results.push(true);
-                    }
-                    if(self._reference.getMode() === Ice.ReferenceMode.ModeTwoway)
-                    {
-                        results.push(__res._is.readEncaps(null));
-                    }
-                    results.push(__res);
-                    __res.succeed.apply(__res, results);
-                }
-                catch(ex)
-                {
-                    ObjectPrx.__dispatchLocalException(__res, ex);
-                    return;
-                }
-            };
-
-        var __r = new OutgoingAsync(this, operation, completedFn, completedFn);
-
-        try
-        {
-            __r.__prepare(operation, mode, ctx);
-            __r.__writeParamEncaps(inParams);
-            __r.__invoke();
-        }
-        catch(ex)
-        {
-            this.__handleLocalException(__r, ex);
-        }
-        return __r;
     },
     __getRequestHandler: function()
     {
@@ -623,17 +573,6 @@ var ObjectPrx = Ice.Class({
         var proxy = new this.constructor();
         proxy.__setup(ref);
         return proxy;
-    },
-    __handleLocalException: function(__r, __ex)
-    {
-        if(__ex instanceof Ice.LocalException)
-        {
-            __r.__invokeException(__ex);
-        }
-        else
-        {
-            throw __ex;
-        }
     },
     ice_instanceof: function(T)
     {
@@ -682,7 +621,7 @@ ObjectPrx.__invoke = function(p, name, mode, fmt, ctx, marshalFn, unmarshalFn, u
     }
     catch(ex)
     {
-        p.__handleLocalException(__r, ex);
+        __r.__abort(ex);
     }
     return __r;
 };
@@ -861,13 +800,21 @@ ObjectPrx.checkedCast = function(prx, facet, ctx)
             prx = prx.ice_facet(facet);
         }
 
-        var __h = new this();
-        __h.__copyFrom(prx);
-        __r = new AsyncResultBase(prx.ice_getCommunicator(), "checkedCast", null, __h, null);
+        var self = this;
+        __r = new AsyncResultBase(prx.ice_getCommunicator(), "checkedCast", null, prx, null);
         prx.ice_isA(this.ice_staticId(), ctx).then(
             function(__res, __ret)
             {
-                __r.succeed(__ret ? __h : null, __r);
+                if(__ret)
+                {
+                    var __h = new self();
+                    __h.__copyFrom(prx);
+                    __r.succeed(__h, __r);
+                }
+                else
+                {
+                    __r.succeed(null, __r);
+                }
             }).exception(
                 function(__ex)
                 {

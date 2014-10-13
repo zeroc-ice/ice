@@ -29,6 +29,7 @@ var RetryQueue = Class({
                                                      {
                                                          task.run();
                                                      }, interval);
+        outAsync.__cancelable(task);
         this._requests.push(task);
     },
     destroy: function()
@@ -48,6 +49,16 @@ var RetryQueue = Class({
         {
             this._requests.splice(idx, 1);
         }
+    },
+    cancel: function(task)
+    {
+        var idx = this._requests.indexOf(task);
+        if(idx >= 0)
+        {
+            this._requests.splice(idx, 1);
+            return this._instance.timer().cancel(task.token);
+        }
+        return false;
     }
 });
 Ice.RetryQueue = RetryQueue;
@@ -60,19 +71,32 @@ var RetryTask = Class({
     },
     run: function()
     {
-        try
-        {
-            this.outAsync.__invoke();
-        }
-        catch(ex)
-        {
-            this.outAsync.__invokeException(ex);
-        }
+        this.outAsync.__retry();
+
         this.queue.remove(this);
     },
     destroy: function()
     {
-        this.outAsync.__invokeException(new Ice.CommunicatorDestroyedException());
+        try
+        {
+            this.outAsync.__abort(new Ice.CommunicatorDestroyedException());
+        }
+        catch(ex)
+        {
+            // Abort shouldn't throw if there's no callback, ignore.
+        }
+    },
+    asyncRequestCanceled: function(outAsync, ex)
+    {
+        if(this.queue.cancel(this))
+        {
+            //
+            // We just retry the outgoing async now rather than marking it
+            // as finished. The retry will check for the cancellation
+            // exception and terminate appropriately the request.
+            //
+            this.outAsync.__retry();
+        }
     }
 });
 module.exports.Ice = Ice;

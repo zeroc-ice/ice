@@ -90,7 +90,7 @@
             {
                 out.writeLine("ok");
                 out.write("testing idempotent operation... ");
-                return retry1.opIdempotent(0);
+                return retry1.opIdempotent(4);
             }
         ).then(
             function(count)
@@ -98,7 +98,7 @@
                 test(count === 4);
                 out.writeLine("ok");
                 out.write("testing non-idempotent operation... ");
-                return retry1.opNotIdempotent(4);
+                return retry1.opNotIdempotent();
             }
         ).then(
             function()
@@ -107,13 +107,29 @@
             },
             function(ex)
             {
-                test(ex instanceof Ice.LocalException);
-                return retry1.shutdown();
+                out.writeLine("ok");
+                out.write("testing invocation timeout and retries... ");
+                return retry1.ice_invocationTimeout(50).opIdempotent(4);
+            }
+        ).then(
+            function()
+            {
+                test(false);
+            },
+            function(ex)
+            {
+                test(ex instanceof Ice.InvocationTimeoutException);
+                return retry1.opIdempotent(-1);
             }
         ).then(
             function()
             {
                 out.writeLine("ok");
+                return retry1.shutdown();
+            }
+        ).then(
+            function()
+            {
                 p.succeed();
             },
             function(ex)
@@ -129,7 +145,7 @@
         //
         // For this test, we want to disable retries.
         //
-        id.properties.setProperty("Ice.RetryIntervals", "0 10 20 30");
+        id.properties.setProperty("Ice.RetryIntervals", "0 1 100 1");
 
         //
         // We don't want connection warnings because of the timeout

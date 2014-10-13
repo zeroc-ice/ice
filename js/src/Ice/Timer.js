@@ -14,9 +14,9 @@ var HashMap = Ice.HashMap;
 var CommunicatorDestroyedException = Ice.CommunicatorDestroyedException;
 
 var Timer = Ice.Class({
-    __init__: function(instance)
+    __init__: function(logger)
     {
-        this._instance = instance;
+        this._logger = logger;
         this._destroyed = false;
         this._tokenId = 0;
         this._tokens = new HashMap();
@@ -39,7 +39,6 @@ var Timer = Ice.Class({
 
         var token = this._tokenId++;
         var self = this;
-
         var id = setTimeout(function() { self.handleTimeout(token); }, delay);
         this._tokens.set(token, { callback: callback, id: id, isInterval: false });
 
@@ -96,7 +95,14 @@ var Timer = Ice.Class({
         if(token !== undefined)
         {
             this._tokens.delete(id);
-            token.callback();
+            try
+            {
+                token.callback();
+            }
+            catch(ex)
+            {
+                this._logger.warning("uncaught exception while executing timer:\n" + ex);
+            }
         }
     },
     handleInterval: function(id)
@@ -109,7 +115,14 @@ var Timer = Ice.Class({
         var token = this._tokens.get(id);
         if(token !== undefined)
         {
-            token.callback();
+            try
+            {
+                token.callback();
+            }
+            catch(ex)
+            {
+                this._logger.warning("uncaught exception while executing timer:\n" + ex);
+            }
         }
     }
 });

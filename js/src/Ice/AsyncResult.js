@@ -27,24 +27,109 @@ var UserException = Ice.UserException;
 var BasicStream = Ice.BasicStream;
 
 var AsyncResult = Ice.Class(AsyncResultBase, {
-    __init__: function(communicator, op, connection, proxy, adapter, completedFn, sentFn)
+    __init__: function(com, op, connection, proxy, adapter, completedFn)
     {
         //
         // AsyncResult can be constructed by a sub-type's prototype, in which case the
         // arguments are undefined.
         //
-        AsyncResultBase.call(this, communicator, op, connection, proxy, adapter);
-        if(communicator !== undefined)
+        AsyncResultBase.call(this, com, op, connection, proxy, adapter);
+        if(com === undefined)
         {
-            this._completed = completedFn;
-            this._sent = sentFn;
-            this._is = null;
-            this._os = communicator !== null ?
-                new BasicStream(this._instance, Protocol.currentProtocolEncoding, false) : null;
-            this._state = 0;
-            this._exception = null;
-            this._timeoutRequestHandler = null;
-            this._timeoutToken = null;
+            return;
+        }
+        
+        this._completed = completedFn;
+        this._is = null;
+        this._os = com !== null ? new BasicStream(this._instance, Protocol.currentProtocolEncoding, false) : null;
+        this._state = 0;
+        this._exception = null;
+        this._sentSynchronously = false;
+    },
+    cancel: function()
+    {
+        this.__cancel(new Ice.InvocationCanceledException());
+    },
+    isCompleted: function()
+    {
+        return (this._state & AsyncResult.Done) > 0;
+    },
+    isSent: function()
+    {
+        return (this._state & AsyncResult.Sent) > 0;
+    },
+    throwLocalException: function()
+    {
+        if(this._exception !== null)
+        {
+            throw this._exception;
+        }
+    },
+    sentSynchronously: function()
+    {
+        return this._sentSynchronously;
+    },
+    __markSent: function(done)
+    {
+        Debug.assert((this._state & AsyncResult.Done) === 0);
+        this._state |= AsyncResult.Sent;
+        if(done)
+        {
+            this._state |= AsyncResult.Done | AsyncResult.OK;
+            this._cancellationHandler = null;
+            this.succeed(this);
+        }
+    },
+    __markFinished: function(ok, completed)
+    {
+        Debug.assert((this._state & AsyncResult.Done) === 0);
+        this._state |= AsyncResult.Done;
+        if(ok)
+        {
+            this._state |= AsyncResult.OK;
+        }
+        this._cancellationHandler = null;
+        if(completed)
+        {
+            completed(this);
+        }
+        else
+        {
+            this.succeed(this);
+        }
+    },
+    __markFinishedEx: function(ex)
+    {
+        Debug.assert((this._state & AsyncResult.Done) === 0);
+        this._exception = ex;
+        this._state |= AsyncResult.Done;
+        this._cancellationHandler = null;
+        this.fail(ex, this);
+    },
+    __cancel: function(ex)
+    {
+        this._cancellationException = ex;
+        if(this._cancellationHandler)
+        {
+            this._cancellationHandler.asyncRequestCanceled(this, ex);
+        }
+    },
+    __cancelable: function(handler)
+    {
+        if(this._cancellationException)
+        {
+            handler.asyncRequestCanceled(this, this._cancellationException);
+        }
+        else
+        {
+            this._cancellationHandler = handler;
+        }
+    },
+    __checkCanceled: function()
+    {
+        if(this._cancellationException)
+        {
+            throw this._cancellationException;
         }
     },
     __os: function()
@@ -92,34 +177,6 @@ var AsyncResult = Ice.Class(AsyncResultBase, {
             }
         }
     },
-    __invokeException: function(ex)
-    {
-        this._state |= AsyncResult.Done;
-        this._exception = ex;
-        this._os.resize(0);
-        this.fail(ex, this);
-    },
-    __invokeCompleted: function()
-    {
-        //
-        // Note: no need to change the state here, specializations are responsible for
-        // changing the state.
-        //
-
-        if(this.proxy !== null && this.proxy.ice_isTwoway())
-        {
-            Debug.assert(this._completed !== null);
-            this._completed(this);
-        }
-    },
-    __runTimerTask: function()
-    {
-        if(this._timeoutRequestHandler)
-        {
-            this._timeoutRequestHandler.asyncRequestTimedOut(this);
-            this._timeoutRequestHnalder = null;
-        }
-    }
 });
 
 AsyncResult.OK = 0x1;

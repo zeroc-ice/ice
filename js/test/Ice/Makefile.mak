@@ -11,7 +11,10 @@ top_srcdir	= ..\..
 
 !include $(top_srcdir)\config\Make.rules.mak.js
 
-SUBDIRS         = binding \
+SUBDIRS         = \
+		acm \
+		ami \
+		binding \
                 defaultValue \
                 enums \
                 exceptions \
@@ -31,8 +34,7 @@ SUBDIRS         = binding \
                 proxy \
                 retry \
                 slicing \
-                timeout \
-		acm
+                timeout
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

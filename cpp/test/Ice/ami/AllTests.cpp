@@ -855,7 +855,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
     Test::TestIntfPrx p = Test::TestIntfPrx::uncheckedCast(obj);
 
-    sref = "testController:tcp -p 12011";
+    sref = "testController:default -p 12011";
     obj = communicator->stringToProxy(sref);
     test(obj);
 

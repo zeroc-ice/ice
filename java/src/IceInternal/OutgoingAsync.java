@@ -143,6 +143,12 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
     }
 
     @Override
+    public boolean sent()
+    {
+        return sent(!_proxy.ice_isTwoway()); // done = true if not a two-way proxy (no response expected)
+    }
+
+    @Override
     public int send(Ice.ConnectionI connection, boolean compress, boolean response) throws RetryException
     {
         _cachedConnection = connection;

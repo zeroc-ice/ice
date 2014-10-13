@@ -78,12 +78,6 @@ ProxyOutgoingAsyncBase::getProxy() const
 }
 
 bool
-ProxyOutgoingAsyncBase::sent()
-{
-    return sent(!_proxy->ice_isTwoway()); // Done if it's not a two-way proxy (no response expected).
-}
-
-bool
 ProxyOutgoingAsyncBase::completed(const Exception& exc)
 {
     if(_childObserver)
@@ -391,6 +385,12 @@ OutgoingAsync::prepare(const string& operation, OperationMode mode, const Contex
     }
 }
 
+bool
+OutgoingAsync::sent()
+{
+    return ProxyOutgoingAsyncBase::sent(!_proxy->ice_isTwoway()); // done = true if it's not a two-way proxy
+}
+
 AsyncStatus
 OutgoingAsync::send(const ConnectionIPtr& connection, bool compress, bool response)
 {
@@ -599,12 +599,6 @@ ProxyFlushBatch::ProxyFlushBatch(const ObjectPrx& proxy,
     ProxyOutgoingAsyncBase(proxy, operation, delegate, cookie)
 {
     _observer.attach(proxy.get(), operation, 0);
-}
-
-bool
-ProxyFlushBatch::sent()
-{
-    return ProxyOutgoingAsyncBase::sent(true); // Overriden because the flush is done even if using a two-way proxy.
 }
 
 AsyncStatus

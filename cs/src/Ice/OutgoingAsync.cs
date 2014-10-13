@@ -129,11 +129,6 @@ namespace IceInternal
             return proxy_;
         }
 
-        public override Ice.AsyncCallback sent()
-        {
-            return sent(!proxy_.ice_isTwoway());
-        }
-
         public override Ice.AsyncCallback completed(Ice.Exception exc)
         {
             if(childObserver_ != null)
@@ -480,6 +475,11 @@ namespace IceInternal
                     implicitContext.write(prxContext, os_);
                 }
             }
+        }
+
+        public override Ice.AsyncCallback sent()
+        {
+            return sent(!proxy_.ice_isTwoway()); // done = true if not a two-way proxy (no response expected)
         }
 
         public override bool send(Ice.ConnectionI con, bool compress, bool response, out Ice.AsyncCallback sentCB)
@@ -990,11 +990,6 @@ namespace IceInternal
             base(prx, operation, cookie)
         {
             observer_ = ObserverHelper.get(prx, operation);
-        }
-
-        public override Ice.AsyncCallback sent()
-        {
-            return sent(true); // Overriden because the flush is done even if using a two-way proxy.
         }
 
         public override bool send(Ice.ConnectionI con, bool compress, bool response, out Ice.AsyncCallback sentCB)

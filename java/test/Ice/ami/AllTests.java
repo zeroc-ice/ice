@@ -40,7 +40,7 @@ public class AllTests
 
         TestIntfPrx p = TestIntfPrxHelper.uncheckedCast(obj);
 
-        sref = "testController:tcp -p 12011";
+        sref = "testController:default -p 12011";
         obj = communicator.stringToProxy(sref);
         test(obj != null);
 

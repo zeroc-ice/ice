@@ -143,7 +143,7 @@ $(document).foundation();
                                 var href = document.location.protocol + "//" + document.location.host;
                                 if(!next)
                                 {
-                                    next = "Ice/binding";
+                                    next = "Ice/acm";
                                     if(protocol == "ws")
                                     {
                                         protocol = "wss";

@@ -282,8 +282,6 @@ var Instance = Ice.Class({
 
         try
         {
-            this._timer = new Timer();
-
             if(this._initData.properties === null)
             {
                 this._initData.properties = Properties.createProperties();
@@ -360,6 +358,7 @@ var Instance = Ice.Class({
             this._objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 
             this._retryQueue = new RetryQueue(this);
+            this._timer = new Timer(this._initData.logger);
 
             var router = Ice.RouterPrx.uncheckedCast(this._proxyFactory.propertyToProxy("Ice.Default.Router"));
             if(router !== null)

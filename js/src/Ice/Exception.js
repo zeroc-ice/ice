@@ -16,7 +16,10 @@ var Class = Ice.Class;
 var Exception = Class(Error, {
     __init__: function(cause)
     {
-        this.ice_cause = cause;
+        if(cause)
+        {
+            this.ice_cause = cause;
+        }
     },
     ice_name: function()
     {

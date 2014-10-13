@@ -66,7 +66,7 @@ IceInternal::RetryTask::destroy()
     }
     catch(const CommunicatorDestroyedException&)
     {
-        // Abort shouldn't throw if there's no callback, ignore.
+        // Abort can throw if there's no callback, ignore.
     }
 }
 

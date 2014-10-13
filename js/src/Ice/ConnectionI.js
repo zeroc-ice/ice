@@ -12,7 +12,6 @@ Ice.__M.require(module,
     [
         "../Ice/Class",
         "../Ice/AsyncStatus",
-        "../Ice/AsyncResultBase",
         "../Ice/BasicStream",
         "../Ice/OutgoingAsync",
         "../Ice/Debug",
@@ -33,7 +32,7 @@ Ice.__M.require(module,
 var AsyncStatus = Ice.AsyncStatus;
 var AsyncResultBase = Ice.AsyncResultBase;
 var BasicStream = Ice.BasicStream;
-var ConnectionBatchOutgoingAsync = Ice.ConnectionBatchOutgoingAsync;
+var ConnectionFlushBatch = Ice.ConnectionFlushBatch;
 var Debug = Ice.Debug;
 var ExUtil = Ice.ExUtil;
 var HashMap = Ice.HashMap;
@@ -419,6 +418,11 @@ var ConnectionI = Class({
             }
         }
 
+        if(response || (status & AsyncStatus.Queued) > 0)
+        {
+            out.__cancelable(this); // Notify the request that it's cancelable
+        }
+
         if(response)
         {
             //
@@ -623,15 +627,8 @@ var ConnectionI = Class({
     },
     flushBatchRequests: function()
     {
-        var result = new ConnectionBatchOutgoingAsync(this, this._communicator, "flushBatchRequests");
-        try
-        {
-            result.__invoke();
-        }
-        catch(ex)
-        {
-            result.__invokeException(ex);
-        }
+        var result = new ConnectionFlushBatch(this, this._communicator, "flushBatchRequests");
+        result.__invoke();
         return result;
     },
     flushAsyncBatchRequests: function(outAsync)
@@ -672,6 +669,11 @@ var ConnectionI = Class({
             {
                 throw ex;
             }
+        }
+
+        if((status & AsyncStatus.Queued) > 0)
+        {
+            outAsync.__cancelable(this); // Notify the request that it's cancelable.
         }
 
         //
@@ -737,7 +739,7 @@ var ConnectionI = Class({
         return this._monitor !== null ? this._monitor.getACM() :
             new ACM(0, ACMClose.CloseOff, ACMHeartbeat.HeartbeatOff);
     },
-    asyncRequestTimedOut: function(outAsync)
+    asyncRequestCanceled: function(outAsync, ex)
     {
         for(var i = 0; i < this._sendStreams.length; i++)
         {
@@ -753,12 +755,12 @@ var ConnectionI = Class({
                 // If the request is being sent, don't remove it from the send streams,
                 // it will be removed once the sending is finished.
                 //
-                var isSent = i.timedOut();
+                o.canceled();
                 if(i !== 0)
                 {
                     this._sendStreams.splice(i, 1);
                 }
-                outAsync.__finishedEx(new Ice.InvocationTimeoutException(), isSent);
+                outAsync.__completedEx(ex);
                 return; // We're done.
             }
         }
@@ -770,7 +772,7 @@ var ConnectionI = Class({
                 if(e.value === outAsync)
                 {
                     this._asyncRequests.delete(e.key);
-                    outAsync.__finishedEx(new Ice.InvocationTimeoutException(), true);
+                    outAsync.__completedEx(ex);
                     return; // We're done.
                 }
             }
@@ -1119,7 +1121,7 @@ var ConnectionI = Class({
         {
             if(info.outAsync !== null)
             {
-                info.outAsync.__finished(info.stream);
+                info.outAsync.__completed(info.stream);
                 ++count;
             }
 
@@ -1247,14 +1249,14 @@ var ConnectionI = Class({
                 {
                     this._asyncRequests.delete(p.requestId);
                 }
-                p.finished(this._exception);
+                p.completed(this._exception);
             }
             this._sendStreams = [];
         }
 
         for(var e = this._asyncRequests.entries; e !== null; e = e.next)
         {
-            e.value.__finishedEx(this._exception, true);
+            e.value.__completedEx(this._exception);
         }
         this._asyncRequests.clear();
 
@@ -1779,7 +1781,7 @@ var ConnectionI = Class({
                 //
                 var message = this._sendStreams.shift();
                 this._writeStream.swap(message.stream);
-                message.sent(this);
+                message.sent();
 
                 //
                 // If there's nothing left to send, we're done.
@@ -1890,7 +1892,7 @@ var ConnectionI = Class({
             //
             // Entire buffer was written immediately.
             //
-            message.sent(this);
+            message.sent();
 
             if(this._acmLastActivity > 0)
             {
@@ -2273,13 +2275,11 @@ var OutgoingMessage = Class({
         this.compress = false;
         this.requestId = 0;
         this.prepared = false;
-        this.isSent = false;
     },
-    timedOut: function()
+    canceled: function()
     {
         Debug.assert(this.outAsync !== null);
         this.outAsync = null;
-        return this.isSent;
     },
     doAdopt: function()
     {
@@ -2291,20 +2291,18 @@ var OutgoingMessage = Class({
             this.adopt = false;
         }
     },
-    sent: function(connection)
+    sent: function()
     {
-        this.isSent = true; // The message is sent.
-
         if(this.outAsync !== null)
         {
             this.outAsync.__sent();
         }
     },
-    finished: function(ex)
+    completed: function(ex)
     {
         if(this.outAsync !== null)
         {
-            this.outAsync.__finishedEx(ex, this.isSent);
+            this.outAsync.__completedEx(ex);
         }
     }
 });

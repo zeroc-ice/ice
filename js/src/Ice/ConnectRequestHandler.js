@@ -160,6 +160,7 @@ var ConnectRequestHandler = Ice.Class({
             if(!this.initialized())
             {
                 this._requests.push(new Request(out));
+                out.__cancelable(this);
                 return AsyncStatus.Queued;
             }
         }
@@ -169,7 +170,7 @@ var ConnectRequestHandler = Ice.Class({
         }
         return out.__send(this._connection, this._compress, this._response);
     },
-    asyncRequestTimedOut: function(out)
+    asyncRequestCanceled: function(out, ex)
     {
         if(this._exception !== null)
         {
@@ -182,14 +183,14 @@ var ConnectRequestHandler = Ice.Class({
             {
                 if(this._requests[i].out === out)
                 {
-                    out.__finishedEx(new Ice.InvocationTimeoutException(), false);
+                    out.__completedEx(ex);
                     this._requests.splice(i, 1);
                     return;
                 }
             }
             Debug.assert(false); // The request has to be queued if it timed out and we're not initialized yet.
         }
-        this._connection.asyncRequestTimedOut(out);
+        this._connection.asyncRequestCanceled(out, ex);
     },
     getReference: function()
     {
@@ -383,7 +384,7 @@ var ConnectRequestHandler = Ice.Class({
             var request = this._requests[i];
             if(request.out !== null)
             {
-                request.out.__finishedEx(this._exception, false);
+                request.out.__completedEx(this._exception);
             }
         }
         this._requests = [];

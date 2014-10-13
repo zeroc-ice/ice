@@ -26,6 +26,7 @@ import TestUtil
 #
 tests = [
     ("Ice/acm", ["core"]),
+    ("Ice/ami", ["core"]),
     ("Ice/binding", ["core"]),
     ("Ice/defaultValue", ["once"]),
     ("Ice/enums", ["once"]),
