@@ -27,7 +27,11 @@ OBJS		= .\Communicator.obj \
 
 !include $(top_srcdir)\config\Make.rules.mak.php
 
-CPPFLAGS	= -I. -I.. $(CPPFLAGS) $(ICE_CPPFLAGS) $(PHP_CPPFLAGS) -D_USE_32BIT_TIME_T
+CPPFLAGS	= -I. -I.. $(CPPFLAGS) $(ICE_CPPFLAGS) $(PHP_CPPFLAGS) 
+
+!if "$(ARCH)" == "x86"
+CPPFLAGS = $(CPPFLAGS) -D_USE_32BIT_TIME_T
+!endif
 
 !if "$(OPTIMIZE)" != "yes"
 PDBFLAGS        = /pdb:$(LIBNAME:.lib=.pdb)
@@ -38,7 +42,7 @@ LINKWITH        = $(ICE_LIBS) $(PHP_LIBS) $(CXXLIBS)
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS) IcePHP.res
-	$(LINK) $(ICE_LDFLAGS) $(PHP_LDFLAGS) $(LD_DLLFLAGS) $(PDBFLAGS) /export:get_module $(OBJS) \
+	$(LINK) $(ICE_LDFLAGS) $(PHP_LDFLAGS) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) \
 		$(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH) IcePHP.res
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 

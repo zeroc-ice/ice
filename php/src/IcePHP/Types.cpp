@@ -356,7 +356,7 @@ IcePHP::SlicedDataUtil::setMember(zval* obj, const Ice::SlicedDataPtr& slicedDat
         zval* typeId;
         MAKE_STD_ZVAL(typeId);
         AutoDestroy typeIdDestroyer(typeId);
-        ZVAL_STRINGL(typeId, STRCAST((*p)->typeId.c_str()), (*p)->typeId.size(), 1);
+        ZVAL_STRINGL(typeId, STRCAST((*p)->typeId.c_str()), static_cast<int>((*p)->typeId.size()), 1);
         if(add_property_zval(slice, STRCAST("typeId"), typeId) != SUCCESS)
         {
             throw AbortMarshaling();
@@ -996,7 +996,7 @@ IcePHP::PrimitiveInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalC
         if(sizeof(Ice::Long) > sizeof(long) && (val < LONG_MIN || val > LONG_MAX))
         {
             string str = IceUtilInternal::int64ToString(val);
-            ZVAL_STRINGL(zv, STRCAST(str.c_str()), str.length(), 1);
+            ZVAL_STRINGL(zv, STRCAST(str.c_str()), static_cast<int>(str.length()), 1);
         }
         else
         {
@@ -1022,7 +1022,7 @@ IcePHP::PrimitiveInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalC
     {
         string val;
         is->read(val);
-        ZVAL_STRINGL(zv, STRCAST(val.c_str()), val.length(), 1);
+        ZVAL_STRINGL(zv, STRCAST(val.c_str()), static_cast<int>(val.length()), 1);
         break;
     }
     }
@@ -1967,7 +1967,7 @@ IcePHP::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, con
             if(sizeof(Ice::Long) > sizeof(long) && (*p < LONG_MIN || *p > LONG_MAX))
             {
                 string str = IceUtilInternal::int64ToString(*p);
-                ZVAL_STRINGL(val, STRCAST(str.c_str()), str.length(), 1);
+                ZVAL_STRINGL(val, STRCAST(str.c_str()), static_cast<int>(str.length()), 1);
             }
             else
             {
@@ -2016,7 +2016,7 @@ IcePHP::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, con
         {
             zval* val;
             MAKE_STD_ZVAL(val);
-            ZVAL_STRINGL(val, STRCAST(p->c_str()), p->length(), 1);
+            ZVAL_STRINGL(val, STRCAST(p->c_str()), static_cast<int>(p->length()), 1);
             add_index_zval(zv, i, val);
         }
         break;
@@ -2903,7 +2903,7 @@ void
 IcePHP::ObjectWriter::ice_preMarshal()
 {
     string name = "ice_premarshal"; // Must be lowercase.
-    if(zend_hash_exists(&Z_OBJCE_P(_object)->function_table, STRCAST(name.c_str()), name.size() + 1))
+    if(zend_hash_exists(&Z_OBJCE_P(_object)->function_table, STRCAST(name.c_str()), static_cast<uint>(name.size() + 1)))
     {
         if(!invokeMethod(_object, name TSRMLS_CC))
         {
@@ -2956,8 +2956,8 @@ IcePHP::ObjectWriter::writeMembers(const Ice::OutputStreamPtr& os, const DataMem
         DataMemberPtr member = *q;
 
         void* data;
-        if(zend_hash_find(Z_OBJPROP_P(_object), STRCAST(member->name.c_str()), member->name.size() + 1, &data) ==
-           FAILURE)
+        if(zend_hash_find(Z_OBJPROP_P(_object), 
+                          STRCAST(member->name.c_str()), static_cast<int>(member->name.size() + 1), &data) == FAILURE)
         {
             runtimeError("member `%s' of %s is not defined" TSRMLS_CC, member->name.c_str(), _info->id.c_str());
             throw AbortMarshaling();
@@ -3004,7 +3004,7 @@ void
 IcePHP::ObjectReader::ice_postUnmarshal()
 {
     string name = "ice_postunmarshal"; // Must be lowercase.
-    if(zend_hash_exists(&Z_OBJCE_P(_object)->function_table, STRCAST(name.c_str()), name.size() + 1))
+    if(zend_hash_exists(&Z_OBJCE_P(_object)->function_table, STRCAST(name.c_str()), static_cast<int>(name.size() + 1)))
     {
         if(!invokeMethod(_object, name TSRMLS_CC))
         {
@@ -3083,7 +3083,7 @@ IcePHP::ObjectReader::read(const Ice::InputStreamPtr& is)
             zval* zv;
             MAKE_STD_ZVAL(zv);
             AutoDestroy typeIdDestroyer(zv);
-            ZVAL_STRINGL(zv, STRCAST(typeId.c_str()), typeId.size(), 1);
+            ZVAL_STRINGL(zv, STRCAST(typeId.c_str()), static_cast<int>(typeId.size()), 1);
             add_property_zval(_object, STRCAST("unknownTypeId"), zv);
         }
     }
@@ -3274,7 +3274,8 @@ IcePHP::ExceptionInfo::printMembers(zval* zv, IceUtilInternal::Output& out, Prin
 
         out << nl << member->name << " = ";
         void* data;
-        if(zend_hash_find(Z_OBJPROP_P(zv), STRCAST(member->name.c_str()), member->name.size() + 1, &data) == SUCCESS)
+        if(zend_hash_find(Z_OBJPROP_P(zv), STRCAST(member->name.c_str()), static_cast<int>(member->name.size() + 1), 
+                          &data) == SUCCESS)
         {
             zval** val = reinterpret_cast<zval**>(data);
             member->type->print(*val, out, history TSRMLS_CC);
@@ -3291,7 +3292,8 @@ IcePHP::ExceptionInfo::printMembers(zval* zv, IceUtilInternal::Output& out, Prin
 
         out << nl << member->name << " = ";
         void* data;
-        if(zend_hash_find(Z_OBJPROP_P(zv), STRCAST(member->name.c_str()), member->name.size() + 1, &data) == SUCCESS)
+        if(zend_hash_find(Z_OBJPROP_P(zv), STRCAST(member->name.c_str()), static_cast<int>(member->name.size() + 1),
+                          &data) == SUCCESS)
         {
             zval** val = reinterpret_cast<zval**>(data);
             if(isUnset(*val TSRMLS_CC))
@@ -3803,7 +3805,7 @@ ZEND_FUNCTION(IcePHP_stringify)
     type->print(v, out, &history TSRMLS_CC);
 
     string str = ostr.str();
-    RETURN_STRINGL(STRCAST(str.c_str()), str.length(), 1);
+    RETURN_STRINGL(STRCAST(str.c_str()), static_cast<int>(str.length()), 1);
 }
 
 ZEND_FUNCTION(IcePHP_stringifyException)
@@ -3829,7 +3831,7 @@ ZEND_FUNCTION(IcePHP_stringifyException)
     ex->print(v, out TSRMLS_CC);
 
     string str = ostr.str();
-    RETURN_STRINGL(STRCAST(str.c_str()), str.length(), 1);
+    RETURN_STRINGL(STRCAST(str.c_str()), static_cast<int>(str.length()), 1);
 }
 
 //
@@ -3937,7 +3939,7 @@ IcePHP::typesRequestInit(TSRMLS_D)
 
     zval* unset;
     MAKE_STD_ZVAL(unset);
-    ZVAL_STRINGL(unset, STRCAST(_unsetGUID.c_str()), _unsetGUID.length(), 1);
+    ZVAL_STRINGL(unset, STRCAST(_unsetGUID.c_str()), static_cast<int>(_unsetGUID.length()), 1);
     ICE_G(unset) = unset;
 
     return true;

@@ -147,7 +147,7 @@ versionToString(zval* zv, zval* s, const char* type TSRMLS_DC)
     try
     {
         string str = IceInternal::versionToString<T>(v);
-        ZVAL_STRINGL(s, STRCAST(str.c_str()), str.length(), 1);
+        ZVAL_STRINGL(s, STRCAST(str.c_str()), static_cast<int>(str.length()), 1);
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -247,7 +247,7 @@ zend_class_entry*
 IcePHP::nameToClass(const string& name TSRMLS_DC)
 {
     zend_class_entry** result;
-    if(zend_lookup_class(STRCAST(name.c_str()), name.length(), &result TSRMLS_CC) == FAILURE)
+    if(zend_lookup_class(STRCAST(name.c_str()), static_cast<int>(name.length()), &result TSRMLS_CC) == FAILURE)
     {
         return 0;
     }
@@ -323,7 +323,8 @@ IcePHP::createStringMap(zval* zv, const map<string, string>& ctx TSRMLS_DC)
     for(map<string, string>::const_iterator p = ctx.begin(); p != ctx.end(); ++p)
     {
         if(add_assoc_stringl_ex(zv, const_cast<char*>(p->first.c_str()), p->first.length() + 1,
-                                const_cast<char*>(p->second.c_str()), p->second.length(), 1) == FAILURE)
+                                const_cast<char*>(p->second.c_str()), 
+                                static_cast<uint>(p->second.length()), 1) == FAILURE)
         {
             return false;
         }
@@ -388,7 +389,7 @@ IcePHP::createStringArray(zval* zv, const Ice::StringSeq& seq TSRMLS_DC)
     array_init(zv);
     for(Ice::StringSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
-        if(add_next_index_stringl(zv, STRCAST(p->c_str()), p->length(), 1) == FAILURE)
+        if(add_next_index_stringl(zv, STRCAST(p->c_str()), static_cast<uint>(p->length()), 1) == FAILURE)
         {
             return false;
         }
@@ -758,7 +759,7 @@ throwError(const string& name, const string& msg TSRMLS_DC)
     zend_class_entry* cls;
     {
         zend_class_entry** p;
-        if(zend_lookup_class(STRCAST(name.c_str()), name.size(), &p TSRMLS_CC) == FAILURE)
+        if(zend_lookup_class(STRCAST(name.c_str()), static_cast<int>(name.size()), &p TSRMLS_CC) == FAILURE)
         {
             assert(false);
         }
@@ -867,7 +868,7 @@ IcePHP::invokeMethod(zval* obj, const string& name, const string& arg TSRMLS_DC)
 {
     zval* param;
     MAKE_STD_ZVAL(param);
-    ZVAL_STRINGL(param, STRCAST(arg.c_str()), arg.size(), 1);
+    ZVAL_STRINGL(param, STRCAST(arg.c_str()), static_cast<int>(arg.size()), 1);
     AutoDestroy destroy(param);
     return invokeMethodHelper(obj, name, param TSRMLS_CC);
 }
@@ -903,7 +904,7 @@ ZEND_FUNCTION(Ice_stringVersion)
         WRONG_PARAM_COUNT;
     }
 
-    RETURN_STRINGL(STRCAST(ICE_STRING_VERSION), strlen(ICE_STRING_VERSION), 1);
+    RETURN_STRINGL(STRCAST(ICE_STRING_VERSION), static_cast<int>(strlen(ICE_STRING_VERSION)), 1);
 }
 
 ZEND_FUNCTION(Ice_intVersion)
@@ -924,7 +925,7 @@ ZEND_FUNCTION(Ice_generateUUID)
     }
 
     string uuid = IceUtil::generateUUID();
-    RETURN_STRINGL(STRCAST(uuid.c_str()), uuid.size(), 1);
+    RETURN_STRINGL(STRCAST(uuid.c_str()), static_cast<int>(uuid.size()), 1);
 }
 
 ZEND_FUNCTION(Ice_currentProtocol)

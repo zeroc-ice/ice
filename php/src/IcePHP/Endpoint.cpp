@@ -60,7 +60,7 @@ ZEND_METHOD(Ice_Endpoint, __toString)
     try
     {
         string str = _this->toString();
-        RETURN_STRINGL(STRCAST(str.c_str()), str.length(), 1);
+        RETURN_STRINGL(STRCAST(str.c_str()), static_cast<int>(str.length()), 1);
     }
     catch(const IceUtil::Exception& ex)
     {

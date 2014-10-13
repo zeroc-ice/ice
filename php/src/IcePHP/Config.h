@@ -42,6 +42,10 @@ extern "C"
 #	pragma GCC diagnostic warning "-Wsign-compare"
 #endif
 
+#ifdef _WIN64
+#   pragma warning( disable : 4267) // suppress size_t/uint conversion warnings in zend macros for Windows x64 builds
+#endif
+
 #if defined(__GNUC__)
 #   pragma GCC diagnostic warning "-Wnarrowing"
 #endif

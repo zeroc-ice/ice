@@ -345,7 +345,7 @@ IcePHP::OperationI::function()
         string fixed = fixIdent(name);
         _zendFunction = static_cast<zend_internal_function*>(emalloc(sizeof(zend_internal_function)));
         _zendFunction->type = ZEND_INTERNAL_FUNCTION;
-        _zendFunction->function_name = estrndup(STRCAST(fixed.c_str()), fixed.length());
+        _zendFunction->function_name = estrndup(STRCAST(fixed.c_str()), static_cast<zend_uint>(fixed.length()));
         _zendFunction->scope = proxyClassEntry;
         _zendFunction->fn_flags = ZEND_ACC_PUBLIC;
         _zendFunction->prototype = 0;

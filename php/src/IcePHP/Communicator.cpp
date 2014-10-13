@@ -270,7 +270,7 @@ ZEND_METHOD(Ice_Communicator, proxyToString)
             assert(prx);
             str = prx->ice_toString();
         }
-        RETURN_STRINGL(STRCAST(str.c_str()), str.length(), 1);
+        RETURN_STRINGL(STRCAST(str.c_str()), static_cast<int>(str.length()), 1);
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -403,7 +403,7 @@ ZEND_METHOD(Ice_Communicator, identityToString)
     try
     {
         string str = _this->getCommunicator()->identityToString(id);
-        RETURN_STRINGL(STRCAST(str.c_str()), str.length(), 1);
+        RETURN_STRINGL(STRCAST(str.c_str()), static_cast<int>(str.length()), 1);
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -897,7 +897,7 @@ ZEND_FUNCTION(Ice_initialize)
         string member;
 
         member = "properties";
-        if(zend_hash_find(Z_OBJPROP_P(zvinit), STRCAST(member.c_str()), member.size() + 1, &data) == SUCCESS)
+        if(zend_hash_find(Z_OBJPROP_P(zvinit), STRCAST(member.c_str()), static_cast<uint>(member.size() + 1), &data) == SUCCESS)
         {
             zval** val = reinterpret_cast<zval**>(data);
             if(!fetchProperties(*val, initData.properties TSRMLS_CC))
@@ -907,7 +907,7 @@ ZEND_FUNCTION(Ice_initialize)
         }
 
         member = "logger";
-        if(zend_hash_find(Z_OBJPROP_P(zvinit), STRCAST(member.c_str()), member.size() + 1, &data) == SUCCESS)
+        if(zend_hash_find(Z_OBJPROP_P(zvinit), STRCAST(member.c_str()), static_cast<uint>(member.size() + 1), &data) == SUCCESS)
         {
             zval** val = reinterpret_cast<zval**>(data);
             if(!fetchLogger(*val, initData.logger TSRMLS_CC))
@@ -1627,14 +1627,14 @@ IcePHP::ObjectFactoryI::create(const string& id)
     {
         zval* arg;
         MAKE_STD_ZVAL(arg);
-        ZVAL_STRINGL(arg, STRCAST(id.c_str()), id.length(), 1);
+        ZVAL_STRINGL(arg, STRCAST(id.c_str()), static_cast<int>(id.length()), 1);
 
         zval* obj = 0;
 
         zend_try
         {
             const char* func = "create";
-            zend_call_method(&factory, 0, 0, const_cast<char*>(func), strlen(func), &obj, 1, arg, 0 TSRMLS_CC);
+            zend_call_method(&factory, 0, 0, const_cast<char*>(func), static_cast<int>(strlen(func)), &obj, 1, arg, 0 TSRMLS_CC);
         }
         zend_catch
         {
