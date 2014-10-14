@@ -350,8 +350,8 @@ def run(tests, root = False):
                 filters.append((testFilter, False))
         elif o == "--cross":
             global cross
-            if a not in ["cpp", "java", "cs", "py", "rb" ]:
-                print("cross must be one of cpp, java, cs, py or rb")
+            if a not in ["cpp", "cs", "java", "js", "py", "rb" ]:
+                print("cross must be one of cpp, cs, java, js, py or rb")
                 sys.exit(1)
             cross.append(a)
         elif o == "--all" :
@@ -442,12 +442,15 @@ def run(tests, root = False):
 
     if allCross:
         if len(cross) == 0:
-            cross = ["cpp", "java", "cs" ]
+            cross = ["cpp", "java", "js", "cs" ]
         if root:
-            allLang = ["cpp", "java", "cs" ]
+            allLang = ["cpp", "java", "js", "cs" ]
         else:
             allLang = [ getDefaultMapping() ]
         for lang in allLang:
+            # js test user server for other language so we can ignore this
+            if lang == "js":
+                continue
             # This is all other languages than the current mapping.
             crossLang = [ l for l in cross if lang != l ]
             # This is all eligible cross tests for the current mapping.
@@ -457,7 +460,7 @@ def run(tests, root = False):
                 expanded.append([ ( "%s/test/%s" % (lang, test), a, []) for test in crossTests])
 
                 # Add ssl & compress for the operations test.
-                if (compact or mono or silverlight) and c == "cs": # Don't add the ssl tests.
+                if ((compact or mono or silverlight) and c == "cs") or (c == "js"): # Don't add the ssl tests.
                     continue
                 a = "--cross=%s --protocol=ssl --compress %s" % (c, arg)
                 expanded.append([("%s/test/Ice/operations" % lang, a, [])])
@@ -1260,7 +1263,12 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
 
 
     global cross
-    if len(cross) == 0:
+
+    if len(cross) > 0:
+        if lang == "js":
+            print("** skipping js cross test")
+            return
+    elif len(cross) == 0:
         cross.append(lang)
 
     global clientHome
@@ -1769,8 +1777,8 @@ def processCmdLine():
         elif o == "--cross":
             global cross
             cross.append(a)
-            if not a in ["cpp", "java", "cs", "py", "rb" ]:
-                print("cross must be one of cpp, java, cs, py or rb")
+            if not a in ["cpp", "cs", "java", "js", "py", "rb" ]:
+                print("cross must be one of cpp, cs, java, js, py or rb")
                 sys.exit(1)
             if getTestName() not in crossTests:
                 print("*** This test does not support cross language testing")
