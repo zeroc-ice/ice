@@ -122,7 +122,7 @@ ReplicaCache::remove(const string& name, bool shutdown)
         {
             _observers->replicaRemoved(entry->getProxy());
         }
-        catch(const Ice::ConnectFailedException&)
+        catch(const Ice::ObjectAdapterDeactivatedException&)
         {
             // Expected if the replica is being shutdown.
         }
@@ -193,7 +193,7 @@ ReplicaCache::unsubscribe(const ReplicaObserverPrx& observer)
     {
         _topic->unsubscribe(observer);
     }
-    catch(const Ice::ConnectFailedException&)
+    catch(const Ice::ObjectAdapterDeactivatedException&)
     {
         // The replica is being shutdown.
     }
