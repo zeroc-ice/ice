@@ -400,3 +400,9 @@ InitialI::supportsCsharpSerializable(const Ice::Current&)
 {
     return true;
 }
+
+bool
+InitialI::supportsCppStringView(const Ice::Current&)
+{
+    return true;
+}

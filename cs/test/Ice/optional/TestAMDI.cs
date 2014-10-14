@@ -275,4 +275,10 @@ public class InitialI : Test.Initial
         cb.ice_response(true);
 #endif
     }
+
+    public override void supportsCppStringView_async(Test.AMD_Initial_supportsCppStringView cb,
+                                                     Ice.Current current)
+    {
+        cb.ice_response(false);
+    }
 }

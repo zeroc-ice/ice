@@ -310,4 +310,9 @@ public class InitialI : Test.Initial
         return true;
 #endif
     }
+
+    public override bool supportsCppStringView(Ice.Current current)
+    {
+        return false;
+    }
 }

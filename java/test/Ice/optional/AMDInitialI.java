@@ -585,4 +585,11 @@ public final class AMDInitialI extends Initial
     {
         cb.ice_response(false);
     }
+
+    @Override
+    public void
+    supportsCppStringView_async(AMD_Initial_supportsCppStringView cb, Ice.Current current)
+    {
+        cb.ice_response(false);
+    }
 }

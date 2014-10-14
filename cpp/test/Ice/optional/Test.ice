@@ -214,8 +214,8 @@ class Initial
     optional(1) string opString(optional(2) string p1, out optional(3) string p3);
 
     ["cpp:view-type:Util::string_view"] optional(1) string
-     opCustomString(["cpp:view-type:Util::string_view"] optional(2) string p1, 
-              out ["cpp:view-type:Util::string_view"] optional(3) string p3);
+    opCustomString(["cpp:view-type:Util::string_view"] optional(2) string p1, 
+                   out ["cpp:view-type:Util::string_view"] optional(3) string p3);
 
     optional(1) MyEnum opMyEnum(optional(2) MyEnum p1, out optional(3) MyEnum p3);
 
@@ -291,6 +291,8 @@ class Initial
     bool supportsJavaSerializable();
 
     bool supportsCsharpSerializable();
+
+    bool supportsCppStringView();
 };
 
 };
