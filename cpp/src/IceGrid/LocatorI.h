@@ -20,6 +20,9 @@ namespace IceGrid
 
 class Database;
 typedef IceUtil::Handle<Database> DatabasePtr;
+
+class WellKnownObjectsManager;
+typedef IceUtil::Handle<WellKnownObjectsManager> WellKnownObjectsManagerPtr;
     
 class LocatorI;
 typedef IceUtil::Handle<LocatorI> LocatorIPtr;
@@ -45,7 +48,7 @@ public:
     };
     typedef IceUtil::Handle<Request> RequestPtr;
 
-    LocatorI(const Ice::CommunicatorPtr&, const DatabasePtr&, const Ice::LocatorRegistryPrx&, const RegistryPrx&,
+    LocatorI(const Ice::CommunicatorPtr&, const DatabasePtr&, const WellKnownObjectsManagerPtr&, const RegistryPrx&,
              const QueryPrx&);
 
     virtual void findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr&, const Ice::Identity&, 
@@ -69,7 +72,7 @@ protected:
 
     const Ice::CommunicatorPtr _communicator;
     const DatabasePtr _database;
-    const Ice::LocatorRegistryPrx _locatorRegistry;
+    const WellKnownObjectsManagerPtr _wellKnownObjects;
     const RegistryPrx _localRegistry;
     const QueryPrx _localQuery;
 

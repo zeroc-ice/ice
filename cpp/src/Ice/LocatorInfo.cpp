@@ -549,9 +549,11 @@ IceInternal::LocatorInfo::getLocatorRegistry()
         IceUtil::Mutex::Lock sync(*this);
 
         //
-        // The locator registry can't be located.
+        // The locator registry can't be located. We use ordered
+        // endpoint selection in case the locator returned a proxy
+        // with some endpoints which are prefered to be tried first.
         //
-        _locatorRegistry = LocatorRegistryPrx::uncheckedCast(locatorRegistry->ice_locator(0));
+        _locatorRegistry = locatorRegistry->ice_locator(0)->ice_endpointSelection(Ice::Ordered);
         return _locatorRegistry;
     }
 }

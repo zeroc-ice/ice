@@ -27,6 +27,12 @@ Changes since version 3.5.1
 General Changes
 ===============
 
+- The IceGrid implementation of Ice::Locator::getRegistry now returns
+  a replicated proxy if IceGrid replication is used. This way, if a an
+  IceGrid replica becomes un-available during the server activation,
+  the server will still be able to register its endpoints if one of
+  the other replica.
+
 - Added a cancel() method to AsyncResult. Calling it prevents a queued
   asynchronous request from being sent, or ignores the reply if the
   request has already been sent. It does not cancel the request in the

@@ -330,9 +330,12 @@ public final class LocatorInfo
         synchronized(this)
         {
             //
-            // The locator registry can't be located.
+            // The locator registry can't be located. We use ordered
+            // endpoint selection in case the locator returned a proxy
+            // with some endpoints which are prefered to be tried first.
             //
-            _locatorRegistry = Ice.LocatorRegistryPrxHelper.uncheckedCast(locatorRegistry.ice_locator(null));
+            _locatorRegistry = (Ice.LocatorRegistryPrx)locatorRegistry.ice_locator(null).ice_endpointSelection(
+                Ice.EndpointSelectionType.Ordered);
             return _locatorRegistry;
         }
     }

@@ -85,8 +85,8 @@ public:
 
 private:
 
-    Ice::LocatorRegistryPrx setupLocatorRegistry(); 
-    LocatorPrx setupLocator(const Ice::LocatorRegistryPrx&, const RegistryPrx&, const QueryPrx&); 
+    void setupLocatorRegistry(); 
+    LocatorPrx setupLocator(const RegistryPrx&, const QueryPrx&); 
     QueryPrx setupQuery();
     RegistryPrx setupRegistry();
     InternalRegistryPrx setupInternalRegistry();

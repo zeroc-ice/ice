@@ -519,8 +519,8 @@ RegistryI::startImpl()
     QueryPrx query = setupQuery();
     RegistryPrx registry = setupRegistry();
 
-    Ice::LocatorRegistryPrx locatorRegistry = setupLocatorRegistry();
-    LocatorPrx internalLocator = setupLocator(locatorRegistry, registry, query);
+    setupLocatorRegistry();
+    LocatorPrx internalLocator = setupLocator(registry, query);
 
     //
     // Create the session servant manager. The session servant manager is responsible
@@ -639,23 +639,20 @@ RegistryI::startImpl()
     return true;
 }
 
-Ice::LocatorRegistryPrx
+void
 RegistryI::setupLocatorRegistry()
 {
-    bool dynReg = _communicator->getProperties()->getPropertyAsInt("IceGrid.Registry.DynamicRegistration") > 0;
+    const bool dynReg = _communicator->getProperties()->getPropertyAsInt("IceGrid.Registry.DynamicRegistration") > 0;
     Identity locatorRegId;
     locatorRegId.category = _instanceName;
-    locatorRegId.name = "LocatorRegistry-" + _replicaName;
-    ObjectPrx obj = _serverAdapter->add(new LocatorRegistryI(_database, dynReg, _master, *_session), locatorRegId);
-    return LocatorRegistryPrx::uncheckedCast(obj);
+    locatorRegId.name = "LocatorRegistry";
+    _serverAdapter->add(new LocatorRegistryI(_database, dynReg, _master, *_session), locatorRegId);
 }
 
 IceGrid::LocatorPrx
-RegistryI::setupLocator(const Ice::LocatorRegistryPrx& locatorRegistry,
-                        const RegistryPrx& registry,
-                        const QueryPrx& query)
+RegistryI::setupLocator(const RegistryPrx& registry, const QueryPrx& query)
 {
-    LocatorPtr locator = new LocatorI(_communicator, _database, locatorRegistry, registry, query);
+    LocatorPtr locator = new LocatorI(_communicator, _database, _wellKnownObjects, registry, query);
     Identity locatorId;
     locatorId.category = _instanceName;
 

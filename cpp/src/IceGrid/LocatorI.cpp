@@ -10,6 +10,7 @@
 #include <Ice/Ice.h>
 #include <IceGrid/LocatorI.h>
 #include <IceGrid/Database.h>
+#include <IceGrid/WellKnownObjectsManager.h>
 #include <IceGrid/SessionI.h>
 #include <IceGrid/Util.h>
 
@@ -813,12 +814,12 @@ private:
 
 LocatorI::LocatorI(const Ice::CommunicatorPtr& communicator, 
                    const DatabasePtr& database, 
-                   const Ice::LocatorRegistryPrx& locatorRegistry,
+                   const WellKnownObjectsManagerPtr& wellKnownObjects,
                    const RegistryPrx& registry,
                    const QueryPrx& query) :
-    _communicator(communicator),
-    _database(database),
-    _locatorRegistry(locatorRegistry),
+    _communicator(communicator), 
+    _database(database), 
+    _wellKnownObjects(wellKnownObjects), 
     _localRegistry(registry),
     _localQuery(query)
 {
@@ -933,7 +934,7 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
 Ice::LocatorRegistryPrx
 LocatorI::getRegistry(const Ice::Current&) const
 {
-    return _locatorRegistry;
+    return _wellKnownObjects->getLocatorRegistry();
 }
 
 RegistryPrx

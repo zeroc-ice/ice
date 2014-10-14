@@ -104,6 +104,11 @@ WellKnownObjectsManager::updateReplicatedWellKnownObjects()
     info.proxy = replicatedClientProxy->ice_identity(id);
     objects.push_back(info);
 
+    id.name = "LocatorRegistry";
+    info.type = Ice::Locator::ice_staticId();
+    info.proxy = _database->getReplicaCache().getEndpoints("Server", _endpoints["Server"])->ice_identity(id);
+    objects.push_back(info);
+
     _database->addOrUpdateRegistryWellKnownObjects(objects);
 }
 
@@ -124,10 +129,51 @@ WellKnownObjectsManager::getEndpoints(const string& name)
 LocatorPrx
 WellKnownObjectsManager::getLocator()
 {
-    Lock sync(*this);
     Ice::Identity id;
     id.name = "Locator";
     id.category = _database->getInstanceName();
-    Ice::ObjectPrx prx = _database->getReplicaCache().getEndpoints("Client", _endpoints["Client"]);
-    return LocatorPrx::uncheckedCast(prx->ice_identity(id));
+    return LocatorPrx::uncheckedCast(getWellKnownObjectReplicatedProxy(id, "Client"));
+}
+
+Ice::LocatorRegistryPrx
+WellKnownObjectsManager::getLocatorRegistry()
+{
+    Ice::Identity id;
+    id.name = "LocatorRegistry";
+    id.category = _database->getInstanceName();
+    return Ice::LocatorRegistryPrx::uncheckedCast(getWellKnownObjectReplicatedProxy(id, "Server"));
+}
+
+Ice::ObjectPrx 
+WellKnownObjectsManager::getWellKnownObjectReplicatedProxy(const Ice::Identity& id, const string& endpt)
+{
+    try
+    {
+        Ice::ObjectPrx proxy = _database->getObjectProxy(id);
+        Ice::EndpointSeq registryEndpoints = getEndpoints(endpt)->ice_getEndpoints();
+
+        //
+        // Re-order the endpoints to return first the endpoint for this
+        // registry replica.
+        //
+        Ice::EndpointSeq endpoints = proxy->ice_getEndpoints();
+        Ice::EndpointSeq newEndpoints = registryEndpoints;
+        for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+        {
+            if(find(registryEndpoints.begin(), registryEndpoints.end(), *p) == registryEndpoints.end())
+            {
+                newEndpoints.push_back(*p);
+            }
+        }
+        return proxy->ice_endpoints(newEndpoints);
+    }
+    catch(const ObjectNotRegisteredException&)
+    {
+        //
+        // If for some reasons the object isn't registered, we compute
+        // the endpoints with the replica cache. For slaves, this will
+        // however only return the slave endpoints.
+        //
+        return _database->getReplicaCache().getEndpoints(endpt, getEndpoints(endpt))->ice_identity(id);
+    }
 }

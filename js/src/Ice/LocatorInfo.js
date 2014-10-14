@@ -79,9 +79,12 @@ var LocatorInfo = Class({
             function(reg)
             {
                 //
-                // The locator registry can't be located.
+                // The locator registry can't be located. We use ordered
+                // endpoint selection in case the locator returned a proxy
+                // with some endpoints which are prefered to be tried first.
                 //
-                self._locatorRegistry = LocatorRegistryPrx.uncheckedCast(reg.ice_locator(null));
+                self._locatorRegistry = LocatorRegistryPrx.uncheckedCast(reg.ice_locator(null).ice_endpointSelection(
+                    Ice.EndpointSelectionType.Ordered));
                 return self._locatorRegistry;
             });
     },

@@ -36,10 +36,13 @@ public:
     Ice::ObjectPrx getEndpoints(const std::string&);
     
     LocatorPrx getLocator();
+    Ice::LocatorRegistryPrx getLocatorRegistry();
     
 private:
 
     bool initialized() const;
+
+    Ice::ObjectPrx getWellKnownObjectReplicatedProxy(const Ice::Identity&, const std::string&);
 
     const DatabasePtr _database;
     bool _initialized;
