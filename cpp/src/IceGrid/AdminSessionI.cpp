@@ -185,9 +185,12 @@ AdminSessionI::setObservers(const RegistryObserverPrx& registryObserver,
         throw ex;
     }
 
+    const int t = _timeout * 1000;
+    const Ice::LocatorPrx l = _registry->getLocator();
     if(registryObserver)
     {
-        setupObserverSubscription(RegistryObserverTopicName, registryObserver->ice_timeout(_timeout * 1000));
+        setupObserverSubscription(RegistryObserverTopicName, 
+                                  addForwarder(registryObserver->ice_timeout(t)->ice_locator(l)));
     }
     else
     {
@@ -196,7 +199,8 @@ AdminSessionI::setObservers(const RegistryObserverPrx& registryObserver,
 
     if(nodeObserver)
     {
-        setupObserverSubscription(NodeObserverTopicName, nodeObserver->ice_timeout(_timeout * 1000));
+        setupObserverSubscription(NodeObserverTopicName, 
+                                  addForwarder(nodeObserver->ice_timeout(t)->ice_locator(l)));
     }
     else
     {
@@ -205,7 +209,8 @@ AdminSessionI::setObservers(const RegistryObserverPrx& registryObserver,
 
     if(appObserver)
     {
-        setupObserverSubscription(ApplicationObserverTopicName, appObserver->ice_timeout(_timeout * 1000));
+        setupObserverSubscription(ApplicationObserverTopicName, 
+                                  addForwarder(appObserver->ice_timeout(t)->ice_locator(l)));
     }
     else
     {
@@ -214,16 +219,18 @@ AdminSessionI::setObservers(const RegistryObserverPrx& registryObserver,
 
     if(adapterObserver)
     {
-        setupObserverSubscription(AdapterObserverTopicName, adapterObserver->ice_timeout(_timeout * 1000));
+        setupObserverSubscription(AdapterObserverTopicName,
+                                  addForwarder(adapterObserver->ice_timeout(t)->ice_locator(l)));
     }
     else
     {
         setupObserverSubscription(AdapterObserverTopicName, Ice::ObjectPrx());
     }
-
+    
     if(objectObserver)
     {
-        setupObserverSubscription(ObjectObserverTopicName, objectObserver->ice_timeout(_timeout * 1000));
+        setupObserverSubscription(ObjectObserverTopicName, 
+                                  addForwarder(objectObserver->ice_timeout(t)->ice_locator(l)));
     }
     else
     {
@@ -414,7 +421,12 @@ AdminSessionI::addForwarder(const Ice::Identity& id, const Ice::Current& current
     {
         return Ice::ObjectPrx();
     }
-    Ice::ObjectPrx prx = current.con->createProxy(id)->ice_encodingVersion(current.encoding);
+    return addForwarder(current.con->createProxy(id)->ice_encodingVersion(current.encoding));
+}
+
+Ice::ObjectPrx
+AdminSessionI::addForwarder(const Ice::ObjectPrx& prx)
+{
     return _registry->getRegistryAdapter()->addWithUUID(new SubscriberForwarderI(prx));
 }
 

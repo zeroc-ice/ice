@@ -27,6 +27,11 @@ Changes since version 3.5.1
 General Changes
 ===============
 
+- It's now possible to pass indirect proxies to the setObservers
+  method of the IceGrid::AdminSession interface. Previously, the
+  IceGrid registry would fail to resolve the endpoints and the
+  observer updates weren't sent.
+
 - The IceGrid implementation of Ice::Locator::getRegistry now returns
   a replicated proxy if IceGrid replication is used. This way, if a an
   IceGrid replica becomes un-available during the server activation,

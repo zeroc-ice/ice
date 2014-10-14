@@ -67,6 +67,7 @@ private:
 
     void setupObserverSubscription(TopicName, const Ice::ObjectPrx&, bool = false);
     Ice::ObjectPrx addForwarder(const Ice::Identity&, const Ice::Current&);
+    Ice::ObjectPrx addForwarder(const Ice::ObjectPrx&);
     FileIteratorPrx addFileIterator(const FileReaderPrx&, const std::string&, int, const Ice::Current&);
 
     virtual void destroyImpl(bool);

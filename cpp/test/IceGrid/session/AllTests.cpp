@@ -1915,6 +1915,48 @@ allTests(const Ice::CommunicatorPtr& communicator)
         cout << "ok" << endl;
     }
 
+
+    {
+        cout << "testing observer with direct proxy... " << flush;
+        AdminSessionPrx session1 = registry->createAdminSession("admin1", "test1");
+        
+        session1->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatOnIdle);
+        
+        Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapterWithEndpoints("", "default");
+        NodeObserverIPtr nodeObs1 = new NodeObserverI("nodeObs1");
+        Ice::ObjectPrx no1 = adpt1->addWithUUID(nodeObs1);
+        adpt1->activate();
+
+        session1->setObservers(0, NodeObserverPrx::uncheckedCast(no1), 0, 0, 0);
+        nodeObs1->waitForUpdate(__FILE__, __LINE__); // init
+
+        session1->destroy();
+        adpt1->destroy();
+
+        cout << "ok" << endl;
+    }
+
+    {
+        cout << "testing observer with indirect proxy... " << flush;
+        AdminSessionPrx session1 = registry->createAdminSession("admin1", "test1");
+        communicator->getProperties()->setProperty("IndirectAdpt1.Endpoints", "default");
+        communicator->getProperties()->setProperty("IndirectAdpt1.AdapterId", "adapter1");
+        Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("IndirectAdpt1");
+        test(communicator->getDefaultLocator());
+        NodeObserverIPtr nodeObs1 = new NodeObserverI("nodeObs1");
+        Ice::ObjectPrx no1 = adpt1->addWithUUID(nodeObs1);
+        assert(no1->ice_getAdapterId() == "adapter1");
+        adpt1->activate();
+        
+        session1->setObservers(0, NodeObserverPrx::uncheckedCast(no1), 0, 0, 0);
+        nodeObs1->waitForUpdate(__FILE__, __LINE__); // init
+
+        session1->destroy();
+        adpt1->destroy();
+
+        cout << "ok" << endl;
+    }
+
     admin->stopServer("PermissionsVerifierServer");
 
     cout << "shutting down admin router... " << flush;
