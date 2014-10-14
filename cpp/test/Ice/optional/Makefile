@@ -11,22 +11,29 @@ top_srcdir	= ../../..
 
 CLIENT		= $(call mktestname,client)
 SERVER		= $(call mktestname,server)
+SERVERAMD	= $(call mktestname,serveramd)
 
-TARGETS		= $(CLIENT) $(SERVER)
+TARGETS		= $(CLIENT) $(SERVER) $(SERVERAMD)
 
-SLICE_OBJS	= Test.o \
+SLICE_SRCS	= Test.o \
+		  TestAMD.ice
 
-COBJS		= $(SLICE_OBJS) \
+COBJS		= Test.o \
 		  TestI.o \
 		  Client.o \
 		  AllTests.o
 
-SOBJS		= $(SLICE_OBJS) \
+SOBJS		= Test.o \
 		  TestI.o \
 		  Server.o
 
+SAMDOBJS	= TestAMD.o \
+		  TestAMDI.o \
+		  ServerAMD.o
+
 OBJS		= $(COBJS) \
 		  $(SOBJS) \
+		  $(SAMDOBJS)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -39,3 +46,7 @@ $(CLIENT): $(COBJS)
 $(SERVER): $(SOBJS)
 	rm -f $@
 	$(call mktest,$@,$(SOBJS) $(LIBS))
+
+$(SERVERAMD): $(SAMDOBJS)
+	rm -f $@
+	$(call mktest,$@,$(SAMDOBJS) $(LIBS))
