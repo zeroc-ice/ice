@@ -94,7 +94,6 @@ OBJS		= $(ADMIN_OBJS) \
 		  $(NODE_SVR_OBJS) \
 		  $(REGISTRY_SVR_OBJS)
 
-HDIR		= $(headerdir)/IceGrid
 SDIR		= $(slicedir)/IceGrid
 
 ifeq ($(CPP11),yes)

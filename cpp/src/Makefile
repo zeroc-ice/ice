@@ -73,9 +73,9 @@ Glacier2 IceGridLib Glacier2CryptPermissionsVerifier: Glacier2Lib
 
 IcePatch2: IcePatch2Lib
 
-IceStorm: IceBox IceGridLib
+IceStorm: IceBox IceStormLib IceGridLib Glacier2Lib Freeze 
 
-IceGrid: IceGridLib IceStorm IcePatch2Lib
+IceGrid: IceGridLib IceStorm IcePatch2Lib Freeze IceSSL IceBox IceXML
 
 IceDiscovery: Ice
 

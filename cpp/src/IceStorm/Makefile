@@ -62,9 +62,6 @@ OBJS		= $(LIB_OBJS) \
 		  $(AOBJS) \
 		  $(MOBJS)
 
-HDIR		= $(headerdir)/IceStorm
-SDIR		= $(slicedir)/IceStorm
-
 ifeq ($(CPP11),yes)
 RPATH_DIR	= @loader_path/../../lib/c++11
 else
