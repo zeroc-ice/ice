@@ -28,7 +28,7 @@ id.properties = Ice.createProperties();
 //
 id.properties.setProperty("Ice.ACM.Client", "0");
 
-var communicator = Ice.initialize(id);
+var communicator = Ice.initialize(process.argv, id);
 
 //
 // Exit on SIGINT

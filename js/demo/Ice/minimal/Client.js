@@ -18,7 +18,7 @@ Ice.Promise.try(
         //
         // Initialize the communicator and create a proxy to the hello object.
         //
-        communicator = Ice.initialize();
+        communicator = Ice.initialize(process.argv);
         var proxy = communicator.stringToProxy("hello:tcp -h localhost -p 10000");
         
         //

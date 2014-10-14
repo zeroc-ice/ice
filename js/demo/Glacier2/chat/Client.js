@@ -50,7 +50,7 @@ Ice.Promise.try(
         var id = new Ice.InitializationData();
         id.properties = Ice.createProperties();
         id.properties.setProperty("Ice.Default.Router", "DemoGlacier2/router:tcp -p 4063 -h localhost");
-        communicator = Ice.initialize(id);
+        communicator = Ice.initialize(process.argv, id);
         
         function createSession()
         {

@@ -98,7 +98,7 @@ Ice.Promise.try(
         // Initialize the communicator and create a proxy
         // to the throughput object.
         //
-        communicator = Ice.initialize();
+        communicator = Ice.initialize(process.argv);
         var proxy = communicator.stringToProxy("throughput:default -p 10000");
         
         //
