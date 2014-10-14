@@ -235,6 +235,37 @@ public class AllTests
                 test(false);
             }
 
+            executor.submit(new Runnable() {
+                @Override
+                public void run()
+                {
+                    try
+                    {
+                        Thread.sleep(500);
+                    }
+                    catch(InterruptedException e)
+                    {
+                        test(false);
+                    }
+                    mainThread.interrupt();
+                }
+            });
+
+            try
+            {
+                test(!mainThread.isInterrupted());
+                p.opIdempotent();
+                test(false);
+            }
+            catch(Ice.OperationInterruptedException ex)
+            {
+                // Expected
+            }
+            catch(Ice.ConnectionLostException ex)
+            {
+                test(false);
+            }
+
             // Test waitForCompleted is an interruption point.
             try
             {

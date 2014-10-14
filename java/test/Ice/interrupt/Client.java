@@ -42,6 +42,11 @@ public class Client extends test.Util.Application
         // buffers to fill up.
         //
         initData.properties.setProperty("Ice.MessageSizeMax", "20000");
+        //
+        // Retry up to 2 times, sleep 1s for the last retry. This is
+        // useful to test interrupting the retry sleep
+        //
+        initData.properties.setProperty("Ice.RetryIntervals", "0 1000");
         return initData;
     }
 

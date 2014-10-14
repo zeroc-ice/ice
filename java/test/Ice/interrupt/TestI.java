@@ -24,6 +24,14 @@ public class TestI extends test.Ice.interrupt.Test._TestIntfDisp
 
     @Override
     public void
+    opIdempotent(Ice.Current current)
+    {
+        throw new Ice.UnknownException();
+    }
+
+
+    @Override
+    public void
     sleep(int to, Ice.Current current)
         throws test.Ice.interrupt.Test.InterruptedException
     {

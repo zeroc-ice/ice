@@ -22,6 +22,7 @@ exception InterruptedException
 interface TestIntf
 {
     void op();
+    idempotent void opIdempotent();
     void sleep(int to)
         throws InterruptedException;
     void opWithPayload(Ice::ByteSeq seq);

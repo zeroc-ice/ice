@@ -43,6 +43,11 @@ public class Server extends test.Util.Application
         // buffers to fill up.
         //
         initData.properties.setProperty("Ice.MessageSizeMax", "20000");
+        //
+        // opIndempotent raises UnknownException, we disable dispatch
+        // warnings to prevent warnings.
+        //
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
 
         initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
         initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp -p 12011");
