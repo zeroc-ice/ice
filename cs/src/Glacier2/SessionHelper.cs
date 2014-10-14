@@ -78,6 +78,7 @@ public class SessionHelper
     /// establishment.</param>
     /// <param name="initData">The Ice.InitializationData for initializing
     /// the communicator.</param>
+    /// <param name="finderStr">The stringified Ice.RouterFinder proxy.</param>
     public SessionHelper(SessionCallback callback, Ice.InitializationData initData, string finderStr)
     {
         _callback = callback;
