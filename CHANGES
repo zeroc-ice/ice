@@ -33,10 +33,10 @@ General Changes
   observer updates weren't sent.
 
 - The IceGrid implementation of Ice::Locator::getRegistry now returns
-  a replicated proxy if IceGrid replication is used. This way, if a an
-  IceGrid replica becomes un-available during the server activation,
-  the server will still be able to register its endpoints if one of
-  the other replica.
+  a replicated proxy if IceGrid replication is used. This way, if an
+  IceGrid replica becomes unavailable during a server's activation,
+  the server will still be able to register its endpoints with one of
+  the other replicas.
 
 - Added a cancel() method to AsyncResult. Calling it prevents a queued
   asynchronous request from being sent, or ignores the reply if the
@@ -46,7 +46,10 @@ General Changes
 - Removed the "old" asynchronous invocation API that was deprecated
   in Ice 3.4.
 
-- Added the WebSocket transports to the Ice core.
+- Added the WebSocket transports to the Ice core, including new
+  implementations in Java and C#. This means it's no longer necessary
+  to use Glacier2 as an intermediary when a JavaScript client needs to
+  communicate with a Java or C# server.
 
 - Added "Logger" facet to Admin, which allows remote applications
   to attach RemoteLogger objects and receive log messages. Both
@@ -365,6 +368,15 @@ JavaScript Changes
 - Added the following methods to AsyncResult for consistency with the
   other language mappings: cancel, isCompleted, isSent,
   throwLocalException, sentSynchronously.
+
+- Changed the NodeJS packaging such that existing Ice for JavaScript
+  programs will need to modify their require statements. For example,
+  to use Ice you would now write:
+
+  var Ice = require("icejs").Ice;
+
+  Refer to the Ice manual for more information, and see the sample
+  programs for additional examples.
 
 
 ======================================================================
