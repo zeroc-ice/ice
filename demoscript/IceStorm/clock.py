@@ -47,7 +47,7 @@ def run(subCmd, pubCmd):
         args = ''
 
     icestorm = Util.spawn('%s --Ice.Config=config.icebox --Ice.PrintAdapterReady %s' % (Util.getIceBox(), args))
-                          
+
     icestorm.expect('.* ready')
 
     runtest(icestorm, subCmd, "", pubCmd, "")
@@ -59,6 +59,7 @@ def run(subCmd, pubCmd):
     for s in pubargs:
         runtest(icestorm, subCmd, "", pubCmd, s)
 
-    admin = Util.spawn(Util.getIceBoxAdmin() + ' --Ice.Config=config.icebox shutdown')
+    admin = Util.spawn(Util.getIceBoxAdmin() + ' --IceBoxAdmin.ServiceManager.Proxy="icebox/admin \
+        -f IceBox.ServiceManager:tcp -p 9996 -h 127.0.0.1" shutdown')
     admin.waitTestSuccess()
     icestorm.waitTestSuccess()

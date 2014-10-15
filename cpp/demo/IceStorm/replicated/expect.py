@@ -79,7 +79,7 @@ icestorm3 = Util.watch("db/DemoIceStorm-3.out")
 icestorm1.expect('Election: node 1: reporting for duty in group 3:[-0-9A-Fa-f]+ with coordinator 3', timeout = 60)
 icestorm2.expect('Election: node 2: reporting for duty in group 3:[-0-9A-Fa-f]+ with coordinator 3', timeout = 60)
 icestorm3.expect('Election: node 3: reporting for duty in group 3:[-0-9A-Fa-f]+ as coordinator', timeout = 60)
-         
+
 icestorm3.expect('DemoIceStorm-3-IceStorm: Topic: time: subscribeAndGetPublisher: [-0-9A-Fa-f]+', timeout = 60)
 icestorm1.expect('DemoIceStorm-1-IceStorm: Topic: time: add replica observer: [-0-9A-Fa-f]+', timeout = 60)
 icestorm2.expect('DemoIceStorm-2-IceStorm: Topic: time: add replica observer: [-0-9A-Fa-f]+', timeout = 60)
