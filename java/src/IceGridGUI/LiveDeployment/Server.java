@@ -76,14 +76,15 @@ public class Server extends ListArrayTreeNode
         getCoordinator().getStatusBar().setText(prefix);
         try
         {
-            getCoordinator().getAdmin().begin_startServer(_id, new Ice.Callback()
+            final AdminPrx admin = getCoordinator().getAdmin();
+            admin.begin_startServer(_id, new Ice.Callback()
                 {
                     @Override
                     public void completed(final Ice.AsyncResult r)
                     {
                         try
                         {
-                            getCoordinator().getAdmin().end_startServer(r);
+                            admin.end_startServer(r);
                             amiSuccess(prefix);
                         }
                         catch(Ice.UserException ex)
@@ -111,7 +112,8 @@ public class Server extends ListArrayTreeNode
         getCoordinator().getStatusBar().setText(prefix);
         try
         {
-            getCoordinator().getAdmin().begin_stopServer(_id, 
+            final AdminPrx admin = getCoordinator().getAdmin();
+            admin.begin_stopServer(_id, 
                 new Ice.Callback()
                     {
                         @Override
@@ -119,7 +121,7 @@ public class Server extends ListArrayTreeNode
                         {
                             try
                             {
-                                getCoordinator().getAdmin().end_stopServer(r);
+                                admin.end_stopServer(r);
                                 amiSuccess(prefix);
                                 rebuild(Server.this, false);
                             }
@@ -289,7 +291,8 @@ public class Server extends ListArrayTreeNode
         getCoordinator().getStatusBar().setText(prefix);
         try
         {
-            getCoordinator().getAdmin().begin_sendSignal(_id, s,
+            final AdminPrx admin = getCoordinator().getAdmin();
+            admin.begin_sendSignal(_id, s,
                 new Ice.Callback()
                     {
                         @Override
@@ -297,7 +300,7 @@ public class Server extends ListArrayTreeNode
                         {
                             try
                             {
-                                getCoordinator().getAdmin().end_sendSignal(r);
+                                admin.end_sendSignal(r);
                                 amiSuccess(prefix);
                             }
                             catch(Ice.UserException ex)
@@ -344,7 +347,8 @@ public class Server extends ListArrayTreeNode
         getCoordinator().getStatusBar().setText(prefix);
         try
         {
-            getCoordinator().getAdmin().begin_patchServer(_id, shutdown == JOptionPane.YES_OPTION, 
+            final AdminPrx admin = getCoordinator().getAdmin();
+            admin.begin_patchServer(_id, shutdown == JOptionPane.YES_OPTION, 
                 new Ice.Callback()
                 {
                     @Override
@@ -352,7 +356,7 @@ public class Server extends ListArrayTreeNode
                     {
                         try
                         {
-                            getCoordinator().getAdmin().end_patchServer(r);
+                            admin.end_patchServer(r);
                             amiSuccess(prefix);
                         }
                         catch(Ice.UserException ex)
@@ -379,7 +383,8 @@ public class Server extends ListArrayTreeNode
         getCoordinator().getStatusBar().setText(prefix);
         try
         {
-            getCoordinator().getAdmin().begin_enableServer(_id, enable,
+            final AdminPrx admin = getCoordinator().getAdmin();
+            admin.begin_enableServer(_id, enable,
                 new Ice.Callback()
                 {
                     @Override
@@ -387,7 +392,7 @@ public class Server extends ListArrayTreeNode
                     {
                         try
                         {
-                            getCoordinator().getAdmin().end_enableServer(r);
+                            admin.end_enableServer(r);
                             amiSuccess(prefix);
                         }
                         catch(Ice.UserException ex)

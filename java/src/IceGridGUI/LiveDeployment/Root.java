@@ -225,14 +225,15 @@ public class Root extends ListArrayTreeNode
         _coordinator.getStatusBar().setText(prefix);
         try
         {
-            _coordinator.getAdmin().begin_shutdownRegistry(_replicaName, new Ice.Callback()
+            final AdminPrx admin = _coordinator.getAdmin();
+            admin.begin_shutdownRegistry(_replicaName, new Ice.Callback()
                 {
                     @Override
                     public void completed(final Ice.AsyncResult r)
                     {
                         try
                         {
-                            _coordinator.getAdmin().end_shutdownRegistry(r);
+                            admin.end_shutdownRegistry(r);
                             amiSuccess(prefix);
                         }
                         catch(Ice.UserException ex)
@@ -386,7 +387,8 @@ public class Root extends ListArrayTreeNode
         _coordinator.getStatusBar().setText(prefix);
         try
         {
-            _coordinator.getAdmin().begin_patchApplication(applicationName, shutdown == JOptionPane.YES_OPTION,
+            final AdminPrx admin = _coordinator.getAdmin();
+            admin.begin_patchApplication(applicationName, shutdown == JOptionPane.YES_OPTION,
                 new Ice.Callback()
                     {
                         @Override
@@ -394,7 +396,7 @@ public class Root extends ListArrayTreeNode
                         {
                             try
                             {
-                                _coordinator.getAdmin().end_patchApplication(r);
+                                admin.end_patchApplication(r);
                                 amiSuccess(prefix);
                             }
                             catch(Ice.UserException ex)
@@ -946,7 +948,8 @@ public class Root extends ListArrayTreeNode
         _coordinator.getStatusBar().setText(prefix);
         try
         {
-            _coordinator.getAdmin().begin_removeObject(identity,
+            final AdminPrx admin = _coordinator.getAdmin();
+            admin.begin_removeObject(identity,
                 new Ice.Callback()
                     {
                         @Override
@@ -954,7 +957,7 @@ public class Root extends ListArrayTreeNode
                         {
                             try
                             {
-                                _coordinator.getAdmin().end_removeObject(r);
+                                admin.end_removeObject(r);
                                 amiSuccess(prefix);
                             }
                             catch(Ice.UserException ex)
@@ -981,14 +984,15 @@ public class Root extends ListArrayTreeNode
         _coordinator.getStatusBar().setText(prefix);
         try
         {
-            _coordinator.getAdmin().begin_removeAdapter(adapterId, new Ice.Callback()
+            final AdminPrx admin = _coordinator.getAdmin();
+            admin.begin_removeAdapter(adapterId, new Ice.Callback()
                 {
                     @Override
                     public void completed(final Ice.AsyncResult r)
                     {
                         try
                         {
-                            _coordinator.getAdmin().end_removeAdapter(r);
+                            admin.end_removeAdapter(r);
                             amiSuccess(prefix);
                         }
                         catch(Ice.UserException ex)
