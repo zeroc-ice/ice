@@ -157,12 +157,7 @@ InitialI::opCustomString_async(const ::Test::AMD_Initial_opCustomStringPtr& cb,
                                const IceUtil::Optional< Util::string_view>& p1,
                                const ::Ice::Current&)
 {
-    Optional<Util::string_view> p3;
-    if(p1)
-    {
-        p3 = p1->to_string();
-    }
-    cb->ice_response(p3, p3);
+    cb->ice_response(p1, p1);
 }
 
 void
@@ -218,12 +213,7 @@ InitialI::opByteSeq_async(const ::Test::AMD_Initial_opByteSeqPtr& cb,
                           const IceUtil::Optional< ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*> >& p1,
                           const ::Ice::Current&)
 {
-    Optional<pair<const Ice::Byte*, const Ice::Byte*> > p3;
-    if(p1)
-    {
-        p3 = p1;
-    }
-    cb->ice_response(p3, p3);
+    cb->ice_response(p1, p1);
 }
 
 void
@@ -231,12 +221,7 @@ InitialI::opBoolSeq_async(const ::Test::AMD_Initial_opBoolSeqPtr& cb,
                           const IceUtil::Optional< ::std::pair<const bool*, const bool*> >& p1,
                           const ::Ice::Current&)
 {
-    Optional<pair<const bool*, const bool*> > p3;
-    if(p1)
-    {
-        p3 = p1;
-    }
-    cb->ice_response(p3, p3);
+    cb->ice_response(p1, p1);
 }
 
 void
@@ -244,12 +229,7 @@ InitialI::opShortSeq_async(const ::Test::AMD_Initial_opShortSeqPtr& cb,
                            const IceUtil::Optional< ::std::pair<const ::Ice::Short*, const ::Ice::Short*> >& p1,
                            const ::Ice::Current&)
 {
-    Optional<pair<const Ice::Short*, const Ice::Short*> > p3;
-    if(p1)
-    {
-        p3 = p1;
-    }
-    cb->ice_response(p3, p3);
+    cb->ice_response(p1, p1);
 }
 
 void
@@ -257,12 +237,7 @@ InitialI::opIntSeq_async(const ::Test::AMD_Initial_opIntSeqPtr& cb,
                          const IceUtil::Optional< ::std::pair<const ::Ice::Int*, const ::Ice::Int*> >& p1,
                          const ::Ice::Current&)
 {
-    Optional<pair<const Ice::Int*, const Ice::Int*> > p3;
-    if(p1)
-    {
-        p3 = p1;
-    }
-    cb->ice_response(p3, p3);
+    cb->ice_response(p1, p1);
 }
 
 void
@@ -270,12 +245,7 @@ InitialI::opLongSeq_async(const ::Test::AMD_Initial_opLongSeqPtr& cb,
                           const IceUtil::Optional< ::std::pair<const ::Ice::Long*, const ::Ice::Long*> >& p1,
                           const ::Ice::Current&)
 {
-    Optional<pair<const Ice::Long*, const Ice::Long*> > p3;
-    if(p1)
-    {
-        p3 = p1;
-    }
-    cb->ice_response(p3, p3);
+    cb->ice_response(p1, p1);
 }
 
 void
@@ -283,12 +253,7 @@ InitialI::opFloatSeq_async(const ::Test::AMD_Initial_opFloatSeqPtr& cb,
                            const IceUtil::Optional< ::std::pair<const ::Ice::Float*, const ::Ice::Float*> >& p1,
                            const ::Ice::Current&)
 {
-    Optional<pair<const Ice::Float*, const Ice::Float*> > p3;
-    if(p1)
-    {
-        p3 = p1;
-    }
-    cb->ice_response(p3, p3);
+    cb->ice_response(p1, p1);
 }
 
 void
@@ -296,12 +261,7 @@ InitialI::opDoubleSeq_async(const ::Test::AMD_Initial_opDoubleSeqPtr& cb,
                             const IceUtil::Optional< ::std::pair<const ::Ice::Double*, const ::Ice::Double*> >& p1,
                             const ::Ice::Current&)
 {
-    Optional<pair<const Ice::Double*, const Ice::Double*> > p3;
-    if(p1)
-    {
-        p3 = p1;
-    }
-    cb->ice_response(p3, p3);
+    cb->ice_response(p1, p1);
 }
 
 void
@@ -310,12 +270,7 @@ InitialI::opStringSeq_async(const ::Test::AMD_Initial_opStringSeqPtr& cb,
                                                                   ::Test::StringSeq::const_iterator> >& p1,
                             const ::Ice::Current&)
 {
-    Optional<pair<Test::StringSeq::const_iterator, Test::StringSeq::const_iterator> > p3;
-    if(p1)
-    {
-        p3 = p1;
-    }
-    cb->ice_response(p3, p3);
+    cb->ice_response(p1, p1);
 }
 
 void
@@ -324,12 +279,7 @@ InitialI::opSmallStructSeq_async(const ::Test::AMD_Initial_opSmallStructSeqPtr& 
                                                                       const ::Test::SmallStruct*> >& p1,
                                  const ::Ice::Current&)
 {
-    Optional<pair<const Test::SmallStruct*, const Test::SmallStruct*> > p3;
-    if(p1)
-    {
-        p3 = p1;
-    }
-    cb->ice_response(p3, p3);
+    cb->ice_response(p1, p1);
 }
 
 void
@@ -338,12 +288,7 @@ InitialI::opSmallStructList_async(const ::Test::AMD_Initial_opSmallStructListPtr
                                                                        const ::Test::SmallStruct*> >& p1,
                                   const ::Ice::Current&)
 {
-    Optional<pair<const Test::SmallStruct*, const Test::SmallStruct*> > p3;
-    if(p1)
-    {
-        p3 = p1;
-    }
-    cb->ice_response(p3, p3);
+    cb->ice_response(p1, p1);
 }
 
 void
@@ -352,12 +297,7 @@ InitialI::opFixedStructSeq_async(const ::Test::AMD_Initial_opFixedStructSeqPtr& 
                                                                       const ::Test::FixedStruct*> >& p1,
                                  const ::Ice::Current&)
 {
-    Optional<pair<const Test::FixedStruct*, const Test::FixedStruct*> > p3;
-    if(p1)
-    {
-        p3 = p1;
-    }
-    cb->ice_response(p3, p3);
+    cb->ice_response(p1, p1);
 }
 
 void
@@ -366,12 +306,7 @@ InitialI::opFixedStructList_async(const ::Test::AMD_Initial_opFixedStructListPtr
                                                                        const ::Test::FixedStruct*> >& p1,
                                   const ::Ice::Current&)
 {
-    Optional<pair<const Test::FixedStruct*, const Test::FixedStruct*> > p3;
-    if(p1)
-    {
-        p3 = p1;
-    }
-    cb->ice_response(p3, p3);
+    cb->ice_response(p1, p1);
 }
 
 void
@@ -380,12 +315,7 @@ InitialI::opVarStructSeq_async(const ::Test::AMD_Initial_opVarStructSeqPtr& cb,
                                                                      ::Test::VarStructSeq::const_iterator> >& p1,
                                const ::Ice::Current&)
 {
-    Optional<pair<Test::VarStructSeq::const_iterator, Test::VarStructSeq::const_iterator> > p3;
-    if(p1)
-    {
-        p3 = p1;
-    }
-    cb->ice_response(p3, p3);
+    cb->ice_response(p1, p1);
 }
 
 void
@@ -417,17 +347,7 @@ InitialI::opCustomIntStringDict_async(const ::Test::AMD_Initial_opCustomIntStrin
                                       const IceUtil::Optional<std::map<int, Util::string_view> >& p1,
                                       const ::Ice::Current&)
 {
-    Optional<std::map<int, Util::string_view> > p3;
-    if(p1)
-    {
-        p3 = std::map<int, Util::string_view>();
-        for(std::map<int, Util::string_view>::const_iterator p = p1->begin();
-            p != p1->end(); ++p)
-        {
-            (*p3)[p->first] = p->second.to_string();
-        }
-    }
-    cb->ice_response(p3, p3);
+    cb->ice_response(p1, p1);
 }
 
 void
