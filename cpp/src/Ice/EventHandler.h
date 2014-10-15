@@ -40,7 +40,7 @@ public:
     //
     // Called when the event handler is unregistered.
     //
-    virtual void finished(ThreadPoolCurrent&) = 0;
+    virtual void finished(ThreadPoolCurrent&, bool) = 0;
 
     //
     // Get a textual representation of the event handler.

@@ -1386,7 +1386,7 @@ public final class ConnectionI extends IceInternal.EventHandler
     }
 
     @Override
-    public void finished(IceInternal.ThreadPoolCurrent current)
+    public void finished(IceInternal.ThreadPoolCurrent current, final boolean close)
     {
         synchronized(this)
         {
@@ -1402,7 +1402,7 @@ public final class ConnectionI extends IceInternal.EventHandler
         //
         if(_startCallback == null && _sendStreams.isEmpty() && _asyncRequests.isEmpty() && _callback == null)
         {
-            finish();
+            finish(close);
             return;
         }
 
@@ -1410,7 +1410,7 @@ public final class ConnectionI extends IceInternal.EventHandler
         if(!_dispatcher) // Optimization, call finish() directly if there's no
                          // dispatcher.
         {
-            finish();
+            finish(close);
         }
         else
         {
@@ -1419,13 +1419,13 @@ public final class ConnectionI extends IceInternal.EventHandler
                 @Override
                 public void run()
                 {
-                    finish();
+                    finish(close);
                 }
             });
         }
     }
 
-    public void finish()
+    public void finish(boolean close)
     {
         if(!_initialized)
         {
@@ -1452,6 +1452,11 @@ public final class ConnectionI extends IceInternal.EventHandler
                 s.append(toString());
                 _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
             }
+        }
+
+        if(close)
+        {
+            _transceiver.close();
         }
 
         if(_startCallback != null)
@@ -1874,14 +1879,21 @@ public final class ConnectionI extends IceInternal.EventHandler
                     {
                         return;
                     }
-                    _threadPool.finish(this);
+                    
+                    //
+                    // Don't need to close now for connections so only close the transceiver
+                    // if the selector request it.
+                    //
+                    if(_threadPool.finish(this, false))
+                    {
+                        _transceiver.close();
+                    }
                     break;
                 }
 
                 case StateFinished:
                 {
                     assert (_state == StateClosed);
-                    _transceiver.close();
                     _communicator = null;
                     break;
                 }

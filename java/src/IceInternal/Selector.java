@@ -95,7 +95,7 @@ public final class Selector
         }
     }
 
-    void finish(EventHandler handler)
+    boolean finish(EventHandler handler, boolean closeNow)
     {
         if(handler._registered != 0)
         {
@@ -105,10 +105,10 @@ public final class Selector
                 handler._key = null;
             }
 
-            _changes.remove(handler);
-
             update(handler, handler._registered, SocketOperation.None);
+            _changes.remove(handler);
         }
+        return closeNow;
     }
 
     void startSelect()

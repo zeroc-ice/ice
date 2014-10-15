@@ -1526,11 +1526,18 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
 }
 
 void
-IceInternal::IncomingConnectionFactory::finished(ThreadPoolCurrent&)
+IceInternal::IncomingConnectionFactory::finished(ThreadPoolCurrent&, bool close)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     assert(_state == StateClosed);
     setState(StateFinished);
+
+    assert(_acceptor);
+
+    if(close)
+    {
+        closeAcceptor(true);
+    }
 }
 
 string
@@ -1752,26 +1759,23 @@ IceInternal::IncomingConnectionFactory::setState(State state)
         {
             if(_acceptor)
             {
-                dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool()->finish(this);
+                //
+                // If possible, close the acceptor now to prevent new connections from 
+                // being accepted while we are deactivating. This is especially useful
+                // if there are no more threads in the thread pool available to dispatch
+                // the finish() call. Not all selector implementations do support this 
+                // however.
+                //
+                if(dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool()->finish(this, true))
+                {
+                    closeAcceptor(true);
+                }
             }
             else
             {
                 state = StateFinished;
             }
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
-            //
-            // With IOCP and WinRT, we close the acceptor now to cancel all the pending
-            // asynchronous operations. It's important to wait for the pending asynchronous
-            // operations to return before ConnectionI::finished(). Otherwise, if there was
-            // a pending message waiting to be sent, the connection wouldn't know whether
-            // or not the send failed or succeeded, potentially breaking at-most-once semantics.
-            //
-            if(_acceptor)
-            {
-                closeAcceptor(true);
-            }
-#endif
             for_each(_connections.begin(), _connections.end(),
                      bind2nd(Ice::voidMemFun1(&ConnectionI::destroy), ConnectionI::ObjectAdapterDeactivated));
             break;
@@ -1780,12 +1784,6 @@ IceInternal::IncomingConnectionFactory::setState(State state)
         case StateFinished:
         {
             assert(_state == StateClosed);
-#if !defined(ICE_USE_IOCP) && !defined(ICE_OS_WINRT)
-            if(_acceptor)
-            {
-                closeAcceptor(true);
-            }
-#endif
             break;
         }
     }

@@ -298,10 +298,17 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
 
     @Override
     public synchronized void
-    finished(ThreadPoolCurrent current)
+    finished(ThreadPoolCurrent current, boolean close)
     {
         assert(_state == StateClosed);
         setState(StateFinished);
+
+        assert(_acceptor != null);
+
+        if(close)
+        {
+            closeAcceptor(true);
+        }
     }
 
     @Override
@@ -563,7 +570,16 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             {
                 if(_acceptor != null)
                 {
-                    ((Ice.ObjectAdapterI)_adapter).getThreadPool().finish(this);
+                    //
+                    // If possible, close the acceptor now to prevent new connections from 
+                    // being accepted while we are deactivating. This is especially useful
+                    // if there are no more threads in the thread pool available to dispatch
+                    // the finish() call.
+                    //
+                    if(((Ice.ObjectAdapterI)_adapter).getThreadPool().finish(this, true))
+                    {
+                        closeAcceptor(true);
+                    }
                 }
                 else
                 {
@@ -580,10 +596,6 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             case StateFinished:
             {
                 assert(_state == StateClosed);
-                if(_acceptor != null)
-                {
-                    closeAcceptor(true);
-                }
                 break;
             }
         }

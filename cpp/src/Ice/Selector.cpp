@@ -173,7 +173,7 @@ Selector::update(EventHandler* handler, SocketOperation remove, SocketOperation 
 }
 
 void
-Selector::finish(EventHandler* handler)
+Selector::finish(IceInternal::EventHandler* handler)
 {
     handler->_registered = SocketOperationNone;
     handler->__decRef();
@@ -414,13 +414,30 @@ Selector::disable(EventHandler* handler, SocketOperation status)
     }
 }
 
-void
-Selector::finish(EventHandler* handler)
+bool
+Selector::finish(EventHandler* handler, bool closeNow)
 {
     if(handler->_registered)
     {
-        update(handler, handler->_registered, SocketOperationNone);
+        if(closeNow)
+        {
+            //
+            // Don't bother to un-register if the call wants to close
+            // the FD now, kqueue/epoll will automatically unregister
+            // the FD when it's closed.
+            //
+            handler->_registered = SocketOperationNone;
+        }
+        else
+        {
+            //
+            // If close on finish is requested, we can safely
+            // unregister the FD from the selector.
+            //
+            update(handler, handler->_registered, SocketOperationNone);
+        }
     }
+    return closeNow;
 }
 
 #if defined(ICE_USE_KQUEUE)
@@ -603,13 +620,15 @@ Selector::disable(EventHandler* handler, SocketOperation status)
     }
 }
 
-void
-Selector::finish(EventHandler* handler)
+bool
+Selector::finish(EventHandler* handler, bool closeNow)
 {
     if(handler->_registered)
     {
         update(handler, handler->_registered, SocketOperationNone);
+        return false; // Don't close now if selecting.
     }
+    return closeNow;
 }
 
 void
@@ -798,7 +817,7 @@ Selector::updateImpl(EventHandler* handler)
                     if(interrupted())
                     {
                         continue;
-                        }
+                    }
                     
                     Ice::SocketException ex(__FILE__, __LINE__);
                     ex.error = IceInternal::getSocketErrno();

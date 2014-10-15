@@ -46,12 +46,11 @@ class SelectorTimeoutException
 
 struct SelectEvent
 {
-    SelectEvent(IceInternal::EventHandler* handler, SocketOperation status) :
-        handler(handler), status(status)
+    SelectEvent(EventHandler* handler, SocketOperation status) : handler(handler), status(status)
     {
     }
 
-    IceInternal::EventHandler* handler;
+    EventHandler* handler;
     SocketOperation status;
 };
 
@@ -63,13 +62,13 @@ public:
 
     void destroy();
 
-    void initialize(IceInternal::EventHandler*);
-    void update(IceInternal::EventHandler*, SocketOperation, SocketOperation);    
-    void finish(IceInternal::EventHandler*);
+    void initialize(EventHandler*);
+    void update(EventHandler*, SocketOperation, SocketOperation);    
+    void finish(EventHandler*);
 
-    IceInternal::EventHandler* getNextHandler(SocketOperation&, int);
+    EventHandler* getNextHandler(SocketOperation&, int);
     
-    void completed(IceInternal::EventHandler*, SocketOperation);
+    void completed(EventHandler*, SocketOperation);
 
 private:
 
@@ -121,11 +120,11 @@ public:
     void update(EventHandler*, SocketOperation, SocketOperation);
     void enable(EventHandler*, SocketOperation);
     void disable(EventHandler*, SocketOperation);
-    void finish(EventHandler*);
+    bool finish(EventHandler*, bool);
 
 #if defined(ICE_USE_KQUEUE)
     void updateSelector();
-#endif    
+#endif
 
     void
     startSelect()
@@ -180,7 +179,7 @@ public:
     void update(EventHandler*, SocketOperation, SocketOperation);
     void enable(EventHandler*, SocketOperation);
     void disable(EventHandler*, SocketOperation);
-    void finish(EventHandler*);
+    bool finish(EventHandler*, bool);
 
     void startSelect();
     void finishSelect();

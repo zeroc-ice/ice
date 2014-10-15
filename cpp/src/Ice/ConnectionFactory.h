@@ -190,7 +190,7 @@ public:
 #endif
 
     virtual void message(ThreadPoolCurrent&);
-    virtual void finished(ThreadPoolCurrent&);
+    virtual void finished(ThreadPoolCurrent&, bool);
     virtual std::string toString() const;
     virtual NativeInfoPtr getNativeInfo();
 

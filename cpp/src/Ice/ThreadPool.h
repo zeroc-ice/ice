@@ -105,7 +105,7 @@ public:
     {
         update(handler, status, SocketOperationNone);
     }
-    void finish(const EventHandlerPtr&);
+    bool finish(const EventHandlerPtr&, bool);
 
     void dispatchFromThisThread(const DispatchWorkItemPtr&);
     void dispatch(const DispatchWorkItemPtr&);
@@ -231,7 +231,7 @@ public:
 #endif
 
     virtual void message(ThreadPoolCurrent&);
-    virtual void finished(ThreadPoolCurrent&);
+    virtual void finished(ThreadPoolCurrent&, bool);
     virtual std::string toString() const;
     virtual NativeInfoPtr getNativeInfo();
     virtual void postMessage();

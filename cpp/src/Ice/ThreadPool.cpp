@@ -63,19 +63,20 @@ class FinishedWorkItem : public ThreadPoolWorkItem
 {
 public:
 
-    FinishedWorkItem(const EventHandlerPtr& handler) : _handler(handler)
+    FinishedWorkItem(const EventHandlerPtr& handler, bool close) : _handler(handler), _close(close)
     {
     }
     
     virtual void
     execute(ThreadPoolCurrent& current)
     {
-        _handler->finished(current);
+        _handler->finished(current, _close);
     }
     
 private:
 
     const EventHandlerPtr _handler;
+    const bool _close;
 };
 
 class JoinThreadWorkItem : public ThreadPoolWorkItem
@@ -297,7 +298,7 @@ IceInternal::ThreadPoolWorkQueue::message(ThreadPoolCurrent& current)
 }
 
 void
-IceInternal::ThreadPoolWorkQueue::finished(ThreadPoolCurrent&)
+IceInternal::ThreadPoolWorkQueue::finished(ThreadPoolCurrent&, bool)
 {
     assert(false);
 }
@@ -585,32 +586,27 @@ IceInternal::ThreadPool::update(const EventHandlerPtr& handler, SocketOperation 
 #endif
 }
 
-void
-IceInternal::ThreadPool::finish(const EventHandlerPtr& handler)
+bool
+IceInternal::ThreadPool::finish(const EventHandlerPtr& handler, bool closeNow)
 {
     Lock sync(*this);
     assert(!_destroyed);
 #if !defined(ICE_USE_IOCP) && !defined(ICE_OS_WINRT)
-    _selector.finish(handler.get()); // This must be called before!
-    _workQueue->queue(new FinishedWorkItem(handler));
-
-    //
-    // Clear the current ready handlers. The handlers from this vector can't be 
-    // reference counted and a handler might get destroyed once it's finished.
-    //
-    //_handlers.clear();
-    //_nextHandler = _handlers.end();
+    closeNow = _selector.finish(handler.get(), closeNow); // This must be called before!
+    _workQueue->queue(new FinishedWorkItem(handler, !closeNow));
+    return closeNow;
 #else
     // If there are no pending asynchronous operations, we can call finish on the handler now.
     if(!handler->_pending)
     {
-        _workQueue->queue(new FinishedWorkItem(handler));
+        _workQueue->queue(new FinishedWorkItem(handler, false));
         _selector.finish(handler.get());
     }
     else
     {
         handler->_finish = true;
     }
+    return true; // Always close now to interrupt the pending call.
 #endif
 }
 
@@ -669,7 +665,7 @@ IceInternal::ThreadPool::joinWithAllThreads()
     }
 
 #if !defined(ICE_USE_IOCP) && !defined(ICE_OS_WINRT)
-    _selector.finish(_workQueue.get());
+    _selector.finish(_workQueue.get(), true);
 #endif
     _selector.destroy();
 }
@@ -1109,7 +1105,7 @@ IceInternal::ThreadPool::startMessage(ThreadPoolCurrent& current)
             current._handler->_pending = static_cast<SocketOperation>(current._handler->_pending & ~current.operation);
             if(!current._handler->_pending && current._handler->_finish)
             {
-                _workQueue->queue(new FinishedWorkItem(current._handler));
+                _workQueue->queue(new FinishedWorkItem(current._handler, false));
                 _selector.finish(current._handler.get());
             }
             return false;
@@ -1123,7 +1119,7 @@ IceInternal::ThreadPool::startMessage(ThreadPoolCurrent& current)
             current._handler->_pending = static_cast<SocketOperation>(current._handler->_pending & ~current.operation);
             if(!current._handler->_pending && current._handler->_finish)
             {
-                _workQueue->queue(new FinishedWorkItem(current._handler));
+                _workQueue->queue(new FinishedWorkItem(current._handler, false));
                 _selector.finish(current._handler.get());
             }
             return false;
@@ -1146,7 +1142,7 @@ IceInternal::ThreadPool::startMessage(ThreadPoolCurrent& current)
         current._handler->_pending = static_cast<SocketOperation>(current._handler->_pending & ~current.operation);
         if(!current._handler->_pending && current._handler->_finish)
         {
-            _workQueue->queue(new FinishedWorkItem(current._handler));
+            _workQueue->queue(new FinishedWorkItem(current._handler, false));
             _selector.finish(current._handler.get());
         }
         return false;
@@ -1177,7 +1173,7 @@ IceInternal::ThreadPool::finishMessage(ThreadPoolCurrent& current)
     if(!current._handler->_pending && current._handler->_finish)
     {
         // There are no more pending async operations, it's time to call finish.
-        _workQueue->queue(new FinishedWorkItem(current._handler));
+        _workQueue->queue(new FinishedWorkItem(current._handler, false));
         _selector.finish(current._handler.get());
     }
 }

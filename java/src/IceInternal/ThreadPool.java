@@ -30,18 +30,20 @@ public final class ThreadPool
     static final class FinishedWorkItem implements ThreadPoolWorkItem
     {
         public
-        FinishedWorkItem(EventHandler handler)
+        FinishedWorkItem(EventHandler handler, boolean close)
         {
             _handler = handler;
+            _close = close;
         }
 
         @Override
         public void execute(ThreadPoolCurrent current)
         {
-            _handler.finished(current);
+            _handler.finished(current, _close);
         }
 
         private final EventHandler _handler;
+        private final boolean _close;
     }
 
     static final class JoinThreadWorkItem implements ThreadPoolWorkItem
@@ -324,12 +326,13 @@ public final class ThreadPool
         update(handler, op, SocketOperation.None);
     }
 
-    public synchronized void
-    finish(EventHandler handler)
+    public synchronized boolean
+    finish(EventHandler handler, boolean closeNow)
     {
         assert(!_destroyed);
-        _selector.finish(handler);
-        _workQueue.queue(new FinishedWorkItem(handler));
+        closeNow = _selector.finish(handler, closeNow);
+        _workQueue.queue(new FinishedWorkItem(handler, !closeNow));
+        return closeNow;
     }
 
     public void

@@ -97,16 +97,16 @@ public:
 
 private:
 
-    ConnectionIPtr _connection;
-    ConnectionI::StartCallbackPtr _startCB;
-    vector<ConnectionI::OutgoingMessage> _sentCBs;
-    Byte _compress;
-    Int _requestId;
-    Int _invokeNum;
-    ServantManagerPtr _servantManager;
-    ObjectAdapterPtr _adapter;
-    OutgoingAsyncPtr _outAsync;
-    ConnectionCallbackPtr _heartbeatCallback;
+    const ConnectionIPtr _connection;
+    const ConnectionI::StartCallbackPtr _startCB;
+    const vector<ConnectionI::OutgoingMessage> _sentCBs;
+    const Byte _compress;
+    const Int _requestId;
+    const Int _invokeNum;
+    const ServantManagerPtr _servantManager;
+    const ObjectAdapterPtr _adapter;
+    const OutgoingAsyncPtr _outAsync;
+    const ConnectionCallbackPtr _heartbeatCallback;
     BasicStream _stream;
 };
 
@@ -114,19 +114,21 @@ class FinishCall : public DispatchWorkItem
 {
 public:
 
-    FinishCall(const Ice::ConnectionIPtr& connection) : DispatchWorkItem(connection), _connection(connection)
+    FinishCall(const Ice::ConnectionIPtr& connection, bool close) : 
+        DispatchWorkItem(connection), _connection(connection), _close(close)
     {
     }
 
     virtual void
     run()
     {
-        _connection->finish();
+        _connection->finish(_close);
     }
 
 private:
-
-    ConnectionIPtr _connection;
+    
+    const ConnectionIPtr _connection;
+    const bool _close;
 };
 
 ConnectionState connectionStateMap[] = {
@@ -2092,7 +2094,7 @@ ConnectionI::dispatch(const StartCallbackPtr& startCB, const vector<OutgoingMess
 }
 
 void
-Ice::ConnectionI::finished(ThreadPoolCurrent& current)
+Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
 {
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
@@ -2107,23 +2109,23 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current)
     //
     if(!_startCallback && _sendStreams.empty() && _asyncRequests.empty() && !_callback)
     {
-        finish();
+        finish(close);
         return;
     }
 
     current.ioCompleted();
     if(!_dispatcher) // Optimization, call finish() directly if there's no dispatcher.
     {
-        finish();
+        finish(close);
     }
     else
     {
-        _threadPool->dispatchFromThisThread(new FinishCall(this));
+        _threadPool->dispatchFromThisThread(new FinishCall(this, close));
     }
 }
 
 void
-Ice::ConnectionI::finish()
+Ice::ConnectionI::finish(bool close)
 {
     if(!_initialized)
     {
@@ -2131,7 +2133,8 @@ Ice::ConnectionI::finish()
         {
             string verb = _connector ? "establish" : "accept";
             Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
-            out << "failed to " << verb << " " << _endpoint->protocol() << " connection\n" << toString() << "\n" << *_exception.get();
+            out << "failed to " << verb << " " << _endpoint->protocol() << " connection\n" << toString() 
+                << "\n" << *_exception.get();
         }
     }
     else
@@ -2141,6 +2144,11 @@ Ice::ConnectionI::finish()
             Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
             out << "closed " << _endpoint->protocol() << " connection\n" << toString();
         }
+    }
+
+    if(close)
+    {
+        _transceiver->close();
     }
 
     if(_startCallback)
@@ -2574,19 +2582,20 @@ Ice::ConnectionI::setState(State state)
                 return;
             }
 
-            _threadPool->finish(this);
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
-            _transceiver->close();
-#endif
+            //
+            // Don't need to close now for connections so only close the transceiver
+            // if the selector request it.
+            //
+            if(_threadPool->finish(this, false))
+            {
+                _transceiver->close();
+            }
             break;
         }
 
         case StateFinished:
         {
             assert(_state == StateClosed);
-#if !defined(ICE_USE_IOCP) && !defined(ICE_OS_WINRT)
-            _transceiver->close();
-#endif
             _communicator = 0;
             break;
         }

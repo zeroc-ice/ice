@@ -212,7 +212,7 @@ public:
 #endif
 
     virtual void message(IceInternal::ThreadPoolCurrent&);
-    virtual void finished(IceInternal::ThreadPoolCurrent&);
+    virtual void finished(IceInternal::ThreadPoolCurrent&, bool);
     virtual std::string toString() const; // From Connection and EvantHandler.
     virtual IceInternal::NativeInfoPtr getNativeInfo();
 
@@ -228,7 +228,7 @@ public:
     void dispatch(const StartCallbackPtr&, const std::vector<OutgoingMessage>&, Byte, Int, Int,
                   const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&, const IceInternal::OutgoingAsyncPtr&,
                   const ConnectionCallbackPtr&, IceInternal::BasicStream&);
-    void finish();
+    void finish(bool);
 
     void closeCallback(const ConnectionCallbackPtr&);
 

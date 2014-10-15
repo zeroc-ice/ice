@@ -19,7 +19,7 @@ public abstract class EventHandler
     //
     // Called when the event handler is unregistered.
     //
-    abstract public void finished(ThreadPoolCurrent current);
+    abstract public void finished(ThreadPoolCurrent current, boolean close);
 
     //
     // Get a textual representation of the event handler.

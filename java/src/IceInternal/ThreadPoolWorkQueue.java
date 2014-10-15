@@ -86,7 +86,7 @@ final class ThreadPoolWorkQueue extends EventHandler
     }
 
     @Override
-    public void finished(ThreadPoolCurrent current)
+    public void finished(ThreadPoolCurrent current, boolean close)
     {
         assert(false);
     }
