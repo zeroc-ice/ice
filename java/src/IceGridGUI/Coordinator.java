@@ -2238,32 +2238,11 @@ public class Coordinator
         {
             if(!routed)
             {
-                session.destroy();
+                session.begin_destroy();
             }
             else
             {
-                Ice.RouterPrx router = _communicator.getDefaultRouter();
-                Glacier2.RouterPrx gr = Glacier2.RouterPrxHelper.uncheckedCast(router);
-
-                Glacier2.Callback_Router_destroySession cb = new Glacier2.Callback_Router_destroySession()
-                    {
-                        @Override
-                        public void response()
-                        {
-                        }
-
-                        @Override
-                        public void exception(Ice.LocalException ex)
-                        {
-                        }
-
-                        @Override
-                        public void exception(Ice.UserException ex)
-                        {
-                        }
-                    };
-
-                gr.begin_destroySession(cb);
+                Glacier2.RouterPrxHelper.uncheckedCast(_communicator.getDefaultRouter()).begin_destroySession();
             }
         }
         catch(Ice.LocalException e)
@@ -2723,6 +2702,7 @@ public class Coordinator
                         }
                     }
                     _sessionKeeper.logout(true);
+                    _statusBar.setText("Logged out");
                 }
             };
         _logout.putValue(Action.SHORT_DESCRIPTION, "Logout");
@@ -3634,6 +3614,10 @@ public class Coordinator
         _connected = connected;
         _statusBar.setConnected(connected);
         _newGraph.setEnabled(connected);
+        if(!connected)
+        {
+            destroyCommunicator();
+        }
     }
 
     public boolean connected()
