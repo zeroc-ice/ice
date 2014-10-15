@@ -1398,26 +1398,26 @@ public class SessionKeeper
                 
                 _directDiscoveryEndpointList.addListSelectionListener(new ListSelectionListener()
                 {
-                	@Override
+                    @Override
                     public void valueChanged(ListSelectionEvent event)
-                	{
-                		validatePanel();
-                	}
+                    {
+                        validatePanel();
+                    }
                 });
                 
                 ButtonGroup group = new ButtonGroup();
                 _directDiscoveryDiscoveredEndpoint = new JRadioButton(new AbstractAction("Discovered Endpoints")
-                	{
-                		@Override
-                        public void actionPerformed(ActionEvent e)
-                		{
-                			_directDiscoveryEndpointList.setEnabled(true);
-                            _discoveryStatus.setEnabled(true);
-                            _discoveryRefresh.setEnabled(true);
-                			validatePanel();
-                            refreshDiscoveryEndpoints();
-                		}
-                	});
+                {
+                @Override
+                public void actionPerformed(ActionEvent e)
+                {
+                    _directDiscoveryEndpointList.setEnabled(true);
+                    _discoveryStatus.setEnabled(true);
+                    _discoveryRefresh.setEnabled(true);
+                    validatePanel();
+                    refreshDiscoveryEndpoints();
+                }
+                });
                 _directDiscoveryDiscoveredEndpoint.setSelected(true);
                 group.add(_directDiscoveryDiscoveredEndpoint);
 
@@ -1442,17 +1442,17 @@ public class SessionKeeper
                 }
                 
                 _directDiscoveryManualEndpoint = new JRadioButton(new AbstractAction("Manual Endpoint")
-                	{
-                    	@Override
-                        public void actionPerformed(ActionEvent e)
-                    	{
-                            destroyDisconveryAdapter();
-                    		_directDiscoveryEndpointList.setEnabled(false);
-                            _discoveryStatus.setEnabled(false);
-                            _discoveryRefresh.setEnabled(false);
-                    		validatePanel();
-                    	}
-                	});
+                {
+                    @Override
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        destroyDisconveryAdapter();
+                        _directDiscoveryEndpointList.setEnabled(false);
+                        _discoveryStatus.setEnabled(false);
+                        _discoveryRefresh.setEnabled(false);
+                        validatePanel();
+                    }
+                });
                 group.add(_directDiscoveryManualEndpoint);
                
                 {
@@ -2155,22 +2155,22 @@ public class SessionKeeper
 
                             case DirectDiscoveryChooseStep:
                             {
-                            	if(_directDiscoveryManualEndpoint.isSelected())
-                            	{
-                            		_cardLayout.show(_cardPanel, WizardStep.DirectEndpointStep.toString());
-                            		_wizardSteps.push(WizardStep.DirectEndpointStep);
-                            	} 
-                            	else 
-                            	{
-                            		LocatorPrx locator = _directDiscoveryEndpointList.getSelectedValue();
-                            		_directInstanceName.setText(locator.ice_getIdentity().category);
-                            		_directCustomEndpointValue.setText(locator.ice_getEndpoints()[0].toString());
-                            		_directCustomEndpoints.setSelected(true);
-                            		
-                            		_cardLayout.show(_cardPanel, WizardStep.DirectCustomEnpointStep.toString());
-                            		_wizardSteps.push(WizardStep.DirectCustomEnpointStep);
-                            	}
-                            	break;
+                                if(_directDiscoveryManualEndpoint.isSelected())
+                                {
+                                    _cardLayout.show(_cardPanel, WizardStep.DirectEndpointStep.toString());
+                                    _wizardSteps.push(WizardStep.DirectEndpointStep);
+                                } 
+                                else 
+                                {
+                                    LocatorPrx locator = _directDiscoveryEndpointList.getSelectedValue();
+                                    _directInstanceName.setText(locator.ice_getIdentity().category);
+                                    _directCustomEndpointValue.setText(locator.ice_getEndpoints()[0].toString());
+                                    _directCustomEndpoints.setSelected(true);
+                                    
+                                    _cardLayout.show(_cardPanel, WizardStep.DirectCustomEnpointStep.toString());
+                                    _wizardSteps.push(WizardStep.DirectCustomEnpointStep);
+                                }
+                                break;
                             }
                             
                             case DirectEndpointStep:
@@ -2808,14 +2808,14 @@ public class SessionKeeper
 
                 case DirectDiscoveryChooseStep:
                 {
-                	if(_directDiscoveryManualEndpoint.isSelected())
-                	{
-                		validated = true;
-                	}
-                	else
-                	{
-                		validated = _directDiscoveryEndpointList.getSelectedValue() != null;
-                	}
+                    if(_directDiscoveryManualEndpoint.isSelected())
+                    {
+                        validated = true;
+                    }
+                    else
+                    {
+                        validated = _directDiscoveryEndpointList.getSelectedValue() != null;
+                    }
                     break;
                 }
 
