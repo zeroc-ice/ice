@@ -154,7 +154,8 @@ var TcpTransceiver = Ice.Class({
             throw this._exception;
         }
 
-        var packetSize = byteBuffer.remaining;
+        var bytesTotal = byteBuffer.remaining;
+        var packetSize = bytesTotal;
         Debug.assert(packetSize > 0);
 
         if(this._maxSendPacketSize > 0 && packetSize > this._maxSendPacketSize)
@@ -174,6 +175,7 @@ var TcpTransceiver = Ice.Class({
                     return;
                 }
 
+                var bytesSent = packetSize;
                 byteBuffer.position = byteBuffer.position + packetSize;
                 if(this._maxSendPacketSize > 0 && byteBuffer.remaining > this._maxSendPacketSize)
                 {
@@ -183,7 +185,7 @@ var TcpTransceiver = Ice.Class({
                 {
                     packetSize = byteBuffer.remaining;
                 }
-                self._bytesWrittenCallback();
+                self._bytesWrittenCallback(bytesSent, bytesTotal);
             });
 
             if(sync)

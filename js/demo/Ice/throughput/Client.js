@@ -41,7 +41,7 @@ function menu()
 function loop(fn, repetitions)
 {
     var i = 0;
-    var next = function() 
+    var next = function()
     {
         if(i++ < repetitions)
         {
@@ -89,18 +89,18 @@ Ice.Promise.try(
     {
         var currentType = "1";
         var repetitions = 100;
-        
+
         var seqSize = Demo.ByteSeqSize;
         var seq = byteSeq;
         var wireSize = 1;
-        
+
         //
         // Initialize the communicator and create a proxy
         // to the throughput object.
         //
         communicator = Ice.initialize(process.argv);
         var proxy = communicator.stringToProxy("throughput:default -p 10000");
-        
+
         //
         // Down-cast the proxy to the Demo.Throughput interface.
         //
@@ -111,7 +111,7 @@ Ice.Promise.try(
                 menu();
                 process.stdout.write("==> ");
                 var keyLoop = new Ice.Promise();
-                
+
                 function processKey(key)
                 {
                     if(key == "x")
@@ -119,10 +119,10 @@ Ice.Promise.try(
                         keyLoop.succeed();
                         return;
                     }
-                    
+
                     var proxy;
                     var operation;
-                    
+
                     if(key == "1" || key == "2" || key == "3" || key == "4")
                     {
                         currentType = key;
@@ -200,7 +200,7 @@ Ice.Promise.try(
                                 process.stdout.write("sending");
                                 break;
                             }
-                            
+
                             case "r":
                             {
                                 proxy = twoway;
@@ -223,7 +223,7 @@ Ice.Promise.try(
                                 process.stdout.write("receiving");
                                 break;
                             }
-                            
+
                             case "e":
                             {
                                 proxy = twoway;
@@ -247,7 +247,7 @@ Ice.Promise.try(
                                 break;
                             }
                         }
-                        
+
                         process.stdout.write(" " + repetitions);
                         switch(currentType)
                         {
@@ -273,7 +273,7 @@ Ice.Promise.try(
                                 break;
                             }
                         }
-                        
+
                         process.stdout.write(" sequences of size " + seqSize);
 
                         if(key == "o")
@@ -281,11 +281,11 @@ Ice.Promise.try(
                             process.stdout.write(" as oneway");
                         }
                         console.log("...");
-                        
+
                         var start = new Date().getTime();
                         var args = key != "r" ? [seq] : [];
                         return loop(
-                            function() 
+                            function()
                             {
                                 return operation.apply(proxy, args);
                             },
@@ -299,7 +299,7 @@ Ice.Promise.try(
                                 var total = new Date().getTime() - start;
                                 console.log("time for " + repetitions + " sequences: " + total  + " ms");
                                 console.log("time per sequence: " + total / repetitions + " ms");
-                                
+
                                 var mbit = repetitions * seqSize * wireSize * 8.0 / total / 1000.0;
                                 if(key == "e")
                                 {
@@ -326,7 +326,7 @@ Ice.Promise.try(
                         menu();
                     }
                 }
-                
+
                 //
                 // Process keys sequentially. We chain the promise objects
                 // returned by processKey(). Once we have process all the
@@ -334,7 +334,7 @@ Ice.Promise.try(
                 //
                 process.stdin.resume();
                 var promise = new Ice.Promise().succeed();
-                process.stdin.on("data", 
+                process.stdin.on("data",
                                  function(buffer)
                                  {
                                      process.stdin.pause();
@@ -343,9 +343,9 @@ Ice.Promise.try(
                                      data.forEach(function(key)
                                                   {
                                                       promise = promise.then(
-                                                          function(r) 
-                                                          { 
-                                                              return processKey(key); 
+                                                          function(r)
+                                                          {
+                                                              return processKey(key);
                                                           }
                                                       ).exception(
                                                           function(ex)
@@ -354,7 +354,7 @@ Ice.Promise.try(
                                                           });
                                                   });
                                      // Once we're done, print the prompt
-                                     promise.then(function() 
+                                     promise.then(function()
                                                   {
                                                       if(!keyLoop.completed())
                                                       {

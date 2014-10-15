@@ -50,17 +50,17 @@ var WSTransceiver = Ice.Class({
         this._bytesAvailableCallback = bytesAvailableCallback;
 
         var transceiver = this;
-        this._bytesWrittenCallback = function()
+        this._bytesWrittenCallback = function(bytesSent, bytesTotal)
         {
             if(transceiver._fd)
             {
                 if(transceiver._fd.bufferedAmount < 1024 || this._exception)
                 {
-                    bytesWrittenCallback();
+                    bytesWrittenCallback(bytesSent, bytesTotal);
                 }
                 else
                 {
-                    setTimeout(transceiver._bytesWrittenCallback, 50);
+                    setTimeout(function() { transceiver._bytesWrittenCallback(bytesSent, bytesTotal); }, 50);
                 }
             }
         };
@@ -180,9 +180,10 @@ var WSTransceiver = Ice.Class({
             return true;
         }
 
+        var transceiver = this;
         if(this._fd.bufferedAmount > 1024)
         {
-            setTimeout(this._bytesWrittenCallback, 50);
+            setTimeout(function() { transceiver._bytesWrittenCallback(0, 0); }, 50);
             return false;
         }
 
@@ -201,7 +202,6 @@ var WSTransceiver = Ice.Class({
             this._fd.send(slice);
 
             byteBuffer.position = byteBuffer.position + packetSize;
-
             if(this._maxSendPacketSize > 0 && byteBuffer.remaining > this._maxSendPacketSize)
             {
                 packetSize = this._maxSendPacketSize;
@@ -213,7 +213,7 @@ var WSTransceiver = Ice.Class({
 
             if(this._fd.bufferedAmount > 0 && packetSize > 0)
             {
-                setTimeout(this._bytesWrittenCallback, 50);
+                setTimeout(function() { transceiver._bytesWrittenCallback(0, 0); }, 50);
                 return false;
             }
         }

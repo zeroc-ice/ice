@@ -14,7 +14,7 @@ var ThroughputPrx = Demo.ThroughputPrx;
 //
 // Initialize sequences.
 //
-var byteSeq = new ArrayBuffer();
+var byteSeq = new Uint8Array(Demo.ByteSeqSize);
 for(var i = 0; i < Demo.ByteSeqSize; ++i)
 {
     byteSeq[i] = 0;
@@ -55,11 +55,11 @@ function run()
     //
     var hostname = document.location.hostname || "127.0.0.1";
     var secure = document.location.protocol.indexOf("https") != -1;
-    var ref = secure ? 
+    var ref = secure ?
         "throughput:wss -h " + hostname + " -p 9090 -r /demowss" :
         "throughput:ws -h " + hostname + " -p 8080 -r /demows";
     var proxy = communicator.stringToProxy(ref);
-    
+
     //
     // Down-cast the proxy to the Demo.Throughput interface.
     //
@@ -67,14 +67,14 @@ function run()
         function(twoway)
         {
             oneway = twoway.ice_oneway();
-            
+
             var seq;
             var seqSize
             var wireSize;
             var proxy;
             var operation;
             var repetitions = 100;
-            
+
             var data = $("#data").val();
             //
             // Get the sequence data
@@ -114,7 +114,7 @@ function run()
                 //
                 wireSize = 16;
             }
-            
+
             //
             // Get the proxy and operation
             //
@@ -182,7 +182,7 @@ function run()
                 }
                 write("sending and receiving");
             }
-            
+
             write(" " + repetitions);
             if(data == "byte-seq")
             {
@@ -206,10 +206,10 @@ function run()
                 write(" as oneway");
             }
             writeLine("...");
-            
+
             //
             // Invoke the test operation in a loop with the required
-            // arguments. 
+            // arguments.
             //
             // We chain the promises. A test operation is called only
             // once the promise for the previous operation is
@@ -218,7 +218,7 @@ function run()
             var start = new Date().getTime();
             var args = test != "receive" ? [seq] : [];
             return loop(
-                function() 
+                function()
                 {
                     return operation.apply(proxy, args);
                 },
@@ -232,7 +232,7 @@ function run()
                     var total = new Date().getTime() - start;
                     writeLine("time for " + repetitions + " sequences: " + total  + " ms");
                     writeLine("time per sequence: " + total / repetitions + " ms");
-                    
+
                     var mbit = repetitions * seqSize * wireSize * 8.0 / total / 1000.0;
                     if(test == "echo")
                     {
@@ -277,11 +277,11 @@ $("#run").click(
 //
 // Asynchronous loop: each call to the given function returns a
 // promise that when fulfilled runs the next iteration.
-//    
+//
 function loop(fn, repetitions)
 {
     var i = 0;
-    var next = function() 
+    var next = function()
     {
         if(i++ < repetitions)
         {
@@ -308,9 +308,9 @@ function writeLine(msg)
 //
 // Handle the client state.
 //
-var State = { 
-    Idle:0, 
-    Running: 1 
+var State = {
+    Idle:0,
+    Running: 1
 };
 var state;
 
