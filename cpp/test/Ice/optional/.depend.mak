@@ -2,6 +2,9 @@
 Test.cpp: \
     Test.ice
 
+TestAMD.cpp: \
+    TestAMD.ice
+
 Test.obj: \
 	Test.cpp \
     "Test.h" \
