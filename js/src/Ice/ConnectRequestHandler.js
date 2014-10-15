@@ -155,12 +155,16 @@ var ConnectRequestHandler = Ice.Class({
     },
     sendAsyncRequest: function(out)
     {
+        if(!this._initialized)
+        {
+            out.__cancelable(this); // This will throw if the request is canceled
+        }
+
         try
         {
             if(!this.initialized())
             {
                 this._requests.push(new Request(out));
-                out.__cancelable(this);
                 return AsyncStatus.Queued;
             }
         }

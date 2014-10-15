@@ -226,6 +226,50 @@ public class AllTests : TestCommon.TestApp
                 });
             cb.check();
         }
+        {
+            //
+            // Backward compatible connection timeouts
+            //
+            Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(-2).ice_timeout(250));
+            Ice.Connection con = null;
+            try
+            {
+                con = to.ice_getConnection();
+                to.sleep(500);
+                test(false);
+            }
+            catch(Ice.TimeoutException)
+            {
+                try
+                {
+                    con.getInfo();
+                    test(false);
+                }
+                catch(Ice.TimeoutException)
+                {
+                    // Connection got closed as well.
+                }
+            }
+
+            try
+            {
+                con = to.ice_getConnection();
+                to.end_sleep(to.begin_sleep(500));
+                test(false);
+            }
+            catch(Ice.TimeoutException)
+            {
+                try
+                {
+                    con.getInfo();
+                    test(false);
+                }
+                catch(Ice.TimeoutException)
+                {
+                    // Connection got closed as well.
+                }
+            }
+        }
         WriteLine("ok");
 
         Write("testing close timeout... ");

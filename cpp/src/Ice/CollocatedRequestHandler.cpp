@@ -390,6 +390,9 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsync* outAsync)
     if(_reference->getInvocationTimeout() > 0 || _response)
     {
         Lock sync(*this);
+
+        outAsync->cancelable(this); // This will throw if the request is canceled
+
         if(_response)
         {
             requestId = ++_requestId;
@@ -399,7 +402,6 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsync* outAsync)
         {
             _sendAsyncRequests.insert(make_pair(outAsync, requestId));
         }
-        outAsync->cancelable(this);
     }
 
     outAsync->attachCollocatedObserver(_adapter, requestId);
@@ -479,11 +481,11 @@ CollocatedRequestHandler::invokeAsyncBatchRequests(OutgoingAsyncBase* outAsync)
         invokeNum = _batchRequestNum;
         if(_batchRequestNum > 0)
         {
+            outAsync->cancelable(this); // This will throw if the request is canceled
+
             if(_reference->getInvocationTimeout() > 0)
             {
                 _sendAsyncRequests.insert(make_pair(outAsync, 0));
-
-                outAsync->cancelable(this);
             }
 
             assert(!_batchStream.b.empty());

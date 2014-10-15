@@ -408,6 +408,12 @@ namespace Ice
                 //
                 _transceiver.checkSendSize(os.getBuffer(), _instance.messageSizeMax());
 
+                //
+                // Notify the request that it's cancelable with this connection. 
+                // This will throw if the request is canceled.
+                //
+                og.cancelable(this);
+
                 int requestId = 0;
                 if(response)
                 {
@@ -442,11 +448,6 @@ namespace Ice
                     setState(StateClosed, ex);
                     Debug.Assert(_exception != null);
                     throw _exception;
-                }
-
-                if(response || !sent)
-                {
-                    og.cancelable(this); // Notify the request that it's cancelable
                 }
 
                 if(response)
@@ -717,6 +718,12 @@ namespace Ice
                 }
 
                 //
+                // Notify the request that it's cancelable with this connection. 
+                // This will throw if the request is canceled.
+                //
+                outAsync.cancelable(this);
+
+                //
                 // Fill in the number of requests in the batch.
                 //
                 _batchStream.pos(IceInternal.Protocol.headerSize);
@@ -743,11 +750,6 @@ namespace Ice
                     throw _exception;
                 }
                 
-                if(!sent)
-                {
-                    outAsync.cancelable(this); // Notify the request that it's cancelable.
-                }
-
                 //
                 // Reset the batch stream.
                 //
@@ -850,19 +852,26 @@ namespace Ice
                             _asyncRequests.Remove(o.requestId);
                         }
 
-                        //
-                        // If the request is being sent, don't remove it from the send streams,
-                        // it will be removed once the sending is finished.
-                        //
-                        o.canceled();
-                        if(o != _sendStreams.First.Value)
+                        if(ex is Ice.ConnectionTimeoutException)
                         {
-                            _sendStreams.Remove(p);
+                            setState(StateClosed, ex);
                         }
-                        Ice.AsyncCallback cb = outAsync.completed(ex);
-                        if(cb != null)
+                        else
                         {
-                            outAsync.invokeCompletedAsync(cb);
+                            //
+                            // If the request is being sent, don't remove it from the send streams,
+                            // it will be removed once the sending is finished.
+                            //
+                            o.canceled();
+                            if(o != _sendStreams.First.Value)
+                            {
+                                _sendStreams.Remove(p);
+                            }
+                            Ice.AsyncCallback cb = outAsync.completed(ex);
+                            if(cb != null)
+                            {
+                                outAsync.invokeCompletedAsync(cb);
+                            }
                         }
                         return;
                     }
@@ -875,11 +884,18 @@ namespace Ice
                     {
                         if(kvp.Value == o)
                         {
-                            _asyncRequests.Remove(kvp.Key);
-                            Ice.AsyncCallback cb = outAsync.completed(ex);
-                            if(cb != null)
+                            if(ex is Ice.ConnectionTimeoutException)
                             {
-                                outAsync.invokeCompletedAsync(cb);
+                                setState(StateClosed, ex);
+                            }
+                            else
+                            {
+                                _asyncRequests.Remove(kvp.Key);
+                                Ice.AsyncCallback cb = outAsync.completed(ex);
+                                if(cb != null)
+                                {
+                                    outAsync.invokeCompletedAsync(cb);
+                                }
                             }
                             return;
                         }

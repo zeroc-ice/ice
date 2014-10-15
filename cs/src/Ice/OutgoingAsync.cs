@@ -138,6 +138,12 @@ namespace IceInternal
                 childObserver_ = null;
             }
 
+            cachedConnection_ = null;
+            if(proxy_.reference__().getInvocationTimeout() == -2)
+            {
+                instance_.timer().cancel(this);
+            }
+
             //
             // NOTE: at this point, synchronization isn't needed, no other threads should be
             // calling on the callback.
@@ -151,6 +157,19 @@ namespace IceInternal
             {
                 return finished(ex); // No retries, we're done
             }
+        }
+
+        public override void cancelable(CancellationHandler handler)
+        {
+            if(proxy_.reference__().getInvocationTimeout() == -2 && cachedConnection_ != null)
+            {
+                int timeout = cachedConnection_.timeout();
+                if(timeout > 0)
+                {
+                    instance_.timer().schedule(this, timeout);
+                }
+            }
+            base.cancelable(handler);
         }
 
         public void retry()
@@ -179,7 +198,14 @@ namespace IceInternal
 
         public void runTimerTask()
         {
-            cancel(new Ice.InvocationTimeoutException());
+            if(proxy_.reference__().getInvocationTimeout() == -2)
+            {
+                cancel(new Ice.ConnectionTimeoutException());
+            }
+            else
+            {
+                cancel(new Ice.InvocationTimeoutException());
+            }
         }
 
         protected ProxyOutgoingAsyncBase(Ice.ObjectPrxHelperBase prx, string op, object cookie) :
@@ -225,7 +251,6 @@ namespace IceInternal
                 }
                 else // If not called from the user thread, it's called from the retry queue
                 {
-                    checkCanceled(); // Cancellation exception aren't retriable
                     if(observer_ != null)
                     {
                         observer_.retried();
@@ -279,7 +304,6 @@ namespace IceInternal
                         }
                         else if(observer_ != null)
                         {
-                            checkCanceled();
                             observer_.retried();
                         }
                     }
@@ -308,7 +332,7 @@ namespace IceInternal
             _sent = true;
             if(done)
             {
-                if(proxy_.reference__().getInvocationTimeout() > 0)
+                if(proxy_.reference__().getInvocationTimeout() != -1)
                 {
                     instance_.timer().cancel(this);
                 }
@@ -318,7 +342,7 @@ namespace IceInternal
 
         protected new Ice.AsyncCallback finished(Ice.Exception ex)
         {
-            if(proxy_.reference__().getInvocationTimeout() > 0)
+            if(proxy_.reference__().getInvocationTimeout() != -1)
             {
                 instance_.timer().cancel(this);
             }
@@ -327,7 +351,7 @@ namespace IceInternal
 
         protected new Ice.AsyncCallback finished(bool ok)
         {
-            if(proxy_.reference__().getInvocationTimeout() > 0)
+            if(proxy_.reference__().getInvocationTimeout() != -1)
             {
                 instance_.timer().cancel(this);
             }
@@ -491,7 +515,7 @@ namespace IceInternal
         public override bool invokeCollocated(CollocatedRequestHandler handler, out Ice.AsyncCallback sentCB)
         {
             // The BasicStream cannot be cached if the proxy is not a twoway or there is an invocation timeout set.
-            if(!proxy_.ice_isTwoway() || proxy_.reference__().getInvocationTimeout() > 0)
+            if(!proxy_.ice_isTwoway() || proxy_.reference__().getInvocationTimeout() != -1)
             {
                 // Disable caching by marking the streams as cached!
                 state_ |= StateCachedBuffers;

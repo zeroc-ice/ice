@@ -92,6 +92,7 @@ public:
 
     using OutgoingAsyncBase::sent;
     virtual bool completed(const Ice::Exception&);
+    virtual void cancelable(const CancellationHandlerPtr&);
 
     void retry();
     void abort(const Ice::Exception&);

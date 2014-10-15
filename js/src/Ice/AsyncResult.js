@@ -118,19 +118,16 @@ var AsyncResult = Ice.Class(AsyncResultBase, {
     {
         if(this._cancellationException)
         {
-            handler.asyncRequestCanceled(this, this._cancellationException);
+            try
+            {
+                throw this._cancellationException;
+            }
+            finally
+            {
+                this._cancellationException = null;
+            }
         }
-        else
-        {
-            this._cancellationHandler = handler;
-        }
-    },
-    __checkCanceled: function()
-    {
-        if(this._cancellationException)
-        {
-            throw this._cancellationException;
-        }
+        this._cancellationHandler = handler;
     },
     __os: function()
     {

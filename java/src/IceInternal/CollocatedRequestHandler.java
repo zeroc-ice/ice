@@ -311,6 +311,8 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         {
             synchronized(this)
             {
+                outAsync.cancelable(this); // This will throw if the request is canceled
+
                 if(_response)
                 {
                     requestId = ++_requestId;
@@ -320,7 +322,6 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
                 {
                     _sendAsyncRequests.put(outAsync, requestId);
                 }
-                outAsync.cancelable(this);
             }
         }
 
@@ -366,10 +367,11 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
             invokeNum = _batchRequestNum;
             if(_batchRequestNum > 0)
             {
+                outAsync.cancelable(this); // This will throw if the request is canceled
+
                 if(_reference.getInstance().queueRequests() || _reference.getInvocationTimeout() > 0)
                 {
                     _sendAsyncRequests.put(outAsync, 0);
-                    outAsync.cancelable(this);
                 }
 
                 assert(!_batchStream.isEmpty());

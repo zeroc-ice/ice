@@ -106,7 +106,7 @@ protected:
     void invokeCompleted();
 
     void cancel(const LocalException&);
-    void cancelable(const IceInternal::CancellationHandlerPtr&);
+    virtual void cancelable(const IceInternal::CancellationHandlerPtr&);
     void checkCanceled();
 
     void warning(const std::exception&) const;

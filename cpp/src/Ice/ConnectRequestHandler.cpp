@@ -229,6 +229,11 @@ ConnectRequestHandler::sendAsyncRequest(const OutgoingAsyncBasePtr& out)
 {
     {
         Lock sync(*this);
+        if(!_initialized)
+        {
+            out->cancelable(this); // This will throw if the request is canceled
+        }
+
         try
         {
             if(!initialized())
@@ -236,7 +241,6 @@ ConnectRequestHandler::sendAsyncRequest(const OutgoingAsyncBasePtr& out)
                 Request req;
                 req.outAsync = out;
                 _requests.push_back(req);
-                out->cancelable(this);
                 return AsyncStatusQueued;
             }
         }

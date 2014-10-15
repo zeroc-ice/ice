@@ -138,7 +138,7 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
 
     const_cast<int&>(defaultInvocationTimeout) =
         properties->getPropertyAsIntWithDefault("Ice.Default.InvocationTimeout", -1);
-    if(defaultInvocationTimeout < 1 && defaultInvocationTimeout != -1)
+    if(defaultInvocationTimeout < 1 && defaultInvocationTimeout != -1 && defaultInvocationTimeout != -2)
     {
         const_cast<Int&>(defaultInvocationTimeout) = -1;
         Warning out(logger);

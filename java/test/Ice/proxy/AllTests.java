@@ -519,6 +519,7 @@ public class AllTests
         try
         {
             base.ice_invocationTimeout(-1);
+            base.ice_invocationTimeout(-2);
         }
         catch(IllegalArgumentException e)
         {
@@ -527,7 +528,7 @@ public class AllTests
 
         try
         {
-            base.ice_invocationTimeout(-2);
+            base.ice_invocationTimeout(-3);
             test(false);
         }
         catch(IllegalArgumentException e)

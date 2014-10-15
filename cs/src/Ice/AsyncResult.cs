@@ -404,17 +404,23 @@ namespace IceInternal
                 }, cachedConnection_);
         }
 
-        public void cancelable(CancellationHandler handler)
+        public virtual void cancelable(CancellationHandler handler)
         {
             lock(this)
             {
-                if(_cancellationException == null)
+                if(_cancellationException != null)
                 {
-                    _cancellationHandler = handler;
-                    return;
+                    try
+                    {
+                        throw _cancellationException;
+                    }
+                    finally
+                    {
+                        _cancellationException = null;
+                    }
                 }
+                _cancellationHandler = handler;
             }
-            handler.asyncRequestCanceled((OutgoingAsyncBase)this, _cancellationException);
         }
 
         public bool wait()
@@ -629,17 +635,6 @@ namespace IceInternal
                 }
             }
             _cancellationHandler.asyncRequestCanceled((OutgoingAsyncBase)this, ex);
-        }
-
-        protected void checkCanceled()
-        {
-            lock(this)
-            {
-                if(_cancellationException != null)
-                {
-                    throw _cancellationException;
-                }
-            }
         }
 
         protected virtual Ice.Instrumentation.InvocationObserver getObserver()

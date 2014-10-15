@@ -66,6 +66,27 @@ public abstract class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
         invokeImpl(false);
     }
     
+    public void cancelable(final CancellationHandler handler)
+    {
+        if(_proxy.__reference().getInvocationTimeout() == -2 && _cachedConnection != null)
+        {
+            final int timeout = _cachedConnection.timeout();
+            if(timeout > 0)
+            {
+                _future = _instance.timer().schedule(
+                    new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            cancel(new Ice.ConnectionTimeoutException());
+                        }
+                    }, timeout, java.util.concurrent.TimeUnit.MILLISECONDS);
+            }
+        }
+        super.cancelable(handler);
+    }
+    
     public void abort(Ice.Exception ex)
     {
         assert(_childObserver == null);
@@ -128,15 +149,14 @@ public abstract class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
                         {
                             @Override
                             public void run()
-                                {
-                                    cancel(new Ice.InvocationTimeoutException());
-                                }
+                            {
+                                cancel(new Ice.InvocationTimeoutException());
+                            }
                         }, invocationTimeout, java.util.concurrent.TimeUnit.MILLISECONDS);
                 }
             }
             else // If not called from the user thread, it's called from the retry queue
             {
-                checkCanceled(); // Cancellation exception aren't retriable
                 if(_observer != null)
                 {
                     _observer.retried();
@@ -190,7 +210,6 @@ public abstract class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
                     }
                     else if(_observer != null)
                     {
-                        checkCanceled();
                         _observer.retried();
                     }
                 }

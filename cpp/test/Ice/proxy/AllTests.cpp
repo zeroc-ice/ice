@@ -501,6 +501,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     try
     {
         base->ice_invocationTimeout(-1);
+        base->ice_invocationTimeout(-2);
     }
     catch(const IceUtil::IllegalArgumentException&)
     {
@@ -509,7 +510,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     try
     {
-        base->ice_invocationTimeout(-2);
+        base->ice_invocationTimeout(-3);
         test(false);
     }
     catch(const IceUtil::IllegalArgumentException&)

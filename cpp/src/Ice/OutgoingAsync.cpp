@@ -86,6 +86,12 @@ ProxyOutgoingAsyncBase::completed(const Exception& exc)
         _childObserver.detach();
     }
 
+    _cachedConnection = 0;
+    if(_proxy->__reference()->getInvocationTimeout() == -2)
+    {
+        _instance->timer()->cancel(this);
+    }
+
     //
     // NOTE: at this point, synchronization isn't needed, no other threads should be
     // calling on the callback.
@@ -99,6 +105,21 @@ ProxyOutgoingAsyncBase::completed(const Exception& exc)
     {
         return finished(ex); // No retries, we're done
     }
+}
+
+
+void
+ProxyOutgoingAsyncBase::cancelable(const CancellationHandlerPtr& handler)
+{
+    if(_proxy->__reference()->getInvocationTimeout() == -2 && _cachedConnection)
+    {
+        const int timeout = _cachedConnection->timeout();
+        if(timeout > 0)
+        {
+            _instance->timer()->schedule(this, IceUtil::Time::milliSeconds(timeout));
+        }
+    }
+    AsyncResult::cancelable(handler);
 }
 
 void
@@ -154,7 +175,6 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
         }
         else
         {
-            checkCanceled(); // Cancellation exception aren't retriable
             _observer.retried();
         }
 
@@ -204,7 +224,6 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
                 }
                 else
                 {
-                    checkCanceled(); // Cancellation exception aren't retriable
                     _observer.retried();
                 }
             }
@@ -233,7 +252,7 @@ ProxyOutgoingAsyncBase::sent(bool done)
     _sent = true;
     if(done)
     {
-        if(_proxy->__reference()->getInvocationTimeout() > 0)
+        if(_proxy->__reference()->getInvocationTimeout() != -1)
         {
             _instance->timer()->cancel(this);
         }
@@ -244,7 +263,7 @@ ProxyOutgoingAsyncBase::sent(bool done)
 bool
 ProxyOutgoingAsyncBase::finished(const Exception& ex)
 {
-    if(_proxy->__reference()->getInvocationTimeout() > 0)
+    if(_proxy->__reference()->getInvocationTimeout() != -1)
     {
         _instance->timer()->cancel(this);
     }
@@ -254,7 +273,7 @@ ProxyOutgoingAsyncBase::finished(const Exception& ex)
 bool
 ProxyOutgoingAsyncBase::finished(bool ok)
 {
-    if(_proxy->__reference()->getInvocationTimeout() > 0)
+    if(_proxy->__reference()->getInvocationTimeout() != -1)
     {
         _instance->timer()->cancel(this);
     }
@@ -276,12 +295,13 @@ ProxyOutgoingAsyncBase::handleException(const Exception& exc)
 void
 ProxyOutgoingAsyncBase::runTimerTask()
 {
-    try
+    if(_proxy->__reference()->getInvocationTimeout() == -2)
+    {
+        cancel(ConnectionTimeoutException(__FILE__, __LINE__));
+    }
+    else
     {
         cancel(InvocationTimeoutException(__FILE__, __LINE__));
-    }
-    catch(const CommunicatorDestroyedException&)
-    {
     }
 }
 

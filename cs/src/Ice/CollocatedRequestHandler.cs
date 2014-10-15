@@ -287,6 +287,8 @@ namespace IceInternal
             {
                 lock(this)
                 {
+                    outAsync.cancelable(this); // This will throw if the request is canceled
+
                     if(_response)
                     {
                         requestId = ++_requestId;
@@ -296,7 +298,6 @@ namespace IceInternal
                     {
                         _sendAsyncRequests.Add(outAsync, requestId);
                     }
-                    outAsync.cancelable(this);
                 }
             }
 
@@ -364,10 +365,11 @@ namespace IceInternal
                 invokeNum = _batchRequestNum;
                 if(_batchRequestNum > 0)
                 {
+                    outAsync.cancelable(this); // This will throw if the request is canceled
+
                     if(_reference.getInvocationTimeout() > 0)
                     {
                         _sendAsyncRequests.Add(outAsync, 0);
-                        outAsync.cancelable(this);
                     }
 
                     Debug.Assert(!_batchStream.isEmpty());

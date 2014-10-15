@@ -1163,7 +1163,7 @@ IceProxy::Ice::Object::ice_getInvocationTimeout() const
 ObjectPrx
 IceProxy::Ice::Object::ice_invocationTimeout(Int newTimeout) const
 {
-    if(newTimeout < 1 && newTimeout != -1)
+    if(newTimeout < 1 && newTimeout != -1 && newTimeout != -2)
     {
         ostringstream s;
         s << "invalid value passed to ice_invocationTimeout: " << newTimeout;

@@ -399,6 +399,12 @@ var ConnectionI = Class({
         //
         this._transceiver.checkSendSize(os, this._instance.messageSizeMax());
 
+        //
+        // Notify the request that it's cancelable with this connection. 
+        // This will throw if the request is canceled.
+        //
+        out.__cancelable(this); // Notify the request that it's cancelable
+
         if(response)
         {
             //
@@ -435,11 +441,6 @@ var ConnectionI = Class({
             {
                 throw ex;
             }
-        }
-
-        if(response || (status & AsyncStatus.Queued) > 0)
-        {
-            out.__cancelable(this); // Notify the request that it's cancelable
         }
 
         if(response)
@@ -665,6 +666,12 @@ var ConnectionI = Class({
         }
 
         //
+        // Notify the request that it's cancelable with this connection. 
+        // This will throw if the request is canceled.
+        //
+        outAsync.__cancelable(this);
+
+        //
         // Fill in the number of requests in the batch.
         //
         this._batchStream.pos = Protocol.headerSize;
@@ -688,11 +695,6 @@ var ConnectionI = Class({
             {
                 throw ex;
             }
-        }
-
-        if((status & AsyncStatus.Queued) > 0)
-        {
-            outAsync.__cancelable(this); // Notify the request that it's cancelable.
         }
 
         //

@@ -515,6 +515,7 @@ public class AllTests : TestCommon.TestApp
         try
         {
             baseProxy.ice_invocationTimeout(-1);
+            baseProxy.ice_invocationTimeout(-2);
         }
         catch(System.ArgumentException)
         {
@@ -523,7 +524,7 @@ public class AllTests : TestCommon.TestApp
 
         try
         {
-            baseProxy.ice_invocationTimeout(-2);
+            baseProxy.ice_invocationTimeout(-3);
             test(false);
         }
         catch(System.ArgumentException)

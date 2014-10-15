@@ -420,25 +420,20 @@ AsyncResult::cancel(const Ice::LocalException& ex)
 void
 AsyncResult::cancelable(const CancellationHandlerPtr& handler)
 {
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
-        if(!_cancellationException.get())
-        {
-            _cancellationHandler = handler;
-            return;
-        }
-    }
-    handler->asyncRequestCanceled(OutgoingAsyncBasePtr::dynamicCast(this), *_cancellationException.get());
-}
-
-void
-AsyncResult::checkCanceled()
-{
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
     if(_cancellationException.get())
     {
-        _cancellationException->ice_throw();
+        try
+        {
+            _cancellationException->ice_throw();
+        }
+        catch(const Ice::Exception&)
+        {
+            _cancellationException.reset(0);
+            throw;
+        }
     }
+    _cancellationHandler = handler;
 }
 
 void

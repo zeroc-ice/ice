@@ -154,12 +154,16 @@ public class ConnectRequestHandler
     {
         synchronized(this)
         {
+            if(!_initialized)
+            {
+                out.cancelable(this); // This will throw if the request is canceled
+            }
+
             try
             {
                 if(!initialized())
                 {
                     _requests.add(new Request(out));
-                    out.cancelable(this);
                     return AsyncStatus.Queued;
                 }
             }

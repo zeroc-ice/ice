@@ -116,10 +116,6 @@ var ProxyOutgoingAsyncBase = Ice.Class(OutgoingAsyncBase, {
                         invocationTimeout);
                 }
             }
-            else
-            {
-                this.__checkCanceled();
-            }
             
             while(true)
             {
@@ -150,10 +146,6 @@ var ProxyOutgoingAsyncBase = Ice.Class(OutgoingAsyncBase, {
                         {
                             this._instance.retryQueue().add(this, interval);
                             return;
-                        }
-                        else
-                        {
-                            this.__checkCanceled(); // Cancellation exception aren't retriable
                         }
                     }
                 }

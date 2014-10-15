@@ -2672,12 +2672,15 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             Ice::AsyncResultPtr r;
             Ice::ByteSeq seq;
-            seq.resize(1024); // Make sure the request doesn't compress too well.
+            seq.resize(10024); // Make sure the request doesn't compress too well.
             for(Ice::ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
             {
                 *q = static_cast<Ice::Byte>(IceUtilInternal::random(255));
             }
-            while((r = p->begin_opWithPayload(seq))->sentSynchronously());
+            for(int i = 0; i < 200; ++i) // 2MB
+            {
+                r = p->begin_opWithPayload(seq);
+            }
 
             test(!r->isSent());
 

@@ -36,12 +36,10 @@ class RetryTask implements Runnable, CancellationHandler
     {
         if(_queue.remove(this) && _future.cancel(false))
         {
-            //
-            // We just retry the outgoing async now rather than marking it
-            // as finished. The retry will check for the cancellation
-            // exception and terminate appropriately the request.
-            //
-            _outAsync.retry();
+            if(_outAsync.completed(ex))
+            {
+                _outAsync.invokeCompletedAsync();
+            }
         }
     }
 

@@ -44,16 +44,14 @@ IceInternal::RetryTask::requestCanceled(OutgoingBase*, const Ice::LocalException
 }
 
 void
-IceInternal::RetryTask::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, const Ice::LocalException&)
+IceInternal::RetryTask::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, const Ice::LocalException& ex)
 {
     if(_queue->cancel(this))
     {
-        //
-        // We just retry the outgoing async now rather than marking it
-        // as finished. The retry will check for the cancellation
-        // exception and terminate appropriately the request.
-        //
-        _outAsync->retry();
+        if(_outAsync->completed(ex))
+        {
+            _outAsync->invokeCompletedAsync();
+        }
     }
 }
 
@@ -89,6 +87,7 @@ IceInternal::RetryQueue::add(const ProxyOutgoingAsyncBasePtr& out, int interval)
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
     RetryTaskPtr task = new RetryTask(this, out);
+    out->cancelable(task); // This will throw if the request is canceled.
     try
     {
         _instance->timer()->schedule(task, IceUtil::Time::milliSeconds(interval));
@@ -98,7 +97,6 @@ IceInternal::RetryQueue::add(const ProxyOutgoingAsyncBasePtr& out, int interval)
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
     _requests.insert(task);
-    out->cancelable(task);
 }
 
 void

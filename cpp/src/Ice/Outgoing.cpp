@@ -208,12 +208,13 @@ Outgoing::invoke()
         return true;
     }
 
+    const int invocationTimeout = _proxy->__reference()->getInvocationTimeout();
     int cnt = 0;
     while(true)
     {        
         try
         {
-            if(_invocationTimeoutDeadline != IceUtil::Time() && _invocationTimeoutDeadline <= IceUtil::Time::now())
+            if(invocationTimeout > 0 && _invocationTimeoutDeadline <= IceUtil::Time::now())
             {
                 throw Ice::InvocationTimeoutException(__FILE__, __LINE__);
             }
@@ -228,11 +229,27 @@ Outgoing::invoke()
             {
                 return true;
             }
+
+            if(invocationTimeout == -2) // Use the connection timeout
+            {
+                try
+                {
+                    _invocationTimeoutDeadline = IceUtil::Time(); // Reset any previously set value
+
+                    int timeout = _handler->waitForConnection()->timeout();
+                    if(timeout > 0)
+                    {
+                        _invocationTimeoutDeadline = IceUtil::Time::now() + IceUtil::Time::milliSeconds(timeout);
+                    }
+                }
+                catch(const Ice::LocalException&)
+                {
+                }
+            }
                     
             bool timedOut = false;
             {
                 IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
-                        
                 //
                 // If the handler says it's not finished, we wait until we're done.
                 //
@@ -262,7 +279,14 @@ Outgoing::invoke()
                 
             if(timedOut)
             {
-                _handler->requestCanceled(this, InvocationTimeoutException(__FILE__, __LINE__));
+                if(invocationTimeout == -2)
+                {
+                    _handler->requestCanceled(this, ConnectionTimeoutException(__FILE__, __LINE__));
+                }
+                else
+                {
+                    _handler->requestCanceled(this, InvocationTimeoutException(__FILE__, __LINE__));
+                }
 
                 //
                 // Wait for the exception to propagate. It's possible the request handler ignores
@@ -298,7 +322,7 @@ Outgoing::invoke()
                 interval = IceUtil::Time::milliSeconds(_proxy->__handleException(ex, _handler, _mode, _sent, cnt));
                 if(interval > IceUtil::Time())
                 {
-                    if(_invocationTimeoutDeadline != IceUtil::Time())
+                    if(invocationTimeout > 0)
                     {
                         IceUtil::Time deadline = _invocationTimeoutDeadline - IceUtil::Time::now();
                         if(deadline < interval)

@@ -147,12 +147,16 @@ namespace IceInternal
         {
             lock(this)
             {
+                if(!_initialized)
+                {
+                    outAsync.cancelable(this); // This will throw if the request is canceled
+                }
+
                 try
                 {
                     if(!initialized())
                     {
                         _requests.AddLast(new Request(outAsync));
-                        outAsync.cancelable(this);
                         sentCallback = null;
                         return false;
                     }

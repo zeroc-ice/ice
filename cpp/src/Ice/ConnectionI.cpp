@@ -711,6 +711,12 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncPtr& out, bool compress, b
     //
     _transceiver->checkSendSize(*os, _instance->messageSizeMax());
 
+    //
+    // Notify the request that it's cancelable with this connection. 
+    // This will throw if the request is canceled.
+    //
+    out->cancelable(this); 
+
     Int requestId = 0;
     if(response)
     {
@@ -748,11 +754,6 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncPtr& out, bool compress, b
         setState(StateClosed, ex);
         assert(_exception.get());
         _exception->ice_throw();
-    }
-
-    if(response || status & AsyncStatusQueued)
-    {
-        out->cancelable(this); // Notify the request that it's cancelable
     }
 
     if(response)
@@ -1135,6 +1136,12 @@ Ice::ConnectionI::flushAsyncBatchRequests(const OutgoingAsyncBasePtr& outAsync)
     }
 
     //
+    // Notify the request that it's cancelable with this connection. 
+    // This will throw if the request is canceled.
+    //
+    outAsync->cancelable(this); 
+
+    //
     // Fill in the number of requests in the batch.
     //
     const Byte* p = reinterpret_cast<const Byte*>(&_batchRequestNum);
@@ -1161,11 +1168,6 @@ Ice::ConnectionI::flushAsyncBatchRequests(const OutgoingAsyncBasePtr& outAsync)
         setState(StateClosed, ex);
         assert(_exception.get());
         _exception->ice_throw();
-    }
-
-    if(status & AsyncStatusQueued)
-    {
-        outAsync->cancelable(this); // Notify the request that it's cancelable.
     }
 
     //
@@ -1306,21 +1308,27 @@ Ice::ConnectionI::requestCanceled(OutgoingBase* out, const Ice::LocalException& 
                 }
             }
 
-            //
-            // If the request is being sent, don't remove it from the send streams,
-            // it will be removed once the sending is finished.
-            //
-            if(o == _sendStreams.begin())
+            if(dynamic_cast<const Ice::ConnectionTimeoutException*>(&ex))
             {
-                o->canceled(true); // true = adopt the stream.
+                setState(StateClosed, ex);
             }
             else
             {
-                o->canceled(false);
-                _sendStreams.erase(o);
+                //
+                // If the request is being sent, don't remove it from the send streams,
+                // it will be removed once the sending is finished.
+                //
+                if(o == _sendStreams.begin())
+                {
+                    o->canceled(true); // true = adopt the stream.
+                }
+                else
+                {
+                    o->canceled(false);
+                    _sendStreams.erase(o);
+                }
+                out->completed(ex);
             }
-
-            out->completed(ex);
             return;
         }
     }
@@ -1330,9 +1338,17 @@ Ice::ConnectionI::requestCanceled(OutgoingBase* out, const Ice::LocalException& 
     {
         if(_requestsHint != _requests.end() && _requestsHint->second == o)
         {
-            o->completed(ex);
-            _requests.erase(_requestsHint);
-            _requestsHint = _requests.end();
+            if(dynamic_cast<const Ice::ConnectionTimeoutException*>(&ex))
+            {
+                setState(StateClosed, ex);
+            }
+            else
+            {
+                o->completed(ex);
+                _requests.erase(_requestsHint);
+                _requestsHint = _requests.end();
+            }
+            return;
         }
         else
         {
@@ -1340,9 +1356,16 @@ Ice::ConnectionI::requestCanceled(OutgoingBase* out, const Ice::LocalException& 
             {
                 if(p->second == o)
                 {
-                    o->completed(ex);
-                    assert(p != _requestsHint);
-                    _requests.erase(p);
+                    if(dynamic_cast<const Ice::ConnectionTimeoutException*>(&ex))
+                    {
+                        setState(StateClosed, ex);
+                    }
+                    else
+                    {
+                        o->completed(ex);
+                        assert(p != _requestsHint);
+                        _requests.erase(p);
+                    }
                     return; // We're done.
                 }
             }
@@ -1381,23 +1404,29 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, con
                 }
             }
             
-            //
-            // If the request is being sent, don't remove it from the send streams,
-            // it will be removed once the sending is finished.
-            //
-            if(o == _sendStreams.begin())
+            if(dynamic_cast<const Ice::ConnectionTimeoutException*>(&ex))
             {
-                o->canceled(true); // true = adopt the stream
+                setState(StateClosed, ex);
             }
             else
             {
-                o->canceled(false);
-                _sendStreams.erase(o);
-            }
-            if(outAsync->completed(ex))
-            {
-                sync.release();
-                outAsync->invokeCompleted();
+                //
+                // If the request is being sent, don't remove it from the send streams,
+                // it will be removed once the sending is finished.
+                //
+                if(o == _sendStreams.begin())
+                {
+                    o->canceled(true); // true = adopt the stream
+                }
+                else
+                {
+                    o->canceled(false);
+                    _sendStreams.erase(o);
+                }
+                if(outAsync->completed(ex))
+                {
+                    outAsync->invokeCompletedAsync();
+                }
             }
             return;
         }
@@ -1410,11 +1439,18 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, con
         {
             if(_asyncRequestsHint->second == o)
             {
-                _asyncRequests.erase(_asyncRequestsHint);
-                _asyncRequestsHint = _asyncRequests.end();
-                if(outAsync->completed(ex))
+                if(dynamic_cast<const Ice::ConnectionTimeoutException*>(&ex))
                 {
-                    outAsync->invokeCompletedAsync();
+                    setState(StateClosed, ex);
+                }
+                else
+                {
+                    _asyncRequests.erase(_asyncRequestsHint);
+                    _asyncRequestsHint = _asyncRequests.end(); 
+                    if(outAsync->completed(ex))
+                    {
+                        outAsync->invokeCompletedAsync();
+                    }
                 }
                 return;
             }
@@ -1424,11 +1460,18 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, con
         {
             if(p->second.get() == o.get())
             {
-                assert(p != _asyncRequestsHint);
-                _asyncRequests.erase(p);
-                if(outAsync->completed(ex))
+                if(dynamic_cast<const Ice::ConnectionTimeoutException*>(&ex))
                 {
-                    outAsync->invokeCompletedAsync();
+                    setState(StateClosed, ex);
+                }
+                else
+                {
+                    assert(p != _asyncRequestsHint);
+                    _asyncRequests.erase(p);
+                    if(outAsync->completed(ex))
+                    {
+                        outAsync->invokeCompletedAsync();
+                    }
                 }
                 return;
             }

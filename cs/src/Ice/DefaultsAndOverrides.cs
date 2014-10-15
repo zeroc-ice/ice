@@ -182,7 +182,7 @@ namespace IceInternal
             }
 
             defaultInvocationTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.InvocationTimeout", -1);
-            if(defaultInvocationTimeout < 1 && defaultInvocationTimeout != -1)
+            if(defaultInvocationTimeout < 1 && defaultInvocationTimeout != -1 && defaultInvocationTimeout != -2)
             {
                 defaultInvocationTimeout = -1;
                 StringBuilder msg = new StringBuilder("invalid value for Ice.Default.InvocationTimeout `");

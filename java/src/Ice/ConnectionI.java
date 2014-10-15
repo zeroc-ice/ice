@@ -354,6 +354,12 @@ public final class ConnectionI extends IceInternal.EventHandler
         //
         _transceiver.checkSendSize(os.getBuffer(), _instance.messageSizeMax());
 
+        //
+        // Notify the request that it's cancelable with this connection. 
+        // This will throw if the request is canceled.
+        //
+        out.cancelable(this);
+        
         int requestId = 0;
         if(response)
         {
@@ -388,11 +394,6 @@ public final class ConnectionI extends IceInternal.EventHandler
             throw (Ice.LocalException) _exception.fillInStackTrace();
         }
 
-        if(response || (status & IceInternal.AsyncStatus.Queued) > 0)
-        {
-            out.cancelable(this); // Notify the request that it's cancelable
-        }
-        
         if(response)
         {
             //
@@ -679,6 +680,12 @@ public final class ConnectionI extends IceInternal.EventHandler
         }
 
         //
+        // Notify the request that it's cancelable with this connection. 
+        // This will throw if the request is canceled.
+        //
+        outAsync.cancelable(this);
+
+        //
         // Fill in the number of requests in the batch.
         //
         _batchStream.pos(IceInternal.Protocol.headerSize);
@@ -702,11 +709,6 @@ public final class ConnectionI extends IceInternal.EventHandler
             setState(StateClosed, ex);
             assert (_exception != null);
             throw (Ice.LocalException) _exception.fillInStackTrace();
-        }
-
-        if((status & IceInternal.AsyncStatus.Queued) > 0)
-        {
-            outAsync.cancelable(this); // Notify the request that it's cancelable.
         }
 
         //
@@ -808,22 +810,29 @@ public final class ConnectionI extends IceInternal.EventHandler
                     _asyncRequests.remove(o.requestId);
                 }
 
-                //
-                // If the request is being sent, don't remove it from the send
-                // streams, it will be removed once the sending is finished.
-                //
-                // Note that since we swapped the message stream to _writeStream
-                // it's fine if the OutgoingAsync output stream is released (and
-                // as long as canceled requests cannot be retried).
-                //
-                o.canceled();
-                if(o != _sendStreams.getFirst())
+                if(ex instanceof ConnectionTimeoutException)
                 {
-                    it.remove();
+                    setState(StateClosed, ex);
                 }
-                if(outAsync.completed(ex))
+                else
                 {
-                    outAsync.invokeCompletedAsync();
+                    //
+                    // If the request is being sent, don't remove it from the send
+                    // streams, it will be removed once the sending is finished.
+                    //
+                    // Note that since we swapped the message stream to _writeStream
+                    // it's fine if the OutgoingAsync output stream is released (and
+                    // as long as canceled requests cannot be retried).
+                    //
+                    o.canceled();
+                    if(o != _sendStreams.getFirst())
+                    {
+                        it.remove();
+                    }
+                    if(outAsync.completed(ex))
+                    {
+                        outAsync.invokeCompletedAsync();
+                    }
                 }
                 return;
             }
@@ -837,11 +846,19 @@ public final class ConnectionI extends IceInternal.EventHandler
             {
                 if(it2.next() == o)
                 {
-                    it2.remove();
-                    if(outAsync.completed(ex))
+                    if(ex instanceof ConnectionTimeoutException)
                     {
-                        outAsync.invokeCompletedAsync();
+                        setState(StateClosed, ex);
                     }
+                    else
+                    {
+                        it2.remove();
+                        if(outAsync.completed(ex))
+                        {
+                            outAsync.invokeCompletedAsync();
+                        }
+                    }
+                    return;
                 }
             }
         }
@@ -1770,7 +1787,8 @@ public final class ConnectionI extends IceInternal.EventHandler
                      _exception instanceof ForcedCloseConnectionException ||
                      _exception instanceof ConnectionTimeoutException ||
                      _exception instanceof CommunicatorDestroyedException ||
-                     _exception instanceof ObjectAdapterDeactivatedException || (_exception instanceof ConnectionLostException && _state >= StateClosing)))
+                     _exception instanceof ObjectAdapterDeactivatedException ||
+                     (_exception instanceof ConnectionLostException && _state >= StateClosing)))
                 {
                     warning("connection exception", _exception);
                 }
@@ -1957,7 +1975,8 @@ public final class ConnectionI extends IceInternal.EventHandler
                      _exception instanceof ForcedCloseConnectionException ||
                      _exception instanceof ConnectionTimeoutException ||
                      _exception instanceof CommunicatorDestroyedException ||
-                     _exception instanceof ObjectAdapterDeactivatedException || (_exception instanceof ConnectionLostException && _state >= StateClosing)))
+                     _exception instanceof ObjectAdapterDeactivatedException || 
+                     (_exception instanceof ConnectionLostException && _state >= StateClosing)))
                 {
                     _observer.failed(_exception.ice_name());
                 }

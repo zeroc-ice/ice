@@ -25,11 +25,11 @@ var RetryQueue = Class({
             throw new Ice.CommunicatorDestroyedException();
         }
         var task = new RetryTask(this, outAsync);
+        outAsync.__cancelable(task); // This will throw if the request is canceled
         task.token = this._instance.timer().schedule(function()
                                                      {
                                                          task.run();
                                                      }, interval);
-        outAsync.__cancelable(task);
         this._requests.push(task);
     },
     destroy: function()
@@ -90,12 +90,7 @@ var RetryTask = Class({
     {
         if(this.queue.cancel(this))
         {
-            //
-            // We just retry the outgoing async now rather than marking it
-            // as finished. The retry will check for the cancellation
-            // exception and terminate appropriately the request.
-            //
-            this.outAsync.__retry();
+            this.outAsync.__completedEx(ex);
         }
     }
 });

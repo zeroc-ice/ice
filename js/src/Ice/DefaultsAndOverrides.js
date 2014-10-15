@@ -110,7 +110,7 @@ var DefaultsAndOverrides = function(properties, logger)
     {
         this.defaultTimeout = 60000;
         logger.warning("invalid value for Ice.Default.Timeout `" + properties.getProperty("Ice.Default.Timeout") +
-                        "': defaulting to 60000");
+                       "': defaulting to 60000");
     }
 
     this.defaultLocatorCacheTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);
@@ -118,7 +118,7 @@ var DefaultsAndOverrides = function(properties, logger)
     {
         this.defaultLocatorCacheTimeout = -1;
         logger.warning("invalid value for Ice.Default.LocatorCacheTimeout `" +
-                        properties.getProperty("Ice.Default.LocatorCacheTimeout") + "': defaulting to -1");
+                       properties.getProperty("Ice.Default.LocatorCacheTimeout") + "': defaulting to -1");
     }
 
     this.defaultInvocationTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.InvocationTimeout", -1);
@@ -126,13 +126,13 @@ var DefaultsAndOverrides = function(properties, logger)
     {
         this.defaultInvocationTimeout = -1;
         logger.warning("invalid value for Ice.Default.InvocationTimeout `" +
-                        properties.getProperty("Ice.Default.InvocationTimeout") + "': defaulting to -1");
+                       properties.getProperty("Ice.Default.InvocationTimeout") + "': defaulting to -1");
     }
 
     this.defaultPreferSecure = properties.getPropertyAsIntWithDefault("Ice.Default.PreferSecure", 0) > 0;
 
     value = properties.getPropertyWithDefault("Ice.Default.EncodingVersion",
-                                                Ice.encodingVersionToString(Protocol.currentEncoding));
+                                              Ice.encodingVersionToString(Protocol.currentEncoding));
     this.defaultEncoding = Ice.stringToEncodingVersion(value);
     Protocol.checkSupportedEncoding(this.defaultEncoding);
 

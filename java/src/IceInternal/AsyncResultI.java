@@ -228,17 +228,20 @@ public class AsyncResultI implements AsyncResult
                                               });
     }
 
-    public void cancelable(final CancellationHandler handler)
+    synchronized public void cancelable(final CancellationHandler handler)
     {
-        synchronized(this)
+        if(_cancellationException != null)
         {
-            if(_cancellationException == null)
+            try
             {
-                _cancellationHandler = handler;
-                return;
+                throw _cancellationException;
+            }
+            finally
+            {
+                _cancellationException = null;
             }
         }
-        handler.asyncRequestCanceled((OutgoingAsyncBase)this, _cancellationException);
+        _cancellationHandler = handler;
     }
 
     public final boolean __wait()
@@ -406,17 +409,6 @@ public class AsyncResultI implements AsyncResult
             }
         }
         _cancellationHandler.asyncRequestCanceled((OutgoingAsyncBase)this, ex);
-    }
-
-    protected void checkCanceled()
-    {
-        synchronized(this)
-        {
-            if(_cancellationException != null)
-            {
-                throw _cancellationException;
-            }
-        }
     }
 
     protected Ice.Instrumentation.InvocationObserver getObserver()

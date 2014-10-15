@@ -38,12 +38,11 @@ namespace IceInternal
             Debug.Assert(_outAsync == outAsync);
             if(_retryQueue.cancel(this))
             {
-                //
-                // We just retry the outgoing async now rather than marking it
-                // as finished. The retry will check for the cancellation
-                // exception and terminate appropriately the request.
-                //
-                _outAsync.retry();
+                Ice.AsyncCallback cb = _outAsync.completed(ex);
+                if(cb != null)
+                {
+                    _outAsync.invokeCompletedAsync(cb);
+                }
             }
         }
 
@@ -79,9 +78,9 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
                 RetryTask task = new RetryTask(this, outAsync);
+                outAsync.cancelable(task); // This will throw if the request is canceled.
                 _instance.timer().schedule(task, interval);
                 _requests.Add(task, null);
-                outAsync.cancelable(task);
             }
         }
 
@@ -114,12 +113,13 @@ namespace IceInternal
         {
             lock(this)
             {
-                Debug.Assert(_requests.ContainsKey(task));
-                _requests.Remove(task);
-                if(_instance == null && _requests.Count == 0)
+                if(_requests.Remove(task))
                 {
-                    // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
-                    System.Threading.Monitor.Pulse(this);
+                    if(_instance == null && _requests.Count == 0)
+                    {
+                        // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
+                        System.Threading.Monitor.Pulse(this);
+                    }
                 }
             }
         }

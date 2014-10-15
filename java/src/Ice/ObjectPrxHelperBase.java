@@ -1757,7 +1757,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final ObjectPrx
     ice_invocationTimeout(int newTimeout)
     {
-        if(newTimeout < 1 && newTimeout != -1)
+        if(newTimeout < 1 && newTimeout != -1 && newTimeout != -2)
         {
             throw new IllegalArgumentException("invalid value passed to ice_invocationTimeout: " + newTimeout);
         }

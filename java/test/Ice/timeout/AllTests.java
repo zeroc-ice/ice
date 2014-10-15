@@ -272,6 +272,52 @@ public class AllTests
             to.begin_sleep(250 * mult, cb);
             cb.check();
         }
+        {
+            //
+            // Backward compatible connection timeouts
+            //
+            TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(-2).ice_timeout(250));
+            Ice.Connection con = null;
+            try
+            {
+                con = to.ice_getConnection();
+                to.sleep(500);
+                test(false);
+            }
+            catch(Ice.TimeoutException ex)
+            {
+                assert(con != null);
+                try
+                {
+                    con.getInfo();
+                    test(false);
+                }
+                catch(Ice.TimeoutException exc)
+                {
+                    // Connection got closed as well.
+                }
+            }
+
+            try
+            {
+                con = to.ice_getConnection();
+                to.end_sleep(to.begin_sleep(500));
+                test(false);
+            }
+            catch(Ice.TimeoutException ex)
+            {
+                assert(con != null);
+                try
+                {
+                    con.getInfo();
+                    test(false);
+                }
+                catch(Ice.TimeoutException exc)
+                {
+                    // Connection got closed as well.
+                }
+            }
+        }
         out.println("ok");
 
         out.print("testing close timeout... ");
