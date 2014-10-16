@@ -118,9 +118,17 @@ global certFile
 global certPassword
 
 
-def sign(f):
-    if subprocess.check_call([signTool , "sign", "/f" , certFile, "/p", certPassword, "/t", 
-                              "http://timestamp.verisign.com/scripts/timstamp.dll", f]) != 0:
+def sign(f, name = None):
+    command = [signTool, 
+               "sign", 
+               "/f" , certFile, 
+               "/p", certPassword,
+               "/t", "http://timestamp.verisign.com/scripts/timstamp.dll"]
+    if name != None:
+        command += ["/d", name]
+    command += [f]
+
+    if subprocess.check_call(command) != 0:
         return False
     return True
 
@@ -1178,7 +1186,7 @@ if not skipInstaller:
         #
         command = "\"%s\" /rebuild %s" % (advancedInstaller, sdksInstallerFile)
         executeCommand(command, env)
-        sign(os.path.dirname(iceInstallerFile), "SDKs.msi")
+        sign(os.path.join(os.path.dirname(iceInstallerFile), "SDKs.msi"), "Ice WinRT SDKs %s" % version)
         shutil.move(os.path.join(os.path.dirname(iceInstallerFile), "SDKs.msi"), \
                                  os.path.join(iceBuildHome, "Ice-WinRT-SDKs-%s.msi" % version))
     else:
@@ -1187,7 +1195,7 @@ if not skipInstaller:
         #    
         command = "\"%s\" /rebuild %s" % (advancedInstaller, iceInstallerFile)
         executeCommand(command, env)
-        sign(os.path.dirname(iceInstallerFile), "Ice.msi")
+        sign(os.path.join(os.path.dirname(iceInstallerFile), "Ice.msi"), "Ice %s" % version)
         shutil.move(os.path.join(os.path.dirname(iceInstallerFile), "Ice.msi"), \
                                  os.path.join(iceBuildHome, "Ice-%s.msi" % version))
 
@@ -1197,7 +1205,7 @@ if not skipInstaller:
         command = "\"%s\" /rebuild %s" % (advancedInstaller, pdbsInstallerFile)
         executeCommand(command, env)
 
-        sign(os.path.dirname(iceInstallerFile), "PDBs.msi")
+        sign(os.path.join(os.path.dirname(iceInstallerFile), "PDBs.msi"), "Ice PDBs %s" % version)
         shutil.move(os.path.join(os.path.dirname(iceInstallerFile), "PDBs.msi"), \
                                  os.path.join(iceBuildHome, "Ice-PDBs-%s.msi" % version))
 
