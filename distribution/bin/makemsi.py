@@ -14,6 +14,93 @@ import os, sys, fnmatch, re, getopt, atexit, shutil, subprocess, zipfile, time, 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "lib")))
 
 
+#
+# Replace cpp/src/Makefile.mak with this to just build slice2cpp when building
+# WinRT SDKs
+#
+winrtMakefile = \
+"""
+top_srcdir  = ..
+
+!include $(top_srcdir)/config/Make.rules.mak
+
+!if "$(WINRT)" == "yes"
+SUBDIRS     = IceUtil\winrt \\
+          Ice\winrt \\
+          Glacier2Lib\winrt \\
+          IceStormLib\winrt \\
+          IceGridLib\winrt
+!else
+SUBDIRS     = IceUtil \\
+          Slice \\
+          slice2cpp \\
+!endif
+
+$(EVERYTHING)::
+    @for %i in ( $(SUBDIRS) ) do \\
+        @if exist %i \\
+            @echo "making $@ in %i" && \\
+            cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
+"""
+
+#
+# Files from debug builds that are not included in the installers.
+#
+debugFilterFiles = ["dumpdb.exe",
+                    "glacier2router.exe",
+                    "iceboxadmin.exe",
+                    "icegridadmin.exe",
+                    "icegridnode.exe",
+                    "icegridregistry.exe",
+                    "icepatch2calc.exe",
+                    "icepatch2client.exe",
+                    "icepatch2server.exe",
+                    "iceserviceinstall.exe",
+                    "icestormadmin.exe",
+                    "icestormmigrate.exe",
+                    "slice2cpp.exe",
+                    "slice2cs.exe",
+                    "slice2freeze.exe",
+                    "slice2freezej.exe",
+                    "slice2html.exe",
+                    "slice2java.exe",
+                    "slice2js.exe",
+                    "slice2php.exe",
+                    "slice2py.exe",
+                    "slice2rb.exe",
+                    "transformdb.exe",
+                    "dumpdb.pdb",
+                    "glacier2router.pdb",
+                    "iceboxadmin.pdb",
+                    "icegridadmin.pdb",
+                    "icegridnode.pdb",
+                    "icegridregistry.pdb",
+                    "icepatch2calc.pdb",
+                    "icepatch2client.pdb",
+                    "icepatch2server.pdb",
+                    "iceserviceinstall.pdb",
+                    "icestormadmin.pdb",
+                    "icestormmigrate.pdb",
+                    "slice2cpp.pdb",
+                    "slice2cs.pdb",
+                    "slice2freeze.pdb",
+                    "slice2freezej.pdb",
+                    "slice2html.pdb",
+                    "slice2java.pdb",
+                    "slice2js.pdb",
+                    "slice2php.pdb",
+                    "slice2py.pdb",
+                    "slice2rb.pdb",
+                    "transformdb.pdb"]
+
+def filterDebugFiles(f):
+    if f in debugFilterFiles:
+        return True
+    if os.path.splitext(f)[1] in [".exe", ".dll", ".pdb"]:
+        return False
+    return True
+
+
 from BuildUtils import *
 from DistUtils import *
 
@@ -23,6 +110,19 @@ def runCommand(cmd, verbose):
             print(cmd)
         if os.system(cmd) != 0:
             sys.exit(1)
+
+#signCommand = "signtool sign /f \"%s\" /p %s /t http://timestamp.verisign.com/scripts/timstamp.dll %s"
+
+global signTool
+global certFile
+global certPassword
+
+
+def sign(f):
+    if subprocess.check_call([signTool , "sign", "/f" , certFile, "/p", certPassword, "/t", 
+                              "http://timestamp.verisign.com/scripts/timstamp.dll", f]) != 0:
+        return False
+    return True
 
 
 def _handle_error(fn, path, excinfo):  
@@ -45,8 +145,14 @@ def setMakefileOption(filename, optionName, value):
     new.close()
     shutil.move(filename + ".tmp", filename)
 
-def executeCommand(command, env):
-    print(command)
+def overwriteFile(filename, data):
+    f = open(filename, "w")
+    f.write(data)
+    f.close()
+
+def executeCommand(command, env, verbose = True):
+    if verbose:
+        print(command)
     p = subprocess.Popen(command, shell = True, stdin = subprocess.PIPE, stdout = subprocess.PIPE, \
                          stderr = subprocess.STDOUT, bufsize = 0, env = env)
 
@@ -79,6 +185,14 @@ def relPath(sourceDir, targetDir, f):
     if f.find(sourceDir) == 0:
         f =  os.path.join(targetDir, f[len(sourceDir) + 1:])
     return f
+
+def copyIfModified(source, target, verbose):
+    if not os.path.exists(target) or os.path.getmtime(source) > os.path.getmtime(target):
+        copy(source, target, verbose = verbose)
+        if (target.endswith(".exe") or target.endswith(".dll") or target.endswith(".so")):
+            if not sign(target):
+                os.remove(target)
+                sys.exit(1)
 #
 # Program usage.
 #
@@ -99,11 +213,17 @@ def usage():
     print(r"  --php-bin-home=<path>       PHP binaries location, default location")
     print(r"                              is C:\Program Files (x86)\PHP")
     print("")
-    print(r"  --ruby-home                 Ruby location, default location is")
-    print(r"                              C:\Ruby193")
+    print(r"  --ruby-x86-home             Ruby location, default location is")
+    print(r"                              C:\Ruby21")
     print("")
-    print(r"  --ruby-devkit-home          Ruby DevKit location, default location is")
-    print(r"                              C:\RubyDevKit-4.5.2")
+    print(r"  --ruby-amd64-home           Ruby location, default location is")
+    print(r"                              C:\Ruby21-x64")
+    print("")
+    print(r"  --ruby-devkit-x86-home      Ruby DevKit location, default location is")
+    print(r"                              C:\DevKit-mingw64-32-4.7.3")
+    print("")
+    print(r"  --ruby-devkit-amd64-home    Ruby DevKit location, default location is")
+    print(r"                              C:\DevKit-mingw64-64-4.7.2")
     print("")
     print(r"  --nodejs-home               NodeJS location, default location is")
     print(r"                              C:\Program Files (x86)\nodejs")
@@ -131,7 +251,9 @@ def usage():
     print("")
     print(r"  --cert-file=<path>          Certificate file used to sign the installer")
     print("")
-    print(r"makemsi.py --verbose")
+    print(r"  --key-file=<path>           Key file used to sign the .NET Assemblies")
+    print("")
+    print(r"  --winrt                     Build WinRT SDKs installer")
     print("")
 
 version = "3.6b"
@@ -144,7 +266,11 @@ proguardHome = None
 phpHome = None
 phpBinHome = None
 rubyHome = None
+rubyX86Home = None
+rubyAmd64Home = None
 rubyDevKitHome = None
+rubyDevKitX86Home = None
+rubyDevKitAmd64Home = None
 nodejsHome = None
 nodejsExe = None
 gzipHome = None
@@ -165,17 +291,21 @@ rFilterArchs = []
 rFilterConfs = []
 rFilterProfiles = []
 
+signTool = None
 certFile = None
+certPassword = None
 keyFile = None
+winrt = False
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "", ["help", "verbose", "proguard-home=", "php-home=", "php-bin-home=", \
-                                                  "ruby-home=", "ruby-devkit-home=", "nodejs-home", "gzip-home", 
-                                                  "closure-home", "skip-build", "skip-installer", \
-                                                  "filter-languages=", "filter-compilers=", "filter-archs=", \
-                                                  "filter-confs=", "filter-profiles=", "filter-languages=", \
-                                                  "filter-compilers=", "filter-archs=", "filter-confs=", \
-                                                  "filter-profiles=", "cert-file=", "key-file="])
+    opts, args = getopt.getopt(sys.argv[1:], "", ["help", "verbose", "proguard-home=", "php-home=", "php-bin-home=",
+                                                  "ruby-x86-home=", "ruby-amd64-home=", "ruby-devkit-x86-home=", 
+                                                  "ruby-devkit-amd64-home=", "nodejs-home", "gzip-home", "closure-home", 
+                                                  "skip-build", "skip-installer", "filter-languages=", 
+                                                  "filter-compilers=", "filter-archs=","filter-confs=", 
+                                                  "filter-profiles=", "filter-languages=", "filter-compilers=", 
+                                                  "filter-archs=", "filter-confs=", "filter-profiles=", "sign-tool=", 
+                                                  "cert-file=", "cert-password=", "key-file=", "winrt"])
 except getopt.GetoptError as e:
     print("Error %s " % e)
     usage()
@@ -197,10 +327,14 @@ for o, a in opts:
         phpHome = a
     elif o == "--php-bin-home":
         phpBinHome = a
-    elif o == "--ruby-home":
-        rubyHome = a
-    elif o == "--ruby-devkit-home":
-        rubyDevKitHome = a
+    elif o == "--ruby-x86-home":
+        rubyX86Home = a
+    elif o == "--ruby-amd64-home":
+        rubyAmd64Home = a
+    elif o == "--ruby-devkit-x86-home":
+        rubyDevKitX86Home = a
+    elif o == "--ruby-devkit-amd64-home":
+        rubyDevKitAmd64Home = a
     elif o == "--nodejs-home":
         nodejsHome = a
     elif o == "--gzip-home":
@@ -231,10 +365,16 @@ for o, a in opts:
         rFilterConfs.append(a)
     elif o == "--rfilter-profiles":
         rFilterProfiles.append(a)
+    elif o == "--sign-tool":
+        signTool = a
     elif o == "--cert-file":
         certFile = a
+    elif o == "--cert-password":
+        certPassword = a
     elif o == "--key-file":
         keyFile = a
+    elif o == "--winrt":
+        winrt = True
 
 basePath = os.path.abspath(os.path.dirname(__file__))
 iceBuildHome = os.path.abspath(os.path.join(basePath, "..", ".."))
@@ -245,11 +385,29 @@ distFiles = os.path.join(iceBuildHome, "distfiles-%s" % version)
 
 iceInstallerFile = os.path.join(distFiles, "src", "windows" , "Ice.aip")
 pdbsInstallerFile = os.path.join(distFiles, "src", "windows" , "PDBs.aip")
+sdksInstallerFile = os.path.join(distFiles, "src", "windows" , "SDKs.aip")
 
 thirdPartyHome = getThirdpartyHome(version)
 if thirdPartyHome is None:
     print("Cannot detect Ice %s ThirdParty installation" % version)
     sys.exit(1)
+
+if not signTool:
+    signToolDefaultPath = "c:\\Program Files (x86)\\Microsoft SDKs\Windows\\v7.1A\Bin\\signtool.exe" 
+    if os.path.exists(signToolDefaultPath):
+        signTool = signToolDefaultPath
+else:
+    if not os.path.isabs(signTool):
+        signTool = os.path.abspath(os.path.join(os.getcwd(), signTool))
+
+if signTool is None:
+    print("You need to specify the signtool path using --sign-tool option")
+    sys.exit(1)
+
+if not os.path.exists(signTool):
+    print("signtool `%s' not found")
+    sys.exit(1)
+
 
 if not certFile:
     if os.path.exists("c:\\release\\authenticode\\zeroc2014.pfx"):
@@ -267,7 +425,11 @@ if certFile is None:
 if not os.path.exists(certFile):
     print("Certificate `%s' not found")
     sys.exit(1)
-    
+
+if certPassword is None:
+    print("You need to set the sign certificate password using --cert-password option")
+    sys.exit(1)
+
     
 if not keyFile:
     if os.path.exists("c:\\release\\strongname\\IceReleaseKey.snk"):
@@ -319,6 +481,26 @@ if phpBinHome:
         print("--php-bin-home points to nonexistent directory")
         sys.exit(1)
 
+if rubyDevKitAmd64Home is None:
+    defaultRubyAmd64Home = "C:\\DevKit-mingw64-64-4.7.2"
+    if not os.path.exists(defaultRubyAmd64Home):
+        print("Ruby DevKit x64 not found in %s" % defaultRubyAmd64Home)
+        sys.exit(1)
+    rubyDevKitAmd64Home = defaultRubyAmd64Home
+elif not os.path.exists(rubyDevKitAmd64Home):
+    print("Ruby DevKit x64 not found in %s" % rubyDevKitAmd64Home)
+    sys.exit(1)
+
+if rubyDevKitX86Home is None:
+    defaultRubyX86Home = "C:\\DevKit-mingw64-32-4.7.3"
+    if not os.path.exists(defaultRubyX86Home):
+        print("Ruby DevKit x64 not found in %s" % defaultRubyX86Home)
+        sys.exit(1)
+    rubyDevKitX86Home = defaultRubyX86Home
+elif not os.path.exists(rubyDevKitX86Home):
+    print("Ruby DevKit x86 not found in %s" % rubyDevKitX86Home)
+    sys.exit(1)
+
 if nodejsHome:
     if not os.path.isabs(nodejsHome):
         nodejsHome = os.path.abspath(os.path.join(os.getcwd(), nodejsHome))
@@ -366,31 +548,12 @@ if not os.path.exists(demoArchive):
 #
 # Windows build configurations by Compiler Arch 
 #
-builds = {
-    "MINGW": {
-        "amd64": {
-            "release": ["cpp", "rb"]}},
-    "VC100": {
-        "x86": {
-            "release": ["cpp", "py"]},
-        "amd64": {
-            "release": ["cpp", "py"]}},
-    "VC110": {
-        "x86": {
-            "release": ["cpp", "php", "vsaddin"], 
-            "debug": ["cpp"]},
-        "amd64": {
-            "release": ["cpp"], 
-            "debug": ["cpp"]}},
-    "VC120": {
-        "x86": {
-            "release": ["cpp", "java", "js", "cs", "vsaddin"], 
-            "debug": ["cpp"]},
-        "amd64": {
-            "release": ["cpp"], 
-            "debug": ["cpp"]}}}
+global builds
+global buildCompilers
 
-winrtBuilds = {
+if winrt:
+    buildCompilers = ["VC110", "VC120"]
+    builds = {
     "VC110": {
         "x86": {"release": ["cpp"], "debug": ["cpp"],},
         "amd64": {"release": ["cpp"], "debug": ["cpp"],},
@@ -399,10 +562,37 @@ winrtBuilds = {
         "x86": {"release": ["cpp"], "debug": ["cpp"],},
         "amd64": {"release": ["cpp"], "debug": ["cpp"],},
         "arm": {"release": ["cpp"], "debug": ["cpp"],}}}
+else:
+    buildCompilers = ["MINGW", "VC100", "VC110", "VC120"]
+    builds = {
+        "MINGW": {
+            "x86": {
+                "release": ["cpp", "rb"]},
+            "amd64": {
+                "release": ["cpp", "rb"]}},
+        "VC100": {
+            "x86": {
+                "release": ["cpp", "py"]},
+            "amd64": {
+                "release": ["cpp", "py"]}},
+        "VC110": {
+            "x86": {
+                "release": ["cpp", "php", "vsaddin"], 
+                "debug": ["cpp"]},
+            "amd64": {
+                "release": ["cpp"], 
+                "debug": ["cpp"]}},
+        "VC120": {
+            "x86": {
+                "release": ["cpp", "java", "js", "cs", "vsaddin"], 
+                "debug": ["cpp"]},
+            "amd64": {
+                "release": ["cpp"], 
+                "debug": ["cpp"]}}}
             
 if not skipBuild:
     
-    for compiler in ["MINGW", "VC100", "VC110", "VC120"]:
+    for compiler in buildCompilers:
 
         if filterCompilers and compiler not in filterCompilers:
             continue
@@ -549,18 +739,27 @@ if not skipBuild:
                         env["CLOSURE_PATH"] = closureHome
 
                     if compiler == "MINGW":
-                        if rubyDevKitHome is None:
-                            if not os.path.exists(r"C:\DevKit-mingw64-64-4.7.2"):
-                                print("Ruby DevKit not found")
-                                sys.exit(1)
-                            rubyDevKitHome = r"C:\DevKit-mingw64-64-4.7.2"
-
+                        if arch =="amd64":
+                            rubyDevKitHome = rubyDevKitAmd64Home
+                        if arch == "x86":
+                            rubyDevKitHome = rubyDevKitX86Home
+                            
                     if lang == "rb":
-                        if rubyHome is None:
-                            if not os.path.exists(r"C:\Ruby21-x64"):
-                                print("Ruby not found")
-                                sys.exit(1)
-                            rubyHome = r"C:\Ruby21-x64"
+                        if arch == "amd64":
+                            if rubyAmd64Home is None:
+                                if not os.path.exists(r"C:\Ruby21-x64"):
+                                    print("Ruby not found")
+                                    sys.exit(1)
+                                rubyAmd64Home= r"C:\Ruby21-x64"
+                            rubyHome = rubyAmd64Home
+                            
+                        if arch == "x86":
+                            if rubyX86Home is None:
+                                if not os.path.exists(r"C:\Ruby21"):
+                                    print("Ruby not found")
+                                    sys.exit(1)
+                                rubyX86Home= r"C:\Ruby21"
+                            rubyHome = rubyX86Home
 
                     if lang == "vsaddin":
                         env["DISABLE_SYSTEM_INSTALL"] = "yes"
@@ -593,15 +792,32 @@ if not skipBuild:
 
                         setMakefileOption(os.path.join(sourceDir, lang, "config", rules), "prefix", installDir)
 
-                    if lang == "cpp" and compiler in ["VC110", "VC120"]:
-                        if filterProfiles and profile not in filterProfiles:
-                            continue
+                    if winrt and lang == "cpp" and compiler in ["VC110", "VC120"]:
 
-                        if rFilterProfiles and profile in rFilterProfiles:
-                            continue
+                        overwriteFile(os.path.join(sourceDir, "cpp", "src", "Makefile.mak"), winrtMakefile)
 
-                        command = "\"%s\" %s  && nmake /f Makefile.mak install" % (vcvars, arch)
-                        executeCommand(command, env)
+                        for profile in ["DESKTOP", "WINRT"]:
+                            if filterProfiles and profile not in filterProfiles:
+                                continue
+
+                            if rFilterProfiles and profile in rFilterProfiles:
+                                continue
+
+                            if profile == "DESKTOP":
+                                if arch == "arm":
+                                    command = "\"%s\" %s  && nmake /f Makefile.mak install" % (vcvars, "x86")
+                                    executeCommand(command, env)
+                                else:
+                                    command = "\"%s\" %s  && nmake /f Makefile.mak install" % (vcvars, arch)
+                                    executeCommand(command, env)
+                            elif profile == "WINRT":
+                                if arch == "arm":
+                                    command = "\"%s\" %s  && nmake /f Makefile.mak install" % (vcvars, "x86_arm")
+                                else:
+                                    command = "\"%s\" %s  && nmake /f Makefile.mak install" % (vcvars, arch)
+                                newEnv = env.copy()
+                                newEnv["WINRT"] = "yes"
+                                executeCommand(command, newEnv)
 
                     elif compiler == "MINGW":
                         prefix = installDir
@@ -634,9 +850,6 @@ if not skipBuild:
                     else:
                         executeCommand(command, env)
 
-
-
-
 #
 # Filter files, list of files that must not be included.
 #
@@ -648,6 +861,7 @@ if not os.path.exists(os.path.join(iceBuildHome, "installer")):
 os.chdir(os.path.join(iceBuildHome, "installer"))
 
 installerDir = os.path.join(iceBuildHome, "installer", "Ice-%s" % version)
+pdbinstallerDir = os.path.join(iceBuildHome, "installer/Ice-%s-PDBs" % version)
 installerdSrcDir = os.path.join(iceBuildHome, "installer", "Ice-%s-src" % version)
 installerDemoDir = os.path.join(iceBuildHome, "installer", "Ice-%s-demos" % version)
 
@@ -665,203 +879,257 @@ if not os.path.exists(installerDemoDir):
     zipfile.ZipFile(demoArchive).extractall()
     print("ok")
 
+for d in [installerDir, pdbinstallerDir]:
+    if not os.path.exists(d):
+        os.makedirs(d)
 
-if os.path.exists(installerDir):
-    shutil.rmtree(installerDir, onerror = _handle_error)
-os.makedirs(installerDir)
+if winrt:
+    #
+    # Remove non winrt demos from demo distribution
+    #
+    for root, dirnames, filenames in os.walk(installerDemoDir):
+        for f in filenames:
+            if ((f.endswith(".sln") and f in ["demo-winrt-8.1.sln", "demo-winrt-8.0.sln"]) or
+                (os.path.join(root, f).find("winrt\\") != -1)):
+                continue
+            os.remove(os.path.join(root, f))
+        for d in dirnames:
+            if ((d == "Ice" and os.path.join(root, d).find("demo\\Ice") != -1) or
+                (os.path.join(root, d).find("demo\\Ice\\winrt") != -1) or
+                (d == "Glacier2" and os.path.join(root, d).find("demo\\Glacier2") != -1) or
+                (os.path.join(root, d).find("demo\\Glacier2\\winrt") != -1) or 
+                (d == "demo")):
+                continue
+            shutil.rmtree(os.path.join(root, d))
 
-for arch in ["x86", "amd64", "arm"]:
-    for compiler in ["VC100", "MINGW", "VC110", "VC120"]:
-        for conf in ["release", "debug"]:
+    for arch in ["x86", "amd64", "arm"]:
+        for compiler in ["VC110", "VC120"]:
+            for conf in ["release", "debug"]:
 
-            buildDir = os.path.join(iceBuildHome, "build-%s-%s-%s" % (arch, compiler, conf))
-            sourceDir = os.path.join(buildDir, "Ice-%s-src" % version)
-            installDir = os.path.join(buildDir, "Ice-%s" % version)
+                buildDir = os.path.join(iceBuildHome, "build-%s-%s-%s" % (arch, compiler, conf))
+                sourceDir = os.path.join(buildDir, "Ice-%s-src" % version)
+                installDir = os.path.join(buildDir, "Ice-%s" % version)
 
-            if compiler == "VC120" and arch == "x86" and conf == "release":
-                for d in ["Assemblies", "bin", "config", "include", "lib", "node_modules", "python", "slice", "vsaddin"]:
-                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
-                        for f in filenames:
-                            if f in filterFiles:
-                                continue
-                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                            #
-                            # IceGridGUI.jar in binary distribution should go in the bin directory.
-                            #
-                            if f == "IceGridGUI.jar":
-                                targetFile = targetFile.replace(os.path.join(installerDir, "lib"), os.path.join(installerDir, "bin"))
-                            if not os.path.exists(targetFile):
-                                copy(os.path.join(root, f), targetFile)
+                for root, dirnames, filenames in os.walk(os.path.join(installDir, "SDKs")):
+                    for f in filenames:
+                        if f in filterFiles:
+                            continue
+                        targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                        copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
+else:
+    #
+    # Remove winrt demos from demo distribution
+    #
+    for root, dirnames, filenames in os.walk(installerDemoDir):
+        for f in filenames:
+            if f in ["demo-winrt-8.1.sln", "demo-winrt-8.0.sln"]:
+                os.remove(os.path.join(root, f))
+        for d in dirnames:
+            if d == "winrt":
+                shutil.rmtree(os.path.join(root, d))
 
-                for f in ["CHANGES.txt", "LICENSE.txt", "ICE_LICENSE.txt", "RELEASE_NOTES.txt"]:
-                    copy(os.path.join(sourceDir, f), os.path.join(installerDir, f), verbose = verbose)
+    for arch in ["x86", "amd64"]:
+        for compiler in ["VC100", "MINGW", "VC110", "VC120"]:
+            for conf in ["release", "debug"]:
 
-                #
-                # Copy add-in icon from source dist
-                #
-                copy(os.path.join(sourceDir, "vsaddin", "icon", "newslice.ico"), \
-                        os.path.join(installerDir, "icon", "newslice.ico"), verbose = verbose)
+                buildDir = os.path.join(iceBuildHome, "build-%s-%s-%s" % (arch, compiler, conf))
+                sourceDir = os.path.join(buildDir, "Ice-%s-src" % version)
+                installDir = os.path.join(buildDir, "Ice-%s" % version)
 
-            if compiler == "VC120" and arch == "x86" and conf == "debug":
-                for d in ["bin", "lib"]:
-                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
-                        for f in filenames:
-                            if f in filterFiles:
-                                continue
-                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                            if not os.path.exists(targetFile):
-                                copy(os.path.join(root, f), targetFile, verbose = verbose)
-
-            if compiler == "VC120" and arch == "amd64" and conf == "release":
-                for d in ["bin", "lib"]:
-                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
-                        for f in filenames:
-                            if f in filterFiles:
-                                continue
-                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                            if not os.path.exists(targetFile):
-                                copy(os.path.join(root, f), targetFile, verbose = verbose)
-
-            if compiler == "VC120" and arch == "amd64" and conf == "debug":
-                for d in ["bin", "lib"]:
-                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
-                        for f in filenames:
-                            if f in filterFiles:
-                                continue
-                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                            if not os.path.exists(targetFile):
-                                copy(os.path.join(root, f), targetFile, verbose = verbose)
-
-            #
-            # VC110 x86 binaries and libaries
-            #
-            if compiler == "VC110" and arch == "x86":
-                for d in ["bin", "lib"]:
-                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
-                        for f in filenames:
-                            if f in filterFiles:
-                                continue
-                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                            targetFile = os.path.join(os.path.dirname(targetFile), "vc110", \
-                                                        os.path.basename(targetFile))
-                            if not os.path.exists(targetFile):
-                                copy(os.path.join(root, f), targetFile, verbose = verbose)
-                #
-                # VC110 php & vsaddin
-                #
-                if conf == "release":
-                    for d in ["php", "vsaddin"]:
+                if compiler == "VC120" and arch == "x86" and conf == "release":
+                    for d in ["Assemblies", "bin", "config", "include", "lib", "node_modules", "python", "slice", "vsaddin"]:
                         for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
                             for f in filenames:
                                 if f in filterFiles:
                                     continue
                                 targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                                if not os.path.exists(targetFile):
-                                    copy(os.path.join(root, f), targetFile, verbose = verbose)
-            #
-            # VC110 amd64 binaries and libaries
-            #
-            if compiler == "VC110" and arch == "amd64":
-                for d in ["bin", "lib"]:
-                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
-                        for f in filenames:
-                            if f in filterFiles:
-                                continue
-                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                            targetFile = os.path.join(os.path.dirname(os.path.dirname(targetFile)), "vc110", "x64", \
-                                                        os.path.basename(targetFile))
-                            if not os.path.exists(targetFile):
-                                copy(os.path.join(root, f), targetFile, verbose = verbose)
+                                #
+                                # IceGridGUI.jar in binary distribution should go in the bin directory.
+                                #
+                                if f == "IceGridGUI.jar":
+                                    targetFile = targetFile.replace(os.path.join(installerDir, "lib"), os.path.join(installerDir, "bin"))
+
+                                if targetFile.endswith(".pdb"):
+                                    targetFile = targetFile.replace(installerDir, pdbinstallerDir)
+
+                                copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
+
+                    for f in ["CHANGES.txt", "LICENSE.txt", "ICE_LICENSE.txt", "RELEASE_NOTES.txt"]:
+                        copyIfModified(os.path.join(sourceDir, f), os.path.join(installerDir, f), verbose = verbose)
+
+                    #
+                    # Copy add-in icon from source dist
+                    #
+                    copyIfModified(os.path.join(sourceDir, "vsaddin", "icon", "newslice.ico"),
+                                   os.path.join(installerDir, "icon", "newslice.ico"), verbose = verbose)
+
+                if compiler == "VC120" and arch == "x86" and conf == "debug":
+                    for d in ["bin", "lib"]:
+                        for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
+                            for f in filenames:
+                                if f in filterFiles or filterDebugFiles(f):
+                                    continue
+                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                                if targetFile.endswith(".pdb"):
+                                    targetFile = targetFile.replace(installerDir, pdbinstallerDir)
+                                copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
+
+                if compiler == "VC120" and arch == "amd64" and conf == "release":
+                    for d in ["bin", "lib"]:
+                        for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
+                            for f in filenames:
+                                if f in filterFiles:
+                                    continue
+                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                                if targetFile.endswith(".pdb"):
+                                    targetFile = targetFile.replace(installerDir, pdbinstallerDir)
+                                copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
+
+                if compiler == "VC120" and arch == "amd64" and conf == "debug":
+                    for d in ["bin", "lib"]:
+                        for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
+                            for f in filenames:
+                                if f in filterFiles or filterDebugFiles(f):
+                                    continue
+                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                                if targetFile.endswith(".pdb"):
+                                    targetFile = targetFile.replace(installerDir, pdbinstallerDir)
+                                copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
+
+                #
+                # VC110 x86 binaries and libaries
+                #
+                if compiler == "VC110" and arch == "x86":
+                    for d in ["bin", "lib"]:
+                        for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
+                            for f in filenames:
+                                if f in filterFiles:
+                                    continue
+                                if conf == "debug" and filterDebugFiles(f):
+                                    continue
+                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                                targetFile = os.path.join(os.path.dirname(targetFile), "vc110",
+                                                          os.path.basename(targetFile))
+                                if targetFile.endswith(".pdb"):
+                                    targetFile = targetFile.replace(installerDir, pdbinstallerDir)
+                                copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
+                    #
+                    # VC110 php & vsaddin
+                    #
+                    if conf == "release":
+                        for d in ["php", "vsaddin"]:
+                            for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
+                                for f in filenames:
+                                    if f in filterFiles:
+                                        continue
+                                    targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                                    if targetFile.endswith(".pdb"):
+                                        targetFile = targetFile.replace(installerDir, pdbinstallerDir)
+                                    copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
+                #
+                # VC110 amd64 binaries and libaries
+                #
+                if compiler == "VC110" and arch == "amd64":
+                    for d in ["bin", "lib"]:
+                        for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
+                            for f in filenames:
+                                if f in filterFiles:
+                                    continue
+                                if conf == "debug" and filterDebugFiles(f):
+                                    continue
+                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                                targetFile = os.path.join(os.path.dirname(os.path.dirname(targetFile)), "vc110", "x64", \
+                                                          os.path.basename(targetFile))
+                                if targetFile.endswith(".pdb"):
+                                    targetFile = targetFile.replace(installerDir, pdbinstallerDir)
+                                copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
 
 
-            #
-            # VC100 binaries and libaries
-            #
-            if compiler == "VC100" and arch == "x86" and conf == "release":
-                for d in ["bin", "lib", "python"]:
-                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
-                        for f in filenames:
-                            if f in filterFiles:
-                                continue
-                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                            if not os.path.exists(targetFile):
-                                copy(os.path.join(root, f), targetFile, verbose = verbose)
+                #
+                # VC100 binaries and libaries
+                #
+                if compiler == "VC100" and arch == "x86" and conf == "release":
+                    for d in ["bin", "python"]:
+                        for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
+                            for f in filenames:
+                                if f in filterFiles or (not f.endswith("_vc100.dll") and
+                                                        not f.endswith("_vc100.pdb") and
+                                                        not f.endswith(".py") and
+                                                        not f.endswith(".pyd")):
+                                    continue
+                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                                if targetFile.endswith(".pdb"):
+                                    targetFile = targetFile.replace(installerDir, pdbinstallerDir)
+                                copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
 
 
-            if compiler == "VC100" and arch == "amd64":
-                for d in ["bin", "lib", "python"]:
-                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
-                        for f in filenames:
-                            if f in filterFiles:
-                                continue
-                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                            if not os.path.exists(targetFile):
-                                copy(os.path.join(root, f), targetFile, verbose = verbose)
+                if compiler == "VC100" and arch == "amd64":
+                    for d in ["bin", "python"]:
+                        for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
+                            for f in filenames:
+                                if f in filterFiles or (not f.endswith("_vc100.dll") and
+                                                        not f.endswith("_vc100.pdb") and
+                                                        not f.endswith(".py") and
+                                                        not f.endswith(".pyd")):
+                                    continue
+                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                                if targetFile.endswith(".pdb"):
+                                    targetFile = targetFile.replace(installerDir, pdbinstallerDir)
+                                copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
 
-            #
-            # MINGW binaries
-            #
-            if compiler == "MINGW" and arch == "x86" and conf == "release":
-                for d in ["bin", "lib", "ruby"]:
-                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
-                        for f in filenames:
-                            if f in filterFiles:
-                                continue
-                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                            if not os.path.exists(targetFile):
-                                copy(os.path.join(root, f), targetFile, verbose = verbose)
+                #
+                # MINGW binaries
+                #
+                if compiler == "MINGW" and arch == "x86" and conf == "release":
+                    for d in ["bin", "ruby"]:
+                        for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
+                            for f in filenames:
+                                if f in filterFiles or (not f.endswith(".dll") and
+                                                        not f.endswith(".so") and
+                                                        not f.endswith(".rb")):
+                                    continue
+                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                                copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
 
-            if compiler == "MINGW" and arch == "amd64":
-                for d in ["bin", "lib", "ruby"]:
-                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
-                        for f in filenames:
-                            if f in filterFiles:
-                                continue
-                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                            if not os.path.exists(targetFile):
-                                copy(os.path.join(root, f), targetFile, verbose = verbose)
+                if compiler == "MINGW" and arch == "amd64":
+                    for d in ["bin", "ruby"]:
+                        for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
+                            for f in filenames:
+                                if f in filterFiles or (not f.endswith(".dll") and
+                                                        not f.endswith(".so") and
+                                                        not f.endswith(".rb")):
+                                    continue
+                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                                copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
 
-
-#
-# docs dir
-#
-docsDir = os.path.join(distFiles, "src", "windows", "docs", "main")
-for f in ["README.txt", "SOURCES.txt", "THIRD_PARTY_LICENSE.txt"]:
-    copy(os.path.join(docsDir, f), os.path.join(installerDir, f), verbose = verbose)
-
-#
-# Copy thirdpary files
-#
-for root, dirnames, filenames in os.walk(thirdPartyHome):
-    for f in filenames:
-        if f in filterFiles:
-            continue
-        targetFile = relPath(thirdPartyHome, installerDir, os.path.join(root, f))
-        if not os.path.exists(targetFile) and os.path.splitext(f)[1] in [".exe", ".dll", ".jar", ".pdb"]:
-            copy(os.path.join(root, f), targetFile, verbose = verbose)
-
-copy(os.path.join(thirdPartyHome, "config", "openssl.cnf"), os.path.join(iceBuildHome, "installer"))
-
-#
-# Move PDBs to PDBs installer dir
-#
-pdbinstallerDir = os.path.join(iceBuildHome, "installer/Ice-%s-PDBs" % version)
-
-if os.path.exists(pdbinstallerDir):
-    shutil.rmtree(pdbinstallerDir, onerror = _handle_error)
-
-for root, dirnames, filenames in os.walk(installerDir):
     #
-    # Keep WinRT SDK PDBs in the main installer
+    # MINGW run-time libraries
     #
-    if root.startswith(os.path.join(installerDir, "SDKs")):
-        continue
-    for f in filenames:
-        if f in filterFiles:
-            continue
-        targetFile = relPath(installerDir, pdbinstallerDir, os.path.join(root, f))
-        if not os.path.exists(targetFile) and os.path.splitext(f)[1] in [".pdb"]:
-            move(os.path.join(root, f), targetFile)
+    for f in ["libstdc++-6.dll", "libgcc_s_sjlj-1.dll"]:
+        copyIfModified(os.path.join(rubyDevKitX86Home, "mingw", "bin", f), os.path.join(installerDir, "bin"), verbose = verbose)
+        copyIfModified(os.path.join(rubyDevKitAmd64Home, "mingw", "bin", f), os.path.join(installerDir, "bin", "x64"), verbose = verbose)
+
+    #
+    # docs dir
+    #
+    docsDir = os.path.join(distFiles, "src", "windows", "docs", "main")
+    for f in ["README.txt", "SOURCES.txt", "THIRD_PARTY_LICENSE.txt"]:
+        copyIfModified(os.path.join(docsDir, f), os.path.join(installerDir, f), verbose = verbose)
+
+    #
+    # Copy thirdpary files
+    #
+    for root, dirnames, filenames in os.walk(thirdPartyHome):
+        for f in filenames:
+            if f in filterFiles:
+                continue
+            targetFile = relPath(thirdPartyHome, installerDir, os.path.join(root, f))
+            if os.path.splitext(f)[1] in [".exe", ".dll", ".jar", ".pdb"]:
+                if targetFile.endswith(".pdb"):
+                    targetFile = targetFile.replace(installerDir, pdbinstallerDir)
+                copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
+
+    copyIfModified(os.path.join(thirdPartyHome, "config", "openssl.cnf"), os.path.join(iceBuildHome, "installer"), verbose = verbose)
 
 if not skipInstaller:
     #
@@ -904,22 +1172,33 @@ if not skipInstaller:
     command = "\"%s\" /loadpathvars %s" % (advancedInstaller, paths)
     executeCommand(command, env)
 
-    #
-    # Build the Ice main installer.
-    #    
-    command = "\"%s\" /rebuild %s" % (advancedInstaller, iceInstallerFile)
-    executeCommand(command, env)
+    if winrt:
+        #
+        # Build the Ice WinRT SDKs installer.
+        #
+        command = "\"%s\" /rebuild %s" % (advancedInstaller, sdksInstallerFile)
+        executeCommand(command, env)
+        sign(os.path.dirname(iceInstallerFile), "SDKs.msi")
+        shutil.move(os.path.join(os.path.dirname(iceInstallerFile), "SDKs.msi"), \
+                                 os.path.join(iceBuildHome, "Ice-WinRT-SDKs-%s.msi" % version))
+    else:
+        #
+        # Build the Ice main installer.
+        #    
+        command = "\"%s\" /rebuild %s" % (advancedInstaller, iceInstallerFile)
+        executeCommand(command, env)
+        sign(os.path.dirname(iceInstallerFile), "Ice.msi")
+        shutil.move(os.path.join(os.path.dirname(iceInstallerFile), "Ice.msi"), \
+                                 os.path.join(iceBuildHome, "Ice-%s.msi" % version))
 
-    shutil.move(os.path.join(os.path.dirname(iceInstallerFile), "Ice.msi"), \
-                             os.path.join(iceBuildHome, "Ice-%s.msi" % version))
+        #
+        # Build the Ice PDBs installer.
+        #
+        command = "\"%s\" /rebuild %s" % (advancedInstaller, pdbsInstallerFile)
+        executeCommand(command, env)
 
-    #
-    # Build the Ice PDBs installer.
-    #
-    command = "\"%s\" /rebuild %s" % (advancedInstaller, pdbsInstallerFile)
-    executeCommand(command, env)
-
-    shutil.move(os.path.join(os.path.dirname(iceInstallerFile), "PDBs.msi"), \
-                             os.path.join(iceBuildHome, "Ice-PDBs-%s.msi" % version))
+        sign(os.path.dirname(iceInstallerFile), "PDBs.msi")
+        shutil.move(os.path.join(os.path.dirname(iceInstallerFile), "PDBs.msi"), \
+                                 os.path.join(iceBuildHome, "Ice-PDBs-%s.msi" % version))
 
     remove(tmpCertFile)

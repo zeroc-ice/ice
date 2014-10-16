@@ -353,6 +353,12 @@ depend:: $(SRCS) $(OBJS_DEPEND)
 	move $(*F).h $(HDIR)
 	move $(*F).cpp ..
 
+{$(SDIR)\}.ice.h:
+	del /q $(HDIR)\$(*F).h ..\$(*F).cpp
+	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) $<
+	move $(*F).h $(HDIR)
+	move $(*F).cpp ..
+
 .ice.cpp:
 	del /q $(*F).h $(*F).cpp
 	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) $(*F).ice

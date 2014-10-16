@@ -245,6 +245,12 @@ Ice.res: $(SOURCE_DIR)\EventLoggerMsg.rc
 	move $(*F).h $(headerdir)\Ice
 	move $(*F).cpp ..
 
+{$(slicedir)\Ice}.ice.h:
+	del /q $(headerdir)\Ice\$(*F).h $(*F).cpp
+	"$(SLICE2CPP)" $(CORE_SLICE2CPPFLAGS) $<
+	move $(*F).h $(headerdir)\Ice
+	move $(*F).cpp ..
+
 {$(slicedir)\IceSSL\}.ice{IceSSL\}.d:
 	@echo Generating dependencies for $<
 	@"$(SLICE2CPP)" $(CORE_SLICE2CPPFLAGS) --depend $< | \
@@ -255,6 +261,10 @@ Ice.res: $(SOURCE_DIR)\EventLoggerMsg.rc
 	"$(SLICE2CPP)" $(SSL_SLICE2CPPFLAGS) $<
 	move $(*F).h $(headerdir)\IceSSL
 
+{$(slicedir)\IceSSL}.ice.h:
+	del /q $(headerdir)\IceSSL\$(*F).h $(*F).cpp
+	"$(SLICE2CPP)" $(SSL_SLICE2CPPFLAGS) $<
+	move $(*F).h $(headerdir)\IceSSL
 
 # These files are not automatically generated because VC2008 Express doesn't have mc.exe
 #EventLoggerMsg.h EventLoggerMsg.rc: EventLoggerMsg.mc

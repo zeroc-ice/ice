@@ -164,7 +164,7 @@ def copy(src, dest, warnDestExists = True, verbose = False):
     elif os.path.islink(src):
         os.symlink(os.readlink(src), dest)
     else:
-        shutil.copy(src, dest)
+        shutil.copy2(src, dest)
 
     fixPermission(dest)
 

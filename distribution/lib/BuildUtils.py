@@ -120,7 +120,7 @@ def getPythonHome(arch):
         flags = flags | winreg.KEY_WOW64_32KEY
 
     try:
-        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\Python\\PythonCore\\3.3\\InstallPath", 0, flags)
+        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\Python\\PythonCore\\3.4\\InstallPath", 0, flags)
         home = os.path.abspath(winreg.QueryValueEx(key, "")[0])
         if os.path.exists(home):
             return home
