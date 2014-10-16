@@ -19,7 +19,6 @@ Ice.__M.require(module,
 
 var Instance = Ice.Instance;
 var Promise = Ice.Promise;
-var UUID = Ice.UUID;
 
 //
 // Ice.Communicator
@@ -87,7 +86,7 @@ var Communicator = Ice.Class({
     {
         if(name.length === 0)
         {
-            name = UUID.generateUUID();
+            name = Ice.generateUUID();
         }
 
         this.getProperties().setProperty(name + ".Endpoints", endpoints);
@@ -99,11 +98,11 @@ var Communicator = Ice.Class({
     {
         if(name.length === 0)
         {
-            name = UUID.generateUUID();
+            name = Ice.generateUUID();
         }
 
         var promise = new Ice.AsyncResultBase(this, "createObjectAdapterWithRouter", this, null, null);
-        
+
         //
         // We set the proxy properties here, although we still use the proxy supplied.
         //
@@ -112,7 +111,7 @@ var Communicator = Ice.Class({
         {
             this.getProperties().setProperty(e.key, e.value);
         }
-        
+
         this._instance.objectAdapterFactory().createObjectAdapter(name, router, promise);
         return promise;
     },
