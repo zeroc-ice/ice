@@ -419,23 +419,18 @@ Selector::finish(EventHandler* handler, bool closeNow)
 {
     if(handler->_registered)
     {
-        if(closeNow)
+        update(handler, handler->_registered, SocketOperationNone);
+#if defined(ICE_USE_KQUEUE)
+        if(closeNow && !_changes.empty())
         {
             //
-            // Don't bother to un-register if the call wants to close
-            // the FD now, kqueue/epoll will automatically unregister
-            // the FD when it's closed.
+            // Update selector now to remove the FD from the kqueue if
+            // we're going to close it now. This isn't necessary for 
+            // epoll since we always update the epoll FD immediately.
             //
-            handler->_registered = SocketOperationNone;
+            updateSelector();
         }
-        else
-        {
-            //
-            // If close on finish is requested, we can safely
-            // unregister the FD from the selector.
-            //
-            update(handler, handler->_registered, SocketOperationNone);
-        }
+#endif
     }
     return closeNow;
 }
