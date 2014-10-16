@@ -51,7 +51,7 @@ Ice.Promise.try(
         // Initialize the communicator and create a proxy to the sender object.
         //
         var proxy = communicator.stringToProxy("sender:tcp -p 10000");
-        
+
         //
         // Down-cast the proxy to the Demo.CallbackSender interface.
         //
@@ -69,7 +69,7 @@ Ice.Promise.try(
                         // the object adapter.
                         //
                         var r = adapter.addWithUUID(new CallbackReceiverI());
-                        
+
                         //
                         // Set the connection adapter.
                         //
@@ -86,7 +86,7 @@ Ice.Promise.try(
     function(ex)
     {
         console.log(ex.toString());
-        Promise.try(
+        Ice.Promise.try(
             function()
             {
                 if(communicator)

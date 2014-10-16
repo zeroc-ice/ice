@@ -9,7 +9,6 @@
 
 (function(){
 
-var Promise = Ice.Promise;
 var CallbackSenderPrx = Demo.CallbackSenderPrx;
 
 //
@@ -44,7 +43,7 @@ var start = function()
     //
     var hostname = document.location.hostname || "127.0.0.1";
     var proxy = communicator.stringToProxy("sender:ws -p 10002 -h " + hostname);
-    
+
     //
     // Down-cast the proxy to the Demo.CallbackSender interface.
     //
@@ -62,13 +61,13 @@ var start = function()
                     // the object adapter.
                     //
                     var r = adapter.addWithUUID(new CallbackReceiverI());
-                    
+
                     //
                     // Set the connection adapter and remember the connection.
                     //
                     connection = proxy.ice_getCachedConnection();
                     connection.setAdapter(adapter);
-                    
+
                     //
                     // Register the client with the bidir server.
                     //
@@ -82,9 +81,9 @@ var stop = function()
     //
     // Close the connection, the server will unregister the client
     // when it tries to invoke on the bi-dir proxy.
-    // 
+    //
     return connection.close(false);
-}
+};
 
 //
 // Setup button click handlers
@@ -95,7 +94,7 @@ $("#start").click(
         if(isDisconnected())
         {
             setState(State.Connecting);
-            Promise.try(
+            Ice.Promise.try(
                 function()
                 {
                     return start().then(function()
@@ -120,7 +119,7 @@ $("#stop").click(
         if(isConnected())
         {
             setState(State.Disconnecting);
-            Promise.try(
+            Ice.Promise.try(
                 function()
                 {
                     return stop();

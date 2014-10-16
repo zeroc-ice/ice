@@ -9,7 +9,6 @@
 
 (function(){
 
-var Promise = Ice.Promise;
 var RouterPrx = Glacier2.RouterPrx;
 var ChatSessionPrx = Demo.ChatSessionPrx;
 var ChatCallbackPrx = Demo.ChatCallbackPrx;
@@ -43,7 +42,7 @@ var signin = function()
 {
     var communicator;
     var router;
-    Promise.try(
+    Ice.Promise.try(
         function()
         {
             state = State.Connecting;
@@ -148,7 +147,7 @@ var run = function(communicator, router, session)
     // state. The completion could happen because the user signed out,
     // or because an exception was raised.
     //
-    var chat = new Promise();
+    var chat = new Ice.Promise();
 
     //
     // Get the session timeout and the router client category, and
@@ -157,7 +156,7 @@ var run = function(communicator, router, session)
     // Use Ice.Promise.all to wait for the completion of all the
     // calls.
     //
-    Promise.all(
+    Ice.Promise.all(
         router.getSessionTimeout(),
         router.getCategoryForClient(),
         communicator.createObjectAdapterWithRouter("", router)

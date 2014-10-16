@@ -9,8 +9,6 @@
 
 (function(){
 
-var Promise = Ice.Promise;
-
 //
 // Initialize the communicator
 //
@@ -26,13 +24,13 @@ function run()
     //
     var hostname = document.location.hostname || "127.0.0.1";
     var secure = document.location.protocol.indexOf("https") != -1;
-    var ref = secure ? 
+    var ref = secure ?
         "ping:wss -h " + hostname + " -p 9090 -r /demowss" :
         "ping:ws -h " + hostname + " -p 8080 -r /demows";
     var proxy = communicator.stringToProxy(ref);
-    
+
     var repetitions = 1000;
-    
+
     //
     // Down-cast the proxy to the Demo.Ping interface.
     //
@@ -42,7 +40,7 @@ function run()
             writeLine("pinging server " + repetitions + " times (this may take a while)");
             start = new Date().getTime();
             return loop(
-                function() 
+                function()
                 {
                     return obj.ice_ping();
                 },
@@ -97,11 +95,11 @@ $("#run").click(
 //
 // Asynchronous loop: each call to the given function returns a
 // promise that when fulfilled runs the next iteration.
-//    
+//
 function loop(fn, repetitions)
 {
     var i = 0;
-    var next = function() 
+    var next = function()
     {
         if(i++ < repetitions)
         {
@@ -123,9 +121,9 @@ function writeLine(msg)
 //
 // Handle the client state.
 //
-var State = { 
-    Idle:0, 
-    Running: 1 
+var State = {
+    Idle:0,
+    Running: 1
 };
 
 var state;

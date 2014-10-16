@@ -9,7 +9,6 @@
 
 (function(){
 
-var Promise = Ice.Promise;
 var RouterPrx = Glacier2.RouterPrx;
 var ChatRoomCallbackPrx = Chat.ChatRoomCallbackPrx;
 var ChatSessionPrx = Chat.ChatSessionPrx;
@@ -159,7 +158,7 @@ var run = function(router, session)
     // state. The completion could happen because the user signed out,
     // or because there is an exception.
     //
-    var chat = new Promise();
+    var chat = new Ice.Promise();
     //
     // Get the session timeout and the router client category, then
     // create the client object adapter.
@@ -167,7 +166,7 @@ var run = function(router, session)
     // Use Ice.Promise.all to wait for the completion of all the
     // calls.
     //
-    Promise.all(
+    Ice.Promise.all(
         router.getSessionTimeout(),
         router.getCategoryForClient(),
         communicator.createObjectAdapterWithRouter("", router)
@@ -416,7 +415,7 @@ function setState(newState, error)
             // First destroy the communicator if needed then do
             // the screen transition.
             //
-            return Promise.try(
+            return Ice.Promise.try(
                 function()
                 {
                     if(communicator)
