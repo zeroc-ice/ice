@@ -9,5 +9,6 @@
         "navigator": false,
         "escape" : false, 
         "unescape": false
-    }
+    },
+    "predef": ["-Promise"]
 }
