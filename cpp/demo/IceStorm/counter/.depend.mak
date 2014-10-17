@@ -1,5 +1,5 @@
 
-Counter.cpp: \
+Counter.h: \
     Counter.ice
 
 Counter.obj: \

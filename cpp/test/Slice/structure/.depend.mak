@@ -1,8 +1,8 @@
 
-Test.cpp: \
+Test.h: \
     Test.ice
 
-Forward.cpp: \
+Forward.h: \
     Forward.ice
 
 Test.obj: \

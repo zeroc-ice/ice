@@ -1,5 +1,5 @@
 
-Latency.cpp: \
+Latency.h: \
     Latency.ice
 
 Latency.obj: \

@@ -1,8 +1,8 @@
 
-ContactData.cpp: \
+ContactData.h: \
     ContactData.ice
 
-NewContactData.cpp: \
+NewContactData.h: \
     NewContactData.ice
 
 ContactData.obj: \

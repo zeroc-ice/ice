@@ -1,20 +1,20 @@
 
-ClientPrivate.cpp: \
+ClientPrivate.h: \
     ClientPrivate.ice \
     ./Test.ice
 
-ServerPrivate.cpp: \
+ServerPrivate.h: \
     ServerPrivate.ice \
     ./Test.ice
 
-ServerPrivateAMD.cpp: \
+ServerPrivateAMD.h: \
     ServerPrivateAMD.ice \
     ./TestAMD.ice
 
-Test.cpp: \
+Test.h: \
     Test.ice
 
-TestAMD.cpp: \
+TestAMD.h: \
     TestAMD.ice
 
 Test.obj: \

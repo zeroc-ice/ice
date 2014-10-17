@@ -1,8 +1,8 @@
 
-Filesystem.cpp: \
+Filesystem.h: \
     Filesystem.ice
 
-PersistentFilesystem.cpp: \
+PersistentFilesystem.h: \
     PersistentFilesystem.ice \
     ./Filesystem.ice
 

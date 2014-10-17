@@ -1,110 +1,110 @@
 
-Election.cpp: \
+Election.h: \
     Election.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
     ../IceStorm/SubscriberRecord.ice \
-    $(slicedir)/IceStorm/IceStorm.ice \
-    $(slicedir)/Ice/SliceChecksumDict.ice \
-    $(slicedir)/IceStorm/Metrics.ice \
-    $(slicedir)/Ice/Metrics.ice \
+    "$(slicedir)/IceStorm/IceStorm.ice" \
+    "$(slicedir)/Ice/SliceChecksumDict.ice" \
+    "$(slicedir)/IceStorm/Metrics.ice" \
+    "$(slicedir)/Ice/Metrics.ice" \
     ../IceStorm/LLURecord.ice
 
-IceStormInternal.cpp: \
+IceStormInternal.h: \
     IceStormInternal.ice \
-    $(slicedir)/IceStorm/IceStorm.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/SliceChecksumDict.ice \
-    $(slicedir)/IceStorm/Metrics.ice \
-    $(slicedir)/Ice/Metrics.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
+    "$(slicedir)/IceStorm/IceStorm.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/SliceChecksumDict.ice" \
+    "$(slicedir)/IceStorm/Metrics.ice" \
+    "$(slicedir)/Ice/Metrics.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
     ../IceStorm/Election.ice \
     ../IceStorm/SubscriberRecord.ice \
     ../IceStorm/LLURecord.ice \
-    $(slicedir)/Ice/Current.ice \
-    $(slicedir)/Ice/ObjectAdapterF.ice \
-    $(slicedir)/Ice/ConnectionF.ice \
-    $(slicedir)/Ice/Version.ice
+    "$(slicedir)/Ice/Current.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/ConnectionF.ice" \
+    "$(slicedir)/Ice/Version.ice"
 
-Instrumentation.cpp: \
+Instrumentation.h: \
     Instrumentation.ice \
-    $(slicedir)/Ice/Instrumentation.ice \
-    $(slicedir)/Ice/EndpointF.ice \
-    $(slicedir)/Ice/ConnectionF.ice \
-    $(slicedir)/Ice/Current.ice \
-    $(slicedir)/Ice/ObjectAdapterF.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/Version.ice \
-    $(slicedir)/IceStorm/IceStorm.ice \
-    $(slicedir)/Ice/SliceChecksumDict.ice \
-    $(slicedir)/IceStorm/Metrics.ice \
-    $(slicedir)/Ice/Metrics.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+    "$(slicedir)/Ice/Instrumentation.ice" \
+    "$(slicedir)/Ice/EndpointF.ice" \
+    "$(slicedir)/Ice/ConnectionF.ice" \
+    "$(slicedir)/Ice/Current.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/IceStorm/IceStorm.ice" \
+    "$(slicedir)/Ice/SliceChecksumDict.ice" \
+    "$(slicedir)/IceStorm/Metrics.ice" \
+    "$(slicedir)/Ice/Metrics.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
-LinkRecord.cpp: \
+LinkRecord.h: \
     LinkRecord.ice \
-    $(slicedir)/Ice/Identity.ice \
+    "$(slicedir)/Ice/Identity.ice" \
     ../IceStorm/IceStormInternal.ice \
-    $(slicedir)/IceStorm/IceStorm.ice \
-    $(slicedir)/Ice/SliceChecksumDict.ice \
-    $(slicedir)/IceStorm/Metrics.ice \
-    $(slicedir)/Ice/Metrics.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
+    "$(slicedir)/IceStorm/IceStorm.ice" \
+    "$(slicedir)/Ice/SliceChecksumDict.ice" \
+    "$(slicedir)/IceStorm/Metrics.ice" \
+    "$(slicedir)/Ice/Metrics.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
     ../IceStorm/Election.ice \
     ../IceStorm/SubscriberRecord.ice \
     ../IceStorm/LLURecord.ice \
-    $(slicedir)/Ice/Current.ice \
-    $(slicedir)/Ice/ObjectAdapterF.ice \
-    $(slicedir)/Ice/ConnectionF.ice \
-    $(slicedir)/Ice/Version.ice
+    "$(slicedir)/Ice/Current.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/ConnectionF.ice" \
+    "$(slicedir)/Ice/Version.ice"
 
-LLURecord.cpp: \
+LLURecord.h: \
     LLURecord.ice
 
-SubscriberRecord.cpp: \
+SubscriberRecord.h: \
     SubscriberRecord.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/IceStorm/IceStorm.ice \
-    $(slicedir)/Ice/SliceChecksumDict.ice \
-    $(slicedir)/IceStorm/Metrics.ice \
-    $(slicedir)/Ice/Metrics.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/IceStorm/IceStorm.ice" \
+    "$(slicedir)/Ice/SliceChecksumDict.ice" \
+    "$(slicedir)/IceStorm/Metrics.ice" \
+    "$(slicedir)/Ice/Metrics.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
-V31Format.cpp: \
+V31Format.h: \
     V31Format.ice \
     ../IceStorm/LinkRecord.ice \
-    $(slicedir)/Ice/Identity.ice \
+    "$(slicedir)/Ice/Identity.ice" \
     ../IceStorm/IceStormInternal.ice \
-    $(slicedir)/IceStorm/IceStorm.ice \
-    $(slicedir)/Ice/SliceChecksumDict.ice \
-    $(slicedir)/IceStorm/Metrics.ice \
-    $(slicedir)/Ice/Metrics.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
+    "$(slicedir)/IceStorm/IceStorm.ice" \
+    "$(slicedir)/Ice/SliceChecksumDict.ice" \
+    "$(slicedir)/IceStorm/Metrics.ice" \
+    "$(slicedir)/Ice/Metrics.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
     ../IceStorm/Election.ice \
     ../IceStorm/SubscriberRecord.ice \
     ../IceStorm/LLURecord.ice \
-    $(slicedir)/Ice/Current.ice \
-    $(slicedir)/Ice/ObjectAdapterF.ice \
-    $(slicedir)/Ice/ConnectionF.ice \
-    $(slicedir)/Ice/Version.ice
+    "$(slicedir)/Ice/Current.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/ConnectionF.ice" \
+    "$(slicedir)/Ice/Version.ice"
 
-V32Format.cpp: \
+V32Format.h: \
     V32Format.ice \
     ../IceStorm/LinkRecord.ice \
-    $(slicedir)/Ice/Identity.ice \
+    "$(slicedir)/Ice/Identity.ice" \
     ../IceStorm/IceStormInternal.ice \
-    $(slicedir)/IceStorm/IceStorm.ice \
-    $(slicedir)/Ice/SliceChecksumDict.ice \
-    $(slicedir)/IceStorm/Metrics.ice \
-    $(slicedir)/Ice/Metrics.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
+    "$(slicedir)/IceStorm/IceStorm.ice" \
+    "$(slicedir)/Ice/SliceChecksumDict.ice" \
+    "$(slicedir)/IceStorm/Metrics.ice" \
+    "$(slicedir)/Ice/Metrics.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
     ../IceStorm/Election.ice \
     ../IceStorm/SubscriberRecord.ice \
     ../IceStorm/LLURecord.ice \
-    $(slicedir)/Ice/Current.ice \
-    $(slicedir)/Ice/ObjectAdapterF.ice \
-    $(slicedir)/Ice/ConnectionF.ice \
-    $(slicedir)/Ice/Version.ice
+    "$(slicedir)/Ice/Current.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/ConnectionF.ice" \
+    "$(slicedir)/Ice/Version.ice"
 
 Instance.obj: \
 	Instance.cpp \

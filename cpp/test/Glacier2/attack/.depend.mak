@@ -1,5 +1,5 @@
 
-Backend.cpp: \
+Backend.h: \
     Backend.ice
 
 Backend.obj: \

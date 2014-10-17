@@ -1,14 +1,14 @@
 
-Test.cpp: \
+Test.h: \
     Test.ice
 
-TestAMD.cpp: \
+TestAMD.h: \
     TestAMD.ice
 
-Wstring.cpp: \
+Wstring.h: \
     Wstring.ice
 
-WstringAMD.cpp: \
+WstringAMD.h: \
     WstringAMD.ice
 
 Test.obj: \

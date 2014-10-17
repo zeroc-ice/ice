@@ -1,5 +1,5 @@
 
-Clock.cpp: \
+Clock.h: \
     Clock.ice
 
 Clock.obj: \

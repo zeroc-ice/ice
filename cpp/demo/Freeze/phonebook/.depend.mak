@@ -1,7 +1,7 @@
 
-PhoneBook.cpp: \
+PhoneBook.h: \
     PhoneBook.ice \
-    $(slicedir)/Ice/Identity.ice
+    "$(slicedir)/Ice/Identity.ice"
 
 PhoneBook.obj: \
 	PhoneBook.cpp \

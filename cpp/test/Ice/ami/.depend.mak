@@ -1,10 +1,10 @@
 
-Test.cpp: \
+Test.h: \
     Test.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
-    $(slicedir)/Ice/Endpoint.ice \
-    $(slicedir)/Ice/Version.ice \
-    $(slicedir)/Ice/EndpointF.ice
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/Endpoint.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/Ice/EndpointF.ice"
 
 Test.obj: \
 	Test.cpp \

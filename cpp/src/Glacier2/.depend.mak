@@ -1,13 +1,13 @@
 
-Instrumentation.cpp: \
+Instrumentation.h: \
     Instrumentation.ice \
-    $(slicedir)/Ice/Instrumentation.ice \
-    $(slicedir)/Ice/EndpointF.ice \
-    $(slicedir)/Ice/ConnectionF.ice \
-    $(slicedir)/Ice/Current.ice \
-    $(slicedir)/Ice/ObjectAdapterF.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/Version.ice
+    "$(slicedir)/Ice/Instrumentation.ice" \
+    "$(slicedir)/Ice/EndpointF.ice" \
+    "$(slicedir)/Ice/ConnectionF.ice" \
+    "$(slicedir)/Ice/Current.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Version.ice"
 
 Blobject.obj: \
 	Blobject.cpp \

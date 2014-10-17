@@ -1,5 +1,5 @@
 
-Hello.cpp: \
+Hello.h: \
     Hello.ice
 
 Hello.obj: \

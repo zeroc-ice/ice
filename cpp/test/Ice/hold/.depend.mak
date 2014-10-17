@@ -1,5 +1,5 @@
 
-Test.cpp: \
+Test.h: \
     Test.ice
 
 Test.obj: \

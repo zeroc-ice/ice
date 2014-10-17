@@ -1,9 +1,9 @@
 
-CircularA.cpp: \
+CircularA.h: \
     CircularA.ice \
     ./CircularB.ice
 
-CircularB.cpp: \
+CircularB.h: \
     CircularB.ice \
     ./CircularA.ice
 

@@ -1,189 +1,189 @@
 
-BuiltinSequences.cpp: \
-    $(slicedir)\Ice\BuiltinSequences.ice
+BuiltinSequences.h: \
+    "$(slicedir)\Ice\BuiltinSequences.ice"
 
-Communicator.cpp: \
-    $(slicedir)\Ice\Communicator.ice \
-    $(slicedir)/Ice/LoggerF.ice \
-    $(slicedir)/Ice/InstrumentationF.ice \
-    $(slicedir)/Ice/ObjectAdapterF.ice \
-    $(slicedir)/Ice/ObjectFactoryF.ice \
-    $(slicedir)/Ice/RouterF.ice \
-    $(slicedir)/Ice/LocatorF.ice \
-    $(slicedir)/Ice/PluginF.ice \
-    $(slicedir)/Ice/ImplicitContextF.ice \
-    $(slicedir)/Ice/Current.ice \
-    $(slicedir)/Ice/ConnectionF.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/Version.ice \
-    $(slicedir)/Ice/Properties.ice \
-    $(slicedir)/Ice/PropertiesAdmin.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
-    $(slicedir)/Ice/FacetMap.ice
+Communicator.h: \
+    "$(slicedir)\Ice\Communicator.ice" \
+    "$(slicedir)/Ice/LoggerF.ice" \
+    "$(slicedir)/Ice/InstrumentationF.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/ObjectFactoryF.ice" \
+    "$(slicedir)/Ice/RouterF.ice" \
+    "$(slicedir)/Ice/LocatorF.ice" \
+    "$(slicedir)/Ice/PluginF.ice" \
+    "$(slicedir)/Ice/ImplicitContextF.ice" \
+    "$(slicedir)/Ice/Current.ice" \
+    "$(slicedir)/Ice/ConnectionF.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/Ice/Properties.ice" \
+    "$(slicedir)/Ice/PropertiesAdmin.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/FacetMap.ice"
 
-CommunicatorF.cpp: \
-    $(slicedir)\Ice\CommunicatorF.ice
+CommunicatorF.h: \
+    "$(slicedir)\Ice\CommunicatorF.ice"
 
-Connection.cpp: \
-    $(slicedir)\Ice\Connection.ice \
-    $(slicedir)/Ice/ObjectAdapterF.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/Endpoint.ice \
-    $(slicedir)/Ice/Version.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
-    $(slicedir)/Ice/EndpointF.ice
+Connection.h: \
+    "$(slicedir)\Ice\Connection.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Endpoint.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/EndpointF.ice"
 
-ConnectionF.cpp: \
-    $(slicedir)\Ice\ConnectionF.ice
+ConnectionF.h: \
+    "$(slicedir)\Ice\ConnectionF.ice"
 
-Current.cpp: \
-    $(slicedir)\Ice\Current.ice \
-    $(slicedir)/Ice/ObjectAdapterF.ice \
-    $(slicedir)/Ice/ConnectionF.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/Version.ice
+Current.h: \
+    "$(slicedir)\Ice\Current.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/ConnectionF.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Version.ice"
 
-Endpoint.cpp: \
-    $(slicedir)\Ice\Endpoint.ice \
-    $(slicedir)/Ice/Version.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
-    $(slicedir)/Ice/EndpointF.ice
+Endpoint.h: \
+    "$(slicedir)\Ice\Endpoint.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/EndpointF.ice"
 
-EndpointF.cpp: \
-    $(slicedir)\Ice\EndpointF.ice
+EndpointF.h: \
+    "$(slicedir)\Ice\EndpointF.ice"
 
-EndpointTypes.cpp: \
-    $(slicedir)\Ice\EndpointTypes.ice
+EndpointTypes.h: \
+    "$(slicedir)\Ice\EndpointTypes.ice"
 
-FacetMap.cpp: \
-    $(slicedir)\Ice\FacetMap.ice
+FacetMap.h: \
+    "$(slicedir)\Ice\FacetMap.ice"
 
-Identity.cpp: \
-    $(slicedir)\Ice\Identity.ice
+Identity.h: \
+    "$(slicedir)\Ice\Identity.ice"
 
-ImplicitContext.cpp: \
-    $(slicedir)\Ice\ImplicitContext.ice \
-    $(slicedir)/Ice/LocalException.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/Version.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
-    $(slicedir)/Ice/Current.ice \
-    $(slicedir)/Ice/ObjectAdapterF.ice \
-    $(slicedir)/Ice/ConnectionF.ice
+ImplicitContext.h: \
+    "$(slicedir)\Ice\ImplicitContext.ice" \
+    "$(slicedir)/Ice/LocalException.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/Current.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/ConnectionF.ice"
 
-ImplicitContextF.cpp: \
-    $(slicedir)\Ice\ImplicitContextF.ice
+ImplicitContextF.h: \
+    "$(slicedir)\Ice\ImplicitContextF.ice"
 
-Instrumentation.cpp: \
-    $(slicedir)\Ice\Instrumentation.ice \
-    $(slicedir)/Ice/EndpointF.ice \
-    $(slicedir)/Ice/ConnectionF.ice \
-    $(slicedir)/Ice/Current.ice \
-    $(slicedir)/Ice/ObjectAdapterF.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/Version.ice
+Instrumentation.h: \
+    "$(slicedir)\Ice\Instrumentation.ice" \
+    "$(slicedir)/Ice/EndpointF.ice" \
+    "$(slicedir)/Ice/ConnectionF.ice" \
+    "$(slicedir)/Ice/Current.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Version.ice"
 
-InstrumentationF.cpp: \
-    $(slicedir)\Ice\InstrumentationF.ice
+InstrumentationF.h: \
+    "$(slicedir)\Ice\InstrumentationF.ice"
 
-LocalException.cpp: \
-    $(slicedir)\Ice\LocalException.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/Version.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+LocalException.h: \
+    "$(slicedir)\Ice\LocalException.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
-Locator.cpp: \
-    $(slicedir)\Ice\Locator.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/ProcessF.ice
+Locator.h: \
+    "$(slicedir)\Ice\Locator.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/ProcessF.ice"
 
-LocatorF.cpp: \
-    $(slicedir)\Ice\LocatorF.ice
+LocatorF.h: \
+    "$(slicedir)\Ice\LocatorF.ice"
 
-Logger.cpp: \
-    $(slicedir)\Ice\Logger.ice
+Logger.h: \
+    "$(slicedir)\Ice\Logger.ice"
 
-LoggerF.cpp: \
-    $(slicedir)\Ice\LoggerF.ice
+LoggerF.h: \
+    "$(slicedir)\Ice\LoggerF.ice"
 
-Metrics.cpp: \
-    $(slicedir)\Ice\Metrics.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+Metrics.h: \
+    "$(slicedir)\Ice\Metrics.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
-ObjectAdapter.cpp: \
-    $(slicedir)\Ice\ObjectAdapter.ice \
-    $(slicedir)/Ice/CommunicatorF.ice \
-    $(slicedir)/Ice/ServantLocatorF.ice \
-    $(slicedir)/Ice/LocatorF.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/FacetMap.ice \
-    $(slicedir)/Ice/Endpoint.ice \
-    $(slicedir)/Ice/Version.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
-    $(slicedir)/Ice/EndpointF.ice
+ObjectAdapter.h: \
+    "$(slicedir)\Ice\ObjectAdapter.ice" \
+    "$(slicedir)/Ice/CommunicatorF.ice" \
+    "$(slicedir)/Ice/ServantLocatorF.ice" \
+    "$(slicedir)/Ice/LocatorF.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/FacetMap.ice" \
+    "$(slicedir)/Ice/Endpoint.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/EndpointF.ice"
 
-ObjectAdapterF.cpp: \
-    $(slicedir)\Ice\ObjectAdapterF.ice
+ObjectAdapterF.h: \
+    "$(slicedir)\Ice\ObjectAdapterF.ice"
 
-ObjectFactory.cpp: \
-    $(slicedir)\Ice\ObjectFactory.ice
+ObjectFactory.h: \
+    "$(slicedir)\Ice\ObjectFactory.ice"
 
-ObjectFactoryF.cpp: \
-    $(slicedir)\Ice\ObjectFactoryF.ice
+ObjectFactoryF.h: \
+    "$(slicedir)\Ice\ObjectFactoryF.ice"
 
-Plugin.cpp: \
-    $(slicedir)\Ice\Plugin.ice \
-    $(slicedir)/Ice/LoggerF.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+Plugin.h: \
+    "$(slicedir)\Ice\Plugin.ice" \
+    "$(slicedir)/Ice/LoggerF.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
-PluginF.cpp: \
-    $(slicedir)\Ice\PluginF.ice
+PluginF.h: \
+    "$(slicedir)\Ice\PluginF.ice"
 
-Process.cpp: \
-    $(slicedir)\Ice\Process.ice
+Process.h: \
+    "$(slicedir)\Ice\Process.ice"
 
-ProcessF.cpp: \
-    $(slicedir)\Ice\ProcessF.ice
+ProcessF.h: \
+    "$(slicedir)\Ice\ProcessF.ice"
 
-Properties.cpp: \
-    $(slicedir)\Ice\Properties.ice \
-    $(slicedir)/Ice/PropertiesAdmin.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+Properties.h: \
+    "$(slicedir)\Ice\Properties.ice" \
+    "$(slicedir)/Ice/PropertiesAdmin.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
-PropertiesAdmin.cpp: \
-    $(slicedir)\Ice\PropertiesAdmin.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+PropertiesAdmin.h: \
+    "$(slicedir)\Ice\PropertiesAdmin.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
-PropertiesF.cpp: \
-    $(slicedir)\Ice\PropertiesF.ice
+PropertiesF.h: \
+    "$(slicedir)\Ice\PropertiesF.ice"
 
-RemoteLogger.cpp: \
-    $(slicedir)\Ice\RemoteLogger.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+RemoteLogger.h: \
+    "$(slicedir)\Ice\RemoteLogger.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
-Router.cpp: \
-    $(slicedir)\Ice\Router.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+Router.h: \
+    "$(slicedir)\Ice\Router.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
-RouterF.cpp: \
-    $(slicedir)\Ice\RouterF.ice
+RouterF.h: \
+    "$(slicedir)\Ice\RouterF.ice"
 
-ServantLocator.cpp: \
-    $(slicedir)\Ice\ServantLocator.ice \
-    $(slicedir)/Ice/ObjectAdapterF.ice \
-    $(slicedir)/Ice/Current.ice \
-    $(slicedir)/Ice/ConnectionF.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/Version.ice
+ServantLocator.h: \
+    "$(slicedir)\Ice\ServantLocator.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/Current.ice" \
+    "$(slicedir)/Ice/ConnectionF.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Version.ice"
 
-ServantLocatorF.cpp: \
-    $(slicedir)\Ice\ServantLocatorF.ice
+ServantLocatorF.h: \
+    "$(slicedir)\Ice\ServantLocatorF.ice"
 
-SliceChecksumDict.cpp: \
-    $(slicedir)\Ice\SliceChecksumDict.ice
+SliceChecksumDict.h: \
+    "$(slicedir)\Ice\SliceChecksumDict.ice"
 
-Version.cpp: \
-    $(slicedir)\Ice\Version.ice
+Version.h: \
+    "$(slicedir)\Ice\Version.ice"
 
 Acceptor.obj: \
 	Acceptor.cpp \

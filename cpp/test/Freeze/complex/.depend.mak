@@ -1,5 +1,5 @@
 
-Complex.cpp: \
+Complex.h: \
     Complex.ice
 
 Complex.obj: \

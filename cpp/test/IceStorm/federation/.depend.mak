@@ -1,5 +1,5 @@
 
-Event.cpp: \
+Event.h: \
     Event.ice
 
 Event.obj: \

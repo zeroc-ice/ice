@@ -1,5 +1,5 @@
 
-Value.cpp: \
+Value.h: \
     Value.ice
 
 Value.obj: \

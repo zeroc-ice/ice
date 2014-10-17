@@ -1,10 +1,10 @@
 
-IceBox.cpp: \
-    $(slicedir)\IceBox\IceBox.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
-    $(slicedir)/Ice/CommunicatorF.ice \
-    $(slicedir)/Ice/PropertiesF.ice \
-    $(slicedir)/Ice/SliceChecksumDict.ice
+IceBox.h: \
+    "$(slicedir)\IceBox\IceBox.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/CommunicatorF.ice" \
+    "$(slicedir)/Ice/PropertiesF.ice" \
+    "$(slicedir)/Ice/SliceChecksumDict.ice"
 
 Service.obj: \
 	Service.cpp \

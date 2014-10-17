@@ -1,7 +1,7 @@
 
-IceDiscovery.cpp: \
-    $(slicedir)\IceDiscovery\IceDiscovery.ice \
-    $(slicedir)/Ice/Identity.ice
+IceDiscovery.h: \
+    "$(slicedir)\IceDiscovery\IceDiscovery.ice" \
+    "$(slicedir)/Ice/Identity.ice"
 
 LocatorI.obj: \
 	LocatorI.cpp \

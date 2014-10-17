@@ -1,7 +1,7 @@
 
-Test.cpp: \
+Test.h: \
     Test.ice \
-    $(slicedir)/Ice/Identity.ice
+    "$(slicedir)/Ice/Identity.ice"
 
 Test.obj: \
 	Test.cpp \

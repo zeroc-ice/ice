@@ -36,8 +36,10 @@ Do While Not WScript.StdIn.AtEndOfStream
     If len(line) > 0 Then
         If InStr(len(line) - 2, line, ": \") Then
             outFile.WriteLine(srcPrefix & line)
-        Elseif InStr(1, line, Replace(baseName, ".ice", ".h:")) Then
         Else
+            If InStr(1, line, "$(slicedir)") Then
+                line = """" & Replace(line, ".ice", ".ice""")
+            End If
             line = "    " & line
             If Not depends.Exists(line) Then
                 depends.Add line, "" 

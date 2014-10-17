@@ -1,5 +1,5 @@
 
-Session.cpp: \
+Session.h: \
     Session.ice
 
 Session.obj: \

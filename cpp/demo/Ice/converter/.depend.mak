@@ -1,5 +1,5 @@
 
-Greet.cpp: \
+Greet.h: \
     Greet.ice
 
 Greet.obj: \

@@ -1,12 +1,12 @@
 
-FileInfo.cpp: \
-    $(slicedir)\IcePatch2\FileInfo.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+FileInfo.h: \
+    "$(slicedir)\IcePatch2\FileInfo.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
-FileServer.cpp: \
-    $(slicedir)\IcePatch2\FileServer.ice \
-    $(slicedir)/IcePatch2/FileInfo.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+FileServer.h: \
+    "$(slicedir)\IcePatch2\FileServer.ice" \
+    "$(slicedir)/IcePatch2/FileInfo.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
 ClientUtil.obj: \
 	ClientUtil.cpp \

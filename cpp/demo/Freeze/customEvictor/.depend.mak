@@ -1,8 +1,8 @@
 
-Item.cpp: \
+Item.h: \
     Item.ice
 
-ItemInfo.cpp: \
+ItemInfo.h: \
     ItemInfo.ice
 
 Item.obj: \

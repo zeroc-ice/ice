@@ -1,9 +1,9 @@
 
-Test.cpp: \
+Test.h: \
     Test.ice \
-    $(slicedir)/Ice/SliceChecksumDict.ice
+    "$(slicedir)/Ice/SliceChecksumDict.ice"
 
-Types.cpp: \
+Types.h: \
     Types.ice
 
 Test.obj: \

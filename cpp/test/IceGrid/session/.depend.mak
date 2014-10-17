@@ -1,9 +1,9 @@
 
-Test.cpp: \
+Test.h: \
     Test.ice \
-    $(slicedir)/Glacier2/PermissionsVerifier.ice \
-    $(slicedir)/Glacier2/SSLInfo.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+    "$(slicedir)/Glacier2/PermissionsVerifier.ice" \
+    "$(slicedir)/Glacier2/SSLInfo.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
 Test.obj: \
 	Test.cpp \

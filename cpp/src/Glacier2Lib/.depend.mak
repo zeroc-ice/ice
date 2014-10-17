@@ -1,38 +1,38 @@
 
-Metrics.cpp: \
-    $(slicedir)\Glacier2\Metrics.ice \
-    $(slicedir)/Ice/Metrics.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+Metrics.h: \
+    "$(slicedir)\Glacier2\Metrics.ice" \
+    "$(slicedir)/Ice/Metrics.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
-PermissionsVerifierF.cpp: \
-    $(slicedir)\Glacier2\PermissionsVerifierF.ice
+PermissionsVerifierF.h: \
+    "$(slicedir)\Glacier2\PermissionsVerifierF.ice"
 
-PermissionsVerifier.cpp: \
-    $(slicedir)\Glacier2\PermissionsVerifier.ice \
-    $(slicedir)/Glacier2/SSLInfo.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+PermissionsVerifier.h: \
+    "$(slicedir)\Glacier2\PermissionsVerifier.ice" \
+    "$(slicedir)/Glacier2/SSLInfo.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
-Router.cpp: \
-    $(slicedir)\Glacier2\Router.ice \
-    $(slicedir)/Ice/Router.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
-    $(slicedir)/Glacier2/Session.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Glacier2/SSLInfo.ice \
-    $(slicedir)/Glacier2/PermissionsVerifier.ice
+Router.h: \
+    "$(slicedir)\Glacier2\Router.ice" \
+    "$(slicedir)/Ice/Router.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Glacier2/Session.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Glacier2/SSLInfo.ice" \
+    "$(slicedir)/Glacier2/PermissionsVerifier.ice"
 
-RouterF.cpp: \
-    $(slicedir)\Glacier2\RouterF.ice
+RouterF.h: \
+    "$(slicedir)\Glacier2\RouterF.ice"
 
-Session.cpp: \
-    $(slicedir)\Glacier2\Session.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Glacier2/SSLInfo.ice
+Session.h: \
+    "$(slicedir)\Glacier2\Session.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Glacier2/SSLInfo.ice"
 
-SSLInfo.cpp: \
-    $(slicedir)\Glacier2\SSLInfo.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+SSLInfo.h: \
+    "$(slicedir)\Glacier2\SSLInfo.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
 Application.obj: \
 	Application.cpp \

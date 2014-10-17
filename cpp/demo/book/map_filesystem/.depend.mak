@@ -1,11 +1,11 @@
 
-Filesystem.cpp: \
+Filesystem.h: \
     Filesystem.ice
 
-FilesystemDB.cpp: \
+FilesystemDB.h: \
     FilesystemDB.ice \
     ./Filesystem.ice \
-    $(slicedir)/Ice/Identity.ice
+    "$(slicedir)/Ice/Identity.ice"
 
 Filesystem.obj: \
 	Filesystem.cpp \

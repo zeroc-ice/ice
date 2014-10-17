@@ -1,11 +1,11 @@
 
-Test.cpp: \
+Test.h: \
     Test.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
-TestAMD.cpp: \
+TestAMD.h: \
     TestAMD.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
 ExceptionsI.obj: \
 	ExceptionsI.cpp \

@@ -1,5 +1,5 @@
 
-Throughput.cpp: \
+Throughput.h: \
     Throughput.ice
 
 Throughput.obj: \

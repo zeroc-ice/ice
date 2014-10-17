@@ -1,21 +1,21 @@
 
-Internal.cpp: \
+Internal.h: \
     Internal.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
-    $(slicedir)/Ice/ProcessF.ice \
-    $(slicedir)/Ice/Locator.ice \
-    $(slicedir)/Ice/Properties.ice \
-    $(slicedir)/Ice/PropertiesAdmin.ice \
-    $(slicedir)/Glacier2/Session.ice \
-    $(slicedir)/Glacier2/SSLInfo.ice \
-    $(slicedir)/IceGrid/Admin.ice \
-    $(slicedir)/Ice/SliceChecksumDict.ice \
-    $(slicedir)/IceGrid/Exception.ice \
-    $(slicedir)/IceGrid/Descriptor.ice \
-    $(slicedir)/IceGrid/Observer.ice \
-    $(slicedir)/IceGrid/Registry.ice \
-    $(slicedir)/IceGrid/Session.ice
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/ProcessF.ice" \
+    "$(slicedir)/Ice/Locator.ice" \
+    "$(slicedir)/Ice/Properties.ice" \
+    "$(slicedir)/Ice/PropertiesAdmin.ice" \
+    "$(slicedir)/Glacier2/Session.ice" \
+    "$(slicedir)/Glacier2/SSLInfo.ice" \
+    "$(slicedir)/IceGrid/Admin.ice" \
+    "$(slicedir)/Ice/SliceChecksumDict.ice" \
+    "$(slicedir)/IceGrid/Exception.ice" \
+    "$(slicedir)/IceGrid/Descriptor.ice" \
+    "$(slicedir)/IceGrid/Observer.ice" \
+    "$(slicedir)/IceGrid/Registry.ice" \
+    "$(slicedir)/IceGrid/Session.ice"
 
 Client.obj: \
 	Client.cpp \
@@ -4276,6 +4276,7 @@ LocatorI.obj: \
     "StringApplicationInfoDict.h" \
     "StringAdapterInfoDict.h" \
     "IdentityObjectInfoDict.h" \
+    "WellKnownObjectsManager.h" \
     "SessionI.h" \
     "ReapThread.h" \
     "SessionServantManager.h" \

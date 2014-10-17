@@ -1,5 +1,5 @@
 
-Contact.cpp: \
+Contact.h: \
     Contact.ice
 
 Contact.obj: \

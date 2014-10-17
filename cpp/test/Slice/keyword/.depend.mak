@@ -1,5 +1,5 @@
 
-Key.cpp: \
+Key.h: \
     Key.ice
 
 Key.obj: \

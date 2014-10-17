@@ -1,5 +1,5 @@
 
-Nrvo.cpp: \
+Nrvo.h: \
     Nrvo.ice
 
 Nrvo.obj: \

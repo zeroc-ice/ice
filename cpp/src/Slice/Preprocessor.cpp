@@ -491,16 +491,14 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
         case CPlusPlus:
         {
             //
-            // Change .o[bj] suffix to the cpp source extension suffix.
+            // Change .o[bj] suffix to the h header extension suffix.
             //
             string::size_type pos = result.find(suffix);
             if(pos != string::npos)
             {
                 string name = result.substr(0, pos);
-                result.replace(0, pos + suffix.size() - 1, name + "." + cppSourceExt);
+                result.replace(0, pos + suffix.size() - 1, name + "." + cppHeaderExt);
 
-                result += "\n";
-                result += name + "." + cppHeaderExt + ": " + name + "." + cppSourceExt;
             }
             break;
         }
@@ -510,7 +508,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
         {
             //
             // We want to shift the files left one position, so that
-            // "x.cpp: x.ice y.ice" becomes "x.ice: y.ice".
+            // "x.h: x.ice y.ice" becomes "x.ice: y.ice".
             //
 
             //

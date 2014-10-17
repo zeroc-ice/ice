@@ -1,7 +1,7 @@
 
-Pricing.cpp: \
+Pricing.h: \
     Pricing.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
 Pricing.obj: \
 	Pricing.cpp \

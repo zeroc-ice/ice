@@ -1,5 +1,5 @@
 
-Nested.cpp: \
+Nested.h: \
     Nested.ice
 
 Nested.obj: \

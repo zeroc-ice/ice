@@ -1,5 +1,5 @@
 
-Callback.cpp: \
+Callback.h: \
     Callback.ice
 
 Callback.obj: \

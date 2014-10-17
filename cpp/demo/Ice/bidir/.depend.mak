@@ -1,7 +1,7 @@
 
-Callback.cpp: \
+Callback.h: \
     Callback.ice \
-    $(slicedir)/Ice/Identity.ice
+    "$(slicedir)/Ice/Identity.ice"
 
 Callback.obj: \
 	Callback.cpp \

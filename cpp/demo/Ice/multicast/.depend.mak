@@ -1,8 +1,8 @@
 
-Discovery.cpp: \
+Discovery.h: \
     Discovery.ice
 
-Hello.cpp: \
+Hello.h: \
     Hello.ice
 
 Discovery.obj: \

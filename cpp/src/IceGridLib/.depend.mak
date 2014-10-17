@@ -1,112 +1,112 @@
 
-Admin.cpp: \
-    $(slicedir)\IceGrid\Admin.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
-    $(slicedir)/Ice/Properties.ice \
-    $(slicedir)/Ice/PropertiesAdmin.ice \
-    $(slicedir)/Ice/SliceChecksumDict.ice \
-    $(slicedir)/Glacier2/Session.ice \
-    $(slicedir)/Glacier2/SSLInfo.ice \
-    $(slicedir)/IceGrid/Exception.ice \
-    $(slicedir)/IceGrid/Descriptor.ice
+Admin.h: \
+    "$(slicedir)\IceGrid\Admin.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/Properties.ice" \
+    "$(slicedir)/Ice/PropertiesAdmin.ice" \
+    "$(slicedir)/Ice/SliceChecksumDict.ice" \
+    "$(slicedir)/Glacier2/Session.ice" \
+    "$(slicedir)/Glacier2/SSLInfo.ice" \
+    "$(slicedir)/IceGrid/Exception.ice" \
+    "$(slicedir)/IceGrid/Descriptor.ice"
 
-Descriptor.cpp: \
-    $(slicedir)\IceGrid\Descriptor.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+Descriptor.h: \
+    "$(slicedir)\IceGrid\Descriptor.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
-Discovery.cpp: \
-    $(slicedir)\IceGrid\Discovery.ice \
-    $(slicedir)/IceGrid/Locator.ice \
-    $(slicedir)/Ice/Locator.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/ProcessF.ice
+Discovery.h: \
+    "$(slicedir)\IceGrid\Discovery.ice" \
+    "$(slicedir)/IceGrid/Locator.ice" \
+    "$(slicedir)/Ice/Locator.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/ProcessF.ice"
 
-Exception.cpp: \
-    $(slicedir)\IceGrid\Exception.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+Exception.h: \
+    "$(slicedir)\IceGrid\Exception.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
-FileParser.cpp: \
-    $(slicedir)\IceGrid\FileParser.ice \
-    $(slicedir)/IceGrid/Admin.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
-    $(slicedir)/Ice/Properties.ice \
-    $(slicedir)/Ice/PropertiesAdmin.ice \
-    $(slicedir)/Ice/SliceChecksumDict.ice \
-    $(slicedir)/Glacier2/Session.ice \
-    $(slicedir)/Glacier2/SSLInfo.ice \
-    $(slicedir)/IceGrid/Exception.ice \
-    $(slicedir)/IceGrid/Descriptor.ice
+FileParser.h: \
+    "$(slicedir)\IceGrid\FileParser.ice" \
+    "$(slicedir)/IceGrid/Admin.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/Properties.ice" \
+    "$(slicedir)/Ice/PropertiesAdmin.ice" \
+    "$(slicedir)/Ice/SliceChecksumDict.ice" \
+    "$(slicedir)/Glacier2/Session.ice" \
+    "$(slicedir)/Glacier2/SSLInfo.ice" \
+    "$(slicedir)/IceGrid/Exception.ice" \
+    "$(slicedir)/IceGrid/Descriptor.ice"
 
-Locator.cpp: \
-    $(slicedir)\IceGrid\Locator.ice \
-    $(slicedir)/Ice/Locator.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/ProcessF.ice
+Locator.h: \
+    "$(slicedir)\IceGrid\Locator.ice" \
+    "$(slicedir)/Ice/Locator.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/ProcessF.ice"
 
-Observer.cpp: \
-    $(slicedir)\IceGrid\Observer.ice \
-    $(slicedir)/Glacier2/Session.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Glacier2/SSLInfo.ice \
-    $(slicedir)/IceGrid/Exception.ice \
-    $(slicedir)/IceGrid/Descriptor.ice \
-    $(slicedir)/IceGrid/Admin.ice \
-    $(slicedir)/Ice/Properties.ice \
-    $(slicedir)/Ice/PropertiesAdmin.ice \
-    $(slicedir)/Ice/SliceChecksumDict.ice
+Observer.h: \
+    "$(slicedir)\IceGrid\Observer.ice" \
+    "$(slicedir)/Glacier2/Session.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Glacier2/SSLInfo.ice" \
+    "$(slicedir)/IceGrid/Exception.ice" \
+    "$(slicedir)/IceGrid/Descriptor.ice" \
+    "$(slicedir)/IceGrid/Admin.ice" \
+    "$(slicedir)/Ice/Properties.ice" \
+    "$(slicedir)/Ice/PropertiesAdmin.ice" \
+    "$(slicedir)/Ice/SliceChecksumDict.ice"
 
-PluginFacade.cpp: \
-    $(slicedir)\IceGrid\PluginFacade.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
-    $(slicedir)/Ice/Current.ice \
-    $(slicedir)/Ice/ObjectAdapterF.ice \
-    $(slicedir)/Ice/ConnectionF.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/Version.ice \
-    $(slicedir)/IceGrid/Admin.ice \
-    $(slicedir)/Ice/Properties.ice \
-    $(slicedir)/Ice/PropertiesAdmin.ice \
-    $(slicedir)/Ice/SliceChecksumDict.ice \
-    $(slicedir)/Glacier2/Session.ice \
-    $(slicedir)/Glacier2/SSLInfo.ice \
-    $(slicedir)/IceGrid/Exception.ice \
-    $(slicedir)/IceGrid/Descriptor.ice
+PluginFacade.h: \
+    "$(slicedir)\IceGrid\PluginFacade.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/Current.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/ConnectionF.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/IceGrid/Admin.ice" \
+    "$(slicedir)/Ice/Properties.ice" \
+    "$(slicedir)/Ice/PropertiesAdmin.ice" \
+    "$(slicedir)/Ice/SliceChecksumDict.ice" \
+    "$(slicedir)/Glacier2/Session.ice" \
+    "$(slicedir)/Glacier2/SSLInfo.ice" \
+    "$(slicedir)/IceGrid/Exception.ice" \
+    "$(slicedir)/IceGrid/Descriptor.ice"
 
-Query.cpp: \
-    $(slicedir)\IceGrid\Query.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
-    $(slicedir)/IceGrid/Exception.ice
+Query.h: \
+    "$(slicedir)\IceGrid\Query.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/IceGrid/Exception.ice"
 
-Registry.cpp: \
-    $(slicedir)\IceGrid\Registry.ice \
-    $(slicedir)/IceGrid/Exception.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
-    $(slicedir)/IceGrid/Session.ice \
-    $(slicedir)/Glacier2/Session.ice \
-    $(slicedir)/Glacier2/SSLInfo.ice \
-    $(slicedir)/IceGrid/Admin.ice \
-    $(slicedir)/Ice/Properties.ice \
-    $(slicedir)/Ice/PropertiesAdmin.ice \
-    $(slicedir)/Ice/SliceChecksumDict.ice \
-    $(slicedir)/IceGrid/Descriptor.ice
+Registry.h: \
+    "$(slicedir)\IceGrid\Registry.ice" \
+    "$(slicedir)/IceGrid/Exception.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/IceGrid/Session.ice" \
+    "$(slicedir)/Glacier2/Session.ice" \
+    "$(slicedir)/Glacier2/SSLInfo.ice" \
+    "$(slicedir)/IceGrid/Admin.ice" \
+    "$(slicedir)/Ice/Properties.ice" \
+    "$(slicedir)/Ice/PropertiesAdmin.ice" \
+    "$(slicedir)/Ice/SliceChecksumDict.ice" \
+    "$(slicedir)/IceGrid/Descriptor.ice"
 
-Session.cpp: \
-    $(slicedir)\IceGrid\Session.ice \
-    $(slicedir)/Glacier2/Session.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Glacier2/SSLInfo.ice \
-    $(slicedir)/IceGrid/Exception.ice
+Session.h: \
+    "$(slicedir)\IceGrid\Session.ice" \
+    "$(slicedir)/Glacier2/Session.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Glacier2/SSLInfo.ice" \
+    "$(slicedir)/IceGrid/Exception.ice"
 
-UserAccountMapper.cpp: \
-    $(slicedir)\IceGrid\UserAccountMapper.ice
+UserAccountMapper.h: \
+    "$(slicedir)\IceGrid\UserAccountMapper.ice"
 
 DiscoveryPluginI.obj: \
 	DiscoveryPluginI.cpp \

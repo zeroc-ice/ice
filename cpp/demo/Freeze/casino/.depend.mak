@@ -1,11 +1,11 @@
 
-Casino.cpp: \
+Casino.h: \
     Casino.ice
 
-CasinoStore.cpp: \
+CasinoStore.h: \
     CasinoStore.ice \
     ./Casino.ice \
-    $(slicedir)/Ice/Identity.ice
+    "$(slicedir)/Ice/Identity.ice"
 
 Casino.obj: \
 	Casino.cpp \

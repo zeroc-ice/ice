@@ -1,5 +1,5 @@
 
-Single.cpp: \
+Single.h: \
     Single.ice
 
 Single.obj: \

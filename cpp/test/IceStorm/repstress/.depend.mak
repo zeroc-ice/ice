@@ -1,8 +1,8 @@
 
-Single.cpp: \
+Single.h: \
     Single.ice
 
-Controller.cpp: \
+Controller.h: \
     Controller.ice
 
 Single.obj: \

@@ -1,5 +1,5 @@
 
-Context.cpp: \
+Context.h: \
     Context.ice
 
 Context.obj: \

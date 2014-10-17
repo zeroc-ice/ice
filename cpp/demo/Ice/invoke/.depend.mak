@@ -1,5 +1,5 @@
 
-Printer.cpp: \
+Printer.h: \
     Printer.ice
 
 Printer.obj: \

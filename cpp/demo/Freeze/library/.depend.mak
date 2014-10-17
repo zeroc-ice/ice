@@ -1,5 +1,5 @@
 
-Library.cpp: \
+Library.h: \
     Library.ice
 
 Library.obj: \

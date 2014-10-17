@@ -1,8 +1,8 @@
 
-Test.cpp: \
+Test.h: \
     Test.ice
 
-TestAMD.cpp: \
+TestAMD.h: \
     TestAMD.ice
 
 Test.obj: \

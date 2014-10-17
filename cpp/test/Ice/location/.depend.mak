@@ -1,9 +1,9 @@
 
-Test.cpp: \
+Test.h: \
     Test.ice \
-    $(slicedir)/Ice/Locator.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/ProcessF.ice
+    "$(slicedir)/Ice/Locator.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/ProcessF.ice"
 
 Test.obj: \
 	Test.cpp \

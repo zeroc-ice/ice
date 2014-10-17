@@ -1,5 +1,5 @@
 
-TestOld.cpp: \
+TestOld.h: \
     TestOld.ice
 
 TestOld.obj: \

@@ -1,65 +1,65 @@
 
-BackgroundSaveEvictor.cpp: \
-    $(slicedir)\Freeze\BackgroundSaveEvictor.ice \
-    $(slicedir)/Freeze/Evictor.ice \
-    $(slicedir)/Ice/ObjectAdapterF.ice \
-    $(slicedir)/Ice/ServantLocator.ice \
-    $(slicedir)/Ice/Current.ice \
-    $(slicedir)/Ice/ConnectionF.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/Version.ice \
-    $(slicedir)/Freeze/Exception.ice
+BackgroundSaveEvictor.h: \
+    "$(slicedir)\Freeze\BackgroundSaveEvictor.ice" \
+    "$(slicedir)/Freeze/Evictor.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/ServantLocator.ice" \
+    "$(slicedir)/Ice/Current.ice" \
+    "$(slicedir)/Ice/ConnectionF.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/Freeze/Exception.ice"
 
-CatalogData.cpp: \
-    $(slicedir)\Freeze\CatalogData.ice
+CatalogData.h: \
+    "$(slicedir)\Freeze\CatalogData.ice"
 
-Connection.cpp: \
-    $(slicedir)\Freeze\Connection.ice \
-    $(slicedir)/Freeze/Transaction.ice \
-    $(slicedir)/Ice/Version.ice \
-    $(slicedir)/Ice/CommunicatorF.ice
+Connection.h: \
+    "$(slicedir)\Freeze\Connection.ice" \
+    "$(slicedir)/Freeze/Transaction.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/Ice/CommunicatorF.ice"
 
-ConnectionF.cpp: \
-    $(slicedir)\Freeze\ConnectionF.ice
+ConnectionF.h: \
+    "$(slicedir)\Freeze\ConnectionF.ice"
 
-DB.cpp: \
-    $(slicedir)\Freeze\DB.ice
+DB.h: \
+    "$(slicedir)\Freeze\DB.ice"
 
-Evictor.cpp: \
-    $(slicedir)\Freeze\Evictor.ice \
-    $(slicedir)/Ice/ObjectAdapterF.ice \
-    $(slicedir)/Ice/ServantLocator.ice \
-    $(slicedir)/Ice/Current.ice \
-    $(slicedir)/Ice/ConnectionF.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/Version.ice \
-    $(slicedir)/Freeze/Exception.ice
+Evictor.h: \
+    "$(slicedir)\Freeze\Evictor.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/ServantLocator.ice" \
+    "$(slicedir)/Ice/Current.ice" \
+    "$(slicedir)/Ice/ConnectionF.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/Freeze/Exception.ice"
 
-EvictorF.cpp: \
-    $(slicedir)\Freeze\EvictorF.ice
+EvictorF.h: \
+    "$(slicedir)\Freeze\EvictorF.ice"
 
-EvictorStorage.cpp: \
-    $(slicedir)\Freeze\EvictorStorage.ice \
-    $(slicedir)/Ice/Identity.ice
+EvictorStorage.h: \
+    "$(slicedir)\Freeze\EvictorStorage.ice" \
+    "$(slicedir)/Ice/Identity.ice"
 
-Exception.cpp: \
-    $(slicedir)\Freeze\Exception.ice
+Exception.h: \
+    "$(slicedir)\Freeze\Exception.ice"
 
-Transaction.cpp: \
-    $(slicedir)\Freeze\Transaction.ice
+Transaction.h: \
+    "$(slicedir)\Freeze\Transaction.ice"
 
-TransactionalEvictor.cpp: \
-    $(slicedir)\Freeze\TransactionalEvictor.ice \
-    $(slicedir)/Freeze/Evictor.ice \
-    $(slicedir)/Ice/ObjectAdapterF.ice \
-    $(slicedir)/Ice/ServantLocator.ice \
-    $(slicedir)/Ice/Current.ice \
-    $(slicedir)/Ice/ConnectionF.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/Version.ice \
-    $(slicedir)/Freeze/Exception.ice
+TransactionalEvictor.h: \
+    "$(slicedir)\Freeze\TransactionalEvictor.ice" \
+    "$(slicedir)/Freeze/Evictor.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/ServantLocator.ice" \
+    "$(slicedir)/Ice/Current.ice" \
+    "$(slicedir)/Ice/ConnectionF.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/Freeze/Exception.ice"
 
-PingObject.cpp: \
+PingObject.h: \
     PingObject.ice
 
 BackgroundSaveEvictorI.obj: \
