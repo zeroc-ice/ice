@@ -427,9 +427,16 @@ final class WSTransceiver implements Transceiver
         }
         while(postRead(buf));
 
-        moreData.value |= _readBufferPos < _readBuffer.b.position();
-
-        s = !buf.b.hasRemaining() ? SocketOperation.None : SocketOperation.Read;
+        if(!buf.b.hasRemaining())
+        {
+            moreData.value |= _readBufferPos < _readBuffer.b.position();
+            s = SocketOperation.None;
+        }
+        else
+        {
+            moreData.value = false;
+            s = SocketOperation.Read;
+        }
 
         if(((_state == StateClosingRequestPending && !_closingInitiator) ||
             (_state == StateClosingResponsePending && _closingInitiator) ||
@@ -937,8 +944,8 @@ final class WSTransceiver implements Transceiver
                 {
                     if(_instance.traceLevel() >= 2)
                     {
-                        _instance.logger().trace(_instance.traceCategory(),
-                            "received " + protocol() + " connection close frame\n" + toString());
+                        _instance.logger().trace(_instance.traceCategory(), "received " + protocol() + 
+                                                 " connection close frame\n" + toString());
                     }
 
                     int s = _nextState == StateOpened ? _state : _nextState;
