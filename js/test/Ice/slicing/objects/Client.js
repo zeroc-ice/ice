@@ -74,7 +74,7 @@
             function(obj)
             {
                 prx = obj;
-                test(prx != null);
+                test(prx !== null);
                 test(prx.equals(base));
                 out.writeLine("ok");
                 out.write("base as Object... ");
@@ -190,7 +190,7 @@
                 test(b1.sb == "B1.sb");
 
                 var b2 = b1.pb;
-                test(b2 != null);
+                test(b2 !== null);
                 test(b2.ice_id() == "::Test::B");
                 test(b2.sb == "B2.sb");
                 test(b2.pb == b1);
@@ -221,7 +221,7 @@
         ).then(
             function(b2)
             {
-                test(b2 != null);
+                test(b2 !== null);
                 test(b2.ice_id() == "::Test::B");
                 test(b2.sb == "D2.sb");
                 test(b2.pb !== null);
@@ -566,13 +566,13 @@
         ).then(
             function(ret, boutH)
             {
-                var i;
+                var i, b, s;
                 test(boutH.size === 10);
                 for(i = 0; i < 10; ++i)
                 {
-                    var b = boutH.get(i * 10);
+                    b = boutH.get(i * 10);
                     test(b !== null);
-                    var s = "D1." + i;
+                    s = "D1." + i;
                     test(b.sb == s);
                     test(b.pb !== null);
                     test(b.pb !== b);
@@ -583,9 +583,9 @@
                 test(ret.size === 10);
                 for(i = 0; i < 10; ++i)
                 {
-                    var b = ret.get(i * 20);
+                    b = ret.get(i * 20);
                     test(b !== null);
-                    var s = "D1." + (i * 20);
+                    s = "D1." + (i * 20);
                     test(b.sb == s);
                     test(b.pb === (i === 0 ? null : ret.get((i - 1) * 20)));
                     test(b.sd1 == s);
@@ -754,6 +754,8 @@
         ).then(
             function(r)
             {
+                var p2;
+
                 if(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0))
                 {
                     test(!(r instanceof Test.CompactPCDerived));
@@ -761,7 +763,7 @@
                 }
                 else
                 {
-                    var p2 = r;
+                    p2 = r;
                     test(p2.pi === 3);
                     test(p2.pbs[0] === p2);
                 }
@@ -779,7 +781,7 @@
                 pcd.pbs = new Array(300);
                 for(var i = 0; i < 300; ++i)
                 {
-                    var p2 = new Test.PCDerived2();
+                    p2 = new Test.PCDerived2();
                     p2.pi = i;
                     p2.pbs = [ null ]; // Nil reference. This slice should not have an indirection table.
                     p2.pcd2 = i;

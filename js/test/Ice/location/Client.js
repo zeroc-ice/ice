@@ -16,7 +16,7 @@
 
     var allTests = function(out, communicator)
     {
-        var failCB = function() { test(false); }
+        var failCB = function() { test(false); };
 
         var p = new Ice.Promise();
         var test = function(b)
@@ -96,7 +96,7 @@
                 test(Ice.proxyIdentityCompare(base.ice_getRouter(), communicator.getDefaultRouter()) === 0);
                 communicator.setDefaultRouter(null);
                 base = communicator.stringToProxy("test @ TestAdapter");
-                test(base.ice_getRouter() == null);
+                test(base.ice_getRouter() === null);
                 out.writeLine("ok");
 
                 out.write("starting server... ");
@@ -1205,7 +1205,7 @@
 
                 var prx = communicator.stringToProxy("test@TestAdapter").ice_encodingVersion(
                                                                                         Ice.Encoding_1_1);
-                return prx.ice_ping().then(
+                prx.ice_ping().then(
                     function()
                     {
                         return locator.getRequestCount();
@@ -1251,7 +1251,7 @@
         ).then(
             function()
             {
-                out.writeLine("ok")
+                out.writeLine("ok");
                 out.write("shutdown server... ");
                 return obj.shutdown();
             }

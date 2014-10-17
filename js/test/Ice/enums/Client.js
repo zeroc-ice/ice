@@ -13,7 +13,7 @@
     var Test = require("Test").Test;
 
     var Promise = Ice.Promise;
-        
+
     var allTests = function(out, communicator)
     {
         var p = new Ice.Promise();
@@ -32,7 +32,7 @@
                 }
             }
         };
-        
+
         var base, proxy;
         Promise.try(
             function()
@@ -134,7 +134,7 @@
                 test(Test.SimpleEnum.valueOf(0) === Test.SimpleEnum.red);
                 test(Test.SimpleEnum.valueOf(1) === Test.SimpleEnum.green);
                 test(Test.SimpleEnum.valueOf(2) === Test.SimpleEnum.blue);
-                
+
                 out.writeLine("ok");
             }
         ).then(
@@ -208,7 +208,7 @@
             },
             function(ex)
             {
-                p.fail(ex)
+                p.fail(ex);
             }
         );
         return p;

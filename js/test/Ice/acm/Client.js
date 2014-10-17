@@ -63,15 +63,16 @@
             this._name = name;
             this._com = com;
             this._logger = new LoggerI(out);
-        
+            this._msg = null;
+
             this._clientACMTimeout = -1;
             this._clientACMClose = -1;
             this._clientACMHeartbeat = -1;
-        
+
             this._serverACMTimeout = -1;
             this._serverACMClose = -1;
             this._serverACMHeartbeat = -1;
-        
+
             this._heartbeat = 0;
             this._closed = false;
         },
@@ -98,8 +99,8 @@
             this._communicator = Ice.initialize(initData);
 
             var self = this;
-            return this._com.createObjectAdapter(this._serverACMTimeout, 
-                                                 this._serverACMClose, 
+            return this._com.createObjectAdapter(this._serverACMTimeout,
+                                                 this._serverACMClose,
                                                  this._serverACMHeartbeat).then(function(adapter)
                                                                                 {
                                                                                     self._adapter = adapter;
@@ -117,7 +118,7 @@
         {
             this._logger.dump();
             out.write("testing " + this._name + "... ");
-            if(this._msg == null)
+            if(this._msg === null)
             {
                 out.writeLine("ok");
             }
@@ -177,7 +178,7 @@
     });
 
     var InvocationHeartbeatTest = Ice.Class(TestCase, {
-        __init__: function(com, out) 
+        __init__: function(com, out)
         {
             TestCase.call(this, "invocation heartbeat", com, out);
         },
@@ -241,7 +242,7 @@
                 },
                 function(ex)
                 {
-                    test(self._heartbeat == 0);
+                    test(self._heartbeat === 0);
                     test(self._closed);
                     return proxy.interruptSleep();
                 }
@@ -261,9 +262,9 @@
             // No close on invocation, the call should succeed this
             // time.
             var self = this;
-            return proxy.sleep(2).then(function() 
+            return proxy.sleep(2).then(function()
                                        {
-                                           test(self._heartbeat == 0);
+                                           test(self._heartbeat === 0);
                                            test(!self._closed);
                                        });
         }
@@ -280,12 +281,12 @@
             var self = this;
             return Ice.Promise.delay(1500).then(function()
                                                 {
-                                                    test(self._heartbeat == 0);
+                                                    test(self._heartbeat === 0);
                                                     test(self._closed);
                                                 });
         }
     });
-        
+
     var CloseOnInvocationTest = Ice.Class(TestCase, {
         __init__: function(com, out)
         {
@@ -297,12 +298,12 @@
             var self = this;
             return Ice.Promise.delay(1500).then(function()
                                                 {
-                                                    test(self._heartbeat == 0);
+                                                    test(self._heartbeat === 0);
                                                     test(!self._closed);
                                                 });
         }
     });
-    
+
     var CloseOnIdleAndInvocationTest = Ice.Class(TestCase, {
         __init__: function(com, out)
         {
@@ -320,7 +321,7 @@
             return adapter.hold().delay(1500).then(
                 function()
                 {
-                    test(self._heartbeat == 0);
+                    test(self._heartbeat === 0);
                     test(!self._closed); // Not closed yet because of graceful close.
                     return adapter.activate();
                 }
@@ -345,12 +346,12 @@
             return adapter.hold().delay(1500).then(
                 function()
                 {
-                    test(self._heartbeat == 0);
+                    test(self._heartbeat === 0);
                     test(self._closed); // Connection closed forcefully by ACM
                 });
         }
     });
-    
+
     var HeartbeatOnIdleTest = Ice.Class(TestCase, {
         __init__: function(com, out)
         {
@@ -378,12 +379,17 @@
         {
             var self = this;
             var p = new Ice.Promise().succeed();
+
+            // Use this function so we don't have a function defined
+            // inside of a loop
+            function icePing(prx)
+            {
+                return proxy.ice_ping();
+            }
+
             for(var i = 0; i < 12; ++i)
             {
-                p = p.then(function()
-                           {
-                               return proxy.ice_ping();
-                           }).delay(200);
+                p = p.then(icePing(proxy)).delay(200);
             }
             return p.then(function()
                           {
@@ -405,21 +411,21 @@
             test(acm.timeout === 15);
             test(acm.close === Ice.ACMClose.CloseOnIdleForceful);
             test(acm.heartbeat === Ice.ACMHeartbeat.HeartbeatOnIdle);
-        
+
             proxy.ice_getCachedConnection().setACM(undefined, undefined, undefined);
             acm = proxy.ice_getCachedConnection().getACM();
             test(acm.timeout === 15);
             test(acm.close === Ice.ACMClose.CloseOnIdleForceful);
             test(acm.heartbeat === Ice.ACMHeartbeat.HeartbeatOnIdle);
 
-            proxy.ice_getCachedConnection().setACM(20, 
-                                                   Ice.ACMClose.CloseOnInvocationAndIdle, 
+            proxy.ice_getCachedConnection().setACM(20,
+                                                   Ice.ACMClose.CloseOnInvocationAndIdle,
                                                    Ice.ACMHeartbeat.HeartbeatOnInvocation);
             acm = proxy.ice_getCachedConnection().getACM();
             test(acm.timeout === 20);
             test(acm.close === Ice.ACMClose.CloseOnInvocationAndIdle);
             test(acm.heartbeat === Ice.ACMHeartbeat.HeartbeatOnInvocation);
-            
+
             return new Ice.Promise().succeed();
         }
     });
@@ -428,13 +434,13 @@
     {
         var ref = "communicator:default -p 12010";
         var com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
-        
+
         var tests = [];
         //
         // Skip some tests with IE it opens too many connections and
         // IE doesn't allow more than 6 connections.
         //
-        if(typeof(navigator) !== "undefined" && 
+        if(typeof(navigator) !== "undefined" &&
            (navigator.userAgent.indexOf("MSIE") != -1 || navigator.userAgent.indexOf("Trident/7.0") != -1))
         {
             tests.push(new HeartbeatOnIdleTest(com, out));
@@ -447,17 +453,17 @@
             tests.push(new InvocationHeartbeatOnHoldTest(com, out));
             tests.push(new InvocationNoHeartbeatTest(com, out));
             tests.push(new InvocationHeartbeatCloseOnIdleTest(com, out));
-            
+
             tests.push(new CloseOnIdleTest(com, out));
             tests.push(new CloseOnInvocationTest(com, out));
             tests.push(new CloseOnIdleAndInvocationTest(com, out));
             tests.push(new ForcefullCloseOnIdleAndInvocationTest(com, out));
-            
+
             tests.push(new HeartbeatOnIdleTest(com, out));
             tests.push(new HeartbeatAlwaysTest(com, out));
             tests.push(new SetACMTest(com, out));
         }
-        
+
         var promises = [];
         for(var test in tests)
         {

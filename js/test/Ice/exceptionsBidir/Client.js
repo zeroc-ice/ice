@@ -94,7 +94,6 @@
                 return communicator.destroy();
             }
         );
-        return p;
     };
     exports.__test__ = run;
     exports.__runEchoServer__ = true;

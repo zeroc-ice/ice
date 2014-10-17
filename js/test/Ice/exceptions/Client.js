@@ -184,7 +184,7 @@
                         catch(ex)
                         {
                             test(ex instanceof Ice.IllegalIdentityException);
-                            test(ex.id.name == "");
+                            test(ex.id.name === "");
                         }
                         try
                         {

@@ -98,26 +98,26 @@
                 out.writeLine("ok");
                 out.write("invoking proxy operations on class hierarchy... ");
                 return Promise.all(
-                    ca.caop(ca), // r1
-                    ca.caop(cb), // r2
-                    ca.caop(cc), // r3
-                    cb.caop(ca), // r4
-                    cb.caop(cb), // r5
-                    cb.caop(cc), // r6
-                    cc.caop(ca), // r7
-                    cc.caop(cb), // r8
-                    cc.caop(cc), // r9
-                    cb.cbop(cb), // r10
-                    cb.cbop(cb), // r11
-                    cb.cbop(cc), // r12
-                    cb.cbop(cc), // r13
-                    cc.cbop(cb), // r14
-                    cc.cbop(cb), // r15
-                    cc.cbop(cc), // r16
-                    cc.cbop(cc), // r17
-                    cc.ccop(cc), // r18
-                    cc.ccop(cc), // r19
-                    cc.ccop(cc)) // r20
+                    ca.caop(ca),  // r1
+                    ca.caop(cb),  // r2
+                    ca.caop(cc),  // r3
+                    cb.caop(ca),  // r4
+                    cb.caop(cb),  // r5
+                    cb.caop(cc),  // r6
+                    cc.caop(ca),  // r7
+                    cc.caop(cb),  // r8
+                    cc.caop(cc),  // r9
+                    cb.cbop(cb),  // r10
+                    cb.cbop(cb),  // r11
+                    cb.cbop(cc),  // r12
+                    cb.cbop(cc),  // r13
+                    cc.cbop(cb),  // r14
+                    cc.cbop(cb),  // r15
+                    cc.cbop(cc),  // r16
+                    cc.cbop(cc),  // r17
+                    cc.ccop(cc),  // r18
+                    cc.ccop(cc),  // r19
+                    cc.ccop(cc)); // r20
             }
         ).then(
             function(r1, r2, r3, r4, r5, r6, r7, r8, r9, r10,

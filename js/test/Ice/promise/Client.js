@@ -67,7 +67,7 @@
                             function(i)
                             {
                                 promise.fail();
-                                test(false, e);
+                                test(false, i);
                             },
                             function(e)
                             {
@@ -182,7 +182,7 @@
                             function(i)
                             {
                                 promise.fail();
-                                test(false, e);
+                                test(false, i);
                             },
                             function(e)
                             {
@@ -240,7 +240,7 @@
                             function(i)
                             {
                                 promise.fail();
-                                test(false, e);
+                                test(false, i);
                             },
                             function(e)
                             {
@@ -251,7 +251,7 @@
                             function(i)
                             {
                                 promise.fail();
-                                test(false, e);
+                                test(false, i);
                             },
                             function(e)
                             {
@@ -865,7 +865,7 @@
                         p.then(
                             function()
                             {
-                                f = new Promise();
+                                var f = new Promise();
                                 start = Date.now();
                                 return f.fail("failed").delay(500).then(
                                     function(i)

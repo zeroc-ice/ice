@@ -148,7 +148,7 @@
             function()
             {
                 out.writeLine("testing bidir callbacks with synchronous dispatch...");
-                return allTests(out, communicator)
+                return allTests(out, communicator);
             }
         ).then(
             function()

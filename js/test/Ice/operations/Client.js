@@ -95,7 +95,7 @@
             }
         );
     };
-    exports.__test__ = run
+    exports.__test__ = run;
     exports.__clientAllTests__ = allTests;
     exports.__runServer__ = true;
 }

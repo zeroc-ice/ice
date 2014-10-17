@@ -11,7 +11,7 @@
 {
     var Ice = require("icejs").Ice;
     var Promise = Ice.Promise;
-    
+
     var test = function(b)
     {
         if(!b)
@@ -26,7 +26,7 @@
             function()
             {
                 out.write("testing configuration file escapes... ");
-                var props = 
+                var props =
                     {
                         "Foo\tBar": "3",
                         "Foo\\tBar": "4",
@@ -50,7 +50,7 @@
                         "AServer": "\\\\server\\dir",
                         "BServer": "\\server\\dir"
                     };
-                
+
                 var properties = Ice.createProperties();
                 if(typeof(require("fs").readFileSync) == "function")
                 {
@@ -69,9 +69,10 @@
                     // We are runing in a web browser load the properties file from the web server.
                     //
                     var p = new Promise();
+                    /*jshint jquery: true */
                     $.ajax(
                     {
-                        url: "escapes.cfg", 
+                        url: "escapes.cfg",
                         //
                         // Use text data type to avoid problems interpreting the data.
                         //

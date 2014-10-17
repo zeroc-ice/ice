@@ -22,13 +22,13 @@
             return new Promise.succeed();
         }
         var p = null;
-        array.forEach(function(e) 
+        array.forEach(function(e)
                       {
                           p = p ? p.then(fn(e)) : fn(e);
                       });
         return p;
-    }
-    
+    };
+
     var communicator;
     var com;
     var allTests = function(out, initData)
@@ -54,13 +54,13 @@
                     }
                 });
         };
-        
+
         var createTestIntfPrx = function(adapters)
         {
             var endpoints = [];
             var closePromises = [];
             var p = null;
-            
+
             return Promise.all(adapters.map(function(adapter){ return adapter.getTestIntf(); })).then(
                 function()
                 {
@@ -76,7 +76,7 @@
                     return Test.TestIntfPrx.uncheckedCast(p.ice_endpoints(endpoints));
                 });
         };
-        
+
         var deactivate = function(communicator, adapters)
         {
             var f1 = function(adapters)
@@ -87,14 +87,14 @@
                     {
                         if(adapters.length > 0)
                         {
-                            f1(adapters)
+                            f1(adapters);
                         }
                     }
                 );
             };
             return f1(ArrayUtil.clone(adapters));
         };
-        
+
         var p = new Ice.Promise();
         var test = function(b)
         {
@@ -111,7 +111,7 @@
                 }
             }
         };
-        
+
         var ref, adapter, test1, test2, test3, conn1, conn2, conn3, adapters, names, prx;
 
         Promise.try(
@@ -127,12 +127,12 @@
                 com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
                 test(com !== null);
                 out.writeLine("ok");
-                
+
                 out.write("testing binding with single endpoint... ");
-                adapter, test1, test2, test3, conn1, conn2, conn3;
+                var adapter, test1, test2, test3, conn1, conn2, conn3;
                 adapters = [];
                 names = ["Adapter11", "Adapter12", "Adapter13"];
-            
+
                 return com.createObjectAdapter("Adapter", "default");
             }
         ).then(
@@ -146,7 +146,7 @@
             {
                 test1 = r1[0];
                 test2 = r2[0];
-                
+
                 return Promise.all(test1.ice_getConnection(), test2.ice_getConnection());
             }
         ).then(
@@ -203,7 +203,7 @@
             function()
             {
                 out.write("testing binding with multiple endpoints... ");
-                
+
                 return Promise.all(
                     com.createObjectAdapter("Adapter11", "default"),
                     com.createObjectAdapter("Adapter12", "default"),
@@ -278,7 +278,7 @@
                             }
                         }
                     );
-                }
+                };
                 return f1(ArrayUtil.clone(names));
             }
         ).then(
@@ -288,7 +288,7 @@
                 // Ensure that the proxy correctly caches the connection (we
                 // always send the request over the same connection.)
                 //
-                return Promise.all(adapters.map(function(adapter) 
+                return Promise.all(adapters.map(function(adapter)
                                                 {
                                                     return adapter.getTestIntf().then(
                                                         function(p)
@@ -306,7 +306,7 @@
                         var i = 0;
                         var nRetry = 10;
                         var adapterName;
-                        
+
                         var f1 = function()
                         {
                             return test1.getAdapterName().then(
@@ -324,7 +324,7 @@
                                 }
                             );
                         };
-                        
+
                         return test1.getAdapterName().then(
                             function(name)
                             {
@@ -337,7 +337,7 @@
         ).then(
             function()
             {
-                return Promise.all(adapters.map(function(adapter) 
+                return Promise.all(adapters.map(function(adapter)
                                                 {
                                                     return adapter.getTestIntf().then(
                                                         function(p)
@@ -385,7 +385,7 @@
                             return test1.ice_getConnection().then(
                                 function(conn)
                                 {
-                                    conn1 = conn
+                                    conn1 = conn;
                                     return test2.ice_getConnection();
                                 }
                             ).then(
@@ -402,7 +402,7 @@
                             return test2.ice_getConnection().then(
                                 function(conn)
                                 {
-                                    conn1 = conn
+                                    conn1 = conn;
                                     return test3.ice_getConnection();
                                 }
                             ).then(
@@ -474,13 +474,13 @@
             function()
             {
                 //
-                // Skip this test with IE it open too many connections IE doesn't allow more 
+                // Skip this test with IE it open too many connections IE doesn't allow more
                 // than 6 connections. Firefox has a configuration that causes failed connections
-                // to be delayed on retry (network.websocket.delay-failed-reconnects=true by 
+                // to be delayed on retry (network.websocket.delay-failed-reconnects=true by
                 // default), so we prefer to also disable this test with Firefox.
                 //
-                if(typeof(navigator) !== "undefined" && 
-                   (navigator.userAgent.indexOf("MSIE") !== -1 || 
+                if(typeof(navigator) !== "undefined" &&
+                   (navigator.userAgent.indexOf("MSIE") !== -1 ||
                     navigator.userAgent.indexOf("Trident/7.0") ||
                     navigator.userAgent.indexOf("Firefox") !== -1))
                 {
@@ -491,9 +491,9 @@
                 names = ["AdapterRandom11", "AdapterRandom12", "AdapterRandom13", "AdapterRandom14", "AdapterRandom15"];
 
                 return Promise.all(
-                    names.map(function(name) 
+                    names.map(function(name)
                               {
-                                  return com.createObjectAdapter(name, "default"); 
+                                  return com.createObjectAdapter(name, "default");
                               })
                 ).then(
                     function()
@@ -522,7 +522,7 @@
                                         {
                                             adpts[j] = adapters[nextInt(adapters.length)];
                                         }
-                                        
+
                                         return createTestIntfPrx(adpts).then(
                                             function(prx)
                                             {
@@ -537,7 +537,7 @@
                                                 }
                                             });
                                     };
-                                    
+
                                     return f2(0);
                                 }
                             ).then(
@@ -546,7 +546,7 @@
                                     return Ice.Promise.try(
                                         function()
                                         {
-                                            return forEach(proxies, 
+                                            return forEach(proxies,
                                                            function(p)
                                                            {
                                                                p.getAdapterName();
@@ -555,7 +555,7 @@
                                     ).then(
                                         function()
                                         {
-                                            return forEach(proxies,                                    
+                                            return forEach(proxies,
                                                            function(proxy)
                                                            {
                                                                return proxy.ice_ping().exception(
@@ -584,7 +584,7 @@
                                             test(connections.length <= adapters.length);
 
                                             return Promise.all(adapters.map(
-                                                function(adapter) 
+                                                function(adapter)
                                                 {
                                                     return adapter.getTestIntf().then(
                                                         function(p)
@@ -653,7 +653,7 @@
             function(prx)
             {
                 test(prx.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random);
-                
+
                 var f1 = function()
                 {
                     return prx.getAdapterName().then(
@@ -684,7 +684,7 @@
                         }
                     );
                 };
-                
+
                 return f1();
             }
         ).then(
@@ -782,7 +782,7 @@
                                     {
                                         if(names.length > 1)
                                         {
-                                            names.shift()
+                                            names.shift();
                                             return f1(0, ++idx, names);
                                         }
                                     }
@@ -791,7 +791,7 @@
                         }
                     );
                 };
-                
+
                 return f1(0, 0, ArrayUtil.clone(names));
             }
         ).then(
@@ -845,7 +845,7 @@
                             return f2(0, names);
                         });
                 };
-                
+
                 return f1(0, ["Adapter36", "Adapter35", "Adapter34"]);
             }
         ).then(
@@ -856,7 +856,7 @@
         ).then(
             function(){
                 out.writeLine("ok");
-                return initialize
+                return initialize;
             }
         ).then(
             function()
@@ -873,7 +873,7 @@
                         function(obj)
                         {
                             test1 = Test.TestIntfPrx.uncheckedCast(obj.ice_connectionCached(false));
-                            return adapter.getTestIntf()
+                            return adapter.getTestIntf();
                         }
                     ).then(
                         function(obj)
@@ -932,7 +932,7 @@
             function()
             {
                 adapters = Array.prototype.slice.call(arguments).map(function(r) { return r[0]; });
-                
+
                 var f2 = function(prx)
                 {
                     return prx.getAdapterName().then(
@@ -952,7 +952,7 @@
                             }
                         });
                 };
-                
+
                 var f1 = function()
                 {
                     return createTestIntfPrx(adapters).then(
@@ -962,7 +962,7 @@
                             test(!prx.ice_isConnectionCached());
                             return f2(prx);
                         });
-                    
+
                 };
 
                 return f1().then(
@@ -1002,13 +1002,13 @@
         ).then(
             function()
             {
-                if(typeof(navigator) !== "undefined" && 
+                if(typeof(navigator) !== "undefined" &&
                    (navigator.userAgent.indexOf("Firefox") !== -1 ||
                     navigator.userAgent.indexOf("MSIE") !== -1 ||
                     navigator.userAgent.indexOf("Trident/7.0") !== -1))
                 {
                     //
-                    // Firefox adds a delay on websocket failed reconnects that causes this test to take too 
+                    // Firefox adds a delay on websocket failed reconnects that causes this test to take too
                     // much time to complete.
                     //
                     // You can set network.websocket.delay-failed-reconnects to false in Firefox about:config
@@ -1054,7 +1054,7 @@
                                             {
                                                 if(names.length > 1)
                                                 {
-                                                    names.shift()
+                                                    names.shift();
                                                     return f1(0, ++idx, names);
                                                 }
                                             }
@@ -1062,7 +1062,7 @@
                                     }
                                 });
                         };
-                        
+
                         return f1(0, 0, ArrayUtil.clone(names));
                     }
                 ).then(
@@ -1147,7 +1147,7 @@
             {
                 try
                 {
-                    allTests(out, id).then(function(){ 
+                    allTests(out, id).then(function(){
                             return communicator.destroy();
                         }).then(function(){
                             p.succeed();
@@ -1162,7 +1162,7 @@
             });
         return p;
     };
-    
+
     exports.__test__ = run;
     exports.__runServer__ = true;
 }

@@ -645,7 +645,7 @@
         ).then(
             function(p1, p2)
             {
-                test(p1.length === 100)
+                test(p1.length === 100);
                 test(p2.length === 100);
                 for(var i = 0; i < 100; ++i)
                 {
@@ -666,7 +666,7 @@
         ).then(
             function(p1, p2)
             {
-                test(p1.length === 100)
+                test(p1.length === 100);
                 test(p2.length === 100);
                 for(var i = 0; i < 100; ++i)
                 {
@@ -687,7 +687,7 @@
         ).then(
             function(p1, p2)
             {
-                test(p1.length === 100)
+                test(p1.length === 100);
                 test(p2.length === 100);
                 for(var i = 0; i < 100; ++i)
                 {
@@ -708,7 +708,7 @@
         ).then(
             function(p1, p2)
             {
-                test(p1.length === 100)
+                test(p1.length === 100);
                 test(p2.length === 100);
                 for(var i = 0; i < 100; ++i)
                 {
@@ -729,7 +729,7 @@
         ).then(
             function(p1, p2)
             {
-                test(p1.length === 100)
+                test(p1.length === 100);
                 test(p2.length === 100);
                 for(var i = 0; i < 100; ++i)
                 {
@@ -750,7 +750,7 @@
         ).then(
             function(p1, p2)
             {
-                test(p1.length === 100)
+                test(p1.length === 100);
                 test(p2.length === 100);
                 for(var i = 0; i < 100; ++i)
                 {
@@ -771,7 +771,7 @@
         ).then(
             function(p1, p2)
             {
-                test(p1.length === 100)
+                test(p1.length === 100);
                 test(p2.length === 100);
                 for(var i = 0; i < 100; ++i)
                 {
@@ -792,7 +792,7 @@
         ).then(
             function(p1, p2)
             {
-                test(p1.length === 100)
+                test(p1.length === 100);
                 test(p2.length === 100);
                 for(var i = 0; i < 100; ++i)
                 {
@@ -814,7 +814,7 @@
             function(p1, p2)
             {
                 var s = new Test.SmallStruct();
-                test(p1.length === 100)
+                test(p1.length === 100);
                 test(p2.length === 100);
                 for(var i = 0; i < 100; ++i)
                 {
@@ -836,7 +836,7 @@
             function(p1, p2)
             {
                 var s = new Test.FixedStruct();
-                test(p1.length === 100)
+                test(p1.length === 100);
                 test(p2.length === 100);
                 for(var i = 0; i < 100; ++i)
                 {
@@ -858,7 +858,7 @@
             function(p1, p2)
             {
                 var s = new Test.VarStruct("");
-                test(p1.length === 100)
+                test(p1.length === 100);
                 test(p2.length === 100);
                 for(var i = 0; i < 100; ++i)
                 {

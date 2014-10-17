@@ -111,7 +111,7 @@
 
     FI.prototype.checkValues = function(current)
     {
-        return this.e1 != null && this.e1 === this.e2;
+        return this.e1 !== null && this.e1 === this.e2;
     };
 
     var HI = function()
@@ -251,7 +251,7 @@
             function(obj)
             {
                 b2 = obj;
-                test(b2 != null);
+                test(b2 !== null);
                 out.writeLine("ok");
                 out.write("getting C... ");
                 return initial.getC();

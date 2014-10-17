@@ -13,7 +13,7 @@
     var Glacier2 = require("icejs").Glacier2;
     var Test = require("Callback").Test;
     var Promise = Ice.Promise;
-    
+
     var test = function(b)
     {
         if(!b)
@@ -21,10 +21,10 @@
             throw new Error("test failed");
         }
     };
-    
+
     var CallbackPrx = Test.CallbackPrx;
     var CallbackReceiverPrx = Test.CallbackReceiverPrx;
-    
+
     var CallbackReceiverI = function()
     {
         this._callback = false;
@@ -38,7 +38,7 @@
         test(!this._callback);
         this._p.succeed();
     };
-    
+
     CallbackReceiverI.prototype.callbackEx = function(current)
     {
         this.callback(current);
@@ -47,12 +47,12 @@
         ex.someString = "3.14";
         throw ex;
     };
-    
+
     CallbackReceiverI.prototype.callbackOK = function()
     {
         var p = new Promise();
         var self = this;
-        this._p.then(function(){ 
+        this._p.then(function(){
             p.succeed();
             this._callback = false;
             self._p = new Promise();
@@ -64,14 +64,14 @@
     {
         var p = new Promise();
 
-        var failCB = function () { test(false); }
+        var failCB = function () { test(false); };
 
         var router, base, session, twoway, oneway, category, processBase, process,
             adapter,callbackReceiverImpl,
             callbackReceiver,
             twowayR, onewayR,
             fakeTwowayR;
-            
+
         return Promise.try(
             function()
             {
@@ -79,7 +79,7 @@
                 var routerBase = communicator.stringToProxy("Glacier2/router:default -p 12347");
                 test(routerBase !== null);
                 out.writeLine("ok");
-                
+
                 out.write("testing checked cast for router... ");
                 return Glacier2.RouterPrx.checkedCast(routerBase);
             }
@@ -89,11 +89,11 @@
                 router = o;
                 test(router !== null);
                 out.writeLine("ok");
-                
+
                 out.write("installing router with communicator... ");
                 communicator.setDefaultRouter(router);
                 out.writeLine("ok");
-                
+
                 out.write("getting the session timeout... ");
                 return router.getSessionTimeout();
             }
@@ -102,11 +102,11 @@
             {
                 test(timeout.low === 30);
                 out.writeLine("ok");
-                
+
                 out.write("testing stringToProxy for server object... ");
                 base = communicator.stringToProxy("c1/callback:tcp -p 12010");
                 out.writeLine("ok");
-                
+
                 out.write("trying to ping server before session creation... ");
                 return base.ice_ping();
             }
@@ -125,7 +125,7 @@
             {
                 test(ex instanceof Glacier2.PermissionDeniedException);
                 out.writeLine("ok");
-                
+
                 out.write("trying to destroy non-existing session... ");
                 return router.destroySession();
             }
@@ -144,7 +144,7 @@
             {
                 session = s;
                 out.writeLine("ok");
-                
+
                 out.write("trying to create a second session... ");
                 return router.createSession("userid", "abc123");
             }
@@ -154,7 +154,7 @@
             {
                 test(ex instanceof Glacier2.CannotCreateSessionException);
                 out.writeLine("ok");
-                
+
                 out.write("pinging server after session creation... ");
                 return base.ice_ping();
             }
@@ -162,7 +162,7 @@
             function()
             {
                 out.writeLine("ok");
-                
+
                 out.write("testing checked cast for server object... ");
                 return Test.CallbackPrx.checkedCast(base);
             }
@@ -324,7 +324,7 @@
             function()
             {
                 out.writeLine("ok");
-                
+
                 out.write("destroying session... ");
                 return router.destroySession();
             }
@@ -332,7 +332,7 @@
             function()
             {
                 out.writeLine("ok");
-                
+
                 out.write("trying to ping server after session destruction... ");
                 return base.ice_ping();
             }
@@ -342,15 +342,15 @@
             {
                 test(ex instanceof Ice.ConnectionLostException);
                 out.writeLine("ok");
-                
+
                 out.write("uninstalling router with communicator... ");
                 communicator.setDefaultRouter(null);
                 out.writeLine("ok");
-                
+
                 out.write("testing stringToProxy for process object... ");
                 processBase = communicator.stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348");
                 out.writeLine("ok");
-                
+
                 out.write("testing checked cast for admin object... ");
                 return Ice.ProcessPrx.checkedCast(processBase);
             }
@@ -360,7 +360,7 @@
                 process = o;
                 test(process !== null);
                 out.writeLine("ok");
-                
+
                 out.write("testing Glacier2 shutdown... ");
                 return process.shutdown();
             }

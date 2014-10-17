@@ -34,9 +34,11 @@
 
         var result = null;
         var p = Test.TestIntfPrx.uncheckedCast(communicator.stringToProxy("test:default -p 12010"));
-        var testController = 
+        var testController =
             Test.TestIntfControllerPrx.uncheckedCast(communicator.stringToProxy("testController:default -p 12011"));
+        var r = null;
         var b1 = null;
+        var b2 = null;
 
         Promise.try(
             function()
@@ -45,7 +47,7 @@
                 return p.opBatchCount().then(
                     function(count)
                     {
-                        test(count == 0);
+                        test(count === 0);
                         b1 = p.ice_batchOneway();
                         test(b1.opBatch().completed());
                         test(b1.opBatch().completed());
@@ -75,7 +77,7 @@
                 );
             }
         ).then(
-            function() 
+            function()
             {
                 out.write("testing batch requests with connection... ");
                 return p.opBatchCount().then(
@@ -117,7 +119,7 @@
                 );
             }
         ).then(
-            function() 
+            function()
             {
                 out.write("testing batch requests with communicator... ");
                 return p.opBatchCount().then(
@@ -157,7 +159,7 @@
                         //
                         // AsyncResult exception - 2 connections
                         //
-                        test(batchCount == 0);
+                        test(batchCount === 0);
                         b1 = p.ice_batchOneway();
                         b2 = p.ice_connectionId("2").ice_batchOneway();
                         return b1.ice_getConnection().then(
@@ -193,7 +195,7 @@
                         // All connections should be flushed even if there are failures on some connections.
                         // Exceptions should not be reported.
                         //
-                        test(batchCount == 0);
+                        test(batchCount === 0);
                         b1 = p.ice_batchOneway();
                         b2 = p.ice_connectionId("2").ice_batchOneway();
                         return b1.ice_getConnection().then(
@@ -228,7 +230,7 @@
                         // All connections should be flushed even if there are failures on some connections.
                         // Exceptions should not be reported.
                         //
-                        test(batchCount == 0);
+                        test(batchCount === 0);
                         b1 = p.ice_batchOneway();
                         b2 = p.ice_connectionId("2").ice_batchOneway();
                         return b1.ice_getConnection().then(
@@ -254,13 +256,13 @@
                 ).then(
                     function(batchCount)
                     {
-                        test(batchCount == 0);
+                        test(batchCount === 0);
                         out.writeLine("ok");
                     }
                 );
             }
         ).then(
-            function() 
+            function()
             {
                 out.write("testing AsyncResult operations... ");
 
@@ -321,20 +323,20 @@
                     {
                         r = p.ice_ping();
                         test(r.operation === "ice_ping");
-                        test(r.connection == null); // Expected
+                        test(r.connection === null); // Expected
                         test(r.communicator == communicator);
                         test(r.proxy == p);
 
                         //
                         // Oneway
                         //
-                        p2 = p.ice_oneway();
+                        var p2 = p.ice_oneway();
                         r = p2.ice_ping();
                         test(r.operation === "ice_ping");
-                        test(r.connection == null); // Expected
+                        test(r.connection === null); // Expected
                         test(r.communicator == communicator);
                         test(r.proxy == p2);
-                        
+
                         //
                         // Batch request via proxy
                         //
@@ -342,26 +344,26 @@
                         p2.ice_ping();
                         r = p2.ice_flushBatchRequests();
                         test(r.operation === "ice_flushBatchRequests");
-                        test(r.connection == null); // Expected
+                        test(r.connection === null); // Expected
                         test(r.communicator == communicator);
                         test(r.proxy == p2);
 
                         var con = p.ice_getCachedConnection();
-                        p2 = p.ice_batchOneway()
+                        p2 = p.ice_batchOneway();
                         p2.ice_ping();
                         r = con.flushBatchRequests();
                         test(r.operation === "flushBatchRequests");
                         test(r.connection == con);
                         test(r.communicator == communicator);
-                        test(r.proxy == null);
+                        test(r.proxy === null);
 
-                        p2 = p.ice_batchOneway()
+                        p2 = p.ice_batchOneway();
                         p2.ice_ping();
                         r = communicator.flushBatchRequests();
                         test(r.operation === "flushBatchRequests");
-                        test(r.connection == null);
+                        test(r.connection === null);
                         test(r.communicator == communicator);
-                        test(r.proxy == null);
+                        test(r.proxy === null);
                     }
                 ).then(
                     function()
@@ -375,12 +377,12 @@
                         while((r = p.opWithPayload(seq)).sentSynchronously());
 
                         test(!r.isSent());
-                        
+
                         var r1 = p.ice_ping();
                         var r2 = p.ice_id();
                         r1.cancel();
                         r2.cancel();
-                        
+
                         try
                         {
                             r1.throwLocalException();
@@ -419,8 +421,8 @@
                 ).then(
                     function()
                     {
-                        r1 = p.op();
-                        r2 = p.ice_id();
+                        var r1 = p.op();
+                        var r2 = p.ice_id();
                         return p.ice_oneway().ice_ping().then(
                             function()
                             {
@@ -444,7 +446,7 @@
                                 {
                                     test(ex instanceof Ice.InvocationCanceledException);
                                 }
-                                
+
                                 testController.resumeAdapter();
                             });
                     }
