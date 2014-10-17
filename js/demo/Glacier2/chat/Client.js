@@ -41,7 +41,7 @@ process.once("SIGINT", function() {
 });
 
 Ice.Promise.try(
-    function() 
+    function()
     {
         //
         // Initialize the communicator with Ice.Default.Router property
@@ -51,7 +51,7 @@ Ice.Promise.try(
         id.properties = Ice.createProperties();
         id.properties.setProperty("Ice.Default.Router", "DemoGlacier2/router:tcp -p 4063 -h localhost");
         communicator = Ice.initialize(process.argv, id);
-        
+
         function createSession()
         {
             return Ice.Promise.try(
@@ -107,8 +107,8 @@ Ice.Promise.try(
                             }
                         });
                 });
-        };
-        
+        }
+
         function runWithSession(router, session)
         {
             var p = new Ice.Promise();
@@ -130,9 +130,9 @@ Ice.Promise.try(
                     var timeout = timeoutA[0];
                     var category = categoryA[0];
                     var adapter = adapterA[0];
-                    
+
                     //
-                    // Call refreshSession in a loop to keep the 
+                    // Call refreshSession in a loop to keep the
                     // session alive.
                     //
                     var refreshSession = function()
@@ -152,13 +152,13 @@ Ice.Promise.try(
                             });
                     };
                     refreshSession();
-                    
+
                     //
                     // Create the ChatCallback servant and add it to the ObjectAdapter.
                     //
                     var callback = Demo.ChatCallbackPrx.uncheckedCast(
                         adapter.add(new ChatCallbackI(), new Ice.Identity("callback", category)));
-                    
+
                     //
                     // Set the chat session callback.
                     //
@@ -181,7 +181,7 @@ Ice.Promise.try(
                                 {
                                     p.succeed();
                                 }
-                                else if(msg.indexOf("/") == 0)
+                                else if(msg.indexOf("/") === 0)
                                 {
                                     console.log("enter /quit to exit.");
                                 }
@@ -204,7 +204,7 @@ Ice.Promise.try(
                                 p.fail(ex);
                             });
                     }
-                    
+
                     //
                     // Start the chat loop
                     //
@@ -259,7 +259,7 @@ var getline = function()
 {
     var p = new Ice.Promise();
     process.stdin.resume();
-    process.stdin.once("data", 
+    process.stdin.once("data",
         function(buffer)
         {
             process.stdin.pause();

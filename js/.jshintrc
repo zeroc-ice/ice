@@ -2,12 +2,12 @@
     "node": true,
     "undef": true,
     "evil": true,
-    "globals": 
+    "globals":
     {
-        "WebSocket" : false, 
-        "window": false, 
+        "WebSocket" : false,
+        "window": false,
         "navigator": false,
-        "escape" : false, 
+        "escape" : false,
         "unescape": false
     },
     "predef": ["-Promise"]

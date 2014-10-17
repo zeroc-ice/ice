@@ -20,8 +20,8 @@ var batch = 0;
 function createProxy()
 {
     var hostname = document.location.hostname || "127.0.0.1";
-    var proxy = communicator.stringToProxy("hello" + 
-                                           ":ws -h " + hostname + " -p 8080 -r /demows" + 
+    var proxy = communicator.stringToProxy("hello" +
+                                           ":ws -h " + hostname + " -p 8080 -r /demows" +
                                            ":wss -h " + hostname + " -p 9090 -r /demowss");
 
     //
@@ -32,7 +32,7 @@ function createProxy()
 
     //
     // Set the mode and protocol
-    // 
+    //
     var mode = $("#mode").val();
     if(mode == "twoway")
     {
@@ -67,13 +67,13 @@ function createProxy()
 function sayHello()
 {
     setState(State.SendRequest);
-    
+
     var proxy = createProxy();
     if(proxy.ice_isBatchOneway())
     {
         batch++;
     }
-    
+
     return proxy.sayHello($("#delay").val());
 }
 
@@ -99,7 +99,7 @@ function shutdown()
     {
         batch++;
     }
-    
+
     return proxy.shutdown();
 }
 
@@ -108,7 +108,7 @@ function shutdown()
 // event handler calls the given function, handles exceptions
 // and resets the state to Idle when the promise returned by
 // the function is fulfilled.
-// 
+//
 var performEventHandler = function(fn)
 {
     return function()
@@ -130,8 +130,8 @@ var performEventHandler = function(fn)
             }
         );
         return false;
-    }
-}
+    };
+};
 var sayHelloClickHandler = performEventHandler(sayHello);
 var shutdownClickHandler = performEventHandler(shutdown);
 var flushClickHandler = performEventHandler(flush);
@@ -140,8 +140,8 @@ var flushClickHandler = performEventHandler(flush);
 // Handle the client state.
 //
 var State = {
-    Idle:0, 
-    SendRequest:1, 
+    Idle:0,
+    SendRequest:1,
     FlushBatchRequests:2
 };
 
@@ -164,13 +164,13 @@ function setState(newState, ex)
         case State.Idle:
         {
             assert(state === undefined || state === State.SendRequest || state === State.FlushBatchRequests);
-            
+
             //
             // Hide the progress indicator.
             //
             $("#progress").hide();
             $("body").removeClass("waiting");
-            
+
             //
             // Enable buttons.
             //
@@ -191,7 +191,7 @@ function setState(newState, ex)
             // Reset the output.
             //
             $("#output").val("");
-            
+
             //
             // Disable buttons.
             //
@@ -210,7 +210,7 @@ function setState(newState, ex)
         }
     }
     state = newState;
-};
+}
 
 //
 // Start in the idle state
@@ -237,24 +237,24 @@ if(window.location.search.length > 1)
 //
 // If the mode param is set, initialize the mode select box with that value.
 //
-if(_GET["mode"])
+if(_GET.mode)
 {
-    $("#mode").val(_GET["mode"]);
+    $("#mode").val(_GET.mode);
 }
 
 //
-// If the user selects a secure mode, ensure that the page is loaded over HTTPS 
+// If the user selects a secure mode, ensure that the page is loaded over HTTPS
 // so the web server SSL certificate is obtained.
 //
-$("#mode").on("change", 
+$("#mode").on("change",
     function(e)
     {
         var newMode = $(this).val();
-        
-        if(document.location.protocol === "http:" && 
+
+        if(document.location.protocol === "http:" &&
            (newMode === "twoway-secure" || newMode === "oneway-secure" || newMode === "oneway-batch-secure"))
         {
-            var href = document.location.protocol + "//" + document.location.host + 
+            var href = document.location.protocol + "//" + document.location.host +
                         document.location.pathname + "?mode=" + newMode;
             href = href.replace("http", "https");
             href = href.replace("8080", "9090");

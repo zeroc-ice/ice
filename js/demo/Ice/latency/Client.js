@@ -15,11 +15,11 @@ var communicator;
 //
 // Asynchronous loop, each call to the given function returns a
 // promise that when fulfilled runs the next iteration.
-//    
+//
 function loop(fn, repetitions)
 {
     var i = 0;
-    var next = function() 
+    var next = function()
     {
         if(i++ < repetitions)
         {
@@ -33,13 +33,13 @@ Ice.Promise.try(
     function()
     {
         //
-        // Initialize the communicator and create a proxy to the 
+        // Initialize the communicator and create a proxy to the
         // ping object.
         //
         communicator = Ice.initialize(process.argv);
         var repetitions = 10000;
         var proxy = communicator.stringToProxy("ping:default -p 10000");
-        
+
         //
         // Down-cast the proxy to the Demo.Ping interface.
         //
@@ -47,9 +47,9 @@ Ice.Promise.try(
             function(obj)
             {
                 console.log("pinging server " + repetitions + " times (this may take a while)");
-                start = new Date().getTime();
+                var start = new Date().getTime();
                 return loop(
-                    function() 
+                    function()
                     {
                         return obj.ice_ping();
                     },
@@ -60,7 +60,7 @@ Ice.Promise.try(
                         //
                         // Write the results.
                         //
-                        total = new Date().getTime() - start;
+                        var total = new Date().getTime() - start;
                         console.log("time for " + repetitions + " pings: " + total + "ms");
                         console.log("time per ping: " + (total / repetitions) + "ms");
                     });

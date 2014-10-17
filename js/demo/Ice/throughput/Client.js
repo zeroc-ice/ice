@@ -32,7 +32,7 @@ function menu()
         "x: exit\n" +
         "?: help\n" +
         "\n");
-};
+}
 
 //
 // Asynchronous loop, each call to the given function returns a
@@ -312,7 +312,6 @@ Ice.Promise.try(
                     else if(key == "s")
                     {
                         return twoway.shutdown();
-                        process.stdout.write("==> ");
                     }
                     else if(key == "?")
                     {

@@ -14,20 +14,21 @@ var ThroughputPrx = Demo.ThroughputPrx;
 //
 // Initialize sequences.
 //
+var i;
 var byteSeq = new Uint8Array(Demo.ByteSeqSize);
-for(var i = 0; i < Demo.ByteSeqSize; ++i)
+for(i = 0; i < Demo.ByteSeqSize; ++i)
 {
     byteSeq[i] = 0;
 }
 
 var stringSeq = [];
-for(var i = 0; i < Demo.StringSeqSize; ++i)
+for(i = 0; i < Demo.StringSeqSize; ++i)
 {
     stringSeq[i] = "hello";
 }
 
 var structSeq = [];
-for(var i = 0; i < Demo.StringDoubleSeqSize; ++i)
+for(i = 0; i < Demo.StringDoubleSeqSize; ++i)
 {
     structSeq[i] = new Demo.StringDouble();
     structSeq[i].s = "hello";
@@ -35,7 +36,7 @@ for(var i = 0; i < Demo.StringDoubleSeqSize; ++i)
 }
 
 var fixedSeq = [];
-for(var i = 0; i < Demo.FixedSeqSize; ++i)
+for(i = 0; i < Demo.FixedSeqSize; ++i)
 {
     fixedSeq[i] = new Demo.Fixed();
     fixedSeq[i].i = 0;
@@ -66,10 +67,10 @@ function run()
     return ThroughputPrx.checkedCast(proxy).then(
         function(twoway)
         {
-            oneway = twoway.ice_oneway();
+            var oneway = twoway.ice_oneway();
 
             var seq;
-            var seqSize
+            var seqSize;
             var wireSize;
             var proxy;
             var operation;

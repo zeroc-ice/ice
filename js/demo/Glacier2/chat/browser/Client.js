@@ -377,7 +377,7 @@ function dismissError()
     transition("#signin-alert");
     hasError = false;
     return false;
-};
+}
 
 //
 // Animate the loading progress bar.

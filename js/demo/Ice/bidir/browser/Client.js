@@ -163,7 +163,7 @@ var writeLine = function(msg)
 {
     $("#output").val($("#output").val() + msg + "\n");
     $("#output").scrollTop($("#output").get(0).scrollHeight);
-}
+};
 
 var state;
 

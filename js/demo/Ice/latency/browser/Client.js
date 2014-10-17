@@ -38,7 +38,7 @@ function run()
         function(obj)
         {
             writeLine("pinging server " + repetitions + " times (this may take a while)");
-            start = new Date().getTime();
+            var start = new Date().getTime();
             return loop(
                 function()
                 {
@@ -51,7 +51,7 @@ function run()
                     //
                     // Write the results.
                     //
-                    total = new Date().getTime() - start;
+                    var total = new Date().getTime() - start;
                     writeLine("time for " + repetitions + " pings: " + total + "ms");
                     writeLine("time per ping: " + (total / repetitions) + "ms");
                     setState(State.Idle);
