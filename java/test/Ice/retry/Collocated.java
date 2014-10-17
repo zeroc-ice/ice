@@ -35,7 +35,7 @@ public class Collocated extends test.Util.Application
 
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.retry");
 
-        initData.properties.setProperty("Ice.RetryIntervals", "0 1 100 1");
+        initData.properties.setProperty("Ice.RetryIntervals", "0 1 300 1");
 
         //
         // We don't want connection warnings because of the timeout

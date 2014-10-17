@@ -109,7 +109,7 @@
             {
                 out.writeLine("ok");
                 out.write("testing invocation timeout and retries... ");
-                return retry1.ice_invocationTimeout(50).opIdempotent(4);
+                return retry1.ice_invocationTimeout(200).opIdempotent(4);
             }
         ).then(
             function()
@@ -145,7 +145,7 @@
         //
         // For this test, we want to disable retries.
         //
-        id.properties.setProperty("Ice.RetryIntervals", "0 1 100 1");
+        id.properties.setProperty("Ice.RetryIntervals", "0 1 300 1");
 
         //
         // We don't want connection warnings because of the timeout
