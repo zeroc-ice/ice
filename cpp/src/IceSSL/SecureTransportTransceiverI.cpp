@@ -418,7 +418,8 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool&)
                 return IceInternal::SocketOperationRead;
             }
 
-            if(err == errSSLClosedGraceful || err == errSSLPeerBadRecordMac || err == errSSLPeerDecryptionFail)
+            if(err == errSSLClosedGraceful || err == errSSLClosedAbort ||
+               err == errSSLPeerBadRecordMac || err == errSSLPeerDecryptionFail)
             {
                 //
                 // Forcefully closing a connection can result in SSLRead reporting
