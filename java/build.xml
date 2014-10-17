@@ -1004,6 +1004,7 @@
         <copy file="${lib.dir}/${icestorm.jar.name}" todir="${DESTDIR}${install_libdir}"/>
         <copy file="${lib.dir}/${icegrid.jar.name}" todir="${DESTDIR}${install_libdir}"/>
         <copy file="${lib.dir}/${icegridgui.jar.name}" todir="${DESTDIR}${install_libdir}"/>
+        <copy file="${lib.dir}/${icediscovery.jar.name}" todir="${DESTDIR}${install_libdir}"/>
     </target>
 
     <target name="install-tasks">
