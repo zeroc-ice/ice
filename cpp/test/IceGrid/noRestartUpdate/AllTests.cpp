@@ -317,6 +317,31 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         test(server1Pid == admin->getServerPid("Server1"));
 
+        admin->stopServer("Server2");
+        update.nodes[0].removeServers.clear();
+        update.nodes[0].removeServers.push_back("Server2");
+        try
+        {
+            admin->updateApplicationWithoutRestart(update);
+        }
+        catch(const DeploymentException&)
+        {
+            test(false);
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
+        try
+        {
+            admin->getServerPid("Server2");
+            test(false);
+        }
+        catch(const ServerNotExistException&)
+        {
+        }
+
         cout << "ok" << endl;
 
         cout << "testing server update... " << flush;
@@ -543,7 +568,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
             admin->updateApplicationWithoutRestart(update);
             test(serverPid == admin->getServerPid("Server"));
             test(server1Pid == admin->getServerPid("Server1"));
-            test(server2Pid == admin->getServerPid("Server2"));
             admin->startServer("IceBox");
         }
         catch(const DeploymentException& ex)

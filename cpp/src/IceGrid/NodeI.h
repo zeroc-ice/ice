@@ -69,12 +69,6 @@ public:
     virtual void loadServer_async(const AMD_Node_loadServerPtr&, 
                                   const InternalServerDescriptorPtr&, 
                                   const std::string&,
-                                  bool,
-                                  const Ice::Current&);
-
-    virtual void loadServer_async(const AMD_Node_loadServerPtr&, 
-                                  const InternalServerDescriptorPtr&, 
-                                  const std::string&,
                                   const Ice::Current&);
 
     virtual void loadServerWithoutRestart_async(const AMD_Node_loadServerWithoutRestartPtr&, 
@@ -89,6 +83,13 @@ public:
                                      const std::string&,
                                      const Ice::Current&);
 
+    virtual void destroyServerWithoutRestart_async(const AMD_Node_destroyServerWithoutRestartPtr&, 
+                                                   const std::string&, 
+                                                   const std::string&,
+                                                   int, 
+                                                   const std::string&,
+                                                   const Ice::Current&);
+    
     virtual void patch_async(const AMD_Node_patchPtr&, const PatcherFeedbackPrx&, const std::string&, 
                              const std::string&, const InternalDistributionDescriptorPtr&, bool, const Ice::Current&);
 
@@ -151,6 +152,12 @@ private:
     
     std::set<ServerIPtr> getApplicationServers(const std::string&) const;
     std::string getFilePath(const std::string&) const;
+
+    void loadServer(const AMD_Node_loadServerPtr&, const InternalServerDescriptorPtr&, const std::string&, bool,
+                    const Ice::Current&);
+
+    void destroyServer(const AMD_Node_destroyServerPtr&, const std::string&, const std::string&, int, 
+                       const std::string&, bool, const Ice::Current&);
 
     const Ice::CommunicatorPtr _communicator;
     const Ice::ObjectAdapterPtr _adapter;

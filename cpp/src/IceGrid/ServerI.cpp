@@ -1324,6 +1324,15 @@ ServerI::checkUpdate(const InternalServerDescriptorPtr& desc, bool noRestart, co
         throw DeploymentException("server not loaded");
     }
 
+    if(!desc)
+    {
+        if(noRestart && !StopCommand::isStopped(_state) && !_stop)
+        {
+            throw DeploymentException("the server is running");
+        }
+        return true;
+    }
+    
     InternalServerDescriptorPtr d = _load ? _load->getInternalServerDescriptor() : _desc;
     if(!descriptorUpdated(d, desc))
     {
@@ -1357,8 +1366,21 @@ ServerI::checkUpdate(const InternalServerDescriptorPtr& desc, bool noRestart, co
     return StopCommand::isStopped(_state);
 }
 
+void
+ServerI::checkRemove(bool noRestart, const Ice::Current&)
+{
+    Lock sync(*this);
+    checkDestroyed();
+
+    if(noRestart && !StopCommand::isStopped(_state) && !_stop)
+    {
+        throw DeploymentException("the server is running");
+    }
+}
+
 ServerCommandPtr
-ServerI::destroy(const AMD_Node_destroyServerPtr& amdCB, const string& uuid, int revision, const string& replicaName)
+ServerI::destroy(const AMD_Node_destroyServerPtr& amdCB, const string& uuid, int revision, const string& replicaName,
+                 bool noRestart)
 {
     Lock sync(*this);
     checkDestroyed();
@@ -1372,8 +1394,13 @@ ServerI::destroy(const AMD_Node_destroyServerPtr& amdCB, const string& uuid, int
 
     if(!StopCommand::isStopped(_state) && !_stop)
     {
+        if(noRestart)
+        {
+            throw DeploymentException("removal requires server to be stopped");
+        }
         _stop = new StopCommand(this, _node->getTimer(), _deactivationTimeout);
     }
+    
     if(!_destroy)
     {
         //

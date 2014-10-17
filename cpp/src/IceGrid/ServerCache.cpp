@@ -65,7 +65,8 @@ namespace IceGrid
 
 CheckUpdateResult::CheckUpdateResult(const string& server, 
                                      const string& node, 
-                                     bool noRestart, 
+                                     bool noRestart,
+                                     bool remove,
                                      const Ice::AsyncResultPtr& result) : 
     _server(server), _node(node), _noRestart(noRestart), _result(result)
 {
@@ -165,7 +166,7 @@ ServerCache::has(const string& id) const
 }
 
 ServerEntryPtr
-ServerCache::remove(const string& id, bool destroy)
+ServerCache::remove(const string& id, bool destroy, bool noRestart)
 {
     Lock sync(*this);
 
@@ -177,8 +178,11 @@ ServerCache::remove(const string& id, bool destroy)
 
     if(destroy)
     {
-        entry->destroy(); // This must be done after otherwise some allocatable objects
-                          // might allocate a destroyed server.
+        //
+        // This must be done after otherwise some allocatable objects
+        // might allocate a destroyed server.
+        //
+        entry->destroy(noRestart); 
     }
 
     if(_traceLevels && _traceLevels->server > 0)
@@ -338,7 +342,7 @@ ServerEntry::update(const ServerInfo& info, bool noRestart)
 }
 
 void
-ServerEntry::destroy()
+ServerEntry::destroy(bool noRestart)
 {
     Lock sync(*this);
 
@@ -359,6 +363,7 @@ ServerEntry::destroy()
         }
     }
     
+    _noRestart = noRestart;
     _load.reset(0);
     _loaded.reset(0);
     _allocatable = false;
@@ -588,13 +593,13 @@ ServerEntry::syncImpl()
             load = *_load;
             session = _session;
             timeout = _deactivationTimeout; // loadServer might block to deactivate the previous server.
-            noRestart = _noRestart;
         }
         else
         {
             return;
         }
 
+        noRestart = _noRestart;
         _synchronizing = true;
     }
     
@@ -602,7 +607,7 @@ ServerEntry::syncImpl()
     {
         try
         {
-            _cache.getNodeCache().get(destroy.node)->destroyServer(this, destroy, timeout);
+            _cache.getNodeCache().get(destroy.node)->destroyServer(this, destroy, timeout, noRestart);
         }
         catch(const NodeNotExistException&)
         {
@@ -758,6 +763,7 @@ ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, i
             if(_destroy.get())
             {
                 destroy = *_destroy;
+                noRestart = _noRestart;
             }
             else if(_load.get())
             {
@@ -780,7 +786,7 @@ ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, i
     {
         try
         {
-            _cache.getNodeCache().get(destroy.node)->destroyServer(this, destroy, timeout);
+            _cache.getNodeCache().get(destroy.node)->destroyServer(this, destroy, timeout, noRestart);
         }
         catch(const NodeNotExistException&)
         {
@@ -921,6 +927,7 @@ CheckUpdateResultPtr
 ServerEntry::checkUpdate(const ServerInfo& info, bool noRestart)
 {
     SessionIPtr session;
+    ServerInfo oldInfo;
     {
         Lock sync(*this);
         if(!_loaded.get() && !_load.get())
@@ -928,19 +935,14 @@ ServerEntry::checkUpdate(const ServerInfo& info, bool noRestart)
             throw ServerNotExistException();
         }
         
-        ServerInfo oldInfo = _loaded.get() ? *_loaded : *_load;
-        if(noRestart && info.node != oldInfo.node)
-        {
-            throw DeploymentException("server `" + _id + "' is moving to another node");
-        }
-
+        oldInfo = _loaded.get() ? *_loaded : *_load;
         session = _session;
     }
 
     NodeEntryPtr node;
     try
     {
-        node = _cache.getNodeCache().get(info.node);
+        node = _cache.getNodeCache().get(oldInfo.node);
     }
     catch(const NodeNotExistException&)
     {
@@ -974,9 +976,18 @@ ServerEntry::checkUpdate(const ServerInfo& info, bool noRestart)
         }
     }
 
-    InternalServerDescriptorPtr desc = node->getInternalServerDescriptor(info, session);
-    return new CheckUpdateResult(_id, info.node, noRestart, server->begin_checkUpdate(desc, noRestart));
+    //
+    // Provide a null descriptor if the server is to be removed from
+    // the node. In this case, the check just ensures that the server
+    // is stopped.
+    //
+    InternalServerDescriptorPtr desc;
+    if(info.node == oldInfo.node && info.descriptor)
+    {
+        desc = node->getInternalServerDescriptor(info, session); // The new descriptor
+    }
 
+    return new CheckUpdateResult(_id, oldInfo.node, noRestart, desc, server->begin_checkUpdate(desc, noRestart));
 }
 
 void

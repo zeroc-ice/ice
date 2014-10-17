@@ -2256,7 +2256,7 @@ Database::reload(const ApplicationHelper& oldApp,
         map<string, ServerInfo>::const_iterator q = newServers.find(p->first);
         if(q == newServers.end())
         {
-            entries.push_back(_serverCache.remove(p->first));
+            entries.push_back(_serverCache.remove(p->first, true, noRestart));
         }
     }
 
@@ -2403,6 +2403,9 @@ Database::checkUpdate(const ApplicationHelper& oldApp,
     map<string, ServerInfo>::const_iterator p;
     vector<string> servers;
     vector<string> reasons;
+    vector<CheckUpdateResultPtr> results;
+    set<string> unreachableNodes;
+
     if(noRestart)
     {
         for(p = oldServers.begin(); p != oldServers.end(); ++p)
@@ -2410,20 +2413,37 @@ Database::checkUpdate(const ApplicationHelper& oldApp,
             map<string, ServerInfo>::const_iterator q = newServers.find(p->first);
             if(q == newServers.end())
             {
-                servers.push_back(p->first);
-                reasons.push_back("server `" + p->first + "' needs to be removed");
+                try
+                {
+                    ServerInfo info = p->second;
+                    info.descriptor = 0; // Clear the descriptor to indicate removal.
+                    CheckUpdateResultPtr result = _serverCache.get(p->first)->checkUpdate(info, true);
+                    if(result)
+                    {
+                        results.push_back(result);
+                    }
+                }
+                catch(const NodeUnreachableException& ex)
+                {
+                    unreachableNodes.insert(ex.name);
+                }
+                catch(const DeploymentException& ex)
+                {
+                    servers.push_back(p->first);
+                    reasons.push_back(ex.reason);
+                }
             }
         }
     }
 
-    vector<CheckUpdateResultPtr> results;
-    set<string> unreachableNodes;
     for(p = newServers.begin(); p != newServers.end(); ++p)
     {
         map<string, ServerInfo>::const_iterator q = oldServers.find(p->first);
         if(q != oldServers.end() && isServerUpdated(p->second, q->second))
         {
-            if(noRestart && isServerUpdated(p->second, q->second, true)) // Ignore properties
+            if(noRestart && 
+               p->second.node == q->second.node && 
+               isServerUpdated(p->second, q->second, true)) // Ignore properties
             {
                 //
                 // The updates are not only property updates and noRestart is required, no
@@ -2455,7 +2475,6 @@ Database::checkUpdate(const ApplicationHelper& oldApp,
                     servers.push_back(p->first);
                     reasons.push_back(ex.reason);
                 }
-
             }
         }
     }

@@ -375,89 +375,9 @@ void
 NodeI::loadServer_async(const AMD_Node_loadServerPtr& amdCB,
                         const InternalServerDescriptorPtr& descriptor,
                         const string& replicaName,
-                        bool noRestart,
                         const Ice::Current& current)
 {
-    ServerCommandPtr command;
-    {
-        Lock sync(*this);
-        ++_serial;
-        
-        Ice::Identity id = createServerIdentity(descriptor->id);
-        
-        //
-        // Check if we already have a servant for this server. If that's
-        // the case, the server is already loaded and we just need to
-        // update it.
-        //
-        while(true)
-        {
-            bool added = false;
-            ServerIPtr server;
-            try
-            {
-                server = ServerIPtr::dynamicCast(_adapter->find(id));
-                if(!server)
-                {
-                    ServerPrx proxy = ServerPrx::uncheckedCast(_adapter->createProxy(id));
-                    server = new ServerI(this, proxy, _serversDir, descriptor->id, _waitTime);
-                    _adapter->add(server, id);
-                    added = true;
-                }
-            }
-            catch(const Ice::ObjectAdapterDeactivatedException&)
-            {
-                //
-                // We throw an object not exist exception to avoid
-                // dispatch warnings. The registry will consider the
-                // node has being unreachable upon receival of this
-                // exception (like any other Ice::LocalException). We
-                // could also have disabled dispatch warnings but they
-                // can still useful to catch other issues.
-                //
-                throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
-            }
-            
-            try
-            {
-                command = server->load(amdCB, descriptor, replicaName, noRestart);
-            }
-            catch(const Ice::ObjectNotExistException&)
-            {
-                assert(!added);
-                continue;
-            }
-            catch(const Ice::Exception&)
-            {
-                if(added)
-                {
-                    try
-                    {
-                        _adapter->remove(id);
-                    }
-                    catch(const Ice::ObjectAdapterDeactivatedException&)
-                    {
-                        // IGNORE
-                    }
-                }
-                throw;
-            }
-            break;
-        }
-    }
-    if(command)
-    {
-        command->execute();
-    }
-}
-
-void
-NodeI::loadServer_async(const AMD_Node_loadServerPtr& amdCB,
-                        const InternalServerDescriptorPtr& descriptor,
-                        const string& replicaName,
-                        const Ice::Current& current)
-{
-    loadServer_async(amdCB, descriptor, replicaName, false, current);
+    loadServer(amdCB, descriptor, replicaName, false, current);
 }
 
 void
@@ -496,7 +416,7 @@ NodeI::loadServerWithoutRestart_async(const AMD_Node_loadServerWithoutRestartPtr
 
         const AMD_Node_loadServerWithoutRestartPtr _cb;
     };
-    loadServer_async(new LoadServerCB(amdCB), descriptor, replicaName, true, current);
+    loadServer(new LoadServerCB(amdCB), descriptor, replicaName, true, current);
 }
 
 void
@@ -507,51 +427,49 @@ NodeI::destroyServer_async(const AMD_Node_destroyServerPtr& amdCB,
                            const string& replicaName,
                            const Ice::Current& current)
 {
-    ServerCommandPtr command;
+    destroyServer(amdCB, serverId, uuid, revision, replicaName, false, current);
+}
+
+
+void
+NodeI::destroyServerWithoutRestart_async(const AMD_Node_destroyServerWithoutRestartPtr& amdCB,
+                                         const string& serverId,
+                                         const string& uuid,
+                                         int revision,
+                                         const string& replicaName,
+                                         const Ice::Current& current)
+{
+    class DestroyServerCB : public AMD_Node_destroyServer
     {
-        Lock sync(*this);
-        ++_serial;
-        
-        ServerIPtr server;
-        try
+    public:
+
+        DestroyServerCB(const AMD_Node_destroyServerWithoutRestartPtr& cb) : _cb(cb)
         {
-            server = ServerIPtr::dynamicCast(_adapter->find(createServerIdentity(serverId)));
-        }
-        catch(const Ice::ObjectAdapterDeactivatedException&)
-        {
-            //
-            // We throw an object not exist exception to avoid
-            // dispatch warnings. The registry will consider the node
-            // has being unreachable upon receival of this exception
-            // (like any other Ice::LocalException). We could also
-            // have disabled dispatch warnings but they can still
-            // useful to catch other issues.
-            //
-            throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
         }
 
-        if(!server)
+        virtual void 
+        ice_response()
         {
-            server = new ServerI(this, 0, _serversDir, serverId, _waitTime);
-        }
-        
-        //
-        // Destroy the server object if it's loaded.
-        //
-        try
+            _cb->ice_response();
+        };
+
+        virtual void 
+        ice_exception(const ::std::exception& ex)
         {
-            command = server->destroy(amdCB, uuid, revision, replicaName);
+            _cb->ice_exception(ex);
         }
-        catch(const Ice::ObjectNotExistException&)
+
+        virtual void 
+        ice_exception()
         {
-            amdCB->ice_response();
-            return;
+            _cb->ice_exception();
         }
-    }
-    if(command)
-    {
-        command->execute();
-    }
+
+    private:
+
+        const AMD_Node_destroyServerWithoutRestartPtr _cb;
+    };
+    destroyServer(new DestroyServerCB(amdCB), serverId, uuid, revision, replicaName, true, current);
 }
 
 void
@@ -1224,7 +1142,7 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
                 //
                 try
                 {
-                    ServerCommandPtr command = server->destroy(0, "", 0, "Master");
+                    ServerCommandPtr command = server->destroy(0, "", 0, "Master", false);
                     if(command)
                     {
                         commands.push_back(command);
@@ -1417,3 +1335,140 @@ NodeI::getFilePath(const string& filename) const
     }
     return file;
 }
+
+void
+NodeI::loadServer(const AMD_Node_loadServerPtr& amdCB,
+                  const InternalServerDescriptorPtr& descriptor,
+                  const string& replicaName,
+                  bool noRestart,
+                  const Ice::Current& current)
+{
+    ServerCommandPtr command;
+    {
+        Lock sync(*this);
+        ++_serial;
+        
+        Ice::Identity id = createServerIdentity(descriptor->id);
+        
+        //
+        // Check if we already have a servant for this server. If that's
+        // the case, the server is already loaded and we just need to
+        // update it.
+        //
+        while(true)
+        {
+            bool added = false;
+            ServerIPtr server;
+            try
+            {
+                server = ServerIPtr::dynamicCast(_adapter->find(id));
+                if(!server)
+                {
+                    ServerPrx proxy = ServerPrx::uncheckedCast(_adapter->createProxy(id));
+                    server = new ServerI(this, proxy, _serversDir, descriptor->id, _waitTime);
+                    _adapter->add(server, id);
+                    added = true;
+                }
+            }
+            catch(const Ice::ObjectAdapterDeactivatedException&)
+            {
+                //
+                // We throw an object not exist exception to avoid
+                // dispatch warnings. The registry will consider the
+                // node has being unreachable upon receival of this
+                // exception (like any other Ice::LocalException). We
+                // could also have disabled dispatch warnings but they
+                // can still useful to catch other issues.
+                //
+                throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
+            }
+            
+            try
+            {
+                command = server->load(amdCB, descriptor, replicaName, noRestart);
+            }
+            catch(const Ice::ObjectNotExistException&)
+            {
+                assert(!added);
+                continue;
+            }
+            catch(const Ice::Exception&)
+            {
+                if(added)
+                {
+                    try
+                    {
+                        _adapter->remove(id);
+                    }
+                    catch(const Ice::ObjectAdapterDeactivatedException&)
+                    {
+                        // IGNORE
+                    }
+                }
+                throw;
+            }
+            break;
+        }
+    }
+    if(command)
+    {
+        command->execute();
+    }
+}
+
+void
+NodeI::destroyServer(const AMD_Node_destroyServerPtr& amdCB,
+                     const string& serverId,
+                     const string& uuid,
+                     int revision,
+                     const string& replicaName,
+                     bool noRestart,
+                     const Ice::Current& current)
+{
+    ServerCommandPtr command;
+    {
+        Lock sync(*this);
+        ++_serial;
+        
+        ServerIPtr server;
+        try
+        {
+            server = ServerIPtr::dynamicCast(_adapter->find(createServerIdentity(serverId)));
+        }
+        catch(const Ice::ObjectAdapterDeactivatedException&)
+        {
+            //
+            // We throw an object not exist exception to avoid
+            // dispatch warnings. The registry will consider the node
+            // has being unreachable upon receival of this exception
+            // (like any other Ice::LocalException). We could also
+            // have disabled dispatch warnings but they can still
+            // useful to catch other issues.
+            //
+            throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
+        }
+
+        if(!server)
+        {
+            server = new ServerI(this, 0, _serversDir, serverId, _waitTime);
+        }
+        
+        //
+        // Destroy the server object if it's loaded.
+        //
+        try
+        {
+            command = server->destroy(amdCB, uuid, revision, replicaName, noRestart);
+        }
+        catch(const Ice::ObjectNotExistException&)
+        {
+            amdCB->ice_response();
+            return;
+        }
+    }
+    if(command)
+    {
+        command->execute();
+    }
+}
+

@@ -57,7 +57,7 @@ public:
     bool canRemove();
     
     void loadServer(const ServerEntryPtr&, const ServerInfo&, const SessionIPtr&, int, bool);
-    void destroyServer(const ServerEntryPtr&, const ServerInfo&, int);
+    void destroyServer(const ServerEntryPtr&, const ServerInfo&, int, bool);
 
     ServerInfo getServerInfo(const ServerInfo&, const SessionIPtr&);
     InternalServerDescriptorPtr getInternalServerDescriptor(const ServerInfo&, const SessionIPtr&);

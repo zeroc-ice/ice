@@ -635,7 +635,7 @@ NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, con
 }
 
 void
-NodeEntry::destroyServer(const ServerEntryPtr& entry, const ServerInfo& info, int timeout)
+NodeEntry::destroyServer(const ServerEntryPtr& entry, const ServerInfo& info, int timeout, bool noRestart)
 {
     try
     {
@@ -663,10 +663,23 @@ NodeEntry::destroyServer(const ServerEntryPtr& entry, const ServerInfo& info, in
             out << "unloading `" << info.descriptor->id << "' on node `" << _name << "'";
         }
 
-        node->begin_destroyServer(info.descriptor->id, info.uuid, info.revision, _cache.getReplicaName(),
-                                  newCallback_Node_destroyServer(new DestroyCB(_cache.getTraceLevels(), entry, _name),
-                                                                 &DestroyCB::response,
-                                                                 &DestroyCB::exception));
+        if(noRestart)
+        {
+            node->begin_destroyServerWithoutRestart(info.descriptor->id, info.uuid, info.revision, 
+                                                    _cache.getReplicaName(),
+                                                    newCallback_Node_destroyServerWithoutRestart(
+                                                        new DestroyCB(_cache.getTraceLevels(), entry, _name),
+                                                        &DestroyCB::response,
+                                                        &DestroyCB::exception));
+        }
+        else
+        {
+            node->begin_destroyServer(info.descriptor->id, info.uuid, info.revision, _cache.getReplicaName(),
+                                      newCallback_Node_destroyServer(
+                                          new DestroyCB(_cache.getTraceLevels(), entry, _name),
+                                          &DestroyCB::response,
+                                          &DestroyCB::exception));
+        }
     }
     catch(const NodeUnreachableException& ex)
     {

@@ -395,6 +395,14 @@ interface Node extends FileReader, ReplicaObserver
 
     /**
      *
+     * Destroy the server if it's not active.
+     *
+     **/
+    ["amd"] idempotent void destroyServerWithoutRestart(string name, string uuid, int revision, string replicaName)
+        throws DeploymentException;
+
+    /**
+     *
      * Patch application and server distributions. If some servers
      * using a distribution directory to patch are active, this method
      * will raise a PatchException unless shutdown is set to true. In

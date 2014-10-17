@@ -27,6 +27,12 @@ Changes since version 3.5.1
 General Changes
 ===============
 
+- IceGrid now permits removing or moving servers when saving an
+  application "without restart" (to ensure the update doesn't cause
+  any server shutdown). The servers to be removed or moved, must be
+  stopped of the saving will fail. Previously, IceGrid prevented the
+  saving of the application even if the servers were stopped.
+
 - It's now possible to pass indirect proxies to the setObservers
   method of the IceGrid::AdminSession interface. Previously, the
   IceGrid registry would fail to resolve the endpoints and the

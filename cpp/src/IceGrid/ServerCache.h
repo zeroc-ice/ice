@@ -37,7 +37,7 @@ class CheckUpdateResult : public IceUtil::Shared
 {
 public:
 
-    CheckUpdateResult(const std::string&, const std::string&, bool, const Ice::AsyncResultPtr&);
+    CheckUpdateResult(const std::string&, const std::string&, bool, bool, const Ice::AsyncResultPtr&);
 
     bool getResult();
 
@@ -75,7 +75,7 @@ public:
 
     void update(const ServerInfo&, bool);
 
-    void destroy();
+    void destroy(bool);
 
     ServerInfo getInfo(bool = false) const;
     std::string getId() const;
@@ -143,7 +143,7 @@ public:
     ServerEntryPtr add(const ServerInfo&, bool);
     ServerEntryPtr get(const std::string&) const;
     bool has(const std::string&) const;
-    ServerEntryPtr remove(const std::string&, bool = true);
+    ServerEntryPtr remove(const std::string&, bool = true, bool = false);
 
     void clear(const std::string&);
     
