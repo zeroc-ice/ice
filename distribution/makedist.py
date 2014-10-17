@@ -175,6 +175,7 @@ os.mkdir(distDir)
 print "Creating " + version + " source distributions in " + distDir
 
 demoscriptDir = os.path.join(distDir, "Ice-" + version + "-demo-scripts")
+winDemoscriptDir = os.path.join(distDir, "demo-scripts")
 demoDir = os.path.join(distDir, "Ice-" + version + "-demos")
 winDemoDir = os.path.join(distDir, "demos")
 srcDir = os.path.join(distDir, "Ice-" + version)
@@ -410,18 +411,16 @@ copy("ICE_LICENSE", demoDir)
 copy(os.path.join(distFilesDir, "src", "common", "README.DEMOS"), demoDir)
 
 copyMatchingFiles(os.path.join(srcDir, "certs"), os.path.join(demoDir, "certs"), demoCertsFiles)
-for d in ["", "cpp", "java", "cs", "js"]:
+for d in ["", "cpp", "java", "js"]:
     copyMatchingFiles(os.path.join(d, "config"), os.path.join(demoDir, "config"), demoConfigFiles)
 
 copy(os.path.join(distFilesDir, "src", "common", "Make.rules"), os.path.join(demoDir, "config"), False)
-copy(os.path.join(distFilesDir, "src", "common", "Make.rules.cs"), os.path.join(demoDir, "config"), False)
 copy(os.path.join(distFilesDir, "src", "common", "Make.rules.php"), os.path.join(demoDir, "config"), False)
 copy(os.path.join(distFilesDir, "src", "common", "build.properties"), os.path.join(demoDir, "config"), False)
 copy(os.path.join(srcDir, "scripts"), os.path.join(demoscriptDir, "scripts"))
 
 # Consolidate demoscript and demo distribution with files from each language mapping
 for d in os.listdir('.'):
-
     if os.path.isdir(d) and os.path.exists(os.path.join(d, "allDemos.py")):
         md = os.path.join(demoscriptDir, getMappingDir("demo", d))
         move(os.path.join(demoscriptDir, d, "demo"), md)
@@ -429,6 +428,8 @@ for d in os.listdir('.'):
         os.rmdir(os.path.join(demoscriptDir, d))
 
     if os.path.isdir(d) and os.path.exists(os.path.join(d, "demo")):
+        if d == "cs":
+            continue
         copy(os.path.join(d, "demo"), os.path.join(demoDir, getMappingDir("demo", d)))
 
 copy(os.path.join(srcDir, "js", "bin"), os.path.join(demoDir, "demojs", "bin"))
@@ -453,7 +454,11 @@ for root, dirnames, filesnames in os.walk(demoDir):
 
 remove(os.path.join(srcDir, 'vb')) # vb directory in Unix source distribution only needed to copy demo scripts.
 
+copy(demoscriptDir, winDemoscriptDir)
+shutil.rmtree(os.path.join(demoscriptDir, "democs"))
+
 # Windows demo distribution
+
 copy(os.path.join(winDistFilesDir, "src", "common", "README.DEMOS.txt"), os.path.join(winDemoDir, "README.txt"))
 
 copyMatchingFiles(os.path.join(winSrcDir, "certs"), os.path.join(winDemoDir, "certs"), demoCertsFiles)
@@ -463,6 +468,7 @@ os.mkdir(os.path.join(winDemoDir, "config"))
 copy(os.path.join(winSrcDir, "config", "Make.common.rules.mak"), os.path.join(winDemoDir, "config"), False)
 copy(os.path.join(winSrcDir, "cpp", "config", "Make.rules.msvc"), os.path.join(winDemoDir, "config"), False)
 copy(os.path.join(winSrcDir, "java", "config", "common.xml"), os.path.join(winDemoDir, "config"), False)
+copy(os.path.join(winSrcDir, "js", "config", "build.js"), os.path.join(winDemoDir, "config"), False)
 
 copy(os.path.join(winDistFilesDir, "src", "common", "build.properties"), os.path.join(winDemoDir, "config"), False)
 copy(os.path.join(winDistFilesDir, "src", "common", "Make.rules.mak"), os.path.join(winDemoDir, "config"), False)
@@ -563,8 +569,9 @@ move(os.path.join(distDir, "zeroc-ice" + mmversion + "-" + version + ".tar.gz"),
 for (dir, archiveDir) in [(demoscriptDir, "Ice-" + version + "-demos")]:
     tarArchive(dir, verbose, archiveDir)
 
-for (dir, archiveDir) in [(demoscriptDir, "Ice-" + version + "-demos")]:
+for (dir, archiveDir) in [(winDemoscriptDir, "Ice-" + version + "-demos")]:
     zipArchive(dir, verbose, archiveDir)
+os.rename(os.path.join(distDir, "demo-scripts.zip"), os.path.join(distDir, "Ice-" + version + "-demo-scripts.zip"))
 
 for (dir, archiveDir) in [(winDistFilesDir, "distfiles-" + version)]:
     zipArchive(dir, verbose, archiveDir)

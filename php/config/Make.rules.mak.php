@@ -262,6 +262,6 @@ clean::
 clean::
 	del /q $(TARGETS) *.obj *.bak
 
-all:: $(SRCS) $(TARGETS)
+all:: $(TARGETS)
 
 install::

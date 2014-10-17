@@ -44,7 +44,7 @@ $(DLLNAME): $(OBJS) IceDiscovery.res
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
-IceDiscovery.h IceDiscovery.cpp: $(slicedir)\IceDiscovery\IceDiscovery.ice $(SLICE2CPP) $(SLICEPARSERLIB)
+IceDiscovery.h IceDiscovery.cpp: $(slicedir)\IceDiscovery\IceDiscovery.ice "$(SLICE2CPP)" "$(SLICEPARSERLIB)"
 	del /q $(*F).h $(*F).cpp
 	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) $(slicedir)\IceDiscovery\IceDiscovery.ice
 

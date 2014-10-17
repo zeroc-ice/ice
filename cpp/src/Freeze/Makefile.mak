@@ -70,15 +70,15 @@ $(DLLNAME): $(OBJS) Freeze.res
 		$(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
-$(HDIR)/Catalog.h Catalog.cpp: $(SDIR)/CatalogData.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+$(HDIR)/Catalog.h Catalog.cpp: $(SDIR)/CatalogData.ice "$(SLICE2FREEZE)" "$(SLICEPARSERLIB)"
 	del /q $(HDIR)\Catalog.h Catalog.cpp
-	$(SLICE2FREEZE) $(SLICE2CPPFLAGS) --dict Freeze::Catalog,string,Freeze::CatalogData \
+	"$(SLICE2FREEZE)" $(SLICE2CPPFLAGS) --dict Freeze::Catalog,string,Freeze::CatalogData \
 	Catalog $(slicedir)/Freeze/CatalogData.ice
 	move Catalog.h $(HDIR)
 
-$(HDIR)/CatalogIndexList.h CatalogIndexList.cpp: $(slicedir)/Ice/BuiltinSequences.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+$(HDIR)/CatalogIndexList.h CatalogIndexList.cpp: $(slicedir)/Ice/BuiltinSequences.ice "$(SLICE2FREEZE)" $(SLICEPARSERLIB)
 	del /q $(HDIR)\CatalogIndexList.h CatalogIndexList.cpp
-	$(SLICE2FREEZE) $(SLICE2CPPFLAGS) --dict Freeze::CatalogIndexList,string,Ice::StringSeq \
+	"$(SLICE2FREEZE)" $(SLICE2CPPFLAGS) --dict Freeze::CatalogIndexList,string,Ice::StringSeq \
 	CatalogIndexList $(slicedir)/Ice/BuiltinSequences.ice
 	move CatalogIndexList.h $(HDIR)
 

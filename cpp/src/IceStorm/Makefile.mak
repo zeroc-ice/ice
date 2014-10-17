@@ -107,7 +107,7 @@ $(MIGRATE): $(MOBJS) $(MRES_FILE)
 # Implicit rule to build the private IceStorm .ice files.
 {..\IceStorm\}.ice{..\IceStorm\}.h:
 	del /q $(*F).h $(*F).cpp
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(*F).ice
+	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) $(*F).ice
 
 Scanner.cpp: Scanner.l
 	flex Scanner.l

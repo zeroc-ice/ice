@@ -1544,7 +1544,7 @@ def getCppBinDir(lang = None):
     if iceHome:
         if lang == None:
             lang = getDefaultMapping()
-        if lang == "cpp":
+        if lang == "cpp" or lang == "php":
           if isVC110():
             binDir = os.path.join(binDir, "vc110")
         if x64:
@@ -1553,7 +1553,7 @@ def getCppBinDir(lang = None):
                     binDir = os.path.join(binDir, "sparcv9")
                 else:
                     binDir = os.path.join(binDir, "amd64")
-            elif isWin32() and lang != "php" and lang != "rb":
+            elif isWin32() and lang != "php":
                 binDir = os.path.join(binDir, "x64")
         if isDarwin() and cpp11:
           binDir = os.path.join(binDir, "c++11")
@@ -1654,7 +1654,10 @@ def getTestEnv(lang, testdir):
             addPathToEnv("PYTHONPATH", pythonDir, env)
 
     if lang == "rb":
-        addPathToEnv("RUBYLIB", os.path.join(getIceDir("rb", testdir), "ruby"), env)
+        if isWin32() and x64:
+            addPathToEnv("RUBYLIB", os.path.join(getIceDir("rb", testdir), "ruby", "x64"), env)
+        else:
+            addPathToEnv("RUBYLIB", os.path.join(getIceDir("rb", testdir), "ruby"), env)
 
     if lang == "js":
         addPathToEnv("NODE_PATH", os.path.join(getIceDir("js", testdir), "src"), env)

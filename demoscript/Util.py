@@ -263,7 +263,6 @@ def configurePaths():
                     libDir = os.path.join(libDir, "amd64")
                     binDir = os.path.join(binDir, "amd64")
             elif isWin32():
-                libDir = os.path.join(libDir, "x64")
                 binDir = os.path.join(binDir, "x64")
             elif not isDarwin():
                 libDir = libDir + "64"
@@ -311,8 +310,12 @@ def configurePaths():
         addenv("PYTHONPATH", os.path.join(getIceDir("py"), "python", "x64"))
     else:
         addenv("PYTHONPATH", os.path.join(getIceDir("py"), "python"))
-    addenv("RUBYLIB", os.path.join(getIceDir("rb"), "ruby"))
     
+    if isWin32() and x64:
+        addenv("RUBYLIB", os.path.join(getIceDir("rb"), "ruby", "x64"))
+    else:
+        addenv("RUBYLIB", os.path.join(getIceDir("rb"), "ruby"))
+
     if getMapping() == "js":
         addenv("NODE_PATH", os.path.join(getIceDir("js"), "src"))
         addenv("NODE_PATH", ".")
@@ -344,16 +347,16 @@ def getMirrorDir(mapping = None):
     # Split off the front portion portion
     pref = here[:len(toplevel)]
     assert pref == toplevel
-    post = here[len(toplevel)+1:]
+    post = here[len(toplevel) + 1:]
 
     # In the source tree
     if sourcedist:
-        scriptPath = os.path.join(post.split(os.sep)[2:])
+        scriptPath = os.sep.join(post.split(os.sep)[2:])
         mappingDir = mappingDirs[mapping][0]
     else:
-        scriptPath = os.path.join(post.split(os.sep)[1:])
+        scriptPath = os.sep.join(post.split(os.sep)[1:])
         mappingDir = mappingDirs[mapping][1]
-    return os.path.join(pref, mappingDir, *scriptPath)
+    return os.path.join(pref, mappingDir, scriptPath)
 
 def getIceDir(subdir = None):
     """Get the top level directory of the ice distribution. If ICE_HOME

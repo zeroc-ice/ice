@@ -172,7 +172,7 @@ mkphplibname		= $(subst lib,,$(call mklibname,$(1)))
 EVERYTHING		= all clean install
 
 .SUFFIXES:
-.SUFFIXES:		.cpp .o .py .php
+.SUFFIXES:		.cpp .o .ice .php
 
 $(SLICE_SRCS:.ice=.php): $(SLICE2PHP) $(SLICEPARSERLIB)
 all:: $(SLICE_SRCS:.ice=.php)
@@ -199,10 +199,5 @@ endif
 all:: $(TARGETS)
 
 include $(wildcard .depend/*.d)
-
-ifneq ($(TEMPLATE_REPOSITORY),)
-clean::
-	rm -fr $(TEMPLATE_REPOSITORY)
-endif
 
 install::
