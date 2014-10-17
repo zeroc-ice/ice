@@ -20,12 +20,12 @@
         this.write(msg + "\n");
     };
     
-    var run = function(require)
+    var run = function(m)
     {
         var id = new Ice.InitializationData();
         id.properties = Ice.createProperties(process.argv);
         
-        var test = require("./Client").__test__;
+        var test = m.require("./Client").__test__;
         
         test({write: write, writeLine: writeLine}, id).exception(
             function(ex, r)
