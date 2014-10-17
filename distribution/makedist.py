@@ -217,9 +217,12 @@ def createDistfilesDist(platform, whichDestDir):
     #
     # Fix OS X installer files.
     #
-    for root, dirnames, filenames in os.walk('src/mac/Ice'):
+    for root, dirnames, filenames in os.walk('src/mac/'):
         for f in filenames:
-            if fnmatch.fnmatch(f, "*.txt") or fnmatch.fnmatch(f, "*.xml") or fnmatch.fnmatch(f, "*.sh"):
+            if (fnmatch.fnmatch(f, "*.txt") or 
+                fnmatch.fnmatch(f, "*.xml") or 
+                fnmatch.fnmatch(f, "*.sh") or 
+                fnmatch.fnmatch(f, "*.py")):
                 filepath = os.path.join(root, f)
                 fixVersion(filepath, *versions)
 

@@ -3,7 +3,7 @@
 import os, sys
 
 rootDir = "/opt/Ice-@ver@-ThirdParty"
-volname = "ThirdParty-@ver@"
+volname = "Ice-@ver@-ThirdParty"
 
 def runCommand(cmd):
     print(cmd)

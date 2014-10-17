@@ -35,6 +35,14 @@ embedded_runpath_prefix  ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
 #CXXARCHFLAGS		     = -arch i386 -arch x86_64
 
 #
+# If building on OS X and third party libraries are not installed
+# in the default location and THIRDPARTY_HOME is not set in your
+# environment variables, change the following setting to reflect the
+# installation location.
+#
+#THIRDPARTY_HOME ?= /Library/Developer/Ice-$(VERSION)-ThirdParty
+
+#
 # If libbzip2 is not installed in a location where the compiler can
 # find it, set BZIP2_HOME to the bzip2 installation directory.
 #

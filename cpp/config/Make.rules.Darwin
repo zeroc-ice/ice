@@ -85,3 +85,21 @@ ICE_OS_LIBS             = -ldl
 SSL_OS_LIBS             = -framework Security -framework CoreFoundation
 
 PLATFORM_HAS_READLINE   := yes
+
+ifeq ($(THIRDPARTY_HOME),)
+THIRDPARTY_HOME = /Library/Developer/Ice-$(VERSION)-ThirdParty
+endif
+
+ifeq ($(DB_HOME),)
+    ifneq ($(wildcard $(THIRDPARTY_HOME)/$(libsubdir)$(cpp11suffix)/libdb_cxx.dylib),)
+        DB_HOME = $(THIRDPARTY_HOME)
+    endif
+endif
+
+ifeq ($(MCPP_HOME),)
+    ifneq ($(wildcard $(THIRDPARTY_HOME)/$(libsubdir)/libmcpp.a),)
+        MCPP_HOME = $(THIRDPARTY_HOME)
+    endif
+endif
+
+
