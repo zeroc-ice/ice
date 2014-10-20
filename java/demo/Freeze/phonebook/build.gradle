@@ -13,7 +13,7 @@ slice {
 		srcDir = '.'
 	}
 	freezej {
-		files = [file("Phonebook.ice")]
+		files = [file("PhoneBook.ice")]
 		include = ["${sliceDir}"]
 		args = "--ice"
 		index {
