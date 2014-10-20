@@ -34,13 +34,13 @@ include 'test'
  	include "demo/IceDiscovery/${it}"
 }
 
-include	'demo/Database/library'
+['library'].each {
+ 	include "demo/Database/${it}"
+}
 
-include	'demo/Freeze/bench'
-include	'demo/Freeze/casino'
-include	'demo/Freeze/library'
-include	'demo/Freeze/phonebook'
-include	'demo/Freeze/transform'
+['bench', 'casino', 'library', 'phonebook', 'transform'].each {
+ 	include "demo/Freeze/${it}"
+}
 
 ['hello'].each {
  	include "demo/IceBox/${it}"
@@ -58,7 +58,6 @@ include	'demo/Freeze/transform'
  	include "demo/IceGrid/${it}"
 }
 
-['evictor_filesystem', 'lifecycle', 'printer', 'simple_filesystem'].each {
+['evictor_filesystem', 'lifecycle', 'map_filesystem', 'printer', 'simple_filesystem'].each {
  	include "demo/book/${it}"
 }
-include	'demo/book/map_filesystem'

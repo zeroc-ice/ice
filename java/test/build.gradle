@@ -136,6 +136,8 @@ slice {
     }
 }
 
+def hasLambda = org.gradle.internal.jvm.Jvm.current().getJavaVersion().toString().toFloat() >= 1.8f
+
 sourceSets {
     main {
         java {
@@ -143,7 +145,9 @@ sourceSets {
             exclude 'Ice/translator'
             exclude 'Slice/generation'
             exclude 'android'
-            exclude '**/lambda'
+            if (!hasLambda) {
+                exclude '**/lambda'
+            }
             exclude 'ejb'
         }
     }
