@@ -33,6 +33,8 @@ include 'test'
  	include "demo/IceDiscovery/${it}"
 }
 
+include	'demo/Database/library'
+
 include	'demo/Freeze/bench'
 include	'demo/Freeze/casino'
 include	'demo/Freeze/library'
