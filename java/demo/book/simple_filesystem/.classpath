@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry including="*.java|Filesystem/" kind="src" path=""/>
-	<classpathentry kind="src" path="generated"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/ice"/>
-	<classpathentry kind="output" path="classes"/>
-</classpath>
