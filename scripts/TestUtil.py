@@ -1595,6 +1595,7 @@ def getTestEnv(lang, testdir):
             addClasspath(os.path.join(javaDir, "IceStorm.jar"), env)
             addClasspath(os.path.join(javaDir, "IceGrid.jar"), env)
             addClasspath(os.path.join(javaDir, "IcePatch2.jar"), env)
+            addClasspath(os.path.join(javaDir, "IceDiscovery.jar"), env)
         return env # That's it, we're done!
 
     if isWin32():
@@ -1630,6 +1631,7 @@ def getTestEnv(lang, testdir):
         addClasspath(os.path.join(javaDir, "IceStorm.jar"), env)
         addClasspath(os.path.join(javaDir, "IceGrid.jar"), env)
         addClasspath(os.path.join(javaDir, "IcePatch2.jar"), env)
+        addClasspath(os.path.join(javaDir, "IceDiscovery.jar"), env)
         addClasspath(os.path.join(javaDir), env)
 
     #

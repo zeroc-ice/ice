@@ -1,0 +1,48 @@
+slice {
+    java {
+        include = ["${sliceDir}"]
+        args = "--ice"
+        files = files(fileTree(dir: "$sliceDir/Freeze", includes:['*.ice'], excludes:["*F.ice"]),
+                      file("./src/main/java/Freeze/PingObject.ice"))
+    }
+    freezej {
+        files = [file("${sliceDir}/Ice/BuiltinSequences.ice"),
+                 file("${sliceDir}/Freeze/CatalogData.ice")]
+        args = "--ice"
+        dict {
+            CatalogData {
+                javaType = "Freeze.Catalog"
+                key = "string"
+                value = "Freeze::CatalogData"
+            }
+        }
+        dict {
+            CatalogIndexList {
+                javaType = "Freeze.CatalogIndexList"
+                key = "string"
+                value = "Ice::StringSeq"
+            }
+        }
+    }
+}
+
+dependencies {
+    compile project(':src/Ice')
+    compile 'com.sleepycat:db:5.3.28'
+}
+
+idea.module {
+    excludeDirs -= file(buildDir)
+    buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
+}
+
+jar {
+    archiveName = "Freeze.jar"
+    destinationDir = new File("$rootProject.projectDir/lib/")
+}
+
+task copyJars(type: Copy) {
+    from new File("$rootProject.projectDir/lib/Freeze.jar")
+    into "${prefix}/lib"
+}
+task install(dependsOn: copyJars)

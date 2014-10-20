@@ -1,0 +1,24 @@
+apply plugin: 'application'
+apply from: "../../gradle/javafx7.gradle"
+
+dependencies {
+  compile project(':src/Ice')
+  compile project(':src/IceBox')
+  compile project(':src/IceGrid')
+  compile 'com.jgoodies:jgoodies-common:1.8.0'
+  compile 'com.jgoodies:jgoodies-looks:2.6.0'
+  compile 'com.jgoodies:jgoodies-forms:1.8.0'
+}
+
+mainClassName = "IceGridGUI.Main"
+
+jar {
+	archiveName = "IceGridGUI.jar"
+    destinationDir = new File("$rootProject.projectDir/lib/")
+}
+
+task copyJars(type: Copy) {
+    from new File("$rootProject.projectDir/lib/IceGridGUI.jar")
+    into "${prefix}/lib"
+}
+task install(dependsOn: copyJars)

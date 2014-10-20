@@ -1,0 +1,71 @@
+import groovy.xml.NamespaceBuilder
+ 
+assert project.plugins.findPlugin(JavaPlugin):
+        "The Java plugin must be applied before using javafx7.gradle."
+ 
+assert project.plugins.findPlugin(ApplicationPlugin):
+        "The Application plugin must be applied before using javafx7.gradle."
+ 
+def javaHome = System.properties['java.home']
+ 
+logger.warn("Project '$project.name' is using fx:jar. " +
+        "Disabling startScripts, installApp.")
+ 
+configurations {
+    jfxrt
+    jfxant
+ 
+    sourceSets {
+        main {
+            compileClasspath += configurations.jfxrt
+        }
+    }
+}
+ 
+dependencies {
+    jfxrt files("$javaHome" + "/lib/jfxrt.jar")
+    jfxant files("$javaHome" + "/../lib/ant-javafx.jar")
+}
+ 
+run.classpath.add(configurations.jfxrt)
+ 
+jar {
+    actions = []
+ 
+    def appId = project.name
+    def fallbackClassName = 'com.javafx.main.NoJavaFXFallback'
+ 
+    def antfx = NamespaceBuilder.newInstance(
+            ant,
+            'javafx:com.sun.javafx.tools.ant')
+ 
+ 
+    ant.taskdef(
+            resource: 'com/sun/javafx/tools/ant/antlib.xml',
+            uri: 'javafx:com.sun.javafx.tools.ant',
+            classpath: configurations.jfxant.asPath)
+ 
+ 
+ 
+    doLast {
+        antfx.application(
+                id: appId,
+                name: project.name,
+                mainClass: mainClassName,
+                fallbackClass: fallbackClassName)
+ 
+        antfx.jar(destfile: archivePath) {
+            application(refid: appId)
+            fileset(dir: sourceSets.main.output.classesDir)
+            fileset(dir: sourceSets.main.output.resourcesDir)
+        }
+   }
+}
+ 
+startScripts {
+    enabled = false
+}
+ 
+installApp {
+    enabled = false
+}

@@ -1,0 +1,42 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+subprojects {
+	apply plugin: 'java'
+	apply plugin: 'idea'
+	apply from: "$rootProject.projectDir/gradle/ice.gradle"
+
+	repositories {
+	    maven {
+	        url 'http://www.zeroc.com:8081/nexus/content/repositories/thirdparty'
+	    }
+    }
+
+    jar {
+	    manifest {
+	        attributes("Built-By": "ZeroC, Inc.")
+	    }
+	}
+}
+
+apply from: "$rootProject.projectDir/demo/Ice/build.gradle"
+apply from: "$rootProject.projectDir/demo/IceDiscovery/build.gradle"
+apply from: "$rootProject.projectDir/demo/IceBox/build.gradle"
+apply from: "$rootProject.projectDir/demo/Glacier2/build.gradle"
+apply from: "$rootProject.projectDir/demo/IceStorm/build.gradle"
+apply from: "$rootProject.projectDir/demo/IceGrid/build.gradle"
+apply from: "$rootProject.projectDir/demo/book/build.gradle"
+
+//
+// Used to build the gradle wrapper to automatically download and install 
+// the version of gradle needed to build Ice.
+//
+//task wrapper(type: Wrapper) {
+//	gradleVersion = "2.1"
+//}

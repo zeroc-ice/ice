@@ -1,0 +1,30 @@
+slice {
+    java {
+        stream {
+            args = "--ice --stream"
+            files = [file("$sliceDir/Ice/BuiltinSequences.ice")]
+        }
+        nostream {
+        	include = ["${sliceDir}"]
+            args = "--ice"
+            files = fileTree(dir: "$sliceDir", includes:['Ice/*.ice', 'IceSSL/*.ice'],
+            	excludes:['Ice/*F.ice', 'Ice/BuiltinSequences.ice'])
+        }
+    }
+}
+
+idea.module {
+    excludeDirs -= file(buildDir)
+    buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
+}
+
+jar {
+    archiveName = "Ice.jar"
+    destinationDir = new File("$rootProject.projectDir/lib/")
+}
+
+task copyJars(type: Copy) {
+    from new File("$rootProject.projectDir/lib/Ice.jar")
+    into "${prefix}/lib"
+}
+task install(dependsOn: copyJars)

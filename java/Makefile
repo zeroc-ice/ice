@@ -7,30 +7,30 @@
 #
 # **********************************************************************
 
-ANT_FLAGS = -emacs
+#ANT_FLAGS = -emacs
  
-ifeq ($(APPEND_VERSION_SUFFIX),yes)
-ANT_FLAGS += -Dappend-version-suffix=yes
-endif
+#ifeq ($(APPEND_VERSION_SUFFIX),yes)
+#ANT_FLAGS += -Dappend-version-suffix=yes
+#endif
 
-INSTALL_FLAGS += $(ANT_FLAGS)
+#INSTALL_FLAGS += $(ANT_FLAGS)
 
-ifneq ($(prefix),)
-INSTALL_FLAGS += -Dprefix=$(prefix)
-endif
+#ifneq ($(prefix),)
+#INSTALL_FLAGS += -Dprefix=$(prefix)
+#endif
 
-ifneq ($(DESTDIR),)
-INSTALL_FLAGS += -DDESTDIR=$(DESTDIR)
-endif
+#ifneq ($(DESTDIR),)
+#INSTALL_FLAGS += -DDESTDIR=$(DESTDIR)
+#endif
 
 all:
-	ant $(ANT_FLAGS)
+	./gradlew assemble $(ANT_FLAGS)
 
 clean:
-	ant $(ANT_FLAGS) clean
+	./gradlew clean $(ANT_FLAGS) clean
 
 install::
-	ant $(INSTALL_FLAGS) install
+	./gradlew $(INSTALL_FLAGS) install
 
 test::
 	@python ./allTests.py

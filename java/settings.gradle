@@ -1,0 +1,61 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+// Main source
+include 'src/Ice'
+include 'src/IceDiscovery'
+include	'src/Freeze'
+include	'src/IceBox'
+include	'src/Glacier2'
+include	'src/IcePatch2'
+include	'src/IceStorm'
+include	'src/IceGrid'
+include	'src/IceGridGUI'
+
+// Tests
+include 'test'
+
+// Demos
+['applet', 'async', 'bidir', 'callback', 'hello', 'invoke',
+ 'interrupt', 'latency', 'minimal', 'multicast', 'nested',
+ 'plugin', 'properties', 'serialize','session', 'swing',
+ 'throughput', 'value', 'optional','context'].each {
+ 	include "demo/Ice/${it}"
+}
+
+['hello', 'replication'].each {
+ 	include "demo/IceDiscovery/${it}"
+}
+
+include	'demo/Freeze/bench'
+include	'demo/Freeze/casino'
+include	'demo/Freeze/library'
+include	'demo/Freeze/phonebook'
+include	'demo/Freeze/transform'
+
+['hello'].each {
+ 	include "demo/IceBox/${it}"
+}
+
+['callback', 'chat', 'voip'].each {
+ 	include "demo/Glacier2/${it}"
+}
+
+['clock'].each {
+ 	include "demo/IceStorm/${it}"
+}
+
+['icebox', 'simple'].each {
+ 	include "demo/IceGrid/${it}"
+}
+
+['evictor_filesystem', 'lifecycle', 'printer', 'simple_filesystem'].each {
+ 	include "demo/book/${it}"
+}
+include	'demo/book/map_filesystem'

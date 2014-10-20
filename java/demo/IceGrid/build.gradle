@@ -1,0 +1,36 @@
+['icebox', 'simple'].each {
+ 	def name = it
+	project(":demo/IceGrid/${it}") {
+		slice {
+			java {
+				include = ["${projectDir}", "${sliceDir}"]
+				srcDir = '.'
+			}
+		}
+
+		sourceSets {
+			main {
+				java {
+					srcDir '.'
+				}
+			}
+		}
+
+		dependencies {
+			compile project(':src/Ice')
+			compile project(':src/IceBox')
+			compile project(':src/IceGrid')
+		}
+
+		compileJava {
+			destinationDir = file("${buildDir}/classes")
+		}
+
+		jar.enabled = false
+
+		idea.module {
+		    excludeDirs -= file(buildDir)
+		    buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
+		}
+	}
+}

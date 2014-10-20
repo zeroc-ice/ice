@@ -1,0 +1,27 @@
+slice {
+    java {
+    	include = ["${sliceDir}"]
+        args = "--ice"
+        files = fileTree(dir: "$sliceDir/IceDiscovery", includes:['*.ice'], excludes:["*F.ice"])
+    }
+}
+
+idea.module {
+    excludeDirs -= file(buildDir)
+    buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
+}
+
+dependencies {
+    compile project(':src/Ice')
+}
+
+jar {
+    archiveName = "IceDiscovery.jar"
+    destinationDir = new File("$rootProject.projectDir/lib/")
+}
+
+task copyJars(type: Copy) {
+    from new File("$rootProject.projectDir/lib/IceDiscovery.jar")
+    into "${prefix}/lib"
+}
+task install(dependsOn: copyJars)

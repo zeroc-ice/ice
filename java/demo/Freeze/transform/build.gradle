@@ -1,0 +1,60 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+slice {
+	java {
+		include = ["${projectDir}", "${sliceDir}"]
+		srcDir = '.'
+	}
+	freezej {
+		files = [file("ContactData.ice"), file("NewContactData.ice")]
+		include = ["${projectDir}"]
+		args = "--ice"
+		dict {
+			Contacts {
+				javaType = "Demo.Contacts"
+				key = "string"
+				value = "Demo::ContactData"
+				index = [[ member: 'phoneNumber', case: 'false']]
+			}
+		}
+		dict {
+			NewContacts {
+				javaType = "Demo.NewContacts"
+				key = "string"
+				value = "Demo::NewContactData"
+				index = [[ member: 'phoneNumber', case: 'false']]
+			}
+		}
+	}
+}
+
+sourceSets {
+	main {
+		java {
+			srcDir '.'
+		}
+	}
+}
+
+dependencies {
+	compile project(':src/Ice')
+	compile project(':src/Freeze')
+}
+
+compileJava {
+        destinationDir = file("${buildDir}/classes")
+}       
+
+jar.enabled = false 
+
+idea.module {
+	excludeDirs -= file(buildDir)
+	buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
+}

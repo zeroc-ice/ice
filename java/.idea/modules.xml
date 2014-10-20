@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/buildSrc/buildSrc.iml" filepath="$PROJECT_DIR$/buildSrc/buildSrc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Freeze/bench/demo_Freeze_bench.iml" filepath="$PROJECT_DIR$/demo/Freeze/bench/demo_Freeze_bench.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Freeze/casino/demo_Freeze_casino.iml" filepath="$PROJECT_DIR$/demo/Freeze/casino/demo_Freeze_casino.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Freeze/library/demo_Freeze_library.iml" filepath="$PROJECT_DIR$/demo/Freeze/library/demo_Freeze_library.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Freeze/phonebook/demo_Freeze_phonebook.iml" filepath="$PROJECT_DIR$/demo/Freeze/phonebook/demo_Freeze_phonebook.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Freeze/transform/demo_Freeze_transform.iml" filepath="$PROJECT_DIR$/demo/Freeze/transform/demo_Freeze_transform.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Glacier2/callback/demo_Glacier2_callback.iml" filepath="$PROJECT_DIR$/demo/Glacier2/callback/demo_Glacier2_callback.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Glacier2/chat/demo_Glacier2_chat.iml" filepath="$PROJECT_DIR$/demo/Glacier2/chat/demo_Glacier2_chat.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Glacier2/voip/demo_Glacier2_voip.iml" filepath="$PROJECT_DIR$/demo/Glacier2/voip/demo_Glacier2_voip.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/IceBox/hello/demo_IceBox_hello.iml" filepath="$PROJECT_DIR$/demo/IceBox/hello/demo_IceBox_hello.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/IceDiscovery/hello/demo_IceDiscovery_hello.iml" filepath="$PROJECT_DIR$/demo/IceDiscovery/hello/demo_IceDiscovery_hello.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/IceDiscovery/replication/demo_IceDiscovery_replication.iml" filepath="$PROJECT_DIR$/demo/IceDiscovery/replication/demo_IceDiscovery_replication.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/IceGrid/icebox/demo_IceGrid_icebox.iml" filepath="$PROJECT_DIR$/demo/IceGrid/icebox/demo_IceGrid_icebox.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/IceGrid/simple/demo_IceGrid_simple.iml" filepath="$PROJECT_DIR$/demo/IceGrid/simple/demo_IceGrid_simple.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/IceStorm/clock/demo_IceStorm_clock.iml" filepath="$PROJECT_DIR$/demo/IceStorm/clock/demo_IceStorm_clock.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Ice/applet/demo_Ice_applet.iml" filepath="$PROJECT_DIR$/demo/Ice/applet/demo_Ice_applet.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Ice/async/demo_Ice_async.iml" filepath="$PROJECT_DIR$/demo/Ice/async/demo_Ice_async.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Ice/bidir/demo_Ice_bidir.iml" filepath="$PROJECT_DIR$/demo/Ice/bidir/demo_Ice_bidir.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Ice/callback/demo_Ice_callback.iml" filepath="$PROJECT_DIR$/demo/Ice/callback/demo_Ice_callback.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Ice/context/demo_Ice_context.iml" filepath="$PROJECT_DIR$/demo/Ice/context/demo_Ice_context.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Ice/hello/demo_Ice_hello.iml" filepath="$PROJECT_DIR$/demo/Ice/hello/demo_Ice_hello.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Ice/interrupt/demo_Ice_interrupt.iml" filepath="$PROJECT_DIR$/demo/Ice/interrupt/demo_Ice_interrupt.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Ice/invoke/demo_Ice_invoke.iml" filepath="$PROJECT_DIR$/demo/Ice/invoke/demo_Ice_invoke.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Ice/latency/demo_Ice_latency.iml" filepath="$PROJECT_DIR$/demo/Ice/latency/demo_Ice_latency.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Ice/minimal/demo_Ice_minimal.iml" filepath="$PROJECT_DIR$/demo/Ice/minimal/demo_Ice_minimal.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Ice/multicast/demo_Ice_multicast.iml" filepath="$PROJECT_DIR$/demo/Ice/multicast/demo_Ice_multicast.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Ice/nested/demo_Ice_nested.iml" filepath="$PROJECT_DIR$/demo/Ice/nested/demo_Ice_nested.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Ice/optional/demo_Ice_optional.iml" filepath="$PROJECT_DIR$/demo/Ice/optional/demo_Ice_optional.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Ice/plugin/demo_Ice_plugin.iml" filepath="$PROJECT_DIR$/demo/Ice/plugin/demo_Ice_plugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Ice/properties/demo_Ice_properties.iml" filepath="$PROJECT_DIR$/demo/Ice/properties/demo_Ice_properties.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Ice/serialize/demo_Ice_serialize.iml" filepath="$PROJECT_DIR$/demo/Ice/serialize/demo_Ice_serialize.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Ice/session/demo_Ice_session.iml" filepath="$PROJECT_DIR$/demo/Ice/session/demo_Ice_session.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Ice/swing/demo_Ice_swing.iml" filepath="$PROJECT_DIR$/demo/Ice/swing/demo_Ice_swing.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Ice/throughput/demo_Ice_throughput.iml" filepath="$PROJECT_DIR$/demo/Ice/throughput/demo_Ice_throughput.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/Ice/value/demo_Ice_value.iml" filepath="$PROJECT_DIR$/demo/Ice/value/demo_Ice_value.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/book/evictor_filesystem/demo_book_evictor_filesystem.iml" filepath="$PROJECT_DIR$/demo/book/evictor_filesystem/demo_book_evictor_filesystem.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/book/lifecycle/demo_book_lifecycle.iml" filepath="$PROJECT_DIR$/demo/book/lifecycle/demo_book_lifecycle.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/book/map_filesystem/demo_book_map_filesystem.iml" filepath="$PROJECT_DIR$/demo/book/map_filesystem/demo_book_map_filesystem.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/book/printer/demo_book_printer.iml" filepath="$PROJECT_DIR$/demo/book/printer/demo_book_printer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/book/simple_filesystem/demo_book_simple_filesystem.iml" filepath="$PROJECT_DIR$/demo/book/simple_filesystem/demo_book_simple_filesystem.iml" />
+      <module fileurl="file://$PROJECT_DIR$/java.iml" filepath="$PROJECT_DIR$/java.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/Freeze/src_Freeze.iml" filepath="$PROJECT_DIR$/src/Freeze/src_Freeze.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/Glacier2/src_Glacier2.iml" filepath="$PROJECT_DIR$/src/Glacier2/src_Glacier2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/Ice/src_Ice.iml" filepath="$PROJECT_DIR$/src/Ice/src_Ice.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/IceBox/src_IceBox.iml" filepath="$PROJECT_DIR$/src/IceBox/src_IceBox.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/IceDiscovery/src_IceDiscovery.iml" filepath="$PROJECT_DIR$/src/IceDiscovery/src_IceDiscovery.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/IceGrid/src_IceGrid.iml" filepath="$PROJECT_DIR$/src/IceGrid/src_IceGrid.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/IceGridGUI/src_IceGridGUI.iml" filepath="$PROJECT_DIR$/src/IceGridGUI/src_IceGridGUI.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/IcePatch2/src_IcePatch2.iml" filepath="$PROJECT_DIR$/src/IcePatch2/src_IcePatch2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/IceStorm/src_IceStorm.iml" filepath="$PROJECT_DIR$/src/IceStorm/src_IceStorm.iml" />
+      <module fileurl="file://$PROJECT_DIR$/test/test.iml" filepath="$PROJECT_DIR$/test/test.iml" />
+    </modules>
+  </component>
+</project>
+

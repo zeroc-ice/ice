@@ -1,0 +1,28 @@
+slice {
+    java {
+    	include = ["${sliceDir}"]
+        args = "--ice --tie --checksum IceGrid.SliceChecksums"
+        files = fileTree(dir: "$sliceDir/IceGrid", includes:['*.ice'], excludes:["*F.ice"])
+    }
+}
+
+idea.module {
+    excludeDirs -= file(buildDir)
+    buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
+}
+
+dependencies {
+    compile project(':src/Ice')
+    compile project(':src/Glacier2')
+}
+
+jar {
+    archiveName = "IceGrid.jar"
+    destinationDir = new File("$rootProject.projectDir/lib/")
+}
+
+task copyJars(type: Copy) {
+    from new File("$rootProject.projectDir/lib/IceGrid.jar")
+    into "${prefix}/lib"
+}
+task install(dependsOn: copyJars)

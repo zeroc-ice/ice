@@ -58,7 +58,7 @@ void
 usage(const char* n)
 {
     getErrorStream() << "Usage: " << n << " [options] slice-files...\n";
-    getErrorStream() <<        
+    getErrorStream() <<
         "Options:\n"
         "-h, --help              Show this message.\n"
         "-v, --version           Display the Ice version.\n"
@@ -294,7 +294,7 @@ compile(int argc, char* argv[])
                 {
                     p->destroy();
                     return EXIT_FAILURE;
-                }           
+                }
 
                 if(parseStatus == EXIT_FAILURE)
                 {
@@ -375,7 +375,7 @@ compile(int argc, char* argv[])
         cout << "</dependencies>\n";
     }
 
-    if(status == EXIT_SUCCESS && !checksumClass.empty())
+    if(status == EXIT_SUCCESS && !checksumClass.empty() && !dependxml)
     {
         try
         {

@@ -1,0 +1,59 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+slice {
+	java {
+		include = ["${projectDir}", "${sliceDir}"]
+		srcDir = '.'
+	}
+	freezej {
+		files = [file("FilesystemDB.ice"),
+				 file("${sliceDir}/Ice/Identity.ice")]
+		include = ["${projectDir}", "${sliceDir}"]
+		args = "--ice"
+		dict {
+			IdentityFileEntryMap {
+				javaType = "FilesystemDB.IdentityFileEntryMap"
+				key = "Ice::Identity"
+				value = "FilesystemDB::FileEntry"
+			}
+		}
+		dict {
+			IdentityDirectoryEntryMap {
+				javaType = "FilesystemDB.IdentityDirectoryEntryMap"
+				key="Ice::Identity"
+                value="FilesystemDB::DirectoryEntry"
+			}
+		}
+	}
+}
+
+sourceSets {
+	main {
+		java {
+			srcDir '.'
+		}
+	}
+}
+
+compileJava {
+	destinationDir = file("${buildDir}/classes")
+}
+
+jar.enabled = false
+
+dependencies {
+	compile project(':src/Ice')
+	compile project(':src/Freeze')
+}
+
+idea.module {
+	excludeDirs -= file(buildDir)
+	buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
+}

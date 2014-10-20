@@ -1,0 +1,97 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+slice {
+	java {
+		include = ["${projectDir}", "${sliceDir}"]
+		srcDir = '.'
+	}
+	freezej {
+		files = [file("Test.ice")]
+		include = ["${sliceDir}"]
+		args = "--ice"
+		dict {
+			IntIntMap {
+				javaType = "Demo.IntIntMap"
+				key = "int"
+				value = "int"
+			}
+		}
+		dict {
+			IndexedIntIntMap {
+				javaType = "Demo.IndexedIntIntMap"
+				key = "int"
+				value = "int"
+				index = [[:]]
+			}
+		}
+		dict {
+			Struct1Struct2Map {
+				javaType = "Demo.Struct1Struct2Map"
+				key = "Demo::Struct1"
+				value = "Demo::Struct2"
+			}
+		}
+		dict {
+			Struct1Class1Map {
+				javaType = "Demo.Struct1Class1Map"
+				key = "Demo::Struct1"
+				value = "Demo::Class1"
+			}
+		}
+		dict {
+			Struct1ObjectMap {
+				javaType = "Demo.Struct1ObjectMap"
+				key = "Demo::Struct1"
+				value = "Object"
+			}
+		}
+		dict {
+			IndexedStruct1Struct2Map {
+				javaType = "Demo.IndexedStruct1Struct2Map"
+				key = "Demo::Struct1"
+				value = "Demo::Struct2"
+				index = [[ member: 's', case: 'false'],
+						 [ member: 's1']]
+			}
+		}
+		dict {
+			IndexedStruct1Class1Map {
+				javaType = "Demo.IndexedStruct1Class1Map"
+				key = "Demo::Struct1"
+				value = "Demo::Class1"
+				index = [[ member: 's', case: 'true']]
+			}
+		}
+	}
+}
+
+sourceSets {
+	main {
+		java {
+			srcDir '.'
+		}
+	}
+}
+
+compileJava {
+	destinationDir = file("${buildDir}/classes")
+}
+
+jar.enabled = false
+
+dependencies {
+	compile project(':src/Ice')
+	compile project(':src/Freeze')
+}
+
+idea.module {
+	excludeDirs -= file(buildDir)
+	buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
+}

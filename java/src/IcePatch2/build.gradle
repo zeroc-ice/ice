@@ -1,0 +1,27 @@
+slice {
+    java {
+    	include = ["${sliceDir}"]
+        args = "--ice --tie --checksum IcePatch2.SliceChecksums"
+        files = fileTree(dir: "$sliceDir/IcePatch2", includes:['*.ice'], excludes:["*F.ice"])
+    }
+}
+
+idea.module {
+    excludeDirs -= file(buildDir)
+    buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
+}
+
+dependencies {
+    compile project(':src/Ice')
+}
+
+jar {
+    archiveName = "IcePatch2.jar"
+    destinationDir = new File("$rootProject.projectDir/lib/")
+}
+
+task copyJars(type: Copy) {
+    from new File("$rootProject.projectDir/lib/IcePatch2.jar")
+    into "${prefix}/lib"
+}
+task install(dependsOn: copyJars)

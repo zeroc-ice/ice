@@ -8,17 +8,13 @@
 # **********************************************************************
 
 all:
-	ant -emacs
+	gradlew assemble
 
 clean:
-	ant -emacs clean
+	gradlew clean
 
 install::
-!if "$(prefix)" != ""
-	ant -emacs -Dprefix="$(prefix)" install
-!else
-	ant -emacs install
-!endif
+	gradlew install
 
 test:
 	@python .\allTests.py

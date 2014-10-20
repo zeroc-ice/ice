@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: gradle-maven-2.1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/wrapper/dists/gradle-2.1-all/27drb4udbjf4k88eh2ffdc0n55/gradle-2.1/lib/plugins/gradle-maven-2.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$USER_HOME$/.gradle/wrapper/dists/gradle-2.1-all/27drb4udbjf4k88eh2ffdc0n55/gradle-2.1/src/maven" />
+    </SOURCES>
+  </library>
+</component>
