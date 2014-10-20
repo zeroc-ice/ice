@@ -535,15 +535,6 @@ IceSSL::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
             //
             throw ConnectionLostException(__FILE__, __LINE__, 0);
         }
-        else if(err == SEC_E_MESSAGE_ALTERED || err == SEC_E_DECRYPT_FAILURE)
-        {
-            //
-            // Forcefully closing a connection can result in SSL_read
-            // reporting "decryption failed or bad record mac". We trap
-            // that error and treat it as the loss of a connection.
-            //
-            throw ConnectionLostException(__FILE__, __LINE__, 0);
-        }
         else if(err != SEC_E_OK)
         {
             throw ProtocolException(__FILE__, __LINE__, "IceSSL: protocol error during read:\n" +

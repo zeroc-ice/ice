@@ -490,33 +490,9 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool&)
             }
             case SSL_ERROR_SSL:
             {
-                //
-                // Forcefully closing a connection can result in SSL_read reporting
-                // "decryption failed or bad record mac". We trap that error and
-                // treat it as the loss of a connection.
-                //
-                // NOTE: We have to compare the reason string instead
-                // of the error codes because the error code values
-                // changed between OpenSSL 0.9.7i and 0.9.7j and
-                // between OpenSSL 0.9.8a and 0.9.8b...
-                //
-                //unsigned long e = ERR_peek_error();
-                //if(ERR_GET_LIB(e) == ERR_LIB_SSL && ERR_GET_REASON(e) == SSL_R_DECRYPTION_FAILED_OR_BAD_RECORD_MAC)
-                //
-                unsigned long e = ERR_peek_error();
-                const char* estr = ERR_GET_LIB(e) == ERR_LIB_SSL ? ERR_reason_error_string(e) : 0;
-                if(estr && strcmp(estr, "decryption failed or bad record mac") == 0)
-                {
-                    ConnectionLostException ex(__FILE__, __LINE__);
-                    ex.error = 0;
-                    throw ex;
-                }
-                else
-                {
-                    ProtocolException ex(__FILE__, __LINE__);
-                    ex.reason = "SSL protocol error during read:\n" + _engine->sslErrors();
-                    throw ex;
-                }
+                ProtocolException ex(__FILE__, __LINE__);
+                ex.reason = "SSL protocol error during read:\n" + _engine->sslErrors();
+                throw ex;
             }
             }
         }
