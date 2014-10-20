@@ -369,6 +369,26 @@ namespace IceInternal
             }
         }
 
+        public void invokeSentAsync(Ice.AsyncCallback cb)
+        {
+            //
+            // This is called when it's not safe to call the exception callback synchronously
+            // from this thread. Instead the exception callback is called asynchronously from
+            // the client thread pool.
+            //
+            Debug.Assert(cb != null);
+            try
+            {
+                instance_.clientThreadPool().dispatch(() =>
+                    {
+                        invokeSent(cb);
+                    }, cachedConnection_);
+            }
+            catch(Ice.CommunicatorDestroyedException)
+            {
+            }
+        }
+
         public void invokeCompleted(Ice.AsyncCallback cb)
         {
             Debug.Assert(cb != null);
@@ -548,26 +568,6 @@ namespace IceInternal
                 }
                 System.Threading.Monitor.PulseAll(this);
                 return _completedCallback;
-            }
-        }
-
-        protected void invokeSentAsync(Ice.AsyncCallback cb)
-        {
-            //
-            // This is called when it's not safe to call the exception callback synchronously
-            // from this thread. Instead the exception callback is called asynchronously from
-            // the client thread pool.
-            //
-            Debug.Assert(cb != null);
-            try
-            {
-                instance_.clientThreadPool().dispatch(() =>
-                    {
-                        invokeSent(cb);
-                    }, cachedConnection_);
-            }
-            catch(Ice.CommunicatorDestroyedException)
-            {
             }
         }
 

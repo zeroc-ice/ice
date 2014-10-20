@@ -45,6 +45,7 @@ public:
     // Those methods are public when called from an OutgoingAsyncBase reference.
     using Ice::AsyncResult::cancelable;
     using Ice::AsyncResult::invokeSent;
+    using Ice::AsyncResult::invokeSentAsync;
     using Ice::AsyncResult::invokeCompleted;
     using Ice::AsyncResult::invokeCompletedAsync;
 

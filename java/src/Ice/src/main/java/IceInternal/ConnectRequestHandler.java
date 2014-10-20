@@ -293,18 +293,7 @@ public class ConnectRequestHandler
         // from the client thread pool since this will result in ice_exception callbacks to be
         // called.
         //
-        if(!_requests.isEmpty())
-        {
-            _reference.getInstance().clientThreadPool().dispatch(new DispatchWorkItem(_connection)
-                {
-                    @Override
-                    public void
-                    run()
-                    {
-                        flushRequestsWithException();
-                    };
-                });
-        }
+        flushRequestsWithException();
 
         notifyAll();
     }
@@ -414,7 +403,7 @@ public class ConnectRequestHandler
                     if((request.outAsync.send(_connection, _compress, _response) &
                         AsyncStatus.InvokeSentCallback) > 0)
                     {
-                        sentCallbacks.add(request.outAsync);
+                        request.outAsync.invokeSentAsync();
                     }
                 }
                 else
@@ -449,14 +438,7 @@ public class ConnectRequestHandler
             {
                 assert(_exception == null && !_requests.isEmpty());
                 _exception = ex.get();
-                _reference.getInstance().clientThreadPool().dispatch(new DispatchWorkItem(_connection)
-                {
-                    @Override
-                    public void run()
-                    {
-                        flushRequestsWithException();
-                    };
-                });
+                flushRequestsWithException();
             }
         }
         catch(final Ice.LocalException ex)
@@ -465,30 +447,8 @@ public class ConnectRequestHandler
             {
                 assert(_exception == null && !_requests.isEmpty());
                 _exception = ex;
-                _reference.getInstance().clientThreadPool().dispatch(new DispatchWorkItem(_connection)
-                {
-                    @Override
-                    public void run()
-                    {
-                        flushRequestsWithException();
-                    };
-                });
+                flushRequestsWithException();
             }
-        }
-
-        if(!sentCallbacks.isEmpty())
-        {
-            _reference.getInstance().clientThreadPool().dispatch(new DispatchWorkItem(_connection)
-            {
-                @Override
-                public void run()
-                {
-                    for(OutgoingAsyncBase callback : sentCallbacks)
-                    {
-                        callback.invokeSent();
-                    }
-                };
-            });
         }
 
         //
@@ -555,7 +515,7 @@ public class ConnectRequestHandler
             {
                 if(request.outAsync.completed(_exception))
                 {
-                    request.outAsync.invokeCompleted();
+                    request.outAsync.invokeCompletedAsync();
                 }
             }
         }

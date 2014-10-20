@@ -283,13 +283,7 @@ namespace IceInternal
                 // from the client thread pool since this will result in ice_exception callbacks to be
                 // called.
                 //
-                if(_requests.Count > 0)
-                {
-                    _reference.getInstance().clientThreadPool().dispatch(() =>
-                    {
-                        flushRequestsWithException();
-                    }, _connection);
-                }
+                flushRequestsWithException();
 
                 System.Threading.Monitor.PulseAll(this);
             }
@@ -366,7 +360,6 @@ namespace IceInternal
                 _flushing = true;
             }
 
-            LinkedList<Request> sentCallbacks = new LinkedList<Request>();
             try
             {
                 LinkedListNode<Request> p = _requests.First; // _requests is immutable when _flushing = true
@@ -379,7 +372,7 @@ namespace IceInternal
                         {
                             if(request.sentCallback != null)
                             {
-                                sentCallbacks.AddLast(request);
+                                request.outAsync.invokeSentAsync(request.sentCallback);
                             }
                         }
                     }
@@ -417,10 +410,7 @@ namespace IceInternal
                 {
                     Debug.Assert(_exception == null && _requests.Count > 0);
                     _exception = ex.get();
-                    _reference.getInstance().clientThreadPool().dispatch(() =>
-                    {
-                        flushRequestsWithException();
-                    }, _connection);
+                    flushRequestsWithException();
                 }
             }
             catch(Ice.LocalException ex)
@@ -429,26 +419,8 @@ namespace IceInternal
                 {
                     Debug.Assert(_exception == null && _requests.Count > 0);
                     _exception = ex;
-                    _reference.getInstance().clientThreadPool().dispatch(() =>
-                    {
-                        flushRequestsWithException();
-                    }, _connection);
+                    flushRequestsWithException();
                 }
-            }
-
-            if(sentCallbacks.Count > 0)
-            {
-                Instance instance = _reference.getInstance();
-                instance.clientThreadPool().dispatch(() =>
-                {
-                    foreach(Request r in sentCallbacks)
-                    {
-                        if(r.outAsync != null)
-                        {
-                            r.outAsync.invokeSent(r.sentCallback);
-                        }
-                    }
-                }, _connection);
             }
 
             //
@@ -488,7 +460,7 @@ namespace IceInternal
                     Ice.AsyncCallback cb = request.outAsync.completed(_exception);
                     if(cb != null)
                     {
-                        request.outAsync.invokeCompleted(cb);
+                        request.outAsync.invokeCompletedAsync(cb);
                     }
                 }
             }

@@ -22,54 +22,6 @@
 using namespace std;
 using namespace IceInternal;
 
-namespace
-{
-
-class FlushRequestsWithException : public DispatchWorkItem
-{
-public:
-
-    FlushRequestsWithException(const Ice::ConnectionPtr& connection, const ConnectRequestHandlerPtr& handler) :
-        DispatchWorkItem(connection), _handler(handler)
-    {
-    }
-
-    virtual void
-    run()
-    {
-        _handler->flushRequestsWithException();
-    }
-
-private:
-
-    const ConnectRequestHandlerPtr _handler;
-};
-
-class FlushSentRequests : public DispatchWorkItem
-{
-public:
-
-    FlushSentRequests(const Ice::ConnectionPtr& connection, const vector<OutgoingAsyncBasePtr>& callbacks) :
-        DispatchWorkItem(connection), _callbacks(callbacks)
-    {
-    }
-
-    virtual void
-    run()
-    {
-        for(vector<OutgoingAsyncBasePtr>::const_iterator p = _callbacks.begin(); p != _callbacks.end(); ++p)
-        {
-            (*p)->invokeSent();
-        }
-    }
-
-private:
-
-    vector<OutgoingAsyncBasePtr> _callbacks;
-};
-
-};
-
 ConnectRequestHandler::ConnectRequestHandler(const ReferencePtr& ref, const Ice::ObjectPrx& proxy) :
     RequestHandler(ref),
     _proxy(proxy),
@@ -390,10 +342,7 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
     // from the client thread pool since this will result in ice_exception callbacks to be
     // called.
     //
-    if(!_requests.empty())
-    {
-        _reference->getInstance()->clientThreadPool()->dispatch(new FlushRequestsWithException(_connection, this));
-    }
+    flushRequestsWithException();
 
     notifyAll();
 }
@@ -457,7 +406,6 @@ ConnectRequestHandler::flushRequests()
         _flushing = true;
     }
 
-    vector<OutgoingAsyncBasePtr> sentCallbacks;
     try
     {
         while(!_requests.empty()) // _requests is immutable when _flushing = true
@@ -471,7 +419,7 @@ ConnectRequestHandler::flushRequests()
             {
                 if(req.outAsync->send(_connection, _compress, _response) & AsyncStatusInvokeSentCallback)
                 {
-                    sentCallbacks.push_back(req.outAsync);
+                    req.outAsync->invokeSentAsync();
                 }
             }
             else
@@ -508,19 +456,14 @@ ConnectRequestHandler::flushRequests()
         Lock sync(*this);
         assert(!_exception.get() && !_requests.empty());
         _exception.reset(ex.get()->ice_clone());
-        _reference->getInstance()->clientThreadPool()->dispatch(new FlushRequestsWithException(_connection, this));
+        flushRequestsWithException();
     }
     catch(const Ice::LocalException& ex)
     {
         Lock sync(*this);
         assert(!_exception.get() && !_requests.empty());
         _exception.reset(ex.ice_clone());
-        _reference->getInstance()->clientThreadPool()->dispatch(new FlushRequestsWithException(_connection, this));
-    }
-
-    if(!sentCallbacks.empty())
-    {
-        _reference->getInstance()->clientThreadPool()->dispatch(new FlushSentRequests(_connection, sentCallbacks));
+        flushRequestsWithException();
     }
 
     //
@@ -563,7 +506,7 @@ ConnectRequestHandler::flushRequestsWithException()
         {
             if(p->outAsync->completed(*_exception.get()))
             {
-                p->outAsync->invokeCompleted();
+                p->outAsync->invokeCompletedAsync();
             }
         }
         else
