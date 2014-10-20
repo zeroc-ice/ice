@@ -169,6 +169,7 @@ var TcpTransceiver = Ice.Class({
 
             var self = this;
             var sync = true;
+            /*jshint -W083 */
             sync = this._fd.write(slice, null, function() {
                 if(sync)
                 {
@@ -187,6 +188,7 @@ var TcpTransceiver = Ice.Class({
                 }
                 self._bytesWrittenCallback(bytesSent, bytesTotal);
             });
+            /*jshint +W083 */
 
             if(sync)
             {

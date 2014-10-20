@@ -30,7 +30,7 @@ var Ice = __M.module("Ice");
 Ice.__require = function()
 {
     return window;
-}
+};
 
 Ice.Slice = Ice.Slice || {};
 Ice.__M = __M;

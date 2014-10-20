@@ -168,7 +168,7 @@ var OpaqueEndpointI = Class(Ice.EndpointI, {
     },
     options: function()
     {
-        var s = ""
+        var s = "";
         s+= " -t " + this._type;
         s += " -e " + Ice.encodingVersionToString(this._rawEncoding);
         s += " -v " + Base64.encode(this._rawBytes);
@@ -366,12 +366,12 @@ var OpaqueEndpointI = Class(Ice.EndpointI, {
     {
         Ice.EndpointI.prototype.initWithOptions.call(this, args);
         Debug.assert(this._rawEncoding);
-        
+
         if(this._type < 0)
         {
             throw new EndpointParseException("no -t option in endpoint `" + this + "'");
         }
-        if(this._rawBytes === null || this._rawBytes.length == 0)
+        if(this._rawBytes === null || this._rawBytes.length === 0)
         {
             throw new EndpointParseException("no -v option in endpoint `" + this + "'");
         }

@@ -32,8 +32,9 @@ var EndpointI = Class(Ice.Endpoint, {
     {
         var unknown = [];
 
+        var i;
         var str = "`" + this.protocol();
-        for(var i = 0; i < args.length; ++i)
+        for(i = 0; i < args.length; ++i)
         {
             if(args[i].search(/[ \t\n\r]+/) !== -1)
             {
@@ -46,7 +47,7 @@ var EndpointI = Class(Ice.Endpoint, {
         }
         str += "'";
 
-        var i = 0;
+        i = 0;
         while(i < args.length)
         {
             var option = args[i++];
@@ -73,7 +74,7 @@ var EndpointI = Class(Ice.Endpoint, {
         }
 
         args.length = 0;
-        for(var i = 0; i < unknown.length; i++)
+        for(i = 0; i < unknown.length; i++)
         {
             args.push(unknown[i]);
         }

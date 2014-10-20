@@ -75,7 +75,7 @@ var ConnectRequestHandler = Ice.Class({
                     {
                         self.setException(ex);
                     });
-            
+
             if(!this.initialized())
             {
                 // The proxy request handler will be updated when the connection is set.
@@ -89,8 +89,8 @@ var ConnectRequestHandler = Ice.Class({
             throw ex;
         }
 
-        Debug.Assert(_connection != null);
-        
+        Debug.Assert(this._connection !== null);
+
         var handler = new ConnectionRequestHandler(this._reference, this._connection, this._compress);
         proxy.setRequestHandler__(this, handler);
         return handler;
@@ -341,7 +341,7 @@ var ConnectRequestHandler = Ice.Class({
                 // RetryException. We handle the exception like it
                 // was an exception that occured while sending the
                 // request.
-                // 
+                //
                 Debug.assert(this._exception === null && this._requests.length > 0);
                 this._exception = ex.inner;
                 this.flushRequestsWithException();
@@ -369,7 +369,7 @@ var ConnectRequestHandler = Ice.Class({
         //
         if(this._updateRequestHandler && this._exception === null)
         {
-            this._proxy.__setRequestHandler(this, new ConnectionRequestHandler(this._reference, this._connection, 
+            this._proxy.__setRequestHandler(this, new ConnectionRequestHandler(this._reference, this._connection,
                                                                                 this._compress));
         }
 

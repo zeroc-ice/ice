@@ -400,7 +400,7 @@ var ConnectionI = Class({
         this._transceiver.checkSendSize(os, this._instance.messageSizeMax());
 
         //
-        // Notify the request that it's cancelable with this connection. 
+        // Notify the request that it's cancelable with this connection.
         // This will throw if the request is canceled.
         //
         out.__cancelable(this); // Notify the request that it's cancelable
@@ -666,7 +666,7 @@ var ConnectionI = Class({
         }
 
         //
-        // Notify the request that it's cancelable with this connection. 
+        // Notify the request that it's cancelable with this connection.
         // This will throw if the request is canceled.
         //
         outAsync.__cancelable(this);
@@ -1211,12 +1211,13 @@ var ConnectionI = Class({
         Debug.assert(this._state === StateClosed);
         this.unscheduleTimeout(SocketOperation.Read | SocketOperation.Write | SocketOperation.Connect);
 
+        var s;
         var traceLevels = this._instance.traceLevels();
         if(!this._initialized)
         {
             if(traceLevels.network >= 2)
             {
-                var s = [];
+                s = [];
                 s.push("failed to establish ");
                 s.push(this._endpoint.protocol());
                 s.push(" connection\n");
@@ -1230,7 +1231,7 @@ var ConnectionI = Class({
         {
             if(traceLevels.network >= 1)
             {
-                var s = [];
+                s = [];
                 s.push("closed ");
                 s.push(this._endpoint.protocol());
                 s.push(" connection\n");
@@ -1774,7 +1775,7 @@ var ConnectionI = Class({
             }
             else
             {
-                var s = [];
+                s = [];
                 s.push("established ");
                 s.push(this._endpoint.protocol());
                 s.push(" connection\n");

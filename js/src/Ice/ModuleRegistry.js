@@ -32,13 +32,13 @@ var __M =
     },
     type: function(scoped)
     {
-        if(scoped == undefined)
+        if(scoped === undefined)
         {
             return undefined;
         }
         var components = scoped.split(".");
         var T = __modules__;
-        
+
         for(var i = 0, length = components.length; i < length; ++i)
         {
             T = T[components[i]];

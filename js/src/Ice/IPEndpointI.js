@@ -45,7 +45,7 @@ var IPEndpointI = Class(Ice.EndpointI, {
     getInfo: function()
     {
         var info = new Ice.IPEndpointInfo();
-        fillEndpointInfo(info);
+        this.fillEndpointInfo(info);
         return info;
     },
     //
@@ -203,9 +203,9 @@ var IPEndpointI = Class(Ice.EndpointI, {
     fillEndpointInfo: function(info)
     {
         var self = this;
-        info.type = function() { return self.type() };
-        info.datagram = function() { return self.datagram() };
-        info.secure = function() { return self.secure() };
+        info.type = function() { return self.type(); };
+        info.datagram = function() { return self.datagram(); };
+        info.secure = function() { return self.secure(); };
         info.host = this._host;
         info.port = this._port;
         info.sourceAddress = this._sourceAddr;
@@ -214,7 +214,7 @@ var IPEndpointI = Class(Ice.EndpointI, {
     {
         Ice.EndpointI.prototype.initWithOptions.call(this, args);
 
-        if(this._host === null || this._host.length == 0)
+        if(this._host === null || this._host.length === 0)
         {
             this._host = this._instance.defaultHost();
         }

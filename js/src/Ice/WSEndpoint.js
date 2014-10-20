@@ -101,7 +101,7 @@ var WSEndpoint = Class(EndpointI, {
     {
         return this._delegate.secure();
     },
-    connect: function() 
+    connect: function()
     {
         return Ice.WSTransceiver.createOutgoing(this._instance,
                                                 this._delegate.secure(),
@@ -137,7 +137,7 @@ var WSEndpoint = Class(EndpointI, {
         var r = this._delegate.compareTo(p._delegate);
         if(r !== 0)
         {
-            return r; 
+            return r;
         }
 
         if(this._resource !== p._resource)
@@ -197,14 +197,14 @@ if(typeof(Ice.WSTransceiver) !== "undefined")
     WSEndpoint.prototype.connectable = function()
     {
         return true;
-    }
+    };
 }
 else
 {
     WSEndpoint.prototype.connectable = function()
     {
         return false;
-    }
+    };
 }
 
 Ice.WSEndpoint = WSEndpoint;

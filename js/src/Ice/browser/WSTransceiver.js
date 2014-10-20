@@ -196,6 +196,10 @@ var WSTransceiver = Ice.Class({
             packetSize = this._maxSendPacketSize;
         }
 
+        function timeoutCb(transceiver) {
+            transceiver._bytesWrittenCallback(0, 0);
+        }
+
         while(packetSize > 0)
         {
             var slice = byteBuffer.b.slice(byteBuffer.position, byteBuffer.position + packetSize);
@@ -213,7 +217,7 @@ var WSTransceiver = Ice.Class({
 
             if(this._fd.bufferedAmount > 0 && packetSize > 0)
             {
-                setTimeout(function() { transceiver._bytesWrittenCallback(0, 0); }, 50);
+                setTimeout(timeoutCb(transceiver), 50);
                 return false;
             }
         }

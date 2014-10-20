@@ -41,7 +41,7 @@ var TcpEndpointI = Class(Ice.IPEndpointI, {
     getInfo: function()
     {
         var info = this.secure() ? new IceSSL.EndpointInfo() : new Ice.TCPEndpointInfo();
-        fillEndpointInfo(info);
+        this.fillEndpointInfo(info);
         return info;
     },
     //
@@ -80,7 +80,7 @@ var TcpEndpointI = Class(Ice.IPEndpointI, {
         }
         else
         {
-            return new TcpEndpointI(this._instance, this._host, this._port, this._sourceAddr, this._timeout, 
+            return new TcpEndpointI(this._instance, this._host, this._port, this._sourceAddr, this._timeout,
                                     connectionId, this._compress);
         }
     },
@@ -105,7 +105,7 @@ var TcpEndpointI = Class(Ice.IPEndpointI, {
         }
         else
         {
-            return new TcpEndpointI(this._instance, this._host, this._port, this._sourceAddr, this._timeout, 
+            return new TcpEndpointI(this._instance, this._host, this._port, this._sourceAddr, this._timeout,
                                     this._connectionId, compress);
         }
     },
@@ -221,7 +221,7 @@ var TcpEndpointI = Class(Ice.IPEndpointI, {
         {
             return true;
         }
-        
+
         if(option === "-t")
         {
             if(argument === null)
@@ -246,7 +246,7 @@ var TcpEndpointI = Class(Ice.IPEndpointI, {
                 }
                 if(invalid || this._timeout < 1)
                 {
-                    throw new Ice.EndpointParseException("invalid timeout value `" + argument + "' in endpoint " + 
+                    throw new Ice.EndpointParseException("invalid timeout value `" + argument + "' in endpoint " +
                                                          endpoint);
                 }
             }
@@ -255,7 +255,7 @@ var TcpEndpointI = Class(Ice.IPEndpointI, {
         {
             if(argument !== null)
             {
-                throw new Ice.EndpointParseException("unexpected argument `" + argument + 
+                throw new Ice.EndpointParseException("unexpected argument `" + argument +
                                                      "' provided for -z option in " + endpoint);
             }
 

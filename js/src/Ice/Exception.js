@@ -12,14 +12,14 @@ var Class = Ice.Class;
 
 var toString = function(key, object, objectTable, ident)
 {
-    ident += "  "
+    ident += "  ";
     if(object === null)
     {
-        return "\n" + ident + key + ": (null)"
+        return "\n" + ident + key + ": (null)";
     }
     if(object === undefined)
     {
-        return "\n" + ident + key + ": (undefined)"
+        return "\n" + ident + key + ": (undefined)";
     }
     if(key == "stack" || typeof object == "function")
     {
@@ -74,7 +74,7 @@ var Exception = Class(Error, {
         {
             s += toString(key, this[key], [], "");
         }
-        
+
         if(Ice.__printStackTraces === true && this.stack)
         {
             s += "\n" + this.stack;

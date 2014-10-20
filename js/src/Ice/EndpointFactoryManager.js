@@ -75,14 +75,14 @@ var EndpointFactoryManager = Ice.Class({
             protocol = this._instance.defaultsAndOverrides().defaultProtocol;
         }
 
-        for(i = 0, length = this._factories.length; i < length; ++i)
+        for(var i = 0, length = this._factories.length; i < length; ++i)
         {
             if(this._factories[i].protocol() === protocol)
             {
                 var e = this._factories[i].create(arr, oaEndpoint);
                 if(arr.length > 0)
                 {
-                    throw new EndpointParseException("unrecognized argument `" + arr[0] + "' in endpoint `" + 
+                    throw new EndpointParseException("unrecognized argument `" + arr[0] + "' in endpoint `" +
                                                      str + "'");
                 }
                 return e;
@@ -117,9 +117,9 @@ var EndpointFactoryManager = Ice.Class({
                     bs.pos = 0;
                     bs.readShort(); // type
                     bs.startReadEncaps();
-                    var e = this._factories[i].read(bs);
+                    var endpoint = this._factories[i].read(bs);
                     bs.endReadEncaps();
-                    return e;
+                    return endpoint;
                 }
             }
             return ue; // Endpoint is opaque, but we don't have a factory for its type.
@@ -129,19 +129,20 @@ var EndpointFactoryManager = Ice.Class({
     },
     read: function(s)
     {
+        var e;
         var type = s.readShort();
         for(var i = 0; i < this._factories.length; ++i)
         {
             if(this._factories[i].type() == type)
             {
                 s.startReadEncaps();
-                var e = this._factories[i].read(s);
+                e = this._factories[i].read(s);
                 s.endReadEncaps();
                 return e;
             }
         }
         s.startReadEncaps();
-        var e = new OpaqueEndpointI(type);
+        e = new OpaqueEndpointI(type);
         e.initWithStream(s);
         s.endReadEncaps();
         return e;
