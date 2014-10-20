@@ -20,6 +20,10 @@ jar {
     destinationDir = new File("$rootProject.projectDir/lib/")
 }
 
+clean {
+    delete("$rootProject.projectDir/lib/Glacier2.jar")
+}
+
 task copyJars(type: Copy) {
     from new File("$rootProject.projectDir/lib/Glacier2.jar")
     into "${prefix}/lib"

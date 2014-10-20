@@ -168,3 +168,7 @@ jar {
     archiveName = "IceTest.jar"
     destinationDir = new File("$rootProject.projectDir/lib/")
 }
+
+clean {
+    delete("$rootProject.projectDir/lib/IceTest.jar")
+}

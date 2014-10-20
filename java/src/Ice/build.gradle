@@ -23,6 +23,10 @@ jar {
     destinationDir = new File("$rootProject.projectDir/lib/")
 }
 
+clean {
+    delete("$rootProject.projectDir/lib/Ice.jar")
+}
+
 task copyJars(type: Copy) {
     from new File("$rootProject.projectDir/lib/Ice.jar")
     into "${prefix}/lib"

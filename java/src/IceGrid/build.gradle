@@ -21,6 +21,10 @@ jar {
     destinationDir = new File("$rootProject.projectDir/lib/")
 }
 
+clean {
+    delete("$rootProject.projectDir/lib/IceGrid.jar")
+}
+
 task copyJars(type: Copy) {
     from new File("$rootProject.projectDir/lib/IceGrid.jar")
     into "${prefix}/lib"
