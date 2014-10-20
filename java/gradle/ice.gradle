@@ -20,6 +20,13 @@ def prefix
 //prefix = "/opt/Ice-${iceVersion}"
 //prefix = "C:\\Ice-${iceVersion}"
 
+//
+// Define debug as true if you want to build with debug information,
+// false otherwise.
+//
+def debug = true
+
+
 
 //
 // Do not edit below this lne
@@ -28,6 +35,9 @@ apply plugin: 'slice'
 
 ext.generatedDir = "$project.buildDir/generated"
 
+compileJava {
+	options.debug = debug
+}
 
 // Determine the name of the Slice-to-Java translator
 def isWindows = false
