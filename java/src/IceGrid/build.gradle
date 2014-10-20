@@ -25,7 +25,7 @@ clean {
     delete("$rootProject.projectDir/lib/IceGrid.jar")
 }
 
-task copyJars(type: Copy) {
+task copyJars(type: Copy, dependsOn: jar) {
     from new File("$rootProject.projectDir/lib/IceGrid.jar")
     into "${prefix}/lib"
 }

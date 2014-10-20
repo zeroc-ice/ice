@@ -24,7 +24,7 @@ clean {
     delete("$rootProject.projectDir/lib/IceBox.jar")
 }
 
-task copyJars(type: Copy) {
+task copyJars(type: Copy, dependsOn: jar) {
     from new File("$rootProject.projectDir/lib/IceBox.jar")
     into "${prefix}/lib"
 }

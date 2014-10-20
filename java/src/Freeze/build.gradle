@@ -45,7 +45,7 @@ clean {
     delete("$rootProject.projectDir/lib/Freeze.jar")
 }
 
-task copyJars(type: Copy) {
+task copyJars(type: Copy, dependsOn: jar) {
     from new File("$rootProject.projectDir/lib/Freeze.jar")
     into "${prefix}/lib"
 }

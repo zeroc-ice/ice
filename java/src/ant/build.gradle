@@ -22,7 +22,7 @@ clean {
     delete("$rootProject.projectDir/lib/ant-ice.jar")
 }
 
-task copyJars(type: Copy) {
+task copyJars(type: Copy, dependsOn: jar) {
     from new File("$rootProject.projectDir/lib/ant-ice.jar")
     into "${prefix}/lib"
 }
