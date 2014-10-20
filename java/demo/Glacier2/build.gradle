@@ -21,6 +21,7 @@
 			main {
 				java {
 					srcDir '.'
+					output.classesDir "${buildDir}/classes"
 				}
 			}
 		}
@@ -28,10 +29,6 @@
 		dependencies {
 			compile project(':src/Ice')
 			compile project(':src/Glacier2')
-		}
-
-		compileJava {
-			destinationDir = file("${buildDir}/classes")
 		}
 
 		jar.enabled = false

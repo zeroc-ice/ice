@@ -12,6 +12,7 @@
 			main {
 				java {
 					srcDir '.'
+					output.classesDir "${buildDir}/classes"
 				}
 			}
 		}
@@ -20,10 +21,6 @@
 			compile project(':src/Ice')
 			compile project(':src/IceBox')
 			compile project(':src/IceGrid')
-		}
-
-		compileJava {
-			destinationDir = file("${buildDir}/classes")
 		}
 
 		jar.enabled = false

@@ -19,12 +19,9 @@ sourceSets {
 	main {
 		java {
 			srcDir '.'
+			output.classesDir "${buildDir}/classes"
 		}
 	}
-}
-
-compileJava {
-	destinationDir = file("${buildDir}/classes")
 }
 
 jar.enabled = false
