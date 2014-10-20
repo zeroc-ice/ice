@@ -8,6 +8,7 @@
 // **********************************************************************
 
 // Main source
+include 'src/ant'
 include 'src/Ice'
 include 'src/IceDiscovery'
 include	'src/Freeze'

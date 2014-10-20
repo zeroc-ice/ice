@@ -10,6 +10,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/buildSrc" />
+            <option value="$PROJECT_DIR$/demo/Database/library" />
             <option value="$PROJECT_DIR$/demo/Freeze/bench" />
             <option value="$PROJECT_DIR$/demo/Freeze/casino" />
             <option value="$PROJECT_DIR$/demo/Freeze/library" />
@@ -58,6 +59,7 @@
             <option value="$PROJECT_DIR$/src/IceGridGUI" />
             <option value="$PROJECT_DIR$/src/IcePatch2" />
             <option value="$PROJECT_DIR$/src/IceStorm" />
+            <option value="$PROJECT_DIR$/src/ant" />
             <option value="$PROJECT_DIR$/test" />
           </set>
         </option>

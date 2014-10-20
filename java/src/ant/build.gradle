@@ -1,0 +1,29 @@
+repositories {
+    mavenCentral()
+}
+sourceSets {
+    main {
+        java {
+            srcDir '.'
+        }
+    }
+}
+
+dependencies {
+    compile 'org.apache.ant:ant:1.9.4'
+}
+
+jar {
+    archiveName = "ant-ice.jar"
+    destinationDir = new File("$rootProject.projectDir/lib/")
+}
+
+clean {
+    delete("$rootProject.projectDir/lib/ant-ice.jar")
+}
+
+task copyJars(type: Copy) {
+    from new File("$rootProject.projectDir/lib/ant-ice.jar")
+    into "${prefix}/lib"
+}
+task install(dependsOn: copyJars)
