@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys
+import os, sys, atexit
 
 path = [ ".", "..", "../..", "../../..", "../../../.." ]
 head = os.path.dirname(sys.argv[0])
@@ -23,20 +23,17 @@ import TestUtil
 certsPath = os.path.abspath(os.path.join(os.getcwd(), "..", "certs"))
 keychainPath = os.path.abspath(os.path.join(certsPath, "Find.keychain"))
 
+
+def keychainCleanup():
+    os.system("rm -rf %s ../certs/keychain" % keychainPath)
+
+atexit.register(keychainCleanup)
 if TestUtil.isDarwin():
-    try:
-        os.remove(keychainPath)
-    except OSError:
-        pass
+    keychainCleanup()
+    os.system("mkdir -p ../certs/keychain")
 
     os.system("security create-keychain -p password %s" % keychainPath)
     for cert in ["s_rsa_ca1.pfx", "c_rsa_ca1.pfx"]:
         os.system("security import %s -f pkcs12 -A -P password -k %s" % (os.path.join(certsPath, cert), keychainPath))
 
 TestUtil.clientServerTest(additionalClientOptions = '"%s"' % os.getcwd())
-
-if TestUtil.isDarwin():
-    try:
-        os.remove(keychainPath)
-    except OSError:
-        pass

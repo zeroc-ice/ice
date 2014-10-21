@@ -224,6 +224,13 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
         {
             assert(!_trust);
             err = SSLCopyPeerTrust(_ssl, &_trust);
+            if(_incoming && err == errSSLBadCert && _engine->getVerifyPeer() == 1)
+            {
+                // This happens in 10.10 when the client doesn't provide
+                // a certificate and the server is configured to try
+                // authenticate
+                continue;
+            }
             if(err == noErr)
             {
                 checkTrustResult(_trust, _engine, _instance);

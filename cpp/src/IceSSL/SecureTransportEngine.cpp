@@ -1499,5 +1499,12 @@ IceSSL::SecureTransportEngine::parseCiphers(const string& ciphers)
         }
     }
     _ciphers = enabled;
+
+    if(_ciphers.empty())
+    {
+        throw PluginInitializationException(__FILE__, __LINE__,
+                                            "IceSSL: invalid value for IceSSL.Ciphers:\n" + ciphers +
+                                            "\nThe result cipher list does not contain any entries");
+    }
 }
 #endif
