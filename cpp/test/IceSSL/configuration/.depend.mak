@@ -320,9 +320,6 @@ AllTests.obj: \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "Test.h" \
-    "Util.h" \
-    "$(includedir)\IceSSL\IceSSL.h" \
-    "$(includedir)\IceSSL\EndpointInfo.h" \
 
 TestI.obj: \
 	TestI.cpp \
@@ -450,9 +447,6 @@ TestI.obj: \
     "$(includedir)\IceSSL\Plugin.h" \
     "$(includedir)\IceSSL\Config.h" \
     "$(includedir)\IceSSL\ConnectionInfo.h" \
-    "Util.h" \
-    "$(includedir)\IceSSL\IceSSL.h" \
-    "$(includedir)\IceSSL\EndpointInfo.h" \
 
 Server.obj: \
 	Server.cpp \

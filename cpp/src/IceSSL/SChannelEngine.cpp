@@ -93,31 +93,31 @@ parseProtocols(const StringSeq& protocols)
 
     for(Ice::StringSeq::const_iterator p = protocols.begin(); p != protocols.end(); ++p)
     {
-        string prot = *p;
+        string prot = IceUtilInternal::toUpper(*p);
 
-        if(prot == "ssl3" || prot == "sslv3")
+        if(prot == "SSL3" || prot == "SSLV3")
         {
             v |= SP_PROT_SSL3_SERVER;
             v |= SP_PROT_SSL3_CLIENT;
         }
-        else if(prot == "tls" || prot == "tls1" || prot == "tlsv1" || prot == "tls1_0" || prot == "tlsv1_0")
+        else if(prot == "TLS" || prot == "TLS1" || prot == "TLSV1" || prot == "TLS1_0" || prot == "TLSV1_0")
         {
             v |= SP_PROT_TLS1_SERVER;
             v |= SP_PROT_TLS1_CLIENT;
         }
-        else if(prot == "tls1_1" || prot == "tlsv1_1")
+        else if(prot == "TLS1_1" || prot == "TLSV1_1")
         {
             v |= SP_PROT_TLS1_1_SERVER;
             v |= SP_PROT_TLS1_1_CLIENT;
         }
-        else if(prot == "tls1_2" || prot == "tlsv1_2")
+        else if(prot == "TLS1_2" || prot == "TLSV1_2")
         {
             v |= SP_PROT_TLS1_2_SERVER;
             v |= SP_PROT_TLS1_2_CLIENT;
         }
         else
         {
-            throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: unrecognized protocol `" + prot + "'");
+            throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: unrecognized protocol `" + *p + "'");
         }
     }
 
@@ -182,9 +182,15 @@ SChannelEngine::initialize()
     const PropertiesPtr properties = communicator()->getProperties();
 
     //
-    // Protocols selects which protocols to enable.
+    // Protocols selects which protocols to enable, by default we only enable TLS1.0
+    // TLS1.1 and TLS1.2 to avoid security issues with SSLv3
     //
-    const_cast<DWORD&>(_protocols) = parseProtocols(properties->getPropertyAsList(prefix + "Protocols"));
+    vector<string> defaultProtocols;
+    defaultProtocols.push_back("tls1_0");
+    defaultProtocols.push_back("tls1_1");
+    defaultProtocols.push_back("tls1_2");
+    const_cast<DWORD&>(_protocols) = 
+                    parseProtocols(properties->getPropertyAsListWithDefault(prefix + "Protocols", defaultProtocols));
 
     //
     // Check for a default directory. We look in this directory for

@@ -11,7 +11,6 @@
 #include <IceSSL/Plugin.h>
 #include <TestCommon.h>
 #include <Test.h>
-#include <Util.h>
 #include <fstream>
 
 using namespace std;
@@ -1137,15 +1136,15 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProperties, defaultDir, defaultHost, pfx);
-        initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
+        d["IceSSL.CertAuthFile"] = "cacert1.pem";
         if(pfx)
         {
-            initData.properties->setProperty("IceSSL.CertFile", "s_rsa_ca1.pfx");
+            d["IceSSL.CertFile"] = "s_rsa_ca1.pfx";
         }
         else
         {
-            initData.properties->setProperty("IceSSL.CertFile", "s_rsa_nopass_ca1_pub.pem");
-            initData.properties->setProperty("IceSSL.KeyFile", "s_rsa_nopass_ca1_priv.pem");
+            d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
+            d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
         }
         d["IceSSL.VerifyPeer"] = "0";
         d["IceSSL.Protocols"] = "tls";
@@ -1201,6 +1200,102 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         }
         fact->destroyServer(server);
         comm->destroy();
+
+        //
+        // This should fail because the client only accept SSLv3 and the server
+        // use the default protocol set that disables SSLv3
+        //
+        {
+            InitializationData initData;
+            initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost, pfx);
+            initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
+            if(pfx)
+            {
+                initData.properties->setProperty("IceSSL.CertFile", "c_rsa_ca1.pfx");
+            }
+            else
+            {
+                initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
+                initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
+            }
+            initData.properties->setProperty("IceSSL.VerifyPeer", "0");
+            initData.properties->setProperty("IceSSL.Protocols", "ssl3");        
+            CommunicatorPtr comm = initialize(initData);
+            
+            Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+            test(fact);
+            Test::Properties d = createServerProps(defaultProperties, defaultDir, defaultHost, pfx);
+            d["IceSSL.CertAuthFile"] = "cacert1.pem";
+            if(pfx)
+            {
+                d["IceSSL.CertFile"] = "s_rsa_ca1.pfx";
+            }
+            else
+            {
+                d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
+                d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
+            }
+            d["IceSSL.VerifyPeer"] = "0";
+            Test::ServerPrx server = fact->createServer(d);
+            try
+            {
+                server->ice_ping();
+                test(false);
+            }
+            catch(const ProtocolException&)
+            {
+                // Expected on some platforms.
+            }
+            catch(const ConnectionLostException&)
+            {
+                // Expected on some platforms.
+            }
+            catch(const LocalException&)
+            {
+                test(false);
+            }
+            fact->destroyServer(server);
+            comm->destroy();
+        }
+
+        //
+        // This should success because both have SSLv3 enabled
+        //
+        {
+            InitializationData initData;
+            initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost, pfx);
+            initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
+            initData.properties->setProperty("IceSSL.Protocols", "ssl3");        
+            CommunicatorPtr comm = initialize(initData);
+            
+            Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+            test(fact);
+            Test::Properties d = createServerProps(defaultProperties, defaultDir, defaultHost, pfx);
+            d["IceSSL.CertAuthFile"] = "cacert1.pem";
+            if(pfx)
+            {
+                d["IceSSL.CertFile"] = "s_rsa_ca1.pfx";
+            }
+            else
+            {
+                d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
+                d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
+            }
+            d["IceSSL.VerifyPeer"] = "0";
+            d["IceSSL.Protocols"] = "ssl3, tls, tls1_1, tls1_2";
+            Test::ServerPrx server = fact->createServer(d);
+            try
+            {
+                server->ice_ping();
+            }
+            catch(const LocalException& ex)
+            {
+                cerr << ex << endl;
+                test(false);
+            }
+            fact->destroyServer(server);
+            comm->destroy();
+        }
 #else
         //
         // This should fail because the client and server have no protocol
@@ -1263,6 +1358,113 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         }
         fact->destroyServer(server);
         comm->destroy();
+
+        //
+        // This should fail because the client only accept SSLv3 and the server
+        // use the default protocol set that disables SSLv3
+        //
+        {
+            InitializationData initData;
+            initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost, pfx);
+            initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
+            if(pfx)
+            {
+                initData.properties->setProperty("IceSSL.CertFile", "c_rsa_ca1.pfx");
+            }
+            else
+            {
+                initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
+                initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
+            }
+            initData.properties->setProperty("IceSSL.VerifyPeer", "0");
+            initData.properties->setProperty("IceSSL.ProtocolVersionMin", "ssl3");
+            initData.properties->setProperty("IceSSL.ProtocolVersionMax", "ssl3");     
+            CommunicatorPtr comm = initialize(initData);
+            
+            Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+            test(fact);
+            Test::Properties d = createServerProps(defaultProperties, defaultDir, defaultHost, pfx);
+            d["IceSSL.CertAuthFile"] = "cacert1.pem";
+            if(pfx)
+            {
+                d["IceSSL.CertFile"] = "s_rsa_ca1.pfx";
+            }
+            else
+            {
+                d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
+                d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
+            }
+            d["IceSSL.VerifyPeer"] = "0";
+            Test::ServerPrx server = fact->createServer(d);
+            try
+            {
+                server->ice_ping();
+                test(false);
+            }
+            catch(const ProtocolException&)
+            {
+                // Expected on some platforms.
+            }
+            catch(const ConnectionLostException&)
+            {
+                // Expected on some platforms.
+            }
+            catch(const LocalException&)
+            {
+                test(false);
+            }
+            fact->destroyServer(server);
+            comm->destroy();
+        }
+
+        //
+        // This should success because both have SSLv3 enabled
+        //
+        {
+            InitializationData initData;
+            initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost, pfx);
+            initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
+            if(pfx)
+            {
+                initData.properties->setProperty("IceSSL.CertFile", "c_rsa_ca1.pfx");
+            }
+            else
+            {
+                initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
+                initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
+            }
+            initData.properties->setProperty("IceSSL.VerifyPeer", "0");
+            initData.properties->setProperty("IceSSL.ProtocolVersionMin", "ssl3");
+            initData.properties->setProperty("IceSSL.ProtocolVersionMax", "ssl3");        
+            CommunicatorPtr comm = initialize(initData);
+            
+            Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+            test(fact);
+            Test::Properties d = createServerProps(defaultProperties, defaultDir, defaultHost, pfx);
+            d["IceSSL.CertAuthFile"] = "cacert1.pem";
+            if(pfx)
+            {
+                d["IceSSL.CertFile"] = "s_rsa_ca1.pfx";
+            }
+            else
+            {
+                d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
+                d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
+            }
+            d["IceSSL.VerifyPeer"] = "0";
+            d["IceSSL.ProtocolVersionMin"] = "ssl3";
+            Test::ServerPrx server = fact->createServer(d);
+            try
+            {
+                server->ice_ping();
+            }
+            catch(const LocalException&)
+            {
+                test(false);
+            }
+            fact->destroyServer(server);
+            comm->destroy();
+        }
 #endif
     }
     cout << "ok" << endl;
@@ -1574,7 +1776,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
                 IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
             test(info->cipher.compare(0, cipherSub.size(), cipherSub) == 0);
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
 //
 // OS X 10.10 bug the handshake fails attempting client auth

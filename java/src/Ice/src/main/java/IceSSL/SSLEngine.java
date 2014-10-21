@@ -45,29 +45,31 @@ class SSLEngine
         }
 
         //
-        // Select protocols.
+        // Protocols selects which protocols to enable, by default we only enable TLS1.0
+        // TLS1.1 and TLS1.2 to avoid security issues with SSLv3
         //
-        String[] protocols = properties.getPropertyAsList(prefix + "Protocols");
+        String[] protocols = 
+            properties.getPropertyAsListWithDefault(prefix + "Protocols", new String[]{"tls1_0", "tls1_1", "tls1_2"});
         if(protocols.length != 0)
         {
             java.util.ArrayList<String> l = new java.util.ArrayList<String>();
             for(String prot : protocols)
             {
-                String s = prot.toLowerCase();
-                if(s.equals("ssl3") || s.equals("sslv3"))
+                String s = prot.toUpperCase();
+                if(s.equals("SSL3") || s.equals("SSLV3"))
                 {
                     l.add("SSLv3");
                 }
-                else if(s.equals("tls") || s.equals("tls1") || s.equals("tlsv1") || s.equals("tls1_0") ||
-                        s.equals("tlsv1_0"))
+                else if(s.equals("TLS") || s.equals("TLS1") || s.equals("TLSV1") || s.equals("TLS1_0") ||
+                        s.equals("TLSV1_0"))
                 {
                     l.add("TLSv1");
                 }
-                else if(s.equals("tls1_1") || s.equals("tlsv1_1"))
+                else if(s.equals("TLS1_1") || s.equals("TLSV1_1"))
                 {
                     l.add("TLSv1.1");
                 }
-                else if(s.equals("tls1_2") || s.equals("tlsv1_2"))
+                else if(s.equals("TLS1_2") || s.equals("TLSV1_2"))
                 {
                     l.add("TLSv1.2");
                 }

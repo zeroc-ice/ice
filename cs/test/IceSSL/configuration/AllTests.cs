@@ -20,7 +20,7 @@ public class AllTests
 {
     private static void test(bool b)
     {
-        if (!b)
+        if(!b)
         {
             throw new Exception();
         }
@@ -50,6 +50,7 @@ public class AllTests
         {
             result.properties.setProperty("Ice.Default.Host", defaultHost);
         }
+        //result.properties.setProperty("IceSSL.Trace.Security", "1");
         return result;
     }
 
@@ -66,6 +67,7 @@ public class AllTests
         {
             result["Ice.Default.Host"] = defaultHost;
         }
+        //result["IceSSL.Trace.Security"] = "1";
         return result;
     }
 
@@ -255,8 +257,8 @@ public class AllTests
                 {
                     server.noCert();
                 }
-                catch(Ice.LocalException)
-                {
+                catch(Ice.LocalException ex)
+                {   Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 //
@@ -268,8 +270,9 @@ public class AllTests
                         (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
                     test(info.certs != null);
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -294,8 +297,9 @@ public class AllTests
                 {
                     // Expected.
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -332,8 +336,9 @@ public class AllTests
                     test(caCert.Equals(info.nativeCerts[1]));
                     test(serverCert.Equals(info.nativeCerts[0]));
                 }
-                catch(Exception)
+                catch(Exception ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -354,8 +359,9 @@ public class AllTests
                         new X509Certificate2(defaultDir + "/c_rsa_nopass_ca1.pfx", "password");
                     server.checkCert(clientCert.Subject, clientCert.Issuer);
                 }
-                catch(Exception)
+                catch(Exception ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -387,8 +393,9 @@ public class AllTests
                 {
                     // Expected.
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -412,8 +419,9 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -442,8 +450,9 @@ public class AllTests
                 {
                     // Expected.
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -469,8 +478,9 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -772,6 +782,66 @@ public class AllTests
                 {
                     test(false);
                 }
+            }
+            {
+                //
+                // This should fail because the client ony enables SSLv3 and the server
+                // uses the default protocol set that disables SSLv3
+                //
+                Ice.InitializationData initData = createClientProps(defaultProperties, testDir, defaultHost);
+                initData.properties.setProperty("IceSSL.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
+                initData.properties.setProperty("IceSSL.Password", "password");
+                initData.properties.setProperty("IceSSL.Protocols", "ssl3");
+                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                test(fact != null);
+                Dictionary<string, string> d = createServerProps(defaultProperties, testDir, defaultHost);
+                d["IceSSL.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
+                d["IceSSL.Password"] = "password";
+                d["IceSSL.VerifyPeer"] = "2";
+                store.Add(caCert1);
+                Test.ServerPrx server = fact.createServer(d);
+                try
+                {
+                    server.ice_ping();
+                    test(false);
+                }
+                catch(Ice.ConnectionLostException)
+                {
+                    // Expected.
+                }
+                catch(Ice.LocalException)
+                {
+                    test(false);
+                }
+                fact.destroyServer(server);
+                store.Remove(caCert1);
+                comm.destroy();
+
+                //
+                // This should success because the client and the server enables SSLv3
+                //
+                comm = Ice.Util.initialize(ref args, initData);
+                fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                test(fact != null);
+                d = createServerProps(defaultProperties, testDir, defaultHost);
+                d["IceSSL.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
+                d["IceSSL.Password"] = "password";
+                d["IceSSL.VerifyPeer"] = "2";
+                d["IceSSL.Protocols"] = "ssl3, tls1_0, tls1_1, tls1_2";
+                store.Add(caCert1);
+                server = fact.createServer(d);
+                try
+                {
+                    server.ice_ping();
+                }
+                catch(Ice.LocalException)
+                {
+                    test(false);
+                }
+                fact.destroyServer(server);
+                store.Remove(caCert1);
+                comm.destroy();
             }
             Console.Out.WriteLine("ok");
 
@@ -1910,11 +1980,11 @@ public class AllTests
                 string[] clientFindCertProperties = new string[]
                 {
                     "SUBJECTDN:'CN=Client, E=info@zeroc.com, OU=Ice, O=\"ZeroC, Inc.\", S=Florida, C=US'",
-                    "ISSUER:'ZeroC, Inc.' SUBJECT:Client SERIAL:01",
+                    "ISSUER:'ZeroC, Inc.' SUBJECT:Client SERIAL:02",
                     "ISSUERDN:'E=info@zeroc.com, CN=ZeroC Test CA 1, OU=Ice, O=\"ZeroC, Inc.\"," +
                         " L=Palm Beach Gardens, S=Florida, C=US' SUBJECT:Client",
-                    "THUMBPRINT:'5b d5 e5 92 2b 0e ee 24 38 93 87 f2 c4 a4 bd bd d4 f3 be ee'",
-                    "SUBJECTKEYID:'87 fc ae 41 a0 c9 34 e7 05 43 c9 89 96 2c a9 8d 10 56 14 62'"
+                    "THUMBPRINT:'54 26 20 f0 93 a9 b6 bc 2a 8c 83 ef 14 d4 49 18 a3 18 67 46'",
+                    "SUBJECTKEYID:'58 77 81 07 55 2a 0c 10 19 88 13 47 6f 27 6e 21 75 5f 85 ca'"
                 };
 
                 string[] serverFindCertProperties = new string[]
@@ -1923,18 +1993,18 @@ public class AllTests
                     "ISSUER:'ZeroC, Inc.' SUBJECT:Server SERIAL:01",
                     "ISSUERDN:'E=info@zeroc.com, CN=ZeroC Test CA 1, OU=Ice, O=\"ZeroC, Inc.\"," +
                         " L=Palm Beach Gardens, S=Florida, C=US' SUBJECT:Server",
-                    "THUMBPRINT:'ad 53 5b a8 d9 17 f8 7f bd f5 2a 35 7a 77 b2 f2 9a 8d ca 84'",
-                    "SUBJECTKEYID:'13 1c 98 41 95 f7 35 bd 34 03 0c 2f 0e 5f d7 8d 05 d5 1e 5e'"
+                    "THUMBPRINT:'27 e0 18 c9 23 12 6c f0 5c da fa 36 5a 4c 63 5a e2 53 07 1a'",
+                    "SUBJECTKEYID:'a6 42 aa 17 04 41 86 56 67 e4 04 64 59 34 30 c7 4c 6b ef a4'"
                 };
 
                 string[] failFindCertProperties = new string[]
                 {
-                    "SUBJECTDN:'CN=Client, E=infox@zeroc.com, OU=Ice, O=\"ZeroC, Inc.\", S=Florida, C=US'",
-                    "ISSUER:'ZeroC, Inc.' SUBJECT:Client SERIAL:'01 02'",
+                    "SUBJECTDN:'CN = Client, E = infox@zeroc.com, OU = Ice, O = \"ZeroC, Inc.\", S = Florida, C = US'",
+                    "ISSUER:'ZeroC, Inc.' SUBJECT:Client SERIAL:'02 02'",
                     "ISSUERDN:'E=info@zeroc.com, CN=ZeroC Test CA 1, OU=Ice, O=\"ZeroC, Inc.\"," +
                         " L=Palm Beach Gardens, S=Florida, C=ES' SUBJECT:Client",
-                    "THUMBPRINT:'5b d5 e5 92 2b 0e ee 24 38 93 87 f2 c4 a4 bd bd d4 f3 be XX'",
-                    "SUBJECTKEYID:'87 fc ae 41 a0 c9 34 e7 05 43 c9 89 96 2c a9 8d 10 56 14 XX'"
+                    "THUMBPRINT:'27 e0 18 c9 23 12 6c f0 5c da fa 36 5a 4c 63 5a e2 53 07 ff'",
+                    "SUBJECTKEYID:'a6 42 aa 17 04 41 86 56 67 e4 04 64 59 34 30 c7 4c 6b ef ff'"
                 };
 
                 string[] certificates = new string[] {"/s_rsa_nopass_ca1.pfx", "/c_rsa_nopass_ca1.pfx"};
@@ -1947,7 +2017,6 @@ public class AllTests
                     {
                         certStore.Add(new X509Certificate2(defaultDir + cert, "password"));
                     }
-
                     for(int i = 0; i < clientFindCertProperties.Length; ++i)
                     {
                         Ice.InitializationData initData = createClientProps(defaultProperties, testDir, defaultHost);

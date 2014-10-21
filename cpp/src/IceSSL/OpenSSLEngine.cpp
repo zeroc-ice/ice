@@ -352,9 +352,16 @@ OpenSSLEngine::initialize()
         PropertiesPtr properties = communicator()->getProperties();
 
         //
-        // Protocols selects which protocols to enable.
+        // Protocols selects which protocols to enable, by default we only enable TLS1.0
+        // TLS1.1 and TLS1.2 to avoid security issues with SSLv3
         //
-        const int protocols = parseProtocols(properties->getPropertyAsList(propPrefix + "Protocols"));
+        vector<string> defaultProtocols;
+        defaultProtocols.push_back("tls1_0");
+        defaultProtocols.push_back("tls1_1");
+        defaultProtocols.push_back("tls1_2");
+
+        const int protocols = 
+                parseProtocols(properties->getPropertyAsListWithDefault(propPrefix + "Protocols", defaultProtocols));
 
         //
         // Create an SSL context if the application hasn't supplied one.
@@ -901,27 +908,26 @@ OpenSSLEngine::parseProtocols(const StringSeq& protocols) const
 
     for(Ice::StringSeq::const_iterator p = protocols.begin(); p != protocols.end(); ++p)
     {
-        string prot = *p;
-
-        if(prot == "ssl3" || prot == "sslv3")
+        string prot = IceUtilInternal::toUpper(*p);
+        if(prot == "SSL3" || prot == "SSLV3")
         {
             v |= SSLv3;
         }
-        else if(prot == "tls" || prot == "tls1" || prot == "tlsv1" || prot == "tls1_0" || prot == "tlsv1_0")
+        else if(prot == "TLS" || prot == "TLS1" || prot == "TLSV1" || prot == "TLS1_0" || prot == "TLSV1_0")
         {
             v |= TLSv1_0;
         }
-        else if(prot == "tls1_1" || prot == "tlsv1_1")
+        else if(prot == "TLS1_1" || prot == "TLSV1_1")
         {
             v |= TLSv1_1;
         }
-        else if(prot == "tls1_2" || prot == "tlsv1_2")
+        else if(prot == "TLS1_2" || prot == "TLSV1_2")
         {
             v |= TLSv1_2;
         }
         else
         {
-            throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: unrecognized protocol `" + prot + "'");
+            throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: unrecognized protocol `" + *p + "'");
         }
     }
 

@@ -27,8 +27,8 @@ keychainPath = os.path.abspath(os.path.join(certsPath, "Find.keychain"))
 def keychainCleanup():
     os.system("rm -rf %s ../certs/keychain" % keychainPath)
 
-atexit.register(keychainCleanup)
 if TestUtil.isDarwin():
+    atexit.register(keychainCleanup)
     keychainCleanup()
     os.system("mkdir -p ../certs/keychain")
 

@@ -751,27 +751,28 @@ CiphersHelper::ciphers()
 }
 
 SSLProtocol
-parseProtocol(const string& prot)
+parseProtocol(const string& p)
 {
-    if(prot == "ssl3" || prot == "sslv3")
+    const string prot = IceUtilInternal::toUpper(p);
+    if(prot == "SSL3" || prot == "SSLV3")
     {
         return kSSLProtocol3;
     }
-    else if(prot == "tls" || prot == "tls1" || prot == "tlsv1" || prot == "tls1_0" || prot == "tlsv1_0")
+    else if(prot == "TLS" || prot == "TLS1" || prot == "TLSV1" || prot == "TLS1_0" || prot == "TLSV1_0")
     {
         return kTLSProtocol1;
     }
-    else if(prot == "tls1_1" || prot == "tlsv1_1")
+    else if(prot == "TLS1_1" || prot == "TLSV1_1")
     {
         return kTLSProtocol11;
     }
-    else if(prot == "tls1_2" || prot == "tlsv1_2")
+    else if(prot == "TLS1_2" || prot == "TLSV1_2")
     {
         return kTLSProtocol12;
     }
     else
     {
-        throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: unrecognized protocol `" + prot + "'");
+        throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: unrecognized protocol `" + p + "'");
     }
 }
 
@@ -1212,7 +1213,10 @@ IceSSL::SecureTransportEngine::initialize()
         _protocolVersionMax = parseProtocol(protocolVersionMax);
     }
     
-    const string protocolVersionMin = properties->getProperty(propPrefix + "ProtocolVersionMin");
+    //
+    // The default min protocol version is set to TLS1.0 to avoid security issues with SSLv3
+    // 
+    const string protocolVersionMin = properties->getPropertyWithDefault(propPrefix + "ProtocolVersionMin", "tls1_0");
     if(!protocolVersionMin.empty())
     {
         _protocolVersionMin = parseProtocol(protocolVersionMin);

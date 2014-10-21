@@ -794,6 +794,86 @@ public class AllTests
             fact.destroyServer(server);
             comm.destroy();
         }
+
+        {
+            //
+            // This should fail because the client ony enables SSLv3 and the server
+            // uses the default protocol set that disables SSLv3
+            //
+            Ice.InitializationData initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+            initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
+            initData.properties.setProperty("IceSSL.Password", "password");
+            initData.properties.setProperty("IceSSL.Truststore", "cacert1.jks");
+            initData.properties.setProperty("IceSSL.Protocols", "ssl3");
+            Ice.Communicator comm = Ice.Util.initialize(args, initData);
+            ServerFactoryPrx fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+            test(fact != null);
+            java.util.Map<String, String> d = createServerProps(defaultProperties, defaultDir, defaultHost);
+            d.put("IceSSL.Keystore", "s_rsa_ca1.jks");
+            d.put("IceSSL.Password", "password");
+            d.put("IceSSL.Truststore", "cacert1.jks");
+            d.put("IceSSL.VerifyPeer", "2");
+            ServerPrx server = fact.createServer(d);
+            try
+            {
+                server.ice_ping();
+                test(false);
+            }
+            catch(Ice.SecurityException ex)
+            {
+                // Expected.
+            }
+            catch(Ice.ConnectionLostException ex)
+            {
+                // Expected for thread pool.
+            }
+            catch(Ice.LocalException ex)
+            {
+                test(false);
+            }
+            fact.destroyServer(server);
+            comm.destroy();
+        }
+
+        {
+            //
+            // This should success because the client and the server enables SSLv3
+            //
+            Ice.InitializationData initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+            initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
+            initData.properties.setProperty("IceSSL.Password", "password");
+            initData.properties.setProperty("IceSSL.Truststore", "cacert1.jks");
+            initData.properties.setProperty("IceSSL.Protocols", "ssl3");
+            Ice.Communicator comm = Ice.Util.initialize(args, initData);
+            ServerFactoryPrx fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+            test(fact != null);
+            java.util.Map<String, String> d = createServerProps(defaultProperties, defaultDir, defaultHost);
+            d.put("IceSSL.Keystore", "s_rsa_ca1.jks");
+            d.put("IceSSL.Password", "password");
+            d.put("IceSSL.Truststore", "cacert1.jks");
+            d.put("IceSSL.VerifyPeer", "2");
+            d.put("IceSSL.Protocols", "ssl3, tls1_0, tls1_1, tls1_2");
+            ServerPrx server = fact.createServer(d);
+            try
+            {
+                server.ice_ping();
+            }
+            catch(Ice.SecurityException ex)
+            {
+                // Expected.
+            }
+            catch(Ice.ConnectionLostException ex)
+            {
+                // Expected for thread pool.
+            }
+            catch(Ice.LocalException ex)
+            {
+                test(false);
+            }
+            fact.destroyServer(server);
+            comm.destroy();
+        }
+
         out.println("ok");
 
         out.print("testing expired certificates... ");

@@ -31,6 +31,16 @@ namespace IceSSL
             _securityTraceCategory = "Security";
             _initialized = false;
             _trustManager = new TrustManager(_communicator);
+
+            _tls12Support = false;
+            try
+            {
+                Enum.Parse(typeof(System.Security.Authentication.SslProtocols), "Tls12");
+                _tls12Support = true;
+            }
+            catch(Exception)
+            {
+            }
         }
 
         internal void initialize()
@@ -93,10 +103,13 @@ namespace IceSSL
             }
 
             //
-            // Select protocols.
+            // Protocols selects which protocols to enable, by default we only enable TLS1.0
+            // TLS1.1 and TLS1.2 to avoid security issues with SSLv3
             //
-            _protocols = parseProtocols(prefix + "Protocols");
-
+            _protocols = parseProtocols(
+                properties.getPropertyAsListWithDefault(prefix + "Protocols", 
+                                                        _tls12Support ? new string[]{"TLS1_0", "TLS1_1", "TLS1_2"} :
+                                                                        new string[]{"TLS1_0", "TLS1_1"}));
             //
             // CheckCertName determines whether we compare the name in a peer's
             // certificate against its hostname.
@@ -896,10 +909,10 @@ namespace IceSSL
             return (string[])l.ToArray(typeof(string));
         }
 
-        private SslProtocols parseProtocols(string property)
+        private SslProtocols parseProtocols(string[] arr)
         {
             SslProtocols result = SslProtocols.Default;
-            string[] arr = _communicator.getProperties().getPropertyAsList(property);
+
             if(arr.Length > 0)
             {
                 result = 0;
@@ -917,7 +930,9 @@ namespace IceSSL
                         }
                         case "TLS":
                         case "TLS1":
+                        case "TLS1_0":
                         case "TLSV1":
+                        case "TLSV1_0":
                         {
                             protocol = "Tls";
                             break;
@@ -1186,5 +1201,6 @@ namespace IceSSL
         private CertificateVerifier _verifier;
         private PasswordCallback _passwordCallback;
         private TrustManager _trustManager;
+        private bool _tls12Support;
     }
 }
