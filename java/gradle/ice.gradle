@@ -175,12 +175,14 @@ if (!iceDir)
 	slice.slice2freezej = "$iceDir/bin/$slice2freezej"
 }
 
-// Set the slice directory
+// Set the slice and java jar directory
 if (iceDir == "/usr")
 {
-	ext.sliceDir = /usr/share/Ice-$iceVersion/slice
+	ext.sliceDir = "/usr/share/Ice-$iceVersion/slice"
+	ext.distJarDir = "/usr/share/java"
 }
 else
 {
 	ext.sliceDir = "$iceDir/slice"
+	ext.distJarDir = iceSrcDist ? null : "$iceDir/lib"
 }
