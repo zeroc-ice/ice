@@ -220,9 +220,9 @@ def createDistfilesDist(platform, whichDestDir):
     #
     for root, dirnames, filenames in os.walk('src/mac/'):
         for f in filenames:
-            if (fnmatch.fnmatch(f, "*.txt") or 
-                fnmatch.fnmatch(f, "*.xml") or 
-                fnmatch.fnmatch(f, "*.sh") or 
+            if (fnmatch.fnmatch(f, "*.txt") or
+                fnmatch.fnmatch(f, "*.xml") or
+                fnmatch.fnmatch(f, "*.sh") or
                 fnmatch.fnmatch(f, "*.py")):
                 filepath = os.path.join(root, f)
                 fixVersion(filepath, *versions)
@@ -290,7 +290,7 @@ def createSourceDist(platform, destDir):
                 checkBisonVersion(filepath)
             elif f == "Scanner.cpp":
                 checkFlexVersion(filepath)
-            
+
             if platform == "Windows":
                 for name in ["README", "CHANGES", "LICENSE", "ICE_LICENSE", "RELEASE_NOTES"]:
                     if fnmatch.fnmatch(f, name) and not fnmatch.fnmatch(f, name + ".txt"):
@@ -535,6 +535,7 @@ rpmBuildFiles = [ \
     os.path.join("src", "rpm", "*.conf"), \
     os.path.join("src", "rpm", "*.suse"), \
     os.path.join("src", "rpm", "*.redhat"), \
+    os.path.join("src", "rpm", "*.service"), \
     os.path.join("src", "rpm", "ice.pth"), \
     os.path.join("src", "unix", "*Linux*"), \
     os.path.join("src", "thirdparty", "php", "ice.ini"), \

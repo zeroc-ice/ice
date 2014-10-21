@@ -10,11 +10,14 @@
 %define ruby 0
 %define mono 0
 
+%define systemd 0
+
 %if "%{dist}" == ".el6"
   %define ruby 1
 %endif
 %if "%{dist}" == ".el7"
   %define ruby 1
+  %define systemd 1
 %endif
 %if "%{dist}" == ".amzn1"
   %define ruby 1
@@ -53,7 +56,7 @@
 
 Name: ice
 Version: 3.6b
-Summary: Files common to all Ice packages 
+Summary: Files common to all Ice packages
 Release: 1%{?dist}
 License: GPL with exceptions
 Group: System Environment/Libraries
@@ -248,10 +251,17 @@ Requires(pre): pwdutils
 %else
 Requires(pre): shadow-utils
 %endif
+%if %{systemd}
+BuildRequires:    systemd-units
+Requires(post):   systemd-units
+Requires(preun):  systemd-units
+Requires(postun): systemd-units
+%else
 # Requirements for the init.d services
 Requires(post): /sbin/chkconfig
 Requires(preun): /sbin/chkconfig
 Requires(preun): /sbin/service
+%endif
 %description -n icegrid
 IceGrid servers.
 
@@ -265,10 +275,17 @@ Requires(pre): pwdutils
 %else
 Requires(pre): shadow-utils
 %endif
+%if %{systemd}
+BuildRequires:    systemd-units
+Requires(post):   systemd-units
+Requires(preun):  systemd-units
+Requires(postun): systemd-units
+%else
 # Requirements for the init.d services
 Requires(post): /sbin/chkconfig
 Requires(preun): /sbin/chkconfig
 Requires(preun): /sbin/service
+%endif
 %description -n icebox
 IceBox server.
 
@@ -281,10 +298,17 @@ Requires(pre): pwdutils
 %else
 Requires(pre): shadow-utils
 %endif
+%if %{systemd}
+BuildRequires:    systemd-units
+Requires(post):   systemd-units
+Requires(preun):  systemd-units
+Requires(postun): systemd-units
+%else
 # Requirements for the init.d services
 Requires(post): /sbin/chkconfig
 Requires(preun): /sbin/chkconfig
 Requires(preun): /sbin/service
+%endif
 %description -n glacier2
 Glacier2 server.
 
@@ -298,10 +322,17 @@ Requires(pre): pwdutils
 %else
 Requires(pre): shadow-utils
 %endif
+%if %{systemd}
+BuildRequires:    systemd-units
+Requires(post):   systemd-units
+Requires(preun):  systemd-units
+Requires(postun): systemd-units
+%else
 # Requirements for the init.d services
 Requires(post): /sbin/chkconfig
 Requires(preun): /sbin/chkconfig
 Requires(preun): /sbin/service
+%endif
 %description -n icepatch2
 IcePatch2 server.
 
@@ -476,7 +507,7 @@ ant -Djgoodies.common=$JGOODIES_COMMON -Djgoodies.forms=$JGOODIES_FORMS -Djgoodi
 cd $RPM_BUILD_DIR/Ice-%{version}/js
 make
 
-# 
+#
 # Define the environment variable KEYFILE to strong-name sign the
 # assemblies with your own key file.
 #
@@ -568,7 +599,7 @@ mv $RPM_BUILD_ROOT/php/* $RPM_BUILD_ROOT%{_datadir}/php5
 
 #
 # Ruby
-# 
+#
 %if %{ruby}
 cd $RPM_BUILD_DIR/Ice-%{version}/rb
 make prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
@@ -581,7 +612,7 @@ mv $RPM_BUILD_ROOT/ruby/* $RPM_BUILD_ROOT%{ruby_sitearch}
 #
 mkdir -p $RPM_BUILD_ROOT%{_javadir}
 cp -p $RPM_BUILD_DIR/Ice-%{version}/java/lib/ant-ice.jar $RPM_BUILD_ROOT%{_javadir}/ant-ice-%{version}.jar
-ln -s ant-ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/ant-ice.jar 
+ln -s ant-ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/ant-ice.jar
 
 #
 # JavaScript - for the -devel RPM
@@ -628,10 +659,14 @@ fi
 #
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}
 cp $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/*.conf $RPM_BUILD_ROOT%{_sysconfdir}
-mkdir -p $RPM_BUILD_ROOT%{_initrddir}
+
 for i in icegridregistry icegridnode glacier2router
 do
-    cp $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/$i.%{_vendor} $RPM_BUILD_ROOT%{_initrddir}/$i
+%if %{systemd}
+  install -p -D $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/$i.service $RPM_BUILD_ROOT%{_unitdir}/$i.service
+%else
+  install -p -D  $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/$i.%{_vendor} $RPM_BUILD_ROOT%{_initrddir}/$i
+%endif
 done
 
 #
@@ -702,13 +737,13 @@ cp -p $RPM_BUILD_DIR/Ice-%{version}/man/man1/iceca.1 $RPM_BUILD_ROOT%{_mandir}/m
 
 #
 # Java install (using jpackage conventions)
-# 
+#
 cd $RPM_BUILD_DIR/Ice-%{version}/java
 ant -Dprefix=$RPM_BUILD_ROOT install
 
 mkdir -p $RPM_BUILD_ROOT%{_javadir}
 mv $RPM_BUILD_ROOT/lib/Ice.jar $RPM_BUILD_ROOT%{_javadir}/Ice-%{version}.jar
-ln -s  Ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/Ice-%{mmversion}.jar 
+ln -s  Ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/Ice-%{mmversion}.jar
 
 mv $RPM_BUILD_ROOT/lib/Freeze.jar $RPM_BUILD_ROOT%{_javadir}/Freeze-%{version}.jar
 ln -s  Freeze-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/Freeze-%{mmversion}.jar
@@ -760,7 +795,7 @@ rm $RPM_BUILD_ROOT/lib/IceGrid.js.gz
 # IceGridGUI
 #
 cp -p $RPM_BUILD_DIR/Ice-%{version}/java/lib/IceGridGUI.jar $RPM_BUILD_ROOT%{_javadir}/IceGridGUI-%{version}.jar
-ln -s IceGridGUI-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/IceGridGUI.jar 
+ln -s IceGridGUI-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/IceGridGUI.jar
 cp -p $RPM_BUILD_DIR/Ice-%{version}/java/bin/icegridgui.rpm $RPM_BUILD_ROOT%{_bindir}/icegridgui
 
 %if %{mono}
@@ -801,7 +836,7 @@ rm -f $RPM_BUILD_ROOT/bin/iceboxnet.exe
 rm -r $RPM_BUILD_ROOT/man
 
 for f in Ice Glacier2 IceBox IceGrid IcePatch2 IceStorm
-do 
+do
      rm -r $RPM_BUILD_ROOT%{_prefix}/lib/mono/$f
 done
 
@@ -855,7 +890,7 @@ rm -rf $RPM_BUILD_ROOT
 
 #
 # noarch file packages
-# 
+#
 %ifarch noarch
 %files
 # TODO: Meta package
@@ -1009,8 +1044,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/Ice-%{version}/icegrid-slice.3.2.ice.gz
 %{_datadir}/Ice-%{version}/icegrid-slice.3.3.ice.gz
 %{_datadir}/Ice-%{version}/icegrid-slice.3.5.ice.gz
+%if %{systemd}
+%attr(755,root,root) %{_unitdir}/icegridregistry.service
+%attr(755,root,root) %{_unitdir}/icegridnode.service
+%else
 %attr(755,root,root) %{_initrddir}/icegridregistry
 %attr(755,root,root) %{_initrddir}/icegridnode
+%endif
 %config(noreplace) %{_sysconfdir}/icegridregistry.conf
 %config(noreplace) %{_sysconfdir}/icegridnode.conf
 
@@ -1027,13 +1067,24 @@ exit 0
 
 %post -n icegrid
 /sbin/ldconfig
+%if %{systemd}
+/bin/systemctl daemon-reload >/dev/null 2>&1  || :
+%else
 %if "%{dist}" != ".sles11"
 /sbin/chkconfig --add icegridregistry
 /sbin/chkconfig --add icegridnode
 %endif
+%endif
 
 %preun -n icegrid
 if [ $1 = 0 ]; then
+%if %{systemd}
+  /bin/systemctl --no-reload disable icegridnode.service >/dev/null 2>&1 || :
+  /bin/systemctl stop icegridnode.service >/dev/null 2>&1 || :
+
+  /bin/systemctl --no-reload disable icegridregistry.service >/dev/null 2>&1 || :
+  /bin/systemctl stop icegridregistry.service >/dev/null 2>&1 || :
+%else
 %if "%{dist}" == ".sles11"
         /sbin/service icegridnode stop >/dev/null 2>&1 || :
         /sbin/insserv -r icegridnode
@@ -1045,20 +1096,34 @@ if [ $1 = 0 ]; then
 	/sbin/service icegridregistry stop >/dev/null 2>&1 || :
         /sbin/chkconfig --del icegridregistry
 %endif
+%endif
 fi
 
 %postun -n icegrid
+%if %{systemd}
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ "$1" -ge "1" ]; then
+  /bin/systemctl try-restart icegridnode.service >/dev/null 2>&1 || :
+  /bin/systemctl try-restart icegridregistry.service >/dev/null 2>&1 || :
+fi
+%else
 if [ "$1" -ge "1" ]; then
         /sbin/service icegridnode condrestart >/dev/null 2>&1 || :
 	/sbin/service icegridregistry condrestart >/dev/null 2>&1 || :
 fi
+%endif
+
 /sbin/ldconfig
 
 %files -n glacier2
 %defattr(-, root, root, -)
 %{_bindir}/glacier2router
 %{_mandir}/man1/glacier2router.1.gz
+%if %{systemd}
+%attr(755,root,root) %{_unitdir}/glacier2router.service
+%else
 %attr(755,root,root) %{_initrddir}/glacier2router
+%endif
 %config(noreplace) %{_sysconfdir}/glacier2router.conf
 
 %pre -n glacier2
@@ -1070,12 +1135,20 @@ exit 0
 
 %post -n glacier2
 /sbin/ldconfig
+%if %{systemd}
+/bin/systemctl daemon-reload >/dev/null 2>&1  || :
+%else
 %if "%{dist}" != ".sles11"
 /sbin/chkconfig --add glacier2router
+%endif
 %endif
 
 %preun -n glacier2
 if [ $1 = 0 ]; then
+%if %{systemd}
+        /bin/systemctl --no-reload disable glacier2router.service >/dev/null 2>&1 || :
+        /bin/systemctl stop glacier2router.service >/dev/null 2>&1 || :
+%else
 %if "%{dist}" == ".sles11"
         /sbin/service glacier2router stop >/dev/null 2>&1 || :
         /sbin/insserv -r glacier2router
@@ -1083,12 +1156,21 @@ if [ $1 = 0 ]; then
         /sbin/service glacier2router stop >/dev/null 2>&1 || :
         /sbin/chkconfig --del glacier2router
 %endif
+%endif
 fi
 
 %postun -n glacier2
+%if %{systemd}
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ "$1" -ge "1" ]; then
+        /bin/systemctl try-restart glacier2router.service >/dev/null 2>&1 || :
+fi
+%else
 if [ "$1" -ge "1" ]; then
         /sbin/service glacier2router condrestart >/dev/null 2>&1 || :
 fi
+%endif
+
 /sbin/ldconfig
 
 %files -n icepatch2
@@ -1269,14 +1351,14 @@ exit 0
 
 * Wed Feb 27 2008 Bernard Normier <bernard@zeroc.com> 3.3b-1
 - Updates for Ice 3.3b release:
- - Split main ice rpm into ice noarch (license and Slice files), ice-libs 
+ - Split main ice rpm into ice noarch (license and Slice files), ice-libs
    (C++ runtime libraries), ice-utils (admin tools & utilities), ice-servers
    (icegridregistry, icebox etc.). This way, ice-libs 3.3.0 can coexist with
-    ice-libs 3.4.0. The same is true for ice-mono, and to a lesser extent 
+    ice-libs 3.4.0. The same is true for ice-mono, and to a lesser extent
     other ice runtime packages
-- Many updates derived from Mary Ellen Foster (<mefoster at gmail.com>)'s 
+- Many updates derived from Mary Ellen Foster (<mefoster at gmail.com>)'s
   Fedora RPM spec for Ice.
- - The Ice jar files are now installed in %{_javalibdir}, with 
+ - The Ice jar files are now installed in %{_javalibdir}, with
    jpackage-compliant names
  - New icegridgui shell script to launch the IceGrid GUI
  - The .NET files are now packaged using gacutil with the -root option.
