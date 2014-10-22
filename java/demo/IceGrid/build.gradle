@@ -17,10 +17,18 @@
 			}
 		}
 
-		dependencies {
-			compile project(':src/Ice')
-			compile project(':src/IceBox')
-			compile project(':src/IceGrid')
+		if (distJarDir == null) {
+			dependencies {
+				compile project(':src/Ice')
+				compile project(':src/IceBox')
+				compile project(':src/IceGrid')
+			}
+		} else {
+			dependencies {
+				compile files("${distJarDir}/Ice.jar")
+				compile files("${distJarDir}/IceBox.jar")
+				compile files("${distJarDir}/IceGrid.jar")
+			}
 		}
 
 		jar.enabled = false

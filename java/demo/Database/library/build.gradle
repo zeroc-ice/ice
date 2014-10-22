@@ -26,9 +26,16 @@ sourceSets {
 
 jar.enabled = false
 
-dependencies {
-	compile project(':src/Ice')
-	compile project(':src/Glacier2')
+if (distJarDir == null) {
+	dependencies {
+		compile project(':src/Ice')
+		compile project(':src/Glacier2')
+	}
+} else {
+	dependencies {
+		compile files("${distJarDir}/Ice.jar")
+		compile files("${distJarDir}/Glacier2.jar")
+	}
 }
 
 idea.module {

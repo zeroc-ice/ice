@@ -36,12 +36,20 @@ sourceSets {
 	}
 }
 
-dependencies {
-	compile project(':src/Ice')
-	compile project(':src/Freeze')
+if (distJarDir == null) {
+	dependencies {
+		compile project(':src/Ice')
+		compile project(':src/Freeze')
+	}
+} else {
+	dependencies {
+		compile files("${distJarDir}/Ice.jar")
+		compile files("${distJarDir}/Freeze.jar")
+		compile 'com.sleepycat:db:5.3.28'
+	}
 }
 
-jar.enabled = false 
+jar.enabled = false
 
 idea.module {
 	excludeDirs -= file(buildDir)

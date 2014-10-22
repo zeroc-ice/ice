@@ -26,14 +26,27 @@
 			}
 		}
 
-		dependencies {
-			compile project(':src/Ice')
+		if (distJarDir == null) {
+			dependencies {
+				compile project(':src/Ice')
+			}
+		} else {
+			dependencies {
+				compile files("${distJarDir}/Ice.jar")
+			}
 		}
 
 		if(name == "evictor_filesystem") {
-			dependencies {
-				compile project(':src/Freeze')
-			}		
+			if (distJarDir == null) {
+				dependencies {
+					compile project(':src/Freeze')
+				}
+			} else {
+				dependencies {
+					compile files("${distJarDir}/Freeze.jar")
+					compile 'com.sleepycat:db:5.3.28'
+				}
+			}
 		}
 
 		jar.enabled = false

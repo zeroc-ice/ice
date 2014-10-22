@@ -17,9 +17,16 @@
 			}
 		}
 
-		dependencies {
-			compile project(':src/Ice')
-			compile project(':src/IceBox')
+		if (distJarDir == null) {
+			dependencies {
+				compile project(':src/Ice')
+				compile project(':src/IceBox')
+			}
+		} else {
+			dependencies {
+				compile files("${distJarDir}/Ice.jar")
+				compile files("${distJarDir}/IceBox.jar")
+			}
 		}
 
 		jar.enabled = false

@@ -76,7 +76,6 @@ for l in ["/java", "/py", "/php", "/cs", "/cpp/demo"]:
 #
 demoConfigFiles = [ \
     "Make.*", \
-    "common.xml", \
     "build.js", \
     "makebundle.js", \
 ]
@@ -454,6 +453,20 @@ for root, dirnames, filesnames in os.walk(demoDir):
 
 remove(os.path.join(srcDir, 'vb')) # vb directory in Unix source distribution only needed to copy demo scripts.
 
+# Fix up the Java build files
+os.mkdir(os.path.join(demoDir, "demoj", "gradle"))
+copy(os.path.join(srcDir, "java", "gradlew"), os.path.join(demoDir, "demoj"), False)
+copy(os.path.join(srcDir, "java", "gradle", "wrapper"), os.path.join(demoDir, "demoj", "gradle", "wrapper"), False)
+copy(os.path.join(distFilesDir, "src", "common", "ice.gradle"), os.path.join(demoDir, "demoj", "gradle"), False)
+copy(os.path.join(distFilesDir, "src", "common", "build.gradle"), os.path.join(demoDir, "demoj"), False)
+copy(os.path.join(distFilesDir, "src", "common", "settings.gradle"), os.path.join(demoDir, "demoj"), False)
+
+gradleSubstituteExprs = [(re.compile(re.escape("project(\":demo/")), "project(\":")]
+for root, dirnames, filesnames in os.walk(os.path.join(demoDir, "demoj")):
+    for f in filesnames:
+        if fnmatch.fnmatch(f, "build.gradle"):
+            FixUtil.fileMatchAndReplace(os.path.join(root, f), gradleSubstituteExprs, False)
+
 copy(demoscriptDir, winDemoscriptDir)
 shutil.rmtree(os.path.join(demoscriptDir, "democs"))
 
@@ -467,7 +480,6 @@ os.mkdir(os.path.join(winDemoDir, "config"))
 
 copy(os.path.join(winSrcDir, "config", "Make.common.rules.mak"), os.path.join(winDemoDir, "config"), False)
 copy(os.path.join(winSrcDir, "cpp", "config", "Make.rules.msvc"), os.path.join(winDemoDir, "config"), False)
-copy(os.path.join(winSrcDir, "java", "config", "common.xml"), os.path.join(winDemoDir, "config"), False)
 copy(os.path.join(winSrcDir, "js", "config", "build.js"), os.path.join(winDemoDir, "config"), False)
 
 copy(os.path.join(winDistFilesDir, "src", "common", "build.properties"), os.path.join(winDemoDir, "config"), False)
@@ -525,6 +537,20 @@ for d in ["democs", "demovb"]:
                     rmFiles.append(os.path.join(root[len(winDemoDir) + 1:], f))
 
 for f in rmFiles: remove(os.path.join(winDemoDir, f))
+
+# Fix up the Java build files
+os.mkdir(os.path.join(winDemoDir, "demoj", "gradle"))
+copy(os.path.join(srcDir, "java", "gradlew.bat"), os.path.join(winDemoDir, "demoj"), False)
+copy(os.path.join(srcDir, "java", "gradle", "wrapper"), os.path.join(winDemoDir, "demoj", "gradle", "wrapper"), False)
+copy(os.path.join(distFilesDir, "src", "common", "ice.gradle"), os.path.join(winDemoDir, "demoj", "gradle"), False)
+copy(os.path.join(distFilesDir, "src", "common", "build.gradle"), os.path.join(winDemoDir, "demoj"), False)
+copy(os.path.join(distFilesDir, "src", "common", "settings.gradle"), os.path.join(winDemoDir, "demoj"), False)
+
+gradleSubstituteExprs = [(re.compile(re.escape("project(\":demo/")), "project(\":")]
+for root, dirnames, filesnames in os.walk(os.path.join(winDemoDir, "demoj")):
+    for f in filesnames:
+        if fnmatch.fnmatch(f, "build.gradle"):
+            FixUtil.fileMatchAndReplace(os.path.join(root, f), gradleSubstituteExprs, False)
 
 print "ok"
 

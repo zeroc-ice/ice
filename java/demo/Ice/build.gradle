@@ -29,8 +29,14 @@
 			}
 		}
 
-		dependencies {
-			compile project(':src/Ice')
+		if (distJarDir == null) {
+			dependencies {
+				compile project(':src/Ice')
+			}
+		} else {
+			dependencies {
+				compile files("${distJarDir}/Ice.jar")
+			}
 		}
 
 		jar.enabled = false
@@ -42,4 +48,4 @@
 	}
 }
 
-project(':demo/Ice/invoke').slice.java.default.args += " --stream"
+project(":demo/Ice/invoke").slice.java.default.args += " --stream"

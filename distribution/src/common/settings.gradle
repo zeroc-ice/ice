@@ -1,0 +1,47 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+['applet', 'async', 'bidir', 'callback', 'hello', 'invoke',
+ 'interrupt', 'latency', 'minimal', 'multicast', 'nested',
+ 'plugin', 'properties', 'serialize','session', 'swing',
+ 'throughput', 'value', 'optional','context'].each {
+ 	include "Ice/${it}"
+}
+
+['hello', 'replication'].each {
+ 	include "IceDiscovery/${it}"
+}
+
+['library'].each {
+ 	include "Database/${it}"
+}
+
+['bench', 'casino', 'library', 'phonebook', 'transform'].each {
+ 	include "Freeze/${it}"
+}
+
+['hello'].each {
+ 	include "IceBox/${it}"
+}
+
+['callback', 'chat', 'voip'].each {
+ 	include "Glacier2/${it}"
+}
+
+['clock'].each {
+ 	include "IceStorm/${it}"
+}
+
+['icebox', 'simple'].each {
+ 	include "IceGrid/${it}"
+}
+
+['evictor_filesystem', 'lifecycle', 'map_filesystem', 'printer', 'simple_filesystem'].each {
+ 	include "book/${it}"
+}
