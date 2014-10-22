@@ -13,16 +13,16 @@ dependencies {
 mainClassName = "IceGridGUI.Main"
 
 jar {
-	archiveName = "IceGridGUI.jar"
+	archiveName = "IceGridGUI${versionSuffix}.jar"
     destinationDir = new File("$rootProject.projectDir/lib/")
 }
 
 clean {
-    delete("$rootProject.projectDir/lib/IceGridGUI.jar")
+    delete("$rootProject.projectDir/lib/IceGridGUI${versionSuffix}.jar")
 }
 
 task copyJars(type: Copy, dependsOn: jar) {
-    from new File("$rootProject.projectDir/lib/IceGridGUI.jar")
-    into "${prefix}/lib"
+    from new File("$rootProject.projectDir/lib/IceGridGUI${versionSuffix}.jar")
+    into "${DESTDIR}${prefix}/lib"
 }
 task install(dependsOn: copyJars)

@@ -8,13 +8,17 @@
 # **********************************************************************
 
 all:
-	gradlew assemble
+	gradlew build
 
 clean:
 	gradlew clean
 
 install::
+!if "$(prefix)" != ""
+	gradlew -Dorg.gradle.project.prefix="$(prefix)" install
+!else
 	gradlew install
+!endif
 
 test:
 	@python .\allTests.py

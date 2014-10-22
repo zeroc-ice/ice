@@ -37,16 +37,16 @@ idea.module {
 }
 
 jar {
-    archiveName = "Freeze.jar"
+    archiveName = "Freeze${versionSuffix}.jar"
     destinationDir = new File("$rootProject.projectDir/lib/")
 }
 
 clean {
-    delete("$rootProject.projectDir/lib/Freeze.jar")
+    delete("$rootProject.projectDir/lib/Freeze${versionSuffix}.jar")
 }
 
 task copyJars(type: Copy, dependsOn: jar) {
-    from new File("$rootProject.projectDir/lib/Freeze.jar")
-    into "${prefix}/lib"
+    from new File("$rootProject.projectDir/lib/Freeze${versionSuffix}.jar")
+    into "${DESTDIR}${prefix}/lib"
 }
 task install(dependsOn: copyJars)

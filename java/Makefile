@@ -7,27 +7,25 @@
 #
 # **********************************************************************
 
-#ANT_FLAGS = -emacs
- 
-#ifeq ($(APPEND_VERSION_SUFFIX),yes)
-#ANT_FLAGS += -Dappend-version-suffix=yes
-#endif
+ifeq ($(APPEND_VERSION_SUFFIX),yes)
+BUILD_FLAGS += -Dorg.gradle.project.appendVersionSuffix=yes
+endif
 
-#INSTALL_FLAGS += $(ANT_FLAGS)
+INSTALL_FLAGS += $(BUILD_FLAGS)
 
-#ifneq ($(prefix),)
-#INSTALL_FLAGS += -Dprefix=$(prefix)
-#endif
+ifneq ($(prefix),)
+INSTALL_FLAGS += -Dorg.gradle.project.prefix=$(prefix)
+endif
 
-#ifneq ($(DESTDIR),)
-#INSTALL_FLAGS += -DDESTDIR=$(DESTDIR)
-#endif
+ifneq ($(DESTDIR),)
+INSTALL_FLAGS += -Dorg.gradle.project.DESTDIR=$(DESTDIR)
+endif
 
 all:
-	./gradlew assemble $(ANT_FLAGS)
+	./gradlew $(BUILD_FLAGS) build
 
 clean:
-	./gradlew clean $(ANT_FLAGS) clean
+	./gradlew $(BUILD_FLAGS) clean
 
 install::
 	./gradlew $(INSTALL_FLAGS) install

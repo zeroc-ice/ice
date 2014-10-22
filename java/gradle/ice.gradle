@@ -7,36 +7,6 @@
 //
 // **********************************************************************
 
-def iceVersion = "3.6b"
-
-//
-// Oracle Berkeley DB version, only needed if you want to build
-// Freeze.
-//
-def dbVersion = "5.3.28"
-
-//
-// Select an installation base directory. The directory will be created
-// if it does not exist. If this property is not set the default will be
-// used. Default values are:
-//   - Windows: %SystemDrive%\Ice-${ice.version}
-//   - Non Windows /opt/Ice-${ice.version}
-//
-def prefix
-//prefix = "/opt/Ice-${iceVersion}"
-//prefix = "C:\\Ice-${iceVersion}"
-
-//
-// Define debug as true if you want to build with debug information,
-// false otherwise.
-//
-def debug = true
-
-
-
-//
-// Do not edit below this lne
-//
 apply plugin: 'slice'
 
 ext.generatedDir = "$project.buildDir/generated"
@@ -56,7 +26,8 @@ if (System.properties['os.name'].toLowerCase().contains('windows'))
     slice2freezej = "slice2freezej.exe"
 }
 
-if (prefix == null)
+// Set the install prefix to defaults if not already set
+if (prefix == null || prefix.length() == 0)
 {
 	if (isWindows)
 	{
@@ -67,7 +38,6 @@ if (prefix == null)
 		prefix = "/opt/Ice-${iceVersion}"
 	}
 }
-ext.prefix = prefix
 
 // First check if ICE_HOME is set and it points at a valid installation
 def env = System.getenv()
@@ -88,7 +58,7 @@ if(env['USE_BIN_DIST'] == "yes")
 	iceBinDist = true
 }
 
-// First check if we are building against source distribution
+// Check if we are building against source distribution
 def iceDir
 def iceCppDir
 def iceSrcDist = false
@@ -193,4 +163,14 @@ else
 	ext.distJarDir = iceSrcDist ? null : "$iceDir/lib"
 }
 
-ext.dbVersion = dbVersion
+// Check is DESTDIR is set (non-Windows)
+if (isWindows)
+{
+	ext.DESTDIR = ""
+}
+
+ext.versionSuffix = ""
+if(appendVersionSuffix != null && appendVersionSuffix == "yes")
+{
+	ext.versionSuffix = "-${iceVersion}"
+}

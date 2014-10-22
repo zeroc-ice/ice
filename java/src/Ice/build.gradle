@@ -19,16 +19,16 @@ idea.module {
 }
 
 jar {
-    archiveName = "Ice.jar"
+    archiveName = "Ice${versionSuffix}.jar"
     destinationDir = new File("$rootProject.projectDir/lib/")
 }
 
 clean {
-    delete("$rootProject.projectDir/lib/Ice.jar")
+    delete("$rootProject.projectDir/lib/Ice${versionSuffix}.jar")
 }
 
 task copyJars(type: Copy, dependsOn: jar) {
-    from new File("$rootProject.projectDir/lib/Ice.jar")
-    into "${prefix}/lib"
+    from new File("$rootProject.projectDir/lib/Ice${versionSuffix}.jar")
+    into "${DESTDIR}${prefix}/lib"
 }
 task install(dependsOn: copyJars)

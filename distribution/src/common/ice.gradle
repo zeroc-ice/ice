@@ -7,17 +7,6 @@
 //
 // **********************************************************************
 
-def iceVersion = "3.6b"
-
-//
-// Define debug as true if you want to build with debug information,
-// false otherwise.
-//
-def debug = true
-
-//
-// Do not edit below this lne
-//
 buildscript {
     repositories {
         maven {

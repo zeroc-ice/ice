@@ -16,16 +16,16 @@ dependencies {
 }
 
 jar {
-    archiveName = "IceDiscovery.jar"
+    archiveName = "IceDiscovery${versionSuffix}.jar"
     destinationDir = new File("$rootProject.projectDir/lib/")
 }
 
 clean {
-    delete("$rootProject.projectDir/lib/IceDiscovery.jar")
+    delete("$rootProject.projectDir/lib/IceDiscovery${versionSuffix}.jar")
 }
 
 task copyJars(type: Copy, dependsOn: jar) {
-    from new File("$rootProject.projectDir/lib/IceDiscovery.jar")
-    into "${prefix}/lib"
+    from new File("$rootProject.projectDir/lib/IceDiscovery${versionSuffix}.jar")
+    into "${DESTDIR}${prefix}/lib"
 }
 task install(dependsOn: copyJars)
