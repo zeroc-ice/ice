@@ -47,10 +47,6 @@ public:
                                                        Test::VariableList::const_iterator>&,
                                        const Ice::Current&);
 
-    virtual void opBoolRangeType_async(const Test::AMD_TestIntf_opBoolRangeTypePtr&,
-                                       const std::pair<const bool*, const bool*>&,
-                                       const Ice::Current&);
-
     virtual void opByteRangeType_async(const Test::AMD_TestIntf_opByteRangeTypePtr&,
                                        const std::pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>&,
                                        const Ice::Current&);

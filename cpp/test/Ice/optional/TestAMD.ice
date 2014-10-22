@@ -240,17 +240,17 @@ class Initial
     ["cpp:array"] optional(1) ShortSeq opShortSeq(["cpp:array"] optional(2) ShortSeq p1,
                                                   out ["cpp:array"] optional(3) ShortSeq p3);
 
-    ["cpp:range:array"] optional(1) IntSeq opIntSeq(["cpp:range:array"] optional(2) IntSeq p1,
-                                                    out ["cpp:range:array"] optional(3) IntSeq p3);
+    ["cpp:array"] optional(1) IntSeq opIntSeq(["cpp:array"] optional(2) IntSeq p1,
+                                              out ["cpp:array"] optional(3) IntSeq p3);
 
-    ["cpp:range:array"] optional(1) LongSeq opLongSeq(["cpp:range:array"] optional(2) LongSeq p1,
-                                                      out ["cpp:range:array"] optional(3) LongSeq p3);
+    ["cpp:array"] optional(1) LongSeq opLongSeq(["cpp:array"] optional(2) LongSeq p1,
+                                                out ["cpp:array"] optional(3) LongSeq p3);
 
-    ["cpp:range:array"] optional(1) FloatSeq opFloatSeq(["cpp:range:array"] optional(2) FloatSeq p1,
-                                                        out ["cpp:range:array"] optional(3) FloatSeq p3);
+    ["cpp:array"] optional(1) FloatSeq opFloatSeq(["cpp:array"] optional(2) FloatSeq p1,
+                                                  out ["cpp:array"] optional(3) FloatSeq p3);
 
-    ["cpp:range:array"] optional(1) DoubleSeq opDoubleSeq(["cpp:range:array"] optional(2) DoubleSeq p1,
-                                                          out ["cpp:range:array"] optional(3) DoubleSeq p3);
+    ["cpp:array"] optional(1) DoubleSeq opDoubleSeq(["cpp:array"] optional(2) DoubleSeq p1,
+                                                    out ["cpp:array"] optional(3) DoubleSeq p3);
 
     ["cpp:range"] optional(1) StringSeq opStringSeq(["cpp:range"] optional(2) StringSeq p1,
                                                     out ["cpp:range"] optional(3) StringSeq p3);

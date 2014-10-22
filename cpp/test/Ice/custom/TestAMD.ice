@@ -151,8 +151,6 @@ struct BufferStruct
     ["cpp:range"] ByteList opByteRange(["cpp:range"] ByteList inSeq, out ["cpp:range"] ByteList outSeq);
 
     VariableList opVariableRange(["cpp:range"] VariableList inSeq, out VariableList outSeq);
-
-    BoolSeq opBoolRangeType(["cpp:range:array"] BoolSeq inSeq, out BoolSeq outSeq);
     
     ByteList opByteRangeType(["cpp:range:::Test::ByteList"] ByteList inSeq, out ByteList outSeq);
 

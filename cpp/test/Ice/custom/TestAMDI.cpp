@@ -78,15 +78,6 @@ TestIntfI::opVariableRange_async(const Test::AMD_TestIntf_opVariableRangePtr& op
 }
 
 void
-TestIntfI::opBoolRangeType_async(const Test::AMD_TestIntf_opBoolRangeTypePtr& opBoolRangeTypeCB,
-                                 const std::pair<const bool*, const bool*>& inSeq,
-                                 const Ice::Current&)
-{
-    Test::BoolSeq outSeq(inSeq.first, inSeq.second);
-    opBoolRangeTypeCB->ice_response(outSeq, outSeq);
-}
-
-void
 TestIntfI::opByteRangeType_async(const Test::AMD_TestIntf_opByteRangeTypePtr& opByteRangeTypeCB,
                                  const std::pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& inSeq,
                                  const Ice::Current&)

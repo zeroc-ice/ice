@@ -198,16 +198,6 @@ public:
         called();
     }
 
-    void opBoolRangeType(const pair<const bool*, const bool*>& ret,
-                         const pair<const bool*, const bool*>& out,
-                         const InParamPtr& cookie)
-    {
-        const pair<const bool*, const bool*>& in = getIn<pair<const bool*, const bool*> >(cookie);
-        test(arrayRangeEquals<bool>(out, in));
-        test(arrayRangeEquals<bool>(ret, in));
-        called();
-    }
-
     void opByteRangeType(const pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& ret,
                          const pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& out,
                          const InParamPtr& cookie)
@@ -751,26 +741,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         Test::VariableList out;
         Test::VariableList ret = t->opVariableRange(inPair, out);
-        test(out == in);
-        test(ret == in);
-    }
-
-    {
-        Test::BoolSeq in(5);
-        in[0] = false;
-        in[1] = true;
-        in[2] = true;
-        in[3] = false;
-        in[4] = true;
-        bool inArray[5];
-        for(int i = 0; i < 5; ++i)
-        {
-            inArray[i] = in[i];
-        }
-        pair<const bool*, const bool*> inPair(inArray, inArray + 5);
-
-        Test::BoolSeq out;
-        Test::BoolSeq ret = t->opBoolRangeType(inPair, out);
         test(out == in);
         test(ret == in);
     }
@@ -1384,27 +1354,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
 
         {
-            Test::BoolSeq in(5);
-            in[0] = false;
-            in[1] = true;
-            in[2] = true;
-            in[3] = false;
-            in[4] = true;
-            bool inArray[5];
-            for(int i = 0; i < 5; ++i)
-            {
-                inArray[i] = in[i];
-            }
-            pair<const bool*, const bool*> inPair(inArray, inArray + 5);
-
-            Test::BoolSeq out;
-            Ice::AsyncResultPtr r = t->begin_opBoolRangeType(inPair);
-            Test::BoolSeq ret = t->end_opBoolRangeType(out, r);
-            test(out == in);
-            test(ret == in);
-        }
-
-        {
             Test::ByteList in;
             in.push_back('1');
             in.push_back('2');
@@ -1949,27 +1898,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         Test::Callback_TestIntf_opVariableRangePtr callback =
             Test::newCallback_TestIntf_opVariableRange(cb, &Callback::opVariableRange, &Callback::noEx);
         t->begin_opVariableRange(inPair, callback, newInParam(inPair));
-        cb->check();
-    }
-
-    {
-        Test::BoolSeq in(5);
-        in[0] = false;
-        in[1] = true;
-        in[2] = true;
-        in[3] = false;
-        in[4] = true;
-        bool inArray[5];
-        for(int i = 0; i < 5; ++i)
-        {
-            inArray[i] = in[i];
-        }
-        pair<const bool*, const bool*> inPair(inArray, inArray + 5);
-
-        CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opBoolRangeTypePtr callback = 
-            Test::newCallback_TestIntf_opBoolRangeType(cb, &Callback::opBoolRangeType, &Callback::noEx);
-        t->begin_opBoolRangeType(inPair, callback, newInParam(inPair));
         cb->check();
     }
 
@@ -2547,27 +2475,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
                                  {
                                      cb->noEx(ex, newInParam(inPair));
                                  });
-        cb->check();
-    }
-
-    {
-        Test::BoolSeq in(5);
-        in[0] = false;
-        in[1] = true;
-        in[2] = true;
-        in[3] = false;
-        in[4] = true;
-        bool inArray[5];
-        for(int i = 0; i < 5; ++i)
-        {
-            inArray[i] = in[i];
-        }
-        pair<const bool*, const bool*> inPair(inArray, inArray + 5);
-
-        CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opBoolRangeTypePtr callback = 
-            Test::newCallback_TestIntf_opBoolRangeType(cb, &Callback::opBoolRangeType, &Callback::noEx);
-        t->begin_opBoolRangeType(inPair, callback, newInParam(inPair));
         cb->check();
     }
 

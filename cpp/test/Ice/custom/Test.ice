@@ -153,9 +153,6 @@ class TestIntf
     ["cpp:range"] ByteList opByteRange(["cpp:range"] ByteList inSeq, out ["cpp:range"] ByteList outSeq);
 
     ["cpp:range"] VariableList opVariableRange(["cpp:range"] VariableList inSeq, out ["cpp:range"] VariableList outSeq);
-
-    ["cpp:range:array"] BoolSeq opBoolRangeType(["cpp:range:array"] BoolSeq inSeq,
-                                                out ["cpp:range:array"] BoolSeq outSeq);
     
     ["cpp:range:::Test::ByteList"] ByteList opByteRangeType(["cpp:range:::Test::ByteList"] ByteList inSeq, 
                                                             out ["cpp:range:::Test::ByteList"] ByteList outSeq);

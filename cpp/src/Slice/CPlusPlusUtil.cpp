@@ -73,7 +73,7 @@ sequenceTypeToString(const SequencePtr& seq, const StringList& metaData, int typ
     string seqType = findMetaData(metaData, typeCtx);
     if(!seqType.empty())
     {
-        if(seqType == "%array" || seqType == "%range:array")
+        if(seqType == "%array")
         {
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
             if(typeCtx & TypeContextAMIPrivateEnd)
@@ -179,7 +179,7 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const st
         }
         
         string s;
-        if(seqType == "%array" || seqType == "%range:array")
+        if(seqType == "%array")
         {
             s = typeToString(seq, metaData, TypeContextAMIPrivateEnd);
         }
@@ -216,7 +216,7 @@ writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string&
             seqType = findMetaData(seq->getMetaData(), TypeContextInParam);
         }
        
-        if(seqType == "%array" || seqType == "%range:array")
+        if(seqType == "%array")
         {
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
             if(builtin && 
@@ -906,7 +906,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, bool optional
         if(seq && !(typeCtx & TypeContextAMIPrivateEnd))
         {
             string seqType = findMetaData(metaData, typeCtx);
-            if(seqType == "%array" || seqType == "%range:array")
+            if(seqType == "%array")
             {
                 BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
                 if(builtin && builtin->kind() == Builtin::KindByte)
@@ -971,7 +971,7 @@ Slice::getEndArg(const TypePtr& type, const StringList& metaData, const string& 
             seqType = findMetaData(seq->getMetaData(), TypeContextInParam);
         }
        
-        if(seqType == "%array" || seqType == "%range:array")
+        if(seqType == "%array")
         {
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
             if(builtin && 
@@ -1035,7 +1035,7 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
             //
             // The priority of the metadata is as follows:
             // 1: protobuf
-            // 2: array, range, range:array, view-type for "view" parameters
+            // 2: array, range, view-type for "view" parameters
             // 3: class
             
             if(pos != string::npos)
