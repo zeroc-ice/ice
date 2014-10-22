@@ -10,6 +10,12 @@
 def iceVersion = "3.6b"
 
 //
+// Oracle Berkeley DB version, only needed if you want to build
+// Freeze.
+//
+def dbVersion = "5.3.28"
+
+//
 // Select an installation base directory. The directory will be created
 // if it does not exist. If this property is not set the default will be
 // used. Default values are:
@@ -186,3 +192,5 @@ else
 	ext.sliceDir = "$iceDir/slice"
 	ext.distJarDir = iceSrcDist ? null : "$iceDir/lib"
 }
+
+ext.dbVersion = dbVersion

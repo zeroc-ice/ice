@@ -28,7 +28,7 @@ slice {
 
 dependencies {
     compile project(':src/Ice')
-    compile 'com.sleepycat:db:5.3.28'
+    compile "com.sleepycat:db:${dbVersion}"
 }
 
 idea.module {
