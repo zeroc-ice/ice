@@ -7,13 +7,8 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..
+top_srcdir	= ../../..
 
-!include $(top_srcdir)\config\Make.rules.mak.php
+SLICE_SRCS	= Hello.ice
 
-SUBDIRS		= Ice IceDiscovery Glacier2
-
-$(EVERYTHING)::
-	@for %i in ( $(SUBDIRS) ) do \
-	    @echo "making $@ in %i" && \
-	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
+include $(top_srcdir)/config/Make.rules.php

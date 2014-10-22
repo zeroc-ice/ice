@@ -193,7 +193,7 @@ clean::
 
 ifneq ($(SLICE_SRCS),)
 clean::
-	-rm $(SLICE_SRCS:.ice=.php)
+	-rm -f $(SLICE_SRCS:.ice=.php)
 endif
 
 all:: $(TARGETS)

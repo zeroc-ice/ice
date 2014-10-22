@@ -7,11 +7,11 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..
+top_srcdir	= ..\..
 
 !include $(top_srcdir)\config\Make.rules.mak.php
 
-SUBDIRS		= Ice IceDiscovery Glacier2
+SUBDIRS		= hello
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

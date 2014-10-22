@@ -30,6 +30,7 @@ demos = [
     "Ice/session",
     "Ice/throughput",
     "Ice/value",
+    "IceDiscovery/hello",
     "book/printer",
     "book/simple_filesystem",
 ]
