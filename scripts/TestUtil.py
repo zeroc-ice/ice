@@ -211,9 +211,9 @@ def dumpenv(env, lang):
         vars.extend(["MONO_PATH", "DEVPATH"])
     elif lang == "py":
         vars.append("PYTHONPATH")
-    elif lang ==  "rb":
+    elif lang == "rb":
         vars.append("RUBYLIB")
-    elif lang ==  "js":
+    elif lang == "js":
         vars.append("NODE_PATH")
     for i in vars:
         if i in env:
@@ -1098,13 +1098,13 @@ def spawn(cmd, cwd=None):
     return _spawn(cmd, getTestEnv(getDefaultMapping(), os.getcwd()))
 
 def spawnClient(cmd, env=None, cwd=None, echo=True, startReader=True, lang=None):
-    client = _spawn(cmd, env, quoteArgument(cwd), startReader=startReader, lang=lang)
+    client = _spawn(cmd, env, cwd, startReader=startReader, lang=lang)
     if echo:
         client.trace()
     return client
 
 def spawnServer(cmd, env=None, cwd=None, count=1, adapter=None, echo=True, lang=None, mx=False):
-    server = _spawn(cmd, env, quoteArgument(cwd), lang=lang)
+    server = _spawn(cmd, env, cwd, lang=lang)
 
     # Count + 1 if IceMX enabled
     if mx:
@@ -1328,7 +1328,7 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
                 sys.stdout.write("starting %s %s ... " % (clientLang, clientDesc))
             sys.stdout.flush()
             client = getCommandLine(client, clientCfg, additionalClientOptions)
-            clientProc = spawnClient(client, env = clientenv, startReader = False, lang=clientCfg.lang)
+            clientProc = spawnClient(client, env = clientenv, cwd = clientdir, startReader = False, lang=clientCfg.lang)
             print("ok")
 
             global watchDog
