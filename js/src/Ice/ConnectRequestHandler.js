@@ -44,42 +44,40 @@ var ConnectRequestHandler = Ice.Class({
         this._reference = ref;
         this._response = ref.getMode() === ReferenceMode.ModeTwoway;
         this._proxy = proxy;
+        this._proxies = [];
         this._batchAutoFlush = ref.getInstance().initializationData().properties.getPropertyAsIntWithDefault(
             "Ice.BatchAutoFlush", 1) > 0 ? true : false;
         this._initialized = false;
-        this._flushing = false;
         this._batchRequestInProgress = false;
         this._batchRequestsSize = Protocol.requestBatchHdr.length;
         this._batchStream =
             new BasicStream(ref.getInstance(), Protocol.currentProtocolEncoding, this._batchAutoFlush);
-        this._updateRequestHandler = false;
 
         this._connection = null;
         this._compress = false;
         this._exception = null;
         this._requests = [];
-        this._updateRequestHandler = false;
     },
-    connect: function()
+    connect: function(proxy)
     {
         var self = this;
-        var proxy = this._proxy;
+        if(proxy === this._proxy)
+        {
+            this._reference.getConnection().then(function(connection, compress)
+                                                 {
+                                                     self.setConnection(connection, compress);
+                                                 }, 
+                                                 function(ex)
+                                                 {
+                                                     self.setException(ex);
+                                                 });
+        }
+
         try
         {
-            this._reference.getConnection().then(
-                function(connection, compress)
-                {
-                    self.setConnection(connection, compress);
-                }).exception(
-                    function(ex)
-                    {
-                        self.setException(ex);
-                    });
-
             if(!this.initialized())
             {
-                // The proxy request handler will be updated when the connection is set.
-                this._updateRequestHandler = true;
+                this._proxies.push(proxy);
                 return this;
             }
         }
@@ -89,11 +87,15 @@ var ConnectRequestHandler = Ice.Class({
             throw ex;
         }
 
-        Debug.Assert(this._connection !== null);
-
-        var handler = new ConnectionRequestHandler(this._reference, this._connection, this._compress);
-        proxy.setRequestHandler__(this, handler);
-        return handler;
+        if(this._connectionRequestHandler)
+        {
+            proxy.__setRequestHandler(this, this._connectionRequestHandler);
+            return this._connectionRequestHandler;
+        }
+        else
+        {
+            return this;
+        }
     },
     update: function(previousHandler, newHandler)
     {
@@ -148,7 +150,6 @@ var ConnectRequestHandler = Ice.Class({
                                         this._batchAutoFlush);
             this._batchStream.swap(dummy);
             this._batchRequestsSize = Protocol.requestBatchHdr.length;
-
             return;
         }
         this._connection.abortBatchRequest();
@@ -218,7 +219,6 @@ var ConnectRequestHandler = Ice.Class({
     setConnection: function(connection, compress)
     {
         Debug.assert(this._exception === null && this._connection === null);
-        Debug.assert(this._updateRequestHandler || this._requests.length === 0);
 
         this._connection = connection;
         this._compress = compress;
@@ -231,24 +231,19 @@ var ConnectRequestHandler = Ice.Class({
         if(ri !== null)
         {
             var self = this;
-            var promise = ri.addProxy(this._proxy).then(
-                function()
-                {
-                    //
-                    // The proxy was added to the router info, we're now ready to send the
-                    // queued requests.
-                    //
-                    self.flushRequests();
-                }).exception(
-                    function(ex)
-                    {
-                        self.setException(ex);
-                    });
-
-            if(!promise.completed())
-            {
-                return; // The request handler will be initialized once addProxy completes.
-            }
+            ri.addProxy(this._proxy).then(function()
+                                          {
+                                              //
+                                              // The proxy was added to the router info, we're now ready to send the
+                                              // queued requests.
+                                              //
+                                              self.flushRequests();
+                                          },
+                                          function(ex)
+                                          {
+                                              self.setException(ex);
+                                          });
+            return; // The request handler will be initialized once addProxy completes.
         }
 
         //
@@ -259,19 +254,21 @@ var ConnectRequestHandler = Ice.Class({
     setException: function(ex)
     {
         Debug.assert(!this._initialized && this._exception === null);
-        Debug.assert(this._updateRequestHandler || this._requests.length === 0);
 
         this._exception = ex;
+        this._proxies.length = 0;
         this._proxy = null; // Break cyclic reference count.
 
-        //
-        // If some requests were queued, we notify them of the failure.
-        //
-        if(this._requests.length > 0)
-        {
-            this.flushRequestsWithException(ex);
-        }
+        this.flushRequestsWithException(ex);
 
+        try
+        {
+            this._reference.getInstance().requestHandlerFactory().removeRequestHandler(this._reference, this);
+        }
+        catch(exc)
+        {
+            // Ignore
+        }
     },
     initialized: function()
     {
@@ -295,13 +292,6 @@ var ConnectRequestHandler = Ice.Class({
     flushRequests: function()
     {
         Debug.assert(this._connection !== null && !this._initialized);
-
-        //
-        // We set the _flushing flag to true to prevent any additional queuing. Callers
-        // might block for a little while as the queued requests are being sent but this
-        // shouldn't be an issue as the request sends are non-blocking.
-        //
-        this._flushing = true;
 
         try
         {
@@ -358,27 +348,31 @@ var ConnectRequestHandler = Ice.Class({
             }
         }
 
-        //
-        // We've finished sending the queued requests and the request handler now send
-        // the requests over the connection directly. It's time to substitute the
-        // request handler of the proxy with the more efficient connection request
-        // handler which does not have any synchronization. This also breaks the cyclic
-        // reference count with the proxy.
-        //
-        // NOTE: _updateRequestHandler is immutable once _flushing = true
-        //
-        if(this._updateRequestHandler && this._exception === null)
+        if(this._reference.getCacheConnection() && this._exception === null)
         {
-            this._proxy.__setRequestHandler(this, new ConnectionRequestHandler(this._reference, this._connection,
-                                                                                this._compress));
+            this._connectionRequestHandler = new ConnectionRequestHandler(this._reference,
+                                                                          this._connection,
+                                                                          this._compress);
+            for(var i in this._proxies)
+            {
+                this._proxies[i].__setRequestHandler(this, this._connectionRequestHandler);
+            }
         }
 
         Debug.assert(!this._initialized);
         if(this._exception === null)
         {
             this._initialized = true;
-            this._flushing = false;
         }
+        try
+        {
+            this._reference.getInstance().requestHandlerFactory().removeRequestHandler(this._reference, this);
+        }
+        catch(exc)
+        {
+            // Ignore
+        }
+        this._proxies.length = 0;
         this._proxy = null; // Break cyclic reference count.
     },
     flushRequestsWithException: function()
@@ -391,7 +385,7 @@ var ConnectRequestHandler = Ice.Class({
                 request.out.__completedEx(this._exception);
             }
         }
-        this._requests = [];
+        this._requests.length = 0;
     }
 });
 

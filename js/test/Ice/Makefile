@@ -21,6 +21,7 @@ SUBDIRS		= \
 		exceptionsBidir \
 		facets \
 		facetsBidir \
+		hold \
 		inheritance \
 		inheritanceBidir \
 		location \

@@ -187,6 +187,6 @@ Ice.Promise.try(
     },
     function(ex)
     {
-        console.log(ex.toString());
+        console.log(ex);
         process.exit(1);
     });

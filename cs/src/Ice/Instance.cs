@@ -117,6 +117,20 @@ namespace IceInternal
             }
         }
 
+        public RequestHandlerFactory requestHandlerFactory()
+        {
+            lock(this)
+            {
+                if(_state == StateDestroyed)
+                {
+                    throw new Ice.CommunicatorDestroyedException();
+                }
+
+                Debug.Assert(_requestHandlerFactory != null);
+                return _requestHandlerFactory;
+            }
+        }
+
         public ProxyFactory proxyFactory()
         {
             lock(this)
@@ -817,6 +831,8 @@ namespace IceInternal
 
                 _proxyFactory = new ProxyFactory(this);
 
+                _requestHandlerFactory = new RequestHandlerFactory(this);
+
                 bool ipv4 = _initData.properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
                 bool ipv6 = _initData.properties.getPropertyAsIntWithDefault("Ice.IPv6", 1) > 0;
                 if(!ipv4 && !ipv6)
@@ -1178,6 +1194,9 @@ namespace IceInternal
                 _referenceFactory = null;
 
                 // No destroy function defined.
+                _requestHandlerFactory = null;
+
+                // No destroy function defined.
                 // _proxyFactory.destroy();
                 _proxyFactory = null;
 
@@ -1421,6 +1440,7 @@ namespace IceInternal
         private RouterManager _routerManager;
         private LocatorManager _locatorManager;
         private ReferenceFactory _referenceFactory;
+        private RequestHandlerFactory _requestHandlerFactory;
         private ProxyFactory _proxyFactory;
         private OutgoingConnectionFactory _outgoingConnectionFactory;
         private ObjectFactoryManager _servantFactoryManager;

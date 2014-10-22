@@ -60,6 +60,9 @@ typedef IceUtil::Handle<Timer> TimerPtr;
 class MetricsAdminI;
 typedef IceUtil::Handle<MetricsAdminI> MetricsAdminIPtr;
 
+class RequestHandlerFactory;
+typedef IceUtil::Handle<RequestHandlerFactory> RequestHandlerFactoryPtr;
+
 class Instance : public IceUtil::Shared, public IceUtil::RecMutex
 {
 public:
@@ -71,6 +74,7 @@ public:
     RouterManagerPtr routerManager() const;
     LocatorManagerPtr locatorManager() const;
     ReferenceFactoryPtr referenceFactory() const;
+    RequestHandlerFactoryPtr requestHandlerFactory() const;
     ProxyFactoryPtr proxyFactory() const;
     OutgoingConnectionFactoryPtr outgoingConnectionFactory() const;
     ObjectFactoryManagerPtr servantFactoryManager() const;
@@ -145,6 +149,7 @@ private:
     RouterManagerPtr _routerManager;
     LocatorManagerPtr _locatorManager;
     ReferenceFactoryPtr _referenceFactory;
+    RequestHandlerFactoryPtr _requestHandlerFactory;
     ProxyFactoryPtr _proxyFactory;
     OutgoingConnectionFactoryPtr _outgoingConnectionFactory;
     ObjectFactoryManagerPtr _servantFactoryManager;

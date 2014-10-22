@@ -153,7 +153,7 @@ CollocatedRequestHandler::~CollocatedRequestHandler()
 }
 
 RequestHandlerPtr
-CollocatedRequestHandler::connect()
+CollocatedRequestHandler::connect(const Ice::ObjectPrx&)
 {
     return this;
 }

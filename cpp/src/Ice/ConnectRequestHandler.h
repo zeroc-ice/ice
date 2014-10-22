@@ -35,7 +35,7 @@ public:
     ConnectRequestHandler(const ReferencePtr&, const Ice::ObjectPrx&);
     virtual ~ConnectRequestHandler();
 
-    virtual RequestHandlerPtr connect();
+    virtual RequestHandlerPtr connect(const Ice::ObjectPrx&);
     virtual RequestHandlerPtr update(const RequestHandlerPtr&, const RequestHandlerPtr&);
 
     virtual void prepareBatchRequest(BasicStream*);
@@ -75,6 +75,7 @@ private:
     };
 
     Ice::ObjectPrx _proxy;
+    std::vector<Ice::ObjectPrx> _proxies;
 
     const bool _batchAutoFlush;
 
@@ -88,7 +89,8 @@ private:
     bool _batchRequestInProgress;
     size_t _batchRequestsSize;
     BasicStream _batchStream;
-    bool _updateRequestHandler;
+
+    RequestHandlerPtr _connectionRequestHandler;
 };
 typedef IceUtil::Handle<ConnectRequestHandler> ConnectRequestHandlerPtr;
 

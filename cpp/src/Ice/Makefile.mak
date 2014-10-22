@@ -119,6 +119,7 @@ OBJS	       =  .\Acceptor.obj \
 		  .\Reference.obj \
 		  .\ReferenceFactory.obj \
 		  .\RequestHandler.obj \
+		  .\RequestHandlerFactory.obj \
 		  .\ResponseHandler.obj \
 		  .\RetryQueue.obj \
 		  .\RouterInfo.obj \

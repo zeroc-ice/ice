@@ -852,8 +852,6 @@ protected:
 
 private:
 
-    ::IceInternal::RequestHandlerPtr createRequestHandler();
-
     bool ice_isA(const ::std::string&, const ::Ice::Context*);
     ::Ice::AsyncResultPtr begin_ice_isA(const ::std::string&,
                                         const ::Ice::Context*,

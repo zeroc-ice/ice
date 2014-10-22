@@ -13,10 +13,9 @@ public class ConnectionRequestHandler implements RequestHandler
 {
     @Override
     public RequestHandler 
-    connect()
+    connect(Ice.ObjectPrxHelperBase proxy)
     {
-        assert(false); // This request handler is only created after connection binding.
-        return null;
+        return this;
     }
     
     @Override

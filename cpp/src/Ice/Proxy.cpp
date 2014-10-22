@@ -14,9 +14,7 @@
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Outgoing.h>
 #include <Ice/OutgoingAsync.h>
-#include <Ice/ConnectRequestHandler.h>
-#include <Ice/CollocatedRequestHandler.h>
-#include <Ice/ConnectionRequestHandler.h>
+#include <Ice/RequestHandlerFactory.h>
 #include <Ice/Reference.h>
 #include <Ice/EndpointI.h>
 #include <Ice/Instance.h>
@@ -1626,14 +1624,14 @@ IceProxy::Ice::Object::__getRequestHandler()
         {
             return _requestHandler;
         }
-        handler = createRequestHandler();
+        handler = _reference->getInstance()->requestHandlerFactory()->getRequestHandler(_reference, this);
         _requestHandler = handler;
     }
     else
     {
-        handler = createRequestHandler();
+        handler = _reference->getInstance()->requestHandlerFactory()->getRequestHandler(_reference, this);
     }
-    return handler->connect();
+    return handler->connect(this);
 }
 
 void
@@ -1661,21 +1659,6 @@ IceProxy::Ice::Object*
 IceProxy::Ice::Object::__newInstance() const
 {
     return new Object;
-}
-
-RequestHandlerPtr
-IceProxy::Ice::Object::createRequestHandler()
-{
-    if(_reference->getCollocationOptimized())
-    {
-        ObjectAdapterPtr adapter = _reference->getInstance()->objectAdapterFactory()->findObjectAdapter(this);
-        if(adapter)
-        {
-            return new ::IceInternal::CollocatedRequestHandler(_reference, adapter);
-        }
-    }
-
-    return new ::IceInternal::ConnectRequestHandler(_reference, this);
 }
 
 void

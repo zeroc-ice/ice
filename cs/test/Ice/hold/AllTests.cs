@@ -75,29 +75,6 @@ public class AllTests : TestCommon.TestApp
         {
         }
 
-        public void
-        sent(bool sync)
-        {
-            lock(this)
-            {
-                _sent = true;
-                System.Threading.Monitor.Pulse(this);
-            }
-        }
-    
-        public void
-        waitForSent()
-        {
-            lock(this)
-            {
-                while(!_sent)
-                {
-                    System.Threading.Monitor.Wait(this);
-                }
-            }
-        }
-
-        private bool _sent = false;
         private Condition _condition;
         private int _expected;
     }
@@ -157,16 +134,15 @@ public class AllTests : TestCommon.TestApp
         {
             Condition cond = new Condition(true);
             int value = 0;
-            SetCB cb = null;
+            Ice.AsyncResult result = null;
             while(cond.value())
             {
-                cb = new SetCB(cond, value);
-                hold.begin_set(++value, value < 500 ? rand.Next(5) : 0).
-                        whenCompleted(cb.response, cb.exception).whenSent(cb.sent);
+                SetCB cb = new SetCB(cond, value);
+                result = hold.begin_set(++value, value < 500 ? rand.Next(5) : 0).whenCompleted(cb.response,
+                                                                                               cb.exception);
                 if(value % 100 == 0)
                 {
-                    cb.waitForSent();
-                    cb = null;
+                    result.waitForSent();
                 }
 
                 if(value > 100000)
@@ -177,11 +153,7 @@ public class AllTests : TestCommon.TestApp
                     break;
                 }
             }
-            if(cb != null)
-            {
-                cb.waitForSent();
-                cb = null;
-            }
+            result.waitForSent();
         }
         WriteLine("ok");
 
@@ -190,26 +162,20 @@ public class AllTests : TestCommon.TestApp
         {
             Condition cond = new Condition(true);
             int value = 0;
-            SetCB cb = null;
+            Ice.AsyncResult result = null;
             while(value < 3000 && cond.value())
             {
-                cb = new SetCB(cond, value);
-                holdSerialized.begin_set(++value, value < 500 ? rand.Next(5) : 0).
-                        whenCompleted(cb.response, cb.exception).whenSent(cb.sent);
+                SetCB cb = new SetCB(cond, value);
+                result = holdSerialized.begin_set(++value, 0).whenCompleted(cb.response, cb.exception);
                 if(value % 100 == 0)
                 {
-                    cb.waitForSent();
-                    cb = null;
+                    result.waitForSent();
                 }
             }
-            if(cb != null)
-            {
-                cb.waitForSent();
-                cb = null;
-            }
+            result.waitForCompleted();
             test(cond.value());
 
-            for(int i = 0; i < 20000; ++i)
+            for(int i = 0; i < 10000; ++i)
             {
                 holdSerializedOneway.setOneway(value + 1, value);
                 ++value;
@@ -218,6 +184,27 @@ public class AllTests : TestCommon.TestApp
                     holdSerializedOneway.putOnHold(1);
                 }
             }
+        }
+        WriteLine("ok");
+
+        Write("testing serialization... ");
+        Flush();
+        {
+            int value = 0;
+            holdSerialized.set(value, 0);
+            Ice.AsyncResult result = null;
+            for(int i = 0; i < 10000; ++i)
+            {
+                // Create a new proxy for each request
+                result = ((HoldPrx)holdSerialized.ice_oneway()).begin_setOneway(value + 1, value);
+                ++value;
+                if((i % 100) == 0)
+                {
+                    result.waitForSent();
+                    holdSerialized.ice_getConnection().close(false);
+                }
+            }
+            result.waitForCompleted();
         }
         WriteLine("ok");
 

@@ -92,6 +92,7 @@ COMMON_SRCS = \
 	ProxyFactory.js \
 	Reference.js \
 	ReferenceMode.js \
+	RequestHandlerFactory.js \
 	RetryException.js \
 	RetryQueue.js \
 	RouterInfo.js \

@@ -16,10 +16,9 @@ namespace IceInternal
 {
     public class ConnectionRequestHandler : RequestHandler
     {
-        public RequestHandler connect()
+        public RequestHandler connect(Ice.ObjectPrxHelperBase proxy)
         {
-            Debug.Assert(false); // This request handler is only created after connection binding.
-            return null;
+            return this;
         }
 
         public RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler)

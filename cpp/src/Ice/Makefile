@@ -117,6 +117,7 @@ OBJS		= Acceptor.o \
 		  Reference.o \
 		  ReferenceFactory.o \
 		  RequestHandler.o \
+		  RequestHandlerFactory.o \
 		  ResponseHandler.o \
 		  RetryQueue.o \
 		  RouterInfo.o \

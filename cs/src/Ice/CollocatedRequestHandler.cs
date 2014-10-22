@@ -42,7 +42,7 @@ namespace IceInternal
             _batchStream = new BasicStream(@ref.getInstance(), Ice.Util.currentProtocolEncoding, _batchAutoFlush);
         }
 
-        public RequestHandler connect()
+        public RequestHandler connect(Ice.ObjectPrxHelperBase proxy)
         {
             return this;
         }

@@ -18,17 +18,6 @@
 using namespace std;
 using namespace IceInternal;
 
-ConnectionRequestHandler::ConnectionRequestHandler(const ReferencePtr& reference, const Ice::ObjectPrx& proxy) :
-    RequestHandler(reference)
-{
-    _connection = _reference->getConnection(_compress);
-    RouterInfoPtr ri = reference->getRouterInfo();
-    if(ri)
-    {
-        ri->addProxy(proxy);
-    }
-}
-
 ConnectionRequestHandler::ConnectionRequestHandler(const ReferencePtr& reference,
                                                    const Ice::ConnectionIPtr& connection,
                                                    bool compress) :
@@ -39,10 +28,9 @@ ConnectionRequestHandler::ConnectionRequestHandler(const ReferencePtr& reference
 }
 
 RequestHandlerPtr
-ConnectionRequestHandler::connect()
+ConnectionRequestHandler::connect(const Ice::ObjectPrx&)
 {
-    assert(false); // This request handler is only created after connection binding.
-    return 0;
+    return this;
 }
 
 RequestHandlerPtr

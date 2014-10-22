@@ -142,13 +142,10 @@ var Promise = Ice.Class({
             };
         };
         
-        setTimeout(
-            function()
-            {
-                self.then(delayHandler(p, p.succeed),
-                            delayHandler(p, p.fail));
-            });
-        
+        setTimeout(function()
+                   {
+                       self.then(delayHandler(p, p.succeed), delayHandler(p, p.fail));
+                   });
         return p;
     },
     resolve: function()

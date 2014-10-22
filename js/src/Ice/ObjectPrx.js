@@ -13,7 +13,6 @@ Ice.__M.require(module,
         "../Ice/Class",
         "../Ice/ArrayUtil",
         "../Ice/AsyncResult",
-        "../Ice/ConnectRequestHandler",
         "../Ice/Debug",
         "../Ice/FormatType",
         "../Ice/HashMap",
@@ -29,7 +28,6 @@ Ice.__M.require(module,
 var ArrayUtil = Ice.ArrayUtil;
 var AsyncResultBase = Ice.AsyncResultBase;
 var AsyncResult = Ice.AsyncResult;
-var ConnectRequestHandler = Ice.ConnectRequestHandler;
 var Debug = Ice.Debug;
 var FormatType = Ice.FormatType;
 var HashMap = Ice.HashMap;
@@ -540,14 +538,14 @@ var ObjectPrx = Ice.Class({
             {
                 return this._requestHandler;
             }
-            this._requestHandler = new ConnectRequestHandler(this._reference, this);
-            handler = this._requestHandler;
+            handler = this._reference.getInstance().requestHandlerFactory().getRequestHandler(this._reference, this);
+            this._requestHandler = handler;
         }
         else
         {
-            handler = new ConnectRequestHandler(this._reference, this);
+            handler = this._reference.getInstance().requestHandlerFactory().getRequestHandler(this._reference, this);
         }
-        return handler.connect();
+        return handler.connect(this);
     },
     __setRequestHandler: function(previous, handler)
     {

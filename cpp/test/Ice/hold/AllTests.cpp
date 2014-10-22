@@ -50,10 +50,7 @@ class SetCB : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    SetCB(const ConditionPtr& condition, Ice::Int expected) :
-        _condition(condition),
-        _expected(expected),
-        _sent(false)
+    SetCB(const ConditionPtr& condition, Ice::Int expected) : _condition(condition), _expected(expected)
     {
     }
 
@@ -71,29 +68,10 @@ public:
     {
     }
 
-    void
-    sent(bool)
-    {
-        Lock sync(*this);
-        _sent = true;
-        notify();
-    }
-    
-    void
-    waitForSent()
-    {
-        Lock sync(*this);
-        while(!_sent)
-        {
-            wait();
-        }
-    }
-    
 private:
 
     const ConditionPtr _condition;
     Ice::Int _expected;
-    bool _sent;
 };
 typedef IceUtil::Handle<SetCB> SetCBPtr;
 
@@ -144,23 +122,19 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         ConditionPtr cond = new Condition(true);
         int value = 0;
-        SetCBPtr cb;
+        Ice::AsyncResultPtr result;
         while(cond->value())
         {
-            cb = new SetCB(cond, value);
-            hold->begin_set(++value, IceUtilInternal::random(5),
-                            newCallback_Hold_set(cb, &SetCB::response, &SetCB::exception, &SetCB::sent));
+            result = hold->begin_set(value + 1, 
+                                     IceUtilInternal::random(5),
+                                     newCallback_Hold_set(new SetCB(cond, value), &SetCB::response, &SetCB::exception));
+            ++value;
             if(value % 100 == 0)
             {
-                cb->waitForSent();
-                cb = 0;
+                result->waitForSent();
             }
         }
-        if(cb)
-        {
-            cb->waitForSent();
-            cb = 0;
-        }
+        result->waitForCompleted();
     }
     cout << "ok" << endl;
 
@@ -168,26 +142,24 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         ConditionPtr cond = new Condition(true);
         int value = 0;
-        SetCBPtr cb;
+        Ice::AsyncResultPtr result;
         while(value < 3000 && cond->value())
         {
-            cb = new SetCB(cond, value);
-            holdSerialized->begin_set(++value, IceUtilInternal::random(5),
-                                      newCallback_Hold_set(cb, &SetCB::response, &SetCB::exception, &SetCB::sent));
+            result = holdSerialized->begin_set(value + 1,
+                                               IceUtilInternal::random(1),
+                                               newCallback_Hold_set(new SetCB(cond, value), 
+                                                                    &SetCB::response, 
+                                                                    &SetCB::exception));
+            ++value;
             if(value % 100 == 0)
             {
-                cb->waitForSent();
-                cb = 0;
+                result->waitForSent();
             }
         }
-        if(cb)
-        {
-            cb->waitForSent();
-            cb = 0;
-        }
+        result->waitForCompleted();
         test(cond->value());
 
-        for(int i = 0; i < 20000; ++i)
+        for(int i = 0; i < 10000; ++i)
         {
             holdSerialized->ice_oneway()->setOneway(value + 1, value);
             ++value;
@@ -196,6 +168,26 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 holdSerialized->ice_oneway()->putOnHold(1);
             }
         }
+    }
+    cout << "ok" << endl;
+
+    cout << "testing serialization... " << flush;
+    {
+        int value = 0;
+        holdSerialized->set(value, 0);
+        Ice::AsyncResultPtr result;
+        for(int i = 0; i < 10000; ++i)
+        {
+            // Create a new proxy for each request
+            result = holdSerialized->ice_oneway()->begin_setOneway(value + 1, value);
+            ++value;
+            if((i % 100) == 0)
+            {
+                result->waitForSent();
+                holdSerialized->ice_getConnection()->close(false);
+            }
+        }
+        result->waitForCompleted();
     }
     cout << "ok" << endl;
 

@@ -36,19 +36,24 @@ namespace IceInternal
             internal Ice.AsyncCallback sentCallback = null;
         }
 
-        public RequestHandler connect()
+        public RequestHandler connect(Ice.ObjectPrxHelperBase proxy)
         {
-            Ice.ObjectPrxHelperBase proxy = _proxy;
-            try
+            //
+            // Initiate the connection if connect() is called by the proxy that
+            // created the handler.
+            //
+            if(Object.ReferenceEquals(proxy, _proxy))
             {
                 _reference.getConnection(this);
+            }
 
+            try
+            {
                 lock(this)
                 {
                     if(!initialized())
                     {
-                        // The proxy request handler will be updated when the connection is set.
-                        _updateRequestHandler = true;
+                        _proxies.Add(proxy);
                         return this;
                     }
                 }
@@ -59,11 +64,15 @@ namespace IceInternal
                 throw ex;
             }
 
-            Debug.Assert(_connection != null);
-
-            RequestHandler handler = new ConnectionRequestHandler(_reference, _connection, _compress);
-            proxy.setRequestHandler__(this, handler);
-            return handler;
+            if(_connectionRequestHandler != null)
+            {
+                proxy.setRequestHandler__(this, _connectionRequestHandler);
+                return _connectionRequestHandler;
+            }
+            else
+            {
+                return this;                
+            }
         }
 
         public RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler)
@@ -276,13 +285,17 @@ namespace IceInternal
             {
                 Debug.Assert(!_initialized && _exception == null);
                 _exception = ex;
+                _proxies.Clear();
                 _proxy = null; // Break cyclic reference count.
 
-                //
-                // If some requests were queued, we notify them of the failure. This is done from a thread
-                // from the client thread pool since this will result in ice_exception callbacks to be
-                // called.
-                //
+                try
+                {
+                    _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
+                }
+                catch(Ice.CommunicatorDestroyedException)
+                {
+                    // Ignore
+                }
                 flushRequestsWithException();
 
                 System.Threading.Monitor.PulseAll(this);
@@ -313,7 +326,6 @@ namespace IceInternal
             _batchRequestInProgress = false;
             _batchRequestsSize = Protocol.requestBatchHdr.Length;
             _batchStream = new BasicStream(@ref.getInstance(), Ice.Util.currentProtocolEncoding, _batchAutoFlush);
-            _updateRequestHandler = false;
         }
 
         private bool initialized()
@@ -424,17 +436,18 @@ namespace IceInternal
             }
 
             //
-            // We've finished sending the queued requests and the request handler now send
-            // the requests over the connection directly. It's time to substitute the
-            // request handler of the proxy with the more efficient connection request
-            // handler which does not have any synchronization. This also breaks the cyclic
-            // reference count with the proxy.
+            // If we aren't caching the connection, don't bother creating a
+            // connection request handler. Otherwise, update the proxies
+            // request handler to use the more efficient connection request
+            // handler.
             //
-            // NOTE: _updateRequestHandler is immutable once _flushing = true
-            //
-            if(_updateRequestHandler && _exception == null)
+            if(_reference.getCacheConnection() && _exception == null)
             {
-                _proxy.setRequestHandler__(this, new ConnectionRequestHandler(_reference, _connection, _compress));
+                _connectionRequestHandler = new ConnectionRequestHandler(_reference, _connection, _compress);
+                foreach(Ice.ObjectPrxHelperBase prx in _proxies)
+                {
+                    prx.setRequestHandler__(this, _connectionRequestHandler);
+                }
             }
 
             lock(this)
@@ -445,6 +458,15 @@ namespace IceInternal
                     _initialized = true;
                     _flushing = false;
                 }
+                try
+                {
+                    _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
+                }
+                catch(Ice.CommunicatorDestroyedException)
+                {
+                    // Ignore
+                }
+                _proxies.Clear();
                 _proxy = null; // Break cyclic reference count.
                 System.Threading.Monitor.PulseAll(this);
             }
@@ -471,6 +493,7 @@ namespace IceInternal
         private bool _response;
 
         private Ice.ObjectPrxHelperBase _proxy;
+        private List<Ice.ObjectPrxHelperBase> _proxies = new List<Ice.ObjectPrxHelperBase>();
 
         private bool _batchAutoFlush;
 
@@ -484,6 +507,7 @@ namespace IceInternal
         private bool _batchRequestInProgress;
         private int _batchRequestsSize;
         private BasicStream _batchStream;
-        private bool _updateRequestHandler;
+
+        private RequestHandler _connectionRequestHandler;
     }
 }

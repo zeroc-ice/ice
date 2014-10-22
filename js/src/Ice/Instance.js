@@ -34,6 +34,7 @@ Ice.__M.require(module,
         "../Ice/TcpEndpointFactory",
         "../Ice/WSEndpointFactory",
         "../Ice/Reference",
+        "../Ice/RequestHandlerFactory",
         "../Ice/LocalException",
         "../Ice/Exception",
         "../Ice/ProcessLogger",
@@ -61,6 +62,7 @@ var RouterManager = Ice.RouterManager;
 var Timer = Ice.Timer;
 var TraceLevels = Ice.TraceLevels;
 var ReferenceFactory = Ice.ReferenceFactory;
+var RequestHandlerFactory = Ice.RequestHandlerFactory;
 var ACMConfig = Ice.ACMConfig;
 
 var StateActive = 0;
@@ -84,6 +86,7 @@ var Instance = Ice.Class({
         this._routerManager = null;
         this._locatorManager = null;
         this._referenceFactory = null;
+        this._requestHandlerFactory = null;
         this._proxyFactory = null;
         this._outgoingConnectionFactory = null;
         this._servantFactoryManager = null;
@@ -144,6 +147,16 @@ var Instance = Ice.Class({
 
         Debug.assert(this._referenceFactory !== null);
         return this._referenceFactory;
+    },
+    requestHandlerFactory: function()
+    {
+        if(this._state === StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
+
+        Debug.assert(this._requestHandlerFactory !== null);
+        return this._requestHandlerFactory;
     },
     proxyFactory: function()
     {
@@ -332,6 +345,8 @@ var Instance = Ice.Class({
 
             this._referenceFactory = new ReferenceFactory(this, communicator);
 
+            this._requestHandlerFactory = new RequestHandlerFactory(this, communicator);
+
             this._proxyFactory = new ProxyFactory(this);
 
             this._endpointFactoryManager = new EndpointFactoryManager(this);
@@ -482,11 +497,11 @@ var Instance = Ice.Class({
                     self._servantFactoryManager = null;
                 }
 
-                if(self._referenceFactory)
-                {
-                    //self._referenceFactory.destroy(); // No destroy function defined.
-                    self._referenceFactory = null;
-                }
+                //self._referenceFactory.destroy(); // No destroy function defined.
+                self._referenceFactory = null;
+
+                //self._requestHandlerFactory.destroy(); // No destroy function defined.
+                self._requestHandlerFactory = null;
 
                 // self._proxyFactory.destroy(); // No destroy function defined.
                 self._proxyFactory = null;

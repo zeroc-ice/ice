@@ -95,6 +95,7 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\RemoteLogger.obj \
 		  $(ARCH)\$(CONFIG)\RetryQueue.obj \
 		  $(ARCH)\$(CONFIG)\RequestHandler.obj \
+		  $(ARCH)\$(CONFIG)\RequestHandlerFactory.obj \
 		  $(ARCH)\$(CONFIG)\ResponseHandler.obj \
 		  $(ARCH)\$(CONFIG)\RouterInfo.obj \
 		  $(ARCH)\$(CONFIG)\Router.obj \

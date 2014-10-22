@@ -29,6 +29,7 @@
 #include <Ice/Network.h>
 #include <Ice/NetworkProxy.h>
 #include <Ice/EndpointFactoryManager.h>
+#include <Ice/RequestHandlerFactory.h>
 #include <Ice/RetryQueue.h>
 #include <Ice/DynamicLibrary.h>
 #include <Ice/PluginManagerI.h>
@@ -347,6 +348,20 @@ IceInternal::Instance::referenceFactory() const
 
     assert(_referenceFactory);
     return _referenceFactory;
+}
+
+RequestHandlerFactoryPtr
+IceInternal::Instance::requestHandlerFactory() const
+{
+    IceUtil::RecMutex::Lock sync(*this);
+
+    if(_state == StateDestroyed)
+    {
+        throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
+    assert(_requestHandlerFactory);
+    return _requestHandlerFactory;
 }
 
 ProxyFactoryPtr
@@ -1269,7 +1284,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         _locatorManager = new LocatorManager(_initData.properties);
 
         _referenceFactory = new ReferenceFactory(this, communicator);
-
+        
+        _requestHandlerFactory = new RequestHandlerFactory(this);
+        
         _proxyFactory = new ProxyFactory(this);
 
         bool ipv4 = _initData.properties->getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
@@ -1714,6 +1731,8 @@ IceInternal::Instance::destroy()
 
         //_referenceFactory->destroy(); // No destroy function defined.
         _referenceFactory = 0;
+        
+        _requestHandlerFactory = 0;
 
         // _proxyFactory->destroy(); // No destroy function defined.
         _proxyFactory = 0;

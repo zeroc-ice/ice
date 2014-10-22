@@ -89,7 +89,7 @@ $(document).foundation();
                             },
                             function(ex)
                             {
-                                out.writeLine("failed! (" + ex.ice_name() + ")");
+                                out.writeLine("failed! (" + ex + ")");
                                 return __test__(out, id);
                             }
                         ).then(

@@ -43,7 +43,7 @@ public:
     CollocatedRequestHandler(const ReferencePtr&, const Ice::ObjectAdapterPtr&);
     virtual ~CollocatedRequestHandler();
 
-    virtual RequestHandlerPtr connect();
+    virtual RequestHandlerPtr connect(const Ice::ObjectPrx&);
     virtual RequestHandlerPtr update(const RequestHandlerPtr&, const RequestHandlerPtr&);
 
     virtual void prepareBatchRequest(BasicStream*);

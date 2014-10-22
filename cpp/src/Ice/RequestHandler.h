@@ -63,7 +63,7 @@ class RequestHandler : public CancellationHandler
 {
 public:
 
-    virtual RequestHandlerPtr connect() = 0;
+    virtual RequestHandlerPtr connect(const Ice::ObjectPrx&) = 0;
     virtual RequestHandlerPtr update(const RequestHandlerPtr&, const RequestHandlerPtr&) = 0;
 
     virtual void prepareBatchRequest(BasicStream*) = 0;

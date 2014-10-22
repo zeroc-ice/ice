@@ -2432,15 +2432,15 @@ namespace Ice
                     {
                         return _requestHandler;
                     }
-                    _requestHandler = createRequestHandler();
-                    handler = _requestHandler;
+                    handler = _reference.getInstance().requestHandlerFactory().getRequestHandler(_reference, this);
+                    _requestHandler = handler;
                 }
             }
             else
             {
-                handler = createRequestHandler();
+                handler = _reference.getInstance().requestHandlerFactory().getRequestHandler(_reference, this);
             }
-            return handler.connect();
+            return handler.connect(this);
         }
 
         public void setRequestHandler__(IceInternal.RequestHandler previous, IceInternal.RequestHandler handler)
@@ -2462,20 +2462,6 @@ namespace Ice
                     }
                 }
             }
-        }
-
-        private IceInternal.RequestHandler createRequestHandler()
-        {
-            if(_reference.getCollocationOptimized())
-            {
-                ObjectAdapter adapter = _reference.getInstance().objectAdapterFactory().findObjectAdapter(this);
-                if(adapter != null)
-                {
-                    return new IceInternal.CollocatedRequestHandler(_reference, adapter);
-                }
-            }
-
-            return new IceInternal.ConnectRequestHandler(_reference, this);
         }
 
         //

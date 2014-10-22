@@ -34,6 +34,7 @@ tests = [
     ("Ice/exceptionsBidir", ["once"]),
     ("Ice/facets", ["core"]),
     ("Ice/facetsBidir", ["core"]),
+    ("Ice/hold", ["core"]),
     ("Ice/inheritance", ["once"]),
     ("Ice/inheritanceBidir", ["once"]),
     ("Ice/location", ["once"]),

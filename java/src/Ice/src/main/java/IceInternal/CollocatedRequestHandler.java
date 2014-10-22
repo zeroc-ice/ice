@@ -58,7 +58,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
 
     @Override
     public RequestHandler 
-    connect()
+    connect(Ice.ObjectPrxHelperBase proxy)
     {
         return this;
     }

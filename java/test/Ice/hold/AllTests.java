@@ -77,26 +77,8 @@ public class AllTests
         synchronized public void
         sent(boolean sync)
         {
-            _sent = true;
-            notify();
-        }
-    
-        synchronized void
-        waitForSent()
-        {
-            while(!_sent)
-            {
-                try
-                {
-                    wait();
-                }
-                catch(java.lang.InterruptedException ex)
-                {
-                }
-            }
         }
 
-        private boolean _sent = false;
         private Condition _condition;
         private int _expected;
     };
@@ -152,22 +134,17 @@ public class AllTests
         {
             Condition cond = new Condition(true);
             int value = 0;
-            AMICheckSetValue cb = null;
+            Ice.AsyncResult result = null;
             while(cond.value())
             {
-                cb = new AMICheckSetValue(cond, value);
-                hold.begin_set(++value, random.nextInt(5), cb);
+                result = hold.begin_set(value + 1, random.nextInt(5), new AMICheckSetValue(cond, value));
+                ++value;
                 if(value % 100 == 0)
                 {
-                    cb.waitForSent();
-                    cb = null;
+                    result.waitForSent();
                 }
             }
-            if(cb != null)
-            {
-                cb.waitForSent();
-                cb = null;
-            }
+            result.waitForCompleted();
         }
         out.println("ok");
 
@@ -176,25 +153,20 @@ public class AllTests
         {
             Condition cond = new Condition(true);
             int value = 0;
-            AMICheckSetValue cb = null;
+            Ice.AsyncResult result = null;
             while(value < 3000 && cond.value())
             {
-                cb = new AMICheckSetValue(cond, value);
-                holdSerialized.begin_set(++value, 0, cb);
+                result = holdSerialized.begin_set(value + 1, random.nextInt(1), new AMICheckSetValue(cond, value));
+                ++value;
                 if(value % 100 == 0)
                 {
-                    cb.waitForSent();
-                    cb = null;
+                    result.waitForSent();
                 }
             }
-            if(cb != null)
-            {
-                cb.waitForSent();
-                cb = null;
-            }
+            result.waitForCompleted();
             test(cond.value());
 
-            for(int i = 0; i < 20000; ++i)
+            for(int i = 0; i < 10000; ++i)
             {
                 holdSerializedOneway.setOneway(value + 1, value);
                 ++value;
@@ -203,6 +175,27 @@ public class AllTests
                     holdSerializedOneway.putOnHold(1);
                 }
             }
+        }
+        out.println("ok");
+
+        out.print("testing serialization... ");
+        out.flush();
+        {
+            int value = 0;
+            holdSerialized.set(value, 0);
+            Ice.AsyncResult result = null;
+            for(int i = 0; i < 10000; ++i)
+            {
+                // Create a new proxy for each request
+                result = ((HoldPrx)holdSerialized.ice_oneway()).begin_setOneway(value + 1, value);
+                ++value;
+                if((i % 100) == 0)
+                {
+                    result.waitForSent();
+                    holdSerialized.ice_getConnection().close(false);
+                }
+            }
+            result.waitForCompleted();
         }
         out.println("ok");
 

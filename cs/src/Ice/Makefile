@@ -90,6 +90,7 @@ SRCS		= Acceptor.cs \
 		  ReferenceFactory.cs \
 		  ReplyStatus.cs \
 		  RequestHandler.cs \
+		  RequestHandlerFactory.cs \
 		  ResponseHandler.cs \
 		  RetryQueue.cs \
 		  RouterInfo.cs \

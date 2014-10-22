@@ -52,6 +52,11 @@ public abstract class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
         //
         try
         {
+            //
+            // It's important to let the retry queue do the retry even if
+            // the retry interval is 0. This method can be called with the
+            // connection locked so we can't just retry here.
+            //
             _instance.retryQueue().add(this, handleException(exc));
             return false;
         }

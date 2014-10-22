@@ -420,18 +420,18 @@ Selector::finish(EventHandler* handler, bool closeNow)
     if(handler->_registered)
     {
         update(handler, handler->_registered, SocketOperationNone);
-#if defined(ICE_USE_KQUEUE)
-        if(closeNow && !_changes.empty())
-        {
-            //
-            // Update selector now to remove the FD from the kqueue if
-            // we're going to close it now. This isn't necessary for 
-            // epoll since we always update the epoll FD immediately.
-            //
-            updateSelector();
-        }
-#endif
     }
+#if defined(ICE_USE_KQUEUE)
+    if(closeNow && !_changes.empty())
+    {
+        //
+        // Update selector now to remove the FD from the kqueue if
+        // we're going to close it now. This isn't necessary for 
+        // epoll since we always update the epoll FD immediately.
+        //
+        updateSelector();
+    }
+#endif
     return closeNow;
 }
 
@@ -509,7 +509,7 @@ Selector::select(vector<pair<EventHandler*, SocketOperation> >& handlers, int ti
         if(ev.flags & EV_ERROR)
         {
             Ice::Error out(_instance->initializationData().logger);
-            out << "error while updating selector:\n" << IceUtilInternal::errorToString(ev.data);
+            out << "selector returned error:\n" << IceUtilInternal::errorToString(ev.data);
             continue;
         }
         p.first = reinterpret_cast<EventHandler*>(ev.udata);

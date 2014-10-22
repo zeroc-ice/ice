@@ -376,7 +376,6 @@ var __dispatchImpl = function(servant, op, incomingAsync, current)
         var comm = current.adapter.getCommunicator();
         var msg = "servant for identity " + comm.identityToString(current.id) +
             " does not define operation `" + op.servantMethod + "'";
-        console.log(msg);
         throw new Ice.UnknownException(msg);
     }
 

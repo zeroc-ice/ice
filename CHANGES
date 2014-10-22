@@ -27,6 +27,11 @@ Changes since version 3.5.1
 General Changes
 ===============
 
+- Ice now guarantees that invocations made on different proxy objects
+  will be serialized if the proxies are equal and if connection
+  caching is enabled. Previously, invocations could be sent out of
+  order if the connection wasn't established.
+
 - IceGrid now permits removing or moving servers when saving an
   application "without restart" (to ensure the update doesn't cause
   any server shutdown). The servers to be removed or moved, must be

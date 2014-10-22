@@ -30,14 +30,14 @@ public class QueueRequestHandler implements RequestHandler
 
     @Override
     public RequestHandler 
-    connect()
+    connect(final Ice.ObjectPrxHelperBase proxy)
     {
         performCallable(new Callable<Void>()
         {
             @Override
             public Void call()
             {
-                _delegate.connect();
+                _delegate.connect(proxy);
                 return null;
             }
         });
@@ -184,7 +184,8 @@ public class QueueRequestHandler implements RequestHandler
         return _delegate.waitForConnection();
     }
     
-    private <T> T performCallable(Callable<T> callable) {
+    private <T> T performCallable(Callable<T> callable) 
+    {
         try
         {
             Future<T> future = _executor.submit(callable);

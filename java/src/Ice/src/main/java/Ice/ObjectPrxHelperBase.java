@@ -2757,15 +2757,15 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                 {
                     return _requestHandler;
                 }
-                _requestHandler = createRequestHandler();
-                handler = _requestHandler;
+                handler = _reference.getInstance().requestHandlerFactory().getRequestHandler(_reference, this);
+                _requestHandler = handler;
             }
         }
         else
         {
-            handler = createRequestHandler();
+            handler = _reference.getInstance().requestHandlerFactory().getRequestHandler(_reference, this);
         }
-        return handler.connect();
+        return handler.connect(this);
     }
 
     public void
@@ -2801,26 +2801,6 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             }
             _streamCache.add(new StreamCacheEntry(is, os));
         }
-    }
-
-    private IceInternal.RequestHandler
-    createRequestHandler()
-    {
-        if(_reference.getCollocationOptimized())
-        {
-            ObjectAdapter adapter = _reference.getInstance().objectAdapterFactory().findObjectAdapter(this);
-            if(adapter != null)
-            {
-                return new IceInternal.CollocatedRequestHandler(_reference, adapter);
-            }
-        }
-
-        IceInternal.RequestHandler handler = new IceInternal.ConnectRequestHandler(_reference, this);
-        if(_reference.getInstance().queueRequests())
-        {
-            handler = new QueueRequestHandler(_reference.getInstance(), handler);
-        }
-        return handler;
     }
 
     //

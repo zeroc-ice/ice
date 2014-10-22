@@ -205,6 +205,18 @@ public final class Instance
         return _referenceFactory;
     }
 
+    public synchronized RequestHandlerFactory
+    requestHandlerFactory()
+    {
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
+
+        assert(_requestHandlerFactory != null);
+        return _requestHandlerFactory;
+    }
+
     public synchronized ProxyFactory
     proxyFactory()
     {
@@ -880,6 +892,8 @@ public final class Instance
 
             _referenceFactory = new ReferenceFactory(this, communicator);
 
+            _requestHandlerFactory = new RequestHandlerFactory(this);
+
             _proxyFactory = new ProxyFactory(this);
 
             boolean ipv4 = _initData.properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
@@ -956,6 +970,7 @@ public final class Instance
         {
             IceUtilInternal.Assert.FinalizerAssert(_state == StateDestroyed);
             IceUtilInternal.Assert.FinalizerAssert(_referenceFactory == null);
+            IceUtilInternal.Assert.FinalizerAssert(_requestHandlerFactory == null);
             IceUtilInternal.Assert.FinalizerAssert(_proxyFactory == null);
             IceUtilInternal.Assert.FinalizerAssert(_outgoingConnectionFactory == null);
             IceUtilInternal.Assert.FinalizerAssert(_servantFactoryManager == null);
@@ -1258,7 +1273,9 @@ public final class Instance
 
             //_referenceFactory.destroy(); // No destroy function defined.
             _referenceFactory = null;
-
+            
+            _requestHandlerFactory = null;
+            
             // _proxyFactory.destroy(); // No destroy function defined.
             _proxyFactory = null;
 
@@ -1564,6 +1581,7 @@ public final class Instance
     private RouterManager _routerManager;
     private LocatorManager _locatorManager;
     private ReferenceFactory _referenceFactory;
+    private RequestHandlerFactory _requestHandlerFactory;
     private ProxyFactory _proxyFactory;
     private OutgoingConnectionFactory _outgoingConnectionFactory;
     private ObjectFactoryManager _servantFactoryManager;

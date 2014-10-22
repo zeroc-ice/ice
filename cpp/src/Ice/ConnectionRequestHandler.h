@@ -21,10 +21,9 @@ class ConnectionRequestHandler : public RequestHandler
 {
 public:
 
-    ConnectionRequestHandler(const ReferencePtr&, const Ice::ObjectPrx&);
     ConnectionRequestHandler(const ReferencePtr&, const Ice::ConnectionIPtr&, bool);
 
-    virtual RequestHandlerPtr connect();
+    virtual RequestHandlerPtr connect(const Ice::ObjectPrx&);
     virtual RequestHandlerPtr update(const RequestHandlerPtr&, const RequestHandlerPtr&);
 
     virtual void prepareBatchRequest(BasicStream*);

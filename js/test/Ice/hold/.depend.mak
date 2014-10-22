@@ -1,0 +1,3 @@
+
+Test.js: \
+    .\Test.ice

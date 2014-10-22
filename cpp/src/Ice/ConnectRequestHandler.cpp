@@ -9,6 +9,7 @@
 
 #include <Ice/ConnectRequestHandler.h>
 #include <Ice/ConnectionRequestHandler.h>
+#include <Ice/RequestHandlerFactory.h>
 #include <Ice/Instance.h>
 #include <Ice/Proxy.h>
 #include <Ice/ConnectionI.h>
@@ -31,8 +32,7 @@ ConnectRequestHandler::ConnectRequestHandler(const ReferencePtr& ref, const Ice:
     _flushing(false),
     _batchRequestInProgress(false),
     _batchRequestsSize(sizeof(requestBatchHdr)),
-    _batchStream(ref->getInstance().get(), Ice::currentProtocolEncoding, _batchAutoFlush),
-    _updateRequestHandler(false)
+    _batchStream(ref->getInstance().get(), Ice::currentProtocolEncoding, _batchAutoFlush)
 {
 }
 
@@ -41,17 +41,23 @@ ConnectRequestHandler::~ConnectRequestHandler()
 }
 
 RequestHandlerPtr
-ConnectRequestHandler::connect()
+ConnectRequestHandler::connect(const Ice::ObjectPrx& proxy)
 {
-    Ice::ObjectPrx proxy = _proxy;
-    try
+    //
+    // Initiate the connection if connect() is called by the proxy that
+    // created the handler.
+    //
+    if(proxy.get() == _proxy.get()) 
     {
         _reference->getConnection(this);
+    }
 
+    try
+    {
         Lock sync(*this);
         if(!initialized())
         {
-            _updateRequestHandler = true; // The proxy request handler will be updated when the connection is set.
+            _proxies.push_back(proxy);
             return this;
         }
     }
@@ -61,11 +67,15 @@ ConnectRequestHandler::connect()
         throw;
     }
 
-    assert(_connection);
-
-    RequestHandlerPtr handler = new ConnectionRequestHandler(_reference, _connection, _compress);
-    proxy->__setRequestHandler(this, handler);
-    return handler;
+    if(_connectionRequestHandler)
+    {
+        proxy->__setRequestHandler(this, _connectionRequestHandler);
+        return _connectionRequestHandler;
+    }
+    else
+    {
+        return this;
+    }
 }
 
 RequestHandlerPtr
@@ -335,15 +345,19 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
     Lock sync(*this);
     assert(!_initialized && !_exception.get());
     _exception.reset(ex.ice_clone());
+    _proxies.clear();
     _proxy = 0; // Break cyclic reference count.
 
-    //
-    // If some requests were queued, we notify them of the failure. This is done from a thread
-    // from the client thread pool since this will result in ice_exception callbacks to be
-    // called.
-    //
     flushRequestsWithException();
 
+    try
+    {
+        _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, this);
+    }
+    catch(const Ice::CommunicatorDestroyedException&)
+    {
+        // Ignore
+    }
     notifyAll();
 }
 
@@ -467,15 +481,18 @@ ConnectRequestHandler::flushRequests()
     }
 
     //
-    // We've finished sending the queued requests and the request handler now sends
-    // the requests over the connection directly. It's time to substitute the
-    // request handler of the proxy with the more efficient connection request
-    // handler which does not have any synchronization. This also breaks the cyclic
-    // reference count with the proxy.
+    // If we aren't caching the connection, don't bother creating a
+    // connection request handler. Otherwise, update the proxies
+    // request handler to use the more efficient connection request
+    // handler.
     //
-    if(_updateRequestHandler && !_exception.get())
+    if(_reference->getCacheConnection() && !_exception.get())
     {
-        _proxy->__setRequestHandler(this, new ConnectionRequestHandler(_reference, _connection, _compress));
+        _connectionRequestHandler = new ConnectionRequestHandler(_reference, _connection, _compress);
+        for(vector<Ice::ObjectPrx>::const_iterator p = _proxies.begin(); p != _proxies.end(); ++p)
+        {
+            (*p)->__setRequestHandler(this, _connectionRequestHandler);
+        }
     }
 
     {
@@ -486,6 +503,15 @@ ConnectRequestHandler::flushRequests()
             _initialized = true;
             _flushing = false;
         }
+        try
+        {
+            _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, this);
+        }
+        catch(const Ice::CommunicatorDestroyedException&)
+        {
+            // Ignore
+        }
+        _proxies.clear();
         _proxy = 0; // Break cyclic reference count.
         notifyAll();
     }

@@ -33,19 +33,24 @@ public class ConnectRequestHandler
 
     @Override
     public RequestHandler 
-    connect()
+    connect(Ice.ObjectPrxHelperBase proxy)
     {
-        Ice.ObjectPrxHelperBase proxy = _proxy;
-        try
+        //
+        // Initiate the connection if connect() is called by the proxy that
+        // created the handler.
+        //
+        if(proxy == _proxy)
         {
             _reference.getConnection(this);
-        
+        }
+
+        try
+        {
             synchronized(this)
             {
                 if(!initialized())
                 {
-                    // The proxy request handler will be updated when the connection is set.
-                    _updateRequestHandler = true;
+                    _proxies.add(proxy);
                     return this;
                 }
             }
@@ -56,11 +61,15 @@ public class ConnectRequestHandler
             throw ex;
         }
         
-        assert(_connection != null);
-        
-        RequestHandler handler = new ConnectionRequestHandler(_reference, _connection, _compress);
-        proxy.__setRequestHandler(this, handler);
-        return handler;
+        if(_connectionRequestHandler != null)
+        {
+            proxy.__setRequestHandler(this, _connectionRequestHandler);
+            return _connectionRequestHandler;
+        }
+        else
+        {
+            return this;
+        }
     }
 
     @Override
@@ -286,15 +295,19 @@ public class ConnectRequestHandler
     {
         assert(!_initialized && _exception == null);
         _exception = ex;
+        _proxies.clear();
         _proxy = null; // Break cyclic reference count.
 
-        //
-        // If some requests were queued, we notify them of the failure. This is done from a thread
-        // from the client thread pool since this will result in ice_exception callbacks to be
-        // called.
-        //
         flushRequestsWithException();
 
+        try
+        {
+            _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
+        }
+        catch(Ice.CommunicatorDestroyedException exc)
+        {
+            // Ignore
+        }
         notifyAll();
     }
 
@@ -313,7 +326,7 @@ public class ConnectRequestHandler
     }
 
     public
-    ConnectRequestHandler(Reference ref, Ice.ObjectPrx proxy)
+    ConnectRequestHandler(Reference ref, Ice.ObjectPrxHelperBase proxy)
     {
         _reference = ref;
         _response = _reference.getMode() == Reference.ModeTwoway;
@@ -325,7 +338,6 @@ public class ConnectRequestHandler
         _batchRequestInProgress = false;
         _batchRequestsSize = Protocol.requestBatchHdr.length;
         _batchStream = new BasicStream(ref.getInstance(), Protocol.currentProtocolEncoding, _batchAutoFlush);
-        _updateRequestHandler = false;
     }
 
     private boolean
@@ -452,17 +464,18 @@ public class ConnectRequestHandler
         }
 
         //
-        // We've finished sending the queued requests and the request handler now send
-        // the requests over the connection directly. It's time to substitute the
-        // request handler of the proxy with the more efficient connection request
-        // handler which does not have any synchronization. This also breaks the cyclic
-        // reference count with the proxy.
+        // If we aren't caching the connection, don't bother creating a
+        // connection request handler. Otherwise, update the proxies
+        // request handler to use the more efficient connection request
+        // handler.
         //
-        // NOTE: _updateRequestHandler is immutable once _flushing = true
-        //
-        if(_updateRequestHandler && _exception == null)
+        if(_reference.getCacheConnection() && _exception == null)
         {
-            _proxy.__setRequestHandler(this, new ConnectionRequestHandler(_reference, _connection, _compress));
+            _connectionRequestHandler = new ConnectionRequestHandler(_reference, _connection, _compress);
+            for(Ice.ObjectPrxHelperBase proxy : _proxies)
+            {
+                proxy.__setRequestHandler(this, _connectionRequestHandler);
+            }
         }
 
         synchronized(this)
@@ -473,6 +486,15 @@ public class ConnectRequestHandler
                 _initialized = true;
                 _flushing = false;
             }
+            try
+            {
+                _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
+            }
+            catch(Ice.CommunicatorDestroyedException ex)
+            {
+                // Ignore
+            }
+            _proxies.clear();
             _proxy = null; // Break cyclic reference count.
             notifyAll();
         }
@@ -526,6 +548,7 @@ public class ConnectRequestHandler
     private boolean _response;
 
     private Ice.ObjectPrxHelperBase _proxy;
+    private java.util.List<Ice.ObjectPrxHelperBase> _proxies = new java.util.ArrayList<Ice.ObjectPrxHelperBase>();
 
     private final boolean _batchAutoFlush;
 
@@ -539,5 +562,6 @@ public class ConnectRequestHandler
     private boolean _batchRequestInProgress;
     private int _batchRequestsSize;
     private BasicStream _batchStream;
-    private boolean _updateRequestHandler;
+    
+    private RequestHandler _connectionRequestHandler;
 }

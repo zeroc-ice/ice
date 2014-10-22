@@ -21,10 +21,10 @@ var ConnectionRequestHandler = Ice.Class({
         this._connection = connection;
         this._compress = compress;
     },
-    // connect : function()
-    // {
-    // This request handler is only created after connection binding.
-    // }
+    connect : function()
+    {
+        return this;
+    },
     update: function(previousHandler, newHandler)
     {
         try
