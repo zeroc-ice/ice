@@ -80,53 +80,53 @@ ice_require_cpp  = yes
 slice_translator = slice2py
 
 ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
-    include $(top_srcdir)/config/Make.common.rules
+	include $(top_srcdir)/config/Make.common.rules
 else
-    include $(top_srcdir)/../config/Make.common.rules
+	include $(top_srcdir)/../config/Make.common.rules
 endif
 
 #
 # Platform specific definitions
 #
 ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.$(UNAME) && echo 0),0)
-    include $(top_srcdir)/config/Make.rules.$(UNAME)
+	include $(top_srcdir)/config/Make.rules.$(UNAME)
 else
-    include $(top_srcdir)/../cpp/config/Make.rules.$(UNAME)
-endif 
+	include $(top_srcdir)/../cpp/config/Make.rules.$(UNAME)
+endif
 
 libdir                  = $(top_srcdir)/python
 ifneq ($(prefix), /usr)
 install_pythondir       = $(prefix)/python
 install_libdir          = $(prefix)/python
 else
-    ifeq ($(shell test -d $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/dist-packages && echo 0),0)
-        install_pythondir       = $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/dist-packages
-        install_libdir          = $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/dist-packages
-    else
-        install_pythondir       = $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/site-packages
-        install_libdir          = $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/site-packages
-    endif
+	ifeq ($(shell test -d $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/dist-packages && echo 0),0)
+		install_pythondir       = $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/dist-packages
+		install_libdir          = $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/dist-packages
+	else
+		install_pythondir       = $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/site-packages
+		install_libdir          = $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/site-packages
+	endif
 endif
 
 ifeq ($(UNAME),SunOS)
    ifeq ($(LP64),yes)
-      libdir            = $(top_srcdir)/python$(lp64suffix)
-      install_libdir    = $(prefix)/python$(lp64suffix)
+	  libdir            = $(top_srcdir)/python$(lp64suffix)
+	  install_libdir    = $(prefix)/python$(lp64suffix)
    endif
 endif
 
 ifdef ice_src_dist
-    ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
-        ICE_LIB_DIR = -L$(ice_cpp_dir)/lib
-    else
-        ICE_LIB_DIR = -L$(ice_cpp_dir)/$(libsubdir)
-    endif
-    ICE_LIB_DIR = -L$(ice_cpp_dir)/lib
-    ICE_FLAGS 	= -I$(ice_cpp_dir)/include
+	ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
+		ICE_LIB_DIR = -L$(ice_cpp_dir)/lib
+	else
+		ICE_LIB_DIR = -L$(ice_cpp_dir)/$(libsubdir)
+	endif
+	ICE_LIB_DIR = -L$(ice_cpp_dir)/lib
+	ICE_FLAGS 	= -I$(ice_cpp_dir)/include
 endif
 ifdef ice_bin_dist
-    ICE_LIB_DIR = -L$(ice_dir)/$(libsubdir)
-    ICE_FLAGS	= -I$(ice_dir)/include
+	ICE_LIB_DIR = -L$(ice_dir)/$(libsubdir)
+	ICE_FLAGS	= -I$(ice_dir)/include
 endif
 ICE_LIBS = $(ICE_LIB_DIR) -lIce -lSlice -lIceUtil
 
@@ -140,16 +140,16 @@ SLICE2PYFLAGS		= $(ICECPPFLAGS)
 LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
 
 ifdef ice_src_dist
-    ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
-        SLICE2PY 	= $(ice_cpp_dir)/bin/slice2py
+	ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
+		SLICE2PY 	= $(ice_cpp_dir)/bin/slice2py
 	SLICEPARSERLIB	= $(ice_cpp_dir)/lib/$(call mklibfilename,Slice,$(VERSION))
-    else
-        SLICE2PY 	= $(ice_cpp_dir)/$(binsubdir)/slice2py
+	else
+		SLICE2PY 	= $(ice_cpp_dir)/$(binsubdir)/slice2py
 	SLICEPARSERLIB	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
-    endif
+	endif
 else
-    SLICE2PY 		= $(ice_dir)/$(binsubdir)/slice2py
-    SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
+	SLICE2PY 		= $(ice_dir)/$(binsubdir)/slice2py
+	SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
 endif
 
 #
@@ -182,6 +182,7 @@ clean::
 	-rm -f $(TARGETS)
 	-rm -f core *.o *.pyc *.bak
 	-rm -rf __pycache__
+	-rm -f .depend/*.d
 
 all:: $(SRCS) $(TARGETS)
 
