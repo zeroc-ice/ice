@@ -199,17 +199,17 @@ var HashMap = Ice.Class({
     },
     equals: function(other, valuesEqual)
     {
-        var self = this;
-        var eq = valuesEqual || function(v1, v2)
-            {
-                return self._valueComparator.call(this._valueComparator, v1, v2);
-            };
-
         if(other === null || !(other instanceof HashMap) || this._size !== other._size)
         {
             return false;
         }
 
+        var self = this;
+        var eq = valuesEqual || function(v1, v2)
+            {
+                return self._valueComparator.call(self._valueComparator, v1, v2);
+            };
+        
         for(var e = this._head; e !== null; e = e._next)
         {
             var oe = other.findEntry(e._key, e._hash);

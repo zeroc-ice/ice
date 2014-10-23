@@ -100,6 +100,13 @@ var IceObject = Class({
     __mostDerivedType: function()
     {
         return IceObject;
+    },
+    //
+    // The default implementation of equals compare references.
+    // 
+    equals: function(other)
+    {
+        return this === other;
     }
 });
 
