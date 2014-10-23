@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="com.zeroc.chat"
+      android:versionCode="1"
+      android:versionName="1.0.0">
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+    <!--
+      http://developer.android.com/guide/topics/manifest/uses-sdk-element.html
+    -->
+    <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="16"/>
+    <application android:icon="@drawable/icon" android:label="@string/app_name" android:allowBackup="false">
+        <activity android:label="@string/app_name" android:name=".ChatActivity" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.RUN"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity android:label="@string/app_name" android:name=".LoginActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"></action>
+                <category android:name="android.intent.category.LAUNCHER"></category>
+            </intent-filter>
+        </activity>
+        <activity android:name=".UserViewActivity" android:label="@string/users_name"></activity>
+        <service android:permission="android.permission.INTERNET" android:enabled="true"
+            android:name=".service.ChatService" android:exported="false"></service>
+    </application>
+</manifest>

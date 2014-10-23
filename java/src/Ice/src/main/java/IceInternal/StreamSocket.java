@@ -191,16 +191,6 @@ public class StreamSocket
     {
         assert(_fd != null);
 
-        //
-        // We don't want write to be called on Android's main thread as this will cause
-        // NetworkOnMainThreadException to be thrown. If this is the Android main thread
-        // we return 0 and this method will be called later from the thread pool.
-        //
-        if(buf.hasRemaining() && Util.isAndroidMainThread(Thread.currentThread()))
-        {
-            return 0;
-        }
-
         int sent = 0;
         while(buf.hasRemaining())
         {

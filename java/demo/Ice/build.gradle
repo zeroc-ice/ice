@@ -31,7 +31,7 @@
 
 		if (distJarDir == null) {
 			dependencies {
-				compile project(':src/Ice')
+				compile project(':Ice')
 			}
 		} else {
 			dependencies {

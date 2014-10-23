@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="com.zeroc.hello"
+      android:versionCode="1"
+      android:versionName="1.0.0">
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+    <!--
+      http://developer.android.com/guide/topics/manifest/uses-sdk-element.html
+    -->
+    <uses-sdk android:minSdkVersion="17" android:targetSdkVersion="17"/>
+    <application android:icon="@drawable/icon" android:label="@string/app_name" android:name="HelloApp"
+                 android:allowBackup="false">
+        <activity android:name=".HelloWorld" android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/src/Glacier2/Glacier2.iml" filepath="$PROJECT_DIR$/src/Glacier2/Glacier2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/Ice/Ice.iml" filepath="$PROJECT_DIR$/src/Ice/Ice.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/IceBox/IceBox.iml" filepath="$PROJECT_DIR$/src/IceBox/IceBox.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/IceDiscovery/IceDiscovery.iml" filepath="$PROJECT_DIR$/src/IceDiscovery/IceDiscovery.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/IceGrid/IceGrid.iml" filepath="$PROJECT_DIR$/src/IceGrid/IceGrid.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/IcePatch2/IcePatch2.iml" filepath="$PROJECT_DIR$/src/IcePatch2/IcePatch2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/IceStorm/IceStorm.iml" filepath="$PROJECT_DIR$/src/IceStorm/IceStorm.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android.iml" filepath="$PROJECT_DIR$/android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/buildSrc/buildSrc.iml" filepath="$PROJECT_DIR$/buildSrc/buildSrc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/chat/chat.iml" filepath="$PROJECT_DIR$/demo/chat/chat.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/hello/hello.iml" filepath="$PROJECT_DIR$/demo/hello/hello.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/library/library.iml" filepath="$PROJECT_DIR$/demo/library/library.iml" />
+      <module fileurl="file://$PROJECT_DIR$/test/test.iml" filepath="$PROJECT_DIR$/test/test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/test/android/testApp.iml" filepath="$PROJECT_DIR$/test/android/testApp.iml" />
+    </modules>
+  </component>
+</project>
+

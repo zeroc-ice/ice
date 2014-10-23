@@ -2,6 +2,16 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/src/Freeze/Freeze.iml" filepath="$PROJECT_DIR$/src/Freeze/Freeze.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/Glacier2/Glacier2.iml" filepath="$PROJECT_DIR$/src/Glacier2/Glacier2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/Ice/Ice.iml" filepath="$PROJECT_DIR$/src/Ice/Ice.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/IceBox/IceBox.iml" filepath="$PROJECT_DIR$/src/IceBox/IceBox.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/IceDiscovery/IceDiscovery.iml" filepath="$PROJECT_DIR$/src/IceDiscovery/IceDiscovery.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/IceGrid/IceGrid.iml" filepath="$PROJECT_DIR$/src/IceGrid/IceGrid.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/IceGridGUI/IceGridGUI.iml" filepath="$PROJECT_DIR$/src/IceGridGUI/IceGridGUI.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/IcePatch2/IcePatch2.iml" filepath="$PROJECT_DIR$/src/IcePatch2/IcePatch2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/IceStorm/IceStorm.iml" filepath="$PROJECT_DIR$/src/IceStorm/IceStorm.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/ant/ant.iml" filepath="$PROJECT_DIR$/src/ant/ant.iml" />
       <module fileurl="file://$PROJECT_DIR$/buildSrc/buildSrc.iml" filepath="$PROJECT_DIR$/buildSrc/buildSrc.iml" />
       <module fileurl="file://$PROJECT_DIR$/demo/Database/library/demo_Database_library.iml" filepath="$PROJECT_DIR$/demo/Database/library/demo_Database_library.iml" />
       <module fileurl="file://$PROJECT_DIR$/demo/Freeze/bench/demo_Freeze_bench.iml" filepath="$PROJECT_DIR$/demo/Freeze/bench/demo_Freeze_bench.iml" />

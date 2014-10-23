@@ -70,7 +70,11 @@ public final class Instance
         Timer(Ice.Properties props, String threadName)
         {
             super(1, Util.createThreadFactory(props, threadName)); // Single thread executor
-            setRemoveOnCancelPolicy(true);
+            if(!Util.isAndroid())
+            {
+                // This API doesn't exist on Android up to API level 20.
+                setRemoveOnCancelPolicy(true);
+            }
             setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
             _observerHelper = new ThreadObserverHelper(threadName);
         }
@@ -942,7 +946,11 @@ public final class Instance
 
             _retryQueue = new RetryQueue(this);
 
-            if(_initData.properties.getPropertyAsInt("Ice.ThreadInterruptSafe") > 0)
+            //
+            // If Ice.ThreadInterruptSafe is set or we're running on Android all
+            // IO is done on the background thread.
+            //
+            if(_initData.properties.getPropertyAsInt("Ice.ThreadInterruptSafe") > 0 || Util.isAndroid())
             {
                 _queueExecutor = new QueueExecutor(_initData.properties,
                                                    Util.createThreadName(_initData.properties, "Ice.BackgroundIO"));

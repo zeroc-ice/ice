@@ -28,8 +28,8 @@
 
 		if (distJarDir == null) {
 			dependencies {
-				compile project(':src/Ice')
-				compile project(':src/Glacier2')
+				compile project(':Ice')
+				compile project(':Glacier2')
 			}
 		} else {
 			dependencies {

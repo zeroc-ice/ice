@@ -34,7 +34,7 @@ apply from: "$rootProject.projectDir/demo/IceGrid/build.gradle"
 apply from: "$rootProject.projectDir/demo/book/build.gradle"
 
 //
-// Used to build the gradle wrapper to automatically download and install 
+// Used to build the gradle wrapper to automatically download and install
 // the version of gradle needed to build Ice.
 //
 //task wrapper(type: Wrapper) {

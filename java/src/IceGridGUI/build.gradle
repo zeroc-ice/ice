@@ -1,10 +1,22 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
 apply plugin: 'application'
 apply from: "../../gradle/javafx7.gradle"
 
 dependencies {
-  compile project(':src/Ice')
-  compile project(':src/IceBox')
-  compile project(':src/IceGrid')
+  compile project(':Ice')
+  compile project(':IceBox')
+  compile project(':IceGrid')
   compile 'com.jgoodies:jgoodies-common:1.8.0'
   compile 'com.jgoodies:jgoodies-looks:2.6.0'
   compile 'com.jgoodies:jgoodies-forms:1.8.0'
@@ -29,7 +41,6 @@ buildscript {
     dependencies {
         classpath group: 'net.sourceforge', name: 'proguard', version: '5.0'
     }
-
 }
 
 def javaHome = System.getProperty('java.home')

@@ -402,6 +402,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                     new Ice.ConnectionI(_adapter.getCommunicator(), _instance, null, _transceiver, null, _endpoint,
                                         _adapter);
                 connection.startAndWait();
+
                 _connections.add(connection);
             }
             else

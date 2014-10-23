@@ -19,9 +19,9 @@
 
 		if (distJarDir == null) {
 			dependencies {
-				compile project(':src/Ice')
-				compile project(':src/IceBox')
-				compile project(':src/IceGrid')
+				compile project(':Ice')
+				compile project(':IceBox')
+				compile project(':IceGrid')
 			}
 		} else {
 			dependencies {

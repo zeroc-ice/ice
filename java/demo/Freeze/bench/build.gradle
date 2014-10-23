@@ -85,8 +85,8 @@ jar.enabled = false
 
 if (distJarDir == null) {
 	dependencies {
-		compile project(':src/Ice')
-		compile project(':src/Freeze')
+		compile project(':Ice')
+		compile project(':Freeze')
 	}
 } else {
 	dependencies {

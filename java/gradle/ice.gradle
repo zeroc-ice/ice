@@ -11,8 +11,12 @@ apply plugin: 'slice'
 
 ext.generatedDir = "$project.buildDir/generated"
 
-compileJava {
-	options.debug = debug
+try {
+	compileJava {
+		options.debug = debug
+	}
+} catch(MissingMethodException ex) {
+	// For Android builds: thrown if compileJava isn't available.
 }
 
 // Determine the name of the Slice-to-Java translator

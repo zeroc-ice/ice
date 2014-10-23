@@ -230,43 +230,10 @@ public final class Util
     }
 
     //
-    // Return true if the given thread is the android main thread, also know as the GUI thread.
+    // Return true if we're running on Android.
     //
-    public static boolean
-    isAndroidMainThread(Thread thread)
+    public static boolean isAndroid()
     {
-        if(!System.getProperty("java.vm.name").startsWith("Dalvik"))
-        {
-            return false;
-        }
-
-        if(_androidMainThread == null)
-        {
-            try
-            {
-                Class<?> c = Util.findClass("android.os.Looper", null);
-                java.lang.reflect.Method getMainLooper = c.getDeclaredMethod("getMainLooper", (Class<?>[])null);
-                java.lang.reflect.Method getThread = c.getDeclaredMethod("getThread", (Class<?>[])null);
-
-                Object looper = getMainLooper.invoke(null);
-                _androidMainThread = (Thread)getThread.invoke(looper);
-            }
-            catch(java.lang.reflect.InvocationTargetException ex)
-            {
-                assert false;
-            }
-            catch(java.lang.NoSuchMethodException ex)
-            {
-                assert false;
-            }
-            catch(IllegalAccessException ex)
-            {
-                assert false;
-            }
-        }
-
-        return thread != null && _androidMainThread == thread;
+        return System.getProperty("java.vm.name").startsWith("Dalvik");
     }
-
-    private static Thread _androidMainThread;
 }

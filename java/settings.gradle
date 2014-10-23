@@ -8,16 +8,28 @@
 // **********************************************************************
 
 // Main source
-include 'src/ant'
-include 'src/Ice'
-include 'src/IceDiscovery'
-include	'src/Freeze'
-include	'src/IceBox'
-include	'src/Glacier2'
-include	'src/IcePatch2'
-include	'src/IceStorm'
-include	'src/IceGrid'
-include	'src/IceGridGUI'
+include ':Ice'
+project(':Ice').projectDir = new File('src/Ice')
+include ':IceDiscovery'
+project(':IceDiscovery').projectDir = new File('src/IceDiscovery')
+include	':Freeze'
+project(':Freeze').projectDir = new File('src/Freeze')
+include	':IceBox'
+project(':IceBox').projectDir = new File('src/IceBox')
+include	':Glacier2'
+project(':Glacier2').projectDir = new File('src/Glacier2')
+include	':IcePatch2'
+project(':IcePatch2').projectDir = new File('src/IcePatch2')
+include	':IceStorm'
+project(':IceStorm').projectDir = new File('src/IceStorm')
+include	':IceGrid'
+project(':IceGrid').projectDir = new File('src/IceGrid')
+include	':IceGridGUI'
+project(':IceGridGUI').projectDir = new File('src/IceGridGUI')
+
+
+include ':ant'
+project(':ant').projectDir = new File('src/ant')
 
 // Tests
 include 'test'

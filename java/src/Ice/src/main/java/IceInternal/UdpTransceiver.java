@@ -110,16 +110,6 @@ final class UdpTransceiver implements Transceiver
     @Override
     public int write(Buffer buf)
     {
-        //
-        // We don't want write or send to be called on android main thread as this will cause
-        // NetworkOnMainThreadException to be thrown. If that is the android main thread
-        // we return false and this method will be later called from the thread pool
-        //
-        if(Util.isAndroidMainThread(Thread.currentThread()))
-        {
-            return SocketOperation.Write;
-        }
-
         if(!buf.b.hasRemaining())
         {
             return SocketOperation.None;

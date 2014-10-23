@@ -28,7 +28,7 @@
 
 		if (distJarDir == null) {
 			dependencies {
-				compile project(':src/Ice')
+				compile project(':Ice')
 			}
 		} else {
 			dependencies {
@@ -39,7 +39,7 @@
 		if(name == "evictor_filesystem") {
 			if (distJarDir == null) {
 				dependencies {
-					compile project(':src/Freeze')
+					compile project(':Freeze')
 				}
 			} else {
 				dependencies {
