@@ -2677,7 +2677,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             {
                 *q = static_cast<Ice::Byte>(IceUtilInternal::random(255));
             }
-            for(int i = 0; i < 200; ++i) // 2MB
+            for(int i = 0; i < 1000; ++i) // 10MB
             {
                 r = p->begin_opWithPayload(seq);
             }

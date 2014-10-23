@@ -990,10 +990,9 @@ def allTests(communicator, collocated):
             seq = bytes(b) 
             
         testController.holdAdapter()
-        while(True):
+
+        for x in range(0, 1000) # 10MB
             r = p.begin_opWithPayload(seq)
-            if not r.sentSynchronously():
-                break
         
         test(not r.isSent())
         
