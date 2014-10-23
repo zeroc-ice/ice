@@ -174,3 +174,6 @@ if(appendVersionSuffix != null && appendVersionSuffix == "yes")
 {
 	ext.versionSuffix = "-${iceVersion}"
 }
+
+
+ext.libDir = "$rootProject.projectDir/lib"

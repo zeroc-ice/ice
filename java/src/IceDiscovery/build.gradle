@@ -15,17 +15,19 @@ dependencies {
     compile project(':src/Ice')
 }
 
+def jarName = "IceDiscovery${versionSuffix}.jar"
+
 jar {
-    archiveName = "IceDiscovery${versionSuffix}.jar"
-    destinationDir = new File("$rootProject.projectDir/lib/")
+    archiveName = jarName
+    destinationDir = new File("${libDir}")
 }
 
 clean {
-    delete("$rootProject.projectDir/lib/IceDiscovery${versionSuffix}.jar")
+    delete("${libDir}/${jarName}")
 }
 
 task copyJars(type: Copy, dependsOn: jar) {
-    from new File("$rootProject.projectDir/lib/IceDiscovery${versionSuffix}.jar")
+    from new File("${libDir}/${jarName}")
     into "${DESTDIR}${prefix}/lib"
 }
 task install(dependsOn: copyJars)

@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-SUBDIRS			= cpp java cs py rb php js
+SUBDIRS			= cpp java cs js py rb php
 CLEAN_SUBDIRS		= js java cs py rb php cpp
 DEPEND_SUBDIRS		= cpp cs py rb php
 INSTALL_SUBDIRS		= cpp java cs py rb php js

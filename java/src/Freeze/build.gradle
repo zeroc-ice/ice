@@ -36,17 +36,19 @@ idea.module {
     buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
 }
 
+def jarName = "Freeze${versionSuffix}.jar"
+
 jar {
-    archiveName = "Freeze${versionSuffix}.jar"
-    destinationDir = new File("$rootProject.projectDir/lib/")
+    archiveName = jarName
+    destinationDir = new File("${libDir}")
 }
 
 clean {
-    delete("$rootProject.projectDir/lib/Freeze${versionSuffix}.jar")
+    delete("${libDir}/${jarName}")
 }
 
 task copyJars(type: Copy, dependsOn: jar) {
-    from new File("$rootProject.projectDir/lib/Freeze${versionSuffix}.jar")
+    from new File("${libDir}/${jarName}")
     into "${DESTDIR}${prefix}/lib"
 }
 task install(dependsOn: copyJars)

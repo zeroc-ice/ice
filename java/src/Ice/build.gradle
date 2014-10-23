@@ -18,17 +18,19 @@ idea.module {
     buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
 }
 
+def jarName = "Ice${versionSuffix}.jar"
+
 jar {
-    archiveName = "Ice${versionSuffix}.jar"
-    destinationDir = new File("$rootProject.projectDir/lib/")
+    archiveName = jarName
+    destinationDir = new File("${libDir}")
 }
 
 clean {
-    delete("$rootProject.projectDir/lib/Ice${versionSuffix}.jar")
+    delete("${libDir}/${jarName}")
 }
 
 task copyJars(type: Copy, dependsOn: jar) {
-    from new File("$rootProject.projectDir/lib/Ice${versionSuffix}.jar")
+    from new File("${libDir}/${jarName}")
     into "${DESTDIR}${prefix}/lib"
 }
 task install(dependsOn: copyJars)

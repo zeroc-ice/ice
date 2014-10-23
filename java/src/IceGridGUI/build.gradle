@@ -12,17 +12,37 @@ dependencies {
 
 mainClassName = "IceGridGUI.Main"
 
+def jarName = "IceGridGUI${versionSuffix}.jar"
+
 jar {
-	archiveName = "IceGridGUI${versionSuffix}.jar"
-    destinationDir = new File("$rootProject.projectDir/lib/")
+	archiveName = jarName
+    destinationDir = new File("${libDir}")
 }
 
+/*buildscript {
+    repositories {
+        maven {
+            url 'http://www.zeroc.com:8081/nexus/content/repositories/thirdparty'
+        }
+    }
+    dependencies {
+        classpath group: 'net.sourceforge', name: 'proguard', version: '5.0'
+    }
+
+}
+
+task proguardJar(type: proguard.gradle.ProGuardTask, dependsOn: jar) {
+
+}
+build.dependsOn(proguardJar)*/
+
+
 clean {
-    delete("$rootProject.projectDir/lib/IceGridGUI${versionSuffix}.jar")
+    delete("${libDir}/${jarName}")
 }
 
 task copyJars(type: Copy, dependsOn: jar) {
-    from new File("$rootProject.projectDir/lib/IceGridGUI${versionSuffix}.jar")
+    from new File("${libDir}/${jarName}")
     into "${DESTDIR}${prefix}/lib"
 }
 task install(dependsOn: copyJars)
