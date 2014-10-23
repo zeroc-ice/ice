@@ -155,14 +155,14 @@ USE_READLINE		?= no
 #
 ice_language     = cpp
 ifneq ($(shell test "$(USE_BIN_DIST)" != "yes" -a -d $(top_srcdir)/../$(ice_language) && echo 0),0)
-    slice_translator = slice2cpp
-    ice_require_cpp  = 1
+	slice_translator = slice2cpp
+	ice_require_cpp  = 1
 endif
 
 ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
-    include $(top_srcdir)/config/Make.common.rules
+	include $(top_srcdir)/config/Make.common.rules
 else
-    include $(top_srcdir)/../config/Make.common.rules
+	include $(top_srcdir)/../config/Make.common.rules
 endif
 
 bindir			= $(top_srcdir)/bin
@@ -174,9 +174,9 @@ headerdir		= $(top_srcdir)/include
 # because it is used in the .depend files
 #
 ifdef ice_src_dist
-    includedir		= $(top_srcdir)/include
+	includedir		= $(top_srcdir)/include
 else
-    includedir		= $(ice_dir)/include
+	includedir		= $(ice_dir)/include
 endif
 
 #
@@ -197,81 +197,81 @@ install_mandir		:= $(prefix)/share/man/man1
 endif
 
 ifneq ($(embedded_runpath_prefix),)
-    runpath_libdir	:= $(embedded_runpath_prefix)/$(libsubdir)
+	runpath_libdir	:= $(embedded_runpath_prefix)/$(libsubdir)
 else
-    create_runpath_symlink = no
+	create_runpath_symlink = no
 endif
 
 ifeq ($(DEFAULT_MUTEX_PROTOCOL), PrioInherit)
-    ICEUTIL_FLAGS           = -DICE_PRIO_INHERIT
+	ICEUTIL_FLAGS           = -DICE_PRIO_INHERIT
 endif
 
 OPENSSL_FLAGS           += $(if $(OPENSSL_HOME),-I$(OPENSSL_HOME)/include)
 ifeq ($(OPENSSL_LIBS),)
-    OPENSSL_LIBS            = $(if $(OPENSSL_HOME),-L$(OPENSSL_HOME)/$(libsubdir)) -lssl -lcrypto
+	OPENSSL_LIBS            = $(if $(OPENSSL_HOME),-L$(OPENSSL_HOME)/$(libsubdir)) -lssl -lcrypto
 endif
 OPENSSL_RPATH_LINK      = $(if $(OPENSSL_HOME),$(call rpathlink,$(OPENSSL_HOME)/$(libsubdir)))
 
 ifeq ($(SSL_OS_LIBS),)
-    SSL_OS_LIBS = $(OPENSSL_LIBS)
+	SSL_OS_LIBS = $(OPENSSL_LIBS)
 endif
 
 BZIP2_FLAGS             = $(if $(BZIP2_HOME),-I$(BZIP2_HOME)/include)
 ifeq ($(BZIP2_LIBS),)
-    BZIP2_LIBS              = $(if $(BZIP2_HOME),-L$(BZIP2_HOME)/$(libsubdir)) -lbz2
+	BZIP2_LIBS              = $(if $(BZIP2_HOME),-L$(BZIP2_HOME)/$(libsubdir)) -lbz2
 endif
 BZIP2_RPATH_LINK        = $(if $(BZIP2_HOME),$(call rpathlink,$(BZIP2_HOME)/$(libsubdir)))
 
 ifeq ($(ICONV_LIBS),)
-    ICONV_LIBS              = $(if $(ICONV_HOME),-L$(ICONV_HOME)/$(libsubdir)) $(ICONV_LIB)
+	ICONV_LIBS              = $(if $(ICONV_HOME),-L$(ICONV_HOME)/$(libsubdir)) $(ICONV_LIB)
 endif
 
 ifneq ($(DB_HOME),)
-    DB_FLAGS             = -I$(DB_HOME)/include
-    ifeq ($(DB_LIBS),)
-      DB_LIBS              = -L$(DB_HOME)/$(libsubdir)$(cpp11suffix) -ldb_cxx
-    endif
-    DB_RPATH_LINK        = $(call rpathlink,$(DB_HOME)/$(libsubdir)$(cpp11suffix))
+	DB_FLAGS             = -I$(DB_HOME)/include
+	ifeq ($(DB_LIBS),)
+	  DB_LIBS              = -L$(DB_HOME)/$(libsubdir)$(cpp11suffix) -ldb_cxx
+	endif
+	DB_RPATH_LINK        = $(call rpathlink,$(DB_HOME)/$(libsubdir)$(cpp11suffix))
 else
    ifeq ($(shell if [ -d /usr/include/db53 -a -d /usr/$(libsubdir)/db53 ] ; then echo yes; fi), yes)
-      DB_FLAGS          = -I/usr/include/db53
-      DB_LIBS           = -L/usr/$(libsubdir)/db53 -ldb_cxx
+	  DB_FLAGS          = -I/usr/include/db53
+	  DB_LIBS           = -L/usr/$(libsubdir)/db53 -ldb_cxx
    else
-      ifeq ($(shell if [ -d /usr/local/include/db53 -a -d /usr/local/$(libsubdir)/db53 ] ; then echo yes; fi), yes)
-          DB_FLAGS          = -I/usr/local/include/db53
-          DB_LIBS           = -L/usr/local/$(libsubdir)/db53 -ldb_cxx
-      else
-        DB_LIBS      = -ldb_cxx
-      endif
+	  ifeq ($(shell if [ -d /usr/local/include/db53 -a -d /usr/local/$(libsubdir)/db53 ] ; then echo yes; fi), yes)
+		  DB_FLAGS          = -I/usr/local/include/db53
+		  DB_LIBS           = -L/usr/local/$(libsubdir)/db53 -ldb_cxx
+	  else
+		DB_LIBS      = -ldb_cxx
+	  endif
    endif
 endif
 
 EXPAT_FLAGS             = $(if $(EXPAT_HOME),-I$(EXPAT_HOME)/include)
 ifeq ($(EXPAT_LIBS),)
-    EXPAT_LIBS              = $(if $(EXPAT_HOME),-L$(EXPAT_HOME)/$(libsubdir)) -lexpat
+	EXPAT_LIBS              = $(if $(EXPAT_HOME),-L$(EXPAT_HOME)/$(libsubdir)) -lexpat
 endif
 EXPAT_RPATH_LINK        = $(if $(EXPAT_HOME),$(call rpathlink,$(EXPAT_HOME)/$(libsubdir)))
 
 ifeq ($(MCPP_LIBS),)
-    ifeq ($(MCPP_HOME),)
-        #
-        # If libmcpp.a is in the third-party subdirectory, we are building the core C++ distribution
-        # and we used that mcpp package.
-        #
-        ifneq ($(wildcard ../../../third-party/mcpp/lib/libmcpp.a),)
-            MCPP_HOME = ../../../third-party/mcpp
-        endif
-    endif
-    MCPP_LIBS              = $(if $(MCPP_HOME),-L$(MCPP_HOME)/$(libsubdir)) -lmcpp
+	ifeq ($(MCPP_HOME),)
+		#
+		# If libmcpp.a is in the third-party subdirectory, we are building the core C++ distribution
+		# and we used that mcpp package.
+		#
+		ifneq ($(wildcard ../../../third-party/mcpp/lib/libmcpp.a),)
+			MCPP_HOME = ../../../third-party/mcpp
+		endif
+	endif
+	MCPP_LIBS              = $(if $(MCPP_HOME),-L$(MCPP_HOME)/$(libsubdir)) -lmcpp
 endif
 MCPP_RPATH_LINK        = $(if $(MCPP_HOME),$(call rpathlink,$(MCPP_HOME)/$(libsubdir)))
 
 
 ifeq ($(PLATFORM_HAS_READLINE),yes)
-    ifeq ($(USE_READLINE),yes)
+	ifeq ($(USE_READLINE),yes)
 	READLINE_FLAGS  = -DHAVE_READLINE $(if $(READLINE_HOME),-I$(READLINE_HOME)/include)
 	READLINE_LIBS   = $(if $(READLINE_HOME),-L$(READLINE_HOME)/$(libsubdir)) -lreadline
-    endif
+	endif
 endif
 
 ICECPPFLAGS		= -I$(slicedir)
@@ -279,64 +279,64 @@ ICECPPFLAGS		= -I$(slicedir)
 SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 
 ifeq ($(ice_dir), /usr)
-    LDFLAGS		= $(LDPLATFORMFLAGS) $(CXXFLAGS)
+	LDFLAGS		= $(LDPLATFORMFLAGS) $(CXXFLAGS)
 else
-    CPPFLAGS	+= -I$(includedir)
-    ifdef ice_src_dist
+	CPPFLAGS	+= -I$(includedir)
+	ifdef ice_src_dist
 	LDFLAGS	= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
-    else
+	else
 	LDFLAGS	= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(ice_dir)/$(libsubdir)$(cpp11suffix)
-    endif
+	endif
 endif
 
 ifeq ($(FLEX_NOLINE),yes)
-    FLEXFLAGS	       := -L
+	FLEXFLAGS	       := -L
 else
-    FLEXFLAGS	       :=
+	FLEXFLAGS	       :=
 endif
 
 ifeq ($(BISON_NOLINE),yes)
-    BISONFLAGS		:= -dvtl
+	BISONFLAGS		:= -dvtl
 else
-    BISONFLAGS		:= -dvt
+	BISONFLAGS		:= -dvt
 endif
 
 ifeq ($(mkshlib),)
-    $(error You need to define mkshlib in Make.rules.$(UNAME))
+	$(error You need to define mkshlib in Make.rules.$(UNAME))
 endif
 
 ifeq ($(mktestname),)
-    mktestname	= $(1)$(EXE_EXT)
+	mktestname	= $(1)$(EXE_EXT)
 endif
 
 ifeq ($(mktest),)
-    mktest 	  = $(CXX) $(LDFLAGS) -o $(@) $(2) $(3)
+	mktest 	  = $(CXX) $(LDFLAGS) -o $(@) $(2) $(3)
 endif
 
 ifdef ice_src_dist
-    SLICEPARSERLIB	= $(libdir)/$(call mklibfilename,Slice,$(VERSION))
-    SLICE2CPP		= $(bindir)/slice2cpp
-    SLICE2FREEZE	= $(bindir)/slice2freeze
+	SLICEPARSERLIB	= $(libdir)/$(call mklibfilename,Slice,$(VERSION))
+	SLICE2CPP		= $(bindir)/slice2cpp
+	SLICE2FREEZE	= $(bindir)/slice2freeze
 else
-    SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)$(cpp11suffix)/$(call mklibfilename,Slice,$(VERSION))
-    SLICE2CPP		= $(ice_dir)/$(binsubdir)$(cpp11suffix)/slice2cpp
-    SLICE2FREEZE	= $(ice_dir)/$(binsubdir)$(cpp11suffix)/slice2freeze
+	SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)$(cpp11suffix)/$(call mklibfilename,Slice,$(VERSION))
+	SLICE2CPP		= $(ice_dir)/$(binsubdir)$(cpp11suffix)/slice2cpp
+	SLICE2FREEZE	= $(ice_dir)/$(binsubdir)$(cpp11suffix)/slice2freeze
 endif
 
 ifeq ($(SLICE_LIBS),)
-    ifeq ($(STATICLIBS),yes)
-        SLICE_LIBS = -lSlice -lmcpp $(BASELIBS)
-    else
-        SLICE_LIBS = -lSlice $(BASELIBS)
-    endif
+	ifeq ($(STATICLIBS),yes)
+		SLICE_LIBS = -lSlice -lmcpp $(BASELIBS)
+	else
+		SLICE_LIBS = -lSlice $(BASELIBS)
+	endif
 endif
 
 ifeq ($(ICESSL_LIBS),)
-    ICESSL_LIBS         = -lIceSSL
+	ICESSL_LIBS         = -lIceSSL
 endif
 
 ifeq ($(ICEWS_LIBS),)
-    ICEWS_LIBS          = -lIceWS
+	ICEWS_LIBS          = -lIceWS
 endif
 
 EVERYTHING		= all clean install
@@ -350,7 +350,7 @@ ifneq ($(SLICE_OBJS),)
 endif
 
 #
-# If dependencies has non been created yet make all OBJS depend 
+# If dependencies has non been created yet make all OBJS depend
 # on all SRCS, Slice generated files will be created before C++
 # compilation starts and  avoid problems with parallel make
 #
@@ -362,7 +362,7 @@ else
 -include $(addprefix .depend/, $(OBJS:.o=.d))
 
 clean::
-	rm -f .depend/*.d
+	rm -rf .depend
 endif
 
 endif
@@ -417,6 +417,7 @@ $(HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 clean::
 	-rm -f $(TARGETS)
 	-rm -f core *.o *.bak
+	-rm -rf .depend
 
 ifneq ($(SLICE_OBJS),)
 clean::

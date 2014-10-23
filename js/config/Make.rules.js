@@ -58,26 +58,26 @@ ifeq ($(OPTIMIZE),yes)
 mklibtargets	= $(libdir)/$(1).min.js $(libdir)/$(1).min.js.gz
 
 installlib	= $(INSTALL) $(2)/$(3).min.js $(1); \
-		  $(INSTALL) $(2)/$(3).min.js.gz $(1) \
-		  $(INSTALL) $(2)/$(3).js $(1); \
-                  $(INSTALL) $(2)/$(3).js.gz $(1)
+			$(INSTALL) $(2)/$(3).min.js.gz $(1) \
+			$(INSTALL) $(2)/$(3).js $(1); \
+									$(INSTALL) $(2)/$(3).js.gz $(1)
 else
 mklibtargets	= $(libdir)/$(1).js $(libdir)/$(1).js.gz
 
 installlib	= $(INSTALL) $(2)/$(3).js $(1); \
-		  $(INSTALL) $(2)/$(3).js.gz $(1)
+			$(INSTALL) $(2)/$(3).js.gz $(1)
 endif
 
 installmodule	= if test ! -d $(1)/$(3) ; \
-	    	  then \
+					then \
 			echo "Creating $(1)/$(3)..." ; \
 			mkdir -p $(1)/$(3) ; \
 			chmod a+rx $(1)/$(3) ; \
-		  fi ; \
-		  for f in "$(2)"; \
-		  do \
-		      cp $$f $(1)/$(3); \
-		  done;
+			fi ; \
+			for f in "$(2)"; \
+			do \
+					cp $$f $(1)/$(3); \
+			done;
 
 #
 # While makedist generates assets we don't want to include this file, to
@@ -85,21 +85,21 @@ installmodule	= if test ! -d $(1)/$(3) ; \
 #
 ifneq ($(MAKEDIST),yes)
 ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
-    include $(top_srcdir)/config/Make.common.rules
+		include $(top_srcdir)/config/Make.common.rules
 else
-    include $(top_srcdir)/../config/Make.common.rules
+		include $(top_srcdir)/../config/Make.common.rules
 endif
 endif
 
 ifdef ice_src_dist
-    ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
-        SLICE2JS 	= $(ice_cpp_dir)/bin/slice2js
-        SLICEPARSERLIB 	= $(ice_cpp_dir)/lib/$(call mklibfilename,Slice,$(VERSION))
-    else
-        SLICE2JS 	= $(ice_cpp_dir)/$(binsubdir)/slice2js
-    endif
+		ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
+				SLICE2JS 	= $(ice_cpp_dir)/bin/slice2js
+				SLICEPARSERLIB 	= $(ice_cpp_dir)/lib/$(call mklibfilename,Slice,$(VERSION))
+		else
+				SLICE2JS 	= $(ice_cpp_dir)/$(binsubdir)/slice2js
+		endif
 else
-    SLICE2JS 		= $(ice_dir)/$(binsubdir)/slice2js
+		SLICE2JS 		= $(ice_dir)/$(binsubdir)/slice2js
 endif
 
 all:: $(TARGETS)
@@ -112,8 +112,9 @@ clean::
 endif
 
 ifneq ($(TARGETS),)
-clean:: 
+clean::
 	rm -rf $(TARGETS)
+	rm -rf .depend
 endif
 
 %.js: $(SDIR)/%.ice $(SLICE2JS) $(SLICEPARSERLIB)

@@ -182,7 +182,7 @@ clean::
 	-rm -f $(TARGETS)
 	-rm -f core *.o *.pyc *.bak
 	-rm -rf __pycache__
-	-rm -f .depend/*.d
+	-rm -rf .depend
 
 all:: $(SRCS) $(TARGETS)
 
@@ -190,7 +190,7 @@ include $(wildcard .depend/*.d)
 
 ifneq ($(TEMPLATE_REPOSITORY),)
 clean::
-	rm -fr $(TEMPLATE_REPOSITORY)
+	rm -rf $(TEMPLATE_REPOSITORY)
 endif
 
 install::

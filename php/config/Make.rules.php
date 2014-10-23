@@ -62,21 +62,21 @@ PHP_HOME		?= /opt/php
 # php.
 #
 ifeq ($(shell test -d $(PHP_HOME) && echo 0),0)
-    ifeq ($(shell test -d $(PHP_HOME)/include/php5 && echo 0),0)
-        PHP_INCLUDE_DIR	= $(PHP_HOME)/include/php5
-        PHP_LIB_DIR	= $(PHP_HOME)/lib$(lp64suffix)/php5
-    else
-        PHP_INCLUDE_DIR	= $(PHP_HOME)/include/php
-        PHP_LIB_DIR	= $(PHP_HOME)/lib$(lp64suffix)/php
-    endif
+	ifeq ($(shell test -d $(PHP_HOME)/include/php5 && echo 0),0)
+		PHP_INCLUDE_DIR	= $(PHP_HOME)/include/php5
+		PHP_LIB_DIR	= $(PHP_HOME)/lib$(lp64suffix)/php5
+	else
+		PHP_INCLUDE_DIR	= $(PHP_HOME)/include/php
+		PHP_LIB_DIR	= $(PHP_HOME)/lib$(lp64suffix)/php
+	endif
 else
-    ifeq ($(shell test -d /usr/include/php5 && echo 0),0)
-        PHP_INCLUDE_DIR	= /usr/include/php5
-        PHP_LIB_DIR	= /usr/lib$(lp64suffix)/php5
-    else
-        PHP_INCLUDE_DIR	= /usr/include/php
-        PHP_LIB_DIR	= /usr/lib$(lp64suffix)/php
-    endif
+	ifeq ($(shell test -d /usr/include/php5 && echo 0),0)
+		PHP_INCLUDE_DIR	= /usr/include/php5
+		PHP_LIB_DIR	= /usr/lib$(lp64suffix)/php5
+	else
+		PHP_INCLUDE_DIR	= /usr/include/php
+		PHP_LIB_DIR	= /usr/lib$(lp64suffix)/php
+	endif
 endif
 
 PHP_FLAGS ?= -I$(PHP_INCLUDE_DIR) -I$(PHP_INCLUDE_DIR)/main -I$(PHP_INCLUDE_DIR)/Zend -I$(PHP_INCLUDE_DIR)/TSRM
@@ -94,9 +94,9 @@ ice_require_cpp  = yes
 slice_translator = slice2php
 
 ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
-    include $(top_srcdir)/config/Make.common.rules
+	include $(top_srcdir)/config/Make.common.rules
 else
-    include $(top_srcdir)/../config/Make.common.rules
+	include $(top_srcdir)/../config/Make.common.rules
 endif
 
 libdir			= $(top_srcdir)/lib
@@ -112,28 +112,28 @@ endif
 # Platform specific definitions
 #
 ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.$(UNAME) && echo 0),0)
-    configdir = $(top_srcdir)/config
+	configdir = $(top_srcdir)/config
 else
-    configdir = $(top_srcdir)/../cpp/config
-endif 
+	configdir = $(top_srcdir)/../cpp/config
+endif
 include	$(configdir)/Make.rules.$(UNAME)
 
 ifdef ice_src_dist
-    ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
-        ICE_LIB_DIR = -L$(ice_cpp_dir)/lib
-    else
-        ICE_LIB_DIR = -L$(ice_cpp_dir)/$(libsubdir)
-    endif
-    ICE_FLAGS 	= -I$(ice_cpp_dir)/include
+	ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
+		ICE_LIB_DIR = -L$(ice_cpp_dir)/lib
+	else
+		ICE_LIB_DIR = -L$(ice_cpp_dir)/$(libsubdir)
+	endif
+	ICE_FLAGS 	= -I$(ice_cpp_dir)/include
 endif
 ifdef ice_bin_dist
-    ICE_LIB_DIR = -L$(ice_dir)/lib$(lp64suffix)
-    ICE_FLAGS	= -I$(ice_dir)/include
+	ICE_LIB_DIR = -L$(ice_dir)/lib$(lp64suffix)
+	ICE_FLAGS	= -I$(ice_dir)/include
 endif
 ICE_LIBS = $(ICE_LIB_DIR) -lIce -lSlice -lIceUtil
 
 ifneq ($(embedded_runpath_prefix),)
-    runpath_libdir      := $(embedded_runpath_prefix)/lib$(lp64suffix)
+	runpath_libdir      := $(embedded_runpath_prefix)/lib$(lp64suffix)
 endif
 
 CPPFLAGS		=
@@ -142,25 +142,25 @@ SLICE2PHPFLAGS		:= $(SLICE2PHPFLAGS) $(ICECPPFLAGS)
 LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
 
 ifeq ("$(USE_NAMESPACES)","yes")
-    CPPFLAGS            := $(CPPFLAGS) -DICEPHP_USE_NAMESPACES
-    SLICE2PHPFLAGS      := $(SLICE2PHPFLAGS) -n
+	CPPFLAGS            := $(CPPFLAGS) -DICEPHP_USE_NAMESPACES
+	SLICE2PHPFLAGS      := $(SLICE2PHPFLAGS) -n
 endif
 
 ifdef ice_src_dist
-    ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
-        SLICE2PHP 	= $(ice_cpp_dir)/bin/slice2php
+	ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
+		SLICE2PHP 	= $(ice_cpp_dir)/bin/slice2php
 	SLICEPARSERLIB	= $(ice_cpp_dir)/lib/$(call mklibfilename,Slice,$(VERSION))
-    else
-        SLICE2PHP 	= $(ice_cpp_dir)/$(binsubdir)/slice2php
+	else
+		SLICE2PHP 	= $(ice_cpp_dir)/$(binsubdir)/slice2php
 	SLICEPARSERLIB	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
-    endif
+	endif
 else
-    SLICE2PHP 		= $(ice_dir)/$(binsubdir)/slice2php
-    SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
+	SLICE2PHP 		= $(ice_dir)/$(binsubdir)/slice2php
+	SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
 endif
 
 ifeq ($(installphplib),)
-    installphplib	= $(INSTALL) $(1) $(2); \
+	installphplib	= $(INSTALL) $(1) $(2); \
 			  chmod a+rx $(2)/$(notdir $(1))
 endif
 
@@ -190,6 +190,7 @@ all:: $(SLICE_SRCS:.ice=.php)
 clean::
 	-rm -f $(TARGETS)
 	-rm -f core *.o *.bak
+	-rm -rf .depend
 
 ifneq ($(SLICE_SRCS),)
 clean::

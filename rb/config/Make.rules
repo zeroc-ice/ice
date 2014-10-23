@@ -36,7 +36,7 @@ embedded_runpath_prefix  ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
 #
 # If you have not built Ice for C++ from the cpp subdirectory or if
 # you have installed the Ice @ver@ for C++ development kit in a
-# non-standard location, set the ICE_HOME to the installation directory. 
+# non-standard location, set the ICE_HOME to the installation directory.
 #
 #ICE_HOME	= C:\Program Files\ZeroC\Ice-$(VERSION)
 
@@ -47,9 +47,9 @@ embedded_runpath_prefix  ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
 #
 
 ifneq ($(RUBY_HOME),)
-    RUBY = $(RUBY_HOME)/bin/ruby
+		RUBY = $(RUBY_HOME)/bin/ruby
 else
-    RUBY = ruby
+		RUBY = ruby
 endif
 
 ifeq ($(RUBY18), yes)
@@ -89,10 +89,10 @@ else
 	endif
 
 	RUBY_LIBS		= $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(LIBRUBYARG)")')
-        ifneq ($(findstring MINGW, $(shell uname)),)
-                RUBY_BIN_DIR    = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(bindir)")')
-                RUBY_LIBS       := -L$(RUBY_BIN_DIR) $(RUBY_LIBS)
-        endif
+				ifneq ($(findstring MINGW, $(shell uname)),)
+								RUBY_BIN_DIR    = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(bindir)")')
+								RUBY_LIBS       := -L$(RUBY_BIN_DIR) $(RUBY_LIBS)
+				endif
 endif
 
 #
@@ -116,9 +116,9 @@ ice_require_cpp  = yes
 slice_translator = slice2rb
 
 ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
-    include $(top_srcdir)/config/Make.common.rules
+		include $(top_srcdir)/config/Make.common.rules
 else
-    include $(top_srcdir)/../config/Make.common.rules
+		include $(top_srcdir)/../config/Make.common.rules
 endif
 
 libdir			= $(top_srcdir)/ruby
@@ -145,28 +145,28 @@ install_bindir		= $(prefix)/$(binsubdir)
 # Platform specific definitions
 #
 ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.$(UNAME) && echo 0),0)
-    configdir = $(top_srcdir)/config
+		configdir = $(top_srcdir)/config
 else
-    configdir = $(top_srcdir)/../cpp/config
-endif 
+		configdir = $(top_srcdir)/../cpp/config
+endif
 include	 $(configdir)/Make.rules.$(UNAME)
 
 ifdef ice_src_dist
-    ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
+		ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
 	ICE_LIB_DIR = -L$(ice_cpp_dir)/lib
-    else
+		else
 	ICE_LIB_DIR = -L$(ice_cpp_dir)/$(libsubdir)
-    endif
-    ICE_FLAGS 	= -I$(ice_cpp_dir)/include
+		endif
+		ICE_FLAGS 	= -I$(ice_cpp_dir)/include
 endif
 ifdef ice_bin_dist
-    ICE_LIB_DIR = -L$(ice_dir)/$(libsubdir)
-    ICE_FLAGS	= -I$(ice_dir)/include
+		ICE_LIB_DIR = -L$(ice_dir)/$(libsubdir)
+		ICE_FLAGS	= -I$(ice_dir)/include
 endif
 ICE_LIBS = $(ICE_LIB_DIR) -lIce -lSlice -lIceUtil
 
 ifneq ($(embedded_runpath_prefix),)
-    runpath_libdir	:= $(embedded_runpath_prefix)/$(libsubdir)
+		runpath_libdir	:= $(embedded_runpath_prefix)/$(libsubdir)
 endif
 
 CPPFLAGS		=
@@ -175,18 +175,18 @@ SLICE2RBFLAGS		= $(ICECPPFLAGS)
 LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
 
 ifdef ice_src_dist
-    ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
+		ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
 	ifeq ($(SLICEPARSERLIB),)
-	    SLICEPARSERLIB	= $(ice_cpp_dir)/lib/$(call mklibfilename,Slice,$(VERSION))
+			SLICEPARSERLIB	= $(ice_cpp_dir)/lib/$(call mklibfilename,Slice,$(VERSION))
 	endif
 	SLICE2RB	= $(ice_cpp_dir)/bin/$(slice_translator)
-    else
+		else
 	SLICEPARSERLIB	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
 	SLICE2RB	= $(ice_cpp_dir)/$(binsubdir)/$(slice_translator)
-    endif
+		endif
 else
-    SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
-    SLICE2CPP		= $(ice_dir)/$(binsubdir)/$(slice_translator)
+		SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
+		SLICE2CPP		= $(ice_dir)/$(binsubdir)/$(slice_translator)
 endif
 
 #
@@ -194,13 +194,13 @@ endif
 # functions are defined that strip "lib" from the regular library name.
 #
 ifeq ($(mkrblibfilename),)
-    mkrblibfilename	= $(subst lib,,$(call mklibfilename,$(1),$(2)))
+		mkrblibfilename	= $(subst lib,,$(call mklibfilename,$(1),$(2)))
 endif
 ifeq ($(mkrbsoname),)
-    mkrbsoname		= $(subst lib,,$(call mksoname,$(1),$(2)))
+		mkrbsoname		= $(subst lib,,$(call mksoname,$(1),$(2)))
 endif
 ifeq ($(mkrblibname),)
-    mkrblibname		= $(subst lib,,$(call mklibname,$(1)))
+		mkrblibname		= $(subst lib,,$(call mklibname,$(1)))
 endif
 
 EVERYTHING		= all depend clean install
@@ -224,6 +224,7 @@ all:: $(SRCS)
 clean::
 	-rm -f $(TARGETS)
 	-rm -f core *.o *.bak
+	-rm -rf .depend
 
 all:: $(SRCS) $(TARGETS)
 
