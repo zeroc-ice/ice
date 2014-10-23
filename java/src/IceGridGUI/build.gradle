@@ -12,14 +12,15 @@ dependencies {
 
 mainClassName = "IceGridGUI.Main"
 
+def tmpJarName = "IceGridGUITEMP${versionSuffix}.jar"
 def jarName = "IceGridGUI${versionSuffix}.jar"
 
 jar {
-	archiveName = jarName
+	archiveName = tmpJarName
     destinationDir = new File("${libDir}")
 }
 
-/*buildscript {
+buildscript {
     repositories {
         maven {
             url 'http://www.zeroc.com:8081/nexus/content/repositories/thirdparty'
@@ -31,11 +32,24 @@ jar {
 
 }
 
-task proguardJar(type: proguard.gradle.ProGuardTask, dependsOn: jar) {
-
+def javaHome = System.getProperty('java.home')
+def libJars = []
+['rt.jar', 'jsse.jar', 'jfxrt.jar', 'ext/jfxrt.jar'].each {
+	libJars << "${javaHome}/lib/${it}"
 }
-build.dependsOn(proguardJar)*/
 
+task proguardJar(type: proguard.gradle.ProGuardTask, dependsOn: jar) {
+	injars configurations.compile.resolve(), filter: '!META-INF/**'
+	injars "${libDir}/${tmpJarName}"
+	outjars "${libDir}/${jarName}"
+	libraryjars libJars
+	configuration "$rootProject.projectDir/config/icegridgui.pro"
+}
+
+task proguardCleanup(dependsOn: proguardJar) << {
+	delete("${libDir}/${tmpJarName}")
+}
+build.dependsOn(proguardCleanup)
 
 clean {
     delete("${libDir}/${jarName}")
