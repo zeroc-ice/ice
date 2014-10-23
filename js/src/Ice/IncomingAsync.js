@@ -18,7 +18,6 @@ Ice.__M.require(module,
         "../Ice/Debug",
         "../Ice/DispatchStatus",
         "../Ice/Exception",
-        "../Ice/HashMap",
         "../Ice/Identity",
         "../Ice/LocalException",
         "../Ice/Protocol",
@@ -29,7 +28,7 @@ var BasicStream = Ice.BasicStream;
 var Current = Ice.Current;
 var Debug = Ice.Debug;
 var FormatType = Ice.FormatType;
-var HashMap = Ice.HashMap;
+var Context = Ice.Context;
 var Identity = Ice.Identity;
 var Protocol = Ice.Protocol;
 var StringUtil = Ice.StringUtil;
@@ -434,7 +433,7 @@ var IncomingAsync = Ice.Class({
 
         this._current.operation = this._is.readString();
         this._current.mode = Ice.OperationMode.valueOf(this._is.readByte());
-        this._current.ctx = new HashMap();
+        this._current.ctx = new Context();
         var sz = this._is.readSize();
         while(sz-- > 0)
         {

@@ -25,8 +25,7 @@ var RequestHandlerFactory = Ice.Class({
     __init__: function(instance)
     {
         this._instance = instance;
-        this._handlers = new HashMap();
-        this._handlers.keyComparator = HashMap.compareEquals;
+        this._handlers = new HashMap(HashMap.compareEquals);
     },
     getRequestHandler: function(ref, proxy)
     {

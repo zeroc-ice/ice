@@ -37,8 +37,7 @@ var LocatorInfo = Class({
         this._background = background;
 
         this._adapterRequests = new HashMap(); // Map<String, Request>
-        this._objectRequests = new HashMap(); // Map<Ice.Identity, Request>
-        this._objectRequests.keyComparator = HashMap.compareEquals;
+        this._objectRequests = new HashMap(HashMap.compareEquals); // Map<Ice.Identity, Request>
     },
     destroy: function()
     {

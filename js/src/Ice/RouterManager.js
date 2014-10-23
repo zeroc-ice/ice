@@ -17,8 +17,7 @@ var RouterPrx = Ice.RouterPrx;
 var RouterManager = Ice.Class({
     __init__: function()
     {
-        this._table = new HashMap(); // Map<Ice.RouterPrx, RouterInfo>
-        this._table.keyComparator = HashMap.compareEquals;
+        this._table = new HashMap(HashMap.compareEquals); // Map<Ice.RouterPrx, RouterInfo>
     },
     destroy: function()
     {

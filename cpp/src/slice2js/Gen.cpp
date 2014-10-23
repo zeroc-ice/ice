@@ -1741,12 +1741,15 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     // For some key types, we have to use an equals() method to compare keys
     // rather than the native comparison operators.
     //
-    bool useEquals = false;
-    const BuiltinPtr b = BuiltinPtr::dynamicCast(keyType);
+    bool keyUseEquals = false;
+    BuiltinPtr b = BuiltinPtr::dynamicCast(keyType);
     if((b && b->kind() == Builtin::KindLong) || StructPtr::dynamicCast(keyType))
     {
-        useEquals = true;
+        keyUseEquals = true;
     }
+
+    b = BuiltinPtr::dynamicCast(valueType);
+    bool valueUseEquals = !b || (b->kind() == Builtin::KindLong);    
 
     //
     // Stream helpers for dictionaries of objects are lazy initialized
@@ -1761,10 +1764,24 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
          << "\"" << getHelper(keyType) << "\", "
          << "\"" << getHelper(valueType) << "\", "
          << (fixed ? "true" : "false") << ", "
-         << (useEquals ? "true" : "false");
+         << (keyUseEquals ? "Ice.HashMap.compareEquals" : "undefined");
+
     if(isClassType(valueType))
     {
-        _out<< ", \"" << typeToString(valueType) << "\"";
+        _out << ", \"" << typeToString(valueType) << "\"";
+    }
+    else
+    {
+        _out << ", undefined";   
+    }
+
+    if(SequencePtr::dynamicCast(valueType))
+    {
+        _out << ", Ice.ArrayUtil.equals";
+    }
+    else if(valueUseEquals)
+    {
+        _out << ", Ice.HashMap.compareEquals";
     }
     _out << ");";
 }

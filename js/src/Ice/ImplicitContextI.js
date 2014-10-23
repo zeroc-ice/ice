@@ -8,9 +8,9 @@
 // **********************************************************************
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, ["../Ice/HashMap", "../Ice/LocalException", "../Ice/Current", "../Ice/Class"]);
+Ice.__M.require(module, ["../Ice/LocalException", "../Ice/Current", "../Ice/Class"]);
 
-var HashMap = Ice.HashMap;
+var Context = Ice.Context;
 var InitializationException = Ice.InitializationException;
 
 //
@@ -19,17 +19,17 @@ var InitializationException = Ice.InitializationException;
 var ImplicitContextI = Ice.Class({
     __init__: function()
     {
-        this._context = new HashMap();
+        this._context = new Context();
     },
     getContext: function()
     {
-        return new HashMap(this._context);
+        return new Context(this._context);
     },
     setContext: function(context)
     {
         if(context !== null && context.size > 0)
         {
-            this._context = new HashMap(context);
+            this._context = new Context(context);
         }
         else
         {
@@ -112,7 +112,7 @@ var ImplicitContextI = Ice.Class({
             }
             else
             {
-                ctx = new HashMap(this._context);
+                ctx = new Context(this._context);
                 ctx.merge(prxContext);
             }
             Ice.ContextHelper.write(os, ctx);

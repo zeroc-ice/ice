@@ -570,8 +570,10 @@
                 var tmp = new Test.LongFloatD();
                 tmp.set(new Ice.Long(0, 999999110), -1.1);
                 tmp.set(new Ice.Long(0, 999999111), 123123.2);
-                p3.valueComparator = function(v1, v2) { return (Math.abs(v1) - Math.abs(v2)) <= 0.01; };
-                test(p3.equals(tmp));
+
+                test(p3.equals(tmp, 
+                               function(v1, v2) { 
+                                return (Math.abs(v1) - Math.abs(v2)) <= 0.01; }));
                 test(retval.size === 4);
                 test(Math.abs(retval.get(new Ice.Long(0, 999999110))) - Math.abs(-1.1) <= 0.01);
                 test(Math.abs(retval.get(new Ice.Long(0, 999999120))) - Math.abs(-100.4) <= 0.01);

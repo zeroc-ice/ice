@@ -11,7 +11,32 @@ var Ice = require("../Ice/ModuleRegistry").Ice;
 var __M = Ice.__M;
 var Slice = Ice.Slice;
 
-Ice.ArrayUtil =
+var eq = function(e1, e2)
+{
+    if(e1 === e2)
+    {
+        return true; // If identity compare equals members are equal.
+    }
+    else if(e1 === null || e1 === undefined || e2 === null || e2 === undefined)
+    {
+        return false;
+    }
+    else if(e1.prototype !== e2.prototype)
+    {
+        return false;
+    }
+    else if(typeof e1.equals == "function")
+    {
+        return e1.equals(e2);
+    }
+    else if(e1 instanceof Array)
+    {
+        return ArrayUtil.equals(e1, e2, eq);
+    }
+    return false;
+};
+
+var ArrayUtil =
 {
     clone: function(arr)
     {
@@ -28,33 +53,20 @@ Ice.ArrayUtil =
             return arr.slice();
         }
     },
-    equals: function(v1, v2, equalFn)
-    {
-        var i, length;
-        
+    equals: function(v1, v2, valuesEqual)
+    {        
         if(v1.length != v2.length)
         {
             return false;
         }
+        var i, length,
+            equalFn = valuesEqual || eq;
 
-        if(equalFn !== undefined && equalFn !== null)
+        for(i = 0, length = v1.length; i < length; ++i)
         {
-            for(i = 0, length = v1.length; i < length; ++i)
+            if(!equalFn.call(equalFn, v1[i], v2[i]))
             {
-                if(!equalFn.call(equalFn, v1[i], v2[i]))
-                {
-                    return false;
-                }
-            }
-        }
-        else
-        {
-            for(i = 0, length = v1.length; i < length; ++i)
-            {
-                if(v1[i] != v2[i])
-                {
-                    return false;
-                }
+                return false;
             }
         }
 
@@ -104,6 +116,8 @@ Ice.ArrayUtil =
     }
 };
 
+ArrayUtil.eq = eq;
+
 Slice.defineSequence = function(module, name, valueHelper, fixed, elementType)
 {
     var helper = null;
@@ -121,4 +135,6 @@ Slice.defineSequence = function(module, name, valueHelper, fixed, elementType)
             }
     });
 };
+
+Ice.ArrayUtil = ArrayUtil;
 module.exports.Ice = Ice;

@@ -36,31 +36,60 @@ function setInternal(map, key, value, hash, index)
     return undefined;
 }
 
-var HashMap = Ice.Class({
-    __init__: function(h)
+function compareEquals(v1, v2)
+{
+    if(v1 === v2)
     {
+        return true;
+    }
+    if(v1 === undefined || v1 === null || v2 === undefined || v2 === null)
+    {
+        return false;
+    }
+    return v1.equals(v2);
+}
+
+function compareIdentity(v1, v2)
+{
+    return v1 === v2;
+}
+
+var HashMap = Ice.Class({
+    __init__: function(arg1, arg2)
+    {
+        //
+        // The first argument can be a HashMap or the keyComparator, the second
+        // argument if present is always the value comparator.
+        // 
+        var args = arguments;
+
+        var h, keyComparator, valueComparator;
+
+        if(typeof arg1 == "function")
+        {
+            keyComparator = arg1;
+            valueComparator = arg2;
+        }
+        else if(arg1 instanceof HashMap)
+        {
+            h = arg1;
+            keyComparator = h.keyComparator;
+            valueComparator = h.valueComparator;
+        }
+
         this._size = 0;
         this._head = null;
         this._initialCapacity = 32;
         this._loadFactor = 0.75;
         this._table = [];
-        this._keyComparator = function(k1, k2) { return k1 === k2; };
-        this._valueComparator = function(k1, k2) { return k1 === k2; };
+
+        this._keyComparator = (typeof keyComparator == "function") ? keyComparator : compareIdentity;
+        this._valueComparator = (typeof valueComparator == "function") ? valueComparator : compareIdentity;
 
         var i, length;
-        if(h === undefined || h === null || h._size === 0)
-        {
-            this._threshold = this._initialCapacity * this._loadFactor;
-            for(i = 0; i < this._initialCapacity; i++)
-            {
-                this._table[i] = null;
-            }
-        }
-        else
+        if(h instanceof HashMap && h._size > 0)
         {
             this._threshold = h._threshold;
-            this._keyComparator = h._keyComparator;
-            this._valueComparator = h._valueComparator;
             length = h._table.length;
             this._table.length = length;
             for(i = 0; i < length; i++)
@@ -68,6 +97,14 @@ var HashMap = Ice.Class({
                 this._table[i] = null;
             }
             this.merge(h);
+        }
+        else
+        {
+            this._threshold = this._initialCapacity * this._loadFactor;
+            for(i = 0; i < this._initialCapacity; i++)
+            {
+                this._table[i] = null;
+            }
         }
     },
     set: function(key, value)
@@ -160,8 +197,14 @@ var HashMap = Ice.Class({
             fn.call(obj, e._key, e._value);
         }
     },
-    equals: function(other)
+    equals: function(other, valuesEqual)
     {
+        var self = this;
+        var eq = valuesEqual || function(v1, v2)
+            {
+                return self._valueComparator.call(this._valueComparator, v1, v2);
+            };
+
         if(other === null || !(other instanceof HashMap) || this._size !== other._size)
         {
             return false;
@@ -170,7 +213,7 @@ var HashMap = Ice.Class({
         for(var e = this._head; e !== null; e = e._next)
         {
             var oe = other.findEntry(e._key, e._hash);
-            if(oe === undefined || !this.valuesEqual(e._value, oe._value))
+            if(oe === undefined || !eq(e._value, oe._value))
             {
                 return false;
             }
@@ -290,7 +333,6 @@ var HashMap = Ice.Class({
     findEntry: function(key, hash)
     {
         var index = this.hashIndex(hash, this._table.length);
-
         //
         // Search for an entry with the same key.
         //
@@ -338,13 +380,12 @@ var HashMap = Ice.Class({
     keysEqual: function(k1, k2)
     {
         return this._keyComparator.call(this._keyComparator, k1, k2);
-    },
-    valuesEqual: function(v1, v2)
-    {
-        return this._valueComparator.call(this._valueComparator, v1, v2);
     }
 });
 Ice.HashMap = HashMap;
+
+HashMap.compareEquals = compareEquals;
+HashMap.compareIdentity = compareIdentity;
 
 var prototype = HashMap.prototype;
 
@@ -356,24 +397,10 @@ Object.defineProperty(prototype, "entries", {
     get: function() { return this._head; }
 });
 
-Object.defineProperty(prototype, "keyComparator", {
-    get: function() { return this._keyComparator; },
-    set: function(fn) { this._keyComparator = fn; }
-});
-
-Object.defineProperty(prototype, "valueComparator", {
-    get: function() { return this._valueComparator; },
-    set: function(fn) { this._valueComparator = fn; }
-});
-
-Object.defineProperty(HashMap, "compareEquals", {
-    get: function() { return function(o1, o2) { return o1.equals(o2); }; }
-});
-
 var Slice = Ice.Slice;
-Slice.defineDictionary = function(module, name, helperName, keyHelper, valueHelper, fixed, useEquals, valueType)
+Slice.defineDictionary = function(module, name, helperName, keyHelper, valueHelper, fixed, keysEqual, valueType, valuesEqual)
 {
-    if(useEquals)
+    if(keysEqual !== undefined || valuesEqual !== undefined)
     {
         //
         // Define a constructor function for a dictionary whose key type requires
@@ -382,9 +409,7 @@ Slice.defineDictionary = function(module, name, helperName, keyHelper, valueHelp
         //
         module[name] = function(h)
         {
-            var r = new HashMap(h);
-            r.keyComparator = HashMap.compareEquals;
-            return r;
+            return new HashMap(h || keysEqual, valuesEqual);
         };
     }
     else

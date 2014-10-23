@@ -34,8 +34,7 @@ var RouterInfo = Ice.Class({
         this._clientEndpoints = null;
         this._serverEndpoints = null;
         this._adapter = null;
-        this._identities = new HashMap(); // Set<Identity> = Map<Identity, 1>
-        this._identities.keyComparator = HashMap.compareEquals;
+        this._identities = new HashMap(HashMap.compareEquals); // Set<Identity> = Map<Identity, 1>
         this._evictedIdentities = [];
     },
     destroy: function()

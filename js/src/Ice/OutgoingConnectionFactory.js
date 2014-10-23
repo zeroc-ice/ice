@@ -47,8 +47,7 @@ var OutgoingConnectionFactory = Class({
         this._monitor = new FactoryACMMonitor(this._instance, this._instance.clientACM());
 
         this._connectionsByEndpoint = new ConnectionListMap(); // map<EndpointI, Array<Ice.ConnectionI>>
-        this._pending = new HashMap(); // map<EndpointI, Array<ConnectCallback>>
-        this._pending.keyComparator = HashMap.compareEquals;
+        this._pending = new HashMap(HashMap.compareEquals); // map<EndpointI, Array<ConnectCallback>>
         this._pendingConnectCount = 0;
 
         this._waitPromise = null;
@@ -742,8 +741,7 @@ module.exports.Ice = Ice;
 var ConnectionListMap = Class(HashMap, {
     __init__: function(h)
     {
-        HashMap.call(this, h);
-        this.keyComparator = HashMap.compareEquals;
+        HashMap.call(this, h || HashMap.compareEquals);
     },
     set: function(key, value)
     {

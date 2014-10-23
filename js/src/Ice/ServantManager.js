@@ -29,8 +29,7 @@ var ServantManager = Ice.Class({
     {
         this._instance = instance;
         this._adapterName = adapterName;
-        this._servantMapMap = new HashMap();        // Map<Ice.Identity, Map<String, Ice.Object> >
-        this._servantMapMap.keyComparator = HashMap.compareEquals;
+        this._servantMapMap = new HashMap(HashMap.compareEquals);        // Map<Ice.Identity, Map<String, Ice.Object> >
         this._defaultServantMap = new HashMap();    // Map<String, Ice.Object>
         this._locatorMap = new HashMap();           // Map<String, Ice.ServantLocator>
     },
