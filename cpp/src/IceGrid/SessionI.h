@@ -55,8 +55,6 @@ protected:
 
     BaseSessionI(const std::string&, const std::string&, const DatabasePtr&);
 
-    void setConnectionCallback(const Ice::ConnectionPtr&);
-
     const std::string _id;
     const std::string _prefix;
     const TraceLevelsPtr _traceLevels;

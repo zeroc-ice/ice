@@ -146,8 +146,6 @@ AdminSessionI::_register(const SessionServantManagerPtr& servantManager, const I
         templateId.category = category;
         
         _adminCallbackTemplate = _registry->createAdminCallbackProxy(templateId);
-
-        setConnectionCallback(con);
     }
 
     Ice::ObjectPrx session = _servantManager->addSession(this, con, category);

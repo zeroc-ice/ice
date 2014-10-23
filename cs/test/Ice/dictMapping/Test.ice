@@ -16,6 +16,12 @@ dictionary<int, int> NV;
 dictionary<string, string> NR;
 dictionary<string, NV> NDV;
 dictionary<string, NR> NDR;
+    sequence<int> IntSeq;
+struct TEstNv
+{
+    NV d;
+    IntSeq s;
+};
 
 ["clr:collection"] dictionary<int, int> OV;
 ["clr:collection"] dictionary<string, string> OR;

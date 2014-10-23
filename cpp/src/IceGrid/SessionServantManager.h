@@ -44,6 +44,9 @@ public:
     Ice::ObjectPrx add(const Ice::ObjectPtr&, const Ice::ObjectPtr&);
     void remove(const Ice::Identity&);
 
+    void connectionHeartbeat(const Ice::ConnectionPtr&);
+    void connectionClosed(const Ice::ConnectionPtr&);
+
 private:
 
     Ice::ObjectPrx addImpl(const Ice::ObjectPtr&, const Ice::ObjectPtr&);

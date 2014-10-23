@@ -17,17 +17,20 @@
 #include <Ice/Logger.h>
 #include <Ice/LocalException.h>
 #include <Ice/LoggerUtil.h>
+#include <Ice/Connection.h>
 
 #include <list>
 
 namespace IceGrid
 {
 
-class Reapable : public IceUtil::Shared
+class Reapable : public Ice::LocalObject
 {
 public:
 
     virtual ~Reapable() { }
+
+    virtual void heartbeat() const { };
 
     virtual IceUtil::Time timestamp() const = 0;
     virtual void destroy(bool) = 0;
@@ -81,11 +84,37 @@ public:
         }
     }
 
-private:
+protected:
 
     const Ice::LoggerPtr _logger;
     const TPtr _session;
 };
+
+template<class T>
+class SessionReapableWithHeartbeat : public SessionReapable<T>
+{
+    typedef IceUtil::Handle<T> TPtr;
+    
+public:
+
+    SessionReapableWithHeartbeat(const Ice::LoggerPtr& logger, const TPtr& session) : 
+        SessionReapable<T>(logger, session)
+    {
+    }
+
+    virtual void 
+    heartbeat() const
+    {
+        try
+        {
+            SessionReapable<T>::_session->keepAlive(Ice::Current());
+        }
+        catch(Ice::Exception&)
+        {
+        }
+    }
+};
+
 
 class ReapThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 {
@@ -95,20 +124,27 @@ public:
     
     virtual void run();
     void terminate();
-    void add(const ReapablePtr&, int);
+    void add(const ReapablePtr&, int, const Ice::ConnectionPtr& = Ice::ConnectionPtr());
+
+    void connectionHeartbeat(const Ice::ConnectionPtr&);
+    void connectionClosed(const Ice::ConnectionPtr&);
 
 private:
 
     bool calcWakeInterval();
     
+    Ice::ConnectionCallbackPtr _callback;
     IceUtil::Time _wakeInterval;
     bool _terminated;
     struct ReapableItem
     {
         ReapablePtr item;
+        Ice::ConnectionPtr connection;
         IceUtil::Time timeout;
     };
     std::list<ReapableItem> _sessions;
+
+    std::map<Ice::ConnectionPtr, std::set<ReapablePtr> > _connections;
 };
 typedef IceUtil::Handle<ReapThread> ReapThreadPtr;
 

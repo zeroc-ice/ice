@@ -62,43 +62,6 @@ newAllocateObject(const SessionIPtr& session, const IceUtil::Handle<T>& cb)
     return new AllocateObject<T>(session, cb);
 }
 
-class ConnectionCallbackI : public Ice::ConnectionCallback
-{
-public:
-
-    ConnectionCallbackI(const BaseSessionIPtr& session) : _session(session)
-    {
-    }
-    
-    virtual void
-    heartbeat(const Ice::ConnectionPtr&)
-    {
-        try
-        {
-            _session->keepAlive(Ice::Current());
-        }
-        catch(const Ice::Exception&)
-        {
-        }
-    }
-
-    virtual void
-    closed(const Ice::ConnectionPtr&)
-    {
-        try
-        {
-            _session->destroyImpl(false);
-        }
-        catch(const Ice::Exception&)
-        {
-        }
-    }
-
-private:
-    
-    const BaseSessionIPtr _session;
-};
-
 }
 
 BaseSessionI::BaseSessionI(const string& id, const string& prefix, const DatabasePtr& database) :
@@ -118,12 +81,6 @@ BaseSessionI::BaseSessionI(const string& id, const string& prefix, const Databas
 
 BaseSessionI::~BaseSessionI()
 {
-}
-
-void
-BaseSessionI::setConnectionCallback(const Ice::ConnectionPtr& con)
-{
-    con->setCallback(new ConnectionCallbackI(this));
 }
 
 void
@@ -212,10 +169,6 @@ SessionI::_register(const SessionServantManagerPtr& servantManager, const Ice::C
     // This is supposed to be called after creation only, no need to synchronize.
     //
     _servantManager = servantManager;
-    if(con)
-    {
-        setConnectionCallback(con);
-    }
     return _servantManager->addSession(this, con, "");
 }
 

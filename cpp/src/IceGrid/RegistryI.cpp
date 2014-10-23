@@ -968,7 +968,8 @@ RegistryI::createSession(const string& user, const string& password, const Curre
 
     SessionIPtr session = _clientSessionFactory->createSessionServant(user, 0);
     Ice::ObjectPrx proxy = session->_register(_servantManager, current.con);
-    _reaper->add(new SessionReapable<SessionI>(_traceLevels->logger, session), _sessionTimeout);
+    _reaper->add(new SessionReapableWithHeartbeat<SessionI>(_traceLevels->logger, session), _sessionTimeout, 
+                 current.con);
     return SessionPrx::uncheckedCast(proxy);
 }
 
@@ -1024,7 +1025,8 @@ RegistryI::createAdminSession(const string& user, const string& password, const 
 
     AdminSessionIPtr session = _adminSessionFactory->createSessionServant(user);
     Ice::ObjectPrx proxy = session->_register(_servantManager, current.con);
-    _reaper->add(new SessionReapable<AdminSessionI>(_traceLevels->logger, session), _sessionTimeout);
+    _reaper->add(new SessionReapableWithHeartbeat<AdminSessionI>(_traceLevels->logger, session), _sessionTimeout, 
+                 current.con);
     return AdminSessionPrx::uncheckedCast(proxy);
 }
 
@@ -1089,7 +1091,8 @@ RegistryI::createSessionFromSecureConnection(const Current& current)
 
     SessionIPtr session = _clientSessionFactory->createSessionServant(userDN, 0);
     Ice::ObjectPrx proxy = session->_register(_servantManager, current.con);
-    _reaper->add(new SessionReapable<SessionI>(_traceLevels->logger, session), _sessionTimeout);
+    _reaper->add(new SessionReapableWithHeartbeat<SessionI>(_traceLevels->logger, session), _sessionTimeout, 
+                 current.con);
     return SessionPrx::uncheckedCast(proxy);
 }
 
@@ -1143,7 +1146,8 @@ RegistryI::createAdminSessionFromSecureConnection(const Current& current)
     //
     AdminSessionIPtr session = _adminSessionFactory->createSessionServant(userDN);
     Ice::ObjectPrx proxy = session->_register(_servantManager, current.con);
-    _reaper->add(new SessionReapable<AdminSessionI>(_traceLevels->logger, session), _sessionTimeout);
+    _reaper->add(new SessionReapableWithHeartbeat<AdminSessionI>(_traceLevels->logger, session), _sessionTimeout,
+                 current.con);
     return AdminSessionPrx::uncheckedCast(proxy);
 }
 
