@@ -192,6 +192,7 @@ public class AllTests
                 if((i % 100) == 0)
                 {
                     result.waitForSent();
+                    holdSerialized.ice_ping(); // Ensure everything's dispatched
                     holdSerialized.ice_getConnection().close(false);
                 }
             }

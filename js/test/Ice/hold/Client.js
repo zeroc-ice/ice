@@ -126,7 +126,7 @@
         ).then(
             function()
             {
-                test(!condition.value);
+                test(!condition.value || value >= 100000);
                 out.writeLine("ok");
 
                 out.write("testing with serialize mode... ");
@@ -185,14 +185,22 @@
                         ++value;
                         if((value % 100) === 0)
                         {
-                            return result.then(function()
-                                               {
-                                                   return holdSerialized.ice_getConnection().then(
-                                                       function(con)
-                                                       {
-                                                           return con.close(false);
-                                                       });
-                                               });
+                            return result.then(
+                                function()
+                                {
+                                    return holdSerialized.ice_ping(); // Make sure everything's dispatched.
+                                }
+                            ).then(
+                                function() 
+                                { 
+                                    return holdSerialized.ice_getConnection();
+                                }
+                            ).then(
+                                function(con)
+                                {
+                                    return con.close(false);
+                                }
+                            );
                         }
                         return null;
                     }, 1000);

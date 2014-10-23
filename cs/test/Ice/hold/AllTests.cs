@@ -153,6 +153,7 @@ public class AllTests : TestCommon.TestApp
                     break;
                 }
             }
+            test(value > 100000 || !cond.value());
             result.waitForSent();
         }
         WriteLine("ok");
@@ -201,6 +202,7 @@ public class AllTests : TestCommon.TestApp
                 if((i % 100) == 0)
                 {
                     result.waitForSent();
+                    holdSerialized.ice_ping(); // Ensure everything's dispatched.
                     holdSerialized.ice_getConnection().close(false);
                 }
             }
