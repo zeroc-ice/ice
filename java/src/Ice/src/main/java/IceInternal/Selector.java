@@ -97,17 +97,13 @@ public final class Selector
 
     boolean finish(EventHandler handler, boolean closeNow)
     {
-        if(handler._registered != 0)
+        handler._registered = 0;
+        if(handler._key != null)
         {
-            if(handler._key != null)
-            {
-                handler._key.cancel();
-                handler._key = null;
-            }
-
-            update(handler, handler._registered, SocketOperation.None);
-            _changes.remove(handler);
+            handler._key.cancel();
+            handler._key = null;
         }
+        _changes.remove(handler);
         return closeNow;
     }
 

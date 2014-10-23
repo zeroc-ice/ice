@@ -59,9 +59,8 @@ var ArrayUtil =
         {
             return false;
         }
-        var i, length,
-            equalFn = valuesEqual || eq;
 
+        var i, length, equalFn = valuesEqual || eq;
         for(i = 0, length = v1.length; i < length; ++i)
         {
             if(!equalFn.call(equalFn, v1[i], v2[i]))
