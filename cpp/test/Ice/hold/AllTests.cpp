@@ -133,7 +133,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
             {
                 result->waitForSent();
             }
+
+            if(value > 1000000)
+            {
+                // Don't continue, it's possible that out-of-order dispatch doesn't occur
+                // after 100000 iterations and we don't want the test to last for too long
+                // when this occurs.
+                break;
+            }
         }
+        test(value > 100000 || !cond->value());
         result->waitForCompleted();
     }
     cout << "ok" << endl;
