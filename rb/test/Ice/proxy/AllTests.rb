@@ -731,7 +731,8 @@ def allTests(communicator)
     # Working?
     if communicator.getProperties().getPropertyAsInt("Ice.IPv6") == 0
         ssl = communicator.getProperties().getProperty("Ice.Default.Protocol") == "ssl"
-        if !ssl
+        tcp = communicator.getProperties().getProperty("Ice.Default.Protocol") == "tcp"
+        if tcp
             p1.ice_encodingVersion(Ice::Encoding_1_0).ice_ping()
         end
 
@@ -746,10 +747,10 @@ def allTests(communicator)
         #
         p1 = communicator.stringToProxy("test -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch")
         pstr = communicator.proxyToString(p1)
-        if !ssl
-            test(pstr == "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch")
-        else
+        if ssl
             test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch")
+        elsif tcp
+            test(pstr == "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch")
         end
 
         #
@@ -763,7 +764,7 @@ def allTests(communicator)
         rescue Ice::NoEndpointException
             test(!ssl)
         rescue Ice::ConnectionRefusedException
-            test(ssl)
+            test(!tcp)
         end
 
         #
@@ -774,10 +775,10 @@ def allTests(communicator)
         #
         p2 = derived.echo(p1)
         pstr = communicator.proxyToString(p2)
-        if !ssl
-            test(pstr == "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch")
-        else
+        if ssl
             test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch")
+        elsif tcp
+            test(pstr == "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch")
         end
     end
     puts "ok"
