@@ -104,25 +104,10 @@ BuildRequires: mcpp-devel >= 2.7.2
 %if "%{dist}" == ".el7"
 BuildRequires: libdb-cxx-devel >= %{dbversion}, libdb-java-devel >= %{dbversion}
 BuildRequires: javapackages-tools
-BuildRequires: ant
 %else
 BuildRequires: db53-devel >= %{dbversion}, db53-java >= %{dbversion}
 BuildRequires: jpackage-utils
 %endif
-
-#
-# Prerequisites for building Ice for Java:
-#
-# - a recent version of ant
-# - %{_javadir}/jgoodies-common-%{commonversion}.jar
-# - %{_javadir}/jgoodies-forms-%{formsversion}.jar
-# - %{_javadir}/jgoodies-looks-%{looksversion}.jar
-# - %{_javadir}/proguard.jar
-#
-# Use find-jar to verify that the JAR files are present:
-#
-# $ find-jar proguard.jar
-#
 
 %if %{ruby}
 BuildRequires: ruby-devel
@@ -491,7 +476,7 @@ make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
 
 # Build the ant tasks JAR because it's included in the java-devel package
 cd $RPM_BUILD_DIR/Ice-%{version}/java
-ant tasks
+./gradlew :ant:assemble
 
 %else
 
@@ -519,24 +504,15 @@ make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
 %endif
 
 cd $RPM_BUILD_DIR/Ice-%{version}/java
-%if "%{dist}" == ".el7"
-export CLASSPATH=`build-classpath db jgoodies-common-%{commonversion} jgoodies-forms-%{formsversion} jgoodies-looks-%{looksversion} proguard`
-%else
-export CLASSPATH=`build-classpath db-%{dbversion} jgoodies-common-%{commonversion} jgoodies-forms-%{formsversion} jgoodies-looks-%{looksversion} proguard`
-%endif
-JGOODIES_COMMON=`find-jar jgoodies-common-%{commonversion}`
-JGOODIES_FORMS=`find-jar jgoodies-forms-%{formsversion}`
-JGOODIES_LOOKS=`find-jar jgoodies-looks-%{looksversion}`
-ant -Djgoodies.common=$JGOODIES_COMMON -Djgoodies.forms=$JGOODIES_FORMS -Djgoodies.looks=$JGOODIES_LOOKS dist-jar
+make dist
 
 cd $RPM_BUILD_DIR/Ice-%{version}/js
 make
 
 #
 # Define the environment variable KEYFILE to strong-name sign the
-# assemblies with your own key file.
+# Mono assemblies with your own key file.
 #
-
 %if %{mono}
 cd $RPM_BUILD_DIR/Ice-%{version}/cs/src
 make %{makeopts} OPTIMIZE=yes
@@ -764,7 +740,7 @@ cp -p $RPM_BUILD_DIR/Ice-%{version}/man/man1/iceca.1 $RPM_BUILD_ROOT%{_mandir}/m
 # Java install (using jpackage conventions)
 #
 cd $RPM_BUILD_DIR/Ice-%{version}/java
-ant -Dprefix=$RPM_BUILD_ROOT install
+make prefix=$RPM_BUILD_ROOT install
 
 #
 # TODO: Symbolic links disabled for beta release but need to be enabled for production
