@@ -713,7 +713,7 @@ function allTests($communicator)
         }
         else
         {
-            test($pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -e 1.0 -v abch");
+            test($pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
         }
 
         //
@@ -758,7 +758,7 @@ function allTests($communicator)
         }
         else
         {
-            test($pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -e 1.0 -v abch");
+            test($pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
         }
     }
     echo "ok\n";
