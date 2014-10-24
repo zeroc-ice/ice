@@ -331,6 +331,7 @@ public final class ThreadPool
     {
         assert(!_destroyed);
         closeNow = _selector.finish(handler, closeNow);
+        _pendingHandlers.remove(handler);
         _workQueue.queue(new FinishedWorkItem(handler, !closeNow));
         return closeNow;
     }

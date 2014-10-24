@@ -39,8 +39,9 @@ public class ConnectRequestHandler
         // Initiate the connection if connect() is called by the proxy that
         // created the handler.
         //
-        if(proxy == _proxy)
+        if(proxy == _proxy && _connect)
         {
+            _connect = false; // Call getConnection only once
             _reference.getConnection(this);
         }
 
@@ -329,6 +330,7 @@ public class ConnectRequestHandler
     ConnectRequestHandler(Reference ref, Ice.ObjectPrxHelperBase proxy)
     {
         _reference = ref;
+        _connect = true;
         _response = _reference.getMode() == Reference.ModeTwoway;
         _proxy = (Ice.ObjectPrxHelperBase)proxy;
         _batchAutoFlush = ref.getInstance().initializationData().properties.getPropertyAsIntWithDefault(
@@ -545,10 +547,11 @@ public class ConnectRequestHandler
     }
 
     private final Reference _reference;
+    private boolean _connect;
     private boolean _response;
-
+    
     private Ice.ObjectPrxHelperBase _proxy;
-    private java.util.List<Ice.ObjectPrxHelperBase> _proxies = new java.util.ArrayList<Ice.ObjectPrxHelperBase>();
+    private java.util.Set<Ice.ObjectPrxHelperBase> _proxies = new java.util.HashSet<Ice.ObjectPrxHelperBase>();
 
     private final boolean _batchAutoFlush;
 

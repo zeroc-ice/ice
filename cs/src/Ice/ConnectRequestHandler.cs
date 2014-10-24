@@ -42,8 +42,9 @@ namespace IceInternal
             // Initiate the connection if connect() is called by the proxy that
             // created the handler.
             //
-            if(Object.ReferenceEquals(proxy, _proxy))
+            if(Object.ReferenceEquals(proxy, _proxy) && _connect)
             {
+                _connect = false; // Call getConnection only once
                 _reference.getConnection(this);
             }
 
@@ -317,6 +318,7 @@ namespace IceInternal
         public ConnectRequestHandler(Reference @ref, Ice.ObjectPrx proxy)
         {
             _reference = @ref;
+            _connect = true;
             _response = _reference.getMode() == Reference.Mode.ModeTwoway;
             _proxy = (Ice.ObjectPrxHelperBase)proxy;
             _batchAutoFlush = @ref.getInstance().initializationData().properties.getPropertyAsIntWithDefault(
@@ -490,10 +492,11 @@ namespace IceInternal
         }
 
         private Reference _reference;
+        private bool _connect;
         private bool _response;
 
         private Ice.ObjectPrxHelperBase _proxy;
-        private List<Ice.ObjectPrxHelperBase> _proxies = new List<Ice.ObjectPrxHelperBase>();
+        private HashSet<Ice.ObjectPrxHelperBase> _proxies = new HashSet<Ice.ObjectPrxHelperBase>();
 
         private bool _batchAutoFlush;
 

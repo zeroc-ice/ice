@@ -42,6 +42,7 @@ var ConnectRequestHandler = Ice.Class({
     __init__: function(ref, proxy)
     {
         this._reference = ref;
+        this._connect = true;
         this._response = ref.getMode() === ReferenceMode.ModeTwoway;
         this._proxy = proxy;
         this._proxies = [];
@@ -61,8 +62,9 @@ var ConnectRequestHandler = Ice.Class({
     connect: function(proxy)
     {
         var self = this;
-        if(proxy === this._proxy)
+        if(proxy === this._proxy && this._connect)
         {
+            this._connect = false; // Call getConnection only once
             this._reference.getConnection().then(function(connection, compress)
                                                  {
                                                      self.setConnection(connection, compress);

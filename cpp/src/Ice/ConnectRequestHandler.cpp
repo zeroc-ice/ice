@@ -25,6 +25,7 @@ using namespace IceInternal;
 
 ConnectRequestHandler::ConnectRequestHandler(const ReferencePtr& ref, const Ice::ObjectPrx& proxy) :
     RequestHandler(ref),
+    _connect(true),
     _proxy(proxy),
     _batchAutoFlush(
         ref->getInstance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.BatchAutoFlush", 1) > 0),
@@ -47,8 +48,9 @@ ConnectRequestHandler::connect(const Ice::ObjectPrx& proxy)
     // Initiate the connection if connect() is called by the proxy that
     // created the handler.
     //
-    if(proxy.get() == _proxy.get()) 
+    if(proxy.get() == _proxy.get() && _connect) 
     {
+        _connect = false; // Call getConnection only once
         _reference->getConnection(this);
     }
 
@@ -57,7 +59,7 @@ ConnectRequestHandler::connect(const Ice::ObjectPrx& proxy)
         Lock sync(*this);
         if(!initialized())
         {
-            _proxies.push_back(proxy);
+            _proxies.insert(proxy);
             return this;
         }
     }
@@ -489,7 +491,7 @@ ConnectRequestHandler::flushRequests()
     if(_reference->getCacheConnection() && !_exception.get())
     {
         _connectionRequestHandler = new ConnectionRequestHandler(_reference, _connection, _compress);
-        for(vector<Ice::ObjectPrx>::const_iterator p = _proxies.begin(); p != _proxies.end(); ++p)
+        for(set<Ice::ObjectPrx>::const_iterator p = _proxies.begin(); p != _proxies.end(); ++p)
         {
             (*p)->__setRequestHandler(this, _connectionRequestHandler);
         }

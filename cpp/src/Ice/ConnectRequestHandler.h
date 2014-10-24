@@ -20,7 +20,9 @@
 #include <Ice/BasicStream.h>
 
 #include <IceUtil/UniquePtr.h>
+
 #include <deque>
+#include <set>
 
 namespace IceInternal
 {
@@ -74,8 +76,9 @@ private:
         BasicStream* os;
     };
 
+    bool _connect;
     Ice::ObjectPrx _proxy;
-    std::vector<Ice::ObjectPrx> _proxies;
+    std::set<Ice::ObjectPrx> _proxies;
 
     const bool _batchAutoFlush;
 

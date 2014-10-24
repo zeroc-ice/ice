@@ -593,6 +593,7 @@ IceInternal::ThreadPool::finish(const EventHandlerPtr& handler, bool closeNow)
     assert(!_destroyed);
 #if !defined(ICE_USE_IOCP) && !defined(ICE_OS_WINRT)
     closeNow = _selector.finish(handler.get(), closeNow); // This must be called before!
+    _pendingHandlers.erase(handler.get());
     _workQueue->queue(new FinishedWorkItem(handler, !closeNow));
     return closeNow;
 #else

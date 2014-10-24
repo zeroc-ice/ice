@@ -158,8 +158,8 @@ private:
     int _inUseIO; // Number of threads that are currently performing IO.
     std::vector<std::pair<EventHandler*, SocketOperation> > _handlers;
     std::vector<std::pair<EventHandler*, SocketOperation> >::const_iterator _nextHandler;
-#endif
     std::set<EventHandler*> _pendingHandlers;
+#endif
 
     bool _promote;
 };
