@@ -10,6 +10,10 @@
 all:
 	gradlew assemble
 
+dist:
+	gradlew :Ice:assemble :Freeze:assemble :Glacier2:assemble :IceGrid:assemble :ant:assemble \
+		:IceBox:assemble :IceDiscovery:assemble :IcePatch2:assemble :IceStorm:assemble :IceGridGUI:assemble
+
 clean:
 	gradlew clean
 
