@@ -54,8 +54,11 @@ public class LoggerI implements Logger
     {
         StringBuilder s = new StringBuilder(256);
         s.append("-- ");
-        s.append(_date.format(new java.util.Date()));
-        s.append(_time.format(new java.util.Date()));
+        synchronized(this)
+        {
+            s.append(_date.format(new java.util.Date()));
+            s.append(_time.format(new java.util.Date()));
+        }
         s.append(' ');
         s.append(_formattedPrefix);
         s.append(category);
@@ -70,8 +73,11 @@ public class LoggerI implements Logger
     {
         StringBuilder s = new StringBuilder(256);
         s.append("-! ");
-        s.append(_date.format(new java.util.Date()));
-        s.append(_time.format(new java.util.Date()));
+        synchronized(this)
+        {
+            s.append(_date.format(new java.util.Date()));
+            s.append(_time.format(new java.util.Date()));
+        }
         s.append(' ');
         s.append(_formattedPrefix);
         s.append("warning: ");
@@ -87,8 +93,11 @@ public class LoggerI implements Logger
     {
         StringBuilder s = new StringBuilder(256);
         s.append("!! ");
-        s.append(_date.format(new java.util.Date()));
-        s.append(_time.format(new java.util.Date()));
+        synchronized(this)
+        {
+            s.append(_date.format(new java.util.Date()));
+            s.append(_time.format(new java.util.Date()));
+        }
         s.append(' ');
         s.append(_formattedPrefix);
         s.append("error: ");
