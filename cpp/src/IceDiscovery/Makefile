@@ -13,7 +13,7 @@ LIBFILENAME     = $(call mklibfilename,IceDiscovery,$(VERSION))
 SONAME          = $(call mksoname,IceDiscovery,$(SOVERSION))
 LIBNAME		= $(call mklibname,IceDiscovery)
 
-TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)$(cpp11libdirsuffix)/$(LIBNAME))
 
 SLICE_OBJS      = IceDiscovery.o
 
@@ -45,9 +45,9 @@ $(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
 	rm -f $@
 	ln -s $(LIBFILENAME) $@
 
-$(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
+$(libdir)$(cpp11libdirsuffix)/$(LIBNAME): $(libdir)/$(SONAME)
 	rm -f $@
-	ln -s $(SONAME) $@
+	ln -s $(cpp11sonamedir)$(SONAME) $@
 endif
 
 ../IceDiscovery/IceDiscovery.h IceDiscovery.cpp: $(slicedir)/IceDiscovery/IceDiscovery.ice $(SLICE2CPP) $(SLICEPARSERLIB)

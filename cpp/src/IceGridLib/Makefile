@@ -13,7 +13,7 @@ LIBFILENAME     = $(call mklibfilename,IceGrid,$(VERSION))
 SONAME          = $(call mksoname,IceGrid,$(SOVERSION))
 LIBNAME		= $(call mklibname,IceGrid)
 
-LIBTARGETS	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+LIBTARGETS	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)$(cpp11libdirsuffix)/$(LIBNAME))
 TARGETS         = $(LIBTARGETS) $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)
 
 SLICE_OBJS	= Admin.o \
@@ -52,9 +52,9 @@ $(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
 	rm -f $@
 	ln -s $(LIBFILENAME) $@
 
-$(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
+$(libdir)$(cpp11libdirsuffix)/$(LIBNAME): $(libdir)/$(SONAME)
 	rm -f $@
-	ln -s $(SONAME) $@
+	ln -s $(cpp11sonamedir)$(SONAME) $@
 
 install:: all
 	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))

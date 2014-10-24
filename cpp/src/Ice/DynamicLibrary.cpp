@@ -89,6 +89,9 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     if(comma == string::npos)
     {
         libName = libSpec;
+#  ifdef ICE_CPP11
+        libName += "++11";
+#  endif
         if(useIceVersion)
         {
             int majorVersion = (ICE_INT_VERSION / 10000);
@@ -116,6 +119,9 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
             return 0;
         }
         libName = libSpec.substr(0, comma);
+#  ifdef ICE_CPP11
+        libName += "++11";
+#  endif
         version = libSpec.substr(comma + 1);
     }
 

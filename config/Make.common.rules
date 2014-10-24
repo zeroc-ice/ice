@@ -74,10 +74,10 @@ ifeq ($(UNAME),Linux)
    endif
 endif
 
-ifeq ($(UNAME),Darwin)
-    ifeq ($(CPP11),yes)
-      cpp11suffix    = /c++11
-    endif
+ifeq ($(CPP11),yes)
+    cpp11libdirsuffix	= /c++11
+    cpp11libsuffix	= ++11
+    cpp11sonamedir	= ../
 endif
 
 ifneq ($(findstring MINGW,$(UNAME)),)
@@ -316,23 +316,17 @@ endif
 #
 # Default functions for shared library names
 #
-
 ifeq ($(mklibfilename),)
-    # These default platform-specific rules are needed for cs/config/Make.rules.cs
-    ifeq ($(UNAME),Darwin)
-	mklibfilename	= $(if $(2),lib$(1).$(2).dylib,lib$(1).dylib)
-    else
-	mklibfilename	= $(if $(2),lib$(1).so.$(2),lib$(1).so)
-    endif
+    mklibfilename	= $(if $(2),lib$(1)$(cpp11libsuffix).so.$(2),lib$(1)$(cpp11libsuffix).so)
 endif
 
 ifeq ($(mksoname),)
-    mksoname	= $(if $(2),lib$(1).so.$(2),lib$(1).so)
+    mksoname	= $(if $(2),lib$(1)$(cpp11libsuffix).so.$(2),lib$(1).so)
 endif
 
 ifeq ($(mklibname),)
     ifeq ($(STATICLIBS),yes)
-	mklibname	= lib$(1).a
+	mklibname	= lib$(1)$(cpp11libsuffix).a
     else
 	mklibname	= lib$(1).so
     endif
@@ -353,7 +347,7 @@ ifeq ($(installlib),)
     else
 	installlib	= $(INSTALL) $(2)/$(3) $(1); \
 			  rm -f $(1)/$(4); ln -s $(3) $(1)/$(4); \
-			  rm -f $(1)/$(5); ln -s $(4) $(1)/$(5); \
+			  rm -f $(1)/$(5); ln -s $(cpp11sonamedir)$(4) $(1)$(cpp11libdirsuffix)/$(5); \
 			  chmod a+rx $(1)/$(3) 
     endif
 endif

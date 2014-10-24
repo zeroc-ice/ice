@@ -16,7 +16,7 @@ LIBNAME		= $(call mklibname,IceBox)
 SERVER		= $(bindir)/icebox
 ADMIN		= $(bindir)/iceboxadmin
 
-LIBTARGETS 	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+LIBTARGETS 	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)$(cpp11libdirsuffix)/$(LIBNAME))
 TARGETS   	= $(LIBTARGETS) $(SERVER) $(ADMIN)
 
 SLICE_OBJS      = IceBox.o
@@ -58,9 +58,9 @@ $(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
 	rm -f $@
 	ln -s $(LIBFILENAME) $@
 
-$(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
+$(libdir)$(cpp11libdirsuffix)/$(LIBNAME): $(libdir)/$(SONAME)
 	rm -f $@
-	ln -s $(SONAME) $@
+	ln -s $(cpp11sonamedir)$(SONAME) $@
 
 $(SERVER): $(SOBJS) $(LIBTARGETS)
 	rm -f $@

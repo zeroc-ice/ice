@@ -16,11 +16,7 @@ TARGETS		= $(NAME)
 OBJS		= Gen.o \
 		  Main.o
 
-ifeq ($(CPP11),yes)
-RPATH_DIR	= @loader_path/../../lib/c++11
-else
 RPATH_DIR	= @loader_path/../lib
-endif
 
 include $(top_srcdir)/config/Make.rules
 

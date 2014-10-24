@@ -13,7 +13,7 @@ LIBFILENAME     = $(call mklibfilename,Freeze,$(VERSION))
 SONAME          = $(call mksoname,Freeze,$(SOVERSION))
 LIBNAME		= $(call mklibname,Freeze)
 
-TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)$(cpp11libdirsuffix)/$(LIBNAME))
 
 SLICE_OBJS     = BackgroundSaveEvictor.o \
 		  CatalogData.o \
@@ -30,7 +30,7 @@ SLICE_OBJS     = BackgroundSaveEvictor.o \
 
 OBJS	        = BackgroundSaveEvictorI.o \
 		  Catalog.o \
-                  CatalogIndexList.o \
+		  CatalogIndexList.o \
 		  ConnectionI.o \
 		  EvictorI.o \
 		  EvictorIteratorI.o \
@@ -86,9 +86,9 @@ $(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
 	rm -f $@
 	ln -s $(LIBFILENAME) $@
 
-$(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
+$(libdir)$(cpp11libdirsuffix)/$(LIBNAME): $(libdir)/$(SONAME)
 	rm -f $@
-	ln -s $(SONAME) $@
+	ln -s $(cpp11sonamedir)$(SONAME) $@
 
 install:: all
 	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))

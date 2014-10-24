@@ -12,7 +12,7 @@ top_srcdir	= ../..
 LIBFILENAME	= $(call mklibfilename,IceUtil,$(VERSION))
 SONAME		= $(call mksoname,IceUtil,$(SOVERSION))
 LIBNAME		= $(call mklibname,IceUtil)
-TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)$(cpp11libdirsuffix)/$(LIBNAME))
 
 OBJS		= ArgVector.o \
 		  Cond.o \
@@ -56,9 +56,9 @@ $(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
 	rm -f $@
 	ln -s $(LIBFILENAME) $@
 
-$(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
+$(libdir)$(cpp11libdirsuffix)/$(LIBNAME): $(libdir)/$(SONAME)
 	rm -f $@
-	ln -s $(SONAME) $@
+	ln -s $(cpp11sonamedir)$(SONAME) $@
 endif
 
 install:: all

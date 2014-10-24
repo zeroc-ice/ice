@@ -15,7 +15,7 @@ LIBNAME	     = $(call mklibname,IceStormService)
 
 ADMIN		= $(bindir)/icestormadmin
 MIGRATE		= $(bindir)/icestormmigrate
-LIBTARGETS   	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+LIBTARGETS   	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)$(cpp11libdirsuffix)/$(LIBNAME))
 TARGETS         = $(LIBTARGETS) $(ADMIN) $(MIGRATE)
 
 SLICE_OBJS	= Election.o \
@@ -85,9 +85,9 @@ $(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
 	rm -f $@
 	ln -s $(LIBFILENAME) $@
 
-$(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
+$(libdir)$(cpp11libdirsuffix)/$(LIBNAME): $(libdir)/$(SONAME)
 	rm -f $@
-	ln -s $(SONAME) $@
+	ln -s $(cpp11sonamedir)$(SONAME) $@
 
 $(ADMIN): $(AOBJS) $(LIBTARGETS)
 	rm -f $@
