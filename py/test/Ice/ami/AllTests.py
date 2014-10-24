@@ -983,10 +983,10 @@ def allTests(communicator, collocated):
         r2 = None;
 
         if sys.version_info[0] == 2:
-            b = [chr(random.randint(0, 255)) for x in range(0, 1024)] # Make sure the request doesn't compress too well.
+            b = [chr(random.randint(0, 255)) for x in range(0, 10024)] # Make sure the request doesn't compress too well
             seq = ''.join(b)
         else:
-            b = [random.randint(0, 255) for x in range(0, 1024)] # Make sure the request doesn't compress too well.
+            b = [random.randint(0, 255) for x in range(0, 10024)] # Make sure the request doesn't compress too well
             seq = bytes(b) 
             
         testController.holdAdapter()
