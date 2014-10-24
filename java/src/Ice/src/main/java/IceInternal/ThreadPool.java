@@ -395,8 +395,6 @@ public final class ThreadPool
     {
         ThreadPoolCurrent current = new ThreadPoolCurrent(_instance, this, thread);
         boolean select = false;
-        java.util.List<EventHandlerOpPair> handlers = new java.util.ArrayList<EventHandlerOpPair>();
-
         while(true)
         {
             if(current._handler != null)
@@ -422,7 +420,7 @@ public final class ThreadPool
                 {
                     try
                     {
-                        _selector.select(handlers, _serverIdleTime);
+                        _selector.select(_serverIdleTime);
                     }
                     catch(Selector.TimeoutException ex)
                     {
@@ -436,7 +434,6 @@ public final class ThreadPool
                         }
                     }
                 }
-                _workQueue.update(handlers);
             }
 
             synchronized(this)
@@ -445,9 +442,9 @@ public final class ThreadPool
                 {
                     if(select)
                     {
-                        java.util.List<EventHandlerOpPair> tmp = _handlers;
-                        _handlers = handlers;
-                        handlers = tmp;
+                        _selector.finishSelect(_handlers);
+                        _workQueue.update(_handlers);
+                        select = false;
 
                         if(!_pendingHandlers.isEmpty())
                         {
@@ -463,8 +460,6 @@ public final class ThreadPool
                         }
 
                         _nextHandler = _handlers.iterator();
-                        _selector.finishSelect();
-                        select = false;
                     }
                     else if(!current._leader && followerWait(current))
                     {

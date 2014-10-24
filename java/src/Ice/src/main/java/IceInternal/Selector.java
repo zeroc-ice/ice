@@ -109,24 +109,68 @@ public final class Selector
 
     void startSelect()
     {
-        if(_interrupted)
+        if(!_changes.isEmpty())
         {
-            _interrupted = false;
-
-            if(!_changes.isEmpty())
-            {
-                updateSelector();
-            }
+            updateSelector();
         }
         _selecting = true;
     }
 
-    void finishSelect()
+    void finishSelect(java.util.List<EventHandlerOpPair> handlers)
     {
+        assert(handlers.isEmpty());
+
+        if(_keys.isEmpty() && !_interrupted) // If key set is empty and we weren't woken up.
+        {
+            //
+            // This is necessary to prevent a busy loop in case of a spurious wake-up which
+            // sometime occurs in the client thread pool when the communicator is destroyed.
+            // If there are too many successive spurious wake-ups, we log an error.
+            //
+            try
+            {
+                Thread.sleep(1);
+            }
+            catch(InterruptedException ex)
+            {
+                //
+                // Eat the InterruptedException (as we do in ThreadPool.promoteFollower).
+                //
+            }
+
+            if(++_spuriousWakeUp > 100)
+            {
+                _spuriousWakeUp = 0;
+                _instance.initializationData().logger.warning("spurious selector wake up");
+            }
+            return;
+        }
+        _interrupted = false;
+        _spuriousWakeUp = 0;
+        
+        for(java.nio.channels.SelectionKey key : _keys)
+        {
+            EventHandler handler = (EventHandler)key.attachment();
+            try
+            {
+                //
+                // Use the intersection of readyOps and interestOps because we only want to
+                // report the operations in which the handler is still interested.
+                //
+                final int op = fromJavaOps(key.readyOps() & key.interestOps());
+                handlers.add(new EventHandlerOpPair(handler, op));
+            }
+            catch(java.nio.channels.CancelledKeyException ex)
+            {
+                assert(handler._registered == 0);
+            }
+        }
+        _keys.clear();
+
         _selecting = false;
     }
 
-    void select(java.util.List<EventHandlerOpPair> handlers, long timeout)
+    void select(long timeout)
         throws TimeoutException
     {
         while(true)
@@ -186,82 +230,27 @@ public final class Selector
 
             break;
         }
-
-        handlers.clear();
-        if(_interrupted) // Interrupted, we have to process the interrupt before returning any handlers
-        {
-            return;
-        }
-
-        if(_keys.isEmpty() && timeout <= 0)
-        {
-            //
-            // This is necessary to prevent a busy loop in case of a spurious wake-up which
-            // sometime occurs in the client thread pool when the communicator is destroyed.
-            // If there are too many successive spurious wake-ups, we log an error.
-            //
-            try
-            {
-                Thread.sleep(1);
-            }
-            catch(InterruptedException ex)
-            {
-                //
-                // Eat the InterruptedException (as we do in ThreadPool.promoteFollower).
-                //
-            }
-
-            if(++_spuriousWakeUp > 100)
-            {
-                _spuriousWakeUp = 0;
-                _instance.initializationData().logger.warning("spurious selector wake up");
-            }
-            return;
-        }
-
-        _spuriousWakeUp = 0;
-        
-        for(java.nio.channels.SelectionKey key : _keys)
-        {
-            EventHandler handler = (EventHandler)key.attachment();
-            try
-            {
-                //
-                // Use the intersection of readyOps and interestOps because we only want to
-                // report the operations in which the handler is still interested.
-                //
-                final int op = fromJavaOps(key.readyOps() & key.interestOps());
-                handlers.add(new EventHandlerOpPair(handler, op));
-            }
-            catch(java.nio.channels.CancelledKeyException ex)
-            {
-                assert(handler._registered == 0);
-            }
-        }
-        _keys.clear();
     }
     
     void wakeup()
     {
         _selector.wakeup();
+        _interrupted = true;
     }
 
     private void updateImpl(EventHandler handler)
     {
         _changes.add(handler);
+
+        //
+        // We can't change the selection key interest ops while a select operation is in progress
+        // (it could block depending on the underlying implementation of the Java selector).
+        //
+        // Wake up the selector if necessary.
+        //
         if(_selecting)
         {
-            if(!_interrupted)
-            {
-                //
-                // We can't change the selection key interest ops while a select operation is in progress
-                // (it could block depending on the underlying implementation of the Java selector).
-                //
-                // Wake up the selector if necessary.
-                //
-                _selector.wakeup();
-                _interrupted = true;
-            }
+            wakeup();
         }
         else
         {
