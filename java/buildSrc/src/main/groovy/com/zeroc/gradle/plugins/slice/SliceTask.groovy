@@ -203,8 +203,7 @@ class SliceTask extends DefaultTask {
 
         def env = addLdLibraryPath()
         def p = command.execute(env, null)
-        p.consumeProcessOutput(sout, serr)
-        p.waitFor()
+        p.waitForProcessOutput(sout, serr)
         if (p.exitValue() != 0) {
             println serr.toString()
             throw new GradleException("${project.slice.slice2freezej} command failed: " + p.exitValue())
@@ -228,8 +227,7 @@ class SliceTask extends DefaultTask {
 
         def env = addLdLibraryPath()
         def p = command.execute(env, null)
-        p.consumeProcessOutput(sout, serr)
-        p.waitFor()
+        p.waitForProcessOutput(sout, serr)
         if (p.exitValue() != 0) {
             println serr.toString()
             throw new GradleException("${project.slice.slice2freezej} command failed: " + p.exitValue())
@@ -497,8 +495,7 @@ class SliceTask extends DefaultTask {
 
         def env = addLdLibraryPath()
         def p = command.execute(env, null)
-        p.consumeProcessOutput(sout, serr)
-        p.waitFor()
+        p.waitForProcessOutput(sout, serr)
         if (p.exitValue() != 0) {
             println serr.toString()
             throw new GradleException("${project.slice.slice2java} command failed: " + p.exitValue())
@@ -529,11 +526,9 @@ class SliceTask extends DefaultTask {
         def sout = new StringBuffer()
         def serr = new StringBuffer()
 
-
         def env = addLdLibraryPath()
         def p = command.execute(env, null)
-        p.consumeProcessOutput(sout, serr)
-        p.waitFor()
+        p.waitForProcessOutput(sout, serr)
         if (p.exitValue() != 0) {
             println serr.toString()
             throw new GradleException("${project.slice.slice2java} command failed: " + p.exitValue())
