@@ -11,6 +11,7 @@ var Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.__M.require(module,
     [
         "../Ice/Class",
+        "../Ice/StringUtil",
         "../Ice/BasicStream",
         "../Ice/Debug",
         "../Ice/OpaqueEndpointI",
@@ -26,6 +27,7 @@ var BasicStream = Ice.BasicStream;
 var EndpointParseException = Ice.EndpointParseException;
 var OpaqueEndpointI = Ice.OpaqueEndpointI;
 var Protocol = Ice.Protocol;
+var StringUtil = Ice.StringUtil;
 
 var EndpointFactoryManager = Ice.Class({
     __init__: function(instance)
@@ -61,7 +63,7 @@ var EndpointFactoryManager = Ice.Class({
             throw new EndpointParseException("value has no non-whitespace characters");
         }
 
-        var arr = s.split(/[ \t\n\r]+/);
+        var arr = StringUtil.splitString(s, " \t\n\r");
         if(arr.length === 0)
         {
             throw new EndpointParseException("value has no non-whitespace characters");

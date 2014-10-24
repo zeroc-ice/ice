@@ -11,7 +11,7 @@
 var Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.Address = function(host, port)
 {
-    this.host = host.indexOf('"') === 0 ? host.replace(/"/g, "") : host;
+    this.host = host;
     this.port = port;
 };
 module.exports.Ice = Ice;
