@@ -26,9 +26,13 @@ def allTests(communicator)
     test(ipEndpoint.compress)
     test(!ipEndpoint.datagram())
     test((ipEndpoint.type() == Ice::TCPEndpointType && !ipEndpoint.secure()) ||
-         (ipEndpoint.type() == 2 && ipEndpoint.secure()))
+         (ipEndpoint.type() == 2 && ipEndpoint.secure()) ||
+         (ipEndpoint.type() == 4 && !ipEndpoint.secure()) ||
+         (ipEndpoint.type() == 5 && ipEndpoint.secure()))
     test((ipEndpoint.type() == Ice::TCPEndpointType && ipEndpoint.is_a?(Ice::TCPEndpointInfo)) ||
-         (ipEndpoint.type() == 2))
+         (ipEndpoint.type() == 2) ||
+         (ipEndpoint.type() == 4) ||
+         (ipEndpoint.type() == 5))
 
     udpEndpoint = endps[1].getInfo()
     test(udpEndpoint.is_a?(Ice::UDPEndpointInfo));
