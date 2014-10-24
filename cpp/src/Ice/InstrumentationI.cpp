@@ -1080,5 +1080,4 @@ CommunicatorObserverI::destroy()
     _endpointLookups.destroy();
 
     _metrics->destroy();
-    _metrics = 0;
 }
