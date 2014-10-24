@@ -21,11 +21,21 @@ public class StreamSocket
         _fd = Network.createTcpSocket();
         _state = StateNeedConnect;
 
-        init(instance);
-        if(Network.doConnect(_fd, _proxy != null ? _proxy.getAddress() : _addr, sourceAddr))
+        try
         {
-            _state = StateConnected;
+            init(instance);
+            if(Network.doConnect(_fd, _proxy != null ? _proxy.getAddress() : _addr, sourceAddr))
+            {
+                _state = StateConnected;
+            }
         }
+        catch(Exception ex)
+        {
+            assert(!_fd.isOpen());
+            _fd = null; // Necessary for the finalizer
+            throw ex;
+        }
+
         _desc = Network.fdToString(_fd, _proxy, _addr);
     }
 
@@ -36,7 +46,17 @@ public class StreamSocket
         _fd = fd;
         _state = StateConnected;
 
-        init(instance);
+        try
+        {
+            init(instance);
+        }
+        catch(Exception ex)
+        {
+            assert(!_fd.isOpen());
+            _fd = null; // Necessary for the finalizer
+            throw ex;
+        }
+
         _desc = Network.fdToString(_fd);
     }
 
