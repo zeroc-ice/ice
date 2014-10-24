@@ -105,9 +105,6 @@ private:
     };
 
     RemoteLoggerMap _remoteLoggerMap;
-
-    const CallbackPtr _initCompleted;
-
     CommunicatorPtr _sendLogCommunicator;
     bool _destroyed;
 };
@@ -168,7 +165,6 @@ private:
     bool _destroyed;
     IceUtil::ThreadPtr _sendLogThread;
     std::deque<JobPtr> _jobQueue;   
-    const CallbackPtr _logCompleted;
 };
 typedef IceUtil::Handle<LoggerAdminLoggerI> LoggerAdminLoggerIPtr;
 
@@ -318,15 +314,8 @@ LoggerAdminI::LoggerAdminI(const PropertiesPtr& props) :
     _traceCount(0),
     _maxTraceCount(props->getPropertyAsIntWithDefault("Ice.Admin.Logger.KeepTraces", 100)),   
     _traceLevel(props->getPropertyAsInt("Ice.Trace.Admin.Logger")),
-#if !defined(_MSC_VER) || (_MSC_VER >= 1700)
-    _initCompleted(newCallback(this, &LoggerAdminI::initCompleted)),
-#endif
     _destroyed(false)
 {
-#if defined(_MSC_VER) && (MSV_VER < 1700)
-    const_cast<CallbackPtr&>(_initCompleted) = newCallback(this, &LoggerAdminI::initCompleted);
-#endif
-
     _oldestLog = _queue.end();
     _oldestTrace = _queue.end();
 }
@@ -402,9 +391,11 @@ LoggerAdminI::attachRemoteLogger(const RemoteLoggerPrx& prx,
         filterLogMessages(initLogMessages, filters.messageTypes, filters.traceCategories, messageMax);
     }
 
+    CallbackPtr initCompletedCb = newCallback(this, &LoggerAdminI::initCompleted);
+
     try
     {
-        remoteLogger->begin_init(logger->getPrefix(), initLogMessages, _initCompleted, logger);
+        remoteLogger->begin_init(logger->getPrefix(), initLogMessages, initCompletedCb, logger);
     }
     catch(const LocalException& ex)
     {
@@ -636,15 +627,7 @@ LoggerAdminLoggerI::LoggerAdminLoggerI(const PropertiesPtr& props,
                                        const LoggerPtr& localLogger) :
     _loggerAdmin(new LoggerAdminI(props)),
     _destroyed(false)
-#if !defined(_MSC_VER) || (_MSC_VER >= 1700)
-    , _logCompleted(newCallback(this, &LoggerAdminLoggerI::logCompleted))
-#endif
 {
-   
-#if defined(_MSC_VER) && (MSV_VER < 1700)
-    const_cast<CallbackPtr&>(_logCompleted) = newCallback(this, &LoggerAdminLoggerI::logCompleted);
-#endif
-
     //
     // There is currently no way to have a null local logger
     //
@@ -772,6 +755,8 @@ LoggerAdminLoggerI::run()
         trace << "send log thread started";
     }
 
+    CallbackPtr logCompletedCb = newCallback(this, &LoggerAdminLoggerI::logCompleted);
+
     for(;;)
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
@@ -802,7 +787,7 @@ LoggerAdminLoggerI::run()
                 //
                 // *p is a proxy associated with the _sendLogCommunicator
                 //
-                (*p)->begin_log(job->logMessage, _logCompleted);
+                (*p)->begin_log(job->logMessage, logCompletedCb);
             }
             catch(const LocalException& ex)
             {

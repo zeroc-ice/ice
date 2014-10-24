@@ -75,10 +75,34 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
             filterLogMessages(initLogMessages, filters.messageTypes, filters.traceCategories, messageMax);
         }
         
+        final Ice.Callback initCompletedCb = new Ice.Callback()
+            {
+                @Override
+                public void completed(Ice.AsyncResult r)
+                {
+                    Ice.RemoteLoggerPrx remoteLogger = Ice.RemoteLoggerPrxHelper.uncheckedCast(r.getProxy());
+                    
+                    try
+                    {
+                        remoteLogger.end_init(r);
+                        
+                        if(_traceLevel > 1)
+                        {
+                            _logger.trace(_traceCategory, r.getOperation() + " on `" + remoteLogger.toString() +
+                                          "' completed successfully");
+                        }
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                        deadRemoteLogger(remoteLogger, _logger, ex, r.getOperation());
+                    }
+                }
+            };
+   
         try
         {
             remoteLogger.begin_init(_logger.getPrefix(), initLogMessages.toArray(new Ice.LogMessage[0]), 
-                                    _initCompleted);
+                                    initCompletedCb);
         }
         catch(Ice.LocalException ex)
         {
@@ -149,30 +173,6 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
         _maxTraceCount = props.getPropertyAsIntWithDefault("Ice.Admin.Logger.KeepTraces", 100);
         _traceLevel = props.getPropertyAsInt("Ice.Trace.Admin.Logger");
         _logger = logger;
-
-        _initCompleted = new Ice.Callback()
-        {
-            @Override
-            public void completed(Ice.AsyncResult r)
-            {
-                Ice.RemoteLoggerPrx remoteLogger = Ice.RemoteLoggerPrxHelper.uncheckedCast(r.getProxy());
-
-                try
-                {
-                    remoteLogger.end_init(r);
-
-                    if(_traceLevel > 1)
-                    {
-                        _logger.trace(_traceCategory, r.getOperation() + " on `" + remoteLogger.toString() +
-                                                      "' completed successfully");
-                    }
-                }
-                catch(Ice.LocalException ex)
-                {
-                    deadRemoteLogger(remoteLogger, _logger, ex, r.getOperation());
-                }
-            }
-        };
     }
     
     void destroy()
@@ -459,7 +459,6 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
         = new java.util.HashMap<Ice.Identity, RemoteLoggerData>(); 
     
     private final LoggerAdminLoggerI _logger;
-    private final Ice.Callback _initCompleted;
     private Ice.Communicator _sendLogCommunicator = null;
     private boolean _destroyed = false;
     static private final String _traceCategory = "Admin.Logger";

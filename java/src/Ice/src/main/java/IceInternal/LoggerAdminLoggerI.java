@@ -103,6 +103,36 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable
             _localLogger.trace(_traceCategory, "send log thread started");
         }
 
+        final Ice.Callback logCompletedCb = new Ice.Callback() 
+            {
+
+                @Override
+                public void completed(Ice.AsyncResult r)
+                {
+                    Ice.RemoteLoggerPrx remoteLogger = Ice.RemoteLoggerPrxHelper.uncheckedCast(r.getProxy());
+                    
+                    try
+                    {
+                        remoteLogger.end_log(r);
+                        
+                        if(_loggerAdmin.getTraceLevel() > 1)
+                        {
+                            _localLogger.trace(_traceCategory, r.getOperation() + " on `" + remoteLogger.toString() +
+                                               "' completed successfully");
+                        }
+                    }
+                    catch(Ice.CommunicatorDestroyedException ex)
+                    {
+                        // expected if there are outstanding calls during
+                        // communicator destruction
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                        _loggerAdmin.deadRemoteLogger(remoteLogger, _localLogger, ex, r.getOperation());
+                    }
+                }
+            };
+        
         for(;;)
         {
             Job job = null;
@@ -141,7 +171,7 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable
                     //
                     // p is a proxy associated with the _sendLogCommunicator
                     //
-                    p.begin_log(job.logMessage, _logCompleted);
+                    p.begin_log(job.logMessage, logCompletedCb);
                 }
                 catch(Ice.LocalException ex)
                 {
@@ -168,35 +198,6 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable
         }
 
         _loggerAdmin = new LoggerAdminI(props, this);
-
-        _logCompleted = new Ice.Callback() {
-
-            @Override
-            public void completed(Ice.AsyncResult r)
-            {
-                Ice.RemoteLoggerPrx remoteLogger = Ice.RemoteLoggerPrxHelper.uncheckedCast(r.getProxy());
-
-                try
-                {
-                    remoteLogger.end_log(r);
-
-                    if(_loggerAdmin.getTraceLevel() > 1)
-                    {
-                        _localLogger.trace(_traceCategory, r.getOperation() + " on `" + remoteLogger.toString() +
-                                                           "' completed successfully");
-                    }
-                }
-                catch(Ice.CommunicatorDestroyedException ex)
-                {
-                    // expected if there are outstanding calls during
-                    // communicator destruction
-                }
-                catch(Ice.LocalException ex)
-                {
-                    _loggerAdmin.deadRemoteLogger(remoteLogger, _localLogger, ex, r.getOperation());
-                }
-            }
-        };
     }
 
     Ice.Logger getLocalLogger()
@@ -248,7 +249,6 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable
     private boolean _destroyed = false;
     private Thread _sendLogThread;
     private final java.util.Deque<Job> _jobQueue = new java.util.ArrayDeque<Job>();
-    private final Ice.Callback _logCompleted;
     
     static private final String _traceCategory = "Admin.Logger";
 }
