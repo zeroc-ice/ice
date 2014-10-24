@@ -36,7 +36,7 @@
 # See http://fedoraproject.org/wiki/Packaging/Python
 #
 # We put everything in sitearch because we're building a single
-# ice-python arch-specific package.
+# python-ice arch-specific package.
 #
 %{!?python_sitearch: %define python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 
@@ -45,7 +45,7 @@
 # See http://fedoraproject.org/wiki/Packaging/Ruby
 #
 # We put everything in sitearch because we're building a single
-# ice-ruby arch-specific package.
+# ruby-ice arch-specific package.
 #
 %if "%{dist}" == ".el7"
 %{!?ruby_sitearch: %define ruby_sitearch %(ruby -rrbconfig -e 'puts RbConfig::CONFIG["sitearchdir"]')}
@@ -56,7 +56,7 @@
 
 Name: ice
 Version: 3.6b
-Summary: Files common to all Ice packages
+Summary: Ice meta package that includes all run-time components and services.
 Release: 1%{?dist}
 License: GPL with exceptions
 Group: System Environment/Libraries
@@ -74,6 +74,20 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %define commonversion 1.8.0
 %define formsversion 1.8.0
 %define looksversion 2.6.0
+
+#
+# This "meta" package includes all run-time components and services.
+#
+Requires: glacier2 = %{version}-%{release}
+Requires: icegrid = %{version}-%{release}
+Requires: icepatch2 = %{version}-%{release}
+Requires: libicestorm3.6 = %{version}-%{release}
+Requires: php-ice = %{version}-%{release}
+Requires: python-ice = %{version}-%{release}
+Requires: ruby-ice = %{version}-%{release}
+Requires: libice-js = %{version}-%{release}
+Requires: libfreeze3.6 = %{version}-%{release}
+Requires: ice-utils-java = %{version}-%{release}
 
 #
 # RHEL7 includes Berkeley DB 5.3.21, on other platforms we supply 5.3.28.
@@ -144,13 +158,7 @@ BuildRequires: python-devel >= 2.6.0
 
 %description
 Ice is a modern object-oriented toolkit that enables you to build
-distributed applications with minimal effort. Ice allows you to focus
-your efforts on your application logic while it takes care of all
-interactions with low-level network programming interfaces. With Ice,
-there is no need to worry about details such as opening network
-connections, serializing and deserializing data for network
-transmission, or retrying failed connection attempts (to name but a
-few of dozens of such low-level details).
+distributed applications with minimal effort.
 
 #
 # We create both noarch and arch-specific packages for these GAC files.
@@ -172,6 +180,7 @@ The Ice run time for .NET (mono).
 # Arch-independent packages
 #
 %ifarch noarch
+
 %package -n libice3.6-java
 Summary: The Ice run time libraries for Java.
 Group: System Environment/Libraries
@@ -196,16 +205,16 @@ Group: System Environment/Libraries
 %description -n libice-js
 The Ice run time libraries for JavaScript.
 
-%package slice
+%package -n ice-slice
 Summary: Slice files for the Ice run time
 Group: System Environment/Libraries
-%description slice
+%description -n ice-slice
 Slice files for the Ice run time.
 
-%package utils-java
+%package -n ice-utils-java
 Summary: Java-based Ice utilities and admin tools.
 Group: Applications/System
-%description utils-java
+%description -n ice-utils-java
 Graphical IceGrid administrative tool and command-line
 certificate authority utility.
 %endif
@@ -214,6 +223,22 @@ certificate authority utility.
 # Arch-dependent packages
 #
 %ifarch %{core_arches}
+
+#
+# This "meta" package includes all run-time components and services.
+#
+%package -n ice-dev
+Summary: Ice development meta package that includes development kits for all supported languages.
+Group: System Environment/Libraries
+Requires: libice-cxx-devel = %{version}-%{release}
+Requires: libice-java-devel = %{version}-%{release}
+Requires: libice-js-devel = %{version}-%{release}
+Requires: php-ice-devel = %{version}-%{release}
+Requires: python-ice-devel = %{version}-%{release}
+Requires: ruby-ice-devel = %{version}-%{release}
+%description -n ice-dev
+Ice development meta package that includes development kits for all supported languages.
+
 %package -n libice3.6
 Summary: The Ice run time libraries for C++.
 Group: System Environment/Libraries
@@ -233,11 +258,11 @@ Requires: db53
 %description -n libfreeze3.6
 The Freeze library for C++.
 
-%package utils
+%package -n ice-utils
 Summary: Ice utilities and admin tools.
 Group: Applications/System
 Requires: libfreeze3.6 = %{version}-%{release}
-%description utils
+%description -n ice-utils
 Command-line administrative tools to manage Ice servers (IceGrid,
 IceStorm, IceBox, etc.), plus various Ice-related utilities.
 
@@ -375,7 +400,7 @@ Tools for developing Ice applications in C#.
 %endif
 
 %if %{ruby}
-%package ruby
+%package -n ruby-ice
 Summary: The Ice run time for Ruby.
 Group: System Environment/Libraries
 Requires: libice3.6 = %{version}-%{release}
@@ -387,32 +412,32 @@ Requires: ruby18
 %else
 Requires: ruby
 %endif
-%description ruby
+%description -n ruby-ice
 The Ice run time for Ruby.
 
-%package ruby-devel
+%package -n ruby-ice-devel
 Summary: Tools for developing Ice applications in Ruby.
 Group: Development/Tools
-Requires: ice-ruby = %{version}-%{release}, ice-slice = %{version}-%{release}
-%description ruby-devel
+Requires: ruby-ice = %{version}-%{release}, ice-slice = %{version}-%{release}
+%description -n ruby-ice-devel
 Tools for developing Ice applications in Ruby.
 %endif
 
-%package python
+%package -n python-ice
 Summary: The Ice run time for Python.
 Group: System Environment/Libraries
 Requires: libice3.6 = %{version}-%{release}, python
-%description python
+%description -n python-ice
 The Ice run time for Python.
 
-%package python-devel
+%package -n python-ice-devel
 Summary: Tools for developing Ice applications in Python.
 Group: Development/Tools
-Requires: ice-python = %{version}-%{release}, ice-slice = %{version}-%{release}
-%description python-devel
+Requires: python-ice = %{version}-%{release}, ice-slice = %{version}-%{release}
+%description -n python-ice-devel
 Tools for developing Ice applications in Python.
 
-%package php
+%package -n php-ice
 Summary: The Ice run time for PHP.
 Group: System Environment/Libraries
 Requires: libice3.6 = %{version}-%{release}
@@ -428,14 +453,14 @@ Requires: php
 %if "%{dist}" == ".amzn1"
 Requires: php < 5.4
 %endif
-%description php
+%description -n php-ice
 The Ice run time for PHP.
 
-%package php-devel
+%package -n php-ice-devel
 Summary: Tools for developing Ice applications in PHP.
 Group: Development/Tools
-Requires: ice-php = %{version}-%{release}, ice-slice = %{version}-%{release}
-%description php-devel
+Requires: php-ice = %{version}-%{release}, ice-slice = %{version}-%{release}
+%description -n php-ice-devel
 Tools for developing Ice applications in PHP.
 %endif
 
@@ -741,30 +766,33 @@ cp -p $RPM_BUILD_DIR/Ice-%{version}/man/man1/iceca.1 $RPM_BUILD_ROOT%{_mandir}/m
 cd $RPM_BUILD_DIR/Ice-%{version}/java
 ant -Dprefix=$RPM_BUILD_ROOT install
 
+#
+# TODO: Symbolic links disabled for beta release but need to be enabled for production
+#
 mkdir -p $RPM_BUILD_ROOT%{_javadir}
 mv $RPM_BUILD_ROOT/lib/Ice.jar $RPM_BUILD_ROOT%{_javadir}/Ice-%{version}.jar
-ln -s  Ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/Ice-%{mmversion}.jar
+#ln -s  Ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/Ice-%{mmversion}.jar
 
 mv $RPM_BUILD_ROOT/lib/Freeze.jar $RPM_BUILD_ROOT%{_javadir}/Freeze-%{version}.jar
-ln -s  Freeze-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/Freeze-%{mmversion}.jar
+#ln -s  Freeze-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/Freeze-%{mmversion}.jar
 
 mv $RPM_BUILD_ROOT/lib/Glacier2.jar $RPM_BUILD_ROOT%{_javadir}/Glacier2-%{version}.jar
-ln -s  Glacier2-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/Glacier2-%{mmversion}.jar
+#ln -s  Glacier2-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/Glacier2-%{mmversion}.jar
 
 mv $RPM_BUILD_ROOT/lib/IceBox.jar $RPM_BUILD_ROOT%{_javadir}/IceBox-%{version}.jar
-ln -s  IceBox-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/IceBox-%{mmversion}.jar
+#ln -s  IceBox-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/IceBox-%{mmversion}.jar
 
 mv $RPM_BUILD_ROOT/lib/IceGrid.jar $RPM_BUILD_ROOT%{_javadir}/IceGrid-%{version}.jar
-ln -s  IceGrid-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/IceGrid-%{mmversion}.jar
+#ln -s  IceGrid-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/IceGrid-%{mmversion}.jar
 
 mv $RPM_BUILD_ROOT/lib/IcePatch2.jar $RPM_BUILD_ROOT%{_javadir}/IcePatch2-%{version}.jar
-ln -s  IcePatch2-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/IcePatch2-%{mmversion}.jar
+#ln -s  IcePatch2-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/IcePatch2-%{mmversion}.jar
 
 mv $RPM_BUILD_ROOT/lib/IceStorm.jar $RPM_BUILD_ROOT%{_javadir}/IceStorm-%{version}.jar
-ln -s  IceStorm-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/IceStorm-%{mmversion}.jar
+#ln -s  IceStorm-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/IceStorm-%{mmversion}.jar
 
 mv $RPM_BUILD_ROOT/lib/IceDiscovery.jar $RPM_BUILD_ROOT%{_javadir}/IceDiscovery-%{version}.jar
-ln -s  IceDiscovery-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/IceDiscovery-%{mmversion}.jar
+#ln -s  IceDiscovery-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/IceDiscovery-%{mmversion}.jar
 
 #
 # JavaScript
@@ -794,8 +822,7 @@ rm $RPM_BUILD_ROOT/lib/IceGrid.js.gz
 #
 # IceGridGUI
 #
-cp -p $RPM_BUILD_DIR/Ice-%{version}/java/lib/IceGridGUI.jar $RPM_BUILD_ROOT%{_javadir}/IceGridGUI-%{version}.jar
-ln -s IceGridGUI-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/IceGridGUI.jar
+cp -p $RPM_BUILD_DIR/Ice-%{version}/java/lib/IceGridGUI.jar $RPM_BUILD_ROOT%{_javadir}/IceGridGUI.jar
 cp -p $RPM_BUILD_DIR/Ice-%{version}/java/bin/icegridgui.rpm $RPM_BUILD_ROOT%{_bindir}/icegridgui
 
 %if %{mono}
@@ -892,46 +919,46 @@ rm -rf $RPM_BUILD_ROOT
 # noarch file packages
 #
 %ifarch noarch
-%files
-# TODO: Meta package
-#%defattr(-, root, root, -)
-#%dir %{_datadir}/Ice-%{version}
-#%{_datadir}/Ice-%{version}/slice
-#%{_defaultdocdir}/%{name}-%{version}
 
-%files slice
+%files -n ice-slice
 %defattr(-, root, root, -)
 %dir %{_datadir}/Ice-%{version}
 %{_datadir}/Ice-%{version}/slice
 %{_defaultdocdir}/%{name}-%{version}
 
+#
+# TODO: Symbolic links disabled for beta release but need to be enabled for production
+#
 %files -n libice3.6-java
 %defattr(-, root, root, -)
 %{_javadir}/Ice-%{version}.jar
-%{_javadir}/Ice-%{mmversion}.jar
+#%{_javadir}/Ice-%{mmversion}.jar
 
 %{_javadir}/Glacier2-%{version}.jar
-%{_javadir}/Glacier2-%{mmversion}.jar
+#%{_javadir}/Glacier2-%{mmversion}.jar
 
 %{_javadir}/IceBox-%{version}.jar
-%{_javadir}/IceBox-%{mmversion}.jar
+#%{_javadir}/IceBox-%{mmversion}.jar
 
 %{_javadir}/IceGrid-%{version}.jar
-%{_javadir}/IceGrid-%{mmversion}.jar
+#%{_javadir}/IceGrid-%{mmversion}.jar
 
 %{_javadir}/IcePatch2-%{version}.jar
-%{_javadir}/IcePatch2-%{mmversion}.jar
+#%{_javadir}/IcePatch2-%{mmversion}.jar
 
 %{_javadir}/IceStorm-%{version}.jar
-%{_javadir}/IceStorm-%{mmversion}.jar
+#%{_javadir}/IceStorm-%{mmversion}.jar
 
 %{_javadir}/IceDiscovery-%{version}.jar
-%{_javadir}/IceDiscovery-%{mmversion}.jar
+#%{_javadir}/IceDiscovery-%{mmversion}.jar
 
+#
+# TODO: Symbolic links disabled for beta release but need to be enabled for production
+#
 %files -n libfreeze3.6-java
 %defattr(-, root, root, -)
 %{_javadir}/Freeze-%{version}.jar
-%{_javadir}/Freeze-%{mmversion}.jar
+#%{_javadir}/Freeze-%{mmversion}.jar
 
 %files -n libice-js
 %defattr(-, root, root, -)
@@ -944,12 +971,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/javascript/ice-%{mmversion}/IceGrid.min.js
 %{_datadir}/javascript/ice-%{mmversion}/IceGrid.min.js.gz
 
-%files utils-java
+%files -n ice-utils-java
 %defattr(-, root, root, -)
 %{_bindir}/iceca
 %{_mandir}/man1/iceca.1.gz
 %{_bindir}/icegridgui
-%{_javadir}/IceGridGUI-%{version}.jar
 %{_javadir}/IceGridGUI.jar
 %dir %{_datadir}/Ice-%{version}
 %{_datadir}/Ice-%{version}/ImportKey.class
@@ -960,6 +986,17 @@ rm -rf $RPM_BUILD_ROOT
 # arch-specific packages
 #
 %ifarch %{core_arches}
+
+#
+# Generate "ice" meta package as arch-specific
+#
+%files
+
+#
+# Generate "ice-dev" meta package as arch-specific
+#
+%files -n ice-dev
+
 %files -n libice3.6
 %defattr(-, root, root, -)
 %{_libdir}/libGlacier2.so.%{version}
@@ -1006,7 +1043,7 @@ rm -rf $RPM_BUILD_ROOT
 %post -n libicestorm3.6 -p /sbin/ldconfig
 %postun -n libicestorm3.6 -p /sbin/ldconfig
 
-%files utils
+%files -n ice-utils
 %defattr(-, root, root, -)
 %{_bindir}/dumpdb
 %{_mandir}/man1/dumpdb.1.gz
@@ -1027,8 +1064,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/icegridadmin
 %{_mandir}/man1/icegridadmin.1.gz
 
-%post utils -p /sbin/ldconfig
-%postun utils -p /sbin/ldconfig
+%post -n ice-utils -p /sbin/ldconfig
+%postun -n ice-utils -p /sbin/ldconfig
 
 %files -n icegrid
 %defattr(-, root, root, -)
@@ -1278,28 +1315,28 @@ exit 0
 %{_datadir}/javascript/ice-%{mmversion}/IceGrid.js
 %{_datadir}/javascript/ice-%{mmversion}/IceGrid.js.gz
 
-%files python
+%files -n python-ice
 %defattr(-, root, root, -)
 %{python_sitearch}/Ice
 %{python_sitearch}/ice.pth
 
-%files python-devel
+%files -n python-ice-devel
 %defattr(-, root, root, -)
 %{_bindir}/slice2py
 %{_mandir}/man1/slice2py.1.gz
 
 %if %{ruby}
-%files ruby
+%files -n ruby-ice
 %defattr(-, root, root, -)
 %{ruby_sitearch}/*
 
-%files ruby-devel
+%files -n ruby-ice-devel
 %defattr(-, root, root, -)
 %{_bindir}/slice2rb
 %{_mandir}/man1/slice2rb.1.gz
 %endif
 
-%files php
+%files -n php-ice
 %defattr(-, root, root, -)
 
 %if "%{dist}" == ".el6"
@@ -1326,7 +1363,7 @@ exit 0
 %config(noreplace) %{_sysconfdir}/php5/conf.d/ice.ini
 %endif
 
-%files php-devel
+%files -n php-ice-devel
 %defattr(-, root, root, -)
 %{_bindir}/slice2php
 %{_mandir}/man1/slice2php.1.gz
