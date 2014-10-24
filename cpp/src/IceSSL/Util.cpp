@@ -50,6 +50,7 @@ IceSSL::readFile(const string& file, vector<char>& buffer)
     }
 }
 
+#ifndef ICE_USE_OPENSSL
 namespace
 {
 bool
@@ -91,6 +92,7 @@ parseBytes(const string& arg, vector<unsigned char>& buffer)
     return true;
 }
 }
+#endif
 
 #ifdef ICE_USE_OPENSSL
 namespace
