@@ -201,7 +201,8 @@ class SliceTask extends DefaultTask {
         def sout = new StringBuffer()
         def serr = new StringBuffer()
 
-        def p = command.execute()
+        def env = addLdLibraryPath()
+        def p = command.execute(env, null)
         p.consumeProcessOutput(sout, serr)
         p.waitFor()
         if (p.exitValue() != 0) {
@@ -225,7 +226,8 @@ class SliceTask extends DefaultTask {
         def sout = new StringBuffer()
         def serr = new StringBuffer()
 
-        def p = command.execute()
+        def env = addLdLibraryPath()
+        def p = command.execute(env, null)
         p.consumeProcessOutput(sout, serr)
         p.waitFor()
         if (p.exitValue() != 0) {
@@ -493,7 +495,8 @@ class SliceTask extends DefaultTask {
         def sout = new StringBuffer()
         def serr = new StringBuffer()
 
-        def p = command.execute()
+        def env = addLdLibraryPath()
+        def p = command.execute(env, null)
         p.consumeProcessOutput(sout, serr)
         p.waitFor()
         if (p.exitValue() != 0) {
@@ -526,7 +529,9 @@ class SliceTask extends DefaultTask {
         def sout = new StringBuffer()
         def serr = new StringBuffer()
 
-        def p = command.execute()
+
+        def env = addLdLibraryPath()
+        def p = command.execute(env, null)
         p.consumeProcessOutput(sout, serr)
         p.waitFor()
         if (p.exitValue() != 0) {
@@ -680,5 +685,63 @@ class SliceTask extends DefaultTask {
             }
         }
         return dependencies
+    }
+
+    def addLdLibraryPath() {
+        def newEnv = [:]
+
+        def env = System.getenv()
+        def iceInstall = project.slice.iceHome
+        if (iceInstall == null) {
+            iceInstall = env['ICE_HOME']
+        }
+
+        def srcdist = project.slice.srcDist
+        if(iceInstall != null) {
+            def ldLibPathEnv = null
+            def ldLib64PathEnv = null
+            def libPath = new File(iceInstall + File.separator + "libXXX").toString()
+            def lib64Path = null
+
+            def os = System.properties['os.name']
+            if(os == "Mac OS X") {
+                ldLibPathEnv = "DYLD_LIBRARY_PATH"
+            } else if(os.contains("Windows")) {
+                //
+                // No need to change the PATH environment variable on Windows, the DLLs should be found
+                // in the translator local directory.
+                //
+            } else {
+                ldLibPathEnv = "LD_LIBRARY_PATH"
+                ldLib64PathEnv = "LD_LIBRARY_PATH"
+                if(srcdist) {
+                    lib64Path = libPath
+                } else {
+                    lib64Path = new File(iceInstall + File.separator + "lib64").toString()
+                }
+            }
+
+            if(ldLibPathEnv != null) {
+                if(ldLibPathEnv.equals(ldLib64PathEnv)) {
+                    libPath = libPath + File.pathSeparator + lib64Path;
+                }
+
+                def envLibPath = env[ldLibPathEnv]
+                if(envLibPath != null) {
+                    libPath = libPath + File.pathSeparator + envLibPath
+                }
+                newEnv[ldLibPathEnv] = libPath
+            }
+
+            if(ldLib64PathEnv != null && !ldLib64PathEnv.equals(ldLibPathEnv)) {
+                def envLib64Path = env[ldLib64PathEnv]
+                if(envLib64Path != null) {
+                    lib64Path = lib64Path + File.pathSeparator + envLib64Path
+                }
+                newEnv[ldLib64PathEnv] = lib64Path
+            }
+        }
+
+        return newEnv.collect { k, v -> "$k=$v" }
     }
 }

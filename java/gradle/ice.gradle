@@ -91,6 +91,8 @@ if (!iceBinDist)
 
 		slice.slice2java = "$iceCppDir/bin/$slice2java"
 		slice.slice2freezej = "$iceCppDir/bin/$slice2freezej"
+		slice.iceHome = iceCppDir
+		slice.srcDist = true
 	}
 }
 
@@ -153,6 +155,8 @@ if (!iceDir)
 
 	slice.slice2java = "$iceDir/bin/$slice2java"
 	slice.slice2freezej = "$iceDir/bin/$slice2freezej"
+	slice.iceHome = iceDir
+	slice.srcDist = false
 }
 
 // Set the slice and java jar directory

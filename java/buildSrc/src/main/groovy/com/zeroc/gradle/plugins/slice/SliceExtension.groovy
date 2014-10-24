@@ -15,6 +15,8 @@ class SliceExtension {
     final NamedDomainObjectContainer<Java> java;
     def slice2java = "slice2java"
     def slice2freezej = "slice2freezej"
+    def iceHome = null
+    def srcDist = false
     def output
 
     SliceExtension(java) {

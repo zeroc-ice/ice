@@ -112,6 +112,8 @@ if (iceDir == null)
 
 slice.slice2java = "$iceDir/bin/$slice2java"
 slice.slice2freezej = "$iceDir/bin/$slice2freezej"
+slice.iceHome = iceDir
+slice.srcDist = false
 
 // Set the slice and java jar directory
 if (iceDir == "/usr")
