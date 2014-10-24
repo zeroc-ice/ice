@@ -700,7 +700,7 @@ class SliceTask extends DefaultTask {
         if(iceInstall != null) {
             def ldLibPathEnv = null
             def ldLib64PathEnv = null
-            def libPath = new File(iceInstall + File.separator + "libXXX").toString()
+            def libPath = new File(iceInstall + File.separator + "lib").toString()
             def lib64Path = null
 
             def os = System.properties['os.name']
