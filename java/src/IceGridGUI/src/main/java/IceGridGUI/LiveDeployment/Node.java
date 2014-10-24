@@ -643,7 +643,7 @@ class Node extends ListTreeNode
         
         if(_showIceLogDialog != null)
         {
-            _showIceLogDialog.stop();
+            _showIceLogDialog.stopped();
         }
 
         if(_children.isEmpty())
@@ -659,6 +659,7 @@ class Node extends ListTreeNode
             }
 
             getRoot().getTreeModel().nodeChanged(this);
+
             return false;
         }
     }

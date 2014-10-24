@@ -374,7 +374,6 @@ class ShowIceLogDialog extends JDialog
         
         private synchronized void stop()
         {
-            assert(!_destroyed);
             _destroyed = true;
         }
         
@@ -682,7 +681,7 @@ class ShowIceLogDialog extends JDialog
                         public void run()
                         {
                             _parent.getRoot().failure(prefix, errorTitle, ex.toString());
-                            stop(false);
+                            stopped();
                         }
                     });
                 }
@@ -696,7 +695,7 @@ class ShowIceLogDialog extends JDialog
                         public void run()
                         {
                             _parent.getRoot().failure(prefix, errorTitle, ex.toString());
-                            stop(false);
+                            stopped();
                         }
                     });
                 }
@@ -709,7 +708,7 @@ class ShowIceLogDialog extends JDialog
             catch(LocalException ex)
             {
                 _parent.getRoot().failure(prefix, errorTitle, ex.toString());
-                stop(false);
+                stopped();
             }
         }
         else
@@ -759,14 +758,20 @@ class ShowIceLogDialog extends JDialog
                     _parent.getRoot().success(prefix, ex.ice_name());
                 }
             }
-            
+        }
+
+        if(_remoteLogger != null)
+        {
             _remoteLogger.stop();
-            _parent.getRoot().getCoordinator().removeCallback(_remoteLoggerPrx.ice_getIdentity().name, "");
-            
             _remoteLogger = null;
+        }
+
+        if(_remoteLoggerPrx != null)
+        {
+            _parent.getRoot().getCoordinator().removeCallback(_remoteLoggerPrx.ice_getIdentity().name, "");
             _remoteLoggerPrx = null;
         }
-        
+
         _stopItem.setSelected(true);
         _stopButton.setSelected(true);
         _pause.setEnabled(false);
@@ -826,7 +831,12 @@ class ShowIceLogDialog extends JDialog
     {
         stop(true);
     }
-    
+
+    void stopped()
+    {
+        stop(false);
+    }
+
     void close(boolean notifyRoot)
     {
         stop();

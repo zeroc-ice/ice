@@ -341,7 +341,7 @@ public class Service extends ListArrayTreeNode
     {
         if(_showIceLogDialog != null)
         {
-            _showIceLogDialog.stop();
+            _showIceLogDialog.stopped();
         }
     }
     
