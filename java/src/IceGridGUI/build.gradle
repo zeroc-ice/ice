@@ -10,26 +10,53 @@
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
-apply plugin: 'application'
-apply from: "../../gradle/javafx7.gradle"
-
-dependencies {
-  compile project(':Ice')
-  compile project(':IceBox')
-  compile project(':IceGrid')
-  compile 'com.jgoodies:jgoodies-common:1.8.0'
-  compile 'com.jgoodies:jgoodies-looks:2.6.0'
-  compile 'com.jgoodies:jgoodies-forms:1.8.0'
+def hasJavaFx = false
+def javaHome = System.getProperty('java.home')
+def javafxJar = new File(javaHome + "/lib/jfxrt.jar")
+if (javafxJar.exists()) {
+    hasJavaFx = true
+} else {
+    javafxJar = new File(javaHome + "/lib/ext/jfxrt.jar")
+    if (javafxJar.exists()) {
+        hasJavaFx = true
+    }
 }
 
-mainClassName = "IceGridGUI.Main"
+if (hasJavaFx) {
+    apply plugin: 'application'
+    apply from: "../../gradle/javafx7.gradle"
+
+    mainClassName = "IceGridGUI.Main"
+} else {
+    sourceSets {
+        main {
+            java {
+                exclude '**/LiveDeployment/GraphView.java'
+            }
+        }
+    }
+}
+
+dependencies {
+      compile project(':Ice')
+      compile project(':IceBox')
+      compile project(':IceGrid')
+      compile 'com.jgoodies:jgoodies-common:1.8.0'
+      compile 'com.jgoodies:jgoodies-looks:2.6.0'
+      compile 'com.jgoodies:jgoodies-forms:1.8.0'
+}
 
 def tmpJarName = "IceGridGUITEMP${versionSuffix}.jar"
 def jarName = "IceGridGUI${versionSuffix}.jar"
 
 jar {
-	archiveName = tmpJarName
+    archiveName = tmpJarName
     destinationDir = new File("${libDir}")
+    if (!hasJavaFx) {
+        manifest {
+            attributes 'Main-Class': "IceGridGUI.Main"
+        }
+    }
 }
 
 buildscript {
@@ -43,10 +70,15 @@ buildscript {
     }
 }
 
-def javaHome = System.getProperty('java.home')
 def libJars = []
-['rt.jar', 'jsse.jar', 'jfxrt.jar', 'ext/jfxrt.jar'].each {
+['rt.jar', 'jsse.jar'].each {
 	libJars << "${javaHome}/lib/${it}"
+}
+
+if (hasJavaFx) {
+    ['jfxrt.jar', 'ext/jfxrt.jar'].each {
+        libJars << "${javaHome}/lib/${it}"
+    }
 }
 
 task proguardJar(type: proguard.gradle.ProGuardTask, dependsOn: jar) {
@@ -60,7 +92,7 @@ task proguardJar(type: proguard.gradle.ProGuardTask, dependsOn: jar) {
 task proguardCleanup(dependsOn: proguardJar) << {
 	delete("${libDir}/${tmpJarName}")
 }
-build.dependsOn(proguardCleanup)
+assemble.dependsOn(proguardCleanup)
 
 clean {
     delete("${libDir}/${jarName}")

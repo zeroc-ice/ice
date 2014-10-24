@@ -8,7 +8,7 @@
 # **********************************************************************
 
 all:
-	gradlew build
+	gradlew assemble
 
 clean:
 	gradlew clean

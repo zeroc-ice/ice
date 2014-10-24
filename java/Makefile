@@ -22,7 +22,7 @@ INSTALL_FLAGS += -Dorg.gradle.project.DESTDIR=$(DESTDIR)
 endif
 
 all:
-	./gradlew $(BUILD_FLAGS) build
+	./gradlew $(BUILD_FLAGS) assemble
 
 clean:
 	./gradlew $(BUILD_FLAGS) clean
