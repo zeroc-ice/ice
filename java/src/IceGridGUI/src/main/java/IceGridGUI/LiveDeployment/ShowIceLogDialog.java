@@ -891,7 +891,7 @@ class ShowIceLogDialog extends JDialog
     private final DefaultTableModel _tableModel;
     private final JTable _table;
     
-    private static synchronized String renderDate(java.util.Date date)
+    private static String renderDate(java.util.Date date)
     {
         return _dateFormat.format(date) + _timeFormat.format(date);
     }
