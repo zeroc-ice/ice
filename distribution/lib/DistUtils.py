@@ -21,7 +21,7 @@ languages = { \
 }
 
 #
-# Defines third party dependencies for each supported platform and their default 
+# Defines third party dependencies for each supported platform and their default
 # location.
 #
 bzip2 = { \
@@ -42,9 +42,9 @@ expat = { \
 iconv = {\
 }
 
-mcpp = { 
+mcpp = {
     'SunOS' : '/opt/mcpp', \
-    'Darwin' : '/opt/mcpp' 
+    'Darwin' : '/opt/mcpp'
 }
 
 openssl = { \
@@ -80,7 +80,7 @@ javaApplicationBundler = { \
 
 #
 # Some utility methods
-# 
+#
 
 #
 # Remove file or directory, warn if it doesn't exist.
@@ -110,17 +110,17 @@ def checkGitVersion():
     p = os.popen("git --version")
     gitVersionMatch = re.search(".* ([0-9]+)\.([0-9b]+)\.([0-9]+).*", p.read())
     p.close()
-    
+
     version = (int(gitVersionMatch.group(1)) * 10000) + \
               (int(gitVersionMatch.group(2)) * 100) + \
               int(gitVersionMatch.group(3))
-    
+
     if (version < 10803):
         print(sys.argv[0] + ": invalid git version, git >= 1.8.3 is required")
         sys.exit(1)
 
 def getCommitForTag(tag):
-    
+
     try:
         p = os.popen("git show --show-signature %s" % tag)
         commit = p.read()
@@ -138,7 +138,7 @@ def getCommitForTag(tag):
         sys.exit(1)
 #
 # Copy src to dest
-# 
+#
 def copy(src, dest, warnDestExists = True, verbose = False):
 
     if verbose:
@@ -204,6 +204,8 @@ def getMappingDir(suffix, mapping):
         return suffix
     elif mapping == "java":
         return suffix + "j"
+    elif mapping == "android":
+        return suffix + "a"
     else:
         return suffix + mapping
 
@@ -357,7 +359,7 @@ def fixVersion(file, version, mmversion = None, libversion = None):
 
     # Preserve the executable permission
     st = os.stat(origfile)
-    if st.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH): 
+    if st.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH):
         os.chmod(file, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) # rwxr-xr-x
     os.remove(origfile)
 
@@ -386,7 +388,7 @@ def fixAllTest(file, components):
         if not ignore:
             newLines.append(x)
         ignore = False
-        
+
     newFile.writelines(newLines)
     newFile.close()
     oldFile.close()
@@ -400,7 +402,7 @@ def regexpEscape(expr):
             escaped += "\\" + c
         else:
             escaped += c
-    return escaped            
+    return escaped
 
 def substitute(file, regexps):
     for line in fileinput.input(file, True):
@@ -658,7 +660,7 @@ def writeSrcDistReport(product, version, tag, compareToDir, distributions):
 
     else:
         print("ok")
-        
+
     readme.close()
 
     os.chdir(cwd)
@@ -692,7 +694,7 @@ class ThirdParty :
         # Add the third party dependency to the platform object.
         #
         platform.addThirdParty(self)
-            
+
     def __str__(self):
         return self.name
 
@@ -714,7 +716,7 @@ class ThirdParty :
                 else:
                     print(self.name + ": " + self.location + " (default location)")
                 return True
-            
+
     def getMakeEnv(self, language):
         if language in self.languages and not os.environ.has_key(self.buildEnv) and self.location:
             return self.buildEnv + "=" + self.location
@@ -748,7 +750,7 @@ class ThirdParty :
             return
 
         #
-        # Get files/directories to copy. The path returned by getFiles() are relative 
+        # Get files/directories to copy. The path returned by getFiles() are relative
         # to the third party library location and might contain wildcards characters.
         #
         files = [f for path in self.getFiles(platform) for f in glob.glob(os.path.join(self.location, path))]
@@ -810,7 +812,7 @@ class Platform:
             envs.append("LP64=yes")
         else:
             envs.append("LP64=no")
-            
+
         return string.join(envs, " ")
 
     def getAntEnv(self):
@@ -819,7 +821,7 @@ class Platform:
     def getAntOptions(self):
         return string.join([t.getAntOption() for t in self.thirdParties if t.getAntOption()], " ")
 
-    def getSharedLibraryFiles(self, root, path, extension = None): 
+    def getSharedLibraryFiles(self, root, path, extension = None):
         if not extension:
             extension = self.shlibExtension
         libs = []
@@ -840,7 +842,7 @@ class Platform:
             copy(os.path.join(docDir, "README." + self.uname), os.path.join(buildDir, "README"))
         else:
             print("warning: couldn't find README file for this binary distribution")
-            
+
     def copyThirdPartyDependencies(self, buildDir):
         for t in filter(ThirdParty.includeInDistribution, self.thirdParties): t.copyToDistribution(self, buildDir)
 
@@ -890,7 +892,7 @@ class Darwin(Platform):
     def __init__(self, uname, arch, languages):
         Platform.__init__(self, uname, "osx", None, languages, "", "", "dylib")
 
-    def getSharedLibraryFiles(self, root, path, extension = None) : 
+    def getSharedLibraryFiles(self, root, path, extension = None) :
         libraries = Platform.getSharedLibraryFiles(self, root, path, extension)
         links = []
         for l in libraries:
@@ -922,7 +924,7 @@ class Darwin(Platform):
         return "-j 8"
 
     def completeDistribution(self, buildDir, version):
-        
+
         print("Fixing python location")
         move(buildDir + '/python', buildDir + '/../python')
         print("ok")
@@ -948,11 +950,11 @@ class Darwin(Platform):
 
         #
         # Ensure the IceGridAdmin pkg isn't relocated. PackageMaker enable relocation
-        # in applications when you edit the installer pmdoc file, and this cause the 
+        # in applications when you edit the installer pmdoc file, and this cause the
         # IceGrid Admin application bundle to be installed in unexpected location.
-        # 
+        #
         # We expand the pkg using pkgutil and ensure the following xml fragment
-        # ins't present in Distribution file. We remove that if necessary and 
+        # ins't present in Distribution file. We remove that if necessary and
         # recreate the package with pkguil.
         #
         # <pkg-ref id="com.zeroc.icegridadmin.pkg">
@@ -967,7 +969,7 @@ class Darwin(Platform):
 
         match = False
         for line in old:
-            
+
             if line.strip() == '<pkg-ref id="com.zeroc.icegridadmin.pkg">':
                 match = True
                 continue
@@ -976,12 +978,12 @@ class Darwin(Platform):
                 if line.strip() == "</pkg-ref>":
                     match = False
                 continue
-            
+
             new.write(line)
         old.close()
         new.close()
         os.remove(os.path.join(buildRootDir, "installer", "tmp", "Distribution"))
-        os.rename(os.path.join(buildRootDir, "installer", "tmp", "Distribution.new"), 
+        os.rename(os.path.join(buildRootDir, "installer", "tmp", "Distribution.new"),
                   os.path.join(buildRootDir, "installer", "tmp", "Distribution"))
         os.system("pkgutil --flatten " + os.path.join(buildRootDir, "installer", "tmp") + " " + pkg)
         shutil.rmtree(os.path.join(buildRootDir, "installer", "tmp"))
@@ -1020,7 +1022,7 @@ class SunOS(Platform):
         return "-j 40"
 
 #
-# Third-party helper classes 
+# Third-party helper classes
 #
 class BerkeleyDB(ThirdParty):
     def __init__(self, platform):
@@ -1085,7 +1087,7 @@ class Qt(ThirdParty):
             ThirdParty.__init__(self, platform, "Qt", qt, ["cpp"])
         else:
             ThirdParty.__init__(self, platform, "Qt", qt, ["cpp", "cpp-64"])
-            
+
     def getFilesFromSubDirs(self, platform, bindir, libdir, x64):
         files = platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "libQtCore*"))
         files += platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "libQtSql*"))
@@ -1140,7 +1142,7 @@ def getPlatform(thirdParties):
         (sysname, nodename, release, ver, machine) = os.uname();
         if not languages.has_key(sysname):
             print(sys.argv[0] + ": error: `" + sysname + "' is not a supported system")
-            
+
         if sysname == "Linux":
             p = subprocess.Popen("lsb_release -i", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
             if(p.wait() != 0):
@@ -1149,7 +1151,7 @@ def getPlatform(thirdParties):
             distribution = re.sub("Distributor ID:", "", p.stdout.readline().decode('UTF-8')).strip()
             if distribution.find("RedHat") != -1:
                 languages[sysname].remove("cs")
-                
+
         platform = eval(sysname.replace("-", ""))(sysname, machine, languages[sysname])
         for t in thirdParties:
             eval(t)(platform)

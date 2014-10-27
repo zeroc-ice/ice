@@ -14,7 +14,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath group: 'com.zeroc', name: 'gradle-plugin', version: '1.0'
+        classpath group: 'com.zeroc.gradle.plugins', name: 'slice', version: '1.0'
     }
 }
 
@@ -24,8 +24,12 @@ if (!project.plugins.findPlugin(com.zeroc.gradle.plugins.slice.SlicePlugin)) {
 
 ext.generatedDir = "$project.buildDir/generated"
 
-compileJava {
-	options.debug = debug
+try {
+	compileJava {
+		options.debug = debug
+	}
+} catch(MissingMethodException ex) {
+	// For Android builds: thrown if compileJava isn't available.
 }
 
 // Determine the name of the Slice-to-Java translator
