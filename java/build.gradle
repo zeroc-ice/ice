@@ -23,6 +23,10 @@ subprojects {
 	        attributes("Built-By": "ZeroC, Inc.")
 	    }
 	}
+
+	tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation" << "-Xlint:-options"
+    }
 }
 
 apply from: "$rootProject.projectDir/demo/Ice/build.gradle"

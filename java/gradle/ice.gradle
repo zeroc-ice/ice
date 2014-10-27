@@ -185,3 +185,6 @@ if(appendVersionSuffix != null && appendVersionSuffix == "yes")
 
 
 ext.libDir = "$rootProject.projectDir/lib"
+
+ext.iceSourceCompatibility = 1.7
+ext.iceTargetCompatibility = 1.7
