@@ -59,11 +59,11 @@ public class Server extends test.Util.Application
         {
             if(System.getProperty("os.name").contains("OS X"))
             {
-                endpoint = "udp -h \"ff02::1:1\" -p 12020 --interface \"lo0\"";
+                endpoint = "udp -h \"ff15::1:1\" -p 12020 --interface \"::1\"";
             }
             else
             {
-                endpoint = "udp -h \"ff01::1:1\" -p 12020";
+                endpoint = "udp -h \"ff15::1:1\" -p 12020";
             }
         }
         else
