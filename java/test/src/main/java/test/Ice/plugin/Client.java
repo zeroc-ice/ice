@@ -16,6 +16,8 @@ public class Client extends test.Util.Application
     @Override
     public int run(String[] args)
     {
+        String libDir = "../../../../../../../lib/";
+
         Ice.Communicator communicator = communicator();
         PrintWriter printWriter = getWriter();
         printWriter.print("testing a simple plug-in... ");
@@ -25,7 +27,7 @@ public class Client extends test.Util.Application
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
             initData.properties.setProperty("Ice.Plugin.Test",
-                "../../../lib/IceTestPlugins.jar:test.Ice.plugin.plugins.PluginFactory " +
+                libDir + "IceTestPlugins.jar:test.Ice.plugin.plugins.PluginFactory " +
                 "'C:\\Program Files\\' --DatabasePath 'C:\\Program Files\\Application\\db'");
             communicator = Ice.Util.initialize(args, initData);
             communicator.destroy();
@@ -45,7 +47,7 @@ public class Client extends test.Util.Application
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
             initData.properties.setProperty("Ice.Plugin.Test",
-                                            "../../../lib/:test.Ice.plugin.plugins.PluginInitializeFailFactory");
+                                            libDir + "IceTestPlugins.jar:test.Ice.plugin.plugins.PluginInitializeFailFactory");
             communicator = Ice.Util.initialize(args, initData);
             test(false);
         }
@@ -63,11 +65,11 @@ public class Client extends test.Util.Application
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
             initData.properties.setProperty("Ice.Plugin.PluginOne",
-                                            "../../../lib/:test.Ice.plugin.plugins.PluginOneFactory");
+                                            libDir + "IceTestPlugins.jar:test.Ice.plugin.plugins.PluginOneFactory");
             initData.properties.setProperty("Ice.Plugin.PluginTwo",
-                                            "../../../lib/:test.Ice.plugin.plugins.PluginTwoFactory");
+                                            libDir + "IceTestPlugins.jar:test.Ice.plugin.plugins.PluginTwoFactory");
             initData.properties.setProperty("Ice.Plugin.PluginThree",
-                                            "../../../lib/:test.Ice.plugin.plugins.PluginThreeFactory");
+                                            libDir + "IceTestPlugins.jar:test.Ice.plugin.plugins.PluginThreeFactory");
             initData.properties.setProperty("Ice.PluginLoadOrder", "PluginOne, PluginTwo"); // Exclude PluginThree
             communicator = Ice.Util.initialize(args, initData);
             communicator.destroy();
@@ -86,11 +88,11 @@ public class Client extends test.Util.Application
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
             initData.properties.setProperty("Ice.Plugin.PluginOne",
-                                            "../../../lib/:test.Ice.plugin.plugins.PluginOneFactory");
+                                            libDir + "IceTestPlugins.jar:test.Ice.plugin.plugins.PluginOneFactory");
             initData.properties.setProperty("Ice.Plugin.PluginTwo",
-                                            "../../../lib/:test.Ice.plugin.plugins.PluginTwoFactory");
+                                            libDir + "IceTestPlugins.jar:test.Ice.plugin.plugins.PluginTwoFactory");
             initData.properties.setProperty("Ice.Plugin.PluginThree",
-                                            "../../../lib/:test.Ice.plugin.plugins.PluginThreeFactory");
+                                            libDir + "IceTestPlugins.jar:test.Ice.plugin.plugins.PluginThreeFactory");
             initData.properties.setProperty("Ice.PluginLoadOrder", "PluginOne, PluginTwo");
             initData.properties.setProperty("Ice.InitPlugins", "0");
             communicator = Ice.Util.initialize(args, initData);
@@ -127,11 +129,11 @@ public class Client extends test.Util.Application
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
             initData.properties.setProperty("Ice.Plugin.PluginOneFail",
-                                            "../../../lib/:test.Ice.plugin.plugins.PluginOneFailFactory");
+                                            libDir + "IceTestPlugins.jar:test.Ice.plugin.plugins.PluginOneFailFactory");
             initData.properties.setProperty("Ice.Plugin.PluginTwoFail",
-                                            "../../../lib/:test.Ice.plugin.plugins.PluginTwoFailFactory");
+                                            libDir + "IceTestPlugins.jar:test.Ice.plugin.plugins.PluginTwoFailFactory");
             initData.properties.setProperty("Ice.Plugin.PluginThreeFail",
-                                            "../../../lib/:test.Ice.plugin.plugins.PluginThreeFailFactory");
+                                            libDir + "IceTestPlugins.jar:test.Ice.plugin.plugins.PluginThreeFailFactory");
             initData.properties.setProperty("Ice.PluginLoadOrder", "PluginOneFail, PluginTwoFail, PluginThreeFail");
             communicator = Ice.Util.initialize(args, initData);
         }

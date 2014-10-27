@@ -33,6 +33,7 @@ project(':ant').projectDir = new File('src/ant')
 
 // Tests
 include 'test'
+include 'testplugin'
 
 // Demos
 ['applet', 'async', 'bidir', 'callback', 'hello', 'invoke',
