@@ -83,6 +83,11 @@ public class AllTests
             initData.properties = communicator.getProperties().ice_clone_();
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty("Ice.Plugin.IceGridDiscovery", "IceGrid:IceGrid.DiscoveryPluginFactoryI");
+            if(IceInternal.AssemblyUtil.osx_ && 
+               initData.properties.getPropertyAsInt("Ice.PreferIPv6Address") > 0)
+            {
+                initData.properties.setProperty("IceGridDiscovery.Interface", "::1");
+            }
             initData.properties.setProperty("AdapterForDiscoveryTest.AdapterId", "discoveryAdapter");
             initData.properties.setProperty("AdapterForDiscoveryTest.Endpoints", "default");
         

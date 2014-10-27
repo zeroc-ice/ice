@@ -179,8 +179,9 @@ DiscoveryPluginI::initialize()
     Ice::PropertiesPtr properties = _communicator->getProperties();
 
     bool ipv4 = properties->getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
+    bool preferIPv6 = properties->getPropertyAsInt("Ice.PreferIPv6Address") > 0;
     string address;
-    if(ipv4)
+    if(ipv4 && !preferIPv6)
     {
         address = properties->getPropertyWithDefault("IceGridDiscovery.Address", "239.255.0.1");
     }

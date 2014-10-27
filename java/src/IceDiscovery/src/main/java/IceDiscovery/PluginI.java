@@ -24,8 +24,9 @@ public class PluginI implements Ice.Plugin
         Ice.Properties properties = _communicator.getProperties();
 
         boolean ipv4 = properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
+        boolean preferIPv6 = properties.getPropertyAsInt("Ice.PreferIPv6Address") > 0;
         String address;
-        if(ipv4)
+        if(ipv4 && !preferIPv6)
         {
             address = properties.getPropertyWithDefault("IceDiscovery.Address", "239.255.0.1");
         }

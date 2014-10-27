@@ -551,7 +551,8 @@ Client::run(StringSeq& originalArgs)
             {
                 bool ipv4 = properties->getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
                 string address;
-                if(ipv4)
+                bool preferIPv6 = properties->getPropertyAsInt("Ice.PreferIPv6Address") > 0;
+                if(ipv4 && !preferIPv6)
                 {
                     address = properties->getPropertyWithDefault("IceGridAdmin.Discovery.Address", "239.255.0.1");
                 }

@@ -1224,45 +1224,53 @@ public class SessionKeeper
             final Ice.Properties properties = communicator.getProperties();
             final String intf = properties.getProperty("IceGridAdmin.Discovery.Interface");
             String lookupEndpoints = properties.getProperty("IceGridAdmin.Discovery.Lookup");
-
+            String address;
+            if(properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0 && 
+               properties.getPropertyAsInt("Ice.PreferIPv6Address") <= 0)
+            {
+                address = "239.255.0.1";
+            }
+            else
+            {
+                address = "ff15::1";
+            }
             if(lookupEndpoints.isEmpty())
             {
                 StringBuilder s = new StringBuilder();
                 s.append("udp -h \"");
-                s.append(properties.getPropertyWithDefault("IceGridAdmin.Discovery.Address", 
-                            (properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0) ? "239.255.0.1" : "ff15::1"));
+                s.append(properties.getPropertyWithDefault("IceGridAdmin.Discovery.Address", address));
                 s.append("\" -p ");
                 s.append(4061);
                 if(!intf.isEmpty())
                 {
-                    s.append(" --interface \"").append(intf);
+                    s.append(" --interface \"").append(intf).append("\"");
                 }
                 lookupEndpoints = s.toString();
             }
 
-            final LookupPrx lookupPrx = LookupPrxHelper.uncheckedCast(
-                communicator.stringToProxy("IceGrid/Lookup -d:" + lookupEndpoints).ice_collocationOptimized(false)
-                                                                                  .ice_router(null));
-            
-            new Thread(new Runnable()
+            try
             {
-                @Override
-                public void run()
+                final LookupPrx lookupPrx = LookupPrxHelper.uncheckedCast(
+                    communicator.stringToProxy("IceGrid/Lookup -d:" + lookupEndpoints).ice_collocationOptimized(false)
+                    .ice_router(null));
+                
+                new Thread(new Runnable()
                 {
-                    synchronized(SessionKeeper.this)
+                    @Override
+                    public void run()
                     {
-                        //
-                        // If search is in progress when refresh is hit, cancel the 
-                        // finish task we will schedule a new one with this new
-                        // search.
-                        // 
-                        if(_discoveryFinishTask != null)
+                        synchronized(SessionKeeper.this)
                         {
-                            _discoveryFinishTask.cancel();
-                        }
-
-                        if(_discoveryAdapter == null)
-                        {
+                            //
+                            // If search is in progress when refresh is hit, cancel the 
+                            // finish task we will schedule a new one with this new
+                            // search.
+                            // 
+                            if(_discoveryFinishTask != null)
+                            {
+                                _discoveryFinishTask.cancel();
+                            }
+                            
                             if(properties.getProperty("IceGridAdmin.Discovery.Reply.Endpoints").isEmpty())
                             {
                                 StringBuilder s = new StringBuilder();
@@ -1273,41 +1281,44 @@ public class SessionKeeper
                                 }
                                 properties.setProperty("IceGridAdmin.Discovery.Reply.Endpoints", s.toString());
                             }
-
-                            _discoveryAdapter = communicator.createObjectAdapter("IceGridAdmin.Discovery.Reply");
-                            _discoveryAdapter.activate();
-                            _discoveryReplyPrx =  
-                                LookupReplyPrxHelper.uncheckedCast(
-                                                _discoveryAdapter.addWithUUID(_discoveryLookupReply).ice_datagram());
-                        }
-
-                        try
-                        {
-                            lookupPrx.findLocator("", _discoveryReplyPrx);
-                        }
-                        catch(final Ice.LocalException ex)
-                        {
-                            ex.printStackTrace();
-                            destroyDisconveryAdapter();
-                            SwingUtilities.invokeLater(new Runnable()
+                            
+                            try
                             {
-                                @Override
-                                public void run()
+                                if(_discoveryAdapter == null)
                                 {
-                                    JOptionPane.showMessageDialog(ConnectionWizardDialog.this,
-                                                                  ex.toString(),
-                                                                 "Error while loopup locator endpoints",
-                                                                 JOptionPane.ERROR_MESSAGE);
+                                    _discoveryAdapter = communicator.createObjectAdapter(
+                                        "IceGridAdmin.Discovery.Reply");
+                                    _discoveryAdapter.activate();
+                                    _discoveryReplyPrx =  
+                                        LookupReplyPrxHelper.uncheckedCast(
+                                            _discoveryAdapter.addWithUUID(_discoveryLookupReply).ice_datagram());
                                 }
-                            });
-                        }
-
-                        //
-                        // We schedule a timer task to destroy the discovery adapter after 2
-                        // seconds, the user doesn't need to wait, discovered proxies are
-                        // added as they are found.
-                        //
-                        _discoveryFinishTask = new java.util.TimerTask()
+                            
+                                lookupPrx.findLocator("", _discoveryReplyPrx);
+                            }
+                            catch(final Ice.LocalException ex)
+                            {
+                                ex.printStackTrace();
+                                destroyDisconveryAdapter();
+                                SwingUtilities.invokeLater(new Runnable()
+                                {
+                                    @Override
+                                    public void run()
+                                    {
+                                        JOptionPane.showMessageDialog(ConnectionWizardDialog.this,
+                                                                      ex.toString(),
+                                                                      "Error while looking up locator endpoints",
+                                                                      JOptionPane.ERROR_MESSAGE);
+                                    }
+                                });
+                            }
+                            
+                            //
+                            // We schedule a timer task to destroy the discovery adapter after 2
+                            // seconds, the user doesn't need to wait, discovered proxies are
+                            // added as they are found.
+                            //
+                            _discoveryFinishTask = new java.util.TimerTask()
                             {
                                 @Override
                                 public void run()
@@ -1315,10 +1326,18 @@ public class SessionKeeper
                                     destroyDisconveryAdapter();
                                 }
                             };
-                        new java.util.Timer().schedule(_discoveryFinishTask, 2000);
+                            new java.util.Timer().schedule(_discoveryFinishTask, 2000);
+                        }
                     }
-                }
-            }).start();
+                }).start();
+            }
+            catch(Ice.LocalException ex)
+            {
+                JOptionPane.showMessageDialog(ConnectionWizardDialog.this,
+                                              ex.toString(),
+                                              "Error while looking up locator endpoints",
+                                              JOptionPane.ERROR_MESSAGE);
+            }
         }
 
         private void initialize(String title, final JDialog parent)

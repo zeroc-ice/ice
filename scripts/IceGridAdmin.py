@@ -60,6 +60,9 @@ registryOptions = r' --Ice.Warn.Connections=0' + \
                   r' --IceGrid.Registry.DefaultTemplates="' + \
                   os.path.abspath(os.path.join(TestUtil.toplevel, "cpp", "config", "templates.xml") + '"')
 
+if TestUtil.ipv6:
+   registryOptions += r' --IceGrid.Registry.Discovery.Interface="::1"'
+
 def getDefaultLocatorProperty():
 
    i = 0

@@ -30,7 +30,9 @@ args += " --IceDiscovery.Timeout=100"
 args += " --IceDiscovery.RetryCount=1"
 if not TestUtil.ipv6:
     args += " --IceDiscovery.Interface=127.0.0.1"
-
+elif TestUtil.isDarwin():
+    args += " --IceDiscovery.Interface=\"::1\""
+    
 serverProc = []
 for i in range(0, num):
     sys.stdout.write("starting server #%d... " % (i + 1))
