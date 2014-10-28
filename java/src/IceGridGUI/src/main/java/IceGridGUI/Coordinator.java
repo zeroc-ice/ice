@@ -2071,15 +2071,32 @@ public class Coordinator
                             //
                             // If the registry to use is the locator local registry, we install a default router
                             // to ensure we'll use a single connection regardless of the endpoints returned in the
-                            // proxies of the various session/admin methods (useful if used over an ssh tunnel).
+                            // proxies of the various session/admin methods (useful if used over a ssh tunnel).
                             //
                             if(cb.getRegistry().ice_getIdentity().equals(cb.getCurrentRegistry().ice_getIdentity()))
                             {
-                                Ice.ObjectAdapter colloc = _communicator.createObjectAdapter("");
-                                Ice.ObjectPrx router = colloc.addWithUUID(new ReuseConnectionRouter(cb.getLocator()));
-                                _communicator.setDefaultRouter(Ice.RouterPrxHelper.uncheckedCast(router));
-                                cb.setRegistry(RegistryPrxHelper.uncheckedCast(cb.getRegistry().ice_router(
-                                                                                _communicator.getDefaultRouter())));
+                                try
+                                {
+                                    Ice.ObjectAdapter colloc = _communicator.createObjectAdapter("");
+                                    Ice.ObjectPrx router = colloc.addWithUUID(new ReuseConnectionRouter(cb.getLocator()));
+                                    _communicator.setDefaultRouter(Ice.RouterPrxHelper.uncheckedCast(router));
+                                    cb.setRegistry(RegistryPrxHelper.uncheckedCast(cb.getRegistry().ice_router(
+                                            _communicator.getDefaultRouter())));
+                                }
+                                catch(final Ice.LocalException e)
+                                {
+                                    SwingUtilities.invokeLater(new Runnable()
+                                    {
+                                        @Override
+                                        public void run()
+                                        {
+                                            JOptionPane.showMessageDialog(parent, "Could not create session: " + e.toString(),
+                                                    "Login failed", JOptionPane.ERROR_MESSAGE);
+                                            cb.loginFailed();
+                                        }
+                                    });
+                                    return;
+                                }
                             }
                             do
                             {
