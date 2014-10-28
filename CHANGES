@@ -57,6 +57,11 @@ General Changes
 - Removed the "old" asynchronous invocation API that was deprecated
   in Ice 3.4.
 
+- Removed the following deprecated Slice operations:
+  Ice::Router::addProxy
+  IceGrid::Admin::writeMessage
+  IceStorm::Topic::subscribe
+
 - Added the WebSocket transports to the Ice core, including new
   implementations in Java and C#. This means it's no longer necessary
   to use Glacier2 as an intermediary when a JavaScript client needs to
@@ -223,6 +228,9 @@ General Changes
 - The IceBox.ServiceManager object adapter has been deprecated.
   Use Ice.Admin and the IceBox.ServiceManager facet instead.
 
+- Removed the deprecated properties IcePatch2.ChunkSize, 
+  IcePatch2.Directory, IcePatch2.Remove and IcePatch2.Thorough.
+
 
 C++ Changes
 ===========
@@ -276,6 +284,8 @@ C++ Changes
 
 - Added ice_staticId() to the ProxyHandle template.
 
+- Removed deprecated Ice::Object::ice_getHash function.
+
 
 Java Changes
 ============
@@ -296,6 +306,8 @@ Java Changes
 
 - Java 8 lambda expressions can be used as callbacks for asynchronous
   proxy invocations.
+
+- Removed deprecated IceUtil.Version class.
 
 
 C# Changes
