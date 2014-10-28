@@ -87,18 +87,18 @@ task proguardJar(type: proguard.gradle.ProGuardTask, dependsOn: jar) {
 	outjars "${libDir}/${jarName}"
 	libraryjars libJars
 	configuration "$rootProject.projectDir/config/icegridgui.pro"
-}
 
-task proguardCleanup(dependsOn: proguardJar) << {
-	delete("${libDir}/${tmpJarName}")
+    doLast {
+        delete("${libDir}/${tmpJarName}")
+    }
 }
-assemble.dependsOn(proguardCleanup)
+assemble.dependsOn(proguardJar)
 
 clean {
     delete("${libDir}/${jarName}")
 }
 
-task copyJars(type: Copy, dependsOn: proguardCleanup) {
+task copyJars(type: Copy, dependsOn: proguardJar) {
     from new File("${libDir}/${jarName}")
     into "${DESTDIR}${prefix}/lib"
 }
