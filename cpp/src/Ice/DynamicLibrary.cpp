@@ -119,7 +119,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
             return 0;
         }
         libName = libSpec.substr(0, comma);
-#  ifdef ICE_CPP11 && defined(__GLIBCXX__)
+#  if defined(ICE_CPP11) && defined(__GLIBCXX__)
         libName += "++11";
 #  endif
         version = libSpec.substr(comma + 1);
