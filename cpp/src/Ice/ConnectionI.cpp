@@ -993,12 +993,11 @@ Ice::ConnectionI::begin_flushBatchRequests(const Callback_Connection_flushBatchR
     return __begin_flushBatchRequests(cb, cookie);
 }
 
-#ifdef ICE_CPP11
 AsyncResultPtr
 Ice::ConnectionI::begin_flushBatchRequests(const IceInternal::Function<void (const Exception&)>& exception,
                                            const IceInternal::Function<void (bool)>& sent)
 {
-
+#ifdef ICE_CPP11
     class Cpp11CB : public IceInternal::Cpp11FnCallbackNC
     {
     public:
@@ -1028,8 +1027,11 @@ Ice::ConnectionI::begin_flushBatchRequests(const IceInternal::Function<void (con
     };
 
     return __begin_flushBatchRequests(new Cpp11CB(exception, sent), 0);
+#else
+    assert(false); // Ice not built with C++11 support.
+    return 0;
+#endif    
 }
-#endif
 
 AsyncResultPtr
 Ice::ConnectionI::__begin_flushBatchRequests(const CallbackBasePtr& cb, const LocalObjectPtr& cookie)

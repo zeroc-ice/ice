@@ -12,22 +12,22 @@
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION_MAJOR           = 3
-VERSION_MINOR           = 6b
-VERSION_PATCH           = 51
-VERSION                 = 3.6b
-SHORT_VERSION           = 3.6
-SOVERSION               = 36b
+VERSION_MAJOR   = 3
+VERSION_MINOR   = 6b
+VERSION_PATCH   = 51
+VERSION         = 3.6b
+SHORT_VERSION   = 3.6
+SOVERSION		= 36b
 
 INSTALL			= cp -fp
-INSTALL_PROGRAM		= ${INSTALL}
-INSTALL_LIBRARY		= ${INSTALL}
-INSTALL_DATA		= ${INSTALL}
+INSTALL_PROGRAM	= ${INSTALL}
+INSTALL_LIBRARY	= ${INSTALL}
+INSTALL_DATA	= ${INSTALL}
 
 OBJEXT			= .o
 
 UNAME			:= $(shell uname)
-MACHINE_TYPE		:= $(shell uname -m)
+MACHINE_TYPE	:= $(shell uname -m)
 
 #
 # Ensure ice_language has been set by the file that includes this one.
@@ -75,9 +75,11 @@ ifeq ($(UNAME),Linux)
 endif
 
 ifeq ($(CPP11),yes)
-    cpp11libdirsuffix	= /c++11
-    cpp11libsuffix	= ++11
-    cpp11sonamedir	= ../
+    ifneq ($(UNAME),Darwin)
+        cpp11libdirsuffix	= /c++11
+        cpp11libsuffix		= ++11
+        cpp11sonamedir		= ../
+    endif
 endif
 
 ifneq ($(findstring MINGW,$(UNAME)),)
@@ -263,7 +265,7 @@ ifneq ($(ice_dir), /usr)
 	ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
 	    ice_lib_dir = $(ice_cpp_dir)/lib
 	else
-    	ice_lib_dir = $(ice_cpp_dir)/$(libsubdir)
+	ice_lib_dir = $(ice_cpp_dir)/$(libsubdir)
 	endif
     else
         ice_lib_dir = $(ice_dir)/$(libsubdir)
@@ -282,9 +284,9 @@ ifneq ($(ice_dir), /usr)
     endif
 
     ifdef ice_src_dist
-	    ifeq ($(UNAME),Darwin)
-	        export DYLD_LIBRARY_PATH := $(ice_lib_dir):$(DYLD_LIBRARY_PATH)
-	    endif
+	ifeq ($(UNAME),Darwin)
+	    export DYLD_LIBRARY_PATH := $(ice_lib_dir):$(DYLD_LIBRARY_PATH)
+	endif
     endif
 
     ifeq ($(UNAME),AIX)
@@ -314,29 +316,42 @@ endif
 
 
 #
-# Default functions for shared library names
+# Default functions for shared library names (we have to defined them here
+# for the SLICE2PARSERLIB dependency)
 #
 ifeq ($(mklibfilename),)
-    mklibfilename	= $(if $(2),lib$(1)$(cpp11libsuffix).so.$(2),lib$(1)$(cpp11libsuffix).so)
+    ifeq ($(UNAME),Darwin)
+        mklibfilename   = $(if $(2),lib$(1)$(cpp11libsuffix).$(2).dylib,lib$(1)$(cpp11libsuffix).dylib)
+    else
+        mklibfilename	= $(if $(2),lib$(1)$(cpp11libsuffix).so.$(2),lib$(1)$(cpp11libsuffix).so)
+    endif
 endif
 
 ifeq ($(mksoname),)
-    mksoname	= $(if $(2),lib$(1)$(cpp11libsuffix).so.$(2),lib$(1).so)
+    ifeq ($(UNAME),Darwin)
+        mksoname    = $(if $(2),lib$(1)$(cpp11libsuffix).$(2).dylib,lib$(1).dylib)
+    else
+        mksoname	= $(if $(2),lib$(1)$(cpp11libsuffix).so.$(2),lib$(1).so)
+    endif
 endif
 
 ifeq ($(mklibname),)
     ifeq ($(STATICLIBS),yes)
-	mklibname	= lib$(1)$(cpp11libsuffix).a
+		mklibname	= lib$(1)$(cpp11libsuffix).a
     else
-	mklibname	= lib$(1).so
+        ifeq ($(UNAME),Darwin)
+	    mklibname   = lib$(1).dylib
+	else
+	    mklibname	= lib$(1).so
+	endif
     endif
 endif
 
 ifndef mklibtargets
     ifeq ($(STATICLIBS),yes)
-	mklibtargets	= $(3)
+		mklibtargets	= $(3)
     else
-	mklibtargets	= $(1) $(2) $(3)
+		mklibtargets	= $(1) $(2) $(3)
     endif
 endif
 

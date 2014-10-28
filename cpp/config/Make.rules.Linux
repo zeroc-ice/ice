@@ -13,11 +13,11 @@
 
 USE_SPARC_ASM           = irrelevant
 MACHINE                 = $(shell uname -m)
-SUSE_i586		= $(shell grep i586 /etc/SuSE-release 2>/dev/null)
+SUSE_i586               = $(shell grep i586 /etc/SuSE-release 2>/dev/null)
 
 ifneq ($(shell grep 'release 4' /etc/redhat-release 2>/dev/null),)
    NPTL_LIB		= -L/usr/$(libsubdir)/nptl
-   NPTL_FLAGS		= -I/usr/include/nptl
+   NPTL_FLAGS	= -I/usr/include/nptl
 endif
 
 #
@@ -40,7 +40,7 @@ ifeq ($(CXX),g++)
     ifeq ($(CPP11), yes)
         CPPFLAGS += -std=c++0x
     endif
-    
+
    ifeq ($(MACHINE),sparc64)
       #
       # We are an ultra, at least, and so have the atomic instructions
@@ -100,7 +100,7 @@ ifeq ($(CXX),g++)
 
    mklib		= ar cr $(1) $(2)
 
-   rpathlink            = -Wl,-rpath-link,$(1) 
+   rpathlink    = -Wl,-rpath-link,$(1) 
 
    ifneq ($(embedded_runpath_prefix),)
       LDPLATFORMFLAGS      = -Wl,--enable-new-dtags -Wl,-rpath,$(runpath_libdir)
@@ -140,7 +140,7 @@ ifeq ($(CXX),icpc)
 
    mklib		= ar cr $(1) $(2)
 
-   rpathlink            = -Wl,-rpath-link,$(1) 
+   rpathlink    = -Wl,-rpath-link,$(1) 
 
 endif
 
@@ -150,10 +150,10 @@ ifneq ($(NPTL_LIB),)
     BASELIBS		:= $(NPTL_LIB) $(BASELIBS)
 endif
 
-ICESSL_LIBS             = $(OPENSSL_RPATH_LINK) -lIceSSL
+ICESSL_LIBS     = $(OPENSSL_RPATH_LINK) -lIceSSL
 LIBS			= $(BZIP2_RPATH_LINK) -lIce $(BASELIBS)
 
-ICEUTIL_OS_LIBS         = -lrt $(OPENSSL_RPATH_LINK) -lcrypto
-ICE_OS_LIBS             = -ldl
+ICEUTIL_OS_LIBS = -lrt $(OPENSSL_RPATH_LINK) -lcrypto
+ICE_OS_LIBS     = -ldl
 
 PLATFORM_HAS_READLINE   = yes

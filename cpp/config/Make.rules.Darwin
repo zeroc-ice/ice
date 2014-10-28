@@ -11,7 +11,7 @@
 # This file is included by Make.rules when uname is Darwin.
 #
 
-OSX_TARGET_MIN_SDK_VERSION      = 10.9
+OSX_TARGET_MIN_SDK_VERSION = 10.9
 
 CXX			= xcrun clang++
 
@@ -23,19 +23,20 @@ ifeq ($(OPTIMIZE),yes)
      # By default we build binaries with both architectures when optimization is enabled.
      #
      ifeq ($(CXXARCHFLAGS),)
-     	CXXARCHFLAGS	:= -arch i386 -arch x86_64
+	CXXARCHFLAGS	:= -arch i386 -arch x86_64
      endif
      CXXFLAGS		:= $(CXXARCHFLAGS) -O2 -DNDEBUG $(CXXFLAGS)
 else
      CXXFLAGS		:= $(CXXARCHFLAGS) -g $(CXXFLAGS)
 endif
 
-ifeq ($(CPP11), yes)
+#
+# On OS X, always build with C++11 support enabled unless we
+# explicitly set it to no (possibly to test binary compatibility).
+#
+ifneq ($(CPP11), no)
     CPPFLAGS += --std=c++11
 endif
-
-mklibfilename   = $(if $(2),lib$(1)$(cpp11libsuffix).$(2).dylib,lib$(1)$(cpp11libsuffix).dylib)
-mksoname    = $(if $(2),lib$(1)$(cpp11libsuffix).$(2).dylib,lib$(1).dylib)
 
 #
 # C++ run-time libraries, necessary for linking some shared libraries.
@@ -55,16 +56,8 @@ ifeq ($(CXX),g++)
      LDPLATFORMFLAGS		+= -rdynamic
 endif
 
-ifeq ($(STATICLIBS),yes)
-    mklibname   = lib$(1).a
-else
-    mklibname   = lib$(1).dylib
-endif
-mklib           = libtool -static -o $(1) $(2)
-
-curdir			= $(shell pwd)
-
-mkshlib     = $(CXX)  -dynamiclib $(LDFLAGS) -o $(1) -install_name @rpath/$(2) $(3) $(4)
+mklib           	= libtool -static -o $(1) $(2)
+mkshlib         	= $(CXX)  -dynamiclib $(LDFLAGS) -o $(1) -install_name @rpath/$(2) $(3) $(4)
 
 BASELIBS		= -lIceUtil
 LIBS			= -lIce $(BASELIBS)
@@ -93,5 +86,3 @@ ifeq ($(MCPP_HOME),)
         MCPP_HOME = $(THIRDPARTY_HOME)
     endif
 endif
-
-

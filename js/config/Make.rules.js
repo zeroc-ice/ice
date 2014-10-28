@@ -91,15 +91,6 @@ else
 endif
 endif
 
-#
-# Platform specific definitions (necessary for SLICEPARSERLIB)
-#
-ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.$(UNAME) && echo 0),0)
-        include $(top_srcdir)/config/Make.rules.$(UNAME)
-else
-        include $(top_srcdir)/../cpp/config/Make.rules.$(UNAME)
-endif
-
 ifdef ice_src_dist
 		ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
 				SLICE2JS 	= $(ice_cpp_dir)/bin/slice2js

@@ -312,6 +312,16 @@ public:
     }
 };
 
+#else
+
+template<class S> class Function
+{
+public:
+    Function()
+    {
+    }
+};
+
 #endif
 
 }

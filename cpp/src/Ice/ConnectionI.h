@@ -171,11 +171,10 @@ public:
     virtual AsyncResultPtr begin_flushBatchRequests(const CallbackPtr&, const LocalObjectPtr& = 0);
     virtual AsyncResultPtr begin_flushBatchRequests(const Callback_Connection_flushBatchRequestsPtr&,
                                                     const LocalObjectPtr& = 0);
-#ifdef ICE_CPP11
+
     virtual AsyncResultPtr begin_flushBatchRequests(
         const ::IceInternal::Function<void (const ::Ice::Exception&)>&,
         const ::IceInternal::Function<void (bool)>& = ::IceInternal::Function<void (bool)>());
-#endif
 
     virtual void end_flushBatchRequests(const AsyncResultPtr&);
 

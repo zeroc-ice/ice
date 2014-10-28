@@ -3664,17 +3664,11 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
             }
         }
         
-        H.zeroIndent();
-        H << nl << "#ifdef ICE_CPP11";
-        H.restoreIndent();
-        
+        H << nl << "// Only supported with C++ 11 support enabled";
         H << nl << "virtual ::Ice::AsyncResultPtr begin_" << name << spar << paramsDeclAMI
           << "const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception"
-          << "const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>()" << epar << " = 0;";
-
-        H.zeroIndent();
-        H << nl << "#endif";
-        H.restoreIndent();
+          << "const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>()" 
+          << epar << " = 0;";
 
         H << sp << nl << "virtual ::Ice::AsyncResultPtr begin_" << name << spar << paramsDeclAMI << epar << " = 0;";
 

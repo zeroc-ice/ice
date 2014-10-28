@@ -69,15 +69,6 @@ else
     include $(top_srcdir)/../config/Make.common.rules
 endif
 
-#
-# Platform specific definitions (necessary for SLICEPARSERLIB)
-#
-ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.$(UNAME) && echo 0),0)
-	include $(top_srcdir)/config/Make.rules.$(UNAME)
-else
-	include $(top_srcdir)/../cpp/config/Make.rules.$(UNAME)
-endif
-
 DSEP = /
 
 bindir = $(top_srcdir)/bin
