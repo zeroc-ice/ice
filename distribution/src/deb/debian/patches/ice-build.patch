@@ -11,7 +11,7 @@
 -endif
 +SUBDIRS		= config src include
  
- INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir) $(install_includedir) \
+ INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir)$(cpp11libdirsuffix) $(install_includedir) \
  	$(install_configdir) $(install_mandir)
 --- a/cs/Makefile
 +++ b/cs/Makefile
@@ -63,14 +63,100 @@
  #
  # **********************************************************************
  
--SUBDIRS			= cpp java cs py rb php js
+-SUBDIRS			= cpp java cs js py rb php
 -CLEAN_SUBDIRS		= js java cs py rb php cpp
 -DEPEND_SUBDIRS		= cpp cs py rb php
 -INSTALL_SUBDIRS		= cpp java cs py rb php js
-+SUBDIRS			= cpp java py rb php js
++SUBDIRS			= cpp java js py rb php
 +CLEAN_SUBDIRS		= js java py rb php cpp
 +DEPEND_SUBDIRS		= cpp py rb php
 +INSTALL_SUBDIRS		= cpp java py rb php js
  
  all::
  	@for subdir in $(SUBDIRS); \
+--- a/config/Make.common.rules
++++ b/config/Make.common.rules
+@@ -79,7 +79,10 @@
+         cpp11libdirsuffix	= /c++11
+         cpp11libsuffix		= ++11
+         cpp11sonamedir		= ../
++        cppsubdir		= cpp11
+     endif
++else
++    cppsubdir			= cpp
+ endif
+ 
+ ifneq ($(findstring MINGW,$(UNAME)),)
+@@ -134,16 +137,16 @@
+ 		ifneq ($(shell test -f $(ICE_HOME)/$(binsubdir)/$(slice_translator) && echo 0), 0)
+ $(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please verify ICE_HOME is properly configured and Ice is correctly installed.)
+ 		endif
+-		ifeq ($(shell test -f $(ice_dir)/cpp/bin/$(slice_translator) && echo 0), 0)
+-$(warning Found $(slice_translator) in both ICE_HOME/bin and $(ice_dir)/cpp/bin, ICE_HOME/bin/$(slice_translator) will be used!)
++		ifeq ($(shell test -f $(ice_dir)/$(cppsubdir)/bin/$(slice_translator) && echo 0), 0)
++$(warning Found $(slice_translator) in both ICE_HOME/bin and $(ice_dir)/$(cppsubdir)/bin, ICE_HOME/bin/$(slice_translator) will be used!)
+ 		endif
+ 		ice_cpp_dir = $(ICE_HOME)
+ 	    else
+ $(warning Ignoring ICE_HOME environment variable to build current source tree.)
+-		ice_cpp_dir = $(ice_dir)/cpp
++		ice_cpp_dir = $(ice_dir)/$(cppsubdir)
+ 	    endif
+ 	else
+-	    ice_cpp_dir = $(ice_dir)/cpp
++	    ice_cpp_dir = $(ice_dir)/$(cppsubdir)
+ 	endif
+ 
+     endif
+@@ -162,16 +165,16 @@
+ 		ifneq ($(shell test -f $(ICE_HOME)/$(binsubdir)/$(slice_translator) && echo 0), 0)
+ $(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please verify ICE_HOME is properly configured and Ice is correctly installed.)
+ 		endif
+-		ifeq ($(shell test -f $(ice_dir)/cpp/bin/$(slice_translator) && echo 0), 0)
+-$(warning Found $(slice_translator) in both ICE_HOME/bin and $(ice_dir)/cpp/bin, ICE_HOME/bin/$(slice_translator) will be used!)
++		ifeq ($(shell test -f $(ice_dir)/$(cppsubdir)/bin/$(slice_translator) && echo 0), 0)
++$(warning Found $(slice_translator) in both ICE_HOME/bin and $(ice_dir)/$(cppsubdir)/bin, ICE_HOME/bin/$(slice_translator) will be used!)
+ 		endif
+ 		ice_cpp_dir = $(ICE_HOME)
+ 	    else
+ $(warning Ignoring ICE_HOME environment variable to build current source tree.)
+-		ice_cpp_dir = $(ice_dir)/cpp
++		ice_cpp_dir = $(ice_dir)/$(cppsubdir)
+ 	    endif
+ 	else
+-	    ice_cpp_dir = $(ice_dir)/cpp
++	    ice_cpp_dir = $(ice_dir)/$(cppsubdir)
+ 	endif
+     endif
+ endif
+@@ -262,7 +265,7 @@
+ #
+ ifneq ($(ice_dir), /usr)
+     ifdef ice_src_dist
+-	ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
++	ifeq ($(ice_cpp_dir), $(ice_dir)/$(cppsubdir))
+ 	    ice_lib_dir = $(ice_cpp_dir)/lib
+ 	else
+ 	ice_lib_dir = $(ice_cpp_dir)/$(libsubdir)
+--- a/java/Makefile
++++ b/java/Makefile
+@@ -8,7 +8,7 @@
+ # **********************************************************************
+ 
+ ifeq ($(APPEND_VERSION_SUFFIX),yes)
+-BUILD_FLAGS += -Dorg.gradle.project.appendVersionSuffix=yes
++BUILD_FLAGS += -Dorg.gradle.project.appendVersionSuffix=yes -g$(HOME)
+ endif
+ 
+ INSTALL_FLAGS += $(BUILD_FLAGS)
+--- a/cpp/config/Make.rules
++++ b/cpp/config/Make.rules
+@@ -17,7 +17,7 @@
+ # The "root directory" for runpath embedded in executables. Can be unset
+ # to avoid adding a runpath to Ice executables.
+ #
+-embedded_runpath_prefix ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
++#embedded_runpath_prefix ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
+ 
+ #
+ # Define create_runpath_symlink as yes if you would like 'make install'

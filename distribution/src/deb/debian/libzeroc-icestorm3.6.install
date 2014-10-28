@@ -1,1 +1,2 @@
 usr/lib/*/libIceStormService.so.*
+usr/lib/*/libIceStormService++11.so.*

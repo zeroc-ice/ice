@@ -18,3 +18,5 @@ usr/lib/*/libIceSSL.so
 usr/lib/*/libIceStorm.so
 usr/lib/*/libIceUtil.so
 usr/lib/*/libSlice.so
+
+usr/lib/*/c++11/*

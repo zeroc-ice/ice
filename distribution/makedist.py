@@ -159,7 +159,14 @@ version = re.search("VERSION\s*=\s*([0-9\.b]*)", config.read()).group(1)
 mmversion = re.search("([0-9]+\.[0-9b]+)[\.0-9]*", version).group(1)
 libversion = mmversion.replace('.', '')
 
-versions = (version, mmversion, libversion)
+majorVersion = FixUtil.majorVersion(version)
+minorVersion = FixUtil.minorVersion(version)
+patchVersion = FixUtil.patchVersion(version) if FixUtil.patchVersion(version) != "51" else "0"
+
+debmmversion = majorVersion + "." + minorVersion
+debversion = majorVersion + "." + minorVersion + "." + patchVersion
+
+versions = (version, mmversion, libversion, debversion, debmmversion)
 config.close()
 
 #
@@ -180,7 +187,7 @@ winDemoDir = os.path.join(distDir, "demos")
 srcDir = os.path.join(distDir, "Ice-" + version)
 winSrcDir = os.path.join(distDir, "Ice")
 rpmBuildDir = os.path.join(distDir, "Ice-rpmbuild-" + version)
-debSrcDir = os.path.join(distDir, "zeroc-ice" + mmversion + "-" + version)
+debSrcDir = os.path.join(distDir, "zeroc-ice%s-%s" % (debmmversion, debversion))
 distFilesDir = os.path.join(distDir, "distfiles-" + version)
 winDistFilesDir = os.path.join(distDir, "distfiles")
 os.mkdir(demoscriptDir)
@@ -621,8 +628,8 @@ os.chdir(distDir)
 for d in [srcDir, demoDir, distFilesDir, rpmBuildDir, debSrcDir]:
     tarArchive(d, verbose)
 
-move(os.path.join(distDir, "zeroc-ice" + mmversion + "-" + version + ".tar.gz"), \
-     os.path.join(distDir, "zeroc-ice" + mmversion + "_" + version + ".orig.tar.gz"))
+move(os.path.join(distDir, "zeroc-ice" + debmmversion + "-" + debversion + ".tar.gz"), \
+     os.path.join(distDir, "zeroc-ice" + debmmversion + "_" + debversion + ".orig.tar.gz"))
 
 for (dir, archiveDir) in [(demoscriptDir, "Ice-" + version + "-demos")]:
     tarArchive(dir, verbose, archiveDir)
@@ -650,7 +657,7 @@ writeSrcDistReport("Ice", version, tag, compareToDir,
                    [(srcDir + ".tar.gz", srcDir),
                     (demoDir + ".tar.gz", demoDir),
                     (rpmBuildDir + ".tar.gz", rpmBuildDir),
-                    ("zeroc-ice" + mmversion + "_" + version + ".orig.tar.gz", debSrcDir),
+                    ("zeroc-ice" + debmmversion + "_" + debversion + ".orig.tar.gz", debSrcDir),
                     (demoscriptDir + ".tar.gz", demoscriptDir),
                     (os.path.join(distDir, "distfiles-" + version + ".zip"), winDistFilesDir),
                     (os.path.join(distDir, "Ice-" + version + ".zip"), winSrcDir),

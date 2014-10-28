@@ -12,7 +12,8 @@ usr/share/man/man1/icegridregistry.1
 usr/config/icegrid-slice.3.1.ice.gz usr/share/Ice-@ver@
 usr/config/icegrid-slice.3.2.ice.gz usr/share/Ice-@ver@
 usr/config/icegrid-slice.3.3.ice.gz usr/share/Ice-@ver@
-usr/config/icegrid-slice.@mmver@.ice.gz usr/share/Ice-@ver@
+usr/config/icegrid-slice.3.5.ice.gz usr/share/Ice-@ver@
+
 usr/config/templates.xml usr/share/Ice-@ver@
 usr/config/upgradeicegrid33.py usr/share/Ice-@ver@
 usr/config/upgradeicegrid35.py usr/share/Ice-@ver@

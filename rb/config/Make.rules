@@ -47,52 +47,58 @@ embedded_runpath_prefix  ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
 #
 
 ifneq ($(RUBY_HOME),)
-		RUBY = $(RUBY_HOME)/bin/ruby
+    RUBY = $(RUBY_HOME)/bin/ruby
 else
-		RUBY = ruby
+    RUBY = ruby
 endif
 
 ifeq ($(RUBY18), yes)
-	RUBY_MAJOR_VERSION	= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(MAJOR)")')
-	RUBY_MINOR_VERSION	= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(MINOR)")')
-
+    RUBY_MAJOR_VERSION = $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(MAJOR)")')
+    RUBY_MINOR_VERSION = $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(MINOR)")')
 	ifeq ("$(RUBY_MAJOR_VERSION).$(RUBY_MINOR_VERSION)", "1.8")
-		RUBY_FLAGS		= -I$(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(archdir)")')
+        RUBY_FLAGS = -I$(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(archdir)")')
 	else
-		RUBY_FLAGS		= -I$(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(rubyhdrdir)")') \
-							-I$(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(rubyhdrdir)/$$(arch)")')
-	endif
+        RUBY_FLAGS = -I$(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(rubyhdrdir)")') \
+                     -I$(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(rubyhdrdir)/$$(arch)")')
+    endif
 
-	LIB_DIR			= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(libdir)")')
+    LIB_DIR = $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(libdir)")')
 
-	RUBY_SHARED		= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::MAKEFILE_CONFIG["ENABLE_SHARED"]')
+    RUBY_SHARED = $(shell $(RUBY) -e 'require "rbconfig"; puts Config::MAKEFILE_CONFIG["ENABLE_SHARED"]')
 
-	ifeq ("$(RUBY_SHARED)","yes")
-		RUBY_LIB		= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("-l$$(RUBY_SO_NAME)")')
-	else
-		RUBY_LIB		= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("-l$$(RUBY_SO_NAME)-static")')
-	endif
-
-	RUBY_LIBS		= -L$(LIB_DIR) $(RUBY_LIB)
+    ifeq ("$(RUBY_SHARED)","yes")
+        RUBY_LIB = $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("-l$$(RUBY_SO_NAME)")')
+    else
+        RUBY_LIB = $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("-l$$(RUBY_SO_NAME)-static")')
+    endif
+    RUBY_LIBS = -L$(LIB_DIR) $(RUBY_LIB)
 else
-	RUBY_MAJOR_VERSION	= $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(MAJOR)")')
-	RUBY_MINOR_VERSION	= $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(MINOR)")')
+    RUBY_MAJOR_VERSION = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(MAJOR)")')
+    RUBY_MINOR_VERSION = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(MINOR)")')
 
-	RUBY_LIB_DIR = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(rubylibdir)")')
-	RUBY_ARCH = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(arch)")')
+    RUBY_LIB_DIR = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(rubylibdir)")')
+    RUBY_ARCH = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(arch)")')
 
-	ifeq ("$(RUBY_MAJOR_VERSION).$(RUBY_MINOR_VERSION)", "1.8")
-		RUBY_FLAGS		= -I$(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(archdir)")')
-	else
-		RUBY_FLAGS		= -I$(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(rubyhdrdir)")') \
-							-I$(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(rubyhdrdir)/$$(arch)")')
-	endif
+    ifeq ("$(RUBY_MAJOR_VERSION).$(RUBY_MINOR_VERSION)", "1.8")
+        RUBY_FLAGS = -I$(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(archdir)")')
+    else
+        RUBY_FLAGS = -I$(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(rubyhdrdir)")')
+        RUBY_CONFIG_DIR = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(includedir)/$$(arch)/ruby-$$(ruby_version)")')
+        ifneq ($(wildcard $(RUBY_CONFIG_DIR)/ruby/config.h),)
+            RUBY_FLAGS := $(RUBY_FLAGS) -I$(RUBY_CONFIG_DIR)
+        else
+            RUBY_CONFIG_DIR = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(rubyhdrdir)/$$(arch)")')
+            ifneq ($(wildcard $(RUBY_CONFIG_DIR)/ruby/config.h),)
+                RUBY_FLAGS := $(RUBY_FLAGS) -I$(RUBY_CONFIG_DIR)
+            endif
+        endif
+    endif
 
-	RUBY_LIBS		= $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(LIBRUBYARG)")')
-				ifneq ($(findstring MINGW, $(shell uname)),)
-								RUBY_BIN_DIR    = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(bindir)")')
-								RUBY_LIBS       := -L$(RUBY_BIN_DIR) $(RUBY_LIBS)
-				endif
+    RUBY_LIBS = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(LIBRUBYARG)")')
+    ifneq ($(findstring MINGW, $(shell uname)),)
+        RUBY_BIN_DIR = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(bindir)")')
+        RUBY_LIBS := -L$(RUBY_BIN_DIR) $(RUBY_LIBS)
+    endif
 endif
 
 #

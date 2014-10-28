@@ -9,3 +9,13 @@ usr/lib/*/libIceSSL.so.*
 usr/lib/*/libIceStorm.so.*
 usr/lib/*/libIceUtil.so.*
 usr/lib/*/libSlice.so.*
+
+usr/lib/*/libGlacier2++11.so.*
+usr/lib/*/libIce++11.so.*
+usr/lib/*/libIceBox++11.so.*
+usr/lib/*/libIceDiscovery++11.so.*
+usr/lib/*/libIceGrid++11.so.*
+usr/lib/*/libIcePatch2++11.so.*
+usr/lib/*/libIceSSL++11.so.*
+usr/lib/*/libIceStorm++11.so.*
+usr/lib/*/libIceUtil++11.so.*

@@ -341,7 +341,7 @@ def fixMakeRules(file):
 #
 # Fix version in given file.
 #
-def fixVersion(file, version, mmversion = None, libversion = None):
+def fixVersion(file, version, mmversion = None, libversion = None, debversion = None, debmmversion = None):
 
     origfile = file + ".orig"
     os.rename(file, origfile)
@@ -353,6 +353,10 @@ def fixVersion(file, version, mmversion = None, libversion = None):
         line = re.sub("@mmver@", mmversion, line)
     if libversion:
         line = re.sub("@libver@", libversion, line)
+    if debversion:
+        line = re.sub("@debver@", debversion, line)
+    if debversion:
+        line = re.sub("@debmmver@", debmmversion, line)
     newFile.write(line)
     newFile.close()
     oldFile.close()

@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 
-export DEB_BUILD_OPTIONS = nocheck notest
+export DEB_BUILD_OPTIONS = nocheck notest -j8
 
 #export DH_VERBOSE=1
 
@@ -14,17 +14,72 @@ export CLASSPATH=/usr/share/java/proguard.jar
 export DESTDIR=$(CURDIR)/debian/tmp
 export APPEND_VERSION_SUFFIX=yes
 export NODE=nodejs
+export GRADLE_HOME=/home/jose/.gradle
+
+CPP11_DESTDIR = $(CURDIR)/debian/tmp-cpp11
+CPP11_LIB_NAMES = 	libFreeze \
+	libGlacier2 \
+	libIce \
+	libIceBox \
+	libIceDiscovery \
+	libIceGrid \
+	libIcePatch2 \
+	libIceSSL \
+	libIceStorm \
+	libIceStormService \
+	libIceUtil
+
+ifeq ($(DEB_HOST_MULTIARCH),i386-linux-gnu)
+
+ICEBOX = icebox32
+icebox_install:
+	mv $(DESTDIR)$(prefix)/bin/icebox $(DESTDIR)$(prefix)/bin/$(ICEBOX)
+	@echo usr/bin/$(ICEBOX) > $(CURDIR)/debian/zeroc-icebox.install
+	@echo usr/bin/$(ICEBOX)++11 >> $(CURDIR)/debian/zeroc-icebox.install
+	@echo usr/share/man/man1/icebox.1 >> $(CURDIR)/debian/zeroc-icebox.install
+else
+ICEBOX = icebox
+icebox_install:
+	@echo usr/bin/$(ICEBOX) > $(CURDIR)/debian/zeroc-icebox.install
+	@echo usr/bin/$(ICEBOX)++11 >> $(CURDIR)/debian/zeroc-icebox.install
+	@echo usr/share/man/man1/icebox.1 >> $(CURDIR)/debian/zeroc-icebox.install
+endif
 
 %:
 	dh $@ --with python2 --with php5 --with javahelper
 
 override_dh_auto_build:
-	make embedded_runpath_prefix="" PYTHON_LIBS="" install
+	cp -r cpp cpp11
+	cd cpp11/src && CPP11=yes $(MAKE) -j8
+	$(MAKE) embedded_runpath_prefix="" PYTHON_LIBS="" -j8
 
-override_dh_install:
+override_dh_auto_install:
+	cd cpp11 && DESTDIR=$(CPP11_DESTDIR) CPP11=yes $(MAKE) install
+	#
+	# Continue with regular dh_auto_install
+	#
+	dh_auto_install
+
+override_dh_install: icebox_install
+	mkdir -p $(DESTDIR)$(prefix)/share/java
+	mv $(DESTDIR)$(prefix)/lib/*.jar $(DESTDIR)$(prefix)/share/java
+
 	mkdir -p $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH)
-	mv $(DESTDIR)$(prefix)/lib/lib*.so* $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH)
+	mkdir -p $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH)/c++11
 	
+	mv $(DESTDIR)$(prefix)/lib/lib*.so* $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH)
+
+	#
+	# Move C++11 libarries and binaries to their locations
+	#
+	for name in $(CPP11_LIB_NAMES) ; \
+        do \
+            mv $(CPP11_DESTDIR)$(prefix)/lib/$$name++11*.so* $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH) ; \
+            mv $(CPP11_DESTDIR)$(prefix)/lib/c++11/$$name.so $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH)/c++11/$$name.so ; \
+        done ;
+
+	cp $(CPP11_DESTDIR)$(prefix)/bin/icebox $(DESTDIR)$(prefix)/bin/$(ICEBOX)++11
+
 	mkdir -p $(DESTDIR)$(prefix)/bin
 	cp java/bin/icegridgui.deb $(DESTDIR)$(prefix)/bin/icegridgui && \
 	chmod 755 $(DESTDIR)$(prefix)/bin/icegridgui
@@ -53,3 +108,12 @@ override_dh_install:
 	# Continue with regular dh_install
 	#
 	dh_install
+
+override_dh_clean:
+	dh_clean
+	rm -rf cpp11
+	rm -rf java/buildSrc/build
+	rm -rf java/buildSrc/.gradle
+	rm -rf java/.gradle/2.1/taskArtifacts/cache.properties.lock
+	rm -rf java/.gradle/2.1/taskArtifacts/*
+	rm -rf debian/tmp-cpp11
