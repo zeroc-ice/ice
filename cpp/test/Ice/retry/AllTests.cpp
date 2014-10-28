@@ -234,7 +234,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "testing invocation timeout and retries... " << flush;
     try
     {
-        retry1->ice_invocationTimeout(200)->opIdempotent(4);  // No more than 2 retries before timeout kicks-in
+        retry1->ice_invocationTimeout(300)->opIdempotent(4);  // No more than 2 retries before timeout kicks-in
         test(false);
     }
     catch(const Ice::InvocationTimeoutException&)
@@ -246,7 +246,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     try
     {
         // No more than 2 retries before timeout kicks-in
-        RetryPrx prx = retry1->ice_invocationTimeout(200);
+        RetryPrx prx = retry1->ice_invocationTimeout(300);
         prx->end_opIdempotent(prx->begin_opIdempotent(4));
         test(false);
     }

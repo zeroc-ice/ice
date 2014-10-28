@@ -38,7 +38,7 @@ main(int argc, char* argv[])
         initData.properties = Ice::createProperties(argc, argv);
         initData.observer = getObserver();
 
-        initData.properties->setProperty("Ice.RetryIntervals", "0 1 300 1");
+        initData.properties->setProperty("Ice.RetryIntervals", "0 1 400 1");
 
         //
         // This test kills connections, so we don't want warnings.
