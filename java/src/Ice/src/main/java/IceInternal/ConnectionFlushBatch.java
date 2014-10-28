@@ -54,52 +54,14 @@ public class ConnectionFlushBatch extends OutgoingAsyncBase
             int status;
             if(_instance.queueRequests())
             {
-                Future<Integer> future = _instance.getQueueExecutor().submit(
-                    new Callable<Integer>()
-                    {
-                        @Override
-                        public Integer call() throws RetryException
-                        {
-                            return _connection.flushAsyncBatchRequests(ConnectionFlushBatch.this);
-                        }
-                    });
-                
-                boolean interrupted = false;
-                while(true)
+                status = _instance.getQueueExecutor().executeNoThrow(new Callable<Integer>()
                 {
-                    try 
+                    @Override
+                    public Integer call()
                     {
-                        status = future.get();
-                        if(interrupted)
-                        {
-                            Thread.currentThread().interrupt();
-                        }
-                        break;
+                        return _connection.flushAsyncBatchRequests(ConnectionFlushBatch.this);
                     }
-                    catch(InterruptedException ex)
-                    {
-                        interrupted = true;
-                    }
-                    catch(RejectedExecutionException e)
-                    {
-                        throw new CommunicatorDestroyedException();
-                    }
-                    catch(ExecutionException e)
-                    {
-                        try
-                        {
-                            throw e.getCause();
-                        }
-                        catch(RuntimeException ex)
-                        {
-                            throw ex;
-                        }
-                        catch(Throwable ex)
-                        {
-                            assert(false);
-                        }
-                    }
-                }
+                });
             }
             else
             {

@@ -102,51 +102,14 @@ public class CommunicatorFlushBatch extends IceInternal.AsyncResultI
         {
             if(_instance.queueRequests())
             {
-                Future<Integer> future = _instance.getQueueExecutor().submit(new Callable<Integer>()
+                _instance.getQueueExecutor().executeNoThrow(new Callable<Integer>()
                 {
                     @Override
-                    public Integer call() throws RetryException
+                    public Integer call()
                     {
                         return con.flushAsyncBatchRequests(new FlushBatch());
                     }
                 });
-
-                boolean interrupted = false;
-                while(true)
-                {
-                    try 
-                    {
-                        future.get();
-                        if(interrupted)
-                        {
-                            Thread.currentThread().interrupt();
-                        }
-                        break;
-                    }
-                    catch(InterruptedException ex)
-                    {
-                        interrupted = true;
-                    }
-                    catch(RejectedExecutionException e)
-                    {
-                        throw new CommunicatorDestroyedException();
-                    }
-                    catch(ExecutionException e)
-                    {
-                        try
-                        {
-                            throw e.getCause();
-                        }
-                        catch(RuntimeException ex)
-                        {
-                            throw ex;
-                        }
-                        catch(Throwable ex)
-                        {
-                            assert(false);
-                        }
-                    }
-                }
             }
             else
             {

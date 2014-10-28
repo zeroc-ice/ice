@@ -125,6 +125,14 @@ public final class Instance
             _observerHelper.afterExecute();
         }
 
+
+        public void destroy()
+            throws InterruptedException
+        {
+            shutdown();
+            awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        }
+
         private final ThreadObserverHelper _observerHelper;
     };
 
@@ -742,17 +750,17 @@ public final class Instance
     public boolean
     queueRequests()
     {
-        return _queueExecutor != null;
+        return _queueExecutorService != null;
     }
 
-    synchronized public ExecutorService
+    synchronized public QueueExecutorService
     getQueueExecutor()
     {
         if(_state == StateDestroyed)
         {
             throw new Ice.CommunicatorDestroyedException();
         }
-        return _queueExecutor;
+        return _queueExecutorService;
     }
 
     //
@@ -952,8 +960,10 @@ public final class Instance
             //
             if(_initData.properties.getPropertyAsInt("Ice.ThreadInterruptSafe") > 0 || Util.isAndroid())
             {
-                _queueExecutor = new QueueExecutor(_initData.properties,
+                _queueExecutor = new QueueExecutor(_initData.properties, 
                                                    Util.createThreadName(_initData.properties, "Ice.BackgroundIO"));
+                _queueExecutorService = new QueueExecutorService(_queueExecutor);
+
                 // Caching message buffers is not supported with background IO.
                 _cacheMessageBuffers = 0;
             }
@@ -1230,7 +1240,7 @@ public final class Instance
         ThreadPool serverThreadPool = null;
         ThreadPool clientThreadPool = null;
         EndpointHostResolver endpointHostResolver = null;
-        ExecutorService queueExecutor = null;
+        QueueExecutor queueExecutor = null;
         Ice.PluginManager pluginManager = null;
         boolean checkUnused = false;
         synchronized(this)
@@ -1314,6 +1324,8 @@ public final class Instance
             queueExecutor = _queueExecutor;
             _queueExecutor = null;
 
+            _queueExecutor = null;
+
             _typeToClassMap.clear();
 
             if(_state != StateDestroyed)
@@ -1340,25 +1352,14 @@ public final class Instance
             {
                 endpointHostResolver.joinWithThread();
             }
+            if(queueExecutor != null)
+            {
+                queueExecutor.destroy();
+            }
         }
         catch(InterruptedException ex)
         {
             throw new Ice.OperationInterruptedException();
-        }
-
-        if(queueExecutor != null)
-        {
-            queueExecutor.shutdown();
-
-            try
-            {
-                queueExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-            }
-            catch (InterruptedException e)
-            {
-                throw new Ice.OperationInterruptedException();
-            }
-            queueExecutor = null;
         }
 
         if(checkUnused && _initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
@@ -1616,5 +1617,6 @@ public final class Instance
     final private boolean _useApplicationClassLoader;
 
     private static boolean _oneOfDone = false;
+    private QueueExecutorService _queueExecutorService;
     private QueueExecutor _queueExecutor;
 }

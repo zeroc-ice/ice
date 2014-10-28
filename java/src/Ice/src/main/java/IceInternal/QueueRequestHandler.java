@@ -32,7 +32,7 @@ public class QueueRequestHandler implements RequestHandler
     public RequestHandler 
     connect(final Ice.ObjectPrxHelperBase proxy)
     {
-        performCallable(new Callable<Void>()
+        _executor.executeNoThrow(new Callable<Void>()
         {
             @Override
             public Void call()
@@ -69,34 +69,22 @@ public class QueueRequestHandler implements RequestHandler
     public void
     prepareBatchRequest(final BasicStream out) throws RetryException
     {
-        try
+        _executor.execute(new Callable<Void>()
         {
-            performCallable(new Callable<Void>()
+            @Override
+            public Void call() throws RetryException
             {
-                @Override
-                public Void call() throws RetryException
-                {
-                    _delegate.prepareBatchRequest(out);
-                    return null;
-                }
-            });
-        }
-        catch(RuntimeException ex)
-        {
-            if(ex.getCause() instanceof RetryException)
-            {
-                throw (RetryException)ex.getCause();
+                _delegate.prepareBatchRequest(out);
+                return null;
             }
-            throw ex;
-        }
-
+        });
     }
 
     @Override
     public void
     finishBatchRequest(final BasicStream out)
     {
-        performCallable(new Callable<Void>()
+        _executor.executeNoThrow(new Callable<Void>()
         {
             @Override
             public Void call() throws RetryException
@@ -111,7 +99,7 @@ public class QueueRequestHandler implements RequestHandler
     public void
     abortBatchRequest()
     {
-        performCallable(new Callable<Void>()
+        _executor.executeNoThrow(new Callable<Void>()
         {
             @Override
             public Void call()
@@ -126,32 +114,21 @@ public class QueueRequestHandler implements RequestHandler
     public int
     sendAsyncRequest(final OutgoingAsyncBase out) throws RetryException
     {
-        try
+        return _executor.execute(new Callable<Integer>()
         {
-            return performCallable(new Callable<Integer>()
+            @Override
+            public Integer call() throws RetryException
             {
-                @Override
-                public Integer call() throws RetryException
-                {
-                    return _delegate.sendAsyncRequest(out);
-                }
-            });
-        }
-        catch(RuntimeException ex)
-        {
-            if(ex.getCause() instanceof RetryException)
-            {
-                throw (RetryException)ex.getCause();
+                return _delegate.sendAsyncRequest(out);
             }
-            throw ex;
-        }
+        });
     }
 
     @Override
     public void
     asyncRequestCanceled(final OutgoingAsyncBase outAsync, final Ice.LocalException ex)
     {
-        performCallable(new Callable<Void>()
+        _executor.executeNoThrow(new Callable<Void>()
         {
             @Override
             public Void call()
@@ -184,50 +161,6 @@ public class QueueRequestHandler implements RequestHandler
         return _delegate.waitForConnection();
     }
     
-    private <T> T performCallable(Callable<T> callable) 
-    {
-        try
-        {
-            Future<T> future = _executor.submit(callable);
-            boolean interrupted = false;
-            while(true)
-            {
-                try 
-                {
-                    T value = future.get();
-                    if(interrupted)
-                    {
-                        Thread.currentThread().interrupt();
-                    }
-                    return value;
-                }
-                catch(InterruptedException ex)
-                {
-                    interrupted = true;
-                }
-            }
-        }
-        catch(RejectedExecutionException e)
-        {
-            throw new CommunicatorDestroyedException();
-        }
-        catch(ExecutionException e)
-        {
-            try
-            {
-                throw e.getCause();
-            }
-            catch(RuntimeException ex)
-            {
-                throw ex;
-            }
-            catch(Throwable ex)
-            {
-                throw new RuntimeException(ex);
-            }
-        }
-    }
-    
     private final RequestHandler _delegate;
-    private final ExecutorService _executor;
+    private final QueueExecutorService _executor;
 }

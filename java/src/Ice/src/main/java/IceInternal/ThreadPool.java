@@ -94,6 +94,8 @@ public final class ThreadPool
     public
     ThreadPool(Instance instance, String prefix, int timeout)
     {
+        Ice.Properties properties = instance.initializationData().properties;
+
         _instance = instance;
         _dispatcher = instance.initializationData().dispatcher;
         _destroyed = false;
@@ -103,20 +105,9 @@ public final class ThreadPool
         _inUse = 0;
         _inUseIO = 0;
         _promote = true;
-        _serialize = _instance.initializationData().properties.getPropertyAsInt(_prefix + ".Serialize") > 0;
+        _serialize = properties.getPropertyAsInt(_prefix + ".Serialize") > 0;
         _serverIdleTime = timeout;
-
-        Ice.Properties properties = _instance.initializationData().properties;
-
-        String programName = properties.getProperty("Ice.ProgramName");
-        if(programName.length() > 0)
-        {
-            _threadPrefix = programName + "-" + _prefix;
-        }
-        else
-        {
-            _threadPrefix = _prefix;
-        }
+        _threadPrefix = Util.createThreadName(properties, _prefix);
 
         int nProcessors = Runtime.getRuntime().availableProcessors();
 
