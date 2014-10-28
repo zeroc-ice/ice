@@ -597,20 +597,6 @@ AdminI::sendSignal(const string& id, const string& signal, const Current&)
     }
 }
 
-void
-AdminI::writeMessage(const string& id, const string& message, Int fd, const Current&)
-{
-    ServerProxyWrapper proxy(_database, id);
-    try
-    {
-        proxy->writeMessage(message, fd);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        proxy.handleException(ex);
-    }
-}
-
 StringSeq
 AdminI::getAllServerIds(const Current&) const
 {

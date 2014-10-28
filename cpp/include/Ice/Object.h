@@ -65,8 +65,6 @@ public:
     virtual bool operator==(const Object&) const;
     virtual bool operator<(const Object&) const;
 
-    virtual ICE_DEPRECATED_API("is deprecated") Int ice_getHash() const;
-
     virtual bool ice_isA(const std::string&, const Current& = Current()) const;
     DispatchStatus ___ice_isA(IceInternal::Incoming&, const Current&);
 

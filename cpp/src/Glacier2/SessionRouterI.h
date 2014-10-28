@@ -103,7 +103,6 @@ public:
 
     virtual Ice::ObjectPrx getClientProxy(const Ice::Current&) const;
     virtual Ice::ObjectPrx getServerProxy(const Ice::Current&) const;
-    virtual void addProxy(const Ice::ObjectPrx&, const Ice::Current&);
     virtual Ice::ObjectProxySeq addProxies(const Ice::ObjectProxySeq&, const Ice::Current&);
     virtual std::string getCategoryForClient(const Ice::Current&) const;
     virtual void createSession_async(const AMD_Router_createSessionPtr&, const std::string&, const std::string&, 

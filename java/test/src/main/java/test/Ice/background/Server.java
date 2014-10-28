@@ -66,16 +66,6 @@ public class Server extends test.Util.Application
             return null;
         }
 
-        /**
-         * @deprecated addProxy() is deprecated, use addProxies() instead.
-         **/
-        @Deprecated
-        @Override
-        public void
-        addProxy(Ice.ObjectPrx proxy, Ice.Current current)
-        {
-        }
-        
         @Override
         public Ice.ObjectPrx[]
         addProxies(Ice.ObjectPrx[] proxies, Ice.Current current)

@@ -70,7 +70,7 @@ sequence<LinkInfo> LinkInfoSeq;
  *
  * This dictionary represents quality of service parameters.
  *
- * @see Topic#subscribe
+ * @see Topic#subscribeAndGetPublisher
  *
  */
 dictionary<string, string> QoS;
@@ -195,28 +195,6 @@ interface Topic
      **/
     ["nonmutating", "cpp:const"] idempotent Object* getNonReplicatedPublisher();
 
-    /**
-     *
-     * Subscribe with the given <tt>qos</tt> to this topic. If the given
-     * <tt>subscriber</tt> proxy has already been registered, it will be
-     * replaced. Note that this can cause a loss of events to the
-     * subscribed object.
-     *
-     * <p class="Deprecated">This operation is deprecated as of version 3.2.
-     *
-     * @param theQoS The quality of service parameters for this
-     * subscription.
-     *
-     * @param subscriber The subscriber's proxy.
-     *
-     * @return The per-subscriber publisher object.
-     *
-     * @see #unsubscribe
-     *
-     **/
-    ["deprecate:subscribe is deprecated, use subscribeAndGetPublisher instead"]
-    void subscribe(QoS theQoS, Object* subscriber)
-        throws InvalidSubscriber;
 
     /**
      *
@@ -250,7 +228,7 @@ interface Topic
      *
      * @param subscriber The proxy of an existing subscriber.
      *
-     * @see #subscribe
+     * @see #subscribeAndGetPublisher
      *
      **/
     idempotent void unsubscribe(Object* subscriber);

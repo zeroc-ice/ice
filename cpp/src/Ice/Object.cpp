@@ -39,11 +39,6 @@ Ice::Object::operator<(const Object& r) const
     return this < &r;
 }
 
-Int
-Ice::Object::ice_getHash() const
-{
-    return static_cast<Int>(reinterpret_cast<Long>(this) >> 4);
-}
 
 namespace
 {

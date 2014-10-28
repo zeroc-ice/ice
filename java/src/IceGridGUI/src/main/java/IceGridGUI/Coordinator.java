@@ -619,14 +619,6 @@ public class Coordinator
             return null;
         }
 
-        /** @deprecated **/
-        @Deprecated
-        @Override
-        public void
-        addProxy(Ice.ObjectPrx proxy, Ice.Current current)
-        {
-        }
-
         @Override
         public Ice.ObjectPrx[]
         addProxies(Ice.ObjectPrx[] proxies, Ice.Current current)

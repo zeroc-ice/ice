@@ -57,7 +57,6 @@ public:
     virtual void stopServer_async(const AMD_Admin_stopServerPtr&, const ::std::string&, const Ice::Current&);
     virtual void patchServer_async(const AMD_Admin_patchServerPtr&, const ::std::string&, bool, const Ice::Current&);
     virtual void sendSignal(const ::std::string&, const ::std::string&, const Ice::Current&);
-    virtual void writeMessage(const ::std::string&, const ::std::string&, Ice::Int, const Ice::Current&);
     virtual Ice::StringSeq getAllServerIds(const Ice::Current&) const;
     virtual void enableServer(const ::std::string&, bool, const Ice::Current&);
     virtual bool isServerEnabled(const ::std::string&, const Ice::Current&) const;

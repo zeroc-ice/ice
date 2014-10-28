@@ -72,12 +72,7 @@ public:
         _controller->checkCallPause(current);
         return 0;
     }
-
-    virtual void
-    addProxy(const Ice::ObjectPrx&, const Ice::Current&)
-    {
-    }
-        
+     
     virtual Ice::ObjectProxySeq
     addProxies(const Ice::ObjectProxySeq&, const Ice::Current&)
     {

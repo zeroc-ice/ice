@@ -779,14 +779,6 @@ SessionRouterI::getServerProxy(const Current& current) const
     return getRouter(current.con, current.id)->getServerProxy(current); // Forward to the per-client router.
 }
 
-void
-SessionRouterI::addProxy(const ObjectPrx& proxy, const Current& current)
-{
-    ObjectProxySeq seq;
-    seq.push_back(proxy);
-    addProxies(seq, current);
-}
-
 ObjectProxySeq
 SessionRouterI::addProxies(const ObjectProxySeq& proxies, const Current& current)
 {

@@ -820,32 +820,6 @@ interface Admin
 
     /**
      *
-     * Write message on server stdout or stderr.
-     *
-     * <p class="Deprecated">This operation is deprecated as of version 3.3.
-     *
-     * @param id The server id.
-     *
-     * @param message The message.
-     *
-     * @param fd 1 for stdout, 2 for stderr.
-     *
-     * @throws ServerNotExistException Raised if the server doesn't
-     * exist.
-     *
-     * @throws NodeUnreachableException Raised if the node could not be
-     * reached.
-     *
-     * @throws DeploymentException Raised if the server couldn't be
-     * deployed on the node.
-     *
-     **/
-     ["deprecate:writeMessage is deprecated. Instead, use the Process facet of the server Admin object."]
-     void writeMessage(string id, string message, int fd)
-         throws ServerNotExistException, NodeUnreachableException, DeploymentException;
-
-    /**
-     *
      * Get all the server ids registered with IceGrid.
      *
      * @return The server ids.

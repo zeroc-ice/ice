@@ -64,10 +64,6 @@ public class Server
             return null;
         }
 
-        public override void addProxy(Ice.ObjectPrx proxy, Ice.Current current)
-        {
-        }
-
         public override Ice.ObjectPrx[] addProxies(Ice.ObjectPrx[] proxies, Ice.Current current)
         {
             return new Ice.ObjectPrx[0];

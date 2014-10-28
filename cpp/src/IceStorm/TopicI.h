@@ -36,7 +36,6 @@ public:
     std::string getName() const;
     Ice::ObjectPrx getPublisher() const;
     Ice::ObjectPrx getNonReplicatedPublisher() const;
-    void subscribe(const QoS&, const Ice::ObjectPrx&);
     Ice::ObjectPrx subscribeAndGetPublisher(const QoS&, const Ice::ObjectPrx&);
     void unsubscribe(const Ice::ObjectPrx&);
     TopicLinkPrx getLinkProxy();

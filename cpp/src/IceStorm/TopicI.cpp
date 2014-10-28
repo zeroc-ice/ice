@@ -57,11 +57,6 @@ public:
     {
     }
 
-    ~PublisherI()
-    {
-        //cout << "~PublisherI" << endl;
-    }
-
     virtual bool
     ice_invoke(const pair<const Ice::Byte*, const Ice::Byte*>& inParams,
                Ice::ByteSeq&,
@@ -103,11 +98,6 @@ public:
     {
     }
 
-    ~TopicLinkI()
-    {
-        //cout << "~TopicLinkI" << endl;
-    }
-
     virtual void
     forward(const EventDataSeq& v, const Ice::Current& /*current*/)
     {
@@ -130,11 +120,6 @@ public:
     {
     }
 
-    ~TopicI()
-    {
-        //cout << "~TopicI" << endl;
-    }
-
     virtual string getName(const Ice::Current&) const
     {
         // Use cached reads.
@@ -154,38 +139,6 @@ public:
         // Use cached reads.
         CachedReadHelper unlock(_instance->node(), __FILE__, __LINE__);
         return _impl->getNonReplicatedPublisher();
-    }
-
-    virtual void subscribe(const QoS& qos, const Ice::ObjectPrx& obj, const Ice::Current& current)
-    {
-        while(true)
-        {
-            Ice::Long generation = -1;
-            TopicPrx master = getMasterFor(current, generation, __FILE__, __LINE__);
-            if(master)
-            {
-                try
-                {
-                    master->subscribe(qos, obj);
-                }
-                catch(const Ice::ConnectFailedException&)
-                {
-                    _instance->node()->recovery(generation);
-                    continue;
-                }
-                catch(const Ice::TimeoutException&)
-                {
-                    _instance->node()->recovery(generation);
-                    continue;
-                }
-            }
-            else
-            {
-                FinishUpdateHelper unlock(_instance->node());
-                _impl->subscribe(qos, obj);
-            }
-            break;
-        }
     }
 
     virtual Ice::ObjectPrx subscribeAndGetPublisher(const QoS& qos, const Ice::ObjectPrx& obj,
@@ -557,181 +510,6 @@ trace(Ice::Trace& out, const InstancePtr& instance, const vector<SubscriberPtr>&
     }
     out << "]";
 }
-}
-
-void
-TopicImpl::subscribe(const QoS& origQoS, const Ice::ObjectPrx& obj)
-{
-    if(!obj)
-    {
-        TraceLevelsPtr traceLevels = _instance->traceLevels();
-        if(traceLevels->topic > 0)
-        {
-            Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-            out << _name << ": subscribe: null proxy";
-        }
-        throw InvalidSubscriber("subscriber is a null proxy");
-    }
-    Ice::Identity id = obj->ice_getIdentity();
-    TraceLevelsPtr traceLevels = _instance->traceLevels();
-    QoS qos = origQoS;
-    if(traceLevels->topic > 0)
-    {
-        Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-        out << _name << ": subscribe: " << _instance->communicator()->identityToString(id);
-
-        if(traceLevels->topic > 1)
-        {
-            out << " endpoints: " << IceStormInternal::describeEndpoints(obj)
-                << " QoS: ";
-            for(QoS::const_iterator p = qos.begin(); p != qos.end() ; ++p)
-            {
-                if(p != qos.begin())
-                {
-                    out << ',';
-                }
-                out << '[' << p->first << "," << p->second << ']';
-            }
-            out << " subscriptions: ";
-            trace(out, _instance, _subscribers);
-        }
-    }
-
-    string reliability = "oneway";
-    {
-        QoS::iterator p = qos.find("reliability");
-        if(p != qos.end())
-        {
-            reliability = p->second;
-            qos.erase(p);
-        }
-    }
-
-    Ice::ObjectPrx newObj = obj;
-    if(reliability == "batch")
-    {
-        if(newObj->ice_isDatagram())
-        {
-            newObj = newObj->ice_batchDatagram();
-        }
-        else
-        {
-            newObj = newObj->ice_batchOneway();
-        }
-    }
-    else if(reliability == "twoway")
-    {
-        newObj = newObj->ice_twoway();
-    }
-    else if(reliability == "twoway ordered")
-    {
-        qos["reliability"] = "ordered";
-        newObj = newObj->ice_twoway();
-    }
-    else // reliability == "oneway"
-    {
-        if(reliability != "oneway" && traceLevels->subscriber > 0)
-        {
-            Ice::Trace out(traceLevels->logger, traceLevels->subscriberCat);
-            out << reliability <<" mode not understood.";
-        }
-        if(!newObj->ice_isDatagram())
-        {
-            newObj = newObj->ice_oneway();
-        }
-    }
-
-    IceUtil::Mutex::Lock sync(_subscribersMutex);
-    SubscriberRecord record;
-    record.id = id;
-    record.obj = newObj;
-    record.theQoS = qos;
-    record.topicName = _name;
-    record.link = false;
-    record.cost = 0;
-
-    LogUpdate llu;
-
-    vector<SubscriberPtr>::iterator p = find(_subscribers.begin(), _subscribers.end(), record.id);
-    if(p != _subscribers.end())
-    {
-        // If we already have this subscriber remove it from our
-        // subscriber list and remove it from the database.
-        (*p)->destroy();
-        _subscribers.erase(p);
-
-        for(;;)
-        {
-            try
-            {
-                ConnectionPtr connection = Freeze::createConnection(
-                    _instance->communicator(), _instance->serviceName());
-                TransactionHolder txn(connection);
-
-                SubscriberRecordKey key;
-                key.topic = _id;
-                key.id =  record.id;
-
-                SubscriberMap subscriberMap(connection, subscriberDbName);
-                subscriberMap.erase(key);
-
-                llu = getLLU(connection);
-                llu.iteration++;
-                putLLU(connection, llu);
-
-                txn.commit();
-                break;
-            }
-            catch(const DeadlockException&)
-            {
-                continue;
-            }
-            catch(const DatabaseException& ex)
-            {
-                halt(_instance->communicator(), ex);
-            }
-        }
-        Ice::IdentitySeq ids;
-        ids.push_back(id);
-        _instance->observers()->removeSubscriber(llu, _name, ids);
-    }
-
-    SubscriberPtr subscriber = Subscriber::create(_instance, record);
-    for(;;)
-    {
-        try
-        {
-            ConnectionPtr connection = Freeze::createConnection(_instance->communicator(), _instance->serviceName());
-            TransactionHolder txn(connection);
-
-            SubscriberRecordKey key;
-            key.topic = _id;
-            key.id = subscriber->id();
-
-            SubscriberMap subscriberMap(connection, subscriberDbName);
-            subscriberMap.put(SubscriberMap::value_type(key, record));
-
-            // Update the LLU.
-            llu = getLLU(connection);
-            llu.iteration++;
-            putLLU(connection, llu);
-
-            txn.commit();
-            break;
-        }
-        catch(const DeadlockException&)
-        {
-            continue;
-        }
-        catch(const DatabaseException& ex)
-        {
-            halt(_instance->communicator(), ex);
-        }
-    }
-
-    _subscribers.push_back(subscriber);
-
-    _instance->observers()->addSubscriber(llu, _name, record);
 }
 
 Ice::ObjectPrx

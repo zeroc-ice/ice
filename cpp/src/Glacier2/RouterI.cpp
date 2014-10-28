@@ -143,14 +143,6 @@ Glacier2::RouterI::getServerProxy(const Current&) const
     return _serverProxy;
 }
 
-void
-Glacier2::RouterI::addProxy(const ObjectPrx& proxy, const Current& current)
-{
-    ObjectProxySeq proxies;
-    proxies.push_back(proxy);
-    addProxies(proxies, current);
-}
-
 ObjectProxySeq
 Glacier2::RouterI::addProxies(const ObjectProxySeq& proxies, const Current& current)
 {

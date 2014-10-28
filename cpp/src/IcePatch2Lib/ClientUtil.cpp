@@ -150,100 +150,25 @@ namespace
 string
 getDataDir(const CommunicatorPtr& communicator, const string& defaultValue)
 {
-    const string property = "IcePatch2Client.Directory";
-    const string deprecatedProperty = "IcePatch2.Directory";
-
-    if(communicator->getProperties()->getProperty(property).empty() &&
-       communicator->getProperties()->getProperty(deprecatedProperty).empty())
-    {
-        return defaultValue;
-    }
-
-    string value = communicator->getProperties()->getProperty(property);
-    if(value.empty())
-    {
-        value = communicator->getProperties()->getProperty(deprecatedProperty);
-        ostringstream os;
-        os << "The property " << deprecatedProperty << " is deprecated, use " << property << " instead.";
-        communicator->getLogger()->warning(os.str());
-    }
-    assert(!value.empty());
-    return value;
+    return communicator->getProperties()->getPropertyWithDefault("IcePatch2Client.Directory", defaultValue);
 }
 
 int
 getThorough(const CommunicatorPtr& communicator, int defaultValue)
 {
-    const string property = "IcePatch2Client.Thorough";
-    const string deprecatedProperty = "IcePatch2.Thorough";
-
-    if(communicator->getProperties()->getProperty(property).empty() &&
-       communicator->getProperties()->getProperty(deprecatedProperty).empty())
-    {
-        return defaultValue;
-    }
-
-    if(!communicator->getProperties()->getProperty(property).empty())
-    {
-        return communicator->getProperties()->getPropertyAsInt(property);
-    }
-    else
-    {
-        ostringstream os;
-        os << "The property " << deprecatedProperty << " is deprecated, use " << property << " instead.";
-        communicator->getLogger()->warning(os.str());
-        return communicator->getProperties()->getPropertyAsInt(deprecatedProperty);
-    }
+    return communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2Client.Thorough", defaultValue);
 }
 
 int
 getChunkSize(const CommunicatorPtr& communicator, int defaultValue)
 {
-    const string property = "IcePatch2Client.ChunkSize";
-    const string deprecatedProperty = "IcePatch2.ChunkSize";
-
-    if(communicator->getProperties()->getProperty(property).empty() &&
-       communicator->getProperties()->getProperty(deprecatedProperty).empty())
-    {
-        return defaultValue;
-    }
-
-    if(!communicator->getProperties()->getProperty(property).empty())
-    {
-        return communicator->getProperties()->getPropertyAsInt(property);
-    }
-    else
-    {
-        ostringstream os;
-        os << "The property " << deprecatedProperty << " is deprecated, use " << property << " instead.";
-        communicator->getLogger()->warning(os.str());
-        return communicator->getProperties()->getPropertyAsInt(deprecatedProperty);
-    }
+    return communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2Client.ChunkSize", defaultValue);
 }
 
 int
 getRemove(const CommunicatorPtr& communicator, int defaultValue)
 {
-    const string property = "IcePatch2Client.Remove";
-    const string deprecatedProperty = "IcePatch2.Remove";
-
-    if(communicator->getProperties()->getProperty(property).empty() &&
-       communicator->getProperties()->getProperty(deprecatedProperty).empty())
-    {
-        return defaultValue;
-    }
-
-    if(!communicator->getProperties()->getProperty(property).empty())
-    {
-        return communicator->getProperties()->getPropertyAsInt(property);
-    }
-    else
-    {
-        ostringstream os;
-        os << "The property " << deprecatedProperty << " is deprecated, use " << property << " instead.";
-        communicator->getLogger()->warning(os.str());
-        return communicator->getProperties()->getPropertyAsInt(deprecatedProperty);
-    }
+    return communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2Client.Remove", defaultValue);
 }
 
 }
@@ -260,26 +185,6 @@ IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFe
     const PropertiesPtr properties = communicator->getProperties();
     const char* clientProxyProperty = "IcePatch2Client.Proxy";
     std::string clientProxy = properties->getProperty(clientProxyProperty);
-    if(clientProxy.empty())
-    {
-        const char* endpointsProperty = "IcePatch2.Endpoints";
-        string endpoints = properties->getProperty(endpointsProperty);
-        if(endpoints.empty())
-        {
-            ostringstream os;
-            os << "No proxy to IcePatch2 server. Please set `" << clientProxyProperty 
-               << "' or `" << endpointsProperty << "'.";
-            throw os.str();
-        }
-        ostringstream os;
-        os << "The property " << endpointsProperty << " is deprecated, use " << clientProxyProperty << " instead.";
-        communicator->getLogger()->warning(os.str());
-        Identity id;
-        id.category = properties->getPropertyWithDefault("IcePatch2.InstanceName", "IcePatch2");
-        id.name = "server";
-        
-        clientProxy = "\"" + communicator->identityToString(id) + "\" :" + endpoints;
-    }
     ObjectPrx serverBase = communicator->stringToProxy(clientProxy);
     
     FileServerPrx server = FileServerPrx::checkedCast(serverBase);
