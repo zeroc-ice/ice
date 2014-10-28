@@ -141,7 +141,7 @@ namespace IceInternal
             {
                 if(instance_ == null)
                 {
-                    throw new Ice.ObjectAdapterDeactivatedException();
+                    throw new Ice.CommunicatorDestroyedException();
                 }
                 
                 Ice.ObjectAdapterI adapter = null;

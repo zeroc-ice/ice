@@ -131,7 +131,7 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
 
     if(!_instance)
     {
-        throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
+        throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
     ObjectAdapterIPtr adapter;
