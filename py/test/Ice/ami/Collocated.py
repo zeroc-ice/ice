@@ -21,7 +21,7 @@ import Test, TestI, AllTests
 
 def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
-    communicator.getProperties().setProperty("ControllerAdapter.Endpoints", "tcp -p 12011")
+    communicator.getProperties().setProperty("ControllerAdapter.Endpoints", "default -p 12011")
     communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1")
 
     adapter = communicator.createObjectAdapter("TestAdapter")
@@ -30,10 +30,10 @@ def run(args, communicator):
     testController = TestI.TestIntfControllerI(adapter)
 
     adapter.add(TestI.TestIntfI(), communicator.stringToIdentity("test"))
-    adapter.activate()
-
+    #adapter.activate() # Collocated test doesn't need to active the OA
+    
     adapter2.add(testController, communicator.stringToIdentity("testController"))
-    adapter2.activate()
+    #adapter2.activate() # Collocated test doesn't need to active the OA
 
     AllTests.allTests(communicator, True)
 

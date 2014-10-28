@@ -1019,21 +1019,24 @@ public class AllTests : TestCommon.TestApp
             //
             // Check that CommunicatorDestroyedException is raised directly.
             //
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = communicator.getProperties().ice_clone_();
-            Ice.Communicator ic = Ice.Util.initialize(initData);
-            Ice.ObjectPrx o = ic.stringToProxy(p.ToString());
-            Test.TestIntfPrx p2 = Test.TestIntfPrxHelper.checkedCast(o);
-            ic.destroy();
-
-            try
+            if(p.ice_getConnection() != null)
             {
-                p2.begin_op();
-                test(false);
-            }
-            catch(Ice.CommunicatorDestroyedException)
-            {
-                // Expected.
+                Ice.InitializationData initData = new Ice.InitializationData();
+                initData.properties = communicator.getProperties().ice_clone_();
+                Ice.Communicator ic = Ice.Util.initialize(initData);
+                Ice.ObjectPrx o = ic.stringToProxy(p.ToString());
+                Test.TestIntfPrx p2 = Test.TestIntfPrxHelper.checkedCast(o);
+                ic.destroy();
+                
+                try
+                {
+                    p2.begin_op();
+                    test(false);
+                }
+                catch(Ice.CommunicatorDestroyedException)
+                {
+                    // Expected.
+                }
             }
         }
         WriteLine("ok");

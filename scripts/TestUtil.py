@@ -1264,7 +1264,6 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
 
 
     global cross
-
     if len(cross) > 0:
         if lang == "js":
             print("** skipping js cross test")
@@ -1343,7 +1342,7 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
 
 def collocatedTest(additionalOptions = ""):
     lang = getDefaultMapping()
-    if len(cross) > 1 or cross[0] != lang:
+    if len(cross) > 0 and cross[0] != lang:
         print("** skipping cross test")
         return
     if silverlight:

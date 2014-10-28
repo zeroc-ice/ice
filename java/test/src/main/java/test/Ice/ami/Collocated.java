@@ -18,9 +18,9 @@ public class Collocated extends test.Util.Application
         Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("ControllerAdapter");
 
         adapter.add(new TestI(), communicator().stringToIdentity("test"));
-        adapter.activate();
+        //adapter.activate(); // Collocated test doesn't need to activate the OA
         adapter2.add(new TestControllerI(adapter), communicator().stringToIdentity("testController"));
-        adapter2.activate();
+        //adapter2.activate(); // Collocated test doesn't need to activate the OA
 
         AllTests.allTests(this, true);
         return 0;

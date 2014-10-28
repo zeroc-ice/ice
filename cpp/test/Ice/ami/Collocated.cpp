@@ -29,10 +29,10 @@ run(int, char**, const Ice::CommunicatorPtr& communicator,
     TestIntfControllerIPtr testController = new TestIntfControllerI(adapter);
     
     adapter->add(new TestIntfI(), communicator->stringToIdentity("test"));
-    adapter->activate();
+    //adapter->activate(); // Collocated test doesn't need to activate the OA
     
     adapter2->add(testController, communicator->stringToIdentity("testController"));
-    adapter2->activate();
+    //adapter2->activate(); // Collocated test doesn't need to activate the OA
 
     void allTests(const Ice::CommunicatorPtr&, bool);
     allTests(communicator, true);

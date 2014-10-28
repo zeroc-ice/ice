@@ -57,9 +57,16 @@ public class AllTests
             Class<?> cls = IceInternal.Util.findClass("test.Ice.ami.lambda.AMI", null);
             if(cls != null)
             {
-                java.lang.reflect.Method run = cls.getDeclaredMethod("run",
-                    new Class<?>[]{test.Util.Application.class, Ice.Communicator.class, boolean.class, TestIntfPrx.class,
-                                   TestIntfControllerPrx.class});
+                java.lang.reflect.Method run = cls.getDeclaredMethod(
+                    "run",
+                    new Class<?>[]
+                    {
+                        test.Util.Application.class, 
+                        Ice.Communicator.class, 
+                        boolean.class, 
+                        TestIntfPrx.class,
+                        TestIntfControllerPrx.class
+                    });
                 out.println("testing with lambda AMI mapping... ");
                 out.flush();
                 run.invoke(null, app, communicator, collocated, p, testController);

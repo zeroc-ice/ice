@@ -1142,21 +1142,24 @@ public class AMI
             //
             // Check that CommunicatorDestroyedException is raised directly.
             //
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = communicator.getProperties()._clone();
-            Ice.Communicator ic = app.initialize(initData);
-            Ice.ObjectPrx o = ic.stringToProxy(p.toString());
-            TestIntfPrx p2 = TestIntfPrxHelper.checkedCast(o);
-            ic.destroy();
-
-            try
+            if(p.ice_getConnection() != null)
             {
-                p2.begin_op();
-                test(false);
-            }
-            catch(Ice.CommunicatorDestroyedException ex)
-            {
-                // Expected.
+                Ice.InitializationData initData = new Ice.InitializationData();
+                initData.properties = communicator.getProperties()._clone();
+                Ice.Communicator ic = app.initialize(initData);
+                Ice.ObjectPrx o = ic.stringToProxy(p.toString());
+                TestIntfPrx p2 = TestIntfPrxHelper.checkedCast(o);
+                ic.destroy();
+                
+                try
+                {
+                    p2.begin_op();
+                    test(false);
+                }
+                catch(Ice.CommunicatorDestroyedException ex)
+                {
+                    // Expected.
+                }
             }
         }
         out.println("ok");

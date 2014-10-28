@@ -1233,21 +1233,24 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         //
         // Check that CommunicatorDestroyedException is raised directly.
         //
-        Ice::InitializationData initData;
-        initData.properties = communicator->getProperties()->clone();
-        Ice::CommunicatorPtr ic = Ice::initialize(initData);
-        Ice::ObjectPrx obj = ic->stringToProxy(p->ice_toString());
-        Test::TestIntfPrx p2 = Test::TestIntfPrx::checkedCast(obj);
-        ic->destroy();
-
-        try
+        if(p->ice_getConnection())
         {
-            p2->begin_op();
-            test(false);
-        }
-        catch(const Ice::CommunicatorDestroyedException&)
-        {
-            // Expected.
+            Ice::InitializationData initData;
+            initData.properties = communicator->getProperties()->clone();
+            Ice::CommunicatorPtr ic = Ice::initialize(initData);
+            Ice::ObjectPrx obj = ic->stringToProxy(p->ice_toString());
+            Test::TestIntfPrx p2 = Test::TestIntfPrx::checkedCast(obj);
+            ic->destroy();
+        
+            try
+            {
+                p2->begin_op();
+                test(false);
+            }
+            catch(const Ice::CommunicatorDestroyedException&)
+            {
+                // Expected.
+            }
         }
     }
     cout << "ok" << endl;

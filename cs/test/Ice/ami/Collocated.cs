@@ -22,16 +22,16 @@ public class Collocated
     private static int run(string[] args, Ice.Communicator communicator)
     {
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
-        communicator.getProperties().setProperty("ControllerAdapter.Endpoints", "tcp -p 12011");
+        communicator.getProperties().setProperty("ControllerAdapter.Endpoints", "default -p 12011");
         communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
 
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
 
         adapter.add(new TestI(), communicator.stringToIdentity("test"));
-        adapter.activate();
+        //adapter.activate(); // Collocated test doesn't need to activate the OA
         adapter2.add(new TestControllerI(adapter), communicator.stringToIdentity("testController"));
-        adapter2.activate();
+        //adapter2.activate(); // Collocated test doesn't need to activate the OA
 
         AllTests.allTests(communicator, true);
         return 0;

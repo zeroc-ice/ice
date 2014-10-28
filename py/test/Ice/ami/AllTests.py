@@ -463,18 +463,19 @@ def allTests(communicator, collocated):
     #
     # Check that CommunicatorDestroyedException is raised directly.
     #
-    initData = Ice.InitializationData()
-    initData.properties = communicator.getProperties().clone()
-    ic = Ice.initialize(initData)
-    obj = ic.stringToProxy(p.ice_toString())
-    p2 = Test.TestIntfPrx.checkedCast(obj)
-    ic.destroy();
+    if p.ice_getConnection():
+        initData = Ice.InitializationData()
+        initData.properties = communicator.getProperties().clone()
+        ic = Ice.initialize(initData)
+        obj = ic.stringToProxy(p.ice_toString())
+        p2 = Test.TestIntfPrx.checkedCast(obj)
+        ic.destroy();
 
-    try:
-        p2.begin_op()
-        test(False)
-    except Ice.CommunicatorDestroyedException:
-        pass
+        try:
+            p2.begin_op()
+            test(False)
+        except Ice.CommunicatorDestroyedException:
+            pass
 
     print("ok")
 
