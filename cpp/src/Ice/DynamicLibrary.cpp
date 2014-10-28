@@ -89,7 +89,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     if(comma == string::npos)
     {
         libName = libSpec;
-#  ifdef ICE_CPP11
+#  if defined(ICE_CPP11) && !defined(__APPLE__)
         libName += "++11";
 #  endif
         if(useIceVersion)
