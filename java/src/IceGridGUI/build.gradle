@@ -98,7 +98,7 @@ clean {
     delete("${libDir}/${jarName}")
 }
 
-task copyJars(type: Copy, dependsOn: jar) {
+task copyJars(type: Copy, dependsOn: proguardCleanup) {
     from new File("${libDir}/${jarName}")
     into "${DESTDIR}${prefix}/lib"
 }
