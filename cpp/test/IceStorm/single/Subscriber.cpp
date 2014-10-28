@@ -140,76 +140,7 @@ run(int, char* argv[], const CommunicatorPtr& communicator)
     //
     vector<SingleIPtr> subscribers;
     vector<Ice::Identity> subscriberIdentities;
-    //
-    // First we use the old deprecated API.
-    //
-    {
-        subscribers.push_back(new SingleI(communicator, "default"));
-        Ice::ObjectPrx object = adapter->addWithUUID(subscribers.back());
-        subscriberIdentities.push_back(object->ice_getIdentity());
-        topic->subscribe(IceStorm::QoS(), object);
-    }
-    {
-        subscribers.push_back(new SingleI(communicator, "oneway"));
-        IceStorm::QoS qos;
-        qos["reliability"] = "oneway";
-        Ice::ObjectPrx object = adapter->addWithUUID(subscribers.back());
-        subscriberIdentities.push_back(object->ice_getIdentity());
-        topic->subscribe(qos, object);
-    }
-    {
-        subscribers.push_back(new SingleI(communicator, "twoway"));
-        IceStorm::QoS qos;
-        qos["reliability"] = "twoway";
-        Ice::ObjectPrx object = adapter->addWithUUID(subscribers.back());
-        subscriberIdentities.push_back(object->ice_getIdentity());
-        topic->subscribe(qos, object);
-    }
-    {
-        subscribers.push_back(new SingleI(communicator, "batch"));
-        IceStorm::QoS qos;
-        qos["reliability"] = "batch";
-        Ice::ObjectPrx object = adapter->addWithUUID(subscribers.back());
-        subscriberIdentities.push_back(object->ice_getIdentity());
-        topic->subscribe(qos, object);
-    }
-    {
-        subscribers.push_back(new SingleI(communicator, "twoway ordered")); // Ordered
-        IceStorm::QoS qos;
-        qos["reliability"] = "twoway ordered";
-        Ice::ObjectPrx object = adapter->addWithUUID(subscribers.back());
-        subscriberIdentities.push_back(object->ice_getIdentity());
-        topic->subscribe(qos, object);
-    }
-    {
-        // Use a separate adapter to ensure a separate connection is used for the subscriber
-        // (otherwise, if multiple UDP subscribers use the same connection we might get high
-        // packet loss, see bug 1784).
-        ObjectAdapterPtr adpt = communicator->createObjectAdapterWithEndpoints("UdpAdapter1", "udp");
-        subscribers.push_back(new SingleI(communicator, "datagram"));
-        IceStorm::QoS qos;
-        qos["reliability"] = "oneway";
-        Ice::ObjectPrx object = adpt->addWithUUID(subscribers.back())->ice_datagram();
-        topic->subscribe(IceStorm::QoS(), object);
-        subscriberIdentities.push_back(object->ice_getIdentity());
-        adpt->activate();
-    }
-    {
-        // Use a separate adapter to ensure a separate connection is used for the subscriber
-        // (otherwise, if multiple UDP subscribers use the same connection we might get high
-        // packet loss, see bug 1784).
-        ObjectAdapterPtr adpt = communicator->createObjectAdapterWithEndpoints("UdpAdapter2", "udp");
-        subscribers.push_back(new SingleI(communicator, "batch datagram"));
-        IceStorm::QoS qos;
-        qos["reliability"] = "batch";
-        Ice::ObjectPrx object = adpt->addWithUUID(subscribers.back())->ice_datagram();
-        topic->subscribe(IceStorm::QoS(), object);
-        subscriberIdentities.push_back(object->ice_getIdentity());
-        adpt->activate();
-    }
-    //
-    // Next we use the new API call with the new proxy semantics.
-    //
+    
     {
         subscribers.push_back(new SingleI(communicator, "default"));
         Ice::ObjectPrx object = adapter->addWithUUID(subscribers.back())->ice_oneway();
