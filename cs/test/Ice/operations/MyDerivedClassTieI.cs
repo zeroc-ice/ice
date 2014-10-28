@@ -48,28 +48,30 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
         return p2;
     }
 
-    public Test.BoolS opBoolS(Test.BoolS p1, Test.BoolS p2, out Test.BoolS p3, Ice.Current current)
+    public bool[] opBoolS(bool[] p1, bool[] p2, out bool[] p3, Ice.Current current)
     {
-        p3 = new Test.BoolS();
-        p3.AddRange(p1);
-        p3.AddRange(p2);
-        Test.BoolS r = new Test.BoolS();
-        for(int i = 0; i < p1.Count; i++)
+        p3 = new bool[p1.Length + p2.Length];
+        Array.Copy(p1, p3, p1.Length);
+        Array.Copy(p2, 0, p3, p1.Length, p2.Length);
+
+        bool[] r = new bool[p1.Length];
+        for(int i = 0; i < p1.Length; i++)
         {
-            r.Add(p1[p1.Count - (i + 1)]);
+            r[i] = p1[p1.Length - (i + 1)];
         }
         return r;
     }
 
-    public Test.BoolSS opBoolSS(Test.BoolSS p1, Test.BoolSS p2, out Test.BoolSS p3, Ice.Current current)
+    public bool[][] opBoolSS(bool[][] p1, bool[][] p2, out bool[][] p3, Ice.Current current)
     {
-        p3 = new Test.BoolSS();
-        p3.AddRange(p1);
-        p3.AddRange(p2);
-        Test.BoolSS r = new Test.BoolSS();
-        for(int i = 0; i < p1.Count; i++)
+        p3 = new bool[p1.Length + p2.Length][];
+        Array.Copy(p1, p3, p1.Length);
+        Array.Copy(p2, 0, p3, p1.Length, p2.Length);
+
+        bool[][] r = new bool[p1.Length][];
+        for(int i = 0; i < p1.Length; i++)
         {
-            r.Add(p1[p1.Count - (i + 1)]);
+            r[i] = p1[p1.Length - (i + 1)];
         }
         return r;
     }
@@ -97,30 +99,31 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
         return r;
     }
 
-    public Test.ByteS opByteS(Test.ByteS p1, Test.ByteS p2, out Test.ByteS p3, Ice.Current current)
+    public byte[] opByteS(byte[] p1, byte[] p2, out byte[] p3, Ice.Current current)
     {
-        p3 = new Test.ByteS();
-        for(int i = 0; i < p1.Count; i++)
+        p3 = new byte[p1.Length];
+        for(int i = 0; i < p1.Length; i++)
         {
-            p3.Add(p1[p1.Count - (i + 1)]);
+            p3[i] = p1[p1.Length - (i + 1)];
         }
 
-        Test.ByteS r = new Test.ByteS(p1.ToArray());
-        r.AddRange(p2);
+        byte[] r = new byte[p1.Length + p2.Length];
+        Array.Copy(p1, r, p1.Length);
+        Array.Copy(p2, 0, r, p1.Length, p2.Length);
         return r;
     }
 
-    public Test.ByteSS opByteSS(Test.ByteSS p1, Test.ByteSS p2, out Test.ByteSS p3, Ice.Current current)
+    public byte[][] opByteSS(byte[][] p1, byte[][] p2, out byte[][] p3, Ice.Current current)
     {
-        p3 = new Test.ByteSS();
-        for(int i = 0; i < p1.Count; i++)
+        p3 = new byte[p1.Length][];
+        for(int i = 0; i < p1.Length; i++)
         {
-            p3.Add(p1[p1.Count - (i + 1)]);
+            p3[i] = p1[p1.Length - (i + 1)];
         }
 
-        Test.ByteSS r = new Test.ByteSS();
-        r.AddRange(p1);
-        r.AddRange(p2);
+        byte[][] r = new byte[p1.Length + p2.Length][];
+        Array.Copy(p1, r, p1.Length);
+        Array.Copy(p2, 0, r, p1.Length, p2.Length);
         return r;
     }
 
@@ -131,38 +134,46 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
         return p2;
     }
 
-    public Test.DoubleS opFloatDoubleS(Test.FloatS p1, Test.DoubleS p2,
-                                       out Test.FloatS p3, out Test.DoubleS p4,
-                                       Ice.Current current)
+    public double[] opFloatDoubleS(float[] p1, double[] p2, out float[] p3, out double[] p4, Ice.Current current)
     {
         p3 = p1;
-        p4 = new Test.DoubleS();
-        for(int i = 0; i < p2.Count; i++)
+
+        p4 = new double[p2.Length];
+        for(int i = 0; i < p2.Length; i++)
         {
-            p4.Add(p2[p2.Count - (i + 1)]);
+            p4[i] = p2[p2.Length - (i + 1)];
         }
-        Test.DoubleS r = new Test.DoubleS();
-        r.AddRange(p2);
-        for(int i = 0; i < p1.Count; i++)
+
+        double[] r = new double[p2.Length + p1.Length];
+        Array.Copy(p2, r, p2.Length);
+        for(int i = 0; i < p1.Length; i++)
         {
-            r.Add(p1[i]);
+            r[p2.Length + i] = (double)p1[i];
         }
         return r;
     }
 
-    public Test.DoubleSS opFloatDoubleSS(Test.FloatSS p1, Test.DoubleSS p2,
-                                         out Test.FloatSS p3, out Test.DoubleSS p4,
-                                         Ice.Current current)
+    public double[][] opFloatDoubleSS(float[][] p1, double[][] p2, out float[][] p3, out double[][] p4,
+                                      Ice.Current current)
     {
         p3 = p1;
-        p4 = new Test.DoubleSS();
-        for(int i = 0; i < p2.Count; i++)
+
+        p4 = new double[p2.Length][];
+        for(int i = 0; i < p2.Length; i++)
         {
-            p4.Add(p2[p2.Count - (i + 1)]);
+            p4[i] = p2[p2.Length - (i + 1)];
         }
-        Test.DoubleSS r = new Test.DoubleSS();
-        r.AddRange(p2);
-        r.AddRange(p2);
+
+        double[][] r = new double[p2.Length + p2.Length][];
+        Array.Copy(p2, r, p2.Length);
+        for(int i = 0; i < p2.Length; i++)
+        {
+            r[p2.Length + i] = new double[p2[i].Length];
+            for(int j = 0; j < p2[i].Length; j++)
+            {
+                r[p2.Length + i][j] = (double)p2[i][j];
+            }
+        }
         return r;
     }
 
@@ -222,35 +233,41 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
         return p3;
     }
 
-    public Test.LongS opShortIntLongS(Test.ShortS p1, Test.IntS p2, Test.LongS p3,
-                                      out Test.ShortS p4, out Test.IntS p5, out Test.LongS p6,
-                                      Ice.Current current)
+    public long[] opShortIntLongS(short[] p1, int[] p2, long[] p3,
+                                  out short[] p4, out int[] p5, out long[] p6,
+                                  Ice.Current current)
     {
         p4 = p1;
-        p5 = new Test.IntS();
-        for(int i = 0; i < p2.Count; i++)
+
+        p5 = new int[p2.Length];
+        for(int i = 0; i < p2.Length; i++)
         {
-            p5.Add(p2[p2.Count - (i + 1)]);
+            p5[i] = p2[p2.Length - (i + 1)];
         }
-        p6 = new Test.LongS();
-        p6.AddRange(p3);
-        p6.AddRange(p3);
+
+        p6 = new long[p3.Length + p3.Length];
+        Array.Copy(p3, p6, p3.Length);
+        Array.Copy(p3, 0, p6, p3.Length, p3.Length);
+
         return p3;
     }
 
-    public Test.LongSS opShortIntLongSS(Test.ShortSS p1, Test.IntSS p2, Test.LongSS p3,
-                                        out Test.ShortSS p4, out Test.IntSS p5, out Test.LongSS p6,
-                                        Ice.Current current)
+    public long[][] opShortIntLongSS(short[][] p1, int[][] p2, long[][] p3,
+                                     out short[][] p4, out int[][] p5, out long[][] p6,
+                                     Ice.Current current)
     {
         p4 = p1;
-        p5 = new Test.IntSS();
-        for(int i = 0; i < p2.Count; i++)
+
+        p5 = new int[p2.Length][];
+        for(int i = 0; i < p2.Length; i++)
         {
-            p5.Add(p2[p2.Count - (i + 1)]);
+            p5[i] = p2[p2.Length - (i + 1)];
         }
-        p6 = new Test.LongSS();
-        p6.AddRange(p3);
-        p6.AddRange(p3);
+
+        p6 = new long[p3.Length + p3.Length][];
+        Array.Copy(p3, p6, p3.Length);
+        Array.Copy(p3, 0, p6, p3.Length, p3.Length);
+
         return p3;
     }
 
@@ -315,17 +332,17 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
         return r;
     }
 
-    public Test.IntS opIntS(Test.IntS s, Ice.Current current)
+    public int[] opIntS(int[] s, Ice.Current current)
     {
-        Test.IntS r = new Test.IntS();
-        for(int i = 0; i < s.Count; ++i)
+        int[] r = new int[s.Length];
+        for(int i = 0; i < s.Length; ++i)
         {
-            r.Add(-s[i]);
+            r[i] = -s[i];
         }
         return r;
     }
 
-    public void opByteSOneway(Test.ByteS s, Ice.Current current)
+    public void opByteSOneway(byte[] s, Ice.Current current)
     {
     }
 
@@ -334,53 +351,51 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
         return current.ctx == null ? new Dictionary<string, string>() : new Dictionary<string, string>(current.ctx);
     }
 
-    public void opDoubleMarshaling(double p1, Test.DoubleS p2, Ice.Current current)
+    public void opDoubleMarshaling(double p1, double[] p2, Ice.Current current)
     {
         double d = 1278312346.0 / 13.0;
         test(p1 == d);
-        for(int i = 0; i < p2.Count; ++i)
+        for(int i = 0; i < p2.Length; ++i)
         {
             test(p2[i] == d);
         }
     }
 
-    public Test.StringS opStringS(Test.StringS p1, Test.StringS p2, out Test.StringS p3, Ice.Current current)
+    public string[] opStringS(string[] p1, string[] p2, out string[] p3, Ice.Current current)
     {
-        p3 = new Test.StringS();
-        p3.AddRange(p1);
-        p3.AddRange(p2);
+        p3 = new string[p1.Length + p2.Length];
+        Array.Copy(p1, p3, p1.Length);
+        Array.Copy(p2, 0, p3, p1.Length, p2.Length);
 
-        Test.StringS r = new Test.StringS();
-        for(int i = 0; i < p1.Count; i++)
+        string[] r = new string[p1.Length];
+        for(int i = 0; i < p1.Length; i++)
         {
-            r.Add(p1[p1.Count - (i + 1)]);
+            r[i] = p1[p1.Length - (i + 1)];
         }
         return r;
     }
 
-    public Test.StringSS opStringSS(Test.StringSS p1, Test.StringSS p2, out Test.StringSS p3,
-                                    Ice.Current current)
+    public string[][] opStringSS(string[][] p1, string[][] p2, out string[][] p3, Ice.Current current)
     {
-        p3 = new Test.StringSS();
-        p3.AddRange(p1);
-        p3.AddRange(p2);
+        p3 = new string[p1.Length + p2.Length][];
+        Array.Copy(p1, p3, p1.Length);
+        Array.Copy(p2, 0, p3, p1.Length, p2.Length);
 
-        Test.StringSS r = new Test.StringSS();
-        for(int i = 0; i < p2.Count; i++)
+        string[][] r = new string[p2.Length][];
+        for(int i = 0; i < p2.Length; i++)
         {
-            r.Add(p2[p2.Count - (i + 1)]);
+            r[i] = p2[p2.Length - (i + 1)];
         }
         return r;
     }
 
-    public Test.StringSS[] opStringSSS(Test.StringSS[] p1, Test.StringSS[] p2, out Test.StringSS[] p3,
-                                       Ice.Current current)
+    public string[][][] opStringSSS(string[][][] p1, string[][][] p2, out string[][][] p3, Ice.Current current)
     {
-        p3 = new Test.StringSS[p1.Length + p2.Length];
-        p1.CopyTo(p3, 0);
-        p2.CopyTo(p3, p1.Length);
+        p3 = new string[p1.Length + p2.Length][][];
+        Array.Copy(p1, p3, p1.Length);
+        Array.Copy(p2, 0, p3, p1.Length, p2.Length);
 
-        Test.StringSS[] r = new Test.StringSS[p2.Length];
+        string[][][] r = new string[p2.Length][][];
         for(int i = 0; i < p2.Length; i++)
         {
             r[i] = p2[p2.Length - (i + 1)];

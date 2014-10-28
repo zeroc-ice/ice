@@ -10,11 +10,8 @@
 using System;
 using System.Collections.Generic;
 
-namespace Ice
+namespace IceInternal
 {
-#if !SILVERLIGHT
-    [Serializable]
-#endif
     public abstract class DictionaryBase<KT, VT> : System.Collections.IDictionary
     {
         protected Dictionary<KT, VT> dict_;
@@ -343,5 +340,16 @@ namespace Ice
                                             + " for a dictionary with value type " + typeof(VT).ToString());
             }
         }
+    }
+}
+
+namespace Ice
+{
+#if !SILVERLIGHT
+    [Serializable]
+#endif
+    [Obsolete("This class is deprecated.")]
+    public abstract class DictionaryBase<KT, VT> : IceInternal.DictionaryBase<KT, VT>
+    {
     }
 }

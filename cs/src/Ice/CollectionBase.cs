@@ -10,11 +10,8 @@
 using System;
 using System.Collections.Generic;
 
-namespace Ice
+namespace IceInternal
 {
-#if !SILVERLIGHT
-    [Serializable]
-#endif
     public abstract class CollectionBase<T> : System.Collections.IList
     {
         protected List<T> list_;
@@ -439,4 +436,15 @@ namespace Ice
         }
     }
 
+}
+
+namespace Ice
+{
+#if !SILVERLIGHT
+    [Serializable]
+#endif
+    [Obsolete("This class is deprecated.")]
+    public abstract class CollectionBase<T> : IceInternal.CollectionBase<T>
+    {
+    }
 }

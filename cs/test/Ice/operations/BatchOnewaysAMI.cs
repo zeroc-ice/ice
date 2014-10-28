@@ -55,12 +55,9 @@ class BatchOnewaysAMI
 
     internal static void batchOneways(Test.MyClassPrx p)
     {
-        byte[] tbs1 = new byte[10  * 1024];
-        byte[] tbs2 = new byte[99  * 1024];
-        byte[] tbs3 = new byte[100 * 1024];
-        Test.ByteS bs1 = new Test.ByteS(tbs1);
-        Test.ByteS bs2 = new Test.ByteS(tbs2);
-        Test.ByteS bs3 = new Test.ByteS(tbs3);
+        byte[] bs1 = new byte[10  * 1024];
+        byte[] bs2 = new byte[99  * 1024];
+        byte[] bs3 = new byte[100 * 1024];
 
         Callback cb = new Callback();
         p.begin_opByteSOneway(bs1).whenCompleted(
@@ -148,7 +145,7 @@ class BatchOnewaysAMI
                 {
                     test(ex is Ice.CloseConnectionException);
                 });
-            
+
             batch.begin_ice_ping();
             batch2.begin_ice_ping();
         }
@@ -158,7 +155,7 @@ class BatchOnewaysAMI
         Ice.ObjectPrx batch3 = batch.ice_identity(identity);
         batch3.begin_ice_ping();
         batch3.end_ice_flushBatchRequests(batch3.begin_ice_flushBatchRequests());
-      
+
         // Make sure that a bogus batch request doesn't cause troubles to other ones.
         batch3.begin_ice_ping();
         batch.begin_ice_ping();

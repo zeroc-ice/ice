@@ -21,12 +21,9 @@ class BatchOneways
 
     internal static void batchOneways(Test.MyClassPrx p)
     {
-        byte[] tbs1 = new byte[10  * 1024];
-        byte[] tbs2 = new byte[99  * 1024];
-        byte[] tbs3 = new byte[100 * 1024];
-        Test.ByteS bs1 = new Test.ByteS(tbs1);
-        Test.ByteS bs2 = new Test.ByteS(tbs2);
-        Test.ByteS bs3 = new Test.ByteS(tbs3);
+        byte[] bs1 = new byte[10  * 1024];
+        byte[] bs2 = new byte[99  * 1024];
+        byte[] bs3 = new byte[100 * 1024];
 
         try
         {
@@ -100,7 +97,7 @@ class BatchOneways
             catch(Ice.CloseConnectionException)
             {
             }
-            
+
             try
             {
                 batch2.ice_ping();
@@ -118,7 +115,7 @@ class BatchOneways
         Ice.ObjectPrx batch3 = batch.ice_identity(identity);
         batch3.ice_ping();
         batch3.ice_flushBatchRequests();
-        
+
         // Make sure that a bogus batch request doesn't cause troubles to other ones.
         batch3.ice_ping();
         batch.ice_ping();

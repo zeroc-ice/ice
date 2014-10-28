@@ -35,27 +35,27 @@ struct Structure
     AnotherStruct s;
 };
 
-["clr:collection"] sequence<byte> ByteS;
-["clr:collection"] sequence<bool> BoolS;
-["clr:collection"] sequence<short> ShortS;
-["clr:collection"] sequence<int> IntS;
-["clr:collection"] sequence<long> LongS;
-["clr:collection"] sequence<float> FloatS;
-["clr:collection"] sequence<double> DoubleS;
-["clr:collection"] sequence<string> StringS;
-["clr:collection"] sequence<MyEnum> MyEnumS;
-["clr:collection"] sequence<MyClass*> MyClassS;
+sequence<byte> ByteS;
+sequence<bool> BoolS;
+sequence<short> ShortS;
+sequence<int> IntS;
+sequence<long> LongS;
+sequence<float> FloatS;
+sequence<double> DoubleS;
+sequence<string> StringS;
+sequence<MyEnum> MyEnumS;
+sequence<MyClass*> MyClassS;
 
-["clr:collection"] sequence<ByteS> ByteSS;
-["clr:collection"] sequence<BoolS> BoolSS;
-["clr:collection"] sequence<ShortS> ShortSS;
-["clr:collection"] sequence<IntS> IntSS;
-["clr:collection"] sequence<LongS> LongSS;
-["clr:collection"] sequence<FloatS> FloatSS;
-["clr:collection"] sequence<DoubleS> DoubleSS;
-["clr:collection"] sequence<StringS> StringSS;
-["clr:collection"] sequence<MyEnumS> MyEnumSS;
-["clr:collection"] sequence<MyClassS> MyClassSS;
+sequence<ByteS> ByteSS;
+sequence<BoolS> BoolSS;
+sequence<ShortS> ShortSS;
+sequence<IntS> IntSS;
+sequence<LongS> LongSS;
+sequence<FloatS> FloatSS;
+sequence<DoubleS> DoubleSS;
+sequence<StringS> StringSS;
+sequence<MyEnumS> MyEnumSS;
+sequence<MyClassS> MyClassSS;
 
 sequence<StringSS> StringSSS;
 
@@ -109,30 +109,30 @@ class MyClass
                   out ByteS p3);
 
     BoolS opBoolS(BoolS p1, BoolS p2,
-                  out BoolS p3);        
+                  out BoolS p3);
 
     LongS opShortIntLongS(Test::ShortS p1, IntS p2, LongS p3,
                           out ::Test::ShortS p4, out IntS p5, out LongS p6);
 
     DoubleS opFloatDoubleS(FloatS p1, DoubleS p2,
                            out FloatS p3, out DoubleS p4);
-    
+
     StringS opStringS(StringS p1, StringS p2,
                       out StringS p3);
-    
+
     ByteSS opByteSS(ByteSS p1, ByteSS p2,
                     out ByteSS p3);
-    
+
     BoolSS opBoolSS(BoolSS p1, BoolSS p2,
                     out BoolSS p3);
-    
+
     LongSS opShortIntLongSS(ShortSS p1, IntSS p2, LongSS p3,
                             out ShortSS p4, out IntSS p5, out LongSS p6);
-    
-    
+
+
     DoubleSS opFloatDoubleSS(FloatSS p1, DoubleSS p2,
                              out FloatSS p3, out DoubleSS p4);
-    
+
     StringSS opStringSS(StringSS p1, StringSS p2,
                         out StringSS p3);
 
@@ -165,7 +165,7 @@ class MyClass
     void opByteSOneway(ByteS s);
 
     Ice::Context opContext();
-    
+
     void opDoubleMarshaling(double p1, DoubleS p2);
 
     idempotent void opIdempotent();

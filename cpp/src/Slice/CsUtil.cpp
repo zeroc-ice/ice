@@ -2518,6 +2518,7 @@ Slice::CsGenerator::MetaDataVisitor::visitConst(const ConstPtr& p)
 void
 Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
 {
+    static set<string> collectionWarnings;
     const string msg = "ignoring invalid metadata";
 
     StringList localMetaData = cont->getMetaData();
@@ -2536,6 +2537,10 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                 {
                     if(s.substr(prefix.size()) == "collection")
                     {
+                        if(collectionWarnings.find(cont->file()) == collectionWarnings.end()) {
+                            emitWarning(cont->file(), cont->line(), "the \"" + s + "\" metadata has been deprecated");
+                            collectionWarnings.insert(cont->file());
+                        }
                         continue;
                     }
                     static const string clrGenericPrefix = prefix + "generic:";
@@ -2606,6 +2611,10 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                 {
                     if(s.substr(prefix.size()) == "collection")
                     {
+                        if(collectionWarnings.find(cont->file()) == collectionWarnings.end()) {
+                            emitWarning(cont->file(), cont->line(), "the \"" + s + "\" metadata has been deprecated");
+                            collectionWarnings.insert(cont->file());
+                        }
                         continue;
                     }
                     static const string clrGenericPrefix = prefix + "generic:";

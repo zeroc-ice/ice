@@ -98,30 +98,31 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
         cb.ice_response(p2, p1);
     }
 
-    public void opBoolS_async(Test.AMD_MyClass_opBoolS cb, Test.BoolS p1, Test.BoolS p2, Ice.Current current)
+    public void opBoolS_async(Test.AMD_MyClass_opBoolS cb, bool[] p1, bool[] p2, Ice.Current current)
     {
-        Test.BoolS p3 = new Test.BoolS();
-        p3.AddRange(p1);
-        p3.AddRange(p2);
+        bool[] p3 = new bool[p1.Length + p2.Length];
+        Array.Copy(p1, p3, p1.Length);
+        Array.Copy(p2, 0, p3, p1.Length, p2.Length);
 
-        Test.BoolS r = new Test.BoolS();
-        for(int i = 0; i < p1.Count; i++)
+        bool[] r = new bool[p1.Length];
+        for(int i = 0; i < p1.Length; i++)
         {
-            r.Add(p1[p1.Count - (i + 1)]);
+            r[i] = p1[p1.Length - (i + 1)];
         }
         cb.ice_response(r, p3);
     }
 
-    public void opBoolSS_async(Test.AMD_MyClass_opBoolSS cb, Test.BoolSS p1, Test.BoolSS p2, Ice.Current current)
+    public void opBoolSS_async(Test.AMD_MyClass_opBoolSS cb, bool[][] p1, bool[][] p2,
+                                        Ice.Current current)
     {
-        Test.BoolSS p3 = new Test.BoolSS();
-        p3.AddRange(p1);
-        p3.AddRange(p2);
+        bool[][] p3 = new bool[p1.Length + p2.Length][];
+        Array.Copy(p1, p3, p1.Length);
+        Array.Copy(p2, 0, p3, p1.Length, p2.Length);
 
-        Test.BoolSS r = new Test.BoolSS();
-        for(int i = 0; i < p1.Count; i++)
+        bool[][] r = new bool[p1.Length][];
+        for(int i = 0; i < p1.Length; i++)
         {
-            r.Add(p1[p1.Count - (i + 1)]);
+            r[i] = p1[p1.Length - (i + 1)];
         }
         cb.ice_response(r, p3);
     }
@@ -147,32 +148,32 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
         cb.ice_response(r, p3);
     }
 
-    public void opByteS_async(Test.AMD_MyClass_opByteS cb, Test.ByteS p1, Test.ByteS p2, Ice.Current current)
+    public void opByteS_async(Test.AMD_MyClass_opByteS cb, byte[] p1, byte[] p2, Ice.Current current)
     {
-        Test.ByteS p3 = new Test.ByteS();
-        for(int i = 0; i < p1.Count; i++)
+        byte[] p3 = new byte[p1.Length];
+        for(int i = 0; i < p1.Length; i++)
         {
-            p3.Add(p1[p1.Count - (i + 1)]);
+            p3[i] = p1[p1.Length - (i + 1)];
         }
 
-        Test.ByteS r = new Test.ByteS();
-        r.AddRange(p1);
-        r.AddRange(p2);
+        byte[] r = new byte[p1.Length + p2.Length];
+        Array.Copy(p1, r, p1.Length);
+        Array.Copy(p2, 0, r, p1.Length, p2.Length);
         cb.ice_response(r, p3);
     }
 
-    public void opByteSS_async(Test.AMD_MyClass_opByteSS cb, Test.ByteSS p1, Test.ByteSS p2,
-                               Ice.Current current)
+    public void opByteSS_async(Test.AMD_MyClass_opByteSS cb, byte[][] p1, byte[][] p2,
+                                        Ice.Current current)
     {
-        Test.ByteSS p3 = new Test.ByteSS();
-        for(int i = 0; i < p1.Count; i++)
+        byte[][] p3 = new byte[p1.Length][];
+        for(int i = 0; i < p1.Length; i++)
         {
-            p3.Add(p1[p1.Count - (i + 1)]);
+            p3[i] = p1[p1.Length - (i + 1)];
         }
 
-        Test.ByteSS r = new Test.ByteSS();
-        r.AddRange(p1);
-        r.AddRange(p2);
+        byte[][] r = new byte[p1.Length + p2.Length][];
+        Array.Copy(p1, r, p1.Length);
+        Array.Copy(p2, 0, r, p1.Length, p2.Length);
         cb.ice_response(r, p3);
     }
 
@@ -182,36 +183,47 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
         cb.ice_response(p2, p1, p2);
     }
 
-    public void opFloatDoubleS_async(Test.AMD_MyClass_opFloatDoubleS cb, Test.FloatS p1, Test.DoubleS p2,
-                                     Ice.Current current)
+    public void opFloatDoubleS_async(Test.AMD_MyClass_opFloatDoubleS cb, float[] p1, double[] p2,
+                                              Ice.Current current)
     {
-        Test.FloatS p3 = p1;
-        Test.DoubleS p4 = new Test.DoubleS();
-        for(int i = 0; i < p2.Count; i++)
+        float[] p3 = p1;
+
+        double[] p4 = new double[p2.Length];
+        for(int i = 0; i < p2.Length; i++)
         {
-            p4.Add(p2[p2.Count - (i + 1)]);
+            p4[i] = p2[p2.Length - (i + 1)];
         }
-        Test.DoubleS r = new Test.DoubleS();
-        r.AddRange(p2);
-        for(int i = 0; i < p1.Count; i++)
+
+        double[] r = new double[p2.Length + p1.Length];
+        Array.Copy(p2, r, p2.Length);
+        for(int i = 0; i < p1.Length; i++)
         {
-            r.Add(p1[i]);
+            r[p2.Length + i] = (double)p1[i];
         }
         cb.ice_response(r, p3, p4);
     }
 
-    public void opFloatDoubleSS_async(Test.AMD_MyClass_opFloatDoubleSS cb, Test.FloatSS p1, Test.DoubleSS p2,
-                                      Ice.Current current)
+    public void opFloatDoubleSS_async(Test.AMD_MyClass_opFloatDoubleSS cb, float[][] p1, double[][] p2,
+                                               Ice.Current current)
     {
-        Test.FloatSS p3 = p1;
-        Test.DoubleSS p4 = new Test.DoubleSS();
-        for(int i = 0; i < p2.Count; i++)
+        float[][] p3 = p1;
+
+        double[][] p4 = new double[p2.Length][];
+        for(int i = 0; i < p2.Length; i++)
         {
-            p4.Add(p2[p2.Count - (i + 1)]);
+            p4[i] = p2[p2.Length - (i + 1)];
         }
-        Test.DoubleSS r = new Test.DoubleSS();
-        r.AddRange(p2);
-        r.AddRange(p2);
+
+        double[][] r = new double[p2.Length + p2.Length][];
+        Array.Copy(p2, r, p2.Length);
+        for(int i = 0; i < p2.Length; i++)
+        {
+            r[p2.Length + i] = new double[p2[i].Length];
+            for(int j = 0; j < p2[i].Length; j++)
+            {
+                r[p2.Length + i][j] = (double)p2[i][j];
+            }
+        }
         cb.ice_response(r, p3, p4);
     }
 
@@ -266,33 +278,38 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
         cb.ice_response(p3, p1, p2, p3);
     }
 
-    public void opShortIntLongS_async(Test.AMD_MyClass_opShortIntLongS cb, Test.ShortS p1, Test.IntS p2,
-                                      Test.LongS p3, Ice.Current current)
+
+    public void opShortIntLongS_async(Test.AMD_MyClass_opShortIntLongS cb, short[] p1, int[] p2,
+                                               long[] p3, Ice.Current current)
     {
-        Test.ShortS p4 = p1;
-        Test.IntS p5 = new Test.IntS();
-        for(int i = 0; i < p2.Count; i++)
+        short[] p4 = p1;
+
+        int[] p5 = new int[p2.Length];
+        for(int i = 0; i < p2.Length; i++)
         {
-            p5.Add(p2[p2.Count - (i + 1)]);
+            p5[i] = p2[p2.Length - (i + 1)];
         }
-        Test.LongS p6 = new Test.LongS();
-        p6.AddRange(p3);
-        p6.AddRange(p3);
+
+        long[] p6 = new long[p3.Length + p3.Length];
+        Array.Copy(p3, p6, p3.Length);
+        Array.Copy(p3, 0, p6, p3.Length, p3.Length);
         cb.ice_response(p3, p4, p5, p6);
     }
 
-    public void opShortIntLongSS_async(Test.AMD_MyClass_opShortIntLongSS cb, Test.ShortSS p1,
-                                       Test.IntSS p2, Test.LongSS p3, Ice.Current current)
+    public void opShortIntLongSS_async(Test.AMD_MyClass_opShortIntLongSS cb, short[][] p1,
+                                                int[][] p2, long[][] p3, Ice.Current current)
     {
-        Test.ShortSS p4 = p1;
-        Test.IntSS p5 = new Test.IntSS();
-        for(int i = 0; i < p2.Count; i++)
+        short[][] p4 = p1;
+
+        int[][] p5 = new int[p2.Length][];
+        for(int i = 0; i < p2.Length; i++)
         {
-            p5.Add(p2[p2.Count - (i + 1)]);
+            p5[i] = p2[p2.Length - (i + 1)];
         }
-        Test.LongSS p6 = new Test.LongSS();
-        p6.AddRange(p3);
-        p6.AddRange(p3);
+
+        long[][] p6 = new long[p3.Length + p3.Length][];
+        Array.Copy(p3, p6, p3.Length);
+        Array.Copy(p3, 0, p6, p3.Length, p3.Length);
         cb.ice_response(p3, p4, p5, p6);
     }
 
@@ -350,12 +367,12 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
         cb.ice_response(r, p3);
     }
 
-    public void opIntS_async(Test.AMD_MyClass_opIntS cb, Test.IntS s, Ice.Current current)
+    public void opIntS_async(Test.AMD_MyClass_opIntS cb, int[] s, Ice.Current current)
     {
-        Test.IntS r = new Test.IntS();
-        for(int i = 0; i < s.Count; ++i)
+        int[] r = new int[s.Length];
+        for(int i = 0; i < s.Length; ++i)
         {
-            r.Add(-s[i]);
+            r[i] = -s[i];
         }
         cb.ice_response(r);
     }
@@ -365,61 +382,61 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
         cb.ice_response(current.ctx);
     }
 
-    public void opByteSOneway_async(Test.AMD_MyClass_opByteSOneway cb, Test.ByteS s, Ice.Current current)
+    public void opByteSOneway_async(Test.AMD_MyClass_opByteSOneway cb, byte[] s, Ice.Current current)
     {
         cb.ice_response();
     }
 
-    public void opDoubleMarshaling_async(Test.AMD_MyClass_opDoubleMarshaling cb, double p1, Test.DoubleS p2,
-                                         Ice.Current current)
+    public void opDoubleMarshaling_async(Test.AMD_MyClass_opDoubleMarshaling cb, double p1, double[] p2,
+                                                  Ice.Current current)
     {
         double d = 1278312346.0 / 13.0;
         test(p1 == d);
-        for(int i = 0; i < p2.Count; ++i)
+        for(int i = 0; i < p2.Length; ++i)
         {
             test(p2[i] == d);
         }
         cb.ice_response();
     }
 
-    public void opStringS_async(Test.AMD_MyClass_opStringS cb, Test.StringS p1, Test.StringS p2,
-                                Ice.Current current)
+    public void opStringS_async(Test.AMD_MyClass_opStringS cb, string[] p1, string[] p2,
+                                         Ice.Current current)
     {
-        Test.StringS p3 = new Test.StringS();
-        p3.AddRange(p1);
-        p3.AddRange(p2);
-
-        Test.StringS r = new Test.StringS();
-        for(int i = 0; i < p1.Count; i++)
-        {
-            r.Add(p1[p1.Count - (i + 1)]);
-        }
-        cb.ice_response(r, p3);
-    }
-
-    public void opStringSS_async(Test.AMD_MyClass_opStringSS cb, Test.StringSS p1, Test.StringSS p2,
-                                 Ice.Current current)
-    {
-        Test.StringSS p3 = new Test.StringSS();
-        p3.AddRange(p1);
-        p3.AddRange(p2);
-
-        Test.StringSS r = new Test.StringSS();
-        for(int i = 0; i < p2.Count; i++)
-        {
-            r.Add(p2[p2.Count - (i + 1)]);
-        }
-        cb.ice_response(r, p3);
-    }
-
-    public void opStringSSS_async(Test.AMD_MyClass_opStringSSS cb, Test.StringSS[] p1, Test.StringSS[] p2,
-                                  Ice.Current current)
-    {
-        Test.StringSS[] p3 = new Test.StringSS[p1.Length + p2.Length];
-        Array.Copy(p1, 0, p3, 0, p1.Length);
+        string[] p3 = new string[p1.Length + p2.Length];
+        Array.Copy(p1, p3, p1.Length);
         Array.Copy(p2, 0, p3, p1.Length, p2.Length);
 
-        Test.StringSS[] r = new Test.StringSS[p2.Length];
+        string[] r = new string[p1.Length];
+        for(int i = 0; i < p1.Length; i++)
+        {
+            r[i] = p1[p1.Length - (i + 1)];
+        }
+        cb.ice_response(r, p3);
+    }
+
+    public void opStringSS_async(Test.AMD_MyClass_opStringSS cb, string[][] p1, string[][] p2,
+                                          Ice.Current current)
+    {
+        string[][] p3 = new string[p1.Length + p2.Length][];
+        Array.Copy(p1, p3, p1.Length);
+        Array.Copy(p2, 0, p3, p1.Length, p2.Length);
+
+        string[][] r = new string[p2.Length][];
+        for(int i = 0; i < p2.Length; i++)
+        {
+            r[i] = p2[p2.Length - (i + 1)];
+        }
+        cb.ice_response(r, p3);
+    }
+
+    public void opStringSSS_async(Test.AMD_MyClass_opStringSSS cb, string[][][] p1, string[][][] p2,
+                                           Ice.Current current)
+    {
+        string[][][] p3 = new string[p1.Length + p2.Length][][];
+        Array.Copy(p1, p3, p1.Length);
+        Array.Copy(p2, 0, p3, p1.Length, p2.Length);
+
+        string[][][] r = new string[p2.Length][][];
         for(int i = 0; i < p2.Length; i++)
         {
             r[i] = p2[p2.Length - (i + 1)];

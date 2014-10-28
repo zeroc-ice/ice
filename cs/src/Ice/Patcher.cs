@@ -234,7 +234,7 @@ namespace IceInternal
 
     public sealed class SequencePatcher<T> : Patcher
     {
-        public SequencePatcher(string type, Ice.CollectionBase<T> seq, int index) : base(type)
+        public SequencePatcher(string type, IceInternal.CollectionBase<T> seq, int index) : base(type)
         {
             _seq = seq;
             _index = index;
@@ -262,7 +262,7 @@ namespace IceInternal
             }
         }
 
-        private Ice.CollectionBase<T> _seq;
+        private IceInternal.CollectionBase<T> _seq;
         private int _index; // The index at which to patch the sequence.
     }
 

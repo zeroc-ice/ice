@@ -3397,7 +3397,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
         _out.restoreIndent();
     }
     _out << nl << "public class " << name
-         << " : Ice.CollectionBase<" << s << ">, _System.ICloneable";
+         << " : IceInternal.CollectionBase<" << s << ">, _System.ICloneable";
     _out << sb;
 
     _out << sp << nl << "#region Constructors";
@@ -4382,7 +4382,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
         _out.restoreIndent();
     }
     _out << nl << "public class " << name
-         << " : Ice.DictionaryBase<" << ks << ", " << vs << ">, _System.ICloneable";
+         << " : IceInternal.DictionaryBase<" << ks << ", " << vs << ">, _System.ICloneable";
     _out << sb;
 
     _out << sp << nl << "#region " << name << " members";
