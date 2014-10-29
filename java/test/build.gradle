@@ -10,91 +10,54 @@
 ext.testDir = "${projectDir}/src/main/java/test"
 apply from: "slice.gradle"
 
-project(':test') {
-    def hasLambda = org.gradle.internal.jvm.Jvm.current().getJavaVersion().toString().toFloat() >= 1.8f
+def hasLambda = org.gradle.internal.jvm.Jvm.current().getJavaVersion().toString().toFloat() >= 1.8f
 
-    sourceSets {
-        main {
-            java {
-                if (!hasLambda) {
-                    exclude '**/lambda'
-                }
-                exclude '**/plugin/plugins/**'
-                exclude 'ejb'
+sourceSets {
+    main {
+        java {
+            if (!hasLambda) {
+                exclude '**/lambda'
             }
+            exclude '**/plugin/plugins/**'
+            exclude 'ejb'
         }
-    }
-
-    idea.module {
-        excludeDirs -= file(buildDir)
-        buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
-    }
-
-    if (distJarDir == null) {
-        dependencies {
-            compile project(':Ice')
-            compile project(':Freeze')
-            compile project(':IceDiscovery')
-            compile project(':IceBox')
-            compile project(':Glacier2')
-            compile project(':IceStorm')
-            compile project(':IceGrid')
-        }
-    } else {
-        println "Using Ice jars installed in ${distJarDir}"
-        dependencies {
-            compile files("${distJarDir}/Ice.jar")
-            compile files("${distJarDir}/Freeze.jar")
-            compile files("${distJarDir}/IceDiscovery.jar")
-            compile files("${distJarDir}/IceBox.jar")
-            compile files("${distJarDir}/Glacier2.jar")
-            compile files("${distJarDir}/IceStorm.jar")
-            compile files("${distJarDir}/IceGrid.jar")
-            compile "com.sleepycat:db:${dbVersion}"
-        }
-    }
-
-    jar {
-        archiveName = "IceTest.jar"
-        destinationDir = new File("$rootProject.projectDir/lib/")
-    }
-
-    clean {
-        delete("$rootProject.projectDir/lib/IceTest.jar")
     }
 }
 
-project(':testplugin') {
-    sourceSets {
-        main {
-            java {
-                srcDirs '../test'
-                include '**/plugin/plugins/**'
-            }
-        }
-    }
+idea.module {
+    excludeDirs -= file(buildDir)
+    buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
+}
 
-    idea.module {
-        excludeDirs -= file(buildDir)
-        buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
+if (distJarDir == null) {
+    dependencies {
+        compile project(':Ice')
+        compile project(':Freeze')
+        compile project(':IceDiscovery')
+        compile project(':IceBox')
+        compile project(':Glacier2')
+        compile project(':IceStorm')
+        compile project(':IceGrid')
     }
+} else {
+    println "Using Ice jars installed in ${distJarDir}"
+    dependencies {
+        compile files("${distJarDir}/Ice.jar")
+        compile files("${distJarDir}/Freeze.jar")
+        compile files("${distJarDir}/IceDiscovery.jar")
+        compile files("${distJarDir}/IceBox.jar")
+        compile files("${distJarDir}/Glacier2.jar")
+        compile files("${distJarDir}/IceStorm.jar")
+        compile files("${distJarDir}/IceGrid.jar")
+        compile "com.sleepycat:db:${dbVersion}"
+    }
+}
 
-    if (distJarDir == null) {
-        dependencies {
-            compile project(':Ice')
-        }
-    } else {
-        dependencies {
-            compile files("${distJarDir}/Ice.jar")
-        }
-    }
+jar {
+    archiveName = "IceTest.jar"
+    destinationDir = new File("$rootProject.projectDir/lib/")
+}
 
-    jar {
-        archiveName = "IceTestPlugins.jar"
-        destinationDir = new File("$rootProject.projectDir/lib/")
-    }
-
-    clean {
-        delete("$rootProject.projectDir/lib/IceTestPlugins.jar")
-    }
+clean {
+    delete("$rootProject.projectDir/lib/IceTest.jar")
 }
