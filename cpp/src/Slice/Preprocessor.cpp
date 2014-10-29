@@ -229,7 +229,7 @@ Slice::Preprocessor::preprocess(bool keepComments, const string& extraArgs)
         // First try to open temporay file in tmp directory.
         //
 #ifdef _WIN32
-        wchar_t* name = _wtempnam(NULL, L".preprocess");
+        wchar_t* name = _wtempnam(0, IceUtil::stringToWstring(".preprocess." + IceUtil::generateUUID()).c_str());
         if(name)
         {
             //
