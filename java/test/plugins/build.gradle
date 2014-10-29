@@ -10,8 +10,7 @@
 sourceSets {
     main {
         java {
-            srcDirs "$rootProject.projectDir/test/src/main/java/test/Ice/plugin"
-            include 'plugins/**'
+            srcDirs "$rootProject.projectDir/test/plugins"
         }
     }
 }

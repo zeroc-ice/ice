@@ -60,7 +60,7 @@
             <option value="$PROJECT_DIR$/src/IceStorm" />
             <option value="$PROJECT_DIR$/src/ant" />
             <option value="$PROJECT_DIR$/test" />
-            <option value="$PROJECT_DIR$/test/src/main/java/test/Ice/plugin" />
+            <option value="$PROJECT_DIR$/test/plugins" />
           </set>
         </option>
       </GradleProjectSettings>

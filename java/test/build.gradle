@@ -18,7 +18,7 @@ sourceSets {
             if (!hasLambda) {
                 exclude '**/lambda'
             }
-            exclude '**/plugin/plugins/**'
+            exclude 'plugins'
             exclude 'ejb'
         }
     }

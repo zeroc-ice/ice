@@ -55,7 +55,7 @@
       <module fileurl="file://$PROJECT_DIR$/demo/book/simple_filesystem/demo_book_simple_filesystem.iml" filepath="$PROJECT_DIR$/demo/book/simple_filesystem/demo_book_simple_filesystem.iml" />
       <module fileurl="file://$PROJECT_DIR$/java.iml" filepath="$PROJECT_DIR$/java.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/test.iml" filepath="$PROJECT_DIR$/test/test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/test/src/main/java/test/Ice/plugin/test_src_main_java_test_Ice_plugin.iml" filepath="$PROJECT_DIR$/test/src/main/java/test/Ice/plugin/test_src_main_java_test_Ice_plugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/test/plugins/test_plugins.iml" filepath="$PROJECT_DIR$/test/plugins/test_plugins.iml" />
     </modules>
   </component>
 </project>
