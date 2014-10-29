@@ -36,7 +36,7 @@ batchOneways(const Test::MyClassPrx& p)
     {
         test(false);
     }
-    
+
     try
     {
         p->opByteSOneway(bs3);
@@ -45,7 +45,7 @@ batchOneways(const Test::MyClassPrx& p)
     catch(const Ice::MemoryLimitException&)
     {
     }
-    
+
     Test::MyClassPrx batch = Test::MyClassPrx::uncheckedCast(p->ice_batchOneway());
     batch->ice_flushBatchRequests();
 
@@ -62,7 +62,7 @@ batchOneways(const Test::MyClassPrx& p)
             test(false);
         }
     }
-    
+
     if(batch->ice_getConnection())
     {
         batch->ice_getConnection()->flushBatchRequests();

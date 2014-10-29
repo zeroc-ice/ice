@@ -530,6 +530,451 @@ public:
         called();
     }
 
+    void opByteBoolDS(const Test::ByteBoolDS& ro, const Test::ByteBoolDS& _do)
+    {
+        test(ro.size() == 2);
+        test(ro[0].size() == 3);
+        test(ro[0].find(10) != ro[0].end());
+        test(ro[0].find(10)->second == true);
+        test(ro[0].find(11) != ro[0].end());
+        test(ro[0].find(11)->second == false);
+        test(ro[0].find(101) != ro[0].end());
+        test(ro[0].find(101)->second == true);
+        test(ro[1].size() == 2);
+        test(ro[1].find(10) != ro[1].end());
+        test(ro[1].find(10)->second == true);
+        test(ro[1].find(100) != ro[1].end());
+        test(ro[1].find(100)->second == false);
+        test(_do.size() == 3);
+        test(_do[0].size() == 2);
+        test(_do[0].find(100) != _do[0].end());
+        test(_do[0].find(100)->second == false);
+        test(_do[0].find(101) != _do[0].end());
+        test(_do[0].find(101)->second == false);
+        test(_do[1].size() == 2);
+        test(_do[1].find(10) != _do[1].end());
+        test(_do[1].find(10)->second == true);
+        test(_do[1].find(100) != _do[1].end());
+        test(_do[1].find(100)->second == false);
+        test(_do[2].size() == 3);
+        test(_do[2].find(10) != _do[2].end());
+        test(_do[2].find(10)->second == true);
+        test(_do[2].find(11) != _do[2].end());
+        test(_do[2].find(11)->second == false);
+        test(_do[2].find(101) != _do[2].end());
+        test(_do[2].find(101)->second == true);
+        called();
+    }
+
+    void opShortIntDS(const Test::ShortIntDS& ro, const Test::ShortIntDS& _do)
+    {
+        test(ro.size() == 2);
+        test(ro[0].size() == 3);
+        test(ro[0].find(110) != ro[0].end());
+        test(ro[0].find(110)->second == -1);
+        test(ro[0].find(111) != ro[0].end());
+        test(ro[0].find(111)->second == -100);
+        test(ro[0].find(1101) != ro[0].end());
+        test(ro[0].find(1101)->second == 0);
+        test(ro[1].size() == 2);
+        test(ro[1].find(110)->second == -1);
+        test(ro[1].find(1100)->second == 123123);
+        test(_do.size() == 3);
+        test(_do[0].size() == 1);
+        test(_do[0].find(100) != _do[0].end());
+        test(_do[0].find(100)->second == -1001);
+        test(_do[1].size() == 2);
+        test(_do[1].find(110) != _do[1].end());
+        test(_do[1].find(110)->second == -1);
+        test(_do[1].find(1100) != _do[1].end());
+        test(_do[1].find(1100)->second == 123123);
+        test(_do[2].size() == 3);
+        test(_do[2].find(110) != _do[2].end());
+        test(_do[2].find(110)->second == -1);
+        test(_do[2].find(111) != _do[2].end());
+        test(_do[2].find(111)->second == -100);
+        test(_do[2].find(1101) != _do[2].end());
+        test(_do[2].find(1101)->second == 0);
+        called();
+    }
+
+    void opLongFloatDS(const Test::LongFloatDS& ro, const Test::LongFloatDS& _do)
+    {
+        test(ro.size() == 2);
+        test(ro[0].size() == 3);
+        test(ro[0].find(999999110) != ro[0].end());
+        test(ro[0].find(999999110)->second == Ice::Float(-1.1));
+        test(ro[0].find(999999120) != ro[0].end());
+        test(ro[0].find(999999120)->second == Ice::Float(-100.4));
+        test(ro[0].find(999999130) != ro[0].end());
+        test(ro[0].find(999999130)->second == Ice::Float(0.5));
+        test(ro[1].size() == 2);
+        test(ro[1].find(999999110) != ro[1].end());
+        test(ro[1].find(999999110)->second == Ice::Float(-1.1));
+        test(ro[1].find(999999111) != ro[1].end());
+        test(ro[1].find(999999111)->second == Ice::Float(123123.2));
+        test(_do.size() == 3);
+        test(_do[0].size() == 1);
+        test(_do[0].find(999999140) != _do[0].end());
+        test(_do[0].find(999999140)->second == Ice::Float(3.14));
+        test(_do[1].size() == 2);
+        test(_do[1].find(999999110) != _do[1].end());
+        test(_do[1].find(999999110)->second == Ice::Float(-1.1));
+        test(_do[1].find(999999111) != _do[1].end());
+        test(_do[1].find(999999111)->second == Ice::Float(123123.2));
+        test(_do[2].size() == 3);
+        test(_do[2].find(999999110) != _do[2].end());
+        test(_do[2].find(999999110)->second == Ice::Float(-1.1));
+        test(_do[2].find(999999120) != _do[2].end());
+        test(_do[2].find(999999120)->second == Ice::Float(-100.4));
+        test(_do[2].find(999999130) != _do[2].end());
+        test(_do[2].find(999999130)->second == Ice::Float(0.5));
+        called();
+    }
+
+    void opStringStringDS(const Test::StringStringDS& ro, const Test::StringStringDS& _do)
+    {
+        test(ro.size() == 2);
+        test(ro[0].size() == 3);
+        test(ro[0].find("foo") != ro[0].end());
+        test(ro[0].find("foo")->second == "abc -1.1");
+        test(ro[0].find("FOO") != ro[0].end());
+        test(ro[0].find("FOO")->second == "abc -100.4");
+        test(ro[0].find("BAR") != ro[0].end());
+        test(ro[0].find("BAR")->second == "abc 0.5");
+        test(ro[1].size() == 2);
+        test(ro[1].find("foo") != ro[1].end());
+        test(ro[1].find("foo")->second == "abc -1.1");
+        test(ro[1].find("bar") != ro[1].end());
+        test(ro[1].find("bar")->second == "abc 123123.2");
+        test(_do.size() == 3);
+        test(_do[0].size() == 1);
+        test(_do[0].find("f00") != _do[0].end());
+        test(_do[0].find("f00")->second == "ABC -3.14");
+        test(_do[1].size() == 2);
+        test(_do[1].find("foo") != _do[1].end());
+        test(_do[1].find("foo")->second == "abc -1.1");
+        test(_do[1].find("bar") != _do[1].end());
+        test(_do[1].find("bar")->second == "abc 123123.2");
+        test(_do[2].size() == 3);
+        test(_do[2].find("foo") != _do[2].end());
+        test(_do[2].find("foo")->second == "abc -1.1");
+        test(_do[2].find("FOO") != _do[2].end());
+        test(_do[2].find("FOO")->second == "abc -100.4");
+        test(_do[2].find("BAR") != _do[2].end());
+        test(_do[2].find("BAR")->second == "abc 0.5");
+        called();
+    }
+
+    void opStringMyEnumDS(const Test::StringMyEnumDS& ro, const Test::StringMyEnumDS& _do)
+    {
+        test(ro.size() == 2);
+        test(ro[0].size() == 3);
+        test(ro[0].find("abc") != ro[0].end());
+        test(ro[0].find("abc")->second == Test::enum1);
+        test(ro[0].find("qwerty") != ro[0].end());
+        test(ro[0].find("qwerty")->second == Test::enum3);
+        test(ro[0].find("Hello!!") != ro[0].end());
+        test(ro[0].find("Hello!!")->second == Test::enum2);
+        test(ro[1].size() == 2);
+        test(ro[1].find("abc") != ro[1].end());
+        test(ro[1].find("abc")->second == Test::enum1);
+        test(ro[1].find("") != ro[1].end());
+        test(ro[1].find("")->second == Test::enum2);
+        test(_do.size() == 3);
+        test(_do[0].size() == 1);
+        test(_do[0].find("Goodbye") != _do[0].end());
+        test(_do[0].find("Goodbye")->second == Test::enum1);
+        test(_do[1].size() == 2);
+        test(_do[1].find("abc") != _do[1].end());
+        test(_do[1].find("abc")->second == Test::enum1);
+        test(_do[1].find("") != _do[1].end());
+        test(_do[1].find("")->second == Test::enum2);
+        test(_do[2].size() == 3);
+        test(_do[2].find("abc") != _do[2].end());
+        test(_do[2].find("abc")->second == Test::enum1);
+        test(_do[2].find("qwerty") != _do[2].end());
+        test(_do[2].find("qwerty")->second == Test::enum3);
+        test(_do[2].find("Hello!!") != _do[2].end());
+        test(_do[2].find("Hello!!")->second == Test::enum2);
+        called();
+    }
+
+    void opMyEnumStringDS(const Test::MyEnumStringDS& ro, const Test::MyEnumStringDS& _do)
+    {
+        test(ro.size() == 2);
+        test(ro[0].size() == 2);
+        test(ro[0].find(Test::enum2) != ro[0].end());
+        test(ro[0].find(Test::enum2)->second == "Hello!!");
+        test(ro[0].find(Test::enum3) != ro[0].end());
+        test(ro[0].find(Test::enum3)->second == "qwerty");
+        test(ro[1].size() == 1);
+        test(ro[1].find(Test::enum1) != ro[1].end());
+        test(ro[1].find(Test::enum1)->second == "abc");
+        test(_do.size() == 3);
+        test(_do[0].size() == 1);
+        test(_do[0].find(Test::enum1) != _do[0].end());
+        test(_do[0].find(Test::enum1)->second == "Goodbye");
+        test(_do[1].size() == 1);
+        test(_do[1].find(Test::enum1) != _do[1].end());
+        test(_do[1].find(Test::enum1)->second == "abc");
+        test(_do[2].size() == 2);
+        test(_do[2].find(Test::enum2) != _do[2].end());
+        test(_do[2].find(Test::enum2)->second == "Hello!!");
+        test(_do[2].find(Test::enum3) != _do[2].end());
+        test(_do[2].find(Test::enum3)->second == "qwerty");
+        called();
+    }
+
+    void opMyStructMyEnumDS(const Test::MyStructMyEnumDS& ro, const Test::MyStructMyEnumDS& _do)
+    {
+        Test::MyStruct s11 = { 1, 1 };
+        Test::MyStruct s12 = { 1, 2 };
+        Test::MyStruct s22 = { 2, 2 };
+        Test::MyStruct s23 = { 2, 3 };
+
+        test(ro.size() == 2);
+        test(ro[0].size() == 3);
+        test(ro[0].find(s11) != ro[0].end());
+        test(ro[0].find(s11)->second == Test::enum1);
+        test(ro[0].find(s22) != ro[0].end());
+        test(ro[0].find(s22)->second == Test::enum3);
+        test(ro[0].find(s23) != ro[0].end());
+        test(ro[0].find(s23)->second == Test::enum2);
+        test(ro[1].size() == 2);
+        test(ro[1].find(s11) != ro[1].end());
+        test(ro[1].find(s11)->second == Test::enum1);
+        test(ro[1].find(s12) != ro[1].end());
+        test(ro[1].find(s12)->second == Test::enum2);
+        test(_do.size() == 3);
+        test(_do[0].size() == 1);
+        test(_do[0].find(s23) != _do[0].end());
+        test(_do[0].find(s23)->second == Test::enum3);
+        test(_do[1].size() == 2);
+        test(_do[1].find(s11) != _do[1].end());
+        test(_do[1].find(s11)->second == Test::enum1);
+        test(_do[1].find(s12) != _do[1].end());
+        test(_do[1].find(s12)->second == Test::enum2);
+        test(_do[2].size() == 3);
+        test(_do[2].find(s11) != _do[2].end());
+        test(_do[2].find(s11)->second == Test::enum1);
+        test(_do[2].find(s22) != _do[2].end());
+        test(_do[2].find(s22)->second == Test::enum3);
+        test(_do[2].find(s23) != _do[2].end());
+        test(_do[2].find(s23)->second == Test::enum2);
+        called();
+    }
+
+    void opByteByteSD(const Test::ByteByteSD& ro, const Test::ByteByteSD& _do)
+    {
+        test(_do.size() == 1);
+        test(_do.find(Ice::Byte(0xf1)) != _do.end());
+        test(_do.find(Ice::Byte(0xf1))->second.size() == 2);
+        test(_do.find(Ice::Byte(0xf1))->second[0] == 0xf2);
+        test(_do.find(Ice::Byte(0xf1))->second[1] == 0xf3);
+        test(ro.size() == 3);
+        test(ro.find(Ice::Byte(0x01)) != ro.end());
+        test(ro.find(Ice::Byte(0x01))->second.size() == 2);
+        test(ro.find(Ice::Byte(0x01))->second[0] == Ice::Byte(0x01));
+        test(ro.find(Ice::Byte(0x01))->second[1] == Ice::Byte(0x11));
+        test(ro.find(Ice::Byte(0x22)) != ro.end());
+        test(ro.find(Ice::Byte(0x22))->second.size() == 1);
+        test(ro.find(Ice::Byte(0x22))->second[0] == Ice::Byte(0x12));
+        test(ro.find(Ice::Byte(0xf1)) != ro.end());
+        test(ro.find(Ice::Byte(0xf1))->second.size() == 2);
+        test(ro.find(Ice::Byte(0xf1))->second[0] == Ice::Byte(0xf2));
+        test(ro.find(Ice::Byte(0xf1))->second[1] == Ice::Byte(0xf3));
+        called();
+    }
+
+    void opBoolBoolSD(const Test::BoolBoolSD& ro, const Test::BoolBoolSD& _do)
+    {
+        test(_do.size() == 1);
+        test(_do.find(false) != _do.end());
+        test(_do.find(false)->second.size() == 2);
+        test(_do.find(false)->second[0] == true);
+        test(_do.find(false)->second[1] == false);
+        test(ro.size() == 2);
+        test(ro.find(false) != ro.end());
+        test(ro.find(false)->second.size() == 2);
+        test(ro.find(false)->second[0] == true);
+        test(ro.find(false)->second[1] == false);
+        test(ro.find(true) != ro.end());
+        test(ro.find(true)->second.size()  == 3);
+        test(ro.find(true)->second[0] == false);
+        test(ro.find(true)->second[1] == true);
+        test(ro.find(true)->second[2] == true);
+        called();
+    }
+
+    void opShortShortSD(const Test::ShortShortSD& ro, const Test::ShortShortSD& _do)
+    {
+        test(_do.size() == 1);
+        test(_do.find(4) != _do.end());
+        test(_do.find(4)->second.size() == 2);
+        test(_do.find(4)->second[0] == 6);
+        test(_do.find(4)->second[1] == 7);
+        test(ro.size() == 3);
+        test(ro.find(1) != ro.end());
+        test(ro.find(1)->second.size() == 3);
+        test(ro.find(1)->second[0] == 1);
+        test(ro.find(1)->second[1] == 2);
+        test(ro.find(1)->second[2] == 3);
+        test(ro.find(2) != ro.end());
+        test(ro.find(2)->second.size() == 2);
+        test(ro.find(2)->second[0] == 4);
+        test(ro.find(2)->second[1] == 5);
+        test(ro.find(4) != ro.end());
+        test(ro.find(4)->second.size() == 2);
+        test(ro.find(4)->second[0] == 6);
+        test(ro.find(4)->second[1] == 7);
+        called();
+    }
+
+    void opIntIntSD(const Test::IntIntSD& ro, const Test::IntIntSD& _do)
+    {
+        test(_do.size() == 1);
+        test(_do.find(400) != _do.end());
+        test(_do.find(400)->second.size() == 2);
+        test(_do.find(400)->second[0] == 600);
+        test(_do.find(400)->second[1] == 700);
+        test(ro.size() == 3);
+        test(ro.find(100) != ro.end());
+        test(ro.find(100)->second.size() == 3);
+        test(ro.find(100)->second[0] == 100);
+        test(ro.find(100)->second[1] == 200);
+        test(ro.find(100)->second[2] == 300);
+        test(ro.find(200) != ro.end());
+        test(ro.find(200)->second.size() == 2);
+        test(ro.find(200)->second[0] == 400);
+        test(ro.find(200)->second[1] == 500);
+        test(ro.find(400) != ro.end());
+        test(ro.find(400)->second.size() == 2);
+        test(ro.find(400)->second[0] == 600);
+        test(ro.find(400)->second[1] == 700);
+        called();
+    }
+
+    void opLongLongSD(const Test::LongLongSD& ro, const Test::LongLongSD& _do)
+    {
+        test(_do.size() == 1);
+        test(_do.find(999999992) != _do.end());
+        test(_do.find(999999992)->second.size() == 2);
+        test(_do.find(999999992)->second[0] == 999999110);
+        test(_do.find(999999992)->second[1] == 999999120);
+        test(ro.size() == 3);
+        test(ro.find(999999990) != ro.end());
+        test(ro.find(999999990)->second.size() == 3);
+        test(ro.find(999999990)->second[0] == 999999110);
+        test(ro.find(999999990)->second[1] == 999999111);
+        test(ro.find(999999990)->second[2] == 999999110);
+        test(ro.find(999999991) != ro.end());
+        test(ro.find(999999991)->second.size() == 2);
+        test(ro.find(999999991)->second[0] == 999999120);
+        test(ro.find(999999991)->second[1] == 999999130);
+        test(ro.find(999999992) != ro.end());
+        test(ro.find(999999992)->second.size() == 2);
+        test(ro.find(999999992)->second[0] == 999999110);
+        test(ro.find(999999992)->second[1] == 999999120);
+        called();
+    }
+
+    void opStringFloatSD(const Test::StringFloatSD& ro, const Test::StringFloatSD& _do)
+    {
+        test(_do.size() == 1);
+        test(_do.find("aBc") != _do.end());
+        test(_do.find("aBc")->second.size() == 2);
+        test(_do.find("aBc")->second[0] == Ice::Float(-3.14));
+        test(_do.find("aBc")->second[1] == Ice::Float(3.14));
+        test(ro.size() == 3);
+        test(ro.find("abc") != ro.end());
+        test(ro.find("abc")->second.size() == 3);
+        test(ro.find("abc")->second[0] == Ice::Float(-1.1));
+        test(ro.find("abc")->second[1] == Ice::Float(123123.2));
+        test(ro.find("abc")->second[2] == Ice::Float(100.0));
+        test(ro.find("ABC") != ro.end());
+        test(ro.find("ABC")->second.size() == 2);
+        test(ro.find("ABC")->second[0] == Ice::Float(42.24));
+        test(ro.find("ABC")->second[1] == Ice::Float(-1.61));
+        test(ro.find("aBc") != ro.end());
+        test(ro.find("aBc")->second.size() == 2);
+        test(ro.find("aBc")->second[0] == Ice::Float(-3.14));
+        test(ro.find("aBc")->second[1] == Ice::Float(3.14));
+        called();
+    }
+
+    void opStringDoubleSD(const Test::StringDoubleSD& ro, const Test::StringDoubleSD& _do)
+    {
+        test(_do.size() == 1);
+        test(_do.find("") != _do.end());
+        test(_do.find("")->second.size() == 2);
+        test(_do.find("")->second[0] == Ice::Double(1.6E10));
+        test(_do.find("")->second[1] == Ice::Double(1.7E10));
+        test(ro.size() == 3);
+        test(ro.find("Hello!!") != ro.end());
+        test(ro.find("Hello!!")->second.size() == 3);
+        test(ro.find("Hello!!")->second[0] == Ice::Double(1.1E10));
+        test(ro.find("Hello!!")->second[1] == Ice::Double(1.2E10));
+        test(ro.find("Hello!!")->second[2] == Ice::Double(1.3E10));
+        test(ro.find("Goodbye") != ro.end());
+        test(ro.find("Goodbye")->second.size() == 2);
+        test(ro.find("Goodbye")->second[0] == Ice::Double(1.4E10));
+        test(ro.find("Goodbye")->second[1] == Ice::Double(1.5E10));
+        test(ro.find("") != ro.end());
+        test(ro.find("")->second.size() == 2);
+        test(ro.find("")->second[0] == Ice::Double(1.6E10));
+        test(ro.find("")->second[1] == Ice::Double(1.7E10));
+        called();
+    }
+
+    void opStringStringSD(const Test::StringStringSD& ro, const Test::StringStringSD& _do)
+    {
+        test(_do.size() == 1);
+        test(_do.find("ghi") != _do.end());
+        test(_do.find("ghi")->second.size() == 2);
+        test(_do.find("ghi")->second[0] == "and");
+        test(_do.find("ghi")->second[1] == "xor");
+        test(ro.size() == 3);
+        test(ro.find("abc") != ro.end());
+        test(ro.find("abc")->second.size() == 3);
+        test(ro.find("abc")->second[0] == "abc");
+        test(ro.find("abc")->second[1] == "de");
+        test(ro.find("abc")->second[2] == "fghi");
+        test(ro.find("def") != ro.end());
+        test(ro.find("def")->second.size() == 2);
+        test(ro.find("def")->second[0] == "xyz");
+        test(ro.find("def")->second[1] == "or");
+        test(ro.find("ghi") != ro.end());
+        test(ro.find("ghi")->second.size() == 2);
+        test(ro.find("ghi")->second[0] == "and");
+        test(ro.find("ghi")->second[1] == "xor");
+        called();
+    }
+
+    void opMyEnumMyEnumSD(const Test::MyEnumMyEnumSD& ro, const Test::MyEnumMyEnumSD& _do)
+    {
+        test(_do.size() == 1);
+        test(_do.find(Test::enum1) != _do.end());
+        test(_do.find(Test::enum1)->second.size() == 2);
+        test(_do.find(Test::enum1)->second[0] == Test::enum3);
+        test(_do.find(Test::enum1)->second[1] == Test::enum3);
+        test(ro.size() == 3);
+        test(ro.find(Test::enum3) != ro.end());
+        test(ro.find(Test::enum3)->second.size() == 3);
+        test(ro.find(Test::enum3)->second[0] == Test::enum1);
+        test(ro.find(Test::enum3)->second[1] == Test::enum1);
+        test(ro.find(Test::enum3)->second[2] == Test::enum2);
+        test(ro.find(Test::enum2) != ro.end());
+        test(ro.find(Test::enum2)->second.size() == 2);
+        test(ro.find(Test::enum2)->second[0] == Test::enum1);
+        test(ro.find(Test::enum2)->second[1] == Test::enum2);
+        test(ro.find(Test::enum1) != ro.end());
+        test(ro.find(Test::enum1)->second.size() == 2);
+        test(ro.find(Test::enum1)->second[0] == Test::enum3);
+        test(ro.find(Test::enum1)->second[1] == Test::enum3);
+        called();
+    }
+
     void opIntS(const Test::IntS& r)
     {
         for(int j = 0; j < static_cast<int>(r.size()); ++j)
@@ -1008,6 +1453,440 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
         Test::Callback_MyClass_opMyStructMyEnumDPtr callback =
             Test::newCallback_MyClass_opMyStructMyEnumD(cb, &Callback::opMyStructMyEnumD, &Callback::exCB);
         p->begin_opMyStructMyEnumD(di1, di2, callback);
+        cb->check();
+    }
+
+    {
+        Test::ByteBoolDS dsi1;
+        dsi1.resize(2);
+        Test::ByteBoolDS dsi2;
+        dsi2.resize(1);
+
+        Test::ByteBoolD di1;
+        di1[10] = true;
+        di1[100] = false;
+        Test::ByteBoolD di2;
+        di2[10] = true;
+        di2[11] = false;
+        di2[101] = true;
+        Test::ByteBoolD di3;
+        di3[100] = false;
+        di3[101] = false;
+
+        dsi1[0] = di1;
+        dsi1[1] = di2;
+        dsi2[0] = di3;
+
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opByteBoolDSPtr callback =
+            Test::newCallback_MyClass_opByteBoolDS(cb, &Callback::opByteBoolDS, &Callback::exCB);
+        p->begin_opByteBoolDS(dsi1, dsi2, callback);
+        cb->check();
+    }
+
+    {
+        Test::ShortIntDS dsi1;
+        dsi1.resize(2);
+        Test::ShortIntDS dsi2;
+        dsi2.resize(1);
+
+        Test::ShortIntD di1;
+        di1[110] = -1;
+        di1[1100] = 123123;
+        Test::ShortIntD di2;
+        di2[110] = -1;
+        di2[111] = -100;
+        di2[1101] = 0;
+        Test::ShortIntD di3;
+        di3[100] = -1001;
+
+        dsi1[0] = di1;
+        dsi1[1] = di2;
+        dsi2[0] = di3;
+
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opShortIntDSPtr callback =
+            Test::newCallback_MyClass_opShortIntDS(cb, &Callback::opShortIntDS, &Callback::exCB);
+        p->begin_opShortIntDS(dsi1, dsi2, callback);
+        cb->check();
+    }
+
+    {
+        Test::LongFloatDS dsi1;
+        dsi1.resize(2);
+        Test::LongFloatDS dsi2;
+        dsi2.resize(1);
+
+        Test::LongFloatD di1;
+        di1[999999110] = Ice::Float(-1.1);
+        di1[999999111] = Ice::Float(123123.2);
+        Test::LongFloatD di2;
+        di2[999999110] = Ice::Float(-1.1);
+        di2[999999120] = Ice::Float(-100.4);
+        di2[999999130] = Ice::Float(0.5);
+        Test::LongFloatD di3;
+        di3[999999140] = Ice::Float(3.14);
+
+        dsi1[0] = di1;
+        dsi1[1] = di2;
+        dsi2[0] = di3;
+
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opLongFloatDSPtr callback =
+            Test::newCallback_MyClass_opLongFloatDS(cb, &Callback::opLongFloatDS, &Callback::exCB);
+        p->begin_opLongFloatDS(dsi1, dsi2, callback);
+        cb->check();
+    }
+
+    {
+        Test::StringStringDS dsi1;
+        dsi1.resize(2);
+        Test::StringStringDS dsi2;
+        dsi2.resize(1);
+
+        Test::StringStringD di1;
+        di1["foo"] = "abc -1.1";
+        di1["bar"] = "abc 123123.2";
+        Test::StringStringD di2;
+        di2["foo"] = "abc -1.1";
+        di2["FOO"] = "abc -100.4";
+        di2["BAR"] = "abc 0.5";
+        Test::StringStringD di3;
+        di3["f00"] = "ABC -3.14";
+
+        dsi1[0] = di1;
+        dsi1[1] = di2;
+        dsi2[0] = di3;
+
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opStringStringDSPtr callback =
+            Test::newCallback_MyClass_opStringStringDS(cb, &Callback::opStringStringDS, &Callback::exCB);
+        p->begin_opStringStringDS(dsi1, dsi2, callback);
+        cb->check();
+    }
+
+    {
+        Test::StringMyEnumDS dsi1;
+        dsi1.resize(2);
+        Test::StringMyEnumDS dsi2;
+        dsi2.resize(1);
+
+        Test::StringMyEnumD di1;
+        di1["abc"] = Test::enum1;
+        di1[""] = Test::enum2;
+        Test::StringMyEnumD di2;
+        di2["abc"] = Test::enum1;
+        di2["qwerty"] = Test::enum3;
+        di2["Hello!!"] = Test::enum2;
+        Test::StringMyEnumD di3;
+        di3["Goodbye"] = Test::enum1;
+
+        dsi1[0] = di1;
+        dsi1[1] = di2;
+        dsi2[0] = di3;
+
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opStringMyEnumDSPtr callback =
+            Test::newCallback_MyClass_opStringMyEnumDS(cb, &Callback::opStringMyEnumDS, &Callback::exCB);
+        p->begin_opStringMyEnumDS(dsi1, dsi2, callback);
+        cb->check();
+    }
+
+    {
+        Test::MyEnumStringDS dsi1;
+        dsi1.resize(2);
+        Test::MyEnumStringDS dsi2;
+        dsi2.resize(1);
+
+        Test::MyEnumStringD di1;
+        di1[Test::enum1] = "abc";
+        Test::MyEnumStringD di2;
+        di2[Test::enum2] = "Hello!!";
+        di2[Test::enum3] = "qwerty";
+        Test::MyEnumStringD di3;
+        di3[Test::enum1] = "Goodbye";
+
+        dsi1[0] = di1;
+        dsi1[1] = di2;
+        dsi2[0] = di3;
+
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opMyEnumStringDSPtr callback =
+            Test::newCallback_MyClass_opMyEnumStringDS(cb, &Callback::opMyEnumStringDS, &Callback::exCB);
+        p->begin_opMyEnumStringDS(dsi1, dsi2, callback);
+        cb->check();
+    }
+
+    {
+        Test::MyStructMyEnumDS dsi1;
+        dsi1.resize(2);
+        Test::MyStructMyEnumDS dsi2;
+        dsi2.resize(1);
+
+        Test::MyStruct s11 = { 1, 1 };
+        Test::MyStruct s12 = { 1, 2 };
+        Test::MyStructMyEnumD di1;
+        di1[s11] = Test::enum1;
+        di1[s12] = Test::enum2;
+
+        Test::MyStruct s22 = { 2, 2 };
+        Test::MyStruct s23 = { 2, 3 };
+        Test::MyStructMyEnumD di2;
+        di2[s11] = Test::enum1;
+        di2[s22] = Test::enum3;
+        di2[s23] = Test::enum2;
+
+        Test::MyStructMyEnumD di3;
+        di3[s23] = Test::enum3;
+
+        dsi1[0] = di1;
+        dsi1[1] = di2;
+        dsi2[0] = di3;
+
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opMyStructMyEnumDSPtr callback =
+            Test::newCallback_MyClass_opMyStructMyEnumDS(cb, &Callback::opMyStructMyEnumDS, &Callback::exCB);
+        p->begin_opMyStructMyEnumDS(dsi1, dsi2, callback);
+        cb->check();
+    }
+
+    {
+        Test::ByteByteSD sdi1;
+        Test::ByteByteSD sdi2;
+
+        Test::ByteS si1;
+        Test::ByteS si2;
+        Test::ByteS si3;
+
+        si1.push_back(Ice::Byte(0x01));
+        si1.push_back(Ice::Byte(0x11));
+        si2.push_back(Ice::Byte(0x12));
+        si3.push_back(Ice::Byte(0xf2));
+        si3.push_back(Ice::Byte(0xf3));
+
+        sdi1[Ice::Byte(0x01)] = si1;
+        sdi1[Ice::Byte(0x22)] = si2;
+        sdi2[Ice::Byte(0xf1)] = si3;
+
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opByteByteSDPtr callback =
+            Test::newCallback_MyClass_opByteByteSD(cb, &Callback::opByteByteSD, &Callback::exCB);
+        p->begin_opByteByteSD(sdi1, sdi2, callback);
+        cb->check();
+    }
+
+    {
+        Test::BoolBoolSD sdi1;
+        Test::BoolBoolSD sdi2;
+
+        Test::BoolS si1;
+        Test::BoolS si2;
+
+        si1.push_back(true);
+        si1.push_back(false);
+        si2.push_back(false);
+        si2.push_back(true);
+        si2.push_back(true);
+
+        sdi1[false] = si1;
+        sdi1[true] = si2;
+        sdi2[false] = si1;
+
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opBoolBoolSDPtr callback =
+            Test::newCallback_MyClass_opBoolBoolSD(cb, &Callback::opBoolBoolSD, &Callback::exCB);
+        p->begin_opBoolBoolSD(sdi1, sdi2, callback);
+        cb->check();
+    }
+
+    {
+        Test::ShortShortSD sdi1;
+        Test::ShortShortSD sdi2;
+
+        Test::ShortS si1;
+        Test::ShortS si2;
+        Test::ShortS si3;
+
+        si1.push_back(1);
+        si1.push_back(2);
+        si1.push_back(3);
+        si2.push_back(4);
+        si2.push_back(5);
+        si3.push_back(6);
+        si3.push_back(7);
+
+        sdi1[1] = si1;
+        sdi1[2] = si2;
+        sdi2[4] = si3;
+
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opShortShortSDPtr callback =
+            Test::newCallback_MyClass_opShortShortSD(cb, &Callback::opShortShortSD, &Callback::exCB);
+        p->begin_opShortShortSD(sdi1, sdi2, callback);
+        cb->check();
+    }
+
+    {
+        Test::IntIntSD sdi1;
+        Test::IntIntSD sdi2;
+
+        Test::IntS si1;
+        Test::IntS si2;
+        Test::IntS si3;
+
+        si1.push_back(100);
+        si1.push_back(200);
+        si1.push_back(300);
+        si2.push_back(400);
+        si2.push_back(500);
+        si3.push_back(600);
+        si3.push_back(700);
+
+        sdi1[100] = si1;
+        sdi1[200] = si2;
+        sdi2[400] = si3;
+
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opIntIntSDPtr callback =
+            Test::newCallback_MyClass_opIntIntSD(cb, &Callback::opIntIntSD, &Callback::exCB);
+        p->begin_opIntIntSD(sdi1, sdi2, callback);
+        cb->check();
+    }
+
+    {
+        Test::LongLongSD sdi1;
+        Test::LongLongSD sdi2;
+
+        Test::LongS si1;
+        Test::LongS si2;
+        Test::LongS si3;
+
+        si1.push_back(999999110);
+        si1.push_back(999999111);
+        si1.push_back(999999110);
+        si2.push_back(999999120);
+        si2.push_back(999999130);
+        si3.push_back(999999110);
+        si3.push_back(999999120);
+
+        sdi1[999999990] = si1;
+        sdi1[999999991] = si2;
+        sdi2[999999992] = si3;
+
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opLongLongSDPtr callback =
+            Test::newCallback_MyClass_opLongLongSD(cb, &Callback::opLongLongSD, &Callback::exCB);
+        p->begin_opLongLongSD(sdi1, sdi2, callback);
+        cb->check();
+    }
+
+    {
+        Test::StringFloatSD sdi1;
+        Test::StringFloatSD sdi2;
+
+        Test::FloatS si1;
+        Test::FloatS si2;
+        Test::FloatS si3;
+
+        si1.push_back(Ice::Float(-1.1));
+        si1.push_back(Ice::Float(123123.2));
+        si1.push_back(Ice::Float(100.0));
+        si2.push_back(Ice::Float(42.24));
+        si2.push_back(Ice::Float(-1.61));
+        si3.push_back(Ice::Float(-3.14));
+        si3.push_back(Ice::Float(3.14));
+
+        sdi1["abc"] = si1;
+        sdi1["ABC"] = si2;
+        sdi2["aBc"] = si3;
+
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opStringFloatSDPtr callback =
+            Test::newCallback_MyClass_opStringFloatSD(cb, &Callback::opStringFloatSD, &Callback::exCB);
+        p->begin_opStringFloatSD(sdi1, sdi2, callback);
+        cb->check();
+    }
+
+    {
+        Test::StringDoubleSD sdi1;
+        Test::StringDoubleSD sdi2;
+
+        Test::DoubleS si1;
+        Test::DoubleS si2;
+        Test::DoubleS si3;
+
+        si1.push_back(Ice::Double(1.1E10));
+        si1.push_back(Ice::Double(1.2E10));
+        si1.push_back(Ice::Double(1.3E10));
+        si2.push_back(Ice::Double(1.4E10));
+        si2.push_back(Ice::Double(1.5E10));
+        si3.push_back(Ice::Double(1.6E10));
+        si3.push_back(Ice::Double(1.7E10));
+
+        sdi1["Hello!!"] = si1;
+        sdi1["Goodbye"] = si2;
+        sdi2[""] = si3;
+
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opStringDoubleSDPtr callback =
+            Test::newCallback_MyClass_opStringDoubleSD(cb, &Callback::opStringDoubleSD, &Callback::exCB);
+        p->begin_opStringDoubleSD(sdi1, sdi2, callback);
+        cb->check();
+    }
+
+    {
+        Test::StringStringSD sdi1;
+        Test::StringStringSD sdi2;
+
+        Test::StringS si1;
+        Test::StringS si2;
+        Test::StringS si3;
+
+        si1.push_back("abc");
+        si1.push_back("de");
+        si1.push_back("fghi");
+
+        si2.push_back("xyz");
+        si2.push_back("or");
+
+        si3.push_back("and");
+        si3.push_back("xor");
+
+        sdi1["abc"] = si1;
+        sdi1["def"] = si2;
+        sdi2["ghi"] = si3;
+
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opStringStringSDPtr callback =
+            Test::newCallback_MyClass_opStringStringSD(cb, &Callback::opStringStringSD, &Callback::exCB);
+        p->begin_opStringStringSD(sdi1, sdi2, callback);
+        cb->check();
+    }
+
+    {
+        Test::MyEnumMyEnumSD sdi1;
+        Test::MyEnumMyEnumSD sdi2;
+
+        Test::MyEnumS si1;
+        Test::MyEnumS si2;
+        Test::MyEnumS si3;
+
+        si1.push_back(Test::enum1);
+        si1.push_back(Test::enum1);
+        si1.push_back(Test::enum2);
+        si2.push_back(Test::enum1);
+        si2.push_back(Test::enum2);
+        si3.push_back(Test::enum3);
+        si3.push_back(Test::enum3);
+
+        sdi1[Test::enum3] = si1;
+        sdi1[Test::enum2] = si2;
+        sdi2[Test::enum1] = si3;
+
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opMyEnumMyEnumSDPtr callback =
+            Test::newCallback_MyClass_opMyEnumMyEnumSD(cb, &Callback::opMyEnumMyEnumSD, &Callback::exCB);
+        p->begin_opMyEnumMyEnumSD(sdi1, sdi2, callback);
         cb->check();
     }
 
@@ -1595,6 +2474,537 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
                                     [=](const Test::MyStructMyEnumD& p1, const Test::MyStructMyEnumD& p2)
                                         {
                                             cb->opMyStructMyEnumD(p1, p2);
+                                        },
+                                    [=](const Ice::Exception& ex)
+                                        {
+                                            cb->exCB(ex);
+                                        });
+        cb->check();
+    }
+
+    {
+        Test::ByteBoolDS dsi1;
+        dsi1.resize(2);
+        Test::ByteBoolDS dsi2;
+        dsi2.resize(1);
+
+        Test::ByteBoolD di1;
+        di1[10] = true;
+        di1[100] = false;
+        Test::ByteBoolD di2;
+        di2[10] = true;
+        di2[11] = false;
+        di2[101] = true;
+        Test::ByteBoolD di3;
+        di3[100] = false;
+        di3[101] = false;
+
+        dsi1[0] = di1;
+        dsi1[1] = di2;
+        dsi2[0] = di3;
+
+        CallbackPtr cb = new Callback;
+        p->begin_opByteBoolDS(dsi1, dsi2,
+                                    [=](const Test::ByteBoolDS& p1, const Test::ByteBoolDS& p2)
+                                        {
+                                            cb->opByteBoolDS(p1, p2);
+                                        },
+                                    [=](const Ice::Exception& ex)
+                                        {
+                                            cb->exCB(ex);
+                                        });
+        cb->check();
+    }
+
+    {
+        Test::ShortIntDS dsi1;
+        dsi1.resize(2);
+        Test::ShortIntDS dsi2;
+        dsi2.resize(1);
+
+        Test::ShortIntD di1;
+        di1[110] = -1;
+        di1[1100] = 123123;
+        Test::ShortIntD di2;
+        di2[110] = -1;
+        di2[111] = -100;
+        di2[1101] = 0;
+        Test::ShortIntD di3;
+        di3[100] = -1001;
+
+        dsi1[0] = di1;
+        dsi1[1] = di2;
+        dsi2[0] = di3;
+
+        CallbackPtr cb = new Callback;
+        p->begin_opShortIntDS(dsi1, dsi2,
+                                    [=](const Test::ShortIntDS& p1, const Test::ShortIntDS& p2)
+                                        {
+                                            cb->opShortIntDS(p1, p2);
+                                        },
+                                    [=](const Ice::Exception& ex)
+                                        {
+                                            cb->exCB(ex);
+                                        });
+        cb->check();
+    }
+
+    {
+        Test::LongFloatDS dsi1;
+        dsi1.resize(2);
+        Test::LongFloatDS dsi2;
+        dsi2.resize(1);
+
+        Test::LongFloatD di1;
+        di1[999999110] = Ice::Float(-1.1);
+        di1[999999111] = Ice::Float(123123.2);
+        Test::LongFloatD di2;
+        di2[999999110] = Ice::Float(-1.1);
+        di2[999999120] = Ice::Float(-100.4);
+        di2[999999130] = Ice::Float(0.5);
+        Test::LongFloatD di3;
+        di3[999999140] = Ice::Float(3.14);
+
+        dsi1[0] = di1;
+        dsi1[1] = di2;
+        dsi2[0] = di3;
+
+        CallbackPtr cb = new Callback;
+        p->begin_opLongFloatDS(dsi1, dsi2,
+                                    [=](const Test::LongFloatDS& p1, const Test::LongFloatDS& p2)
+                                        {
+                                            cb->opLongFloatDS(p1, p2);
+                                        },
+                                    [=](const Ice::Exception& ex)
+                                        {
+                                            cb->exCB(ex);
+                                        });
+        cb->check();
+    }
+
+    {
+        Test::StringStringDS dsi1;
+        dsi1.resize(2);
+        Test::StringStringDS dsi2;
+        dsi2.resize(1);
+
+        Test::StringStringD di1;
+        di1["foo"] = "abc -1.1";
+        di1["bar"] = "abc 123123.2";
+        Test::StringStringD di2;
+        di2["foo"] = "abc -1.1";
+        di2["FOO"] = "abc -100.4";
+        di2["BAR"] = "abc 0.5";
+        Test::StringStringD di3;
+        di3["f00"] = "ABC -3.14";
+
+        dsi1[0] = di1;
+        dsi1[1] = di2;
+        dsi2[0] = di3;
+
+        CallbackPtr cb = new Callback;
+        p->begin_opStringStringDS(dsi1, dsi2,
+                                    [=](const Test::StringStringDS& p1, const Test::StringStringDS& p2)
+                                        {
+                                            cb->opStringStringDS(p1, p2);
+                                        },
+                                    [=](const Ice::Exception& ex)
+                                        {
+                                            cb->exCB(ex);
+                                        });
+        cb->check();
+    }
+
+    {
+        Test::StringMyEnumDS dsi1;
+        dsi1.resize(2);
+        Test::StringMyEnumDS dsi2;
+        dsi2.resize(1);
+
+        Test::StringMyEnumD di1;
+        di1["abc"] = Test::enum1;
+        di1[""] = Test::enum2;
+        Test::StringMyEnumD di2;
+        di2["abc"] = Test::enum1;
+        di2["qwerty"] = Test::enum3;
+        di2["Hello!!"] = Test::enum2;
+        Test::StringMyEnumD di3;
+        di3["Goodbye"] = Test::enum1;
+
+        dsi1[0] = di1;
+        dsi1[1] = di2;
+        dsi2[0] = di3;
+
+        CallbackPtr cb = new Callback;
+        p->begin_opStringMyEnumDS(dsi1, dsi2,
+                                    [=](const Test::StringMyEnumDS& p1, const Test::StringMyEnumDS& p2)
+                                        {
+                                            cb->opStringMyEnumDS(p1, p2);
+                                        },
+                                    [=](const Ice::Exception& ex)
+                                        {
+                                            cb->exCB(ex);
+                                        });
+        cb->check();
+    }
+
+    {
+        Test::MyEnumStringDS dsi1;
+        dsi1.resize(2);
+        Test::MyEnumStringDS dsi2;
+        dsi2.resize(1);
+
+        Test::MyEnumStringD di1;
+        di1[Test::enum1] = "abc";
+        Test::MyEnumStringD di2;
+        di2[Test::enum2] = "Hello!!";
+        di2[Test::enum3] = "qwerty";
+        Test::MyEnumStringD di3;
+        di3[Test::enum1] = "Goodbye";
+
+        dsi1[0] = di1;
+        dsi1[1] = di2;
+        dsi2[0] = di3;
+
+        CallbackPtr cb = new Callback;
+        p->begin_opMyEnumStringDS(dsi1, dsi2,
+                                    [=](const Test::MyEnumStringDS& p1, const Test::MyEnumStringDS& p2)
+                                        {
+                                            cb->opMyEnumStringDS(p1, p2);
+                                        },
+                                    [=](const Ice::Exception& ex)
+                                        {
+                                            cb->exCB(ex);
+                                        });
+        cb->check();
+    }
+
+    {
+        Test::MyStructMyEnumDS dsi1;
+        dsi1.resize(2);
+        Test::MyStructMyEnumDS dsi2;
+        dsi2.resize(1);
+
+        Test::MyStruct s11 = { 1, 1 };
+        Test::MyStruct s12 = { 1, 2 };
+        Test::MyStructMyEnumD di1;
+        di1[s11] = Test::enum1;
+        di1[s12] = Test::enum2;
+
+        Test::MyStruct s22 = { 2, 2 };
+        Test::MyStruct s23 = { 2, 3 };
+        Test::MyStructMyEnumD di2;
+        di2[s11] = Test::enum1;
+        di2[s22] = Test::enum3;
+        di2[s23] = Test::enum2;
+
+        Test::MyStructMyEnumD di3;
+        di3[s23] = Test::enum3;
+
+        dsi1[0] = di1;
+        dsi1[1] = di2;
+        dsi2[0] = di3;
+
+        CallbackPtr cb = new Callback;
+        p->begin_opMyStructMyEnumDS(dsi1, dsi2,
+                                    [=](const Test::MyStructMyEnumDS& p1, const Test::MyStructMyEnumDS& p2)
+                                        {
+                                            cb->opMyStructMyEnumDS(p1, p2);
+                                        },
+                                    [=](const Ice::Exception& ex)
+                                        {
+                                            cb->exCB(ex);
+                                        });
+        cb->check();
+    }
+
+    {
+        Test::ByteByteSD sdi1;
+        Test::ByteByteSD sdi2;
+
+        Test::ByteS si1;
+        Test::ByteS si2;
+        Test::ByteS si3;
+
+        si1.push_back(Ice::Byte(0x01));
+        si1.push_back(Ice::Byte(0x11));
+        si2.push_back(Ice::Byte(0x12));
+        si3.push_back(Ice::Byte(0xf2));
+        si3.push_back(Ice::Byte(0xf3));
+
+        sdi1[Ice::Byte(0x01)] = si1;
+        sdi1[Ice::Byte(0x22)] = si2;
+        sdi2[Ice::Byte(0xf1)] = si3;
+
+        CallbackPtr cb = new Callback;
+        p->begin_opByteByteSD(sdi1, sdi2,
+                                    [=](const Test::ByteByteSD& p1, const Test::ByteByteSD& p2)
+                                        {
+                                            cb->opByteByteSD(p1, p2);
+                                        },
+                                    [=](const Ice::Exception& ex)
+                                        {
+                                            cb->exCB(ex);
+                                        });
+        cb->check();
+    }
+
+    {
+        Test::BoolBoolSD sdi1;
+        Test::BoolBoolSD sdi2;
+
+        Test::BoolS si1;
+        Test::BoolS si2;
+
+        si1.push_back(true);
+        si1.push_back(false);
+        si2.push_back(false);
+        si2.push_back(true);
+        si2.push_back(true);
+
+        sdi1[false] = si1;
+        sdi1[true] = si2;
+        sdi2[false] = si1;
+
+        CallbackPtr cb = new Callback;
+        p->begin_opBoolBoolSD(sdi1, sdi2,
+                                    [=](const Test::BoolBoolSD& p1, const Test::BoolBoolSD& p2)
+                                        {
+                                            cb->opBoolBoolSD(p1, p2);
+                                        },
+                                    [=](const Ice::Exception& ex)
+                                        {
+                                            cb->exCB(ex);
+                                        });
+        cb->check();
+    }
+
+    {
+        Test::ShortShortSD sdi1;
+        Test::ShortShortSD sdi2;
+
+        Test::ShortS si1;
+        Test::ShortS si2;
+        Test::ShortS si3;
+
+        si1.push_back(1);
+        si1.push_back(2);
+        si1.push_back(3);
+        si2.push_back(4);
+        si2.push_back(5);
+        si3.push_back(6);
+        si3.push_back(7);
+
+        sdi1[1] = si1;
+        sdi1[2] = si2;
+        sdi2[4] = si3;
+
+        CallbackPtr cb = new Callback;
+        p->begin_opShortShortSD(sdi1, sdi2,
+                                    [=](const Test::ShortShortSD& p1, const Test::ShortShortSD& p2)
+                                        {
+                                            cb->opShortShortSD(p1, p2);
+                                        },
+                                    [=](const Ice::Exception& ex)
+                                        {
+                                            cb->exCB(ex);
+                                        });
+        cb->check();
+    }
+
+    {
+        Test::IntIntSD sdi1;
+        Test::IntIntSD sdi2;
+
+        Test::IntS si1;
+        Test::IntS si2;
+        Test::IntS si3;
+
+        si1.push_back(100);
+        si1.push_back(200);
+        si1.push_back(300);
+        si2.push_back(400);
+        si2.push_back(500);
+        si3.push_back(600);
+        si3.push_back(700);
+
+        sdi1[100] = si1;
+        sdi1[200] = si2;
+        sdi2[400] = si3;
+
+        CallbackPtr cb = new Callback;
+        p->begin_opIntIntSD(sdi1, sdi2,
+                                    [=](const Test::IntIntSD& p1, const Test::IntIntSD& p2)
+                                        {
+                                            cb->opIntIntSD(p1, p2);
+                                        },
+                                    [=](const Ice::Exception& ex)
+                                        {
+                                            cb->exCB(ex);
+                                        });
+        cb->check();
+    }
+
+    {
+        Test::LongLongSD sdi1;
+        Test::LongLongSD sdi2;
+
+        Test::LongS si1;
+        Test::LongS si2;
+        Test::LongS si3;
+
+        si1.push_back(999999110);
+        si1.push_back(999999111);
+        si1.push_back(999999110);
+        si2.push_back(999999120);
+        si2.push_back(999999130);
+        si3.push_back(999999110);
+        si3.push_back(999999120);
+
+        sdi1[999999990] = si1;
+        sdi1[999999991] = si2;
+        sdi2[999999992] = si3;
+
+        CallbackPtr cb = new Callback;
+        p->begin_opLongLongSD(sdi1, sdi2,
+                                    [=](const Test::LongLongSD& p1, const Test::LongLongSD& p2)
+                                        {
+                                            cb->opLongLongSD(p1, p2);
+                                        },
+                                    [=](const Ice::Exception& ex)
+                                        {
+                                            cb->exCB(ex);
+                                        });
+        cb->check();
+    }
+
+    {
+        Test::StringFloatSD sdi1;
+        Test::StringFloatSD sdi2;
+
+        Test::FloatS si1;
+        Test::FloatS si2;
+        Test::FloatS si3;
+
+        si1.push_back(Ice::Float(-1.1));
+        si1.push_back(Ice::Float(123123.2));
+        si1.push_back(Ice::Float(100.0));
+        si2.push_back(Ice::Float(42.24));
+        si2.push_back(Ice::Float(-1.61));
+        si3.push_back(Ice::Float(-3.14));
+        si3.push_back(Ice::Float(3.14));
+
+        sdi1["abc"] = si1;
+        sdi1["ABC"] = si2;
+        sdi2["aBc"] = si3;
+
+        CallbackPtr cb = new Callback;
+        p->begin_opStringFloatSD(sdi1, sdi2,
+                                    [=](const Test::StringFloatSD& p1, const Test::StringFloatSD& p2)
+                                        {
+                                            cb->opStringFloatSD(p1, p2);
+                                        },
+                                    [=](const Ice::Exception& ex)
+                                        {
+                                            cb->exCB(ex);
+                                        });
+        cb->check();
+    }
+
+    {
+        Test::StringDoubleSD sdi1;
+        Test::StringDoubleSD sdi2;
+
+        Test::DoubleS si1;
+        Test::DoubleS si2;
+        Test::DoubleS si3;
+
+        si1.push_back(Ice::Double(1.1E10));
+        si1.push_back(Ice::Double(1.2E10));
+        si1.push_back(Ice::Double(1.3E10));
+        si2.push_back(Ice::Double(1.4E10));
+        si2.push_back(Ice::Double(1.5E10));
+        si3.push_back(Ice::Double(1.6E10));
+        si3.push_back(Ice::Double(1.7E10));
+
+        sdi1["Hello!!"] = si1;
+        sdi1["Goodbye"] = si2;
+        sdi2[""] = si3;
+
+        CallbackPtr cb = new Callback;
+        p->begin_opStringDoubleSD(sdi1, sdi2,
+                                    [=](const Test::StringDoubleSD& p1, const Test::StringDoubleSD& p2)
+                                        {
+                                            cb->opStringDoubleSD(p1, p2);
+                                        },
+                                    [=](const Ice::Exception& ex)
+                                        {
+                                            cb->exCB(ex);
+                                        });
+        cb->check();
+    }
+
+    {
+        Test::StringStringSD sdi1;
+        Test::StringStringSD sdi2;
+
+        Test::StringS si1;
+        Test::StringS si2;
+        Test::StringS si3;
+
+        si1.push_back("abc");
+        si1.push_back("de");
+        si1.push_back("fghi");
+
+        si2.push_back("xyz");
+        si2.push_back("or");
+
+        si3.push_back("and");
+        si3.push_back("xor");
+
+        sdi1["abc"] = si1;
+        sdi1["def"] = si2;
+        sdi2["ghi"] = si3;
+
+        CallbackPtr cb = new Callback;
+        p->begin_opStringStringSD(sdi1, sdi2,
+                                    [=](const Test::StringStringSD& p1, const Test::StringStringSD& p2)
+                                        {
+                                            cb->opStringStringSD(p1, p2);
+                                        },
+                                    [=](const Ice::Exception& ex)
+                                        {
+                                            cb->exCB(ex);
+                                        });
+        cb->check();
+
+    }
+
+    {
+        Test::MyEnumMyEnumSD sdi1;
+        Test::MyEnumMyEnumSD sdi2;
+
+        Test::MyEnumS si1;
+        Test::MyEnumS si2;
+        Test::MyEnumS si3;
+
+        si1.push_back(Test::enum1);
+        si1.push_back(Test::enum1);
+        si1.push_back(Test::enum2);
+        si2.push_back(Test::enum1);
+        si2.push_back(Test::enum2);
+        si3.push_back(Test::enum3);
+        si3.push_back(Test::enum3);
+
+        sdi1[Test::enum3] = si1;
+        sdi1[Test::enum2] = si2;
+        sdi2[Test::enum1] = si3;
+
+        CallbackPtr cb = new Callback;
+        p->begin_opMyEnumMyEnumSD(sdi1, sdi2,
+                                    [=](const Test::MyEnumMyEnumSD& p1, const Test::MyEnumMyEnumSD& p2)
+                                        {
+                                            cb->opMyEnumMyEnumSD(p1, p2);
                                         },
                                     [=](const Ice::Exception& ex)
                                         {

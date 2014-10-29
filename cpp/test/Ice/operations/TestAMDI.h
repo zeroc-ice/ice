@@ -138,6 +138,70 @@ public:
                                          const Test::MyStructMyEnumD&, const Test::MyStructMyEnumD&,
                                          const Ice::Current&);
 
+    virtual void opByteBoolDS_async(const Test::AMD_MyClass_opByteBoolDSPtr&,
+                                    const Test::ByteBoolDS&, const Test::ByteBoolDS&,
+                                    const Ice::Current&);
+
+    virtual void opShortIntDS_async(const Test::AMD_MyClass_opShortIntDSPtr&,
+                                    const Test::ShortIntDS&, const Test::ShortIntDS&,
+                                    const Ice::Current&);
+
+    virtual void opLongFloatDS_async(const Test::AMD_MyClass_opLongFloatDSPtr&,
+                                     const Test::LongFloatDS&, const Test::LongFloatDS&,
+                                     const Ice::Current&);
+
+    virtual void opStringStringDS_async(const Test::AMD_MyClass_opStringStringDSPtr&,
+                                        const Test::StringStringDS&, const Test::StringStringDS&,
+                                        const Ice::Current&);
+
+    virtual void opStringMyEnumDS_async(const Test::AMD_MyClass_opStringMyEnumDSPtr&,
+                                        const Test::StringMyEnumDS&, const Test::StringMyEnumDS&,
+                                        const Ice::Current&);
+
+    virtual void opMyEnumStringDS_async(const Test::AMD_MyClass_opMyEnumStringDSPtr&,
+                                        const Test::MyEnumStringDS&, const Test::MyEnumStringDS&,
+                                        const Ice::Current&);
+
+    virtual void opMyStructMyEnumDS_async(const Test::AMD_MyClass_opMyStructMyEnumDSPtr&,
+                                          const Test::MyStructMyEnumDS&, const Test::MyStructMyEnumDS&,
+                                          const Ice::Current&);
+
+    virtual void opByteByteSD_async(const Test::AMD_MyClass_opByteByteSDPtr&,
+                                    const Test::ByteByteSD&, const Test::ByteByteSD&,
+                                    const Ice::Current&);
+
+    virtual void opBoolBoolSD_async(const Test::AMD_MyClass_opBoolBoolSDPtr&,
+                                    const Test::BoolBoolSD&, const Test::BoolBoolSD&,
+                                    const Ice::Current&);
+
+    virtual void opShortShortSD_async(const Test::AMD_MyClass_opShortShortSDPtr&,
+                                      const Test::ShortShortSD&, const Test::ShortShortSD&,
+                                      const Ice::Current&);
+
+    virtual void opIntIntSD_async(const Test::AMD_MyClass_opIntIntSDPtr&,
+                                  const Test::IntIntSD&, const Test::IntIntSD&,
+                                  const Ice::Current&);
+
+    virtual void opLongLongSD_async(const Test::AMD_MyClass_opLongLongSDPtr&,
+                                    const Test::LongLongSD&, const Test::LongLongSD&,
+                                    const Ice::Current&);
+
+    virtual void opStringFloatSD_async(const Test::AMD_MyClass_opStringFloatSDPtr&,
+                                       const Test::StringFloatSD&, const Test::StringFloatSD&,
+                                       const Ice::Current&);
+
+    virtual void opStringDoubleSD_async(const Test::AMD_MyClass_opStringDoubleSDPtr&,
+                                        const Test::StringDoubleSD&, const Test::StringDoubleSD&,
+                                        const Ice::Current&);
+
+    virtual void opStringStringSD_async(const Test::AMD_MyClass_opStringStringSDPtr&,
+                                        const Test::StringStringSD&, const Test::StringStringSD&,
+                                        const Ice::Current&);
+
+    virtual void opMyEnumMyEnumSD_async(const Test::AMD_MyClass_opMyEnumMyEnumSDPtr&,
+                                        const Test::MyEnumMyEnumSD&, const Test::MyEnumMyEnumSD&,
+                                        const Ice::Current&);
+
     virtual void opIntS_async(const Test::AMD_MyClass_opIntSPtr&, const Test::IntS&, const Ice::Current&);
 
     virtual void opByteSOneway_async(const Test::AMD_MyClass_opByteSOnewayPtr&, const Test::ByteS&,

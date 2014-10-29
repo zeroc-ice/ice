@@ -73,6 +73,24 @@ dictionary<string, MyEnum> StringMyEnumD;
 dictionary<MyEnum, string> MyEnumStringD;
 dictionary<MyStruct, MyEnum> MyStructMyEnumD;
 
+sequence<ByteBoolD> ByteBoolDS;
+sequence<ShortIntD> ShortIntDS;
+sequence<LongFloatD> LongFloatDS;
+sequence<StringStringD> StringStringDS;
+sequence<StringMyEnumD> StringMyEnumDS;
+sequence<MyEnumStringD> MyEnumStringDS;
+sequence<MyStructMyEnumD> MyStructMyEnumDS;
+
+dictionary<byte, ByteS> ByteByteSD;
+dictionary<bool, BoolS> BoolBoolSD;
+dictionary<short, ShortS> ShortShortSD;
+dictionary<int, IntS> IntIntSD;
+dictionary<long, LongS> LongLongSD;
+dictionary<string, FloatS> StringFloatSD;
+dictionary<string, DoubleS> StringDoubleSD;
+dictionary<string, StringS> StringStringSD;
+dictionary<MyEnum, MyEnumS> MyEnumMyEnumSD;
+
 ["amd"] class MyClass
 {
     void shutdown();
@@ -80,7 +98,7 @@ dictionary<MyStruct, MyEnum> MyStructMyEnumD;
     void delay(int ms);
 
     void opVoid();
-    
+
     byte opByte(byte p1, byte p2,
                 out byte p3);
 
@@ -107,30 +125,30 @@ dictionary<MyStruct, MyEnum> MyStructMyEnumD;
                   out ByteS p3);
 
     BoolS opBoolS(BoolS p1, BoolS p2,
-                  out BoolS p3);        
+                  out BoolS p3);
 
     LongS opShortIntLongS(Test::ShortS p1, IntS p2, LongS p3,
                           out ::Test::ShortS p4, out IntS p5, out LongS p6);
 
     DoubleS opFloatDoubleS(FloatS p1, DoubleS p2,
                            out FloatS p3, out DoubleS p4);
-    
+
     StringS opStringS(StringS p1, StringS p2,
                       out StringS p3);
-    
+
     ByteSS opByteSS(ByteSS p1, ByteSS p2,
                     out ByteSS p3);
-    
+
     BoolSS opBoolSS(BoolSS p1, BoolSS p2,
                     out BoolSS p3);
-    
+
     LongSS opShortIntLongSS(ShortSS p1, IntSS p2, LongSS p3,
                             out ShortSS p4, out IntSS p5, out LongSS p6);
-    
-    
+
+
     DoubleSS opFloatDoubleSS(FloatSS p1, DoubleSS p2,
                              out FloatSS p3, out DoubleSS p4);
-    
+
     StringSS opStringSS(StringSS p1, StringSS p2,
                         out StringSS p3);
 
@@ -157,6 +175,54 @@ dictionary<MyStruct, MyEnum> MyStructMyEnumD;
 
     MyStructMyEnumD opMyStructMyEnumD(MyStructMyEnumD p1, MyStructMyEnumD p2,
                                       out MyStructMyEnumD p3);
+
+    ByteBoolDS opByteBoolDS(ByteBoolDS p1, ByteBoolDS p2,
+                            out ByteBoolDS p3);
+
+    ShortIntDS opShortIntDS(ShortIntDS p1, ShortIntDS p2,
+                            out ShortIntDS p3);
+
+    LongFloatDS opLongFloatDS(LongFloatDS p1, LongFloatDS p2,
+                              out LongFloatDS p3);
+
+    StringStringDS opStringStringDS(StringStringDS p1, StringStringDS p2,
+                                    out StringStringDS p3);
+
+    StringMyEnumDS opStringMyEnumDS(StringMyEnumDS p1, StringMyEnumDS p2,
+                                    out StringMyEnumDS p3);
+
+    MyEnumStringDS opMyEnumStringDS(MyEnumStringDS p1, MyEnumStringDS p2,
+                                    out MyEnumStringDS p3);
+
+    MyStructMyEnumDS opMyStructMyEnumDS(MyStructMyEnumDS p1, MyStructMyEnumDS p2,
+                                        out MyStructMyEnumDS p3);
+
+    ByteByteSD opByteByteSD(ByteByteSD p1, ByteByteSD p2,
+                            out ByteByteSD p3);
+
+    BoolBoolSD opBoolBoolSD(BoolBoolSD p1, BoolBoolSD p2,
+                            out BoolBoolSD p3);
+
+    ShortShortSD opShortShortSD(ShortShortSD p1, ShortShortSD p2,
+                                out ShortShortSD p3);
+
+    IntIntSD opIntIntSD(IntIntSD p1, IntIntSD p2,
+                        out IntIntSD p3);
+
+    LongLongSD opLongLongSD(LongLongSD p1, LongLongSD p2,
+                            out LongLongSD p3);
+
+    StringFloatSD opStringFloatSD(StringFloatSD p1, StringFloatSD p2,
+                                  out StringFloatSD p3);
+
+    StringDoubleSD opStringDoubleSD(StringDoubleSD p1, StringDoubleSD p2,
+                                    out StringDoubleSD p3);
+
+    StringStringSD opStringStringSD(StringStringSD p1, StringStringSD p2,
+                                    out StringStringSD p3);
+
+    MyEnumMyEnumSD opMyEnumMyEnumSD(MyEnumMyEnumSD p1, MyEnumMyEnumSD p2,
+                                    out MyEnumMyEnumSD p3);
 
     IntS opIntS(IntS s);
 

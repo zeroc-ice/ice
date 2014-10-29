@@ -792,6 +792,643 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
     }
 
     {
+        Test::ByteBoolDS dsi1;
+        dsi1.resize(2);
+        Test::ByteBoolDS dsi2;
+        dsi2.resize(1);
+
+        Test::ByteBoolD di1;
+        di1[10] = true;
+        di1[100] = false;
+        Test::ByteBoolD di2;
+        di2[10] = true;
+        di2[11] = false;
+        di2[101] = true;
+        Test::ByteBoolD di3;
+        di3[100] = false;
+        di3[101] = false;
+
+        dsi1[0] = di1;
+        dsi1[1] = di2;
+        dsi2[0] = di3;
+
+        Test::ByteBoolDS _do;
+        Test::ByteBoolDS ro = p->opByteBoolDS(dsi1, dsi2, _do);
+
+        test(ro.size() == 2);
+        test(ro[0].size() == 3);
+        test(ro[0][10] == true);
+        test(ro[0][11] == false);
+        test(ro[0][101] == true);
+        test(ro[1].size() == 2);
+        test(ro[1][10] == true);
+        test(ro[1][100] == false);
+
+        test(_do.size() == 3);
+        test(_do[0].size() == 2);
+        test(_do[0][100] == false);
+        test(_do[0][101] == false);
+        test(_do[1].size() == 2);
+        test(_do[1][10] == true);
+        test(_do[1][101] == false);
+        test(_do[1].size() == 3);
+        test(_do[2][10] == true);
+        test(_do[2][11] == false);
+        test(_do[2][101] == true);
+    }
+
+    {
+        Test::ShortIntDS dsi1;
+        dsi1.resize(2);
+        Test::ShortIntDS dsi2;
+        dsi2.resize(1);
+
+        Test::ShortIntD di1;
+        di1[110] = -1;
+        di1[1100] = 123123;
+        Test::ShortIntD di2;
+        di2[110] = -1;
+        di2[111] = -100;
+        di2[1101] = 0;
+        Test::ShortIntD di3;
+        di3[100] = -1001;
+
+        dsi1[0] = di1;
+        dsi1[1] = di2;
+        dsi2[0] = di3;
+
+        Test::ShortIntDS _do;
+        Test::ShortIntDS ro = p->opShortIntDS(dsi1, dsi2, _do);
+
+        test(ro.size() == 2);
+        test(ro[0].size() == 3);
+        test(ro[0][110] == -1);
+        test(ro[0][111] == -100);
+        test(ro[0][1101] == 0);
+        test(ro[1].size() == 2);
+        test(ro[1][110] == -1);
+        test(ro[1][1100] == 123123);
+
+        test(_do.size() == 3);
+        test(_do[0].size() == 1);
+        test(_do[0][100] == -1001);
+        test(_do[1].size() == 2);
+        test(_do[1][110] == -1);
+        test(_do[1][1100] == 123123);
+        test(_do[2].size() == 3);
+        test(_do[2][110] == -1);
+        test(_do[2][111] == -100);
+        test(_do[2][1101] == 0);
+    }
+
+    {
+        Test::LongFloatDS dsi1;
+        dsi1.resize(2);
+        Test::LongFloatDS dsi2;
+        dsi2.resize(1);
+
+        Test::LongFloatD di1;
+        di1[999999110] = Ice::Float(-1.1);
+        di1[999999111] = Ice::Float(123123.2);
+        Test::LongFloatD di2;
+        di2[999999110] = Ice::Float(-1.1);
+        di2[999999120] = Ice::Float(-100.4);
+        di2[999999130] = Ice::Float(0.5);
+        Test::LongFloatD di3;
+        di3[999999140] = Ice::Float(3.14);
+
+        dsi1[0] = di1;
+        dsi1[1] = di2;
+        dsi2[0] = di3;
+
+        Test::LongFloatDS _do;
+        Test::LongFloatDS ro = p->opLongFloatDS(dsi1, dsi2, _do);
+
+        test(ro.size() == 2);
+        test(ro[0].size() == 3);
+        test(ro[0][999999110] == Ice::Float(-1.1));
+        test(ro[0][999999120] == Ice::Float(-100.4));
+        test(ro[0][999999130] == Ice::Float(0.5));
+        test(ro[1].size() == 2);
+        test(ro[1][999999110] == Ice::Float(-1.1));
+        test(ro[1][999999111] == Ice::Float(123123.2));
+
+        test(_do.size() == 3);
+        test(_do[0].size() == 1);
+        test(_do[0][999999140] == Ice::Float(3.14));
+        test(_do[1].size() == 2);
+        test(_do[1][999999110] == Ice::Float(-1.1));
+        test(_do[1][999999111] == Ice::Float(123123.2));
+        test(_do[2].size() == 3);
+        test(_do[2][999999110] == Ice::Float(-1.1));
+        test(_do[2][999999120] == Ice::Float(-100.4));
+        test(_do[2][999999130] == Ice::Float(0.5));
+    }
+
+    {
+        Test::StringStringDS dsi1;
+        dsi1.resize(2);
+        Test::StringStringDS dsi2;
+        dsi2.resize(1);
+
+        Test::StringStringD di1;
+        di1["foo"] = "abc -1.1";
+        di1["bar"] = "abc 123123.2";
+        Test::StringStringD di2;
+        di2["foo"] = "abc -1.1";
+        di2["FOO"] = "abc -100.4";
+        di2["BAR"] = "abc 0.5";
+        Test::StringStringD di3;
+        di3["f00"] = "ABC -3.14";
+
+        dsi1[0] = di1;
+        dsi1[1] = di2;
+        dsi2[0] = di3;
+
+        Test::StringStringDS _do;
+        Test::StringStringDS ro = p->opStringStringDS(dsi1, dsi2, _do);
+
+        test(ro.size() == 2);
+        test(ro[0].size() == 3);
+        test(ro[0]["foo"] == "abc -1.1");
+        test(ro[0]["FOO"] == "abc -100.4");
+        test(ro[0]["BAR"] == "abc 0.5");
+        test(ro[1].size() == 2);
+        test(ro[1]["foo"] == "abc -1.1");
+        test(ro[1]["bar"] == "abc 123123.2");
+
+        test(_do.size() == 3);
+        test(_do[0].size() == 1);
+        test(_do[0]["f00"] == "ABC -3.14");
+        test(_do[1].size() == 2);
+        test(_do[1]["foo"] == "abc -1.1");
+        test(_do[1]["bar"] == "abc 123123.2");
+        test(_do[2].size() == 3);
+        test(_do[2]["foo"] == "abc -1.1");
+        test(_do[2]["FOO"] == "abc -100.4");
+        test(_do[2]["BAR"] == "abc 0.5");
+
+    }
+
+    {
+        Test::StringMyEnumDS dsi1;
+        dsi1.resize(2);
+        Test::StringMyEnumDS dsi2;
+        dsi2.resize(1);
+
+        Test::StringMyEnumD di1;
+        di1["abc"] = Test::enum1;
+        di1[""] = Test::enum2;
+        Test::StringMyEnumD di2;
+        di2["abc"] = Test::enum1;
+        di2["qwerty"] = Test::enum3;
+        di2["Hello!!"] = Test::enum2;
+        Test::StringMyEnumD di3;
+        di3["Goodbye"] = Test::enum1;
+
+        dsi1[0] = di1;
+        dsi1[1] = di2;
+        dsi2[0] = di3;
+
+        Test::StringMyEnumDS _do;
+        Test::StringMyEnumDS ro = p->opStringMyEnumDS(dsi1, dsi2, _do);
+
+        test(ro.size() == 2);
+        test(ro[0].size() == 3);
+        test(ro[0]["abc"] == Test::enum1);
+        test(ro[0]["qwerty"] == Test::enum3);
+        test(ro[0]["Hello!!"] == Test::enum2);
+        test(ro[1].size() == 2);
+        test(ro[1]["abc"] == Test::enum1);
+        test(ro[1][""] == Test::enum2);
+
+        test(_do.size() == 3);
+        test(_do[0].size() == 1);
+        test(_do[0]["Goodbye"] == Test::enum1);
+        test(_do[1].size() == 2);
+        test(_do[1]["abc"] == Test::enum1);
+        test(_do[1][""] == Test::enum2);
+        test(_do[2].size() == 3);
+        test(_do[2]["abc"] == Test::enum1);
+        test(_do[2]["qwerty"] == Test::enum3);
+        test(_do[2]["Hello!!"] == Test::enum2);
+
+    }
+
+    {
+        Test::MyEnumStringDS dsi1;
+        dsi1.resize(2);
+        Test::MyEnumStringDS dsi2;
+        dsi2.resize(1);
+
+        Test::MyEnumStringD di1;
+        di1[Test::enum1] = "abc";
+        Test::MyEnumStringD di2;
+        di2[Test::enum2] = "Hello!!";
+        di2[Test::enum3] = "qwerty";
+        Test::MyEnumStringD di3;
+        di3[Test::enum1] = "Goodbye";
+
+        dsi1[0] = di1;
+        dsi1[1] = di2;
+        dsi2[0] = di3;
+
+        Test::MyEnumStringDS _do;
+        Test::MyEnumStringDS ro = p->opMyEnumStringDS(dsi1, dsi2, _do);
+
+        test(ro.size() == 2);
+        test(ro[0].size() == 2);
+        test(ro[0][Test::enum2] == "Hello!!");
+        test(ro[0][Test::enum3] == "qwerty");
+        test(ro[1].size() == 1);
+        test(ro[1][Test::enum1] == "abc");
+
+        test(_do.size() == 3);
+        test(_do[0].size() == 1);
+        test(_do[0][Test::enum1] == "Goodbye");
+        test(_do[1].size() == 1);
+        test(_do[1][Test::enum1] == "abc");
+        test(_do[2].size() == 2);
+        test(_do[2][Test::enum2] == "Hello!!");
+        test(_do[2][Test::enum3] == "qwerty");
+    }
+
+    {
+        Test::MyStructMyEnumDS dsi1;
+        dsi1.resize(2);
+        Test::MyStructMyEnumDS dsi2;
+        dsi2.resize(1);
+
+        Test::MyStruct s11 = { 1, 1 };
+        Test::MyStruct s12 = { 1, 2 };
+        Test::MyStructMyEnumD di1;
+        di1[s11] = Test::enum1;
+        di1[s12] = Test::enum2;
+
+        Test::MyStruct s22 = { 2, 2 };
+        Test::MyStruct s23 = { 2, 3 };
+        Test::MyStructMyEnumD di2;
+        di2[s11] = Test::enum1;
+        di2[s22] = Test::enum3;
+        di2[s23] = Test::enum2;
+
+        Test::MyStructMyEnumD di3;
+        di3[s23] = Test::enum3;
+
+        dsi1[0] = di1;
+        dsi1[1] = di2;
+        dsi2[0] = di3;
+
+        Test::MyStructMyEnumDS _do;
+        Test::MyStructMyEnumDS ro = p->opMyStructMyEnumDS(dsi1, dsi2, _do);
+
+        test(ro.size() == 2);
+        test(ro[0].size() == 3);
+        test(ro[0][s11] == Test::enum1);
+        test(ro[0][s22] == Test::enum3);
+        test(ro[0][s23] == Test::enum2);
+        test(ro[1].size() == 2);
+        test(ro[1][s11] == Test::enum1);
+        test(ro[1][s12] == Test::enum2);
+
+        test(_do.size() == 3);
+        test(_do[0].size() == 1);
+        test(_do[0][s23] == Test::enum3);
+        test(_do[1].size() == 2);
+        test(_do[1][s11] == Test::enum1);
+        test(_do[1][s12] == Test::enum2);
+        test(_do[2].size() == 3);
+        test(_do[2][s11] == Test::enum1);
+        test(_do[2][s22] == Test::enum3);
+        test(_do[2][s23] == Test::enum2);
+    }
+
+    {
+        Test::ByteByteSD sdi1;
+        Test::ByteByteSD sdi2;
+
+        Test::ByteS si1;
+        Test::ByteS si2;
+        Test::ByteS si3;
+
+        si1.push_back(Ice::Byte(0x01));
+        si1.push_back(Ice::Byte(0x11));
+        si2.push_back(Ice::Byte(0x12));
+        si3.push_back(Ice::Byte(0xf2));
+        si3.push_back(Ice::Byte(0xf3));
+
+        sdi1[Ice::Byte(0x01)] = si1;
+        sdi1[Ice::Byte(0x22)] = si2;
+        sdi2[Ice::Byte(0xf1)] = si3;
+
+        Test::ByteByteSD _do;
+        Test::ByteByteSD ro = p->opByteByteSD(sdi1, sdi2, _do);
+
+        test(_do == sdi2);
+        test(ro.size() == 3);
+        test(ro[Ice::Byte(0x01)].size() == 2);
+        test(ro[Ice::Byte(0x01)][0] == Ice::Byte(0x01));
+        test(ro[Ice::Byte(0x01)][1] == Ice::Byte(0x11));
+        test(ro[Ice::Byte(0x22)].size() == 1);
+        test(ro[Ice::Byte(0x22)][0] == Ice::Byte(0x12));
+        test(ro[Ice::Byte(0xf1)].size() == 2);
+        test(ro[Ice::Byte(0xf1)][0] == Ice::Byte(0xf2));
+        test(ro[Ice::Byte(0xf1)][1] == Ice::Byte(0xf3));
+    }
+
+    {
+        Test::BoolBoolSD sdi1;
+        Test::BoolBoolSD sdi2;
+
+        Test::BoolS si1;
+        Test::BoolS si2;
+
+        si1.push_back(true);
+        si1.push_back(false);
+        si2.push_back(false);
+        si2.push_back(true);
+        si2.push_back(true);
+
+        sdi1[false] = si1;
+        sdi1[true] = si2;
+        sdi2[false] = si1;
+
+        Test::BoolBoolSD _do;
+        Test::BoolBoolSD ro = p->opBoolBoolSD(sdi1, sdi2, _do);
+
+        test(_do == sdi2);
+        test(ro.size() == 2);
+        test(ro[false].size() == 2);
+        test(ro[false][0] == true);
+        test(ro[false][1] == false);
+        test(ro[true].size() == 3);
+        test(ro[true][0] == false);
+        test(ro[true][1] == true);
+        test(ro[true][2] == true);
+    }
+
+    {
+        Test::ShortShortSD sdi1;
+        Test::ShortShortSD sdi2;
+
+        Test::ShortS si1;
+        Test::ShortS si2;
+        Test::ShortS si3;
+
+        si1.push_back(1);
+        si1.push_back(2);
+        si1.push_back(3);
+        si2.push_back(4);
+        si2.push_back(5);
+        si3.push_back(6);
+        si3.push_back(7);
+
+        sdi1[1] = si1;
+        sdi1[2] = si2;
+        sdi2[4] = si3;
+
+        Test::ShortShortSD _do;
+        Test::ShortShortSD ro = p->opShortShortSD(sdi1, sdi2, _do);
+
+        test(_do == sdi2);
+        test(ro.size() == 3);
+        test(ro[1].size() == 3);
+        test(ro[1][0] == 1);
+        test(ro[1][1] == 2);
+        test(ro[1][2] == 3);
+        test(ro[2].size() == 2);
+        test(ro[2][0] == 4);
+        test(ro[2][1] == 5);
+        test(ro[4].size() == 2);
+        test(ro[4][0] == 6);
+        test(ro[4][1] == 7);
+    }
+
+    {
+        Test::IntIntSD sdi1;
+        Test::IntIntSD sdi2;
+
+        Test::IntS si1;
+        Test::IntS si2;
+        Test::IntS si3;
+
+        si1.push_back(100);
+        si1.push_back(200);
+        si1.push_back(300);
+        si2.push_back(400);
+        si2.push_back(500);
+        si3.push_back(600);
+        si3.push_back(700);
+
+        sdi1[100] = si1;
+        sdi1[200] = si2;
+        sdi2[400] = si3;
+
+        Test::IntIntSD _do;
+        Test::IntIntSD ro = p->opIntIntSD(sdi1, sdi2, _do);
+
+        test(_do == sdi2);
+        test(ro.size() == 3);
+        test(ro[100].size() == 3);
+        test(ro[100][0] == 100);
+        test(ro[100][1] == 200);
+        test(ro[100][2] == 300);
+        test(ro[200].size() == 2);
+        test(ro[200][0] == 400);
+        test(ro[200][1] == 500);
+        test(ro[400].size() == 2);
+        test(ro[400][0] == 600);
+        test(ro[400][1] == 700);
+    }
+
+    {
+        Test::LongLongSD sdi1;
+        Test::LongLongSD sdi2;
+
+        Test::LongS si1;
+        Test::LongS si2;
+        Test::LongS si3;
+
+        si1.push_back(999999110);
+        si1.push_back(999999111);
+        si1.push_back(999999110);
+        si2.push_back(999999120);
+        si2.push_back(999999130);
+        si3.push_back(999999110);
+        si3.push_back(999999120);
+
+        sdi1[999999990] = si1;
+        sdi1[999999991] = si2;
+        sdi2[999999992] = si3;
+
+        Test::LongLongSD _do;
+        Test::LongLongSD ro = p->opLongLongSD(sdi1, sdi2, _do);
+
+        test(_do == sdi2);
+        test(ro.size() == 3);
+        test(ro[999999990].size() == 3);
+        test(ro[999999990][0] == 999999110);
+        test(ro[999999990][1] == 999999111);
+        test(ro[999999990][2] == 999999110);
+        test(ro[999999991].size() == 2);
+        test(ro[999999991][0] == 999999120);
+        test(ro[999999991][1] == 999999130);
+        test(ro[999999992].size() == 2);
+        test(ro[999999992][0] == 999999110);
+        test(ro[999999992][1] == 999999120);
+    }
+
+    {
+        Test::StringFloatSD sdi1;
+        Test::StringFloatSD sdi2;
+
+        Test::FloatS si1;
+        Test::FloatS si2;
+        Test::FloatS si3;
+
+        si1.push_back(Ice::Float(-1.1));
+        si1.push_back(Ice::Float(123123.2));
+        si1.push_back(Ice::Float(100.0));
+        si2.push_back(Ice::Float(42.24));
+        si2.push_back(Ice::Float(-1.61));
+        si3.push_back(Ice::Float(-3.14));
+        si3.push_back(Ice::Float(3.14));
+
+        sdi1["abc"] = si1;
+        sdi1["ABC"] = si2;
+        sdi2["aBc"] = si3;
+
+        Test::StringFloatSD _do;
+        Test::StringFloatSD ro = p->opStringFloatSD(sdi1, sdi2, _do);
+
+        test(_do == sdi2);
+        test(ro.size() == 3);
+        test(ro["abc"].size() == 3);
+        test(ro["abc"][0] == Ice::Float(-1.1));
+        test(ro["abc"][1] == Ice::Float(123123.2));
+        test(ro["abc"][2] == Ice::Float(100.0));
+        test(ro["ABC"].size() == 2);
+        test(ro["ABC"][0] == Ice::Float(42.24));
+        test(ro["ABC"][1] == Ice::Float(-1.61));
+        test(ro["aBc"].size() == 2);
+        test(ro["aBc"][0] == Ice::Float(-3.14));
+        test(ro["aBc"][1] == Ice::Float(3.14));
+    }
+
+    {
+        Test::StringDoubleSD sdi1;
+        Test::StringDoubleSD sdi2;
+
+        Test::DoubleS si1;
+        Test::DoubleS si2;
+        Test::DoubleS si3;
+
+        si1.push_back(Ice::Double(1.1E10));
+        si1.push_back(Ice::Double(1.2E10));
+        si1.push_back(Ice::Double(1.3E10));
+        si2.push_back(Ice::Double(1.4E10));
+        si2.push_back(Ice::Double(1.5E10));
+        si3.push_back(Ice::Double(1.6E10));
+        si3.push_back(Ice::Double(1.7E10));
+
+        sdi1["Hello!!"] = si1;
+        sdi1["Goodbye"] = si2;
+        sdi2[""] = si3;
+
+        Test::StringDoubleSD _do;
+        Test::StringDoubleSD ro = p->opStringDoubleSD(sdi1, sdi2, _do);
+
+        test(_do == sdi2);
+        test(ro.size() == 3);
+        test(ro["Hello!!"].size() == 3);
+        test(ro["Hello!!"][0] == Ice::Double(1.1E10));
+        test(ro["Hello!!"][1] == Ice::Double(1.2E10));
+        test(ro["Hello!!"][2] == Ice::Double(1.3E10));
+        test(ro["Goodbye"].size() == 2);
+        test(ro["Goodbye"][0] == Ice::Double(1.4E10));
+        test(ro["Goodbye"][1] == Ice::Double(1.5E10));
+        test(ro[""].size() == 2);
+        test(ro[""][0] == Ice::Double(1.6E10));
+        test(ro[""][1] == Ice::Double(1.7E10));
+    }
+
+    {
+        Test::StringStringSD sdi1;
+        Test::StringStringSD sdi2;
+
+        Test::StringS si1;
+        Test::StringS si2;
+        Test::StringS si3;
+
+        si1.push_back("abc");
+        si1.push_back("de");
+        si1.push_back("fghi");
+
+        si2.push_back("xyz");
+        si2.push_back("or");
+
+        si3.push_back("and");
+        si3.push_back("xor");
+
+        sdi1["abc"] = si1;
+        sdi1["def"] = si2;
+        sdi2["ghi"] = si3;
+
+        Test::StringStringSD _do;
+        Test::StringStringSD ro = p->opStringStringSD(sdi1, sdi2, _do);
+
+        test(_do == sdi2);
+        test(ro.size() == 3);
+        test(ro["abc"].size() == 3);
+        test(ro["abc"][0] == "abc");
+        test(ro["abc"][1] == "de");
+        test(ro["abc"][2] == "fghi");
+        test(ro["def"].size() == 2);
+        test(ro["def"][0] == "xyz");
+        test(ro["def"][1] == "or");
+        test(ro["ghi"].size() == 2);
+        test(ro["ghi"][0] == "and");
+        test(ro["ghi"][1] == "xor");
+    }
+
+    {
+        Test::MyEnumMyEnumSD sdi1;
+        Test::MyEnumMyEnumSD sdi2;
+
+        Test::MyEnumS si1;
+        Test::MyEnumS si2;
+        Test::MyEnumS si3;
+
+        si1.push_back(Test::enum1);
+        si1.push_back(Test::enum1);
+        si1.push_back(Test::enum2);
+        si2.push_back(Test::enum1);
+        si2.push_back(Test::enum2);
+        si3.push_back(Test::enum3);
+        si3.push_back(Test::enum3);
+
+        sdi1[Test::enum3] = si1;
+        sdi1[Test::enum2] = si2;
+        sdi2[Test::enum1] = si3;
+
+        Test::MyEnumMyEnumSD _do;
+        Test::MyEnumMyEnumSD ro = p->opMyEnumMyEnumSD(sdi1, sdi2, _do);
+
+        test(_do == sdi2);
+        test(ro.size() == 3);
+        test(ro[Test::enum3].size() == 3);
+        test(ro[Test::enum3][0] == Test::enum1);
+        test(ro[Test::enum3][1] == Test::enum1);
+        test(ro[Test::enum3][2] == Test::enum2);
+        test(ro[Test::enum2].size() == 2);
+        test(ro[Test::enum2][0] == Test::enum1);
+        test(ro[Test::enum2][1] == Test::enum2);
+        test(ro[Test::enum1].size() == 2);
+        test(ro[Test::enum1][0] == Test::enum3);
+        test(ro[Test::enum1][1] == Test::enum3);
+    }
+
+    {
         const int lengths[] = { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
 
         for(unsigned int l = 0; l != sizeof(lengths) / sizeof(*lengths); ++l)

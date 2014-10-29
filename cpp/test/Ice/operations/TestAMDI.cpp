@@ -420,6 +420,212 @@ MyDerivedClassI::opMyStructMyEnumD_async(const Test::AMD_MyClass_opMyStructMyEnu
 }
 
 void
+MyDerivedClassI::opByteBoolDS_async(const Test::AMD_MyClass_opByteBoolDSPtr& cb,
+                                    const Test::ByteBoolDS& p1,
+                                    const Test::ByteBoolDS& p2,
+                                    const Ice::Current&)
+{
+    Test::ByteBoolDS p3 = p2;
+    std::copy(p1.begin(), p1.end(), std::back_inserter(p3));
+    Test::ByteBoolDS r;
+    r.resize(p1.size());
+    std::reverse_copy(p1.begin(), p1.end(), r.begin());
+    cb->ice_response(r, p3);
+}
+
+void
+MyDerivedClassI::opShortIntDS_async(const Test::AMD_MyClass_opShortIntDSPtr& cb,
+                                       const Test::ShortIntDS& p1,
+                                       const Test::ShortIntDS& p2,
+                                       const Ice::Current&)
+{
+    Test::ShortIntDS p3 = p2;
+    std::copy(p1.begin(), p1.end(), std::back_inserter(p3));
+    Test::ShortIntDS r;
+    r.resize(p1.size());
+    std::reverse_copy(p1.begin(), p1.end(), r.begin());
+    cb->ice_response(r, p3);
+}
+
+void
+MyDerivedClassI::opLongFloatDS_async(const Test::AMD_MyClass_opLongFloatDSPtr& cb,
+                                       const Test::LongFloatDS& p1,
+                                       const Test::LongFloatDS& p2,
+                                       const Ice::Current&)
+{
+    Test::LongFloatDS p3 = p2;
+    std::copy(p1.begin(), p1.end(), std::back_inserter(p3));
+    Test::LongFloatDS r;
+    r.resize(p1.size());
+    std::reverse_copy(p1.begin(), p1.end(), r.begin());
+    cb->ice_response(r, p3);
+}
+
+void
+MyDerivedClassI::opStringStringDS_async(const Test::AMD_MyClass_opStringStringDSPtr& cb,
+                                       const Test::StringStringDS& p1,
+                                       const Test::StringStringDS& p2,
+                                       const Ice::Current&)
+{
+    Test::StringStringDS p3 = p2;
+    std::copy(p1.begin(), p1.end(), std::back_inserter(p3));
+    Test::StringStringDS r;
+    r.resize(p1.size());
+    std::reverse_copy(p1.begin(), p1.end(), r.begin());
+    cb->ice_response(r, p3);
+}
+
+void
+MyDerivedClassI::opStringMyEnumDS_async(const Test::AMD_MyClass_opStringMyEnumDSPtr& cb,
+                                       const Test::StringMyEnumDS& p1,
+                                       const Test::StringMyEnumDS& p2,
+                                       const Ice::Current&)
+{
+    Test::StringMyEnumDS p3 = p2;
+    std::copy(p1.begin(), p1.end(), std::back_inserter(p3));
+    Test::StringMyEnumDS r;
+    r.resize(p1.size());
+    std::reverse_copy(p1.begin(), p1.end(), r.begin());
+    cb->ice_response(r, p3);
+}
+
+void
+MyDerivedClassI::opMyEnumStringDS_async(const Test::AMD_MyClass_opMyEnumStringDSPtr& cb,
+                                       const Test::MyEnumStringDS& p1,
+                                       const Test::MyEnumStringDS& p2,
+                                       const Ice::Current&)
+{
+    Test::MyEnumStringDS p3 = p2;
+    std::copy(p1.begin(), p1.end(), std::back_inserter(p3));
+    Test::MyEnumStringDS r;
+    r.resize(p1.size());
+    std::reverse_copy(p1.begin(), p1.end(), r.begin());
+    cb->ice_response(r, p3);
+}
+
+void
+MyDerivedClassI::opMyStructMyEnumDS_async(const Test::AMD_MyClass_opMyStructMyEnumDSPtr& cb,
+                                       const Test::MyStructMyEnumDS& p1,
+                                       const Test::MyStructMyEnumDS& p2,
+                                       const Ice::Current&)
+{
+    Test::MyStructMyEnumDS p3 = p2;
+    std::copy(p1.begin(), p1.end(), std::back_inserter(p3));
+    Test::MyStructMyEnumDS r;
+    r.resize(p1.size());
+    std::reverse_copy(p1.begin(), p1.end(), r.begin());
+    cb->ice_response(r, p3);
+}
+
+void
+MyDerivedClassI::opByteByteSD_async(const Test::AMD_MyClass_opByteByteSDPtr& cb,
+                                       const Test::ByteByteSD& p1,
+                                       const Test::ByteByteSD& p2,
+                                       const Ice::Current&)
+{
+    Test::ByteByteSD p3 = p2;
+    Test::ByteByteSD r;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    cb->ice_response(r, p3);
+}
+
+void
+MyDerivedClassI::opBoolBoolSD_async(const Test::AMD_MyClass_opBoolBoolSDPtr& cb,
+                                       const Test::BoolBoolSD& p1,
+                                       const Test::BoolBoolSD& p2,
+                                       const Ice::Current&)
+{
+    Test::BoolBoolSD p3 = p2;
+    Test::BoolBoolSD r;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    cb->ice_response(r, p3);
+}
+
+void
+MyDerivedClassI::opShortShortSD_async(const Test::AMD_MyClass_opShortShortSDPtr& cb,
+                                       const Test::ShortShortSD& p1,
+                                       const Test::ShortShortSD& p2,
+                                       const Ice::Current&)
+{
+    Test::ShortShortSD p3 = p2;
+    Test::ShortShortSD r;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    cb->ice_response(r, p3);
+}
+
+void
+MyDerivedClassI::opIntIntSD_async(const Test::AMD_MyClass_opIntIntSDPtr& cb,
+                                       const Test::IntIntSD& p1,
+                                       const Test::IntIntSD& p2,
+                                       const Ice::Current&)
+{
+    Test::IntIntSD p3 = p2;
+    Test::IntIntSD r;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    cb->ice_response(r, p3);
+}
+
+void
+MyDerivedClassI::opLongLongSD_async(const Test::AMD_MyClass_opLongLongSDPtr& cb,
+                                       const Test::LongLongSD& p1,
+                                       const Test::LongLongSD& p2,
+                                       const Ice::Current&)
+{
+    Test::LongLongSD p3 = p2;
+    Test::LongLongSD r;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    cb->ice_response(r, p3);
+}
+
+void
+MyDerivedClassI::opStringFloatSD_async(const Test::AMD_MyClass_opStringFloatSDPtr& cb,
+                                       const Test::StringFloatSD& p1,
+                                       const Test::StringFloatSD& p2,
+                                       const Ice::Current&)
+{
+    Test::StringFloatSD p3 = p2;
+    Test::StringFloatSD r;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    cb->ice_response(r, p3);
+}
+
+void
+MyDerivedClassI::opStringDoubleSD_async(const Test::AMD_MyClass_opStringDoubleSDPtr& cb,
+                                       const Test::StringDoubleSD& p1,
+                                       const Test::StringDoubleSD& p2,
+                                       const Ice::Current&)
+{
+    Test::StringDoubleSD p3 = p2;
+    Test::StringDoubleSD r;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    cb->ice_response(r, p3);
+}
+
+void
+MyDerivedClassI::opStringStringSD_async(const Test::AMD_MyClass_opStringStringSDPtr& cb,
+                                       const Test::StringStringSD& p1,
+                                       const Test::StringStringSD& p2,
+                                       const Ice::Current&)
+{
+    Test::StringStringSD p3 = p2;
+    Test::StringStringSD r;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    cb->ice_response(r, p3);
+}
+
+void
+MyDerivedClassI::opMyEnumMyEnumSD_async(const Test::AMD_MyClass_opMyEnumMyEnumSDPtr& cb,
+                                       const Test::MyEnumMyEnumSD& p1,
+                                       const Test::MyEnumMyEnumSD& p2,
+                                       const Ice::Current&)
+{
+    Test::MyEnumMyEnumSD p3 = p2;
+    Test::MyEnumMyEnumSD r;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    cb->ice_response(r, p3);
+}
+
+void
 MyDerivedClassI::opIntS_async(const Test::AMD_MyClass_opIntSPtr& cb, const Test::IntS& s, const Ice::Current&)
 {
     Test::IntS r;
@@ -441,7 +647,7 @@ MyDerivedClassI::opContext_async(const Test::AMD_MyClass_opContextPtr& cb, const
     cb->ice_response(r);
 }
 
-void 
+void
 MyDerivedClassI::opDoubleMarshaling_async(const Test::AMD_MyClass_opDoubleMarshalingPtr& cb,
                                           Ice::Double p1, const Test::DoubleS& p2, const Ice::Current&)
 {

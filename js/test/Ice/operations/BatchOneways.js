@@ -36,18 +36,19 @@
         Promise.try(
             function()
             {
+                var i;
                 bs1 = Ice.Buffer.createNative(new Array(10 * 1024));
-                for(var i = 0; i < bs1.length; ++i)
+                for(i = 0; i < bs1.length; ++i)
                 {
                     bs1[i] = 0;
                 }
                 bs2 = Ice.Buffer.createNative(new Array(99 * 1024));
-                for(var i = 0; i < bs2.length; ++i)
+                for(i = 0; i < bs2.length; ++i)
                 {
                     bs2[i] = 0;
                 }
                 bs3 = Ice.Buffer.createNative(new Array(100 * 1024));
-                for(var i = 0; i < bs3.length; ++i)
+                for(i = 0; i < bs3.length; ++i)
                 {
                     bs3[i] = 0;
                 }
