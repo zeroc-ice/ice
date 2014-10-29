@@ -14,10 +14,6 @@
       <excludeFolder url="file://$MODULE_DIR$/build/classes" />
       <excludeFolder url="file://$MODULE_DIR$/build/dependency-cache" />
       <excludeFolder url="file://$MODULE_DIR$/build/tmp" />
-      <excludeFolder url="file://$MODULE_DIR$/src/main/java/test/Ice/ami/lambda" />
-      <excludeFolder url="file://$MODULE_DIR$/src/main/java/test/Ice/invoke/lambda" />
-      <excludeFolder url="file://$MODULE_DIR$/src/main/java/test/Ice/operations/lambda" />
-      <excludeFolder url="file://$MODULE_DIR$/src/main/java/test/Ice/optional/lambda" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

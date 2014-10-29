@@ -5,7 +5,6 @@
       <GradleProjectSettings>
         <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleHome" value="$USER_HOME$/bin/gradle-2.1" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
@@ -61,6 +60,7 @@
             <option value="$PROJECT_DIR$/src/IceStorm" />
             <option value="$PROJECT_DIR$/src/ant" />
             <option value="$PROJECT_DIR$/test" />
+            <option value="$PROJECT_DIR$/test/src/main/java/test/Ice/plugin" />
           </set>
         </option>
       </GradleProjectSettings>

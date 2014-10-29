@@ -54,17 +54,8 @@
       <module fileurl="file://$PROJECT_DIR$/demo/book/printer/demo_book_printer.iml" filepath="$PROJECT_DIR$/demo/book/printer/demo_book_printer.iml" />
       <module fileurl="file://$PROJECT_DIR$/demo/book/simple_filesystem/demo_book_simple_filesystem.iml" filepath="$PROJECT_DIR$/demo/book/simple_filesystem/demo_book_simple_filesystem.iml" />
       <module fileurl="file://$PROJECT_DIR$/java.iml" filepath="$PROJECT_DIR$/java.iml" />
-      <module fileurl="file://$PROJECT_DIR$/src/Freeze/src_Freeze.iml" filepath="$PROJECT_DIR$/src/Freeze/src_Freeze.iml" />
-      <module fileurl="file://$PROJECT_DIR$/src/Glacier2/src_Glacier2.iml" filepath="$PROJECT_DIR$/src/Glacier2/src_Glacier2.iml" />
-      <module fileurl="file://$PROJECT_DIR$/src/Ice/src_Ice.iml" filepath="$PROJECT_DIR$/src/Ice/src_Ice.iml" />
-      <module fileurl="file://$PROJECT_DIR$/src/IceBox/src_IceBox.iml" filepath="$PROJECT_DIR$/src/IceBox/src_IceBox.iml" />
-      <module fileurl="file://$PROJECT_DIR$/src/IceDiscovery/src_IceDiscovery.iml" filepath="$PROJECT_DIR$/src/IceDiscovery/src_IceDiscovery.iml" />
-      <module fileurl="file://$PROJECT_DIR$/src/IceGrid/src_IceGrid.iml" filepath="$PROJECT_DIR$/src/IceGrid/src_IceGrid.iml" />
-      <module fileurl="file://$PROJECT_DIR$/src/IceGridGUI/src_IceGridGUI.iml" filepath="$PROJECT_DIR$/src/IceGridGUI/src_IceGridGUI.iml" />
-      <module fileurl="file://$PROJECT_DIR$/src/IcePatch2/src_IcePatch2.iml" filepath="$PROJECT_DIR$/src/IcePatch2/src_IcePatch2.iml" />
-      <module fileurl="file://$PROJECT_DIR$/src/IceStorm/src_IceStorm.iml" filepath="$PROJECT_DIR$/src/IceStorm/src_IceStorm.iml" />
-      <module fileurl="file://$PROJECT_DIR$/src/ant/src_ant.iml" filepath="$PROJECT_DIR$/src/ant/src_ant.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/test.iml" filepath="$PROJECT_DIR$/test/test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/test/src/main/java/test/Ice/plugin/test_src_main_java_test_Ice_plugin.iml" filepath="$PROJECT_DIR$/test/src/main/java/test/Ice/plugin/test_src_main_java_test_Ice_plugin.iml" />
     </modules>
   </component>
 </project>
