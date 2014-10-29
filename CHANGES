@@ -313,6 +313,10 @@ Java Changes
 C# Changes
 ==========
 
+- The "clr:collection" Slice metadata for sequences and dictionaries
+  as well as the CollectionBase and DictionaryBase classes have been
+  deprecated.
+
 - Fixed a security vulnerability in IceSSL in which an untrusted
   self-signed CA certificate was accepted.
 
