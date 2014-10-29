@@ -10,6 +10,8 @@
 sourceCompatibility = iceSourceCompatibility
 targetCompatibility = iceTargetCompatibility
 
+def macosx = System.properties['os.name'] == "Mac OS X"
+
 def hasJavaFx = false
 def javaHome = System.getProperty('java.home')
 def javafxJar = new File(javaHome + "/lib/jfxrt.jar")
@@ -37,6 +39,10 @@ if (hasJavaFx) {
     }
 }
 
+configurations {
+    bundleapp
+}
+
 dependencies {
       compile project(':Ice')
       compile project(':IceBox')
@@ -44,6 +50,7 @@ dependencies {
       compile 'com.jgoodies:jgoodies-common:1.8.0'
       compile 'com.jgoodies:jgoodies-looks:2.6.0'
       compile 'com.jgoodies:jgoodies-forms:1.8.0'
+      bundleapp 'com.oracle:appbundler:1.0'
 }
 
 def tmpJarName = "IceGridGUITEMP${versionSuffix}.jar"
@@ -89,12 +96,58 @@ task proguardJar(type: proguard.gradle.ProGuardTask, dependsOn: jar) {
 }
 assemble.dependsOn(proguardJar)
 
+if(macosx)
+{
+    def appName = "IceGrid Admin"
+    task bundleapp(dependsOn: proguardJar) << {
+        ant.taskdef(name: 'bundleapp',
+                    classname: 'com.oracle.appbundler.AppBundlerTask',
+                    classpath: configurations.bundleapp.asPath)
+
+        ant.bundleapp(outputdirectory: "${libDir}",
+                      name: appName,
+                      displayname: appName,
+                      identifier: "com.zeroc.IceGridGUI",
+                      icon: "${projectDir}/src/main/resources/icons/icegrid.icns",
+                      shortversion: "${iceVersion}",
+                      applicationCategory: "public.app-category.utilities",
+                      mainclassname: "com/javafx/main/Main",
+                      copyright: "Copyright © 2005-2014 ZeroC, Inc. All rights reserved.") {
+            classpath(file: "${libDir}/${jarName}") {
+            }
+            option(value: "-Dapple.laf.useScreenMenuBar=true") {
+            }
+            option(value: "-Dcom.apple.macos.use-file-dialog-packages=true") {
+            }
+            option(value: "-Dcom.apple.macos.useScreenMenuBar=true") {
+            }
+            option(value: "-Xdock:name=IceGrid Admin") {
+            }
+            option(value: "-Dcom.apple.mrj.application.apple.menu.about.name=${appName}") {
+            }
+        }
+    }
+    assemble.dependsOn(bundleapp)
+
+    task copyBundle(type: Copy, dependsOn: bundleapp) {
+        from "${libDir}/${appName}.app"
+        into "${DESTDIR}${prefix}/bin/${appName}.app"
+    }
+}
+
 clean {
     delete("${libDir}/${jarName}")
+    delete("${libDir}/IceGrid Admin.app")
 }
 
 task copyJars(type: Copy, dependsOn: proguardJar) {
     from new File("${libDir}/${jarName}")
     into "${DESTDIR}${prefix}/lib"
 }
+
+
 task install(dependsOn: copyJars)
+if(macosx) {
+    install.dependsOn(copyBundle)
+}
+
