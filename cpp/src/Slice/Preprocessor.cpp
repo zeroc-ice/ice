@@ -229,14 +229,17 @@ Slice::Preprocessor::preprocess(bool keepComments, const string& extraArgs)
         // First try to open temporay file in tmp directory.
         //
 #ifdef _WIN32
-        wchar_t* name = _wtempnam(0, IceUtil::stringToWstring(".preprocess." + IceUtil::generateUUID()).c_str());
+        //
+        // We use an unique id as the tmp file name prefix to avoid
+        // problems with this code being called concurrently from
+        // several processes, otherwise there is a change that two
+        // process call _tempnam before any of them call fopen and 
+        // they will end up using the same tmp file.
+        // 
+        char* name = _tempnam(0, ("slice-" + IceUtil::generateUUID()).c_str());
         if(name)
         {
-            //
-            // Don't need to pass a wide string converter the wide string
-            // come from Windows API.
-            //
-            _cppFile = IceUtil::wstringToString(name, IceUtil::getProcessStringConverter());
+            _cppFile = name;
             free(name);
             _cppHandle = IceUtilInternal::fopen(_cppFile, "w+");
         }
@@ -249,7 +252,11 @@ Slice::Preprocessor::preprocess(bool keepComments, const string& extraArgs)
         //
         if(_cppHandle == 0)
         {
-            _cppFile = ".preprocess." + IceUtil::generateUUID();
+#ifdef _WIN32
+            _cppFile = "slice-" + IceUtil::generateUUID();
+#else
+            _cppFile = ".slice-" + IceUtil::generateUUID();
+#endif
             _cppHandle = IceUtilInternal::fopen(_cppFile, "w+");
         }
 
