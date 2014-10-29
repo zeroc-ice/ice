@@ -43,18 +43,16 @@ Ice::operator<<(Ice::LoggerOutputBase& out, ios_base& (*val)(ios_base&))
 }
 
 Ice::LoggerOutputBase&
-Ice::operator<<(Ice::LoggerOutputBase& out, const std::exception& ex)
+Ice::loggerInsert(Ice::LoggerOutputBase& out, const IceUtil::Exception& ex)
 {
     if(IceUtilInternal::printStackTraces)
     {
-        const ::IceUtil::Exception* exception = dynamic_cast<const ::IceUtil::Exception*>(&ex);
-        if(exception)
-        {
-            out.__str() << exception->what() << '\n' << exception->ice_stackTrace();
-            return out;
-        }
+        out.__str() << ex.what() << '\n' << ex.ice_stackTrace();
     }
-    out.__str() << ex.what();
+    else
+    {
+        out.__str() << ex.what();
+    }
     return out;
 }
 

@@ -14,6 +14,12 @@
 using namespace std;
 using namespace Test;
 
+namespace 
+{
+const bool printException = false;
+}
+
+
 class EmptyI : virtual public Empty
 {
 };
@@ -482,8 +488,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
             first = communicator->createObjectAdapter("TestAdapter0");
             test(false);
         }
-        catch(const Ice::InitializationException&)
+        catch(const Ice::InitializationException& ex)
         {
+            if(printException)
+            {
+                Ice::Print printer(communicator->getLogger());
+                printer << ex;
+            }
             // Expected
         }
 
@@ -494,8 +505,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
             Ice::ObjectAdapterPtr second = communicator->createObjectAdapter("TestAdapter0");
             test(false);
         }
-        catch(const Ice::AlreadyRegisteredException&)
+        catch(const Ice::AlreadyRegisteredException& ex)
         {
+            if(printException)
+            {
+                Ice::Print printer(communicator->getLogger());
+                printer << ex;
+            }
+
             // Expected
         }
 
@@ -505,8 +522,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 communicator->createObjectAdapterWithEndpoints("TestAdapter0", "ssl -h foo -p 12011");
             test(false);
         }
-        catch(const Ice::AlreadyRegisteredException&)
+        catch(const Ice::AlreadyRegisteredException& ex)
         {
+            if(printException)
+            {
+                Ice::Print printer(communicator->getLogger());
+                printer << ex;
+            }
+
             // Expected.
         }
         first->deactivate();
@@ -524,8 +547,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
             adapter->add(obj, communicator->stringToIdentity("x"));
             test(false);
         }
-        catch(const Ice::AlreadyRegisteredException&)
+        catch(const Ice::AlreadyRegisteredException& ex)
         {
+            if(printException)
+            {
+                Ice::Print printer(communicator->getLogger());
+                printer << ex;
+            }
         }
 
         try
@@ -535,14 +563,24 @@ allTests(const Ice::CommunicatorPtr& communicator)
         catch(const Ice::IllegalIdentityException& ex)
         {
             test(ex.id.name == "");
+            if(printException)
+            {
+                Ice::Print printer(communicator->getLogger());
+                printer << ex;
+            }
         }
         
         try
         {
             adapter->add(0, communicator->stringToIdentity("x"));
         }
-        catch(const Ice::IllegalServantException&)
+        catch(const Ice::IllegalServantException& ex)
         {
+            if(printException)
+            {
+                Ice::Print printer(communicator->getLogger());
+                printer << ex;
+            }
         }
 
 
@@ -552,8 +590,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
             adapter->remove(communicator->stringToIdentity("x"));
             test(false);
         }
-        catch(const Ice::NotRegisteredException&)
+        catch(const Ice::NotRegisteredException& ex)
         {
+            if(printException)
+            {
+                Ice::Print printer(communicator->getLogger());
+                printer << ex;
+            }
         }
 
         adapter->deactivate();
