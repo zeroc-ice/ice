@@ -13,11 +13,11 @@ CLIENT		= $(call mktestname,client)
 
 TARGETS		= $(CLIENT)
 
-OBJS		= Client.o \
-		  Test.o \
+SLICE_OBJS	= Test.o \
 		  Forward.o
 
-SLICE_SRCS	= Test.ice Forward.ice
+OBJS		= Client.o \
+		  $(SLICE_OBJS)
 
 include $(top_srcdir)/config/Make.rules
 

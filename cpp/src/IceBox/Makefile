@@ -33,8 +33,6 @@ OBJS		= $(LIB_OBJS) \
 		  $(SOBJS) \
 		  $(AOBJS)
 
-SLICE_SRCS	= $(addprefix $(SDIR)/, $(SLICE_OBJS:.o=.ice))
-
 HDIR		= $(headerdir)/IceBox
 SDIR		= $(slicedir)/IceBox
 

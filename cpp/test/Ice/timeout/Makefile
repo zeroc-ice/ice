@@ -28,8 +28,6 @@ SOBJS		= $(SLICE_OBJS) \
 OBJS		= $(COBJS) \
 		  $(SOBJS)
 
-SLICE_SRCS	= Test.ice
-
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)

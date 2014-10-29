@@ -16,7 +16,7 @@ COLLOCATED	= $(call mktestname,collocated)
 
 TARGETS		= $(CLIENT) $(SERVER) $(SERVERAMD) $(COLLOCATED)
 
-SLICE_SRCS	= Test.o TestAMD.o
+SLICE_OBJS	= Test.o TestAMD.o
 
 COBJS		= Test.o \
 		  Client.o \

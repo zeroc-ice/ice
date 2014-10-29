@@ -15,8 +15,8 @@ SERVERAMD	= $(call mktestname,serveramd)
 
 TARGETS		= $(CLIENT) $(SERVER) $(SERVERAMD)
 
-SLICE_SRCS	= Test.o \
-		  TestAMD.ice
+SLICE_OBJS	= Test.o \
+		  TestAMD.o
 
 COBJS		= Test.o \
 		  TestI.o \

@@ -14,16 +14,15 @@ SERVER		= server
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-SLICE_OBJS	= Filesystem.o
+SLICE_OBJS	= Filesystem.o PersistentFilesystem.o
 
-COBJS		=  $(SLICE_OBJS) \
+COBJS		=  Filesystem.o \
 		  Client.o \
 		  Grammar.o \
 		  Parser.o \
 		  Scanner.o
 
 SOBJS		= $(SLICE_OBJS) \
-		  PersistentFilesystem.o \
 		  PersistentFilesystemI.o \
 		  Server.o
 
@@ -31,7 +30,6 @@ OBJS		= $(COBJS) \
 		  $(SOBJS) \
 		  $(COLOBJS)
 
-SLICE_SRCS	= Filesystem.ice PersistentFilesystem.ice
 
 include $(top_srcdir)/config/Make.rules
 
