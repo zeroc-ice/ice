@@ -10,6 +10,7 @@
 package IceGridGUI;
 
 import java.lang.reflect.Constructor;
+import java.net.URI;
 import java.util.prefs.Preferences;
 import java.util.prefs.BackingStoreException;
 import java.util.Enumeration;
@@ -3347,7 +3348,24 @@ public class Coordinator
         }
 
         String version = Ice.Util.stringVersion().substring(0, pos);
-        BareBonesBrowserLaunch.openURL("http://doc.zeroc.com/display/Rel/Ice+" + version + "+IceGrid+Admin");
+
+        Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+        if(desktop != null && desktop.isSupported(Desktop.Action.BROWSE))
+        {
+            try
+            {
+                desktop.browse(new URI("http://doc.zeroc.com/display/Rel/Ice+" + version + "+IceGrid+Admin"));
+            }
+            catch(Exception e)
+            {
+                JOptionPane.showMessageDialog(null,
+                        "Error attempting to launch web browser" + ":\n" + e.getLocalizedMessage());
+            }
+        }
+        else
+        {
+            JOptionPane.showMessageDialog(null,"Launching a browser is not supported on your platform.");
+        }
     }
 
     private void about()

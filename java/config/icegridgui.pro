@@ -44,7 +44,6 @@
 -dontnote IceBox.ServiceManagerI
 -dontnote IceGridGUI.Coordinator
 -dontnote IceGridGUI.LiveDeployment.MetricsView*
--dontnote IceGridGUI.BareBonesBrowserLaunch
 
 -dontnote com.jgoodies.**
 -dontnote com.javafx.**
