@@ -51,7 +51,6 @@ def jarName = "IceGridGUI${versionSuffix}.jar"
 
 jar {
     archiveName = tmpJarName
-    destinationDir = new File("${libDir}")
     if (!hasJavaFx) {
         manifest {
             attributes 'Main-Class': "IceGridGUI.Main"
@@ -83,14 +82,10 @@ if (hasJavaFx) {
 
 task proguardJar(type: proguard.gradle.ProGuardTask, dependsOn: jar) {
 	injars configurations.compile.resolve(), filter: '!META-INF/**'
-	injars "${libDir}/${tmpJarName}"
+	injars "${projectDir}/build/libs/${tmpJarName}"
 	outjars "${libDir}/${jarName}"
 	libraryjars libJars
 	configuration "$rootProject.projectDir/config/icegridgui.pro"
-
-    doLast {
-        delete("${libDir}/${tmpJarName}")
-    }
 }
 assemble.dependsOn(proguardJar)
 
