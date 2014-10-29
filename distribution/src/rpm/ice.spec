@@ -9,6 +9,7 @@
 
 %define ruby 0
 %define mono 0
+%define cpp11 0
 
 %define systemd 0
 
@@ -18,9 +19,11 @@
 %if "%{dist}" == ".el7"
   %define ruby 1
   %define systemd 1
+  %define cpp11 1
 %endif
 %if "%{dist}" == ".amzn1"
   %define ruby 1
+  %define cpp11 1
 %endif
 %if "%{dist}" == ".sles11"
   %define ruby 1
@@ -460,8 +463,27 @@ Tools for developing Ice applications in PHP.
 
 %ifarch %{core_arches}
 
+%if %{cpp11}
+cd $RPM_BUILD_DIR/Ice-%{version}
+mkdir tmp
+tar cf - cpp | (cd tmp; tar xf -)
+mv tmp/cpp cpp11
+rmdir tmp
+%endif
+
 cd $RPM_BUILD_DIR/Ice-%{version}/cpp/src
 make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
+
+%if %{cpp11}
+cd $RPM_BUILD_DIR/Ice-%{version}
+mv cpp cpp.sav
+mv cpp11 cpp
+cd cpp/src
+make %{makeopts} CPP11=yes OPTIMIZE=yes embedded_runpath_prefix=""
+cd $RPM_BUILD_DIR/Ice-%{version}
+mv cpp cpp11
+mv cpp.sav cpp
+%endif
 
 cd $RPM_BUILD_DIR/Ice-%{version}/py
 make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
@@ -545,6 +567,31 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}
 mv $RPM_BUILD_ROOT/%_lib/* $RPM_BUILD_ROOT%{_libdir}
 mkdir -p $RPM_BUILD_ROOT%{_includedir}
 mv $RPM_BUILD_ROOT/include/* $RPM_BUILD_ROOT%{_includedir}
+
+%if %{cpp11}
+cd $RPM_BUILD_DIR/Ice-%{version}
+mv cpp cpp.sav
+mv cpp11 cpp
+cd cpp/src
+mkdir -p $RPM_BUILD_ROOT/%_lib/c++11
+make CPP11=yes prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
+cd $RPM_BUILD_DIR/Ice-%{version}
+mv cpp cpp11
+mv cpp.sav cpp
+
+rm -f $RPM_BUILD_ROOT/%_lib/libGlacier2CryptPermissionsVerifier++11.so*
+rm -f $RPM_BUILD_ROOT/%_lib/libSlice++11.so*
+rm -f $RPM_BUILD_ROOT/%_lib/libIceXML++11.so*
+rm -f $RPM_BUILD_ROOT/%_lib/c++11/libGlacier2CryptPermissionsVerifier.so
+rm -f $RPM_BUILD_ROOT/%_lib/c++11/libSlice.so
+rm -f $RPM_BUILD_ROOT/%_lib/c++11/libIceDiscovery.so
+rm -f $RPM_BUILD_ROOT/%_lib/c++11/libIceStormService.so
+rm -f $RPM_BUILD_ROOT/%_lib/c++11/libIceXML.so
+mv $RPM_BUILD_ROOT/%_lib/* $RPM_BUILD_ROOT%{_libdir}
+mv $RPM_BUILD_ROOT/bin/icebox $RPM_BUILD_ROOT%{_bindir}/icebox++11
+rm -f $RPM_BUILD_ROOT/bin/*
+rm -rf $RPM_BUILD_ROOT/include/*
+%endif
 
 #
 # Python
@@ -998,6 +1045,27 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libIceGrid.so.%{version}
 %{_libdir}/libIceGrid.so.%{soversion}
 
+%if %{cpp11}
+%{_libdir}/libGlacier2++11.so.%{version}
+%{_libdir}/libGlacier2++11.so.%{soversion}
+%{_libdir}/libIceBox++11.so.%{version}
+%{_libdir}/libIceBox++11.so.%{soversion}
+%{_libdir}/libIceDiscovery++11.so.%{version}
+%{_libdir}/libIceDiscovery++11.so.%{soversion}
+%{_libdir}/libIcePatch2++11.so.%{version}
+%{_libdir}/libIcePatch2++11.so.%{soversion}
+%{_libdir}/libIce++11.so.%{version}
+%{_libdir}/libIce++11.so.%{soversion}
+%{_libdir}/libIceSSL++11.so.%{version}
+%{_libdir}/libIceSSL++11.so.%{soversion}
+%{_libdir}/libIceStorm++11.so.%{version}
+%{_libdir}/libIceStorm++11.so.%{soversion}
+%{_libdir}/libIceUtil++11.so.%{version}
+%{_libdir}/libIceUtil++11.so.%{soversion}
+%{_libdir}/libIceGrid++11.so.%{version}
+%{_libdir}/libIceGrid++11.so.%{soversion}
+%endif
+
 %post -n libice3.6 -p /sbin/ldconfig
 %postun -n libice3.6 -p /sbin/ldconfig
 
@@ -1007,6 +1075,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libFreeze.so.%{soversion}
 %{_libdir}/libIceXML.so.%{version}
 %{_libdir}/libIceXML.so.%{soversion}
+%if %{cpp11}
+%{_libdir}/libFreeze++11.so.%{version}
+%{_libdir}/libFreeze++11.so.%{soversion}
+%endif
 
 %post -n libfreeze3.6 -p /sbin/ldconfig
 %postun -n libfreeze3.6 -p /sbin/ldconfig
@@ -1015,6 +1087,10 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-, root, root, -)
 %{_libdir}/libIceStormService.so.%{version}
 %{_libdir}/libIceStormService.so.%{soversion}
+%if %{cpp11}
+%{_libdir}/libIceStormService++11.so.%{version}
+%{_libdir}/libIceStormService++11.so.%{soversion}
+%endif
 
 %post -n libicestorm3.6 -p /sbin/ldconfig
 %postun -n libicestorm3.6 -p /sbin/ldconfig
@@ -1207,6 +1283,9 @@ exit 0
 %files -n icebox
 %defattr(-, root, root, -)
 %{_bindir}/icebox
+%if %{cpp11}
+%{_bindir}/icebox++11
+%endif
 %{_mandir}/man1/icebox.1.gz
 
 %pre -n icebox
@@ -1249,6 +1328,17 @@ exit 0
 %{_libdir}/libIceStorm.so
 %{_libdir}/libIceUtil.so
 %{_libdir}/libSlice.so
+%if %{cpp11}
+%{_libdir}/c++11/libFreeze.so
+%{_libdir}/c++11/libGlacier2.so
+%{_libdir}/c++11/libIceBox.so
+%{_libdir}/c++11/libIceGrid.so
+%{_libdir}/c++11/libIcePatch2.so
+%{_libdir}/c++11/libIce.so
+%{_libdir}/c++11/libIceSSL.so
+%{_libdir}/c++11/libIceStorm.so
+%{_libdir}/c++11/libIceUtil.so
+%endif
 
 %if %{mono}
 %files mono-devel
