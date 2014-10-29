@@ -15,9 +15,13 @@ import TestUtil
 global testdir
 global toplevel
 
-origIceBoxEndpoints = ' --IceBox.ServiceManager.Endpoints="default -p %d" --Ice.Default.Locator='
+origIceBoxService = ' --Ice.Admin.Endpoints="default -p {0}"' + \
+                    ' --Ice.Admin.InstanceName=IceBox{0}' + \
+                    ' --Ice.Default.Locator='
 
-# Turn off the dispatch and connection warnings -- they are expected
+origIceBoxEndpoints = ' --IceBoxAdmin.ServiceManager.Proxy="IceBox{0}/admin -f IceBox.ServiceManager: default -p {0}"'
+
+# Turn off the dispatch and cofnnection warnings -- they are expected
 # when using a replicated IceStorm.
 origIceStormService = ' --IceBox.Service.IceStorm=IceStormService,' + TestUtil.getIceSoVersion() + ':createIceStorm' + \
                   ' --IceStorm.TopicManager.Endpoints="default -p %d"' + \
@@ -97,13 +101,15 @@ class Replicated(IceStormUtil):
             replicaProperties = replicaProperties + \
                 ' --IceStorm.ReplicatedPublishEndpoints="' + replicaPublishEndpoints + '"'
         self.iceBoxEndpoints = []
+        self.iceBoxAdminEndpoints = []
         self.iceStormEndpoints = []
         self.replicaProperties = []
         self.dbHome= []
         self.iceStormDBEnv= []
         self.procs = []
         for replica in range(0, 3):
-            self.iceBoxEndpoints.append(origIceBoxEndpoints % self.ibendpoints[replica])
+            self.iceBoxEndpoints.append(origIceBoxService.format(self.ibendpoints[replica]))
+            self.iceBoxAdminEndpoints.append(origIceBoxEndpoints.format(self.ibendpoints[replica]))
             service = origIceStormService % self.isendpoints[replica]
             service = service + ' --IceStorm.Publish.Endpoints="default -p %d:udp -p %d"' % (
                 self.ipendpoints[replica], self.ipendpoints[replica])
@@ -176,7 +182,7 @@ class Replicated(IceStormUtil):
 
     def stopReplica(self, replica):
         if self.procs[replica]:
-            self.runIceBoxAdmin(self.iceBoxEndpoints[replica], "shutdown")
+            self.runIceBoxAdmin(self.iceBoxAdminEndpoints[replica], "shutdown")
             self.procs[replica].waitTestSuccess()
             self.procs[replica] = None
 
@@ -194,7 +200,8 @@ class NonReplicated(IceStormUtil):
         iceBoxPort = port
         iceStormPort = port + 1
         publisherPort = port + 2
-        self.iceBoxEndpoints = origIceBoxEndpoints % (iceBoxPort)
+        self.iceBoxService = origIceBoxService.format(iceBoxPort)
+        self.iceBoxEndpoints = origIceBoxEndpoints.format(iceBoxPort)
         self.iceStormService = origIceStormService % (iceStormPort)
         self.dbDir = dbDir
 
@@ -233,7 +240,7 @@ class NonReplicated(IceStormUtil):
             sys.stdout.flush()
 
         self.proc = TestUtil.startServer(self.iceBox,
-                                         self.iceBoxEndpoints +
+                                         self.iceBoxService +
                                          self.iceStormService +
                                          self.iceStormDBEnv +
                                          additionalOptions, adapter = "IceStorm",
