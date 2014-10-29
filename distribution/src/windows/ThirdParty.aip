@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="6.9.1" version="11.5.1" Modules="enterprise" RootPath="..\..\..\.." Language="en" Id="{BD4A9E89-7662-4FEA-A291-2EE88A26B3A4}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="6.9.1" version="11.6" Modules="enterprise" RootPath="..\..\..\.." Language="en" Id="{BD4A9E89-7662-4FEA-A291-2EE88A26B3A4}">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiValidationComponent">
     <ROW Table="File" Column="Sequence" MinValue="1" MaxValue="2147483647" Description="Sequence with respect to the media images; order must track cabinet order." Options="0" ColumnType="3" ColumnIndex="7" ColumnSize="4" MsiKey="File#Sequence"/>
     <ROW Table="Media" Column="LastSequence" MinValue="0" MaxValue="2147483647" Description="File sequence number for the last file for this media." Options="0" ColumnType="3" ColumnIndex="1" ColumnSize="4" MsiKey="Media#LastSequence"/>
@@ -65,6 +65,7 @@
     <ROW Component="bzip2.dll_2" ComponentId="{56FC40BB-B695-48EB-8750-35B358998DFE}" Directory_="x64_Dir" Attributes="256" KeyPath="bzip2.dll_2"/>
     <ROW Component="bzip2.dll_3" ComponentId="{CD1965DC-26D6-4D12-9679-4E5A45627763}" Directory_="x64_1_Dir" Attributes="256" KeyPath="bzip2.dll_3"/>
     <ROW Component="bzip2_mingw.dll" ComponentId="{4A86771B-FCA8-4392-A508-174BEB355ACD}" Directory_="x64_1_Dir" Attributes="256" KeyPath="bzip2_mingw.dll"/>
+    <ROW Component="bzip2_mingw.dll_1" ComponentId="{DA0D7CED-8584-4FDF-9416-C7EAB162DA04}" Directory_="bin_Dir" Attributes="0" KeyPath="bzip2_mingw.dll_1"/>
     <ROW Component="bzip2_vc100.dll" ComponentId="{614B158A-462B-4A2A-B57D-C97C24481029}" Directory_="bin_Dir" Attributes="0" KeyPath="bzip2_vc100.dll"/>
     <ROW Component="bzip2_vc100.dll_1" ComponentId="{7759B4E8-FF6E-4185-84D5-A1DAC6E37CE2}" Directory_="x64_1_Dir" Attributes="256" KeyPath="bzip2_vc100.dll_1"/>
     <ROW Component="bzip2_vc100d.dll" ComponentId="{7608D62F-FBC5-477F-AC29-84E226B1ACD8}" Directory_="bin_Dir" Attributes="0" KeyPath="bzip2_vc100d.dll"/>
@@ -165,6 +166,7 @@
     <ROW Component="libexpat.dll_2" ComponentId="{C064DD11-9233-4DCD-887B-5443EA211D5C}" Directory_="x64_Dir" Attributes="256" KeyPath="libexpat.dll_2"/>
     <ROW Component="libexpat.dll_3" ComponentId="{6A32BD96-A663-48E5-B0F7-01132AD25C83}" Directory_="x64_1_Dir" Attributes="256" KeyPath="libexpat.dll_3"/>
     <ROW Component="libmcpp.a" ComponentId="{32CB04B4-120F-4FB1-8F64-B99F791236C4}" Directory_="x64_2_Dir" Attributes="0" KeyPath="libmcpp.a" Type="0"/>
+    <ROW Component="libmcpp.a_1" ComponentId="{B9A2D19F-E0D1-4BCA-99C7-413908412349}" Directory_="mingw_Dir" Attributes="0" KeyPath="libmcpp.a_1" Type="0"/>
     <ROW Component="openssl.cnf" ComponentId="{A0495130-B343-48AD-BB49-FE7D4BB7BA76}" Directory_="config_Dir" Attributes="0" KeyPath="openssl.cnf" Type="0"/>
     <ROW Component="openssl.exe" ComponentId="{79E28A5E-5922-40A1-9CF2-9B3863CF96EA}" Directory_="bin_Dir" Attributes="0" KeyPath="openssl.exe"/>
     <ROW Component="openssl.exe_1" ComponentId="{A5F9ADB5-FF42-4E60-9263-CE584E291235}" Directory_="vc110_Dir" Attributes="0" KeyPath="openssl.exe_1"/>
@@ -176,13 +178,13 @@
     <ROW Component="ssleay32.dll_3" ComponentId="{6323F7E5-5D77-40F1-9CD2-F9BFCC24678A}" Directory_="x64_1_Dir" Attributes="256" KeyPath="ssleay32.dll_3"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Attributes="0" Components="InstallDir README.txt aes.h bzip2.dll bzip2.dll_1 bzip2.dll_2 bzip2.dll_3 bzip2_mingw.dll bzip2_vc100.dll bzip2_vc100.dll_1 bzip2_vc100d.dll bzip2_vc100d.dll_1 bzip2d.dll bzip2d.dll_1 bzip2d.dll_2 bzip2d.dll_3 bzlib.h db.jar db_archive.exe db_archive.exe_1 db_archive.exe_2 db_archive.exe_3 db_checkpoint.exe db_checkpoint.exe_1 db_checkpoint.exe_2 db_checkpoint.exe_3 db_deadlock.exe db_deadlock.exe_1 db_deadlock.exe_2 db_deadlock.exe_3 db_dump.exe db_dump.exe_1 db_dump.exe_2 db_dump.exe_3 db_hotbackup.exe db_hotbackup.exe_1 db_hotbackup.exe_2 db_hotbackup.exe_3 db_load.exe db_load.exe_1 db_load.exe_2 db_load.exe_3 db_log_verify.exe db_log_verify.exe_1 db_log_verify.exe_2 db_log_verify.exe_3 db_printlog.exe db_printlog.exe_1 db_printlog.exe_2 db_printlog.exe_3 db_recover.exe db_recover.exe_1 db_recover.exe_2 db_recover.exe_3 db_replicate.exe db_replicate.exe_1 db_replicate.exe_2 db_replicate.exe_3 db_sql_codegen.exe db_sql_codegen.exe_1 db_sql_codegen.exe_2 db_sql_codegen.exe_3 db_sql_shell.pdb db_sql_shell.pdb_1 db_sql_shell.pdb_2 db_sql_shell.pdb_3 db_stat.exe db_stat.exe_1 db_stat.exe_2 db_stat.exe_3 db_tuner.exe db_tuner.exe_1 db_tuner.exe_2 db_tuner.exe_3 db_upgrade.exe db_upgrade.exe_1 db_upgrade.exe_2 db_upgrade.exe_3 db_verify.exe db_verify.exe_1 db_verify.exe_2 db_verify.exe_3 libbz2.lib libbz2.lib_1 libbz2.lib_2 libbz2.lib_3 libbz2.lib_4 libdb53.dll libdb53.dll_1 libdb53.dll_2 libdb53.dll_3 libdb53d.dll libdb53d.dll_1 libdb53d.dll_2 libdb53d.dll_3 libdb_java53.dll libdb_java53.dll_1 libdb_java53.dll_2 libdb_java53.dll_3 libeay32.dll libeay32.dll_1 libeay32.dll_2 libeay32.dll_3 libexpat.dll libexpat.dll_1 libexpat.dll_2 libexpat.dll_3 libmcpp.a openssl.cnf openssl.exe openssl.exe_1 openssl.exe_2 openssl.exe_3 ssleay32.dll ssleay32.dll_1 ssleay32.dll_2 ssleay32.dll_3"/>
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Attributes="0" Components="InstallDir README.txt aes.h bzip2.dll bzip2.dll_1 bzip2.dll_2 bzip2.dll_3 bzip2_mingw.dll bzip2_mingw.dll_1 bzip2_vc100.dll bzip2_vc100.dll_1 bzip2_vc100d.dll bzip2_vc100d.dll_1 bzip2d.dll bzip2d.dll_1 bzip2d.dll_2 bzip2d.dll_3 bzlib.h db.jar db_archive.exe db_archive.exe_1 db_archive.exe_2 db_archive.exe_3 db_checkpoint.exe db_checkpoint.exe_1 db_checkpoint.exe_2 db_checkpoint.exe_3 db_deadlock.exe db_deadlock.exe_1 db_deadlock.exe_2 db_deadlock.exe_3 db_dump.exe db_dump.exe_1 db_dump.exe_2 db_dump.exe_3 db_hotbackup.exe db_hotbackup.exe_1 db_hotbackup.exe_2 db_hotbackup.exe_3 db_load.exe db_load.exe_1 db_load.exe_2 db_load.exe_3 db_log_verify.exe db_log_verify.exe_1 db_log_verify.exe_2 db_log_verify.exe_3 db_printlog.exe db_printlog.exe_1 db_printlog.exe_2 db_printlog.exe_3 db_recover.exe db_recover.exe_1 db_recover.exe_2 db_recover.exe_3 db_replicate.exe db_replicate.exe_1 db_replicate.exe_2 db_replicate.exe_3 db_sql_codegen.exe db_sql_codegen.exe_1 db_sql_codegen.exe_2 db_sql_codegen.exe_3 db_sql_shell.pdb db_sql_shell.pdb_1 db_sql_shell.pdb_2 db_sql_shell.pdb_3 db_stat.exe db_stat.exe_1 db_stat.exe_2 db_stat.exe_3 db_tuner.exe db_tuner.exe_1 db_tuner.exe_2 db_tuner.exe_3 db_upgrade.exe db_upgrade.exe_1 db_upgrade.exe_2 db_upgrade.exe_3 db_verify.exe db_verify.exe_1 db_verify.exe_2 db_verify.exe_3 libbz2.lib libbz2.lib_1 libbz2.lib_2 libbz2.lib_3 libbz2.lib_4 libdb53.dll libdb53.dll_1 libdb53.dll_2 libdb53.dll_3 libdb53d.dll libdb53d.dll_1 libdb53d.dll_2 libdb53d.dll_3 libdb_java53.dll libdb_java53.dll_1 libdb_java53.dll_2 libdb_java53.dll_3 libeay32.dll libeay32.dll_1 libeay32.dll_2 libeay32.dll_3 libexpat.dll libexpat.dll_1 libexpat.dll_2 libexpat.dll_3 libmcpp.a libmcpp.a_1 openssl.cnf openssl.exe openssl.exe_1 openssl.exe_2 openssl.exe_3 ssleay32.dll ssleay32.dll_1 ssleay32.dll_2 ssleay32.dll_3"/>
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
     <ROW File="README.txt" Component_="README.txt" FileName="README.txt" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;distfiles-3.6b\src\windows\docs\thirdparty\README.txt" SelfReg="false" NextFile="bzip2.dll"/>
     <ROW File="SOURCES.txt" Component_="README.txt" FileName="SOURCES.txt" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\SOURCES.txt" SelfReg="false" NextFile="THIRD_PARTY_LICENSE.txt"/>
-    <ROW File="THIRD_PARTY_LICENSE.txt" Component_="README.txt" FileName="THIRD_~1.TXT|THIRD_PARTY_LICENSE.txt" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\THIRD_PARTY_LICENSE.txt" SelfReg="false"/>
+    <ROW File="THIRD_PARTY_LICENSE.txt" Component_="README.txt" FileName="THIRD_~1.TXT|THIRD_PARTY_LICENSE.txt" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\THIRD_PARTY_LICENSE.txt" SelfReg="false" NextFile="bzip2_mingw.dll_1"/>
     <ROW File="aes.h" Component_="aes.h" FileName="aes.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\include\openssl\aes.h" SelfReg="false" NextFile="applink.c"/>
     <ROW File="applink.c" Component_="aes.h" FileName="applink.c" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\include\openssl\applink.c" SelfReg="false" NextFile="asn1.h"/>
     <ROW File="asn1.h" Component_="aes.h" FileName="asn1.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\include\openssl\asn1.h" SelfReg="false" NextFile="asn1t.h"/>
@@ -197,6 +199,7 @@
     <ROW File="bzip2.dll_2" Component_="bzip2.dll_2" FileName="bzip2.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\bin\vc110\x64\bzip2.dll" SelfReg="false" NextFile="bzip2d.dll_2" DigSign="true"/>
     <ROW File="bzip2.dll_3" Component_="bzip2.dll_3" FileName="bzip2.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\bin\x64\bzip2.dll" SelfReg="false" NextFile="bzip2d.dll_3" DigSign="true"/>
     <ROW File="bzip2_mingw.dll" Component_="bzip2_mingw.dll" FileName="BZIP2_~1.DLL|bzip2_mingw.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\bin\x64\bzip2_mingw.dll" SelfReg="false" NextFile="bzip2_vc100.dll_1" DigSign="true"/>
+    <ROW File="bzip2_mingw.dll_1" Component_="bzip2_mingw.dll_1" FileName="BZIP2_~3.DLL|bzip2_mingw.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\bin\bzip2_mingw.dll" SelfReg="false" NextFile="libmcpp.a_1" DigSign="true"/>
     <ROW File="bzip2_vc100.dll" Component_="bzip2_vc100.dll" FileName="BZIP2_~1.DLL|bzip2_vc100.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\bin\bzip2_vc100.dll" SelfReg="false" NextFile="bzip2_vc100d.dll" DigSign="true"/>
     <ROW File="bzip2_vc100.dll_1" Component_="bzip2_vc100.dll_1" FileName="BZIP2_~2.DLL|bzip2_vc100.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\bin\x64\bzip2_vc100.dll" SelfReg="false" NextFile="bzip2_vc100d.dll_1" DigSign="true"/>
     <ROW File="bzip2_vc100d.dll" Component_="bzip2_vc100d.dll" FileName="BZIP2_~2.DLL|bzip2_vc100d.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\bin\bzip2_vc100d.dll" SelfReg="false" NextFile="db_archive.exe" DigSign="true"/>
@@ -215,7 +218,7 @@
     <ROW File="conf_api.h" Component_="aes.h" FileName="conf_api.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\include\openssl\conf_api.h" SelfReg="false" NextFile="crypto.h"/>
     <ROW File="crypto.h" Component_="aes.h" FileName="crypto.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\include\openssl\crypto.h" SelfReg="false" NextFile="des.h"/>
     <ROW File="db.h" Component_="bzlib.h" FileName="db.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\include\db.h" SelfReg="false" NextFile="db_cxx.h"/>
-    <ROW File="db.jar" Component_="db.jar" FileName="db.jar" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\lib\db.jar" SelfReg="false" NextFile="jgoodiescommon1.8.0.jar"/>
+    <ROW File="db.jar" Component_="db.jar" FileName="db.jar" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\lib\db.jar" SelfReg="false" NextFile="libbz2.lib"/>
     <ROW File="db_archive.exe" Component_="db_archive.exe" FileName="DB_ARC~1.EXE|db_archive.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\bin\db_archive.exe" SelfReg="false" NextFile="db_archive.pdb" DigSign="true"/>
     <ROW File="db_archive.exe_1" Component_="db_archive.exe_1" FileName="DB_ARC~1.EXE|db_archive.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\bin\vc110\db_archive.exe" SelfReg="false" NextFile="db_archive.pdb_1" DigSign="true"/>
     <ROW File="db_archive.exe_2" Component_="db_archive.exe_2" FileName="DB_ARC~1.EXE|db_archive.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\bin\vc110\x64\db_archive.exe" SelfReg="false" NextFile="db_archive.pdb_2" DigSign="true"/>
@@ -359,9 +362,6 @@
     <ROW File="expat_external.h" Component_="bzlib.h" FileName="EXPAT_~1.H|expat_external.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\include\expat_external.h" SelfReg="false" NextFile="aes.h"/>
     <ROW File="hmac.h" Component_="aes.h" FileName="hmac.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\include\openssl\hmac.h" SelfReg="false" NextFile="idea.h"/>
     <ROW File="idea.h" Component_="aes.h" FileName="idea.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\include\openssl\idea.h" SelfReg="false" NextFile="krb5_asn.h"/>
-    <ROW File="jgoodiescommon1.8.0.jar" Component_="db.jar" FileName="JGOODI~1.JAR|jgoodies-common-1.8.0.jar" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\lib\jgoodies-common-1.8.0.jar" SelfReg="false" NextFile="jgoodiesforms1.8.0.jar"/>
-    <ROW File="jgoodiesforms1.8.0.jar" Component_="db.jar" FileName="JGOODI~2.JAR|jgoodies-forms-1.8.0.jar" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\lib\jgoodies-forms-1.8.0.jar" SelfReg="false" NextFile="jgoodieslooks2.6.0.jar"/>
-    <ROW File="jgoodieslooks2.6.0.jar" Component_="db.jar" FileName="JGOODI~3.JAR|jgoodies-looks-2.6.0.jar" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\lib\jgoodies-looks-2.6.0.jar" SelfReg="false" NextFile="libbz2.lib"/>
     <ROW File="krb5_asn.h" Component_="aes.h" FileName="krb5_asn.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\include\openssl\krb5_asn.h" SelfReg="false" NextFile="kssl.h"/>
     <ROW File="kssl.h" Component_="aes.h" FileName="kssl.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\include\openssl\kssl.h" SelfReg="false" NextFile="lhash.h"/>
     <ROW File="lhash.h" Component_="aes.h" FileName="lhash.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\include\openssl\lhash.h" SelfReg="false" NextFile="md4.h"/>
@@ -426,6 +426,7 @@
     <ROW File="libexpat.lib_2" Component_="libbz2.lib_3" FileName="libexpat.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\lib\vc110\x64\libexpat.lib" SelfReg="false" NextFile="mcpp.lib_4"/>
     <ROW File="libexpat.lib_3" Component_="libbz2.lib_4" FileName="libexpat.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\lib\x64\libexpat.lib" SelfReg="false" NextFile="mcpp.lib_5"/>
     <ROW File="libmcpp.a" Component_="libmcpp.a" FileName="libmcpp.a" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\lib\mingw\x64\libmcpp.a" SelfReg="false" NextFile="libbz2.lib_1"/>
+    <ROW File="libmcpp.a_1" Component_="libmcpp.a_1" FileName="libmcpp.a" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\lib\mingw\libmcpp.a" SelfReg="false"/>
     <ROW File="mcpp.lib" Component_="db.jar" FileName="mcpp.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\lib\mcpp.lib" SelfReg="false" NextFile="mcppd.lib"/>
     <ROW File="mcpp.lib_1" Component_="libbz2.lib" FileName="mcpp.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\lib\vc100\mcpp.lib" SelfReg="false" NextFile="mcppd.lib_1"/>
     <ROW File="mcpp.lib_2" Component_="libbz2.lib_1" FileName="mcpp.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.6b-ThirdParty\lib\vc100\x64\mcpp.lib" SelfReg="false" NextFile="mcppd.lib_2"/>
@@ -756,7 +757,7 @@
     <ROW Dialog_="JgoodiesCommonLicenseDlg" Control_="Next" Action="Disable" Condition="JGOODIESCOMMONLICESNEDLGRADIOBUTTONGROUP_1_PROP = &quot;No&quot;"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlEventComponent">
-    <ROW Dialog_="FolderDlg" Control_="Back" Event="NewDialog" Argument="JgoodiesCommonLicenseDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="FolderDlg" Control_="Back" Event="NewDialog" Argument="OpensslLicesneDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="WelcomeDlg" Control_="Next" Event="NewDialog" Argument="BerkeleyLicenseDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="FolderDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="FolderDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_INSTALL" Ordering="93"/>
@@ -768,14 +769,10 @@
     <ROW Dialog_="BerkeleyLicenseDlg" Control_="Back" Event="NewDialog" Argument="WelcomeDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="BerkeleyLicenseDlg" Control_="Next" Event="NewDialog" Argument="McppLicensDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="JgoodiesLooksLicesneDlg" Control_="Cancel" Event="SpawnDialog" Argument="CancelDlg" Condition="1" Ordering="1"/>
-    <ROW Dialog_="JgoodiesLooksLicesneDlg" Control_="Back" Event="NewDialog" Argument="JgoodiesFormsLicenseDlg" Condition="AI_INSTALL" Ordering="1"/>
-    <ROW Dialog_="JgoodiesLooksLicesneDlg" Control_="Next" Event="NewDialog" Argument="JgoodiesCommonLicenseDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="JgoodiesFormsLicenseDlg" Control_="Cancel" Event="SpawnDialog" Argument="CancelDlg" Condition="1" Ordering="1"/>
-    <ROW Dialog_="JgoodiesFormsLicenseDlg" Control_="Back" Event="NewDialog" Argument="OpensslLicesneDlg" Condition="AI_INSTALL" Ordering="1"/>
-    <ROW Dialog_="JgoodiesFormsLicenseDlg" Control_="Next" Event="NewDialog" Argument="JgoodiesLooksLicesneDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="OpensslLicesneDlg" Control_="Cancel" Event="SpawnDialog" Argument="CancelDlg" Condition="1" Ordering="1"/>
     <ROW Dialog_="OpensslLicesneDlg" Control_="Back" Event="NewDialog" Argument="ExpatLicenseDlg" Condition="AI_INSTALL" Ordering="1"/>
-    <ROW Dialog_="OpensslLicesneDlg" Control_="Next" Event="NewDialog" Argument="JgoodiesFormsLicenseDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="OpensslLicesneDlg" Control_="Next" Event="NewDialog" Argument="FolderDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="ExpatLicenseDlg" Control_="Cancel" Event="SpawnDialog" Argument="CancelDlg" Condition="1" Ordering="1"/>
     <ROW Dialog_="ExpatLicenseDlg" Control_="Back" Event="NewDialog" Argument="Bzip2LicenseDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="ExpatLicenseDlg" Control_="Next" Event="NewDialog" Argument="OpensslLicesneDlg" Condition="AI_INSTALL" Ordering="1"/>
@@ -796,8 +793,6 @@
     <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_INSTALL" Ordering="199"/>
     <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="CustomizeDlg" Condition="AI_MAINT" Ordering="201"/>
     <ROW Dialog_="JgoodiesCommonLicenseDlg" Control_="Cancel" Event="SpawnDialog" Argument="CancelDlg" Condition="1" Ordering="100"/>
-    <ROW Dialog_="JgoodiesCommonLicenseDlg" Control_="Next" Event="NewDialog" Argument="FolderDlg" Condition="AI_INSTALL" Ordering="1"/>
-    <ROW Dialog_="JgoodiesCommonLicenseDlg" Control_="Back" Event="NewDialog" Argument="JgoodiesLooksLicesneDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="VerifyRemoveDlg" Control_="Remove" Event="EndDialog" Argument="Return" Condition="AI_MAINT AND InstallMode = &quot;Remove&quot;" Ordering="299"/>
     <ROW Dialog_="VerifyRepairDlg" Control_="Repair" Event="EndDialog" Argument="Return" Condition="AI_MAINT AND InstallMode = &quot;Repair&quot;" Ordering="399"/>
     <ROW Dialog_="VerifyRemoveDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT AND InstallMode = &quot;Remove&quot;" Ordering="1"/>

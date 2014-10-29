@@ -9,13 +9,10 @@ The following versions of the third party software were used to
 create this package:
 
  - Berkeley 5.3.28
- - OpenSSL 1.0.1i
+ - OpenSSL 1.0.1j
  - Expat 2.1.0
  - Bzip2 1.0.6
  - MCPP 2.7.2
- - JGoodies Forms 1.8.0
- - JGoodies Looks 2.6.0
- - JGoodies Common 1.8.0
 
 This distribution provides:
 
@@ -33,6 +30,9 @@ This distribution provides:
  - Import libraries for Bzip2 and MCPP built using Visual Studio
    2010, in the lib\vc100 and lib\vc100\x64 directories.
 
+ - Static library for MCPP built using MinGW 4.7.3, in the 
+   lib\mingw directory.
+
  - Static library for MCPP built using MinGW 4.7.2, in the 
    lib\mingw\x64 directory.
 
@@ -46,8 +46,9 @@ This distribution provides:
  - DLLs and exes for Bzip2 built using Visual Studio 2010 in the
    bin and bin\x64 directories.
 
+ - DLL for Bzip2 built using MinGW 4.7.3 in the bin directory.
+
  - DLL for Bzip2 built using MinGW 4.7.2 in the bin\x64 directory.
 
- - JAR files for Berkeley DB, JGoodies Common, JGoodies Looks and
-   JGoodies Forms in lib directory.
+ - JAR files for Berkeley DB in lib directory.
 
