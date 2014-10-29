@@ -30,7 +30,12 @@ public class RetryQueue
 
     synchronized public void destroy()
     {
-         java.util.HashSet<RetryTask> keep = new java.util.HashSet<RetryTask>();
+        if(_instance == null)
+        {
+            return; // Already destroyed.
+        }
+
+        java.util.HashSet<RetryTask> keep = new java.util.HashSet<RetryTask>();
         for(RetryTask task : _requests)
         {
             if(!task.destroy())

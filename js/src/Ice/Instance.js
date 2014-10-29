@@ -426,23 +426,25 @@ var Instance = Ice.Class({
         var promise = new AsyncResultBase(null, "destroy", null, this, null);
 
         //
-        // If the _state is not StateActive then the instance is
-        // either being destroyed, or has already been destroyed.
+        // If destroy is in progress, wait for it to be done. This is
+        // necessary in case destroy() is called concurrently by
+        // multiple threads.
         //
-        if(this._state != StateActive)
+        if(this._state == StateDestroyInProgress)
         {
-            promise.succeed(promise);
+            if(!this._destroyPromises)
+            {
+                this._destroyPromises = [];
+            }
+            this._destroyPromises.push(promise);
             return promise;
         }
-
-        //
-        // We cannot set state to StateDestroyed otherwise instance
-        // methods called during the destroy process (such as
-        // outgoingConnectionFactory() from
-        // ObjectAdapterI::deactivate() will cause an exception.
-        //
         this._state = StateDestroyInProgress;
 
+        //
+        // Shutdown and destroy all the incoming and outgoing Ice
+        // connections and wait for the connections to be finished.
+        //
         var self = this;
         Ice.Promise.try(
             function()
@@ -480,51 +482,27 @@ var Instance = Ice.Class({
                 {
                     self._retryQueue.destroy();
                 }
-
-                self._objectAdapterFactory = null;
-                self._outgoingConnectionFactory = null;
-                self._retryQueue = null;
-
                 if(self._timer)
                 {
                     self._timer.destroy();
-                    self._timer = null;
                 }
 
                 if(self._servantFactoryManager)
                 {
                     self._servantFactoryManager.destroy();
-                    self._servantFactoryManager = null;
                 }
-
-                //self._referenceFactory.destroy(); // No destroy function defined.
-                self._referenceFactory = null;
-
-                //self._requestHandlerFactory.destroy(); // No destroy function defined.
-                self._requestHandlerFactory = null;
-
-                // self._proxyFactory.destroy(); // No destroy function defined.
-                self._proxyFactory = null;
-
                 if(self._routerManager)
                 {
                     self._routerManager.destroy();
-                    self._routerManager = null;
                 }
-
                 if(self._locatorManager)
                 {
                     self._locatorManager.destroy();
-                    self._locatorManager = null;
                 }
-
                 if(self._endpointFactoryManager)
                 {
                     self._endpointFactoryManager.destroy();
-                    self._endpointFactoryManager = null;
                 }
-
-                self._state = StateDestroyed;
 
                 if(self._initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
                 {
@@ -542,12 +520,41 @@ var Instance = Ice.Class({
                     }
                 }
 
+                self._objectAdapterFactory = null;
+                self._outgoingConnectionFactory = null;
+                self._retryQueue = null;
+                self._timer = null;
+
+                self._servantFactoryManager = null;
+                self._referenceFactory = null;
+                self._requestHandlerFactory = null;
+                self._proxyFactory = null;
+                self._routerManager = null;
+                self._locatorManager = null;
+                self._endpointFactoryManager = null;
+
+                self._state = StateDestroyed;
+
+                if(this._destroyPromises)
+                {
+                    for(var i = 0; i < this._destroyPromises.length; ++i)
+                    {
+                        this._destroyPromises[i].succeed(this._destroyPromises[i]);
+                    }
+                }
                 promise.succeed(promise);
             }
         ).exception(
             function(ex)
             {
-                promise.fail(ex);
+                if(this._destroyPromises)
+                {
+                    for(var i = 0; i < this._destroyPromises.length; ++i)
+                    {
+                        this._destroyPromises[i].fail(ex, this._destroyPromises[i]);
+                    }
+                }
+                promise.fail(ex, promise);
             }
         );
         return promise;

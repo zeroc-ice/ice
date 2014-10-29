@@ -790,7 +790,7 @@ namespace Ice
             }
             else
             {
-                return instance_.serverThreadPool(true);
+                return instance_.serverThreadPool();
             }
             
         }

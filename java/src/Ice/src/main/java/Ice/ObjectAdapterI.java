@@ -830,7 +830,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
         else
         {
-            return _instance.serverThreadPool(true);
+            return _instance.serverThreadPool();
         }
     }
 

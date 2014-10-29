@@ -288,7 +288,7 @@ IceInternal::ObserverUpdaterI::updateThreadObservers()
 bool
 IceInternal::Instance::destroyed() const
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    Lock sync(*this);
     return _state == StateDestroyed;
 }
 
@@ -311,7 +311,7 @@ IceInternal::Instance::defaultsAndOverrides() const
 RouterManagerPtr
 IceInternal::Instance::routerManager() const
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    Lock sync(*this);
 
     if(_state == StateDestroyed)
     {
@@ -325,7 +325,7 @@ IceInternal::Instance::routerManager() const
 LocatorManagerPtr
 IceInternal::Instance::locatorManager() const
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    Lock sync(*this);
 
     if(_state == StateDestroyed)
     {
@@ -339,7 +339,7 @@ IceInternal::Instance::locatorManager() const
 ReferenceFactoryPtr
 IceInternal::Instance::referenceFactory() const
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    Lock sync(*this);
 
     if(_state == StateDestroyed)
     {
@@ -353,7 +353,7 @@ IceInternal::Instance::referenceFactory() const
 RequestHandlerFactoryPtr
 IceInternal::Instance::requestHandlerFactory() const
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    Lock sync(*this);
 
     if(_state == StateDestroyed)
     {
@@ -367,7 +367,7 @@ IceInternal::Instance::requestHandlerFactory() const
 ProxyFactoryPtr
 IceInternal::Instance::proxyFactory() const
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    Lock sync(*this);
 
     if(_state == StateDestroyed)
     {
@@ -381,7 +381,7 @@ IceInternal::Instance::proxyFactory() const
 OutgoingConnectionFactoryPtr
 IceInternal::Instance::outgoingConnectionFactory() const
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    Lock sync(*this);
 
     if(_state == StateDestroyed)
     {
@@ -395,7 +395,7 @@ IceInternal::Instance::outgoingConnectionFactory() const
 ObjectFactoryManagerPtr
 IceInternal::Instance::servantFactoryManager() const
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    Lock sync(*this);
 
     if(_state == StateDestroyed)
     {
@@ -409,7 +409,7 @@ IceInternal::Instance::servantFactoryManager() const
 ObjectAdapterFactoryPtr
 IceInternal::Instance::objectAdapterFactory() const
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    Lock sync(*this);
 
     if(_state == StateDestroyed)
     {
@@ -441,7 +441,7 @@ IceInternal::Instance::networkProxy() const
 ThreadPoolPtr
 IceInternal::Instance::clientThreadPool()
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    Lock sync(*this);
 
     if(_state == StateDestroyed)
     {
@@ -453,17 +453,21 @@ IceInternal::Instance::clientThreadPool()
 }
 
 ThreadPoolPtr
-IceInternal::Instance::serverThreadPool(bool create)
+IceInternal::Instance::serverThreadPool()
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    Lock sync(*this);
 
     if(_state == StateDestroyed)
     {
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    if(!_serverThreadPool && create) // Lazy initialization.
+    if(!_serverThreadPool) // Lazy initialization.
     {
+        if(_state == StateDestroyInProgress)
+        {
+            throw CommunicatorDestroyedException(__FILE__, __LINE__);
+        }
         int timeout = _initData.properties->getPropertyAsInt("Ice.ServerIdleTime");
         _serverThreadPool = new ThreadPool(this, "Ice.ThreadPool.Server", timeout);
     }
@@ -474,7 +478,7 @@ IceInternal::Instance::serverThreadPool(bool create)
 EndpointHostResolverPtr
 IceInternal::Instance::endpointHostResolver()
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    Lock sync(*this);
 
     if(_state == StateDestroyed)
     {
@@ -488,7 +492,7 @@ IceInternal::Instance::endpointHostResolver()
 RetryQueuePtr
 IceInternal::Instance::retryQueue()
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    Lock sync(*this);
 
     if(_state == StateDestroyed)
     {
@@ -502,7 +506,7 @@ IceInternal::Instance::retryQueue()
 IceUtil::TimerPtr
 IceInternal::Instance::timer()
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    Lock sync(*this);
 
     if(_state == StateDestroyed)
     {
@@ -515,7 +519,7 @@ IceInternal::Instance::timer()
 EndpointFactoryManagerPtr
 IceInternal::Instance::endpointFactoryManager() const
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    Lock sync(*this);
 
     if(_state == StateDestroyed)
     {
@@ -529,7 +533,7 @@ IceInternal::Instance::endpointFactoryManager() const
 DynamicLibraryListPtr
 IceInternal::Instance::dynamicLibraryList() const
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    Lock sync(*this);
 
     if(_state == StateDestroyed)
     {
@@ -543,7 +547,7 @@ IceInternal::Instance::dynamicLibraryList() const
 PluginManagerPtr
 IceInternal::Instance::pluginManager() const
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    Lock sync(*this);
 
     if(_state == StateDestroyed)
     {
@@ -689,7 +693,7 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
     ObjectAdapterPtr adapter = adminAdapter;
     bool createAdapter = !adminAdapter;
 
-    IceUtil::RecMutex::Lock sync(*this);
+    Lock sync(*this);
 
     if(_state == StateDestroyed)
     {
@@ -754,7 +758,7 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
 Ice::ObjectPrx
 IceInternal::Instance::getAdmin()
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    Lock sync(*this);
 
     if(_state == StateDestroyed)
     {
@@ -889,7 +893,7 @@ IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapte
 void
 IceInternal::Instance::addAdminFacet(const Ice::ObjectPtr& servant, const string& facet)
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    Lock sync(*this);
 
     if(_state == StateDestroyed)
     {
@@ -912,7 +916,7 @@ IceInternal::Instance::addAdminFacet(const Ice::ObjectPtr& servant, const string
 Ice::ObjectPtr
 IceInternal::Instance::removeAdminFacet(const string& facet)
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    Lock sync(*this);
 
     if(_state == StateDestroyed)
     {
@@ -945,7 +949,7 @@ IceInternal::Instance::removeAdminFacet(const string& facet)
 Ice::ObjectPtr
 IceInternal::Instance::findAdminFacet(const string& facet)
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    Lock sync(*this);
 
     if(_state == StateDestroyed)
     {
@@ -977,7 +981,7 @@ IceInternal::Instance::findAdminFacet(const string& facet)
 FacetMap
 IceInternal::Instance::findAllAdminFacets()
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    Lock sync(*this);
 
     if(_state == StateDestroyed)
     {
@@ -1003,7 +1007,7 @@ IceInternal::Instance::findAllAdminFacets()
 void
 IceInternal::Instance::setDefaultLocator(const Ice::LocatorPrx& defaultLocator)
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    Lock sync(*this);
 
     if(_state == StateDestroyed)
     {
@@ -1016,7 +1020,7 @@ IceInternal::Instance::setDefaultLocator(const Ice::LocatorPrx& defaultLocator)
 void
 IceInternal::Instance::setDefaultRouter(const Ice::RouterPrx& defaultRouter)
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    Lock sync(*this);
 
     if(_state == StateDestroyed)
     {
@@ -1643,6 +1647,30 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
 void
 IceInternal::Instance::destroy()
 {
+    {
+        Lock sync(*this);
+
+        //
+        // If destroy is in progress, wait for it to be done. This is
+        // necessary in case destroy() is called concurrently by
+        // multiple threads.
+        //
+        while(_state == StateDestroyInProgress)
+        {
+            wait();
+        }
+
+        if(_state == StateDestroyed)
+        {
+            return;
+        }
+        _state = StateDestroyInProgress;
+    }
+
+    //
+    // Shutdown and destroy all the incoming and outgoing Ice
+    // connections and wait for the connections to be finished.
+    //
     if(_objectAdapterFactory)
     {
         _objectAdapterFactory->shutdown();
@@ -1665,7 +1693,7 @@ IceInternal::Instance::destroy()
 
     if(_retryQueue)
     {
-        _retryQueue->destroy();
+        _retryQueue->destroy(); // Must be called before destroying thread pools.
     }
 
     if(_initData.observer)
@@ -1687,113 +1715,67 @@ IceInternal::Instance::destroy()
         logger->destroy();
     }
 
-    ThreadPoolPtr serverThreadPool;
-    ThreadPoolPtr clientThreadPool;
-    EndpointHostResolverPtr endpointHostResolver;
-    TimerPtr timer;
-    PluginManagerPtr pluginManager;
-    bool checkUnused = false;
+    //
+    // Now, destroy the thread pools. This must be done *only* after
+    // all the connections are finished (the connections destruction
+    // can require invoking callbacks with the thread pools).
+    // 
+    if(_serverThreadPool)
     {
-        IceUtil::RecMutex::Lock sync(*this);
-
-        _objectAdapterFactory = 0;
-        _outgoingConnectionFactory = 0;
-        _retryQueue = 0;
-
-        if(_serverThreadPool)
-        {
-            _serverThreadPool->destroy();
-            std::swap(_serverThreadPool, serverThreadPool);
-        }
-
-        if(_clientThreadPool)
-        {
-            _clientThreadPool->destroy();
-            std::swap(_clientThreadPool, clientThreadPool);
-        }
-
-        if(_endpointHostResolver)
-        {
-            _endpointHostResolver->destroy();
-            std::swap(endpointHostResolver, _endpointHostResolver);
-        }
-
-        if(_timer)
-        {
-            std::swap(_timer, timer);
-        }
-
-        if(_servantFactoryManager)
-        {
-            _servantFactoryManager->destroy();
-            _servantFactoryManager = 0;
-        }
-
-        //_referenceFactory->destroy(); // No destroy function defined.
-        _referenceFactory = 0;
-        
-        _requestHandlerFactory = 0;
-
-        // _proxyFactory->destroy(); // No destroy function defined.
-        _proxyFactory = 0;
-
-        if(_routerManager)
-        {
-            _routerManager->destroy();
-            _routerManager = 0;
-        }
-
-        if(_locatorManager)
-        {
-            _locatorManager->destroy();
-            _locatorManager = 0;
-        }
-
-        if(_endpointFactoryManager)
-        {
-            _endpointFactoryManager->destroy();
-            _endpointFactoryManager = 0;
-        }
-
-        std::swap(_pluginManager, pluginManager);
-
-        // No destroy function defined.
-        // _dynamicLibraryList->destroy();
-        _dynamicLibraryList = 0;
-
-        _adminAdapter = 0;
-        _adminFacets.clear();
-
-        if(_state != StateDestroyed)
-        {
-            checkUnused = true;
-        }
-        _state = StateDestroyed;
+        _serverThreadPool->destroy();
+    }
+    if(_clientThreadPool)
+    {
+        _clientThreadPool->destroy();
+    }
+    if(_endpointHostResolver)
+    {
+        _endpointHostResolver->destroy();
+    }
+    if(_timer)
+    {
+        _timer->destroy();
     }
 
     //
-    // Join with the thread pool threads outside the synchronization.
+    // Wait for all the threads to be finished.
     //
-    if(timer)
+    if(_clientThreadPool)
     {
-        timer->destroy();
+        _clientThreadPool->joinWithAllThreads();
     }
-    if(clientThreadPool)
+    if(_serverThreadPool)
     {
-        clientThreadPool->joinWithAllThreads();
-    }
-    if(serverThreadPool)
-    {
-        serverThreadPool->joinWithAllThreads();
+        _serverThreadPool->joinWithAllThreads();
     }
 #ifndef ICE_OS_WINRT
-    if(endpointHostResolver)
+    if(_endpointHostResolver)
     {
-        endpointHostResolver->getThreadControl().join();
+        _endpointHostResolver->getThreadControl().join();
     }
 #endif
+    
+    if(_servantFactoryManager)
+    {
+        _servantFactoryManager->destroy();
+    }
 
-    if(checkUnused && _initData.properties->getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
+    if(_routerManager)
+    {
+        _routerManager->destroy();
+    }
+
+    if(_locatorManager)
+    {
+        _locatorManager->destroy();
+    }
+
+    if(_endpointFactoryManager)
+    {
+        _endpointFactoryManager->destroy();
+    }
+
+    if(_initData.properties->getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
     {
         set<string> unusedProperties = static_cast<PropertiesI*>(_initData.properties.get())->getUnusedProperties();
         if(unusedProperties.size() != 0)
@@ -1810,9 +1792,38 @@ IceInternal::Instance::destroy()
     //
     // Destroy last so that a Logger plugin can receive all log/traces before its destruction.
     //
-    if(pluginManager)
+    if(_pluginManager)
     {
-        pluginManager->destroy();
+        _pluginManager->destroy();
+    }
+
+    {
+        Lock sync(*this);
+
+        _objectAdapterFactory = 0;
+        _outgoingConnectionFactory = 0;
+        _retryQueue = 0;
+
+        _serverThreadPool = 0;
+        _clientThreadPool = 0;
+        _endpointHostResolver = 0;
+        _timer = 0;
+
+        _servantFactoryManager = 0;
+        _referenceFactory = 0;
+        _requestHandlerFactory = 0;
+        _proxyFactory = 0;
+        _routerManager = 0;
+        _locatorManager = 0;
+        _endpointFactoryManager = 0;
+        _pluginManager = 0;
+        _dynamicLibraryList = 0;
+
+        _adminAdapter = 0;
+        _adminFacets.clear();
+
+        _state = StateDestroyed;
+        notifyAll();
     }
 }
 

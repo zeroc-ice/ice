@@ -313,8 +313,7 @@ var ObjectAdapterI = Ice.Class({
             return promise.succeed(promise);
         };
 
-        return this._state < StateDeactivated ?
-            this.deactivate().then(destroyInternal) : destroyInternal();        
+        return this._state < StateDeactivated ? this.deactivate().then(destroyInternal) : destroyInternal();
     },
     add: function(object, ident)
     {

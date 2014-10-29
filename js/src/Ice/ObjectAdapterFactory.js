@@ -47,22 +47,11 @@ var ObjectAdapterFactory = Ice.Class({
 
         this._instance = null;
         this._communicator = null;
-        var self = this;
-        Promise.all(
+        this._shutdownPromise = Promise.all(
             this._adapters.map(function(adapter)
-                                {
-                                    return adapter.deactivate();
-                                })
-        ).then(
-            function()
-            {
-                self._shutdownPromise.succeed();
-            },
-            function(ex)
-            {
-                self._shutdownPromise.fail(ex);
-            }
-        );
+                               {
+                                   return adapter.deactivate();
+                               }));
         return this._shutdownPromise;
     },
     waitForShutdown: function()
@@ -72,9 +61,9 @@ var ObjectAdapterFactory = Ice.Class({
             function()
             {
                 return Promise.all(self._adapters.map(function(adapter)
-                                                        {
-                                                            return adapter.waitForDeactivate();
-                                                        }));
+                                                      {
+                                                          return adapter.waitForDeactivate();
+                                                      }));
             });
     },
     isShutdown: function()
@@ -88,9 +77,9 @@ var ObjectAdapterFactory = Ice.Class({
             function()
             {
                 return Promise.all(self._adapters.map(function(adapter)
-                                                        {
-                                                            return adapter.destroy();
-                                                        }));
+                                                      {
+                                                          return adapter.destroy();
+                                                      }));
             });
     },
     createObjectAdapter: function(name, router, promise)

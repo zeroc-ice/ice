@@ -125,7 +125,6 @@ public final class Instance
             _observerHelper.afterExecute();
         }
 
-
         public void destroy()
             throws InterruptedException
         {
@@ -308,15 +307,20 @@ public final class Instance
     }
 
     public synchronized ThreadPool
-    serverThreadPool(boolean create)
+    serverThreadPool()
     {
         if(_state == StateDestroyed)
         {
             throw new Ice.CommunicatorDestroyedException();
         }
 
-        if(_serverThreadPool == null && create) // Lazy initialization.
+        if(_serverThreadPool == null) // Lazy initialization.
         {
+            if(_state == StateDestroyInProgress)
+            {
+                throw new Ice.CommunicatorDestroyedException();
+            }
+
             int timeout = _initData.properties.getPropertyAsInt("Ice.ServerIdleTime");
             _serverThreadPool = new ThreadPool(this, "Ice.ThreadPool.Server", timeout);
         }
@@ -1192,197 +1196,221 @@ public final class Instance
             throw new Ice.OperationInterruptedException();
         }
 
-        if(_objectAdapterFactory != null)
-        {
-            _objectAdapterFactory.shutdown();
-        }
-
-        if(_outgoingConnectionFactory != null)
-        {
-            _outgoingConnectionFactory.destroy();
-        }
-
-        if(_objectAdapterFactory != null)
-        {
-            _objectAdapterFactory.destroy();
-        }
-
-        if(_outgoingConnectionFactory != null)
-        {
-            try
-            {
-                _outgoingConnectionFactory.waitUntilFinished();
-            }
-            catch (InterruptedException e)
-            {
-                throw new Ice.OperationInterruptedException();
-            }
-        }
-
-        if(_retryQueue != null)
-        {
-            _retryQueue.destroy();
-        }
-
-        if(_initData.observer != null)
-        {
-            _initData.observer.setObserverUpdater(null);
-        }
-
-        if(_initData.logger instanceof LoggerAdminLogger)
-        {
-            //
-            // This only disables the remote logging; we don't set or reset _initData.logger
-            //
-            ((LoggerAdminLogger)_initData.logger).destroy();
-        }
-
-        ThreadPool serverThreadPool = null;
-        ThreadPool clientThreadPool = null;
-        EndpointHostResolver endpointHostResolver = null;
-        QueueExecutor queueExecutor = null;
-        Ice.PluginManager pluginManager = null;
-        boolean checkUnused = false;
         synchronized(this)
         {
-            _objectAdapterFactory = null;
-            _outgoingConnectionFactory = null;
-            _retryQueue = null;
-
-            if(_serverThreadPool != null)
+            //
+            // If destroy is in progress, wait for it to be done. This
+            // is necessary in case destroy() is called concurrently
+            // by multiple threads.
+            //
+            while(_state == StateDestroyInProgress)
             {
-                _serverThreadPool.destroy();
-                serverThreadPool = _serverThreadPool;
-                _serverThreadPool = null;
+                try
+                {
+                    wait();
+                }
+                catch(InterruptedException ex)
+                {
+                    throw new Ice.OperationInterruptedException();
+                }
             }
 
-            if(_clientThreadPool != null)
+            if(_state == StateDestroyed)
             {
-                _clientThreadPool.destroy();
-                clientThreadPool = _clientThreadPool;
-                _clientThreadPool = null;
+                return;
             }
-
-            if(_endpointHostResolver != null)
-            {
-                _endpointHostResolver.destroy();
-                endpointHostResolver = _endpointHostResolver;
-                _endpointHostResolver = null;
-            }
-
-            if(_timer != null)
-            {
-                // Shutdown the executor. It isn't necessary to call
-                // awaitTermination since the threads are not daemon and
-                // therefore the VM will block until all threads have
-                // terminated.
-                _timer.shutdown();
-                // Once we support interrupt we can use shutdownNow.
-                //_timer.shutdownNow();
-
-                _timer = null;
-            }
-
-            if(_servantFactoryManager != null)
-            {
-                _servantFactoryManager.destroy();
-                _servantFactoryManager = null;
-            }
-
-            //_referenceFactory.destroy(); // No destroy function defined.
-            _referenceFactory = null;
-            
-            _requestHandlerFactory = null;
-            
-            // _proxyFactory.destroy(); // No destroy function defined.
-            _proxyFactory = null;
-
-            if(_routerManager != null)
-            {
-                _routerManager.destroy();
-                _routerManager = null;
-            }
-
-            if(_locatorManager != null)
-            {
-                _locatorManager.destroy();
-                _locatorManager = null;
-            }
-
-            if(_endpointFactoryManager != null)
-            {
-                _endpointFactoryManager.destroy();
-                _endpointFactoryManager = null;
-            }
-
-            pluginManager = _pluginManager;
-            _pluginManager = null;
-
-            _adminAdapter = null;
-            _adminFacets.clear();
-
-            queueExecutor = _queueExecutor;
-            _queueExecutor = null;
-
-            _queueExecutor = null;
-
-            _typeToClassMap.clear();
-
-            if(_state != StateDestroyed)
-            {
-                checkUnused = true;
-            }
-            _state = StateDestroyed;
+            _state = StateDestroyInProgress;
         }
 
         try
         {
             //
-            // Join with threads outside the synchronization.
+            // Shutdown and destroy all the incoming and outgoing Ice
+            // connections and wait for the connections to be finished.
             //
-            if(clientThreadPool != null)
+            if(_objectAdapterFactory != null)
             {
-                clientThreadPool.joinWithAllThreads();
+                _objectAdapterFactory.shutdown();
             }
-            if(serverThreadPool != null)
-            {
-                serverThreadPool.joinWithAllThreads();
-            }
-            if(endpointHostResolver != null)
-            {
-                endpointHostResolver.joinWithThread();
-            }
-            if(queueExecutor != null)
-            {
-                queueExecutor.destroy();
-            }
-        }
-        catch(InterruptedException ex)
-        {
-            throw new Ice.OperationInterruptedException();
-        }
 
-        if(checkUnused && _initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
-        {
-            java.util.List<String> unusedProperties = ((Ice.PropertiesI)_initData.properties).getUnusedProperties();
-            if(unusedProperties.size() != 0)
+            if(_outgoingConnectionFactory != null)
             {
-                StringBuffer message = new StringBuffer("The following properties were set but never read:");
-                for(String p : unusedProperties)
+                _outgoingConnectionFactory.destroy();
+            }
+
+            if(_objectAdapterFactory != null)
+            {
+                _objectAdapterFactory.destroy();
+            }
+
+            if(_outgoingConnectionFactory != null)
+            {
+                _outgoingConnectionFactory.waitUntilFinished();
+            }
+
+            if(_retryQueue != null)
+            {
+                _retryQueue.destroy(); // Must be called before destroying thread pools.
+            }
+
+            if(_initData.observer != null)
+            {
+                _initData.observer.setObserverUpdater(null);
+            }
+
+            if(_initData.logger instanceof LoggerAdminLogger)
+            {
+                //
+                // This only disables the remote logging; we don't set or reset _initData.logger
+                //
+                ((LoggerAdminLogger)_initData.logger).destroy();
+            }
+
+            //
+            // Now, destroy the thread pools. This must be done *only* after
+            // all the connections are finished (the connections destruction
+            // can require invoking callbacks with the thread pools).
+            // 
+            if(_serverThreadPool != null)
+            {
+                _serverThreadPool.destroy();
+            }
+            if(_clientThreadPool != null)
+            {
+                _clientThreadPool.destroy();
+            }
+            if(_endpointHostResolver != null)
+            {
+                _endpointHostResolver.destroy();
+            }
+            if(_timer != null)
+            {
+                _timer.shutdown(); // Don't use shutdownNow(), timers don't support interrupts
+            }
+
+            //
+            // Wait for all the threads to be finished.
+            //
+            try
+            {
+                if(_clientThreadPool != null)
                 {
-                    message.append("\n    ");
-                    message.append(p);
+                    _clientThreadPool.joinWithAllThreads();
                 }
-                _initData.logger.warning(message.toString());
+                if(_serverThreadPool != null)
+                {
+                    _serverThreadPool.joinWithAllThreads();
+                }
+                if(_endpointHostResolver != null)
+                {
+                    _endpointHostResolver.joinWithThread();
+                }
+                if(_queueExecutor != null)
+                {
+                    _queueExecutor.destroy();
+                }
+                if(_timer != null)
+                {
+                    _timer.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+                }
+            }
+            catch(InterruptedException ex)
+            {
+                throw new Ice.OperationInterruptedException();
+            }
+
+            //
+            // NOTE: at this point destroy() can't be interrupted
+            // anymore. The calls bellow are therefore garanteed to be
+            // called once.
+            //
+
+            if(_servantFactoryManager != null)
+            {
+                _servantFactoryManager.destroy();
+            }
+
+            if(_routerManager != null)
+            {
+                _routerManager.destroy();
+            }
+
+            if(_locatorManager != null)
+            {
+                _locatorManager.destroy();
+            }
+
+            if(_endpointFactoryManager != null)
+            {
+                _endpointFactoryManager.destroy();
+            }
+
+            if(_initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
+            {
+                java.util.List<String> unusedProperties = ((Ice.PropertiesI)_initData.properties).getUnusedProperties();
+                if(unusedProperties.size() != 0)
+                {
+                    StringBuffer message = new StringBuffer("The following properties were set but never read:");
+                    for(String p : unusedProperties)
+                    {
+                        message.append("\n    ");
+                        message.append(p);
+                    }
+                    _initData.logger.warning(message.toString());
+                }
+            }
+
+            //
+            // Destroy last so that a Logger plugin can receive all log/traces before its destruction.
+            //
+            if(_pluginManager != null)
+            {
+                _pluginManager.destroy();
+            }
+
+            synchronized(this)
+            {
+                _objectAdapterFactory = null;
+                _outgoingConnectionFactory = null;
+                _retryQueue = null;
+
+                _serverThreadPool = null;
+                _clientThreadPool = null;
+                _endpointHostResolver = null;
+                _timer = null;
+
+                _servantFactoryManager = null;
+                _referenceFactory = null;
+                _requestHandlerFactory = null;
+                _proxyFactory = null;
+                _routerManager = null;
+                _locatorManager = null;
+                _endpointFactoryManager = null;
+
+                _pluginManager = null;
+
+                _adminAdapter = null;
+                _adminFacets.clear();
+
+                _queueExecutor = null;
+                _queueExecutorService = null;
+
+                _typeToClassMap.clear();
+
+                _state = StateDestroyed;
+                notifyAll();
             }
         }
-
-        //
-        // Destroy last so that a Logger plugin can receive all log/traces before its destruction.
-        //
-        if(pluginManager != null)
+        finally
         {
-            pluginManager.destroy();
+            synchronized(this)
+            {
+                if(_state == StateDestroyInProgress)
+                {
+                    _state = StateActive;
+                    notifyAll();
+                }
+            }
         }
     }
 
@@ -1576,7 +1604,8 @@ public final class Instance
     }
 
     private static final int StateActive = 0;
-    private static final int StateDestroyed = 1;
+    private static final int StateDestroyInProgress = 1;
+    private static final int StateDestroyed = 2;
     private int _state;
 
     private final Ice.InitializationData _initData; // Immutable, not reset by destroy().

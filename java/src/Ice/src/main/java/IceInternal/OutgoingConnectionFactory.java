@@ -84,7 +84,6 @@ public final class OutgoingConnectionFactory
     // Called from Instance.destroy().
     public void
     waitUntilFinished()
-        throws InterruptedException
     {
         java.util.Map<Connector, java.util.List<Ice.ConnectionI> > connections = null;
         synchronized(this)
@@ -97,7 +96,14 @@ public final class OutgoingConnectionFactory
             //
             while(!_destroyed || !_pending.isEmpty() || _pendingConnectCount > 0)
             {
-                wait();
+                try
+                {
+                    wait();
+                }
+                catch(InterruptedException ex)
+                {
+                    throw new Ice.OperationInterruptedException();
+                }
             }
 
             //
@@ -130,7 +136,7 @@ public final class OutgoingConnectionFactory
                             c.close(true);
                         }
                     }
-                    throw e;
+                    throw new Ice.OperationInterruptedException();
                 }
             }
         }

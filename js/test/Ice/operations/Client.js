@@ -91,6 +91,7 @@
         ).finally(
             function()
             {
+                c.destroy(); // Test concurrent destroy() calls
                 return c.destroy();
             }
         );

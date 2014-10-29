@@ -63,7 +63,7 @@ typedef IceUtil::Handle<MetricsAdminI> MetricsAdminIPtr;
 class RequestHandlerFactory;
 typedef IceUtil::Handle<RequestHandlerFactory> RequestHandlerFactoryPtr;
 
-class Instance : public IceUtil::Shared, public IceUtil::RecMutex
+class Instance : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::RecMutex>
 {
 public:
 
@@ -83,7 +83,7 @@ public:
     bool preferIPv6() const;
     NetworkProxyPtr networkProxy() const;
     ThreadPoolPtr clientThreadPool();
-    ThreadPoolPtr serverThreadPool(bool create = true);
+    ThreadPoolPtr serverThreadPool();
     EndpointHostResolverPtr endpointHostResolver();
     RetryQueuePtr retryQueue();
     IceUtil::TimerPtr timer();
@@ -136,6 +136,7 @@ private:
     enum State
     {
         StateActive,
+        StateDestroyInProgress,
         StateDestroyed
     };
     State _state;

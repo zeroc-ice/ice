@@ -216,7 +216,7 @@ namespace IceInternal
             }
         }
 
-        public ThreadPool serverThreadPool(bool create)
+        public ThreadPool serverThreadPool()
         {
             lock(this)
             {
@@ -225,8 +225,12 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
 
-                if(_serverThreadPool == null && create) // Lazy initialization.
+                if(_serverThreadPool == null) // Lazy initialization.
                 {
+                    if(_state == StateDestroyInProgress)
+                    {
+                        throw new Ice.CommunicatorDestroyedException();
+                    }
                     int timeout = _initData.properties.getPropertyAsInt("Ice.ServerIdleTime");
                     _serverThreadPool = new ThreadPool(this, "Ice.ThreadPool.Server", timeout);
                 }
@@ -1095,6 +1099,29 @@ namespace IceInternal
         //
         public void destroy()
         {
+            lock(this)
+            {
+                //
+                // If destroy is in progress, wait for it to be done. This
+                // is necessary in case destroy() is called concurrently
+                // by multiple threads.
+                //
+                while(_state == StateDestroyInProgress)
+                {
+                    Monitor.Wait(this);
+                }
+                
+                if(_state == StateDestroyed)
+                {
+                    return;
+                }
+                _state = StateDestroyInProgress;
+            }
+
+            //
+            // Shutdown and destroy all the incoming and outgoing Ice
+            // connections and wait for the connections to be finished.
+            //
             if(_objectAdapterFactory != null)
             {
                 _objectAdapterFactory.shutdown();
@@ -1117,7 +1144,7 @@ namespace IceInternal
 
             if(_retryQueue != null)
             {
-                _retryQueue.destroy();
+                _retryQueue.destroy(); // Must be called before destroying thread pools.
             }
 
             if(_initData.observer != null)
@@ -1131,133 +1158,77 @@ namespace IceInternal
                 logger.destroy();
             }
 
-            ThreadPool serverThreadPool = null;
-            ThreadPool clientThreadPool = null;
-            AsyncIOThread asyncIOThread = null;
-            IceInternal.Timer timer = null;
-            Ice.PluginManager pluginManager = null;
-            bool checkUnused = false;
-
-#if !SILVERLIGHT
-            EndpointHostResolver endpointHostResolver = null;
-#endif
-            lock(this)
+            //
+            // Now, destroy the thread pools. This must be done *only* after
+            // all the connections are finished (the connections destruction
+            // can require invoking callbacks with the thread pools).
+            // 
+            if(_serverThreadPool != null)
             {
-                _objectAdapterFactory = null;
-                _outgoingConnectionFactory = null;
-                _retryQueue = null;
-
-                if(_serverThreadPool != null)
-                {
-                    _serverThreadPool.destroy();
-                    serverThreadPool = _serverThreadPool;
-                    _serverThreadPool = null;
-                }
-
-                if(_clientThreadPool != null)
-                {
-                    _clientThreadPool.destroy();
-                    clientThreadPool = _clientThreadPool;
-                    _clientThreadPool = null;
-                }
-
-                if(_asyncIOThread != null)
-                {
-                    _asyncIOThread.destroy();
-                    asyncIOThread = _asyncIOThread;
-                    _asyncIOThread = null;
-                }
-
-#if !SILVERLIGHT
-                if(_endpointHostResolver != null)
-                {
-                    _endpointHostResolver.destroy();
-                    endpointHostResolver = _endpointHostResolver;
-                    _endpointHostResolver = null;
-                }
-#endif
-
-                if(_timer != null)
-                {
-                    timer = _timer;
-                    _timer = null;
-                }
-
-                if(_servantFactoryManager != null)
-                {
-                    _servantFactoryManager.destroy();
-                    _servantFactoryManager = null;
-                }
-
-                // No destroy function defined.
-                //_referenceFactory.destroy();
-                _referenceFactory = null;
-
-                // No destroy function defined.
-                _requestHandlerFactory = null;
-
-                // No destroy function defined.
-                // _proxyFactory.destroy();
-                _proxyFactory = null;
-
-                if(_routerManager != null)
-                {
-                    _routerManager.destroy();
-                    _routerManager = null;
-                }
-
-                if(_locatorManager != null)
-                {
-                    _locatorManager.destroy();
-                    _locatorManager = null;
-                }
-
-                if(_endpointFactoryManager != null)
-                {
-                    _endpointFactoryManager.destroy();
-                    _endpointFactoryManager = null;
-                }
-
-                pluginManager = _pluginManager;
-                _pluginManager = null;
-
-                _adminAdapter = null;
-                _adminFacets.Clear();
-
-                if(_state != StateDestroyed)
-                {
-                    checkUnused = true;
-                }
-
-                _state = StateDestroyed;
+                _serverThreadPool.destroy();
             }
+            if(_clientThreadPool != null)
+            {
+                _clientThreadPool.destroy();
+            }
+            if(_asyncIOThread != null)
+            {
+                _asyncIOThread.destroy();
+            }
+#if !SILVERLIGHT
+            if(_endpointHostResolver != null)
+            {
+                _endpointHostResolver.destroy();
+            }
+#endif
 
             //
-            // Join with threads outside the synchronization.
+            // Wait for all the threads to be finished.
             //
-            if(timer != null)
+            if(_timer != null)
             {
-                timer.destroy();
+                _timer.destroy();
             }
-            if(clientThreadPool != null)
+            if(_clientThreadPool != null)
             {
-                clientThreadPool.joinWithAllThreads();
+                _clientThreadPool.joinWithAllThreads();
             }
-            if(serverThreadPool != null)
+            if(_serverThreadPool != null)
             {
-                serverThreadPool.joinWithAllThreads();
+                _serverThreadPool.joinWithAllThreads();
             }
-            if(asyncIOThread != null)
+            if(_asyncIOThread != null)
             {
-                asyncIOThread.joinWithThread();
+                _asyncIOThread.joinWithThread();
             }
 #if !SILVERLIGHT
-            if(endpointHostResolver != null)
+            if(_endpointHostResolver != null)
             {
-                endpointHostResolver.joinWithThread();
+                _endpointHostResolver.joinWithThread();
             }
 #endif
-            if(checkUnused && _initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
+
+            if(_servantFactoryManager != null)
+            {
+                _servantFactoryManager.destroy();
+            }
+
+            if(_routerManager != null)
+            {
+                _routerManager.destroy();
+            }
+
+            if(_locatorManager != null)
+            {
+                _locatorManager.destroy();
+            }
+
+            if(_endpointFactoryManager != null)
+            {
+                _endpointFactoryManager.destroy();
+            }
+
+            if(_initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
             {
                 List<string> unusedProperties = ((Ice.PropertiesI)_initData.properties).getUnusedProperties();
                 if (unusedProperties.Count != 0)
@@ -1275,9 +1246,37 @@ namespace IceInternal
             //
             // Destroy last so that a Logger plugin can receive all log/traces before its destruction.
             //
-            if(pluginManager != null)
+            if(_pluginManager != null)
             {
-                pluginManager.destroy();
+                _pluginManager.destroy();
+            }
+
+            lock(this)
+            {
+                _objectAdapterFactory = null;
+                _outgoingConnectionFactory = null;
+                _retryQueue = null;
+
+                _serverThreadPool = null;
+                _clientThreadPool = null;
+                _asyncIOThread = null;
+                _endpointHostResolver = null;
+                _timer = null;
+
+                _servantFactoryManager = null;
+                _referenceFactory = null;
+                _requestHandlerFactory = null;
+                _proxyFactory = null;
+                _routerManager = null;
+                _locatorManager = null;
+                _endpointFactoryManager = null;
+                _pluginManager = null;
+
+                _adminAdapter = null;
+                _adminFacets.Clear();
+
+                _state = StateDestroyed;
+                Monitor.PulseAll(this);
             }
         }
 
@@ -1424,7 +1423,8 @@ namespace IceInternal
         }
 
         private const int StateActive = 0;
-        private const int StateDestroyed = 1;
+        private const int StateDestroyInProgress = 1;
+        private const int StateDestroyed = 2;
         private int _state;
         private Ice.InitializationData _initData; // Immutable, not reset by destroy().
         private TraceLevels _traceLevels; // Immutable, not reset by destroy().
