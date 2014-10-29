@@ -33,7 +33,7 @@ project(':ant').projectDir = new File('src/ant')
 
 // Tests
 include 'test'
-include 'test/plugins'
+include 'test/src/main/java/test/Ice/plugin'
 
 // Demos
 ['applet', 'async', 'bidir', 'callback', 'hello', 'invoke',

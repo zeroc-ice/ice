@@ -7,13 +7,11 @@
 //
 // **********************************************************************
 
-//ext.testDir = "${projectDir}/src/main/java/test"
-
 sourceSets {
     main {
         java {
-            srcDirs "$rootProject.projectDir/test"
-            include '**/plugin/plugins/**'
+            srcDirs "$rootProject.projectDir/test/src/main/java/test/Ice/plugin"
+            include 'plugins/**'
         }
     }
 }
