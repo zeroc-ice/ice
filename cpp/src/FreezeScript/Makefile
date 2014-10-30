@@ -23,7 +23,7 @@ COMMON_OBJS	= AssignVisitor.o \
 		  Print.o \
 		  Scanner.o \
 		  Util.o \
-		  ../FreezeScript/Grammar.o
+		  Grammar.o
 
 TRANSFORM_OBJS = TransformAnalyzer.o \
 		  TransformVisitor.o \
@@ -33,7 +33,7 @@ TRANSFORM_OBJS = TransformAnalyzer.o \
 DUMP_OBJS	= DumpDescriptors.o \
 		  DumpDB.o
 
-objs		= $(COMMON_OBJS) $(TRANSFORM_OBJS) $(DUMP_OBJS)
+OBJS		= $(COMMON_OBJS) $(TRANSFORM_OBJS) $(DUMP_OBJS)
 
 HDIR		= $(headerdir)/FreezeScript
 

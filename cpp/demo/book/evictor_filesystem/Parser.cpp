@@ -295,7 +295,15 @@ Parser::destroy(const std::list<string>& names)
 }
 
 void
-Parser::getInput(char* buf, int& result, int maxSize)
+Parser::getInput(char* buf, int& result, size_t maxSize)
+{
+    size_t r = static_cast<size_t>(result);
+    getInput(buf, r, maxSize);
+    result = static_cast<int>(r);
+}
+
+void
+Parser::getInput(char* buf, size_t& result, size_t maxSize)
 {
 #ifdef HAVE_READLINE
 
@@ -352,7 +360,7 @@ Parser::getInput(char* buf, int& result, int maxSize)
         }
     }
 
-    result = static_cast<int>(line.length());
+    result = line.length();
     if(result > maxSize)
     {
         error("input line too long");

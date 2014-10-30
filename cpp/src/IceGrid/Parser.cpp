@@ -2554,8 +2554,21 @@ Parser::showWarranty()
     cout << "This command is not implemented." << endl;
 }
 
+//
+// With older flex version <= 2.5.35 YY_INPUT second 
+// paramenter is of type int&, in newer versions it
+// changes to size_t&
+//
 void
-Parser::getInput(char* buf, int& result, int maxSize)
+Parser::getInput(char* buf, int& result, size_t maxSize)
+{
+    size_t r = static_cast<size_t>(result);
+    getInput(buf, r, maxSize);
+    result = static_cast<int>(r);
+}
+
+void
+Parser::getInput(char* buf, size_t& result, size_t maxSize)
 {
     if(!_commands.empty())
     {
@@ -2565,7 +2578,7 @@ Parser::getInput(char* buf, int& result, int maxSize)
         }
         else
         {
-            result = min(maxSize, static_cast<int>(_commands.length()));
+            result = min(maxSize, _commands.length());
             strncpy(buf, _commands.c_str(), result);
             _commands.erase(0, result);
             if(_commands.empty())
@@ -2630,7 +2643,7 @@ Parser::getInput(char* buf, int& result, int maxSize)
             }
         }
         
-        result = static_cast<int>(line.length());
+        result = line.length();
         if(result > maxSize)
         {
             error("input line too long");

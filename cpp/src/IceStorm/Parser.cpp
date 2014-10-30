@@ -411,9 +411,9 @@ Parser::showBanner()
 void
 Parser::getInput(char* buf, int& result, size_t maxSize)
 {
-    size_t r = result;
+    size_t r = static_cast<size_t>(result);
     getInput(buf, r, maxSize);
-    result = r;
+    result = static_cast<int>(r);
 }
 
 void
