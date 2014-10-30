@@ -74,7 +74,7 @@ Client::run(int argc, char* argv[])
     vector<string> args;
     try
     {
-        args = opts.parse(argc, (const char**)argv);
+        args = opts.parse(argc, const_cast<const char**>(argv));
     }
     catch(const IceUtilInternal::BadOptException& e)
     {

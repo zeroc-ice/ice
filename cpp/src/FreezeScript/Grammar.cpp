@@ -76,7 +76,7 @@
 /* Copy the first part of user declarations.  */
 
 /* Line 189 of yacc.c  */
-#line 1 "Grammar.y"
+#line 1 "../FreezeScript/Grammar.y"
 
 
 // **********************************************************************
@@ -96,6 +96,13 @@
 #   pragma warning( disable : 4102 )
 // warning C4065: switch statement contains 'default' but no 'case' labels
 #   pragma warning( disable : 4065 )
+#endif
+
+//
+// Avoid old style cast warnings in generated grammar
+//
+#ifdef __GNUC__
+#  pragma GCC diagnostic ignored "-Wold-style-cast"
 #endif
 
 using namespace std;
@@ -120,7 +127,7 @@ freeze_script_error(const char* s)
 
 
 /* Line 189 of yacc.c  */
-#line 124 "Grammar.tab.c"
+#line 131 "Grammar.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -191,7 +198,7 @@ typedef int YYSTYPE;
 
 
 /* Line 264 of yacc.c  */
-#line 195 "Grammar.tab.c"
+#line 202 "Grammar.tab.c"
 
 #ifdef short
 # undef short
@@ -490,10 +497,10 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    84,    84,    93,   102,   106,   110,   114,   118,   122,
-     126,   130,   134,   138,   142,   146,   150,   154,   163,   167,
-     171,   175,   181,   187,   193,   197,   201,   205,   209,   218,
-     222,   233,   240,   249,   260,   273,   280,   287,   295,   304
+       0,    91,    91,   100,   109,   113,   117,   121,   125,   129,
+     133,   137,   141,   145,   149,   153,   157,   161,   170,   174,
+     178,   182,   188,   194,   200,   204,   208,   212,   216,   225,
+     229,   240,   247,   256,   267,   280,   287,   294,   302,   311
 };
 #endif
 
@@ -1444,7 +1451,7 @@ yyreduce:
         case 2:
 
 /* Line 1455 of yacc.c  */
-#line 85 "Grammar.y"
+#line 92 "../FreezeScript/Grammar.y"
     {
     parseResult = (yyvsp[(1) - (1)]);
 ;}
@@ -1453,7 +1460,7 @@ yyreduce:
   case 3:
 
 /* Line 1455 of yacc.c  */
-#line 94 "Grammar.y"
+#line 101 "../FreezeScript/Grammar.y"
     {
     (yyval) = (yyvsp[(1) - (1)]);
 ;}
@@ -1462,7 +1469,7 @@ yyreduce:
   case 4:
 
 /* Line 1455 of yacc.c  */
-#line 103 "Grammar.y"
+#line 110 "../FreezeScript/Grammar.y"
     {
     (yyval) = new BinaryNode(BinOpLess, parseDataFactory, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
 ;}
@@ -1471,7 +1478,7 @@ yyreduce:
   case 5:
 
 /* Line 1455 of yacc.c  */
-#line 107 "Grammar.y"
+#line 114 "../FreezeScript/Grammar.y"
     {
     (yyval) = new BinaryNode(BinOpGreater, parseDataFactory, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
 ;}
@@ -1480,7 +1487,7 @@ yyreduce:
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 111 "Grammar.y"
+#line 118 "../FreezeScript/Grammar.y"
     {
     (yyval) = new BinaryNode(BinOpLessEq, parseDataFactory, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
 ;}
@@ -1489,7 +1496,7 @@ yyreduce:
   case 7:
 
 /* Line 1455 of yacc.c  */
-#line 115 "Grammar.y"
+#line 122 "../FreezeScript/Grammar.y"
     {
     (yyval) = new BinaryNode(BinOpGrEq, parseDataFactory, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
 ;}
@@ -1498,7 +1505,7 @@ yyreduce:
   case 8:
 
 /* Line 1455 of yacc.c  */
-#line 119 "Grammar.y"
+#line 126 "../FreezeScript/Grammar.y"
     {
     (yyval) = new BinaryNode(BinOpEq, parseDataFactory, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
 ;}
@@ -1507,7 +1514,7 @@ yyreduce:
   case 9:
 
 /* Line 1455 of yacc.c  */
-#line 123 "Grammar.y"
+#line 130 "../FreezeScript/Grammar.y"
     {
     (yyval) = new BinaryNode(BinOpNotEq, parseDataFactory, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
 ;}
@@ -1516,7 +1523,7 @@ yyreduce:
   case 10:
 
 /* Line 1455 of yacc.c  */
-#line 127 "Grammar.y"
+#line 134 "../FreezeScript/Grammar.y"
     {
     (yyval) = new BinaryNode(BinOpOr, parseDataFactory, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
 ;}
@@ -1525,7 +1532,7 @@ yyreduce:
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 131 "Grammar.y"
+#line 138 "../FreezeScript/Grammar.y"
     {
     (yyval) = new BinaryNode(BinOpAnd, parseDataFactory, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
 ;}
@@ -1534,7 +1541,7 @@ yyreduce:
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 135 "Grammar.y"
+#line 142 "../FreezeScript/Grammar.y"
     {
     (yyval) = new BinaryNode(BinOpMul, parseDataFactory, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
 ;}
@@ -1543,7 +1550,7 @@ yyreduce:
   case 13:
 
 /* Line 1455 of yacc.c  */
-#line 139 "Grammar.y"
+#line 146 "../FreezeScript/Grammar.y"
     {
     (yyval) = new BinaryNode(BinOpDiv, parseDataFactory, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
 ;}
@@ -1552,7 +1559,7 @@ yyreduce:
   case 14:
 
 /* Line 1455 of yacc.c  */
-#line 143 "Grammar.y"
+#line 150 "../FreezeScript/Grammar.y"
     {
     (yyval) = new BinaryNode(BinOpMod, parseDataFactory, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
 ;}
@@ -1561,7 +1568,7 @@ yyreduce:
   case 15:
 
 /* Line 1455 of yacc.c  */
-#line 147 "Grammar.y"
+#line 154 "../FreezeScript/Grammar.y"
     {
     (yyval) = new BinaryNode(BinOpAdd, parseDataFactory, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
 ;}
@@ -1570,7 +1577,7 @@ yyreduce:
   case 16:
 
 /* Line 1455 of yacc.c  */
-#line 151 "Grammar.y"
+#line 158 "../FreezeScript/Grammar.y"
     {
     (yyval) = new BinaryNode(BinOpSub, parseDataFactory, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
 ;}
@@ -1579,7 +1586,7 @@ yyreduce:
   case 17:
 
 /* Line 1455 of yacc.c  */
-#line 155 "Grammar.y"
+#line 162 "../FreezeScript/Grammar.y"
     {
     (yyval) = (yyvsp[(1) - (1)]);
 ;}
@@ -1588,7 +1595,7 @@ yyreduce:
   case 18:
 
 /* Line 1455 of yacc.c  */
-#line 164 "Grammar.y"
+#line 171 "../FreezeScript/Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (3)]);
 ;}
@@ -1597,7 +1604,7 @@ yyreduce:
   case 19:
 
 /* Line 1455 of yacc.c  */
-#line 168 "Grammar.y"
+#line 175 "../FreezeScript/Grammar.y"
     {
     (yyval) = new UnaryNode(UnaryOpNeg, parseDataFactory, (yyvsp[(2) - (2)]));
 ;}
@@ -1606,7 +1613,7 @@ yyreduce:
   case 20:
 
 /* Line 1455 of yacc.c  */
-#line 172 "Grammar.y"
+#line 179 "../FreezeScript/Grammar.y"
     {
     (yyval) = new UnaryNode(UnaryOpNot, parseDataFactory, (yyvsp[(2) - (2)]));
 ;}
@@ -1615,7 +1622,7 @@ yyreduce:
   case 21:
 
 /* Line 1455 of yacc.c  */
-#line 176 "Grammar.y"
+#line 183 "../FreezeScript/Grammar.y"
     {
     IntegerTokPtr intVal = IntegerTokPtr::dynamicCast((yyvsp[(1) - (1)]));
     assert(intVal);
@@ -1626,7 +1633,7 @@ yyreduce:
   case 22:
 
 /* Line 1455 of yacc.c  */
-#line 182 "Grammar.y"
+#line 189 "../FreezeScript/Grammar.y"
     {
     FloatingTokPtr floatVal = FloatingTokPtr::dynamicCast((yyvsp[(1) - (1)]));
     assert(floatVal);
@@ -1637,7 +1644,7 @@ yyreduce:
   case 23:
 
 /* Line 1455 of yacc.c  */
-#line 188 "Grammar.y"
+#line 195 "../FreezeScript/Grammar.y"
     {
     StringTokPtr stringVal = StringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
     assert(stringVal);
@@ -1648,7 +1655,7 @@ yyreduce:
   case 24:
 
 /* Line 1455 of yacc.c  */
-#line 194 "Grammar.y"
+#line 201 "../FreezeScript/Grammar.y"
     {
     (yyval) = new DataNode(parseDataFactory->createBoolean(true, true));
 ;}
@@ -1657,7 +1664,7 @@ yyreduce:
   case 25:
 
 /* Line 1455 of yacc.c  */
-#line 198 "Grammar.y"
+#line 205 "../FreezeScript/Grammar.y"
     {
     (yyval) = new DataNode(parseDataFactory->createBoolean(false, true));
 ;}
@@ -1666,7 +1673,7 @@ yyreduce:
   case 26:
 
 /* Line 1455 of yacc.c  */
-#line 202 "Grammar.y"
+#line 209 "../FreezeScript/Grammar.y"
     {
     (yyval) = new DataNode(parseDataFactory->createNil(true));
 ;}
@@ -1675,7 +1682,7 @@ yyreduce:
   case 27:
 
 /* Line 1455 of yacc.c  */
-#line 206 "Grammar.y"
+#line 213 "../FreezeScript/Grammar.y"
     {
     (yyval) = (yyvsp[(1) - (1)]);
 ;}
@@ -1684,7 +1691,7 @@ yyreduce:
   case 28:
 
 /* Line 1455 of yacc.c  */
-#line 210 "Grammar.y"
+#line 217 "../FreezeScript/Grammar.y"
     {
     EntityNodePtr entity = EntityNodePtr::dynamicCast((yyvsp[(1) - (3)]));
     assert(entity);
@@ -1698,7 +1705,7 @@ yyreduce:
   case 29:
 
 /* Line 1455 of yacc.c  */
-#line 219 "Grammar.y"
+#line 226 "../FreezeScript/Grammar.y"
     {
     (yyval) = (yyvsp[(1) - (1)]);
 ;}
@@ -1707,7 +1714,7 @@ yyreduce:
   case 30:
 
 /* Line 1455 of yacc.c  */
-#line 223 "Grammar.y"
+#line 230 "../FreezeScript/Grammar.y"
     {
     StringTokPtr stringVal = StringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
     assert(stringVal);
@@ -1718,7 +1725,7 @@ yyreduce:
   case 31:
 
 /* Line 1455 of yacc.c  */
-#line 234 "Grammar.y"
+#line 241 "../FreezeScript/Grammar.y"
     {
     EntityNodePtr entity = EntityNodePtr::dynamicCast((yyvsp[(1) - (4)]));
     assert(entity);
@@ -1730,7 +1737,7 @@ yyreduce:
   case 32:
 
 /* Line 1455 of yacc.c  */
-#line 241 "Grammar.y"
+#line 248 "../FreezeScript/Grammar.y"
     {
     StringTokPtr stringVal = StringTokPtr::dynamicCast((yyvsp[(3) - (3)]));
     assert(stringVal);
@@ -1744,7 +1751,7 @@ yyreduce:
   case 33:
 
 /* Line 1455 of yacc.c  */
-#line 250 "Grammar.y"
+#line 257 "../FreezeScript/Grammar.y"
     {
     StringTokPtr stringVal = StringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
     assert(stringVal);
@@ -1755,7 +1762,7 @@ yyreduce:
   case 34:
 
 /* Line 1455 of yacc.c  */
-#line 261 "Grammar.y"
+#line 268 "../FreezeScript/Grammar.y"
     {
     StringTokPtr func = StringTokPtr::dynamicCast((yyvsp[(1) - (4)]));
     assert(func);
@@ -1768,7 +1775,7 @@ yyreduce:
   case 35:
 
 /* Line 1455 of yacc.c  */
-#line 274 "Grammar.y"
+#line 281 "../FreezeScript/Grammar.y"
     {
     NodeListTokPtr l = NodeListTokPtr::dynamicCast((yyvsp[(1) - (3)]));
     assert(l);
@@ -1780,7 +1787,7 @@ yyreduce:
   case 36:
 
 /* Line 1455 of yacc.c  */
-#line 281 "Grammar.y"
+#line 288 "../FreezeScript/Grammar.y"
     {
     NodeListTokPtr result = new NodeListTok;
     result->v.push_back((yyvsp[(1) - (1)]));
@@ -1791,7 +1798,7 @@ yyreduce:
   case 37:
 
 /* Line 1455 of yacc.c  */
-#line 287 "Grammar.y"
+#line 294 "../FreezeScript/Grammar.y"
     {
     (yyval) = new NodeListTok;
 ;}
@@ -1800,7 +1807,7 @@ yyreduce:
   case 38:
 
 /* Line 1455 of yacc.c  */
-#line 296 "Grammar.y"
+#line 303 "../FreezeScript/Grammar.y"
     {
     StringTokPtr stringVal = StringTokPtr::dynamicCast((yyvsp[(1) - (3)]));
     assert(stringVal);
@@ -1814,7 +1821,7 @@ yyreduce:
   case 39:
 
 /* Line 1455 of yacc.c  */
-#line 305 "Grammar.y"
+#line 312 "../FreezeScript/Grammar.y"
     {
     StringTokPtr idVal = StringTokPtr::dynamicCast((yyvsp[(2) - (2)]));
     assert(idVal);
@@ -1827,7 +1834,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 1831 "Grammar.tab.c"
+#line 1838 "Grammar.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2039,6 +2046,6 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 314 "Grammar.y"
+#line 321 "../FreezeScript/Grammar.y"
 
 

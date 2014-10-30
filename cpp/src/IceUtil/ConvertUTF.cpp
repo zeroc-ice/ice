@@ -57,6 +57,11 @@
 
 using namespace IceUtil;
 
+#ifdef __GNUC__
+//#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wold-style-cast"
+#endif
+
 namespace IceUtilInternal
 {
 

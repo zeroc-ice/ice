@@ -1501,7 +1501,7 @@ generate(const UnitPtr& un, bool all, bool checksum, bool ns, const vector<strin
                 str.fill('0');
                 for(vector<unsigned char>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
                 {
-                    str << (int)(*q);
+                    str << static_cast<int>(*q);
                 }
                 out << str.str() << "\";";
             }
@@ -1615,7 +1615,7 @@ compile(int argc, char* argv[])
     vector<string> args;
     try
     {
-        args = opts.parse(argc, (const char**)argv);
+        args = opts.parse(argc, const_cast<const char**>(argv));
     }
     catch(const IceUtilInternal::BadOptException& e)
     {

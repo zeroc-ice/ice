@@ -55,7 +55,8 @@ chownRecursive(const string& path, uid_t uid, gid_t gid)
     int n = 0;
     while((entry = readdir(d)) != 0)
     {
-        namelist = (struct dirent**)realloc((void*)namelist, (size_t)((n + 1) * sizeof(struct dirent*)));
+        namelist = static_cast<struct dirent**>(
+                                            realloc(namelist, static_cast<size_t>((n + 1) * sizeof(struct dirent*))));
         if(namelist == 0)
         {
             closedir(d);
@@ -63,7 +64,7 @@ chownRecursive(const string& path, uid_t uid, gid_t gid)
         }
 
         size_t entrysize = sizeof(struct dirent) - sizeof(entry->d_name) + strlen(entry->d_name) + 1;
-        namelist[n] = (struct dirent*)malloc(entrysize);
+        namelist[n] = static_cast<struct dirent*>(malloc(entrysize));
         if(namelist[n] == 0)
         {
             closedir(d);

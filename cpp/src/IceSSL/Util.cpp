@@ -22,6 +22,10 @@
 
 #ifdef ICE_USE_OPENSSL
 #   include <openssl/err.h>
+//
+// Avoid old style cast warnings from OpenSSL macros
+// 
+#  pragma GCC diagnostic ignored "-Wold-style-cast"
 #endif
 
 using namespace std;

@@ -664,7 +664,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
         //
         // Invoke the factory function.
         //
-        SERVICE_FACTORY factory = (SERVICE_FACTORY)sym;
+        SERVICE_FACTORY factory = reinterpret_cast<SERVICE_FACTORY>(sym);
         try
         {
             info.service = factory(_communicator);

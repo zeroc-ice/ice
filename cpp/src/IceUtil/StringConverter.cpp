@@ -67,13 +67,13 @@ public:
     {
         if(_buffer == 0)
         {
-            _buffer = (Byte*)malloc(howMany);
+            _buffer = static_cast<Byte*>(malloc(howMany));
         }
         else
         {
             assert(firstUnused != 0);
             _offset = firstUnused - _buffer;
-            _buffer = (Byte*)realloc(_buffer, _offset + howMany);
+            _buffer = static_cast<Byte*>(realloc(_buffer, _offset + howMany));
         }
         
         if(!_buffer)

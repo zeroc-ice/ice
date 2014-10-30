@@ -19,6 +19,10 @@
 #if defined(ICE_USE_OPENSSL)
 #  include <openssl/x509v3.h>
 #  include <openssl/pem.h>
+//
+// Avoid old style cast warnings from OpenSSL macros
+// 
+#  pragma GCC diagnostic ignored "-Wold-style-cast"
 #elif defined(ICE_USE_SECURE_TRANSPORT)
 #  include <Security/Security.h>
 #endif

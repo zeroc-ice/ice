@@ -91,6 +91,13 @@
 #   pragma warning( disable : 4065 )
 #endif
 
+//
+// Avoid old style cast warnings in generated grammar
+//
+#ifdef __GNUC__
+#  pragma GCC diagnostic ignored "-Wold-style-cast"
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace IceStorm;
@@ -104,7 +111,7 @@ yyerror(const char* s)
 
 
 /* Line 189 of yacc.c  */
-#line 108 "Grammar.tab.c"
+#line 115 "Grammar.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -160,7 +167,7 @@ typedef int YYSTYPE;
 
 
 /* Line 264 of yacc.c  */
-#line 164 "Grammar.tab.c"
+#line 171 "Grammar.tab.c"
 
 #ifdef short
 # undef short
@@ -453,10 +460,10 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    60,    60,    64,    71,    74,    82,    86,    90,    94,
-      98,   102,   106,   110,   114,   118,   122,   126,   130,   134,
-     142,   147,   153,   161,   164,   167,   170,   173,   176,   179,
-     182,   185
+       0,    67,    67,    71,    78,    81,    89,    93,    97,   101,
+     105,   109,   113,   117,   121,   125,   129,   133,   137,   141,
+     149,   154,   160,   168,   171,   174,   177,   180,   183,   186,
+     189,   192
 };
 #endif
 
@@ -1389,7 +1396,7 @@ yyreduce:
         case 2:
 
 /* Line 1455 of yacc.c  */
-#line 61 "Grammar.y"
+#line 68 "Grammar.y"
     {
 ;}
     break;
@@ -1397,7 +1404,7 @@ yyreduce:
   case 3:
 
 /* Line 1455 of yacc.c  */
-#line 64 "Grammar.y"
+#line 71 "Grammar.y"
     {
 ;}
     break;
@@ -1405,7 +1412,7 @@ yyreduce:
   case 4:
 
 /* Line 1455 of yacc.c  */
-#line 72 "Grammar.y"
+#line 79 "Grammar.y"
     {
 ;}
     break;
@@ -1413,7 +1420,7 @@ yyreduce:
   case 5:
 
 /* Line 1455 of yacc.c  */
-#line 75 "Grammar.y"
+#line 82 "Grammar.y"
     {
 ;}
     break;
@@ -1421,7 +1428,7 @@ yyreduce:
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 83 "Grammar.y"
+#line 90 "Grammar.y"
     {
     parser->usage();
 ;}
@@ -1430,7 +1437,7 @@ yyreduce:
   case 7:
 
 /* Line 1455 of yacc.c  */
-#line 87 "Grammar.y"
+#line 94 "Grammar.y"
     {
     return 0;
 ;}
@@ -1439,7 +1446,7 @@ yyreduce:
   case 8:
 
 /* Line 1455 of yacc.c  */
-#line 91 "Grammar.y"
+#line 98 "Grammar.y"
     {
     parser->create((yyvsp[(2) - (3)]));
 ;}
@@ -1448,7 +1455,7 @@ yyreduce:
   case 9:
 
 /* Line 1455 of yacc.c  */
-#line 95 "Grammar.y"
+#line 102 "Grammar.y"
     {
     parser->current((yyvsp[(2) - (3)]));
 ;}
@@ -1457,7 +1464,7 @@ yyreduce:
   case 10:
 
 /* Line 1455 of yacc.c  */
-#line 99 "Grammar.y"
+#line 106 "Grammar.y"
     {
     parser->destroy((yyvsp[(2) - (3)]));
 ;}
@@ -1466,7 +1473,7 @@ yyreduce:
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 103 "Grammar.y"
+#line 110 "Grammar.y"
     {
     parser->link((yyvsp[(2) - (3)]));
 ;}
@@ -1475,7 +1482,7 @@ yyreduce:
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 107 "Grammar.y"
+#line 114 "Grammar.y"
     {
     parser->unlink((yyvsp[(2) - (3)]));
 ;}
@@ -1484,7 +1491,7 @@ yyreduce:
   case 13:
 
 /* Line 1455 of yacc.c  */
-#line 111 "Grammar.y"
+#line 118 "Grammar.y"
     {
     parser->links((yyvsp[(2) - (3)]));
 ;}
@@ -1493,7 +1500,7 @@ yyreduce:
   case 14:
 
 /* Line 1455 of yacc.c  */
-#line 115 "Grammar.y"
+#line 122 "Grammar.y"
     {
     parser->topics((yyvsp[(2) - (3)]));
 ;}
@@ -1502,7 +1509,7 @@ yyreduce:
   case 15:
 
 /* Line 1455 of yacc.c  */
-#line 119 "Grammar.y"
+#line 126 "Grammar.y"
     {
     parser->replica((yyvsp[(2) - (3)]));
 ;}
@@ -1511,7 +1518,7 @@ yyreduce:
   case 16:
 
 /* Line 1455 of yacc.c  */
-#line 123 "Grammar.y"
+#line 130 "Grammar.y"
     {
     parser->subscribers((yyvsp[(2) - (3)]));
 ;}
@@ -1520,7 +1527,7 @@ yyreduce:
   case 17:
 
 /* Line 1455 of yacc.c  */
-#line 127 "Grammar.y"
+#line 134 "Grammar.y"
     {
     parser->invalidCommand("unknown command `" + (yyvsp[(1) - (3)]).front() + "' (type `help' for more info)");
 ;}
@@ -1529,7 +1536,7 @@ yyreduce:
   case 18:
 
 /* Line 1455 of yacc.c  */
-#line 131 "Grammar.y"
+#line 138 "Grammar.y"
     {
     yyerrok;
 ;}
@@ -1538,7 +1545,7 @@ yyreduce:
   case 19:
 
 /* Line 1455 of yacc.c  */
-#line 135 "Grammar.y"
+#line 142 "Grammar.y"
     {
 ;}
     break;
@@ -1546,7 +1553,7 @@ yyreduce:
   case 20:
 
 /* Line 1455 of yacc.c  */
-#line 143 "Grammar.y"
+#line 150 "Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (2)]);
     (yyval).push_front((yyvsp[(1) - (2)]).front());
@@ -1556,7 +1563,7 @@ yyreduce:
   case 21:
 
 /* Line 1455 of yacc.c  */
-#line 148 "Grammar.y"
+#line 155 "Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (2)]);
     (yyval).push_front((yyvsp[(1) - (2)]).front());
@@ -1566,7 +1573,7 @@ yyreduce:
   case 22:
 
 /* Line 1455 of yacc.c  */
-#line 153 "Grammar.y"
+#line 160 "Grammar.y"
     {
     (yyval) = YYSTYPE();
 ;}
@@ -1575,7 +1582,7 @@ yyreduce:
   case 23:
 
 /* Line 1455 of yacc.c  */
-#line 162 "Grammar.y"
+#line 169 "Grammar.y"
     {
 ;}
     break;
@@ -1583,7 +1590,7 @@ yyreduce:
   case 24:
 
 /* Line 1455 of yacc.c  */
-#line 165 "Grammar.y"
+#line 172 "Grammar.y"
     {
 ;}
     break;
@@ -1591,7 +1598,7 @@ yyreduce:
   case 25:
 
 /* Line 1455 of yacc.c  */
-#line 168 "Grammar.y"
+#line 175 "Grammar.y"
     {
 ;}
     break;
@@ -1599,7 +1606,7 @@ yyreduce:
   case 26:
 
 /* Line 1455 of yacc.c  */
-#line 171 "Grammar.y"
+#line 178 "Grammar.y"
     {
 ;}
     break;
@@ -1607,7 +1614,7 @@ yyreduce:
   case 27:
 
 /* Line 1455 of yacc.c  */
-#line 174 "Grammar.y"
+#line 181 "Grammar.y"
     {
 ;}
     break;
@@ -1615,7 +1622,7 @@ yyreduce:
   case 28:
 
 /* Line 1455 of yacc.c  */
-#line 177 "Grammar.y"
+#line 184 "Grammar.y"
     {
 ;}
     break;
@@ -1623,7 +1630,7 @@ yyreduce:
   case 29:
 
 /* Line 1455 of yacc.c  */
-#line 180 "Grammar.y"
+#line 187 "Grammar.y"
     {
 ;}
     break;
@@ -1631,7 +1638,7 @@ yyreduce:
   case 30:
 
 /* Line 1455 of yacc.c  */
-#line 183 "Grammar.y"
+#line 190 "Grammar.y"
     {
 ;}
     break;
@@ -1639,7 +1646,7 @@ yyreduce:
   case 31:
 
 /* Line 1455 of yacc.c  */
-#line 186 "Grammar.y"
+#line 193 "Grammar.y"
     {
 ;}
     break;
@@ -1647,7 +1654,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 1651 "Grammar.tab.c"
+#line 1658 "Grammar.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1859,6 +1866,6 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 189 "Grammar.y"
+#line 196 "Grammar.y"
 
 

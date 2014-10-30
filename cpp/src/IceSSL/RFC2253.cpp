@@ -198,7 +198,7 @@ unescapeHex(const string& data, size_t pos)
     {
         throw ParseException(__FILE__, __LINE__, "unescape: invalid hex pair");
     }
-    return (char)(hexToInt(data[pos]) * 16 + hexToInt(data[pos + 1]));
+    return static_cast<char>(hexToInt(data[pos]) * 16 + hexToInt(data[pos + 1]));
 }
 
 static pair<string,string>

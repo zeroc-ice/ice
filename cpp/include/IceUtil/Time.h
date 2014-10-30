@@ -114,7 +114,7 @@ public:
 
     double operator/(const Time& rhs) const
     {
-        return (double)_usec / (double)rhs._usec;
+        return static_cast<double>(_usec) / static_cast<double>(rhs._usec);
     }
 
     Time& operator*=(int rhs)

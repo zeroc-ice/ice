@@ -22,6 +22,13 @@
 #   pragma warning( disable : 4065 )
 #endif
 
+//
+// Avoid old style cast warnings in generated grammar
+//
+#ifdef __GNUC__
+#  pragma GCC diagnostic ignored "-Wold-style-cast"
+#endif
+
 using namespace std;
 using namespace Slice;
 

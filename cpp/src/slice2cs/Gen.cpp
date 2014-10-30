@@ -2788,7 +2788,7 @@ Slice::Gen::generateChecksums(const UnitPtr& u)
             str.fill('0');
             for(vector<unsigned char>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
             {
-                str << (int)(*q);
+                str << static_cast<int>(*q);
             }
             _out << str.str() << "\");";
         }

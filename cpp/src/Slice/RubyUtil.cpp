@@ -1669,7 +1669,7 @@ Slice::Ruby::generate(const UnitPtr& un, bool all, bool checksum, const vector<s
                 str.fill('0');
                 for(vector<unsigned char>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
                 {
-                    str << (int)(*q);
+                    str << static_cast<int>(*q);
                 }
                 out << str.str() << "\"";
             }

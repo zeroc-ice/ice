@@ -1263,7 +1263,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             {
                 const_cast<size_t&>(_messageSizeMax) = defaultMessageSizeMax * 1024; // Ignore non-sensical values.
             }
-            else if(static_cast<size_t>(num) > (size_t)(0x7fffffff / 1024))
+            else if(static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff / 1024))
             {
                 const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(0x7fffffff);
             }

@@ -563,7 +563,7 @@ Slice::Gen::generate(const UnitPtr& p)
                 str.fill('0');
                 for(vector<unsigned char>::const_iterator r = q->second.begin(); r != q->second.end(); ++r)
                 {
-                    str << (int)(*r);
+                    str << static_cast<int>(*r);
                 }
                 C << str.str() << "\",";
             }

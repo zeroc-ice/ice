@@ -2740,7 +2740,7 @@ Ice::ConnectionI::initiateShutdown()
         os.write(currentProtocol);
         os.write(currentProtocolEncoding);
         os.write(closeConnectionMsg);
-        os.write((Byte)1); // compression status: compression supported but not used.
+        os.write(static_cast<Byte>(1)); // compression status: compression supported but not used.
         os.write(headerSize); // Message size.
 
         OutgoingMessage message(&os, false);

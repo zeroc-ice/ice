@@ -374,7 +374,7 @@ IceInternal::OpaqueEndpointI::checkOption(const string& option, const string& ar
             {
                 EndpointParseException ex(__FILE__, __LINE__);
                 ostringstream ostr;
-                ostr << "invalid base64 character `" << argument[i] << "' (ordinal " << (int)argument[i]
+                ostr << "invalid base64 character `" << argument[i] << "' (ordinal " << static_cast<int>(argument[i])
                      << ") in endpoint " << endpoint;
                 ex.str = ostr.str();
                 throw ex;

@@ -362,7 +362,7 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
     // Invoke the factory function. No exceptions can be raised
     // by the factory function because it's declared extern "C".
     //
-    PLUGIN_FACTORY factory = (PLUGIN_FACTORY)sym;
+    PLUGIN_FACTORY factory = reinterpret_cast<PLUGIN_FACTORY>(sym);
     plugin = factory(_communicator, name, args);
     if(!plugin)
     {

@@ -480,7 +480,7 @@ Parser::getInput(char* buf, int& result, int maxSize)
             }
         }
         
-        result = (int) line.length();
+        result = static_cast<int>(line.length());
         if(result > maxSize)
         {
             error("input line too long");

@@ -133,7 +133,7 @@ void
 setTcpNoDelay(SOCKET fd)
 {
     int flag = 1;
-    if(setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char*)&flag, int(sizeof(int))) == SOCKET_ERROR)
+    if(setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<char*>(&flag), int(sizeof(int))) == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
         SocketException ex(__FILE__, __LINE__);
@@ -146,7 +146,7 @@ void
 setKeepAlive(SOCKET fd)
 {
     int flag = 1;
-    if(setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (char*)&flag, int(sizeof(int))) == SOCKET_ERROR)
+    if(setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, reinterpret_cast<char*>(&flag), int(sizeof(int))) == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
         SocketException ex(__FILE__, __LINE__);
@@ -1137,7 +1137,7 @@ IceInternal::createServerSocket(bool udp, const Address& addr, ProtocolSupport p
     if(addr.saStorage.ss_family == AF_INET6 && protocol != EnableIPv4)
     {
         int flag = protocol == EnableIPv6 ? 1 : 0;
-        if(setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&flag, int(sizeof(int))) == SOCKET_ERROR)
+        if(setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, reinterpret_cast<char*>(&flag), int(sizeof(int))) == SOCKET_ERROR)
         {
 #ifdef _WIN32
             if(getSocketErrno() == WSAENOPROTOOPT)
@@ -1708,7 +1708,7 @@ void
 IceInternal::setSendBufferSize(SOCKET fd, int sz)
 {
 #ifndef ICE_OS_WINRT
-    if(setsockopt(fd, SOL_SOCKET, SO_SNDBUF, (char*)&sz, int(sizeof(int))) == SOCKET_ERROR)
+    if(setsockopt(fd, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char*>(&sz), int(sizeof(int))) == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
         SocketException ex(__FILE__, __LINE__);
@@ -1730,7 +1730,7 @@ IceInternal::getSendBufferSize(SOCKET fd)
 #ifndef ICE_OS_WINRT
     int sz;
     socklen_t len = sizeof(sz);
-    if(getsockopt(fd, SOL_SOCKET, SO_SNDBUF, (char*)&sz, &len) == SOCKET_ERROR ||
+    if(getsockopt(fd, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char*>(&sz), &len) == SOCKET_ERROR ||
        static_cast<unsigned int>(len) != sizeof(sz))
     {
         closeSocketNoThrow(fd);
@@ -1758,7 +1758,7 @@ IceInternal::setRecvBufferSize(SOCKET, int)
 void
 IceInternal::setRecvBufferSize(SOCKET fd, int sz)
 {
-    if(setsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char*)&sz, int(sizeof(int))) == SOCKET_ERROR)
+    if(setsockopt(fd, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<char*>(&sz), int(sizeof(int))) == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
         SocketException ex(__FILE__, __LINE__);
@@ -1774,7 +1774,7 @@ IceInternal::getRecvBufferSize(SOCKET fd)
 #ifndef ICE_OS_WINRT
     int sz;
     socklen_t len = sizeof(sz);
-    if(getsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char*)&sz, &len) == SOCKET_ERROR ||
+    if(getsockopt(fd, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<char*>(&sz), &len) == SOCKET_ERROR ||
        static_cast<unsigned int>(len) != sizeof(sz))
     {
         closeSocketNoThrow(fd);
@@ -1798,14 +1798,14 @@ IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string& intf)
         struct ip_mreq mreq;
         mreq.imr_multiaddr = group.saIn.sin_addr;
         mreq.imr_interface = getInterfaceAddress(intf);
-        rc = setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&mreq, int(sizeof(mreq)));
+        rc = setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, reinterpret_cast<char*>(&mreq), int(sizeof(mreq)));
     }
     else
     {
         struct ipv6_mreq mreq;
         mreq.ipv6mr_multiaddr = group.saIn6.sin6_addr;
         mreq.ipv6mr_interface = getInterfaceIndex(intf);
-        rc = setsockopt(fd, IPPROTO_IPV6, IPV6_JOIN_GROUP, (char*)&mreq, int(sizeof(mreq)));
+        rc = setsockopt(fd, IPPROTO_IPV6, IPV6_JOIN_GROUP, reinterpret_cast<char*>(&mreq), int(sizeof(mreq)));
     }
     if(rc == SOCKET_ERROR)
     {
@@ -1846,12 +1846,12 @@ IceInternal::setMcastInterface(SOCKET fd, const string& intf, const Address& add
     if(addr.saStorage.ss_family == AF_INET)
     {
         struct in_addr iface = getInterfaceAddress(intf);
-        rc = setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, (char*)&iface, int(sizeof(iface)));
+        rc = setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, reinterpret_cast<char*>(&iface), int(sizeof(iface)));
     }
     else
     {
         int interfaceNum = getInterfaceIndex(intf);
-        rc = setsockopt(fd, IPPROTO_IPV6, IPV6_MULTICAST_IF, (char*)&interfaceNum, int(sizeof(int)));
+        rc = setsockopt(fd, IPPROTO_IPV6, IPV6_MULTICAST_IF, reinterpret_cast<char*>(&interfaceNum), int(sizeof(int)));
     }
     if(rc == SOCKET_ERROR)
     {
@@ -1875,11 +1875,11 @@ IceInternal::setMcastTtl(SOCKET fd, int ttl, const Address& addr)
     int rc;
     if(addr.saStorage.ss_family == AF_INET)
     {
-        rc = setsockopt(fd, IPPROTO_IP, IP_MULTICAST_TTL, (char*)&ttl, int(sizeof(int)));
+        rc = setsockopt(fd, IPPROTO_IP, IP_MULTICAST_TTL, reinterpret_cast<char*>(&ttl), int(sizeof(int)));
     }
     else
     {
-        rc = setsockopt(fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, (char*)&ttl, int(sizeof(int)));
+        rc = setsockopt(fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, reinterpret_cast<char*>(&ttl), int(sizeof(int)));
     }
     if(rc == SOCKET_ERROR)
     {
@@ -1901,7 +1901,7 @@ void
 IceInternal::setReuseAddress(SOCKET fd, bool reuse)
 {
     int flag = reuse ? 1 : 0;
-    if(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char*)&flag, int(sizeof(int))) == SOCKET_ERROR)
+    if(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char*>(&flag), int(sizeof(int))) == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
         SocketException ex(__FILE__, __LINE__);

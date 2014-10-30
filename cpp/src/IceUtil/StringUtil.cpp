@@ -178,7 +178,7 @@ checkChar(const string& s, string::size_type pos)
         {
             ostr << "first character";
         }
-        ostr << " is not a printable ASCII character (ordinal " << (int)c << ")";
+        ostr << " is not a printable ASCII character (ordinal " << static_cast<int>(c) << ")";
         throw IllegalArgumentException(__FILE__, __LINE__, ostr.str());
     }
     return c;
@@ -273,7 +273,7 @@ decodeChar(const string& s, string::size_type start, string::size_type end, stri
                     ostr << "octal value \\" << oct << val << dec << " (" << val << ") is out of range";
                     throw IllegalArgumentException(__FILE__, __LINE__, ostr.str());
                 }
-                c = (char)val;
+                c = static_cast<char>(val);
                 break;
             }
             default:
