@@ -18,6 +18,15 @@
 #   pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif
 
+
+//
+// Disable VC++ warning
+// 4503: decorated name length exceeded, name was truncated
+//
+#if defined(_MSC_VER)
+#   pragma warning(disable: 4503)
+#endif
+
 using namespace std;
 
 namespace
