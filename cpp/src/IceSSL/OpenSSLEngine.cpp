@@ -506,8 +506,8 @@ OpenSSLEngine::initialize()
                     fclose(f);
                     if(p12)
                     {
-                        X509* cert = 0;
                         EVP_PKEY* key = 0;
+                        X509* cert = 0;
                         STACK_OF(X509)* chain = 0;
                         
                         int count = 0;
@@ -516,6 +516,13 @@ OpenSSLEngine::initialize()
                             while(count < passwordRetryMax)
                             {
                                 ERR_clear_error();
+                                //
+                                // chain may have a bogus value from a previous call to PKCS12_parse, so we
+                                // reset it prior to each call.
+                                //
+                                key = 0;
+                                cert = 0;
+                                chain = 0;
                                 if(!(success = PKCS12_parse(p12, password(false).c_str(), &key, &cert, &chain)))
                                 {
                                     if(passwordError())
