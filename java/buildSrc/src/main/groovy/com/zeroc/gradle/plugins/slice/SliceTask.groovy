@@ -95,7 +95,7 @@ class SliceTask extends DefaultTask {
         // timestamp is the  modified time for A at last build and B is the
         // list of produced java source files.
         def state = new FreezeJBuildState()
-        def stateFile = new File(project.slice.output, "slice2freezej.df.xml")
+        def stateFile = new File(project.buildDir, "slice2freezej.df.xml")
         if(stateFile.isFile()) {
             try {
                 state = parseFreezeJBuildState(new XmlSlurper().parse(stateFile));
@@ -359,7 +359,7 @@ class SliceTask extends DefaultTask {
         // timestamp is the  modified time for A at last build and B is the
         // list of produced java source files.
         def dependencies = [:]
-        def dependencyFile = new File(project.slice.output, java.name + ".d.xml")
+        def dependencyFile = new File(project.buildDir, java.name + ".d.xml")
         if(dependencyFile.isFile()) {
             try {
                 dependencies = parseDependencies(new XmlSlurper().parse(dependencyFile));
