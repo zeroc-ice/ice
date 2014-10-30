@@ -150,16 +150,14 @@ IcePatch2/%.php: $(slicedir)/IcePatch2/%.ice $(SLICE2PHP) $(SLICEPARSERLIB)
 	$(SLICE2PHP) --output-dir IcePatch2 $(SLICE2PHPFLAGS) $<
 	@mkdir -p .depend
 	@$(SLICE2PHP) --output-dir IcePatch2 $(SLICE2PHPFLAGS) --depend $< \
-		| $(ice_dir)/config/makedepend.py "IcePatch2/" > .depend/IcePatch2$(*F).ice.d
+		| $(ice_dir)/config/makedepend.py "IcePatch2/" > .depend/IcePatch2_$(*F).ice.d
 
 IceStorm/%.php: $(slicedir)/IceStorm/%.ice $(SLICE2PHP) $(SLICEPARSERLIB)
 	@mkdir -p $(notdir $(<D))
 	$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) $<
 	@mkdir -p .depend
 	@$(SLICE2PHP) --output-dir IceStorm $(SLICE2PHPFLAGS) --depend $< \
-		| $(ice_dir)/config/makedepend.py "IceStorm/" > .depend/IceStorm
-
-		$(*F).ice.d
+		| $(ice_dir)/config/makedepend.py "IceStorm/" > .depend/IceStorm_$(*F).ice.d
 
 install:: $(ALL_SRCS)
 	@echo "Installing generated code"

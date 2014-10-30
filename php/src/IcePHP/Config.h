@@ -46,7 +46,7 @@ extern "C"
 #   pragma warning( disable : 4267) // suppress size_t/uint conversion warnings in zend macros for Windows x64 builds
 #endif
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) && ((__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6))
 #   pragma GCC diagnostic warning "-Wnarrowing"
 #endif
 

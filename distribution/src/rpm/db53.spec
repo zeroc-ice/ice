@@ -10,7 +10,7 @@
 
 Summary: The Berkeley DB database library (version 5.3) for C and C++
 Name: db53
-Version: 5.3.21
+Version: 5.3.28
 Release: 1ice%{?dist}
 Source0: http://download.oracle.com/berkeley-db/db-%{version}.NC.tar.gz
 URL: http://www.oracle.com/technetwork/products/berkeleydb/
@@ -193,6 +193,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %endif
 
 %changelog
+
+* Wed Oct 29 2014 Bernard Normier <mes@zeroc.com> 5.3.28-1ice
+- Updated Berkeley DB to version 5.3.28
 
 * Wed Oct 17 2012 Bernard Normier <bernard@zeroc.com> 5.3.21-1ice
 - Updated Berkeley DB to version 5.3.21
