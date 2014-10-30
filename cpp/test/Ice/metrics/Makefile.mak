@@ -45,7 +45,8 @@ COLOBJS		= .\Test.obj \
 
 OBJS		= $(COBJS) \
 		  $(SOBJS) \
-		  $(SAMDOBJS)
+		  $(SAMDOBJS) \
+		  $(COLOBJS)
 
 !include $(top_srcdir)/config/Make.rules.mak
 

@@ -39,7 +39,8 @@ SAMDOBJS	= .\TestAMD.obj \
 		  .\ServerAMD.obj
 
 OBJS		= $(COBJS) \
-		  $(SOBJS)
+		  $(SOBJS) \
+		  $(SAMDOBJS)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
