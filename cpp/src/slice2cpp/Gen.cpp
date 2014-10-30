@@ -901,10 +901,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             else
             {
                 string baseName = base ? fixKwd(base->scoped()) : string("::Ice::UserException");
-                H << nl << "#ifdef __SUNPRO_CC";
                 H << nl << "using " << baseName << "::__write;";
                 H << nl << "using " << baseName << "::__read;";
-                H << nl << "#endif";
             }
         }
         
@@ -923,10 +921,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         else
         {
             string baseName = base ? fixKwd(base->scoped()) : string("::Ice::UserException");
-            H << nl << "#ifdef __SUNPRO_CC"; 
             H << nl << "using " << baseName << "::__writeImpl;";
             H << nl << "using " << baseName << "::__readImpl;";
-            H << nl << "#endif";
         }
 
         if(preserved && !basePreserved)
@@ -3103,10 +3099,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             else
             {
                 string baseName = base ? fixKwd(base->scoped()) : string("::Ice::Object");
-                H << nl << "#ifdef __SUNPRO_CC";
                 H << nl << "using " << baseName << "::__write;";
                 H << nl << "using " << baseName << "::__read;";
-                H << nl << "#endif";
             }
         }
 
@@ -3125,10 +3119,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         else
         {
             string baseName = base ? fixKwd(base->scoped()) : string("::Ice::Object");
-            H << nl << "#ifdef __SUNPRO_CC";
             H << nl << "using " << baseName << "::__writeImpl;";
             H << nl << "using " << baseName << "::__readImpl;";
-            H << nl << "#endif";
         }
 
         if(preserved && !basePreserved)

@@ -74,20 +74,16 @@ public:
 
     virtual bool __usesClasses() const;
 
-#ifdef __SUNPRO_CC
     using UserException::__read;
     using UserException::__write;
-#endif
 
 protected:
 
     virtual void __writeImpl(::IceInternal::BasicStream*) const;
     virtual void __readImpl(::IceInternal::BasicStream*);
 
-#ifdef __SUNPRO_CC
     using UserException::__writeImpl;
     using UserException::__readImpl;
-#endif
 
     const CommunicatorPtr _communicator;
 };
@@ -434,20 +430,16 @@ public:
 
     virtual bool __usesClasses() const;
 
-#ifdef __SUNPRO_CC
     using UserException::__read;
     using UserException::__write;
-#endif
 
 protected:
 
     virtual void __writeImpl(::IceInternal::BasicStream*) const;
     virtual void __readImpl(::IceInternal::BasicStream*);
 
-#ifdef __SUNPRO_CC
     using UserException::__writeImpl;
     using UserException::__readImpl;
-#endif
 
     const CommunicatorPtr _communicator;
 };

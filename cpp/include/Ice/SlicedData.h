@@ -89,10 +89,8 @@ public:
     virtual void __write(::IceInternal::BasicStream*) const;
     virtual void __read(::IceInternal::BasicStream*);
     
-#ifdef __SUNPRO_CC
     using Object::__write;
     using Object::__read;
-#endif
 
 private:
 
