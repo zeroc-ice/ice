@@ -70,7 +70,14 @@ public:
 
     void showBanner();
 
-    void getInput(char*, int&, int);
+    //
+    // With older flex version <= 2.5.35 YY_INPUT second 
+    // paramenter is of type int&, in newer versions it
+    // changes to size_t&
+    // 
+    void getInput(char*, int&, size_t);
+    void getInput(char*, size_t&, size_t);
+
     void continueLine();
     const char* getPrompt();
 
