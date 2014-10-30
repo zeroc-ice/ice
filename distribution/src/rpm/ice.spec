@@ -27,7 +27,6 @@
 %endif
 %if "%{dist}" == ".sles11"
   %define ruby 1
-#  %define mono 1
 %endif
 
 %define buildall 1
@@ -1341,7 +1340,7 @@ exit 0
 %endif
 
 %if %{mono}
-%files mono-devel
+%files libice-mono-devel
 %defattr(-, root, root, -)
 %{_bindir}/slice2cs
 %{_mandir}/man1/slice2cs.1.gz
