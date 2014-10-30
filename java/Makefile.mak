@@ -8,20 +8,20 @@
 # **********************************************************************
 
 all:
-	gradlew assemble
+	gradlew.bat assemble
 
 dist:
-	gradlew :Ice:assemble :Freeze:assemble :Glacier2:assemble :IceGrid:assemble :ant:assemble \
+	gradlew.bat :Ice:assemble :Freeze:assemble :Glacier2:assemble :IceGrid:assemble :ant:assemble \
 		:IceBox:assemble :IceDiscovery:assemble :IcePatch2:assemble :IceStorm:assemble :IceGridGUI:assemble
 
 clean:
-	gradlew clean
+	gradlew.bat clean
 
 install::
 !if "$(prefix)" != ""
-	gradlew -Dorg.gradle.project.prefix="$(prefix)" install
+	gradlew.bat -Dorg.gradle.project.prefix="$(prefix)" install
 !else
-	gradlew install
+	gradlew.bat install
 !endif
 
 test:
