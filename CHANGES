@@ -27,6 +27,10 @@ Changes since version 3.5.1
 General Changes
 ===============
 
+- It's now possible to specify an IPv6 address for the UDP --interface
+  local option, previously it only accepted an interface name or
+  index.
+
 - Ice now guarantees that invocations made on different proxy objects
   will be serialized if the proxies are equal and if connection
   caching is enabled. Previously, invocations could be sent out of
