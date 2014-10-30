@@ -143,24 +143,6 @@ General Changes
 - Fixed a bug where retries might fail if the request failed right
   after connection establishment.
 
-- New garbage collection support for object graphs with cycles.
-
-  Ice no longer uses a background thread to collect objects. Instead,
-  Ice::Object now has a new ice_collectable method to indicate whether
-  or not the object graph can be collected. When a graph is marked as
-  collectable with this method, you shouldn't update the structure of
-  the object graph.
-
-  Ice tries to collect the graph each time a reference count is
-  dropped for an object in the cycle.
-
-  By default, object collection is turned off. When it's turned on
-  with Ice.CollectObjects=1, the Ice run time calls
-  ice_collectable(true) on all the objects it unmarshals.
-
-  The properties Ice.GC.Interval and Ice.Trace.GC are no longer
-  supported, nor is the Ice::collectGarbage() function.
-
 - Added callbacks for connection closure and heartbeats. The callback
   is invoked when the connection is closed or when a heartbeat is
   received.
@@ -238,6 +220,24 @@ General Changes
 
 C++ Changes
 ===========
+
+- New garbage collection support for object graphs with cycles.
+
+  Ice no longer uses a background thread to collect objects. Instead,
+  Ice::Object now has a new ice_collectable method to indicate whether
+  or not the object graph can be collected. When a graph is marked as
+  collectable with this method, you shouldn't update the structure of
+  the object graph.
+
+  Ice tries to collect the graph each time a reference count is
+  dropped for an object in the cycle.
+
+  By default, object collection is turned off. When it's turned on
+  with Ice.CollectObjects=1, the Ice run time calls
+  ice_collectable(true) on all the objects it unmarshals.
+
+  The properties Ice.GC.Interval and Ice.Trace.GC are no longer
+  supported, nor is the Ice::collectGarbage() function.
 
 - Significant changes to the IceSSL plug-in:
 
