@@ -62,7 +62,7 @@ OBJS		= $(COBJS) \
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN -Zm200
+CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN -Zm200 -bigobj
 
 !if "$(WINRT)" != "yes"
 LD_TESTFLAGS	= $(LD_EXEFLAGS) $(SETARGV)
