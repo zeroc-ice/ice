@@ -10,6 +10,11 @@
 package Ice;
 
 import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+
+import IceInternal.IncomingConnectionFactory;
+import IceInternal.OutgoingConnectionFactory;
 
 public final class ObjectAdapterI implements ObjectAdapter
 {
@@ -48,7 +53,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             //
             if(_state != StateUninitialized)
             {
-                for(IceInternal.IncomingConnectionFactory factory : _incomingConnectionFactories)
+                for(IncomingConnectionFactory factory : _incomingConnectionFactories)
                 {
                     factory.activate();
                 }
@@ -58,11 +63,11 @@ public final class ObjectAdapterI implements ObjectAdapter
             //
             // One off initializations of the adapter: update the
             // locator registry and print the "adapter ready"
-            // message. We set set state to StateWaitActivate to prevent
+            // message. We set set state to StateActivating to prevent
             // deactivation from other threads while these one off
             // initializations are done.
             //
-            _state = StateWaitActivate;
+            _state = StateActivating;
 
             locatorInfo = _locatorInfo;
             if(!_noConfig)
@@ -102,7 +107,7 @@ public final class ObjectAdapterI implements ObjectAdapter
 
         synchronized(this)
         {
-            assert(_state == StateWaitActivate);
+            assert(_state == StateActivating);
 
             //
             // Signal threads waiting for the activation.
@@ -110,7 +115,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             _state = StateActive;
             notifyAll();
 
-            for(IceInternal.IncomingConnectionFactory factory : _incomingConnectionFactories)
+            for(IncomingConnectionFactory factory : _incomingConnectionFactories)
             {
                 factory.activate();
             }
@@ -123,7 +128,7 @@ public final class ObjectAdapterI implements ObjectAdapter
     {
         checkForDeactivation();
         _state = StateHeld;
-        for(IceInternal.IncomingConnectionFactory factory : _incomingConnectionFactories)
+        for(IncomingConnectionFactory factory : _incomingConnectionFactories)
         {
             factory.hold();
         }
@@ -138,15 +143,14 @@ public final class ObjectAdapterI implements ObjectAdapter
             throw new Ice.OperationInterruptedException();
         }
 
-        java.util.List<IceInternal.IncomingConnectionFactory> incomingConnectionFactories;
+        List<IncomingConnectionFactory> incomingConnectionFactories;
         synchronized(this)
         {
             checkForDeactivation();
-            incomingConnectionFactories =
-                new java.util.ArrayList<IceInternal.IncomingConnectionFactory>(_incomingConnectionFactories);
+            incomingConnectionFactories = new ArrayList<IncomingConnectionFactory>(_incomingConnectionFactories);
         }
 
-        for(IceInternal.IncomingConnectionFactory factory : incomingConnectionFactories)
+        for(IncomingConnectionFactory factory : incomingConnectionFactories)
         {
             try
             {
@@ -169,26 +173,13 @@ public final class ObjectAdapterI implements ObjectAdapter
             throw new Ice.OperationInterruptedException();
         }
 
-        IceInternal.OutgoingConnectionFactory outgoingConnectionFactory;
-        java.util.List<IceInternal.IncomingConnectionFactory> incomingConnectionFactories;
-        IceInternal.LocatorInfo locatorInfo;
         synchronized(this)
         {
             //
-            // Ignore deactivation requests if the object adapter has
-            // already been deactivated.
+            // Wait for activation to complete. This is necessary to
+            // not get out of order locator updates.
             //
-            if(_state >= StateDeactivating)
-            {
-                return;
-            }
-
-            //
-            //
-            // Wait for activation to complete. This is necessary to not
-            // get out of order locator updates.
-            //
-            while(_state == StateWaitActivate)
+            while(_state == StateActivating)
             {
                 try
                 {
@@ -199,31 +190,34 @@ public final class ObjectAdapterI implements ObjectAdapter
                     throw new Ice.OperationInterruptedException();
                 }
             }
-
-            if(_routerInfo != null)
+            if(_state > StateDeactivating)
             {
-                //
-                // Remove entry from the router manager.
-                //
-                _instance.routerManager().erase(_routerInfo.getRouter());
-
-                //
-                //  Clear this object adapter with the router.
-                //
-                _routerInfo.setAdapter(null);
+                return;
             }
-
-            incomingConnectionFactories =
-                new java.util.ArrayList<IceInternal.IncomingConnectionFactory>(_incomingConnectionFactories);
-            outgoingConnectionFactory = _instance.outgoingConnectionFactory();
-            locatorInfo = _locatorInfo;
-
             _state = StateDeactivating;
+        }
+
+        //
+        // NOTE: the router/locator infos and incoming connection
+        // facatory list are immutable at this point.
+        //
+        
+        if(_routerInfo != null)
+        {
+            //
+            // Remove entry from the router manager.
+            //
+            _instance.routerManager().erase(_routerInfo.getRouter());
+
+            //
+            //  Clear this object adapter with the router.
+            //
+            _routerInfo.setAdapter(null);
         }
 
         try
         {
-            updateLocatorRegistry(locatorInfo, null, false);
+            updateLocatorRegistry(_locatorInfo, null, false);
         }
         catch(Ice.LocalException ex)
         {
@@ -235,10 +229,10 @@ public final class ObjectAdapterI implements ObjectAdapter
 
         //
         // Must be called outside the thread synchronization, because
-        // Connection::destroy() might block when sending a CloseConnection
-        // message.
+        // Connection::destroy() might block when sending a
+        // CloseConnection message.
         //
-        for(IceInternal.IncomingConnectionFactory factory : incomingConnectionFactories)
+        for(IncomingConnectionFactory factory : _incomingConnectionFactories)
         {
             factory.destroy();
         }
@@ -248,7 +242,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         // changing the object adapter might block if there are still
         // requests being dispatched.
         //
-        outgoingConnectionFactory.removeAdapter(this);
+        _instance.outgoingConnectionFactory().removeAdapter(this);
 
         synchronized(this)
         {
@@ -268,38 +262,36 @@ public final class ObjectAdapterI implements ObjectAdapter
 
         try
         {
-            IceInternal.IncomingConnectionFactory[] incomingConnectionFactories;
+            List<IncomingConnectionFactory> incomingConnectionFactories;
             synchronized(this)
             {
-                if(_state == StateDestroyed)
-                {
-                    return;
-                }
-
                 //
                 // Wait for deactivation of the adapter itself, and
-                // for the return of all direct method calls using this
-                // adapter.
+                // for the return of all direct method calls using
+                // this adapter.
                 //
-                while((_state != StateDeactivated) || _directCount > 0)
+                while((_state < StateDeactivated) || _directCount > 0)
                 {
                     wait();
                 }
-
-                incomingConnectionFactories =
-                    _incomingConnectionFactories.toArray(new IceInternal.IncomingConnectionFactory[0]);
+                if(_state > StateDeactivated)
+                {
+                    return;
+                }
+                incomingConnectionFactories = new ArrayList<IncomingConnectionFactory>(_incomingConnectionFactories);
             }
 
             //
             // Now we wait for until all incoming connection factories are
-            // finished.
+            // finished (the incoming connection factory list is immutable
+            // at this point).
             //
-            for(IceInternal.IncomingConnectionFactory f : incomingConnectionFactories)
+            for(IncomingConnectionFactory f : incomingConnectionFactories)
             {
                 f.waitUntilFinished();
             }
         }
-        catch (InterruptedException e)
+        catch(InterruptedException e)
         {
             throw new Ice.OperationInterruptedException();
         }
@@ -327,6 +319,34 @@ public final class ObjectAdapterI implements ObjectAdapter
         deactivate();
         waitForDeactivate();
 
+        synchronized(this)
+        {
+            assert(_state >= StateDeactivated);
+
+            //
+            // Only a single thread is allowed to destroy the object
+            // adapter. Other threads wait for the destruction to be
+            // completed.
+            //
+            while(_state == StateDestroying)
+            {
+                try
+                {
+                    wait();
+                }
+                catch(InterruptedException ex)
+                {
+                    throw new Ice.OperationInterruptedException();
+                }
+            }
+            if(_state == StateDestroyed)
+            {
+                return;
+            }
+
+            _state = StateDestroying;
+        }
+
         //
         // Now it's also time to clean up our servants and servant
         // locators.
@@ -349,23 +369,10 @@ public final class ObjectAdapterI implements ObjectAdapter
             }
         }
 
-        IceInternal.ObjectAdapterFactory objectAdapterFactory;
+        _objectAdapterFactory.removeObjectAdapter(this);
 
         synchronized(this)
         {
-            //
-            // If destroy is already complete, we're done.
-            //
-            if(_state == StateDestroyed)
-            {
-                return;
-            }
-            //
-            // Signal that destroying is complete.
-            //
-            _state = StateDestroyed;
-            notifyAll();
-
             _incomingConnectionFactories.clear();
 
             //
@@ -378,14 +385,13 @@ public final class ObjectAdapterI implements ObjectAdapter
             _publishedEndpoints = null;
             _locatorInfo = null;
             _reference = null;
-
-            objectAdapterFactory = _objectAdapterFactory;
             _objectAdapterFactory = null;
-        }
 
-        if(objectAdapterFactory != null)
-        {
-            objectAdapterFactory.removeObjectAdapter(this);
+            //
+            // Signal that destroying is complete.
+            //
+            _state = StateDestroyed;
+            notifyAll();
         }
     }
 
@@ -613,7 +619,7 @@ public final class ObjectAdapterI implements ObjectAdapter
     {
         IceInternal.LocatorInfo locatorInfo = null;
         boolean registerProcess = false;
-        java.util.List<IceInternal.EndpointI> oldPublishedEndpoints;
+        List<IceInternal.EndpointI> oldPublishedEndpoints;
 
         synchronized(this)
         {
@@ -653,8 +659,8 @@ public final class ObjectAdapterI implements ObjectAdapter
     public synchronized Endpoint[]
     getEndpoints()
     {
-        java.util.List<Endpoint> endpoints = new java.util.ArrayList<Endpoint>();
-        for(IceInternal.IncomingConnectionFactory factory : _incomingConnectionFactories)
+        List<Endpoint> endpoints = new ArrayList<Endpoint>();
+        for(IncomingConnectionFactory factory : _incomingConnectionFactories)
         {
             endpoints.add(factory.endpoint());
         }
@@ -715,7 +721,7 @@ public final class ObjectAdapterI implements ObjectAdapter
                             return true;
                         }
                     }
-                    for(IceInternal.IncomingConnectionFactory p : _incomingConnectionFactories)
+                    for(IncomingConnectionFactory p : _incomingConnectionFactories)
                     {
                         if(endpoint.equivalent(p.endpoint()))
                         {
@@ -751,12 +757,12 @@ public final class ObjectAdapterI implements ObjectAdapter
     public void
     flushAsyncBatchRequests(IceInternal.CommunicatorFlushBatch outAsync)
     {
-        java.util.List<IceInternal.IncomingConnectionFactory> f;
+        List<IncomingConnectionFactory> f;
         synchronized(this)
         {
-            f = new java.util.ArrayList<IceInternal.IncomingConnectionFactory>(_incomingConnectionFactories);
+            f = new ArrayList<IncomingConnectionFactory>(_incomingConnectionFactories);
         }
-        for(IceInternal.IncomingConnectionFactory p : f)
+        for(IncomingConnectionFactory p : f)
         {
             p.flushAsyncBatchRequests(outAsync);
         }
@@ -765,12 +771,12 @@ public final class ObjectAdapterI implements ObjectAdapter
     public void
     updateConnectionObservers()
     {
-        java.util.List<IceInternal.IncomingConnectionFactory> f;
+        List<IncomingConnectionFactory> f;
         synchronized(this)
         {
-            f = new java.util.ArrayList<IceInternal.IncomingConnectionFactory>(_incomingConnectionFactories);
+            f = new ArrayList<IncomingConnectionFactory>(_incomingConnectionFactories);
         }
-        for(IceInternal.IncomingConnectionFactory p : f)
+        for(IncomingConnectionFactory p : f)
         {
             p.updateConnectionObservers();
         }
@@ -877,7 +883,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
 
         final Properties properties = _instance.initializationData().properties;
-        java.util.List<String> unknownProps = new java.util.ArrayList<String>();
+        List<String> unknownProps = new ArrayList<String>();
         boolean noProps = filterProperties(unknownProps);
 
         //
@@ -1015,12 +1021,11 @@ public final class ObjectAdapterI implements ObjectAdapter
                 // Parse the endpoints, but don't store them in the adapter. The connection
                 // factory might change it, for example, to fill in the real port number.
                 //
-                java.util.List<IceInternal.EndpointI> endpoints =
+                List<IceInternal.EndpointI> endpoints =
                     parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
                 for(IceInternal.EndpointI endp : endpoints)
                 {
-                    IceInternal.IncomingConnectionFactory factory =
-                        new IceInternal.IncomingConnectionFactory(instance, endp, this, _name);
+                    IncomingConnectionFactory factory = new IncomingConnectionFactory(instance, endp, this, _name);
                     _incomingConnectionFactories.add(factory);
                 }
                 if(endpoints.size() == 0)
@@ -1066,16 +1071,18 @@ public final class ObjectAdapterI implements ObjectAdapter
             if(_state < StateDeactivated)
             {
                 _instance.initializationData().logger.warning("object adapter `" + getName() +
-                                                            "' has not been deactivated");
+                                                              "' has not been deactivated");
             }
             else if(_state != StateDestroyed)
             {
-                _instance.initializationData().logger.warning("object adapter `" + getName() + "' has not been destroyed");
+                _instance.initializationData().logger.warning("object adapter `" + getName() + 
+                                                              "' has not been destroyed");
             }
             else
             {
                 IceUtilInternal.Assert.FinalizerAssert(_threadPool == null);
-                //IceUtilInternal.Assert.FinalizerAssert(_servantManager == null); // Not cleared, it needs to be immutable.
+                // Not cleared, it needs to be immutable.
+                //IceUtilInternal.Assert.FinalizerAssert(_servantManager == null); 
                 //IceUtilInternal.Assert.FinalizerAssert(_incomingConnectionFactories.isEmpty());
                 IceUtilInternal.Assert.FinalizerAssert(_directCount == 0);
             }
@@ -1177,7 +1184,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
     }
 
-    private java.util.List<IceInternal.EndpointI>
+    private List<IceInternal.EndpointI>
     parseEndpoints(String endpts, boolean oaEndpoints)
     {
         int beg;
@@ -1185,7 +1192,7 @@ public final class ObjectAdapterI implements ObjectAdapter
 
         final String delim = " \t\n\r";
 
-        java.util.List<IceInternal.EndpointI> endpoints = new java.util.ArrayList<IceInternal.EndpointI>();
+        List<IceInternal.EndpointI> endpoints = new ArrayList<IceInternal.EndpointI>();
         while(end < endpts.length())
         {
             beg = IceUtilInternal.StringUtil.findFirstNotOf(endpts, delim, end);
@@ -1259,7 +1266,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         return endpoints;
     }
 
-    private java.util.List<IceInternal.EndpointI>
+    private List<IceInternal.EndpointI>
     parsePublishedEndpoints()
     {
         //
@@ -1267,7 +1274,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         // instead of the connection factory Endpoints.
         //
         String endpts = _instance.initializationData().properties.getProperty(_name + ".PublishedEndpoints");
-        java.util.List<IceInternal.EndpointI> endpoints = parseEndpoints(endpts, false);
+        List<IceInternal.EndpointI> endpoints = parseEndpoints(endpts, false);
         if(endpoints.isEmpty())
         {
             //
@@ -1275,7 +1282,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             // from the OA endpoints, expanding any endpoints that may be listening on INADDR_ANY
             // to include actual addresses in the published endpoints.
             //
-            for(IceInternal.IncomingConnectionFactory factory : _incomingConnectionFactories)
+            for(IncomingConnectionFactory factory : _incomingConnectionFactories)
             {
                 endpoints.addAll(factory.endpoint().expand());
             }
@@ -1539,7 +1546,7 @@ public final class ObjectAdapterI implements ObjectAdapter
     };
 
     boolean
-    filterProperties(java.util.List<String> unknownProps)
+    filterProperties(List<String> unknownProps)
     {
         //
         // Do not create unknown properties list if Ice prefix, ie Ice, Glacier2, etc
@@ -1556,7 +1563,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
 
         boolean noProps = true;
-        java.util.Map<String, String> props = _instance.initializationData().properties.getPropertiesForPrefix(prefix);
+        Map<String, String> props = _instance.initializationData().properties.getPropertiesForPrefix(prefix);
         for(String prop : props.keySet())
         {
             boolean valid = false;
@@ -1581,11 +1588,12 @@ public final class ObjectAdapterI implements ObjectAdapter
     
     private static final int StateUninitialized = 0; // Just constructed.
     private static final int StateHeld = 1;
-    private static final int StateWaitActivate = 2;
+    private static final int StateActivating = 2;
     private static final int StateActive = 3;
     private static final int StateDeactivating = 4;
     private static final int StateDeactivated = 5;
-    private static final int StateDestroyed  = 6;
+    private static final int StateDestroying = 6;
+    private static final int StateDestroyed  = 7;
     
     private int _state = StateUninitialized;
     private IceInternal.Instance _instance;
@@ -1598,12 +1606,10 @@ public final class ObjectAdapterI implements ObjectAdapter
     final private String _id;
     final private String _replicaGroupId;
     private IceInternal.Reference _reference;
-    private java.util.List<IceInternal.IncomingConnectionFactory> _incomingConnectionFactories =
-        new java.util.ArrayList<IceInternal.IncomingConnectionFactory>();
-    private java.util.List<IceInternal.EndpointI> _routerEndpoints = new java.util.ArrayList<IceInternal.EndpointI>();
+    private List<IncomingConnectionFactory> _incomingConnectionFactories = new ArrayList<IncomingConnectionFactory>();
+    private List<IceInternal.EndpointI> _routerEndpoints = new ArrayList<IceInternal.EndpointI>();
     private IceInternal.RouterInfo _routerInfo = null;
-    private java.util.List<IceInternal.EndpointI> _publishedEndpoints =
-        new java.util.ArrayList<IceInternal.EndpointI>();
+    private List<IceInternal.EndpointI> _publishedEndpoints = new ArrayList<IceInternal.EndpointI>();
     private IceInternal.LocatorInfo _locatorInfo;
     private int _directCount; // The number of direct proxies dispatching on this object adapter.
     private boolean _noConfig;

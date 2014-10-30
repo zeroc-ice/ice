@@ -87,7 +87,7 @@ Ice::ObjectAdapterI::activate()
 
     {
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-        
+
         checkForDeactivation();
 
         //
@@ -104,11 +104,11 @@ Ice::ObjectAdapterI::activate()
         //
         // One off initializations of the adapter: update the
         // locator registry and print the "adapter ready"
-        // message. We set set state to StateWaitActivate to prevent
+        // message. We set set state to StateActivating to prevent
         // deactivation from other threads while these one off
         // initializations are done.
         //
-        _state = StateWaitActivate;
+        _state = StateActivating;
 
         locatorInfo = _locatorInfo;
         if(!_noConfig)
@@ -148,16 +148,13 @@ Ice::ObjectAdapterI::activate()
 
     {
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-        assert(_state == StateWaitActivate);
-
-        //
-        // Signal threads waiting for the activation.
-        //
-        _state = StateActive;
-        notifyAll();
+        assert(_state == StateActivating);
 
         for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
                  Ice::voidMemFun(&IncomingConnectionFactory::activate));
+
+        _state = StateActive;
+        notifyAll();
     }
 }
 
@@ -192,53 +189,45 @@ Ice::ObjectAdapterI::waitForHold()
 void
 Ice::ObjectAdapterI::deactivate()
 {
-    vector<IncomingConnectionFactoryPtr> incomingConnectionFactories;
-    OutgoingConnectionFactoryPtr outgoingConnectionFactory;
-    LocatorInfoPtr locatorInfo;
     {
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-        
-        //
-        // Ignore deactivation requests if the object adapter has already
-        // been deactivated.
-        //
-        if(_state >= StateDeactivating)
-        {
-            return;
-        }
 
         //
-        // Wait for activation to complete. This is necessary to not 
+        // Wait for activation to complete. This is necessary to not
         // get out of order locator updates.
         //
-        while(_state == StateWaitActivate)
+        while(_state == StateActivating || _state == StateDeactivating)
         {
             wait();
         }
-
-        if(_routerInfo)
+        if(_state >= StateDeactivated)
         {
-            //
-            // Remove entry from the router manager.
-            //
-            _instance->routerManager()->erase(_routerInfo->getRouter());
-
-            //
-            //  Clear this object adapter with the router.
-            //
-            _routerInfo->setAdapter(0);
+            return;
         }
-        
-        incomingConnectionFactories = _incomingConnectionFactories;
-        outgoingConnectionFactory = _instance->outgoingConnectionFactory();
-        locatorInfo = _locatorInfo;
-
         _state = StateDeactivating;
     }
 
+    //
+    // NOTE: the router/locator infos and incoming connection
+    // facatory list are immutable at this point.
+    //
+    
+    if(_routerInfo)
+    {
+        //
+        // Remove entry from the router manager.
+        //
+        _instance->routerManager()->erase(_routerInfo->getRouter());
+        
+        //
+        //  Clear this object adapter with the router.
+        //
+        _routerInfo->setAdapter(0);
+    }
+    
     try
     {
-        updateLocatorRegistry(locatorInfo, 0, false);
+        updateLocatorRegistry(_locatorInfo, 0, false);
     }
     catch(const Ice::LocalException&)
     {
@@ -253,7 +242,7 @@ Ice::ObjectAdapterI::deactivate()
     // Connection::destroy() might block when sending a CloseConnection
     // message.
     //
-    for_each(incomingConnectionFactories.begin(), incomingConnectionFactories.end(),
+    for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
              Ice::voidMemFun(&IncomingConnectionFactory::destroy));
     
     //
@@ -261,10 +250,11 @@ Ice::ObjectAdapterI::deactivate()
     // changing the object adapter might block if there are still
     // requests being dispatched.
     //
-    outgoingConnectionFactory->removeAdapter(this);
+    _instance->outgoingConnectionFactory()->removeAdapter(this);
 
     {
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        assert(_state == StateDeactivating);
         _state = StateDeactivated;
         notifyAll();
     }
@@ -277,20 +267,19 @@ Ice::ObjectAdapterI::waitForDeactivate()
 
     {
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-        if(_state == StateDestroyed)
-        {
-            return;
-        }
 
         //
         // Wait for deactivation of the adapter itself, and for
         // the return of all direct method calls using this adapter.
         //
-        while((_state != StateDeactivated) || _directCount > 0)
+        while((_state < StateDeactivated) || _directCount > 0)
         {
             wait();
         }
-
+        if(_state > StateDeactivated)
+        {
+            return;
+        }
         incomingConnectionFactories = _incomingConnectionFactories;
     }
 
@@ -319,6 +308,26 @@ Ice::ObjectAdapterI::destroy()
     deactivate();
     waitForDeactivate();
 
+    {
+        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        assert(_state >= StateDeactivated);
+
+        //
+        // Only a single thread is allowed to destroy the object
+        // adapter. Other threads wait for the destruction to be
+        // completed.
+        //
+        while(_state == StateDestroying)
+        {
+            wait();
+        }
+        if(_state == StateDestroyed)
+        {
+            return;
+        }
+        _state = StateDestroying;
+    }
+
     //
     // Now it's also time to clean up our servants and servant
     // locators.
@@ -334,23 +343,13 @@ Ice::ObjectAdapterI::destroy()
         _threadPool->joinWithAllThreads();
     }
 
-    ObjectAdapterFactoryPtr objectAdapterFactory;
+    if(_objectAdapterFactory)
+    {
+        _objectAdapterFactory->removeObjectAdapter(this);
+    }
 
     {
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-        //
-        // If destroy is already complete, we're done.
-        //
-        if(_state == StateDestroyed)
-        {
-            return;
-        }
-
-        //
-        // Signal that destroy is complete.
-        //
-        _state = StateDestroyed;
-        notifyAll();
 
         //
         // We're done, now we can throw away all incoming connection
@@ -368,14 +367,10 @@ Ice::ObjectAdapterI::destroy()
         _publishedEndpoints.clear();
         _locatorInfo = 0;
         _reference = 0;
-
-        objectAdapterFactory = _objectAdapterFactory;
         _objectAdapterFactory = 0;
-    }
 
-    if(objectAdapterFactory)
-    {
-        objectAdapterFactory->removeObjectAdapter(this);
+        _state = StateDestroyed;
+        notifyAll();
     }
 }
 

@@ -73,7 +73,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
 
     public void
     waitUntilFinished()
-            throws InterruptedException
+        throws InterruptedException
     {
         java.util.LinkedList<Ice.ConnectionI> connections = null;
 

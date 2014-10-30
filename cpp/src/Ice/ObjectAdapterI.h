@@ -120,10 +120,11 @@ private:
     {
         StateUninitialized,
         StateHeld,
-        StateWaitActivate,
+        StateActivating,
         StateActive,
         StateDeactivating,
         StateDeactivated,
+        StateDestroying,
         StateDestroyed
     };
     State _state;

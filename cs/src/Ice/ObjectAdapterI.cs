@@ -15,6 +15,8 @@ namespace Ice
     using System.Diagnostics;
     using System.Text;
 
+    using IceInternal;
+
     public sealed class ObjectAdapterI : ObjectAdapter
     {
         public string getName()
@@ -32,7 +34,7 @@ namespace Ice
 
         public void activate()
         {
-            IceInternal.LocatorInfo locatorInfo = null;
+            LocatorInfo locatorInfo = null;
             bool registerProcess = false;
             bool printAdapterReady = false;
 
@@ -46,7 +48,7 @@ namespace Ice
                 //
                 if(state_ != StateUninitialized)
                 {
-                    foreach(IceInternal.IncomingConnectionFactory icf in _incomingConnectionFactories)
+                    foreach(IncomingConnectionFactory icf in _incomingConnectionFactories)
                     {
                         icf.activate();
                     }
@@ -56,11 +58,11 @@ namespace Ice
                 //
                 // One off initializations of the adapter: update the
                 // locator registry and print the "adapter ready"
-                // message. We set set state to StateWaitActivate to prevent
+                // message. We set set state to StateActivating to prevent
                 // deactivation from other threads while these one off
                 // initializations are done.
                 //
-                state_ = StateWaitActivate;
+                state_ = StateActivating;
 
                 locatorInfo = _locatorInfo;
                 if(!_noConfig)
@@ -100,18 +102,15 @@ namespace Ice
 
             lock(this)
             {
-                Debug.Assert(state_ == StateWaitActivate); 
+                Debug.Assert(state_ == StateActivating); 
             
-                //
-                // Signal threads waiting for the activation.
-                //
-                state_ = StateActive;
-                System.Threading.Monitor.PulseAll(this);
-
-                foreach(IceInternal.IncomingConnectionFactory icf in _incomingConnectionFactories)
+                foreach(IncomingConnectionFactory icf in _incomingConnectionFactories)
                 {
                     icf.activate();
                 }
+
+                state_ = StateActive;
+                System.Threading.Monitor.PulseAll(this);
             }
         }
         
@@ -120,8 +119,8 @@ namespace Ice
             lock(this)
             {
                 checkForDeactivation();
-                 state_ = StateHeld;
-                foreach(IceInternal.IncomingConnectionFactory factory in _incomingConnectionFactories)
+                state_ = StateHeld;
+                foreach(IncomingConnectionFactory factory in _incomingConnectionFactories)
                 {
                     factory.hold();
                 }
@@ -130,16 +129,15 @@ namespace Ice
         
         public void waitForHold()
         {
-            List<IceInternal.IncomingConnectionFactory> incomingConnectionFactories;
+            List<IncomingConnectionFactory> incomingConnectionFactories;
             lock(this)
             {
                 checkForDeactivation();
                 
-                incomingConnectionFactories =
-                    new List<IceInternal.IncomingConnectionFactory>(_incomingConnectionFactories);
+                incomingConnectionFactories = new List<IncomingConnectionFactory>(_incomingConnectionFactories);
             }
 
-            foreach(IceInternal.IncomingConnectionFactory factory in incomingConnectionFactories)
+            foreach(IncomingConnectionFactory factory in incomingConnectionFactories)
             {
                 factory.waitUntilHolding();
             }
@@ -147,55 +145,45 @@ namespace Ice
         
         public void deactivate()
         {
-            IceInternal.OutgoingConnectionFactory outgoingConnectionFactory;
-            List<IceInternal.IncomingConnectionFactory> incomingConnectionFactories;
-            IceInternal.LocatorInfo locatorInfo;
-
             lock(this)
             {
-                //
-                // Ignore deactivation requests if the object adapter has
-                // already been deactivated.
-                //
-                if(state_ >= StateDeactivating)
-                {
-                    return;
-                }
-
                 //
                 //
                 // Wait for activation to complete. This is necessary to not 
                 // get out of order locator updates.
                 //
-                while(state_ == StateWaitActivate)
+                while(state_ == StateActivating || state_ == StateDeactivating)
                 {
                     System.Threading.Monitor.Wait(this);
                 }
-
-                if(_routerInfo != null)
+                if(state_ > StateDeactivating)
                 {
-                    //
-                    // Remove entry from the router manager.
-                    //
-                    instance_.routerManager().erase(_routerInfo.getRouter());
-
-                    //
-                    // Clear this object adapter with the router.
-                    //
-                    _routerInfo.setAdapter(null);
+                    return;
                 }
-                
-                incomingConnectionFactories =
-                    new List<IceInternal.IncomingConnectionFactory>(_incomingConnectionFactories);
-                outgoingConnectionFactory = instance_.outgoingConnectionFactory();
-                locatorInfo = _locatorInfo;
-
                 state_ = StateDeactivating;
             }
 
+            //
+            // NOTE: the router/locator infos and incoming connection
+            // facatory list are immutable at this point.
+            //
+
+            if(_routerInfo != null)
+            {
+                //
+                // Remove entry from the router manager.
+                //
+                instance_.routerManager().erase(_routerInfo.getRouter());
+                
+                //
+                // Clear this object adapter with the router.
+                //
+                _routerInfo.setAdapter(null);
+            }
+                
             try
             {
-                updateLocatorRegistry(locatorInfo, null, false);
+                updateLocatorRegistry(_locatorInfo, null, false);
             }
             catch(Ice.LocalException)
             {
@@ -210,7 +198,7 @@ namespace Ice
             // Connection::destroy() might block when sending a CloseConnection
             // message.
             //
-            foreach(IceInternal.IncomingConnectionFactory factory in incomingConnectionFactories)
+            foreach(IncomingConnectionFactory factory in _incomingConnectionFactories)
             {
                 factory.destroy();
             }
@@ -220,10 +208,11 @@ namespace Ice
             // changing the object adapter might block if there are still
             // requests being dispatched.
             //
-            outgoingConnectionFactory.removeAdapter(this);
+            instance_.outgoingConnectionFactory().removeAdapter(this);
 
             lock(this)
             {
+                Debug.Assert(state_ == StateDeactivating);
                 state_ = StateDeactivated;
                 System.Threading.Monitor.PulseAll(this);
             }
@@ -231,22 +220,21 @@ namespace Ice
         
         public void waitForDeactivate()
         {
-            IceInternal.IncomingConnectionFactory[] incomingConnectionFactories = null;
+            IncomingConnectionFactory[] incomingConnectionFactories = null;
             lock(this)
             {
-                if(state_ == StateDestroyed)
-                {
-                    return;
-                }
-
                 //
                 // Wait for deactivation of the adapter itself, and
                 // for the return of all direct method calls using this
                 // adapter.
                 //
-                while((state_ != StateDeactivated) || _directCount > 0)
+                while((state_ < StateDeactivated) || _directCount > 0)
                 {
                     System.Threading.Monitor.Wait(this);
+                }
+                if(state_ > StateDeactivated)
+                {
+                    return;
                 }
                 
                 incomingConnectionFactories = _incomingConnectionFactories.ToArray();
@@ -256,7 +244,7 @@ namespace Ice
             // Now we wait for until all incoming connection factories are
             // finished.
             //
-            foreach(IceInternal.IncomingConnectionFactory factory in incomingConnectionFactories)
+            foreach(IncomingConnectionFactory factory in incomingConnectionFactories)
             {
                 factory.waitUntilFinished();
             }
@@ -278,6 +266,24 @@ namespace Ice
             deactivate();
             waitForDeactivate();
 
+            lock(this)
+            {
+                //
+                // Only a single thread is allowed to destroy the object
+                // adapter. Other threads wait for the destruction to be
+                // completed.
+                //
+                while(state_ == StateDestroying)
+                {
+                    System.Threading.Monitor.Wait(this);
+                }
+                if(state_ == StateDestroyed)
+                {
+                    return;
+                }
+                state_ = StateDestroying;
+            }
+
             //
             // Now it's also time to clean up our servants and servant
             // locators.
@@ -292,24 +298,14 @@ namespace Ice
                 _threadPool.destroy();
                 _threadPool.joinWithAllThreads();
             }
-
-            IceInternal.ObjectAdapterFactory objectAdapterFactory;
             
+            if(_objectAdapterFactory != null)
+            {
+                _objectAdapterFactory.removeObjectAdapter(this);
+            }
+
             lock(this)
             {
-                //
-                // If destroy is already complete, we're done.
-                //
-                if(state_ == StateDestroyed)
-                {
-                    return;
-                }
-                //
-                // Signal that destroying is complete.
-                //
-                state_ = StateDestroyed;
-                System.Threading.Monitor.PulseAll(this);
-                
                 //
                 // We're done, now we can throw away all incoming connection
                 // factories.
@@ -326,14 +322,10 @@ namespace Ice
                 _publishedEndpoints = null;
                 _locatorInfo = null;
                 _reference = null;
-
-                objectAdapterFactory = _objectAdapterFactory;
                 _objectAdapterFactory = null;
-            }
 
-            if(objectAdapterFactory != null)
-            {
-                objectAdapterFactory.removeObjectAdapter(this);
+                state_ = StateDestroyed;
+                System.Threading.Monitor.PulseAll(this);
             }
         }
 
@@ -460,7 +452,7 @@ namespace Ice
             {
                 checkForDeactivation();
 
-                IceInternal.Reference @ref = ((ObjectPrxHelperBase)proxy).reference__();
+                Reference @ref = ((ObjectPrxHelperBase)proxy).reference__();
                 return findFacet(@ref.getIdentity(), @ref.getFacet());
             }
         }
@@ -567,9 +559,9 @@ namespace Ice
 
         public void refreshPublishedEndpoints()
         {
-            IceInternal.LocatorInfo locatorInfo = null;
+            LocatorInfo locatorInfo = null;
             bool registerProcess = false;
-            List<IceInternal.EndpointI> oldPublishedEndpoints;
+            List<EndpointI> oldPublishedEndpoints;
 
             lock(this)
             {
@@ -610,7 +602,7 @@ namespace Ice
             lock(this)
             {
                 List<Endpoint> endpoints = new List<Endpoint>();
-                foreach(IceInternal.IncomingConnectionFactory factory in _incomingConnectionFactories)
+                foreach(IncomingConnectionFactory factory in _incomingConnectionFactories)
                 {
                     endpoints.Add(factory.endpoint());
                 }
@@ -633,7 +625,7 @@ namespace Ice
             // it can be called for AMI invocations if the proxy has no delegate set yet.
             //
 
-            IceInternal.Reference r = ((ObjectPrxHelperBase)proxy).reference__();
+            Reference r = ((ObjectPrxHelperBase)proxy).reference__();
             if(r.isWellKnown())
             {
                 //
@@ -652,7 +644,7 @@ namespace Ice
             }
             else
             {
-                IceInternal.EndpointI[] endpoints = r.getEndpoints();
+                EndpointI[] endpoints = r.getEndpoints();
             
                 lock(this)
                 {
@@ -665,14 +657,14 @@ namespace Ice
                     //
                     for(int i = 0; i < endpoints.Length; ++i)
                     {
-                        foreach(IceInternal.EndpointI endpoint in _publishedEndpoints)
+                        foreach(EndpointI endpoint in _publishedEndpoints)
                         {
                             if(endpoints[i].equivalent(endpoint))
                             {
                                 return true;
                             }
                         }
-                        foreach(IceInternal.IncomingConnectionFactory factory in _incomingConnectionFactories)
+                        foreach(IncomingConnectionFactory factory in _incomingConnectionFactories)
                         {
                             if(endpoints[i].equivalent(factory.endpoint()))
                             {
@@ -690,7 +682,7 @@ namespace Ice
                     {
                         for(int i = 0; i < endpoints.Length; ++i)
                         {
-                            foreach(IceInternal.EndpointI endpoint in _routerEndpoints)
+                            foreach(EndpointI endpoint in _routerEndpoints)
                             {
                                 if(endpoints[i].equivalent(endpoint))
                                 {
@@ -705,15 +697,15 @@ namespace Ice
             }
         }
 
-        public void flushAsyncBatchRequests(IceInternal.CommunicatorFlushBatch outAsync)
+        public void flushAsyncBatchRequests(CommunicatorFlushBatch outAsync)
         {
-            List<IceInternal.IncomingConnectionFactory> f;
+            List<IncomingConnectionFactory> f;
             lock(this)
             {
-                f = new List<IceInternal.IncomingConnectionFactory>(_incomingConnectionFactories);
+                f = new List<IncomingConnectionFactory>(_incomingConnectionFactories);
             }
 
-            foreach(IceInternal.IncomingConnectionFactory factory in f)
+            foreach(IncomingConnectionFactory factory in f)
             {
                 factory.flushAsyncBatchRequests(outAsync);
             }
@@ -721,13 +713,13 @@ namespace Ice
 
         public void updateConnectionObservers()
         {
-            List<IceInternal.IncomingConnectionFactory> f;
+            List<IncomingConnectionFactory> f;
             lock(this)
             {
-                f = new List<IceInternal.IncomingConnectionFactory>(_incomingConnectionFactories);
+                f = new List<IncomingConnectionFactory>(_incomingConnectionFactories);
             }
 
-            foreach(IceInternal.IncomingConnectionFactory p in f)
+            foreach(IncomingConnectionFactory p in f)
             {
                 p.updateConnectionObservers();
             }
@@ -735,7 +727,7 @@ namespace Ice
     
         public void  updateThreadObservers()
         {
-            IceInternal.ThreadPool threadPool = null;
+            ThreadPool threadPool = null;
             lock(this)
             {
                 threadPool = _threadPool;
@@ -774,7 +766,7 @@ namespace Ice
             }
         }
         
-        public IceInternal.ThreadPool getThreadPool()
+        public ThreadPool getThreadPool()
         {
             // No mutex lock necessary, _threadPool and instance_ are
             // immutable after creation until they are removed in
@@ -795,7 +787,7 @@ namespace Ice
             
         }
 
-        public IceInternal.ServantManager getServantManager()
+        public ServantManager getServantManager()
         {
             //
             // No mutex lock necessary, _servantManager is immutable.
@@ -803,7 +795,7 @@ namespace Ice
             return _servantManager;
         }
 
-        public IceInternal.ACMConfig getACM()
+        public ACMConfig getACM()
         {
             // Not check for deactivation here!
             
@@ -812,20 +804,20 @@ namespace Ice
         }
 
         //
-        // Only for use by IceInternal.ObjectAdapterFactory
+        // Only for use by ObjectAdapterFactory
         //
-        public ObjectAdapterI(IceInternal.Instance instance, Communicator communicator,
-                              IceInternal.ObjectAdapterFactory objectAdapterFactory, string name, 
+        public ObjectAdapterI(Instance instance, Communicator communicator,
+                              ObjectAdapterFactory objectAdapterFactory, string name, 
                               RouterPrx router, bool noConfig)
         {
             instance_ = instance;
             _communicator = communicator;
             _objectAdapterFactory = objectAdapterFactory;
-            _servantManager = new IceInternal.ServantManager(instance, name);
+            _servantManager = new ServantManager(instance, name);
             _name = name;
-            _incomingConnectionFactories = new List<IceInternal.IncomingConnectionFactory>();
-            _publishedEndpoints = new List<IceInternal.EndpointI>();
-            _routerEndpoints = new List<IceInternal.EndpointI>();
+            _incomingConnectionFactories = new List<IncomingConnectionFactory>();
+            _publishedEndpoints = new List<EndpointI>();
+            _routerEndpoints = new List<EndpointI>();
             _routerInfo = null;
             _directCount = 0;
             _noConfig = noConfig;
@@ -896,7 +888,7 @@ namespace Ice
                 throw ex;
             }
 
-            _acm = new IceInternal.ACMConfig(properties, communicator.getLogger(), _name + ".ACM",
+            _acm = new ACMConfig(properties, communicator.getLogger(), _name + ".ACM",
                                              instance_.serverACM());
 
             try
@@ -905,7 +897,7 @@ namespace Ice
                 int threadPoolSizeMax = properties.getPropertyAsInt(_name + ".ThreadPool.SizeMax");
                 if(threadPoolSize > 0 || threadPoolSizeMax > 0)
                 {
-                    _threadPool = new IceInternal.ThreadPool(instance_, _name + ".ThreadPool", 0);
+                    _threadPool = new ThreadPool(instance_, _name + ".ThreadPool", 0);
                 }
 
                 if(router == null)
@@ -933,7 +925,7 @@ namespace Ice
                         // Add the router's server proxy endpoints to this object
                         // adapter.
                         //
-                        IceInternal.EndpointI[] endpoints = _routerInfo.getServerEndpoints();
+                        EndpointI[] endpoints = _routerInfo.getServerEndpoints();
                         for(int i = 0; i < endpoints.Length; ++i)
                         {
                             _routerEndpoints.Add(endpoints[i]);
@@ -945,8 +937,8 @@ namespace Ice
                         //
                         for(int i = 0; i < _routerEndpoints.Count-1;)
                         {
-                            IceInternal.EndpointI e1 = _routerEndpoints[i];
-                            IceInternal.EndpointI e2 = _routerEndpoints[i + 1];
+                            EndpointI e1 = _routerEndpoints[i];
+                            EndpointI e2 = _routerEndpoints[i + 1];
                             if(e1.Equals(e2))
                             {
                                 _routerEndpoints.RemoveAt(i);
@@ -978,17 +970,15 @@ namespace Ice
                     // Parse the endpoints, but don't store them in the adapter. The connection
                     // factory might change it, for example, to fill in the real port number.
                     //
-                    List<IceInternal.EndpointI> endpoints = 
-                        parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
-                    foreach(IceInternal.EndpointI endp in endpoints)
+                    List<EndpointI> endpoints =  parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
+                    foreach(EndpointI endp in endpoints)
                     {
-                        IceInternal.IncomingConnectionFactory factory =
-                            new IceInternal.IncomingConnectionFactory(instance, endp, this, _name);
+                        IncomingConnectionFactory factory = new IncomingConnectionFactory(instance, endp, this, _name);
                         _incomingConnectionFactories.Add(factory);
                     }
                     if(endpoints.Count == 0)
                     {
-                        IceInternal.TraceLevels tl = instance_.traceLevels();
+                        TraceLevels tl = instance_.traceLevels();
                         if(tl.network >= 2)
                         {
                             instance_.initializationData().logger.trace(tl.networkCat, "created adapter `" + _name +
@@ -1067,14 +1057,14 @@ namespace Ice
         
         private ObjectPrx newDirectProxy(Identity ident, string facet)
         {
-            IceInternal.EndpointI[] endpoints;
+            EndpointI[] endpoints;
 
             // 
             // Use the published endpoints, otherwise use the endpoints from all
             // incoming connection factories.
             //
             int sz = _publishedEndpoints.Count;
-            endpoints = new IceInternal.EndpointI[sz + _routerEndpoints.Count];
+            endpoints = new EndpointI[sz + _routerEndpoints.Count];
             for(int i = 0; i < sz; ++i)
             {
                 endpoints[i] = _publishedEndpoints[i];
@@ -1093,7 +1083,7 @@ namespace Ice
             //
             // Create a reference and return a proxy for this reference.
             //
-            IceInternal.Reference reference = instance_.referenceFactory().create(ident, facet, _reference, endpoints);
+            Reference reference = instance_.referenceFactory().create(ident, facet, _reference, endpoints);
             return instance_.proxyFactory().referenceToProxy(reference);
         }
         
@@ -1103,7 +1093,7 @@ namespace Ice
             // Create a reference with the adapter id and return a
             // proxy for the reference.
             //
-            IceInternal.Reference reference = instance_.referenceFactory().create(ident, facet, _reference, id);
+            Reference reference = instance_.referenceFactory().create(ident, facet, _reference, id);
             return instance_.proxyFactory().referenceToProxy(reference);
         }
 
@@ -1137,14 +1127,14 @@ namespace Ice
             }
         }
 
-        private List<IceInternal.EndpointI> parseEndpoints(string endpts, bool oaEndpoints)
+        private List<EndpointI> parseEndpoints(string endpts, bool oaEndpoints)
         {
             int beg;
             int end = 0;
 
             string delim = " \t\n\r";
 
-            List<IceInternal.EndpointI> endpoints = new List<IceInternal.EndpointI>();
+            List<EndpointI> endpoints = new List<EndpointI>();
             while(end < endpts.Length)
             {
                 beg = IceUtilInternal.StringUtil.findFirstNotOf(endpts, delim, end);
@@ -1203,7 +1193,7 @@ namespace Ice
                 }
 
                 string s = endpts.Substring(beg, (end) - (beg));
-                IceInternal.EndpointI endp = instance_.endpointFactoryManager().create(s, oaEndpoints);
+                EndpointI endp = instance_.endpointFactoryManager().create(s, oaEndpoints);
                 if(endp == null)
                 {
 #if COMPACT
@@ -1216,7 +1206,7 @@ namespace Ice
                         continue;
                     }
 #else
-                    if(IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono &&
+                    if(AssemblyUtil.runtime_ == AssemblyUtil.Runtime.Mono &&
                        (s.StartsWith("ssl", StringComparison.Ordinal) || s.StartsWith("wss", StringComparison.Ordinal)))
                     {
                         instance_.initializationData().logger.warning(
@@ -1237,14 +1227,14 @@ namespace Ice
             return endpoints;
         }
 
-        private List<IceInternal.EndpointI> parsePublishedEndpoints()
+        private List<EndpointI> parsePublishedEndpoints()
         {
             //
             // Parse published endpoints. If set, these are used in proxies
             // instead of the connection factory endpoints.
             //
             string endpts = instance_.initializationData().properties.getProperty(_name + ".PublishedEndpoints");
-            List<IceInternal.EndpointI> endpoints = parseEndpoints(endpts, false);
+            List<EndpointI> endpoints = parseEndpoints(endpts, false);
             if(endpoints.Count == 0)
             {
                 //
@@ -1252,7 +1242,7 @@ namespace Ice
                 // from the OA endpoints, expanding any endpoints that may be listening on INADDR_ANY
                 // to include actual addresses in the published endpoints.
                 //
-                foreach(IceInternal.IncomingConnectionFactory factory in _incomingConnectionFactories)
+                foreach(IncomingConnectionFactory factory in _incomingConnectionFactories)
                 {
                     endpoints.AddRange(factory.endpoint().expand());
                 }
@@ -1264,7 +1254,7 @@ namespace Ice
                  s.Append(_name);
                  s.Append("':\n");
                  bool first = true;
-                 foreach(IceInternal.EndpointI endpoint in endpoints)
+                 foreach(EndpointI endpoint in endpoints)
                  {
                      if(!first)
                      {
@@ -1278,7 +1268,7 @@ namespace Ice
              return endpoints;
         }
 
-        private void updateLocatorRegistry(IceInternal.LocatorInfo locatorInfo, ObjectPrx proxy, bool registerProcess)
+        private void updateLocatorRegistry(LocatorInfo locatorInfo, ObjectPrx proxy, bool registerProcess)
         {
             if(!registerProcess && _id.Length == 0)
             {
@@ -1410,7 +1400,7 @@ namespace Ice
                 {
                     if(_processId == null)
                     {
-                        Process servant = new IceInternal.ProcessI(_communicator);
+                        Process servant = new ProcessI(_communicator);
                         _processId = addWithUUID(servant).ice_getIdentity();
                     }
                 }
@@ -1503,9 +1493,9 @@ namespace Ice
             //
             bool addUnknown = true;
             String prefix = _name + ".";
-            for(int i = 0; IceInternal.PropertyNames.clPropNames[i] != null; ++i)
+            for(int i = 0; PropertyNames.clPropNames[i] != null; ++i)
             {
-                if(prefix.StartsWith(IceInternal.PropertyNames.clPropNames[i] + ".", StringComparison.Ordinal))
+                if(prefix.StartsWith(PropertyNames.clPropNames[i] + ".", StringComparison.Ordinal))
                 {
                     addUnknown = false;
                     break;
@@ -1539,28 +1529,29 @@ namespace Ice
         
         private const int StateUninitialized = 0; // Just constructed.
         private const int StateHeld = 1;
-        private const int StateWaitActivate = 2;
+        private const int StateActivating = 2;
         private const int StateActive = 3;
         private const int StateDeactivating = 4;
         private const int StateDeactivated = 5;
-        private const int StateDestroyed  = 6;
+        private const int StateDestroying  = 6;
+        private const int StateDestroyed  = 7;
         
         private int state_ = StateUninitialized;
-        private IceInternal.Instance instance_;
+        private Instance instance_;
         private Communicator _communicator;
-        private IceInternal.ObjectAdapterFactory _objectAdapterFactory;
-        private IceInternal.ThreadPool _threadPool;
-        private IceInternal.ACMConfig _acm;
-        private IceInternal.ServantManager _servantManager;
+        private ObjectAdapterFactory _objectAdapterFactory;
+        private ThreadPool _threadPool;
+        private ACMConfig _acm;
+        private ServantManager _servantManager;
         private readonly string _name;
         private readonly string _id;
         private readonly string _replicaGroupId;
-        private IceInternal.Reference _reference;
-        private List<IceInternal.IncomingConnectionFactory> _incomingConnectionFactories;
-        private List<IceInternal.EndpointI> _routerEndpoints;
-        private IceInternal.RouterInfo _routerInfo;
-        private List<IceInternal.EndpointI> _publishedEndpoints;
-        private IceInternal.LocatorInfo _locatorInfo;
+        private Reference _reference;
+        private List<IncomingConnectionFactory> _incomingConnectionFactories;
+        private List<EndpointI> _routerEndpoints;
+        private RouterInfo _routerInfo;
+        private List<EndpointI> _publishedEndpoints;
+        private LocatorInfo _locatorInfo;
         private int _directCount;  // The number of direct proxies dispatching on this object adapter.
         private bool _noConfig;
         private Identity _processId;
