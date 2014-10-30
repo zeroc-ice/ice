@@ -2725,6 +2725,8 @@ AdapterCache.obj: \
     "SessionI.h" \
     "ReapThread.h" \
     "$(includedir)\Ice\LocalException.h" \
+    "$(includedir)\Ice\Connection.h" \
+    "$(includedir)\Ice\Endpoint.h" \
     "SessionServantManager.h" \
     "AdminCallbackRouter.h" \
     "$(includedir)\Ice\Ice.h" \
@@ -2735,14 +2737,12 @@ AdapterCache.obj: \
     "$(includedir)\Ice\RemoteLogger.h" \
     "$(includedir)\Ice\CommunicatorAsync.h" \
     "$(includedir)\Ice\ObjectAdapter.h" \
-    "$(includedir)\Ice\Endpoint.h" \
     "$(includedir)\Ice\ServantLocator.h" \
     "$(includedir)\Ice\SlicedData.h" \
     "$(includedir)\Ice\OutgoingAsync.h" \
     "$(includedir)\Ice\OutgoingAsyncF.h" \
     "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\Application.h" \
-    "$(includedir)\Ice\Connection.h" \
     "$(includedir)\Ice\ConnectionAsync.h" \
     "$(includedir)\Ice\Functional.h" \
     "$(includedir)\IceUtil\Functional.h" \
@@ -3354,6 +3354,8 @@ Allocatable.obj: \
     "$(includedir)\Ice\LoggerUtil.h" \
     "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\LoggerF.h" \
+    "$(includedir)\Ice\Connection.h" \
+    "$(includedir)\Ice\Endpoint.h" \
     "SessionServantManager.h" \
     "AdminCallbackRouter.h" \
     "$(includedir)\Ice\Ice.h" \
@@ -3373,14 +3375,12 @@ Allocatable.obj: \
     "$(includedir)\Ice\FacetMap.h" \
     "$(includedir)\Ice\CommunicatorAsync.h" \
     "$(includedir)\Ice\ObjectAdapter.h" \
-    "$(includedir)\Ice\Endpoint.h" \
     "$(includedir)\Ice\ServantLocator.h" \
     "$(includedir)\Ice\SlicedData.h" \
     "$(includedir)\Ice\OutgoingAsync.h" \
     "$(includedir)\Ice\OutgoingAsyncF.h" \
     "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\Application.h" \
-    "$(includedir)\Ice\Connection.h" \
     "$(includedir)\Ice\ConnectionAsync.h" \
     "$(includedir)\Ice\Functional.h" \
     "$(includedir)\IceUtil\Functional.h" \
@@ -3504,6 +3504,8 @@ AllocatableObjectCache.obj: \
     "$(includedir)\IceGrid\Session.h" \
     "SessionI.h" \
     "ReapThread.h" \
+    "$(includedir)\Ice\Connection.h" \
+    "$(includedir)\Ice\Endpoint.h" \
     "SessionServantManager.h" \
     "AdminCallbackRouter.h" \
     "$(includedir)\Ice\Ice.h" \
@@ -3514,14 +3516,12 @@ AllocatableObjectCache.obj: \
     "$(includedir)\Ice\RemoteLogger.h" \
     "$(includedir)\Ice\CommunicatorAsync.h" \
     "$(includedir)\Ice\ObjectAdapter.h" \
-    "$(includedir)\Ice\Endpoint.h" \
     "$(includedir)\Ice\ServantLocator.h" \
     "$(includedir)\Ice\SlicedData.h" \
     "$(includedir)\Ice\OutgoingAsync.h" \
     "$(includedir)\Ice\OutgoingAsyncF.h" \
     "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\Application.h" \
-    "$(includedir)\Ice\Connection.h" \
     "$(includedir)\Ice\ConnectionAsync.h" \
     "$(includedir)\Ice\Functional.h" \
     "$(includedir)\IceUtil\Functional.h" \
@@ -4566,6 +4566,8 @@ NodeCache.obj: \
     "$(includedir)\IceUtil\Thread.h" \
     "ReapThread.h" \
     "$(includedir)\Ice\LocalException.h" \
+    "$(includedir)\Ice\Connection.h" \
+    "$(includedir)\Ice\Endpoint.h" \
     "SessionServantManager.h" \
     "AdminCallbackRouter.h" \
     "$(includedir)\Ice\Ice.h" \
@@ -4576,14 +4578,12 @@ NodeCache.obj: \
     "$(includedir)\Ice\RemoteLogger.h" \
     "$(includedir)\Ice\CommunicatorAsync.h" \
     "$(includedir)\Ice\ObjectAdapter.h" \
-    "$(includedir)\Ice\Endpoint.h" \
     "$(includedir)\Ice\ServantLocator.h" \
     "$(includedir)\Ice\SlicedData.h" \
     "$(includedir)\Ice\OutgoingAsync.h" \
     "$(includedir)\Ice\OutgoingAsyncF.h" \
     "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\Application.h" \
-    "$(includedir)\Ice\Connection.h" \
     "$(includedir)\Ice\ConnectionAsync.h" \
     "$(includedir)\Ice\Functional.h" \
     "$(includedir)\Ice\Stream.h" \
@@ -4893,6 +4893,8 @@ ObjectCache.obj: \
     "$(includedir)\IceUtil\Thread.h" \
     "SessionI.h" \
     "ReapThread.h" \
+    "$(includedir)\Ice\Connection.h" \
+    "$(includedir)\Ice\Endpoint.h" \
     "SessionServantManager.h" \
     "AdminCallbackRouter.h" \
     "$(includedir)\Ice\Ice.h" \
@@ -4903,14 +4905,12 @@ ObjectCache.obj: \
     "$(includedir)\Ice\RemoteLogger.h" \
     "$(includedir)\Ice\CommunicatorAsync.h" \
     "$(includedir)\Ice\ObjectAdapter.h" \
-    "$(includedir)\Ice\Endpoint.h" \
     "$(includedir)\Ice\ServantLocator.h" \
     "$(includedir)\Ice\SlicedData.h" \
     "$(includedir)\Ice\OutgoingAsync.h" \
     "$(includedir)\Ice\OutgoingAsyncF.h" \
     "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\Application.h" \
-    "$(includedir)\Ice\Connection.h" \
     "$(includedir)\Ice\ConnectionAsync.h" \
     "$(includedir)\Ice\Functional.h" \
     "$(includedir)\IceUtil\Functional.h" \
@@ -6448,6 +6448,8 @@ ServerCache.obj: \
     "AllocatableObjectCache.h" \
     "SessionI.h" \
     "ReapThread.h" \
+    "$(includedir)\Ice\Connection.h" \
+    "$(includedir)\Ice\Endpoint.h" \
     "SessionServantManager.h" \
     "AdminCallbackRouter.h" \
     "$(includedir)\Ice\Ice.h" \
@@ -6458,14 +6460,12 @@ ServerCache.obj: \
     "$(includedir)\Ice\RemoteLogger.h" \
     "$(includedir)\Ice\CommunicatorAsync.h" \
     "$(includedir)\Ice\ObjectAdapter.h" \
-    "$(includedir)\Ice\Endpoint.h" \
     "$(includedir)\Ice\ServantLocator.h" \
     "$(includedir)\Ice\SlicedData.h" \
     "$(includedir)\Ice\OutgoingAsync.h" \
     "$(includedir)\Ice\OutgoingAsyncF.h" \
     "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\Application.h" \
-    "$(includedir)\Ice\Connection.h" \
     "$(includedir)\Ice\ConnectionAsync.h" \
     "$(includedir)\Ice\Functional.h" \
     "$(includedir)\IceUtil\Functional.h" \

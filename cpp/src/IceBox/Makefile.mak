@@ -23,7 +23,8 @@ TARGETS		= $(LIBNAME) $(DLLNAME) $(SERVER) $(ADMIN)
 
 SLICE_OBJS      = .\IceBox.obj
 
-LIB_OBJS	= $(SLICE_OBJS) .\Exception.obj \
+LIB_OBJS	= $(SLICE_OBJS) \
+		  .\Exception.obj
 
 SOBJS		= .\Service.obj \
 		  .\ServiceManagerI.obj
@@ -31,7 +32,8 @@ SOBJS		= .\Service.obj \
 AOBJS		= .\Admin.obj
 
 OBJS		= $(SOBJS) \
-		  $(AOBJS)
+		  $(AOBJS) \
+		  $(LIB_OBJS)
 
 HDIR		= $(headerdir)\IceBox
 SDIR		= $(slicedir)\IceBox
