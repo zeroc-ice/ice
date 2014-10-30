@@ -62,11 +62,7 @@ OBJS		= $(LIB_OBJS) \
 		  $(AOBJS) \
 		  $(MOBJS)
 
-ifeq ($(CPP11),yes)
-RPATH_DIR	= @loader_path/../../lib/c++11
-else
 RPATH_DIR	= @loader_path/../lib
-endif
 
 SLICE2FREEZECMD = $(SLICE2FREEZE) -I../.. --ice --include-dir IceStorm $(ICECPPFLAGS)
 
