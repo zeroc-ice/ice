@@ -61,7 +61,6 @@ namespace IceInternal
             }
             catch(Ice.LocalException ex)
             {
-                proxy.setRequestHandler__(this, null);
                 throw ex;
             }
 
@@ -289,6 +288,12 @@ namespace IceInternal
                 _proxies.Clear();
                 _proxy = null; // Break cyclic reference count.
 
+                //
+                // NOTE: remove the request handler *before* notifying the
+                // requests that the connection failed. It's important to ensure
+                // that future invocations will obtain a new connect request
+                // handler once invocations are notified.
+                //
                 try
                 {
                     _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
@@ -297,8 +302,8 @@ namespace IceInternal
                 {
                     // Ignore
                 }
-                flushRequestsWithException();
 
+                flushRequestsWithException();
                 System.Threading.Monitor.PulseAll(this);
             }
         }

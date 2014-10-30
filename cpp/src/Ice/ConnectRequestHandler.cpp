@@ -65,7 +65,6 @@ ConnectRequestHandler::connect(const Ice::ObjectPrx& proxy)
     }
     catch(const Ice::LocalException&)
     {
-        proxy->__setRequestHandler(this, 0);
         throw;
     }
 
@@ -350,8 +349,12 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
     _proxies.clear();
     _proxy = 0; // Break cyclic reference count.
 
-    flushRequestsWithException();
-
+    //
+    // NOTE: remove the request handler *before* notifying the
+    // requests that the connection failed. It's important to ensure
+    // that future invocations will obtain a new connect request
+    // handler once invocations are notified.
+    //
     try
     {
         _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, this);
@@ -360,6 +363,8 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
     {
         // Ignore
     }
+
+    flushRequestsWithException();
     notifyAll();
 }
 
@@ -505,6 +510,7 @@ ConnectRequestHandler::flushRequests()
             _initialized = true;
             _flushing = false;
         }
+
         try
         {
             _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, this);
@@ -513,6 +519,7 @@ ConnectRequestHandler::flushRequests()
         {
             // Ignore
         }
+
         _proxies.clear();
         _proxy = 0; // Break cyclic reference count.
         notifyAll();

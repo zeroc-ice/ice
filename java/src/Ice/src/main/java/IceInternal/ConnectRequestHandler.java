@@ -58,7 +58,6 @@ public class ConnectRequestHandler
         }
         catch(Ice.LocalException ex)
         {
-            proxy.__setRequestHandler(this, null);
             throw ex;
         }
         
@@ -299,8 +298,12 @@ public class ConnectRequestHandler
         _proxies.clear();
         _proxy = null; // Break cyclic reference count.
 
-        flushRequestsWithException();
-
+        //
+        // NOTE: remove the request handler *before* notifying the
+        // requests that the connection failed. It's important to ensure
+        // that future invocations will obtain a new connect request
+        // handler once invocations are notified.
+        //
         try
         {
             _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
@@ -309,6 +312,8 @@ public class ConnectRequestHandler
         {
             // Ignore
         }
+
+        flushRequestsWithException();
         notifyAll();
     }
 
@@ -488,6 +493,7 @@ public class ConnectRequestHandler
                 _initialized = true;
                 _flushing = false;
             }
+
             try
             {
                 _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
@@ -496,6 +502,7 @@ public class ConnectRequestHandler
             {
                 // Ignore
             }
+
             _proxies.clear();
             _proxy = null; // Break cyclic reference count.
             notifyAll();

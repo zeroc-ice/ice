@@ -85,7 +85,6 @@ var ConnectRequestHandler = Ice.Class({
         }
         catch(ex)
         {
-            proxy.__setRequestHandler(this, null);
             throw ex;
         }
 
@@ -261,8 +260,12 @@ var ConnectRequestHandler = Ice.Class({
         this._proxies.length = 0;
         this._proxy = null; // Break cyclic reference count.
 
-        this.flushRequestsWithException(ex);
-
+        //
+        // NOTE: remove the request handler *before* notifying the
+        // requests that the connection failed. It's important to ensure
+        // that future invocations will obtain a new connect request
+        // handler once invocations are notified.
+        //
         try
         {
             this._reference.getInstance().requestHandlerFactory().removeRequestHandler(this._reference, this);
@@ -271,6 +274,8 @@ var ConnectRequestHandler = Ice.Class({
         {
             // Ignore
         }
+
+        this.flushRequestsWithException(ex);
     },
     initialized: function()
     {
