@@ -14,6 +14,10 @@
 #   include <readline/history.h>
 #endif
 
+#ifdef _MSC_VER
+#    pragma warning( disable : 4996 )
+#endif
+
 using namespace std;
 using namespace Demo;
 

@@ -10,6 +10,11 @@
 #include <stdafx.h>
 #include <LogI.h>
 
+
+#ifdef _MSC_VER
+#    pragma warning( disable : 4996 )
+#endif
+
 using namespace std;
 
 LogI::LogI() :
