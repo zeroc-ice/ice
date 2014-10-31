@@ -176,7 +176,7 @@ all:: $(SRCS)
 .cpp.o:
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
 	@mkdir -p .depend
-	@$(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $< > .depend/$(*F).d
+	@$(CXX) -DMAKEDEPEND -M $(CPPFLAGS) $< > .depend/$(*F).d
 
 clean::
 	-rm -f $(TARGETS)
