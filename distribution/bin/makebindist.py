@@ -22,10 +22,7 @@ sys.path.append(os.path.join(distDir, "lib"))
 import DistUtils
 from DistUtils import copy
 
-#
-# There isn't gmake in Ubuntu
-#
-make = "make" if sys.platform.startswith("linux") else "gmake"
+make = "make"
 
 #
 # Defines which languages are to also be built in 64bits mode
@@ -59,9 +56,6 @@ thirdParties = [
     "OpenSSL", \
     "Mcpp", \
     "Iconv", \
-    "JGoodiesCommon", \
-    "JGoodiesLooks", \
-    "JGoodiesForms", \
     "Proguard", \
     "JavaApplicationBundler"
 ]
@@ -194,41 +188,20 @@ for l in buildLanguages:
     else:
         os.chdir(os.path.join(srcDir, l))
 
-    if l != "java":
+    makeOptions = platform.getMakeOptions() + " " + platform.getMakeEnvs(version, l) + " prefix=" + buildDir
 
-        makeOptions = platform.getMakeOptions() + " " + platform.getMakeEnvs(version, l) + " prefix=" + buildDir
-
-        if l != "py":
-            buildCmd = make + " -C src " + makeOptions
-        else:
-            buildCmd = make + " -C modules " + makeOptions
-        installCmd = make + " " + makeOptions + " install"
-
-        print "Building with " + buildCmd
-
-        if os.system(buildCmd) != 0:
-            print sys.argv[0] + ": `" + l + "' build failed"
-            os.chdir(cwd)
-            sys.exit(1)
-
-        print "Installing with " + installCmd
-         
-        if os.system(installCmd) != 0:
-            print sys.argv[0] + ": `" + l + "' build-install failed"
-            os.chdir(cwd)
-            sys.exit(1)
-
-
+    if l == "java":
+        buildCmd = platform.getJavaEnv() + " " + make + " " + " prefix=" + buildDir + " APPEND_VERSION_SUFFIX=yes install"
     else:
-        antCmd = platform.getAntEnv() + " ant " + platform.getAntOptions() + " -Dprefix=" + buildDir
+        buildCmd = make + " " + makeOptions + " install"
 
-	jgoodiesDefines = "-Djgoodies.forms=" + platform.getJGoodiesForms() + " -Djgoodies.looks=" + \
-			  platform.getJGoodiesLooks() + " -Djgoodies.common=" + platform.getJGoodiesCommon()
+    print "Building with " + buildCmd
 
-        if os.system(antCmd + " " + jgoodiesDefines + " install") != 0: 
-           print sys.argv[0] + ": `" + l + "' build failed"
-           os.chdir(cwd)
-           sys.exit(1)
+    if os.system(buildCmd) != 0:
+        print sys.argv[0] + ": `" + l + "' build failed"
+        os.chdir(cwd)
+        sys.exit(1)
+
 
     os.chdir(os.path.join(cwd))
     print

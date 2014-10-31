@@ -16,8 +16,8 @@ from stat import *
 #
 languages = { \
     'SunOS' : ['cpp', 'cpp-64', 'java'], \
-    'Darwin' : ['cpp', 'cpp-11', 'java', 'py'], \
-    'Linux' : ['cpp', 'java', 'cs', 'py', 'rb', 'php'], \
+    'Darwin' : ['cpp', 'java', 'py'], \
+    'Linux' : ['cpp', 'cpp-11', 'java', 'cs', 'py', 'rb', 'php'], \
 }
 
 #
@@ -28,7 +28,7 @@ bzip2 = { \
 }
 
 berkeleydb = { \
-    'Darwin' : '/opt/db', \
+    'Darwin' : '/Library/Developer/Ice-3.6b-ThirdParty', \
     'SunOS'  : '/opt/db', \
 }
 
@@ -44,28 +44,10 @@ iconv = {\
 
 mcpp = {
     'SunOS' : '/opt/mcpp', \
-    'Darwin' : '/opt/mcpp'
+    'Darwin' : '/Library/Developer/Ice-3.6b-ThirdParty'
 }
 
 openssl = { \
-}
-
-jgoodies_looks = { \
-    'SunOS' : '/opt/jgoodies/jgoodies-looks-2.5.2.jar', \
-    'Darwin' : '/opt/jgoodies-looks-2.5.2/jgoodies-looks-2.5.2.jar', \
-    'Linux' : '/opt/jgoodies-looks-2.5.2/jgoodies-looks-2.5.2.jar', \
-}
-
-jgoodies_forms = { \
-    'SunOS' : '/opt/jgoodies/jgoodies-forms-1.6.0.jar', \
-    'Darwin' : '/opt/jgoodies-forms-1.6.0/jgoodies-forms-1.6.0.jar', \
-    'Linux' : '/opt/jgoodies-forms-1.6.0/jgoodies-forms-1.6.0.jar', \
-}
-
-jgoodies_common = { \
-    'SunOS' : '/opt/jgoodies/jgoodies-common-1.4.0.jar', \
-    'Darwin' : '/opt/jgoodies-common-1.4.0/jgoodies-common-1.4.0.jar', \
-    'Linux' : '/opt/jgoodies-common-1.4.0/jgoodies-common-1.4.0.jar', \
 }
 
 proguard = { \
@@ -725,10 +707,6 @@ class ThirdParty :
         if language in self.languages and not os.environ.has_key(self.buildEnv) and self.location:
             return self.buildEnv + "=" + self.location
 
-    def getAntOption(self):
-        if "java" in self.languages and self.buildOption and self.location:
-            return "-D" + self.buildOption + "=" + self.location
-
     def getJar(self):
         if "java" in self.languages and self.location and self.location.endswith(".jar"):
             return self.location
@@ -746,8 +724,9 @@ class ThirdParty :
         return files
 
     def includeInDistribution(self):
-        # Only copy third party files installed in /opt
-        return self.defaultLocation and self.defaultLocation.startswith("/opt")
+        # Only copy third party files installed in /opt or /Library/Developer
+        return self.defaultLocation and (self.defaultLocation.startswith("/opt") or
+                                         self.defaultLocation.startswith("/Library/Developer"))
 
     def copyToDistribution(self, platform, buildDir):
         if not self.location:
@@ -819,11 +798,8 @@ class Platform:
 
         return string.join(envs, " ")
 
-    def getAntEnv(self):
+    def getJavaEnv(self):
         return "CLASSPATH=" + string.join([t.getJar() for t in self.thirdParties if t.getJar()], os.pathsep)
-
-    def getAntOptions(self):
-        return string.join([t.getAntOption() for t in self.thirdParties if t.getAntOption()], " ")
 
     def getSharedLibraryFiles(self, root, path, extension = None):
         if not extension:
@@ -858,27 +834,6 @@ class Platform:
             return ("%s-" + version + "-bin-" + self.pkgPlatform + "-" + self.pkgArch) % prefix
         else:
             return ("%s-" + version + "-bin-" + self.pkgPlatform) % prefix
-
-    def getJGoodiesCommon(self):
-        for t in self.thirdParties:
-            if t.__str__() == "JGoodiesCommon":
-                return t.getJar()
-        print("Unable to find JGoodiesCommon")
-        sys.exit(1)
-
-    def getJGoodiesForms(self):
-        for t in self.thirdParties:
-            if t.__str__() == "JGoodiesForms":
-                return t.getJar()
-        print("Unable to find JGoodiesForms")
-        sys.exit(1)
-
-    def getJGoodiesLooks(self):
-        for t in self.thirdParties:
-            if t.__str__() == "JGoodiesLooks":
-                return t.getJar()
-        print("Unable to find JGoodiesLooks")
-        sys.exit(1)
 
     def getMakeOptions(self):
         return ""
@@ -919,13 +874,10 @@ class Darwin(Platform):
             envs += " CXXARCHFLAGS=\"-arch i386 -arch x86_64\"";
             envs += " embedded_runpath_prefix=\"/Library/Developer/Ice-" + mmversion + "\""
 
-        if language == "cpp-11":
-            envs += " CPP11=yes"
-
         return envs
 
     def getMakeOptions(self):
-        return "-j 8"
+        return "-j8"
 
     def completeDistribution(self, buildDir, version):
 
@@ -1031,17 +983,7 @@ class SunOS(Platform):
 class BerkeleyDB(ThirdParty):
     def __init__(self, platform):
         global berkeleydb, berkeleydbjar
-        ThirdParty.__init__(self, platform, "BerkeleyDB", berkeleydb, ["cpp", "cpp-11", "cpp-64", "java"], None, "DB_HOME")
-        if not self.location: # BerkeleyDB is installed with the system (Linux)
-            self.languages = ["java"]
-            self.location = berkeleydbjar.get(str(platform), None)
-
-    def getJar(self):
-        if self.location:
-            if self.location.endswith(".jar"):
-                return self.location
-            else:
-                return os.path.join(self.location, "lib", "db.jar")
+        ThirdParty.__init__(self, platform, "BerkeleyDB", berkeleydb, ["cpp", "cpp-64"], None, "DB_HOME")
 
     def getFilesFromSubDirs(self, platform, bindir, libdir, x64):
         files = [ os.path.join(bindir, "db*") ]
@@ -1084,22 +1026,6 @@ class Mcpp(ThirdParty):
         global mcpp
         ThirdParty.__init__(self, platform, "Mcpp", mcpp, ["cpp", "cpp-64"])
 
-class Qt(ThirdParty):
-    def __init__(self, platform):
-        global qt
-        if platform.pkgArch == "sparc":
-            ThirdParty.__init__(self, platform, "Qt", qt, ["cpp"])
-        else:
-            ThirdParty.__init__(self, platform, "Qt", qt, ["cpp", "cpp-64"])
-
-    def getFilesFromSubDirs(self, platform, bindir, libdir, x64):
-        files = platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "libQtCore*"))
-        files += platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "libQtSql*"))
-        # We also need some symbolic links
-        files += [os.path.join(self.location, os.path.join(libdir, "libQtCore." + platform.shlibExtension + ".4")),
-                  os.path.join(self.location, os.path.join(libdir, "libQtSql." + platform.shlibExtension + ".4"))]
-        return files
-
 class Iconv(ThirdParty):
     def __init__(self, platform):
         global iconv
@@ -1111,21 +1037,6 @@ class Iconv(ThirdParty):
         files += [os.path.join(self.location, os.path.join(libdir, "libiconv." + platform.shlibExtension + ".2")),
                   os.path.join(self.location, os.path.join(libdir, "libiconv." + platform.shlibExtension))]
         return files
-
-class JGoodiesLooks(ThirdParty):
-    def __init__(self, platform):
-        global jgoodies_looks
-        ThirdParty.__init__(self, platform, "JGoodiesLooks", jgoodies_looks, ["java"])
-
-class JGoodiesForms(ThirdParty):
-    def __init__(self, platform):
-        global jgoodies_forms
-        ThirdParty.__init__(self, platform, "JGoodiesForms", jgoodies_forms, ["java"])
-
-class JGoodiesCommon(ThirdParty):
-    def __init__(self, platform):
-        global jgoodies_common
-        ThirdParty.__init__(self, platform, "JGoodiesCommon", jgoodies_common, ["java"])
 
 class Proguard(ThirdParty):
     def __init__(self, platform):
