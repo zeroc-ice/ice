@@ -265,8 +265,8 @@ C++ Changes
   pragma comment(lib, ...) in the Ice header files.
 
 - Ice header files no longer disable or downgrade any warning reported 
-  by the C++ compiler. All Ice 3.5 header files included indirectly the 
-  following:
+  by the C++ compiler in your code. All Ice 3.5 header files include 
+  indirectly the following:
     
   #ifdef _MSC_VER
       //
@@ -296,6 +296,9 @@ C++ Changes
   process narrow string converter. Likewise setProcessWstringConverter
   and getProcessWstringConverter can be used to establish and access
   the process wide string converter.
+
+- Removed the stringConverter and wstringConverter data members of
+  Ice::InitializationData.
 
 - Moved the StringConverter template and classes from the Ice namespace
   to the IceUtil namespace.
