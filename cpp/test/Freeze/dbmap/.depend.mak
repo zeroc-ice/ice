@@ -1,6 +1,7 @@
 
 ByteIntMap.obj: \
 	ByteIntMap.cpp \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\BasicStream.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -32,6 +33,7 @@ ByteIntMap.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
@@ -122,6 +124,7 @@ ByteIntMap.obj: \
 
 IntIdentityMap.obj: \
 	IntIdentityMap.cpp \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\BasicStream.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -153,6 +156,7 @@ IntIdentityMap.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
@@ -243,6 +247,7 @@ IntIdentityMap.obj: \
 
 IntIdentityMapWithIndex.obj: \
 	IntIdentityMapWithIndex.cpp \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\BasicStream.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -274,6 +279,7 @@ IntIdentityMapWithIndex.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
@@ -364,6 +370,7 @@ IntIdentityMapWithIndex.obj: \
 
 SortedMap.obj: \
 	SortedMap.cpp \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\BasicStream.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -395,6 +402,7 @@ SortedMap.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
@@ -485,6 +493,7 @@ SortedMap.obj: \
 
 WstringWstringMap.obj: \
 	WstringWstringMap.cpp \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\BasicStream.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -516,6 +525,7 @@ WstringWstringMap.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
@@ -607,6 +617,7 @@ WstringWstringMap.obj: \
 Client.obj: \
 	Client.cpp \
     "$(includedir)\IceUtil\IceUtil.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -631,6 +642,7 @@ Client.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Ice\Ice.h" \

@@ -5,6 +5,7 @@ Session.h: \
 Session.obj: \
 	Session.cpp \
     "Session.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -34,6 +35,7 @@ Session.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -79,6 +81,7 @@ Session.obj: \
 Client.obj: \
 	Client.cpp \
     "$(includedir)\IceUtil\IceUtil.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -103,6 +106,7 @@ Client.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
@@ -202,6 +206,7 @@ ReapTask.obj: \
 	ReapTask.cpp \
     "ReapTask.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -226,6 +231,7 @@ ReapTask.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "SessionI.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\Config.h" \
@@ -326,6 +332,7 @@ Server.obj: \
 	Server.cpp \
     "SessionFactoryI.h" \
     "$(includedir)\Ice\Ice.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
@@ -347,6 +354,7 @@ Server.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\LoggerF.h" \
@@ -451,6 +459,7 @@ SessionFactoryI.obj: \
 	SessionFactoryI.cpp \
     "SessionFactoryI.h" \
     "$(includedir)\Ice\Ice.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
@@ -472,6 +481,7 @@ SessionFactoryI.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\LoggerF.h" \
@@ -576,6 +586,7 @@ SessionI.obj: \
 	SessionI.cpp \
     "SessionI.h" \
     "$(includedir)\Ice\Ice.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
@@ -597,6 +608,7 @@ SessionI.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\LoggerF.h" \

@@ -19,6 +19,7 @@ EndpointInfo.h: \
 ConnectionInfo.obj: \
 	ConnectionInfo.cpp \
     "$(includedir)\IceSSL\ConnectionInfo.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -48,6 +49,7 @@ ConnectionInfo.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -82,11 +84,11 @@ ConnectionInfo.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 EndpointInfo.obj: \
 	EndpointInfo.cpp \
     "$(includedir)\IceSSL\EndpointInfo.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -108,6 +110,7 @@ EndpointInfo.obj: \
     "$(includedir)\Ice\Endpoint.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\Ice\BasicStream.h" \
@@ -131,7 +134,6 @@ EndpointInfo.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 AcceptorI.obj: \
 	AcceptorI.cpp \
@@ -150,6 +152,7 @@ AcceptorI.obj: \
     "..\..\src\Ice\NetworkF.h" \
     "..\..\src\Ice\NetworkProxyF.h" \
     "$(includedir)\Ice\PropertiesF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -173,6 +176,7 @@ AcceptorI.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -284,6 +288,7 @@ Certificate.obj: \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceSSL\Plugin.h" \
     "$(includedir)\Ice\Plugin.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\Ice\Config.h" \
@@ -302,6 +307,7 @@ Certificate.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\IceSSL\Config.h" \
     "$(includedir)\IceSSL\ConnectionInfo.h" \
@@ -358,6 +364,7 @@ ConnectorI.obj: \
     "..\..\src\Ice\NetworkF.h" \
     "..\..\src\Ice\NetworkProxyF.h" \
     "$(includedir)\Ice\PropertiesF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -381,6 +388,7 @@ ConnectorI.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -501,6 +509,7 @@ EndpointI.obj: \
     "..\..\src\Ice\EndpointI.h" \
     "..\..\src\Ice\EndpointIF.h" \
     "$(includedir)\Ice\Endpoint.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -515,6 +524,7 @@ EndpointI.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
@@ -617,6 +627,7 @@ Instance.obj: \
     "..\..\src\Ice\ProtocolInstance.h" \
     "..\..\src\Ice\ProtocolInstanceF.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -630,6 +641,7 @@ Instance.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\PropertiesF.h" \
     "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\IceUtil\Mutex.h" \
@@ -728,6 +740,7 @@ PluginI.obj: \
     "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\Ice\Plugin.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\Ice\Config.h" \
@@ -747,6 +760,7 @@ PluginI.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\IceSSL\Config.h" \
     "$(includedir)\IceSSL\ConnectionInfo.h" \
@@ -854,6 +868,7 @@ RFC2253.obj: \
     "$(includedir)\IceSSL\Plugin.h" \
     "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\Ice\Plugin.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\Ice\Config.h" \
@@ -873,6 +888,7 @@ RFC2253.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\IceSSL\Config.h" \
     "$(includedir)\IceSSL\ConnectionInfo.h" \
@@ -923,6 +939,7 @@ SChannelEngine.obj: \
     "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\Ice\Plugin.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\Ice\Config.h" \
@@ -942,6 +959,7 @@ SChannelEngine.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\IceSSL\Config.h" \
     "$(includedir)\IceSSL\ConnectionInfo.h" \
@@ -1027,6 +1045,7 @@ SChannelTransceiverI.obj: \
     "$(includedir)\IceSSL\Plugin.h" \
     "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\Ice\Plugin.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -1041,6 +1060,7 @@ SChannelTransceiverI.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\IceSSL\ConnectionInfo.h" \
     "$(includedir)\Ice\Proxy.h" \
@@ -1148,6 +1168,7 @@ SSLEngine.obj: \
     "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\Ice\Plugin.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\Ice\Config.h" \
@@ -1167,6 +1188,7 @@ SSLEngine.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\IceSSL\Config.h" \
     "$(includedir)\IceSSL\ConnectionInfo.h" \
@@ -1243,6 +1265,7 @@ TrustManager.obj: \
 	TrustManager.cpp \
     "TrustManager.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -1262,6 +1285,7 @@ TrustManager.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "TrustManagerF.h" \
     "$(includedir)\IceSSL\Plugin.h" \
     "$(includedir)\IceUtil\Time.h" \
@@ -1347,6 +1371,7 @@ Util.obj: \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceSSL\Plugin.h" \
     "$(includedir)\Ice\Plugin.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
@@ -1363,6 +1388,7 @@ Util.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\IceSSL\Config.h" \
     "$(includedir)\IceSSL\ConnectionInfo.h" \

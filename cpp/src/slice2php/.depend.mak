@@ -6,6 +6,7 @@ Main.obj: \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
     "$(includedir)\IceUtil\ThreadException.h" \
@@ -27,6 +28,7 @@ Main.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\IceUtil\InputUtil.h" \
     "$(includedir)\IceUtil\Options.h" \
     "$(includedir)\IceUtil\OutputUtil.h" \

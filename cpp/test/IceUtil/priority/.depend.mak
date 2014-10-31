@@ -2,6 +2,7 @@
 TestBase.obj: \
 	TestBase.cpp \
     "$(includedir)\IceUtil\IceUtil.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -26,11 +27,13 @@ TestBase.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "TestBase.h" \
 
 ThreadPriority.obj: \
 	ThreadPriority.cpp \
     "$(includedir)\IceUtil\IceUtil.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -55,6 +58,7 @@ ThreadPriority.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "ThreadPriority.h" \
     "TestBase.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
@@ -62,6 +66,7 @@ ThreadPriority.obj: \
 TimerPriority.obj: \
 	TimerPriority.cpp \
     "$(includedir)\IceUtil\IceUtil.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -86,6 +91,7 @@ TimerPriority.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "TimerPriority.h" \
     "TestBase.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
@@ -109,6 +115,7 @@ PriorityInversion.obj: \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \
     "$(includedir)\IceUtil\CountDownLatch.h" \
@@ -120,6 +127,7 @@ PriorityInversion.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
 
 TestSuite.obj: \
 	TestSuite.cpp \
@@ -136,6 +144,7 @@ TestSuite.obj: \
 Client.obj: \
 	Client.cpp \
     "$(includedir)\IceUtil\IceUtil.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -160,6 +169,7 @@ Client.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "TestSuite.h" \
     "TestBase.h" \

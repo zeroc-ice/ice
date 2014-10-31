@@ -225,7 +225,8 @@ Slice::Gen::Gen(const string& base, const string& headerExtension, const string&
 
 Slice::Gen::~Gen()
 {
-    H << "\n\n#endif\n";
+    H << "\n\n#include <IceUtil/PopDisableWarnings.h>";
+    H << "\n#endif\n";
     C << '\n';
 
     if(_impl)
@@ -361,8 +362,10 @@ Slice::Gen::generate(const UnitPtr& p)
         C << _include << '/';
     }
     C << _base << "." << _headerExtension << ">";
+    C <<  "\n#include <IceUtil/PushDisableWarnings.h>";
 
 
+    H << "\n#include <IceUtil/PushDisableWarnings.h>";
     H << "\n#include <Ice/ProxyF.h>";
     H << "\n#include <Ice/ObjectF.h>";
     H << "\n#include <Ice/Exception.h>";
@@ -435,6 +438,7 @@ Slice::Gen::generate(const UnitPtr& p)
     }
 
     C << "\n#include <IceUtil/Iterator.h>";
+    C << "\n#include <IceUtil/PopDisableWarnings.h>";
 
     StringList includes = p->includeFiles();
 
@@ -449,11 +453,6 @@ Slice::Gen::generate(const UnitPtr& p)
     }
 
     H << "\n#include <IceUtil/UndefSysMacros.h>";
-
-    if(_ice)
-    {
-        C << "\n#include <IceUtil/DisableWarnings.h>";
-    }
 
     //
     // Emit #include statements for any cpp:include metadata directives

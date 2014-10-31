@@ -33,6 +33,11 @@ private:
     const Demo::DerivedPrinterPtr _derivedPrinter;
 };
 
+#ifdef _MSC_VER
+#   pragma warning(push)
+#   pragma warning(disable:4250) // ... : inherits ... via dominance
+#endif
+
 //
 // Virtual inheritance because we plan to reuse this implementation in DerivedPrinterI
 //
@@ -53,5 +58,9 @@ public:
 class ClientPrinterI : public Demo::ClientPrinter, public PrinterI
 {
 };
+
+#ifdef _MSC_VER
+#   pragma warning(pop)
+#endif
 
 #endif

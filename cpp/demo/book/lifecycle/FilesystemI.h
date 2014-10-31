@@ -15,6 +15,11 @@
 #include <Filesystem.h>
 #include <map>
 
+#ifdef _MSC_VER
+#   pragma warning(push)
+#   pragma warning(disable:4250) // ... : inherits ... via dominance
+#endif
+
 namespace FilesystemI
 {
     class DirectoryI;
@@ -75,5 +80,9 @@ namespace FilesystemI
         Contents _contents;
     };
 }
+
+#ifdef _MSC_VER
+#   pragma warning(pop)
+#endif
 
 #endif

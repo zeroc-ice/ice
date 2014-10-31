@@ -1367,6 +1367,8 @@ gen(const string& name, const UnitPtr& u, const vector<string>& includePaths, co
     H << "\n#define __" << s << "__";
     H << '\n';
 
+    H << "\n#include <IceUtil/PushDisableWarnings.h>";
+
     if(dicts.size() > 0)
     {
         H << "\n#include <Freeze/Map.h>";
@@ -1382,8 +1384,11 @@ gen(const string& name, const UnitPtr& u, const vector<string>& includePaths, co
         H << "\n#include <" << changeInclude(*p, includePaths) << "." + headerExtension + ">";
     }
 
+    
+    CPP << "\n#include <IceUtil/PushDisableWarnings.h>";
     CPP << "\n#include <Ice/BasicStream.h>";
     CPP << "\n#include <IceUtil/StringUtil.h>";
+    CPP << "\n#include <IceUtil/PopDisableWarnings.h>";
     CPP << "\n#include <";
     if(include.size())
     {
@@ -1410,7 +1415,8 @@ gen(const string& name, const UnitPtr& u, const vector<string>& includePaths, co
         writeIndex(name, u, *q, H, CPP, dllExport);
     }
 
-    H << "\n\n#endif\n";
+    H << "\n\n#include <IceUtil/PopDisableWarnings.h>";
+    H << "\n#endif\n";
     CPP << '\n';
 
     H.close();

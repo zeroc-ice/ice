@@ -10,6 +10,8 @@
 #ifndef ICE_UTIL_ICE_UTIL_H
 #define ICE_UTIL_ICE_UTIL_H
 
+#include <IceUtil/PushDisableWarnings.h>
+
 //
 // This file must include *all* other headers of IceUtil, except
 // for DisableWarnings.h and headers with only IceUtilInternal symbols
@@ -45,4 +47,5 @@
 #   include <IceUtil/IconvStringConverter.h>
 #endif
 
+#include <IceUtil/PopDisableWarnings.h>
 #endif

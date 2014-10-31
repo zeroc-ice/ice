@@ -185,11 +185,6 @@
 #          pragma comment(lib, "IceUtil.lib")
 #      endif
 #   endif
-//
-// Move some warnings to level 4
-//
-#   pragma warning( 4 : 4250 ) // ... : inherits ... via dominance
-#   pragma warning( 4 : 4251 ) // class ... needs to have dll-interface to be used by clients of class ..
 #endif
 
 namespace IceUtil

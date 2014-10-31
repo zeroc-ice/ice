@@ -22,6 +22,8 @@ SDK_HEADERS = \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Optional.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Options.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\OutputUtil.h \
+ $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\PopDisableWarnings.h \
+ $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\PushDisableWarnings.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Random.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\RecMutex.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ScannerConfig.h \

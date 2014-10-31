@@ -20,7 +20,7 @@ extern "C"
 // Factory function
 //
 ICE_DECLSPEC_EXPORT IceBox::Service*
-create(Ice::CommunicatorPtr communicator)
+create(Ice::CommunicatorPtr)
 {
     return new HelloServiceI;
 }

@@ -7,16 +7,13 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_FREEZE_H
-#define FREEZE_FREEZE_H
+// No pragma once as this file can be included several times in a translation 
+// unit
 
-#include <IceUtil/PushDisableWarnings.h>
-#include <Freeze/Initialize.h>
-#include <Freeze/BackgroundSaveEvictor.h>
-#include <Freeze/TransactionalEvictor.h>
-#include <Freeze/Map.h>
-#include <Freeze/TransactionHolder.h>
-#include <Freeze/Catalog.h>
-#include <IceUtil/PopDisableWarnings.h>
+#ifdef _MSC_VER
+#   pragma warning(pop)
+#endif
 
+#ifdef __GNUC__
+#   pragma GCC diagnostic pop
 #endif

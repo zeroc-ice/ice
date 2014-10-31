@@ -10,6 +10,7 @@
 #ifndef ICE_ICE_H
 #define ICE_ICE_H
 
+#include <IceUtil/PushDisableWarnings.h>
 #include <Ice/Config.h>
 #include <Ice/DeprecatedStringConverter.h>
 #include <Ice/Initialize.h>
@@ -48,5 +49,6 @@
 #ifndef ICE_OS_WINRT
 #   include <Ice/Service.h>
 #endif
+#include <IceUtil/PopDisableWarnings.h>
 
 #endif

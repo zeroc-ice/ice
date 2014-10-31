@@ -13,6 +13,11 @@
 #include <Ice/Ice.h>
 #include <Filesystem.h>
 
+#ifdef _MSC_VER
+#   pragma warning(push)
+#   pragma warning(disable:4250) // ... : inherits ... via dominance
+#endif
+
 namespace Filesystem
 {
     class DirectoryI;
@@ -64,5 +69,9 @@ namespace Filesystem
         Filesystem::NodeSeq _contents;
     };
 }
+
+#ifdef _MSC_VER
+#   pragma warning(pop)
+#endif
 
 #endif

@@ -3,6 +3,7 @@ Main.obj: \
 	Main.cpp \
     "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -27,6 +28,7 @@ Main.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\IceUtil\Options.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\Slice\Preprocessor.h" \

@@ -2,6 +2,7 @@
 TestBase.obj: \
 	TestBase.cpp \
     "$(includedir)\IceUtil\IceUtil.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -26,12 +27,14 @@ TestBase.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "TestBase.h" \
 
 CreateTest.obj: \
 	CreateTest.cpp \
     "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -56,6 +59,7 @@ CreateTest.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "CreateTest.h" \
     "TestBase.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
@@ -63,6 +67,7 @@ CreateTest.obj: \
 AliveTest.obj: \
 	AliveTest.cpp \
     "$(includedir)\IceUtil\IceUtil.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -87,6 +92,7 @@ AliveTest.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "AliveTest.h" \
     "TestBase.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
@@ -94,6 +100,7 @@ AliveTest.obj: \
 StartTest.obj: \
 	StartTest.cpp \
     "$(includedir)\IceUtil\IceUtil.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -118,6 +125,7 @@ StartTest.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "StartTest.h" \
     "TestBase.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
@@ -125,6 +133,7 @@ StartTest.obj: \
 RecMutexTest.obj: \
 	RecMutexTest.cpp \
     "$(includedir)\IceUtil\IceUtil.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -149,6 +158,7 @@ RecMutexTest.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "RecMutexTest.h" \
     "TestBase.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
@@ -156,6 +166,7 @@ RecMutexTest.obj: \
 MutexTest.obj: \
 	MutexTest.cpp \
     "$(includedir)\IceUtil\IceUtil.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -180,6 +191,7 @@ MutexTest.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "MutexTest.h" \
     "TestBase.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
@@ -187,6 +199,7 @@ MutexTest.obj: \
 MonitorMutexTest.obj: \
 	MonitorMutexTest.cpp \
     "$(includedir)\IceUtil\IceUtil.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -211,6 +224,7 @@ MonitorMutexTest.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "MonitorMutexTest.h" \
     "TestBase.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
@@ -218,6 +232,7 @@ MonitorMutexTest.obj: \
 MonitorRecMutexTest.obj: \
 	MonitorRecMutexTest.cpp \
     "$(includedir)\IceUtil\IceUtil.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -242,6 +257,7 @@ MonitorRecMutexTest.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "MonitorRecMutexTest.h" \
     "TestBase.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
@@ -249,6 +265,7 @@ MonitorRecMutexTest.obj: \
 CountDownLatchTest.obj: \
 	CountDownLatchTest.cpp \
     "$(includedir)\IceUtil\IceUtil.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -273,6 +290,7 @@ CountDownLatchTest.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "CountDownLatchTest.h" \
     "TestBase.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
@@ -297,6 +315,7 @@ TestSuite.obj: \
 Client.obj: \
 	Client.cpp \
     "$(includedir)\IceUtil\IceUtil.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -321,6 +340,7 @@ Client.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "TestSuite.h" \
     "TestBase.h" \

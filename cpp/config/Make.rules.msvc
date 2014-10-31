@@ -27,7 +27,7 @@ PRELIBPATH      = /LIBPATH:
 GENERATE_PDB	= yes
 !endif
 
-CPPFLAGS	= $(CPPFLAGS) -nologo -W3 -WX -GR -EHsc
+CPPFLAGS	= $(CPPFLAGS) -nologo -W3 -WX -wd4250 -wd4251 -GR -EHsc
 ARFLAGS	        = $(ARFLAGS) -nologo -WX 
 
 !if "$(WINRT)" == "yes"

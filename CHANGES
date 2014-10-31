@@ -259,6 +259,27 @@ C++ Changes
   and only has an effect in situations where the Ice data buffer is
   guaranteed to still exist. Refer to the Ice manual for more details.
 
+- It is no longer necessary to provide import libraries such as IceD.lib, 
+  IceUtilD.lib or IceGridD.lib when linking on Windows with Visual C++. 
+  The linker finds the import library names automatically through 
+  pragma comment(lib, ...) in the Ice header files.
+
+- Ice header files no longer disable or downgrade any warning reported 
+  by the C++ compiler. All Ice 3.5 header files included indirectly the 
+  following:
+    
+  #ifdef _MSC_VER
+      //
+      // Move some warnings to level 4
+      //
+      #   pragma warning( 4 : 4250 ) // ... : inherits ... via dominance
+      #   pragma warning( 4 : 4251 ) // class ... needs to have 
+                      // dll-interface to be used by clients of class... 
+  #endif
+
+  When upgrading your Visual C++ application to Ice 3.6, you may need
+  to fix, disable or downgrade these warnings in your C++ code. 
+
 - Added support for TCP Loopback Fast Path on Windows platforms that
   support it.
 

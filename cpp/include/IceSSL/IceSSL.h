@@ -10,11 +10,13 @@
 #ifndef ICE_SSL_ICE_SSL_H
 #define ICE_SSL_ICE_SSL_H
 
+#include <IceUtil/PushDisableWarnings.h>
 #include <IceUtil/Config.h>
 #ifndef ICE_OS_WINRT
 #   include <IceSSL/Plugin.h>
 #endif
 #include <IceSSL/EndpointInfo.h>
 #include <IceSSL/ConnectionInfo.h>
+#include <IceUtil/PopDisableWarnings.h>
 
 #endif

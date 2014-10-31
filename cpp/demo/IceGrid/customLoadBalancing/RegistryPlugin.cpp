@@ -81,7 +81,7 @@ ReplicaGroupFilterI::ReplicaGroupFilterI(const IceGrid::RegistryPluginFacadePtr&
 }
 
 Ice::StringSeq
-ReplicaGroupFilterI::filter(const string& replicaGroupId, 
+ReplicaGroupFilterI::filter(const string& /* replicaGroupId */, 
                             const Ice::StringSeq& adapters, 
                             const Ice::ConnectionPtr&, 
                             const Ice::Context& ctx)

@@ -409,7 +409,6 @@ public:
 
     void endSize(size_type pos)
     {
-        assert(pos >= 0);
         rewrite(static_cast<Ice::Int>(b.size() - pos) - 4, pos);
     }
 
