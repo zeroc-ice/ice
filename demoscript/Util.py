@@ -291,7 +291,7 @@ def configurePaths():
     addenv("CLASSPATH", os.path.join(javaDir, "lib", "IcePatch2.jar"))
     if not iceHome:
         addenv("CLASSPATH", os.path.join(javaDir, "lib"))
-    addenv("CLASSPATH", os.path.join("classes"))
+    addenv("CLASSPATH", os.path.join("build", "classes"))
 
     #
     # On Windows, C# assemblies are found thanks to the .exe.config files.
