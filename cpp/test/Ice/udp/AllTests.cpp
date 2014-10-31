@@ -138,7 +138,11 @@ allTests(const CommunicatorPtr& communicator)
     string endpoint;
     if(communicator->getProperties()->getProperty("Ice.IPv6") == "1")
     {
-        endpoint = "udp -h \"ff15::1:1\" -p 12020 --interface \"lo0\"";
+#ifdef __APPLE__
+        endpoint = "udp -h \"ff15::1:1\" -p 12020 --interface \"::1\"";
+#else
+        endpoint = "udp -h \"ff15::1:1\" -p 12020";
+#endif
     }
     else
     {
