@@ -896,6 +896,7 @@ rm -r $RPM_BUILD_ROOT/lib/pkgconfig
 %else # %ifarch noarch
 
 rm -f $RPM_BUILD_ROOT/lib/ImportKey.class
+rm -f $RPM_BUILD_ROOT%{_libdir}/ImportKey.class
 rm -f $RPM_BUILD_ROOT%{_bindir}/iceca
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/iceca.1
 
