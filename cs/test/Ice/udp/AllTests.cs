@@ -169,11 +169,11 @@ public class AllTests
         {
             if(IceInternal.AssemblyUtil.osx_)
             {
-                endpoint = "udp -h \"ff02::1:1\" -p 12020 --interface \"lo0\"";
+                endpoint = "udp -h \"ff15::1:1\" -p 12020 --interface \"::1\"";
             }
             else
             {
-                endpoint = "udp -h \"ff01::1:1\" -p 12020";
+                endpoint = "udp -h \"ff15::1:1\" -p 12020";
             }
         }
         else
