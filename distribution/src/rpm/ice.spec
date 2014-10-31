@@ -7,32 +7,50 @@
 #
 # **********************************************************************
 
-%define ruby 0
+%define ruby 1
 %define mono 0
 %define cpp11 0
 
 %define systemd 0
 
+%define shadow bogus
+
 %if "%{dist}" == ".el6"
-  %define ruby 1
+  %define shadow shadow-utils
 %endif
 %if "%{dist}" == ".el7"
-  %define ruby 1
   %define systemd 1
   %define cpp11 1
+  %define shadow shadow-utils
 %endif
 %if "%{dist}" == ".amzn1"
-  %define ruby 1
   %define cpp11 1
+  %define shadow shadow-utils
 %endif
 %if "%{dist}" == ".sles11"
-  %define ruby 1
+  %define shadow pwdutils
+%endif
+%if "%{dist}" == ".sles12"
+  %define systemd 1
+  %define cpp11 1
+  %define shadow shadow
 %endif
 
 %define buildall 1
 %define makeopts -j1
 
 %define core_arches %{ix86} x86_64
+
+#
+# cppx86 indicates whether we're building x86 binaries on an x64 platform
+#
+%define cppx86 0
+
+%ifarch %{ix86}
+%if "%{dist}" == ".el7" || "%{dist}" == ".sles12"
+%define cppx86 1
+%endif
+%endif
 
 #
 # See http://fedoraproject.org/wiki/Packaging/Python
@@ -80,16 +98,18 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 #
 # This "meta" package includes all run-time components and services.
 #
+%if ! %{cppx86}
 Requires: glacier2 = %{version}-%{release}
 Requires: icegrid = %{version}-%{release}
 Requires: icepatch2 = %{version}-%{release}
-Requires: libicestorm3.6 = %{version}-%{release}
 Requires: php-ice = %{version}-%{release}
 Requires: python-ice = %{version}-%{release}
 Requires: ruby-ice = %{version}-%{release}
 Requires: libice-js = %{version}-%{release}
 Requires: libfreeze3.6 = %{version}-%{release}
 Requires: ice-utils-java = %{version}-%{release}
+%endif # ! cppx86
+Requires: libicestorm3.6 = %{version}-%{release}
 
 #
 # RHEL7 includes Berkeley DB 5.3.21, on other platforms we supply 5.3.28.
@@ -141,6 +161,10 @@ BuildRequires: python-devel >= 2.6.5
 %if "%{dist}" == ".sles11"
 BuildRequires: php53-devel >= 5.3.0
 BuildRequires: python-devel >= 2.6.0
+%endif
+%if "%{dist}" == ".sles12"
+BuildRequires: php5-devel >= 5.5
+BuildRequires: python-devel >= 2.7
 %endif
 
 %description
@@ -212,17 +236,19 @@ certificate authority utility.
 %ifarch %{core_arches}
 
 #
-# This "meta" package includes all run-time components and services.
+# This "meta" package includes all development kits.
 #
 %package -n ice-dev
 Summary: Ice development meta package that includes development kits for all supported languages.
 Group: System Environment/Libraries
 Requires: libice-cxx-devel = %{version}-%{release}
+%if ! %{cppx86}
 Requires: libice-java-devel = %{version}-%{release}
 Requires: libice-js-devel = %{version}-%{release}
 Requires: php-ice-devel = %{version}-%{release}
 Requires: python-ice-devel = %{version}-%{release}
 Requires: ruby-ice-devel = %{version}-%{release}
+%endif # ! cppx86
 %description -n ice-dev
 Ice development meta package that includes development kits for all supported languages.
 
@@ -245,6 +271,7 @@ Requires: db53
 %description -n libfreeze3.6
 The Freeze library for C++.
 
+%if ! %{cppx86}
 %package -n ice-utils
 Summary: Ice utilities and admin tools.
 Group: Applications/System
@@ -252,41 +279,14 @@ Requires: libfreeze3.6 = %{version}-%{release}
 %description -n ice-utils
 Command-line administrative tools to manage Ice servers (IceGrid,
 IceStorm, IceBox, etc.), plus various Ice-related utilities.
-
-%package -n icegrid
-Summary: IceGrid servers.
-Group: System Environment/Daemons
-Requires: ice-utils = %{version}-%{release}
-# Requirements for the users
-%if "%{dist}" == ".sles11"
-Requires(pre): pwdutils
-%else
-Requires(pre): shadow-utils
-%endif
-%if %{systemd}
-BuildRequires:    systemd-units
-Requires(post):   systemd-units
-Requires(preun):  systemd-units
-Requires(postun): systemd-units
-%else
-# Requirements for the init.d services
-Requires(post): /sbin/chkconfig
-Requires(preun): /sbin/chkconfig
-Requires(preun): /sbin/service
-%endif
-%description -n icegrid
-IceGrid servers.
+%endif # ! cppx86
 
 %package -n icebox
 Summary: IceBox server.
 Group: System Environment/Daemons
 Requires: ice-utils = %{version}-%{release}
 # Requirements for the users
-%if "%{dist}" == ".sles11"
-Requires(pre): pwdutils
-%else
-Requires(pre): shadow-utils
-%endif
+Requires(pre): %{shadow}
 %if %{systemd}
 BuildRequires:    systemd-units
 Requires(post):   systemd-units
@@ -301,15 +301,33 @@ Requires(preun): /sbin/service
 %description -n icebox
 IceBox server.
 
+%if ! %{cppx86}
+
+%package -n icegrid
+Summary: IceGrid servers.
+Group: System Environment/Daemons
+Requires: ice-utils = %{version}-%{release}
+# Requirements for the users
+Requires(pre): %{shadow}
+%if %{systemd}
+BuildRequires:    systemd-units
+Requires(post):   systemd-units
+Requires(preun):  systemd-units
+Requires(postun): systemd-units
+%else
+# Requirements for the init.d services
+Requires(post): /sbin/chkconfig
+Requires(preun): /sbin/chkconfig
+Requires(preun): /sbin/service
+%endif
+%description -n icegrid
+IceGrid servers.
+
 %package -n glacier2
 Summary: Glacier2 server.
 Group: System Environment/Daemons
 # Requirements for the users
-%if "%{dist}" == ".sles11"
-Requires(pre): pwdutils
-%else
-Requires(pre): shadow-utils
-%endif
+Requires(pre): %{shadow}
 %if %{systemd}
 BuildRequires:    systemd-units
 Requires(post):   systemd-units
@@ -329,11 +347,7 @@ Summary: IcePatch2 server.
 Group: System Environment/Daemons
 Requires: ice-utils = %{version}-%{release}
 # Requirements for the users
-%if "%{dist}" == ".sles11"
-Requires(pre): pwdutils
-%else
-Requires(pre): shadow-utils
-%endif
+Requires(pre): %{shadow}
 %if %{systemd}
 BuildRequires:    systemd-units
 Requires(post):   systemd-units
@@ -348,6 +362,8 @@ Requires(preun): /sbin/service
 %description -n icepatch2
 IcePatch2 server.
 
+%endif # ! cppx86
+
 %package -n libicestorm3.6
 Summary: IceStorm service.
 Group: System Environment/Libraries
@@ -361,6 +377,8 @@ Group: Development/Tools
 Requires: libice3.6 = %{version}-%{release}, ice-slice = %{version}-%{release}
 %description -n libice-cxx-devel
 Tools, libraries and headers for developing Ice applications in C++.
+
+%if ! %{cppx86}
 
 %package -n libice-java-devel
 Summary: Tools for developing Ice applications in Java.
@@ -431,6 +449,9 @@ Requires: libice3.6 = %{version}-%{release}
 %if "%{dist}" == ".sles11"
 Requires: php53
 %endif
+%if "%{dist}" == ".sles12"
+Requires: php5
+%endif
 %if "%{dist}" == ".el6"
 Requires: php
 %endif
@@ -450,6 +471,8 @@ Requires: php-ice = %{version}-%{release}, ice-slice = %{version}-%{release}
 %description -n php-ice-devel
 Tools for developing Ice applications in PHP.
 %endif
+
+%endif # ! cppx86
 
 %prep
 
@@ -471,18 +494,28 @@ rmdir tmp
 %endif
 
 cd $RPM_BUILD_DIR/Ice-%{version}/cpp/src
+%if %{cppx86}
+make %{makeopts} LP64=no OPTIMIZE=yes embedded_runpath_prefix=""
+%else
 make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
+%endif
 
 %if %{cpp11}
 cd $RPM_BUILD_DIR/Ice-%{version}
 mv cpp cpp.sav
 mv cpp11 cpp
 cd cpp/src
+%if %{cppx86}
+make %{makeopts} LP64=no CPP11=yes OPTIMIZE=yes embedded_runpath_prefix=""
+%else
 make %{makeopts} CPP11=yes OPTIMIZE=yes embedded_runpath_prefix=""
+%endif
 cd $RPM_BUILD_DIR/Ice-%{version}
 mv cpp cpp11
 mv cpp.sav cpp
 %endif
+
+%if ! %{cppx86}
 
 cd $RPM_BUILD_DIR/Ice-%{version}/py
 make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
@@ -498,6 +531,8 @@ make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
 # Build the ant tasks JAR because it's included in the java-devel package
 cd $RPM_BUILD_DIR/Ice-%{version}/java
 ./gradlew :ant:assemble
+
+%endif # ! cppx86
 
 %else
 
@@ -556,6 +591,21 @@ rm -rf $RPM_BUILD_ROOT
 #
 mkdir -p $RPM_BUILD_ROOT/lib
 
+%if %{cppx86}
+
+cd $RPM_BUILD_DIR/Ice-%{version}/cpp
+make prefix=$RPM_BUILD_ROOT LP64=no embedded_runpath_prefix="" install
+
+mkdir -p $RPM_BUILD_ROOT%{_bindir}
+mv $RPM_BUILD_ROOT/bin/icebox $RPM_BUILD_ROOT%{_bindir}/icebox32
+rm $RPM_BUILD_ROOT/bin/*
+
+mkdir -p $RPM_BUILD_ROOT%{_libdir}
+mv $RPM_BUILD_ROOT/%_lib/* $RPM_BUILD_ROOT%{_libdir}
+rm -rf $RPM_BUILD_ROOT/include/*
+
+%else
+
 cd $RPM_BUILD_DIR/Ice-%{version}/cpp
 make prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
 
@@ -567,13 +617,19 @@ mv $RPM_BUILD_ROOT/%_lib/* $RPM_BUILD_ROOT%{_libdir}
 mkdir -p $RPM_BUILD_ROOT%{_includedir}
 mv $RPM_BUILD_ROOT/include/* $RPM_BUILD_ROOT%{_includedir}
 
+%endif # cppx86
+
 %if %{cpp11}
 cd $RPM_BUILD_DIR/Ice-%{version}
 mv cpp cpp.sav
 mv cpp11 cpp
 cd cpp/src
 mkdir -p $RPM_BUILD_ROOT/%_lib/c++11
+%if %{cppx86}
+make CPP11=yes prefix=$RPM_BUILD_ROOT LP64=no embedded_runpath_prefix="" install
+%else
 make CPP11=yes prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
+%endif
 cd $RPM_BUILD_DIR/Ice-%{version}
 mv cpp cpp11
 mv cpp.sav cpp
@@ -587,10 +643,16 @@ rm -f $RPM_BUILD_ROOT/%_lib/c++11/libIceDiscovery.so
 rm -f $RPM_BUILD_ROOT/%_lib/c++11/libIceStormService.so
 rm -f $RPM_BUILD_ROOT/%_lib/c++11/libIceXML.so
 mv $RPM_BUILD_ROOT/%_lib/* $RPM_BUILD_ROOT%{_libdir}
+%if %{cppx86}
+mv $RPM_BUILD_ROOT/bin/icebox $RPM_BUILD_ROOT%{_bindir}/icebox32++11
+%else
 mv $RPM_BUILD_ROOT/bin/icebox $RPM_BUILD_ROOT%{_bindir}/icebox++11
+%endif
 rm -f $RPM_BUILD_ROOT/bin/*
 rm -rf $RPM_BUILD_ROOT/include/*
 %endif
+
+%if ! %{cppx86}
 
 #
 # Python
@@ -636,6 +698,15 @@ mv $RPM_BUILD_ROOT/php/* $RPM_BUILD_ROOT%{_datadir}/php
 %endif
 
 %if "%{dist}" == ".sles11"
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/php5/conf.d
+cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/ice.ini $RPM_BUILD_ROOT%{_sysconfdir}/php5/conf.d
+mkdir -p $RPM_BUILD_ROOT%{_libdir}/php5/extensions
+mv $RPM_BUILD_ROOT/php/IcePHP.so $RPM_BUILD_ROOT%{_libdir}/php5/extensions
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/php5
+mv $RPM_BUILD_ROOT/php/* $RPM_BUILD_ROOT%{_datadir}/php5
+%endif
+
+%if "%{dist}" == ".sles12"
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/php5/conf.d
 cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/ice.ini $RPM_BUILD_ROOT%{_sysconfdir}/php5/conf.d
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/php5/extensions
@@ -731,6 +802,29 @@ mkdir -p $RPM_BUILD_ROOT%{_mandir}/man1
 rm -r $RPM_BUILD_ROOT/man
 cp -p $RPM_BUILD_DIR/Ice-%{version}/man/man1/*.1 $RPM_BUILD_ROOT%{_mandir}/man1
 
+%if !%{mono}
+rm -f $RPM_BUILD_ROOT%{_bindir}/slice2cs
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/slice2cs.1
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/iceboxnet.1
+%endif
+
+%if !%{ruby}
+rm -f $RPM_BUILD_ROOT%{_bindir}/slice2rb
+%endif
+
+%else # ! cppx86
+
+#
+# These directories and files aren't needed in the x86 build.
+#
+rm -rf $RPM_BUILD_ROOT/config
+rm -rf $RPM_BUILD_ROOT/man
+rm -f $RPM_BUILD_ROOT%{_libdir}/libGlacier2CryptPermissionsVerifier.so*
+rm -f $RPM_BUILD_ROOT%{_libdir}/libIceXML.so*
+rm -f $RPM_BUILD_ROOT%{_libdir}/libSlice.so*
+
+%endif # ! cppx86
+
 #
 # Cleanup extra files
 #
@@ -744,16 +838,6 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/libIceStormService.so
 rm -f $RPM_BUILD_ROOT%{_libdir}/libIceDiscovery.so
 rm -f $RPM_BUILD_ROOT%{_libdir}/libGlacier2CryptPermissionsVerifier.so
 rm -f $RPM_BUILD_ROOT%{_libdir}/libIceXML.so
-
-%if !%{mono}
-rm -f $RPM_BUILD_ROOT%{_bindir}/slice2cs
-rm -f $RPM_BUILD_ROOT%{_mandir}/man1/slice2cs.1
-rm -f $RPM_BUILD_ROOT%{_mandir}/man1/iceboxnet.1
-%endif
-
-%if !%{ruby}
-rm -f $RPM_BUILD_ROOT%{_bindir}/slice2rb
-%endif
 
 %endif
 
@@ -1024,46 +1108,48 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-, root, root, -)
 %{_libdir}/libGlacier2.so.%{version}
 %{_libdir}/libGlacier2.so.%{soversion}
-%{_libdir}/libGlacier2CryptPermissionsVerifier.so.%{version}
-%{_libdir}/libGlacier2CryptPermissionsVerifier.so.%{soversion}
+%{_libdir}/libIce.so.%{version}
+%{_libdir}/libIce.so.%{soversion}
 %{_libdir}/libIceBox.so.%{version}
 %{_libdir}/libIceBox.so.%{soversion}
 %{_libdir}/libIceDiscovery.so.%{version}
 %{_libdir}/libIceDiscovery.so.%{soversion}
+%{_libdir}/libIceGrid.so.%{version}
+%{_libdir}/libIceGrid.so.%{soversion}
 %{_libdir}/libIcePatch2.so.%{version}
 %{_libdir}/libIcePatch2.so.%{soversion}
-%{_libdir}/libIce.so.%{version}
-%{_libdir}/libIce.so.%{soversion}
 %{_libdir}/libIceSSL.so.%{version}
 %{_libdir}/libIceSSL.so.%{soversion}
 %{_libdir}/libIceStorm.so.%{version}
 %{_libdir}/libIceStorm.so.%{soversion}
 %{_libdir}/libIceUtil.so.%{version}
 %{_libdir}/libIceUtil.so.%{soversion}
+%if ! %{cppx86}
+%{_libdir}/libGlacier2CryptPermissionsVerifier.so.%{version}
+%{_libdir}/libGlacier2CryptPermissionsVerifier.so.%{soversion}
 %{_libdir}/libSlice.so.%{version}
 %{_libdir}/libSlice.so.%{soversion}
-%{_libdir}/libIceGrid.so.%{version}
-%{_libdir}/libIceGrid.so.%{soversion}
+%endif
 
 %if %{cpp11}
 %{_libdir}/libGlacier2++11.so.%{version}
 %{_libdir}/libGlacier2++11.so.%{soversion}
+%{_libdir}/libIce++11.so.%{version}
+%{_libdir}/libIce++11.so.%{soversion}
 %{_libdir}/libIceBox++11.so.%{version}
 %{_libdir}/libIceBox++11.so.%{soversion}
 %{_libdir}/libIceDiscovery++11.so.%{version}
 %{_libdir}/libIceDiscovery++11.so.%{soversion}
+%{_libdir}/libIceGrid++11.so.%{version}
+%{_libdir}/libIceGrid++11.so.%{soversion}
 %{_libdir}/libIcePatch2++11.so.%{version}
 %{_libdir}/libIcePatch2++11.so.%{soversion}
-%{_libdir}/libIce++11.so.%{version}
-%{_libdir}/libIce++11.so.%{soversion}
 %{_libdir}/libIceSSL++11.so.%{version}
 %{_libdir}/libIceSSL++11.so.%{soversion}
 %{_libdir}/libIceStorm++11.so.%{version}
 %{_libdir}/libIceStorm++11.so.%{soversion}
 %{_libdir}/libIceUtil++11.so.%{version}
 %{_libdir}/libIceUtil++11.so.%{soversion}
-%{_libdir}/libIceGrid++11.so.%{version}
-%{_libdir}/libIceGrid++11.so.%{soversion}
 %endif
 
 %post -n libice3.6 -p /sbin/ldconfig
@@ -1073,8 +1159,10 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-, root, root, -)
 %{_libdir}/libFreeze.so.%{version}
 %{_libdir}/libFreeze.so.%{soversion}
+%if ! %{cppx86}
 %{_libdir}/libIceXML.so.%{version}
 %{_libdir}/libIceXML.so.%{soversion}
+%endif
 %if %{cpp11}
 %{_libdir}/libFreeze++11.so.%{version}
 %{_libdir}/libFreeze++11.so.%{soversion}
@@ -1094,6 +1182,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %post -n libicestorm3.6 -p /sbin/ldconfig
 %postun -n libicestorm3.6 -p /sbin/ldconfig
+
+%if ! %{cppx86}
 
 %files -n ice-utils
 %defattr(-, root, root, -)
@@ -1280,13 +1370,23 @@ exit 0
 %postun -n icepatch2
 /sbin/ldconfig
 
+%endif # ! cppx86
+
 %files -n icebox
 %defattr(-, root, root, -)
+%if %{cppx86}
+%{_bindir}/icebox32
+%else
 %{_bindir}/icebox
+%{_mandir}/man1/icebox.1.gz
+%endif
 %if %{cpp11}
+%if %{cppx86}
+%{_bindir}/icebox32++11
+%else
 %{_bindir}/icebox++11
 %endif
-%{_mandir}/man1/icebox.1.gz
+%endif
 
 %pre -n icebox
 getent group ice > /dev/null || groupadd -r ice
@@ -1304,6 +1404,7 @@ exit 0
 %files -n libice-cxx-devel
 %defattr(-, root, root, -)
 
+%if ! %{cppx86}
 %{_bindir}/slice2cpp
 %{_mandir}/man1/slice2cpp.1.gz
 %{_bindir}/slice2freeze
@@ -1318,23 +1419,26 @@ exit 0
 %{_includedir}/IceStorm
 %{_includedir}/IceUtil
 %{_includedir}/Slice
+%endif
 %{_libdir}/libFreeze.so
 %{_libdir}/libGlacier2.so
+%{_libdir}/libIce.so
 %{_libdir}/libIceBox.so
 %{_libdir}/libIceGrid.so
 %{_libdir}/libIcePatch2.so
-%{_libdir}/libIce.so
 %{_libdir}/libIceSSL.so
 %{_libdir}/libIceStorm.so
 %{_libdir}/libIceUtil.so
+%if ! %{cppx86}
 %{_libdir}/libSlice.so
+%endif
 %if %{cpp11}
 %{_libdir}/c++11/libFreeze.so
 %{_libdir}/c++11/libGlacier2.so
+%{_libdir}/c++11/libIce.so
 %{_libdir}/c++11/libIceBox.so
 %{_libdir}/c++11/libIceGrid.so
 %{_libdir}/c++11/libIcePatch2.so
-%{_libdir}/c++11/libIce.so
 %{_libdir}/c++11/libIceSSL.so
 %{_libdir}/c++11/libIceStorm.so
 %{_libdir}/c++11/libIceUtil.so
@@ -1358,6 +1462,8 @@ exit 0
 %{_prefix}/lib/mono/IcePatch2/
 %{_prefix}/lib/mono/IceStorm/
 %endif
+
+%if ! %{cppx86}
 
 %files -n libice-java-devel
 %defattr(-, root, root, -)
@@ -1429,13 +1535,24 @@ exit 0
 %config(noreplace) %{_sysconfdir}/php5/conf.d/ice.ini
 %endif
 
+%if "%{dist}" == ".sles12"
+%{_datadir}/php5
+%{_libdir}/php5/extensions
+%config(noreplace) %{_sysconfdir}/php5/conf.d/ice.ini
+%endif
+
 %files -n php-ice-devel
 %defattr(-, root, root, -)
 %{_bindir}/slice2php
 %{_mandir}/man1/slice2php.1.gz
 %endif
 
+%endif # ! cppx86
+
 %changelog
+
+* Fri Oct 31 2014 Mark Spruiell <mes@zeroc.com> 3.6b
+- Updates for the Ice 3.6b release.
 
 * Thu Jul 18 2013 Mark Spruiell <mes@zeroc.com> 3.5.1
 - Adding man pages.
