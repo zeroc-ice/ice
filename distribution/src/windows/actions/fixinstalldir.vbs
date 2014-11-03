@@ -28,19 +28,21 @@ files = Array(registryFile, vs2012File, vs2013File)
 Set fso = CreateObject("Scripting.FileSystemObject")
     
 For Each fileName in files
-    tmpFileName = fileName & ".tmp"
+    If fso.FileExists(fileName) Then
+        tmpFileName = fileName & ".tmp"
 
-    Set file = fso.OpenTextFile(fileName, ForReading, True)
-    Set tmpFile = fso.OpenTextFile(tmpFileName, ForWriting, True)
+        Set file = fso.OpenTextFile(fileName, ForReading, True)
+        Set tmpFile = fso.OpenTextFile(tmpFileName, ForWriting, True)
 
-    Do Until file.AtEndOfStream
-       nextLine = file.ReadLine
-       tmpFile.WriteLine Replace(nextLine, "@installdir@\", installDir)
-    Loop
+        Do Until file.AtEndOfStream
+           nextLine = file.ReadLine
+           tmpFile.WriteLine Replace(nextLine, "@installdir@\", installDir)
+        Loop
 
-    file.Close
-    tmpFile.Close
+        file.Close
+        tmpFile.Close
 
-    fso.DeleteFile fileName
-    fso.MoveFile tmpFileName, fileName
+        fso.DeleteFile fileName
+        fso.MoveFile tmpFileName, fileName
+    End If
 Next

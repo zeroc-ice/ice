@@ -1137,7 +1137,8 @@ else:
                     targetFile = targetFile.replace(installerDir, pdbinstallerDir)
                 copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
 
-    copyIfModified(os.path.join(thirdPartyHome, "config", "openssl.cnf"), os.path.join(iceBuildHome, "installer"), verbose = verbose)
+    copyIfModified(os.path.join(thirdPartyHome, "config", "openssl.cnf"),
+                   os.path.join(iceBuildHome, "installer", "openssl.cnf"), verbose = verbose)
 
 if not skipInstaller:
     #
