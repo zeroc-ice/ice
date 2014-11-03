@@ -52,10 +52,6 @@ ifeq ($(RPATH_DIR),)
 endif
 LDPLATFORMFLAGS     = -Wl,-rpath,$(RPATH_DIR)
 
-ifeq ($(CXX),g++)
-     LDPLATFORMFLAGS		+= -rdynamic
-endif
-
 mklib           	= libtool -static -o $(1) $(2)
 mkshlib         	= $(CXX)  -dynamiclib $(LDFLAGS) -o $(1) -install_name @rpath/$(2) $(3) $(4)
 
