@@ -72,5 +72,5 @@ include 'test/plugins'
 }
 
 ['evictor_filesystem', 'lifecycle', 'map_filesystem', 'printer', 'simple_filesystem'].each {
- 	include "demo/book/${it}"
+ 	include "demo/manual/${it}"
 }

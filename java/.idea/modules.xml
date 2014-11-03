@@ -48,11 +48,11 @@
       <module fileurl="file://$PROJECT_DIR$/demo/Ice/swing/demo_Ice_swing.iml" filepath="$PROJECT_DIR$/demo/Ice/swing/demo_Ice_swing.iml" />
       <module fileurl="file://$PROJECT_DIR$/demo/Ice/throughput/demo_Ice_throughput.iml" filepath="$PROJECT_DIR$/demo/Ice/throughput/demo_Ice_throughput.iml" />
       <module fileurl="file://$PROJECT_DIR$/demo/Ice/value/demo_Ice_value.iml" filepath="$PROJECT_DIR$/demo/Ice/value/demo_Ice_value.iml" />
-      <module fileurl="file://$PROJECT_DIR$/demo/book/evictor_filesystem/demo_book_evictor_filesystem.iml" filepath="$PROJECT_DIR$/demo/book/evictor_filesystem/demo_book_evictor_filesystem.iml" />
-      <module fileurl="file://$PROJECT_DIR$/demo/book/lifecycle/demo_book_lifecycle.iml" filepath="$PROJECT_DIR$/demo/book/lifecycle/demo_book_lifecycle.iml" />
-      <module fileurl="file://$PROJECT_DIR$/demo/book/map_filesystem/demo_book_map_filesystem.iml" filepath="$PROJECT_DIR$/demo/book/map_filesystem/demo_book_map_filesystem.iml" />
-      <module fileurl="file://$PROJECT_DIR$/demo/book/printer/demo_book_printer.iml" filepath="$PROJECT_DIR$/demo/book/printer/demo_book_printer.iml" />
-      <module fileurl="file://$PROJECT_DIR$/demo/book/simple_filesystem/demo_book_simple_filesystem.iml" filepath="$PROJECT_DIR$/demo/book/simple_filesystem/demo_book_simple_filesystem.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/manual/evictor_filesystem/demo_manual_evictor_filesystem.iml" filepath="$PROJECT_DIR$/demo/manual/evictor_filesystem/demo_manual_evictor_filesystem.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/manual/lifecycle/demo_manual_lifecycle.iml" filepath="$PROJECT_DIR$/demo/manual/lifecycle/demo_manual_lifecycle.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/manual/map_filesystem/demo_manual_map_filesystem.iml" filepath="$PROJECT_DIR$/demo/manual/map_filesystem/demo_manual_map_filesystem.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/manual/printer/demo_manual_printer.iml" filepath="$PROJECT_DIR$/demo/manual/printer/demo_manual_printer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/manual/simple_filesystem/demo_manual_simple_filesystem.iml" filepath="$PROJECT_DIR$/demo/manual/simple_filesystem/demo_manual_simple_filesystem.iml" />
       <module fileurl="file://$PROJECT_DIR$/java.iml" filepath="$PROJECT_DIR$/java.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/test.iml" filepath="$PROJECT_DIR$/test/test.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/plugins/test_plugins.iml" filepath="$PROJECT_DIR$/test/plugins/test_plugins.iml" />

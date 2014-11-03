@@ -11,7 +11,7 @@ top_srcdir	= ..
 
 !include $(top_srcdir)\config\Make.rules.mak.vb
 
-SUBDIRS		= Ice Glacier2 IceGrid IceStorm IceBox book
+SUBDIRS		= Ice Glacier2 IceGrid IceStorm IceBox manual
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

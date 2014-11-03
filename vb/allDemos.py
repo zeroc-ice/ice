@@ -39,8 +39,8 @@ demos = [
     "IceStorm/clock",
     "IceGrid/simple",
     "Glacier2/callback",
-    "book/simple_filesystem",
-    "book/printer",
+    "manual/simple_filesystem",
+    "manual/printer",
     ]
 
 Util.run(demos)

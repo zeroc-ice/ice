@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Book", "Book", "{2834C028-85E0-4C3B-9577-244D4E1C7249}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Manual", "Manual", "{2834C028-85E0-4C3B-9577-244D4E1C7249}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "printer", "printer", "{7FA58D0B-884E-4F0A-B89F-343E93812200}"
 EndProject
@@ -46,20 +46,20 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IceStorm", "IceStorm", "{4D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "clock", "clock", "{B9505670-4369-461A-935A-4CF2529D4060}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "slice", "book\printer\slice.csproj", "{5114D39A-6EC0-4869-B43A-A85FDF899D12}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "slice", "manual\printer\slice.csproj", "{5114D39A-6EC0-4869-B43A-A85FDF899D12}"
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "client", "book\printer\client.vbproj", "{A9808C9D-94C3-43FC-9100-BB55328865BD}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "client", "manual\printer\client.vbproj", "{A9808C9D-94C3-43FC-9100-BB55328865BD}"
 	ProjectSection(ProjectDependencies) = postProject
 		{EAD5FEB2-1CA9-44C6-AD31-B1939BF83104} = {EAD5FEB2-1CA9-44C6-AD31-B1939BF83104}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "server", "book\printer\server.vbproj", "{EAD5FEB2-1CA9-44C6-AD31-B1939BF83104}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "server", "manual\printer\server.vbproj", "{EAD5FEB2-1CA9-44C6-AD31-B1939BF83104}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "slice", "book\simple_filesystem\slice.csproj", "{73CD4F2C-BF98-404C-B29E-BE0F53A2D19B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "slice", "manual\simple_filesystem\slice.csproj", "{73CD4F2C-BF98-404C-B29E-BE0F53A2D19B}"
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "server", "book\simple_filesystem\server.vbproj", "{357ADC23-03C4-4A8B-8017-07810895F3AF}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "server", "manual\simple_filesystem\server.vbproj", "{357ADC23-03C4-4A8B-8017-07810895F3AF}"
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "client", "book\simple_filesystem\client.vbproj", "{1BEB3E09-5C48-4F9D-9295-C91FD52E662D}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "client", "manual\simple_filesystem\client.vbproj", "{1BEB3E09-5C48-4F9D-9295-C91FD52E662D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{357ADC23-03C4-4A8B-8017-07810895F3AF} = {357ADC23-03C4-4A8B-8017-07810895F3AF}
 	EndProjectSection

@@ -31,8 +31,8 @@ demos = [
     "Ice/throughput",
     "Ice/value",
     "IceDiscovery/hello",
-    "book/printer",
-    "book/simple_filesystem",
+    "manual/printer",
+    "manual/simple_filesystem",
 ]
 
 if __name__ == "__main__":

@@ -4,6 +4,11 @@ Demos in this directory:
 
   This demo shows how to use the allocation feature of IceGrid.
 
+- customLoadBalancing
+  
+  This demo shows how to implement IceGrid custom load balancing using
+  replica group filters.
+
 - icebox
 
   This demo shows a simple IceGrid deployment with an IceBox server.

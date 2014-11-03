@@ -35,7 +35,7 @@ apply from: "$rootProject.projectDir/demo/IceBox/build.gradle"
 apply from: "$rootProject.projectDir/demo/Glacier2/build.gradle"
 apply from: "$rootProject.projectDir/demo/IceStorm/build.gradle"
 apply from: "$rootProject.projectDir/demo/IceGrid/build.gradle"
-apply from: "$rootProject.projectDir/demo/book/build.gradle"
+apply from: "$rootProject.projectDir/demo/manual/build.gradle"
 
 //
 // Used to build the gradle wrapper to automatically download and install

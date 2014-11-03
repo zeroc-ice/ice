@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Book", "Book", "{D4C50BCA-F7CF-4EA4-8401-A4106850C132}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Manual", "Manual", "{D4C50BCA-F7CF-4EA4-8401-A4106850C132}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Freeze", "Freeze", "{EDB92982-CA2F-4083-86C7-AF7CEA04E94A}"
 EndProject
@@ -263,29 +263,29 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "subscriber", "IceStorm\repl
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "workqueue", "IceUtil\workqueue\IceUtil.workqueue.vcxproj", "{AE45156F-573C-4BDC-911D-EC7C28DB36D7}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "client", "book\lifecycle\book.lifecycle.client.vcxproj", "{332A63F9-BBD9-4324-8C1E-26604C71D54F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "client", "manual\lifecycle\manual.lifecycle.client.vcxproj", "{332A63F9-BBD9-4324-8C1E-26604C71D54F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server", "book\lifecycle\book.lifecycle.server.vcxproj", "{95043699-A842-4E16-A95B-13E02709B210}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server", "manual\lifecycle\manual.lifecycle.server.vcxproj", "{95043699-A842-4E16-A95B-13E02709B210}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "client", "book\printer\book.printer.client.vcxproj", "{4CCAF112-F152-422A-91BE-27C72F638092}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "client", "manual\printer\manual.printer.client.vcxproj", "{4CCAF112-F152-422A-91BE-27C72F638092}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server", "book\printer\book.printer.server.vcxproj", "{131C5C24-50C3-4AD6-A8D3-C57CEC50AFB9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server", "manual\printer\manual.printer.server.vcxproj", "{131C5C24-50C3-4AD6-A8D3-C57CEC50AFB9}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "client", "book\simple_filesystem\book.simple_filesystem.client.vcxproj", "{4B2FC587-BB5D-4B19-85E0-56E7C7636294}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "client", "manual\simple_filesystem\manual.simple_filesystem.client.vcxproj", "{4B2FC587-BB5D-4B19-85E0-56E7C7636294}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server", "book\simple_filesystem\book.simple_filesystem.server.vcxproj", "{EFCFF55E-CCD2-451E-A0B5-604249ECE4D1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server", "manual\simple_filesystem\manual.simple_filesystem.server.vcxproj", "{EFCFF55E-CCD2-451E-A0B5-604249ECE4D1}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "client", "Ice\interleaved\Ice.interleaved.client.vcxproj", "{798DC5EC-427F-49A6-9028-F2A420CCEA4B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server", "Ice\interleaved\Ice.interleaved.server.vcxproj", "{383AB467-E29D-4A9D-A5D4-6BCA8E754A88}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "client", "book\map_filesystem\book.map_filesystem.client.vcxproj", "{0C6E1127-1105-49F0-99BB-CBDC1C2566F0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "client", "manual\map_filesystem\manual.map_filesystem.client.vcxproj", "{0C6E1127-1105-49F0-99BB-CBDC1C2566F0}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server", "book\map_filesystem\book.map_filesystem.server.vcxproj", "{37369B6D-DFB9-4413-A4F5-AE261FDA74A2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server", "manual\map_filesystem\manual.map_filesystem.server.vcxproj", "{37369B6D-DFB9-4413-A4F5-AE261FDA74A2}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "client", "book\evictor_filesystem\book.evictor_filesystem.client.vcxproj", "{66668B00-70BB-4CF0-8DB2-2717DC5F4DA3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "client", "manual\evictor_filesystem\manual.evictor_filesystem.client.vcxproj", "{66668B00-70BB-4CF0-8DB2-2717DC5F4DA3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server", "book\evictor_filesystem\book.evictor_filesystem.server.vcxproj", "{2E1BBDAB-F9C2-4C72-9587-29D7F428BC32}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server", "manual\evictor_filesystem\manual.evictor_filesystem.server.vcxproj", "{2E1BBDAB-F9C2-4C72-9587-29D7F428BC32}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "optional", "optional", "{57D20A28-9954-4D22-ACE6-B367145DC11E}"
 EndProject

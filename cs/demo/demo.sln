@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Book", "Book", "{AC5C2F48-9B17-4C83-9362-6E0645CE25D9}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Manual", "Manual", "{AC5C2F48-9B17-4C83-9362-6E0645CE25D9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Glacier2", "Glacier2", "{C4290516-AAD4-4A27-AEBC-9545D9E81987}"
 EndProject
@@ -60,17 +60,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "printer", "printer", "{BADD
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "simple_filesystem", "simple_filesystem", "{42B96E9A-A291-49A7-871D-AA14FFE1CF5A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "client", "book\lifecycle\client.csproj", "{E6B38408-D998-40CE-A018-C53529B270D5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "client", "manual\lifecycle\client.csproj", "{E6B38408-D998-40CE-A018-C53529B270D5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "server", "book\lifecycle\server.csproj", "{710B7320-A714-4560-BCB0-A50FCA6ECAC5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "server", "manual\lifecycle\server.csproj", "{710B7320-A714-4560-BCB0-A50FCA6ECAC5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "client", "book\printer\client.csproj", "{07861488-87F0-4EA6-8774-08E39ABDD468}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "client", "manual\printer\client.csproj", "{07861488-87F0-4EA6-8774-08E39ABDD468}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "server", "book\printer\server.csproj", "{2374126D-F982-4E2F-B9F3-278F8B38A310}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "server", "manual\printer\server.csproj", "{2374126D-F982-4E2F-B9F3-278F8B38A310}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "client", "book\simple_filesystem\client.csproj", "{2E01BB07-5E3A-4563-AE3B-C357672BEEF7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "client", "manual\simple_filesystem\client.csproj", "{2E01BB07-5E3A-4563-AE3B-C357672BEEF7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "server", "book\simple_filesystem\server.csproj", "{ECF4A31E-8545-4A9D-ADC2-2020E53C9B46}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "server", "manual\simple_filesystem\server.csproj", "{ECF4A31E-8545-4A9D-ADC2-2020E53C9B46}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "client", "Glacier2\callback\client.csproj", "{2AC78A13-497B-44B1-8BF0-156877B78293}"
 EndProject

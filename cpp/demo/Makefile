@@ -19,7 +19,7 @@ SUBDIRS		= IceUtil \
 		  IceStorm \
 		  Glacier2 \
 		  IceGrid \
-		  book
+		  manual
 
 .PHONY: $(EVERYTHING) $(SUBDIRS)
 

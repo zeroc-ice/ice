@@ -70,6 +70,7 @@ cpp/demo/Debug
 cpp/test/IceBox/configuration/build.txt
 
 js/lib
+js/node_modules
 
 # OS X Keychain
 
