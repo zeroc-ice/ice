@@ -188,3 +188,29 @@ ext.libDir = "$rootProject.projectDir/lib"
 
 ext.iceSourceCompatibility = 1.7
 ext.iceTargetCompatibility = 1.7
+
+ext.searchFile = { Map<String, Closure> places, List<String> searchPaths ->
+    File result = null;
+    places.each { k, v ->
+        if (result != null) {
+            return;
+        }
+        def dir = v()
+        if (dir != null) {
+            searchPaths.each { s ->
+                if (result != null) {
+                    return;
+                }
+                File f = new File(dir, s);
+                if (f.exists() && f.file) {
+                    result = f;
+                }
+            }
+        }
+    }
+    if (!result?.file) {
+        return ""
+    } else {
+        return result
+    }
+}

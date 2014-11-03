@@ -12,23 +12,17 @@ targetCompatibility = iceTargetCompatibility
 
 def macosx = System.properties['os.name'] == "Mac OS X"
 
-def hasJavaFx = false
-def javaHome = System.getProperty('java.home')
-def javafxJar = new File(javaHome + "/lib/jfxrt.jar")
-if (javafxJar.exists()) {
-    hasJavaFx = true
-} else {
-    javafxJar = new File(javaHome + "/lib/ext/jfxrt.jar")
-    if (javafxJar.exists()) {
-        hasJavaFx = true
-    }
-}
+// Check for JavaFX support
+def javafxJar = searchFile(['JFXRT_HOME in System Environment': {System.env['JFXRT_HOME']},
+                            'JAVA_HOME in System Environment': {System.env['JAVA_HOME']},
+                            'java.home in JVM properties': {System.properties['java.home']}],
+                           ['jfxrt.jar', 'lib/jfxrt.jar', 'lib/ext/jfxrt.jar', 'jre/lib/jfxrt.jar',
+                            'jre/lib/ext/jfxrt.jar'])
+def hasJavaFx = javafxJar != ""
 
 if (hasJavaFx) {
     apply plugin: 'application'
-    apply from: "../../gradle/javafx7.gradle"
-
-    mainClassName = "IceGridGUI.Main"
+    apply from: 'javafx.gradle'
 } else {
     sourceSets {
         main {
@@ -78,13 +72,13 @@ buildscript {
 
 def libJars = []
 ['rt.jar', 'jsse.jar'].each {
-	libJars << "${javaHome}/lib/${it}"
+	libJars << searchFile(['JAVA_HOME in System Environment': {System.env['JAVA_HOME']},
+                           'java.home in JVM properties': {System.properties['java.home']}],
+                          ["${it}", "lib/${it}", "jre/lib/${it}"])
 }
 
 if (hasJavaFx) {
-    ['jfxrt.jar', 'ext/jfxrt.jar'].each {
-        libJars << "${javaHome}/lib/${it}"
-    }
+    libJars << javafxJar
 }
 
 task proguardJar(type: proguard.gradle.ProGuardTask, dependsOn: jar) {
@@ -111,7 +105,7 @@ if(macosx)
                       icon: "${projectDir}/src/main/resources/icons/icegrid.icns",
                       shortversion: "${iceVersion}",
                       applicationCategory: "public.app-category.utilities",
-                      mainclassname: "com/javafx/main/Main",
+                      mainclassname: "IceGridGUI/MainProxy",
                       copyright: "Copyright © 2005-2014 ZeroC, Inc. All rights reserved.") {
             classpath(file: "${libDir}/${jarName}") {
             }
