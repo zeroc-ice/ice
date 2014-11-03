@@ -2,6 +2,17 @@
 # Copyright (c) 2008-2014 ZeroC, Inc. All rights reserved.
 #
 
+%define force_x86  0
+
+%ifarch %{ix86}
+%if "%{dist}" == ".sles12" || "%{dist}" == ".el7"
+  #
+  # Building a 32-bit distribution on an x64 platform.
+  #
+  %define force_x86 1
+%endif
+%endif
+
 Summary: mcpp, a portable C/C++ preprocessor
 Name: mcpp-devel
 Version: 2.7.2
@@ -43,7 +54,11 @@ It is probably number one C/C++ preprocessor now available in the world.
 
 %build
 
+%if %{force_x86}
+setarch i686 ./configure CFLAGS="-fPIC -m32" --enable-mcpplib --disable-shared
+%else
 ./configure CFLAGS=-fPIC --enable-mcpplib --disable-shared
+%endif
 make
 
 %install

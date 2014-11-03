@@ -12,6 +12,7 @@
 %define cpp11 0
 
 %define systemd 0
+%define systemdpkg bogus
 
 %define shadow bogus
 
@@ -20,6 +21,7 @@
 %endif
 %if "%{dist}" == ".el7"
   %define systemd 1
+  %define systemdpkg systemd
   %define cpp11 1
   %define shadow shadow-utils
 %endif
@@ -32,6 +34,7 @@
 %endif
 %if "%{dist}" == ".sles12"
   %define systemd 1
+  %define systemdpkg systemd-rpm-macros
   %define cpp11 1
   %define shadow shadow
 %endif
@@ -67,7 +70,7 @@
 # We put everything in sitearch because we're building a single
 # ruby-ice arch-specific package.
 #
-%if "%{dist}" == ".el7"
+%if "%{dist}" == ".el7" || "%{dist}" == ".sles12"
 %{!?ruby_sitearch: %define ruby_sitearch %(ruby -rrbconfig -e 'puts RbConfig::CONFIG["sitearchdir"]')}
 %else
 %{!?ruby_sitearch: %define ruby_sitearch %(ruby -rrbconfig -e 'puts Config::CONFIG["sitearchdir"]')}
@@ -128,7 +131,9 @@ BuildRequires: libdb-cxx-devel >= %{dbversion}, libdb-java-devel >= %{dbversion}
 BuildRequires: javapackages-tools
 %else
 BuildRequires: db53-devel >= %{dbversion}, db53-java >= %{dbversion}
+%if "%{dist}" != ".sles12"
 BuildRequires: jpackage-utils
+%endif
 %endif
 
 %if %{ruby}
@@ -288,10 +293,10 @@ Requires: ice-utils = %{version}-%{release}
 # Requirements for the users
 Requires(pre): %{shadow}
 %if %{systemd}
-BuildRequires:    systemd-units
-Requires(post):   systemd-units
-Requires(preun):  systemd-units
-Requires(postun): systemd-units
+BuildRequires:    %{systemdpkg}
+Requires(post):   %{systemdpkg}
+Requires(preun):  %{systemdpkg}
+Requires(postun): %{systemdpkg}
 %else
 # Requirements for the init.d services
 Requires(post): /sbin/chkconfig
@@ -310,10 +315,10 @@ Requires: ice-utils = %{version}-%{release}
 # Requirements for the users
 Requires(pre): %{shadow}
 %if %{systemd}
-BuildRequires:    systemd-units
-Requires(post):   systemd-units
-Requires(preun):  systemd-units
-Requires(postun): systemd-units
+BuildRequires:    %{systemdpkg}
+Requires(post):   %{systemdpkg}
+Requires(preun):  %{systemdpkg}
+Requires(postun): %{systemdpkg}
 %else
 # Requirements for the init.d services
 Requires(post): /sbin/chkconfig
@@ -329,10 +334,10 @@ Group: System Environment/Daemons
 # Requirements for the users
 Requires(pre): %{shadow}
 %if %{systemd}
-BuildRequires:    systemd-units
-Requires(post):   systemd-units
-Requires(preun):  systemd-units
-Requires(postun): systemd-units
+BuildRequires:    %{systemdpkg}
+Requires(post):   %{systemdpkg}
+Requires(preun):  %{systemdpkg}
+Requires(postun): %{systemdpkg}
 %else
 # Requirements for the init.d services
 Requires(post): /sbin/chkconfig
@@ -349,10 +354,10 @@ Requires: ice-utils = %{version}-%{release}
 # Requirements for the users
 Requires(pre): %{shadow}
 %if %{systemd}
-BuildRequires:    systemd-units
-Requires(post):   systemd-units
-Requires(preun):  systemd-units
-Requires(postun): systemd-units
+BuildRequires:    %{systemdpkg}
+Requires(post):   %{systemdpkg}
+Requires(preun):  %{systemdpkg}
+Requires(postun): %{systemdpkg}
 %else
 # Requirements for the init.d services
 Requires(post): /sbin/chkconfig
