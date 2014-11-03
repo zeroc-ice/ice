@@ -334,9 +334,15 @@ public class Client extends test.Util.Application
         run()
         {
             int transferOp = 0;
-
-            for(int i = 0; i < 1000; i++)
+            long now = System.currentTimeMillis();
+            for(int i = 0; i < 500; i++)
             {
+                if((System.currentTimeMillis() - now) > (60 * 1000))
+                {
+                    System.err.println("warning: exiting transfer thread after one minute and " + i + " iterations");
+                    break;
+                }
+
                 //
                 // Transfer 100 at random between two distinct accounts
                 //

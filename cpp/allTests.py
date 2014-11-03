@@ -81,8 +81,8 @@ tests = [
     ("IceBox/admin", ["core", "noipv6", "novc100", "nomingw", "nomx"]),
     ("Freeze/dbmap", ["once", "novc100", "nomingw"]),
     ("Freeze/complex", ["once", "novc100", "nomingw"]),
-    ("Freeze/evictor", ["core", "novc100", "nomingw"]),
-    ("Freeze/fileLock", ["core", "novc100", "nomingw"]),
+    ("Freeze/evictor", ["once", "novc100", "nomingw"]),
+    ("Freeze/fileLock", ["once", "novc100", "nomingw"]),
     ("IceStorm/single", ["service", "novc100", "noappverifier", "nomingw"]), # This test doesn't work with appverifier
     ("IceStorm/federation", ["service", "novc100", "nomingw"]),
     ("IceStorm/federation2", ["service", "novc100", "nomingw"]),

@@ -366,9 +366,19 @@ public:
     run()
     {
         int transferOp = 0;
-
-        for(int i = 0; i < 1000; i++)
+        IceUtil::Time now = IceUtil::Time::now();
+        for(int i = 0; i < 500; i++)
         {
+            //
+            // Limit the time this thread runs. We don't want the test
+            // to take too long on slow machines/VMs
+            //
+            if(IceUtil::Time::now() - now > IceUtil::Time::seconds(60))
+            {
+                cerr << "warning: exiting transfer thread after one minute and " << i << " iterations" << endl; 
+                break;
+            }
+
             //
             // Transfer 100 at random between two distinct accounts 
             //

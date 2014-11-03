@@ -78,7 +78,7 @@ tests = [
     ("src/main/java/test/IceBox/configuration", ["core", "noipv6", "nomx"]),
     ("src/main/java/test/Freeze/dbmap", ["once"]),
     ("src/main/java/test/Freeze/complex", ["once"]),
-    ("src/main/java/test/Freeze/evictor", ["core"]),
+    ("src/main/java/test/Freeze/evictor", ["once"]),
     ("src/main/java/test/Freeze/fileLock", ["once"]),
     ("src/main/java/test/Glacier2/router", ["service"]),
     ("src/main/java/test/Glacier2/sessionHelper", ["service", "nossl", "nows", "noipv6"]),
