@@ -1260,7 +1260,9 @@ namespace IceInternal
                 _serverThreadPool = null;
                 _clientThreadPool = null;
                 _asyncIOThread = null;
+#if !SILVERLIGHT
                 _endpointHostResolver = null;
+#endif
                 _timer = null;
 
                 _servantFactoryManager = null;
