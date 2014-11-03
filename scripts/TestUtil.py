@@ -1195,11 +1195,22 @@ def getMirrorDir(base, mapping):
         current = os.path.basename(before)
         before = os.path.dirname(before)
         if current == lang:
+            # Deal with Java's different directory structure
+            if lang == "java":
+                while len(before) > 0:
+                    current = os.path.basename(before)
+                    before = os.path.dirname(before)
+                    if current == lang:
+                        break
             break
         after.insert(0, current)
     else:
         raise RuntimeError("cannot find language dir")
-    return os.path.join(before, mapping, *after)
+    dir = os.path.join(before, mapping)
+    # Deal with Java's different directory structure
+    if mapping == "java":
+        dir = os.path.join(dir, "test", "src", "main", "java")
+    return os.path.join(dir, *after)
 
 def getMappingDir(base, mapping, dirnames):
     """Get the directory for the given mapping."""
@@ -1899,7 +1910,12 @@ def runTests(start, expanded, num = 0, script = False):
             if index < start:
                 continue
             i = os.path.normpath(i)
-            dir = os.path.join(toplevel, i)
+
+            # Deal with Java's different directory structure
+            if i.find(os.path.join("java","test")) != -1:
+                dir = os.path.join(toplevel, "java", "test", "src", "main", i)
+            else:
+                dir = os.path.join(toplevel, i)
 
             sys.stdout.write("\n")
             if num > 0:
