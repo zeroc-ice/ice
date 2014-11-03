@@ -14,10 +14,6 @@
 #   include <readline/history.h>
 #endif
 
-#ifdef _MSC_VER
-#    pragma warning( disable : 4996 )
-#endif
-
 using namespace std;
 using namespace Filesystem;
 
@@ -372,7 +368,11 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
     }
     else
     {
+#   ifdef _WIN32
+        strcpy_s(buf, result + 1, line.c_str());
+#   else
         strcpy(buf, line.c_str());
+#   endif
     }
 
 #endif

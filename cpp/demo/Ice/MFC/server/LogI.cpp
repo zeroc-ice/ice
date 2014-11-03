@@ -10,11 +10,6 @@
 #include <stdafx.h>
 #include <LogI.h>
 
-
-#ifdef _MSC_VER
-#    pragma warning( disable : 4996 )
-#endif
-
 using namespace std;
 
 LogI::LogI() :
@@ -106,6 +101,10 @@ LogI::post(const string& data)
 {
     assert(_hwnd != 0);
     char* text = new char[data.size()+1];
+#ifdef _WIN32
+    strcpy_s(text, data.size() + 1, data.c_str());    
+#else
     strcpy(text, data.c_str());
+#endif
     ::PostMessage(_hwnd, WM_USER, (WPARAM)FALSE, (LPARAM)text);
 }
