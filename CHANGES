@@ -211,6 +211,11 @@ General Changes
   to classes. It also supports the use of compact type IDs for
   classes.
 
+- The CryptPasswords file support for Glacier2 and IceGrid is now
+  implemented in a separate C++ plug-in, the 
+  Glacier2CryptPermissionsVerifier plug-in. On Windows, this plug-in
+  is the only remaining Ice run time dependency on OpenSSL.
+
 - Removed the Ice::Stats interface, which was deprecated in Ice 3.5
   and replaced by the new metrics facility.
 
