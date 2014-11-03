@@ -4,7 +4,7 @@
     <options hostArchitectures="i386,x86_64"/>
     <options customize="never"/>
     <domains enable_anywhere="false" enable_currentUserHome="false" enable_localSystem="true"/>
-    <welcome file="README.txt"/>
+    <readme file="README.txt"/>
     <license file="THIRD_PARTY_LICENSE.txt"/>
     <allowed-os-versions>
         <os-version min="10.8" />

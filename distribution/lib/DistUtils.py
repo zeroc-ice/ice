@@ -11,6 +11,11 @@
 import os, sys, shutil, glob, fnmatch, string, re, fileinput, time, subprocess
 from stat import *
 
+def runCommand(cmd):
+    print(cmd)
+    if os.system(cmd) != 0:
+        print("Error executing: " + cmd)
+        sys.exit(1)
 #
 # Defines which languges are supported on each supported platform
 #
@@ -28,7 +33,7 @@ bzip2 = { \
 }
 
 berkeleydb = { \
-    'Darwin' : '/Library/Developer/Ice-3.6b-ThirdParty', \
+    'Darwin' : '/Library/Developer/Ice-@ver@-ThirdParty', \
     'SunOS'  : '/opt/db', \
 }
 
@@ -44,7 +49,7 @@ iconv = {\
 
 mcpp = {
     'SunOS' : '/opt/mcpp', \
-    'Darwin' : '/Library/Developer/Ice-3.6b-ThirdParty'
+    'Darwin' : '/Library/Developer/Ice-@ver@-ThirdParty'
 }
 
 openssl = { \
@@ -332,13 +337,13 @@ def fixVersion(file, version, mmversion = None, libversion = None, debversion = 
     line = oldFile.read();
     line = re.sub("@ver@", version, line)
     if mmversion:
-        line = re.sub("@mmver@", mmversion, line)
+        line = re.sub("@ver@", mmversion, line)
     if libversion:
-        line = re.sub("@libver@", libversion, line)
+        line = re.sub("36b", libversion, line)
     if debversion:
-        line = re.sub("@debver@", debversion, line)
+        line = re.sub("3.6.0", debversion, line)
     if debversion:
-        line = re.sub("@debmmver@", debmmversion, line)
+        line = re.sub("3.6", debmmversion, line)
     newFile.write(line)
     newFile.close()
     oldFile.close()
@@ -455,12 +460,12 @@ def tarArchive(dir, verbose = False, archiveDir = None):
         os.mkdir("tmp")
         os.rename(dist, os.path.join("tmp", archiveDir))
         os.chdir("tmp")
-        os.system("tar c" + quiet + "f - " + archiveDir + " | gzip -9 - > " + os.path.join("..", dist) + ".tar.gz")
+        runCommand("tar c" + quiet + "f - " + archiveDir + " | gzip -9 - > " + os.path.join("..", dist) + ".tar.gz")
         os.chdir("..")
         os.rename(os.path.join("tmp", archiveDir), dir)
         os.rmdir("tmp")
     else:
-        os.system("tar c" + quiet + "f - " + dist + " | gzip -9 - > " + dist + ".tar.gz")
+        runCommand("tar c" + quiet + "f - " + dist + " | gzip -9 - > " + dist + ".tar.gz")
 
     os.chdir(cwd)
     print("ok")
@@ -479,12 +484,12 @@ def untarArchive(archive, verbose = False, archiveDir = None):
     if archiveDir:
         os.mkdir("tmp")
         os.chdir("tmp")
-        os.system("gunzip -c " + os.path.join("..", archive) + " | tar x" + quiet + "f -")
+        runCommand("gunzip -c " + os.path.join("..", archive) + " | tar x" + quiet + "f -")
         os.rename(os.listdir(".")[0], os.path.join("..", archiveDir))
         os.chdir("..")
         os.rmdir("tmp")
     else:
-        os.system("gunzip -c " + archive + " | tar x" + quiet + "f -")
+        runCommand("gunzip -c " + archive + " | tar x" + quiet + "f -")
 
     return True
 
@@ -502,17 +507,17 @@ def zipArchive(dir, verbose = False, archiveDir = None):
         os.rename(dist, os.path.join("tmp", archiveDir))
         os.chdir("tmp")
         if verbose:
-            os.system("zip -9r " + os.path.join("..", dist + ".zip ") + archiveDir)
+            runCommand("zip -9r " + os.path.join("..", dist + ".zip ") + archiveDir)
         else:
-            os.system("zip -9rq " + os.path.join("..", dist +".zip ") + archiveDir)
+            runCommand("zip -9rq " + os.path.join("..", dist +".zip ") + archiveDir)
         os.chdir("..")
         os.rename(os.path.join("tmp", archiveDir), dir)
         os.rmdir("tmp")
     else:
         if verbose:
-            os.system("zip -9r " + dist + ".zip " + dist)
+            runCommand("zip -9r " + dist + ".zip " + dist)
         else:
-            os.system("zip -9rq " + dist +".zip " + dist)
+            runCommand("zip -9rq " + dist +".zip " + dist)
 
     os.chdir(cwd)
     print("ok")
@@ -532,18 +537,18 @@ def unzipArchive(archive, verbose = False, archiveDir = None):
         os.mkdir("tmp")
         os.chdir("tmp")
         if verbose:
-            os.system("unzip " + os.path.join("..", archive))
+            runCommand("unzip " + os.path.join("..", archive))
         else:
-            os.system("unzip -q " + os.path.join("..", archive))
+            runCommand("unzip -q " + os.path.join("..", archive))
         os.rename(os.listdir(".")[0], os.path.join("..", archiveDir))
         os.chdir("..")
         os.rmdir("tmp")
     else:
-        os.system("gunzip -c " + archive + " | tar x" + quiet + "f -")
+        runCommand("gunzip -c " + archive + " | tar x" + quiet + "f -")
         if verbose:
-            os.system("unzip " + archive)
+            runCommand("unzip " + archive)
         else:
-            os.system("unzip -q " + archive)
+            runCommand("unzip -q " + archive)
 
     return True
 
@@ -618,7 +623,7 @@ def writeSrcDistReport(product, version, tag, compareToDir, distributions):
             n = compareDirs(dist + "-orig", distdir)
             modifications = [ modifications[i] + n[i]  for i in range(len(modifications))]
             if n != ([], [], []):
-                os.system("diff -r -N " + dist + "-orig " + distdir + " > patch-" + distfile)
+                runCommand("diff -r -N " + dist + "-orig " + distdir + " > patch-" + distfile)
             remove(dist + "-orig")
 
         print("ok")
@@ -843,7 +848,7 @@ class Platform:
         sys.stdout.flush()
         os.chdir(buildRootDir)
         tarfile = os.path.join(cwd, self.getPackageName("Ice", version)) + ".tar.gz"
-        os.system("tar c" + quiet + "f - Ice-" + version + " | gzip -9 - > " + tarfile)
+        runCommand("tar c" + quiet + "f - Ice-" + version + " | gzip -9 - > " + tarfile)
         os.chdir(cwd)
         print("ok")
 
@@ -893,56 +898,51 @@ class Darwin(Platform):
 
         sys.stdout.write("Creating installer...")
         sys.stdout.flush()
-        if os.path.exists(buildRootDir + "/installer"):
-            shutil.rmtree(buildRootDir + "/installer")
-        os.mkdir(buildRootDir + "/installer")
 
-        pmdoc = os.path.join(distDir, "src", "mac", "Ice", "Ice.pmdoc")
-        pkg = os.path.join(buildRootDir, "installer", "Ice-" + version + ".pkg")
-        os.system("/Applications/PackageMaker.app/Contents/MacOS/PackageMaker --doc " + pmdoc + " --no-relocate --out " + pkg)
-        copy(os.path.join(distDir, "src", "mac", "Ice", "README.txt"), os.path.join(buildRootDir, "installer"))
-        copy(os.path.join(distDir, "src", "mac", "Ice", "uninstall.sh"), os.path.join(buildRootDir, "installer"))
+        installerDir = os.path.join(buildRootDir, "installer")
+        if os.path.exists(installerDir):
+            shutil.rmtree(installerDir)
+        os.mkdir(installerDir)
+
+        packagesDir = os.path.join(buildRootDir, "packages")
+        if os.path.exists(packagesDir):
+            shutil.rmtree(packagesDir)
+        os.mkdir(packagesDir)
+
+        package = "com.zeroc.ice"
+        packageRoot = os.path.join(buildRootDir, "Ice-@ver@")
+        packageInstallLocation = "/Library/Developer/Ice-@ver@"
+
+        runCommand("pkgbuild --root %s --identifier=%s --install-location=%s %s/%s.pkg" % 
+                  (packageRoot, package, packageInstallLocation, packagesDir, package))
+
+        package = "com.zeroc.icepython"
+        packageRoot = os.path.join(buildRootDir, "python")
+        packageInstallLocation = "/Library/Python/2.7/site-packages"
+
+        runCommand("pkgbuild --root %s --identifier=%s --install-location=%s %s/%s.pkg" % 
+                  (packageRoot, package, packageInstallLocation, packagesDir, package))
+
+        package = "com.zeroc.icegridadmin"
+        packageRoot = os.path.join(buildRootDir, "IceGrid Admin.app")
+        packageInstallLocation = "/Applications/IceGrid Admin.app"
+
+        runCommand("pkgbuild --root \"%s\" --identifier=%s --install-location=\"%s\" %s/%s.pkg" % 
+                  (packageRoot, package, packageInstallLocation, packagesDir, package))
+
+
+        distribution = os.path.join(distDir, "src", "mac", "Ice", "distribution.xml")
+        resources = os.path.join(distDir, "src", "mac", "Ice", "resources")
+        scripts = os.path.join(distDir, "src", "mac", "Ice", "scripts")
+        
+
+        runCommand("productbuild --distribution=%s --resources=%s --scripts=%s --package-path=%s %s/Ice-@ver@.pkg" % 
+                  (distribution, resources, scripts, packagesDir, installerDir))
+        
+
+        copy(os.path.join(distDir, "src", "mac", "Ice", "README.txt"), installerDir)
+        copy(os.path.join(distDir, "src", "mac", "Ice", "uninstall.sh"), installerDir)
         print("ok")
-
-        #
-        # Ensure the IceGridAdmin pkg isn't relocated. PackageMaker enable relocation
-        # in applications when you edit the installer pmdoc file, and this cause the
-        # IceGrid Admin application bundle to be installed in unexpected location.
-        #
-        # We expand the pkg using pkgutil and ensure the following xml fragment
-        # ins't present in Distribution file. We remove that if necessary and
-        # recreate the package with pkguil.
-        #
-        # <pkg-ref id="com.zeroc.icegridadmin.pkg">
-        #  <relocate search-id="pkmktoken2">
-        #    <bundle id="com.zeroc.IceGridGUI"/>
-        #  </relocate>
-        # </pkg-ref>
-        #
-        os.system("pkgutil --expand " + pkg + " " + os.path.join(buildRootDir, "installer", "tmp"))
-        new = open(os.path.join(buildRootDir, "installer", "tmp", "Distribution.new"), "w")
-        old = open(os.path.join(buildRootDir, "installer", "tmp", "Distribution"), "r")
-
-        match = False
-        for line in old:
-
-            if line.strip() == '<pkg-ref id="com.zeroc.icegridadmin.pkg">':
-                match = True
-                continue
-
-            if match:
-                if line.strip() == "</pkg-ref>":
-                    match = False
-                continue
-
-            new.write(line)
-        old.close()
-        new.close()
-        os.remove(os.path.join(buildRootDir, "installer", "tmp", "Distribution"))
-        os.rename(os.path.join(buildRootDir, "installer", "tmp", "Distribution.new"),
-                  os.path.join(buildRootDir, "installer", "tmp", "Distribution"))
-        os.system("pkgutil --flatten " + os.path.join(buildRootDir, "installer", "tmp") + " " + pkg)
-        shutil.rmtree(os.path.join(buildRootDir, "installer", "tmp"))
 
         volname = "Ice-" + version
         sys.stdout.write( "Building disk image... " + volname + " ")
@@ -950,17 +950,18 @@ class Darwin(Platform):
 
         if os.path.exists("scratch.dmg.sparseimage"):
             os.remove("scratch.dmg.sparseimage")
-        os.system("hdiutil create scratch.dmg -volname \"%s\" -type SPARSE -fs HFS+" % volname)
-        os.system("hdid scratch.dmg.sparseimage")
-        os.system("ditto -rsrc %s \"/Volumes/%s\"" % (os.path.join(buildRootDir, "installer"), volname))
-        os.system("hdiutil detach \"/Volumes/%s\"" % volname)
+        runCommand("hdiutil create scratch.dmg -volname \"%s\" -type SPARSE -fs HFS+" % volname)
+        runCommand("hdid scratch.dmg.sparseimage")
+        runCommand("ditto -rsrc %s \"/Volumes/%s\"" % (installerDir, volname))
+        runCommand("hdiutil detach \"/Volumes/%s\"" % volname)
         if os.path.exists(os.path.join(buildRootDir, "..", volname) + ".dmg"):
             os.remove(os.path.join(buildRootDir, "..", volname) + ".dmg")
-        os.system("hdiutil convert  scratch.dmg.sparseimage -format UDZO -o %s.dmg -imagekey zlib-devel=9" %
+        runCommand("hdiutil convert  scratch.dmg.sparseimage -format UDZO -o %s.dmg -imagekey zlib-devel=9" %
                   os.path.join(buildRootDir, "..", volname))
         os.remove("scratch.dmg.sparseimage")
 
-        shutil.rmtree(buildRootDir + "/installer")
+        shutil.rmtree(installerDir)
+        shutil.rmtree(packagesDir)
         print("ok")
 
 class Linux(Platform):
