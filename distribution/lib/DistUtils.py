@@ -337,13 +337,13 @@ def fixVersion(file, version, mmversion = None, libversion = None, debversion = 
     line = oldFile.read();
     line = re.sub("@ver@", version, line)
     if mmversion:
-        line = re.sub("@ver@", mmversion, line)
+        line = re.sub("@mmver@", mmversion, line)
     if libversion:
-        line = re.sub("36b", libversion, line)
+        line = re.sub("@libver@", libversion, line)
     if debversion:
-        line = re.sub("3.6.0", debversion, line)
+        line = re.sub("@debver@", debversion, line)
     if debversion:
-        line = re.sub("3.6", debmmversion, line)
+        line = re.sub("@debmmver@", debmmversion, line)
     newFile.write(line)
     newFile.close()
     oldFile.close()
