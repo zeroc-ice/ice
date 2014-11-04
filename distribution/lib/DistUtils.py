@@ -11,8 +11,9 @@
 import os, sys, shutil, glob, fnmatch, string, re, fileinput, time, subprocess
 from stat import *
 
-def runCommand(cmd):
-    print(cmd)
+def runCommand(cmd, verbose = False):
+    if verbose:
+        print(cmd)
     if os.system(cmd) != 0:
         print("Error executing: " + cmd)
         sys.exit(1)
@@ -913,21 +914,21 @@ class Darwin(Platform):
         packageRoot = os.path.join(buildRootDir, "Ice-@ver@")
         packageInstallLocation = "/Library/Developer/Ice-@ver@"
 
-        runCommand("pkgbuild --root %s --identifier=%s --install-location=%s %s/%s.pkg" % 
+        runCommand("pkgbuild --root %s --identifier=%s --install-location=%s --version @ver@ %s/%s.pkg" % 
                   (packageRoot, package, packageInstallLocation, packagesDir, package))
 
         package = "com.zeroc.icepython"
         packageRoot = os.path.join(buildRootDir, "python")
         packageInstallLocation = "/Library/Python/2.7/site-packages"
 
-        runCommand("pkgbuild --root %s --identifier=%s --install-location=%s %s/%s.pkg" % 
+        runCommand("pkgbuild --root %s --identifier=%s --install-location=%s --version @ver@ %s/%s.pkg" % 
                   (packageRoot, package, packageInstallLocation, packagesDir, package))
 
         package = "com.zeroc.icegridadmin"
         packageRoot = os.path.join(buildRootDir, "IceGrid Admin.app")
         packageInstallLocation = "/Applications/IceGrid Admin.app"
 
-        runCommand("pkgbuild --root \"%s\" --identifier=%s --install-location=\"%s\" %s/%s.pkg" % 
+        runCommand("pkgbuild --root \"%s\" --identifier=%s --install-location=\"%s\" --version @ver@ %s/%s.pkg" % 
                   (packageRoot, package, packageInstallLocation, packagesDir, package))
 
 

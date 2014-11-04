@@ -44,7 +44,7 @@ uninstallPackage ()
             fi
         done
 
-        if [[ "$PACKAGE" == "com.zeroc.ice.pkg" ]]; then
+        if [[ "$PACKAGE" == "com.zeroc.ice" ]]; then
             BASE_PATH=$(dirname "$VOLUME$LOCATION")
             VERSION_MAJOR=${VERSION:0:1}
             VERSION_MINOR=${VERSION:2:1}
@@ -54,8 +54,8 @@ uninstallPackage ()
             #
             # Remove Ice contents installation directory
             #
-            if [[ -d "$BASE_PATH/Ice-$VERSION" ]]; then
-                rm -rf "$BASE_PATH/Ice-$VERSION"
+            if [[ -d "$VOLUME$LOCATION" ]]; then
+                rm -rf "$VOLUME$LOCATION"
             fi
 
             if [[ "$BASE_PATH/Ice-$VERSION_MM" ]]; then
@@ -63,14 +63,13 @@ uninstallPackage ()
             fi
         fi
 
-        if [[ "$PACKAGE" == "com.zeroc.icegridadmin.pkg" ]]; then
-            BASE_PATH=$VOLUME$LOCATION
-            if [[ "$BASE_PATH" ]]; then
-                rm -rf "$BASE_PATH"
+        if [[ "$PACKAGE" == "com.zeroc.icegridadmin" ]]; then
+            if [[ "$VOLUME$LOCATION" ]]; then
+                rm -rf "$VOLUME$LOCATION"
             fi
         fi
 
-        if [[ "$PACKAGE" == "com.zeroc.icepython.pkg" ]]; then
+        if [[ "$PACKAGE" == "com.zeroc.icepython" ]]; then
             BASE_PATH=$VOLUME$LOCATION
             for i in `pkgutil --files $PACKAGE`
             do
@@ -152,8 +151,8 @@ if [[ "$confirmed" == "no" ]]; then
     exit 0
 fi
 
-uninstallPackage "com.zeroc.ice.pkg"
-uninstallPackage "com.zeroc.icegridadmin.pkg"
-uninstallPackage "com.zeroc.icepython.pkg"
+uninstallPackage "com.zeroc.ice"
+uninstallPackage "com.zeroc.icegridadmin"
+uninstallPackage "com.zeroc.icepython"
 
 echo "Ice @ver@ uninstallation completed successfully"

@@ -24,6 +24,7 @@ for f in ["README.txt", "SOURCES.txt", "THIRD_PARTY_LICENSE.txt"]:
 runCommand("pkgbuild --root " + rootDir + " " +
            "--identifier=com.zeroc.ice@ver@-thirdparty " +
            "--install-location=/Library/Developer/Ice-@ver@-ThirdParty " +
+           "--version @ver@ " +
            "packages/com.zeroc.ice-@ver@-thirdParty.pkg")
 
 runCommand("productbuild --distribution=Distribution.xml " +
