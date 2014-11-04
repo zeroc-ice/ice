@@ -30,23 +30,23 @@ class SubscriberForwarderI : public Ice::BlobjectArrayAsync
     {
     public:
 
-        virtual void 
+        virtual void
         exception(const Ice::Exception& ex, const Ice::AMD_Object_ice_invokePtr& amdCB)
         {
             try
             {
                 ex.ice_throw();
             }
-            catch(const Ice::Exception& ex)
+            catch(const Ice::Exception&)
             {
                 // Throw ObjectNotExistException, the subscriber is unreachable
                 amdCB->ice_exception(Ice::ObjectNotExistException(__FILE__, __LINE__));
             }
         }
-        
+
         virtual void
-        response(bool ok, 
-                 const pair<const Ice::Byte*, const Ice::Byte*>& outP, 
+        response(bool ok,
+                 const pair<const Ice::Byte*, const Ice::Byte*>& outP,
                  const Ice::AMD_Object_ice_invokePtr& amdCB)
         {
             amdCB->ice_response(ok, outP);
@@ -55,13 +55,13 @@ class SubscriberForwarderI : public Ice::BlobjectArrayAsync
 
 public:
 
-    SubscriberForwarderI(const Ice::ObjectPrx& proxy) : 
+    SubscriberForwarderI(const Ice::ObjectPrx& proxy) :
         _proxy(proxy),
         _callback(newCallback_Object_ice_invoke(new CallbackI(), &CallbackI::response, &CallbackI::exception))
     {
     }
 
-    virtual void 
+    virtual void
     ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& amdCB,
                      const pair<const Ice::Byte*, const Ice::Byte*>& inParams,
                      const Ice::Current& current)
@@ -72,13 +72,13 @@ public:
 private:
 
     const Ice::ObjectPrx _proxy;
-    const Ice::Callback_Object_ice_invokePtr _callback;    
+    const Ice::Callback_Object_ice_invokePtr _callback;
 };
 
 }
 
-FileIteratorI::FileIteratorI(const AdminSessionIPtr& session, 
-                             const FileReaderPrx& reader, 
+FileIteratorI::FileIteratorI(const AdminSessionIPtr& session,
+                             const FileReaderPrx& reader,
                              const string& filename,
                              Ice::Long offset,
                              int messageSizeMax) :
@@ -137,11 +137,11 @@ AdminSessionI::_register(const SessionServantManagerPtr& servantManager, const I
     if(con)
     {
         category = _database->getInstanceName() + "-" + IceUtil::generateUUID();
-     
+
         Ice::Identity templateId;
         templateId.name = "pick-a-name";
         templateId.category = category;
-        
+
         _adminCallbackTemplate = _registry->createAdminCallbackProxy(templateId);
     }
 
@@ -165,8 +165,8 @@ AdminSessionI::getAdminCallbackTemplate(const Ice::Current&) const
 }
 
 void
-AdminSessionI::setObservers(const RegistryObserverPrx& registryObserver, 
-                            const NodeObserverPrx& nodeObserver, 
+AdminSessionI::setObservers(const RegistryObserverPrx& registryObserver,
+                            const NodeObserverPrx& nodeObserver,
                             const ApplicationObserverPrx& appObserver,
                             const AdapterObserverPrx& adapterObserver,
                             const ObjectObserverPrx& objectObserver,
@@ -184,7 +184,7 @@ AdminSessionI::setObservers(const RegistryObserverPrx& registryObserver,
     const Ice::LocatorPrx l = _registry->getLocator();
     if(registryObserver)
     {
-        setupObserverSubscription(RegistryObserverTopicName, 
+        setupObserverSubscription(RegistryObserverTopicName,
                                   addForwarder(registryObserver->ice_timeout(t)->ice_locator(l)));
     }
     else
@@ -194,7 +194,7 @@ AdminSessionI::setObservers(const RegistryObserverPrx& registryObserver,
 
     if(nodeObserver)
     {
-        setupObserverSubscription(NodeObserverTopicName, 
+        setupObserverSubscription(NodeObserverTopicName,
                                   addForwarder(nodeObserver->ice_timeout(t)->ice_locator(l)));
     }
     else
@@ -204,7 +204,7 @@ AdminSessionI::setObservers(const RegistryObserverPrx& registryObserver,
 
     if(appObserver)
     {
-        setupObserverSubscription(ApplicationObserverTopicName, 
+        setupObserverSubscription(ApplicationObserverTopicName,
                                   addForwarder(appObserver->ice_timeout(t)->ice_locator(l)));
     }
     else
@@ -221,10 +221,10 @@ AdminSessionI::setObservers(const RegistryObserverPrx& registryObserver,
     {
         setupObserverSubscription(AdapterObserverTopicName, Ice::ObjectPrx());
     }
-    
+
     if(objectObserver)
     {
-        setupObserverSubscription(ObjectObserverTopicName, 
+        setupObserverSubscription(ObjectObserverTopicName,
                                   addForwarder(objectObserver->ice_timeout(t)->ice_locator(l)));
     }
     else
@@ -234,7 +234,7 @@ AdminSessionI::setObservers(const RegistryObserverPrx& registryObserver,
 }
 
 void
-AdminSessionI::setObserversByIdentity(const Ice::Identity& registryObserver, 
+AdminSessionI::setObserversByIdentity(const Ice::Identity& registryObserver,
                                       const Ice::Identity& nodeObserver,
                                       const Ice::Identity& appObserver,
                                       const Ice::Identity& adapterObserver,
@@ -305,7 +305,7 @@ AdminSessionI::openServerLog(const string& id, const string& path, int nLines, c
     }
 }
 
-FileIteratorPrx 
+FileIteratorPrx
 AdminSessionI::openServerStdOut(const string& id, int nLines, const Ice::Current& current)
 {
     try
@@ -319,7 +319,7 @@ AdminSessionI::openServerStdOut(const string& id, int nLines, const Ice::Current
     }
 }
 
-FileIteratorPrx 
+FileIteratorPrx
 AdminSessionI::openServerStdErr(const string& id, int nLines, const Ice::Current& current)
 {
     try
@@ -333,19 +333,19 @@ AdminSessionI::openServerStdErr(const string& id, int nLines, const Ice::Current
     }
 }
 
-FileIteratorPrx 
+FileIteratorPrx
 AdminSessionI::openNodeStdOut(const string& name, int nLines, const Ice::Current& current)
 {
     return addFileIterator(_database->getNode(name)->getProxy(), "stdout", nLines, current);
 }
 
-FileIteratorPrx 
+FileIteratorPrx
 AdminSessionI::openNodeStdErr(const string& name, int nLines, const Ice::Current& current)
 {
     return addFileIterator(_database->getNode(name)->getProxy(), "stderr", nLines, current);
 }
 
-FileIteratorPrx 
+FileIteratorPrx
 AdminSessionI::openRegistryStdOut(const string& name, int nLines, const Ice::Current& current)
 {
     FileReaderPrx reader;
@@ -405,7 +405,7 @@ AdminSessionI::setupObserverSubscription(TopicName name, const Ice::ObjectPrx& o
     {
         _observers[name].first = observer;
         _observers[name].second = forwarder;
-        _database->getObserverTopic(name)->subscribe(observer); 
+        _database->getObserverTopic(name)->subscribe(observer);
     }
 }
 
@@ -499,7 +499,7 @@ AdminSessionFactory::AdminSessionFactory(const SessionServantManagerPtr& servant
                                          const ReapThreadPtr& reaper,
                                          const RegistryIPtr& registry) :
     _servantManager(servantManager),
-    _database(database), 
+    _database(database),
     _timeout(registry->getSessionTimeout()),
     _reaper(reaper),
     _registry(registry),
@@ -532,7 +532,7 @@ AdminSessionFactory::createGlacier2Session(const string& sessionId, const Glacie
                 queryId.category = _database->getInstanceName();
                 queryId.name = "Query";
                 ids.push_back(queryId);
-                
+
                 _servantManager->setSessionControl(session, ctl, ids);
             }
             timeout = ctl->getSessionTimeout();
@@ -563,7 +563,7 @@ AdminSessionFactory::createSessionServant(const string& id)
 const TraceLevelsPtr&
 AdminSessionFactory::getTraceLevels() const
 {
-    return _database->getTraceLevels(); 
+    return _database->getTraceLevels();
 }
 
 AdminSessionManagerI::AdminSessionManagerI(const AdminSessionFactoryPtr& factory) : _factory(factory)
@@ -581,7 +581,7 @@ AdminSSLSessionManagerI::AdminSSLSessionManagerI(const AdminSessionFactoryPtr& f
 }
 
 Glacier2::SessionPrx
-AdminSSLSessionManagerI::create(const Glacier2::SSLInfo& info, 
+AdminSSLSessionManagerI::create(const Glacier2::SSLInfo& info,
                                 const Glacier2::SessionControlPrx& ctl,
                                 const Ice::Current&)
 {
