@@ -11,7 +11,7 @@ package test.Freeze.dbmap;
 
 import Freeze.*;
 
-public class Client
+public class Client extends test.Util.Application
 {
     static class ReadThread extends Thread
     {
@@ -2143,47 +2143,26 @@ public class Client
         test(m.lowerKey(0) == null);
     }
 
-    static public void
-    main(String[] args)
+    @Override
+    public int run(String[] args)
     {
         int status;
-        Ice.Communicator communicator = null;
         String envName = "db";
-
-        try
+        if(args.length > 0)
         {
-            Ice.StringSeqHolder holder = new Ice.StringSeqHolder();
-            holder.value = args;
-            communicator = Ice.Util.initialize(holder);
-            args = holder.value;
-            if(args.length > 0)
-            {
-                envName = args[0];
-                envName += "/";
-                envName += "db";
-            }
-
-            status = run(args, communicator, envName, "binary");
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            status = 1;
+            envName = args[0];
+            envName += "/";
+            envName += "db";
         }
 
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Exception ex)
-            {
-                System.err.println(ex);
-                status = 1;
-            }
-        }
-
+        return run(args, communicator(), envName, "binary");
+    }
+    
+    public static void main(String[] args)
+    {
+        Client c = new Client();
+        int status = c.main("Client", args);
+        System.gc();
         System.exit(status);
     }
 }

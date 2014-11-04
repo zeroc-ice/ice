@@ -12,7 +12,7 @@ import test.Freeze.complex.Complex.*;
 
 import Freeze.*;
 
-public class Client
+public class Client extends test.Util.Application
 {
     final static String progName = "test.Freeze.complex.Client";
 
@@ -124,9 +124,9 @@ public class Client
         // Register a factory for the node types.
         //
         Ice.ObjectFactory factory = new ObjectFactoryI();
-        _communicator.addObjectFactory(factory, "::Complex::NumberNode");
-        _communicator.addObjectFactory(factory, "::Complex::AddNode");
-        _communicator.addObjectFactory(factory, "::Complex::MultiplyNode");
+        communicator().addObjectFactory(factory, "::Complex::NumberNode");
+        communicator().addObjectFactory(factory, "::Complex::AddNode");
+        communicator().addObjectFactory(factory, "::Complex::MultiplyNode");
 
         if(args.length != 0 && args[0].equals("populate"))
         {
@@ -147,91 +147,64 @@ public class Client
         _connection.close();
     }
 
-    private
-    Client(Ice.Communicator communicator, String envName)
-    {
-        _communicator = communicator;
-        _connection = Freeze.Util.createConnection(communicator, envName);
-    }
-
-    static public void
-    main(String[] args)
+    @Override
+    public int run(String[] args)
     {
         int status;
         Ice.Communicator communicator = null;
         String envName = "db";
 
+        //
+        // Scan for --dbdir command line argument.
+        //
+        int i = 0;
+        while(i < args.length)
+        {
+            if(args[i].equals("--dbdir"))
+            {
+                if(i +1 >= args.length)
+                {
+                    usage(progName);
+                    System.exit(1);
+                }
+
+                envName = args[i+1];
+                envName += "/";
+                envName += "db";
+
+                //
+                // Consume arguments
+                //
+                String[] arr = new String[args.length - 2];
+                System.arraycopy(args, 0, arr, 0, i);
+                if(i < args.length - 2)
+                {
+                    System.arraycopy(args, i + 2, arr, i, args.length - i - 2);
+                }
+                args = arr;
+            }
+            else
+            {
+                ++i;
+            }
+        }
+
+        _connection = Freeze.Util.createConnection(communicator(), envName);
         try
         {
-            //
-            // Scan for --dbdir command line argument.
-            //
-            int i = 0;
-            while(i < args.length)
-            {
-                if(args[i].equals("--dbdir"))
-                {
-                    if(i +1 >= args.length)
-                    {
-                        usage(progName);
-                        System.exit(1);
-                    }
-
-                    envName = args[i+1];
-                    envName += "/";
-                    envName += "db";
-
-                    //
-                    // Consume arguments
-                    //
-                    String[] arr = new String[args.length - 2];
-                    System.arraycopy(args, 0, arr, 0, i);
-                    if(i < args.length - 2)
-                    {
-                        System.arraycopy(args, i + 2, arr, i, args.length - i - 2);
-                    }
-                    args = arr;
-                }
-                else
-                {
-                    ++i;
-                }
-            }
-
-            Ice.StringSeqHolder holder = new Ice.StringSeqHolder();
-            holder.value = args;
-            communicator = Ice.Util.initialize(holder);
-            args = holder.value;
-            Client client = new Client(communicator, envName);
-            try
-            {
-                status = client.run(args, "test");
-            }
-            finally
-            {
-                client.close();
-            }
+            status = run(args, "test");
         }
-        catch(Exception ex)
+        finally
         {
-            ex.printStackTrace();
-            System.err.println(ex);
-            status = 1;
+            close();
         }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Exception ex)
-            {
-                System.err.println(ex);
-                status = 1;
-            }
-        }
-
+        return status;
+    }
+    
+    public static void main(String[] args)
+    {
+        Client c = new Client();
+        int status = c.main("Client", args);
         System.gc();
         System.exit(status);
     }

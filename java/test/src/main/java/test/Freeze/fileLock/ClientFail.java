@@ -9,7 +9,7 @@
 
 package test.Freeze.fileLock;
 
-public class ClientFail
+public class ClientFail extends test.Util.Application
 {
     private static void
     test(boolean b)
@@ -20,18 +20,12 @@ public class ClientFail
         }
     }
 
-    static public void
-    main(String[] args)
+    @Override
+    public int run(String[] args)
     {
-        Ice.Communicator communicator = null;
         String envName = "db";
-
         try
         {
-            Ice.StringSeqHolder holder = new Ice.StringSeqHolder();
-            holder.value = args;
-            communicator = Ice.Util.initialize(holder);
-            args = holder.value;
             if(args.length > 0)
             {
                 envName = args[0];
@@ -41,7 +35,8 @@ public class ClientFail
 
             try
             {
-                Freeze.Util.createConnection(communicator, envName);
+                System.out.println("create createConnection");
+                Freeze.Util.createConnection(communicator(), envName);
                 test(false);
             }
             catch(IceUtil.FileLockException ex)
@@ -55,19 +50,14 @@ public class ClientFail
             System.out.println("exception:\n" + ex.toString());
             test(false);
         }
-        finally
-        {
-            if(communicator != null)
-            {
-                try
-                {
-                    communicator.destroy();
-                }
-                catch(Exception ex)
-                {
-                    System.err.println("exception:\n" + ex);
-                }
-            }
-        }
+        return 0;
+    }
+    
+    public static void main(String[] args)
+    {
+        ClientFail c = new ClientFail();
+        int status = c.main("Client", args);
+        System.gc();
+        System.exit(status);
     }
 }

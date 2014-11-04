@@ -421,7 +421,7 @@ public class Client extends test.Util.Application
         String ref = "factory:default -p 12010";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
-        RemoteEvictorFactoryPrx factory = RemoteEvictorFactoryPrxHelper.checkedCast(base);
+        RemoteEvictorFactoryPrx factory = RemoteEvictorFactoryPrxHelper.checkedCast(base.ice_invocationTimeout(1000));
 
         if(transactional)
         {
