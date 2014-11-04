@@ -806,6 +806,9 @@ class Platform:
 
     def getJavaEnv(self):
         return "CLASSPATH=" + string.join([t.getJar() for t in self.thirdParties if t.getJar()], os.pathsep)
+    
+    def getJavaBuildOptions(self):
+        return ""
 
     def getSharedLibraryFiles(self, root, path, extension = None):
         if not extension:

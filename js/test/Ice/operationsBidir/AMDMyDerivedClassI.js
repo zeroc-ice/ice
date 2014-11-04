@@ -9,7 +9,7 @@
 
 (function(module, require, exports)
 {
-    var Ice = require("Ice/Ice").Ice;
+    var Ice = require("icejs").Ice;
     var TestAMD = require("TestAMD").TestAMD;
 
     var Class = Ice.Class;

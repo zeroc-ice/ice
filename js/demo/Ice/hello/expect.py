@@ -25,7 +25,7 @@ from demoscript.Ice import hello
 server = Util.spawn('./server --Ice.PrintAdapterReady --Ice.Warn.Connections=0', Util.getMirrorDir("cpp"), mapping="cpp")
 server.expect('.* ready')
 
-client = Util.spawn('node Client.js --Ice.Warn.Connections=0')
+client = Util.spawn(Util.getNodeCommand() + ' Client.js --Ice.Warn.Connections=0')
 client.expect('.*==>')
 
 hello.run(client, server, False, False)

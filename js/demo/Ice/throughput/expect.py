@@ -25,6 +25,6 @@ from demoscript.Ice  import throughput
 server = Util.spawn('./server --Ice.PrintAdapterReady', Util.getMirrorDir("cpp"), mapping="cpp")
 server.expect('.* ready')
 
-client = Util.spawn('node Client.js')
+client = Util.spawn(Util.getNodeCommand() + ' Client.js')
 
 throughput.run(client, server)

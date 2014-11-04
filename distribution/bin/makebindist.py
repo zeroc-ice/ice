@@ -191,7 +191,8 @@ for l in buildLanguages:
     makeOptions = platform.getMakeOptions() + " " + platform.getMakeEnvs(version, l) + " prefix=" + buildDir
 
     if l == "java":
-        buildCmd = platform.getJavaEnv() + " " + make + " " + " prefix=" + buildDir + " APPEND_VERSION_SUFFIX=yes install"
+        buildCmd = (platform.getJavaEnv() + " " + make + " " + " prefix=" + buildDir +
+                    " " + platform.getJavaBuildOptions() + " install")
     else:
         buildCmd = make + " " + makeOptions + " install"
 

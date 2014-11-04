@@ -55,6 +55,27 @@ host = "127.0.0.1"
 #
 debug = False
 
+#
+# The NodeJS interpreter is called "nodejs" on some platforms
+# (e.g., Ubuntu)
+#
+nodeCmd = "node"
+if "NODE" in os.environ:
+    nodeCmd = os.environ["NODE"]
+else:
+    for path in os.environ["PATH"].split(os.pathsep):
+        #
+        # Stop if we find "php" in the PATH first.
+        #
+        if os.path.exists(os.path.join(path, "node")):
+            break
+        elif os.path.exists(os.path.join(path, "nodejs")):
+            nodeCmd = "nodejs"
+            break
+    
+def getNodeCommand():
+    return nodeCmd
+
 def getJavaVersion():
     p = subprocess.Popen(javaCmd + " -version", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
     if(p.wait() != 0):
@@ -232,6 +253,7 @@ def configurePaths():
         addenv("CLASSPATH", os.path.join(javaDir, "IceStorm.jar"))
         addenv("CLASSPATH", os.path.join(javaDir, "IceGrid.jar"))
         addenv("CLASSPATH", os.path.join(javaDir, "IcePatch2.jar"))
+        addenv("CLASSPATH", os.path.join(javaDir, "IceDiscovery.jar"))
         addenv("CLASSPATH", "classes")
         return # That's it, we're done!
 
@@ -317,7 +339,7 @@ def configurePaths():
         addenv("RUBYLIB", os.path.join(getIceDir("rb"), "ruby"))
 
     if getMapping() == "js":
-        addenv("NODE_PATH", os.path.join(getIceDir("js"), "src"))
+        addenv("NODE_PATH", os.path.join(getIceDir("js"), "node_modules" if iceHome else "src"))
         addenv("NODE_PATH", ".")
 
 # Mapping to the associated subdirectory.

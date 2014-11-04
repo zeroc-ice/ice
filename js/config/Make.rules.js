@@ -48,9 +48,13 @@ NODE 		?= node
 ice_language = js
 slice_translator = slice2js
 
-bindir = $(top_srcdir)/bin
-libdir = $(top_srcdir)/lib
-
+ifdef ice_src_dist
+    bindir = $(top_srcdir)/bin
+    libdir = $(top_srcdir)/lib
+else
+    bindir = $(ice_dir)/$(binsubdir)
+    libdir = $(ice_dir)/$(libsubdir)
+endif
 install_libdir 	  = $(prefix)/lib
 install_moduledir = $(prefix)/node_modules/icejs
 

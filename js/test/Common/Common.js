@@ -8,7 +8,7 @@
 // **********************************************************************
 
 (function(module, require, exports){   
-    var Ice = require("Ice/Ice").Ice;
+    var Ice = require("icejs").Ice;
 
     var write = function(msg)
     {

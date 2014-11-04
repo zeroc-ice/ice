@@ -155,15 +155,18 @@ for path in os.environ["PATH"].split(os.pathsep):
 # (e.g., Ubuntu)
 #
 nodeCmd = "node"
-for path in os.environ["PATH"].split(os.pathsep):
-    #
-    # Stop if we find "php" in the PATH first.
-    #
-    if os.path.exists(os.path.join(path, "node")):
-        break
-    elif os.path.exists(os.path.join(path, "nodejs")):
-        phpCmd = "nodejs"
-        break
+if "NODE" in os.environ:
+    nodeCmd = os.environ["NODE"]
+else:
+    for path in os.environ["PATH"].split(os.pathsep):
+        #
+        # Stop if we find "php" in the PATH first.
+        #
+        if os.path.exists(os.path.join(path, "node")):
+            break
+        elif os.path.exists(os.path.join(path, "nodejs")):
+            nodeCmd = "nodejs"
+            break
 
 #
 # This is set by the choice of init method. If not set, before it is
@@ -973,7 +976,7 @@ def getCommandLine(exe, config, options = ""):
     elif config.lang == "php" and config.type == "client":
         output.write(phpCmd + " -n -c tmp.ini -f \""+ exe +"\" -- ")
     elif config.lang == "js":
-        output.write('node "%s" ' % exe)
+        output.write(nodeCmd + ' "%s" ' % exe)
     elif config.lang == "cpp" and config.valgrind:
         # --child-silent-after-fork=yes is required for the IceGrid/activator test where the node
         # forks a process with execv failing (invalid exe name).
@@ -1673,7 +1676,7 @@ def getTestEnv(lang, testdir):
             addPathToEnv("RUBYLIB", os.path.join(getIceDir("rb", testdir), "ruby"), env)
 
     if lang == "js":
-        addPathToEnv("NODE_PATH", os.path.join(getIceDir("js", testdir), "src"), env)
+        addPathToEnv("NODE_PATH", os.path.join(getIceDir("js", testdir), "node_modules" if iceHome else "src"), env)
         addPathToEnv("NODE_PATH", os.path.join(testdir), env)
 
     return env;
