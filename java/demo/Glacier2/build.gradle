@@ -33,8 +33,8 @@
 			}
 		} else {
 			dependencies {
-				compile files("${distJarDir}/Ice.jar")
-				compile files("${distJarDir}/Glacier2.jar")
+				compile files("${distJarDir}/Ice${versionSuffix}.jar")
+				compile files("${distJarDir}/Glacier2${versionSuffix}.jar")
 			}
 		}
 

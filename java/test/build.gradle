@@ -38,17 +38,19 @@ if (distJarDir == null) {
         compile project(':Glacier2')
         compile project(':IceStorm')
         compile project(':IceGrid')
+        compile project(':test/plugins')
     }
 } else {
     println "Using Ice jars installed in ${distJarDir}"
     dependencies {
-        compile files("${distJarDir}/Ice.jar")
-        compile files("${distJarDir}/Freeze.jar")
-        compile files("${distJarDir}/IceDiscovery.jar")
-        compile files("${distJarDir}/IceBox.jar")
-        compile files("${distJarDir}/Glacier2.jar")
-        compile files("${distJarDir}/IceStorm.jar")
-        compile files("${distJarDir}/IceGrid.jar")
+        compile files("${distJarDir}/Ice${versionSuffix}.jar")
+        compile files("${distJarDir}/Freeze${versionSuffix}.jar")
+        compile files("${distJarDir}/IceDiscovery${versionSuffix}.jar")
+        compile files("${distJarDir}/IceBox${versionSuffix}.jar")
+        compile files("${distJarDir}/Glacier2${versionSuffix}.jar")
+        compile files("${distJarDir}/IceStorm${versionSuffix}.jar")
+        compile files("${distJarDir}/IceGrid${versionSuffix}.jar")
+        compile project(':test/plugins')
         compile "com.sleepycat:db:${dbVersion}"
     }
 }

@@ -42,8 +42,8 @@ if (distJarDir == null) {
 	}
 } else {
 	dependencies {
-		compile files("${distJarDir}/Ice.jar")
-		compile files("${distJarDir}/Freeze.jar")
+		compile files("${distJarDir}/Ice${versionSuffix}.jar")
+		compile files("${distJarDir}/Freeze${versionSuffix}.jar")
 		compile "com.sleepycat:db:${dbVersion}"
 	}
 }

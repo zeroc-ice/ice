@@ -25,9 +25,9 @@
 			}
 		} else {
 			dependencies {
-				compile files("${distJarDir}/Ice.jar")
-				compile files("${distJarDir}/IceBox.jar")
-				compile files("${distJarDir}/IceGrid.jar")
+				compile files("${distJarDir}/Ice${versionSuffix}.jar")
+				compile files("${distJarDir}/IceBox${versionSuffix}.jar")
+				compile files("${distJarDir}/IceGrid${versionSuffix}.jar")
 			}
 		}
 

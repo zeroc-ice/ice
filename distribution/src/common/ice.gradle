@@ -130,3 +130,11 @@ else
 	ext.sliceDir = "$iceDir/slice"
 	ext.distJarDir = "$iceDir/lib"
 }
+
+// Check if we need to append version suffix to jar files
+ext.versionSuffix = ""
+def iceJar = new File("${distJarDir}/Ice-${iceVersion}.jar")
+if(iceJar.exists())
+{
+	ext.versionSuffix = "-${iceVersion}"
+}
