@@ -1013,9 +1013,20 @@ public:
         called();
     }
 
-    void exCB(const Ice::Exception&)
+    void exCB(const Ice::Exception& ex)
     {
-        test(false);
+        try
+        {
+            ex.ice_throw();
+        }
+        catch (const Ice::OperationNotExistException&)
+        {
+            called();
+        }
+        catch(const Ice::Exception&)
+        {
+            test(false);
+        }
     }
 
 private:
