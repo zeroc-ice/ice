@@ -37,13 +37,10 @@ class SubscriberForwarderI : public Ice::BlobjectArrayAsync
             {
                 ex.ice_throw();
             }
-            catch(const Ice::CloseConnectionException&)
-            {
-                amdCB->ice_response(true, Ice::ByteSeq()); // Bi-dir connection is closed, ignore.
-            }
             catch(const Ice::Exception& ex)
             {
-                amdCB->ice_exception(ex);
+                // Throw ObjectNotExistException, the subscriber is unreachable
+                amdCB->ice_exception(Ice::ObjectNotExistException(__FILE__, __LINE__));
             }
         }
         
