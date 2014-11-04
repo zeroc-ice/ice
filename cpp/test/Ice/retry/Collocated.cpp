@@ -25,7 +25,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectPtr object = new RetryI;
     adapter->add(object, communicator->stringToIdentity("retry"));
-    adapter->activate();
+    //adapter->activate(); // Don't activate OA to ensure collocation is used.
 
     RetryPrx allTests(const Ice::CommunicatorPtr&);
     RetryPrx retry = allTests(communicator);

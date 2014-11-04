@@ -23,12 +23,12 @@ public class Collocated
     {
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new MetricsI(), communicator.stringToIdentity("metrics"));
-        //adapter.activate();
+        //adapter.activate(); // Don't activate OA to ensure collocation is used.
         
         communicator.getProperties().setProperty("ControllerAdapter.Endpoints", "default -p 12011");
         Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
         controllerAdapter.add(new ControllerI(adapter), communicator.stringToIdentity("controller"));
-        //controllerAdapter.activate();
+        //controllerAdapter.activate(); // Don't activate OA to ensure collocation is used.
 
         Test.MetricsPrx metrics = AllTests.allTests(communicator, _observer);
         metrics.shutdown();

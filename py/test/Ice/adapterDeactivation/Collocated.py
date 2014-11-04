@@ -21,7 +21,7 @@ class TestServer(Ice.Application):
         locator = TestI.ServantLocatorI()
 
         adapter.addServantLocator(locator, "")
-        adapter.activate()
+        #adapter.activate() // Don't activate OA to ensure collocation is used.
 
         AllTests.allTests(self.communicator())
 

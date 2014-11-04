@@ -19,9 +19,9 @@ public class Collocated extends test.Util.Application
 
         assert(_dispatcher != null);
         adapter.add(new TestI(_dispatcher), communicator().stringToIdentity("test"));
-        //adapter.activate();
+        //adapter.activate(); // Don't activate OA to ensure collocation is used.
         adapter2.add(new TestControllerI(adapter), communicator().stringToIdentity("testController"));
-        //adapter2.activate();
+        //adapter2.activate(); // Don't activate OA to ensure collocation is used.
 
         AllTests.allTests(communicator(), getWriter(), _dispatcher);
         return 0;

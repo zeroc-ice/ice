@@ -20,7 +20,7 @@ class TestServer(Ice.Application):
         self.communicator().getProperties().setProperty("Ice.Warn.Dispatch", "0")
 
         adapter = self.communicator().createObjectAdapter("TestAdapter")
-        adapter.activate()
+        #adapter.activate() // Don't activate OA to ensure collocation is used.
         adapter.addServantLocator(TestI.ServantLocatorI("category"), "category")
         adapter.addServantLocator(TestI.ServantLocatorI(""), "")
         adapter.add(TestI.TestI(), self.communicator().stringToIdentity("asm"))

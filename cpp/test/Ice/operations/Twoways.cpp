@@ -1472,6 +1472,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
         }
 
 #ifndef ICE_OS_WINRT
+        if(p->ice_getConnection())
         {
             //
             // Test implicit context propagation

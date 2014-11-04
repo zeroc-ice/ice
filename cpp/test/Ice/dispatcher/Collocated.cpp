@@ -29,10 +29,10 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     TestIntfControllerIPtr testController = new TestIntfControllerI(adapter);
     
     adapter->add(new TestIntfI(), communicator->stringToIdentity("test"));
-    //adapter->activate();
+    //adapter->activate(); // Don't activate OA to ensure collocation is used.
     
     adapter2->add(testController, communicator->stringToIdentity("testController"));
-    //adapter2->activate();
+    //adapter2->activate(); // Don't activate OA to ensure collocation is used.
 
     void allTests(const Ice::CommunicatorPtr&);
     allTests(communicator);

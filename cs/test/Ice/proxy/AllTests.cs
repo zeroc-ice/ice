@@ -688,7 +688,7 @@ public class AllTests : TestCommon.TestApp
         Test.MyClassPrx cl20 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref20));
         try
         {
-            cl20.ice_collocationOptimized(false).ice_ping();
+            cl20.ice_ping();
             test(false);
         }
         catch(Ice.UnsupportedEncodingException)
@@ -700,7 +700,7 @@ public class AllTests : TestCommon.TestApp
         Test.MyClassPrx cl10 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref10));
         cl10.ice_ping();
         cl10.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
-        cl.ice_collocationOptimized(false).ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
+        cl.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
 
         // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
         // call will use the 1.1 encoding
@@ -720,7 +720,7 @@ public class AllTests : TestCommon.TestApp
             inEncaps[4] = version.major;
             inEncaps[5] = version.minor;
             byte[] outEncaps;
-            cl.ice_collocationOptimized(false).ice_invoke("ice_ping", Ice.OperationMode.Normal, inEncaps,
+            cl.ice_invoke("ice_ping", Ice.OperationMode.Normal, inEncaps,
                                                           out outEncaps);
             test(false);
         }
@@ -741,7 +741,7 @@ public class AllTests : TestCommon.TestApp
             inEncaps[4] = version.major;
             inEncaps[5] = version.minor;
             byte[] outEncaps;
-            cl.ice_collocationOptimized(false).ice_invoke("ice_ping", Ice.OperationMode.Normal, inEncaps,
+            cl.ice_invoke("ice_ping", Ice.OperationMode.Normal, inEncaps,
                                                           out outEncaps);
             test(false);
         }
@@ -759,7 +759,7 @@ public class AllTests : TestCommon.TestApp
         cl20 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref20));
         try
         {
-            cl20.ice_collocationOptimized(false).ice_ping();
+            cl20.ice_ping();
             test(false);
         }
         catch(Ice.UnsupportedProtocolException)

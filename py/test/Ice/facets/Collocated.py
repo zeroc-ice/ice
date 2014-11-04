@@ -25,7 +25,7 @@ def run(args, communicator):
     h = TestI.HI(communicator)
     adapter.addFacet(h, communicator.stringToIdentity("d"), "facetGH")
 
-    adapter.activate()
+    #adapter.activate() // Don't activate OA to ensure collocation is used.
 
     AllTests.allTests(communicator)
 

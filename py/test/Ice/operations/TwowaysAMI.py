@@ -674,49 +674,50 @@ def twowaysAMI(communicator, p):
     #
     # Test implicit context propagation
     #
-    impls = ( 'Shared', 'PerThread' )
-    for i in impls:
-        initData = Ice.InitializationData()
-        initData.properties = communicator.getProperties().clone()
-        initData.properties.setProperty('Ice.ImplicitContext', i)
-        ic = Ice.initialize(data=initData)
+    if p.ice_getConnection():
+        impls = ( 'Shared', 'PerThread' )
+        for i in impls:
+            initData = Ice.InitializationData()
+            initData.properties = communicator.getProperties().clone()
+            initData.properties.setProperty('Ice.ImplicitContext', i)
+            ic = Ice.initialize(data=initData)
 
-        ctx = {'one': 'ONE', 'two': 'TWO', 'three': 'THREE'}
+            ctx = {'one': 'ONE', 'two': 'TWO', 'three': 'THREE'}
 
-        p3 = Test.MyClassPrx.uncheckedCast(ic.stringToProxy("test:default -p 12010"))
+            p3 = Test.MyClassPrx.uncheckedCast(ic.stringToProxy("test:default -p 12010"))
 
-        ic.getImplicitContext().setContext(ctx)
-        test(ic.getImplicitContext().getContext() == ctx)
-        r = p3.begin_opContext()
-        c = p3.end_opContext(r)
-        test(c == ctx)
+            ic.getImplicitContext().setContext(ctx)
+            test(ic.getImplicitContext().getContext() == ctx)
+            r = p3.begin_opContext()
+            c = p3.end_opContext(r)
+            test(c == ctx)
 
-        ic.getImplicitContext().put('zero', 'ZERO')
+            ic.getImplicitContext().put('zero', 'ZERO')
 
-        ctx = ic.getImplicitContext().getContext()
-        r = p3.begin_opContext()
-        c = p3.end_opContext(r)
-        test(c == ctx)
+            ctx = ic.getImplicitContext().getContext()
+            r = p3.begin_opContext()
+            c = p3.end_opContext(r)
+            test(c == ctx)
 
-        prxContext = {'one': 'UN', 'four': 'QUATRE'}
+            prxContext = {'one': 'UN', 'four': 'QUATRE'}
 
-        combined = {}
-        combined.update(ctx)
-        combined.update(prxContext)
-        test(combined['one'] == 'UN')
+            combined = {}
+            combined.update(ctx)
+            combined.update(prxContext)
+            test(combined['one'] == 'UN')
 
-        p3 = Test.MyClassPrx.uncheckedCast(p3.ice_context(prxContext))
-        ic.getImplicitContext().setContext({})
-        r = p3.begin_opContext()
-        c = p3.end_opContext(r)
-        test(c == prxContext)
+            p3 = Test.MyClassPrx.uncheckedCast(p3.ice_context(prxContext))
+            ic.getImplicitContext().setContext({})
+            r = p3.begin_opContext()
+            c = p3.end_opContext(r)
+            test(c == prxContext)
 
-        ic.getImplicitContext().setContext(ctx)
-        r = p3.begin_opContext()
-        c = p3.end_opContext(r)
-        test(c == combined)
+            ic.getImplicitContext().setContext(ctx)
+            r = p3.begin_opContext()
+            c = p3.end_opContext(r)
+            test(c == combined)
 
-        ic.destroy()
+            ic.destroy()
 
     cb = Callback()
     p.begin_opIdempotent(cb.opIdempotent, cb.exCB)

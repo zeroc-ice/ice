@@ -19,7 +19,7 @@ def run(args, communicator):
     adapter = communicator.createObjectAdapter("TestAdapter")
     object = TestI.InitialI(adapter)
     adapter.add(object, communicator.stringToIdentity("initial"))
-    adapter.activate()
+    #adapter.activate() // Don't activate OA to ensure collocation is used.
 
     AllTests.allTests(communicator)
 

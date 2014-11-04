@@ -25,7 +25,7 @@ public class Collocated
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.ObjectPrx prx = adapter.add(new MyDerivedClassI(), communicator.stringToIdentity("test"));
-        adapter.activate();
+        //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
         if(prx.ice_getConnection() != null)
         {

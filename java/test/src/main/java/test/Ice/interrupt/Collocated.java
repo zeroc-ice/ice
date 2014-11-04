@@ -18,9 +18,9 @@ public class Collocated extends test.Util.Application
         Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("ControllerAdapter");
         TestControllerI controller = new TestControllerI(adapter);
         adapter.add(new TestI(controller), communicator().stringToIdentity("test"));
-        adapter.activate();
+        //adapter.activate(); // Don't activate OA to ensure collocation is used.
         adapter2.add(controller, communicator().stringToIdentity("testController"));
-        adapter2.activate();
+        //adapter2.activate(); // Don't activate OA to ensure collocation is used.
 
         try
         {

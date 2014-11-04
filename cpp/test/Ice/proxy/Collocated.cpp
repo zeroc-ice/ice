@@ -22,7 +22,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator,
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->add(new MyDerivedClassI, communicator->stringToIdentity("test"));
-    adapter->activate();
+    //adapter->activate(); // Don't activate OA to ensure collocation is used.
 
     Test::MyClassPrx allTests(const Ice::CommunicatorPtr&);
     allTests(communicator);

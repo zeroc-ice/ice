@@ -22,7 +22,7 @@ def run(args, communicator):
     adapter.add(initial, communicator.stringToIdentity("initial"))
     uoet = TestI.UnexpectedObjectExceptionTestI()
     adapter.add(uoet, communicator.stringToIdentity("uoet"))
-    adapter.activate()
+    #adapter.activate() // Don't activate OA to ensure collocation is used.
 
     AllTests.allTests(communicator)
 

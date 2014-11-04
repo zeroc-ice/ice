@@ -752,6 +752,8 @@ class Twoways
                 test(Ice.CollectionComparer.Equals(r, ctx));
             }
         }
+
+        if(p.ice_getConnection() != null)
         {
             //
             // Test implicit context propagation

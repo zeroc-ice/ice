@@ -736,48 +736,48 @@ def twoways(communicator, p):
     #
     # Test implicit context propagation
     #
-    impls = ( 'Shared', 'PerThread' )
-    for i in impls:
-        initData = Ice.InitializationData()
-        initData.properties = communicator.getProperties().clone()
-        initData.properties.setProperty('Ice.ImplicitContext', i)
-        ic = Ice.initialize(data=initData)
+    if p.ice_getConnection():
+        impls = ( 'Shared', 'PerThread' )
+        for i in impls:
+            initData = Ice.InitializationData()
+            initData.properties = communicator.getProperties().clone()
+            initData.properties.setProperty('Ice.ImplicitContext', i)
+            ic = Ice.initialize(data=initData)
 
-        ctx = {'one': 'ONE', 'two': 'TWO', 'three': 'THREE'}
+            ctx = {'one': 'ONE', 'two': 'TWO', 'three': 'THREE'}
 
-        p1 = Test.MyClassPrx.uncheckedCast(ic.stringToProxy('test:default -p 12010'))
+            p1 = Test.MyClassPrx.uncheckedCast(ic.stringToProxy('test:default -p 12010'))
+            
+            ic.getImplicitContext().setContext(ctx)
+            test(ic.getImplicitContext().getContext() == ctx)
+            test(p1.opContext() == ctx)
+            
+            test(ic.getImplicitContext().containsKey('zero') == False);
+            r = ic.getImplicitContext().put('zero', 'ZERO');
+            test(r == '');
+            test(ic.getImplicitContext().containsKey('zero') == True);
+            test(ic.getImplicitContext().get('zero') == 'ZERO');
 
-        ic.getImplicitContext().setContext(ctx)
-        test(ic.getImplicitContext().getContext() == ctx)
-        test(p1.opContext() == ctx)
-
-        test(ic.getImplicitContext().containsKey('zero') == False);
-        r = ic.getImplicitContext().put('zero', 'ZERO');
-        test(r == '');
-        test(ic.getImplicitContext().containsKey('zero') == True);
-        test(ic.getImplicitContext().get('zero') == 'ZERO');
-
-        ctx = ic.getImplicitContext().getContext()
-        test(p1.opContext() == ctx)
-
-        prxContext = {'one': 'UN', 'four': 'QUATRE'}
-
-        combined = ctx.copy()
-        combined.update(prxContext)
-        test(combined['one'] == 'UN')
-
-        p2 = Test.MyClassPrx.uncheckedCast(p1.ice_context(prxContext))
-
-        ic.getImplicitContext().setContext({})
-        test(p2.opContext() == prxContext)
-
-        ic.getImplicitContext().setContext(ctx)
-        test(p2.opContext() == combined)
-
-        test(ic.getImplicitContext().remove('one') == 'ONE');
-
-        ic.destroy()
-
+            ctx = ic.getImplicitContext().getContext()
+            test(p1.opContext() == ctx)
+            
+            prxContext = {'one': 'UN', 'four': 'QUATRE'}
+            
+            combined = ctx.copy()
+            combined.update(prxContext)
+            test(combined['one'] == 'UN')
+            
+            p2 = Test.MyClassPrx.uncheckedCast(p1.ice_context(prxContext))
+            
+            ic.getImplicitContext().setContext({})
+            test(p2.opContext() == prxContext)
+            
+            ic.getImplicitContext().setContext(ctx)
+            test(p2.opContext() == combined)
+            
+            test(ic.getImplicitContext().remove('one') == 'ONE');
+            
+            ic.destroy()
 
     d = 1278312346.0 / 13.0;
     ds = []

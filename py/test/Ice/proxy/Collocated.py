@@ -23,7 +23,7 @@ def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
     adapter = communicator.createObjectAdapter("TestAdapter")
     adapter.add(TestI.MyDerivedClassI(), communicator.stringToIdentity("test"))
-    adapter.activate()
+    #adapter.activate() // Don't activate OA to ensure collocation is used.
 
     AllTests.allTests(communicator, True)
 

@@ -764,7 +764,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     Test::MyClassPrx cl20 = Test::MyClassPrx::uncheckedCast(communicator->stringToProxy(ref20));
     try
     {
-        cl20->ice_collocationOptimized(false)->ice_ping();
+        cl20->ice_ping();
         test(false);
     }
     catch(const Ice::UnsupportedEncodingException&)
@@ -776,7 +776,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     Test::MyClassPrx cl10 = Test::MyClassPrx::uncheckedCast(communicator->stringToProxy(ref10));
     cl10->ice_ping();
     cl10->ice_encodingVersion(Ice::Encoding_1_0)->ice_ping();
-    cl->ice_collocationOptimized(false)->ice_encodingVersion(Ice::Encoding_1_0)->ice_ping();
+    cl->ice_encodingVersion(Ice::Encoding_1_0)->ice_ping();
 
     // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
     // call will use the 1.1 encoding
@@ -797,7 +797,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         inEncaps[4] = version.major;
         inEncaps[5] = version.minor;
         vector<Ice::Byte> outEncaps;
-        cl->ice_collocationOptimized(false)->ice_invoke("ice_ping", Ice::Normal, inEncaps, outEncaps);
+        cl->ice_invoke("ice_ping", Ice::Normal, inEncaps, outEncaps);
         test(false);
     }
     catch(const Ice::UnknownLocalException& ex)
@@ -818,7 +818,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         inEncaps[4] = version.major;
         inEncaps[5] = version.minor;
         vector<Ice::Byte> outEncaps;
-        cl->ice_collocationOptimized(false)->ice_invoke("ice_ping", Ice::Normal, inEncaps, outEncaps);
+        cl->ice_invoke("ice_ping", Ice::Normal, inEncaps, outEncaps);
         test(false);
     }
     catch(const Ice::UnknownLocalException& ex)
@@ -835,7 +835,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cl20 = Test::MyClassPrx::uncheckedCast(communicator->stringToProxy(ref20));
     try
     {
-        cl20->ice_collocationOptimized(false)->ice_ping();
+        cl20->ice_ping();
         test(false);
     }
     catch(const Ice::UnsupportedProtocolException&)

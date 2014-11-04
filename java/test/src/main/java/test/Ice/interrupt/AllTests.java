@@ -558,6 +558,7 @@ public class AllTests
 
         out.print("testing Communicator.destroy interrupt... ");
         out.flush();
+        if(p.ice_getConnection() != null)
         {
             //
             // Check that CommunicatorDestroyedException is raised directly.

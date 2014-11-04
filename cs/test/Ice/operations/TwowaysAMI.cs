@@ -1681,6 +1681,7 @@ public class TwowaysAMI
             }
         }
 
+        if(p.ice_getConnection() != null)
         {
             //
             // Test implicit context propagation

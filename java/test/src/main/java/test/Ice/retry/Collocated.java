@@ -19,7 +19,7 @@ public class Collocated extends test.Util.Application
         Ice.Communicator communicator = communicator();
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new RetryI(), communicator.stringToIdentity("retry"));
-        //adapter.activate();
+        //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
         RetryPrx retry = AllTests.allTests(communicator, getWriter());
         retry.shutdown();

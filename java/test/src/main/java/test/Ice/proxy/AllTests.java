@@ -697,7 +697,7 @@ public class AllTests
         MyClassPrx cl20 = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref20));
         try
         {
-            cl20.ice_collocationOptimized(false).ice_ping();
+            cl20.ice_ping();
             test(false);
         }
         catch(Ice.UnsupportedEncodingException ex)
@@ -709,7 +709,7 @@ public class AllTests
         MyClassPrx cl10 = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref10));
         cl10.ice_ping();
         cl10.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
-        cl.ice_collocationOptimized(false).ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
+        cl.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
 
         // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
         // call will use the 1.1 encoding
@@ -729,7 +729,7 @@ public class AllTests
             inEncaps[4] = version.major;
             inEncaps[5] = version.minor;
             Ice.ByteSeqHolder outEncaps = new Ice.ByteSeqHolder();
-            cl.ice_collocationOptimized(false).ice_invoke("ice_ping", Ice.OperationMode.Normal, inEncaps, outEncaps);
+            cl.ice_invoke("ice_ping", Ice.OperationMode.Normal, inEncaps, outEncaps);
             test(false);
         }
         catch(Ice.UnknownLocalException ex)
@@ -749,7 +749,7 @@ public class AllTests
             inEncaps[4] = version.major;
             inEncaps[5] = version.minor;
             Ice.ByteSeqHolder outEncaps = new Ice.ByteSeqHolder();
-            cl.ice_collocationOptimized(false).ice_invoke("ice_ping", Ice.OperationMode.Normal, inEncaps, outEncaps);
+            cl.ice_invoke("ice_ping", Ice.OperationMode.Normal, inEncaps, outEncaps);
             test(false);
         }
         catch(Ice.UnknownLocalException ex)
@@ -766,7 +766,7 @@ public class AllTests
         cl20 = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref20));
         try
         {
-            cl20.ice_collocationOptimized(false).ice_ping();
+            cl20.ice_ping();
             test(false);
         }
         catch(Ice.UnsupportedProtocolException ex)

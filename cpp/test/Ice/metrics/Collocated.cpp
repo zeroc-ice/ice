@@ -24,12 +24,12 @@ run(int, char**, const Ice::CommunicatorPtr& communicator, const CommunicatorObs
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectPtr object = new MetricsI;
     adapter->add(object, communicator->stringToIdentity("metrics"));
-    //adapter->activate();
+    //adapter->activate(); // Don't activate OA to ensure collocation is used.
 
     communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", "default -p 12011");
     Ice::ObjectAdapterPtr controllerAdapter = communicator->createObjectAdapter("ControllerAdapter");
     controllerAdapter->add(new ControllerI(adapter), communicator->stringToIdentity("controller"));
-    //controllerAdapter->activate();
+    //controllerAdapter->activate(); // Don't activate OA to ensure collocation is used.
 
     MetricsPrx allTests(const Ice::CommunicatorPtr&, const CommunicatorObserverIPtr&);
     MetricsPrx metrics = allTests(communicator, observer);
