@@ -32,7 +32,7 @@
 			}
 		} else {
 			dependencies {
-				compile files("${distJarDir}/Ice.jar")
+				compile files("${distJarDir}/Ice${versionSuffix}.jar")
 			}
 		}
 

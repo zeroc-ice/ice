@@ -429,25 +429,30 @@ copy(os.path.join(srcDir, "scripts"), os.path.join(demoscriptDir, "scripts"))
 # Consolidate demoscript and demo distribution with files from each language mapping
 for d in os.listdir('.'):
     if os.path.isdir(d) and os.path.exists(os.path.join(d, "allDemos.py")):
-        md = os.path.join(demoscriptDir, getMappingDir("demo", d))
-        move(os.path.join(demoscriptDir, d, "demo"), md)
+        md = os.path.join(demoscriptDir, d)
+        td = os.path.join(demoscriptDir, d + "tmp")
+        move(md, td)
+        move(os.path.join(td, "demo"), md)
         move(os.path.join(d, "allDemos.py"), os.path.join(md, "allDemos.py"))
-        os.rmdir(os.path.join(demoscriptDir, d))
+        os.rmdir(td)
 
     if os.path.isdir(d) and os.path.exists(os.path.join(d, "demo")):
-        if d == "cs":
+        if d == "cs" or d == "vb" or d == "android":
             continue
-        copy(os.path.join(d, "demo"), os.path.join(demoDir, getMappingDir("demo", d)))
+        copy(os.path.join(d, "demo"), os.path.join(demoDir, d))
 
-copy(os.path.join(srcDir, "js", "bin"), os.path.join(demoDir, "demojs", "bin"))
-copy(os.path.join(srcDir, "js", "assets"), os.path.join(demoDir, "demojs", "assets"))
+# Copy android demos into the java directory
+copy(os.path.join("android", "demo"), os.path.join(demoDir, "java", "android"))
+
+copy(os.path.join(srcDir, "js", "bin"), os.path.join(demoDir, "js", "bin"))
+copy(os.path.join(srcDir, "js", "assets"), os.path.join(demoDir, "js", "assets"))
 copy(os.path.join(srcDir, "js", "node_modules", "http-proxy"),
-     os.path.join(demoDir, "demojs", "node_modules", "http-proxy"));
+     os.path.join(demoDir, "js", "node_modules", "http-proxy"));
 
-FixUtil.fileMatchAndReplace(os.path.join(demoDir, "demojs", "assets", "Makefile"),
+FixUtil.fileMatchAndReplace(os.path.join(demoDir, "js", "assets", "Makefile"),
                             [(re.compile("top_srcdir.*= .."), "top_srcdir      = ../..")],
                             False)
-os.chdir(os.path.join(demoDir, "demojs", "assets"))
+os.chdir(os.path.join(demoDir, "js", "assets"))
 if os.system("MAKEDIST=yes make > /dev/null") != 0:
     print "Error building JS assets"
     sys.exit(1)
@@ -462,37 +467,37 @@ for root, dirnames, filesnames in os.walk(demoDir):
 remove(os.path.join(srcDir, 'vb')) # vb directory in Unix source distribution only needed to copy demo scripts.
 
 # Fix up the Java build files
-os.mkdir(os.path.join(demoDir, "demoj", "gradle"))
-copy(os.path.join(srcDir, "java", "gradlew"), os.path.join(demoDir, "demoj"), False)
-copy(os.path.join(srcDir, "java", "gradle", "wrapper"), os.path.join(demoDir, "demoj", "gradle", "wrapper"), False)
-copy(os.path.join(srcDir, "java", "gradle.properties"), os.path.join(demoDir, "demoj"), False)
-copy(os.path.join(distFilesDir, "src", "common", "ice.gradle"), os.path.join(demoDir, "demoj", "gradle"), False)
-copy(os.path.join(distFilesDir, "src", "common", "build.gradle"), os.path.join(demoDir, "demoj"), False)
-copy(os.path.join(distFilesDir, "src", "common", "settings.gradle"), os.path.join(demoDir, "demoj"), False)
+os.mkdir(os.path.join(demoDir, "java", "gradle"))
+copy(os.path.join(srcDir, "java", "gradlew"), os.path.join(demoDir, "java"), False)
+copy(os.path.join(srcDir, "java", "gradle", "wrapper"), os.path.join(demoDir, "java", "gradle", "wrapper"), False)
+copy(os.path.join(srcDir, "java", "gradle.properties"), os.path.join(demoDir, "java"), False)
+copy(os.path.join(distFilesDir, "src", "common", "ice.gradle"), os.path.join(demoDir, "java", "gradle"), False)
+copy(os.path.join(distFilesDir, "src", "common", "build.gradle"), os.path.join(demoDir, "java"), False)
+copy(os.path.join(distFilesDir, "src", "common", "settings.gradle"), os.path.join(demoDir, "java"), False)
 
-gradleSubstituteExprs = [(re.compile(re.escape("project(\":demo/")), "project(\":")]
-for root, dirnames, filesnames in os.walk(os.path.join(demoDir, "demoj")):
+gradleSubstituteExprs = [(re.compile(re.escape("../java/gradle/ice.gradle")), "../gradle/ice.gradle"),
+                         (re.compile(re.escape("project(\":demo/")), "project(\":")]
+for root, dirnames, filesnames in os.walk(os.path.join(demoDir, "java")):
     for f in filesnames:
         if fnmatch.fnmatch(f, "build.gradle"):
             FixUtil.fileMatchAndReplace(os.path.join(root, f), gradleSubstituteExprs, False)
 
 # Fix up the Android build files
-os.mkdir(os.path.join(demoDir, "demoa", "gradle"))
-copy(os.path.join(srcDir, "android", "gradlew"), os.path.join(demoDir, "demoa"), False)
-copy(os.path.join(srcDir, "android", "gradle", "wrapper"), os.path.join(demoDir, "demoa", "gradle", "wrapper"), False)
-copy(os.path.join(srcDir, "android", "build.gradle"), os.path.join(demoDir, "demoa"), False)
-copy(os.path.join(srcDir, "android", "gradle.properties"), os.path.join(demoDir, "demoa"), False)
-copy(os.path.join(distFilesDir, "src", "common", "settings.gradle.android"), os.path.join(demoDir, "demoa", "settings.gradle"), False)
+os.mkdir(os.path.join(demoDir, "java", "android", "gradle"))
+copy(os.path.join(srcDir, "android", "gradlew"), os.path.join(demoDir, "java", "android"), False)
+copy(os.path.join(srcDir, "android", "gradle", "wrapper"), os.path.join(demoDir, "java", "android", "gradle", "wrapper"), False)
+copy(os.path.join(srcDir, "android", "build.gradle"), os.path.join(demoDir, "java", "android"), False)
+copy(os.path.join(srcDir, "android", "gradle.properties"), os.path.join(demoDir, "java", "android"), False)
+copy(os.path.join(distFilesDir, "src", "common", "settings.gradle.android"), os.path.join(demoDir, "java", "android", "settings.gradle"), False)
 
-gradleSubstituteExprs = [(re.compile(re.escape("java/gradle/ice.gradle")), "demoj/gradle/ice.gradle"),
-                         (re.compile(re.escape("apply plugin: 'slice'")), "")]
-for root, dirnames, filesnames in os.walk(os.path.join(demoDir, "demoa")):
+gradleSubstituteExprs = [(re.compile(re.escape("apply plugin: 'slice'")), "")]
+for root, dirnames, filesnames in os.walk(os.path.join(demoDir, "java", "android")):
     for f in filesnames:
         if fnmatch.fnmatch(f, "build.gradle"):
             FixUtil.fileMatchAndReplace(os.path.join(root, f), gradleSubstituteExprs, False)
 
 copy(demoscriptDir, winDemoscriptDir)
-shutil.rmtree(os.path.join(demoscriptDir, "democs"))
+shutil.rmtree(os.path.join(demoscriptDir, "cs"))
 
 # Windows demo distribution
 
@@ -514,19 +519,24 @@ copy(os.path.join(winDistFilesDir, "src", "common", "Make.rules.mak.php"), os.pa
 for sd in os.listdir(winSrcDir):
     d = os.path.join(winSrcDir, sd)
     if os.path.isdir(d) and os.path.exists(os.path.join(d, "demo")):
-        copy(os.path.join(d, "demo"), os.path.join(winDemoDir, getMappingDir("demo", sd)))
+        if d == "android":
+            continue
+        copy(os.path.join(d, "demo"), os.path.join(winDemoDir, sd))
 
-copy(os.path.join(winSrcDir, "js", "bin"), os.path.join(winDemoDir, "demojs", "bin"))
-copy(os.path.join(winSrcDir, "js", "assets"), os.path.join(winDemoDir, "demojs", "assets"))
+# Copy android demos into the java directory
+copy(os.path.join("android", "demo"), os.path.join(winDemoDir, "java", "android"))
+
+copy(os.path.join(winSrcDir, "js", "bin"), os.path.join(winDemoDir, "js", "bin"))
+copy(os.path.join(winSrcDir, "js", "assets"), os.path.join(winDemoDir, "js", "assets"))
 copy(os.path.join(winSrcDir, "js", "node_modules", "http-proxy"),
-     os.path.join(winDemoDir, "demojs", "node_modules", "http-proxy"));
+     os.path.join(winDemoDir, "js", "node_modules", "http-proxy"));
 
 for f in ["common.min.js", "common.min.js.gz", "common.css", "common.css.gz"]:
-    copy(os.path.join(demoDir, "demojs", "assets", f),
-         os.path.join(winDemoDir, "demojs", "assets", f))
+    copy(os.path.join(demoDir, "js", "assets", f),
+         os.path.join(winDemoDir, "js", "assets", f))
 
 
-FixUtil.fileMatchAndReplace(os.path.join(winDemoDir, "demojs", "assets", "Makefile.mak"),
+FixUtil.fileMatchAndReplace(os.path.join(winDemoDir, "js", "assets", "Makefile.mak"),
                             [(re.compile("top_srcdir.*= .."), "top_srcdir      = ..\\..")],
                             False)
 
@@ -553,7 +563,7 @@ for root, dirnames, filesnames in os.walk(winDemoDir):
             if fnmatch.fnmatch(f, m):
                 rmFiles.append(os.path.join(root[len(winDemoDir) + 1:], f))
 
-for d in ["democs", "demovb"]:
+for d in ["cs", "vb"]:
     for root, dirnames, filesnames in os.walk(os.path.join(winDemoDir, d)):
         for f in filesnames:
             for m in [ "Makefile.mak", ".depend.mak" ]:
@@ -563,30 +573,30 @@ for d in ["democs", "demovb"]:
 for f in rmFiles: remove(os.path.join(winDemoDir, f))
 
 # Fix up the Java build files
-os.mkdir(os.path.join(winDemoDir, "demoj", "gradle"))
-copy(os.path.join(srcDir, "java", "gradlew.bat"), os.path.join(winDemoDir, "demoj"), False)
-copy(os.path.join(srcDir, "java", "gradle", "wrapper"), os.path.join(winDemoDir, "demoj", "gradle", "wrapper"), False)
-copy(os.path.join(distFilesDir, "src", "common", "ice.gradle"), os.path.join(winDemoDir, "demoj", "gradle"), False)
-copy(os.path.join(distFilesDir, "src", "common", "build.gradle"), os.path.join(winDemoDir, "demoj"), False)
-copy(os.path.join(distFilesDir, "src", "common", "settings.gradle"), os.path.join(winDemoDir, "demoj"), False)
+os.mkdir(os.path.join(winDemoDir, "java", "gradle"))
+copy(os.path.join(srcDir, "java", "gradlew.bat"), os.path.join(winDemoDir, "java"), False)
+copy(os.path.join(srcDir, "java", "gradle", "wrapper"), os.path.join(winDemoDir, "java", "gradle", "wrapper"), False)
+copy(os.path.join(distFilesDir, "src", "common", "ice.gradle"), os.path.join(winDemoDir, "java", "gradle"), False)
+copy(os.path.join(distFilesDir, "src", "common", "build.gradle"), os.path.join(winDemoDir, "java"), False)
+copy(os.path.join(distFilesDir, "src", "common", "settings.gradle"), os.path.join(winDemoDir, "java"), False)
 
-gradleSubstituteExprs = [(re.compile(re.escape("project(\":demo/")), "project(\":")]
-for root, dirnames, filesnames in os.walk(os.path.join(winDemoDir, "demoj")):
+gradleSubstituteExprs = [(re.compile(re.escape("../java/gradle/ice.gradle")), "../gradle/ice.gradle"),
+                         (re.compile(re.escape("project(\":demo/")), "project(\":")]
+for root, dirnames, filesnames in os.walk(os.path.join(winDemoDir, "java")):
     for f in filesnames:
         if fnmatch.fnmatch(f, "build.gradle"):
             FixUtil.fileMatchAndReplace(os.path.join(root, f), gradleSubstituteExprs, False)
 
 # Fix up the Android build files
-os.mkdir(os.path.join(winDemoDir, "demoa", "gradle"))
-copy(os.path.join(srcDir, "android", "gradlew.bat"), os.path.join(winDemoDir, "demoa"), False)
-copy(os.path.join(srcDir, "android", "gradle", "wrapper"), os.path.join(winDemoDir, "demoa", "gradle", "wrapper"), False)
-copy(os.path.join(srcDir, "android", "build.gradle"), os.path.join(winDemoDir, "demoa"), False)
-copy(os.path.join(srcDir, "android", "gradle.properties"), os.path.join(winDemoDir, "demoa"), False)
-copy(os.path.join(distFilesDir, "src", "common", "settings.gradle.android"), os.path.join(winDemoDir, "demoa", "settings.gradle"), False)
+os.mkdir(os.path.join(winDemoDir, "java", "android", "gradle"))
+copy(os.path.join(srcDir, "android", "gradlew.bat"), os.path.join(winDemoDir, "java", "android"), False)
+copy(os.path.join(srcDir, "android", "gradle", "wrapper"), os.path.join(winDemoDir, "java", "android", "gradle", "wrapper"), False)
+copy(os.path.join(srcDir, "android", "build.gradle"), os.path.join(winDemoDir, "java", "android"), False)
+copy(os.path.join(srcDir, "android", "gradle.properties"), os.path.join(winDemoDir, "java", "android"), False)
+copy(os.path.join(distFilesDir, "src", "common", "settings.gradle.android"), os.path.join(winDemoDir, "java", "android", "settings.gradle"), False)
 
-gradleSubstituteExprs = [(re.compile(re.escape("java/gradle/ice.gradle")), "demoj/gradle/ice.gradle"),
-                         (re.compile(re.escape("apply plugin: 'slice'")), "")]
-for root, dirnames, filesnames in os.walk(os.path.join(winDemoDir, "demoa")):
+gradleSubstituteExprs = [(re.compile(re.escape("apply plugin: 'slice'")), "")]
+for root, dirnames, filesnames in os.walk(os.path.join(winDemoDir, "java", "android")):
     for f in filesnames:
         if fnmatch.fnmatch(f, "build.gradle"):
             FixUtil.fileMatchAndReplace(os.path.join(root, f), gradleSubstituteExprs, False)
