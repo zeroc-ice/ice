@@ -15,7 +15,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "l
 
 import BuildUtils, FixUtil
 
-version = "3.5.1"
+version = "3.6b"
 
 #
 # Substitute development PublicKeyToken by release PublicKeyToken in Silverlight projects
@@ -541,6 +541,8 @@ class Platform:
             return "demorb"
         elif lang == "vb":
             return "demovb"
+        elif lang == "js":
+            return "demojs"
 
     def getJavaHome(self, arch, version):
         return None
@@ -550,7 +552,7 @@ class Platform:
             languages = ["cpp"]
         elif buildConfiguration == "java1.6":
             languages = ["java"]
-        elif compiler == "VC90" or buildConfiguration == "silverlight":
+        elif buildConfiguration == "silverlight":
             languages = ["cs"]
         else:
             languages = self.getSupportedLanguages()
@@ -732,7 +734,7 @@ class Platform:
         if lang == "java":
             if not self.checkJavaSupport(arch, buildConfiguration, output):
                 return False
-            commands.append("ant test-jar")
+            commands.append("./gradlew :test:assemble")
         else:
             commands.append(self.makeCommand(compiler, arch, buildConfiguration, lang, buildDir))
 
@@ -825,7 +827,7 @@ class Platform:
         else:
             buildDir = os.path.join(self._demoDir, self.getDemoDir(lang))
 
-        commands = self.makeDemosCommand(compiler, arch, buildConfiguration, lang, buildDir) if lang != "java" else "ant"
+        commands = self.makeDemosCommand(compiler, arch, buildConfiguration, lang, buildDir) if lang != "java" else "./gradlew assemble"
         if type(commands) == str:
             commands = [commands]
             
@@ -954,7 +956,7 @@ class Darwin(Platform):
         return ["default", "cpp11"]
 
     def getSupportedLanguages(self):
-        return ["cpp", "java", "py"]
+        return ["cpp", "java", "py", "js"]
         
     def getSupportedArchitectures(self):
         return ["x64", "x86"]
@@ -1014,27 +1016,24 @@ class Linux(Platform):
         return self._distribution
 
     def getJavaHome(self, arch, version):
-        jvmDir = "/usr/lib"
+        jvmDir = None
 
         if self.isUbuntu():
             minorVersion = version.split('.')[1]
-            jvmDir += "/jvm/java-%s-openjdk-%s" % (minorVersion, "amd64" if arch == "x64" else "i386")
+            jvmDir = "/usr/lib/jvm/java-%s-openjdk-%s" % (minorVersion, "amd64" if arch == "x64" else "i386")
             if not os.path.exists(jvmDir):
-                jvmDir += "/jvm/java-%s-oracle" % (minorVersion)
+                jvmDir = "/usr/lib/jvm/java-%s-oracle" % (minorVersion)
         else:
             if self.isSles() and arch == "x64":
                 libDir += 64
-            jvmDir += "/jvm/java-%s.0" % version
+            jvmDir += "/usr/lib/jvm/java-%s.0" % version
 
         if not os.path.exists(jvmDir):
             return None
         return jvmDir
 
     def getSupportedLanguages(self):
-        languages = ["cpp"]
-        if not self.isRhel():
-            languages += ["cs"]
-        languages += ["java", "php", "py", "rb"]
+        languages = ["cpp", "java", "php", "py", "rb", "js"]
         return languages
         
     def getSupportedCompilers(self):
@@ -1047,7 +1046,7 @@ class Linux(Platform):
             return ["x86"]
             
     def getSupportedConfigurations(self, compiler, arch):
-        return ["default", "java1.6"]
+        return ["default", "java1.8"]
 
     def getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist):
         env = Platform.getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist)
@@ -1055,7 +1054,7 @@ class Linux(Platform):
             #
             # Set Berkeley DB classpath
             #
-            prependPathToEnvironVar(env, "CLASSPATH", "/usr/share/java/db-5.3.21.jar")
+            prependPathToEnvironVar(env, "CLASSPATH", "/usr/share/java/db-5.3.28.jar")
                 
             #
             # Set LD_LIBRARY_PATH for Berkeley DB
