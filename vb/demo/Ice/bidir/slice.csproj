@@ -57,7 +57,7 @@
   </ItemGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ZerocIce_ProjectVersion="1" ZerocIce_VerboseLevel="1" ZerocIce_Enabled="True" />
+      <UserProperties ZerocIce_Enabled="True" ZerocIce_VerboseLevel="1" ZerocIce_ProjectVersion="3.6" />
     </VisualStudio>
   </ProjectExtensions>
   <ItemGroup>
