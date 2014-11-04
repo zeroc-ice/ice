@@ -4,7 +4,22 @@
 # This is a heavily modified version of the spec file in Fedora Core 7's db4-4.5.20-4.fc7.src.rpm   
 #
 
-%define java_arches %{ix86} alpha ia64 ppc s390 s390x sparc sparcv9 x86_64
+%define force_x86  0
+
+%ifarch %{ix86}
+%if "%{dist}" == ".sles12" || "%{dist}" == ".amzn1"
+  #
+  # Building a 32-bit distribution on an x64 platform.
+  #
+  %define force_x86 1
+%endif
+%endif
+
+%define java_arches alpha ia64 ppc s390 s390x sparc sparcv9 x86_64
+
+%if ! %{force_x86}
+%define java_arches %{ix86} %{java_arches}
+%endif
 
 %define	__soversion	5.3
 
@@ -30,6 +45,8 @@ recovery. The Berkeley DB supports C, C++, Java, and Perl APIs. It is
 used by many applications, including Python and Perl, so this should
 be installed on all systems.
 
+%if ! %{force_x86}
+
 %package utils
 Summary: Command line tools for managing Berkeley DB (version 5.3) databases
 Group: Applications/Databases
@@ -46,6 +63,8 @@ recovery. DB supports C, C++, Java and Perl APIs.
 This package contains command line tools for managing Berkeley DB
 (version 5.3) databases.
 
+%endif # ! force_x86
+
 %package devel
 Summary: Development files for the Berkeley DB (version 5.3) library
 Group: Development/Libraries
@@ -59,6 +78,7 @@ client/server applications. This package contains the header files,
 libraries, and documentation for building programs which use the
 Berkeley DB.
 
+%ifarch %{java_arches}
 
 %package java
 Summary: Development files for using the Berkeley DB (version 5.3) with Java
@@ -70,6 +90,8 @@ The Berkeley Database (Berkeley DB) is a programmatic toolkit that
 provides embedded database support for both traditional and
 client/server applications. This package contains the libraries
 for building programs which use the Berkeley DB in Java.
+
+%endif
 
 %prep
 
@@ -84,6 +106,20 @@ cd dist
 %build
 cd build_unix
 
+%if %{force_x86}
+
+#
+# Don't need Java support when building x86 binaries on x64: Java
+# support is provided by the x86_64 RPMs.
+#
+CFLAGS=-m32 CXXFLAGS=-m32 setarch i686 ../dist/configure --prefix=%{_prefix} \
+                  --libdir=%{_libdir} \
+                  --enable-shared --disable-static \
+		  --enable-cxx \
+		  --disable-java
+
+%else
+
 ../dist/configure --prefix=%{_prefix} \
                   --libdir=%{_libdir} \
                   --enable-shared --disable-static \
@@ -92,6 +128,8 @@ cd build_unix
 		  --enable-java 
 %else
 		  --disable-java
+%endif
+
 %endif
 
 # Remove libtool predep_objects and postdep_objects wonkiness so that
@@ -123,6 +161,13 @@ rm -f ${RPM_BUILD_ROOT}%{_libdir}/libdb*.la
 
 chmod +x ${RPM_BUILD_ROOT}%{_libdir}/*.so*
 
+%if %{force_x86}
+
+rm -f ${RPM_BUILD_ROOT}%{_includedir}/*.h
+rm -f ${RPM_BUILD_ROOT}%{_bindir}/*
+
+%else
+
 # Move the header files to a subdirectory, in case we're deploying on a
 # system with multiple versions of DB installed.
 mv ${RPM_BUILD_ROOT}%{_includedir}/*.h ${RPM_BUILD_ROOT}%{_includedir}/%{name}
@@ -130,6 +175,8 @@ mv ${RPM_BUILD_ROOT}%{_includedir}/*.h ${RPM_BUILD_ROOT}%{_includedir}/%{name}
 # Rename the db_ utils files
 cd ${RPM_BUILD_ROOT}%{_bindir}
 for i in db_* ; do mv $i db53_${i#db_} ; done
+
+%endif # force_x86
 
 ln -sf ../libdb-%{__soversion}.so ${RPM_BUILD_ROOT}%{_libdir}/%{name}/libdb.so
 ln -sf ../libdb_cxx-%{__soversion}.so ${RPM_BUILD_ROOT}%{_libdir}/%{name}/libdb_cxx.so
@@ -160,6 +207,8 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_libdir}/libdb-%{__soversion}.so
 %{_libdir}/libdb_cxx-%{__soversion}.so
 
+%if ! %{force_x86}
+
 %files utils
 %defattr(-,root,root)
 %{_bindir}/db*_archive
@@ -176,14 +225,17 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_bindir}/db*_upgrade
 %{_bindir}/db*_verify
 
+%endif # ! force_x86
+
 %files devel
 %defattr(-,root,root)
 %dir %{_libdir}/%{name}
 %{_libdir}/%{name}/libdb.so
 %{_libdir}/%{name}/libdb_cxx.so
+%if ! %{force_x86}
 %dir %{_includedir}/%{name}
 %{_includedir}/%{name}/*.h
-
+%endif
 
 %ifarch %{java_arches}
 %files java

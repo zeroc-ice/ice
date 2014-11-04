@@ -50,7 +50,7 @@
 %define cppx86 0
 
 %ifarch %{ix86}
-%if "%{dist}" == ".el7" || "%{dist}" == ".sles12"
+%if "%{dist}" == ".el7" || "%{dist}" == ".sles12" || "%{dist}" == ".amzn1"
 %define cppx86 1
 %endif
 %endif

@@ -1,0 +1,110 @@
+#!/bin/bash
+#
+# Copyright (c) 2007-2014 ZeroC, Inc. All rights reserved.
+#
+# glacier2router    This shell script takes care of starting and 
+#                   stopping the glacier2router daemon.
+#
+# chkconfig: - 62 74
+# description: The Glacier2 router daemon. \
+# Glacier2 is the firewall traversal service for the Internet \ 
+# Communications Engine (Ice).
+
+#
+# Source function library.
+#
+. /etc/init.d/functions
+
+#
+# The Glacier2 router user; root is allowed, but not necessary, therefore
+# it is recommended to use a non-root account.
+#
+user=ice
+
+#
+# Ask for a password at startup?
+#
+prompt=no
+
+#
+# The Glacier2 router configuration file
+#
+routerconf="/etc/glacier2router.conf"
+
+prog="/usr/bin/glacier2router"
+
+progbase=${prog##*/}
+pidfile=/var/run/$progbase.pid
+
+options="--daemon --pidfile $pidfile --Ice.Config=$routerconf"
+
+RETVAL=0
+
+start() {
+        if [ "${prompt:-}" = "yes" ]
+        then
+           echo $"Starting $progbase: "
+           INITLOG_ARGS=              # clears -q
+        else
+           echo -n $"Starting $progbase: "
+        fi
+
+        daemonoptions="--pidfile $pidfile"
+        if [ "$user" != "root" ]
+        then
+            daemonoptions="$daemonoptions --user $user"
+    
+            if [ ! -e $pidfile ]
+            then
+                touch $pidfile
+            fi
+            chown $user $pidfile
+        fi           
+
+        daemon $daemonoptions $prog $options
+        RETVAL=$?
+        echo
+        [ $RETVAL -eq 0 ] && touch /var/lock/subsys/$progbase
+        return $RETVAL
+}
+
+stop() {
+        echo -n $"Shutting down $progbase: "
+        killproc -p $pidfile $prog
+        RETVAL=$?
+        echo
+        [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/$progbase
+        return $RETVAL
+}
+
+
+# See how we were called.
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  status)
+        status $progbase
+        RETVAL=$?
+        ;;
+  restart|reload)
+        stop
+        start
+        RETVAL=$?
+        ;;
+  condrestart)
+        if [ -f /var/lock/subsys/$progbase ]; then
+            stop
+            start
+            RETVAL=$?
+        fi
+        ;;
+  *)
+        echo $"Usage: $0 {start|stop|restart|condrestart|status}"
+        exit 1
+esac
+
+exit $RETVAL

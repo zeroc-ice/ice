@@ -5,7 +5,7 @@
 %define force_x86  0
 
 %ifarch %{ix86}
-%if "%{dist}" == ".sles12" || "%{dist}" == ".el7"
+%if "%{dist}" == ".sles12" || "%{dist}" == ".el7" || "%{dist}" == ".amzn1"
   #
   # Building a 32-bit distribution on an x64 platform.
   #
