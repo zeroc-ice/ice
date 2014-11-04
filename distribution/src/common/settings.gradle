@@ -43,5 +43,5 @@
 }
 
 ['evictor_filesystem', 'lifecycle', 'map_filesystem', 'printer', 'simple_filesystem'].each {
- 	include "book/${it}"
+ 	include "manual/${it}"
 }
