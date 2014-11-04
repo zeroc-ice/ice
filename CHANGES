@@ -27,6 +27,11 @@ Changes since version 3.5.1
 General Changes
 ===============
 
+- The Ice runtime now raises Ice::IllegalServantException if a null
+  servant is provided to a method that requires a non-null servant
+  (such as the Ice::ObjectAdapter::add methods or the Freeze evictor
+  add methods).
+
 - It's now possible to specify an IPv6 address for the UDP --interface
   local option, previously it only accepted an interface name or
   index.
@@ -39,7 +44,7 @@ General Changes
 - IceGrid now permits removing or moving servers when saving an
   application "without restart" (to ensure the update doesn't cause
   any server shutdown). The servers to be removed or moved, must be
-  stopped of the saving will fail. Previously, IceGrid prevented the
+  stopped or the saving will fail. Previously, IceGrid prevented the
   saving of the application even if the servers were stopped.
 
 - It's now possible to pass indirect proxies to the setObservers
@@ -56,7 +61,8 @@ General Changes
 - Added a cancel() method to AsyncResult. Calling it prevents a queued
   asynchronous request from being sent, or ignores the reply if the
   request has already been sent. It does not cancel the request in the
-  server.
+  server. Canceled requests throw the Ice::InvocationCanceledException
+  exception.
 
 - Removed the "old" asynchronous invocation API that was deprecated
   in Ice 3.4.
@@ -71,11 +77,15 @@ General Changes
   to use Glacier2 as an intermediary when a JavaScript client needs to
   communicate with a Java or C# server.
 
-- Added "Logger" facet to the addmin object, which allows remote 
-  applications to attach RemoteLogger objects and receive log messages. 
-  Both the icegridadmin command-line utility and IceGrid Admin use this
-  new facet to retrieve the logs of Ice servers, IceBox services,
-  IceGrid nodes and IceGrid registries.
+- Added "Logger" facet to the admin object, which allows remote
+  applications to attach RemoteLogger objects and receive log
+  messages.  Both the icegridadmin command-line utility and IceGrid
+  Admin use this new facet to retrieve the logs of Ice servers, IceBox
+  services, IceGrid nodes and IceGrid registries.
+
+- Added getNodeAdmin and getRegistryAdmin methods to the
+  IceGrid::Admin interface. Those methods return the admin object of a
+  given IceGrid registry or node.
 
 - Added new getPrefix operation to Ice::Logger; it returns the
   prefix of this logger.
@@ -94,13 +104,16 @@ General Changes
   The new properties Ice.HTTPProxyHost and Ice.HTTPProxyPort provide
   addressing information for the proxy.
 
-- Added IceStorm::InvalidSubscriber exception which is thrown by
-  the subscribe/unsubscribe operations when an invalid subscriber
-  (such as a null proxy) is passed.
+- Added IceStorm::InvalidSubscriber exception which is thrown by the
+  subscribe/unsubscribe operations when an invalid subscriber (such as
+  a null proxy) is passed. IceStorm would previously either abort (if
+  built with debug mode) or throw an Ice::UnknonLocalException if such
+  a subscriber proxy was provided.
 
 - Added Ice.Default.SourceAddress property and --sourceAddress
   endpoint setting to control the interface used for an outgoing
-  connection.
+  connection. The configured source address can be retrieve with the 
+  sourceAddress of the Ice::IPEndpointInfo class.
 
 - The signatures of Ice::OutputStream startSize() and endSize() have
   been modified. It is now necessary for the caller of startSize() to
@@ -138,17 +151,27 @@ General Changes
   to discover IceGrid registries running on the network using UDP
   multicast. See the release notes or Ice manual for more information.
 
+- Ice metrics now support collocation optimization. The
+  Ice::Instrumentation::CollocatedObserver local interface and the
+  IceMX::CollocatedMetrics class have been added to monitor collocated
+  requests.
+
 - Collocation optimization has been significantly improved to
   remove limitations. It now works with AMI, AMD, blobjects and
   batching. Collocated requests are now always marshaled and
   unmarshaled but they don't go through any transport.
+
+  The Ice::CollocationOptimizationException is no longer used and as a
+  result is now deprecated.
 
 - Fixed a bug where retries might fail if the request failed right
   after connection establishment.
 
 - Added callbacks for connection closure and heartbeats. The callback
   is invoked when the connection is closed or when a heartbeat is
-  received.
+  received. Callbacks are installed on the connection with the
+  Ice::Connection::setCallback method and implement the
+  Ice::ConnectionCallback interface.
 
 - Active connection management improvements:
 
@@ -169,13 +192,22 @@ General Changes
 
   See the release notes or Ice manual for more information.
 
+- IceGrid and Glacier2 now support the new ACM mechanism to keep
+  sessions alive. The Glacier2::Router and IceGrid::Registry
+  interfaces support a new getACMTimeout operation. To keep the
+  connection alive the client should configure its connection to
+  always send heartbeats and with the timeout returned by this
+  method. It can also install a connection callback to be notified
+  when the connection is unexpectedly closed.
+
 - Added support for invocation timeouts. Invocation timeouts can be
   set on a per-proxy basis with the ice_invocationTimeout proxy
   method. By default, there's no invocation timeout meaning that an
   invocation will never timeout if the connection between the client
   and server is alive. An invocation timeout does not cause a
-  connection to be closed. See the release notes and Ice manual for
-  more information.
+  connection to be closed. If the timeout is triggered the invocation
+  will raise Ice::InvocationTimeoutException. See the release notes
+  and Ice manual for more information.
 
 - With the addition of invocation timeouts, the existing connection
   timeout mechanism no longer applies to invocations. Connection
@@ -199,6 +231,11 @@ General Changes
   objects returned to the client when it uses the IceGrid::Query
   interface.
 
+  This addition requires the upgrade of IceGrid registry databases if
+  you deployed replica groups for your IceGrid applications. See the
+  release notes for information on how to upgrade your IceGrid
+  databases.
+
 - Fixed a marshaling bug where the marshaling of a type with nested
   optionals of variable size could trigger an assertion.
 
@@ -212,7 +249,7 @@ General Changes
   classes.
 
 - The CryptPasswords file support for Glacier2 and IceGrid is now
-  implemented in a separate C++ plug-in, the 
+  implemented in a separate C++ plug-in, the
   Glacier2CryptPermissionsVerifier plug-in. On Windows, this plug-in
   is the only remaining Ice run time dependency on OpenSSL.
 

@@ -15,7 +15,7 @@ module Ice
 {
 
 local class EndpointInfo;
-//local class IPEndpointInfo;
+local class IPEndpointInfo;
 local class TCPEndpointInfo;
 local class UDPEndpointInfo;
 local class WSEndpointInfo;
