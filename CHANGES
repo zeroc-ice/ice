@@ -112,7 +112,7 @@ General Changes
 
 - Added Ice.Default.SourceAddress property and --sourceAddress
   endpoint setting to control the interface used for an outgoing
-  connection. The configured source address can be retrieve with the 
+  connection. The configured source address can be retrieved with the 
   sourceAddress of the Ice::IPEndpointInfo class.
 
 - The signatures of Ice::OutputStream startSize() and endSize() have
