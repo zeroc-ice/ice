@@ -27,13 +27,13 @@ Changes since version 3.5.1
 General Changes
 ===============
 
-- The Ice runtime now raises Ice::IllegalServantException if a null
+- The Ice run time now raises Ice::IllegalServantException if a null
   servant is provided to a method that requires a non-null servant
   (such as the Ice::ObjectAdapter::add methods or the Freeze evictor
   add methods).
 
 - It's now possible to specify an IPv6 address for the UDP --interface
-  local option, previously it only accepted an interface name or
+  local option; previously it only accepted an interface name or
   index.
 
 - Ice now guarantees that invocations made on different proxy objects
@@ -43,7 +43,7 @@ General Changes
 
 - IceGrid now permits removing or moving servers when saving an
   application "without restart" (to ensure the update doesn't cause
-  any server shutdown). The servers to be removed or moved, must be
+  any server shutdown). The servers to be removed or moved must be
   stopped or the saving will fail. Previously, IceGrid prevented the
   saving of the application even if the servers were stopped.
 
@@ -77,18 +77,18 @@ General Changes
   to use Glacier2 as an intermediary when a JavaScript client needs to
   communicate with a Java or C# server.
 
-- Added "Logger" facet to the admin object, which allows remote
+- Added a "Logger" facet to the admin object, which allows remote
   applications to attach RemoteLogger objects and receive log
-  messages.  Both the icegridadmin command-line utility and IceGrid
-  Admin use this new facet to retrieve the logs of Ice servers, IceBox
-  services, IceGrid nodes and IceGrid registries.
+  messages. Both the icegridadmin command-line utility and IceGrid
+  Admin GUI use this new facet to retrieve the logs of Ice servers,
+  IceBox services, IceGrid nodes and IceGrid registries.
 
-- Added getNodeAdmin and getRegistryAdmin methods to the
-  IceGrid::Admin interface. Those methods return the admin object of a
-  given IceGrid registry or node.
+- Added getNodeAdmin and getRegistryAdmin operations to the
+  IceGrid::Admin interface. They return the admin object of a given
+  IceGrid registry or node.
 
 - Added new getPrefix operation to Ice::Logger; it returns the
-  prefix of this logger.
+  prefix of the logger.
 
 - The admin object can now be hosted in an application-supplied
   object adapter using the new property Ice.Admin.Enabled and the
@@ -107,13 +107,13 @@ General Changes
 - Added IceStorm::InvalidSubscriber exception which is thrown by the
   subscribe/unsubscribe operations when an invalid subscriber (such as
   a null proxy) is passed. IceStorm would previously either abort (if
-  built with debug mode) or throw an Ice::UnknonLocalException if such
+  built in debug mode) or throw an Ice::UnknownLocalException if such
   a subscriber proxy was provided.
 
 - Added Ice.Default.SourceAddress property and --sourceAddress
   endpoint setting to control the interface used for an outgoing
-  connection. The configured source address can be retrieved with the 
-  sourceAddress of the Ice::IPEndpointInfo class.
+  connection. The configured source address can be retrieved with the
+  sourceAddress member of the Ice::IPEndpointInfo class.
 
 - The signatures of Ice::OutputStream startSize() and endSize() have
   been modified. It is now necessary for the caller of startSize() to
@@ -149,7 +149,7 @@ General Changes
 
 - Added IceGrid discovery plug-in, which enables Ice applications
   to discover IceGrid registries running on the network using UDP
-  multicast. See the release notes or Ice manual for more information.
+  multicast. See the Ice manual for more information.
 
 - Ice metrics now support collocation optimization. The
   Ice::Instrumentation::CollocatedObserver local interface and the
@@ -183,21 +183,21 @@ General Changes
   * Connection closure by active connection management can be
     configured to close connections under certain conditions. For
     example, a connection can be closed gracefully or forcefully if
-    it's idle for the active connection management period.
+    it's idle for the specified timeout period.
 
   * The ACM properties to configure the ACM timeout have been
     deprecated. You should now use the <prefix>.Timeout property where
     <prefix> can be Ice.ACM, Ice.ACM.Client, Ice.ACM.Server or <object
     adapter>.ACM.
 
-  See the release notes or Ice manual for more information.
+  See the Ice manual for more information.
 
 - IceGrid and Glacier2 now support the new ACM mechanism to keep
   sessions alive. The Glacier2::Router and IceGrid::Registry
   interfaces support a new getACMTimeout operation. To keep the
   connection alive the client should configure its connection to
-  always send heartbeats and with the timeout returned by this
-  method. It can also install a connection callback to be notified
+  always send heartbeats using the timeout returned by getACMTimeout.
+  A client can also install a connection callback to be notified
   when the connection is unexpectedly closed.
 
 - Added support for invocation timeouts. Invocation timeouts can be
@@ -259,7 +259,7 @@ General Changes
 - The IceBox.ServiceManager object adapter has been deprecated.
   Use Ice.Admin and the IceBox.ServiceManager facet instead.
 
-- Removed the deprecated properties IcePatch2.ChunkSize, 
+- Removed the deprecated properties IcePatch2.ChunkSize,
   IcePatch2.Directory, IcePatch2.Remove and IcePatch2.Thorough.
 
 
@@ -304,26 +304,26 @@ C++ Changes
   and only has an effect in situations where the Ice data buffer is
   guaranteed to still exist. Refer to the Ice manual for more details.
 
-- It is no longer necessary to provide import libraries such as IceD.lib, 
-  IceUtilD.lib or IceGridD.lib when linking on Windows with Visual C++. 
-  The linker finds the import library names automatically through 
-  pragma comment(lib, ...) in the Ice header files.
+- It is no longer necessary to provide import libraries such as
+  IceD.lib, IceUtilD.lib or IceGridD.lib when linking on Windows with
+  Visual C++. The linker finds the import library names automatically
+  through pragma comment(lib, ...) in the Ice header files.
 
-- Ice header files no longer disable or downgrade any warning reported 
-  by the C++ compiler in your code. All Ice 3.5 header files include 
-  indirectly the following:
-    
+- Ice header files no longer disable or downgrade any warning reported
+  by the C++ compiler in your code. In Ice 3.5, all header files
+  indirectly included the following:
+
   #ifdef _MSC_VER
       //
       // Move some warnings to level 4
       //
       #   pragma warning( 4 : 4250 ) // ... : inherits ... via dominance
-      #   pragma warning( 4 : 4251 ) // class ... needs to have 
-                      // dll-interface to be used by clients of class... 
+      #   pragma warning( 4 : 4251 ) // class ... needs to have
+                      // dll-interface to be used by clients of class...
   #endif
 
   When upgrading your Visual C++ application to Ice 3.6, you may need
-  to fix, disable or downgrade these warnings in your C++ code. 
+  to fix, disable or downgrade these warnings in your C++ code.
 
 - Added support for TCP Loopback Fast Path on Windows platforms that
   support it.
@@ -331,8 +331,8 @@ C++ Changes
 - Fixed a bug where the communicator destruction could raise an
   Ice::NullHandleException if a custom observer was present.
 
-- Fixed a bug where the selector wouldn't check for EPOLLERR on
-  Linux. This could cause the selector thread to spin if this condition
+- Fixed a bug where the selector wouldn't check for EPOLLERR on Linux.
+  This could cause the selector thread to spin if this condition
   occurred (which is the case with UDP connected sockets).
 
 - Added per-process string converters for narrow and wide strings.
