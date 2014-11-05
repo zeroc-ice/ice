@@ -15,10 +15,10 @@
 %endif
 %endif
 
-%define java_arches alpha ia64 ppc s390 s390x sparc sparcv9 x86_64
-
 %if ! %{force_x86}
-%define java_arches %{ix86} %{java_arches}
+%define java_arches %{ix86} alpha ia64 ppc s390 s390x sparc sparcv9 x86_64
+%else
+%define java_arches alpha ia64 ppc s390 s390x sparc sparcv9 x86_64
 %endif
 
 %define	__soversion	5.3
