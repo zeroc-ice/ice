@@ -17,7 +17,7 @@
 #   pragma warning(disable:4512) //  ... assignment operator could not be generated
 #endif
 
-#ifdef __GNUC__
+#if defined(__GNUC__) && ((__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6))
 //
 // Expected when using forward Slice declarations
 //
