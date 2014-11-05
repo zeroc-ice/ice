@@ -48,10 +48,25 @@ NODE 		?= node
 ice_language = js
 slice_translator = slice2js
 
-ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
-    include $(top_srcdir)/config/Make.common.rules
-else
-    include $(top_srcdir)/../config/Make.common.rules
+#
+# While makedist generates assets we don't want to include this file, to
+# avoid problems with ICE_HOME settings
+#
+ifneq ($(MAKEDIST),yes)
+    ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
+        include $(top_srcdir)/config/Make.common.rules
+    else
+        include $(top_srcdir)/../config/Make.common.rules
+    endif
+
+    #
+    # Platform specific definitions (necessary for SLICEPARSERLIB)
+    #
+    ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.$(UNAME) && echo 0),0)
+            include $(top_srcdir)/config/Make.rules.$(UNAME)
+    else
+            include $(top_srcdir)/../cpp/config/Make.rules.$(UNAME)
+    endif
 endif
 
 ifdef ice_src_dist
@@ -61,6 +76,7 @@ else
     bindir = $(ice_dir)/$(binsubdir)
     libdir = $(ice_dir)/$(libsubdir)
 endif
+
 install_libdir 	  = $(prefix)/lib
 install_moduledir = $(prefix)/node_modules/icejs
 
@@ -89,27 +105,6 @@ installmodule	= if test ! -d $(1)/$(3) ; \
 			do \
 			 cp $$f $(1)/$(3); \
 			done;
-
-#
-# While makedist generates assets we don't want to include this file, to
-# avoid problems with ICE_HOME settings
-#
-ifneq ($(MAKEDIST),yes)
-    ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
-        include $(top_srcdir)/config/Make.common.rules
-    else
-        include $(top_srcdir)/../config/Make.common.rules
-    endif
-
-    #
-    # Platform specific definitions (necessary for SLICEPARSERLIB)
-    #
-    ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.$(UNAME) && echo 0),0)
-            include $(top_srcdir)/config/Make.rules.$(UNAME)
-    else
-            include $(top_srcdir)/../cpp/config/Make.rules.$(UNAME)
-    endif
-endif
 
 ifdef ice_src_dist
     ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
