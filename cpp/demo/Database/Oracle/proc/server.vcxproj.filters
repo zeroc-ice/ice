@@ -62,6 +62,7 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="README" />
+    <None Include="config.server" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="CurrentSqlContext.pc">

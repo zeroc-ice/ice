@@ -526,24 +526,6 @@ class Platform:
     def getJavaVersion(self, config):
         return config[4:] if config.startswith("java") else "1.7"
 
-    def getDemoDir(self, lang):
-        if lang == "cpp":
-            return "demo"
-        elif lang == "cs":
-            return "democs"
-        elif lang == "java":
-            return "demoj"
-        elif lang == "php":
-            return "demophp"
-        elif lang == "py":
-            return "demopy"
-        elif lang == "rb":
-            return "demorb"
-        elif lang == "vb":
-            return "demovb"
-        elif lang == "js":
-            return "demojs"
-
     def getJavaHome(self, arch, version):
         return None
     
@@ -825,7 +807,7 @@ class Platform:
         if sourceArchive:
             buildDir = os.path.join(self._sourceDir, lang, "demo")
         else:
-            buildDir = os.path.join(self._demoDir, self.getDemoDir(lang))
+            buildDir = os.path.join(self._demoDir, lang)
 
         commands = self.makeDemosCommand(compiler, arch, buildConfiguration, lang, buildDir) if lang != "java" else "./gradlew assemble"
         if type(commands) == str:
@@ -856,7 +838,7 @@ class Platform:
         if sourceArchive:
             sourceDir = os.path.join(self._sourceDir, lang)
         else:
-            sourceDir = os.path.join(self._demoDir, self.getDemoDir(lang))
+            sourceDir = os.path.join(self._demoDir, lang)
         os.chdir(sourceDir)
         results.setSourceDir(sourceDir)
 
