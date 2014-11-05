@@ -249,12 +249,8 @@ final class TransceiverI implements IceInternal.Transceiver
     }
 
     @Override
-    public void checkSendSize(IceInternal.Buffer buf, int messageSizeMax)
+    public void checkSendSize(IceInternal.Buffer buf)
     {
-        if(buf.size() > messageSizeMax)
-        {
-            IceInternal.Ex.throwMemoryLimitException(buf.size(), messageSizeMax);
-        }
     }
 
     TransceiverI(Instance instance, javax.net.ssl.SSLEngine engine, IceInternal.StreamSocket stream, String host,

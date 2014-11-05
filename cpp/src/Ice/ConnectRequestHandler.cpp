@@ -27,13 +27,10 @@ ConnectRequestHandler::ConnectRequestHandler(const ReferencePtr& ref, const Ice:
     RequestHandler(ref),
     _connect(true),
     _proxy(proxy),
-    _batchAutoFlush(
-        ref->getInstance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.BatchAutoFlush", 1) > 0),
     _initialized(false),
     _flushing(false),
     _batchRequestInProgress(false),
-    _batchRequestsSize(sizeof(requestBatchHdr)),
-    _batchStream(ref->getInstance().get(), Ice::currentProtocolEncoding, _batchAutoFlush)
+    _batchStream(ref->getInstance().get(), Ice::currentProtocolEncoding)
 {
 }
 
@@ -125,17 +122,8 @@ ConnectRequestHandler::finishBatchRequest(BasicStream* os)
 
             _batchStream.swap(*os);
 
-            if(!_batchAutoFlush &&
-               _batchStream.b.size() + _batchRequestsSize > _reference->getInstance()->messageSizeMax())
-            {
-                Ex::throwMemoryLimitException(__FILE__, __LINE__, _batchStream.b.size() + _batchRequestsSize,
-                                              _reference->getInstance()->messageSizeMax());
-            }
-
-            _batchRequestsSize += _batchStream.b.size();
-
             Request req;
-            req.os = new BasicStream(_reference->getInstance().get(), Ice::currentProtocolEncoding, _batchAutoFlush);
+            req.os = new BasicStream(_reference->getInstance().get(), Ice::currentProtocolEncoding);
             req.os->swap(_batchStream);
             _requests.push_back(req);
             return;
@@ -155,9 +143,8 @@ ConnectRequestHandler::abortBatchRequest()
             _batchRequestInProgress = false;
             notifyAll();
 
-            BasicStream dummy(_reference->getInstance().get(), Ice::currentProtocolEncoding, _batchAutoFlush);
+            BasicStream dummy(_reference->getInstance().get(), Ice::currentProtocolEncoding);
             _batchStream.swap(dummy);
-            _batchRequestsSize = sizeof(requestBatchHdr);
             return;
         }
     }

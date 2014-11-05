@@ -807,7 +807,7 @@ public:
                                            const Ice::CommunicatorPtr& communicator,
                                            const Ice::EncodingVersion& encoding)
     {
-        IceInternal::BasicStream stream(IceInternal::getInstance(communicator).get(), encoding, true);
+        IceInternal::BasicStream stream(IceInternal::getInstance(communicator).get(), encoding);
         stream.write(v);
         std::vector<Ice::Byte>(stream.b.begin(), stream.b.end()).swap(bytes);
     }
@@ -848,7 +848,7 @@ public:
                                            const Ice::CommunicatorPtr& communicator,
                                            const Ice::EncodingVersion& encoding)
     {
-        IceInternal::BasicStream stream(IceInternal::getInstance(communicator).get(), encoding, true);
+        IceInternal::BasicStream stream(IceInternal::getInstance(communicator).get(), encoding);
         stream.startWriteEncaps();
         stream.write(v);
         stream.endWriteEncaps();
@@ -894,7 +894,7 @@ public:
                                            const Ice::CommunicatorPtr& communicator,
                                            const Ice::EncodingVersion& encoding)
     {
-        IceInternal::BasicStream stream(IceInternal::getInstance(communicator).get(), encoding, true);
+        IceInternal::BasicStream stream(IceInternal::getInstance(communicator).get(), encoding);
         stream.startWriteEncaps();
         stream.write(v);
         stream.writePendingObjects();

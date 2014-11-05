@@ -162,6 +162,8 @@ dictionary<MyStruct, MyEnum> MyStructMyEnumD;
 
     void opByteSOneway(ByteS s);
 
+    int opByteSOnewayCallCount();
+
     Ice::Context opContext();
 
     void opDoubleMarshaling(double p1, DoubleS p2);

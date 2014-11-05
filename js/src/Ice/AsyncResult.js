@@ -41,7 +41,7 @@ var AsyncResult = Ice.Class(AsyncResultBase, {
         
         this._completed = completedFn;
         this._is = null;
-        this._os = com !== null ? new BasicStream(this._instance, Protocol.currentProtocolEncoding, false) : null;
+        this._os = com !== null ? new BasicStream(this._instance, Protocol.currentProtocolEncoding) : null;
         this._state = 0;
         this._exception = null;
         this._sentSynchronously = false;

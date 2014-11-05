@@ -21,11 +21,10 @@ IceInternal::Buffer::swapBuffer(Buffer& other)
     std::swap(i, other.i); 
 }
 
-IceInternal::Buffer::Container::Container(size_type maxCapacity) :
+IceInternal::Buffer::Container::Container() :
     _buf(0),
     _size(0),
     _capacity(0),
-    _maxCapacity(maxCapacity),
     _shrinkCounter(0)
 {
 }
@@ -34,7 +33,6 @@ IceInternal::Buffer::Container::Container(const_iterator beg, const_iterator end
     _buf(const_cast<iterator>(beg)),
     _size(end - beg),
     _capacity(0),
-    _maxCapacity(0),
     _shrinkCounter(0)
 {
 }
@@ -78,7 +76,7 @@ IceInternal::Buffer::Container::reserve(size_type n)
     size_type c = _capacity;
     if(n > _capacity)
     {
-        _capacity = std::max<size_type>(n, std::min(2 * _capacity, _maxCapacity));
+        _capacity = std::max<size_type>(n, 2 * _capacity);
         _capacity = std::max<size_type>(static_cast<size_type>(240), _capacity);
     }
     else if(n < _capacity)

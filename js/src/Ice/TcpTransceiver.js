@@ -279,12 +279,8 @@ var TcpTransceiver = Ice.Class({
     {
         return new Ice.TCPConnectionInfo();
     },
-    checkSendSize: function(stream, messageSizeMax)
+    checkSendSize: function(stream)
     {
-        if(stream.size > messageSizeMax)
-        {
-            ExUtil.throwMemoryLimitException(stream.size, messageSizeMax);
-        }
     },
     toString: function()
     {

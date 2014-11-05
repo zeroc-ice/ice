@@ -162,6 +162,8 @@ dictionary<MyStruct, MyEnum> MyStructMyEnumD;
     IntS opIntS(IntS s);
 
     void opByteSOneway(ByteS s);
+    
+    int opByteSOnewayCallCount();
 
     Ice::Context opContext();
 

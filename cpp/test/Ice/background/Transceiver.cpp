@@ -238,9 +238,9 @@ Transceiver::getInfo() const
 }
 
 void
-Transceiver::checkSendSize(const IceInternal::Buffer& buf, size_t messageSizeMax)
+Transceiver::checkSendSize(const IceInternal::Buffer& buf)
 {
-    _transceiver->checkSendSize(buf, messageSizeMax);
+    _transceiver->checkSendSize(buf);
 }
 
 //
@@ -250,7 +250,6 @@ Transceiver::Transceiver(const IceInternal::TransceiverPtr& transceiver) :
     _transceiver(transceiver),
     _configuration(Configuration::getInstance()),
     _initialized(false),
-    _readBuffer(0),
     _buffered(_configuration->buffered())
 {
     _readBuffer.b.resize(1024 * 8); // 8KB buffer

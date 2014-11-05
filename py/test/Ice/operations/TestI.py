@@ -7,13 +7,17 @@
 #
 # **********************************************************************
 
-import Ice, Test, sys
+import Ice, Test, sys, threading
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
 class MyDerivedClassI(Test.MyDerivedClass):
+    def __init__(self):
+        self.lock = threading.Lock()
+        self.opByteSOnewayCount = 0
+
     def ice_isA(self, id, current=None):
         test(current.mode == Ice.OperationMode.Nonmutating)
         return Test.MyDerivedClass.ice_isA(self, id, current)
@@ -194,7 +198,16 @@ class MyDerivedClassI(Test.MyDerivedClass):
         return [-x for x in s]
 
     def opByteSOneway(self, s, current=None):
-        pass
+        self.lock.acquire()
+        self.opByteSOnewayCount += 1
+        self.lock.release()
+
+    def opByteSOnewayCallCount(self, current=None):
+        self.lock.acquire()
+        count = self.opByteSOnewayCount
+        self.opByteSOnewayCount = 0
+        self.lock.release()
+        return count
 
     def opContext(self, current=None):
         return current.ctx

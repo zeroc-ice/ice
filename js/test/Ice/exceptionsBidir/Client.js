@@ -41,7 +41,7 @@
                             function(conn)
                             {
                                 conn.setAdapter(adapter);
-                                return Client.__clientAllTests__(out, communicator, amd ? TestAMD : Test);
+                                return Client.__clientAllTests__(out, communicator, amd ? TestAMD : Test, true);
                             });
                     });
             });
@@ -51,6 +51,7 @@
     {
         id.properties.setProperty("Ice.MessageSizeMax", "10");
         id.properties.setProperty("Ice.Warn.Dispatch", "0");
+        id.properties.setProperty("Ice.Warn.Connections", "0");
         var communicator = Ice.initialize(id);
         return Promise.try(
             function()

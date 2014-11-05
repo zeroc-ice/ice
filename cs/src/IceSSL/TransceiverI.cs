@@ -305,12 +305,8 @@ namespace IceSSL
             return getNativeConnectionInfo();
         }
 
-        public void checkSendSize(IceInternal.Buffer buf, int messageSizeMax)
+        public void checkSendSize(IceInternal.Buffer buf)
         {
-            if(buf.size() > messageSizeMax)
-            {
-                IceInternal.Ex.throwMemoryLimitException(buf.size(), messageSizeMax);
-            }
         }
 
         public override string ToString()

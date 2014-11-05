@@ -174,9 +174,9 @@ final class Transceiver implements IceInternal.Transceiver
 
     @Override
     public void
-    checkSendSize(IceInternal.Buffer buf, int messageSizeMax)
+    checkSendSize(IceInternal.Buffer buf)
     {
-        _transceiver.checkSendSize(buf, messageSizeMax);
+        _transceiver.checkSendSize(buf);
     }
 
     public IceInternal.Transceiver
@@ -194,7 +194,7 @@ final class Transceiver implements IceInternal.Transceiver
         _configuration = configuration;
         _initialized = false;
         _buffered = _configuration.buffered();
-        _readBuffer = new IceInternal.Buffer(100 * 1024, false);
+        _readBuffer = new IceInternal.Buffer(false);
         _readBuffer.resize(1024 * 8, true); // 8KB buffer
         _readBufferPos = 0;
     }

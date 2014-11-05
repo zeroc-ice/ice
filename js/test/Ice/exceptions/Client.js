@@ -14,7 +14,7 @@
 
     var Promise = Ice.Promise;
 
-    var allTests = function(out, communicator, Test)
+    var allTests = function(out, communicator, Test, bidir)
     {
         var EmptyI = function()
         {
@@ -369,22 +369,29 @@
         ).then(
             function()
             {
-                out.write("testing memory limit marshal exception...");
-                return thrower.throwMemoryLimitException(null);
+                if(!bidir)
+                {
+                    out.write("testing memory limit marshal exception...");
+                    return thrower.throwMemoryLimitException(null).then(
+                        failCB,
+                        function(ex)
+                        {
+                            test(ex instanceof Ice.MemoryLimitException);
+                            return thrower.throwMemoryLimitException(Ice.Buffer.createNative(20 * 1024));
+                        }
+                    ).then(
+                        failCB,
+                        function(ex)
+                        {
+                            test(ex instanceof Ice.ConnectionLostException);
+                            out.writeLine("ok");
+                        }
+                    );
+                }
             }
         ).then(
-            failCB,
-            function(ex)
+            function()
             {
-                test(ex instanceof Ice.UnknownLocalException);
-                return thrower.throwMemoryLimitException(new Array(20 * 1024));
-            }
-        ).then(
-            failCB,
-            function(ex)
-            {
-                test(ex instanceof Ice.MemoryLimitException);
-                out.writeLine("ok");
                 out.write("catching object not exist exception... ");
                 var id = communicator.stringToIdentity("does not exist");
                 var thrower2 = Test.ThrowerPrx.uncheckedCast(thrower.ice_identity(id));
@@ -477,6 +484,7 @@
     var run = function(out, id)
     {
         id.properties.setProperty("Ice.MessageSizeMax", "10");
+        id.properties.setProperty("Ice.Warn.Connections", "0");
         var c = Ice.initialize(id);
         return Promise.try(
             function()

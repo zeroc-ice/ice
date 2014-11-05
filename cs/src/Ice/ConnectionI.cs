@@ -406,7 +406,7 @@ namespace Ice
                 // Ensure the message isn't bigger than what we can send with the
                 // transport.
                 //
-                _transceiver.checkSendSize(os.getBuffer(), _instance.messageSizeMax());
+                _transceiver.checkSendSize(os.getBuffer());
 
                 //
                 // Notify the request that it's cancelable with this connection. 
@@ -534,8 +534,13 @@ namespace Ice
                     }
 
                     bool flush = false;
-                    if(_batchAutoFlush)
+                    if(_batchAutoFlushSize > 0)
                     {
+                        if(_batchStream.size() > _batchAutoFlushSize)
+                        {
+                            flush = true;
+                        }
+
                         //
                         // Throw memory limit exception if the first message added causes us to
                         // go over limit. Otherwise put aside the marshalled message that caused
@@ -543,7 +548,7 @@ namespace Ice
                         //
                         try
                         {
-                            _transceiver.checkSendSize(_batchStream.getBuffer(), _instance.messageSizeMax());
+                            _transceiver.checkSendSize(_batchStream.getBuffer());
                         }
                         catch(LocalException)
                         {
@@ -593,22 +598,10 @@ namespace Ice
                         //
                         // Reset the batch stream.
                         //
-                        _batchStream = new IceInternal.BasicStream(_instance, Util.currentProtocolEncoding,
-                                                                   _batchAutoFlush);
+                        _batchStream = new IceInternal.BasicStream(_instance, Util.currentProtocolEncoding);
                         _batchRequestNum = 0;
                         _batchRequestCompress = false;
                         _batchMarker = 0;
-
-                        //
-                        // Check again if the last request doesn't exceed the maximum message size.
-                        //
-                        if(IceInternal.Protocol.requestBatchHdr.Length + lastRequest.Length >
-                           _instance.messageSizeMax())
-                        {
-                            IceInternal.Ex.throwMemoryLimitException(
-                                IceInternal.Protocol.requestBatchHdr.Length + lastRequest.Length,
-                                _instance.messageSizeMax());
-                        }
 
                         //
                         // Start a new batch with the last message that caused us to go over the limit.
@@ -650,7 +643,7 @@ namespace Ice
         {
             lock(this)
             {
-                _batchStream = new IceInternal.BasicStream(_instance, Util.currentProtocolEncoding, _batchAutoFlush);
+                _batchStream = new IceInternal.BasicStream(_instance, Util.currentProtocolEncoding);
                 _batchRequestNum = 0;
                 _batchRequestCompress = false;
                 _batchMarker = 0;
@@ -753,7 +746,7 @@ namespace Ice
                 //
                 // Reset the batch stream.
                 //
-                _batchStream = new IceInternal.BasicStream(_instance, Util.currentProtocolEncoding, _batchAutoFlush);
+                _batchStream = new IceInternal.BasicStream(_instance, Util.currentProtocolEncoding);
                 _batchRequestNum = 0;
                 _batchRequestCompress = false;
                 _batchMarker = 0;
@@ -1810,8 +1803,8 @@ namespace Ice
                 _acmLastActivity = -1;
             }
             _nextRequestId = 1;
-            _batchAutoFlush = initData.properties.getPropertyAsIntWithDefault("Ice.BatchAutoFlush", 1) > 0;
-            _batchStream = new IceInternal.BasicStream(instance, Util.currentProtocolEncoding, _batchAutoFlush);
+            _batchAutoFlushSize = instance.batchAutoFlushSize();
+            _batchStream = new IceInternal.BasicStream(instance, Util.currentProtocolEncoding);
             _batchStreamInUse = false;
             _batchRequestNum = 0;
             _batchRequestCompress = false;
@@ -3177,7 +3170,7 @@ namespace Ice
 
         private LocalException _exception;
 
-        private bool _batchAutoFlush;
+        private int _batchAutoFlushSize;
         private IceInternal.BasicStream _batchStream;
         private bool _batchStreamInUse;
         private int _batchRequestNum;

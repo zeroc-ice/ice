@@ -388,9 +388,19 @@ public final class TieMyDerivedClassI implements _MyDerivedClassOperations
     }
 
     @Override
-    public void
+    public synchronized void
     opByteSOneway(byte[] s, Ice.Current current)
     {
+        ++_opByteSOnewayCallCount;
+    }
+
+    @Override
+    public synchronized int
+    opByteSOnewayCallCount(Ice.Current current)
+    {
+        int count = _opByteSOnewayCallCount;
+        _opByteSOnewayCallCount = 0;
+        return count;
     }
 
     @Override
@@ -508,4 +518,6 @@ public final class TieMyDerivedClassI implements _MyDerivedClassOperations
     opDerived(Ice.Current current)
     {
     }
+
+    private int _opByteSOnewayCallCount = 0;
 }

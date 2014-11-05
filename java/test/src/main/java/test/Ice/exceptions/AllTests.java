@@ -1103,15 +1103,16 @@ public class AllTests
             out.println("ok");
         }
 
-        out.print("testing memory limit marshal exception...");
-        out.flush();
+        if(thrower.ice_getConnection() != null)
         {
+            out.print("testing memory limit marshal exception...");
+            out.flush();
             try
             {
                 thrower.throwMemoryLimitException(null);
                 test(false);
             }
-            catch(Ice.UnknownLocalException ex)
+            catch(Ice.MemoryLimitException ex)
             {
             }
             catch(Throwable ex)
@@ -1125,7 +1126,7 @@ public class AllTests
                 thrower.throwMemoryLimitException(new byte[20 * 1024]); // 20KB
                 test(false);
             }
-            catch(Ice.MemoryLimitException ex)
+            catch(Ice.ConnectionLostException ex)
             {
             }
             catch(Throwable ex)
@@ -1133,23 +1134,8 @@ public class AllTests
                 ex.printStackTrace();
                 test(false);
             }
-
-            try
-            {
-                thrower.end_throwMemoryLimitException(
-                    thrower.begin_throwMemoryLimitException(new byte[20 * 1024])); // 20KB
-                test(false);
-            }
-            catch(Ice.MemoryLimitException ex)
-            {
-            }
-            catch(Throwable ex)
-            {
-                ex.printStackTrace();
-                test(false);
-            }
+            out.println("ok");
         }
-        out.println("ok");
 
         out.print("catching object not exist exception... ");
         out.flush();

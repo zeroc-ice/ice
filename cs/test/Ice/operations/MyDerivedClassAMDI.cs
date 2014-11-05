@@ -404,7 +404,21 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
 
     public override void opByteSOneway_async(Test.AMD_MyClass_opByteSOneway cb, byte[] s, Ice.Current current)
     {
+        lock(this)
+        {
+            ++_opByteSOnewayCallCount;
+        }
         cb.ice_response();
+    }
+
+    public override void opByteSOnewayCallCount_async(Test.AMD_MyClass_opByteSOnewayCallCount cb, Ice.Current current)
+    {
+        lock(this)
+        {
+            int count = _opByteSOnewayCallCount;
+            _opByteSOnewayCallCount = 0;
+            cb.ice_response(count);
+        }
     }
 
     public override void opDoubleMarshaling_async(Test.AMD_MyClass_opDoubleMarshaling cb, double p1, double[] p2,
@@ -506,4 +520,5 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
     }
 
     private Thread_opVoid _opVoidThread;
+    private int _opByteSOnewayCallCount = 0;
 }

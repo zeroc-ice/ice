@@ -47,7 +47,7 @@ public:
     typedef size_t size_type;
     typedef void (*PatchFunc)(void*, const Ice::ObjectPtr&);
 
-    BasicStream(Instance*, const Ice::EncodingVersion&, bool = false);
+    BasicStream(Instance*, const Ice::EncodingVersion&);
     BasicStream(Instance*, const Ice::EncodingVersion&, const Ice::Byte*, const Ice::Byte*);
     ~BasicStream()
     {
@@ -75,14 +75,6 @@ public:
 
     void resize(Container::size_type sz)
     {
-        //
-        // Check memory limit if stream is not unlimited.
-        //
-        if(!_unlimited && sz > _messageSizeMax)
-        {
-            IceInternal::Ex::throwMemoryLimitException(__FILE__, __LINE__, sz, _messageSizeMax);
-        }
-
         b.resize(sz);
         i = b.end();
     }
@@ -1310,9 +1302,6 @@ private:
     WriteEncaps _preAllocatedWriteEncaps;
 
     bool _sliceObjects;
-
-    const Container::size_type _messageSizeMax;
-    bool _unlimited;
 
     const IceUtil::StringConverterPtr _stringConverter;
     const IceUtil::WstringConverterPtr _wstringConverter;

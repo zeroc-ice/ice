@@ -21,3 +21,4 @@ IceInternal::Transceiver::bind()
     assert(false);
     return 0;
 }
+

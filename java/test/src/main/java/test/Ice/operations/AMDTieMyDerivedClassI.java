@@ -16,6 +16,7 @@ import test.Ice.operations.AMD.Test.AMD_MyClass_opByte;
 import test.Ice.operations.AMD.Test.AMD_MyClass_opByteBoolD;
 import test.Ice.operations.AMD.Test.AMD_MyClass_opByteS;
 import test.Ice.operations.AMD.Test.AMD_MyClass_opByteSOneway;
+import test.Ice.operations.AMD.Test.AMD_MyClass_opByteSOnewayCallCount;
 import test.Ice.operations.AMD.Test.AMD_MyClass_opByteSS;
 import test.Ice.operations.AMD.Test.AMD_MyClass_opContext;
 import test.Ice.operations.AMD.Test.AMD_MyClass_opDoubleMarshaling;
@@ -443,10 +444,20 @@ public final class AMDTieMyDerivedClassI implements _MyDerivedClassOperations
     }
 
     @Override
-    public void
+    public synchronized void
     opByteSOneway_async(AMD_MyClass_opByteSOneway cb, byte[] s, Ice.Current current)
     {
+        ++_opByteSOnewayCallCount;
         cb.ice_response();
+    }
+
+    @Override
+    public synchronized void
+    opByteSOnewayCallCount_async(AMD_MyClass_opByteSOnewayCallCount cb, Ice.Current current)
+    {
+        int count = _opByteSOnewayCallCount;
+        _opByteSOnewayCallCount = 0;
+        cb.ice_response(count);
     }
 
     @Override
@@ -574,4 +585,5 @@ public final class AMDTieMyDerivedClassI implements _MyDerivedClassOperations
     }
 
     private Thread _opVoidThread;
+    private int _opByteSOnewayCallCount = 0;
 }

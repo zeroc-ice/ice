@@ -1626,7 +1626,7 @@ var WriteEncaps = Class({
 });
 
 var BasicStream = Class({
-    __init__: function(instance, encoding, unlimited, data)
+    __init__: function(instance, encoding, data)
     {
         this._instance = instance;
         this._closure = null;
@@ -1638,9 +1638,6 @@ var BasicStream = Class({
         this._writeEncapsCache = null;
 
         this._sliceObjects = true;
-
-        this._messageSizeMax = this._instance.messageSizeMax(); // Cached for efficiency.
-        this._unlimited = unlimited !== undefined ? unlimited : false;
 
         this._startSeq = -1;
         this._sizePos = -1;
@@ -1689,7 +1686,7 @@ var BasicStream = Class({
     {
         Debug.assert(this._instance === other._instance);
 
-        var tmpBuf, tmpClosure, tmpUnlimited, tmpStartSeq, tmpMinSeqSize, tmpSizePos;
+        var tmpBuf, tmpClosure, tmpStartSeq, tmpMinSeqSize, tmpSizePos;
 
         tmpBuf = other._buf;
         other._buf = this._buf;
@@ -1706,10 +1703,6 @@ var BasicStream = Class({
         //
         this.resetEncaps();
         other.resetEncaps();
-
-        tmpUnlimited = other._unlimited;
-        other._unlimited = this._unlimited;
-        this._unlimited = tmpUnlimited;
 
         tmpStartSeq = other._startSeq;
         other._startSeq = this._startSeq;
@@ -1730,14 +1723,6 @@ var BasicStream = Class({
     },
     resize: function(sz)
     {
-        //
-        // Check memory limit if stream is not unlimited.
-        //
-        if(!this._unlimited && sz > this._messageSizeMax)
-        {
-            ExUtil.throwMemoryLimitException(sz, this._messageSizeMax);
-        }
-
         this._buf.resize(sz);
         this._buf.position = sz;
     },
@@ -2758,10 +2743,6 @@ var BasicStream = Class({
     },
     expand: function(n)
     {
-        if(!this._unlimited && this._buf && this._buf.position + n > this._messageSizeMax)
-        {
-            ExUtil.throwMemoryLimitException(this._buf.position + n, this._messageSizeMax);
-        }
         this._buf.expand(n);
     },
     createObject: function(id)

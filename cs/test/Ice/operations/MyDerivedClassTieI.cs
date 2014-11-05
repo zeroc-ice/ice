@@ -344,6 +344,20 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
 
     public void opByteSOneway(byte[] s, Ice.Current current)
     {
+        lock(this)
+        {
+            ++_opByteSOnewayCallCount;
+        }
+    }
+
+    public int opByteSOnewayCallCount(Ice.Current current)
+    {
+        lock(this)
+        {
+            int count = _opByteSOnewayCallCount;
+            _opByteSOnewayCallCount = 0;
+            return count;
+        }
     }
 
     public Dictionary<string, string> opContext(Ice.Current current)
@@ -442,4 +456,6 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
     public void opDerived(Ice.Current current)
     {
     }
+
+    private int _opByteSOnewayCallCount = 0;
 }

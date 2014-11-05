@@ -34,7 +34,7 @@ public:
     virtual std::string toDetailedString() const;
     virtual Ice::ConnectionInfoPtr getInfo() const;
     virtual IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&, bool&);
-    virtual void checkSendSize(const IceInternal::Buffer&, size_t);
+    virtual void checkSendSize(const IceInternal::Buffer&);
 
     IceInternal::TransceiverPtr delegate() const { return _transceiver; }
 

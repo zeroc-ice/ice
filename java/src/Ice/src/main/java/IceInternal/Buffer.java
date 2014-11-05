@@ -16,17 +16,16 @@ package IceInternal;
 public class Buffer
 {
     public
-    Buffer(int maxCapacity, boolean direct)
+    Buffer(boolean direct)
     {
-        this(maxCapacity, direct, java.nio.ByteOrder.LITTLE_ENDIAN);
+        this(direct, java.nio.ByteOrder.LITTLE_ENDIAN);
     }
 
-    Buffer(int maxCapacity, boolean direct, java.nio.ByteOrder order)
+    Buffer(boolean direct, java.nio.ByteOrder order)
     {
         b = _emptyBuffer;
         _size = 0;
         _capacity = 0;
-        _maxCapacity = maxCapacity;
         _direct = direct;
         _order = order;
     }
@@ -42,7 +41,6 @@ public class Buffer
         b.order(order);
         _size = data.length;
         _capacity = 0;
-        _maxCapacity = 0;
         _direct = false;
         _order = order;
     }
@@ -58,7 +56,6 @@ public class Buffer
         b.order(order);
         _size = data.remaining();
         _capacity = 0;
-        _maxCapacity = 0;
         _direct = false;
         _order = order;
     }
@@ -157,7 +154,7 @@ public class Buffer
     {
         if(n > _capacity)
         {
-            _capacity = java.lang.Math.max(n, java.lang.Math.min(2 * _capacity, _maxCapacity));
+            _capacity = java.lang.Math.max(n, 2 * _capacity);
             _capacity = java.lang.Math.max(240, _capacity);
         }
         else if(n < _capacity)
@@ -212,7 +209,6 @@ public class Buffer
 
     private int _size;
     private int _capacity; // Cache capacity to avoid excessive method calls.
-    private int _maxCapacity;
     private boolean _direct; // Use direct buffers?
     private int _shrinkCounter;
     private java.nio.ByteOrder _order;

@@ -74,28 +74,6 @@ public:
     }
 };
 
-class Callback_ByteSOneway2 : public IceUtil::Shared
-{
-    CallbackPtr _cb;
-
-public:
-
-    Callback_ByteSOneway2(const CallbackPtr& cb) : _cb(cb)
-    {
-    }
-
-    void response()
-    {
-        test(false);
-    }
-
-    void exception(const ::Ice::Exception& ex)
-    {
-        test(dynamic_cast<const ::Ice::MemoryLimitException*>(&ex));
-        _cb->called();
-    }
-};
-
 class Callback_ByteSOneway3 : public IceUtil::Shared
 {
 public:
@@ -149,10 +127,6 @@ batchOnewaysAMI(const Test::MyClassPrx& p)
         &Callback_ByteSOneway1::response, &Callback_ByteSOneway1::exception));
     cb->check();
 
-    p->begin_opByteSOneway(bs3, Test::newCallback_MyClass_opByteSOneway(new Callback_ByteSOneway2(cb),
-        &Callback_ByteSOneway2::response, &Callback_ByteSOneway2::exception));
-    cb->check();
-
     Test::MyClassPrx batch = Test::MyClassPrx::uncheckedCast(p->ice_batchOneway());
     batch->end_ice_flushBatchRequests(batch->begin_ice_flushBatchRequests());
 
@@ -160,7 +134,9 @@ batchOnewaysAMI(const Test::MyClassPrx& p)
 
     for(i = 0 ; i < 30 ; ++i)
     {
-        p->begin_opByteSOneway(bs1, Test::newCallback_MyClass_opByteSOneway(new Callback_ByteSOneway3(), &Callback_ByteSOneway3::response, &Callback_ByteSOneway3::exception));
+        p->begin_opByteSOneway(bs1, Test::newCallback_MyClass_opByteSOneway(new Callback_ByteSOneway3(), 
+                                                                            &Callback_ByteSOneway3::response, 
+                                                                            &Callback_ByteSOneway3::exception));
     }
     
     if(batch->ice_getConnection())

@@ -1059,6 +1059,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     _state(StateActive),
     _initData(initData),
     _messageSizeMax(0),
+    _batchAutoFlushSize(0),
     _collectObjects(false),
     _implicitContext(0),
     _stringConverter(IceUtil::getProcessStringConverter()),
@@ -1271,6 +1272,32 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             {
                 // Property is in kilobytes, _messageSizeMax in bytes.
                 const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(num) * 1024;
+            }
+        }
+
+        if(_initData.properties->getProperty("Ice.BatchAutoFlushSize").empty() &&
+           !_initData.properties->getProperty("Ice.BatchAutoFlush").empty())
+        {
+            if(_initData.properties->getPropertyAsInt("Ice.BatchAutoFlush") > 0)
+            {
+                const_cast<size_t&>(_batchAutoFlushSize) = _messageSizeMax;
+            }
+        }
+        else
+        {
+            Int num = _initData.properties->getPropertyAsIntWithDefault("Ice.BatchAutoFlushSize", 1024); // 1MB default
+            if(num < 1)
+            {
+                const_cast<size_t&>(_batchAutoFlushSize) = num;
+            }
+            else if(static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff / 1024))
+            {
+                const_cast<size_t&>(_batchAutoFlushSize) = static_cast<size_t>(0x7fffffff);
+            }
+            else
+            {
+                // Property is in kilobytes, convert in bytes.
+                const_cast<size_t&>(_batchAutoFlushSize) = static_cast<size_t>(num) * 1024;
             }
         }
 

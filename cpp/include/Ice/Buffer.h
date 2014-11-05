@@ -19,7 +19,7 @@ class ICE_API Buffer : private IceUtil::noncopyable
 {
 public:
 
-    Buffer(size_t maxCapacity) : b(maxCapacity), i(b.begin()) { }
+    Buffer() : i(b.begin()) { }
     Buffer(const Ice::Byte* beg, const Ice::Byte* end) : b(beg, end), i(b.begin()) { }
     virtual ~Buffer() { }
 
@@ -41,7 +41,7 @@ public:
         typedef Ice::Byte* pointer;
         typedef size_t size_type;
 
-        Container(size_type maxCapacity);
+        Container();
         Container(const_iterator, const_iterator);
 
         ~Container();
@@ -90,7 +90,7 @@ public:
             }
             else if(n > _capacity)
             {
-                reserve(n); 
+                reserve(n);
             }
             _size = n;
         }
@@ -147,7 +147,6 @@ public:
         pointer _buf;
         size_type _size;
         size_type _capacity;
-        size_type _maxCapacity;
         int _shrinkCounter;
     };
 

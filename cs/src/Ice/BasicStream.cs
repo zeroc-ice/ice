@@ -103,23 +103,17 @@ namespace IceInternal
 
         public BasicStream(Instance instance, Ice.EncodingVersion encoding)
         {
-            initialize(instance, encoding, false);
-            _buf = new Buffer(instance.messageSizeMax());
-        }
-
-        public BasicStream(Instance instance, Ice.EncodingVersion encoding, bool unlimited)
-        {
-            initialize(instance, encoding, unlimited);
-            _buf = new Buffer(instance.messageSizeMax());
+            initialize(instance, encoding);
+            _buf = new Buffer();
         }
 
         public BasicStream(Instance instance, Ice.EncodingVersion encoding, byte[] data)
         {
-            initialize(instance, encoding, false);
+            initialize(instance, encoding);
             _buf = new Buffer(data);
         }
 
-        private void initialize(Instance instance, Ice.EncodingVersion encoding, bool unlimited)
+        private void initialize(Instance instance, Ice.EncodingVersion encoding)
         {
             instance_ = instance;
             _closure = null;
@@ -131,9 +125,6 @@ namespace IceInternal
             _writeEncapsCache = null;
 
             _sliceObjects = true;
-
-            _messageSizeMax = instance_.messageSizeMax(); // Cached for efficiency.
-            _unlimited = unlimited;
 
             _startSeq = -1;
         }
@@ -210,10 +201,6 @@ namespace IceInternal
             resetEncaps();
             other.resetEncaps();
 
-            bool tmpUnlimited = other._unlimited;
-            other._unlimited = _unlimited;
-            _unlimited = tmpUnlimited;
-
             int tmpStartSeq = other._startSeq;
             other._startSeq = _startSeq;
             _startSeq = tmpStartSeq;
@@ -231,14 +218,6 @@ namespace IceInternal
 
         public void resize(int sz, bool reading)
         {
-            //
-            // Check memory limit if stream is not unlimited.
-            //
-            if(!_unlimited && sz > _messageSizeMax)
-            {
-                Ex.throwMemoryLimitException(sz, _messageSizeMax);
-            }
-
             _buf.resize(sz, reading);
             _buf.b.position(sz);
         }
@@ -3420,6 +3399,10 @@ namespace IceInternal
             {
                 throw new Ice.IllegalMessageSizeException("compressed size <= header size");
             }
+            if(uncompressedSize > instance_.messageSizeMax())
+            {
+                IceInternal.Ex.throwMemoryLimitException(uncompressedSize, instance_.messageSizeMax());
+            }
 
             int compressedLen = size() - headerSize - 4;
             byte[] compressed = _buf.b.rawBytes(headerSize + 4, compressedLen);
@@ -3449,10 +3432,6 @@ namespace IceInternal
 
         public void expand(int n)
         {
-            if(!_unlimited && _buf.b != null && _buf.b.position() + n > _messageSizeMax)
-            {
-                Ex.throwMemoryLimitException(_buf.b.position() + n, _messageSizeMax);
-            }
             _buf.expand(n);
         }
 
@@ -5400,9 +5379,6 @@ namespace IceInternal
         }
 
         private bool _sliceObjects;
-
-        private int _messageSizeMax;
-        private bool _unlimited;
 
         private int _startSeq;
         private int _minSeqSize;

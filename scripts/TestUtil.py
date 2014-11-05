@@ -1276,11 +1276,10 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
         else:
             serverenv = getTestEnv(lang, serverdir)
 
-
     global cross
     if len(cross) > 0:
-        if lang == "js":
-            print("** skipping js cross test")
+        if lang == "js" and cross[0] != lang:
+            print("** skipping js cross test ")
             return
     elif len(cross) == 0:
         cross.append(lang)

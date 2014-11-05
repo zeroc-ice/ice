@@ -46,12 +46,7 @@ begin
     #initData.properties.setProperty('Ice.ThreadPool.Client.Size', '2')
     #initData.properties.setProperty('Ice.ThreadPool.Client.SizeWarn', '0')
 
-    #
-    # We must set MessageSizeMax to an explicit values, because
-    # we run tests to check whether Ice.MemoryLimitException is
-    # raised as expected.
-    #
-    initData.properties.setProperty("Ice.MessageSizeMax", "100")
+    initData.properties.setProperty("Ice.BatchAutoFlushSize", "100")
 
     communicator = Ice.initialize(ARGV, initData)
     status = run(ARGV, communicator)

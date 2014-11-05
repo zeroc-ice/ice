@@ -14,6 +14,10 @@
 #include <functional>
 #include <iterator>
 
+MyDerivedClassI::MyDerivedClassI() : _opByteSOnewayCallCount(0)
+{
+}
+
 bool
 MyDerivedClassI::ice_isA(const std::string& id, const Ice::Current& current) const
 {
@@ -610,6 +614,17 @@ MyDerivedClassI::opIntS(const Test::IntS& s, const Ice::Current&)
 void
 MyDerivedClassI::opByteSOneway(const Test::ByteS&, const Ice::Current&)
 {
+    IceUtil::Mutex::Lock sync(_mutex);
+    ++_opByteSOnewayCallCount;
+}
+
+int
+MyDerivedClassI::opByteSOnewayCallCount(const Ice::Current&)
+{
+    IceUtil::Mutex::Lock sync(_mutex);
+    int count = _opByteSOnewayCallCount;
+    _opByteSOnewayCallCount = 0;
+    return count;
 }
 
 Test::StringStringD

@@ -45,25 +45,14 @@ def batchOneways(p):
         bs2[0:99 * 1024] = range(0, 99 * 1024) # add 100,000 entries.
         bs2 = ['\x00' for x in bs2] # set them all to \x00
         bs2 = ''.join(bs2) # make into a byte array
-
-        bs3 = []
-        bs3[0:100 * 1024] = range(0, 100 * 1024) # add 100,000 entries.
-        bs3 = ['\x00' for x in bs3] # set them all to \x00
-        bs3 = ''.join(bs3) # make into a byte array
     else:
         bs1 = bytes([0 for x in range(0, 10 * 1024)])
         bs2 = bytes([0 for x in range(0, 99 * 1024)])
-        bs3 = bytes([0 for x in range(0, 100 * 1024)])
 
     cb = Callback()
     p.begin_opByteSOneway(bs1, lambda: cb.called(), lambda ex: test(False) )
     cb.check()
     p.begin_opByteSOneway(bs2, lambda: cb.called(), lambda ex: test(False) )
-    cb.check()
-    def checkMemoryLimit(ex):
-        test(isinstance(ex, Ice.MemoryLimitException))
-        cb.called() 
-    p.begin_opByteSOneway(bs3, lambda: test(False), lambda ex: checkMemoryLimit(ex) )
     cb.check()
 
     batch = Test.MyClassPrx.uncheckedCast(p.ice_batchOneway())

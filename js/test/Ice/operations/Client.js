@@ -71,12 +71,7 @@
 
     var run = function(out, id)
     {
-        //
-        // We must set MessageSizeMax to an explicit value,
-        // because we run tests to check whether
-        // Ice.MemoryLimitException is raised as expected.
-        //
-        id.properties.setProperty("Ice.MessageSizeMax", "100");
+        id.properties.setProperty("Ice.BatchAutoFlushSize", "100");
         var c = Ice.initialize(id);
         return Promise.try(
             function()
@@ -91,7 +86,6 @@
         ).finally(
             function()
             {
-                c.destroy(); // Test concurrent destroy() calls
                 return c.destroy();
             }
         );

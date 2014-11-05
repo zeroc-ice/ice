@@ -325,13 +325,8 @@ final class UdpTransceiver implements Transceiver
     }
 
     @Override
-    public void checkSendSize(Buffer buf, int messageSizeMax)
+    public void checkSendSize(Buffer buf)
     {
-        if(buf.size() > messageSizeMax)
-        {
-            Ex.throwMemoryLimitException(buf.size(), messageSizeMax);
-        }
-
         //
         // The maximum packetSize is either the maximum allowable UDP packet size, or
         // the UDP send buffer size (which ever is smaller).

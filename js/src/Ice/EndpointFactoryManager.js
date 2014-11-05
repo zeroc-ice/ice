@@ -113,7 +113,7 @@ var EndpointFactoryManager = Ice.Class({
                     // and ask the factory to read the endpoint data from that stream to create
                     // the actual endpoint.
                     //
-                    var bs = new BasicStream(this._instance, Protocol.currentProtocolEncoding, true);
+                    var bs = new BasicStream(this._instance, Protocol.currentProtocolEncoding);
                     bs.writeShort(ue.type());
                     ue.streamWrite(bs);
                     bs.pos = 0;

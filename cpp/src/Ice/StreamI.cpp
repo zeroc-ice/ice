@@ -402,7 +402,7 @@ InputStreamI::initialize(Instance* instance, const pair<const Byte*, const Byte*
 {
     if(copyData)
     {
-        _is = new BasicStream(instance, v, true);
+        _is = new BasicStream(instance, v);
         _is->writeBlob(buf.first, buf.second - buf.first);
         _is->i = _is->b.begin();
     }
@@ -420,7 +420,7 @@ OutputStreamI::OutputStreamI(const CommunicatorPtr& communicator) :
     _communicator(communicator), _own(true)
 {
     Instance* instance = getInstance(communicator).get();
-    _os = new BasicStream(instance, instance->defaultsAndOverrides()->defaultEncoding, true);
+    _os = new BasicStream(instance, instance->defaultsAndOverrides()->defaultEncoding);
     _os->closure(this);
 }
 
@@ -428,7 +428,7 @@ OutputStreamI::OutputStreamI(const CommunicatorPtr& communicator, const Encoding
     _communicator(communicator), _own(true)
 {
     Instance* instance = getInstance(communicator).get();
-    _os = new BasicStream(instance, v, true);
+    _os = new BasicStream(instance, v);
     _os->closure(this);
 }
 

@@ -331,7 +331,7 @@ private:
 
     IceUtil::UniquePtr<LocalException> _exception;
 
-    const bool _batchAutoFlush;
+    const size_t _batchAutoFlushSize;
     IceInternal::BasicStream _batchStream;
     bool _batchStreamInUse;
     int _batchRequestNum;

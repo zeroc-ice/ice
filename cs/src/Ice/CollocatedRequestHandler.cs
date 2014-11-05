@@ -34,12 +34,11 @@ namespace IceInternal
 
             _logger = _reference.getInstance().initializationData().logger; // Cached for better performance.
             _traceLevels = _reference.getInstance().traceLevels(); // Cached for better performance.
-            _batchAutoFlush = @ref.getInstance().initializationData().properties.getPropertyAsIntWithDefault(
-                "Ice.BatchAutoFlush", 1) > 0;
+            _batchAutoFlushSize = @ref.getInstance().batchAutoFlushSize();
             _requestId = 0;
             _batchStreamInUse = false;
             _batchRequestNum = 0;
-            _batchStream = new BasicStream(@ref.getInstance(), Ice.Util.currentProtocolEncoding, _batchAutoFlush);
+            _batchStream = new BasicStream(@ref.getInstance(), Ice.Util.currentProtocolEncoding);
         }
 
         public RequestHandler connect(Ice.ObjectPrxHelperBase proxy)
@@ -88,7 +87,7 @@ namespace IceInternal
                 {
                     _batchStream.swap(os);
 
-                    if(_batchAutoFlush & (_batchStream.size() > _reference.getInstance().messageSizeMax()))
+                    if(_batchAutoFlushSize > 0 && (_batchStream.size() > _batchAutoFlushSize))
                     {
                         //
                         // Temporarily save the last request.
@@ -101,8 +100,7 @@ namespace IceInternal
 
                         int invokeNum = _batchRequestNum;
                         BasicStream stream = new BasicStream(_reference.getInstance(),
-                                                             Ice.Util.currentProtocolEncoding,
-                                                             _batchAutoFlush);
+                                                             Ice.Util.currentProtocolEncoding);
                         stream.swap(_batchStream);
 
                         _adapter.getThreadPool().dispatch(() =>
@@ -115,16 +113,6 @@ namespace IceInternal
                         //
                         _batchRequestNum = 0;
                         _batchMarker = 0;
-
-                        //
-                        // Check again if the last request doesn't exceed what we can send with the auto flush
-                        //
-                        if(Protocol.requestBatchHdr.Length + lastRequest.Length >
-                           _reference.getInstance().messageSizeMax())
-                        {
-                            Ex.throwMemoryLimitException(Protocol.requestBatchHdr.Length + lastRequest.Length,
-                                                         _reference.getInstance().messageSizeMax());
-                        }
 
                         //
                         // Start a new batch with the last message that caused us to go over the limit.
@@ -153,8 +141,7 @@ namespace IceInternal
         {
             lock(this)
             {
-                BasicStream dummy = new BasicStream(_reference.getInstance(), Ice.Util.currentProtocolEncoding,
-                                                    _batchAutoFlush);
+                BasicStream dummy = new BasicStream(_reference.getInstance(), Ice.Util.currentProtocolEncoding);
                 _batchStream.swap(dummy);
                 _batchRequestNum = 0;
                 _batchMarker = 0;
@@ -378,8 +365,7 @@ namespace IceInternal
                     //
                     // Reset the batch stream.
                     //
-                    BasicStream dummy = new BasicStream(_reference.getInstance(), Ice.Util.currentProtocolEncoding,
-                                                        _batchAutoFlush);
+                    BasicStream dummy = new BasicStream(_reference.getInstance(), Ice.Util.currentProtocolEncoding);
                     _batchStream.swap(dummy);
                     _batchRequestNum = 0;
                     _batchMarker = 0;
@@ -512,7 +498,7 @@ namespace IceInternal
         private readonly Ice.ObjectAdapterI _adapter;
         private readonly Ice.Logger _logger;
         private readonly TraceLevels _traceLevels;
-        private bool _batchAutoFlush;
+        private readonly int _batchAutoFlushSize;
 
         private int _requestId;
 

@@ -66,8 +66,9 @@ public class Server
         try
         {
             Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties();
+            initData.properties = Ice.Util.createProperties(ref args);
             initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+            initData.properties.setProperty("Ice.Warn.Connections", "0");
             initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
             initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
             communicator = Ice.Util.initialize(ref args, initData);

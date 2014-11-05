@@ -533,12 +533,8 @@ IceSSL::TransceiverI::getInfo() const
 }
 
 void
-IceSSL::TransceiverI::checkSendSize(const IceInternal::Buffer& buf, size_t messageSizeMax)
+IceSSL::TransceiverI::checkSendSize(const IceInternal::Buffer&)
 {
-    if(buf.b.size() > messageSizeMax)
-    {
-        IceInternal::Ex::throwMemoryLimitException(__FILE__, __LINE__, buf.b.size(), messageSizeMax);
-    }
 }
 
 IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, const IceInternal::StreamSocketPtr& stream,

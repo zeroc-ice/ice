@@ -44,12 +44,7 @@ main(int argc, char* argv[])
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
 
-        //
-        // We must set MessageSizeMax to an explicit values, because
-        // we run tests to check whether Ice.MemoryLimitException is
-        // raised as expected.
-        //
-        initData.properties->setProperty("Ice.MessageSizeMax", "100");
+        initData.properties->setProperty("Ice.BatchAutoFlushSize", "100");
 
         communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator, initData);

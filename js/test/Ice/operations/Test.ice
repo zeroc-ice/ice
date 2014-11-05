@@ -161,6 +161,7 @@ class MyClass
     IntS opIntS(IntS s);
 
     void opByteSOneway(ByteS s);
+    int opByteSOnewayCallCount();
 
     Ice::Context opContext();
 

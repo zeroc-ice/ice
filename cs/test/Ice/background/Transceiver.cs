@@ -220,9 +220,9 @@ internal class Transceiver : IceInternal.Transceiver
         return _transceiver.toDetailedString();
     }
 
-    public void checkSendSize(IceInternal.Buffer buf, int messageSizeMax)
+    public void checkSendSize(IceInternal.Buffer buf )
     {
-        _transceiver.checkSendSize(buf, messageSizeMax);
+        _transceiver.checkSendSize(buf);
     }
 
     public void destroy()
@@ -243,7 +243,7 @@ internal class Transceiver : IceInternal.Transceiver
         _transceiver = transceiver;
         _configuration = Configuration.getInstance();
         _initialized = false;
-        _readBuffer = new IceInternal.Buffer(100 * 1024);
+        _readBuffer = new IceInternal.Buffer();
         _readBuffer.resize(1024 * 8, true); // 8KB buffer
         _readBuffer.b.position(0);
         _readBufferPos = 0;

@@ -139,12 +139,11 @@ CollocatedRequestHandler::CollocatedRequestHandler(const ReferencePtr& ref, cons
     _dispatcher(_reference->getInstance()->initializationData().dispatcher),
     _logger(_reference->getInstance()->initializationData().logger), // Cached for better performance.
     _traceLevels(_reference->getInstance()->traceLevels()), // Cached for better performance.
-    _batchAutoFlush(
-        ref->getInstance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.BatchAutoFlush", 1) > 0),
+    _batchAutoFlushSize(ref->getInstance()->batchAutoFlushSize()),
     _requestId(0),
     _batchStreamInUse(false),
     _batchRequestNum(0),
-    _batchStream(ref->getInstance().get(), currentProtocolEncoding, _batchAutoFlush)
+    _batchStream(ref->getInstance().get(), currentProtocolEncoding)
 {
 }
 
@@ -198,7 +197,7 @@ CollocatedRequestHandler::finishBatchRequest(BasicStream* os)
         Lock sync(*this);
         _batchStream.swap(*os);
 
-        if(_batchAutoFlush && (_batchStream.b.size() > _reference->getInstance()->messageSizeMax()))
+        if(_batchAutoFlushSize > 0 && (_batchStream.b.size() > _batchAutoFlushSize))
         {
             //
             // Temporarily save the last request.
@@ -211,19 +210,10 @@ CollocatedRequestHandler::finishBatchRequest(BasicStream* os)
             //
             // Reset the batch.
             //
-            BasicStream dummy(_reference->getInstance().get(), currentProtocolEncoding, _batchAutoFlush);
+            BasicStream dummy(_reference->getInstance().get(), currentProtocolEncoding);
             _batchStream.swap(dummy);
             _batchRequestNum = 0;
             _batchMarker = 0;
-            
-            //
-            // Check again if the last request doesn't exceed what we can send with the auto flush
-            //
-            if(sizeof(requestBatchHdr) + lastRequest.size() >  _reference->getInstance()->messageSizeMax())
-            {
-                Ex::throwMemoryLimitException(__FILE__, __LINE__, sizeof(requestBatchHdr) + lastRequest.size(),
-                                              _reference->getInstance()->messageSizeMax());
-            }
             
             //
             // Start a new batch with the last message that caused us to go over the limit.
@@ -252,7 +242,7 @@ CollocatedRequestHandler::abortBatchRequest()
 {
     Lock sync(*this);
 
-    BasicStream dummy(_reference->getInstance().get(), currentProtocolEncoding, _batchAutoFlush);
+    BasicStream dummy(_reference->getInstance().get(), currentProtocolEncoding);
     _batchStream.swap(dummy);
     _batchRequestNum = 0;
     _batchMarker = 0;
@@ -436,7 +426,7 @@ CollocatedRequestHandler::invokeBatchRequests(OutgoingBase* out)
             //
             // Reset the batch stream.
             //
-            BasicStream dummy(_reference->getInstance().get(), currentProtocolEncoding, _batchAutoFlush);
+            BasicStream dummy(_reference->getInstance().get(), currentProtocolEncoding);
             _batchStream.swap(dummy);
             _batchRequestNum = 0;
             _batchMarker = 0;
@@ -494,7 +484,7 @@ CollocatedRequestHandler::invokeAsyncBatchRequests(OutgoingAsyncBase* outAsync)
             //
             // Reset the batch stream.
             //
-            BasicStream dummy(_reference->getInstance().get(), currentProtocolEncoding, _batchAutoFlush);
+            BasicStream dummy(_reference->getInstance().get(), currentProtocolEncoding);
             _batchStream.swap(dummy);
             _batchRequestNum = 0;
             _batchMarker = 0;

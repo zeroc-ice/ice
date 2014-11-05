@@ -59,7 +59,7 @@ var StateFinished = 6;
 
 var MessageInfo = function(instance)
 {
-    this.stream = new BasicStream(instance, Protocol.currentProtocolEncoding, false);
+    this.stream = new BasicStream(instance, Protocol.currentProtocolEncoding);
 
     this.invokeNum = 0;
     this.requestId = 0;
@@ -99,9 +99,8 @@ var ConnectionI = Class({
         this._warnUdp = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
         this._acmLastActivity = this._monitor !== null && this._monitor.getACM().timeout > 0 ? Date.now() : -1;
         this._nextRequestId = 1;
-        this._batchAutoFlush =
-            initData.properties.getPropertyAsIntWithDefault("Ice.BatchAutoFlush", 1) > 0 ? true : false;
-        this._batchStream = new BasicStream(instance, Protocol.currentProtocolEncoding, this._batchAutoFlush);
+        this._batchAutoFlushSize = instance.batchAutoFlushSize();
+        this._batchStream = new BasicStream(instance, Protocol.currentProtocolEncoding);
         this._batchStreamInUse = false;
         this._batchRequestNum = 0;
         this._batchRequestCompress = false;
@@ -397,7 +396,7 @@ var ConnectionI = Class({
         // Ensure the message isn't bigger than what we can send with the
         // transport.
         //
-        this._transceiver.checkSendSize(os, this._instance.messageSizeMax());
+        this._transceiver.checkSendSize(os);
 
         //
         // Notify the request that it's cancelable with this connection.
@@ -515,15 +514,20 @@ var ConnectionI = Class({
             }
 
             var flush = false;
-            if(this._batchAutoFlush)
+            if(this._batchAutoFlushSize > 0)
             {
+                if(this._batchStream.size > this._batchAutoFlushSize)
+                {
+                    flush = true;
+                }
+
                 //
                 // Throw memory limit exception if the first message added causes us to go over
                 // limit. Otherwise put aside the marshalled message that caused limit to be
                 // exceeded and rollback stream to the marker.
                 try
                 {
-                    this._transceiver.checkSendSize(this._batchStream.buffer, this._instance.messageSizeMax());
+                    this._transceiver.checkSendSize(this._batchStream.buffer);
                 }
                 catch(ex)
                 {
@@ -564,7 +568,7 @@ var ConnectionI = Class({
                     this._batchStream.writeInt(this._batchRequestNum);
 
                     this.sendMessage(OutgoingMessage.createForStream(this._batchStream, this._batchRequestCompress,
-                                                                        true));
+                                                                     true));
                 }
                 catch(ex)
                 {
@@ -583,21 +587,10 @@ var ConnectionI = Class({
                 //
                 // Reset the batch stream.
                 //
-                this._batchStream =
-                    new BasicStream(this._instance, Protocol.currentProtocolEncoding, this._batchAutoFlush);
+                this._batchStream = new BasicStream(this._instance, Protocol.currentProtocolEncoding);
                 this._batchRequestNum = 0;
                 this._batchRequestCompress = false;
                 this._batchMarker = 0;
-
-                //
-                // Check again if the last request doesn't exceed the maximum message size.
-                //
-                if(Protocol.requestBatchHdr.length + lastRequest.length >  this._instance.messageSizeMax())
-                {
-                    ExUtil.throwMemoryLimitException(
-                        Protocol.requestBatchHdr.length + lastRequest.length,
-                        this._instance.messageSizeMax());
-                }
 
                 //
                 // Start a new batch with the last message that caused us to go over the limit.
@@ -637,7 +630,7 @@ var ConnectionI = Class({
     },
     abortBatchRequest: function()
     {
-        this._batchStream = new BasicStream(this._instance, Protocol.currentProtocolEncoding, this._batchAutoFlush);
+        this._batchStream = new BasicStream(this._instance, Protocol.currentProtocolEncoding);
         this._batchRequestNum = 0;
         this._batchRequestCompress = false;
         this._batchMarker = 0;
@@ -700,7 +693,7 @@ var ConnectionI = Class({
         //
         // Reset the batch stream.
         //
-        this._batchStream = new BasicStream(this._instance, Protocol.currentProtocolEncoding, this._batchAutoFlush);
+        this._batchStream = new BasicStream(this._instance, Protocol.currentProtocolEncoding);
         this._batchRequestNum = 0;
         this._batchRequestCompress = false;
         this._batchMarker = 0;
@@ -1614,7 +1607,7 @@ var ConnectionI = Class({
             // Before we shut down, we send a close connection
             // message.
             //
-            var os = new BasicStream(this._instance, Protocol.currentProtocolEncoding, false);
+            var os = new BasicStream(this._instance, Protocol.currentProtocolEncoding);
             os.writeBlob(Protocol.magic);
             Protocol.currentProtocol.__write(os);
             Protocol.currentProtocolEncoding.__write(os);

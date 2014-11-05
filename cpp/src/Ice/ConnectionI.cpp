@@ -630,7 +630,7 @@ Ice::ConnectionI::sendRequest(Outgoing* out, bool compress, bool response)
     // Ensure the message isn't bigger than what we can send with the
     // transport.
     //
-    _transceiver->checkSendSize(*os, _instance->messageSizeMax());
+    _transceiver->checkSendSize(*os);
 
     Int requestId = 0;
     if(response)
@@ -709,7 +709,7 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncPtr& out, bool compress, b
     // Ensure the message isn't bigger than what we can send with the
     // transport.
     //
-    _transceiver->checkSendSize(*os, _instance->messageSizeMax());
+    _transceiver->checkSendSize(*os);
 
     //
     // Notify the request that it's cancelable with this connection. 
@@ -841,8 +841,13 @@ Ice::ConnectionI::finishBatchRequest(BasicStream* os, bool compress)
         }
 
         bool flush = false;
-        if(_batchAutoFlush)
+        if(_batchAutoFlushSize > 0)
         {
+            if(_batchStream.b.size() > _batchAutoFlushSize)
+            {
+                flush = true;
+            }
+            
             //
             // Throw memory limit exception if the first message added causes us to
             // go over limit. Otherwise put aside the marshalled message that caused
@@ -850,7 +855,7 @@ Ice::ConnectionI::finishBatchRequest(BasicStream* os, bool compress)
             //
             try
             {
-                _transceiver->checkSendSize(_batchStream, _instance->messageSizeMax());
+                _transceiver->checkSendSize(_batchStream);
             }
             catch(const Ice::Exception&)
             {
@@ -901,20 +906,11 @@ Ice::ConnectionI::finishBatchRequest(BasicStream* os, bool compress)
             //
             // Reset the batch.
             //
-            BasicStream dummy(_instance.get(), currentProtocolEncoding, _batchAutoFlush);
+            BasicStream dummy(_instance.get(), currentProtocolEncoding);
             _batchStream.swap(dummy);
             _batchRequestNum = 0;
             _batchRequestCompress = false;
             _batchMarker = 0;
-
-            //
-            // Check again if the last request doesn't exceed what we can send with the auto flush
-            //
-            if(sizeof(requestBatchHdr) + lastRequest.size() >  _instance->messageSizeMax())
-            {
-                Ex::throwMemoryLimitException(__FILE__, __LINE__, sizeof(requestBatchHdr) + lastRequest.size(),
-                                              _instance->messageSizeMax());
-            }
 
             //
             // Start a new batch with the last message that caused us to go over the limit.
@@ -956,7 +952,7 @@ Ice::ConnectionI::abortBatchRequest()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    BasicStream dummy(_instance.get(), currentProtocolEncoding, _batchAutoFlush);
+    BasicStream dummy(_instance.get(), currentProtocolEncoding);
     _batchStream.swap(dummy);
     _batchRequestNum = 0;
     _batchRequestCompress = false;
@@ -1105,7 +1101,7 @@ Ice::ConnectionI::flushBatchRequests(OutgoingBase* out)
     //
     // Reset the batch stream.
     //
-    BasicStream dummy(_instance.get(), Ice::currentProtocolEncoding, _batchAutoFlush);
+    BasicStream dummy(_instance.get(), Ice::currentProtocolEncoding);
     _batchStream.swap(dummy);
     _batchRequestNum = 0;
     _batchRequestCompress = false;
@@ -1175,7 +1171,7 @@ Ice::ConnectionI::flushAsyncBatchRequests(const OutgoingAsyncBasePtr& outAsync)
     //
     // Reset the batch stream.
     //
-    BasicStream dummy(_instance.get(), Ice::currentProtocolEncoding, _batchAutoFlush);
+    BasicStream dummy(_instance.get(), Ice::currentProtocolEncoding);
     _batchStream.swap(dummy);
     _batchRequestNum = 0;
     _batchRequestCompress = false;
@@ -1851,7 +1847,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     }
                     if(size > static_cast<Int>(_instance->messageSizeMax()))
                     {
-                        throw MemoryLimitException(__FILE__, __LINE__);
+                        Ex::throwMemoryLimitException(__FILE__, __LINE__, size, _instance->messageSizeMax());
                     }
                     if(size > static_cast<Int>(_readStream.b.size()))
                     {
@@ -2408,9 +2404,8 @@ Ice::ConnectionI::ConnectionI(const CommunicatorPtr& communicator,
     _nextRequestId(1),
     _requestsHint(_requests.end()),
     _asyncRequestsHint(_asyncRequests.end()),
-    _batchAutoFlush(
-        _instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.BatchAutoFlush", 1) > 0),
-    _batchStream(_instance.get(), Ice::currentProtocolEncoding, _batchAutoFlush),
+    _batchAutoFlushSize(_instance->batchAutoFlushSize()),
+    _batchStream(_instance.get(), Ice::currentProtocolEncoding),
     _batchStreamInUse(false),
     _batchRequestNum(0),
     _batchRequestCompress(false),
@@ -2424,9 +2419,10 @@ Ice::ConnectionI::ConnectionI(const CommunicatorPtr& communicator,
     _initialized(false),
     _validated(false)
 {
+    const Ice::PropertiesPtr& properties = _instance->initializationData().properties;
+
     int& compressionLevel = const_cast<int&>(_compressionLevel);
-    compressionLevel = _instance->initializationData().properties->getPropertyAsIntWithDefault(
-        "Ice.Compression.Level", 1);
+    compressionLevel = properties->getPropertyAsIntWithDefault("Ice.Compression.Level", 1);
     if(compressionLevel < 1)
     {
         compressionLevel = 1;
@@ -3384,7 +3380,12 @@ Ice::ConnectionI::doUncompress(BasicStream& compressed, BasicStream& uncompresse
         throw IllegalMessageSizeException(__FILE__, __LINE__);
     }
 
+    if(uncompressedSize > static_cast<Int>(_instance->messageSizeMax()))
+    {
+        Ex::throwMemoryLimitException(__FILE__, __LINE__, uncompressedSize, _instance->messageSizeMax());
+    }
     uncompressed.resize(uncompressedSize);
+
     unsigned int uncompressedLen = uncompressedSize - headerSize;
     unsigned int compressedLen = static_cast<unsigned int>(compressed.b.size() - headerSize - sizeof(Int));
     int bzError = BZ2_bzBuffToBuffDecompress(reinterpret_cast<char*>(&uncompressed.b[0]) + headerSize,

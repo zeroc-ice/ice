@@ -865,13 +865,8 @@ IceInternal::UdpTransceiver::getInfo() const
 }
 
 void
-IceInternal::UdpTransceiver::checkSendSize(const Buffer& buf, size_t messageSizeMax)
+IceInternal::UdpTransceiver::checkSendSize(const Buffer& buf)
 {
-    if(buf.b.size() > messageSizeMax)
-    {
-        Ex::throwMemoryLimitException(__FILE__, __LINE__, buf.b.size(), messageSizeMax);
-    }
-
     //
     // The maximum packetSize is either the maximum allowable UDP packet size, or
     // the UDP send buffer size (which ever is smaller).

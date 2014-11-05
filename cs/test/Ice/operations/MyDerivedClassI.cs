@@ -369,6 +369,20 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
 
     public override void opByteSOneway(byte[] s, Ice.Current current)
     {
+        lock(this)
+        {
+            ++_opByteSOnewayCallCount;
+        }
+    }
+
+    public override int opByteSOnewayCallCount(Ice.Current current)
+    {
+        lock(this)
+        {
+            int count = _opByteSOnewayCallCount;
+            _opByteSOnewayCallCount = 0;
+            return count;
+        }
     }
 
     public override Dictionary<string, string> opContext(Ice.Current current)
@@ -467,4 +481,6 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
     public override void opDerived(Ice.Current current)
     {
     }
+
+    private int _opByteSOnewayCallCount = 0;
 }

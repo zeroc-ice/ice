@@ -16,38 +16,32 @@ public class BasicStream
     public
     BasicStream(Instance instance, Ice.EncodingVersion encoding)
     {
-        this(instance, encoding, false);
+        this(instance, encoding, instance.cacheMessageBuffers() > 1);
     }
 
     public
-    BasicStream(Instance instance, Ice.EncodingVersion encoding, boolean unlimited)
+    BasicStream(Instance instance, Ice.EncodingVersion encoding, boolean direct)
     {
-        this(instance, encoding, unlimited, instance.cacheMessageBuffers() > 1);
-    }
-
-    public
-    BasicStream(Instance instance, Ice.EncodingVersion encoding, boolean unlimited, boolean direct)
-    {
-        initialize(instance, encoding, unlimited);
-        _buf = new Buffer(_instance.messageSizeMax(), direct);
+        initialize(instance, encoding);
+        _buf = new Buffer(direct);
     }
 
     public
     BasicStream(Instance instance, Ice.EncodingVersion encoding, byte[] data)
     {
-        initialize(instance, encoding, true);
+        initialize(instance, encoding);
         _buf = new Buffer(data);
     }
 
     public
     BasicStream(Instance instance, Ice.EncodingVersion encoding, java.nio.ByteBuffer data)
     {
-        initialize(instance, encoding, true);
+        initialize(instance, encoding);
         _buf = new Buffer(data);
     }
 
     private void
-    initialize(Instance instance, Ice.EncodingVersion encoding, boolean unlimited)
+    initialize(Instance instance, Ice.EncodingVersion encoding)
     {
         _instance = instance;
         _closure = null;
@@ -59,9 +53,6 @@ public class BasicStream
         _writeEncapsCache = null;
 
         _sliceObjects = true;
-
-        _messageSizeMax = _instance.messageSizeMax(); // Cached for efficiency.
-        _unlimited = unlimited;
 
         _startSeq = -1;
     }
@@ -144,10 +135,6 @@ public class BasicStream
         resetEncaps();
         other.resetEncaps();
 
-        boolean tmpUnlimited = other._unlimited;
-        other._unlimited = _unlimited;
-        _unlimited = tmpUnlimited;
-
         int tmpStartSeq = other._startSeq;
         other._startSeq = _startSeq;
         _startSeq = tmpStartSeq;
@@ -167,14 +154,6 @@ public class BasicStream
     public void
     resize(int sz, boolean reading)
     {
-        //
-        // Check memory limit if stream is not unlimited.
-        //
-        if(!_unlimited && sz > _messageSizeMax)
-        {
-            Ex.throwMemoryLimitException(sz, _messageSizeMax);
-        }
-
         _buf.resize(sz, reading);
         _buf.b.position(sz);
     }
@@ -2667,6 +2646,10 @@ public class BasicStream
         {
             throw new Ice.IllegalMessageSizeException();
         }
+        if(uncompressedSize > _instance.messageSizeMax())
+        {
+            IceInternal.Ex.throwMemoryLimitException(uncompressedSize, _instance.messageSizeMax());
+        }
 
         int compressedLen = size() - headerSize - 4;
 
@@ -2744,10 +2727,6 @@ public class BasicStream
     public void
     expand(int n)
     {
-        if(!_unlimited && _buf.b != null && _buf.b.position() + n > _messageSizeMax)
-        {
-            Ex.throwMemoryLimitException(_buf.b.position() + n, _messageSizeMax);
-        }
         _buf.expand(n);
     }
 
@@ -4829,9 +4808,6 @@ public class BasicStream
     }
 
     private boolean _sliceObjects;
-
-    private int _messageSizeMax;
-    private boolean _unlimited;
 
     private int _startSeq;
     private int _minSeqSize;

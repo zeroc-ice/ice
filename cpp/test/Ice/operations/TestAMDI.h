@@ -16,6 +16,8 @@
 class MyDerivedClassI : public Test::MyDerivedClass
 {
 public:
+    
+    MyDerivedClassI();
 
     //
     // Override the Object "pseudo" operations to verify the operation mode.
@@ -206,6 +208,7 @@ public:
 
     virtual void opByteSOneway_async(const Test::AMD_MyClass_opByteSOnewayPtr&, const Test::ByteS&,
                                      const Ice::Current&);
+    virtual void opByteSOnewayCallCount_async(const Test::AMD_MyClass_opByteSOnewayCallCountPtr&, const Ice::Current&);
 
     virtual void opContext_async(const Test::AMD_MyClass_opContextPtr&, const Ice::Current&);
 
@@ -225,6 +228,9 @@ private:
 
     IceUtil::ThreadPtr _opVoidThread;
     IceUtil::Mutex _opVoidMutex;
+
+    IceUtil::Mutex _mutex;
+    int _opByteSOnewayCallCount;
 };
 
 #endif

@@ -100,12 +100,8 @@ namespace IceInternal
             return info;
         }
 
-        public void checkSendSize(Buffer buf, int messageSizeMax)
+        public void checkSendSize(Buffer buf)
         {
-            if(buf.size() > messageSizeMax)
-            {
-                Ex.throwMemoryLimitException(buf.size(), messageSizeMax);
-            }
         }
 
         public override string ToString()

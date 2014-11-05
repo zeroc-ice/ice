@@ -16,6 +16,8 @@ class MyDerivedClassI : public Test::MyDerivedClass
 {
 public:
 
+    MyDerivedClassI();
+
     //
     // Override the Object "pseudo" operations to verify the operation mode.
     //
@@ -229,6 +231,7 @@ public:
     virtual Test::IntS opIntS(const Test::IntS&, const Ice::Current&);
 
     virtual void opByteSOneway(const Test::ByteS&, const Ice::Current&);
+    virtual int opByteSOnewayCallCount(const Ice::Current&);
 
     virtual Ice::Context opContext(const Ice::Current&);
 
@@ -239,6 +242,11 @@ public:
     virtual void opNonmutating(const Ice::Current&);
 
     virtual void opDerived(const Ice::Current&);
+
+private:
+
+    IceUtil::Mutex _mutex;
+    int _opByteSOnewayCallCount;
 };
 
 #endif

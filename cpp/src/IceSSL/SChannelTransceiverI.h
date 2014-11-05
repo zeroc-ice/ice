@@ -63,7 +63,7 @@ public:
     virtual std::string toString() const;
     virtual std::string toDetailedString() const;
     virtual Ice::ConnectionInfoPtr getInfo() const;
-    virtual void checkSendSize(const IceInternal::Buffer&, size_t);
+    virtual void checkSendSize(const IceInternal::Buffer&);
 
 private:
 

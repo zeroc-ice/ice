@@ -28,7 +28,7 @@ namespace Ice
         {
             if(copyData)
             {
-                _is = new IceInternal.BasicStream(instance, v, true);
+                _is = new IceInternal.BasicStream(instance, v);
                 _is.resize(data.Length, true);
                 IceInternal.Buffer buf = _is.getBuffer();
                 buf.b.position(0);
@@ -311,7 +311,7 @@ namespace Ice
             _communicator = communicator;
 
             IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
-            _os = new IceInternal.BasicStream(instance, instance.defaultsAndOverrides().defaultEncoding, true);
+            _os = new IceInternal.BasicStream(instance, instance.defaultsAndOverrides().defaultEncoding);
             _os.closure(this);
         }
 
@@ -320,7 +320,7 @@ namespace Ice
             _communicator = communicator;
 
             IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
-            _os = new IceInternal.BasicStream(instance, v, true);
+            _os = new IceInternal.BasicStream(instance, v);
             _os.closure(this);
         }
 

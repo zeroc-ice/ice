@@ -295,8 +295,8 @@ class ObjectStore implements IceUtil.Store
     static com.sleepycat.db.DatabaseEntry
     marshalKey(Ice.Identity v, Ice.Communicator communicator, Ice.EncodingVersion encoding)
     {
-        IceInternal.BasicStream os =
-            new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), encoding, true, false);
+        IceInternal.BasicStream os = 
+            new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), encoding, false);
         v.__write(os);
         return new com.sleepycat.db.DatabaseEntry(os.prepareWrite().b);
     }
@@ -322,7 +322,7 @@ class ObjectStore implements IceUtil.Store
     marshalValue(ObjectRecord v, Ice.Communicator communicator, Ice.EncodingVersion encoding, boolean keepStats)
     {
         IceInternal.BasicStream os =
-            new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), encoding, true, false);
+            new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), encoding, false);
         os.startWriteEncaps();
 
         if(keepStats)

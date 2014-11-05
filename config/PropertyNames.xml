@@ -323,7 +323,8 @@ generated from the section label.
         <property name="Admin.Logger.Properties" />
         <property name="Admin.ServerId" />
         <property name="BackgroundLocatorCacheUpdates"/>
-        <property name="BatchAutoFlush" />
+        <property name="BatchAutoFlush" deprecated="true"/>
+        <property name="BatchAutoFlushSize" />
         <property name="ChangeUser" />
         <property name="ClientAccessPolicyProtocol" />
         <property name="Compression.Level" />

@@ -41,12 +41,7 @@ public class Collocated extends test.Util.Application
         }
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.operations");
 
-        //
-        // We must set MessageSizeMax to an explicit values,
-        // because we run tests to check whether
-        // Ice.MemoryLimitException is raised as expected.
-        //
-        initData.properties.setProperty("Ice.MessageSizeMax", "100");
+        initData.properties.setProperty("Ice.BatchAutoFlushSize", "100");
 
         //
         // Its possible to have batch oneway requests dispatched

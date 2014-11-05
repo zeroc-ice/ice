@@ -396,6 +396,13 @@ public final class Instance
     }
 
     public int
+    batchAutoFlushSize()
+    {
+        // No mutex lock, immutable.
+        return _batchAutoFlushSize;
+    }
+
+    public int
     cacheMessageBuffers()
     {
         // No mutex lock, immutable.
@@ -899,6 +906,34 @@ public final class Instance
                 }
             }
 
+            if(_initData.properties.getProperty("Ice.BatchAutoFlushSize").isEmpty() && 
+               !_initData.properties.getProperty("Ice.BatchAutoFlush").isEmpty())
+            {
+                if(_initData.properties.getPropertyAsInt("Ice.BatchAutoFlush") > 0)
+                {
+                    _batchAutoFlushSize = _messageSizeMax;
+                }
+                else
+                {
+                    _batchAutoFlushSize = 0;
+                }
+            }
+            else
+            {
+                int num = _initData.properties.getPropertyAsIntWithDefault("Ice.BatchAutoFlushSize", 1024); // 1MB
+                if(num < 1)
+                {
+                    _batchAutoFlushSize = num;
+                }
+                else if(num > 0x7fffffff / 1024)
+                {
+                    _batchAutoFlushSize = 0x7fffffff;
+                }
+                else
+                {
+                    _batchAutoFlushSize = num * 1024; // Property is in kilobytes, _batchAutoFlushSize in bytes
+                }
+            }
 
             _implicitContext = Ice.ImplicitContextI.create(_initData.properties.getProperty("Ice.ImplicitContext"));
 
@@ -1612,6 +1647,7 @@ public final class Instance
     private final TraceLevels _traceLevels; // Immutable, not reset by destroy().
     private final DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
     private final int _messageSizeMax; // Immutable, not reset by destroy().
+    private final int _batchAutoFlushSize; // Immutable, not reset by destroy().
     private final int _cacheMessageBuffers; // Immutable, not reset by destroy().
     private final ACMConfig _clientACM; // Immutable, not reset by destroy().
     private final ACMConfig _serverACM; // Immutable, not reset by destroy().

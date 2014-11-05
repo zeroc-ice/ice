@@ -91,6 +91,7 @@ public:
     DynamicLibraryListPtr dynamicLibraryList() const;
     Ice::PluginManagerPtr pluginManager() const;
     size_t messageSizeMax() const { return _messageSizeMax; }
+    size_t batchAutoFlushSize() const { return _batchAutoFlushSize; }
     bool collectObjects() const { return _collectObjects; }
     const ACMConfig& clientACM() const;
     const ACMConfig& serverACM() const;
@@ -144,6 +145,7 @@ private:
     const TraceLevelsPtr _traceLevels; // Immutable, not reset by destroy().
     const DefaultsAndOverridesPtr _defaultsAndOverrides; // Immutable, not reset by destroy().
     const size_t _messageSizeMax; // Immutable, not reset by destroy().
+    const size_t _batchAutoFlushSize; // Immutable, not reset by destroy().
     const bool _collectObjects; // Immutable, not reset by destroy().
     ACMConfig _clientACM;
     ACMConfig _serverACM;

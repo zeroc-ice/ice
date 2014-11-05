@@ -1383,7 +1383,7 @@ FreezeGenerator::generate(UnitPtr& u, const Index& index)
         << "marshalKey(" << memberTypeString << " __key)";
     out << sb;
     out << nl << "IceInternal.BasicStream __os = "
-        << "new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator()), encoding(), true, false);";
+        << "new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator()), encoding(), false);";
     int iter = 0;
     writeMarshalUnmarshalCode(out, "", dataMember->type(), OptionalNone, false, 0, valueS, true, iter, false);
     if(dataMember->type()->usesClasses())

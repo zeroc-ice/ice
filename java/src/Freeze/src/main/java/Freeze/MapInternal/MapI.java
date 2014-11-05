@@ -1172,7 +1172,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
 
     IceInternal.BasicStream createWriteStream()
     {
-        return new IceInternal.BasicStream(IceInternal.Util.getInstance(_communicator), _encoding, true, false);
+        return new IceInternal.BasicStream(IceInternal.Util.getInstance(_communicator), _encoding, false);
     }
 
     IceInternal.BasicStream createReadStream(byte[] arr)

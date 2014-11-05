@@ -84,7 +84,7 @@ private:
     const bool _dispatcher;
     const Ice::LoggerPtr _logger;
     const TraceLevelsPtr _traceLevels;
-    const bool _batchAutoFlush;
+    const size_t _batchAutoFlushSize;
 
     int _requestId;
 

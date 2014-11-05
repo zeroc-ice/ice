@@ -627,9 +627,9 @@ namespace IceInternal
             return info;
         }
 
-        public void checkSendSize(IceInternal.Buffer buf, int messageSizeMax)
+        public void checkSendSize(IceInternal.Buffer buf)
         {
-            _delegate.checkSendSize(buf, messageSizeMax);
+            _delegate.checkSendSize(buf);
         }
 
         public override string ToString()
@@ -689,8 +689,7 @@ namespace IceInternal
             _state = StateInitializeDelegate;
             _parser = new HttpParser();
             _readState = ReadStateOpcode;
-            _readBuffer = new IceInternal.Buffer(0, IceInternal.ByteBuffer.ByteOrder.BIG_ENDIAN); // Use network
-                                                                                                  // byte order.
+            _readBuffer = new IceInternal.Buffer(IceInternal.ByteBuffer.ByteOrder.BIG_ENDIAN); // Network byte order
             _readBufferSize = 1024;
             _readLastFrame = false;
             _readOpCode = 0;
@@ -698,8 +697,7 @@ namespace IceInternal
             _readPayloadLength = 0;
             _readMask = new byte[4];
             _writeState = WriteStateHeader;
-            _writeBuffer = new IceInternal.Buffer(0, IceInternal.ByteBuffer.ByteOrder.BIG_ENDIAN); // Use network
-                                                                                                   // byte order.
+            _writeBuffer = new IceInternal.Buffer(IceInternal.ByteBuffer.ByteOrder.BIG_ENDIAN); // Network byte order
             _writeBufferSize = 1024;
             _readPending = false;
             _finishRead = false;

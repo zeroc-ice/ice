@@ -160,6 +160,8 @@ class MyClass
 
     void opByteSOneway(ByteS s);
 
+    int opByteSOnewayCallCount();
+
     Ice::Context opContext();
 
     idempotent void opIdempotent();

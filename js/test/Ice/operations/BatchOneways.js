@@ -15,7 +15,7 @@
     var run = function(communicator, prx, Test, bidir)
     {
         var Promise = Ice.Promise;
-        var bs1, bs2, bs3, batch, batch2, batch3;
+        var bs1, bs2, batch, batch2, batch3;
         var p = new Promise();
         var test = function(b)
         {
@@ -47,11 +47,6 @@
                 {
                     bs2[i] = 0;
                 }
-                bs3 = Ice.Buffer.createNative(new Array(100 * 1024));
-                for(i = 0; i < bs3.length; ++i)
-                {
-                    bs3[i] = 0;
-                }
 
                 return prx.opByteSOneway(bs1);
             }
@@ -63,17 +58,11 @@
         ).then(
             function()
             {
-                return prx.opByteSOneway(bs3);
+                return prx.opByteSOnewayCallCount();
             }
         ).then(
-            function()
+            function(count)
             {
-                test(false);
-            },
-            function(ex)
-            {
-                test(ex instanceof Ice.MemoryLimitException);
-
                 batch = prx.ice_batchOneway();
 
                 var all = [];
@@ -83,6 +72,28 @@
                 }
 
                 return Promise.all(all).then(
+                    function()
+                    {
+                        var wait = function(count)
+                        {
+                            if(count != 27) // 3 * 9 requests auto-flushed.
+                            {
+                                return Promise.delay(10).then(
+                                    function()
+                                    {
+                                        return prx.opByteSOnewayCallCount();
+                                    }
+                                ).then(
+                                    function(count)
+                                    {
+                                        return wait(count);
+                                    }
+                                );
+                            }
+                        }
+                        return wait(0);
+                    }
+                ).then(
                     function()
                     {
                         return batch.ice_getConnection();

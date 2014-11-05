@@ -118,12 +118,6 @@ namespace IceInternal
 
                     _batchStream.swap(os);
 
-                    if(!_batchAutoFlush &&
-                       _batchStream.size() + _batchRequestsSize > _reference.getInstance().messageSizeMax())
-                    {
-                        Ex.throwMemoryLimitException(_batchStream.size() + _batchRequestsSize,
-                                                     _reference.getInstance().messageSizeMax());
-                    }
                     _requests.AddLast(new Request(_batchStream));
                     return;
                 }
@@ -141,10 +135,8 @@ namespace IceInternal
                     _batchRequestInProgress = false;
                     System.Threading.Monitor.PulseAll(this);
 
-                    BasicStream dummy = new BasicStream(_reference.getInstance(), Ice.Util.currentProtocolEncoding,
-                                                        _batchAutoFlush);
+                    BasicStream dummy = new BasicStream(_reference.getInstance(), Ice.Util.currentProtocolEncoding);
                     _batchStream.swap(dummy);
-                    _batchRequestsSize = Protocol.requestBatchHdr.Length;
 
                     return;
                 }
@@ -326,13 +318,10 @@ namespace IceInternal
             _connect = true;
             _response = _reference.getMode() == Reference.Mode.ModeTwoway;
             _proxy = (Ice.ObjectPrxHelperBase)proxy;
-            _batchAutoFlush = @ref.getInstance().initializationData().properties.getPropertyAsIntWithDefault(
-                "Ice.BatchAutoFlush", 1) > 0 ? true : false;
             _initialized = false;
             _flushing = false;
             _batchRequestInProgress = false;
-            _batchRequestsSize = Protocol.requestBatchHdr.Length;
-            _batchStream = new BasicStream(@ref.getInstance(), Ice.Util.currentProtocolEncoding, _batchAutoFlush);
+            _batchStream = new BasicStream(@ref.getInstance(), Ice.Util.currentProtocolEncoding);
         }
 
         private bool initialized()
@@ -503,8 +492,6 @@ namespace IceInternal
         private Ice.ObjectPrxHelperBase _proxy;
         private HashSet<Ice.ObjectPrxHelperBase> _proxies = new HashSet<Ice.ObjectPrxHelperBase>();
 
-        private bool _batchAutoFlush;
-
         private Ice.ConnectionI _connection;
         private bool _compress;
         private Ice.LocalException _exception;
@@ -513,7 +500,6 @@ namespace IceInternal
 
         private LinkedList<Request> _requests = new LinkedList<Request>();
         private bool _batchRequestInProgress;
-        private int _batchRequestsSize;
         private BasicStream _batchStream;
 
         private RequestHandler _connectionRequestHandler;

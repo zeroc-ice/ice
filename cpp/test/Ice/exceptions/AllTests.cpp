@@ -908,6 +908,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         cout << "ok" << endl;
     }
 
+    if(thrower->ice_getConnection())
     {
         cout << "testing memory limit marshal exception..." << flush;
         try
@@ -915,7 +916,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             thrower->throwMemoryLimitException(Ice::ByteSeq());
             test(false);
         }
-        catch(const Ice::UnknownLocalException&)
+        catch(const Ice::MemoryLimitException&)
         {
         }
         catch(...)
@@ -928,21 +929,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             thrower->throwMemoryLimitException(Ice::ByteSeq(20 * 1024)); // 20KB
             test(false);
         }
-        catch(const Ice::MemoryLimitException&)
-        {
-        }
-        catch(...)
-        {
-            test(false);
-        }
-            
-        try
-        {
-            thrower->end_throwMemoryLimitException(
-                thrower->begin_throwMemoryLimitException(Ice::ByteSeq(20 * 1024))); // 20KB
-            test(false);
-        }
-        catch(const Ice::MemoryLimitException&)
+        catch(const Ice::ConnectionLostException&)
         {
         }
         catch(...)

@@ -17,16 +17,15 @@ namespace IceInternal
     //
     public class Buffer
     {
-        public Buffer(int maxCapacity) : this(maxCapacity, ByteBuffer.ByteOrder.LITTLE_ENDIAN)
+        public Buffer() : this(ByteBuffer.ByteOrder.LITTLE_ENDIAN)
         {
         }
 
-        public Buffer(int maxCapacity, ByteBuffer.ByteOrder order)
+        public Buffer(ByteBuffer.ByteOrder order)
         {
             b = _emptyBuffer;
             _size = 0;
             _capacity = 0;
-            _maxCapacity = maxCapacity;
             _order = order;
         }
 
@@ -40,7 +39,6 @@ namespace IceInternal
             b.order(order);
             _size = data.Length;
             _capacity = 0;
-            _maxCapacity = 0;
             _order = order;
         }
 
@@ -133,7 +131,7 @@ namespace IceInternal
 
             if(n > _capacity)
             {
-                _capacity = System.Math.Max(n, System.Math.Min(2 * _capacity, _maxCapacity));
+                _capacity = System.Math.Max(n, 2 * _capacity);
                 _capacity = System.Math.Max(240, _capacity);
             }
             else if(n < _capacity)
@@ -190,7 +188,6 @@ namespace IceInternal
 
         private int _size;
         private int _capacity; // Cache capacity to avoid excessive method calls.
-        private int _maxCapacity;
         private int _shrinkCounter;
         private ByteBuffer.ByteOrder _order;
     }

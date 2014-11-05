@@ -30,7 +30,6 @@ class BatchOneways
     {
         final byte[] bs1 = new byte[10  * 1024];
         final byte[] bs2 = new byte[99  * 1024];
-        final byte[] bs3 = new byte[100 * 1024];
 
         try
         {
@@ -50,17 +49,10 @@ class BatchOneways
             test(false);
         }
 
-        try
-        {
-            p.opByteSOneway(bs3);
-            test(false);
-        }
-        catch(Ice.MemoryLimitException ex)
-        {
-        }
-
         MyClassPrx batch = MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
         batch.ice_flushBatchRequests();
+
+        p.opByteSOnewayCallCount(); // Reset the call count
 
         for(int i = 0 ; i < 30 ; ++i)
         {
@@ -71,6 +63,19 @@ class BatchOneways
             catch(Ice.MemoryLimitException ex)
             {
                 test(false);
+            }
+        }
+
+        int count = 0;
+        while(count != 27) // 3 * 9 requests auto-flushed.
+        {
+            count += p.opByteSOnewayCallCount();
+            try
+            {
+                Thread.sleep(10);
+            }
+            catch(InterruptedException ex)
+            {
             }
         }
 

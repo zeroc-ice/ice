@@ -337,6 +337,12 @@ namespace IceInternal
             return _messageSizeMax;
         }
 
+        public int batchAutoFlushSize()
+        {
+            // No mutex lock, immutable.
+            return _batchAutoFlushSize;
+        }
+
         public int cacheMessageBuffers()
         {
             // No mutex lock, immutable.
@@ -821,6 +827,31 @@ namespace IceInternal
                     else
                     {
                         _messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
+                    }
+                }
+
+                if(_initData.properties.getProperty("Ice.BatchAutoFlushSize").Length == 0 && 
+                   _initData.properties.getProperty("Ice.BatchAutoFlush").Length > 0)
+                {
+                    if(_initData.properties.getPropertyAsInt("Ice.BatchAutoFlush") > 0)
+                    {
+                        _batchAutoFlushSize = _messageSizeMax;
+                    }
+                }
+                else
+                {
+                    int num = _initData.properties.getPropertyAsIntWithDefault("Ice.BatchAutoFlushSize", 1024); // 1MB
+                    if(num < 1)
+                    {
+                        _batchAutoFlushSize = num;
+                    }
+                    else if(num > 0x7fffffff / 1024)
+                    {
+                        _batchAutoFlushSize = 0x7fffffff;
+                    }
+                    else
+                    {
+                        _batchAutoFlushSize = num * 1024; // Property is in kilobytes, _batchAutoFlushSize in bytes
                     }
                 }
 
@@ -1435,6 +1466,7 @@ namespace IceInternal
         private string[] _factoryAssemblies; // Immutable, not reset by destroy().
 #endif
         private int _messageSizeMax; // Immutable, not reset by destroy().
+        private int _batchAutoFlushSize; // Immutable, not reset by destroy().
         private int _cacheMessageBuffers; // Immutable, not reset by destroy().
         private ACMConfig _clientACM; // Immutable, not reset by destroy().
         private ACMConfig _serverACM; // Immutable, not reset by destroy().

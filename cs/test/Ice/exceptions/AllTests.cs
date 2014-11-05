@@ -431,15 +431,16 @@ public class AllTests : TestCommon.TestApp
             WriteLine("ok");
         }
 
-        Write("testing memory limit marshal exception...");
-        Flush();
+        if(thrower.ice_getConnection() != null)
         {
+            Write("testing memory limit marshal exception...");
+            Flush();
             try
             {
                 thrower.throwMemoryLimitException(null);
                 test(false);
             }
-            catch(Ice.UnknownLocalException)
+            catch(Ice.MemoryLimitException)
             {
             }
             catch(Exception)
@@ -452,29 +453,15 @@ public class AllTests : TestCommon.TestApp
                 thrower.throwMemoryLimitException(new byte[20 * 1024]); // 20KB
                 test(false);
             }
-            catch(Ice.MemoryLimitException)
+            catch(Ice.ConnectionLostException)
             {
             }
             catch(Exception)
             {
                 test(false);
             }
-            
-            try
-            {
-                thrower.end_throwMemoryLimitException(
-                    thrower.begin_throwMemoryLimitException(new byte[20 * 1024])); // 20KB
-                test(false);
-            }
-            catch(Ice.MemoryLimitException)
-            {
-            }
-            catch(Exception)
-            {
-                test(false);
-            }
+            WriteLine("ok");
         }
-        WriteLine("ok");
 
         Write("catching object not exist exception... ");
         Flush();

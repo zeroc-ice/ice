@@ -307,12 +307,8 @@ IceInternal::StreamTransceiver::getInfo() const
 }
 
 void
-IceInternal::StreamTransceiver::checkSendSize(const Buffer& buf, size_t messageSizeMax)
+IceInternal::StreamTransceiver::checkSendSize(const Buffer&)
 {
-    if(buf.b.size() > messageSizeMax)
-    {
-        Ex::throwMemoryLimitException(__FILE__, __LINE__, buf.b.size(), messageSizeMax);
-    }
 }
 
 IceInternal::StreamTransceiver::StreamTransceiver(const ProtocolInstancePtr& instance, SOCKET fd, bool connected) :

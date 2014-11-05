@@ -44,7 +44,7 @@ public:
     virtual std::string toString() const = 0;
     virtual std::string toDetailedString() const = 0;
     virtual Ice::ConnectionInfoPtr getInfo() const = 0;
-    virtual void checkSendSize(const Buffer&, size_t) = 0;
+    virtual void checkSendSize(const Buffer&) = 0;
 };
 
 }

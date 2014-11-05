@@ -80,7 +80,8 @@ var Instance = Ice.Class({
 
         this._traceLevels = null;
         this._defaultsAndOverrides = null;
-        this._messageSizeMax = null;
+        this._messageSizeMax = 0;
+        this._batchAutoFlushSize = 0;
         this._clientACM = null;
         this._implicitContext = null;
         this._routerManager = null;
@@ -246,6 +247,11 @@ var Instance = Ice.Class({
         // This value is immutable.
         return this._messageSizeMax;
     },
+    batchAutoFlushSize: function()
+    {
+        // This value is immutable.
+        return this._batchAutoFlushSize;
+    },
     clientACM: function()
     {
         // This value is immutable.
@@ -330,6 +336,31 @@ var Instance = Ice.Class({
             else
             {
                 this._messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
+            }
+
+            if(this._initData.properties.getProperty("Ice.BatchAutoFlushSize").length === 0 &&
+               this._initData.properties.getProperty("Ice.BatchAutoFlush").length > 0)
+            {
+                if(this._initData.properties.getPropertyAsInt("Ice.BatchAutoFlush") > 0)
+                {
+                    this._batchAutoFlushSize = this._messageSizeMax;
+                }
+            }
+            else
+            {
+                var num = this._initData.properties.getPropertyAsIntWithDefault("Ice.BatchAutoFlushSize", 1024); // 1MB
+                if(num < 1)
+                {
+                    this._batchAutoFlushSize = num;
+                }
+                else if(num > 0x7fffffff / 1024)
+                {
+                    this._batchAutoFlushSize = 0x7fffffff;
+                }
+                else
+                {
+                    this._batchAutoFlushSize = num * 1024; // Property is in kilobytes, _batchAutoFlushSize in bytes
+                }
             }
 
             this._clientACM = new ACMConfig(this._initData.properties, this._initData.logger, "Ice.ACM.Client",
@@ -504,6 +535,7 @@ var Instance = Ice.Class({
                     self._endpointFactoryManager.destroy();
                 }
 
+                var i;
                 if(self._initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
                 {
                     var unusedProperties = self._initData.properties.getUnusedProperties();
@@ -511,7 +543,7 @@ var Instance = Ice.Class({
                     {
                         var message = [];
                         message.push("The following properties were set but never read:");
-                        for(var i = 0; i < unusedProperties.length; ++i)
+                        for(i = 0; i < unusedProperties.length; ++i)
                         {
                             message.push("\n    ");
                             message.push(unusedProperties[i]);
@@ -537,7 +569,7 @@ var Instance = Ice.Class({
 
                 if(this._destroyPromises)
                 {
-                    for(var i = 0; i < this._destroyPromises.length; ++i)
+                    for(i = 0; i < this._destroyPromises.length; ++i)
                     {
                         this._destroyPromises[i].succeed(this._destroyPromises[i]);
                     }

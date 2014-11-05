@@ -32,6 +32,10 @@ private:
     const Test::AMD_MyClass_opVoidPtr _cb;
 };
 
+MyDerivedClassI::MyDerivedClassI() : _opByteSOnewayCallCount(0)
+{
+}
+
 bool
 MyDerivedClassI::ice_isA(const std::string& id, const Ice::Current& current) const
 {
@@ -637,7 +641,18 @@ void
 MyDerivedClassI::opByteSOneway_async(const Test::AMD_MyClass_opByteSOnewayPtr& cb, const Test::ByteS&,
                                      const Ice::Current&)
 {
+    IceUtil::Mutex::Lock sync(_mutex);
+    ++_opByteSOnewayCallCount;
     cb->ice_response();
+}
+
+void
+MyDerivedClassI::opByteSOnewayCallCount_async(const Test::AMD_MyClass_opByteSOnewayCallCountPtr& cb, 
+                                              const Ice::Current&)
+{
+    IceUtil::Mutex::Lock sync(_mutex);
+    cb->ice_response(_opByteSOnewayCallCount);
+    _opByteSOnewayCallCount = 0;
 }
 
 void

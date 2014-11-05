@@ -26,6 +26,10 @@
         //
         // Override the Object "pseudo" operations to verify the operation mode.
         //
+        __init__: function()
+        {
+            this._opByteSOnewayCount = 0;
+        },
 
         ice_isA: function(id, current)
         {
@@ -223,7 +227,15 @@
 
         opByteSOneway_async: function(cb, s, current)
         {
+            this._opByteSOnewayCount += 1;
             cb.ice_response();
+        },
+
+        opByteSOnewayCallCount_async: function(cb, current)
+        {
+            var count = this._opByteSOnewayCount;
+            this._opByteSOnewayCount = 0;
+            cb.ice_response(count);
         },
 
         opContext_async: function(cb, current)

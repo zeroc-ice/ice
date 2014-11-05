@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import Ice, Test, array, sys
+import Ice, Test, array, sys, time
 
 def test(b):
     if not b:
@@ -25,15 +25,9 @@ def batchOneways(p):
         bs2[0:99 * 1024] = range(0, 99 * 1024) # add 100,000 entries.
         bs2 = ['\x00' for x in bs2] # set them all to \x00
         bs2 = ''.join(bs2) # make into a byte array
-
-        bs3 = []
-        bs3[0:100 * 1024] = range(0, 100 * 1024) # add 100,000 entries.
-        bs3 = ['\x00' for x in bs3] # set them all to \x00
-        bs3 = ''.join(bs3) # make into a byte array
     else:
         bs1 = bytes([0 for x in range(0, 10 * 1024)])
         bs2 = bytes([0 for x in range(0, 99 * 1024)])
-        bs3 = bytes([0 for x in range(0, 100 * 1024)])
 
     try:
         p.opByteSOneway(bs1)
@@ -45,19 +39,17 @@ def batchOneways(p):
     except Ice.MemoryLimitException:
         test(False)
 
-    try:
-        p.opByteSOneway(bs3)
-        test(False)
-    except Ice.MemoryLimitException:
-        pass
-
     batch = Test.MyClassPrx.uncheckedCast(p.ice_batchOneway())
 
+    p.opByteSOnewayCallCount() # Reset the call count
+
     for i in range(30):
-        try:
-            batch.opByteSOneway(bs1)
-        except Ice.MemoryLimitException:
-            test(False)
+        batch.opByteSOneway(bs1)
+
+    count = 0
+    while count != 27: # 3 * 9 requests auto-flushed.
+        count += p.opByteSOnewayCallCount()
+        time.sleep(0.01)
 
     if p.ice_getConnection():
         batch.ice_getConnection().flushBatchRequests()

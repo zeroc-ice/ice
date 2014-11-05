@@ -46,13 +46,9 @@ var ConnectRequestHandler = Ice.Class({
         this._response = ref.getMode() === ReferenceMode.ModeTwoway;
         this._proxy = proxy;
         this._proxies = [];
-        this._batchAutoFlush = ref.getInstance().initializationData().properties.getPropertyAsIntWithDefault(
-            "Ice.BatchAutoFlush", 1) > 0 ? true : false;
         this._initialized = false;
         this._batchRequestInProgress = false;
-        this._batchRequestsSize = Protocol.requestBatchHdr.length;
-        this._batchStream =
-            new BasicStream(ref.getInstance(), Protocol.currentProtocolEncoding, this._batchAutoFlush);
+        this._batchStream = new BasicStream(ref.getInstance(), Protocol.currentProtocolEncoding);
 
         this._connection = null;
         this._compress = false;
@@ -128,13 +124,6 @@ var ConnectRequestHandler = Ice.Class({
 
             this._batchStream.swap(os);
 
-            if(!this._batchAutoFlush &&
-                this._batchStream.size + this._batchRequestsSize > this._reference.getInstance().messageSizeMax())
-            {
-                ExUtil.throwMemoryLimitException(this._batchStream.size + this._batchRequestsSize,
-                                                    this._reference.getInstance().messageSizeMax());
-            }
-
             this._requests.push(new Request(this._batchStream));
             return;
         }
@@ -147,10 +136,8 @@ var ConnectRequestHandler = Ice.Class({
             Debug.assert(this._batchRequestInProgress);
             this._batchRequestInProgress = false;
 
-            var dummy = new BasicStream(this._reference.getInstance(), Protocol.currentProtocolEncoding,
-                                        this._batchAutoFlush);
+            var dummy = new BasicStream(this._reference.getInstance(), Protocol.currentProtocolEncoding);
             this._batchStream.swap(dummy);
-            this._batchRequestsSize = Protocol.requestBatchHdr.length;
             return;
         }
         this._connection.abortBatchRequest();

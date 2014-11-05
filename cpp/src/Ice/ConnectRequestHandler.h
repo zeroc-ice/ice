@@ -80,8 +80,6 @@ private:
     Ice::ObjectPrx _proxy;
     std::set<Ice::ObjectPrx> _proxies;
 
-    const bool _batchAutoFlush;
-
     Ice::ConnectionIPtr _connection;
     bool _compress;
     IceUtil::UniquePtr<Ice::LocalException> _exception;
@@ -90,7 +88,6 @@ private:
 
     std::deque<Request> _requests;
     bool _batchRequestInProgress;
-    size_t _batchRequestsSize;
     BasicStream _batchStream;
 
     RequestHandlerPtr _connectionRequestHandler;

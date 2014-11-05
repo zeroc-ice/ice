@@ -48,12 +48,11 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
 
         _logger = _reference.getInstance().initializationData().logger; // Cached for better performance.
         _traceLevels = _reference.getInstance().traceLevels(); // Cached for better performance.
-        _batchAutoFlush = ref.getInstance().initializationData().properties.getPropertyAsIntWithDefault(
-            "Ice.BatchAutoFlush", 1) > 0;
+        _batchAutoFlushSize = ref.getInstance().batchAutoFlushSize();
         _requestId = 0;
         _batchStreamInUse = false;
         _batchRequestNum = 0;
-        _batchStream = new BasicStream(ref.getInstance(), Protocol.currentProtocolEncoding, _batchAutoFlush);
+        _batchStream = new BasicStream(ref.getInstance(), Protocol.currentProtocolEncoding);
     }
 
     @Override
@@ -102,7 +101,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
             {
                 _batchStream.swap(os);
 
-                if(_batchAutoFlush & (_batchStream.size() > _reference.getInstance().messageSizeMax()))
+                if(_batchAutoFlushSize > 0 && (_batchStream.size() > _batchAutoFlushSize))
                 {
                     //
                     // Temporarily save the last request.
@@ -115,8 +114,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
 
                     final int invokeNum = _batchRequestNum;
                     final BasicStream stream = new BasicStream(_reference.getInstance(),
-                                                               Protocol.currentProtocolEncoding,
-                                                               _batchAutoFlush);
+                                                               Protocol.currentProtocolEncoding);
                     stream.swap(_batchStream);
 
                     _adapter.getThreadPool().dispatch(
@@ -135,15 +133,6 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
                     //
                     _batchRequestNum = 0;
                     _batchMarker = 0;
-
-                    //
-                    // Check again if the last request doesn't exceed what we can send with the auto flush
-                    //
-                    if(Protocol.requestBatchHdr.length + lastRequest.length > _reference.getInstance().messageSizeMax())
-                    {
-                        Ex.throwMemoryLimitException(Protocol.requestBatchHdr.length + lastRequest.length,
-                                                     _reference.getInstance().messageSizeMax());
-                    }
 
                     //
                     // Start a new batch with the last message that caused us to go over the limit.
@@ -172,8 +161,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
     synchronized public void
     abortBatchRequest()
     {
-        BasicStream dummy = new BasicStream(_reference.getInstance(), Protocol.currentProtocolEncoding,
-                                            _batchAutoFlush);
+        BasicStream dummy = new BasicStream(_reference.getInstance(), Protocol.currentProtocolEncoding);
         _batchStream.swap(dummy);
         _batchRequestNum = 0;
         _batchMarker = 0;
@@ -380,8 +368,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
                 //
                 // Reset the batch stream.
                 //
-                BasicStream dummy = new BasicStream(_reference.getInstance(), Protocol.currentProtocolEncoding,
-                                                    _batchAutoFlush);
+                BasicStream dummy = new BasicStream(_reference.getInstance(), Protocol.currentProtocolEncoding);
                 _batchStream.swap(dummy);
                 _batchRequestNum = 0;
                 _batchMarker = 0;
@@ -567,7 +554,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
     private final Ice.ObjectAdapterI _adapter;
     private final Ice.Logger _logger;
     private final TraceLevels _traceLevels;
-    private boolean _batchAutoFlush;
+    private int _batchAutoFlushSize;
 
     private int _requestId;
 

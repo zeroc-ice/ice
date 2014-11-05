@@ -119,13 +119,6 @@ public class ConnectRequestHandler
 
                 _batchStream.swap(os);
 
-                if(!_batchAutoFlush &&
-                   _batchStream.size() + _batchRequestsSize > _reference.getInstance().messageSizeMax())
-                {
-                    Ex.throwMemoryLimitException(_batchStream.size() + _batchRequestsSize,
-                                                 _reference.getInstance().messageSizeMax());
-                }
-
                 _requests.add(new Request(_batchStream));
                 return;
             }
@@ -145,10 +138,8 @@ public class ConnectRequestHandler
                 _batchRequestInProgress = false;
                 notifyAll();
 
-                BasicStream dummy = new BasicStream(_reference.getInstance(), Protocol.currentProtocolEncoding,
-                                                    _batchAutoFlush);
+                BasicStream dummy = new BasicStream(_reference.getInstance(), Protocol.currentProtocolEncoding);
                 _batchStream.swap(dummy);
-                _batchRequestsSize = Protocol.requestBatchHdr.length;
 
                 return;
             }
@@ -338,13 +329,10 @@ public class ConnectRequestHandler
         _connect = true;
         _response = _reference.getMode() == Reference.ModeTwoway;
         _proxy = (Ice.ObjectPrxHelperBase)proxy;
-        _batchAutoFlush = ref.getInstance().initializationData().properties.getPropertyAsIntWithDefault(
-            "Ice.BatchAutoFlush", 1) > 0 ? true : false;
         _initialized = false;
         _flushing = false;
         _batchRequestInProgress = false;
-        _batchRequestsSize = Protocol.requestBatchHdr.length;
-        _batchStream = new BasicStream(ref.getInstance(), Protocol.currentProtocolEncoding, _batchAutoFlush);
+        _batchStream = new BasicStream(ref.getInstance(), Protocol.currentProtocolEncoding);
     }
 
     private boolean
@@ -560,8 +548,6 @@ public class ConnectRequestHandler
     private Ice.ObjectPrxHelperBase _proxy;
     private java.util.Set<Ice.ObjectPrxHelperBase> _proxies = new java.util.HashSet<Ice.ObjectPrxHelperBase>();
 
-    private final boolean _batchAutoFlush;
-
     private Ice.ConnectionI _connection;
     private boolean _compress;
     private Ice.LocalException _exception;
@@ -570,7 +556,6 @@ public class ConnectRequestHandler
 
     private java.util.List<Request> _requests = new java.util.LinkedList<Request>();
     private boolean _batchRequestInProgress;
-    private int _batchRequestsSize;
     private BasicStream _batchStream;
     
     private RequestHandler _connectionRequestHandler;

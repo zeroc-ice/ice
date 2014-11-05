@@ -339,7 +339,7 @@ Freeze::IteratorHelper::~IteratorHelper() ICE_NOEXCEPT_FALSE
 // MapCodecBase (from Map.h)
 //
 Freeze::MapCodecBase::MapCodecBase(const Ice::CommunicatorPtr& communicator, const Ice::EncodingVersion& encoding) :
-    _stream(IceInternal::getInstance(communicator).get(), encoding, true),
+    _stream(IceInternal::getInstance(communicator).get(), encoding),
     _dbt(0)
 {
 }

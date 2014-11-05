@@ -52,7 +52,7 @@ namespace IceInternal
         string protocol();
         string toDetailedString();
         Ice.ConnectionInfo getInfo();
-        void checkSendSize(Buffer buf, int messageSizeMax);
+        void checkSendSize(Buffer buf);
     }
 
 }

@@ -31,7 +31,7 @@ public class InputStreamI implements InputStream
     {
         if(copyData)
         {
-            _is = new IceInternal.BasicStream(instance, v, true, false);
+            _is = new IceInternal.BasicStream(instance, v, false);
             _is.resize(data.length, true);
             IceInternal.Buffer buf = _is.getBuffer();
             buf.b.position(0);

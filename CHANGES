@@ -27,6 +27,24 @@ Changes since version 3.5.1
 General Changes
 ===============
 
+- Added new Ice.BatchAutoFlushSize property to allow controlling how
+  much data (in kilo bytes) is queued for batching before the batch is
+  sent over the connection. Previously, this was controlled by the
+  Ice.MessageSizeMax property.
+
+  The Ice.BatchAutoFlush property has also been deprecated. To disable
+  auto flush you can set Ice.BatchAutoFlushSize=0. The default value
+  is 1024.
+
+- We have relaxed the semantics of Ice.MessageSizeMax. The check for
+  the maximum message size is now only performed on the receving
+  side. If the size of the message is superior to the limit the
+  Ice::MemoryLimitException is raised and the connection is closed.
+
+  Previously, the limit was also checked to limit the size of the data
+  sent to a peer. This is no longer the case, we no longer limit the
+  amount of data sent (either by an request or a reply).
+
 - The Ice run time now raises Ice::IllegalServantException if a null
   servant is provided to a method that requires a non-null servant
   (such as the Ice::ObjectAdapter::add methods or the Freeze evictor

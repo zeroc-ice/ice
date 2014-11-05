@@ -88,16 +88,13 @@ const Byte FLAG_IS_LAST_SLICE         = (1<<5);
 }
 
 
-IceInternal::BasicStream::BasicStream(Instance* instance, const EncodingVersion& encoding, bool unlimited) :
-    IceInternal::Buffer(instance->messageSizeMax()),
+IceInternal::BasicStream::BasicStream(Instance* instance, const EncodingVersion& encoding) :
     _instance(instance),
     _closure(0),
     _encoding(encoding),
     _currentReadEncaps(0),
     _currentWriteEncaps(0),
     _sliceObjects(true),
-    _messageSizeMax(_instance->messageSizeMax()), // Cached for efficiency.
-    _unlimited(unlimited),
     _stringConverter(instance->getStringConverter()),
     _wstringConverter(instance->getWstringConverter()),
     _startSeq(-1)
@@ -119,8 +116,6 @@ IceInternal::BasicStream::BasicStream(Instance* instance, const EncodingVersion&
     _currentReadEncaps(0),
     _currentWriteEncaps(0),
     _sliceObjects(true),
-    _messageSizeMax(_instance->messageSizeMax()), // Cached for efficiency.
-    _unlimited(false),
     _stringConverter(instance->getStringConverter()),
     _wstringConverter(instance->getWstringConverter()),
     _startSeq(-1)
@@ -185,7 +180,6 @@ IceInternal::BasicStream::swap(BasicStream& other)
     resetEncaps();
     other.resetEncaps();
 
-    std::swap(_unlimited, other._unlimited);
     std::swap(_startSeq, other._startSeq);
     std::swap(_minSeqSize, other._minSeqSize);
 }

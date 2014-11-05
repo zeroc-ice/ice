@@ -637,7 +637,7 @@ writeDictC(const string& name, const string& absolute, const Dict& dict, const v
             assert(!indexTypes[i].type->usesClasses());
 
             C << nl << "IceInternal::InstancePtr __instance = IceInternal::getInstance(__communicator);";
-            C << nl << "IceInternal::BasicStream __stream(__instance.get(), __encoding, true);";
+            C << nl << "IceInternal::BasicStream __stream(__instance.get(), __encoding);";
 
             string valueS;
             if(dict.indices[i].caseSensitive)
@@ -1166,7 +1166,7 @@ writeIndexC(const TypePtr& type, const TypePtr& memberType, const string& member
     C << nl << fullName << "::" << "marshalKey(" << inputType << " __index, Freeze::Key& __bytes) const";
     C << sb;
     C << nl << "IceInternal::InstancePtr __instance = IceInternal::getInstance(_communicator);";
-    C << nl << "IceInternal::BasicStream __stream(__instance.get(), _encoding, true);";
+    C << nl << "IceInternal::BasicStream __stream(__instance.get(), _encoding);";
 
     string valueS;
     if(caseSensitive)

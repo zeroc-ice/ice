@@ -94,12 +94,8 @@ final class TcpTransceiver implements Transceiver
     }
 
     @Override
-    public void checkSendSize(Buffer buf, int messageSizeMax)
+    public void checkSendSize(Buffer buf)
     {
-        if(buf.size() > messageSizeMax)
-        {
-            Ex.throwMemoryLimitException(buf.size(), messageSizeMax);
-        }
     }
 
     TcpTransceiver(ProtocolInstance instance, StreamSocket stream)

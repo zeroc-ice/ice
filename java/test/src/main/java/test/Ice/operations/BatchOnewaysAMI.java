@@ -63,7 +63,6 @@ class BatchOnewaysAMI
     {
         final byte[] bs1 = new byte[10 * 1024];
         final byte[] bs2 = new byte[99 * 1024];
-        final byte[] bs3 = new byte[100 * 1024];
 
         final Callback cb = new Callback();
         p.begin_opByteSOneway(bs1, new Callback_MyClass_opByteSOneway()
@@ -93,23 +92,6 @@ class BatchOnewaysAMI
             public void response()
             {
                 cb.called();
-            }
-        });
-        cb.check();
-
-        p.begin_opByteSOneway(bs3, new Callback_MyClass_opByteSOneway()
-        {
-            @Override
-            public void exception(LocalException ex)
-            {
-                test(ex instanceof Ice.MemoryLimitException);
-                cb.called();
-            }
-
-            @Override
-            public void response()
-            {
-                test(false);
             }
         });
         cb.check();

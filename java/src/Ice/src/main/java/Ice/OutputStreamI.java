@@ -16,7 +16,7 @@ public class OutputStreamI implements OutputStream
     {
         _communicator = communicator;
         IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
-        _os = new IceInternal.BasicStream(instance, instance.defaultsAndOverrides().defaultEncoding, true, false);
+        _os = new IceInternal.BasicStream(instance, instance.defaultsAndOverrides().defaultEncoding, false);
         _os.closure(this);
     }
 
@@ -25,7 +25,7 @@ public class OutputStreamI implements OutputStream
     {
         _communicator = communicator;
         IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
-        _os = new IceInternal.BasicStream(instance, v, true, false);
+        _os = new IceInternal.BasicStream(instance, v, false);
         _os.closure(this);
     }
 

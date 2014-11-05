@@ -482,9 +482,9 @@ final class WSTransceiver implements Transceiver
     }
 
     @Override
-    public void checkSendSize(Buffer buf, int messageSizeMax)
+    public void checkSendSize(Buffer buf)
     {
-        _delegate.checkSendSize(buf, messageSizeMax);
+        _delegate.checkSendSize(buf);
     }
 
     WSTransceiver(ProtocolInstance instance, Transceiver del, String host, int port, String resource)
@@ -532,7 +532,7 @@ final class WSTransceiver implements Transceiver
         _state = StateInitializeDelegate;
         _parser = new HttpParser();
         _readState = ReadStateOpcode;
-        _readBuffer = new Buffer(0, false, java.nio.ByteOrder.BIG_ENDIAN); // Use network byte order.
+        _readBuffer = new Buffer(false, java.nio.ByteOrder.BIG_ENDIAN); // Use network byte order.
         _readBufferSize = 1024;
         _readLastFrame = false;
         _readOpCode = 0;
@@ -540,7 +540,7 @@ final class WSTransceiver implements Transceiver
         _readPayloadLength = 0;
         _readMask = new byte[4];
         _writeState = WriteStateHeader;
-        _writeBuffer = new Buffer(0, false, java.nio.ByteOrder.BIG_ENDIAN); // Use network byte order.
+        _writeBuffer = new Buffer(false, java.nio.ByteOrder.BIG_ENDIAN); // Use network byte order.
         _writeBufferSize = 1024;
         _readMask = new byte[4];
         _writeMask = new byte[4];

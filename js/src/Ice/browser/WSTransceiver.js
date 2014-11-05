@@ -297,12 +297,8 @@ var WSTransceiver = Ice.Class({
     {
         return new Ice.WSConnectionInfo();
     },
-    checkSendSize: function(stream, messageSizeMax)
+    checkSendSize: function(stream)
     {
-        if(stream.size > messageSizeMax)
-        {
-            ExUtil.throwMemoryLimitException(stream.size, messageSizeMax);
-        }
     },
     toString: function()
     {

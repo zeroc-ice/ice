@@ -332,7 +332,7 @@ Freeze::ObjectStoreBase::save(Dbt& key, Dbt& value, Byte status, DbTxn* tx)
 
 Freeze::ObjectStoreBase::Marshaler::Marshaler(const CommunicatorPtr& communicator,
                                               const EncodingVersion& encoding) :
-    _os(IceInternal::getInstance(communicator).get(), encoding, true)
+    _os(IceInternal::getInstance(communicator).get(), encoding)
 {
 }
 

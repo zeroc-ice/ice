@@ -21,12 +21,14 @@ sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
 print("Running test with compact (default) format.")
-TestUtil.clientEchoTest(additionalServerOptions="--Ice.Warn.Dispatch=0")
+TestUtil.clientEchoTest(additionalServerOptions="--Ice.Warn.Dispatch=0 --Ice.Warn.Connections=0")
 
 print("Running test with sliced format.")
 TestUtil.clientEchoTest(additionalClientOptions="--Ice.Default.SlicedFormat",
-                        additionalServerOptions="--Ice.Default.SlicedFormat --Ice.Warn.Dispatch=0")
+                        additionalServerOptions="--Ice.Default.SlicedFormat" +
+                        " --Ice.Warn.Dispatch=0  --Ice.Warn.Connections=0")
 
 print("Running test with 1.0 encoding.")
 TestUtil.clientEchoTest(additionalClientOptions="--Ice.Default.EncodingVersion=1.0",
-                        additionalServerOptions="--Ice.Default.EncodingVersion=1.0 --Ice.Warn.Dispatch=0")
+                        additionalServerOptions="--Ice.Default.EncodingVersion=1.0" +
+                        " --Ice.Warn.Dispatch=0  --Ice.Warn.Connections=0")

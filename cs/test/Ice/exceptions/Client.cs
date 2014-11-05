@@ -35,7 +35,7 @@ public class Client
         try
         {
             Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties();
+            initData.properties = Ice.Util.createProperties(ref args);
 #if COMPACT
             //
             // When using Ice for .NET Compact Framework, we need to specify
@@ -43,8 +43,7 @@ public class Client
             //
             initData.properties.setProperty("Ice.FactoryAssemblies", "client");
 #endif
-            // We don't need to disable warnings because we have a dummy logger.
-            //initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+            initData.properties.setProperty("Ice.Warn.Connections", "0");
             initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
             initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
             communicator = Ice.Util.initialize(ref args, initData);

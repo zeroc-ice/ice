@@ -35,6 +35,8 @@ class MyDerivedClassI(Test.MyDerivedClass):
     def __init__(self):
         self.opVoidThread = None
         self.opVoidThreadLock = threading.Lock()
+        self.lock = threading.Lock()
+        self.opByteSOnewayCount = 0
 
     def ice_isA(self, id, current=None):
         test(current.mode == Ice.OperationMode.Nonmutating)
@@ -233,7 +235,17 @@ class MyDerivedClassI(Test.MyDerivedClass):
         cb.ice_response([-x for x in s])
 
     def opByteSOneway_async(self, cb, s, current=None):
+        self.lock.acquire()
+        self.opByteSOnewayCount += 1
+        self.lock.release()
         cb.ice_response()
+
+    def opByteSOnewayCallCount_async(self, cb, current=None):
+        self.lock.acquire()
+        count = self.opByteSOnewayCount
+        self.opByteSOnewayCount = 0
+        self.lock.release()
+        cb.ice_response(count)
 
     def opDoubleMarshaling_async(self, cb, p1, p2, current=None):
         d = 1278312346.0 / 13.0;

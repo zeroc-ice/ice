@@ -41,7 +41,7 @@ var OutgoingAsyncBase = Ice.Class(AsyncResult, {
         if(communicator !== undefined)
         {
             AsyncResult.call(this, communicator, operation, connection, proxy, adapter);
-            this._os = new BasicStream(this._instance, Protocol.currentProtocolEncoding, false);
+            this._os = new BasicStream(this._instance, Protocol.currentProtocolEncoding);
         }
         else
         {
@@ -345,7 +345,7 @@ var OutgoingAsync = Ice.Class(ProxyOutgoingAsyncBase, {
         {
             if(this._is === null) // _is can already be initialized if the invocation is retried
             {
-                this._is = new BasicStream(this._instance, Protocol.currentProtocolEncoding, false);
+                this._is = new BasicStream(this._instance, Protocol.currentProtocolEncoding);
             }
             this._is.swap(istr);
             replyStatus = this._is.readByte();

@@ -800,9 +800,9 @@ IceInternal::WSTransceiver::getInfo() const
 }
 
 void
-IceInternal::WSTransceiver::checkSendSize(const Buffer& buf, size_t messageSizeMax)
+IceInternal::WSTransceiver::checkSendSize(const Buffer& buf)
 {
-    _delegate->checkSendSize(buf, messageSizeMax);
+    _delegate->checkSendSize(buf);
 }
 
 IceInternal::WSTransceiver::WSTransceiver(const ProtocolInstancePtr& instance, const TransceiverPtr& del,
@@ -816,14 +816,12 @@ IceInternal::WSTransceiver::WSTransceiver(const ProtocolInstancePtr& instance, c
     _state(StateInitializeDelegate),
     _parser(new HttpParser),
     _readState(ReadStateOpcode),
-    _readBuffer(0),
     _readBufferSize(1024),
     _readLastFrame(false),
     _readOpCode(0),
     _readHeaderLength(0),
     _readPayloadLength(0),
     _writeState(WriteStateHeader),
-    _writeBuffer(0),
     _writeBufferSize(1024),
     _readPending(false),
     _writePending(false),
@@ -852,14 +850,12 @@ IceInternal::WSTransceiver::WSTransceiver(const ProtocolInstancePtr& instance, c
     _state(StateInitializeDelegate),
     _parser(new HttpParser),
     _readState(ReadStateOpcode),
-    _readBuffer(0),
     _readBufferSize(1024),
     _readLastFrame(false),
     _readOpCode(0),
     _readHeaderLength(0),
     _readPayloadLength(0),
     _writeState(WriteStateHeader),
-    _writeBuffer(0),
     _writeBufferSize(1024),
     _readPending(false),
     _writePending(false),
