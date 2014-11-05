@@ -21,7 +21,6 @@ GEN_SRCS = \
 	Endpoint.js \
 	EndpointF.js \
 	EndpointInfo.js \
-	EndpointI.js \
 	EndpointTypes.js \
 	Identity.js \
 	LocalException.js \
@@ -154,6 +153,11 @@ MODULEDIR	= $(install_moduledir)\$(LIBNAME)
 # parsing SSL endpoints.
 EndpointInfo.js : "$(slicedir)\IceSSL\EndpointInfo.ice"
         "$(SLICE2JS)" $(SLICE2JSFLAGS) "$(slicedir)\IceSSL\EndpointInfo.ice"
+
+EndpointInfo.d : "$(slicedir)\IceSSL\EndpointInfo.ice"
+	@echo Generating dependencies for $(slicedir)\IceSSL\EndpointInfo.ice
+	@"$(SLICE2JS)" $(SLICE2JSFLAGS) --depend "$(slicedir)\IceSSL\EndpointInfo.ice" |\
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice
 
 install:: all
 	@if not exist $(MODULEDIR) \

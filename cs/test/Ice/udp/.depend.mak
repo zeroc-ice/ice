@@ -1,4 +1,4 @@
 
 Test.cs: \
     .\Test.ice \
-    $(slicedir)/Ice/Identity.ice
+    "$(slicedir)/Ice/Identity.ice"

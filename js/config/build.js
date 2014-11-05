@@ -10,7 +10,7 @@
 var fs = require("fs");
 var path = require("path");
 
-var iceDist = "Ice-3.5.1";
+var iceDist = "Ice-3.6b";
 
 var defaultInstallLocations = [
     "C:\\Program Files\\ZeroC",

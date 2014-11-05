@@ -127,7 +127,8 @@ depend::
 !endif
 
 !if "$(GEN_SRCS)" != ""
-$(GEN_SRCS): $(SLICE2JS) $(SLICEPARSERLIB)
+TARGETS = $(TARGETS) $(GEN_SRCS)
+$(GEN_SRCS): "$(SLICE2JS)" "$(SLICEPARSERLIB)"
 depend:: $(GEN_SRCS:.js=.d)
 !endif
 

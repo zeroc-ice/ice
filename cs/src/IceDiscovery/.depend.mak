@@ -1,4 +1,4 @@
 
 IceDiscovery.cs: \
-    $(slicedir)\IceDiscovery\IceDiscovery.ice \
-    $(slicedir)/Ice/Identity.ice
+    "$(slicedir)\IceDiscovery\IceDiscovery.ice" \
+    "$(slicedir)/Ice/Identity.ice"
