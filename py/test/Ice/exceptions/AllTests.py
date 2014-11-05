@@ -473,13 +473,14 @@ def allTests(communicator):
         print("ok")
 
 
+    if thrower.ice_getConnection():
         sys.stdout.write("testing memory limit marshal exception...");
         sys.stdout.flush();
 
         try:
             thrower.throwMemoryLimitException(array.array('B'));
             test(False)
-        except Ice.UnknownLocalException:
+        except Ice.MemoryLimitException:
             pass
         except:
             print(sys.exc_info())
@@ -488,21 +489,12 @@ def allTests(communicator):
         try:
             thrower.throwMemoryLimitException(bytearray(20 * 1024)) # 20KB
             test(False)
-        except Ice.MemoryLimitException:
+        except Ice.ConnectionLostException:
             pass
         except:
             test(False)
 
-        try:
-            thrower.end_throwMemoryLimitException(thrower.begin_throwMemoryLimitException(bytearray(20 * 1024))) # 20KB
-            test(False)
-        except Ice.MemoryLimitException:
-            pass
-        except:
-            test(False)
-
-    print("ok");
-
+        print("ok");
 
     sys.stdout.write("catching object not exist exception... ")
     sys.stdout.flush()

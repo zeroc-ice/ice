@@ -16,9 +16,15 @@ public class Server extends test.Util.Application
     {
         Ice.Communicator communicator = communicator();
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");
+        Ice.ObjectAdapter adapter3 = communicator.createObjectAdapter("TestAdapter3");
         Ice.Object object = new ThrowerI();
         adapter.add(object, communicator.stringToIdentity("thrower"));
+        adapter2.add(object, communicator.stringToIdentity("thrower"));
+        adapter3.add(object, communicator.stringToIdentity("thrower"));
         adapter.activate();
+        adapter2.activate();
+        adapter3.activate();
         return WAIT;
     }
 
@@ -38,6 +44,10 @@ public class Server extends test.Util.Application
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.exceptions");
         initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
         initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
+        initData.properties.setProperty("TestAdapter2.Endpoints", "default -p 12011");
+        initData.properties.setProperty("TestAdapter2.MessageSizeMax", "0");
+        initData.properties.setProperty("TestAdapter3.Endpoints", "default -p 12012");
+        initData.properties.setProperty("TestAdapter3.MessageSizeMax", "1");
 
         return initData;
     }

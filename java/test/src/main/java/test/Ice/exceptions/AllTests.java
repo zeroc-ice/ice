@@ -1134,6 +1134,27 @@ public class AllTests
                 ex.printStackTrace();
                 test(false);
             }
+        
+            ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(
+                communicator.stringToProxy("thrower:default -p 12011"));
+            try
+            {
+                thrower2.throwMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB (no limits)
+            }
+            catch(Ice.MemoryLimitException ex)
+            {
+            }
+            ThrowerPrx thrower3 = ThrowerPrxHelper.uncheckedCast(
+                communicator.stringToProxy("thrower:default -p 12012"));
+            try
+            {
+                thrower3.throwMemoryLimitException(new byte[1024]); // 1KB limit
+                test(false);
+            }
+            catch(Ice.ConnectionLostException ex)
+            {
+            }
+
             out.println("ok");
         }
 

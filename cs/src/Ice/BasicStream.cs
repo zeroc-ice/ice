@@ -3383,7 +3383,7 @@ namespace IceInternal
 #endif
         }
 
-        public BasicStream uncompress(int headerSize)
+        public BasicStream uncompress(int headerSize, int messageSizeMax)
         {
 #if MANAGED || COMPACT || SILVERLIGHT
             return this;
@@ -3399,9 +3399,9 @@ namespace IceInternal
             {
                 throw new Ice.IllegalMessageSizeException("compressed size <= header size");
             }
-            if(uncompressedSize > instance_.messageSizeMax())
+            if(uncompressedSize > messageSizeMax)
             {
-                IceInternal.Ex.throwMemoryLimitException(uncompressedSize, instance_.messageSizeMax());
+                IceInternal.Ex.throwMemoryLimitException(uncompressedSize, messageSizeMax);
             }
 
             int compressedLen = size() - headerSize - 4;

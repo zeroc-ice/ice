@@ -19,9 +19,15 @@ int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
+    Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("TestAdapter2");
+    Ice::ObjectAdapterPtr adapter3 = communicator->createObjectAdapter("TestAdapter3");
     Ice::ObjectPtr object = new ThrowerI();
     adapter->add(object, communicator->stringToIdentity("thrower"));
+    adapter2->add(object, communicator->stringToIdentity("thrower"));
+    adapter3->add(object, communicator->stringToIdentity("thrower"));
     adapter->activate();
+    adapter2->activate();
+    adapter3->activate();
     TEST_READY
     communicator->waitForShutdown();
     return EXIT_SUCCESS;
@@ -41,6 +47,10 @@ main(int argc, char* argv[])
         initData.properties->setProperty("Ice.Warn.Connections", "0");
         initData.properties->setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
         initData.properties->setProperty("Ice.MessageSizeMax", "10"); // 10KB max
+        initData.properties->setProperty("TestAdapter2.Endpoints", "default -p 12011");
+        initData.properties->setProperty("TestAdapter2.MessageSizeMax", "0");
+        initData.properties->setProperty("TestAdapter3.Endpoints", "default -p 12012");
+        initData.properties->setProperty("TestAdapter3.MessageSizeMax", "1");
         communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }

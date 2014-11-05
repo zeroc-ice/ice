@@ -858,7 +858,8 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     _servantManager(new ServantManager(instance, name)),
     _name(name),
     _directCount(0),
-    _noConfig(noConfig)
+    _noConfig(noConfig),
+    _messageSizeMax(0)
 {
 }
 
@@ -922,6 +923,19 @@ Ice::ObjectAdapterI::initialize(const RouterPrx& router)
 
         const_cast<ACMConfig&>(_acm) = 
             ACMConfig(properties, _communicator->getLogger(), _name + ".ACM", _instance->serverACM());
+
+        {
+            const int defaultMessageSizeMax = _instance->messageSizeMax() / 1024;
+            Int num = properties->getPropertyAsIntWithDefault(_name + ".MessageSizeMax", defaultMessageSizeMax);
+            if(num < 1 || static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff / 1024))
+            {
+                const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(0x7fffffff);
+            }
+            else
+            {
+                const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(num) * 1024;
+            }
+        }
 
         int threadPoolSize = properties->getPropertyAsInt(_name + ".ThreadPool.Size");
         int threadPoolSizeMax = properties->getPropertyAsInt(_name + ".ThreadPool.SizeMax");
@@ -1415,6 +1429,7 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
         "Locator.PreferSecure",
         "Locator.CollocationOptimized",
         "Locator.Router",
+        "MessageSizeMax",
         "PublishedEndpoints",
         "RegisterProcess",
         "ReplicaGroupId",

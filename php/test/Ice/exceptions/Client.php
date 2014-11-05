@@ -281,7 +281,7 @@ function allTests($communicator)
         }
         catch(Exception $ex)
         {
-            $uue = $NS ? "Ice\\UnknownLocalException" : "Ice_UnknownLocalException";
+            $uue = $NS ? "Ice\\MemoryLimitException" : "Ice_MemoryLimitException";
             if(!($ex instanceof $uue))
             {
                 throw $ex;
@@ -295,7 +295,7 @@ function allTests($communicator)
         }
         catch(Exception $ex)
         {
-            $uue = $NS ? "Ice\\MemoryLimitException" : "Ice_MemoryLimitException";
+            $uue = $NS ? "Ice\\ConnectionLostException" : "Ice_ConnectionLostException";
             if(!($ex instanceof $uue))
             {
                 throw $ex;

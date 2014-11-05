@@ -1845,9 +1845,9 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     {
                         throw IllegalMessageSizeException(__FILE__, __LINE__);
                     }
-                    if(size > static_cast<Int>(_instance->messageSizeMax()))
+                    if(size > static_cast<Int>(_messageSizeMax))
                     {
-                        Ex::throwMemoryLimitException(__FILE__, __LINE__, size, _instance->messageSizeMax());
+                        Ex::throwMemoryLimitException(__FILE__, __LINE__, size, _messageSizeMax);
                     }
                     if(size > static_cast<Int>(_readStream.b.size()))
                     {
@@ -2380,7 +2380,7 @@ Ice::ConnectionI::ConnectionI(const CommunicatorPtr& communicator,
                               const TransceiverPtr& transceiver,
                               const ConnectorPtr& connector,
                               const EndpointIPtr& endpoint,
-                              const ObjectAdapterPtr& adapter) :
+                              const ObjectAdapterIPtr& adapter) :
     _communicator(communicator),
     _instance(instance),
     _monitor(monitor),
@@ -2404,6 +2404,7 @@ Ice::ConnectionI::ConnectionI(const CommunicatorPtr& communicator,
     _nextRequestId(1),
     _requestsHint(_requests.end()),
     _asyncRequestsHint(_asyncRequests.end()),
+    _messageSizeMax(adapter ? adapter->messageSizeMax() : _instance->messageSizeMax()),
     _batchAutoFlushSize(_instance->batchAutoFlushSize()),
     _batchStream(_instance.get(), Ice::currentProtocolEncoding),
     _batchStreamInUse(false),
@@ -2432,10 +2433,9 @@ Ice::ConnectionI::ConnectionI(const CommunicatorPtr& communicator,
         compressionLevel = 9;
     }
 
-    ObjectAdapterI* adapterImpl = _adapter ? dynamic_cast<ObjectAdapterI*>(_adapter.get()) : 0;
-    if(adapterImpl)
+    if(adapter)
     {
-        _servantManager = adapterImpl->getServantManager();
+        _servantManager = adapter->getServantManager();
     }
 
     if(_monitor && _monitor->getACM().timeout > 0)
@@ -2446,9 +2446,9 @@ Ice::ConnectionI::ConnectionI(const CommunicatorPtr& communicator,
     __setNoDelete(true);
     try
     {
-        if(adapterImpl)
+        if(adapter)
         {
-            const_cast<ThreadPoolPtr&>(_threadPool) = adapterImpl->getThreadPool();
+            const_cast<ThreadPoolPtr&>(_threadPool) = adapter->getThreadPool();
         }
         else
         {
@@ -3380,9 +3380,9 @@ Ice::ConnectionI::doUncompress(BasicStream& compressed, BasicStream& uncompresse
         throw IllegalMessageSizeException(__FILE__, __LINE__);
     }
 
-    if(uncompressedSize > static_cast<Int>(_instance->messageSizeMax()))
+    if(uncompressedSize > static_cast<Int>(_messageSizeMax))
     {
-        Ex::throwMemoryLimitException(__FILE__, __LINE__, uncompressedSize, _instance->messageSizeMax());
+        Ex::throwMemoryLimitException(__FILE__, __LINE__, uncompressedSize, _messageSizeMax);
     }
     uncompressed.resize(uncompressedSize);
 

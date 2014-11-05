@@ -331,6 +331,10 @@ ServiceI::start(
                 properties->setProperty(name + ".Node.ThreadPool.Size", os.str());
                 properties->setProperty(name + ".Node.ThreadPool.SizeWarn", "0");
             }
+            if(properties->getProperty(name + ".Node.MessageSizeMax").empty())
+            {
+                properties->setProperty(name + ".Node.MessageSizeMax", 0); // No limit on data exchanged internally
+            }
             Ice::ObjectAdapterPtr nodeAdapter = communicator->createObjectAdapter(name + ".Node");
 
             _instance = new Instance(instanceName, name, communicator, publishAdapter, topicAdapter,

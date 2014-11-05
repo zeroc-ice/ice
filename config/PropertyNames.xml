@@ -280,6 +280,7 @@ generated from the section label.
         <suffix name="Router" class="proxy"/>
         <suffix name="ProxyOptions" />
         <suffix name="ThreadPool" class="threadpool" />
+        <suffix name="MessageSizeMax" />
     </class>
 
     <class name="deprecatedthreadpool" prefix-only="true">

@@ -325,11 +325,7 @@ var Instance = Ice.Class({
 
             var defMessageSizeMax = 1024;
             var num = this._initData.properties.getPropertyAsIntWithDefault("Ice.MessageSizeMax", defMessageSizeMax);
-            if(num < 1)
-            {
-                this._messageSizeMax = defMessageSizeMax * 1024; // Ignore non-sensical values.
-            }
-            else if(num > 0x7fffffff / 1024)
+            if(num < 1 || num > 0x7fffffff / 1024)
             {
                 this._messageSizeMax = 0x7fffffff;
             }

@@ -1,4 +1,3 @@
-
 // **********************************************************************
 //
 // Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
@@ -2637,7 +2636,7 @@ public class BasicStream
     }
 
     public BasicStream
-    uncompress(int headerSize)
+    uncompress(int headerSize, int messageSizeMax)
     {
         assert(compressible());
 
@@ -2647,9 +2646,9 @@ public class BasicStream
         {
             throw new Ice.IllegalMessageSizeException();
         }
-        if(uncompressedSize > _instance.messageSizeMax())
+        if(uncompressedSize > messageSizeMax)
         {
-            IceInternal.Ex.throwMemoryLimitException(uncompressedSize, _instance.messageSizeMax());
+            IceInternal.Ex.throwMemoryLimitException(uncompressedSize, messageSizeMax);
         }
 
         int compressedLen = size() - headerSize - 4;

@@ -1603,7 +1603,7 @@ IceInternal::IncomingConnectionFactory::connectionStartFailed(const Ice::Connect
 //
 IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const InstancePtr& instance,
                                                                   const EndpointIPtr& endpoint,
-                                                                  const ObjectAdapterPtr& adapter) :
+                                                                  const ObjectAdapterIPtr& adapter) :
     _instance(instance),
     _monitor(new FactoryACMMonitor(instance, dynamic_cast<ObjectAdapterI*>(adapter.get())->getACM())),
     _endpoint(endpoint),
@@ -1664,7 +1664,7 @@ IceInternal::IncomingConnectionFactory::initialize(const string& oaName)
                 out << "listening for " << _endpoint->protocol() << " connections\n" << _acceptor->toDetailedString();
             }
 
-            dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool()->initialize(this);
+            _adapter->getThreadPool()->initialize(this);
         }
     }
     catch(const Ice::Exception&)
@@ -1730,7 +1730,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
                     Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
                     out << "accepting " << _endpoint->protocol() << " connections at " << _acceptor->toString();
                 }
-                dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool()->_register(this, SocketOperationRead);
+                _adapter->getThreadPool()->_register(this, SocketOperationRead);
             }
             for_each(_connections.begin(), _connections.end(), Ice::voidMemFun(&ConnectionI::activate));
             break;
@@ -1749,7 +1749,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
                     Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
                     out << "holding " << _endpoint->protocol() << " connections at " << _acceptor->toString();
                 }
-                dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool()->unregister(this, SocketOperationRead);
+                _adapter->getThreadPool()->unregister(this, SocketOperationRead);
             }
             for_each(_connections.begin(), _connections.end(), Ice::voidMemFun(&ConnectionI::hold));
             break;
@@ -1766,7 +1766,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
                 // the finish() call. Not all selector implementations do support this 
                 // however.
                 //
-                if(dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool()->finish(this, true))
+                if(_adapter->getThreadPool()->finish(this, true))
                 {
                     closeAcceptor(true);
                 }

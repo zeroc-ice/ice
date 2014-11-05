@@ -1676,7 +1676,7 @@ namespace IceInternal
             }
         }
 
-        public IncomingConnectionFactory(Instance instance, EndpointI endpoint, Ice.ObjectAdapter adapter,
+        public IncomingConnectionFactory(Instance instance, EndpointI endpoint, Ice.ObjectAdapterI adapter,
                                          string adapterName)
         {
             _instance = instance;
@@ -1742,7 +1742,7 @@ namespace IceInternal
                         _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
                     }
 
-                    ((Ice.ObjectAdapterI)_adapter).getThreadPool().initialize(this);
+                    _adapter.getThreadPool().initialize(this);
                 }
             }
             catch(System.Exception ex)
@@ -1820,7 +1820,7 @@ namespace IceInternal
                             _instance.initializationData().logger.trace(_instance.traceLevels().networkCat,
                                                                         s.ToString());
                         }
-                        ((Ice.ObjectAdapterI)_adapter).getThreadPool().register(this, SocketOperation.Read);
+                        _adapter.getThreadPool().register(this, SocketOperation.Read);
                     }
 
                     foreach(Ice.ConnectionI connection in _connections)
@@ -1847,7 +1847,7 @@ namespace IceInternal
                             _instance.initializationData().logger.trace(_instance.traceLevels().networkCat,
                                                                         s.ToString());
                         }
-                        ((Ice.ObjectAdapterI)_adapter).getThreadPool().unregister(this, SocketOperation.Read);
+                        _adapter.getThreadPool().unregister(this, SocketOperation.Read);
                     }
 
                     foreach(Ice.ConnectionI connection in _connections)
@@ -1861,7 +1861,7 @@ namespace IceInternal
                 {
                     if(_acceptor != null)
                     {
-                        ((Ice.ObjectAdapterI)_adapter).getThreadPool().finish(this);
+                        _adapter.getThreadPool().finish(this);
                         closeAcceptor(true);
                     }
                     else
@@ -1913,7 +1913,7 @@ namespace IceInternal
         private readonly Transceiver _transceiver;
         private EndpointI _endpoint;
 
-        private Ice.ObjectAdapter _adapter;
+        private Ice.ObjectAdapterI _adapter;
 
         private readonly bool _warn;
 

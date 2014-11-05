@@ -892,11 +892,7 @@ public final class Instance
             {
                 final int defaultMessageSizeMax = 1024;
                 int num = _initData.properties.getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
-                if(num < 1)
-                {
-                    _messageSizeMax = defaultMessageSizeMax * 1024; // Ignore non-sensical values.
-                }
-                else if(num > 0x7fffffff / 1024)
+                if(num < 1 || num > 0x7fffffff / 1024)
                 {
                     _messageSizeMax = 0x7fffffff;
                 }

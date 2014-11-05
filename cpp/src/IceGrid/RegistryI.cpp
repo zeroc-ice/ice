@@ -242,6 +242,10 @@ RegistryI::startImpl()
     properties->setProperty("IceGrid.Registry.SessionManager.AdapterId", "");
     properties->setProperty("IceGrid.Registry.AdminSessionManager.AdapterId", "");
     properties->setProperty("IceGrid.Registry.Internal.AdapterId", "");
+    if(properties->getProperty("IceGrid.Registry.Internal.MessageSizeMax").empty())
+    {
+        properties->setProperty("IceGrid.Registry.Internal.MessageSizeMax", "0"); // No limit on internal data exchanged
+    }
 
     setupThreadPool(properties, "IceGrid.Registry.Client.ThreadPool", 1, 10);
     setupThreadPool(properties, "IceGrid.Registry.Server.ThreadPool", 1, 10, true); // Serialize for admin callbacks

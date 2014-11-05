@@ -270,7 +270,7 @@ def allTests(communicator)
     begin
         thrower.throwMemoryLimitException(Array.new(1, 0x00));
         test(false)
-    rescue Ice::UnknownLocalException
+    rescue Ice::MemoryLimitException
         # Expected
     rescue
         test(false)
@@ -279,7 +279,7 @@ def allTests(communicator)
     begin
         thrower.throwMemoryLimitException(Array.new(20 * 1024, 0x00)) # 20KB
         test(false)
-    rescue Ice::MemoryLimitException
+    rescue Ice::ConnectionLostException
         # Expected
     rescue
         print $!.backtrace.join("\n")

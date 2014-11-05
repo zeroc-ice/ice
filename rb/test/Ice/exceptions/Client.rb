@@ -25,6 +25,7 @@ begin
     initData = Ice::InitializationData.new
     initData.properties = Ice.createProperties(ARGV)
     initData.properties.setProperty("Ice.MessageSizeMax", "10")
+    initData.properties.setProperty("Ice.Warn.Connections", "0")
     communicator = Ice.initialize(ARGV, initData)
     status = run(ARGV, communicator)
 rescue => ex

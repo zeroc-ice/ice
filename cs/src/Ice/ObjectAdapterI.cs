@@ -803,6 +803,12 @@ namespace Ice
             return _acm;
         }
 
+        public int messageSizeMax()
+        {
+            // No mutex lock, immutable.
+            return _messageSizeMax;
+        }
+
         //
         // Only for use by ObjectAdapterFactory
         //
@@ -888,8 +894,20 @@ namespace Ice
                 throw ex;
             }
 
-            _acm = new ACMConfig(properties, communicator.getLogger(), _name + ".ACM",
-                                             instance_.serverACM());
+            _acm = new ACMConfig(properties, communicator.getLogger(), _name + ".ACM", instance_.serverACM());
+
+            {
+                int defaultMessageSizeMax = instance.messageSizeMax() / 1024;
+                int num = properties.getPropertyAsIntWithDefault(_name + ".MessageSizeMax", defaultMessageSizeMax);
+                if(num < 1 || num > 0x7fffffff / 1024)
+                {
+                    _messageSizeMax = 0x7fffffff;
+                }
+                else
+                {
+                    _messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
+                }
+            }
 
             try
             {
@@ -1460,6 +1478,7 @@ namespace Ice
             "Locator.PreferSecure",
             "Locator.CollocationOptimized",
             "Locator.Router",
+            "MessageSizeMax",
             "PublishedEndpoints",
             "RegisterProcess",
             "ReplicaGroupId",
@@ -1555,5 +1574,6 @@ namespace Ice
         private int _directCount;  // The number of direct proxies dispatching on this object adapter.
         private bool _noConfig;
         private Identity _processId;
+        private int _messageSizeMax;
     }
 }

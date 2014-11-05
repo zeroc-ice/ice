@@ -363,14 +363,14 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
     }
 
     public
-    IncomingConnectionFactory(Instance instance, EndpointI endpoint, Ice.ObjectAdapter adapter, String adapterName)
+    IncomingConnectionFactory(Instance instance, EndpointI endpoint, Ice.ObjectAdapterI adapter, String adapterName)
     {
         _instance = instance;
         _endpoint = endpoint;
         _adapter = adapter;
         _warn = _instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
         _state = StateHolding;
-        _monitor = new FactoryACMMonitor(instance, ((Ice.ObjectAdapterI)adapter).getACM());
+        _monitor = new FactoryACMMonitor(instance, adapter.getACM());
 
         DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
         if(defaultsAndOverrides.overrideTimeout)
@@ -430,7 +430,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                     _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
                 }
 
-                ((Ice.ObjectAdapterI)_adapter).getThreadPool().initialize(this);
+                _adapter.getThreadPool().initialize(this);
             }
         }
         catch(java.lang.Exception ex)
@@ -531,7 +531,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                         s.append(_acceptor.toString());
                         _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
                     }
-                    ((Ice.ObjectAdapterI)_adapter).getThreadPool().register(this, SocketOperation.Read);
+                    _adapter.getThreadPool().register(this, SocketOperation.Read);
                 }
 
                 for(Ice.ConnectionI connection : _connections)
@@ -557,7 +557,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                         s.append(_acceptor.toString());
                         _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
                     }
-                    ((Ice.ObjectAdapterI)_adapter).getThreadPool().unregister(this, SocketOperation.Read);
+                    _adapter.getThreadPool().unregister(this, SocketOperation.Read);
                 }
 
                 for(Ice.ConnectionI connection : _connections)
@@ -577,7 +577,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                     // if there are no more threads in the thread pool available to dispatch
                     // the finish() call.
                     //
-                    if(((Ice.ObjectAdapterI)_adapter).getThreadPool().finish(this, true))
+                    if(_adapter.getThreadPool().finish(this, true))
                     {
                         closeAcceptor(true);
                     }
@@ -633,7 +633,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
     private Transceiver _transceiver;
     private EndpointI _endpoint;
 
-    private Ice.ObjectAdapter _adapter;
+    private Ice.ObjectAdapterI _adapter;
 
     private final boolean _warn;
 

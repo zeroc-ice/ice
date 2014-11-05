@@ -52,6 +52,8 @@ namespace Ice
 {
 
 class LocalException;
+class ObjectAdapterI;
+typedef IceUtil::Handle<ObjectAdapterI> ObjectAdapterIPtr;
 
 class ConnectionI : public Connection,
                     public IceInternal::EventHandler,
@@ -247,7 +249,7 @@ private:
 
     ConnectionI(const Ice::CommunicatorPtr&, const IceInternal::InstancePtr&, const IceInternal::ACMMonitorPtr&,
                 const IceInternal::TransceiverPtr&, const IceInternal::ConnectorPtr&,
-                const IceInternal::EndpointIPtr&, const ObjectAdapterPtr&);
+                const IceInternal::EndpointIPtr&, const ObjectAdapterIPtr&);
     virtual ~ConnectionI();
 
     friend class IceInternal::IncomingConnectionFactory;
@@ -331,6 +333,7 @@ private:
 
     IceUtil::UniquePtr<LocalException> _exception;
 
+    const size_t _messageSizeMax;
     const size_t _batchAutoFlushSize;
     IceInternal::BasicStream _batchStream;
     bool _batchStreamInUse;

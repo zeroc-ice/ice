@@ -98,6 +98,7 @@ public:
     IceInternal::ThreadPoolPtr getThreadPool() const;
     IceInternal::ServantManagerPtr getServantManager() const;
     IceInternal::ACMConfig getACM() const;
+    size_t messageSizeMax() const { return _messageSizeMax; }
 
 private:
 
@@ -146,6 +147,7 @@ private:
     int _directCount; // The number of direct proxies dispatching on this object adapter.
     bool _noConfig;
     Identity _processId;
+    size_t _messageSizeMax;
 };
 
 }

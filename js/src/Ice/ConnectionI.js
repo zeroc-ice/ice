@@ -99,6 +99,7 @@ var ConnectionI = Class({
         this._warnUdp = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
         this._acmLastActivity = this._monitor !== null && this._monitor.getACM().timeout > 0 ? Date.now() : -1;
         this._nextRequestId = 1;
+        this._messageSizeMax = adapter ? adapter.messageSizeMax() : instance.messageSizeMax();
         this._batchAutoFlushSize = instance.batchAutoFlushSize();
         this._batchStream = new BasicStream(instance, Protocol.currentProtocolEncoding);
         this._batchStreamInUse = false;
@@ -990,9 +991,9 @@ var ConnectionI = Class({
                     {
                         throw new Ice.IllegalMessageSizeException();
                     }
-                    if(size > this._instance.messageSizeMax())
+                    if(size > this._messageSizeMax)
                     {
-                        ExUtil.throwMemoryLimitException(size, this._instance.messageSizeMax());
+                        ExUtil.throwMemoryLimitException(size, this._messageSizeMax);
                     }
                     if(size > this._readStream.size)
                     {

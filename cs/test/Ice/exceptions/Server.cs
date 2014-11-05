@@ -51,9 +51,15 @@ public class Server
     private static int run(string[] args, Ice.Communicator communicator)
     {
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.Object @object = new ThrowerI();
-        adapter.add(@object, communicator.stringToIdentity("thrower"));
+        Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");
+        Ice.ObjectAdapter adapter3 = communicator.createObjectAdapter("TestAdapter3");
+        Ice.Object obj = new ThrowerI();
+        adapter.add(obj, communicator.stringToIdentity("thrower"));
+        adapter2.add(obj, communicator.stringToIdentity("thrower"));
+        adapter3.add(obj, communicator.stringToIdentity("thrower"));
         adapter.activate();
+        adapter2.activate();
+        adapter3.activate();
         communicator.waitForShutdown();
         return 0;
     }
@@ -71,6 +77,11 @@ public class Server
             initData.properties.setProperty("Ice.Warn.Connections", "0");
             initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
             initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
+            initData.properties.setProperty("TestAdapter2.Endpoints", "default -p 12011");
+            initData.properties.setProperty("TestAdapter2.MessageSizeMax", "0");
+            initData.properties.setProperty("TestAdapter3.Endpoints", "default -p 12012");
+            initData.properties.setProperty("TestAdapter3.MessageSizeMax", "1");
+
             communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
         }

@@ -1258,9 +1258,9 @@ namespace Ice
                                 {
                                     throw new Ice.IllegalMessageSizeException();
                                 }
-                                if(size > _instance.messageSizeMax())
+                                if(size > _messageSizeMax)
                                 {
-                                    IceInternal.Ex.throwMemoryLimitException(size, _instance.messageSizeMax());
+                                    IceInternal.Ex.throwMemoryLimitException(size, _messageSizeMax);
                                 }
                                 if(size > _readStream.size())
                                 {
@@ -1772,7 +1772,7 @@ namespace Ice
 
         internal ConnectionI(Communicator communicator, IceInternal.Instance instance,
                              IceInternal.ACMMonitor monitor, IceInternal.Transceiver transceiver,
-                             IceInternal.Connector connector, IceInternal.EndpointI endpoint, ObjectAdapter adapter)
+                             IceInternal.Connector connector, IceInternal.EndpointI endpoint, ObjectAdapterI adapter)
         {
             _communicator = communicator;
             _instance = instance;
@@ -1803,6 +1803,7 @@ namespace Ice
                 _acmLastActivity = -1;
             }
             _nextRequestId = 1;
+            _messageSizeMax = adapter != null ? adapter.messageSizeMax() : instance.messageSizeMax();
             _batchAutoFlushSize = instance.batchAutoFlushSize();
             _batchStream = new IceInternal.BasicStream(instance, Util.currentProtocolEncoding);
             _batchStreamInUse = false;
@@ -1827,17 +1828,16 @@ namespace Ice
                 _compressionLevel = 9;
             }
 
-            ObjectAdapterI adapterImpl = _adapter as ObjectAdapterI;
-            if(adapterImpl != null)
+            if(adapter != null)
             {
-                _servantManager = adapterImpl.getServantManager();
+                _servantManager = adapter.getServantManager();
             }
 
             try
             {
-                if(adapterImpl != null)
+                if(adapter != null)
                 {
-                    _threadPool = adapterImpl.getThreadPool();
+                    _threadPool = adapter.getThreadPool();
                 }
                 else
                 {
@@ -2605,7 +2605,7 @@ namespace Ice
                 {
                     if(_compressionSupported)
                     {
-                        info.stream = info.stream.uncompress(IceInternal.Protocol.headerSize);
+                        info.stream = info.stream.uncompress(IceInternal.Protocol.headerSize, _messageSizeMax);
                     }
                     else
                     {
@@ -3170,7 +3170,8 @@ namespace Ice
 
         private LocalException _exception;
 
-        private int _batchAutoFlushSize;
+        private readonly int _messageSizeMax;
+        private readonly int _batchAutoFlushSize;
         private IceInternal.BasicStream _batchStream;
         private bool _batchStreamInUse;
         private int _batchRequestNum;

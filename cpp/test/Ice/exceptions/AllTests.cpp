@@ -932,10 +932,30 @@ allTests(const Ice::CommunicatorPtr& communicator)
         catch(const Ice::ConnectionLostException&)
         {
         }
-        catch(...)
+        catch(const Ice::LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
+        
+        ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(communicator->stringToProxy("thrower:default -p 12011"));
+        try
+        {
+            thrower2->throwMemoryLimitException(Ice::ByteSeq(2 * 1024 * 1024)); // 2MB (no limits)
+        }
+        catch(const Ice::MemoryLimitException&)
+        {
+        }
+        ThrowerPrx thrower3 = ThrowerPrx::uncheckedCast(communicator->stringToProxy("thrower:default -p 12012"));
+        try
+        {
+            thrower3->throwMemoryLimitException(Ice::ByteSeq(1024)); // 1KB limit
+            test(false);
+        }
+        catch(const Ice::ConnectionLostException&)
+        {
+        }
+
         cout << "ok" << endl;
     }
 

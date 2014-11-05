@@ -920,7 +920,9 @@ local exception UnexpectedObjectException extends MarshalException
 
 /**
  *
- * This exception is raised if a request size exceeds the limit specified by the <tt>Ice.MessageSizeMax</tt> property.
+ * This exception is raised when Ice receives a request or reply
+ * message whose size exceeds the limit specified by the
+ * <tt>Ice.MessageSizeMax</tt> property.
  *
  **/
 ["cpp:ice_print"]
@@ -930,9 +932,8 @@ local exception MemoryLimitException extends MarshalException
 
 /**
  *
- * This exception is
- * raised when a string conversion to or from UTF-8 fails during 
- * marshaling or unmarshaling.
+ * This exception is raised when a string conversion to or from UTF-8
+ * fails during marshaling or unmarshaling.
  *
  **/
 ["cpp:ice_print"]

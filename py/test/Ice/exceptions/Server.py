@@ -21,9 +21,15 @@ import Test, TestI
 
 def run(args, communicator):
     adapter = communicator.createObjectAdapter("TestAdapter")
+    adapter2 = communicator.createObjectAdapter("TestAdapter2")
+    adapter3 = communicator.createObjectAdapter("TestAdapter3")
     object = TestI.ThrowerI()
     adapter.add(object, communicator.stringToIdentity("thrower"))
+    adapter2.add(object, communicator.stringToIdentity("thrower"))
+    adapter3.add(object, communicator.stringToIdentity("thrower"))
     adapter.activate()
+    adapter2.activate()
+    adapter3.activate()
     communicator.waitForShutdown()
     return True
 
@@ -31,8 +37,13 @@ try:
     initData = Ice.InitializationData()
     initData.properties = Ice.createProperties(sys.argv)
     initData.properties.setProperty("Ice.Warn.Dispatch", "0")
+    initData.properties.setProperty("Ice.Warn.Connections", "0");
     initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010:udp")
     initData.properties.setProperty("Ice.MessageSizeMax", "10")
+    initData.properties.setProperty("TestAdapter2.Endpoints", "default -p 12011")
+    initData.properties.setProperty("TestAdapter2.MessageSizeMax", "0")
+    initData.properties.setProperty("TestAdapter3.Endpoints", "default -p 12012")
+    initData.properties.setProperty("TestAdapter3.MessageSizeMax", "1")
     communicator = Ice.initialize(sys.argv, initData)
     status = run(sys.argv, communicator)
 except:

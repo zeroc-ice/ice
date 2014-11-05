@@ -1103,9 +1103,9 @@ public final class ConnectionI extends IceInternal.EventHandler
                         {
                             throw new Ice.IllegalMessageSizeException();
                         }
-                        if(size > _instance.messageSizeMax())
+                        if(size > _messageSizeMax)
                         {
-                            IceInternal.Ex.throwMemoryLimitException(size, _instance.messageSizeMax());
+                            IceInternal.Ex.throwMemoryLimitException(size, _messageSizeMax);
                         }
                         if(size > _readStream.size())
                         {
@@ -1625,8 +1625,8 @@ public final class ConnectionI extends IceInternal.EventHandler
     }
 
     public ConnectionI(Communicator communicator, IceInternal.Instance instance, IceInternal.ACMMonitor monitor,
-            IceInternal.Transceiver transceiver, IceInternal.Connector connector, IceInternal.EndpointI endpoint,
-            ObjectAdapter adapter)
+                       IceInternal.Transceiver transceiver, IceInternal.Connector connector, 
+                       IceInternal.EndpointI endpoint, ObjectAdapterI adapter)
     {
         _communicator = communicator;
         _instance = instance;
@@ -1659,6 +1659,7 @@ public final class ConnectionI extends IceInternal.EventHandler
             _acmLastActivity = -1;
         }
         _nextRequestId = 1;
+        _messageSizeMax = adapter != null ? adapter.messageSizeMax() : instance.messageSizeMax();
         _batchAutoFlushSize = _instance.batchAutoFlushSize();
         _batchStream = new IceInternal.BasicStream(instance, IceInternal.Protocol.currentProtocolEncoding);
         _batchStreamInUse = false;
@@ -1684,9 +1685,9 @@ public final class ConnectionI extends IceInternal.EventHandler
         }
         _compressionLevel = compressionLevel;
 
-        if(_adapter != null)
+        if(adapter != null)
         {
-            _servantManager = ((ObjectAdapterI) _adapter).getServantManager();
+            _servantManager = adapter.getServantManager();
         }
         else
         {
@@ -1695,9 +1696,9 @@ public final class ConnectionI extends IceInternal.EventHandler
 
         try
         {
-            if(_adapter != null)
+            if(adapter != null)
             {
-                _threadPool = ((ObjectAdapterI) _adapter).getThreadPool();
+                _threadPool = adapter.getThreadPool();
             }
             else
             {
@@ -2518,7 +2519,7 @@ public final class ConnectionI extends IceInternal.EventHandler
             {
                 if(IceInternal.BasicStream.compressible())
                 {
-                    info.stream = info.stream.uncompress(IceInternal.Protocol.headerSize);
+                    info.stream = info.stream.uncompress(IceInternal.Protocol.headerSize, _messageSizeMax);
                 }
                 else
                 {
@@ -3120,7 +3121,8 @@ public final class ConnectionI extends IceInternal.EventHandler
 
     private LocalException _exception;
 
-    private int _batchAutoFlushSize;
+    private final int _messageSizeMax;
+    private final int _batchAutoFlushSize;
     private IceInternal.BasicStream _batchStream;
     private boolean _batchStreamInUse;
     private int _batchRequestNum;

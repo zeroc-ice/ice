@@ -44,6 +44,7 @@ var _suffixes =
     "Locator.PreferSecure",
     "Locator.CollocationOptimized",
     "Locator.Router",
+    "MessageSizeMax",
     "PublishedEndpoints",
     "RegisterProcess",
     "ReplicaGroupId",
@@ -97,6 +98,7 @@ var ObjectAdapterI = Ice.Class({
         if(this._noConfig)
         {
             this._reference = this._instance.referenceFactory().createFromString("dummy -t", "");
+            this._messageSizeMax = this._instance.messageSizeMax();
             promise.succeed(this, promise);
             return;
         }
@@ -148,6 +150,19 @@ var ObjectAdapterI = Ice.Class({
             else
             {
                 throw e;
+            }
+        }
+
+        {
+            var defaultMessageSizeMax = this._instance.messageSizeMax() / 1024;
+            var num = properties.getPropertyAsIntWithDefault(this._name + ".MessageSizeMax", defaultMessageSizeMax);
+            if(num < 1 || num > 0x7fffffff / 1024)
+            {
+                this._messageSizeMax = 0x7fffffff;
+            }
+            else
+            {
+                this._messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
             }
         }
 
@@ -460,6 +475,10 @@ var ObjectAdapterI = Ice.Class({
         // _servantManager is immutable.
         //
         return this._servantManager;
+    },
+    messageSizeMax: function()
+    {
+        return this._messageSizeMax;
     },
     newProxy: function(ident, facet)
     {

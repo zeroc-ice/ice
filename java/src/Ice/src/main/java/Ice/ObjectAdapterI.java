@@ -857,6 +857,13 @@ public final class ObjectAdapterI implements ObjectAdapter
         return _acm;
     }
 
+    public int
+    messageSizeMax()
+    {
+        // No mutex lock, immutable.
+        return _messageSizeMax;
+    }
+
     //
     // Only for use by IceInternal.ObjectAdapterFactory
     //
@@ -879,6 +886,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             _replicaGroupId = "";
             _reference = _instance.referenceFactory().create("dummy -t", "");
             _acm = _instance.serverACM();
+            _messageSizeMax = _instance.messageSizeMax();
             return;
         }
 
@@ -939,6 +947,19 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
 
         _acm = new IceInternal.ACMConfig(properties, communicator.getLogger(), _name + ".ACM", instance.serverACM());
+
+        {
+            final int defaultMessageSizeMax = instance.messageSizeMax() / 1024;
+            int num = properties.getPropertyAsIntWithDefault(_name + ".MessageSizeMax", defaultMessageSizeMax);
+            if(num < 1 || num > 0x7fffffff / 1024)
+            {
+                _messageSizeMax = 0x7fffffff;
+            }
+            else
+            {
+                _messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
+            }
+        }
 
         try
         {
@@ -1519,6 +1540,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         "Locator.PreferSecure",
         "Locator.CollocationOptimized",
         "Locator.Router",
+        "MessageSizeMax",
         "PublishedEndpoints",
         "RegisterProcess",
         "ReplicaGroupId",
@@ -1614,4 +1636,5 @@ public final class ObjectAdapterI implements ObjectAdapter
     private int _directCount; // The number of direct proxies dispatching on this object adapter.
     private boolean _noConfig;
     private Identity _processId = null;
+    private final int _messageSizeMax;
 }
