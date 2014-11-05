@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
+import android.os.Build;
 import com.zeroc.chat.R;
 
 import android.content.res.Resources;
@@ -55,6 +56,12 @@ public class AppSession
         initData.properties.setProperty("Ice.InitPlugins", "0");
         initData.properties.setProperty("IceSSL.TruststoreType", "BKS");
         initData.properties.setProperty("IceSSL.Password", "password");
+
+        // SDK versions < 21 only support TLSv1 with SSLEngine.
+        if(Build.VERSION.SDK_INT < 21)
+        {
+            initData.properties.setProperty("IceSSL.Protocols", "tls1_0");
+        }
 
         _communicator = Ice.Util.initialize(initData);
         _hostname = hostname;

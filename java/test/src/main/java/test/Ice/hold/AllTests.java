@@ -84,8 +84,9 @@ public class AllTests
     };
 
     public static void
-    allTests(Ice.Communicator communicator, PrintWriter out)
+    allTests(test.Util.Application app, PrintWriter out)
     {
+        Ice.Communicator communicator = app.communicator();
         out.print("testing stringToProxy... ");
         out.flush();
         String ref = "hold:default -p 12010";
@@ -193,7 +194,8 @@ public class AllTests
             int value = 0;
             holdSerialized.set(value, 0);
             Ice.AsyncResult result = null;
-            for(int i = 0; i < 10000; ++i)
+            int max = app.isAndroid() ? 5000 : 10000;
+            for(int i = 0; i < max; ++i)
             {
                 // Create a new proxy for each request
                 result = ((HoldPrx)holdSerialized.ice_oneway()).begin_setOneway(value + 1, value);

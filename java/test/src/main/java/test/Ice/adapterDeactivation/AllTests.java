@@ -24,8 +24,9 @@ public class AllTests
     }
 
     public static TestIntfPrx
-    allTests(Ice.Communicator communicator, java.io.PrintWriter out)
+    allTests(test.Util.Application app, java.io.PrintWriter out)
     {
+        Ice.Communicator communicator = app.communicator();
         out.print("testing stringToProxy... ");
         out.flush();
         String ref = "test:default -p 12010";
@@ -73,8 +74,9 @@ public class AllTests
             for(int i = 0; i < 10; ++i)
             {
                 Ice.InitializationData initData = new Ice.InitializationData();
+                initData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
                 initData.properties = communicator.getProperties()._clone();
-                Ice.Communicator comm = Ice.Util.initialize(initData);
+                Ice.Communicator comm = app.initialize(initData);
                 comm.stringToProxy("test:default -p 12010").begin_ice_ping();
                 comm.destroy();
             }

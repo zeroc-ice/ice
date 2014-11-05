@@ -34,7 +34,7 @@ public class Client extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        _initData = new Ice.InitializationData();
+        _initData = createInitializationData();
         _initData.properties = Ice.Util.createProperties(argsH);
         _initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:default -p 12347");
         _initData.dispatcher = new Ice.Dispatcher()

@@ -13,11 +13,13 @@ import test.Ice.retry.Test.RetryPrx;
 
 public class Client extends test.Util.Application
 {
+    private Instrumentation instrumentation = new Instrumentation();
+
     @Override
     public int run(String[] args)
     {
         Ice.Communicator communicator = communicator();
-        RetryPrx retry = AllTests.allTests(communicator, getWriter());
+        RetryPrx retry = AllTests.allTests(communicator, getWriter(), instrumentation);
         retry.shutdown();
         return 0;
     }
@@ -25,9 +27,9 @@ public class Client extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = new Ice.InitializationData();
+        Ice.InitializationData initData = createInitializationData() ;
         initData.properties = Ice.Util.createProperties(argsH);
-        initData.observer = Instrumentation.getObserver();
+        initData.observer = instrumentation.getObserver();
 
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.retry");
 

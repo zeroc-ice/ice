@@ -37,9 +37,12 @@ public class Server extends test.Util.Application
             adapter2.activate();
         }
 
-        Ice.ObjectAdapter mcastAdapter = communicator().createObjectAdapter("McastTestAdapter");
-        mcastAdapter.add(new TestIntfI(), communicator().stringToIdentity("test"));
-        mcastAdapter.activate();
+        if(!isAndroid())
+        {
+            Ice.ObjectAdapter mcastAdapter = communicator().createObjectAdapter("McastTestAdapter");
+            mcastAdapter.add(new TestIntfI(), communicator().stringToIdentity("test"));
+            mcastAdapter.activate();
+        }
 
         return WAIT;
     }
@@ -47,30 +50,33 @@ public class Server extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = new Ice.InitializationData();
+        Ice.InitializationData initData = createInitializationData() ;
         initData.properties = Ice.Util.createProperties(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.udp");
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.UDP.RcvSize", "16384");
         initData.properties.setProperty("Ice.UDP.SndSize", "16384");
 
-        String endpoint;
-        if(initData.properties.getProperty("Ice.IPv6").equals("1"))
+        if(!isAndroid())
         {
-            if(System.getProperty("os.name").contains("OS X"))
+            String endpoint;
+            if(initData.properties.getProperty("Ice.IPv6").equals("1"))
             {
-                endpoint = "udp -h \"ff15::1:1\" -p 12020 --interface \"::1\"";
+                if(System.getProperty("os.name").contains("OS X"))
+                {
+                    endpoint = "udp -h \"ff15::1:1\" -p 12020 --interface \"::1\"";
+                }
+                else
+                {
+                    endpoint = "udp -h \"ff15::1:1\" -p 12020";
+                }
             }
             else
             {
-                endpoint = "udp -h \"ff15::1:1\" -p 12020";
+                endpoint = "udp -h 239.255.1.1 -p 12020";
             }
+            initData.properties.setProperty("McastTestAdapter.Endpoints", endpoint);
         }
-        else
-        {
-            endpoint = "udp -h 239.255.1.1 -p 12020";
-        }
-        initData.properties.setProperty("McastTestAdapter.Endpoints", endpoint);
         return initData;
     }
 

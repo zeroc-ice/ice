@@ -44,7 +44,7 @@ public class Collocated extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = new Ice.InitializationData();
+        Ice.InitializationData initData = createInitializationData();
         initData.properties = Ice.Util.createProperties(argsH);
         if(initData.properties.getPropertyAsInt("Ice.ThreadInterruptSafe") > 0)
         {

@@ -3,172 +3,32 @@
   <component name="ProjectCodeStyleSettingsManager">
     <option name="PER_PROJECT_SETTINGS">
       <value>
-        <option name="CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND" value="99" />
-        <option name="NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND" value="99" />
-        <option name="PACKAGES_TO_USE_IMPORT_ON_DEMAND">
-          <value />
-        </option>
-        <option name="IMPORT_LAYOUT_TABLE">
-          <value>
-            <package name="android" withSubpackages="true" static="false" />
-            <emptyLine />
-            <package name="com" withSubpackages="true" static="false" />
-            <emptyLine />
-            <package name="junit" withSubpackages="true" static="false" />
-            <emptyLine />
-            <package name="net" withSubpackages="true" static="false" />
-            <emptyLine />
-            <package name="org" withSubpackages="true" static="false" />
-            <emptyLine />
-            <package name="java" withSubpackages="true" static="false" />
-            <emptyLine />
-            <package name="javax" withSubpackages="true" static="false" />
-            <emptyLine />
-            <package name="" withSubpackages="true" static="false" />
-            <emptyLine />
-            <package name="" withSubpackages="true" static="true" />
-            <emptyLine />
-          </value>
-        </option>
-        <option name="RIGHT_MARGIN" value="100" />
-        <AndroidXmlCodeStyleSettings>
-          <option name="USE_CUSTOM_SETTINGS" value="true" />
-        </AndroidXmlCodeStyleSettings>
         <XML>
           <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />
         </XML>
-        <codeStyleSettings language="XML">
-          <option name="FORCE_REARRANGE_MODE" value="1" />
-          <indentOptions>
-            <option name="CONTINUATION_INDENT_SIZE" value="4" />
-          </indentOptions>
-          <arrangement>
-            <rules>
-              <rule>
-                <match>
-                  <AND>
-                    <NAME>xmlns:android</NAME>
-                    <XML_NAMESPACE>Namespace:</XML_NAMESPACE>
-                  </AND>
-                </match>
-              </rule>
-              <rule>
-                <match>
-                  <AND>
-                    <NAME>xmlns:.*</NAME>
-                    <XML_NAMESPACE>Namespace:</XML_NAMESPACE>
-                  </AND>
-                </match>
-                <order>BY_NAME</order>
-              </rule>
-              <rule>
-                <match>
-                  <AND>
-                    <NAME>.*:id</NAME>
-                    <XML_NAMESPACE>http://schemas.android.com/apk/res/android</XML_NAMESPACE>
-                  </AND>
-                </match>
-              </rule>
-              <rule>
-                <match>
-                  <AND>
-                    <NAME>.*:name</NAME>
-                    <XML_NAMESPACE>http://schemas.android.com/apk/res/android</XML_NAMESPACE>
-                  </AND>
-                </match>
-              </rule>
-              <rule>
-                <match>
-                  <AND>
-                    <NAME>name</NAME>
-                    <XML_NAMESPACE>^$</XML_NAMESPACE>
-                  </AND>
-                </match>
-              </rule>
-              <rule>
-                <match>
-                  <AND>
-                    <NAME>style</NAME>
-                    <XML_NAMESPACE>^$</XML_NAMESPACE>
-                  </AND>
-                </match>
-              </rule>
-              <rule>
-                <match>
-                  <AND>
-                    <NAME>.*</NAME>
-                    <XML_NAMESPACE>^$</XML_NAMESPACE>
-                  </AND>
-                </match>
-                <order>BY_NAME</order>
-              </rule>
-              <rule>
-                <match>
-                  <AND>
-                    <NAME>.*:layout_width</NAME>
-                    <XML_NAMESPACE>http://schemas.android.com/apk/res/android</XML_NAMESPACE>
-                  </AND>
-                </match>
-              </rule>
-              <rule>
-                <match>
-                  <AND>
-                    <NAME>.*:layout_height</NAME>
-                    <XML_NAMESPACE>http://schemas.android.com/apk/res/android</XML_NAMESPACE>
-                  </AND>
-                </match>
-              </rule>
-              <rule>
-                <match>
-                  <AND>
-                    <NAME>.*:layout_.*</NAME>
-                    <XML_NAMESPACE>http://schemas.android.com/apk/res/android</XML_NAMESPACE>
-                  </AND>
-                </match>
-                <order>BY_NAME</order>
-              </rule>
-              <rule>
-                <match>
-                  <AND>
-                    <NAME>.*:width</NAME>
-                    <XML_NAMESPACE>http://schemas.android.com/apk/res/android</XML_NAMESPACE>
-                  </AND>
-                </match>
-                <order>BY_NAME</order>
-              </rule>
-              <rule>
-                <match>
-                  <AND>
-                    <NAME>.*:height</NAME>
-                    <XML_NAMESPACE>http://schemas.android.com/apk/res/android</XML_NAMESPACE>
-                  </AND>
-                </match>
-                <order>BY_NAME</order>
-              </rule>
-              <rule>
-                <match>
-                  <AND>
-                    <NAME>.*</NAME>
-                    <XML_NAMESPACE>http://schemas.android.com/apk/res/android</XML_NAMESPACE>
-                  </AND>
-                </match>
-                <order>BY_NAME</order>
-              </rule>
-              <rule>
-                <match>
-                  <AND>
-                    <NAME>.*</NAME>
-                    <XML_NAMESPACE>.*</XML_NAMESPACE>
-                  </AND>
-                </match>
-                <order>BY_NAME</order>
-              </rule>
-            </rules>
-          </arrangement>
+        <codeStyleSettings language="JAVA">
+          <option name="BRACE_STYLE" value="2" />
+          <option name="CLASS_BRACE_STYLE" value="2" />
+          <option name="METHOD_BRACE_STYLE" value="2" />
+          <option name="ELSE_ON_NEW_LINE" value="true" />
+          <option name="WHILE_ON_NEW_LINE" value="true" />
+          <option name="CATCH_ON_NEW_LINE" value="true" />
+          <option name="FINALLY_ON_NEW_LINE" value="true" />
+          <option name="SPACE_BEFORE_IF_PARENTHESES" value="false" />
+          <option name="SPACE_BEFORE_WHILE_PARENTHESES" value="false" />
+          <option name="SPACE_BEFORE_FOR_PARENTHESES" value="false" />
+          <option name="SPACE_BEFORE_TRY_PARENTHESES" value="false" />
+          <option name="SPACE_BEFORE_CATCH_PARENTHESES" value="false" />
+          <option name="SPACE_BEFORE_SWITCH_PARENTHESES" value="false" />
+          <option name="SPACE_BEFORE_SYNCHRONIZED_PARENTHESES" value="false" />
+          <option name="IF_BRACE_FORCE" value="3" />
+          <option name="DOWHILE_BRACE_FORCE" value="3" />
+          <option name="WHILE_BRACE_FORCE" value="3" />
+          <option name="FOR_BRACE_FORCE" value="3" />
         </codeStyleSettings>
       </value>
     </option>
-    <option name="PREFERRED_PROJECT_CODE_STYLE" value="Default (1)" />
+    <option name="USE_PER_PROJECT_SETTINGS" value="true" />
   </component>
 </project>
 

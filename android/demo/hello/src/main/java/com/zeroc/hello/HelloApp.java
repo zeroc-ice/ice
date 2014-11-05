@@ -27,17 +27,6 @@ public class HelloApp extends Application
     {
         super.onCreate();
 
-        if(VERSION.SDK_INT == 8) // android.os.Build.VERSION_CODES.FROYO (8)
-        {
-            //
-            // Workaround for a bug in Android 2.2 (Froyo).
-            //
-            // See http://code.google.com/p/android/issues/detail?id=9431
-            //
-            java.lang.System.setProperty("java.net.preferIPv4Stack", "true");
-            java.lang.System.setProperty("java.net.preferIPv6Addresses", "false");
-        }
-
         // SSL initialization can take some time. To avoid blocking the
         // calling thread, we perform the initialization in a separate thread.
         new Thread(new Runnable()
@@ -96,35 +85,32 @@ public class HelloApp extends Application
             initData.properties = Ice.Util.createProperties();
             initData.properties.setProperty("Ice.Trace.Network", "3");
 
-            //
-            // Only configure IceSSL if we are using Froyo or later.
-            //
-            if(VERSION.SDK_INT >= 8) // android.os.Build.VERSION_CODES.FROYO (8)
+            initData.properties.setProperty("IceSSL.Trace.Security", "3");
+            initData.properties.setProperty("IceSSL.KeystoreType", "BKS");
+            initData.properties.setProperty("IceSSL.TruststoreType", "BKS");
+            initData.properties.setProperty("IceSSL.Password", "password");
+            initData.properties.setProperty("Ice.InitPlugins", "0");
+            initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
+
+            // SDK versions < 21 only support TLSv1 with SSLEngine.
+            if(VERSION.SDK_INT < 21)
             {
-                initData.properties.setProperty("IceSSL.Trace.Security", "3");
-                initData.properties.setProperty("IceSSL.KeystoreType", "BKS");
-                initData.properties.setProperty("IceSSL.TruststoreType", "BKS");
-                initData.properties.setProperty("IceSSL.Password", "password");
-                initData.properties.setProperty("Ice.InitPlugins", "0");
-                initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
+                initData.properties.setProperty("IceSSL.Protocols", "tls1_0");
             }
 
             communicator = Ice.Util.initialize(initData);
 
-            if(VERSION.SDK_INT >= 8) // android.os.Build.VERSION_CODES.FROYO (8)
-            {
-                IceSSL.Plugin plugin = (IceSSL.Plugin)communicator.getPluginManager().getPlugin("IceSSL");
-                //
-                // Be sure to pass the same input stream to the SSL plug-in for
-                // both the keystore and the truststore. This makes startup a
-                // little faster since the plugin will not initialize
-                // two keystores.
-                //
-                java.io.InputStream certs = getResources().openRawResource(R.raw.client);
-                plugin.setKeystoreStream(certs);
-                plugin.setTruststoreStream(certs);
-                communicator.getPluginManager().initializePlugins();
-            }
+            IceSSL.Plugin plugin = (IceSSL.Plugin)communicator.getPluginManager().getPlugin("IceSSL");
+            //
+            // Be sure to pass the same input stream to the SSL plug-in for
+            // both the keystore and the truststore. This makes startup a
+            // little faster since the plugin will not initialize
+            // two keystores.
+            //
+            java.io.InputStream certs = getResources().openRawResource(R.raw.client);
+            plugin.setKeystoreStream(certs);
+            plugin.setTruststoreStream(certs);
+            communicator.getPluginManager().initializePlugins();
 
             synchronized(this)
             {

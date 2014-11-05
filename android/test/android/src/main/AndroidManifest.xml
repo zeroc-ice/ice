@@ -4,6 +4,7 @@
       android:versionCode="1"
       android:versionName="1.0.0">
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+
     <!--
       http://developer.android.com/guide/topics/manifest/uses-sdk-element.html
     -->

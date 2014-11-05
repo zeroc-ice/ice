@@ -303,7 +303,7 @@ public final class TraceUtil
         try
         {
             byte mode = stream.readByte();
-            out.write("\nmode = " + (int)mode + ' ');
+            out.write("\nmode = " + (int) mode + ' ');
             switch(Ice.OperationMode.values()[mode])
             {
                 case Normal:
@@ -337,7 +337,7 @@ public final class TraceUtil
             {
                 String key = stream.readString();
                 String value = stream.readString();
-                out.write(key + '/'+ value);
+                out.write(key + '/' + value);
                 if(sz > 0)
                 {
                     out.write(", ");

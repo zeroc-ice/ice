@@ -11,6 +11,8 @@ package test.Ice.udp;
 
 import test.Ice.udp.Test.*;
 
+import java.io.PrintWriter;
+
 public class AllTests
 {
     private static void
@@ -67,8 +69,11 @@ public class AllTests
     }
 
     public static void
-    allTests(Ice.Communicator communicator)
+    allTests(test.Util.Application app)
     {
+        Ice.Communicator communicator = app.communicator();
+        PrintWriter out = app.getWriter();
+
         communicator.getProperties().setProperty("ReplyAdapter.Endpoints", "udp -p 12030");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ReplyAdapter");
         PingReplyI replyI = new PingReplyI();
@@ -77,8 +82,8 @@ public class AllTests
             (PingReplyPrx)PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
         adapter.activate();
 
-        System.out.print("testing udp... ");
-        System.out.flush();
+        out.print("testing udp... ");
+        out.flush();
         Ice.ObjectPrx base = communicator.stringToProxy("test -d:udp -p 12010");
         TestIntfPrx obj = TestIntfPrxHelper.uncheckedCast(base);
 
@@ -141,72 +146,75 @@ public class AllTests
             }
         }
 
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing udp multicast... ");
-        System.out.flush();
-        String endpoint;
-        if(communicator.getProperties().getProperty("Ice.IPv6").equals("1"))
+        if(!app.isAndroid())
         {
-            if(System.getProperty("os.name").contains("OS X"))
+            out.print("testing udp multicast... ");
+            out.flush();
+            String endpoint;
+            if(communicator.getProperties().getProperty("Ice.IPv6").equals("1"))
             {
-                endpoint = "udp -h \"ff15::1:1\" -p 12020 --interface \"::1\"";
+                if(System.getProperty("os.name").contains("OS X"))
+                {
+                    endpoint = "udp -h \"ff02::1:1\" -p 12020 --interface \"lo0\"";
+                }
+                else
+                {
+                    endpoint = "udp -h \"ff01::1:1\" -p 12020";
+                }
             }
             else
             {
-                endpoint = "udp -h \"ff15::1:1\" -p 12020";
+                endpoint = "udp -h 239.255.1.1 -p 12020";
             }
-        }
-        else
-        {
-            endpoint = "udp -h 239.255.1.1 -p 12020";
-        }
-        base = communicator.stringToProxy("test -d:" + endpoint);
-        TestIntfPrx objMcast = TestIntfPrxHelper.uncheckedCast(base);
+            base = communicator.stringToProxy("test -d:" + endpoint);
+            TestIntfPrx objMcast = TestIntfPrxHelper.uncheckedCast(base);
 
-        nRetry = 5;
-        while(nRetry-- > 0)
-        {
-            replyI.reset();
-            objMcast.ping(reply);
-            ret = replyI.waitReply(5, 2000);
-            if(ret)
+            nRetry = 5;
+            while(nRetry-- > 0)
             {
-                break; // Success
+                replyI.reset();
+                objMcast.ping(reply);
+                ret = replyI.waitReply(5, 2000);
+                if(ret)
+                {
+                    break; // Success
+                }
+                replyI = new PingReplyI();
+                reply = (PingReplyPrx) PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
             }
-            replyI = new PingReplyI();
-            reply = (PingReplyPrx)PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
-        }
-        if(!ret)
-        {
-            System.out.println("failed (is a firewall enabled?)");
-        }
-        else
-        {
-            System.out.println("ok");
-        }
+            if(!ret)
+            {
+                out.println("failed (is a firewall enabled?)");
+            }
+            else
+            {
+                out.println("ok");
+            }
 
-        System.out.print("testing udp bi-dir connection... ");
-        System.out.flush();
-        obj.ice_getConnection().setAdapter(adapter);
-        objMcast.ice_getConnection().setAdapter(adapter);
-        nRetry = 5;
-        while(nRetry-- > 0)
-        {
-            replyI.reset();
-            obj.pingBiDir(reply.ice_getIdentity());
-            obj.pingBiDir(reply.ice_getIdentity());
-            obj.pingBiDir(reply.ice_getIdentity());
-            ret = replyI.waitReply(3, 2000);
-            if(ret)
+            out.print("testing udp bi-dir connection... ");
+            out.flush();
+            obj.ice_getConnection().setAdapter(adapter);
+            objMcast.ice_getConnection().setAdapter(adapter);
+            nRetry = 5;
+            while(nRetry-- > 0)
             {
-                break; // Success
+                replyI.reset();
+                obj.pingBiDir(reply.ice_getIdentity());
+                obj.pingBiDir(reply.ice_getIdentity());
+                obj.pingBiDir(reply.ice_getIdentity());
+                ret = replyI.waitReply(3, 2000);
+                if(ret)
+                {
+                    break; // Success
+                }
+                replyI = new PingReplyI();
+                reply = (PingReplyPrx) PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
             }
-            replyI = new PingReplyI();
-            reply = (PingReplyPrx)PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+            test(ret);
+            out.println("ok");
         }
-        test(ret);
-        System.out.println("ok");
 
         //
         // Sending the replies back on the multicast UDP connection doesn't work for most
@@ -214,7 +222,7 @@ public class AllTests
         // Windows...). For Windows, see UdpTransceiver constructor for the details. So
         // we don't run this test.
         // 
-//         System.out.print("testing udp bi-dir connection... ");
+//         out.print("testing udp bi-dir connection... ");
 //         nRetry = 5;
 //         while(nRetry-- > 0)
 //         {
@@ -231,11 +239,11 @@ public class AllTests
 
 //         if(!ret)
 //         {
-//             System.out.println("failed (is a firewall enabled?)");
+//             out.println("failed (is a firewall enabled?)");
 //         }
 //         else
 //         {
-//             System.out.println("ok");
+//             out.println("ok");
 //         }
     }
 }

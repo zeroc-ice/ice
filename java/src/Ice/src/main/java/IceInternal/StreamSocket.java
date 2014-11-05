@@ -11,11 +11,12 @@ package IceInternal;
 
 public class StreamSocket
 {
-    public StreamSocket(ProtocolInstance instance, 
+    public StreamSocket(ProtocolInstance instance,
                         NetworkProxy proxy, 
                         java.net.InetSocketAddress addr, 
                         java.net.InetSocketAddress sourceAddr)
     {
+        _instance = instance;
         _proxy = proxy;
         _addr = addr;
         _fd = Network.createTcpSocket();
@@ -23,7 +24,7 @@ public class StreamSocket
 
         try
         {
-            init(instance);
+            init();
             if(Network.doConnect(_fd, _proxy != null ? _proxy.getAddress() : _addr, sourceAddr))
             {
                 _state = StateConnected;
@@ -41,6 +42,7 @@ public class StreamSocket
 
     public StreamSocket(ProtocolInstance instance, java.nio.channels.SocketChannel fd)
     {
+        _instance = instance;
         _proxy = null;
         _addr = null;
         _fd = fd;
@@ -48,7 +50,7 @@ public class StreamSocket
 
         try
         {
-            init(instance);
+            init();
         }
         catch(Exception ex)
         {
@@ -174,11 +176,7 @@ public class StreamSocket
         assert(_fd != null);
 
         int read = 0;
-        if(_buffer != null && _buffer.hasRemaining())
-        {
-            read = readBuffered(buf);
-        }
-        
+
         while(buf.hasRemaining())
         {
             try
@@ -192,7 +190,7 @@ public class StreamSocket
                 {
                     return read;
                 }
-                
+
                 read += ret;
             }
             catch(java.io.InterruptedIOException ex)
@@ -274,10 +272,10 @@ public class StreamSocket
         return _desc;
     }
 
-    private void init(ProtocolInstance instance)
+    private void init()
     {
         Network.setBlock(_fd, false);
-        Network.setTcpBufSize(_fd, instance.properties(), instance.logger());
+        Network.setTcpBufSize(_fd, _instance.properties(), _instance.logger());
 
         if(System.getProperty("os.name").startsWith("Windows"))
         {
@@ -294,28 +292,6 @@ public class StreamSocket
         }
     }
 
-    private int readBuffered(java.nio.ByteBuffer buf)
-    {
-        assert(_buffer != null);
-        int length = buf.remaining();
-        if(length < _buffer.remaining())
-        {
-            int limit = _buffer.limit();
-            _buffer.limit(_buffer.position() + length);
-            buf.put(_buffer);
-            _buffer.position(_buffer.limit());
-            _buffer.limit(limit);
-            return length;
-        }
-        else
-        {
-            int read = _buffer.remaining();
-            buf.put(_buffer);
-            _buffer.clear();
-            return read;
-        }
-    }
-    
     private int toState(int operation)
     {
         switch(operation)
@@ -329,6 +305,8 @@ public class StreamSocket
         }
     }
 
+    private final ProtocolInstance _instance;
+
     final private NetworkProxy _proxy;
     final private java.net.InetSocketAddress _addr;
 
@@ -336,7 +314,6 @@ public class StreamSocket
     private int _maxSendPacketSize;
     private int _state;
     private String _desc;
-    private java.nio.ByteBuffer _buffer;
 
     private static final int StateNeedConnect = 0;
     private static final int StateConnectPending = 1;

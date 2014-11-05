@@ -9,16 +9,13 @@
 
 package test.Util;
 
-import Ice.Communicator;
-import Ice.InitializationData;
-import Ice.LocalException;
-import Ice.LoggerI;
-import Ice.StringSeqHolder;
-import Ice.Util;
+import Ice.*;
 
 public abstract class Application
 {
     public final int WAIT = 2;
+
+    
 
     public interface ServerReadyListener
     {
@@ -48,6 +45,7 @@ public abstract class Application
     {
         Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
         Ice.InitializationData initData = getInitData(argsH);
+        initData.classLoader = _classLoader;
         return main(appName, argsH.value, initData);
     }
 
@@ -181,6 +179,16 @@ public abstract class Application
         return communicator;
     }
 
+    public Ice.Communicator initialize()
+    {
+        Ice.Communicator communicator = Util.initialize();
+        if(_communicatorListener != null)
+        {
+            _communicatorListener.communicatorInitialized(communicator);
+        }
+        return communicator;
+    }
+
     public abstract int run(String[] args);
 
     //
@@ -190,7 +198,7 @@ public abstract class Application
     //
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        return null;
+        return createInitializationData();
     }
 
     public java.io.PrintWriter getWriter()
@@ -201,6 +209,11 @@ public abstract class Application
     public void setWriter(java.io.Writer writer)
     {
         _printWriter = new java.io.PrintWriter(writer);
+    }
+
+    public void setLogger(Ice.Logger logger)
+    {
+        _logger = logger;
     }
 
     public void setServerReadyListener(ServerReadyListener cb)
@@ -221,23 +234,50 @@ public abstract class Application
         }
     }
 
+    static public boolean isAndroid()
+    {
+        return IceInternal.Util.isAndroid();
+    }
     //
     // Return the application name, i.e., argv[0].
     //
-    public String
-    appName()
+    public String appName()
     {
         return _testName;
     }
 
-    public Communicator
-    communicator()
+    public Communicator communicator()
     {
         return _communicator;
     }
 
+    public void setClassLoader(ClassLoader c)
+    {
+        _classLoader = c;
+    }
+
+    public ClassLoader getClassLoader()
+    {
+        return _classLoader;
+    }
+
+    public InitializationData createInitializationData()
+    {
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.classLoader = _classLoader;
+        initData.logger = _logger;
+        return initData;
+    }
+
+    public ClassLoader classLoader()
+    {
+        return _classLoader;
+    }
+
+    private ClassLoader _classLoader;
     private String _testName;
     private Communicator _communicator;
+    private Ice.Logger _logger = null;
     private java.io.PrintWriter _printWriter = new java.io.PrintWriter(new java.io.OutputStreamWriter(System.out));
     private ServerReadyListener _cb = null;
     private CommunicatorListener _communicatorListener = null;

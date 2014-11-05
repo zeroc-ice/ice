@@ -9,6 +9,7 @@
 
 apply plugin: 'com.android.application'
 apply from: "$rootProject.projectDir/../java/gradle/ice.gradle"
+apply from: "$rootProject.projectDir/gradle/tests.gradle"
 
 android {
     compileSdkVersion ice_compileSdkVersion
@@ -26,7 +27,7 @@ android {
 
     buildTypes {
         debug {
-            runProguard true
+            runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
         }
  
@@ -37,11 +38,46 @@ android {
     }
 }
 
+// Copy the IceTestPlugins.dex file into the android test assets
+// directory.
+//
+// I don't like this approach very much. It would be preferable for
+// the test app to extract the dex file from the jar file but I can't
+// figure out how to do that.
+task copyTask(type: Copy) {
+    from "${rootProject.projectDir}/test/plugins/build/classes/main/IceTestPlugins.dex"
+    into "src/main/assets"
+}
+preBuild.dependsOn(copyTask)
+copyTask.dependsOn(':testPlugins:dexClasses')
+
+clean {
+    delete("src/main/assets/IceTestPlugins.dex")
+}
+
 idea.module {
     excludeDirs -= file(buildDir)
     buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
 }
 
+tests.each {
+    def name = it
+    def taskName = "copyTask-${name}"
+    def testName = ":test_Ice_${name}"
+    def dexName = "IceTest_${name}.dex"
+    task "${taskName}"(type: Copy, dependsOn: "${testName}:dexClasses") {
+        from "${rootProject.projectDir}/test/src/test_Ice_${name}/build/classes/main/${dexName}"
+        into "src/main/assets"
+    }
+    preBuild.dependsOn(tasks[taskName])
+
+    clean {
+        delete("src/main/assets/${dexName}")
+    }
+}
+
 dependencies {
+    compile project(':Ice')
     compile project(':test')
+    compile project(':testPlugins')
 }

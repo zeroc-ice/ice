@@ -7,8 +7,15 @@
 //
 // **********************************************************************
 
+apply from: "$rootProject.projectDir/gradle/tests.gradle"
+
+tests.each {
+	include ":test_Ice_${it}"
+	project(":test_Ice_${it}").projectDir = new File("test/src/test_Ice_${it}")
+}
+
 // Main source
-include ':hello', ':Ice', ':Glacier2', ':IceBox', ':IceDiscovery', ':IceGrid', ':IcePatch2', ':IceStorm', ':chat', ':library', ":test", ':testApp'
+include ':hello', ':Ice', ':Glacier2', ':IceBox', ':IceDiscovery', ':IceGrid', ':IcePatch2', ':IceStorm', ':chat', ':library', ':test', ':testPlugins', ':testApp', ':test_Ice_acm'
 project(':Ice').projectDir = new File('src/Ice')
 project(':Glacier2').projectDir = new File('src/Glacier2')
 project(':IceBox').projectDir = new File('src/IceBox')
@@ -20,4 +27,5 @@ project(':hello').projectDir = new File('demo/hello')
 project(':chat').projectDir = new File('demo/chat')
 project(':library').projectDir = new File('demo/library')
 project(':test').projectDir = new File('test')
+project(':testPlugins').projectDir = new File('test/plugins')
 project(':testApp').projectDir = new File('test/android')

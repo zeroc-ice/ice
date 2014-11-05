@@ -30,7 +30,7 @@ public class Client extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = new Ice.InitializationData();
+        Ice.InitializationData initData = createInitializationData() ;
         initData.properties = Ice.Util.createProperties(argsH);
 
         // For this test, we want to disable retries.
@@ -41,7 +41,6 @@ public class Client extends test.Util.Application
         // This test kills connections, so we don't want warnings.
         //
         initData.properties.setProperty("Ice.Warn.Connections", "0");
-
         initData.properties.setProperty("Ice.MessageSizeMax", "50000");
 
         //

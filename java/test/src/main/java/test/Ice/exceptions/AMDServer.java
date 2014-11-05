@@ -31,7 +31,7 @@ public class AMDServer extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = new Ice.InitializationData();
+        Ice.InitializationData initData = createInitializationData();
         //
         // For this test, we need a dummy logger, otherwise the
         // assertion test will print an error message.

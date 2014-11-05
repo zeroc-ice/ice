@@ -72,24 +72,17 @@ public class TestSuite extends ListActivity
             }
         });
         CheckBox secure = (CheckBox)findViewById(R.id.secure);
-        if(app.isSSLSupported())
+        secure.setOnCheckedChangeListener(new OnCheckedChangeListener()
         {
-            secure.setOnCheckedChangeListener(new OnCheckedChangeListener()
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
             {
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-                {
-                    app.setSSL(isChecked);
-                    _tests.clear();
-                    _tests.addAll(app.getTestNames());
-                    adapter.notifyDataSetChanged();
-                }
-            });
-        }
-        else
-        {
-            secure.setEnabled(false);
-        }
-        
+                app.setSSL(isChecked);
+                _tests.clear();
+                _tests.addAll(app.getTestNames());
+                adapter.notifyDataSetChanged();
+            }
+        });
+
         CheckBox ipv6 = (CheckBox)findViewById(R.id.ipv6);
         ipv6.setOnCheckedChangeListener(new OnCheckedChangeListener()
         {

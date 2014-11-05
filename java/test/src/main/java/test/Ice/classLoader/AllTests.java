@@ -43,6 +43,10 @@ public class AllTests
 
     private static class MyClassLoader extends ClassLoader
     {
+        MyClassLoader(ClassLoader parent) {
+            super(parent);
+        }
+
         @Override
         protected Class<?> loadClass(String name, boolean resolve)
             throws ClassNotFoundException
@@ -86,8 +90,9 @@ public class AllTests
             out.print("testing package... ");
             out.flush();
             Ice.InitializationData initData = new Ice.InitializationData();
+            initData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
             initData.properties = communicator.getProperties()._clone();
-            MyClassLoader classLoader = new MyClassLoader();
+            MyClassLoader classLoader = new MyClassLoader(initData.classLoader);
             initData.classLoader = classLoader;
             Ice.Communicator ic = app.initialize(initData);
             test(classLoader.check("test.Ice.classLoader.Test._Marker"));
@@ -102,9 +107,10 @@ public class AllTests
             out.print("testing plug-in... ");
             out.flush();
             Ice.InitializationData initData = new Ice.InitializationData();
+            initData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Plugin.Test", "test.Ice.classLoader.PluginFactoryI");
-            MyClassLoader classLoader = new MyClassLoader();
+            MyClassLoader classLoader = new MyClassLoader(initData.classLoader);
             initData.classLoader = classLoader;
             Ice.Communicator ic = app.initialize(initData);
             test(classLoader.check("test.Ice.classLoader.PluginFactoryI"));
@@ -120,10 +126,11 @@ public class AllTests
             out.print("testing IceSSL certificate verifier and password callback... ");
             out.flush();
             Ice.InitializationData initData = new Ice.InitializationData();
+            initData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("IceSSL.CertVerifier", "test.Ice.classLoader.CertificateVerifierI");
             initData.properties.setProperty("IceSSL.PasswordCallback", "test.Ice.classLoader.PasswordCallbackI");
-            MyClassLoader classLoader = new MyClassLoader();
+            MyClassLoader classLoader = new MyClassLoader(initData.classLoader);
             initData.classLoader = classLoader;
             Ice.Communicator ic = app.initialize(initData);
             test(classLoader.check("test.Ice.classLoader.CertificateVerifierI"));
@@ -137,8 +144,9 @@ public class AllTests
         //
         {
             Ice.InitializationData initData = new Ice.InitializationData();
+            initData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
             initData.properties = communicator.getProperties()._clone();
-            MyClassLoader classLoader = new MyClassLoader();
+            MyClassLoader classLoader = new MyClassLoader(initData.classLoader);
             initData.classLoader = classLoader;
             Ice.Communicator ic = app.initialize(initData);
 

@@ -337,8 +337,10 @@ public class AllTests
 
                 testController.holdAdapter();
                 Ice.AsyncResult r = null;
+
                 // The sequence needs to be large enough to fill the write/recv buffers
-                byte[] seq = new byte[20000000];
+                int bufSize = (test.Util.Application.isAndroid()) ? 2500000 : 20000000;
+                byte[] seq = new byte[bufSize];
                 r = p.begin_opWithPayload(seq);
                 try
                 {
@@ -362,7 +364,10 @@ public class AllTests
             // The executor is all done.
             //
             executor.shutdown();
-            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            while(!executor.isTerminated())
+            {
+                executor.awaitTermination(1000, TimeUnit.SECONDS);
+            }
         }
         out.println("ok");
         
@@ -564,6 +569,7 @@ public class AllTests
             // Check that CommunicatorDestroyedException is raised directly.
             //
             Ice.InitializationData initData = new Ice.InitializationData();
+            initData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
             initData.properties = communicator.getProperties()._clone();
             Ice.Communicator ic = app.initialize(initData);
             
@@ -652,7 +658,10 @@ public class AllTests
             cb.check();
             
             executor.shutdown();
-            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            while(!executor.isTerminated())
+            {
+                executor.awaitTermination(1000, TimeUnit.SECONDS);
+            }
         }
         out.println("ok");
 
@@ -707,6 +716,7 @@ public class AllTests
             final Thread mainThread = Thread.currentThread();
             ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(1);
             Ice.InitializationData initData = new Ice.InitializationData();
+            initData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("ClientTestAdapter.Endpoints", "default -p 12030");
             Ice.Communicator ic = app.initialize(initData);
@@ -798,7 +808,10 @@ public class AllTests
             ic.destroy();
             
             executor.shutdown();
-            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            while(!executor.isTerminated())
+            {
+                executor.awaitTermination(1000, TimeUnit.SECONDS);
+            }
         }
         out.println("ok");
         

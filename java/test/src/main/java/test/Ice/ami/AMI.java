@@ -23,6 +23,33 @@ import test.Util.Application;
 
 public class AMI
 {
+    private static class Counter
+    {
+        private int _count = 0;
+
+        synchronized void decrement()
+        {
+            --_count;
+            if(_count == 0)
+            {
+                notifyAll();
+            }
+        }
+
+        synchronized void increment()
+        {
+            ++_count;
+        }
+
+        synchronized void waitComplete() throws InterruptedException
+        {
+            while(_count > 0)
+            {
+                wait();
+            }
+        }
+    }
+
     private static void
     test(boolean b)
     {
@@ -1145,6 +1172,7 @@ public class AMI
             if(p.ice_getConnection() != null)
             {
                 Ice.InitializationData initData = new Ice.InitializationData();
+                initData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
                 initData.properties = communicator.getProperties()._clone();
                 Ice.Communicator ic = app.initialize(initData);
                 Ice.ObjectPrx o = ic.stringToProxy(p.toString());
@@ -1366,146 +1394,146 @@ public class AMI
             final SentCallback cb = new SentCallback();
 
             p.begin_ice_isA("", new Ice.Callback_Object_ice_isA()
+            {
+                @Override
+                public void
+                response(boolean r)
                 {
-                    @Override
-                    public void
-                    response(boolean r)
-                    {
-                        cb.isA(r);
-                    }
+                    cb.isA(r);
+                }
 
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.ex(ex);
-                    }
+                @Override
+                public void
+                exception(Ice.LocalException ex)
+                {
+                    cb.ex(ex);
+                }
 
-                    @Override
-                    public void
-                    sent(boolean ss)
-                    {
-                        cb.sent(ss);
-                    }
-                });
+                @Override
+                public void
+                sent(boolean ss)
+                {
+                    cb.sent(ss);
+                }
+            });
             cb.check();
 
             p.begin_ice_ping(new Ice.Callback_Object_ice_ping()
+            {
+                @Override
+                public void
+                response()
                 {
-                    @Override
-                    public void
-                    response()
-                    {
-                        cb.ping();
-                    }
+                    cb.ping();
+                }
 
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.ex(ex);
-                    }
+                @Override
+                public void
+                exception(Ice.LocalException ex)
+                {
+                    cb.ex(ex);
+                }
 
-                    @Override
-                    public void
-                    sent(boolean ss)
-                    {
-                        cb.sent(ss);
-                    }
-                });
+                @Override
+                public void
+                sent(boolean ss)
+                {
+                    cb.sent(ss);
+                }
+            });
             cb.check();
 
             p.begin_ice_id(new Ice.Callback_Object_ice_id()
+            {
+                @Override
+                public void
+                response(String id)
                 {
-                    @Override
-                    public void
-                    response(String id)
-                    {
-                        cb.id(id);
-                    }
+                    cb.id(id);
+                }
 
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.ex(ex);
-                    }
+                @Override
+                public void
+                exception(Ice.LocalException ex)
+                {
+                    cb.ex(ex);
+                }
 
-                    @Override
-                    public void
-                    sent(boolean ss)
-                    {
-                        cb.sent(ss);
-                    }
-                });
+                @Override
+                public void
+                sent(boolean ss)
+                {
+                    cb.sent(ss);
+                }
+            });
             cb.check();
 
             p.begin_ice_ids(new Ice.Callback_Object_ice_ids()
+            {
+                @Override
+                public void
+                response(String[] ids)
                 {
-                    @Override
-                    public void
-                    response(String[] ids)
-                    {
-                        cb.ids(ids);
-                    }
+                    cb.ids(ids);
+                }
 
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.ex(ex);
-                    }
+                @Override
+                public void
+                exception(Ice.LocalException ex)
+                {
+                    cb.ex(ex);
+                }
 
-                    @Override
-                    public void
-                    sent(boolean ss)
-                    {
-                        cb.sent(ss);
-                    }
-                });
+                @Override
+                public void
+                sent(boolean ss)
+                {
+                    cb.sent(ss);
+                }
+            });
             cb.check();
 
             p.begin_op(new Callback_TestIntf_op()
+            {
+                @Override
+                public void
+                response()
                 {
-                    @Override
-                    public void
-                    response()
-                    {
-                        cb.op();
-                    }
+                    cb.op();
+                }
 
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.ex(ex);
-                    }
+                @Override
+                public void
+                exception(Ice.LocalException ex)
+                {
+                    cb.ex(ex);
+                }
 
-                    @Override
-                    public void
-                    sent(boolean ss)
-                    {
-                        cb.sent(ss);
-                    }
-                });
+                @Override
+                public void
+                sent(boolean ss)
+                {
+                    cb.sent(ss);
+                }
+            });
             cb.check();
 
             p.begin_op(new Ice.Callback()
+            {
+                @Override
+                public void
+                completed(Ice.AsyncResult result)
                 {
-                    @Override
-                    public void
-                    completed(Ice.AsyncResult result)
-                    {
-                        cb.opAsync(result);
-                    }
+                    cb.opAsync(result);
+                }
 
-                    @Override
-                    public void
-                    sent(Ice.AsyncResult result)
-                    {
-                        cb.sent(result);
-                    }
-                });
+                @Override
+                public void
+                sent(Ice.AsyncResult result)
+                {
+                    cb.sent(result);
+                }
+            });
             cb.check();
 
             java.util.List<SentCallback> cbs = new java.util.ArrayList<SentCallback>();
@@ -1513,33 +1541,38 @@ public class AMI
             new java.util.Random().nextBytes(seq); // Make sure the request doesn't compress too well.
             Ice.AsyncResult r;
             testController.holdAdapter();
+
+            final Counter counter = new Counter();
             try
             {
                 do
                 {
                     final SentCallback cb2 = new SentCallback();
                     r = p.begin_opWithPayload(seq, new Callback_TestIntf_opWithPayload()
+                    {
+                        @Override
+                        public void
+                        response()
                         {
-                            @Override
-                            public void
-                            response()
-                            {
-                            }
-                            
-                            @Override
-                            public void
-                            exception(Ice.LocalException ex)
-                            {
-                                cb2.ex(ex);
-                            }
+                            counter.decrement();
+                        }
 
-                            @Override
-                            public void
-                            sent(boolean ss)
-                            {
-                                cb2.sent(ss);
-                            }
-                        });
+                        @Override
+                        public void
+                        exception(Ice.LocalException ex)
+                        {
+                            counter.decrement();
+                            cb2.ex(ex);
+                        }
+
+                        @Override
+                        public void
+                        sent(boolean ss)
+                        {
+                            cb2.sent(ss);
+                        }
+                    });
+                    counter.increment();
                     cbs.add(cb2);
                 }
                 while(r.sentSynchronously());
@@ -1551,6 +1584,13 @@ public class AMI
             for(SentCallback cb3 : cbs)
             {
                 cb3.check();
+            }
+            try
+            {
+                counter.waitComplete();
+            }
+            catch(InterruptedException e)
+            {
             }
         }
         out.println("ok");

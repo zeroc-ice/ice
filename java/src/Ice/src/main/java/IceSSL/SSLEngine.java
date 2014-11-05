@@ -48,7 +48,7 @@ class SSLEngine
         // Protocols selects which protocols to enable, by default we only enable TLS1.0
         // TLS1.1 and TLS1.2 to avoid security issues with SSLv3
         //
-        String[] protocols = 
+        String[] protocols =
             properties.getPropertyAsListWithDefault(prefix + "Protocols", new String[]{"tls1_0", "tls1_1", "tls1_2"});
         if(protocols.length != 0)
         {
