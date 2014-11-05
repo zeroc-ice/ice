@@ -575,6 +575,7 @@ for f in rmFiles: remove(os.path.join(winDemoDir, f))
 # Fix up the Java build files
 os.mkdir(os.path.join(winDemoDir, "java", "gradle"))
 copy(os.path.join(srcDir, "java", "gradlew.bat"), os.path.join(winDemoDir, "java"), False)
+copy(os.path.join(srcDir, "java", "gradle.properties"), os.path.join(winDemoDir, "java"), False)
 copy(os.path.join(srcDir, "java", "gradle", "wrapper"), os.path.join(winDemoDir, "java", "gradle", "wrapper"), False)
 copy(os.path.join(distFilesDir, "src", "common", "ice.gradle"), os.path.join(winDemoDir, "java", "gradle"), False)
 copy(os.path.join(distFilesDir, "src", "common", "build.gradle"), os.path.join(winDemoDir, "java"), False)
