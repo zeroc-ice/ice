@@ -22,8 +22,8 @@ def runCommand(cmd, verbose = False):
 #
 languages = { \
     'SunOS' : ['cpp', 'cpp-64', 'java'], \
-    'Darwin' : ['cpp', 'java', 'py'], \
-    'Linux' : ['cpp', 'cpp-11', 'java', 'cs', 'py', 'rb', 'php'], \
+    'Darwin' : ['cpp', 'java', 'py', 'js'], \
+    'Linux' : ['cpp', 'cpp-11', 'java', 'cs', 'py', 'rb', 'php', 'js'], \
 }
 
 #
