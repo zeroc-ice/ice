@@ -36,8 +36,15 @@ if len(args) != 1:
     usage()
     sys.exit(1)
 
+
+
 version = args[0]
+
 ice_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+if os.path.abspath(ice_dir) != os.getcwd():
+    print "!!! WARNING - SCRIPT MUST BE RAN FROM THE TOP LEVEL ICE DIRECTORY !!!"
+    sys.exit(1)
 
 FixUtil.checkVersion(version)
 
@@ -72,9 +79,6 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "rpm", 
                              ("%define dotnetversion ([0-9]*\.[0-9]*\.[0-9]*)", newVersion),
                              ("%define dotnetpolicyversion ([0-9]*\.[0-9]*)",
                               FixUtil.majorVersion(version) + "." + FixUtil.minorVersion(version))])
-
-FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "common", "build.properties"),
-                            [("ice\.version[\t\s]*= " + FixUtil.vpatMatch, version)])
 
 FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "common", "README.DEMOS.txt"),
                             [("Ice-" + FixUtil.vpatMatch, version)])
@@ -120,13 +124,23 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_home, "doc", "swish", "swish.conf")
 FixUtil.fileMatchAndReplace(os.path.join(ice_home, "doc", "swish", "swishcgi.conf"),
                     [("ice_version[\t\s]*= '" + FixUtil.vpatMatch, version)])
 
+FixUtil.fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "clock", "config.icebox"),
+                    [("IceStormService,([0-9]+b?)", FixUtil.soVersion(version))])
+
+FixUtil.fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "counter", "config.icebox"),
+                    [("IceStormService,([0-9]+b?)", FixUtil.soVersion(version))])
+FixUtil.fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "counter", "expect.py"),
+                    [("IceStormService,([0-9]+b?)", FixUtil.soVersion(version))])
+
 FixUtil.fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "replicated2", "config.ib1"),
                     [("IceStormService,([0-9]+b?)", FixUtil.soVersion(version))])
 FixUtil.fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "replicated2", "config.ib2"),
                     [("IceStormService,([0-9]+b?)", FixUtil.soVersion(version))])
 FixUtil.fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "replicated2", "config.ib3"),
                     [("IceStormService,([0-9]+b?)", FixUtil.soVersion(version))])
-    
+FixUtil.fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "replicated2", "expect.py"),
+                    [("IceStormService,([0-9]+b?)", FixUtil.soVersion(version))])
+
 FixUtil.fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "replicated", "application.xml"),
                     [("IceStormService,([0-9]+b?)", FixUtil.soVersion(version))])
 
@@ -143,39 +157,38 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_home, "demo", "Ice", "plugin", "Ice
                     [("loggerplugin([0-9]+b?)", FixUtil.soVersion(version))])
 
 for f in FixUtil.find("*.vcxproj"):
-    FixUtil.fileMatchAndReplace(f, [("Ice\\\\([0-9]+\.[0-9]+)@", FixUtil.shortVersion(version)),
+    FixUtil.fileMatchAndReplace(f, [("Ice\\\\([0-9]+\.[0-9])", FixUtil.shortVersion(version)),
                                     ("Ice, Version=([0-9]+\.[0-9]+)", FixUtil.shortVersion(version))])
 
 for f in FixUtil.find("*.rc"):
-    FixUtil.fileMatchAndReplace(f, 
+    FixUtil.fileMatchAndReplace(f,
                                 [("\"FileVersion\", \"" + FixUtil.vpatMatch, version),
                                  ("\"ProductVersion\", \"" + FixUtil.vpatMatch, version),
                                  ("INTERNALNAME \"[^0-9]*2?([0-9][0-9]b?)d?", FixUtil.soVersion(version)),
                                  ("ORIGINALFILENAME \"[^0-9]*2?([0-9][0-9]b?)d?\.dll", FixUtil.soVersion(version)),
                                  ("FILEVERSION ([0-9]+,[0-9]+,[0-9]+)", FixUtil.commaVersion(version)),
                                  ("PRODUCTVERSION ([0-9]+,[0-9]+,[0-9]+)", FixUtil.commaVersion(version))])
-    
-FixUtil.fileMatchAndReplace(os.path.join(ice_home, "test", "Ice", "background", ".gitignore"),
-                    [("libTestTransport.so." + FixUtil.vpatMatch, version)])
-FixUtil.fileMatchAndReplace(os.path.join(ice_home, "test", "Ice", "background", ".gitignore"),
-                    [("libTestTransport.so.([0-9][0-9]b?)", FixUtil.soVersion(version))])
 
 #
 # Java specific files
 #
 icej_home = os.path.join(ice_dir, "java")
-FixUtil.fileMatchAndReplace(os.path.join(icej_home, "config", "build.properties"),
-                            [("ice\.version[\t\s]*= " + FixUtil.vpatMatch, version)])
+FixUtil.fileMatchAndReplace(os.path.join(icej_home, "gradle.properties"),
+                            [("iceVersion[\t\s]*= " + FixUtil.vpatMatch, version)])
 
-FixUtil.fileMatchAndReplace(os.path.join(icej_home, "src", "IceUtil", "Version.java"),
-                            [("ICE_STRING_VERSION = \"" + FixUtil.vpatMatch +"\"", version),
-                             ("ICE_INT_VERSION = ([0-9]*)", FixUtil.intVersion(version))])
-                            
-FixUtil.fileMatchAndReplace(os.path.join(icej_home, "src", "Ice", "Util.java"),
+FixUtil.fileMatchAndReplace(os.path.join(icej_home, "src", "Ice", "src", "main", "java", "Ice", "Util.java"),
                             [("return \"" + FixUtil.vpatMatch +"\".*A=major", version),
                              ("return ([0-9]*).*AA=major", FixUtil.intVersion(version))])
 FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "java", "bin", "icegridgui.deb"),
                             [("IceGridGUI-" + FixUtil.vpatMatch, version)])
+
+#
+# JavaScript specific files
+#
+icejs_home = os.path.join(ice_dir, "js")
+
+FixUtil.fileMatchAndReplace(os.path.join(icejs_home, "config", "build.js"),
+                            [("Ice-" + FixUtil.vpatMatch, version)])
 
 #
 # C# specific files
@@ -197,7 +210,7 @@ for f in FixUtil.find("*.pc"):
 FixUtil.fileMatchAndReplace(os.path.join(icecs_home, "src", "Ice", "Util.cs"),
                             [("return \"" + FixUtil.vpatMatch +"\".*A=major", version),
                              ("return ([0-9]*).*AA=major", FixUtil.intVersion(version))])
-                            
+
 #
 # Fix C# and VB projects
 #
