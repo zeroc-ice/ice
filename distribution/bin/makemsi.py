@@ -96,7 +96,7 @@ debugFilterFiles = ["dumpdb.exe",
 def filterDebugFiles(f):
     if f in debugFilterFiles:
         return True
-    if os.path.splitext(f)[1] in [".exe", ".dll", ".pdb"]:
+    if os.path.splitext(f)[1] in [".exe", ".dll", ".pdb", ".lib"]:
         return False
     return True
 
@@ -416,7 +416,6 @@ if not os.path.exists(signTool):
     print("signtool `%s' not found")
     sys.exit(1)
 
-
 if not certFile:
     if os.path.exists("c:\\release\\authenticode\\zeroc2014.pfx"):
         certFile = "c:\\release\\authenticode\\zeroc2014.pfx"
@@ -438,111 +437,111 @@ if certPassword is None:
     print("You need to set the sign certificate password using --cert-password option")
     sys.exit(1)
 
-    
-if not keyFile:
-    if os.path.exists("c:\\release\\strongname\\IceReleaseKey.snk"):
-        keyFile = "c:\\release\\strongname\\IceReleaseKey.snk"
-    elif os.path.exists(os.path.join(os.getcwd(), "..", "..", "release", "strongname", "IceReleaseKey.snk")):
-        keyFile = os.path.join(os.getcwd(), "..", "..", "release", "strongname", "IceReleaseKey.snk")
-else:
-    if not os.path.isabs(keyFile):
-        keyFile = os.path.abspath(os.path.join(os.getcwd(), keyFile))
-        
-if keyFile is None:
-    print("You need to specify the key file to sign assemblies using --key-file option")
-    sys.exit(1)
-
-if not os.path.exists(keyFile):
-    print("Key file `%s' not found")
-    sys.exit(1)
-
-if proguardHome:
-    if not os.path.isabs(proguardHome):
-        proguardHome = os.path.abspath(os.path.join(os.getcwd(), proguardHome))
-
-    if not os.path.exists(proguardHome):
-        #
-        # Invalid proguard-home setting
-        #
-        print("--proguard-home points to nonexistent directory")
+if not winrt:
+    if not keyFile:
+        if os.path.exists("c:\\release\\strongname\\IceReleaseKey.snk"):
+            keyFile = "c:\\release\\strongname\\IceReleaseKey.snk"
+        elif os.path.exists(os.path.join(os.getcwd(), "..", "..", "release", "strongname", "IceReleaseKey.snk")):
+            keyFile = os.path.join(os.getcwd(), "..", "..", "release", "strongname", "IceReleaseKey.snk")
+    else:
+        if not os.path.isabs(keyFile):
+            keyFile = os.path.abspath(os.path.join(os.getcwd(), keyFile))
+            
+    if keyFile is None:
+        print("You need to specify the key file to sign assemblies using --key-file option")
         sys.exit(1)
 
-if phpHome:
-    if not os.path.isabs(phpHome):
-        phpHome = os.path.abspath(os.path.join(os.getcwd(), phpHome))
-
-    if not os.path.exists(phpHome):
-        #
-        # Invalid proguard-home setting
-        #
-        print("--php-home points to nonexistent directory")
+    if not os.path.exists(keyFile):
+        print("Key file `%s' not found")
         sys.exit(1)
 
-if phpBinHome:
-    if not os.path.isabs(phpBinHome):
-        phpBinHome = os.path.abspath(os.path.join(os.getcwd(), phpBinHome))
+    if proguardHome:
+        if not os.path.isabs(proguardHome):
+            proguardHome = os.path.abspath(os.path.join(os.getcwd(), proguardHome))
 
-    if not os.path.exists(phpBinHome):
-        #
-        # Invalid proguard-home setting
-        #
-        print("--php-bin-home points to nonexistent directory")
+        if not os.path.exists(proguardHome):
+            #
+            # Invalid proguard-home setting
+            #
+            print("--proguard-home points to nonexistent directory")
+            sys.exit(1)
+
+    if phpHome:
+        if not os.path.isabs(phpHome):
+            phpHome = os.path.abspath(os.path.join(os.getcwd(), phpHome))
+
+        if not os.path.exists(phpHome):
+            #
+            # Invalid proguard-home setting
+            #
+            print("--php-home points to nonexistent directory")
+            sys.exit(1)
+
+    if phpBinHome:
+        if not os.path.isabs(phpBinHome):
+            phpBinHome = os.path.abspath(os.path.join(os.getcwd(), phpBinHome))
+
+        if not os.path.exists(phpBinHome):
+            #
+            # Invalid proguard-home setting
+            #
+            print("--php-bin-home points to nonexistent directory")
+            sys.exit(1)
+
+    if rubyDevKitAmd64Home is None:
+        defaultRubyAmd64Home = "C:\\DevKit-mingw64-64-4.7.2"
+        if not os.path.exists(defaultRubyAmd64Home):
+            print("Ruby DevKit x64 not found in %s" % defaultRubyAmd64Home)
+            sys.exit(1)
+        rubyDevKitAmd64Home = defaultRubyAmd64Home
+    elif not os.path.exists(rubyDevKitAmd64Home):
+        print("Ruby DevKit x64 not found in %s" % rubyDevKitAmd64Home)
         sys.exit(1)
 
-if rubyDevKitAmd64Home is None:
-    defaultRubyAmd64Home = "C:\\DevKit-mingw64-64-4.7.2"
-    if not os.path.exists(defaultRubyAmd64Home):
-        print("Ruby DevKit x64 not found in %s" % defaultRubyAmd64Home)
-        sys.exit(1)
-    rubyDevKitAmd64Home = defaultRubyAmd64Home
-elif not os.path.exists(rubyDevKitAmd64Home):
-    print("Ruby DevKit x64 not found in %s" % rubyDevKitAmd64Home)
-    sys.exit(1)
-
-if rubyDevKitX86Home is None:
-    defaultRubyX86Home = "C:\\DevKit-mingw64-32-4.7.3"
-    if not os.path.exists(defaultRubyX86Home):
-        print("Ruby DevKit x64 not found in %s" % defaultRubyX86Home)
-        sys.exit(1)
-    rubyDevKitX86Home = defaultRubyX86Home
-elif not os.path.exists(rubyDevKitX86Home):
-    print("Ruby DevKit x86 not found in %s" % rubyDevKitX86Home)
-    sys.exit(1)
-
-if nodejsHome:
-    if not os.path.isabs(nodejsHome):
-        nodejsHome = os.path.abspath(os.path.join(os.getcwd(), nodejsHome))
-
-    nodejsExe = os.path.join(nodejsHome, "node.exe")
-    if not os.path.exists(nodejsExe):
-        #
-        # Invalid proguard-home setting
-        #
-        print("node.exe not found in " + nodejsHome)
+    if rubyDevKitX86Home is None:
+        defaultRubyX86Home = "C:\\DevKit-mingw64-32-4.7.3"
+        if not os.path.exists(defaultRubyX86Home):
+            print("Ruby DevKit x64 not found in %s" % defaultRubyX86Home)
+            sys.exit(1)
+        rubyDevKitX86Home = defaultRubyX86Home
+    elif not os.path.exists(rubyDevKitX86Home):
+        print("Ruby DevKit x86 not found in %s" % rubyDevKitX86Home)
         sys.exit(1)
 
-if gzipHome:
-    if not os.path.isabs(gzipHome):
-        gzipHome = os.path.abspath(os.path.join(os.getcwd(), gzipHome))
+    if nodejsHome:
+        if not os.path.isabs(nodejsHome):
+            nodejsHome = os.path.abspath(os.path.join(os.getcwd(), nodejsHome))
 
-    gzipExe = os.path.join(gzipHome, "bin", "gzip.exe")
-    if not os.path.exists(gzipExe):
-        #
-        # Invalid proguard-home setting
-        #
-        print("node.exe not found in " + os.path.join(gzipHome, "bin"))
-        sys.exit(1)
+        nodejsExe = os.path.join(nodejsHome, "node.exe")
+        if not os.path.exists(nodejsExe):
+            #
+            # Invalid proguard-home setting
+            #
+            print("node.exe not found in " + nodejsHome)
+            sys.exit(1)
 
-if closureHome:
-    if not os.path.isabs(closureHome):
-        closureHome = os.path.abspath(os.path.join(os.getcwd(), closureHome))
+    if gzipHome:
+        if not os.path.isabs(gzipHome):
+            gzipHome = os.path.abspath(os.path.join(os.getcwd(), gzipHome))
 
-    if not os.path.exists(closureHome):
-        #
-        # Invalid proguard-home setting
-        #
-        print("--closure-home points to nonexistent directory")
-        sys.exit(1)
+        gzipExe = os.path.join(gzipHome, "bin", "gzip.exe")
+        if not os.path.exists(gzipExe):
+            #
+            # Invalid proguard-home setting
+            #
+            print("node.exe not found in " + os.path.join(gzipHome, "bin"))
+            sys.exit(1)
+
+    if closureHome:
+        if not os.path.isabs(closureHome):
+            closureHome = os.path.abspath(os.path.join(os.getcwd(), closureHome))
+
+        if not os.path.exists(closureHome):
+            #
+            # Invalid proguard-home setting
+            #
+            print("--closure-home points to nonexistent directory")
+            sys.exit(1)
 
 if not os.path.exists(sourceArchive):
     print("Couldn't find %s in %s" % (os.path.basename(sourceArchive), os.path.dirname(sourceArchive)))

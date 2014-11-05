@@ -24,7 +24,7 @@ IceGrid.Registry.AdminSSLPermissionsVerifier=DemoIceGrid/NullSSLPermissionsVerif
 # Enable the IceGrid registry plugin from the demo to perform custom
 # load balancing for the replica group.
 #
-Ice.Plugin.RegistryPlugin=RegistryPlugin:createRegistryPlugin
+Ice.Plugin.RegistryPlugin=./RegistryPlugin:createRegistryPlugin
 
 #
 # IceGrid node configuration.

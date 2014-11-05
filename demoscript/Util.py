@@ -27,7 +27,7 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "demoscript")) ]
 toplevel = path[0]
-if os.path.isdir(os.path.join(toplevel, "cpp")):
+if os.path.isdir(os.path.join(toplevel, "cpp", "demo")):
     sourcedist = True
 else:
     sourcedist = False
@@ -311,6 +311,7 @@ def configurePaths():
     addenv("CLASSPATH", os.path.join(javaDir, "lib", "IceStorm.jar"))
     addenv("CLASSPATH", os.path.join(javaDir, "lib", "IceGrid.jar"))
     addenv("CLASSPATH", os.path.join(javaDir, "lib", "IcePatch2.jar"))
+    addenv("CLASSPATH", os.path.join(javaDir, "lib", "IceDiscovery.jar"))
     if not iceHome:
         addenv("CLASSPATH", os.path.join(javaDir, "lib"))
     addenv("CLASSPATH", os.path.join("build", "classes"))
@@ -342,25 +343,13 @@ def configurePaths():
         addenv("NODE_PATH", os.path.join(getIceDir("js"), "node_modules" if iceHome else "src"))
         addenv("NODE_PATH", ".")
 
-# Mapping to the associated subdirectory.
-mappingDirs = {
-    "cpp" : ( os.path.join("cpp", "demo"), "demo"),
-    "java" : ( os.path.join("java", "demo"), "demoj"),
-    "js" : ( os.path.join("js", "demo"), "demojs"),
-    "cs" : ( os.path.join("cs", "demo"), "democs"),
-    "vb" : ( os.path.join("vb", "demo"), "demovb"),
-    "py" : ( os.path.join("py", "demo"), "demopy"),
-    "rb" : ( os.path.join("rb", "demo"), "demorb"),
-    "php" : ( os.path.join("php", "demo"), "demophp"),
-}
-
-def getMappingDir(suffix, mapping):
+def getMappingDir(mapping):
     """Get the directory containing the demos for the given mapping."""
     # In the source tree
     if sourcedist:
-        return mappingDirs[mapping][0]
+        return os.path.join(mapping, "demo")
     else:
-        return mappingDirs[mapping][1]
+        return mapping
 
 def getMirrorDir(mapping = None):
     """Get the mirror directory for the current demo in the given mapping."""
@@ -374,11 +363,9 @@ def getMirrorDir(mapping = None):
     # In the source tree
     if sourcedist:
         scriptPath = os.sep.join(post.split(os.sep)[2:])
-        mappingDir = mappingDirs[mapping][0]
     else:
         scriptPath = os.sep.join(post.split(os.sep)[1:])
-        mappingDir = mappingDirs[mapping][1]
-    return os.path.join(pref, mappingDir, scriptPath)
+    return os.path.join(pref, getMappingDir(mapping), scriptPath)
 
 def getIceDir(subdir = None):
     """Get the top level directory of the ice distribution. If ICE_HOME
@@ -437,14 +424,7 @@ def getMapping():
     """Determine the current mapping based on the cwd."""
     here = os.path.abspath(os.getcwd())
     assert os.path.normcase(here[:len(toplevel)]) == os.path.normcase(toplevel)
-    dir = here[len(toplevel)+1:].split(os.sep)[0]
-
-    if sourcedist:
-        mapping = { "cpp": "cpp", "cs": "cs", "java": "java", "js": "js", "php": "php", "py": "py", "rb": "rb", "vb": "vb" }
-    else:
-        mapping = { "demo": "cpp", "democs": "cs", "demoj": "java", "demojs": "js", "demophp": "php", "demopy": "py",
-                    "demorb": "rb", "demovb": "vb" }
-    return mapping[dir]
+    return here[len(toplevel)+1:].split(os.sep)[0]
 
 def runDemos(start, args, demos, num = 0, script = False, root = False):
     global demoErrors
@@ -465,7 +445,7 @@ def runDemos(start, args, demos, num = 0, script = False, root = False):
         if root:
             dir = os.path.join(toplevel, i)
         else:
-            dir = os.path.join(toplevel, getMappingDir(toplevel, getMapping()), i)
+            dir = os.path.join(toplevel, getMappingDir(getMapping()), i)
 
         if script:
             prefix = "echo \""

@@ -185,19 +185,6 @@ def copyMatchingFiles(srcpath, destpath, patterns, warnDestExists = True, verbos
             copy(f, os.path.join(destpath, os.path.basename(f)), warnDestExists)
 
 #
-# Get the language mapping directory for a given suffix.
-#
-def getMappingDir(suffix, mapping):
-    if mapping == "cpp":
-        return suffix
-    elif mapping == "java":
-        return suffix + "j"
-    elif mapping == "android":
-        return suffix + "a"
-    else:
-        return suffix + mapping
-
-#
 # Comment out rules in a Makefile.
 #
 def fixMakefileForFile(path):
