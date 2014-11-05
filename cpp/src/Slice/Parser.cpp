@@ -9,6 +9,7 @@
 
 #include <IceUtil/Functional.h>
 #include <IceUtil/InputUtil.h>
+#include <IceUtil/FileUtil.h>
 #include <IceUtil/StringUtil.h>
 #include <Slice/Parser.h>
 #include <Slice/GrammarUtil.h>
@@ -18,6 +19,9 @@
 
 #ifdef _WIN32
 #   include <io.h>
+#else
+#   include <climits>  // For PATH_MAX
+#   include <unistd.h> // For readlink()
 #endif
 
 using namespace std;
@@ -5685,6 +5689,56 @@ Slice::Unit::nextLine()
     _currentLine++;
 }
 
+#ifndef _WIN32
+namespace
+{
+string
+readLink(const string& orig)
+{
+    string result = orig;
+    string::size_type beg = 0;
+    string::size_type next = string::npos;
+    do
+    {
+        string subpath;
+        next = result.find('/', beg + 1);
+        if(next == string::npos)
+        {
+            subpath = result;
+        }
+        else
+        {
+            subpath = result.substr(0, next);
+        }
+
+        char buf[PATH_MAX + 1];
+        int len = static_cast<int>(readlink(subpath.c_str(), buf, sizeof(buf)));
+        if(len > 0)
+        {
+            buf[len] = '\0';
+            string linkpath = buf;
+            if(!IceUtilInternal::isAbsolutePath(linkpath)) // Path relative to the location of the link
+            {
+                string::size_type pos = subpath.rfind('/');
+                assert(pos != string::npos);
+                linkpath = subpath.substr(0, pos + 1) + linkpath;
+            }
+            result = normalizePath(linkpath) + (next != string::npos ? result.substr(next) : string());
+            beg = 0;
+            next = 0;
+        }
+        else
+        {
+            beg = next;
+        }
+    }
+    while(next != string::npos);
+    return result;
+}
+
+}
+#endif
+
 bool
 Slice::Unit::scanPosition(const char* s)
 {
@@ -5730,8 +5784,18 @@ Slice::Unit::scanPosition(const char* s)
 
     LineType type = File;
 
-    if(_currentLine == 0)
+    //
+    // We need to compare the file targets as one could be a symbolic link.
+    //
+#ifndef _WIN32
+    if(readLink(currentFile) == readLink(_topLevelFile))
     {
+        currentFile = _topLevelFile;
+    }
+#endif
+
+    if(_currentLine == 0)
+    {        
         if(_currentIncludeLevel > 0 || currentFile != _topLevelFile)
         {
             type = Push;
