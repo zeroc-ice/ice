@@ -179,9 +179,9 @@ public:
             throwEncapsulationException(__FILE__, __LINE__);
         }
 
-        Container::size_type pos = b.size();
-        resize(pos + sz);
-        memcpy(&b[pos], &v[0], sz);
+        Container::size_type position = b.size();
+        resize(position + sz);
+        memcpy(&b[position], &v[0], sz);
     }
 
     const Ice::EncodingVersion& getWriteEncoding() const
@@ -394,14 +394,14 @@ public:
 
     size_type startSize()
     {
-        size_type pos = b.size();
+        size_type position = b.size();
         write(Ice::Int(0));
-        return pos;
+        return position;
     }
 
-    void endSize(size_type pos)
+    void endSize(size_type position)
     {
-        rewrite(static_cast<Ice::Int>(b.size() - pos) - 4, pos);
+        rewrite(static_cast<Ice::Int>(b.size() - position) - 4, position);
     }
 
     void writeBlob(const std::vector<Ice::Byte>&);
@@ -411,9 +411,9 @@ public:
     {
         if(sz > 0)
         {
-            Container::size_type pos = b.size();
-            resize(pos + sz);
-            memcpy(&b[pos], &v[0], sz);
+            Container::size_type position = b.size();
+            resize(position + sz);
+            memcpy(&b[position], &v[0], sz);
         }
     }
 
@@ -577,9 +577,9 @@ public:
     // Int
     void write(Ice::Int v) // Inlined for performance reasons.
     {
-        Container::size_type pos = b.size();
-        resize(pos + sizeof(Ice::Int));
-        write(v, &b[pos]);
+        Container::size_type position = b.size();
+        resize(position + sizeof(Ice::Int));
+        write(v, &b[position]);
     }
     void write(Ice::Int v, Container::iterator dest)
     {
@@ -659,9 +659,9 @@ public:
             writeSize(sz);
             if(sz > 0)
             {
-                Container::size_type pos = b.size();
-                resize(pos + sz);
-                memcpy(&b[pos], v.data(), sz);
+                Container::size_type position = b.size();
+                resize(position + sz);
+                memcpy(&b[position], v.data(), sz);
             }
         }
     }
@@ -679,9 +679,9 @@ public:
             writeSize(sz);
             if(sz > 0)
             {
-                Container::size_type pos = b.size();
-                resize(pos + sz);
-                memcpy(&b[pos], vdata, vsize);
+                Container::size_type position = b.size();
+                resize(position + sz);
+                memcpy(&b[position], vdata, vsize);
             }
         }
     }
@@ -838,9 +838,9 @@ public:
     }
     void skipSize()
     {
-        Ice::Byte b;
-        read(b);
-        if(static_cast<unsigned char>(b) == 255)
+        Ice::Byte bt;
+        read(bt);
+        if(static_cast<unsigned char>(bt) == 255)
         {
             skip(4);
         }
@@ -1026,7 +1026,7 @@ private:
 
         struct InstanceData
         {
-            InstanceData(InstanceData* previous) : previous(previous), next(0)
+            InstanceData(InstanceData* p) : previous(p), next(0)
             {
                 if(previous)
                 {
@@ -1185,7 +1185,7 @@ private:
 
         struct InstanceData
         {
-            InstanceData(InstanceData* previous) : previous(previous), next(0)
+            InstanceData(InstanceData* p) : previous(p), next(0)
             {
                 if(previous)
                 {
