@@ -56,19 +56,19 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
     }
 
     @Override
-    public RequestHandler 
+    public RequestHandler
     connect(Ice.ObjectPrxHelperBase proxy)
     {
         return this;
     }
-    
+
     @Override
-    public RequestHandler 
+    public RequestHandler
     update(RequestHandler previousHandler, RequestHandler newHandler)
     {
         return previousHandler == this ? newHandler : this;
     }
-    
+
     @Override
     synchronized public void
     prepareBatchRequest(BasicStream os)
@@ -505,7 +505,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
                 outAsync = null;
             }
         }
-        
+
         if(outAsync != null)
         {
             outAsync.invokeCompleted();
@@ -545,7 +545,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
     private void
     fillInValue(BasicStream os, int pos, int value)
     {
-        os.rewriteInt(pos, value);
+        os.rewriteInt(value, pos);
     }
 
     private final Reference _reference;
