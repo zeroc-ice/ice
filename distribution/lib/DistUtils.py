@@ -107,7 +107,10 @@ def checkGitVersion():
         print(sys.argv[0] + ": invalid git version, git >= 1.8.3 is required")
         sys.exit(1)
 
-def getCommitForTag(tag):
+def getCommitForTag(repoDir, tag):
+
+    cwd = os.getcwd()
+    os.chdir(repoDir)
 
     try:
         p = os.popen("git show --show-signature %s" % tag)
@@ -120,6 +123,7 @@ def getCommitForTag(tag):
             print("Error getting commit %s for tag" % tag)
             sys.exit(1)
         commit = re.sub("commit", "", commit).strip()
+        os.chdir(cwd)
         return commit
     except subprocess.CalledProcessError as e:
         print(e)
@@ -566,7 +570,7 @@ def compareDirs(orig, new):
 
     return (added, updated, removed)
 
-def writeSrcDistReport(product, version, tag, compareToDir, distributions):
+def writeSrcDistReport(product, version, tag, repoDir, compareToDir, distributions):
 
     cwd = os.getcwd()
     os.chdir(cwd)
@@ -577,7 +581,7 @@ def writeSrcDistReport(product, version, tag, compareToDir, distributions):
     print >>readme, "This directory contains the source distributions of " + product + " " + version + ".\n"
     print >>readme, "Version: " + version
     print >>readme, "Creation time: " + time.strftime("%a %b %d %Y, %I:%M:%S %p (%Z)")
-    print >>readme, "Git commit: " + getCommitForTag(tag)
+    print >>readme, "Git commit: " + getCommitForTag(repoDir, tag)
     (sysname, nodename, release, ver, machine) = os.uname();
     print >>readme, "Host: " + nodename
     print >>readme, "Platform: " + sysname + " " + release

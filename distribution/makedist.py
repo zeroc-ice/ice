@@ -252,7 +252,7 @@ def createDistfilesDist(platform, whichDestDir):
 #
 os.chdir(distDir)
 for m in ["http-proxy", "esprima"]:
-    if os.system("npm install %s" % m) != 0:
+    if os.system("npm install --prefix %s %s" % (distDir, m)) != 0:
         print("Error executing command `npm install %s'" % m)
 
 def createSourceDist(platform, destDir):
@@ -666,7 +666,7 @@ os.rename(os.path.join(distDir, "demos.zip"), os.path.join(distDir, "Ice-" + ver
 #
 # Write source distribution report in README file.
 #
-writeSrcDistReport("Ice", version, tag, compareToDir,
+writeSrcDistReport("Ice", version, tag, gitRepoDir, compareToDir,
                    [(srcDir + ".tar.gz", srcDir),
                     (demoDir + ".tar.gz", demoDir),
                     (rpmBuildDir + ".tar.gz", rpmBuildDir),
