@@ -37,13 +37,12 @@ General Changes
   is 1024.
 
 - We have relaxed the semantics of Ice.MessageSizeMax. The check for
-  the maximum message size is now only performed on the receving
+  the maximum message size is now only performed on the receiver
   side. If the size of the message is superior to the limit the
   Ice::MemoryLimitException is raised and the connection is closed.
 
-  Previously, the limit was also checked to limit the size of the data
-  sent to a peer. This is no longer the case, we no longer limit the
-  amount of data sent (either by an request or a reply).
+  Previously, it was also used to limit the amount of data sent to a
+  peer (either for a request or reply). This is no longer the case.
 
 - The Ice run time now raises Ice::IllegalServantException if a null
   servant is provided to a method that requires a non-null servant
