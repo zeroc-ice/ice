@@ -559,12 +559,8 @@ global builds
 global buildCompilers
 
 if winrt:
-    buildCompilers = ["VC110", "VC120"]
+    buildCompilers = ["VC120"]
     builds = {
-    "VC110": {
-        "x86": {"release": ["cpp"], "debug": ["cpp"],},
-        "amd64": {"release": ["cpp"], "debug": ["cpp"],},
-        "arm": {"release": ["cpp"], "debug": ["cpp"],}},
     "VC120": {
         "x86": {"release": ["cpp"], "debug": ["cpp"],},
         "amd64": {"release": ["cpp"], "debug": ["cpp"],},
@@ -799,7 +795,7 @@ if not skipBuild:
 
                         setMakefileOption(os.path.join(sourceDir, lang, "config", rules), "prefix", installDir)
 
-                    if winrt and lang == "cpp" and compiler in ["VC110", "VC120"]:
+                    if winrt and lang == "cpp" and compiler in ["VC120"]:
 
                         overwriteFile(os.path.join(sourceDir, "cpp", "src", "Makefile.mak"), winrtMakefile)
 
@@ -896,7 +892,7 @@ if winrt:
     #
     for root, dirnames, filenames in os.walk(installerDemoDir):
         for f in filenames:
-            if ((f.endswith(".sln") and f in ["demo-winrt-8.1.sln", "demo-winrt-8.0.sln"]) or
+            if ((f.endswith(".sln") and f in ["demo-winrt-8.1.sln"]) or
                 (os.path.join(root, f).find("winrt\\") != -1)):
                 continue
             os.remove(os.path.join(root, f))
@@ -910,7 +906,7 @@ if winrt:
             shutil.rmtree(os.path.join(root, d))
 
     for arch in ["x86", "amd64", "arm"]:
-        for compiler in ["VC110", "VC120"]:
+        for compiler in ["VC120"]:
             for conf in ["release", "debug"]:
 
                 buildDir = os.path.join(iceBuildHome, "build-%s-%s-%s" % (arch, compiler, conf))
@@ -929,7 +925,7 @@ else:
     #
     for root, dirnames, filenames in os.walk(installerDemoDir):
         for f in filenames:
-            if f in ["demo-winrt-8.1.sln", "demo-winrt-8.0.sln"]:
+            if f in ["demo-winrt-8.1.sln"]:
                 os.remove(os.path.join(root, f))
         for d in dirnames:
             if d == "winrt":
