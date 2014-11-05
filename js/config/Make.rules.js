@@ -48,6 +48,12 @@ NODE 		?= node
 ice_language = js
 slice_translator = slice2js
 
+ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
+    include $(top_srcdir)/config/Make.common.rules
+else
+    include $(top_srcdir)/../config/Make.common.rules
+endif
+
 ifdef ice_src_dist
     bindir = $(top_srcdir)/bin
     libdir = $(top_srcdir)/lib
