@@ -27,8 +27,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{4ef04ddd-1b81-4dc7-adf2-290e22008616}</ProjectGuid>
-    <RootNamespace>bidir</RootNamespace>
+    <ProjectGuid>{dc1a22cc-0ad9-40cf-9159-952962f71520}</ProjectGuid>
+    <RootNamespace>hello</RootNamespace>
     <DefaultLanguage>en-US</DefaultLanguage>
     <MinimumVisualStudioVersion>12.0</MinimumVisualStudioVersion>
     <AppContainerApplication>true</AppContainerApplication>
@@ -98,8 +98,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <PackageCertificateKeyFile>bidir_TemporaryKey.pfx</PackageCertificateKeyFile>
-    <PackageCertificateThumbprint>453273C2FDABA45C5F3C5D18F2A56D0640BAC69D</PackageCertificateThumbprint>
+    <PackageCertificateKeyFile>hello_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <PackageCertificateThumbprint>0E11C0D04AF5C4ACA0EFE17C1BDA45AB686D2F3A</PackageCertificateThumbprint>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
@@ -157,7 +157,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Callback.h" />
+    <ClInclude Include="Hello.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="App.xaml.h">
       <DependentUpon>App.xaml</DependentUpon>
@@ -178,11 +178,14 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <AppxManifest Include="Package-8.1.appxmanifest">
+    <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
-    <None Include="bidir_TemporaryKey.pfx" />
-    <None Include="Callback.ice" />
+    <None Include="..\..\..\..\..\certs\winrt\cacert.pem">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Hello.ice" />
+    <None Include="hello_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Logo.png" />
@@ -194,7 +197,7 @@
     <ClCompile Include="App.xaml.cpp">
       <DependentUpon>App.xaml</DependentUpon>
     </ClCompile>
-    <ClCompile Include="Callback.cpp" />
+    <ClCompile Include="Hello.cpp" />
     <ClCompile Include="MainPage.xaml.cpp">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </ClCompile>
@@ -218,7 +221,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ZerocIce_ProjectVersion="1" ZerocIce_Enabled="True" />
+      <UserProperties ZerocIce_ProjectVersion="3.6" ZerocIce_Enabled="True" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

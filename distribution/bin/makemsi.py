@@ -892,16 +892,16 @@ if winrt:
     #
     for root, dirnames, filenames in os.walk(installerDemoDir):
         for f in filenames:
-            if ((f.endswith(".sln") and f in ["demo-winrt-8.1.sln"]) or
+            if ((f.endswith(".sln") and f in ["demo-winrt.sln"]) or
                 (os.path.join(root, f).find("winrt\\") != -1)):
                 continue
             os.remove(os.path.join(root, f))
         for d in dirnames:
-            if ((d == "Ice" and os.path.join(root, d).find("demo\\Ice") != -1) or
-                (os.path.join(root, d).find("demo\\Ice\\winrt") != -1) or
-                (d == "Glacier2" and os.path.join(root, d).find("demo\\Glacier2") != -1) or
-                (os.path.join(root, d).find("demo\\Glacier2\\winrt") != -1) or 
-                (d == "demo")):
+            if ((d == "Ice" and os.path.join(root, d).find("cpp\\Ice") != -1) or
+                (os.path.join(root, d).find("cpp\\Ice\\winrt") != -1) or
+                (d == "Glacier2" and os.path.join(root, d).find("cpp\\Glacier2") != -1) or
+                (os.path.join(root, d).find("cpp\\Glacier2\\winrt") != -1) or 
+                (d == "cpp")):
                 continue
             shutil.rmtree(os.path.join(root, d))
 

@@ -49,6 +49,6 @@
     <Text Include="README.txt" />
   </ItemGroup>
   <ItemGroup>
-    <AppxManifest Include="Package-8.1.appxmanifest" />
+    <AppxManifest Include="Package.appxmanifest" />
   </ItemGroup>
 </Project>

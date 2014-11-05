@@ -1,15 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bidir", "Ice\winrt\bidir\bidir-8.1.vcxproj", "{4EF04DDD-1B81-4DC7-ADF2-290E22008616}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bidir", "Ice\winrt\bidir\bidir.vcxproj", "{4EF04DDD-1B81-4DC7-ADF2-290E22008616}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello", "Ice\winrt\hello\hello-8.1.vcxproj", "{DC1A22CC-0AD9-40CF-9159-952962F71520}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello", "Ice\winrt\hello\hello.vcxproj", "{DC1A22CC-0AD9-40CF-9159-952962F71520}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Ice", "Ice", "{2EA0DDEB-E230-4ABE-8257-3418A534FD0F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Glacier2", "Glacier2", "{B4B6E47C-00B7-439B-A3D7-04A80F4643B8}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "chat", "Glacier2\winrt\chat\chat-8.1.vcxproj", "{C56BDB5E-9829-49D6-B5EB-9089AD7E89CC}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "chat", "Glacier2\winrt\chat\chat.vcxproj", "{C56BDB5E-9829-49D6-B5EB-9089AD7E89CC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
