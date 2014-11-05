@@ -9,16 +9,29 @@
 
 package test.Ice.background;
 
-public class Collocated
+public class Collocated extends test.Util.Application
 {
     static Thread _clientThread;
     static int result;
 
-    public static void
-    main(String[] args)
+    public static void main(String[] args)
+    {
+        Collocated app = new Collocated();
+        int result = app.main("Collocated", args);
+        System.gc();
+        System.exit(result);
+    }
+
+    @Override
+    public int
+    run(String[] args)
     {
         final Client client = new Client();
+        client.setClassLoader(getClassLoader());
+        client.setWriter(getWriter());
         final Server server = new Server();
+        server.setClassLoader(getClassLoader());
+        server.setWriter(getWriter());
         Thread t = new Thread(new Runnable()
         {
             @Override
@@ -80,7 +93,7 @@ public class Collocated
         catch(InterruptedException ex)
         {
         }
-        System.gc();
-        System.exit(result);
+
+        return 0;
     }
 }

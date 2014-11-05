@@ -19,16 +19,17 @@ public class RemoteCommunicatorFactoryI extends _RemoteCommunicatorFactoryDisp
         //
         // Prepare the property set using the given properties.
         //
-        Ice.InitializationData init = new Ice.InitializationData();
-        init.properties = Ice.Util.createProperties();
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.classLoader = IceInternal.Util.getInstance(current.adapter.getCommunicator()).getClassLoader();
+        initData.properties = Ice.Util.createProperties();
         for(java.util.Map.Entry<String, String> e : props.entrySet())
         {
-            init.properties.setProperty(e.getKey(), e.getValue());
+            initData.properties.setProperty(e.getKey(), e.getValue());
         }
 
-        if(init.properties.getPropertyAsInt("NullLogger") > 0)
+        if(initData.properties.getPropertyAsInt("NullLogger") > 0)
         {
-            init.logger = new Ice.Logger() {
+            initData.logger = new Ice.Logger() {
                     @Override public void print(String message)
                     {
                     }
@@ -60,7 +61,7 @@ public class RemoteCommunicatorFactoryI extends _RemoteCommunicatorFactoryDisp
         //
         // Initialize a new communicator.
         //
-        Ice.Communicator communicator = Ice.Util.initialize(init);
+        Ice.Communicator communicator = Ice.Util.initialize(initData);
 
         //
         // Install a custom admin facet.

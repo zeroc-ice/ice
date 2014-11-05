@@ -20,7 +20,7 @@ public class Instrumentation
         }
     }
 
-    static class InvocationObserverI implements Ice.Instrumentation.InvocationObserver
+    class InvocationObserverI implements Ice.Instrumentation.InvocationObserver
     {
         @Override
         public void 
@@ -79,9 +79,9 @@ public class Instrumentation
         }
 
     };
-    static private Ice.Instrumentation.InvocationObserver invocationObserver = new InvocationObserverI();
+    private Ice.Instrumentation.InvocationObserver invocationObserver = new InvocationObserverI();
 
-    static class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
+    class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
     {
         @Override
         public Ice.Instrumentation.Observer 
@@ -138,9 +138,9 @@ public class Instrumentation
         }
     };
     
-    static private Ice.Instrumentation.CommunicatorObserver communicatorObserver = new CommunicatorObserverI();
+    private Ice.Instrumentation.CommunicatorObserver communicatorObserver = new CommunicatorObserverI();
 
-    static public Ice.Instrumentation.CommunicatorObserver
+    public Ice.Instrumentation.CommunicatorObserver
     getObserver()
     {
         return communicatorObserver;
@@ -181,25 +181,25 @@ public class Instrumentation
         value.value = 0;
     }
     
-    static public void
+    public void
     testRetryCount(int expected)
     {
         testEqual(nRetry, expected);
     }
 
-    static public void
+    public void
     testFailureCount(int expected)
     {
         testEqual(nFailure, expected);
     }
 
-    static public void
+    public void
     testInvocationCount(int expected)
     {
         testEqual(nInvocation, expected);
     }
 
-    static private Ice.IntHolder nRetry = new Ice.IntHolder(0);
-    static private Ice.IntHolder nFailure = new Ice.IntHolder(0);
-    static private Ice.IntHolder nInvocation = new Ice.IntHolder(0);
+    private Ice.IntHolder nRetry = new Ice.IntHolder(0);
+    private Ice.IntHolder nFailure = new Ice.IntHolder(0);
+    private Ice.IntHolder nInvocation = new Ice.IntHolder(0);
 };

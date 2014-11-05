@@ -211,7 +211,12 @@ class EndpointHostResolver
         // Wait for the executor to terminate.
         try
         {
-            _executor.awaitTermination(Long.MAX_VALUE, java.util.concurrent.TimeUnit.NANOSECONDS);
+            while(!_executor.isTerminated())
+            {
+                // A very long time.
+                _executor.awaitTermination(100000, java.util.concurrent.TimeUnit.SECONDS);
+            }
+
         }
         finally
         {

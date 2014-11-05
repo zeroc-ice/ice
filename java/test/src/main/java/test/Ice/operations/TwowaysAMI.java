@@ -1679,6 +1679,7 @@ class TwowaysAMI
             for(int i = 0; i < 2; i++)
             {
                 Ice.InitializationData initData = new Ice.InitializationData();
+                initData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
                 initData.properties = communicator.getProperties()._clone();
                 initData.properties.setProperty("Ice.ImplicitContext", impls[i]);
 

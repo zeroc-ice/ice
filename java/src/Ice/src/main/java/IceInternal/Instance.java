@@ -129,7 +129,11 @@ public final class Instance
             throws InterruptedException
         {
             shutdown();
-            awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            while(!isTerminated())
+            {
+                // A very long time.
+                awaitTermination(100000, java.util.concurrent.TimeUnit.SECONDS);
+            }
         }
 
         private final ThreadObserverHelper _observerHelper;
@@ -727,6 +731,12 @@ public final class Instance
         return Util.findClass(className, _initData.classLoader);
     }
 
+    public ClassLoader
+    getClassLoader()
+    {
+        return _initData.classLoader;
+    }
+
     public synchronized String
     getClassForType(String type)
     {
@@ -991,7 +1001,9 @@ public final class Instance
 
             //
             // If Ice.ThreadInterruptSafe is set or we're running on Android all
-            // IO is done on the background thread.
+            // IO is done on the background thread. For Android we use the queue
+            // executor as Android doesn't allow any network invocations on the main
+            // thread even if the call is non-blocking.
             //
             if(_initData.properties.getPropertyAsInt("Ice.ThreadInterruptSafe") > 0 || Util.isAndroid())
             {
@@ -1342,7 +1354,11 @@ public final class Instance
                 }
                 if(_timer != null)
                 {
-                    _timer.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+                    while(!_timer.isTerminated())
+                    {
+                        // A very long time.
+                        _timer.awaitTermination(100000, java.util.concurrent.TimeUnit.SECONDS);
+                    }
                 }
             }
             catch(InterruptedException ex)

@@ -9,42 +9,99 @@
 
 package com.zeroc.testsuite;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Writer;
+import java.io.*;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+
+import Ice.Logger;
+import Ice.Communicator;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
-import test.Util.Application.CommunicatorListener;
-import Ice.Communicator;
+import dalvik.system.DexClassLoader;
+import android.content.Context;
+import android.util.Log;
 import android.app.Application;
 import android.os.Handler;
 import android.os.Build.VERSION;
 
+import test.Util.Application.CommunicatorListener;
+
 public class TestApp extends Application
 {
-    static private class TestSuiteEntry
+    private final String TAG = "TestApp";
+
+    private ClassLoader getDEXClassLoader(String classDir, ClassLoader parent) throws IOException {
+        if(parent == null)
+        {
+            parent = getClassLoader();
+        }
+
+        File dexInternalStoragePath = new java.io.File(getDir("dex", Context.MODE_PRIVATE), classDir);
+
+        BufferedInputStream bis = new BufferedInputStream(getAssets().open(classDir));
+        OutputStream dexWriter = new BufferedOutputStream(new FileOutputStream(dexInternalStoragePath));
+        final int sz = 8 * 1024;
+        byte[] buf = new byte[sz];
+        int len;
+        while((len = bis.read(buf, 0, sz)) > 0)
+        {
+            dexWriter.write(buf, 0, len);
+        }
+        dexWriter.close();
+        bis.close();
+
+        // Internal storage where the DexClassLoader writes the optimized dex file to
+        final File optimizedDexOutputPath = getDir("outdex", Context.MODE_PRIVATE);
+
+        return new DexClassLoader(
+                dexInternalStoragePath.getAbsolutePath(),
+                optimizedDexOutputPath.getAbsolutePath(),
+                null,
+                parent);
+    }
+
+    static private class TestSuiteBundle
     {
-        TestSuiteEntry(String name, Class<? extends test.Util.Application> client,
-                       Class<? extends test.Util.Application> server,
-                       Class<? extends test.Util.Application> collocated)
+        TestSuiteBundle(String name, ClassLoader loader)
         {
             _name = name;
-            _client = client;
-            _server = server;
-            _collocated = collocated;
+            _loader = loader;
+
+            String className = "test.Ice." + _name.replace('_', '.');
+            try
+            {
+                _client = (Class<? extends test.Util.Application>)_loader.loadClass(className + ".Client");
+            }
+            catch(ClassNotFoundException e)
+            {
+            }
+            try
+            {
+                _server = (Class<? extends test.Util.Application>)_loader.loadClass(className + ".Server");
+            }
+            catch(ClassNotFoundException e)
+            {
+            }
+            try
+            {
+                _collocated = (Class<? extends test.Util.Application>)_loader.loadClass(className + ".Collocated");
+            }
+            catch(ClassNotFoundException e)
+            {
+            }
+        }
+
+        ClassLoader getClassLoader()
+        {
+            return _loader;
         }
 
         String getName()
@@ -53,7 +110,7 @@ public class TestApp extends Application
         }
 
         test.Util.Application getClient()
-            throws IllegalAccessException, InstantiationException
+                throws IllegalAccessException, InstantiationException
         {
             if(_client == null)
             {
@@ -63,7 +120,7 @@ public class TestApp extends Application
         }
 
         test.Util.Application getServer()
-            throws IllegalAccessException, InstantiationException
+                throws IllegalAccessException, InstantiationException
         {
             if(_server == null)
             {
@@ -74,7 +131,7 @@ public class TestApp extends Application
         }
 
         test.Util.Application getCollocated()
-            throws IllegalAccessException, InstantiationException
+                throws IllegalAccessException, InstantiationException
         {
             if(_collocated == null)
             {
@@ -85,121 +142,272 @@ public class TestApp extends Application
         }
 
         private String _name;
+        private ClassLoader _loader;
         private Class<? extends test.Util.Application> _client;
         private Class<? extends test.Util.Application> _server;
         private Class<? extends test.Util.Application> _collocated;
     }
 
-    static final private TestSuiteEntry[] _tests =
+    private Map<String, TestSuiteBundle> _bundles = new HashMap<String, TestSuiteBundle>();
+
+    static final private String _allTests[] =
     {
-        new TestSuiteEntry("adapterDeactivation", test.Ice.adapterDeactivation.Client.class,
-                           test.Ice.adapterDeactivation.Server.class, test.Ice.adapterDeactivation.Collocated.class),
-        new TestSuiteEntry("admin", test.Ice.admin.Client.class, test.Ice.admin.Server.class, null),
-        new TestSuiteEntry("ami", test.Ice.ami.Client.class, test.Ice.ami.Server.class, null),
-        new TestSuiteEntry("binding", test.Ice.binding.Client.class, test.Ice.binding.Server.class, null),
-        new TestSuiteEntry("checksum", test.Ice.checksum.Client.class, test.Ice.checksum.Server.class, null),
-        new TestSuiteEntry("classLoader", test.Ice.classLoader.Client.class, test.Ice.classLoader.Server.class, null),
-        new TestSuiteEntry("custom", test.Ice.custom.Client.class, test.Ice.custom.Server.class,
-                           test.Ice.custom.Collocated.class),
-        new TestSuiteEntry("defaultServant", test.Ice.defaultServant.Client.class, null, null),
-        new TestSuiteEntry("defaultValue", test.Ice.defaultValue.Client.class, null, null),
-        new TestSuiteEntry("dispatcher", test.Ice.dispatcher.Client.class, test.Ice.dispatcher.Server.class, null),
-        new TestSuiteEntry("enums", test.Ice.enums.Client.class, test.Ice.enums.Server.class, null),
-        new TestSuiteEntry("exceptions", test.Ice.exceptions.Client.class, test.Ice.exceptions.Server.class,
-                           test.Ice.exceptions.Collocated.class),
-        new TestSuiteEntry("facets", test.Ice.facets.Client.class, test.Ice.facets.Server.class,
-                           test.Ice.facets.Collocated.class),
-        // Require SSL
-        //new TestSuiteEntry("hash", test.Ice.hash.Client.class, null, null),
-        new TestSuiteEntry("hold", test.Ice.hold.Client.class, test.Ice.hold.Server.class, null),
+        "acm",
+        "adapterDeactivation",
+        "admin",
+        "ami",
+        "background",
+        "binding",
+        "checksum",
+        "classLoader",
+        "custom",
+        "defaultServant",
+        "defaultValue",
+        "dispatcher",
+        // Echo test is only for client side only mappings.
+        "enums",
+        "exceptions",
+        "facets",
+        // Fault tolerance test requires a special setup, so we don't support it.
+        // hash requires too much memory.
+        //"hash",
+        "hold",
         // The info test is not currently enabled - it relies on sockets to accurately return
-        // address and port information, which really only works in Android 2.3+.
-        //new TestSuiteEntry("info", test.Ice.info.Client.class, test.Ice.info.Server.class, null),
-        new TestSuiteEntry("inheritance", test.Ice.inheritance.Client.class, test.Ice.inheritance.Server.class,
-                           test.Ice.inheritance.Collocated.class),
-        new TestSuiteEntry("interceptor", test.Ice.interceptor.Client.class, null, null),
-        new TestSuiteEntry("invoke", test.Ice.invoke.Client.class, test.Ice.invoke.Server.class, null),
-        new TestSuiteEntry("location", test.Ice.location.Client.class, test.Ice.location.Server.class, null),
+        // address and port information, which really only works jjin Android 2.3+.
+        //"info"
+        "inheritance",
+        "interceptor",
+        "interrupt",
+        "invoke",
+        "location",
         // The metrics test uses too much memory.
-        //new TestSuiteEntry("metrics", test.Ice.metrics.Client.class, test.Ice.metrics.Server.class, null),
-        new TestSuiteEntry("objects", test.Ice.objects.Client.class, test.Ice.objects.Server.class,
-                           test.Ice.objects.Collocated.class),
-        new TestSuiteEntry("operations", test.Ice.operations.Client.class, test.Ice.operations.Server.class,
-                           test.Ice.operations.Collocated.class),
-        new TestSuiteEntry("optional", test.Ice.optional.Client.class, test.Ice.optional.Server.class, null),
-        new TestSuiteEntry("packagemd", test.Ice.packagemd.Client.class, test.Ice.packagemd.Server.class, null),
-        new TestSuiteEntry("proxy", test.Ice.proxy.Client.class, test.Ice.proxy.Server.class,
-                           test.Ice.proxy.Collocated.class),
-        new TestSuiteEntry("retry", test.Ice.retry.Client.class, test.Ice.retry.Server.class, null),
-        new TestSuiteEntry("seqMapping", test.Ice.seqMapping.Client.class, test.Ice.seqMapping.Server.class,
-                           test.Ice.seqMapping.Collocated.class),
-        new TestSuiteEntry("serialize", test.Ice.serialize.Client.class, test.Ice.serialize.Server.class, null),
-        new TestSuiteEntry("servantLocator", test.Ice.servantLocator.Client.class,
-                           test.Ice.servantLocator.Server.class, test.Ice.servantLocator.Collocated.class),
-        new TestSuiteEntry("slicing/exceptions", test.Ice.slicing.exceptions.Client.class,
-                           test.Ice.slicing.exceptions.Server.class, null),
-        new TestSuiteEntry("slicing/objects", test.Ice.slicing.objects.Client.class,
-                           test.Ice.slicing.objects.Server.class, null),
-        new TestSuiteEntry("stream", test.Ice.stream.Client.class, null, null),
+        //"metrics",
+        // networkProxy support isn't supported due to lack of SOCKS support.
+        // "networkProxy",
+        "objects",
+        "operations",
+        "optional",
+        "packagemd",
+        "plugin",
+        // Properties test isn't supported since it loads files.
+        "proxy",
+        "retry",
+        "seqMapping",
+        "serialize",
+        "servantLocator",
+        "slicing_exceptions",
+        "slicing_objects",
+        "stream",
+        "threadPoolPriority",
         // The throughput test uses too much memory.
-        //new TestSuiteEntry("throughput", test.Ice.throughput.Client.class, test.Ice.throughput.Server.class, null),
-        new TestSuiteEntry("timeout", test.Ice.timeout.Client.class, test.Ice.timeout.Server.class, null),
+        //"throughput", test.Ice.throughput.Client.class, test.Ice.throughput.Server.class, null),
+        "timeout",
+        "udp"
     };
 
-    static final private TestSuiteEntry[] _ssltests =
+    static final private String _tcpUnsupportedTestsValues[] =
     {
-        new TestSuiteEntry("adapterDeactivation", test.Ice.adapterDeactivation.Client.class,
-                           test.Ice.adapterDeactivation.Server.class, test.Ice.adapterDeactivation.Collocated.class),
-        new TestSuiteEntry("ami", test.Ice.ami.Client.class, test.Ice.ami.Server.class, null),
-        new TestSuiteEntry("binding", test.Ice.binding.Client.class, test.Ice.binding.Server.class, null),
-        new TestSuiteEntry("checksum", test.Ice.checksum.Client.class, test.Ice.checksum.Server.class, null),
-        new TestSuiteEntry("classLoader", test.Ice.classLoader.Client.class, test.Ice.classLoader.Server.class, null),
-        new TestSuiteEntry("custom", test.Ice.custom.Client.class, test.Ice.custom.Server.class,
-                           test.Ice.custom.Collocated.class),
-        new TestSuiteEntry("defaultServant", test.Ice.defaultServant.Client.class, null, null),
-        new TestSuiteEntry("defaultValue", test.Ice.defaultValue.Client.class, null, null),
-        new TestSuiteEntry("dispatcher", test.Ice.dispatcher.Client.class, test.Ice.dispatcher.Server.class, null),
-        new TestSuiteEntry("enums", test.Ice.enums.Client.class, test.Ice.enums.Server.class, null),
-        new TestSuiteEntry("exceptions", test.Ice.exceptions.Client.class, test.Ice.exceptions.Server.class,
-                           test.Ice.exceptions.Collocated.class),
-        new TestSuiteEntry("facets", test.Ice.facets.Client.class, test.Ice.facets.Server.class,
-                           test.Ice.facets.Collocated.class),
-        // The hash test uses too much memory.
-        //new TestSuiteEntry("hash", test.Ice.hash.Client.class, null, null),
-        new TestSuiteEntry("hold", test.Ice.hold.Client.class, test.Ice.hold.Server.class, null),
-        // The info test is not currently enabled - it relies on sockets to accurately return
-        // address and port information, which really only works in Android 2.3+.
-        //new TestSuiteEntry("info", test.Ice.info.Client.class, test.Ice.info.Server.class, null),
-        new TestSuiteEntry("inheritance", test.Ice.inheritance.Client.class, test.Ice.inheritance.Server.class,
-                           test.Ice.inheritance.Collocated.class),
-        new TestSuiteEntry("interceptor", test.Ice.interceptor.Client.class, null, null),
-        new TestSuiteEntry("invoke", test.Ice.invoke.Client.class, test.Ice.invoke.Server.class, null),
-        new TestSuiteEntry("location", test.Ice.location.Client.class, test.Ice.location.Server.class, null),
-        // The metrics test uses too much memory.
-        //new TestSuiteEntry("metrics", test.Ice.metrics.Client.class, test.Ice.metrics.Server.class, null),
-        new TestSuiteEntry("objects", test.Ice.objects.Client.class, test.Ice.objects.Server.class,
-                           test.Ice.objects.Collocated.class),
-        new TestSuiteEntry("operations", test.Ice.operations.Client.class, test.Ice.operations.Server.class,
-                           test.Ice.operations.Collocated.class),
-        new TestSuiteEntry("optional", test.Ice.optional.Client.class, test.Ice.optional.Server.class, null),
-        new TestSuiteEntry("packagemd", test.Ice.packagemd.Client.class, test.Ice.packagemd.Server.class, null),
-        new TestSuiteEntry("proxy", test.Ice.proxy.Client.class, test.Ice.proxy.Server.class,
-                           test.Ice.proxy.Collocated.class),
-        new TestSuiteEntry("retry", test.Ice.retry.Client.class, test.Ice.retry.Server.class, null),
-        new TestSuiteEntry("serialize", test.Ice.serialize.Client.class, test.Ice.serialize.Server.class, null),
-        new TestSuiteEntry("seqMapping", test.Ice.seqMapping.Client.class, test.Ice.seqMapping.Server.class,
-                           test.Ice.seqMapping.Collocated.class),
-        new TestSuiteEntry("servantLocator", test.Ice.servantLocator.Client.class,
-                           test.Ice.servantLocator.Server.class, test.Ice.servantLocator.Collocated.class),
-        new TestSuiteEntry("slicing/exceptions", test.Ice.slicing.exceptions.Client.class,
-                           test.Ice.slicing.exceptions.Server.class, null),
-        new TestSuiteEntry("slicing/objects", test.Ice.slicing.objects.Client.class,
-                           test.Ice.slicing.objects.Server.class, null),
-        new TestSuiteEntry("stream", test.Ice.stream.Client.class, null, null),
-        new TestSuiteEntry("timeout", test.Ice.timeout.Client.class, test.Ice.timeout.Server.class, null),
     };
-    private TestSuiteEntry[] _curtests = _tests;
-    
+    static final private Set<String> _tcpUnsupportedTests = new HashSet<String>(Arrays.asList(_tcpUnsupportedTestsValues));
+
+    static final private String _sslUnsupportedTestsValues[] =
+    {
+        "background",
+        "binding",
+        "plugin",
+        "timeout",
+        "udp"
+    };
+    static final private Set<String> _sslUnsupportedTests = new HashSet<String>(Arrays.asList(_sslUnsupportedTestsValues));
+
+    private List<String> _tests = new ArrayList<String>();
+
+    class LogOutput
+    {
+        private BufferedWriter _writer;
+
+        LogOutput()
+        {
+            reopen();
+        }
+
+        void reopen()
+        {
+            try
+            {
+
+                if(_writer != null)
+                {
+                    _writer.close();
+                    _writer = null;
+                }
+                File logFile = new File(getFilesDir(), "log.txt");
+                if(!logFile.exists())
+                {
+                    logFile.createNewFile();
+                }
+                _writer = new BufferedWriter(new FileWriter(logFile, false));
+            }
+            catch (IOException e)
+            {
+                Log.i(TAG, "cannot open log file", e);
+            }
+        }
+
+        void
+        write(StringBuilder message, boolean indent)
+        {
+            if(_writer == null)
+            {
+                return;
+            }
+
+            if(indent)
+            {
+                int idx = 0;
+                while((idx = message.indexOf("\n", idx)) != -1)
+                {
+                    message.insert(idx + 1, "   ");
+                    ++idx;
+                }
+            }
+            synchronized(this)
+            {
+                try
+                {
+                    _writer.newLine();
+                    _writer.append(message.toString());
+                    _writer.flush();
+                }
+                catch(java.io.IOException ex)
+                {
+                }
+            }
+        }
+    }
+    private LogOutput _logOutput;
+
+    class AndroidLogger implements Ice.Logger
+    {
+        private final String _prefix;
+        private String _formattedPrefix = "";
+        private final java.text.DateFormat _date = java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT);
+        private final java.text.SimpleDateFormat _time = new java.text.SimpleDateFormat(" HH:mm:ss:SSS");
+
+        AndroidLogger(String prefix)
+        {
+            _prefix = prefix;
+            if(prefix.length() > 0)
+            {
+                _formattedPrefix = prefix + ": ";
+            }
+        }
+        @Override
+        public void print(String message)
+        {
+            if(_logOutput != null)
+            {
+                StringBuilder s = new StringBuilder(256);
+                s.append("-- ");
+                synchronized(this)
+                {
+                    s.append(_date.format(new java.util.Date()));
+                    s.append(_time.format(new java.util.Date()));
+                }
+                s.append(' ');
+                s.append(_formattedPrefix);
+                s.append(message);
+                _logOutput.write(s, false);
+            }
+
+            Log.d(TAG, message);
+        }
+
+        @Override
+        public void trace(String category, String message)
+        {
+            if(_logOutput != null)
+            {
+                StringBuilder s = new StringBuilder(256);
+                s.append("-- ");
+                synchronized(this)
+                {
+                    s.append(_date.format(new java.util.Date()));
+                    s.append(_time.format(new java.util.Date()));
+                }
+                s.append(' ');
+                s.append(_formattedPrefix);
+                s.append(category);
+                s.append(": ");
+                s.append(message);
+                _logOutput.write(s, true);
+            }
+
+            Log.v(category, message);
+        }
+
+        @Override
+        public void warning(String message)
+        {
+            if(_logOutput != null)
+            {
+
+                StringBuilder s = new StringBuilder(256);
+                s.append("-! ");
+                synchronized(this)
+                {
+                    s.append(_date.format(new java.util.Date()));
+                    s.append(_time.format(new java.util.Date()));
+                }
+                s.append(' ');
+                s.append(_formattedPrefix);
+                s.append("warning: ");
+                s.append(Thread.currentThread().getName());
+                s.append(": ");
+                s.append(message);
+                _logOutput.write(s, true);
+            }
+
+            Log.w(TAG, message);
+        }
+
+        @Override
+        public void error(String message)
+        {
+            if(_logOutput != null)
+            {
+                StringBuilder s = new StringBuilder(256);
+                s.append("!! ");
+                synchronized(this)
+                {
+                    s.append(_date.format(new java.util.Date()));
+                    s.append(_time.format(new java.util.Date()));
+                }
+                s.append(' ');
+                s.append(_formattedPrefix);
+                s.append("error: ");
+                s.append(Thread.currentThread().getName());
+                s.append(": ");
+                s.append(message);
+                _logOutput.write(s, true);
+            }
+
+            Log.e(TAG, message);
+        }
+
+        @Override
+        public String getPrefix()
+        {
+            return _prefix;
+        }
+
+        @Override
+        public Logger cloneWithPrefix(String s)
+        {
+            return new AndroidLogger(s);
+        }
+    }
+
     class MyWriter extends Writer
     {
         @Override
@@ -251,20 +459,22 @@ public class TestApp extends Application
 
     private boolean _ssl = false;
     private boolean _sslInitialized = false;
-    private boolean _sslSupported = false;
     private boolean _ipv6 = false;
     private SSLContext _clientContext = null;
     private SSLContext _serverContext = null;
-    private SSLInitializationListener _ssllistener;
+    private SSLInitializationListener _sslListener;
 
     static abstract class TestThread extends Thread
     {
+        String _testName;
         test.Util.Application _app;
         protected int _status;
 
-        TestThread(test.Util.Application app)
+        TestThread(String testName, ClassLoader classLoader, test.Util.Application app)
         {
+            _testName = testName;
             _app = app;
+            _app.setClassLoader(classLoader);
         }
 
         public int getStatus()
@@ -281,7 +491,7 @@ public class TestApp extends Application
                     "--Ice.Default.Host=0:0:0:0:0:0:0:1",
                     "--Ice.IPv4=1",
                     "--Ice.IPv6=1",
-                    "--Ice.PreferIPv6Address=1",
+                    "--Ice.PreferIPv6Address=1"
                 };
                 
                 String[] nargs = new String[args.length + ipv6Args.length];
@@ -309,18 +519,18 @@ public class TestApp extends Application
         {
             String[] sslargs =
             {
-                "--Ice.Plugin.IceSSL=IceSSL.PluginFactory", "--Ice.Default.Protocol=ssl", "--Ice.InitPlugins=0"
+                "--Ice.Plugin.IceSSL=IceSSL.PluginFactory",
+                "--Ice.Default.Protocol=ssl",
+                "--Ice.InitPlugins=0",
+                    "--Ice.Trace.Network=3", "--Ice.Trace.Protocol=3"
             };
 
-            //
-            // Froyo apparently still suffers from Harmony bug 6047, requiring that we
-            // disable server-side verification of client certificates.
-            //
-            if(VERSION.SDK_INT == 8) // android.os.Build.VERSION_CODES.FROYO (8)
+            // SDK versions < 21 only support TLSv1 with SSLEngine.
+            if(VERSION.SDK_INT < 21)
             {
                 String[] arr = new String[sslargs.length + 1];
                 System.arraycopy(sslargs, 0, arr, 0, sslargs.length);
-                arr[arr.length - 1] = "--IceSSL.VerifyPeer=0";
+                arr[arr.length - 1] = "--IceSSL.Protocols=tls1_0";
                 sslargs = arr;
             }
 
@@ -328,6 +538,7 @@ public class TestApp extends Application
             System.arraycopy(args, 0, nargs, 0, args.length);
             System.arraycopy(sslargs, 0, nargs, args.length, sslargs.length);
             args = nargs;
+
             _app.setCommunicatorListener(new CommunicatorListener()
             {
                 public void communicatorInitialized(Communicator c)
@@ -345,9 +556,9 @@ public class TestApp extends Application
     {
         private test.Util.Application _server;
 
-        ClientThread(test.Util.Application c, test.Util.Application s)
+        ClientThread(String testName, ClassLoader classLoader, test.Util.Application c, test.Util.Application s)
         {
-            super(c);
+            super(testName, classLoader, c);
             _server = s;
             setName("ClientThread");
         }
@@ -356,11 +567,25 @@ public class TestApp extends Application
         {
             String[] args =
             {
-                "--Ice.NullHandleAbort=1", "--Ice.Warn.Connections=1"
+                "--Ice.NullHandleAbort=1",
+                "--Ice.Warn.Connections=1"
             };
             
             args = setupAddress(args, _ipv6);
-            
+
+            if(_testName == "plugin")
+            {
+                try
+                {
+                    _app.setClassLoader(getDEXClassLoader("IceTestPlugins.dex", _app.getClassLoader()));
+                }
+                catch(IOException e)
+                {
+                    // The plugin test will fail.
+                    Log.e(TAG, "IOException loading IceTestPlugins.dex", e);
+                }
+            }
+
             if(_ssl)
             {
                 args = setupssl(args, _clientContext);
@@ -379,9 +604,9 @@ public class TestApp extends Application
         private test.Util.Application _client;
         private ClientThread _clientThread;
 
-        ServerThread(test.Util.Application c, test.Util.Application s)
+        ServerThread(String testName, ClassLoader classLoader, test.Util.Application c, test.Util.Application s)
         {
-            super(s);
+            super(testName, classLoader, s);
             setName("ServerThread");
             _client = c;
         }
@@ -409,7 +634,7 @@ public class TestApp extends Application
                 {
                     if(_client != null)
                     {
-                        _clientThread = new ClientThread(_client, _app);
+                        _clientThread = new ClientThread(_testName, _app.getClassLoader(), _client, _app);
                         _clientThread.start();
                     }
                 }
@@ -438,9 +663,9 @@ public class TestApp extends Application
 
     class CollocatedThread extends TestThread
     {
-        CollocatedThread(test.Util.Application c)
+        CollocatedThread(String testName, ClassLoader classLoader, test.Util.Application c)
         {
-            super(c);
+            super(testName, classLoader, c);
             setName("CollocatedThread");
         }
 
@@ -545,9 +770,9 @@ public class TestApp extends Application
         _serverContext = serverContext;
         _sslInitialized = true;
 
-        if(_ssllistener != null)
+        if(_sslListener != null)
         {
-            final SSLInitializationListener listener = _ssllistener;
+            final SSLInitializationListener listener = _sslListener;
             if(_clientContext == null | _serverContext == null)
             {
                 _handler.post(new Runnable()
@@ -574,23 +799,11 @@ public class TestApp extends Application
     @Override
     public void onCreate()
     {
+        // By default we don't log to a file.
+        //_logOutput = new LogOutput();
+        Ice.Util.setProcessLogger(new AndroidLogger(""));
         _handler = new Handler();
-
-        if(VERSION.SDK_INT == 8) // android.os.Build.VERSION_CODES.FROYO (8)
-        {
-            //
-            // Workaround for a bug in Android 2.2 (Froyo).
-            //
-            // See http://code.google.com/p/android/issues/detail?id=9431
-            //
-            java.lang.System.setProperty("java.net.preferIPv4Stack", "true");
-            java.lang.System.setProperty("java.net.preferIPv6Addresses", "false");
-        }
-
-        //
-        // The SSLEngine class only works properly in Froyo (or later).
-        //
-        _sslSupported = VERSION.SDK_INT >= 8;
+        configureTests();
     }
 
     @Override
@@ -598,14 +811,10 @@ public class TestApp extends Application
     {
     }
 
+
     public List<String> getTestNames()
     {
-        List<String> s = new ArrayList<String>();
-        for(TestSuiteEntry t : _curtests)
-        {
-            s.add(t.getName());
-        }
-        return s;
+        return _tests;
     }
 
     synchronized public void setTestListener(TestListener listener)
@@ -613,7 +822,7 @@ public class TestApp extends Application
         _listener = listener;
         if(_listener != null && _currentTest != -1)
         {
-            _listener.onStartTest(_curtests[_currentTest].getName());
+            _listener.onStartTest(_tests.get(_currentTest));
             for(String s : _strings)
             {
                 _listener.onOutput(s);
@@ -628,7 +837,7 @@ public class TestApp extends Application
     public void startNextTest()
     {
         assert _complete;
-        startTest((_currentTest + 1) % _curtests.length);
+        startTest((_currentTest + 1) % _tests.size());
     }
 
     synchronized public void startTest(int position)
@@ -641,63 +850,83 @@ public class TestApp extends Application
         _complete = false;
         _strings.clear();
 
-        TestSuiteEntry entry = _curtests[position];
+        String testName = _tests.get(position);
+
         test.Util.Application client;
         test.Util.Application server;
         test.Util.Application collocated;
-
+        ClassLoader classLoader;
         if(_listener != null)
         {
-            _listener.onStartTest(entry.getName());
+            _listener.onStartTest(testName);
         }
 
         try
         {
-            client = entry.getClient();
-            server = entry.getServer();
-            collocated = entry.getCollocated();
+            TestSuiteBundle bundle = _bundles.get(testName);
+            if(bundle == null)
+            {
+                bundle = new TestSuiteBundle(testName, getDEXClassLoader("IceTest_" + testName + ".dex", null));
+                _bundles.put(testName, bundle);
+            }
+            classLoader = bundle.getClassLoader();
+            client = bundle.getClient();
+            server = bundle.getServer();
+            collocated = bundle.getCollocated();
         }
         catch(IllegalAccessException e)
         {
-            e.printStackTrace(pw);
+            Log.w(TAG, "IllegalAccessException: test " + testName, e);
             postOnComplete(-1);
             return;
         }
         catch(InstantiationException e)
         {
-            e.printStackTrace(pw);
+            Log.w(TAG, "InstantiationException: test " + testName, e);
+            postOnComplete(-1);
+            return;
+        }
+        catch(IOException e)
+        {
+            Log.w(TAG, "IOException: test " + testName, e);
             postOnComplete(-1);
             return;
         }
 
+        // Uncomment this if you want to reopen the logfile for each test.
+        //if(_logOutput != null)
+        //{
+        //    _logOutput.reopen();
+        //}
+
         List<TestThread> l = new ArrayList<TestThread>();
         if(server != null)
         {
+            server.setLogger(new AndroidLogger(testName + "_server"));
             server.setWriter(new MyWriter());
             // All servers must have a client.
             assert client != null;
-            client.setWriter(new MyWriter());    
-            l.add(new ServerThread(client, server));
+            client.setWriter(new MyWriter());
+            client.setLogger(new AndroidLogger(testName + "_client"));
+            l.add(new ServerThread(testName, classLoader, client, server));
             if(collocated != null)
             {
+                collocated.setLogger(new AndroidLogger(testName + "_collocated"));
                 collocated.setWriter(new MyWriter());
-                l.add(new CollocatedThread(collocated));
+                l.add(new CollocatedThread(testName, classLoader, collocated));
             }
         }
         else
         {
             client.setWriter(new MyWriter());
-            l.add(new ClientThread(client, null));
+            client.setLogger(new AndroidLogger(testName + "_client"));
+            l.add(new ClientThread(testName, classLoader, client, null));
         }
         TestRunner r = new TestRunner(l);
         r.setDaemon(true);
         r.start();
     }
 
-    public boolean isSSLSupported()
-    {
-        return _sslSupported;
-    }
     
     public void setIPv6(boolean ipv6)
     {
@@ -706,26 +935,18 @@ public class TestApp extends Application
 
     public void setSSL(boolean ssl)
     {
-        assert(!ssl || (ssl && _sslSupported));
         _ssl = ssl;
-        if(_ssl)
+        configureTests();
+        if(_currentTest > _tests.size()-1)
         {
-            _curtests = _ssltests;
-        }
-        else
-        {
-            _curtests = _tests;
-        }
-        if(_currentTest > _curtests.length-1)
-        {
-            _currentTest = _curtests.length-1;
+            _currentTest = _tests.size()-1;
         }
 
         if(_ssl && !_sslInitialized)
         {
-            if(_ssllistener != null)
+            if(_sslListener != null)
             {
-                _ssllistener.onWait();
+                _sslListener.onWait();
             }
             Runnable r = new Runnable()
             {
@@ -760,7 +981,7 @@ public class TestApp extends Application
                     }
                     catch(Exception ex)
                     {
-                        ex.printStackTrace();
+                        Log.w(TAG, "Exception", ex);
                     }
                     sslContextInitialized(clientContext, serverContext);
                 }
@@ -773,9 +994,26 @@ public class TestApp extends Application
         }
     }
 
+    private void configureTests()
+    {
+        _tests.clear();
+        for(String s : _allTests)
+        {
+            if(_ssl && _sslUnsupportedTests.contains(s))
+            {
+                continue;
+            }
+            if(!_ssl && _tcpUnsupportedTests.contains(s))
+            {
+                continue;
+            }
+            _tests.add(s);
+        }
+    }
+
     synchronized public void setSSLInitializationListener(SSLInitializationListener listener)
     {
-        _ssllistener = listener;
+        _sslListener = listener;
         if(_ssl)
         {
             if(!_sslInitialized)

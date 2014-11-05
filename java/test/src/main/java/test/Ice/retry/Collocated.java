@@ -13,6 +13,8 @@ import test.Ice.retry.Test.RetryPrx;
 
 public class Collocated extends test.Util.Application
 {
+    private Instrumentation instrumentation = new Instrumentation();
+
     @Override
     public int run(String[] args)
     {
@@ -21,7 +23,7 @@ public class Collocated extends test.Util.Application
         adapter.add(new RetryI(), communicator.stringToIdentity("retry"));
         //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
-        RetryPrx retry = AllTests.allTests(communicator, getWriter());
+        RetryPrx retry = AllTests.allTests(communicator, getWriter(), instrumentation);
         retry.shutdown();
         return 0;
     }
@@ -29,9 +31,9 @@ public class Collocated extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = new Ice.InitializationData();
+        Ice.InitializationData initData = createInitializationData();
         initData.properties = Ice.Util.createProperties(argsH);
-        initData.observer = Instrumentation.getObserver();
+        initData.observer = instrumentation.getObserver();
 
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.retry");
 
@@ -51,7 +53,7 @@ public class Collocated extends test.Util.Application
     public static void main(String[] args)
     {
         Collocated app = new Collocated();
-        int result = app.main("Client", args);
+        int result = app.main("Collocated", args);
         System.gc();
         System.exit(result);
     }

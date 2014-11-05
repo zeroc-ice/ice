@@ -186,17 +186,6 @@ public class LoginActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
 
-        if(VERSION.SDK_INT == 8) // android.os.Build.VERSION_CODES.FROYO (8)
-        {
-            //
-            // Workaround for a bug in Android 2.2 (Froyo).
-            //
-            // See http://code.google.com/p/android/issues/detail?id=9431
-            //
-            java.lang.System.setProperty("java.net.preferIPv4Stack", "true");
-            java.lang.System.setProperty("java.net.preferIPv6Addresses", "false");
-        }
-
         _login = (Button)findViewById(R.id.login);
         _login.setOnClickListener(new android.view.View.OnClickListener()
         {
@@ -243,7 +232,7 @@ public class LoginActivity extends Activity
         _password = (EditText)findViewById(R.id.password);
 
         _secure = (CheckBox)findViewById(R.id.secure);
-        _secure.setEnabled(VERSION.SDK_INT >= 8); // android.os.Build.VERSION_CODES.FROYO (8)
+        _secure.setEnabled(true);
 
         _prefs = getPreferences(MODE_PRIVATE);
 

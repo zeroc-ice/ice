@@ -32,21 +32,21 @@ public class AllTests
     private static Ice.InitializationData
     createClientProps(Ice.Properties defaultProperties, String defaultDir, String defaultHost)
     {
-        Ice.InitializationData result = new Ice.InitializationData();
-        result.properties = Ice.Util.createProperties();
-        result.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties();
+        initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
         if(defaultProperties.getProperty("Ice.IPv6").length() > 0)
         {
-            result.properties.setProperty("Ice.IPv6", defaultProperties.getProperty("Ice.IPv6"));
+            initData.properties.setProperty("Ice.IPv6", defaultProperties.getProperty("Ice.IPv6"));
         }
-        result.properties.setProperty("Ice.RetryIntervals", "-1");
-        result.properties.setProperty("IceSSL.DefaultDir", defaultDir);
-        result.properties.setProperty("IceSSL.Random", "seed.dat");
+        initData.properties.setProperty("Ice.RetryIntervals", "-1");
+        initData.properties.setProperty("IceSSL.DefaultDir", defaultDir);
+        initData.properties.setProperty("IceSSL.Random", "seed.dat");
         if(defaultHost.length() > 0)
         {
-            result.properties.setProperty("Ice.Default.Host", defaultHost);
+            initData.properties.setProperty("Ice.Default.Host", defaultHost);
         }
-        return result;
+        return initData;
     }
 
     private static java.util.Map<String, String>

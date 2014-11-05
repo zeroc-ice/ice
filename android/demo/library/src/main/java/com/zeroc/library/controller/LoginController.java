@@ -9,6 +9,7 @@
 
 package com.zeroc.library.controller;
 
+import android.os.Build;
 import com.zeroc.library.R;
 
 import android.content.res.Resources;
@@ -67,6 +68,13 @@ public class LoginController
             initData.properties.setProperty("IceSSL.Password", "password");
             initData.properties.setProperty("Ice.InitPlugins", "0");
             initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
+
+            // SDK versions < 21 only support TLSv1 with SSLEngine.
+            if(Build.VERSION.SDK_INT < 21)
+            {
+                initData.properties.setProperty("IceSSL.Protocols", "tls1_0");
+            }
+
             java.io.InputStream certStream;
             certStream = resources.openRawResource(R.raw.client);
             _communicator = Ice.Util.initialize(initData);

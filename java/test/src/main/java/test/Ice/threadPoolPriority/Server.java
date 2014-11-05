@@ -19,14 +19,13 @@ public class Server extends test.Util.Application
         adapter.add(new PriorityI(), communicator().stringToIdentity("test"));
         adapter.activate();
 
-        communicator().waitForShutdown();
-        return 0;
+        return WAIT;
     }
 
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = new Ice.InitializationData();
+        Ice.InitializationData initData = createInitializationData() ;
         initData.properties = Ice.Util.createProperties(argsH);
         initData.properties.setProperty("Ice.ThreadPool.Server.ThreadPriority", "10");
         return initData;

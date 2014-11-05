@@ -14,15 +14,14 @@ public class Client extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
-        AllTests.allTests(communicator, getWriter());
+        AllTests.allTests(this, getWriter());
         return 0;
     }
 
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = new Ice.InitializationData();
+        Ice.InitializationData initData = createInitializationData() ;
         initData.properties = Ice.Util.createProperties(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.hold");
         return initData;

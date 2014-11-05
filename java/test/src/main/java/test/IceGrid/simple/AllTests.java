@@ -84,6 +84,7 @@ public class AllTests
             // registries and make sure locator requests are forwarded.
             //
             Ice.InitializationData initData = new Ice.InitializationData();
+            initData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty("Ice.Plugin.IceGridDiscovery", "IceGrid:IceGrid.DiscoveryPluginFactoryI");

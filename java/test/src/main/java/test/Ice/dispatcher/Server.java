@@ -32,7 +32,7 @@ public class Server extends test.Util.Application
     {
         assert(_dispatcher == null);
         _dispatcher = new Dispatcher();
-        Ice.InitializationData initData = new Ice.InitializationData();
+        Ice.InitializationData initData = createInitializationData() ;
         initData.properties = Ice.Util.createProperties(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.dispatcher");
         initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");

@@ -2607,9 +2607,9 @@ public final class ConnectionI extends IceInternal.EventHandler
 
                 case IceInternal.Protocol.replyMsg:
                 {
-
                     IceInternal.TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
                     info.requestId = info.stream.readInt();
+
                     IceInternal.OutgoingAsync outAsync = _asyncRequests.remove(info.requestId);
                     if(outAsync != null && outAsync.completed(info.stream))
                     {
@@ -2993,6 +2993,7 @@ public final class ConnectionI extends IceInternal.EventHandler
             s.append(_endpoint.protocol());
             s.append("\n");
             s.append(toString());
+
             _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
         }
         return op;

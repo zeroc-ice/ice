@@ -16,16 +16,16 @@ public class Client extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        AllTests.allTests(communicator());
+        AllTests.allTests(this);
 
         int num;
         try 
         {
-            num = args.length == 1 ? Integer.parseInt(args[0]) : 0;
+            num = args.length == 1 ? Integer.parseInt(args[0]) : 1;
         }
         catch(NumberFormatException ex)
         {
-            num = 0;
+            num = 1;
         }
         for(int i = 0; i < num; ++i)
         {
@@ -37,7 +37,7 @@ public class Client extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = new Ice.InitializationData();
+        Ice.InitializationData initData = createInitializationData() ;
         initData.properties = Ice.Util.createProperties(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.udp");
         initData.properties.setProperty("Ice.Warn.Connections", "0");

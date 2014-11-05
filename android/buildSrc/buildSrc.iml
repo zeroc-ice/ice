@@ -34,48 +34,33 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" name="gradle-core-1.12" level="project" />
-    <orderEntry type="library" exported="" name="groovy-all-1.8.6" level="project" />
-    <orderEntry type="library" exported="" name="asm-all-5.0_BETA" level="project" />
+    <orderEntry type="library" exported="" name="gradle-core-2.1" level="project" />
+    <orderEntry type="library" exported="" name="groovy-all-2.3.6" level="project" />
+    <orderEntry type="library" exported="" name="asm-all-5.0.3" level="project" />
     <orderEntry type="library" exported="" name="ant-1.9.3" level="project" />
     <orderEntry type="library" exported="" name="commons-collections-3.2.1" level="project" />
     <orderEntry type="library" exported="" name="commons-io-1.4" level="project" />
     <orderEntry type="library" exported="" name="commons-lang-2.6" level="project" />
-    <orderEntry type="library" exported="" name="ivy-2.2.0" level="project" />
     <orderEntry type="library" exported="" name="logback-core-1.0.13" level="project" />
     <orderEntry type="library" exported="" name="logback-classic-1.0.13" level="project" />
-    <orderEntry type="library" exported="" name="guava-jdk5-14.0.1" level="project" />
+    <orderEntry type="library" exported="" name="guava-jdk5-17.0" level="project" />
     <orderEntry type="library" exported="" name="jcip-annotations-1.0" level="project" />
     <orderEntry type="library" exported="" name="jul-to-slf4j-1.7.5" level="project" />
     <orderEntry type="library" exported="" name="jarjar-1.3" level="project" />
     <orderEntry type="library" exported="" name="javax.inject-1" level="project" />
-    <orderEntry type="library" exported="" name="bintray-client-java-impl-0.1.0" level="project" />
-    <orderEntry type="library" exported="" name="httpclient-4.2.2" level="project" />
     <orderEntry type="library" exported="" name="slf4j-api-1.7.5" level="project" />
     <orderEntry type="library" exported="" name="log4j-over-slf4j-1.7.5" level="project" />
     <orderEntry type="library" exported="" name="jcl-over-slf4j-1.7.5" level="project" />
     <orderEntry type="library" exported="" name="ant-launcher-1.9.3" level="project" />
-    <orderEntry type="library" exported="" name="jsch-0.1.51" level="project" />
-    <orderEntry type="library" exported="" name="joda-time-2.3" level="project" />
-    <orderEntry type="library" exported="" name="bintray-client-java-api-0.1.0" level="project" />
-    <orderEntry type="library" exported="" name="commons-logging-1.1.1" level="project" />
-    <orderEntry type="library" exported="" name="commons-beanutils-1.8.0" level="project" />
-    <orderEntry type="library" exported="" name="ezmorph-1.0.6" level="project" />
-    <orderEntry type="library" exported="" name="json-lib-2.3-jdk15" level="project" />
-    <orderEntry type="library" exported="" name="xml-resolver-1.2" level="project" />
-    <orderEntry type="library" exported="" name="http-builder-0.6" level="project" />
-    <orderEntry type="library" exported="" name="commons-codec-1.6" level="project" />
-    <orderEntry type="library" exported="" name="httpcore-4.2.2" level="project" />
-    <orderEntry type="library" exported="" name="jcifs-1.3.17" level="project" />
-    <orderEntry type="library" exported="" name="gradle-docs-1.12" level="project" />
-    <orderEntry type="library" exported="" name="gradle-base-services-groovy-1.12" level="project" />
-    <orderEntry type="library" exported="" name="gradle-base-services-1.12" level="project" />
-    <orderEntry type="library" exported="" name="gradle-resources-1.12" level="project" />
-    <orderEntry type="library" exported="" name="gradle-cli-1.12" level="project" />
-    <orderEntry type="library" exported="" name="gradle-native-1.12" level="project" />
+    <orderEntry type="library" exported="" name="gradle-docs-2.1" level="project" />
+    <orderEntry type="library" exported="" name="gradle-model-core-2.1" level="project" />
+    <orderEntry type="library" exported="" name="gradle-base-services-2.1" level="project" />
+    <orderEntry type="library" exported="" name="gradle-model-groovy-2.1" level="project" />
+    <orderEntry type="library" exported="" name="gradle-base-services-groovy-2.1" level="project" />
+    <orderEntry type="library" exported="" name="gradle-cli-2.1" level="project" />
+    <orderEntry type="library" exported="" name="gradle-native-2.1" level="project" />
     <orderEntry type="library" exported="" name="jna-3.2.7" level="project" />
     <orderEntry type="library" exported="" name="native-platform-0.10" level="project" />
-    <orderEntry type="library" exported="" name="jna-posix-1.0.3" level="project" />
     <orderEntry type="library" exported="" name="jansi-1.2.1" level="project" />
     <orderEntry type="library" exported="" name="native-platform-osx-i386-0.10" level="project" />
     <orderEntry type="library" exported="" name="native-platform-osx-amd64-0.10" level="project" />
@@ -85,13 +70,13 @@
     <orderEntry type="library" exported="" name="native-platform-windows-i386-0.10" level="project" />
     <orderEntry type="library" exported="" name="native-platform-freebsd-i386-0.10" level="project" />
     <orderEntry type="library" exported="" name="native-platform-freebsd-amd64-0.10" level="project" />
-    <orderEntry type="library" exported="" name="gradle-messaging-1.12" level="project" />
+    <orderEntry type="library" exported="" name="gradle-messaging-2.1" level="project" />
     <orderEntry type="library" exported="" name="kryo-2.20" level="project" />
-    <orderEntry type="library" exported="" name="asm-4.0" level="project" />
     <orderEntry type="library" exported="" name="reflectasm-1.07-shaded" level="project" />
     <orderEntry type="library" exported="" name="minlog-1.2" level="project" />
     <orderEntry type="library" exported="" name="objenesis-1.2" level="project" />
-    <orderEntry type="library" exported="" name="gradle-core-impl-1.12" level="project" />
+    <orderEntry type="library" exported="" name="gradle-resources-2.1" level="project" />
+    <orderEntry type="library" exported="" name="gradle-core-impl-2.1" level="project" />
     <orderEntry type="library" exported="" name="jarjar-maven-settings-3.0.4" level="project" />
     <orderEntry type="library" exported="" name="jarjar-maven-repository-metadata-3.0.4" level="project" />
     <orderEntry type="library" exported="" name="jarjar-plexus-container-default-1.5.5" level="project" />
@@ -117,13 +102,24 @@
     <orderEntry type="library" exported="" name="jarjar-maven-artifact-3.0.4" level="project" />
     <orderEntry type="library" exported="" name="jarjar-maven-model-3.0.4" level="project" />
     <orderEntry type="library" exported="" name="jarjar-aether-impl-1.13.1" level="project" />
+    <orderEntry type="library" exported="" name="ivy-2.2.0" level="project" />
     <orderEntry type="library" exported="" name="maven-ant-tasks-2.1.3" level="project" />
-    <orderEntry type="library" exported="" name="nekohtml-1.9.14" level="project" />
+    <orderEntry type="library" exported="" name="jsch-0.1.51" level="project" />
+    <orderEntry type="library" exported="" name="gson-2.2.4" level="project" />
     <orderEntry type="library" exported="" name="xbean-reflect-3.4" level="project" />
+    <orderEntry type="library" exported="" name="bcprov-jdk15-1.46" level="project" />
+    <orderEntry type="library" exported="" name="gradle-resources-http-2.1" level="project" />
+    <orderEntry type="library" exported="" name="httpclient-4.2.2" level="project" />
+    <orderEntry type="library" exported="" name="nekohtml-1.9.14" level="project" />
+    <orderEntry type="library" exported="" name="commons-codec-1.6" level="project" />
+    <orderEntry type="library" exported="" name="httpcore-4.2.2" level="project" />
+    <orderEntry type="library" exported="" name="jcifs-1.3.17" level="project" />
     <orderEntry type="library" exported="" name="xml-apis-1.3.04" level="project" />
     <orderEntry type="library" exported="" name="xercesImpl-2.9.1" level="project" />
-    <orderEntry type="library" exported="" name="gradle-tooling-api-1.12" level="project" />
-    <orderEntry type="library" exported="" name="gradle-plugins-1.12" level="project" />
+    <orderEntry type="library" exported="" name="gradle-plugin-use-2.1" level="project" />
+    <orderEntry type="library" exported="" name="gradle-tooling-api-2.1" level="project" />
+    <orderEntry type="library" exported="" name="gradle-wrapper-2.1" level="project" />
+    <orderEntry type="library" exported="" name="gradle-plugins-2.1" level="project" />
     <orderEntry type="library" exported="" name="junit-4.11" level="project" />
     <orderEntry type="library" exported="" name="testng-6.3.1" level="project" />
     <orderEntry type="library" exported="" name="commons-cli-1.2" level="project" />
@@ -131,8 +127,8 @@
     <orderEntry type="library" exported="" name="jcommander-1.12" level="project" />
     <orderEntry type="library" exported="" name="snakeyaml-1.6" level="project" />
     <orderEntry type="library" exported="" name="hamcrest-core-1.3" level="project" />
-    <orderEntry type="library" exported="" name="gradle-code-quality-1.12" level="project" />
-    <orderEntry type="library" exported="" name="gradle-jetty-1.12" level="project" />
+    <orderEntry type="library" exported="" name="gradle-code-quality-2.1" level="project" />
+    <orderEntry type="library" exported="" name="gradle-jetty-2.1" level="project" />
     <orderEntry type="library" exported="" name="jetty-6.1.25" level="project" />
     <orderEntry type="library" exported="" name="jetty-util-6.1.25" level="project" />
     <orderEntry type="library" exported="" name="servlet-api-2.5-20081211" level="project" />
@@ -143,41 +139,39 @@
     <orderEntry type="library" exported="" name="jetty-naming-6.1.25" level="project" />
     <orderEntry type="library" exported="" name="core-3.1.1" level="project" />
     <orderEntry type="library" exported="" name="jsp-api-2.1-6.1.14" level="project" />
-    <orderEntry type="library" exported="" name="gradle-antlr-1.12" level="project" />
+    <orderEntry type="library" exported="" name="gradle-antlr-2.1" level="project" />
     <orderEntry type="library" exported="" name="ant-antlr-1.9.3" level="project" />
     <orderEntry type="library" exported="" name="antlr-2.7.7" level="project" />
-    <orderEntry type="library" exported="" name="gradle-wrapper-1.12" level="project" />
-    <orderEntry type="library" exported="" name="gradle-osgi-1.12" level="project" />
+    <orderEntry type="library" exported="" name="gradle-osgi-2.1" level="project" />
     <orderEntry type="library" exported="" name="bndlib-2.1.0" level="project" />
-    <orderEntry type="library" exported="" name="gradle-maven-1.12" level="project" />
+    <orderEntry type="library" exported="" name="gradle-maven-2.1" level="project" />
     <orderEntry type="library" exported="" name="pmaven-common-0.8-20100325" level="project" />
     <orderEntry type="library" exported="" name="pmaven-groovy-0.8-20100325" level="project" />
     <orderEntry type="library" exported="" name="plexus-component-annotations-1.5.2" level="project" />
-    <orderEntry type="library" exported="" name="gradle-ide-1.12" level="project" />
-    <orderEntry type="library" exported="" name="gradle-announce-1.12" level="project" />
-    <orderEntry type="library" exported="" name="gradle-scala-1.12" level="project" />
-    <orderEntry type="library" exported="" name="gradle-sonar-1.12" level="project" />
+    <orderEntry type="library" exported="" name="gradle-ide-2.1" level="project" />
+    <orderEntry type="library" exported="" name="gradle-announce-2.1" level="project" />
+    <orderEntry type="library" exported="" name="gradle-scala-2.1" level="project" />
+    <orderEntry type="library" exported="" name="gradle-sonar-2.1" level="project" />
     <orderEntry type="library" exported="" name="sonar-runner-2.0" level="project" />
     <orderEntry type="library" exported="" name="sonar-batch-bootstrapper-2.9" level="project" />
-    <orderEntry type="library" exported="" name="gradle-signing-1.12" level="project" />
+    <orderEntry type="library" exported="" name="gradle-signing-2.1" level="project" />
     <orderEntry type="library" exported="" name="bcpg-jdk15-1.46" level="project" />
-    <orderEntry type="library" exported="" name="bcprov-jdk15-1.46" level="project" />
-    <orderEntry type="library" exported="" name="gradle-cpp-1.12" level="project" />
-    <orderEntry type="library" exported="" name="gradle-ear-1.12" level="project" />
-    <orderEntry type="library" exported="" name="gradle-javascript-1.12" level="project" />
+    <orderEntry type="library" exported="" name="gradle-cpp-2.1" level="project" />
+    <orderEntry type="library" exported="" name="gradle-ear-2.1" level="project" />
+    <orderEntry type="library" exported="" name="gradle-javascript-2.1" level="project" />
     <orderEntry type="library" exported="" name="rhino-1.7R3" level="project" />
-    <orderEntry type="library" exported="" name="gson-2.2.4" level="project" />
     <orderEntry type="library" exported="" name="simple-4.1.21" level="project" />
-    <orderEntry type="library" exported="" name="gradle-build-comparison-1.12" level="project" />
-    <orderEntry type="library" exported="" name="gradle-diagnostics-1.12" level="project" />
-    <orderEntry type="library" exported="" name="gradle-reporting-1.12" level="project" />
+    <orderEntry type="library" exported="" name="gradle-build-comparison-2.1" level="project" />
+    <orderEntry type="library" exported="" name="gradle-diagnostics-2.1" level="project" />
+    <orderEntry type="library" exported="" name="gradle-reporting-2.1" level="project" />
     <orderEntry type="library" exported="" name="jatl-0.2.2" level="project" />
-    <orderEntry type="library" exported="" name="gradle-publish-1.12" level="project" />
-    <orderEntry type="library" exported="" name="gradle-ivy-1.12" level="project" />
-    <orderEntry type="library" exported="" name="gradle-jacoco-1.12" level="project" />
-    <orderEntry type="library" exported="" name="gradle-build-init-1.12" level="project" />
-    <orderEntry type="library" exported="" name="gradle-language-jvm-1.12" level="project" />
-    <orderEntry type="library" exported="" name="gradle-language-base-1.12" level="project" />
+    <orderEntry type="library" exported="" name="gradle-publish-2.1" level="project" />
+    <orderEntry type="library" exported="" name="gradle-ivy-2.1" level="project" />
+    <orderEntry type="library" exported="" name="gradle-jacoco-2.1" level="project" />
+    <orderEntry type="library" exported="" name="gradle-build-init-2.1" level="project" />
+    <orderEntry type="library" exported="" name="gradle-language-jvm-2.1" level="project" />
+    <orderEntry type="library" exported="" name="gradle-language-base-2.1" level="project" />
+    <orderEntry type="library" exported="" name="gradle-plugin-development-2.1" level="project" />
   </component>
 </module>
 

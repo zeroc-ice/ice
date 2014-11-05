@@ -48,7 +48,7 @@ public class Client extends test.Util.Application
             int maxCollisions = 10;
             int maxIterations = 10000;
 
-            Ice.InitializationData initData = new Ice.InitializationData();
+            Ice.InitializationData initData = createInitializationData() ;
             initData.properties = Ice.Util.createProperties(args);
             initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
             Ice.Communicator  communicator = Ice.Util.initialize(args, initData);

@@ -184,29 +184,23 @@ final class TransceiverI implements IceInternal.Transceiver
                 _netInput.flip();
                 SSLEngineResult result = _engine.unwrap(_netInput, _appInput);
                 _netInput.compact();
-                switch(result.getStatus())
+
+                Status status = result.getStatus();
+                assert status != Status.BUFFER_OVERFLOW;
+
+                if(status == Status.CLOSED)
                 {
-                case BUFFER_OVERFLOW:
-                {
-                    assert(false);
-                    break;
+                    throw new Ice.ConnectionLostException();
                 }
-                case BUFFER_UNDERFLOW:
+                // Android API 21 SSLEngine doesn't report underflow, so look at the absence of
+                // network data and application data to signal a network read.
+                else if(status == Status.BUFFER_UNDERFLOW || (_appInput.position() == 0 && _netInput.position() == 0))
                 {
                     if(_stream.read(_netInput) == 0)
                     {
                         return IceInternal.SocketOperation.Read;
                     }
                     continue;
-                }
-                case CLOSED:
-                {
-                    throw new Ice.ConnectionLostException();
-                }
-                case OK:
-                {
-                    break;
-                }
                 }
 
                 fill(buf.b);
@@ -220,7 +214,8 @@ final class TransceiverI implements IceInternal.Transceiver
         //
         // Return a boolean to indicate whether more data is available.
         //
-        moreData.value = _netInput.position() > 0;
+        moreData.value = _netInput.position() > 0 || _appInput.position() > 0;
+
         return IceInternal.SocketOperation.None;
     }
 
@@ -325,7 +320,7 @@ final class TransceiverI implements IceInternal.Transceiver
         try
         {
             HandshakeStatus status = _engine.getHandshakeStatus();
-            while(true)
+            while(!_engine.isOutboundDone() && !_engine.isInboundDone())
             {
                 SSLEngineResult result = null;
                 switch(status)
@@ -347,6 +342,11 @@ final class TransceiverI implements IceInternal.Transceiver
                 }
                 case NEED_UNWRAP:
                 {
+                    if(_netInput.position() == 0 && _stream.read(_netInput) == 0)
+                    {
+                        return IceInternal.SocketOperation.Read;
+                    }
+
                     //
                     // The engine needs more data. We might already have enough data in
                     // the _netInput buffer to satisfy the engine. If not, the engine
@@ -396,6 +396,7 @@ final class TransceiverI implements IceInternal.Transceiver
                     {
                         return IceInternal.SocketOperation.Write;
                     }
+
                     //
                     // FINISHED is only returned from wrap or unwrap, not from engine.getHandshakeResult().
                     //
@@ -427,6 +428,7 @@ final class TransceiverI implements IceInternal.Transceiver
         {
             throw new Ice.SecurityException("IceSSL: handshake error", ex);
         }
+        return IceInternal.SocketOperation.None;
     }
 
     private int writeNonBlocking(ByteBuffer buf)
@@ -445,6 +447,7 @@ final class TransceiverI implements IceInternal.Transceiver
                     //
                     // Encrypt the buffer.
                     //
+                    int position = _netOutput.position();
                     SSLEngineResult result = _engine.wrap(buf, _netOutput);
                     switch(result.getStatus())
                     {

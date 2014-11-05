@@ -189,8 +189,9 @@ public class AllTests
         }
         out.println("ok");
 
-	// The sequence needs to be large enough to fill the write/recv buffers
-        byte[] seq = new byte[20000000];
+        // The sequence needs to be large enough to fill the write/recv buffers
+        int bufSize = (test.Util.Application.isAndroid()) ? 10000000 : 20000000;
+        byte[] seq = new byte[bufSize];
 
         out.print("testing connection timeout... ");
         out.flush();
@@ -363,6 +364,7 @@ public class AllTests
             // endpoint timeouts.
             //
             Ice.InitializationData initData = new Ice.InitializationData();
+            initData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Override.Timeout", "250");
             Ice.Communicator comm = app.initialize(initData);
@@ -399,6 +401,7 @@ public class AllTests
             // Test Ice.Override.ConnectTimeout.
             //
             Ice.InitializationData initData = new Ice.InitializationData();
+            initData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Override.ConnectTimeout", "250");
 
@@ -452,6 +455,7 @@ public class AllTests
             // Test Ice.Override.CloseTimeout.
             //
             Ice.InitializationData initData = new Ice.InitializationData();
+            initData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Override.CloseTimeout", "200");
             Ice.Communicator comm = app.initialize(initData);

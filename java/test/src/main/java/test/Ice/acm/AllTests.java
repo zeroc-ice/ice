@@ -16,9 +16,11 @@ import test.Ice.acm.Test.RemoteCommunicatorPrxHelper;
 import test.Ice.acm.Test.RemoteObjectAdapterPrx;
 import test.Ice.acm.Test.TestIntfPrx;
 import test.Ice.acm.Test.TestIntfPrxHelper;
+import test.Util.Application;
 
 public class AllTests
 {
+    private static Ice.Communicator communicator;
     private static void
     test(boolean b)
     {
@@ -118,8 +120,9 @@ public class AllTests
 
     static abstract class TestCase implements Ice.ConnectionCallback
     {
-        public TestCase(String name, RemoteCommunicatorPrx com, java.io.PrintWriter out)
+        public TestCase(Application app, String name, RemoteCommunicatorPrx com, PrintWriter out)
         {
+            _app = app;
             _name = name;
             _com = com;
             _logger = new LoggerI(out);
@@ -141,7 +144,8 @@ public class AllTests
             _adapter = _com.createObjectAdapter(_serverACMTimeout, _serverACMClose, _serverACMHeartbeat);
 
             Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = _com.ice_getCommunicator().getProperties()._clone();
+            initData.classLoader = IceInternal.Util.getInstance(_app.communicator()).getClassLoader();
+            initData.properties = _app.communicator().getProperties()._clone();
             initData.logger = _logger;
             initData.properties.setProperty("Ice.ACM.Timeout", "1");
             if(_clientACMTimeout >= 0)
@@ -158,7 +162,7 @@ public class AllTests
             }
             //initData.properties.setProperty("Ice.Trace.Protocol", "2");
             //initData.properties.setProperty("Ice.Trace.Network", "2");
-            _communicator = Ice.Util.initialize(initData);
+            _communicator = _app.initialize(initData);
 
             _thread = new Thread(
                 new Runnable()
@@ -247,6 +251,7 @@ public class AllTests
             _serverACMHeartbeat = heartbeat;
         }
 
+        private final Application _app;
         private String _name;
         private RemoteCommunicatorPrx _com;
         private String _msg;
@@ -269,9 +274,9 @@ public class AllTests
 
     static class InvocationHeartbeatTest extends TestCase
     {
-        public InvocationHeartbeatTest(RemoteCommunicatorPrx com, java.io.PrintWriter out)
+        public InvocationHeartbeatTest(Application app, RemoteCommunicatorPrx com, java.io.PrintWriter out)
         {
-            super("invocation heartbeat", com, out);
+            super(app, "invocation heartbeat", com, out);
         }
 
         public void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
@@ -279,13 +284,13 @@ public class AllTests
             proxy.sleep(2);
             test(_heartbeat >= 2);
         }
-    };
+    }
 
     static class InvocationHeartbeatOnHoldTest extends TestCase
     {
-        public InvocationHeartbeatOnHoldTest(RemoteCommunicatorPrx com, java.io.PrintWriter out)
+        public InvocationHeartbeatOnHoldTest(Application app, RemoteCommunicatorPrx com, java.io.PrintWriter out)
         {
-            super("invocation with heartbeat on hold", com, out);
+            super(app, "invocation with heartbeat on hold", com, out);
             // Use default ACM configuration.
         }
 
@@ -310,13 +315,13 @@ public class AllTests
                 }
             }
         }
-    };
+    }
 
     static class InvocationNoHeartbeatTest extends TestCase
     {
-        public InvocationNoHeartbeatTest(RemoteCommunicatorPrx com, java.io.PrintWriter out)
+        public InvocationNoHeartbeatTest(Application app, RemoteCommunicatorPrx com, java.io.PrintWriter out)
         {
-            super("invocation with no heartbeat", com, out);
+            super(app, "invocation with no heartbeat", com, out);
             setServerACM(1, 2, 0); // Disable heartbeat on invocations
         }
 
@@ -341,13 +346,13 @@ public class AllTests
                 }
             }
         }
-    };
+    }
 
     static class InvocationHeartbeatCloseOnIdleTest extends TestCase
     {
-        public InvocationHeartbeatCloseOnIdleTest(RemoteCommunicatorPrx com, java.io.PrintWriter out)
+        public InvocationHeartbeatCloseOnIdleTest(Application app, RemoteCommunicatorPrx com, java.io.PrintWriter out)
         {
-            super("invocation with no heartbeat and close on idle", com, out);
+            super(app, "invocation with no heartbeat and close on idle", com, out);
             setClientACM(1, 1, 0); // Only close on idle.
             setServerACM(1, 2, 0); // Disable heartbeat on invocations
         }
@@ -364,13 +369,13 @@ public class AllTests
                 test(!_closed);
             }
         }
-    };
+    }
 
     static class CloseOnIdleTest extends TestCase
     {
-        public CloseOnIdleTest(RemoteCommunicatorPrx com, java.io.PrintWriter out)
+        public CloseOnIdleTest(Application app, RemoteCommunicatorPrx com, java.io.PrintWriter out)
         {
-            super("close on idle", com, out);
+            super(app, "close on idle", com, out);
             setClientACM(1, 1, 0); // Only close on idle
         }
 
@@ -390,13 +395,13 @@ public class AllTests
                 test(_closed);
             }
         }
-    };
+    }
 
     static class CloseOnInvocationTest extends TestCase
     {
-        public CloseOnInvocationTest(RemoteCommunicatorPrx com, java.io.PrintWriter out)
+        public CloseOnInvocationTest(Application app, RemoteCommunicatorPrx com, java.io.PrintWriter out)
         {
-            super("close on invocation", com, out);
+            super(app, "close on invocation", com, out);
             setClientACM(1, 2, 0); // Only close on invocation
         }
 
@@ -416,13 +421,13 @@ public class AllTests
                 test(!_closed);
             }
         }
-    };
+    }
 
     static class CloseOnIdleAndInvocationTest extends TestCase
     {
-        public CloseOnIdleAndInvocationTest(RemoteCommunicatorPrx com, java.io.PrintWriter out)
+        public CloseOnIdleAndInvocationTest(Application app, RemoteCommunicatorPrx com, java.io.PrintWriter out)
         {
-            super("close on idle and invocation", com, out);
+            super(app, "close on idle and invocation", com, out);
             setClientACM(1, 3, 0); // Only close on idle and invocation
         }
 
@@ -462,13 +467,13 @@ public class AllTests
                 test(_closed); // Connection should be closed this time.
             }
         }
-    };
+    }
 
     static class ForcefulCloseOnIdleAndInvocationTest extends TestCase
     {
-        public ForcefulCloseOnIdleAndInvocationTest(RemoteCommunicatorPrx com, java.io.PrintWriter out)
+        public ForcefulCloseOnIdleAndInvocationTest(Application app, RemoteCommunicatorPrx com, java.io.PrintWriter out)
         {
-            super("forceful close on idle and invocation", com, out);
+            super(app, "forceful close on idle and invocation", com, out);
             setClientACM(1, 4, 0); // Only close on idle and invocation
         }
 
@@ -489,13 +494,13 @@ public class AllTests
                 test(_closed); // Connection closed forcefully by ACM
             }
         }
-    };
+    }
 
     static class HeartbeatOnIdleTest extends TestCase
     {
-        public HeartbeatOnIdleTest(RemoteCommunicatorPrx com, java.io.PrintWriter out)
+        public HeartbeatOnIdleTest(Application app, RemoteCommunicatorPrx com, java.io.PrintWriter out)
         {
-            super("heartbeat on idle", com, out);
+            super(app, "heartbeat on idle", com, out);
             setServerACM(1, -1, 2); // Enable server heartbeats.
         }
 
@@ -514,13 +519,13 @@ public class AllTests
                 test(_heartbeat >= 3);
             }
         }
-    };
+    }
 
     static class HeartbeatAlwaysTest extends TestCase
     {
-        public HeartbeatAlwaysTest(RemoteCommunicatorPrx com, java.io.PrintWriter out)
+        public HeartbeatAlwaysTest(Application app, RemoteCommunicatorPrx com, java.io.PrintWriter out)
         {
-            super("heartbeat always", com, out);
+            super(app, "heartbeat always", com, out);
             setServerACM(1, -1, 3); // Enable server heartbeats.
         }
 
@@ -543,13 +548,13 @@ public class AllTests
                 test(_heartbeat >= 3);
             }
         }
-    };
+    }
 
     static class SetACMTest extends TestCase
     {
-        public SetACMTest(RemoteCommunicatorPrx com, java.io.PrintWriter out)
+        public SetACMTest(Application app, RemoteCommunicatorPrx com, java.io.PrintWriter out)
         {
-            super("setACM/getACM", com, out);
+            super(app, "setACM/getACM", com, out);
             setClientACM(15, 4, 2);
         }
 
@@ -576,29 +581,30 @@ public class AllTests
             test(acm.close == Ice.ACMClose.CloseOnInvocationAndIdle);
             test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatOnInvocation);
         }
-    };
+    }
 
     public static void
-    allTests(Ice.Communicator communicator, PrintWriter out)
+    allTests(test.Util.Application app, PrintWriter out)
     {
+        Ice.Communicator communicator = app.communicator();
         String ref = "communicator:default -p 12010";
         RemoteCommunicatorPrx com = RemoteCommunicatorPrxHelper.uncheckedCast(communicator.stringToProxy(ref));
 
         java.util.List<TestCase> tests = new java.util.ArrayList<TestCase>();
 
-        tests.add(new InvocationHeartbeatTest(com, out));
-        tests.add(new InvocationHeartbeatOnHoldTest(com, out));
-        tests.add(new InvocationNoHeartbeatTest(com, out));
-        tests.add(new InvocationHeartbeatCloseOnIdleTest(com, out));
+        tests.add(new InvocationHeartbeatTest(app, com, out));
+        tests.add(new InvocationHeartbeatOnHoldTest(app, com, out));
+        tests.add(new InvocationNoHeartbeatTest(app, com, out));
+        tests.add(new InvocationHeartbeatCloseOnIdleTest(app, com, out));
 
-        tests.add(new CloseOnIdleTest(com, out));
-        tests.add(new CloseOnInvocationTest(com, out));
-        tests.add(new CloseOnIdleAndInvocationTest(com, out));
-        tests.add(new ForcefulCloseOnIdleAndInvocationTest(com, out));
+        tests.add(new CloseOnIdleTest(app, com, out));
+        tests.add(new CloseOnInvocationTest(app, com, out));
+        tests.add(new CloseOnIdleAndInvocationTest(app, com, out));
+        tests.add(new ForcefulCloseOnIdleAndInvocationTest(app, com, out));
 
-        tests.add(new HeartbeatOnIdleTest(com, out));
-        tests.add(new HeartbeatAlwaysTest(com, out));
-        tests.add(new SetACMTest(com, out));
+        tests.add(new HeartbeatOnIdleTest(app, com, out));
+        tests.add(new HeartbeatAlwaysTest(app, com, out));
+        tests.add(new SetACMTest(app, com, out));
 
         for(TestCase test : tests)
         {

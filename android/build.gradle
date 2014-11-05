@@ -12,7 +12,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.12.2'
+        classpath 'com.android.tools.build:gradle:0.13.+'
     }
 }
 
@@ -20,10 +20,10 @@ subprojects {
     apply plugin: 'idea'
 
     // The Android versions used by subprojects.
-    ext.ice_compileSdkVersion = 17
-    ext.ice_buildToolsVersion = "21.0.1"
-    ext.ice_minSdkVersion = 17
-    ext.ice_targetSdkVersion = 17
+    ext.ice_compileSdkVersion = 21
+    ext.ice_buildToolsVersion = "21.1.0"
+    ext.ice_minSdkVersion = 21
+    ext.ice_targetSdkVersion = 21
 
     repositories {
         maven {

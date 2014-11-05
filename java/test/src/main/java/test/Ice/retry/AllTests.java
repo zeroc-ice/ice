@@ -113,7 +113,7 @@ public class AllTests
     }
 
     public static RetryPrx
-    allTests(Ice.Communicator communicator, PrintWriter out)
+    allTests(Ice.Communicator communicator, PrintWriter out, Instrumentation instrumentation)
     {
         out.print("testing stringToProxy... ");
         out.flush();
@@ -139,7 +139,7 @@ public class AllTests
         retry1.op(false);
         out.println("ok");
 
-        Instrumentation.testInvocationCount(3);
+        instrumentation.testInvocationCount(3);
 
         out.print("calling operation to kill connection with second proxy... ");
         out.flush();
@@ -155,17 +155,17 @@ public class AllTests
         catch(Ice.ConnectionLostException ex)
         {
         }
-        Instrumentation.testInvocationCount(1);
-        Instrumentation.testFailureCount(1);
-        Instrumentation.testRetryCount(0);
+        instrumentation.testInvocationCount(1);
+        instrumentation.testFailureCount(1);
+        instrumentation.testRetryCount(0);
         out.println("ok");
         
         out.print("calling regular operation with first proxy again... ");
         out.flush();
         retry1.op(false);
-        Instrumentation.testInvocationCount(1);
-        Instrumentation.testFailureCount(0);
-        Instrumentation.testRetryCount(0);
+        instrumentation.testInvocationCount(1);
+        instrumentation.testFailureCount(0);
+        instrumentation.testRetryCount(0);
         out.println("ok");
 
         AMIRegular cb1 = new AMIRegular();
@@ -174,36 +174,36 @@ public class AllTests
         out.print("calling regular AMI operation with first proxy... ");
         retry1.begin_op(false, cb1);
         cb1.check();
-        Instrumentation.testInvocationCount(1);
-        Instrumentation.testFailureCount(0);
-        Instrumentation.testRetryCount(0);
+        instrumentation.testInvocationCount(1);
+        instrumentation.testFailureCount(0);
+        instrumentation.testRetryCount(0);
         out.println("ok");
 
         out.print("calling AMI operation to kill connection with second proxy... ");
         retry2.begin_op(true, cb2);
         cb2.check();
-        Instrumentation.testInvocationCount(1);
-        Instrumentation.testFailureCount(1);
-        Instrumentation.testRetryCount(0);
+        instrumentation.testInvocationCount(1);
+        instrumentation.testFailureCount(1);
+        instrumentation.testRetryCount(0);
         out.println("ok");
 
         out.print("calling regular AMI operation with first proxy again... ");
         retry1.begin_op(false, cb1);
         cb1.check();
-        Instrumentation.testInvocationCount(1);
-        Instrumentation.testFailureCount(0);
-        Instrumentation.testRetryCount(0);
+        instrumentation.testInvocationCount(1);
+        instrumentation.testFailureCount(0);
+        instrumentation.testRetryCount(0);
         out.println("ok");
 
         out.print("testing idempotent operation... ");
         test(retry1.opIdempotent(4) == 4);
-        Instrumentation.testInvocationCount(1);
-        Instrumentation.testFailureCount(0);
-        Instrumentation.testRetryCount(4);
+        instrumentation.testInvocationCount(1);
+        instrumentation.testFailureCount(0);
+        instrumentation.testRetryCount(4);
         test(retry1.end_opIdempotent(retry1.begin_opIdempotent(4)) == 4);
-        Instrumentation.testInvocationCount(1);
-        Instrumentation.testFailureCount(0);
-        Instrumentation.testRetryCount(4);
+        instrumentation.testInvocationCount(1);
+        instrumentation.testFailureCount(0);
+        instrumentation.testRetryCount(4);
         out.println("ok");
 
         out.print("testing non-idempotent operation... ");
@@ -215,9 +215,9 @@ public class AllTests
         catch(Ice.LocalException ex)
         {
         }
-        Instrumentation.testInvocationCount(1);
-        Instrumentation.testFailureCount(1);
-        Instrumentation.testRetryCount(0);
+        instrumentation.testInvocationCount(1);
+        instrumentation.testFailureCount(1);
+        instrumentation.testRetryCount(0);
         try
         {
             retry1.end_opNotIdempotent(retry1.begin_opNotIdempotent());
@@ -226,14 +226,14 @@ public class AllTests
         catch(Ice.LocalException ex)
         {
         }
-        Instrumentation.testInvocationCount(1);
-        Instrumentation.testFailureCount(1);
-        Instrumentation.testRetryCount(0);
+        instrumentation.testInvocationCount(1);
+        instrumentation.testFailureCount(1);
+        instrumentation.testRetryCount(0);
         out.println("ok");
 
         if(retry1.ice_getConnection() == null)
         {
-            Instrumentation.testInvocationCount(1);
+            instrumentation.testInvocationCount(1);
 
             out.print("testing system exception... ");
             try
@@ -244,9 +244,9 @@ public class AllTests
             catch(SystemFailure ex)
             {
             }
-            Instrumentation.testInvocationCount(1);
-            Instrumentation.testFailureCount(1);
-            Instrumentation.testRetryCount(0);
+            instrumentation.testInvocationCount(1);
+            instrumentation.testFailureCount(1);
+            instrumentation.testRetryCount(0);
             try
             {
                 retry1.end_opSystemException(retry1.begin_opSystemException());
@@ -255,9 +255,9 @@ public class AllTests
             catch(SystemFailure ex)
             {
             }
-            Instrumentation.testInvocationCount(1);
-            Instrumentation.testFailureCount(1);
-            Instrumentation.testRetryCount(0);
+            instrumentation.testInvocationCount(1);
+            instrumentation.testFailureCount(1);
+            instrumentation.testRetryCount(0);
             out.println("ok");
         }
 
@@ -271,9 +271,9 @@ public class AllTests
         }
         catch(Ice.InvocationTimeoutException ex)
         {
-            Instrumentation.testRetryCount(2);
+            instrumentation.testRetryCount(2);
             retry1.opIdempotent(-1); // Reset the counter
-            Instrumentation.testRetryCount(-1);
+            instrumentation.testRetryCount(-1);
         }
         try
         {
@@ -284,9 +284,9 @@ public class AllTests
         }
         catch(Ice.InvocationTimeoutException ex)
         {
-            Instrumentation.testRetryCount(2);
+            instrumentation.testRetryCount(2);
             retry1.opIdempotent(-1); // Reset the counter
-            Instrumentation.testRetryCount(-1);
+            instrumentation.testRetryCount(-1);
         }
         out.println("ok");
 

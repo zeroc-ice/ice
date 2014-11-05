@@ -906,6 +906,7 @@ public class AllTests
             for(Ice.Properties p : serverProps)
             {
                 Ice.InitializationData serverInitData = new Ice.InitializationData();
+                serverInitData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
                 serverInitData.properties = p;
                 Ice.Communicator serverCommunicator = Ice.Util.initialize(serverInitData);
                 Ice.ObjectAdapter oa;
@@ -933,6 +934,7 @@ public class AllTests
                 for(Ice.Properties q : clientProps)
                 {
                     Ice.InitializationData clientInitData = new Ice.InitializationData();
+                    clientInitData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
                     clientInitData.properties = q;
                     Ice.Communicator clientCommunicator = Ice.Util.initialize(clientInitData);
                     Ice.ObjectPrx prx = clientCommunicator.stringToProxy(strPrx);

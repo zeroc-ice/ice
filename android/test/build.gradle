@@ -12,32 +12,15 @@ apply from: "$rootProject.projectDir/../java/gradle/ice.gradle"
 
 ext.testDir = "$rootProject.projectDir/../java/test/src/main/java/test"
 apply from: "$rootProject.projectDir/../java/test/slice.gradle"
-
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+apply from: "$rootProject.projectDir/gradle/tests.gradle"
+apply from: "$rootProject.projectDir/gradle/dex.gradle"
 
 sourceSets {
     main {
         java {
             srcDir "$rootProject.projectDir/../java/test/src/main/java"
-            exclude 'Ice/translator'
-            exclude 'Slice/generation'
-			exclude '**/lambda'
-            exclude 'ejb'
-            exclude '**/Freeze'
-            exclude '**/Glacier2'
-            exclude '**/IceBox'
-            exclude '**/IceDiscovery'
-            exclude '**/IceGrid'
-            exclude '**/Slice'
-            exclude '**/IceSSL'
-            exclude '**/Ice/faultTolerance'
-            exclude '**/Ice/hash'
-            exclude '**/Ice/metrics'
-            exclude '**/Ice/plugin'
-            exclude '**/Ice/properties'
-            exclude '**/Ice/threadPoolPriority'
-            exclude '**/Ice/throughput'
+            include 'test/Util/**'
+            exclude 'test/Ice/**/lambda'
         }
     }
 }
@@ -51,11 +34,49 @@ dependencies {
     compile project(':Ice')
 }
 
-jar {
-    archiveName = "IceTest.jar"
-    destinationDir = new File("$rootProject.projectDir/lib/")
-}
+tests.each {
 
-clean {
-    delete("$rootProject.projectDir/lib/IceTest.jar")
+    def name = it
+    def dirName = name.replace('_', '/')
+    project(":test_Ice_${name}") {
+        apply plugin: 'java'
+        apply from: "$rootProject.projectDir/../java/gradle/ice.gradle"
+
+        sourceSets {
+            main {
+                java {
+                    srcDir "$rootProject.projectDir/../java/test/src/main/java"
+                    include "test/Ice/${dirName}/**"
+                    exclude 'test/Ice/**/lambda'
+                    srcDir "$rootProject.projectDir/test/build/generated-src/"
+                    include "test/Ice/${dirName}/**"                
+                }
+            }
+        }
+
+        def dexName = "IceTest_${name}.dex"
+        task dexClasses {
+            inputs.dir "${buildDir}/classes/main"
+            outputs.file "${buildDir}/classes/main/${dexName}"
+            doLast {
+                exec {
+                    commandLine "${dxCmd}", '--dex',
+                            "--output=${buildDir}/classes/main/${dexName}",
+                            "${buildDir}/classes/main"
+                }
+            }
+        }
+
+        dexClasses.dependsOn('classes')
+
+        configure(jar) {
+            include "${dexName}"
+        }
+        jar.dependsOn(dexClasses)
+
+        dependencies {
+            compile project(':test')
+            compile project(':Ice')
+        }
+    }
 }

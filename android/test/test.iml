@@ -25,6 +25,14 @@
       <excludeFolder url="file://$MODULE_DIR$/.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/build/classes" />
       <excludeFolder url="file://$MODULE_DIR$/build/dependency-cache" />
+      <excludeFolder url="file://$MODULE_DIR$/build/libs" />
+      <excludeFolder url="file://$MODULE_DIR$/build/set1.d.xml" />
+      <excludeFolder url="file://$MODULE_DIR$/build/set2.d.xml" />
+      <excludeFolder url="file://$MODULE_DIR$/build/set3.d.xml" />
+      <excludeFolder url="file://$MODULE_DIR$/build/set4.d.xml" />
+      <excludeFolder url="file://$MODULE_DIR$/build/set5.d.xml" />
+      <excludeFolder url="file://$MODULE_DIR$/build/set6.d.xml" />
+      <excludeFolder url="file://$MODULE_DIR$/build/slice2freezej.df.xml" />
       <excludeFolder url="file://$MODULE_DIR$/build/tmp" />
     </content>
     <content url="file://$MODULE_DIR$/../../java/test/src/main/java">

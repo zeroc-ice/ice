@@ -547,6 +547,7 @@ public class AllTests
         out.flush();
         {
             Ice.InitializationData initData = new Ice.InitializationData();
+            initData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.BackgroundLocatorCacheUpdates", "1");
             Ice.Communicator ic = app.initialize(initData);
