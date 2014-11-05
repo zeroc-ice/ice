@@ -423,7 +423,6 @@ for d in ["", "cpp", "java", "js"]:
 
 copy(os.path.join(distFilesDir, "src", "common", "Make.rules"), os.path.join(demoDir, "config"), False)
 copy(os.path.join(distFilesDir, "src", "common", "Make.rules.php"), os.path.join(demoDir, "config"), False)
-copy(os.path.join(distFilesDir, "src", "common", "build.properties"), os.path.join(demoDir, "config"), False)
 copy(os.path.join(srcDir, "scripts"), os.path.join(demoscriptDir, "scripts"))
 
 # Consolidate demoscript and demo distribution with files from each language mapping
@@ -512,7 +511,6 @@ copy(os.path.join(winSrcDir, "cpp", "config", "Make.rules.msvc"), os.path.join(w
 copy(os.path.join(winSrcDir, "js", "config", "build.js"), os.path.join(winDemoDir, "config"), False)
 copy(os.path.join(winSrcDir, "js", "config", "Make.rules.mak.js"), os.path.join(winDemoDir, "config"), False)
 
-copy(os.path.join(winDistFilesDir, "src", "common", "build.properties"), os.path.join(winDemoDir, "config"), False)
 copy(os.path.join(winDistFilesDir, "src", "common", "Make.rules.mak"), os.path.join(winDemoDir, "config"), False)
 copy(os.path.join(winDistFilesDir, "src", "common", "Make.rules.mak.php"), os.path.join(winDemoDir, "config"), False)
 
