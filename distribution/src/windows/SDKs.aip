@@ -28,20 +28,20 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
     <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="APPDIR:." IsPseudoRoot="1"/>
-    <ROW Directory="Assets_1_Dir" Directory_Parent="bidir_Dir" DefaultDir="Assets"/>
-    <ROW Directory="Assets_2_Dir" Directory_Parent="hello_Dir" DefaultDir="Assets"/>
-    <ROW Directory="Assets_Dir" Directory_Parent="chat_Dir" DefaultDir="Assets"/>
+    <ROW Directory="Assets_3_Dir" Directory_Parent="chat_1_Dir" DefaultDir="Assets"/>
+    <ROW Directory="Assets_4_Dir" Directory_Parent="bidir_1_Dir" DefaultDir="Assets"/>
+    <ROW Directory="Assets_5_Dir" Directory_Parent="hello_1_Dir" DefaultDir="Assets"/>
     <ROW Directory="CommonConfiguration_1_Dir" Directory_Parent="DesignTime_1_Dir" DefaultDir="COMMON~1|CommonConfiguration"/>
     <ROW Directory="CommonConfiguration_Dir" Directory_Parent="DesignTime_Dir" DefaultDir="COMMON~1|CommonConfiguration"/>
-    <ROW Directory="Common_1_Dir" Directory_Parent="bidir_Dir" DefaultDir="Common"/>
-    <ROW Directory="Common_2_Dir" Directory_Parent="hello_Dir" DefaultDir="Common"/>
-    <ROW Directory="Common_Dir" Directory_Parent="chat_Dir" DefaultDir="Common"/>
+    <ROW Directory="Common_3_Dir" Directory_Parent="chat_1_Dir" DefaultDir="Common"/>
+    <ROW Directory="Common_4_Dir" Directory_Parent="bidir_1_Dir" DefaultDir="Common"/>
+    <ROW Directory="Common_5_Dir" Directory_Parent="hello_1_Dir" DefaultDir="Common"/>
     <ROW Directory="Debug_1_Dir" Directory_Parent="DesignTime_1_Dir" DefaultDir="Debug"/>
     <ROW Directory="Debug_Dir" Directory_Parent="DesignTime_Dir" DefaultDir="Debug"/>
     <ROW Directory="DesignTime_1_Dir" Directory_Parent="__3_Dir" DefaultDir="DESIGN~1|DesignTime"/>
     <ROW Directory="DesignTime_Dir" Directory_Parent="__1_Dir" DefaultDir="DESIGN~1|DesignTime"/>
     <ROW Directory="Glacier2_1_Dir" Directory_Parent="include_1_Dir" DefaultDir="Glacier2"/>
-    <ROW Directory="Glacier2_2_Dir" Directory_Parent="demo_Dir" DefaultDir="Glacier2"/>
+    <ROW Directory="Glacier2_3_Dir" Directory_Parent="cpp_Dir" DefaultDir="Glacier2"/>
     <ROW Directory="Glacier2_Dir" Directory_Parent="include_Dir" DefaultDir="Glacier2"/>
     <ROW Directory="ICE_DEMO_DIR" Directory_Parent="TARGETDIR" DefaultDir="ICE_DE~1|ICE_DEMO_DIR" IsPseudoRoot="1"/>
     <ROW Directory="ICE_INSTALL_DIR" Directory_Parent="TARGETDIR" DefaultDir="ICE_IN~1|ICE_INSTALL_DIR" IsPseudoRoot="1"/>
@@ -56,7 +56,7 @@
     <ROW Directory="Ice_1_Dir" Directory_Parent="include_Dir" DefaultDir="Ice"/>
     <ROW Directory="Ice_2_Dir" Directory_Parent="__2_Dir" DefaultDir="Ice"/>
     <ROW Directory="Ice_3_Dir" Directory_Parent="include_1_Dir" DefaultDir="Ice"/>
-    <ROW Directory="Ice_4_Dir" Directory_Parent="demo_Dir" DefaultDir="Ice"/>
+    <ROW Directory="Ice_5_Dir" Directory_Parent="cpp_Dir" DefaultDir="Ice"/>
     <ROW Directory="Ice_Dir" Directory_Parent="__Dir" DefaultDir="Ice"/>
     <ROW Directory="Neutral_1_Dir" Directory_Parent="CommonConfiguration_1_Dir" DefaultDir="Neutral"/>
     <ROW Directory="Neutral_Dir" Directory_Parent="CommonConfiguration_Dir" DefaultDir="Neutral"/>
@@ -72,14 +72,14 @@
     <ROW Directory="arm_2_Dir" Directory_Parent="Debug_1_Dir" DefaultDir="arm"/>
     <ROW Directory="arm_3_Dir" Directory_Parent="Retail_1_Dir" DefaultDir="arm"/>
     <ROW Directory="arm_Dir" Directory_Parent="Debug_Dir" DefaultDir="arm"/>
-    <ROW Directory="bidir_Dir" Directory_Parent="winrt_1_Dir" DefaultDir="bidir"/>
-    <ROW Directory="chat_Dir" Directory_Parent="winrt_Dir" DefaultDir="chat"/>
-    <ROW Directory="demo_Dir" Directory_Parent="ICE_DEMO_DIR" DefaultDir="demo"/>
-    <ROW Directory="hello_Dir" Directory_Parent="winrt_1_Dir" DefaultDir="hello"/>
+    <ROW Directory="bidir_1_Dir" Directory_Parent="winrt_3_Dir" DefaultDir="bidir"/>
+    <ROW Directory="chat_1_Dir" Directory_Parent="winrt_2_Dir" DefaultDir="chat"/>
+    <ROW Directory="cpp_Dir" Directory_Parent="ICE_DEMO_DIR" DefaultDir="cpp"/>
+    <ROW Directory="hello_1_Dir" Directory_Parent="winrt_3_Dir" DefaultDir="hello"/>
     <ROW Directory="include_1_Dir" Directory_Parent="Neutral_1_Dir" DefaultDir="include"/>
     <ROW Directory="include_Dir" Directory_Parent="Neutral_Dir" DefaultDir="include"/>
-    <ROW Directory="winrt_1_Dir" Directory_Parent="Ice_4_Dir" DefaultDir="winrt"/>
-    <ROW Directory="winrt_Dir" Directory_Parent="Glacier2_2_Dir" DefaultDir="winrt"/>
+    <ROW Directory="winrt_2_Dir" Directory_Parent="Glacier2_3_Dir" DefaultDir="winrt"/>
+    <ROW Directory="winrt_3_Dir" Directory_Parent="Ice_5_Dir" DefaultDir="winrt"/>
     <ROW Directory="x64_1_Dir" Directory_Parent="Retail_Dir" DefaultDir="x64"/>
     <ROW Directory="x64_2_Dir" Directory_Parent="Debug_1_Dir" DefaultDir="x64"/>
     <ROW Directory="x64_3_Dir" Directory_Parent="Retail_1_Dir" DefaultDir="x64"/>
@@ -96,29 +96,29 @@
     <ROW Component="AbstractMutex.h_1" ComponentId="{051A946A-1C04-4AD8-94C1-55D5B6119EC0}" Directory_="IceUtil_1_Dir" Attributes="0" KeyPath="AbstractMutex.h_1" Type="0"/>
     <ROW Component="Admin.h" ComponentId="{1C40B30A-27AF-4538-9421-92A54CF5385D}" Directory_="IceGrid_Dir" Attributes="0" KeyPath="Admin.h" Type="0"/>
     <ROW Component="Admin.h_1" ComponentId="{08EA5EDB-A1AD-4236-AB89-A17F0BF55B26}" Directory_="IceGrid_1_Dir" Attributes="0" KeyPath="Admin.h_1" Type="0"/>
-    <ROW Component="App.xaml" ComponentId="{06617172-30E0-4CB9-BDE1-031BA630BC2C}" Directory_="chat_Dir" Attributes="0" KeyPath="App.xaml" Type="0"/>
-    <ROW Component="App.xaml_1" ComponentId="{A6A0E340-4CEE-45E7-B2B1-38EE522A3D45}" Directory_="bidir_Dir" Attributes="0" KeyPath="App.xaml_1" Type="0"/>
-    <ROW Component="App.xaml_2" ComponentId="{5C55CB00-4F6D-4BB6-8E63-FA6920B3B63F}" Directory_="hello_Dir" Attributes="0" KeyPath="App.xaml_2" Type="0"/>
+    <ROW Component="App.xaml_3" ComponentId="{58BAFADB-213C-403E-A4E7-11C4FC262470}" Directory_="chat_1_Dir" Attributes="0" KeyPath="App.xaml_3" Type="0"/>
+    <ROW Component="App.xaml_4" ComponentId="{CFF4359F-A85E-4B0A-83D7-13D505686065}" Directory_="bidir_1_Dir" Attributes="0" KeyPath="App.xaml_4" Type="0"/>
+    <ROW Component="App.xaml_5" ComponentId="{0B69B68C-BE0E-4FBA-9739-31C507B9FD38}" Directory_="hello_1_Dir" Attributes="0" KeyPath="App.xaml_5" Type="0"/>
     <ROW Component="Application.h" ComponentId="{B75F811C-0F69-4933-B240-6D54986C0E9C}" Directory_="Glacier2_Dir" Attributes="0" KeyPath="Application.h" Type="0"/>
     <ROW Component="Application.h_1" ComponentId="{B1AEF30D-4E94-44D3-93F6-6B8D1EF5C3B8}" Directory_="Glacier2_1_Dir" Attributes="0" KeyPath="Application.h_2" Type="0"/>
     <ROW Component="Config.h" ComponentId="{86C8BBB7-43FF-473D-8885-601C58B155C3}" Directory_="IceSSL_Dir" Attributes="0" KeyPath="Config.h_3" Type="0"/>
     <ROW Component="Config.h_1" ComponentId="{5B9B9B72-D41D-4D13-B068-4A4BD5DEB4EB}" Directory_="IceStorm_Dir" Attributes="0" KeyPath="Config.h_4" Type="0"/>
     <ROW Component="Config.h_2" ComponentId="{2C26A65D-1CE1-4F07-A38C-6947DDFFC82A}" Directory_="IceSSL_1_Dir" Attributes="0" KeyPath="Config.h_9" Type="0"/>
     <ROW Component="Config.h_3" ComponentId="{A56A6921-EA64-4E7C-9DD3-0C9664D8D844}" Directory_="IceStorm_1_Dir" Attributes="0" KeyPath="Config.h_10" Type="0"/>
+    <ROW Component="ExtensionSDKs" ComponentId="{CD461941-8EDF-4471-8283-63EF37EEB6D8}" Directory_="APPDIR" Attributes="4" KeyPath="ExtensionSDKs"/>
     <ROW Component="ICE_LICENSE.txt" ComponentId="{EB787365-82D0-494A-9445-7D808E616B4B}" Directory_="__1_Dir" Attributes="0" KeyPath="ICE_LICENSE.txt" Type="0"/>
     <ROW Component="ICE_LICENSE.txt_1" ComponentId="{8783C934-A897-4ADB-A23B-31FBCD00E08B}" Directory_="__3_Dir" Attributes="0" KeyPath="ICE_LICENSE.txt_1" Type="0"/>
     <ROW Component="Ice.props" ComponentId="{0CF69E5B-9889-40BA-9379-0751304D6BE5}" Directory_="Neutral_Dir" Attributes="0" KeyPath="Ice.props" Type="0"/>
     <ROW Component="Ice.props_1" ComponentId="{3D0B9CDE-6961-4A92-A08A-8A40D896FDC6}" Directory_="Neutral_1_Dir" Attributes="0" KeyPath="Ice.props_1" Type="0"/>
-    <ROW Component="Logo.png" ComponentId="{85B79B6F-C539-486C-80AD-556F912FC18C}" Directory_="Assets_Dir" Attributes="0" KeyPath="Logo.png" Type="0"/>
-    <ROW Component="Logo.png_1" ComponentId="{B96748C7-E05B-46DF-8724-11AB96D50DFA}" Directory_="Assets_1_Dir" Attributes="0" KeyPath="Logo.png_1" Type="0"/>
-    <ROW Component="Logo.png_2" ComponentId="{B7E199ED-C803-4346-867F-85EB3BB1C758}" Directory_="Assets_2_Dir" Attributes="0" KeyPath="Logo.png_2" Type="0"/>
-    <ROW Component="StandardStyles.xaml" ComponentId="{3E271B1F-ED2E-4F9F-8374-86295308B2AE}" Directory_="Common_Dir" Attributes="0" KeyPath="StandardStyles.xaml" Type="0"/>
-    <ROW Component="StandardStyles.xaml_1" ComponentId="{6833ECBB-9B10-4635-9840-AFDFE750762C}" Directory_="Common_1_Dir" Attributes="0" KeyPath="StandardStyles.xaml_1" Type="0"/>
-    <ROW Component="StandardStyles.xaml_2" ComponentId="{DE25B1F7-096A-4C3A-8ED2-06C54057EC7E}" Directory_="Common_2_Dir" Attributes="0" KeyPath="StandardStyles.xaml_2" Type="0"/>
+    <ROW Component="Logo.png_3" ComponentId="{ED5DBC80-DEED-46B9-AB8C-0BC404B064FB}" Directory_="Assets_3_Dir" Attributes="0" KeyPath="Logo.png_3" Type="0"/>
+    <ROW Component="Logo.png_4" ComponentId="{0A6D8697-4F3A-4207-9237-91440072C0E6}" Directory_="Assets_4_Dir" Attributes="0" KeyPath="Logo.png_4" Type="0"/>
+    <ROW Component="Logo.png_5" ComponentId="{6A63143D-15BA-4619-B5B4-E9A66194FD21}" Directory_="Assets_5_Dir" Attributes="0" KeyPath="Logo.png_5" Type="0"/>
+    <ROW Component="StandardStyles.xaml_3" ComponentId="{B220B65A-F70E-4B41-B826-4E933F57D8ED}" Directory_="Common_3_Dir" Attributes="0" KeyPath="StandardStyles.xaml_3" Type="0"/>
+    <ROW Component="StandardStyles.xaml_4" ComponentId="{100E7F97-E127-4FC0-90F2-87E6A389787A}" Directory_="Common_4_Dir" Attributes="0" KeyPath="StandardStyles.xaml_4" Type="0"/>
+    <ROW Component="StandardStyles.xaml_5" ComponentId="{C8D79C38-4401-47BD-BA1E-C9D6C38904F5}" Directory_="Common_5_Dir" Attributes="0" KeyPath="StandardStyles.xaml_5" Type="0"/>
     <ROW Component="Wow6432Node" ComponentId="{EB214779-A384-4092-8C1F-C92F56DCE44C}" Directory_="APPDIR" Attributes="4" KeyPath="Wow6432Node"/>
-    <ROW Component="_" ComponentId="{A046DF00-7D9D-43EA-8E2B-B4F7550D06A0}" Directory_="APPDIR" Attributes="262" KeyPath="__3"/>
-    <ROW Component="__1" ComponentId="{9B71E276-66E0-4895-89F7-F0111BB92E91}" Directory_="APPDIR" Attributes="260" KeyPath="__4"/>
-    <ROW Component="demowinrt8.1.sln" ComponentId="{A18D58A0-6FD3-471A-AA01-2124FFD0B7F9}" Directory_="demo_Dir" Attributes="0" KeyPath="demowinrt8.1.sln" Type="0"/>
+    <ROW Component="_" ComponentId="{41BF2E24-868D-42CB-A166-89335390F7F0}" Directory_="APPDIR" Attributes="4" KeyPath="__2"/>
+    <ROW Component="demowinrt8.0.sln" ComponentId="{45BCE46A-3BFB-4175-B62E-B167EC3EC4B4}" Directory_="cpp_Dir" Attributes="0" KeyPath="demowinrt8.0.sln" Type="0"/>
     <ROW Component="glacier2.lib" ComponentId="{9147650E-2455-4D06-820F-178536AD4076}" Directory_="arm_Dir" Attributes="0" KeyPath="glacier2.lib" Type="0"/>
     <ROW Component="glacier2.lib_1" ComponentId="{B31EFBC4-2A3D-4F2F-BEBC-D771EC969C2A}" Directory_="x64_Dir" Attributes="0" KeyPath="glacier2.lib_1" Type="0"/>
     <ROW Component="glacier2.lib_10" ComponentId="{562423C6-B4E7-46BF-9EEE-17C4152C7D15}" Directory_="x64_3_Dir" Attributes="0" KeyPath="glacier2.lib_10" Type="0"/>
@@ -145,7 +145,7 @@
     <ROW Component="glacier2.pdb_9" ComponentId="{D3A21438-9D99-4CC0-A89B-3E7B40217F5E}" Directory_="arm_3_Dir" Attributes="0" KeyPath="glacier2.pdb_9" Type="4"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="ACMF.h ACMF.h_1 AbstractMutex.h AbstractMutex.h_1 Admin.h Admin.h_1 App.xaml App.xaml_1 App.xaml_2 Application.h Application.h_1 Config.h Config.h_1 Config.h_2 Config.h_3 ICE_LICENSE.txt ICE_LICENSE.txt_1 Ice.props Ice.props_1 Logo.png Logo.png_1 Logo.png_2 StandardStyles.xaml StandardStyles.xaml_1 StandardStyles.xaml_2 Wow6432Node _ __1 demowinrt8.1.sln glacier2.lib glacier2.lib_1 glacier2.lib_10 glacier2.lib_11 glacier2.lib_2 glacier2.lib_3 glacier2.lib_4 glacier2.lib_5 glacier2.lib_6 glacier2.lib_7 glacier2.lib_8 glacier2.lib_9 glacier2.pdb glacier2.pdb_1 glacier2.pdb_10 glacier2.pdb_11 glacier2.pdb_2 glacier2.pdb_3 glacier2.pdb_4 glacier2.pdb_5 glacier2.pdb_6 glacier2.pdb_7 glacier2.pdb_8 glacier2.pdb_9"/>
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="ACMF.h ACMF.h_1 AbstractMutex.h AbstractMutex.h_1 Admin.h Admin.h_1 App.xaml_3 App.xaml_4 App.xaml_5 Application.h Application.h_1 Config.h Config.h_1 Config.h_2 Config.h_3 ExtensionSDKs ICE_LICENSE.txt ICE_LICENSE.txt_1 Ice.props Ice.props_1 Logo.png_3 Logo.png_4 Logo.png_5 StandardStyles.xaml_3 StandardStyles.xaml_4 StandardStyles.xaml_5 Wow6432Node _ demowinrt8.0.sln glacier2.lib glacier2.lib_1 glacier2.lib_10 glacier2.lib_11 glacier2.lib_2 glacier2.lib_3 glacier2.lib_4 glacier2.lib_5 glacier2.lib_6 glacier2.lib_7 glacier2.lib_8 glacier2.lib_9 glacier2.pdb glacier2.pdb_1 glacier2.pdb_10 glacier2.pdb_11 glacier2.pdb_2 glacier2.pdb_3 glacier2.pdb_4 glacier2.pdb_5 glacier2.pdb_6 glacier2.pdb_7 glacier2.pdb_8 glacier2.pdb_9"/>
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
@@ -155,15 +155,15 @@
     <ROW File="AbstractMutex.h_1" Component_="AbstractMutex.h_1" FileName="ABSTRA~1.H|AbstractMutex.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\IceUtil\AbstractMutex.h" SelfReg="false" NextFile="Cache.h_1"/>
     <ROW File="Admin.h" Component_="Admin.h" FileName="Admin.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\IceGrid\Admin.h" SelfReg="false" NextFile="Config.h_2"/>
     <ROW File="Admin.h_1" Component_="Admin.h_1" FileName="Admin.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\IceGrid\Admin.h" SelfReg="false" NextFile="Config.h_8"/>
-    <ROW File="App.xaml" Component_="App.xaml" FileName="APP~1.XAM|App.xaml" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\App.xaml" SelfReg="false" NextFile="App.xaml.cpp"/>
-    <ROW File="App.xaml.cpp" Component_="App.xaml" FileName="APPXAM~1.CPP|App.xaml.cpp" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\App.xaml.cpp" SelfReg="false" NextFile="App.xaml.h"/>
-    <ROW File="App.xaml.cpp_1" Component_="App.xaml_1" FileName="APPXAM~1.CPP|App.xaml.cpp" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\bidir\App.xaml.cpp" SelfReg="false" NextFile="App.xaml.h_1"/>
-    <ROW File="App.xaml.cpp_2" Component_="App.xaml_2" FileName="APPXAM~1.CPP|App.xaml.cpp" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\hello\App.xaml.cpp" SelfReg="false" NextFile="App.xaml.h_2"/>
-    <ROW File="App.xaml.h" Component_="App.xaml" FileName="APPXAM~1.H|App.xaml.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\App.xaml.h" SelfReg="false" NextFile="Logo.png"/>
-    <ROW File="App.xaml.h_1" Component_="App.xaml_1" FileName="APPXAM~1.H|App.xaml.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\bidir\App.xaml.h" SelfReg="false" NextFile="Logo.png_1"/>
-    <ROW File="App.xaml.h_2" Component_="App.xaml_2" FileName="APPXAM~1.H|App.xaml.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\hello\App.xaml.h" SelfReg="false" NextFile="Logo.png_2"/>
-    <ROW File="App.xaml_1" Component_="App.xaml_1" FileName="APP~1.XAM|App.xaml" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\bidir\App.xaml" SelfReg="false" NextFile="App.xaml.cpp_1"/>
-    <ROW File="App.xaml_2" Component_="App.xaml_2" FileName="APP~1.XAM|App.xaml" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\hello\App.xaml" SelfReg="false" NextFile="App.xaml.cpp_2"/>
+    <ROW File="App.xaml.cpp_3" Component_="App.xaml_3" FileName="APPXAM~1.CPP|App.xaml.cpp" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\App.xaml.cpp" SelfReg="false" NextFile="App.xaml.h_3"/>
+    <ROW File="App.xaml.cpp_4" Component_="App.xaml_4" FileName="APPXAM~1.CPP|App.xaml.cpp" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\bidir\App.xaml.cpp" SelfReg="false" NextFile="App.xaml.h_4"/>
+    <ROW File="App.xaml.cpp_5" Component_="App.xaml_5" FileName="APPXAM~1.CPP|App.xaml.cpp" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\hello\App.xaml.cpp" SelfReg="false" NextFile="App.xaml.h_5"/>
+    <ROW File="App.xaml.h_3" Component_="App.xaml_3" FileName="APPXAM~1.H|App.xaml.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\App.xaml.h" SelfReg="false" NextFile="Logo.png_3"/>
+    <ROW File="App.xaml.h_4" Component_="App.xaml_4" FileName="APPXAM~1.H|App.xaml.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\bidir\App.xaml.h" SelfReg="false" NextFile="Logo.png_4"/>
+    <ROW File="App.xaml.h_5" Component_="App.xaml_5" FileName="APPXAM~1.H|App.xaml.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\hello\App.xaml.h" SelfReg="false" NextFile="Logo.png_5"/>
+    <ROW File="App.xaml_3" Component_="App.xaml_3" FileName="APP~1.XAM|App.xaml" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\App.xaml" SelfReg="false" NextFile="App.xaml.cpp_3"/>
+    <ROW File="App.xaml_4" Component_="App.xaml_4" FileName="APP~1.XAM|App.xaml" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\bidir\App.xaml" SelfReg="false" NextFile="App.xaml.cpp_4"/>
+    <ROW File="App.xaml_5" Component_="App.xaml_5" FileName="APP~1.XAM|App.xaml" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\hello\App.xaml" SelfReg="false" NextFile="App.xaml.cpp_5"/>
     <ROW File="Application.h" Component_="Application.h" FileName="APPLIC~1.H|Application.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Glacier2\Application.h" SelfReg="false" NextFile="Config.h"/>
     <ROW File="Application.h_1" Component_="ACMF.h" FileName="APPLIC~1.H|Application.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\Application.h" SelfReg="false" NextFile="AsyncResult.h"/>
     <ROW File="Application.h_2" Component_="Application.h_1" FileName="APPLIC~1.H|Application.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Glacier2\Application.h" SelfReg="false" NextFile="Config.h_6"/>
@@ -180,11 +180,11 @@
     <ROW File="BuiltinSequences.h_1" Component_="ACMF.h_1" FileName="BUILTI~1.H|BuiltinSequences.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\BuiltinSequences.h" SelfReg="false" NextFile="Communicator.h_1"/>
     <ROW File="Cache.h" Component_="AbstractMutex.h" FileName="Cache.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\IceUtil\Cache.h" SelfReg="false" NextFile="Cond.h"/>
     <ROW File="Cache.h_1" Component_="AbstractMutex.h_1" FileName="Cache.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\IceUtil\Cache.h" SelfReg="false" NextFile="Cond.h_1"/>
-    <ROW File="Callback.ice" Component_="App.xaml_1" FileName="Callback.ice" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\bidir\Callback.ice" SelfReg="false" NextFile="StandardStyles.xaml_1"/>
-    <ROW File="Chat.ice" Component_="App.xaml" FileName="Chat.ice" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\Chat.ice" SelfReg="false" NextFile="chat.vcxproj"/>
-    <ROW File="ChatView.xaml" Component_="App.xaml" FileName="CHATVI~1.XAM|ChatView.xaml" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\ChatView.xaml" SelfReg="false" NextFile="ChatView.xaml.cpp"/>
-    <ROW File="ChatView.xaml.cpp" Component_="App.xaml" FileName="CHATVI~1.CPP|ChatView.xaml.cpp" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\ChatView.xaml.cpp" SelfReg="false" NextFile="ChatView.xaml.h"/>
-    <ROW File="ChatView.xaml.h" Component_="App.xaml" FileName="CHATVI~1.H|ChatView.xaml.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\ChatView.xaml.h" SelfReg="false" NextFile="chat_TemporaryKey.pfx"/>
+    <ROW File="Callback.ice_1" Component_="App.xaml_4" FileName="Callback.ice" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\bidir\Callback.ice" SelfReg="false" NextFile="StandardStyles.xaml_4"/>
+    <ROW File="Chat.ice_1" Component_="App.xaml_3" FileName="Chat.ice" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\Chat.ice" SelfReg="false" NextFile="chat.vcxproj_1"/>
+    <ROW File="ChatView.xaml.cpp_1" Component_="App.xaml_3" FileName="CHATVI~1.CPP|ChatView.xaml.cpp" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\ChatView.xaml.cpp" SelfReg="false" NextFile="ChatView.xaml.h_1"/>
+    <ROW File="ChatView.xaml.h_1" Component_="App.xaml_3" FileName="CHATVI~1.H|ChatView.xaml.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\ChatView.xaml.h" SelfReg="false" NextFile="chat_TemporaryKey.pfx_1"/>
+    <ROW File="ChatView.xaml_1" Component_="App.xaml_3" FileName="CHATVI~1.XAM|ChatView.xaml" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\ChatView.xaml" SelfReg="false" NextFile="ChatView.xaml.cpp_1"/>
     <ROW File="Communicator.h" Component_="ACMF.h" FileName="COMMUN~1.H|Communicator.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\Communicator.h" SelfReg="false" NextFile="CommunicatorAsync.h"/>
     <ROW File="Communicator.h_1" Component_="ACMF.h_1" FileName="COMMUN~1.H|Communicator.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\Communicator.h" SelfReg="false" NextFile="CommunicatorAsync.h_1"/>
     <ROW File="CommunicatorAsync.h" Component_="ACMF.h" FileName="COMMUN~2.H|CommunicatorAsync.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\CommunicatorAsync.h" SelfReg="false" NextFile="CommunicatorF.h"/>
@@ -275,7 +275,7 @@
     <ROW File="Handle.h_1" Component_="AbstractMutex.h" FileName="Handle.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\IceUtil\Handle.h" SelfReg="false" NextFile="IceUtil.h"/>
     <ROW File="Handle.h_2" Component_="ACMF.h_1" FileName="Handle.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\Handle.h" SelfReg="false" NextFile="Ice.h_1"/>
     <ROW File="Handle.h_3" Component_="AbstractMutex.h_1" FileName="Handle.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\IceUtil\Handle.h" SelfReg="false" NextFile="IceUtil.h_1"/>
-    <ROW File="Hello.ice" Component_="App.xaml_2" FileName="Hello.ice" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\hello\Hello.ice" SelfReg="false" NextFile="hello.vcxproj"/>
+    <ROW File="Hello.ice_1" Component_="App.xaml_5" FileName="Hello.ice" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\hello\Hello.ice" SelfReg="false" NextFile="hello.vcxproj_1"/>
     <ROW File="ICE_LICENSE.txt" Component_="ICE_LICENSE.txt" FileName="ICE_LI~1.TXT|ICE_LICENSE.txt" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\ICE_LICENSE.txt" SelfReg="false" NextFile="LICENSE.txt"/>
     <ROW File="ICE_LICENSE.txt_1" Component_="ICE_LICENSE.txt_1" FileName="ICE_LI~1.TXT|ICE_LICENSE.txt" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\ICE_LICENSE.txt" SelfReg="false" NextFile="LICENSE.txt_1"/>
     <ROW File="Ice.h" Component_="ACMF.h" FileName="Ice.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\Ice.h" SelfReg="false" NextFile="Identity.h"/>
@@ -338,21 +338,21 @@
     <ROW File="LoggerF.h_1" Component_="ACMF.h_1" FileName="LoggerF.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\LoggerF.h" SelfReg="false" NextFile="LoggerUtil.h_1"/>
     <ROW File="LoggerUtil.h" Component_="ACMF.h" FileName="LOGGER~1.H|LoggerUtil.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\LoggerUtil.h" SelfReg="false" NextFile="Metrics.h_1"/>
     <ROW File="LoggerUtil.h_1" Component_="ACMF.h_1" FileName="LOGGER~1.H|LoggerUtil.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\LoggerUtil.h" SelfReg="false" NextFile="Metrics.h_4"/>
-    <ROW File="LoginView.xaml" Component_="App.xaml" FileName="LOGINV~1.XAM|LoginView.xaml" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\LoginView.xaml" SelfReg="false" NextFile="LoginView.xaml.cpp"/>
-    <ROW File="LoginView.xaml.cpp" Component_="App.xaml" FileName="LOGINV~1.CPP|LoginView.xaml.cpp" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\LoginView.xaml.cpp" SelfReg="false" NextFile="LoginView.xaml.h"/>
-    <ROW File="LoginView.xaml.h" Component_="App.xaml" FileName="LOGINV~1.H|LoginView.xaml.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\LoginView.xaml.h" SelfReg="false" NextFile="MainPage.xaml"/>
-    <ROW File="Logo.png" Component_="Logo.png" FileName="Logo.png" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\Assets\Logo.png" SelfReg="false" NextFile="SmallLogo.png"/>
-    <ROW File="Logo.png_1" Component_="Logo.png_1" FileName="Logo.png" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\bidir\Assets\Logo.png" SelfReg="false" NextFile="SmallLogo.png_1"/>
-    <ROW File="Logo.png_2" Component_="Logo.png_2" FileName="Logo.png" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\hello\Assets\Logo.png" SelfReg="false" NextFile="SmallLogo.png_2"/>
-    <ROW File="MainPage.xaml" Component_="App.xaml" FileName="MAINPA~1.XAM|MainPage.xaml" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\MainPage.xaml" SelfReg="false" NextFile="MainPage.xaml.cpp"/>
-    <ROW File="MainPage.xaml.cpp" Component_="App.xaml" FileName="MAINPA~1.CPP|MainPage.xaml.cpp" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\MainPage.xaml.cpp" SelfReg="false" NextFile="MainPage.xaml.h"/>
-    <ROW File="MainPage.xaml.cpp_1" Component_="App.xaml_1" FileName="MAINPA~1.CPP|MainPage.xaml.cpp" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\bidir\MainPage.xaml.cpp" SelfReg="false" NextFile="MainPage.xaml.h_1"/>
-    <ROW File="MainPage.xaml.cpp_2" Component_="App.xaml_2" FileName="MAINPA~1.CPP|MainPage.xaml.cpp" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\hello\MainPage.xaml.cpp" SelfReg="false" NextFile="MainPage.xaml.h_2"/>
-    <ROW File="MainPage.xaml.h" Component_="App.xaml" FileName="MAINPA~1.H|MainPage.xaml.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\MainPage.xaml.h" SelfReg="false" NextFile="Package8.1.appxmanifest"/>
-    <ROW File="MainPage.xaml.h_1" Component_="App.xaml_1" FileName="MAINPA~1.H|MainPage.xaml.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\bidir\MainPage.xaml.h" SelfReg="false" NextFile="Package8.1.appxmanifest_1"/>
-    <ROW File="MainPage.xaml.h_2" Component_="App.xaml_2" FileName="MAINPA~1.H|MainPage.xaml.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\hello\MainPage.xaml.h" SelfReg="false" NextFile="Package8.1.appxmanifest_2"/>
-    <ROW File="MainPage.xaml_1" Component_="App.xaml_1" FileName="MAINPA~1.XAM|MainPage.xaml" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\bidir\MainPage.xaml" SelfReg="false" NextFile="MainPage.xaml.cpp_1"/>
-    <ROW File="MainPage.xaml_2" Component_="App.xaml_2" FileName="MAINPA~1.XAM|MainPage.xaml" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\hello\MainPage.xaml" SelfReg="false" NextFile="MainPage.xaml.cpp_2"/>
+    <ROW File="LoginView.xaml.cpp_1" Component_="App.xaml_3" FileName="LOGINV~1.CPP|LoginView.xaml.cpp" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\LoginView.xaml.cpp" SelfReg="false" NextFile="LoginView.xaml.h_1"/>
+    <ROW File="LoginView.xaml.h_1" Component_="App.xaml_3" FileName="LOGINV~1.H|LoginView.xaml.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\LoginView.xaml.h" SelfReg="false" NextFile="MainPage.xaml_3"/>
+    <ROW File="LoginView.xaml_1" Component_="App.xaml_3" FileName="LOGINV~1.XAM|LoginView.xaml" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\LoginView.xaml" SelfReg="false" NextFile="LoginView.xaml.cpp_1"/>
+    <ROW File="Logo.png_3" Component_="Logo.png_3" FileName="Logo.png" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\Assets\Logo.png" SelfReg="false" NextFile="SmallLogo.png_3"/>
+    <ROW File="Logo.png_4" Component_="Logo.png_4" FileName="Logo.png" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\bidir\Assets\Logo.png" SelfReg="false" NextFile="SmallLogo.png_4"/>
+    <ROW File="Logo.png_5" Component_="Logo.png_5" FileName="Logo.png" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\hello\Assets\Logo.png" SelfReg="false" NextFile="SmallLogo.png_5"/>
+    <ROW File="MainPage.xaml.cpp_3" Component_="App.xaml_3" FileName="MAINPA~1.CPP|MainPage.xaml.cpp" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\MainPage.xaml.cpp" SelfReg="false" NextFile="MainPage.xaml.h_3"/>
+    <ROW File="MainPage.xaml.cpp_4" Component_="App.xaml_4" FileName="MAINPA~1.CPP|MainPage.xaml.cpp" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\bidir\MainPage.xaml.cpp" SelfReg="false" NextFile="MainPage.xaml.h_4"/>
+    <ROW File="MainPage.xaml.cpp_5" Component_="App.xaml_5" FileName="MAINPA~1.CPP|MainPage.xaml.cpp" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\hello\MainPage.xaml.cpp" SelfReg="false" NextFile="MainPage.xaml.h_5"/>
+    <ROW File="MainPage.xaml.h_3" Component_="App.xaml_3" FileName="MAINPA~1.H|MainPage.xaml.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\MainPage.xaml.h" SelfReg="false" NextFile="Package8.1.appxmanifest_3"/>
+    <ROW File="MainPage.xaml.h_4" Component_="App.xaml_4" FileName="MAINPA~1.H|MainPage.xaml.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\bidir\MainPage.xaml.h" SelfReg="false" NextFile="Package8.1.appxmanifest_4"/>
+    <ROW File="MainPage.xaml.h_5" Component_="App.xaml_5" FileName="MAINPA~1.H|MainPage.xaml.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\hello\MainPage.xaml.h" SelfReg="false" NextFile="Package8.1.appxmanifest_5"/>
+    <ROW File="MainPage.xaml_3" Component_="App.xaml_3" FileName="MAINPA~1.XAM|MainPage.xaml" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\MainPage.xaml" SelfReg="false" NextFile="MainPage.xaml.cpp_3"/>
+    <ROW File="MainPage.xaml_4" Component_="App.xaml_4" FileName="MAINPA~1.XAM|MainPage.xaml" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\bidir\MainPage.xaml" SelfReg="false" NextFile="MainPage.xaml.cpp_4"/>
+    <ROW File="MainPage.xaml_5" Component_="App.xaml_5" FileName="MAINPA~1.XAM|MainPage.xaml" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\hello\MainPage.xaml" SelfReg="false" NextFile="MainPage.xaml.cpp_5"/>
     <ROW File="Metrics.h" Component_="Application.h" FileName="Metrics.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Glacier2\Metrics.h" SelfReg="false" NextFile="NullPermissionsVerifier.h"/>
     <ROW File="Metrics.h_1" Component_="ACMF.h" FileName="Metrics.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\Metrics.h" SelfReg="false" NextFile="MetricsAdminI.h"/>
     <ROW File="Metrics.h_2" Component_="Config.h_1" FileName="Metrics.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\IceStorm\Metrics.h" SelfReg="false" NextFile="AbstractMutex.h"/>
@@ -411,12 +411,12 @@
     <ROW File="OutgoingAsyncF.h_1" Component_="ACMF.h_1" FileName="OUTGOI~2.H|OutgoingAsyncF.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\OutgoingAsyncF.h" SelfReg="false" NextFile="Plugin.h_2"/>
     <ROW File="OutputUtil.h" Component_="AbstractMutex.h" FileName="OUTPUT~1.H|OutputUtil.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\IceUtil\OutputUtil.h" SelfReg="false" NextFile="Random.h"/>
     <ROW File="OutputUtil.h_1" Component_="AbstractMutex.h_1" FileName="OUTPUT~1.H|OutputUtil.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\IceUtil\OutputUtil.h" SelfReg="false" NextFile="Random.h_1"/>
-    <ROW File="Package.appxmanifest" Component_="App.xaml" FileName="PACKAG~2.APP|Package.appxmanifest" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\Package.appxmanifest" SelfReg="false" NextFile="pch.cpp"/>
-    <ROW File="Package.appxmanifest_1" Component_="App.xaml_1" FileName="PACKAG~2.APP|Package.appxmanifest" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\bidir\Package.appxmanifest" SelfReg="false" NextFile="pch.cpp_1"/>
-    <ROW File="Package.appxmanifest_2" Component_="App.xaml_2" FileName="PACKAG~2.APP|Package.appxmanifest" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\hello\Package.appxmanifest" SelfReg="false" NextFile="pch.cpp_2"/>
-    <ROW File="Package8.1.appxmanifest" Component_="App.xaml" FileName="PACKAG~1.APP|Package-8.1.appxmanifest" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\Package-8.1.appxmanifest" SelfReg="false" NextFile="Package.appxmanifest"/>
-    <ROW File="Package8.1.appxmanifest_1" Component_="App.xaml_1" FileName="PACKAG~1.APP|Package-8.1.appxmanifest" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\bidir\Package-8.1.appxmanifest" SelfReg="false" NextFile="Package.appxmanifest_1"/>
-    <ROW File="Package8.1.appxmanifest_2" Component_="App.xaml_2" FileName="PACKAG~1.APP|Package-8.1.appxmanifest" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\hello\Package-8.1.appxmanifest" SelfReg="false" NextFile="Package.appxmanifest_2"/>
+    <ROW File="Package.appxmanifest_3" Component_="App.xaml_3" FileName="PACKAG~2.APP|Package.appxmanifest" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\Package.appxmanifest" SelfReg="false" NextFile="pch.cpp_3"/>
+    <ROW File="Package.appxmanifest_4" Component_="App.xaml_4" FileName="PACKAG~2.APP|Package.appxmanifest" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\bidir\Package.appxmanifest" SelfReg="false" NextFile="pch.cpp_4"/>
+    <ROW File="Package.appxmanifest_5" Component_="App.xaml_5" FileName="PACKAG~2.APP|Package.appxmanifest" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\hello\Package.appxmanifest" SelfReg="false" NextFile="pch.cpp_5"/>
+    <ROW File="Package8.1.appxmanifest_3" Component_="App.xaml_3" FileName="PACKAG~1.APP|Package-8.1.appxmanifest" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\Package-8.1.appxmanifest" SelfReg="false" NextFile="Package.appxmanifest_3"/>
+    <ROW File="Package8.1.appxmanifest_4" Component_="App.xaml_4" FileName="PACKAG~1.APP|Package-8.1.appxmanifest" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\bidir\Package-8.1.appxmanifest" SelfReg="false" NextFile="Package.appxmanifest_4"/>
+    <ROW File="Package8.1.appxmanifest_5" Component_="App.xaml_5" FileName="PACKAG~1.APP|Package-8.1.appxmanifest" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\hello\Package-8.1.appxmanifest" SelfReg="false" NextFile="Package.appxmanifest_5"/>
     <ROW File="PermissionsVerifier.h" Component_="Application.h" FileName="PERMIS~1.H|PermissionsVerifier.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Glacier2\PermissionsVerifier.h" SelfReg="false" NextFile="PermissionsVerifierF.h"/>
     <ROW File="PermissionsVerifier.h_1" Component_="Application.h_1" FileName="PERMIS~1.H|PermissionsVerifier.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Glacier2\PermissionsVerifier.h" SelfReg="false" NextFile="PermissionsVerifierF.h_1"/>
     <ROW File="PermissionsVerifierF.h" Component_="Application.h" FileName="PERMIS~2.H|PermissionsVerifierF.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Glacier2\PermissionsVerifierF.h" SelfReg="false" NextFile="Router.h"/>
@@ -427,6 +427,8 @@
     <ROW File="Plugin.h_3" Component_="Config.h_2" FileName="Plugin.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\IceSSL\Plugin.h" SelfReg="false" NextFile="Config.h_10"/>
     <ROW File="PluginF.h" Component_="ACMF.h" FileName="PluginF.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\PluginF.h" SelfReg="false" NextFile="Process.h"/>
     <ROW File="PluginF.h_1" Component_="ACMF.h_1" FileName="PluginF.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\PluginF.h" SelfReg="false" NextFile="Process.h_1"/>
+    <ROW File="PopDisableWarnings.h" Component_="AbstractMutex.h" FileName="POPDIS~1.H|PopDisableWarnings.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\IceUtil\PopDisableWarnings.h" SelfReg="false" NextFile="PushDisableWarnings.h"/>
+    <ROW File="PopDisableWarnings.h_1" Component_="AbstractMutex.h_1" FileName="POPDIS~1.H|PopDisableWarnings.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\IceUtil\PopDisableWarnings.h" SelfReg="false" NextFile="PushDisableWarnings.h_1"/>
     <ROW File="Process.h" Component_="ACMF.h" FileName="Process.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\Process.h" SelfReg="false" NextFile="ProcessF.h"/>
     <ROW File="Process.h_1" Component_="ACMF.h_1" FileName="Process.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\Process.h" SelfReg="false" NextFile="ProcessF.h_1"/>
     <ROW File="ProcessF.h" Component_="ACMF.h" FileName="ProcessF.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\ProcessF.h" SelfReg="false" NextFile="Properties.h"/>
@@ -447,11 +449,13 @@
     <ROW File="ProxyFactoryF.h_1" Component_="ACMF.h_1" FileName="PROXYF~1.H|ProxyFactoryF.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\ProxyFactoryF.h" SelfReg="false" NextFile="ProxyHandle.h_1"/>
     <ROW File="ProxyHandle.h" Component_="ACMF.h" FileName="PROXYH~1.H|ProxyHandle.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\ProxyHandle.h" SelfReg="false" NextFile="ReferenceF.h"/>
     <ROW File="ProxyHandle.h_1" Component_="ACMF.h_1" FileName="PROXYH~1.H|ProxyHandle.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\ProxyHandle.h" SelfReg="false" NextFile="ReferenceF.h_1"/>
+    <ROW File="PushDisableWarnings.h" Component_="AbstractMutex.h" FileName="PUSHDI~1.H|PushDisableWarnings.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\IceUtil\PushDisableWarnings.h" SelfReg="false" NextFile="PopDisableWarnings.h_1"/>
+    <ROW File="PushDisableWarnings.h_1" Component_="AbstractMutex.h_1" FileName="PUSHDI~1.H|PushDisableWarnings.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\IceUtil\PushDisableWarnings.h" SelfReg="false" NextFile="demowinrt8.0.sln"/>
     <ROW File="Query.h" Component_="Admin.h" FileName="Query.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\IceGrid\Query.h" SelfReg="false" NextFile="Registry.h"/>
     <ROW File="Query.h_1" Component_="Admin.h_1" FileName="Query.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\IceGrid\Query.h" SelfReg="false" NextFile="Registry.h_1"/>
-    <ROW File="README.txt_1" Component_="App.xaml" FileName="README.txt" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\README.txt" SelfReg="false" NextFile="App.xaml_1"/>
-    <ROW File="README.txt_3" Component_="App.xaml_1" FileName="README.txt" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\bidir\README.txt" SelfReg="false" NextFile="App.xaml_2"/>
-    <ROW File="README.txt_4" Component_="App.xaml_2" FileName="README.txt" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\hello\README.txt" SelfReg="false"/>
+    <ROW File="README.txt" Component_="App.xaml_3" FileName="README.txt" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\README.txt" SelfReg="false" NextFile="App.xaml_4"/>
+    <ROW File="README.txt_2" Component_="App.xaml_4" FileName="README.txt" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\bidir\README.txt" SelfReg="false" NextFile="App.xaml_5"/>
+    <ROW File="README.txt_5" Component_="App.xaml_5" FileName="README.txt" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\hello\README.txt" SelfReg="false"/>
     <ROW File="Random.h" Component_="AbstractMutex.h" FileName="Random.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\IceUtil\Random.h" SelfReg="false" NextFile="RecMutex.h"/>
     <ROW File="Random.h_1" Component_="AbstractMutex.h_1" FileName="Random.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\IceUtil\Random.h" SelfReg="false" NextFile="RecMutex.h_1"/>
     <ROW File="RecMutex.h" Component_="AbstractMutex.h" FileName="RecMutex.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\IceUtil\RecMutex.h" SelfReg="false" NextFile="ScannerConfig.h"/>
@@ -477,7 +481,7 @@
     <ROW File="RouterF.h_2" Component_="Application.h_1" FileName="RouterF.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Glacier2\RouterF.h" SelfReg="false" NextFile="Session.h_2"/>
     <ROW File="RouterF.h_3" Component_="ACMF.h_1" FileName="RouterF.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\RouterF.h" SelfReg="false" NextFile="ServantLocator.h_1"/>
     <ROW File="SDKManifest.xml" Component_="ICE_LICENSE.txt" FileName="SDKMAN~1.XML|SDKManifest.xml" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\SDKManifest.xml" SelfReg="false" NextFile="Ice.props_1"/>
-    <ROW File="SDKManifest.xml_1" Component_="ICE_LICENSE.txt_1" FileName="SDKMAN~1.XML|SDKManifest.xml" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\SDKManifest.xml" SelfReg="false" NextFile="demowinrt8.1.sln"/>
+    <ROW File="SDKManifest.xml_1" Component_="ICE_LICENSE.txt_1" FileName="SDKMAN~1.XML|SDKManifest.xml" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\SDKManifest.xml" SelfReg="false" NextFile="PopDisableWarnings.h"/>
     <ROW File="SHA1.h" Component_="AbstractMutex.h" FileName="SHA1.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\IceUtil\SHA1.h" SelfReg="false" NextFile="Shared.h"/>
     <ROW File="SHA1.h_1" Component_="AbstractMutex.h_1" FileName="SHA1.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\IceUtil\SHA1.h" SelfReg="false" NextFile="Shared.h_1"/>
     <ROW File="SSLInfo.h" Component_="Application.h" FileName="SSLInfo.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Glacier2\SSLInfo.h" SelfReg="false" NextFile="ACMF.h"/>
@@ -510,18 +514,18 @@
     <ROW File="SlicedData.h_1" Component_="ACMF.h_1" FileName="SLICED~1.H|SlicedData.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\SlicedData.h" SelfReg="false" NextFile="SlicedDataF.h_1"/>
     <ROW File="SlicedDataF.h" Component_="ACMF.h" FileName="SLICED~2.H|SlicedDataF.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\SlicedDataF.h" SelfReg="false" NextFile="Stream.h"/>
     <ROW File="SlicedDataF.h_1" Component_="ACMF.h_1" FileName="SLICED~2.H|SlicedDataF.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\SlicedDataF.h" SelfReg="false" NextFile="Stream.h_1"/>
-    <ROW File="SmallLogo.png" Component_="Logo.png" FileName="SMALLL~1.PNG|SmallLogo.png" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\Assets\SmallLogo.png" SelfReg="false" NextFile="SplashScreen.png"/>
-    <ROW File="SmallLogo.png_1" Component_="Logo.png_1" FileName="SMALLL~1.PNG|SmallLogo.png" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\bidir\Assets\SmallLogo.png" SelfReg="false" NextFile="SplashScreen.png_1"/>
-    <ROW File="SmallLogo.png_2" Component_="Logo.png_2" FileName="SMALLL~1.PNG|SmallLogo.png" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\hello\Assets\SmallLogo.png" SelfReg="false" NextFile="SplashScreen.png_2"/>
-    <ROW File="SplashScreen.png" Component_="Logo.png" FileName="SPLASH~1.PNG|SplashScreen.png" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\Assets\SplashScreen.png" SelfReg="false" NextFile="StoreLogo.png"/>
-    <ROW File="SplashScreen.png_1" Component_="Logo.png_1" FileName="SPLASH~1.PNG|SplashScreen.png" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\bidir\Assets\SplashScreen.png" SelfReg="false" NextFile="StoreLogo.png_1"/>
-    <ROW File="SplashScreen.png_2" Component_="Logo.png_2" FileName="SPLASH~1.PNG|SplashScreen.png" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\hello\Assets\SplashScreen.png" SelfReg="false" NextFile="StoreLogo.png_2"/>
-    <ROW File="StandardStyles.xaml" Component_="StandardStyles.xaml" FileName="STANDA~1.XAM|StandardStyles.xaml" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\Common\StandardStyles.xaml" SelfReg="false" NextFile="LoginView.xaml"/>
-    <ROW File="StandardStyles.xaml_1" Component_="StandardStyles.xaml_1" FileName="STANDA~1.XAM|StandardStyles.xaml" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\bidir\Common\StandardStyles.xaml" SelfReg="false" NextFile="MainPage.xaml_1"/>
-    <ROW File="StandardStyles.xaml_2" Component_="StandardStyles.xaml_2" FileName="STANDA~1.XAM|StandardStyles.xaml" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\hello\Common\StandardStyles.xaml" SelfReg="false" NextFile="hello8.1.vcxproj"/>
-    <ROW File="StoreLogo.png" Component_="Logo.png" FileName="STOREL~1.PNG|StoreLogo.png" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\Assets\StoreLogo.png" SelfReg="false" NextFile="chat8.1.vcxproj"/>
-    <ROW File="StoreLogo.png_1" Component_="Logo.png_1" FileName="STOREL~1.PNG|StoreLogo.png" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\bidir\Assets\StoreLogo.png" SelfReg="false" NextFile="bidir8.1.vcxproj"/>
-    <ROW File="StoreLogo.png_2" Component_="Logo.png_2" FileName="STOREL~1.PNG|StoreLogo.png" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\hello\Assets\StoreLogo.png" SelfReg="false" NextFile="StandardStyles.xaml_2"/>
+    <ROW File="SmallLogo.png_3" Component_="Logo.png_3" FileName="SMALLL~1.PNG|SmallLogo.png" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\Assets\SmallLogo.png" SelfReg="false" NextFile="SplashScreen.png_3"/>
+    <ROW File="SmallLogo.png_4" Component_="Logo.png_4" FileName="SMALLL~1.PNG|SmallLogo.png" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\bidir\Assets\SmallLogo.png" SelfReg="false" NextFile="SplashScreen.png_4"/>
+    <ROW File="SmallLogo.png_5" Component_="Logo.png_5" FileName="SMALLL~1.PNG|SmallLogo.png" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\hello\Assets\SmallLogo.png" SelfReg="false" NextFile="SplashScreen.png_5"/>
+    <ROW File="SplashScreen.png_3" Component_="Logo.png_3" FileName="SPLASH~1.PNG|SplashScreen.png" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\Assets\SplashScreen.png" SelfReg="false" NextFile="StoreLogo.png_3"/>
+    <ROW File="SplashScreen.png_4" Component_="Logo.png_4" FileName="SPLASH~1.PNG|SplashScreen.png" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\bidir\Assets\SplashScreen.png" SelfReg="false" NextFile="StoreLogo.png_4"/>
+    <ROW File="SplashScreen.png_5" Component_="Logo.png_5" FileName="SPLASH~1.PNG|SplashScreen.png" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\hello\Assets\SplashScreen.png" SelfReg="false" NextFile="StoreLogo.png_5"/>
+    <ROW File="StandardStyles.xaml_3" Component_="StandardStyles.xaml_3" FileName="STANDA~1.XAM|StandardStyles.xaml" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\Common\StandardStyles.xaml" SelfReg="false" NextFile="LoginView.xaml_1"/>
+    <ROW File="StandardStyles.xaml_4" Component_="StandardStyles.xaml_4" FileName="STANDA~1.XAM|StandardStyles.xaml" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\bidir\Common\StandardStyles.xaml" SelfReg="false" NextFile="MainPage.xaml_4"/>
+    <ROW File="StandardStyles.xaml_5" Component_="StandardStyles.xaml_5" FileName="STANDA~1.XAM|StandardStyles.xaml" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\hello\Common\StandardStyles.xaml" SelfReg="false" NextFile="hello8.1.vcxproj_1"/>
+    <ROW File="StoreLogo.png_3" Component_="Logo.png_3" FileName="STOREL~1.PNG|StoreLogo.png" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\Assets\StoreLogo.png" SelfReg="false" NextFile="chat8.1.vcxproj_1"/>
+    <ROW File="StoreLogo.png_4" Component_="Logo.png_4" FileName="STOREL~1.PNG|StoreLogo.png" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\bidir\Assets\StoreLogo.png" SelfReg="false" NextFile="bidir8.1.vcxproj_1"/>
+    <ROW File="StoreLogo.png_5" Component_="Logo.png_5" FileName="STOREL~1.PNG|StoreLogo.png" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\hello\Assets\StoreLogo.png" SelfReg="false" NextFile="StandardStyles.xaml_5"/>
     <ROW File="Stream.h" Component_="ACMF.h" FileName="Stream.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\Stream.h" SelfReg="false" NextFile="StreamF.h"/>
     <ROW File="Stream.h_1" Component_="ACMF.h_1" FileName="Stream.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\Stream.h" SelfReg="false" NextFile="StreamF.h_1"/>
     <ROW File="StreamF.h" Component_="ACMF.h" FileName="StreamF.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\StreamF.h" SelfReg="false" NextFile="StreamHelpers.h"/>
@@ -554,17 +558,18 @@
     <ROW File="UserExceptionFactory.h_1" Component_="ACMF.h_1" FileName="USEREX~1.H|UserExceptionFactory.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\UserExceptionFactory.h" SelfReg="false" NextFile="Version.h_1"/>
     <ROW File="Version.h" Component_="ACMF.h" FileName="Version.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\Version.h" SelfReg="false" NextFile="Admin.h"/>
     <ROW File="Version.h_1" Component_="ACMF.h_1" FileName="Version.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\CommonConfiguration\Neutral\include\Ice\Version.h" SelfReg="false" NextFile="Admin.h_1"/>
-    <ROW File="bidir.vcxproj" Component_="App.xaml_1" FileName="BIDIR~1.VCX|bidir.vcxproj" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\bidir\bidir.vcxproj" SelfReg="false" NextFile="bidir.vcxproj.filters"/>
-    <ROW File="bidir.vcxproj.filters" Component_="App.xaml_1" FileName="BIDIRV~1.FIL|bidir.vcxproj.filters" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\bidir\bidir.vcxproj.filters" SelfReg="false" NextFile="bidir_TemporaryKey.pfx"/>
-    <ROW File="bidir8.1.vcxproj" Component_="App.xaml_1" FileName="BIDIR-~1.VCX|bidir-8.1.vcxproj" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\bidir\bidir-8.1.vcxproj" SelfReg="false" NextFile="bidir8.1.vcxproj.filters"/>
-    <ROW File="bidir8.1.vcxproj.filters" Component_="App.xaml_1" FileName="BIDIR-~1.FIL|bidir-8.1.vcxproj.filters" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\bidir\bidir-8.1.vcxproj.filters" SelfReg="false" NextFile="bidir.vcxproj"/>
-    <ROW File="bidir_TemporaryKey.pfx" Component_="App.xaml_1" FileName="BIDIR_~1.PFX|bidir_TemporaryKey.pfx" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\bidir\bidir_TemporaryKey.pfx" SelfReg="false" NextFile="Callback.ice"/>
-    <ROW File="chat.vcxproj" Component_="App.xaml" FileName="CHAT~1.VCX|chat.vcxproj" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\chat.vcxproj" SelfReg="false" NextFile="chat.vcxproj.filters"/>
-    <ROW File="chat.vcxproj.filters" Component_="App.xaml" FileName="CHATVC~1.FIL|chat.vcxproj.filters" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\chat.vcxproj.filters" SelfReg="false" NextFile="ChatView.xaml"/>
-    <ROW File="chat8.1.vcxproj" Component_="App.xaml" FileName="CHAT-8~1.VCX|chat-8.1.vcxproj" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\chat-8.1.vcxproj" SelfReg="false" NextFile="chat8.1.vcxproj.filters"/>
-    <ROW File="chat8.1.vcxproj.filters" Component_="App.xaml" FileName="CHAT-8~1.FIL|chat-8.1.vcxproj.filters" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\chat-8.1.vcxproj.filters" SelfReg="false" NextFile="Chat.ice"/>
-    <ROW File="chat_TemporaryKey.pfx" Component_="App.xaml" FileName="CHAT_T~1.PFX|chat_TemporaryKey.pfx" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\chat_TemporaryKey.pfx" SelfReg="false" NextFile="StandardStyles.xaml"/>
-    <ROW File="demowinrt8.1.sln" Component_="demowinrt8.1.sln" FileName="DEMO-W~1.SLN|demo-winrt-8.1.sln" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\demo-winrt-8.1.sln" SelfReg="false" NextFile="App.xaml"/>
+    <ROW File="bidir.vcxproj.filters_1" Component_="App.xaml_4" FileName="BIDIRV~1.FIL|bidir.vcxproj.filters" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\bidir\bidir.vcxproj.filters" SelfReg="false" NextFile="bidir_TemporaryKey.pfx_1"/>
+    <ROW File="bidir.vcxproj_1" Component_="App.xaml_4" FileName="BIDIR~1.VCX|bidir.vcxproj" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\bidir\bidir.vcxproj" SelfReg="false" NextFile="bidir.vcxproj.filters_1"/>
+    <ROW File="bidir8.1.vcxproj.filters_1" Component_="App.xaml_4" FileName="BIDIR-~1.FIL|bidir-8.1.vcxproj.filters" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\bidir\bidir-8.1.vcxproj.filters" SelfReg="false" NextFile="bidir.vcxproj_1"/>
+    <ROW File="bidir8.1.vcxproj_1" Component_="App.xaml_4" FileName="BIDIR-~1.VCX|bidir-8.1.vcxproj" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\bidir\bidir-8.1.vcxproj" SelfReg="false" NextFile="bidir8.1.vcxproj.filters_1"/>
+    <ROW File="bidir_TemporaryKey.pfx_1" Component_="App.xaml_4" FileName="BIDIR_~1.PFX|bidir_TemporaryKey.pfx" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\bidir\bidir_TemporaryKey.pfx" SelfReg="false" NextFile="Callback.ice_1"/>
+    <ROW File="chat.vcxproj.filters_1" Component_="App.xaml_3" FileName="CHATVC~1.FIL|chat.vcxproj.filters" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\chat.vcxproj.filters" SelfReg="false" NextFile="ChatView.xaml_1"/>
+    <ROW File="chat.vcxproj_1" Component_="App.xaml_3" FileName="CHAT~1.VCX|chat.vcxproj" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\chat.vcxproj" SelfReg="false" NextFile="chat.vcxproj.filters_1"/>
+    <ROW File="chat8.1.vcxproj.filters_1" Component_="App.xaml_3" FileName="CHAT-8~1.FIL|chat-8.1.vcxproj.filters" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\chat-8.1.vcxproj.filters" SelfReg="false" NextFile="Chat.ice_1"/>
+    <ROW File="chat8.1.vcxproj_1" Component_="App.xaml_3" FileName="CHAT-8~1.VCX|chat-8.1.vcxproj" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\chat-8.1.vcxproj" SelfReg="false" NextFile="chat8.1.vcxproj.filters_1"/>
+    <ROW File="chat_TemporaryKey.pfx_1" Component_="App.xaml_3" FileName="CHAT_T~1.PFX|chat_TemporaryKey.pfx" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\chat_TemporaryKey.pfx" SelfReg="false" NextFile="StandardStyles.xaml_3"/>
+    <ROW File="demowinrt8.0.sln" Component_="demowinrt8.0.sln" FileName="DEMO-W~1.SLN|demo-winrt-8.0.sln" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\demo-winrt-8.0.sln" SelfReg="false" NextFile="demowinrt8.1.sln_1"/>
+    <ROW File="demowinrt8.1.sln_1" Component_="demowinrt8.0.sln" FileName="DEMO-W~2.SLN|demo-winrt-8.1.sln" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\demo-winrt-8.1.sln" SelfReg="false" NextFile="App.xaml_3"/>
     <ROW File="glacier2.lib" Component_="glacier2.lib" FileName="glacier2.lib" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\Debug\arm\glacier2.lib" SelfReg="false" NextFile="glacier2.pdb"/>
     <ROW File="glacier2.lib_1" Component_="glacier2.lib_1" FileName="glacier2.lib" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\Debug\x64\glacier2.lib" SelfReg="false" NextFile="glacier2.pdb_1"/>
     <ROW File="glacier2.lib_10" Component_="glacier2.lib_10" FileName="glacier2.lib" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\Retail\x64\glacier2.lib" SelfReg="false" NextFile="glacier2.pdb_10"/>
@@ -589,11 +594,11 @@
     <ROW File="glacier2.pdb_7" Component_="glacier2.pdb_7" FileName="glacier2.pdb" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\Debug\x64\glacier2.pdb" SelfReg="false" NextFile="ice.lib_7"/>
     <ROW File="glacier2.pdb_8" Component_="glacier2.pdb_8" FileName="glacier2.pdb" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\Debug\x86\glacier2.pdb" SelfReg="false" NextFile="ice.lib_8"/>
     <ROW File="glacier2.pdb_9" Component_="glacier2.pdb_9" FileName="glacier2.pdb" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\Retail\arm\glacier2.pdb" SelfReg="false" NextFile="ice.lib_9"/>
-    <ROW File="hello.vcxproj" Component_="App.xaml_2" FileName="HELLO~1.VCX|hello.vcxproj" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\hello\hello.vcxproj" SelfReg="false" NextFile="hello.vcxproj.filters"/>
-    <ROW File="hello.vcxproj.filters" Component_="App.xaml_2" FileName="HELLOV~1.FIL|hello.vcxproj.filters" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\hello\hello.vcxproj.filters" SelfReg="false" NextFile="hello_TemporaryKey.pfx"/>
-    <ROW File="hello8.1.vcxproj" Component_="App.xaml_2" FileName="HELLO-~1.VCX|hello-8.1.vcxproj" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\hello\hello-8.1.vcxproj" SelfReg="false" NextFile="hello8.1.vcxproj.filters"/>
-    <ROW File="hello8.1.vcxproj.filters" Component_="App.xaml_2" FileName="HELLO-~1.FIL|hello-8.1.vcxproj.filters" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\hello\hello-8.1.vcxproj.filters" SelfReg="false" NextFile="Hello.ice"/>
-    <ROW File="hello_TemporaryKey.pfx" Component_="App.xaml_2" FileName="HELLO_~1.PFX|hello_TemporaryKey.pfx" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\hello\hello_TemporaryKey.pfx" SelfReg="false" NextFile="MainPage.xaml_2"/>
+    <ROW File="hello.vcxproj.filters_1" Component_="App.xaml_5" FileName="HELLOV~1.FIL|hello.vcxproj.filters" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\hello\hello.vcxproj.filters" SelfReg="false" NextFile="hello_TemporaryKey.pfx_1"/>
+    <ROW File="hello.vcxproj_1" Component_="App.xaml_5" FileName="HELLO~1.VCX|hello.vcxproj" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\hello\hello.vcxproj" SelfReg="false" NextFile="hello.vcxproj.filters_1"/>
+    <ROW File="hello8.1.vcxproj.filters_1" Component_="App.xaml_5" FileName="HELLO-~1.FIL|hello-8.1.vcxproj.filters" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\hello\hello-8.1.vcxproj.filters" SelfReg="false" NextFile="Hello.ice_1"/>
+    <ROW File="hello8.1.vcxproj_1" Component_="App.xaml_5" FileName="HELLO-~1.VCX|hello-8.1.vcxproj" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\hello\hello-8.1.vcxproj" SelfReg="false" NextFile="hello8.1.vcxproj.filters_1"/>
+    <ROW File="hello_TemporaryKey.pfx_1" Component_="App.xaml_5" FileName="HELLO_~1.PFX|hello_TemporaryKey.pfx" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\hello\hello_TemporaryKey.pfx" SelfReg="false" NextFile="MainPage.xaml_5"/>
     <ROW File="ice.lib" Component_="glacier2.lib" FileName="ice.lib" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\Debug\arm\ice.lib" SelfReg="false" NextFile="ice.pdb"/>
     <ROW File="ice.lib_1" Component_="glacier2.lib_1" FileName="ice.lib" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.0\Ice\3.6\DesignTime\Debug\x64\ice.lib" SelfReg="false" NextFile="ice.pdb_1"/>
     <ROW File="ice.lib_10" Component_="glacier2.lib_10" FileName="ice.lib" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\Retail\x64\ice.lib" SelfReg="false" NextFile="ice.pdb_10"/>
@@ -690,12 +695,12 @@
     <ROW File="iceutil.pdb_7" Component_="glacier2.pdb_7" FileName="iceutil.pdb" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\Debug\x64\iceutil.pdb" SelfReg="false" NextFile="glacier2.lib_8"/>
     <ROW File="iceutil.pdb_8" Component_="glacier2.pdb_8" FileName="iceutil.pdb" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\Debug\x86\iceutil.pdb" SelfReg="false" NextFile="glacier2.lib_9"/>
     <ROW File="iceutil.pdb_9" Component_="glacier2.pdb_9" FileName="iceutil.pdb" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b\SDKs\8.1\Ice\3.6\DesignTime\Retail\arm\iceutil.pdb" SelfReg="false" NextFile="glacier2.lib_10"/>
-    <ROW File="pch.cpp" Component_="App.xaml" FileName="pch.cpp" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\pch.cpp" SelfReg="false" NextFile="pch.h"/>
-    <ROW File="pch.cpp_1" Component_="App.xaml_1" FileName="pch.cpp" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\bidir\pch.cpp" SelfReg="false" NextFile="pch.h_1"/>
-    <ROW File="pch.cpp_2" Component_="App.xaml_2" FileName="pch.cpp" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\hello\pch.cpp" SelfReg="false" NextFile="pch.h_2"/>
-    <ROW File="pch.h" Component_="App.xaml" FileName="pch.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Glacier2\winrt\chat\pch.h" SelfReg="false" NextFile="README.txt_1"/>
-    <ROW File="pch.h_1" Component_="App.xaml_1" FileName="pch.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\bidir\pch.h" SelfReg="false" NextFile="README.txt_3"/>
-    <ROW File="pch.h_2" Component_="App.xaml_2" FileName="pch.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\demo\Ice\winrt\hello\pch.h" SelfReg="false" NextFile="README.txt_4"/>
+    <ROW File="pch.cpp_3" Component_="App.xaml_3" FileName="pch.cpp" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\pch.cpp" SelfReg="false" NextFile="pch.h_3"/>
+    <ROW File="pch.cpp_4" Component_="App.xaml_4" FileName="pch.cpp" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\bidir\pch.cpp" SelfReg="false" NextFile="pch.h_4"/>
+    <ROW File="pch.cpp_5" Component_="App.xaml_5" FileName="pch.cpp" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\hello\pch.cpp" SelfReg="false" NextFile="pch.h_5"/>
+    <ROW File="pch.h_3" Component_="App.xaml_3" FileName="pch.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Glacier2\winrt\chat\pch.h" SelfReg="false" NextFile="README.txt"/>
+    <ROW File="pch.h_4" Component_="App.xaml_4" FileName="pch.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\bidir\pch.h" SelfReg="false" NextFile="README.txt_2"/>
+    <ROW File="pch.h_5" Component_="App.xaml_5" FileName="pch.h" Attributes="0" SourcePath="..\..\..\installer\Ice-3.6b-demos\cpp\Ice\winrt\hello\pch.h" SelfReg="false" NextFile="README.txt_5"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
     <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="1" PackageFolder="." Languages="en" InstallationType="4" UseLargeSchema="true"/>
@@ -868,9 +873,9 @@
     <ROW Signature_="AppSearchSign_1" Root="2" Key="SOFTWARE\ZeroC\Ice 3.6b" Name="DemoInstallDir" Type="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegsComponent">
+    <ROW Registry="ExtensionSDKs" Root="2" Key="Software\Wow6432Node\Microsoft\Microsoft SDKs\Windows\v8.1\ExtensionSDKs" Name="+" Component_="ExtensionSDKs"/>
     <ROW Registry="Wow6432Node" Root="2" Key="Software\Wow6432Node" Name="+" Component_="Wow6432Node"/>
-    <ROW Registry="__3" Root="2" Key="Software\Wow6432Node\Microsoft\Microsoft SDKs\Windows\v8.1\Ice\3.6" Value="[__3_Dir]" Component_="_"/>
-    <ROW Registry="__4" Root="2" Key="Software\Wow6432Node\Microsoft\Microsoft SDKs\Windows\v8.0\Ice\3.6" Value="[__1_Dir]" Component_="__1"/>
+    <ROW Registry="__2" Root="2" Key="Software\Wow6432Node\Microsoft\Microsoft SDKs\Windows\v8.1\ExtensionSDKs\Ice\3.6" Value="[__3_Dir]" Component_="_"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiThemeComponent">
     <ATTRIBUTE name="UsedTheme" value="classic"/>
