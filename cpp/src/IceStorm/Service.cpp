@@ -333,8 +333,9 @@ ServiceI::start(
             }
             if(properties->getProperty(name + ".Node.MessageSizeMax").empty())
             {
-                properties->setProperty(name + ".Node.MessageSizeMax", 0); // No limit on data exchanged internally
+                properties->setProperty(name + ".Node.MessageSizeMax", "0"); // No limit on data exchanged internally
             }
+
             Ice::ObjectAdapterPtr nodeAdapter = communicator->createObjectAdapter(name + ".Node");
 
             _instance = new Instance(instanceName, name, communicator, publishAdapter, topicAdapter,
