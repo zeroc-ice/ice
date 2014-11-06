@@ -72,7 +72,7 @@ else:
         elif os.path.exists(os.path.join(path, "nodejs")):
             nodeCmd = "nodejs"
             break
-    
+
 def getNodeCommand():
     return nodeCmd
 
@@ -84,7 +84,7 @@ def getJavaVersion():
     matchVersion = re.compile('java version \"(.*)\"')
     m = matchVersion.match(p.stdout.readline().decode('UTF-8'))
     return m.group(1)
-    
+
 class filereader(Expect.reader):
     def __init__(self, desc, p):
         Expect.reader.__init__(self, desc, p, None)
@@ -94,8 +94,8 @@ class filereader(Expect.reader):
         try:
             while True:
                 c = self.p.read(1)
-                if not c: 
-                    time.sleep(0.1) 
+                if not c:
+                    time.sleep(0.1)
                     continue
 
                 if c == '\r': continue
@@ -167,7 +167,7 @@ class FileExpect(object):
             self.matchindex = 0
             raise e
         return self.matchindex
-            
+
     def terminate(self):
         try:
             self.f.close()
@@ -307,7 +307,7 @@ def configurePaths():
     jarSuffix = "-" + getIceVersion() + ".jar"
     addenv("CLASSPATH", os.path.join(javaDir, "lib", "Ice" + jarSuffix))
     addenv("CLASSPATH", os.path.join(javaDir, "lib", "Glacier2" + jarSuffix))
-    addenv("CLASSPATH", os.path.join(javaDir, "lib", "Freeze." + jarSuffix))
+    addenv("CLASSPATH", os.path.join(javaDir, "lib", "Freeze" + jarSuffix))
     addenv("CLASSPATH", os.path.join(javaDir, "lib", "IceBox" + jarSuffix))
     addenv("CLASSPATH", os.path.join(javaDir, "lib", "IceStorm" + jarSuffix))
     addenv("CLASSPATH", os.path.join(javaDir, "lib", "IceGrid" + jarSuffix))
@@ -334,7 +334,7 @@ def configurePaths():
         addenv("PYTHONPATH", os.path.join(getIceDir("py"), "python", "x64"))
     else:
         addenv("PYTHONPATH", os.path.join(getIceDir("py"), "python"))
-    
+
     if isWin32() and x64:
         addenv("RUBYLIB", os.path.join(getIceDir("rb"), "ruby", "x64"))
     else:
@@ -657,7 +657,7 @@ def getIceBox(mapping = "cpp"):
             return "iceboxd"
         return "icebox"
     elif mapping == "cs":
-        if isMono(): 
+        if isMono():
             # Mono cannot locate icebox in the PATH. This is wrong for a demo dist.
             return os.path.join(getIceDir("cs"), "bin", "iceboxnet.exe")
         else:
