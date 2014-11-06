@@ -237,12 +237,12 @@ IceSSL::TransceiverI::sslHandshake()
         _readBuffer.i = _readBuffer.b.begin();
         _credentials = _engine->newCredentialsHandle(_incoming);
         _credentialsInitialized = true;
-            
+
         if(!_incoming)
         {
             SecBuffer outBuffer = { 0, SECBUFFER_TOKEN, 0 };
             SecBufferDesc outBufferDesc = { SECBUFFER_VERSION, 1, &outBuffer };
-                
+
             err = InitializeSecurityContext(&_credentials, 0, const_cast<char *>(_host.c_str()), flags, 0, 0, 0, 0,
                                             &_ssl, &outBufferDesc, &ctxFlags, 0);
             if(err != SEC_E_OK && err != SEC_I_CONTINUE_NEEDED)
@@ -251,7 +251,7 @@ IceSSL::TransceiverI::sslHandshake()
                                         IceUtilInternal::lastErrorToString());
             }
             _sslInitialized = true;
-                
+
             //
             // Copy the data to the write buffer
             //
@@ -259,7 +259,7 @@ IceSSL::TransceiverI::sslHandshake()
             _writeBuffer.i = _writeBuffer.b.begin();
             memcpy(_writeBuffer.i, outBuffer.pvBuffer, outBuffer.cbBuffer);
             FreeContextBuffer(outBuffer.pvBuffer);
-                
+
             _state = StateHandshakeWriteContinue;
         }
         else
@@ -629,7 +629,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
     {
         return op;
     }
-    
+
     op = sslHandshake();
     if(op != IceInternal::SocketOperationNone)
     {
@@ -951,9 +951,9 @@ IceSSL::TransceiverI::checkSendSize(const IceInternal::Buffer&)
 {
 }
 
-IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, 
-                                   const IceInternal::StreamSocketPtr& stream, 
-                                   const string& host, 
+IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance,
+                                   const IceInternal::StreamSocketPtr& stream,
+                                   const string& host,
                                    const string& adapterName) :
     _instance(instance),
     _engine(SChannelEnginePtr::dynamicCast(instance->engine())),
@@ -962,10 +962,7 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance,
     _incoming(host.empty()),
     _stream(stream),
     _state(StateHandshakeNotStarted),
-    _writeBuffer(0),
     _bufferedW(0),
-    _readBuffer(0),
-    _readUnprocessed(0),
     _sslInitialized(false),
     _credentialsInitialized(false)
 {
@@ -979,7 +976,7 @@ NativeConnectionInfoPtr
 IceSSL::TransceiverI::getNativeConnectionInfo() const
 {
     NativeConnectionInfoPtr info = new NativeConnectionInfo();
-    IceInternal::fdToAddressAndPort(_stream->fd(), info->localAddress, info->localPort, info->remoteAddress, 
+    IceInternal::fdToAddressAndPort(_stream->fd(), info->localAddress, info->localPort, info->remoteAddress,
                                     info->remotePort);
 
     if(_sslInitialized)
