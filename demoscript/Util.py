@@ -304,7 +304,7 @@ def configurePaths():
         addenv("PATH", os.path.join(getIceDir("cs"), "bin"))
 
     javaDir = getIceDir("java")
-
+    jarSuffix = "-" + getIceVersion() + ".jar"
     addenv("CLASSPATH", os.path.join(javaDir, "lib", "Ice" + jarSuffix))
     addenv("CLASSPATH", os.path.join(javaDir, "lib", "Glacier2" + jarSuffix))
     addenv("CLASSPATH", os.path.join(javaDir, "lib", "Freeze." + jarSuffix))
