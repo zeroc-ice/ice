@@ -21,6 +21,7 @@ excludeFiles = [ \
     "/certs/cakey.pem",
     "/distribution",
     "/protobuf",
+    "*.iml"
 ]
 
 #
@@ -463,11 +464,6 @@ for root, dirnames, filesnames in os.walk(demoDir):
         if fnmatch.fnmatch(f, "config*"):
             substitute(os.path.join(root, f), configSubstituteExprs)
 
-for root, dirnames, filesnames in os.walk(os.path.join(demoDir, "java")):
-    for f in filesnames:
-        if fnmatch.fnmatch(f, "demo_*.iml"):
-            remove(os.path.join(root, f))
-
 remove(os.path.join(srcDir, 'vb')) # vb directory in Unix source distribution only needed to copy demo scripts.
 
 # Fix up the Java build files
@@ -492,7 +488,6 @@ copy(os.path.join(srcDir, "android", "gradlew"), os.path.join(demoDir, "java", "
 copy(os.path.join(srcDir, "android", "gradle", "wrapper"), os.path.join(demoDir, "java", "android", "gradle", "wrapper"), False)
 copy(os.path.join(srcDir, "android", "build.gradle"), os.path.join(demoDir, "java", "android"), False)
 copy(os.path.join(srcDir, "android", "gradle.properties"), os.path.join(demoDir, "java", "android"), False)
-copy(os.path.join(srcDir, "android", "android.iml"), os.path.join(demoDir, "java", "android"), False)
 copy(os.path.join(distFilesDir, "src", "common", "settings.gradle.android"), os.path.join(demoDir, "java", "android", "settings.gradle"), False)
 
 gradleSubstituteExprs = [(re.compile(re.escape("apply plugin: 'slice'")), "")]
@@ -576,11 +571,6 @@ for d in ["cs", "vb"]:
                 if fnmatch.fnmatch(f, m):
                     rmFiles.append(os.path.join(root[len(winDemoDir) + 1:], f))
 
-for root, dirnames, filesnames in os.walk(os.path.join(winDemoDir, "java")):
-    for f in filesnames:
-        if fnmatch.fnmatch(f, "demo_*.iml"):
-            rmFiles.append(os.path.join(root[len(winDemoDir) + 1:], f))
-
 for f in rmFiles: remove(os.path.join(winDemoDir, f))
 
 # Fix up the Java build files
@@ -605,7 +595,6 @@ copy(os.path.join(srcDir, "android", "gradlew.bat"), os.path.join(winDemoDir, "j
 copy(os.path.join(srcDir, "android", "gradle", "wrapper"), os.path.join(winDemoDir, "java", "android", "gradle", "wrapper"), False)
 copy(os.path.join(srcDir, "android", "build.gradle"), os.path.join(winDemoDir, "java", "android"), False)
 copy(os.path.join(srcDir, "android", "gradle.properties"), os.path.join(winDemoDir, "java", "android"), False)
-copy(os.path.join(srcDir, "android", "android.iml"), os.path.join(winDemoDir, "java", "android"), False)
 copy(os.path.join(distFilesDir, "src", "common", "settings.gradle.android"), os.path.join(winDemoDir, "java", "android", "settings.gradle"), False)
 
 gradleSubstituteExprs = [(re.compile(re.escape("apply plugin: 'slice'")), "")]
