@@ -1638,14 +1638,15 @@ def getTestEnv(lang, testdir):
         # The Ice.jar and Freeze.jar comes from the installation
         # directory or the toplevel dir.
         javaDir = os.path.join(getIceDir("java", testdir), "lib")
-        addClasspath(os.path.join(javaDir, "Ice.jar"), env)
-        addClasspath(os.path.join(javaDir, "Glacier2.jar"), env)
-        addClasspath(os.path.join(javaDir, "Freeze.jar"), env)
-        addClasspath(os.path.join(javaDir, "IceBox.jar"), env)
-        addClasspath(os.path.join(javaDir, "IceStorm.jar"), env)
-        addClasspath(os.path.join(javaDir, "IceGrid.jar"), env)
-        addClasspath(os.path.join(javaDir, "IcePatch2.jar"), env)
-        addClasspath(os.path.join(javaDir, "IceDiscovery.jar"), env)
+        jarSuffix = "-" + getIceVersion() + ".jar"
+        addClasspath(os.path.join(javaDir, "Ice" + jarSuffix), env)
+        addClasspath(os.path.join(javaDir, "Glacier2" + jarSuffix), env)
+        addClasspath(os.path.join(javaDir, "Freeze" + jarSuffix), env)
+        addClasspath(os.path.join(javaDir, "IceBox" + jarSuffix), env)
+        addClasspath(os.path.join(javaDir, "IceStorm" + jarSuffix), env)
+        addClasspath(os.path.join(javaDir, "IceGrid" + jarSuffix), env)
+        addClasspath(os.path.join(javaDir, "IcePatch2" + jarSuffix), env)
+        addClasspath(os.path.join(javaDir, "IceDiscovery" + jarSuffix), env)
         addClasspath(os.path.join(javaDir), env)
 
     #

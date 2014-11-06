@@ -246,14 +246,15 @@ def configurePaths():
     #
     if iceHome == "/usr":
         javaDir = os.path.join("/", "usr", "share", "java")
-        addenv("CLASSPATH", os.path.join(javaDir, "Ice.jar"))
-        addenv("CLASSPATH", os.path.join(javaDir, "Glacier2.jar"))
-        addenv("CLASSPATH", os.path.join(javaDir, "Freeze.jar"))
-        addenv("CLASSPATH", os.path.join(javaDir, "IceBox.jar"))
-        addenv("CLASSPATH", os.path.join(javaDir, "IceStorm.jar"))
-        addenv("CLASSPATH", os.path.join(javaDir, "IceGrid.jar"))
-        addenv("CLASSPATH", os.path.join(javaDir, "IcePatch2.jar"))
-        addenv("CLASSPATH", os.path.join(javaDir, "IceDiscovery.jar"))
+        jarSuffix = "-" + getIceVersion() + ".jar"
+        addenv("CLASSPATH", os.path.join(javaDir, "Ice" + jarSuffix))
+        addenv("CLASSPATH", os.path.join(javaDir, "Glacier2" + jarSuffix))
+        addenv("CLASSPATH", os.path.join(javaDir, "Freeze" + jarSuffix))
+        addenv("CLASSPATH", os.path.join(javaDir, "IceBox" + jarSuffix))
+        addenv("CLASSPATH", os.path.join(javaDir, "IceStorm" + jarSuffix))
+        addenv("CLASSPATH", os.path.join(javaDir, "IceGrid" + jarSuffix))
+        addenv("CLASSPATH", os.path.join(javaDir, "IcePatch2" + jarSuffix))
+        addenv("CLASSPATH", os.path.join(javaDir, "IceDiscovery" + jarSuffix))
         addenv("CLASSPATH", "classes")
         return # That's it, we're done!
 
@@ -304,14 +305,14 @@ def configurePaths():
 
     javaDir = getIceDir("java")
 
-    addenv("CLASSPATH", os.path.join(javaDir, "lib", "Ice.jar"))
-    addenv("CLASSPATH", os.path.join(javaDir, "lib", "Glacier2.jar"))
-    addenv("CLASSPATH", os.path.join(javaDir, "lib", "Freeze.jar"))
-    addenv("CLASSPATH", os.path.join(javaDir, "lib", "IceBox.jar"))
-    addenv("CLASSPATH", os.path.join(javaDir, "lib", "IceStorm.jar"))
-    addenv("CLASSPATH", os.path.join(javaDir, "lib", "IceGrid.jar"))
-    addenv("CLASSPATH", os.path.join(javaDir, "lib", "IcePatch2.jar"))
-    addenv("CLASSPATH", os.path.join(javaDir, "lib", "IceDiscovery.jar"))
+    addenv("CLASSPATH", os.path.join(javaDir, "lib", "Ice" + jarSuffix))
+    addenv("CLASSPATH", os.path.join(javaDir, "lib", "Glacier2" + jarSuffix))
+    addenv("CLASSPATH", os.path.join(javaDir, "lib", "Freeze." + jarSuffix))
+    addenv("CLASSPATH", os.path.join(javaDir, "lib", "IceBox" + jarSuffix))
+    addenv("CLASSPATH", os.path.join(javaDir, "lib", "IceStorm" + jarSuffix))
+    addenv("CLASSPATH", os.path.join(javaDir, "lib", "IceGrid" + jarSuffix))
+    addenv("CLASSPATH", os.path.join(javaDir, "lib", "IcePatch2" + jarSuffix))
+    addenv("CLASSPATH", os.path.join(javaDir, "lib", "IceDiscovery" + jarSuffix))
     if not iceHome:
         addenv("CLASSPATH", os.path.join(javaDir, "lib"))
     addenv("CLASSPATH", os.path.join("build", "classes"))
