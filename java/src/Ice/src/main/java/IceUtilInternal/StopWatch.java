@@ -39,4 +39,4 @@ public class StopWatch
     }
 
     private long _s = 0;
-};
+}

@@ -21,7 +21,7 @@ class FactoryACMMonitor implements ACMMonitor
 
         final Ice.ConnectionI connection;
         final boolean remove;
-    };
+    }
 
     FactoryACMMonitor(Instance instance, ACMConfig config)
     {
@@ -228,5 +228,5 @@ class FactoryACMMonitor implements ACMMonitor
     private java.util.List<Change> _changes = new java.util.ArrayList<Change>();
     private java.util.List<Ice.ConnectionI> _reapedConnections = new java.util.ArrayList<Ice.ConnectionI>();
     private java.util.concurrent.Future<?> _future;
-};
+}
 

@@ -429,7 +429,7 @@ public class AsyncResultI implements AsyncResult
         }
     }
 
-    private final void warning(RuntimeException ex)
+    private void warning(RuntimeException ex)
     {
         if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
         {
@@ -438,7 +438,7 @@ public class AsyncResultI implements AsyncResult
         }
     }
 
-    private final void error(Error error)
+    private void error(Error error)
     {
         String s = "error raised by AMI callback:\n" + Ex.toString(error);
         _instance.initializationData().logger.error(s);

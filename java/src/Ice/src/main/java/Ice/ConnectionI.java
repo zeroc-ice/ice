@@ -102,7 +102,6 @@ public final class ConnectionI extends IceInternal.EventHandler
         {
             exception(ex);
             waitUntilFinished();
-            return;
         }
     }
 
@@ -3148,7 +3147,7 @@ public final class ConnectionI extends IceInternal.EventHandler
     private boolean _validated = false;
 
     private IceInternal.Incoming _incomingCache;
-    private java.lang.Object _incomingCacheMutex = new java.lang.Object();
+    private final java.lang.Object _incomingCacheMutex = new java.lang.Object();
 
     private Ice.ProtocolVersion _readProtocol = new Ice.ProtocolVersion();
     private Ice.EncodingVersion _readProtocolEncoding = new Ice.EncodingVersion();

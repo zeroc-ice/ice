@@ -86,7 +86,7 @@ public final class LocatorInfo
         final Reference _ref;
         final int _ttl;
         final GetEndpointsCallback _callback;
-    };
+    }
 
     private abstract class Request
     {
@@ -164,7 +164,7 @@ public final class LocatorInfo
         private boolean _response;
         private Ice.ObjectPrx _proxy;
         private Exception _exception;
-    };
+    }
 
     private class ObjectRequest extends Request
     {
@@ -211,7 +211,7 @@ public final class LocatorInfo
                 exception(ex);
             }
         }
-    };
+    }
 
     private class AdapterRequest extends Request
     {
@@ -258,7 +258,7 @@ public final class LocatorInfo
                 exception(ex);
             }
         }
-    };
+    }
 
     LocatorInfo(Ice.LocatorPrx locator, LocatorTable table, boolean background)
     {

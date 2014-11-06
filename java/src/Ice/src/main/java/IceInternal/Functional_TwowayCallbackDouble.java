@@ -39,4 +39,4 @@ public abstract class Functional_TwowayCallbackDouble
     }
 
     final private Functional_DoubleCallback __responseCb;
-};
+}

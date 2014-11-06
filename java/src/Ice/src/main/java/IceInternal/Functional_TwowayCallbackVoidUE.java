@@ -32,4 +32,4 @@ public abstract class Functional_TwowayCallbackVoidUE
     }
 
     private final Functional_VoidCallback __responseCb;
-};
+}

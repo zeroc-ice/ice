@@ -113,7 +113,7 @@ public class InvocationObserverI
         final private int _size;
         private String _id;
         private Ice.EndpointInfo _endpointInfo;
-    };
+    }
 
     static public final class CollocatedInvocationHelper extends MetricsHelper<CollocatedMetrics>
     {
@@ -171,7 +171,7 @@ public class InvocationObserverI
         final private int _requestId;
         final private int _size;
         final private String _id;
-    };
+    }
 
     @Override
     public void

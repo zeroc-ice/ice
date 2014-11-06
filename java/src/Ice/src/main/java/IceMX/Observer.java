@@ -16,7 +16,7 @@ public class Observer<T extends Metrics> extends IceUtilInternal.StopWatch imple
     public interface MetricsUpdate<T>
     {
         void update(T m);
-    };
+    }
 
     @Override
     public void
@@ -133,4 +133,4 @@ public class Observer<T extends Metrics> extends IceUtilInternal.StopWatch imple
 
     private java.util.List<MetricsMap<T>.Entry> _objects;
     private long _previousDelay = 0;
-};
+}

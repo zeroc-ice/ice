@@ -168,7 +168,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         private final Ice.Instrumentation.ConnectionState _state;
         private String _id;
         private Ice.EndpointInfo _endpointInfo;
-    };
+    }
 
     static public final class DispatchHelper extends MetricsHelper<DispatchMetrics>
     {
@@ -313,7 +313,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         final private int _size;
         private String _id;
         private Ice.EndpointInfo _endpointInfo;
-    };
+    }
 
     static public final class InvocationHelper extends MetricsHelper<InvocationMetrics>
     {
@@ -471,7 +471,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         private String _id;
 
         static final private Ice.Endpoint[] emptyEndpoints = new Ice.Endpoint[0];
-    };
+    }
 
     static public final class ThreadHelper extends MetricsHelper<ThreadMetrics>
     {
@@ -521,7 +521,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         final public String _parent;
         final public String _id;
         final private Ice.Instrumentation.ThreadState _state;
-    };
+    }
 
     static public final class EndpointHelper extends MetricsHelper<Metrics>
     {
@@ -590,7 +590,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         final private Ice.Endpoint _endpoint;
         private String _id;
         private Ice.EndpointInfo _endpointInfo;
-    };
+    }
 
     public
     CommunicatorObserverI(Ice.InitializationData initData)

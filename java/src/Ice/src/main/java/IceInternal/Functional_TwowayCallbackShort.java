@@ -40,4 +40,4 @@ public abstract class Functional_TwowayCallbackShort
     }
 
     final private Functional_ShortCallback __responseCb;
-};
+}

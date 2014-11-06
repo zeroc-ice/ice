@@ -40,4 +40,4 @@ public abstract class Functional_TwowayCallbackFloat
     }
 
     final private Functional_FloatCallback __responseCb;
-};
+}

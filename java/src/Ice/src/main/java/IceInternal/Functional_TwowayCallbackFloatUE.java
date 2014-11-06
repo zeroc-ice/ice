@@ -31,4 +31,4 @@ public abstract class Functional_TwowayCallbackFloatUE
     }
 
     private final Functional_GenericCallback1<Ice.UserException> __userExceptionCb;
-};
+}

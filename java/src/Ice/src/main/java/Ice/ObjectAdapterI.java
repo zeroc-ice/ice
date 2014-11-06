@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.ArrayList;
 
 import IceInternal.IncomingConnectionFactory;
-import IceInternal.OutgoingConnectionFactory;
 
 public final class ObjectAdapterI implements ObjectAdapter
 {

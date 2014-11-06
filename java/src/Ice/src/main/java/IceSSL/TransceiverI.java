@@ -295,7 +295,7 @@ final class TransceiverI implements IceInternal.Transceiver
                 info.nativeCerts = session.getPeerCertificates();
                 for(java.security.cert.Certificate c : info.nativeCerts)
                 {
-                    StringBuffer s = new StringBuffer("-----BEGIN CERTIFICATE-----\n");
+                    StringBuilder s = new StringBuilder("-----BEGIN CERTIFICATE-----\n");
                     s.append(IceUtilInternal.Base64.encode(c.getEncoded()));
                     s.append("\n-----END CERTIFICATE-----");
                     certs.add(s.toString());
@@ -447,7 +447,6 @@ final class TransceiverI implements IceInternal.Transceiver
                     //
                     // Encrypt the buffer.
                     //
-                    int position = _netOutput.position();
                     SSLEngineResult result = _engine.wrap(buf, _netOutput);
                     switch(result.getStatus())
                     {

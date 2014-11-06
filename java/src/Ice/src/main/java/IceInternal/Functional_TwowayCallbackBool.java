@@ -39,4 +39,4 @@ public abstract class Functional_TwowayCallbackBool extends Functional_TwowayCal
     }
 
     final private Functional_BoolCallback __responseCb;
-};
+}

@@ -17,4 +17,4 @@ public interface TwowayCallbackArg1<T> extends TwowayCallback
      * @param arg The operation return value.
      **/
     void response(T arg);
-};
+}

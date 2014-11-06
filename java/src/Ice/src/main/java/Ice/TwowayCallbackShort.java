@@ -17,4 +17,4 @@ public interface TwowayCallbackShort extends TwowayCallback
      * @param arg The operation return value.
      **/
     void response(short arg);
-};
+}

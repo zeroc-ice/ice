@@ -132,7 +132,7 @@ public class MetricsMap<T extends IceMX.Metrics>
         private T _object;
         private java.util.Map<String, Integer> _failures;
         private java.util.Map<String, SubMap<?>> _subMaps;
-    };
+    }
 
     static class SubMap<S extends IceMX.Metrics>
     {
@@ -164,7 +164,7 @@ public class MetricsMap<T extends IceMX.Metrics>
 
         final private MetricsMap<S> _map;
         final private java.lang.reflect.Field _field;
-    };
+    }
 
     static class SubMapCloneFactory<S extends IceMX.Metrics>
     {
@@ -182,7 +182,7 @@ public class MetricsMap<T extends IceMX.Metrics>
 
         final private MetricsMap<S> _map;
         final private java.lang.reflect.Field _field;
-    };
+    }
 
     static class SubMapFactory<S extends IceMX.Metrics>
     {
@@ -200,7 +200,7 @@ public class MetricsMap<T extends IceMX.Metrics>
 
         final private Class<S> _class;
         final private java.lang.reflect.Field _field;
-    };
+    }
 
     MetricsMap(String mapPrefix, Class<T> cl, Ice.Properties props, java.util.Map<String, SubMapFactory<?>> subMaps)
     {
@@ -514,4 +514,4 @@ public class MetricsMap<T extends IceMX.Metrics>
     final private java.util.Map<String, Entry> _objects = new java.util.HashMap<String, Entry>();
     final private java.util.Map<String, SubMapCloneFactory<?>> _subMaps;
     private java.util.Deque<Entry> _detachedQueue;
-};
+}

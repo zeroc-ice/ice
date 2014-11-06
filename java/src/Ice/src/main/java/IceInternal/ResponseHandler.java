@@ -15,4 +15,4 @@ public interface ResponseHandler
     void sendNoResponse();
     boolean systemException(int requestId, Ice.SystemException ex);
     void invokeException(int requestId, Ice.LocalException ex, int invokeNum);
-};
+}

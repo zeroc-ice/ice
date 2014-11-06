@@ -123,4 +123,4 @@ class ConnectionACMMonitor implements ACMMonitor
     final private ACMConfig _config;
 
     private Ice.ConnectionI _connection;
-};
+}

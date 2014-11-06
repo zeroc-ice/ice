@@ -9,7 +9,6 @@
 
 package IceInternal;
 
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public final class Instance
@@ -63,7 +62,7 @@ public final class Instance
         //
         private volatile Ice.Instrumentation.ThreadObserver _observer;
         private Ice.Instrumentation.ThreadObserver _threadObserver;
-    };
+    }
 
     static private class Timer extends java.util.concurrent.ScheduledThreadPoolExecutor
     {
@@ -97,7 +96,7 @@ public final class Instance
         }
 
         private final ThreadObserverHelper _observerHelper;
-    };
+    }
 
     static private class QueueExecutor extends java.util.concurrent.ThreadPoolExecutor
     {
@@ -137,7 +136,7 @@ public final class Instance
         }
 
         private final ThreadObserverHelper _observerHelper;
-    };
+    }
 
     private class ObserverUpdaterI implements Ice.Instrumentation.ObserverUpdater
     {
@@ -621,7 +620,7 @@ public final class Instance
             throw new Ice.CommunicatorDestroyedException();
         }
 
-        Ice.Object result = null;
+        Ice.Object result;
 
         if(_adminAdapter == null || (!_adminFacetFilter.isEmpty() && !_adminFacetFilter.contains(facet)))
         {
@@ -1397,7 +1396,7 @@ public final class Instance
                 java.util.List<String> unusedProperties = ((Ice.PropertiesI)_initData.properties).getUnusedProperties();
                 if(unusedProperties.size() != 0)
                 {
-                    StringBuffer message = new StringBuffer("The following properties were set but never read:");
+                    StringBuilder message = new StringBuilder("The following properties were set but never read:");
                     for(String p : unusedProperties)
                     {
                         message.append("\n    ");

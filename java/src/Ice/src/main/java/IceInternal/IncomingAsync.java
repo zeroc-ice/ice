@@ -42,7 +42,7 @@ public class IncomingAsync extends IncomingBase implements Ice.AMDCallback
                 {
                     for(Ice.DispatchInterceptorAsyncCallback cb : _interceptorAsyncCallbackList)
                     {
-                        if(cb.exception(ex) == false)
+                        if(!cb.exception(ex))
                         {
                             return;
                         }
@@ -175,7 +175,7 @@ public class IncomingAsync extends IncomingBase implements Ice.AMDCallback
                 {
                     for(Ice.DispatchInterceptorAsyncCallback cb : _interceptorAsyncCallbackList)
                     {
-                        if(cb.response(ok) == false)
+                        if(!cb.response(ok))
                         {
                             return false;
                         }

@@ -17,4 +17,4 @@ public interface TwowayCallbackDouble extends TwowayCallback
      * @param arg The operation return value.
      **/
     void response(double arg);
-};
+}

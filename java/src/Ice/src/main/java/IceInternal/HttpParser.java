@@ -25,7 +25,7 @@ final class HttpParser
         Unknown,
         Request,
         Response
-    };
+    }
 
     int isCompleteMessage(java.nio.ByteBuffer buf, int begin, int end)
     {
@@ -714,6 +714,7 @@ final class HttpParser
         ResponseReason,
         ResponseLF,
         Complete
-    };
+    }
+
     private State _state;
 }

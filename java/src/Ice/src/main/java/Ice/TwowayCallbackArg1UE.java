@@ -17,4 +17,4 @@ public interface TwowayCallbackArg1UE<T>  extends TwowayCallbackArg1<T>
      * @param ex The user exception raised by the operation.
      **/
     void exception(Ice.UserException ex);
-};
+}

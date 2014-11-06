@@ -39,4 +39,4 @@ public abstract class Functional_TwowayCallbackByte extends Functional_TwowayCal
     }
 
     final private Functional_ByteCallback __responseCb;
-};
+}

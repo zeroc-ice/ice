@@ -31,7 +31,7 @@ public final class ACMConfig implements java.lang.Cloneable
         else
         {
             timeoutProperty = prefix + ".Timeout";
-        };
+        }
 
         timeout = p.getPropertyAsIntWithDefault(timeoutProperty, dflt.timeout / 1000) * 1000; // To milliseconds
 
@@ -79,4 +79,4 @@ public final class ACMConfig implements java.lang.Cloneable
     public int timeout;
     public Ice.ACMHeartbeat heartbeat;
     public Ice.ACMClose close;
-};
+}

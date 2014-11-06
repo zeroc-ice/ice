@@ -40,4 +40,4 @@ public abstract class Functional_TwowayCallbackArg1<T> extends Functional_Twoway
     }
 
     final private Functional_GenericCallback1<T> __responseCb;
-};
+}

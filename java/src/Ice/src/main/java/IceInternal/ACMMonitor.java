@@ -17,4 +17,4 @@ public interface ACMMonitor
 
     ACMMonitor acm(Ice.IntOptional timeout, Ice.Optional<Ice.ACMClose> close, Ice.Optional<Ice.ACMHeartbeat> heartbeat);
     Ice.ACM getACM();
-};
+}

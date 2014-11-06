@@ -575,7 +575,7 @@ public abstract class Application
         }
 
         protected boolean _done = false;
-        protected java.lang.Object _doneMutex = new java.lang.Object();
+        protected final java.lang.Object _doneMutex = new java.lang.Object();
     }
 
     static class DestroyHook extends AppHook
@@ -688,7 +688,7 @@ public abstract class Application
     protected static String _appName;
     protected static Communicator _communicator;
     protected static AppHook _appHook;
-    protected static java.lang.Object _mutex = new java.lang.Object();
+    protected final static java.lang.Object _mutex = new java.lang.Object();
     protected static boolean _callbackInProgress = false;
     protected static boolean _destroyed = false;
     protected static boolean _interrupted = false;

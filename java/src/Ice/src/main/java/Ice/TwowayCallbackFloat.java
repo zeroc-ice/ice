@@ -17,4 +17,4 @@ public interface TwowayCallbackFloat extends TwowayCallback
      * @param arg The operation return value.
      **/
     void response(float arg);
-};
+}

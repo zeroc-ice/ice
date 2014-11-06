@@ -89,7 +89,7 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
         final private Class<T> _class;
         final private java.util.Map<String, MetricsMap.SubMapFactory<?>> _subMaps =
             new java.util.HashMap<String, MetricsMap.SubMapFactory<?>>();
-    };
+    }
 
     public MetricsAdminI(Ice.Properties properties, Ice.Logger logger)
     {

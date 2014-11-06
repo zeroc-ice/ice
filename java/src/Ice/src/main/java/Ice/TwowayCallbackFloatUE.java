@@ -12,4 +12,4 @@ package Ice;
 public interface TwowayCallbackFloatUE extends TwowayCallbackFloat
 {
     void exception(Ice.UserException ex);
-};
+}

@@ -279,7 +279,7 @@ final class UdpTransceiver implements Transceiver
     @Override
     public String toDetailedString()
     {
-        StringBuffer s = new StringBuffer(toString());
+        StringBuilder s = new StringBuilder(toString());
         java.util.List<String> intfs =
             Network.getHostsForEndpointExpand(_addr.getAddress().getHostAddress(), _instance.protocolSupport(), true);
         if(!intfs.isEmpty())
@@ -498,14 +498,13 @@ final class UdpTransceiver implements Transceiver
                 //
                 // Join multicast group.
                 //
-                boolean join = false;
                 if(intf != null)
                 {
                     _fd.join(group.getAddress(), intf);
-                    join = true;
                 }
                 else
                 {
+                    boolean join = false;
                     //
                     // If the user doesn't specify an interface, we join to the multicast group with every
                     // interface that supports multicast and has a configured address with the same protocol

@@ -36,7 +36,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         private final int _requestId;
         private final int _invokeNum;
         private final boolean _batch;
-    };
+    }
 
     public
     CollocatedRequestHandler(Reference ref, Ice.ObjectAdapter adapter)

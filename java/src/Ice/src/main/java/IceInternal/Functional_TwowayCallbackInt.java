@@ -40,4 +40,4 @@ public abstract class Functional_TwowayCallbackInt
     }
 
     final private Functional_IntCallback __responseCb;
-};
+}

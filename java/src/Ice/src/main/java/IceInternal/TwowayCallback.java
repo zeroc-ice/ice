@@ -32,4 +32,4 @@ public abstract class TwowayCallback extends CallbackBase implements Ice.TwowayC
     {
         return true;
     }
-};
+}

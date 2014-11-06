@@ -133,7 +133,7 @@ public class MetricsHelper<T>
         }
 
         private java.util.Map<String, Resolver> _attributes = new java.util.HashMap<String, Resolver>();
-    };
+    }
 
     protected
     MetricsHelper(AttributeResolver attributes)
@@ -160,4 +160,4 @@ public class MetricsHelper<T>
     }
 
     private AttributeResolver _attributes;
-};
+}

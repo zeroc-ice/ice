@@ -71,4 +71,4 @@ public class ObserverWithDelegate<T extends Metrics, O extends Ice.Instrumentati
     }
 
     protected O _delegate;
-};
+}

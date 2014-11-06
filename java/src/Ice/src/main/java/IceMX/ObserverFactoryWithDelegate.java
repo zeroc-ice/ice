@@ -45,4 +45,4 @@ public class ObserverFactoryWithDelegate<T extends Metrics,
         }
         return delegate;
     }
-};
+}

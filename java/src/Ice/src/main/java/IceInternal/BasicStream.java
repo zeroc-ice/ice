@@ -4086,11 +4086,12 @@ public class BasicStream
 
             final InstanceData previous;
             InstanceData next;
-        };
+        }
+
         private InstanceData _current;
 
         private int _objectIdIndex; // The ID of the next object to un-marshal.
-    };
+    }
 
     abstract private static class  EncapsEncoder
     {
@@ -4147,7 +4148,7 @@ public class BasicStream
         // Encapsulation attributes for object marshalling.
         private java.util.TreeMap<String, Integer> _typeIdMap;
         private int _typeIdIndex;
-    };
+    }
 
     private static final class EncapsEncoder10 extends EncapsEncoder
     {
@@ -4338,7 +4339,7 @@ public class BasicStream
         // Encapsulation attributes for object marshalling.
         private int _objectIdIndex;
         private java.util.IdentityHashMap<Ice.Object, Integer> _toBeMarshaledMap;
-    };
+    }
 
     private static final class EncapsEncoder11 extends EncapsEncoder
     {
@@ -4667,11 +4668,12 @@ public class BasicStream
 
             final InstanceData previous;
             InstanceData next;
-        };
+        }
+
         private InstanceData _current;
 
         private int _objectIdIndex; // The ID of the next object to marhsal
-    };
+    }
 
     private static final class ReadEncaps
     {
@@ -4769,7 +4771,7 @@ public class BasicStream
             else
             {
                 _readEncapsStack.decoder = new EncapsDecoder11(this, _sliceObjects, factoryManager);
-            };
+            }
         }
     }
 

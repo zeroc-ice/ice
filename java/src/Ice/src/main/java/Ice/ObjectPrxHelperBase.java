@@ -13,7 +13,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import Ice.Instrumentation.InvocationObserver;
-import IceInternal.QueueRequestHandler;
 import IceInternal.RetryException;
 
 /**
@@ -254,7 +253,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         return begin_ice_isA(__id, __context, true, false, __responseCb, __exceptionCb, __sentCb);
     }
 
-    private final AsyncResult
+    private AsyncResult
     begin_ice_isA(String __id,
                   java.util.Map<String, String> __context,
                   boolean __explicitCtx,
@@ -334,7 +333,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
-    static public final void __ice_isA_completed(TwowayCallbackBool __cb, Ice.AsyncResult __result)
+    static public void __ice_isA_completed(TwowayCallbackBool __cb, Ice.AsyncResult __result)
     {
         boolean __ret = false;
         try
@@ -825,7 +824,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
-    static public final void __ice_ids_completed(TwowayCallbackArg1<String[]> __cb, AsyncResult __result)
+    static public void __ice_ids_completed(TwowayCallbackArg1<String[]> __cb, AsyncResult __result)
     {
         String[] __ret = null;
         try
@@ -1100,7 +1099,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
-    static public final void __ice_id_completed(TwowayCallbackArg1<String> __cb, AsyncResult __result)
+    static public void __ice_id_completed(TwowayCallbackArg1<String> __cb, AsyncResult __result)
     {
         String __ret = null;
         try
@@ -1396,7 +1395,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         return begin_ice_invoke(operation, mode, inParams, context, true, false, responseCb, exceptionCb, null);
     }
 
-    private final AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
+    private AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
                                  java.util.Map<String, String> __context,
                                  boolean __explicitCtx,
                                  boolean __synchronous,
@@ -2354,8 +2353,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public AsyncResult
     begin_ice_getConnection()
     {
-        AsyncResult result = begin_ice_getConnectionInternal(null);
-        return result;
+        return begin_ice_getConnectionInternal(null);
     }
 
     /**
@@ -2368,8 +2366,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public AsyncResult
     begin_ice_getConnection(Callback __cb)
     {
-        AsyncResult result = begin_ice_getConnectionInternal(__cb);
-        return result;
+        return begin_ice_getConnectionInternal(__cb);
     }
 
     /**
@@ -2382,8 +2379,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public AsyncResult
     begin_ice_getConnection(Callback_Object_ice_getConnection __cb)
     {
-        AsyncResult result = begin_ice_getConnectionInternal(__cb);
-        return result;
+        return begin_ice_getConnectionInternal(__cb);
     }
 
     private class FunctionalCallback_Object_ice_getConnection
@@ -2446,7 +2442,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         return ice_getCachedConnection();
     }
 
-    static public final void __ice_getConnection_completed(TwowayCallbackArg1<Ice.Connection> cb, AsyncResult result)
+    static public void __ice_getConnection_completed(TwowayCallbackArg1<Ice.Connection> cb, AsyncResult result)
     {
         Ice.Connection ret = null;
         try
@@ -2519,8 +2515,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public AsyncResult
     begin_ice_flushBatchRequests()
     {
-        AsyncResult result = begin_ice_flushBatchRequestsInternal(null);
-        return result;
+        return begin_ice_flushBatchRequestsInternal(null);
     }
 
     /**
@@ -2533,8 +2528,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public AsyncResult
     begin_ice_flushBatchRequests(Callback __cb)
     {
-        AsyncResult result = begin_ice_flushBatchRequestsInternal(__cb);
-        return result;
+        return begin_ice_flushBatchRequestsInternal(__cb);
     }
 
     /**
@@ -2547,8 +2541,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public AsyncResult
     begin_ice_flushBatchRequests(Callback_Object_ice_flushBatchRequests __cb)
     {
-        AsyncResult result = begin_ice_flushBatchRequestsInternal(__cb);
-        return result;
+        return begin_ice_flushBatchRequestsInternal(__cb);
     }
 
     /**
@@ -2964,7 +2957,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
-    private final ObjectPrxHelperBase
+    private ObjectPrxHelperBase
     newInstance(IceInternal.Reference ref)
     {
         try

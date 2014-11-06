@@ -17,4 +17,4 @@ public interface TwowayCallbackByte extends TwowayCallback
      * @param arg The operation return value.
      **/
     void response(byte arg);
-};
+}

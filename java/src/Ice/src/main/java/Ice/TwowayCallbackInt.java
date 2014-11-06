@@ -17,4 +17,4 @@ public interface TwowayCallbackInt extends TwowayCallback
      * @param arg The operation return value.
      **/
     void response(int arg);
-};
+}

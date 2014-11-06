@@ -123,4 +123,4 @@ public class MetricsViewI
 
     final private String _name;
     final private java.util.Map<String, MetricsMap<?>> _maps = new java.util.HashMap<String, MetricsMap<?>>();
-};
+}

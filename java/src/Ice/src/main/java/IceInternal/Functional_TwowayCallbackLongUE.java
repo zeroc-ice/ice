@@ -32,4 +32,4 @@ public abstract class Functional_TwowayCallbackLongUE
     }
 
     private final Functional_GenericCallback1<Ice.UserException> __userExceptionCb;
-};
+}

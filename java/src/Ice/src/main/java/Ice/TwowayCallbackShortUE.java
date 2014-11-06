@@ -12,4 +12,4 @@ package Ice;
 public interface TwowayCallbackShortUE extends TwowayCallbackShort
 {
     void exception(Ice.UserException ex);
-};
+}

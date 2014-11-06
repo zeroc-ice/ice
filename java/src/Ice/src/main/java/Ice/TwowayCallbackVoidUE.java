@@ -22,4 +22,4 @@ public interface TwowayCallbackVoidUE extends TwowayCallback
      * @param ex The user exception raised by the operation.
      **/
     void exception(Ice.UserException ex);
-};
+}

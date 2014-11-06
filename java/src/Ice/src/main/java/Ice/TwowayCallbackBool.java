@@ -17,4 +17,4 @@ public interface TwowayCallbackBool extends TwowayCallback
      * @param arg The operation return value.
      **/
     void response(boolean arg);
-};
+}
