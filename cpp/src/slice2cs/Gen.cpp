@@ -626,7 +626,7 @@ Slice::CsVisitor::writeInheritedOperations(const ClassDefPtr& p)
             {
                 vector<string> params = getParams(*op);
                 vector<string> args = getArgs(*op);
-                string retS = typeToString((*op)->returnType());
+                string retS = typeToString((*op)->returnType(), (*op)->returnIsOptional());
 
                 _out << sp << nl << "public " << retS << ' ' << name << spar << params << epar;
                 _out << sb;

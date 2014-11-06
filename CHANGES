@@ -409,6 +409,10 @@ Java Changes
 C# Changes
 ==========
 
+- Fixed a bug in the Slice-To-C# compiler that would generate invalid
+  code if a interface inherited a method that had a optional value as
+  a return value.
+
 - The "clr:collection" Slice metadata for sequences and dictionaries
   as well as the CollectionBase and DictionaryBase classes have been
   deprecated.
