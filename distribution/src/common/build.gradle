@@ -16,6 +16,9 @@ subprojects {
 	    maven {
 	        url 'http://www.zeroc.com:8081/nexus/content/repositories/thirdparty'
 	    }
+	    maven {
+	        url 'http://www.zeroc.com:8081/nexus/content/repositories/releases'
+	    }
     }
 }
 
@@ -23,6 +26,5 @@ apply from: "$rootProject.projectDir/Ice/build.gradle"
 apply from: "$rootProject.projectDir/IceDiscovery/build.gradle"
 apply from: "$rootProject.projectDir/IceBox/build.gradle"
 apply from: "$rootProject.projectDir/Glacier2/build.gradle"
-apply from: "$rootProject.projectDir/IceStorm/build.gradle"
 apply from: "$rootProject.projectDir/IceGrid/build.gradle"
 apply from: "$rootProject.projectDir/manual/build.gradle"

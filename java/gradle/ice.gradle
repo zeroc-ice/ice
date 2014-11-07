@@ -222,3 +222,5 @@ ext.searchFile = { Map<String, Closure> places, List<String> searchPaths ->
         return result
     }
 }
+
+ext.useMavenJars = false

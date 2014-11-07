@@ -7,73 +7,76 @@
 //
 // **********************************************************************
 
-project(":demoIceStormClock") {
-	slice {
+slice {
+	java {
+		include = ["${projectDir}", "${sliceDir}"]
+		srcDir = '.'
+	}
+}
+
+sourceSets {
+	main {
 		java {
-			include = ["${projectDir}", "${sliceDir}"]
-			srcDir = '.'
+			srcDir '.'
+			output.classesDir "${buildDir}/classes"
 		}
 	}
+}
 
-	sourceSets {
-		main {
-			java {
-				srcDir '.'
-				output.classesDir "${buildDir}/classes"
-			}
-		}
+if (useMavenJars) {
+	dependencies {
+		compile "com.zeroc:ice:${iceVersion}"
+		compile "com.zeroc:icestorm:${iceVersion}"
 	}
-
-	if (distJarDir == null) {
-		dependencies {
-			compile project(':Ice')
-			compile project(':IceStorm')
-		}
-	} else {
-		dependencies {
-			compile files("${distJarDir}/Ice${versionSuffix}.jar")
-			compile files("${distJarDir}/IceStorm${versionSuffix}.jar")
-		}
+} else if (distJarDir != null) {
+	dependencies {
+		compile files("${distJarDir}/Ice${versionSuffix}.jar")
+		compile files("${distJarDir}/IceStorm${versionSuffix}.jar")
 	}
-
-	// Create a jar for the publisher & subscriber which includes everything in the demo.
-	task publisherJar(type: Jar) {
-		baseName = "publisher"
-		from(sourceSets.main.output) {
-    		include "**" 
-		}
+} else {
+	dependencies {
+		compile project(':Ice')
+		compile project(':IceStorm')
 	}
+}
 
-	task subscriberJar(type: Jar) {
-	    baseName = "subscriber"
-		from(sourceSets.main.output) {
-    		include "**" 
-		}
+// Create a jar for the publisher & subscriber which includes everything in the demo.
+task publisherJar(type: Jar) {
+	baseName = "publisher"
+	from(sourceSets.main.output) {
+		include "**"
 	}
+}
 
-	publisherJar {
-	    manifest {
-	    	attributes("Main-Class": "Publisher")
-	        attributes("Class-Path": configurations.compile.resolve().collect { it.toURI() }.join(' '))
-	    }
+task subscriberJar(type: Jar) {
+    baseName = "subscriber"
+	from(sourceSets.main.output) {
+		include "**"
 	}
+}
 
-	subscriberJar {
-	    manifest {
-	    	attributes("Main-Class": "Subscriber")
-	    	attributes("Class-Path": configurations.compile.resolve().collect { it.toURI() }.join(' '))
-	    }
-	}
+publisherJar {
+    manifest {
+    	attributes("Main-Class": "Publisher")
+        attributes("Class-Path": configurations.compile.resolve().collect { it.toURI() }.join(' '))
+    }
+}
 
-	artifacts {
-		archives publisherJar, subscriberJar;
-	}
+subscriberJar {
+    manifest {
+    	attributes("Main-Class": "Subscriber")
+    	attributes("Class-Path": configurations.compile.resolve().collect { it.toURI() }.join(' '))
+    }
+}
 
-	jar.enabled = false
+artifacts {
+	archives publisherJar, subscriberJar;
+}
 
-	idea.module {
-	    excludeDirs -= file(buildDir)
-	    buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
-	}
+jar.enabled = false
+
+idea.module {
+    excludeDirs -= file(buildDir)
+    buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
 }
 

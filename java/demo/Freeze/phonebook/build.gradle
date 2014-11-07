@@ -36,16 +36,22 @@ sourceSets {
 	}
 }
 
-if (distJarDir == null) {
+if (useMavenJars) {
 	dependencies {
-		compile project(':Ice')
-		compile project(':Freeze')
+		compile "com.zeroc:ice:${iceVersion}"
+		compile "com.zeroc:freeze:${iceVersion}"
+		compile 'com.sleepycat:db:5.3.28'
 	}
-} else {
+} else if (distJarDir != null) {
 	dependencies {
 		compile files("${distJarDir}/Ice${versionSuffix}.jar")
 		compile files("${distJarDir}/Freeze${versionSuffix}.jar")
-		compile "com.sleepycat:db:${dbVersion}"
+		compile 'com.sleepycat:db:5.3.28'
+	}
+} else {
+	dependencies {
+		compile project(':Ice')
+		compile project(':Freeze')
 	}
 }
 

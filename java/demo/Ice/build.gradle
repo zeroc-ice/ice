@@ -29,13 +29,17 @@
 			}
 		}
 
-		if (distJarDir == null) {
+		if (useMavenJars) {
 			dependencies {
-				compile project(':Ice')
+				compile "com.zeroc:ice:${iceVersion}"
+			}
+		} else if (distJarDir != null) {
+			dependencies {
+				compile files("${distJarDir}/Ice${versionSuffix}.jar")
 			}
 		} else {
 			dependencies {
-				compile files("${distJarDir}/Ice${versionSuffix}.jar")
+				compile project(':Ice')
 			}
 		}
 
@@ -43,14 +47,14 @@
 		task clientJar(type: Jar) {
  		   baseName = "client"
     		from(sourceSets.main.output) {
-        		include "**" 
+        		include "**"
     		}
 		}
 
 		task serverJar(type: Jar) {
  		   baseName = "server"
     		from(sourceSets.main.output) {
-        		include "**" 
+        		include "**"
     		}
 		}
 

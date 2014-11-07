@@ -138,3 +138,5 @@ if(iceJar.exists())
 {
 	ext.versionSuffix = "-${iceVersion}"
 }
+
+ext.useMavenJars = useMavenArtifacts == "yes"

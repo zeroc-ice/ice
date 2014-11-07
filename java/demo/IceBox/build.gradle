@@ -17,15 +17,20 @@
 			}
 		}
 
-		if (distJarDir == null) {
+		if (useMavenJars) {
 			dependencies {
-				compile project(':Ice')
-				compile project(':IceBox')
+				compile "com.zeroc:ice:${iceVersion}"
+				compile "com.zeroc:icebox:${iceVersion}"
 			}
-		} else {
+		} else if (distJarDir != null) {
 			dependencies {
 				compile files("${distJarDir}/Ice${versionSuffix}.jar")
 				compile files("${distJarDir}/IceBox${versionSuffix}.jar")
+			}
+		} else {
+			dependencies {
+				compile project(':Ice')
+				compile project(':IceBox')
 			}
 		}
 

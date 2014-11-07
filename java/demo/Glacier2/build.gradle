@@ -26,15 +26,20 @@
 			}
 		}
 
-		if (distJarDir == null) {
+		if (useMavenJars) {
 			dependencies {
-				compile project(':Ice')
-				compile project(':Glacier2')
+				compile "com.zeroc:ice:${iceVersion}"
+				compile "com.zeroc:glacier2:${iceVersion}"
 			}
-		} else {
+		} else if (distJarDir != null) {
 			dependencies {
 				compile files("${distJarDir}/Ice${versionSuffix}.jar")
 				compile files("${distJarDir}/Glacier2${versionSuffix}.jar")
+			}
+		} else {
+			dependencies {
+				compile project(':Ice')
+				compile project(':Glacier2')
 			}
 		}
 
@@ -42,14 +47,14 @@
 		task clientJar(type: Jar) {
  		   baseName = "client"
     		from(sourceSets.main.output) {
-        		include "**" 
+        		include "**"
     		}
 		}
 
 		task serverJar(type: Jar) {
  		   baseName = "server"
     		from(sourceSets.main.output) {
-        		include "**" 
+        		include "**"
     		}
 		}
 
