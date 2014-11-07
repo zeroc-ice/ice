@@ -421,7 +421,12 @@ public class Client extends test.Util.Application
         String ref = "factory:default -p 12010";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
-        RemoteEvictorFactoryPrx factory = RemoteEvictorFactoryPrxHelper.checkedCast(base.ice_invocationTimeout(1000));
+        //
+        // Use an invocation tiemout to avoid createEvictor call to hang in case the server
+        // fails to load DB classes. The timeout shouldn't be too low since the operation 
+        // can take some time to complete on slow machines
+        //
+        RemoteEvictorFactoryPrx factory = RemoteEvictorFactoryPrxHelper.checkedCast(base.ice_invocationTimeout(60000));
 
         if(transactional)
         {
