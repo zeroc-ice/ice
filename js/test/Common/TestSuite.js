@@ -20,12 +20,12 @@ $(document).foundation();
             }
             $("#test").val(basePath + current + "/index.html");
 
-            var out = 
+            var out =
             {
                 write: function(msg)
                 {
                     var text = $("#console").val();
-                    $("#console").val((text == "") ? msg : (text + msg));
+                    $("#console").val((text === "") ? msg : (text + msg));
                 },
                 writeLine: function(msg)
                 {
@@ -33,9 +33,9 @@ $(document).foundation();
                     $("#console").scrollTop($("#console").get(0).scrollHeight);
                 }
             };
-            
+
             var protocol;
-            
+
             $("#run").click(function(){
                 if(!$(this).hasClass("disabled"))
                 {
@@ -44,8 +44,8 @@ $(document).foundation();
                     $("#test").prop("disabled", "disabled");
                     $("#protocol").prop("disabled", "disabled");
                     $("#language").prop("disabled", "disabled");
-                    var defaultHost = document.location.hostname || "127.0.0.1";;
-                    
+                    var defaultHost = document.location.hostname || "127.0.0.1";
+
                     protocol = $("#protocol").val();
                     var id = new Ice.InitializationData();
                     id.properties = Ice.createProperties();
@@ -64,24 +64,25 @@ $(document).foundation();
                         str = "controller:wss -h " + defaultHost + " -p 12008";
                     }
                     var controller = Test.ControllerPrx.uncheckedCast(communicator.stringToProxy(str));
-                    
+
                     var p;
                     var server;
                     if(typeof(__runServer__) !== "undefined" || typeof(__runEchoServer__) !== "undefined")
                     {
+                        var srv;
                         if(typeof(__runEchoServer__) !== "undefined")
                         {
-                            srv = "Ice/echo"
+                            srv = "Ice/echo";
                         }
                         else
                         {
-                            srv = current
+                            srv = current;
                         }
                         out.write("starting " + srv + " server... ");
                         p = controller.runServer(language, srv, protocol, defaultHost).then(
                             function(proxy)
                             {
-                                var ref = proxy.ice_getIdentity().name + ":" + protocol + " -h " + defaultHost + 
+                                var ref = proxy.ice_getIdentity().name + ":" + protocol + " -h " + defaultHost +
                                             " -p " + (protocol == "ws" ? "12009" : "12008");
                                 out.writeLine("ok");
                                 server = Test.ServerPrx.uncheckedCast(communicator.stringToProxy(ref));
@@ -126,7 +127,7 @@ $(document).foundation();
                     {
                         p = __test__(out, id);
                     }
-                    
+
                     p.finally(
                         function()
                         {
@@ -193,21 +194,21 @@ $(document).foundation();
                 }
                 return false;
             });
-            
+
             (function(){
-                
-                if(basePath == "../../../")
+
+                if(basePath === "../../../")
                 {
                     $(".title-area a").attr("href", "../../../../index.html");
                     $(".breadcrumbs li:first a").attr("href", "../../../../index.html");
                 }
-                
+
                 //
                 // Check if we should start the test loop=true
                 //
                 var href = document.location.href;
                 var i = href.indexOf("?");
-                
+
                 var languageIdx = i !== -1 ? href.substr(i).indexOf("language=") : -1;
                 if(languageIdx !== -1)
                 {
@@ -226,7 +227,7 @@ $(document).foundation();
                     $("#run").click();
                 }
             }());
-            
+
             //
             // Test case
             //
@@ -240,13 +241,13 @@ $(document).foundation();
             //
             // Protocol
             //
-            $("#protocol").on("change", 
+            $("#protocol").on("change",
                             function(e)
                             {
                                 var newProtocol = $(this).val();
                                 if(protocol !== newProtocol)
                                 {
-                                    var href = document.location.protocol + "//" + document.location.host + 
+                                    var href = document.location.protocol + "//" + document.location.host +
                                         document.location.pathname;
                                     if(newProtocol == "ws")
                                     {

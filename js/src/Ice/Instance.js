@@ -344,7 +344,7 @@ var Instance = Ice.Class({
             }
             else
             {
-                var num = this._initData.properties.getPropertyAsIntWithDefault("Ice.BatchAutoFlushSize", 1024); // 1MB
+                num = this._initData.properties.getPropertyAsIntWithDefault("Ice.BatchAutoFlushSize", 1024); // 1MB
                 if(num < 1)
                 {
                     this._batchAutoFlushSize = num;
