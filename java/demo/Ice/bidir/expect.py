@@ -22,7 +22,7 @@ sys.path.append(path[0])
 from demoscript import Util
 from demoscript.Ice import bidir
 
-server = Util.spawn('java Server --Ice.PrintAdapterReady')
+server = Util.spawn('java -jar build/libs/server.jar --Ice.PrintAdapterReady')
 server.expect('.* ready')
 
-bidir.run('java Client', server)
+bidir.run('java -jar build/libs/client.jar', server)

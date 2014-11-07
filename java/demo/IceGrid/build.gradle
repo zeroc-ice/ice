@@ -1,6 +1,6 @@
 ['icebox', 'simple'].each {
  	def name = it
-	project(":demo/IceGrid/${it}") {
+	project(":demoIceGrid${it.capitalize()}") {
 		slice {
 			java {
 				include = ["${projectDir}", "${sliceDir}"]
@@ -31,7 +31,41 @@
 			}
 		}
 
-		jar.enabled = false
+        // Create a jar for the client & server which includes everything in the demo.
+        task clientJar(type: Jar) {
+           	baseName = "client"
+	        from(sourceSets.main.output) {
+	        	include "**"
+	        }
+        }
+
+        task serverJar(type: Jar) {
+	        baseName = "server"
+	        from(sourceSets.main.output) {
+	        	include "**"
+	        }
+        }
+
+        clientJar {
+            manifest {
+                attributes("Main-Class": "Client")
+                attributes("Class-Path": configurations.compile.resolve().collect { it.toURI() }.join(' '))
+            }
+        }
+
+        serverJar {
+            manifest {
+            	attributes("Main-Class": "Server")
+                attributes("Class-Path": configurations.compile.resolve().collect { it.toURI() }.join(' '))
+            }
+        }
+
+        artifacts {
+        	archives clientJar, serverJar;
+        }
+
+        // Don't create the default jar.
+        jar.enabled = false
 
 		idea.module {
 		    excludeDirs -= file(buildDir)

@@ -16,7 +16,8 @@
     <server-template id="SimpleServer">
       <parameter name="index"/>
       <server id="SimpleServer-${index}" exe="java" activation="on-demand">
-        <option>Server</option>
+        <option>-jar</option>
+        <option>build/libs/server.jar</option>
         <adapter name="Hello" endpoints="tcp -h localhost">
           <object identity="hello-${index}" type="::Demo::Hello" property="Identity"/>
         </adapter>

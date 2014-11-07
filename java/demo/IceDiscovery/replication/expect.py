@@ -22,13 +22,13 @@ sys.path.append(path[0])
 from demoscript import Util
 from demoscript.IceDiscovery import replication
 
-server1 = Util.spawn('java Server --Ice.Config=config.server1 --Ice.PrintAdapterReady --Ice.Warn.Connections=0')
+server1 = Util.spawn('java -jar build/libs/server.jar --Ice.Config=config.server1 --Ice.PrintAdapterReady --Ice.Warn.Connections=0')
 server1.expect('.* ready')
-server2 = Util.spawn('java Server --Ice.Config=config.server2 --Ice.PrintAdapterReady --Ice.Warn.Connections=0')
+server2 = Util.spawn('java -jar build/libs/server.jar --Ice.Config=config.server2 --Ice.PrintAdapterReady --Ice.Warn.Connections=0')
 server2.expect('.* ready')
-server3 = Util.spawn('java Server --Ice.Config=config.server3 --Ice.PrintAdapterReady --Ice.Warn.Connections=0')
+server3 = Util.spawn('java -jar build/libs/server.jar --Ice.Config=config.server3 --Ice.PrintAdapterReady --Ice.Warn.Connections=0')
 server3.expect('.* ready')
-client = Util.spawn('java Client --Ice.Warn.Connections=0')
+client = Util.spawn('java -jar build/libs/client.jar --Ice.Warn.Connections=0')
 client.expect('enter the number of iterations:')
 
 replication.run(client, server1, server2, server3)

@@ -27,5 +27,5 @@ sys.stdout.flush()
 Util.cleanDbDir("db")
 print("ok")
 
-client = Util.spawn('java Client')
+client = Util.spawn('java -jar build/libs/client.jar')
 bench.run(client, True)

@@ -22,9 +22,9 @@ sys.path.append(path[0])
 from demoscript import Util
 from demoscript.Ice import nested
 
-server = Util.spawn('java Server --Ice.PrintAdapterReady')
+server = Util.spawn('java -jar build/libs/server.jar --Ice.PrintAdapterReady')
 server.expect('.* ready')
-client = Util.spawn('java Client --Ice.Override.Timeout=2000')
+client = Util.spawn('java -jar build/libs/client.jar --Ice.Override.Timeout=2000')
 client.expect('.*for exit:')
 
 nested.run(client, server)

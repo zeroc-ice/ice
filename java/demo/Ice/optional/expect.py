@@ -22,8 +22,8 @@ sys.path.append(path[0])
 from demoscript import Util
 from demoscript.Ice import optional
 
-server = Util.spawn('java Server --Ice.PrintAdapterReady --Ice.Warn.Connections=0')
+server = Util.spawn('java -jar build/libs/server.jar --Ice.PrintAdapterReady --Ice.Warn.Connections=0')
 server.expect('.* ready')
-client = Util.spawn('java Client --Ice.Warn.Connections=0')
+client = Util.spawn('java -jar build/libs/client.jar --Ice.Warn.Connections=0')
 
 optional.run(client, server)

@@ -22,4 +22,4 @@ sys.path.append(path[0])
 from demoscript import Util
 from demoscript.Freeze import transform
 
-transform.run('java Create', 'java Recreate', 'java Read', 'java ReadNew')
+transform.run('java -jar build/libs/create.jar', 'java -jar build/libs/recreate.jar', 'java -jar build/libs/read.jar', 'java -jar build/libs/readnew.jar')

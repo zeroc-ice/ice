@@ -22,4 +22,4 @@ sys.path.append(path[0])
 from demoscript import Util
 from demoscript.Freeze import casino
 
-casino.run('java Client', 'java Server')
+casino.run('java -jar build/libs/client.jar', 'java -jar build/libs/server.jar')

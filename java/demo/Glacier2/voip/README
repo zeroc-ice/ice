@@ -14,7 +14,7 @@ To run the demo:
 
 Start the server:
 
-$ java Server
+$ java -jar build/libs/server.jar
 
 In a separate window, start the Glacier2 router:
 

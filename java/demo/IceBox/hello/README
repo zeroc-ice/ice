@@ -5,7 +5,7 @@ $ java IceBox.Server --Ice.Config=config.icebox
 
 In the second window, run the client:
 
-$ java Client
+$ java -jar build/libs/client.jar
 
 To shut down IceBox, use IceBox.Admin:
 

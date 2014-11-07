@@ -21,12 +21,12 @@ sys.path.append(path[0])
 
 from demoscript import Util
 
-server = Util.spawn('java Server --Ice.PrintAdapterReady')
+server = Util.spawn('java -jar build/libs/server.jar --Ice.PrintAdapterReady')
 server.expect('.* ready')
 
 sys.stdout.write("testing... ")
 sys.stdout.flush()
-client = Util.spawn('java Client')
+client = Util.spawn('java -jar build/libs/client.jar')
 client.waitTestSuccess()
 server.expect('Hello World!')
 print("ok")

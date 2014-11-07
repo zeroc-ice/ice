@@ -37,7 +37,7 @@ applet with the following commands:
 Preparing the Ice server
 ------------------------
 
-The applet requires a "hello" server. You can use the Java server
+The applet requires a "hello" server. You can use the java -jar build/libs/server.jar
 from the ../hello directory or a hello server from any other Ice
 language mapping. You may need to temporarily relax the firewall
 restrictions on your server host to allow the applet to establish

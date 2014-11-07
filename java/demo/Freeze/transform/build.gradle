@@ -57,7 +57,66 @@ if (distJarDir == null) {
 	}
 }
 
-jar.enabled = false
+// Create a jar for the client & server which includes everything in the demo.
+task createJar(type: Jar) {
+   	baseName = "create"
+    from(sourceSets.main.output) {
+    	include "**"
+    }
+}
+
+task recreateJar(type: Jar) {
+    baseName = "recreate"
+    from(sourceSets.main.output) {
+    	include "**"
+    }
+}
+
+task readJar(type: Jar) {
+    baseName = "read"
+    from(sourceSets.main.output) {
+    	include "**"
+    }
+}
+
+task readnewJar(type: Jar) {
+    baseName = "readnew"
+    from(sourceSets.main.output) {
+    	include "**"
+    }
+}
+
+createJar {
+    manifest {
+        attributes("Main-Class": "Create")
+        attributes("Class-Path": configurations.compile.resolve().collect { it.toURI() }.join(' '))
+    }
+}
+
+recreateJar {
+    manifest {
+    	attributes("Main-Class": "Recreate")
+        attributes("Class-Path": configurations.compile.resolve().collect { it.toURI() }.join(' '))
+    }
+}
+
+readJar {
+    manifest {
+    	attributes("Main-Class": "Read")
+        attributes("Class-Path": configurations.compile.resolve().collect { it.toURI() }.join(' '))
+    }
+}
+
+readnewJar {
+    manifest {
+    	attributes("Main-Class": "ReadNew")
+        attributes("Class-Path": configurations.compile.resolve().collect { it.toURI() }.join(' '))
+    }
+}
+
+artifacts {
+	archives createJar, recreateJar, readJar, readnewJar;
+}
 
 idea.module {
 	excludeDirs -= file(buildDir)

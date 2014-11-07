@@ -12,11 +12,11 @@ current working directory.
 
 In a separate window:
 
-$ java Subscriber
+$ java -jar build/libs/subscriber.jar
 
 In another window:
 
-$ java Publisher
+$ java -jar build/libs/publisher.jar
 
 While the publisher continues to run, "tick" messages should be
 displayed in the subscriber window.
@@ -33,30 +33,30 @@ publisher can use different QoS for sending and receiving messages.
 
 For the subscriber:
 
-java Subscriber --oneway
+java -jar build/libs/subscriber.jar --oneway
 
   The subscriber receives events as oneway messages. This is the
   default.
 
-java Subscriber --datagram
+java -jar build/libs/subscriber.jar --datagram
 
   The subscriber receives events as datagrams.
 
-java Subscriber --twoway
+java -jar build/libs/subscriber.jar --twoway
 
   The subscriber receives events as twoway messages.
 
-java Subscriber --ordered
+java -jar build/libs/subscriber.jar --ordered
 
   The subscriber receives events as twoway messages with guaranteed
   ordering.
 
-java Subscriber --batch
+java -jar build/libs/subscriber.jar --batch
 
   This is an additional flag that forwards datagram and oneway events
   to the subscriber in batches.
 
-java Subscriber --id <id>
+java -jar build/libs/subscriber.jar --id <id>
 
   This option specifies a unique identity for this subscriber. When
   you use this option, you should also run the subscriber on a fixed
@@ -67,7 +67,7 @@ java Subscriber --id <id>
 
   Replace "tcp" with "udp" when using the --datagram option.
 
-java Subscriber --retryCount <count>
+java -jar build/libs/subscriber.jar --retryCount <count>
 
   This option sets the retry count for a subscriber. This option
   should be used in conjunction with the --id option. Setting
@@ -75,15 +75,15 @@ java Subscriber --retryCount <count>
 
 For the publisher:
 
-java Publisher --oneway
+java -jar build/libs/publisher.jar --oneway
 
   The publisher sends events as oneway messages. This is the default.
 
-java Publisher --datagram
+java -jar build/libs/publisher.jar --datagram
 
   The publisher sends events as datagrams.
 
-java Publisher --twoway
+java -jar build/libs/publisher.jar --twoway
 
   The publisher sends events as twoway messages.
 

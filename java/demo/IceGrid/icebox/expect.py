@@ -22,4 +22,4 @@ sys.path.append(path[0])
 from demoscript import Util
 from demoscript.IceGrid import icebox
 
-icebox.run('java Client')
+icebox.run('java -jar build/libs/client.jar')

@@ -22,9 +22,9 @@ sys.path.append(path[0])
 from demoscript import Util
 from demoscript.Ice import async
 
-server = Util.spawn('java Server --Ice.PrintAdapterReady')
+server = Util.spawn('java -jar build/libs/server.jar --Ice.PrintAdapterReady')
 server.expect('.* ready')
-client = Util.spawn('java Client')
+client = Util.spawn('java -jar build/libs/client.jar')
 client.expect('.*==>')
 
 async.run(client, server)

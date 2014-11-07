@@ -3,16 +3,16 @@ phone book.
 
 To run the demo, first start the server:
 
-$ java Server
+$ java -jar build/libs/server.jar
 
 In another window, populate the server's database by starting the
 client and redirecting its input from the file "contacts":
 
-$ java Client < contacts
+$ java -jar build/libs/client.jar < contacts
 
 Then start the client again to use the demo interactively:
 
-$ java Client
+$ java -jar build/libs/client.jar
 
 Type "help" to get a list of valid commands.
 

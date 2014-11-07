@@ -6,7 +6,7 @@ $ server.exe --Ice.Config=config.server3
 
 In a separate window:
 
-$ client.exe
+$ java -jar build/libs/client.jar
 
 The client invokes the number of specified iterations with a given
 delay on a well-known proxy configured to use per-request load

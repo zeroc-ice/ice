@@ -7,8 +7,6 @@
 //
 // **********************************************************************
 
-
-
 public class Server extends Ice.Application
 {
     @Override

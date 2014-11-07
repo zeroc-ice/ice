@@ -22,8 +22,8 @@ sys.path.append(path[0])
 from demoscript import Util
 from demoscript.Ice import throughput
 
-server = Util.spawn('java Server --Ice.PrintAdapterReady')
+server = Util.spawn('java -jar build/libs/server.jar --Ice.PrintAdapterReady')
 server.expect('.* ready')
-client = Util.spawn('java Client')
+client = Util.spawn('java -jar build/libs/client.jar')
 
 throughput.run(client, server)

@@ -22,13 +22,13 @@ sys.path.append(path[0])
 from demoscript import Util
 from demoscript.Glacier2 import callback
 
-server = Util.spawn('java Server --Ice.PrintAdapterReady')
+server = Util.spawn('java -jar build/libs/server.jar --Ice.PrintAdapterReady')
 server.expect('.* ready')
 
 glacier2 = Util.spawn('glacier2router --Ice.Config=config.glacier2 --Ice.PrintAdapterReady --Glacier2.SessionTimeout=5')
 glacier2.expect('Glacier2.Client ready')
 glacier2.expect('Glacier2.Server ready')
 
-client = Util.spawn('java Client')
+client = Util.spawn('java -jar build/libs/client.jar')
 
 callback.run(client, server, glacier2)

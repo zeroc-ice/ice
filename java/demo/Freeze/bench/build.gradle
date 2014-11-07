@@ -81,8 +81,6 @@ sourceSets {
 	}
 }
 
-jar.enabled = false
-
 if (distJarDir == null) {
 	dependencies {
 		compile project(':Ice')
@@ -94,6 +92,25 @@ if (distJarDir == null) {
 		compile files("${distJarDir}/Freeze${versionSuffix}.jar")
 		compile 'com.sleepycat:db:5.3.28'
 	}
+}
+
+// Create a jar for the client & server which includes everything in the demo.
+task clientJar(type: Jar) {
+   	baseName = "client"
+    from(sourceSets.main.output) {
+    	include "**"
+    }
+}
+
+clientJar {
+    manifest {
+        attributes("Main-Class": "Client")
+        attributes("Class-Path": configurations.compile.resolve().collect { it.toURI() }.join(' '))
+    }
+}
+
+artifacts {
+	archives clientJar;
 }
 
 idea.module {

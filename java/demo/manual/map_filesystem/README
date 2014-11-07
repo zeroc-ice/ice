@@ -4,8 +4,8 @@ the Ice manual.
 
 To run it, start the server in a window:
 
-$ java Server
+$ java -jar build/libs/server.jar
 
 Then run the client in a separate window:
 
-$ java Client
+$ java -jar build/libs/client.jar

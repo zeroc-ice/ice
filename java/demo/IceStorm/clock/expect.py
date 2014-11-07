@@ -22,4 +22,4 @@ sys.path.append(path[0])
 from demoscript import Util
 from demoscript.IceStorm import clock
 
-clock.run('java Subscriber', 'java Publisher')
+clock.run('java -jar build/libs/subscriber.jar', 'java -jar build/libs/publisher.jar')

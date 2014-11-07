@@ -27,9 +27,9 @@ sys.stdout.flush()
 Util.cleanDbDir("db")
 print("ok")
 
-server = Util.spawn('java Server --Ice.PrintAdapterReady --Freeze.Trace.Evictor=0 --Freeze.Trace.DbEnv=0')
+server = Util.spawn('java -jar build/libs/server.jar --Ice.PrintAdapterReady --Freeze.Trace.Evictor=0 --Freeze.Trace.DbEnv=0')
 server.expect('.* ready')
-client = Util.spawn('java Client')
+client = Util.spawn('java -jar build/libs/client.jar')
 client.expect('>>> ')
 
 phonebook.run(client, server)
@@ -41,7 +41,7 @@ sys.stdout.flush()
 Util.cleanDbDir("db")
 print("ok")
 
-server = Util.spawn('java Collocated --Freeze.Trace.Evictor=0 --Freeze.Trace.DbEnv=0')
+server = Util.spawn('java -jar build/libs/collocated.jar --Freeze.Trace.Evictor=0 --Freeze.Trace.DbEnv=0')
 server.expect('>>> ')
 
 phonebook.run(server, server)

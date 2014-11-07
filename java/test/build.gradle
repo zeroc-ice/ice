@@ -38,7 +38,7 @@ if (distJarDir == null) {
         compile project(':Glacier2')
         compile project(':IceStorm')
         compile project(':IceGrid')
-        compile project(':test/plugins')
+        compile project(':testPlugins')
     }
 } else {
     println "Using Ice jars installed in ${distJarDir}"
@@ -50,7 +50,7 @@ if (distJarDir == null) {
         compile files("${distJarDir}/Glacier2${versionSuffix}.jar")
         compile files("${distJarDir}/IceStorm${versionSuffix}.jar")
         compile files("${distJarDir}/IceGrid${versionSuffix}.jar")
-        compile project(':test/plugins')
+        compile project(':testPlugins')
         compile "com.sleepycat:db:${dbVersion}"
     }
 }

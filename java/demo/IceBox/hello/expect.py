@@ -30,7 +30,7 @@ else:
 
 server = Util.spawn('java IceBox.Server --Ice.Config=config.icebox --Ice.PrintAdapterReady %s' % (args))
 server.expect('.* ready')
-client = Util.spawn('java Client')
+client = Util.spawn('java -jar build/libs/client.jar')
 client.expect('.*==>')
 
 hello.run(client, server)

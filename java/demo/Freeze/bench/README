@@ -3,4 +3,4 @@ for various data types.
 
 To run the demo, start the client:
 
-$ java Client
+$ java -jar build/libs/client.jar

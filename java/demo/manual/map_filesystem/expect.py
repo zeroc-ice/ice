@@ -27,8 +27,8 @@ sys.stdout.flush()
 Util.cleanDbDir("db")
 print("ok")
 
-server = Util.spawn('java Server --Ice.PrintAdapterReady')
+server = Util.spawn('java -jar build/libs/server.jar --Ice.PrintAdapterReady')
 server.expect('.* ready')
-client = Util.spawn('java Client')
+client = Util.spawn('java -jar build/libs/client.jar')
 
 map_filesystem.run(client, server)

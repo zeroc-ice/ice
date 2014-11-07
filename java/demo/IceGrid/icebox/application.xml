@@ -12,7 +12,7 @@
 
       <service-template id="HelloService">
          <parameter name="name"/>
-         <service name="${name}" entry="HelloServiceI">
+         <service name="${name}" entry="build/libs/server.jar:HelloServiceI">
             <description>A very simple service named after ${name}</description>
             <properties>
                <properties refid="mx"/>

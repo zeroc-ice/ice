@@ -27,11 +27,11 @@ Ice.Holder<MyPackage.Car>.
 
 To run the demo, first start the server:
 
-$ java Server
+$ java -jar build/libs/server.jar
 
 In a separate window, start the client:
 
-$ java Client
+$ java -jar build/libs/client.jar
 
 The client allows you to toggle between sending a real class instance
 and sending a null value, to show that passing null is supported.
