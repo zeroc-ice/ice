@@ -489,7 +489,15 @@ final class TransceiverI implements IceInternal.Transceiver
     {
         _netOutput.flip();
 
-        _stream.write(_netOutput);
+        try
+        {
+            _stream.write(_netOutput);
+        }
+        catch(Ice.SocketException ex)
+        {
+            throw new Ice.ConnectionLostException(ex);
+        }
+        
         if(_netOutput.hasRemaining())
         {
             _netOutput.compact();
