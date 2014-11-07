@@ -68,7 +68,7 @@ class ControllerI(Test.Controller):
         self.currentServer = None
 
     def runServer(self, lang, name, protocol, host, current):
-        
+
         # If server is still running, terminate it
         if self.currentServer:
             try:
@@ -80,16 +80,16 @@ class ControllerI(Test.Controller):
         pwd = os.getcwd()
         try:
             # Change current directory to the test directory
-            serverdir = os.path.join(TestUtil.toplevel, lang, "test", name)
+            testDir = 'test' if lang != 'java' else 'test/src/main/java/test'
+            serverdir = os.path.join(TestUtil.toplevel, lang, testDir, name)
             os.chdir(serverdir)
-
-            serverDesc = os.path.join(lang, "test", name)
+            serverDesc = os.path.join(lang, 'test', name)
             lang = TestUtil.getDefaultMapping()
             server = TestUtil.getDefaultServerFile()
             if lang != "java":
                 server = os.path.join(serverdir, server)
             serverenv = TestUtil.getTestEnv(lang, serverdir)
-            
+
             sys.stdout.write("starting " + serverDesc + "... ")
             sys.stdout.flush()
             serverCfg = TestUtil.DriverConfig("server")
@@ -100,7 +100,7 @@ class ControllerI(Test.Controller):
             print("ok")
         finally:
             os.chdir(pwd)
-        
+
         self.currentServer = Test.ServerPrx.uncheckedCast(current.adapter.addWithUUID(ServerI(serverDesc, serverProc)))
         return self.currentServer
 
@@ -119,12 +119,12 @@ class Reader(threading.Thread):
                 line = line.decode()
             sys.stdout.write(line)
             sys.stdout.flush()
-            
+
 class Server(Ice.Application):
     def run(self, args):
         jsDir = os.path.join(TestUtil.toplevel, "js")
         httpServer = subprocess.Popen("node \"" + os.path.join(jsDir, "bin", "HttpServer.js") + "\"", shell = True,
-                                      stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, 
+                                      stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.STDOUT,
                                       bufsize = 0)
         #
         # Wait for the HttpServer to start
@@ -143,7 +143,7 @@ class Server(Ice.Application):
 
         reader = Reader(httpServer)
         reader.start()
-        
+
         adapter = self.communicator().createObjectAdapter("ControllerAdapter")
         adapter.add(ControllerI(), self.communicator().stringToIdentity("controller"))
         adapter.activate()
@@ -151,10 +151,10 @@ class Server(Ice.Application):
 
         if httpServer.poll() is None:
             httpServer.terminate()
-        
+
         reader.join()
         return 0
-        
+
 app = Server()
 initData = Ice.InitializationData()
 initData.properties = Ice.createProperties();
