@@ -233,6 +233,15 @@ def addenv(var, val):
     else:
         os.environ[var] = val
 
+iceJARs = ["ice", 
+           "glacier2",
+           "freeze", 
+           "icebox", 
+           "icestorm", 
+           "icegrid", 
+           "icepatch2", 
+           "icediscovery"]
+    
 def configurePaths():
 
     if iceHome:
@@ -241,21 +250,16 @@ def configurePaths():
             sys.stdout.write("(64bit) ")
         sys.stdout.write("]\n")
 
+    jarSuffix = "-" + getIceVersion() + ".jar"
+    
     #
     # If Ice is installed from RPMs, just set the CLASSPATH for Java.
     #
     if iceHome == "/usr":
-        javaDir = os.path.join("/", "usr", "share", "java")
-        jarSuffix = "-" + getIceVersion() + ".jar"
-        addenv("CLASSPATH", os.path.join(javaDir, "Ice" + jarSuffix))
-        addenv("CLASSPATH", os.path.join(javaDir, "Glacier2" + jarSuffix))
-        addenv("CLASSPATH", os.path.join(javaDir, "Freeze" + jarSuffix))
-        addenv("CLASSPATH", os.path.join(javaDir, "IceBox" + jarSuffix))
-        addenv("CLASSPATH", os.path.join(javaDir, "IceStorm" + jarSuffix))
-        addenv("CLASSPATH", os.path.join(javaDir, "IceGrid" + jarSuffix))
-        addenv("CLASSPATH", os.path.join(javaDir, "IcePatch2" + jarSuffix))
-        addenv("CLASSPATH", os.path.join(javaDir, "IceDiscovery" + jarSuffix))
-        addenv("CLASSPATH", "classes")
+        javaDir = os.path.join("/", "usr", "share", "java")        
+        for jar in iceJARs:
+            addenv("CLASSPATH", os.path.join(javaDir, jar + jarSuffix))
+        addenv("CLASSPATH", os.path.joing("build", "classes"))
         return # That's it, we're done!
 
     # Always add the bin directory to the PATH, it contains executable
@@ -304,17 +308,8 @@ def configurePaths():
         addenv("PATH", os.path.join(getIceDir("cs"), "bin"))
 
     javaDir = getIceDir("java")
-    jarSuffix = "-" + getIceVersion() + ".jar"
-    addenv("CLASSPATH", os.path.join(javaDir, "lib", "Ice" + jarSuffix))
-    addenv("CLASSPATH", os.path.join(javaDir, "lib", "Glacier2" + jarSuffix))
-    addenv("CLASSPATH", os.path.join(javaDir, "lib", "Freeze" + jarSuffix))
-    addenv("CLASSPATH", os.path.join(javaDir, "lib", "IceBox" + jarSuffix))
-    addenv("CLASSPATH", os.path.join(javaDir, "lib", "IceStorm" + jarSuffix))
-    addenv("CLASSPATH", os.path.join(javaDir, "lib", "IceGrid" + jarSuffix))
-    addenv("CLASSPATH", os.path.join(javaDir, "lib", "IcePatch2" + jarSuffix))
-    addenv("CLASSPATH", os.path.join(javaDir, "lib", "IceDiscovery" + jarSuffix))
-    if not iceHome:
-        addenv("CLASSPATH", os.path.join(javaDir, "lib"))
+    for jar in iceJARs:
+        addenv("CLASSPATH", os.path.join(javaDir, "lib", jar + jarSuffix))
     addenv("CLASSPATH", os.path.join("build", "classes"))
 
     #

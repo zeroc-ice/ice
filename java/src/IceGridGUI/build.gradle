@@ -47,8 +47,8 @@ dependencies {
       bundleapp 'com.oracle:appbundler:1.0'
 }
 
-def tmpJarName = "IceGridGUITEMP${versionSuffix}.jar"
-def jarName = "IceGridGUI${versionSuffix}.jar"
+def tmpJarName = "IceGridGUITEMP.jar"
+def jarName = "icegridgui.jar"
 
 jar {
     archiveName = tmpJarName

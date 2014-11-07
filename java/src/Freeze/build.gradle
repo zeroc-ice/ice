@@ -48,7 +48,7 @@ idea.module {
     buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
 }
 
-def jarName = "Freeze${versionSuffix}.jar"
+def jarName = "freeze${versionSuffix}.jar"
 
 jar {
     archiveName = jarName

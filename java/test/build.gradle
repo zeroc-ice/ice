@@ -56,10 +56,10 @@ if (distJarDir == null) {
 }
 
 jar {
-    archiveName = "IceTest.jar"
+    archiveName = "test.jar"
     destinationDir = new File("$rootProject.projectDir/lib/")
 }
 
 clean {
-    delete("$rootProject.projectDir/lib/IceTest.jar")
+    delete("$rootProject.projectDir/lib/test.jar")
 }

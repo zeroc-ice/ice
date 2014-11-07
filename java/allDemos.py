@@ -53,11 +53,11 @@ demos = [
     "Freeze/library",
     "Freeze/transform",
     "Freeze/casino",
-    "manual/evictor_filesystem",
-    "manual/map_filesystem",
-    "manual/simple_filesystem",
-    "manual/printer",
-    "manual/lifecycle",
+    "Manual/evictor_filesystem",
+    "Manual/map_filesystem",
+    "Manual/simple_filesystem",
+    "Manual/printer",
+    "Manual/lifecycle",
 ]
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
-usr/share/java/Glacier2-@ver@.jar
-usr/share/java/Ice-@ver@.jar
-usr/share/java/IceBox-@ver@.jar
-usr/share/java/IceDiscovery-@ver@.jar
-usr/share/java/IceGrid-@ver@.jar
-usr/share/java/IcePatch2-@ver@.jar
-usr/share/java/IceStorm-@ver@.jar
+usr/share/java/glacier2-@ver@.jar
+usr/share/java/ice-@ver@.jar
+usr/share/java/icebox-@ver@.jar
+usr/share/java/icediscovery-@ver@.jar
+usr/share/java/icegrid-@ver@.jar
+usr/share/java/icepatch2-@ver@.jar
+usr/share/java/icestorm-@ver@.jar

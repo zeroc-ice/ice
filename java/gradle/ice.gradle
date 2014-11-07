@@ -177,21 +177,7 @@ if (isWindows)
 	ext.DESTDIR = ""
 }
 
-ext.versionSuffix = ""
-if(appendVersionSuffix != null && appendVersionSuffix == "yes")
-{
-	ext.versionSuffix = "-${iceVersion}"
-}
-else if(!iceSrcDist)
-{
-	// If building against bindist check if jars have version in name.
-	def iceJar = new File("${distJarDir}/Ice-${iceVersion}.jar")
-	if(iceJar.exists())
-	{
-		ext.versionSuffix = "-${iceVersion}"
-	}
-}
-
+ext.versionSuffix = "-${iceVersion}"
 ext.libDir = "$rootProject.projectDir/lib"
 
 ext.iceSourceCompatibility = 1.7

@@ -9,4 +9,4 @@
 #
 # **********************************************************************
 
-exec java -jar /usr/share/java/IceGridGUI-3.6b.jar $@
+exec java -jar /usr/share/java/icegridgui.jar $@

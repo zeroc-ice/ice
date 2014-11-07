@@ -12,7 +12,6 @@ export OPTIMIZE=yes
 export prefix=/usr
 export CLASSPATH=/usr/share/java/proguard.jar
 export DESTDIR=$(CURDIR)/debian/tmp
-export APPEND_VERSION_SUFFIX=yes
 export NODE=nodejs
 export GRADLE_HOME=/home/jose/.gradle
 

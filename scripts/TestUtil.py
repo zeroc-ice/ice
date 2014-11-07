@@ -1587,6 +1587,15 @@ def getServiceDir():
             serviceDir = "C:\\Program Files\ZeroC\Ice-" + str(getIceVersion()) + "\\bin"
     return serviceDir
 
+iceJARs = ["ice", 
+           "glacier2",
+           "freeze", 
+           "icebox", 
+           "icestorm", 
+           "icegrid", 
+           "icepatch2", 
+           "icediscovery"]
+
 def getTestEnv(lang, testdir):
     global compact
 
@@ -1599,23 +1608,18 @@ def getTestEnv(lang, testdir):
     if lang == "cpp":
         addLdPath(os.path.join(testdir), env)
     elif lang == "java":
-        addClasspath(os.path.join(toplevel, "java", "lib", "IceTest.jar"), env)
+        addClasspath(os.path.join(toplevel, "java", "lib", "test.jar"), env)
 
+    jarSuffix = "-" + getIceVersion() + ".jar"
+    
     #
     # If Ice is installed from RPMs, just set the CLASSPATH for Java.
     #
     if iceHome == "/usr":
         if lang == "java":
             javaDir = os.path.join("/", "usr", "share", "java")
-            jarSuffix = "-" + getIceVersion() + ".jar"
-            addClasspath(os.path.join(javaDir, "Ice" + jarSuffix), env)
-            addClasspath(os.path.join(javaDir, "Glacier2" + jarSuffix), env)
-            addClasspath(os.path.join(javaDir, "Freeze" + jarSuffix), env)
-            addClasspath(os.path.join(javaDir, "IceBox" + jarSuffix), env)
-            addClasspath(os.path.join(javaDir, "IceStorm" + jarSuffix), env)
-            addClasspath(os.path.join(javaDir, "IceGrid" + jarSuffix), env)
-            addClasspath(os.path.join(javaDir, "IcePatch2" + jarSuffix), env)
-            addClasspath(os.path.join(javaDir, "IceDiscovery" + jarSuffix), env)
+            for jar in iceJARs:
+                addClasspath(os.path.join(javaDir, jar + jarSuffix), env)
         return env # That's it, we're done!
 
     if isWin32():
@@ -1644,17 +1648,8 @@ def getTestEnv(lang, testdir):
         # The Ice.jar and Freeze.jar comes from the installation
         # directory or the toplevel dir.
         javaDir = os.path.join(getIceDir("java", testdir), "lib")
-        jarSuffix = "-" + getIceVersion() + ".jar"
-        addClasspath(os.path.join(javaDir, "Ice" + jarSuffix), env)
-        addClasspath(os.path.join(javaDir, "Glacier2" + jarSuffix), env)
-        addClasspath(os.path.join(javaDir, "Freeze" + jarSuffix), env)
-        addClasspath(os.path.join(javaDir, "IceBox" + jarSuffix), env)
-        addClasspath(os.path.join(javaDir, "IceStorm" + jarSuffix), env)
-        addClasspath(os.path.join(javaDir, "IceGrid" + jarSuffix), env)
-        addClasspath(os.path.join(javaDir, "IcePatch2" + jarSuffix), env)
-        addClasspath(os.path.join(javaDir, "IceDiscovery" + jarSuffix), env)
-        addClasspath(os.path.join(javaDir), env)
-
+        for jar in iceJARs:
+            addClasspath(os.path.join(javaDir, jar + jarSuffix), env)
     #
     # On Windows, C# assemblies are found thanks to the .exe.config files.
     #

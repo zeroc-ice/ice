@@ -7,12 +7,6 @@
 #
 # **********************************************************************
 
-ifeq ($(APPEND_VERSION_SUFFIX),yes)
-BUILD_FLAGS += -Dorg.gradle.project.appendVersionSuffix=yes
-endif
-
-INSTALL_FLAGS += $(BUILD_FLAGS)
-
 ifneq ($(prefix),)
 INSTALL_FLAGS += -Dorg.gradle.project.prefix=$(prefix)
 endif
@@ -22,14 +16,14 @@ INSTALL_FLAGS += -Dorg.gradle.project.DESTDIR=$(DESTDIR)
 endif
 
 all:
-	./gradlew $(BUILD_FLAGS) assemble
+	./gradlew assemble
 
 dist:
-	./gradlew $(BUILD_FLAGS) :Ice:assemble :Freeze:assemble :Glacier2:assemble :IceGrid:assemble :ant:assemble \
+	./gradlew :Ice:assemble :Freeze:assemble :Glacier2:assemble :IceGrid:assemble :ant:assemble \
 		:IceBox:assemble :IceDiscovery:assemble :IcePatch2:assemble :IceStorm:assemble :IceGridGUI:assemble
 
 clean:
-	./gradlew $(BUILD_FLAGS) clean
+	./gradlew clean
 
 install::
 	./gradlew $(INSTALL_FLAGS) install

@@ -29,7 +29,7 @@ dependencies {
     compile project(':Ice')
 }
 
-def jarName = "IcePatch2${versionSuffix}.jar"
+def jarName = "icepatch2${versionSuffix}.jar"
 
 jar {
     archiveName = jarName

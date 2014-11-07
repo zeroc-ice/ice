@@ -29,7 +29,7 @@ dependencies {
     compile project(':Ice')
 }
 
-def jarName = "Glacier2${versionSuffix}.jar"
+def jarName = "glacier2${versionSuffix}.jar"
 
 jar {
     archiveName = jarName
