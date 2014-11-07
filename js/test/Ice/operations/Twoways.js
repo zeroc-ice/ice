@@ -571,8 +571,8 @@
                 tmp.set(new Ice.Long(0, 999999110), -1.1);
                 tmp.set(new Ice.Long(0, 999999111), 123123.2);
 
-                test(p3.equals(tmp, 
-                               function(v1, v2) { 
+                test(p3.equals(tmp,
+                               function(v1, v2) {
                                 return (Math.abs(v1) - Math.abs(v2)) <= 0.01; }));
                 test(retval.size === 4);
                 test(Math.abs(retval.get(new Ice.Long(0, 999999110))) - Math.abs(-1.1) <= 0.01);

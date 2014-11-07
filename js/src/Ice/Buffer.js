@@ -8,7 +8,7 @@
 // **********************************************************************
 
 //
-// Ice.Buffer implementation to be used by Node.js, it uses node Buffer 
+// Ice.Buffer implementation to be used by Node.js, it uses node Buffer
 // as the store.
 //
 
@@ -54,7 +54,7 @@ var Buffer = Ice.Class({
         }
         else if(n > this.capacity)
         {
-            this.reserve(n); 
+            this.reserve(n);
         }
         this._limit = n;
     },
@@ -148,6 +148,10 @@ var Buffer = Ice.Class({
     putArray: function(v)
     {
         //Expects a Nodejs Buffer
+        if(!Node.Buffer.isBuffer(v))
+        {
+            throw new TypeError("argument is not a Node.Buffer");
+        }
         if(this._position + v.length > this._limit)
         {
             throw new Error(__BufferOverflowException__);

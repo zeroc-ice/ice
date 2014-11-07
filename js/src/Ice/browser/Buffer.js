@@ -35,7 +35,7 @@ if(!ArrayBuffer.prototype.slice)
 var __BufferOverflowException__ = "BufferOverflowException";
 var __BufferUnderflowException__ = "BufferUnderflowException";
 var __IndexOutOfBoundsException__ = "IndexOutOfBoundsException";
-    
+
 //
 // Buffer implementation to be used by web browsers, it uses ArrayBuffer as
 // the store.
@@ -69,7 +69,7 @@ var Buffer = Ice.Class({
         }
         else if(n > this.capacity)
         {
-            this.reserve(n); 
+            this.reserve(n);
         }
         this._limit = n;
     },
@@ -164,13 +164,17 @@ var Buffer = Ice.Class({
     },
     putArray: function(v)
     {
+        //Expects an Uint8Array
+        if(!(v instanceof Uint8Array))
+        {
+            throw new TypeError('argument is not a Uint8Array');
+        }
         if(v.byteLength > 0)
         {
-            //Expects an Uint8Array
             if(this._position + v.length > this._limit)
             {
                 throw new Error(__BufferOverflowException__);
-            }                
+            }
             new Uint8Array(this.b, 0, this.b.byteLength).set(v, this._position);
             this._position += v.byteLength;
         }
@@ -236,7 +240,7 @@ var Buffer = Ice.Class({
         // Encode the string as utf8
         //
         var encoded = unescape(encodeURIComponent(v));
-        
+
         stream.writeSize(encoded.length);
         stream.expand(encoded.length);
         this.putString(encoded, encoded.length);
@@ -349,10 +353,10 @@ var Buffer = Ice.Class({
         {
             throw new Error(__BufferUnderflowException__);
         }
-        
+
         var data = new DataView(this.b, this._position, length);
         var s = "";
-        
+
         for(var i = 0; i < length; ++i)
         {
             s += String.fromCharCode(data.getUint8(i));
