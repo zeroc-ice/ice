@@ -34,6 +34,7 @@ main(int argc, char* argv[])
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
         initData.properties->setProperty("Ice.Warn.AMICallback", "0");
+    	initData.properties->setProperty("Ice.TCP.SndSize", "1024");
 
         communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
