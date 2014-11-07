@@ -481,7 +481,7 @@ public class TestApp extends Application
         {
             return _status;
         }
-        
+
         protected String[] setupAddress(String[] args, boolean ipv6)
         {
             if(ipv6)
@@ -493,7 +493,7 @@ public class TestApp extends Application
                     "--Ice.IPv6=1",
                     "--Ice.PreferIPv6Address=1"
                 };
-                
+
                 String[] nargs = new String[args.length + ipv6Args.length];
                 System.arraycopy(args, 0, nargs, 0, args.length);
                 System.arraycopy(ipv6Args, 0, nargs, args.length, ipv6Args.length);
@@ -507,7 +507,7 @@ public class TestApp extends Application
                     "--Ice.IPv4=1",
                     "--Ice.IPv6=0"
                 };
-                
+
                 String[] nargs = new String[args.length + ipv4Args.length];
                 System.arraycopy(args, 0, nargs, 0, args.length);
                 System.arraycopy(ipv4Args, 0, nargs, args.length, ipv4Args.length);
@@ -521,8 +521,7 @@ public class TestApp extends Application
             {
                 "--Ice.Plugin.IceSSL=IceSSL.PluginFactory",
                 "--Ice.Default.Protocol=ssl",
-                "--Ice.InitPlugins=0",
-                    "--Ice.Trace.Network=3", "--Ice.Trace.Protocol=3"
+                "--Ice.InitPlugins=0"
             };
 
             // SDK versions < 21 only support TLSv1 with SSLEngine.
@@ -570,7 +569,7 @@ public class TestApp extends Application
                 "--Ice.NullHandleAbort=1",
                 "--Ice.Warn.Connections=1"
             };
-            
+
             args = setupAddress(args, _ipv6);
 
             if(_testName == "plugin")
@@ -621,9 +620,9 @@ public class TestApp extends Application
                 "--Ice.ThreadPool.Server.SizeMax=3",
                 "--Ice.ThreadPool.Server.SizeWarn=0"
             };
-            
+
             args = setupAddress(args, _ipv6);
-            
+
             if(_ssl)
             {
                 args = setupssl(args, _serverContext);
@@ -675,9 +674,9 @@ public class TestApp extends Application
             {
                 "--Ice.NullHandleAbort=1"
             };
-            
+
             args = setupAddress(args, _ipv6);
-            
+
             if(_ssl)
             {
                 args = setupssl(args, _clientContext);
@@ -753,7 +752,7 @@ public class TestApp extends Application
             });
         }
     }
-    
+
     public interface SSLInitializationListener
     {
         public void onComplete();
@@ -927,7 +926,7 @@ public class TestApp extends Application
         r.start();
     }
 
-    
+
     public void setIPv6(boolean ipv6)
     {
         _ipv6 = ipv6;
