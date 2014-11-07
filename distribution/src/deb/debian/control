@@ -125,8 +125,6 @@ Section: devel
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${java:Depends}, 
  zeroc-ice-slice (=${binary:Version}), 
  libzeroc-ice@debmmver@ (=${binary:Version}), 
- libzeroc-ice@debmmver@-java (=${binary:Version}), 
- libzeroc-freeze@debmmver@-java (=${binary:Version})
 Description: Tools for developing Ice applications in Java
  Tools for developing Ice applications in Java.
 
