@@ -41,7 +41,7 @@ if "NODE" in os.environ:
 else:
     for path in os.environ["PATH"].split(os.pathsep):
         #
-        # Stop if we find "php" in the PATH first.
+        # Stop if we find "node" in the PATH first.
         #
         if os.path.exists(os.path.join(path, "node")):
             break
@@ -65,6 +65,9 @@ class ServerI(Test.Server):
             current.adapter.remove(current.id)
         except:
             pass
+        # Stop the WatchDog thread since we may not run any more tests
+        # for an extended period of time
+        TestUtil.stopWatchDog()
         print("ok")
 
     def terminate(self, current):
@@ -78,6 +81,9 @@ class ServerI(Test.Server):
             current.adapter.remove(current.id)
         except:
             pass
+        # Stop the WatchDog thread since we may not run any more tests
+        # for an extended period of time
+        TestUtil.stopWatchDog()
         print("ok")
 
 class ControllerI(Test.Controller):

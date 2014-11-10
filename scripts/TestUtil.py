@@ -1587,13 +1587,13 @@ def getServiceDir():
             serviceDir = "C:\\Program Files\ZeroC\Ice-" + str(getIceVersion()) + "\\bin"
     return serviceDir
 
-iceJARs = ["ice", 
+iceJARs = ["ice",
            "glacier2",
-           "freeze", 
-           "icebox", 
-           "icestorm", 
-           "icegrid", 
-           "icepatch2", 
+           "freeze",
+           "icebox",
+           "icestorm",
+           "icegrid",
+           "icepatch2",
            "icediscovery"]
 
 def getTestEnv(lang, testdir):
@@ -1611,7 +1611,7 @@ def getTestEnv(lang, testdir):
         addClasspath(os.path.join(toplevel, "java", "lib", "test.jar"), env)
 
     jarSuffix = "-" + getIceVersion() + ".jar"
-    
+
     #
     # If Ice is installed from RPMs, just set the CLASSPATH for Java.
     #
@@ -1696,6 +1696,12 @@ def getTestName():
     here.reverse()
     # The crossTests list is in UNIX format.
     return os.path.join(*here).replace(os.sep, '/')
+
+def stopWatchDog():
+    global watchDog
+    watchDog.stop()
+    watchDog.join()
+    watchDog = None
 
 def joindog(dog):
     dog.stop()
