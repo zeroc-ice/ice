@@ -59,6 +59,7 @@ task serverJar(type: Jar) {
 }
 
 task collocatedJar(type: Jar) {
+	version = ""
     baseName = "collocated"
     from(sourceSets.main.output) {
     	include "**"

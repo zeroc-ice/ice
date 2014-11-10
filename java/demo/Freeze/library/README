@@ -21,8 +21,8 @@ program. In this case you do not need to start a separate server.
 If you have not already populated the database, you can do so using
 the collocated executable as shown below:
 
-$ java Collocated < books
+$ java -jar build/libs/collocated.jar < books
 
 Then start the interactive demo like this:
 
-$ java Collocated
+$ java -jar build/libs/collocated.jar
