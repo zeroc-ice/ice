@@ -14,8 +14,8 @@ var esprima = require('esprima');
 var usage = function()
 {
     console.log("usage:");
-    console.log("" + process.argv[0] + " " + path.basename(process.argv[1]) + "\"<modules>\" <files>"); 
-}
+    console.log("" + process.argv[0] + " " + path.basename(process.argv[1]) + "\"<modules>\" <files>");
+};
 
 if(process.argv.length < 4)
 {
@@ -72,7 +72,7 @@ Depends.prototype.expand = function(o)
                 }
             }
         }
-        
+
         if(o.depends.length != newDepends.length)
         {
 
@@ -81,7 +81,7 @@ Depends.prototype.expand = function(o)
         }
     }
     return this;
-}
+};
 
 Depends.comparator = function(a, b)
 {
@@ -146,15 +146,15 @@ Parser.add = function(depend, file)
         {
             depend.depends.push(file);
         }
-    }    
+    }
 };
 
 Parser.transverse = function(object, depend, file)
 {
-    for(key in object)
+    for(var key in object)
     {
         var value = object[key];
-        if(value !== null && typeof value == "object") 
+        if(value !== null && typeof value == "object")
         {
             Parser.transverse(value, depend, file);
 
@@ -166,7 +166,7 @@ Parser.transverse = function(object, depend, file)
                 }
                 else if(value.callee.type == "MemberExpression" &&
                         value.callee.property.name == "require" &&
-                        (value.callee.object.name == "__M" || 
+                        (value.callee.object.name == "__M" ||
                         (value.callee.object.property && value.callee.object.property.name == "__M")))
                 {
                     value.arguments[1].elements.forEach(
@@ -211,7 +211,7 @@ Parser.dir = function(base, depends)
             }
             catch(e)
             {
-                throw new Error(fullpath + ": " + e.toString())
+                throw new Error(fullpath + ": " + e.toString());
             }
         }
     }
@@ -230,10 +230,10 @@ var optimize = process.env.OPTIMIZE && process.env.OPTIMIZE == "yes";
 var preamble =
     "(function()\n" +
     "{\n";
-    
+
 var epilogue =
     "}());\n\n";
-    
+
 //
 // Wrap contents of each file in a closure to keep local variables local.
 //
@@ -241,10 +241,10 @@ var modulePreamble =
     "\n" +
     "    (function()\n" +
     "    {\n";
-    
+
 var moduleEpilogue =
     "    }());\n";
-    
+
 process.stdout.write(preamble);
 
 modules.forEach(
@@ -261,17 +261,17 @@ for(i = 0;  i < length; ++i)
 {
     process.stdout.write(modulePreamble);
     file = d.depends[i].realpath;
-    data = fs.readFileSync(file); 
-    lines = data.toString().split("\n");
-    
+    var data = fs.readFileSync(file);
+    var lines = data.toString().split("\n");
+
     var skip = false;
-    var skipUntil = undefined;
+    var skipUntil;
     var skipAuto = false;
-    
-    for(j in lines)
+
+    for(var j in lines)
     {
         line = lines[j].trim();
-        
+
         if(line == "/* slice2js browser-bundle-skip */")
         {
             skipAuto = true;
@@ -286,9 +286,9 @@ for(i = 0;  i < length; ++i)
         {
             continue;
         }
-        
+
         //
-        // Get rid of require statements, the bundle include all required files, 
+        // Get rid of require statements, the bundle include all required files,
         // so require statements are not required.
         //
         if(line.match(/var .* require\(".*"\).*;/))
@@ -305,7 +305,7 @@ for(i = 0;  i < length; ++i)
             }
             continue;
         }
-        
+
         //
         // Get rid of assert statements for optimized builds.
         //
@@ -319,7 +319,7 @@ for(i = 0;  i < length; ++i)
             }
             continue;
         }
-        
+
         //
         // Get rid of __M.module statements, in browser top level modules are
         // global.
@@ -334,7 +334,7 @@ for(i = 0;  i < length; ++i)
             }
             continue;
         }
-        
+
         if(skip)
         {
             if(line.lastIndexOf(skipUntil) !== -1)
@@ -343,13 +343,13 @@ for(i = 0;  i < length; ++i)
             }
             continue;
         }
-        
+
         var out = lines[j];
         if(line.indexOf("module.exports.") === 0)
         {
             continue;
         }
-        
+
         if(line.indexOf("__M.type") !== -1)
         {
             out = out.replace(/__M\.type/g, "eval");

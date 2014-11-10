@@ -21,10 +21,10 @@ var defaultInstallLocations = [
 var iceHome = process.env.ICE_HOME;
 var useBinDist = process.env.USE_BIN_DIST == "yes";
 
-var srcDist; 
+var srcDist;
 try
 {
-    srcDist = fs.statSync(path.join(__dirname, "..", "lib")).isDirectory(); 
+    srcDist = fs.statSync(path.join(__dirname, "..", "lib")).isDirectory();
 }
 catch(e)
 {
@@ -38,7 +38,7 @@ var libraryPath = process.platform == "win32" ? "PATH" :
                   process.platform == "darwin" ? "DYLD_LIBRARY_PATH" : "LD_LIBRARY_PATH";
 
 //
-// If this is a source distribution and ICE_HOME isn't set, ensure 
+// If this is a source distribution and ICE_HOME isn't set, ensure
 // that slice2js has been built.
 //
 if(srcDist && !useBinDist)
@@ -46,15 +46,15 @@ if(srcDist && !useBinDist)
     var build;
     try
     {
-        build = fs.statSync(path.join(__dirname, "..", "..", "cpp", "bin", slice2js)).isFile()
+        build = fs.statSync(path.join(__dirname, "..", "..", "cpp", "bin", slice2js)).isFile();
     }
     catch(e)
     {
     }
-    
+
     if(!build)
     {
-        console.error("error: Unable to find " + slice2js + " in " + path.join(__dirname, "..", "..", "cpp", "bin") + 
+        console.error("error: Unable to find " + slice2js + " in " + path.join(__dirname, "..", "..", "cpp", "bin") +
                       ", please verify that the sources have been built or configure ICE_HOME to use a binary distribution.");
         process.exit(1);
     }
@@ -94,7 +94,7 @@ if(!srcDist || useBinDist)
                       "variable to point to the Ice installation directory.");
         process.exit(1);
     }
-    
+
     //
     // If ICE_HOME is not set, check if it is installed in the default location.
     //
@@ -129,10 +129,10 @@ if(!srcDist || useBinDist)
 
 var sliceDir = iceHome ? path.join(iceHome, "slice") :
                          path.join(__dirname, "..", "..", "slice");
-                         
+
 var binDir = iceHome ? path.join(iceHome, "bin") :
                        path.join(__dirname, "..", "..", "cpp", "bin");
-                       
+
 var libDir = iceHome ? path.join(iceHome, libSubDir) :
                        path.join(__dirname, "..", "..", "cpp", libSubDir);
 
@@ -144,7 +144,7 @@ module.exports.build = function(basePath, files, args)
     function buildFile(file)
     {
         var commandArgs = [];
-        
+
         commandArgs.push("-I" + sliceDir);
         args.forEach(
             function(arg)
@@ -152,7 +152,7 @@ module.exports.build = function(basePath, files, args)
                 commandArgs.push(arg);
             });
         commandArgs.push(file);
-        
+
         var env = {};
         for(var k in process.env)
         {
@@ -169,7 +169,7 @@ module.exports.build = function(basePath, files, args)
         console.log(slice2js + " " + commandArgs.join(" "));
         var spawn = require("child_process").spawn;
         var build  = spawn(slice2js, commandArgs, {env:env});
-        
+
         build.stdout.on("data", function(data)
         {
             process.stdout.write(data);
@@ -182,7 +182,7 @@ module.exports.build = function(basePath, files, args)
 
         build.on("close", function(code)
         {
-            if(code != 0)
+            if(code !== 0)
             {
                 process.exit(code);
             }
@@ -201,7 +201,7 @@ module.exports.build = function(basePath, files, args)
 module.exports.buildDirectory = function(basePath)
 {
     console.log("Building " + basePath);
-    fs.readdir(basePath, 
+    fs.readdir(basePath,
         function(err, files)
         {
             if(err)
@@ -243,7 +243,7 @@ module.exports.buildDirectory = function(basePath)
                                             {
                                                 var spawn = require("child_process").spawn;
                                                 var build  = spawn(process.execPath, [path.join(basePath, f, "build.js")], {cwd: path.join(basePath, f)});
-                                                
+
                                                 build.stdout.on("data", function(data)
                                                 {
                                                     process.stdout.write(data);
@@ -256,7 +256,7 @@ module.exports.buildDirectory = function(basePath)
 
                                                 build.on("close", function(code)
                                                 {
-                                                    if(code != 0)
+                                                    if(code !== 0)
                                                     {
                                                         process.exit(code);
                                                     }
@@ -274,14 +274,14 @@ module.exports.buildDirectory = function(basePath)
                             }
                         });
             }
-            
+
             function next()
             {
                 if(files.length > 0)
                 {
-                    chekFile(files.shift())
+                    chekFile(files.shift());
                 }
             }
             next();
         });
-}
+};
