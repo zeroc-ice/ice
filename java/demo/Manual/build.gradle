@@ -36,7 +36,7 @@
 				compile localDependency("freeze")
 			}
 			dependencies {
-				runtime "com.sleepycat:db:${dbVersion}"
+				runtime files(dbJar)
 			}
 		}
 

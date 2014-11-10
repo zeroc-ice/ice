@@ -40,7 +40,8 @@ slice {
 
 dependencies {
     compile project(':ice')
-    compile "com.sleepycat:db:${dbVersion}"
+    print dbJar
+    compile files(dbJar)
 }
 
 apply from: "$rootProject.projectDir/gradle/library.gradle"

@@ -29,7 +29,7 @@ dependencies {
 }
 
 dependencies {
-	runtime "com.sleepycat:db:${dbVersion}"
+	compile files(dbJar)
 }
 
 // Create a jar for the client & server which includes everything in the demo.
