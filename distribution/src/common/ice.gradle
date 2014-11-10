@@ -163,35 +163,18 @@ else
 		}
 		else if (isWindows)
 		{
-			def thirdpartyhome = env['THIRDPARTY_HOME']
-			if (thirdpartyhome == null || thirpartyhome.length() == 0)
-			{
-				def progFiles
-				def arch1 = env['PROCESSOR_ARCHITECTURE']
-				def arch2 = env['PROCESSOR_ARCHITEW6432']
-				if (arch1 == "AMD64" || arch1 == "IA64" || arch2 == "AMD64" || arch2 == "IA64")
-				{
-					progFiles = env['ProgramFiles(x86)']
-				}
-				else
-				{
-					progFiles = env['ProgramFiles']
-				}
-				thirdpartyhome = "$progFiles\\ZeroC\\Ice-$iceVersion-ThirdParty"
-			}
-
-			def f = new File("$thirdpartyhome\\lib\\${it}")
+			def f = new File("$iceDir\\lib\\${it}")
 			if (f.exists())
 			{
-				ext.dbJar = "$thirdpartyhome\\lib\\${it}"
+				ext.dbJar = "$iceDir\\lib\\${it}"
 			}
 		}
 		else
 		{
-			def f = new File("/Library/Developer/Ice-$iceVersion-ThirdParty/lib/${it}")
+			def f = new File("/Library/Developer/Ice-$iceVersion/lib/${it}")
 			if (f.exists())
 			{
-				ext.dbJar = "/Library/Developer/Ice-$iceVersion-ThirdParty/lib/${it}"
+				ext.dbJar = "/Library/Developer/Ice-$iceVersion/lib/${it}"
 			}
 
 			if (ext.dbJar.length() == 0)
