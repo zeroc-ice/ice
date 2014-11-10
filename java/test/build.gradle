@@ -29,30 +29,16 @@ idea.module {
     buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
 }
 
-if (distJarDir == null) {
-    dependencies {
-        compile project(':Ice')
-        compile project(':Freeze')
-        compile project(':IceDiscovery')
-        compile project(':IceBox')
-        compile project(':Glacier2')
-        compile project(':IceStorm')
-        compile project(':IceGrid')
-        compile project(':testPlugins')
-    }
-} else {
-    println "Using Ice jars installed in ${distJarDir}"
-    dependencies {
-        compile files("${distJarDir}/ice${versionSuffix}.jar")
-        compile files("${distJarDir}/freeze${versionSuffix}.jar")
-        compile files("${distJarDir}/icediscovery${versionSuffix}.jar")
-        compile files("${distJarDir}/icebox${versionSuffix}.jar")
-        compile files("${distJarDir}/glacier2${versionSuffix}.jar")
-        compile files("${distJarDir}/icestorm${versionSuffix}.jar")
-        compile files("${distJarDir}/icegrid${versionSuffix}.jar")
-        compile project(':testPlugins')
-        compile "com.sleepycat:db:${dbVersion}"
-    }
+dependencies {
+    compile localDependency('ice')
+    compile localDependency('freeze')
+    compile localDependency('icediscovery')
+    compile localDependency('icebox')
+    compile localDependency('glacier2')
+    compile localDependency('icestorm')
+    compile localDependency('icegrid')
+    compile project(':testPlugins')
+    compile "com.sleepycat:db:${dbVersion}"
 }
 
 jar {

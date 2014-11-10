@@ -26,33 +26,23 @@
 			}
 		}
 
-		if (useMavenJars) {
-			dependencies {
-				compile "com.zeroc:ice:${iceVersion}"
-				compile "com.zeroc:icediscovery:${iceVersion}"
-			}
-		} else if (distJarDir != null) {
-			dependencies {
-				compile files("${distJarDir}/Ice${versionSuffix}.jar")
-				compile files("${distJarDir}/IceDiscovery${versionSuffix}.jar")
-			}
-		} else {
-			dependencies {
-				compile project(':Ice')
-				compile project(':IceDiscovery')
-			}
+		dependencies {
+			compile localDependency("ice")
+			compile localDependency("icediscovery")
 		}
 
 		// Create a jar for the client & server which includes everything in the demo.
 		task clientJar(type: Jar) {
- 		   baseName = "client"
+			version = ""
+ 		    baseName = "client"
     		from(sourceSets.main.output) {
         		include "**"
     		}
 		}
 
 		task serverJar(type: Jar) {
- 		   baseName = "server"
+			version = ""
+ 		    baseName = "server"
     		from(sourceSets.main.output) {
         		include "**"
     		}
@@ -79,6 +69,7 @@
 
 		// Don't create the default jar.
 		jar.enabled = false
+
 		idea.module {
 		    excludeDirs -= file(buildDir)
 		    buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }

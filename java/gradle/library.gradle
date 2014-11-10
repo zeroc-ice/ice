@@ -7,26 +7,21 @@
 //
 // **********************************************************************
 
-sourceCompatibility = iceSourceCompatibility
-targetCompatibility = iceTargetCompatibility
-
-slice {
-    java {
-        set1 {
-        	include = ["${sliceDir}"]
-            args = "--ice"
-            files = fileTree(dir: "$sliceDir/IceDiscovery", includes:['*.ice'], excludes:["*F.ice"])
-        }
-    }
+jar {
+    destinationDir = new File("${libDir}")
 }
+
+clean {
+    delete("${libDir}/${jar.archiveName}")
+}
+
+task copyJars(type: Copy, dependsOn: jar) {
+    from "${libDir}/${jar.archiveName}"
+    into "${DESTDIR}${prefix}/lib"
+}
+task install(dependsOn: copyJars)
 
 idea.module {
     excludeDirs -= file(buildDir)
     buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
 }
-
-dependencies {
-    compile project(':ice')
-}
-
-apply from: "$rootProject.projectDir/gradle/library.gradle"

@@ -13,6 +13,12 @@ subprojects {
 	apply from: "$rootProject.projectDir/gradle/ice.gradle"
 
 	repositories {
+		if (distJarDir != null) {
+			flatDir {
+		        name "local"
+		        dirs distJarDir
+		    }
+	    }
 	    maven {
 	        url 'http://www.zeroc.com:8081/nexus/content/repositories/thirdparty'
 	    }

@@ -20,29 +20,9 @@ slice {
     }
 }
 
-idea.module {
-    excludeDirs -= file(buildDir)
-    buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
-}
-
 dependencies {
-    compile project(':Ice')
-    compile project(':Glacier2')
+    compile project(':ice')
+    compile project(':glacier2')
 }
 
-def jarName = "icegrid${versionSuffix}.jar"
-
-jar {
-    archiveName = jarName
-    destinationDir = new File("${libDir}")
-}
-
-clean {
-    delete("${libDir}/${jarName}")
-}
-
-task copyJars(type: Copy, dependsOn: jar) {
-    from new File("${libDir}/${jarName}")
-    into "${DESTDIR}${prefix}/lib"
-}
-task install(dependsOn: copyJars)
+apply from: "$rootProject.projectDir/gradle/library.gradle"

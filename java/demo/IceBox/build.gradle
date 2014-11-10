@@ -17,25 +17,14 @@
 			}
 		}
 
-		if (useMavenJars) {
-			dependencies {
-				compile "com.zeroc:ice:${iceVersion}"
-				compile "com.zeroc:icebox:${iceVersion}"
-			}
-		} else if (distJarDir != null) {
-			dependencies {
-				compile files("${distJarDir}/Ice${versionSuffix}.jar")
-				compile files("${distJarDir}/IceBox${versionSuffix}.jar")
-			}
-		} else {
-			dependencies {
-				compile project(':Ice')
-				compile project(':IceBox')
-			}
+		dependencies {
+			compile localDependency("ice")
+			compile localDependency("icebox")
 		}
 
         // Create a jar for the client & server which includes everything in the demo.
         task clientJar(type: Jar) {
+        	version = ""
            	baseName = "client"
 	        from(sourceSets.main.output) {
 	        	include "**"
@@ -43,6 +32,7 @@
         }
 
         task serverJar(type: Jar) {
+        	version = ""
 	        baseName = "server"
 	        from(sourceSets.main.output) {
 	        	include "**"

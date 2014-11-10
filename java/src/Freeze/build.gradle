@@ -39,28 +39,8 @@ slice {
 }
 
 dependencies {
-    compile project(':Ice')
+    compile project(':ice')
     compile "com.sleepycat:db:${dbVersion}"
 }
 
-idea.module {
-    excludeDirs -= file(buildDir)
-    buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
-}
-
-def jarName = "freeze${versionSuffix}.jar"
-
-jar {
-    archiveName = jarName
-    destinationDir = new File("${libDir}")
-}
-
-clean {
-    delete("${libDir}/${jarName}")
-}
-
-task copyJars(type: Copy, dependsOn: jar) {
-    from new File("${libDir}/${jarName}")
-    into "${DESTDIR}${prefix}/lib"
-}
-task install(dependsOn: copyJars)
+apply from: "$rootProject.projectDir/gradle/library.gradle"

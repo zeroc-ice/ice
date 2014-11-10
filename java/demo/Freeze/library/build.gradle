@@ -35,27 +35,15 @@ sourceSets {
 	}
 }
 
-if (useMavenJars) {
-	dependencies {
-		compile "com.zeroc:ice:${iceVersion}"
-		compile "com.zeroc:freeze:${iceVersion}"
-		compile 'com.sleepycat:db:5.3.28'
-	}
-} else if (distJarDir != null) {
-	dependencies {
-		compile files("${distJarDir}/Ice${versionSuffix}.jar")
-		compile files("${distJarDir}/Freeze${versionSuffix}.jar")
-		compile 'com.sleepycat:db:5.3.28'
-	}
-} else {
-	dependencies {
-		compile project(':Ice')
-		compile project(':Freeze')
-	}
+dependencies {
+	compile localDependency("ice")
+	compile localDependency("freeze")
+	compile "com.sleepycat:db:${dbVersion}"
 }
 
 // Create a jar for the client & server which includes everything in the demo.
 task clientJar(type: Jar) {
+	version = ""
    	baseName = "client"
     from(sourceSets.main.output) {
     	include "**"
@@ -63,6 +51,7 @@ task clientJar(type: Jar) {
 }
 
 task serverJar(type: Jar) {
+	version = ""
     baseName = "server"
     from(sourceSets.main.output) {
     	include "**"

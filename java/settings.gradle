@@ -8,22 +8,22 @@
 // **********************************************************************
 
 // Main source
-include ':Ice'
-project(':Ice').projectDir = new File('src/Ice')
-include ':IceDiscovery'
-project(':IceDiscovery').projectDir = new File('src/IceDiscovery')
-include	':Freeze'
-project(':Freeze').projectDir = new File('src/Freeze')
-include	':IceBox'
-project(':IceBox').projectDir = new File('src/IceBox')
-include	':Glacier2'
-project(':Glacier2').projectDir = new File('src/Glacier2')
-include	':IcePatch2'
-project(':IcePatch2').projectDir = new File('src/IcePatch2')
-include	':IceStorm'
-project(':IceStorm').projectDir = new File('src/IceStorm')
-include	':IceGrid'
-project(':IceGrid').projectDir = new File('src/IceGrid')
+include ':ice'
+project(':ice').projectDir = new File('src/Ice')
+include ':icediscovery'
+project(':icediscovery').projectDir = new File('src/IceDiscovery')
+include	':freeze'
+project(':freeze').projectDir = new File('src/Freeze')
+include	':icebox'
+project(':icebox').projectDir = new File('src/IceBox')
+include	':glacier2'
+project(':glacier2').projectDir = new File('src/Glacier2')
+include	':icepatch2'
+project(':icepatch2').projectDir = new File('src/IcePatch2')
+include	':icestorm'
+project(':icestorm').projectDir = new File('src/IceStorm')
+include	':icegrid'
+project(':icegrid').projectDir = new File('src/IceGrid')
 include	':IceGridGUI'
 project(':IceGridGUI').projectDir = new File('src/IceGridGUI')
 

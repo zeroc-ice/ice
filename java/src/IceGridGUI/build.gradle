@@ -38,9 +38,9 @@ configurations {
 }
 
 dependencies {
-      compile project(':Ice')
-      compile project(':IceBox')
-      compile project(':IceGrid')
+      compile project(':ice')
+      compile project(':icebox')
+      compile project(':icegrid')
       compile 'com.jgoodies:jgoodies-common:1.8.0'
       compile 'com.jgoodies:jgoodies-looks:2.6.0'
       compile 'com.jgoodies:jgoodies-forms:1.8.0'
@@ -48,7 +48,7 @@ dependencies {
 }
 
 def tmpJarName = "IceGridGUITEMP.jar"
-def jarName = "icegridgui.jar"
+def jarName = "IceGridGUI.jar"
 
 jar {
     archiveName = tmpJarName

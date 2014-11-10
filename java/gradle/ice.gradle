@@ -209,4 +209,14 @@ ext.searchFile = { Map<String, Closure> places, List<String> searchPaths ->
     }
 }
 
-ext.useMavenJars = false
+def localDependency(artifactId) {
+	if (distJarDir != null) {
+		return "com.zeroc:${artifactId}:${iceVersion}"
+	} else {
+		return project(":${artifactId}")
+	}
+}
+ext {
+	localDependency = this.&localDependency
+}
+

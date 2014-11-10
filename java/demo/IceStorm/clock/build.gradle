@@ -23,25 +23,14 @@ sourceSets {
 	}
 }
 
-if (useMavenJars) {
-	dependencies {
-		compile "com.zeroc:ice:${iceVersion}"
-		compile "com.zeroc:icestorm:${iceVersion}"
-	}
-} else if (distJarDir != null) {
-	dependencies {
-		compile files("${distJarDir}/Ice${versionSuffix}.jar")
-		compile files("${distJarDir}/IceStorm${versionSuffix}.jar")
-	}
-} else {
-	dependencies {
-		compile project(':Ice')
-		compile project(':IceStorm')
-	}
+dependencies {
+	compile localDependency("ice")
+	compile localDependency("icestorm")
 }
 
 // Create a jar for the publisher & subscriber which includes everything in the demo.
 task publisherJar(type: Jar) {
+	version = ""
 	baseName = "publisher"
 	from(sourceSets.main.output) {
 		include "**"
@@ -49,6 +38,7 @@ task publisherJar(type: Jar) {
 }
 
 task subscriberJar(type: Jar) {
+	version = ""
     baseName = "subscriber"
 	from(sourceSets.main.output) {
 		include "**"

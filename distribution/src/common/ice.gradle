@@ -139,4 +139,9 @@ if(iceJar.exists())
 	ext.versionSuffix = "-${iceVersion}"
 }
 
-ext.useMavenJars = useMavenArtifacts == "yes"
+def localDependency(artifactId) {
+	return "com.zeroc:${artifactId}:${iceVersion}"
+}
+ext {
+	localDependency = this.&localDependency
+}
