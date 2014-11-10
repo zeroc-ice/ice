@@ -149,7 +149,7 @@
                 //
                 // Expect success.
                 //
-                return to.sendData(Ice.Buffer.createNative(new Array(5 * 1024));
+                return to.sendData(Ice.Buffer.createNative(new Array(5 * 1024)));
             }
         ).then(
             function()
