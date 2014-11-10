@@ -22,37 +22,27 @@ slice {
 				key = "int"
 				value = "int"
 			}
-		}
-		dict {
 			IndexedIntIntMap {
 				javaType = "Demo.IndexedIntIntMap"
 				key = "int"
 				value = "int"
 				index = [[:]]
 			}
-		}
-		dict {
 			Struct1Struct2Map {
 				javaType = "Demo.Struct1Struct2Map"
 				key = "Demo::Struct1"
 				value = "Demo::Struct2"
 			}
-		}
-		dict {
 			Struct1Class1Map {
 				javaType = "Demo.Struct1Class1Map"
 				key = "Demo::Struct1"
 				value = "Demo::Class1"
 			}
-		}
-		dict {
 			Struct1ObjectMap {
 				javaType = "Demo.Struct1ObjectMap"
 				key = "Demo::Struct1"
 				value = "Object"
 			}
-		}
-		dict {
 			IndexedStruct1Struct2Map {
 				javaType = "Demo.IndexedStruct1Struct2Map"
 				key = "Demo::Struct1"
@@ -60,8 +50,6 @@ slice {
 				index = [[ member: 's', case: 'false'],
 						 [ member: 's1']]
 			}
-		}
-		dict {
 			IndexedStruct1Class1Map {
 				javaType = "Demo.IndexedStruct1Class1Map"
 				key = "Demo::Struct1"

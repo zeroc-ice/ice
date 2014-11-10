@@ -23,8 +23,6 @@ slice {
 				key = "Ice::Identity"
 				value = "FilesystemDB::FileEntry"
 			}
-		}
-		dict {
 			IdentityDirectoryEntryMap {
 				javaType = "FilesystemDB.IdentityDirectoryEntryMap"
 				key="Ice::Identity"

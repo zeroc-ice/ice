@@ -27,8 +27,6 @@ slice {
                 key = "string"
                 value = "Freeze::CatalogData"
             }
-        }
-        dict {
             CatalogIndexList {
                 javaType = "Freeze.CatalogIndexList"
                 key = "string"

@@ -23,8 +23,6 @@ slice {
 				value = "Demo::ContactData"
 				index = [[ member: 'phoneNumber', case: 'false']]
 			}
-		}
-		dict {
 			NewContacts {
 				javaType = "Demo.NewContacts"
 				key = "string"
