@@ -252,7 +252,7 @@ else
 		else if (isWindows)
 		{
 			def thirdpartyhome = env['THIRDPARTY_HOME']
-			if (d == null || thirpartyhome.length() == 0)
+			if (thirdpartyhome == null || thirpartyhome.length() == 0)
 			{
 				def progFiles
 				def arch1 = env['PROCESSOR_ARCHITECTURE']

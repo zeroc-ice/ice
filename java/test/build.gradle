@@ -38,7 +38,7 @@ dependencies {
     compile localDependency('icestorm')
     compile localDependency('icegrid')
     compile project(':testPlugins')
-    compile "com.sleepycat:db:${dbVersion}"
+    compile files(dbJar)
 }
 
 jar {
