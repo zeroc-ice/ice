@@ -67,19 +67,21 @@ $(document).foundation();
 
                     var p;
                     var server;
+                    var options = "";
                     if(typeof(__runServer__) !== "undefined" || typeof(__runEchoServer__) !== "undefined")
                     {
                         var srv;
                         if(typeof(__runEchoServer__) !== "undefined")
                         {
                             srv = "Ice/echo";
+                            options = __runEchoServerOptions__ || ""
                         }
                         else
                         {
                             srv = current;
                         }
                         out.write("starting " + srv + " server... ");
-                        p = controller.runServer(language, srv, protocol, defaultHost).then(
+                        p = controller.runServer(language, srv, protocol, defaultHost, options).then(
                             function(proxy)
                             {
                                 var ref = proxy.ice_getIdentity().name + ":" + protocol + " -h " + defaultHost +

@@ -18,7 +18,7 @@ interface Server
 
 interface Controller
 {
-    Server* runServer(string lang, string name, string protocol, string host);
+    Server* runServer(string lang, string name, string protocol, string host, string options);
 };
 
 };

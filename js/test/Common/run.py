@@ -84,7 +84,7 @@ class ControllerI(Test.Controller):
     def __init__(self):
         self.currentServer = None
 
-    def runServer(self, lang, name, protocol, host, current):
+    def runServer(self, lang, name, protocol, host, options, current):
 
         # If server is still running, terminate it
         if self.currentServer:
@@ -112,7 +112,7 @@ class ControllerI(Test.Controller):
             serverCfg = TestUtil.DriverConfig("server")
             serverCfg.protocol = protocol
             serverCfg.host = host
-            server = TestUtil.getCommandLine(server, serverCfg)
+            server = TestUtil.getCommandLine(server, serverCfg, options)
             serverProc = TestUtil.spawnServer(server, env = serverenv, lang=serverCfg.lang, mx=serverCfg.mx)
             print("ok")
         finally:
