@@ -21,7 +21,6 @@ try {
 
 // Determine the name of the Slice-to-Java translator
 def isWindows = false
-def isOSX = false
 def slice2java = "slice2java"
 def slice2freezej = "slice2freezej"
 if (System.properties['os.name'].toLowerCase().contains('windows'))
@@ -29,10 +28,6 @@ if (System.properties['os.name'].toLowerCase().contains('windows'))
     isWindows = true
     slice2java = "slice2java.exe"
     slice2freezej = "slice2freezej.exe"
-}
-else if(System.properties['os.name'] == "Mac OS X")
-{
-	isOSX = true
 }
 
 // Set the install prefix to defaults if not already set
@@ -228,23 +223,14 @@ ext {
 //
 // Find BerkeleyDB JAR
 //
-if (isWindows || isOSX)
-{
-	ext.dbVersion = "5.3.28"
-}
-else
-{
-	ext.dbVersion = "5.3.21"
-}
-
 ext.dbJar = ""
 if(dbHome != "")
 {
-	ext.dbJar = "${dbHome}/db-${dbVersion}.jar"
+	ext.dbJar = "${dbHome}/db.jar"
 }
 else
 {
-	["db-${dbVersion}.jar", "db.jar"].each {
+	["db-5.3.28.jar", "db-5.3.21.jar", "db.jar"].each {
 		if (ext.dbJar.length() != 0)
 		{
 			// Already found DB JAR, just ignore.
