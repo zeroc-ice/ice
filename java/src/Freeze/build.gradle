@@ -40,7 +40,6 @@ slice {
 
 dependencies {
     compile project(':ice')
-    print dbJar
     compile files(dbJar)
 }
 

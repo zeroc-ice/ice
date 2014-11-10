@@ -34,6 +34,7 @@ try {
 
 // Determine the name of the Slice-to-Java translator
 def isWindows = false
+def isOSX = false
 def slice2java = "slice2java"
 def slice2freezej = "slice2freezej"
 if (System.properties['os.name'].toLowerCase().contains('windows'))
@@ -41,6 +42,10 @@ if (System.properties['os.name'].toLowerCase().contains('windows'))
     isWindows = true
     slice2java = "slice2java.exe"
     slice2freezej = "slice2freezej.exe"
+}
+else if(System.properties['os.name'] == "Mac OS X")
+{
+	isOSX = true
 }
 
 // First check if ICE_HOME is set and it points at a valid installation
@@ -144,4 +149,100 @@ def localDependency(artifactId) {
 }
 ext {
 	localDependency = this.&localDependency
+}
+
+//
+// Find BerkeleyDB JAR
+//
+if (isWindows || isOSX)
+{
+	ext.dbVersion = "5.3.28"
+}
+else
+{
+	ext.dbVersion = "5.3.21"
+}
+
+ext.dbJar = ""
+if(dbHome != "")
+{
+	ext.dbJar = "${dbHome}/db-${dbVersion}.jar"
+}
+else
+{
+	["db-${dbVersion}.jar", "db.jar"].each {
+		if (ext.dbJar.length() != 0)
+		{
+			// Already found DB JAR, just ignore.
+		}
+		else if (isWindows)
+		{
+			def thirdpartyhome = env['THIRDPARTY_HOME']
+			if (thirdpartyhome == null || thirpartyhome.length() == 0)
+			{
+				def progFiles
+				def arch1 = env['PROCESSOR_ARCHITECTURE']
+				def arch2 = env['PROCESSOR_ARCHITEW6432']
+				if (arch1 == "AMD64" || arch1 == "IA64" || arch2 == "AMD64" || arch2 == "IA64")
+				{
+					progFiles = env['ProgramFiles(x86)']
+				}
+				else
+				{
+					progFiles = env['ProgramFiles']
+				}
+				thirdpartyhome = "$progFiles\\ZeroC\\Ice-$iceVersion-ThirdParty"
+			}
+
+			def f = new File("$thirdpartyhome\\lib\\${it}")
+			if (f.exists())
+			{
+				ext.dbJar = "$thirdpartyhome\\lib\\${it}"
+			}
+		}
+		else
+		{
+			def f = new File("/Library/Developer/Ice-$iceVersion-ThirdParty/lib/${it}")
+			if (f.exists())
+			{
+				ext.dbJar = "/Library/Developer/Ice-$iceVersion-ThirdParty/lib/${it}"
+			}
+
+			if (ext.dbJar.length() == 0)
+			{
+				f = new File("/usr/share/java/${it}")
+				if (f.exists())
+				{
+					ext.dbJar = "/usr/share/java/lib/${it}"
+				}
+			}
+
+			if (ext.dbJar.length() == 0)
+			{
+				f = new File("/opt/Ice-${iceVersion}/lib/${it}")
+				if (f.exists())
+				{
+					ext.dbJar = "/opt/Ice-${iceVersion}/lib/${it}"
+				}
+			}
+
+			if (ext.dbJar.length() == 0)
+			{
+				f = new File("/opt/db/lib/${it}")
+				if (f.exists())
+				{
+					ext.dbJar = "/opt/db/lib/${it}"
+				}
+			}
+
+			if (ext.dbJar.length() == 0)
+			{
+				f = new File("/usr/lib/${it}")
+				if (f.exists())
+				{
+					ext.dbJar = "/usr/lib/${it}"
+				}
+			}
+		}
+	}
 }

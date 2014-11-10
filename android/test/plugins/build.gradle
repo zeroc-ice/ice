@@ -42,5 +42,5 @@ idea.module {
 }
 
 dependencies {
-    compile project(':Ice')
+    compile localDependency('ice')
 }

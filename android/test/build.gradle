@@ -1,4 +1,4 @@
-// **********************************************************************
+ //**********************************************************************
 //
 // Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
@@ -31,7 +31,7 @@ idea.module {
 }
 
 dependencies {
-    compile project(':Ice')
+    compile localDependency('ice')
 }
 
 tests.each {
@@ -76,7 +76,7 @@ tests.each {
 
         dependencies {
             compile project(':test')
-            compile project(':Ice')
+            compile localDependency('ice')
         }
     }
 }

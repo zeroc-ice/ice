@@ -684,7 +684,7 @@ print "Cleaning up...",
 sys.stdout.flush()
 remove(srcDir)
 remove(winSrcDir)
-#remove(demoDir)
+remove(demoDir)
 remove(winDemoDir)
 remove(demoscriptDir)
 remove(winDemoscriptDir)

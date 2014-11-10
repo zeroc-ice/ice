@@ -77,7 +77,7 @@ tests.each {
 }
 
 dependencies {
-    compile project(':Ice')
+    compile localDependency('ice')
     compile project(':test')
     compile project(':testPlugins')
 }

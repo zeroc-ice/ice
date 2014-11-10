@@ -55,14 +55,7 @@ idea.module {
     buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
 }
 
-if (distJarDir == null) {
-    dependencies {
-        compile project(':Ice')
-        compile project(':Glacier2')
-    }
-} else {
-    dependencies {
-        compile files("${distJarDir}/Ice${versionSuffix}.jar")
-        compile files("${distJarDir}/Glacier2${versionSuffix}.jar")
-    }
+dependencies {
+    compile localDependency('ice')
+    compile localDependency('glacier2')
 }
