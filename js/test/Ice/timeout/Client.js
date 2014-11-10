@@ -146,19 +146,10 @@
         ).then(
             function()
             {
-                var seq;
-                if(mult === 1)
-                {
-                    seq = Ice.Buffer.createNative(new Array(512 * 1024));
-                }
-                else
-                {
-                    seq = Ice.Buffer.createNative(new Array(5 * 1024));
-                }
                 //
                 // Expect success.
                 //
-                return to.sendData(seq);
+                return to.sendData(Ice.Buffer.createNative(new Array(5 * 1024));
             }
         ).then(
             function()
