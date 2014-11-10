@@ -29,6 +29,6 @@ task buildDemoTask {
     }
 
     dependencies {
-        compile project(':src/Ice')
+        compile project(':ice')
     }
 }

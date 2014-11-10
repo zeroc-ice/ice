@@ -7,19 +7,37 @@
 //
 // **********************************************************************
 
+apply plugin: 'maven'
+
+def pomName = "${libDir}/${project.name}-${iceVersion}.pom"
+task writeNewPom {
+	outputs.file file(pomName)
+} << {
+    pom {
+        project {
+            url 'http://www.zeroc.com'
+            packaging 'jar'
+            // TODO: Extend with licensing information.
+        }
+    }.writeTo(pomName)
+}
+jar.dependsOn(writeNewPom)
+
 jar {
     destinationDir = new File("${libDir}")
 }
 
 clean {
     delete("${libDir}/${jar.archiveName}")
+    delete(pomName)
 }
 
-task copyJars(type: Copy, dependsOn: jar) {
+task copyJars(type: Copy, dependsOn: jar) {	
+	from "${pomName}"
     from "${libDir}/${jar.archiveName}"
     into "${DESTDIR}${prefix}/lib"
 }
-task install(dependsOn: copyJars)
+install.dependsOn copyJars
 
 idea.module {
     excludeDirs -= file(buildDir)
