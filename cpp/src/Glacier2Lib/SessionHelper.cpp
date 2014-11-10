@@ -884,6 +884,27 @@ Glacier2::SessionFactoryHelper::getSecure() const
 }
 
 void
+Glacier2::SessionFactoryHelper::setTransport(const string& transport)
+{
+    IceUtil::Mutex::Lock sync(_mutex);
+    if(transport != "tcp" &&
+       transport != "ssl" &&
+       transport != "ws" &&
+       transport != "wss")
+    {
+        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "Unknow transport `" + transport + "'");
+    }
+    _transport = transport;
+}
+
+string
+Glacier2::SessionFactoryHelper::getTransport() const
+{
+    IceUtil::Mutex::Lock sync(_mutex);
+    return _transport;
+}
+
+void
 Glacier2::SessionFactoryHelper::setTimeout(int timeout)
 {
     IceUtil::Mutex::Lock sync(_mutex);
@@ -963,7 +984,8 @@ Glacier2::SessionFactoryHelper::createInitData()
     // plug-in has already been setup we don't want to override the
     // configuration so it can be loaded from a custom location.
     //
-    if(_secure && initData.properties->getProperty("Ice.Plugin.IceSSL").empty())
+    if((_secure || _transport == "ssl" || _transport == "wss") && 
+       initData.properties->getProperty("Ice.Plugin.IceSSL").empty())
     {
         initData.properties->setProperty("Ice.Plugin.IceSSL","IceSSL:createIceSSL");
     }
@@ -1001,22 +1023,29 @@ Glacier2::SessionFactoryHelper::createProxyStr(const Ice::Identity& ident)
 
     os << "\"";
     os << ":";
-    if(_secure)
+    if(!_transport.empty())
     {
-        os << "ssl -p ";
+        os << _transport << " -p ";
     }
     else
     {
-        os << "tcp -p ";
+        if(_secure)
+        {
+            os << "ssl -p ";
+        }
+        else
+        {
+            os << "tcp -p ";
+        }
     }
-
+    
     if(_port != 0)
     {
         os << _port;
     }
     else
     {
-        if(_secure)
+        if(_secure || _transport == "ssl" || _transport == "wss")
         {
             os << GLACIER2_SSL_PORT;
         }

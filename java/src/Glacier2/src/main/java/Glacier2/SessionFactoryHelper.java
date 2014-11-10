@@ -141,7 +141,9 @@ public class SessionFactoryHelper
      *
      * @param secure If <code>true</code>, the client connects to the router
      * via SSL; otherwise, the client connects via TCP.
+     * @deprecated deprecated, use SessionFactoryHelper.setTransport instead
      */
+    @Deprecated
     synchronized public void
     setSecure(boolean secure)
     {
@@ -152,12 +154,49 @@ public class SessionFactoryHelper
      * Returns whether the session factory will establish a secure connection to the Glacier2 router.
      *
      * @return The secure flag.
+     * @deprecated deprecated, use SessionFactoryHelper.getTransport instead
      */
+    @Deprecated
     synchronized public boolean
     getSecure()
     {
         return _secure;
     }
+    
+    /**
+     *
+     * Sets the transport that will be used by the session factory to establish the connection.
+     *
+     * @param transport.
+     */
+     synchronized public void setTransport(String transport)
+     {
+        if(transport == null)
+        {
+            throw new IllegalArgumentException("You must use a valid transport");
+        }
+        
+        if(!transport.equals("tcp") &&
+           !transport.equals("ssl") &&
+           !transport.equals("wss") &&
+           !transport.equals("ws"))
+        {
+            throw new IllegalArgumentException("Unknow transport `" + transport + "'");
+        }
+        
+        _transport = transport;
+     }
+
+    /**
+     *
+     * Returns the transport that will be used by the session factory to establish the connection.
+     *
+     * @return The transport.
+     */
+     synchronized public String getTransport()
+     {
+        return _transport;
+     }
 
     /**
      * Sets the connect and connection timeout for the Glacier2 router.
@@ -279,7 +318,8 @@ public class SessionFactoryHelper
         // plug-in has already been setup we don't want to override the
         // configuration so it can be loaded from a custom location.
         //
-        if(_secure && initData.properties.getProperty("Ice.Plugin.IceSSL").length() == 0)
+        if((_secure || _transport.equals("ssl") || _transport.equals("wss")) &&
+           initData.properties.getProperty("Ice.Plugin.IceSSL").length() == 0)
         {
             initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
         }
@@ -297,28 +337,35 @@ public class SessionFactoryHelper
     private String
     getProxyStr(Ice.Identity ident)
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("\"");
         sb.append(Ice.Util.identityToString(ident));
         sb.append("\"");
         sb.append(":");
 
-        if(_secure)
+        if(!_transport.isEmpty())
         {
-            sb.append("ssl -p ");
+            sb.append(_transport + " -p ");
         }
         else
         {
-            sb.append("tcp -p ");
+            if(_secure)
+            {
+                sb.append("ssl -p ");
+            }
+            else
+            {
+                sb.append("tcp -p ");
+            }
         }
-
+        
         if(_port != 0)
         {
             sb.append(_port);
         }
         else
         {
-            if(_secure)
+            if(_secure || _transport.equals("ssl") || _transport.equals("wss"))
             {
                 sb.append(GLACIER2_SSL_PORT);
             }
@@ -343,6 +390,7 @@ public class SessionFactoryHelper
     private String _routerHost = "localhost";
     private Ice.InitializationData _initData;
     private Ice.Identity _identity = null;
+    private String _transport = "";
     private boolean _secure = true;
     private int _port = 0;
     private int _timeout = 10000;

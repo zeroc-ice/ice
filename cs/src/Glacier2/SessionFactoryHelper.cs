@@ -130,6 +130,7 @@ public class SessionFactoryHelper
     /// </summary>
     /// <param name="secure">If true, the client connects to the router
     /// via SSL; otherwise, the client connects via TCP.</param>
+    [Obsolete("This method is deprecated. Use SessionFactoryHelper.setTransport instead.")]
     public void
     setSecure(bool secure)
     {
@@ -143,12 +144,51 @@ public class SessionFactoryHelper
     /// Returns whether the session factory will establish a secure connection to the Glacier2 router.
     /// </summary>
     /// <returns>The secure flag.</returns>
+    [Obsolete("This method is deprecated. Use SessionFactoryHelper.getTransport instead.")]
     public bool
     getSecure()
     {
         lock(this)
         {
             return _secure;
+        }
+    }
+    
+    /// <summary>
+    /// Sets the transport that will be used by the session factory to establish the connection..
+    /// </summary>
+    /// <param name="transport">The transport.</param>
+    public void
+    setTransport(String transport)
+    {
+        lock(this)
+        {
+            if(transport == null)
+            {
+                throw new ArgumentException("You must use a valid transport");
+            }
+            
+            if(!transport.Equals("tcp") &&
+               !transport.Equals("ssl") &&
+               !transport.Equals("wss") &&
+               !transport.Equals("ws"))
+            {
+                throw new ArgumentException("Unknow transport `" + transport + "'");
+            }
+            _transport = transport;
+        }
+    }
+
+    /// <summary>
+    /// Returns the transport that will be used by the session factory to establish the connection.
+    /// </summary>
+    /// <returns>The transport.</returns>
+    public String
+    getTransport()
+    {
+        lock(this)
+        {
+            return _transport;
         }
     }
 
@@ -293,7 +333,8 @@ public class SessionFactoryHelper
         // plug-in has already been setup we don't want to override the
         // configuration so it can be loaded from a custom location.
         //
-        if(_secure && initData.properties.getProperty("Ice.Plugin.IceSSL").Length == 0)
+        if((_secure || _transport.Equals("ssl") || _transport.Equals("wss")) && 
+           initData.properties.getProperty("Ice.Plugin.IceSSL").Length == 0)
         {
             initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL:IceSSL.PluginFactory");
         }
@@ -316,21 +357,30 @@ public class SessionFactoryHelper
         sb.Append(Ice.Util.identityToString(ident));
         sb.Append("\"");
         sb.Append(":");
-        if(_secure)
+        
+        if(!String.IsNullOrEmpty(_transport))
         {
-            sb.Append("ssl -p ");
+            sb.Append(_transport + " -p ");
         }
         else
         {
-            sb.Append("tcp -p ");
+            if(_secure)
+            {
+                sb.Append("ssl -p ");
+            }
+            else
+            {
+                sb.Append("tcp -p ");
+            }
         }
+        
         if(_port != 0)
         {
             sb.Append(_port);
         }
         else
         {
-            if(_secure)
+            if(_secure || _transport.Equals("ssl") || _transport.Equals("wss"))
             {
                 sb.Append(GLACIER2_SSL_PORT);
             }
@@ -361,6 +411,7 @@ public class SessionFactoryHelper
     private string _routerHost = "localhost";
     private Ice.InitializationData _initData;
     private Ice.Identity _identity = null;
+    private string _transport = "";
     private bool _secure = true;
     private int _port = 0;
     private int _timeout = 10000;

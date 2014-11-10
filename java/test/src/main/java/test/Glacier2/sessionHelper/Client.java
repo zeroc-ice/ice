@@ -53,6 +53,7 @@ public class Client extends test.Util.Application
     @Override
     public int run(String[] args)
     {
+        String transport = communicator().getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp");
         _factory = new Glacier2.SessionFactoryHelper(_initData, new Glacier2.SessionCallback()
             {
                 @Override
@@ -169,7 +170,7 @@ public class Client extends test.Util.Application
             out.flush();
             _factory.setRouterHost("127.0.0.1");
             _factory.setPort(12347);
-            _factory.setSecure(false);
+            _factory.setTransport(transport);
             _session = _factory.connect("userid", "abc123");
             while(true)
             {
@@ -383,7 +384,7 @@ public class Client extends test.Util.Application
 
             _factory.setRouterHost("127.0.0.1");
             _factory.setPort(12347);
-            _factory.setSecure(false);
+            _factory.setTransport(transport);
             _session = _factory.connect("userid", "abc123");
             while(true)
             {

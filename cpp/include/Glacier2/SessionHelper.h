@@ -78,8 +78,13 @@ public:
     void setRouterHost(const std::string&);
     std::string getRouterHost() const;
 
+    ICE_DEPRECATED_API("is deprecated, use SessionFactoryHelper::setTransport instead")
     void setSecure(bool);
+    ICE_DEPRECATED_API("is deprecated, use SessionFactoryHelper::getTransport instead")
     bool getSecure() const;
+    
+    void setTransport(const std::string&);
+    std::string getTransport() const;
 
     void setTimeout(int);
     int getTimeout() const;
@@ -104,6 +109,7 @@ private:
     IceUtil::Mutex _mutex;
     std::string _routerHost;
     Ice::Identity _identity;
+    std::string _transport;
     bool _secure;
     int _port;
     int _timeout;
