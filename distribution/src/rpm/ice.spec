@@ -8,7 +8,6 @@
 # **********************************************************************
 
 %define ruby 1
-%define mono 0
 %define cpp11 0
 
 %define systemd 0
@@ -108,8 +107,8 @@ Requires: icepatch2 = %{version}-%{release}
 Requires: php-ice = %{version}-%{release}
 Requires: python-ice = %{version}-%{release}
 Requires: ruby-ice = %{version}-%{release}
-Requires: libice-js = %{version}-%{release}
-Requires: libfreeze3.6 = %{version}-%{release}
+Requires: libice3.6-c++ = %{version}-%{release}
+Requires: libfreeze3.6-c++ = %{version}-%{release}
 Requires: ice-utils-java = %{version}-%{release}
 %endif # ! cppx86
 Requires: libicestorm3.6 = %{version}-%{release}
@@ -127,7 +126,7 @@ BuildRequires: openssl-devel >= 0.9.7a
 BuildRequires: mcpp-devel >= 2.7.2
 
 %if "%{dist}" == ".el7"
-BuildRequires: libdb-cxx-devel >= %{dbversion}, libdb-java-devel >= %{dbversion}
+BuildRequires: libdb-cxx-devel >= %{dbversion}, libdb-java >= %{dbversion}
 BuildRequires: javapackages-tools
 %else
 BuildRequires: db53-devel >= %{dbversion}, db53-java >= %{dbversion}
@@ -138,10 +137,6 @@ BuildRequires: jpackage-utils
 
 %if %{ruby}
 BuildRequires: ruby-devel
-%endif
-
-%if %{mono}
-BuildRequires: mono-core >= 2.0.1, mono-devel >= 2.0.1
 %endif
 
 %if "%{dist}" == ".el6"
@@ -177,49 +172,9 @@ Ice is a modern object-oriented toolkit that enables you to build
 distributed applications with minimal effort.
 
 #
-# We create both noarch and arch-specific packages for these GAC files.
-# Please delete the arch-specific packages after the build: we create
-# them only to keep rpmbuild happy (it does not want to create dangling
-# symbolic links (the GAC symlinks used for development)).
-#
-%if %{mono}
-%package mono
-Summary: The Ice run time for .NET (mono)
-Group: System Environment/Libraries
-Requires: ice = %{version}-%{release}, mono-core >= 1.2.2
-Obsoletes: ice-dotnet < %{version}-%{release}
-%description mono
-The Ice run time for .NET (mono).
-%endif
-
-#
 # Arch-independent packages
 #
 %ifarch noarch
-
-%package -n libice3.6-java
-Summary: The Ice run time libraries for Java.
-Group: System Environment/Libraries
-%description -n libice3.6-java
-The Ice run time libraries for Java.
-
-%package -n libfreeze3.6-java
-Summary: The Freeze library for Java.
-Group: System Environment/Libraries
-Requires: libice3.6-java = %{version}-%{release}
-%if "%{dist}" == ".el7"
-Requires: libdb-java
-%else
-Requires: db53-java
-%endif
-%description -n libfreeze3.6-java
-The Freeze library for Java.
-
-%package -n libice-js
-Summary: The Ice run time libraries for JavaScript.
-Group: System Environment/Libraries
-%description -n libice-js
-The Ice run time libraries for JavaScript.
 
 %package -n ice-slice
 Summary: Slice files for the Ice run time
@@ -248,8 +203,8 @@ Summary: Ice development meta package that includes development kits for all sup
 Group: System Environment/Libraries
 Requires: libice-c++-devel = %{version}-%{release}
 %if ! %{cppx86}
-Requires: libice-java-devel = %{version}-%{release}
-Requires: libice-js-devel = %{version}-%{release}
+Requires: libice-java = %{version}-%{release}
+Requires: libice-js = %{version}-%{release}
 Requires: php-ice-devel = %{version}-%{release}
 Requires: python-ice-devel = %{version}-%{release}
 Requires: ruby-ice-devel = %{version}-%{release}
@@ -264,7 +219,7 @@ Requires: bzip2
 %description -n libice3.6-c++
 The Ice run time libraries for C++.
 
-%package -n libfreeze3.6
+%package -n libfreeze3.6-c++
 Summary: The Freeze library for C++.
 Group: System Environment/Libraries
 Requires: libice3.6-c++ = %{version}-%{release}
@@ -273,18 +228,8 @@ Requires: libdb
 %else
 Requires: db53
 %endif
-%description -n libfreeze3.6
+%description -n libfreeze3.6-c++
 The Freeze library for C++.
-
-%if ! %{cppx86}
-%package -n ice-utils
-Summary: Ice utilities and admin tools.
-Group: Applications/System
-Requires: libfreeze3.6 = %{version}-%{release}
-%description -n ice-utils
-Command-line administrative tools to manage Ice servers (IceGrid,
-IceStorm, IceBox, etc.), plus various Ice-related utilities.
-%endif # ! cppx86
 
 %package -n icebox
 Summary: IceBox server.
@@ -307,6 +252,31 @@ Requires(preun): /sbin/service
 IceBox server.
 
 %if ! %{cppx86}
+
+%package -n libice-java
+Summary: Ice for Java run-time libraries and development tools.
+Group: System Environment/Libraries
+%if "%{dist}" == ".el7"
+Requires: libdb-java
+%else
+Requires: db53-java
+%endif
+%description -n libice-java
+Ice for Java run-time libraries and development tools.
+
+%package -n libice-js
+Summary: Ice for JavaScript run-time libraries and development tools.
+Group: System Environment/Libraries
+%description -n libice-js
+Ice for JavaScript run-time libraries and development tools.
+
+%package -n ice-utils
+Summary: Ice utilities and admin tools.
+Group: Applications/System
+Requires: libfreeze3.6-c++ = %{version}-%{release}
+%description -n ice-utils
+Command-line administrative tools to manage Ice servers (IceGrid,
+IceStorm, IceBox, etc.), plus various Ice-related utilities.
 
 %package -n icegrid
 Summary: IceGrid servers.
@@ -372,7 +342,7 @@ IcePatch2 server.
 %package -n libicestorm3.6
 Summary: IceStorm service.
 Group: System Environment/Libraries
-Requires: icebox = %{version}-%{release}, libfreeze3.6 = %{version}-%{release}
+Requires: icebox = %{version}-%{release}, libfreeze3.6-c++ = %{version}-%{release}
 %description -n libicestorm3.6
 IceStorm service.
 
@@ -384,30 +354,6 @@ Requires: libice3.6-c++ = %{version}-%{release}, ice-slice = %{version}-%{releas
 Tools, libraries and headers for developing Ice applications in C++.
 
 %if ! %{cppx86}
-
-%package -n libice-java-devel
-Summary: Tools for developing Ice applications in Java.
-Group: Development/Tools
-Requires: libice3.6-c++ = %{version}-%{release}, ice-slice = %{version}-%{release}
-%description -n libice-java-devel
-Tools for developing Ice applications in Java.
-
-%package -n libice-js-devel
-Summary: Tools for developing Ice applications in JavaScript.
-Group: Development/Tools
-Requires: libice-js = %{version}-%{release}, libice3.6-c++ = %{version}-%{release}, ice-slice = %{version}-%{release}
-%description -n libice-js-devel
-Tools for developing Ice applications in JavaScript.
-
-%if %{mono}
-%package libice-mono-devel
-Summary: Tools for developing Ice applications in C#.
-Group: Development/Tools
-Requires: ice-mono = %{version}-%{release}, libice3.6-c++ = %{version}-%{release}, pkgconfig, ice-slice = %{version}-%{release}
-Obsoletes: ice-csharp-devel < %{version}-%{release}
-%description libice-mono-devel
-Tools for developing Ice applications in C#.
-%endif
 
 %if %{ruby}
 %package -n ruby-ice
@@ -533,9 +479,11 @@ cd $RPM_BUILD_DIR/Ice-%{version}/rb
 make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
 %endif
 
-# Build the ant tasks JAR because it's included in the java-devel package
 cd $RPM_BUILD_DIR/Ice-%{version}/java
-./gradlew :ant:assemble
+make dist
+
+cd $RPM_BUILD_DIR/Ice-%{version}/js
+make
 
 %endif # ! cppx86
 
@@ -553,31 +501,11 @@ make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
 cd $RPM_BUILD_DIR/Ice-%{version}/cpp/src/slice2java
 make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
 
-cd $RPM_BUILD_DIR/Ice-%{version}/cpp/src/slice2js
-make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
-
 cd $RPM_BUILD_DIR/Ice-%{version}/cpp/src/slice2freezej
 make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
 
-%if %{mono}
-cd $RPM_BUILD_DIR/Ice-%{version}/cpp/src/slice2cs
-make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
-%endif
-
 cd $RPM_BUILD_DIR/Ice-%{version}/java
 make dist
-
-cd $RPM_BUILD_DIR/Ice-%{version}/js
-make
-
-#
-# Define the environment variable KEYFILE to strong-name sign the
-# Mono assemblies with your own key file.
-#
-%if %{mono}
-cd $RPM_BUILD_DIR/Ice-%{version}/cs/src
-make %{makeopts} OPTIMIZE=yes
-%endif
 
 %endif
 
@@ -731,50 +659,64 @@ mv $RPM_BUILD_ROOT/ruby/* $RPM_BUILD_ROOT%{ruby_sitearch}
 %endif
 
 #
+# Java install (using jpackage conventions)
+#
+cd $RPM_BUILD_DIR/Ice-%{version}/java
+make prefix=$RPM_BUILD_ROOT install
+
+mkdir -p $RPM_BUILD_ROOT%{_javadir}
+mv $RPM_BUILD_ROOT/lib/ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
+ln -s ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/ice.jar
+
+mv $RPM_BUILD_ROOT/lib/freeze-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
+ln -s freeze-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/freeze.jar
+
+mv $RPM_BUILD_ROOT/lib/glacier2-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
+ln -s glacier2-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/glacier2.jar
+
+mv $RPM_BUILD_ROOT/lib/icebox-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
+ln -s icebox-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/icebox.jar
+
+mv $RPM_BUILD_ROOT/lib/icegrid-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
+ln -s icegrid-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/icegrid.jar
+
+mv $RPM_BUILD_ROOT/lib/icepatch2-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
+ln -s icepatch2-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/icepatch2.jar
+
+mv $RPM_BUILD_ROOT/lib/icestorm-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
+ln -s icestorm-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/icestorm.jar
+
+mv $RPM_BUILD_ROOT/lib/icediscovery-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
+ln -s icediscovery-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/icediscovery.jar
+
+#
 # ant-ice.jar
 #
 mkdir -p $RPM_BUILD_ROOT%{_javadir}
-cp -p $RPM_BUILD_DIR/Ice-%{version}/java/lib/ant-ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/ant-ice-%{version}.jar
+mv $RPM_BUILD_ROOT/lib/ant-ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
 
 #
-# JavaScript - for the -devel RPM
+# JavaScript
 #
 cd $RPM_BUILD_DIR/Ice-%{version}/js
-make prefix=$RPM_BUILD_ROOT install
+make prefix=$RPM_BUILD_ROOT OPTIMIZE=yes install
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
 mv $RPM_BUILD_ROOT/lib/Ice.js $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
 mv $RPM_BUILD_ROOT/lib/Ice.js.gz $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
+mv $RPM_BUILD_ROOT/lib/Ice.min.js $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
+mv $RPM_BUILD_ROOT/lib/Ice.min.js.gz $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
 mv $RPM_BUILD_ROOT/lib/Glacier2.js $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
 mv $RPM_BUILD_ROOT/lib/Glacier2.js.gz $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
+mv $RPM_BUILD_ROOT/lib/Glacier2.min.js $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
+mv $RPM_BUILD_ROOT/lib/Glacier2.min.js.gz $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
 mv $RPM_BUILD_ROOT/lib/IceStorm.js $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
 mv $RPM_BUILD_ROOT/lib/IceStorm.js.gz $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
+mv $RPM_BUILD_ROOT/lib/IceStorm.min.js $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
+mv $RPM_BUILD_ROOT/lib/IceStorm.min.js.gz $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
 mv $RPM_BUILD_ROOT/lib/IceGrid.js $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
 mv $RPM_BUILD_ROOT/lib/IceGrid.js.gz $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
-rm -rf $RPM_BUILD_ROOT/node_modules
-
-%if %{mono}
-
-#
-# Mono: for iceboxnet.exe and GAC symlinks
-#
-cd $RPM_BUILD_DIR/Ice-%{version}/cs
-make prefix=$RPM_BUILD_ROOT GACINSTALL=yes GAC_ROOT=$RPM_BUILD_ROOT%{_prefix}/lib install
-for f in Ice Glacier2 IceBox IceGrid IcePatch2 IceStorm
-do
-    #mv $RPM_BUILD_ROOT/Assemblies/$f.xml $RPM_BUILD_ROOT%{_prefix}/lib/mono/gac/$f/%{dotnetversion}.*/
-    mv $RPM_BUILD_ROOT%{_prefix}/lib/mono/$f/$f.xml $RPM_BUILD_ROOT%{_prefix}/lib/mono/gac/$f/%{dotnetversion}.*/
-done
-mv $RPM_BUILD_ROOT/bin/* $RPM_BUILD_ROOT%{_bindir}
-
-#
-# .NET spec files (for mono-devel)
-#
-if test ! -d $RPM_BUILD_ROOT%{_libdir}/pkgconfig
-then
-    mv $RPM_BUILD_ROOT/lib/pkgconfig $RPM_BUILD_ROOT%{_libdir}
-fi
-
-%endif
+mv $RPM_BUILD_ROOT/lib/IceGrid.min.js $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
+mv $RPM_BUILD_ROOT/lib/IceGrid.min.js.gz $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
 
 #
 # initrd files (for servers)
@@ -806,26 +748,9 @@ mkdir -p $RPM_BUILD_ROOT%{_mandir}/man1
 rm -r $RPM_BUILD_ROOT/man
 cp -p $RPM_BUILD_DIR/Ice-%{version}/man/man1/*.1 $RPM_BUILD_ROOT%{_mandir}/man1
 
-%if !%{mono}
-rm -f $RPM_BUILD_ROOT%{_bindir}/slice2cs
-rm -f $RPM_BUILD_ROOT%{_mandir}/man1/slice2cs.1
-rm -f $RPM_BUILD_ROOT%{_mandir}/man1/iceboxnet.1
-%endif
-
 %if !%{ruby}
 rm -f $RPM_BUILD_ROOT%{_bindir}/slice2rb
 %endif
-
-%else # ! cppx86
-
-#
-# These directories and files aren't needed in the x86 build.
-#
-rm -rf $RPM_BUILD_ROOT/config
-rm -rf $RPM_BUILD_ROOT/man
-rm -f $RPM_BUILD_ROOT%{_libdir}/libGlacier2CryptPermissionsVerifier.so*
-rm -f $RPM_BUILD_ROOT%{_libdir}/libIceXML.so*
-rm -f $RPM_BUILD_ROOT%{_libdir}/libSlice.so*
 
 %endif # ! cppx86
 
@@ -842,6 +767,28 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/libIceStormService.so
 rm -f $RPM_BUILD_ROOT%{_libdir}/libIceDiscovery.so
 rm -f $RPM_BUILD_ROOT%{_libdir}/libGlacier2CryptPermissionsVerifier.so
 rm -f $RPM_BUILD_ROOT%{_libdir}/libIceXML.so
+rm -f $RPM_BUILD_ROOT%{_bindir}/slice2cs
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/iceboxnet.1
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/slice2cs.1
+
+%if %{cppx86}
+
+#
+# These directories and files aren't needed in the x86 build.
+#
+rm -rf $RPM_BUILD_ROOT/config
+rm -rf $RPM_BUILD_ROOT/man
+rm -f $RPM_BUILD_ROOT%{_libdir}/libGlacier2CryptPermissionsVerifier.so*
+rm -f $RPM_BUILD_ROOT%{_libdir}/libIceXML.so*
+rm -f $RPM_BUILD_ROOT%{_libdir}/libSlice.so*
+
+%else # cppx86
+
+rm -f $RPM_BUILD_ROOT/lib/IceGridGUI.jar
+rm -f $RPM_BUILD_ROOT/lib/*.pom
+rm -rf $RPM_BUILD_ROOT/node_modules
+
+%endif # cppx86
 
 %endif
 
@@ -849,6 +796,9 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/libIceXML.so
 # Arch-independent packages
 #
 %ifarch noarch
+
+cd $RPM_BUILD_DIR/Ice-%{version}/java
+make prefix=$RPM_BUILD_ROOT install
 
 #
 # Doc
@@ -871,118 +821,31 @@ mkdir -p $RPM_BUILD_ROOT%{_mandir}/man1
 cp -p $RPM_BUILD_DIR/Ice-%{version}/man/man1/iceca.1 $RPM_BUILD_ROOT%{_mandir}/man1
 
 #
-# Java install (using jpackage conventions)
-#
-cd $RPM_BUILD_DIR/Ice-%{version}/java
-make prefix=$RPM_BUILD_ROOT install
-
-#
-# TODO: Symbolic links disabled for beta release but need to be enabled for production
-#
-mkdir -p $RPM_BUILD_ROOT%{_javadir}
-mv $RPM_BUILD_ROOT/lib/ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
-#ln -s  ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/ice-%{mmversion}.jar
-
-mv $RPM_BUILD_ROOT/lib/freeze-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
-#ln -s  freeze-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/freeze-%{mmversion}.jar
-
-mv $RPM_BUILD_ROOT/lib/glacier2-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
-#ln -s  glacier2-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/glacier2-%{mmversion}.jar
-
-mv $RPM_BUILD_ROOT/lib/icebox-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
-#ln -s  icebox-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/icebox-%{mmversion}.jar
-
-mv $RPM_BUILD_ROOT/lib/icegrid-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
-#ln -s  icegrid-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/icegrid-%{mmversion}.jar
-
-mv $RPM_BUILD_ROOT/lib/icepatch2-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
-#ln -s  icepatch2-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/icepatch2-%{mmversion}.jar
-
-mv $RPM_BUILD_ROOT/lib/icestorm-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
-#ln -s  icestorm-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/icestorm-%{mmversion}.jar
-
-mv $RPM_BUILD_ROOT/lib/icediscovery-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
-#ln -s  icediscovery-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/icediscovery-%{mmversion}.jar
-
-#
-# JavaScript
-#
-cd $RPM_BUILD_DIR/Ice-%{version}/js
-make prefix=$RPM_BUILD_ROOT OPTIMIZE=yes install
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
-mv $RPM_BUILD_ROOT/lib/Ice.min.js $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
-mv $RPM_BUILD_ROOT/lib/Ice.min.js.gz $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
-mv $RPM_BUILD_ROOT/lib/Glacier2.min.js $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
-mv $RPM_BUILD_ROOT/lib/Glacier2.min.js.gz $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
-mv $RPM_BUILD_ROOT/lib/IceStorm.min.js $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
-mv $RPM_BUILD_ROOT/lib/IceStorm.min.js.gz $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
-mv $RPM_BUILD_ROOT/lib/IceGrid.min.js $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
-mv $RPM_BUILD_ROOT/lib/IceGrid.min.js.gz $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
-rm -rf $RPM_BUILD_ROOT/node_modules
-# These are only used in the -devel RPM
-rm $RPM_BUILD_ROOT/lib/Ice.js
-rm $RPM_BUILD_ROOT/lib/Ice.js.gz
-rm $RPM_BUILD_ROOT/lib/Glacier2.js
-rm $RPM_BUILD_ROOT/lib/Glacier2.js.gz
-rm $RPM_BUILD_ROOT/lib/IceStorm.js
-rm $RPM_BUILD_ROOT/lib/IceStorm.js.gz
-rm $RPM_BUILD_ROOT/lib/IceGrid.js
-rm $RPM_BUILD_ROOT/lib/IceGrid.js.gz
-
-#
 # IceGridGUI
 #
 # We do not keep the version in the file name for icegridgui.jar in the RPM distribution.
 #
-cp -p $RPM_BUILD_DIR/Ice-%{version}/java/lib/icegridgui.jar $RPM_BUILD_ROOT%{_javadir}
+mkdir -p $RPM_BUILD_ROOT%{_javadir}
+cp -p $RPM_BUILD_DIR/Ice-%{version}/java/lib/IceGridGUI.jar $RPM_BUILD_ROOT%{_javadir}/icegridgui.jar
 cp -p $RPM_BUILD_DIR/Ice-%{version}/java/bin/icegridgui.rpm $RPM_BUILD_ROOT%{_bindir}/icegridgui
-
-%if %{mono}
-#
-# Mono
-#
-cd $RPM_BUILD_DIR/Ice-%{version}/cs
-make prefix=$RPM_BUILD_ROOT GACINSTALL=yes GAC_ROOT=$RPM_BUILD_ROOT%{_prefix}/lib install
-for f in Ice Glacier2 IceBox IceGrid IcePatch2 IceStorm
-do
-    #mv $RPM_BUILD_ROOT/Assemblies/$f.xml $RPM_BUILD_ROOT%{_prefix}/lib/mono/gac/$f/%{dotnetversion}.*/
-    mv $RPM_BUILD_ROOT%{_prefix}/lib/mono/$f/$f.xml $RPM_BUILD_ROOT%{_prefix}/lib/mono/gac/$f/%{dotnetversion}.*/
-done
-%endif
 
 #
 # License files
 #
-mv $RPM_BUILD_ROOT/ICE_LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}
-mv $RPM_BUILD_ROOT/LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}
+cp -p $RPM_BUILD_DIR/Ice-%{version}/ICE_LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}
+cp -p $RPM_BUILD_DIR/Ice-%{version}/LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}
 
 #
 # Slice files
 #
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
-mv $RPM_BUILD_ROOT/slice $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
+cp -rp $RPM_BUILD_DIR/Ice-%{version}/slice $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
 
 #
 # Cleanup extra files
 #
-rm -f $RPM_BUILD_ROOT/lib/ant-ice-%{version}.jar
-rm -f $RPM_BUILD_ROOT/lib/icegridgui.jar
-rm -f $RPM_BUILD_ROOT/CHANGES
-rm -f $RPM_BUILD_ROOT/RELEASE_NOTES
-
-%if %{mono}
-
-rm -f $RPM_BUILD_ROOT/bin/iceboxnet.exe
-rm -r $RPM_BUILD_ROOT/man
-
-for f in Ice Glacier2 IceBox IceGrid IcePatch2 IceStorm
-do
-     rm -r $RPM_BUILD_ROOT%{_prefix}/lib/mono/$f
-done
-
-rm -r $RPM_BUILD_ROOT/lib/pkgconfig
-
-%endif
+rm -f $RPM_BUILD_ROOT/lib/*.jar
+rm -f $RPM_BUILD_ROOT/lib/*.pom
 
 %else # %ifarch noarch
 
@@ -997,39 +860,6 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man1/iceca.1
 rm -rf $RPM_BUILD_ROOT
 
 #
-# mono package; see comment above about why we create
-# "useless" arch-specific packages
-#
-%if %{mono}
-%files mono
-%defattr(-, root, root, -)
-%dir %{_prefix}/lib/mono/gac/Glacier2
-%{_prefix}/lib/mono/gac/Glacier2/%{dotnetversion}.*/
-%dir %{_prefix}/lib/mono/gac/Ice
-%{_prefix}/lib/mono/gac/Ice/%{dotnetversion}.*/
-%dir %{_prefix}/lib/mono/gac/IceBox
-%{_prefix}/lib/mono/gac/IceBox/%{dotnetversion}.*/
-%dir %{_prefix}/lib/mono/gac/IceGrid
-%{_prefix}/lib/mono/gac/IceGrid/%{dotnetversion}.*/
-%dir %{_prefix}/lib/mono/gac/IcePatch2
-%{_prefix}/lib/mono/gac/IcePatch2/%{dotnetversion}.*/
-%dir %{_prefix}/lib/mono/gac/IceStorm
-%{_prefix}/lib/mono/gac/IceStorm/%{dotnetversion}.*/
-%dir %{_prefix}/lib/mono/gac/policy.%{mmversion}.Glacier2
-%{_prefix}/lib/mono/gac/policy.%{mmversion}.Glacier2/0.*/
-%dir %{_prefix}/lib/mono/gac/policy.%{mmversion}.Ice
-%{_prefix}/lib/mono/gac/policy.%{mmversion}.Ice/0.*/
-%dir %{_prefix}/lib/mono/gac/policy.%{mmversion}.IceBox
-%{_prefix}/lib/mono/gac/policy.%{mmversion}.IceBox/0.*/
-%dir %{_prefix}/lib/mono/gac/policy.%{mmversion}.IceGrid
-%{_prefix}/lib/mono/gac/policy.%{mmversion}.IceGrid/0.*/
-%dir %{_prefix}/lib/mono/gac/policy.%{mmversion}.IcePatch2
-%{_prefix}/lib/mono/gac/policy.%{mmversion}.IcePatch2/0.*/
-%dir %{_prefix}/lib/mono/gac/policy.%{mmversion}.IceStorm
-%{_prefix}/lib/mono/gac/policy.%{mmversion}.IceStorm/0.*/
-%endif
-
-#
 # noarch file packages
 #
 %ifarch noarch
@@ -1039,51 +869,6 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_datadir}/Ice-%{version}
 %{_datadir}/Ice-%{version}/slice
 %{_defaultdocdir}/%{name}-%{version}
-
-#
-# TODO: Symbolic links disabled for beta release but need to be enabled for production
-#
-%files -n libice3.6-java
-%defattr(-, root, root, -)
-%{_javadir}/ice-%{version}.jar
-#%{_javadir}/ice-%{mmversion}.jar
-
-%{_javadir}/glacier2-%{version}.jar
-#%{_javadir}/glacier2-%{mmversion}.jar
-
-%{_javadir}/icebox-%{version}.jar
-#%{_javadir}/icebox-%{mmversion}.jar
-
-%{_javadir}/icegrid-%{version}.jar
-#%{_javadir}/icegrid-%{mmversion}.jar
-
-%{_javadir}/icepatch2-%{version}.jar
-#%{_javadir}/icepatch2-%{mmversion}.jar
-
-%{_javadir}/icestorm-%{version}.jar
-#%{_javadir}/icestorm-%{mmversion}.jar
-
-%{_javadir}/icediscovery-%{version}.jar
-#%{_javadir}/icediscovery-%{mmversion}.jar
-
-#
-# TODO: Symbolic links disabled for beta release but need to be enabled for production
-#
-%files -n libfreeze3.6-java
-%defattr(-, root, root, -)
-%{_javadir}/freeze-%{version}.jar
-#%{_javadir}/freeze-%{mmversion}.jar
-
-%files -n libice-js
-%defattr(-, root, root, -)
-%{_datadir}/javascript/ice-%{mmversion}/Ice.min.js
-%{_datadir}/javascript/ice-%{mmversion}/Ice.min.js.gz
-%{_datadir}/javascript/ice-%{mmversion}/Glacier2.min.js
-%{_datadir}/javascript/ice-%{mmversion}/Glacier2.min.js.gz
-%{_datadir}/javascript/ice-%{mmversion}/IceStorm.min.js
-%{_datadir}/javascript/ice-%{mmversion}/IceStorm.min.js.gz
-%{_datadir}/javascript/ice-%{mmversion}/IceGrid.min.js
-%{_datadir}/javascript/ice-%{mmversion}/IceGrid.min.js.gz
 
 %files -n ice-utils-java
 %defattr(-, root, root, -)
@@ -1162,7 +947,7 @@ rm -rf $RPM_BUILD_ROOT
 %post -n libice3.6-c++ -p /sbin/ldconfig
 %postun -n libice3.6-c++ -p /sbin/ldconfig
 
-%files -n libfreeze3.6
+%files -n libfreeze3.6-c++
 %defattr(-, root, root, -)
 %{_libdir}/libFreeze.so.%{version}
 %{_libdir}/libFreeze.so.%{soversion}
@@ -1175,8 +960,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libFreeze++11.so.%{soversion}
 %endif
 
-%post -n libfreeze3.6 -p /sbin/ldconfig
-%postun -n libfreeze3.6 -p /sbin/ldconfig
+%post -n libfreeze3.6-c++ -p /sbin/ldconfig
+%postun -n libfreeze3.6-c++ -p /sbin/ldconfig
 
 %files -n libicestorm3.6
 %defattr(-, root, root, -)
@@ -1191,6 +976,51 @@ rm -rf $RPM_BUILD_ROOT
 %postun -n libicestorm3.6 -p /sbin/ldconfig
 
 %if ! %{cppx86}
+
+%files -n libice-java
+%defattr(-, root, root, -)
+%{_bindir}/slice2java
+%{_mandir}/man1/slice2java.1.gz
+%{_bindir}/slice2freezej
+%{_mandir}/man1/slice2freezej.1.gz
+%{_javadir}/ant-ice-%{version}.jar
+%{_javadir}/ice-%{version}.jar
+%{_javadir}/ice.jar
+%{_javadir}/glacier2-%{version}.jar
+%{_javadir}/glacier2.jar
+%{_javadir}/icebox-%{version}.jar
+%{_javadir}/icebox.jar
+%{_javadir}/icegrid-%{version}.jar
+%{_javadir}/icegrid.jar
+%{_javadir}/icepatch2-%{version}.jar
+%{_javadir}/icepatch2.jar
+%{_javadir}/icestorm-%{version}.jar
+%{_javadir}/icestorm.jar
+%{_javadir}/icediscovery-%{version}.jar
+%{_javadir}/icediscovery.jar
+%{_javadir}/freeze-%{version}.jar
+%{_javadir}/freeze.jar
+
+%files -n libice-js
+%defattr(-, root, root, -)
+%{_bindir}/slice2js
+%{_mandir}/man1/slice2js.1.gz
+%{_datadir}/javascript/ice-%{mmversion}/Ice.js
+%{_datadir}/javascript/ice-%{mmversion}/Ice.js.gz
+%{_datadir}/javascript/ice-%{mmversion}/Ice.min.js
+%{_datadir}/javascript/ice-%{mmversion}/Ice.min.js.gz
+%{_datadir}/javascript/ice-%{mmversion}/Glacier2.js
+%{_datadir}/javascript/ice-%{mmversion}/Glacier2.js.gz
+%{_datadir}/javascript/ice-%{mmversion}/Glacier2.min.js
+%{_datadir}/javascript/ice-%{mmversion}/Glacier2.min.js.gz
+%{_datadir}/javascript/ice-%{mmversion}/IceStorm.js
+%{_datadir}/javascript/ice-%{mmversion}/IceStorm.js.gz
+%{_datadir}/javascript/ice-%{mmversion}/IceStorm.min.js
+%{_datadir}/javascript/ice-%{mmversion}/IceStorm.min.js.gz
+%{_datadir}/javascript/ice-%{mmversion}/IceGrid.js
+%{_datadir}/javascript/ice-%{mmversion}/IceGrid.js.gz
+%{_datadir}/javascript/ice-%{mmversion}/IceGrid.min.js
+%{_datadir}/javascript/ice-%{mmversion}/IceGrid.min.js.gz
 
 %files -n ice-utils
 %defattr(-, root, root, -)
@@ -1451,47 +1281,7 @@ exit 0
 %{_libdir}/c++11/libIceUtil.so
 %endif
 
-%if %{mono}
-%files libice-mono-devel
-%defattr(-, root, root, -)
-%{_bindir}/slice2cs
-%{_mandir}/man1/slice2cs.1.gz
-%{_libdir}/pkgconfig/Ice.pc
-%{_libdir}/pkgconfig/Glacier2.pc
-%{_libdir}/pkgconfig/IceBox.pc
-%{_libdir}/pkgconfig/IceGrid.pc
-%{_libdir}/pkgconfig/IcePatch2.pc
-%{_libdir}/pkgconfig/IceStorm.pc
-%{_prefix}/lib/mono/Glacier2/
-%{_prefix}/lib/mono/Ice/
-%{_prefix}/lib/mono/IceBox/
-%{_prefix}/lib/mono/IceGrid/
-%{_prefix}/lib/mono/IcePatch2/
-%{_prefix}/lib/mono/IceStorm/
-%endif
-
 %if ! %{cppx86}
-
-%files -n libice-java-devel
-%defattr(-, root, root, -)
-%{_bindir}/slice2java
-%{_mandir}/man1/slice2java.1.gz
-%{_bindir}/slice2freezej
-%{_mandir}/man1/slice2freezej.1.gz
-%{_javadir}/ant-ice-%{version}.jar
-
-%files -n libice-js-devel
-%defattr(-, root, root, -)
-%{_bindir}/slice2js
-%{_mandir}/man1/slice2js.1.gz
-%{_datadir}/javascript/ice-%{mmversion}/Ice.js
-%{_datadir}/javascript/ice-%{mmversion}/Ice.js.gz
-%{_datadir}/javascript/ice-%{mmversion}/Glacier2.js
-%{_datadir}/javascript/ice-%{mmversion}/Glacier2.js.gz
-%{_datadir}/javascript/ice-%{mmversion}/IceStorm.js
-%{_datadir}/javascript/ice-%{mmversion}/IceStorm.js.gz
-%{_datadir}/javascript/ice-%{mmversion}/IceGrid.js
-%{_datadir}/javascript/ice-%{mmversion}/IceGrid.js.gz
 
 %files -n python-ice
 %defattr(-, root, root, -)
