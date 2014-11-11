@@ -904,6 +904,10 @@ class Darwin(Platform):
             shutil.rmtree(packagesDir)
         os.mkdir(packagesDir)
 
+        iceRootDir = "%s/Ice-@ver@" % buildRootDir
+        for name in ["freeze", "glacier2", "ice", "icebox", "icediscovery", "icegrid", "icepatch2", "icestorm"]:
+            runCommand("cd %s/lib && ln -s %s-%s.jar %s.jar" % (iceRootDir, name, "@ver@", name))
+
         package = "com.zeroc.ice"
         packageRoot = os.path.join(buildRootDir, "Ice-@ver@")
         packageInstallLocation = "/Library/Developer/Ice-@ver@"
