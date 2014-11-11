@@ -37,8 +37,8 @@ demos = [
     "Ice/throughput",
     "Ice/value",
     "IceDiscovery/hello",
-    "manual/printer",
-    "manual/simple_filesystem"
+    "Manual/printer",
+    "Manual/simple_filesystem"
 ]
 
 #

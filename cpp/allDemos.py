@@ -65,11 +65,11 @@ demos = [
     "Freeze/backup",
     "Freeze/transform",
     "Freeze/casino",
-    "manual/map_filesystem",
-    "manual/evictor_filesystem",
-    "manual/simple_filesystem",
-    "manual/printer",
-    "manual/lifecycle"]
+    "Manual/map_filesystem",
+    "Manual/evictor_filesystem",
+    "Manual/simple_filesystem",
+    "Manual/printer",
+    "Manual/lifecycle"]
 
 if not Util.isNoServices():
     demos += ["IceBox/hello", "IceGrid/icebox"]
