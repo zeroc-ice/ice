@@ -1,11 +1,22 @@
+usr/bin/slice2js
+usr/share/man/man1/slice2js.1
+
+usr/lib/Ice.js usr/share/javascript/ice-@mmver@/
+usr/lib/Ice.js.gz usr/share/javascript/ice-@mmver@/
 usr/lib/Ice.min.js usr/share/javascript/ice-@mmver@/
 usr/lib/Ice.min.js.gz usr/share/javascript/ice-@mmver@/
 
+usr/lib/Glacier2.js usr/share/javascript/ice-@mmver@/
+usr/lib/Glacier2.js.gz usr/share/javascript/ice-@mmver@/
 usr/lib/Glacier2.min.js usr/share/javascript/ice-@mmver@/
 usr/lib/Glacier2.min.js.gz usr/share/javascript/ice-@mmver@/
 
+usr/lib/IceStorm.js usr/share/javascript/ice-@mmver@/
+usr/lib/IceStorm.js.gz usr/share/javascript/ice-@mmver@/
 usr/lib/IceStorm.min.js usr/share/javascript/ice-@mmver@/
 usr/lib/IceStorm.min.js.gz usr/share/javascript/ice-@mmver@/
 
+usr/lib/IceGrid.js usr/share/javascript/ice-@mmver@/
+usr/lib/IceGrid.js.gz usr/share/javascript/ice-@mmver@/
 usr/lib/IceGrid.min.js usr/share/javascript/ice-@mmver@/
 usr/lib/IceGrid.min.js.gz usr/share/javascript/ice-@mmver@/

@@ -28,6 +28,17 @@ CPP11_LIB_NAMES = 	libFreeze \
 	libIceStormService \
 	libIceUtil
 
+VERSION = @mmver@
+
+ARTIFACT_NAMES = freeze \
+	glacier2 \
+	ice \
+	icebox \
+	icediscovery \
+	icegrid \
+	icepatch2 \
+	icestorm
+	
 ifeq ($(DEB_HOST_MULTIARCH),i386-linux-gnu)
 
 ICEBOX = icebox32
@@ -62,6 +73,17 @@ override_dh_auto_install:
 override_dh_install: icebox_install
 	mkdir -p $(DESTDIR)$(prefix)/share/java
 	mv $(DESTDIR)$(prefix)/lib/*.jar $(DESTDIR)$(prefix)/share/java
+	
+	#
+	# Install Maven artifact
+	#
+	for name in $(ARTIFACT_NAMES) ; \
+	do \
+		cd $(CURDIR) ; \
+		mkdir -p $(DESTDIR)/$(prefix)/share/maven-repo/com/zeroc/$$name/$(VERSION) ; \
+		cp java/lib/$$name-$(VERSION).pom $(DESTDIR)/$(prefix)/share/maven-repo/com/zeroc/$$name/$(VERSION) ; \
+		cd $(DESTDIR)/$(prefix)/share/maven-repo/com/zeroc/$$name/$(VERSION) && ln -s ../../../../../java/$$name-$(VERSION).jar . ; \
+	done ;
 
 	mkdir -p $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH)
 	mkdir -p $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH)/c++11
@@ -72,10 +94,10 @@ override_dh_install: icebox_install
 	# Move C++11 libarries and binaries to their locations
 	#
 	for name in $(CPP11_LIB_NAMES) ; \
-        do \
-            mv $(CPP11_DESTDIR)$(prefix)/lib/$$name++11*.so* $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH) ; \
-            mv $(CPP11_DESTDIR)$(prefix)/lib/c++11/$$name.so $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH)/c++11/$$name.so ; \
-        done ;
+	do \
+		mv $(CPP11_DESTDIR)$(prefix)/lib/$$name++11*.so* $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH) ; \
+		mv $(CPP11_DESTDIR)$(prefix)/lib/c++11/$$name.so $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH)/c++11/$$name.so ; \
+	done ;
 
 	cp $(CPP11_DESTDIR)$(prefix)/bin/icebox $(DESTDIR)$(prefix)/bin/$(ICEBOX)++11
 

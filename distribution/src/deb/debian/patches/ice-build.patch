@@ -140,15 +140,28 @@
  	ice_lib_dir = $(ice_cpp_dir)/$(libsubdir)
 --- a/java/Makefile
 +++ b/java/Makefile
-@@ -8,7 +8,7 @@
- # **********************************************************************
- 
- ifeq ($(APPEND_VERSION_SUFFIX),yes)
--BUILD_FLAGS += -Dorg.gradle.project.appendVersionSuffix=yes
-+BUILD_FLAGS += -Dorg.gradle.project.appendVersionSuffix=yes -g$(HOME)
+@@ -16,17 +16,17 @@
  endif
  
- INSTALL_FLAGS += $(BUILD_FLAGS)
+ all:
+-	./gradlew assemble
++	./gradlew -g$(HOME) assemble
+ 
+ dist:
+-	./gradlew :Ice:assemble :Freeze:assemble :Glacier2:assemble :IceGrid:assemble :ant:assemble \
++	./gradlew -g$(HOME) :Ice:assemble :Freeze:assemble :Glacier2:assemble :IceGrid:assemble :ant:assemble \
+ 		:IceBox:assemble :IceDiscovery:assemble :IcePatch2:assemble :IceStorm:assemble :IceGridGUI:assemble
+ 
+ clean:
+-	./gradlew clean
++	./gradlew -g$(HOME) clean
+ 
+ install::
+-	./gradlew $(INSTALL_FLAGS) install
++	./gradlew -g$(HOME) $(INSTALL_FLAGS) install
+ 
+ test::
+ 	@python ./allTests.py
 --- a/cpp/config/Make.rules
 +++ b/cpp/config/Make.rules
 @@ -17,7 +17,7 @@

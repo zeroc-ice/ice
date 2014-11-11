@@ -1,0 +1,12 @@
+usr/share/java/ant-ice-@ver@.jar usr/share/java/ant-ice.jar
+
+usr/share/java/freeze-@ver@.jar usr/share/java/freeze.jar
+usr/share/java/glacier2-@ver@.jar usr/share/java/glacier2.jar
+usr/share/java/ice-@ver@.jar usr/share/java/ice.jar
+usr/share/java/icebox-@ver@.jar usr/share/java/icebox.jar
+usr/share/java/icediscovery-@ver@.jar usr/share/java/icediscovery.jar
+usr/share/java/icegrid-@ver@.jar usr/share/java/icegrid.jar
+usr/share/java/icepatch2-@ver@.jar usr/share/java/icepatch2.jar
+usr/share/java/icestorm-@ver@.jar usr/share/java/icestorm.jar
+
+/usr/share/doc/libzeroc-ice-java-dev/copyright /usr/share/doc/libzeroc-ice-java-dev/ICE_LICENSE
