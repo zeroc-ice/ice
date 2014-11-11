@@ -227,7 +227,7 @@ public:
     int run(int argc, char* argv[])
     {
         instance = this;
-        string transport = communicator()->getProperties()->getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+        string protocol = communicator()->getProperties()->getPropertyWithDefault("Ice.Default.Protocol", "tcp");
         _initData.properties = Ice::createProperties(argc, argv, communicator()->getProperties());
         _initData.properties->setProperty("Ice.Default.Router", "Glacier2/router:default -p 12347");
 
@@ -262,7 +262,7 @@ public:
             cout << "testing SessionHelper connect... " << flush;
             _factory->setRouterHost("localhost");
             _factory->setPort(12347);
-            _factory->setTransport(transport);
+            _factory->setProtocol(protocol);
             _session = _factory->connect("userid", "abc123");
 
             //
@@ -409,7 +409,7 @@ public:
             cout << "testing SessionHelper connect after router shutdown... " << flush;
             _factory->setRouterHost("localhost");
             _factory->setPort(12347);
-            _factory->setTransport(transport);
+            _factory->setProtocol(protocol);
             _session = _factory->connect("userid", "abc123");
 
             //

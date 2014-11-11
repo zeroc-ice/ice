@@ -130,65 +130,59 @@ public class SessionFactoryHelper
     /// </summary>
     /// <param name="secure">If true, the client connects to the router
     /// via SSL; otherwise, the client connects via TCP.</param>
-    [Obsolete("This method is deprecated. Use SessionFactoryHelper.setTransport instead.")]
+    [Obsolete("This method is deprecated. Use SessionFactoryHelper.setProtocol instead.")]
     public void
     setSecure(bool secure)
     {
-        lock(this)
-        {
-            _secure = secure;
-        }
+        setProtocol(secure ? "ssl" : "tcp");
     }
 
     /// <summary>
     /// Returns whether the session factory will establish a secure connection to the Glacier2 router.
     /// </summary>
     /// <returns>The secure flag.</returns>
-    [Obsolete("This method is deprecated. Use SessionFactoryHelper.getTransport instead.")]
+    [Obsolete("This method is deprecated. Use SessionFactoryHelper.getProtocol instead.")]
     public bool
     getSecure()
     {
-        lock(this)
-        {
-            return _secure;
-        }
+        return getProtocol().Equals("ssl");
     }
     
     /// <summary>
-    /// Sets the transport that will be used by the session factory to establish the connection..
+    /// Sets the protocol that will be used by the session factory to establish the connection..
     /// </summary>
-    /// <param name="transport">The transport.</param>
+    /// <param name="protocol">The protocol.</param>
     public void
-    setTransport(String transport)
+    setProtocol(String protocol)
     {
         lock(this)
         {
-            if(transport == null)
+            if(protocol == null)
             {
-                throw new ArgumentException("You must use a valid transport");
+                throw new ArgumentException("You must use a valid protocol");
             }
             
-            if(!transport.Equals("tcp") &&
-               !transport.Equals("ssl") &&
-               !transport.Equals("wss") &&
-               !transport.Equals("ws"))
+            if(!protocol.Equals("tcp") &&
+               !protocol.Equals("ssl") &&
+               !protocol.Equals("wss") &&
+               !protocol.Equals("ws"))
             {
-                throw new ArgumentException("Unknow transport `" + transport + "'");
+                throw new ArgumentException("Unknow protocol `" + protocol + "'");
             }
-            _transport = transport;
+            _protocol = protocol;
         }
     }
 
     /// <summary>
-    /// Returns the transport that will be used by the session factory to establish the connection.
+    /// Returns the protocol that will be used by the session factory to establish the connection.
     /// </summary>
-    /// <returns>The transport.</returns>
+    /// <returns>The protocol.</returns>
     public String
-    getTransport()
+    getProtocol()
     {
         lock(this)
         {
-            return _transport;
+            return _protocol;
         }
     }
 
@@ -243,7 +237,8 @@ public class SessionFactoryHelper
     {
         lock(this)
         {
-            return _port == 0 ? (_secure ? GLACIER2_SSL_PORT : GLACIER2_TCP_PORT) : _port;
+            return _port == 0 ? ((_protocol.Equals("ssl") || 
+                                _protocol.Equals("wss"))? GLACIER2_SSL_PORT : GLACIER2_TCP_PORT) : _port;
         }
     }
 
@@ -333,7 +328,7 @@ public class SessionFactoryHelper
         // plug-in has already been setup we don't want to override the
         // configuration so it can be loaded from a custom location.
         //
-        if((_secure || _transport.Equals("ssl") || _transport.Equals("wss")) && 
+        if((_protocol.Equals("ssl") || _protocol.Equals("wss")) && 
            initData.properties.getProperty("Ice.Plugin.IceSSL").Length == 0)
         {
             initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL:IceSSL.PluginFactory");
@@ -355,41 +350,9 @@ public class SessionFactoryHelper
         StringBuilder sb = new StringBuilder();
         sb.Append("\"");
         sb.Append(Ice.Util.identityToString(ident));
-        sb.Append("\"");
-        sb.Append(":");
-        
-        if(!String.IsNullOrEmpty(_transport))
-        {
-            sb.Append(_transport + " -p ");
-        }
-        else
-        {
-            if(_secure)
-            {
-                sb.Append("ssl -p ");
-            }
-            else
-            {
-                sb.Append("tcp -p ");
-            }
-        }
-        
-        if(_port != 0)
-        {
-            sb.Append(_port);
-        }
-        else
-        {
-            if(_secure || _transport.Equals("ssl") || _transport.Equals("wss"))
-            {
-                sb.Append(GLACIER2_SSL_PORT);
-            }
-            else
-            {
-                sb.Append(GLACIER2_TCP_PORT);
-            }
-        }
-
+        sb.Append("\":");        
+        sb.Append(_protocol + " -p ");
+        sb.Append(getPort());
         sb.Append(" -h ");
         sb.Append(_routerHost);
         if(_timeout > 0)
@@ -397,7 +360,6 @@ public class SessionFactoryHelper
             sb.Append(" -t ");
             sb.Append(_timeout);
         }
-
         return sb.ToString();
     }
 
@@ -411,8 +373,7 @@ public class SessionFactoryHelper
     private string _routerHost = "localhost";
     private Ice.InitializationData _initData;
     private Ice.Identity _identity = null;
-    private string _transport = "";
-    private bool _secure = true;
+    private string _protocol = "ssl";
     private int _port = 0;
     private int _timeout = 10000;
     private Dictionary<string, string> _context;

@@ -169,7 +169,7 @@ public class Client
 
         public override int run(string[] args)
         {
-            String transport = communicator().getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+            String protocol = communicator().getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp");
             _factory = new Glacier2.SessionFactoryHelper(_initData, new SessionCalback1());
 
             //
@@ -180,7 +180,7 @@ public class Client
                 Console.Out.Write("testing SessionHelper connect with wrong userid/password... ");
                 Console.Out.Flush();
 
-                _factory.setTransport(transport);
+                _factory.setProtocol(protocol);
                 _session = _factory.connect("userid", "xxx");
                 while(true)
                 {
@@ -208,7 +208,7 @@ public class Client
                 Console.Out.Flush();
                 _factory.setRouterHost("127.0.0.1");
                 _factory.setPort(12347);
-                _factory.setTransport(transport);
+                _factory.setProtocol(protocol);
                 _session = _factory.connect("userid", "abc123");
                 while(true)
                 {
@@ -371,7 +371,7 @@ public class Client
 
                 _factory.setRouterHost("127.0.0.1");
                 _factory.setPort(12347);
-                _factory.setTransport(transport);
+                _factory.setProtocol(protocol);
                 _session = _factory.connect("userid", "abc123");
                 while(true)
                 {

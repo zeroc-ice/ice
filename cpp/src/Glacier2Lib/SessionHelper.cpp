@@ -799,7 +799,7 @@ SessionHelperI::dispatchCallbackAndWait(const Ice::DispatcherCallPtr& call, cons
 
 Glacier2::SessionFactoryHelper::SessionFactoryHelper(const SessionCallbackPtr& callback) :
     _routerHost("localhost"),
-    _secure(true),
+    _protocol("ssl"),
     _port(0),
     _timeout(10000),
     _callback(callback)
@@ -811,7 +811,7 @@ Glacier2::SessionFactoryHelper::SessionFactoryHelper(const SessionCallbackPtr& c
 Glacier2::SessionFactoryHelper::SessionFactoryHelper(const Ice::InitializationData& initData,
                                                      const SessionCallbackPtr& callback) :
     _routerHost("localhost"),
-    _secure(true),
+    _protocol("ssl"),
     _port(0),
     _timeout(10000),
     _initData(initData),
@@ -827,7 +827,7 @@ Glacier2::SessionFactoryHelper::SessionFactoryHelper(const Ice::InitializationDa
 Glacier2::SessionFactoryHelper::SessionFactoryHelper(const Ice::PropertiesPtr& properties,
                                                      const SessionCallbackPtr& callback) :
     _routerHost("localhost"),
-    _secure(true),
+    _protocol("ssl"),
     _port(0),
     _timeout(10000),
     _callback(callback)
@@ -872,36 +872,34 @@ Glacier2::SessionFactoryHelper::getRouterHost() const
 void
 Glacier2::SessionFactoryHelper::setSecure(bool secure)
 {
-    IceUtil::Mutex::Lock sync(_mutex);
-    _secure = secure;
+    setProtocol(secure ? "ssl" : "tcp");
 }
 
 bool
 Glacier2::SessionFactoryHelper::getSecure() const
 {
-    IceUtil::Mutex::Lock sync(_mutex);
-    return _secure;
+    return getProtocol() == "ssl";
 }
 
 void
-Glacier2::SessionFactoryHelper::setTransport(const string& transport)
+Glacier2::SessionFactoryHelper::setProtocol(const string& protocol)
 {
     IceUtil::Mutex::Lock sync(_mutex);
-    if(transport != "tcp" &&
-       transport != "ssl" &&
-       transport != "ws" &&
-       transport != "wss")
+    if(protocol != "tcp" &&
+       protocol != "ssl" &&
+       protocol != "ws" &&
+       protocol != "wss")
     {
-        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "Unknow transport `" + transport + "'");
+        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "Unknow protocol `" + protocol + "'");
     }
-    _transport = transport;
+    _protocol = protocol;
 }
 
 string
-Glacier2::SessionFactoryHelper::getTransport() const
+Glacier2::SessionFactoryHelper::getProtocol() const
 {
     IceUtil::Mutex::Lock sync(_mutex);
-    return _transport;
+    return _protocol;
 }
 
 void
@@ -929,7 +927,7 @@ int
 Glacier2::SessionFactoryHelper::getPort() const
 {
     IceUtil::Mutex::Lock sync(_mutex);
-    return _port;
+    return _port == 0 ? ((_protocol == "ssl" || _protocol == "wss") ? GLACIER2_SSL_PORT : GLACIER2_TCP_PORT) : _port;
 }
 
 Ice::InitializationData
@@ -984,7 +982,7 @@ Glacier2::SessionFactoryHelper::createInitData()
     // plug-in has already been setup we don't want to override the
     // configuration so it can be loaded from a custom location.
     //
-    if((_secure || _transport == "ssl" || _transport == "wss") && 
+    if((_protocol == "ssl" || _protocol == "wss") && 
        initData.properties->getProperty("Ice.Plugin.IceSSL").empty())
     {
         initData.properties->setProperty("Ice.Plugin.IceSSL","IceSSL:createIceSSL");
@@ -1009,7 +1007,6 @@ Glacier2::SessionFactoryHelper::createProxyStr(const Ice::Identity& ident)
 {
     ostringstream os;
     os << "\"";
-
     //
     // TODO replace with identityToString, we cannot use the Communicator::identityToString
     // current implementation because we need to do that before the communicator has been
@@ -1019,50 +1016,11 @@ Glacier2::SessionFactoryHelper::createProxyStr(const Ice::Identity& ident)
     {
         os << ident.category << "/";
     }
-    os << ident.name;
-
-    os << "\"";
-    os << ":";
-    if(!_transport.empty())
-    {
-        os << _transport << " -p ";
-    }
-    else
-    {
-        if(_secure)
-        {
-            os << "ssl -p ";
-        }
-        else
-        {
-            os << "tcp -p ";
-        }
-    }
-    
-    if(_port != 0)
-    {
-        os << _port;
-    }
-    else
-    {
-        if(_secure || _transport == "ssl" || _transport == "wss")
-        {
-            os << GLACIER2_SSL_PORT;
-        }
-        else
-        {
-            os << GLACIER2_TCP_PORT;
-        }
-    }
-
-    os << " -h ";
-    os << _routerHost;
+    os << ident.name << "\":" << _protocol << " -p " << getPort() << " -h " << _routerHost;
     if(_timeout > 0)
     {
-        os << " -t ";
-        os << _timeout;
+        os << " -t " << _timeout;
     }
-
     return os.str();
 }
 
