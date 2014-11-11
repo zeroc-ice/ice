@@ -48,7 +48,7 @@ dependencies {
 }
 
 def tmpJarName = "IceGridGUITEMP.jar"
-def jarName = "IceGridGUI.jar"
+def jarName = "icegridgui.jar"
 
 jar {
     archiveName = tmpJarName
