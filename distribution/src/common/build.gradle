@@ -8,6 +8,9 @@
 // **********************************************************************
 
 subprojects {
+	project.version = iceVersion
+	project.group = "com.zeroc"
+
 	apply plugin: 'java'
 	apply plugin: 'idea'
 	apply from: "$rootProject.projectDir/gradle/ice.gradle"
@@ -30,7 +33,6 @@ subprojects {
 
 apply from: "$rootProject.projectDir/Ice/build.gradle"
 apply from: "$rootProject.projectDir/IceDiscovery/build.gradle"
-apply from: "$rootProject.projectDir/IceBox/build.gradle"
 apply from: "$rootProject.projectDir/Glacier2/build.gradle"
 apply from: "$rootProject.projectDir/IceGrid/build.gradle"
-apply from: "$rootProject.projectDir/manual/build.gradle"
+apply from: "$rootProject.projectDir/Manual/build.gradle"

@@ -87,24 +87,24 @@ if (iceDir == null && isWindows)
 	{
 		progFiles = env['ProgramFiles']
 	}
-	iceDir = "$progFiles\\ZeroC\\Ice-$iceVersion"
+	iceDir = "$progFiles\\ZeroC\\Ice-${project.version}"
 }
 
 if (iceDir == null)
 {
-	def f1 = new File("/Library/Developer/Ice-$iceVersion/bin/$slice2java")
+	def f1 = new File("/Library/Developer/Ice-${project.version}/bin/$slice2java")
 	if (f1.exists())
 	{
-		iceDir = "/Library/Developer/Ice-$iceVersion"
+		iceDir = "/Library/Developer/Ice-${project.version}"
 	}
 }
 
 if (iceDir == null)
 {
-	def f1 = new File("/opt/Ice-$iceVersion/bin/$slice2java")
+	def f1 = new File("/opt/Ice-${project.version}/bin/$slice2java")
 	if (f1.exists())
 	{
-		iceDir = "/opt/Ice-$iceVersion"
+		iceDir = "/opt/Ice-${project.version}"
 	}
 }
 
@@ -122,7 +122,7 @@ slice.srcDist = false
 // Set the slice and java jar directory
 if (iceDir == "/usr")
 {
-	ext.sliceDir = "/usr/share/Ice-$iceVersion/slice"
+	ext.sliceDir = "/usr/share/Ice-${project.version}/slice"
 	ext.distJarDir = "/usr/share/java"
 }
 else
@@ -133,14 +133,39 @@ else
 
 // Check if we need to append version suffix to jar files
 ext.versionSuffix = ""
-def iceJar = new File("${distJarDir}/Ice-${iceVersion}.jar")
+def iceJar = new File("${distJarDir}/Ice-${project.version}.jar")
 if(iceJar.exists())
 {
-	ext.versionSuffix = "-${iceVersion}"
+	ext.versionSuffix = "-${project.version}"
+}
+
+def demoJar(name) {
+    def taskName = name + "Jar"
+	// Create a jar for the client & server which includes everything in the demo.
+	def jarTask = tasks.create(name: taskName, type: Jar) {
+		version = ""
+	   	baseName = name
+	    from(sourceSets.main.output) {
+	    	include "**"
+	    }
+	}
+
+	jarTask.manifest {
+        attributes("Main-Class": name.capitalize())
+        attributes("Class-Path": configurations.runtime.resolve().collect { it.toURI() }.join(' '))
+    }
+
+
+	artifacts {
+		archives jarTask
+	}
+}
+ext {
+	demoJar = this.&demoJar
 }
 
 def localDependency(artifactId) {
-	return "com.zeroc:${artifactId}:${iceVersion}"
+	return "com.zeroc:${artifactId}:${project.version}"
 }
 ext {
 	localDependency = this.&localDependency
@@ -149,69 +174,47 @@ ext {
 //
 // Find BerkeleyDB JAR
 //
-ext.dbJar = ""
-if(dbHome != "")
-{
+if(dbHome) {
 	ext.dbJar = "${dbHome}/db.jar"
-}
-else
-{
-	["db-5.3.28.jar", "db-5.3.21.jar", "db.jar"].each {
-		if (ext.dbJar.length() != 0)
-		{
-			// Already found DB JAR, just ignore.
+} else {
+	def subdirs
+	if (isWindows) {
+		def thirdpartyhome = env['THIRDPARTY_HOME']
+		if (thirdpartyhome == null || thirpartyhome.length() == 0) {
+			def progFiles
+			def arch1 = env['PROCESSOR_ARCHITECTURE']
+			def arch2 = env['PROCESSOR_ARCHITEW6432']
+			if (arch1 == "AMD64" || arch1 == "IA64" || arch2 == "AMD64" || arch2 == "IA64") {
+				progFiles = env['ProgramFiles(x86)']
+			} else {
+				progFiles = env['ProgramFiles']
+			}
+			thirdpartyhome = "${progFiles}/ZeroC/Ice-${project.version}-ThirdParty"
 		}
-		else if (isWindows)
-		{
-			def f = new File("$iceDir\\lib\\${it}")
-			if (f.exists())
-			{
-				ext.dbJar = "$iceDir\\lib\\${it}"
-			}
-		}
-		else
-		{
-			def f = new File("/Library/Developer/Ice-$iceVersion/lib/${it}")
-			if (f.exists())
-			{
-				ext.dbJar = "/Library/Developer/Ice-$iceVersion/lib/${it}"
-			}
 
-			if (ext.dbJar.length() == 0)
-			{
-				f = new File("/usr/share/java/${it}")
-				if (f.exists())
-				{
-					ext.dbJar = "/usr/share/java/${it}"
-				}
-			}
-
-			if (ext.dbJar.length() == 0)
-			{
-				f = new File("/opt/Ice-${iceVersion}/lib/${it}")
-				if (f.exists())
-				{
-					ext.dbJar = "/opt/Ice-${iceVersion}/lib/${it}"
-				}
-			}
-
-			if (ext.dbJar.length() == 0)
-			{
-				f = new File("/opt/db/lib/${it}")
-				if (f.exists())
-				{
-					ext.dbJar = "/opt/db/lib/${it}"
-				}
-			}
-
-			if (ext.dbJar.length() == 0)
-			{
-				f = new File("/usr/lib/${it}")
-				if (f.exists())
-				{
-					ext.dbJar = "/usr/lib/${it}"
-				}
-			}
-		}
+		subdirs = [ "${thirdpartyhome}/lib/" ]
+	} else {
+		subdirs = [
+			"/Library/Developer/Ice-${project.version}-ThirdParty/lib/",
+			"/usr/share/java/",
+			"/opt/Ice-${project.version}/lib/",
+			"/opt/db/lib/",
+			"/usr/lib/"
+		]
 	}
+
+	def candidates = ["db-5.3.28.jar", "db-5.3.21.jar", "db.jar"].collect {
+		def dbJarName = it
+		subdirs.collect {
+			it.concat(dbJarName)
+		}
+	}.flatten()
+
+	ext.dbJar = candidates.find {
+		new File(it).exists()
+	}
+}
+
+if(!ext.dbJar || !new File(ext.dbJar).exists()) {
+	ex.dbJar = ""
 }
