@@ -50,7 +50,7 @@ catch(e)
 var iceJs = process.env.OPTIMIZE == "yes" ? "Ice.min.js" : "Ice.js";
 
 //
-// If this is a source distribution and ICE_HOME isn't set ensure 
+// If this is a source distribution and ICE_HOME isn't set ensure
 // that Ice libraries has been build.
 //
 if(srcDist && !iceHome && !useBinDist)
@@ -58,12 +58,12 @@ if(srcDist && !iceHome && !useBinDist)
     var build;
     try
     {
-        build = fs.statSync(path.join(__dirname, "..", "lib", iceJs)).isFile()
+        build = fs.statSync(path.join(__dirname, "..", "lib", iceJs)).isFile();
     }
     catch(e)
     {
     }
-    
+
     if(!build)
     {
         console.error("error Unable to find " + iceJs + " in " + path.join(__dirname, "..", "lib") + ", please verify " +
@@ -127,17 +127,17 @@ if(iceHome)
     catch(e)
     {
     }
-    
+
     if(!iceHomeValid)
     {
-        console.error("error Unable to find " + iceJs + " in " + path.join(iceHome, "lib") + 
+        console.error("error Unable to find " + iceJs + " in " + path.join(iceHome, "lib") +
                       ", please verify ICE_HOME is properly configured and Ice is correctly installed");
         process.exit(1);
     }
     console.log("Using Ice libraries from " + path.join(iceHome, "lib"));
 }
 
-var libraries = ["/lib/Ice.js", "/lib/Ice.min.js", 
+var libraries = ["/lib/Ice.js", "/lib/Ice.min.js",
                  "/lib/Glacier2.js", "/lib/Glacier2.min.js",
                  "/lib/IceStorm.js", "/lib/IceStorm.min.js",
                  "/lib/IceGrid.js", "/lib/IceGrid.min.js",];
@@ -152,7 +152,7 @@ var HttpServer = function(host, ports)
 HttpServer.prototype.processRequest = function(req, res)
 {
     var filePath;
-    
+
     var iceLib = libraries.indexOf(req.url.pathname) !== -1;
     //
     // If ICE_HOME has been set resolve Ice libraries paths into ICE_HOME.
@@ -167,16 +167,16 @@ HttpServer.prototype.processRequest = function(req, res)
     }
 
     //
-    // If OPTIMIZE is set resolve Ice libraries to the corresponding minified 
+    // If OPTIMIZE is set resolve Ice libraries to the corresponding minified
     // versions.
     //
     if(process.env.OPTIMIZE == "yes" && iceLib && filePath.substr(-7) !== ".min.js")
     {
         filePath = filePath.replace(".js", ".min.js");
     }
-    
+
     var ext = path.extname(filePath).slice(1);
-    
+
     //
     // When the browser ask for a .js or .css file and it has support for gzip content
     // check if a gzip version (.js.gz or .css.gz) of the file exists and use that instead.
@@ -208,7 +208,7 @@ HttpServer.prototype.processRequest = function(req, res)
                         doRequest(err, stats, filePath);
                     });
     }
-    
+
     var doRequest = function(err, stats, filePath)
     {
         if(err)
@@ -223,7 +223,7 @@ HttpServer.prototype.processRequest = function(req, res)
             {
                 res.writeHead(500);
                 res.end("500 Internal Server Error");
-                console.log("HTTP/500 (Internal Server Error) " + req.method + " " + req.url.pathname + " -> " + 
+                console.log("HTTP/500 (Internal Server Error) " + req.method + " " + req.url.pathname + " -> " +
                             filePath);
             }
         }
@@ -245,20 +245,20 @@ HttpServer.prototype.processRequest = function(req, res)
                 hash.update(stats.ino.toString());
                 hash.update(stats.mtime.toString());
                 hash.update(stats.size.toString());
-                
-                var headers = 
+
+                var headers =
                 {
                     "Content-Type": MimeTypes[ext] || "text/plain",
                     "Content-Length": stats.size,
                     "Last-Modified": new Date(stats.mtime).toUTCString(),
                     "Etag": hash.digest("hex")
                 };
-                
+
                 if(path.extname(filePath).slice(1) == "gz")
                 {
                     headers["Content-Encoding"] = "gzip";
                 }
-                
+
                 //
                 // Check for conditional request headers, if-modified-since
                 // and if-none-match.
@@ -273,7 +273,7 @@ HttpServer.prototype.processRequest = function(req, res)
                     modified = req.headers["if-none-match"].split(" ").every(
                         function(element, index, array)
                         {
-                            return element !== headers["Etag"];
+                            return element !== headers.Etag;
                         });
                 }
 
@@ -301,7 +301,7 @@ HttpServer.prototype.processRequest = function(req, res)
                 }
             }
         }
-    }
+    };
 };
 
 //
@@ -325,7 +325,7 @@ HttpServer.prototype.start = function()
             return fs.existsSync(baseDir = path.join(__dirname, p));
         }))
     {
-        console.error("Cannot find wss certificates directory")
+        console.error("Cannot find wss certificates directory");
         process.exit(1);
     }
     var options = {
@@ -333,9 +333,9 @@ HttpServer.prototype.start = function()
         key: fs.readFileSync(path.join(baseDir, "s_rsa1024_priv.pem")),
         cert: fs.readFileSync(path.join(baseDir, "s_rsa1024_pub.pem"))
     };
-    
-    httpServer = http.createServer();
-    httpsServer = https.createServer(options);
+
+    var httpServer = http.createServer();
+    var httpsServer = https.createServer(options);
 
     if(httpProxy)
     {
@@ -347,7 +347,7 @@ HttpServer.prototype.start = function()
                     protocol: conf.protocol };
             });
     }
-    
+
     var self = this;
     [httpServer, httpsServer].forEach(function(server)
                     {
@@ -359,13 +359,13 @@ HttpServer.prototype.start = function()
                                         var dataCB = function(data)
                                         {
                                         };
-                                        
+
                                         var endCB = function()
                                         {
                                             req.url = url.parse(req.url);
                                             self.processRequest(req, res);
                                         };
-                                        
+
                                         req.on("data", dataCB);
                                         req.on("end", endCB);
                                   });
@@ -373,7 +373,7 @@ HttpServer.prototype.start = function()
 
     if(httpProxy)
     {
-        function requestCB(protocols)
+        var requestCB = function(protocols)
         {
             return function(req, socket, head)
             {
@@ -391,8 +391,8 @@ HttpServer.prototype.start = function()
                     socket.end();
                 }
             };
-        }
-        
+        };
+
         httpServer.on("upgrade", requestCB(["ws"]));
         httpsServer.on("upgrade", requestCB(["ws", "wss"]));
     }
