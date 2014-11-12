@@ -153,30 +153,25 @@ ext.libDir = "$rootProject.projectDir/lib"
 ext.iceSourceCompatibility = 1.7
 ext.iceTargetCompatibility = 1.7
 
-ext.searchFile = { Map<String, Closure> places, List<String> searchPaths ->
-    File result = null;
-    places.each { k, v ->
-        if (result != null) {
-            return;
-        }
-        def dir = v()
-        if (dir != null) {
-            searchPaths.each { s ->
-                if (result != null) {
-                    return;
-                }
-                File f = new File(dir, s);
-                if (f.exists() && f.file) {
-                    result = f;
-                }
-            }
-        }
-    }
-    if (!result?.file) {
-        return ""
-    } else {
-        return result
-    }
+ext.searchFile = { List<Closure> places, List<String> searchPaths ->
+	def dirs = []
+	places.each {
+		def dir = it()
+		if(dir != null) {
+			dirs << dir + "/"
+		}
+	}
+
+    def candidates = searchPaths.collect {
+		def path = it
+		dirs.collect {
+			it.concat(path)
+		}
+	}.flatten()
+
+	return candidates.find {
+		new File(it).exists()
+	}
 }
 
 def demoJar(name) {
@@ -220,7 +215,7 @@ ext {
 //
 if(dbHome) {
 	ext.dbJar = "${dbHome}/db.jar"
-} else {	
+} else {
 	def subdirs
 	if (isWindows) {
 		def thirdpartyhome = env['THIRDPARTY_HOME']
@@ -260,5 +255,5 @@ if(dbHome) {
 }
 
 if(!ext.dbJar || !new File(ext.dbJar).exists()) {
-	throw new GradleException("Unable to locate the required third party BerkeleyDB jar file `b.jar'.")
+	throw new GradleException("Unable to locate the required third party BerkeleyDB jar file `db.jar'.")
 }

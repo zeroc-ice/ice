@@ -13,12 +13,11 @@ targetCompatibility = iceTargetCompatibility
 def macosx = System.properties['os.name'] == "Mac OS X"
 
 // Check for JavaFX support
-def javafxJar = searchFile(['JFXRT_HOME in System Environment': {System.env['JFXRT_HOME']},
-                            'JAVA_HOME in System Environment': {System.env['JAVA_HOME']},
-                            'java.home in JVM properties': {System.properties['java.home']}],
+def javafxJar = searchFile([{System.env['JFXRT_HOME']}, { System.env['JAVA_HOME']}, {System.properties['java.home']}],
                            ['jfxrt.jar', 'lib/jfxrt.jar', 'lib/ext/jfxrt.jar', 'jre/lib/jfxrt.jar',
                             'jre/lib/ext/jfxrt.jar'])
-def hasJavaFx = javafxJar != ""
+
+def hasJavaFx = javafxJar != null
 
 if (hasJavaFx) {
     apply plugin: 'application'
@@ -72,9 +71,8 @@ buildscript {
 
 def libJars = []
 ['rt.jar', 'jsse.jar'].each {
-	libJars << searchFile(['JAVA_HOME in System Environment': {System.env['JAVA_HOME']},
-                           'java.home in JVM properties': {System.properties['java.home']}],
-                          ["${it}", "lib/${it}", "jre/lib/${it}"])
+	libJars << searchFile([{System.env['JAVA_HOME']}, {System.properties['java.home']}],
+                        ["${it}", "lib/${it}", "jre/lib/${it}"])
 }
 
 if (hasJavaFx) {
