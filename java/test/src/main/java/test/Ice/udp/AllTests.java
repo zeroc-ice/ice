@@ -78,7 +78,7 @@ public class AllTests
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ReplyAdapter");
         PingReplyI replyI = new PingReplyI();
 
-        PingReplyPrx reply = 
+        PingReplyPrx reply =
             (PingReplyPrx)PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
         adapter.activate();
 
@@ -102,7 +102,7 @@ public class AllTests
             }
 
             // If the 3 datagrams were not received within the 2 seconds, we try again to
-            // receive 3 new datagrams using a new object. We give up after 5 retries. 
+            // receive 3 new datagrams using a new object. We give up after 5 retries.
             replyI = new PingReplyI();
             reply = (PingReplyPrx)PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
         }
@@ -157,11 +157,11 @@ public class AllTests
             {
                 if(System.getProperty("os.name").contains("OS X"))
                 {
-                    endpoint = "udp -h \"ff02::1:1\" -p 12020 --interface \"lo0\"";
+                    endpoint = "udp -h \"ff15::1:1\" -p 12020 --interface \"::1\"";
                 }
                 else
                 {
-                    endpoint = "udp -h \"ff01::1:1\" -p 12020";
+                    endpoint = "udp -h \"ff15::1:1\" -p 12020";
                 }
             }
             else
@@ -221,7 +221,7 @@ public class AllTests
         // platform (it works for OS X Leopard but not Snow Leopard, doesn't work on SLES,
         // Windows...). For Windows, see UdpTransceiver constructor for the details. So
         // we don't run this test.
-        // 
+        //
 //         out.print("testing udp bi-dir connection... ");
 //         nRetry = 5;
 //         while(nRetry-- > 0)
