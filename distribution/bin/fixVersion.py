@@ -189,6 +189,8 @@ icejs_home = os.path.join(ice_dir, "js")
 
 FixUtil.fileMatchAndReplace(os.path.join(icejs_home, "config", "build.js"),
                             [("Ice-" + FixUtil.vpatMatch, version)])
+FixUtil.fileMatchAndReplace(os.path.join(icejs_home, "bin", "HttpServer.js"),
+                            [("Ice-" + FixUtil.vpatMatch, version)])
 
 #
 # C# specific files

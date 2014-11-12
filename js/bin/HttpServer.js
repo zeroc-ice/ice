@@ -82,7 +82,7 @@ if(!srcDist || useBinDist)
     //
     if(!process.env.ICE_HOME)
     {
-        var dist = "Ice-3.5.1";
+        var dist = "Ice-3.6b";
         [
             "C:\\Program Files\\ZeroC",
             "C:\\Program Files (x86)\\ZeroC",
