@@ -23,13 +23,13 @@ TestI::shutdown(const Ice::Current& current)
 void
 TestI::abort(const Ice::Current&)
 {
-    exit(0);
+    _exit(0);
 }
 
 void
 TestI::idempotentAbort(const Ice::Current&)
 {
-    exit(0);
+    _exit(0);
 }
 
 Ice::Int
