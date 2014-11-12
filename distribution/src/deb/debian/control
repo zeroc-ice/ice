@@ -14,7 +14,8 @@ Build-Depends: debhelper (>= 9.0.0),
  ruby1.9.1-dev,
  php5-dev,
  javahelper (>= 0.45),
- nodejs
+ nodejs,
+ libclosure-compiler-java
 Standards-Version: 3.9.4
 Homepage: http://www.zeroc.com
 
@@ -89,6 +90,8 @@ Package: libzeroc-ice-dev
 Architecture: any
 Multi-Arch: no
 Section: devel
+Conflicts: libice++-dev
+Replaces: libice++-dev
 Depends: ${shlibs:Depends}, ${misc:Depends}, 
  zeroc-ice-slice (=${binary:Version}), 
  libzeroc-ice@debmmver@ (=${binary:Version}), 
@@ -100,6 +103,8 @@ Package: libzeroc-ice-java
 Architecture: any
 Multi-Arch: foreign
 Section: devel
+Conflicts:libice-java-dev
+Replaces:libice-java-dev
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${java:Depends}, 
  zeroc-ice-slice (=${binary:Version}), 
  libzeroc-ice@debmmver@ (=${binary:Version}), 
@@ -134,6 +139,8 @@ Package: php5-zeroc-ice
 Architecture: any
 Multi-Arch: no
 Section: php
+Conflicts:libice3.5-php
+Replaces:libice3.5-php
 Depends: ${shlibs:Depends}, ${misc:Depends}, 
  libzeroc-ice@debmmver@ (=${binary:Version})
 Description: The Ice run time for PHP
@@ -143,6 +150,8 @@ Package: php5-zeroc-ice-dev
 Architecture: any
 Multi-Arch: foreign
 Section: devel
+Conflicts:libice-php-dev
+Replaces:libice-php-dev
 Depends: php5-cli | php5, ${shlibs:Depends},
  zeroc-ice-slice (=${binary:Version}),
  libzeroc-ice@debmmver@ (=${binary:Version}), 
@@ -154,6 +163,8 @@ Package: python-zeroc-ice
 Architecture: any
 Multi-Arch: no
 Section: python
+Conflicts:libice-3.5-python
+Replaces:libice-3.5-python
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends},
  zeroc-ice-slice (=${binary:Version}),
  libzeroc-ice@debmmver@ (=${binary:Version})
@@ -165,6 +176,8 @@ Package: python-zeroc-ice-dev
 Architecture: any
 Multi-Arch: foreign
 Section: devel
+Conflicts:libice-python-dev
+Replaces:libice-python-dev
 Depends: ${shlibs:Depends}, ${misc:Depends}, 
  zeroc-ice-slice (=${binary:Version}), 
  libzeroc-ice@debmmver@ (=${binary:Version}),
@@ -176,6 +189,8 @@ Package: ruby-zeroc-ice
 Architecture: any
 Multi-Arch: no
 Section: ruby
+Conflicts:libice3.5-ruby
+Replaces:libice3.5-ruby
 Depends: ${shlibs:Depends}, ${misc:Depends}, ruby1.9.1,
  zeroc-ice-slice (=${binary:Version}),
  libzeroc-ice@debmmver@ (=${binary:Version})
@@ -186,6 +201,8 @@ Package: ruby-zeroc-ice-dev
 Architecture: any
 Multi-Arch: foreign
 Section: devel
+Conflicts:libice-ruby-dev
+Replaces:libice-ruby-dev
 Depends: ${shlibs:Depends}, ${misc:Depends},
  zeroc-ice-slice (=${binary:Version}), 
  libzeroc-ice@debmmver@ (=${binary:Version}),
@@ -197,6 +214,8 @@ Package: zeroc-glacier2
 Architecture: any
 Multi-Arch: foreign
 Section: web
+Conflicts:glacier2
+Replaces:glacier2
 Depends: ${shlibs:Depends}, ${misc:Depends},
  libzeroc-ice@debmmver@ (=${binary:Version})
 Description: The Glacier2 router daemon
@@ -207,6 +226,8 @@ Package: zeroc-icebox
 Architecture: any
 Multi-Arch: no
 Section: web
+Conflicts:icebox
+Replaces:icebox
 Depends: ${shlibs:Depends}, ${misc:Depends},
  libzeroc-ice@debmmver@ (=${binary:Version})
 Description: IceBox C++ server
@@ -216,6 +237,8 @@ Package: zeroc-icegrid
 Architecture: any
 Multi-Arch: foreign
 Section: web
+Conflicts:icegrid
+Replaces:icegrid
 Depends: ${shlibs:Depends}, ${misc:Depends}, 
  libzeroc-ice@debmmver@ (=${binary:Version}), 
  libzeroc-icestorm@debmmver@ (=${binary:Version}), 
@@ -240,6 +263,8 @@ Package: zeroc-icepatch2
 Architecture: any
 Multi-Arch: foreign
 Section: web
+Conflicts:icepatch2
+Replaces:icepatch2
 Depends: ${shlibs:Depends}, ${misc:Depends},
  libzeroc-ice@debmmver@ (=${binary:Version})
 Description: The software distribution and patching service for Ice.
@@ -250,6 +275,8 @@ Package: zeroc-ice-utils
 Architecture: any
 Multi-Arch: foreign
 Section: admin
+Conflicts:ice-utils
+Replaces:ice-utils
 Depends: ${shlibs:Depends}, ${misc:Depends}, 
  libzeroc-ice@debmmver@ (=${binary:Version}), 
  libzeroc-freeze@debmmver@ (=${binary:Version}), 
@@ -260,6 +287,8 @@ Description: Ice utilities and admin tools
 Package: zeroc-ice-utils-java
 Architecture: all
 Section: admin
+Conflicts:ice-utils
+Replaces:ice-utils
 Depends: ${java:Depends}, ${misc:Depends}, ${python:Depends}, 
  zeroc-ice-utils (=${binary:Version})
 Description: IceGrid Admin graphical client for IceGrid

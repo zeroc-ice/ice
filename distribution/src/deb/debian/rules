@@ -13,7 +13,8 @@ export prefix=/usr
 export CLASSPATH=/usr/share/java/proguard.jar
 export DESTDIR=$(CURDIR)/debian/tmp
 export NODE=nodejs
-export GRADLE_HOME=/home/jose/.gradle
+export GRADLE_HOME=~/.gradle
+export CLOSURE_COMPILER=/usr/share/java/closure-compiler.jar
 
 CPP11_DESTDIR = $(CURDIR)/debian/tmp-cpp11
 CPP11_LIB_NAMES = 	libFreeze \
