@@ -64,9 +64,3 @@ artifacts {
 }
 
 jar.enabled = false
-
-idea.module {
-    excludeDirs -= file(buildDir)
-    buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
-}
-

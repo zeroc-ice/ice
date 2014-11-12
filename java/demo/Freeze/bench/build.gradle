@@ -75,27 +75,7 @@ dependencies {
 	compile files(dbJar)
 }
 
-// Create a jar for the client & server which includes everything in the demo.
-task clientJar(type: Jar) {
-	version = ""
-   	baseName = "client"
-    from(sourceSets.main.output) {
-    	include "**"
-    }
-}
+// Don't create the default jar.
+jar.enabled = false
 
-clientJar {
-    manifest {
-        attributes("Main-Class": "Client")
-        attributes("Class-Path": configurations.compile.resolve().collect { it.toURI() }.join(' '))
-    }
-}
-
-artifacts {
-	archives clientJar;
-}
-
-idea.module {
-	excludeDirs -= file(buildDir)
-	buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
-}
+demoJar("client")

@@ -23,47 +23,10 @@
 			compile localDependency("icegrid")
 		}
 
-        // Create a jar for the client & server which includes everything in the demo.
-        task clientJar(type: Jar) {
-        	version = ""
-           	baseName = "client"
-	        from(sourceSets.main.output) {
-	        	include "**"
-	        }
-        }
+		// Don't create the default jar.
+		jar.enabled = false
 
-        task serverJar(type: Jar) {
-        	version = ""
-	        baseName = "server"
-	        from(sourceSets.main.output) {
-	        	include "**"
-	        }
-        }
-
-        clientJar {
-            manifest {
-                attributes("Main-Class": "Client")
-                attributes("Class-Path": configurations.compile.resolve().collect { it.toURI() }.join(' '))
-            }
-        }
-
-        serverJar {
-            manifest {
-            	attributes("Main-Class": "Server")
-                attributes("Class-Path": configurations.compile.resolve().collect { it.toURI() }.join(' '))
-            }
-        }
-
-        artifacts {
-        	archives clientJar, serverJar;
-        }
-
-        // Don't create the default jar.
-        jar.enabled = false
-
-		idea.module {
-		    excludeDirs -= file(buildDir)
-		    buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
-		}
+		demoJar("client")
+		demoJar("server")
 	}
 }

@@ -23,42 +23,34 @@ try {
 def isWindows = false
 def slice2java = "slice2java"
 def slice2freezej = "slice2freezej"
-if (System.properties['os.name'].toLowerCase().contains('windows'))
-{
+if (System.properties['os.name'].toLowerCase().contains('windows')) {
     isWindows = true
     slice2java = "slice2java.exe"
     slice2freezej = "slice2freezej.exe"
 }
 
 // Set the install prefix to defaults if not already set
-if (prefix == null || prefix.length() == 0)
-{
-	if (isWindows)
-	{
-		prefix = "C:\\Ice-${iceVersion}"
-	}
-	else
-	{
-		prefix = "/opt/Ice-${iceVersion}"
+if (prefix == null || prefix.length() == 0) {
+	if (isWindows) {
+		prefix = "C:\\Ice-${project.version}"
+	} else {
+		prefix = "/opt/Ice-${project.version}"
 	}
 }
 
 // First check if ICE_HOME is set and it points at a valid installation
 def env = System.getenv()
 def iceHome = env['ICE_HOME']
-if (iceHome != null && iceHome.length() > 0)
-{
+if (iceHome != null && iceHome.length() > 0) {
 	def translator = new File("$iceHome/bin/$slice2java")
-	if (!translator.exists())
-	{
+	if (!translator.exists()) {
 		throw new GradleException("Unable to find $slice2java in $iceHome, please verify ICE_HOME is " +
 								  "properly configured and Ice is correctly installed.")
 	}
 }
 
 def iceBinDist = false
-if(env['USE_BIN_DIST'] == "yes")
-{
+if(env['USE_BIN_DIST'] == "yes") {
 	iceBinDist = true
 }
 
@@ -66,26 +58,20 @@ if(env['USE_BIN_DIST'] == "yes")
 def iceDir
 def iceCppDir
 def iceSrcDist = false
-if (!iceBinDist)
-{
+if (!iceBinDist) {
 	def f1 = new File("$rootProject.projectDir/../java/src/Ice/src/main/java/Ice/Util.java")
-	if (f1.exists())
-	{
+	if (f1.exists()) {
 		iceDir = "$rootProject.projectDir/.."
 		iceSrcDist = true
 
-		if (iceHome != null && iceHome.length() > 0)
-		{
+		if (iceHome != null && iceHome.length() > 0) {
 			iceCppDir = iceHome
 
 			def f2 = new File("$iceDir/cpp/bin/$slice2java")
-			if (f2.exists())
-			{
+			if (f2.exists()) {
 				println "Found $slice2java in both $iceCppDir/bin and $iceDir/cpp/bin, $iceCppDir/bin/$slice2java will be used!"
 			}
-		}
-		else
-		{
+		} else {
 			iceCppDir = iceDir + "/cpp"
 		}
 
@@ -97,87 +83,71 @@ if (!iceBinDist)
 }
 
 // Then, check if we're building against a binary distribution.
-if (!iceDir)
-{
-	if (iceHome != null && iceHome.length() > 0)
-	{
+if (!iceDir) {
+	if (iceHome != null && iceHome.length() > 0) {
 		iceDir = iceHome
 	}
 
-	if (iceDir == null)
-	{
+	if (iceDir == null) {
 		def f1 = new File("/usr/bin/$slice2java")
-		if (f1.exists())
-		{
+		if (f1.exists()) {
 			iceDir = "/usr"
 		}
 	}
 
-	if (iceDir == null && isWindows)
-	{
+	if (iceDir == null && isWindows) {
 		def progFiles
 		def arch1 = env['PROCESSOR_ARCHITECTURE']
 		def arch2 = env['PROCESSOR_ARCHITEW6432']
-		if (arch1 == "AMD64" || arch1 == "IA64" || arch2 == "AMD64" || arch2 == "IA64")
-		{
+		if (arch1 == "AMD64" || arch1 == "IA64" || arch2 == "AMD64" || arch2 == "IA64") {
 			progFiles = env['ProgramFiles(x86)']
-		}
-		else
-		{
+		} else {
 			progFiles = env['ProgramFiles']
 		}
-		iceDir = "$progFiles\\ZeroC\\Ice-$iceVersion"
+		iceDir = "$progFiles\\ZeroC\\Ice-${project.version}"
 	}
 
-	if (iceDir == null)
-	{
-		def f1 = new File("/Library/Developer/Ice-$iceVersion/bin/$slice2java")
-		if (f1.exists())
-		{
-			iceDir = "/Library/Developer/Ice-$iceVersion"
+	if (iceDir == null) {
+		def f1 = new File("/Library/Developer/Ice-${project.version}/bin/${slice2java}")
+		if (f1.exists()) {
+			iceDir = "/Library/Developer/Ice-${project.version}"
 		}
 	}
 
-	if (iceDir == null)
-	{
-		def f1 = new File("/opt/Ice-$iceVersion/bin/$slice2java")
+	if (iceDir == null) {
+		def f1 = new File("/opt/Ice-${project.version}/bin/${slice2java}")
 		if (f1.exists())
 		{
-			iceDir = "/opt/Ice-$iceVersion"
+			iceDir = "/opt/Ice-${project.version}"
 		}
 	}
 
-	if (iceDir == null)
-	{
+	if (iceDir == null) {
 		throw new GradleException("Unable to find a valid Ice distribution, please verify ICE_HOME is properly " +
 								  "configured and Ice is correctly installed.")
 	}
 
-	slice.slice2java = "$iceDir/bin/$slice2java"
-	slice.slice2freezej = "$iceDir/bin/$slice2freezej"
+	slice.slice2java = "${iceDir}/bin/${slice2java}"
+	slice.slice2freezej = "${iceDir}/bin/${slice2freezej}"
 	slice.iceHome = iceDir
 	slice.srcDist = false
 }
 
 // Set the slice and java jar directory
-if (iceDir == "/usr")
-{
-	ext.sliceDir = "/usr/share/Ice-$iceVersion/slice"
+if (iceDir == "/usr") {
+	ext.sliceDir = "/usr/share/Ice-${project.version}/slice"
 	ext.distJarDir = "/usr/share/java"
-}
-else
-{
-	ext.sliceDir = "$iceDir/slice"
-	ext.distJarDir = iceSrcDist ? null : "$iceDir/lib"
+} else {
+	ext.sliceDir = "${iceDir}/slice"
+	ext.distJarDir = iceSrcDist ? null : "${iceDir}/lib"
 }
 
 // Check is DESTDIR is set (non-Windows)
-if (isWindows)
-{
+if (isWindows) {
 	ext.DESTDIR = ""
 }
 
-ext.versionSuffix = "-${iceVersion}"
+ext.versionSuffix = "-${project.version}"
 ext.libDir = "$rootProject.projectDir/lib"
 
 ext.iceSourceCompatibility = 1.7
@@ -209,9 +179,34 @@ ext.searchFile = { Map<String, Closure> places, List<String> searchPaths ->
     }
 }
 
+def demoJar(name) {
+    def taskName = name + "Jar"
+	// Create a jar for the client & server which includes everything in the demo.
+	def jarTask = tasks.create(name: taskName, type: Jar) {
+		version = ""
+	   	baseName = name
+	    from(sourceSets.main.output) {
+	    	include "**"
+	    }
+	}
+
+	jarTask.manifest {
+        attributes("Main-Class": name.capitalize())
+        attributes("Class-Path": configurations.runtime.resolve().collect { it.toURI() }.join(' '))
+    }
+
+
+	artifacts {
+		archives jarTask
+	}
+}
+ext {
+	demoJar = this.&demoJar
+}
+
 def localDependency(artifactId) {
 	if (distJarDir != null) {
-		return "com.zeroc:${artifactId}:${iceVersion}"
+		return "com.zeroc:${artifactId}:${project.version}"
 	} else {
 		return project(":${artifactId}")
 	}
@@ -223,86 +218,47 @@ ext {
 //
 // Find BerkeleyDB JAR
 //
-ext.dbJar = ""
-if(dbHome != "")
-{
+if(dbHome) {
 	ext.dbJar = "${dbHome}/db.jar"
-}
-else
-{
-	["db-5.3.28.jar", "db-5.3.21.jar", "db.jar"].each {
-		if (ext.dbJar.length() != 0)
-		{
-			// Already found DB JAR, just ignore.
+} else {	
+	def subdirs
+	if (isWindows) {
+		def thirdpartyhome = env['THIRDPARTY_HOME']
+		if (thirdpartyhome == null || thirpartyhome.length() == 0) {
+			def progFiles
+			def arch1 = env['PROCESSOR_ARCHITECTURE']
+			def arch2 = env['PROCESSOR_ARCHITEW6432']
+			if (arch1 == "AMD64" || arch1 == "IA64" || arch2 == "AMD64" || arch2 == "IA64") {
+				progFiles = env['ProgramFiles(x86)']
+			} else {
+				progFiles = env['ProgramFiles']
+			}
+			thirdpartyhome = "${progFiles}/ZeroC/Ice-${project.version}-ThirdParty"
 		}
-		else if (isWindows)
-		{
-			def thirdpartyhome = env['THIRDPARTY_HOME']
-			if (thirdpartyhome == null || thirpartyhome.length() == 0)
-			{
-				def progFiles
-				def arch1 = env['PROCESSOR_ARCHITECTURE']
-				def arch2 = env['PROCESSOR_ARCHITEW6432']
-				if (arch1 == "AMD64" || arch1 == "IA64" || arch2 == "AMD64" || arch2 == "IA64")
-				{
-					progFiles = env['ProgramFiles(x86)']
-				}
-				else
-				{
-					progFiles = env['ProgramFiles']
-				}
-				thirdpartyhome = "$progFiles\\ZeroC\\Ice-$iceVersion-ThirdParty"
-			}
 
-			def f = new File("$thirdpartyhome\\lib\\${it}")
-			if (f.exists())
-			{
-				ext.dbJar = "$thirdpartyhome\\lib\\${it}"
-			}
-		}
-		else
-		{
-			def f = new File("/Library/Developer/Ice-$iceVersion-ThirdParty/lib/${it}")
-			if (f.exists())
-			{
-				ext.dbJar = "/Library/Developer/Ice-$iceVersion-ThirdParty/lib/${it}"
-			}
-
-			if (ext.dbJar.length() == 0)
-			{
-				f = new File("/usr/share/java/${it}")
-				if (f.exists())
-				{
-					ext.dbJar = "/usr/share/java/${it}"
-				}
-			}
-
-			if (ext.dbJar.length() == 0)
-			{
-				f = new File("/opt/Ice-${iceVersion}/lib/${it}")
-				if (f.exists())
-				{
-					ext.dbJar = "/opt/Ice-${iceVersion}/lib/${it}"
-				}
-			}
-
-			if (ext.dbJar.length() == 0)
-			{
-				f = new File("/opt/db/lib/${it}")
-				if (f.exists())
-				{
-					ext.dbJar = "/opt/db/lib/${it}"
-				}
-			}
-
-			if (ext.dbJar.length() == 0)
-			{
-				f = new File("/usr/lib/${it}")
-				if (f.exists())
-				{
-					ext.dbJar = "/usr/lib/${it}"
-				}
-			}
-		}
+		subdirs = [ "${thirdpartyhome}/lib/" ]
+	} else {
+		subdirs = [
+			"/Library/Developer/Ice-${project.version}-ThirdParty/lib/",
+			"/usr/share/java/",
+			"/opt/Ice-${project.version}/lib/",
+			"/opt/db/lib/",
+			"/usr/lib/"
+		]
 	}
+
+	def candidates = ["db-5.3.28.jar", "db-5.3.21.jar", "db.jar"].collect {
+		def dbJarName = it
+		subdirs.collect {
+			it.concat(dbJarName)
+		}
+	}.flatten()
+
+	ext.dbJar = candidates.find {
+		new File(it).exists()
+	}
+}
+
+if(!ext.dbJar || !new File(ext.dbJar).exists()) {
+	throw new GradleException("Unable to locate the required third party BerkeleyDB jar file `b.jar'.")
 }

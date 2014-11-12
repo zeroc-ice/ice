@@ -9,7 +9,7 @@
 
 apply plugin: 'maven'
 
-def pomName = "${libDir}/${project.name}-${iceVersion}.pom"
+def pomName = "${libDir}/${project.name}-${project.version}.pom"
 task writeNewPom {
 	outputs.file file(pomName)
 } << {
@@ -38,7 +38,4 @@ task install(type: Copy, dependsOn: jar, overwrite: true) {
     into "${DESTDIR}${prefix}/lib"
 }
 
-idea.module {
-    excludeDirs -= file(buildDir)
-    buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
-}
+install.dependsOn copyJars

@@ -12,17 +12,10 @@ targetCompatibility = iceTargetCompatibility
 
 slice {
     java {
-        set1 {
-        	include = ["${sliceDir}"]
-            args = "--ice"
-            files = fileTree(dir: "$sliceDir/IceDiscovery", includes:['*.ice'], excludes:["*F.ice"])
-        }
+    	include = ["${sliceDir}"]
+        args = "--ice"
+        files = fileTree(dir: "$sliceDir/IceDiscovery", includes:['*.ice'], excludes:["*F.ice"])
     }
-}
-
-idea.module {
-    excludeDirs -= file(buildDir)
-    buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
 }
 
 dependencies {

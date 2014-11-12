@@ -103,7 +103,7 @@ if(macosx)
                       displayname: appName,
                       identifier: "com.zeroc.IceGridGUI",
                       icon: "${projectDir}/src/main/resources/icons/icegrid.icns",
-                      shortversion: "${iceVersion}",
+                      shortversion: "${project.version}",
                       applicationCategory: "public.app-category.utilities",
                       mainclassname: "IceGridGUI/MainProxy",
                       copyright: "Copyright © 2005-2014 ZeroC, Inc. All rights reserved.") {

@@ -13,7 +13,7 @@ class Java {
     def name
     def args = ""
     def files
-    def srcDir
+    def srcDir = "src/main/slice"
     def include
 
     Java(String n) {
