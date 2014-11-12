@@ -32,12 +32,11 @@ clean {
     delete(pomName)
 }
 
-task copyJars(type: Copy, dependsOn: jar) {	
+task install(type: Copy, dependsOn: jar, overwrite: true) {
 	from "${pomName}"
     from "${libDir}/${jar.archiveName}"
     into "${DESTDIR}${prefix}/lib"
 }
-install.dependsOn copyJars
 
 idea.module {
     excludeDirs -= file(buildDir)
