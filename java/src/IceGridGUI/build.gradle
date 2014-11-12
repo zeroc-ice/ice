@@ -86,7 +86,7 @@ task proguardJar(type: proguard.gradle.ProGuardTask, dependsOn: jar) {
 	injars "${projectDir}/build/libs/${tmpJarName}"
 	outjars "${libDir}/${jarName}"
 	libraryjars libJars
-	configuration "$rootProject.projectDir/config/icegridgui.pro"
+	configuration 'icegridgui.pro'
 }
 assemble.dependsOn(proguardJar)
 
