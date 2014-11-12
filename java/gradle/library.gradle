@@ -37,5 +37,3 @@ task install(type: Copy, dependsOn: jar, overwrite: true) {
     from "${libDir}/${jar.archiveName}"
     into "${DESTDIR}${prefix}/lib"
 }
-
-install.dependsOn copyJars
