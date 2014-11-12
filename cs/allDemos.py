@@ -47,9 +47,9 @@ demos = [
     "IceGrid/simple",
     "IceGrid/icebox",
     "Glacier2/callback",
-    "manual/simple_filesystem",
-    "manual/printer",
-    "manual/lifecycle",
+    "Manual/simple_filesystem",
+    "Manual/printer",
+    "Manual/lifecycle",
     ]
 
 if __name__ == "__main__":
