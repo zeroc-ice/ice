@@ -179,12 +179,14 @@ distributed applications with minimal effort.
 %package -n ice-slice
 Summary: Slice files for the Ice run time
 Group: System Environment/Libraries
+Obsoletes: ice < 3.6
 %description -n ice-slice
 Slice files for the Ice run time.
 
 %package -n ice-utils-java
 Summary: Java-based Ice utilities and admin tools.
 Group: Applications/System
+Obsoletes: ice-utils < 3.6
 %description -n ice-utils-java
 Graphical IceGrid administrative tool and command-line
 certificate authority utility.
@@ -235,6 +237,7 @@ The Freeze library for C++.
 Summary: IceBox server.
 Group: System Environment/Daemons
 Requires: ice-utils = %{version}-%{release}
+Obsoletes: ice-servers < 3.6
 # Requirements for the users
 Requires(pre): %{shadow}
 %if %{systemd}
@@ -256,6 +259,7 @@ IceBox server.
 %package -n libice-java
 Summary: Ice for Java run-time libraries and development tools.
 Group: System Environment/Libraries
+Obsoletes: ice-java-devel < 3.6, ice-java < 3.6
 %if "%{dist}" == ".el7"
 Requires: libdb-java
 %else
@@ -273,6 +277,7 @@ Ice for JavaScript run-time libraries and development tools.
 %package -n ice-utils
 Summary: Ice utilities and admin tools.
 Group: Applications/System
+Obsoletes: ice-utils < 3.6
 Requires: libfreeze3.6-c++ = %{version}-%{release}
 %description -n ice-utils
 Command-line administrative tools to manage Ice servers (IceGrid,
@@ -281,7 +286,8 @@ IceStorm, IceBox, etc.), plus various Ice-related utilities.
 %package -n icegrid
 Summary: IceGrid servers.
 Group: System Environment/Daemons
-Requires: ice-utils = %{version}-%{release}
+Obsoletes: ice-servers < 3.6
+Requires: libfreeze3.6-c++ = %{version}-%{release}, ice-utils = %{version}-%{release}
 # Requirements for the users
 Requires(pre): %{shadow}
 %if %{systemd}
@@ -301,6 +307,7 @@ IceGrid servers.
 %package -n glacier2
 Summary: Glacier2 server.
 Group: System Environment/Daemons
+Obsoletes: ice-servers < 3.6
 # Requirements for the users
 Requires(pre): %{shadow}
 %if %{systemd}
@@ -320,6 +327,7 @@ Glacier2 server.
 %package -n icepatch2
 Summary: IcePatch2 server.
 Group: System Environment/Daemons
+Obsoletes: ice-servers < 3.6
 Requires: ice-utils = %{version}-%{release}
 # Requirements for the users
 Requires(pre): %{shadow}
@@ -342,13 +350,14 @@ IcePatch2 server.
 %package -n libicestorm3.6
 Summary: IceStorm service.
 Group: System Environment/Libraries
-Requires: icebox = %{version}-%{release}, libfreeze3.6-c++ = %{version}-%{release}
+Requires: libfreeze3.6-c++ = %{version}-%{release}
 %description -n libicestorm3.6
 IceStorm service.
 
 %package -n libice-c++-devel
 Summary: Tools, libraries and headers for developing Ice applications in C++.
 Group: Development/Tools
+Obsoletes: ice-c++-devel < 3.6
 Requires: libice3.6-c++ = %{version}-%{release}, ice-slice = %{version}-%{release}
 %description -n libice-c++-devel
 Tools, libraries and headers for developing Ice applications in C++.
@@ -359,6 +368,7 @@ Tools, libraries and headers for developing Ice applications in C++.
 %package -n ruby-ice
 Summary: The Ice run time for Ruby.
 Group: System Environment/Libraries
+Obsoletes: ice-ruby < 3.6
 Requires: libice3.6-c++ = %{version}-%{release}
 #
 # Amazon Linux 2014.03 defaults to Ruby 2.0
@@ -374,6 +384,7 @@ The Ice run time for Ruby.
 %package -n ruby-ice-devel
 Summary: Tools for developing Ice applications in Ruby.
 Group: Development/Tools
+Obsoletes: ice-ruby-devel < 3.6
 Requires: ruby-ice = %{version}-%{release}, ice-slice = %{version}-%{release}
 %description -n ruby-ice-devel
 Tools for developing Ice applications in Ruby.
@@ -382,6 +393,7 @@ Tools for developing Ice applications in Ruby.
 %package -n python-ice
 Summary: The Ice run time for Python.
 Group: System Environment/Libraries
+Obsoletes: ice-python < 3.6
 Requires: libice3.6-c++ = %{version}-%{release}, python
 %description -n python-ice
 The Ice run time for Python.
@@ -389,6 +401,7 @@ The Ice run time for Python.
 %package -n python-ice-devel
 Summary: Tools for developing Ice applications in Python.
 Group: Development/Tools
+Obsoletes: ice-python-devel < 3.6
 Requires: python-ice = %{version}-%{release}, ice-slice = %{version}-%{release}
 %description -n python-ice-devel
 Tools for developing Ice applications in Python.
@@ -396,6 +409,7 @@ Tools for developing Ice applications in Python.
 %package -n php-ice
 Summary: The Ice run time for PHP.
 Group: System Environment/Libraries
+Obsoletes: ice-php < 3.6
 Requires: libice3.6-c++ = %{version}-%{release}
 %if "%{dist}" == ".sles11"
 Requires: php53
@@ -418,6 +432,7 @@ The Ice run time for PHP.
 %package -n php-ice-devel
 Summary: Tools for developing Ice applications in PHP.
 Group: Development/Tools
+Obsoletes: ice-php-devel < 3.6
 Requires: php-ice = %{version}-%{release}, ice-slice = %{version}-%{release}
 %description -n php-ice-devel
 Tools for developing Ice applications in PHP.
@@ -752,6 +767,19 @@ cp -p $RPM_BUILD_DIR/Ice-%{version}/man/man1/*.1 $RPM_BUILD_ROOT%{_mandir}/man1
 rm -f $RPM_BUILD_ROOT%{_bindir}/slice2rb
 %endif
 
+#
+# Doc & license files
+#
+
+for i in glacier2 ice icebox ice-devel icegrid icepatch2 ice-utils libfreeze3.6-c++ libice3.6-c++ libice-java libice-js libicestorm3.6 php-ice php-ice-devel python-ice python-ice-devel ruby-ice ruby-ice-devel
+do
+  mkdir -p $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}
+  cp -p $RPM_BUILD_DIR/Ice-%{version}/CHANGES $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}/CHANGES
+  cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/README.Linux-RPM $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}/README
+  cp -p $RPM_BUILD_DIR/Ice-%{version}/ICE_LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}
+  cp -p $RPM_BUILD_DIR/Ice-%{version}/LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}
+done
+
 %endif # ! cppx86
 
 #
@@ -784,7 +812,7 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/libSlice.so*
 
 %else # cppx86
 
-rm -f $RPM_BUILD_ROOT/lib/IceGridGUI.jar
+rm -f $RPM_BUILD_ROOT/lib/icegridgui.jar
 rm -f $RPM_BUILD_ROOT/lib/*.pom
 rm -rf $RPM_BUILD_ROOT/node_modules
 
@@ -801,14 +829,16 @@ cd $RPM_BUILD_DIR/Ice-%{version}/java
 make prefix=$RPM_BUILD_ROOT install
 
 #
-# Doc
+# Doc & license files
 #
-mkdir -p $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}
-cp -p $RPM_BUILD_DIR/Ice-%{version}/RELEASE_NOTES $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}/RELEASE_NOTES
-cp -p $RPM_BUILD_DIR/Ice-%{version}/CHANGES $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}/CHANGES
-cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/README.Linux-RPM $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}/README
-cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/THIRD_PARTY_LICENSE.Linux $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}/THIRD_PARTY_LICENSE
-cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/SOURCES.Linux $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}/SOURCES
+for i in ice-utils-java ice-slice
+do
+  mkdir -p $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}
+  cp -p $RPM_BUILD_DIR/Ice-%{version}/CHANGES $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}/CHANGES
+  cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/README.Linux-RPM $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}/README
+  cp -p $RPM_BUILD_DIR/Ice-%{version}/ICE_LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}
+  cp -p $RPM_BUILD_DIR/Ice-%{version}/LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}
+done
 
 #
 # iceca
@@ -826,14 +856,8 @@ cp -p $RPM_BUILD_DIR/Ice-%{version}/man/man1/iceca.1 $RPM_BUILD_ROOT%{_mandir}/m
 # We do not keep the version in the file name for icegridgui.jar in the RPM distribution.
 #
 mkdir -p $RPM_BUILD_ROOT%{_javadir}
-cp -p $RPM_BUILD_DIR/Ice-%{version}/java/lib/IceGridGUI.jar $RPM_BUILD_ROOT%{_javadir}/icegridgui.jar
+cp -p $RPM_BUILD_DIR/Ice-%{version}/java/lib/icegridgui.jar $RPM_BUILD_ROOT%{_javadir}/icegridgui.jar
 cp -p $RPM_BUILD_DIR/Ice-%{version}/java/bin/icegridgui.rpm $RPM_BUILD_ROOT%{_bindir}/icegridgui
-
-#
-# License files
-#
-cp -p $RPM_BUILD_DIR/Ice-%{version}/ICE_LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}
-cp -p $RPM_BUILD_DIR/Ice-%{version}/LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}
 
 #
 # Slice files
@@ -868,7 +892,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-, root, root, -)
 %dir %{_datadir}/Ice-%{version}
 %{_datadir}/Ice-%{version}/slice
-%{_defaultdocdir}/%{name}-%{version}
+%{_defaultdocdir}/ice-slice-%{version}
 
 %files -n ice-utils-java
 %defattr(-, root, root, -)
@@ -878,6 +902,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_javadir}/icegridgui.jar
 %dir %{_datadir}/Ice-%{version}
 %{_datadir}/Ice-%{version}/ImportKey.class
+%{_defaultdocdir}/ice-utils-java-%{version}
 
 %endif
 
