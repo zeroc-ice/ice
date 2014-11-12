@@ -240,6 +240,11 @@ public class SessionFactoryHelper
     synchronized public int
     getPort()
     {
+        return getPortInternal();
+    }
+    
+    private int getPortInternal()
+    {
         return _port == 0 ? ((_protocol.equals("ssl") || 
                               _protocol.equals("wss"))? GLACIER2_SSL_PORT : GLACIER2_TCP_PORT) : _port;
     }
@@ -343,7 +348,7 @@ public class SessionFactoryHelper
         sb.append(Ice.Util.identityToString(ident));
         sb.append("\":");
         sb.append(_protocol + " -p ");
-        sb.append(getPort());
+        sb.append(getPortInternal());
         sb.append(" -h ");
         sb.append(_routerHost);
         if(_timeout > 0)

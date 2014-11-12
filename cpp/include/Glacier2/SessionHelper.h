@@ -103,6 +103,7 @@ private:
 
     Ice::InitializationData createInitData();
     std::string getRouterFinderStr();
+    int getPortInternal() const;
     std::string createProxyStr(const Ice::Identity& ident);
     void setDefaultProperties();
 

@@ -927,6 +927,13 @@ int
 Glacier2::SessionFactoryHelper::getPort() const
 {
     IceUtil::Mutex::Lock sync(_mutex);
+    return getPortInternal();
+}
+
+int
+Glacier2::SessionFactoryHelper::getPortInternal() const
+{
+    //  Must be called with the muext lock
     return _port == 0 ? ((_protocol == "ssl" || _protocol == "wss") ? GLACIER2_SSL_PORT : GLACIER2_TCP_PORT) : _port;
 }
 
@@ -1016,7 +1023,7 @@ Glacier2::SessionFactoryHelper::createProxyStr(const Ice::Identity& ident)
     {
         os << ident.category << "/";
     }
-    os << ident.name << "\":" << _protocol << " -p " << getPort() << " -h " << _routerHost;
+    os << ident.name << "\":" << _protocol << " -p " << getPortInternal() << " -h " << _routerHost;
     if(_timeout > 0)
     {
         os << " -t " << _timeout;

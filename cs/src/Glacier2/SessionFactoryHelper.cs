@@ -237,9 +237,15 @@ public class SessionFactoryHelper
     {
         lock(this)
         {
-            return _port == 0 ? ((_protocol.Equals("ssl") || 
-                                _protocol.Equals("wss"))? GLACIER2_SSL_PORT : GLACIER2_TCP_PORT) : _port;
+            return getPortInternal();
         }
+    }
+    
+    private int
+    getPortInternal()
+    {
+        return _port == 0 ? ((_protocol.Equals("ssl") || 
+                              _protocol.Equals("wss"))? GLACIER2_SSL_PORT : GLACIER2_TCP_PORT) : _port;
     }
 
     /**
@@ -352,7 +358,7 @@ public class SessionFactoryHelper
         sb.Append(Ice.Util.identityToString(ident));
         sb.Append("\":");        
         sb.Append(_protocol + " -p ");
-        sb.Append(getPort());
+        sb.Append(getPortInternal());
         sb.Append(" -h ");
         sb.Append(_routerHost);
         if(_timeout > 0)
