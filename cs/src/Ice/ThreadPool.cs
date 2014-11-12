@@ -387,7 +387,11 @@ namespace IceInternal
         {
             lock(this)
             {
-                Debug.Assert(!_destroyed);
+                if(_destroyed)
+                {
+                    throw new Ice.CommunicatorDestroyedException();
+                }
+
                 _workItems.Enqueue(() => 
                     { 
                         dispatchFromThisThread(call, con); 
@@ -529,7 +533,8 @@ namespace IceInternal
                                 else
                                 {
                                     Debug.Assert(_serverIdleTime > 0 && _inUse == 0 && _threads.Count == 1);
-                                    if(!System.Threading.Monitor.Wait(this, _serverIdleTime * 1000)  && _workItems.Count == 0)
+                                    if(!System.Threading.Monitor.Wait(this, _serverIdleTime * 1000)  && 
+                                       _workItems.Count == 0)
                                     {
                                         if(!_destroyed)
                                         {
