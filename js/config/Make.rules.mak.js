@@ -21,7 +21,7 @@ prefix		= C:\Ice-$(VERSION)
 #
 # Google Closure Compiler
 #
-CLOSURE_PATH	= C:\closure
+CLOSURE_COMPILER	= C:\closure\compiler.jar
 
 #
 # Closure Flags
@@ -171,7 +171,7 @@ $(libdir)/$(LIBNAME).js: $(SRCS)
 $(libdir)/$(LIBNAME).min.js: $(libdir)/$(LIBNAME).js
 	@del /q $(libdir)\$(LIBNAME).min.js
 	"$(NODE)" $(top_srcdir)\config\makebundle.js "$(MODULES)" $(SRCS) > $(libdir)\$(LIBNAME).tmp.js
-	java -jar $(CLOSURE_PATH)\compiler.jar $(CLOSUREFLAGS) --js $(libdir)\$(LIBNAME).js --js_output_file $(libdir)\$(LIBNAME).min.js
+	java -jar $(CLOSURE_COMPILER) $(CLOSUREFLAGS) --js $(libdir)\$(LIBNAME).js --js_output_file $(libdir)\$(LIBNAME).min.js
 	del /q $(libdir)\$(LIBNAME).tmp.js
 !endif
 

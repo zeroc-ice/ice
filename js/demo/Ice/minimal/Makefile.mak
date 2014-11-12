@@ -29,7 +29,7 @@ CLOSUREFLAGS	= $(CLOSUREFLAGS) --warning_level QUIET
 
 browser\Client.min.js: browser\Client.js Hello.js $(libdir)\Ice.min.js
 	@del /q browser\Client.min.js
-	java -jar $(CLOSURE_PATH)\compiler.jar $(CLOSUREFLAGS) --js $(libdir)\Ice.js Hello.js \
+	java -jar $(CLOSURE_COMPILER) $(CLOSUREFLAGS) --js $(libdir)\Ice.js Hello.js \
 		browser\Client.js --js_output_file browser\Client.min.js
 
 !if "$(GZIP_PATH)" != ""

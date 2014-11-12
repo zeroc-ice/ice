@@ -30,7 +30,7 @@ CLOSUREFLAGS	= $(CLOSUREFLAGS) --warning_level QUIET
 
 Client.min.js: Client.js Chat.js ChatSession.js $(libdir)\Ice.min.js $(libdir)\Glacier2.min.js
 	@del /q Client.min.js
-	java -jar $(CLOSURE_PATH)\compiler.jar $(CLOSUREFLAGS) --js $(libdir)\Ice.js $(libdir)\Glacier2.js \
+	java -jar $(CLOSURE_COMPILER) $(CLOSUREFLAGS) --js $(libdir)\Ice.js $(libdir)\Glacier2.js \
 		Chat.js ChatSession.js Client.js --js_output_file Client.min.js
 
 !if "$(GZIP_PATH)" != ""

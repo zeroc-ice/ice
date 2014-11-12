@@ -37,7 +37,7 @@ STYLE_SHEETS = foundation\css\foundation.min.css \
 	
 common.min.js: $(SCRIPTS)
 	-del /q common.min.js
-	java -jar $(CLOSURE_PATH)\compiler.jar $(CLOSUREFLAGS) --js $(SCRIPTS) --js_output_file common.min.js
+	java -jar $(CLOSURE_COMPILER) $(CLOSUREFLAGS) --js $(SCRIPTS) --js_output_file common.min.js
 
 !if "$(GZIP_PATH)" != ""
 common.min.js.gz: common.min.js
