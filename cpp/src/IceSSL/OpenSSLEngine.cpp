@@ -744,6 +744,8 @@ OpenSSLEngine::initialize()
 #  endif
                 }
             }
+            
+            SSL_CTX_set_mode(_ctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
         }
 
         //

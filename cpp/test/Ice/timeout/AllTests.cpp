@@ -136,7 +136,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Expect TimeoutException.
         //
         TimeoutPrx to = TimeoutPrx::uncheckedCast(obj->ice_timeout(250));
-        to->holdAdapter(2000);
+        to->holdAdapter(500);
         try
         {
             to->sendData(seq);
@@ -294,7 +294,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         initData.properties->setProperty("Ice.Override.Timeout", "250");
         Ice::CommunicatorPtr comm = Ice::initialize(initData);
         TimeoutPrx to = TimeoutPrx::checkedCast(comm->stringToProxy(sref));
-        to->holdAdapter(2000);
+        to->holdAdapter(500);
         try
         {
             to->sendData(seq);
@@ -308,8 +308,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Calling ice_timeout() should have no effect.
         //
         timeout->op(); // Ensure adapter is active.
-        to = TimeoutPrx::checkedCast(to->ice_timeout(3000));
-        to->holdAdapter(2000);
+        to = TimeoutPrx::checkedCast(to->ice_timeout(1000));
+        to->holdAdapter(500);
         try
         {
             to->sendData(seq);
