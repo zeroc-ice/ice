@@ -233,15 +233,15 @@ def addenv(var, val):
     else:
         os.environ[var] = val
 
-iceJARs = ["ice", 
+iceJARs = ["ice",
            "glacier2",
-           "freeze", 
-           "icebox", 
-           "icestorm", 
-           "icegrid", 
-           "icepatch2", 
+           "freeze",
+           "icebox",
+           "icestorm",
+           "icegrid",
+           "icepatch2",
            "icediscovery"]
-    
+
 def configurePaths():
 
     if iceHome:
@@ -251,15 +251,14 @@ def configurePaths():
         sys.stdout.write("]\n")
 
     jarSuffix = "-" + getIceVersion() + ".jar"
-    
+
     #
     # If Ice is installed from RPMs, just set the CLASSPATH for Java.
     #
     if iceHome == "/usr":
-        javaDir = os.path.join("/", "usr", "share", "java")        
+        javaDir = os.path.join("/", "usr", "share", "java")
         for jar in iceJARs:
             addenv("CLASSPATH", os.path.join(javaDir, jar + jarSuffix))
-        addenv("CLASSPATH", os.path.joing("build", "classes"))
         return # That's it, we're done!
 
     # Always add the bin directory to the PATH, it contains executable
@@ -310,7 +309,6 @@ def configurePaths():
     javaDir = getIceDir("java")
     for jar in iceJARs:
         addenv("CLASSPATH", os.path.join(javaDir, "lib", jar + jarSuffix))
-    addenv("CLASSPATH", os.path.join("build", "classes"))
 
     #
     # On Windows, C# assemblies are found thanks to the .exe.config files.

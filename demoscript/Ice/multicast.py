@@ -59,7 +59,7 @@ def run(clientCmd, serverCmd):
     sys.stdout.write("testing multicast discovery (IPv4)... ")
     sys.stdout.flush()
     if serverCmd.startswith("java"):
-        runDemo(clientCmd, "java -Djava.net.preferIPv4Stack=true Server")
+        runDemo(clientCmd, "java -Djava.net.preferIPv4Stack=true -jar build/libs/server.jar")
     else:
         runDemo(clientCmd, serverCmd)
     print("ok")
@@ -68,7 +68,7 @@ def run(clientCmd, serverCmd):
     # No IPv6 support in Windows with Java 1.6.x
     #
     if Util.getMapping() != "java" or not Util.isWin32() or not Util.getJavaVersion().startswith("1.6"):
-    
+
         sys.stdout.write("testing multicast discovery (IPv6)... ")
         sys.stdout.flush()
 
@@ -85,6 +85,6 @@ def run(clientCmd, serverCmd):
 
         serverCmd += ' --Ice.IPv6=1 --Discover.Endpoints="%s"' % (endpoint)
         clientCmd += ' --Ice.IPv6=1 --Discover.Proxy="discover:%s"' % (endpoint)
-            
+
         runDemo(clientCmd, serverCmd)
         print("ok")

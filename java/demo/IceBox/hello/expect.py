@@ -24,7 +24,7 @@ from demoscript.IceBox import hello
 
 # Override the service load line.
 if Util.defaultHost:
-    args = ' --IceBox.Service.Hello="HelloServiceI --Ice.Config=config.service %s"' % Util.defaultHost
+    args = ' --IceBox.Service.Hello="build/libs/server.jar:HelloServiceI --Ice.Config=config.service %s"' % Util.defaultHost
 else:
     args = ''
 

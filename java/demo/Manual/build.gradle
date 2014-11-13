@@ -22,7 +22,6 @@
 			main {
 				java {
 					srcDir '.'
-					output.classesDir "${buildDir}/classes"
 				}
 			}
 		}
