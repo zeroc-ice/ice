@@ -25,8 +25,8 @@ Please contact sales@zeroc.com for more information on licensing Ice.
 Getting Started with Ice on Linux
 ---------------------------------
 
-Please visit the 'Using the Linux RPMs' section in the Ice @ver@
-release notes:
+Please visit the 'Using the Linux Binary Distributions' section in the 
+Ice @ver@ release notes:
 
 http://doc.zeroc.com/display/Rel/Ice+@ver@+Release+Notes
 
@@ -42,8 +42,7 @@ http://doc.zeroc.com/display/Rel/Ice+@mmver@+Manual
 Source Code
 -----------
 
-The source distributions of Ice, Berkeley DB, mcpp, JGoodies Common,
-JGoodies Forms, and JGoodies Looks used to build this distribution can
-be downloaded at no cost from
+The source distributions of Ice and all third-party packages used to 
+build this distribution can be downloaded at no cost from:
 
-  http://www.zeroc.com/download.html
+http://www.zeroc.com/download.html
