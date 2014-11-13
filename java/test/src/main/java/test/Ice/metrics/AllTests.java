@@ -1226,6 +1226,23 @@ public class AllTests
         }
         else
         {
+            for(int i = 0; i < 10; ++i)
+            {
+                if(obsv.invocationObserver.collocatedObserver.getCurrent() > 0)
+                {
+                    try
+                    {
+                        Thread.sleep(10);
+                    }
+                    catch(java.lang.InterruptedException ex)
+                    {
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
             test(obsv.invocationObserver.collocatedObserver.getCurrent() == 0);
         }
         test(obsv.dispatchObserver.getCurrent() == 0);

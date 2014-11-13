@@ -1193,6 +1193,17 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     }
     else
     {
+        for(int i = 0; i < 10; ++i)
+        {
+            if(obsv->invocationObserver->collocatedObserver->getCurrent() > 0)
+            {
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(50));
+            }
+            else
+            {
+                break;
+            }
+        }
         test(obsv->invocationObserver->collocatedObserver->getCurrent() == 0);
     }
     test(obsv->dispatchObserver->getCurrent() == 0);

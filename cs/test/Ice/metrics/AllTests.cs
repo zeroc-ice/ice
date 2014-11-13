@@ -10,6 +10,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 
 #if SILVERLIGHT
 using System.Windows.Controls;
@@ -1182,6 +1183,17 @@ public class AllTests : TestCommon.TestApp
         }
         else
         {
+            for(int i = 0; i < 10; ++i)
+            {
+                if(obsv.invocationObserver.collocatedObserver.getCurrent() > 0)
+                {
+                    Thread.Sleep(10);
+                }
+                else
+                {
+                    break;
+                }
+            }
             test(obsv.invocationObserver.collocatedObserver.getCurrent() == 0);
         }
         test(obsv.dispatchObserver.getCurrent() == 0);
