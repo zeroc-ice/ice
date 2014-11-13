@@ -227,7 +227,6 @@ print "Copying distribution files (README, SOURCES, etc)...",
 sys.stdout.flush()
 platform.copyDistributionFiles(distDir, buildDir)
 copy(os.path.join(srcDir, "CHANGES"), os.path.join(buildDir, "CHANGES"))
-copy(os.path.join(srcDir, "RELEASE_NOTES"), os.path.join(buildDir, "RELEASE_NOTES"))
 print "ok"
 
 #

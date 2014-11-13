@@ -957,7 +957,7 @@ else:
 
                                 copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
 
-                    for f in ["CHANGES.txt", "LICENSE.txt", "ICE_LICENSE.txt", "RELEASE_NOTES.txt"]:
+                    for f in ["CHANGES.txt", "LICENSE.txt", "ICE_LICENSE.txt"]:
                         copyIfModified(os.path.join(sourceDir, f), os.path.join(installerDir, f), verbose = verbose)
 
                     #

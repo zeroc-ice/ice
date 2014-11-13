@@ -220,9 +220,6 @@ for f in FixUtil.find(["*.csproj", "*.vbproj"]):
     for c in ["Ice", "IceBox", "IceGrid", "IcePatch2", "IceSSL", "IceStorm", "Glacier2"]:
         FixUtil.fileMatchAndReplace(f, [( c + ", Version=" + FixUtil.vpatMatch, newVersion)], False)
 
-# Release notes
-FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "RELEASE_NOTES"), [("Ice\+" + FixUtil.vpatMatch, version)])
-
 # Eclipse plug-in
 FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "eclipse", "java", "Slice2javaPlugin", "src",
                                          "com", "zeroc", "slice2javaplugin", "preferences", "messages.properties"),

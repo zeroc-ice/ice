@@ -274,12 +274,10 @@ def createSourceDist(platform, destDir):
     current = os.getcwd()
     os.chdir(os.path.join(destDir, prefix))
 
-    fixVersion("RELEASE_NOTES", *versions)
     if os.path.exists("vsaddin"):
         fixVersion(os.path.join("vsaddin", "config", "Ice-VS2012.AddIn"), *versions)
         fixVersion(os.path.join("vsaddin", "config", "Ice-VS2013.AddIn"), *versions)
         fixVersion(os.path.join("vsaddin", "config", "Ice.props"), *versions)
-
 
     if os.path.exists(os.path.join("cpp", "config", "Make.rules")):
         fixMakeRules(os.path.join("cpp", "config", "Make.rules"))
@@ -300,7 +298,7 @@ def createSourceDist(platform, destDir):
                 checkFlexVersion(filepath)
 
             if platform == "Windows":
-                for name in ["README", "CHANGES", "LICENSE", "ICE_LICENSE", "RELEASE_NOTES"]:
+                for name in ["README", "CHANGES", "LICENSE", "ICE_LICENSE"]:
                     if fnmatch.fnmatch(f, name) and not fnmatch.fnmatch(f, name + ".txt"):
                         os.rename(filepath, filepath + ".txt")
                         filepath = filepath + ".txt"
@@ -624,10 +622,9 @@ copyMatchingFiles(os.path.join(distFilesDir), rpmBuildDir, rpmBuildFiles)
 copy(srcDir, debSrcDir, False)
 
 #
-# Copy CHANGES and RELEASE_NOTES
+# Copy CHANGES
 #
 copy(os.path.join(srcDir, "CHANGES"), os.path.join(distDir, "Ice-" + version + "-CHANGES"))
-copy(os.path.join(srcDir, "RELEASE_NOTES"), os.path.join(distDir, "Ice-" + version + "-RELEASE_NOTES"))
 copy(os.path.join(distFilesDir, "src", "rpm", "RPM_README"), \
         os.path.join(distDir, "Ice-" + version + "-RPM_README"))
 copy(os.path.join(distFilesDir, "src", "deb", "DEB_README"), \
