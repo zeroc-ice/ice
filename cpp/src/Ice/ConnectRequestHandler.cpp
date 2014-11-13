@@ -336,21 +336,6 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
     _proxies.clear();
     _proxy = 0; // Break cyclic reference count.
 
-    //
-    // NOTE: remove the request handler *before* notifying the
-    // requests that the connection failed. It's important to ensure
-    // that future invocations will obtain a new connect request
-    // handler once invocations are notified.
-    //
-    try
-    {
-        _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, this);
-    }
-    catch(const Ice::CommunicatorDestroyedException&)
-    {
-        // Ignore
-    }
-
     flushRequestsWithException();
     notifyAll();
 }
@@ -421,13 +406,30 @@ ConnectRequestHandler::flushRequests()
             Request& req = _requests.front();
             if(req.out)
             {
-                req.out->send(_connection, _compress, _response);
+                try
+                {
+                    req.out->send(_connection, _compress, _response);
+                }
+                catch(const Ice::DatagramLimitException& ex)
+                {
+                    req.out->completed(ex);
+                }
             }
             else if(req.outAsync)
             {
-                if(req.outAsync->send(_connection, _compress, _response) & AsyncStatusInvokeSentCallback)
+                try
                 {
-                    req.outAsync->invokeSentAsync();
+                    if(req.outAsync->send(_connection, _compress, _response) & AsyncStatusInvokeSentCallback)
+                    {
+                        req.outAsync->invokeSentAsync();
+                    }
+                }
+                catch(const Ice::DatagramLimitException& ex)
+                {
+                    if(req.outAsync->completed(ex))
+                    {
+                        req.outAsync->invokeCompletedAsync();
+                    }
                 }
             }
             else
@@ -446,6 +448,7 @@ ConnectRequestHandler::flushRequests()
                     _connection->abortBatchRequest();
                     throw;
                 }
+
                 _connection->finishBatchRequest(&os, _compress);
                 delete req.os;
             }
@@ -496,17 +499,15 @@ ConnectRequestHandler::flushRequests()
         {
             _initialized = true;
             _flushing = false;
+            try
+            {
+                _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, this);
+            }
+            catch(const Ice::CommunicatorDestroyedException&)
+            {
+                // Ignore
+            }
         }
-
-        try
-        {
-            _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, this);
-        }
-        catch(const Ice::CommunicatorDestroyedException&)
-        {
-            // Ignore
-        }
-
         _proxies.clear();
         _proxy = 0; // Break cyclic reference count.
         notifyAll();
@@ -517,6 +518,21 @@ void
 ConnectRequestHandler::flushRequestsWithException()
 {
     assert(_exception.get());
+
+    //
+    // NOTE: remove the request handler *before* notifying the
+    // requests that the connection failed. It's important to ensure
+    // that future invocations will obtain a new connect request
+    // handler once invocations are notified.
+    //
+    try
+    {
+        _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, this);
+    }
+    catch(const Ice::CommunicatorDestroyedException&)
+    {
+        // Ignore
+    }
 
     for(deque<Request>::const_iterator p = _requests.begin(); p != _requests.end(); ++p)
     {

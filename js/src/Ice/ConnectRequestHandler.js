@@ -247,21 +247,6 @@ var ConnectRequestHandler = Ice.Class({
         this._proxies.length = 0;
         this._proxy = null; // Break cyclic reference count.
 
-        //
-        // NOTE: remove the request handler *before* notifying the
-        // requests that the connection failed. It's important to ensure
-        // that future invocations will obtain a new connect request
-        // handler once invocations are notified.
-        //
-        try
-        {
-            this._reference.getInstance().requestHandlerFactory().removeRequestHandler(this._reference, this);
-        }
-        catch(exc)
-        {
-            // Ignore
-        }
-
         this.flushRequestsWithException(ex);
     },
     initialized: function()
@@ -357,7 +342,26 @@ var ConnectRequestHandler = Ice.Class({
         if(this._exception === null)
         {
             this._initialized = true;
+            try
+            {
+                this._reference.getInstance().requestHandlerFactory().removeRequestHandler(this._reference, this);
+            }
+            catch(exc)
+            {
+                // Ignore
+            }
         }
+        this._proxies.length = 0;
+        this._proxy = null; // Break cyclic reference count.
+    },
+    flushRequestsWithException: function()
+    {
+        //
+        // NOTE: remove the request handler *before* notifying the
+        // requests that the connection failed. It's important to ensure
+        // that future invocations will obtain a new connect request
+        // handler once invocations are notified.
+        //
         try
         {
             this._reference.getInstance().requestHandlerFactory().removeRequestHandler(this._reference, this);
@@ -366,11 +370,7 @@ var ConnectRequestHandler = Ice.Class({
         {
             // Ignore
         }
-        this._proxies.length = 0;
-        this._proxy = null; // Break cyclic reference count.
-    },
-    flushRequestsWithException: function()
-    {
+
         for(var i = 0; i < this._requests.length; ++i)
         {
             var request = this._requests[i];

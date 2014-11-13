@@ -289,21 +289,6 @@ public class ConnectRequestHandler
         _proxies.clear();
         _proxy = null; // Break cyclic reference count.
 
-        //
-        // NOTE: remove the request handler *before* notifying the
-        // requests that the connection failed. It's important to ensure
-        // that future invocations will obtain a new connect request
-        // handler once invocations are notified.
-        //
-        try
-        {
-            _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
-        }
-        catch(Ice.CommunicatorDestroyedException exc)
-        {
-            // Ignore
-        }
-
         flushRequestsWithException();
         notifyAll();
     }
@@ -407,10 +392,20 @@ public class ConnectRequestHandler
                 Request request = p.next();
                 if(request.outAsync != null)
                 {
-                    if((request.outAsync.send(_connection, _compress, _response) &
-                        AsyncStatus.InvokeSentCallback) > 0)
+                    try
                     {
-                        request.outAsync.invokeSentAsync();
+                        if((request.outAsync.send(_connection, _compress, _response) &
+                            AsyncStatus.InvokeSentCallback) > 0)
+                        {
+                            request.outAsync.invokeSentAsync();
+                        }
+                    }
+                    catch(Ice.DatagramLimitException ex)
+                    {
+                        if(request.outAsync.completed(ex))
+                        {
+                            request.outAsync.invokeCompletedAsync();
+                        }
                     }
                 }
                 else
@@ -480,15 +475,15 @@ public class ConnectRequestHandler
             {
                 _initialized = true;
                 _flushing = false;
-            }
 
-            try
-            {
-                _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
-            }
-            catch(Ice.CommunicatorDestroyedException ex)
-            {
-                // Ignore
+                try
+                {
+                    _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
+                }
+                catch(Ice.CommunicatorDestroyedException ex)
+                {
+                    // Ignore
+                }
             }
 
             _proxies.clear();
@@ -528,6 +523,21 @@ public class ConnectRequestHandler
     private void
     flushRequestsWithException()
     {
+        //
+        // NOTE: remove the request handler *before* notifying the
+        // requests that the connection failed. It's important to ensure
+        // that future invocations will obtain a new connect request
+        // handler once invocations are notified.
+        //
+        try
+        {
+            _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
+        }
+        catch(Ice.CommunicatorDestroyedException exc)
+        {
+            // Ignore
+        }
+
         for(Request request : _requests)
         {
             if(request.outAsync != null)

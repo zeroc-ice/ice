@@ -280,21 +280,6 @@ namespace IceInternal
                 _proxies.Clear();
                 _proxy = null; // Break cyclic reference count.
 
-                //
-                // NOTE: remove the request handler *before* notifying the
-                // requests that the connection failed. It's important to ensure
-                // that future invocations will obtain a new connect request
-                // handler once invocations are notified.
-                //
-                try
-                {
-                    _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
-                }
-                catch(Ice.CommunicatorDestroyedException)
-                {
-                    // Ignore
-                }
-
                 flushRequestsWithException();
                 System.Threading.Monitor.PulseAll(this);
             }
@@ -376,11 +361,22 @@ namespace IceInternal
                     Request request = p.Value;
                     if(request.outAsync != null)
                     {
-                        if(request.outAsync.send(_connection, _compress, _response, out request.sentCallback))
+                        try
                         {
-                            if(request.sentCallback != null)
+                            if(request.outAsync.send(_connection, _compress, _response, out request.sentCallback))
                             {
-                                request.outAsync.invokeSentAsync(request.sentCallback);
+                                if(request.sentCallback != null)
+                                {
+                                    request.outAsync.invokeSentAsync(request.sentCallback);
+                                }
+                            }
+                        }
+                        catch(Ice.DatagramLimitException ex)
+                        {
+                            Ice.AsyncCallback cb = request.outAsync.completed(ex);
+                            if(cb != null)
+                            {
+                                request.outAsync.invokeCompletedAsync(cb);
                             }
                         }
                     }
@@ -453,14 +449,15 @@ namespace IceInternal
                 {
                     _initialized = true;
                     _flushing = false;
-                }
-                try
-                {
-                    _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
-                }
-                catch(Ice.CommunicatorDestroyedException)
-                {
-                    // Ignore
+
+                    try
+                    {
+                        _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
+                    }
+                    catch(Ice.CommunicatorDestroyedException)
+                    {
+                        // Ignore
+                    }
                 }
                 _proxies.Clear();
                 _proxy = null; // Break cyclic reference count.
@@ -471,6 +468,21 @@ namespace IceInternal
         private void
         flushRequestsWithException()
         {
+            //
+            // NOTE: remove the request handler *before* notifying the
+            // requests that the connection failed. It's important to ensure
+            // that future invocations will obtain a new connect request
+            // handler once invocations are notified.
+            //
+            try
+            {
+                _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
+            }
+            catch(Ice.CommunicatorDestroyedException)
+            {
+                // Ignore
+            }
+
             foreach(Request request in _requests)
             {
                 if(request.outAsync != null)
