@@ -3,8 +3,8 @@ The Slice compilers use mcpp as their preprocessor:
   http://mcpp.sourceforge.net
 
 
-License agreement for mcpp:
---------------------------
+License Agreement for mcpp:
+---------_-----------------
 
 /*-
  * Copyright (c) 1998, 2002-2007 Kiyoshi Matsui <kmatsui@t3.rim.or.jp>

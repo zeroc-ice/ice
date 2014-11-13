@@ -1,10 +1,11 @@
-The IceGrid graphical client uses the JGoodies libraries from
+The IceGrid Admin graphical tool (icegridgui) uses JGoodies libraries 
+from:
 
   http://www.jgoodies.com
 
 
-License Agreement for JGoodies Libraries:
-----------------------------------------
+License Agreement for the JGoodies Libraries:
+---------------------------------------------
 
               The BSD License for the JGoodies Common
               =======================================
