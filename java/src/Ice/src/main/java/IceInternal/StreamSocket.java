@@ -30,7 +30,7 @@ public class StreamSocket
                 _state = StateConnected;
             }
         }
-        catch(Exception ex)
+        catch(Ice.LocalException ex)
         {
             assert(!_fd.isOpen());
             _fd = null; // Necessary for the finalizer
@@ -52,7 +52,7 @@ public class StreamSocket
         {
             init();
         }
-        catch(Exception ex)
+        catch(Ice.LocalException ex)
         {
             assert(!_fd.isOpen());
             _fd = null; // Necessary for the finalizer
