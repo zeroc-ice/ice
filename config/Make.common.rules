@@ -423,8 +423,3 @@ install-common::
 	then \
 		$(call installdata,$(top_srcdir)/../CHANGES$(TEXT_EXTENSION),$(DESTDIR)$(prefix)) ; \
 	fi
-
-	@if test ! -f $(DESTDIR)$(prefix)/RELEASE_NOTES$(TEXT_EXTENSION) ; \
-	then \
-		$(call installdata,$(top_srcdir)/../RELEASE_NOTES$(TEXT_EXTENSION),$(DESTDIR)$(prefix)) ; \
-	fi
