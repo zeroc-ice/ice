@@ -925,7 +925,7 @@ namespace IceInternal
             return addresses;
         }
 
-        public static IPAddress[] getLocalAddresses(int protocol)
+        public static IPAddress[] getLocalAddresses(int protocol, bool includeLoopback)
         {
 #if SILVERLIGHT
             return new List<IPAddress>().ToArray();
@@ -948,7 +948,7 @@ namespace IceInternal
                         if((uni.Address.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
                            (uni.Address.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
                         {
-                            if(!IPAddress.IsLoopback(uni.Address))
+                            if(includeLoopback || !IPAddress.IsLoopback(uni.Address))
                             {
                                 addresses.Add(uni.Address);
                             }
@@ -965,7 +965,7 @@ namespace IceInternal
                     if((a.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
                        (a.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
                     {
-                        if(!IPAddress.IsLoopback(a))
+                        if(includeLoopback || !IPAddress.IsLoopback(a))
                         {
                             addresses.Add(a);
                         }
@@ -1044,12 +1044,14 @@ namespace IceInternal
         public static List<string> getHostsForEndpointExpand(string host, int protocol, bool includeLoopback)
         {
             bool wildcard = host.Length == 0;
+            bool ipv4Wildcard = false;
             if(!wildcard)
             {
                 try
                 {
                     IPAddress addr = IPAddress.Parse(host);
-                    wildcard = addr.Equals(IPAddress.Any) || addr.Equals(IPAddress.IPv6Any);
+                    ipv4Wildcard = addr.Equals(IPAddress.Any);
+                    wildcard = ipv4Wildcard || addr.Equals(IPAddress.IPv6Any);
                 }
                 catch(Exception)
                 {
@@ -1059,7 +1061,8 @@ namespace IceInternal
             List<string> hosts = new List<string>();
             if(wildcard)
             {
-                IPAddress[] addrs = getLocalAddresses(protocol);
+                IPAddress[] addrs =
+                    getLocalAddresses(ipv4Wildcard ? Network.EnableIPv4 : protocol, includeLoopback);
                 foreach(IPAddress a in addrs)
                 {
 #if COMPACT
@@ -1069,18 +1072,6 @@ namespace IceInternal
 #endif
                     {
                         hosts.Add(a.ToString());
-                    }
-                }
-
-                if(includeLoopback || hosts.Count == 0)
-                {
-                    if(protocol != EnableIPv6)
-                    {
-                        hosts.Add("127.0.0.1");
-                    }
-                    if(protocol != EnableIPv4)
-                    {
-                        hosts.Add("0:0:0:0:0:0:0:1");
                     }
                 }
             }

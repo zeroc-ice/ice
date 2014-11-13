@@ -236,83 +236,60 @@ createSocketImpl(bool udp, int family)
 
 #ifndef ICE_OS_WINRT
 vector<Address>
-getLocalAddresses(ProtocolSupport protocol)
+getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
 {
     vector<Address> result;
 
 #if defined(_WIN32)
-    try
+    DWORD family;
+    switch(protocol)
     {
-        for(int i = 0; i < 2; i++)
-        {
-            if((i == 0 && protocol == EnableIPv6) || (i == 1 && protocol == EnableIPv4))
-            {
-                continue;
-            }
-
-            SOCKET fd = createSocketImpl(false, i == 0 ? AF_INET : AF_INET6);
-
-            vector<unsigned char> buffer;
-            buffer.resize(1024);
-            unsigned long len = 0;
-            int rs = WSAIoctl(fd, SIO_ADDRESS_LIST_QUERY, 0, 0,
-                                &buffer[0], static_cast<DWORD>(buffer.size()),
-                                &len, 0, 0);
-            if(rs == SOCKET_ERROR)
-            {
-                //
-                // If the buffer wasn't big enough, resize it to the
-                // required length and try again.
-                //
-                if(getSocketErrno() == WSAEFAULT)
-                {
-                    buffer.resize(len);
-                    rs = WSAIoctl(fd, SIO_ADDRESS_LIST_QUERY, 0, 0,
-                                  &buffer[0], static_cast<DWORD>(buffer.size()),
-                                  &len, 0, 0);
-                }
-
-                if(rs == SOCKET_ERROR)
-                {
-                    closeSocketNoThrow(fd);
-                    SocketException ex(__FILE__, __LINE__);
-                    ex.error = getSocketErrno();
-                    throw ex;
-                }
-            }
-
-            //
-            // Add the local interface addresses.
-            //
-            SOCKET_ADDRESS_LIST* addrs = reinterpret_cast<SOCKET_ADDRESS_LIST*>(&buffer[0]);
-            for (int i = 0; i < addrs->iAddressCount; ++i)
-            {
-                Address addr;
-                memcpy(&addr.saStorage, addrs->Address[i].lpSockaddr, addrs->Address[i].iSockaddrLength);
-                if(addr.saStorage.ss_family == AF_INET && protocol != EnableIPv6)
-                {
-                    if(addr.saIn.sin_addr.s_addr != 0)
-                    {
-                        result.push_back(addr);
-                    }
-                }
-                else if(addr.saStorage.ss_family == AF_INET6 && protocol != EnableIPv4)
-                {
-                    if(!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr) && !IN6_IS_ADDR_LOOPBACK(&addr.saIn6.sin6_addr))
-                    {
-                        result.push_back(addr);
-                    }
-                }
-            }
-
-            closeSocket(fd);
-        }
+        case EnableIPv4:
+            family = AF_INET;
+            break;
+        case EnableIPv6:
+            family = AF_INET6;
+            break;
+        default:
+            family = AF_UNSPEC;
+            break;
     }
-    catch(const Ice::LocalException&)
+
+    DWORD size;
+    DWORD rv = GetAdaptersAddresses(family, 0, NULL, NULL, &size);
+    if (rv == ERROR_BUFFER_OVERFLOW)
     {
-        //
-        // TODO: Warning?
-        //
+        PIP_ADAPTER_ADDRESSES adapter_addresses = (PIP_ADAPTER_ADDRESSES) malloc(size);
+        rv = GetAdaptersAddresses(family, 0, NULL, adapter_addresses, &size);
+        if (rv == ERROR_SUCCESS)
+        {
+            for (PIP_ADAPTER_ADDRESSES aa = adapter_addresses; aa != NULL; aa = aa->Next)
+            {
+                for (PIP_ADAPTER_UNICAST_ADDRESS ua = aa->FirstUnicastAddress; ua != NULL; ua = ua->Next)
+                {
+                    Address addr;
+                    memcpy(&addr.saStorage, ua->Address.lpSockaddr, ua->Address.iSockaddrLength);
+                    if(addr.saStorage.ss_family == AF_INET && protocol != EnableIPv6)
+                    {
+                        if(addr.saIn.sin_addr.s_addr != 0 &&
+                           (includeLoopback || addr.saIn.sin_addr.s_addr != htonl(INADDR_LOOPBACK)))
+                        {
+                            result.push_back(addr);
+                        }
+                    }
+                    else if(addr.saStorage.ss_family == AF_INET6 && protocol != EnableIPv4)
+                    {
+                        if(!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr) &&
+                           (includeLoopback || !IN6_IS_ADDR_LOOPBACK(&addr.saIn6.sin6_addr)))
+                        {
+                            result.push_back(addr);
+                        }
+                    }
+                }
+            }
+        }
+
+        free(adapter_addresses);
     }
 #elif defined(__linux) || defined(__APPLE__) || defined(__FreeBSD__)
     struct ifaddrs* ifap;
@@ -326,7 +303,7 @@ getLocalAddresses(ProtocolSupport protocol)
     struct ifaddrs* curr = ifap;
     while(curr != 0)
     {
-        if(curr->ifa_addr && !(curr->ifa_flags & IFF_LOOPBACK))  // Don't include loopback interface addresses
+        if(curr->ifa_addr && (includeLoopback || !(curr->ifa_flags & IFF_LOOPBACK)))
         {
             if(curr->ifa_addr->sa_family == AF_INET && protocol != EnableIPv6)
             {
@@ -423,7 +400,8 @@ getLocalAddresses(ProtocolSupport protocol)
                 {
                     Address addr;
                     memcpy(&addr.saStorage, &ifr[i].ifr_addr, sizeof(sockaddr_in));
-                    if(addr.saIn.sin_addr.s_addr != 0 && addr.saIn.sin_addr.s_addr != htonl(INADDR_LOOPBACK))
+                    if(addr.saIn.sin_addr.s_addr != 0 &&
+                       (includeLoopback || addr.saIn.sin_addr.s_addr != htonl(INADDR_LOOPBACK)))
                     {
                         unsigned int j;
                         for(j = 0; j < result.size(); ++j)
@@ -443,7 +421,8 @@ getLocalAddresses(ProtocolSupport protocol)
                 {
                     Address addr;
                     memcpy(&addr.saStorage, &ifr[i].ifr_addr, sizeof(sockaddr_in6));
-                    if(!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr) && !IN6_IS_ADDR_LOOPBACK(&addr.saIn6.sin6_addr))
+                    if(!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr) &&
+                       (includeLoopback || !IN6_IS_ADDR_LOOPBACK(&addr.saIn6.sin6_addr)))
                     {
                         unsigned int j;
                         for(j = 0; j < result.size(); ++j)
@@ -469,7 +448,7 @@ getLocalAddresses(ProtocolSupport protocol)
 }
 
 bool
-isWildcard(const string& host, ProtocolSupport protocol)
+isWildcard(const string& host, ProtocolSupport protocol, bool& ipv4)
 {
     try
     {
@@ -478,6 +457,7 @@ isWildcard(const string& host, ProtocolSupport protocol)
         {
             if(addr.saIn.sin_addr.s_addr == INADDR_ANY)
             {
+                ipv4 = true;
                 return true;
             }
         }
@@ -485,6 +465,7 @@ isWildcard(const string& host, ProtocolSupport protocol)
         {
             if(IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr))
             {
+                ipv4 = false;
                 return true;
             }
         }
@@ -1434,9 +1415,10 @@ vector<string>
 IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport protocolSupport, bool includeLoopback)
 {
     vector<string> hosts;
-    if(isWildcard(host, protocolSupport))
+    bool ipv4Wildcard = false;
+    if(isWildcard(host, protocolSupport, ipv4Wildcard))
     {
-        vector<Address> addrs = getLocalAddresses(protocolSupport);
+        vector<Address> addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocolSupport, includeLoopback);
         for(vector<Address>::const_iterator p = addrs.begin(); p != addrs.end(); ++p)
         {
             //
@@ -1446,18 +1428,6 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
             if(p->saStorage.ss_family != AF_INET6 || !IN6_IS_ADDR_LINKLOCAL(&p->saIn6.sin6_addr))
             {
                 hosts.push_back(inetAddrToString(*p));
-            }
-        }
-
-        if(hosts.empty() || includeLoopback)
-        {
-            if(protocolSupport != EnableIPv6)
-            {
-                hosts.push_back("127.0.0.1");
-            }
-            if(protocolSupport != EnableIPv4)
-            {
-                hosts.push_back("0:0:0:0:0:0:0:1");
             }
         }
     }
