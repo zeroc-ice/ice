@@ -216,6 +216,7 @@ ICE_API ProtocolSupport getProtocolSupport(const Address&);
 ICE_API Address getAddressForServer(const std::string&, int, ProtocolSupport, bool);
 ICE_API int compareAddress(const Address&, const Address&);
 
+ICE_API bool isIPv6Supported();
 ICE_API SOCKET createSocket(bool, const Address&);
 ICE_API SOCKET createServerSocket(bool, const Address&, ProtocolSupport);
 ICE_API void closeSocketNoThrow(SOCKET);

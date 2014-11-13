@@ -92,7 +92,6 @@ var Instance = Ice.Class({
         this._outgoingConnectionFactory = null;
         this._servantFactoryManager = null;
         this._objectAdapterFactory = null;
-        this._protocolSupport = null;
         this._retryQueue = null;
         this._endpointHostResolver = null;
         this._endpointFactoryManager = null;
@@ -179,10 +178,6 @@ var Instance = Ice.Class({
         Debug.assert(this._outgoingConnectionFactory !== null);
         return this._outgoingConnectionFactory;
     },
-    preferIPv6: function()
-    {
-        return this._preferIPv6;
-    },
     servantFactoryManager: function()
     {
         if(this._state === StateDestroyed)
@@ -202,15 +197,6 @@ var Instance = Ice.Class({
 
         Debug.assert(this._objectAdapterFactory !== null);
         return this._objectAdapterFactory;
-    },
-    protocolSupport: function()
-    {
-        if(this._state == StateDestroyed)
-        {
-            throw new Ice.CommunicatorDestroyedException();
-        }
-
-        return this._protocolSupport;
     },
     retryQueue: function()
     {

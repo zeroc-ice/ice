@@ -1234,11 +1234,11 @@ var ConnectionI = Class({
                 //
                 // Trace the cause of unexpected connection closures
                 //
-                if(!(this._exception instanceof CloseConnectionException ||
-                     this._exception instanceof ForcedCloseConnectionException ||
-                     this._exception instanceof ConnectionTimeoutException ||
-                     this._exception instanceof CommunicatorDestroyedException ||
-                     this._exception instanceof ObjectAdapterDeactivatedException))
+                if(!(this._exception instanceof Ice.CloseConnectionException ||
+                     this._exception instanceof Ice.ForcedCloseConnectionException ||
+                     this._exception instanceof Ice.ConnectionTimeoutException ||
+                     this._exception instanceof Ice.CommunicatorDestroyedException ||
+                     this._exception instanceof Ice.ObjectAdapterDeactivatedException))
                 {
                     s.push("\n");
                     s.push(this._exception.toString());

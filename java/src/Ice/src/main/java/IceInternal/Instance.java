@@ -952,8 +952,9 @@ public final class Instance
 
             _proxyFactory = new ProxyFactory(this);
 
+            boolean isIPv6Supported = Network.isIPv6Supported();
             boolean ipv4 = _initData.properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
-            boolean ipv6 = _initData.properties.getPropertyAsIntWithDefault("Ice.IPv6", 1) > 0;
+            boolean ipv6 = _initData.properties.getPropertyAsIntWithDefault("Ice.IPv6", isIPv6Supported ? 1 : 0) > 0;
             if(!ipv4 && !ipv6)
             {
                 throw new Ice.InitializationException("Both IPV4 and IPv6 support cannot be disabled.");

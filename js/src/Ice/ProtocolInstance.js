@@ -63,14 +63,6 @@ var ProtocolInstance = Ice.Class({
     {
         return this._properties;
     },
-    preferIPv6: function()
-    {
-        return this._instance.preferIPv6();
-    },
-    protocolSupport: function()
-    {
-        return this._instance.protocolSupport();
-    },
     defaultHost: function()
     {
         return this._instance.defaultsAndOverrides().defaultHost;
@@ -86,10 +78,6 @@ var ProtocolInstance = Ice.Class({
     defaultTimeout: function()
     {
         return this._instance.defaultsAndOverrides().defaultTimeout;
-    },
-    networkProxy: function()
-    {
-        return this._instance.networkProxy();
     },
     messageSizeMax: function()
     {

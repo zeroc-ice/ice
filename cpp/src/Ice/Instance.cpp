@@ -1316,8 +1316,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         
         _proxyFactory = new ProxyFactory(this);
 
-        bool ipv4 = _initData.properties->getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
-        bool ipv6 = _initData.properties->getPropertyAsIntWithDefault("Ice.IPv6", 1) > 0;
+        const bool isIPv6Supported = IceInternal::isIPv6Supported();
+        const bool ipv4 = _initData.properties->getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
+        const bool ipv6 = _initData.properties->getPropertyAsIntWithDefault("Ice.IPv6", isIPv6Supported ? 1 : 0) > 0;
         if(!ipv4 && !ipv6)
         {
             throw InitializationException(__FILE__, __LINE__, "Both IPV4 and IPv6 support cannot be disabled.");

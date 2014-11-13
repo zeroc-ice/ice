@@ -117,6 +117,22 @@ public final class Network
         return false;
     }
 
+    public static boolean 
+    isIPv6Supported()
+    {
+        try
+        {
+            java.net.Socket socket = new java.net.Socket();
+            socket.bind(new java.net.InetSocketAddress(java.net.InetAddress.getByName("::1"), 0));
+            socket.close();
+            return true;
+        }
+        catch(java.io.IOException ex)
+        {
+            return false;
+        }
+    }
+
     public static java.nio.channels.SocketChannel
     createTcpSocket()
     {

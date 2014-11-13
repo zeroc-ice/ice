@@ -1097,6 +1097,29 @@ IceInternal::compareAddress(const Address& addr1, const Address& addr2)
 }
 
 #ifdef ICE_OS_WINRT
+bool
+IceInternal::isIPv6Supported()
+{
+    return true;
+}
+#else
+bool
+IceInternal::isIPv6Supported()
+{
+    SOCKET fd = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
+    if(fd == INVALID_SOCKET)
+    {
+        return false;
+    }
+    else
+    {
+        closeSocketNoThrow(fd);
+        return true;
+    }
+}
+#endif
+
+#ifdef ICE_OS_WINRT
 SOCKET
 IceInternal::createSocket(bool udp, const Address&)
 {

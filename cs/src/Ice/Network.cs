@@ -270,6 +270,20 @@ namespace IceInternal
             return false;
         }
 
+        public static bool isIPv6Supported()
+        {
+            try
+            {
+                Socket socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
+                closeSocketNoThrow(socket);
+                return true;
+            }
+            catch(SocketException)
+            {
+                return false;
+            }
+        }
+
         public static Socket createSocket(bool udp, AddressFamily family)
         {
             Socket socket;

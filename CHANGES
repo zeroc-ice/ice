@@ -27,6 +27,9 @@ Changes since version 3.5.1
 General Changes
 ===============
 
+- IPv6 is now disabled by default if the operating system doesn't
+  support the creation of IPv6 sockets.
+
 - Added new Ice.BatchAutoFlushSize property to allow controlling how
   much data (in kilo bytes) is queued for batching before the batch is
   sent over the connection. Previously, this was controlled by the
