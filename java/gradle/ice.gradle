@@ -11,12 +11,14 @@ apply plugin: 'slice'
 
 ext.generatedDir = "$project.buildDir/generated"
 
+def android = false
 try {
 	compileJava {
 		options.debug = debug
 	}
 } catch(MissingMethodException ex) {
 	// For Android builds: thrown if compileJava isn't available.
+	android = true
 }
 
 // Determine the name of the Slice-to-Java translator
@@ -210,50 +212,52 @@ ext {
 	localDependency = this.&localDependency
 }
 
-//
-// Find BerkeleyDB JAR
-//
-if(dbHome) {
-	ext.dbJar = "${dbHome}/db.jar"
-} else {
-	def subdirs
-	if (isWindows) {
-		def thirdpartyhome = env['THIRDPARTY_HOME']
-		if (thirdpartyhome == null || thirpartyhome.length() == 0) {
-			def progFiles
-			def arch1 = env['PROCESSOR_ARCHITECTURE']
-			def arch2 = env['PROCESSOR_ARCHITEW6432']
-			if (arch1 == "AMD64" || arch1 == "IA64" || arch2 == "AMD64" || arch2 == "IA64") {
-				progFiles = env['ProgramFiles(x86)']
-			} else {
-				progFiles = env['ProgramFiles']
-			}
-			thirdpartyhome = "${progFiles}/ZeroC/Ice-${project.version}-ThirdParty"
-		}
-
-		subdirs = [ "${thirdpartyhome}/lib/" ]
+if (!android) {
+	//
+	// Find BerkeleyDB JAR
+	//
+	if(dbHome) {
+		ext.dbJar = "${dbHome}/db.jar"
 	} else {
-		subdirs = [
-			"/Library/Developer/Ice-${project.version}-ThirdParty/lib/",
-			"/usr/share/java/",
-			"/opt/Ice-${project.version}/lib/",
-			"/opt/db/lib/",
-			"/usr/lib/"
-		]
-	}
+		def subdirs
+		if (isWindows) {
+			def thirdpartyhome = env['THIRDPARTY_HOME']
+			if (thirdpartyhome == null || thirpartyhome.length() == 0) {
+				def progFiles
+				def arch1 = env['PROCESSOR_ARCHITECTURE']
+				def arch2 = env['PROCESSOR_ARCHITEW6432']
+				if (arch1 == "AMD64" || arch1 == "IA64" || arch2 == "AMD64" || arch2 == "IA64") {
+					progFiles = env['ProgramFiles(x86)']
+				} else {
+					progFiles = env['ProgramFiles']
+				}
+				thirdpartyhome = "${progFiles}/ZeroC/Ice-${project.version}-ThirdParty"
+			}
 
-	def candidates = ["db-5.3.28.jar", "db-5.3.21.jar", "db.jar"].collect {
-		def dbJarName = it
-		subdirs.collect {
-			it.concat(dbJarName)
+			subdirs = [ "${thirdpartyhome}/lib/" ]
+		} else {
+			subdirs = [
+				"/Library/Developer/Ice-${project.version}-ThirdParty/lib/",
+				"/usr/share/java/",
+				"/opt/Ice-${project.version}/lib/",
+				"/opt/db/lib/",
+				"/usr/lib/"
+			]
 		}
-	}.flatten()
 
-	ext.dbJar = candidates.find {
-		new File(it).exists()
+		def candidates = ["db-5.3.28.jar", "db-5.3.21.jar", "db.jar"].collect {
+			def dbJarName = it
+			subdirs.collect {
+				it.concat(dbJarName)
+			}
+		}.flatten()
+
+		ext.dbJar = candidates.find {
+			new File(it).exists()
+		}
 	}
-}
 
-if(!ext.dbJar || !new File(ext.dbJar).exists()) {
-	throw new GradleException("Unable to locate the required third party BerkeleyDB jar file `db.jar'.")
+	if(!ext.dbJar || !new File(ext.dbJar).exists()) {
+		throw new GradleException("Unable to locate the required third party BerkeleyDB jar file `db.jar'.")
+	}
 }

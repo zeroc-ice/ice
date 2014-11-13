@@ -17,6 +17,9 @@ buildscript {
 }
 
 subprojects {
+    project.version = iceVersion
+    project.group = "com.zeroc"
+
     apply plugin: 'idea'
 
     // The Android versions used by subprojects.
@@ -30,10 +33,4 @@ subprojects {
             url 'http://repo.zeroc.com/nexus/content/repositories/thirdparty'
         }
     }
-
-    //jar {
-    //    manifest {
-    //        attributes("Built-By": "ZeroC, Inc.")
-    //    }
-    //}
 }
