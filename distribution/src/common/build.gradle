@@ -23,10 +23,10 @@ subprojects {
 		    }
 	    }
 	    maven {
-	        url 'http://www.zeroc.com:8081/nexus/content/repositories/thirdparty'
+	        url 'http://repo.zeroc.com/nexus/content/repositories/thirdparty'
 	    }
 	    maven {
-	        url 'http://www.zeroc.com:8081/nexus/content/repositories/releases'
+	        url 'http://repo.zeroc.com/nexus/content/repositories/releases'
 	    }
     }
 }
