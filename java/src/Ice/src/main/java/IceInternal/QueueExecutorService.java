@@ -65,10 +65,10 @@ final class QueueExecutorService
             }
         }
 
+        boolean interrupted = false;
         try
         {
             Future<T> future = _executor.submit(callable);
-            boolean interrupted = false;
             while(true)
             {
                 try 
@@ -79,13 +79,6 @@ final class QueueExecutorService
                 catch(InterruptedException ex)
                 {
                     interrupted = true;
-                }
-                finally
-                {
-                    if(interrupted)
-                    {
-                        Thread.currentThread().interrupt();
-                    }
                 }
             }
         }
@@ -109,6 +102,13 @@ final class QueueExecutorService
                 // can be raised by Ice internals.
                 assert(ex instanceof RetryException);
                 throw (RetryException)ex;
+            }
+        }
+        finally
+        {
+            if(interrupted)
+            {
+                Thread.currentThread().interrupt();
             }
         }
     }
