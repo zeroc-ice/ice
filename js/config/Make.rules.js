@@ -85,7 +85,7 @@ mklibtargets	= $(libdir)/$(1).js $(libdir)/$(1).js.gz \
 		  $(libdir)/$(1).min.js $(libdir)/$(1).min.js.gz
 
 installlib	= $(INSTALL) $(2)/$(3).min.js $(1); \
-		  $(INSTALL) $(2)/$(3).min.js.gz $(1) \
+		  $(INSTALL) $(2)/$(3).min.js.gz $(1); \
 		  $(INSTALL) $(2)/$(3).js $(1); \
 		  $(INSTALL) $(2)/$(3).js.gz $(1)
 else
@@ -158,9 +158,7 @@ $(libdir)/$(LIBNAME).js.gz: $(libdir)/$(LIBNAME).js
 ifeq ($(OPTIMIZE),yes)
 $(libdir)/$(LIBNAME).min.js: $(libdir)/$(LIBNAME).js
 	@rm -f $(libdir)/$(LIBNAME).min.js
-	$(NODE) $(top_srcdir)/config/makebundle.js "$(MODULES)" $(SRCS) > $(libdir)/$(LIBNAME).tmp.js
 	java -jar $(CLOSURE_COMPILER) $(CLOSUREFLAGS) --js $(libdir)/$(LIBNAME).js --js_output_file $(libdir)/$(LIBNAME).min.js
-	rm -f $(libdir)/$(LIBNAME).tmp.js
         
 $(libdir)/$(LIBNAME).min.js.gz: $(libdir)/$(LIBNAME).min.js
 	@rm -f $(libdir)/$(LIBNAME).min.js.gz
