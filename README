@@ -50,20 +50,3 @@ Release notes for Ice @ver@ are available online:
 The manual also provides instructions for building and installing Ice:
 
   http://doc.zeroc.com/display/Rel/Ice+@ver@+Build+Instructions
-
-
-Third Party Libraries
----------------------
-
-Ice uses the following third-party libraries:
-
-  Berkeley DB
-  mcpp
-  JGoodies Common
-  JGoodies Forms
-  JGoodies Looks
-
-The source distributions of these packages can be downloaded at no
-cost from
-
-  http://www.zeroc.com/download.html
