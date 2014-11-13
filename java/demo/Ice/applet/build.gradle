@@ -1,0 +1,58 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+slice {
+	java {
+		include = ["${projectDir}", "${sliceDir}"]
+		srcDir = '.'
+	}
+}
+
+sourceSets {
+	main {
+		java {
+			srcDir '.'
+		}
+	}
+}
+
+dependencies {
+	compile localDependency("ice")
+}
+
+// Don't create the default jar.
+jar.enabled = false
+
+buildscript {
+    repositories {
+        maven {
+            url 'http://www.zeroc.com:8081/nexus/content/repositories/thirdparty'
+        }
+    }
+    dependencies {
+        classpath group: 'net.sourceforge', name: 'proguard', version: '5.0'
+    }
+}
+
+def libJars = []
+['rt.jar', 'jsse.jar'].each {
+	libJars << searchFile([{System.env['JAVA_HOME']}, {System.properties['java.home']}],
+                          ["${it}", "lib/${it}", "jre/lib/${it}"])
+}
+
+task proguardJar(type: proguard.gradle.ProGuardTask, dependsOn: jar) {
+	injars configurations.compile.resolve(), filter: '!META-INF/**'
+	injars "${projectDir}/build/classes/main"
+	injars "${rootProject.projectDir}/../certs/client.jks"
+	injars "${projectDir}/config.applet"
+	outjars "${projectDir}/Hello.jar"
+	libraryjars libJars
+	configuration 'applet.pro'
+}
+assemble.dependsOn(proguardJar)

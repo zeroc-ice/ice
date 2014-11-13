@@ -12,32 +12,15 @@ Preparing the applet
 
 The demo includes a start page (hello.html) that you will need to
 publish on a web server. This page assumes that the demo applet is
-stored in a fully self-contained archive named Hello.jar. In order to
-create this fully self-contained JAR file, you must build the applet
-with ProGuard in your CLASSPATH. After a successful build, copy
-Hello.jar from this subdirectory to the same directory as hello.html
-on your web server.
-
-NOTE: If you use ProGuard, you must use version 4.3 or later.
-
-If you did not build the applet with ProGuard in your CLASSPATH, the
-Hello.jar archive contains only the applet classes. In this case you
-must modify the start page to add Ice.jar to the applet's ARCHIVE
-parameter:
-
-  <param name = "archive" value = "Ice.jar, Hello.jar">
-
-Alternatively, you can add ProGuard to your CLASSPATH and rebuild the
-applet with the following commands:
-
-  ant clean
-  ant
+stored in a fully self-contained archive named Hello.jar. After a
+successful build, copy Hello.jar from this subdirectory to the same
+directory as hello.html on your web server.
 
 
 Preparing the Ice server
 ------------------------
 
-The applet requires a "hello" server. You can use the java -jar build/libs/server.jar
+The applet requires a "hello" server. You can use the java server
 from the ../hello directory or a hello server from any other Ice
 language mapping. You may need to temporarily relax the firewall
 restrictions on your server host to allow the applet to establish

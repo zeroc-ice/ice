@@ -39,9 +39,9 @@ project(':testPlugins').projectDir = new File('test/plugins')
 // Map of dir->subdir for each of the demos.
 def demos = [
 	'Ice' : ['applet', 'async', 'bidir', 'callback', 'hello', 'invoke',
- 	'interrupt', 'latency', 'minimal', 'multicast', 'nested',
- 	'plugin', 'properties', 'serialize','session', 'swing',
- 	'throughput', 'value', 'optional','context'],
+		 	 'interrupt', 'latency', 'minimal', 'multicast', 'nested',
+		 	 'plugin', 'properties', 'serialize','session', 'swing',
+		 	 'throughput', 'value', 'optional','context'],
  	'IceDiscovery' : ['hello', 'replication'],
 	'Database' : ['library'],
 	'Freeze' : ['bench', 'casino', 'library', 'phonebook', 'transform'],

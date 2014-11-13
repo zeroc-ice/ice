@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-['applet', 'async', 'bidir', 'callback', 'hello', 'invoke',
+['async', 'bidir', 'callback', 'hello', 'invoke',
  'interrupt', 'latency', 'minimal', 'multicast', 'nested',
  'plugin', 'properties', 'serialize','session', 'swing',
  'throughput', 'value', 'optional','context'].each {
