@@ -404,7 +404,7 @@ final class WSTransceiver implements Transceiver
                     if(buf.b.remaining() > readSz)
                     {
                         int size = buf.size();
-                        buf.resize(readSz, true);
+                        buf.resize(buf.b.position() + readSz, true);
                         s = _delegate.read(buf, moreData);
                         buf.resize(size, true);
                     }
@@ -534,7 +534,7 @@ final class WSTransceiver implements Transceiver
         _readState = ReadStateOpcode;
         _readBuffer = new Buffer(false, java.nio.ByteOrder.BIG_ENDIAN); // Use network byte order.
         _readBufferSize = 1024;
-        _readLastFrame = false;
+        _readLastFrame = true;
         _readOpCode = 0;
         _readHeaderLength = 0;
         _readPayloadLength = 0;
@@ -819,8 +819,29 @@ final class WSTransceiver implements Transceiver
                 {
                     ch += 256;
                 }
-                _readLastFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
                 _readOpCode = ch & 0xf;
+
+                //
+                // Remember if last frame if we're going to read a data or
+                // continuation frame, this is only for protocol
+                // correctness checking purpose.
+                //
+                if(_readOpCode == OP_DATA)
+                {
+                    if(!_readLastFrame)
+                    {
+                        throw new Ice.ProtocolException("invalid data frame, no FIN on previous frame");
+                    }
+                    _readLastFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
+                }
+                else if(_readOpCode == OP_CONT)
+                {
+                    if(_readLastFrame)
+                    {
+                        throw new Ice.ProtocolException("invalid continuation frame, previous frame FIN set");
+                    }
+                    _readLastFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
+                }
 
                 ch = _readBuffer.b.get(_readBufferPos++);
                 if(ch < 0)
@@ -910,34 +931,27 @@ final class WSTransceiver implements Transceiver
 
                 switch(_readOpCode)
                 {
-                case OP_CONT: // Continuation frame
-                {
-                    // TODO: Add support for continuation frames?
-                    throw new Ice.ProtocolException("continuation frames not supported");
-                }
                 case OP_TEXT: // Text frame
                 {
                     throw new Ice.ProtocolException("text frames not supported");
                 }
+                case OP_CONT: // Continuation frame
                 case OP_DATA: // Data frame
                 {
                     if(_instance.traceLevel() >= 2)
                     {
-                        _instance.logger().trace(
-                            _instance.traceCategory(),
-                            "received " + protocol() + " data frame with payload length of " + _readPayloadLength +
-                            " bytes\n" + toString());
+                        _instance.logger().trace(_instance.traceCategory(), "received " + protocol() + 
+                                                 (_readOpCode == OP_DATA ? " data" : " continuation") +
+                                                 " frame with payload length of " + _readPayloadLength + " bytes\n" + 
+                                                 toString());
                     }
 
-                    if(!_readLastFrame)
-                    {
-                        throw new Ice.ProtocolException("continuation frames not supported");
-                    }
                     if(_readPayloadLength <= 0)
                     {
                         throw new Ice.ProtocolException("payload length is 0");
                     }
                     _readState = ReadStatePayload;
+                    _readFrameStart = buf.b.position();
                     break;
                 }
                 case OP_CLOSE: // Connection close
@@ -1111,16 +1125,17 @@ final class WSTransceiver implements Transceiver
             if(buf.b.hasArray())
             {
                 byte[] arr = buf.b.array();
+                int offset = buf.b.arrayOffset();
                 for(int n = _readStart; n < pos; ++n)
                 {
-                    arr[n] = (byte)(arr[n] ^ _readMask[n % 4]);
+                    arr[n + offset] = (byte)(arr[n + offset] ^ _readMask[(n - _readFrameStart) % 4]);
                 }
             }
             else
             {
                 for(int n = _readStart; n < pos; ++n)
                 {
-                    final byte b = (byte)(buf.b.get(n) ^ _readMask[n % 4]);
+                    final byte b = (byte)(buf.b.get(n) ^ _readMask[(n - _readFrameStart) % 4]);
                     buf.b.put(n, b);
                 }
             }
@@ -1495,6 +1510,7 @@ final class WSTransceiver implements Transceiver
     private int _readHeaderLength;
     private int _readPayloadLength;
     private int _readStart;
+    private int _readFrameStart;
     private byte[] _readMask;
 
     private static final int WriteStateHeader = 0;

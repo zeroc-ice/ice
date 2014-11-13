@@ -1585,6 +1585,20 @@ namespace Ice
                     s.Append(_endpoint.protocol());
                     s.Append(" connection\n");
                     s.Append(ToString());
+
+                    //
+                    // Trace the cause of unexpected connection closures
+                    //
+                    if(!(_exception is CloseConnectionException ||
+                         _exception is ForcedCloseConnectionException ||
+                         _exception is ConnectionTimeoutException ||
+                         _exception is CommunicatorDestroyedException ||
+                         _exception is ObjectAdapterDeactivatedException))
+                    {
+                        s.Append("\n");
+                        s.Append(_exception);
+                    }
+                    
                     _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
                 }
             }

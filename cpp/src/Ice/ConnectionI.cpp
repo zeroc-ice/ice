@@ -2174,7 +2174,7 @@ Ice::ConnectionI::finish(bool close)
         {
             string verb = _connector ? "establish" : "accept";
             Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
-            out << "failed to " << verb << " " << _endpoint->protocol() << " connection\n" << toString() 
+            out << "failed to " << verb << " " << _endpoint->protocol() << " connection\n" << toString()
                 << "\n" << *_exception.get();
         }
     }
@@ -2184,6 +2184,18 @@ Ice::ConnectionI::finish(bool close)
         {
             Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
             out << "closed " << _endpoint->protocol() << " connection\n" << toString();
+
+            //
+            // Trace the cause of unexpected connection closures
+            //
+            if(!(dynamic_cast<const CloseConnectionException*>(_exception.get()) ||
+                 dynamic_cast<const ForcedCloseConnectionException*>(_exception.get()) ||
+                 dynamic_cast<const ConnectionTimeoutException*>(_exception.get()) ||
+                 dynamic_cast<const CommunicatorDestroyedException*>(_exception.get()) ||
+                 dynamic_cast<const ObjectAdapterDeactivatedException*>(_exception.get())))
+            {
+                out << "\n" << *_exception.get();
+            }
         }
     }
 

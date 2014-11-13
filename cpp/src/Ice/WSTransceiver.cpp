@@ -579,7 +579,6 @@ IceInternal::WSTransceiver::read(Buffer& buf, bool& hasMoreData)
                 {
                     s = _delegate->read(buf, hasMoreData);
                 }
-
             }
             else
             {
@@ -817,7 +816,7 @@ IceInternal::WSTransceiver::WSTransceiver(const ProtocolInstancePtr& instance, c
     _parser(new HttpParser),
     _readState(ReadStateOpcode),
     _readBufferSize(1024),
-    _readLastFrame(false),
+    _readLastFrame(true),
     _readOpCode(0),
     _readHeaderLength(0),
     _readPayloadLength(0),
@@ -851,7 +850,7 @@ IceInternal::WSTransceiver::WSTransceiver(const ProtocolInstancePtr& instance, c
     _parser(new HttpParser),
     _readState(ReadStateOpcode),
     _readBufferSize(1024),
-    _readLastFrame(false),
+    _readLastFrame(true),
     _readOpCode(0),
     _readHeaderLength(0),
     _readPayloadLength(0),
@@ -1119,8 +1118,29 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
             // opcode.
             //
             unsigned char ch = static_cast<unsigned char>(*_readI++);
-            _readLastFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
             _readOpCode = ch & 0xf;
+
+            //
+            // Remember if last frame if we're going to read a data or
+            // continuation frame, this is only for protocol
+            // correctness checking purpose.
+            //
+            if(_readOpCode == OP_DATA)
+            {
+                if(!_readLastFrame)
+                {
+                    throw ProtocolException(__FILE__, __LINE__, "invalid data frame, no FIN on previous frame");
+                }
+                _readLastFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
+            }
+            else if(_readOpCode == OP_CONT)
+            {
+                if(_readLastFrame)
+                {
+                    throw ProtocolException(__FILE__, __LINE__, "invalid continuation frame, previous frame FIN set");
+                }
+                _readLastFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
+            }
 
             ch = static_cast<unsigned char>(*_readI++);
 
@@ -1203,33 +1223,27 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
 
             switch(_readOpCode)
             {
-            case OP_CONT: // Continuation frame
-            {
-                // TODO: Add support for continuation frames?
-                throw ProtocolException(__FILE__, __LINE__, "continuation frames not supported");
-            }
             case OP_TEXT: // Text frame
             {
                 throw ProtocolException(__FILE__, __LINE__, "text frames not supported");
             }
             case OP_DATA: // Data frame
+            case OP_CONT: // Continuation frame
             {
                 if(_instance->traceLevel() >= 2)
                 {
                     Trace out(_instance->logger(), _instance->traceCategory());
-                    out << "received " << protocol() << " data frame with payload length of " << _readPayloadLength;
+                    out << "received " << protocol() << (_readOpCode == OP_DATA ? " data" : " continuation");
+                    out << " frame with payload length of " << _readPayloadLength;
                     out << " bytes\n" << toString();
                 }
 
-                if(!_readLastFrame)
-                {
-                    throw ProtocolException(__FILE__, __LINE__, "continuation frames not supported");
-                }
                 if(_readPayloadLength <= 0)
                 {
                     throw ProtocolException(__FILE__, __LINE__, "payload length is 0");
                 }
                 _readState = ReadStatePayload;
+                _readFrameStart = buf.i;
                 break;
             }
             case OP_CLOSE: // Connection close
@@ -1384,7 +1398,7 @@ IceInternal::WSTransceiver::postRead(Buffer& buf)
         // Unmask the data we just read.
         //
         IceInternal::Buffer::Container::iterator p = _readStart;
-        for(size_t n = _readStart - buf.b.begin(); p < buf.i; ++p, ++n)
+        for(size_t n = _readStart - _readFrameStart; p < buf.i; ++p, ++n)
         {
             *p ^= _readMask[n % 4];
         }

@@ -118,6 +118,7 @@ private:
     size_t _readHeaderLength;
     size_t _readPayloadLength;
     Buffer::Container::iterator _readStart;
+    Buffer::Container::iterator _readFrameStart;
     unsigned char _readMask[4];
 
     enum WriteState

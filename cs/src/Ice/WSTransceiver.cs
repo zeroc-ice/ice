@@ -418,7 +418,7 @@ namespace IceInternal
                         if(buf.b.remaining() > readSz)
                         {
                             int size = buf.size();
-                            buf.resize(readSz, true);
+                            buf.resize(buf.b.position() + readSz, true);
                             s = _delegate.read(buf, ref hasMoreData);
                             buf.resize(size, true);
                         }
@@ -440,10 +440,17 @@ namespace IceInternal
                 }
             }
             while(postRead(buf));
-
-            hasMoreData |= _readBufferPos < _readBuffer.b.position();
-
-            s = !buf.b.hasRemaining() ? IceInternal.SocketOperation.None : IceInternal.SocketOperation.Read;
+            
+            if(!buf.b.hasRemaining())
+            {
+                hasMoreData |= _readBufferPos < _readBuffer.b.position();
+                s = SocketOperation.None;
+            }
+            else
+            {
+                hasMoreData = false;
+                s = SocketOperation.Read;
+            }
 
             if(((_state == StateClosingRequestPending && !_closingInitiator) ||
                 (_state == StateClosingResponsePending && _closingInitiator) ||
@@ -691,7 +698,7 @@ namespace IceInternal
             _readState = ReadStateOpcode;
             _readBuffer = new IceInternal.Buffer(IceInternal.ByteBuffer.ByteOrder.BIG_ENDIAN); // Network byte order
             _readBufferSize = 1024;
-            _readLastFrame = false;
+            _readLastFrame = true;
             _readOpCode = 0;
             _readHeaderLength = 0;
             _readPayloadLength = 0;
@@ -968,8 +975,29 @@ namespace IceInternal
                     // opcode.
                     //
                     int ch = _readBuffer.b.get(_readBufferPos++);
-                    _readLastFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
                     _readOpCode = ch & 0xf;
+
+                    //
+                    // Remember if last frame if we're going to read a data or
+                    // continuation frame, this is only for protocol
+                    // correctness checking purpose.
+                    //
+                    if(_readOpCode == OP_DATA)
+                    {
+                        if(!_readLastFrame)
+                        {
+                            throw new Ice.ProtocolException("invalid data frame, no FIN on previous frame");
+                        }
+                        _readLastFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
+                    }
+                    else if(_readOpCode == OP_CONT)
+                    {
+                        if(_readLastFrame)
+                        {
+                            throw new Ice.ProtocolException("invalid continuation frame, previous frame FIN set");
+                        }
+                        _readLastFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
+                    }
 
                     ch = _readBuffer.b.get(_readBufferPos++);
 
@@ -1058,34 +1086,27 @@ namespace IceInternal
 
                     switch(_readOpCode)
                     {
-                    case OP_CONT: // Continuation frame
-                    {
-                        // TODO: Add support for continuation frames?
-                        throw new Ice.ProtocolException("continuation frames not supported");
-                    }
                     case OP_TEXT: // Text frame
                     {
                         throw new Ice.ProtocolException("text frames not supported");
                     }
                     case OP_DATA: // Data frame
+                    case OP_CONT: // Continuation frame
                     {
                         if(_instance.traceLevel() >= 2)
                         {
-                            _instance.logger().trace(
-                                _instance.traceCategory(),
-                                "received " + protocol() + " data frame with payload length of " + _readPayloadLength +
-                                " bytes\n" + ToString());
+                            _instance.logger().trace(_instance.traceCategory(), "received " + protocol() + 
+                                                     (_readOpCode == OP_DATA ? " data" : " continuation") +
+                                                     " frame with payload length of " + _readPayloadLength + 
+                                                     " bytes\n" + ToString());
                         }
 
-                        if(!_readLastFrame)
-                        {
-                            throw new Ice.ProtocolException("continuation frames not supported");
-                        }
                         if(_readPayloadLength <= 0)
                         {
                             throw new Ice.ProtocolException("payload length is 0");
                         }
                         _readState = ReadStatePayload;
+                        _readFrameStart = buf.b.position();
                         break;
                     }
                     case OP_CLOSE: // Connection close
@@ -1240,7 +1261,7 @@ namespace IceInternal
                 byte[] arr = buf.b.rawBytes();
                 for(int n = _readStart; n < pos; ++n)
                 {
-                    arr[n] = (byte)(arr[n] ^ _readMask[n % 4]);
+                    arr[n] = (byte)(arr[n] ^ _readMask[(n - _readFrameStart) % 4]);
                 }
             }
 
@@ -1600,6 +1621,7 @@ namespace IceInternal
         private int _readHeaderLength;
         private int _readPayloadLength;
         private int _readStart;
+        private int _readFrameStart;
         private byte[] _readMask;
 
         private const int WriteStateHeader = 0;

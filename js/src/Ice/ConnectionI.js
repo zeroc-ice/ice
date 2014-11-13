@@ -1230,6 +1230,20 @@ var ConnectionI = Class({
                 s.push(this._endpoint.protocol());
                 s.push(" connection\n");
                 s.push(this.toString());
+
+                //
+                // Trace the cause of unexpected connection closures
+                //
+                if(!(this._exception instanceof CloseConnectionException ||
+                     this._exception instanceof ForcedCloseConnectionException ||
+                     this._exception instanceof ConnectionTimeoutException ||
+                     this._exception instanceof CommunicatorDestroyedException ||
+                     this._exception instanceof ObjectAdapterDeactivatedException))
+                {
+                    s.push("\n");
+                    s.push(this._exception.toString());
+                }
+
                 this._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
             }
         }
@@ -1395,11 +1409,11 @@ var ConnectionI = Class({
                     // Don't warn about certain expected exceptions.
                     //
                     if(!(this._exception instanceof Ice.CloseConnectionException ||
-                            this._exception instanceof Ice.ForcedCloseConnectionException ||
-                            this._exception instanceof Ice.ConnectionTimeoutException ||
-                            this._exception instanceof Ice.CommunicatorDestroyedException ||
-                            this._exception instanceof Ice.ObjectAdapterDeactivatedException ||
-                            (this._exception instanceof Ice.ConnectionLostException && this._state === StateClosing)))
+                         this._exception instanceof Ice.ForcedCloseConnectionException ||
+                         this._exception instanceof Ice.ConnectionTimeoutException ||
+                         this._exception instanceof Ice.CommunicatorDestroyedException ||
+                         this._exception instanceof Ice.ObjectAdapterDeactivatedException ||
+                         (this._exception instanceof Ice.ConnectionLostException && this._state === StateClosing)))
                     {
                         this.warning("connection exception", this._exception);
                     }

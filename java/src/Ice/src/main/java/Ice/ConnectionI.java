@@ -1458,6 +1458,19 @@ public final class ConnectionI extends IceInternal.EventHandler
                 s.append(_endpoint.protocol());
                 s.append(" connection\n");
                 s.append(toString());
+
+                //
+                // Trace the cause of unexpected connection closures
+                //
+                if(!(_exception instanceof CloseConnectionException ||
+                     _exception instanceof ForcedCloseConnectionException ||
+                     _exception instanceof ConnectionTimeoutException ||
+                     _exception instanceof CommunicatorDestroyedException ||
+                     _exception instanceof ObjectAdapterDeactivatedException))
+                {
+                    s.append("\n");
+                    s.append(_exception);
+                }
                 _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
             }
         }
