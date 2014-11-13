@@ -12,7 +12,6 @@ subprojects {
 	project.group = "com.zeroc"
 
 	apply plugin: 'java'
-	apply plugin: 'idea'
 	apply from: "$rootProject.projectDir/gradle/ice.gradle"
 
 	repositories {

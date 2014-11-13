@@ -518,10 +518,10 @@ copy(os.path.join(winDistFilesDir, "src", "common", "Make.rules.mak.php"), os.pa
 
 # Consolidate demo distribution with files from each language mapping
 for sd in os.listdir(winSrcDir):
+    if sd == "android":
+        continue
     d = os.path.join(winSrcDir, sd)
     if os.path.isdir(d) and os.path.exists(os.path.join(d, "demo")):
-        if d == "android":
-            continue
         copy(os.path.join(d, "demo"), os.path.join(winDemoDir, sd))
 
 # Copy android demos into the java directory
