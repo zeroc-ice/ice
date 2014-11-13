@@ -615,7 +615,7 @@ rpmBuildFiles = [ \
     os.path.join("src", "rpm", "*.service"), \
     os.path.join("src", "rpm", "ice.pth"), \
     os.path.join("src", "unix", "*Linux*"), \
-    os.path.join("src", "unix", "LICENSE.*"), \
+    os.path.join("src", "unix", "*_LICENSE"), \
     os.path.join("src", "thirdparty", "php", "ice.ini"), \
 ]
 copyMatchingFiles(os.path.join(distFilesDir), rpmBuildDir, rpmBuildFiles)
