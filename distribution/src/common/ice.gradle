@@ -139,6 +139,27 @@ if(iceJar.exists())
 	ext.versionSuffix = "-${project.version}"
 }
 
+ext.searchFile = { List<Closure> places, List<String> searchPaths ->
+	def dirs = []
+	places.each {
+		def dir = it()
+		if(dir != null) {
+			dirs << dir + "/"
+		}
+	}
+
+    def candidates = searchPaths.collect {
+		def path = it
+		dirs.collect {
+			it.concat(path)
+		}
+	}.flatten()
+
+	return candidates.find {
+		new File(it).exists()
+	}
+}
+
 def demoJar(name) {
     def taskName = name + "Jar"
 	// Create a jar for the client & server which includes everything in the demo.
