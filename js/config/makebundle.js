@@ -249,7 +249,7 @@ process.stdout.write(preamble);
 
 modules.forEach(
     function(m){
-        process.stdout.write("    var " + m + " = window." + m + " || {};\n");
+        process.stdout.write("    window." + m + " = window." + m + " || {};\n");
         if(m == "Ice")
         {
             process.stdout.write("    Ice.Slice = Ice.Slice || {};\n");
