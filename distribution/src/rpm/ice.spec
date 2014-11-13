@@ -76,7 +76,7 @@
 %endif
 %endif
 
-Name: ice
+Name: ice-all-runtime
 Version: 3.6b
 Summary: Ice meta package that includes all run-time components and services.
 Release: 1%{?dist}
@@ -87,7 +87,7 @@ URL: http://www.zeroc.com/
 Source0: Ice-%{version}.tar.gz
 Source1: Ice-rpmbuild-%{version}.tar.gz
 
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildRoot: %{_tmppath}/ice-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %define soversion 36b
 %define dotnetversion 3.6.51
@@ -111,6 +111,7 @@ Requires: libice3.6-c++ = %{version}-%{release}
 Requires: libfreeze3.6-c++ = %{version}-%{release}
 Requires: ice-utils-java = %{version}-%{release}
 %endif # ! cppx86
+Requires: icebox = %{version}-%{release}
 Requires: libicestorm3.6 = %{version}-%{release}
 
 #
@@ -179,7 +180,6 @@ distributed applications with minimal effort.
 %package -n ice-slice
 Summary: Slice files for the Ice run time
 Group: System Environment/Libraries
-Obsoletes: ice < 3.6
 %description -n ice-slice
 Slice files for the Ice run time.
 
@@ -200,7 +200,7 @@ certificate authority utility.
 #
 # This "meta" package includes all development kits.
 #
-%package -n ice-devel
+%package -n ice-all-devel
 Summary: Ice development meta package that includes development kits for all supported languages.
 Group: System Environment/Libraries
 Requires: libice-c++-devel = %{version}-%{release}
@@ -211,7 +211,7 @@ Requires: php-ice-devel = %{version}-%{release}
 Requires: python-ice-devel = %{version}-%{release}
 Requires: ruby-ice-devel = %{version}-%{release}
 %endif # ! cppx86
-%description -n ice-devel
+%description -n ice-all-devel
 Ice development meta package that includes development kits for all supported languages.
 
 %package -n libice3.6-c++
@@ -600,7 +600,22 @@ rm -f $RPM_BUILD_ROOT/bin/*
 rm -rf $RPM_BUILD_ROOT/include/*
 %endif
 
-%if ! %{cppx86}
+%if %{cppx86}
+
+#
+# Doc & license files
+#
+
+for i in ice-all-runtime icebox ice-all-devel libfreeze3.6-c++ libice3.6-c++ libice-c++-devel libicestorm3.6
+do
+  mkdir -p $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}
+  cp -p $RPM_BUILD_DIR/Ice-%{version}/CHANGES $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}/CHANGES
+  cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/README.Linux $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}/README
+  cp -p $RPM_BUILD_DIR/Ice-%{version}/ICE_LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}
+  cp -p $RPM_BUILD_DIR/Ice-%{version}/LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}
+done
+
+%else
 
 #
 # Python
@@ -771,14 +786,16 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/slice2rb
 # Doc & license files
 #
 
-for i in glacier2 ice icebox ice-devel icegrid icepatch2 ice-utils libfreeze3.6-c++ libice3.6-c++ libice-java libice-js libicestorm3.6 php-ice php-ice-devel python-ice python-ice-devel ruby-ice ruby-ice-devel
+for i in glacier2 ice-all-runtime icebox ice-all-devel icegrid icepatch2 ice-utils libfreeze3.6-c++ libice3.6-c++ libice-c++-devel libice-java libice-js libicestorm3.6 php-ice php-ice-devel python-ice python-ice-devel ruby-ice ruby-ice-devel
 do
   mkdir -p $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}
   cp -p $RPM_BUILD_DIR/Ice-%{version}/CHANGES $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}/CHANGES
-  cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/README.Linux-RPM $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}/README
+  cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/README.Linux $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}/README
   cp -p $RPM_BUILD_DIR/Ice-%{version}/ICE_LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}
   cp -p $RPM_BUILD_DIR/Ice-%{version}/LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}
 done
+
+cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/MCPP_LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/libice3.6-c++-%{version}
 
 %endif # ! cppx86
 
@@ -788,7 +805,6 @@ done
 rm -f $RPM_BUILD_ROOT/CHANGES
 rm -f $RPM_BUILD_ROOT/ICE_LICENSE
 rm -f $RPM_BUILD_ROOT/LICENSE
-rm -f $RPM_BUILD_ROOT/RELEASE_NOTES
 rm -fr $RPM_BUILD_ROOT/doc/reference
 rm -fr $RPM_BUILD_ROOT/slice
 rm -f $RPM_BUILD_ROOT%{_libdir}/libIceStormService.so
@@ -835,10 +851,12 @@ for i in ice-utils-java ice-slice
 do
   mkdir -p $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}
   cp -p $RPM_BUILD_DIR/Ice-%{version}/CHANGES $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}/CHANGES
-  cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/README.Linux-RPM $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}/README
+  cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/README.Linux $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}/README
   cp -p $RPM_BUILD_DIR/Ice-%{version}/ICE_LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}
   cp -p $RPM_BUILD_DIR/Ice-%{version}/LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}
 done
+
+cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/JGOODIES_LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/ice-utils-java-%{version}
 
 #
 # iceca
@@ -915,11 +933,13 @@ rm -rf $RPM_BUILD_ROOT
 # Generate "ice" meta package as arch-specific
 #
 %files
+%{_defaultdocdir}/ice-all-runtime-%{version}
 
 #
-# Generate "ice-devel" meta package as arch-specific
+# Generate "ice-all-devel" meta package as arch-specific
 #
-%files -n ice-devel
+%files -n ice-all-devel
+%{_defaultdocdir}/ice-all-devel-%{version}
 
 %files -n libice3.6-c++
 %defattr(-, root, root, -)
@@ -968,6 +988,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libIceUtil++11.so.%{version}
 %{_libdir}/libIceUtil++11.so.%{soversion}
 %endif
+%{_defaultdocdir}/libice3.6-c++-%{version}
 
 %post -n libice3.6-c++ -p /sbin/ldconfig
 %postun -n libice3.6-c++ -p /sbin/ldconfig
@@ -984,6 +1005,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libFreeze++11.so.%{version}
 %{_libdir}/libFreeze++11.so.%{soversion}
 %endif
+%{_defaultdocdir}/libfreeze3.6-c++-%{version}
 
 %post -n libfreeze3.6-c++ -p /sbin/ldconfig
 %postun -n libfreeze3.6-c++ -p /sbin/ldconfig
@@ -996,6 +1018,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libIceStormService++11.so.%{version}
 %{_libdir}/libIceStormService++11.so.%{soversion}
 %endif
+%{_defaultdocdir}/libicestorm3.6-%{version}
 
 %post -n libicestorm3.6 -p /sbin/ldconfig
 %postun -n libicestorm3.6 -p /sbin/ldconfig
@@ -1025,6 +1048,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_javadir}/icediscovery.jar
 %{_javadir}/freeze-%{version}.jar
 %{_javadir}/freeze.jar
+%{_defaultdocdir}/libice-java-%{version}
 
 %files -n libice-js
 %defattr(-, root, root, -)
@@ -1046,6 +1070,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/javascript/ice-%{mmversion}/IceGrid.js.gz
 %{_datadir}/javascript/ice-%{mmversion}/IceGrid.min.js
 %{_datadir}/javascript/ice-%{mmversion}/IceGrid.min.js.gz
+%{_defaultdocdir}/libice-js-%{version}
 
 %files -n ice-utils
 %defattr(-, root, root, -)
@@ -1067,6 +1092,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/slice2html.1.gz
 %{_bindir}/icegridadmin
 %{_mandir}/man1/icegridadmin.1.gz
+%{_defaultdocdir}/ice-utils-%{version}
 
 %post -n ice-utils -p /sbin/ldconfig
 %postun -n ice-utils -p /sbin/ldconfig
@@ -1094,6 +1120,7 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 %config(noreplace) %{_sysconfdir}/icegridregistry.conf
 %config(noreplace) %{_sysconfdir}/icegridnode.conf
+%{_defaultdocdir}/icegrid-%{version}
 
 %pre -n icegrid
 getent group ice > /dev/null || groupadd -r ice
@@ -1166,6 +1193,7 @@ fi
 %attr(755,root,root) %{_initrddir}/glacier2router
 %endif
 %config(noreplace) %{_sysconfdir}/glacier2router.conf
+%{_defaultdocdir}/glacier2-%{version}
 
 %pre -n glacier2
 getent group ice > /dev/null || groupadd -r ice
@@ -1218,6 +1246,7 @@ fi
 %defattr(-, root, root, -)
 %{_bindir}/icepatch2server
 %{_mandir}/man1/icepatch2server.1.gz
+%{_defaultdocdir}/icepatch2-%{version}
 
 %pre -n icepatch2
 getent group ice > /dev/null || groupadd -r ice
@@ -1249,6 +1278,7 @@ exit 0
 %{_bindir}/icebox++11
 %endif
 %endif
+%{_defaultdocdir}/icebox-%{version}
 
 %pre -n icebox
 getent group ice > /dev/null || groupadd -r ice
@@ -1305,6 +1335,7 @@ exit 0
 %{_libdir}/c++11/libIceStorm.so
 %{_libdir}/c++11/libIceUtil.so
 %endif
+%{_defaultdocdir}/libice-c++-devel-%{version}
 
 %if ! %{cppx86}
 
@@ -1312,21 +1343,25 @@ exit 0
 %defattr(-, root, root, -)
 %{python_sitearch}/Ice
 %{python_sitearch}/ice.pth
+%{_defaultdocdir}/python-ice-%{version}
 
 %files -n python-ice-devel
 %defattr(-, root, root, -)
 %{_bindir}/slice2py
 %{_mandir}/man1/slice2py.1.gz
+%{_defaultdocdir}/python-ice-devel-%{version}
 
 %if %{ruby}
 %files -n ruby-ice
 %defattr(-, root, root, -)
 %{ruby_sitearch}/*
+%{_defaultdocdir}/ruby-ice-%{version}
 
 %files -n ruby-ice-devel
 %defattr(-, root, root, -)
 %{_bindir}/slice2rb
 %{_mandir}/man1/slice2rb.1.gz
+%{_defaultdocdir}/ruby-ice-devel-%{version}
 %endif
 
 %files -n php-ice
@@ -1362,10 +1397,13 @@ exit 0
 %config(noreplace) %{_sysconfdir}/php5/conf.d/ice.ini
 %endif
 
+%{_defaultdocdir}/php-ice-%{version}
+
 %files -n php-ice-devel
 %defattr(-, root, root, -)
 %{_bindir}/slice2php
 %{_mandir}/man1/slice2php.1.gz
+%{_defaultdocdir}/php-ice-devel-%{version}
 %endif
 
 %endif # ! cppx86
