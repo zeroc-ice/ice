@@ -26,33 +26,44 @@ dependencies {
 	compile localDependency("ice")
 }
 
-// Don't create the default jar.
-jar.enabled = false
-
 buildscript {
     repositories {
         maven {
             url 'http://repo.zeroc.com/nexus/content/repositories/thirdparty'
         }
     }
-    dependencies {
-        classpath group: 'net.sourceforge', name: 'proguard', version: '5.0'
+    if (!useLocalOnly) {
+	    dependencies {
+	        classpath group: 'net.sourceforge', name: 'proguard', version: '5.0'
+	    }
     }
 }
 
-def libJars = []
-['rt.jar', 'jsse.jar'].each {
-	libJars << searchFile([{System.env['JAVA_HOME']}, {System.properties['java.home']}],
-                          ["${it}", "lib/${it}", "jre/lib/${it}"])
-}
+if (useLocalOnly) {
+	jar {
+		archiveName "Hello.jar"
+	    destinationDir = new File("${projectDir}")
+	    from { "${projectDir}/config.applet" }
+	    from { "${rootProject.projectDir}/../certs/client.jks" }
+	}
+} else {
+	// Don't create the default jar.
+	jar.enabled = false
 
-task proguardJar(type: proguard.gradle.ProGuardTask, dependsOn: jar) {
-	injars configurations.compile.resolve(), filter: '!META-INF/**'
-	injars "${projectDir}/build/classes/main"
-	injars "${rootProject.projectDir}/../certs/client.jks"
-	injars "${projectDir}/config.applet"
-	outjars "${projectDir}/Hello.jar"
-	libraryjars libJars
-	configuration 'applet.pro'
+	def libJars = []
+	['rt.jar', 'jsse.jar'].each {
+		libJars << searchFile([{System.env['JAVA_HOME']}, {System.properties['java.home']}],
+	                          ["${it}", "lib/${it}", "jre/lib/${it}"])
+	}
+
+	task proguardJar(type: proguard.gradle.ProGuardTask, dependsOn: jar) {
+		injars configurations.compile.resolve(), filter: '!META-INF/**'
+		injars "${projectDir}/build/classes/main"
+		injars "${rootProject.projectDir}/../certs/client.jks"
+		injars "${projectDir}/config.applet"
+		outjars "${projectDir}/Hello.jar"
+		libraryjars libJars
+		configuration 'applet.pro'
+	}
+	assemble.dependsOn(proguardJar)
 }
-assemble.dependsOn(proguardJar)

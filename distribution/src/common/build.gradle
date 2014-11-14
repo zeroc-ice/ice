@@ -21,11 +21,14 @@ subprojects {
 		        dirs distJarDir
 		    }
 	    }
-	    maven {
-	        url 'http://repo.zeroc.com/nexus/content/repositories/thirdparty'
-	    }
-	    maven {
-	        url 'http://repo.zeroc.com/nexus/content/repositories/releases'
+
+	    if (!useLocalOnly) {
+		    maven {
+		        url 'http://repo.zeroc.com/nexus/content/repositories/thirdparty'
+		    }
+		    maven {
+		        url 'http://repo.zeroc.com/nexus/content/repositories/releases'
+		    }
 	    }
     }
 }

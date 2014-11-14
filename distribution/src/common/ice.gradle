@@ -9,8 +9,15 @@
 
 buildscript {
     repositories {
-        maven {
-            url 'http://repo.zeroc.com/nexus/content/repositories/releases'
+    	if (localOnly == "true") {
+			flatDir {
+		        name "local"
+		        dirs "${iceHome}/lib"
+		    }
+	    } else {
+	        maven {
+	            url 'http://repo.zeroc.com/nexus/content/repositories/releases'
+	        }
         }
     }
     dependencies {
@@ -23,6 +30,7 @@ if (!project.plugins.findPlugin(com.zeroc.gradle.plugins.slice.SlicePlugin)) {
 }
 
 ext.generatedDir = "$project.buildDir/generated"
+ext.useLocalOnly = localOnly == "true"
 
 def android = false
 try {
@@ -45,10 +53,21 @@ if (System.properties['os.name'].toLowerCase().contains('windows'))
     slice2freezej = "slice2freezej.exe"
 }
 
-// First check if ICE_HOME is set and it points at a valid installation
+// First check if iceHome was set in
+if (iceHome)
+{
+	def translator = new File("$iceHome/bin/$slice2java")
+	if (!translator.exists())
+	{
+		throw new GradleException("Unable to find $slice2java in $iceHome, please verify iceHome is " +
+								  "properly configured in gradle.properties and Ice is correctly installed.")
+	}
+}
+
+// Next check if ICE_HOME is set and it points at a valid installation
 def env = System.getenv()
-def iceHome = env['ICE_HOME']
-if (iceHome != null && iceHome.length() > 0)
+iceHome = env['ICE_HOME']
+if (iceHome)
 {
 	def translator = new File("$iceHome/bin/$slice2java")
 	if (!translator.exists())
@@ -62,7 +81,7 @@ def iceBinDist = true
 
 // First check if we are building against source distribution
 def iceDir
-if (iceHome != null && iceHome.length() > 0)
+if (iceHome)
 {
 	iceDir = iceHome
 }

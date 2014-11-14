@@ -26,3 +26,10 @@ slice {
 }
 
 apply from: "$rootProject.projectDir/gradle/library.gradle"
+
+task installSlicePlugin(type: Copy) {
+    from "${rootProject.projectDir}/buildSrc/build/libs/buildSrc.jar"
+    into "${DESTDIR}${prefix}/lib"
+    rename { "slice-1.0.jar" }
+}
+install.dependsOn(installSlicePlugin)

@@ -10,25 +10,14 @@
 iceVersion = 3.6b
 
 //
-// Oracle Berkeley DB JAR location. Should only need to be set if Berkeley DB
-// is installed in a non-standard location.
-//
-dbHome =
-
-//
-// Define debug as true if you want to build with debug information,
-// false otherwise.
-//
-debug = true
-
-//
 // Set iceHome to location of Ice installation if Ice was installed in a
 // non-standard location.
 //
 iceHome =
 
 //
-// Define localOnly to true if build should not get any artifacts remotely.
+// Define localOnly to true if build should not get Ice artifacts remotely.
+// Android artifacts will always be downloaded remotely.
 // If you set localOnly to true you must also set iceHome above.
 //
 localOnly = false

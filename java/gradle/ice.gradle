@@ -10,6 +10,7 @@
 apply plugin: 'slice'
 
 ext.generatedDir = "$project.buildDir/generated"
+ext.useLocalOnly = false
 
 def android = false
 try {

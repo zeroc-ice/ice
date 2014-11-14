@@ -487,8 +487,9 @@ copy(os.path.join(srcDir, "android", "gradlew"), os.path.join(demoDir, "java", "
 copy(os.path.join(srcDir, "android", "gradle", "wrapper"), os.path.join(demoDir, "java", "android", "gradle", "wrapper"), False)
 copy(os.path.join(srcDir, "android", "gradle", "GRADLE_LICENSE"), os.path.join(demoDir, "java", "android", "gradle", "GRADLE_LICENSE"), False)
 copy(os.path.join(srcDir, "android", "build.gradle"), os.path.join(demoDir, "java", "android"), False)
-copy(os.path.join(srcDir, "android", "gradle.properties"), os.path.join(demoDir, "java", "android"), False)
+copy(os.path.join(distFilesDir, "src", "common", "gradle.properties.android"), os.path.join(demoDir, "java", "android", "gradle.properties"), False)
 copy(os.path.join(distFilesDir, "src", "common", "settings.gradle.android"), os.path.join(demoDir, "java", "android", "settings.gradle"), False)
+copy(os.path.join(distFilesDir, "src", "common", "props.gradle"), os.path.join(demoDir, "java", "android", "gradle"), False)
 
 gradleSubstituteExprs = [(re.compile(re.escape("apply plugin: 'slice'")), "")]
 for root, dirnames, filesnames in os.walk(os.path.join(demoDir, "java", "android")):
@@ -596,8 +597,9 @@ copy(os.path.join(srcDir, "android", "gradlew.bat"), os.path.join(winDemoDir, "j
 copy(os.path.join(srcDir, "android", "gradle", "wrapper"), os.path.join(winDemoDir, "java", "android", "gradle", "wrapper"), False)
 copy(os.path.join(srcDir, "android", "gradle", "GRADLE_LICENSE"), os.path.join(winDemoDir, "java", "android", "gradle", "GRADLE_LICENSE"), False)
 copy(os.path.join(srcDir, "android", "build.gradle"), os.path.join(winDemoDir, "java", "android"), False)
-copy(os.path.join(srcDir, "android", "gradle.properties"), os.path.join(winDemoDir, "java", "android"), False)
+copy(os.path.join(distFilesDir, "src", "common", "gradle.properties.android"), os.path.join(winDemoDir, "java", "android", "gradle.properties"), False)
 copy(os.path.join(distFilesDir, "src", "common", "settings.gradle.android"), os.path.join(winDemoDir, "java", "android", "settings.gradle"), False)
+copy(os.path.join(distFilesDir, "src", "common", "props.gradle"), os.path.join(winDemoDir, "java", "android", "gradle"), False)
 
 gradleSubstituteExprs = [(re.compile(re.escape("apply plugin: 'slice'")), "")]
 for root, dirnames, filesnames in os.walk(os.path.join(winDemoDir, "java", "android")):
