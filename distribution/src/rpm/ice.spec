@@ -545,7 +545,7 @@ cd $RPM_BUILD_DIR/Ice-%{version}/cpp
 make prefix=$RPM_BUILD_ROOT LP64=no embedded_runpath_prefix="" install
 
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
-mv $RPM_BUILD_ROOT/bin/icebox $RPM_BUILD_ROOT%{_bindir}/icebox32
+mv $RPM_BUILD_ROOT/bin/icebox32 $RPM_BUILD_ROOT%{_bindir}
 rm $RPM_BUILD_ROOT/bin/*
 
 mkdir -p $RPM_BUILD_ROOT%{_libdir}
@@ -592,9 +592,9 @@ rm -f $RPM_BUILD_ROOT/%_lib/c++11/libIceStormService.so
 rm -f $RPM_BUILD_ROOT/%_lib/c++11/libIceXML.so
 mv $RPM_BUILD_ROOT/%_lib/* $RPM_BUILD_ROOT%{_libdir}
 %if %{cppx86}
-mv $RPM_BUILD_ROOT/bin/icebox $RPM_BUILD_ROOT%{_bindir}/icebox32++11
+mv $RPM_BUILD_ROOT/bin/icebox32++11 $RPM_BUILD_ROOT%{_bindir}
 %else
-mv $RPM_BUILD_ROOT/bin/icebox $RPM_BUILD_ROOT%{_bindir}/icebox++11
+mv $RPM_BUILD_ROOT/bin/icebox++11 $RPM_BUILD_ROOT%{_bindir}
 %endif
 rm -f $RPM_BUILD_ROOT/bin/*
 rm -rf $RPM_BUILD_ROOT/include/*
@@ -718,6 +718,11 @@ ln -s icestorm-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/icestorm.jar
 
 mv $RPM_BUILD_ROOT/lib/icediscovery-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
 ln -s icediscovery-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/icediscovery.jar
+
+#
+# Gradle plug-in
+#
+mv $RPM_BUILD_ROOT/lib/slice-1.0.jar $RPM_BUILD_ROOT%{_javadir}
 
 #
 # ant-ice.jar
@@ -1048,6 +1053,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_javadir}/icediscovery.jar
 %{_javadir}/freeze-%{version}.jar
 %{_javadir}/freeze.jar
+%{_javadir}/slice-1.0.jar
 %{_defaultdocdir}/libice-java-%{version}
 
 %files -n libice-js
