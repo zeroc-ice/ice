@@ -21,7 +21,6 @@ ipv6 = False                    # Default to use IPv4 only
 socksProxy = False              # Use SOCKS proxy running on localhost
 iceHome = None                  # Binary distribution to use (None to use binaries from source distribution)
 x64 = False                     # Binary distribution is 64-bit
-cpp11 = False                   # Binary distribution is c++ 11
 extraArgs = []
 
 
@@ -297,7 +296,6 @@ def run(tests, root = False):
           --no-ipv6                   Don't use IPv6 addresses.
           --ice-home=<path>           Use the binary distribution from the given path.
           --x64                       Binary distribution is 64-bit.
-          --c++11                     Binary distribution is c++11.
           --cross=lang                Run cross language test.
           --client-home=<dir>         Run cross test clients from the given Ice source distribution.
           --script                    Generate a script to run the tests.
@@ -318,8 +316,7 @@ def run(tests, root = False):
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
                                     "ipv6", "no-ipv6", "socks", "ice-home=", "cross=", "client-home=", "x64",
                                     "script", "env", "arg=",
-                                    "service-dir=", "appverifier", "compact", "silverlight", "winrt", "server", "mx",
-                                    "c++11"])
+                                    "service-dir=", "appverifier", "compact", "silverlight", "winrt", "server", "mx"])
     except getopt.GetoptError:
         usage()
 
@@ -390,7 +387,7 @@ def run(tests, root = False):
         if o in ( "--cross", "--protocol", "--host", "--debug", "--compress", "--valgrind", "--serialize", "--ipv6", \
                   "--socks", "--ice-home", "--x64", "--env", \
                   "--service-dir", "--appverifier", "--compact", "--silverlight", "--winrt", \
-                  "--server", "--mx", "--client-home", "--c++11"):
+                  "--server", "--mx", "--client-home"):
             arg += " " + o
             if len(a) > 0:
                 arg += " " + a
@@ -781,7 +778,6 @@ class DriverConfig:
     ipv6 = False
     socksProxy = False
     x64 = False
-    cpp11 = False
     serviceDir = None
     mx = False
     extraArgs = []
@@ -797,7 +793,6 @@ class DriverConfig:
         global ipv6
         global socksProxy
         global x64
-        global cpp11
         global serviceDir
         global compact
         global silverlight
@@ -815,7 +810,6 @@ class DriverConfig:
         self.ipv6 = ipv6
         self.socksProxy = socksProxy
         self.x64 = x64
-        self.cpp11 = cpp11
         self.serviceDir = serviceDir
         self.compact = compact
         self.silverlight = silverlight
@@ -1574,8 +1568,6 @@ def getCppBinDir(lang = None):
                     binDir = os.path.join(binDir, "amd64")
             elif isWin32() and lang != "php":
                 binDir = os.path.join(binDir, "x64")
-        if isDarwin() and cpp11:
-          binDir = os.path.join(binDir, "c++11")
     return binDir
 
 def getServiceDir():
@@ -1635,8 +1627,6 @@ def getTestEnv(lang, testdir):
                     libDir = os.path.join(libDir, "amd64")
             elif not isDarwin():
                 libDir = libDir + "64"
-          if isDarwin() and cpp11:
-            libDir = os.path.join(libDir, "c++11")
 
     addLdPath(libDir, env)
 
@@ -1769,7 +1759,6 @@ def processCmdLine():
           --socks                     Use SOCKS proxy running on localhost.
           --ice-home=<path>           Use the binary distribution from the given path.
           --x64                       Binary distribution is 64-bit.
-          --c++11                     Binary distribution is c++11.
           --env                       Print important environment variables.
           --cross=lang                Run cross language test.
           --client-home=<dir>         Run cross test clients from the given Ice source distribution.
@@ -1788,7 +1777,7 @@ def processCmdLine():
             sys.argv[1:], "", ["debug", "trace=", "protocol=", "compress", "valgrind", "host=", "serialize", "ipv6", \
                                "socks", "ice-home=", "x64", "cross=", "client-home=", "env", \
                                "service-dir=", "appverifier", "arg=", \
-                               "compact", "silverlight", "winrt", "server", "mx", "c++11"])
+                               "compact", "silverlight", "winrt", "server", "mx"])
     except getopt.GetoptError:
         usage()
 
@@ -1816,9 +1805,6 @@ def processCmdLine():
         elif o == "--x64":
             global x64
             x64 = True
-        elif o == "--c++11":
-            global cpp11
-            cpp11 = True
         elif o == "--compress":
             global compress
             compress = True

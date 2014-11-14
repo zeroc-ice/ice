@@ -455,6 +455,9 @@ class Platform:
         
         if buildConfiguration == "cpp11":
             env["CPP11"] = "yes"
+        
+        if buildConfiguration == "no-cpp11":
+            env["CPP11"] = "no"
             
         if self.is64(arch) and not self.isWindows():
             env["LP64"] = "yes"
@@ -530,7 +533,7 @@ class Platform:
         return None
     
     def getLanguageMappings(self, compiler, arch, buildConfiguration):
-        if buildConfiguration in ["debug", "cpp11", "winrt"]:
+        if buildConfiguration in ["debug", "cpp11", "no-cpp11", "winrt"]:
             languages = ["cpp"]
         elif buildConfiguration == "java1.6":
             languages = ["java"]
@@ -750,9 +753,6 @@ class Platform:
         if self.is64(arch):
             args += " --x64"
                     
-        if buildConfiguration == "cpp11":
-            args += " --c++11"
-            
         if lang == "cs" and compiler == "VC90":
             args += " --compact"
 
@@ -853,8 +853,7 @@ class Platform:
 
         if self.is64(arch):
             args += " --x64"
-        if buildConfiguration == "cpp11":
-            args += " --c++11"
+
         if buildConfiguration == "debug":
             args += " --mode=debug"
         else:
@@ -935,7 +934,7 @@ class Darwin(Platform):
         return ["clang"]
 
     def getSupportedConfigurations(self, compiler, arch):
-        return ["default", "cpp11"]
+        return ["default", "no-cpp11"]
 
     def getSupportedLanguages(self):
         return ["cpp", "java", "py", "js"]
@@ -1028,7 +1027,7 @@ class Linux(Platform):
             return ["x86"]
             
     def getSupportedConfigurations(self, compiler, arch):
-        return ["default", "java1.8"]
+        return ["default", "cpp11", "java1.8"]
 
     def getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist):
         env = Platform.getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist)
