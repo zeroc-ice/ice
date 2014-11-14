@@ -70,6 +70,8 @@ ifeq ($(UNAME),Linux)
       endif
       ifeq ($(LP64),)
           LP64      	= yes
+      else
+          binsuffix 	= 32
       endif
    endif
 endif
@@ -79,6 +81,7 @@ ifeq ($(CPP11),yes)
         cpp11libdirsuffix	= /c++11
         cpp11libsuffix		= ++11
         cpp11sonamedir		= ../
+        binsuffix 		:= $(binsuffix)$(cpp11libsuffix)
     endif
 endif
 
@@ -362,7 +365,7 @@ ifeq ($(installlib),)
     else
 	installlib	= $(INSTALL) $(2)/$(3) $(1); \
 			  rm -f $(1)/$(4); ln -s $(3) $(1)/$(4); \
-			  rm -f $(1)/$(5); ln -s $(cpp11sonamedir)$(4) $(1)$(cpp11libdirsuffix)/$(5); \
+			  rm -f $(1)$(cpp11libdirsuffix)/$(5); ln -s $(cpp11sonamedir)$(4) $(1)$(cpp11libdirsuffix)/$(5); \
 			  chmod a+rx $(1)/$(3) 
     endif
 endif
@@ -374,7 +377,12 @@ endif
 
 ifeq ($(installprogram),)
     installprogram	= $(INSTALL_PROGRAM) $(1) $(2); \
-			  chmod a+rx $(2)/$(notdir $(1))
+			  if test -f $(2) ; \
+			  then \
+				chmod a+rx $(2) ; \
+			  else \
+				chmod a+rx $(2)/$(notdir $(1)) ; \
+			  fi
 endif
 
 ifeq ($(mkdir),)
