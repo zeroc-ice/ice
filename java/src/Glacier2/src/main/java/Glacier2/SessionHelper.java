@@ -14,28 +14,6 @@ package Glacier2;
  */
 public class SessionHelper
 {
-    private class ConnectionCallbackI implements Ice.ConnectionCallback
-    {
-        public ConnectionCallbackI(SessionHelper sessionHelper)
-        {
-            _sessionHelper = sessionHelper;
-        }
-
-        @Override
-        public void heartbeat(Ice.Connection con)
-        {
-
-        }
-
-        @Override
-        public void closed(Ice.Connection con)
-        {
-            _sessionHelper.destroy();
-        }
-
-        private final SessionHelper _sessionHelper;
-    }
-
     /**
      * Creates a Glacier2 session.
      *
@@ -319,7 +297,19 @@ public class SessionHelper
                 connection.setACM(new Ice.IntOptional(acmTimeout),
                                   null,
                                   new Ice.Optional<Ice.ACMHeartbeat>(Ice.ACMHeartbeat.HeartbeatAlways));
-                connection.setCallback(new ConnectionCallbackI(this));
+                connection.setCallback(new Ice.ConnectionCallback()
+                                       {
+                                           @Override
+                                           public void heartbeat(Ice.Connection con)
+                                           {
+                                           }
+                                           
+                                           @Override
+                                           public void closed(Ice.Connection con)
+                                           {
+                                               destroy();
+                                           }
+                                       });
             }
             else if(sessionTimeout > 0)
             {
