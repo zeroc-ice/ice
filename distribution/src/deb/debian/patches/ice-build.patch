@@ -76,18 +76,18 @@
  	@for subdir in $(SUBDIRS); \
 --- a/config/Make.common.rules
 +++ b/config/Make.common.rules
-@@ -79,7 +79,10 @@
-         cpp11libdirsuffix	= /c++11
+@@ -82,7 +82,10 @@
          cpp11libsuffix		= ++11
          cpp11sonamedir		= ../
-+        cppsubdir		= cpp11
+         binsuffix 		:= $(binsuffix)$(cpp11libsuffix)
++        cppsubdir 		= cpp11
      endif
 +else
 +    cppsubdir			= cpp
  endif
  
  ifneq ($(findstring MINGW,$(UNAME)),)
-@@ -134,16 +137,16 @@
+@@ -137,16 +140,16 @@
  		ifneq ($(shell test -f $(ICE_HOME)/$(binsubdir)/$(slice_translator) && echo 0), 0)
  $(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please verify ICE_HOME is properly configured and Ice is correctly installed.)
  		endif
@@ -108,7 +108,7 @@
  	endif
  
      endif
-@@ -162,16 +165,16 @@
+@@ -165,16 +168,16 @@
  		ifneq ($(shell test -f $(ICE_HOME)/$(binsubdir)/$(slice_translator) && echo 0), 0)
  $(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please verify ICE_HOME is properly configured and Ice is correctly installed.)
  		endif
@@ -129,7 +129,7 @@
  	endif
      endif
  endif
-@@ -262,7 +265,7 @@
+@@ -265,7 +268,7 @@
  #
  ifneq ($(ice_dir), /usr)
      ifdef ice_src_dist
@@ -145,20 +145,20 @@
  
  all:
 -	./gradlew assemble
-+	./gradlew -g$(HOME) assemble
++	./gradlew -g$(GRADLE_HOME) assemble
  
  dist:
 -	./gradlew :Ice:assemble :Freeze:assemble :Glacier2:assemble :IceGrid:assemble :ant:assemble \
-+	./gradlew -g$(HOME) :Ice:assemble :Freeze:assemble :Glacier2:assemble :IceGrid:assemble :ant:assemble \
++	./gradlew -g$(GRADLE_HOME) :Ice:assemble :Freeze:assemble :Glacier2:assemble :IceGrid:assemble :ant:assemble \
  		:IceBox:assemble :IceDiscovery:assemble :IcePatch2:assemble :IceStorm:assemble :IceGridGUI:assemble
  
  clean:
 -	./gradlew clean
-+	./gradlew -g$(HOME) clean
++	./gradlew -g$(GRADLE_HOME) clean
  
  install::
 -	./gradlew $(INSTALL_FLAGS) install
-+	./gradlew -g$(HOME) $(INSTALL_FLAGS) install
++	./gradlew -g$(GRADLE_HOME) $(INSTALL_FLAGS) install
  
  test::
  	@python ./allTests.py

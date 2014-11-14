@@ -66,10 +66,7 @@ if distributionDir == None:
     usage()
     sys.exit(1)
 
-if keyid == None:
-    print "Missing -k argument"
-    usage()
-    sys.exit(1)
+buildpackageOps = ("-k%s" % keyid) if keyid != None else "-us -uc"
 
 sourceDir = "zeroc-ice@debmmver@-@debver@"
 distFile = "zeroc-ice@debmmver@_@debver@.orig.tar.gz"
@@ -101,11 +98,9 @@ if not os.path.exists(distFile):
 
 
 def runCommand(cmd, verbose):
-    if len(cmd) > 0:
-        if verbose:
-            print(cmd)
-        if os.system(cmd) != 0:
-            sys.exit(1)
+    print(cmd)
+    if os.system(cmd) != 0:
+        sys.exit(1)
 
 os.chdir(buildDir)
 runCommand("tar zxf %s " % (distFile), verbose)
@@ -113,5 +108,9 @@ shutil.copy(distFile, buildDir)
 
 os.chdir(sourceDir)
 runCommand("tar zxf %s distfiles-@ver@/src/deb/debian --strip-components 3" % distFiles, verbose)
+os.chdir(os.path.join(sourceDir, "debian"))
+runCommand("tar zxf %s distfiles-@ver@/src/unix/README.Linux --strip-components 3" % distFiles, verbose)
+runCommand("tar zxf %s distfiles-@ver@/src/unix/JGOODIES_LICENSE --strip-components 3" % distFiles, verbose)
 
-runCommand("dpkg-buildpackage -k%s" % keyid, verbose)
+os.chdir(sourceDir)
+runCommand("dpkg-buildpackage %s -j8" % buildpackageOps, verbose)

@@ -13,13 +13,14 @@ Build-Depends: debhelper (>= 9.0.0),
  python2.7-dev,
  ruby1.9.1-dev,
  php5-dev,
+ php5-cli,
  javahelper (>= 0.45),
  nodejs,
  libclosure-compiler-java
 Standards-Version: 3.9.4
 Homepage: http://www.zeroc.com
 
-Package: zeroc-ice
+Package: zeroc-ice-all-runtime
 Architecture: all
 Section: web
 Depends: zeroc-ice-slice (=${binary:Version}),
@@ -36,6 +37,8 @@ Depends: zeroc-ice-slice (=${binary:Version}),
  zeroc-icepatch2 (=${binary:Version}),
  zeroc-ice-utils (=${binary:Version}),
  zeroc-ice-utils-java (=${binary:Version})
+Replaces: libice-3.5-python, python-zeroc-ice (<=3.5.1), icebox
+Provides:icebox
 Description: Ice (Internet Communications Engine)
  Ice is a modern object-oriented toolkit that enables you to build
  distributed applications with minimal effort. Ice allows you to focus
@@ -46,7 +49,7 @@ Description: Ice (Internet Communications Engine)
  transmission, or retrying failed connection attempts (to name but a
  few of dozens of such low-level details).
 
-Package: zeroc-ice-dev
+Package: zeroc-ice-all-dev
 Architecture: all
 Section: devel
 Depends: libzeroc-ice-dev (=${binary:Version}),
@@ -90,8 +93,7 @@ Package: libzeroc-ice-dev
 Architecture: any
 Multi-Arch: no
 Section: devel
-Conflicts: libice++-dev
-Replaces: libice++-dev
+Replaces: libice++-dev, ice35-translators, libzeroc-ice35-dev
 Depends: ${shlibs:Depends}, ${misc:Depends}, 
  zeroc-ice-slice (=${binary:Version}), 
  libzeroc-ice@debmmver@ (=${binary:Version}), 
@@ -103,8 +105,7 @@ Package: libzeroc-ice-java
 Architecture: any
 Multi-Arch: foreign
 Section: devel
-Conflicts:libice-java-dev
-Replaces:libice-java-dev
+Replaces:libice-java-dev, ice35-translators, libzeroc-ice3.5-java
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${java:Depends}, 
  zeroc-ice-slice (=${binary:Version}), 
  libzeroc-ice@debmmver@ (=${binary:Version}), 
@@ -139,8 +140,7 @@ Package: php5-zeroc-ice
 Architecture: any
 Multi-Arch: no
 Section: php
-Conflicts:libice3.5-php
-Replaces:libice3.5-php
+Replaces:libice3.5-php, php-zeroc-ice
 Depends: ${shlibs:Depends}, ${misc:Depends}, 
  libzeroc-ice@debmmver@ (=${binary:Version})
 Description: The Ice run time for PHP
@@ -150,8 +150,7 @@ Package: php5-zeroc-ice-dev
 Architecture: any
 Multi-Arch: foreign
 Section: devel
-Conflicts:libice-php-dev
-Replaces:libice-php-dev
+Replaces:libice-php-dev, ice35-translators
 Depends: php5-cli | php5, ${shlibs:Depends},
  zeroc-ice-slice (=${binary:Version}),
  libzeroc-ice@debmmver@ (=${binary:Version}), 
@@ -159,12 +158,12 @@ Depends: php5-cli | php5, ${shlibs:Depends},
 Description: Tools for developing Ice applications in PHP
  Tools for developing Ice applications in PHP.
 
+ 
 Package: python-zeroc-ice
 Architecture: any
 Multi-Arch: no
 Section: python
-Conflicts:libice-3.5-python
-Replaces:libice-3.5-python
+Replaces:libice-3.5-python, python-zeroc-ice (<=3.5.1)
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends},
  zeroc-ice-slice (=${binary:Version}),
  libzeroc-ice@debmmver@ (=${binary:Version})
@@ -176,8 +175,7 @@ Package: python-zeroc-ice-dev
 Architecture: any
 Multi-Arch: foreign
 Section: devel
-Conflicts:libice-python-dev
-Replaces:libice-python-dev
+Replaces:libice-python-dev, ice35-translators
 Depends: ${shlibs:Depends}, ${misc:Depends}, 
  zeroc-ice-slice (=${binary:Version}), 
  libzeroc-ice@debmmver@ (=${binary:Version}),
@@ -189,7 +187,6 @@ Package: ruby-zeroc-ice
 Architecture: any
 Multi-Arch: no
 Section: ruby
-Conflicts:libice3.5-ruby
 Replaces:libice3.5-ruby
 Depends: ${shlibs:Depends}, ${misc:Depends}, ruby1.9.1,
  zeroc-ice-slice (=${binary:Version}),
@@ -201,8 +198,7 @@ Package: ruby-zeroc-ice-dev
 Architecture: any
 Multi-Arch: foreign
 Section: devel
-Conflicts:libice-ruby-dev
-Replaces:libice-ruby-dev
+Replaces:libice-ruby-dev, ice35-translators
 Depends: ${shlibs:Depends}, ${misc:Depends},
  zeroc-ice-slice (=${binary:Version}), 
  libzeroc-ice@debmmver@ (=${binary:Version}),
@@ -214,8 +210,7 @@ Package: zeroc-glacier2
 Architecture: any
 Multi-Arch: foreign
 Section: web
-Conflicts:glacier2
-Replaces:glacier2
+Replaces:glacier2, ice35-services
 Depends: ${shlibs:Depends}, ${misc:Depends},
  libzeroc-ice@debmmver@ (=${binary:Version})
 Description: The Glacier2 router daemon
@@ -226,8 +221,8 @@ Package: zeroc-icebox
 Architecture: any
 Multi-Arch: no
 Section: web
-Conflicts:icebox
 Replaces:icebox
+Provides:icebox
 Depends: ${shlibs:Depends}, ${misc:Depends},
  libzeroc-ice@debmmver@ (=${binary:Version})
 Description: IceBox C++ server
@@ -237,8 +232,7 @@ Package: zeroc-icegrid
 Architecture: any
 Multi-Arch: foreign
 Section: web
-Conflicts:icegrid
-Replaces:icegrid
+Replaces:icegrid, ice35-services
 Depends: ${shlibs:Depends}, ${misc:Depends}, 
  libzeroc-ice@debmmver@ (=${binary:Version}), 
  libzeroc-icestorm@debmmver@ (=${binary:Version}), 
@@ -263,8 +257,7 @@ Package: zeroc-icepatch2
 Architecture: any
 Multi-Arch: foreign
 Section: web
-Conflicts:icepatch2
-Replaces:icepatch2
+Replaces:icepatch2, ice35-services
 Depends: ${shlibs:Depends}, ${misc:Depends},
  libzeroc-ice@debmmver@ (=${binary:Version})
 Description: The software distribution and patching service for Ice.
@@ -275,8 +268,7 @@ Package: zeroc-ice-utils
 Architecture: any
 Multi-Arch: foreign
 Section: admin
-Conflicts:ice-utils
-Replaces:ice-utils
+Replaces:ice-utils, icebox, ice35-services
 Depends: ${shlibs:Depends}, ${misc:Depends}, 
  libzeroc-ice@debmmver@ (=${binary:Version}), 
  libzeroc-freeze@debmmver@ (=${binary:Version}), 
@@ -287,8 +279,7 @@ Description: Ice utilities and admin tools
 Package: zeroc-ice-utils-java
 Architecture: all
 Section: admin
-Conflicts:ice-utils
-Replaces:ice-utils
+Replaces:ice-utils, icegrid-gui
 Depends: ${java:Depends}, ${misc:Depends}, ${python:Depends}, 
  zeroc-ice-utils (=${binary:Version})
 Description: IceGrid Admin graphical client for IceGrid

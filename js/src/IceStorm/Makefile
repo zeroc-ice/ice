@@ -23,7 +23,7 @@ SDIR	= $(slicedir)/IceStorm
 GEN_SRCS = $(patsubst $(SDIR)/%.ice, %.js, $(SLICES))
 
 SRCS		:= $(GEN_SRCS)
-INSTALL_SRCS	:= IceStorm.js $(GEN_SRCS)
+INSTALL_SRCS	:= $(SRCS)
 
 include $(top_srcdir)/config/Make.rules.js
 
