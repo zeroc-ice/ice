@@ -167,7 +167,7 @@ patchVersion = FixUtil.patchVersion(version) if FixUtil.patchVersion(version) !=
 debmmversion = majorVersion + "." + minorVersion
 debversion = majorVersion + "." + minorVersion + "." + patchVersion
 
-versions = (version, mmversion, libversion, debversion, debmmversion)
+versions = (version, mmversion, libversion, debversion, debmmversion, majorVersion, minorVersion)
 config.close()
 
 #

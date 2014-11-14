@@ -1,5 +1,5 @@
 ======================================================================
-The Internet Communications Engine (Ice)
+The Internet Communications Engine
 ======================================================================
 
 Ice is a modern object-oriented toolkit that enables you to build
@@ -17,10 +17,9 @@ that most distributed applications require, such as event distribution
 or server management.
 
 Ice is available under the terms and conditions of the GNU General
-Public License v2 (see the ICE_LICENSE.txt file). Commercial licenses
-are available for customers who wish to use Ice in proprietary 
-products. Please contact sales@zeroc.com for more information on 
-licensing Ice.
+Public License v2 (see the ICE_LICENSE file). Commercial licenses are
+available for customers who wish to use Ice in proprietary products.
+Please contact sales@zeroc.com for more information on licensing Ice.
 
 
 Getting Started with Ice on Windows
@@ -37,7 +36,16 @@ Documentation
 
 The full documentation for Ice is available online:
 
-http://doc.zeroc.com/display/Ice/Home
+http://doc.zeroc.com/display/Rel/Ice+@majorver@.@minorver@+Manual
+
+
+Source Code
+-----------
+
+The source distributions of Ice and all third-party packages used to 
+build this distribution can be downloaded at no cost from:
+
+http://www.zeroc.com/download.html
 
 
 Acknowledgments
