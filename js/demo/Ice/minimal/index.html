@@ -91,7 +91,7 @@
         <p>To use the minified version you should edit the <code>demo/Ice/minimal/index.html</code>
         file and comment out the non-optimized scripts:</p>
         <pre>
-    &lt;!-- Scripts used during development, for optimized builds 
+    &lt;!-- Scripts used during development, for optimized builds
     comment out the following scripts and use browser/Client.min.js below --&gt;
     &lt;!-- Ice.js (Ice run-time library) --&gt;
     &lt;script type="text/javascript" src="../../../lib/Ice.js"&gt;&lt;/script&gt;
@@ -102,7 +102,7 @@
         </pre>
         <p>Then uncomment the script tag for the minified version</p>
         <pre>
-    &lt;!-- Uncomment the following line to use a minified version of the 
+    &lt;!-- Uncomment the following line to use a minified version of the
          scripts that includes: the Ice run-time library, the generated code
          and the demo application. --&gt;
     &lt;!--&lt;script type="text/javascript" src="browser/Client.min.js"&gt;&lt;/script&gt;--&gt;
@@ -152,7 +152,7 @@
          see assets/Makefile in your distribution for details -->
     <script type="text/javascript" src="../../../assets/common.min.js"></script>
     <!-- Scripts used during development, for optimized builds
-         comment the following scripts and uncomment browser/Client.min.js 
+         comment the following scripts and uncomment browser/Client.min.js
          below -->
     <!-- Ice.js (Ice run-time library) -->
     <script type="text/javascript" src="../../../lib/Ice.js"></script>
@@ -160,17 +160,19 @@
     <script type="text/javascript" src="Hello.js"></script>
     <!-- browser/Client.js (Minimal Demo Application) -->
     <script type="text/javascript" src="browser/Client.js"></script>
-    <!-- Uncomment the following line to use a minified version of the 
+    <!-- Uncomment the following line to use a minified version of the
          scripts that includes: (the Ice run-time library, the generated code
          and the demo application). -->
     <!--<script type="text/javascript" src="browser/Client.min.js"></script>-->
     <script type="text/javascript">
+        /* jshint browser:true, jquery:true */
+        /* global checkGenerated: false */
         //
-        // Firefox and IE we doesn't allow WS connections from 
+        // Firefox and IE: we do not allow WS connections from
         // HTTPS pages.
         //
         if(document.location.protocol === "https:" &&
-           (navigator.userAgent.indexOf("MSIE") !== -1 || 
+           (navigator.userAgent.indexOf("MSIE") !== -1 ||
             navigator.userAgent.indexOf("Firefox") !== -1 ||
             navigator.userAgent.indexOf("Trident/7.0") !== -1))
         {

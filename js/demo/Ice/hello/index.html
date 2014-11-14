@@ -34,7 +34,7 @@
             <li class="current"><a href="#">Hello</a></li>
         </ul>
     </section>
-    
+
     <!-- Main section that contains the user interface -->
     <section role="main" id="body">
         <div class="row">
@@ -90,7 +90,7 @@
             </div>
         </div>
     </section>
-    
+
     <!-- Modal dialog to show the client README -->
     <div id="readme-modal" class="reveal-modal medium" data-reveal>
         <div class="contents">
@@ -106,22 +106,22 @@
                the server.
             </p>
 
-            <p>You can change the invocation mode using the <strong>"Mode"</strong> 
+            <p>You can change the invocation mode using the <strong>"Mode"</strong>
             select box; the default is "Twoway" invocation.</p>
-            
-            <p>To send an invocation, click the <strong>"Hello World!"</strong> button, 
-            to shutdown the server click the <strong>"Shutdown"</strong> button, 
-            and to flush batch requests click the <strong>"Flush"</strong> button 
+
+            <p>To send an invocation, click the <strong>"Hello World!"</strong> button,
+            to shutdown the server click the <strong>"Shutdown"</strong> button,
+            and to flush batch requests click the <strong>"Flush"</strong> button
             (this is only enabled when there are pending requests to flush).</p>
-            
-            <p>To test timeouts, you can use the timeout slider to set a timeout 
-            on the client proxy and the delay slider to set a delayed response in 
+
+            <p>To test timeouts, you can use the timeout slider to set a timeout
+            on the client proxy and the delay slider to set a delayed response in
             the server to cause a timeout.</p>
-            
+
             <p>You will notice that two "Hello World!" messages will be printed by
             the server in this case. This is because the <code>sayHello</code> method is marked
             as idempotent in the Slice, meaning that Ice does not need to follow
-            the at-most-once retry semantics. See the 
+            the at-most-once retry semantics. See the
             <a href="http://doc.zeroc.com/display/Ice/Automatic+Retries#AutomaticRetries-AutomaticRetriesforIdempotentOperations">manual</a>
             for more information about retry behavior.</p>
         </div>
@@ -163,19 +163,21 @@
     <!-- Bundle with all the scripts used to build the user interface,
          see assets/Makefile in your distribution for details -->
     <script type="text/javascript" src="../../../assets/common.min.js"></script>
-    
+
     <script type="text/javascript">
-        
+
     </script>
-    
+
     <!-- Ice.js (Ice run-time library) -->
     <script type="text/javascript" src="../../../lib/Ice.js"></script>
     <!-- Hello.js (Demo generated code) -->
     <script type="text/javascript" src="Hello.js"></script>
     <!-- browser/Client.js (Hello Demo Application) -->
     <script type="text/javascript" src="browser/Client.js"></script>
-    
+
     <script type="text/javascript">
+        /* jshint browser:true, jquery:true */
+        /* global checkGenerated: false */
         if(["http:", "https:"].indexOf(document.location.protocol) !== -1)
         {
             checkGenerated(["Hello.js"]);

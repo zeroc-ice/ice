@@ -13,8 +13,8 @@ var path = require('path');
 var usage = function()
 {
     console.log("usage:");
-    console.log("" + process.argv[0] + " " + path.basename(process.argv[1]) + " <files>"); 
-}
+    console.log("" + process.argv[0] + " " + path.basename(process.argv[1]) + " <files>");
+};
 
 if(process.argv.length < 3)
 {
@@ -36,7 +36,7 @@ var data, lines, line, i, j;
 
 for(i = 0;  i < files.length; ++i)
 {
-    data = fs.readFileSync(files[i]); 
+    data = fs.readFileSync(files[i]);
     lines = data.toString().split("\n");
     for(j in lines)
     {

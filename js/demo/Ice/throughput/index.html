@@ -103,7 +103,7 @@
         <p>You can change the data type using the <strong>"Data"</strong> select
            box. The <strong>"Test"</strong> select box allows you to select which test
            to run.</p>
-           
+
         <p>Then you can use the <strong>"Run"</strong> button to run this client.</p>
 
         <div class="panel callout radius">
@@ -111,7 +111,7 @@
             for other types because the cost of marshaling and unmarshaling is
             lower than for more complex types.</p>
         </div>
-        
+
         <div class="panel callout radius">
             <p>The client is configured to use WSS secure endpoints when the page
                is loaded over HTTPS and WS unsecure endpoints when loaded over HTTP.</p>
@@ -160,8 +160,10 @@
     <script type="text/javascript" src="Throughput.js"></script>
     <!-- browser/Client.js (Throughput Demo Application) -->
     <script type="text/javascript" src="browser/Client.js"></script>
-    
+
     <script type="text/javascript">
+        /* jshint browser:true, jquery:true */
+        /* global checkGenerated: false */
         if(["http:", "https:"].indexOf(document.location.protocol) !== -1)
         {
             checkGenerated(["Throughput.js"]);

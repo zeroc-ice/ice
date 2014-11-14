@@ -120,6 +120,8 @@
     <!-- browser/Client.js (Latency Demo Application) -->
     <script type="text/javascript" src="browser/Client.js"></script>
     <script type="text/javascript">
+        /* jshint browser:true, jquery:true */
+        /* global checkGenerated: false */
         if(["http:", "https:"].indexOf(document.location.protocol) !== -1)
         {
             checkGenerated(["Latency.js"]);

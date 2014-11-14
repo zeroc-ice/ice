@@ -4,8 +4,10 @@
   "jquery" : true,
   "globals": {
     "Ice" : false,
-    "Glacier2" : false,
-    "Chat" : false,
-    "Demo": false
+    "IceGrid" : false,
+    "IceMX" : false,
+    "IceSSL" : false,
+    "IceStorm" : false,
+    "Glacier2" : false
   }
 }

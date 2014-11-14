@@ -83,7 +83,7 @@
         <a class="close-reveal-modal">&#215;</a>
         <h4>Test Suite Readme</h4>
         <hr/>
-        <p>For instructions on how to run this test suite, please refer to the Ice for JavaScript 
+        <p>For instructions on how to run this test suite, please refer to the Ice for JavaScript
             <a href="http://doc.zeroc.com/display/Rel/Ice+for+JavaScript+0.1.0+Release+Notes">Release Notes</a>.</p>
     </div>
     <!-- Modal dialog with setup instructions -->
@@ -91,9 +91,9 @@
         <h3>The Ice for JavaScript tests require a web server. Please follow these steps to run the test suite:</h3>
         <hr/>
         <ul>
-            <li>To run the browser tests, you will need to run the test HTTP server with the 
-                test/Common/run.py script. This script requires Ice for Python and the IceWS transport. 
-                Follow the instructions from your Ice distribution to setup the environment for 
+            <li>To run the browser tests, you will need to run the test HTTP server with the
+                test/Common/run.py script. This script requires Ice for Python and the IceWS transport.
+                Follow the instructions from your Ice distribution to setup the environment for
                 Ice for Python.<br/>
                 Run the following to start the HTTP server:
                 <pre>python test/Common/run.py</pre></li>
@@ -109,6 +109,7 @@
         </div>
     </div>
     <script type="text/javascript">
+        /* jshint browser:true, jquery:true */
         var TestCases = {
             "Ice/acm": ["Test.js", "Client.js"],
             "Ice/ami": ["Test.js", "Client.js"],
@@ -124,12 +125,12 @@
             "Ice/inheritance": ["Test.js", "Client.js"],
             "Ice/inheritanceBidir": ["Test.js", "InitialI.js", "../inheritance/Client.js", "Client.js"],
             "Ice/operations": ["Test.js", "Twoways.js", "Oneways.js", "BatchOneways.js", "Client.js"],
-            "Ice/operationsBidir": ["Test.js", "TestAMD.js", "../operations/Twoways.js", "../operations/Oneways.js", 
-                                    "../operations/BatchOneways.js", "MyDerivedClassI.js", "AMDMyDerivedClassI.js", 
+            "Ice/operationsBidir": ["Test.js", "TestAMD.js", "../operations/Twoways.js", "../operations/Oneways.js",
+                                    "../operations/BatchOneways.js", "MyDerivedClassI.js", "AMDMyDerivedClassI.js",
                                     "../operations/Client.js", "Client.js"],
             "Ice/objects": ["Test.js", "Client.js"],
             "Ice/optional": ["Test.js", "Client.js"],
-            "Ice/optionalBidir": ["Test.js", "TestAMD.js", "InitialI.js", "AMDInitialI.js", 
+            "Ice/optionalBidir": ["Test.js", "TestAMD.js", "InitialI.js", "AMDInitialI.js",
                                     "../optional/Client.js", "Client.js"],
             "Ice/promise": ["Client.js"],
             "Ice/properties": ["Client.js"],
@@ -139,32 +140,33 @@
             "Ice/slicing/objects": ["Test.js", "Client.js"],
             "Ice/timeout": ["Test.js", "Client.js"]
         };
-        
+
         var current, next;
         var basePath = "../../";
-        for(name in TestCases)
+
+        for(var testName in TestCases)
         {
             if(current)
             {
-                next = name;
+                next = testName;
                 break;
             }
-            
-            if(document.location.pathname.indexOf(name + "/index.html") !== -1)
+
+            if(document.location.pathname.indexOf(testName + "/index.html") !== -1)
             {
-                current = name;
-                if(name.split("/").length === 3)
+                current = testName;
+                if(testName.split("/").length === 3)
                 {
                     basePath = "../../../";
                 }
             }
         }
 
-        scripts = [
+        var scripts = [
             basePath + "../assets/common.min.js",
             basePath + "../lib/Ice.js"
         ];
-        
+
         TestCases[current].forEach(
             function(script)
             {
@@ -172,14 +174,14 @@
             });
         scripts.push(basePath + "Common/Controller.js");
         scripts.push(basePath + "Common/TestSuite.js");
-        
+
         var head = document.getElementsByTagName("head")[0];
-        
+
         var link = document.createElement("link");
         link.rel = "stylesheet";
         link.href = basePath + "../assets/common.css";
         head.appendChild(link);
-        
+
         function loadScript()
         {
             if(scripts.length > 0)

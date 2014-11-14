@@ -7,6 +7,16 @@
 //
 // **********************************************************************
 
+ /* global
+    __runEchoServerOptions__ : false,
+    __test__ : false,
+    basePath : false,
+    current : false,
+    next : true,
+    Test : false,
+    TestCases : false
+*/
+
 var communicator = Ice.initialize();
 
 $(document).foundation();

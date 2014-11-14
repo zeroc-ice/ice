@@ -124,12 +124,14 @@
     <!-- browser/Client.js (Bidir Demo Application) -->
     <script type="text/javascript" src="browser/Client.js"></script>
     <script type="text/javascript">
+        /* jshint browser:true, jquery:true */
+        /* global checkGenerated: false */
         //
-        // Firefox and IE we doesn't allow WS connections from 
+        // Firefox and IE: We do not allow WS connections from
         // HTTPS pages.
         //
         if(document.location.protocol === "https:" &&
-           (navigator.userAgent.indexOf("MSIE") !== -1 || 
+           (navigator.userAgent.indexOf("MSIE") !== -1 ||
             navigator.userAgent.indexOf("Firefox") !== -1 ||
             navigator.userAgent.indexOf("Trident/7.0") !== -1))
         {

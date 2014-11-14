@@ -105,14 +105,14 @@
 
         opByteS: function(p1, p2, current)
         {
+            var i;
             var p3 = Ice.Buffer.createNative(p1.length);
-            for(var i = 0; i < p1.length; i++)
+            for(i = 0; i < p1.length; i++)
             {
                 p3[i] = p1[p1.length - (i + 1)];
             }
 
             var r = Ice.Buffer.createNative(p1.length + p2.length);
-            var i;
             for(i = 0; i < p1.length; ++i)
             {
                 r[i] = p1[i];

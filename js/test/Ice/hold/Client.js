@@ -79,9 +79,12 @@
                 holdSerializedOneway = Test.HoldPrx.uncheckedCast(holdSerialized.ice_oneway());
 
                 out.write("changing state between active and hold rapidly... ");
-                
+
                 var i;
                 var r = new Ice.Promise().succeed();
+                /*jshint -W083 */
+                // Ignore this since we do not use i and
+                // have only a small number of iterations
                 for(i = 0; i < 1; ++i)
                 {
                     r = r.then(function() { return hold.putOnHold(0); });
@@ -98,6 +101,7 @@
                 {
                     r = r.then(function() { return holdSerializedOneway.putOnHold(0); });
                 }
+                /*jshint +W083 */
                 return r;
             }
         ).then(
@@ -191,8 +195,8 @@
                                     return holdSerialized.ice_ping(); // Make sure everything's dispatched.
                                 }
                             ).then(
-                                function() 
-                                { 
+                                function()
+                                {
                                     return holdSerialized.ice_getConnection();
                                 }
                             ).then(
@@ -223,9 +227,9 @@
                         return loop(function(i)
                                     {
                                         var r = hold.ice_oneway().ice_ping();
-                                        if((i % 20) == 0)
+                                        if((i % 20) === 0)
                                         {
-                                            r = r.then(function() { return hold.putOnHold(0); })
+                                            r = r.then(function() { return hold.putOnHold(0); });
                                         }
                                         return r;
                                     }, 100);

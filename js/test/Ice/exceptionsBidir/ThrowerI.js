@@ -47,15 +47,16 @@
 
         throwAorDasAorD: function(a, current)
         {
+            var ex;
             if(a > 0)
             {
-                var ex = new Test.A();
+                ex = new Test.A();
                 ex.aMem = a;
                 throw ex;
             }
             else
             {
-                var ex = new Test.D();
+                ex = new Test.D();
                 ex.dMem = a;
                 throw ex;
             }

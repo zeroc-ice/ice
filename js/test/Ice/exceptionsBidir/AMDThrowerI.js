@@ -47,15 +47,16 @@
 
         throwAorDasAorD_async: function(cb, a, current)
         {
+            var ex;
             if(a > 0)
             {
-                var ex = new TestAMD.A();
+                ex = new TestAMD.A();
                 ex.aMem = a;
                 cb.ice_exception(ex);
             }
             else
             {
-                var ex = new TestAMD.D();
+                ex = new TestAMD.D();
                 ex.dMem = a;
                 cb.ice_exception(ex);
             }

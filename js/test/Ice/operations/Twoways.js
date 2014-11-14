@@ -344,8 +344,8 @@
                 var lsi =
                 [
                     [ l1, l2 ]
-                ]
-                return prx.opShortIntLongSS(ssi, isi, lsi)
+                ];
+                return prx.opShortIntLongSS(ssi, isi, lsi);
 
             }
         ).then(
@@ -526,10 +526,10 @@
                 tmp.set(100, false);
                 test(p3.equals(tmp));
                 test(retval.size === 4);
-                test(retval.get(10) == true);
-                test(retval.get(11) == false);
-                test(retval.get(100) == false);
-                test(retval.get(101) == true);
+                test(retval.get(10) === true);
+                test(retval.get(11) === false);
+                test(retval.get(100) === false);
+                test(retval.get(101) === true);
 
                 var di1 = new Test.ShortIntD();
                 di1.set(110, -1);

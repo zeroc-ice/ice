@@ -90,7 +90,7 @@
                                     }
                                 );
                             }
-                        }
+                        };
                         return wait(0);
                     }
                 ).then(
