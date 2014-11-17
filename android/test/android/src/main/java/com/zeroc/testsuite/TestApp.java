@@ -486,7 +486,6 @@ public class TestApp extends Application
                     args.add("--Ice.Default.Protocol=wss");
                     break;
             }
-            args.add("--Ice.Trace.Network=3");
         }
     };
     private Mode _mode = Mode.TCP;
