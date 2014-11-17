@@ -38,7 +38,7 @@ prefix			= C:\Ice-$(VERSION)
 
 #
 # Is the MFC library available?
-# Set to no if you are using Visual Studio Express
+# Set to no if MFC is not installed
 # A few Ice demos use MFC
 #
 !if "$(HAS_MFC)" == ""

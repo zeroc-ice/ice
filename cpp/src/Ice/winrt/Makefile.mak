@@ -220,10 +220,6 @@ depend:: $(SLICE_SSL_SRCS:.ice=.d)
 $(LIBNAME): $(LOCAL_OBJS) $(OBJS) sdks
 	$(AR) $(ARFLAGS) $(OBJS) $(LOCAL_OBJS) /out:$(LIBNAME)
 
-Service.obj: $(SOURCE_DIR)\EventLoggerMsg.h
-
-Ice.res: $(SOURCE_DIR)\EventLoggerMsg.rc
-
 .cpp.d:
 	@if not exist "$(ARCH)\$(CONFIG)" mkdir $(ARCH)\$(CONFIG)
 	@echo Generating dependencies for $<
@@ -266,10 +262,6 @@ Ice.res: $(SOURCE_DIR)\EventLoggerMsg.rc
 	del /q $(headerdir)\IceSSL\$(*F).h $(*F).cpp
 	"$(SLICE2CPP)" $(SSL_SLICE2CPPFLAGS) $<
 	move $(*F).h $(headerdir)\IceSSL
-
-# These files are not automatically generated because VC2008 Express doesn't have mc.exe
-#EventLoggerMsg.h EventLoggerMsg.rc: EventLoggerMsg.mc
-#	mc EventLoggerMsg.mc
 
 clean::
 	-del /q $(SOURCE_DIR)\BuiltinSequences.cpp $(HDIR)\BuiltinSequences.h
