@@ -909,8 +909,11 @@ class Darwin(Platform):
         os.mkdir(packagesDir)
 
         iceRootDir = "%s/Ice-@ver@" % buildRootDir
-        for name in ["freeze", "glacier2", "ice", "icebox", "icediscovery", "icegrid", "icepatch2", "icestorm"]:
+        for name in ["freeze", "glacier2", "ice", "icebox", "icediscovery", "icegrid", "icepatch2", "icestorm", "ice-gradle-plugin", "ant-ice"]:
             runCommand("cd %s/lib && ln -s %s-%s.jar %s.jar" % (iceRootDir, name, "@ver@", name))
+            
+        for name in ["freeze", "glacier2", "ice", "icebox", "icediscovery", "icegrid", "icepatch2", "icestorm"]:
+            runCommand("cd %s/lib && ln -s %s-%s-source.jar %s-source.jar" % (iceRootDir, name, "@ver@", name))
 
         package = "com.zeroc.ice"
         packageRoot = os.path.join(buildRootDir, "Ice-@ver@")
