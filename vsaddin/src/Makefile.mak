@@ -110,9 +110,6 @@ install::
 		copy ..\templates\Slice.zip "$(VSINSTALLDIR)\ItemTemplates\CSharp\Web\1033\"
 	devenv.exe /installvstemplates
 
-	#
-	# Ice.props use this registry keyword to define IceHome macro.
-	#
 	@echo Adding key "$(INSTALL_KEY)" in Windows registry
 	@reg ADD "$(INSTALL_KEY)" /v InstallDir /d "$(prefix)" /f || \
 	echo "Could not add registry keyword $(SDK_KEY)" && exit 1

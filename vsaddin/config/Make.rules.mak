@@ -93,10 +93,12 @@ ADDIN_PREFIX            = $(ALLUSERSPROFILE)\Microsoft\VisualStudio\12.0\Addins
 !elseif "$(VS)" == "VS2012" 
 VSSDK_HOME   		= $(VSSDK110INSTALL)
 ADDIN_PREFIX 		= $(ALLUSERSPROFILE)\Microsoft\VisualStudio\11.0\Addins
+!else
+!error Invalid Visual Studio version $(VS) VS2012 or VS2013 must be used.
 !endif
 
 !if "$(VSSDK_HOME)" == ""
-!message The Visual Studio SDK does not appear to be installed: VSSDK120INSTALL and VSSDK110INSTALL are both unset.
+!error The Visual Studio SDK does not appear to be installed: VSSDK120INSTALL and VSSDK110INSTALL are both unset.
 !endif
 
 VSTARGET                = $(VS)
