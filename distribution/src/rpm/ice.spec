@@ -695,34 +695,17 @@ cd $RPM_BUILD_DIR/Ice-%{version}/java
 make prefix=$RPM_BUILD_ROOT install
 
 mkdir -p $RPM_BUILD_ROOT%{_javadir}
-mv $RPM_BUILD_ROOT/lib/ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
-ln -s ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/ice.jar
 
-mv $RPM_BUILD_ROOT/lib/freeze-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
-ln -s freeze-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/freeze.jar
+for i in freeze glacier2 ice icebox icediscovery icegrid icepatch2 icestorm
+do
+  mv $RPM_BUILD_ROOT/lib/$i-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
+  ln -s $i-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/$i.jar
+  mv $RPM_BUILD_ROOT/lib/$i-%{version}-source.jar $RPM_BUILD_ROOT%{_javadir}
+  ln -s $i-%{version}-source.jar $RPM_BUILD_ROOT%{_javadir}/$i-source.jar
+done
 
-mv $RPM_BUILD_ROOT/lib/glacier2-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
-ln -s glacier2-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/glacier2.jar
-
-mv $RPM_BUILD_ROOT/lib/icebox-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
-ln -s icebox-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/icebox.jar
-
-mv $RPM_BUILD_ROOT/lib/icegrid-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
-ln -s icegrid-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/icegrid.jar
-
-mv $RPM_BUILD_ROOT/lib/icepatch2-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
-ln -s icepatch2-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/icepatch2.jar
-
-mv $RPM_BUILD_ROOT/lib/icestorm-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
-ln -s icestorm-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/icestorm.jar
-
-mv $RPM_BUILD_ROOT/lib/icediscovery-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
-ln -s icediscovery-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/icediscovery.jar
-
-#
-# Gradle plug-in
-#
-mv $RPM_BUILD_ROOT/lib/slice-1.0.jar $RPM_BUILD_ROOT%{_javadir}
+mv $RPM_BUILD_ROOT/lib/ice-gradle-plugin-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
+ln -s ice-gradle-plugin-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/ice-gradle-plugin.jar
 
 #
 # ant-ice.jar
@@ -1039,21 +1022,38 @@ rm -rf $RPM_BUILD_ROOT
 %{_javadir}/ant-ice-%{version}.jar
 %{_javadir}/ice-%{version}.jar
 %{_javadir}/ice.jar
+%{_javadir}/ice-%{version}-source.jar
+%{_javadir}/ice-source.jar
 %{_javadir}/glacier2-%{version}.jar
 %{_javadir}/glacier2.jar
+%{_javadir}/glacier2-%{version}-source.jar
+%{_javadir}/glacier2-source.jar
 %{_javadir}/icebox-%{version}.jar
 %{_javadir}/icebox.jar
+%{_javadir}/icebox-%{version}-source.jar
+%{_javadir}/icebox-source.jar
 %{_javadir}/icegrid-%{version}.jar
 %{_javadir}/icegrid.jar
+%{_javadir}/icegrid-%{version}-source.jar
+%{_javadir}/icegrid-source.jar
 %{_javadir}/icepatch2-%{version}.jar
 %{_javadir}/icepatch2.jar
+%{_javadir}/icepatch2-%{version}-source.jar
+%{_javadir}/icepatch2-source.jar
 %{_javadir}/icestorm-%{version}.jar
 %{_javadir}/icestorm.jar
+%{_javadir}/icestorm-%{version}-source.jar
+%{_javadir}/icestorm-source.jar
 %{_javadir}/icediscovery-%{version}.jar
 %{_javadir}/icediscovery.jar
+%{_javadir}/icediscovery-%{version}-source.jar
+%{_javadir}/icediscovery-source.jar
 %{_javadir}/freeze-%{version}.jar
 %{_javadir}/freeze.jar
-%{_javadir}/slice-1.0.jar
+%{_javadir}/freeze-%{version}-source.jar
+%{_javadir}/freeze-source.jar
+%{_javadir}/ice-gradle-plugin-%{version}.jar
+%{_javadir}/ice-gradle-plugin.jar
 %{_defaultdocdir}/libice-java-%{version}
 
 %files -n libice-js
