@@ -76,6 +76,18 @@ tests.each {
     }
 }
 
+task copyBksTask(type: Copy) {
+    from "${rootProject.projectDir}/../certs/client.bks"
+    from "${rootProject.projectDir}/../certs/server.bks"
+    into "src/main/res/raw"
+}
+preBuild.dependsOn(copyBksTask)
+
+clean {
+    delete("src/main/res/raw/client.bks")
+    delete("src/main/res/raw/server.bks")
+}
+
 dependencies {
     compile localDependency('ice')
     compile project(':test')

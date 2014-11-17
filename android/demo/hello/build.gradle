@@ -49,6 +49,16 @@ android {
     }
 }
 
+task copyBksTask(type: Copy) {
+    from "${rootProject.projectDir}/../certs/client.bks"
+    into "src/main/res/raw"
+}
+preBuild.dependsOn(copyBksTask)
+
+clean {
+    delete("src/main/res/raw/client.bks")
+}
+
 idea.module {
     excludeDirs -= file(buildDir)
     buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
@@ -57,3 +67,4 @@ idea.module {
 dependencies {
     compile localDependency('ice')
 }
+
