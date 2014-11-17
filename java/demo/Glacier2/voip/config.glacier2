@@ -60,3 +60,4 @@ IceSSL.VerifyPeer=0
 IceSSL.DefaultDir=../../../../certs
 IceSSL.CertAuthFile=cacert.pem
 IceSSL.CertFile=s_rsa1024.pfx
+IceSSL.Password=password

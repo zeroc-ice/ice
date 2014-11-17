@@ -59,6 +59,7 @@ Ice.Plugin.IceSSL=IceSSL:createIceSSL
 IceSSL.DefaultDir=../../../../certs
 IceSSL.CertAuthFile=cacert.pem
 IceSSL.CertFile=s_rsa1024.pfx
+IceSSL.Password=password
 IceSSL.Keychain=server.keychain
 IceSSL.KeychainPassword=password
 

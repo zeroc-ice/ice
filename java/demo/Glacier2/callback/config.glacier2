@@ -125,6 +125,7 @@ Ice.Plugin.IceSSL=IceSSL:createIceSSL
 IceSSL.DefaultDir=../../../../certs
 IceSSL.CertAuthFile=cacert.pem
 IceSSL.CertFile=s_rsa1024.pfx
+IceSSL.Password=password
 
 # Required for a Java 1.8 client to talk to a C++ server on OSX
 IceSSL.ProtocolVersionMax=tls1_1
