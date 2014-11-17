@@ -262,11 +262,11 @@ runCommand("cd ubuntu && apt-ftparchive release -c=aptftp.conf dists/%(codename)
 #
 # Sign packages
 #
-for command in ["cd ubuntu && debsign -k %(signKey)s pool/main/i/ice@debmmver@/zeroc-ice@debmmver@_@debver@-1.dsc",
-                "cd ubuntu && debsign -k %(signKey)s pool/main/i/ice@debmmver@/zeroc-ice@debmmver@_@debver@-1_i386.changes",
-                "cd ubuntu && debsign -k %(signKey)s pool/main/i/ice@debmmver@/zeroc-ice@debmmver@_@debver@-1_amd64.changes",
-                "cd ubuntu && gpg -u %(signKey)s -bao dists/raring/Release.gpg dists/raring/Release"]:
-    runCommand(command % {"signKey": signKey})
+for command in ["cd ubuntu && echo \"y\" | debsign -k %(signKey)s pool/main/i/ice@debmmver@/zeroc-ice@debmmver@_@debver@-1.dsc",
+                "cd ubuntu && echo \"y\" | debsign -k %(signKey)s pool/main/i/ice@debmmver@/zeroc-ice@debmmver@_@debver@-1_i386.changes",
+                "cd ubuntu && echo \"y\" | debsign -k %(signKey)s pool/main/i/ice@debmmver@/zeroc-ice@debmmver@_@debver@-1_amd64.changes",
+                "cd ubuntu && gpg --yes -u %(signKey)s -bao dists/%(codename)s/Release.gpg dists/%(codename)s/Release"]:
+    runCommand(command % {"signKey": signKey, "codename": codename})
 
 runCommand("rm -f ubuntu/aptftp.conf ubuntu/aptgenerate.conf")
-runCommand("tar cjvf ubuntu ubuntu.tar.bz2")
+runCommand("tar cjf ubuntu.tar.bz2 ubuntu")

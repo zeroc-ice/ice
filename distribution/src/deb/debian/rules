@@ -67,7 +67,7 @@ ARTIFACT_NAMES = freeze \
 ifeq ($(DEB_HOST_MULTIARCH),i386-linux-gnu)
 ICEBOX = icebox32
 icebox_install:
-	mv $(DESTDIR)$(prefix)/bin/icebox++11 $(DESTDIR)$(prefix)/bin/$(ICEBOX)++11
+	mv $(DESTDIR)$(prefix)/bin/icebox $(DESTDIR)$(prefix)/bin/icebox32
 	@echo usr/bin/$(ICEBOX) > $(CURDIR)/debian/zeroc-icebox.install
 	@echo usr/bin/$(ICEBOX)++11 >> $(CURDIR)/debian/zeroc-icebox.install
 	@echo usr/share/man/man1/icebox.1 >> $(CURDIR)/debian/zeroc-icebox.install

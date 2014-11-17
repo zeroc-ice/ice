@@ -91,7 +91,6 @@ Description: Freeze persistence service C++ run-time
 
 Package: libzeroc-ice-dev
 Architecture: any
-Multi-Arch: no
 Section: devel
 Replaces: libice++-dev, ice35-translators, libzeroc-ice35-dev
 Depends: ${shlibs:Depends}, ${misc:Depends}, 
@@ -138,7 +137,6 @@ Description: JavaScript Ice run time for NodeJS
 
 Package: php5-zeroc-ice
 Architecture: any
-Multi-Arch: no
 Section: php
 Replaces:libice3.5-php, php-zeroc-ice
 Depends: ${shlibs:Depends}, ${misc:Depends}, 
@@ -161,7 +159,6 @@ Description: Tools for developing Ice applications in PHP
  
 Package: python-zeroc-ice
 Architecture: any
-Multi-Arch: no
 Section: python
 Replaces:libice-3.5-python, python-zeroc-ice (<=3.5.1)
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends},
@@ -185,7 +182,6 @@ Description: Tools for developing Ice applications in Python
 
 Package: ruby-zeroc-ice
 Architecture: any
-Multi-Arch: no
 Section: ruby
 Replaces:libice3.5-ruby
 Depends: ${shlibs:Depends}, ${misc:Depends}, ruby1.9.1,
@@ -219,7 +215,6 @@ Description: The Glacier2 router daemon
 
 Package: zeroc-icebox
 Architecture: any
-Multi-Arch: no
 Section: web
 Replaces:icebox
 Provides:icebox
