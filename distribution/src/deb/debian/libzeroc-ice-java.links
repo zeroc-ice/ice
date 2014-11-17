@@ -8,5 +8,6 @@ usr/share/java/icediscovery-@ver@.jar usr/share/java/icediscovery.jar
 usr/share/java/icegrid-@ver@.jar usr/share/java/icegrid.jar
 usr/share/java/icepatch2-@ver@.jar usr/share/java/icepatch2.jar
 usr/share/java/icestorm-@ver@.jar usr/share/java/icestorm.jar
+usr/share/java/ice-gradle-plugin-@ver@.jar usr/share/java/ice-gradle-plugin.jar
 
 /usr/share/doc/libzeroc-ice-java-dev/copyright /usr/share/doc/libzeroc-ice-java-dev/ICE_LICENSE
