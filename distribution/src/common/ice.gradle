@@ -53,7 +53,10 @@ if (System.properties['os.name'].toLowerCase().contains('windows'))
     slice2freezej = "slice2freezej.exe"
 }
 
-// First check if iceHome was set in
+def env = System.getenv()
+
+// First check if iceHome was set in gradle.properties
+// Otherwise check if ICE_HOME is set and it points at a valid installation
 if (iceHome)
 {
 	def translator = new File("$iceHome/bin/$slice2java")
@@ -63,23 +66,22 @@ if (iceHome)
 								  "properly configured in gradle.properties and Ice is correctly installed.")
 	}
 }
-
-// Next check if ICE_HOME is set and it points at a valid installation
-def env = System.getenv()
-iceHome = env['ICE_HOME']
-if (iceHome)
+else
 {
-	def translator = new File("$iceHome/bin/$slice2java")
-	if (!translator.exists())
+	iceHome = env['ICE_HOME']
+	if (iceHome)
 	{
-		throw new GradleException("Unable to find $slice2java in $iceHome, please verify ICE_HOME is " +
-								  "properly configured and Ice is correctly installed.")
+		def translator = new File("$iceHome/bin/$slice2java")
+		if (!translator.exists())
+		{
+			throw new GradleException("Unable to find $slice2java in $iceHome, please verify ICE_HOME is " +
+									  "properly configured and Ice is correctly installed.")
+		}
 	}
 }
 
 def iceBinDist = true
 
-// First check if we are building against source distribution
 def iceDir
 if (iceHome)
 {
