@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 
-export DEB_BUILD_OPTIONS = nocheck notest -j8
+export DEB_BUILD_OPTIONS = nocheck notest -j4
 
 #export DH_VERBOSE=1
 
@@ -84,8 +84,8 @@ endif
 
 override_dh_auto_build:
 	cp -r cpp cpp11
-	cd cpp11/src && CPP11=yes $(MAKE) -j8
-	$(MAKE) -j8 embedded_runpath_prefix="" PYTHON_LIBS=""
+	cd cpp11/src && CPP11=yes $(MAKE) -j4
+	$(MAKE) -j4 embedded_runpath_prefix="" PYTHON_LIBS=""
 
 override_dh_auto_install:
 	cd cpp11 && DESTDIR=$(CPP11_DESTDIR) CPP11=yes $(MAKE) install
