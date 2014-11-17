@@ -86,6 +86,7 @@ demoConfigFiles = [ \
 # directory.
 #
 demoCertsFiles = [ \
+    "client.bks", \
     "*.jks", \
     "*.pem", \
     "*.pfx", \
@@ -492,7 +493,8 @@ copy(os.path.join(distFilesDir, "src", "common", "gradle.properties.android"), o
 copy(os.path.join(distFilesDir, "src", "common", "settings.gradle.android"), os.path.join(demoDir, "java", "android", "settings.gradle"), False)
 copy(os.path.join(distFilesDir, "src", "common", "props.gradle"), os.path.join(demoDir, "java", "android", "gradle"), False)
 
-gradleSubstituteExprs = [(re.compile(re.escape("apply plugin: 'slice'")), "")]
+gradleSubstituteExprs = [(re.compile(re.escape("apply plugin: 'slice'")), ""),
+                         (re.compile(re.escape("../certs/client.bks")), "../../certs/client.bks")]
 for root, dirnames, filesnames in os.walk(os.path.join(demoDir, "java", "android")):
     for f in filesnames:
         if fnmatch.fnmatch(f, "build.gradle"):
@@ -602,7 +604,8 @@ copy(os.path.join(distFilesDir, "src", "common", "gradle.properties.android"), o
 copy(os.path.join(distFilesDir, "src", "common", "settings.gradle.android"), os.path.join(winDemoDir, "java", "android", "settings.gradle"), False)
 copy(os.path.join(distFilesDir, "src", "common", "props.gradle"), os.path.join(winDemoDir, "java", "android", "gradle"), False)
 
-gradleSubstituteExprs = [(re.compile(re.escape("apply plugin: 'slice'")), "")]
+gradleSubstituteExprs = [(re.compile(re.escape("apply plugin: 'slice'")), ""),
+                         (re.compile(re.escape("../certs/client.bks")), "../../certs/client.bks")]
 for root, dirnames, filesnames in os.walk(os.path.join(winDemoDir, "java", "android")):
     for f in filesnames:
         if fnmatch.fnmatch(f, "build.gradle"):
