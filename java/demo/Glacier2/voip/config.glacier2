@@ -59,5 +59,4 @@ Ice.Plugin.IceSSL=IceSSL:createIceSSL
 IceSSL.VerifyPeer=0
 IceSSL.DefaultDir=../../../../certs
 IceSSL.CertAuthFile=cacert.pem
-IceSSL.CertFile=s_rsa1024_pub.pem
-IceSSL.KeyFile=s_rsa1024_priv.pem
+IceSSL.CertFile=s_rsa1024.pfx

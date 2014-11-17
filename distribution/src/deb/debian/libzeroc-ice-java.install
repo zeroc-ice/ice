@@ -14,6 +14,7 @@ usr/share/java/icediscovery-@ver@.jar
 usr/share/java/icegrid-@ver@.jar
 usr/share/java/icepatch2-@ver@.jar
 usr/share/java/icestorm-@ver@.jar
+usr/share/java/ice-gradle-plugin-@ver@.jar
 
 usr/share/maven-repo/com/zeroc/freeze/3.6b/freeze-@ver@.jar
 usr/share/maven-repo/com/zeroc/freeze/3.6b/freeze-@ver@.pom
