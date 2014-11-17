@@ -74,7 +74,11 @@ ifdef ice_src_dist
     libdir = $(top_srcdir)/lib
 else
     bindir = $(ice_dir)/$(binsubdir)
-    libdir = $(ice_dir)/$(libsubdir)
+    ifeq ($(ice_dir),/usr)
+        libdir = $(ice_dir)/share/javascript/ice-$(VERSION)
+    else
+        libdir = $(ice_dir)/lib
+    endif
 endif
 
 install_libdir 	  = $(prefix)/lib
