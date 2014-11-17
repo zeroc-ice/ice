@@ -20,10 +20,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.ListView;
+import android.widget.*;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
 public class TestSuite extends ListActivity
@@ -71,17 +68,29 @@ public class TestSuite extends ListActivity
                 showDialog(DIALOG_INITIALIZING);
             }
         });
-        CheckBox secure = (CheckBox)findViewById(R.id.secure);
-        secure.setOnCheckedChangeListener(new OnCheckedChangeListener()
+        Spinner mode = (Spinner)findViewById(R.id.mode);
+        ArrayAdapter<String> modeAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,
+                new String[] { "TCP", "SSL", "WS", "WSS"});
+        mode.setAdapter(modeAdapter);
+        mode.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener()
         {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
             {
-                app.setSSL(isChecked);
+                app.setMode((int)id);
                 _tests.clear();
                 _tests.addAll(app.getTestNames());
                 adapter.notifyDataSetChanged();
             }
+
+            public void onNothingSelected(AdapterView<?> arg0)
+            {
+            }
         });
+        if(savedInstanceState == null)
+        {
+            mode.setSelection(0);
+        }
+        app.setMode((int)mode.getSelectedItemId());
 
         CheckBox ipv6 = (CheckBox)findViewById(R.id.ipv6);
         ipv6.setOnCheckedChangeListener(new OnCheckedChangeListener()

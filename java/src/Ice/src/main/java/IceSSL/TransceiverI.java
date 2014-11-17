@@ -205,11 +205,24 @@ final class TransceiverI implements IceInternal.Transceiver
 
                 fill(buf.b);
             }
+
+            // If there is no more application data, do one further unwrap to ensure
+            // that the SSLEngine has no buffered data (Android R21 and greater only).
+            if(_appInput.position() == 0)
+            {
+                _netInput.flip();
+                _engine.unwrap(_netInput, _appInput);
+                _netInput.compact();
+
+                // Don't check the status here since we may have already filled
+                // the buffer with a complete request which must be processed.
+            }
         }
         catch(SSLException ex)
         {
             throw new Ice.SecurityException("IceSSL: error during read", ex);
         }
+
 
         //
         // Return a boolean to indicate whether more data is available.
@@ -527,9 +540,8 @@ final class TransceiverI implements IceInternal.Transceiver
                 // Copy directly into the destination buffer's backing array.
                 //
                 byte[] arr = buf.array();
-                int offset = buf.arrayOffset() + buf.position();
-                _appInput.get(arr, offset, bytesAvailable);
-                buf.position(offset + bytesAvailable);
+                _appInput.get(arr, buf.arrayOffset() + buf.position(), bytesAvailable);
+                buf.position(buf.position() + bytesAvailable);
             }
             else if(_appInput.hasArray())
             {
@@ -537,9 +549,8 @@ final class TransceiverI implements IceInternal.Transceiver
                 // Copy directly from the source buffer's backing array.
                 //
                 byte[] arr = _appInput.array();
-                int offset = _appInput.arrayOffset() + _appInput.position();
-                buf.put(arr, offset, bytesAvailable);
-                _appInput.position(offset + bytesAvailable);
+                buf.put(arr, _appInput.arrayOffset() + _appInput.position(), bytesAvailable);
+                _appInput.position(_appInput.position() + bytesAvailable);
             }
             else
             {

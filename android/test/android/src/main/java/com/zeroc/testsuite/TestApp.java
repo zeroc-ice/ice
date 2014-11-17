@@ -457,7 +457,39 @@ public class TestApp extends Application
     private int _status = 0;
     private int _currentTest = -1;
 
-    private boolean _ssl = false;
+    enum Mode {
+        TCP,
+        SSL,
+        WS,
+        WSS;
+
+        public boolean isSSL()
+        {
+            return this == SSL || this == WSS;
+        }
+
+        public void setupProtocol(List<String> args)
+        {
+            switch(this) {
+                case TCP:
+                    break;
+
+                case SSL:
+                    args.add("--Ice.Default.Protocol=ssl");
+                    break;
+
+                case WS:
+                    args.add("--Ice.Default.Protocol=ws");
+                    break;
+
+                case WSS:
+                    args.add("--Ice.Default.Protocol=wss");
+                    break;
+            }
+            args.add("--Ice.Trace.Network=3");
+        }
+    };
+    private Mode _mode = Mode.TCP;
     private boolean _sslInitialized = false;
     private boolean _ipv6 = false;
     private SSLContext _clientContext = null;
@@ -482,7 +514,7 @@ public class TestApp extends Application
             return _status;
         }
 
-        protected String[] setupAddress(String[] args, boolean ipv6)
+        protected void setupAddress(List<String> args, boolean ipv6)
         {
             if(ipv6)
             {
@@ -494,10 +526,7 @@ public class TestApp extends Application
                     "--Ice.PreferIPv6Address=1"
                 };
 
-                String[] nargs = new String[args.length + ipv6Args.length];
-                System.arraycopy(args, 0, nargs, 0, args.length);
-                System.arraycopy(ipv6Args, 0, nargs, args.length, ipv6Args.length);
-                return nargs;
+                args.addAll(Arrays.asList(ipv6Args));
             }
             else
             {
@@ -505,38 +534,26 @@ public class TestApp extends Application
                 {
                     "--Ice.Default.Host=127.0.0.1",
                     "--Ice.IPv4=1",
-                    "--Ice.IPv6=0"
+                    "--Ice.IPv6=0",
                 };
-
-                String[] nargs = new String[args.length + ipv4Args.length];
-                System.arraycopy(args, 0, nargs, 0, args.length);
-                System.arraycopy(ipv4Args, 0, nargs, args.length, ipv4Args.length);
-                return nargs;
+                args.addAll(Arrays.asList(ipv4Args));
             }
         }
 
-        protected String[] setupssl(String[] args, final SSLContext context)
+        protected void setupssl(List<String> args, final SSLContext context)
         {
             String[] sslargs =
             {
                 "--Ice.Plugin.IceSSL=IceSSL.PluginFactory",
-                "--Ice.Default.Protocol=ssl",
                 "--Ice.InitPlugins=0"
             };
+            args.addAll(Arrays.asList(sslargs));
 
             // SDK versions < 21 only support TLSv1 with SSLEngine.
             if(VERSION.SDK_INT < 21)
             {
-                String[] arr = new String[sslargs.length + 1];
-                System.arraycopy(sslargs, 0, arr, 0, sslargs.length);
-                arr[arr.length - 1] = "--IceSSL.Protocols=tls1_0";
-                sslargs = arr;
+                args.add("--IceSSL.Protocols=tls1_0");
             }
-
-            String[] nargs = new String[args.length + sslargs.length];
-            System.arraycopy(args, 0, nargs, 0, args.length);
-            System.arraycopy(sslargs, 0, nargs, args.length, sslargs.length);
-            args = nargs;
 
             _app.setCommunicatorListener(new CommunicatorListener()
             {
@@ -547,7 +564,6 @@ public class TestApp extends Application
                     c.getPluginManager().initializePlugins();
                 }
             });
-            return args;
         }
     }
 
@@ -564,13 +580,14 @@ public class TestApp extends Application
 
         public void run()
         {
-            String[] args =
+            String[] defaultArgs =
             {
                 "--Ice.NullHandleAbort=1",
                 "--Ice.Warn.Connections=1"
             };
+            List<String> args = new ArrayList<String>(Arrays.asList(defaultArgs));
 
-            args = setupAddress(args, _ipv6);
+            setupAddress(args, _ipv6);
 
             if(_testName == "plugin")
             {
@@ -585,11 +602,12 @@ public class TestApp extends Application
                 }
             }
 
-            if(_ssl)
+            if(_mode.isSSL())
             {
-                args = setupssl(args, _clientContext);
+                setupssl(args, _clientContext);
             }
-            _status = _app.main("Client", args);
+            _mode.setupProtocol(args);
+            _status = _app.main("Client", args.toArray(new String[0]));
             // If the client failed, then stop the server -- the test is over.
             if(_status != 0 && _server != null)
             {
@@ -612,7 +630,7 @@ public class TestApp extends Application
 
         public void run()
         {
-            String[] args =
+            String[] defaultArgs =
             {
                 "--Ice.NullHandleAbort=1",
                 "--Ice.Warn.Connections=1",
@@ -620,13 +638,15 @@ public class TestApp extends Application
                 "--Ice.ThreadPool.Server.SizeMax=3",
                 "--Ice.ThreadPool.Server.SizeWarn=0"
             };
+            List<String> args = new ArrayList<String>(Arrays.asList(defaultArgs));
 
-            args = setupAddress(args, _ipv6);
+            setupAddress(args, _ipv6);
 
-            if(_ssl)
+            if(_mode.isSSL())
             {
-                args = setupssl(args, _serverContext);
+                setupssl(args, _serverContext);
             }
+            _mode.setupProtocol(args);
             _app.setServerReadyListener(new test.Util.Application.ServerReadyListener()
             {
                 public void serverReady()
@@ -639,7 +659,7 @@ public class TestApp extends Application
                 }
             });
 
-            _status = _app.main("Server", args);
+            _status = _app.main("Server", args.toArray(new String[0]));
             if(_clientThread != null)
             {
                 while(_clientThread.isAlive())
@@ -670,18 +690,20 @@ public class TestApp extends Application
 
         public void run()
         {
-            String[] args =
+            String[] defaultArgs =
             {
                 "--Ice.NullHandleAbort=1"
             };
+            List<String> args = new ArrayList<String>(Arrays.asList(defaultArgs));
 
-            args = setupAddress(args, _ipv6);
+            setupAddress(args, _ipv6);
 
-            if(_ssl)
+            if(_mode.isSSL())
             {
-                args = setupssl(args, _clientContext);
+                setupssl(args, _clientContext);
             }
-            _status = _app.main("Collocated", args);
+            _mode.setupProtocol(args);
+            _status = _app.main("Collocated", args.toArray(new String[0]));
         }
     }
 
@@ -841,7 +863,7 @@ public class TestApp extends Application
 
     synchronized public void startTest(int position)
     {
-        assert !_ssl || (_ssl && _sslInitialized);
+        assert !_mode.isSSL() || (_mode.isSSL() && _sslInitialized);
 
         PrintWriter pw = new PrintWriter(new MyWriter());
 
@@ -932,16 +954,31 @@ public class TestApp extends Application
         _ipv6 = ipv6;
     }
 
-    public void setSSL(boolean ssl)
+    public void setMode(int mode)
     {
-        _ssl = ssl;
+        switch(mode)
+        {
+            case 0:
+                _mode = Mode.TCP;
+                break;
+            case 1:
+                _mode = Mode.SSL;
+                break;
+            case 2:
+                _mode = Mode.WS;
+                break;
+            case 3:
+                _mode = Mode.WSS;
+                break;
+        }
+
         configureTests();
         if(_currentTest > _tests.size()-1)
         {
             _currentTest = _tests.size()-1;
         }
 
-        if(_ssl && !_sslInitialized)
+        if(_mode.isSSL() && !_sslInitialized)
         {
             if(_sslListener != null)
             {
@@ -998,11 +1035,11 @@ public class TestApp extends Application
         _tests.clear();
         for(String s : _allTests)
         {
-            if(_ssl && _sslUnsupportedTests.contains(s))
+            if(_mode.isSSL() && _sslUnsupportedTests.contains(s))
             {
                 continue;
             }
-            if(!_ssl && _tcpUnsupportedTests.contains(s))
+            if(!_mode.isSSL() && _tcpUnsupportedTests.contains(s))
             {
                 continue;
             }
@@ -1013,7 +1050,7 @@ public class TestApp extends Application
     synchronized public void setSSLInitializationListener(SSLInitializationListener listener)
     {
         _sslListener = listener;
-        if(_ssl)
+        if(_mode.isSSL())
         {
             if(!_sslInitialized)
             {
