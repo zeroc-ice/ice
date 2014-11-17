@@ -27,6 +27,12 @@ jar {
     destinationDir = new File("${libDir}")
 }
 
+task jarSources(type:Jar){
+    from sourceSets.main.allSource
+    classifier = 'source'
+    destinationDir = new File("${libDir}")
+}
+
 clean {
     delete("${libDir}/${jar.archiveName}")
     delete(pomName)
@@ -35,5 +41,6 @@ clean {
 task install(type: Copy, dependsOn: jar, overwrite: true) {
 	from "${pomName}"
     from "${libDir}/${jar.archiveName}"
+    from "${libDir}/${project.name}-${project.version}-source.jar"
     into "${DESTDIR}${prefix}/lib"
 }
