@@ -43,6 +43,14 @@ Util.cleanDbDir("db/node")
 Util.cleanDbDir("db/registry")
 print("ok")
 
+sys.stdout.write("cleaning old log files... ")
+for f in ["db/DemoIceStorm-1.out", "db/DemoIceStorm-2.out", "db/DemoIceStorm-3.out"]:
+    try:
+        os.remove(f)
+    except:
+        pass
+print("ok")
+
 if Util.defaultHost:
     args = ' --IceGrid.Node.PropertiesOverride="Ice.Default.Host=127.0.0.1"'
 else:
@@ -92,6 +100,7 @@ time.sleep(3)
 sub.expect('[0-9][0-9]/[0-9][0-9].*\n[0-9][0-9]/[0-9][0-9]')
 print("ok")
 
+sys.stdout.write("shutting down... ")
 sub.kill(signal.SIGINT)
 sub.waitTestSuccess()
 pub.kill(signal.SIGINT)
@@ -116,3 +125,4 @@ admin.sendline('registry shutdown Master')
 admin.sendline('exit')
 admin.waitTestSuccess()
 node.waitTestSuccess()
+print("ok")

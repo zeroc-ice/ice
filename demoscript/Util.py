@@ -90,15 +90,19 @@ class filereader(Expect.reader):
         Expect.reader.__init__(self, desc, p, None)
 
     def run(self):
-
+        self.keepReading = True
         try:
-            while True:
+            while True and self.keepReading == True:
                 c = self.p.read(1)
                 if not c:
                     time.sleep(0.1)
+                    # Refresh position so we don't get stuck at EOF
+                    # while the file is still being written
+                    # (Does not happen in all Python versions)
+                    self.p.seek(self.p.tell())
                     continue
 
-                if c == '\r': continue
+                if c == '\r':continue
                 self.cv.acquire()
                 try:
                     # Depending on Python version and platform, the value c could be a
@@ -110,10 +114,14 @@ class filereader(Expect.reader):
                     self.cv.notify()
                 finally:
                     self.cv.release()
+            self.p.close()
         except ValueError as e:
             pass
         except IOError as e:
             print(e)
+
+    def stopReading(self):
+        self.keepReading = False;
 
 class FileExpect(object):
     def __init__(self, path):
@@ -124,7 +132,7 @@ class FileExpect(object):
         self.matchindex = 0 # the index of the matched pattern
         self.match = None # The last match
 
-        self.f = open(path)
+        self.f = open(path, 'r')
         self.r = filereader(path, self.f)
 
         # The thread is marked as a daemon thread. This is done so that if
@@ -169,10 +177,7 @@ class FileExpect(object):
         return self.matchindex
 
     def terminate(self):
-        try:
-            self.f.close()
-        except:
-            pass
+        self.r.stopReading()
         self.r.join()
         self.r = None
 

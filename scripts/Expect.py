@@ -163,8 +163,7 @@ class reader(threading.Thread):
         return buf
 
     def match(self, pattern, timeout, matchall = False):
-        """pattern is a list of string, regexp duples.
-        """
+        # pattern is a list of string, regexp duples.
 
         if timeout is not None:
             end = time.time() + timeout
