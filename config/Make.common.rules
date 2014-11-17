@@ -68,6 +68,7 @@ ifeq ($(UNAME),Linux)
       ifeq ($(shell test -d /usr/lib64 && echo 0),0)
           lp64suffix	= 64
       endif
+      
       ifeq ($(LP64),)
           LP64      	= yes
       else
@@ -193,6 +194,16 @@ $(error slice_translator must be defined)
 $(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please verify ICE_HOME is properly configured and Ice is correctly installed.)
         endif
         ice_dir = $(ICE_HOME)
+        
+        ifeq ($(LP64),yes)
+            ifeq ($(shell test -d /usr/lib/x86_64-linux-gnu/ && echo 0),0)
+                libsubdir = lib/x86_64-linux-gnu
+            endif
+        else
+            ifeq ($(shell test -d /usr/lib/i386-linux-gnu/ && echo 0),0)
+                libsubdir = lib/i386-linux-gnu
+            endif
+        endif
     else
         ifeq ($(shell test -f $(top_srcdir)/bin/$(slice_translator) && echo 0), 0)
             ice_dir = $(top_srcdir)
