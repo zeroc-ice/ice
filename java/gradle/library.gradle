@@ -27,18 +27,19 @@ jar {
     destinationDir = new File("${libDir}")
 }
 
-task jarSources(type:Jar){
+task jarSources(type:Jar, dependsOn: jar){
     from sourceSets.main.allSource
     classifier = 'source'
     destinationDir = new File("${libDir}")
 }
+assemble.dependsOn(jarSources)
 
 clean {
     delete("${libDir}/${jar.archiveName}")
     delete(pomName)
 }
 
-task install(type: Copy, dependsOn: jar, overwrite: true) {
+task install(type: Copy, dependsOn: jarSources, overwrite: true) {
 	from "${pomName}"
     from "${libDir}/${jar.archiveName}"
     from "${libDir}/${project.name}-${project.version}-source.jar"
