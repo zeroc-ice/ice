@@ -318,7 +318,7 @@ def run(tests, root = False):
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:",
                                    ["start=", "start-after=", "filter=", "rfilter=", "all", "all-cross", "loop",
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
-                                    "ipv6", "no-ipv6", "socks", "ice-home=", "cross=", "client-home=", "x64", "x86", 
+                                    "ipv6", "no-ipv6", "socks", "ice-home=", "cross=", "client-home=", "x64", "x86",
                                     "script", "env", "arg=",
                                     "service-dir=", "appverifier", "compact", "silverlight", "winrt", "server", "mx",
                                     "c++11"])
@@ -1622,6 +1622,10 @@ def getTestEnv(lang, testdir):
 
     # First sanitize the environment.
     env["CLASSPATH"] = sanitize(os.getenv("CLASSPATH", ""))
+
+    # Make sure bzip2 can be found by x86 C# builds on x64 platforms
+    if lang == "cs" and not x64:
+        addPathToEnv("PATH", os.path.join(getCppBinDir("cs"), "x64"), env)
 
     # Add test directory to env
     if lang == "cpp":
