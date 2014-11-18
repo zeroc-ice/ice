@@ -539,7 +539,7 @@ class Platform:
             languages = ["java"]
         elif buildConfiguration == "silverlight":
             languages = ["cs"]
-        elif compiler = "VC110" and buildConfiguration == "default":
+        elif compiler == "VC110" and buildConfiguration == "default":
             languages ["cpp", "cs"]
         else:
             languages = self.getSupportedLanguages()
