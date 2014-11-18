@@ -54,7 +54,7 @@ batchOneways(const Test::MyClassPrx& p)
     }
 
     int count = 0;
-    while(count != 27) // 3 * 9 requests auto-flushed.
+    while(count < 27) // 3 * 9 requests auto-flushed.
     {
         count += p->opByteSOnewayCallCount();
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));

@@ -67,7 +67,7 @@ class BatchOneways
         }
 
         int count = 0;
-        while(count != 27) // 3 * 9 requests auto-flushed.
+        while(count < 27) // 3 * 9 requests auto-flushed.
         {
             count += p.opByteSOnewayCallCount();
             try

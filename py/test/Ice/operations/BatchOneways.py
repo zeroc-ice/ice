@@ -47,7 +47,7 @@ def batchOneways(p):
         batch.opByteSOneway(bs1)
 
     count = 0
-    while count != 27: # 3 * 9 requests auto-flushed.
+    while count < 27: # 3 * 9 requests auto-flushed.
         count += p.opByteSOnewayCallCount()
         time.sleep(0.01)
 

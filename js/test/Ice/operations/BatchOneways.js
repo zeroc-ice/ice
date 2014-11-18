@@ -76,7 +76,7 @@
                     {
                         var wait = function(count)
                         {
-                            if(count != 27) // 3 * 9 requests auto-flushed.
+                            if(count < 27) // 3 * 9 requests auto-flushed.
                             {
                                 return Promise.delay(10).then(
                                     function()
