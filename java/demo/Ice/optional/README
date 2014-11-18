@@ -3,8 +3,8 @@ parameters.
 
 To run the demo, first start the server:
 
-$ server
+$ java -jar build/libs/server.jar
 
 In a separate window, start the client:
 
-$ client
+$ java -jar build/libs/client.jar
