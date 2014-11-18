@@ -24,6 +24,5 @@ iceHome =
 //
 // Define localOnly to true if build should not get Ice artifacts remotely.
 // Android artifacts will always be downloaded remotely.
-// If you set localOnly to true you must also set iceHome above.
 //
 localOnly = false
