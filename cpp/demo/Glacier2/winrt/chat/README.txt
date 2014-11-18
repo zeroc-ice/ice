@@ -9,11 +9,11 @@ uncomment the IceSSL.VerifyPeer=0 property. If you run the client from
 a remote device such as the Surface, you will also need to regenerate
 the server certificate to ensure the certificate common name is set to
 the IP address of the server. To regenerate the certificate, you can
-run the makewinrtcerts.py Python script from the certs directory at
-the top of this distribution. For example:
+run the makecerts.py Python script from the certs directory at the top
+of this distribution. For example:
 
   > cd certs
-  > makewinrtcerts.py 192.168.1.53
+  > makecerts.py 192.168.1.53
 
 This will regenerate a server certificate with a common name set to
 192.168.1.53. This can either be set to an IP address or DNS name, the

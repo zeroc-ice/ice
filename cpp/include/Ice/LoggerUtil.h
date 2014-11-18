@@ -36,10 +36,10 @@ ICE_API LoggerOutputBase& loggerInsert(LoggerOutputBase& out, const IceUtil::Exc
 template<typename T>
 struct IsException
 {
-    static char test(IceUtil::Exception*);
-    static long test(...);
+    static char testex(IceUtil::Exception*);
+    static long testex(...);
 
-    static const bool value = sizeof(test(static_cast<T*>(0))) == sizeof(char);
+    static const bool value = sizeof(testex(static_cast<T*>(0))) == sizeof(char);
 };
 
 template<typename T, bool = false>

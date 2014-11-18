@@ -8,92 +8,33 @@
 #
 # **********************************************************************
 
-import os, sys, shutil, subprocess
+import os, sys, shutil, glob, socket, subprocess
 
-#
-# Show usage information.
-#
 def usage():
-    print("Usage: " + sys.argv[0] + " [options] [cpp|java|.net]")
+    print("Usage: " + sys.argv[0] + " [options] [ip-address]")
     print("")
     print("Options:")
     print("-h    Show this message.")
-    print("-f    Force updates to files that otherwise would be skipped.")
     print("-d    Debugging output.")
-    print("")
-    print("The certificates for all languages are updated if you do not specify one.")
+    sys.exit(1)
 
-def newer(file1, file2):
-    file1info = os.stat(file1)
-    file2info = os.stat(file2)
-    return file1info.st_mtime > file2info.st_mtime
+try:
+    from subprocess import DEVNULL
+except ImportError:
+    DEVNULL = open(os.devnull, 'wb')
 
-def prepareCAHome(dir, force):
-    if force and os.path.exists(dir):
-        shutil.rmtree(dir)
+debug = False
+ipAddress = None
 
-    if not os.path.exists(dir):
-        os.mkdir(dir)
-
-    if not os.path.exists(os.path.join(dir, "serial")):
-        f = open(os.path.join(dir, "serial"), "w")
-        f.write("01")
-        f.close()
-
-    f = open(os.path.join(dir, "index.txt"), "w")
-    f.truncate(0)
-    f.close()
-
-    
-def jksToBks(source, target):
-    cmd = "keytool -importkeystore -srckeystore " + source + " -destkeystore " + target + " -srcstoretype JKS -deststoretype BKS " + \
-          "-srcstorepass password -deststorepass password -provider org.bouncycastle.jce.provider.BouncyCastleProvider -noprompt"
-    if debug:
-        print("[debug]", cmd)
-
-
-    p = subprocess.Popen(cmd, shell = True, stdin = subprocess.PIPE, stdout = subprocess.PIPE,
-                        stderr = subprocess.STDOUT, bufsize = 0)
-
-    while(True):
-
-        line = p.stdout.readline()            
-        if p.poll() is not None and not line:
-            # The process terminated
-            break
-            
-        sys.stdout.write(line)
-        
-        if line.find("java.lang.ClassNotFoundException: org.bouncycastle.jce.provider.BouncyCastleProvider") != -1:
-            print("")
-            print("WARNING: BouncyCastleProvider not found cannot export certificates for android demos in BKS format.")
-            print("         You can download BKS provider from http://www.bouncycastle.org/download/bcprov-jdk15on-146.jar.")
-            print("         After download copy the JAR to $JAVA_HOME/lib/ext where JAVA_HOME points to your JRE")
-            print("         and run this script again.")
-            print("")
-            sys.exit(1)
-        elif line.find("java.security.InvalidKeyException: Illegal key size") != -1:
-            print("")
-            print("WARNING: You need to install Java Cryptography Extension (JCE) Unlimited Strength.")
-            print("         You can download it from Additional Resources section in Orcale Java Download page at:")
-            print("             http://www.oracle.com/technetwork/java/javase/downloads/index.html.")
-            print("")
-            sys.exit(1)
-            
-    if p.poll() != 0:
-        sys.exist(1)
 #
 # Check arguments
 #
-force = False
 debug = False
-lang = None
+ipAddress = None
 for x in sys.argv[1:]:
     if x == "-h":
         usage()
         sys.exit(0)
-    elif x == "-f":
-        force = True
     elif x == "-d":
         debug = True
     elif x.startswith("-"):
@@ -102,400 +43,330 @@ for x in sys.argv[1:]:
         usage()
         sys.exit(1)
     else:
-        if lang != None or x not in ["cpp", "java", ".net"]:
-            usage()
-            sys.exit(1)
-        lang = x
+        ipAddress = x
+
+if not ipAddress:
+    try:
+        ipAddress = socket.gethostbyname(socket.gethostname())
+    except:
+        ipAddress = "127.0.0.1"
+
+cwd = os.getcwd()
+if not os.path.exists("ImportKey.class") or os.path.basename(cwd) != "certs":
+    print("You must run this script from the certs directory")
+    sys.exit(1)
+
+bksSupport = True
+if subprocess.call("javap org.bouncycastle.jce.provider.BouncyCastleProvider", shell=True, stdout=DEVNULL, stderr=DEVNULL) != 0:
+    print("warning: couldn't find Bouncy Castle provider, Android certificates won't be created")
+    bksSupport = False
+    
+while True:
+    print("The IP address used for the server certificate will be: " + ipAddress)
+    sys.stdout.write("Do you want to keep this IP address? (y/n) [y]")
+    sys.stdout.flush()
+    input = sys.stdin.readline().strip()
+    if input == 'n':
+        sys.stdout.write("IP : ")
+        sys.stdout.flush()
+        ipAddress = sys.stdin.readline().strip()
+    else:
+        break
 
 certs = "."
-caHome = os.path.join(certs, "openssl", "ca")
+caHome = os.path.abspath(os.path.join(certs, "ca")).replace('\\', '/')
 
 #
-# Check for cakey.pem and regenerate it if it doesn't exist or if force is true.
+# Static configuration file data.
 #
-caKey = os.path.join(certs, "cakey.pem")
-caCert = os.path.join(certs, "cacert.pem")
-if not os.path.exists(caKey) or force:
+configFiles = {\
+"ca.cnf":"\
+# **********************************************************************\n\
+#\n\
+# Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.\n\
+#\n\
+# This copy of Ice is licensed to you under the terms described in the\n\
+# ICE_LICENSE file included in this distribution.\n\
+#\n\
+# **********************************************************************\n\
+\n\
+# Configuration file for the CA. This file is generated by iceca init.\n\
+# DO NOT EDIT!\n\
+\n\
+###############################################################################\n\
+###  Self Signed Root Certificate\n\
+###############################################################################\n\
+\n\
+[ ca ]\n\
+default_ca = ice\n\
+\n\
+[ ice ]\n\
+default_days     = 1825    # How long certs are valid.\n\
+default_md       = sha256  # The Message Digest type.\n\
+preserve         = no      # Keep passed DN ordering?\n\
+\n\
+[ req ]\n\
+default_bits        = 2048\n\
+default_keyfile     = {0}/cakey.pem\n\
+default_md          = sha256\n\
+prompt              = no\n\
+distinguished_name  = dn\n\
+x509_extensions     = extensions\n\
+\n\
+[ extensions ]\n\
+basicConstraints = CA:true\n\
+\n\
+# PKIX recommendation.\n\
+subjectKeyIdentifier = hash\n\
+authorityKeyIdentifier = keyid:always,issuer:always\n\
+\n\
+[dn]\n\
+countryName            = US\n\
+stateOrProvinceName    = Florida\n\
+localityName           = Jupiter\n\
+organizationName       = ZeroC, Inc.\n\
+organizationalUnitName = Ice\n\
+commonName             = ZeroC Tests and Demos CA\n\
+emailAddress           = info@zeroc.com\n\
+",\
+"ice.cnf":"\
+# **********************************************************************\n\
+#\n\
+# Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.\n\
+#\n\
+# This copy of Ice is licensed to you under the terms described in the\n\
+# ICE_LICENSE file included in this distribution.\n\
+#\n\
+# **********************************************************************\n\
+\n\
+# Configuration file to sign a certificate. This file is generated by iceca init.\n\
+# DO NOT EDIT!!\n\
+\n\
+[ ca ]\n\
+default_ca = ice\n\
+\n\
+[ ice ]\n\
+dir              = {0}              # Where everything is kept.\n\
+private_key      = $dir/cakey.pem   # The CA Private Key.\n\
+certificate      = $dir/cacert.pem  # The CA Certificate.\n\
+database         = $dir/index.txt           # Database index file.\n\
+new_certs_dir    = $dir                     # Default loc for new certs.\n\
+serial           = $dir/serial              # The current serial number.\n\
+certs            = $dir                     # Where issued certs are kept.\n\
+RANDFILE         = $dir/.rand               # Private random number file.\n\
+default_days     = 1825                     # How long certs are valid.\n\
+default_md       = sha256                      # The Message Digest type.\n\
+preserve         = yes                      # Keep passed DN ordering?\n\
+\n\
+policy           = ca_policy\n\
+x509_extensions  = certificate_extensions\n\
+\n\
+[ certificate_extensions ]\n\
+basicConstraints = CA:false\n\
+\n\
+# PKIX recommendation.\n\
+subjectKeyIdentifier = hash\n\
+authorityKeyIdentifier = keyid:always,issuer:always\n\
+subjectAltName         = DNS:{1}, IP:{2}\n\
+\n\
+[ ca_policy ]\n\
+countryName            = match\n\
+stateOrProvinceName    = match\n\
+organizationName       = match\n\
+organizationalUnitName = optional\n\
+emailAddress           = optional\n\
+commonName             = supplied\n\
+\n\
+[ req ]\n\
+default_bits        = 1024\n\
+default_md          = sha256\n\
+prompt              = no\n\
+distinguished_name  = dn\n\
+x509_extensions     = extensions\n\
+\n\
+[ extensions ]\n\
+basicConstraints = CA:false\n\
+\n\
+# PKIX recommendation.\n\
+subjectKeyIdentifier = hash\n\
+authorityKeyIdentifier = keyid:always,issuer:always\n\
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment\n\
+\n\
+[dn]\n\
+countryName            = US\n\
+stateOrProvinceName    = Florida\n\
+localityName           = Jupiter\n\
+organizationName       = ZeroC, Inc.\n\
+organizationalUnitName = Ice\n\
+commonName             = {3}\n\
+emailAddress           = info@zeroc.com\n\
+" }
 
-    print("Generating new CA certificate and key...")
-    if os.path.exists(caKey):
-        os.remove(caKey)
-    if os.path.exists(caCert):
-        os.remove(caCert)
+def generateConf(file, dns = None, ip = None, commonName = None):
+    cnf = open(os.path.join(caHome, file), "w")
+    if dns and ip and commonName:
+        cnf.write(configFiles[file].format(caHome, dns, ip, commonName))
+    else:
+        cnf.write(configFiles[file].format(caHome))
+    cnf.close()
 
-    prepareCAHome(caHome, force)
-
-    config = os.path.join(certs, "openssl", "ice_ca.cnf")
-    cmd = "openssl req -config " + config + " -x509 -days 1825 -newkey rsa:1024 -out " + \
-           os.path.join(caHome, "cacert.pem") + " -outform PEM -nodes"
+def run(cmd):
     if debug:
         print("[debug]", cmd)
-    os.system(cmd)
-    shutil.copyfile(os.path.join(caHome, "cakey.pem"), caKey)
-    shutil.copyfile(os.path.join(caHome, "cacert.pem"), caCert)
 
-    cmd = "openssl x509 -in " + caCert + " -outform DER -out " + os.path.join(certs, "cacert.der")
+    p = subprocess.Popen(cmd,
+                         shell = True,
+                         stdin = subprocess.PIPE,
+                         stdout = subprocess.STDOUT if debug else DEVNULL,
+                         stderr = subprocess.STDERR if debug else DEVNULL,
+                         bufsize = 0)
+    if p.wait() != 0:
+        print("command failed:" + cmd)
+        sys.exit(1)
+    
+def runOpenSSL(command):
+    run("openssl " + command)
+
+def jksToBks(source, target):
+    cmd = "keytool -importkeystore -srckeystore " + source + " -destkeystore " + target + \
+          " -srcstoretype JKS -deststoretype BKS -srcstorepass password -deststorepass password " + \
+          "-provider org.bouncycastle.jce.provider.BouncyCastleProvider -noprompt"
     if debug:
         print("[debug]", cmd)
-    os.system(cmd)
 
-else:
-    print("Skipping CA certificate and key.")
+    p = subprocess.Popen(cmd, shell = True, stdin = subprocess.PIPE, stdout = subprocess.PIPE,
+                        stderr = subprocess.STDOUT, bufsize = 0)
 
-#
-# C++ server RSA certificate and key.
-#
-cppServerCert = os.path.join(certs, "s_rsa1024_pub.pem")
-cppServerKey = os.path.join(certs, "s_rsa1024_priv.pem")
-if force or not os.path.exists(cppServerCert) or not os.path.exists(cppServerKey) or \
-   (os.path.exists(cppServerCert) and newer(caCert, cppServerCert)):
+    while(True):
+        line = p.stdout.readline()            
+        if p.poll() is not None and not line:
+            # The process terminated
+            break
+            
+        if line.find("java.lang.ClassNotFoundException: org.bouncycastle.jce.provider.BouncyCastleProvider") != -1:
+            print("")
+            print("WARNING: BouncyCastleProvider not found cannot export certificates for android")
+            print("         demos in BKS format. You can download BKS provider from:")
+            print("")
+            print("            http://www.bouncycastle.org/")
+            print("")
+            print("         After download copy the JAR to $JAVA_HOME/lib/ext where JAVA_HOME")
+            print("         points to your JRE and run this script again.")
+            print("")
+            return False
+        elif line.find("java.security.InvalidKeyException: Illegal key size") != -1:
+            print("")
+            print("WARNING: You need to install Java Cryptography Extension (JCE) Unlimited")
+            print("         Strength. You can download it from Additional Resources section")
+            print("         in Orcale Java Download page at:")
+            print("")
+            print("             http://www.oracle.com/technetwork/java/javase/downloads/index.html")
+            print("")
+            return False
+        return True
+    if p.poll() != 0:
+        sys.exit(1)
 
-    print("Generating new C++ server RSA certificate and key...")
+def generateCert(desc, name, commonName = None):
 
-    if os.path.exists(cppServerCert):
-        os.remove(cppServerCert)
-    if os.path.exists(cppServerKey):
-        os.remove(cppServerKey)
+    if not commonName:
+        commonName = desc
+    
+    generateConf("ice.cnf", ipAddress, ipAddress, commonName)
 
-    prepareCAHome(caHome, force)
+    cert = os.path.join(certs, name + "_rsa1024_pub.pem")
+    key = os.path.join(certs, name + "_rsa1024_priv.pem")
+    sys.stdout.write("Generating new " + desc + " certificates... ")
+    sys.stdout.flush()
+
+    if os.path.exists(cert):
+        os.remove(cert)
+    if os.path.exists(key):
+        os.remove(key)
 
     serial = os.path.join(caHome, "serial")
     f = open(serial, "r")
     serialNum = f.read().strip()
     f.close()
-
+    
     tmpKey = os.path.join(caHome, serialNum + "_key.pem")
     tmpCert = os.path.join(caHome, serialNum + "_cert.pem")
     req = os.path.join(caHome, "req.pem")
-    config = os.path.join(certs, "openssl", "server.cnf")
-    cmd = "openssl req -config " + config + " -newkey rsa:1024 -nodes -keyout " + tmpKey + " -keyform PEM" + \
-           " -out " + req
-    if debug:
-        print("[debug]", cmd)
-    os.system(cmd)
-
-    cmd = "openssl ca -config " + config + " -batch -in " + req
-    if debug:
-        print("[debug]", cmd)
-    os.system(cmd)
-    shutil.move(os.path.join(caHome, serialNum + ".pem"), tmpCert)
-    shutil.copyfile(tmpKey, cppServerKey)
-    shutil.copyfile(tmpCert, cppServerCert)
-    os.remove(req)
-else:
-    print("Skipping C++ server RSA certificate and key.")
-
-#
-# C++ client RSA certificate and key.
-#
-cppClientCert = os.path.join(certs, "c_rsa1024_pub.pem")
-cppClientKey = os.path.join(certs, "c_rsa1024_priv.pem")
-if force or not os.path.exists(cppClientCert) or not os.path.exists(cppClientKey) or \
-   (os.path.exists(cppClientCert) and newer(caCert, cppClientCert)):
-
-    print("Generating new C++ client RSA certificate and key...")
-
-    if os.path.exists(cppClientCert):
-        os.remove(cppClientCert)
-    if os.path.exists(cppClientKey):
-        os.remove(cppClientKey)
-
-    prepareCAHome(caHome, force)
-
-    serial = os.path.join(caHome, "serial")
-    f = open(serial, "r")
-    serialNum = f.read().strip()
-    f.close()
-
-    tmpKey = os.path.join(caHome, serialNum + "_key.pem")
-    tmpCert = os.path.join(caHome, serialNum + "_cert.pem")
-    req = os.path.join(caHome, "req.pem")
-    config = os.path.join(certs, "openssl", "client.cnf")
-    cmd = "openssl req -config " + config + " -newkey rsa:1024 -nodes -keyout " + tmpKey + " -keyform PEM" + \
-           " -out " + req
-    if debug:
-        print("[debug]", cmd)
-    os.system(cmd)
-
-    cmd = "openssl ca -config " + config + " -batch -in " + req
-    if debug:
-        print("[debug]", cmd)
-    os.system(cmd)
-    shutil.move(os.path.join(caHome, serialNum + ".pem"), tmpCert)
-    shutil.copyfile(tmpKey, cppClientKey)
-    shutil.copyfile(tmpCert, cppClientCert)
-    os.remove(req)
-else:
-    print("Skipping C++ client RSA certificate and key.")
-
-#
-# C++ DSA parameters.
-#
-dsaParams = os.path.join(certs, "dsaparam1024.pem")
-if (lang == "cpp" or lang == None) and (force or not os.path.exists(dsaParams)):
-
-    print("Generating new C++ DSA parameters...")
-
-    if os.path.exists(dsaParams):
-        os.remove(dsaParams)
-
-    prepareCAHome(caHome, force)
-
-    cmd = "openssl dsaparam -out " + dsaParams + " -outform PEM 1024"
-    if debug:
-        print("[debug]", cmd)
-    os.system(cmd)
-else:
-    print("Skipping C++ DSA parameters.")
-
-#
-# C++ server DSA certificate and key.
-#
-cppServerCertDSA = os.path.join(certs, "s_dsa1024_pub.pem")
-cppServerKeyDSA = os.path.join(certs, "s_dsa1024_priv.pem")
-if (lang == "cpp" or lang == None) and \
-   (force or not os.path.exists(cppServerCertDSA) or not os.path.exists(cppServerKeyDSA) or \
-   (os.path.exists(cppServerCertDSA) and newer(caCert, cppServerCertDSA)) or \
-   (os.path.exists(cppServerCertDSA) and newer(dsaParams, cppServerCertDSA))):
-
-    print("Generating new C++ server DSA certificate and key...")
-
-    if os.path.exists(cppServerCertDSA):
-        os.remove(cppServerCertDSA)
-    if os.path.exists(cppServerKeyDSA):
-        os.remove(cppServerKeyDSA)
-
-    prepareCAHome(caHome, force)
-
-    serial = os.path.join(caHome, "serial")
-    f = open(serial, "r")
-    serialNum = f.read().strip()
-    f.close()
-
-    tmpKey = os.path.join(caHome, serialNum + "_key.pem")
-    tmpCert = os.path.join(caHome, serialNum + "_cert.pem")
-    req = os.path.join(caHome, "req.pem")
-    config = os.path.join(certs, "openssl", "server.cnf")
-    cmd = "openssl req -config " + config + " -newkey dsa:" + dsaParams + " -nodes -keyout " + tmpKey + \
-          " -keyform PEM -out " + req
-    if debug:
-        print("[debug]", cmd)
-    os.system(cmd)
-
-    cmd = "openssl ca -config " + config + " -batch -in " + req
-    if debug:
-        print("[debug]", cmd)
-    os.system(cmd)
-    shutil.move(os.path.join(caHome, serialNum + ".pem"), tmpCert)
-    shutil.copyfile(tmpKey, cppServerKeyDSA)
-    shutil.copyfile(tmpCert, cppServerCertDSA)
-    os.remove(req)
-else:
-    print("Skipping C++ server DSA certificate and key.")
-
-#
-# C++ client DSA certificate and key.
-#
-cppClientCertDSA = os.path.join(certs, "c_dsa1024_pub.pem")
-cppClientKeyDSA = os.path.join(certs, "c_dsa1024_priv.pem")
-if (lang == "cpp" or lang == None) and \
-   (force or not os.path.exists(cppClientCertDSA) or not os.path.exists(cppClientKeyDSA) or \
-   (os.path.exists(cppClientCertDSA) and newer(caCert, cppClientCertDSA)) or \
-   (os.path.exists(cppClientCertDSA) and newer(dsaParams, cppClientCertDSA))):
-
-    print("Generating new C++ client DSA certificate and key...")
-
-    if os.path.exists(cppClientCertDSA):
-        os.remove(cppClientCertDSA)
-    if os.path.exists(cppClientKeyDSA):
-        os.remove(cppClientKeyDSA)
-
-    prepareCAHome(caHome, force)
-
-    serial = os.path.join(caHome, "serial")
-    f = open(serial, "r")
-    serialNum = f.read().strip()
-    f.close()
-
-    tmpKey = os.path.join(caHome, serialNum + "_key.pem")
-    tmpCert = os.path.join(caHome, serialNum + "_cert.pem")
-    req = os.path.join(caHome, "req.pem")
-    config = os.path.join(certs, "openssl", "client.cnf")
-    cmd = "openssl req -config " + config + " -newkey dsa:" + dsaParams + " -nodes -keyout " + tmpKey + \
-          " -keyform PEM -out " + req
-    if debug:
-        print("[debug]", cmd)
-    os.system(cmd)
-
-    cmd = "openssl ca -config " + config + " -batch -in " + req
-    if debug:
-        print("[debug]", cmd)
-    os.system(cmd)
-    shutil.move(os.path.join(caHome, serialNum + ".pem"), tmpCert)
-    shutil.copyfile(tmpKey, cppClientKeyDSA)
-    shutil.copyfile(tmpCert, cppClientCertDSA)
-    os.remove(req)
-else:
-    print("Skipping C++ client DSA certificate and key.")
-
-#
-# .NET server RSA certificate and key.
-#
-csServer = os.path.join(certs, "s_rsa1024.pfx")
-if (lang == ".net" or lang == None) and (force or not os.path.exists(csServer) or newer(cppServerCert, csServer)):
-
-    print("Generating new .NET server RSA certificate and key...")
-
-    if os.path.exists(csServer):
-        os.remove(csServer)
-
-    cmd = "openssl pkcs12 -in " + cppServerCert + " -inkey " + cppServerKey + " -export -out " + csServer + \
-          " -certpbe PBE-SHA1-RC4-40 -keypbe PBE-SHA1-RC4-40 -passout pass:password"
-    if debug:
-        print("[debug]", cmd)
-    os.system(cmd)
-else:
-    print("Skipping .NET server certificate and key.")
-
-#
-# .NET client RSA certificate and key.
-#
-csClient = os.path.join(certs, "c_rsa1024.pfx")
-if (lang == ".net" or lang == None) and (force or not os.path.exists(csClient) or \
-   (os.path.exists(csClient) and newer(cppClientCert, csClient))):
-
-    print("Generating new .NET client RSA certificate and key...")
-
-    if os.path.exists(csClient):
-        os.remove(csClient)
-
-    cmd = "openssl pkcs12 -in " + cppClientCert + " -inkey " + cppClientKey + " -export -out " + csClient + \
-          " -certpbe PBE-SHA1-RC4-40 -keypbe PBE-SHA1-RC4-40 -passout pass:password"
-    if debug:
-        print("[debug]", cmd)
-    os.system(cmd)
-else:
-    print("Skipping .NET client certificate and key.")
-
-#
-# Java truststore.
-#
-truststore = "certs.jks"
-if (lang == "java" or lang == None) and (force or not os.path.exists(truststore) or \
-   (os.path.exists(truststore) and newer(caCert, truststore))):
-
-    print("Generating Java truststore...")
-
-    if os.path.exists(truststore):
-        os.remove(truststore)
-
-    cacert = os.path.join(certs, "cacert.der")
-
-    cmd = "keytool -import -alias cacert -file " + cacert + " -keystore " + truststore + \
-          " -storepass password -noprompt"
-    if debug:
-        print("[debug]", cmd)
-    os.system(cmd)
-else:
-    print("Skipping Java truststore.")
-
-#
-# Java server keystore.
-#
-serverKeystore = "server.jks"
-if (lang == "java" or lang == None) and (force or not os.path.exists(serverKeystore) or \
-   (os.path.exists(serverKeystore) and newer(cppServerCert, serverKeystore))):
-
-    print("Generating Java server keystore...")
-
-    if os.path.exists(serverKeystore):
-        os.remove(serverKeystore)
+    config = os.path.join(caHome, "ice.cnf")
 
     #
-    # Convert OpenSSL key/certificate pairs into PKCS12 format and then
-    # import them into a Java keystore.
+    # Generate PEM certificates
     #
-    tmpFile = os.path.join(certs, "server.p12")
-    cmd = "openssl pkcs12 -in " + cppServerCert + " -inkey " + cppServerKey + " -export -out " + tmpFile + \
-          " -name rsakey -passout pass:password -certfile " + caCert
-    if debug:
-        print("[debug]", cmd)
-    os.system(cmd)
-    cmd = "java -classpath . ImportKey " + tmpFile + " rsakey " + caCert + " " + serverKeystore + " password"
-    if debug:
-        print("[debug]", cmd)
-    os.system(cmd)
+    runOpenSSL("req -config " + config + " -newkey rsa:1024 -nodes -keyout " + tmpKey + " -keyform PEM -out " + req)
+    runOpenSSL("ca -config " + config + " -batch -in " + req)
+
+    shutil.move(os.path.join(caHome, serialNum + ".pem"), tmpCert)
+    shutil.copyfile(tmpKey, key)
+    shutil.copyfile(tmpCert, cert)
+    os.remove(req)
+
+    #
+    # Generate PKCS12 certificates
+    #
+    runOpenSSL("pkcs12 -in " + cert + " -inkey " + key + " -export -out " + name + "_rsa1024.pfx" + \
+               " -certpbe PBE-SHA1-RC4-40 -keypbe PBE-SHA1-RC4-40" + \
+               " -passout pass:password -name " + desc)
+
+    #
+    # Generate Java keystore
+    #
+    tmpFile = desc + ".p12"
+    runOpenSSL("pkcs12 -in " + cert + " -inkey " + key + " -export -out " + tmpFile + \
+               " -name rsakey -passout pass:password -certfile cacert.pem")
+    run("java -classpath . ImportKey " + tmpFile + " rsakey cacert.pem " + desc + ".jks password")
     os.remove(tmpFile)
-else:
-    print("Skipping Java server keystore.")
-    
-    
-if not os.path.exists("server.bks") or newer(serverKeystore, "server.bks"):
 
-    if os.path.exists("server.bks"):
-        os.remove("server.bks")
+    #
+    # Generate BKS for Android if supported
+    #
+    if bksSupport:
+        jksToBks(desc + ".jks", desc + ".bks")
+    
+    if not debug:
+        print("ok")
 
-    print("Converting Java server truststore to BKS...")
-    
-    jksToBks("server.jks", "server.bks")
-    
-    #
-    # Replace server.bks files in android demo and test directories
-    #
-    for d in ['../java/test/android', '../java/demo/android']:
-        for root, dirnames, filenames in os.walk(d):
-            for f in filenames:
-                if f == "server.bks":
-                    shutil.copyfile("server.bks", os.path.join(root, f))
 
 #
-# Java client keystore.
+# Generate the CA certificate and database
 #
-clientKeystore = "client.jks"
-if (lang == "java" or lang == None) and (force or not os.path.exists(clientKeystore) or \
-   (os.path.exists(clientKeystore) and newer(cppClientCert, clientKeystore))):
+if os.path.exists(caHome):
+    shutil.rmtree(caHome)
 
-    print("Generating Java client keystore...")
+sys.stdout.write("Generating new CA certificate and key... ")
+sys.stdout.flush()
+os.mkdir(caHome)
 
-    if os.path.exists(clientKeystore):
-        os.remove(clientKeystore)
+f = open(os.path.join(caHome, "serial"), "w")
+f.write("01")
+f.close()
 
-    #
-    # Convert OpenSSL key/certificate pairs into PKCS12 format and then
-    # import them into a Java keystore.
-    #
-    tmpFile = os.path.join(certs, "client.p12")
-    cmd = "openssl pkcs12 -in " + cppClientCert + " -inkey " + cppClientKey + " -export -out " + tmpFile + \
-          " -name rsakey -passout pass:password -certfile " + caCert
-    if debug:
-        print("[debug]", cmd)
-    os.system(cmd)
-    cmd = "java -classpath . ImportKey " + tmpFile + " rsakey " + caCert + " " + clientKeystore + " password"
-    if debug:
-        print("[debug]", cmd)
-    os.system(cmd)
-    os.remove(tmpFile)
-else:
-    print("Skipping Java client keystore.")
-    
-if not os.path.exists("client.bks") or newer(clientKeystore, "client.bks"):
+f = open(os.path.join(caHome, "index.txt"), "w")
+f.truncate(0)
+f.close()
 
-    if os.path.exists("client.bks"):
-        os.remove("client.bks")
+generateConf("ca.cnf")
 
-    print("Converting Java client truststore to BKS...")
-    
-    jksToBks("client.jks", "client.bks")
-    
-    #
-    # Replace client.bks files in android demo and test directories
-    #
-    for d in ['../java/test/android', '../java/demo/android']:
-        for root, dirnames, filenames in os.walk(d):
-            for f in filenames:
-                if f == "client.bks":
-                    shutil.copyfile("client.bks", os.path.join(root, f))
+config = os.path.join(caHome, "ca.cnf")
+caCert = os.path.join(caHome, "cacert.pem")
+runOpenSSL("req -config " + config + " -x509 -days 1825 -newkey rsa:1024 -out " + caCert + " -outform PEM -nodes")
+runOpenSSL("x509 -in " + caCert + " -outform DER -out " + os.path.join(certs, "cacert.der")) # Convert to DER
+shutil.copyfile(caCert, os.path.join(certs, "cacert.pem"))
+if os.path.exists("certs.jks"):
+    os.remove("certs.jks")
+if javaSupport:
+    run("keytool -import -alias cacert -file cacert.der -keystore certs.jks -storepass password -noprompt")
+if not debug:
+    print("ok")
+
 #
-# Done.
+# Generate the client and the server certificates
 #
-print("Done.")
+generateCert("server", "s", ipAddress) # commonName = ipAddress
+generateCert("client", "c")
+
+os.chdir("..")

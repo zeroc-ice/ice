@@ -6,13 +6,26 @@ Glacier2.InstanceName=DemoGlacier2
 #
 # The client-visible endpoint of Glacier2. This should be an endpoint
 # visible from the public Internet, and it should be secure.
+#  
+# When no -h <host> option is specified in the endpoints, the default
+# value from the Ice.Default.Host property is used. If this property
+# isn't set, the endpoints will listen on all available network
+# interfaces.
 # 
-Glacier2.Client.Endpoints=tcp -p 4063 -h 127.0.0.1:ssl -p 4064 -h 127.0.0.1:ws -p 5063 -h 127.0.0.1:wss -p 5064 -h 127.0.0.1
+Glacier2.Client.Endpoints=tcp -p 4063:ssl -p 4064:ws -p 5063:wss -p 5064
 
 #
-# We need to disable VerifyPeer for secure WebSocket (WSS) and Windows Store App clients.
+# Only listen on the localhost interface by default. You can comment
+# out this property to allow listening on all available interfaces.
 #
-IceSSL.VerifyPeer=0
+Ice.Default.Host=127.0.0.1
+
+#
+# For secure WebSocket (WSS) clients and Windows Store App clients,
+# you should disable this property. JavaScript browser clients and
+# Windows Store App clients don't use client-side authentication.
+#
+#IceSSL.VerifyPeer=0
 
 #
 # The server-visible endpoint of Glacier2. This endpoint is only
@@ -64,13 +77,6 @@ IceSSL.CertFile=s_rsa1024.pfx
 IceSSL.Password=password
 IceSSL.Keychain=glacier2.keychain
 IceSSL.KeychainPassword=password
-
-#
-# Uncomment the properties below if you want run the demo with the
-# Windows Store App chat client. 
-#
-#Glacier2.Client.Endpoints=ssl -p 4064
-#IceSSL.DefaultDir=../../../../certs/winrt
 
 #
 # IceMX configuration.

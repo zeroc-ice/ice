@@ -66,7 +66,9 @@
            To run the demo, first you need to start an Ice latency server from
            another language mapping (Java, C++, C#, or Python). Please refer to
            the README in the server subdirectory for more information on starting
-           the server.
+           the server. You will also need to edit the hello server configuration
+           file config.server to uncomment the IceSSL.VerifyPeer=0 property if
+           you want to establish a secure connection with the WSS protocol.
         </p>
 
         <p>Then you can use the <strong>"Run"</strong> button to run this client.</p>

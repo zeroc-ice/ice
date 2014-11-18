@@ -32,7 +32,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(ipEndpoint->host == "tcphost");
         test(ipEndpoint->port == 10000);
         test(ipEndpoint->timeout == 1200);
+#if !defined(ICE_OS_WINRT)
         test(ipEndpoint->sourceAddress == "10.10.10.10");
+#endif
         test(ipEndpoint->compress);
         test(!ipEndpoint->datagram());
         test((ipEndpoint->type() == Ice::TCPEndpointType && !ipEndpoint->secure()) ||
@@ -48,7 +50,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(udpEndpoint);
         test(udpEndpoint->host == "udphost");
         test(udpEndpoint->port == 10001);
+#if !defined(ICE_OS_WINRT)
         test(udpEndpoint->sourceAddress == "10.10.10.10");
+#endif
         test(udpEndpoint->mcastInterface == "eth0");
         test(udpEndpoint->mcastTtl == 5);
         test(udpEndpoint->timeout == -1);

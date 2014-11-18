@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest">
   <Identity Name="be9e42f6-f89b-4671-8754-e408ccec94f0" Publisher="CN=ZeroC Hello App" Version="1.1.0.0" />
   <Properties>
@@ -33,8 +33,8 @@
   <Extensions>
     <Extension Category="windows.certificates">
       <Certificates>
-        <Certificate StoreName="Root" Content="cacert.pem" />
-        <Certificate StoreName="CA" Content="cacert.pem" />
+        <Certificate StoreName="Root" Content="cacert.der" />
+        <Certificate StoreName="CA" Content="cacert.der" />
         <TrustFlags ExclusiveTrust="true" />
       </Certificates>
     </Extension>
