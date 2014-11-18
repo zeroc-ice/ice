@@ -358,8 +358,7 @@ runOpenSSL("x509 -in " + caCert + " -outform DER -out " + os.path.join(certs, "c
 shutil.copyfile(caCert, os.path.join(certs, "cacert.pem"))
 if os.path.exists("certs.jks"):
     os.remove("certs.jks")
-if javaSupport:
-    run("keytool -import -alias cacert -file cacert.der -keystore certs.jks -storepass password -noprompt")
+run("keytool -import -alias cacert -file cacert.der -keystore certs.jks -storepass password -noprompt")
 if not debug:
     print("ok")
 
