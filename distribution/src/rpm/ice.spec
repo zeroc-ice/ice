@@ -558,6 +558,9 @@ cd $RPM_BUILD_DIR/Ice-%{version}/cpp
 make prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
 
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
+%ifarch %{ix86}
+mv $RPM_BUILD_ROOT/bin/icebox $RPM_BUILD_ROOT%{_bindir}/icebox32
+%endif
 mv $RPM_BUILD_ROOT/bin/* $RPM_BUILD_ROOT%{_bindir}
 
 mkdir -p $RPM_BUILD_ROOT%{_libdir}
@@ -594,7 +597,11 @@ mv $RPM_BUILD_ROOT/%_lib/* $RPM_BUILD_ROOT%{_libdir}
 %if %{cppx86}
 mv $RPM_BUILD_ROOT/bin/icebox32++11 $RPM_BUILD_ROOT%{_bindir}
 %else
+%ifarch %{ix86}
+mv $RPM_BUILD_ROOT/bin/icebox++11 $RPM_BUILD_ROOT%{_bindir}/icebox32++11
+%else
 mv $RPM_BUILD_ROOT/bin/icebox++11 $RPM_BUILD_ROOT%{_bindir}
+%endif
 %endif
 rm -f $RPM_BUILD_ROOT/bin/*
 rm -rf $RPM_BUILD_ROOT/include/*
@@ -1274,14 +1281,22 @@ exit 0
 %if %{cppx86}
 %{_bindir}/icebox32
 %else
+%ifarch %{ix86}
+%{_bindir}/icebox32
+%else
 %{_bindir}/icebox
+%endif
 %{_mandir}/man1/icebox.1.gz
 %endif
 %if %{cpp11}
 %if %{cppx86}
 %{_bindir}/icebox32++11
 %else
+%ifarch %{ix86}
+%{_bindir}/icebox32++11
+%else
 %{_bindir}/icebox++11
+%endif
 %endif
 %endif
 %{_defaultdocdir}/icebox-%{version}
