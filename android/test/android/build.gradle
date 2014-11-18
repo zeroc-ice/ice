@@ -12,13 +12,13 @@ apply from: "$rootProject.projectDir/../java/gradle/ice.gradle"
 apply from: "$rootProject.projectDir/gradle/tests.gradle"
 
 android {
-    compileSdkVersion ice_compileSdkVersion
+    compileSdkVersion ice_compileSdkVersion.toInteger()
     buildToolsVersion ice_buildToolsVersion
 
     defaultConfig {
         applicationId "com.zeroc.test"
-        minSdkVersion ice_minSdkVersion
-        targetSdkVersion ice_targetSdkVersion
+        minSdkVersion ice_minSdkVersion.toInteger()
+        targetSdkVersion ice_targetSdkVersion.toInteger()
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_6
             targetCompatibility JavaVersion.VERSION_1_6
@@ -30,7 +30,7 @@ android {
             runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
         }
- 
+
         release {
             runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'

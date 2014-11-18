@@ -23,12 +23,6 @@ subprojects {
     apply plugin: 'idea'
     apply from: "$rootProject.projectDir/gradle/props.gradle"
 
-    // The Android versions used by subprojects.
-    ext.ice_compileSdkVersion = 17
-    ext.ice_buildToolsVersion = "21.1.1"
-    ext.ice_minSdkVersion = 17
-    ext.ice_targetSdkVersion = 17
-
     repositories {
         if (distJarDir != null) {
             flatDir {

@@ -9,6 +9,12 @@
 
 iceVersion = 3.6b
 
+// The Android versions used for the Ice build.
+ice_buildToolsVersion = "21.1.1"
+ice_compileSdkVersion = 17
+ice_minSdkVersion = 17
+ice_targetSdkVersion = 17
+
 //
 // Set iceHome to location of Ice installation if Ice was installed in a
 // non-standard location.
