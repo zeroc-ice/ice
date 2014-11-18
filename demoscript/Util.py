@@ -508,6 +508,7 @@ def run(demos, protobufDemos = [], root = False):
         --continue              Keep running when a demo fails."
         --ice-home=<path>       Use the binary distribution from the given path."
         --x64                   Binary distribution is 64-bit."
+        --x86                   Binary distribution is 32-bit."
         --c++11                 Binary distribution is C++11."
         --preferIPv4            Prefer IPv4 stack (java only)."
         --fast                  Run an abbreviated version of the demos."
@@ -522,7 +523,7 @@ def run(demos, protobufDemos = [], root = False):
     try:
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:", [
                 "filter=", "rfilter=", "start=", "loop", "fast", "trace=", "debug", "host=", "mode=",
-                "continue", "ice-home=", "x64", "preferIPv4", "env", "noenv", "script", "protobuf", "service-dir=", "c++11"])
+                "continue", "ice-home=", "x64", "x86", "preferIPv4", "env", "noenv", "script", "protobuf", "service-dir=", "c++11"])
     except getopt.GetoptError:
         usage()
 
@@ -541,6 +542,10 @@ def run(demos, protobufDemos = [], root = False):
         elif o == "--x64":
             global x64
             x64 = True
+            arg += " " + o
+        elif o == "--x86":
+            global x86
+            x86 = True
             arg += " " + o
         elif o == "--c++11":
             global cpp11
@@ -653,6 +658,17 @@ def getIceBox(mapping = "cpp"):
             return os.path.join(getServiceDir(), "icebox.exe")
         if isWin32() and isDebugBuild():
             return "iceboxd"
+        if isLinux():
+            if x86 or (iceHome == "/usr" and not x64):
+                if cpp11:
+                    return "icebox32++11"
+                else:
+                    return "icebox32"
+            else:
+                if cpp11:
+                    return "icebox++11"
+                else:
+                    return "icebox"
         return "icebox"
     elif mapping == "cs":
         if isMono():
@@ -776,10 +792,10 @@ def addLdPath(libpath):
 
 def processCmdLine():
     def usage():
-        print("usage: " + sys.argv[0] + " --x64 --preferIPv4 --env --noenv --fast --trace=output --debug --host host --mode=[debug|release] --ice-home=<dir> --service-dir=<dir>", "--c++11")
+        print("usage: " + sys.argv[0] + " --x64 --x86 --preferIPv4 --env --noenv --fast --trace=output --debug --host host --mode=[debug|release] --ice-home=<dir> --service-dir=<dir>", "--c++11")
         sys.exit(2)
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "", ["env", "noenv", "x64", "preferIPv4", "fast", "trace=", "debug", "host=", "mode=", "ice-home=", "--servicedir=", "c++11"])
+        opts, args = getopt.getopt(sys.argv[1:], "", ["env", "noenv", "x64", "x86", "preferIPv4", "fast", "trace=", "debug", "host=", "mode=", "ice-home=", "--servicedir=", "c++11"])
     except getopt.GetoptError:
         usage()
 
@@ -787,6 +803,7 @@ def processCmdLine():
     global tracefile
     global buildmode
     global x64
+    global x86
     global cpp11
     global preferIPv4
     global debug
@@ -799,6 +816,7 @@ def processCmdLine():
     trace = False
     buildmode = None
     x64 = False
+    x86 = Flase
     cpp11 = False
     tracefile = None
     env = False
@@ -822,6 +840,8 @@ def processCmdLine():
             fast = True
         if o == "--x64":
             x64 = True
+        if o == "--x86":
+            x86 = True
         if o == "--c++11":
             cpp11 = True
         if o == "--preferIPv4":
