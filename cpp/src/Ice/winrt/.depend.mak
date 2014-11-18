@@ -15,6 +15,7 @@ $(ARCH)\$(CONFIG)\Acceptor.obj: \
     "..\..\..\src\Ice\NetworkF.h" \
     "..\..\..\src\Ice\NetworkProxyF.h" \
     "$(includedir)\Ice\PropertiesF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -38,6 +39,7 @@ $(ARCH)\$(CONFIG)\Acceptor.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -89,6 +91,7 @@ $(ARCH)\$(CONFIG)\ACM.obj: \
     "$(includedir)\Ice\Handle.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\Connection.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -107,6 +110,7 @@ $(ARCH)\$(CONFIG)\ACM.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -185,7 +189,7 @@ $(ARCH)\$(CONFIG)\ACM.obj: \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
 
 $(ARCH)\$(CONFIG)\AsyncResult.obj: \
 	..\AsyncResult.cpp \
@@ -208,6 +212,7 @@ $(ARCH)\$(CONFIG)\AsyncResult.obj: \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -219,6 +224,7 @@ $(ARCH)\$(CONFIG)\AsyncResult.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\InstanceF.h" \
     "$(includedir)\Ice\RequestHandlerF.h" \
@@ -287,7 +293,7 @@ $(ARCH)\$(CONFIG)\AsyncResult.obj: \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -315,6 +321,7 @@ $(ARCH)\$(CONFIG)\Buffer.obj: \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\Ice\LocalException.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
@@ -333,6 +340,7 @@ $(ARCH)\$(CONFIG)\Buffer.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
 
@@ -359,6 +367,7 @@ $(ARCH)\$(CONFIG)\BasicStream.obj: \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\IncomingAsyncF.h" \
     "$(includedir)\Ice\Current.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\Exception.h" \
     "$(includedir)\Ice\Format.h" \
     "$(includedir)\Ice\StreamF.h" \
@@ -370,6 +379,7 @@ $(ARCH)\$(CONFIG)\BasicStream.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
@@ -433,7 +443,7 @@ $(ARCH)\$(CONFIG)\BasicStream.obj: \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -458,6 +468,7 @@ $(ARCH)\$(CONFIG)\BasicStream.obj: \
 $(ARCH)\$(CONFIG)\BuiltinSequences.obj: \
 	..\BuiltinSequences.cpp \
     "$(includedir)\Ice\BuiltinSequences.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -477,6 +488,7 @@ $(ARCH)\$(CONFIG)\BuiltinSequences.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\BasicStream.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\Ice\InstanceF.h" \
@@ -499,7 +511,6 @@ $(ARCH)\$(CONFIG)\BuiltinSequences.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\CommunicatorI.obj: \
 	..\CommunicatorI.cpp \
@@ -524,6 +535,7 @@ $(ARCH)\$(CONFIG)\CommunicatorI.obj: \
     "$(includedir)\IceUtil\Monitor.h" \
     "$(includedir)\IceUtil\Cond.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -537,6 +549,7 @@ $(ARCH)\$(CONFIG)\CommunicatorI.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\PropertiesF.h" \
     "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\Ice\ProxyFactoryF.h" \
@@ -609,7 +622,7 @@ $(ARCH)\$(CONFIG)\CommunicatorI.obj: \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "..\..\..\src\Ice\ConnectionFactory.h" \
     "..\..\..\src\Ice\ConnectionI.h" \
     "..\..\..\src\IceUtil\StopWatch.h" \
@@ -645,6 +658,7 @@ $(ARCH)\$(CONFIG)\CommunicatorI.obj: \
 $(ARCH)\$(CONFIG)\Communicator.obj: \
 	..\Communicator.cpp \
     "$(includedir)\Ice\Communicator.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -674,6 +688,7 @@ $(ARCH)\$(CONFIG)\Communicator.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -725,7 +740,6 @@ $(ARCH)\$(CONFIG)\Communicator.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\CollocatedRequestHandler.obj: \
 	..\CollocatedRequestHandler.cpp \
@@ -756,6 +770,7 @@ $(ARCH)\$(CONFIG)\CollocatedRequestHandler.obj: \
     "$(includedir)\Ice\LocalObjectF.h" \
     "..\..\..\src\Ice\ResponseHandler.h" \
     "$(includedir)\Ice\LocalException.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ObjectF.h" \
     "$(includedir)\Ice\Exception.h" \
     "$(includedir)\Ice\Format.h" \
@@ -766,6 +781,7 @@ $(ARCH)\$(CONFIG)\CollocatedRequestHandler.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\ResponseHandlerF.h" \
@@ -847,7 +863,7 @@ $(ARCH)\$(CONFIG)\CollocatedRequestHandler.obj: \
     "$(includedir)\Ice\Plugin.h" \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "..\..\..\src\Ice\TraceLevels.h" \
     "$(includedir)\Ice\Outgoing.h" \
     "$(includedir)\Ice\OutgoingAsync.h" \
@@ -884,6 +900,7 @@ $(ARCH)\$(CONFIG)\ConnectRequestHandler.obj: \
     "..\..\..\src\Ice\EndpointIF.h" \
     "$(includedir)\Ice\InstanceF.h" \
     "$(includedir)\Ice\RouterF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ObjectF.h" \
     "$(includedir)\Ice\Exception.h" \
     "$(includedir)\Ice\Format.h" \
@@ -896,6 +913,7 @@ $(ARCH)\$(CONFIG)\ConnectRequestHandler.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\AsyncResult.h" \
@@ -934,6 +952,7 @@ $(ARCH)\$(CONFIG)\ConnectRequestHandler.obj: \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "..\..\..\src\Ice\RouterInfo.h" \
     "..\..\..\src\Ice\ConnectionRequestHandler.h" \
+    "..\..\..\src\Ice\RequestHandlerFactory.h" \
     "..\..\..\src\Ice\Instance.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\Timer.h" \
@@ -964,7 +983,7 @@ $(ARCH)\$(CONFIG)\ConnectRequestHandler.obj: \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "..\..\..\src\Ice\ConnectionI.h" \
     "..\..\..\src\IceUtil\StopWatch.h" \
     "..\..\..\src\Ice\TransceiverF.h" \
@@ -994,6 +1013,7 @@ $(ARCH)\$(CONFIG)\ConnectionFactory.obj: \
     "$(includedir)\IceUtil\Monitor.h" \
     "$(includedir)\IceUtil\Cond.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\Ice\Config.h" \
@@ -1011,6 +1031,7 @@ $(ARCH)\$(CONFIG)\ConnectionFactory.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\ConnectionFactoryF.h" \
     "..\..\..\src\Ice\ConnectionI.h" \
     "..\..\..\src\IceUtil\StopWatch.h" \
@@ -1091,7 +1112,7 @@ $(ARCH)\$(CONFIG)\ConnectionFactory.obj: \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -1140,6 +1161,7 @@ $(ARCH)\$(CONFIG)\ConnectionI.obj: \
     "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
@@ -1155,6 +1177,7 @@ $(ARCH)\$(CONFIG)\ConnectionI.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\Connection.h" \
     "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\Ice\ProxyFactoryF.h" \
@@ -1229,7 +1252,7 @@ $(ARCH)\$(CONFIG)\ConnectionI.obj: \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -1262,6 +1285,7 @@ $(ARCH)\$(CONFIG)\ConnectionI.obj: \
 $(ARCH)\$(CONFIG)\Connection.obj: \
 	..\Connection.cpp \
     "$(includedir)\Ice\Connection.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -1291,6 +1315,7 @@ $(ARCH)\$(CONFIG)\Connection.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -1324,7 +1349,6 @@ $(ARCH)\$(CONFIG)\Connection.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\Connector.obj: \
 	..\Connector.cpp \
@@ -1365,6 +1389,7 @@ $(ARCH)\$(CONFIG)\ConnectionRequestHandler.obj: \
     "$(includedir)\IceUtil\MutexProtocol.h" \
     "$(includedir)\Ice\ProxyFactoryF.h" \
     "$(includedir)\Ice\EndpointF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ObjectF.h" \
     "$(includedir)\Ice\Exception.h" \
     "$(includedir)\Ice\Format.h" \
@@ -1374,6 +1399,7 @@ $(ARCH)\$(CONFIG)\ConnectionRequestHandler.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\AsyncResult.h" \
@@ -1449,6 +1475,7 @@ $(ARCH)\$(CONFIG)\ConnectionRequestHandler.obj: \
 $(ARCH)\$(CONFIG)\Current.obj: \
 	..\Current.cpp \
     "$(includedir)\Ice\Current.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -1469,6 +1496,7 @@ $(ARCH)\$(CONFIG)\Current.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
@@ -1489,7 +1517,6 @@ $(ARCH)\$(CONFIG)\Current.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\DefaultsAndOverrides.obj: \
 	..\DefaultsAndOverrides.cpp \
@@ -1503,6 +1530,7 @@ $(ARCH)\$(CONFIG)\DefaultsAndOverrides.obj: \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\PropertiesF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -1526,6 +1554,7 @@ $(ARCH)\$(CONFIG)\DefaultsAndOverrides.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -1595,6 +1624,7 @@ $(ARCH)\$(CONFIG)\DispatchInterceptor.obj: \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\IncomingAsyncF.h" \
     "$(includedir)\Ice\Current.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\Exception.h" \
     "$(includedir)\Ice\Format.h" \
     "$(includedir)\Ice\StreamF.h" \
@@ -1606,6 +1636,7 @@ $(ARCH)\$(CONFIG)\DispatchInterceptor.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
@@ -1663,6 +1694,7 @@ $(ARCH)\$(CONFIG)\EndpointFactoryManager.obj: \
     "..\..\..\src\Ice\EndpointFactoryF.h" \
     "..\..\..\src\Ice\EndpointFactoryManagerF.h" \
     "$(includedir)\Ice\Endpoint.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -1677,6 +1709,7 @@ $(ARCH)\$(CONFIG)\EndpointFactoryManager.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\EndpointF.h" \
     "..\..\..\src\Ice\OpaqueEndpointI.h" \
@@ -1746,7 +1779,7 @@ $(ARCH)\$(CONFIG)\EndpointFactoryManager.obj: \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -1777,6 +1810,7 @@ $(ARCH)\$(CONFIG)\EndpointFactory.obj: \
 $(ARCH)\$(CONFIG)\Endpoint.obj: \
 	..\Endpoint.cpp \
     "$(includedir)\Ice\Endpoint.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -1797,6 +1831,7 @@ $(ARCH)\$(CONFIG)\Endpoint.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\Ice\BasicStream.h" \
@@ -1820,7 +1855,6 @@ $(ARCH)\$(CONFIG)\Endpoint.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\EndpointI.obj: \
 	..\EndpointI.cpp \
@@ -1833,6 +1867,7 @@ $(ARCH)\$(CONFIG)\EndpointI.obj: \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\Endpoint.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -1847,6 +1882,7 @@ $(ARCH)\$(CONFIG)\EndpointI.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
@@ -1857,6 +1893,7 @@ $(ARCH)\$(CONFIG)\EndpointI.obj: \
 $(ARCH)\$(CONFIG)\EndpointTypes.obj: \
 	..\EndpointTypes.cpp \
     "$(includedir)\Ice\EndpointTypes.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -1876,6 +1913,7 @@ $(ARCH)\$(CONFIG)\EndpointTypes.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\BasicStream.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\Ice\InstanceF.h" \
@@ -1898,7 +1936,6 @@ $(ARCH)\$(CONFIG)\EndpointTypes.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\EventHandler.obj: \
 	..\EventHandler.cpp \
@@ -1925,6 +1962,7 @@ $(ARCH)\$(CONFIG)\EventHandler.obj: \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\IncomingAsyncF.h" \
     "$(includedir)\Ice\Current.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\Exception.h" \
     "$(includedir)\Ice\Format.h" \
     "$(includedir)\Ice\StreamF.h" \
@@ -1936,6 +1974,7 @@ $(ARCH)\$(CONFIG)\EventHandler.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
@@ -1996,7 +2035,7 @@ $(ARCH)\$(CONFIG)\EventHandler.obj: \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -2017,6 +2056,7 @@ $(ARCH)\$(CONFIG)\Exception.obj: \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\Ice\StreamF.h" \
     "$(includedir)\Ice\LocalException.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\LocalObject.h" \
@@ -2027,6 +2067,7 @@ $(ARCH)\$(CONFIG)\Exception.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "..\..\..\src\Ice\Network.h" \
@@ -2081,6 +2122,7 @@ $(ARCH)\$(CONFIG)\Exception.obj: \
 $(ARCH)\$(CONFIG)\FacetMap.obj: \
 	..\FacetMap.cpp \
     "$(includedir)\Ice\FacetMap.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -2100,6 +2142,7 @@ $(ARCH)\$(CONFIG)\FacetMap.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\BasicStream.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\Ice\InstanceF.h" \
@@ -2122,7 +2165,6 @@ $(ARCH)\$(CONFIG)\FacetMap.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\FactoryTable.obj: \
 	..\FactoryTable.cpp \
@@ -2139,6 +2181,7 @@ $(ARCH)\$(CONFIG)\FactoryTable.obj: \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\ObjectFactoryF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -2153,6 +2196,7 @@ $(ARCH)\$(CONFIG)\FactoryTable.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\ObjectFactory.h" \
 
 $(ARCH)\$(CONFIG)\FactoryTableInit.obj: \
@@ -2171,6 +2215,7 @@ $(ARCH)\$(CONFIG)\FactoryTableInit.obj: \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\ObjectFactoryF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -2185,6 +2230,7 @@ $(ARCH)\$(CONFIG)\FactoryTableInit.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\DefaultObjectFactory.h" \
     "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
@@ -2209,6 +2255,7 @@ $(ARCH)\$(CONFIG)\GCObject.obj: \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\IncomingAsyncF.h" \
     "$(includedir)\Ice\Current.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\Exception.h" \
     "$(includedir)\Ice\Format.h" \
     "$(includedir)\Ice\StreamF.h" \
@@ -2220,6 +2267,7 @@ $(ARCH)\$(CONFIG)\GCObject.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
@@ -2228,6 +2276,7 @@ $(ARCH)\$(CONFIG)\GCObject.obj: \
 $(ARCH)\$(CONFIG)\Identity.obj: \
 	..\Identity.cpp \
     "$(includedir)\Ice\Identity.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -2247,6 +2296,7 @@ $(ARCH)\$(CONFIG)\Identity.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\BasicStream.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\Ice\InstanceF.h" \
@@ -2268,12 +2318,12 @@ $(ARCH)\$(CONFIG)\Identity.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\ImplicitContextI.obj: \
 	..\ImplicitContextI.cpp \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -2295,6 +2345,7 @@ $(ARCH)\$(CONFIG)\ImplicitContextI.obj: \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Current.h" \
@@ -2322,6 +2373,7 @@ $(ARCH)\$(CONFIG)\ImplicitContextI.obj: \
 $(ARCH)\$(CONFIG)\ImplicitContext.obj: \
 	..\ImplicitContext.cpp \
     "$(includedir)\Ice\ImplicitContext.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -2343,6 +2395,7 @@ $(ARCH)\$(CONFIG)\ImplicitContext.obj: \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Current.h" \
@@ -2365,7 +2418,6 @@ $(ARCH)\$(CONFIG)\ImplicitContext.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\IncomingAsync.obj: \
 	..\IncomingAsync.cpp \
@@ -2383,6 +2435,7 @@ $(ARCH)\$(CONFIG)\IncomingAsync.obj: \
     "$(includedir)\Ice\LocalObject.h" \
     "$(includedir)\Ice\LocalObjectF.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -2394,6 +2447,7 @@ $(ARCH)\$(CONFIG)\IncomingAsync.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
     "$(includedir)\Ice\BasicStream.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
@@ -2478,7 +2532,7 @@ $(ARCH)\$(CONFIG)\IncomingAsync.obj: \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Properties.h" \
@@ -2499,6 +2553,7 @@ $(ARCH)\$(CONFIG)\Incoming.obj: \
     "$(includedir)\Ice\LocalObject.h" \
     "$(includedir)\Ice\LocalObjectF.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -2510,6 +2565,7 @@ $(ARCH)\$(CONFIG)\Incoming.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
     "$(includedir)\Ice\BasicStream.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
@@ -2600,7 +2656,7 @@ $(ARCH)\$(CONFIG)\Incoming.obj: \
     "$(includedir)\Ice\Plugin.h" \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Properties.h" \
@@ -2634,6 +2690,7 @@ $(ARCH)\$(CONFIG)\Initialize.obj: \
     "$(includedir)\IceUtil\Monitor.h" \
     "$(includedir)\IceUtil\Cond.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -2647,6 +2704,7 @@ $(ARCH)\$(CONFIG)\Initialize.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\PropertiesF.h" \
     "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\Ice\ProxyFactoryF.h" \
@@ -2725,7 +2783,7 @@ $(ARCH)\$(CONFIG)\Initialize.obj: \
     "..\..\..\src\Ice\NetworkProxyF.h" \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
 
 $(ARCH)\$(CONFIG)\Instance.obj: \
 	..\Instance.cpp \
@@ -2750,6 +2808,7 @@ $(ARCH)\$(CONFIG)\Instance.obj: \
     "$(includedir)\Ice\Handle.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -2763,6 +2822,7 @@ $(ARCH)\$(CONFIG)\Instance.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "..\..\..\src\Ice\TraceLevelsF.h" \
     "..\..\..\src\Ice\DefaultsAndOverridesF.h" \
@@ -2820,7 +2880,7 @@ $(ARCH)\$(CONFIG)\Instance.obj: \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -2878,6 +2938,7 @@ $(ARCH)\$(CONFIG)\Instance.obj: \
     "..\..\..\src\Ice\NetworkProxy.h" \
     "..\..\..\src\Ice\EndpointFactoryManager.h" \
     "..\..\..\src\Ice\EndpointFactoryF.h" \
+    "..\..\..\src\Ice\RequestHandlerFactory.h" \
     "..\..\..\src\Ice\RetryQueue.h" \
     "$(includedir)\Ice\DynamicLibrary.h" \
     "..\..\..\src\Ice\PluginManagerI.h" \
@@ -2921,6 +2982,7 @@ $(ARCH)\$(CONFIG)\IPEndpointI.obj: \
     "..\..\..\src\Ice\EndpointI.h" \
     "..\..\..\src\Ice\EndpointIF.h" \
     "$(includedir)\Ice\Endpoint.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -2935,6 +2997,7 @@ $(ARCH)\$(CONFIG)\IPEndpointI.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
@@ -3002,7 +3065,7 @@ $(ARCH)\$(CONFIG)\IPEndpointI.obj: \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -3021,6 +3084,7 @@ $(ARCH)\$(CONFIG)\IPEndpointI.obj: \
 $(ARCH)\$(CONFIG)\LocalException.obj: \
 	..\LocalException.cpp \
     "$(includedir)\Ice\LocalException.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -3041,6 +3105,7 @@ $(ARCH)\$(CONFIG)\LocalException.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\BasicStream.h" \
@@ -3063,7 +3128,6 @@ $(ARCH)\$(CONFIG)\LocalException.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\LocalObject.obj: \
 	..\LocalObject.cpp \
@@ -3095,6 +3159,7 @@ $(ARCH)\$(CONFIG)\LocatorInfo.obj: \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\LocatorF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -3113,6 +3178,7 @@ $(ARCH)\$(CONFIG)\LocatorInfo.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -3184,7 +3250,7 @@ $(ARCH)\$(CONFIG)\LocatorInfo.obj: \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "..\..\..\src\Ice\TraceLevels.h" \
     "$(includedir)\Ice\LoggerUtil.h" \
     "$(includedir)\Ice\Logger.h" \
@@ -3203,6 +3269,7 @@ $(ARCH)\$(CONFIG)\LocatorInfo.obj: \
 $(ARCH)\$(CONFIG)\Locator.obj: \
 	..\Locator.cpp \
     "$(includedir)\Ice\Locator.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -3232,6 +3299,7 @@ $(ARCH)\$(CONFIG)\Locator.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -3277,7 +3345,6 @@ $(ARCH)\$(CONFIG)\Locator.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\LoggerAdminI.obj: \
 	..\LoggerAdminI.cpp \
@@ -3285,6 +3352,7 @@ $(ARCH)\$(CONFIG)\LoggerAdminI.obj: \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\Ice\Logger.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
@@ -3302,6 +3370,7 @@ $(ARCH)\$(CONFIG)\LoggerAdminI.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\PropertiesF.h" \
     "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\IceUtil\Mutex.h" \
@@ -3379,6 +3448,7 @@ $(ARCH)\$(CONFIG)\LoggerI.obj: \
     "$(includedir)\IceUtil\Config.h" \
     "..\..\..\src\Ice\LoggerI.h" \
     "$(includedir)\Ice\Logger.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\Ice\Config.h" \
@@ -3397,6 +3467,7 @@ $(ARCH)\$(CONFIG)\LoggerI.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "..\..\..\src\IceUtil\FileUtil.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\IceUtil\Mutex.h" \
@@ -3413,6 +3484,7 @@ $(ARCH)\$(CONFIG)\LoggerI.obj: \
 $(ARCH)\$(CONFIG)\Logger.obj: \
 	..\Logger.cpp \
     "$(includedir)\Ice\Logger.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -3432,12 +3504,13 @@ $(ARCH)\$(CONFIG)\Logger.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\LoggerUtil.obj: \
 	..\LoggerUtil.cpp \
     "$(includedir)\Ice\LoggerUtil.h" \
     "$(includedir)\Ice\Logger.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -3457,6 +3530,7 @@ $(ARCH)\$(CONFIG)\LoggerUtil.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
     "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\LoggerF.h" \
@@ -3528,7 +3602,7 @@ $(ARCH)\$(CONFIG)\LoggerUtil.obj: \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -3539,6 +3613,7 @@ $(ARCH)\$(CONFIG)\LoggerUtil.obj: \
 $(ARCH)\$(CONFIG)\Metrics.obj: \
 	..\Metrics.cpp \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -3568,6 +3643,7 @@ $(ARCH)\$(CONFIG)\Metrics.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -3611,12 +3687,12 @@ $(ARCH)\$(CONFIG)\Metrics.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\MetricsAdminI.obj: \
 	..\MetricsAdminI.cpp \
     "$(includedir)\Ice\MetricsAdminI.h" \
     "$(includedir)\Ice\Properties.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -3646,6 +3722,7 @@ $(ARCH)\$(CONFIG)\MetricsAdminI.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -3729,7 +3806,7 @@ $(ARCH)\$(CONFIG)\MetricsAdminI.obj: \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\LoggerUtil.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
 
@@ -3740,6 +3817,7 @@ $(ARCH)\$(CONFIG)\MetricsObserverI.obj: \
     "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\Ice\Config.h" \
@@ -3759,6 +3837,7 @@ $(ARCH)\$(CONFIG)\MetricsObserverI.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
@@ -3834,6 +3913,7 @@ $(ARCH)\$(CONFIG)\Network.obj: \
     "$(includedir)\IceUtil\Exception.h" \
     "..\..\..\src\Ice\NetworkProxyF.h" \
     "$(includedir)\Ice\PropertiesF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -3857,6 +3937,7 @@ $(ARCH)\$(CONFIG)\Network.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -3920,6 +4001,7 @@ $(ARCH)\$(CONFIG)\NetworkProxy.obj: \
     "$(includedir)\IceUtil\Exception.h" \
     "..\..\..\src\Ice\NetworkProxyF.h" \
     "$(includedir)\Ice\PropertiesF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -3943,6 +4025,7 @@ $(ARCH)\$(CONFIG)\NetworkProxy.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -4001,6 +4084,7 @@ $(ARCH)\$(CONFIG)\ObjectAdapterFactory.obj: \
     "$(includedir)\IceUtil\Monitor.h" \
     "$(includedir)\IceUtil\Cond.h" \
     "$(includedir)\Ice\ObjectAdapter.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
@@ -4023,6 +4107,7 @@ $(ARCH)\$(CONFIG)\ObjectAdapterFactory.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -4088,6 +4173,7 @@ $(ARCH)\$(CONFIG)\ObjectAdapterI.obj: \
     "$(includedir)\IceUtil\Monitor.h" \
     "$(includedir)\IceUtil\Cond.h" \
     "$(includedir)\Ice\ObjectAdapter.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
@@ -4110,6 +4196,7 @@ $(ARCH)\$(CONFIG)\ObjectAdapterI.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -4174,7 +4261,7 @@ $(ARCH)\$(CONFIG)\ObjectAdapterI.obj: \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -4228,6 +4315,7 @@ $(ARCH)\$(CONFIG)\ObjectAdapterI.obj: \
 $(ARCH)\$(CONFIG)\ObjectAdapter.obj: \
 	..\ObjectAdapter.cpp \
     "$(includedir)\Ice\ObjectAdapter.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -4257,6 +4345,7 @@ $(ARCH)\$(CONFIG)\ObjectAdapter.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -4289,7 +4378,6 @@ $(ARCH)\$(CONFIG)\ObjectAdapter.obj: \
     "$(includedir)\Ice\FacetMap.h" \
     "$(includedir)\Ice\Endpoint.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\ObjectFactoryManager.obj: \
 	..\ObjectFactoryManager.cpp \
@@ -4307,6 +4395,7 @@ $(ARCH)\$(CONFIG)\ObjectFactoryManager.obj: \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\ObjectFactoryF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -4320,6 +4409,7 @@ $(ARCH)\$(CONFIG)\ObjectFactoryManager.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\Ice\Functional.h" \
     "$(includedir)\IceUtil\Functional.h" \
@@ -4331,6 +4421,7 @@ $(ARCH)\$(CONFIG)\ObjectFactoryManager.obj: \
 $(ARCH)\$(CONFIG)\ObjectFactory.obj: \
 	..\ObjectFactory.cpp \
     "$(includedir)\Ice\ObjectFactory.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -4350,6 +4441,7 @@ $(ARCH)\$(CONFIG)\ObjectFactory.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\BasicStream.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\Ice\InstanceF.h" \
@@ -4372,7 +4464,6 @@ $(ARCH)\$(CONFIG)\ObjectFactory.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\Object.obj: \
 	..\Object.cpp \
@@ -4393,6 +4484,7 @@ $(ARCH)\$(CONFIG)\Object.obj: \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\IncomingAsyncF.h" \
     "$(includedir)\Ice\Current.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\Exception.h" \
     "$(includedir)\Ice\Format.h" \
     "$(includedir)\Ice\StreamF.h" \
@@ -4404,6 +4496,7 @@ $(ARCH)\$(CONFIG)\Object.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
@@ -4448,6 +4541,7 @@ $(ARCH)\$(CONFIG)\Object.obj: \
 $(ARCH)\$(CONFIG)\Instrumentation.obj: \
 	..\Instrumentation.cpp \
     "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -4468,6 +4562,7 @@ $(ARCH)\$(CONFIG)\Instrumentation.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
@@ -4490,11 +4585,11 @@ $(ARCH)\$(CONFIG)\Instrumentation.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\InstrumentationF.obj: \
 	..\InstrumentationF.cpp \
     "$(includedir)\Ice\InstrumentationF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -4514,12 +4609,13 @@ $(ARCH)\$(CONFIG)\InstrumentationF.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\ObserverHelper.obj: \
 	..\ObserverHelper.cpp \
     "$(includedir)\Ice\ObserverHelper.h" \
     "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -4540,6 +4636,7 @@ $(ARCH)\$(CONFIG)\ObserverHelper.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
@@ -4622,7 +4719,7 @@ $(ARCH)\$(CONFIG)\ObserverHelper.obj: \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
 
 $(ARCH)\$(CONFIG)\InstrumentationI.obj: \
 	..\InstrumentationI.cpp \
@@ -4632,6 +4729,7 @@ $(ARCH)\$(CONFIG)\InstrumentationI.obj: \
     "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\Ice\Config.h" \
@@ -4651,6 +4749,7 @@ $(ARCH)\$(CONFIG)\InstrumentationI.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
@@ -4735,6 +4834,7 @@ $(ARCH)\$(CONFIG)\OpaqueEndpointI.obj: \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\Endpoint.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -4749,6 +4849,7 @@ $(ARCH)\$(CONFIG)\OpaqueEndpointI.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
@@ -4829,6 +4930,7 @@ $(ARCH)\$(CONFIG)\OutgoingAsync.obj: \
     "$(includedir)\Ice\LocalObject.h" \
     "$(includedir)\Ice\LocalObjectF.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -4840,6 +4942,7 @@ $(ARCH)\$(CONFIG)\OutgoingAsync.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\InstanceF.h" \
     "$(includedir)\Ice\RequestHandlerF.h" \
@@ -4925,7 +5028,7 @@ $(ARCH)\$(CONFIG)\OutgoingAsync.obj: \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "..\..\..\src\Ice\ReplyStatus.h" \
     "..\..\..\src\Ice\ThreadPool.h" \
     "..\..\..\src\Ice\Selector.h" \
@@ -4964,6 +5067,7 @@ $(ARCH)\$(CONFIG)\Outgoing.obj: \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\IncomingAsyncF.h" \
     "$(includedir)\Ice\Current.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\Exception.h" \
     "$(includedir)\Ice\Format.h" \
     "$(includedir)\Ice\StreamF.h" \
@@ -4973,6 +5077,7 @@ $(ARCH)\$(CONFIG)\Outgoing.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
@@ -5053,7 +5158,7 @@ $(ARCH)\$(CONFIG)\Outgoing.obj: \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "..\..\..\src\Ice\ReplyStatus.h" \
 
 $(ARCH)\$(CONFIG)\PluginManagerI.obj: \
@@ -5070,6 +5175,7 @@ $(ARCH)\$(CONFIG)\PluginManagerI.obj: \
     "$(includedir)\IceUtil\Handle.h" \
     "..\..\..\src\Ice\PluginManagerI.h" \
     "$(includedir)\Ice\Plugin.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
@@ -5086,6 +5192,7 @@ $(ARCH)\$(CONFIG)\PluginManagerI.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\InstanceF.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
@@ -5166,11 +5273,12 @@ $(ARCH)\$(CONFIG)\PluginManagerI.obj: \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
 
 $(ARCH)\$(CONFIG)\Plugin.obj: \
 	..\Plugin.cpp \
     "$(includedir)\Ice\Plugin.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -5191,6 +5299,7 @@ $(ARCH)\$(CONFIG)\Plugin.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\BasicStream.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
@@ -5214,11 +5323,11 @@ $(ARCH)\$(CONFIG)\Plugin.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\Process.obj: \
 	..\Process.cpp \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -5248,6 +5357,7 @@ $(ARCH)\$(CONFIG)\Process.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -5289,7 +5399,6 @@ $(ARCH)\$(CONFIG)\Process.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\PropertiesI.obj: \
 	..\PropertiesI.cpp \
@@ -5302,6 +5411,7 @@ $(ARCH)\$(CONFIG)\PropertiesI.obj: \
     "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\IceUtil\MutexProtocol.h" \
     "$(includedir)\Ice\Properties.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\Ice\Config.h" \
@@ -5324,6 +5434,7 @@ $(ARCH)\$(CONFIG)\PropertiesI.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -5385,6 +5496,7 @@ $(ARCH)\$(CONFIG)\PropertiesI.obj: \
 $(ARCH)\$(CONFIG)\Properties.obj: \
 	..\Properties.cpp \
     "$(includedir)\Ice\Properties.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -5414,6 +5526,7 @@ $(ARCH)\$(CONFIG)\Properties.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -5457,11 +5570,11 @@ $(ARCH)\$(CONFIG)\Properties.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\PropertiesAdmin.obj: \
 	..\PropertiesAdmin.cpp \
     "$(includedir)\Ice\PropertiesAdmin.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -5491,6 +5604,7 @@ $(ARCH)\$(CONFIG)\PropertiesAdmin.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -5533,7 +5647,6 @@ $(ARCH)\$(CONFIG)\PropertiesAdmin.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\PropertiesAdminI.obj: \
 	..\PropertiesAdminI.cpp \
@@ -5547,6 +5660,7 @@ $(ARCH)\$(CONFIG)\PropertiesAdminI.obj: \
     "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\IceUtil\MutexProtocol.h" \
     "$(includedir)\Ice\Properties.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\Ice\Config.h" \
@@ -5570,6 +5684,7 @@ $(ARCH)\$(CONFIG)\PropertiesAdminI.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -5624,6 +5739,7 @@ $(ARCH)\$(CONFIG)\Protocol.obj: \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\Ice\Version.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
@@ -5641,6 +5757,7 @@ $(ARCH)\$(CONFIG)\Protocol.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
@@ -5656,6 +5773,7 @@ $(ARCH)\$(CONFIG)\ProtocolInstance.obj: \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -5669,6 +5787,7 @@ $(ARCH)\$(CONFIG)\ProtocolInstance.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\PropertiesF.h" \
     "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\IceUtil\Mutex.h" \
@@ -5741,7 +5860,7 @@ $(ARCH)\$(CONFIG)\ProtocolInstance.obj: \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -5768,6 +5887,7 @@ $(ARCH)\$(CONFIG)\ProtocolPluginFacade.obj: \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -5781,6 +5901,7 @@ $(ARCH)\$(CONFIG)\ProtocolPluginFacade.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "..\..\..\src\Ice\EndpointFactoryF.h" \
     "$(includedir)\Ice\InstanceF.h" \
     "..\..\..\src\Ice\EndpointIF.h" \
@@ -5853,7 +5974,7 @@ $(ARCH)\$(CONFIG)\ProtocolPluginFacade.obj: \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -5893,6 +6014,7 @@ $(ARCH)\$(CONFIG)\ProxyFactory.obj: \
     "$(includedir)\Ice\StreamF.h" \
     "$(includedir)\Ice\OutgoingAsyncF.h" \
     "$(includedir)\Ice\Properties.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\LocalObject.h" \
     "$(includedir)\Ice\LocalObjectF.h" \
     "$(includedir)\Ice\StreamHelpers.h" \
@@ -5904,6 +6026,7 @@ $(ARCH)\$(CONFIG)\ProxyFactory.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\AsyncResult.h" \
@@ -5970,7 +6093,7 @@ $(ARCH)\$(CONFIG)\ProxyFactory.obj: \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "..\..\..\src\Ice\ReferenceFactory.h" \
     "..\..\..\src\Ice\Reference.h" \
     "..\..\..\src\Ice\EndpointIF.h" \
@@ -6006,6 +6129,7 @@ $(ARCH)\$(CONFIG)\Proxy.obj: \
     "$(includedir)\Ice\LocalObjectF.h" \
     "$(includedir)\Ice\RequestHandlerF.h" \
     "$(includedir)\Ice\EndpointF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ObjectF.h" \
     "$(includedir)\Ice\Exception.h" \
     "$(includedir)\Ice\Format.h" \
@@ -6015,6 +6139,7 @@ $(ARCH)\$(CONFIG)\Proxy.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -6081,20 +6206,14 @@ $(ARCH)\$(CONFIG)\Proxy.obj: \
     "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\Ice\Outgoing.h" \
     "$(includedir)\Ice\OutgoingAsync.h" \
-    "..\..\..\src\Ice\ConnectRequestHandler.h" \
-    "..\..\..\src\Ice\RequestHandler.h" \
-    "..\..\..\src\Ice\RouterInfo.h" \
-    "..\..\..\src\Ice\CollocatedRequestHandler.h" \
-    "..\..\..\src\Ice\ResponseHandler.h" \
-    "$(includedir)\Ice\LocalException.h" \
-    "..\..\..\src\Ice\TraceLevelsF.h" \
-    "..\..\..\src\Ice\ConnectionRequestHandler.h" \
+    "..\..\..\src\Ice\RequestHandlerFactory.h" \
     "..\..\..\src\Ice\EndpointI.h" \
     "..\..\..\src\Ice\TransceiverF.h" \
     "..\..\..\src\Ice\ConnectorF.h" \
     "..\..\..\src\Ice\AcceptorF.h" \
     "..\..\..\src\Ice\Instance.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
+    "..\..\..\src\Ice\TraceLevelsF.h" \
     "..\..\..\src\Ice\DefaultsAndOverridesF.h" \
     "..\..\..\src\Ice\EndpointFactoryManagerF.h" \
     "..\..\..\src\Ice\IPEndpointIF.h" \
@@ -6108,7 +6227,9 @@ $(ARCH)\$(CONFIG)\Proxy.obj: \
     "$(includedir)\Ice\Plugin.h" \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\LocalException.h" \
+    "$(includedir)\Ice\Process.h" \
+    "..\..\..\src\Ice\RouterInfo.h" \
     "..\..\..\src\Ice\LocatorInfo.h" \
     "..\..\..\src\Ice\ConnectionI.h" \
     "..\..\..\src\IceUtil\StopWatch.h" \
@@ -6116,12 +6237,15 @@ $(ARCH)\$(CONFIG)\Proxy.obj: \
     "..\..\..\src\Ice\EventHandlerF.h" \
     "..\..\..\src\Ice\Network.h" \
     "..\..\..\src\Ice\ProtocolInstanceF.h" \
+    "..\..\..\src\Ice\RequestHandler.h" \
+    "..\..\..\src\Ice\ResponseHandler.h" \
     "$(includedir)\Ice\ConnectionAsync.h" \
     "$(includedir)\Ice\Stream.h" \
 
 $(ARCH)\$(CONFIG)\ReferenceFactory.obj: \
 	..\ReferenceFactory.cpp \
     "$(includedir)\Ice\Communicator.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -6151,6 +6275,7 @@ $(ARCH)\$(CONFIG)\ReferenceFactory.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -6230,7 +6355,7 @@ $(ARCH)\$(CONFIG)\ReferenceFactory.obj: \
     "$(includedir)\Ice\Plugin.h" \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "..\..\..\src\Ice\EndpointI.h" \
     "..\..\..\src\Ice\TransceiverF.h" \
     "..\..\..\src\Ice\ConnectorF.h" \
@@ -6274,6 +6399,7 @@ $(ARCH)\$(CONFIG)\Reference.obj: \
     "..\..\..\src\Ice\EndpointIF.h" \
     "$(includedir)\Ice\InstanceF.h" \
     "$(includedir)\Ice\RouterF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -6297,6 +6423,7 @@ $(ARCH)\$(CONFIG)\Reference.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\AsyncResult.h" \
@@ -6367,7 +6494,7 @@ $(ARCH)\$(CONFIG)\Reference.obj: \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "..\..\..\src\Ice\EndpointI.h" \
     "..\..\..\src\Ice\TransceiverF.h" \
     "..\..\..\src\Ice\ConnectorF.h" \
@@ -6407,6 +6534,7 @@ $(ARCH)\$(CONFIG)\Reference.obj: \
 $(ARCH)\$(CONFIG)\RemoteLogger.obj: \
 	..\RemoteLogger.cpp \
     "$(includedir)\Ice\RemoteLogger.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -6436,6 +6564,7 @@ $(ARCH)\$(CONFIG)\RemoteLogger.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -6479,7 +6608,6 @@ $(ARCH)\$(CONFIG)\RemoteLogger.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\RetryQueue.obj: \
 	..\RetryQueue.cpp \
@@ -6514,6 +6642,7 @@ $(ARCH)\$(CONFIG)\RetryQueue.obj: \
     "$(includedir)\Ice\OutgoingAsync.h" \
     "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ObjectF.h" \
     "$(includedir)\Ice\Exception.h" \
     "$(includedir)\Ice\Format.h" \
@@ -6523,6 +6652,7 @@ $(ARCH)\$(CONFIG)\RetryQueue.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\AsyncResultF.h" \
     "$(includedir)\Ice\ObserverHelper.h" \
@@ -6577,7 +6707,7 @@ $(ARCH)\$(CONFIG)\RetryQueue.obj: \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -6608,6 +6738,7 @@ $(ARCH)\$(CONFIG)\RequestHandler.obj: \
     "..\..\..\src\Ice\EndpointIF.h" \
     "$(includedir)\Ice\InstanceF.h" \
     "$(includedir)\Ice\RouterF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ObjectF.h" \
     "$(includedir)\Ice\Exception.h" \
     "$(includedir)\Ice\Format.h" \
@@ -6625,6 +6756,7 @@ $(ARCH)\$(CONFIG)\RequestHandler.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\AsyncResult.h" \
@@ -6664,6 +6796,126 @@ $(ARCH)\$(CONFIG)\RequestHandler.obj: \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
 
+$(ARCH)\$(CONFIG)\RequestHandlerFactory.obj: \
+	..\RequestHandlerFactory.cpp \
+    "..\..\..\src\Ice\RequestHandlerFactory.h" \
+    "$(includedir)\IceUtil\Shared.h" \
+    "$(includedir)\IceUtil\Config.h" \
+    "$(includedir)\IceUtil\Mutex.h" \
+    "$(includedir)\IceUtil\Lock.h" \
+    "$(includedir)\IceUtil\ThreadException.h" \
+    "$(includedir)\IceUtil\Exception.h" \
+    "$(includedir)\IceUtil\Time.h" \
+    "$(includedir)\IceUtil\MutexProtocol.h" \
+    "$(includedir)\Ice\RequestHandlerF.h" \
+    "$(includedir)\Ice\Handle.h" \
+    "$(includedir)\IceUtil\Handle.h" \
+    "$(includedir)\Ice\Config.h" \
+    "$(includedir)\Ice\ProxyF.h" \
+    "$(includedir)\Ice\ProxyHandle.h" \
+    "$(includedir)\Ice\ReferenceF.h" \
+    "$(includedir)\Ice\InstanceF.h" \
+    "..\..\..\src\Ice\CollocatedRequestHandler.h" \
+    "$(includedir)\IceUtil\Monitor.h" \
+    "$(includedir)\IceUtil\Cond.h" \
+    "..\..\..\src\Ice\RequestHandler.h" \
+    "$(includedir)\IceUtil\UniquePtr.h" \
+    "$(includedir)\Ice\OutgoingAsyncF.h" \
+    "$(includedir)\Ice\ConnectionIF.h" \
+    "$(includedir)\Ice\LocalObject.h" \
+    "$(includedir)\Ice\LocalObjectF.h" \
+    "..\..\..\src\Ice\ResponseHandler.h" \
+    "$(includedir)\Ice\LocalException.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
+    "$(includedir)\Ice\ObjectF.h" \
+    "$(includedir)\Ice\Exception.h" \
+    "$(includedir)\Ice\Format.h" \
+    "$(includedir)\Ice\StreamF.h" \
+    "$(includedir)\Ice\StreamHelpers.h" \
+    "$(includedir)\IceUtil\ScopedArray.h" \
+    "$(includedir)\IceUtil\Iterator.h" \
+    "$(includedir)\IceUtil\Optional.h" \
+    "$(includedir)\Ice\Identity.h" \
+    "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
+    "$(includedir)\Ice\Version.h" \
+    "$(includedir)\Ice\BuiltinSequences.h" \
+    "$(includedir)\Ice\ResponseHandlerF.h" \
+    "$(includedir)\Ice\BasicStream.h" \
+    "$(includedir)\IceUtil\StringConverter.h" \
+    "$(includedir)\Ice\Object.h" \
+    "$(includedir)\Ice\IncomingAsyncF.h" \
+    "$(includedir)\Ice\Current.h" \
+    "$(includedir)\Ice\ObjectAdapterF.h" \
+    "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\Ice\ObjectFactoryF.h" \
+    "$(includedir)\Ice\ObjectFactoryManagerF.h" \
+    "$(includedir)\Ice\Buffer.h" \
+    "$(includedir)\Ice\Protocol.h" \
+    "$(includedir)\Ice\SlicedDataF.h" \
+    "$(includedir)\Ice\UserExceptionFactory.h" \
+    "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\LoggerF.h" \
+    "..\..\..\src\Ice\TraceLevelsF.h" \
+    "..\..\..\src\Ice\ConnectRequestHandler.h" \
+    "..\..\..\src\Ice\Reference.h" \
+    "..\..\..\src\Ice\ReferenceFactoryF.h" \
+    "..\..\..\src\Ice\EndpointIF.h" \
+    "$(includedir)\Ice\RouterF.h" \
+    "$(includedir)\Ice\Proxy.h" \
+    "$(includedir)\Ice\ProxyFactoryF.h" \
+    "$(includedir)\Ice\EndpointF.h" \
+    "$(includedir)\Ice\EndpointTypes.h" \
+    "$(includedir)\Ice\AsyncResult.h" \
+    "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\ObserverHelper.h" \
+    "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\Ice\LocatorF.h" \
+    "..\..\..\src\Ice\RouterInfoF.h" \
+    "..\..\..\src\Ice\LocatorInfoF.h" \
+    "..\..\..\src\Ice\SharedContext.h" \
+    "$(includedir)\Ice\Properties.h" \
+    "$(includedir)\Ice\GCObject.h" \
+    "$(includedir)\IceUtil\MutexPtrLock.h" \
+    "$(includedir)\Ice\Incoming.h" \
+    "$(includedir)\Ice\ServantLocatorF.h" \
+    "$(includedir)\Ice\ServantManagerF.h" \
+    "$(includedir)\Ice\IncomingAsync.h" \
+    "$(includedir)\Ice\PropertiesAdmin.h" \
+    "..\..\..\src\Ice\RouterInfo.h" \
+    "..\..\..\src\Ice\ObjectAdapterFactory.h" \
+    "..\..\..\src\Ice\ObjectAdapterI.h" \
+    "$(includedir)\IceUtil\RecMutex.h" \
+    "$(includedir)\Ice\ObjectAdapter.h" \
+    "$(includedir)\Ice\FacetMap.h" \
+    "$(includedir)\Ice\Endpoint.h" \
+    "$(includedir)\Ice\ObjectAdapterFactoryF.h" \
+    "$(includedir)\Ice\ConnectionFactoryF.h" \
+    "$(includedir)\Ice\ThreadPoolF.h" \
+    "..\..\..\src\Ice\ACM.h" \
+    "$(includedir)\IceUtil\Timer.h" \
+    "$(includedir)\IceUtil\Thread.h" \
+    "$(includedir)\Ice\ACMF.h" \
+    "$(includedir)\Ice\Connection.h" \
+    "$(includedir)\Ice\PropertiesF.h" \
+    "..\..\..\src\Ice\Instance.h" \
+    "$(includedir)\Ice\InstrumentationF.h" \
+    "..\..\..\src\Ice\DefaultsAndOverridesF.h" \
+    "..\..\..\src\Ice\EndpointFactoryManagerF.h" \
+    "..\..\..\src\Ice\IPEndpointIF.h" \
+    "..\..\..\src\Ice\RetryQueueF.h" \
+    "$(includedir)\Ice\DynamicLibraryF.h" \
+    "$(includedir)\Ice\PluginF.h" \
+    "..\..\..\src\Ice\NetworkF.h" \
+    "..\..\..\src\Ice\NetworkProxyF.h" \
+    "$(includedir)\Ice\Initialize.h" \
+    "$(includedir)\Ice\Dispatcher.h" \
+    "$(includedir)\Ice\Plugin.h" \
+    "..\..\..\src\Ice\ImplicitContextI.h" \
+    "$(includedir)\Ice\ImplicitContext.h" \
+    "$(includedir)\Ice\Process.h" \
+
 $(ARCH)\$(CONFIG)\ResponseHandler.obj: \
 	..\ResponseHandler.cpp \
     "..\..\..\src\Ice\ResponseHandler.h" \
@@ -6673,6 +6925,7 @@ $(ARCH)\$(CONFIG)\ResponseHandler.obj: \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\LocalException.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -6688,6 +6941,7 @@ $(ARCH)\$(CONFIG)\ResponseHandler.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\ResponseHandlerF.h" \
@@ -6708,6 +6962,7 @@ $(ARCH)\$(CONFIG)\RouterInfo.obj: \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\RouterF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -6726,6 +6981,7 @@ $(ARCH)\$(CONFIG)\RouterInfo.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -6779,6 +7035,7 @@ $(ARCH)\$(CONFIG)\RouterInfo.obj: \
 $(ARCH)\$(CONFIG)\Router.obj: \
 	..\Router.cpp \
     "$(includedir)\Ice\Router.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -6808,6 +7065,7 @@ $(ARCH)\$(CONFIG)\Router.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -6849,7 +7107,6 @@ $(ARCH)\$(CONFIG)\Router.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\Selector.obj: \
 	..\Selector.cpp \
@@ -6872,6 +7129,7 @@ $(ARCH)\$(CONFIG)\Selector.obj: \
     "$(includedir)\IceUtil\Handle.h" \
     "..\..\..\src\Ice\NetworkProxyF.h" \
     "$(includedir)\Ice\PropertiesF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -6890,6 +7148,7 @@ $(ARCH)\$(CONFIG)\Selector.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -6949,7 +7208,7 @@ $(ARCH)\$(CONFIG)\Selector.obj: \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -6962,6 +7221,7 @@ $(ARCH)\$(CONFIG)\Selector.obj: \
 $(ARCH)\$(CONFIG)\ServantLocator.obj: \
 	..\ServantLocator.cpp \
     "$(includedir)\Ice\ServantLocator.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -6982,6 +7242,7 @@ $(ARCH)\$(CONFIG)\ServantLocator.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\Identity.h" \
@@ -7003,7 +7264,6 @@ $(ARCH)\$(CONFIG)\ServantLocator.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\ServantManager.obj: \
 	..\ServantManager.cpp \
@@ -7022,6 +7282,7 @@ $(ARCH)\$(CONFIG)\ServantManager.obj: \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\InstanceF.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -7035,6 +7296,7 @@ $(ARCH)\$(CONFIG)\ServantManager.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\FacetMap.h" \
     "$(includedir)\Ice\ServantLocator.h" \
@@ -7103,7 +7365,7 @@ $(ARCH)\$(CONFIG)\ServantManager.obj: \
     "$(includedir)\Ice\Dispatcher.h" \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -7113,6 +7375,7 @@ $(ARCH)\$(CONFIG)\ServantManager.obj: \
 $(ARCH)\$(CONFIG)\SliceChecksumDict.obj: \
 	..\SliceChecksumDict.cpp \
     "$(includedir)\Ice\SliceChecksumDict.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -7132,6 +7395,7 @@ $(ARCH)\$(CONFIG)\SliceChecksumDict.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\BasicStream.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\Ice\InstanceF.h" \
@@ -7154,12 +7418,12 @@ $(ARCH)\$(CONFIG)\SliceChecksumDict.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\SliceChecksums.obj: \
 	..\SliceChecksums.cpp \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -7179,6 +7443,7 @@ $(ARCH)\$(CONFIG)\SliceChecksums.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
     "$(includedir)\IceUtil\ThreadException.h" \
@@ -7208,6 +7473,7 @@ $(ARCH)\$(CONFIG)\SlicedData.obj: \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\IncomingAsyncF.h" \
     "$(includedir)\Ice\Current.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\Exception.h" \
     "$(includedir)\Ice\Format.h" \
     "$(includedir)\Ice\StreamF.h" \
@@ -7219,6 +7485,7 @@ $(ARCH)\$(CONFIG)\SlicedData.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
@@ -7245,6 +7512,7 @@ $(ARCH)\$(CONFIG)\StreamI.obj: \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -7257,6 +7525,7 @@ $(ARCH)\$(CONFIG)\StreamI.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\Object.h" \
     "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -7327,7 +7596,7 @@ $(ARCH)\$(CONFIG)\StreamI.obj: \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -7350,6 +7619,7 @@ $(ARCH)\$(CONFIG)\Stream.obj: \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -7362,6 +7632,7 @@ $(ARCH)\$(CONFIG)\Stream.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\Object.h" \
     "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -7417,6 +7688,7 @@ $(ARCH)\$(CONFIG)\ThreadPool.obj: \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\Dispatcher.h" \
     "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -7431,6 +7703,7 @@ $(ARCH)\$(CONFIG)\ThreadPool.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\ThreadPoolF.h" \
     "$(includedir)\Ice\InstanceF.h" \
     "$(includedir)\Ice\LoggerF.h" \
@@ -7499,7 +7772,7 @@ $(ARCH)\$(CONFIG)\ThreadPool.obj: \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -7530,6 +7803,7 @@ $(ARCH)\$(CONFIG)\TraceLevels.obj: \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\PropertiesF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -7553,6 +7827,7 @@ $(ARCH)\$(CONFIG)\TraceLevels.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -7604,6 +7879,7 @@ $(ARCH)\$(CONFIG)\TraceUtil.obj: \
     "$(includedir)\IceUtil\StringUtil.h" \
     "..\..\..\src\Ice\TraceUtil.h" \
     "$(includedir)\Ice\LoggerF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\Ice\Config.h" \
@@ -7621,6 +7897,7 @@ $(ARCH)\$(CONFIG)\TraceUtil.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "..\..\..\src\Ice\TraceLevelsF.h" \
     "..\..\..\src\Ice\Instance.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
@@ -7686,7 +7963,7 @@ $(ARCH)\$(CONFIG)\TraceUtil.obj: \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\Ice\Incoming.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
@@ -7707,6 +7984,7 @@ $(ARCH)\$(CONFIG)\Transceiver.obj: \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -7720,6 +7998,7 @@ $(ARCH)\$(CONFIG)\Transceiver.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "..\..\..\src\Ice\EndpointIF.h" \
     "..\..\..\src\Ice\Network.h" \
     "..\..\..\src\Ice\NetworkF.h" \
@@ -7782,6 +8061,7 @@ $(ARCH)\$(CONFIG)\UdpConnector.obj: \
     "..\..\..\src\Ice\NetworkF.h" \
     "..\..\..\src\Ice\NetworkProxyF.h" \
     "$(includedir)\Ice\PropertiesF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -7805,6 +8085,7 @@ $(ARCH)\$(CONFIG)\UdpConnector.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -7866,7 +8147,7 @@ $(ARCH)\$(CONFIG)\UdpConnector.obj: \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -7904,6 +8185,7 @@ $(ARCH)\$(CONFIG)\UdpEndpointI.obj: \
     "..\..\..\src\Ice\EndpointI.h" \
     "..\..\..\src\Ice\EndpointIF.h" \
     "$(includedir)\Ice\Endpoint.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -7918,6 +8200,7 @@ $(ARCH)\$(CONFIG)\UdpEndpointI.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
@@ -7991,7 +8274,7 @@ $(ARCH)\$(CONFIG)\UdpEndpointI.obj: \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -8019,6 +8302,7 @@ $(ARCH)\$(CONFIG)\UdpTransceiver.obj: \
     "..\..\..\src\Ice\Transceiver.h" \
     "..\..\..\src\Ice\TransceiverF.h" \
     "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -8032,6 +8316,7 @@ $(ARCH)\$(CONFIG)\UdpTransceiver.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "..\..\..\src\Ice\EndpointIF.h" \
     "..\..\..\src\Ice\Network.h" \
     "..\..\..\src\Ice\NetworkF.h" \
@@ -8108,7 +8393,7 @@ $(ARCH)\$(CONFIG)\UdpTransceiver.obj: \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -8126,6 +8411,7 @@ $(ARCH)\$(CONFIG)\UdpTransceiver.obj: \
 $(ARCH)\$(CONFIG)\Version.obj: \
 	..\Version.cpp \
     "$(includedir)\Ice\Version.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -8145,6 +8431,7 @@ $(ARCH)\$(CONFIG)\Version.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\BasicStream.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\Ice\InstanceF.h" \
@@ -8166,12 +8453,12 @@ $(ARCH)\$(CONFIG)\Version.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\WSAcceptor.obj: \
 	..\WSAcceptor.cpp \
     "..\..\..\src\Ice\WSAcceptor.h" \
     "$(includedir)\Ice\LoggerF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -8191,6 +8478,7 @@ $(ARCH)\$(CONFIG)\WSAcceptor.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "..\..\..\src\Ice\TransceiverF.h" \
     "..\..\..\src\Ice\Acceptor.h" \
     "..\..\..\src\Ice\AcceptorF.h" \
@@ -8270,7 +8558,7 @@ $(ARCH)\$(CONFIG)\WSAcceptor.obj: \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -8289,6 +8577,7 @@ $(ARCH)\$(CONFIG)\WSConnector.obj: \
 	..\WSConnector.cpp \
     "..\..\..\src\Ice\WSConnector.h" \
     "$(includedir)\Ice\LoggerF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -8308,6 +8597,7 @@ $(ARCH)\$(CONFIG)\WSConnector.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "..\..\..\src\Ice\TransceiverF.h" \
     "..\..\..\src\Ice\Connector.h" \
     "..\..\..\src\Ice\ConnectorF.h" \
@@ -8384,7 +8674,7 @@ $(ARCH)\$(CONFIG)\WSConnector.obj: \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -8414,6 +8704,7 @@ $(ARCH)\$(CONFIG)\WSEndpoint.obj: \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\Endpoint.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -8428,6 +8719,7 @@ $(ARCH)\$(CONFIG)\WSEndpoint.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
@@ -8504,7 +8796,7 @@ $(ARCH)\$(CONFIG)\WSEndpoint.obj: \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -8532,6 +8824,7 @@ $(ARCH)\$(CONFIG)\WSTransceiver.obj: \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -8545,6 +8838,7 @@ $(ARCH)\$(CONFIG)\WSTransceiver.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\PropertiesF.h" \
     "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\IceUtil\Mutex.h" \
@@ -8617,7 +8911,7 @@ $(ARCH)\$(CONFIG)\WSTransceiver.obj: \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -8667,6 +8961,7 @@ $(ARCH)\$(CONFIG)\HttpParser.obj: \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\IncomingAsyncF.h" \
     "$(includedir)\Ice\Current.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\Exception.h" \
     "$(includedir)\Ice\Format.h" \
     "$(includedir)\Ice\StreamF.h" \
@@ -8678,6 +8973,7 @@ $(ARCH)\$(CONFIG)\HttpParser.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
@@ -8711,6 +9007,7 @@ $(ARCH)\$(CONFIG)\StreamAcceptor.obj: \
     "..\..\..\src\Ice\NetworkF.h" \
     "..\..\..\src\Ice\NetworkProxyF.h" \
     "$(includedir)\Ice\PropertiesF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -8734,6 +9031,7 @@ $(ARCH)\$(CONFIG)\StreamAcceptor.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -8803,7 +9101,7 @@ $(ARCH)\$(CONFIG)\StreamAcceptor.obj: \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -8834,6 +9132,7 @@ $(ARCH)\$(CONFIG)\StreamConnector.obj: \
     "..\..\..\src\Ice\NetworkF.h" \
     "..\..\..\src\Ice\NetworkProxyF.h" \
     "$(includedir)\Ice\PropertiesF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -8857,6 +9156,7 @@ $(ARCH)\$(CONFIG)\StreamConnector.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -8927,7 +9227,7 @@ $(ARCH)\$(CONFIG)\StreamConnector.obj: \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -8959,6 +9259,7 @@ $(ARCH)\$(CONFIG)\StreamEndpointI.obj: \
     "..\..\..\src\Ice\EndpointI.h" \
     "..\..\..\src\Ice\EndpointIF.h" \
     "$(includedir)\Ice\Endpoint.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -8973,6 +9274,7 @@ $(ARCH)\$(CONFIG)\StreamEndpointI.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
@@ -9049,7 +9351,7 @@ $(ARCH)\$(CONFIG)\StreamEndpointI.obj: \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -9073,6 +9375,7 @@ $(ARCH)\$(CONFIG)\StreamTransceiver.obj: \
     "..\..\..\src\Ice\Transceiver.h" \
     "..\..\..\src\Ice\TransceiverF.h" \
     "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
@@ -9086,6 +9389,7 @@ $(ARCH)\$(CONFIG)\StreamTransceiver.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "..\..\..\src\Ice\EndpointIF.h" \
     "..\..\..\src\Ice\Network.h" \
     "..\..\..\src\Ice\NetworkF.h" \
@@ -9161,7 +9465,7 @@ $(ARCH)\$(CONFIG)\StreamTransceiver.obj: \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\FacetMap.h" \
-    "..\..\..\src\Ice\Process.h" \
+    "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Incoming.h" \
@@ -9180,6 +9484,7 @@ $(ARCH)\$(CONFIG)\StreamTransceiver.obj: \
 $(ARCH)\$(CONFIG)\EndpointInfo.obj: \
 	EndpointInfo.cpp \
     "$(includedir)\IceSSL\EndpointInfo.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -9201,6 +9506,7 @@ $(ARCH)\$(CONFIG)\EndpointInfo.obj: \
     "$(includedir)\Ice\Endpoint.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\Ice\BasicStream.h" \
@@ -9224,11 +9530,11 @@ $(ARCH)\$(CONFIG)\EndpointInfo.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\ConnectionInfo.obj: \
 	ConnectionInfo.cpp \
     "$(includedir)\IceSSL\ConnectionInfo.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -9258,6 +9564,7 @@ $(ARCH)\$(CONFIG)\ConnectionInfo.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -9292,11 +9599,11 @@ $(ARCH)\$(CONFIG)\ConnectionInfo.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\CommunicatorF.obj: \
 	..\CommunicatorF.cpp \
     "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -9316,11 +9623,12 @@ $(ARCH)\$(CONFIG)\CommunicatorF.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\ConnectionF.obj: \
 	..\ConnectionF.cpp \
     "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -9340,11 +9648,12 @@ $(ARCH)\$(CONFIG)\ConnectionF.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\EndpointF.obj: \
 	..\EndpointF.cpp \
     "$(includedir)\Ice\EndpointF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -9364,11 +9673,12 @@ $(ARCH)\$(CONFIG)\EndpointF.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\ImplicitContextF.obj: \
 	..\ImplicitContextF.cpp \
     "$(includedir)\Ice\ImplicitContextF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -9388,11 +9698,12 @@ $(ARCH)\$(CONFIG)\ImplicitContextF.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\LocatorF.obj: \
 	..\LocatorF.cpp \
     "$(includedir)\Ice\LocatorF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -9422,6 +9733,7 @@ $(ARCH)\$(CONFIG)\LocatorF.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -9449,11 +9761,11 @@ $(ARCH)\$(CONFIG)\LocatorF.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\LoggerF.obj: \
 	..\LoggerF.cpp \
     "$(includedir)\Ice\LoggerF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -9473,11 +9785,12 @@ $(ARCH)\$(CONFIG)\LoggerF.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\ObjectAdapterF.obj: \
 	..\ObjectAdapterF.cpp \
     "$(includedir)\Ice\ObjectAdapterF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -9497,11 +9810,12 @@ $(ARCH)\$(CONFIG)\ObjectAdapterF.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\ObjectFactoryF.obj: \
 	..\ObjectFactoryF.cpp \
     "$(includedir)\Ice\ObjectFactoryF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -9521,11 +9835,12 @@ $(ARCH)\$(CONFIG)\ObjectFactoryF.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\PluginF.obj: \
 	..\PluginF.cpp \
     "$(includedir)\Ice\PluginF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -9545,11 +9860,12 @@ $(ARCH)\$(CONFIG)\PluginF.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\ProcessF.obj: \
 	..\ProcessF.cpp \
     "$(includedir)\Ice\ProcessF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -9579,6 +9895,7 @@ $(ARCH)\$(CONFIG)\ProcessF.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -9606,11 +9923,11 @@ $(ARCH)\$(CONFIG)\ProcessF.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\PropertiesF.obj: \
 	..\PropertiesF.cpp \
     "$(includedir)\Ice\PropertiesF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -9640,6 +9957,7 @@ $(ARCH)\$(CONFIG)\PropertiesF.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -9667,11 +9985,11 @@ $(ARCH)\$(CONFIG)\PropertiesF.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\RouterF.obj: \
 	..\RouterF.cpp \
     "$(includedir)\Ice\RouterF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -9701,6 +10019,7 @@ $(ARCH)\$(CONFIG)\RouterF.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
@@ -9728,11 +10047,11 @@ $(ARCH)\$(CONFIG)\RouterF.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\ServantLocatorF.obj: \
 	..\ServantLocatorF.cpp \
     "$(includedir)\Ice\ServantLocatorF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -9752,204 +10071,204 @@ $(ARCH)\$(CONFIG)\ServantLocatorF.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
 
-..\BuiltinSequences.cpp: \
-    $(slicedir)\Ice\BuiltinSequences.ice
+..\BuiltinSequences.h: \
+    "$(slicedir)\Ice\BuiltinSequences.ice"
 
-..\CommunicatorF.cpp: \
-    $(slicedir)\Ice\CommunicatorF.ice
+..\CommunicatorF.h: \
+    "$(slicedir)\Ice\CommunicatorF.ice"
 
-..\Communicator.cpp: \
-    $(slicedir)\Ice\Communicator.ice \
-    $(slicedir)/Ice/LoggerF.ice \
-    $(slicedir)/Ice/InstrumentationF.ice \
-    $(slicedir)/Ice/ObjectAdapterF.ice \
-    $(slicedir)/Ice/ObjectFactoryF.ice \
-    $(slicedir)/Ice/RouterF.ice \
-    $(slicedir)/Ice/LocatorF.ice \
-    $(slicedir)/Ice/PluginF.ice \
-    $(slicedir)/Ice/ImplicitContextF.ice \
-    $(slicedir)/Ice/Current.ice \
-    $(slicedir)/Ice/ConnectionF.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/Version.ice \
-    $(slicedir)/Ice/Properties.ice \
-    $(slicedir)/Ice/PropertiesAdmin.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
-    $(slicedir)/Ice/FacetMap.ice
+..\Communicator.h: \
+    "$(slicedir)\Ice\Communicator.ice" \
+    "$(slicedir)/Ice/LoggerF.ice" \
+    "$(slicedir)/Ice/InstrumentationF.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/ObjectFactoryF.ice" \
+    "$(slicedir)/Ice/RouterF.ice" \
+    "$(slicedir)/Ice/LocatorF.ice" \
+    "$(slicedir)/Ice/PluginF.ice" \
+    "$(slicedir)/Ice/ImplicitContextF.ice" \
+    "$(slicedir)/Ice/Current.ice" \
+    "$(slicedir)/Ice/ConnectionF.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/Ice/Properties.ice" \
+    "$(slicedir)/Ice/PropertiesAdmin.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/FacetMap.ice"
 
-..\ConnectionF.cpp: \
-    $(slicedir)\Ice\ConnectionF.ice
+..\ConnectionF.h: \
+    "$(slicedir)\Ice\ConnectionF.ice"
 
-..\Connection.cpp: \
-    $(slicedir)\Ice\Connection.ice \
-    $(slicedir)/Ice/ObjectAdapterF.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/Endpoint.ice \
-    $(slicedir)/Ice/Version.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
-    $(slicedir)/Ice/EndpointF.ice
+..\Connection.h: \
+    "$(slicedir)\Ice\Connection.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Endpoint.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/EndpointF.ice"
 
-..\Current.cpp: \
-    $(slicedir)\Ice\Current.ice \
-    $(slicedir)/Ice/ObjectAdapterF.ice \
-    $(slicedir)/Ice/ConnectionF.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/Version.ice
+..\Current.h: \
+    "$(slicedir)\Ice\Current.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/ConnectionF.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Version.ice"
 
-..\Endpoint.cpp: \
-    $(slicedir)\Ice\Endpoint.ice \
-    $(slicedir)/Ice/Version.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
-    $(slicedir)/Ice/EndpointF.ice
+..\Endpoint.h: \
+    "$(slicedir)\Ice\Endpoint.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/EndpointF.ice"
 
-..\EndpointF.cpp: \
-    $(slicedir)\Ice\EndpointF.ice
+..\EndpointF.h: \
+    "$(slicedir)\Ice\EndpointF.ice"
 
-..\EndpointTypes.cpp: \
-    $(slicedir)\Ice\EndpointTypes.ice
+..\EndpointTypes.h: \
+    "$(slicedir)\Ice\EndpointTypes.ice"
 
-..\FacetMap.cpp: \
-    $(slicedir)\Ice\FacetMap.ice
+..\FacetMap.h: \
+    "$(slicedir)\Ice\FacetMap.ice"
 
-..\Identity.cpp: \
-    $(slicedir)\Ice\Identity.ice
+..\Identity.h: \
+    "$(slicedir)\Ice\Identity.ice"
 
-..\ImplicitContextF.cpp: \
-    $(slicedir)\Ice\ImplicitContextF.ice
+..\ImplicitContextF.h: \
+    "$(slicedir)\Ice\ImplicitContextF.ice"
 
-..\ImplicitContext.cpp: \
-    $(slicedir)\Ice\ImplicitContext.ice \
-    $(slicedir)/Ice/LocalException.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/Version.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
-    $(slicedir)/Ice/Current.ice \
-    $(slicedir)/Ice/ObjectAdapterF.ice \
-    $(slicedir)/Ice/ConnectionF.ice
+..\ImplicitContext.h: \
+    "$(slicedir)\Ice\ImplicitContext.ice" \
+    "$(slicedir)/Ice/LocalException.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/Current.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/ConnectionF.ice"
 
-..\LocalException.cpp: \
-    $(slicedir)\Ice\LocalException.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/Version.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+..\LocalException.h: \
+    "$(slicedir)\Ice\LocalException.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
-..\LocatorF.cpp: \
-    $(slicedir)\Ice\LocatorF.ice
+..\LocatorF.h: \
+    "$(slicedir)\Ice\LocatorF.ice"
 
-..\Locator.cpp: \
-    $(slicedir)\Ice\Locator.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/ProcessF.ice
+..\Locator.h: \
+    "$(slicedir)\Ice\Locator.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/ProcessF.ice"
 
-..\LoggerF.cpp: \
-    $(slicedir)\Ice\LoggerF.ice
+..\LoggerF.h: \
+    "$(slicedir)\Ice\LoggerF.ice"
 
-..\Logger.cpp: \
-    $(slicedir)\Ice\Logger.ice
+..\Logger.h: \
+    "$(slicedir)\Ice\Logger.ice"
 
-..\ObjectAdapterF.cpp: \
-    $(slicedir)\Ice\ObjectAdapterF.ice
+..\ObjectAdapterF.h: \
+    "$(slicedir)\Ice\ObjectAdapterF.ice"
 
-..\ObjectAdapter.cpp: \
-    $(slicedir)\Ice\ObjectAdapter.ice \
-    $(slicedir)/Ice/CommunicatorF.ice \
-    $(slicedir)/Ice/ServantLocatorF.ice \
-    $(slicedir)/Ice/LocatorF.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/FacetMap.ice \
-    $(slicedir)/Ice/Endpoint.ice \
-    $(slicedir)/Ice/Version.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
-    $(slicedir)/Ice/EndpointF.ice
+..\ObjectAdapter.h: \
+    "$(slicedir)\Ice\ObjectAdapter.ice" \
+    "$(slicedir)/Ice/CommunicatorF.ice" \
+    "$(slicedir)/Ice/ServantLocatorF.ice" \
+    "$(slicedir)/Ice/LocatorF.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/FacetMap.ice" \
+    "$(slicedir)/Ice/Endpoint.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/EndpointF.ice"
 
-..\ObjectFactoryF.cpp: \
-    $(slicedir)\Ice\ObjectFactoryF.ice
+..\ObjectFactoryF.h: \
+    "$(slicedir)\Ice\ObjectFactoryF.ice"
 
-..\ObjectFactory.cpp: \
-    $(slicedir)\Ice\ObjectFactory.ice
+..\ObjectFactory.h: \
+    "$(slicedir)\Ice\ObjectFactory.ice"
 
-..\PluginF.cpp: \
-    $(slicedir)\Ice\PluginF.ice
+..\PluginF.h: \
+    "$(slicedir)\Ice\PluginF.ice"
 
-..\Plugin.cpp: \
-    $(slicedir)\Ice\Plugin.ice \
-    $(slicedir)/Ice/LoggerF.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+..\Plugin.h: \
+    "$(slicedir)\Ice\Plugin.ice" \
+    "$(slicedir)/Ice/LoggerF.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
-..\ProcessF.cpp: \
-    $(slicedir)\Ice\ProcessF.ice
+..\ProcessF.h: \
+    "$(slicedir)\Ice\ProcessF.ice"
 
-..\Process.cpp: \
-    $(slicedir)\Ice\Process.ice
+..\Process.h: \
+    "$(slicedir)\Ice\Process.ice"
 
-..\PropertiesF.cpp: \
-    $(slicedir)\Ice\PropertiesF.ice
+..\PropertiesF.h: \
+    "$(slicedir)\Ice\PropertiesF.ice"
 
-..\Properties.cpp: \
-    $(slicedir)\Ice\Properties.ice \
-    $(slicedir)/Ice/PropertiesAdmin.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+..\Properties.h: \
+    "$(slicedir)\Ice\Properties.ice" \
+    "$(slicedir)/Ice/PropertiesAdmin.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
-..\PropertiesAdmin.cpp: \
-    $(slicedir)\Ice\PropertiesAdmin.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+..\PropertiesAdmin.h: \
+    "$(slicedir)\Ice\PropertiesAdmin.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
-..\RemoteLogger.cpp: \
-    $(slicedir)\Ice\RemoteLogger.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+..\RemoteLogger.h: \
+    "$(slicedir)\Ice\RemoteLogger.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
-..\Router.cpp: \
-    $(slicedir)\Ice\Router.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+..\Router.h: \
+    "$(slicedir)\Ice\Router.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
-..\RouterF.cpp: \
-    $(slicedir)\Ice\RouterF.ice
+..\RouterF.h: \
+    "$(slicedir)\Ice\RouterF.ice"
 
-..\ServantLocatorF.cpp: \
-    $(slicedir)\Ice\ServantLocatorF.ice
+..\ServantLocatorF.h: \
+    "$(slicedir)\Ice\ServantLocatorF.ice"
 
-..\ServantLocator.cpp: \
-    $(slicedir)\Ice\ServantLocator.ice \
-    $(slicedir)/Ice/ObjectAdapterF.ice \
-    $(slicedir)/Ice/Current.ice \
-    $(slicedir)/Ice/ConnectionF.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/Version.ice
+..\ServantLocator.h: \
+    "$(slicedir)\Ice\ServantLocator.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/Current.ice" \
+    "$(slicedir)/Ice/ConnectionF.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Version.ice"
 
-..\SliceChecksumDict.cpp: \
-    $(slicedir)\Ice\SliceChecksumDict.ice
+..\SliceChecksumDict.h: \
+    "$(slicedir)\Ice\SliceChecksumDict.ice"
 
-..\Version.cpp: \
-    $(slicedir)\Ice\Version.ice
+..\Version.h: \
+    "$(slicedir)\Ice\Version.ice"
 
-..\Metrics.cpp: \
-    $(slicedir)\Ice\Metrics.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+..\Metrics.h: \
+    "$(slicedir)\Ice\Metrics.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
-..\Instrumentation.cpp: \
-    $(slicedir)\Ice\Instrumentation.ice \
-    $(slicedir)/Ice/EndpointF.ice \
-    $(slicedir)/Ice/ConnectionF.ice \
-    $(slicedir)/Ice/Current.ice \
-    $(slicedir)/Ice/ObjectAdapterF.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/Version.ice
+..\Instrumentation.h: \
+    "$(slicedir)\Ice\Instrumentation.ice" \
+    "$(slicedir)/Ice/EndpointF.ice" \
+    "$(slicedir)/Ice/ConnectionF.ice" \
+    "$(slicedir)/Ice/Current.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Version.ice"
 
-EndpointInfo.cpp: \
-    $(slicedir)\IceSSL\EndpointInfo.ice \
-    $(slicedir)/Ice/Endpoint.ice \
-    $(slicedir)/Ice/Version.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
-    $(slicedir)/Ice/EndpointF.ice
+EndpointInfo.h: \
+    "$(slicedir)\IceSSL\EndpointInfo.ice" \
+    "$(slicedir)/Ice/Endpoint.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/EndpointF.ice"
 
-ConnectionInfo.cpp: \
-    $(slicedir)\IceSSL\ConnectionInfo.ice \
-    $(slicedir)/Ice/Connection.ice \
-    $(slicedir)/Ice/ObjectAdapterF.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Ice/Endpoint.ice \
-    $(slicedir)/Ice/Version.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
-    $(slicedir)/Ice/EndpointF.ice
+ConnectionInfo.h: \
+    "$(slicedir)\IceSSL\ConnectionInfo.ice" \
+    "$(slicedir)/Ice/Connection.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Endpoint.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/EndpointF.ice"

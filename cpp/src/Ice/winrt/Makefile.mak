@@ -274,8 +274,8 @@ clean::
 	-del /q $(SOURCE_DIR)\EndpointF.cpp $(HDIR)\EndpointF.h
 	-del /q $(SOURCE_DIR)\EndpointTypes.cpp $(HDIR)\EndpointTypes.h
 	-del /q $(SOURCE_DIR)\FacetMap.cpp $(HDIR)\FacetMap.h
-	-del /q $(SOURCE_DIR)\ImplicitContextF.cpp $(HDIR)\ImplicitContextF.h	
-	-del /q $(SOURCE_DIR)\ImplicitContext.cpp $(HDIR)\ImplicitContext.h	
+	-del /q $(SOURCE_DIR)\ImplicitContextF.cpp $(HDIR)\ImplicitContextF.h
+	-del /q $(SOURCE_DIR)\ImplicitContext.cpp $(HDIR)\ImplicitContext.h
 	-del /q $(SOURCE_DIR)\Identity.cpp $(HDIR)\Identity.h
 	-del /q $(SOURCE_DIR)\LocalException.cpp $(HDIR)\LocalException.h
 	-del /q $(SOURCE_DIR)\LocatorF.cpp $(HDIR)\LocatorF.h
