@@ -535,10 +535,12 @@ class Platform:
     def getLanguageMappings(self, compiler, arch, buildConfiguration):
         if buildConfiguration in ["debug", "cpp11", "no-cpp11", "winrt"]:
             languages = ["cpp"]
-        elif buildConfiguration == "java1.6":
+        elif buildConfiguration == "java1.8":
             languages = ["java"]
         elif buildConfiguration == "silverlight":
             languages = ["cs"]
+        elif compiler = "VC110" and buildConfiguration == "default":
+            languages ["cpp", "cs"]
         else:
             languages = self.getSupportedLanguages()
 
@@ -752,9 +754,6 @@ class Platform:
 
         if self.is64(arch):
             args += " --x64"
-                    
-        if lang == "cs" and compiler == "VC90":
-            args += " --compact"
 
         if buildConfiguration == "silverlight":
             args += " --silverlight"
@@ -776,8 +775,6 @@ class Platform:
         return True
 
     def filterTests(self, compiler, arch, conf, lang, testConfigs):
-        if compiler == "VC90" and arch == "x64":
-            return False
         if conf == "silverlight" and arch == "x64":
             return False
         if lang == "vb":
@@ -877,8 +874,6 @@ class Platform:
         return True
 
     def filterDemos(self, compiler, arch, conf, lang, testConfigs):
-        if compiler in ["VC90"] and arch in ["x64"]:
-            return False
         if conf == "silverlight": # Silverlight demos need manual intervention
             return False
         if conf == "winrt": # Winrt demos need manual intervention
@@ -1109,10 +1104,10 @@ class Windows(Platform):
         bArch = "Any CPU" if lang in ["cs", "vb"] else "Win32" if arch == "x86" else "x64"
         commands = []
         #
-        # For VC110 demos we need first to upgrade the project files, the projects in the archive are for VC100,
+        # For VC120 demos we need first to upgrade the project files, the projects in the archive are for VC110,
         # that is only required for C++ projects.
         #
-        if(compiler == "VC110" and lang == "cpp" and buildConfiguration != "winrt"
+        if(compiler == "VC120" and lang == "cpp" and buildConfiguration != "winrt"
            and not os.path.exists(os.path.join(buildDir, "UpgradeLog.htm"))):
             commands.append('"%s" %s  && cd %s && devenv demo.sln /upgrade' % \
                             (BuildUtils.getVcVarsAll(compiler), self.canonicalArch(arch), buildDir))
@@ -1147,16 +1142,14 @@ class Windows(Platform):
 
     def getSupportedConfigurations(self, compiler, arch):        
         buildConfigurations = ["default"]
-        if compiler == "VC100":
+        if compiler == "VC120":
             buildConfigurations.append("debug")
             buildConfigurations.append("silverlight")
-            buildConfigurations.append("java1.6")
-        elif compiler == "VC110":
-            buildConfigurations.append("debug")
-            buildConfigurations.append("java1.6")
-            buildConfigurations.append("silverlight")
+            buildConfigurations.append("java1.8")
             if self.isWindows8():
                 buildConfigurations.append("winrt")
+        elif compiler == "VC110":
+            buildConfigurations.append("debug")
         return buildConfigurations
 
     #
@@ -1164,16 +1157,14 @@ class Windows(Platform):
     #
     def getSupportedCompilers(self):
         compilers = []
-        if BuildUtils.getVcVarsAll("VC90"):
-            compilers.append("VC90")
-        if BuildUtils.getVcVarsAll("VC100"):
-            compilers.append("VC100")
+        if BuildUtils.getVcVarsAll("VC120"):
+            compilers.append("VC120")
         if BuildUtils.getVcVarsAll("VC110"):
             compilers.append("VC110")
         return compilers
         
     def getSupportedLanguages(self):
-        return ["cpp", "cs", "java", "php", "py", "rb", "vb"]
+        return ["cpp", "cs", "java", "js", "php", "py", "rb", "vb"]
         
     def getSupportedArchitectures(self):
         archs = ["x86"]
@@ -1186,12 +1177,7 @@ class Windows(Platform):
         return BuildUtils.getJavaHome(arch, version)
 
     def getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist):
-        env = Platform.getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist)
-
-        if lang == "cs" and compiler == "VC90":
-            env["COMPACT"] = "yes"
-        return env
-                
+        return Platform.getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist)
 #
 # Program usage.
 #
