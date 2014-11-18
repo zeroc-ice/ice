@@ -56,6 +56,13 @@ if not os.path.exists("ImportKey.class") or os.path.basename(cwd) != "certs":
     print("You must run this script from the certs directory")
     sys.exit(1)
 
+#
+# Make sure keytool is available
+#
+if subprocess.call("keytool", shell=True, stdout=DEVNULL, stderr=DEVNULL) != 0:
+    print("error: couldn't run keytool, make sure the Java bin directory is in your PATH,\nkeytool is required to generate Java certificates")
+    sys.exit(1)
+
 bksSupport = True
 if subprocess.call("javap org.bouncycastle.jce.provider.BouncyCastleProvider", shell=True, stdout=DEVNULL, stderr=DEVNULL) != 0:
     print("warning: couldn't find Bouncy Castle provider, Android certificates won't be created")
@@ -217,11 +224,13 @@ def run(cmd):
     p = subprocess.Popen(cmd,
                          shell = True,
                          stdin = subprocess.PIPE,
-                         stdout = subprocess.STDOUT if debug else DEVNULL,
-                         stderr = subprocess.STDERR if debug else DEVNULL,
+                         stdout = subprocess.STDOUT if debug else subprocess.PIPE,
+                         stderr = subprocess.STDERR if debug else subprocess.PIPE,
                          bufsize = 0)
     if p.wait() != 0:
-        print("command failed:" + cmd)
+        print("command failed:" + cmd + "\n")
+        for line in p.stdout.readlines():
+            print(line.decode("utf-8").strip())
         sys.exit(1)
     
 def runOpenSSL(command):
@@ -356,6 +365,7 @@ caCert = os.path.join(caHome, "cacert.pem")
 runOpenSSL("req -config " + config + " -x509 -days 1825 -newkey rsa:1024 -out " + caCert + " -outform PEM -nodes")
 runOpenSSL("x509 -in " + caCert + " -outform DER -out " + os.path.join(certs, "cacert.der")) # Convert to DER
 shutil.copyfile(caCert, os.path.join(certs, "cacert.pem"))
+shutil.copyfile(os.path.join(caHome, "cakey.pem"), os.path.join(certs, "cakey.pem"))
 if os.path.exists("certs.jks"):
     os.remove("certs.jks")
 run("keytool -import -alias cacert -file cacert.der -keystore certs.jks -storepass password -noprompt")
