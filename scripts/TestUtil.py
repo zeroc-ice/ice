@@ -667,7 +667,7 @@ def getIceBox():
             elif type == "release":
                 iceBox = os.path.join(getCppBinDir(lang), "icebox.exe")
         elif isLinux():
-            if x86:
+            if x86 or (iceHome == "/usr" and not x64):
                 if cpp11:
                     iceBox = os.path.join(getCppBinDir(lang), "icebox32++11")
                 else:
