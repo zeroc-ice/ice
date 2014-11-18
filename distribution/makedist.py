@@ -620,6 +620,7 @@ rpmBuildFiles = [ \
     os.path.join("src", "rpm", "*.conf"), \
     os.path.join("src", "rpm", "*.suse"), \
     os.path.join("src", "rpm", "*.redhat"), \
+    os.path.join("src", "rpm", "*.amazon"), \
     os.path.join("src", "rpm", "*.service"), \
     os.path.join("src", "rpm", "ice.pth"), \
     os.path.join("src", "unix", "*Linux*"), \
