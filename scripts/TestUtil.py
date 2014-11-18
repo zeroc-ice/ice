@@ -1636,13 +1636,17 @@ def getTestEnv(lang, testdir):
     jarSuffix = "-" + getIceVersion() + ".jar"
 
     #
-    # If Ice is installed from RPMs, just set the CLASSPATH for Java.
+    # If Ice is installed from RPMs:
+    # Set the CLASSPATH for Java.
+    # Set NODE_PATH for js
     #
     if iceHome == "/usr":
         if lang == "java":
             javaDir = os.path.join("/", "usr", "share", "java")
             for jar in iceJARs:
                 addClasspath(os.path.join(javaDir, jar + jarSuffix), env)
+        if lang == "js":
+            addPathToEnv("NODE_PATH", os.path.join(testdir), env)
         return env # That's it, we're done!
 
     if isWin32():
