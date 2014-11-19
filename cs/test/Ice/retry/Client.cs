@@ -19,9 +19,9 @@ using System.Reflection;
 
 public class Client
 {
-    public static int run(string[] args, Ice.Communicator communicator)
+    public static int run(string[] args, Ice.Communicator communicator, Ice.Communicator communicator2)
     {
-        Test.RetryPrx retry = AllTests.allTests(communicator);
+        Test.RetryPrx retry = AllTests.allTests(communicator, communicator2, "retry:default -p 12010");
         retry.shutdown();
         return 0;
     }
@@ -30,6 +30,7 @@ public class Client
     {
         int status = 0;
         Ice.Communicator communicator = null;
+        Ice.Communicator communicator2 = null;
 
         try
         {
@@ -37,7 +38,7 @@ public class Client
             initData.properties = Ice.Util.createProperties(ref args);
             initData.observer = Instrumentation.getObserver();
 
-            initData.properties.setProperty("Ice.RetryIntervals", "0 1 400 1");
+            initData.properties.setProperty("Ice.RetryIntervals", "0 1 10 1");
 
             //
             // This test kills connections, so we don't want warnings.
@@ -45,7 +46,19 @@ public class Client
             initData.properties.setProperty("Ice.Warn.Connections", "0");
 
             communicator = Ice.Util.initialize(ref args, initData);
-            status = run(args, communicator);
+
+            //
+            // Configure a second communicator for the invocation timeout
+            // + retry test, we need to configure a large retry interval
+            // to avoid time-sensitive failures.
+            //
+            Ice.InitializationData initData2 = new Ice.InitializationData();
+            initData2.properties = initData.properties.ice_clone_();
+            initData2.properties.setProperty("Ice.RetryIntervals", "0 1 10000");
+            initData2.observer = Instrumentation.getObserver();
+            communicator2 = Ice.Util.initialize(initData2);
+
+            status = run(args, communicator, communicator2);
         }
         catch(System.Exception ex)
         {
@@ -58,6 +71,19 @@ public class Client
             try
             {
                 communicator.destroy();
+            }
+            catch(Ice.LocalException ex)
+            {
+                Console.Error.WriteLine(ex);
+                status = 1;
+            }
+        }
+
+        if(communicator2 != null)
+        {
+            try
+            {
+                communicator2.destroy();
             }
             catch(Ice.LocalException ex)
             {

@@ -15,17 +15,43 @@ public class Collocated extends test.Util.Application
 {
     private Instrumentation instrumentation = new Instrumentation();
 
+    private void 
+    setupObjectAdapter(Ice.Communicator communicator)
+    {
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
+        adapter.add(new RetryI(), communicator.stringToIdentity("retry"));
+        //adapter.activate(); // Don't activate OA to ensure collocation is used.
+    }
+
     @Override
     public int run(String[] args)
     {
         Ice.Communicator communicator = communicator();
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new RetryI(), communicator.stringToIdentity("retry"));
-        //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
-        RetryPrx retry = AllTests.allTests(communicator, getWriter(), instrumentation);
-        retry.shutdown();
-        return 0;
+        //
+        // Configure a second communicator for the invocation timeout
+        // + retry test, we need to configure a large retry interval
+        // to avoid time-sensitive failures.
+        //
+        Ice.InitializationData initData2 = new Ice.InitializationData();
+        initData2.properties = communicator.getProperties()._clone();
+        initData2.properties.setProperty("Ice.RetryIntervals", "0 1 10000");
+        initData2.observer = instrumentation.getObserver();
+        Ice.Communicator communicator2 = Ice.Util.initialize(initData2);
+
+        setupObjectAdapter(communicator);
+        setupObjectAdapter(communicator2);
+
+        try
+        {
+            RetryPrx retry = AllTests.allTests(communicator, communicator2, getWriter(), instrumentation, "retry");
+            retry.shutdown();
+            return 0;
+        }
+        finally
+        {
+            communicator2.destroy();
+        }
     }
 
     @Override
@@ -37,15 +63,13 @@ public class Collocated extends test.Util.Application
 
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.retry");
 
-        initData.properties.setProperty("Ice.RetryIntervals", "0 1 400 1");
+        initData.properties.setProperty("Ice.RetryIntervals", "0 1 10 1");
 
         //
         // We don't want connection warnings because of the timeout
         //
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-
-        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
 
         return initData;
     }

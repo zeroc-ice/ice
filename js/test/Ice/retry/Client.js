@@ -13,7 +13,7 @@
     var Test = require("Test").Test;
     var Promise = Ice.Promise;
 
-    var allTests = function(out, communicator)
+    var allTests = function(out, communicator, communicator2)
     {
         var ref, base1, base2, retry1, retry2;
 
@@ -109,7 +109,8 @@
             {
                 out.writeLine("ok");
                 out.write("testing invocation timeout and retries... ");
-                return retry1.ice_invocationTimeout(300).opIdempotent(4);
+                retry2 = Test.RetryPrx.uncheckedCast(communicator2.stringToProxy(retry1.toString()));
+                return retry2.ice_invocationTimeout(300).opIdempotent(4);
             }
         ).then(
             function()
@@ -119,7 +120,7 @@
             function(ex)
             {
                 test(ex instanceof Ice.InvocationTimeoutException);
-                return retry1.opIdempotent(-1);
+                return retry2.opIdempotent(-1);
             }
         ).then(
             function()
@@ -145,7 +146,7 @@
         //
         // For this test, we want to disable retries.
         //
-        id.properties.setProperty("Ice.RetryIntervals", "0 1 400 1");
+        id.properties.setProperty("Ice.RetryIntervals", "0 1 10 1");
 
         //
         // We don't want connection warnings because of the timeout
@@ -153,14 +154,25 @@
         id.properties.setProperty("Ice.Warn.Connections", "0");
         var c = Ice.initialize(id);
 
+        //
+        // Configure a second communicator for the invocation timeout
+        // + retry test, we need to configure a large retry interval
+        // to avoid time-sensitive failures.
+        //
+        var id2 = new Ice.InitializationData();
+        id2.properties = c.getProperties().clone();
+        id2.properties.setProperty("Ice.RetryIntervals", "0 1 10000");
+        var c2 = Ice.initialize(id2);
+
         return Promise.try(
             function()
             {
-                return allTests(out, c);
+                return allTests(out, c, c2);
             }
         ).finally(
             function()
             {
+                c2.destroy();
                 return c.destroy();
             }
         );

@@ -57,7 +57,7 @@ public class AllTests : TestCommon.TestApp
         initData.properties = Ice.Util.createProperties();
         initData.observer = Instrumentation.getObserver();
 
-        initData.properties.setProperty("Ice.RetryIntervals", "0 10 20 30");
+        initData.properties.setProperty("Ice.RetryIntervals", "0 1 10 1");
 
         //
         // This test kills connections, so we don't want warnings.
@@ -66,15 +66,33 @@ public class AllTests : TestCommon.TestApp
         return initData;
     }
 
-    override
-    public void run(Ice.Communicator communicator)
-#else
-    public static Test.RetryPrx allTests(Ice.Communicator communicator)
+    public override void run(Ice.Communicator communicator)
+    {
+        //
+        // Configure a second communicator for the invocation timeout
+        // + retry test, we need to configure a large retry interval
+        // to avoid time-sensitive failures.
+        //
+        Ice.InitializationData initData2 = new Ice.InitializationData();
+        initData2.properties = initData.properties.clone_();
+        initData2.properties.setProperty("Ice.RetryIntervals", "0 1 10000");
+        initData2.observer = getObserver();
+        communicator2 = Ice.Util.initialize(initData2);
+        try
+        {
+            allTests(communicator, communicator2, "retry:default -p 12010");
+        }
+        finally
+        {
+            communicator2.destroy();
+        }
+    }
 #endif
+
+    public static Test.RetryPrx allTests(Ice.Communicator communicator, Ice.Communicator communicator2, string rf)
     {
         Write("testing stringToProxy... ");
         Flush();
-        string rf = "retry:default -p 12010";
         Ice.ObjectPrx base1 = communicator.stringToProxy(rf);
         test(base1 != null);
         Ice.ObjectPrx base2 = communicator.stringToProxy(rf);
@@ -244,29 +262,31 @@ public class AllTests : TestCommon.TestApp
 
         Write("testing invocation timeout and retries... ");
         Flush();
+
+        retry2 = Test.RetryPrxHelper.checkedCast(communicator2.stringToProxy(retry1.ToString()));
         try
         {
             // No more than 2 retries before timeout kicks-in
-            ((Test.RetryPrx)retry1.ice_invocationTimeout(300)).opIdempotent(4);
+            ((Test.RetryPrx)retry2.ice_invocationTimeout(300)).opIdempotent(4);
             test(false);
         }
         catch(Ice.InvocationTimeoutException)
         {
             Instrumentation.testRetryCount(2);
-            retry1.opIdempotent(-1); // Reset the counter
+            retry2.opIdempotent(-1); // Reset the counter
             Instrumentation.testRetryCount(-1);
         }
         try
         {
             // No more than 2 retries before timeout kicks-in
-            Test.RetryPrx prx = (Test.RetryPrx)retry1.ice_invocationTimeout(300);
+            Test.RetryPrx prx = (Test.RetryPrx)retry2.ice_invocationTimeout(300);
             prx.end_opIdempotent(prx.begin_opIdempotent(4));
             test(false);
         }
         catch(Ice.InvocationTimeoutException)
         {
             Instrumentation.testRetryCount(2);
-            retry1.opIdempotent(-1); // Reset the counter
+            retry2.opIdempotent(-1); // Reset the counter
             Instrumentation.testRetryCount(-1);
         }
         WriteLine("ok");

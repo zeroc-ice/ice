@@ -113,11 +113,11 @@ public class AllTests
     }
 
     public static RetryPrx
-    allTests(Ice.Communicator communicator, PrintWriter out, Instrumentation instrumentation)
+    allTests(Ice.Communicator communicator, Ice.Communicator communicator2, PrintWriter out, 
+             Instrumentation instrumentation, String ref)
     {
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "retry:default -p 12010";
         Ice.ObjectPrx base1 = communicator.stringToProxy(ref);
         test(base1 != null);
         Ice.ObjectPrx base2 = communicator.stringToProxy(ref);
@@ -263,29 +263,31 @@ public class AllTests
 
         out.print("testing invocation timeout and retries... ");
         out.flush();
+
+        retry2 = RetryPrxHelper.checkedCast(communicator2.stringToProxy(retry1.toString()));
         try
         {
             // No more than 2 retries before timeout kicks-in
-            ((RetryPrx)retry1.ice_invocationTimeout(300)).opIdempotent(4);
+            ((RetryPrx)retry2.ice_invocationTimeout(300)).opIdempotent(4);
             test(false);
         }
         catch(Ice.InvocationTimeoutException ex)
         {
             instrumentation.testRetryCount(2);
-            retry1.opIdempotent(-1); // Reset the counter
+            retry2.opIdempotent(-1); // Reset the counter
             instrumentation.testRetryCount(-1);
         }
         try
         {
             // No more than 2 retries before timeout kicks-in
-            RetryPrx prx = (RetryPrx)retry1.ice_invocationTimeout(300);
+            RetryPrx prx = (RetryPrx)retry2.ice_invocationTimeout(300);
             prx.end_opIdempotent(prx.begin_opIdempotent(4));
             test(false);
         }
         catch(Ice.InvocationTimeoutException ex)
         {
             instrumentation.testRetryCount(2);
-            retry1.opIdempotent(-1); // Reset the counter
+            retry2.opIdempotent(-1); // Reset the counter
             instrumentation.testRetryCount(-1);
         }
         out.println("ok");

@@ -18,17 +18,23 @@ DEFINE_TEST("collocated")
 using namespace std;
 using namespace Test;
 
-int
-run(int, char**, const Ice::CommunicatorPtr& communicator)
+void 
+setupObjectAdapter(const Ice::CommunicatorPtr& communicator)
 {
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("");
     Ice::ObjectPtr object = new RetryI;
     adapter->add(object, communicator->stringToIdentity("retry"));
     //adapter->activate(); // Don't activate OA to ensure collocation is used.
+}
 
-    RetryPrx allTests(const Ice::CommunicatorPtr&);
-    RetryPrx retry = allTests(communicator);
+int
+run(int, char**, const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& communicator2)
+{
+    setupObjectAdapter(communicator);
+    setupObjectAdapter(communicator2);
+
+    RetryPrx allTests(const Ice::CommunicatorPtr&, const Ice::CommunicatorPtr&, const string&);
+    RetryPrx retry = allTests(communicator, communicator2, "retry");
     retry->shutdown();
     return EXIT_SUCCESS;
 }
@@ -38,6 +44,7 @@ main(int argc, char* argv[])
 {
     int status;
     Ice::CommunicatorPtr communicator;
+    Ice::CommunicatorPtr communicator2;
 
     try
     {
@@ -45,7 +52,7 @@ main(int argc, char* argv[])
         initData.properties = Ice::createProperties(argc, argv);
         initData.observer = getObserver();
 
-        initData.properties->setProperty("Ice.RetryIntervals", "0 1 400 1");
+        initData.properties->setProperty("Ice.RetryIntervals", "0 1 10 1");
 
         //
         // This test kills connections, so we don't want warnings.
@@ -54,7 +61,20 @@ main(int argc, char* argv[])
         initData.properties->setProperty("Ice.Warn.Dispatch", "0");
 
         communicator = Ice::initialize(argc, argv, initData);
-        status = run(argc, argv, communicator);
+
+        //
+        // Configure a second communicator for the invocation timeout
+        // + retry test, we need to configure a large retry interval
+        // to avoid time-sensitive failures.
+        //
+        Ice::InitializationData initData2;
+        initData2.properties = initData.properties->clone();
+        initData2.properties->setProperty("Ice.RetryIntervals", "0 1 10000");
+        initData2.observer = getObserver();
+
+        communicator2 = Ice::initialize(initData2);
+
+        status = run(argc, argv, communicator, communicator2);
     }
     catch(const Ice::Exception& ex)
     {
@@ -67,6 +87,19 @@ main(int argc, char* argv[])
         try
         {
             communicator->destroy();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex << endl;
+            status = EXIT_FAILURE;
+        }
+    }
+
+    if(communicator2)
+    {
+        try
+        {
+            communicator2->destroy();
         }
         catch(const Ice::Exception& ex)
         {

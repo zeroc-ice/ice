@@ -19,9 +19,29 @@ public class Client extends test.Util.Application
     public int run(String[] args)
     {
         Ice.Communicator communicator = communicator();
-        RetryPrx retry = AllTests.allTests(communicator, getWriter(), instrumentation);
-        retry.shutdown();
-        return 0;
+
+        //
+        // Configure a second communicator for the invocation timeout
+        // + retry test, we need to configure a large retry interval
+        // to avoid time-sensitive failures.
+        //
+        Ice.InitializationData initData2 = new Ice.InitializationData();
+        initData2.properties = communicator.getProperties()._clone();
+        initData2.properties.setProperty("Ice.RetryIntervals", "0 1 10000");
+        initData2.observer = instrumentation.getObserver();
+        Ice.Communicator communicator2 = Ice.Util.initialize(initData2);
+
+        try
+        {
+            RetryPrx retry = AllTests.allTests(communicator, communicator2, getWriter(), instrumentation, 
+                                               "retry:default -p 12010");
+            retry.shutdown();
+            return 0;
+        }
+        finally
+        {
+            communicator2.destroy();
+        }
     }
 
     @Override
