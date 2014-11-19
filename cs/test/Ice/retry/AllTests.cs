@@ -74,10 +74,10 @@ public class AllTests : TestCommon.TestApp
         // to avoid time-sensitive failures.
         //
         Ice.InitializationData initData2 = new Ice.InitializationData();
-        initData2.properties = initData.properties.clone_();
+        initData2.properties = communicator.getProperties().ice_clone_();
         initData2.properties.setProperty("Ice.RetryIntervals", "0 1 10000");
-        initData2.observer = getObserver();
-        communicator2 = Ice.Util.initialize(initData2);
+        initData2.observer = Instrumentation.getObserver();
+        Ice.Communicator communicator2 = Ice.Util.initialize(initData2);
         try
         {
             allTests(communicator, communicator2, "retry:default -p 12010");
@@ -87,9 +87,11 @@ public class AllTests : TestCommon.TestApp
             communicator2.destroy();
         }
     }
+    public void
+#else
+    static public Test.RetryPrx
 #endif
-
-    public static Test.RetryPrx allTests(Ice.Communicator communicator, Ice.Communicator communicator2, string rf)
+    allTests(Ice.Communicator communicator, Ice.Communicator communicator2, string rf)
     {
         Write("testing stringToProxy... ");
         Flush();
