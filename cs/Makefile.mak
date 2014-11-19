@@ -37,26 +37,27 @@ test::
 SRC_FULL_PATH	= $(MAKEDIR:\.\=\)
 
 !if "$(SILVERLIGHT)" == "yes"
-register-assemblies::
-	@echo Adding key "$(SILVERLIGHT_ASSEMBLIES_KEY)" in Windows registry
-	@reg ADD "$(SILVERLIGHT_ASSEMBLIES_KEY)" /ve /d "$(SRC_FULL_PATH)\Assemblies\sl" /f || \
-	echo "Could not add registry keyword $(SILVERLIGHT_ASSEMBLIES_KEY)" && exit 1
+keys="$(SILVERLIGHT_ASSEMBLIES_KEY)" "$(SILVERLIGHT_ASSEMBLIES_KEY)"
+registerpath=$(SRC_FULL_PATH)\Assemblies\sl
+installpath=$(prefix)\Assemblies\sl
 !elseif "$(COMPACT)" == "yes"
-register-assemblies::
-	@echo Adding key "$(POCKETPC_ASSEMBLIES_KEY)" in Windows registry
-	@reg ADD "$(POCKETPC_ASSEMBLIES_KEY)" /ve /d "$(SRC_FULL_PATH)\Assemblies\cf" /f || \
-	echo "Could not add registry keyword $(POCKETPC_ASSEMBLIES_KEY)" && exit 1
-
-	@echo Adding key "$(SMARTPHONE_ASSEMBLIES_KEY)" in Windows registry
-	@reg ADD "$(SMARTPHONE_ASSEMBLIES_KEY)" /ve /d "$(SRC_FULL_PATH)\Assemblies\cf" /f || \
-	echo "Could not add registry keyword $(SMARTPHONE_ASSEMBLIES_KEY)" && exit 1
-
-	@echo Adding key "$(WINDOWSCE_ASSEMBLIES_KEY)" in Windows registry
-	@reg ADD "$(WINDOWSCE_ASSEMBLIES_KEY)" /ve /d "$(SRC_FULL_PATH)\Assemblies\cf" /f || \
-	echo "Could not add registry keyword $(WINDOWSCE_ASSEMBLIES_KEY)" && exit 1
+keys="$(POCKETPC_ASSEMBLIES_KEY)" "$(SMARTPHONE_ASSEMBLIES_KEY)" "$(WINDOWSCE_ASSEMBLIES_KEY)"
+registerpath=$(SRC_FULL_PATH)\Assemblies\cf
+installpath=$(prefix)\Assemblies\cf
 !else
-register-assemblies::
-	@echo Adding key "$(DOTNET_ASSEMBLIES_KEY)" in Windows registry
-	@reg ADD "$(DOTNET_ASSEMBLIES_KEY)" /ve /d "$(SRC_FULL_PATH)\Assemblies" /f || \
-	echo "Could not add registry keyword $(DOTNET_ASSEMBLIES_KEY)" && exit 1
+keys="$(DOTNET_ASSEMBLIES_KEY)"
+registerpath=$(SRC_FULL_PATH)\Assemblies
+installpath=$(prefix)\Assemblies
 !endif
+
+install::
+	@for %i in ( $(keys) ) do \
+		@echo Adding key %i in Windows registry && \
+		@reg ADD %i /ve /d "$(installpath)" /f || \
+		echo Could not add registry keyword %i && exit 1
+
+register-assemblies::
+	@for %i in ( $(keys) ) do \
+		@echo Adding key %i in Windows registry && \
+		@reg ADD %i /ve /d "$(registerpath)" /f || \
+		echo Could not add registry keyword %i && exit 1

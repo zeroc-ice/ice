@@ -67,6 +67,7 @@ public class AllTests : TestCommon.TestApp
         WriteLine("setting Ice.FactoryAssemblies");
         initData.properties.setProperty("Ice.FactoryAssemblies", "exceptions,version=1.0.0.0");
         initData.properties.setProperty("Ice.MessageSizeMax", "10");
+	initData.properties.setProperty("Ice.Warn.Connections", "0");
         return initData;
     }
 
