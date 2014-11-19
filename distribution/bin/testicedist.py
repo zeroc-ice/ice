@@ -540,10 +540,21 @@ class Platform:
         elif buildConfiguration == "silverlight":
             languages = ["cs"]
         elif compiler == "VC110" and buildConfiguration == "default":
-            languages ["cpp", "cs"]
+            languages = ["cpp", "cs"]
+            if arch == "x86":
+                languages.append("php")
+        elif compiler == "VC100" and buildConfiguration == "default":
+            languages = ["py"]
         else:
             languages = self.getSupportedLanguages()
 
+        #
+        # Php and Python in Windows require VC110 and VC100 respectively
+        #
+        if compiler in ["VC120"]:
+            languages.remove("php")
+            languages.remove("py")
+        
         if arch != self.getDefaultArchitecture() and "java" in languages:
             languages.remove("java")
 
@@ -721,7 +732,7 @@ class Platform:
         if lang == "java":
             if not self.checkJavaSupport(arch, buildConfiguration, output):
                 return False
-            commands.append("./gradlew :test:assemble")
+            commands.append("%s :test:assemble" % ("gradlew" if isWindows() else "./gradlew"))
         else:
             commands.append(self.makeCommand(compiler, arch, buildConfiguration, lang, buildDir))
 
@@ -1188,6 +1199,8 @@ class Windows(Platform):
             compilers.append("VC120")
         if BuildUtils.getVcVarsAll("VC110"):
             compilers.append("VC110")
+        if BuildUtils.getVcVarsAll("VC100"):
+            compilers.append("VC100")
         return compilers
         
     def getSupportedLanguages(self):
