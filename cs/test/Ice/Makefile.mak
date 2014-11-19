@@ -13,6 +13,7 @@ top_srcdir	= ..\..
 
 SUBDIRS         = application \
                   adapterDeactivation \
+                  echo \
                   exceptions \
                   facets \
                   faultTolerance \

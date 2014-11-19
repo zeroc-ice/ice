@@ -13,6 +13,7 @@ include $(top_srcdir)/config/Make.rules.cs
 
 SUBDIRS		= application \
 		  adapterDeactivation \
+		  echo \
 		  exceptions \
 		  facets \
 		  faultTolerance \
@@ -25,7 +26,7 @@ SUBDIRS		= application \
 		  objects \
 		  binding \
 		  proxy \
-                  properties \
+			properties \
 		  operations \
 		  ami \
 		  dispatcher \
