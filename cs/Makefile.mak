@@ -37,27 +37,21 @@ test::
 SRC_FULL_PATH	= $(MAKEDIR:\.\=\)
 
 !if "$(SILVERLIGHT)" == "yes"
-keys="$(SILVERLIGHT_ASSEMBLIES_KEY)" "$(SILVERLIGHT_ASSEMBLIES_KEY)"
+registrykey=$(SILVERLIGHT_ASSEMBLIES_KEY)
 registerpath=$(SRC_FULL_PATH)\Assemblies\sl
 installpath=$(prefix)\Assemblies\sl
-!elseif "$(COMPACT)" == "yes"
-keys="$(POCKETPC_ASSEMBLIES_KEY)" "$(SMARTPHONE_ASSEMBLIES_KEY)" "$(WINDOWSCE_ASSEMBLIES_KEY)"
-registerpath=$(SRC_FULL_PATH)\Assemblies\cf
-installpath=$(prefix)\Assemblies\cf
 !else
-keys="$(DOTNET_ASSEMBLIES_KEY)"
+registrykey=$(DOTNET_ASSEMBLIES_KEY)
 registerpath=$(SRC_FULL_PATH)\Assemblies
 installpath=$(prefix)\Assemblies
 !endif
 
 install::
-	@for %i in ( $(keys) ) do \
-		@echo Adding key %i in Windows registry && \
-		@reg ADD %i /ve /d "$(installpath)" /f || \
-		echo Could not add registry keyword %i && exit 1
+	@echo Adding key "$(registrykey)" in Windows registry && \
+	@reg ADD "$(registrykey)" /ve /d "$(installpath)" /f || \
+	echo Could not add registry keyword "$(registrykey)" && exit 1
 
 register-assemblies::
-	@for %i in ( $(keys) ) do \
-		@echo Adding key %i in Windows registry && \
-		@reg ADD %i /ve /d "$(registerpath)" /f || \
-		echo Could not add registry keyword %i && exit 1
+	@echo Adding key "$(registrykey)" in Windows registry && \
+	@reg ADD "$(registrykey)" /ve /d "$(registerpath)" /f || \
+	echo Could not add registry keyword "$(registrykey)" && exit 1

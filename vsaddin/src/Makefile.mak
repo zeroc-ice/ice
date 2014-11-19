@@ -66,15 +66,11 @@ install::
 	@if not exist $(ADDIN_PREFIX) \
 	    @echo "Creating $(ADDIN_PREFIX) ..." && \
 	    mkdir $(ADDIN_PREFIX)
-  	copy ..\config\Ice-$(VS).AddIn $(ADDIN_PREFIX)
-  	cscript ..\config\fixinstalldir.vbs "$(prefix)\" "$(ADDIN_PREFIX)\Ice-$(VS).AddIn"
+	copy ..\config\Ice-$(VS).AddIn $(ADDIN_PREFIX)
+	cscript ..\config\fixinstalldir.vbs "$(prefix)\" "$(ADDIN_PREFIX)\Ice-$(VS).AddIn"
 
 	@if exist "$(VSINSTALLDIR)\ItemTemplates\CSharp\1033" \
 	copy ..\templates\Slice.zip "$(VSINSTALLDIR)\ItemTemplates\CSharp\1033\"
-
-	@echo Adding key "$(DOTNET_ASSEMBLIES_KEY)" in Windows registry
-	@reg ADD "$(DOTNET_ASSEMBLIES_KEY)" /ve /d "$(prefix)\Assemblies" /f || \
-	echo "Could not add registry keyword $(DOTNET_ASSEMBLIES_KEY)" && exit 1
 
 	@if not exist $(ALLUSERSPROFILE)\ZeroC \
 	    @echo "Creating $(ALLUSERSPROFILE)\ZeroC ..." && \
@@ -103,9 +99,6 @@ install::
 		copy ..\templates\Slice.zip "$(VSINSTALLDIR)\ItemTemplates\CSharp\Code\1033\"
 	@if exist "$(VSINSTALLDIR)\ItemTemplates\CSharp\Silverlight\1033" \
 		copy ..\templates\Slice.zip "$(VSINSTALLDIR)\ItemTemplates\CSharp\Silverlight\1033\"
-		@echo Adding key "$(SILVERLIGH_ASSEMBLIES_KEY)" in Windows registry
-		@reg ADD "$(SILVERLIGH_ASSEMBLIES_KEY)" /ve /d "$(prefix)\Assemblies\sl" /f || \
-		echo "Could not add registry keyword $(SILVERLIGH_ASSEMBLIES_KEY)" && exit 1
 	@if exist "$(VSINSTALLDIR)\ItemTemplates\CSharp\Web\1033" \
 		copy ..\templates\Slice.zip "$(VSINSTALLDIR)\ItemTemplates\CSharp\Web\1033\"
 	devenv.exe /installvstemplates
