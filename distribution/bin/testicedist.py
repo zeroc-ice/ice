@@ -1030,7 +1030,13 @@ class Linux(Platform):
         return jvmDir
 
     def getSupportedLanguages(self):
-        languages = ["cpp", "java", "php", "py", "rb", "js"]
+        languages = ["cpp", "java", "php", "py", "rb"]
+        #
+        # NodeJS modules are only installed for Ubuntu as other distributions
+        # doesn't provide nodejs packages.
+        #
+        if isUbuntu():
+            languages.append("js")
         return languages
         
     def getSupportedCompilers(self):
