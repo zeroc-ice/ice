@@ -816,7 +816,7 @@ def processCmdLine():
     trace = False
     buildmode = None
     x64 = False
-    x86 = Flase
+    x86 = False
     cpp11 = False
     tracefile = None
     env = False
