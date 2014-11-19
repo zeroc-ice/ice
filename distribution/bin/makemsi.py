@@ -93,6 +93,31 @@ debugFilterFiles = ["dumpdb.exe",
                     "slice2rb.pdb",
                     "transformdb.pdb"]
 
+#
+# That files are only included for the main bin directory
+# with correspond with (VS2013 x86  dist)
+#
+mainDistOnly = ["slice2cpp.exe",
+                "slice2cs.exe",
+                "slice2freeze.exe",
+                "slice2freezej.exe",
+                "slice2html.exe",
+                "slice2java.exe",
+                "slice2js.exe",
+                "slice2php.exe",
+                "slice2py.exe",
+                "slice2rb.exe",
+                "slice2cpp.pdb",
+                "slice2cs.pdb",
+                "slice2freeze.pdb",
+                "slice2freezej.pdb",
+                "slice2html.pdb",
+                "slice2java.pdb",
+                "slice2js.pdb",
+                "slice2php.pdb",
+                "slice2py.pdb",
+                "slice2rb.pdb"]
+
 def filterDebugFiles(f):
     if f in debugFilterFiles:
         return True
@@ -970,7 +995,7 @@ else:
                     for d in ["bin", "lib"]:
                         for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
                             for f in filenames:
-                                if f in filterFiles or filterDebugFiles(f):
+                                if f in filterFiles or filterDebugFiles(f) or f in mainDistOnly:
                                     continue
                                 targetFile = relPath(installDir, installerDir, os.path.join(root, f))
                                 if targetFile.endswith(".pdb"):
@@ -981,7 +1006,7 @@ else:
                     for d in ["bin", "lib"]:
                         for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
                             for f in filenames:
-                                if f in filterFiles:
+                                if f in filterFiles or f in mainDistOnly:
                                     continue
                                 targetFile = relPath(installDir, installerDir, os.path.join(root, f))
                                 if targetFile.endswith(".pdb"):
@@ -992,7 +1017,7 @@ else:
                     for d in ["bin", "lib"]:
                         for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
                             for f in filenames:
-                                if f in filterFiles or filterDebugFiles(f):
+                                if f in filterFiles or filterDebugFiles(f) or f in mainDistOnly:
                                     continue
                                 targetFile = relPath(installDir, installerDir, os.path.join(root, f))
                                 if targetFile.endswith(".pdb"):
@@ -1006,7 +1031,7 @@ else:
                     for d in ["bin", "lib"]:
                         for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
                             for f in filenames:
-                                if f in filterFiles:
+                                if f in filterFiles or f in mainDistOnly:
                                     continue
                                 if conf == "debug" and filterDebugFiles(f):
                                     continue
@@ -1023,7 +1048,7 @@ else:
                         for d in ["php", "vsaddin"]:
                             for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
                                 for f in filenames:
-                                    if f in filterFiles:
+                                    if f in filterFiles or f in mainDistOnly:
                                         continue
                                     targetFile = relPath(installDir, installerDir, os.path.join(root, f))
                                     if targetFile.endswith(".pdb"):
@@ -1036,7 +1061,7 @@ else:
                     for d in ["bin", "lib"]:
                         for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
                             for f in filenames:
-                                if f in filterFiles:
+                                if f in filterFiles or f in mainDistOnly:
                                     continue
                                 if conf == "debug" and filterDebugFiles(f):
                                     continue
@@ -1060,6 +1085,8 @@ else:
                                                         not f.endswith(".py") and
                                                         not f.endswith(".pyd")):
                                     continue
+                                if f in mainDistOnly:
+                                    continue
                                 targetFile = relPath(installDir, installerDir, os.path.join(root, f))
                                 if targetFile.endswith(".pdb"):
                                     targetFile = targetFile.replace(installerDir, pdbinstallerDir)
@@ -1074,6 +1101,8 @@ else:
                                                         not f.endswith("_vc100.pdb") and
                                                         not f.endswith(".py") and
                                                         not f.endswith(".pyd")):
+                                    continue
+                                if f in mainDistOnly:
                                     continue
                                 targetFile = relPath(installDir, installerDir, os.path.join(root, f))
                                 if targetFile.endswith(".pdb"):
@@ -1091,6 +1120,8 @@ else:
                                                         not f.endswith(".so") and
                                                         not f.endswith(".rb")):
                                     continue
+                                if f in mainDistOnly:
+                                    continue
                                 targetFile = relPath(installDir, installerDir, os.path.join(root, f))
                                 copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
 
@@ -1101,6 +1132,8 @@ else:
                                 if f in filterFiles or (not f.endswith(".dll") and
                                                         not f.endswith(".so") and
                                                         not f.endswith(".rb")):
+                                    continue
+                                if f in mainDistOnly:
                                     continue
                                 targetFile = relPath(installDir, installerDir, os.path.join(root, f))
                                 copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
