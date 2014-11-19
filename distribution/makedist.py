@@ -21,7 +21,9 @@ excludeFiles = [ \
     "/certs/cakey.pem",
     "/distribution",
     "/protobuf",
-    "*.iml"
+    "*.iml",
+    "/vsaddin/*.sln",
+    "/vsaddin/src/*.csproj"
 ]
 
 #
@@ -47,7 +49,7 @@ excludeWindowsFiles = [ \
     "/**/winrt",
     "/cs/**/compact",
     "/cs/**/cf",
-    "/cs/**/sl",
+    "/cs/**/sl"
 ]
 
 #
@@ -568,7 +570,7 @@ for root, dirnames, filesnames in os.walk(winDemoDir):
             if fnmatch.fnmatch(f, m):
                 rmFiles.append(os.path.join(root[len(winDemoDir) + 1:], f))
 
-for d in ["cs", "vb"]:
+for d in ["cpp", "cs", "vb"]:
     for root, dirnames, filesnames in os.walk(os.path.join(winDemoDir, d)):
         for f in filesnames:
             for m in [ "Makefile.mak", ".depend.mak" ]:

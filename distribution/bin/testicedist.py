@@ -976,15 +976,15 @@ class Linux(Platform):
             f = open("/etc/issue", "r")
             issue = f.read()
             f.close()
-            if issue.find("Red Hat"):
+            if issue.find("Red Hat") != -1:
                 self._distribution = "RedHat"
-            elif issue.find("Amazon Linux"):
+            elif issue.find("Amazon Linux") != -1:
                 self._distribution = "Amazon"
-            elif issue.find("CentOS"):
+            elif issue.find("CentOS") != -1:
                 self._distribution = "CentOS"
-            elif issue.find("Ubuntu"):
+            elif issue.find("Ubuntu") != -1:
                 self._distribution = "Ubuntu"
-            elif issue.find("SUSE Linux"):
+            elif issue.find("SUSE Linux") != -1:
                 self._distribution = "SUSE LINUX"
             else:
                 print("Unknown distribution in /etc/issue")
