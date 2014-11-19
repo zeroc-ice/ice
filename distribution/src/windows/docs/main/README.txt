@@ -42,10 +42,19 @@ http://doc.zeroc.com/display/Rel/Ice+@majorver@.@minorver@+Manual
 Source Code
 -----------
 
-The source distributions of Ice and all third-party packages used to 
-build this distribution can be downloaded at no cost from:
+The source distributions of Ice and all third-party packages included 
+in this binary distribution can be downloaded at no cost from:
 
-http://www.zeroc.com/download.html
+http://www.zeroc.com/download_beta.html
+
+
+OpenSSL
+-------
+
+This Ice release uses OpenSSL in a very limited fashion, as described 
+in the Ice @ver@ release notes: 
+
+http://doc.zeroc.com/display/Rel/Ice+@ver@+Release+Notes
 
 
 Acknowledgments
