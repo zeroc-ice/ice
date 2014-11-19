@@ -22,7 +22,7 @@
     <XapFilename>hello.xap</XapFilename>
     <SilverlightManifestTemplate>Properties\AppManifest.xml</SilverlightManifestTemplate>
     <SilverlightAppEntry>hello.App</SilverlightAppEntry>
-    <TestPageFileName>helloTestPage.html</TestPageFileName>
+    <TestPageFileName>index.html</TestPageFileName>
     <CreateTestPage>true</CreateTestPage>
     <ValidateXaml>true</ValidateXaml>
     <EnableOutOfBrowser>false</EnableOutOfBrowser>

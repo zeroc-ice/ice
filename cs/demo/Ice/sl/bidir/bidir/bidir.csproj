@@ -22,7 +22,7 @@
     <XapFilename>bidir.xap</XapFilename>
     <SilverlightManifestTemplate>Properties\AppManifest.xml</SilverlightManifestTemplate>
     <SilverlightAppEntry>bidir.App</SilverlightAppEntry>
-    <TestPageFileName>bidirTestPage.html</TestPageFileName>
+    <TestPageFileName>index.html</TestPageFileName>
     <CreateTestPage>true</CreateTestPage>
     <ValidateXaml>true</ValidateXaml>
     <EnableOutOfBrowser>true</EnableOutOfBrowser>

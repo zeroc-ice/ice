@@ -58,8 +58,7 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="bidirTestPage.aspx" />
-    <Content Include="bidirTestPage.html" />
+    <Content Include="index.html" />
     <Content Include="ClientBin\bidir.xap" />
     <Content Include="Silverlight.js" />
     <Content Include="Web.config" />

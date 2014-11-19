@@ -58,8 +58,7 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="chatTestPage.aspx" />
-    <Content Include="chatTestPage.html" />
+    <Content Include="index.html" />
     <Content Include="ClientBin\chat.xap" />
     <Content Include="Silverlight.js" />
     <Content Include="Web.config" />

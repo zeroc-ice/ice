@@ -22,7 +22,7 @@
     <XapFilename>chat.xap</XapFilename>
     <SilverlightManifestTemplate>Properties\AppManifest.xml</SilverlightManifestTemplate>
     <SilverlightAppEntry>chat.App</SilverlightAppEntry>
-    <TestPageFileName>chatTestPage.html</TestPageFileName>
+    <TestPageFileName>index.html</TestPageFileName>
     <CreateTestPage>true</CreateTestPage>
     <ValidateXaml>true</ValidateXaml>
     <EnableOutOfBrowser>false</EnableOutOfBrowser>
