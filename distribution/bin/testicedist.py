@@ -958,14 +958,37 @@ class Linux(Platform):
         Platform.__init__(self, distDir)
         
         #
-        # Init Linux distribution attributes from lsb_release
+        # Init Linux distribution attributes from try to read /etc/issue if that is not available
+        # fallback to lsb_release
         #
-        p = subprocess.Popen("lsb_release -i", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
-        if(p.wait() != 0):
-            print("lsb_release failed:\n" + p.stdout.read().strip())
-            sys.exit(1)
-            
-        self._distribution = re.sub("Distributor ID:", "", p.stdout.readline().decode('UTF-8')).strip()
+        if os.path.isfile("/etc/issue"):
+            f = open("/etc/issue", "r")
+            issue = f.read()
+            f.close()
+            if issue.find("Red Hat"):
+                self._distribution = "RedHat"
+            elif issue.find("Amazon Linux"):
+                self._distribution = "Amazon"
+            elif issue.find("CentOS"):
+                self._distribution = "CentOS"
+            elif issue.find("Ubuntu"):
+                self._distribution = "Ubuntu"
+            elif issue.find("SUSE Linux"):
+                self._distribution = "SUSE LINUX"
+            else:
+                print("Unknown distribution in /etc/issue")
+                print(issue)
+                sys.exit(1)
+        else:
+            p = subprocess.Popen("lsb_release -i", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
+            if(p.wait() != 0):
+                print("lsb_release failed:\n" + p.stdout.read().strip())
+                sys.exit(1)
+            self._distribution = re.sub("Distributor ID:", "", p.stdout.readline().decode('UTF-8')).strip()
+            if self._distribution not in ["RedHat", "Amazon", "CentOS", "Ubuntu", "SUSE LINUX"]:
+                print("Unknown distribution from lsb_release -i")
+                print(self._distribution)
+                sys.exit(1)
         
         p = subprocess.Popen("uname -m", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
         if(p.wait() != 0):
@@ -1000,9 +1023,7 @@ class Linux(Platform):
             if not os.path.exists(jvmDir):
                 jvmDir = "/usr/lib/jvm/java-%s-oracle" % (minorVersion)
         else:
-            if self.isSles() and arch == "x64":
-                libDir += 64
-            jvmDir += "/usr/lib/jvm/java-%s.0" % version
+            jvmDir = "/usr/%s/jvm/java-%s.0" % ("lib64" if self.isSles() and arch == "x64" else "lib", version)
 
         if not os.path.exists(jvmDir):
             return None
