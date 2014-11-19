@@ -69,7 +69,6 @@ This package contains command line tools for managing Berkeley DB
 Summary: Development files for the Berkeley DB (version 5.3) library
 Group: Development/Libraries
 Requires: db53 = %{version}-%{release}
-Obsoletes: db1-devel, db2-devel, db3-devel, db4-devel, db48-devel
 
 %description devel
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that
