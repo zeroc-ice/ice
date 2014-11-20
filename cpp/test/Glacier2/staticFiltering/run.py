@@ -20,8 +20,8 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
-hostname = socket.gethostname()
-fqdn = socket.getfqdn()
+hostname = socket.gethostname().lower()
+fqdn = socket.getfqdn().lower()
 
 limitedTests = False
 
@@ -258,7 +258,7 @@ for testcase in testcases:
             rejects +=1
         attackcfg.write(proxy + '\n')
 
-    attackcfg.close()
+    attackcfg.close()    
     pingProgress()
 
     hostArg = ""
