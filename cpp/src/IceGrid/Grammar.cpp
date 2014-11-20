@@ -1,24 +1,23 @@
-/* A Bison parser, made by GNU Bison 2.3.  */
+
+/* A Bison parser, made by GNU Bison 2.4.1.  */
 
 /* Skeleton implementation for Bison's Yacc-like parsers in C
-
-   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
+   
+      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
    Free Software Foundation, Inc.
-
-   This program is free software; you can redistribute it and/or modify
+   
+   This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
-   any later version.
-
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+   
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-
+   
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street, Fifth Floor,
-   Boston, MA 02110-1301, USA.  */
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /* As a special exception, you may create a larger work that contains
    part or all of the Bison parser skeleton and distribute that work
@@ -29,7 +28,7 @@
    special exception, which will cause the skeleton and the resulting
    Bison output files to be licensed under the GNU General Public
    License without this special exception.
-
+   
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
@@ -47,7 +46,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "2.3"
+#define YYBISON_VERSION "2.4.1"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -55,9 +54,82 @@
 /* Pure parsers.  */
 #define YYPURE 1
 
+/* Push parsers.  */
+#define YYPUSH 0
+
+/* Pull parsers.  */
+#define YYPULL 1
+
 /* Using locations.  */
 #define YYLSP_NEEDED 0
 
+
+
+/* Copy the first part of user declarations.  */
+
+/* Line 189 of yacc.c  */
+#line 1 "Grammar.y"
+
+
+// **********************************************************************
+//
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+#include <Ice/Ice.h>
+#include <IceGrid/Parser.h>
+
+#ifdef _MSC_VER
+// I get these warnings from some bison versions:
+// warning C4102: 'yyoverflowlab' : unreferenced label
+#   pragma warning( disable : 4102 )
+// warning C4065: switch statement contains 'default' but no 'case' labels
+#   pragma warning( disable : 4065 )
+#endif
+
+//
+// Avoid old style cast warnings in generated grammar
+//
+#ifdef __GNUC__
+#  pragma GCC diagnostic ignored "-Wold-style-cast"
+#endif
+
+using namespace std;
+using namespace Ice;
+using namespace IceGrid;
+
+void
+yyerror(const char* s)
+{
+    parser->invalidCommand(s);
+}
+
+
+
+/* Line 189 of yacc.c  */
+#line 115 "Grammar.tab.c"
+
+/* Enabling traces.  */
+#ifndef YYDEBUG
+# define YYDEBUG 1
+#endif
+
+/* Enabling verbose error messages.  */
+#ifdef YYERROR_VERBOSE
+# undef YYERROR_VERBOSE
+# define YYERROR_VERBOSE 1
+#else
+# define YYERROR_VERBOSE 0
+#endif
+
+/* Enabling the token table.  */
+#ifndef YYTOKEN_TABLE
+# define YYTOKEN_TABLE 0
+#endif
 
 
 /* Tokens.  */
@@ -108,126 +180,22 @@
      ICE_GRID_DISABLE = 297
    };
 #endif
-/* Tokens.  */
-#define ICE_GRID_HELP 258
-#define ICE_GRID_EXIT 259
-#define ICE_GRID_APPLICATION 260
-#define ICE_GRID_NODE 261
-#define ICE_GRID_REGISTRY 262
-#define ICE_GRID_SERVER 263
-#define ICE_GRID_ADAPTER 264
-#define ICE_GRID_PING 265
-#define ICE_GRID_LOAD 266
-#define ICE_GRID_SOCKETS 267
-#define ICE_GRID_ADD 268
-#define ICE_GRID_REMOVE 269
-#define ICE_GRID_LIST 270
-#define ICE_GRID_SHUTDOWN 271
-#define ICE_GRID_STRING 272
-#define ICE_GRID_START 273
-#define ICE_GRID_STOP 274
-#define ICE_GRID_PATCH 275
-#define ICE_GRID_SIGNAL 276
-#define ICE_GRID_STDOUT 277
-#define ICE_GRID_STDERR 278
-#define ICE_GRID_DESCRIBE 279
-#define ICE_GRID_PROPERTIES 280
-#define ICE_GRID_PROPERTY 281
-#define ICE_GRID_STATE 282
-#define ICE_GRID_PID 283
-#define ICE_GRID_ENDPOINTS 284
-#define ICE_GRID_ACTIVATION 285
-#define ICE_GRID_OBJECT 286
-#define ICE_GRID_FIND 287
-#define ICE_GRID_SHOW 288
-#define ICE_GRID_COPYING 289
-#define ICE_GRID_WARRANTY 290
-#define ICE_GRID_DIFF 291
-#define ICE_GRID_UPDATE 292
-#define ICE_GRID_INSTANTIATE 293
-#define ICE_GRID_TEMPLATE 294
-#define ICE_GRID_SERVICE 295
-#define ICE_GRID_ENABLE 296
-#define ICE_GRID_DISABLE 297
 
 
-
-
-/* Copy the first part of user declarations.  */
-#line 1 "../IceGrid/Grammar.y"
-
-
-// **********************************************************************
-//
-// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
-//
-// **********************************************************************
-
-#include <Ice/Ice.h>
-#include <IceGrid/Parser.h>
-
-#ifdef _MSC_VER
-// I get these warnings from some bison versions:
-// warning C4102: 'yyoverflowlab' : unreferenced label
-#   pragma warning( disable : 4102 )
-// warning C4065: switch statement contains 'default' but no 'case' labels
-#   pragma warning( disable : 4065 )
-#endif
-
-//
-// Avoid old style cast warnings in generated grammar
-//
-#ifdef __GNUC__
-#  pragma GCC diagnostic ignored "-Wold-style-cast"
-#endif
-
-using namespace std;
-using namespace Ice;
-using namespace IceGrid;
-
-void
-yyerror(const char* s)
-{
-    parser->invalidCommand(s);
-}
-
-
-
-/* Enabling traces.  */
-#ifndef YYDEBUG
-# define YYDEBUG 1
-#endif
-
-/* Enabling verbose error messages.  */
-#ifdef YYERROR_VERBOSE
-# undef YYERROR_VERBOSE
-# define YYERROR_VERBOSE 1
-#else
-# define YYERROR_VERBOSE 0
-#endif
-
-/* Enabling the token table.  */
-#ifndef YYTOKEN_TABLE
-# define YYTOKEN_TABLE 0
-#endif
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef int YYSTYPE;
+# define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
-# define YYSTYPE_IS_TRIVIAL 1
 #endif
-
 
 
 /* Copy the second part of user declarations.  */
 
 
-/* Line 216 of yacc.c.  */
-#line 231 "Grammar.tab.c"
+/* Line 264 of yacc.c  */
+#line 199 "Grammar.tab.c"
 
 #ifdef short
 # undef short
@@ -277,7 +245,7 @@ typedef short int yytype_int16;
 #define YYSIZE_MAXIMUM ((YYSIZE_T) -1)
 
 #ifndef YY_
-# if defined YYENABLE_NLS && YYENABLE_NLS
+# if YYENABLE_NLS
 #  if ENABLE_NLS
 #   include <libintl.h> /* INFRINGES ON USER NAME SPACE */
 #   define YY_(msgid) dgettext ("bison-runtime", msgid)
@@ -302,14 +270,14 @@ typedef short int yytype_int16;
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static int
-YYID (int i)
+YYID (int yyi)
 #else
 static int
-YYID (i)
-    int i;
+YYID (yyi)
+    int yyi;
 #endif
 {
-  return i;
+  return yyi;
 }
 #endif
 
@@ -390,9 +358,9 @@ void free (void *); /* INFRINGES ON USER NAME SPACE */
 /* A type that is properly aligned for any stack member.  */
 union yyalloc
 {
-  yytype_int16 yyss;
-  YYSTYPE yyvs;
-  };
+  yytype_int16 yyss_alloc;
+  YYSTYPE yyvs_alloc;
+};
 
 /* The size of the maximum gap between one aligned stack and the next.  */
 # define YYSTACK_GAP_MAXIMUM (sizeof (union yyalloc) - 1)
@@ -426,12 +394,12 @@ union yyalloc
    elements in the stack, and YYPTR gives the new location of the
    stack.  Advance YYPTR to a properly aligned location for the next
    stack.  */
-# define YYSTACK_RELOCATE(Stack)					\
+# define YYSTACK_RELOCATE(Stack_alloc, Stack)				\
     do									\
       {									\
 	YYSIZE_T yynewbytes;						\
-	YYCOPY (&yyptr->Stack, Stack, yysize);				\
-	Stack = &yyptr->Stack;						\
+	YYCOPY (&yyptr->Stack_alloc, Stack, yysize);			\
+	Stack = &yyptr->Stack_alloc;					\
 	yynewbytes = yystacksize * sizeof (*Stack) + YYSTACK_GAP_MAXIMUM; \
 	yyptr += yynewbytes / sizeof (*yyptr);				\
       }									\
@@ -1453,7 +1421,7 @@ while (YYID (0))
    we won't break user code: when these are the locations we know.  */
 
 #ifndef YY_LOCATION_PRINT
-# if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
+# if YYLTYPE_IS_TRIVIAL
 #  define YY_LOCATION_PRINT(File, Loc)			\
      fprintf (File, "%d.%d-%d.%d",			\
 	      (Loc).first_line, (Loc).first_column,	\
@@ -1564,17 +1532,20 @@ yy_symbol_print (yyoutput, yytype, yyvaluep)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_stack_print (yytype_int16 *bottom, yytype_int16 *top)
+yy_stack_print (yytype_int16 *yybottom, yytype_int16 *yytop)
 #else
 static void
-yy_stack_print (bottom, top)
-    yytype_int16 *bottom;
-    yytype_int16 *top;
+yy_stack_print (yybottom, yytop)
+    yytype_int16 *yybottom;
+    yytype_int16 *yytop;
 #endif
 {
   YYFPRINTF (stderr, "Stack now");
-  for (; bottom <= top; ++bottom)
-    YYFPRINTF (stderr, " %d", *bottom);
+  for (; yybottom <= yytop; yybottom++)
+    {
+      int yybot = *yybottom;
+      YYFPRINTF (stderr, " %d", yybot);
+    }
   YYFPRINTF (stderr, "\n");
 }
 
@@ -1608,11 +1579,11 @@ yy_reduce_print (yyvsp, yyrule)
   /* The symbols being reduced.  */
   for (yyi = 0; yyi < yynrhs; yyi++)
     {
-      fprintf (stderr, "   $%d = ", yyi + 1);
+      YYFPRINTF (stderr, "   $%d = ", yyi + 1);
       yy_symbol_print (stderr, yyrhs[yyprhs[yyrule] + yyi],
 		       &(yyvsp[(yyi + 1) - (yynrhs)])
 		       		       );
-      fprintf (stderr, "\n");
+      YYFPRINTF (stderr, "\n");
     }
 }
 
@@ -1892,10 +1863,8 @@ yydestruct (yymsg, yytype, yyvaluep)
 	break;
     }
 }
-
 
 /* Prevent warnings from -Wmissing-prototypes.  */
-
 #ifdef YYPARSE_PARAM
 #if defined __STDC__ || defined __cplusplus
 int yyparse (void *YYPARSE_PARAM);
@@ -1914,10 +1883,9 @@ int yyparse ();
 
 
 
-
-/*----------.
-| yyparse.  |
-`----------*/
+/*-------------------------.
+| yyparse or yypush_parse.  |
+`-------------------------*/
 
 #ifdef YYPARSE_PARAM
 #if (defined __STDC__ || defined __C99__FUNC__ \
@@ -1941,22 +1909,46 @@ yyparse ()
 #endif
 #endif
 {
-  /* The look-ahead symbol.  */
+/* The lookahead symbol.  */
 int yychar;
 
-/* The semantic value of the look-ahead symbol.  */
+/* The semantic value of the lookahead symbol.  */
 YYSTYPE yylval;
 
-/* Number of syntax errors so far.  */
-int yynerrs;
+    /* Number of syntax errors so far.  */
+    int yynerrs;
 
-  int yystate;
+    int yystate;
+    /* Number of tokens to shift before error messages enabled.  */
+    int yyerrstatus;
+
+    /* The stacks and their tools:
+       `yyss': related to states.
+       `yyvs': related to semantic values.
+
+       Refer to the stacks thru separate pointers, to allow yyoverflow
+       to reallocate them elsewhere.  */
+
+    /* The state stack.  */
+    yytype_int16 yyssa[YYINITDEPTH];
+    yytype_int16 *yyss;
+    yytype_int16 *yyssp;
+
+    /* The semantic value stack.  */
+    YYSTYPE yyvsa[YYINITDEPTH];
+    YYSTYPE *yyvs;
+    YYSTYPE *yyvsp;
+
+    YYSIZE_T yystacksize;
+
   int yyn;
   int yyresult;
-  /* Number of tokens to shift before error messages enabled.  */
-  int yyerrstatus;
-  /* Look-ahead token as an internal (translated) token number.  */
-  int yytoken = 0;
+  /* Lookahead token as an internal (translated) token number.  */
+  int yytoken;
+  /* The variables used to return semantic value and location from the
+     action routines.  */
+  YYSTYPE yyval;
+
 #if YYERROR_VERBOSE
   /* Buffer for error messages, and its allocated size.  */
   char yymsgbuf[128];
@@ -1964,51 +1956,28 @@ int yynerrs;
   YYSIZE_T yymsg_alloc = sizeof yymsgbuf;
 #endif
 
-  /* Three stacks and their tools:
-     `yyss': related to states,
-     `yyvs': related to semantic values,
-     `yyls': related to locations.
-
-     Refer to the stacks thru separate pointers, to allow yyoverflow
-     to reallocate them elsewhere.  */
-
-  /* The state stack.  */
-  yytype_int16 yyssa[YYINITDEPTH];
-  yytype_int16 *yyss = yyssa;
-  yytype_int16 *yyssp;
-
-  /* The semantic value stack.  */
-  YYSTYPE yyvsa[YYINITDEPTH];
-  YYSTYPE *yyvs = yyvsa;
-  YYSTYPE *yyvsp;
-
-
-
 #define YYPOPSTACK(N)   (yyvsp -= (N), yyssp -= (N))
-
-  YYSIZE_T yystacksize = YYINITDEPTH;
-
-  /* The variables used to return semantic value and location from the
-     action routines.  */
-  YYSTYPE yyval;
-
 
   /* The number of symbols on the RHS of the reduced rule.
      Keep to zero when no symbol should be popped.  */
   int yylen = 0;
+
+  yytoken = 0;
+  yyss = yyssa;
+  yyvs = yyvsa;
+  yystacksize = YYINITDEPTH;
 
   YYDPRINTF ((stderr, "Starting parse\n"));
 
   yystate = 0;
   yyerrstatus = 0;
   yynerrs = 0;
-  yychar = YYEMPTY;		/* Cause a token to be read.  */
+  yychar = YYEMPTY; /* Cause a token to be read.  */
 
   /* Initialize stack pointers.
      Waste one element of value and location stack
      so that they stay on the same level as the state stack.
      The wasted elements are never initialized.  */
-
   yyssp = yyss;
   yyvsp = yyvs;
 
@@ -2038,7 +2007,6 @@ int yynerrs;
 	YYSTYPE *yyvs1 = yyvs;
 	yytype_int16 *yyss1 = yyss;
 
-
 	/* Each stack pointer address is followed by the size of the
 	   data in use in that stack, in bytes.  This used to be a
 	   conditional around just the two extra args, but that might
@@ -2046,7 +2014,6 @@ int yynerrs;
 	yyoverflow (YY_("memory exhausted"),
 		    &yyss1, yysize * sizeof (*yyssp),
 		    &yyvs1, yysize * sizeof (*yyvsp),
-
 		    &yystacksize);
 
 	yyss = yyss1;
@@ -2069,9 +2036,8 @@ int yynerrs;
 	  (union yyalloc *) YYSTACK_ALLOC (YYSTACK_BYTES (yystacksize));
 	if (! yyptr)
 	  goto yyexhaustedlab;
-	YYSTACK_RELOCATE (yyss);
-	YYSTACK_RELOCATE (yyvs);
-
+	YYSTACK_RELOCATE (yyss_alloc, yyss);
+	YYSTACK_RELOCATE (yyvs_alloc, yyvs);
 #  undef YYSTACK_RELOCATE
 	if (yyss1 != yyssa)
 	  YYSTACK_FREE (yyss1);
@@ -2082,7 +2048,6 @@ int yynerrs;
       yyssp = yyss + yysize - 1;
       yyvsp = yyvs + yysize - 1;
 
-
       YYDPRINTF ((stderr, "Stack size increased to %lu\n",
 		  (unsigned long int) yystacksize));
 
@@ -2092,6 +2057,9 @@ int yynerrs;
 
   YYDPRINTF ((stderr, "Entering state %d\n", yystate));
 
+  if (yystate == YYFINAL)
+    YYACCEPT;
+
   goto yybackup;
 
 /*-----------.
@@ -2100,16 +2068,16 @@ int yynerrs;
 yybackup:
 
   /* Do appropriate processing given the current state.  Read a
-     look-ahead token if we need one and don't already have one.  */
+     lookahead token if we need one and don't already have one.  */
 
-  /* First try to decide what to do without reference to look-ahead token.  */
+  /* First try to decide what to do without reference to lookahead token.  */
   yyn = yypact[yystate];
   if (yyn == YYPACT_NINF)
     goto yydefault;
 
-  /* Not known => get a look-ahead token if don't already have one.  */
+  /* Not known => get a lookahead token if don't already have one.  */
 
-  /* YYCHAR is either YYEMPTY or YYEOF or a valid look-ahead symbol.  */
+  /* YYCHAR is either YYEMPTY or YYEOF or a valid lookahead symbol.  */
   if (yychar == YYEMPTY)
     {
       YYDPRINTF ((stderr, "Reading a token: "));
@@ -2141,20 +2109,16 @@ yybackup:
       goto yyreduce;
     }
 
-  if (yyn == YYFINAL)
-    YYACCEPT;
-
   /* Count tokens shifted since error; after three, turn off error
      status.  */
   if (yyerrstatus)
     yyerrstatus--;
 
-  /* Shift the look-ahead token.  */
+  /* Shift the lookahead token.  */
   YY_SYMBOL_PRINT ("Shifting", yytoken, &yylval, &yylloc);
 
-  /* Discard the shifted token unless it is eof.  */
-  if (yychar != YYEOF)
-    yychar = YYEMPTY;
+  /* Discard the shifted token.  */
+  yychar = YYEMPTY;
 
   yystate = yyn;
   *++yyvsp = yylval;
@@ -2194,815 +2158,1049 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 96 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 96 "Grammar.y"
     {
 ;}
     break;
 
   case 3:
-#line 99 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 99 "Grammar.y"
     {
 ;}
     break;
 
   case 4:
-#line 107 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 107 "Grammar.y"
     {
 ;}
     break;
 
   case 5:
-#line 110 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 110 "Grammar.y"
     {
 ;}
     break;
 
   case 6:
-#line 116 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 116 "Grammar.y"
     {
     parser->checkInterrupted();
 ;}
     break;
 
   case 7:
-#line 125 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 125 "Grammar.y"
     {
     parser->usage();
 ;}
     break;
 
   case 8:
-#line 129 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 129 "Grammar.y"
     {
     return 0;
 ;}
     break;
 
   case 9:
-#line 133 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 133 "Grammar.y"
     {
     parser->addApplication((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 10:
-#line 137 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 137 "Grammar.y"
     {
     parser->usage("application", "add");
 ;}
     break;
 
   case 11:
-#line 141 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 141 "Grammar.y"
     {
     parser->removeApplication((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 12:
-#line 145 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 145 "Grammar.y"
     {
     parser->usage("application", "remove");
 ;}
     break;
 
   case 13:
-#line 149 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 149 "Grammar.y"
     {
     parser->diffApplication((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 14:
-#line 153 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 153 "Grammar.y"
     {
     parser->usage("application", "diff");
 ;}
     break;
 
   case 15:
-#line 157 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 157 "Grammar.y"
     {
     parser->updateApplication((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 16:
-#line 161 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 161 "Grammar.y"
     {
     parser->usage("application", "update");
 ;}
     break;
 
   case 17:
-#line 165 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 165 "Grammar.y"
     {
     parser->describeApplication((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 18:
-#line 169 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 169 "Grammar.y"
     {
     parser->usage("application", "describe");
 ;}
     break;
 
   case 19:
-#line 173 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 173 "Grammar.y"
     {
     parser->patchApplication((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 20:
-#line 177 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 177 "Grammar.y"
     {
     parser->usage("application", "patch");
 ;}
     break;
 
   case 21:
-#line 181 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 181 "Grammar.y"
     {
     parser->listAllApplications((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 22:
-#line 185 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 185 "Grammar.y"
     {
     parser->usage("application", "list");
 ;}
     break;
 
   case 23:
-#line 189 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 189 "Grammar.y"
     {
     parser->describeServerTemplate((yyvsp[(4) - (5)]));
 ;}
     break;
 
   case 24:
-#line 193 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 193 "Grammar.y"
     {
     parser->usage("server template", "describe");
 ;}
     break;
 
   case 25:
-#line 197 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 197 "Grammar.y"
     {
     parser->instantiateServerTemplate((yyvsp[(4) - (5)]));
 ;}
     break;
 
   case 26:
-#line 201 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 201 "Grammar.y"
     {
     parser->usage("server template", "instantiate");
 ;}
     break;
 
   case 27:
-#line 205 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 205 "Grammar.y"
     {
     parser->usage("server template");
 ;}
     break;
 
   case 28:
-#line 209 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 209 "Grammar.y"
     {
     parser->describeServiceTemplate((yyvsp[(4) - (5)]));
 ;}
     break;
 
   case 29:
-#line 213 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 213 "Grammar.y"
     {
     parser->usage("service template", "describe");
 ;}
     break;
 
   case 30:
-#line 217 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 217 "Grammar.y"
     {
     parser->usage("service template");
 ;}
     break;
 
   case 31:
-#line 221 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 221 "Grammar.y"
     {
     parser->describeNode((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 32:
-#line 225 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 225 "Grammar.y"
     {
     parser->usage("node", "describe");
 ;}
     break;
 
   case 33:
-#line 229 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 229 "Grammar.y"
     {
     parser->pingNode((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 34:
-#line 233 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 233 "Grammar.y"
     {
     parser->usage("node", "ping");
 ;}
     break;
 
   case 35:
-#line 237 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 237 "Grammar.y"
     {
     parser->printLoadNode((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 36:
-#line 241 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 241 "Grammar.y"
     {
     parser->usage("node", "load");
 ;}
     break;
 
   case 37:
-#line 245 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 245 "Grammar.y"
     {
     parser->printNodeProcessorSockets((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 38:
-#line 249 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 249 "Grammar.y"
     {
     parser->usage("node", "sockets");
 ;}
     break;
 
   case 39:
-#line 253 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 253 "Grammar.y"
     {
     parser->shutdownNode((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 40:
-#line 257 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 257 "Grammar.y"
     {
     parser->usage("node", "shutdown");
 ;}
     break;
 
   case 41:
-#line 261 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 261 "Grammar.y"
     {
     parser->listAllNodes((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 42:
-#line 265 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 265 "Grammar.y"
     {
     parser->usage("node", "list");
 ;}
     break;
 
   case 43:
-#line 269 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 269 "Grammar.y"
     {
     parser->show("node", (yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 44:
-#line 273 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 273 "Grammar.y"
     {
     parser->usage("node", "show");
 ;}
     break;
 
   case 45:
-#line 277 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 277 "Grammar.y"
     {
     parser->describeRegistry((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 46:
-#line 281 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 281 "Grammar.y"
     {
     parser->usage("registry", "describe");
 ;}
     break;
 
   case 47:
-#line 285 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 285 "Grammar.y"
     {
     parser->pingRegistry((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 48:
-#line 289 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 289 "Grammar.y"
     {
     parser->usage("registry", "ping");
 ;}
     break;
 
   case 49:
-#line 293 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 293 "Grammar.y"
     {
     parser->shutdownRegistry((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 50:
-#line 297 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 297 "Grammar.y"
     {
     parser->usage("registry", "shutdown");
 ;}
     break;
 
   case 51:
-#line 301 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 301 "Grammar.y"
     {
     parser->listAllRegistries((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 52:
-#line 305 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 305 "Grammar.y"
     {
     parser->usage("registry", "list");
 ;}
     break;
 
   case 53:
-#line 309 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 309 "Grammar.y"
     {
     parser->show("registry", (yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 54:
-#line 313 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 313 "Grammar.y"
     {
     parser->usage("registry", "show");
 ;}
     break;
 
   case 55:
-#line 317 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 317 "Grammar.y"
     {
     parser->removeServer((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 56:
-#line 321 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 321 "Grammar.y"
     {
     parser->usage("server", "remove");
 ;}
     break;
 
   case 57:
-#line 325 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 325 "Grammar.y"
     {
     parser->describeServer((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 58:
-#line 329 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 329 "Grammar.y"
     {
     parser->usage("server", "describe");
 ;}
     break;
 
   case 59:
-#line 333 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 333 "Grammar.y"
     {
     parser->startServer((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 60:
-#line 337 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 337 "Grammar.y"
     {
     parser->usage("server", "start");
 ;}
     break;
 
   case 61:
-#line 341 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 341 "Grammar.y"
     {
     parser->stopServer((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 62:
-#line 345 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 345 "Grammar.y"
     {
     parser->usage("server", "stop");
 ;}
     break;
 
   case 63:
-#line 349 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 349 "Grammar.y"
     {
     parser->patchServer((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 64:
-#line 353 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 353 "Grammar.y"
     {
     parser->usage("server", "patch");
 ;}
     break;
 
   case 65:
-#line 357 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 357 "Grammar.y"
     {
     parser->signalServer((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 66:
-#line 361 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 361 "Grammar.y"
     {
     parser->usage("server", "signal");
 ;}
     break;
 
   case 67:
-#line 365 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 365 "Grammar.y"
     {
     parser->writeMessage((yyvsp[(3) - (4)]), 1);
 ;}
     break;
 
   case 68:
-#line 369 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 369 "Grammar.y"
     {
     parser->usage("server", "stdout");
 ;}
     break;
 
   case 69:
-#line 373 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 373 "Grammar.y"
     {
     parser->writeMessage((yyvsp[(3) - (4)]), 2);
 ;}
     break;
 
   case 70:
-#line 377 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 377 "Grammar.y"
     {
     parser->usage("server", "stderr");
 ;}
     break;
 
   case 71:
-#line 381 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 381 "Grammar.y"
     {
     parser->stateServer((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 72:
-#line 385 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 385 "Grammar.y"
     {
     parser->usage("server", "start");
 ;}
     break;
 
   case 73:
-#line 389 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 389 "Grammar.y"
     {
     parser->pidServer((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 74:
-#line 393 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 393 "Grammar.y"
     {
     parser->usage("server", "pid");
 ;}
     break;
 
   case 75:
-#line 397 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 397 "Grammar.y"
     {
     parser->propertiesServer((yyvsp[(3) - (4)]), false);
 ;}
     break;
 
   case 76:
-#line 401 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 401 "Grammar.y"
     {
     parser->usage("server", "properties");
 ;}
     break;
 
   case 77:
-#line 405 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 405 "Grammar.y"
     {
     parser->propertiesServer((yyvsp[(3) - (4)]), true);
 ;}
     break;
 
   case 78:
-#line 409 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 409 "Grammar.y"
     {
     parser->usage("server", "property");
 ;}
     break;
 
   case 79:
-#line 413 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 413 "Grammar.y"
     {
     parser->enableServer((yyvsp[(3) - (4)]), true);
 ;}
     break;
 
   case 80:
-#line 417 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 417 "Grammar.y"
     {
     parser->usage("server", "enable");
 ;}
     break;
 
   case 81:
-#line 421 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 421 "Grammar.y"
     {
     parser->enableServer((yyvsp[(3) - (4)]), false);
 ;}
     break;
 
   case 82:
-#line 425 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 425 "Grammar.y"
     {
     parser->usage("server", "disable");
 ;}
     break;
 
   case 83:
-#line 429 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 429 "Grammar.y"
     {
     parser->listAllServers((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 84:
-#line 433 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 433 "Grammar.y"
     {
     parser->usage("server", "list");
 ;}
     break;
 
   case 85:
-#line 437 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 437 "Grammar.y"
     {
     parser->show("server", (yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 86:
-#line 441 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 441 "Grammar.y"
     {
     parser->usage("server", "show");
 ;}
     break;
 
   case 87:
-#line 445 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 445 "Grammar.y"
     {
     parser->startService((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 88:
-#line 449 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 449 "Grammar.y"
     {
     parser->usage("service", "start");
 ;}
     break;
 
   case 89:
-#line 453 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 453 "Grammar.y"
     {
     parser->stopService((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 90:
-#line 457 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 457 "Grammar.y"
     {
     parser->usage("service", "stop");
 ;}
     break;
 
   case 91:
-#line 461 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 461 "Grammar.y"
     {
     parser->describeService((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 92:
-#line 465 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 465 "Grammar.y"
     {
     parser->usage("service", "describe");
 ;}
     break;
 
   case 93:
-#line 469 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 469 "Grammar.y"
     {
     parser->propertiesService((yyvsp[(3) - (4)]), false);
 ;}
     break;
 
   case 94:
-#line 473 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 473 "Grammar.y"
     {
     parser->usage("service", "properties");
 ;}
     break;
 
   case 95:
-#line 477 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 477 "Grammar.y"
     {
     parser->propertiesService((yyvsp[(3) - (4)]), true);
 ;}
     break;
 
   case 96:
-#line 481 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 481 "Grammar.y"
     {
     parser->usage("service", "property");
 ;}
     break;
 
   case 97:
-#line 485 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 485 "Grammar.y"
     {
     parser->listServices((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 98:
-#line 489 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 489 "Grammar.y"
     {
     parser->usage("service", "list");
 ;}
     break;
 
   case 99:
-#line 493 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 493 "Grammar.y"
     {
     parser->endpointsAdapter((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 100:
-#line 497 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 497 "Grammar.y"
     {
     parser->usage("adapter", "endpoints");
 ;}
     break;
 
   case 101:
-#line 501 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 501 "Grammar.y"
     {
     parser->removeAdapter((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 102:
-#line 505 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 505 "Grammar.y"
     {
     parser->usage("adapter", "remove");
 ;}
     break;
 
   case 103:
-#line 509 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 509 "Grammar.y"
     {
     parser->listAllAdapters((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 104:
-#line 513 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 513 "Grammar.y"
     {
     parser->usage("adapter", "list");
 ;}
     break;
 
   case 105:
-#line 517 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 517 "Grammar.y"
     {
     parser->addObject((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 106:
-#line 521 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 521 "Grammar.y"
     {
     parser->usage("object", "add");
 ;}
     break;
 
   case 107:
-#line 525 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 525 "Grammar.y"
     {
     parser->removeObject((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 108:
-#line 529 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 529 "Grammar.y"
     {
     parser->usage("object", "remove");
 ;}
     break;
 
   case 109:
-#line 533 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 533 "Grammar.y"
     {
     parser->findObject((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 110:
-#line 537 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 537 "Grammar.y"
     {
     parser->usage("object", "find");
 ;}
     break;
 
   case 111:
-#line 541 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 541 "Grammar.y"
     {
     parser->listObject((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 112:
-#line 545 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 545 "Grammar.y"
     {
     parser->usage("object", "list");
 ;}
     break;
 
   case 113:
-#line 549 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 549 "Grammar.y"
     {
     parser->describeObject((yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 114:
-#line 553 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 553 "Grammar.y"
     {
     parser->usage("object", "describe");
 ;}
     break;
 
   case 115:
-#line 557 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 557 "Grammar.y"
     {
     parser->showCopying();
 ;}
     break;
 
   case 116:
-#line 561 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 561 "Grammar.y"
     {
     parser->showWarranty();
 ;}
     break;
 
   case 117:
-#line 565 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 565 "Grammar.y"
     {
     parser->usage((yyvsp[(2) - (3)]).front());
 ;}
     break;
 
   case 118:
-#line 569 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 569 "Grammar.y"
     {
     if(((yyvsp[(2) - (4)]).front() == "server" || (yyvsp[(2) - (4)]).front() == "service") && (yyvsp[(3) - (4)]).front() == "template")
     {
@@ -3016,14 +3214,18 @@ yyreduce:
     break;
 
   case 119:
-#line 580 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 580 "Grammar.y"
     {
     parser->usage((yyvsp[(2) - (5)]).front(), (yyvsp[(3) - (5)]).front());
 ;}
     break;
 
   case 120:
-#line 584 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 584 "Grammar.y"
     {
     if(((yyvsp[(2) - (5)]).front() == "server" || (yyvsp[(2) - (5)]).front() == "service") && (yyvsp[(3) - (5)]).front() == "template")
     {
@@ -3037,7 +3239,9 @@ yyreduce:
     break;
 
   case 121:
-#line 595 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 595 "Grammar.y"
     {
     if(((yyvsp[(2) - (6)]).front() == "server" || (yyvsp[(2) - (6)]).front() == "service") && (yyvsp[(3) - (6)]).front() == "template")
     {
@@ -3051,28 +3255,36 @@ yyreduce:
     break;
 
   case 122:
-#line 606 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 606 "Grammar.y"
     {
     parser->usage((yyvsp[(2) - (4)]).front());
 ;}
     break;
 
   case 123:
-#line 610 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 610 "Grammar.y"
     {
     parser->usage();
 ;}
     break;
 
   case 124:
-#line 614 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 614 "Grammar.y"
     {
     parser->usage((yyvsp[(1) - (3)]).front());
 ;}
     break;
 
   case 125:
-#line 618 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 618 "Grammar.y"
     {
     (yyvsp[(1) - (4)]).push_back((yyvsp[(2) - (4)]).front());
     parser->invalidCommand((yyvsp[(1) - (4)]));
@@ -3081,7 +3293,9 @@ yyreduce:
     break;
 
   case 126:
-#line 624 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 624 "Grammar.y"
     {
     parser->invalidCommand((yyvsp[(1) - (3)]));
     yyerrok;
@@ -3089,7 +3303,9 @@ yyreduce:
     break;
 
   case 127:
-#line 629 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 629 "Grammar.y"
     {
     parser->invalidCommand((yyvsp[(1) - (3)]));
     yyerrok;
@@ -3097,20 +3313,26 @@ yyreduce:
     break;
 
   case 128:
-#line 634 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 634 "Grammar.y"
     {
     yyerrok;
 ;}
     break;
 
   case 129:
-#line 638 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 638 "Grammar.y"
     {
 ;}
     break;
 
   case 130:
-#line 647 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 647 "Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (2)]);
     (yyval).push_front((yyvsp[(1) - (2)]).front());
@@ -3118,7 +3340,9 @@ yyreduce:
     break;
 
   case 131:
-#line 652 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 652 "Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (2)]);
     (yyval).push_front((yyvsp[(1) - (2)]).front());
@@ -3126,7 +3350,9 @@ yyreduce:
     break;
 
   case 132:
-#line 657 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 657 "Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (3)]);
     (yyval).push_front("help");
@@ -3135,7 +3361,9 @@ yyreduce:
     break;
 
   case 133:
-#line 663 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 663 "Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (3)]);
     (yyval).push_front("help");
@@ -3144,243 +3372,322 @@ yyreduce:
     break;
 
   case 134:
-#line 669 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 669 "Grammar.y"
     {
     (yyval) = YYSTYPE();
 ;}
     break;
 
   case 135:
-#line 678 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 678 "Grammar.y"
     {
 ;}
     break;
 
   case 136:
-#line 681 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 681 "Grammar.y"
     {
 ;}
     break;
 
   case 137:
-#line 684 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 684 "Grammar.y"
     {
 ;}
     break;
 
   case 138:
-#line 687 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 687 "Grammar.y"
     {
 ;}
     break;
 
   case 139:
-#line 690 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 690 "Grammar.y"
     {
 ;}
     break;
 
   case 140:
-#line 693 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 693 "Grammar.y"
     {
 ;}
     break;
 
   case 141:
-#line 696 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 696 "Grammar.y"
     {
 ;}
     break;
 
   case 142:
-#line 699 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 699 "Grammar.y"
     {
 ;}
     break;
 
   case 143:
-#line 702 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 702 "Grammar.y"
     {
 ;}
     break;
 
   case 144:
-#line 705 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 705 "Grammar.y"
     {
 ;}
     break;
 
   case 145:
-#line 708 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 708 "Grammar.y"
     {
 ;}
     break;
 
   case 146:
-#line 711 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 711 "Grammar.y"
     {
 ;}
     break;
 
   case 147:
-#line 714 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 714 "Grammar.y"
     {
 ;}
     break;
 
   case 148:
-#line 717 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 717 "Grammar.y"
     {
 ;}
     break;
 
   case 149:
-#line 720 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 720 "Grammar.y"
     {
 ;}
     break;
 
   case 150:
-#line 723 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 723 "Grammar.y"
     {
 ;}
     break;
 
   case 151:
-#line 726 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 726 "Grammar.y"
     {
 ;}
     break;
 
   case 152:
-#line 729 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 729 "Grammar.y"
     {
 ;}
     break;
 
   case 153:
-#line 732 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 732 "Grammar.y"
     {
 ;}
     break;
 
   case 154:
-#line 735 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 735 "Grammar.y"
     {
 ;}
     break;
 
   case 155:
-#line 738 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 738 "Grammar.y"
     {
 ;}
     break;
 
   case 156:
-#line 741 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 741 "Grammar.y"
     {
 ;}
     break;
 
   case 157:
-#line 744 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 744 "Grammar.y"
     {
 ;}
     break;
 
   case 158:
-#line 747 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 747 "Grammar.y"
     {
 ;}
     break;
 
   case 159:
-#line 750 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 750 "Grammar.y"
     {
 ;}
     break;
 
   case 160:
-#line 753 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 753 "Grammar.y"
     {
 ;}
     break;
 
   case 161:
-#line 756 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 756 "Grammar.y"
     {
 ;}
     break;
 
   case 162:
-#line 759 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 759 "Grammar.y"
     {
 ;}
     break;
 
   case 163:
-#line 762 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 762 "Grammar.y"
     {
 ;}
     break;
 
   case 164:
-#line 765 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 765 "Grammar.y"
     {
 ;}
     break;
 
   case 165:
-#line 768 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 768 "Grammar.y"
     {
 ;}
     break;
 
   case 166:
-#line 771 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 771 "Grammar.y"
     {
 ;}
     break;
 
   case 167:
-#line 774 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 774 "Grammar.y"
     {
 ;}
     break;
 
   case 168:
-#line 777 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 777 "Grammar.y"
     {
 ;}
     break;
 
   case 169:
-#line 780 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 780 "Grammar.y"
     {
 ;}
     break;
 
   case 170:
-#line 783 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 783 "Grammar.y"
     {
 ;}
     break;
 
   case 171:
-#line 786 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 786 "Grammar.y"
     {
 ;}
     break;
 
   case 172:
-#line 789 "../IceGrid/Grammar.y"
+
+/* Line 1455 of yacc.c  */
+#line 789 "Grammar.y"
     {
 ;}
     break;
 
 
-/* Line 1267 of yacc.c.  */
-#line 3384 "Grammar.tab.c"
+
+/* Line 1455 of yacc.c  */
+#line 3691 "Grammar.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -3390,7 +3697,6 @@ yyreduce:
   YY_STACK_PRINT (yyss, yyssp);
 
   *++yyvsp = yyval;
-
 
   /* Now `shift' the result of the reduction.  Determine what state
      that goes to, based on the state we popped back to and the rule
@@ -3456,7 +3762,7 @@ yyerrlab:
 
   if (yyerrstatus == 3)
     {
-      /* If just tried and failed to reuse look-ahead token after an
+      /* If just tried and failed to reuse lookahead token after an
 	 error, discard it.  */
 
       if (yychar <= YYEOF)
@@ -3473,7 +3779,7 @@ yyerrlab:
 	}
     }
 
-  /* Else will try to reuse look-ahead token after shifting the error
+  /* Else will try to reuse lookahead token after shifting the error
      token.  */
   goto yyerrlab1;
 
@@ -3530,9 +3836,6 @@ yyerrlab1:
       YY_STACK_PRINT (yyss, yyssp);
     }
 
-  if (yyn == YYFINAL)
-    YYACCEPT;
-
   *++yyvsp = yylval;
 
 
@@ -3557,7 +3860,7 @@ yyabortlab:
   yyresult = 1;
   goto yyreturn;
 
-#ifndef yyoverflow
+#if !defined(yyoverflow) || YYERROR_VERBOSE
 /*-------------------------------------------------.
 | yyexhaustedlab -- memory exhaustion comes here.  |
 `-------------------------------------------------*/
@@ -3568,7 +3871,7 @@ yyexhaustedlab:
 #endif
 
 yyreturn:
-  if (yychar != YYEOF && yychar != YYEMPTY)
+  if (yychar != YYEMPTY)
      yydestruct ("Cleanup: discarding lookahead",
 		 yytoken, &yylval);
   /* Do not reclaim the symbols of the rule which action triggered
