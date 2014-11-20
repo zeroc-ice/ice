@@ -371,7 +371,7 @@ def run(tests, root = False):
         elif o == "--script":
             script = True
         elif o == '--arg':
-            arg += "--arg="
+            arg += " --arg="
             arg += '"'
             arg += a
             arg += '"'
