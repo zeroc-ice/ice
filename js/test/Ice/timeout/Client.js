@@ -190,14 +190,14 @@
             {
                 out.writeLine("ok");
                 out.write("testing close timeout... ");
-                to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(250 * 2));
+                to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(500));
                 return to.ice_getConnection();
             }
         ).then(
             function(con)
             {
                 connection = con;
-                return timeout.holdAdapter(750 * 2);
+                return timeout.holdAdapter(1500);
             }
         ).then(
             function()
@@ -216,7 +216,7 @@
                     test(false);
                 }
             }
-        ).delay(500 * 2).then(
+        ).delay(1000).then(
             function()
             {
                 try
