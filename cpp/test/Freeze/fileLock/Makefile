@@ -28,11 +28,11 @@ CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(COBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
 $(CLIENTF): $(CFOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(CFOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(CFOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
 
 clean::

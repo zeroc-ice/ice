@@ -58,11 +58,11 @@ $(libdir)$(cpp11libdirsuffix)/$(LIBNAME): $(libdir)/$(SONAME)
 
 $(SERVER): $(SOBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lIceBox $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(SOBJS) -lIceBox $(LIBS)
 
 $(ADMIN): $(AOBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(AOBJS) -lIceBox $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(AOBJS) -lIceBox $(LIBS)
 
 install:: all
 	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))

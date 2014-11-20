@@ -4,7 +4,10 @@ import os, sys
 def getThirdpartyHome(version):
     if os.environ.get("THIRDPARTY_HOME"):
         return os.environ.get("THIRDPARTY_HOME")
-    else:
+    elif sys.platform == "darwin":
+        if os.path.exists("/Library/Developer/Ice-%s-ThirdParty/lib/db.jar" % version):
+            return "/Library/Developer/Ice-%s-ThirdParty/lib/" % version
+    elif sys.platform == "win32":
         import winreg
         try:
             key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\ZeroC\\Ice %s Third Party Packages" % \
@@ -13,11 +16,9 @@ def getThirdpartyHome(version):
 
             if os.path.exists(installDir):
                 return installDir
-            else:
-                return None
         except WindowsError as error:
             print(error)
-            return None
+    return None
             
 def getIceHome(version):
     if os.environ.get("ICE_HOME"):

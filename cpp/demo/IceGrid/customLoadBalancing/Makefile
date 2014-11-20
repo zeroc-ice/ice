@@ -40,11 +40,11 @@ LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) -lIceGrid -lGlacier2 $(LINKWITH)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(COBJS) -lIceGrid -lGlacier2 $(LINKWITH)
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LINKWITH)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(SOBJS) $(LINKWITH)
 
 $(LIBFILENAME): $(POBJS)
 	rm -f $@

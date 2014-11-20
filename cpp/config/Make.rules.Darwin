@@ -44,21 +44,28 @@ endif
 CXXLIBS		=
 
 ifeq ($(RPATH_DIR),)
-    ifdef ice_src_dist
-        RPATH_DIR = @loader_path/$(libdir)
-    else
-        RPATH_DIR = $(runpath_libdir)
-    endif
+ifdef ice_src_dist
+RPATH_DIR = @loader_path/$(libdir)
+else
+RPATH_DIR = $(ice_dir)/$(libsubdir)
 endif
-LDPLATFORMFLAGS     = -Wl,-rpath,$(RPATH_DIR)
+endif
 
-mklib           	= libtool -static -o $(1) $(2)
-mkshlib         	= $(CXX)  -dynamiclib $(LDFLAGS) -o $(1) -install_name @rpath/$(2) $(3) $(4)
+ifneq ($(RPATH_DIR),)
+LDEXEFLAGS		= -Wl,-rpath,$(RPATH_DIR)
+endif
+
+ifdef ice_src_dist
+rpathlink		= -Wl,-rpath,$(1)
+endif
+
+mklib 			= libtool -static -o $(1) $(2)
+mkshlib			= $(CXX)  -dynamiclib $(LDFLAGS) -o $(1) -install_name @rpath/$(2) $(3) $(4)
 
 BASELIBS		= -lIceUtil
 LIBS			= -lIce $(BASELIBS)
 
-ICONV_LIB               = -liconv
+ICONV_LIB		= -liconv
 
 ICEUTIL_OS_LIBS         =
 ICE_OS_LIBS             = -ldl

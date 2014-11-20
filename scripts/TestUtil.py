@@ -47,6 +47,23 @@ global serverOnly
 serverOnly = False
 mx = False
 
+global linuxDistribution
+
+if os.path.isfile("/etc/issue"):
+    f = open("/etc/issue", "r")
+    issue = f.read()
+    f.close()
+    if issue.find("Red Hat") != -1:
+        linuxDistribution = "RedHat"
+    elif issue.find("Amazon Linux") != -1:
+        linuxDistribution = "Amazon"
+    elif issue.find("CentOS") != -1:
+        linuxDistribution = "CentOS"
+    elif issue.find("Ubuntu") != -1:
+        linuxDistribution = "Ubuntu"
+    elif issue.find("SUSE Linux") != -1:
+        linuxDistribution = "SUSE LINUX"
+
 def isCygwin():
     # The substring on sys.platform is required because some cygwin
     # versions return variations like "cygwin_nt-4.01".
@@ -86,6 +103,19 @@ def isDarwin():
 
 def isLinux():
     return sys.platform.startswith("linux")
+
+def isUbuntu():
+    return isLinux() and linuxDistribution and linuxDistribution == "Ubuntu"
+        
+def isRhel():
+    if isLinux() and linuxDistribution:
+        for r in ["RedHat", "Amazon", "CentOS"]:
+            if linuxDistribution.find(r) != -1:
+                return True
+    return False
+
+def isSles():
+    return isLinux() and linuxDistribution and linuxDistribution == "SUSE LINUX"
 
 def getCppCompiler():
     compiler = ""
@@ -137,6 +167,26 @@ def isVC120():
     if not isWin32():
         return False
     return getCppCompiler() == "VC120"
+
+def getThirdpartyHome():
+    version = getIceVersion()
+    if os.environ.get("THIRDPARTY_HOME"):
+        return os.environ.get("THIRDPARTY_HOME")
+    elif isDarwin():
+        if os.path.exists("/Library/Developer/Ice-%s-ThirdParty/lib/db.jar" % version):
+            return "/Library/Developer/Ice-%s-ThirdParty/" % version
+    elif isWin32():
+        import winreg
+        try:
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\ZeroC\\Ice %s Third Party Packages" % \
+                                 version, 0, winreg.KEY_READ | winreg.KEY_WOW64_64KEY)
+            installDir = os.path.abspath(winreg.QueryValueEx(key, "InstallDir")[0])
+
+            if os.path.exists(installDir):
+                return installDir
+        except WindowsError as error:
+            print(error)
+    return None
 
 #
 # The PHP interpreter is called "php5" on some platforms (e.g., SLES).
@@ -963,7 +1013,6 @@ def getCommandLineProperties(exe, config):
     return properties
 
 def getCommandLine(exe, config, options = ""):
-
     arch = ""
     if isDarwin() and config.lang == "cpp":
         if x64:
@@ -994,6 +1043,7 @@ def getCommandLine(exe, config, options = ""):
             output.write("-d64 ")
         if not config.ipv6:
             output.write("-Djava.net.preferIPv4Stack=true ")
+        output.write(getJavaLibraryPath())
         output.write(exe + " ")
     elif config.lang == "py":
         output.write(sys.executable + ' "%s" ' % exe)
@@ -1596,6 +1646,40 @@ def getCppBinDir(lang = None):
           binDir = os.path.join(binDir, "c++11")
     return binDir
 
+def getCppLibDir(lang = None):
+    if isWin32():
+        return getCppBinDir(lang)
+    else:
+        libDir = os.path.join(getIceDir("cpp"), "lib")
+        if iceHome:
+            if x64:
+                if isSolaris():
+                    if isSparc():
+                        libDir = os.path.join(libDir, "64")
+                    else:
+                        libDir = os.path.join(libDir, "amd64")
+                if isLinux() and not isUbuntu():
+                    libDir = libDir + "64"
+            if isUbuntu() and iceHome == "/usr":
+                libDir = os.path.join(libDir, "x86_64-linux-gnu" if x64 else "i386-linux-gnu")
+        return libDir
+    return None
+
+def getJavaLibraryPath():
+    if isWin32():
+        if iceHome:    
+            return "-Djava.library.path=%s " % os.path.join(iceHome, "bin\\x64" if x64 else "bin")
+        else:
+            return ("-Djava.library.path=%s " % os.path.join(getThirdpartyHome(), "bin", "x64") 
+                                    if x64 else os.path.join(getThirdpartyHome(), "bin"))
+    elif isDarwin():
+        return "-Djava.library.path=%s " % os.path.join(iceHome if iceHome else getThirdpartyHome(), "lib")        
+    elif isRhel() or isSles():
+        return "-Djava.library.path=%s " % "/usr/lib64" if x64 else "/usr/lib"
+    elif isUbuntu():
+        return "-Djava.library.path=%s " % "/usr/lib/x86_64-linux-gnu" if x64 else "/usr/lib/i386-linux-gnu"
+    return None
+
 def getServiceDir():
     global serviceDir
     if serviceDir is None:
@@ -1634,6 +1718,21 @@ def getTestEnv(lang, testdir):
 
     jarSuffix = "-" + getIceVersion() + ".jar"
 
+    #
+    # DB CLASSPATH, in Windows and OS X db.jar come from Ice home or
+    # from Third Party Home
+    #
+    if isDarwin() or isWin32():
+        if iceHome:
+            addClasspath(os.path.join(getIceDir("java", testdir), "lib", "db.jar"), env)
+        else:
+            thirdPartyHome = getThirdpartyHome()
+            if thirdPartyHome:
+                addClasspath(os.path.join(thirdPartyHome, "lib", "db.jar"), env)
+            else:
+                print("warning: could not detect Ice Third party installation.")
+    else:
+        addClasspath(os.path.join("/" "usr" "share", "java", "lib", "db.jar"), env)
     #
     # If Ice is installed from RPMs:
     # Set the CLASSPATH for Java.

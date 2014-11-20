@@ -52,11 +52,11 @@ ORACLE_LIBS     = -L$(ORACLE_HOME)/lib -lclntsh
 
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(COBJS) $(LIBS)
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(ORACLE_LIBS) $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(SOBJS) $(ORACLE_LIBS) $(LIBS)
 
 clean::
 	-rm -f $(GENERATED_PROC_FILES)

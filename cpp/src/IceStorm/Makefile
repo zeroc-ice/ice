@@ -87,11 +87,11 @@ $(libdir)$(cpp11libdirsuffix)/$(LIBNAME): $(libdir)/$(SONAME)
 
 $(ADMIN): $(AOBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(AOBJS) -lIceStorm $(READLINE_LIBS) $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(AOBJS) -lIceStorm $(READLINE_LIBS) $(LIBS)
 
 $(MIGRATE): $(MOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(MOBJS) $(DB_RPATH_LINK) -lIceStorm -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(MOBJS) -lIceStorm -lFreeze $(LIBS)
 
 # The slice2freeze rules are structured like this to avoid issues with
 # parallel make.

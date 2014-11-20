@@ -24,7 +24,7 @@ CPPFLAGS	:= -I. $(CPPFLAGS)
 
 $(NAME): $(OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SLICE_LIBS) $(MCPP_RPATH_LINK)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(OBJS) $(SLICE_LIBS) $(MCPP_RPATH_LINK)
 
 install:: all
 	$(call installprogram,$(NAME),$(DESTDIR)$(install_bindir))

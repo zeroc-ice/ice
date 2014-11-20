@@ -40,12 +40,12 @@ CPPFLAGS	:= -I. $(CPPFLAGS)
 
 $(CLIENT1): $(C1OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(C1OBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(C1OBJS) $(LIBS)
 
 $(CLIENT2): $(C2OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(C2OBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(C2OBJS) $(LIBS)
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(SOBJS) $(LIBS)

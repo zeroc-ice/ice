@@ -39,7 +39,7 @@ $(LIBFILENAME): $(SOBJS)
 
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(COBJS) $(LIBS)
 
 clean::
 	-rm -rf db/node/* db/registry/*

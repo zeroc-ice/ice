@@ -33,19 +33,19 @@ CPPFLAGS	:= -I. $(CPPFLAGS)
 
 $(CREATE): $(CREATE_OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(CREATE_OBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(CREATE_OBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
 $(READ): $(READ_OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(READ_OBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(READ_OBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
 $(READNEW): $(READNEW_OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(READNEW_OBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(READNEW_OBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
 $(RECREATE): $(RECREATE_OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(RECREATE_OBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(RECREATE_OBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
 
 # The slice2freeze rules are structured like this to avoid issues with

@@ -38,15 +38,15 @@ LIBS		:= -lIceStorm $(LIBS)
 
 $(PUBLISHER): $(POBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(POBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(POBJS) $(LIBS)
 
 $(SUBSCRIBER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(SOBJS) $(LIBS)
 
 $(CONTROL): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(COBJS) $(LIBS)
 
 clean::
 	-rm -f build.txt

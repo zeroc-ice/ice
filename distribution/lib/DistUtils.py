@@ -893,6 +893,11 @@ class Darwin(Platform):
         move(buildDir + '/bin/IceGrid Admin.app', buildDir + '/../IceGrid Admin.app')
         print("ok")
 
+        print("Fixing Freeze RPATH")
+        for name in ["lib/libFreeze.@ver@.dylib", "bin/transformdb", "bin/dumpdb"]
+            runCommand("install_name_tool -delete_rpath /Library/Developer/Ice-@ver@-ThirdParty/lib %s/%s" % 
+                       (buildDir, name)
+
     def createArchive(self, cwd, buildRootDir, distDir, version, quiet):
 
         sys.stdout.write("Creating installer...")

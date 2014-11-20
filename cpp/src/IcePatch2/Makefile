@@ -34,15 +34,15 @@ CPPFLAGS	:= -I. -I.. $(CPPFLAGS) $(OPENSSL_FLAGS) $(BZIP2_FLAGS)
 
 $(SERVER): $(SOBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(OPENSSL_RPATH_LINK) -lIcePatch2 $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(SOBJS) $(OPENSSL_RPATH_LINK) -lIcePatch2 $(LIBS)
 
 $(CLIENT): $(COBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(OPENSSL_RPATH_LINK) -lIcePatch2 $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(COBJS) $(OPENSSL_RPATH_LINK) -lIcePatch2 $(LIBS)
 
 $(CALC): $(CALCOBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(CALCOBJS) $(OPENSSL_RPATH_LINK) -lIcePatch2 $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(CALCOBJS) $(OPENSSL_RPATH_LINK) -lIcePatch2 $(LIBS)
 
 install:: all
 	$(call installprogram,$(SERVER),$(DESTDIR)$(install_bindir))

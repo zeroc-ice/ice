@@ -13,5 +13,8 @@
 
 include $(top_srcdir)/../cpp/config/Make.rules.$(UNAME)
 
-LDPLATFORMFLAGS := ${wl}-flat_namespace ${wl}-undefined ${wl}suppress \
-	-Wl,-rpath,$(embedded_runpath_prefix)/$(libsubdir) $(LDPLATFORMFLAGS)
+LDPLATFORMFLAGS := ${wl}-flat_namespace ${wl}-undefined ${wl}suppress $(LDPLATFORMFLAGS)
+
+ifneq ($(prefix),/usr)
+LDPLATFORMFLAGS := -Wl,-rpath,$(prefix)/$(libsubdir) $(LDPLATFORMFLAGS)
+endif

@@ -54,7 +54,7 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) -DFREEZE_API_EXPORTS $(DB_FLAGS)
 SLICE2CPPFLAGS	:= --ice --include-dir Freeze --dll-export FREEZE_API $(SLICE2CPPFLAGS)
-LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil $(DB_LIBS)
+LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil $(DB_RPATH_LINK) $(DB_LIBS)
 
 # The slice2freeze rules are structured like this to avoid issues with
 # parallel make.

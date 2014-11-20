@@ -76,6 +76,26 @@ else:
 def getNodeCommand():
     return nodeCmd
 
+def getThirdpartyHome():
+    version = getIceVersion()
+    if os.environ.get("THIRDPARTY_HOME"):
+        return os.environ.get("THIRDPARTY_HOME")
+    elif isDarwin():
+        if os.path.exists("/Library/Developer/Ice-%s-ThirdParty/lib/db.jar" % version):
+            return "/Library/Developer/Ice-%s-ThirdParty/" % version
+    elif isWin32():
+        import winreg
+        try:
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\ZeroC\\Ice %s Third Party Packages" % \
+                                 version, 0, winreg.KEY_READ | winreg.KEY_WOW64_64KEY)
+            installDir = os.path.abspath(winreg.QueryValueEx(key, "InstallDir")[0])
+
+            if os.path.exists(installDir):
+                return installDir
+        except WindowsError as error:
+            print(error)
+    return None
+
 def getJavaVersion():
     p = subprocess.Popen(javaCmd + " -version", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
     if(p.wait() != 0):
@@ -238,15 +258,6 @@ def addenv(var, val):
     else:
         os.environ[var] = val
 
-iceJARs = ["ice",
-           "glacier2",
-           "freeze",
-           "icebox",
-           "icestorm",
-           "icegrid",
-           "icepatch2",
-           "icediscovery"]
-
 def configurePaths():
 
     if iceHome:
@@ -254,17 +265,6 @@ def configurePaths():
         if x64:
             sys.stdout.write("(64bit) ")
         sys.stdout.write("]\n")
-
-    jarSuffix = "-" + getIceVersion() + ".jar"
-
-    #
-    # If Ice is installed from RPMs, just set the CLASSPATH for Java.
-    #
-    if iceHome == "/usr":
-        javaDir = os.path.join("/", "usr", "share", "java")
-        for jar in iceJARs:
-            addenv("CLASSPATH", os.path.join(javaDir, jar + jarSuffix))
-        return # That's it, we're done!
 
     # Always add the bin directory to the PATH, it contains executable
     # which might not be in the compiler/arch bin sub-directory.
@@ -305,15 +305,14 @@ def configurePaths():
 
     if binDir != os.path.join(getIceDir("cpp"), "bin"):
         addenv("PATH", binDir)
-    if libDir:
+    #
+    # For OS X we don't need to set any library path for C++
+    #
+    if libDir and not isDarwin():
         addLdPath(libDir)
 
     if not iceHome:
         addenv("PATH", os.path.join(getIceDir("cs"), "bin"))
-
-    javaDir = getIceDir("java")
-    for jar in iceJARs:
-        addenv("CLASSPATH", os.path.join(javaDir, "lib", jar + jarSuffix))
 
     #
     # On Windows, C# assemblies are found thanks to the .exe.config files.
@@ -418,6 +417,36 @@ def isNoServices():
     if not isWin32():
         return False
     return getCppCompiler() == "VC90"
+
+global linuxDistribution
+
+if os.path.isfile("/etc/issue"):
+    f = open("/etc/issue", "r")
+    issue = f.read()
+    f.close()
+    if issue.find("Red Hat") != -1:
+        linuxDistribution = "RedHat"
+    elif issue.find("Amazon Linux") != -1:
+        linuxDistribution = "Amazon"
+    elif issue.find("CentOS") != -1:
+        linuxDistribution = "CentOS"
+    elif issue.find("Ubuntu") != -1:
+        linuxDistribution = "Ubuntu"
+    elif issue.find("SUSE Linux") != -1:
+        linuxDistribution = "SUSE LINUX"
+
+def isUbuntu():
+    return isLinux() and linuxDistribution and linuxDistribution == "Ubuntu"
+        
+def isRhel():
+    if isLinux() and linuxDistribution:
+        for r in ["RedHat", "Amazon", "CentOS"]:
+            if linuxDistribution.find(r) != -1:
+                return True
+    return False
+
+def isSles():
+    return isLinux() and linuxDistribution and linuxDistribution == "SUSE LINUX"
 
 def getMapping():
     """Determine the current mapping based on the cwd."""
@@ -739,6 +768,9 @@ def spawn(command, cwd = None, mapping = None):
     elif mapping == "vb":
         command = "./" + command
     elif mapping == "java":
+
+        command = command.replace("java", "java %s" % getJavaLibraryPath(), 1)
+
         if preferIPv4:
             command = command.replace("java", "java -Djava.net.preferIPv4Stack=true", 1)
         if isSolaris() and x64:
@@ -775,11 +807,24 @@ def cleanDbDir(path):
         else:
             os.remove(filename)
 
+def getJavaLibraryPath():
+    if isWin32():
+        if iceHome:    
+            return "-Djava.library.path=%s " % os.path.join(iceHome, "bin\\x64" if x64 else "bin")
+        else:
+            return ("-Djava.library.path=%s " % os.path.join(getThirdpartyHome(), "bin", "x64") 
+                                    if x64 else os.path.join(getThirdpartyHome(), "bin"))
+    elif isDarwin():
+        return "-Djava.library.path=%s " % os.path.join(iceHome if iceHome else getThirdpartyHome(), "lib")        
+    elif isRhel() or isSles():
+        return "-Djava.library.path=%s " % "/usr/lib64" if x64 else "/usr/lib"
+    elif isUbuntu():
+        return "-Djava.library.path=%s " % "/usr/lib/x86_64-linux-gnu" if x64 else "/usr/lib/i386-linux-gnu"
+    return None
+
 def addLdPath(libpath):
     if isWin32():
         addenv("PATH", libpath)
-    elif isDarwin():
-        addenv("DYLD_LIBRARY_PATH", libpath)
     elif isAIX():
         addenv("LIBPATH", libpath)
     elif isSolaris():

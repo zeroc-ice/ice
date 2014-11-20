@@ -25,7 +25,7 @@ LIBS		:= -lIceStorm $(LIBS)
 
 $(CLIENT): $(OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(OBJS) $(LIBS)
 
 clean::
 	-rm -f build.txt

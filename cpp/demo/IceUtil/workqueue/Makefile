@@ -21,4 +21,4 @@ CPPFLAGS	:= -I. $(CPPFLAGS)
 
 $(CLIENT): $(OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(BASELIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(OBJS) $(COBJS) $(BASELIBS)

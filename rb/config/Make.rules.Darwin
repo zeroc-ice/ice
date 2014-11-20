@@ -18,7 +18,11 @@ $(warning ===================================================================)
 
 include $(top_srcdir)/../cpp/config/Make.rules.$(UNAME)
 
-shlibldflags		= $(CXXFLAGS) -L$(libdir) -Wl,-rpath,$(embedded_runpath_prefix)/$(libsubdir)
+shlibldflags		= $(CXXFLAGS) -L$(libdir)
+
+ifneq ($(prefix),/usr)
+shlibldflags		+= -Wl,-rpath,$(prefix)/$(libsubdir)
+endif
 
 mkrblibfilename       	= $(if $(2),$(1).$(2).bundle,$(1).bundle)
 mkrbsoname           	= $(if $(2),$(1).$(2).bundle,$(1).bundle)

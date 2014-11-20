@@ -24,7 +24,7 @@ SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 !endif
 
 $(SERVER): $(OBJS)
-	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	$(LINK) $(LD_EXEFLAGS) $(LDEXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 

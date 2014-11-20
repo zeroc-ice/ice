@@ -38,7 +38,7 @@ SLICE2CPPFLAGS	:= --include-dir Glacier2 $(SLICE2CPPFLAGS)
 
 $(ROUTER): $(OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lGlacier2 $(LIBS) -lIceSSL $(OPENSSL_LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(OBJS) -lGlacier2 $(LIBS) -lIceSSL $(OPENSSL_LIBS)
 
 install:: all
 	$(call installprogram,$(ROUTER),$(DESTDIR)$(install_bindir))

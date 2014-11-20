@@ -37,11 +37,11 @@ LIBS		:= -lIceStorm $(LIBS)
 
 $(PUBLISHER): $(POBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(POBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(POBJS) $(LIBS)
 
 $(SUBSCRIBER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(SOBJS) $(LIBS)
 
 $(SUB): $(SUB_OBJS)
 	rm -f $@
