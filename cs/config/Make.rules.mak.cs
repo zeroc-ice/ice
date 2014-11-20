@@ -265,11 +265,8 @@ SLICEPARSERLIB		= $(ice_cpp_dir)\lib$(x64suffix)\sliced.lib
 !endif
 !endif
 !else
-SLICE2CS		= $(ice_dir)\bin$(x64suffix)\slice2cs.exe
-SLICEPARSERLIB		= $(ice_dir)\lib$(x64suffix)\slice.lib
-!if !exist ("$(SLICEPARSERLIB)")
-SLICEPARSERLIB		= $(ice_dir)\lib$(x64suffix)\sliced.lib
-!endif
+SLICE2CS		= $(ice_dir)\bin\slice2cs.exe
+SLICEPARSERLIB		= $(ice_dir)\lib\slice.lib
 !endif
 
 EVERYTHING		= all clean install depend

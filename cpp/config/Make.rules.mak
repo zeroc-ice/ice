@@ -212,9 +212,9 @@ SLICEPARSERLIB		= $(libdir)\slice$(LIBSUFFIX).lib
 SLICE2CPP		= $(bindir)\slice2cpp.exe
 SLICE2FREEZE		= $(bindir)\slice2freeze.exe
 !else
-SLICE2CPP		= $(ice_dir)\bin$(x64suffix)\slice2cpp.exe
+SLICE2CPP		= $(ice_dir)\bin$\slice2cpp.exe
 SLICEPARSERLIB		= $(SLICE2CPP)
-SLICE2FREEZE		= $(ice_dir)\bin$(x64suffix)\slice2freeze.exe
+SLICE2FREEZE		= $(ice_dir)\bin\slice2freeze.exe
 !endif
 
 #

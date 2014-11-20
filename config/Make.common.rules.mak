@@ -109,8 +109,8 @@ ice_cpp_dir = $(ice_dir)\cpp
 !endif
 
 !if "$(ICE_HOME)" != ""
-!if !exist ("$(ICE_HOME)\bin$(x64suffix)\$(slice_translator)")
-!error Unable to find $(slice_translator) in $(ICE_HOME)\bin$(x64suffix), please verify ICE_HOME is properly configured and Ice is correctly installed.
+!if !exist ("$(ICE_HOME)\bin\$(slice_translator)")
+!error Unable to find $(slice_translator) in $(ICE_HOME)\bin, please verify ICE_HOME is properly configured and Ice is correctly installed.
 !endif
 ice_dir = $(ICE_HOME)
 !elseif exist ($(top_srcdir)/bin/$(slice_translator))
