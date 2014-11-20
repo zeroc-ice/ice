@@ -1646,6 +1646,9 @@ def getCppBinDir(lang = None):
           binDir = os.path.join(binDir, "c++11")
     return binDir
 
+def getSliceTranslator(lang = "cpp"):
+    return os.path.join(os.path.join(iceHome if iceHome else getIceDir("cpp"), "bin") , "slice2%s" % lang)
+
 def getCppLibDir(lang = None):
     if isWin32():
         return getCppBinDir(lang)

@@ -20,7 +20,7 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
-slice2cpp = '"%s"' % os.path.join(TestUtil.getCppBinDir(), "slice2cpp")
+slice2cpp = '"%s"' % TestUtil.getSliceTranslator()
 
 regex1 = re.compile("\.ice$", re.IGNORECASE)
 files = []
