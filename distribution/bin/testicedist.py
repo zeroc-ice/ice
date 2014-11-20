@@ -1204,10 +1204,11 @@ class Windows(Platform):
         return ["cpp", "cs", "java", "js", "php", "py", "rb", "vb"]
         
     def getSupportedArchitectures(self):
-        archs = ["x86"]
+        archs = []
         if os.environ.get("PROCESSOR_ARCHITECTURE", "") == "AMD64" or \
            os.environ.get("PROCESSOR_ARCHITEW6432", "") == "AMD64":
             archs.append("x64")
+        archs.append["x86"]
         return archs
 
     def getJavaHome(self, arch, version):
