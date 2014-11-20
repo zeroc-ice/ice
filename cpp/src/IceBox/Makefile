@@ -36,7 +36,7 @@ OBJS		= $(LIB_OBJS) \
 HDIR		= $(headerdir)/IceBox
 SDIR		= $(slicedir)/IceBox
 
-RPATH_DIR	= @loader_path/../lib
+RPATH_DIR	= $(LOADER_PATH)/../lib
 
 include $(top_srcdir)/config/Make.rules
 

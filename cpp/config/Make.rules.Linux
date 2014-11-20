@@ -90,6 +90,31 @@ ifeq ($(CXX),g++)
    else
       CXXFLAGS		+= -g 
    endif
+   
+   LOADER_PATH = \$$ORIGIN
+   
+   ifneq ($(embedded_runpath_prefix),)
+      RPATH_DIR = $(embedded_runpath_prefix)
+   endif
+   
+   ifeq ($(RPATH_DIR),)
+     ifdef ice_src_dist
+        RPATH_DIR = \$$ORIGIN/$(libdir)
+     else
+        RPATH_DIR = $(ice_dir)/$(libsubdir)
+     endif
+   endif
+
+   #
+   # Clear the rpath dir when doing a system install.
+   #
+   ifeq ($(ice_dir), /usr)
+      RPATH_DIR =
+   endif
+   
+   ifneq ($(RPATH_DIR),)
+      LDEXEFLAGS              = -Wl,-rpath,$(RPATH_DIR)
+   endif
 
    #
    # C++ run-time libraries, necessary for linking some shared libraries.
@@ -101,12 +126,6 @@ ifeq ($(CXX),g++)
    mklib		= ar cr $(1) $(2)
 
    rpathlink    = -Wl,-rpath-link,$(1) 
-
-   ifneq ($(embedded_runpath_prefix),)
-      LDPLATFORMFLAGS      = -Wl,--enable-new-dtags -Wl,-rpath,$(runpath_libdir)
-   else
-      LDPLATFORMFLAGS      = -Wl,--enable-new-dtags
-   endif
 
    LDPLATFORMFLAGS	+= -rdynamic
 

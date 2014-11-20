@@ -15,7 +15,7 @@ TARGETS		= $(NAME)
 
 OBJS		= Main.o
 
-RPATH_DIR	= @loader_path/../lib
+RPATH_DIR	= $(LOADER_PATH)/../lib
 
 include $(top_srcdir)/config/Make.rules
 

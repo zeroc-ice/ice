@@ -1750,22 +1750,9 @@ def getTestEnv(lang, testdir):
             addPathToEnv("NODE_PATH", os.path.join(testdir), env)
         return env # That's it, we're done!
 
-    if isWin32():
-        libDir = getCppBinDir(lang)
-    else:
-        libDir = os.path.join(getIceDir("cpp", testdir), "lib")
-        if iceHome:
-          if x64:
-            if isSolaris():
-                if isSparc():
-                    libDir = os.path.join(libDir, "64")
-                else:
-                    libDir = os.path.join(libDir, "amd64")
-            elif not isDarwin():
-                libDir = libDir + "64"
-
-    addLdPath(libDir, env)
-
+    if not isDarwin() and iceHome != "/usr":
+        addLdPath(getCppLibDir(), env)
+    
     if lang == "javae":
         javaDir = os.path.join(getIceDir("javae", testdir), "jdk", "lib")
         addClasspath(os.path.join(javaDir, "IceE.jar"), env)

@@ -62,7 +62,7 @@ OBJS		= $(LIB_OBJS) \
 		  $(AOBJS) \
 		  $(MOBJS)
 
-RPATH_DIR	= @loader_path/../lib
+RPATH_DIR	= $(LOADER_PATH)/../lib
 
 SLICE2FREEZECMD = $(SLICE2FREEZE) -I../.. --ice --include-dir IceStorm $(ICECPPFLAGS)
 

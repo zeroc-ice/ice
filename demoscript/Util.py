@@ -284,8 +284,10 @@ def configurePaths():
             if subdir:
                 binDir = os.path.join(binDir, subdir)
 
+        if isUbuntu() and iceHome == "/usr":
+            libDir = os.path.join(libDir, "x86_64-linux-gnu" if x64 else "i386-linux-gnu")
         # Add x64 sub-directory
-        if x64:
+        elif x64:
             if isSolaris():
                 if isSparc():
                     libDir = os.path.join(libDir, "64")
@@ -299,16 +301,12 @@ def configurePaths():
                 libDir = libDir + "64"
                 binDir = binDir + "64"
 
-        if isDarwin() and cpp11:
-            libDir = os.path.join(libDir, "c++11")
-            binDir = os.path.join(binDir, "c++11")
-
     if binDir != os.path.join(getIceDir("cpp"), "bin"):
         addenv("PATH", binDir)
     #
     # For OS X we don't need to set any library path for C++
     #
-    if libDir and not isDarwin():
+    if libDir and not isDarwin() and iceHome != "/usr":
         addLdPath(libDir)
 
     if not iceHome:
@@ -832,6 +830,8 @@ def addLdPath(libpath):
             addenv("LD_LIBRARY_PATH_64", libpath)
         else:
             addenv("LD_LIBRARY_PATH", libpath)
+    elif isDarwin():
+        addenv("DYLD_LIBRARY_PATH", libpath)
     else:
         addenv("LD_LIBRARY_PATH", libpath)
 
