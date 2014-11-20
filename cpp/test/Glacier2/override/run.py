@@ -26,9 +26,13 @@ if TestUtil.appverifier:
     TestUtil.setAppVerifierSettings([router])
 
 def startRouter():
-
+    #
+    # Note: we limit the send buffer size with Ice.TCP.SndSize, the
+    # test relies on send() blocking
+    #
     args = ' --Ice.Warn.Dispatch=0' + \
            ' --Ice.Warn.Connections=0' + \
+           ' --Ice.TCP.SndSize=100000' + \
            ' --Ice.ThreadPool.Server.Serialize=1' + \
            ' --Ice.ThreadPool.Client.Serialize=1' + \
            ' --Glacier2.Filter.Category.Accept="c"' + \

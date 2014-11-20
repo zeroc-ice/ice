@@ -992,7 +992,7 @@ def allTests(communicator, collocated):
             
         testController.holdAdapter()
 
-        for x in range(0, 1000): # 10MB
+        for x in range(0, 100): # 1MB
             r = p.begin_opWithPayload(seq)
         
         test(not r.isSent())

@@ -339,7 +339,7 @@ public class AllTests
                 Ice.AsyncResult r = null;
 
                 // The sequence needs to be large enough to fill the write/recv buffers
-                int bufSize = (test.Util.Application.isAndroid()) ? 2500000 : 20000000;
+                int bufSize = 2000000;
                 byte[] seq = new byte[bufSize];
                 r = p.begin_opWithPayload(seq);
                 try

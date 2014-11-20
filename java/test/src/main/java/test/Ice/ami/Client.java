@@ -25,6 +25,13 @@ public class Client extends test.Util.Application
         initData.properties = Ice.Util.createProperties(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.ami");
         initData.properties.setProperty("Ice.Warn.AMICallback", "0");
+
+        //
+        // Limit the send buffer size, this test relies on the socket
+        // send() blocking after sending a given amount of data.
+        //
+        initData.properties.setProperty("Ice.TCP.SndSize", "100000");
+
         return initData;
     }
 

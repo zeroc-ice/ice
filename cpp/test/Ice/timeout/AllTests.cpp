@@ -128,7 +128,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     // The sequence needs to be large enough to fill the write/recv buffers
-    ByteSeq seq(20000000);
+    ByteSeq seq(2000000);
 
     cout << "testing connection timeout... " << flush;
     {

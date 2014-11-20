@@ -34,6 +34,13 @@ main(int argc, char* argv[])
     {
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
+
+        //
+        // Limit the send buffer size, this test relies on the socket
+        // send() blocking after sending a given amount of data.
+        //
+        initData.properties->setProperty("Ice.TCP.SndSize", "100000");
+
 #ifdef ICE_CPP11
         Ice::DispatcherPtr dispatcher = new Dispatcher();
         initData.dispatcher = Ice::newDispatcher(

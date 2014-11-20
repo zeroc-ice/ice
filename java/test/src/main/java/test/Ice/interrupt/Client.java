@@ -47,6 +47,11 @@ public class Client extends test.Util.Application
         // useful to test interrupting the retry sleep
         //
         initData.properties.setProperty("Ice.RetryIntervals", "0 1000");
+        //
+        // Limit the send buffer size, this test relies on the socket
+        // send() blocking after sending a given amount of data.
+        //
+        initData.properties.setProperty("Ice.TCP.SndSize", "100000");
         return initData;
     }
 

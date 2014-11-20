@@ -26,6 +26,13 @@ public class Client extends test.Util.Application
         Ice.InitializationData initData = createInitializationData() ;
         initData.properties = Ice.Util.createProperties(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.dispatcher");
+
+        //
+        // Limit the send buffer size, this test relies on the socket
+        // send() blocking after sending a given amount of data.
+        //
+        initData.properties.setProperty("Ice.TCP.SndSize", "100000");
+
         initData.dispatcher = _dispatcher;
         return initData;
     }

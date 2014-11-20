@@ -190,7 +190,7 @@ public class AllTests
         out.println("ok");
 
         // The sequence needs to be large enough to fill the write/recv buffers
-        int bufSize = (test.Util.Application.isAndroid()) ? 10000000 : 20000000;
+        int bufSize = 2000000;
         byte[] seq = new byte[bufSize];
 
         out.print("testing connection timeout... ");

@@ -35,6 +35,12 @@ main(int argc, char* argv[])
         initData.properties = Ice::createProperties(argc, argv);
         initData.properties->setProperty("Ice.Warn.AMICallback", "0");
 
+        //
+        // Limit the send buffer size, this test relies on the socket
+        // send() blocking after sending a given amount of data.
+        //
+        initData.properties->setProperty("Ice.TCP.SndSize", "100000");
+
         communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }

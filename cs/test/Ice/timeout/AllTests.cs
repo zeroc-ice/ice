@@ -125,8 +125,8 @@ public class AllTests : TestCommon.TestApp
         }
         WriteLine("ok");
 
-	// The sequence needs to be large enough to fill the write/recv buffers
-        byte[] seq = new byte[20000000];
+        // The sequence needs to be large enough to fill the write/recv buffers
+        byte[] seq = new byte[2000000];
 
         Write("testing connection timeout... ");
         Flush();
