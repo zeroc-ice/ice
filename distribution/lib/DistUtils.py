@@ -145,7 +145,7 @@ def copy(src, dest, warnDestExists = True, verbose = False):
 
     if os.path.exists(dest):
         if warnDestExists:
-            print("warning: overwritting " + dest)
+            print("warning: overwriting " + dest)
         remove(dest)
 
     if os.path.dirname(dest) and not os.path.exists(os.path.dirname(dest)):
@@ -171,7 +171,7 @@ def move(src, dest, warnDestExists = True):
 
     if os.path.exists(dest):
         if warnDestExists:
-            print("warning: overwritting " + dest)
+            print("warning: overwriting " + dest)
         shutil.rmtree(dest)
 
     if os.path.dirname(dest) and not os.path.exists(os.path.dirname(dest)):

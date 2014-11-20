@@ -28,6 +28,9 @@
 		dependencies {
 			compile localDependency("ice")
 			compile localDependency("icediscovery")
+			if (!useLocalOnly) {
+				runtime "org.apache.tools:bzip2:1.0"
+			}
 		}
 
 		// Don't create the default jar.

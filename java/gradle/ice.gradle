@@ -195,7 +195,6 @@ def demoJar(name) {
         attributes("Class-Path": configurations.runtime.resolve().collect { it.toURI() }.join(' '))
     }
 
-
 	artifacts {
 		archives jarTask
 	}

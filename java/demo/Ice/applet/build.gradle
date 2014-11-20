@@ -24,6 +24,9 @@ sourceSets {
 
 dependencies {
 	compile localDependency("ice")
+	if (!useLocalOnly) {
+		runtime "org.apache.tools:bzip2:1.0"
+	}
 }
 
 buildscript {

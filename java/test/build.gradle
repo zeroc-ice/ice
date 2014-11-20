@@ -34,11 +34,15 @@ dependencies {
     compile localDependency('icegrid')
     compile project(':testPlugins')
     compile files(dbJar)
+    runtime "org.apache.tools:bzip2:1.0"
 }
 
 jar {
     archiveName = "test.jar"
     destinationDir = new File("$rootProject.projectDir/lib/")
+    manifest {
+        attributes("Class-Path": configurations.runtime.resolve().collect { it.toURI() }.join(' '))
+    }
 }
 
 clean {

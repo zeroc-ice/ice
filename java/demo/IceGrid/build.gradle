@@ -20,6 +20,9 @@
 			compile localDependency("ice")
 			compile localDependency("icebox")
 			compile localDependency("icegrid")
+			if (!useLocalOnly) {
+				runtime "org.apache.tools:bzip2:1.0"
+			}
 		}
 
 		// Don't create the default jar.
