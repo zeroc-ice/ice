@@ -37,10 +37,10 @@ if (System.properties['os.name'].toLowerCase().contains('windows')) {
 	def arch1 = env['PROCESSOR_ARCHITECTURE']
 	def arch2 = env['PROCESSOR_ARCHITEW6432']
 	if (arch1 == "AMD64" || arch1 == "IA64" || arch2 == "AMD64" || arch2 == "IA64") {
-                programFiles = System.getenv('ProgramFiles(x86)')
-        } else {
-                programFiles = System.getenv('ProgramFiles')
-        }
+        programFiles = System.getenv('ProgramFiles(x86)')
+    } else {
+        programFiles = System.getenv('ProgramFiles')
+    }
 }
 
 // Set the install prefix to defaults if not already set
@@ -225,14 +225,14 @@ if (!android) {
 		def subdirs
 		if (isWindows) {
 			if(iceBinDist){
-                                subdirs = [ "${iceDir}/lib/" ]
-                        } else {
-                                def thirdpartyhome = env['THIRDPARTY_HOME']
-                                if (thirdpartyhome == null || thirdpartyhome.length() == 0) {
-                                        thirdpartyhome = "${programFiles}/ZeroC/Ice-${project.version}-ThirdParty"
-                                }
-                                subdirs = [ "${thirdpartyhome}/lib/" ]
-                        }
+                subdirs = [ "${iceDir}/lib/" ]
+            } else {
+                def thirdpartyhome = env['THIRDPARTY_HOME']
+                if (thirdpartyhome == null || thirdpartyhome.length() == 0) {
+                	thirdpartyhome = "${programFiles}/ZeroC/Ice-${project.version}-ThirdParty"
+                }
+                subdirs = [ "${thirdpartyhome}/lib/" ]
+            }
 		} else {
 			subdirs = [
 				"/Library/Developer/Ice-${project.version}-ThirdParty/lib/",

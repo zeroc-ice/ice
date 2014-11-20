@@ -56,16 +56,10 @@ buildscript {
 			def arch1 = env['PROCESSOR_ARCHITECTURE']
 			def arch2 = env['PROCESSOR_ARCHITEW6432']
 			if (arch1 == "AMD64" || arch1 == "IA64" || arch2 == "AMD64" || arch2 == "IA64") {
-				progFiles = env['ProgramFiles(x86)']
-				if (progFiles == null) {
-					progFiles = env['PROGRAMFILES(X86)']
-				}
-			} else {
-				progFiles = env['ProgramFiles']
-				if (progFiles == null) {
-					progFiles = env['PROGRAMFILES']
-				}
-			}
+		        progFiles = System.getenv('ProgramFiles(x86)')
+		    } else {
+		        progFiles = System.getenv('ProgramFiles')
+		    }
 			iceDir = "$progFiles\\ZeroC\\Ice-${project.version}"
 		}
 
@@ -150,16 +144,10 @@ if (System.properties['os.name'].toLowerCase().contains('windows')) {
 	def arch1 = env['PROCESSOR_ARCHITECTURE']
 	def arch2 = env['PROCESSOR_ARCHITEW6432']
 	if (arch1 == "AMD64" || arch1 == "IA64" || arch2 == "AMD64" || arch2 == "IA64") {
-		programFiles = env['ProgramFiles(x86)']
-		if (programFiles == null) {
-			programFiles = env['PROGRAMFILES(X86)']
-		}
-	} else {
-		programFiles = env['ProgramFiles']
-		if (programFiles == null) {
-			programFiles = env['PROGRAMFILES']
-		}
-	}
+        programFiles = System.getenv('ProgramFiles(x86)')
+    } else {
+        programFiles = System.getenv('ProgramFiles')
+    }
 }
 
 def iceDir = getIceHome()
@@ -238,11 +226,7 @@ if (!android) {
 	} else {
 		def subdirs
 		if (isWindows) {
-			def thirdpartyhome = env['THIRDPARTY_HOME']
-			if (thirdpartyhome == null || thirdpartyhome.length() == 0) {
-				thirdpartyhome = "${programFiles}/ZeroC/Ice-${project.version}-ThirdParty"
-			}
-			subdirs = [ "${thirdpartyhome}/lib/", "${iceDir}/lib" ]
+			subdirs = [ "${iceDir}/lib/" ]
 		} else {
 			subdirs = [
 				"/Library/Developer/Ice-${project.version}-ThirdParty/lib/",
