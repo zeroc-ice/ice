@@ -547,13 +547,10 @@ class Platform:
             languages = ["py"]
         else:
             languages = self.getSupportedLanguages()
-
-        #
-        # Php and Python in Windows require VC110 and VC100 respectively
-        #
-        if compiler in ["VC120"]:
-            languages.remove("php")
-            languages.remove("py")
+            if "php" in languages:
+                languages.remove("php")
+            if "py" in languages:
+                languages.remove("py")
         
         if arch != self.getDefaultArchitecture() and "java" in languages:
             languages.remove("java")
@@ -732,7 +729,7 @@ class Platform:
         if lang == "java":
             if not self.checkJavaSupport(arch, buildConfiguration, output):
                 return False
-            commands.append("%s :test:assemble" % ("gradlew" if isWindows() else "./gradlew"))
+            commands.append("%s :test:assemble" % ("gradlew" if self.isWindows() else "./gradlew"))
         else:
             commands.append(self.makeCommand(compiler, arch, buildConfiguration, lang, buildDir))
 

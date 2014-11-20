@@ -519,7 +519,6 @@ copy(os.path.join(winSrcDir, "cpp", "config", "Make.rules.msvc"), os.path.join(w
 copy(os.path.join(winSrcDir, "js", "config", "build.js"), os.path.join(winDemoDir, "config"), False)
 copy(os.path.join(winSrcDir, "js", "config", "Make.rules.mak.js"), os.path.join(winDemoDir, "config"), False)
 
-copy(os.path.join(winDistFilesDir, "src", "common", "Make.rules.mak"), os.path.join(winDemoDir, "config"), False)
 copy(os.path.join(winDistFilesDir, "src", "common", "Make.rules.mak.php"), os.path.join(winDemoDir, "config"), False)
 
 # Consolidate demo distribution with files from each language mapping
