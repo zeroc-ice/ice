@@ -40,7 +40,7 @@ IceSSL::ConnectorI::connect()
     }
 
     IceInternal::StreamSocketPtr stream = new IceInternal::StreamSocket(_instance, _proxy, _addr, _sourceAddr);
-    return new TransceiverI(_instance, stream, _host, "");
+    return new TransceiverI(_instance, stream, _host, false);
 }
 
 Short

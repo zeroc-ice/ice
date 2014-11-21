@@ -67,7 +67,7 @@ public:
 
 private:
 
-    TransceiverI(const InstancePtr&, const IceInternal::StreamSocketPtr&, const std::string&, const std::string&);
+    TransceiverI(const InstancePtr&, const IceInternal::StreamSocketPtr&, const std::string&, bool);
     virtual ~TransceiverI();
 
     virtual NativeConnectionInfoPtr getNativeConnectionInfo() const;

@@ -30,7 +30,7 @@ namespace IceSSL
             }
 
             return new TransceiverI(_instance, new IceInternal.StreamSocket(_instance, _proxy, _addr, _sourceAddr),
-                                    _host, "");
+                                    _host, false);
         }
 
         public short type()

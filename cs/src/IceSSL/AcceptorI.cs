@@ -100,7 +100,7 @@ namespace IceSSL
             Socket acceptFd = _acceptFd;
             _acceptFd = null;
             _acceptError = null;
-            return new TransceiverI(_instance, new IceInternal.StreamSocket(_instance, acceptFd), "", _adapterName);
+            return new TransceiverI(_instance, new IceInternal.StreamSocket(_instance, acceptFd), _adapterName, true);
         }
 
         public string protocol()

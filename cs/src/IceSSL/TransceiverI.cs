@@ -322,13 +322,19 @@ namespace IceSSL
         //
         // Only for use by ConnectorI, AcceptorI.
         //
-        internal TransceiverI(Instance instance, IceInternal.StreamSocket stream, string host, string adapterName)
+        internal TransceiverI(Instance instance, IceInternal.StreamSocket stream, string hostOrAdapterName, bool incoming)
         {
             _instance = instance;
             _stream = stream;
-            _host = host;
-            _incoming = host.Length == 0;
-            _adapterName = adapterName;
+            _incoming = incoming;
+            if(_incoming)
+            {
+                _adapterName = hostOrAdapterName;
+            }
+            else
+            {
+                _host = hostOrAdapterName;
+            }
             _sslStream = null;
 
             if(_incoming)
@@ -675,9 +681,9 @@ namespace IceSSL
 
         private Instance _instance;
         private IceInternal.StreamSocket _stream;
-        private string _host;
+        private string _host = "";
+        private string _adapterName = "";
         private bool _incoming;
-        private string _adapterName;
         private SslStream _sslStream;
         private int _verifyPeer;
         private bool _authenticated;

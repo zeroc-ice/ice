@@ -261,8 +261,8 @@ final class TransceiverI implements IceInternal.Transceiver
     {
     }
 
-    TransceiverI(Instance instance, javax.net.ssl.SSLEngine engine, IceInternal.StreamSocket stream, String host,
-                 String adapterName)
+    TransceiverI(Instance instance, javax.net.ssl.SSLEngine engine, IceInternal.StreamSocket stream, String hostOrAdapterName,
+                 boolean incoming)
     {
         _instance = instance;
         _engine = engine;
@@ -270,9 +270,15 @@ final class TransceiverI implements IceInternal.Transceiver
         _netInput = ByteBuffer.allocateDirect(engine.getSession().getPacketBufferSize() * 2);
         _netOutput = ByteBuffer.allocateDirect(engine.getSession().getPacketBufferSize() * 2);
         _stream = stream;
-        _host = host;
-        _adapterName = adapterName;
-        _incoming = host.isEmpty();
+        _incoming = incoming;
+        if(_incoming)
+        {
+            _adapterName = hostOrAdapterName;
+        }
+        else
+        {
+            _host = hostOrAdapterName;
+        }
     }
 
     private NativeConnectionInfo getNativeConnectionInfo()
@@ -568,9 +574,9 @@ final class TransceiverI implements IceInternal.Transceiver
     private Instance _instance;
     private IceInternal.StreamSocket _stream;
     private javax.net.ssl.SSLEngine _engine;
-    private String _host;
+    private String _host = "";
+    private String _adapterName = "";
     private boolean _incoming;
-    private String _adapterName;
 
     private ByteBuffer _appInput; // Holds clear-text data to be read by the application.
     private ByteBuffer _netInput; // Holds encrypted data read from the socket.

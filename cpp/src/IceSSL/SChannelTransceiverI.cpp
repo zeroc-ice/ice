@@ -953,13 +953,13 @@ IceSSL::TransceiverI::checkSendSize(const IceInternal::Buffer&)
 
 IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance,
                                    const IceInternal::StreamSocketPtr& stream,
-                                   const string& host,
-                                   const string& adapterName) :
+                                   const string& hostOrAdapterName,
+                                   bool incoming) :
     _instance(instance),
     _engine(SChannelEnginePtr::dynamicCast(instance->engine())),
-    _host(host),
-    _adapterName(adapterName),
-    _incoming(host.empty()),
+    _host(incoming ? "" : hostOrAdapterName),
+    _adapterName(incoming ? hostOrAdapterName : ""),
+    _incoming(incoming),
     _stream(stream),
     _state(StateHandshakeNotStarted),
     _bufferedW(0),

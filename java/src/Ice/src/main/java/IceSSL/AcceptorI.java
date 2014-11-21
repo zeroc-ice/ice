@@ -51,7 +51,7 @@ final class AcceptorI implements IceInternal.Acceptor
         {
             java.net.InetSocketAddress peerAddr =
                 (java.net.InetSocketAddress)stream.fd().socket().getRemoteSocketAddress();
-            return new TransceiverI(_instance, _instance.createSSLEngine(true, peerAddr), stream, "", _adapterName);
+            return new TransceiverI(_instance, _instance.createSSLEngine(true, peerAddr), stream, _adapterName, true);
         }
         catch(RuntimeException ex)
         {
