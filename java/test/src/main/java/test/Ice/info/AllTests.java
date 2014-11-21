@@ -154,8 +154,11 @@ public class AllTests
             test(info.adapterName.length() == 0);
             test(info.localPort > 0);
             test(info.remotePort == 12010);
-            test(info.remoteAddress.equals(defaultHost));
-            test(info.localAddress.equals(defaultHost));
+            if(defaultHost.equals("127.0.0.1"))
+            {
+                test(info.remoteAddress.equals(defaultHost));
+                test(info.localAddress.equals(defaultHost));
+            }
 
             java.util.Map<String, String> ctx = testIntf.getConnectionInfoAsContext();
             test(ctx.get("incoming").equals("true"));
@@ -170,8 +173,11 @@ public class AllTests
             test(info.adapterName.length() == 0);
             test(info.localPort > 0);
             test(info.remotePort == 12010);
-            test(info.remoteAddress.equals(defaultHost));
-            test(info.localAddress.equals(defaultHost));
+            if(defaultHost.equals("127.0.0.1"))
+            {
+                test(info.remoteAddress.equals(defaultHost));
+                test(info.localAddress.equals(defaultHost));
+            }
         }
         out.println("ok");
 

@@ -157,8 +157,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(info->adapterName.empty());
         test(info->localPort > 0);
         test(info->remotePort == 12010);
-        test(info->remoteAddress == defaultHost);
-        test(info->localAddress == defaultHost);
+        if(defaultHost == "127.0.0.1")
+        {
+            test(info->remoteAddress == defaultHost);
+            test(info->localAddress == defaultHost);
+        }
 
         ostringstream os;
 
@@ -179,8 +182,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(info->adapterName.empty());
         test(info->localPort > 0);
         test(info->remotePort == 12010);
-        test(info->remoteAddress == defaultHost);
-        //test(info->localAddress == defaultHost);
+        if(defaultHost == "127.0.0.1")
+        {
+            test(info->remoteAddress == defaultHost);
+            test(info->localAddress == defaultHost);
+        }
+
     }
     cout << "ok" << endl;
 

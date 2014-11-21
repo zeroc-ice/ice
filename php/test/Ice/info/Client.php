@@ -124,8 +124,11 @@ function allTests($communicator)
         test(!$info->incoming);
         test(strlen($info->adapterName) == 0);
         test($info->remotePort == 12010);
-        test($info->remoteAddress == $defaultHost);
-        test($info->localAddress == $defaultHost);
+        if($defaultHost == "127.0.0.1")
+        {
+            test($info->remoteAddress == $defaultHost);
+            test($info->localAddress == $defaultHost);
+        }
 
         $ctx = $testIntf->getConnectionInfoAsContext();
         test($ctx["incoming"] == "true");

@@ -84,8 +84,10 @@ def allTests(communicator)
     test(!info.incoming)
     test(info.adapterName.length == 0)
     test(info.remotePort == 12010)
-    test(info.remoteAddress == defaultHost)
-    test(info.localAddress == defaultHost)
+    if defaultHost == "127.0.0.1"
+        test(info.remoteAddress == defaultHost)
+        test(info.localAddress == defaultHost)
+    end
 
     ctx = testIntf.getConnectionInfoAsContext()
     test(ctx["incoming"] == "true")

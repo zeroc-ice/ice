@@ -181,12 +181,17 @@ public class AllTests : TestCommon.TestApp
             Ice.IPConnectionInfo info = (Ice.IPConnectionInfo)@base.ice_getConnection().getInfo();
             test(!info.incoming);
             test(info.adapterName.Length == 0);
+            test(info.remotePort == 12010);
 #if !SILVERLIGHT
             test(info.localPort > 0);
-            test(info.localAddress.Equals(defaultHost));
 #endif
-            test(info.remotePort == 12010);
-            test(info.remoteAddress.Equals(defaultHost));
+            if(defaultHost.Equals("127.0.0.1"))
+            {
+#if !SILVERLIGHT
+                test(info.localAddress.Equals(defaultHost));
+#endif
+                test(info.remoteAddress.Equals(defaultHost));
+            }
 
             Dictionary<string, string> ctx = testIntf.getConnectionInfoAsContext();
             test(ctx["incoming"].Equals("true"));
@@ -203,10 +208,13 @@ public class AllTests : TestCommon.TestApp
             test(info.localPort > 0);
 #endif
             test(info.remotePort == 12010);
-            test(info.remoteAddress.Equals(defaultHost));
+            if(defaultHost.Equals("127.0.0.1"))
+            {
+                test(info.remoteAddress.Equals(defaultHost));
 #if !SILVERLIGHT
-            test(info.localAddress.Equals(defaultHost));
+                test(info.localAddress.Equals(defaultHost));
 #endif
+            }
         }
         WriteLine("ok");
 
