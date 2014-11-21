@@ -1,24 +1,3 @@
-Note for Mono:
-
-    For this demo to work properly using Mono on Linux, you must
-    configure Linux to recognize Mono binaries. More details are
-    provided in the release notes:
-
-    http://doc.zeroc.com/display/Ice/Release+Notes
-
-    Alternatively, if you do not want to reconfigure your kernel, edit
-    application.xml and change the <icebox> element to read:
-
-    <icebox id="IceBox" exe="mono" activation="on-demand">
-      <option>../../../bin/iceboxnet.exe</option>
-
-    Note that we use "mono" (the Mono interpreter) as the executable
-    and pass the path name of the iceboxnet executable as an argument.
-    If you are not using an Ice source distribution, you will need to
-    change the value of the <option> element to reflect the location
-    of the iceboxnet executable in your installation, such as
-    /usr/bin/iceboxnet.exe or /opt/Ice-@ver@/bin/iceboxnet.exe.
-
 This demo shows a very simple IceGrid deployment, with a single IceBox
 server hosting a number of IceBox services.
 
@@ -52,15 +31,15 @@ line utility, use:
     "application add application.xml"
 
 
-Using the IceGrid GUI
----------------------
+Using the IceGrid Admin GUI
+---------------------------
 
-We suggest using the graphical IceGrid administration tool with this
-demo. Follow these steps to log into the IceGrid registry and view
-the application you deployed above:
+We suggest using the graphical IceGrid Admin tool with this demo.
+Follow these steps to log into the IceGrid registry and view the 
+application you deployed above:
 
   - Launch the application. Windows users can double-click on the
-    file IceGridGUI.jar located in <Ice installation directory>\bin.
+    file icegridgui.jar located in <Ice installation directory>\bin.
     Users with a Linux RPM installation can use a script to start the
     program:
 
@@ -68,7 +47,7 @@ the application you deployed above:
 
     On other platforms, start it from a command window as follows:
 
-    $ java -jar IceGridGUI.jar
+    $ java -jar icegridgui.jar
 
     The location of the JAR file varies by platform; for a Linux RPM
     installation, the file resides in /usr/share/java. On other
@@ -107,8 +86,8 @@ The client simply calls 'sayHello' on the replicated 'hello' object.
 Stopping and restarting IceBox services
 ---------------------------------------
 
-You can use the IceGrid GUI or the command-line utility to stop and
-restart IceBox services. The commands below show how to manipulate
+You can use the IceGrid Admin GUI or the command-line utility to stop 
+and restart IceBox services. The commands below show how to manipulate
 the 'Lisa' service:
 
  $ icegridadmin --Ice.Config=config.grid
@@ -137,26 +116,10 @@ Follow these steps:
 
    $ icegridadmin --Ice.Default.Router="DemoGlacier2/router:tcp -h localhost -p 4063"
 
-   In the IceGrid GUI, use the Routed tab of the Login dialog. Change
-   the Glacier2 instance name to "DemoGlacier2" and the endpoints to
-   "tcp -h localhost -p 4063".
+   In the IceGrid Admin GUI, use the Routed tab of the Login dialog. 
+   Change the Glacier2 instance name to "DemoGlacier2" and the endpoints 
+   to "tcp -h localhost -p 4063".
    
    DemoGlacier2 is configured to use a built-in permissions verifier
    that does not validate passwords, so you can log in using any
    username/password combination.
-
-
-Vista Note
-----------
-
-On Vista-derived operating systems, the IceGrid node may emit the
-following warning:
-
-  warning: Unable to lookup the performance counter name:
-  Unable to connect to the specified computer or the computer is
-  offline. This usually occurs when you do not have sufficient
-  privileges.
-
-This issue can be resolved by granting appropriate permissions to the
-node's user account. Please refer to the Troubleshooting section of
-Appendix H in the Ice manual for more information.
