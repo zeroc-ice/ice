@@ -195,13 +195,15 @@ $(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please v
         endif
         ice_dir = $(ICE_HOME)
         
-        ifeq ($(LP64),yes)
-            ifeq ($(shell test -d /usr/lib/x86_64-linux-gnu/ && echo 0),0)
-                libsubdir = lib/x86_64-linux-gnu
-            endif
-        else
-            ifeq ($(shell test -d /usr/lib/i386-linux-gnu/ && echo 0),0)
-                libsubdir = lib/i386-linux-gnu
+        ifeq ($(ice_dir),/usr)
+            ifeq ($(LP64),yes)
+                ifeq ($(shell test -d /usr/lib/x86_64-linux-gnu/ && echo 0),0)
+                    libsubdir = lib/x86_64-linux-gnu
+                endif
+            else
+                ifeq ($(shell test -d /usr/lib/i386-linux-gnu/ && echo 0),0)
+                    libsubdir = lib/i386-linux-gnu
+                endif
             endif
         endif
     else
