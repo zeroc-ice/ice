@@ -1670,16 +1670,17 @@ def getCppLibDir(lang = None):
 
 def getJavaLibraryPath():
     if isWin32():
-        if iceHome:
-            return "-Djava.library.path=\"%s\" " % os.path.join(iceHome, "bin\\x64" if x64 else "bin")
+        if iceHome:    
+            return "-Djava.library.path=%s " % os.path.join(iceHome, "bin\\x64" if x64 else "bin")
         else:
-            return "-Djava.library.path=\"%s\" " % os.path.join(getThirdpartyHome(), "bin\\x64" if x64 else "bin")
+            return "-Djava.library.path=%s " % (os.path.join(getThirdpartyHome(), "bin", "x64") if x64 else 
+                                                os.path.join(getThirdpartyHome(), "bin"))
     elif isDarwin():
-        return "-Djava.library.path=\"%s\" " % os.path.join(iceHome if iceHome else getThirdpartyHome(), "lib")
+        return "-Djava.library.path=%s " % os.path.join(iceHome if iceHome else getThirdpartyHome(), "lib")        
     elif isRhel() or isSles():
-        return "-Djava.library.path=\"%s\" " % "/usr/lib64" if x64 else "/usr/lib"
+        return "-Djava.library.path=%s " % ("/usr/lib64" if x64 else "/usr/lib")
     elif isUbuntu():
-        return "-Djava.library.path=\"%s\" " % "/usr/lib/x86_64-linux-gnu" if x64 else "/usr/lib/i386-linux-gnu"
+        return "-Djava.library.path=%s " % ("/usr/lib/x86_64-linux-gnu" if x64 else "/usr/lib/i386-linux-gnu")
     return None
 
 def getServiceDir():
