@@ -435,7 +435,7 @@ if os.path.isfile("/etc/issue"):
 
 def isUbuntu():
     return isLinux() and linuxDistribution and linuxDistribution == "Ubuntu"
-        
+
 def isRhel():
     if isLinux() and linuxDistribution:
         for r in ["RedHat", "Amazon", "CentOS"]:
@@ -807,17 +807,17 @@ def cleanDbDir(path):
 
 def getJavaLibraryPath():
     if isWin32():
-        if iceHome:    
-            return "-Djava.library.path=%s " % os.path.join(iceHome, "bin\\x64" if x64 else "bin")
+        if iceHome:
+            print
+            return "-Djava.library.path=\"%s\" " % os.path.join(iceHome, "bin\\x64" if x64 else "bin")
         else:
-            return ("-Djava.library.path=%s " % os.path.join(getThirdpartyHome(), "bin", "x64") 
-                                    if x64 else os.path.join(getThirdpartyHome(), "bin"))
+            return "-Djava.library.path=\"%s\" " % os.path.join(getThirdpartyHome(), "bin\\x64" if x64 else "bin")
     elif isDarwin():
-        return "-Djava.library.path=%s " % os.path.join(iceHome if iceHome else getThirdpartyHome(), "lib")        
+        return "-Djava.library.path=\"%s\" " % os.path.join(iceHome if iceHome else getThirdpartyHome(), "lib")
     elif isRhel() or isSles():
-        return "-Djava.library.path=%s " % "/usr/lib64" if x64 else "/usr/lib"
+        return "-Djava.library.path=\"%s\" " % "/usr/lib64" if x64 else "/usr/lib"
     elif isUbuntu():
-        return "-Djava.library.path=%s " % "/usr/lib/x86_64-linux-gnu" if x64 else "/usr/lib/i386-linux-gnu"
+        return "-Djava.library.path=\"%s\" " % "/usr/lib/x86_64-linux-gnu" if x64 else "/usr/lib/i386-linux-gnu"
     return None
 
 def addLdPath(libpath):

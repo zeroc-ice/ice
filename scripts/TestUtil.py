@@ -106,7 +106,7 @@ def isLinux():
 
 def isUbuntu():
     return isLinux() and linuxDistribution and linuxDistribution == "Ubuntu"
-        
+
 def isRhel():
     if isLinux() and linuxDistribution:
         for r in ["RedHat", "Amazon", "CentOS"]:
@@ -811,7 +811,7 @@ if isDarwin():
     sslConfigTree["cpp"]["server"] += " --IceSSL.Keychain=server.keychain --IceSSL.KeychainPassword=password" + \
                                       " --IceSSL.ProtocolVersionMax=tls1_1"
     sslConfigTree["cpp"]["colloc"] += " --IceSSL.Keychain=colloc.keychain --IceSSL.KeychainPassword=password"
-        
+
 
 sslConfigTree["py"] = sslConfigTree["cpp"]
 sslConfigTree["rb"] = sslConfigTree["cpp"]
@@ -1670,17 +1670,16 @@ def getCppLibDir(lang = None):
 
 def getJavaLibraryPath():
     if isWin32():
-        if iceHome:    
-            return "-Djava.library.path=%s " % os.path.join(iceHome, "bin\\x64" if x64 else "bin")
+        if iceHome:
+            return "-Djava.library.path=\"%s\" " % os.path.join(iceHome, "bin\\x64" if x64 else "bin")
         else:
-            return ("-Djava.library.path=%s " % os.path.join(getThirdpartyHome(), "bin", "x64") 
-                                    if x64 else os.path.join(getThirdpartyHome(), "bin"))
+            return "-Djava.library.path=\"%s\" " % os.path.join(getThirdpartyHome(), "bin\\x64" if x64 else "bin")
     elif isDarwin():
-        return "-Djava.library.path=%s " % os.path.join(iceHome if iceHome else getThirdpartyHome(), "lib")        
+        return "-Djava.library.path=\"%s\" " % os.path.join(iceHome if iceHome else getThirdpartyHome(), "lib")
     elif isRhel() or isSles():
-        return "-Djava.library.path=%s " % "/usr/lib64" if x64 else "/usr/lib"
+        return "-Djava.library.path=\"%s\" " % "/usr/lib64" if x64 else "/usr/lib"
     elif isUbuntu():
-        return "-Djava.library.path=%s " % "/usr/lib/x86_64-linux-gnu" if x64 else "/usr/lib/i386-linux-gnu"
+        return "-Djava.library.path=\"%s\" " % "/usr/lib/x86_64-linux-gnu" if x64 else "/usr/lib/i386-linux-gnu"
     return None
 
 def getServiceDir():
@@ -1752,7 +1751,7 @@ def getTestEnv(lang, testdir):
 
     if not isDarwin() and iceHome != "/usr":
         addLdPath(getCppLibDir(), env)
-    
+
     if lang == "javae":
         javaDir = os.path.join(getIceDir("javae", testdir), "jdk", "lib")
         addClasspath(os.path.join(javaDir, "IceE.jar"), env)
