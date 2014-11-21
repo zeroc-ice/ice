@@ -388,6 +388,12 @@ final class WSTransceiver implements Transceiver
             }
         }
 
+        if(!buf.b.hasRemaining())
+        {
+            moreData.value |= _readBufferPos < _readBuffer.b.position();
+            return SocketOperation.None;
+        }
+
         int s = SocketOperation.None;
         do
         {
@@ -951,6 +957,7 @@ final class WSTransceiver implements Transceiver
                         throw new Ice.ProtocolException("payload length is 0");
                     }
                     _readState = ReadStatePayload;
+                    assert(buf.b.hasRemaining());
                     _readFrameStart = buf.b.position();
                     break;
                 }

@@ -555,6 +555,16 @@ IceInternal::WSTransceiver::read(Buffer& buf, bool& hasMoreData)
         }
     }
 
+    //
+    // If we read the full Ice message, handle it before trying
+    // reading anymore data from the WS connection.
+    //
+    if(buf.i == buf.b.end())
+    {
+        hasMoreData |= _readI < _readBuffer.i;
+        return SocketOperationNone;
+    }
+
     SocketOperation s = SocketOperationNone;
     do
     {
@@ -1243,6 +1253,7 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
                     throw ProtocolException(__FILE__, __LINE__, "payload length is 0");
                 }
                 _readState = ReadStatePayload;
+                assert(buf.i != buf.b.end());
                 _readFrameStart = buf.i;
                 break;
             }

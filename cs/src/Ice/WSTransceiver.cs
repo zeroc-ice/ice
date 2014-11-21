@@ -402,6 +402,12 @@ namespace IceInternal
                 }
             }
 
+            if(!buf.b.hasRemaining())
+            {
+                hasMoreData |= _readBufferPos < _readBuffer.b.position();
+                return SocketOperation.None;
+            }
+
             int s = IceInternal.SocketOperation.None;
             do
             {
@@ -702,7 +708,6 @@ namespace IceInternal
             _readOpCode = 0;
             _readHeaderLength = 0;
             _readPayloadLength = 0;
-            _readMask = new byte[4];
             _writeState = WriteStateHeader;
             _writeBuffer = new IceInternal.Buffer(IceInternal.ByteBuffer.ByteOrder.BIG_ENDIAN); // Network byte order
             _writeBufferSize = 1024;
@@ -1106,6 +1111,7 @@ namespace IceInternal
                             throw new Ice.ProtocolException("payload length is 0");
                         }
                         _readState = ReadStatePayload;
+                        Debug.Assert(buf.b.hasRemaining());
                         _readFrameStart = buf.b.position();
                         break;
                     }
