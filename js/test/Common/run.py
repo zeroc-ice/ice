@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, threading, subprocess
+import os, sys, threading, subprocess, getopt
 
 path = [ ".", "..", "../..", "../../..", "../../../.." ]
 head = os.path.dirname(sys.argv[0])
@@ -18,6 +18,27 @@ path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scri
 if len(path) == 0:
     raise RuntimeError("can't find toplevel directory!")
 sys.path.append(os.path.join(path[0], "scripts"))
+
+#
+# On OS X, provide an option to allow removing the trust settings
+#
+if sys.platform == "darwin":
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "", ["clean"])
+        if ("--clean", "") in opts:
+            serverCert = os.path.join(path[0], "certs", "s_rsa1024_pub.pem")
+            if os.system("security verify-cert -c " + serverCert + " >& /dev/null") == 0:
+                sys.stdout.write("removing trust settings for the HTTP server certificate... ")
+                sys.stdout.flush()
+                if os.system("security remove-trusted-cert " + serverCert) != 0:
+                    print("error: couldn't remove trust settings for the HTTP server certificate")
+                print("ok")
+            else:
+                print("trust settings already removed")
+            sys.exit(0)
+    except getopt.GetoptError, ex:
+        pass
+
 import TestUtil
 
 #
@@ -26,7 +47,12 @@ import TestUtil
 if os.environ.get("RUNNING_TEST_CONTROLLER_WITH_ENV", "") == "":
     env = TestUtil.getTestEnv("cpp", os.getcwd())
     env["RUNNING_TEST_CONTROLLER_WITH_ENV"] = "yes"
-    sys.exit(os.spawnve(os.P_WAIT, sys.executable, [sys.executable, "run.py"], env))
+    try:
+        sys.exit(os.spawnve(os.P_WAIT, sys.executable, [sys.executable, "run.py"], env))
+    except:
+        print("")
+        print("To remove the certificate trust settings, run: `" + sys.argv[0] + " --clean'")
+        sys.exit(0)
 
 import Ice, Expect
 Ice.loadSlice("\"" + os.path.join(TestUtil.toplevel, "js", "test", "Common", "Controller.ice") + "\"")
@@ -146,8 +172,11 @@ class Reader(threading.Thread):
 class Server(Ice.Application):
     def run(self, args):
         jsDir = os.path.join(TestUtil.toplevel, "js")
-        httpServer = subprocess.Popen(nodeCmd + " \"" + os.path.join(jsDir, "bin", "HttpServer.js") + "\"", shell = True,
-                                      stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.STDOUT,
+        httpServer = subprocess.Popen(nodeCmd + " \"" + os.path.join(jsDir, "bin", "HttpServer.js") + "\"", 
+                                      shell = True, 
+                                      stdin = subprocess.PIPE, 
+                                      stdout = subprocess.PIPE, 
+                                      stderr = subprocess.STDOUT,
                                       bufsize = 0)
         #
         # Wait for the HttpServer to start
@@ -186,7 +215,25 @@ initData.properties.setProperty("IceSSL.DefaultDir", os.path.join(TestUtil.tople
 initData.properties.setProperty("IceSSL.CertAuthFile", "cacert.pem");
 initData.properties.setProperty("IceSSL.CertFile", "s_rsa1024_pub.pem");
 initData.properties.setProperty("IceSSL.KeyFile", "s_rsa1024_priv.pem");
+initData.properties.setProperty("IceSSL.Keychain", "test.keychain");
+initData.properties.setProperty("IceSSL.KeychainPassword", "password");
 initData.properties.setProperty("IceSSL.VerifyPeer", "0");
 initData.properties.setProperty("Ice.ThreadPool.Server.SizeMax", "10")
 initData.properties.setProperty("ControllerAdapter.Endpoints", "ws -p 12009:wss -p 12008")
+
+if TestUtil.isDarwin():
+    #
+    # On OS X, we set the trust settings on the certificate to prevent
+    # the Web browsers from prompting the user about the unstrusted
+    # certificate. Some browsers such as Chrome don't provide the
+    # option to set this trust settings.
+    #
+    serverCert = os.path.join(TestUtil.toplevel, "certs", "s_rsa1024_pub.pem")
+    if os.system("security verify-cert -c " + serverCert + " >& /dev/null") != 0:
+        sys.stdout.write("adding trust settings for the HTTP server certificate... ")
+        sys.stdout.flush()
+        if os.system("security add-trusted-cert -r trustAsRoot " + serverCert) != 0:
+            print("error: couldn't add trust settings for the HTTP server certificate")
+        print("ok")
+
 sys.exit(app.main(sys.argv, initData=initData))
