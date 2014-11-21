@@ -20,7 +20,9 @@ keepGoing = False               # Set to True to have the tests continue on fail
 ipv6 = False                    # Default to use IPv4 only
 socksProxy = False              # Use SOCKS proxy running on localhost
 iceHome = None                  # Binary distribution to use (None to use binaries from source distribution)
+global x64
 x64 = False                     # Binary distribution is 64-bit
+global x86
 x86 = False                     # Binary distribution is 32-bit
 cpp11 = False                   # Binary distribution is c++11
 extraArgs = []
