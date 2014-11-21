@@ -268,7 +268,7 @@ public class AllTests
         try
         {
             // No more than 2 retries before timeout kicks-in
-            ((RetryPrx)retry2.ice_invocationTimeout(300)).opIdempotent(4);
+            ((RetryPrx)retry2.ice_invocationTimeout(500)).opIdempotent(4);
             test(false);
         }
         catch(Ice.InvocationTimeoutException ex)
@@ -280,7 +280,7 @@ public class AllTests
         try
         {
             // No more than 2 retries before timeout kicks-in
-            RetryPrx prx = (RetryPrx)retry2.ice_invocationTimeout(300);
+            RetryPrx prx = (RetryPrx)retry2.ice_invocationTimeout(500);
             prx.end_opIdempotent(prx.begin_opIdempotent(4));
             test(false);
         }

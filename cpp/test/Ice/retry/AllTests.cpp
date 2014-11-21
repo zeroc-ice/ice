@@ -234,7 +234,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
     retry2 = RetryPrx::checkedCast(communicator2->stringToProxy(retry1->ice_toString()));
     try
     {
-        retry2->ice_invocationTimeout(300)->opIdempotent(4);  // No more than 2 retries before timeout kicks-in
+        retry2->ice_invocationTimeout(500)->opIdempotent(4);  // No more than 2 retries before timeout kicks-in
         test(false);
     }
     catch(const Ice::InvocationTimeoutException&)
@@ -246,7 +246,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
     try
     {
         // No more than 2 retries before timeout kicks-in
-        RetryPrx prx = retry2->ice_invocationTimeout(300);
+        RetryPrx prx = retry2->ice_invocationTimeout(500);
         prx->end_opIdempotent(prx->begin_opIdempotent(4));
         test(false);
     }

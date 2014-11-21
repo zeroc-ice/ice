@@ -110,7 +110,7 @@
                 out.writeLine("ok");
                 out.write("testing invocation timeout and retries... ");
                 retry2 = Test.RetryPrx.uncheckedCast(communicator2.stringToProxy(retry1.toString()));
-                return retry2.ice_invocationTimeout(300).opIdempotent(4);
+                return retry2.ice_invocationTimeout(500).opIdempotent(4);
             }
         ).then(
             function()
