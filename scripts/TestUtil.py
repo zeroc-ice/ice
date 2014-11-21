@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import sys, os, re, getopt, time, string, threading, atexit, platform, traceback
+import sys, os, re, getopt, time, string, threading, atexit, platform, traceback, subprocess
 
 # Global flags and their default values.
 protocol = ""                   # If unset, default to TCP. Valid values are "tcp", "ssl", "ws" or "wss".
@@ -116,6 +116,24 @@ def isRhel():
 
 def isSles():
     return isLinux() and linuxDistribution and linuxDistribution == "SUSE LINUX"
+
+#
+# Set the default arch to x64 in x64 machines, this could be override with --x86
+# argument
+#
+if isWin32():
+    if (os.environ.get("PROCESSOR_ARCHITECTURE", "") == "AMD64" or
+        os.environ.get("PROCESSOR_ARCHITEW6432", "") == "AMD64"):
+        global x64
+        x64 = True
+else:
+    p = subprocess.Popen("uname -m", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
+    if(p.wait() != 0):
+        print("uname failed:\n" + p.stdout.read().strip())
+        sys.exit(1)
+    if p.stdout.readline().decode('UTF-8').strip() == "x86_64":
+        global x64
+        x64 = True
 
 def getCppCompiler():
     compiler = ""
@@ -1933,6 +1951,7 @@ def processCmdLine():
         elif o == "--x86":
             global x86
             x86 = True
+            x64 = False
         elif o == "--c++11":
             global cpp11
             cpp11 = True
@@ -2019,9 +2038,13 @@ def processCmdLine():
         x64 = isWin32() and os.environ.get("PLATFORM", "").upper() == "X64" or os.environ.get("LP64", "") == "yes"
     if iceHome:
         sys.stdout.write("*** using Ice installation from " + iceHome + " ")
-        if x64:
-            sys.stdout.write("(64bit) ")
-        sys.stdout.write("\n")
+    else:
+        sys.stdout.write("*** using Ice source dist ")
+    if x64:
+        sys.stdout.write("(64bit) ")
+    else:
+        sys.stdout.write("(32bit) ")
+    sys.stdout.write("\n")
 
 def runTests(start, expanded, num = 0, script = False):
     total = 0
