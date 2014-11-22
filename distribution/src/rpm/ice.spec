@@ -100,19 +100,22 @@ BuildRoot: %{_tmppath}/ice-%{version}-%{release}-root-%(%{__id_u} -n)
 #
 # This "meta" package includes all run-time components and services.
 #
-%if ! %{cppx86}
-Requires: glacier2 = %{version}-%{release}
-Requires: icegrid = %{version}-%{release}
-Requires: icepatch2 = %{version}-%{release}
-Requires: php-ice = %{version}-%{release}
-Requires: python-ice = %{version}-%{release}
-Requires: ruby-ice = %{version}-%{release}
-Requires: libice3.6-c++ = %{version}-%{release}
-Requires: libfreeze3.6-c++ = %{version}-%{release}
+%if %{cppx86}
+Requires: icebox%{?_isa} = %{version}-%{release}
+Requires: libicestorm3.6%{?_isa} = %{version}-%{release}
+%else
+Requires: glacier2%{?_isa} = %{version}-%{release}
+Requires: icegrid%{?_isa} = %{version}-%{release}
+Requires: icepatch2%{?_isa} = %{version}-%{release}
+Requires: php-ice%{?_isa} = %{version}-%{release}
+Requires: python-ice%{?_isa} = %{version}-%{release}
+Requires: ruby-ice%{?_isa} = %{version}-%{release}
+Requires: libice3.6-c++%{?_isa} = %{version}-%{release}
+Requires: libfreeze3.6-c++%{?_isa} = %{version}-%{release}
 Requires: ice-utils-java = %{version}-%{release}
-%endif # ! cppx86
-Requires: icebox = %{version}-%{release}
-Requires: libicestorm3.6 = %{version}-%{release}
+Requires: icebox%{?_isa} = %{version}-%{release}
+Requires: libicestorm3.6%{?_isa} = %{version}-%{release}
+%endif # cppx86
 
 #
 # RHEL7 includes Berkeley DB 5.3.21, on other platforms we supply 5.3.28.
@@ -203,14 +206,16 @@ certificate authority utility.
 %package -n ice-all-devel
 Summary: Ice development meta package that includes development kits for all supported languages.
 Group: System Environment/Libraries
-Requires: libice-c++-devel = %{version}-%{release}
-%if ! %{cppx86}
-Requires: libice-java = %{version}-%{release}
-Requires: libice-js = %{version}-%{release}
-Requires: php-ice-devel = %{version}-%{release}
-Requires: python-ice-devel = %{version}-%{release}
-Requires: ruby-ice-devel = %{version}-%{release}
-%endif # ! cppx86
+%if %{cppx86}
+Requires: libice-c++-devel%{?_isa} = %{version}-%{release}
+%else
+Requires: libice-c++-devel%{?_isa} = %{version}-%{release}
+Requires: libice-java%{?_isa} = %{version}-%{release}
+Requires: libice-js%{?_isa} = %{version}-%{release}
+Requires: php-ice-devel%{?_isa} = %{version}-%{release}
+Requires: python-ice-devel%{?_isa} = %{version}-%{release}
+Requires: ruby-ice-devel%{?_isa} = %{version}-%{release}
+%endif # cppx86
 %description -n ice-all-devel
 Ice development meta package that includes development kits for all supported languages.
 
@@ -224,11 +229,11 @@ The Ice run time libraries for C++.
 %package -n libfreeze3.6-c++
 Summary: The Freeze library for C++.
 Group: System Environment/Libraries
-Requires: libice3.6-c++ = %{version}-%{release}
+Requires: libice3.6-c++%{?_isa} = %{version}-%{release}
 %if "%{dist}" == ".el7"
-Requires: libdb
+Requires: libdb%{?_isa}
 %else
-Requires: db53
+Requires: db53%{?_isa}
 %endif
 %description -n libfreeze3.6-c++
 The Freeze library for C++.
@@ -261,9 +266,9 @@ Summary: Ice for Java run-time libraries and development tools.
 Group: System Environment/Libraries
 Obsoletes: ice-java-devel < 3.6, ice-java < 3.6
 %if "%{dist}" == ".el7"
-Requires: libdb-java
+Requires: libdb-java%{?_isa}
 %else
-Requires: db53-java
+Requires: db53-java%{?_isa}
 %endif
 %description -n libice-java
 Ice for Java run-time libraries and development tools.
@@ -278,7 +283,7 @@ Ice for JavaScript run-time libraries and development tools.
 Summary: Ice utilities and admin tools.
 Group: Applications/System
 Obsoletes: ice-utils < 3.6
-Requires: libfreeze3.6-c++ = %{version}-%{release}
+Requires: libfreeze3.6-c++%{?_isa} = %{version}-%{release}
 %description -n ice-utils
 Command-line administrative tools to manage Ice servers (IceGrid,
 IceStorm, IceBox, etc.), plus various Ice-related utilities.
@@ -287,7 +292,7 @@ IceStorm, IceBox, etc.), plus various Ice-related utilities.
 Summary: IceGrid servers.
 Group: System Environment/Daemons
 Obsoletes: ice-servers < 3.6
-Requires: libfreeze3.6-c++ = %{version}-%{release}, ice-utils = %{version}-%{release}
+Requires: libfreeze3.6-c++%{?_isa} = %{version}-%{release}, ice-utils = %{version}-%{release}
 # Requirements for the users
 Requires(pre): %{shadow}
 %if %{systemd}
@@ -328,7 +333,7 @@ Glacier2 server.
 Summary: IcePatch2 server.
 Group: System Environment/Daemons
 Obsoletes: ice-servers < 3.6
-Requires: ice-utils = %{version}-%{release}
+Requires: ice-utils%{?_isa} = %{version}-%{release}
 # Requirements for the users
 Requires(pre): %{shadow}
 %if %{systemd}
@@ -350,7 +355,7 @@ IcePatch2 server.
 %package -n libicestorm3.6
 Summary: IceStorm service.
 Group: System Environment/Libraries
-Requires: libfreeze3.6-c++ = %{version}-%{release}
+Requires: libfreeze3.6-c++%{?_isa} = %{version}-%{release}
 %description -n libicestorm3.6
 IceStorm service.
 
@@ -358,7 +363,7 @@ IceStorm service.
 Summary: Tools, libraries and headers for developing Ice applications in C++.
 Group: Development/Tools
 Obsoletes: ice-c++-devel < 3.6
-Requires: libice3.6-c++ = %{version}-%{release}, ice-slice = %{version}-%{release}
+Requires: libice3.6-c++%{?_isa} = %{version}-%{release}, ice-slice = %{version}-%{release}
 %description -n libice-c++-devel
 Tools, libraries and headers for developing Ice applications in C++.
 
@@ -369,14 +374,14 @@ Tools, libraries and headers for developing Ice applications in C++.
 Summary: The Ice run time for Ruby.
 Group: System Environment/Libraries
 Obsoletes: ice-ruby < 3.6
-Requires: libice3.6-c++ = %{version}-%{release}
+Requires: libice3.6-c++%{?_isa} = %{version}-%{release}
 #
 # Amazon Linux 2014.03 defaults to Ruby 2.0
 #
 %if "%{dist}" == ".amzn1"
-Requires: ruby18
+Requires: ruby18%{?_isa}
 %else
-Requires: ruby
+Requires: ruby%{?_isa}
 %endif
 %description -n ruby-ice
 The Ice run time for Ruby.
@@ -385,7 +390,7 @@ The Ice run time for Ruby.
 Summary: Tools for developing Ice applications in Ruby.
 Group: Development/Tools
 Obsoletes: ice-ruby-devel < 3.6
-Requires: ruby-ice = %{version}-%{release}, ice-slice = %{version}-%{release}
+Requires: ruby-ice%{?_isa} = %{version}-%{release}, ice-slice = %{version}-%{release}
 %description -n ruby-ice-devel
 Tools for developing Ice applications in Ruby.
 %endif
@@ -394,7 +399,7 @@ Tools for developing Ice applications in Ruby.
 Summary: The Ice run time for Python.
 Group: System Environment/Libraries
 Obsoletes: ice-python < 3.6
-Requires: libice3.6-c++ = %{version}-%{release}, python
+Requires: libice3.6-c++%{?_isa} = %{version}-%{release}, python
 %description -n python-ice
 The Ice run time for Python.
 
@@ -402,7 +407,7 @@ The Ice run time for Python.
 Summary: Tools for developing Ice applications in Python.
 Group: Development/Tools
 Obsoletes: ice-python-devel < 3.6
-Requires: python-ice = %{version}-%{release}, ice-slice = %{version}-%{release}
+Requires: python-ice%{?_isa} = %{version}-%{release}, ice-slice = %{version}-%{release}
 %description -n python-ice-devel
 Tools for developing Ice applications in Python.
 
@@ -410,21 +415,21 @@ Tools for developing Ice applications in Python.
 Summary: The Ice run time for PHP.
 Group: System Environment/Libraries
 Obsoletes: ice-php < 3.6
-Requires: libice3.6-c++ = %{version}-%{release}
+Requires: libice3.6-c++%{?_isa} = %{version}-%{release}
 %if "%{dist}" == ".sles11"
-Requires: php53
+Requires: php53%{?_isa}
 %endif
 %if "%{dist}" == ".sles12"
-Requires: php5
+Requires: php5%{?_isa}
 %endif
 %if "%{dist}" == ".el6"
-Requires: php
+Requires: php%{?_isa}
 %endif
 %if "%{dist}" == ".el7"
-Requires: php
+Requires: php%{?_isa}
 %endif
 %if "%{dist}" == ".amzn1"
-Requires: php < 5.4
+Requires: php%{?_isa} < 5.4
 %endif
 %description -n php-ice
 The Ice run time for PHP.
@@ -433,7 +438,7 @@ The Ice run time for PHP.
 Summary: Tools for developing Ice applications in PHP.
 Group: Development/Tools
 Obsoletes: ice-php-devel < 3.6
-Requires: php-ice = %{version}-%{release}, ice-slice = %{version}-%{release}
+Requires: php-ice%{?_isa} = %{version}-%{release}, ice-slice = %{version}-%{release}
 %description -n php-ice-devel
 Tools for developing Ice applications in PHP.
 %endif
