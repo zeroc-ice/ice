@@ -101,7 +101,7 @@ Outgoing::Outgoing(IceProxy::Ice::Object* proxy, const string& operation, Operat
 
         _os.write(operation, false);
 
-        _os.write(static_cast<Byte>(mode));
+        _os.write(static_cast<Ice::Byte>(mode));
 
         if(context != 0)
         {
@@ -169,7 +169,7 @@ Outgoing::sent()
 }
 
 void
-Outgoing::completed(const Exception& ex)
+Outgoing::completed(const Ice::Exception& ex)
 {
     Monitor<Mutex>::Lock sync(_monitor);
     //assert(_state <= StateInProgress);
@@ -385,7 +385,7 @@ Outgoing::completed(BasicStream& is)
 
     _is.swap(is);
 
-    Byte replyStatus;
+    Ice::Byte replyStatus;
     _is.read(replyStatus);
     
     switch(replyStatus)
