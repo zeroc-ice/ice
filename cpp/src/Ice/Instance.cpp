@@ -195,11 +195,14 @@ class Timer : public IceUtil::Timer
 {
 public:
 
-    Timer(int priority) : IceUtil::Timer(priority)
+    Timer(int priority) : 
+        IceUtil::Timer(priority),
+        _hasObserver(false)
     {
     }
 
-    Timer()
+    Timer() :
+        _hasObserver(false)
     {
     }
 
