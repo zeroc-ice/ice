@@ -320,17 +320,6 @@ var ConnectionI = Class({
             return;
         }
 
-        if(this._readStream.size > Protocol.headerSize || !this._writeStream.isEmpty())
-        {
-            //
-            // If writing or reading, nothing to do, the connection
-            // timeout will kick-in if writes or reads don't progress.
-            // This check is necessary because the actitivy timer is
-            // only set when a message is fully read/written.
-            //
-            return;
-        }
-
         //
         // We send a heartbeat if there was no activity in the last
         // (timeout / 4) period. Sending a heartbeat sooner than
@@ -344,14 +333,25 @@ var ConnectionI = Class({
         // per timeout period because the monitor() method is sill only
         // called every (timeout / 2) period.
         //
-
         if(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatAlways ||
-            (acm.heartbeat != Ice.ACMHeartbeat.HeartbeatOff && now >= (this._acmLastActivity + acm.timeout / 4)))
+            (acm.heartbeat != Ice.ACMHeartbeat.HeartbeatOff && this._writeStream.isEmpty() && 
+             now >= (this._acmLastActivity + acm.timeout / 4)))
         {
             if(acm.heartbeat != Ice.ACMHeartbeat.HeartbeatOnInvocation || this._dispatchCount > 0)
             {
                 this.heartbeat(); // Send heartbeat if idle in the last timeout / 2 period.
             }
+        }
+
+        if(this._readStream.size > Protocol.headerSize || !this._writeStream.isEmpty())
+        {
+            //
+            // If writing or reading, nothing to do, the connection
+            // timeout will kick-in if writes or reads don't progress.
+            // This check is necessary because the actitivy timer is
+            // only set when a message is fully read/written.
+            //
+            return;
         }
 
         if(acm.close != Ice.ACMClose.CloseOff && now >= (this._acmLastActivity + acm.timeout))

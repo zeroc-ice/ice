@@ -552,17 +552,6 @@ Ice::ConnectionI::monitor(const IceUtil::Time& now, const ACMConfig& acm)
     }
     assert(acm.timeout != IceUtil::Time());
 
-    if(static_cast<Int>(_readStream.b.size()) > headerSize || !_writeStream.b.empty())
-    {
-        //
-        // If writing or reading, nothing to do, the connection
-        // timeout will kick-in if writes or reads don't progress.
-        // This check is necessary because the actitivy timer is
-        // only set when a message is fully read/written.
-        //
-        return;
-    }
-
     //
     // We send a heartbeat if there was no activity in the last
     // (timeout / 4) period. Sending a heartbeat sooner than really
@@ -575,14 +564,24 @@ Ice::ConnectionI::monitor(const IceUtil::Time& now, const ACMConfig& acm)
     // per timeout period because the monitor() method is sill only
     // called every (timeout / 2) period.
     //
-
     if(acm.heartbeat == HeartbeatAlways ||
-       (acm.heartbeat != HeartbeatOff && now >= (_acmLastActivity + acm.timeout / 4)))
+       (acm.heartbeat != HeartbeatOff && _writeStream.b.empty() && now >= (_acmLastActivity + acm.timeout / 4)))
     {
         if(acm.heartbeat != HeartbeatOnInvocation || _dispatchCount > 0)
         {
             heartbeat();
         }
+    }
+
+    if(static_cast<Int>(_readStream.b.size()) > headerSize || !_writeStream.b.empty())
+    {
+        //
+        // If writing or reading, nothing to do, the connection
+        // timeout will kick-in if writes or reads don't progress.
+        // This check is necessary because the actitivy timer is
+        // only set when a message is fully read/written.
+        //
+        return;
     }
 
     if(acm.close != CloseOff && now >= (_acmLastActivity + acm.timeout))

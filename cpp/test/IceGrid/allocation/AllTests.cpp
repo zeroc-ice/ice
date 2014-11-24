@@ -278,7 +278,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
     test(registry);
     AdminSessionPrx session = registry->createAdminSession("foo", "bar");
-
     session->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatAlways);
 
     AdminPrx admin = session->getAdmin();
@@ -306,10 +305,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         cout << "testing create session... " << flush;
         SessionPrx session1 = registry->createSession("Client1", "");
         SessionPrx session2 = registry->createSession("Client2", "");
-        
-        session1->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatOnIdle);
-        session2->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatOnIdle);
-
         cout << "ok" << endl;
 
         cout << "testing allocate object by identity... " << flush;
@@ -1050,7 +1045,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         cout << "stress test... " << flush;
 
         SessionPrx stressSession = registry->createSession("StressSession", "");        
-        stressSession->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatOnIdle);
 
         const int nClients = 10;
         int i;

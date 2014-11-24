@@ -273,17 +273,6 @@ public final class ConnectionI extends IceInternal.EventHandler
             return;
         }
 
-        if(_readStream.size() > IceInternal.Protocol.headerSize || !_writeStream.isEmpty())
-        {
-            //
-            // If writing or reading, nothing to do, the connection
-            // timeout will kick-in if writes or reads don't progress.
-            // This check is necessary because the activity timer is
-            // only set when a message is fully read/written.
-            //
-            return;
-        }
-
         //
         // We send a heartbeat if there was no activity in the last
         // (timeout / 4) period. Sending a heartbeat sooner than
@@ -297,14 +286,25 @@ public final class ConnectionI extends IceInternal.EventHandler
         // heartbeats per timeout period because the monitor() method
         // is sill only called every (timeout / 2) period.
         //
-
         if(acm.heartbeat == ACMHeartbeat.HeartbeatAlways ||
-           (acm.heartbeat != ACMHeartbeat.HeartbeatOff && now >= (_acmLastActivity + acm.timeout / 4)))
+           (acm.heartbeat != ACMHeartbeat.HeartbeatOff && _writeStream.isEmpty() && 
+            now >= (_acmLastActivity + acm.timeout / 4)))
         {
             if(acm.heartbeat != ACMHeartbeat.HeartbeatOnInvocation || _dispatchCount > 0)
             {
                 heartbeat();
             }
+        }
+
+        if(_readStream.size() > IceInternal.Protocol.headerSize || !_writeStream.isEmpty())
+        {
+            //
+            // If writing or reading, nothing to do, the connection
+            // timeout will kick-in if writes or reads don't progress.
+            // This check is necessary because the activity timer is
+            // only set when a message is fully read/written.
+            //
+            return;
         }
 
         if(acm.close != ACMClose.CloseOff && now >= (_acmLastActivity + acm.timeout))
