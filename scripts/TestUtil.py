@@ -737,7 +737,7 @@ def getIceBox():
             if x86:
                 iceBox += "32"
             if cpp11:
-                iceBox += "++11"        
+                iceBox += "++11"
         iceBox = os.path.join(getCppBinDir(lang), iceBox)
 
         if not os.path.exists(iceBox):
@@ -1053,7 +1053,6 @@ def getCommandLine(exe, config, options = ""):
             output.write("-d64 ")
         if not config.ipv6:
             output.write("-Djava.net.preferIPv4Stack=true ")
-        print ("library path %s" % getJavaLibraryPath())
         output.write(getJavaLibraryPath())
         output.write(exe + " ")
     elif config.lang == "py":
@@ -2145,11 +2144,11 @@ def runTests(start, expanded, num = 0, script = False):
             if isVC100() and "novc100" in config:
                 print("%s*** test not supported with VC++ 10.0%s" % (prefix, suffix))
                 continue
-            
+
             if cpp11 and "noc++11" in config:
                 print("%s*** test not supported with C++11%s" % (prefix, suffix))
                 continue
-            
+
             if x86 and iceHome and "nomultiarch" in config:
                 print("%s*** test not supported with x86 in multiarch%s" % (prefix, suffix))
                 continue
