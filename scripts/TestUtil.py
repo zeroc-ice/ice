@@ -50,7 +50,6 @@ serverOnly = False
 mx = False
 
 global linuxDistribution
-
 if os.path.isfile("/etc/issue"):
     f = open("/etc/issue", "r")
     issue = f.read()
@@ -118,24 +117,6 @@ def isRhel():
 
 def isSles():
     return isLinux() and linuxDistribution and linuxDistribution == "SUSE LINUX"
-
-#
-# Set the default arch to x64 in x64 machines, this could be override with --x86
-# argument
-#
-if isWin32():
-    if (os.environ.get("PROCESSOR_ARCHITECTURE", "") == "AMD64" or
-        os.environ.get("PROCESSOR_ARCHITEW6432", "") == "AMD64"):
-        global x64
-        x64 = True
-else:
-    p = subprocess.Popen("uname -m", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
-    if(p.wait() != 0):
-        print("uname failed:\n" + p.stdout.read().strip())
-        sys.exit(1)
-    if p.stdout.readline().decode('UTF-8').strip() == "x86_64":
-        global x64
-        x64 = True
 
 def getCppCompiler():
     compiler = ""
@@ -209,6 +190,22 @@ def getThirdpartyHome():
     return None
 
 #
+# Set the default arch to x64 on x64 machines, this could be overriden
+# with the --x86 command line argument.
+#
+if isWin32():
+    if (os.environ.get("PROCESSOR_ARCHITECTURE", "") == "AMD64" or
+        os.environ.get("PROCESSOR_ARCHITEW6432", "") == "AMD64"):
+        x64 = True
+else:
+    p = subprocess.Popen("uname -m", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
+    if(p.wait() != 0):
+        print("uname failed:\n" + p.stdout.read().strip())
+        sys.exit(1)
+    if p.stdout.readline().decode('UTF-8').strip() == "x86_64":
+        x64 = True
+
+#
 # The PHP interpreter is called "php5" on some platforms (e.g., SLES).
 #
 phpCmd = "php"
@@ -221,6 +218,7 @@ for path in os.environ["PATH"].split(os.pathsep):
     elif os.path.exists(os.path.join(path, "php5")):
         phpCmd = "php5"
         break
+
 #
 # The NodeJS interpreter is called "nodejs" on some platforms
 # (e.g., Ubuntu)
