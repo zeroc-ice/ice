@@ -325,15 +325,28 @@ Outgoing::invoke()
                 {
                     if(invocationTimeout > 0)
                     {
-                        Time deadline = _invocationTimeoutDeadline - Time::now(Time::Monotonic);
-                        if(deadline < interval)
+                        IceUtil::Time now = Time::now(Time::Monotonic);
+                        if(_invocationTimeoutDeadline > now)
                         {
-                            interval = deadline; 
+                            Time deadline = _invocationTimeoutDeadline - now;
+                            if(deadline < interval)
+                            {
+                                interval = deadline;
+                            }
+                            ThreadControl::sleep(interval);
+                            if(_invocationTimeoutDeadline > Time::now(Time::Monotonic))
+                            {
+                                _observer.retried();
+                            }
                         }
                     }
-                    ThreadControl::sleep(interval);
+                    else
+                    {
+                        ThreadControl::sleep(interval);
+                        _observer.retried();
+                    }
                 }
-                if(_invocationTimeoutDeadline == Time() || _invocationTimeoutDeadline > Time::now(Time::Monotonic))
+                else
                 {
                     _observer.retried();
                 }
