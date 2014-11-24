@@ -109,16 +109,28 @@ endif
 
 libdir                  = $(top_srcdir)/python
 ifneq ($(prefix), /usr)
-install_pythondir       = $(prefix)/python
-install_libdir          = $(prefix)/python
+    install_pythondir		= $(prefix)/python
+    install_libdir			= $(prefix)/python
 else
-	ifeq ($(shell test -d $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/dist-packages && echo 0),0)
-		install_pythondir       = $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/dist-packages
-		install_libdir          = $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/dist-packages
-	else
-		install_pythondir       = $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/site-packages
-		install_libdir          = $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/site-packages
-	endif
+    ifeq ($(shell test -d $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/dist-packages && echo 0),0)
+        install_pythondir	= $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/dist-packages
+        install_libdir		= $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/dist-packages
+    endif
+
+    ifeq ($(shell test -d $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/site-packages && echo 0),0)
+        install_pythondir	= $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/site-packages
+        install_libdir		= $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/site-packages
+    endif
+
+    ifeq ($(shell test -d $(prefix)/lib/$(PYTHON_VERSION)/dist-packages && echo 0),0)
+        install_pythondir	= $(prefix)/lib/$(PYTHON_VERSION)/dist-packages
+        install_libdir		= $(prefix)/lib/$(PYTHON_VERSION)/dist-packages
+    endif
+
+    ifeq ($(shell test -d $(prefix)/lib/$(PYTHON_VERSION)/site-packages && echo 0),0)
+        install_pythondir	= $(prefix)/lib/$(PYTHON_VERSION)/site-packages
+        install_libdir		= $(prefix)/lib/$(PYTHON_VERSION)/site-packages
+    endif
 endif
 
 ifeq ($(UNAME),SunOS)

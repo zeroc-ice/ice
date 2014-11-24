@@ -108,19 +108,16 @@ override_dh_install: icebox_install
 		cp java/lib/$$name-$(VERSION).pom $(DESTDIR)/$(prefix)/share/maven-repo/com/zeroc/$$name/$(VERSION) ; \
 		cd $(DESTDIR)/$(prefix)/share/maven-repo/com/zeroc/$$name/$(VERSION) && ln -s ../../../../../java/$$name-$(VERSION).jar . ; \
 	done ;
-
-	mkdir -p $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH)
-	mkdir -p $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH)/c++11
 	
-	mv $(DESTDIR)$(prefix)/lib/lib*.so* $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH)
+	mkdir -p $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH)/c++11
 
 	#
 	# Move C++11 libarries and binaries to their locations
 	#
 	for name in $(CPP11_LIB_NAMES) ; \
 	do \
-		cp $(CPP11_DESTDIR)$(prefix)/lib/$$name++11*.so* $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH) ; \
-		cp $(CPP11_DESTDIR)$(prefix)/lib/c++11/$$name.so $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH)/c++11/$$name.so ; \
+		cp $(CPP11_DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH)/$$name++11*.so* $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH) ; \
+		cp $(CPP11_DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH)/c++11/$$name.so $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH)/c++11/$$name.so ; \
 	done ;
 
 	cp $(CPP11_DESTDIR)$(prefix)/bin/icebox++11 $(DESTDIR)$(prefix)/bin/$(ICEBOX)++11
