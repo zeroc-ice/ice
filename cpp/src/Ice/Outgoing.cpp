@@ -326,30 +326,37 @@ Outgoing::invoke()
                     if(invocationTimeout > 0)
                     {
                         IceUtil::Time now = Time::now(Time::Monotonic);
-                        if(_invocationTimeoutDeadline > now)
+                        IceUtil::Time retryDeadline = now + interval;
+
+                        //
+                        // Wait until either the retry and invocation timeout deadline is reached.
+                        // Note that we're using a loop here because sleep() precision isn't as 
+                        // good as the motonic clock and it can return few hundred micro-seconds 
+                        // earlier which breaks the check for the invocation timeout.
+                        //
+                        while(retryDeadline > now && _invocationTimeoutDeadline > now)
                         {
-                            Time deadline = _invocationTimeoutDeadline - now;
-                            if(deadline < interval)
+                            if(retryDeadline < _invocationTimeoutDeadline)
                             {
-                                interval = deadline;
+                                ThreadControl::sleep(retryDeadline - now);
                             }
-                            ThreadControl::sleep(interval);
-                            if(_invocationTimeoutDeadline > Time::now(Time::Monotonic))
+                            else if(_invocationTimeoutDeadline > now)
                             {
-                                _observer.retried();
+                                ThreadControl::sleep(_invocationTimeoutDeadline - now);
                             }
+                            now = Time::now(Time::Monotonic);
+                        }
+                        if(now >= _invocationTimeoutDeadline)
+                        {
+                            throw Ice::InvocationTimeoutException(__FILE__, __LINE__);
                         }
                     }
                     else
                     {
                         ThreadControl::sleep(interval);
-                        _observer.retried();
                     }
                 }
-                else
-                {
-                    _observer.retried();
-                }
+                _observer.retried();
             }
             catch(const Ice::Exception& ex)
             {
