@@ -1538,7 +1538,6 @@ public class AMI
 
             java.util.List<SentCallback> cbs = new java.util.ArrayList<SentCallback>();
             byte[] seq = new byte[10024];
-            new java.util.Random().nextBytes(seq); // Make sure the request doesn't compress too well.
             Ice.AsyncResult r;
             testController.holdAdapter();
 
@@ -2369,7 +2368,6 @@ public class AMI
                 {
                     r1 = p.begin_op();
                     byte[] seq = new byte[10024];
-                    new java.util.Random().nextBytes(seq); // Make sure the request doesn't compress too well.
                     while((r2 = p.begin_opWithPayload(seq)).sentSynchronously());
 
                     if(p.ice_getConnection() != null)
@@ -2474,7 +2472,6 @@ public class AMI
                 {
                     Ice.AsyncResult r;
                     byte[] seq = new byte[10024];
-                    new java.util.Random().nextBytes(seq); // Make sure the request doesn't compress too well.
                     while((r = p.begin_opWithPayload(seq)).sentSynchronously());
 
                     test(!r.isSent());
@@ -2548,7 +2545,6 @@ public class AMI
             out.flush();
             {
                 byte[] seq = new byte[1024 * 10];
-                new java.util.Random().nextBytes(seq); // Make sure the request doesn't compress too well.
 
                 //
                 // Send multiple opWithPayload, followed by a close and followed by multiple opWithPaylod.

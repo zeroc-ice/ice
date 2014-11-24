@@ -35,7 +35,7 @@ tests = [
     ("Ice/operations", ["core"]),
     ("Ice/seqMapping", ["core"]),
     ("Ice/exceptions", ["core"]),
-    ("Ice/ami", ["core"]),
+    ("Ice/ami", ["core", "nocompress"]),
     ("Ice/info", ["core", "noipv6", "nocompress", "nosocks"]),
     ("Ice/inheritance", ["core"]),
     ("Ice/facets", ["core"]),

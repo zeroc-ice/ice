@@ -49,7 +49,7 @@ tests = [
     ("Ice/blobject", ["core"]),
     ("Ice/defaultServant", ["core"]),
     ("Ice/defaultValue", ["core"]),
-    ("Ice/ami", ["core"]),
+    ("Ice/ami", ["core", "nocompress"]),
     ("Ice/optional", ["core"]),
     ("Ice/enums", ["core"]),
     ("Ice/acm", ["core"])

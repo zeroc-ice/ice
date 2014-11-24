@@ -2625,7 +2625,6 @@ public class AllTests : TestCommon.TestApp
                 {
                     Ice.AsyncResult r = null;
                     byte[] seq = new byte[10024];
-                    (new System.Random()).NextBytes(seq);
                     for(int i = 0; i < 100; ++i) // 2MB
                     {
                         r = p.begin_opWithPayload(seq);
@@ -2704,7 +2703,6 @@ public class AllTests : TestCommon.TestApp
             Flush();
             {
                 byte[] seq = new byte[1024 * 10];
-                (new System.Random()).NextBytes(seq); // Make sure the request doesn't compress too well.
 
                 //
                 // Send multiple opWithPayload, followed by a close and followed by multiple opWithPaylod.

@@ -1279,7 +1279,8 @@ allTests(const Ice::CommunicatorPtr& comm)
         waitForNodeState(masterAdmin, "Node2", true);
 
         Ice::LocatorPrx slave3Locator = 
-            Ice::LocatorPrx::uncheckedCast(comm->stringToProxy("RepTestIceGrid/Locator-Slave3 -e 1.0:default -p 12053"));
+            Ice::LocatorPrx::uncheckedCast(
+                comm->stringToProxy("RepTestIceGrid/Locator-Slave3 -e 1.0:default -p 12053"));
         IceGrid::AdminPrx slave3Admin = createAdminSession(slave3Locator, "Slave3");
         waitForNodeState(slave3Admin, "Node2", true);
 

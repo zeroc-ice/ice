@@ -579,10 +579,10 @@ def allTests(communicator, collocated):
 
     cbs = []
     if sys.version_info[0] == 2:
-        b = [chr(random.randint(0, 255)) for x in range(0, 1024)] # Make sure the request doesn't compress too well.
+        b = [chr(random.randint(0, 255)) for x in range(0, 1024)]
         seq = ''.join(b)
     else:
-        b = [random.randint(0, 255) for x in range(0, 1024)] # Make sure the request doesn't compress too well.
+        b = [random.randint(0, 255) for x in range(0, 1024)]
         seq = bytes(b)
     testController.holdAdapter()
     try:
@@ -886,10 +886,10 @@ def allTests(communicator, collocated):
     try:
         r1 = p.begin_op()
         if sys.version_info[0] == 2:
-            b = [chr(random.randint(0, 255)) for x in range(0, 1024)] # Make sure the request doesn't compress too well.
+            b = [chr(random.randint(0, 255)) for x in range(0, 1024)]
             seq = ''.join(b)
         else:
-            b = [random.randint(0, 255) for x in range(0, 1024)] # Make sure the request doesn't compress too well.
+            b = [random.randint(0, 255) for x in range(0, 1024)]
             seq = bytes(b)
         while(True):
             r2 = p.begin_opWithPayload(seq)
@@ -984,10 +984,10 @@ def allTests(communicator, collocated):
         r2 = None;
 
         if sys.version_info[0] == 2:
-            b = [chr(random.randint(0, 255)) for x in range(0, 10024)] # Make sure the request doesn't compress too well
+            b = [chr(random.randint(0, 255)) for x in range(0, 10024)]
             seq = ''.join(b)
         else:
-            b = [random.randint(0, 255) for x in range(0, 10024)] # Make sure the request doesn't compress too well
+            b = [random.randint(0, 255) for x in range(0, 10024)]
             seq = bytes(b) 
             
         testController.holdAdapter()
@@ -1045,10 +1045,10 @@ def allTests(communicator, collocated):
         sys.stdout.flush()
 
         if sys.version_info[0] == 2:
-            b = [chr(random.randint(0, 255)) for x in range(0, 10*1024)] # Make sure the request doesn't compress too well.
+            b = [chr(random.randint(0, 255)) for x in range(0, 10*1024)]
             seq = ''.join(b)
         else:
-            b = [random.randint(0, 255) for x in range(0, 10*1024)] # Make sure the request doesn't compress too well.
+            b = [random.randint(0, 255) for x in range(0, 10*1024)]
             seq = bytes(b)
 
         #

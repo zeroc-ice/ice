@@ -1505,11 +1505,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
         vector<SentCallbackPtr> cbs;
         Ice::ByteSeq seq;
-        seq.resize(1024); // Make sure the request doesn't compress too well.
-        for(Ice::ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
-        {
-            *q = static_cast<Ice::Byte>(IceUtilInternal::random(255));
-        }
+        seq.resize(1024);
         testController->holdAdapter();
         try
         {
@@ -1577,11 +1573,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
         vector<SentCallbackPtr> cbs;
         Ice::ByteSeq seq;
-        seq.resize(1024); // Make sure the request doesn't compress too well.
-        for(Ice::ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
-        {
-            *q = static_cast<Ice::Byte>(IceUtilInternal::random(255));
-        }
+        seq.resize(1024);
         testController->holdAdapter();
         try
         {
@@ -2561,11 +2553,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             {
                 r1 = p->begin_op();
                 Ice::ByteSeq seq;
-                seq.resize(1024); // Make sure the request doesn't compress too well.
-                for(Ice::ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
-                {
-                    *q = static_cast<Ice::Byte>(IceUtilInternal::random(255));
-                }
+                seq.resize(1024);
                 while((r2 = p->begin_opWithPayload(seq))->sentSynchronously());
 
                 test(r1 == r1);
@@ -2675,11 +2663,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             Ice::AsyncResultPtr r;
             Ice::ByteSeq seq;
-            seq.resize(10024); // Make sure the request doesn't compress too well.
-            for(Ice::ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
-            {
-                *q = static_cast<Ice::Byte>(IceUtilInternal::random(255));
-            }
+            seq.resize(10024);
             for(int i = 0; i < 200; ++i) // 2MB
             {
                 r = p->begin_opWithPayload(seq);
@@ -2746,7 +2730,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         cout << "testing close connection with sending queue... " << flush;
         {
             Ice::ByteSeq seq;
-            seq.resize(1024 * 10); // Make sure the request doesn't compress too well.
+            seq.resize(1024 * 10);
             for(Ice::ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
             {
                 *q = static_cast<Ice::Byte>(IceUtilInternal::random(255));
