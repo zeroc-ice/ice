@@ -18,6 +18,7 @@
 #include <Ice/ImplicitContextI.h>
 
 using namespace std;
+using namespace IceUtil;
 using namespace Ice;
 using namespace Ice::Instrumentation;
 using namespace IceInternal;
@@ -42,7 +43,7 @@ Outgoing::Outgoing(IceProxy::Ice::Object* proxy, const string& operation, Operat
     int invocationTimeout = _proxy->__reference()->getInvocationTimeout();
     if(invocationTimeout > 0)
     {
-        _invocationTimeoutDeadline = IceUtil::Time::now() + IceUtil::Time::milliSeconds(invocationTimeout);
+        _invocationTimeoutDeadline = Time::now(Time::Monotonic) + Time::milliSeconds(invocationTimeout);
     }
 
     switch(_proxy->__reference()->getMode())
@@ -151,7 +152,7 @@ Outgoing::invokeCollocated(CollocatedRequestHandler* handler)
 void
 Outgoing::sent()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+    Monitor<Mutex>::Lock sync(_monitor);
     if(_proxy->__reference()->getMode() != Reference::ModeTwoway)
     {
         _childObserver.detach();
@@ -170,7 +171,7 @@ Outgoing::sent()
 void
 Outgoing::completed(const Exception& ex)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+    Monitor<Mutex>::Lock sync(_monitor);
     //assert(_state <= StateInProgress);
     if(_state > StateInProgress)
     {
@@ -214,7 +215,7 @@ Outgoing::invoke()
     {        
         try
         {
-            if(invocationTimeout > 0 && _invocationTimeoutDeadline <= IceUtil::Time::now())
+            if(invocationTimeout > 0 && _invocationTimeoutDeadline <= Time::now(Time::Monotonic))
             {
                 throw Ice::InvocationTimeoutException(__FILE__, __LINE__);
             }
@@ -234,12 +235,12 @@ Outgoing::invoke()
             {
                 try
                 {
-                    _invocationTimeoutDeadline = IceUtil::Time(); // Reset any previously set value
+                    _invocationTimeoutDeadline = Time(); // Reset any previously set value
 
                     int timeout = _handler->waitForConnection()->timeout();
                     if(timeout > 0)
                     {
-                        _invocationTimeoutDeadline = IceUtil::Time::now() + IceUtil::Time::milliSeconds(timeout);
+                        _invocationTimeoutDeadline = Time::now(Time::Monotonic) + Time::milliSeconds(timeout);
                     }
                 }
                 catch(const Ice::LocalException&)
@@ -249,13 +250,13 @@ Outgoing::invoke()
                     
             bool timedOut = false;
             {
-                IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+                Monitor<Mutex>::Lock sync(_monitor);
                 //
                 // If the handler says it's not finished, we wait until we're done.
                 //
-                if(_invocationTimeoutDeadline != IceUtil::Time())
+                if(_invocationTimeoutDeadline != Time())
                 {
-                    IceUtil::Time now = IceUtil::Time::now();
+                    Time now = Time::now(Time::Monotonic);
                     timedOut = now >= _invocationTimeoutDeadline;
                     while((_state == StateInProgress || !_sent) && _state != StateFailed && !timedOut)
                     {
@@ -263,7 +264,7 @@ Outgoing::invoke()
                             
                         if((_state == StateInProgress || !_sent) && _state != StateFailed)
                         {
-                            now = IceUtil::Time::now();
+                            now = Time::now(Time::Monotonic);
                             timedOut = now >= _invocationTimeoutDeadline;
                         }
                     }
@@ -293,7 +294,7 @@ Outgoing::invoke()
                 // the timeout if there was a failure shortly before requestCanceled got called. 
                 // In this case, the exception should be set on the Outgoing.
                 //
-                IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+                Monitor<Mutex>::Lock sync(_monitor);
                 while(_state == StateInProgress)
                 {
                     _monitor.wait();
@@ -318,21 +319,21 @@ Outgoing::invoke()
         {
             try
             {
-                IceUtil::Time interval;
-                interval = IceUtil::Time::milliSeconds(_proxy->__handleException(ex, _handler, _mode, _sent, cnt));
-                if(interval > IceUtil::Time())
+                Time interval;
+                interval = Time::milliSeconds(_proxy->__handleException(ex, _handler, _mode, _sent, cnt));
+                if(interval > Time())
                 {
                     if(invocationTimeout > 0)
                     {
-                        IceUtil::Time deadline = _invocationTimeoutDeadline - IceUtil::Time::now();
+                        Time deadline = _invocationTimeoutDeadline - Time::now(Time::Monotonic);
                         if(deadline < interval)
                         {
                             interval = deadline; 
                         }
                     }
-                    IceUtil::ThreadControl::sleep(interval);
+                    ThreadControl::sleep(interval);
                 }
-                if(_invocationTimeoutDeadline == IceUtil::Time() || _invocationTimeoutDeadline > IceUtil::Time::now())
+                if(_invocationTimeoutDeadline == Time() || _invocationTimeoutDeadline > Time::now(Time::Monotonic))
                 {
                     _observer.retried();
                 }
@@ -371,7 +372,7 @@ Outgoing::abort(const LocalException& ex)
 void
 Outgoing::completed(BasicStream& is)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+    Monitor<Mutex>::Lock sync(_monitor);
 
     assert(_proxy->__reference()->getMode() == Reference::ModeTwoway); // Can only be called for twoways.
 
@@ -570,7 +571,7 @@ FlushBatch::invoke()
             return;
         }
 
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+        Monitor<Mutex>::Lock sync(_monitor);
         while(!_exception.get() && !_sent)
         {
             _monitor.wait();
@@ -593,18 +594,18 @@ FlushBatch::invoke()
 
         bool timedOut = false;
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+            Monitor<Mutex>::Lock sync(_monitor);
             int timeout = _proxy->__reference()->getInvocationTimeout();
             if(timeout > 0)
             {
-                IceUtil::Time now = IceUtil::Time::now();
-                IceUtil::Time deadline = now + IceUtil::Time::milliSeconds(timeout);
+                Time now = Time::now(Time::Monotonic);
+                Time deadline = now + Time::milliSeconds(timeout);
                 while(!_exception.get() && !_sent && !timedOut)
                 {
                     _monitor.timedWait(deadline - now);                
                     if(!_exception.get() && !_sent)
                     {
-                        now = IceUtil::Time::now();
+                        now = Time::now(Time::Monotonic);
                         timedOut = now >= deadline;
                     }
                 }
@@ -628,7 +629,7 @@ FlushBatch::invoke()
             // the timeout if there was a failure shortly before requestTimedOut got called. 
             // In this case, the exception should be set on the Outgoing.
             //
-            IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+            Monitor<Mutex>::Lock sync(_monitor);
             while(!_exception.get())
             {
                 _monitor.wait();
@@ -672,7 +673,7 @@ FlushBatch::invokeCollocated(CollocatedRequestHandler* handler)
 void
 FlushBatch::sent()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+    Monitor<Mutex>::Lock sync(_monitor);
     _childObserver.detach();
     
     _sent = true;
@@ -688,7 +689,7 @@ FlushBatch::sent()
 void
 FlushBatch::completed(const Ice::Exception& ex)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+    Monitor<Mutex>::Lock sync(_monitor);
     _childObserver.failed(ex.ice_name());
     _childObserver.detach();
     _exception.reset(ex.ice_clone());
