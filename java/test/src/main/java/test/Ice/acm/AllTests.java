@@ -221,7 +221,7 @@ public class AllTests
             }
             catch(Exception ex)
             {
-                _msg = "unexpected exception:\n" + ex.toString();
+                _msg = "unexpected exception:\n" + IceInternal.Ex.toString(ex);
             }
         }
 
