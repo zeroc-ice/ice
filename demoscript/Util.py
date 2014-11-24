@@ -813,11 +813,11 @@ def getJavaLibraryPath():
         else:
             return "-Djava.library.path=\"%s\" " % os.path.join(getThirdpartyHome(), "bin\\x64" if x64 else "bin")
     elif isDarwin():
-        return "-Djava.library.path=\"%s\" " % os.path.join(iceHome if iceHome else getThirdpartyHome(), "lib")
+        return "-Djava.library.path=%s " % os.path.join(iceHome if iceHome else getThirdpartyHome(), "lib")
     elif isRhel() or isSles():
-        return "-Djava.library.path=\"%s\" " % "/usr/lib64" if x64 else "/usr/lib"
+        return "-Djava.library.path=%s " % "/usr/lib64" if x64 else "/usr/lib"
     elif isUbuntu():
-        return "-Djava.library.path=\"%s\" " % "/usr/lib/x86_64-linux-gnu" if x64 else "/usr/lib/i386-linux-gnu"
+        return "-Djava.library.path=%s " % "/usr/lib/x86_64-linux-gnu" if x64 else "/usr/lib/i386-linux-gnu"
     return None
 
 def addLdPath(libpath):
