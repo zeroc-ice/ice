@@ -47,8 +47,8 @@ demos = [
     "IceDiscovery/hello",
     "IceDiscovery/replication",
     "IceStorm/clock",
+    "IceBox/hello",
     "IceStorm/counter",
-    "IceStorm/replicated",
     "IceStorm/replicated2",
     "IceGrid/allocate",
     "IceGrid/customLoadBalancing",
@@ -62,7 +62,6 @@ demos = [
     "Freeze/customEvictor",
     "Freeze/phonebook",
     "Freeze/library",
-    "Freeze/backup",
     "Freeze/transform",
     "Freeze/casino",
     "Manual/map_filesystem",
@@ -71,8 +70,20 @@ demos = [
     "Manual/printer",
     "Manual/lifecycle"]
 
-if not Util.isNoServices():
-    demos += ["IceBox/hello", "IceGrid/icebox"]
+#
+# For this demos the descriptor hardcode the icebox name and will
+# not work with configurations that use different icebox names.
+#
+if Util.getIceBox().endswith("icebox"):
+   demos += ["IceStorm/replicated", "IceGrid/icebox"]
+
+#
+# Freeze backup doesn't work on x86 multiarch because it require to
+# use x86 db tools that are currently not available for x64 
+# distributions.
+#
+if not Util.isX86():
+    demos += ["Freeze/backup"]
 
 if __name__ == "__main__":
     Util.run(demos)

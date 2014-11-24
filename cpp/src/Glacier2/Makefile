@@ -29,7 +29,7 @@ OBJS		= Blobject.o \
 		  SessionRouterI.o \
                   $(SLICE_OBJS)
 
-RPATH_DIR	= $(LOADER_PATH)/../lib
+RPATH_DIR	= $(LOADER_PATH)/../$(libsubdir)
 
 include $(top_srcdir)/config/Make.rules
 

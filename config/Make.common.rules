@@ -63,7 +63,14 @@ endif
 ifeq ($(UNAME),Linux)
    ifeq ($(MACHINE_TYPE),x86_64)
       #
-      # Some Linux distributions like Debian/Ubuntu don't use /usr/lib64.
+      # Ubuntu.
+      #
+      ifeq ($(shell test -d /usr/lib/x86_64-linux-gnu && echo 0),0)
+         lp64suffix	= /x86_64-linux-gnu
+      endif
+      
+      #
+      # Rhel/SLES
       #
       ifeq ($(shell test -d /usr/lib64 && echo 0),0)
           lp64suffix	= 64
@@ -75,6 +82,10 @@ ifeq ($(UNAME),Linux)
           binsuffix 	= 32
       endif
    endif
+endif
+
+ifeq ($(shell test -d /usr/lib/i386-linux-gnu && echo 0),0)
+    lp32suffix     = /i386-linux-gnu
 endif
 
 ifeq ($(CPP11),yes)
@@ -99,8 +110,23 @@ ifeq ($(LP64),yes)
 	libsubdir		:= lib$(lp64suffix)
         binsubdir		:= bin$(lp64binsuffix)
 else
-	libsubdir		:= lib
+	libsubdir		:= lib$(lp32suffix)
 	binsubdir		:= bin
+	#
+	# For x86 builds in x86_64 machines lib64subdir points to the x86_64 lib
+	# directory and libsubdir to the x86 lib directory.
+	#
+	ifeq ($(MACHINE_TYPE),x86_64)
+		ifeq ($(UNAME),Linux)
+			ifeq ($(shell test -d /usr/lib/x86_64-linux-gnu && echo 0),0)
+				ifeq ($(ice_dir),/usr)
+					lib64subdir               = lib/x86_64-linux-gnu
+				endif
+			else
+				lib64subdir               = lib$(lp64suffix)
+			endif
+		endif
+	endif
 endif
 
 #
@@ -194,18 +220,6 @@ $(error slice_translator must be defined)
 $(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please verify ICE_HOME is properly configured and Ice is correctly installed.)
         endif
         ice_dir = $(ICE_HOME)
-        
-        ifeq ($(ice_dir),/usr)
-            ifeq ($(LP64),yes)
-                ifeq ($(shell test -d /usr/lib/x86_64-linux-gnu/ && echo 0),0)
-                    libsubdir = lib/x86_64-linux-gnu
-                endif
-            else
-                ifeq ($(shell test -d /usr/lib/i386-linux-gnu/ && echo 0),0)
-                    libsubdir = lib/i386-linux-gnu
-                endif
-            endif
-        endif
     else
         ifeq ($(shell test -f $(top_srcdir)/bin/$(slice_translator) && echo 0), 0)
             ice_dir = $(top_srcdir)
@@ -278,30 +292,33 @@ endif
 #
 ifneq ($(ice_dir), /usr)
     ifdef ice_src_dist
-	ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
-	    ice_lib_dir = $(ice_cpp_dir)/lib
-	else
-	ice_lib_dir = $(ice_cpp_dir)/$(libsubdir)
-	endif
+        ice_lib_dir = $(ice_cpp_dir)/$(libsubdir)
     else
-        ice_lib_dir = $(ice_dir)/$(libsubdir)
+        ifndef lib64subdir
+            ice_lib_dir = $(ice_dir)/$(libsubdir)
+        else
+            ice_lib_dir = $(ice_dir)/$(lib64subdir)
+        endif
     endif
 
+    #
+    # We always set library path because the build needs to work
+    # whe slice compiler was built without RPATH
+    #
     ifeq ($(UNAME),Linux)
         export LD_LIBRARY_PATH := $(ice_lib_dir):$(LD_LIBRARY_PATH)
     endif
 
+    ifeq ($(UNAME),Darwin)
+        export DYLD_LIBRARY_PATH := $(ice_lib_dir):$(DYLD_LIBRARY_PATH)
+    endif
+
+    
     ifeq ($(UNAME),SunOS)
         ifeq ($(LP64),yes)
             export LD_LIBRARY_PATH_64 := $(ice_lib_dir):$(LD_LIBRARY_PATH_64)
         else
             export LD_LIBRARY_PATH := $(ice_lib_dir):$(LD_LIBRARY_PATH)
-	endif
-    endif
-
-    ifdef ice_src_dist
-	ifeq ($(UNAME),Darwin)
-	    export DYLD_LIBRARY_PATH := $(ice_lib_dir):$(DYLD_LIBRARY_PATH)
 	endif
     endif
 
@@ -390,12 +407,7 @@ endif
 
 ifeq ($(installprogram),)
     installprogram	= $(INSTALL_PROGRAM) $(1) $(2); \
-			  if test -f $(2) ; \
-			  then \
-				chmod a+rx $(2) ; \
-			  else \
-				chmod a+rx $(2)/$(notdir $(1)) ; \
-			  fi
+				chmod a+rx $(2)/$(notdir $(1))
 endif
 
 ifeq ($(mkdir),)

@@ -111,14 +111,10 @@ installmodule	= if test ! -d $(1)/$(3) ; \
 			done;
 
 ifdef ice_src_dist
-    ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
-        SLICE2JS = $(ice_cpp_dir)/bin/slice2js
-        SLICEPARSERLIB = $(ice_cpp_dir)/lib/$(call mklibfilename,Slice,$(VERSION))
-    else
-        SLICE2JS = $(ice_cpp_dir)/$(binsubdir)/slice2js
-    endif
+	SLICE2JS = $(ice_cpp_dir)/bin/slice2js
+	SLICEPARSERLIB = $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
 else
-    SLICE2JS = $(ice_dir)/$(binsubdir)/slice2js
+	SLICE2JS = $(ice_dir)/$(binsubdir)/slice2js
 endif
 
 all:: $(TARGETS)

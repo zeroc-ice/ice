@@ -38,6 +38,7 @@ SLICE2CPPFLAGS	:= --ice --include-dir Glacier2 --dll-export GLACIER2_API $(SLICE
 LINKWITH        := $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
 $(libdir)/$(LIBFILENAME): $(OBJS) $(HDIR)/PermissionsVerifierF.h $(HDIR)/RouterF.h
+	@mkdir -p $(dir $@)
 	rm -f $@
 	$(call mkshlib,$@,$(SONAME),$(OBJS),$(LINKWITH))
 
@@ -46,6 +47,7 @@ $(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
 	ln -s $(LIBFILENAME) $@
 
 $(libdir)$(cpp11libdirsuffix)/$(LIBNAME): $(libdir)/$(SONAME)
+	@mkdir -p $(libdir)$(cpp11libdirsuffix)
 	rm -f $@
 	ln -s $(cpp11sonamedir)$(SONAME) $@
 

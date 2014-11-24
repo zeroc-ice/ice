@@ -38,6 +38,7 @@ import Expect
 keepGoing = False
 iceHome = None
 x64 = False
+x86 = False
 cpp11 = False
 preferIPv4 = False
 serviceDir = None
@@ -271,7 +272,6 @@ def configurePaths():
     binDir = os.path.join(getIceDir("cpp"), "bin")
     addenv("PATH", binDir)
 
-    libDir = None if isWin32() else os.path.join(getIceDir("cpp"), "lib")
     if iceHome:
 
         # Add compiler sub-directory
@@ -283,30 +283,23 @@ def configurePaths():
 
             if subdir:
                 binDir = os.path.join(binDir, subdir)
-
-        if isUbuntu() and iceHome == "/usr":
-            libDir = os.path.join(libDir, "x86_64-linux-gnu" if x64 else "i386-linux-gnu")
-        # Add x64 sub-directory
-        elif x64:
-            if isSolaris():
-                if isSparc():
-                    libDir = os.path.join(libDir, "64")
-                    binDir = os.path.join(binDir, "sparcv9")
-                else:
-                    libDir = os.path.join(libDir, "amd64")
-                    binDir = os.path.join(binDir, "amd64")
-            elif isWin32():
+            if x64:
                 binDir = os.path.join(binDir, "x64")
-            elif not isDarwin():
-                libDir = libDir + "64"
-                binDir = binDir + "64"
+
+        # Add x64 sub-directory
+        if isSolaris() and x64:
+            if isSparc():
+                binDir = os.path.join(binDir, "sparcv9")
+            else:
+                binDir = os.path.join(binDir, "amd64")
+                
 
     if binDir != os.path.join(getIceDir("cpp"), "bin"):
         addenv("PATH", binDir)
     #
     # For OS X we don't need to set any library path for C++
     #
-    if libDir and not isDarwin() and iceHome != "/usr":
+    if isWin32() and libDir:
         addLdPath(libDir)
 
     if not iceHome:
@@ -315,9 +308,7 @@ def configurePaths():
     #
     # On Windows, C# assemblies are found thanks to the .exe.config files.
     #
-    if isCompactFramework():
-        addenv("DEVPATH", os.path.join(getIceDir("cs"), "Assemblies", "cf"))
-    elif isWin32():
+    if isWin32():
         addenv("DEVPATH", os.path.join(getIceDir("cs"), "Assemblies"))
     else:
         addenv("MONO_PATH", os.path.join(getIceDir("cs"), "Assemblies"))
@@ -410,11 +401,6 @@ def isMono():
 
 def isSolaris():
     return sys.platform == "sunos5"
-
-def isNoServices():
-    if not isWin32():
-        return False
-    return getCppCompiler() == "VC90"
 
 global linuxDistribution
 
@@ -679,24 +665,20 @@ def getServiceDir():
             serviceDir = "C:\\Progra~1\ZeroC\Ice-" + str(getIceVersion()) + "\\bin"
     return serviceDir
 
+def isX86():
+    return x86
+
 def getIceBox(mapping = "cpp"):
     if mapping == "cpp":
-        if isNoServices():
-            return os.path.join(getServiceDir(), "icebox.exe")
-        if isWin32() and isDebugBuild():
-            return "iceboxd"
-        if isLinux():
-            if x86 or (iceHome == "/usr" and not x64):
-                if cpp11:
-                    return "icebox32++11"
-                else:
-                    return "icebox32"
-            else:
-                if cpp11:
-                    return "icebox++11"
-                else:
-                    return "icebox"
-        return "icebox"
+        iceBox = "icebox"
+        if isWin32() and isDebug():
+            iceBox += "d"
+        elif isLinux():
+            if x86:
+                iceBox += "32"
+            if cpp11:
+                iceBox += "++11"        
+        return iceBox
     elif mapping == "cs":
         if isMono():
             # Mono cannot locate icebox in the PATH. This is wrong for a demo dist.
@@ -706,34 +688,19 @@ def getIceBox(mapping = "cpp"):
     assert False
 
 def getIceBoxAdmin():
-    if isNoServices():
-        return os.path.join(getServiceDir(), "iceboxadmin")
-    else:
-        return "iceboxadmin"
+    return "iceboxadmin"
 
 def getIceGridRegistry():
-    if isNoServices():
-        return os.path.join(getServiceDir(), "icegridregistry")
-    else:
-        return "icegridregistry"
+    return "icegridregistry"
 
 def getIceGridNode():
-    if isNoServices():
-        return os.path.join(getServiceDir(), "icegridnode")
-    else:
-        return "icegridnode"
+    return "icegridnode"
 
 def getIceGridAdmin():
-    if isNoServices():
-        return os.path.join(getServiceDir(), "icegridadmin")
-    else:
-        return "icegridadmin"
+    return "icegridadmin"
 
 def getGlacier2Router():
-    if isNoServices():
-        return os.path.join(getServiceDir(), "glacier2router")
-    else:
-        return "glacier2router"
+    return "glacier2router"
 
 def spawn(command, cwd = None, mapping = None):
     tokens = command.split(' ')
@@ -815,9 +782,9 @@ def getJavaLibraryPath():
     elif isDarwin():
         return "-Djava.library.path=%s " % os.path.join(iceHome if iceHome else getThirdpartyHome(), "lib")
     elif isRhel() or isSles():
-        return "-Djava.library.path=%s " % "/usr/lib64" if x64 else "/usr/lib"
+        return "-Djava.library.path=%s " % ("/usr/lib64" if x64 else "/usr/lib")
     elif isUbuntu():
-        return "-Djava.library.path=%s " % "/usr/lib/x86_64-linux-gnu" if x64 else "/usr/lib/i386-linux-gnu"
+        return "-Djava.library.path=%s " % ("/usr/lib/x86_64-linux-gnu" if x64 else "/usr/lib/i386-linux-gnu")
     return None
 
 def addLdPath(libpath):

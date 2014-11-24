@@ -76,7 +76,7 @@
  	@for subdir in $(SUBDIRS); \
 --- a/config/Make.common.rules
 +++ b/config/Make.common.rules
-@@ -82,7 +82,10 @@
+@@ -94,7 +94,10 @@
          cpp11libsuffix		= ++11
          cpp11sonamedir		= ../
          binsuffix 		:= $(binsuffix)$(cpp11libsuffix)
@@ -87,7 +87,7 @@
  endif
  
  ifneq ($(findstring MINGW,$(UNAME)),)
-@@ -137,16 +140,16 @@
+@@ -164,16 +167,16 @@
  		ifneq ($(shell test -f $(ICE_HOME)/$(binsubdir)/$(slice_translator) && echo 0), 0)
  $(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please verify ICE_HOME is properly configured and Ice is correctly installed.)
  		endif
@@ -108,7 +108,7 @@
  	endif
  
      endif
-@@ -165,16 +168,16 @@
+@@ -192,16 +195,16 @@
  		ifneq ($(shell test -f $(ICE_HOME)/$(binsubdir)/$(slice_translator) && echo 0), 0)
  $(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please verify ICE_HOME is properly configured and Ice is correctly installed.)
  		endif
@@ -129,15 +129,6 @@
  	endif
      endif
  endif
-@@ -265,7 +268,7 @@
- #
- ifneq ($(ice_dir), /usr)
-     ifdef ice_src_dist
--	ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
-+	ifeq ($(ice_cpp_dir), $(ice_dir)/$(cppsubdir))
- 	    ice_lib_dir = $(ice_cpp_dir)/lib
- 	else
- 	ice_lib_dir = $(ice_cpp_dir)/$(libsubdir)
 --- a/java/Makefile
 +++ b/java/Makefile
 @@ -16,17 +16,17 @@
@@ -162,14 +153,3 @@
  
  test::
  	@python ./allTests.py
---- a/cpp/config/Make.rules
-+++ b/cpp/config/Make.rules
-@@ -17,7 +17,7 @@
- # The "root directory" for runpath embedded in executables. Can be unset
- # to avoid adding a runpath to Ice executables.
- #
--embedded_runpath_prefix ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
-+#embedded_runpath_prefix ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
- 
- #
- # Define create_runpath_symlink as yes if you would like 'make install'

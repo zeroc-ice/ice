@@ -24,6 +24,7 @@ CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_XML_API_EXPORTS $(EXPAT_FLAGS)
 LINKWITH        := -lIceUtil $(EXPAT_LIBS)
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
+	@mkdir -p $(dir $@)
 	rm -f $@
 	$(call mkshlib,$@,$(SONAME),$(OBJS),$(LINKWITH))
 
@@ -32,6 +33,7 @@ $(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
 	ln -s $(LIBFILENAME) $@
 
 $(libdir)$(cpp11libdirsuffix)/$(LIBNAME): $(libdir)/$(SONAME)
+	@mkdir -p $(libdir)$(cpp11libdirsuffix)
 	rm -f $@
 	ln -s $(cpp11sonamedir)$(SONAME) $@
 

@@ -18,21 +18,12 @@ $(warning ===================================================================)
 
 include $(top_srcdir)/../cpp/config/Make.rules.$(UNAME)
 
-shlibldflags		= $(CXXFLAGS) -L$(libdir)
-
-ifneq ($(prefix),/usr)
-shlibldflags		+= -Wl,-rpath,$(prefix)/$(libsubdir)
-endif
+shlibldflags		= $(CXXFLAGS) -L$(libdi) $(LDEXEFLAGS)
 
 mkrblibfilename       	= $(if $(2),$(1).$(2).bundle,$(1).bundle)
 mkrbsoname           	= $(if $(2),$(1).$(2).bundle,$(1).bundle)
-
 mkrblibname           	= $(1).bundle
 
 RUBY_FLAGS              += -Wno-unknown-pragmas
 
-ifneq ($(embedded_runpath_prefix),)
-  mkshlib = $(CXX)  -dynamic -bundle $(shlibldflags) -o $(1) $(3) $(4)
-else
-  mkshlib = $(CXX)  -dynamic -bundle $(shlibldflags) -o $(1) $(3) $(4)
-endif
+mkshlib = $(CXX)  -dynamic -bundle $(shlibldflags) -o $(1) $(3) $(4)

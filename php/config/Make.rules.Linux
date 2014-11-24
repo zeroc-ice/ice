@@ -8,20 +8,9 @@
 # **********************************************************************
 
 #
-# This file is itself included by Make.rules
+# This file is included by Make.rules when uname is Linux.
 #
 
 include $(top_srcdir)/../cpp/config/Make.rules.$(UNAME)
 
-ifeq ($(CXX),g++)
-   ifeq ($(OPTIMIZE),yes)
-      #
-      # Necessary to avoid warnings for Python < 3.x
-      #
-      ifneq ($(findstring $(PYTHON_BASE_VERSION),2.6 2.7),)
-         CXXFLAGS += -fno-strict-aliasing
-      endif
-   endif
-endif
-
-mkshlib			= $(CXX) -shared $(LDFLAGS) $(LDEXEFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4) -lpthread
+mkshlib	= $(CXX) -shared $(LDFLAGS) $(LDEXEFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4) -lpthread

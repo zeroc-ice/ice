@@ -31,6 +31,7 @@ SLICE2CPPFLAGS	:= --ice --include-dir IceStorm --checksum --dll-export ICE_STORM
 LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
+	@mkdir -p $(dir $@)
 	rm -f $@
 	$(call mkshlib,$@,$(SONAME),$(OBJS),$(LINKWITH))
 
@@ -39,6 +40,7 @@ $(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
 	ln -s $(LIBFILENAME) $@
 
 $(libdir)$(cpp11libdirsuffix)/$(LIBNAME): $(libdir)/$(SONAME)
+	@mkdir -p $(libdir)$(cpp11libdirsuffix)
 	rm -f $@
 	ln -s $(cpp11sonamedir)$(SONAME) $@
 

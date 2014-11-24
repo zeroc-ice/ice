@@ -16,7 +16,7 @@ TARGETS		= $(NAME)
 OBJS		= Gen.o \
 		  Main.o
 
-RPATH_DIR	= $(LOADER_PATH)/../lib
+RPATH_DIR	= $(LOADER_PATH)/../$(libsubdir)
 
 include $(top_srcdir)/config/Make.rules
 

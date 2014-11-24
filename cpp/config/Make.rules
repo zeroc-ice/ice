@@ -34,6 +34,19 @@ prefix			?= /opt/Ice-$(VERSION)
 create_runpath_symlink  ?= no
 
 #
+# Define embedded_runpath as no if you don't want any RPATH added to
+# the executables.
+#
+embedded_runpath ?= yes
+
+#
+# Define new_dtags as yes if you want the linker to enable the new style
+# dtags, this will cause the linker to add a runpath entry instead of
+# a rpath entry. This only aplly to gcc builds on linux
+#
+new_dtags ?= no
+
+#
 # Define LP64 as yes or no if you want force a 32 or 64 bit. The
 # default is platform-dependent. This property has no effect on
 # OS X. On OS X, use CXXARCHFLAGS bellow to establish the build
@@ -167,7 +180,7 @@ else
 endif
 
 bindir			= $(top_srcdir)/bin
-libdir			= $(top_srcdir)/lib
+libdir			= $(top_srcdir)/$(libsubdir)
 headerdir		= $(top_srcdir)/include
 
 #
@@ -316,6 +329,10 @@ ifdef ice_src_dist
 	SLICE2CPP	= $(bindir)/slice2cpp
 	SLICE2FREEZE	= $(bindir)/slice2freeze
 else
+	SLICEPARSERLIB  = $(ice_dir)/$(libsubdir)/$(subst $(cpp11libsuffix),,$(call mklibfilename,Slice,$(VERSION)))
+	ifeq ($(wildcard $(SLICEPARSERLIB)),)
+		SLICEPARSERLIB  = $(ice_dir)/$(lib64subdir)/$(subst $(cpp11libsuffix),,$(call mklibfilename,Slice,$(VERSION)))
+	endif
 	SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(subst $(cpp11libsuffix),,$(call mklibfilename,Slice,$(VERSION)))
 	SLICE2CPP	= $(ice_dir)/$(binsubdir)/slice2cpp
 	SLICE2FREEZE	= $(ice_dir)/$(binsubdir)/slice2freeze
@@ -422,11 +439,6 @@ endif
 ifneq ($(HDIR),)
 clean::
 	rm -f $(addprefix $(HDIR)/, $(addsuffix .h, $(basename $(SLICE_OBJS))))
-endif
-
-ifneq ($(TEMPLATE_REPOSITORY),)
-clean::
-	rm -fr $(TEMPLATE_REPOSITORY)
 endif
 
 install::

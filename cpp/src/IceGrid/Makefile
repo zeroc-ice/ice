@@ -96,7 +96,7 @@ OBJS		= $(ADMIN_OBJS) \
 
 SDIR		= $(slicedir)/IceGrid
 
-RPATH_DIR	= $(LOADER_PATH)/../lib
+RPATH_DIR	= $(LOADER_PATH)/../$(libsubdir)
 
 include $(top_srcdir)/config/Make.rules
 

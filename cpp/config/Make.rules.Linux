@@ -41,93 +41,109 @@ ifeq ($(CXX),g++)
         CPPFLAGS += -std=c++0x
     endif
 
-   ifeq ($(MACHINE),sparc64)
-      #
-      # We are an ultra, at least, and so have the atomic instructions
-      #
-      $(warning ===================================================================) 
-      $(warning Linux on SPARC is currently unsupported. The Ice team does not)
-      $(warning maintain SPARC specific portions of the source code or build)
-      $(warning system. Contact sales@zeroc.com if you wish to sponsor official)
-      $(warning support.)
-      $(warning ===================================================================) 
-      USE_SPARC_ASM	= yes
-      CXXARCHFLAGS	+= -mcpu=ultrasparc -pipe -Wno-deprecated -DUSE_SPARC_ASM
-   endif
+    ifeq ($(MACHINE),sparc64)
+        #
+        # We are an ultra, at least, and so have the atomic instructions
+        #
+        $(warning ===================================================================) 
+        $(warning Linux on SPARC is currently unsupported. The Ice team does not)
+        $(warning maintain SPARC specific portions of the source code or build)
+        $(warning system. Contact sales@zeroc.com if you wish to sponsor official)
+        $(warning support.)
+        $(warning ===================================================================) 
+        USE_SPARC_ASM	= yes
+        CXXARCHFLAGS	+= -mcpu=ultrasparc -pipe -Wno-deprecated -DUSE_SPARC_ASM
+    endif
 
-   ifeq ($(MACHINE),sparc)
-      #
-      # We are a sun4m or sun4c
-      # On sun4m, there is a bug in some CPU/kernel/gcc configurations which
-      # prevent us from using '-mcpu=v8'
-      #
-      $(warning ===================================================================) 
-      $(warning Linux on SPARC is currently unsupported. The Ice team does not)
-      $(warning maintain SPARC specific portions of the source code or build)
-      $(warning system. Contact sales@zeroc.com if you wish to sponsor official)
-      $(warning support.)
-      $(warning ===================================================================) 
-      USE_SPARC_ASM	= no
-      CXXARCHFLAGS	+= -mtune=v8 -pipe -Wno-deprecated -DICE_USE_MUTEX_SHARED
-   endif
+    ifeq ($(MACHINE),sparc)
+        #
+        # We are a sun4m or sun4c
+        # On sun4m, there is a bug in some CPU/kernel/gcc configurations which
+        # prevent us from using '-mcpu=v8'
+        #
+        $(warning ===================================================================) 
+        $(warning Linux on SPARC is currently unsupported. The Ice team does not)
+        $(warning maintain SPARC specific portions of the source code or build)
+        $(warning system. Contact sales@zeroc.com if you wish to sponsor official)
+        $(warning support.)
+        $(warning ===================================================================) 
+        USE_SPARC_ASM	= no
+        CXXARCHFLAGS	+= -mtune=v8 -pipe -Wno-deprecated -DICE_USE_MUTEX_SHARED
+    endif
 
-   ifeq ($(MACHINE),x86_64)
-      ifeq ($(LP64),yes)
-         CXXARCHFLAGS	+= -m64
-      else
-         CXXARCHFLAGS	+= -m32
-      endif
-   endif
+    ifeq ($(MACHINE),x86_64)
+        ifeq ($(LP64),yes)
+            CXXARCHFLAGS	+= -m64
+        else
+            CXXARCHFLAGS	+= -m32
+        endif
+    endif
 
-   CXXFLAGS		= $(CXXARCHFLAGS) -fvisibility=hidden -Wall -Werror -pthread
+    CXXFLAGS		= $(CXXARCHFLAGS) -fvisibility=hidden -Wall -Werror -pthread
 
-   ifneq ($(GENPIC),no)
-      CXXFLAGS		+= -fPIC
-   endif
+    ifneq ($(GENPIC),no)
+        CXXFLAGS		+= -fPIC
+    endif
 
-   ifeq ($(OPTIMIZE),yes)
-      CXXFLAGS		+= -O2 -DNDEBUG
-   else
-      CXXFLAGS		+= -g 
-   endif
+    ifeq ($(OPTIMIZE),yes)
+        CXXFLAGS		+= -O2 -DNDEBUG
+    else
+        CXXFLAGS		+= -g 
+    endif
    
-   LOADER_PATH = \$$ORIGIN
-   
-   ifneq ($(embedded_runpath_prefix),)
-      RPATH_DIR = $(embedded_runpath_prefix)
-   endif
-   
-   ifeq ($(RPATH_DIR),)
-     ifdef ice_src_dist
-        RPATH_DIR = \$$ORIGIN/$(libdir)
-     else
-        RPATH_DIR = $(ice_dir)/$(libsubdir)
-     endif
-   endif
+    #
+    # If embedded_runpath is not set to yes we do not add
+    # an rpath dir.
+    #
+    ifeq ($(embedded_runpath),yes)
+        LOADER_PATH = \$$ORIGIN
+        ifneq ($(embedded_runpath_prefix),)
+            RPATH_DIR = $(embedded_runpath_prefix)
+        endif
 
-   #
-   # Clear the rpath dir when doing a system install.
-   #
-   ifeq ($(ice_dir), /usr)
-      RPATH_DIR =
-   endif
-   
-   ifneq ($(RPATH_DIR),)
-      LDEXEFLAGS              = -Wl,-rpath,$(RPATH_DIR)
-   endif
+        ifeq ($(RPATH_DIR),)
+            ifdef ice_src_dist
+                RPATH_DIR = \$$ORIGIN/$(libdir)
+            else
+                RPATH_DIR = $(ice_dir)/$(libsubdir)
+            endif
+        endif
 
-   #
-   # C++ run-time libraries, necessary for linking some shared libraries.
-   #
-   CXXLIBS		=
+        #
+        # Clear the rpath dir when doing a system install.
+        #
+        ifeq ($(ice_dir), /usr)
+            RPATH_DIR =
+        endif
 
-   mkshlib		= $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4)
+        #
+        # Unless new_dtags is set to yes we use old style dtags, to add a RPATH
+        # entry instead of RUNPATH entry, this allow the plug-ins to load without
+        # need to set LD_LIBRARY_PATH
+        #
+        ifeq ($(new_dtags),yes)
+            DTAGS = -Wl,--enable-new-dtags
+        else
+            DTAGS = -Wl,--disable-new-dtags
+        endif
 
-   mklib		= ar cr $(1) $(2)
+        ifneq ($(RPATH_DIR),)
+            LDEXEFLAGS              = $(DTAGS) -Wl,-rpath,$(RPATH_DIR)
+        endif
+    endif
 
-   rpathlink    = -Wl,-rpath-link,$(1) 
+    #
+    # C++ run-time libraries, necessary for linking some shared libraries.
+    #
+    CXXLIBS		=
 
-   LDPLATFORMFLAGS	+= -rdynamic
+    mkshlib		= $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4)
+
+    mklib		= ar cr $(1) $(2)
+
+    rpathlink    = -Wl,-rpath-link,$(1) 
+
+    LDPLATFORMFLAGS	+= -rdynamic
 
 endif
 

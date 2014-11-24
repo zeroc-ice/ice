@@ -15,10 +15,17 @@
 prefix			?= /opt/Ice-$(VERSION)
 
 #
-# The "root directory" for runpath embedded in executables. Can be unset
-# to avoid adding a runpath to Ice executables.
+# The "root directory" for runpath embedded in executables. Can be set
+# to change the runpath added to Ice executables. The default is 
+# platform dependent.
 #
-embedded_runpath_prefix  ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
+#embedded_runpath_prefix ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
+
+#
+# Define embedded_runpath as no if you don't want any RPATH added to
+# the executables.
+#
+embedded_runpath ?= yes
 
 #
 # Define OPTIMIZE as yes if you want to build with optimization.
@@ -108,6 +115,12 @@ install_phpdir      = $(prefix)/share/php
 install_libdir      = $(shell php -r "echo(ini_get('extension_dir'));")
 endif
 
+ifdef ice_src_dist
+	RPATH_DIR	= $(LOADER_PATH)/../../cpp/$(libsubdir)
+else
+	RPATH_DIR	= $(ice_dir)/$(libdir)
+endif
+
 #
 # Platform specific definitions
 #
@@ -119,14 +132,9 @@ endif
 include	$(configdir)/Make.rules.$(UNAME)
 
 ifdef ice_src_dist
-	ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
-		ICE_LIB_DIR = -L$(ice_cpp_dir)/lib
-	else
-		ICE_LIB_DIR = -L$(ice_cpp_dir)/$(libsubdir)
-	endif
+	ICE_LIB_DIR = -L$(ice_cpp_dir)/$(libsubdir)
 	ICE_FLAGS 	= -I$(ice_cpp_dir)/include
-endif
-ifdef ice_bin_dist
+else
 	ICE_LIB_DIR = -L$(ice_dir)/lib$(lp64suffix)
 	ICE_FLAGS	= -I$(ice_dir)/include
 endif
@@ -147,15 +155,10 @@ ifeq ("$(USE_NAMESPACES)","yes")
 endif
 
 ifdef ice_src_dist
-	ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
-		SLICE2PHP 	= $(ice_cpp_dir)/bin/slice2php
-	SLICEPARSERLIB	= $(ice_cpp_dir)/lib/$(call mklibfilename,Slice,$(VERSION))
-	else
-		SLICE2PHP 	= $(ice_cpp_dir)/$(binsubdir)/slice2php
+	SLICE2PHP 	= $(ice_cpp_dir)/$(binsubdir)/slice2php
 	SLICEPARSERLIB	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
-	endif
 else
-	SLICE2PHP 		= $(ice_dir)/$(binsubdir)/slice2php
+	SLICE2PHP 	= $(ice_dir)/$(binsubdir)/slice2php
 	SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
 endif
 

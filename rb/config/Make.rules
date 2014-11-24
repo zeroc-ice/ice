@@ -15,10 +15,17 @@
 prefix			?= /opt/Ice-$(VERSION)
 
 #
-# The "root directory" for runpath embedded in executables. Can be unset
-# to avoid adding a runpath to Ice executables.
+# The "root directory" for runpath embedded in executables. Can be set
+# to change the runpath added to Ice executables. The default is 
+# platform dependent.
 #
-embedded_runpath_prefix  ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
+#embedded_runpath_prefix ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
+
+#
+# Define embedded_runpath as no if you don't want any RPATH added to
+# the executables.
+#
+embedded_runpath ?= yes
 
 #
 # Define OPTIMIZE as yes if you want to build with optimization.
@@ -151,62 +158,47 @@ install_bindir		= $(prefix)/$(binsubdir)
 # Platform specific definitions
 #
 ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.$(UNAME) && echo 0),0)
-		configdir = $(top_srcdir)/config
+	configdir = $(top_srcdir)/config
 else
-		configdir = $(top_srcdir)/../cpp/config
+	configdir = $(top_srcdir)/../cpp/config
 endif
+
+ifdef ice_src_dist
+	RPATH_DIR	= $(LOADER_PATH)/../../cpp/$(libsubdir)
+else
+	RPATH_DIR	= $(ice_dir)/$(libdir)
+endif
+
 include	 $(configdir)/Make.rules.$(UNAME)
 
 ifdef ice_src_dist
-		ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
-	ICE_LIB_DIR = -L$(ice_cpp_dir)/lib
-		else
 	ICE_LIB_DIR = -L$(ice_cpp_dir)/$(libsubdir)
-		endif
-		ICE_FLAGS 	= -I$(ice_cpp_dir)/include
-endif
-ifdef ice_bin_dist
-		ICE_LIB_DIR = -L$(ice_dir)/$(libsubdir)
-		ICE_FLAGS	= -I$(ice_dir)/include
+	ICE_FLAGS = -I$(ice_cpp_dir)/include
+else
+	ICE_LIB_DIR = -L$(ice_dir)/$(libsubdir)
+	ICE_FLAGS = -I$(ice_dir)/include
 endif
 ICE_LIBS = $(ICE_LIB_DIR) -lIce -lSlice -lIceUtil
-
-ifneq ($(embedded_runpath_prefix),)
-		runpath_libdir	:= $(embedded_runpath_prefix)/$(libsubdir)
-endif
 
 CPPFLAGS		=
 ICECPPFLAGS		= -I$(slicedir)
 SLICE2RBFLAGS		= $(ICECPPFLAGS)
 LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
 
-ifdef ice_src_dist
-		ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
-	ifeq ($(SLICEPARSERLIB),)
-			SLICEPARSERLIB	= $(ice_cpp_dir)/lib/$(call mklibfilename,Slice,$(VERSION))
-	endif
-	SLICE2RB	= $(ice_cpp_dir)/bin/$(slice_translator)
-		else
-	SLICEPARSERLIB	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
-	SLICE2RB	= $(ice_cpp_dir)/$(binsubdir)/$(slice_translator)
-		endif
-else
-		SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
-		SLICE2CPP		= $(ice_dir)/$(binsubdir)/$(slice_translator)
-endif
-
 #
 # A Ruby extension library cannot have a "lib" prefix, so Ruby-specific
 # functions are defined that strip "lib" from the regular library name.
 #
-ifeq ($(mkrblibfilename),)
-		mkrblibfilename	= $(subst lib,,$(call mklibfilename,$(1),$(2)))
-endif
-ifeq ($(mkrbsoname),)
-		mkrbsoname		= $(subst lib,,$(call mksoname,$(1),$(2)))
-endif
-ifeq ($(mkrblibname),)
-		mkrblibname		= $(subst lib,,$(call mklibname,$(1)))
+mkrblibfilename		= $(subst lib,,$(call mklibfilename,$(1),$(2)))
+mkrbsoname		= $(subst lib,,$(call mksoname,$(1),$(2)))
+mkrblibname		= $(subst lib,,$(call mklibname,$(1)))
+
+ifdef ice_src_dist
+	SLICEPARSERLIB	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
+	SLICE2RB	= $(ice_cpp_dir)/$(binsubdir)/$(slice_translator)
+else
+	SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
+	SLICE2CPP	= $(ice_dir)/$(binsubdir)/$(slice_translator)
 endif
 
 EVERYTHING		= all depend clean install
@@ -235,10 +227,5 @@ clean::
 all:: $(SRCS) $(TARGETS)
 
 include $(wildcard .depend/*.d)
-
-ifneq ($(TEMPLATE_REPOSITORY),)
-clean::
-	rm -fr $(TEMPLATE_REPOSITORY)
-endif
 
 install::

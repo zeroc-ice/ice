@@ -43,32 +43,38 @@ endif
 #
 CXXLIBS		=
 
-LOADER_PATH = @loader_path
-
 #
-# If embedded_runpath_prefix is set it has preference
+# If embedded_runpath is not set to yes we do not add
+# an rpath dir.
 #
-ifneq ($(embedded_runpath_prefix),)
-RPATH_DIR = $(embedded_runpath_prefix)
-endif
+ifeq ($(embedded_runpath),yes)
+    LOADER_PATH = @loader_path
 
-ifeq ($(RPATH_DIR),)
-ifdef ice_src_dist
-RPATH_DIR = @loader_path/$(libdir)
-else
-RPATH_DIR = $(ice_dir)/$(libsubdir)
-endif
-endif
+    #
+    # If embedded_runpath_prefix is set it has preference
+    #
+    ifneq ($(embedded_runpath_prefix),)
+    RPATH_DIR = $(embedded_runpath_prefix)
+    endif
 
-#
-# Clear rpath setting when doing a system install
-#
-ifeq ($(ice_dir),/usr)
-RPATH_DIR =
-endif
+    ifeq ($(RPATH_DIR),)
+    ifdef ice_src_dist
+    RPATH_DIR = @loader_path/$(libdir)
+    else
+    RPATH_DIR = $(ice_dir)/$(libsubdir)
+    endif
+    endif
 
-ifneq ($(RPATH_DIR),)
-LDEXEFLAGS		= -Wl,-rpath,$(RPATH_DIR)
+    #
+    # Clear rpath setting when doing a system install
+    #
+    ifeq ($(ice_dir),/usr)
+    RPATH_DIR =
+    endif
+
+    ifneq ($(RPATH_DIR),)
+    LDEXEFLAGS		= -Wl,-rpath,$(RPATH_DIR)
+    endif
 endif
 
 ifdef ice_src_dist

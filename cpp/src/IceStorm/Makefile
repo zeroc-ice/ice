@@ -62,7 +62,7 @@ OBJS		= $(LIB_OBJS) \
 		  $(AOBJS) \
 		  $(MOBJS)
 
-RPATH_DIR	= $(LOADER_PATH)/../lib
+RPATH_DIR	= $(LOADER_PATH)/../$(libsubdir)
 
 SLICE2FREEZECMD = $(SLICE2FREEZE) -I../.. --ice --include-dir IceStorm $(ICECPPFLAGS)
 
@@ -74,6 +74,7 @@ SLICE2CPPFLAGS	:= --ice --include-dir IceStorm $(SLICE2CPPFLAGS)
 LINKWITH	:= $(BZIP2_RPATH_LINK) -lIceStorm -lIceGrid -lGlacier2 -lFreeze -lIceBox -lIce -lIceUtil
 
 $(libdir)/$(LIBFILENAME): $(LIB_OBJS)
+	@mkdir -p $(dir $@)
 	rm -f $@
 	$(call mkshlib,$@,$(SONAME),$(LIB_OBJS),$(LINKWITH))
 
@@ -82,6 +83,7 @@ $(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
 	ln -s $(LIBFILENAME) $@
 
 $(libdir)$(cpp11libdirsuffix)/$(LIBNAME): $(libdir)/$(SONAME)
+	@mkdir -p $(libdir)$(cpp11libdirsuffix)
 	rm -f $@
 	ln -s $(cpp11sonamedir)$(SONAME) $@
 

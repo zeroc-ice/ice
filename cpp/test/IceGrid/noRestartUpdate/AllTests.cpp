@@ -527,7 +527,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         addProperty(service, "Ice.Warn.UnknownProperties", "0");
         //addProperty(service, "Ice.Trace.Admin.Properties", "1");
         service->name = "Service1";
-        service->entry = "TestService:create";
+        service->entry = "./TestService:create";
         adapter = AdapterDescriptor();
         adapter.name = "${service}";
         adapter.id = "${server}.${service}";
@@ -539,17 +539,29 @@ allTests(const Ice::CommunicatorPtr& communicator)
         adapter.objects.push_back(object);
         service->adapters.push_back(adapter);
         
+        string iceboxExe = "/icebox";
+#if defined(__linux)
+#  if defined(__i386)
+        iceboxExe += "32";
+#  endif
+#  if defined(ICE_CPP11)
+        iceboxExe += "++11";
+#  endif
+#endif
+
+#if defined(_WIN32) && !defined(NDEBUG)
+        iceboxExe += "d";
+#endif
+
         IceBoxDescriptorPtr icebox = new IceBoxDescriptor();
         icebox->id = "IceBox";
 #if defined(__APPLE__) && defined(__i386)
         icebox->exe = "arch";
         icebox->options.push_back("-i386");
-        icebox->options.push_back(properties->getProperty("IceBinDir") + "/icebox");
-#elif defined(NDEBUG) || !defined(_WIN32)
-        icebox->exe = properties->getProperty("IceBinDir") + "/icebox";
+        icebox->options.push_back(properties->getProperty("IceBinDir") + iceboxExe;);
 #else
-        icebox->exe = properties->getProperty("IceBinDir") + "/iceboxd";
-#endif
+        icebox->exe = properties->getProperty("IceBinDir") + iceboxExe;
+#endif        
         icebox->activation = "on-demand";
         icebox->applicationDistrib = false;
         icebox->allocatable = false;

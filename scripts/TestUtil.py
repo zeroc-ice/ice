@@ -194,15 +194,14 @@ def getThirdpartyHome():
 # with the --x86 command line argument.
 #
 if isWin32():
-    if (os.environ.get("PROCESSOR_ARCHITECTURE", "") == "AMD64" or
-        os.environ.get("PROCESSOR_ARCHITEW6432", "") == "AMD64"):
+    if os.environ.get("PLATFORM", "").upper() == "X64":
         x64 = True
 else:
     p = subprocess.Popen("uname -m", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
     if(p.wait() != 0):
         print("uname failed:\n" + p.stdout.read().strip())
         sys.exit(1)
-    if p.stdout.readline().decode('UTF-8').strip() == "x86_64":
+    if p.stdout.readline().decode('UTF-8').strip() == "x86_64" and os.environ.get("LP64", "") != "no":
         x64 = True
 
 #
@@ -456,11 +455,19 @@ def run(tests, root = False):
                 if silverlight:
                     print("SSL is not supported with Silverlight")
                     sys.exit(1)
-
+        elif o == "--c++11":
+            global cpp11
+            cpp11 = True
+        elif o == "--x86":
+            global x86
+            x86 = True
+        elif o == "--x64":
+            global x64
+            x64 = True
         if o in ( "--cross", "--protocol", "--host", "--debug", "--compress", "--valgrind", "--serialize", "--ipv6", \
-                  "--socks", "--ice-home", "--x86", "--x64", "--env", \
+                  "--socks", "--ice-home", "--x86", "--x64", "--c++11", "--env", \
                   "--service-dir", "--appverifier", "--compact", "--silverlight", "--winrt", \
-                  "--server", "--mx", "--client-home", "--c++11"):
+                  "--server", "--mx", "--client-home"):
             arg += " " + o
             if len(a) > 0:
                 arg += " " + a
@@ -721,35 +728,20 @@ def getIceBox():
     #
     lang = getDefaultMapping()
     if lang == "cpp":
-        iceBox = ""
+        iceBox = "icebox"
         if isWin32():
-            #
-            # Read the build.txt file from the test directory to figure out
-            # how the IceBox service was built ("debug" vs. "release") and
-            # decide which icebox executable to use.
-            #
-            build = open(os.path.join(os.getcwd(), "build.txt"), "r")
-            type = build.read().strip()
-            if type == "debug":
-                iceBox = os.path.join(getCppBinDir(lang), "iceboxd.exe")
-            elif type == "release":
-                iceBox = os.path.join(getCppBinDir(lang), "icebox.exe")
+            if isDebug():
+                iceBox += "d"
+            iceBox += ".exe"
         elif isLinux():
-            if x86 or (iceHome == "/usr" and not x64):
-                if cpp11:
-                    iceBox = os.path.join(getCppBinDir(lang), "icebox32++11")
-                else:
-                    iceBox = os.path.join(getCppBinDir(lang), "icebox32")
-            else:
-                if cpp11:
-                    iceBox = os.path.join(getCppBinDir(lang), "icebox++11")
-                else:
-                    iceBox = os.path.join(getCppBinDir(lang), "icebox")
-        else:
-            iceBox = os.path.join(getCppBinDir(lang), "icebox")
+            if x86:
+                iceBox += "32"
+            if cpp11:
+                iceBox += "++11"        
+        iceBox = os.path.join(getCppBinDir(lang), iceBox)
 
         if not os.path.exists(iceBox):
-            print("couldn't find icebox executable to run the test")
+            print("couldn't find icebox executable to run the test in `%s'" % iceBox)
             sys.exit(0)
     elif lang == "java":
         iceBox = "IceBox.Server"
@@ -1061,6 +1053,7 @@ def getCommandLine(exe, config, options = ""):
             output.write("-d64 ")
         if not config.ipv6:
             output.write("-Djava.net.preferIPv4Stack=true ")
+        print ("library path %s" % getJavaLibraryPath())
         output.write(getJavaLibraryPath())
         output.write(exe + " ")
     elif config.lang == "py":
@@ -1162,7 +1155,12 @@ def getDefaultCollocatedFile():
         return directoryToPackage() + ".Collocated"
 
 def isDebug():
-    return debug
+    #
+    # Read the build.txt file from the test directory to figure out
+    # how the IceBox service was built ("debug" vs. "release") and
+    # decide which icebox executable to use.
+    #
+    return open(os.path.join(os.getcwd(), "build.txt"), "r").read().strip() == "debug"
 
 import Expect
 
@@ -1672,17 +1670,16 @@ def getCppLibDir(lang = None):
         return getCppBinDir(lang)
     else:
         libDir = os.path.join(getIceDir("cpp"), "lib")
-        if iceHome:
-            if x64:
-                if isSolaris():
-                    if isSparc():
-                        libDir = os.path.join(libDir, "64")
-                    else:
-                        libDir = os.path.join(libDir, "amd64")
-                if isLinux() and not isUbuntu():
-                    libDir = libDir + "64"
-            if isUbuntu() and iceHome == "/usr":
-                libDir = os.path.join(libDir, "x86_64-linux-gnu" if x64 else "i386-linux-gnu")
+        if x64:
+            if isSolaris():
+                if isSparc():
+                    libDir = os.path.join(libDir, "64")
+                else:
+                    libDir = os.path.join(libDir, "amd64")
+            if isLinux() and not isUbuntu():
+                libDir = libDir + "64"
+        if isUbuntu():
+            libDir = os.path.join(libDir, "x86_64-linux-gnu" if x64 else "i386-linux-gnu")
         return libDir
     return None
 
@@ -1767,7 +1764,7 @@ def getTestEnv(lang, testdir):
             addPathToEnv("NODE_PATH", os.path.join(testdir), env)
         return env # That's it, we're done!
 
-    if not isDarwin() and iceHome != "/usr":
+    if isWin32():
         addLdPath(getCppLibDir(), env)
 
     if lang == "javae":
@@ -2033,8 +2030,6 @@ def processCmdLine():
         elif isLinux():
             iceHome = "/usr"
 
-    if not x64:
-        x64 = isWin32() and os.environ.get("PLATFORM", "").upper() == "X64" or os.environ.get("LP64", "") == "yes"
     if iceHome:
         sys.stdout.write("*** using Ice installation from " + iceHome + " ")
     else:
@@ -2149,6 +2144,14 @@ def runTests(start, expanded, num = 0, script = False):
 
             if isVC100() and "novc100" in config:
                 print("%s*** test not supported with VC++ 10.0%s" % (prefix, suffix))
+                continue
+            
+            if cpp11 and "noc++11" in config:
+                print("%s*** test not supported with C++11%s" % (prefix, suffix))
+                continue
+            
+            if x86 and iceHome and "nomultiarch" in config:
+                print("%s*** test not supported with x86 in multiarch%s" % (prefix, suffix))
                 continue
 
             if isMINGW() and "nomingw" in config:

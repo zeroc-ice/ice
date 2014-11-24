@@ -100,7 +100,7 @@ tests = [
     ("IceGrid/update", ["service", "novc100", "nomingw"]),
     ("IceGrid/noRestartUpdate", ["service", "novc100", "nomingw"]),
     ("IceGrid/activation", ["service", "novc100", "nomingw"]),
-    ("IceGrid/replicaGroup", ["service", "novc100", "nomingw"]),
+    ("IceGrid/replicaGroup", ["service", "novc100", "nomingw", "noc++11", "nomultiarch"]),
     ("IceGrid/replication", ["service", "novc100", "nomingw", "nomx"]),
     ("IceGrid/allocation", ["service", "novc100", "nomingw"]),
     ("IceGrid/distribution", ["service", "novc100", "nomingw"]),

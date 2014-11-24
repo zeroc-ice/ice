@@ -13,9 +13,7 @@
 
 include $(top_srcdir)/../cpp/config/Make.rules.$(UNAME)
 
-ifneq ($(prefix),/usr)
-shlibldflags    += -Wl,-rpath,$(prefix)/$(libsubdir)
-endif
+shlibldflags    += $(LDEXEFLAGS)
 
 mksoname	= $(if $(2),lib$(1).$(2).so,lib$(1).so)
 mklibname       = lib$(1).so

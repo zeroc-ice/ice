@@ -37,7 +37,7 @@ OBJS		= $(COMMON_OBJS) $(TRANSFORM_OBJS) $(DUMP_OBJS)
 
 HDIR		= $(headerdir)/FreezeScript
 
-RPATH_DIR	= $(LOADER_PATH)/../lib
+RPATH_DIR	= $(LOADER_PATH)/../$(libsubdir)
 
 include $(top_srcdir)/config/Make.rules
 

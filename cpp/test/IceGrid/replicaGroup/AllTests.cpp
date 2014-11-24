@@ -55,8 +55,9 @@ instantiateServer(const AdminPrx& admin, const string& templ, const string& node
     catch(const NodeUnreachableException&)
     {
     }
-    catch(const Ice::Exception&)
+    catch(const Ice::Exception& ex)
     {
+        cerr << ex << endl;
         test(false);
     }
 }

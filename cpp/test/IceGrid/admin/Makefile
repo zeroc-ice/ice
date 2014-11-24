@@ -19,7 +19,7 @@ include $(top_srcdir)/config/Make.rules
 
 $(SERVER): $(OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(OBJS) $(LIBS)
 
 clean::
 	-rm -rf db/node db/registry db/replica-*
