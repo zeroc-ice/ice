@@ -23,7 +23,7 @@ public class Server
     {
         public override int run(string[] args)
         {
-            communicator().getProperties().setProperty("CallbackAdapter.Endpoints", "tcp -p 12010");
+            communicator().getProperties().setProperty("CallbackAdapter.Endpoints", "default -p 12010");
             Ice.ObjectAdapter adapter = communicator().createObjectAdapter("CallbackAdapter");
             adapter.add(new CallbackI(),
                         communicator().stringToIdentity("callback"));

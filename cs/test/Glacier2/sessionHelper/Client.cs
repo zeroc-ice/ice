@@ -25,12 +25,12 @@ public class Client
 {
     public class App : Ice.Application
     {
-        public App()
+        public App(string[] args)
         {
             me = this;
 
             _initData = new Ice.InitializationData();
-            _initData.properties = Ice.Util.createProperties();
+            _initData.properties = Ice.Util.createProperties(ref args);
             _initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:default -p 12347");
 #if COMPACT
             _initData.dispatcher = delegate(Ice.VoidAction action, Ice.Connection connection)
@@ -255,7 +255,7 @@ public class Client
 
                 Console.Out.Write("testing stringToProxy for server object... ");
                 Console.Out.Flush();
-                Ice.ObjectPrx @base = _session.communicator().stringToProxy("callback:tcp -p 12010");
+                Ice.ObjectPrx @base = _session.communicator().stringToProxy("callback:default -p 12010");
                 Console.Out.WriteLine("ok");
 
                 Console.Out.Write("pinging server after session creation... ");
@@ -337,7 +337,7 @@ public class Client
                 Ice.ObjectPrx processBase;
                 {
                     Console.Out.Write("testing stringToProxy for process object... ");
-                    processBase = communicator().stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348");
+                    processBase = communicator().stringToProxy("Glacier2/admin -f Process:default -h 127.0.0.1 -p 12348");
                     Console.Out.WriteLine("ok");
                 }
 
@@ -432,7 +432,7 @@ public class Client
 
     public static int Main(string[] args)
     {
-        App app = new App();
+        App app = new App(args);
         app.getInitData().properties.setProperty("Ice.Warn.Connections", "0");
         return app.main(args, app.getInitData());
     }
