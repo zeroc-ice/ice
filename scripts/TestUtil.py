@@ -1688,13 +1688,12 @@ def getCppLibDir(lang = None):
 
 def getJavaLibraryPath():
     if isWin32():
-        if iceHome:    
-            return "-Djava.library.path=%s " % os.path.join(iceHome, "bin\\x64" if x64 else "bin")
+        if iceHome:
+            return "-Djava.library.path=\"%s\" " % os.path.join(iceHome, "bin\\x64" if x64 else "bin")
         else:
-            return "-Djava.library.path=%s " % (os.path.join(getThirdpartyHome(), "bin", "x64") if x64 else 
-                                                os.path.join(getThirdpartyHome(), "bin"))
+            return "-Djava.library.path=\"%s\" " % os.path.join(getThirdpartyHome(), "bin\\x64" if x64 else "bin")
     elif isDarwin():
-        return "-Djava.library.path=%s " % os.path.join(iceHome if iceHome else getThirdpartyHome(), "lib")        
+        return "-Djava.library.path=%s " % os.path.join(iceHome if iceHome else getThirdpartyHome(), "lib")
     elif isRhel() or isSles():
         return "-Djava.library.path=%s " % ("/usr/lib64" if x64 else "/usr/lib")
     elif isUbuntu():
