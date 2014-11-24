@@ -398,12 +398,12 @@ public class AllTests
             background.ice_getCachedConnection().close(true);
             background.begin_op();
 
-            Ice.AsyncResult r = null;
             OpAMICallbackNoOp cb = new OpAMICallbackNoOp();
-
+            java.util.List<Ice.AsyncResult> results = new java.util.ArrayList<Ice.AsyncResult>();
             for(int i = 0; i < 10000; ++i)
             {
-                r = background.begin_op(cb);
+                Ice.AsyncResult r = background.begin_op(cb);
+                results.add(r);
                 if(i % 50 == 0)
                 {
                     backgroundController.holdAdapter();
@@ -414,7 +414,10 @@ public class AllTests
                     r.waitForCompleted();
                 }
             }
-            r.waitForCompleted();
+            for(Ice.AsyncResult r : results)
+            {
+                r.waitForCompleted();
+            }
 
             out.println("ok");
         }

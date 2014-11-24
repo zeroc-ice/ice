@@ -9,6 +9,7 @@
 
 using Test;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 
@@ -328,12 +329,12 @@ public class AllTests
             background.ice_getCachedConnection().close(true);
             background.begin_op();
 
-            Ice.AsyncResult r = null;
             OpAMICallback cb = new OpAMICallback();
-
+            List<Ice.AsyncResult> results = new List<Ice.AsyncResult>();
             for(int i = 0; i < 10000; ++i)
             {
-                r = background.begin_op().whenCompleted(cb.responseNoOp, cb.noException);
+                Ice.AsyncResult r = background.begin_op().whenCompleted(cb.responseNoOp, cb.noException);
+                results.Add(r);
                 if(i % 50 == 0)
                 {
                     backgroundController.holdAdapter();
@@ -344,8 +345,10 @@ public class AllTests
                     r.waitForCompleted();
                 }
             }
-            r.waitForCompleted();
-
+            foreach(Ice.AsyncResult r in results)
+            {
+                r.waitForCompleted();
+            }
             Console.Out.WriteLine("ok");
         }
 

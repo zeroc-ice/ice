@@ -331,14 +331,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
         background->ice_getCachedConnection()->close(true);
         background->begin_op();
         
-        Ice::AsyncResultPtr r;
+        vector<Ice::AsyncResultPtr> results;
         OpAMICallbackPtr cb = new OpAMICallback();
         Callback_Background_opPtr callback = newCallback_Background_op(cb, 
                                                                        &OpAMICallback::responseNoOp, 
                                                                        &OpAMICallback::noException);
         for(int i = 0; i < 10000; ++i)
         {
-            r = background->begin_op(callback);
+            Ice::AsyncResultPtr r = background->begin_op(callback);
+            results.push_back(r);
             if(i % 50 == 0)
             {
                 backgroundController->holdAdapter();
@@ -349,7 +350,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 r->waitForCompleted();
             }
         }
-        r->waitForCompleted();
+
+        for(vector<Ice::AsyncResultPtr>::const_iterator p = results.begin(); p != results.end(); ++p)
+        {
+            (*p)->waitForCompleted(); // Ensure all the calls are completed before destroying the communicator
+        }
 
         cout << "ok" << endl;
     }

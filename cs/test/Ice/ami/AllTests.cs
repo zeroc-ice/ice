@@ -2626,7 +2626,7 @@ public class AllTests : TestCommon.TestApp
                     Ice.AsyncResult r = null;
                     byte[] seq = new byte[10024];
                     (new System.Random()).NextBytes(seq);
-                    for(int i = 0; i < 100; ++i) // 1MB
+                    for(int i = 0; i < 100; ++i) // 2MB
                     {
                         r = p.begin_opWithPayload(seq);
                     }
