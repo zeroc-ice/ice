@@ -86,7 +86,7 @@ tests = [
     ("IceStorm/single", ["service", "novc100", "noappverifier", "nomingw"]), # This test doesn't work with appverifier
     ("IceStorm/federation", ["service", "novc100", "nomingw"]),
     ("IceStorm/federation2", ["service", "novc100", "nomingw"]),
-    ("IceStorm/stress", ["service", "stress", "novc100", "noappverifier", "nomingw"]), # Too slow with appverifier.
+    ("IceStorm/stress", ["service", "stress", "novc100", "nomingw"]), # Too slow with appverifier.
     ("IceStorm/rep1", ["service", "novc100", "nomingw"]),
     ("IceStorm/repgrid", ["service", "novc100", "nomingw"]),
     ("IceStorm/repstress", ["service", "noipv6", "stress", "novc100", "nomingw"]),

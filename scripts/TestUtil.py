@@ -1250,9 +1250,9 @@ def setAppVerifierSettings(targets, cwd=os.getcwd()):
         verifier.expect(matchAppVerifierSuccess(), -1)
 
         #Now disable all tests we are not intested in
-        cmd = "appverif -disable LuaPriv PrintDriver PrintApi -for " + exe
+        cmd = "appverif -disable LuaPriv PrintDriver PrintApi Networking HighVersionLie -for " + exe
         verifier = _spawn(cmd, cwd=cwd)
-        verifier.expectall(["Application Verifier 4.0","",""], -1)
+        verifier.expectall(["Application Verifier","",""], -1)
 
 def appVerifierAfterTestEnd(targets, cwd=os.getcwd()):
     for exe in targets:
@@ -2201,8 +2201,7 @@ def runTests(start, expanded, num = 0, script = False):
                 continue
 
             # Skip tests not supported by appverifier
-            if args.find("appverifier") != -1 and ("noappverifier" in config or args.find("ssl") != -1 or
-                                                   args.find("wss") != -1):
+            if args.find("appverifier") != -1 and ("noappverifier" in config):
                 print("%s*** test not supported with appverifier%s" % (prefix, suffix))
                 continue
 
