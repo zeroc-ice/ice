@@ -651,9 +651,8 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
 
         if(!cert && (!_incoming || _engine->getVerifyPeer() == 2))
         {
-            // Clients require server certificate if VerifyPeer>0
-            // and servers require client certificate if
-            // VerifyPeer=2
+            // Clients require server certificate if VerifyPeer > 0
+            // and servers require client certificate if VerifyPeer == 2
             throw ProtocolException(__FILE__, __LINE__, "IceSSL: certificate required:" +
                                     IceUtilInternal::lastErrorToString());
         }
@@ -761,11 +760,13 @@ IceSSL::TransceiverI::close()
     if(_sslInitialized)
     {
         DeleteSecurityContext(&_ssl);
+        _sslInitialized = false;
     }
 
     if(_credentialsInitialized)
     {
         FreeCredentialsHandle(&_credentials);
+        _credentialsInitialized = false;
     }
 
     _stream->close();
@@ -987,6 +988,7 @@ IceSSL::TransceiverI::getNativeConnectionInfo() const
         SECURITY_STATUS err = QueryContextAttributes(ssl, SECPKG_ATTR_REMOTE_CERT_CONTEXT, &cert);
         if(err == SEC_E_OK)
         {
+            assert(cert);
             CERT_CHAIN_PARA chainP;
             memset(&chainP, 0, sizeof(chainP));
             chainP.cbSize = sizeof(chainP);
@@ -1017,13 +1019,23 @@ IceSSL::TransceiverI::getNativeConnectionInfo() const
                 }
                 CertFreeCertificateChain(certChain);
             }
+            CertFreeCertificateContext(cert);
         }
-        CertFreeCertificateContext(cert);
+        else if(err != SEC_E_NO_CREDENTIALS)
+        {
+            throw SecurityException(__FILE__, __LINE__, "IceSSL: error reading peer certificate:" +
+                                    IceUtilInternal::lastErrorToString());
+        }
 
         SecPkgContext_ConnectionInfo connInfo;
         if(QueryContextAttributes(ssl, SECPKG_ATTR_CONNECTION_INFO, &connInfo) == SEC_E_OK)
         {
             info->cipher = _engine->getCipherName(connInfo.aiCipher);
+        }
+        else
+        {
+            throw SecurityException(__FILE__, __LINE__, "IceSSL: error reading cipher info:" +
+                                    IceUtilInternal::lastErrorToString());
         }
     }
 
