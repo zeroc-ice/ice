@@ -233,8 +233,28 @@ public class AllTests
         synchronized public void closed(Ice.Connection con)
         {
             _closed = true;
+            notify();
         }
 
+        public synchronized void waitForClosed()
+        {
+            while(!_closed)
+            {
+                long now = IceInternal.Time.currentMonotonicTimeMillis();
+                try
+                {
+                    wait(1000);
+                    if(IceInternal.Time.currentMonotonicTimeMillis() - now > 1000)
+                    {
+                        test(false); // Waited for more than 1s for close, something's wrong.
+                    }
+                }
+                catch(java.lang.InterruptedException ex)
+                {
+                }
+            }
+        }
+        
         public abstract void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy);
 
         public void setClientACM(int timeout, int close, int heartbeat)
@@ -308,11 +328,7 @@ public class AllTests
             {
                 adapter.activate();
                 proxy.interruptSleep();
-
-                synchronized(this)
-                {
-                    test(_closed);
-                }
+                waitForClosed();
             }
         }
     }
@@ -338,11 +354,11 @@ public class AllTests
             catch(Ice.ConnectionTimeoutException ex)
             {
                 proxy.interruptSleep();
+                waitForClosed();
 
                 synchronized(this)
                 {
                     test(_heartbeat == 0);
-                    test(_closed);
                 }
             }
         }
@@ -389,10 +405,11 @@ public class AllTests
             {
             }
 
+            waitForClosed();
+
             synchronized(this)
             {
                 test(_heartbeat == 0);
-                test(_closed);
             }
         }
     }
@@ -462,10 +479,7 @@ public class AllTests
             {
             }
 
-            synchronized(this)
-            {
-                test(_closed); // Connection should be closed this time.
-            }
+            waitForClosed();
         }
     }
 
@@ -487,11 +501,10 @@ public class AllTests
             catch(java.lang.InterruptedException ex)
             {
             }
-
+            waitForClosed();
             synchronized(this)
             {
                 test(_heartbeat == 0);
-                test(_closed); // Connection closed forcefully by ACM
             }
         }
     }

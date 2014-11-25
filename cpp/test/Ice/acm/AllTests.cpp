@@ -113,7 +113,7 @@ private:
 };
 typedef IceUtil::Handle<LoggerI> LoggerIPtr;
 
-class TestCase : public IceUtil::Thread, protected Ice::ConnectionCallback, protected IceUtil::Mutex
+class TestCase : public IceUtil::Thread, protected Ice::ConnectionCallback, protected IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
@@ -207,6 +207,22 @@ public:
     {
         Lock sync(*this);
         _closed = true;
+        notify();
+    }
+
+    void 
+    waitForClosed()
+    {
+        Lock sync(*this);
+        IceUtil::Time now = IceUtil::Time::now(IceUtil::Time::Monotonic);
+        while(!_closed)
+        {
+            timedWait(IceUtil::Time::seconds(1));
+            if(IceUtil::Time::now(IceUtil::Time::Monotonic) - now > IceUtil::Time::seconds(1))
+            {
+                test(false); // Waited for more than 1s for close, something's wrong.
+            }
+        }
     }
 
     virtual void runTestCase(const RemoteObjectAdapterPrx&, const TestIntfPrx&) = 0;
@@ -302,8 +318,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 adapter->activate();
                 proxy->interruptSleep();
 
-                Lock sync(*this);
-                test(_closed);
+                waitForClosed();
             }
         }
     };
@@ -332,9 +347,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
             {
                 proxy->interruptSleep();
 
+                waitForClosed();
+
                 Lock sync(*this);
                 test(_heartbeat == 0);
-                test(_closed);
             }
         }
     };
@@ -373,11 +389,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         virtual void runTestCase(const RemoteObjectAdapterPrx& adapter, const TestIntfPrx& proxy)
         {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1600)); // Idle for 1.6 seconds
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1500)); // Idle for 1.5 seconds
+
+            waitForClosed();
 
             Lock sync(*this);
             test(_heartbeat == 0);
-            test(_closed);
         }
     };
 
@@ -392,7 +409,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         virtual void runTestCase(const RemoteObjectAdapterPrx& adapter, const TestIntfPrx& proxy)
         {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1600)); // Idle for 1.5 seconds
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1500)); // Idle for 1.5 seconds
 
             Lock sync(*this);
             test(_heartbeat == 0);
@@ -417,7 +434,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             // the close is graceful or forceful.
             //
             adapter->hold();
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1600)); // Idle for 1.5 seconds
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1500)); // Idle for 1.5 seconds
 
             {
                 Lock sync(*this);
@@ -428,8 +445,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             adapter->activate();
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
 
-            Lock sync(*this);
-            test(_closed); // Connection should be closed this time.
+            waitForClosed();
         }
     };
 
@@ -446,11 +462,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
         virtual void runTestCase(const RemoteObjectAdapterPrx& adapter, const TestIntfPrx& proxy)
         {
             adapter->hold();
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1600)); // Idle for 1.6 seconds
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1500)); // Idle for 1.5 seconds
+
+            waitForClosed();
 
             Lock sync(*this);
             test(_heartbeat == 0);
-            test(_closed); // Connection closed forcefully by ACM
         }
     };
 

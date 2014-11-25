@@ -198,12 +198,36 @@ abstract class TestCase : Ice.ConnectionCallback
 
     public void heartbeat(Ice.Connection con)
     {
-        ++_heartbeat;
+        lock(this)
+        {
+            ++_heartbeat;
+        }
     }
 
     public void closed(Ice.Connection con)
     {
-        _closed = true;
+        lock(this)
+        {
+            _closed = true;
+            Monitor.Pulse(this);
+        }
+    }
+
+    public void waitForClosed()
+    {
+        lock(this)
+        {
+            long now = IceInternal.Time.currentMonotonicTimeMillis();
+            while(!_closed)
+            {
+                Monitor.Wait(this, 1000);
+                if(IceInternal.Time.currentMonotonicTimeMillis() - now > 1000)
+                {
+                    System.Diagnostics.Debug.Assert(false); // Waited for more than 1s for close, something's wrong.
+                    throw new System.Exception();
+                }
+            }
+        }
     }
 
     public abstract void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy);
@@ -283,11 +307,8 @@ public class AllTests : TestCommon.TestApp
             {
                 adapter.activate();
                 proxy.interruptSleep();
-
-                lock(this)
-                {
-                    test(_closed);
-                }
+                
+                waitForClosed();
             }
         }
     };
@@ -313,10 +334,10 @@ public class AllTests : TestCommon.TestApp
             {
                 proxy.interruptSleep();
 
+                waitForClosed();
                 lock(this)
                 {
                     test(_heartbeat == 0);
-                    test(_closed);
                 }
             }
         }
@@ -354,12 +375,12 @@ public class AllTests : TestCommon.TestApp
 
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
-            Thread.Sleep(1600); // Idle for 1.6 second
-
+            Thread.Sleep(1500); // Idle for 1.5 second
+            
+            waitForClosed();
             lock(this)
             {
                 test(_heartbeat == 0);
-                test(_closed);
             }
         }
     };
@@ -373,7 +394,7 @@ public class AllTests : TestCommon.TestApp
 
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
-            Thread.Sleep(1600); // Idle for 1.6 second
+            Thread.Sleep(1500); // Idle for 1.5 second
 
             lock(this)
             {
@@ -398,7 +419,7 @@ public class AllTests : TestCommon.TestApp
             // the close is graceful or forceful.
             //
             adapter.hold();
-            Thread.Sleep(1600); // Idle for 1.6 second
+            Thread.Sleep(1500); // Idle for 1.5 second
 
             lock(this)
             {
@@ -409,10 +430,7 @@ public class AllTests : TestCommon.TestApp
             adapter.activate();
             Thread.Sleep(500);
 
-            lock(this)
-            {
-                test(_closed); // Connection should be closed this time.
-            }
+            waitForClosed();
         }
     };
 
@@ -427,12 +445,12 @@ public class AllTests : TestCommon.TestApp
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
             adapter.hold();
-            Thread.Sleep(1600); // Idle for 1.6 second
+            Thread.Sleep(1500); // Idle for 1.5 second
 
+            waitForClosed();
             lock(this)
             {
                 test(_heartbeat == 0);
-                test(_closed); // Connection closed forcefully by ACM
             }
         }
     };
