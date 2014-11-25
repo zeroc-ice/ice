@@ -29,5 +29,3 @@ $(NAME): $(OBJS)
 
 install:: all
 	$(call installprogram,$(NAME),$(DESTDIR)$(install_bindir))
-
-include .depend

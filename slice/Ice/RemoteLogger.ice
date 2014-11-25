@@ -26,28 +26,28 @@ enum LogMessageType
 {
     /**
      * 
-     * The {@Logger} received a print message.
+     * The {@link Logger} received a print message.
      * 
      **/
     PrintMessage,
 
     /**
      * 
-     * The {@Logger} received a trace message.
+     * The {@link Logger} received a trace message.
      * 
      **/
     TraceMessage,
 
     /**
      * 
-     * The {@Logger} received a warning message.
+     * The {@link Logger} received a warning message.
      * 
      **/
     WarningMessage,
 
     /**
      * 
-     * The {@Logger} received an error message.
+     * The {@link Logger} received an error message.
      * 
      **/
     ErrorMessage
@@ -71,14 +71,14 @@ struct LogMessage
 {
     /**
      * 
-     * The type of message sent to the {@Logger}.
+     * The type of message sent to the {@link Logger}.
      * 
      **/
     LogMessageType type;
     
     /**
      * 
-     * The date and time when the {@Logger} received this message, expressed
+     * The date and time when the {@link Logger} received this message, expressed
      * as the number of microseconds since the Unix Epoch (00:00:00 UTC on 1 January 1970)
      * 
      **/
@@ -163,7 +163,7 @@ exception RemoteLoggerAlreadyAttachedException
 /**
  *
  * The interface of the admin object that allows an Ice application the attach its 
- * {@link RemoteLogger} to the {@Logger} of this admin object's Ice communicator. 
+ * {@link RemoteLogger} to the {@link Logger} of this admin object's Ice communicator.
  *
  **/
 interface LoggerAdmin
