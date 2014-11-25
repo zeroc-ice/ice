@@ -709,12 +709,8 @@ SChannelEngine::destroy()
                 {
                     CRYPT_KEY_PROV_INFO* keyProvInfo = reinterpret_cast<CRYPT_KEY_PROV_INFO*>(&buf[0]);
                     HCRYPTPROV cryptProv = 0;
-                    if(CryptAcquireContextW(&cryptProv, keyProvInfo->pwszContainerName, keyProvInfo->pwszProvName,
-                                            keyProvInfo->dwProvType, 0))
-                    {
-                        CryptAcquireContextW(&cryptProv, keyProvInfo->pwszContainerName, keyProvInfo->pwszProvName,
-                                             keyProvInfo->dwProvType, CRYPT_DELETEKEYSET);
-                    }
+                    CryptAcquireContextW(&cryptProv, keyProvInfo->pwszContainerName, keyProvInfo->pwszProvName,
+                                         keyProvInfo->dwProvType, CRYPT_DELETEKEYSET);
                 }
                 CertFreeCertificateContext(cert);
             }
