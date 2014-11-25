@@ -121,16 +121,16 @@ PluginI::initialize()
     //
     // Add lookup and lookup reply Ice objects
     //
-    LookupIPtr lookup = new LookupI(locatorRegistry, LookupPrx::uncheckedCast(lookupPrx), properties);
-    _multicastAdapter->add(lookup, _communicator->stringToIdentity("IceDiscovery/Lookup"));
+    _lookup = new LookupI(locatorRegistry, LookupPrx::uncheckedCast(lookupPrx), properties);
+    _multicastAdapter->add(_lookup, _communicator->stringToIdentity("IceDiscovery/Lookup"));
 
-    Ice::ObjectPrx lookupReply = _replyAdapter->addWithUUID(new LookupReplyI(lookup))->ice_datagram();
-    lookup->setLookupReply(LookupReplyPrx::uncheckedCast(lookupReply));
+    Ice::ObjectPrx lookupReply = _replyAdapter->addWithUUID(new LookupReplyI(_lookup))->ice_datagram();
+    _lookup->setLookupReply(LookupReplyPrx::uncheckedCast(lookupReply));
 
     //
     // Setup locator on the communicator.
     //
-    Ice::ObjectPrx loc = _locatorAdapter->addWithUUID(new LocatorI(lookup, locatorRegistryPrx));
+    Ice::ObjectPrx loc = _locatorAdapter->addWithUUID(new LocatorI(_lookup, locatorRegistryPrx));
     _communicator->setDefaultLocator(Ice::LocatorPrx::uncheckedCast(loc));
     
     _multicastAdapter->activate();
@@ -144,4 +144,5 @@ PluginI::destroy()
     _multicastAdapter->destroy();
     _replyAdapter->destroy();
     _locatorAdapter->destroy();
+    _lookup->destroy();
 }

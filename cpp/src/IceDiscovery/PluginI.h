@@ -31,6 +31,7 @@ private:
     Ice::ObjectAdapterPtr _multicastAdapter;
     Ice::ObjectAdapterPtr _replyAdapter;
     Ice::ObjectAdapterPtr _locatorAdapter;
+    LookupIPtr _lookup;
 };
 
 };

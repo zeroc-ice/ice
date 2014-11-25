@@ -25,13 +25,13 @@ class Request : public IceUtil::TimerTask
 {
 public:
 
-    Request(LookupI*, int);
+    Request(const LookupIPtr&, int);
 
     virtual bool retry();
 
 protected:
 
-    LookupI* _lookup;
+    LookupIPtr _lookup;
     int _nRetry;
 };
 
@@ -115,6 +115,9 @@ class LookupI : public Lookup, private IceUtil::Mutex
 public:
 
     LookupI(const LocatorRegistryIPtr&, const LookupPrx&, const Ice::PropertiesPtr&);
+    virtual ~LookupI();
+
+    void destroy();
 
     void setLookupReply(const LookupReplyPrx&);
 
@@ -145,8 +148,6 @@ public:
     }
 
 private:
-
-    LookupReplyPrx getLookupReply(const LookupReplyPrx&, const Ice::Current&) const;
 
     LocatorRegistryIPtr _registry;
     const LookupPrx _lookup;

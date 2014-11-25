@@ -19,7 +19,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceDiscovery;
 
-IceDiscovery::Request::Request(LookupI* lookup, int retryCount) : _lookup(lookup), _nRetry(retryCount)
+IceDiscovery::Request::Request(const LookupIPtr& lookup, int retryCount) : _lookup(lookup), _nRetry(retryCount)
 {
 }
 
@@ -110,6 +110,28 @@ LookupI::LookupI(const LocatorRegistryIPtr& registry, const LookupPrx& lookup, c
 {
 }
 
+LookupI::~LookupI()
+{
+}
+
+void
+LookupI::destroy()
+{
+    Lock sync(*this);
+    for(map<Identity, ObjectRequestPtr>::const_iterator p = _objectRequests.begin(); p != _objectRequests.end(); ++p)
+    {
+        p->second->finished(0);
+        _timer->cancel(p->second);
+    }
+
+    for(map<string, AdapterRequestPtr>::const_iterator p = _adapterRequests.begin(); p != _adapterRequests.end(); ++p)
+    {
+        p->second->finished(0);
+        _timer->cancel(p->second);
+    }
+    _adapterRequests.clear();
+}
+
 void
 LookupI::setLookupReply(const LookupReplyPrx& lookupReply)
 {
@@ -118,7 +140,7 @@ LookupI::setLookupReply(const LookupReplyPrx& lookupReply)
 
 void 
 LookupI::findObjectById(const string& domainId, const Ice::Identity& id, const IceDiscovery::LookupReplyPrx& reply, 
-                        const Ice::Current& c)
+                        const Ice::Current&)
 {
     if(domainId != _domainId)
     {
@@ -131,13 +153,13 @@ LookupI::findObjectById(const string& domainId, const Ice::Identity& id, const I
         //
         // Reply to the mulicast request using the given proxy.
         //
-        getLookupReply(reply, c)->begin_foundObjectById(id, proxy);
+        reply->begin_foundObjectById(id, proxy);
     }
 }
 
 void 
 LookupI::findAdapterById(const string& domainId, const std::string& adapterId, 
-                         const IceDiscovery::LookupReplyPrx& reply, const Ice::Current& c)
+                         const IceDiscovery::LookupReplyPrx& reply, const Ice::Current&)
 {
     if(domainId != _domainId)
     {
@@ -151,7 +173,7 @@ LookupI::findAdapterById(const string& domainId, const std::string& adapterId,
         //
         // Reply to the multicast request using the given proxy.
         //
-        getLookupReply(reply, c)->begin_foundAdapterById(adapterId, proxy, isReplicaGroup);
+        reply->begin_foundAdapterById(adapterId, proxy, isReplicaGroup);
     }
 }
 
@@ -264,24 +286,6 @@ LookupI::adapterRequestTimedOut(const AdapterRequestPtr& request)
         request->finished(0);
         _adapterRequests.erase(p);
         _timer->cancel(request);
-    }
-}
-
-LookupReplyPrx 
-LookupI::getLookupReply(const LookupReplyPrx& reply, const Ice::Current& current) const
-{
-    // Ice::UDPConnectionInfoPtr info = Ice::UDPConnectionInfoPtr::dynamicCast(current.con->getInfo());
-    // if(info)
-    // {
-    //     Ice::CommunicatorPtr com = current.adapter->getCommunicator();
-    //     ostringstream os;
-    //     os << "\"" << com->identityToString(reply->ice_getIdentity()) << "\"";
-    //     os << ":udp -h " << info->remoteAddress << " -p " << info->remotePort;
-    //     return LookupReplyPrx::uncheckedCast(com->stringToProxy(os.str())->ice_datagram());
-    // }
-    // else
-    {
-        return reply;
     }
 }
 
