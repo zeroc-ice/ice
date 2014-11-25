@@ -272,8 +272,6 @@ ifeq ($(MCPP_LIBS),)
 	endif
 	MCPP_LIBS              = $(if $(MCPP_HOME),-L$(MCPP_HOME)/$(libsubdir)) -lmcpp
 endif
-MCPP_RPATH_LINK        = $(if $(MCPP_HOME),$(call rpathlink,$(MCPP_HOME)/$(libsubdir)))
-
 
 ifeq ($(PLATFORM_HAS_READLINE),yes)
 	ifeq ($(USE_READLINE),yes)

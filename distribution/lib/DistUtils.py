@@ -876,7 +876,6 @@ class Darwin(Platform):
 
         if not os.environ.has_key("CXXARCHFLAGS"):
             envs += " CXXARCHFLAGS=\"-arch i386 -arch x86_64\"";
-            envs += " embedded_runpath_prefix=\"/Library/Developer/Ice-" + mmversion + "\""
 
         return envs
 
@@ -914,9 +913,11 @@ class Darwin(Platform):
 
         iceRootDir = "%s/Ice-@ver@" % buildRootDir
         for name in ["freeze", "glacier2", "ice", "icebox", "icediscovery", "icegrid", "icepatch2", "icestorm", "ice-gradle-plugin", "ant-ice"]:
+            runCommand("cd %s/lib && rm -f %s.jar" % (iceRootDir, name))
             runCommand("cd %s/lib && ln -s %s-%s.jar %s.jar" % (iceRootDir, name, "@ver@", name))
             
         for name in ["freeze", "glacier2", "ice", "icebox", "icediscovery", "icegrid", "icepatch2", "icestorm"]:
+            runCommand("cd %s/lib && rm -f %s.jar" % (iceRootDir, name))
             runCommand("cd %s/lib && ln -s %s-%s-source.jar %s-source.jar" % (iceRootDir, name, "@ver@", name))
 
         package = "com.zeroc.ice"

@@ -61,6 +61,14 @@ uninstallPackage ()
             if [[ "$BASE_PATH/Ice-$VERSION_MM" ]]; then
                 rm -f "$BASE_PATH/Ice-$VERSION_MM"
             fi
+
+            if [[ /etc/paths.d/ice.path ]]; then
+                rm -f /etc/paths.d/ice.path
+            fi
+
+            if [[ /etc/manpaths.d/ice.path ]]; then
+                rm -f /etc/manpaths.d/ice.path
+            fi
         fi
 
         if [[ "$PACKAGE" == "com.zeroc.icegridadmin" ]]; then
