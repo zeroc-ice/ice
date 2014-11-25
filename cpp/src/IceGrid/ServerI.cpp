@@ -1237,7 +1237,12 @@ ServerI::load(const AMD_Node_loadServerPtr& amdCB, const InternalServerDescripto
             updateRevision(desc->uuid, desc->revision);
         }
 
-        if(amdCB)
+        if(!_desc)
+        {
+            _load->addCallback(amdCB);
+            return 0;
+        }
+        else if(amdCB)
         {
             AdapterPrxDict adapters;
             for(ServerAdapterDict::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
