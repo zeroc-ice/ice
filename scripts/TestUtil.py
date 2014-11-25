@@ -1196,7 +1196,7 @@ def spawnClient(cmd, env=None, cwd=None, echo=True, startReader=True, lang=None)
         client.trace()
     return client
 
-def spawnServer(cmd, env=None, cwd=None, count=1, adapter=None, echo=True, lang=None, mx=False):
+def spawnServer(cmd, env=None, cwd=None, count=1, adapter=None, echo=True, lang=None, mx=False, timeout=20):
     server = _spawn(cmd, env, cwd, lang=lang)
 
     # Count + 1 if IceMX enabled
@@ -1204,10 +1204,10 @@ def spawnServer(cmd, env=None, cwd=None, count=1, adapter=None, echo=True, lang=
         count = count + 1
 
     if adapter:
-        server.expect("%s ready\n" % adapter)
+        server.expect("%s ready\n" % adapter, timeout = timeout)
     else:
         while count > 0:
-            server.expect("[^\n]+ ready\n")
+            server.expect("[^\n]+ ready\n", timeout = timeout)
             count = count - 1
     if echo:
         server.trace([re.compile("[^\n]+ ready")])
@@ -1593,13 +1593,13 @@ def startClient(exe, args = "", config=None, env=None, echo = True, startReader 
         phpSetup(clientConfig, iceOptions, iceProfile)
     return spawnClient(cmd, env = env, echo = echo, startReader = startReader, lang=config.lang)
 
-def startServer(exe, args = "", config=None, env=None, adapter = None, count = 1, echo = True):
+def startServer(exe, args = "", config = None, env = None, adapter = None, count = 1, echo = True, timeout = 20):
     if config is None:
         config = DriverConfig("server")
     if env is None:
         env = getTestEnv(getDefaultMapping(), os.getcwd())
     cmd = getCommandLine(exe, config, args)
-    return spawnServer(cmd, env = env, adapter = adapter, count = count, echo = echo,lang=config.lang,mx=config.mx)
+    return spawnServer(cmd, env = env, adapter = adapter, count = count, echo = echo, lang = config.lang, mx = config.mx, timeout = timeout)
 
 def startColloc(exe, args, config=None, env=None):
     exe = quoteArgument(exe)
