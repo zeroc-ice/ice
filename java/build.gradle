@@ -54,5 +54,5 @@ apply from: "$rootProject.projectDir/demo/Manual/build.gradle"
 // the version of gradle needed to build Ice.
 //
 task wrapper(type: Wrapper) {
-	gradleVersion = "2.2"
+	gradleVersion = "2.2.1"
 }
