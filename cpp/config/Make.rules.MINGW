@@ -57,13 +57,14 @@ mkshlib			= $(CXX) -shared $(LDFLAGS) -o $(1) $(3) \
 
 mklib			= ar cr $(1) $(2)
 
-libdir		        := $(top_srcdir)/bin
-
 ifeq ($(LP64),yes)
     libsubdir	        := bin$(lp64suffix)
 else
     libsubdir	  	:= bin
 endif
+
+libdir              := $(top_srcdir)/$(libsubdir)
+bindir              := $(top_srcdir)/$(libsubdir)
 
 installlib		= $(INSTALL) $(2)/$(3) $(1); \
 			  chmod a+rx $(1)/$(3) 
