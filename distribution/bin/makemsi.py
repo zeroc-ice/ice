@@ -942,6 +942,14 @@ if winrt:
                     for f in filenames:
                         if f in filterFiles:
                             continue
+                        
+                        #
+                        # Only copy libraries and PDBs from non main build, the rest of the files are the same
+                        # for all builds so we just use the ones from the main build.
+                        #
+                        if os.path.splitext(f)[1] in [".lib", ".pdb"] or (arch == "x86" or conf == "release"):
+                            continue
+                        
                         targetFile = relPath(installDir, installerDir, os.path.join(root, f))
                         copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
 else:
@@ -1149,7 +1157,7 @@ else:
     # docs dir
     #
     docsDir = os.path.join(distFiles, "src", "windows", "docs", "main")
-    for f in ["README.txt", "SOURCES.txt", "THIRD_PARTY_LICENSE.txt"]:
+    for f in ["README.txt", "THIRD_PARTY_LICENSE.txt"]:
         copyIfModified(os.path.join(docsDir, f), os.path.join(installerDir, f), verbose = verbose)
 
     #
