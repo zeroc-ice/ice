@@ -331,7 +331,6 @@ else
 	ifeq ($(wildcard $(SLICEPARSERLIB)),)
 		SLICEPARSERLIB  = $(ice_dir)/$(lib64subdir)/$(subst $(cpp11libsuffix),,$(call mklibfilename,Slice,$(VERSION)))
 	endif
-	SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(subst $(cpp11libsuffix),,$(call mklibfilename,Slice,$(VERSION)))
 	SLICE2CPP	= $(ice_dir)/$(binsubdir)/slice2cpp
 	SLICE2FREEZE	= $(ice_dir)/$(binsubdir)/slice2freeze
 endif
