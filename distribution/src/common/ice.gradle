@@ -10,6 +10,7 @@
 buildscript {
 	ext.getIceHome = {
 		// Determine the name of the Slice-to-Java translator
+		def isWindows = false
 		def slice2java = "slice2java"
 		def slice2freezej = "slice2freezej"
 		if (System.properties['os.name'].toLowerCase().contains('windows')) {
