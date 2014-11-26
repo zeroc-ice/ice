@@ -37,7 +37,7 @@ Ice.Promise.try(
         // ping object.
         //
         communicator = Ice.initialize(process.argv);
-        var repetitions = 10000;
+        var repetitions = 1000;
         var proxy = communicator.stringToProxy("ping:default -p 10000");
 
         //
