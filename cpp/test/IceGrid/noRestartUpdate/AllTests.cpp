@@ -555,13 +555,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         IceBoxDescriptorPtr icebox = new IceBoxDescriptor();
         icebox->id = "IceBox";
-#if defined(__APPLE__) && defined(__i386)
-        icebox->exe = "arch";
-        icebox->options.push_back("-i386");
-        icebox->options.push_back(properties->getProperty("IceBinDir") + iceboxExe;);
-#else
         icebox->exe = properties->getProperty("IceBinDir") + iceboxExe;
-#endif        
         icebox->activation = "on-demand";
         icebox->applicationDistrib = false;
         icebox->allocatable = false;
