@@ -80,6 +80,9 @@ SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 
 ifeq ($(ice_dir), /usr) 
     LDFLAGS	= $(LDPLATFORMFLAGS) $(CXXFLAGS)
+    ifeq ($(CPP11),yes)
+            LDFLAGS = $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(ice_dir)/$(libsubdir)$(cpp11libdirsuffix)
+	endif
 else
     CPPFLAGS	+= -I$(includedir)
     LDFLAGS	= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(ice_dir)/$(libsubdir)$(cpp11libdirsuffix)

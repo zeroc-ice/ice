@@ -38,7 +38,7 @@ ifeq ($(CXX),g++)
     endif
 
     ifeq ($(CPP11), yes)
-        CPPFLAGS += -std=c++0x
+        CXXFLAGS += -std=c++0x
     endif
 
     ifeq ($(MACHINE),sparc64)
@@ -79,7 +79,7 @@ ifeq ($(CXX),g++)
         endif
     endif
 
-    CXXFLAGS		= $(CXXARCHFLAGS) -fvisibility=hidden -Wall -Werror -pthread
+    CXXFLAGS		+= $(CXXARCHFLAGS) -fvisibility=hidden -Wall -Werror -pthread
 
     ifneq ($(GENPIC),no)
         CXXFLAGS		+= -fPIC
