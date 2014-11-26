@@ -28,7 +28,7 @@ if Util.defaultHost:
 else:
     args = ''
 
-server = Util.spawn('java IceBox.Server --Ice.Config=config.icebox --Ice.PrintAdapterReady %s' % (args))
+server = Util.spawn('java -cp \"%s\" IceBox.Server --Ice.Config=config.icebox --Ice.PrintAdapterReady %s' % (Util.getIceBoxClassPath(), args))
 server.expect('.* ready')
 client = Util.spawn('java -jar build/libs/client.jar')
 client.expect('.*==>')

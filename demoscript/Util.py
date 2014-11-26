@@ -802,6 +802,16 @@ def addLdPath(libpath):
     else:
         addenv("LD_LIBRARY_PATH", libpath)
 
+def getIceBoxClassPath():
+    jarSuffix = "-" + getIceVersion() + ".jar"
+    javaDir = getIceDir("java")
+    s = ""
+    for jar in ["ice", "icebox"]:
+        if s != "":
+            s += os.pathsep
+        s += os.path.join(javaDir, "lib", jar + jarSuffix)
+    return s
+
 def processCmdLine():
     def usage():
         print("usage: " + sys.argv[0] + " --x64 --x86 --preferIPv4 --env --noenv --fast --trace=output --debug --host host --mode=[debug|release] --ice-home=<dir> --service-dir=<dir>", "--c++11")

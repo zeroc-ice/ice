@@ -33,6 +33,12 @@ def run(clientStr, desc = 'application'):
 
     sys.stdout.write("starting icegridnode... ")
     sys.stdout.flush()
+    
+    if "CLASSPATH" in os.environ:
+        os.environ["CLASSPATH"] = "%s%s%s" % (Util.getIceBoxClassPath(), os.pathsep, os.environ.get("CLASSPATH", ""))
+    else:
+        os.environ["CLASSPATH"] = Util.getIceBoxClassPath()
+    
     node = Util.spawn(Util.getIceGridNode() + ' --Ice.Config=config.grid --Ice.PrintAdapterReady %s' % (args))
     node.expect('IceGrid.Registry.Internal ready')
     node.expect('IceGrid.Registry.Server ready')
