@@ -112,6 +112,7 @@ COMMON_SRCS = \
 	WSEndpointFactory.js
 
 NODEJS_SRCS = \
+	Debug.js \
 	Buffer.js \
 	Ice.js \
 	ModuleRegistry.js \
@@ -123,7 +124,6 @@ BROWSER_SRCS = \
 	browser\WSTransceiver.js
 
 !if "$(OPTIMIZE)" != "yes"
-NODEJS_SRCS	= $(NODEJS_SRCS) Debug.js
 BROWSER_SRCS	= $(BROWSER_SRCS) browser\Debug.js
 !endif
 
