@@ -12,7 +12,6 @@ Table of Contents
   2. Install ZeroC Ice DEB repository
   3. Install Ice third-party dependencies
   4. Building the Ice packages
-  5. Building the Berkeley DB packages
 
 
 ======================================================================
@@ -42,7 +41,7 @@ After installing the GPG key, we must add the repository to your
 system apt sources:
 
   $ cd /etc/apt/sources.list.d
-  $ sudo wget http://zeroc.com/download/Ice/@mmver@/ubuntu/ice@mmver@-raring.list
+  $ sudo wget http://zeroc.com/download/Ice/@mmver@/ubuntu/ice@mmver@-trusty.list
   $ sudo apt-get update
 
 
@@ -54,9 +53,8 @@ Now we will install the necessary third-party packages from the Ubuntu
 Software repository:
 
   sudo apt-get install libmcpp-dev libbz2-dev libexpat1-dev libssl-dev \
-    libdb5.3++-dev proguard libjgoodies-common-java libjgoodies-forms-java \
-    libjgoodies-looks-java libdb5.3-java ant python2.7-dev ruby1.9.1-dev \
-    mono-devel php5-dev
+    libdb5.3++-dev libdb5.3-java ant python2.7-dev ruby1.9.1-dev \
+    php5-dev
 
 A Java Development Kit is also required. We recommend that you use
 Oracle Java 7 to build Ice because the Metrics Graph feature of the
@@ -65,7 +63,7 @@ another Java 7 JDK, or any Java 6 JDK, the Metrics Graph functionality
 will not be available.
 
 Note: The resulting JAR files produced by the build are compatible
-with Java 6 regardless of the JDK you use.
+regardless of the JDK you use.
 
 There are several ways to get Oracle Java 7 installed in Ubuntu, but
 the simplest is to use the webupd8team ppa repository:
@@ -95,30 +93,3 @@ Now you're ready to build Ice packages:
   $ dpkg-buildpackage -us -uc
 
 When finished, the .deb files will be in the ice@mmver@ directory.
-
-
-======================================================================
-5. Building the Berkeley DB packages
-======================================================================
-
-Note that you do not need to build these packages yourself, as ZeroC
-supplies them.
-
-If you prefer to compile the Berkeley DB packages from source code,
-follow the instructions below.
-
-Install Oracle DB source distribution:
-
-  $ mkdir ~/db5.3
-  $ cd ~/db5.3
-  $ apt-get source db5.3
-
-Change the working directory to db5.3-5.3.21:
-
-  $ cd db5.3-5.3.21
-
-Now you're ready to build the Berkeley DB packages:
-
-  $ dpkg-buildpackage -us -uc
-
-When finished, the .deb files will be in the db5.3 directory.
