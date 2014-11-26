@@ -543,14 +543,16 @@ class Platform:
             languages = ["cpp", "cs"]
             if arch == "x86":
                 languages.append("php")
+                
         elif compiler == "VC100" and buildConfiguration == "default":
             languages = ["py"]
         else:
             languages = self.getSupportedLanguages()
-            if "php" in languages:
-                languages.remove("php")
-            if "py" in languages:
-                languages.remove("py")
+            if isWindows():
+                if "php" in languages:
+                    languages.remove("php")
+                if "py" in languages:
+                    languages.remove("py")
         
         if arch != self.getDefaultArchitecture() and "java" in languages:
             languages.remove("java")
