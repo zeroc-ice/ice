@@ -764,6 +764,9 @@ class Platform:
 
         if self.is64(arch):
             args += " --x64"
+           
+        if self.isLinux() and buildConfiguration == "cpp11":
+            args += " --c++11"
 
         if buildConfiguration == "silverlight":
             args += " --silverlight"
@@ -860,6 +863,9 @@ class Platform:
 
         if self.is64(arch):
             args += " --x64"
+            
+        if self.isLinux() and buildConfiguration == "cpp11":
+            args += " --c++11"
 
         if buildConfiguration == "debug":
             args += " --mode=debug"
