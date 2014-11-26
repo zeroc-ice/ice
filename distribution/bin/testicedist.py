@@ -972,12 +972,23 @@ class Linux(Platform):
     
     def __init__(self, distDir):
         Platform.__init__(self, distDir)
-        
+        self._distribution = None
         #
         # Init Linux distribution attributes from try to read /etc/issue if that is not available
         # fallback to lsb_release
         #
-        if os.path.isfile("/etc/issue"):
+        if os.path.isfile("/etc/redhat-release"):
+            f = open("/etc/redhat-release", "r")
+            issue = f.read()
+            f.close()
+            if issue.find("Red Hat") != -1:
+                self._distribution = "RedHat"
+            elif issue.find("Amazon Linux") != -1:
+                self._distribution = "Amazon"
+            elif issue.find("CentOS") != -1:
+                self._distribution = "CentOS"
+        
+        if not self._distribution and os.path.isfile("/etc/issue"):
             f = open("/etc/issue", "r")
             issue = f.read()
             f.close()
@@ -991,20 +1002,18 @@ class Linux(Platform):
                 self._distribution = "Ubuntu"
             elif issue.find("SUSE Linux") != -1:
                 self._distribution = "SUSE LINUX"
-            else:
-                print("Unknown distribution in /etc/issue")
-                print(issue)
-                sys.exit(1)
-        else:
+        
+        if not self._distribution:
             p = subprocess.Popen("lsb_release -i", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
             if(p.wait() != 0):
                 print("lsb_release failed:\n" + p.stdout.read().strip())
                 sys.exit(1)
             self._distribution = re.sub("Distributor ID:", "", p.stdout.readline().decode('UTF-8')).strip()
-            if self._distribution not in ["RedHat", "Amazon", "CentOS", "Ubuntu", "SUSE LINUX"]:
-                print("Unknown distribution from lsb_release -i")
-                print(self._distribution)
-                sys.exit(1)
+
+        if self._distribution not in ["RedHat", "Amazon", "CentOS", "Ubuntu", "SUSE LINUX"]:
+            print("Unknown distribution from lsb_release -i")
+            print(self._distribution)
+            sys.exit(1)
         
         p = subprocess.Popen("uname -m", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
         if(p.wait() != 0):
