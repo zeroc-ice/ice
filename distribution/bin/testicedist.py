@@ -548,7 +548,7 @@ class Platform:
             languages = ["py"]
         else:
             languages = self.getSupportedLanguages()
-            if isWindows():
+            if self.isWindows():
                 if "php" in languages:
                     languages.remove("php")
                 if "py" in languages:
