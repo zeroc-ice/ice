@@ -85,7 +85,7 @@ depend::
 
 depend:: $(SLICE_SRCS:.ice=.d)
 
-$(SLICE_SRCS:.ice=.php): $(SLICE2PHP) $(SLICEPARSERLIB)
+$(SLICE_SRCS:.ice=.php): "$(SLICE2PHP)" "$(SLICEPARSERLIB)"
 
 all:: $(SLICE_SRCS:.ice=.php)
 
