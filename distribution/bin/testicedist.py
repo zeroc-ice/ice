@@ -1043,7 +1043,7 @@ class Linux(Platform):
         # NodeJS modules are only installed for Ubuntu as other distributions
         # doesn't provide nodejs packages.
         #
-        if isUbuntu():
+        if self.isUbuntu():
             languages.append("js")
         return languages
         
