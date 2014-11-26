@@ -45,7 +45,7 @@ $(SUBSCRIBER): $(SOBJS)
 
 $(SUB): $(SUB_OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SUB_OBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(SUB_OBJS) $(LIBS)
 
 clean::
 	-rm -f build.txt
