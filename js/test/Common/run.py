@@ -36,7 +36,7 @@ if sys.platform == "darwin":
             else:
                 print("trust settings already removed")
             sys.exit(0)
-    except getopt.GetoptError, ex:
+    except getopt.GetoptError:
         pass
 
 import TestUtil
