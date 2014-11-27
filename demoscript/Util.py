@@ -663,6 +663,9 @@ def getServiceDir():
 def isX86():
     return x86
 
+def isCpp11():
+    return cpp11
+
 def getIceBox(mapping = "cpp"):
     if mapping == "cpp":
         iceBox = "icebox"

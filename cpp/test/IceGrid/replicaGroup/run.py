@@ -30,23 +30,4 @@ IceGridAdmin.nreplicas=0
 
 IceGridAdmin.registryOptions += " --Ice.Plugin.RegistryPlugin=RegistryPlugin:createRegistryPlugin"
 
-if TestUtil.isDarwin():
-    #
-    # On OS X, make sure to also run the IceBox services in 32bits mode if
-    # x64 isn't specified and the service is built for 32bits.
-    #
-    iceBox = os.path.join(os.getcwd(), "iceboxwrapper")
-    iceBoxWrapper = open(iceBox, "w")
-    if TestUtil.x64:
-        iceBoxWrapper.write("#!/bin/sh\narch -x86_64 " + TestUtil.getIceBox() + " \"$@\"\n")
-    else:
-        iceBoxWrapper.write("#!/bin/sh\narch -i386 -x86_64 " + TestUtil.getIceBox() + " \"$@\"\n")
-    iceBoxWrapper.close()
-    os.chmod(iceBox, 0o700)
-else:
-    iceBox = TestUtil.getIceBox()
-
-IceGridAdmin.iceGridTest("application.xml", "--Ice.RetryIntervals=\"0 50 100 250\"", "icebox.exe='%s'" % iceBox)
-
-if TestUtil.isDarwin():
-    os.unlink("iceboxwrapper")
+IceGridAdmin.iceGridTest("application.xml", "--Ice.RetryIntervals=\"0 50 100 250\"", "icebox.exe='%s'" % TestUtil.getIceBox())

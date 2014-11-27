@@ -871,12 +871,8 @@ class Darwin(Platform):
 
     def getMakeEnvs(self, version, language):
         envs = Platform.getMakeEnvs(self, version, language)
-        # Build fat binaries by default.
-        mmversion = re.search("([0-9]+\.[0-9b]+)[\.0-9]*", version).group(1)
-
         if not os.environ.has_key("CXXARCHFLAGS"):
-            envs += " CXXARCHFLAGS=\"-arch i386 -arch x86_64\"";
-
+            envs += " CXXARCHFLAGS=\"-arch x86_64\"";
         return envs
 
     def getMakeOptions(self):

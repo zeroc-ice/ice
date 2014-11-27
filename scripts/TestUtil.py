@@ -1023,18 +1023,6 @@ def getCommandLineProperties(exe, config):
     return properties
 
 def getCommandLine(exe, config, options = ""):
-    arch = ""
-    if isDarwin() and config.lang == "cpp":
-        if x64:
-            arch = "arch -x86_64 "
-        elif x86:
-            arch = "arch -i386 "
-        else:
-            # We don't really know what architecture the binaries were
-            # built with, prefer 32 bits if --x64 is not set and if 32
-            # bits binaries aren't available, 64 bits will be used.
-            arch = "arch -i386 -x86_64 "
-
     output = getStringIO()
 
     if config.mono and config.lang == "cs":
@@ -1065,12 +1053,12 @@ def getCommandLine(exe, config, options = ""):
         # --child-silent-after-fork=yes is required for the IceGrid/activator test where the node
         # forks a process with execv failing (invalid exe name).
         output.write("valgrind -q --child-silent-after-fork=yes --leak-check=full ")
-        output.write('--suppressions="' + os.path.join(toplevel, "config", "valgrind.sup") + '" ' + arch + '"' + exe + '" ')
+        output.write('--suppressions="' + os.path.join(toplevel, "config", "valgrind.sup") + '" ' + exe + '" ')
     else:
         if exe.find(" ") != -1:
-            output.write(arch + '"' + exe + '" ')
+            output.write('"' + exe + '" ')
         else:
-            output.write(arch + exe + " ")
+            output.write(exe + " ")
 
     if (config.silverlight and config.type == "client"):
         properties = getCommandLineProperties(exe, config) + ' ' + options

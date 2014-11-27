@@ -23,19 +23,15 @@ from demoscript import Util
 import time, signal
 
 desc = 'application.xml'
-if Util.isNoServices() or Util.isDebugBuild():
-    fi = open(desc, "r")
-    desc = 'tmp_application.xml'
-    fo = open(desc, "w")
-    for l in fi:
-        if l.find('exe="icebox"') != -1:
-            if Util.isNoServices():
-                l = l.replace('exe="icebox"', 'exe="' + Util.getIceBox() + '"')
-            else:
-                l = l.replace('exe="icebox"', 'exe="iceboxd.exe"')
-        fo.write(l)
-    fi.close()
-    fo.close()
+fi = open(desc, "r")
+desc = 'tmp_application.xml'
+fo = open(desc, "w")
+for l in fi:
+    if l.find('exe="icebox"') != -1:
+        l = l.replace('exe="icebox"', 'exe="%s"' % Util.getIceBox())
+    fo.write(l)
+fi.close()
+fo.close()
 
 sys.stdout.write("cleaning databases... ")
 sys.stdout.flush()
