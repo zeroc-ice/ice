@@ -24,7 +24,7 @@ import TestUtil
 sys.stdout.write("testing list-generated... ")
 sys.stdout.flush()
 
-slice2java = os.path.join(TestUtil.getCppBinDir(), "slice2java")
+slice2java = TestUtil.getSliceTranslator("java")
 if not os.path.exists("classes"):
     os.mkdir("classes")
 
