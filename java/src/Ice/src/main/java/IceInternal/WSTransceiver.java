@@ -345,9 +345,7 @@ final class WSTransceiver implements Transceiver
                 {
                     s = _delegate.write(_writeBuffer);
                 }
-
-                if(s == SocketOperation.None && _incoming && !buf.empty() &&
-                   _writeState == WriteStatePayload)
+                else if(s == SocketOperation.None && _incoming && !buf.empty() && _writeState == WriteStatePayload)
                 {
                     s = _delegate.write(buf);
                 }
@@ -1174,17 +1172,6 @@ final class WSTransceiver implements Transceiver
                 assert(buf.b.position() == 0);
                 prepareWriteHeader((byte)OP_DATA, buf.size());
 
-                //
-                // For server connections, we use the _writeBuffer only to
-                // write the header, the message is sent directly from the
-                // message buffer. For client connections, we use the write
-                // buffer for both the header and message buffer since we need
-                // to mask the message data.
-                //
-                if(_incoming)
-                {
-                    _writeBuffer.b.flip();
-                }
                 _writeState = WriteStatePayload;
             }
             else if(_state == StatePingPending)
@@ -1245,48 +1232,69 @@ final class WSTransceiver implements Transceiver
             //
             // For an outgoing connection, each message must be masked with a random
             // 32-bit value, so we copy the entire message into the internal buffer
-            // for writing.
+            // for writing. For incoming connections, we just copy the start of the
+            // message in the internal buffer after the hedaer. If the message is 
+            // larger, the reminder is sent directly from the message buffer to avoid
+            // copying.
             //
-            // For an incoming connection, we use the internal buffer to hold the
-            // frame header, and then write the caller's buffer to avoid copying.
-            //
-            if(!_incoming)
-            {
-                if(_writePayloadLength == 0 || !_writeBuffer.b.hasRemaining())
-                {
-                    if(!_writeBuffer.b.hasRemaining())
-                    {
-                        _writeBuffer.b.position(0);
-                    }
 
-                    int n = buf.b.position();
-                    final int sz = buf.size();
-                    if(buf.b.hasArray() && _writeBuffer.b.hasArray())
+            if(!_incoming && (_writePayloadLength == 0 || !_writeBuffer.b.hasRemaining()))
+            {
+                if(!_writeBuffer.b.hasRemaining())
+                {
+                    _writeBuffer.b.position(0);
+                }
+
+                int n = buf.b.position();
+                final int sz = buf.size();
+                if(buf.b.hasArray() && _writeBuffer.b.hasArray())
+                {
+                    int pos = _writeBuffer.b.position();
+                    final int count = Math.min(sz - n, _writeBuffer.b.remaining());
+                    final byte[] src = buf.b.array();
+                    final int srcOff = buf.b.arrayOffset();
+                    final byte[] dest = _writeBuffer.b.array();
+                    final int destOff = _writeBuffer.b.arrayOffset();
+                    for(int i = 0; i < count; ++i, ++n, ++pos)
                     {
-                        int pos = _writeBuffer.b.position();
-                        final int count = Math.min(sz - n, _writeBuffer.b.remaining());
-                        final byte[] src = buf.b.array();
-                        final int srcOff = buf.b.arrayOffset();
-                        final byte[] dest = _writeBuffer.b.array();
-                        final int destOff = _writeBuffer.b.arrayOffset();
-                        for(int i = 0; i < count; ++i, ++n, ++pos)
-                        {
-                            dest[destOff + pos] = (byte)(src[srcOff + n] ^ _writeMask[n % 4]);
-                        }
-                        _writeBuffer.b.position(pos);
+                        dest[destOff + pos] = (byte)(src[srcOff + n] ^ _writeMask[n % 4]);
+                    }
+                    _writeBuffer.b.position(pos);
+                }
+                else
+                {
+                    for(; n < sz && _writeBuffer.b.hasRemaining(); ++n)
+                    {
+                        final byte b = (byte)(buf.b.get(n) ^ _writeMask[n % 4]);
+                        _writeBuffer.b.put(b);
+                    }
+                }
+                _writePayloadLength = n;
+                _writeBuffer.b.flip();
+            }
+            else if(_writePayloadLength == 0)
+            {
+                assert(_incoming);
+                if(_writeBuffer.b.hasRemaining())
+                {
+                    assert(buf.b.position() == 0);
+                    int n = _writeBuffer.b.remaining();
+                    if(buf.b.remaining() > n)
+                    {
+                        int limit = buf.b.limit();
+                        buf.b.limit(n);
+                        _writeBuffer.b.put(buf.b);
+                        buf.b.limit(limit);
+                        _writePayloadLength = n;
                     }
                     else
                     {
-                        for(; n < sz && _writeBuffer.b.hasRemaining(); ++n)
-                        {
-                            final byte b = (byte)(buf.b.get(n) ^ _writeMask[n % 4]);
-                            _writeBuffer.b.put(b);
-                        }
+                        _writePayloadLength = buf.b.remaining();
+                        _writeBuffer.b.put(buf.b);
                     }
-                    _writePayloadLength = n;
-
-                    _writeBuffer.b.flip();
+                    buf.b.position(0);
                 }
+                _writeBuffer.b.flip();
             }
             return true;
         }
@@ -1358,7 +1366,7 @@ final class WSTransceiver implements Transceiver
             }
         }
 
-        if(!_incoming && _writePayloadLength > 0)
+        if((!_incoming || buf.b.position() == 0) && _writePayloadLength > 0)
         {
             if(!_writeBuffer.b.hasRemaining())
             {

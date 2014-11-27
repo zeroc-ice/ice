@@ -507,9 +507,8 @@ IceInternal::WSTransceiver::write(Buffer& buf)
                 {
                     return s;
                 }
-            }
-
-            if(_incoming && !buf.b.empty() && _writeState == WriteStatePayload)
+            } 
+            else if(_incoming && !buf.b.empty() && _writeState == WriteStatePayload)
             {
                 SocketOperation s = _delegate->write(buf);
                 if(s)
@@ -1442,18 +1441,6 @@ IceInternal::WSTransceiver::preWrite(Buffer& buf)
             assert(buf.i = buf.b.begin());
             prepareWriteHeader(OP_DATA, buf.b.size());
 
-            //
-            // For server connections, we use the _writeBuffer only to
-            // write the header, the message is sent directly from the
-            // message buffer. For client connections, we use the write
-            // buffer for both the header and message buffer since we need
-            // to mask the message data.
-            //
-            if(_incoming)
-            {
-                _writeBuffer.b.resize(_writeBuffer.i - _writeBuffer.b.begin());
-                _writeBuffer.i = _writeBuffer.b.begin();
-            }
             _writeState = WriteStatePayload;
         }
         else if(_state == StatePingPending)
@@ -1516,33 +1503,43 @@ IceInternal::WSTransceiver::preWrite(Buffer& buf)
         //
         // For an outgoing connection, each message must be masked with a random
         // 32-bit value, so we copy the entire message into the internal buffer
-        // for writing.
+        // for writing. For incoming connections, we just copy the start of the
+        // message in the internal buffer after the hedaer. If the message is 
+        // larger, the reminder is sent directly from the message buffer to avoid
+        // copying.
         //
-        // For an incoming connection, we use the internal buffer to hold the
-        // frame header, and then write the caller's buffer to avoid copying.
-        //
-        if(!_incoming)
+
+        if(!_incoming && (_writePayloadLength == 0 || _writeBuffer.i == _writeBuffer.b.end()))
         {
-            if((_writePayloadLength == 0 || _writeBuffer.i == _writeBuffer.b.end()))
+            if(_writeBuffer.i == _writeBuffer.b.end())
             {
-                if(_writeBuffer.i == _writeBuffer.b.end())
-                {
-                    _writeBuffer.i = _writeBuffer.b.begin();
-                }
-
-                size_t n = buf.i - buf.b.begin();
-                for(; n < buf.b.size() && _writeBuffer.i < _writeBuffer.b.end(); ++_writeBuffer.i, ++n)
-                {
-                    *_writeBuffer.i = buf.b[n] ^ _writeMask[n % 4];
-                }
-                _writePayloadLength = n;
-
-                if(_writeBuffer.i < _writeBuffer.b.end())
-                {
-                    _writeBuffer.b.resize(_writeBuffer.i - _writeBuffer.b.begin());
-                }
                 _writeBuffer.i = _writeBuffer.b.begin();
             }
+            
+            size_t n = buf.i - buf.b.begin();
+            for(; n < buf.b.size() && _writeBuffer.i < _writeBuffer.b.end(); ++_writeBuffer.i, ++n)
+            {
+                *_writeBuffer.i = buf.b[n] ^ _writeMask[n % 4];
+            }
+            _writePayloadLength = n;
+            if(_writeBuffer.i < _writeBuffer.b.end())
+            {
+                _writeBuffer.b.resize(_writeBuffer.i - _writeBuffer.b.begin());
+            }
+            _writeBuffer.i = _writeBuffer.b.begin();
+        }
+        else if(_writePayloadLength == 0)
+        {
+            size_t n = min(_writeBuffer.b.end() - _writeBuffer.i, buf.b.end() - buf.i);
+            memcpy(_writeBuffer.i, buf.i, n);
+            _writeBuffer.i += n;
+            buf.i += n;
+            _writePayloadLength = n;
+            if(_writeBuffer.i < _writeBuffer.b.end())
+            {
+                _writeBuffer.b.resize(_writeBuffer.i - _writeBuffer.b.begin());
+            }
+            _writeBuffer.i = _writeBuffer.b.begin();
         }
         return true;
     }
@@ -1612,7 +1609,7 @@ IceInternal::WSTransceiver::postWrite(Buffer& buf)
         }
     }
 
-    if(!_incoming && _writePayloadLength > 0)
+    if((!_incoming || buf.i == buf.b.begin()) && _writePayloadLength > 0)
     {
         if(_writeBuffer.i == _writeBuffer.b.end())
         {
