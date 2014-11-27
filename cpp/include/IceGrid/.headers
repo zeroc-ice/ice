@@ -8,7 +8,6 @@ SDK_HEADERS = \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\IceGrid.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Locator.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Observer.h \
- $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\PluginFacade.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Query.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Registry.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ReplicaGroupFilter.h \
