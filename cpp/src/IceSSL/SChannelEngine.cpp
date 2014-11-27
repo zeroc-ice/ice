@@ -627,6 +627,10 @@ SChannelEngine::newCredentialsHandle(bool incoming)
         // the root certificate either way.
         //
         cred.dwFlags = SCH_CRED_NO_SYSTEM_MAPPER;
+        if(_rootStore)
+        {
+            cred.hRootStore = _rootStore;
+        }
     }
     else
     {
