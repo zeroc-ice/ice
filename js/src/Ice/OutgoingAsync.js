@@ -60,6 +60,10 @@ var OutgoingAsyncBase = Ice.Class(AsyncResult, {
     {
         this.__markFinishedEx(ex);
     },
+    __retryException: function(ex)
+    {
+        Debug.assert(false);
+    }
 });
 
 
@@ -88,6 +92,18 @@ var ProxyOutgoingAsyncBase = Ice.Class(OutgoingAsyncBase, {
         catch(ex)
         {
             this.__markFinishedEx(ex);
+        }
+    },
+    __retryException: function(ex)
+    {
+        try
+        {
+            this.__handleRetryException(ex.inner);
+            this.__retry();
+        }
+        catch(ex)
+        {
+            this.__completedEx(ex);
         }
     },
     __retry: function()
@@ -137,7 +153,7 @@ var ProxyOutgoingAsyncBase = Ice.Class(OutgoingAsyncBase, {
                 {
                     if(ex instanceof RetryException)
                     {
-                        this.__handleRetryException(ex);
+                        this.__handleRetryException(ex.inner);
                     }
                     else
                     {
@@ -555,7 +571,7 @@ var ProxyFlushBatch = Ice.Class(ProxyOutgoingAsyncBase, {
     __handleRetryException: function(exc)
     {
         this._proxy.__setRequestHandler(this._handler, null); // Clear request handler
-        throw exc.inner; // No retries, we want to notify the user of potentially lost batch requests
+        throw exc; // No retries, we want to notify the user of potentially lost batch requests
     },
     __handleException: function(exc)
     {

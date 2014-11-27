@@ -49,8 +49,10 @@ var RequestHandlerFactory = Ice.Class({
     {
         if(ref.getCacheConnection())
         {
-            var h = this._handlers.delete(ref);
-            Debug.assert(h === handler);
+            if(this._handlers.get(ref) === handler)
+            {
+                this._handlers.delete(ref);
+            }
         }
     }
 });

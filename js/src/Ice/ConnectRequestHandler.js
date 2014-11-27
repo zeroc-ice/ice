@@ -247,115 +247,6 @@ var ConnectRequestHandler = Ice.Class({
         this._proxies.length = 0;
         this._proxy = null; // Break cyclic reference count.
 
-        this.flushRequestsWithException(ex);
-    },
-    initialized: function()
-    {
-        if(this._initialized)
-        {
-            Debug.assert(this._connection !== null);
-            return true;
-        }
-        else
-        {
-            if(this._exception !== null)
-            {
-                throw this._exception;
-            }
-            else
-            {
-                return this._initialized;
-            }
-        }
-    },
-    flushRequests: function()
-    {
-        Debug.assert(this._connection !== null && !this._initialized);
-
-        try
-        {
-            while(this._requests.length > 0)
-            {
-                var request = this._requests[0];
-                if(request.out !== null)
-                {
-                    request.out.__send(this._connection, this._compress, this._response);
-                }
-                else
-                {
-                    var os = new BasicStream(request.os.instance, Protocol.currentProtocolEncoding);
-                    this._connection.prepareBatchRequest(os);
-                    try
-                    {
-                        request.os.pos = 0;
-                        os.writeBlob(request.os.readBlob(request.os.size));
-                    }
-                    catch(ex)
-                    {
-                        this._connection.abortBatchRequest();
-                        throw ex;
-                    }
-                    this._connection.finishBatchRequest(os, this._compress);
-                }
-                this._requests.shift();
-            }
-        }
-        catch(ex)
-        {
-            if(ex instanceof RetryException)
-            {
-                //
-                // If the connection dies shortly after connection
-                // establishment, we don't systematically retry on
-                // RetryException. We handle the exception like it
-                // was an exception that occured while sending the
-                // request.
-                //
-                Debug.assert(this._exception === null && this._requests.length > 0);
-                this._exception = ex.inner;
-                this.flushRequestsWithException();
-            }
-            else if(ex instanceof LocalException)
-            {
-                Debug.assert(this._exception === null && this._requests.length > 0);
-                this._exception = ex;
-                this.flushRequestsWithException();
-            }
-            else
-            {
-                throw ex;
-            }
-        }
-
-        if(this._reference.getCacheConnection() && this._exception === null)
-        {
-            this._connectionRequestHandler = new ConnectionRequestHandler(this._reference,
-                                                                          this._connection,
-                                                                          this._compress);
-            for(var i in this._proxies)
-            {
-                this._proxies[i].__setRequestHandler(this, this._connectionRequestHandler);
-            }
-        }
-
-        Debug.assert(!this._initialized);
-        if(this._exception === null)
-        {
-            this._initialized = true;
-            try
-            {
-                this._reference.getInstance().requestHandlerFactory().removeRequestHandler(this._reference, this);
-            }
-            catch(exc)
-            {
-                // Ignore
-            }
-        }
-        this._proxies.length = 0;
-        this._proxy = null; // Break cyclic reference count.
-    },
-    flushRequestsWithException: function()
-    {
         //
         // NOTE: remove the request handler *before* notifying the
         // requests that the connection failed. It's important to ensure
@@ -380,6 +271,117 @@ var ConnectRequestHandler = Ice.Class({
             }
         }
         this._requests.length = 0;
+    },
+    initialized: function()
+    {
+        if(this._initialized)
+        {
+            Debug.assert(this._connection !== null);
+            return true;
+        }
+        else
+        {
+            if(this._exception !== null)
+            {
+                throw this._exception;
+            }
+            else
+            {
+                return this._initialized;
+            }
+        }
+    },
+    flushRequests: function()
+    {
+        Debug.assert(this._connection !== null && !this._initialized);
+
+        while(this._requests.length > 0)
+        {
+            var request = this._requests[0];
+            if(request.out !== null)
+            {
+                try
+                {
+                    request.out.__send(this._connection, this._compress, this._response);
+                }
+                catch(ex)
+                {
+                    if(ex instanceof RetryException)
+                    {
+                        try
+                        {
+                            // Remove the request handler before retrying.
+                            this._reference.getInstance().requestHandlerFactory().removeRequestHandler(
+                                this._reference, this);
+                        }
+                        catch(exc)
+                        {
+                            // Ignore
+                        }
+                        request.out.__retryException(ex.inner);
+                    }
+                    else if(ex instanceof LocalException)
+                    {
+                        request.out.__completedEx(ex);
+                    }
+                    else
+                    {
+                        throw ex;
+                    }
+                }
+            }
+            else
+            {
+                try
+                {
+                    var os = new BasicStream(request.os.instance, Protocol.currentProtocolEncoding);
+                    this._connection.prepareBatchRequest(os);
+                    try
+                    {
+                        request.os.pos = 0;
+                        os.writeBlob(request.os.readBlob(request.os.size));
+                    }
+                    catch(ex)
+                    {
+                        this._connection.abortBatchRequest();
+                    throw ex;
+                    }
+                    this._connection.finishBatchRequest(os, this._compress);
+                }
+                catch(ex)
+                {
+                }
+            }
+            this._requests.shift();
+        }
+
+        if(this._reference.getCacheConnection())
+        {
+            this._connectionRequestHandler = new ConnectionRequestHandler(this._reference,
+                                                                          this._connection,
+                                                                          this._compress);
+            for(var i in this._proxies)
+            {
+                this._proxies[i].__setRequestHandler(this, this._connectionRequestHandler);
+            }
+        }
+
+        Debug.assert(!this._initialized);
+        this._initialized = true;
+        try
+        {
+            //
+            // Only remove once all the requests are flushed to
+            // guarantee serialization.
+            //
+            this._reference.getInstance().requestHandlerFactory().removeRequestHandler(this._reference, this);
+        }
+        catch(exc)
+        {
+            // Ignore
+        }
+        this._proxies.length = 0;
+        this._proxy = null; // Break cyclic reference count.
     }
 });
 
