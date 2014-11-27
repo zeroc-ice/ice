@@ -196,6 +196,15 @@ Outgoing::completed(const Ice::Exception& ex)
     _monitor.notify();
 }
 
+void
+Outgoing::retryException(const Ice::Exception&)
+{
+    Monitor<Mutex>::Lock sync(_monitor);
+    assert(_state <= StateInProgress);
+    _state = StateRetry;
+    _monitor.notify();
+}
+
 bool
 Outgoing::invoke()
 {
@@ -258,8 +267,12 @@ Outgoing::invoke()
                 {
                     Time now = Time::now(Time::Monotonic);
                     timedOut = now >= _invocationTimeoutDeadline;
-                    while((_state == StateInProgress || !_sent) && _state != StateFailed && !timedOut)
+                    while((_state == StateInProgress || !_sent) && _state != StateFailed && _state != StateRetry)
                     {
+                        if(timedOut)
+                        {
+                            break;
+                        }
                         _monitor.timedWait(_invocationTimeoutDeadline - now);
                             
                         if((_state == StateInProgress || !_sent) && _state != StateFailed)
@@ -271,7 +284,7 @@ Outgoing::invoke()
                 }
                 else
                 {
-                    while((_state == StateInProgress || !_sent) && _state != StateFailed)
+                    while((_state == StateInProgress || !_sent) && _state != StateFailed && _state != StateRetry)
                     {
                         _monitor.wait();
                     }
@@ -304,6 +317,11 @@ Outgoing::invoke()
             if(_exception.get())
             {
                 _exception->ice_throw();
+            }
+            else if(_state == StateRetry)
+            {
+                _proxy->__setRequestHandler(_handler, 0); // Clear request handler and retry.
+                continue;
             }
             else
             {
@@ -714,4 +732,10 @@ FlushBatch::completed(const Ice::Exception& ex)
     _childObserver.detach();
     _exception.reset(ex.ice_clone());
     _monitor.notify();
+}
+
+void
+FlushBatch::retryException(const Ice::Exception& ex)
+{
+    completed(ex);
 }

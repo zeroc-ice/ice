@@ -46,6 +46,7 @@ public:
 
     virtual void sent() = 0;
     virtual void completed(const Ice::Exception&) = 0;
+    virtual void retryException(const Ice::Exception&) = 0;
 
     BasicStream* os() { return &_os; }
 
@@ -86,6 +87,7 @@ public:
 
     virtual void sent();
     virtual void completed(const Ice::Exception&);
+    virtual void retryException(const Ice::Exception&);
 
     bool invoke(); // Returns true if ok, false if user exception.
     void abort(const Ice::LocalException&);
@@ -157,6 +159,7 @@ private:
     {
         StateUnsent,
         StateInProgress,
+        StateRetry,
         StateOK,
         StateUserException,
         StateLocalException,
@@ -181,6 +184,7 @@ public:
 
     virtual void sent();
     virtual void completed(const Ice::Exception&);
+    virtual void retryException(const Ice::Exception&);
 
 private:
 

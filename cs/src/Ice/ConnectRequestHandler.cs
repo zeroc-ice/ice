@@ -280,7 +280,33 @@ namespace IceInternal
                 _proxies.Clear();
                 _proxy = null; // Break cyclic reference count.
 
-                flushRequestsWithException();
+                //
+                // NOTE: remove the request handler *before* notifying the
+                // requests that the connection failed. It's important to ensure
+                // that future invocations will obtain a new connect request
+                // handler once invocations are notified.
+                //
+                try
+                {
+                    _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
+                }
+                catch(Ice.CommunicatorDestroyedException)
+                {
+                    // Ignore
+                }
+
+                foreach(Request request in _requests)
+                {
+                    if(request.outAsync != null)
+                    {
+                        Ice.AsyncCallback cb = request.outAsync.completed(_exception);
+                        if(cb != null)
+                        {
+                            request.outAsync.invokeCompletedAsync(cb);
+                        }
+                    }
+                }
+                _requests.Clear();
                 System.Threading.Monitor.PulseAll(this);
             }
         }
@@ -353,34 +379,47 @@ namespace IceInternal
                 _flushing = true;
             }
 
-            try
+            LinkedListNode<Request> p = _requests.First; // _requests is immutable when _flushing = true
+            while(p != null)
             {
-                LinkedListNode<Request> p = _requests.First; // _requests is immutable when _flushing = true
-                while(p != null)
+                Request request = p.Value;
+                if(request.outAsync != null)
                 {
-                    Request request = p.Value;
-                    if(request.outAsync != null)
+                    try
                     {
-                        try
+                        if(request.outAsync.send(_connection, _compress, _response, out request.sentCallback))
                         {
-                            if(request.outAsync.send(_connection, _compress, _response, out request.sentCallback))
+                            if(request.sentCallback != null)
                             {
-                                if(request.sentCallback != null)
-                                {
-                                    request.outAsync.invokeSentAsync(request.sentCallback);
-                                }
-                            }
-                        }
-                        catch(Ice.DatagramLimitException ex)
-                        {
-                            Ice.AsyncCallback cb = request.outAsync.completed(ex);
-                            if(cb != null)
-                            {
-                                request.outAsync.invokeCompletedAsync(cb);
+                                request.outAsync.invokeSentAsync(request.sentCallback);
                             }
                         }
                     }
-                    else
+                    catch(RetryException ex)
+                    {
+                        try
+                        {
+                            // Remove the request handler before retrying.
+                            _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
+                        }
+                        catch(Ice.CommunicatorDestroyedException)
+                        {
+                            // Ignore
+                        }
+                        request.outAsync.retryException(ex.get());
+                    }
+                    catch(Ice.Exception ex)
+                    {
+                        Ice.AsyncCallback cb = request.outAsync.completed(ex);
+                        if(cb != null)
+                        {
+                            request.outAsync.invokeCompletedAsync(cb);
+                        }
+                    }
+                }
+                else
+                {
+                    try
                     {
                         BasicStream os = new BasicStream(request.os.instance(), Ice.Util.currentProtocolEncoding);
                         _connection.prepareBatchRequest(os);
@@ -396,35 +435,16 @@ namespace IceInternal
                         }
                         _connection.finishBatchRequest(os, _compress);
                     }
-                    LinkedListNode<Request> tmp = p;
-                    p = p.Next;
-                    _requests.Remove(tmp);
+                    catch(RetryException)
+                    {
+                    }
+                    catch(Ice.Exception)
+                    {
+                    }
                 }
-            }
-            catch(RetryException ex)
-            {
-                //
-                // If the connection dies shortly after connection
-                // establishment, we don't systematically retry on
-                // RetryException. We handle the exception like it
-                // was an exception that occured while sending the
-                // request.
-                //
-                lock(this)
-                {
-                    Debug.Assert(_exception == null && _requests.Count > 0);
-                    _exception = ex.get();
-                    flushRequestsWithException();
-                }
-            }
-            catch(Ice.LocalException ex)
-            {
-                lock(this)
-                {
-                    Debug.Assert(_exception == null && _requests.Count > 0);
-                    _exception = ex;
-                    flushRequestsWithException();
-                }
+                LinkedListNode<Request> tmp = p;
+                p = p.Next;
+                _requests.Remove(tmp);
             }
 
             //
@@ -433,7 +453,7 @@ namespace IceInternal
             // request handler to use the more efficient connection request
             // handler.
             //
-            if(_reference.getCacheConnection() && _exception == null)
+            if(_reference.getCacheConnection())
             {
                 _connectionRequestHandler = new ConnectionRequestHandler(_reference, _connection, _compress);
                 foreach(Ice.ObjectPrxHelperBase prx in _proxies)
@@ -445,56 +465,24 @@ namespace IceInternal
             lock(this)
             {
                 Debug.Assert(!_initialized);
-                if(_exception == null)
+                _initialized = true;
+                _flushing = false;
+                try
                 {
-                    _initialized = true;
-                    _flushing = false;
-
-                    try
-                    {
-                        _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
-                    }
-                    catch(Ice.CommunicatorDestroyedException)
-                    {
-                        // Ignore
-                    }
+                    //
+                    // Only remove once all the requests are flushed to
+                    // guarantee serialization.
+                    //
+                    _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
+                }
+                catch(Ice.CommunicatorDestroyedException)
+                {
+                    // Ignore
                 }
                 _proxies.Clear();
                 _proxy = null; // Break cyclic reference count.
                 System.Threading.Monitor.PulseAll(this);
             }
-        }
-
-        private void
-        flushRequestsWithException()
-        {
-            //
-            // NOTE: remove the request handler *before* notifying the
-            // requests that the connection failed. It's important to ensure
-            // that future invocations will obtain a new connect request
-            // handler once invocations are notified.
-            //
-            try
-            {
-                _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
-            }
-            catch(Ice.CommunicatorDestroyedException)
-            {
-                // Ignore
-            }
-
-            foreach(Request request in _requests)
-            {
-                if(request.outAsync != null)
-                {
-                    Ice.AsyncCallback cb = request.outAsync.completed(_exception);
-                    if(cb != null)
-                    {
-                        request.outAsync.invokeCompletedAsync(cb);
-                    }
-                }
-            }
-            _requests.Clear();
         }
 
         private Reference _reference;

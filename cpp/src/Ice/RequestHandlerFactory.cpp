@@ -61,8 +61,7 @@ IceInternal::RequestHandlerFactory::removeRequestHandler(const ReferencePtr& ref
     {
         Lock sync(*this);
         map<ReferencePtr, RequestHandlerPtr>::iterator p = _handlers.find(ref);
-        assert(p != _handlers.end() && p->second.get() == handler.get());
-        if(p != _handlers.end())
+        if(p != _handlers.end() && p->second.get() == handler.get())
         {
             _handlers.erase(p);
         }

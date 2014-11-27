@@ -40,6 +40,11 @@ namespace IceInternal
             return finished(ex);
         }
 
+        public virtual void retryException(Ice.Exception ex)
+        {
+            Debug.Assert(false);
+        }
+
         public void attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt, int requestId)
         {
             if(observer_ != null)
@@ -161,6 +166,23 @@ namespace IceInternal
             catch(Ice.Exception ex)
             {
                 return finished(ex); // No retries, we're done
+            }
+        }
+
+        public override void retryException(Ice.Exception ex)
+        {
+            try
+            {
+                handleRetryException(ex);
+                retry();
+            }
+            catch(Ice.Exception exc)
+            {
+                Ice.AsyncCallback cb = completed(exc);
+                if(cb != null)
+                {
+                    invokeCompletedAsync(cb);
+                }
             }
         }
 
@@ -291,7 +313,7 @@ namespace IceInternal
                     }
                     catch(RetryException ex)
                     {
-                        handleRetryException(ex);
+                        handleRetryException(ex.get());
                     }
                     catch(Ice.Exception ex)
                     {
@@ -363,7 +385,7 @@ namespace IceInternal
             return base.finished(ok);
         }
 
-        protected virtual void handleRetryException(RetryException exc)
+        protected virtual void handleRetryException(Ice.Exception exc)
         {
             proxy_.setRequestHandler__(handler_, null); // Clear request handler and always retry.
         }
@@ -1038,10 +1060,10 @@ namespace IceInternal
             invokeImpl(true); // userThread = true
         }
 
-        protected override void handleRetryException(RetryException exc)
+        protected override void handleRetryException(Ice.Exception exc)
         {
             proxy_.setRequestHandler__(handler_, null); // Clear request handler
-            throw exc.get(); // No retries, we want to notify the user of potentially lost batch requests
+            throw exc; // No retries, we want to notify the user of potentially lost batch requests
         }
 
         protected override int handleException(Ice.Exception exc)

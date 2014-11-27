@@ -59,8 +59,11 @@ namespace IceInternal
             {
                 lock(this)
                 {
-                    Debug.Assert(_handlers[rf] == handler);
-                    _handlers.Remove(rf);
+                    RequestHandler h;
+                    if(_handlers.TryGetValue(rf, out h) && h == handler)
+                    {
+                        _handlers.Remove(rf);
+                    }
                 }
             }
         }

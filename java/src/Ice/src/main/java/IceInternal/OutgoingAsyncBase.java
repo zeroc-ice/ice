@@ -38,6 +38,11 @@ public abstract class OutgoingAsyncBase extends IceInternal.AsyncResultI
         return finished(ex);
     }
 
+    public void retryException(Ice.Exception ex)
+    {
+        assert(false);
+    }
+
     public final void attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt, int requestId)
     {
         if(_observer != null)

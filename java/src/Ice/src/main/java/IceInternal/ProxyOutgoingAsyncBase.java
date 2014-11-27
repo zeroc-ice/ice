@@ -65,7 +65,24 @@ public abstract class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
             return finished(ex); // No retries, we're done
         }
     }
-    
+
+    @Override
+    public void retryException(Ice.Exception ex)
+    {
+        try
+        {
+            handleRetryException(ex);
+            retry();
+        }
+        catch(Ice.Exception exc)
+        {
+            if(completed(exc))
+            {
+                invokeCompletedAsync();
+            }
+        }
+    }
+
     public void retry()
     {
         invokeImpl(false);
@@ -197,7 +214,7 @@ public abstract class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
                 }
                 catch(RetryException ex)
                 {
-                    handleRetryException(ex);
+                    handleRetryException(ex.get());
                 }
                 catch(Ice.Exception ex)
                 {
@@ -274,7 +291,7 @@ public abstract class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
         return super.finished(ok);
     }
 
-    protected void handleRetryException(RetryException exc)
+    protected void handleRetryException(Ice.Exception exc)
     {
         _proxy.__setRequestHandler(_handler, null); // Clear request handler and always retry.
     }

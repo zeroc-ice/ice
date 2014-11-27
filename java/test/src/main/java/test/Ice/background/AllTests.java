@@ -1085,11 +1085,6 @@ public class AllTests
         configuration.readReady(false); // Required in C# to make sure beginRead() doesn't throw too soon.
         configuration.readException(new Ice.SocketException());
         Ice.AsyncResult r = background.begin_op();
-        if(!r.sentSynchronously())
-        {
-            // The read exception might propagate before the message send is seen as completed on IOCP.
-            test(r.isCompleted());
-        }
         try
         {
             background.end_op(r);
@@ -1181,11 +1176,6 @@ public class AllTests
             configuration.readReady(false);
             configuration.readException(new Ice.SocketException());
             r = background.begin_op();
-            if(!r.sentSynchronously())
-            {
-                // The read exception might propagate before the message send is seen as completed on IOCP.
-                test(r.isCompleted());
-            }
             try
             {
                 background.end_op(r);

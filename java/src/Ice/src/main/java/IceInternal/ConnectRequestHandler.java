@@ -289,7 +289,32 @@ public class ConnectRequestHandler
         _proxies.clear();
         _proxy = null; // Break cyclic reference count.
 
-        flushRequestsWithException();
+        //
+        // NOTE: remove the request handler *before* notifying the
+        // requests that the connection failed. It's important to ensure
+        // that future invocations will obtain a new connect request
+        // handler once invocations are notified.
+        //
+        try
+        {
+            _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
+        }
+        catch(Ice.CommunicatorDestroyedException exc)
+        {
+            // Ignore
+        }
+
+        for(Request request : _requests)
+        {
+            if(request.outAsync != null)
+            {
+                if(request.outAsync.completed(_exception))
+                {
+                    request.outAsync.invokeCompletedAsync();
+                }
+            }
+        }
+        _requests.clear();
         notifyAll();
     }
 
@@ -384,31 +409,44 @@ public class ConnectRequestHandler
         }
 
         final java.util.List<OutgoingAsyncBase> sentCallbacks = new java.util.ArrayList<OutgoingAsyncBase>();
-        try
+        java.util.Iterator<Request> p = _requests.iterator(); // _requests is immutable when _flushing = true
+        while(p.hasNext())
         {
-            java.util.Iterator<Request> p = _requests.iterator(); // _requests is immutable when _flushing = true
-            while(p.hasNext())
+            Request request = p.next();
+            if(request.outAsync != null)
             {
-                Request request = p.next();
-                if(request.outAsync != null)
+                try
+                {
+                    if((request.outAsync.send(_connection, _compress, _response) &
+                        AsyncStatus.InvokeSentCallback) > 0)
+                    {
+                        request.outAsync.invokeSentAsync();
+                    }
+                }
+                catch(RetryException ex)
                 {
                     try
                     {
-                        if((request.outAsync.send(_connection, _compress, _response) &
-                            AsyncStatus.InvokeSentCallback) > 0)
-                        {
-                            request.outAsync.invokeSentAsync();
-                        }
+                        // Remove the request handler before retrying.
+                        _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
                     }
-                    catch(Ice.DatagramLimitException ex)
+                    catch(Ice.CommunicatorDestroyedException exc)
                     {
-                        if(request.outAsync.completed(ex))
-                        {
-                            request.outAsync.invokeCompletedAsync();
-                        }
+                        // Ignore
+                    }
+                    request.outAsync.retryException(ex.get());
+                }
+                catch(Ice.Exception ex)
+                {
+                    if(request.outAsync.completed(ex))
+                    {
+                        request.outAsync.invokeCompletedAsync();
                     }
                 }
-                else
+            }
+            else
+            {
+                try
                 {
                     BasicStream os = new BasicStream(request.os.instance(), Protocol.currentProtocolEncoding);
                     _connection.prepareBatchRequest(os);
@@ -424,33 +462,14 @@ public class ConnectRequestHandler
                     }
                     _connection.finishBatchRequest(os, _compress);
                 }
-                p.remove();
+                catch(RetryException ex)
+                {
+                }
+                catch(Ice.Exception ex)
+                {
+                }
             }
-        }
-        catch(final RetryException ex)
-        {
-            //
-            // If the connection dies shortly after connection
-            // establishment, we don't systematically retry on
-            // RetryException. We handle the exception like it
-            // was an exception that occured while sending the
-            // request.
-            //
-            synchronized(this)
-            {
-                assert(_exception == null && !_requests.isEmpty());
-                _exception = ex.get();
-                flushRequestsWithException();
-            }
-        }
-        catch(final Ice.LocalException ex)
-        {
-            synchronized(this)
-            {
-                assert(_exception == null && !_requests.isEmpty());
-                _exception = ex;
-                flushRequestsWithException();
-            }
+            p.remove();
         }
 
         //
@@ -459,7 +478,7 @@ public class ConnectRequestHandler
         // request handler to use the more efficient connection request
         // handler.
         //
-        if(_reference.getCacheConnection() && _exception == null)
+        if(_reference.getCacheConnection())
         {
             _connectionRequestHandler = new ConnectionRequestHandler(_reference, _connection, _compress);
             for(Ice.ObjectPrxHelperBase proxy : _proxies)
@@ -471,21 +490,20 @@ public class ConnectRequestHandler
         synchronized(this)
         {
             assert(!_initialized);
-            if(_exception == null)
+            _initialized = true;
+            _flushing = false;
+            try
             {
-                _initialized = true;
-                _flushing = false;
-
-                try
-                {
-                    _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
-                }
-                catch(Ice.CommunicatorDestroyedException ex)
-                {
-                    // Ignore
-                }
+                //
+                // Only remove once all the requests are flushed to
+                // guarantee serialization.
+                //
+                _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
             }
-
+            catch(Ice.CommunicatorDestroyedException ex)
+            {
+                // Ignore
+            }
             _proxies.clear();
             _proxy = null; // Break cyclic reference count.
             notifyAll();
@@ -518,37 +536,6 @@ public class ConnectRequestHandler
         {
             Thread.currentThread().interrupt();
         }
-    }
-
-    private void
-    flushRequestsWithException()
-    {
-        //
-        // NOTE: remove the request handler *before* notifying the
-        // requests that the connection failed. It's important to ensure
-        // that future invocations will obtain a new connect request
-        // handler once invocations are notified.
-        //
-        try
-        {
-            _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
-        }
-        catch(Ice.CommunicatorDestroyedException exc)
-        {
-            // Ignore
-        }
-
-        for(Request request : _requests)
-        {
-            if(request.outAsync != null)
-            {
-                if(request.outAsync.completed(_exception))
-                {
-                    request.outAsync.invokeCompletedAsync();
-                }
-            }
-        }
-        _requests.clear();
     }
 
     private final Reference _reference;

@@ -58,8 +58,6 @@ public:
 
     virtual void addedProxy();
 
-    void flushRequestsWithException();
-
 private:
 
     bool initialized();

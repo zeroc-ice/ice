@@ -41,6 +41,7 @@ public:
 
     virtual bool sent();
     virtual bool completed(const Ice::Exception&);
+    virtual void retryException(const Ice::Exception&);
 
     // Those methods are public when called from an OutgoingAsyncBase reference.
     using Ice::AsyncResult::cancelable;
@@ -93,6 +94,7 @@ public:
 
     using OutgoingAsyncBase::sent;
     virtual bool completed(const Ice::Exception&);
+    virtual void retryException(const Ice::Exception&);
     virtual void cancelable(const CancellationHandlerPtr&);
 
     void retry();
@@ -109,7 +111,7 @@ protected:
     bool finished(const Ice::Exception&);
     bool finished(bool);
 
-    virtual void handleRetryException(const RetryException&);
+    virtual void handleRetryException(const Ice::Exception&);
     virtual int handleException(const Ice::Exception&);
     virtual void runTimerTask();
 
@@ -196,7 +198,7 @@ public:
 
 private:
 
-    virtual void handleRetryException(const RetryException&);
+    virtual void handleRetryException(const Ice::Exception&);
     virtual int handleException(const Ice::Exception&);
 };
 typedef IceUtil::Handle<ProxyFlushBatch> ProxyFlushBatchPtr;

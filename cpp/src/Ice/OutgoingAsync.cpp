@@ -40,6 +40,12 @@ OutgoingAsyncBase::completed(const Exception& ex)
     return finished(ex);
 }
 
+void
+OutgoingAsyncBase::retryException(const Exception& ex)
+{
+    assert(false);
+}
+
 OutgoingAsyncBase::OutgoingAsyncBase(const CommunicatorPtr& communicator,
                                      const InstancePtr& instance,
                                      const string& operation,
@@ -112,6 +118,22 @@ ProxyOutgoingAsyncBase::completed(const Exception& exc)
     }
 }
 
+void
+ProxyOutgoingAsyncBase::retryException(const Exception& ex)
+{
+    try
+    {
+        handleRetryException(ex);
+        _instance->retryQueue()->add(this, 0);
+    }
+    catch(const Ice::Exception& exc)
+    {
+        if(completed(exc))
+        {
+            invokeCompletedAsync();
+        }
+    }
+}
 
 void
 ProxyOutgoingAsyncBase::cancelable(const CancellationHandlerPtr& handler)
@@ -212,7 +234,7 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
             }
             catch(const RetryException& ex)
             {
-                handleRetryException(ex);
+                handleRetryException(*ex.get());
             }
             catch(const Exception& ex)
             {
@@ -286,7 +308,7 @@ ProxyOutgoingAsyncBase::finished(bool ok)
 }
 
 void
-ProxyOutgoingAsyncBase::handleRetryException(const RetryException& exc)
+ProxyOutgoingAsyncBase::handleRetryException(const Ice::Exception&)
 {
     _proxy->__setRequestHandler(_handler, 0); // Clear request handler and always retry.
 }
@@ -647,10 +669,10 @@ ProxyFlushBatch::invoke()
 }
 
 void
-ProxyFlushBatch::handleRetryException(const RetryException& ex)
+ProxyFlushBatch::handleRetryException(const Ice::Exception& ex)
 {
     _proxy->__setRequestHandler(_handler, 0); // Clear request handler
-    ex.get()->ice_throw(); // No retries, we want to notify the user of potentially lost batch requests
+    ex.ice_throw(); // No retries, we want to notify the user of potentially lost batch requests
 }
 
 int

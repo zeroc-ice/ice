@@ -1047,13 +1047,6 @@ readWriteTests(const ConfigurationPtr& configuration,
     configuration->readReady(false); // Required in C# to make sure beginRead() doesn't throw too soon.
     configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
     Ice::AsyncResultPtr r = background->begin_op();
-    if(!r->sentSynchronously())
-    {
-        // The read exception might propagate before the message send is seen as completed on IOCP.
-#ifndef ICE_USE_IOCP
-        test(r->isCompleted());
-#endif
-    }
     try
     {
         background->end_op(r);
@@ -1151,13 +1144,6 @@ readWriteTests(const ConfigurationPtr& configuration,
             configuration->readReady(false);
             configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
             Ice::AsyncResultPtr r = background->begin_op();
-            if(!r->sentSynchronously())
-            {
-                // The read exception might propagate before the message send is seen as completed on IOCP.
-#ifndef ICE_USE_IOCP
-                test(r->isCompleted());
-#endif
-            }
             try
             {
                 background->end_op(r);

@@ -50,10 +50,10 @@ public class ProxyFlushBatch extends ProxyOutgoingAsyncBase
     }
     
     @Override
-    protected void handleRetryException(RetryException exc)
+    protected void handleRetryException(Ice.Exception exc)
     {
         _proxy.__setRequestHandler(_handler, null); // Clear request handler
-        throw exc.get(); // No retries, we want to notify the user of potentially lost batch requests
+        throw exc; // No retries, we want to notify the user of potentially lost batch requests
     }
     
     @Override

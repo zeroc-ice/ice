@@ -40,13 +40,14 @@ public final class RequestHandlerFactory
                 {
                     return handler;
                 }
-            
+                
                 handler = new ConnectRequestHandler(ref, proxy);
+                _handlers.put(ref, handler);
+
                 if(_instance.queueRequests())
                 {
                     handler = new QueueRequestHandler(_instance, handler);
                 }
-                _handlers.put(ref, handler);
                 return handler;
             }
         }
@@ -68,8 +69,10 @@ public final class RequestHandlerFactory
         {
             synchronized(this)
             {
-                assert(_handlers.containsKey(ref));
-                _handlers.remove(ref);
+                if(_handlers.get(ref) == handler)
+                {
+                    _handlers.remove(ref);
+                }
             }
         }
     }
