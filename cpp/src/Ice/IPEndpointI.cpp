@@ -696,16 +696,10 @@ IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& insta
 {
 }
 
-vector<ConnectorPtr>
-IceInternal::EndpointHostResolver::resolve(const string& host, int port, Ice::EndpointSelectionType selType,
-                                           const IPEndpointIPtr& endpoint)
-{
-    return endpoint->connectors(getAddresses(host, port, _instance->protocolSupport(), selType,
-                                             _instance->preferIPv6(), false), _instance->networkProxy());
-}
 
 void
-IceInternal::EndpointHostResolver::resolve(const string&, int,
+IceInternal::EndpointHostResolver::resolve(const string& host,
+                                           int port,
                                            Ice::EndpointSelectionType selType,
                                            const IPEndpointIPtr& endpoint,
                                            const EndpointI_connectorsPtr& callback)
@@ -713,7 +707,12 @@ IceInternal::EndpointHostResolver::resolve(const string&, int,
     //
     // No DNS lookup support with WinRT.
     //
-    callback->connectors(endpoint->connectors(selType));
+    callback->connectors(endpoint->connectors(getAddresses(host, port,
+                                                           _instance->protocolSupport(),
+                                                           selType,
+                                                           _instance->preferIPv6(),
+                                                           false),
+                                              _instance->networkProxy()));
 }
 
 void
