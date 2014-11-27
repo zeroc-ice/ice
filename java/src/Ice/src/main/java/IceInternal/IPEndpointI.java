@@ -109,12 +109,6 @@ public abstract class IPEndpointI extends EndpointI
     }
 
     @Override
-    public java.util.List<Connector> connectors(Ice.EndpointSelectionType selType)
-    {
-        return _instance.resolve(_host, _port, selType, this);
-    }
-
-    @Override
     public void connectors_async(Ice.EndpointSelectionType selType, EndpointI_connectors callback)
     {
         _instance.resolve(_host, _port, selType, this, callback);

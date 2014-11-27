@@ -179,17 +179,6 @@ IceInternal::WSEndpoint::transceiver() const
     return 0;
 }
 
-vector<ConnectorPtr>
-IceInternal::WSEndpoint::connectors(Ice::EndpointSelectionType selType) const
-{
-    vector<ConnectorPtr> connectors = _delegate->connectors(selType);
-    for(vector<ConnectorPtr>::iterator p = connectors.begin(); p != connectors.end(); ++p)
-    {
-        *p = new WSConnector(_instance, *p, _delegate->host(), _delegate->port(), _resource);
-    }
-    return connectors;
-}
-
 void
 IceInternal::WSEndpoint::connectors_async(Ice::EndpointSelectionType selType,
                                          const EndpointI_connectorsPtr& callback) const

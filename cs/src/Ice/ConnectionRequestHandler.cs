@@ -86,24 +86,6 @@ namespace IceInternal
             return _connection;
         }
 
-        public ConnectionRequestHandler(Reference @ref, Ice.ObjectPrx proxy)
-        {
-            _reference = @ref;
-            _response = _reference.getMode() == Reference.Mode.ModeTwoway;
-
-            _connection = _reference.getConnection(out _compress);
-
-            //
-            // If this proxy is for a non-local object, and we are using a router, then
-            // add this proxy to the router info object.
-            //
-            IceInternal.RouterInfo ri = _reference.getRouterInfo();
-            if(ri != null)
-            {
-                ri.addProxy(proxy);
-            }
-        }
-
         public ConnectionRequestHandler(Reference @ref, Ice.ConnectionI connection, bool compress)
         {
             _reference = @ref;

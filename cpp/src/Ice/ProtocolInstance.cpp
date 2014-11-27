@@ -89,13 +89,6 @@ IceInternal::ProtocolInstance::messageSizeMax() const
     return _instance->messageSizeMax();
 }
 
-vector<ConnectorPtr>
-IceInternal::ProtocolInstance::resolve(const string& host, int port, EndpointSelectionType type,
-                                       const IPEndpointIPtr& endpt) const
-{
-    return _instance->endpointHostResolver()->resolve(host, port, type, endpt);
-}
-
 void
 IceInternal::ProtocolInstance::resolve(const string& host, int port, EndpointSelectionType type,
                                        const IPEndpointIPtr& endpt, const EndpointI_connectorsPtr& cb) const

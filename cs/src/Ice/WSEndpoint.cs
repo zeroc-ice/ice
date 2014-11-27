@@ -161,17 +161,6 @@ namespace IceInternal
             return null;
         }
 
-        public override List<Connector> connectors(Ice.EndpointSelectionType selType)
-        {
-            List<Connector> connectors = _delegate.connectors(selType);
-            List<Connector> l = new List<Connector>();
-            foreach(Connector c in connectors)
-            {
-                l.Add(new WSConnector(_instance, c, _delegate.host(), _delegate.port(), _resource));
-            }
-            return l;
-        }
-
         private sealed class EndpointI_connectorsI : EndpointI_connectors
         {
             public EndpointI_connectorsI(ProtocolInstance instance, string host, int port, string resource,

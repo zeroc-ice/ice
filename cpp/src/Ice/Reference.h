@@ -130,7 +130,6 @@ public:
     //
     // Get a suitable connection for this reference.
     //
-    virtual Ice::ConnectionIPtr getConnection(bool&) const = 0;
     virtual void getConnection(const GetConnectionCallbackPtr&) const = 0;
 
     virtual bool operator==(const Reference&) const;
@@ -206,7 +205,6 @@ public:
     virtual std::string toString() const;
     virtual Ice::PropertyDict toProperty(const std::string&) const;
 
-    virtual Ice::ConnectionIPtr getConnection(bool&) const;
     virtual void getConnection(const GetConnectionCallbackPtr&) const;
 
     virtual bool operator==(const Reference&) const;
@@ -270,11 +268,9 @@ public:
 
     virtual ReferencePtr clone() const;
 
-    virtual Ice::ConnectionIPtr getConnection(bool&) const;
     virtual void getConnection(const GetConnectionCallbackPtr&) const;
     virtual void getConnectionNoRouterInfo(const GetConnectionCallbackPtr&) const;
 
-    Ice::ConnectionIPtr createConnection(const std::vector<EndpointIPtr>&, bool&) const;
     void createConnection(const std::vector<EndpointIPtr>&, const GetConnectionCallbackPtr&) const;
     void applyOverrides(std::vector<EndpointIPtr>&) const;
 

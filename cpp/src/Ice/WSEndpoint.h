@@ -43,7 +43,6 @@ public:
     virtual bool secure() const;
 
     virtual TransceiverPtr transceiver() const;
-    virtual std::vector<ConnectorPtr> connectors(Ice::EndpointSelectionType) const;
     virtual void connectors_async(Ice::EndpointSelectionType, const EndpointI_connectorsPtr&) const;
     virtual AcceptorPtr acceptor(const std::string&) const;
 

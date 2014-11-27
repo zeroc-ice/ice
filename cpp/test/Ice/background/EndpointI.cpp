@@ -139,18 +139,6 @@ EndpointI::transceiver() const
     }
 }
 
-vector<IceInternal::ConnectorPtr>
-EndpointI::connectors(Ice::EndpointSelectionType selType) const
-{
-    _configuration->checkConnectorsException();
-    vector<IceInternal::ConnectorPtr> c = _endpoint->connectors(selType);
-    for(vector<IceInternal::ConnectorPtr>::iterator p = c.begin(); p != c.end(); ++p)
-    {
-        *p = new Connector(*p);
-    }
-    return c;
-}
-
 void
 EndpointI::connectors_async(Ice::EndpointSelectionType selType, const IceInternal::EndpointI_connectorsPtr& cb) const
 {

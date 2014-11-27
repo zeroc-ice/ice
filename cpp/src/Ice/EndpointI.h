@@ -109,7 +109,6 @@ public:
     // returning connectors sorted according to the endpoint selection
     // type.
     //
-    virtual std::vector<ConnectorPtr> connectors(Ice::EndpointSelectionType) const = 0;
     virtual void connectors_async(Ice::EndpointSelectionType, const EndpointI_connectorsPtr&) const = 0;
 
     //

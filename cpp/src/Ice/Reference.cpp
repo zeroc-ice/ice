@@ -750,11 +750,13 @@ IceInternal::FixedReference::toProperty(const string&) const
     return PropertyDict(); // To keep the compiler from complaining.
 }
 
-ConnectionIPtr
-IceInternal::FixedReference::getConnection(bool& compress) const
+void
+IceInternal::FixedReference::getConnection(const GetConnectionCallbackPtr& callback) const
 {
-    switch(getMode())
+    try
     {
+        switch(getMode())
+        {
         case Reference::ModeTwoway:
         case Reference::ModeOneway:
         case Reference::ModeBatchOneway:
@@ -775,52 +777,43 @@ IceInternal::FixedReference::getConnection(bool& compress) const
             }
             break;
         }
-    }
+        }
 
-    //
-    // If a secure connection is requested or secure overrides is set,
-    // check if the connection is secure.
-    //
-    bool secure;
-    DefaultsAndOverridesPtr defaultsAndOverrides = getInstance()->defaultsAndOverrides();
-    if(defaultsAndOverrides->overrideSecure)
-    {
-        secure = defaultsAndOverrides->overrideSecureValue;
-    }
-    else
-    {
-        secure = getSecure();
-    }
-    if(secure && !_fixedConnection->endpoint()->secure())
-    {
-        throw NoEndpointException(__FILE__, __LINE__, "");
-    }
+        //
+        // If a secure connection is requested or secure overrides is set,
+        // check if the connection is secure.
+        //
+        bool secure;
+        DefaultsAndOverridesPtr defaultsAndOverrides = getInstance()->defaultsAndOverrides();
+        if(defaultsAndOverrides->overrideSecure)
+        {
+            secure = defaultsAndOverrides->overrideSecureValue;
+        }
+        else
+        {
+            secure = getSecure();
+        }
+        if(secure && !_fixedConnection->endpoint()->secure())
+        {
+            throw NoEndpointException(__FILE__, __LINE__, "");
+        }
 
-    _fixedConnection->throwException(); // Throw in case our connection is already destroyed.
-
-    if(defaultsAndOverrides->overrideCompress)
-    {
-        compress = defaultsAndOverrides->overrideCompressValue;
-    }
-    else if(_overrideCompress)
-    {
-        compress = _compress;
-    }
-    else
-    {
-        compress = _fixedConnection->endpoint()->compress();
-    }
-    return _fixedConnection;
-}
-
-void
-IceInternal::FixedReference::getConnection(const GetConnectionCallbackPtr& callback) const
-{
-    try
-    {
+        _fixedConnection->throwException(); // Throw in case our connection is already destroyed.
+        
         bool compress;
-        ConnectionIPtr connection = getConnection(compress);
-        callback->setConnection(connection, compress);
+        if(defaultsAndOverrides->overrideCompress)
+        {
+            compress = defaultsAndOverrides->overrideCompressValue;
+        }
+        else if(_overrideCompress)
+        {
+            compress = _compress;
+        }
+        else
+        {
+            compress = _fixedConnection->endpoint()->compress();
+        }
+        callback->setConnection(_fixedConnection, compress);
     }
     catch(const Ice::LocalException& ex)
     {
@@ -1508,79 +1501,6 @@ IceInternal::RoutableReference::clone() const
     return new RoutableReference(*this);
 }
 
-ConnectionIPtr
-IceInternal::RoutableReference::getConnection(bool& comp) const
-{
-    if(_routerInfo)
-    {
-        //
-        // If we route, we send everything to the router's client
-        // proxy endpoints.
-        //
-        vector<EndpointIPtr> endpts = _routerInfo->getClientEndpoints();
-        if(!endpts.empty())
-        {
-            applyOverrides(endpts);
-            return createConnection(endpts, comp);
-        }
-    }
-
-    if(!_endpoints.empty())
-    {
-        return createConnection(_endpoints, comp);
-    }
-
-    while(true)
-    {
-        bool cached = false;
-        vector<EndpointIPtr> endpts;
-        if(_locatorInfo)
-        {
-            endpts = _locatorInfo->getEndpoints(const_cast<RoutableReference*>(this), _locatorCacheTimeout, cached);
-            applyOverrides(endpts);
-        }
-
-        if(endpts.empty())
-        {
-            throw Ice::NoEndpointException(__FILE__, __LINE__, toString());
-        }
-
-        try
-        {
-            return createConnection(endpts, comp);
-        }
-        catch(const NoEndpointException&)
-        {
-            throw; // No need to retry if there's no endpoints.
-        }
-        catch(const LocalException& ex)
-        {
-            assert(_locatorInfo);
-            _locatorInfo->clearCache(const_cast<RoutableReference*>(this));
-
-            if(cached)
-            {
-                // COMPILERFIX: Braces needed to prevent BCB from causing TraceLevels refCount from
-                //              being decremented twice when loop continues.
-                {
-                    TraceLevelsPtr traceLevels = getInstance()->traceLevels();
-                    if(traceLevels->retry >= 2)
-                    {
-                        Trace out(getInstance()->initializationData().logger, traceLevels->retryCat);
-                        out << "connection to cached endpoints failed\n"
-                            << "removing endpoints from cache and trying one more time\n" << ex;
-                    }
-                }
-                continue;
-            }
-            throw;
-        }
-    }
-
-    assert(false);
-    return 0;
-}
-
 void
 IceInternal::RoutableReference::getConnection(const GetConnectionCallbackPtr& callback) const
 {
@@ -1740,75 +1660,6 @@ IceInternal::RoutableReference::getConnectionNoRouterInfo(const GetConnectionCal
     {
         callback->setException(Ice::NoEndpointException(__FILE__, __LINE__, toString()));
     }
-}
-
-ConnectionIPtr
-IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& allEndpoints, bool& comp) const
-{
-    vector<EndpointIPtr> endpoints = filterEndpoints(allEndpoints);
-    if(endpoints.empty())
-    {
-        throw Ice::NoEndpointException(__FILE__, __LINE__, toString());
-    }
-
-    OutgoingConnectionFactoryPtr factory = getInstance()->outgoingConnectionFactory();
-    Ice::ConnectionIPtr connection;
-    if(getCacheConnection() || endpoints.size() == 1)
-    {
-        //
-        // Get an existing connection or create one if there's no
-        // existing connection to one of the given endpoints.
-        //
-        connection = factory->create(endpoints, false, getEndpointSelection(), comp);
-    }
-    else
-    {
-        //
-        // Go through the list of endpoints and try to create the
-        // connection until it succeeds. This is different from just
-        // calling create() with the given endpoints since this might
-        // create a new connection even if there's an existing
-        // connection for one of the endpoints.
-        //
-
-        IceUtil::UniquePtr<LocalException> exception;
-        vector<EndpointIPtr> endpoint;
-        endpoint.push_back(0);
-
-        for(vector<EndpointIPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
-        {
-            try
-            {
-                endpoint.back() = *p;
-                connection = factory->create(endpoint, p + 1 == endpoints.end(), getEndpointSelection(), comp);
-                break;
-            }
-            catch(const LocalException& ex)
-            {
-                exception.reset(ex.ice_clone());
-            }
-        }
-
-        if(!connection)
-        {
-            assert(exception.get());
-            exception->ice_throw();
-        }
-    }
-
-    assert(connection);
-
-    //
-    // If we have a router, set the object adapter for this router
-    // (if any) to the new connection, so that callbacks from the
-    // router can be received over this new connection.
-    //
-    if(_routerInfo && _routerInfo->getAdapter())
-    {
-        connection->setAdapter(_routerInfo->getAdapter());
-    }
-
-    return connection;
 }
 
 void

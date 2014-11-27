@@ -107,11 +107,6 @@ namespace IceInternal
         }
 
 #if !SILVERLIGHT
-        public List<Connector> resolve(string host, int port, Ice.EndpointSelectionType type, IPEndpointI endpt)
-        {
-            return instance_.endpointHostResolver().resolve(host, port, type, endpt);
-        }
-
         public void resolve(string host, int port, Ice.EndpointSelectionType type, IPEndpointI endpt,
                             EndpointI_connectors callback)
         {

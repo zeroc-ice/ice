@@ -123,12 +123,6 @@ IceInternal::IPEndpointI::connectionId(const string& connectionId) const
     }
 }
 
-vector<ConnectorPtr>
-IceInternal::IPEndpointI::connectors(Ice::EndpointSelectionType selType) const
-{
-    return _instance->resolve(_host, _port, selType, const_cast<IPEndpointI*>(this));
-}
-
 const std::string&
 IceInternal::IPEndpointI::host() const
 {
@@ -529,53 +523,6 @@ IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& insta
         throw;
     }
     __setNoDelete(false);
-}
-
-vector<ConnectorPtr>
-IceInternal::EndpointHostResolver::resolve(const string& host, int port, Ice::EndpointSelectionType selType,
-                                           const IPEndpointIPtr& endpoint)
-{
-    //
-    // Try to get the addresses without DNS lookup. If this doesn't
-    // work, we retry with DNS lookup (and observer).
-    //
-    NetworkProxyPtr networkProxy = _instance->networkProxy();
-    if(!networkProxy)
-    {
-        vector<Address> addrs = getAddresses(host, port, _protocol, selType, _preferIPv6, false);
-        if(!addrs.empty())
-        {
-            return endpoint->connectors(addrs, 0);
-        }
-    }
-
-    ObserverHelperT<> observer;
-    const CommunicatorObserverPtr& obsv = _instance->initializationData().observer;
-    if(obsv)
-    {
-        observer.attach(obsv->getEndpointLookupObserver(endpoint));
-    }
-
-    vector<ConnectorPtr> connectors;
-    try
-    {
-        ProtocolSupport protocol = _protocol;
-        if(networkProxy)
-        {
-            networkProxy = networkProxy->resolveHost(_protocol);
-            if(networkProxy)
-            {
-                protocol = networkProxy->getProtocolSupport();
-            }
-        }
-        connectors = endpoint->connectors(getAddresses(host, port, protocol, selType, _preferIPv6, true), networkProxy);
-    }
-    catch(const Ice::LocalException& ex)
-    {
-        observer.failed(ex.ice_name());
-        throw;
-    }
-    return connectors;
 }
 
 void

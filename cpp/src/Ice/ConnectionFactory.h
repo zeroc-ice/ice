@@ -62,7 +62,6 @@ public:
 
     void waitUntilFinished();
 
-    Ice::ConnectionIPtr create(const std::vector<EndpointIPtr>&, bool, Ice::EndpointSelectionType, bool&);
     void create(const std::vector<EndpointIPtr>&, bool, Ice::EndpointSelectionType,
                 const CreateConnectionCallbackPtr&);
     void setRouterInfo(const RouterInfoPtr&);

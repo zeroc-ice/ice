@@ -55,7 +55,6 @@ public:
     virtual const std::string& connectionId() const;
     virtual EndpointIPtr connectionId(const ::std::string&) const;
 
-    virtual std::vector<ConnectorPtr> connectors(Ice::EndpointSelectionType) const;
     virtual void connectors_async(Ice::EndpointSelectionType, const EndpointI_connectorsPtr&) const;
     virtual std::vector<EndpointIPtr> expand() const;
     virtual bool equivalent(const EndpointIPtr&) const;
@@ -73,7 +72,6 @@ public:
     virtual void hashInit(Ice::Int&) const;
     virtual void fillEndpointInfo(Ice::IPEndpointInfo*) const;
 
-    using EndpointI::connectors;
     using EndpointI::connectionId;
 
     virtual void initWithOptions(std::vector<std::string>&, bool);
@@ -113,7 +111,6 @@ public:
 
     EndpointHostResolver(const InstancePtr&);
 
-    std::vector<ConnectorPtr> resolve(const std::string&, int, Ice::EndpointSelectionType, const IPEndpointIPtr&);
     void resolve(const std::string&, int, Ice::EndpointSelectionType, const IPEndpointIPtr&,
                  const EndpointI_connectorsPtr&);
     void destroy();

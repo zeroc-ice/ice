@@ -37,68 +37,6 @@ namespace IceInternal
             }
         }
 
-        
-        public List<Connector> resolve(string host, int port, Ice.EndpointSelectionType selType, IPEndpointI endpoint)
-        {
-            //
-            // Try to get the addresses without DNS lookup. If this doesn't
-            // work, we retry with DNS lookup (and observer).
-            //
-            NetworkProxy networkProxy = _instance.networkProxy();
-            if(networkProxy == null)
-            {
-                List<EndPoint> addrs = Network.getAddresses(host, port, _protocol, selType, _preferIPv6, false);
-                if(addrs.Count > 0)
-                {
-                    return endpoint.connectors(addrs, null);
-                }
-            }
-
-            Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
-            Ice.Instrumentation.Observer observer = null;
-            if(obsv != null)
-            {
-                observer = obsv.getEndpointLookupObserver(endpoint);
-                if(observer != null)
-                {
-                    observer.attach();
-                }
-            }
-    
-            List<Connector> connectors = null;
-            try 
-            {
-                int protocol = _protocol;
-                if(networkProxy != null)
-                {
-                    networkProxy = networkProxy.resolveHost(protocol);
-                    if(networkProxy != null)
-                    {
-                        protocol = networkProxy.getProtocolSupport();
-                    }
-                }
-
-                connectors = endpoint.connectors(Network.getAddresses(host, port, protocol, selType, _preferIPv6, true),
-                                                 networkProxy);
-            }
-            catch(Ice.LocalException ex)
-            {
-                if(observer != null)
-                {
-                    observer.failed(ex.ice_name());
-                }
-                throw ex;
-            }
-            finally
-            {
-                if(observer != null)
-                {
-                    observer.detach();
-                }
-            }
-            return connectors;
-        }
-
         public void resolve(string host, int port, Ice.EndpointSelectionType selType, IPEndpointI endpoint,
                             EndpointI_connectors callback)
         {

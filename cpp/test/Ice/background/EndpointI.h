@@ -32,7 +32,6 @@ public:
     virtual IceInternal::EndpointIPtr connectionId(const ::std::string&) const;
     virtual IceInternal::EndpointIPtr compress(bool) const;
     virtual IceInternal::TransceiverPtr transceiver() const;
-    virtual std::vector<IceInternal::ConnectorPtr> connectors(Ice::EndpointSelectionType) const;
     virtual void connectors_async(Ice::EndpointSelectionType, const IceInternal::EndpointI_connectorsPtr&) const;
     virtual IceInternal::AcceptorPtr acceptor(const std::string&) const;
 
@@ -58,7 +57,6 @@ public:
     EndpointIPtr endpoint(const IceInternal::EndpointIPtr&) const;
 
     using IceInternal::EndpointI::connectionId;
-    using IceInternal::EndpointI::connectors;
 
 private:
 

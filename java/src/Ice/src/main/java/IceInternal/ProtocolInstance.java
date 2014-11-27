@@ -92,11 +92,6 @@ public class ProtocolInstance
         return _instance.messageSizeMax();
     }
 
-    public java.util.List<Connector> resolve(String host, int port, Ice.EndpointSelectionType type, IPEndpointI endpt)
-    {
-        return _instance.endpointHostResolver().resolve(host, port, type, endpt);
-    }
-
     public void resolve(String host, int port, Ice.EndpointSelectionType type, IPEndpointI endpt,
                         EndpointI_connectors callback)
     {

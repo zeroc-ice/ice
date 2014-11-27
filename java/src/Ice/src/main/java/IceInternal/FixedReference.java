@@ -215,7 +215,6 @@ public class FixedReference extends Reference
     {
         try
         {
-            Ice.Holder<Boolean> compress = new Ice.Holder<Boolean>();
             switch(getMode())
             {
                 case Reference.ModeTwoway:
@@ -261,19 +260,20 @@ public class FixedReference extends Reference
 
             _fixedConnection.throwException(); // Throw in case our connection is already destroyed.
 
+            boolean compress;
             if(defaultsAndOverrides.overrideCompress)
             {
-                compress.value = defaultsAndOverrides.overrideCompressValue;
+                compress = defaultsAndOverrides.overrideCompressValue;
             }
             else if(_overrideCompress)
             {
-                compress.value = _compress;
+                compress = _compress;
             }
             else
             {
-                compress.value = _fixedConnection.endpoint().compress();
+                compress = _fixedConnection.endpoint().compress();
             }
-            callback.setConnection(_fixedConnection, compress.value);
+            callback.setConnection(_fixedConnection, compress);
         }
         catch(Ice.LocalException ex)
         {

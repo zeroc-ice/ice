@@ -125,17 +125,6 @@ internal class EndpointI : IceInternal.EndpointI
         }
     }
 
-    public override List<IceInternal.Connector> connectors(Ice.EndpointSelectionType selType)
-    {
-        _configuration.checkConnectorsException();
-        List<IceInternal.Connector> connectors = new List<IceInternal.Connector>();
-        foreach(IceInternal.Connector connector in _endpoint.connectors(selType))
-        {
-            connectors.Add(new Connector(connector));
-        }
-        return connectors;
-    }
-
     private class ConnectorsCallback : IceInternal.EndpointI_connectors
     {
         internal ConnectorsCallback(IceInternal.EndpointI_connectors cb)

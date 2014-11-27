@@ -153,19 +153,6 @@ final class EndpointI extends IceInternal.EndpointI
     }
 
     @Override
-    public java.util.List<IceInternal.Connector>
-    connectors(Ice.EndpointSelectionType selType)
-    {
-        _configuration.checkConnectorsException();
-        java.util.List<IceInternal.Connector> connectors = new java.util.ArrayList<IceInternal.Connector>();
-        for(IceInternal.Connector p : _endpoint.connectors(selType))
-        {
-            connectors.add(new Connector(_configuration, p));
-        }
-        return connectors;
-    }
-
-    @Override
     public void
     connectors_async(Ice.EndpointSelectionType selType, final IceInternal.EndpointI_connectors cb)
     {

@@ -163,18 +163,6 @@ final class WSEndpoint extends IceInternal.EndpointI
     }
 
     @Override
-    public java.util.List<Connector> connectors(Ice.EndpointSelectionType selType)
-    {
-        java.util.List<Connector> connectors = _delegate.connectors(selType);
-        java.util.List<Connector> l = new java.util.ArrayList<Connector>();
-        for(Connector c : connectors)
-        {
-            l.add(new WSConnector(_instance, c, _delegate.host(), _delegate.port(), _resource));
-        }
-        return l;
-    }
-
-    @Override
     public void connectors_async(Ice.EndpointSelectionType selType, final EndpointI_connectors callback)
     {
         EndpointI_connectors cb = new EndpointI_connectors()
