@@ -669,7 +669,7 @@ def isCpp11():
 def getIceBox(mapping = "cpp"):
     if mapping == "cpp":
         iceBox = "icebox"
-        if isWin32() and isDebug():
+        if isWin32() and isDebugBuild():
             iceBox += "d"
         elif isLinux():
             if x86:
