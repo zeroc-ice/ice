@@ -26,8 +26,8 @@ client = os.path.join(os.getcwd(), "client")
 num = 3
 
 args = " --Ice.Plugin.IceDiscovery=IceDiscovery:createIceDiscovery"
-args += " --IceDiscovery.Timeout=100"
-args += " --IceDiscovery.RetryCount=1"
+args += " --IceDiscovery.Timeout=30"
+args += " --IceDiscovery.RetryCount=5"
 if not TestUtil.ipv6:
     args += " --IceDiscovery.Interface=127.0.0.1"
 elif TestUtil.isDarwin():

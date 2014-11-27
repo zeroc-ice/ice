@@ -27,7 +27,7 @@ num = 3
 
 args = " --Ice.Plugin.IceDiscovery=IceDiscovery:IceDiscovery.PluginFactory"
 args += " --IceDiscovery.Timeout=30"
-args += " --IceDiscovery.RetryCount=1" 
+args += " --IceDiscovery.RetryCount=5"
 
 if TestUtil.isDarwin() and TestUtil.ipv6:
    print("test not supported on OS X with IPv6")
