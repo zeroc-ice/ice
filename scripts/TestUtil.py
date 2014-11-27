@@ -143,8 +143,10 @@ def getCppCompiler():
             elif l.find("Version 18") != -1:
                 compiler = "VC120"
             else:
-                print("Cannot detect C++ compiler")
-                sys.exit(1)
+                #
+                # Cannot detect C++ compiler use default
+                #
+                compiler = "VC120"
     return compiler
 
 def isMINGW():
