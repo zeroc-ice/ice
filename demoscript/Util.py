@@ -296,11 +296,6 @@ def configurePaths():
 
     if binDir != os.path.join(getIceDir("cpp"), "bin"):
         addenv("PATH", binDir)
-    #
-    # For OS X we don't need to set any library path for C++
-    #
-    if isWin32() and libDir:
-        addLdPath(libDir)
 
     if not iceHome:
         addenv("PATH", os.path.join(getIceDir("cs"), "bin"))
