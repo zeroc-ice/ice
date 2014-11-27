@@ -61,7 +61,7 @@ excludeWindowsFiles = [ \
 excludeUnixFiles = [ \
     "/Makefile",
 ]
-for l in ["/java", "/py", "/php", "/cs", "/cpp/demo"]:
+for l in ["/java", "/py", "/php", "/cs", "/cpp/demo", "/js"]:
     excludeUnixFiles += [
         l + "/**/Makefile",
         l + "/**/Make.rules",
