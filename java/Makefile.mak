@@ -7,21 +7,25 @@
 #
 # **********************************************************************
 
+!if "$(GRADLE)" != ""
+GRADLE = gradlew.bat
+!endif
+
 all:
-	gradlew.bat assemble
+	$(GRADLE) assemble
 
 dist:
-	gradlew.bat :Ice:assemble :Freeze:assemble :Glacier2:assemble :IceGrid:assemble :ant:assemble \
+	$(GRADLE) :Ice:assemble :Freeze:assemble :Glacier2:assemble :IceGrid:assemble :ant:assemble \
 		:IceBox:assemble :IceDiscovery:assemble :IcePatch2:assemble :IceStorm:assemble :IceGridGUI:assemble
 
 clean:
-	gradlew.bat clean
+	$(GRADLE) clean
 
 install::
 !if "$(prefix)" != ""
-	gradlew.bat -Dorg.gradle.project.prefix="$(prefix)" install
+	$(GRADLE) -Dorg.gradle.project.prefix="$(prefix)" install
 !else
-	gradlew.bat install
+	$(GRADLE) install
 !endif
 
 test:

@@ -15,18 +15,22 @@ ifneq ($(DESTDIR),)
 INSTALL_FLAGS += -Dorg.gradle.project.DESTDIR=$(DESTDIR)
 endif
 
+ifeq ($(GRADLE),)
+GRADLE = ./gradlew
+endif
+
 all:
-	./gradlew assemble
+	$(GRADLE) assemble
 
 dist:
-	./gradlew :Ice:assemble :Freeze:assemble :Glacier2:assemble :IceGrid:assemble :ant:assemble \
+	$(GRADLE) :Ice:assemble :Freeze:assemble :Glacier2:assemble :IceGrid:assemble :ant:assemble \
 		:IceBox:assemble :IceDiscovery:assemble :IcePatch2:assemble :IceStorm:assemble :IceGridGUI:assemble
 
 clean:
-	./gradlew clean
+	$(GRADLE) clean
 
 install::
-	./gradlew $(INSTALL_FLAGS) install
+	$(GRADLE) $(INSTALL_FLAGS) install
 
 test::
 	@python ./allTests.py
