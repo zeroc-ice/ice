@@ -14,6 +14,7 @@ export CLASSPATH=/usr/share/java/proguard.jar
 export DESTDIR=$(CURDIR)/debian/tmp
 export NODE=nodejs
 export GRADLE_HOME=$(HOME)/.gradle
+export GRADLE = ./gradlew -g $(GRADLE_HOME)
 export CLOSURE_COMPILER=/usr/share/java/closure-compiler.jar
 
 PACKAGE_NAMES = zeroc-ice \

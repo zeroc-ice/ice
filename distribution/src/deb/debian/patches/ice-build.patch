@@ -57,23 +57,6 @@
  
  INSTALL_SUBDIRS = $(install_pythondir) $(install_libdir)
  
---- a/Makefile
-+++ b/Makefile
-@@ -7,10 +7,10 @@
- #
- # **********************************************************************
- 
--SUBDIRS			= cpp java cs js py rb php
--CLEAN_SUBDIRS		= js java cs py rb php cpp
--DEPEND_SUBDIRS		= cpp cs py rb php
--INSTALL_SUBDIRS		= cpp java cs py rb php js
-+SUBDIRS			= cpp java js py rb php
-+CLEAN_SUBDIRS		= js java py rb php cpp
-+DEPEND_SUBDIRS		= cpp py rb php
-+INSTALL_SUBDIRS		= cpp java py rb php js
- 
- all::
- 	@for subdir in $(SUBDIRS); \
 --- a/config/Make.common.rules
 +++ b/config/Make.common.rules
 @@ -94,7 +94,10 @@
@@ -129,27 +112,3 @@
  	endif
      endif
  endif
---- a/java/Makefile
-+++ b/java/Makefile
-@@ -16,17 +16,17 @@
- endif
- 
- all:
--	./gradlew assemble
-+	./gradlew -g$(GRADLE_HOME) assemble
- 
- dist:
--	./gradlew :Ice:assemble :Freeze:assemble :Glacier2:assemble :IceGrid:assemble :ant:assemble \
-+	./gradlew -g$(GRADLE_HOME) :Ice:assemble :Freeze:assemble :Glacier2:assemble :IceGrid:assemble :ant:assemble \
- 		:IceBox:assemble :IceDiscovery:assemble :IcePatch2:assemble :IceStorm:assemble :IceGridGUI:assemble
- 
- clean:
--	./gradlew clean
-+	./gradlew -g$(GRADLE_HOME) clean
- 
- install::
--	./gradlew $(INSTALL_FLAGS) install
-+	./gradlew -g$(GRADLE_HOME) $(INSTALL_FLAGS) install
- 
- test::
- 	@python ./allTests.py
