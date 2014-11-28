@@ -1734,6 +1734,15 @@ def getTestEnv(lang, testdir):
         else:
             thirdPartyHome = getThirdpartyHome()
             if thirdPartyHome:
+                #
+                # Add third party home to PATH, to use db_xx tools
+                #
+                if isWin32():
+                    addPathToEnv("PATH", os.path.join(getThirdpartyHome(), "bin\\x64" if x64 else "bin"), env)
+                    if getCppCompiler() == "VC110":
+                        addPathToEnv("PATH", os.path.join(getThirdpartyHome(), "bin\\vc110\\x64" if x64 else "bin\\vc110"), env)
+                elif isDarwin():
+                    addPathToEnv("PATH", os.path.join(getThirdpartyHome(), "bin"), env)
                 addClasspath(os.path.join(thirdPartyHome, "lib", "db.jar"), env)
             else:
                 print("warning: could not detect Ice Third party installation.")

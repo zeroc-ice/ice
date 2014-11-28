@@ -295,6 +295,7 @@ def configurePaths():
     else:
         #
         # Add third party home to PATH, to use db_xx tools
+        #
         if isWin32():
             addenv("PATH", os.path.join(getThirdpartyHome(), "bin\\x64" if x64 else "bin"))
             if getCppCompiler() == "VC110":
