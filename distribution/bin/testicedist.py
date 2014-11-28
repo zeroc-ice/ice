@@ -1225,7 +1225,7 @@ class Windows(Platform):
         if os.environ.get("PROCESSOR_ARCHITECTURE", "") == "AMD64" or \
            os.environ.get("PROCESSOR_ARCHITEW6432", "") == "AMD64":
             archs.append("x64")
-        archs.append["x86"]
+        archs.append("x86")
         return archs
 
     def getJavaHome(self, arch, version):
