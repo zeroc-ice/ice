@@ -162,6 +162,15 @@ namespace IceInternal
             return connectors;
         }
 
+#if SILVERLIGHT
+        public List<Connector> connectors(Ice.EndpointSelectionType selType)
+        {
+            return connectors(Network.getAddresses(host_, port_, instance_.protocolSupport(), selType,
+                                                   instance_.preferIPv6(), false),
+                              instance_.networkProxy());
+        }
+#endif
+
         public override string options()
         {
             //
