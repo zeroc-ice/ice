@@ -399,7 +399,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         timeout = timeout->ice_invocationTimeout(100);
         try
         {
-            timeout->sleep(150);
+            timeout->sleep(300);
             test(false);
         }
         catch(const Ice::InvocationTimeoutException&)
@@ -420,7 +420,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         batchTimeout->ice_ping();
         batchTimeout->ice_ping();
 
-        timeout->ice_invocationTimeout(-1)->begin_sleep(150); // Keep the server thread pool busy.
+        timeout->ice_invocationTimeout(-1)->begin_sleep(300); // Keep the server thread pool busy.
         try
         {
             batchTimeout->ice_flushBatchRequests();
@@ -434,7 +434,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         batchTimeout->ice_ping();
         batchTimeout->ice_ping();
 
-        timeout->ice_invocationTimeout(-1)->begin_sleep(150); // Keep the server thread pool busy.
+        timeout->ice_invocationTimeout(-1)->begin_sleep(300); // Keep the server thread pool busy.
         try
         {
             batchTimeout->end_ice_flushBatchRequests(batchTimeout->begin_ice_flushBatchRequests());

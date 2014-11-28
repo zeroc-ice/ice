@@ -668,7 +668,7 @@ FlushBatch::invoke()
             // In this case, the exception should be set on the Outgoing.
             //
             Monitor<Mutex>::Lock sync(_monitor);
-            while(!_exception.get())
+            while(!_exception.get() && !_sent)
             {
                 _monitor.wait();
             }
