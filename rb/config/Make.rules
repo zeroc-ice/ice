@@ -188,7 +188,7 @@ ifdef ice_src_dist
 	SLICE2RB	= $(ice_cpp_dir)/$(binsubdir)/$(slice_translator)
 else
 	SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
-	SLICE2CPP	= $(ice_dir)/$(binsubdir)/$(slice_translator)
+	SLICE2RB	= $(ice_dir)/$(binsubdir)/$(slice_translator)
 endif
 
 EVERYTHING		= all depend clean install

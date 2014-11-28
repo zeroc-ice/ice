@@ -24,8 +24,7 @@ mkrblibname     = $(1).xxx
 
 libdir		= $(top_srcdir)/ruby
 
-ifdef ice_src_dist
-    ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
-         SLICEPARSERLIB	= $(ice_cpp_dir)/bin/$(call mklibfilename,Slice,$(VERSION))
-    endif
+ifdef ice_bin_dist
+    SLICE2RB            = $(ice_dir)/bin/$(slice_translator)
+    SLICEPARSERLIB      = $(SLICE2RB)
 endif

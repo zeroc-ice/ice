@@ -58,9 +58,11 @@ mkshlib			= $(CXX) -shared $(LDFLAGS) -o $(1) $(3) \
 mklib			= ar cr $(1) $(2)
 
 ifeq ($(LP64),yes)
-    libsubdir	        := bin$(lp64suffix)
+    libsubdir           := bin$(lp64suffix)
+    binsubdir           := bin$(lp64suffix)
 else
     libsubdir	  	:= bin
+    binsubdir           := bin
 endif
 
 libdir              := $(top_srcdir)/$(libsubdir)
