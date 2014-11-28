@@ -1739,6 +1739,7 @@ def getTestEnv(lang, testdir):
                 print("warning: could not detect Ice Third party installation.")
     else:
         addClasspath(os.path.join("/" "usr" "share", "java", "lib", "db.jar"), env)
+
     #
     # If Ice is installed from RPMs:
     # Set the CLASSPATH for Java.
@@ -1753,7 +1754,14 @@ def getTestEnv(lang, testdir):
             addPathToEnv("NODE_PATH", os.path.join(testdir), env)
         return env # That's it, we're done!
 
+    #
+    # For Win32 we always need to add bin dir to path
+    # for others we just need to add it for scripting
+    # languages that use C++ extensions (py, ruby, php)
+    #
     if isWin32():
+        addLdPath(getCppLibDir(), env)
+    elif lang in ["py", "rb", "php"]:
         addLdPath(getCppLibDir(), env)
 
     if lang == "javae":

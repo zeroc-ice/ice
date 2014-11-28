@@ -163,10 +163,8 @@ else
 	configdir = $(top_srcdir)/../cpp/config
 endif
 
-ifdef ice_src_dist
-	RPATH_DIR	= $(LOADER_PATH)/../../cpp/$(libsubdir)
-else
-	RPATH_DIR	= $(ice_dir)/$(libdir)
+ifneq ($(prefix),/usr)
+RPATH_DIR   = $(prefix)/$(libsubdir)
 endif
 
 include	 $(configdir)/Make.rules.$(UNAME)
@@ -184,14 +182,6 @@ CPPFLAGS		=
 ICECPPFLAGS		= -I$(slicedir)
 SLICE2RBFLAGS		= $(ICECPPFLAGS)
 LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
-
-#
-# A Ruby extension library cannot have a "lib" prefix, so Ruby-specific
-# functions are defined that strip "lib" from the regular library name.
-#
-mkrblibfilename		= $(subst lib,,$(call mklibfilename,$(1),$(2)))
-mkrbsoname		= $(subst lib,,$(call mksoname,$(1),$(2)))
-mkrblibname		= $(subst lib,,$(call mklibname,$(1)))
 
 ifdef ice_src_dist
 	SLICEPARSERLIB	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))

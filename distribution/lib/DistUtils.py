@@ -882,6 +882,8 @@ class Darwin(Platform):
 
         print("Fixing python location")
         move(buildDir + '/python', buildDir + '/../python')
+        runCommand("install_name_tool -rpath %s/lib /Library/Developer/Ice-@ver@/lib %s/../python/IcePy.so" %
+                    (buildDir, buildDir))
         print("ok")
 
         print("Fixing IceGrid Admin.app location")

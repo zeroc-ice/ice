@@ -31,7 +31,7 @@ OBJS		= Communicator.o \
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I.. $(CPPFLAGS) $(ICE_FLAGS) $(RUBY_FLAGS)
-LINKWITH        := -L"$(libdir)" $(ICE_LIBS) $(RUBY_LIBS) $(CXXLIBS)
+LINKWITH    := -L"$(libdir)" $(ICE_LIBS) $(RUBY_LIBS) $(CXXLIBS)
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@
