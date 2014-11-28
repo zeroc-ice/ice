@@ -948,10 +948,8 @@ if winrt:
                         # for all builds so we just use the ones from the main build.
                         #
                         if os.path.splitext(f)[1] in [".lib", ".pdb"] or (arch == "x86" or conf == "release"):
-                            continue
-                        
-                        targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                        copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
+                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                            copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
 else:
     #
     # Remove winrt demos from demo distribution
