@@ -406,6 +406,7 @@ AsyncResult::invokeCompleted()
 void
 AsyncResult::cancel(const Ice::LocalException& ex)
 {
+    CancellationHandlerPtr handler;
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
         _cancellationException.reset(ex.ice_clone());
@@ -413,8 +414,9 @@ AsyncResult::cancel(const Ice::LocalException& ex)
         {
             return;
         }
+        handler = _cancellationHandler;
     }
-    _cancellationHandler->asyncRequestCanceled(OutgoingAsyncBasePtr::dynamicCast(this), ex);
+    handler->asyncRequestCanceled(OutgoingAsyncBasePtr::dynamicCast(this), ex);
 }
 
 void

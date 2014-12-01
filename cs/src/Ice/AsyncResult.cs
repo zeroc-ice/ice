@@ -626,6 +626,7 @@ namespace IceInternal
 
         protected void cancel(Ice.LocalException ex)
         {
+            CancellationHandler handler;
             lock(this)
             {
                 _cancellationException = ex;
@@ -633,8 +634,9 @@ namespace IceInternal
                 {
                     return;
                 }
+                handler = _cancellationHandler;
             }
-            _cancellationHandler.asyncRequestCanceled((OutgoingAsyncBase)this, ex);
+            handler.asyncRequestCanceled((OutgoingAsyncBase)this, ex);
         }
 
         protected virtual Ice.Instrumentation.InvocationObserver getObserver()

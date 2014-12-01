@@ -270,7 +270,6 @@ namespace IceInternal
         public bool invokeAsyncRequest(OutgoingAsync outAsync, bool synchronous, out Ice.AsyncCallback sentCallback)
         {
             int requestId = 0;
-            if(_reference.getInvocationTimeout() > 0 || _response)
             {
                 lock(this)
                 {
@@ -281,10 +280,7 @@ namespace IceInternal
                         requestId = ++_requestId;
                         _asyncRequests.Add(requestId, outAsync);
                     }
-                    if(_reference.getInvocationTimeout() > 0)
-                    {
-                        _sendAsyncRequests.Add(outAsync, requestId);
-                    }
+                    _sendAsyncRequests.Add(outAsync, requestId);
                 }
             }
 
@@ -354,10 +350,7 @@ namespace IceInternal
                 {
                     outAsync.cancelable(this); // This will throw if the request is canceled
 
-                    if(_reference.getInvocationTimeout() > 0)
-                    {
-                        _sendAsyncRequests.Add(outAsync, 0);
-                    }
+                    _sendAsyncRequests.Add(outAsync, 0);
 
                     Debug.Assert(!_batchStream.isEmpty());
                     _batchStream.swap(outAsync.getOs());
@@ -396,14 +389,11 @@ namespace IceInternal
 
         private bool sentAsync(OutgoingAsyncBase outAsync)
         {
-            if(_reference.getInvocationTimeout() > 0)
+            lock(this)
             {
-                lock(this)
+                if(!_sendAsyncRequests.Remove(outAsync))
                 {
-                    if(!_sendAsyncRequests.Remove(outAsync))
-                    {
-                        return false; // The request timed-out.
-                    }
+                    return false; // The request timed-out.
                 }
             }
 

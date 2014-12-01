@@ -182,14 +182,13 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
     synchronized public void
     asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
     {
-        Integer requestId = _sendAsyncRequests.get(outAsync);
+        Integer requestId = _sendAsyncRequests.remove(outAsync);
         if(requestId != null)
         {
             if(requestId > 0)
             {
                 _asyncRequests.remove(requestId);
             }
-            _sendAsyncRequests.remove(outAsync);
             if(outAsync.completed(ex))
             {
                 outAsync.invokeCompletedAsync();
@@ -295,22 +294,16 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
     int invokeAsyncRequest(OutgoingAsync outAsync, boolean synchronous)
     {
         int requestId = 0;
-        if((_reference.getInstance().queueRequests() || _reference.getInvocationTimeout() > 0) || _response)
+        synchronized(this)
         {
-            synchronized(this)
-            {
-                outAsync.cancelable(this); // This will throw if the request is canceled
+            outAsync.cancelable(this); // This will throw if the request is canceled
 
-                if(_response)
-                {
-                    requestId = ++_requestId;
-                    _asyncRequests.put(requestId, outAsync);
-                }
-                if(_reference.getInstance().queueRequests() || _reference.getInvocationTimeout() > 0)
-                {
-                    _sendAsyncRequests.put(outAsync, requestId);
-                }
+            if(_response)
+            {
+                requestId = ++_requestId;
+                _asyncRequests.put(requestId, outAsync);
             }
+            _sendAsyncRequests.put(outAsync, requestId);
         }
 
         outAsync.attachCollocatedObserver(_adapter, requestId);
@@ -357,10 +350,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
             {
                 outAsync.cancelable(this); // This will throw if the request is canceled
 
-                if(_reference.getInstance().queueRequests() || _reference.getInvocationTimeout() > 0)
-                {
-                    _sendAsyncRequests.put(outAsync, 0);
-                }
+                _sendAsyncRequests.put(outAsync, 0);
 
                 assert(!_batchStream.isEmpty());
                 _batchStream.swap(outAsync.getOs());
@@ -395,21 +385,25 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
     private boolean
     sentAsync(final OutgoingAsyncBase outAsync)
     {
-        if(_reference.getInstance().queueRequests() || _reference.getInvocationTimeout() > 0)
+        synchronized(this)
         {
-            synchronized(this)
+            if(_sendAsyncRequests.remove(outAsync) == null)
             {
-                if(_sendAsyncRequests.remove(outAsync) == null)
-                {
-                    return false; // The request timed-out.
-                }
+                return false; // The request timed-out.
+            }
+
+            //
+            // This must be called within the synchronization to
+            // ensure completed(ex) can't be called concurrently if
+            // the request is canceled.
+            //
+            if(!outAsync.sent())
+            {
+                return true;
             }
         }
 
-        if(outAsync.sent())
-        {
-            outAsync.invokeSent();
-        }
+        outAsync.invokeSent();
         return true;
     }
 

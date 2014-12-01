@@ -341,7 +341,6 @@ void
 CollocatedRequestHandler::invokeRequest(Outgoing* out)
 {
     int requestId = 0;
-    if(_reference->getInvocationTimeout() > 0 || _response)
     {
         Lock sync(*this);
         if(_response)
@@ -349,10 +348,7 @@ CollocatedRequestHandler::invokeRequest(Outgoing* out)
             requestId = ++_requestId;
             _requests.insert(make_pair(requestId, out));
         }
-        if(_reference->getInvocationTimeout() > 0)
-        {
-            _sendRequests.insert(make_pair(out, requestId));
-        }
+        _sendRequests.insert(make_pair(out, requestId));
     } 
 
     out->attachCollocatedObserver(_adapter, requestId);
@@ -377,7 +373,6 @@ AsyncStatus
 CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsync* outAsync)
 {
     int requestId = 0;
-    if(_reference->getInvocationTimeout() > 0 || _response)
     {
         Lock sync(*this);
 
@@ -388,10 +383,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsync* outAsync)
             requestId = ++_requestId;
             _asyncRequests.insert(make_pair(requestId, outAsync));
         }
-        if(_reference->getInvocationTimeout() > 0)
-        {
-            _sendAsyncRequests.insert(make_pair(outAsync, requestId));
-        }
+        _sendAsyncRequests.insert(make_pair(outAsync, requestId));
     }
 
     outAsync->attachCollocatedObserver(_adapter, requestId);
@@ -415,10 +407,7 @@ CollocatedRequestHandler::invokeBatchRequests(OutgoingBase* out)
 
         if(_batchRequestNum > 0)
         {
-            if(_reference->getInvocationTimeout() > 0)
-            {
-                _sendRequests.insert(make_pair(out, 0));
-            }
+            _sendRequests.insert(make_pair(out, 0));
 
             assert(!_batchStream.b.empty());
             _batchStream.swap(*out->os());
@@ -473,10 +462,7 @@ CollocatedRequestHandler::invokeAsyncBatchRequests(OutgoingAsyncBase* outAsync)
         {
             outAsync->cancelable(this); // This will throw if the request is canceled
 
-            if(_reference->getInvocationTimeout() > 0)
-            {
-                _sendAsyncRequests.insert(make_pair(outAsync, 0));
-            }
+            _sendAsyncRequests.insert(make_pair(outAsync, 0));
 
             assert(!_batchStream.b.empty());
             _batchStream.swap(*outAsync->getOs());
@@ -589,13 +575,10 @@ CollocatedRequestHandler::waitForConnection()
 bool
 CollocatedRequestHandler::sent(OutgoingBase* out)
 {
-    if(_reference->getInvocationTimeout() > 0)
+    Lock sync(*this);
+    if(_sendRequests.erase(out) == 0)
     {
-        Lock sync(*this);
-        if(_sendRequests.erase(out) == 0)
-        {
-            return false; // The request timed-out.
-        }
+        return false; // The request timed-out.
     }
     out->sent();
     return true;
@@ -604,18 +587,19 @@ CollocatedRequestHandler::sent(OutgoingBase* out)
 bool
 CollocatedRequestHandler::sentAsync(OutgoingAsyncBase* outAsync)
 {
-    if(_reference->getInvocationTimeout() > 0)
     {
         Lock sync(*this);
         if(_sendAsyncRequests.erase(outAsync) == 0)
         {
             return false; // The request timed-out.
         }
+
+        if(!outAsync->sent())
+        {
+            return true;
+        }
     }
-    if(outAsync->sent())
-    {
-        outAsync->invokeSent();
-    }
+    outAsync->invokeSent();
     return true;
 }
 

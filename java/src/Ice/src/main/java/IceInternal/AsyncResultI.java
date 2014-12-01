@@ -400,6 +400,7 @@ public class AsyncResultI implements AsyncResult
 
     protected void cancel(Ice.LocalException ex)
     {
+        CancellationHandler handler;
         synchronized(this)
         {
             _cancellationException = ex;
@@ -407,8 +408,9 @@ public class AsyncResultI implements AsyncResult
             {
                 return;
             }
+            handler = _cancellationHandler;
         }
-        _cancellationHandler.asyncRequestCanceled((OutgoingAsyncBase)this, ex);
+        handler.asyncRequestCanceled((OutgoingAsyncBase)this, ex);
     }
 
     protected Ice.Instrumentation.InvocationObserver getObserver()
