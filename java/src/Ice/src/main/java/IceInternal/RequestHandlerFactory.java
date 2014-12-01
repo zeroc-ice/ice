@@ -30,34 +30,31 @@ public final class RequestHandlerFactory
                 return new CollocatedRequestHandler(ref, adapter);
             }
         }
-        
+
+        RequestHandler handler;
         if(ref.getCacheConnection())
         {
             synchronized(this)
             {
-                RequestHandler handler = _handlers.get(ref);
-                if(handler != null)
+                handler = _handlers.get(ref);
+                if(handler == null)
                 {
-                    return handler;
+                    handler = new ConnectRequestHandler(ref, proxy);
+                    _handlers.put(ref, handler);
                 }
-                
-                handler = new ConnectRequestHandler(ref, proxy);
-                _handlers.put(ref, handler);
-
-                if(_instance.queueRequests())
-                {
-                    handler = new QueueRequestHandler(_instance, handler);
-                }
-                return handler;
             }
         }
         else
         {
-            RequestHandler handler = new ConnectRequestHandler(ref, proxy);
-            if(_instance.queueRequests())
-            {
-                handler = new QueueRequestHandler(_instance, handler);
-            }
+            handler = new ConnectRequestHandler(ref, proxy);
+        }
+
+        if(_instance.queueRequests())
+        {
+            return new QueueRequestHandler(_instance, handler);
+        }
+        else
+        {
             return handler;
         }
     }
