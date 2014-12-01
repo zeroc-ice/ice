@@ -9,6 +9,7 @@
 
 %define ruby 1
 %define cpp11 0
+%define javascript 0
 
 %define systemd 0
 %define systemdpkg bogus
@@ -211,7 +212,9 @@ Requires: libice-c++-devel%{?_isa} = %{version}-%{release}
 %else
 Requires: libice-c++-devel%{?_isa} = %{version}-%{release}
 Requires: libice-java%{?_isa} = %{version}-%{release}
+%if %{javascript}
 Requires: libice-js%{?_isa} = %{version}-%{release}
+%endif
 Requires: php-ice-devel%{?_isa} = %{version}-%{release}
 Requires: python-ice-devel%{?_isa} = %{version}-%{release}
 Requires: ruby-ice-devel%{?_isa} = %{version}-%{release}
@@ -273,11 +276,13 @@ Requires: db53-java%{?_isa}
 %description -n libice-java
 Ice for Java run-time libraries and development tools.
 
+%if %{javascript}
 %package -n libice-js
 Summary: Ice for JavaScript run-time libraries and development tools.
 Group: System Environment/Libraries
 %description -n libice-js
 Ice for JavaScript run-time libraries and development tools.
+%endif
 
 %package -n ice-utils
 Summary: Ice utilities and admin tools.
@@ -502,8 +507,10 @@ make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
 cd $RPM_BUILD_DIR/Ice-%{version}/java
 make dist
 
+%if %{javascript}
 cd $RPM_BUILD_DIR/Ice-%{version}/js
 make
+%endif
 
 %endif # ! cppx86
 
@@ -725,6 +732,7 @@ ln -s ice-gradle-plugin-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/ice-gradle-plu
 mkdir -p $RPM_BUILD_ROOT%{_javadir}
 mv $RPM_BUILD_ROOT/lib/ant-ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
 
+%if %{javascript}
 #
 # JavaScript
 #
@@ -747,6 +755,7 @@ mv $RPM_BUILD_ROOT/lib/IceGrid.js $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mm
 mv $RPM_BUILD_ROOT/lib/IceGrid.js.gz $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
 mv $RPM_BUILD_ROOT/lib/IceGrid.min.js $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
 mv $RPM_BUILD_ROOT/lib/IceGrid.min.js.gz $RPM_BUILD_ROOT%{_datadir}/javascript/ice-%{mmversion}
+%endif
 
 #
 # initrd files (for servers)
@@ -780,13 +789,24 @@ cp -p $RPM_BUILD_DIR/Ice-%{version}/man/man1/*.1 $RPM_BUILD_ROOT%{_mandir}/man1
 
 %if !%{ruby}
 rm -f $RPM_BUILD_ROOT%{_bindir}/slice2rb
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/slice2rb.1
+%endif
+
+%if !%{javascript}
+rm -f $RPM_BUILD_ROOT%{_bindir}/slice2js
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/slice2js.1
 %endif
 
 #
 # Doc & license files
 #
 
-for i in glacier2 ice-all-runtime icebox ice-all-devel icegrid icepatch2 ice-utils libfreeze3.6-c++ libice3.6-c++ libice-c++-devel libice-java libice-js libicestorm3.6 php-ice php-ice-devel python-ice python-ice-devel ruby-ice ruby-ice-devel
+PACKAGES="glacier2 ice-all-runtime icebox ice-all-devel icegrid icepatch2 ice-utils libfreeze3.6-c++ libice3.6-c++ libice-c++-devel libice-java libicestorm3.6 php-ice php-ice-devel python-ice python-ice-devel ruby-ice ruby-ice-devel"
+%if %{javascript}
+PACKAGES="$PACKAGES libice-js"
+%endif
+
+for i in $PACKAGES
 do
   mkdir -p $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}
   cp -p $RPM_BUILD_DIR/Ice-%{version}/CHANGES $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}/CHANGES
@@ -1068,6 +1088,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_javadir}/ice-gradle-plugin.jar
 %{_defaultdocdir}/libice-java-%{version}
 
+%if %{javascript}
 %files -n libice-js
 %defattr(-, root, root, -)
 %{_bindir}/slice2js
@@ -1089,6 +1110,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/javascript/ice-%{mmversion}/IceGrid.min.js
 %{_datadir}/javascript/ice-%{mmversion}/IceGrid.min.js.gz
 %{_defaultdocdir}/libice-js-%{version}
+%endif
 
 %files -n ice-utils
 %defattr(-, root, root, -)
