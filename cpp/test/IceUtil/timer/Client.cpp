@@ -179,7 +179,7 @@ int main(int, char**)
             IceUtil::Time start = IceUtil::Time::now(IceUtil::Time::Monotonic) + IceUtil::Time::milliSeconds(500);
             for(int i = 0; i < 20; ++i)
             {
-                tasks.push_back(new TestTask(IceUtil::Time::milliSeconds(500 + i * 5)));
+                tasks.push_back(new TestTask(IceUtil::Time::milliSeconds(500 + i * 50)));
             }
 
             random_shuffle(tasks.begin(), tasks.end());
