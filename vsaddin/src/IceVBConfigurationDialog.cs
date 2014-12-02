@@ -281,9 +281,17 @@ namespace Ice.VisualStudio
                 if(chkIceBox.Checked != Util.hasDotNetReference(_project, "IceBox"))
                 {
                     componentChanged("IceBox", chkIceBox.Checked, development);
-                    if(!chkIceBox.Checked)
+                    if (!chkIceBox.Checked)
                     {
                         components.Add("IceBox");
+                    }
+                }
+                if(chkIceDiscovery.Checked != Util.hasDotNetReference(_project, "IceDiscovery"))
+                {
+                    componentChanged("IceDiscovery", chkIceDiscovery.Checked, development);
+                    if(!chkIceDiscovery.Checked)
+                    {
+                        components.Add("IceDiscovery");
                     }
                 }
                 if(chkIceGrid.Checked != Util.hasDotNetReference(_project, "IceGrid"))
@@ -302,7 +310,6 @@ namespace Ice.VisualStudio
                         components.Add("IcePatch2");
                     }
                 }
-
                 if(chkIceSSL.Checked != Util.hasDotNetReference(_project, "IceSSL"))
                 {
                     componentChanged("IceSSL", chkIceSSL.Checked, development);
@@ -311,7 +318,6 @@ namespace Ice.VisualStudio
                         components.Add("IceSSL");
                     }
                 }
-                
                 if(chkIceStorm.Checked != Util.hasDotNetReference(_project, "IceStorm"))
                 {
                     componentChanged("IceStorm", chkIceStorm.Checked, development);
@@ -320,7 +326,6 @@ namespace Ice.VisualStudio
                         components.Add("IceStorm");
                     }
                 }
-
                 //
                 // This must be the last setting to be updated, as we want to update 
                 // all other settings and that isn't possible if the builder is disabled.
@@ -362,7 +367,11 @@ namespace Ice.VisualStudio
             {
                 return true;
             }
-            if(chkIceBox.Checked != Util.hasDotNetReference(_project, "IceBox"))
+            if (chkIceBox.Checked != Util.hasDotNetReference(_project, "IceBox"))
+            {
+                return true;
+            }
+            if (chkIceDiscovery.Checked != Util.hasDotNetReference(_project, "IceDiscovery"))
             {
                 return true;
             }
@@ -393,9 +402,13 @@ namespace Ice.VisualStudio
             {
                 components.Add("Glacier2");
             }
-            if(chkIceBox.Checked)
+            if (chkIceBox.Checked)
             {
                 components.Add("IceBox");
+            }
+            if (chkIceDiscovery.Checked)
+            {
+                components.Add("IceDiscovery");
             }
             if(chkIceGrid.Checked)
             {

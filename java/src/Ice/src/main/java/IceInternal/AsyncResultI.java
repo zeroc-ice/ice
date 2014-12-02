@@ -300,7 +300,7 @@ public class AsyncResultI implements AsyncResult
     {
         synchronized(this)
         {        
-            assert(_exception == null);
+            if (_exception != null) { _exception.printStackTrace(); assert(false); }
 
             boolean alreadySent = (_state & StateSent) != 0;
             _state |= StateSent;

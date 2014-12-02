@@ -153,6 +153,11 @@ namespace Ice.VisualStudio
                     chkIceBox.Checked = check;
                     break;
                 }
+                case "IceDiscovery":
+                {
+                    chkIceDiscovery.Checked = check;
+                    break;
+                }
                 case "IceGrid":
                 {
                     chkIceGrid.Checked = check;
@@ -248,7 +253,6 @@ namespace Ice.VisualStudio
             extraCompilerOptions.setEnabled(enabled);
             includePathView.setEnabled(enabled);
             chkGlacier2.Enabled = enabled;
-            chkIceBox.Enabled = enabled;
             chkIceGrid.Enabled = enabled;
             chkIcePatch2.Enabled = enabled;
             //
@@ -256,11 +260,14 @@ namespace Ice.VisualStudio
             //
             if(_silverlightFramework)
             {
-                chkIceSSL.Enabled = false;
                 chkIceBox.Enabled = false;
+                chkIceDiscovery.Enabled = false;
+                chkIceSSL.Enabled = false;
             }
             else
             {
+                chkIceBox.Enabled = enabled;
+                chkIceDiscovery.Enabled = enabled;
                 chkIceSSL.Enabled = enabled;
             }
             
@@ -392,11 +399,18 @@ namespace Ice.VisualStudio
             {
                 components.Add("Glacier2");
             }
-            if(!_silverlightFramework)
+            if (!_silverlightFramework)
             {
                 if (chkIceBox.Checked)
                 {
                     components.Add("IceBox");
+                }
+            }
+            if (!_silverlightFramework)
+            {
+                if (chkIceDiscovery.Checked)
+                {
+                    components.Add("IceDiscovery");
                 }
             }
             if(chkIceGrid.Checked)
@@ -521,12 +535,28 @@ namespace Ice.VisualStudio
                 }
                 if(!_silverlightFramework)
                 {
-                    if (chkIceBox.Checked != Util.hasDotNetReference(_project, "IceBox"))
+                    if(chkIceBox.Checked != Util.hasDotNetReference(_project, "IceBox"))
                     {
                         componentChanged("IceBox", chkIceBox.Checked, development);
                         if (!chkIceBox.Checked)
                         {
                             components.Add("IceBox");
+                        }
+                    }
+                    if(chkIceDiscovery.Checked != Util.hasDotNetReference(_project, "IceDiscovery"))
+                    {
+                        componentChanged("IceDiscovery", chkIceDiscovery.Checked, development);
+                        if(!chkIceDiscovery.Checked)
+                        {
+                            components.Add("IceDiscovery");
+                        }
+                    }
+                    if(chkIceSSL.Checked != Util.hasDotNetReference(_project, "IceSSL"))
+                    {
+                        componentChanged("IceSSL", chkIceSSL.Checked, development);
+                        if(!chkIceSSL.Checked)
+                        {
+                            components.Add("IceSSL");
                         }
                     }
                 }
@@ -544,17 +574,6 @@ namespace Ice.VisualStudio
                     if(!chkIcePatch2.Checked)
                     {
                         components.Add("IcePatch2");
-                    }
-                }
-                if(!_silverlightFramework)
-                {
-                    if(chkIceSSL.Checked != Util.hasDotNetReference(_project, "IceSSL"))
-                    {
-                        componentChanged("IceSSL", chkIceSSL.Checked, development);
-                        if(!chkIceSSL.Checked)
-                        {
-                            components.Add("IceSSL");
-                        }
                     }
                 }
                 if(chkIceStorm.Checked != Util.hasDotNetReference(_project, "IceStorm"))
@@ -653,6 +672,14 @@ namespace Ice.VisualStudio
                 {
                     return true;
                 }
+                if(chkIceDiscovery.Checked != Util.hasDotNetReference(_project, "IceDiscovery"))
+                {
+                    return true;
+                }
+                if(chkIceSSL.Checked != Util.hasDotNetReference(_project, "IceSSL"))
+                {
+                    return true;
+                }
             }
             if(chkIceGrid.Checked != Util.hasDotNetReference(_project, "IceGrid"))
             {
@@ -661,13 +688,6 @@ namespace Ice.VisualStudio
             if(chkIcePatch2.Checked != Util.hasDotNetReference(_project, "IcePatch2"))
             {
                 return true;
-            }
-            if(!_silverlightFramework)
-            {
-                if(chkIceSSL.Checked != Util.hasDotNetReference(_project, "IceSSL"))
-                {
-                    return true;
-                }
             }
             if(chkIceStorm.Checked != Util.hasDotNetReference(_project, "IceStorm"))
             {

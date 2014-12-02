@@ -353,7 +353,7 @@ namespace Ice.VisualStudio
 
         private static readonly string[] dotNetNames =
         {
-            "Glacier2", "Ice", "IceBox", "IceGrid", "IcePatch2", 
+            "Glacier2", "Ice", "IceBox", "IceDiscovery", "IceGrid", "IcePatch2", 
             "IceSSL", "IceStorm"
         };
 
