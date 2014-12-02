@@ -571,7 +571,7 @@ make prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
 
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
 %ifarch %{ix86}
-mv $RPM_BUILD_ROOT/bin/icebox $RPM_BUILD_ROOT%{_bindir}/icebox32
+mv $RPM_BUILD_ROOT/bin/icebox32 $RPM_BUILD_ROOT%{_bindir}
 %endif
 mv $RPM_BUILD_ROOT/bin/* $RPM_BUILD_ROOT%{_bindir}
 

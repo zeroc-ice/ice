@@ -816,7 +816,7 @@ def getIceBoxClassPath():
     for jar in ["ice", "icebox"]:
         if s != "":
             s += os.pathsep
-        s += os.path.join(javaDir, "lib", jar + jarSuffix)
+        s += os.path.join(javaDir, "share/java" javaDir == "/usr" else  "lib", jar + jarSuffix)
     return s
 
 def processCmdLine():

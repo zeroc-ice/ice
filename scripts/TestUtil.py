@@ -736,7 +736,7 @@ def getIceBox():
                 iceBox += "d"
             iceBox += ".exe"
         elif isLinux():
-            if x86:
+            if not x64:
                 iceBox += "32"
             if cpp11:
                 iceBox += "++11"
@@ -1747,7 +1747,7 @@ def getTestEnv(lang, testdir):
             else:
                 print("warning: could not detect Ice Third party installation.")
     else:
-        addClasspath(os.path.join("/" "usr" "share", "java", "lib", "db.jar"), env)
+        addClasspath(os.path.join("/", "usr", "share", "java", "db.jar"), env)
 
     #
     # If Ice is installed from RPMs:
