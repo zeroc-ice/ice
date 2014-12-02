@@ -11,7 +11,10 @@ top_srcdir	= .
 
 include $(top_srcdir)/config/Make.rules.js
 
-SUBDIRS		= src assets test demo
+SUBDIRS		= src assets
+ifneq ($(MAKECMDGOALS),install)
+SUBDIRS		= $(SUBDIRS) test demo
+endif
 
 INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir) $(install_moduledir)
 

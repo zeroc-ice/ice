@@ -11,10 +11,13 @@ top_srcdir	= .
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= config src include test
+SUBDIRS		= config src include
 
-ifeq ($(shell uname | grep MINGW),)
-SUBDIRS		:= $(SUBDIRS) demo
+ifneq ($(MAKECMDGOALS),install)
+    SUBDIRS		:= $(SUBDIRS) test
+    ifeq ($(shell uname | grep MINGW),)
+        SUBDIRS		:= $(SUBDIRS) demo
+    endif
 endif
 
 INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir)$(cpp11libdirsuffix) $(install_includedir) \

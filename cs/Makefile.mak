@@ -25,7 +25,7 @@ install:: install-common
 		@echo "Creating %i..." && \
 		mkdir %i
 
-$(EVERYTHING)::
+$(EVERYTHING_EXCEPT_INSTALL)::
 	@for %i in ( $(SUBDIRS) ) do \
 	    @echo "making $@ in %i" && \
 	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
@@ -47,6 +47,9 @@ installpath=$(prefix)\Assemblies
 !endif
 
 install::
+	@for %i in ( src config ) do \
+	    @echo "making $@ in %i" && \
+	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
 	@echo Adding key "$(registrykey)" in Windows registry && \
 	@reg ADD "$(registrykey)" /ve /d "$(installpath)" /f || \
 	echo Could not add registry keyword "$(registrykey)" && exit 1

@@ -229,6 +229,8 @@ MT 			= mt.exe
 
 EVERYTHING		= all clean install depend
 
+EVERYTHING_EXCEPT_INSTALL = all clean depend
+
 .SUFFIXES:
 .SUFFIXES:		.ice .cpp .c .obj .res .rc .h .d
 

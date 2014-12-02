@@ -18,8 +18,13 @@ install:: install-common
 	    @echo "Creating $(install_pythondir)..." && \
 	    mkdir "$(install_pythondir)"
 
-$(EVERYTHING)::
+$(EVERYTHING_EXCEPT_INSTALL)::
 	@for %i in ( $(SUBDIRS) ) do \
+	    @echo "making $@ in %i" && \
+	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
+
+install::
+	@for %i in ( modules python ) do \
 	    @echo "making $@ in %i" && \
 	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
 

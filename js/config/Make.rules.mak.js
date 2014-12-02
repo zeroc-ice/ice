@@ -110,6 +110,7 @@ install:: all
 !endif
 
 EVERYTHING		= all clean install lint depend
+EVERYTHING_EXCEPT_INSTALL = all clean install lint depend
 
 .SUFFIXES:
 .SUFFIXES:		.js .ice .d

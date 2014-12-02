@@ -22,10 +22,13 @@ INSTALL_SUBDIRS	= "$(install_bindir)" "$(install_libdir)" "$(install_includedir)
 
 install:: install-common
 	@for %i in ( $(INSTALL_SUBDIRS) ) do \
-	    @if not exist %i \
+		@if not exist %i \
 		@echo "Creating %i..." && \
 		mkdir %i
 
+	@for %i in ( config src include ) do \
+		@echo "making $@ in %i" && \
+		cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
 test::
 	@python $(top_srcdir)/allTests.py
 
@@ -54,18 +57,23 @@ unregister-sdk:
 
 install:: install-common
 	@for %i in ( $(INSTALL_SUBDIRS) ) do \
-	    @if not exist %i \
+		@if not exist %i \
 		@echo "Creating %i..." && \
 		mkdir %i
 !endif
 
-$(EVERYTHING)::
+$(EVERYTHING_EXCEPT_INSTALL)::
 	@for %i in ( $(SUBDIRS) ) do \
-	    @echo "making $@ in %i" && \
-	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
-	    
-	    
+		@echo "making $@ in %i" && \
+		cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
+		
 !if "$(WINRT)" == "yes"
+
+install::
+	@for %i in ( src include ) do \
+		@echo "making $@ in %i" && \
+		cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
+
 install::
 	xcopy /s /y "$(top_srcdir)\SDKs" "$(prefix)\SDKs"
 	@echo Register SDK "$(SDK_NAME)" in Windows registry "$(SDK_KEY)"

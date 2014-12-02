@@ -136,6 +136,7 @@ SLICEPARSERLIB          = $(ice_dir)\lib\slice.lib
 MT			= mt.exe
 
 EVERYTHING		= all clean install depend
+EVERYTHING_EXCEPT_INSTALL all clean depend
 
 .SUFFIXES:
 .SUFFIXES:		.cpp .obj .py .res .rc .d .ice

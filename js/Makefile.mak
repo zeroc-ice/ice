@@ -21,8 +21,13 @@ install:: install-common
 	        @echo "Creating %i..." && \
 	        mkdir "%i"
 
-$(EVERYTHING)::
+$(EVERYTHING_EXCEPT_INSTALL)::
 	@for %i in ( $(SUBDIRS) ) do \
+	    @echo "making $@ in %i" && \
+	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
+
+install::
+	@for %i in ( src ) do \
 	    @echo "making $@ in %i" && \
 	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
 

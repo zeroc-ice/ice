@@ -270,6 +270,7 @@ SLICEPARSERLIB		= $(ice_dir)\lib\slice.lib
 !endif
 
 EVERYTHING		= all clean install depend
+EVERYTHING_EXCEPT_INSTALL = all clean depend
 
 .SUFFIXES:
 .SUFFIXES:		.cs .ice

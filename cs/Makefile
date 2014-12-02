@@ -11,7 +11,11 @@ top_srcdir	= .
 
 include $(top_srcdir)/config/Make.rules.cs
 
-SUBDIRS		= src test demo
+SUBDIRS		= src
+
+ifneq ($(MAKECMDGOALS),install)
+SUBDIRS		= $(SUBDIRS) test demo
+endif
 
 INSTALL_SUBDIRS	= $(install_bindir) $(install_assembliesdir) $(install_mandir)
 
