@@ -48,10 +48,14 @@ if os.environ.get("RUNNING_TEST_CONTROLLER_WITH_ENV", "") == "":
     env = TestUtil.getTestEnv("cpp", os.getcwd())
     env["RUNNING_TEST_CONTROLLER_WITH_ENV"] = "yes"
     try:
+        for a in sys.argv[1:]:
+            args.append(a)
+        sys.exit(os.spawnve(os.P_WAIT, sys.executable, args, env))
         sys.exit(os.spawnve(os.P_WAIT, sys.executable, [sys.executable, "run.py"], env))
     except:
-        print("")
-        print("To remove the certificate trust settings, run: `" + sys.argv[0] + " --clean'")
+        if sys.platform == "darwin":
+            print("")
+            print("To remove the certificate trust settings, run: `" + sys.argv[0] + " --clean'")
         sys.exit(0)
 
 import Ice, Expect
@@ -188,8 +192,9 @@ class Server(Ice.Application):
                 return httpServer.poll()
             if type(line) != str:
                 line = line.decode()
-            sys.stdout.write(line)
-            sys.stdout.flush()
+            line = line.strip("\n")
+            if len(line) > 0:
+                print(line)
             if line.find("listening on ports 8080 (http) and 9090 (https)...") != -1:
                 break
 
