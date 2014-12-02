@@ -1248,7 +1248,14 @@ class Windows(Platform):
         return BuildUtils.getJavaHome(arch, version)
 
     def getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist):
-        return Platform.getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist)
+        env = Platform.getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist)
+        if (lang == "cs" or lang == "vb") and not self.is64(arch):
+            p = os.path.join(BuildUtils.getIceHome(version), "bin")
+            if compiler == "VC110":
+                p = os.path.join(p, "vc110")
+            p = os.path.join(p, "x64")
+            prependPathToEnvironVar(env, "PATH",p);
+        return env
 #
 # Program usage.
 #
