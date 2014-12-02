@@ -158,7 +158,7 @@ clean::
 	-del /q V32FormatDB.cpp V31FormatDB.cpp V32FormatDB.h V31FormatDB.h
 	-del /q $(ADMIN:.exe=.*)
 	-del /q $(MIGRATE:.exe=.*)
-	-del /q IceStormAdmin.res IceStormDB.res IceStormService.res
+	-del /q IceStormAdmin.res IceStormMigrate.res IceStormService.res
 
 install:: all
 	copy $(LIBNAME) "$(install_libdir)"

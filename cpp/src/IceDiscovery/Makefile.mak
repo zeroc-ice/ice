@@ -49,7 +49,7 @@ IceDiscovery.h IceDiscovery.cpp: $(slicedir)\IceDiscovery\IceDiscovery.ice "$(SL
 	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) $(slicedir)\IceDiscovery\IceDiscovery.ice
 
 clean::
-	-del /q IceDiscovery.cpp $(HDIR)\IceDiscovery.h
+	-del /q IceDiscovery.cpp IceDiscovery.h
 	-del /q IceDiscovery.res
 
 install:: all

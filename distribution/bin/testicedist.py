@@ -354,12 +354,14 @@ class Platform:
         trace("", f)
         trace("Compilers: %s" % self.getCompilers(), f)
         trace("Architectures: %s" % self.getArchitectures(), f)
-        trace("Languages: %s" % self.getLanguages(), f)
         buildConfigs = set()
+        buildLanguages = set()
         for comp in self.getCompilers():
             for arch in self.getArchitectures():
                 for c in self.getConfigurations(comp, arch):
                     buildConfigs.add(c)
+                    buildLanguages.update(self.getLanguageMappings(comp, arch, c))
+        trace("Languages: %s" % list(buildLanguages), f)
         trace("Build configurations: %s" % list(buildConfigs), f)
 
         if not self._skipTests:
@@ -398,6 +400,7 @@ class Platform:
         # the default architecture only.
         # 
         defaultArch = self.getDefaultArchitecture()
+        defaultCompiler = self.getDefaultCompiler()
         otherArchs = self.getSupportedArchitectures()
         otherArchs.remove(defaultArch)
 
@@ -408,19 +411,21 @@ class Platform:
             configs.append(TestConfiguration("default", "" + f, archs = otherArchs, configs = ["default"]))
 
         # Add cross tests
-        langs = set(["cpp", "java", "cs"]) & set(self.getLanguages())
+        langs = set(["cpp", "java", "cs"]) & set(self.getLanguageMappings(defaultCompiler, defaultArch, "default"))
         for l1 in langs:
             for l2 in langs:
                 if l1 != l2:
                     configs.append(TestConfiguration("cross-tcp", 
                                                      "--cross=%s%s" % (l2,f),
                                                      configs = ["default"], 
+                                                     compilers = [defaultCompiler],
                                                      archs = [defaultArch],
                                                      languages = [l1]))
                     if not filterArg and not rfilterArg:
                         configs.append(TestConfiguration("cross-ssl", 
                                                          "--cross=%s --protocol=ssl --filter=\"Ice/operations\"" % l2 ,
                                                          configs = ["default"], 
+                                                         compilers = [defaultCompiler],
                                                          archs = [defaultArch],
                                                          languages = [l1]))
 
@@ -520,10 +525,11 @@ class Platform:
     def getDefaultArchitecture(self):
         # Default architecture is by default first non-filtered architecture
         for a in self.getArchitectures():
-            if self._archs and not a in self._archs:
-                continue
-            if self._rarchs and a in self._rarchs:
-                continue
+            return a
+
+    def getDefaultCompiler(self):
+        # Default architecture is by default first non-filtered architecture
+        for a in self.getCompilers():
             return a
 
     def getJavaVersion(self, config):
@@ -543,7 +549,6 @@ class Platform:
             languages = ["cpp", "cs"]
             if arch == "x86":
                 languages.append("php")
-                
         elif compiler == "VC100" and buildConfiguration == "default":
             languages = ["py"]
         else:
