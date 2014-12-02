@@ -577,6 +577,12 @@ class Platform:
     def runScriptCommand(self, script, compiler, arch, buildConfiguration, lang):
         return "%s %s" % (sys.executable, script)
 
+    def getNodeCmd(self):
+        if self.isUbuntu():
+            return "nodejs"
+        else:
+            return "node"
+
     def getBuildAndRunConfigs(self, filterFn):
         buildTotal = 0
         runTotal = 0
@@ -819,7 +825,12 @@ class Platform:
         else:
             buildDir = os.path.join(self._demoDir, lang)
 
-        commands = self.makeDemosCommand(compiler, arch, buildConfiguration, lang, buildDir) if lang != "java" else "./gradlew assemble"
+        if lang == "java":
+            commands = ("gradlew" if self.isWindows() else "./gradlew")
+        elif lang == "js":
+            commands = "%s build.js" % self.getNodeCmd()
+        else:
+            commands = self.makeDemosCommand(compiler, arch, buildConfiguration, lang, buildDir)
         if type(commands) == str:
             commands = [commands]
             
