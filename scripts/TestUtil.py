@@ -19,7 +19,6 @@ mono = False                    # Set to True when not on Windows
 keepGoing = False               # Set to True to have the tests continue on failure.
 ipv6 = False                    # Default to use IPv4 only
 socksProxy = False              # Use SOCKS proxy running on localhost
-iceHome = None                  # Binary distribution to use (None to use binaries from source distribution)
 global x64
 x64 = False                     # Binary distribution is 64-bit
 global x86
@@ -49,7 +48,7 @@ global serverOnly
 serverOnly = False
 mx = False
 
-global linuxDistribution
+linuxDistribution = None
 if os.path.isfile("/etc/issue"):
     f = open("/etc/issue", "r")
     issue = f.read()
@@ -64,6 +63,14 @@ if os.path.isfile("/etc/issue"):
         linuxDistribution = "Ubuntu"
     elif issue.find("SUSE Linux") != -1:
         linuxDistribution = "SUSE LINUX"
+
+iceHome = None  # Binary distribution to use (or None to use binaries from source distribution)
+if os.environ.get("USE_BIN_DIST", "no") == "yes":
+    # Only use binary distribution from ICE_HOME environment variable if USE_BIN_DIST=yes
+    if os.environ.get("ICE_HOME", "") != "":
+        iceHome = os.environ["ICE_HOME"]
+    elif isLinux():
+        iceHome = "/usr"
 
 def isCygwin():
     # The substring on sys.platform is required because some cygwin
@@ -2028,13 +2035,6 @@ def processCmdLine():
 
     if len(args) > 0:
         usage()
-
-    # Only use binary distribution from ICE_HOME environment variable if USE_BIN_DIST=yes
-    if not iceHome and os.environ.get("USE_BIN_DIST", "no") == "yes":
-        if os.environ.get("ICE_HOME", "") != "":
-            iceHome = os.environ["ICE_HOME"]
-        elif isLinux():
-            iceHome = "/usr"
 
     if iceHome:
         sys.stdout.write("*** using Ice installation from " + iceHome + " ")
