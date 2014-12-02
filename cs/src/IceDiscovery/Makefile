@@ -14,7 +14,8 @@ LIBNAME		= $(PKG).dll
 TARGETS		= $(assembliesdir)/$(LIBNAME)
 POLICY_TARGET	= $(POLICY).dll
 
-SRCS		= LocatorI.cs \
+SRCS		= AssemblyInfo.cs \
+		  LocatorI.cs \
 		  LookupI.cs \
 		  PluginI.cs
 

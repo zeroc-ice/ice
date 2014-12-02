@@ -82,7 +82,7 @@
     <Reference Include="Ice, Version=3.6.51.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <Private>True</Private>
     </Reference>
-    <Reference Include="IceDiscovery, Version=0.0.0.0, Culture=neutral, PublicKeyToken=cdd571ade22f2f16, processorArchitecture=MSIL">
+    <Reference Include="IceDiscovery, Version=3.6.51.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <Private>False</Private>
     </Reference>
     <Reference Include="IceSSL, Version=3.6.51.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
