@@ -281,13 +281,13 @@
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="PhoneBook.ice">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(IceBin)\slice2freeze.exe" --output-dir="generated\collocated" -I. -I"$(IceHome)\slice" --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(IceToolsBin)\slice2freeze.exe" --output-dir="generated\collocated" -I. -I"$(IceHome)\slice" --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">generated\collocated\NameIndex.cpp;generated\collocated\NameIndex.h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(IceBin)\slice2freeze.exe" --output-dir="generated\collocated" -I. -I"$(IceHome)\slice" --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(IceToolsBin)\slice2freeze.exe" --output-dir="generated\collocated" -I. -I"$(IceHome)\slice" --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">generated\collocated\NameIndex.cpp;generated\collocated\NameIndex.h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(IceBin)\slice2freeze.exe" --output-dir="generated\collocated" -I. -I"$(IceHome)\slice" --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(IceToolsBin)\slice2freeze.exe" --output-dir="generated\collocated" -I. -I"$(IceHome)\slice" --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">generated\collocated\NameIndex.cpp;generated\collocated\NameIndex.h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(IceBin)\slice2freeze.exe" --output-dir="generated\collocated" -I. -I"$(IceHome)\slice" --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(IceToolsBin)\slice2freeze.exe" --output-dir="generated\collocated" -I. -I"$(IceHome)\slice" --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">generated\collocated\NameIndex.cpp;generated\collocated\NameIndex.h;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Running slice2freeze</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Running slice2freeze</Message>

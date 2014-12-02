@@ -4,6 +4,7 @@
     <PropertyGroup Condition="!Exists('$(IceSourceHome)')">
         <IceHome>$(Registry:HKEY_LOCAL_MACHINE\Software\ZeroC\Ice 3.6b@InstallDir)</IceHome>
         <IceInclude>$(IceHome)\include</IceInclude>
+        <IceToolsBin>$(IceHome)\bin</IceToolsBin>
     </PropertyGroup>
     
     <PropertyGroup Condition="!Exists('$(IceSourceHome)') And '$(Platform)' == 'Win32' And '$(PlatformToolset)' == 'v110'">
@@ -31,6 +32,7 @@
         <IceInclude>$(IceSourceHome)\cpp\include</IceInclude>
         <IceLib>$(IceSourceHome)\cpp\lib</IceLib>
         <IceBin>$(IceSourceHome)\cpp\bin</IceBin>
+        <IceToolsBin>$(IceSourceHome)\cpp\bin</IceToolsBin>
     </PropertyGroup>
     
     <ItemGroup>
@@ -48,6 +50,10 @@
         </BuildMacro>
         <BuildMacro Include="IceBin">
             <Value>$(IceBin)</Value>
+            <EnvironmentVariable>true</EnvironmentVariable>
+        </BuildMacro>
+        <BuildMacro Include="IceToolsBin">
+            <Value>$(IceToolsBin)</Value>
             <EnvironmentVariable>true</EnvironmentVariable>
         </BuildMacro>
     </ItemGroup>
