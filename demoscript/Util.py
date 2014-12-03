@@ -723,8 +723,8 @@ def spawn(command, cwd = None, mapping = None):
         args = '%s %s' % (args, defaultHost)
 
     # magic
-    knownCommands = [ "icegridnode", "icegridregistry", "icebox", "iceboxd", "icegridadmin", "icestormadmin",
-                      "iceboxadmin", "transformdb", "glacier2router" ]
+    knownCommands = [ "icegridnode", "icegridregistry", "icebox", "iceboxd", "icebox32", "icebox++11", "icebox32++11",
+                      "icegridadmin", "icestormadmin", "iceboxadmin", "transformdb", "glacier2router" ]
     if mapping == None:
         if desc in knownCommands:
             mapping = "cpp"
