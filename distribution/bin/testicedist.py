@@ -989,49 +989,65 @@ class Linux(Platform):
     def __init__(self, distDir):
         Platform.__init__(self, distDir)
         self._distribution = None
+
         #
-        # Init Linux distribution attributes from try to read /etc/issue if that is not available
-        # fallback to lsb_release
+        # Try to figure out linux distribution by checking /etc/redhat-release or
+        # /etc/issue. If not found, we try lsb_release.
         #
-        if os.path.isfile("/etc/redhat-release"):
-            f = open("/etc/redhat-release", "r")
+        for path in ["/etc/redhat-release", "/etc/issue"]:
+            if not os.path.isfile(path):
+                continue
+
+            f = open(path, "r")
             issue = f.read()
             f.close()
+
             if issue.find("Red Hat") != -1:
                 self._distribution = "RedHat"
+                if issue.find("Santiago") != -1:
+                    self._distributionVersion = 6
+                elif issue.find("Maipo") != -1:
+                    self._distributionVersion = 7
+                break
             elif issue.find("Amazon Linux") != -1:
                 self._distribution = "Amazon"
+                break
             elif issue.find("CentOS") != -1:
                 self._distribution = "CentOS"
-        
-        if not self._distribution and os.path.isfile("/etc/issue"):
-            f = open("/etc/issue", "r")
-            issue = f.read()
-            f.close()
-            if issue.find("Red Hat") != -1:
-                self._distribution = "RedHat"
-            elif issue.find("Amazon Linux") != -1:
-                self._distribution = "Amazon"
-            elif issue.find("CentOS") != -1:
-                self._distribution = "CentOS"
-            elif issue.find("Ubuntu") != -1:
-                self._distribution = "Ubuntu"
+                if issue.find("release 6") != -1:
+                    self._distributionVersion = 6
+                elif issue.find("release 7") != -1:
+                    self._distributionVersion = 7
+                break
             elif issue.find("SUSE Linux") != -1:
                 self._distribution = "SUSE LINUX"
-        
+                if issue.find("Server 11") != -1:
+                    self._distributionVersion = 11
+                elif issue.find("Server 12") != -1:
+                    self._distributionVersion = 12
+            elif issue.find("Ubuntu") != -1:
+                self._distribution = "Ubuntu"
+                break
+
         if not self._distribution:
-            p = subprocess.Popen("lsb_release -i", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
+            p = subprocess.Popen("lsb_release -i", shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             if(p.wait() != 0):
                 print("lsb_release failed:\n" + p.stdout.read().strip())
                 sys.exit(1)
             self._distribution = re.sub("Distributor ID:", "", p.stdout.readline().decode('UTF-8')).strip()
+
+            p = subprocess.Popen("lsb_release -s -r", shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            if(p.wait() != 0):
+                print("lsb_release failed:\n" + p.stdout.read().strip())
+                sys.exit(1)
+            self._distributionVersion = p.stdout.readline().decode('UTF-8').strip()
 
         if self._distribution not in ["RedHat", "Amazon", "CentOS", "Ubuntu", "SUSE LINUX"]:
             print("Unknown distribution from lsb_release -i")
             print(self._distribution)
             sys.exit(1)
         
-        p = subprocess.Popen("uname -m", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
+        p = subprocess.Popen("uname -m", shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         if(p.wait() != 0):
             print("uname failed:\n" + p.stdout.read().strip())
             sys.exit(1)
@@ -1039,19 +1055,23 @@ class Linux(Platform):
 
     def isLinux(self):
         return True
-        
-    def isUbuntu(self):
-        return self._distribution == "Ubuntu"
-        
-    def isRhel(self):
-        for r in ["RedHat", "Amazon", "CentOS"]:
-            if self._distribution.find(r) != -1:
-                return True
-        return False
 
-    def isSles(self):
-        return self._distribution == "SUSE LINUX"
+    def isDistribution(self, names, version):
+        if self._distribution in names:
+            if version:
+                return version == self._distributionVersion
+            else:
+                return True
+
+    def isUbuntu(self, version = None):
+        return self.isDistribution(["Ubuntu"], version)
         
+    def isRhel(self, version = None):
+        return self.isDistribution(["RedHat", "CentOS", "Amazon"], version)
+
+    def isSles(self, version = None):
+        return self.isDistribution(["SUSE LINUX"], version)
+
     def getDistribution(self):
         return self._distribution
 
@@ -1085,12 +1105,19 @@ class Linux(Platform):
         
     def getSupportedArchitectures(self):
         if self._machine == "x86_64":
-            return ["x64"]
+            if self.isRhel(6) or self.isSles(11):
+                return ["x64"] # Mono-arch Linux distribution
+            else:
+                return ["x64", "x86"] # Bi-arch Linux distribution
         else:
             return ["x86"]
+
             
     def getSupportedConfigurations(self, compiler, arch):
-        return ["default", "cpp11", "java1.8"]
+        if self.isRhel(6) or self.isSles(11):
+            return ["default", "java1.8"]
+        else:
+            return ["default", "cpp11", "java1.8"]
 
     def getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist):
         env = Platform.getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist)

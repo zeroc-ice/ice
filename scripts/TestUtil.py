@@ -48,11 +48,18 @@ global serverOnly
 serverOnly = False
 mx = False
 
+#
+# Linux distribution
+#
 linuxDistribution = None
-if os.path.isfile("/etc/issue"):
-    f = open("/etc/issue", "r")
+for path in ["/etc/redhat-release", "/etc/issue"]:
+    if not os.path.isfile(path):
+        continue
+
+    f = open(path, "r")
     issue = f.read()
     f.close()
+
     if issue.find("Red Hat") != -1:
         linuxDistribution = "RedHat"
     elif issue.find("Amazon Linux") != -1:
@@ -116,11 +123,7 @@ def isUbuntu():
     return isLinux() and linuxDistribution and linuxDistribution == "Ubuntu"
 
 def isRhel():
-    if isLinux() and linuxDistribution:
-        for r in ["RedHat", "Amazon", "CentOS"]:
-            if linuxDistribution.find(r) != -1:
-                return True
-    return False
+    return isLinux() and linuxDistribution in ["RedHat", "Amazon", "CentOS"]
 
 def isSles():
     return isLinux() and linuxDistribution and linuxDistribution == "SUSE LINUX"
@@ -1700,19 +1703,14 @@ def getServiceDir():
             serviceDir = "C:\\Program Files\ZeroC\Ice-" + str(getIceVersion()) + "\\bin"
     return serviceDir
 
-iceJARs = ["ice",
-           "glacier2",
-           "freeze",
-           "icebox",
-           "icestorm",
-           "icegrid",
-           "icepatch2",
-           "icediscovery"]
-
 def getTestEnv(lang, testdir):
     global compact
-
     env = os.environ.copy()
+
+    #
+    # Jar files from the source of binary distribution
+    #
+    iceJARs = ["ice", "glacier2", "freeze", "icebox", "icestorm", "icegrid", "icepatch2", "icediscovery"]
 
     # First sanitize the environment.
     env["CLASSPATH"] = sanitize(os.getenv("CLASSPATH", ""))
@@ -1743,11 +1741,11 @@ def getTestEnv(lang, testdir):
                 # Add third party home to PATH, to use db_xx tools
                 #
                 if isWin32():
-                    addPathToEnv("PATH", os.path.join(getThirdpartyHome(), "bin\\x64" if x64 else "bin"), env)
+                    addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin\\x64" if x64 else "bin"), env)
                     if getCppCompiler() == "VC110":
-                        addPathToEnv("PATH", os.path.join(getThirdpartyHome(), "bin\\vc110\\x64" if x64 else "bin\\vc110"), env)
+                        addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin\\vc110\\x64" if x64 else "bin\\vc110"), env)
                 elif isDarwin():
-                    addPathToEnv("PATH", os.path.join(getThirdpartyHome(), "bin"), env)
+                    addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin"), env)
                 addClasspath(os.path.join(thirdPartyHome, "lib", "db.jar"), env)
             else:
                 print("warning: could not detect Ice Third party installation.")
@@ -1755,9 +1753,8 @@ def getTestEnv(lang, testdir):
         addClasspath(os.path.join("/", "usr", "share", "java", "db.jar"), env)
 
     #
-    # If Ice is installed from RPMs:
-    # Set the CLASSPATH for Java.
-    # Set NODE_PATH for js
+    # If Ice is installed from RPMs, set the CLASSPATH for Java and
+    # NODE_PATH for JavaScript
     #
     if iceHome == "/usr":
         if lang == "java":
@@ -1769,9 +1766,9 @@ def getTestEnv(lang, testdir):
         return env # That's it, we're done!
 
     #
-    # For Win32 we always need to add bin dir to path
-    # for others we just need to add it for scripting
-    # languages that use C++ extensions (py, ruby, php)
+    # For Win32 we always need to add the bin dir to the PATH. For
+    # others we just need to add it for scripting languages that use
+    # C++ extensions (py, ruby, php)
     #
     if isWin32():
         addLdPath(getCppLibDir(), env)
@@ -1788,6 +1785,7 @@ def getTestEnv(lang, testdir):
         javaDir = os.path.join(getIceDir("java", testdir), "lib")
         for jar in iceJARs:
             addClasspath(os.path.join(javaDir, jar + jarSuffix), env)
+
     #
     # On Windows, C# assemblies are found thanks to the .exe.config files.
     #

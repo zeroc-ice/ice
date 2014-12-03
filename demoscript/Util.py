@@ -57,6 +57,29 @@ host = "127.0.0.1"
 debug = False
 
 #
+# Linux distribution
+#
+linuxDistribution = None
+for path in ["/etc/redhat-release", "/etc/issue"]:
+    if not os.path.isfile(path):
+        continue
+
+    f = open(path, "r")
+    issue = f.read()
+    f.close()
+
+    if issue.find("Red Hat") != -1:
+        linuxDistribution = "RedHat"
+    elif issue.find("Amazon Linux") != -1:
+        linuxDistribution = "Amazon"
+    elif issue.find("CentOS") != -1:
+        linuxDistribution = "CentOS"
+    elif issue.find("Ubuntu") != -1:
+        linuxDistribution = "Ubuntu"
+    elif issue.find("SUSE Linux") != -1:
+        linuxDistribution = "SUSE LINUX"
+
+#
 # The NodeJS interpreter is called "nodejs" on some platforms
 # (e.g., Ubuntu)
 #
@@ -408,32 +431,11 @@ def isMono():
 def isSolaris():
     return sys.platform == "sunos5"
 
-global linuxDistribution
-
-if os.path.isfile("/etc/issue"):
-    f = open("/etc/issue", "r")
-    issue = f.read()
-    f.close()
-    if issue.find("Red Hat") != -1:
-        linuxDistribution = "RedHat"
-    elif issue.find("Amazon Linux") != -1:
-        linuxDistribution = "Amazon"
-    elif issue.find("CentOS") != -1:
-        linuxDistribution = "CentOS"
-    elif issue.find("Ubuntu") != -1:
-        linuxDistribution = "Ubuntu"
-    elif issue.find("SUSE Linux") != -1:
-        linuxDistribution = "SUSE LINUX"
-
 def isUbuntu():
     return isLinux() and linuxDistribution and linuxDistribution == "Ubuntu"
 
 def isRhel():
-    if isLinux() and linuxDistribution:
-        for r in ["RedHat", "Amazon", "CentOS"]:
-            if linuxDistribution.find(r) != -1:
-                return True
-    return False
+    return isLinux() and linuxDistribution in ["RedHat", "Amazon", "CentOS"]
 
 def isSles():
     return isLinux() and linuxDistribution and linuxDistribution == "SUSE LINUX"
@@ -541,8 +543,9 @@ def run(demos, protobufDemos = [], root = False):
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:", [
-                "filter=", "rfilter=", "start=", "loop", "fast", "trace=", "debug", "host=", "mode=",
-                "continue", "ice-home=", "x64", "x86", "preferIPv4", "env", "noenv", "script", "protobuf", "service-dir=", "c++11"])
+            "filter=", "rfilter=", "start=", "loop", "fast", "trace=", "debug", "host=", "mode=",
+            "continue", "ice-home=", "x64", "x86", "preferIPv4", "env", "noenv", "script", "protobuf", 
+            "service-dir=", "c++11"])
     except getopt.GetoptError:
         usage()
 
@@ -825,7 +828,8 @@ def processCmdLine():
         print("usage: " + sys.argv[0] + " --x64 --x86 --preferIPv4 --env --noenv --fast --trace=output --debug --host host --mode=[debug|release] --ice-home=<dir> --service-dir=<dir>", "--c++11")
         sys.exit(2)
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "", ["env", "noenv", "x64", "x86", "preferIPv4", "fast", "trace=", "debug", "host=", "mode=", "ice-home=", "--servicedir=", "c++11"])
+        opts, args = getopt.getopt(sys.argv[1:], "", ["env", "noenv", "x64", "x86", "preferIPv4", "fast", "trace=",
+                                                      "debug", "host=", "mode=", "ice-home=", "--servicedir=", "c++11"])
     except getopt.GetoptError:
         usage()
 
