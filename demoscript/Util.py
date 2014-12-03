@@ -267,10 +267,12 @@ def configurePaths():
             sys.stdout.write("(64bit) ")
         sys.stdout.write("]\n")
 
+    binDir = os.path.join(getIceDir("cpp"), "bin")
+
     # Always add the bin directory to the PATH, it contains executable
     # which might not be in the compiler/arch bin sub-directory.
-    binDir = os.path.join(getIceDir("cpp"), "bin")
-    addenv("PATH", binDir)
+    if iceHome != "/usr":
+        addenv("PATH", binDir)
 
     if iceHome:
 
