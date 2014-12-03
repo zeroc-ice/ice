@@ -20,13 +20,17 @@
 #LP64			?= yes
 
 #
-# The build architectures for gcc based builds. The format of these
-# build flags are OS dependent. For example, under OS X to build
-# binaries which support both i386 and x86_64 you would use "-arch
-# i386 -arch x86_64". The default is OS version dependent. Be aware
-# that this value may conflict with the setting of LP64 above.
+# The "root directory" for runpath embedded in executables. Can be set
+# to change the runpath added to Ice executables. The default is 
+# platform dependent.
 #
-#CXXARCHFLAGS		     = -arch i386 -arch x86_64
+#embedded_runpath_prefix ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
+
+#
+# Define embedded_runpath as no if you don't want any RPATH added to
+# the executables.
+#
+embedded_runpath ?= yes
 
 #
 # If building on OS X and third party libraries are not installed

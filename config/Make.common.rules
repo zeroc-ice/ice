@@ -235,11 +235,11 @@ $(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please v
                    $(warning Found $(slice_translator) in both /usr/bin and /Library/Developer/Ice-$(VERSION)/bin, /usr/bin/$(slice_translator) will be used!)
                 endif
             else
-                ifeq ($(shell test -f /opt/Ice-$(VERSION)/$(binsubdir)/$(slice_translator) && echo 0), 0)
-                    ice_dir = /opt/Ice-$(VERSION)
+                ifeq ($(shell test -f /Library/Developer/Ice-$(VERSION)/$(binsubdir)/$(slice_translator) && echo 0), 0)
+                    ice_dir = /Library/Developer/Ice-$(VERSION)
                 else
-                    ifeq ($(shell test -f /Library/Developer/Ice-$(VERSION)/$(binsubdir)/$(slice_translator) && echo 0), 0)
-                        ice_dir = /Library/Developer/Ice-$(VERSION)
+                    ifeq ($(shell test -f /opt/Ice-$(VERSION)/$(binsubdir)/$(slice_translator) && echo 0), 0)
+                        ice_dir = /opt/Ice-$(VERSION)
                     endif
                 endif
             endif
