@@ -12,8 +12,9 @@ top_srcdir	= .
 include $(top_srcdir)/config/Make.rules.php
 
 SUBDIRS		= src lib
+
 ifneq ($(MAKECMDGOALS),install)
-SUBDIRS		= $(SUBDIRS) test demo
+SUBDIRS		:= $(SUBDIRS) test demo
 endif
 
 INSTALL_SUBDIRS = $(install_phpdir) $(install_libdir)

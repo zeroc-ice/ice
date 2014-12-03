@@ -967,7 +967,7 @@ class Darwin(Platform):
         return ["cpp", "java", "py", "js"]
         
     def getSupportedArchitectures(self):
-        return ["x64", "x86"]
+        return ["x64"]
         
     def isDarwin(self):
         return True

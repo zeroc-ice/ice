@@ -14,7 +14,7 @@ include $(top_srcdir)/config/Make.rules
 SUBDIRS		= modules python
 
 ifneq ($(MAKECMDGOALS),install)
-SUBDIRS		= $(SUBDIRS) test
+SUBDIRS		:= $(SUBDIRS) test
 endif
 
 INSTALL_SUBDIRS = $(install_pythondir) $(install_libdir)
