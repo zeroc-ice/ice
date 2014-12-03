@@ -270,7 +270,7 @@ def configurePaths():
     binDir = os.path.join(getIceDir("cpp"), "bin")
 
     # Always add the bin directory to the PATH, it contains executable
-    # which might not be in the compiler/arch bin sub-directory.
+    # which might not be in the compiler/arch bin sub-directory. 
     if iceHome != "/usr":
         addenv("PATH", binDir)
 

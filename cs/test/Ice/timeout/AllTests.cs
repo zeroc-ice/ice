@@ -93,9 +93,8 @@ public class AllTests : TestCommon.TestApp
             //
             // Expect ConnectTimeoutException.
             //
-            Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(250));
-            to.holdAdapter(500);
-            to.ice_getConnection().close(true); // Force a reconnect.
+            Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(100));
+            timeout.holdAdapter(500);
             try
             {
                 to.op();
@@ -112,8 +111,7 @@ public class AllTests : TestCommon.TestApp
             //
             timeout.op(); // Ensure adapter is active.
             Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(1000));
-            to.holdAdapter(500);
-            to.ice_getConnection().close(true); // Force a reconnect.
+            timeout.holdAdapter(500);
             try
             {
                 to.op();
@@ -134,8 +132,8 @@ public class AllTests : TestCommon.TestApp
             //
             // Expect TimeoutException.
             //
-            Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(250));
-            to.holdAdapter(500);
+            Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(100));
+            timeout.holdAdapter(500);
             try
             {
                 to.sendData(seq);
@@ -152,7 +150,7 @@ public class AllTests : TestCommon.TestApp
             //
             timeout.op(); // Ensure adapter is active.
             Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(1000));
-            to.holdAdapter(500);
+            timeout.holdAdapter(500);
             try
             {
                 to.sendData(new byte[1000000]);
@@ -168,7 +166,7 @@ public class AllTests : TestCommon.TestApp
         Flush();
         {
             Ice.Connection connection = obj.ice_getConnection();
-            Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(250));
+            Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(100));
             test(connection == to.ice_getConnection());
             try
             {
@@ -194,7 +192,7 @@ public class AllTests : TestCommon.TestApp
             //
             // Expect InvocationTimeoutException.
             //
-            Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(250));
+            Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(100));
             Callback cb = new Callback();
             to.begin_sleep(500).whenCompleted(
                 () =>
@@ -230,7 +228,7 @@ public class AllTests : TestCommon.TestApp
             //
             // Backward compatible connection timeouts
             //
-            Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(-2).ice_timeout(250));
+            Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(-2).ice_timeout(100));
             Ice.Connection con = null;
             try
             {
@@ -275,9 +273,9 @@ public class AllTests : TestCommon.TestApp
         Write("testing close timeout... ");
         Flush();
         {
-            Test.TimeoutPrx to = Test.TimeoutPrxHelper.checkedCast(obj.ice_timeout(250));
+            Test.TimeoutPrx to = Test.TimeoutPrxHelper.checkedCast(obj.ice_timeout(100));
             Ice.Connection connection = to.ice_getConnection();
-            timeout.holdAdapter(750);
+            timeout.holdAdapter(500);
             connection.close(false);
             try
             {
@@ -311,10 +309,10 @@ public class AllTests : TestCommon.TestApp
             string[] args = new string[0];
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties().ice_clone_();
-            initData.properties.setProperty("Ice.Override.Timeout", "250");
+            initData.properties.setProperty("Ice.Override.Timeout", "100");
             Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
             Test.TimeoutPrx to = Test.TimeoutPrxHelper.checkedCast(comm.stringToProxy(sref));
-            to.holdAdapter(500);
+            timeout.holdAdapter(500);
             try
             {
                 to.sendData(seq);
@@ -329,7 +327,7 @@ public class AllTests : TestCommon.TestApp
             //
             timeout.op(); // Ensure adapter is active.
             to = Test.TimeoutPrxHelper.checkedCast(to.ice_timeout(1000));
-            to.holdAdapter(500);
+            timeout.holdAdapter(500);
             try
             {
                 to.sendData(seq);
@@ -350,7 +348,7 @@ public class AllTests : TestCommon.TestApp
             initData.properties = communicator.getProperties().ice_clone_();
             initData.properties.setProperty("Ice.Override.ConnectTimeout", "250");
             Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
-            timeout.holdAdapter(500);
+            timeout.holdAdapter(750);
             Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(comm.stringToProxy(sref));
             try
             {
@@ -365,7 +363,7 @@ public class AllTests : TestCommon.TestApp
             // Calling ice_timeout() should have no effect on the connect timeout.
             //
             timeout.op(); // Ensure adapter is active.
-            timeout.holdAdapter(450);
+            timeout.holdAdapter(750);
             to = Test.TimeoutPrxHelper.uncheckedCast(to.ice_timeout(1000));
             try
             {
@@ -379,9 +377,10 @@ public class AllTests : TestCommon.TestApp
             //
             // Verify that timeout set via ice_timeout() is still used for requests.
             //
-            to.op(); // Force connection.
+            timeout.op(); // Ensure adapter is active.
+            to = Test.TimeoutPrxHelper.uncheckedCast(to.ice_timeout(100));
+            to.ice_getConnection(); // Establish connection.
             timeout.holdAdapter(750);
-            to = Test.TimeoutPrxHelper.uncheckedCast(to.ice_timeout(250));
             try
             {
                 to.sendData(seq);
@@ -399,13 +398,13 @@ public class AllTests : TestCommon.TestApp
             //
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties().ice_clone_();
-            initData.properties.setProperty("Ice.Override.CloseTimeout", "200");
+            initData.properties.setProperty("Ice.Override.CloseTimeout", "100");
             Ice.Communicator comm = Ice.Util.initialize(initData);
             comm.stringToProxy(sref).ice_getConnection();
-            timeout.holdAdapter(750);
+            timeout.holdAdapter(500);
             long begin = System.DateTime.Now.Ticks;
             comm.destroy();
-            test(((long)new System.TimeSpan(System.DateTime.Now.Ticks - begin).TotalMilliseconds - begin) < 500);
+            test(((long)new System.TimeSpan(System.DateTime.Now.Ticks - begin).TotalMilliseconds - begin) < 400);
         }
         WriteLine("ok");
 
@@ -421,7 +420,7 @@ public class AllTests : TestCommon.TestApp
             proxy = (Test.TimeoutPrx)proxy.ice_invocationTimeout(100);
             try
             {
-                proxy.sleep(150);
+                proxy.sleep(300);
                 test(false);
             }
             catch(Ice.InvocationTimeoutException)
@@ -430,7 +429,7 @@ public class AllTests : TestCommon.TestApp
 
             try
             {
-                proxy.end_sleep(proxy.begin_sleep(150));
+                proxy.end_sleep(proxy.begin_sleep(300));
                 test(false);
             }
             catch(Ice.InvocationTimeoutException)
@@ -442,7 +441,7 @@ public class AllTests : TestCommon.TestApp
             batchTimeout.ice_ping();
             batchTimeout.ice_ping();
 
-            ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-1)).begin_sleep(150); // Keep the server thread pool busy.
+            ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-1)).begin_sleep(300); // Keep the server thread pool busy.
             try
             {
                 batchTimeout.ice_flushBatchRequests();
@@ -456,7 +455,7 @@ public class AllTests : TestCommon.TestApp
             batchTimeout.ice_ping();
             batchTimeout.ice_ping();
 
-            ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-1)).begin_sleep(150); // Keep the server thread pool busy.
+            ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-1)).begin_sleep(300); // Keep the server thread pool busy.
             try
             {
                 batchTimeout.end_ice_flushBatchRequests(batchTimeout.begin_ice_flushBatchRequests());
