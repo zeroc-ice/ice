@@ -674,12 +674,6 @@ def getServiceDir():
             serviceDir = "C:\\Progra~1\ZeroC\Ice-" + str(getIceVersion()) + "\\bin"
     return serviceDir
 
-def isX86():
-    return x86
-
-def isCpp11():
-    return cpp11
-
 def getIceBox(mapping = "cpp"):
     if mapping == "cpp":
         iceBox = "icebox"

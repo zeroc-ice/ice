@@ -76,10 +76,10 @@ demos = [
 # use x86 db tools that are currently not available for x64 
 # distributions.
 #
-if not Util.isX86():
+if not "--x86" in sys.argv:
     demos += ["Freeze/backup"]
 
-if not Util.isCpp11():
+if not "--c++11" in sys.argv:
     demos += ["IceGrid/customLoadBalancing"]
 
 if __name__ == "__main__":
