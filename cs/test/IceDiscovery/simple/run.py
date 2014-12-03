@@ -26,7 +26,7 @@ client = os.path.join(os.getcwd(), "client")
 num = 3
 
 args = " --Ice.Plugin.IceDiscovery=IceDiscovery:IceDiscovery.PluginFactory"
-args += " --IceDiscovery.Timeout=30"
+args += " --IceDiscovery.Timeout=50"
 args += " --IceDiscovery.RetryCount=5"
 
 if TestUtil.isDarwin() and TestUtil.ipv6:
