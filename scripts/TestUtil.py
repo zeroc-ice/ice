@@ -1643,8 +1643,7 @@ def getCppBinDir(lang = None):
     if iceHome:
         if lang == None:
             lang = getDefaultMapping()
-        if lang == "cpp" or lang == "php":
-          if isVC110():
+        if isVC110() and lang != "py":
             binDir = os.path.join(binDir, "vc110")
         if x64:
             if isSolaris():
@@ -1654,8 +1653,7 @@ def getCppBinDir(lang = None):
                     binDir = os.path.join(binDir, "amd64")
             elif isWin32() and lang != "php":
                 binDir = os.path.join(binDir, "x64")
-        if isDarwin() and cpp11:
-          binDir = os.path.join(binDir, "c++11")
+
     return binDir
 
 def getSliceTranslator(lang = "cpp"):

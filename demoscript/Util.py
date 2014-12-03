@@ -279,9 +279,8 @@ def configurePaths():
         # Add compiler sub-directory
         if isWin32():
             subdir = None
-            if getMapping() != "py":
-                if getCppCompiler() == "VC110":
-                    subdir = "vc110"
+            if getCppCompiler() == "VC110" and getMapping() != "py":
+                subdir = "vc110"
 
             if subdir:
                 binDir = os.path.join(binDir, subdir)
