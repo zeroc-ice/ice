@@ -43,7 +43,7 @@ namespace IceSSL
             {
                 NetworkStream ns = new NetworkStream(_stream.fd(), false);
                 _sslStream = new SslStream(ns, false, new RemoteCertificateValidationCallback(validationCallback),
-                                           null);
+                                                      new LocalCertificateSelectionCallback(selectCertificate));
                 return IceInternal.SocketOperation.Connect;
             }
 
@@ -521,6 +521,39 @@ namespace IceSSL
             {
                 throw new Ice.SyscallException(ex);
             }
+        }
+
+        private X509Certificate selectCertificate(
+            object sender,
+            string targetHost, 
+            X509CertificateCollection localCertificates, 
+            X509Certificate remoteCertificate, 
+            string[] acceptableIssuers)
+        {
+            X509Certificate2Collection certs = _instance.engine().certs();
+
+            //
+            // Use the first certificate that match the acceptable issuers.
+            //
+            if(acceptableIssuers != null && acceptableIssuers.Length > 0 && certs != null && certs.Count > 0)
+            {
+                foreach(X509Certificate certificate in certs)
+                {
+                    if(Array.IndexOf(acceptableIssuers, certificate.Issuer) != -1)
+                    {
+                        return certificate;
+                    }
+                }
+            }
+
+            //
+            // Send first certificate
+            //
+            if(certs.Count > 0)
+            {
+                return certs[0];
+            }
+            return null;
         }
 
         private bool validationCallback(object sender, X509Certificate certificate, X509Chain chainEngine,
