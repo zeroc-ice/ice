@@ -117,7 +117,10 @@
                                 var expected = value;
                                 var result = hold.set(value + 1, 3).then(function(v)
                                                                          {
-                                                                             condition.value = (v == expected);
+                                                                             if(v !== expected)
+                                                                             {
+                                                                                 condition.value = false;
+                                                                             }
                                                                          });
                                 ++value;
                                 if(value % 100 === 0)
@@ -143,7 +146,10 @@
                         var expected = value;
                         result = holdSerialized.set(value + 1, 1).then(function(v)
                                                                        {
-                                                                           condition.value = (v == expected);
+                                                                           if(v !== expected)
+                                                                           {
+                                                                               condition.value = false;
+                                                                           }
                                                                        });
                         ++value;
                         if(value % 100 === 0)
