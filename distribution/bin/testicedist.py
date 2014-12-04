@@ -464,8 +464,8 @@ class Platform:
         if buildConfiguration == "no-cpp11":
             env["CPP11"] = "no"
             
-        if self.is64(arch) and not self.isWindows():
-            env["LP64"] = "yes"
+        if self.isLinux():
+            env["LP64"] = "yes" if self.is64(arch) else "no"
             
         javaHome = self.getJavaHome(arch, self.getJavaVersion(buildConfiguration))
         if javaHome:
@@ -773,9 +773,9 @@ class Platform:
         if start:
             args += " --start=%s" % start
 
-        if self.is64(arch):
-            args += " --x64"
-           
+        if self.isWindows() or self.isLinux():
+            args += " --x64" if self.is64(arch) else " --x86"
+
         if self.isLinux() and buildConfiguration == "cpp11":
             args += " --c++11"
 
@@ -876,10 +876,10 @@ class Platform:
             args += " --continue %s" % testConf
         else:
             args += " --continue"        
-
-        if self.is64(arch):
-            args += " --x64"
             
+        if self.isWindows() or self.isLinux():
+            args += " --x64" if self.is64(arch) else " --x86"
+
         if self.isLinux() and buildConfiguration == "cpp11":
             args += " --c++11"
 

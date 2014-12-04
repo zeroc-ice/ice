@@ -71,14 +71,6 @@ for path in ["/etc/redhat-release", "/etc/issue"]:
     elif issue.find("SUSE Linux") != -1:
         linuxDistribution = "SUSE LINUX"
 
-iceHome = None  # Binary distribution to use (or None to use binaries from source distribution)
-if os.environ.get("USE_BIN_DIST", "no") == "yes":
-    # Only use binary distribution from ICE_HOME environment variable if USE_BIN_DIST=yes
-    if os.environ.get("ICE_HOME", "") != "":
-        iceHome = os.environ["ICE_HOME"]
-    elif isLinux():
-        iceHome = "/usr"
-
 def isCygwin():
     # The substring on sys.platform is required because some cygwin
     # versions return variations like "cygwin_nt-4.01".
@@ -181,92 +173,42 @@ def isVC120():
         return False
     return getCppCompiler() == "VC120"
 
-def getThirdpartyHome():
-    version = getIceVersion()
-    if os.environ.get("THIRDPARTY_HOME"):
-        return os.environ.get("THIRDPARTY_HOME")
-    elif isDarwin():
-        if os.path.exists("/Library/Developer/Ice-%s-ThirdParty/lib/db.jar" % version):
-            return "/Library/Developer/Ice-%s-ThirdParty/" % version
-    elif isWin32():
-        import winreg
-        try:
-            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\ZeroC\\Ice %s Third Party Packages" % \
-                                 version, 0, winreg.KEY_READ | winreg.KEY_WOW64_64KEY)
-            installDir = os.path.abspath(winreg.QueryValueEx(key, "InstallDir")[0])
+def getIceSoVersion():
+    config = open(os.path.join(toplevel, "cpp", "include", "IceUtil", "Config.h"), "r")
+    intVersion = int(re.search("ICE_INT_VERSION ([0-9]*)", config.read()).group(1))
+    majorVersion = int(intVersion / 10000)
+    minorVersion = int(intVersion / 100) - 100 * majorVersion
+    patchVersion = intVersion % 100
+    if patchVersion > 50:
+        if patchVersion >= 52:
+            return '%db%d' % (majorVersion * 10 + minorVersion, patchVersion - 50)
+        else:
+            return '%db' % (majorVersion * 10 + minorVersion)
+    else:
+        return '%d' % (majorVersion * 10 + minorVersion)
 
-            if os.path.exists(installDir):
-                return installDir
-        except WindowsError as error:
-            print(error)
-    return None
-
-#
-# Set the default arch to x64 on x64 machines, this could be overriden
-# with the --x86 command line argument.
-#
-if isWin32():
-    if os.environ.get("PLATFORM", "").upper() == "X64":
-        x64 = True
-else:
-    p = subprocess.Popen("uname -m", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
-    if(p.wait() != 0):
-        print("uname failed:\n" + p.stdout.read().strip())
+def getJdkVersion():
+    process = subprocess.Popen("java -version", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+    if not process or not process.stdout:
+        print("unable to get Java version!")
         sys.exit(1)
-    if p.stdout.readline().decode('UTF-8').strip() == "x86_64" and os.environ.get("LP64", "") != "no":
-        x64 = True
+    global jdkVersion
+    jdkVersion = process.stdout.readline()
+    if not jdkVersion:
+        print("unable to get Java version!")
+        sys.exit(1)
+    return jdkVersion.decode("utf-8")
 
-#
-# The PHP interpreter is called "php5" on some platforms (e.g., SLES).
-#
-phpCmd = "php"
-for path in os.environ["PATH"].split(os.pathsep):
-    #
-    # Stop if we find "php" in the PATH first.
-    #
-    if os.path.exists(os.path.join(path, "php")):
-        break
-    elif os.path.exists(os.path.join(path, "php5")):
-        phpCmd = "php5"
-        break
-
-#
-# The NodeJS interpreter is called "nodejs" on some platforms
-# (e.g., Ubuntu)
-#
-nodeCmd = "node"
-if "NODE" in os.environ:
-    nodeCmd = os.environ["NODE"]
-else:
-    for path in os.environ["PATH"].split(os.pathsep):
-        #
-        # Stop if we find "php" in the PATH first.
-        #
-        if os.path.exists(os.path.join(path, "node")):
-            break
-        elif os.path.exists(os.path.join(path, "nodejs")):
-            nodeCmd = "nodejs"
-            break
-
-#
-# This is set by the choice of init method. If not set, before it is
-# used, it indicates a bug and things should terminate.
-#
-defaultMapping = None
-
-testErrors = []
-
-toplevel = None
-
-path = [ ".", "..", "../..", "../../..", "../../../..", "../../../../..", "../../../../../..",
-         "../../../../../../..", "../../../../../../../..", "../../../../../../../../.." ]
-head = os.path.dirname(sys.argv[0])
-if len(head) > 0:
-    path = [os.path.join(head, p) for p in path]
-path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
-if len(path) == 0:
-    raise RuntimeError("can't find toplevel directory!")
-toplevel = path[0]
+def getWinRegistryKeyValue(key, subKey):
+    import winreg
+    try:
+        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key, 0, winreg.KEY_READ | winreg.KEY_WOW64_64KEY)
+        try:
+            return winreg.QueryValueEx(key, subKey)
+        finally:
+            winreg.CloseKey(key)
+    except:
+        pass
 
 def sanitize(cp):
     np = ""
@@ -328,6 +270,120 @@ def addPathToEnv(variable, path, env = None):
     else:
         env[variable] = path + os.pathsep + env.get(variable)
     return env
+
+#
+# This is set by the choice of init method. If not set, before it is
+# used, it indicates a bug and things should terminate.
+#
+defaultMapping = None
+testErrors = []
+toplevel = None
+
+path = [ ".", "..", "../..", "../../..", "../../../..", "../../../../..", "../../../../../..",
+         "../../../../../../..", "../../../../../../../..", "../../../../../../../../.." ]
+head = os.path.dirname(sys.argv[0])
+if len(head) > 0:
+    path = [os.path.join(head, p) for p in path]
+path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
+if len(path) == 0:
+    raise RuntimeError("can't find toplevel directory!")
+toplevel = path[0]
+
+#
+# Set the default arch to x64 on x64 machines, this could be overriden
+# with the --x86 command line argument.
+#
+if isWin32():
+    if os.environ.get("PLATFORM", "").upper() == "X64":
+        x64 = True
+else:
+    p = subprocess.Popen("uname -m", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
+    if(p.wait() != 0):
+        print("uname failed:\n" + p.stdout.read().strip())
+        sys.exit(1)
+    if p.stdout.readline().decode('UTF-8').strip() == "x86_64" and os.environ.get("LP64", "") != "no":
+        x64 = True
+
+#
+# The PHP interpreter is called "php5" on some platforms (e.g., SLES).
+#
+phpCmd = "php"
+for path in os.environ["PATH"].split(os.pathsep):
+    #
+    # Stop if we find "php" in the PATH first.
+    #
+    if os.path.exists(os.path.join(path, "php")):
+        break
+    elif os.path.exists(os.path.join(path, "php5")):
+        phpCmd = "php5"
+        break
+
+#
+# The NodeJS interpreter is called "nodejs" on some platforms
+# (e.g., Ubuntu)
+#
+nodeCmd = "node"
+if "NODE" in os.environ:
+    nodeCmd = os.environ["NODE"]
+else:
+    for path in os.environ["PATH"].split(os.pathsep):
+        #
+        # Stop if we find "php" in the PATH first.
+        #
+        if os.path.exists(os.path.join(path, "node")):
+            break
+        elif os.path.exists(os.path.join(path, "nodejs")):
+            nodeCmd = "nodejs"
+            break
+
+#
+# Figure out the Ice version
+#
+iceVersion = None
+try:
+    if isWin32():
+        config = open(os.path.join(toplevel, "config", "Make.common.rules.mak"), "r")
+    else:
+        config = open(os.path.join(toplevel, "config", "Make.common.rules"), "r")
+    iceVersion = re.search("VERSION[\t\s]*= ([0-9]+\.[0-9]+(\.[0-9]+|b[0-9]*))", config.read()).group(1)
+    config.close()
+except:
+    print("error: couldn't figure Ice version")
+    sys.exit(1)
+
+#
+# Figure out Ice installation directoty
+#
+iceHome = None  # Binary distribution to use (or None to use binaries from source distribution)
+if os.environ.get("USE_BIN_DIST", "no") == "yes":
+    # Only use binary distribution from ICE_HOME environment variable if USE_BIN_DIST=yes
+    if os.environ.get("ICE_HOME", "") != "":
+        iceHome = os.environ["ICE_HOME"]
+    elif isLinux():
+        iceHome = "/usr"
+    elif isDarwin():
+        if os.path.exists("/Library/Developer/Ice-%s/lib/db.jar" % iceVersion):
+            iceHome = "/Library/Developer/Ice-%s/" % iceVersion
+    elif isWin32():
+        path = getWinRegistryKeyValue("SOFTWARE\\ZeroC\\Ice %s" % iceVersion, "InstallDir")
+        if path and len(path) > 0 and os.path.exists(path[0]):
+            iceHome = path[0]
+
+#
+# Figure out Ice third party installation directory if not running
+# against Ice installation.
+#
+thirdPartyHome = None
+if not iceHome:
+    if os.environ.get("THIRDPARTY_HOME"):
+        thirdPartyHome = os.environ.get("THIRDPARTY_HOME")
+    elif isDarwin():
+        if os.path.exists("/Library/Developer/Ice-%s-ThirdParty/lib/db.jar" % iceVersion):
+            thirdPartyHome = "/Library/Developer/Ice-%s-ThirdParty/" % iceVersion
+    elif isWin32():
+        path = getWinRegistryKeyValue("SOFTWARE\\ZeroC\\Ice %s Third Party Packages" % iceVersion, "InstallDir")
+        if path and len(path) > 0 and os.path.exists(path[0]):
+            thirdPartyHome = path[0]
 
 # List of supported cross languages test.
 crossTests = [ "Ice/adapterDeactivation",
@@ -701,36 +757,6 @@ def phpSetup(clientConfig = False, iceOptions = None, iceProfile = None):
             tmpini.write("ice.options=\"%s\"\n" % iceOptions)
     tmpini.close()
 
-def getIceVersion():
-    config = open(os.path.join(toplevel, "config", "Make.common.rules"), "r")
-    return re.search("VERSION[\t\s]*= ([0-9]+\.[0-9]+(\.[0-9]+|b[0-9]*))", config.read()).group(1)
-
-def getIceSoVersion():
-    config = open(os.path.join(toplevel, "cpp", "include", "IceUtil", "Config.h"), "r")
-    intVersion = int(re.search("ICE_INT_VERSION ([0-9]*)", config.read()).group(1))
-    majorVersion = int(intVersion / 10000)
-    minorVersion = int(intVersion / 100) - 100 * majorVersion
-    patchVersion = intVersion % 100
-    if patchVersion > 50:
-        if patchVersion >= 52:
-            return '%db%d' % (majorVersion * 10 + minorVersion, patchVersion - 50)
-        else:
-            return '%db' % (majorVersion * 10 + minorVersion)
-    else:
-        return '%d' % (majorVersion * 10 + minorVersion)
-
-def getJdkVersion():
-    process = subprocess.Popen("java -version", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-    if not process or not process.stdout:
-        print("unable to get Java version!")
-        sys.exit(1)
-    global jdkVersion
-    jdkVersion = process.stdout.readline()
-    if not jdkVersion:
-        print("unable to get Java version!")
-        sys.exit(1)
-    return jdkVersion.decode("utf-8")
-
 def getIceBox():
     global compact
     global cpp11
@@ -793,7 +819,7 @@ def getIceExe(name):
     else:
         return os.path.join(getCppBinDir(), name)
 
-def getNodeCmd():
+def getNodeCommand():
     return nodeCmd
 
 class InvalidSelectorString(Exception):
@@ -1688,9 +1714,12 @@ def getJavaLibraryPath():
         if iceHome:
             return "-Djava.library.path=\"%s\" " % os.path.join(iceHome, "bin\\x64" if x64 else "bin")
         else:
-            return "-Djava.library.path=\"%s\" " % os.path.join(getThirdpartyHome(), "bin\\x64" if x64 else "bin")
+            return "-Djava.library.path=\"%s\" " % os.path.join(thirdPartyHome, "bin\\x64" if x64 else "bin")
     elif isDarwin():
-        return "-Djava.library.path=%s " % os.path.join(iceHome if iceHome else getThirdpartyHome(), "lib")
+        if iceHome:
+            return "-Djava.library.path=%s " % os.path.join(iceHome, "lib")
+        elif thirdPartyHome:
+            return "-Djava.library.path=%s " % os.path.join(thirdPartyHome, "lib")            
     elif isRhel() or isSles():
         return "-Djava.library.path=%s " % ("/usr/lib64" if x64 else "/usr/lib")
     elif isUbuntu():
@@ -1703,7 +1732,7 @@ def getServiceDir():
         if iceHome:
             serviceDir = os.path.join(iceHome, "bin")
         else:
-            serviceDir = "C:\\Program Files\ZeroC\Ice-" + str(getIceVersion()) + "\\bin"
+            serviceDir = "C:\\Program Files\ZeroC\Ice-" + iceVersion + "\\bin"
     return serviceDir
 
 def getTestEnv(lang, testdir):
@@ -1714,6 +1743,7 @@ def getTestEnv(lang, testdir):
     # Jar files from the source of binary distribution
     #
     iceJARs = ["ice", "glacier2", "freeze", "icebox", "icestorm", "icegrid", "icepatch2", "icediscovery"]
+    jarSuffix = "-" + iceVersion + ".jar"
 
     # First sanitize the environment.
     env["CLASSPATH"] = sanitize(os.getenv("CLASSPATH", ""))
@@ -1728,8 +1758,6 @@ def getTestEnv(lang, testdir):
     elif lang == "java":
         addClasspath(os.path.join(toplevel, "java", "lib", "test.jar"), env)
 
-    jarSuffix = "-" + getIceVersion() + ".jar"
-
     #
     # DB CLASSPATH, in Windows and OS X db.jar come from Ice home or
     # from Third Party Home
@@ -1737,21 +1765,19 @@ def getTestEnv(lang, testdir):
     if isDarwin() or isWin32():
         if iceHome:
             addClasspath(os.path.join(getIceDir("java", testdir), "lib", "db.jar"), env)
+        elif thirdPartyHome:
+            #
+            # Add third party home to PATH, to use db_xx tools
+            #
+            if isWin32():
+                addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin\\x64" if x64 else "bin"), env)
+                if getCppCompiler() == "VC110":
+                    addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin\\vc110\\x64" if x64 else "bin\\vc110"), env)
+            elif isDarwin():
+                addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin"), env)
+            addClasspath(os.path.join(thirdPartyHome, "lib", "db.jar"), env)
         else:
-            thirdPartyHome = getThirdpartyHome()
-            if thirdPartyHome:
-                #
-                # Add third party home to PATH, to use db_xx tools
-                #
-                if isWin32():
-                    addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin\\x64" if x64 else "bin"), env)
-                    if getCppCompiler() == "VC110":
-                        addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin\\vc110\\x64" if x64 else "bin\\vc110"), env)
-                elif isDarwin():
-                    addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin"), env)
-                addClasspath(os.path.join(thirdPartyHome, "lib", "db.jar"), env)
-            else:
-                print("warning: could not detect Ice Third party installation.")
+            print("warning: could not detect Ice Third Party installation")
     else:
         addClasspath(os.path.join("/", "usr", "share", "java", "db.jar"), env)
 
@@ -1775,7 +1801,7 @@ def getTestEnv(lang, testdir):
     #
     if isWin32():
         addLdPath(getCppLibDir(lang), env)
-    elif lang in ["py", "rb", "php"]:
+    elif lang in ["py", "rb", "php", "js"]:
         addLdPath(getCppLibDir(lang), env)
 
     if lang == "javae":
@@ -2035,15 +2061,16 @@ def processCmdLine():
     if len(args) > 0:
         usage()
 
-    if iceHome:
-        sys.stdout.write("*** using Ice installation from " + iceHome + " ")
-    else:
-        sys.stdout.write("*** using Ice source dist ")
-    if x64:
-        sys.stdout.write("(64bit) ")
-    else:
-        sys.stdout.write("(32bit) ")
-    sys.stdout.write("\n")
+    if not os.environ.get("TESTCONTROLLER"):
+        if iceHome:
+            sys.stdout.write("*** using Ice installation from " + iceHome + " ")
+        else:
+            sys.stdout.write("*** using Ice source dist ")
+        if x64:
+            sys.stdout.write("(64bit) ")
+        else:
+            sys.stdout.write("(32bit) ")
+        sys.stdout.write("\n")
 
 def runTests(start, expanded, num = 0, script = False):
     total = 0

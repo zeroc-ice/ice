@@ -66,8 +66,9 @@ if(srcDist && !iceHome && !useBinDist)
 
     if(!build)
     {
-        console.error("error Unable to find " + iceJs + " in " + path.join(__dirname, "..", "lib") + ", please verify " +
-                      "that the sources has been build or configure ICE_HOME to use a binary distribution.");
+        console.error("error: unable to find `" + iceJs + "' in `" + path.join(__dirname, "..", "lib") + "',\n" + 
+                      "please verify that the sources have been built or configure ICE_HOME\n" +
+                      "to use a binary distribution");
         process.exit(1);
     }
 }
@@ -130,8 +131,8 @@ if(iceHome)
 
     if(!iceHomeValid)
     {
-        console.error("error Unable to find " + iceJs + " in " + path.join(iceHome, "lib") +
-                      ", please verify ICE_HOME is properly configured and Ice is correctly installed");
+        console.error("error: unable to find `" + iceJs + "' in `" + path.join(iceHome, "lib") + "',\n" + 
+                      "please verify ICE_HOME is properly configured and Ice is correctly insetalled");
         process.exit(1);
     }
     console.log("Using Ice libraries from " + path.join(iceHome, "lib"));

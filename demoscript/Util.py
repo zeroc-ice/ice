@@ -79,47 +79,6 @@ for path in ["/etc/redhat-release", "/etc/issue"]:
     elif issue.find("SUSE Linux") != -1:
         linuxDistribution = "SUSE LINUX"
 
-#
-# The NodeJS interpreter is called "nodejs" on some platforms
-# (e.g., Ubuntu)
-#
-nodeCmd = "node"
-if "NODE" in os.environ:
-    nodeCmd = os.environ["NODE"]
-else:
-    for path in os.environ["PATH"].split(os.pathsep):
-        #
-        # Stop if we find "php" in the PATH first.
-        #
-        if os.path.exists(os.path.join(path, "node")):
-            break
-        elif os.path.exists(os.path.join(path, "nodejs")):
-            nodeCmd = "nodejs"
-            break
-
-def getNodeCommand():
-    return nodeCmd
-
-def getThirdpartyHome():
-    version = getIceVersion()
-    if os.environ.get("THIRDPARTY_HOME"):
-        return os.environ.get("THIRDPARTY_HOME")
-    elif isDarwin():
-        if os.path.exists("/Library/Developer/Ice-%s-ThirdParty/lib/db.jar" % version):
-            return "/Library/Developer/Ice-%s-ThirdParty/" % version
-    elif isWin32():
-        import winreg
-        try:
-            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\ZeroC\\Ice %s Third Party Packages" % \
-                                 version, 0, winreg.KEY_READ | winreg.KEY_WOW64_64KEY)
-            installDir = os.path.abspath(winreg.QueryValueEx(key, "InstallDir")[0])
-
-            if os.path.exists(installDir):
-                return installDir
-        except WindowsError as error:
-            print(error)
-    return None
-
 def getJavaVersion():
     p = subprocess.Popen(javaCmd + " -version", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
     if(p.wait() != 0):
@@ -225,7 +184,6 @@ class FileExpect(object):
         self.r.join()
         self.r = None
 
-
 def getCppCompiler():
     if not isWin32():
         return ""
@@ -316,18 +274,15 @@ def configurePaths():
                 binDir = os.path.join(binDir, "sparcv9")
             else:
                 binDir = os.path.join(binDir, "amd64")
+    elif thirdPartyHome: 
+        if isWin32():
+            addenv("PATH", os.path.join(thirdPartyHome, "bin\\x64" if x64 else "bin"))
+            if getCppCompiler() == "VC110":
+                addenv("PATH", os.path.join(thirdPartyHome, "bin\\vc110\\x64" if x64 else "bin\\vc110"))
+        elif isDarwin():
+            addenv("PATH", os.path.join(thirdPartyHome, "bin"))
     else:
-        #
-        # Add third party home to PATH, to use db_xx tools
-        #
-        thirdPartyHome = getThirdpartyHome()
-        if thirdPartyHome:
-            if isWin32():
-                addenv("PATH", os.path.join(getThirdpartyHome(), "bin\\x64" if x64 else "bin"))
-                if getCppCompiler() == "VC110":
-                    addenv("PATH", os.path.join(getThirdpartyHome(), "bin\\vc110\\x64" if x64 else "bin\\vc110"))
-            elif isDarwin():
-                addenv("PATH", os.path.join(getThirdpartyHome(), "bin"))
+        print("warning: could not detect Ice Third Party installation")
 
     if binDir != os.path.join(getIceDir("cpp"), "bin"):
         addenv("PATH", binDir)
@@ -440,6 +395,17 @@ def isRhel():
 
 def isSles():
     return isLinux() and linuxDistribution and linuxDistribution == "SUSE LINUX"
+
+def getWinRegistryKeyValue(key, subKey):
+    import winreg
+    try:
+        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key, 0, winreg.KEY_READ | winreg.KEY_WOW64_64KEY)
+        try:
+            return winreg.QueryValueEx(key, subKey)
+        finally:
+            winreg.CloseKey(key)
+    except:
+        pass
 
 def getMapping():
     """Determine the current mapping based on the cwd."""
@@ -659,13 +625,6 @@ def isDebugBuild():
         print("(guessed build mode %s)" % buildmode)
     return buildmode == "debug"
 
-def getIceVersion():
-    if isWin32():
-        config = open(os.path.join(toplevel, "config", "Make.common.rules.mak"), "r")
-    else:
-        config = open(os.path.join(toplevel, "config", "Make.common.rules"), "r")
-    return re.search("VERSION[\t\s]*= ([0-9]+\.[0-9]+(\.[0-9]+|b[0-9]*))", config.read()).group(1)
-
 def getServiceDir():
     global serviceDir
     if serviceDir == None:
@@ -708,6 +667,9 @@ def getIceGridAdmin():
 
 def getGlacier2Router():
     return "glacier2router"
+
+def getNodeCommand():
+    return nodeCmd
 
 def spawn(command, cwd = None, mapping = None):
     tokens = command.split(' ')
@@ -783,10 +745,13 @@ def getJavaLibraryPath():
     if isWin32():
         if iceHome:
             return "-Djava.library.path=\"%s\" " % os.path.join(iceHome, "bin\\x64" if x64 else "bin")
-        else:
-            return "-Djava.library.path=\"%s\" " % os.path.join(getThirdpartyHome(), "bin\\x64" if x64 else "bin")
+        elif thirdPartyHome:
+            return "-Djava.library.path=\"%s\" " % os.path.join(thirdPartyHome, "bin\\x64" if x64 else "bin")
     elif isDarwin():
-        return "-Djava.library.path=%s " % os.path.join(iceHome if iceHome else getThirdpartyHome(), "lib")
+        if iceHome:
+            return "-Djava.library.path=%s " % os.path.join(iceHome, "lib")
+        elif thirdPartyHome:
+            return "-Djava.library.path=%s " % os.path.join(thirdPartyHome, "lib")            
     elif isRhel() or isSles():
         return "-Djava.library.path=%s " % ("/usr/lib64" if x64 else "/usr/lib")
     elif isUbuntu():
@@ -904,6 +869,73 @@ def processCmdLine():
     if iceHome and isWin32() and not buildmode:
         print("Error: please define --mode=debug or --mode=release")
         sys.exit(1)
+
+#
+# The NodeJS interpreter is called "nodejs" on some platforms
+# (e.g., Ubuntu)
+#
+nodeCmd = "node"
+if "NODE" in os.environ:
+    nodeCmd = os.environ["NODE"]
+else:
+    for path in os.environ["PATH"].split(os.pathsep):
+        #
+        # Stop if we find "php" in the PATH first.
+        #
+        if os.path.exists(os.path.join(path, "node")):
+            break
+        elif os.path.exists(os.path.join(path, "nodejs")):
+            nodeCmd = "nodejs"
+            break
+
+#
+# Figure out the Ice version
+#
+iceVersion = None
+try:
+    if isWin32():
+        config = open(os.path.join(toplevel, "config", "Make.common.rules.mak"), "r")
+    else:
+        config = open(os.path.join(toplevel, "config", "Make.common.rules"), "r")
+    iceVersion = re.search("VERSION[\t\s]*= ([0-9]+\.[0-9]+(\.[0-9]+|b[0-9]*))", config.read()).group(1)
+    config.close()
+except:
+    print("error: couldn't figure Ice version" )
+    sys.exit(1)
+
+#
+# Figure out Ice installation directoty
+#
+iceHome = None  # Binary distribution to use (or None to use binaries from source distribution)
+if os.environ.get("USE_BIN_DIST", "no") == "yes":
+    # Only use binary distribution from ICE_HOME environment variable if USE_BIN_DIST=yes
+    if os.environ.get("ICE_HOME", "") != "":
+        iceHome = os.environ["ICE_HOME"]
+    elif isLinux():
+        iceHome = "/usr"
+    elif isDarwin():
+        if os.path.exists("/Library/Developer/Ice-%s/lib/db.jar" % iceVersion):
+            iceHome = "/Library/Developer/Ice-%s/" % iceVersion
+    elif isWin32():
+        path = getWinRegistryKeyValue("SOFTWARE\\ZeroC\\Ice %s" % iceVersion, "InstallDir")
+        if path and len(path) > 0 and os.path.exists(path[0]):
+            iceHome = path[0]
+
+#
+# Figure out Ice third party installation directory if not running
+# against Ice installation.
+#
+thirdPartyHome = None
+if not iceHome:
+    if os.environ.get("THIRDPARTY_HOME"):
+        thirdPartyHome = os.environ.get("THIRDPARTY_HOME")
+    elif isDarwin():
+        if os.path.exists("/Library/Developer/Ice-%s-ThirdParty/lib/db.jar" % iceVersion):
+            thirdPartyHome = "/Library/Developer/Ice-%s-ThirdParty/" % iceVersion
+    elif isWin32():
+        path = getWinRegistryKeyValue("SOFTWARE\\ZeroC\\Ice %s Third Party Packages" % iceVersion, "InstallDir")
+        if path and len(path) > 0 and os.path.exists(path[0]):
+            thirdPartyHome = path[0]
 
 import inspect
 frame = inspect.currentframe().f_back

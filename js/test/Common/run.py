@@ -39,29 +39,47 @@ if sys.platform == "darwin":
     except getopt.GetoptError:
         pass
 
-import TestUtil
-
 #
 # Run the script with the environment correctly set.
 #
 if os.environ.get("RUNNING_TEST_CONTROLLER_WITH_ENV", "") == "":
-    env = TestUtil.getTestEnv("cpp", os.getcwd())
+    os.environ["TESTCONTROLLER"] = "yes" # Trick to prevent TestUtil.py from printing out diagnostic information
+    import TestUtil
+    del os.environ["TESTCONTROLLER"]
+
+    #
+    # Get environment to run Ice for Python script
+    #
+    env = TestUtil.getTestEnv("py", os.getcwd())
     env["RUNNING_TEST_CONTROLLER_WITH_ENV"] = "yes"
     try:
+
+        #
+        # The HttpServer relies on the ICE_HOME environment variable
+        # to find the Ice for JavaScript installation so we make sure
+        # here that ICE_HOME is set if we are running against a binary
+        # distribution (i.e.: TestUtil.iceHome is not None)
+        #
+        if TestUtil.iceHome:
+            env["ICE_HOME"] = TestUtil.iceHome
+
+        if TestUtil.printenv:
+            TestUtil.dumpenv(env, "py")
+        args = [sys.executable, "run.py"]
         for a in sys.argv[1:]:
             args.append(a)
         sys.exit(os.spawnve(os.P_WAIT, sys.executable, args, env))
-        sys.exit(os.spawnve(os.P_WAIT, sys.executable, [sys.executable, "run.py"], env))
-    except:
+    except KeyboardInterrupt:
+        sys.exit(0)
+    finally:
         if sys.platform == "darwin":
             print("")
             print("To remove the certificate trust settings, run: `" + sys.argv[0] + " --clean'")
-        sys.exit(0)
+    sys.exit(1)
 
-import Ice, Expect
+import TestUtil, Ice, Expect
 Ice.loadSlice("\"" + os.path.join(TestUtil.toplevel, "js", "test", "Common", "Controller.ice") + "\"")
 import Test
-
 
 class ServerI(Test.Server):
     def __init__(self, name, process):
@@ -160,12 +178,12 @@ class Reader(threading.Thread):
 class Server(Ice.Application):
     def run(self, args):
         jsDir = os.path.join(TestUtil.toplevel, "js")
-        nodeCmd = TestUtil.getNodeCmd()
+        nodeCmd = TestUtil.getNodeCommand()
         httpServer = subprocess.Popen(nodeCmd + " \"" + os.path.join(jsDir, "bin", "HttpServer.js") + "\"", 
                                       shell = True, 
                                       stdin = subprocess.PIPE, 
                                       stdout = subprocess.PIPE, 
-                                      stderr = subprocess.STDOUT,
+                                      stderr = None,
                                       bufsize = 0)
         #
         # Wait for the HttpServer to start
@@ -175,6 +193,7 @@ class Server(Ice.Application):
             if httpServer.poll() is not None and not line:
                 #process terminated
                 return httpServer.poll()
+
             if type(line) != str:
                 line = line.decode()
             line = line.strip("\n")
