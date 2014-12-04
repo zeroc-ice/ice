@@ -319,6 +319,15 @@ def splitCommand(command_line):
 
     return arg_list
 
+processes = {}
+
+def cleanup():
+    for k in processes:
+        try:
+            processes[k].terminate()
+        except:
+            pass
+
 class Expect (object):
     def __init__(self, command, startReader = True, timeout=30, logfile=None, mapping = None, desc = None, cwd = None, env = None):
         self.buf = "" # The part before the match
@@ -356,6 +365,9 @@ class Expect (object):
         else:
             self.p = subprocess.Popen(splitCommand(command), env = env, cwd = cwd, shell=False, bufsize=0,
                                       stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        global processes
+        processes[self.p.pid] = self.p
+
         self.r = reader(desc, self.p, logfile)
 
         # The thread is marked as a daemon thread. This is done so that if
@@ -376,6 +388,8 @@ class Expect (object):
     def __del__(self):
         # Terminate and clean up.
         if self.p is not None:
+            global processes
+            del processes[self.p.pid]
             self.terminate()
 
     def expect(self, pattern, timeout = 20):
@@ -398,6 +412,7 @@ class Expect (object):
         try:
             self.buf, self.before, self.after, self.match, self.matchindex = self.r.match(pattern, timeout)
         except TIMEOUT as e:
+            cleanup()
             self.buf = ""
             self.before = ""
             self.after = ""
@@ -424,6 +439,7 @@ class Expect (object):
             self.matchindex = 0
             self.match = None
         except TIMEOUT as e:
+            cleanup()
             self.buf = ""
             self.before = ""
             self.after = ""
@@ -478,6 +494,7 @@ class Expect (object):
         self.before = self.buf
         self.after = ""
         self.r = None
+
         return self.exitstatus
 
     def terminate(self):
@@ -564,29 +581,37 @@ class Expect (object):
                 print("unexpected exit status: expected: %d, got %d" % (expected, result))
                 sys.exit(1)
 
-        self.wait(timeout)
-        if self.mapping == "java":
-            if self.killed is not None:
-                if win32:
-                    test(self.exitstatus, -self.killed)
-                else:
-                    if self.killed == signal.SIGINT:
-                        test(130, self.exitstatus)
+        try:
+            self.wait(timeout)
+            if self.mapping == "java":
+                if self.killed is not None:
+                    if win32:
+                        test(self.exitstatus, -self.killed)
                     else:
-                        sys.exit(1)
+                        if self.killed == signal.SIGINT:
+                            test(130, self.exitstatus)
+                        else:
+                            sys.exit(1)
+                else:
+                    test(self.exitstatus, exitstatus)
             else:
                 test(self.exitstatus, exitstatus)
-        else:
-            test(self.exitstatus, exitstatus)
+        except:
+            print("cleanup")
+            cleanup()
+            raise
 
     def waitTestFail(self, timeout = None):
         """Wait for the process to terminate for up to timeout seconds, and
            validate the exit status is as expected."""
-
-        self.wait(timeout)
-        if self.exitstatus == 0:
-            print("unexpected non-zero exit status")
-            sys.exit(1)
+        try:
+            self.wait(timeout)
+            if self.exitstatus == 0:
+                print("unexpected non-zero exit status")
+                sys.exit(1)
+        except:
+            cleanup()
+            raise
 
     def trace(self, suppress = None):
         self.r.enabletrace(suppress)
