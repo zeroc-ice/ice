@@ -631,7 +631,7 @@ def getServiceDir():
         if iceHome:
             serviceDir = os.path.join(iceHome, "bin")
         else:
-            serviceDir = "C:\\Progra~1\ZeroC\Ice-" + str(getIceVersion()) + "\\bin"
+            serviceDir = "C:\\Progra~1\ZeroC\Ice-" + iceVersion + "\\bin"
     return serviceDir
 
 def getIceBox(mapping = "cpp"):
@@ -774,7 +774,7 @@ def addLdPath(libpath):
         addenv("LD_LIBRARY_PATH", libpath)
 
 def getIceBoxClassPath():
-    jarSuffix = "-" + getIceVersion() + ".jar"
+    jarSuffix = "-" + iceVersion + ".jar"
     javaDir = getIceDir("java")
     s = ""
     for jar in ["ice", "icebox"]:
