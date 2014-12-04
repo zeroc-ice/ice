@@ -831,7 +831,7 @@ class Platform:
             buildDir = os.path.join(self._demoDir, lang)
 
         if lang == "java":
-            commands = ("gradlew" if self.isWindows() else "./gradlew")
+            commands = ("gradlew build" if self.isWindows() else "./gradlew build")
         elif lang == "js":
             commands = "%s build.js" % self.getNodeCmd()
         else:
