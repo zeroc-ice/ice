@@ -793,6 +793,9 @@ def getIceExe(name):
     else:
         return os.path.join(getCppBinDir(), name)
 
+def getNodeCmd():
+    return nodeCmd
+
 class InvalidSelectorString(Exception):
     def __init__(self, value):
         self.value = value
@@ -1771,9 +1774,9 @@ def getTestEnv(lang, testdir):
     # C++ extensions (py, ruby, php)
     #
     if isWin32():
-        addLdPath(getCppLibDir(), env)
+        addLdPath(getCppLibDir(lang), env)
     elif lang in ["py", "rb", "php"]:
-        addLdPath(getCppLibDir(), env)
+        addLdPath(getCppLibDir(lang), env)
 
     if lang == "javae":
         javaDir = os.path.join(getIceDir("javae", testdir), "jdk", "lib")

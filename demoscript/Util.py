@@ -320,13 +320,14 @@ def configurePaths():
         #
         # Add third party home to PATH, to use db_xx tools
         #
-        if isWin32():
-            addenv("PATH", os.path.join(getThirdpartyHome(), "bin\\x64" if x64 else "bin"))
-            if getCppCompiler() == "VC110":
-                addenv("PATH", os.path.join(getThirdpartyHome(), "bin\\vc110\\x64" if x64 else "bin\\vc110"))
-        elif isDarwin():
-            addenv("PATH", os.path.join(getThirdpartyHome(), "bin"))
-
+        thirdPartyHome = getThirdpartyHome()
+        if thirdPartyHome:
+            if isWin32():
+                addenv("PATH", os.path.join(getThirdpartyHome(), "bin\\x64" if x64 else "bin"))
+                if getCppCompiler() == "VC110":
+                    addenv("PATH", os.path.join(getThirdpartyHome(), "bin\\vc110\\x64" if x64 else "bin\\vc110"))
+            elif isDarwin():
+                addenv("PATH", os.path.join(getThirdpartyHome(), "bin"))
 
     if binDir != os.path.join(getIceDir("cpp"), "bin"):
         addenv("PATH", binDir)

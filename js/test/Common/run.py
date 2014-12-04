@@ -62,22 +62,6 @@ import Ice, Expect
 Ice.loadSlice("\"" + os.path.join(TestUtil.toplevel, "js", "test", "Common", "Controller.ice") + "\"")
 import Test
 
-# The NodeJS interpreter is called "nodejs" on some platforms
-# (e.g., Ubuntu)
-#
-nodeCmd = "node"
-if "NODE" in os.environ:
-    nodeCmd = os.environ["NODE"]
-else:
-    for path in os.environ["PATH"].split(os.pathsep):
-        #
-        # Stop if we find "node" in the PATH first.
-        #
-        if os.path.exists(os.path.join(path, "node")):
-            break
-        elif os.path.exists(os.path.join(path, "nodejs")):
-            nodeCmd = "nodejs"
-            break
 
 class ServerI(Test.Server):
     def __init__(self, name, process):
@@ -176,6 +160,7 @@ class Reader(threading.Thread):
 class Server(Ice.Application):
     def run(self, args):
         jsDir = os.path.join(TestUtil.toplevel, "js")
+        nodeCmd = TestUtil.getNodeCmd()
         httpServer = subprocess.Popen(nodeCmd + " \"" + os.path.join(jsDir, "bin", "HttpServer.js") + "\"", 
                                       shell = True, 
                                       stdin = subprocess.PIPE, 
