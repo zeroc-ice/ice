@@ -157,9 +157,15 @@ endif
 ifdef ice_src_dist
 	SLICE2PHP 	= $(ice_cpp_dir)/$(binsubdir)/slice2php
 	SLICEPARSERLIB	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
+        ifeq ($(wildcard $(SLICEPARSERLIB)),)
+                SLICEPARSERLIB  = $(ice_cpp_dir)/$(lib64subdir)/$(call mklibfilename,Slice,$(VERSION))
+        endif
 else
 	SLICE2PHP 	= $(ice_dir)/$(binsubdir)/slice2php
 	SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
+	ifeq ($(wildcard $(SLICEPARSERLIB)),)
+                SLICEPARSERLIB  = $(ice_dir)/$(lib64subdir)/$(call mklibfilename,Slice,$(VERSION))
+        endif
 endif
 
 ifeq ($(installphplib),)
