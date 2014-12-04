@@ -657,10 +657,16 @@ def getIceBoxAdmin():
     return "iceboxadmin"
 
 def getIceGridRegistry():
-    return "icegridregistry"
+    exe = "icegridregistry"
+    if isWin32() and isDebugBuild():
+        exe += "d"
+    return exe
 
 def getIceGridNode():
-    return "icegridnode"
+    exe = "icegridnode"
+    if isWin32() and isDebugBuild():
+        exe += "d"
+    return exe
 
 def getIceGridAdmin():
     return "icegridadmin"
@@ -684,8 +690,9 @@ def spawn(command, cwd = None, mapping = None):
         args = '%s %s' % (args, defaultHost)
 
     # magic
-    knownCommands = [ "icegridnode", "icegridregistry", "icebox", "iceboxd", "icebox32", "icebox++11", "icebox32++11",
-                      "icegridadmin", "icestormadmin", "iceboxadmin", "transformdb", "glacier2router" ]
+    knownCommands = [ "icegridnode", "icegridnoded", "icegridregistry", "icegridregistryd", "icebox", "iceboxd", 
+                      "icebox32", "icebox++11", "icebox32++11", "icegridadmin", "icestormadmin", "iceboxadmin", 
+                      "transformdb", "glacier2router" ]
     if mapping == None:
         if desc in knownCommands:
             mapping = "cpp"

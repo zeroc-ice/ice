@@ -10,8 +10,17 @@
 top_srcdir	= ..\..
 
 ADMIN		= $(top_srcdir)\bin\icegridadmin.exe
-NODE_SERVER	= $(top_srcdir)\bin\icegridnode.exe
-REGISTRY_SERVER	= $(top_srcdir)\bin\icegridregistry.exe
+
+NODE_SERVER_D	= $(top_srcdir)\bin\icegridnoded.exe
+NODE_SERVER_R	= $(top_srcdir)\bin\icegridnode.exe
+
+NODE_SERVER	= $(top_srcdir)\bin\icegridnode$(LIBSUFFIX).exe
+
+
+REGISTRY_SERVER_D	= $(top_srcdir)\bin\icegridregistryd.exe
+REGISTRY_SERVER_R	= $(top_srcdir)\bin\icegridregistry.exe
+
+REGISTRY_SERVER	= $(top_srcdir)\bin\icegridregistry$(LIBSUFFIX).exe
 
 TARGETS         = $(ADMIN) $(NODE_SERVER) $(REGISTRY_SERVER)
 
@@ -178,8 +187,8 @@ clean::
 	-del /q IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp
 	-del /q SerialsDict.h SerialsDict.cpp
 	-del /q $(ADMIN:.exe=.*)
-	-del /q $(NODE_SERVER:.exe=.*)
-	-del /q $(REGISTRY_SERVER:.exe=.*)
+	-del /q $(NODE_SERVER_D:.exe=.*) $(NODE_SERVER_R:.exe=.*)
+	-del /q $(REGISTRY_SERVER_D:.exe=.*) $(REGISTRY_SERVER_R:.exe=.*)
 	-del /q IceGridAdmin.res IceGridNode.res IceGridRegistry.res
 
 install:: all

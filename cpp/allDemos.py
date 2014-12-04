@@ -79,7 +79,7 @@ demos = [
 if not "--x86" in sys.argv:
     demos += ["Freeze/backup"]
 
-if not "--c++11" in sys.argv:
+if not "--c++11" in sys.argv and not "--x86" in sys.argv:
     demos += ["IceGrid/customLoadBalancing"]
 
 if __name__ == "__main__":

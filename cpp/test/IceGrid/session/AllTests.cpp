@@ -1754,7 +1754,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         nodeApp.name = "NodeApp";
         ServerDescriptorPtr server = new ServerDescriptor();
         server->id = "node-1";
+#if defined(NDEBUG) || !defined(_WIN32)
         server->exe = properties->getProperty("IceBinDir") + "/icegridnode";
+#else
+        server->exe = properties->getProperty("IceBinDir") + "/icegridnoded";
+#endif
         server->options.push_back("--nowarn");
         server->pwd = ".";
         server->applicationDistrib = false;

@@ -805,10 +805,16 @@ def getIceStormAdmin():
     return getIceExe("icestormadmin")
 
 def getIceGridNode():
-    return getIceExe("icegridnode")
+    exe = "icegridnode"
+    if isWin32() and isDebug():
+        exe += "d"
+    return getIceExe(exe)
 
 def getIceGridRegistry():
-    return getIceExe("icegridregistry")
+    exe = "icegridregistry"
+    if isWin32() and isDebug():
+        exe += "d"
+    return getIceExe(exe)
 
 def getGlacier2Router():
     return getIceExe("glacier2router")
@@ -1188,7 +1194,17 @@ def isDebug():
     # how the IceBox service was built ("debug" vs. "release") and
     # decide which icebox executable to use.
     #
-    return open(os.path.join(os.getcwd(), "build.txt"), "r").read().strip() == "debug"
+    if os.path.isfile(os.path.join(os.getcwd(), "build.txt")):
+        return open(os.path.join(os.getcwd(), "build.txt"), "r").read().strip() == "debug"
+    #
+    # Try to guess, if icebox release executable exists in the C++ bin dir
+    # we assume is a release build or bin dist, tests that depends on debug 
+    # or release (C++) need to create the build.txt file.
+    #
+    exe = "icebox"
+    if isWin32():
+        exe += ".exe"
+    return not os.path.isfile(os.path.join(getCppBinDir("cpp"), "icebox"))
 
 import Expect
 

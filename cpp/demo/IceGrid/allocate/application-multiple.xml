@@ -17,8 +17,8 @@
       <parameter name="index"/>
       <server id="AllocateServer-${index}" exe="./server" activation="always">
         <adapter name="Hello" endpoints="tcp -h localhost">
-	  <allocatable identity="hello-${index}" type="::Demo::Hello" property="Identity"/>
-	</adapter>
+          <allocatable identity="hello-${index}" type="::Demo::Hello" property="Identity"/>
+        </adapter>
 
         <property name="IceMX.Metrics.Debug.GroupBy" value="id"/>
         <property name="IceMX.Metrics.Debug.Disabled" value="1"/>

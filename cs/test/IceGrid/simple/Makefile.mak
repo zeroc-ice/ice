@@ -36,3 +36,16 @@ clean::
 	if exist db\node rmdir /s /q db\node
 	if exist db\registry rmdir /s /q db\registry
 	if exist db\replica-1 rmdir /s /q db\replica-1
+	del /q build.txt
+
+!if "$(OPTIMIZE)" == "yes"
+
+all::
+	@echo release > build.txt
+
+!else
+
+all::
+	@echo debug > build.txt
+
+!endif

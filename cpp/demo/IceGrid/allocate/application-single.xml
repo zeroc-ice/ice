@@ -15,10 +15,9 @@
 
     <node name="node1">
       <server id="AllocateServer" exe="./server" activation="on-demand">
-	<adapter name="Hello" endpoints="tcp -h localhost">
-	  <allocatable identity="hello" type="::Demo::Hello" property="Identity"/>
-	</adapter>
-
+        <adapter name="Hello" endpoints="tcp -h localhost">
+          <allocatable identity="hello" type="::Demo::Hello" property="Identity"/>
+        </adapter>
         <property name="IceMX.Metrics.Debug.GroupBy" value="id"/>
         <property name="IceMX.Metrics.Debug.Disabled" value="1"/>
         <property name="IceMX.Metrics.ByParent.GroupBy" value="parent"/>

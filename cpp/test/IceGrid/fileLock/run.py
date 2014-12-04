@@ -26,7 +26,7 @@ testdir = os.getcwd();
 IceGridAdmin.nreplicas = 0
 
 def runIceGridRegistry():
-    iceGrid = os.path.join(TestUtil.getCppBinDir(), "icegridregistry")
+    iceGrid = TestUtil.getIceGridRegistry()
     command = ' --nowarn ' + IceGridAdmin.registryOptions
 
     dataDir = os.path.join(testdir, "db", "registry")

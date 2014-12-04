@@ -20,9 +20,6 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil, IceGridAdmin
 
-if TestUtil.isWin32() and TestUtil.isDebug() and TestUtil.iceHome:
-    print("Test not support with Windows debug build")
-    sys.exit(0)
 #
 # Don't use a slave registry for this test. This can lead to race
 # conditions when resolving endpoints of round-robin replica groups if
