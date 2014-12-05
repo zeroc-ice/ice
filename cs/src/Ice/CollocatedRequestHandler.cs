@@ -21,7 +21,7 @@ namespace IceInternal
         private void
         fillInValue(BasicStream os, int pos, int value)
         {
-            os.rewriteInt(pos, value);
+            os.rewriteInt(value, pos);
         }
 
         public
