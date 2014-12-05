@@ -5,7 +5,7 @@
     <server-template id="IceGridNode">
       <parameter name="id"/>
       <parameter name="encoding" default=""/>
-      <server id="${id}" exe="${icegridnode.exe}/" activation="manual">
+      <server id="${id}" exe="${icegridnode.exe}" activation="manual">
         <option>--nowarn</option>
         <dbenv name="data"/>
         <property name="IceGrid.Node.Endpoints" value="default"/>
