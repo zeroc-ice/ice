@@ -167,7 +167,7 @@ struct ICE_API AsyncInfo
     int error;
 };
 
-public delegate void SocketOperationCompletedHandler(int);
+delegate void SocketOperationCompletedHandler(int);
 #endif
 
 class ICE_API NativeInfo : virtual public IceUtil::Shared

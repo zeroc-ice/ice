@@ -293,6 +293,9 @@ General Changes
 C++ Changes
 ===========
 
+- Fixed bug where a private Windows Runtime delegate type could end up
+  being published in Windows Store Components metadata files (WINMD).
+
 - New garbage collection support for object graphs with cycles.
 
   Ice no longer uses a background thread to collect objects. Instead,
