@@ -464,9 +464,9 @@ Slice::JsVisitor::writeConstantValue(const string& scope, const TypePtr& type, c
         else if(bp && bp->kind() == Builtin::KindLong)
         {
             IceUtil::Int64 l = IceUtilInternal::strToInt64(value.c_str(), 0, 0);
-            
+
             //
-            // JavaScript doesn't support 64 bit integer so long types are written as 
+            // JavaScript doesn't support 64 bit integer so long types are written as
             // two 32 bit words hi, low wrapped in the Ice.Long class.
             //
             // If slice2js runs in a big endian machine we need to swap the words, we do not
@@ -632,13 +632,13 @@ Slice::Gen::generate(const UnitPtr& p)
 
     TypesVisitor typesVisitor(_out, seenModules, _icejs);
     p->visit(&typesVisitor, false);
-    
+
     //
     // Export the top-level modules.
     //
     ExportVisitor exportVisitor(_out, _icejs);
     p->visit(&exportVisitor, false);
-    
+
     if(_icejs)
     {
         _out.zeroIndent();
@@ -646,11 +646,11 @@ Slice::Gen::generate(const UnitPtr& p)
         _out.restoreIndent();
     }
      _out << eb;
-    
+
     _out << nl << "(typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? module : undefined,"
          << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? require : window.Ice.__require,"
          << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? exports : window));";
-         
+
     if(_icejs)
     {
         _out.zeroIndent();
@@ -685,8 +685,8 @@ Slice::Gen::printHeader()
     _out << "//\n";
 }
 
-Slice::Gen::RequireVisitor::RequireVisitor(IceUtilInternal::Output& out, vector<string> includePaths, 
-                                           bool icejs) : 
+Slice::Gen::RequireVisitor::RequireVisitor(IceUtilInternal::Output& out, vector<string> includePaths,
+                                           bool icejs) :
     JsVisitor(out),
     _icejs(icejs),
     _seenClass(false),
@@ -825,7 +825,7 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
         {
             requires["Ice"].push_back("Ice/CompactIdRegistry");
         }
-        
+
         requires["Ice"].push_back("Ice/Long");
         requires["Ice"].push_back("Ice/HashMap");
         requires["Ice"].push_back("Ice/HashUtil");
@@ -837,7 +837,7 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
         requires["Ice"] = vector<string>();
         requires["Ice"].push_back("icejs");
     }
-    
+
     StringList includes = p->includeFiles();
     for(StringList::const_iterator i = includes.begin(); i != includes.end(); ++i)
     {
@@ -862,14 +862,14 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
             }
         }
     }
-    
+
     if(_icejs)
     {
         _out.zeroIndent();
         _out << nl << "/* slice2js browser-bundle-skip */";
         _out.restoreIndent();
     }
-    
+
     if(!_icejs)
     {
         _out << nl << "var Ice = require(\"icejs\").Ice;";
@@ -879,14 +879,14 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
     {
         _out << nl << "var __M = require(\"../Ice/ModuleRegistry\").Ice.__M;";
     }
-    
+
     for(map<string, vector<string> >::const_iterator i = requires.begin(); i != requires.end(); ++i)
     {
         if(!_icejs && i->first == "Ice")
         {
             continue;
         }
-        
+
         if(i->second.size() == 1)
         {
             _out << nl << "var " << i->first << " = require(\"";
@@ -920,9 +920,9 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
         }
         seenModules.push_back(i->first);
     }
-    
+
     _out << nl << "var Slice = Ice.Slice;";
-    
+
     if(_icejs)
     {
         _out.zeroIndent();
@@ -950,7 +950,7 @@ Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
     // For a nested module we write
     //
     // Foo.Bar = __M.module("Foo.Bar");
-    //    
+    //
     const string scoped = getLocalScope(p->scoped());
     vector<string>::const_iterator i = find(_seenModules.begin(), _seenModules.end(), scoped);
     if(i == _seenModules.end())
@@ -961,7 +961,7 @@ Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
             _out << nl << "/* slice2js browser-bundle-skip */";
             _out.restoreIndent();
         }
-        
+
         _seenModules.push_back(scoped);
         const bool topLevel = UnitPtr::dynamicCast(p->container());
         _out << sp;
@@ -978,7 +978,7 @@ Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
             _out << nl << "/* slice2js browser-bundle-skip-end */";
             _out.restoreIndent();
         }
-    }    
+    }
     return true;
 }
 
@@ -1313,7 +1313,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
                 if(name != op->name())
                 {
-                    _out << name; // Native method name.
+                    _out << "\"" << name << "\""; // Native method name.
                 }
                 _out << ", ";
 
@@ -1749,7 +1749,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     }
 
     b = BuiltinPtr::dynamicCast(valueType);
-    bool valueUseEquals = !b || (b->kind() == Builtin::KindLong);    
+    bool valueUseEquals = !b || (b->kind() == Builtin::KindLong);
 
     //
     // Stream helpers for dictionaries of objects are lazy initialized
@@ -1772,7 +1772,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     }
     else
     {
-        _out << ", undefined";   
+        _out << ", undefined";
     }
 
     if(SequencePtr::dynamicCast(valueType))
