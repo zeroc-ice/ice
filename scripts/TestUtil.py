@@ -1241,7 +1241,7 @@ def spawnClient(cmd, env=None, cwd=None, echo=True, startReader=True, lang=None)
         client.trace()
     return client
 
-def spawnServer(cmd, env=None, cwd=None, count=1, adapter=None, echo=True, lang=None, mx=False, timeout=20):
+def spawnServer(cmd, env=None, cwd=None, count=1, adapter=None, echo=True, lang=None, mx=False, timeout=60):
     server = _spawn(cmd, env, cwd, lang=lang)
 
     # Count + 1 if IceMX enabled
@@ -1638,7 +1638,7 @@ def startClient(exe, args = "", config=None, env=None, echo = True, startReader 
         phpSetup(clientConfig, iceOptions, iceProfile)
     return spawnClient(cmd, env = env, echo = echo, startReader = startReader, lang=config.lang)
 
-def startServer(exe, args = "", config = None, env = None, adapter = None, count = 1, echo = True, timeout = 20):
+def startServer(exe, args = "", config = None, env = None, adapter = None, count = 1, echo = True, timeout = 60):
     if config is None:
         config = DriverConfig("server")
     if env is None:

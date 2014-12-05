@@ -45,7 +45,7 @@ def runtest(opt, ref, subopt="", pubopt=""):
     subscriberProc = runsub(opt, ref, subopt)
     publisherProc = runpub(ref, pubopt)
     publisherProc.waitTestSuccess()
-    subscriberProc.waitTestSuccess(timeout=30)
+    subscriberProc.waitTestSuccess()
 
 def runsub2(replica = -1, expect = None):
     proc = TestUtil.startServer(subscriber2, icestorm.reference(replica) + ' --id foo', count=0, echo = False)

@@ -58,7 +58,7 @@ def doTest(icestorm1, icestorm2, batch, subscriberRef = None):
     #
     runPublisher(icestorm1)
 
-    subscriberProc.waitTestSuccess(timeout=30)
+    subscriberProc.waitTestSuccess()
 
 #
 # Test #1:
