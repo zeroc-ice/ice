@@ -59,7 +59,7 @@ CPP_COMPILER            = VC120
 !error Cannot detect C++ compiler
 !endif
 
-!message CPP_COMPILER set to $(CPP_COMPILER)
+#!message CPP_COMPILER set to $(CPP_COMPILER)
 !endif
 
 !if "$(CPP_COMPILER)" != "" && "$(CPP_COMPILER)" != "VC100" && "$(CPP_COMPILER)" != "VC110" && "$(CPP_COMPILER)" != "VC120"
