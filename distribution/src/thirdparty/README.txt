@@ -116,20 +116,24 @@ environments created by the release DLL.
 
 - Java
 
-Berkeley DB for Java is build using Visual Studio 2010, this is the
-same compiler used to build Oracle Java 7 JDK and Oracle Java 8 JDK
+Berkeley DB for Java is built using Visual Studio 2010. This is the
+same compiler used to build Oracle Java 7 JDK and Oracle Java 8 JDK.
 
-The DB VC100 Dll build by Ice use _vc100 suffix, Open Berkeley_DB_vs2010
-in db project properties update "Target Name" and add _vc100 suffix.
+The DB VC100 DLL built by Ice uses a "_vc100" suffix. Open Berkeley_DB_vs2010
+and in the db project properties update "Target Name" and add the
+_vc100 suffix.
 
-To avoid libdb53_vc100.dll depend on the VC100 C++ runtime, remoev all .cpp
-files from db project.
+To avoid libdb53_vc100.dll depending on the VC100 C++ run time, remove
+all .cpp files from the db project.
 
-Edit db_java.vcxproj and replace "-target 1.5" by "-target 1.7" the resulting
-db.jar will use Java 1.7 source format.
+Edit db_java.vcxproj and replace "-target 1.5" by "-target 1.7" so
+that the resulting db.jar will use the Java 1.7 source format.
 
-Then follow the Windows build instructions included in the source distribution
+Then follow the Windows build instructions included in the source
+distribution:
+
 docs/installation/build_win.html
+
 
 expat
 -----
