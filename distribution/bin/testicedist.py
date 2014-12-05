@@ -551,7 +551,7 @@ class Platform:
             languages = ["cpp", "cs"]
             if arch == "x86":
                 languages.append("php")
-        else if arch == self.getDefaultArchitecture():
+        elif arch == self.getDefaultArchitecture():
             #
             # Test all supported languages if running on the default
             # architecture
@@ -569,7 +569,7 @@ class Platform:
             # Only test a subset of the supported languages on
             # non-default architecture
             #
-            languages = set(["cpp", "py", "rb"] if self.isWindows() else ["cpp"]) & set(self.getSupportedLanguages()))
+            languages = set(["cpp", "py", "rb"] if self.isWindows() else ["cpp"]) & set(self.getSupportedLanguages())
 
         return filter(lambda x: include(x, self._languages, self._rlanguages), languages)
 
