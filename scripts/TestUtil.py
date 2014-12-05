@@ -1198,7 +1198,7 @@ def isDebug():
         return open(os.path.join(os.getcwd(), "build.txt"), "r").read().strip() == "debug"
     #
     # Try to guess, if icebox release executable exists in the C++ bin dir
-    # we assume is a release build or bin dist, tests that depends on debug 
+    # we assume is a release build or bin dist, tests that depends on debug
     # or release (C++) need to create the build.txt file.
     #
     exe = "icebox"
@@ -1735,7 +1735,7 @@ def getJavaLibraryPath():
         if iceHome:
             return "-Djava.library.path=%s " % os.path.join(iceHome, "lib")
         elif thirdPartyHome:
-            return "-Djava.library.path=%s " % os.path.join(thirdPartyHome, "lib")            
+            return "-Djava.library.path=%s " % os.path.join(thirdPartyHome, "lib")
     elif isRhel() or isSles():
         return "-Djava.library.path=%s " % ("/usr/lib64" if x64 else "/usr/lib")
     elif isUbuntu():

@@ -7,16 +7,17 @@
 #
 # **********************************************************************
 
-import threading
-import subprocess
-import string
-import time
-import re
-import traceback
-import sys
+import atexit
 import os
+import re
 import signal
+import string
+import subprocess
 import sys
+import sys
+import threading
+import time
+import traceback
 
 __all__ = ["Expect", "EOF", "TIMEOUT" ]
 
@@ -327,6 +328,9 @@ def cleanup():
             processes[k].terminate()
         except:
             pass
+    processes.clear()
+
+atexit.register(cleanup)
 
 class Expect (object):
     def __init__(self, command, startReader = True, timeout=30, logfile=None, mapping = None, desc = None, cwd = None, env = None):
@@ -373,8 +377,7 @@ class Expect (object):
         # The thread is marked as a daemon thread. This is done so that if
         # an expect script runs off the end of main without kill/wait on each
         # spawned process the script will not hang tring to join with the
-        # reader thread. Instead __del__ (below) will be called which
-        # terminates and joins with the reader thread.
+        # reader thread.
         self.r.setDaemon(True)
 
         if startReader:
@@ -384,13 +387,6 @@ class Expect (object):
         if watchDog is not None:
             self.r.setWatchDog(watchDog)
         self.r.start()
-
-    def __del__(self):
-        # Terminate and clean up.
-        if self.p is not None:
-            global processes
-            del processes[self.p.pid]
-            self.terminate()
 
     def expect(self, pattern, timeout = 20):
         """pattern is either a string, or a list of string regexp patterns.
@@ -485,6 +481,8 @@ class Expect (object):
         # A Windows application killed with CTRL_BREAK. Fudge the exit status.
         if win32 and self.exitstatus != 0 and self.killed is not None:
             self.exitstatus = -self.killed
+        global processes
+        del processes[self.p.pid]
         self.p = None
         self.r.join()
         # Simulate a match on EOF
@@ -594,8 +592,8 @@ class Expect (object):
                     test(self.exitstatus, exitstatus)
             else:
                 test(self.exitstatus, exitstatus)
+
         except:
-            print("cleanup")
             cleanup()
             raise
 
