@@ -66,43 +66,9 @@ THIRDPARTY_HOME = $(PROGRAMFILES)\ZeroC\Ice-$(VERSION)-ThirdParty
 #UNIQUE_DLL_NAMES       = yes
 
 
-
-
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
-
-#
-# Check CPP_COMPILER
-#
-!if "$(CPP_COMPILER)" == ""
-
-!if "$(VISUALSTUDIOVERSION)" == "11.0"
-CPP_COMPILER            = VC110
-!elseif ([cl 2>&1 | findstr "Version\ 16" > nul] == 0)
-CPP_COMPILER            = VC100
-!elseif ([cl 2>&1 | findstr "Version\ 17" > nul] == 0)
-CPP_COMPILER            = VC110
-!elseif ([cl 2>&1 | findstr "Version\ 18" > nul] == 0)
-CPP_COMPILER            = VC120
-!elseif ([cl 2>&1 | findstr "Version\ 15" > nul] == 0)
-!error Detected VC90
-!else
-!error Cannot detect C++ compiler
-!endif
-
-#!message CPP_COMPILER set to $(CPP_COMPILER)
-!elseif "$(CPP_COMPILER)" != "VC100" && "$(CPP_COMPILER)" != "VC110" && "$(CPP_COMPILER)" != "VC120"
-!error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be one of: VC100, VC110 or VC120.
-!endif
-
-#
-# With VC100, we want unique dll names by default
-#
-!if "$(CPP_COMPILER)" == "VC100" && "$(UNIQUE_DLL_NAMES)" == ""
-UNIQUE_DLL_NAMES        = yes
-!endif
-
 
 #
 # Common definitions
@@ -113,10 +79,25 @@ slice_translator = slice2cpp.exe
 ice_require_cpp  = 1
 !endif
 
+#
+# If CPP_COMPILER is not set, get Make.common.rules.mak to figure it
+# out by setting CPP_COMPILER to "auto"
+#
+!if "$(CPP_COMPILER)" == ""
+CPP_COMPILER=auto
+!endif
+
 !if exist ($(top_srcdir)\..\config\Make.common.rules.mak)
 !include $(top_srcdir)\..\config\Make.common.rules.mak
 !else
 !include $(top_srcdir)\config\Make.common.rules.mak
+!endif
+
+#
+# With VC100, we want unique dll names by default
+#
+!if "$(CPP_COMPILER)" == "VC100" && "$(UNIQUE_DLL_NAMES)" == ""
+UNIQUE_DLL_NAMES        = yes
 !endif
 
 bindir			= $(top_srcdir)\bin

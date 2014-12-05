@@ -25,7 +25,21 @@ OBJS		= .\Communicator.obj \
 		  .\Types.obj \
 		  .\Util.obj
 
+
+#
+# Get Make.common.rules.mak to figure out CPP_COMPILER by setting it
+# to "auto"
+#
+CPP_COMPILER=auto
+
 !include $(top_srcdir)\config\Make.rules.mak.php
+
+#
+# Ensure we're using VC110
+#
+!if "$(CPP_COMPILER)" != "VC110"
+!error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be set to VC110.
+!endif
 
 CPPFLAGS	= -I. -I.. $(CPPFLAGS) $(ICE_CPPFLAGS) $(PHP_CPPFLAGS) 
 

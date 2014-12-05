@@ -539,28 +539,37 @@ class Platform:
         return None
     
     def getLanguageMappings(self, compiler, arch, buildConfiguration):
+        languages = None
         if buildConfiguration in ["debug", "cpp11", "no-cpp11", "winrt"]:
             languages = ["cpp"]
         elif buildConfiguration == "java1.8":
-            languages = ["java"]
+            languages = ["java"] if arch == self.getDefaultArchitecture() else []
         elif buildConfiguration == "silverlight":
-            languages = ["cs"]
-        elif compiler == "VC110" and buildConfiguration == "default":
+            languages = ["cs"] if arch == self.getDefaultArchitecture() else [] 
+        elif compiler == "VC110":
+            # Only test C++ and C# with a VC110 installation
             languages = ["cpp", "cs"]
             if arch == "x86":
                 languages.append("php")
-        elif compiler == "VC100" and buildConfiguration == "default":
-            languages = ["py"]
-        else:
+        else if arch == self.getDefaultArchitecture():
+            #
+            # Test all supported languages if running on the default
+            # architecture
+            #
             languages = self.getSupportedLanguages()
-            if self.isWindows():
-                if "php" in languages:
-                    languages.remove("php")
-                if "py" in languages:
-                    languages.remove("py")
-        
-        if arch != self.getDefaultArchitecture() and "java" in languages:
-            languages.remove("java")
+
+            #
+            # On Windows, only test php with VC110 (see above), the
+            # VC110 runtime might not be installed otherwise.
+            #
+            if self.isWindows() and "php" in languages:
+                languages.remove("php")
+        else:
+            #
+            # Only test a subset of the supported languages on
+            # non-default architecture
+            #
+            languages = set(["cpp", "py", "rb"] if self.isWindows() else ["cpp"]) & set(self.getSupportedLanguages()))
 
         return filter(lambda x: include(x, self._languages, self._rlanguages), languages)
 
@@ -1111,13 +1120,16 @@ class Linux(Platform):
                 return ["x64", "x86"] # Bi-arch Linux distribution
         else:
             return ["x86"]
-
             
     def getSupportedConfigurations(self, compiler, arch):
-        if self.isRhel(6) or self.isSles(11):
-            return ["default", "java1.8"]
-        else:
-            return ["default", "cpp11", "java1.8"]
+        configurations = ["default"]
+        # Only test C++11 if default compiler is recent
+        if not self.isRhel(6) and not self.isSles(11):
+            configurations.append("cpp11")
+        # Only test Java 1.8 if the distribution provides it
+        if not self.isUbuntu() and not self.isSles():
+            configurations.append("java1.8")
+        return configurations
 
     def getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist):
         env = Platform.getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist)
@@ -1256,8 +1268,6 @@ class Windows(Platform):
             compilers.append("VC120")
         if BuildUtils.getVcVarsAll("VC110"):
             compilers.append("VC110")
-        if BuildUtils.getVcVarsAll("VC100"):
-            compilers.append("VC100")
         return compilers
         
     def getSupportedLanguages(self):

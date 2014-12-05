@@ -40,6 +40,32 @@ ARCH			= arm
 ARCH			= x86
 !endif
 
+#
+# Find CPP_COMPILER if set to "auto" by parent Make.rules.mak
+#
+!if "$(CPP_COMPILER)" == "auto"
+
+!if "$(VISUALSTUDIOVERSION)" == "11.0"
+CPP_COMPILER            = VC110
+!elseif ([cl 2>&1 | findstr "Version\ 16" > nul] == 0)
+CPP_COMPILER            = VC100
+!elseif ([cl 2>&1 | findstr "Version\ 17" > nul] == 0)
+CPP_COMPILER            = VC110
+!elseif ([cl 2>&1 | findstr "Version\ 18" > nul] == 0)
+CPP_COMPILER            = VC120
+!elseif ([cl 2>&1 | findstr "Version\ 15" > nul] == 0)
+!error Detected VC90
+!else
+!error Cannot detect C++ compiler
+!endif
+
+!message CPP_COMPILER set to $(CPP_COMPILER)
+!endif
+
+!if "$(CPP_COMPILER)" != "" && "$(CPP_COMPILER)" != "VC100" && "$(CPP_COMPILER)" != "VC110" && "$(CPP_COMPILER)" != "VC120"
+!error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be one of: VC100, VC110 or VC120.
+!endif
+
 !if "$(PROCESSOR_ARCHITECTURE)" == "AMD64"
 ice_bin_dist_dir = $(PROGRAMFILES) (x86)\ZeroC\Ice-$(VERSION)
 !else

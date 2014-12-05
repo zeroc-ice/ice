@@ -22,10 +22,10 @@ prefix			= C:\Ice-$(VERSION)
 OPTIMIZE		= yes
 
 #
-# Specify your C++ compiler, or leave unset for auto-detection.
-# The only value currently supported is VC100.
+# Specify your C++ compiler, or leave unset for auto-detection. The
+# only value currently supported to build IcePy is VC100.
 #
-# CPP_COMPILER = VCxxx
+#CPP_COMPILER 	= VCxxx
 
 #
 # Set PYTHON_HOME to your Python installation directory.
@@ -37,30 +37,6 @@ PYTHON_HOME		= C:\Python34
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
-
-#
-# Check CPP_COMPILER
-#
-!if "$(CPP_COMPILER)" == ""
-
-!if "$(VISUALSTUDIOVERSION)" == "11.0"
-!error Detected VC110
-!elseif ([cl 2>&1 | findstr "Version\ 16" > nul] == 0)
-CPP_COMPILER            = VC100
-!elseif ([cl 2>&1 | findstr "Version\ 15" > nul] == 0)
-!error Detected VC90
-!elseif ([cl 2>&1 | findstr "Version\ 17" > nul] == 0)
-!error Detected VC110
-!elseif ([cl 2>&1 | findstr "Version\ 18" > nul] == 0)
-!error Detected VC120
-!else
-!error Cannot detect C++ compiler 
-!endif
-
-!elseif "$(CPP_COMPILER)" != "VC100"
-!error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be set to VC100.
-!endif
-
 
 #
 # Common definitions
@@ -75,7 +51,7 @@ slice_translator = slice2py.exe
 !include $(top_srcdir)\config\Make.common.rules.mak
 !endif
 
-libdir			= $(top_srcdir)\python
+libdir				= $(top_srcdir)\python
 install_pythondir	= $(prefix)\python$(x64suffix)
 install_libdir		= $(prefix)\python$(x64suffix)
 
@@ -136,7 +112,7 @@ SLICEPARSERLIB          = $(ice_dir)\lib\slice.lib
 MT			= mt.exe
 
 EVERYTHING		= all clean install depend
-EVERYTHING_EXCEPT_INSTALL all clean depend
+EVERYTHING_EXCEPT_INSTALL = all clean depend
 
 .SUFFIXES:
 .SUFFIXES:		.cpp .obj .py .res .rc .d .ice

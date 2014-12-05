@@ -34,7 +34,20 @@ OBJS		= .\Communicator.obj \
 		  .\Types.obj \
 		  .\Util.obj
 
+#
+# Get Make.common.rules.mak to figure out CPP_COMPILER by setting it
+# to "auto"
+#
+CPP_COMPILER=auto
+
 !include $(top_srcdir)\config\Make.rules.mak
+
+#
+# Ensure we're using VC100
+#
+!if "$(CPP_COMPILER)" != "VC100"
+!error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be set to VC100.
+!endif
 
 CPPFLAGS	= -I. $(CPPFLAGS) $(ICE_CPPFLAGS) $(PYTHON_CPPFLAGS)
 

@@ -22,10 +22,10 @@ prefix			= C:\Ice-$(VERSION)
 OPTIMIZE		= yes
 
 #
-# Specify your C++ compiler. The only value currently supported is VC110.
-# Leave unset for auto-detection.
+# Specify your C++ compiler. The only value currently supported to
+# build IcePHP is VC110. Leave unset for auto-detection.
 #
-#CPP_COMPILER           = VC110
+#CPP_COMPILER	= VCxxx
 
 #
 # Determines whether the extension uses PHP namespaces (requires
@@ -73,33 +73,6 @@ THIRDPARTY_HOME	 = $(PROGRAMFILES)\ZeroC\Ice-$(VERSION)-ThirdParty
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
-
-!if "$(USE_BIN_DIST)" != "yes"
-
-#
-# Check CPP_COMPILER
-#
-!if "$(CPP_COMPILER)" == ""
-
-!if "$(VISUALSTUDIOVERSION)" == "11.0"
-CPP_COMPILER            = VC110
-!elseif ([cl 2>&1 | findstr "Version\ 15" > nul] == 0)
-!error Detected VC90 compiler
-!elseif ([cl 2>&1 | findstr "Version\ 16" > nul] == 0)
-!error Detected VC100 compiler
-!elseif ([cl 2>&1 | findstr "Version\ 17" > nul] == 0)
-CPP_COMPILER            = VC110
-!elseif ([cl 2>&1 | findstr "Version\ 18" > nul] == 0)
-!error Detected VC120 compiler
-!else
-!error Cannot detect C++ compiler 
-!endif
-
-!elseif "$(CPP_COMPILER)" != "VC110"
-!error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be set to VC110.
-!endif
-
-!endif
 
 #
 # Common definitions
