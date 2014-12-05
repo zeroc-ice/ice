@@ -219,10 +219,10 @@ def relPath(sourceDir, targetDir, f):
         f =  os.path.join(targetDir, f[len(sourceDir) + 1:])
     return f
 
-def copyIfModified(source, target, verbose):
+def copyIfModified(source, target, verbose, signFile = True):
     if not os.path.exists(target) or os.path.getmtime(source) > os.path.getmtime(target):
         copy(source, target, verbose = verbose)
-        if (target.endswith(".exe") or target.endswith(".dll") or target.endswith(".so")):
+        if signFile and (target.endswith(".exe") or target.endswith(".dll") or target.endswith(".so")):
             if not sign(target):
                 os.remove(target)
                 sys.exit(1)
@@ -1148,8 +1148,10 @@ else:
     # MINGW run-time libraries
     #
     for f in ["libstdc++-6.dll", "libgcc_s_sjlj-1.dll"]:
-        copyIfModified(os.path.join(rubyDevKitX86Home, "mingw", "bin", f), os.path.join(installerDir, "bin"), verbose = verbose)
-        copyIfModified(os.path.join(rubyDevKitAmd64Home, "mingw", "bin", f), os.path.join(installerDir, "bin", "x64"), verbose = verbose)
+        copyIfModified(os.path.join(rubyDevKitX86Home, "mingw", "bin", f), 
+                       os.path.join(installerDir, "bin", f), verbose = verbose, signFile = False)
+        copyIfModified(os.path.join(rubyDevKitAmd64Home, "mingw", "bin", f), 
+                       os.path.join(installerDir, "bin", "x64", f), verbose = verbose, signFile = False)
 
     #
     # docs dir
