@@ -120,7 +120,7 @@ Berkeley DB for Java is built using Visual Studio 2010. This is the
 same compiler used to build Oracle Java 7 JDK and Oracle Java 8 JDK.
 
 The DB VC100 DLL built by Ice uses a "_vc100" suffix. Open Berkeley_DB_vs2010
-and in the db project properties update "Target Name" and add the
+solution and in the db project properties update "Target Name" and add the
 _vc100 suffix.
 
 To avoid libdb53_vc100.dll depending on the VC100 C++ run time, remove
