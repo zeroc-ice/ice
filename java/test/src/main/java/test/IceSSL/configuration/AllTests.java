@@ -771,28 +771,34 @@ public class AllTests
             comm.destroy();
 
             //
-            // This should succeed.
+            // SSLv3 is disabled by default in the IBM JDK.
             //
-            comm = Ice.Util.initialize(args, initData);
-            fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-            test(fact != null);
-            d = createServerProps(defaultProperties, defaultDir, defaultHost);
-            d.put("IceSSL.Keystore", "s_rsa_ca1.jks");
-            d.put("IceSSL.Password", "password");
-            d.put("IceSSL.Truststore", "cacert1.jks");
-            d.put("IceSSL.VerifyPeer", "2");
-            d.put("IceSSL.Protocols", "tls1, ssl3");
-            server = fact.createServer(d);
-            try
+            if(System.getProperty("java.vendor").toLowerCase().indexOf("ibm") == -1)
             {
-                server.ice_ping();
+                //
+                // This should succeed.
+                //
+                comm = Ice.Util.initialize(args, initData);
+                fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                test(fact != null);
+                d = createServerProps(defaultProperties, defaultDir, defaultHost);
+                d.put("IceSSL.Keystore", "s_rsa_ca1.jks");
+                d.put("IceSSL.Password", "password");
+                d.put("IceSSL.Truststore", "cacert1.jks");
+                d.put("IceSSL.VerifyPeer", "2");
+                d.put("IceSSL.Protocols", "tls1, ssl3");
+                server = fact.createServer(d);
+                try
+                {
+                    server.ice_ping();
+                }
+                catch(Ice.LocalException ex)
+                {
+                    test(false);
+                }
+                fact.destroyServer(server);
+                comm.destroy();
             }
-            catch(Ice.LocalException ex)
-            {
-                test(false);
-            }
-            fact.destroyServer(server);
-            comm.destroy();
         }
 
         {
