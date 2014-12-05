@@ -953,12 +953,14 @@ rm -rf $RPM_BUILD_ROOT
 # Generate "ice" meta package as arch-specific
 #
 %files
+%defattr(-, root, root, -)
 %{_defaultdocdir}/ice-all-runtime-%{version}
 
 #
 # Generate "ice-all-devel" meta package as arch-specific
 #
 %files -n ice-all-devel
+%defattr(-, root, root, -)
 %{_defaultdocdir}/ice-all-devel-%{version}
 
 %files -n libice3.6-c++
