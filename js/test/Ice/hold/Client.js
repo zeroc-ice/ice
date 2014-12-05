@@ -137,7 +137,7 @@
                 out.writeLine("ok");
 
                 out.write("testing with serialize mode... ");
-
+                value = 0;
                 condition.value = true;
                 var result;
                 return loop(
