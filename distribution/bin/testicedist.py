@@ -548,7 +548,7 @@ class Platform:
             languages = ["cs"] if arch == self.getDefaultArchitecture() else [] 
         elif compiler == "VC110":
             # Only test C++ and C# with a VC110 installation
-            languages = ["cpp", "cs"]
+            languages = ["cpp", "cs"] if arch == self.getDefaultArchitecture() else ["cpp"]
             if arch == "x86":
                 languages.append("php")
         elif arch == self.getDefaultArchitecture():
