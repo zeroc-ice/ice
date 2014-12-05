@@ -412,7 +412,6 @@ class Expect (object):
         try:
             self.buf, self.before, self.after, self.match, self.matchindex = self.r.match(pattern, timeout)
         except TIMEOUT as e:
-            cleanup()
             self.buf = ""
             self.before = ""
             self.after = ""
@@ -439,7 +438,6 @@ class Expect (object):
             self.matchindex = 0
             self.match = None
         except TIMEOUT as e:
-            cleanup()
             self.buf = ""
             self.before = ""
             self.after = ""
