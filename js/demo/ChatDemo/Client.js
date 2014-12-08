@@ -105,7 +105,7 @@ var signin = function()
             id.properties = Ice.createProperties();
             id.properties.setProperty("Ice.Default.Router",
                                       "Glacier2/router:wss -p 9090 -h " + hostname + " -r /chatwss");
-            communicator = Ice.initialize(process.argv, id);
+            communicator = Ice.initialize(id);
 
             //
             // Get a proxy to the Glacier2 router using checkedCast to ensure
