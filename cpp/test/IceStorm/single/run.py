@@ -24,15 +24,23 @@ import TestUtil, IceStormUtil
 publisher = os.path.join(os.getcwd(), "publisher")
 subscriber = os.path.join(os.getcwd(), "subscriber")
 
+#
+# Make sure IceStorm and the subscriber use the same buffer size for
+# sending/receiving datagrams. This ensures the test works with bogus
+# OS configurations where the reicever buffer size is smaller than the
+# send buffer size (causing the received messages to be
+# truncated). See also bug #6070.
+#
+iceStormArgs = " --Ice.UDP.SndSize=4096"
+subscriberArgs = " --Ice.UDP.RcvSize=4096"
+
 targets = []
 if TestUtil.appverifier:
-    targets = [TestUtil.getIceBox(), publisher, subscriber, TestUtil.getIceBoxAdmin(), \
-               TestUtil.getIceStormAdmin()]
+    targets = [TestUtil.getIceBox(), publisher, subscriber, TestUtil.getIceBoxAdmin(), TestUtil.getIceStormAdmin()]
     TestUtil.setAppVerifierSettings(targets, cwd = os.getcwd())
 
 def dotest(type):
-    icestorm = IceStormUtil.init(TestUtil.toplevel, os.getcwd(), type)
-
+    icestorm = IceStormUtil.init(TestUtil.toplevel, os.getcwd(), type, additional=iceStormArgs)
     icestorm.start()
 
     sys.stdout.write("creating topic... ")
@@ -42,7 +50,7 @@ def dotest(type):
 
     sys.stdout.write("starting subscriber... ")
     sys.stdout.flush()
-    subscriberProc = TestUtil.startServer(subscriber, icestorm.reference(), count = 3)
+    subscriberProc = TestUtil.startServer(subscriber, icestorm.reference() + subscriberArgs, count = 3)
     print("ok")
 
     #
