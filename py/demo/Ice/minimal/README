@@ -15,8 +15,8 @@ to use a free port.
 
 To run the server with web socket support:
 
-$ python Server.py --Ice.Default.Protocol=ws --Ice.Plugin.IceWS="IceWS:createIceWS"
+$ python Server.py --Ice.Default.Protocol=ws
 
 To run the client with web socket support:
 
-$ python Client.py --Ice.Default.Protocol=ws --Ice.Plugin.IceWS="IceWS:createIceWS"
+$ python Client.py --Ice.Default.Protocol=ws

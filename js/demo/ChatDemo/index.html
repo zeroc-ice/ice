@@ -141,20 +141,13 @@
         Glacier2.Client.Endpoints=ssl -p 4064 -t 10000 -h 127.0.0.1:tcp -p 4502 -t 10000 -h 127.0.0.1:wss -p 5064 -t 10000 -h 127.0.0.1
         </code>
         </p>
-        <p>You also need to enable the Web Socket transport plug-in. Add the following lines
-        to <code>ChatDemo-1.4.0/config/config.glacier2router</code>:</p>
-        <p>
-        <code style="color:#858585;font-weight:normal;font-size:80%;">
-        Ice.Plugin.IceWS=IceWS:createIceWS
-        </code>
-        </p>
         
         <p>After making those modifications to the Glacier2 router configuration, you can start the Chat Demo 
            server and Glacier2 router as documented in the Chat Demo distribution.</p>
         
         <div class="panel callout radius">
-            <p>You must configure your environment to run IceWS applications as documented in the Ice for JavaScript
-            <a href="http://doc.zeroc.com/display/Rel/Ice+for+JavaScript+0.1.0+Release+Notes">Release Notes</a>.</p>
+            <p>You must configure your environment to run IceWS applications as documented in the Ice
+            <a href="http://doc.zeroc.com/display/Rel/Ice+3.6b+Release+Notes">Release Notes</a>.</p>
         </div>
         
         <p>Once you have configured and started the Chat Demo server and router, 

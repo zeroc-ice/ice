@@ -15,8 +15,8 @@ to use a free port.
 
 To run the server with WebSocket support:
 
-$ server --Ice.Default.Protocol=ws --Ice.Plugin.IceWS="IceWS:createIceWS"
+$ server --Ice.Default.Protocol=ws
 
 To run the client with WebSocket support:
 
-$ client --Ice.Default.Protocol=ws --Ice.Plugin.IceWS="IceWS:createIceWS"
+$ client --Ice.Default.Protocol=ws
