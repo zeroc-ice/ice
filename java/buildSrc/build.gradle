@@ -1,0 +1,8 @@
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+task jarSources(type:Jar, dependsOn: jar){
+    from sourceSets.main.allSource
+    classifier = 'source'
+}
+build.dependsOn(jarSources)
