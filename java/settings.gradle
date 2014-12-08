@@ -28,8 +28,8 @@ include	':IceGridGUI'
 project(':IceGridGUI').projectDir = new File('src/IceGridGUI')
 
 
-include ':ant'
-project(':ant').projectDir = new File('src/ant')
+include ':ant-ice'
+project(':ant-ice').projectDir = new File('src/ant-ice')
 
 // Tests
 include ':test'

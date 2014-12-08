@@ -36,6 +36,7 @@ assemble.dependsOn(jarSources)
 
 clean {
     delete("${libDir}/${jar.archiveName}")
+    delete("${libDir}/${project.name}-${project.version}-source.jar")
     delete(pomName)
 }
 
