@@ -18,10 +18,10 @@ demoGroups = []
 subdirs = [ "cpp", "java", "cs", "py", "rb", "js"]
 
 for d in subdirs:
-    
+
     filename = os.path.abspath(os.path.join(os.path.dirname(__file__), d, "allDemos.py"))
-    f = file(filename, "r")
-    current_mod = imp.load_module("allDemos", f, filename, (".py", "r", imp.PY_SOURCE)) 
+    f = open(filename, "r")
+    current_mod = imp.load_module("allDemos", f, filename, (".py", "r", imp.PY_SOURCE))
     f.close()
 
     demos = [ os.path.join(d, "demo", x) for x in current_mod.demos ]
