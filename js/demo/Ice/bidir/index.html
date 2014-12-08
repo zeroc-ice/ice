@@ -127,13 +127,10 @@
         /* jshint browser:true, jquery:true */
         /* global checkGenerated: false */
         //
-        // Firefox and IE: We do not allow WS connections from
+        // Web browsers does not allow WS connections from
         // HTTPS pages.
         //
-        if(document.location.protocol === "https:" &&
-           (navigator.userAgent.indexOf("MSIE") !== -1 ||
-            navigator.userAgent.indexOf("Firefox") !== -1 ||
-            navigator.userAgent.indexOf("Trident/7.0") !== -1))
+        if(document.location.protocol === "https:")
         {
             var href = "http://" + document.location.hostname + ":8080" + document.location.pathname;
             $("#no-https-modal a").attr("href", href);
