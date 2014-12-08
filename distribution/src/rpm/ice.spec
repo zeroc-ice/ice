@@ -715,22 +715,13 @@ make prefix=$RPM_BUILD_ROOT install
 
 mkdir -p $RPM_BUILD_ROOT%{_javadir}
 
-for i in freeze glacier2 ice icebox icediscovery icegrid icepatch2 icestorm
+for i in ant-ice freeze glacier2 ice icebox icediscovery icegrid icepatch2 icestorm ice-gradle-plugin
 do
   mv $RPM_BUILD_ROOT/lib/$i-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
   ln -s $i-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/$i.jar
   mv $RPM_BUILD_ROOT/lib/$i-%{version}-source.jar $RPM_BUILD_ROOT%{_javadir}
   ln -s $i-%{version}-source.jar $RPM_BUILD_ROOT%{_javadir}/$i-source.jar
 done
-
-mv $RPM_BUILD_ROOT/lib/ice-gradle-plugin-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
-ln -s ice-gradle-plugin-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/ice-gradle-plugin.jar
-
-#
-# ant-ice.jar
-#
-mkdir -p $RPM_BUILD_ROOT%{_javadir}
-mv $RPM_BUILD_ROOT/lib/ant-ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
 
 %if %{javascript}
 #
@@ -1054,6 +1045,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/slice2freezej
 %{_mandir}/man1/slice2freezej.1.gz
 %{_javadir}/ant-ice-%{version}.jar
+%{_javadir}/ant-ice.jar
+%{_javadir}/ant-ice-%{version}-source.jar
+%{_javadir}/ant-ice-source.jar
 %{_javadir}/ice-%{version}.jar
 %{_javadir}/ice.jar
 %{_javadir}/ice-%{version}-source.jar
@@ -1088,6 +1082,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_javadir}/freeze-source.jar
 %{_javadir}/ice-gradle-plugin-%{version}.jar
 %{_javadir}/ice-gradle-plugin.jar
+%{_javadir}/ice-gradle-plugin-%{version}-source.jar
+%{_javadir}/ice-gradle-plugin-source.jar
 %{_defaultdocdir}/libice-java-%{version}
 
 %if %{javascript}
