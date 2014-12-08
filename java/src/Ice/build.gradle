@@ -39,5 +39,11 @@ task installSlicePluginSources(type: Copy) {
     into "${DESTDIR}${prefix}/lib"
     rename { "ice-gradle-plugin-${project.version}-source.jar" }
 }
+task installSlicePluginPom(type: Copy) {
+    from "${rootProject.projectDir}/buildSrc/buildSrc.pom"
+    into "${DESTDIR}${prefix}/lib"
+    rename { "ice-gradle-plugin-${project.version}.pom" }
+}
 install.dependsOn(installSlicePlugin)
 install.dependsOn(installSlicePluginSources)
+install.dependsOn(installSlicePluginPom)
