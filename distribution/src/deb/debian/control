@@ -65,6 +65,7 @@ Description: Ice development packages
 Package: zeroc-ice-slice
 Architecture: all
 Section: libs
+Multi-Arch: foreign
 Depends: ${misc:Depends}
 Description: Slice files used by ZeroC Ice packages
  Slice files used by ZeroC Ice packages.
