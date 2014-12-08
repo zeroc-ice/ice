@@ -228,9 +228,6 @@ def iceGridTest(application, additionalOptions = "", applicationOptions = ""):
         print
         return
 
-    if TestUtil.getDefaultMapping() == "java":
-        os.environ['CLASSPATH'] = os.path.join(os.getcwd(), "classes") + os.pathsep + os.environ.get("CLASSPATH", "")
-
     client = TestUtil.getDefaultClientFile()
     if TestUtil.getDefaultMapping() != "java":
         client = os.path.join(testdir, client) 
@@ -282,10 +279,7 @@ def iceGridClientServerTest(additionalClientOptions, additionalServerOptions):
     client = TestUtil.getDefaultClientFile()
     if TestUtil.getDefaultMapping() != "java":
         server = os.path.join(testdir, server) 
-        client = os.path.join(testdir, client) 
-
-    if TestUtil.getDefaultMapping() == "java":
-        os.environ['CLASSPATH'] = os.path.join(os.getcwd(), "classes") + os.pathsep + os.environ.get("CLASSPATH", "")
+        client = os.path.join(testdir, client)
 
     targets = []
     if TestUtil.appverifier:
