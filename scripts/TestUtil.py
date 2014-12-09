@@ -777,10 +777,6 @@ def getIceBox():
             if cpp11:
                 iceBox += "++11"
         iceBox = os.path.join(getCppBinDir(lang), iceBox)
-
-        if not os.path.exists(iceBox):
-            print("couldn't find icebox executable to run the test in `%s'" % iceBox)
-            sys.exit(0)
     elif lang == "java":
         iceBox = "IceBox.Server"
     elif lang == "cs":
@@ -788,10 +784,6 @@ def getIceBox():
             iceBox = os.path.join(getIceDir("cs"), "bin", "cf", "iceboxnet")
         else:
             iceBox = os.path.join(getIceDir("cs"), "bin", "iceboxnet")
-
-    if iceBox == "":
-        print("couldn't find icebox executable to run the test")
-        sys.exit(0)
 
     return iceBox
 
