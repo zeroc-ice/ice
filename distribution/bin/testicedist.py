@@ -1114,7 +1114,7 @@ class Linux(Platform):
         
     def getSupportedArchitectures(self):
         if self._machine == "x86_64":
-            if self.isRhel(6) or self.isSles(11):
+            if self.isRhel(6) or self.isSles(11) or self.isUbuntu():
                 return ["x64"] # Mono-arch Linux distribution
             else:
                 return ["x64", "x86"] # Bi-arch Linux distribution
