@@ -233,7 +233,7 @@ createSocketImpl(bool udp, int family)
         // doesn't receive the TCP/IP connection closure (RST) from
         // the other peer and it ends up hanging. This is showing up
         // with the background test when ran with WS. The test
-        // sporadically hangs on exit. See bug #5964.
+        // sporadically hangs on exit. See bug #6093.
         //
         //setTcpLoopbackFastPath(fd);
 #endif
