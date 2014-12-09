@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/android.iml" filepath="$PROJECT_DIR$/android.iml" />
-      <module fileurl="file://$PROJECT_DIR$/buildSrc/buildSrc.iml" filepath="$PROJECT_DIR$/buildSrc/buildSrc.iml" />
       <module fileurl="file://$PROJECT_DIR$/demo/chat/chat.iml" filepath="$PROJECT_DIR$/demo/chat/chat.iml" />
       <module fileurl="file://$PROJECT_DIR$/src/Freeze/freeze.iml" filepath="$PROJECT_DIR$/src/Freeze/freeze.iml" />
       <module fileurl="file://$PROJECT_DIR$/src/Glacier2/glacier2.iml" filepath="$PROJECT_DIR$/src/Glacier2/glacier2.iml" />
@@ -18,6 +17,7 @@
       <module fileurl="file://$PROJECT_DIR$/test/test.iml" filepath="$PROJECT_DIR$/test/test.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/android/testApp.iml" filepath="$PROJECT_DIR$/test/android/testApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/plugins/testPlugins.iml" filepath="$PROJECT_DIR$/test/plugins/testPlugins.iml" />
+      <module fileurl="file://$PROJECT_DIR$/test/src/test_Ice_acm/test_Ice_acm.iml" filepath="$PROJECT_DIR$/test/src/test_Ice_acm/test_Ice_acm.iml" />
     </modules>
   </component>
 </project>

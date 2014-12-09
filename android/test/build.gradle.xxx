@@ -1,0 +1,122 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+apply plugin: 'java'
+apply from: "$rootProject.projectDir/../java/gradle/ice.gradle"
+
+ext.testDir = "$rootProject.projectDir/../java/test/src/main/java/test"
+apply from: "$rootProject.projectDir/../java/test/slice.gradle"
+
+import org.apache.tools.ant.taskdefs.condition.Os
+
+sourceSets {
+    main {
+        java {
+            srcDir "$rootProject.projectDir/../java/test/src/main/java"
+            include 'test/Util/**'
+            include 'test/Ice/**'
+            exclude 'test/Ice/**/lambda'
+            exclude 'test/Ice/plugin/plugins'
+            exclude 'test/Ice/faultTolerance'
+            exclude 'test/Ice/hash'
+            exclude 'test/Ice/metrics'
+            exclude 'test/Ice/properties'
+            exclude 'test/Ice/threadPoolPriority'
+            exclude 'test/Ice/throughput'
+        }
+    }
+}
+
+// Discover the Android SDK home.
+// It either comes from the environment or from sdk.dir defined
+// in local.properties at the root of the android project.
+def androidSdkDir = System.env.ANDROID_HOME
+if(androidSdkDir == null) {
+    Properties localProps = new Properties()
+    localProps.load(new FileInputStream(file("$rootProject.projectDir/local.properties")))
+    androidSdkDir = localProps['sdk.dir']
+}
+
+tests = [ "acm",
+          "adapterDeactivation",
+          "admin",
+          "ami",
+          "background",
+          "binding",
+          "checksum",
+          "classLoader",
+          "custom",
+          "defaultServant",
+          "defaultValue",
+          "dispatcher",
+          "echo",
+          "enums",
+          "exceptions",
+          "facets",
+          "faultTolerance",
+          "hash",
+          "hold",
+          "info",
+          "inheritance",
+          "interceptor",
+          "interrupt",
+          "invoke",
+          "location",
+          "networkProxy",
+          "objects",
+          "operations",
+          "optional",
+          "packagemd",
+          "plugin",
+          "proxy",
+          "retry",
+          "seqMapping",
+          "serialize",
+          "servantLocator",
+          "slicing",
+          "stream",
+          "timeout",
+          "udp" ]
+
+tests.each {
+    def testName = it
+    def taskName = "dexClasses_${testName}"
+    def dexName = "IceTest_${testName}.dex"
+    task "${taskName}"(dependsOn: 'classes') << {
+        String cmdExt = Os.isFamily(Os.FAMILY_WINDOWS) ? '.bat' : ''
+       exec {
+            commandLine "${androidSdkDir}/build-tools/${ice_buildToolsVersion}/dx${cmdExt}", '--dex',
+                    "--output=${buildDir}/classes/main/${dexName}",
+                    "${buildDir}/classes/main/test/Ice/${testName}"
+        }
+    }
+    // The jar file should only include IceTestPlugins.dex
+    configure(jar) {
+        include "${dexName}"
+    }
+    jar.dependsOn("${taskName}")
+}
+
+idea.module {
+    excludeDirs -= file(buildDir)
+    buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
+}
+
+dependencies {
+    compile project(':Ice')
+}
+
+jar {
+    archiveName = "IceTest.jar"
+    destinationDir = new File("$rootProject.projectDir/lib/")
+}
+
+clean {
+    delete("$rootProject.projectDir/lib/IceTest.jar")
+}
