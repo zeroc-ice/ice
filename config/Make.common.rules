@@ -80,10 +80,9 @@ ifeq ($(UNAME),Linux)
           LP64      	= yes
       endif
    endif
-endif
-
-ifneq ($(LP64),yes)
-    binsuffix     = 32
+   ifneq ($(LP64),yes)
+       binsuffix     = 32
+   endif
 endif
 
 ifeq ($(shell test -d /usr/lib/i386-linux-gnu && echo 0),0)
