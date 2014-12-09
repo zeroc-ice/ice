@@ -980,7 +980,7 @@ else:
                                 #
                                 # IceGridGUI.jar in binary distribution should go in the bin directory.
                                 #
-                                if f == "IceGridGUI.jar":
+                                if f == "icegridgui.jar":
                                     targetFile = targetFile.replace(os.path.join(installerDir, "lib"), os.path.join(installerDir, "bin"))
 
                                 if targetFile.endswith(".pdb"):
