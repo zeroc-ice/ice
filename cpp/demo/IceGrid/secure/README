@@ -38,6 +38,10 @@ $ icegridregistry --Ice.Config=config.slave
 $ icegridnode --Ice.Config=config.node
 $ glacier2router --Ice.Config=config.glacier2
 
+Note that for debug Windows builds you will need to use icegridnoded
+and icegridregistryd rather than icegridnode and icegridregistry as
+the executable name.
+
 In a separate window:
 
 $ icegridadmin --Ice.Config=config.admin -e \
@@ -85,20 +89,3 @@ The IceGrid registry and Glacier2 router are configured to use the
 login with the admin tools. In a real world deployment, you would
 instead typically use the file-based permissions verifier or a custom
 permissions verifier implementation.
-
-
-Vista Note
-----------
-
-On Vista-derived operating systems, the IceGrid node may emit the
-following warning:
-
-  warning: Unable to lookup the performance counter name:
-  Unable to connect to the specified computer or the computer is
-  offline. This usually occurs when you do not have sufficient
-  privileges.
-
-This issue can be resolved by granting appropriate permissions to the
-node's user account. Please refer to the Troubleshooting section of
-the "Windows Services" appendix in the Ice manual for more
-information.

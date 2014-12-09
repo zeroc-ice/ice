@@ -17,6 +17,9 @@ Start the IceGrid registry and node:
 
  $ icegridnode --Ice.Config=config.grid
 
+Note that for debug Windows builds you will need to use icegridnoded
+rather than icegridnode as the executable name.
+
 Deploy the 'HelloSimpsons' application (in file application.xml) with
 the IceGrid Admin graphical tool. If you prefer to use the command-
 line utility, use:
