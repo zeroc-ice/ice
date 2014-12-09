@@ -164,6 +164,7 @@ override_dh_clean:
 	rm -rf cpp11
 	rm -rf java/buildSrc/build
 	rm -rf java/buildSrc/.gradle
+	rm -rf java/buildSrc/buildSrc.pom
 	rm -rf java/.gradle/2.1/taskArtifacts/cache.properties.lock
 	rm -rf java/.gradle/2.1/taskArtifacts/*
 	rm -rf debian/tmp-cpp11
