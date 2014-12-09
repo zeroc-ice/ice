@@ -551,8 +551,8 @@ rmFiles = []
 
 projectSubstituteExprs = [(re.compile(re.escape('"README"')), '"README.txt"'),
                           (re.compile(re.escape("PublicKeyToken=1f998c50fec78381")), "PublicKeyToken=cdd571ade22f2f16"),
-                          (re.compile(re.escape("..\\..\\..\\..\\..\\certs\\cacert.pem")),
-                           "..\\..\\..\\..\\certs\\cacert.pem")]
+                          (re.compile(re.escape("..\\..\\..\\..\\..\\certs\\cacert.der")),
+                           "..\\..\\..\\..\\certs\\cacert.der")]
 
 for root, dirnames, filesnames in os.walk(winDemoDir):
     for f in filesnames:
