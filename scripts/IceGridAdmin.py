@@ -31,7 +31,7 @@ nodeOptions = r' --Ice.Warn.Connections=0' + \
               r' --IceGrid.Node.ThreadPool.SizeWarn=0' + \
               r' --IceGrid.Node.PrintServersReady=node1' + \
               r' --Ice.NullHandleAbort' + \
-              r' --Ice.ThreadPool.Server.Size=0' + \
+              r' --Ice.ThreadPool.Server.Size=1' + \
               r' --Ice.ServerIdleTime=0'
 
 registryOptions = r' --Ice.Warn.Connections=0' + \
@@ -53,7 +53,7 @@ registryOptions = r' --Ice.Warn.Connections=0' + \
                   r' --IceGrid.Registry.Trace.Server=0' + \
                   r' --IceGrid.Registry.Trace.Locator=0' + \
                   r' --IceGrid.Registry.SessionTimeout=5' + \
-                  r' --Ice.ThreadPool.Server.Size=0 ' + \
+                  r' --Ice.ThreadPool.Server.Size=1 ' + \
                   r' --Ice.ThreadPool.Client.SizeWarn=0' + \
                   r' --IceGrid.Registry.Client.ThreadPool.SizeWarn=0' + \
                   r' --Ice.ServerIdleTime=0' + \
