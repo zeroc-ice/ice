@@ -133,7 +133,7 @@ namespace Ice
                     return;
                 }
 
-                if(_acmLastActivity > 0)
+                if(_acmLastActivity > -1)
                 {
                     _acmLastActivity = IceInternal.Time.currentMonotonicTimeMillis();
                 }
@@ -1353,7 +1353,7 @@ namespace Ice
                             }
                         }
 
-                        if(_acmLastActivity > 0)
+                        if(_acmLastActivity > -1)
                         {
                             _acmLastActivity = IceInternal.Time.currentMonotonicTimeMillis();
                         }
@@ -2052,7 +2052,7 @@ namespace Ice
             {
                 if(state == StateActive)
                 {
-                    if(_acmLastActivity > 0)
+                    if(_acmLastActivity > -1)
                     {
                         _acmLastActivity = IceInternal.Time.currentMonotonicTimeMillis();
                     }
@@ -2508,7 +2508,7 @@ namespace Ice
 
                 message.sent();
 
-                if(_acmLastActivity > 0)
+                if(_acmLastActivity > -1)
                 {
                     _acmLastActivity = IceInternal.Time.currentMonotonicTimeMillis();
                 }
