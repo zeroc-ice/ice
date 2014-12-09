@@ -286,8 +286,13 @@ General Changes
 - The IceBox.ServiceManager object adapter has been deprecated.
   Use Ice.Admin and the IceBox.ServiceManager facet instead.
 
-- Removed the deprecated properties IcePatch2.ChunkSize,
-  IcePatch2.Directory, IcePatch2.Remove and IcePatch2.Thorough.
+- Removed the following deprecated properties:
+
+    Glacier2.AddSSLContext
+    IcePatch2.ChunkSize
+    IcePatch2.Directory
+    IcePatch2.Remove
+    IcePatch2.Thorough
 
 
 C++ Changes

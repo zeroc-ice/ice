@@ -609,7 +609,6 @@ generated from the section label.
     </section>
 
     <section name="Glacier2">
-        <property name="AddSSLContext" deprecated="true"/>
         <property name="AddConnectionContext"/>
         <property name="Client" class="objectadapter"/>
         <property name="Client.AlwaysBatch" />

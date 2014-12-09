@@ -548,31 +548,8 @@ CreateSession::sessionCreated(const SessionPrx& session)
             ident = _control->ice_getIdentity();
         }
 
-        if(_instance->properties()->getPropertyAsInt("Glacier2.AddConnectionContext") == 1 ||
-           _instance->properties()->getPropertyAsInt("Glacier2.AddSSLContext") > 0)
+        if(_instance->properties()->getPropertyAsInt("Glacier2.AddConnectionContext") == 1)
         {
-            //
-            // DEPRECATED: Glacier2.AddSSLContext.
-            //
-            IceSSL::ConnectionInfoPtr info = IceSSL::ConnectionInfoPtr::dynamicCast(_current.con->getInfo());
-            if(info && _instance->properties()->getPropertyAsInt("Glacier2.AddSSLContext") > 0)
-            {
-                _context["SSL.Active"] = "1";
-                _context["SSL.Cipher"] = info->cipher;
-                ostringstream os;
-                os << info->remotePort;
-                _context["SSL.Remote.Port"] = os.str();
-                _context["SSL.Remote.Host"] = info->remoteAddress;
-                os.str("");
-                os << info->localPort;
-                _context["SSL.Local.Port"] = os.str();
-                _context["SSL.Local.Host"] = info->localAddress;
-                if(info->certs.size() > 0)
-                {
-                    _context["SSL.PeerCert"] = info->certs[0];
-                }
-            }
-
             router = new RouterI(_instance, _current.con, _user, session, ident, _filterManager, _context);
         }
         else

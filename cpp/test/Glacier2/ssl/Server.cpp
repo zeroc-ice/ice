@@ -84,13 +84,6 @@ public:
     {
         testContext(_ssl, current.ctx);
 
-        if(_ssl && _shutdown)
-        {
-            // DEPRECATED
-            Ice::Context::const_iterator p = current.ctx.find("SSL.Active");
-            test(p != current.ctx.end() && p->second == "1");
-        }
-
         current.adapter->remove(current.id);
         if(_shutdown)
         {
