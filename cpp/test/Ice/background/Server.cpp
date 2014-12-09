@@ -136,6 +136,11 @@ main(int argc, char* argv[])
         initData.properties->setProperty("Ice.MessageSizeMax", "50000");
 
         //
+        // Workaround for OpenSSL SSL_write non blocking
+        //
+        initData.properties->setProperty("Ice.TCP.RcvSize", "256000");
+        
+        //
         // Setup the test transport plug-in.
         //
         initData.properties->setProperty("Ice.Plugin.Test", "TestTransport:createTestTransport");
