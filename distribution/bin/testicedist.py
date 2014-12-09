@@ -998,6 +998,7 @@ class Linux(Platform):
     def __init__(self, distDir):
         Platform.__init__(self, distDir)
         self._distribution = None
+        self._distributionVersion = None
 
         #
         # Try to figure out linux distribution by checking /etc/redhat-release or
