@@ -225,8 +225,17 @@ createSocketImpl(bool udp, int family)
     {
         setTcpNoDelay(fd);
         setKeepAlive(fd);
+
 #if defined(_WIN32) && !defined(ICE_OS_WINRT)
-        setTcpLoopbackFastPath(fd);
+        //
+        // FIX: the fast path loopback appears to cause issues with
+        // connection closure when it's enabled. Sometime, a peer
+        // doesn't receive the TCP/IP connection closure (RST) from
+        // the other peer and it ends up hanging. This is showing up
+        // with the background test when ran with WS. The test
+        // sporadically hangs on exit. See bug #5964.
+        //
+        //setTcpLoopbackFastPath(fd);
 #endif
     }
 

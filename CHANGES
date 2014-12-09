@@ -355,9 +355,6 @@ C++ Changes
   When upgrading your Visual C++ application to Ice 3.6, you may need
   to fix, disable or downgrade these warnings in your C++ code.
 
-- Added support for TCP Loopback Fast Path on Windows platforms that
-  support it.
-
 - Fixed a bug where the communicator destruction could raise an
   Ice::NullHandleException if a custom observer was present.
 
