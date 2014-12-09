@@ -43,3 +43,7 @@ if Util.isMono():
     rewrite(fi, fo)
 
 simple.run('client.exe', desc[0:len(desc)-4])
+
+os.remove("tmp_application.xml")
+os.remove("tmp_application_with_template.xml")
+os.remove("tmp_application_with_replication.xml")

@@ -241,12 +241,18 @@ def iceGridTest(application, additionalOptions = "", applicationOptions = ""):
 
     registryProcs = startIceGridRegistry(testdir)
     iceGridNodeProc = startIceGridNode(testdir)
-    
+
+    javaHome = os.environ.get("JAVA_HOME", None)
+    javaExe = os.path.join(javaHome, "bin", "java") if javaHome else "java"
+
     if application != "":
         sys.stdout.write("adding application... ")
         sys.stdout.flush()
-        iceGridAdmin("application add -n '" + os.path.join(testdir, application) + "' " + \
-                     "test.dir='" + testdir + "' ice.bindir='" + TestUtil.getCppBinDir() + "' " + applicationOptions)
+        iceGridAdmin("application add -n '" + os.path.join(testdir, application) + "' " +
+                     "test.dir='" + testdir + "' " +
+                     "ice.bindir='" + TestUtil.getCppBinDir() + "' " +
+                     "java.exe='" + javaExe + "' " +
+                     applicationOptions)
         print("ok")
 
     sys.stdout.write("starting client... ")
@@ -288,7 +294,7 @@ def iceGridClientServerTest(additionalClientOptions, additionalServerOptions):
 
     clientOptions = getDefaultLocatorProperty() + ' ' + additionalClientOptions
     serverOptions = getDefaultLocatorProperty() + ' ' + additionalServerOptions
-    
+
     registryProcs = startIceGridRegistry(testdir, True)
 
     sys.stdout.write("starting server... ")
