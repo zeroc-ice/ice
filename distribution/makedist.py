@@ -92,6 +92,7 @@ demoCertsFiles = [ \
     "*.jks", \
     "*.pem", \
     "*.pfx", \
+    "*.der", \
     "ImportKey.class", \
     "makecerts.py", \
 ]
