@@ -63,7 +63,9 @@ ARTIFACT_NAMES = freeze \
 	icediscovery \
 	icegrid \
 	icepatch2 \
-	icestorm
+	icestorm \
+	ant-ice \
+	ice-gradle-plugin
 	
 ifeq ($(DEB_HOST_MULTIARCH),i386-linux-gnu)
 ICEBOX = icebox32
@@ -102,7 +104,7 @@ override_dh_install: icebox_install
 	do \
 		cd $(CURDIR) ; \
 		mkdir -p $(DESTDIR)/$(prefix)/share/maven-repo/com/zeroc/$$name/$(VERSION) ; \
-		cp java/lib/$$name-$(VERSION).pom $(DESTDIR)/$(prefix)/share/maven-repo/com/zeroc/$$name/$(VERSION) ; \
+		cp $(DESTDIR)/$(prefix)/lib/$$name-$(VERSION).pom $(DESTDIR)/$(prefix)/share/maven-repo/com/zeroc/$$name/$(VERSION) ; \
 		cd $(DESTDIR)/$(prefix)/share/maven-repo/com/zeroc/$$name/$(VERSION) && ln -s ../../../../../java/$$name-$(VERSION).jar . ; \
 	done ;
 	
@@ -117,7 +119,7 @@ override_dh_install: icebox_install
 		cp $(CPP11_DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH)/c++11/$$name.so $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH)/c++11/$$name.so ; \
 	done ;
 
-	cp $(CPP11_DESTDIR)$(prefix)/bin/icebox++11 $(DESTDIR)$(prefix)/bin/$(ICEBOX)++11
+	cp $(CPP11_DESTDIR)$(prefix)/bin/$(ICEBOX)++11 $(DESTDIR)$(prefix)/bin/$(ICEBOX)++11
 
 	mkdir -p $(DESTDIR)$(prefix)/bin
 	cp java/bin/icegridgui.deb $(DESTDIR)$(prefix)/bin/icegridgui && \
