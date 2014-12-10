@@ -280,13 +280,16 @@ def spawnAndWatch(command, env, filterFunc):
         if p.poll() is not None and not line:
             # The process terminated
             break
+        elif not line:
+            continue
                     
         if type(line) != str:
             line = line.decode()
 
+        line = line.rstrip(os.linesep)
         filterFunc(line)
 
-        output.write(line)
+        output.write("%s\n" % line)
         output.flush()
                 
     return p.poll() == 0
