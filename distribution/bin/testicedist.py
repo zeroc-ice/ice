@@ -499,15 +499,6 @@ class Platform:
         
     def isLinux(self):
         return False
-        
-    def isRhel(self):
-        return False
-        
-    def isUbuntu(self):
-        return False
-        
-    def isSles(self):
-        return False
 
     def getCompilers(self):
         return list(filter(lambda x: include(x, self._compilers, self._rcompilers), self.getSupportedCompilers()))
@@ -592,10 +583,7 @@ class Platform:
         return "%s %s" % (sys.executable, script)
 
     def getNodeCmd(self):
-        if self.isUbuntu():
-            return "nodejs"
-        else:
-            return "node"
+        return "node"
 
     def getBuildAndRunConfigs(self, filterFn):
         buildTotal = 0
@@ -997,6 +985,7 @@ class Linux(Platform):
     
     def __init__(self, distDir):
         Platform.__init__(self, distDir)
+
         self._distribution = None
         self._distributionVersion = None
 
@@ -1077,13 +1066,10 @@ class Linux(Platform):
         return self.isDistribution(["Ubuntu"], version)
         
     def isRhel(self, version = None):
-        return self.isDistribution(["RedHat", "CentOS", "Amazon"], version)
+        return self.isDistribution(["RedHat", "CentOS"], version)
 
     def isSles(self, version = None):
         return self.isDistribution(["SUSE LINUX"], version)
-
-    def getDistribution(self):
-        return self._distribution
 
     def getJavaHome(self, arch, version):
         jvmDir = None
@@ -1099,6 +1085,9 @@ class Linux(Platform):
         if not os.path.exists(jvmDir):
             return None
         return jvmDir
+
+    def getNodeCmd(self):
+        return "nodejs" if self.isUbuntu() else "node"
 
     def getSupportedLanguages(self):
         languages = ["cpp", "java", "php", "py", "rb"]
@@ -1145,7 +1134,7 @@ class Linux(Platform):
             #
             if self.isUbuntu():
                 prependPathToEnvironVar(env, "LD_LIBRARY_PATH", \
-                                    "/usr/lib/i386-linux-gnu/" if arch == "x86" else "/usr/lib/x86_64-linux-gnu/")
+                                        "/usr/lib/i386-linux-gnu/" if arch == "x86" else "/usr/lib/x86_64-linux-gnu/")
         return env
 
 class Solaris(Platform):
@@ -1160,9 +1149,6 @@ class Solaris(Platform):
     def checkJavaSupport(self, arch, buildConfiguration, output):
         return True # Disable check, use default java version
 
-    def getDistribution(self):
-        return self._distribution
-        
     def getSupportedLanguages(self):
         return ["cpp", "java"]
         
