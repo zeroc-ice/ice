@@ -17,17 +17,18 @@
 		    android:layout_width="0dip"
 		    android:layout_height="wrap_content"
 		    android:layout_weight="25"
-		    android:text="Hostname"
-		    />
+		    android:text="Host"
+            android:id="@+id/hostLabel"/>
 
 		<EditText
-			android:id ="@+id/hostname"
-			android:hint="hostname"
-			android:text="10.0.2.2"
-			android:layout_width="0dip"
+			android:id ="@+id/host"
+			android:hint="IP or Hostname"
+            android:lines="1"
+            android:maxLines="1"
+            android:layout_width="0dip"
 			android:layout_weight="75"
 			android:layout_height="wrap_content"
-			/>
+            android:minLines="1" android:singleLine="true" android:inputType="text"/>
 
 	</LinearLayout>
 

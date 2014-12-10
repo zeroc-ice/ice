@@ -83,7 +83,7 @@ public class HelloWorld extends Activity
 
     private Demo.HelloPrx createProxy()
     {
-        String host = _hostname.getText().toString().trim();
+        String host = _host.getText().toString().trim();
         assert (host.length() > 0);
         // Change the preferences if necessary.
         if(!_prefs.getString(HOSTNAME_KEY, DEFAULT_HOST).equals(host))
@@ -363,12 +363,12 @@ public class HelloWorld extends Activity
             }
         });
 
-        _hostname = (EditText)findViewById(R.id.hostname);
-        _hostname.addTextChangedListener(new TextWatcher()
+        _host = (EditText)findViewById(R.id.host);
+        _host.addTextChangedListener(new TextWatcher()
         {
             public void afterTextChanged(Editable s)
             {
-                String host = _hostname.getText().toString().trim();
+                String host = _host.getText().toString().trim();
                 if(host.length() == 0)
                 {
                     _sayHelloButton.setEnabled(false);
@@ -477,7 +477,7 @@ public class HelloWorld extends Activity
         _prefs = getPreferences(MODE_PRIVATE);
         if(savedInstanceState == null)
         {
-            _hostname.setText(_prefs.getString(HOSTNAME_KEY, DEFAULT_HOST));
+            _host.setText(_prefs.getString(HOSTNAME_KEY, DEFAULT_HOST));
             _flushButton.setEnabled(false);
         }
         else
@@ -564,7 +564,7 @@ public class HelloWorld extends Activity
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Error");
-            builder.setMessage(_lastError);
+            builder.setMessage(""); // Initialize to empty string so that we can modify during onPrepareDialog
             if(id == DIALOG_FATAL)
             {
                 builder.setPositiveButton("Ok", new DialogInterface.OnClickListener()
@@ -583,11 +583,26 @@ public class HelloWorld extends Activity
         return null;
     }
 
+    protected void onPrepareDialog(int id, Dialog dialog)
+    {
+        switch (id)
+        {
+            case DIALOG_INITIALIZING:
+                break;
+            case DIALOG_ERROR:
+            case DIALOG_FATAL:
+            {
+                ((AlertDialog)dialog).setMessage(_lastError);
+            }
+
+        }
+    }
+
     private static final int DIALOG_INITIALIZING = 1;
     private static final int DIALOG_ERROR = 2;
     private static final int DIALOG_FATAL = 3;
 
-    private static final String DEFAULT_HOST = "10.0.2.2";
+    private static final String DEFAULT_HOST = "";
     private static final String HOSTNAME_KEY = "host";
 
     private static final String BUNDLE_KEY_TIMEOUT = "zeroc:timeout";
@@ -600,7 +615,7 @@ public class HelloWorld extends Activity
 
     private Button _sayHelloButton;
     private Button _shutdownButton;
-    private EditText _hostname;
+    private EditText _host;
     private TextView _status;
     private SeekBar _delay;
     private SeekBar _timeout;
