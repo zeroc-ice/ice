@@ -15,6 +15,7 @@
 %define systemdpkg bogus
 
 %define shadow bogus
+%define biarch 0
 
 %if "%{dist}" == ".el6"
   %define shadow shadow-utils
@@ -24,10 +25,12 @@
   %define systemdpkg systemd
   %define cpp11 1
   %define shadow shadow-utils
+  %define biarch 1
 %endif
 %if "%{dist}" == ".amzn1"
   %define cpp11 1
   %define shadow shadow-utils
+  %define biarch 1
 %endif
 %if "%{dist}" == ".sles11"
   %define shadow pwdutils
@@ -37,6 +40,7 @@
   %define systemdpkg systemd-rpm-macros
   %define cpp11 1
   %define shadow shadow
+  %define biarch 1
 %endif
 
 %define buildall 1
@@ -50,7 +54,7 @@
 %define cppx86 0
 
 %ifarch %{ix86}
-%if "%{dist}" == ".el7" || "%{dist}" == ".sles12" || "%{dist}" == ".amzn1"
+%if %{biarch}
 %define cppx86 1
 %endif
 %endif
@@ -369,6 +373,9 @@ Summary: Tools, libraries and headers for developing Ice applications in C++.
 Group: Development/Tools
 Obsoletes: ice-c++-devel < 3.6
 Requires: libice3.6-c++%{?_isa} = %{version}-%{release}, ice-slice = %{version}-%{release}
+%if %{biarch}
+Requires: glibc-devel%{?_isa}
+%endif
 %description -n libice-c++-devel
 Tools, libraries and headers for developing Ice applications in C++.
 
