@@ -16,7 +16,8 @@ var defaultInstallLocations = [
     "C:\\Program Files\\ZeroC",
     "C:\\Program Files (x86)\\ZeroC",
     "/Library/Developer",
-    "/opt"];
+    "/opt",
+    "/usr"];
 
 var iceHome = process.env.ICE_HOME;
 var useBinDist = process.env.USE_BIN_DIST == "yes";
@@ -31,15 +32,33 @@ catch(e)
 }
 
 var slice2js = process.platform == "win32" ? "slice2js.exe" : "slice2js";
-var slice2cpp = process.platform == "win32" ? "slice2cpp.exe" : "slice2cpp";
 var libSubDir = process.platform == "win32" ? "bin" : "lib";
 
 var libraryPath = process.platform == "win32" ? "PATH" :
                   process.platform == "darwin" ? "DYLD_LIBRARY_PATH" : "LD_LIBRARY_PATH";
 
+if(process.platform == "linux")
+{
+    (require("os").arch() == "x64" ? ["lib/x86_64-linux-gnu", "lib64"] : ["lib/i386-linux-gnu", "lib"]).some(
+        function(element)
+        {
+            try
+            {
+                if(fs.statSync(path.join("/usr", element)).isDirectory())
+                {
+                    libSubDir = element;
+                    return true;
+                }
+            }
+            catch(e)
+            {                
+            }
+            return false;
+        });
+}
+
 //
-// If this is a source distribution and ICE_HOME isn't set, ensure
-// that slice2js has been built.
+// If this is a source distribution and ICE_HOME isn't set, ensure that slice2js has been built.
 //
 if(srcDist && !useBinDist)
 {
@@ -75,7 +94,7 @@ if(!srcDist || useBinDist)
             {
                 try
                 {
-                    if(fs.statSync(path.join(basePath, iceDist, "bin", slice2cpp)).isFile())
+                    if(fs.statSync(path.join(basePath, iceDist, "bin", slice2js)).isFile())
                     {
                         iceHome = path.join(basePath, iceDist);
                         return true;
@@ -127,7 +146,7 @@ if(!srcDist || useBinDist)
 }
 
 
-var sliceDir = iceHome ? path.join(iceHome, "slice") :
+var sliceDir = iceHome ? (iceHome == "/usr" ? path.join(iceHome, "share", iceDist, "slice") : path.join(iceHome, "slice")) :
                          path.join(__dirname, "..", "..", "slice");
 
 var binDir = iceHome ? path.join(iceHome, "bin") :
