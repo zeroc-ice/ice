@@ -45,6 +45,7 @@ if Util.javaCmd != "java":
 
 simple.run('java -jar build/libs/client.jar', desc[0:len(desc)-4])
 
-os.remove("tmp_application.xml")
-os.remove("tmp_application_with_template.xml")
-os.remove("tmp_application_with_replication.xml")
+if Util.javaCmd != "java":
+    os.remove("tmp_application.xml")
+    os.remove("tmp_application_with_template.xml")
+    os.remove("tmp_application_with_replication.xml")
