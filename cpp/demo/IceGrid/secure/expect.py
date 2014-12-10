@@ -45,7 +45,7 @@ else:
 
 sys.stdout.write("creating certificates... ")
 sys.stdout.flush()
-makecerts = Util.spawn("python -u makecerts.py")
+makecerts = Util.spawn(sys.executable + " -u makecerts.py")
 makecerts.expect("Do you want to keep this as the CA subject name?")
 makecerts.sendline("y")
 makecerts.expect("Enter the email address of the CA:")

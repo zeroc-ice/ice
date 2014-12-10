@@ -13,6 +13,13 @@ import os, sys, shutil, glob
 def runIceca(args):
     os.environ['PYTHONUNBUFFERED'] = '1'
     command = 'iceca %s' % args
+
+    # Look for iceca in the PATH, if found, execute it with the
+    # current python executable.
+    for path in os.environ.get("PATH", "").split(os.pathsep):
+        if os.path.exists(os.path.join(path, "iceca")):
+            command = '%s "%s" %s' % (sys.executable, os.path.join(path, "iceca"), args)
+
     if os.system(command):
         sys.exit(1)
 
