@@ -1,4 +1,4 @@
-This directory contains an Eclipse project for the chat client.
+This directory contains an Android Studio project for the chat client.
 
 The chat client provides Android devices with native access to our
 sample chat system. This client demonstrates several useful techniques
