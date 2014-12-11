@@ -17,6 +17,9 @@
 		android:id ="@+id/text"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
+        android:lines="1"
+        android:maxLines="1"
+        android:inputType="text"
 		/>
 
 </LinearLayout>

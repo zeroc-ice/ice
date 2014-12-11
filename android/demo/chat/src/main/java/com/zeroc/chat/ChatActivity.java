@@ -21,10 +21,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnKeyListener;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.zeroc.chat.service.ChatRoomListener;
 
@@ -128,23 +129,20 @@ public class ChatActivity extends SessionActivity
                 sendText();
             }
         });
-        _text.setOnKeyListener(new OnKeyListener()
+        _text.setOnEditorActionListener(new TextView.OnEditorActionListener()
         {
-            public boolean onKey(View v, int keyCode, KeyEvent event)
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
             {
-                if(event.getAction() == KeyEvent.ACTION_DOWN)
+                if(actionId == EditorInfo.IME_ACTION_DONE)
                 {
-                    switch (keyCode)
-                    {
-                    case KeyEvent.KEYCODE_DPAD_CENTER:
-                    case KeyEvent.KEYCODE_ENTER:
-                        sendText();
-                        return true;
-                    }
+                    sendText();
+                    return true;
                 }
                 return false;
             }
         });
+
         _text.requestFocus();
     }
 

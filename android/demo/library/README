@@ -1,4 +1,4 @@
-This directory contains an Eclipse project for the library client.
+This directory contains an Android Studio project for the library client.
 
 The library client is an example of an Android front-end for an
 enterprise-style application. It allows you to query and manipulate

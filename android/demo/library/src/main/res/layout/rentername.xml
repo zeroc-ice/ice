@@ -9,7 +9,7 @@
         android:layout_marginLeft="20dip"
         android:layout_marginRight="20dip"
         android:text="Renter Name:"
-        android:gravity="left"
+        android:gravity="start"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <EditText
@@ -19,8 +19,10 @@
         android:layout_marginLeft="20dip"
         android:layout_marginRight="20dip"
         android:scrollHorizontally="true"
-        android:autoText="false"
-        android:capitalize="words"
         android:gravity="fill_horizontal"
-        android:textAppearance="?android:attr/textAppearanceMedium" android:singleLine="true"/>
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:inputType="textCapWords"
+        android:lines="1"
+        android:maxLines="1"
+            />
 </LinearLayout>

@@ -17,7 +17,6 @@
       <module fileurl="file://$PROJECT_DIR$/test/test.iml" filepath="$PROJECT_DIR$/test/test.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/android/testApp.iml" filepath="$PROJECT_DIR$/test/android/testApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/plugins/testPlugins.iml" filepath="$PROJECT_DIR$/test/plugins/testPlugins.iml" />
-      <module fileurl="file://$PROJECT_DIR$/test/src/test_Ice_acm/test_Ice_acm.iml" filepath="$PROJECT_DIR$/test/src/test_Ice_acm/test_Ice_acm.iml" />
     </modules>
   </component>
 </project>

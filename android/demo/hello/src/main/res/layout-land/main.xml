@@ -26,7 +26,10 @@
             android:layout_width="0dip"
 			android:layout_weight="75"
 			android:layout_height="wrap_content"
-            android:lines="1" android:maxLines="1" android:minLines="1" android:inputType="text"/>
+            android:lines="1"
+            android:maxLines="1"
+            android:minLines="1"
+            android:inputType="text"/>
 
 		<TextView
 		    android:layout_width="0dip"

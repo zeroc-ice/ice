@@ -37,10 +37,11 @@
 	    <EditText android:id="@+id/isbn"
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
-	        android:layout_marginRight="4dip"
+	        android:layout_marginEnd="4dip"
 	        android:gravity="center_vertical"
-	        android:singleLine="true"
-	        android:capitalize="words"
+            android:lines="1"
+            android:maxLines="1"
+            android:inputType="textCapWords"
 	        android:text="isbn"
 	    />
 
@@ -62,7 +63,7 @@
 		        android:textColor="?android:attr/textColorSecondary"
 		        android:textStyle="bold"
 		        android:textSize="14sp"
-		        android:paddingLeft="8dip"
+		        android:paddingStart="8dip"
 		        android:text="Title"
 			    />
 
@@ -77,10 +78,11 @@
 	    <EditText android:id="@+id/title"
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
-	        android:layout_marginRight="4dip"
+	        android:layout_marginEnd="4dip"
 	        android:gravity="center_vertical"
-	        android:singleLine="true"
-	        android:capitalize="words"
+            android:lines="1"
+            android:maxLines="1"
+            android:inputType="textCapWords"
 	        android:text="title"
 	    />
 
@@ -102,7 +104,7 @@
 		        android:textColor="?android:attr/textColorSecondary"
 		        android:textStyle="bold"
 		        android:textSize="14sp"
-		        android:paddingLeft="8dip"
+		        android:paddingStart="8dip"
 		        android:text="Authors"
 			    />
 

@@ -1,4 +1,4 @@
-This directory contains an Eclipse project for the hello client.
+This directory contains an Android Studio project for the hello client.
 
 The hello client is the Android equivalent of our command-line demo
 of the same name. In order to use this client, you must run a hello

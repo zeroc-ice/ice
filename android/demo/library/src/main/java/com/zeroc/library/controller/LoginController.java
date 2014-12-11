@@ -57,8 +57,11 @@ public class LoginController
         Ice.InitializationData initData = new Ice.InitializationData();
 
         initData.properties = Ice.Util.createProperties();
-        initData.properties.setProperty("Ice.ACM.Client", "0");
-        initData.properties.setProperty("Ice.RetryIntervals", "-1");
+        if(glacier2)
+        {
+            initData.properties.setProperty("Ice.RetryIntervals", "-1");
+            initData.properties.setProperty("Ice.ACM.Timeout", "0");
+        }
         initData.properties.setProperty("Ice.Trace.Network", "0");
 
         if(secure)

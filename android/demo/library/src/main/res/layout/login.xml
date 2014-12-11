@@ -22,12 +22,15 @@
 
 		<EditText
 			android:id ="@+id/hostname"
-			android:hint="hostname"
+			android:hint="IP or Hostname"
 			android:text="10.0.2.2"
 			android:layout_width="0dip"
 			android:layout_weight="70"
 			android:layout_height="wrap_content"
-			android:singleLine="true"/>
+            android:lines="1"
+            android:maxLines="1"
+            android:inputType="text"
+        />
 
 	</LinearLayout>
 
