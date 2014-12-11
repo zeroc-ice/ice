@@ -298,7 +298,8 @@ typedef IceUtil::Handle<Runnable> RunnablePtr;
 bool 
 isIn(const string s[], const string& name)
 {
-    for(int i = 0; i < sizeof(s); ++i)
+    int l = sizeof(s)/sizeof(string*);
+    for(int i = 0; i < l; ++i)
     {
         if(s[i] == name)
         {
