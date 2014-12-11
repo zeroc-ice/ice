@@ -10,8 +10,6 @@
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/IceUtil.h>
 
-#include <stdio.h>
-
 #include <CreateTest.h>
 #include <TestCommon.h>
 
@@ -53,12 +51,5 @@ CreateTest::run()
         ThreadControl control = t->start();
         control.join();
         test(t->threadran);
-        if((i % 256) == 0)
-        {
-            char buf[5];
-            sprintf(buf, "%04d", i);
-            cout << buf << "" << flush;
-        }
     }
-    cout << "    " << flush;
 }
