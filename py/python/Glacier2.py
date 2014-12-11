@@ -75,6 +75,17 @@ class SessionPingThread(threading.Thread):
         #
         self.done()
         self._app.sessionDestroyed()
+        
+class ConnectionCallbackI(Ice.ConnectionCallback):
+    def __init__(self, app):
+        self._app = app
+
+    def heartbeat(self, conn):
+        pass
+
+    def closed(self, conn):
+        self._app.sessionDestroyed()
+
 
 class Application(Ice.Application):
 
@@ -172,10 +183,21 @@ Application.NoSignalHandling.
                     status = 1
 
                 if Application._createdSession:
-                    timeout = Application._router.getSessionTimeout();
-                    if timeout > 0:
-                        ping = SessionPingThread(self, Application._router, timeout / 2)
-                        ping.start()
+                    acmTimeout = 0
+                    try:
+                        acmTimeout = Application._router.getACMTimeout()
+                    except(Ice.OperationNotExistException):
+                        pass
+                    if acmTimeout > 0:
+                        connection = Application._router.ice_getCachedConnection()
+                        assert(connection)
+                        connection.setACM(acmTimeout, Ice.Unset, Ice.ACMHeartbeat.HeartbeatAlways)
+                        connection.setCallback(ConnectionCallbackI(self))
+                    else:
+                        timeout = Application._router.getSessionTimeout()
+                        if timeout > 0:
+                            ping = SessionPingThread(self, Application._router, timeout / 2)
+                            ping.start()
                     Application._category = Application._router.getCategoryForClient()
                     status = self.runWithSession(args)
 
@@ -251,7 +273,6 @@ Application.NoSignalHandling.
 
     def doMain(self, args, initData):
         # Set the default properties for all Glacier2 applications.
-        initData.properties.setProperty("Ice.ACM.Client", "0")
         initData.properties.setProperty("Ice.RetryIntervals", "-1")
 
         restart = True
