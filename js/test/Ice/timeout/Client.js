@@ -159,13 +159,18 @@
             function(con)
             {
                 test(to.ice_getCachedConnection() === obj.ice_getCachedConnection());
-                return to.sleep(500);
+                return to.sleep(750);
             }
         ).then(
             failCB,
             function(ex)
             {
                 test(ex instanceof Ice.InvocationTimeoutException);
+                return obj.ice_ping();
+            }
+        ).then(
+            function()
+            {
                 to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(500));
                 return to.ice_getConnection();
             }

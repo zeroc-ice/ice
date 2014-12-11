@@ -171,12 +171,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(connection == to->ice_getConnection());
         try
         {
-            to->sleep(500);
+            to->sleep(750);
             test(false);
         }
         catch(const Ice::InvocationTimeoutException&)
         {
         }
+        obj->ice_ping();
         to = TimeoutPrx::checkedCast(obj->ice_invocationTimeout(500));
         test(connection == to->ice_getConnection());
         try
@@ -195,8 +196,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         TimeoutPrx to = TimeoutPrx::uncheckedCast(obj->ice_invocationTimeout(100));
         CallbackPtr cb = new Callback();
-        to->begin_sleep(500, newCallback_Timeout_sleep(cb, &Callback::responseEx, &Callback::exceptionEx));
+        to->begin_sleep(750, newCallback_Timeout_sleep(cb, &Callback::responseEx, &Callback::exceptionEx));
         cb->check();
+        obj->ice_ping();
     }
     {
         //
@@ -216,7 +218,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         try
         {
             con = to->ice_getConnection();
-            to->sleep(500);
+            to->sleep(750);
             test(false);
         }
         catch(const Ice::TimeoutException&)
@@ -231,11 +233,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 // Connection got closed as well.
             }
         }
+        obj->ice_ping();
 
         try
         {
             con = to->ice_getConnection();
-            to->end_sleep(to->begin_sleep(500));
+            to->end_sleep(to->begin_sleep(750));
             test(false);
         }
         catch(const Ice::TimeoutException&)
@@ -250,6 +253,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 // Connection got closed as well.
             }
         }
+        obj->ice_ping();
     }
     cout << "ok" << endl;
 

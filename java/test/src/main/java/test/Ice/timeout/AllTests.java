@@ -235,12 +235,13 @@ public class AllTests
             test(connection == to.ice_getConnection());
             try
             {
-                to.sleep(500 * mult);
+                to.sleep(750 * mult);
                 test(false);
             }
             catch(Ice.InvocationTimeoutException ex)
             {
             }
+            obj.ice_ping();
             to = TimeoutPrxHelper.checkedCast(obj.ice_invocationTimeout(500 * mult));
             test(connection == to.ice_getConnection());
             try
@@ -259,8 +260,9 @@ public class AllTests
             //
             TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(100));
             CallbackFail cb = new CallbackFail();
-            to.begin_sleep(500 * mult, cb);
+            to.begin_sleep(750 * mult, cb);
             cb.check();
+            obj.ice_ping();
         }
         {
             //
@@ -280,7 +282,7 @@ public class AllTests
             try
             {
                 con = to.ice_getConnection();
-                to.sleep(500);
+                to.sleep(750);
                 test(false);
             }
             catch(Ice.TimeoutException ex)
@@ -296,11 +298,12 @@ public class AllTests
                     // Connection got closed as well.
                 }
             }
+            obj.ice_ping();
 
             try
             {
                 con = to.ice_getConnection();
-                to.end_sleep(to.begin_sleep(500));
+                to.end_sleep(to.begin_sleep(750));
                 test(false);
             }
             catch(Ice.TimeoutException ex)
@@ -316,6 +319,7 @@ public class AllTests
                     // Connection got closed as well.
                 }
             }
+            obj.ice_ping();
         }
         out.println("ok");
 

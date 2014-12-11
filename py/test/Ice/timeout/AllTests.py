@@ -121,11 +121,11 @@ def allTests(communicator):
     to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(100));
     test(connection == to.ice_getConnection());
     try:
-        to.sleep(500);
+        to.sleep(750);
         test(False);
     except Ice.InvocationTimeoutException:
         pass
-
+    obj.ice_ping();
     to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(500));
     test(connection == to.ice_getConnection());
     try:
@@ -139,7 +139,7 @@ def allTests(communicator):
     # #
     # to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(250));
     # cb = new Callback();
-    # to.begin_sleep(500, newCallback_Timeout_sleep(cb, &Callback.responseEx, &Callback.exceptionEx));
+    # to.begin_sleep(750, newCallback_Timeout_sleep(cb, &Callback.responseEx, &Callback.exceptionEx));
     # cb.check();
 
     # #

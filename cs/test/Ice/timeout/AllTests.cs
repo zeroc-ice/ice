@@ -170,12 +170,13 @@ public class AllTests : TestCommon.TestApp
             test(connection == to.ice_getConnection());
             try
             {
-                to.sleep(500);
+                to.sleep(750);
                 test(false);
             }
             catch(Ice.InvocationTimeoutException)
             {
             }
+            obj.ice_ping();
             to = Test.TimeoutPrxHelper.checkedCast(obj.ice_invocationTimeout(500));
             test(connection == to.ice_getConnection());
             try
@@ -194,7 +195,7 @@ public class AllTests : TestCommon.TestApp
             //
             Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(100));
             Callback cb = new Callback();
-            to.begin_sleep(500).whenCompleted(
+            to.begin_sleep(750).whenCompleted(
                 () =>
                 {
                     test(false);
@@ -205,6 +206,7 @@ public class AllTests : TestCommon.TestApp
                     cb.called();
                 });
             cb.check();
+            obj.ice_ping();
         }
         {
             //
@@ -233,7 +235,7 @@ public class AllTests : TestCommon.TestApp
             try
             {
                 con = to.ice_getConnection();
-                to.sleep(500);
+                to.sleep(750);
                 test(false);
             }
             catch(Ice.TimeoutException)
@@ -248,11 +250,12 @@ public class AllTests : TestCommon.TestApp
                     // Connection got closed as well.
                 }
             }
+            obj.ice_ping();
 
             try
             {
                 con = to.ice_getConnection();
-                to.end_sleep(to.begin_sleep(500));
+                to.end_sleep(to.begin_sleep(750));
                 test(false);
             }
             catch(Ice.TimeoutException)
@@ -267,6 +270,7 @@ public class AllTests : TestCommon.TestApp
                     // Connection got closed as well.
                 }
             }
+            obj.ice_ping();
         }
         WriteLine("ok");
 
