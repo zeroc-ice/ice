@@ -1193,10 +1193,7 @@ def isDebug():
     # we assume is a release build or bin dist, tests that depends on debug
     # or release (C++) need to create the build.txt file.
     #
-    exe = "icebox"
-    if isWin32():
-        exe += ".exe"
-    return not os.path.isfile(os.path.join(getCppBinDir("cpp"), "icebox"))
+    return not os.path.isfile(os.path.join(getCppBinDir("cpp"), "icebox%s" % (".exe" if isWin32() else "")))
 
 import Expect
 
