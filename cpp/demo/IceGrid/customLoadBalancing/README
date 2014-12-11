@@ -7,7 +7,7 @@ rather than icegridnode as the executable name.
 
 In a separate window:
 
-$ icegridadmin --Ice.Config=config.grid -e \
+$ icegridadmin --Ice.Config=config.admin -e \
     "application add 'application.xml'"
 $ client
 

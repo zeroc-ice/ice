@@ -42,3 +42,9 @@ IceGrid.Node.CollocateRegistry=1
 IceGrid.Node.Trace.Activator=1
 #IceGrid.Node.Trace.Adapter=2
 #IceGrid.Node.Trace.Server=3
+
+#
+# Dummy username and password for icegridadmin.
+#
+IceGridAdmin.Username=foo
+IceGridAdmin.Password=bar

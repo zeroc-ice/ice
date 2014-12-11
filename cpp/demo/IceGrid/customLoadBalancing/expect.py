@@ -51,7 +51,7 @@ print("ok")
 
 sys.stdout.write("deploying application... ")
 sys.stdout.flush()
-admin = Util.spawn(Util.getIceGridAdmin() + ' --Ice.Config=config.grid')
+admin = Util.spawn(Util.getIceGridAdmin() + ' --Ice.Config=config.admin')
 admin.expect('>>>')
 admin.sendline("application add \'application.xml\'")
 admin.expect('>>>')
