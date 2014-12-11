@@ -47,7 +47,7 @@ jar {
         antfx.application(
                 id: 'IceGridGUI',
                 name: 'IceGrid Admin',
-                mainClass: 'IceGridGUI.MainProxy',
+                mainClass: 'IceGridGUI.Main',
                 fallbackClass: 'IceGridGUI.Fallback',
                 toolkit: 'swing')
 

@@ -89,7 +89,16 @@ task proguardJar(type: proguard.gradle.ProGuardTask, dependsOn: jar) {
 	libraryjars libJars
 	configuration 'icegridgui.pro'
 }
-assemble.dependsOn(proguardJar)
+task updateManifest(dependsOn: proguardJar) << {
+    ant.jar(update: true, destfile: "${libDir}/${jarName}") {
+        delegate.manifest {
+            attribute(name: 'Main-Class', value: 'IceGridGUI.MainProxy')
+            attribute(name: 'Built-By', value: 'Zeroc, Inc.')
+            attribute(name: 'Class-Path', value: '../resources/')
+        }
+    }
+}
+assemble.dependsOn(updateManifest)
 
 if(macosx)
 {
@@ -139,7 +148,6 @@ task copyJars(type: Copy, dependsOn: proguardJar) {
     from new File("${libDir}/${jarName}")
     into "${DESTDIR}${prefix}/lib"
 }
-
 
 task install(dependsOn: copyJars)
 if(macosx) {
