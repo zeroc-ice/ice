@@ -99,7 +99,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <PackageCertificateKeyFile>bidir_TemporaryKey.pfx</PackageCertificateKeyFile>
-    <PackageCertificateThumbprint>453273C2FDABA45C5F3C5D18F2A56D0640BAC69D</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>C03E2F096DE88C20139368FB6EC67A4ECAF2A2C3</PackageCertificateThumbprint>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
@@ -125,7 +125,6 @@
       <AdditionalIncludeDirectories>.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <ImageHasSafeExceptionHandlers>true</ImageHasSafeExceptionHandlers>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
     </Link>
   </ItemDefinitionGroup>

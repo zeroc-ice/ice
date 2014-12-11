@@ -99,7 +99,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <PackageCertificateKeyFile>TestSuite_TemporaryKey.pfx</PackageCertificateKeyFile>
-    <PackageCertificateThumbprint>71775926B956A058CA5E7CF88ECC346029F51F73</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>587C447EA492A448324E15106B03BA88AD21FD38</PackageCertificateThumbprint>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
@@ -139,7 +139,6 @@
     </PostBuildEvent>
     <Link>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-      <ImageHasSafeExceptionHandlers>true</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
