@@ -24,9 +24,10 @@ int
 Server::run(int, char**)
 {
     Ice::ObjectAdapterPtr adpt = communicator()->createObjectAdapter("ReplicatedAdapter");
-    Ice::ObjectPtr object = new TestI(communicator()->getProperties());
-    adpt->add(object, communicator()->stringToIdentity(communicator()->getProperties()->getProperty("Ice.ProgramName")));
-    adpt->add(object, communicator()->stringToIdentity(communicator()->getProperties()->getProperty("Identity")));
+    Ice::PropertiesPtr properties = communicator()->getProperties();
+    Ice::ObjectPtr object = new TestI(properties);
+    adpt->add(object, communicator()->stringToIdentity(properties->getProperty("Ice.ProgramName")));
+    adpt->add(object, communicator()->stringToIdentity(properties->getProperty("Identity")));
     shutdownOnInterrupt();
     try
     {
@@ -35,6 +36,13 @@ Server::run(int, char**)
     }
     catch(const Ice::ObjectAdapterDeactivatedException&)
     {
+    }
+    catch(const Ice::CommunicatorDestroyedException&)
+    {
+        //
+        // getAdmin might raise this if communicator is shutdown by
+        // servant.
+        //
     }
     communicator()->waitForShutdown();
     ignoreInterrupt();
