@@ -122,6 +122,10 @@ ReplicaCache::remove(const string& name, bool shutdown)
         {
             _observers->replicaRemoved(entry->getProxy());
         }
+        catch(const Ice::ConnectFailedException&)
+        {
+            // Expected if the replica is being shutdown.
+        }
         catch(const Ice::ObjectAdapterDeactivatedException&)
         {
             // Expected if the replica is being shutdown.
