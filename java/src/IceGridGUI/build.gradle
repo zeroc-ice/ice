@@ -90,11 +90,13 @@ task proguardJar(type: proguard.gradle.ProGuardTask, dependsOn: jar) {
 	configuration 'icegridgui.pro'
 }
 task updateManifest(dependsOn: proguardJar) << {
-    ant.jar(update: true, destfile: "${libDir}/${jarName}") {
-        delegate.manifest {
-            attribute(name: 'Main-Class', value: 'IceGridGUI.MainProxy')
-            attribute(name: 'Built-By', value: 'Zeroc, Inc.')
-            attribute(name: 'Class-Path', value: '../resources/')
+    if (hasJavaFx) {
+        ant.jar(update: true, destfile: "${libDir}/${jarName}") {
+            delegate.manifest {
+                attribute(name: 'Main-Class', value: 'IceGridGUI.MainProxy')
+                attribute(name: 'Built-By', value: 'Zeroc, Inc.')
+                attribute(name: 'Class-Path', value: '../resources/')
+            }
         }
     }
 }
