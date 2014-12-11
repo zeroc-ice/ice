@@ -11,7 +11,7 @@ package IceInternal;
 
 class FactoryACMMonitor implements ACMMonitor
 {
-    class Change
+    static class Change
     {
         Change(Ice.ConnectionI connection, boolean remove)
         {

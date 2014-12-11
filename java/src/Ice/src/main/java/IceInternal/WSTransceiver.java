@@ -301,6 +301,8 @@ final class WSTransceiver implements Transceiver
     @Override
     public void close()
     {
+        // Reallocate the buffer to avoid holding a large amount of memory.
+        _writeBuffer = new Buffer(false, java.nio.ByteOrder.BIG_ENDIAN);
         _delegate.close();
         _state = StateClosed;
     }
