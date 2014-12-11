@@ -1117,18 +1117,14 @@ value is an integer representing the exit status.
         Application._ctrlCHandler = CtrlCHandler()
 
         try:
-            status = 0
-
             Application._interrupted = False
             Application._appName = initData.properties.getPropertyWithDefault("Ice.ProgramName", args[0])
             Application._application = self
-            Application._communicator = initialize(args, initData)
-            Application._destroyed = False
 
             #
             # Used by _destroyOnInterruptCallback and _shutdownOnInterruptCallback.
             #
-            Application._nohup = Application._communicator.getProperties().getPropertyAsInt("Ice.Nohup") > 0
+            Application._nohup = initData.properties.getPropertyAsInt("Ice.Nohup") > 0
 
             #
             # The default is to destroy when a signal is received.
@@ -1140,7 +1136,25 @@ value is an integer representing the exit status.
         except:
             getProcessLogger().error(traceback.format_exc())
             status = 1
+        #
+        # Set _ctrlCHandler to 0 only once communicator.destroy() has
+        # completed.
+        # 
+        Application._ctrlCHandler.destroy()
+        Application._ctrlCHandler = None
+        
+        return status
 
+    def doMain(self, args, initData):
+        try:
+            Application._communicator = initialize(args, initData)
+            Application._destroyed = False
+            status = self.run(args)
+
+        except:
+            getProcessLogger().error(traceback.format_exc())
+            status = 1
+        
         #
         # Don't want any new interrupt and at this point (post-run),
         # it would not make sense to release a held signal to run
@@ -1170,20 +1184,8 @@ value is an integer representing the exit status.
             except:
                 getProcessLogger().error(traceback.format_exc())
                 status = 1
-
-            Application._communicator = None
-
-        #
-        # Set _ctrlCHandler to 0 only once communicator.destroy() has
-        # completed.
-        # 
-        Application._ctrlCHandler.destroy()
-        Application._ctrlCHandler = None
-
+            Application._communicator = None        
         return status
-
-    def doMain(self, args, initData):
-        return self.run(args)
 
     def run(self, args):
         '''This method must be overridden in a subclass. The base
