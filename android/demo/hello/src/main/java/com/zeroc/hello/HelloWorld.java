@@ -81,8 +81,13 @@ public class HelloWorld extends Activity
         }
     }
 
-    private Demo.HelloPrx createProxy()
+    private void updateProxy()
     {
+        if(_communicator == null)
+        {
+            return;
+        }
+
         String host = _host.getText().toString().trim();
         assert (host.length() > 0);
         // Change the preferences if necessary.
@@ -101,7 +106,7 @@ public class HelloWorld extends Activity
         {
             prx = prx.ice_timeout(timeout);
         }
-        return Demo.HelloPrxHelper.uncheckedCast(prx);
+        _helloPrx = Demo.HelloPrxHelper.uncheckedCast(prx);
     }
 
     class SayHelloI extends Demo.Callback_Hello_sayHello
@@ -175,12 +180,11 @@ public class HelloWorld extends Activity
 
     private void sayHello()
     {
-        Demo.HelloPrx hello = createProxy();
         try
         {
             if(!_deliveryMode.isBatch())
             {
-                Ice.AsyncResult r = hello.begin_sayHello(_delay.getProgress(), new SayHelloI());
+                Ice.AsyncResult r = _helloPrx.begin_sayHello(_delay.getProgress(), new SayHelloI());
                 if(r.sentSynchronously())
                 {
                     if(_deliveryMode == DeliveryMode.TWOWAY || _deliveryMode == DeliveryMode.TWOWAY_SECURE)
@@ -198,7 +202,7 @@ public class HelloWorld extends Activity
             else
             {
                 _flushButton.setEnabled(true);
-                hello.sayHello(_delay.getProgress());
+                _helloPrx.sayHello(_delay.getProgress());
                 _status.setText("Queued hello request");
             }
         }
@@ -225,12 +229,11 @@ public class HelloWorld extends Activity
 
     private void shutdown()
     {
-        Demo.HelloPrx hello = createProxy();
         try
         {
             if(!_deliveryMode.isBatch())
             {
-                hello.begin_shutdown(new Demo.Callback_Hello_shutdown()
+                _helloPrx.begin_shutdown(new Demo.Callback_Hello_shutdown()
                 {
                     @Override
                     public void exception(final Ice.LocalException ex)
@@ -271,7 +274,7 @@ public class HelloWorld extends Activity
             else
             {
                 _flushButton.setEnabled(true);
-                hello.shutdown();
+                _helloPrx.shutdown();
                 _status.setText("Queued shutdown request");
             }
         }
@@ -378,6 +381,7 @@ public class HelloWorld extends Activity
                 {
                     _sayHelloButton.setEnabled(true);
                     _shutdownButton.setEnabled(true);
+                    updateProxy();
                 }
             }
 
@@ -409,6 +413,7 @@ public class HelloWorld extends Activity
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
             {
                 changeDeliveryMode(id);
+                updateProxy();
             }
 
 
@@ -452,6 +457,7 @@ public class HelloWorld extends Activity
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromThumb)
             {
                 timeoutView.setText(String.format("%.1f", progress / 1000.0));
+                updateProxy();
             }
 
             public void onStartTrackingTouch(SeekBar seekBar)
@@ -503,6 +509,7 @@ public class HelloWorld extends Activity
                         }
                         _status.setText("Ready");
                         _communicator = communicator;
+                        updateProxy();
                     }
                 });
             }
@@ -612,6 +619,7 @@ public class HelloWorld extends Activity
 
     private Ice.Communicator _communicator = null;
     private DeliveryMode _deliveryMode;
+    private Demo.HelloPrx _helloPrx = null;
 
     private Button _sayHelloButton;
     private Button _shutdownButton;
