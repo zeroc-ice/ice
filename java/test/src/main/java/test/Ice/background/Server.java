@@ -118,6 +118,10 @@ public class Server extends test.Util.Application
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.MessageSizeMax", "50000");
 
+        // This test relies on filling the TCP send/recv buffer, so
+        // we rely on a fixed value for these buffers.
+        initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
+
         //
         // Setup the test transport plug-in.
         //

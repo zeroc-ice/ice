@@ -1218,8 +1218,14 @@ public class AllTests
 
         ctl.holdAdapter(); // Hold to block in request send.
 
-        byte[] seq = new byte[1024 * 1024];
+        byte[] seq = new byte[1024];
         new java.util.Random().nextBytes(seq); // Make sure the request doesn't compress too well.
+
+        //
+        // Fill up the receive and send buffers, stop when we're not
+        // sending synchronously anymore (an indication that the buffers
+        // are full).
+        //
         NoResponse noResponse = new NoResponse();
         while(backgroundOneway.begin_opWithPayload(seq, noResponse).sentSynchronously())
         {

@@ -1192,7 +1192,7 @@ readWriteTests(const ConfigurationPtr& configuration,
     ctl->holdAdapter(); // Hold to block in request send.
 
     Ice::ByteSeq seq;
-    seq.resize(1024 * 1024); // Make sure the request doesn't compress too well.
+    seq.resize(1024); // Make sure the request doesn't compress too well.
     for(Ice::ByteSeq::iterator p = seq.begin(); p != seq.end(); ++p)
     {
         *p = static_cast<Ice::Byte>(IceUtilInternal::random(255));
@@ -1201,9 +1201,14 @@ readWriteTests(const ConfigurationPtr& configuration,
     Callback_Background_opWithPayloadPtr callbackWP = newCallback_Background_opWithPayload(cb, 
                                                                                            &OpAMICallback::noResponse, 
                                                                                            &OpAMICallback::noException);
-    while(backgroundOneway->begin_opWithPayload(seq, callbackWP)->sentSynchronously())
-    {
-    }
+
+    //
+    // Fill up the receive and send buffers, stop when we're not
+    // sending synchronously anymore (an indication that the buffers
+    // are full).
+    //
+    while(backgroundOneway->begin_opWithPayload(seq, callbackWP)->sentSynchronously());
+
 
     Callback_Background_opPtr callback;
     cb = new OpAMICallback();
