@@ -84,9 +84,9 @@
                                         return prx.opByteSOnewayCallCount();
                                     }
                                 ).then(
-                                    function(count)
+                                    function(n)
                                     {
-                                        return wait(count);
+                                        return wait(n + count);
                                     }
                                 );
                             }
