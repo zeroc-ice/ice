@@ -17,6 +17,7 @@ public class RemoteCommunicatorI : RemoteCommunicatorDisp_
         Ice.Communicator com = current.adapter.getCommunicator();
         Ice.Properties properties = com.getProperties();
         string protocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+        string host = properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
 
         string name = System.Guid.NewGuid().ToString();
         if(timeout >= 0)
@@ -32,7 +33,7 @@ public class RemoteCommunicatorI : RemoteCommunicatorDisp_
             properties.setProperty(name + ".ACM.Heartbeat", heartbeat.ToString());
         }
         properties.setProperty(name + ".ThreadPool.Size", "2");
-        Ice.ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, protocol + " -h 127.0.0.1");
+        Ice.ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, protocol + " -h " + host);
         return RemoteObjectAdapterPrxHelper.uncheckedCast(current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
     }
 

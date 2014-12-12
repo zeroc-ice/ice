@@ -21,6 +21,7 @@ public class RemoteCommunicatorI extends _RemoteCommunicatorDisp
         Ice.Communicator com = current.adapter.getCommunicator();
         Ice.Properties properties = com.getProperties();
         String protocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+        String host = properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
 
         String name = java.util.UUID.randomUUID().toString();
         if(timeout >= 0)
@@ -36,7 +37,7 @@ public class RemoteCommunicatorI extends _RemoteCommunicatorDisp
             properties.setProperty(name + ".ACM.Heartbeat", Integer.toString(heartbeat));
         }
         properties.setProperty(name + ".ThreadPool.Size", "2");
-        Ice.ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, protocol + " -h 127.0.0.1");
+        Ice.ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, protocol + " -h " + host);
         return RemoteObjectAdapterPrxHelper.uncheckedCast(
             current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
     }
