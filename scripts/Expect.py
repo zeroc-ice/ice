@@ -388,7 +388,7 @@ class Expect (object):
             self.r.setWatchDog(watchDog)
         self.r.start()
 
-    def expect(self, pattern, timeout = 20):
+    def expect(self, pattern, timeout = 60):
         """pattern is either a string, or a list of string regexp patterns.
 
            timeout == None expect can block indefinitely.
@@ -416,7 +416,7 @@ class Expect (object):
             raise e
         return self.matchindex
 
-    def expectall(self, pattern, timeout = 10):
+    def expectall(self, pattern, timeout = 60):
         """pattern is a list of string regexp patterns.
 
            timeout == None expect can block indefinitely.
