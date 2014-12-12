@@ -25,8 +25,7 @@ SOBJS		= $(SLICE_OBJS) \
 		  .\Server.obj
 
 VOBJS		= $(SLICE_OBJS) \
-		  .\PermissionsVerifier.obj \
-		  .\Test.obj
+		  .\PermissionsVerifier.obj
 
 OBJS		= $(COBJS) \
 		  $(SOBJS) \

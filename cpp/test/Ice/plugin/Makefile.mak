@@ -58,7 +58,7 @@ $(PLUGINDIR)\$(DLLNAME): $(POBJS)
 	@if exist $(PLUGINDIR)\$(DLLNAME:.dll=.exp) del /q $(PLUGINDIR)\$(DLLNAME:.dll=.exp)
 
 $(CLIENT)$(EXT): $(COBJS)
-	$(LINK) $(LD_TESTFLAGS) $(CPDBFLAGS) $(SETARGV) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	$(LINK) $(LD_TESTFLAGS) $(CPDBFLAGS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
