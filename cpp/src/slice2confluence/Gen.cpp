@@ -248,13 +248,13 @@ Slice::GeneratorBase::openDoc(const ContainedPtr& c)
         {
             if (path == "." || path == _dir)
             {
-                //prevent files from starting with ".-"
-                //append suffix to avoid name conflicts
+                // Prevent files from starting with ".-"
+                // Append suffix to avoid name conflicts
                 path += "/" + *i + MODULE_SUFFIX;
             }
             else
             {
-                //prepend filenames with directory names and hyphen to avoid conflicts in confluence
+                // Prepend filenames with directory names and hyphen to avoid conflicts in confluence
                 path += "-" + *i;
             }
         }
@@ -268,7 +268,7 @@ Slice::GeneratorBase::openDoc(const ContainedPtr& c)
         }
         ++num;
         
-        //don't make last directory, instead prepend name
+        // Don't make last directory, instead prepend name
         if(num < components.size() - 1)
         {
             makeDir(path);
@@ -344,11 +344,10 @@ Slice::GeneratorBase::getNavMarkup(const std::string& prevLink, const std::strin
     return _out.getNavMarkup(prevLink, nextLink);
 }
 
-
 bool
 Slice::GeneratorBase::compareSymbolNames(const string& n1, const string& n2)
 {
-    //uppercase versions for case-insensitive compare
+    // Uppercase versions for case-insensitive compare
     string u1 = getUpper(n1);
     string u2 = getUpper(n2);
   
@@ -358,7 +357,7 @@ Slice::GeneratorBase::compareSymbolNames(const string& n1, const string& n2)
     }
     else
     {
-        //find indices
+        // Find indices
         vector<string>::const_iterator p1;
         vector<string>::const_iterator p2;
         
@@ -383,22 +382,22 @@ Slice::GeneratorBase::compareSymbolNames(const string& n1, const string& n2)
         
         if (i1 >= _sortOrder.size() && i2 >= _sortOrder.size())
         {
-            //both unmentioned; natural order
+            // Both unmentioned; natural order
             return u1 < u2;
         }
         else if (i1 >= _sortOrder.size())
         {
-            //unmentioned values (n1) sorted to the end
+            // Unmentioned values (n1) sorted to the end
             return false;
         }
         else if (i2 > _sortOrder.size())
         {
-            //unmentioned values (n2) sorted to the end
+            // Unmentioned values (n2) sorted to the end
             return true;
         }
         else
         {
-            //both mentioned, order as specified
+            // Both mentioned, order as specified
             return i1 < i2;
         }
     }
@@ -457,7 +456,7 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const ContainerPtr& co
     StringList throws = getTagged("throws", comment);
     StringList see = getTagged("see", comment);
     
-    //strip out any "@userImplemented" doc tags that remain
+    // Strip out any "@userImplemented" doc tags that remain
     isTagged("userImplemented", comment);
     
     string::size_type pos = comment.find_last_not_of(" \t\r\n");
@@ -720,14 +719,15 @@ Slice::GeneratorBase::printMetaData(const ContainedPtr& p, bool isUserImplemente
         StringList::const_iterator q = metaData.begin();
         while(q != metaData.end())
         {
-            //if not deprecated
+            // If not deprecated
             if (strncmp(q->c_str(), DEP_MARKER.c_str(), strlen(DEP_MARKER.c_str())))
             {
-                //for non-user-implemented items, do not print the restricted metadata
+                // For non-user-implemented items, do not print the restricted metadata
                 if (!isUserImplemented)
                 {
                     bool filterOutMetaData = false;
-                    for (StringList::const_iterator r = userImplementedOnly.begin(); r != userImplementedOnly.end(); ++r) {
+                    for(StringList::const_iterator r = userImplementedOnly.begin(); r != userImplementedOnly.end(); ++r)
+                    {
                         if ( !strncmp(q->c_str(), r->c_str(), strlen(q->c_str())) )
                         {
                             filterOutMetaData = true;
@@ -820,32 +820,32 @@ compareContained(const ContainedPtr& p1, const ContainedPtr& p2)
 
     if (!c1 && !c2)
     {
-        //both are top-level containers, compare cnames
+        // Both are top-level containers, compare cnames
         return Slice::GeneratorBase::compareSymbolNames(p1->name(), p2->name());
     }
     else if (!c1)
     {
         if (p1->name() == c2->name())
         {
-            //module index comes before its own contents
+            // Module index comes before its own contents
             return true;
         }
-        //p1 is top-level, compare to p2's parent
+        // p1 is top-level, compare to p2's parent
         return Slice::GeneratorBase::compareSymbolNames(p1->name(), c2->name());
     }
     else if (!c2)
     {
         if (c1->name() == p2->name())
         {
-            //module index comes before its own contents
+            // Module index comes before its own contents
             return false;
         }
-        //p2 is top-level, compare to p1's parent
+        // p2 is top-level, compare to p1's parent
         return Slice::GeneratorBase::compareSymbolNames(c1->name(), p2->name());
     }
     if (!c1 || !c2 || c1->name() == c2->name())
     {
-        //same container, compare names
+        // Same container, compare names
         return Slice::GeneratorBase::getUpper(p1->name()) < Slice::GeneratorBase::getUpper(p2->name());
     }
     else
@@ -856,15 +856,15 @@ compareContained(const ContainedPtr& p1, const ContainedPtr& p2)
 
         if (p1->name() == c2->name())
         {   
-            //module index comes before its own contents
+            // Module index comes before its own contents
             return true;
         }   
         if (p2->name() == c1->name())
         {
-            //module index comes before its own contents
+            // Module index comes before its own contents
             return false;
         } 
-        //different containers, compare container names
+        // Different containers, compare container names
         return Slice::GeneratorBase::compareSymbolNames(c1->name(), c2->name());
     }
 }
@@ -872,6 +872,10 @@ compareContained(const ContainedPtr& p1, const ContainedPtr& p2)
 void
 Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
 {
+    //
+    // mes: Disabling nav buttons in header/footer
+    //
+#if 0
     ContainerPtr container = ContainerPtr::dynamicCast(c);
     string scoped = c->scoped();
     ContainedList::const_iterator prev = _symbols.end();
@@ -911,7 +915,7 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
     string prevLink;
     if(isFirst)
     {
-        //nav wraps around to last items
+        // Nav wraps around to last items
         prev = _symbols.end();
         --prev;
     } 
@@ -936,7 +940,7 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
     string nextLink;
     if(isLast)
     {
-        //nav wraps around to first items
+        // Nav wraps around to first items
         next = _symbols.begin();
     }
     nextLink = getLinkPath(*next, container, ModulePtr::dynamicCast(*next), onEnumPage);
@@ -958,6 +962,7 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
     }
 
     _out << getNavMarkup(prevLink, nextLink);
+#endif
 }
 
 void
@@ -1378,14 +1383,15 @@ Slice::GeneratorBase::getLinkPath(const SyntaxTreeBasePtr& p, const ContainerPtr
         target.pop_front();
     }
     
-    if ((forIndex && path == parent) || (parent.empty() && path.find("-") == string::npos) || DictionaryPtr::dynamicCast(p))
+    if((forIndex && path == parent) || (parent.empty() && path.find("-") == string::npos) ||
+        DictionaryPtr::dynamicCast(p))
     {
-        //link to parent, add suffix
+        // Link to parent, add suffix
         path += MODULE_SUFFIX;
     }
-    else //if (path != INDEX_NAME && !path.empty() && !parent.empty() && path != parent)
+    else // if (path != INDEX_NAME && !path.empty() && !parent.empty() && path != parent)
     {
-        //intra-package links need package name, unlike with html dir structure
+        // Intra-package links need package name, unlike with html dir structure
         EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(p);
 	if(enumerator)
 	{
@@ -1518,7 +1524,7 @@ Slice::GeneratorBase::isTagged(const string& tag, string& comment)
     string::size_type begin = comment.find("@" + tag, 0);
     if (begin != string::npos)
     {
-        comment.erase(begin, tag.size()+1);
+        comment.erase(begin, tag.size() + 1);
         return true;
     }
     return false;
@@ -1546,14 +1552,14 @@ Slice::GeneratorBase::getScopedMinimized(const ContainedPtr& contained, const Co
     
 //    do
 //    {
-//        string s2 = q->scoped(); //containing scope
+//        string s2 = q->scoped(); // Containing scope
 //        s2 += "::";
 //        
 //        if(s.find(s2) == 0)
 //        {
 //            if (q->scoped().find("::", 2) != string::npos)
 //            {
-//                return "MIN3::"+s.substr(s2.size());
+//                return "MIN3::" + s.substr(s2.size());
 //            }
 //            return "MIN2::" + s.substr(2);
 //        }
@@ -1563,7 +1569,7 @@ Slice::GeneratorBase::getScopedMinimized(const ContainedPtr& contained, const Co
 //    }
 //    while(q);
     
-    string s2 = q->scoped(); //containing scope
+    string s2 = q->scoped(); // Containing scope
     s2 += "::";
 
     if(s.find(s2) == 0)
@@ -1576,13 +1582,13 @@ Slice::GeneratorBase::getScopedMinimized(const ContainedPtr& contained, const Co
 //        
         if (q->scoped().find("::", 2) != string::npos)
         {
-            //there are at least two components above contained.
-            //locally scoped const/member/operation
+            // There are at least two components above contained.
+            // Locally scoped const/member/operation
             return s.substr(s2.size());
         }
-        else if (s.find("::"+q->name()) == 0)
+        else if (s.find("::" + q->name()) == 0)
         {
-            //within this module
+            // Within this module
             return s.substr(s2.size());
         }
 //
@@ -1591,7 +1597,7 @@ Slice::GeneratorBase::getScopedMinimized(const ContainedPtr& contained, const Co
     p = q->container();
     q = ContainedPtr::dynamicCast(p);
     
-    return s.substr(2);//s
+    return s.substr(2); // s
 }
 
 StringList
@@ -1828,7 +1834,7 @@ Slice::GeneratorBase::readFile(const string& file)
 void
 Slice::GeneratorBase::getHeaders(const string& header, string& h1, string& h2)
 {
-    //do nothing. No headers in confluence markup.
+    // Do nothing. No headers in confluence markup.
 }
 
 string
@@ -1953,7 +1959,7 @@ Slice::StartPageGenerator::generate(const ModulePtr& m)
 void
 Slice::StartPageGenerator::printHeaderFooter()
 {
-    //do nothing
+    // Do nothing
 }
 
 Slice::FileVisitor::FileVisitor(Files& files)

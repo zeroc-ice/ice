@@ -58,7 +58,7 @@ Confluence::ConfluenceOutput::print(const char* s)
         _se = false;
     }
     _text = true;
-    
+
     if(_escape)
     {
         string escaped = escape(s);
@@ -70,18 +70,18 @@ Confluence::ConfluenceOutput::print(const char* s)
     }
 }
 
-string 
+string
 Confluence::ConfluenceOutput::escapeComment(string comment)
 {
     list< pair<unsigned int,unsigned int> > escaperLimits = getMarkerLimits(comment);
     string escapeChars = "\\{}-_+*|[]";
-    
-    //for each escape character
+
+    // For each escape character
     for(string::iterator i = escapeChars.begin(); i < escapeChars.end(); ++i)
     {
         string c(1, *i);
         string replacement;
-        
+
         if(c == "\\")
         {
             replacement = "\\\\";
@@ -122,16 +122,17 @@ Confluence::ConfluenceOutput::escapeComment(string comment)
         {
             replacement = "\\]";
         }
-        
+
         size_t pos = comment.find(c);
-        
-        //for each position of a found escape character
+
+        // For each position of a found escape character
         while(pos != string::npos)
         {
             pair<unsigned int,unsigned int> *region = NULL;
-            
-            //is this pos in an escaped section?
-            for(list<pair<unsigned int,unsigned int> >::iterator i = escaperLimits.begin(); i != escaperLimits.end(); ++i)
+
+            // Is this pos in an escaped section?
+            for(list<pair<unsigned int,unsigned int> >::iterator i = escaperLimits.begin(); i != escaperLimits.end();
+                ++i)
             {
                 if(pos >= i->first && pos <= i->second)
                 {
@@ -139,16 +140,16 @@ Confluence::ConfluenceOutput::escapeComment(string comment)
                     break;
                 }
             }
-            
+
             if(region == NULL)
             {
                 comment.replace(pos, c.size(), replacement);
-                pos = comment.find(c, pos+replacement.size());
+                pos = comment.find(c, pos + replacement.size());
             }
             else
             {
-                //skip ahead past the marked section
-                pos = comment.find(c, region->second+1);
+                // Skip ahead past the marked section
+                pos = comment.find(c, region->second + 1);
             }
         }
     }
@@ -156,13 +157,13 @@ Confluence::ConfluenceOutput::escapeComment(string comment)
     return comment;
 }
 
-string 
+string
 Confluence::ConfluenceOutput::convertCommentHTML(string comment)
 {
     comment = escapeComment(comment);
-    
+
     bool italics = false;
-    
+
     size_t tagStart = comment.find("<");
     while(tagStart != string::npos)
     {
@@ -170,63 +171,63 @@ Confluence::ConfluenceOutput::convertCommentHTML(string comment)
         string tag = comment.substr(tagStart + 1, tagEnd - (tagStart + 1));
         string replacement = "";
         bool isEndTag = tag[0] == '/';
-        if(isEndTag) 
+        if(isEndTag)
         {
-            //strip slash character
+            // Strip slash character
             tag.erase(remove(tag.begin(), tag.end(), '/'), tag.end());
         }
-        
+
         size_t spacepos = tag.find(" ");
         list<pair<string,string> > attributes;
-        
+
         string rest;
         if(spacepos != string::npos)
         {
-            //get the rest and seperate into attrs
+            // Get the rest and separate into attrs
             rest = tag.substr(spacepos);
-            
-            //get just the tag
+
+            // Get just the tag
             tag = tag.substr(0, spacepos);
-            
+
             size_t nextSpace = 0;
             size_t lastSpace = 0;
             do
             {
                 lastSpace = nextSpace;
-                nextSpace = rest.find(" ", lastSpace+1); //rest starts with a space
-                
+                nextSpace = rest.find(" ", lastSpace + 1); // Rest starts with a space
+
                 string setting;
                 if(nextSpace == string::npos)
                 {
                     setting = rest.substr(lastSpace);
                 }
                 else {
-                    setting = rest.substr(lastSpace, nextSpace-lastSpace);
+                    setting = rest.substr(lastSpace, nextSpace - lastSpace);
                 }
-                
+
                 size_t eqPos = setting.find("=");
                 if(eqPos != string::npos)
                 {
-                    string aName = setting.substr(1, eqPos-1);
-                    string aVal = setting.substr(eqPos+1);
-                    //remove quotes from val
+                    string aName = setting.substr(1, eqPos - 1);
+                    string aVal = setting.substr(eqPos + 1);
+                    // Remove quotes from val
                     size_t qPos = aVal.find("\"");
                     while(qPos != string::npos)
                     {
                         aVal.erase(qPos, 1);
                         qPos = aVal.find("\"");
                     }
-                    
+
                     pair<string,string> p = make_pair(aName, aVal);
                     attributes.push_back(p);
                 }
                 else
                 {
-                    //bad attribute, ignore
+                    // Bad attribute, ignore
                 }
             } while(nextSpace != string::npos);
         }
-        
+
         if(tag == "tt")
         {
             if(!isEndTag)
@@ -240,7 +241,7 @@ Confluence::ConfluenceOutput::convertCommentHTML(string comment)
         }
         else if(tag == "p")
         {
-            //special case: Some classes add markup
+            // Special case: Some classes add markup
             for(list<pair<string,string> >::iterator i = attributes.begin(); i != attributes.end(); ++i)
             {
                 if(i->first == "class" && i->second == "Note")
@@ -254,7 +255,7 @@ Confluence::ConfluenceOutput::convertCommentHTML(string comment)
                     break;
                 }
             }
-            
+
             if(!isEndTag)
             {
                 if(italics)
@@ -292,7 +293,7 @@ Confluence::ConfluenceOutput::convertCommentHTML(string comment)
             }
             else
             {
-                _commentListMarkers.erase(_commentListMarkers.size()-1);
+                _commentListMarkers.erase(_commentListMarkers.size() - 1);
             }
         }
         else if(tag == "ul")
@@ -307,7 +308,7 @@ Confluence::ConfluenceOutput::convertCommentHTML(string comment)
             }
             else
             {
-                _commentListMarkers.erase(_commentListMarkers.size()-1);
+                _commentListMarkers.erase(_commentListMarkers.size() - 1);
             }
         }
         else if(tag == "li")
@@ -318,7 +319,7 @@ Confluence::ConfluenceOutput::convertCommentHTML(string comment)
                 oss << "\n" << _commentListMarkers << " ";
                 replacement = oss.str();
             }
-            //do nothing for end tag
+            // Do nothing for end tag
         }
         else if(tag == "dl")
         {
@@ -364,37 +365,37 @@ Confluence::ConfluenceOutput::convertCommentHTML(string comment)
                 replacement = "_";
             }
         }
-        else 
+        else
         {
             replacement = "*{{UNRECOGNIZED MARKUP: " + tag + "}}*";
         }
-        
-        //apply replacement
+
+        // Apply replacement
         if(tag == "p")
         {
             comment.erase(tagStart, tagEnd + 1 - tagStart);
-            size_t displace = comment.find_first_not_of(" \n\r\t", tagStart); //skip ahead over whitespace
+            size_t displace = comment.find_first_not_of(" \n\r\t", tagStart); // Skip ahead over whitespace
             comment.insert(displace, replacement);
         }
         else
         {
-            comment.replace(tagStart, tagEnd + 1 - tagStart, replacement); //don't skip whitespace
+            comment.replace(tagStart, tagEnd + 1 - tagStart, replacement); // Don't skip whitespace
         }
-        
-        
-        //special case: terminate <p> (and any italics) on double newline or end of comment
-        size_t dnl = comment.find("\n\n", tagStart+replacement.size());
+
+
+        // Special case: terminate <p> (and any italics) on double newline or end of comment
+        size_t dnl = comment.find("\n\n", tagStart + replacement.size());
         tagStart = comment.find("<");
-        
+
         if(italics)
         {
             if(tagStart == string::npos && dnl == string::npos)
             {
-                //end italics before javadoc markup
-                size_t atPos = comment.find("@", tagStart+replacement.size());
+                // End italics before javadoc markup
+                size_t atPos = comment.find("@", tagStart + replacement.size());
                 if(atPos != string::npos)
                 {
-                    //found markup. now move to the last non-whitespace char before the markup and end italics 
+                    // Found markup. now move to the last non-whitespace char before the markup and end italics
                     string before = comment.substr(0, atPos);
                     size_t endLocation = before.find_last_not_of(" \n\r\t");
                     comment.insert(endLocation, "_");
@@ -402,7 +403,7 @@ Confluence::ConfluenceOutput::convertCommentHTML(string comment)
                 }
                 else
                 {
-                    //no markup; end of comment
+                    // No markup; end of comment
                     size_t endLocation = comment.find_last_not_of(" \n\r\t");
                     comment.insert(endLocation, "_");
                     italics = false;
@@ -416,7 +417,7 @@ Confluence::ConfluenceOutput::convertCommentHTML(string comment)
                 italics = false;
             }
         }
-        
+
     }
     return comment;
 }
@@ -443,123 +444,123 @@ Confluence::ConfluenceOutput::startElement(const string& element)
     {
         escaped = element;
     }
-    
+
     string::size_type tagpos = element.find_first_of(" ");
     const string tagname = element.substr(0, tagpos).c_str();
-    
-    
-    if(tagname == "p") 
+
+
+    if(tagname == "p")
     {
         _out << "\n";
-    } 
-    else if(tagname == "b") 
+    }
+    else if(tagname == "b")
     {
         _out << "*";
-    } 
-    else if(tagname == "panel") 
+    }
+    else if(tagname == "panel")
     {
         _out << "{panel}";
-    } 
-    else if(tagname == "blockquote") 
+    }
+    else if(tagname == "blockquote")
     {
         _out << "{section}{column:width=10px}{column} {column}";
-    } 
-    else if(tagname == "dl") 
+    }
+    else if(tagname == "dl")
     {
         _out << "\n";
-    } 
-    else if(tagname == "dt") 
+    }
+    else if(tagname == "dt")
     {
         _out << "";
-    } 
-    else if(tagname == "dd") 
+    }
+    else if(tagname == "dd")
     {
         _out << "--- ";
-    } 
-    else if(tagname == "table") 
+    }
+    else if(tagname == "table")
     {
         _out << "{table}\n";
-    } 
-    else if(tagname == "tr") 
+    }
+    else if(tagname == "tr")
     {
         _out << "{tr}\n";
-    } 
-    else if(tagname == "td") 
+    }
+    else if(tagname == "td")
     {
         _out << "{td}";
-    } 
-    else if(tagname == "th") 
+    }
+    else if(tagname == "th")
     {
         _out << "{th}";
-    } 
-    else if(tagname == "div") 
+    }
+    else if(tagname == "div")
     {
         _out << "{div}";
-    } 
-    else if(tagname == "span") 
+    }
+    else if(tagname == "span")
     {
         _out << "{span}";
-    } 
-    else if(tagname == "ol") 
+    }
+    else if(tagname == "ol")
     {
         if(_listMarkers.empty())
         {
             _out << "\n";
         }
         _listMarkers.append("#");
-    } 
-    else if(tagname == "ul") 
+    }
+    else if(tagname == "ul")
     {
         if(_listMarkers.empty())
         {
             _out << "\n";
         }
         _listMarkers.append("*");
-    } 
-    else if(tagname == "li") 
+    }
+    else if(tagname == "li")
     {
         _out << "\n" << _listMarkers << " ";
-    } 
-    else if(tagname == "hr") 
+    }
+    else if(tagname == "hr")
     {
         _out << "----";
-    } 
-    else if(tagname == "h1") 
+    }
+    else if(tagname == "h1")
     {
         _out << "\nh1. ";
-    } 
+    }
     else if(tagname == "h2")
     {
         _out << "\nh2. ";
-    } 
-    else if(tagname == "h3") 
+    }
+    else if(tagname == "h3")
     {
         _out << "\nh3. ";
-    } 
+    }
     else if(tagname == "h4")
     {
         _out << "\nh4. ";
-    } 
-    else if(tagname == "h5") 
+    }
+    else if(tagname == "h5")
     {
         _out << "\nh5. ";
-    } 
-    else if(tagname == "h6") 
+    }
+    else if(tagname == "h6")
     {
         _out << "\nh6. ";
-    } 
-    else if(tagname == "tt") 
+    }
+    else if(tagname == "tt")
     {
         _out << "{{";
-    } 
-    else 
+    }
+    else
     {
         _out << "{" << escaped << "}";
     }
-    
+
     _se = true;
     _text = false;
-    
+
     string::size_type pos = element.find_first_of(" \t");
     if(pos == string::npos)
     {
@@ -569,7 +570,7 @@ Confluence::ConfluenceOutput::startElement(const string& element)
     {
         _elementStack.push(element.substr(0, pos));
     }
-    
+
     ++_pos; // TODO: ???
     inc();
     _separator = false;
@@ -580,7 +581,7 @@ Confluence::ConfluenceOutput::endElement()
 {
     string element = _elementStack.top();
     _elementStack.pop();
-    
+
     string escaped;
     if(_escape)
     {
@@ -590,35 +591,35 @@ Confluence::ConfluenceOutput::endElement()
     {
         escaped = element;
     }
-    
+
     string::size_type tagpos = element.find_first_of(" ");
     const string tagname = element.substr(0, tagpos).c_str();
-    
-    if(tagname == "p") 
+
+    if(tagname == "p")
     {
         _out << "\n";
     }
-    else if(tagname == "b") 
+    else if(tagname == "b")
     {
         _out << "*";
-    } 
-    else if(tagname == "panel") 
+    }
+    else if(tagname == "panel")
     {
         _out << "{panel}\n";
-    } 
-    else if(tagname == "blockquote") 
+    }
+    else if(tagname == "blockquote")
     {
         _out << "{column}{section}\n";
-    } 
-    else if(tagname == "dl") 
+    }
+    else if(tagname == "dl")
     {
         _out << "\n";
-    } 
-    else if(tagname == "dt") 
+    }
+    else if(tagname == "dt")
     {
         _out << " ";
     }
-    else if(tagname == "dd") 
+    else if(tagname == "dd")
     {
         _out << "\n";
     }
@@ -630,71 +631,71 @@ Confluence::ConfluenceOutput::endElement()
     {
         _out << "{tr}\n";
     }
-    else if(tagname == "td") 
+    else if(tagname == "td")
     {
         _out << "{td}\n";
     }
-    else if(tagname == "th") 
+    else if(tagname == "th")
     {
         _out << "";
     }
-    else if(tagname == "div") 
+    else if(tagname == "div")
     {
         _out << "{div}";
     }
-    else if(tagname == "span") 
+    else if(tagname == "span")
     {
         _out << "{span}";
     }
-    else if(tagname == "ol") 
+    else if(tagname == "ol")
     {
-        _listMarkers.erase(_listMarkers.size()-1);
+        _listMarkers.erase(_listMarkers.size() - 1);
         if(_listMarkers.empty())
         {
             _out << "\n";
         }
     }
-    else if(tagname == "ul") 
+    else if(tagname == "ul")
     {
-        _listMarkers.erase(_listMarkers.size()-1);
+        _listMarkers.erase(_listMarkers.size() - 1);
         if(_listMarkers.empty())
         {
             _out << "\n";
         }
     }
-    else if(tagname == "li") 
+    else if(tagname == "li")
     {
-        //nothing to do
+        // Nothing to do
     }
-    else if(tagname == "hr") 
-    {
-        _out << "\n\n";
-    }
-    else if(tagname == "h1") 
+    else if(tagname == "hr")
     {
         _out << "\n\n";
     }
-    else if(tagname == "h2") 
+    else if(tagname == "h1")
     {
         _out << "\n\n";
     }
-    else if(tagname == "h3") 
+    else if(tagname == "h2")
     {
         _out << "\n\n";
     }
-    else if(tagname == "h4") 
+    else if(tagname == "h3")
     {
         _out << "\n\n";
     }
-    else if(tagname == "h5") 
+    else if(tagname == "h4")
     {
         _out << "\n\n";
     }
-    else if(tagname == "h6") 
+    else if(tagname == "h5")
     {
         _out << "\n\n";
     }
-    else if(tagname == "tt") 
+    else if(tagname == "h6")
+    {
+        _out << "\n\n";
+    }
+    else if(tagname == "tt")
     {
         _out << "}}";
     }
@@ -702,16 +703,17 @@ Confluence::ConfluenceOutput::endElement()
     {
         _out << "{" << escaped << "}";
     }
-    
+
     dec();
     --_pos; // TODO: ???
-    
+
     _se = false;
     _text = false;
 }
 
 string
-Confluence::ConfluenceOutput::getLinkMarkup(const std::string& url, const std::string& text, const std::string& anchor, const std::string& tip)
+Confluence::ConfluenceOutput::getLinkMarkup(const std::string& url, const std::string& text, const std::string& anchor,
+                                            const std::string& tip)
 {
     ostringstream oss;
     oss << "[";
@@ -774,44 +776,46 @@ Confluence::ConfluenceOutput::getNavMarkup(const std::string& prevLink, const st
     return oss.str();
 }
 
-list< pair<unsigned int,unsigned int> > 
+list< pair<unsigned int,unsigned int> >
 Confluence::ConfluenceOutput::getMarkerLimits(const string& str)
 {
     list< pair<unsigned int,unsigned int> > pairs;
-    
-    size_t start = str.find(TEMP_ESCAPER_START); 
+
+    size_t start = str.find(TEMP_ESCAPER_START);
     size_t end;
     while(start != string::npos)
     {
-        end = str.find(TEMP_ESCAPER_END, start+TEMP_ESCAPER_START.size());
+        end = str.find(TEMP_ESCAPER_END, start + TEMP_ESCAPER_START.size());
         if(end != string::npos)
         {
-            pair<unsigned int, unsigned int> p = make_pair(static_cast<unsigned int>(start), static_cast<unsigned int>(end+TEMP_ESCAPER_END.size()));
+            pair<unsigned int, unsigned int> p =
+                make_pair(static_cast<unsigned int>(start), static_cast<unsigned int>(end+TEMP_ESCAPER_END.size()));
             pairs.push_back(p);
             start = str.find(TEMP_ESCAPER_START, end+TEMP_ESCAPER_END.size());
         }
         else
         {
-            cerr << "getEscaperLimits FOUND START OF ESCAPE MARKER WITH NO MATCHING END IN STRING:" << endl << str.substr(start) << endl;
+            cerr << "getEscaperLimits FOUND START OF ESCAPE MARKER WITH NO MATCHING END IN STRING:" << endl
+                 << str.substr(start) << endl;
             break;
         }
     }
-    
+
     return pairs;
 }
 
-string 
+string
 Confluence::ConfluenceOutput::removeMarkers(string str)
 {
-    //remove starts
+    // Remove starts
     size_t start = str.find(TEMP_ESCAPER_START);
     while(start != string::npos)
     {
         str.erase(start, TEMP_ESCAPER_START.size());
         start = str.find(TEMP_ESCAPER_START, start);
     }
-    
-    //remove ends
+
+    // Remove ends
     size_t end = str.find(TEMP_ESCAPER_END);
     while(end != string::npos)
     {
@@ -860,7 +864,7 @@ string
 Confluence::ConfluenceOutput::escape(const string& input) const
 {
     string v = input;
-    
+
     //
     // Find out whether there is a reserved character to avoid
     // conversion if not necessary.
@@ -874,10 +878,10 @@ Confluence::ConfluenceOutput::escape(const string& input) const
         size_t pos = 0;
         while((pos = v.find_first_of('&', pos)) != string::npos)
         {
-            v.insert(pos+1, "amp;");
+            v.insert(pos + 1, "amp;");
             pos += 4;
         }
-        
+
         //
         // Next convert remaining reserved characters.
         //
@@ -891,31 +895,31 @@ Confluence::ConfluenceOutput::escape(const string& input) const
                 case '>':
                     replace = "&gt;";
                     break;
-                    
+
                 case '<':
                     replace = "&lt;";
                     break;
-                    
+
                 case '\'':
                     replace = "&apos;";
                     break;
-                    
+
                 case '"':
                     replace = "&quot;";
                     break;
-                    
+
                 case '{':
                     replace = "\\{";
                     break;
-                    
+
                 case '}':
                     replace = "\\}";
                     break;
-                    
+
                 default:
                     assert(false);
             }
-            
+
             v.erase(pos, 1);
             v.insert(pos, replace);
             pos += replace.size();
