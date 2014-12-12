@@ -51,6 +51,14 @@ local class ConnectionInfo
 
 local interface Connection;
 
+/**
+ *
+ * An application can implement this interface to receive notifications when
+ * a connection closes or receives a heartbeat message.
+ *
+ * @see Connection#setCallback
+ *
+ **/
 local interface ConnectionCallback
 {
     /**
