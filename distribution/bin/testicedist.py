@@ -44,11 +44,11 @@ def trace(msg, f, nl = True):
         if nl:
             f.write('\n')
         f.flush()
-    
+
 def prependPathToEnvironVar(env, var, path):
     env[var] = os.pathsep.join([path] + env.get(var, "").split(os.pathsep)).strip(os.pathsep)
 
-class TestConfiguration:    
+class TestConfiguration:
     def __init__(self, name, options, compilers = None, archs = None, configs = None, languages = None):
         self.name = name
         self.options = options
@@ -111,7 +111,7 @@ class TestDemoResults:
 
             if self._currentTest.startswith(self._sourceDir):
                 self._currentTest = self._currentTest[len(self._sourceDir):]
-                
+
             trace("[%d/%d] %s" % (self._current, self._total, self._currentTest), report, False)
             return
 
@@ -205,14 +205,14 @@ class Summary:
                 trace("Ran %d %s sucessfully, 1 failure:" % (total - 1, self._desc), report)
             else:
                 trace("Ran %d %s sucessfully, %d failures:" % (total - failureCount, self._desc, failureCount), report)
-                
+
             if failureCount > 0:
                 for (compiler, arch, conf, lang, r) in self._results:
                     for test in r.getFailures():
                         trace("- %s/%s (%s/%s/%s)" % (lang, test, compiler, arch, conf), report)
 
         if self._totalBuildTime > 0:
-            trace("Build %s duration: %s (HH:mm:ss)" % (self._desc, datetime.timedelta(seconds=self._totalBuildTime)), 
+            trace("Build %s duration: %s (HH:mm:ss)" % (self._desc, datetime.timedelta(seconds=self._totalBuildTime)),
                   report)
         if self._totalRunTime > 0:
             trace("Run %s duration: %s (HH:mm:ss)" % (self._desc, datetime.timedelta(seconds=self._totalRunTime)),
@@ -242,7 +242,7 @@ def filterRC(runnableConfigs, values, compiler = None, arch = None, config = Non
             d = d[config]
         else:
             return []
-    if language: 
+    if language:
         if language in d[language]:
             d = d[language]
         else:
@@ -270,19 +270,19 @@ def spawnAndWatch(command, env, filterFunc):
     output.write(command)
     output.write('\n')
     output.flush()
-        
+
     p = subprocess.Popen(command, shell = True, stdin = subprocess.PIPE, stdout = subprocess.PIPE,
                          stderr = subprocess.STDOUT, bufsize = 0, env = env)
 
     while(True):
 
-        line = p.stdout.readline()            
+        line = p.stdout.readline()
         if p.poll() is not None and not line:
             # The process terminated
             break
         elif not line:
             continue
-                    
+
         if type(line) != str:
             line = line.decode()
 
@@ -291,7 +291,7 @@ def spawnAndWatch(command, env, filterFunc):
 
         output.write("%s\n" % line)
         output.flush()
-                
+
     return p.poll() == 0
 
 class Platform:
@@ -319,15 +319,15 @@ class Platform:
         self._demoConfiguration = ""
 
         self._sourceDir = None
-        self._demoDir = None        
-    
+        self._demoDir = None
+
     def validateConfiguration(self):
 
         #
         # Check paths are valid
         #
         if not self._iceHome:
-            print("Can't find an Ice " + version + " binary distribution, either set ICE_HOME or " + 
+            print("Can't find an Ice " + version + " binary distribution, either set ICE_HOME or " +
                   "use --ice-home to specify the path of the binary distribution")
             sys.exit(1)
         elif self._iceHome and not os.path.exists(self._iceHome):
@@ -338,12 +338,12 @@ class Platform:
             print(sys.argv[0] + "Ice source archive not found: `%s'" % self._archive)
             print(sys.argv[0] + ": you must run testicedist.py from the directory created by makedist.py")
             sys.exit(1)
-            
+
         if self._demoArchive and not os.path.exists(self._demoArchive):
             print(sys.argv[0] + "Ice demo source archive not found: `%s'" % self._demoArchive)
             print(sys.argv[0] + ": you must run testicedist.py from the directory created by makedist.py")
             sys.exit(1)
-        
+
         if self._demoScriptsArchive and not os.path.exists(self._demoScriptsArchive):
             print(sys.argv[0] + "Ice demo scripts source archive not found: `%s'" % self._demoScriptsArchive)
             print(sys.argv[0] + ": you must run testicedist.py from the directory created by makedist.py")
@@ -378,7 +378,7 @@ class Platform:
                             for c in runnableConfigs[comp][arch][conf][lang]:
                                 trace("- [%d] %s %s tests (%s/%s/%s)" % (count, lang, c.name, comp, arch, conf), f)
                                 count += 1
-    
+
         if not self._skipDemos:
             trace("\nDemo configurations:", f)
             (_, total, runnableConfigs) = self.getBuildAndRunConfigs(self.filterDemos)
@@ -391,17 +391,17 @@ class Platform:
                             count += 1
 
         trace("", f)
-            
+
     def getTestConfigurations(self, filterArg, rfilterArg):
         f = ""
         f += " --filter=\"%s\"" % filterArg if filterArg else ""
         f += " --rfilter=\"%s\"" % rfilterArg if rfilterArg else ""
 
         #
-        # By default, run tests with --all on the default architecture. On 
-        # other architectures run tests without --all. Run cross tests on 
+        # By default, run tests with --all on the default architecture. On
+        # other architectures run tests without --all. Run cross tests on
         # the default architecture only.
-        # 
+        #
         defaultArch = self.getDefaultArchitecture()
         defaultCompiler = self.getDefaultCompiler()
         otherArchs = self.getSupportedArchitectures()
@@ -418,22 +418,22 @@ class Platform:
         for l1 in langs:
             for l2 in langs:
                 if l1 != l2:
-                    configs.append(TestConfiguration("cross-tcp", 
+                    configs.append(TestConfiguration("cross-tcp",
                                                      "--cross=%s%s" % (l2,f),
-                                                     configs = ["default"], 
+                                                     configs = ["default"],
                                                      compilers = [defaultCompiler],
                                                      archs = [defaultArch],
                                                      languages = [l1]))
                     if not filterArg and not rfilterArg:
-                        configs.append(TestConfiguration("cross-ssl", 
+                        configs.append(TestConfiguration("cross-ssl",
                                                          "--cross=%s --protocol=ssl --filter=\"Ice/operations\"" % l2 ,
-                                                         configs = ["default"], 
+                                                         configs = ["default"],
                                                          compilers = [defaultCompiler],
                                                          archs = [defaultArch],
                                                          languages = [l1]))
 
         # Add test configuration for all other non-default
-        # configurations (except for WinRT where we can't 
+        # configurations (except for WinRT where we can't
         # run the tests from the command line yet).
         buildConfigs = set()
         for comp in self.getCompilers():
@@ -451,35 +451,35 @@ class Platform:
 
         if useBinDist:
             env["USE_BIN_DIST"] = "yes"
-        
+
         if buildConfiguration != "debug":
             env["OPTIMIZE"] = "yes"
-            
+
         if buildConfiguration == "winrt":
             env["WINRT"] = "yes"
 
         if self._iceHome:
             env["ICE_HOME"] = self._iceHome
-        
+
         if buildConfiguration == "cpp11":
             env["CPP11"] = "yes"
-        
+
         if buildConfiguration == "no-cpp11":
             env["CPP11"] = "no"
-            
+
         if self.isLinux():
             env["LP64"] = "yes" if self.is64(arch) else "no"
-            
+
         javaHome = self.getJavaHome(arch, self.getJavaVersion(buildConfiguration))
         if javaHome:
             env["JAVA_HOME"] = javaHome
             prependPathToEnvironVar(env, "PATH", os.path.join(javaHome, "bin"))
-            
+
         if os.path.exists(os.path.join(self._iceHome, "lib", "db.jar")):
             prependPathToEnvironVar(env, "CLASSPATH", os.path.join(self._iceHome, "lib", "db.jar"))
 
         return env
-    
+
     def checkJavaSupport(self, arch, buildConfiguration, output):
         version = self.getJavaVersion(buildConfiguration)
         javaHome = self.getJavaHome(arch, version)
@@ -490,16 +490,16 @@ class Platform:
 
     def is64(self, arch):
         return arch == "x64" or arch == "sparcv9"
-            
+
     def isWindows(self):
         return False
-        
+
     def isSolaris(self):
         return False
-        
+
     def isDarwin(self):
         return False
-        
+
     def isLinux(self):
         return False
 
@@ -513,9 +513,9 @@ class Platform:
         return list(filter(lambda x: include(x, self._languages, self._rlanguages), self.getSupportedLanguages()))
 
     def getConfigurations(self, compiler, arch):
-        return list(filter(lambda x: include(x, self._configurations, self._rconfigurations), 
+        return list(filter(lambda x: include(x, self._configurations, self._rconfigurations),
                            self.getSupportedConfigurations(compiler, arch)))
-        
+
     def getDefaultArchitecture(self):
         # Default architecture is by default first non-filtered architecture
         for a in self.getArchitectures():
@@ -531,15 +531,16 @@ class Platform:
 
     def getJavaHome(self, arch, version):
         return None
-    
+
     def getLanguageMappings(self, compiler, arch, buildConfiguration):
-        languages = None
+        languages = []
         if buildConfiguration in ["debug", "cpp11", "no-cpp11", "winrt"]:
             languages = ["cpp"]
         elif buildConfiguration == "java1.8":
             languages = ["java"] if arch == self.getDefaultArchitecture() else []
         elif buildConfiguration == "silverlight":
-            languages = ["cs"] if arch == self.getDefaultArchitecture() else [] 
+            if arch == "x86":
+                languages = ["cs"]
         elif compiler == "VC110":
             # Only test C++ and C# with a VC110 installation
             languages = ["cpp", "cs"] if arch == self.getDefaultArchitecture() else ["cpp"]
@@ -575,10 +576,10 @@ class Platform:
         if self._parallelJobs:
             command += " -j%s" % self._parallelJobs
         return command
-        
+
     def makeDemosCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
         return self.makeCommand(compiler, arch, buildConfiguration, lang, buildDir)
-        
+
     def makeCleanCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
         return "make clean"
 
@@ -608,7 +609,7 @@ class Platform:
 
     def buildAndRun(self, build, run, filterFn, extract, start, summary):
 
-        (buildTotal, runTotal, runnableConfigs) = self.getBuildAndRunConfigs(filterFn) 
+        (buildTotal, runTotal, runnableConfigs) = self.getBuildAndRunConfigs(filterFn)
 
         count = 1
         if not self._skipBuild:
@@ -650,7 +651,7 @@ class Platform:
                                     continue # Skip
                                 elif count > configIndex:
                                     runIndex = None
-                                            
+
                             index = "%d/%d" % (count, runTotal)
                             summary.startRun()
                             r = TestDemoResults()
@@ -664,12 +665,12 @@ class Platform:
                             finally:
                                 summary.finishRun()
                             count += 1
-                            
+
 
     def extractSourceArchive(self, compiler, arch, conf):
         if not os.path.exists(os.path.join(self._buildDir, compiler, arch, conf)):
             os.makedirs(os.path.join(self._buildDir, compiler, arch, conf))
-        
+
         os.chdir(os.path.join(self._buildDir, compiler, arch, conf))
 
         if self._archive.endswith(".tar.gz"):
@@ -681,22 +682,22 @@ class Platform:
         else:
             trace("Invalid Ice source archive `%s'" % self._archive, report)
             sys.exit(1)
-              
+
         if not os.path.exists(self._sourceDir):
             if self._archive.endswith(".tar.gz"):
                 runCommand("tar -zxf %s" %(self._archive), self._verbose)
             elif self._archive.endswith(".zip"):
-                zipfile.ZipFile(self._archive).extractall() 
-                
+                zipfile.ZipFile(self._archive).extractall()
+
                 for root, dirnames, filenames in os.walk(os.path.join(self._sourceDir, "cs", "test")):
                     for f in filenames:
                         if fnmatch.fnmatch(f, "*.csproj"):
                             FixUtil.fileMatchAndReplace(os.path.join(root, f), projectSubstituteExprs, False)
-            
+
     def extractDemoArchive(self, compiler, arch, conf):
         if not os.path.exists(os.path.join(self._buildDir, compiler, arch, conf)):
             os.makedirs(os.path.join(self._buildDir, compiler, arch, conf))
-        
+
         os.chdir(os.path.join(self._buildDir, compiler, arch, conf))
 
         if self._demoArchive.endswith(".tar.gz"):
@@ -708,7 +709,7 @@ class Platform:
         else:
             trace("Invalid Ice source archive `%s'" % self._demoArchive, report)
             sys.exit(1)
-        
+
         if not os.path.exists(self._demoDir):
             if self._demoArchive.endswith(".tar.gz"):
                 runCommand("tar -zxf %s" %(self._demoArchive), self._verbose)
@@ -716,15 +717,15 @@ class Platform:
             elif self._demoArchive.endswith(".zip"):
                 zipfile.ZipFile(self._demoArchive).extractall()
                 zipfile.ZipFile(self._demoScriptsArchive).extractall()
-            
+
     def buildTests(self, compiler, arch, buildConfiguration, lang, index):
-            
+
         trace("*** [%s] building %s tests (%s/%s/%s)... " % (index, lang, compiler, arch, buildConfiguration), report,
               False)
-              
+
         output.write("*** [%s] building %s tests (%s/%s/%s)\n" % (index, lang, compiler, arch, buildConfiguration))
         output.flush()
-        
+
         if lang == "rb":
             trace("ok", report)
             return True
@@ -734,7 +735,7 @@ class Platform:
             buildDir = os.path.join(self._sourceDir, lang)
         else:
             buildDir = os.path.join(self._sourceDir, lang, "test")
-                
+
         commands = []
         if buildConfiguration == "silverlight":
             commands.append(self.makeSilverlightCommand(compiler, arch, buildConfiguration, lang, buildDir))
@@ -754,12 +755,12 @@ class Platform:
         for command in commands:
             if self._verbose:
                 print(command)
-        
+
             if not spawnAndWatch(command, env, filterBuildOutput):
                 trace("failed!", report)
                 status = False
                 break
-            
+
         if status:
             trace("ok", report)
         return status
@@ -781,26 +782,24 @@ class Platform:
 
         if buildConfiguration == "silverlight":
             args += " --silverlight"
-                
+
         if lang == "java" and not self.checkJavaSupport(arch, buildConfiguration, output):
             return False
-                    
+
         env = self.getPlatformEnvironment(compiler, arch, buildConfiguration, lang, True)
 
         command = "%s %s" % (self.runScriptCommand("allTests.py", compiler, arch, buildConfiguration, lang), args)
 
         if self._verbose:
             print(command)
-                
+
         trace("", report)
-        trace("*** [%s] %s: running %s tests with %s (%s/%s/%s)" % (index, testConf.name, lang, testConf.options, 
+        trace("*** [%s] %s: running %s tests with %s (%s/%s/%s)" % (index, testConf.name, lang, testConf.options,
                                                                     compiler, arch, buildConfiguration), report)
         spawnAndWatch(command, env, lambda line: results.filter(line))
         return True
 
     def filterTests(self, compiler, arch, conf, lang, testConfigs):
-        if conf == "silverlight" and arch == "x64":
-            return False
         if lang == "vb":
             return False
 
@@ -808,15 +807,15 @@ class Platform:
             if testConf.runWith(compiler, arch, conf, lang):
                 testConfigs.append(testConf)
         return True
-            
+
     def buildDemos(self, compiler, arch, buildConfiguration, lang, index):
 
         trace("*** [%s] building %s demos (%s/%s/%s)... " % (index, lang, compiler, arch, buildConfiguration),
               report, False)
-        
+
         output.write("*** [%s] building %s demos (%s/%s/%s)\n" % (index, lang, compiler, arch, buildConfiguration))
         output.flush()
-        
+
         if lang == "py" or lang == "rb":
             trace("ok", report)
             return True
@@ -838,21 +837,21 @@ class Platform:
             commands = self.makeDemosCommand(compiler, arch, buildConfiguration, lang, buildDir)
         if type(commands) == str:
             commands = [commands]
-            
+
         env = self.getPlatformEnvironment(compiler, arch, buildConfiguration, lang, sourceArchive)
-        
+
         os.chdir(buildDir)
-        
+
         status = True
         for command in commands:
             if self._verbose:
                 print(command)
-        
+
             if not spawnAndWatch(command, env, filterBuildOutput):
                 trace("failed!", report)
                 status = False
                 break
-            
+
         if status:
             trace("ok", report)
         return status
@@ -871,12 +870,12 @@ class Platform:
         args = ""
         if start:
             args += " --start=%s" % start
-        
+
         if testConf:
             args += " --continue %s" % testConf
         else:
-            args += " --continue"        
-            
+            args += " --continue"
+
         if self.isWindows() or self.isLinux():
             args += " --x64" if self.is64(arch) else " --x86"
 
@@ -892,14 +891,14 @@ class Platform:
 
         if lang == "java" and not self.checkJavaSupport(arch, buildConfiguration, output):
             return False
-                
+
         env = self.getPlatformEnvironment(compiler, arch, buildConfiguration, lang, sourceArchive)
 
         command = "%s %s" % (self.runScriptCommand("allDemos.py", compiler, arch, buildConfiguration, lang), args)
 
         if self._verbose:
             print(command)
-            
+
         trace("", report)
         trace("*** [%s] running %s demos (%s/%s/%s)" % (index, lang, compiler, arch, buildConfiguration), report)
         spawnAndWatch(command, env, lambda line: results.filter(line))
@@ -926,11 +925,11 @@ class Platform:
                 trace("\n******", report)
                 trace("****** Building and running tests", report)
                 trace("******", report)
-                self.buildAndRun(self.buildTests, 
-                                 self.runTests, 
-                                 self.filterTests, 
+                self.buildAndRun(self.buildTests,
+                                 self.runTests,
+                                 self.filterTests,
                                  self.extractSourceArchive,
-                                 startTests, 
+                                 startTests,
                                  testSummary)
 
             if self._demoArchive and not self._skipDemos:
@@ -938,11 +937,11 @@ class Platform:
                 trace("****** Building and running demos", report)
                 trace("******", report)
 
-                self.buildAndRun(self.buildDemos, 
-                                 self.runDemos, 
-                                 self.filterDemos, 
-                                 self.extractDemoArchive, 
-                                 startDemos, 
+                self.buildAndRun(self.buildDemos,
+                                 self.runDemos,
+                                 self.filterDemos,
+                                 self.extractDemoArchive,
+                                 startDemos,
                                  demoSummary)
 
         except KeyboardInterrupt:
@@ -953,7 +952,7 @@ class Platform:
         demoSummary.printSummary()
 
 class Darwin(Platform):
-    
+
     def __init__(self, distDir):
         Platform.__init__(self, distDir)
 
@@ -965,10 +964,10 @@ class Darwin(Platform):
 
     def getSupportedLanguages(self):
         return ["cpp", "java", "py", "js"]
-        
+
     def getSupportedArchitectures(self):
         return ["x64"]
-        
+
     def isDarwin(self):
         return True
 
@@ -985,7 +984,7 @@ class Darwin(Platform):
         return env
 
 class Linux(Platform):
-    
+
     def __init__(self, distDir):
         Platform.__init__(self, distDir)
 
@@ -1048,7 +1047,7 @@ class Linux(Platform):
             print("Unknown distribution from lsb_release -i")
             print(self._distribution)
             sys.exit(1)
-        
+
         p = subprocess.Popen("uname -m", shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         if(p.wait() != 0):
             print("uname failed:\n" + p.stdout.read().strip())
@@ -1067,7 +1066,7 @@ class Linux(Platform):
 
     def isUbuntu(self, version = None):
         return self.isDistribution(["Ubuntu"], version)
-        
+
     def isRhel(self, version = None):
         return self.isDistribution(["RedHat", "CentOS"], version)
 
@@ -1101,10 +1100,10 @@ class Linux(Platform):
         if self.isUbuntu():
             languages.append("js")
         return languages
-        
+
     def getSupportedCompilers(self):
         return ["g++"]
-        
+
     def getSupportedArchitectures(self):
         if self._machine == "x86_64":
             if self.isRhel(6) or self.isSles(11) or self.isUbuntu():
@@ -1113,7 +1112,7 @@ class Linux(Platform):
                 return ["x64", "x86"] # Bi-arch Linux distribution
         else:
             return ["x86"]
-            
+
     def getSupportedConfigurations(self, compiler, arch):
         configurations = ["default"]
         # Only test C++11 if default compiler is recent
@@ -1131,7 +1130,7 @@ class Linux(Platform):
             # Set Berkeley DB classpath
             #
             prependPathToEnvironVar(env, "CLASSPATH", "/usr/share/java/db-5.3.28.jar")
-                
+
             #
             # Set LD_LIBRARY_PATH for Berkeley DB
             #
@@ -1148,19 +1147,19 @@ class Solaris(Platform):
 
     def isSolaris(self):
         return True
-        
+
     def checkJavaSupport(self, arch, buildConfiguration, output):
         return True # Disable check, use default java version
 
     def getSupportedLanguages(self):
         return ["cpp", "java"]
-        
+
     def getSupportedCompilers(self):
         return ["CC"]
-        
+
     def getSupportedArchitectures(self):
         return ["sparcv9", "sparc"]
-            
+
     def getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist):
         env = Platform.getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist)
         if lang == "java":
@@ -1169,13 +1168,13 @@ class Solaris(Platform):
             #
             prependPathToEnvironVar(env, "CLASSPATH", "/usr/share/java/db-5.3.21.jar")
         return env
-                
+
     def makeCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
         command = "gmake"
         if self._parallelJobs:
             command += " -j%s" % self._parallelJobs
         return command
-        
+
     def makeCleanCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
         return "gmake clean"
 
@@ -1186,16 +1185,16 @@ class Windows(Platform):
         self._archive = os.path.join(distDir, "Ice-%s.zip" % version)
         self._demoArchive = os.path.join(distDir, "Ice-%s-demos.zip" % version)
         self._demoScriptsArchive = os.path.join(distDir, "Ice-%s-demo-scripts.zip" % version)
-    
+
     def canonicalArch(self, arch):
         if arch == "x64":
             arch = "amd64"
         return arch
-        
+
     def makeSilverlightCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
-        return "\"%s\" %s  && cd %s && devenv testsl.sln /build" % (BuildUtils.getVcVarsAll(compiler), 
+        return "\"%s\" %s  && cd %s && devenv testsl.sln /build" % (BuildUtils.getVcVarsAll(compiler),
                                                                     self.canonicalArch(arch), buildDir)
-        
+
     def makeDemosCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
         bConf = "Debug" if buildConfiguration == "debug" else "Release"
         bArch = "Any CPU" if lang in ["cs", "vb"] else "Win32" if arch == "x86" else "x64"
@@ -1208,21 +1207,21 @@ class Windows(Platform):
            and not os.path.exists(os.path.join(buildDir, "UpgradeLog.htm"))):
             commands.append('"%s" %s  && cd %s && devenv demo.sln /upgrade' % \
                             (BuildUtils.getVcVarsAll(compiler), self.canonicalArch(arch), buildDir))
-        
+
         commands.append('"%s" %s  && cd %s && devenv %s /build "%s|%s"' % \
-                        (BuildUtils.getVcVarsAll(compiler), self.canonicalArch(arch), buildDir, "demo.sln", 
+                        (BuildUtils.getVcVarsAll(compiler), self.canonicalArch(arch), buildDir, "demo.sln",
                         bConf, bArch))
-            
+
         return commands
 
     def makeCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
-        return "\"%s\" %s  && cd %s && nmake /f Makefile.mak" % (BuildUtils.getVcVarsAll(compiler), 
+        return "\"%s\" %s  && cd %s && nmake /f Makefile.mak" % (BuildUtils.getVcVarsAll(compiler),
                                                                  self.canonicalArch(arch), buildDir)
 
     def makeCleanCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
-        return "\"%s\" %s  && cd %s && nmake /f Makefile.mak clean" % (BuildUtils.getVcVarsAll(compiler), 
+        return "\"%s\" %s  && cd %s && nmake /f Makefile.mak clean" % (BuildUtils.getVcVarsAll(compiler),
                                                                        self.canonicalArch(arch), buildDir)
-    
+
     def runScriptCommand(self, script, compiler, arch, buildConfiguration, lang):
         if lang != "py":
             python = sys.executable
@@ -1233,11 +1232,11 @@ class Windows(Platform):
 
     def isWindows(self):
         return True
-        
+
     def isWindows8(self):
         return sys.getwindowsversion()[0] == 6 and sys.getwindowsversion()[1] >= 2
 
-    def getSupportedConfigurations(self, compiler, arch):        
+    def getSupportedConfigurations(self, compiler, arch):
         buildConfigurations = ["default"]
         if compiler == "VC120":
             buildConfigurations.append("debug")
@@ -1259,10 +1258,10 @@ class Windows(Platform):
         if BuildUtils.getVcVarsAll("VC110"):
             compilers.append("VC110")
         return compilers
-        
+
     def getSupportedLanguages(self):
         return ["cpp", "cs", "java", "js", "php", "py", "rb", "vb"]
-        
+
     def getSupportedArchitectures(self):
         archs = []
         if os.environ.get("PROCESSOR_ARCHITECTURE", "") == "AMD64" or \
@@ -1316,7 +1315,7 @@ def usage():
     print("  --start-with-test=bi/ti            Resume running the tests at the given build/test index.")
     print("  --start-with-demo=bi/di            Resume running the demos at the given build/demo index.")
     print("")
-    
+
 
 distDir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
@@ -1413,7 +1412,7 @@ elif not os.path.exists(testDriver):
     print(sys.argv[0] + ": test driver file not found in `%s'" % testDriver)
     usage()
     sys.exit(1)
-    
+
 testConfigurations = []
 if not testDriver:
     testConfigurations = platformObj.getTestConfigurations(filterArg, rfilterArg)
@@ -1424,42 +1423,42 @@ else:
     f = open(testDriver, "r")
     for line in f:
         line = line.strip()
-        
+
         i = line.find("#")
         if i == 0:
             #
             # Skiping comment.
             #
             continue
-        
+
         #
         # Partial comment
         #
         if i != -1:
             line = line[:i]
         line = line.strip()
-        
+
         if not line:
             continue
-        
+
         i = line.find(":")
         if i == -1:
             print(sys.argv[0] + ": invalid buildConfiguration line `%s' missing ':' delimiter" % line)
             usage()
             sys.exit(1)
-            
+
         j = line.find(":", i + 1)
-            
+
         name = line[:i].strip()
         options = ""
         languages = []
-        
+
         if j != -1:
             options = line[i + 1:j - 1].strip()
             languages = line[j + 1:].strip().split()
         else:
             options = line[i + 1:].strip()
-        
+
         #
         # Remove any empty entries left by split
         #
@@ -1467,7 +1466,7 @@ else:
         for lang in languages:
             if lang:
                 tmp.append(lang)
-        languages = tmp        
+        languages = tmp
         testConfigurations.append(TestConfiguration(name, options, languages = languages))
 
 platformObj._testConfigurations = testConfigurations
