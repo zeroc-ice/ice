@@ -44,6 +44,12 @@ main(int argc, char* argv[])
         //
         initData.properties->setProperty("Ice.Warn.Connections", "0");
 
+        //
+        // Limit the recv buffer size, this test relies on the socket
+        // send() blocking after sending a given amount of data.
+        //
+        initData.properties->setProperty("Ice.TCP.RcvSize", "50000");
+
         communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }

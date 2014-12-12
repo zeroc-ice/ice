@@ -50,6 +50,13 @@ main(int argc, char* argv[])
     {
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
+
+        //
+        // Limit the recv buffer size, this test relies on the socket
+        // send() blocking after sending a given amount of data.
+        //
+        initData.properties->setProperty("Ice.TCP.RcvSize", "50000");
+
 #ifdef ICE_CPP11
         Ice::DispatcherPtr dispatcher = new Dispatcher();
         initData.dispatcher = Ice::newDispatcher(

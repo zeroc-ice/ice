@@ -45,6 +45,12 @@ public class Server
             //
             initData.properties.setProperty("Ice.Warn.Connections", "0");
 
+            //
+            // Limit the recv buffer size, this test relies on the socket
+            // send() blocking after sending a given amount of data.
+            //
+            initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
+
             communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
         }

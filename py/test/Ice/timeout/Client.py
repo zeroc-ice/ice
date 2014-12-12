@@ -56,7 +56,7 @@ try:
     # Limit the send buffer size, this test relies on the socket
     # send() blocking after sending a given amount of data.
     #
-    initData.properties.setProperty("Ice.TCP.SndSize", "100000");
+    initData.properties.setProperty("Ice.TCP.SndSize", "50000");
 
     communicator = Ice.initialize(sys.argv, initData)
     status = run(sys.argv, communicator)

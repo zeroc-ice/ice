@@ -2470,9 +2470,12 @@ public class AMI
                 testController.holdAdapter();
                 try
                 {
-                    Ice.AsyncResult r;
+                    Ice.AsyncResult r = null;
                     byte[] seq = new byte[10024];
-                    while((r = p.begin_opWithPayload(seq)).sentSynchronously());
+                    for(int i = 0; i < 200; ++i) // 2MB
+                    {
+                        r = p.begin_opWithPayload(seq);
+                    }
 
                     test(!r.isSent());
 
@@ -2500,10 +2503,10 @@ public class AMI
                 finally
                 {
                     testController.resumeAdapter();
-                    p.ice_ping();
-                    test(!r1.isSent() && r1.isCompleted());
-                    test(!r2.isSent() && r2.isCompleted());
                 }
+                p.ice_ping();
+                test(!r1.isSent() && r1.isCompleted());
+                test(!r2.isSent() && r2.isCompleted());
 
                 testController.holdAdapter();
                 try

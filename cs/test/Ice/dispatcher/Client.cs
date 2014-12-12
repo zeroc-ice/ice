@@ -39,7 +39,7 @@ public class Client
             // Limit the send buffer size, this test relies on the socket
             // send() blocking after sending a given amount of data.
             //
-            initData.properties.setProperty("Ice.TCP.SndSize", "100000");
+            initData.properties.setProperty("Ice.TCP.SndSize", "50000");
             initData.dispatcher = new Dispatcher().dispatch;
             communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
