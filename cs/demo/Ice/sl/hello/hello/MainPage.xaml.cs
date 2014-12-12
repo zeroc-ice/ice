@@ -88,19 +88,19 @@ namespace hello
 
                 if (_timeout == 0)
                 {
-                    proxy = proxy.ice_timeout(-1);
+                    proxy = proxy.ice_invocationTimeout(-1);
                 }
                 else
                 {
-                    proxy = proxy.ice_timeout(_timeout);
+                    proxy = proxy.ice_invocationTimeout(_timeout);
                 }
                 HelloPrx hello = HelloPrxHelper.uncheckedCast(proxy);
                 if(mode != 2)
                 {
                     bool response = false;
                     Ice.AsyncResult result = hello.begin_sayHello(_delay).whenCompleted(
-                        () => 
-                        { 
+                        () =>
+                        {
                             response = true;
                             txtOutput.Text = "Ready";
                         },
@@ -109,11 +109,11 @@ namespace hello
                             response = true;
                             txtOutput.Text = ex.ToString();
                         }).whenSent(
-                            (bool sentSynchronously) => 
+                            (bool sentSynchronously) =>
                             {
                                 if(response)
                                 {
-                                    return; // Response was received already.                                    
+                                    return; // Response was received already.
                                 }
 
                                 if(mode == 0)
@@ -149,9 +149,9 @@ namespace hello
                 {
                     txtOutput.Text = ex.ToString();
                 }).whenSent(
-                    (bool sentSynchronously) => 
+                    (bool sentSynchronously) =>
                     {
-                        Dispatcher.BeginInvoke(delegate() 
+                        Dispatcher.BeginInvoke(delegate()
                                         {
                                             btnFlush.IsEnabled = false;
                                             txtOutput.Text = "Flushed batch requests";
@@ -171,8 +171,8 @@ namespace hello
                 {
                     txtOutput.Text = "Ready";
                 },
-                (Ice.Exception ex) => 
-                { 
+                (Ice.Exception ex) =>
+                {
                     txtOutput.Text = ex.ToString();
                 });
         }
