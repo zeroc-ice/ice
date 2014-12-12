@@ -18,7 +18,10 @@ public class RemoteCommunicatorI : RemoteCommunicatorDisp_
         if(endpoints.IndexOf("-p") < 0)
         {
             // Use a fixed port if none is specified (bug 2896)
-            endpoints = endpoints + " -h 127.0.0.1 -p " + _nextPort++;
+            endpoints += " -h " + 
+                (current.adapter.getCommunicator().getProperties().getPropertyWithDefault(
+                                                                                    "Ice.Default.Host", "127.0.0.1")) +
+                " -p " + _nextPort++;
         }
 
         Ice.Communicator com = current.adapter.getCommunicator();
