@@ -89,18 +89,11 @@ namespace IceInternal
                     System.Threading.Monitor.Wait(this);
                 }
 
-                try
+                if(!initialized())
                 {
-                    if(!initialized())
-                    {
-                        _batchRequestInProgress = true;
-                        _batchStream.swap(os);
-                        return;
-                    }
-                }
-                catch(Ice.LocalException ex)
-                {
-                    throw new RetryException(ex);
+                    _batchRequestInProgress = true;
+                    _batchStream.swap(os);
+                    return;
                 }
             }
             _connection.prepareBatchRequest(os);
@@ -380,46 +373,13 @@ namespace IceInternal
             }
 
             LinkedListNode<Request> p = _requests.First; // _requests is immutable when _flushing = true
+            Ice.LocalException exception = null;
             while(p != null)
             {
                 Request request = p.Value;
-                if(request.outAsync != null)
+                try
                 {
-                    try
-                    {
-                        if(request.outAsync.send(_connection, _compress, _response, out request.sentCallback))
-                        {
-                            if(request.sentCallback != null)
-                            {
-                                request.outAsync.invokeSentAsync(request.sentCallback);
-                            }
-                        }
-                    }
-                    catch(RetryException ex)
-                    {
-                        try
-                        {
-                            // Remove the request handler before retrying.
-                            _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
-                        }
-                        catch(Ice.CommunicatorDestroyedException)
-                        {
-                            // Ignore
-                        }
-                        request.outAsync.retryException(ex.get());
-                    }
-                    catch(Ice.Exception ex)
-                    {
-                        Ice.AsyncCallback cb = request.outAsync.completed(ex);
-                        if(cb != null)
-                        {
-                            request.outAsync.invokeCompletedAsync(cb);
-                        }
-                    }
-                }
-                else
-                {
-                    try
+                    if(request.os != null)
                     {
                         BasicStream os = new BasicStream(request.os.instance(), Ice.Util.currentProtocolEncoding);
                         _connection.prepareBatchRequest(os);
@@ -435,11 +395,35 @@ namespace IceInternal
                         }
                         _connection.finishBatchRequest(os, _compress);
                     }
-                    catch(RetryException)
+                    else if(request.outAsync.send(_connection, _compress, _response, out request.sentCallback))
                     {
+                        if(request.sentCallback != null)
+                        {
+                            request.outAsync.invokeSentAsync(request.sentCallback);
+                        }
                     }
-                    catch(Ice.Exception)
+                }
+                catch(RetryException ex)
+                {
+                    exception = ex.get();
+                    try
                     {
+                        // Remove the request handler before retrying.
+                        _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
+                    }
+                    catch(Ice.CommunicatorDestroyedException)
+                    {
+                        // Ignore
+                    }
+                    request.outAsync.retryException(ex.get());
+                }
+                catch(Ice.LocalException ex)
+                {
+                    exception = ex;
+                    Ice.AsyncCallback cb = request.outAsync.completed(ex);
+                    if(cb != null)
+                    {
+                        request.outAsync.invokeCompletedAsync(cb);
                     }
                 }
                 LinkedListNode<Request> tmp = p;
@@ -453,7 +437,7 @@ namespace IceInternal
             // request handler to use the more efficient connection request
             // handler.
             //
-            if(_reference.getCacheConnection())
+            if(_reference.getCacheConnection() && exception == null)
             {
                 _connectionRequestHandler = new ConnectionRequestHandler(_reference, _connection, _compress);
                 foreach(Ice.ObjectPrxHelperBase prx in _proxies)
@@ -465,7 +449,8 @@ namespace IceInternal
             lock(this)
             {
                 Debug.Assert(!_initialized);
-                _initialized = true;
+                _exception = exception;
+                _initialized = _exception == null;
                 _flushing = false;
                 try
                 {

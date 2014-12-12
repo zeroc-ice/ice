@@ -679,14 +679,10 @@ FlushBatch::invoke()
             _exception->ice_throw();
         }
     }
-    catch(const RetryException&)
+    catch(const RetryException& ex)
     {
-        //
-        // Clear request handler but don't retry or throw. Retrying
-        // isn't useful, there were no batch requests associated with
-        // the proxy's request handler.
-        //
-        _proxy->__setRequestHandler(handler, 0); 
+        _proxy->__setRequestHandler(handler, 0); // Clear request handler
+        ex.get()->ice_throw(); // Throw to notify the user that batch requests were potentially lost.
     }
     catch(const Ice::Exception& ex)
     {

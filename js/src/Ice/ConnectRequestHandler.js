@@ -100,18 +100,11 @@ var ConnectRequestHandler = Ice.Class({
     },
     prepareBatchRequest: function(os)
     {
-        try
+        if(!this.initialized())
         {
-            if(!this.initialized())
-            {
-                this._batchRequestInProgress = true;
-                this._batchStream.swap(os);
-                return;
-            }
-        }
-        catch(ex)
-        {
-            throw new RetryException(ex);
+            this._batchRequestInProgress = true;
+            this._batchStream.swap(os);
+            return;
         }
         this._connection.prepareBatchRequest(os);
     },
@@ -295,44 +288,13 @@ var ConnectRequestHandler = Ice.Class({
     {
         Debug.assert(this._connection !== null && !this._initialized);
 
+        var exception = null;
         while(this._requests.length > 0)
         {
             var request = this._requests[0];
-            if(request.out !== null)
+            try
             {
-                try
-                {
-                    request.out.__send(this._connection, this._compress, this._response);
-                }
-                catch(ex)
-                {
-                    if(ex instanceof RetryException)
-                    {
-                        try
-                        {
-                            // Remove the request handler before retrying.
-                            this._reference.getInstance().requestHandlerFactory().removeRequestHandler(
-                                this._reference, this);
-                        }
-                        catch(exc)
-                        {
-                            // Ignore
-                        }
-                        request.out.__retryException(ex.inner);
-                    }
-                    else if(ex instanceof LocalException)
-                    {
-                        request.out.__completedEx(ex);
-                    }
-                    else
-                    {
-                        throw ex;
-                    }
-                }
-            }
-            else
-            {
-                try
+                if(request.os !== null)
                 {
                     var os = new BasicStream(request.os.instance, Protocol.currentProtocolEncoding);
                     this._connection.prepareBatchRequest(os);
@@ -348,14 +310,39 @@ var ConnectRequestHandler = Ice.Class({
                     }
                     this._connection.finishBatchRequest(os, this._compress);
                 }
-                catch(ex)
+                else
                 {
+                    request.out.__send(this._connection, this._compress, this._response);
+                }
+            }
+            catch(ex)
+            {
+                if(ex instanceof RetryException)
+                {
+                    exception = ex.inner;
+                    try
+                    {
+                        // Remove the request handler before retrying.
+                        this._reference.getInstance().requestHandlerFactory().removeRequestHandler(this._reference, 
+                                                                                                   this);
+                    }
+                    catch(exc)
+                    {
+                        // Ignore
+                    }
+                    request.out.__retryException(ex.inner);
+                }
+                else 
+                {
+                    Debug.assert(ex instanceof LocalException);
+                    exception = ex;
+                    request.out.__completedEx(ex);
                 }
             }
             this._requests.shift();
         }
 
-        if(this._reference.getCacheConnection())
+        if(this._reference.getCacheConnection() && exception === null)
         {
             this._connectionRequestHandler = new ConnectionRequestHandler(this._reference,
                                                                           this._connection,
@@ -367,7 +354,8 @@ var ConnectRequestHandler = Ice.Class({
         }
 
         Debug.assert(!this._initialized);
-        this._initialized = true;
+        this._exception = exception;
+        this._initialized = this._exception !== null;
         try
         {
             //

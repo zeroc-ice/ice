@@ -92,18 +92,11 @@ ConnectRequestHandler::prepareBatchRequest(BasicStream* os)
             wait();
         }
 
-        try
+        if(!initialized())
         {
-            if(!initialized())
-            {
-                _batchRequestInProgress = true;
-                _batchStream.swap(*os);
-                return;
-            }
-        }
-        catch(const Ice::LocalException& ex)
-        {
-            throw RetryException(ex);
+            _batchRequestInProgress = true;
+            _batchStream.swap(*os);
+            return;
         }
     }
     _connection->prepareBatchRequest(os);
@@ -433,66 +426,17 @@ ConnectRequestHandler::flushRequests()
         _flushing = true;
     }
 
+    IceUtil::UniquePtr<Ice::LocalException> exception;
     while(!_requests.empty()) // _requests is immutable when _flushing = true
     {
         Request& req = _requests.front();
-        if(req.out)
+        try
         {
-            try
+            if(req.out)
             {
                 req.out->send(_connection, _compress, _response);
             }
-            catch(const RetryException& ex)
-            {
-                try
-                {
-                    // Remove the request handler before retrying.
-                    _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, this);
-                }
-                catch(const Ice::CommunicatorDestroyedException&)
-                {
-                    // Ignore
-                }
-                req.out->retryException(*ex.get());
-            }
-            catch(const Ice::Exception& ex)
-            {
-                req.out->completed(ex);
-            }
-        }
-        else if(req.outAsync)
-        {
-            try
-            {
-                if(req.outAsync->send(_connection, _compress, _response) & AsyncStatusInvokeSentCallback)
-                {
-                    req.outAsync->invokeSentAsync();
-                }
-            }
-            catch(const RetryException& ex)
-            {
-                try
-                {
-                    // Remove the request handler before retrying.
-                    _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, this);
-                }
-                catch(const Ice::CommunicatorDestroyedException&)
-                {
-                    // Ignore
-                }
-                req.outAsync->retryException(*ex.get());
-            }
-            catch(const Ice::Exception& ex)
-            {
-                if(req.outAsync->completed(ex))
-                {
-                    req.outAsync->invokeCompletedAsync();
-                }
-            }
-        }
-        else
-        {
-            try
+            else if(req.os)
             {
                 BasicStream os(req.os->instance(), Ice::currentProtocolEncoding);
                 _connection->prepareBatchRequest(&os);
@@ -512,13 +456,51 @@ ConnectRequestHandler::flushRequests()
                 _connection->finishBatchRequest(&os, _compress);
                 delete req.os;
             }
-            catch(const RetryException&)
+            else if(req.outAsync->send(_connection, _compress, _response) & AsyncStatusInvokeSentCallback)
+            {
+                req.outAsync->invokeSentAsync();
+            }
+        }
+        catch(const RetryException& ex)
+        {
+            exception.reset(ex.get()->ice_clone());
+            try
+            {
+                // Remove the request handler before retrying.
+                _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, this);
+            }
+            catch(const Ice::CommunicatorDestroyedException&)
+            {
+                // Ignore
+            }
+
+            if(req.out)
+            {
+                req.out->retryException(*ex.get());
+            }
+            else if(req.os)
             {
                 delete req.os;
             }
-            catch(const Ice::Exception&)
+            else
+            {
+                req.outAsync->retryException(*ex.get());
+            }
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            exception.reset(ex.ice_clone());
+            if(req.out)
+            {
+                req.out->completed(ex);
+            }
+            else if(req.os)
             {
                 delete req.os;
+            }
+            else if(req.outAsync->completed(ex))
+            {
+                req.outAsync->invokeCompletedAsync();
             }
         }
         _requests.pop_front();
@@ -530,7 +512,7 @@ ConnectRequestHandler::flushRequests()
     // request handler to use the more efficient connection request
     // handler.
     //
-    if(_reference->getCacheConnection())
+    if(_reference->getCacheConnection() && !exception.get())
     {
         _connectionRequestHandler = new ConnectionRequestHandler(_reference, _connection, _compress);
         for(set<Ice::ObjectPrx>::const_iterator p = _proxies.begin(); p != _proxies.end(); ++p)
@@ -542,7 +524,8 @@ ConnectRequestHandler::flushRequests()
     {
         Lock sync(*this);
         assert(!_initialized);
-        _initialized = true;
+        _exception.swap(exception);
+        _initialized = !_exception.get();
         _flushing = false;
         try
         {
@@ -561,4 +544,3 @@ ConnectRequestHandler::flushRequests()
         notifyAll();
     }
 }
-
