@@ -24,10 +24,6 @@ var CallbackReceiverI = Ice.Class(Demo.CallbackReceiver, {
 
 var id = new Ice.InitializationData();
 id.properties = Ice.createProperties();
-//
-// Client-side ACM must be disabled for bidirectional connections.
-//
-id.properties.setProperty("Ice.ACM.Client", "0");
 
 //
 // Initialize the communicator

@@ -20,17 +20,3 @@ below:
 
 Please refer to the release notes for instructions on configuring
 your environment to use Ice in an Android project.
-
-
-SSL Certificates
-----------------
-
-This demo is configured by default to use ZeroC's public chat server.
-
-If you want to test the Android client with a local chat server, you
-will need to modify the Glacier2 configuration to use the SSL
-certificates that are included in this distribution.
-
-The simplest solution is to update the IceSSL.DefaultDir property in
-the Chat Demo configuration file for Glacier2 to point to the certs
-directory of this distribution.

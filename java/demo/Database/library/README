@@ -101,7 +101,6 @@ The demo also supports a Glacier2 deployment. You will need to edit
 config.client and uncomment these configuration parameters:
 
 #Ice.Default.Router=DemoGlacier2/router:ssl -p 4064 -h 127.0.0.1
-#Ice.ACM.Client=0
 #Ice.RetryIntervals=-1
 
 To run the demo using Glacier2, first start the server:
@@ -118,15 +117,3 @@ $ java -jar build/libs/client.jar books
 
 Omit the "books" argument if you have already populated the server's
 database.
-
-
-SSL Certificates for IceTouch
------------------------------
-
-If you want to use this server with Ice Touch clients, you will need
-to replace the server and Glacier2 certificates used by this demo with
-the certificates included in the Ice Touch distribution.
-
-The simplest solution is to update the IceSSL.DefaultDir property in
-the Glacier2 and server configuration files to point to the certs
-directory of the Ice Touch distribution.

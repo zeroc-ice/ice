@@ -45,7 +45,6 @@ void bidir::MainPage::startClient_Click(Platform::Object^ sender, Windows::UI::X
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties();
         initData.properties->setProperty("Ice.Warn.Connections", "1");
-        initData.properties->setProperty("Ice.ACM.Client", "0");
 
         _communicator = Ice::initialize(initData);
 
