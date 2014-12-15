@@ -170,6 +170,7 @@ public class Client
         public override int run(string[] args)
         {
             String protocol = communicator().getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+            String host = communicator().getProperties().getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
             _factory = new Glacier2.SessionFactoryHelper(_initData, new SessionCalback1());
 
             //
@@ -206,7 +207,7 @@ public class Client
             {
                 Console.Out.Write("testing SessionHelper connect... ");
                 Console.Out.Flush();
-                _factory.setRouterHost("127.0.0.1");
+                _factory.setRouterHost(host);
                 _factory.setPort(12347);
                 _factory.setProtocol(protocol);
                 _session = _factory.connect("userid", "abc123");
@@ -337,7 +338,7 @@ public class Client
                 Ice.ObjectPrx processBase;
                 {
                     Console.Out.Write("testing stringToProxy for process object... ");
-                    processBase = communicator().stringToProxy("Glacier2/admin -f Process:default -h 127.0.0.1 -p 12348");
+                    processBase = communicator().stringToProxy("Glacier2/admin -f Process:default -h \"" + host + "\" -p 12348");
                     Console.Out.WriteLine("ok");
                 }
 
@@ -369,7 +370,7 @@ public class Client
                 Console.Out.Write("testing SessionHelper connect after router shutdown... ");
                 Console.Out.Flush();
 
-                _factory.setRouterHost("127.0.0.1");
+                _factory.setRouterHost(host);
                 _factory.setPort(12347);
                 _factory.setProtocol(protocol);
                 _session = _factory.connect("userid", "abc123");

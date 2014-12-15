@@ -1023,7 +1023,7 @@ Glacier2::SessionFactoryHelper::createProxyStr(const Ice::Identity& ident)
     {
         os << ident.category << "/";
     }
-    os << ident.name << "\":" << _protocol << " -p " << getPortInternal() << " -h " << _routerHost;
+    os << ident.name << "\":" << _protocol << " -p " << getPortInternal() << " -h \"" << _routerHost << "\"";
     if(_timeout > 0)
     {
         os << " -t " << _timeout;

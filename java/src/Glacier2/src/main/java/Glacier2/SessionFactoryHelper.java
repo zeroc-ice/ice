@@ -349,8 +349,9 @@ public class SessionFactoryHelper
         sb.append("\":");
         sb.append(_protocol + " -p ");
         sb.append(getPortInternal());
-        sb.append(" -h ");
+        sb.append(" -h \"");
         sb.append(_routerHost);
+        sb.append("\"");
         if(_timeout > 0)
         {
             sb.append(" -t ");

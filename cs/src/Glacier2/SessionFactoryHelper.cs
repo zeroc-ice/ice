@@ -359,8 +359,9 @@ public class SessionFactoryHelper
         sb.Append("\":");        
         sb.Append(_protocol + " -p ");
         sb.Append(getPortInternal());
-        sb.Append(" -h ");
+        sb.Append(" -h \"");
         sb.Append(_routerHost);
+        sb.Append("\"");
         if(_timeout > 0)
         {
             sb.Append(" -t ");

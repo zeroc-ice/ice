@@ -112,7 +112,7 @@ tests = [
     ("Glacier2/ssl", ["service", "novalgrind", "novc100", "nomingw"]), # valgrind doesn't work well with openssl
     ("Glacier2/dynamicFiltering", ["service", "novc100", "nomingw"]),
     ("Glacier2/staticFiltering", ["service", "noipv6", "novc100", "nomingw", "nomx"]),
-    ("Glacier2/sessionHelper", ["service", "novc100", "nomingw", "nossl", "noipv6"]),
+    ("Glacier2/sessionHelper", ["core", "novc100", "nomingw"]),
     ]
 
 #

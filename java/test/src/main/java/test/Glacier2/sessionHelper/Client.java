@@ -54,6 +54,8 @@ public class Client extends test.Util.Application
     public int run(String[] args)
     {
         String protocol = communicator().getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+        String host = communicator().getProperties().getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
+        
         _factory = new Glacier2.SessionFactoryHelper(_initData, new Glacier2.SessionCallback()
             {
                 @Override
@@ -168,7 +170,7 @@ public class Client extends test.Util.Application
         {
             out.print("testing SessionHelper connect... ");
             out.flush();
-            _factory.setRouterHost("127.0.0.1");
+            _factory.setRouterHost(host);
             _factory.setPort(12347);
             _factory.setProtocol(protocol);
             _session = _factory.connect("userid", "abc123");
@@ -212,7 +214,7 @@ public class Client extends test.Util.Application
 
             out.print("testing stringToProxy for server object... ");
             out.flush();
-            Ice.ObjectPrx base = _session.communicator().stringToProxy("callback:tcp -p 12010");
+            Ice.ObjectPrx base = _session.communicator().stringToProxy("callback:default -p 12010");
             out.println("ok");
 
             out.print("pinging server after session creation... ");
@@ -289,7 +291,7 @@ public class Client extends test.Util.Application
             Ice.ObjectPrx processBase;
             {
                 out.print("testing stringToProxy for process object... ");
-                processBase = communicator().stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348");
+                processBase = communicator().stringToProxy("Glacier2/admin -f Process:default -h \"" + host + "\" -p 12348");
                 out.println("ok");
             }
 
@@ -382,7 +384,7 @@ public class Client extends test.Util.Application
             out.print("testing SessionHelper connect after router shutdown... ");
             out.flush();
 
-            _factory.setRouterHost("127.0.0.1");
+            _factory.setRouterHost(host);
             _factory.setPort(12347);
             _factory.setProtocol(protocol);
             _session = _factory.connect("userid", "abc123");

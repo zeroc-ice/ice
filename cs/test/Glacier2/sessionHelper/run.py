@@ -26,8 +26,8 @@ args =  ' --Ice.Warn.Dispatch=0' + \
         ' --Ice.Warn.Connections=0' + \
         ' --Glacier2.SessionTimeout="30"' + \
         ' --Glacier2.Client.Endpoints="default -p 12347"' + \
-        ' --Glacier2.Server.Endpoints="default -h 127.0.0.1"' \
-        ' --Ice.Admin.Endpoints="default -h 127.0.0.1 -p 12348"' + \
+        ' --Glacier2.Server.Endpoints=default' \
+        ' --Ice.Admin.Endpoints="default -p 12348"' + \
         ' --Ice.Admin.InstanceName=Glacier2' + \
         ' --Glacier2.CryptPasswords="' + os.path.join(os.getcwd(), "passwords") + '"'
 

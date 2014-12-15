@@ -228,6 +228,7 @@ public:
     {
         instance = this;
         string protocol = communicator()->getProperties()->getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+        string host = communicator()->getProperties()->getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
         _initData.properties = Ice::createProperties(argc, argv, communicator()->getProperties());
         _initData.properties->setProperty("Ice.Default.Router", "Glacier2/router:default -p 12347");
 
@@ -260,7 +261,7 @@ public:
         {
             IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
             cout << "testing SessionHelper connect... " << flush;
-            _factory->setRouterHost("localhost");
+            _factory->setRouterHost(host);
             _factory->setPort(12347);
             _factory->setProtocol(protocol);
             _session = _factory->connect("userid", "abc123");
@@ -370,7 +371,7 @@ public:
             Ice::ObjectPrx processBase;
             {
                 cout << "testing stringToProxy for process object... " << flush;
-                processBase = communicator()->stringToProxy("Glacier2/admin -f Process:default -h localhost -p 12348");
+                processBase = communicator()->stringToProxy("Glacier2/admin -f Process:default -h \"" + host + "\" -p 12348");
                 cout << "ok" << endl;
             }
 
@@ -407,7 +408,7 @@ public:
         {
             IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
             cout << "testing SessionHelper connect after router shutdown... " << flush;
-            _factory->setRouterHost("localhost");
+            _factory->setRouterHost(host);
             _factory->setPort(12347);
             _factory->setProtocol(protocol);
             _session = _factory->connect("userid", "abc123");
