@@ -27,33 +27,41 @@ restrictions on your server host to allow the applet to establish
 connections to the hello server.
 
 
+Java security policy
+--------------------
+
+The applet's JAR file is not signed, therefore the Java plug-in may
+refuse to allow the applet to connect to the Ice server. In this
+situation, the applet will report a SocketException in its status
+bar, and the Java console will show an exception that includes an
+"access denied" error.
+
+To temporarily work around the issue, locate the java.policy file
+on your system. For example, you might find it here:
+
+  C:\Program Files\Java\jre1.8.0_xx\lib\security
+
+Edit this file as an administrator. In the "grant" section, add the
+line shown below:
+
+  permission java.net.SocketPermission "<host>:1024-", "connect,resolve";
+
+Replace "<host>" with the host name or IP address of the machine on
+which the Ice server is running. For example, if you are loading the
+applet locally as a file, replace "<host>" with "localhost".
+
+Save the changes, restart the browser, and load the applet again to
+confirm it can connect. Don't forget to remove this line from the
+java.policy file when you're finished.
+
+
 Loading the applet locally
 --------------------------
 
 The simplest way to use the applet is to open the start page
 (hello.html) as a local file directly from your browser. In this case,
 you must start the hello server on the same host and enter "localhost"
-or "127.0.0.1" as the server host name in the applet.
-
-Note however that the applet security manager in some versions of Java
-may prevent the applet from connecting to the local host. If the
-applet reports a SocketException error in its status bar, open the
-Java console and review the exception stack trace. The most likely
-occurrence is an "access denied" error, which indicates that the
-security manager rejected the applet's connection attempt. You can
-solve this issue by temporarily granting for the applet to connect to
-the local machine. For example, if you are using JRE6 on Windows, open
-the following file:
-
-  C:\Program Files\Java\jre6\lib\security\java.policy
-
-In the "grant" section, add the line shown below:
-
-  permission java.net.SocketPermission "localhost:1024-", "connect,resolve";
-
-Restart your browser and try the applet again. If the applet still
-cannot establish a connection, try loading it from a web server
-instead.
+as the server host name in the applet.
 
 
 Loading the applet from a web server
