@@ -12,59 +12,59 @@
 import sys, traceback, Ice, IceMX
 
 #
-# Formatting information for metrics maps. The tupple defines the
-# field name, title, alignment ('<' for left alignement and '>' for
-# right aligment) and width.
+# Formatting information for metrics maps. The tuple defines the
+# field name, title, alignment ('<' for left alignment and '>' for
+# right alignment) and width.
 #
 maps = {
     "Connection" : [
-        ("id", "Connections", '<', 35), 
+        ("id", "Connections", '<', 35),
         ("current", "#", '>', 3),
         ("total", "Total", '>', 5),
         ("receivedBytes", "RxBytes", '>', 10),
         ("sentBytes", "TxBytes", '>', 10),
-        ("averageLifetime", "Avg (s)", '>', 8) 
+        ("averageLifetime", "Avg (s)", '>', 8)
     ],
     "Invocation" : [
-        ("id", "Invocations", '<', 39), 
+        ("id", "Invocations", '<', 39),
         ("current", "#", '>', 3),
         ("total", "Total", '>', 5),
         ("retry", "Rtrs", '>', 5),
         ("", "Sz", '>', 5),
         ("", "RepSz", '>', 5),
-        ("averageLifetime", "Avg (ms)", '>', 8) 
+        ("averageLifetime", "Avg (ms)", '>', 8)
     ],
     "Dispatch" : [
-        ("id", "Dispatch", '<', 40), 
+        ("id", "Dispatch", '<', 40),
         ("current", "#", '>', 3),
         ("total", "Total", '>', 5),
         ("size", "Sz", '>', 5),
         ("replySize", "RepSz", '>', 5),
-        ("averageLifetime", "Avg (ms)", '>', 8) 
+        ("averageLifetime", "Avg (ms)", '>', 8)
     ],
-    "Thread" : [ 
-        ("id", "Threads", '<', 25), 
+    "Thread" : [
+        ("id", "Threads", '<', 25),
         ("current", "#", '>', 3),
         ("total", "Total", '>', 5),
         ("inUseForIO", "IO", '>', 6),
         ("inUseForUser", "User", '>', 6),
         ("inUseForOther", "Other", '>', 6),
-        ("averageLifetime", "Avg (s)", '>', 8) 
+        ("averageLifetime", "Avg (s)", '>', 8)
     ],
-    "ConnectionEstablishment" : [ 
-        ("id", "Connection Establishments", '<', 30), 
+    "ConnectionEstablishment" : [
+        ("id", "Connection Establishments", '<', 30),
         ("current", "#", '>', 3),
         ("total", "Total", '>', 5),
-        ("averageLifetime", "Avg (ms)", '>', 8) 
+        ("averageLifetime", "Avg (ms)", '>', 8)
     ],
     "EndpointLookup" : [
-        ("id", "Endpoint Lookups", '<', 30), 
+        ("id", "Endpoint Lookups", '<', 30),
         ("current", "#", '>', 3),
         ("total", "Total", '>', 5),
-        ("averageLifetime", "Avg (ms)",'>', 8) 
+        ("averageLifetime", "Avg (ms)",'>', 8)
     ],
     "Remote" : [
-        ("id", "Invocations", '>', 39), 
+        ("id", "Invocations", '>', 39),
         ("current", "#", '>', 3),
         ("total", "Total", '>', 5),
         ("", "", '>', 5),
@@ -73,7 +73,7 @@ maps = {
         ("averageLifetime", "Avg (ms)", '>', 8)
     ],
     "Collocated" : [
-        ("id", "Invocations", '>', 39), 
+        ("id", "Invocations", '>', 39),
         ("current", "#", '>', 3),
         ("total", "Total", '>', 5),
         ("", "", '>', 5),
@@ -82,7 +82,7 @@ maps = {
         ("averageLifetime", "Avg (ms)", '>', 8)
     ],
     "Session" : [
-        ("id", "Sessions", '<', 15), 
+        ("id", "Sessions", '<', 15),
         ("current", "#", '>', 3),
         ("total", "Total", '>', 5),
         ("forwardedClient", "FdCli", '>', 5),
@@ -95,7 +95,7 @@ maps = {
         ("averageLifetime", "Avg (s)", '>', 8)
     ],
     "Topic" : [
-        ("id", "Topics", '<', 30), 
+        ("id", "Topics", '<', 30),
         ("current", "#", '>', 3),
         ("total", "Total", '>', 5),
         ("published", "Published", '>', 9),
@@ -103,7 +103,7 @@ maps = {
         ("averageLifetime", "Avg (s)", '>', 7)
     ],
     "Subscriber" : [
-        ("id", "Subscribers", '<', 32), 
+        ("id", "Subscribers", '<', 32),
         ("current", "#", '>', 3),
         ("total", "Total", '>', 5),
         ("queued", "Queued", '>', 6),
@@ -151,7 +151,7 @@ def metricsField(metrics):
 
 def printMetrics(mapName, getValue, sep = '|', prefix = " "):
     #
-    # This method prints a metrics, a line in the table. 
+    # This method prints a metrics, a line in the table.
     #
     # It concatenates all the metric fields according to the format
     # described in the `maps' table defined above. The value of each
@@ -166,7 +166,7 @@ def printMetricsMap(admin, viewName, mapName, map):
 
     #
     # Print the table header.
-    # 
+    #
     printMetrics(mapName, metricsSeparator('='), '+')
     printMetrics(mapName, metricsTitle())
     printMetrics(mapName, metricsSeparator('='), '+')
@@ -233,19 +233,19 @@ class Client(Ice.Application):
 To connect to the Ice administrative facility of an Ice process, you
 should specify its endpoint(s) and instance name with the
 `InstanceName' and `Endpoints' properties. For example:
-    
+
  $ ./Metrics.py --Endpoints="tcp -p 12345 -h localhost" --InstanceName=Server dump
 
 Commands:
 
-  dump    Dump all the IceMX metrics views configured for the 
+  dump    Dump all the IceMX metrics views configured for the
           process or if a specific view or map is specified,
           print only this view or map.
 
-  enable  Enable all the IceMX metrics views configured for 
+  enable  Enable all the IceMX metrics views configured for
           the process or the provided view or map if specified.
 
-  disable Disable all the IceMX metrics views configured for 
+  disable Disable all the IceMX metrics views configured for
           the process or the provided view or map if specified.
 """)
 
@@ -293,9 +293,9 @@ Commands:
                     if viewName in disabledViews:
                         print("view `" + viewName + "' is disabled")
                         return 0
-                    
+
                     # Retrieve the metrics view and print it.
-                    (view, refresh) = metrics.getMetricsView(viewName);                
+                    (view, refresh) = metrics.getMetricsView(viewName);
                     if mapName:
                         if not mapName in view:
                             print("no map `" + mapName + "' in `" + viewName + "' view, available maps:")
@@ -315,8 +315,8 @@ Commands:
                 return 2
 
         except Ice.ObjectNotExistException as ex:
-            print("failed to get metrics from `%s':\n(the admin object doesn't exist, " + 
-                  "are you sure to use the correct instance name?)") % (proxyStr)
+            print("failed to get metrics from `%s':\n(the admin object doesn't exist, " +
+                  "are you sure you used the correct instance name?)") % (proxyStr)
             return 1
         except Ice.Exception as ex:
             print("failed to get metrics from `%s':\n%s") % (proxyStr, ex)
