@@ -9,7 +9,7 @@
 
 ['async', 'bidir', 'callback', 'hello', 'invoke',
  'interrupt', 'latency', 'minimal', 'multicast', 'nested',
- 'plugin', 'properties', 'serialize','session', 'swing',
+ 'plugin', 'properties', 'serialize','session',
  'throughput', 'value', 'optional','context'].each {
  	def name = it
 	project(":demoIce${it.capitalize()}") {
