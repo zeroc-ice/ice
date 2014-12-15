@@ -50,7 +50,7 @@ RemoteCommunicatorI::createObjectAdapter(int timeout, int close, int heartbeat, 
         properties->setProperty(name + ".ACM.Heartbeat", toString(heartbeat));
     }
     properties->setProperty(name + ".ThreadPool.Size", "2");
-    ObjectAdapterPtr adapter = com->createObjectAdapterWithEndpoints(name, protocol + " -h " + host);
+    ObjectAdapterPtr adapter = com->createObjectAdapterWithEndpoints(name, protocol + " -h \"" + host + "\"");
     return RemoteObjectAdapterPrx::uncheckedCast(current.adapter->addWithUUID(new RemoteObjectAdapterI(adapter)));
 }
 

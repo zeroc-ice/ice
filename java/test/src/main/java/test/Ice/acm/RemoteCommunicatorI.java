@@ -37,7 +37,7 @@ public class RemoteCommunicatorI extends _RemoteCommunicatorDisp
             properties.setProperty(name + ".ACM.Heartbeat", Integer.toString(heartbeat));
         }
         properties.setProperty(name + ".ThreadPool.Size", "2");
-        Ice.ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, protocol + " -h " + host);
+        Ice.ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, protocol + " -h \"" + host + "\"");
         return RemoteObjectAdapterPrxHelper.uncheckedCast(
             current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
     }

@@ -26,10 +26,10 @@ RemoteCommunicatorI::createObjectAdapter(const string& name, const string& endpt
     {
         // Use a fixed port if none is specified (bug 2896)
         ostringstream os;
-        os << endpoints << " -h "
+        os << endpoints << " -h \""
            << (current.adapter->getCommunicator()->getProperties()->getPropertyWithDefault(
                                                                                     "Ice.Default.Host", "127.0.0.1"))
-           << " -p " << _nextPort++;
+           << "\" -p " << _nextPort++;
         endpoints = os.str();
     }
     
