@@ -5,6 +5,11 @@
 Clock.Subscriber.Endpoints=tcp:udp
 
 #
+# Only listen on the localhost interface by default.
+#
+Ice.Default.Host=localhost
+
+#
 # This property is used by the clients to connect to IceStorm.
 #
 TopicManager.Proxy=DemoIceStorm/TopicManager:default -p 10000:default -p 10010:default -p 10020

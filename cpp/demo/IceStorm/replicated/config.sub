@@ -15,6 +15,11 @@ TopicManager.Proxy=DemoIceStorm/TopicManager
 Clock.Subscriber.Endpoints=tcp:udp
 
 #
+# Only listen on the localhost interface by default.
+#
+Ice.Default.Host=localhost
+
+#
 # Network Tracing
 #
 # 0 = no network tracing
