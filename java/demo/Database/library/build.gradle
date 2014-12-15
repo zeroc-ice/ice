@@ -33,6 +33,3 @@ dependencies {
 
 // Don't create the default jar.
 jar.enabled = false
-
-demoJar("client")
-demoJar("server")

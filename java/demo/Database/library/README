@@ -12,8 +12,8 @@ through a JDBC API and demonstrates the following techniques:
  - Using a dispatch interceptor.
 
 
-Building the demo
------------------
+Setting up the demo
+-------------------
 
 1. Install mysql or MariaDB as necessary.
 
@@ -76,20 +76,23 @@ NOTES:
 
       http://dev.mysql.com/doc/refman/5.0/en/set-transaction.html
 
+6. Add the Ice jar (ice-@ver@.jar) and the location of the demo classes
+   (build/classes/main) to your CLASSPATH.
+
 
 Running the demo
 ----------------
 
 To run the demo, first start the server:
 
-$ java -jar build/libs/server.jar
+$ java Server
 
 The demo includes a text file named "books" containing a series of
 commands that populate the server's database with a collection of
 books. Pass this file as an argument the first time you run the
 client. In another window:
 
-$ java -jar build/libs/client.jar books
+$ java Client books
 
 Type "help" to get a list of valid commands.
 
@@ -105,7 +108,7 @@ config.client and uncomment these configuration parameters:
 
 To run the demo using Glacier2, first start the server:
 
-$ java -jar build/libs/server.jar
+$ java Server
 
 In a separate window, start the Glacier2 router:
 
@@ -113,7 +116,7 @@ $ glacier2router --Ice.Config=config.glacier2
 
 In a separate window, start the client:
 
-$ java -jar build/libs/client.jar books
+$ java Client books
 
 Omit the "books" argument if you have already populated the server's
 database.
