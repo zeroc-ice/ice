@@ -60,7 +60,7 @@ def run(clientStr, desc = 'application'):
     node.expect("detected termination of.*SimpleServer")
     client.sendline('x')
 
-    client.waitTestSuccess(timeout=1)
+    client.waitTestSuccess(timeout=120)
     print("ok")
 
     sys.stdout.write("deploying template... ")
@@ -81,7 +81,7 @@ def run(clientStr, desc = 'application'):
     node.expect("detected termination of.*SimpleServer-[123]")
     client.sendline('x')
 
-    client.waitTestSuccess(timeout=1)
+    client.waitTestSuccess(timeout=120)
     print("ok")
 
     sys.stdout.write("deploying replicated version... ")
@@ -105,7 +105,7 @@ def run(clientStr, desc = 'application'):
         client.sendline('s')
         node.expect("detected termination of.*SimpleServer-%d" % which)
         client.sendline('x')
-        client.waitTestSuccess(timeout=1)
+        client.waitTestSuccess(timeout=120)
     testserver(1)
     testserver(2)
     testserver(3)

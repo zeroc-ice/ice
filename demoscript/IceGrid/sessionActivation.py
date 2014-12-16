@@ -59,7 +59,7 @@ def run(clientCmd):
     client.sendline('t')
     node.expect('says Hello World!')
     client.sendline('x')
-    client.waitTestSuccess(timeout=1)
+    client.waitTestSuccess(timeout=120)
     node.expect('detected termination of server')
 
     client = Util.spawn(clientCmd)
@@ -72,7 +72,7 @@ def run(clientCmd):
     client.sendline('t')
     node.expect('says Hello World!')
     client.sendline('x')
-    client.waitTestSuccess(timeout=1)
+    client.waitTestSuccess(timeout=120)
     node.expect('detected termination of server')
 
     print("ok")

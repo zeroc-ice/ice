@@ -31,7 +31,7 @@ def runtests(client, server, secure, datagram):
     sys.stdout.flush()
     client.sendline('O')
     try:
-        server.expect('Hello World!', timeout=1)
+        server.expect('Hello World!', timeout=120)
     except Expect.TIMEOUT:
         pass
     client.sendline('O')
@@ -43,7 +43,7 @@ def runtests(client, server, secure, datagram):
         sys.stdout.flush()
         client.sendline('D')
         try:
-            server.expect('Hello World!', timeout=1)
+            server.expect('Hello World!', timeout=120)
         except Expect.TIMEOUT:
             pass
         client.sendline('D')

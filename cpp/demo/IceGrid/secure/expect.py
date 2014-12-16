@@ -121,7 +121,7 @@ def runtest():
     node.expect("detected termination of.*SimpleServer")
     client.sendline('x')
 
-    client.waitTestSuccess(timeout=1)
+    client.waitTestSuccess(timeout=120)
 
 sys.stdout.write("testing client... ")
 sys.stdout.flush()

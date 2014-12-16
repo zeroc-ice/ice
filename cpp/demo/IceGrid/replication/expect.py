@@ -70,7 +70,7 @@ def runDemo(properties, clientProperties):
         client.sendline('x')
         client.sendline('x')
 
-        client.waitTestSuccess(timeout=1)
+        client.waitTestSuccess(timeout=120)
 
     sys.stdout.write("testing client... ")
     sys.stdout.flush()

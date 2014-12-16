@@ -64,7 +64,7 @@ def run(clientStr, desc = 'application'):
     for s in [ "Homer", "Marge", "Bart", "Lisa", "Maggie" ]:
         client = Util.spawn(clientStr)
         node.expect("Hello, %s" % s)
-        client.waitTestSuccess(timeout=1)
+        client.waitTestSuccess(timeout=120)
 
     print("ok")
 
@@ -78,19 +78,19 @@ def run(clientStr, desc = 'application'):
 
     client = Util.spawn(clientStr)
     node.expect("Hello, Homer")
-    client.waitTestSuccess(timeout=1)
+    client.waitTestSuccess(timeout=120)
 
     client = Util.spawn(clientStr)
     node.expect("Hello, Marge")
-    client.waitTestSuccess(timeout=1)
+    client.waitTestSuccess(timeout=120)
 
     client = Util.spawn(clientStr)
     node.expect("Hello, Bart")
-    client.waitTestSuccess(timeout=1)
+    client.waitTestSuccess(timeout=120)
 
     client = Util.spawn(clientStr)
     node.expect("Hello, Homer")
-    client.waitTestSuccess(timeout=1)
+    client.waitTestSuccess(timeout=120)
 
     admin.sendline("service start IceBox Lisa")
     admin.expect('>>>')
@@ -104,19 +104,19 @@ def run(clientStr, desc = 'application'):
 
     client = Util.spawn(clientStr)
     node.expect("Hello, Bart")
-    client.waitTestSuccess(timeout=1)
+    client.waitTestSuccess(timeout=120)
 
     client = Util.spawn(clientStr)
     node.expect("Hello, Lisa")
-    client.waitTestSuccess(timeout=1)
+    client.waitTestSuccess(timeout=120)
 
     client = Util.spawn(clientStr)
     node.expect("Hello, Maggie")
-    client.waitTestSuccess(timeout=1)
+    client.waitTestSuccess(timeout=120)
 
     client = Util.spawn(clientStr)
     node.expect("Hello, Bart")
-    client.waitTestSuccess(timeout=1)
+    client.waitTestSuccess(timeout=120)
 
     print("ok")
 
@@ -145,23 +145,23 @@ def run(clientStr, desc = 'application'):
 
     client = Util.spawn(clientStr)
     node.expect("Hello, Lisa")
-    client.waitTestSuccess(timeout=1)
+    client.waitTestSuccess(timeout=120)
 
     client = Util.spawn(clientStr)
     node.expect("Hello, Maggie")
-    client.waitTestSuccess(timeout=1)
+    client.waitTestSuccess(timeout=120)
 
     client = Util.spawn(clientStr)
     node.expect("Hello, Homer")
-    client.waitTestSuccess(timeout=1)
+    client.waitTestSuccess(timeout=120)
 
     client = Util.spawn(clientStr)
     node.expect("Hello, Marge")
-    client.waitTestSuccess(timeout=1)
+    client.waitTestSuccess(timeout=120)
 
     client = Util.spawn(clientStr)
     node.expect("Hello, Bart")
-    client.waitTestSuccess(timeout=1)
+    client.waitTestSuccess(timeout=120)
 
     print("ok")
 

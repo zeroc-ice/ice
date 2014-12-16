@@ -41,7 +41,7 @@ def run(client, server, glacier2):
     client.sendline('O')
     client.sendline('f')
     try:
-        server.expect('initiating callback to', timeout=1)
+        server.expect('initiating callback to', timeout=120)
     except Expect.TIMEOUT:
         pass
     glacier2.expect('_fwd/O')
@@ -63,7 +63,7 @@ def run(client, server, glacier2):
     client.sendline('t')
     server.expect('initiating callback to.*fake.*ObjectNotExistException')
     try:
-        client.expect('received callback', timeout=1)
+        client.expect('received callback', timeout=120)
     except Expect.TIMEOUT:
         pass
     print("ok")

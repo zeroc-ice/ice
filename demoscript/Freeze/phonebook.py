@@ -49,7 +49,7 @@ def run(client, server):
             pass
     try:
         while True:
-            client.expect('\n', timeout=1)
+            client.expect('\n', timeout=120)
     except Expect.TIMEOUT:
         pass
     print("ok")

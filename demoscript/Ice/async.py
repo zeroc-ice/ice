@@ -18,7 +18,7 @@ def run(client, server):
     server.expect('Hello World!')
     client.sendline('d')
     try:
-        server.expect('Hello World!', timeout=1)
+        server.expect('Hello World!', timeout=120)
     except Expect.TIMEOUT:
         pass
     client.sendline('i')
