@@ -38,6 +38,11 @@ public class Server extends test.Util.Application
         initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
         initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp -p 12011");
         initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
+        //
+        // Limit the recv buffer size, this test relies on the socket
+        // send() blocking after sending a given amount of data.
+        //
+        initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
         initData.dispatcher = _dispatcher;
         return initData;
     }
