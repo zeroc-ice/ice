@@ -1008,6 +1008,21 @@ namespace IceInternal
 #endif
         }
 
+        public static bool
+        isLinklocal(IPAddress addr)
+        {
+            if (addr.IsIPv6LinkLocal)
+            {
+                return true;
+            }
+            else if (addr.AddressFamily == AddressFamily.InterNetwork)
+            {
+                Byte[] bytes = addr.GetAddressBytes();
+                return bytes[0] == 169 && bytes[1] == 254;
+            }
+            return false;
+        }
+
         public static void
         setTcpBufSize(Socket socket, Ice.Properties properties, Ice.Logger logger)
         {
@@ -1082,7 +1097,7 @@ namespace IceInternal
 #if COMPACT
                     if(!IPAddress.IsLoopback(a))
 #else
-                    if(!a.IsIPv6LinkLocal)
+                    if(!isLinklocal(a))
 #endif
                     {
                         hosts.Add(a.ToString());

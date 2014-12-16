@@ -465,7 +465,8 @@ isLinklocal(const Address& addr)
     }
     else if (addr.saStorage.ss_family == AF_INET)
     {
-        return inetAddrToString(addr).find("169.254.") == 0;
+        // Check for 169.254.X.X in network order
+        return (addr.saIn.sin_addr.s_addr & 0x0000FFFF) == 0x0000FEA9;
     }
     return false;
 }
