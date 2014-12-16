@@ -136,19 +136,20 @@ def getCppCompiler():
             p = subprocess.Popen("cl", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
             if not p or not p.stdout:
                 print("Cannot detect C++ compiler")
-                sys.exit(1)
-            l = p.stdout.readline().decode("utf-8").strip()
-            if l.find("Version 16") != -1:
-                compiler = "VC100"
-            elif l.find("Version 17") != -1:
-                compiler = "VC110"
-            elif l.find("Version 18") != -1:
-                compiler = "VC120"
+                compiler = VC120
             else:
-                #
-                # Cannot detect C++ compiler use default
-                #
-                compiler = "VC120"
+                l = p.stdout.readline().decode("utf-8").strip()
+                if l.find("Version 16") != -1:
+                    compiler = "VC100"
+                elif l.find("Version 17") != -1:
+                    compiler = "VC110"
+                elif l.find("Version 18") != -1:
+                    compiler = "VC120"
+                else:
+                    #
+                    # Cannot detect C++ compiler use default
+                    #
+                    compiler = "VC120"
     return compiler
 
 def isMINGW():
