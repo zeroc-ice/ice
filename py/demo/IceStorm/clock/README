@@ -111,8 +111,8 @@ addresses in the steps below:
 
    TopicManager.Proxy=DemoIceStorm/TopicManager:default -h <I> -p 10000
 
-3. If you have a complex local network, such as hosts with multiple
-   network adapters, you may also want to modify the Endpoints
+3. Since the default configurations for the subscriber and IceStorm
+   endpoints listen only on localhost, you must also modify the Endpoints
    properties to explicitly include the host machine's name or IP
    address.
 
@@ -124,10 +124,6 @@ addresses in the steps below:
 
    IceStorm.TopicManager.Endpoints=default -h <I> -p 10000
    IceStorm.Publish.Endpoints=tcp -h <I> -p 10001:udp -h <I> -p 10001
-
-   In config.icebox:
-
-   Ice.Admin.Endpoints=tcp -h <I> -p 9996
 
 If you experience any network delays or errors, edit all of the
 configuration files and enable the Ice.Trace.Network property. Running
