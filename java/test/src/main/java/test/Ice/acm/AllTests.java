@@ -143,8 +143,7 @@ public class AllTests
         {
             _adapter = _com.createObjectAdapter(_serverACMTimeout, _serverACMClose, _serverACMHeartbeat);
 
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.classLoader = IceInternal.Util.getInstance(_app.communicator()).getClassLoader();
+            Ice.InitializationData initData = _app.createInitializationData();
             initData.properties = _app.communicator().getProperties()._clone();
             initData.logger = _logger;
             initData.properties.setProperty("Ice.ACM.Timeout", "1");

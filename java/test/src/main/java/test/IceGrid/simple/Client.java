@@ -27,7 +27,7 @@ public class Client extends test.Util.Application
 
         if(!withDeploy)
         {
-            AllTests.allTests(communicator, getWriter());
+            AllTests.allTests(this);
         }
         else
         {

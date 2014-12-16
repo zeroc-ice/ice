@@ -1171,8 +1171,7 @@ public class AMI
             //
             if(p.ice_getConnection() != null)
             {
-                Ice.InitializationData initData = new Ice.InitializationData();
-                initData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
+                Ice.InitializationData initData = app.createInitializationData();
                 initData.properties = communicator.getProperties()._clone();
                 Ice.Communicator ic = app.initialize(initData);
                 Ice.ObjectPrx o = ic.stringToProxy(p.toString());

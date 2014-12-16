@@ -365,8 +365,7 @@ public class AllTests
             // Test Ice.Override.Timeout. This property overrides all
             // endpoint timeouts.
             //
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
+            Ice.InitializationData initData = app.createInitializationData();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Override.Timeout", "100");
             Ice.Communicator comm = app.initialize(initData);
@@ -402,8 +401,7 @@ public class AllTests
             //
             // Test Ice.Override.ConnectTimeout.
             //
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
+            Ice.InitializationData initData = app.createInitializationData();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Override.ConnectTimeout", "250");
 
@@ -456,8 +454,7 @@ public class AllTests
             //
             // Test Ice.Override.CloseTimeout.
             //
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
+            Ice.InitializationData initData = app.createInitializationData();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Override.CloseTimeout", "100");
             Ice.Communicator comm = app.initialize(initData);

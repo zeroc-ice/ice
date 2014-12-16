@@ -16,6 +16,7 @@ import test.Ice.binding.Test.RemoteCommunicatorPrxHelper;
 import test.Ice.binding.Test.RemoteObjectAdapterPrx;
 import test.Ice.binding.Test.TestIntfPrx;
 import test.Ice.binding.Test.TestIntfPrxHelper;
+import test.Util.Application;
 
 public class AllTests
 {
@@ -97,12 +98,15 @@ public class AllTests
     }
 
     public static void
-    allTests(Ice.Communicator communicator, PrintWriter out)
+    allTests(Application app)
     {
+        Ice.Communicator communicator = app.communicator();
+        PrintWriter out = app.getWriter();
+
         String ref = "communicator:default -p 12010";
         RemoteCommunicatorPrx com = RemoteCommunicatorPrxHelper.uncheckedCast(communicator.stringToProxy(ref));
 
-                out.print("testing binding with single endpoint... ");
+        out.print("testing binding with single endpoint... ");
         out.flush();
         {
             RemoteObjectAdapterPrx adapter = com.createObjectAdapter("Adapter", "default");
@@ -905,10 +909,9 @@ public class AllTests
             boolean ipv6NotSupported = false;
             for(Ice.Properties p : serverProps)
             {
-                Ice.InitializationData serverInitData = new Ice.InitializationData();
-                serverInitData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
+                Ice.InitializationData serverInitData = app.createInitializationData();
                 serverInitData.properties = p;
-                Ice.Communicator serverCommunicator = Ice.Util.initialize(serverInitData);
+                Ice.Communicator serverCommunicator = app.initialize(serverInitData);
                 Ice.ObjectAdapter oa;
                 try
                 {
@@ -933,10 +936,9 @@ public class AllTests
                 String strPrx = oa.createProxy(serverCommunicator.stringToIdentity("dummy")).toString();
                 for(Ice.Properties q : clientProps)
                 {
-                    Ice.InitializationData clientInitData = new Ice.InitializationData();
-                    clientInitData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
+                    Ice.InitializationData clientInitData = app.createInitializationData();
                     clientInitData.properties = q;
-                    Ice.Communicator clientCommunicator = Ice.Util.initialize(clientInitData);
+                    Ice.Communicator clientCommunicator = app.initialize(clientInitData);
                     Ice.ObjectPrx prx = clientCommunicator.stringToProxy(strPrx);
                     try
                     {

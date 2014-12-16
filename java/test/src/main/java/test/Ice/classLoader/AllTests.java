@@ -89,8 +89,7 @@ public class AllTests
         {
             out.print("testing package... ");
             out.flush();
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
+            Ice.InitializationData initData = app.createInitializationData();
             initData.properties = communicator.getProperties()._clone();
             MyClassLoader classLoader = new MyClassLoader(initData.classLoader);
             initData.classLoader = classLoader;
@@ -106,8 +105,7 @@ public class AllTests
         {
             out.print("testing plug-in... ");
             out.flush();
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
+            Ice.InitializationData initData = app.createInitializationData();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Plugin.Test", "test.Ice.classLoader.PluginFactoryI");
             MyClassLoader classLoader = new MyClassLoader(initData.classLoader);
@@ -125,8 +123,7 @@ public class AllTests
         {
             out.print("testing IceSSL certificate verifier and password callback... ");
             out.flush();
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
+            Ice.InitializationData initData = app.createInitializationData();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("IceSSL.CertVerifier", "test.Ice.classLoader.CertificateVerifierI");
             initData.properties.setProperty("IceSSL.PasswordCallback", "test.Ice.classLoader.PasswordCallbackI");
@@ -143,8 +140,7 @@ public class AllTests
         // Marshaling tests.
         //
         {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
+            Ice.InitializationData initData = app.createInitializationData();
             initData.properties = communicator.getProperties()._clone();
             MyClassLoader classLoader = new MyClassLoader(initData.classLoader);
             initData.classLoader = classLoader;

@@ -24,7 +24,7 @@ public class Collocated extends test.Util.Application
 
         try
         {
-            AllTests.allTests(this, communicator(), getWriter());
+            AllTests.allTests(this);
         }
         catch (InterruptedException e)
         {

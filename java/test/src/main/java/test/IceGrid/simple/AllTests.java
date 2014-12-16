@@ -25,8 +25,11 @@ public class AllTests
     }
 
     public static void
-    allTests(Ice.Communicator communicator, PrintWriter out)
+    allTests(test.Util.Application app)
     {
+        Ice.Communicator communicator = app.communicator();
+        PrintWriter out = app.getWriter();
+
         out.print("testing stringToProxy... ");
         out.flush();
         String ref = "test @ TestAdapter";
@@ -83,8 +86,7 @@ public class AllTests
             // Ensure the IceGrid discovery locator can discover the
             // registries and make sure locator requests are forwarded.
             //
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
+            Ice.InitializationData initData = app.createInitializationData();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty("Ice.Plugin.IceGridDiscovery", "IceGrid:IceGrid.DiscoveryPluginFactoryI");

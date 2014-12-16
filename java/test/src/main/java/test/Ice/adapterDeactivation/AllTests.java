@@ -73,8 +73,7 @@ public class AllTests
             out.flush();
             for(int i = 0; i < 10; ++i)
             {
-                Ice.InitializationData initData = new Ice.InitializationData();
-                initData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
+                Ice.InitializationData initData = app.createInitializationData();
                 initData.properties = communicator.getProperties()._clone();
                 Ice.Communicator comm = app.initialize(initData);
                 comm.stringToProxy("test:default -p 12010").begin_ice_ping();

@@ -85,9 +85,11 @@ public class AllTests
     }
 
     public static void
-    allTests(test.Util.Application app, Ice.Communicator communicator, PrintWriter out)
+    allTests(test.Util.Application app)
         throws InterruptedException
     {
+        Ice.Communicator communicator = app.communicator();
+        PrintWriter out = app.getWriter();
         String sref = "test:default -p 12010";
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
@@ -568,8 +570,7 @@ public class AllTests
             //
             // Check that CommunicatorDestroyedException is raised directly.
             //
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
+            Ice.InitializationData initData = app.createInitializationData();
             initData.properties = communicator.getProperties()._clone();
             Ice.Communicator ic = app.initialize(initData);
             
@@ -715,8 +716,7 @@ public class AllTests
         {
             final Thread mainThread = Thread.currentThread();
             ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(1);
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.classLoader = IceInternal.Util.getInstance(communicator).getClassLoader();
+            Ice.InitializationData initData = app.createInitializationData();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("ClientTestAdapter.Endpoints", "default -p 12030");
             Ice.Communicator ic = app.initialize(initData);
