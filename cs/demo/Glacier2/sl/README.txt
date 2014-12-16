@@ -18,12 +18,7 @@ classes in a Silverlight client for the simple chat server.
 
    > <Ice installation directory>\bin\policyserver 127.0.0.1 clientaccesspolicy.xml
 
-4) In Visual Studio, open the `chat.Web' project. Open the properties
-   using "Project -> chat.Web Properties". Under the Web tab choose
-   "Specific Page" as the "Start Action" and chatTestPage.html as the
-   page.
-
-5) Start the Silverlight client using the "Debug > Start new instance"
+4) Start the Silverlight client using the "Debug > Start new instance"
    command.
 
 
@@ -50,19 +45,19 @@ IIS instructions:
 
    //initData.properties.setProperty("Ice.ClientAccessPolicyProtocol", "Http");
 
-4) Rebuild the demo. You must rebuild both chat and chat.web projects.
+4) Rebuild the demo. You must rebuild both chat and chat.Web projects.
 
 5) Copy required files. In a command window, execute the following
    commands:
 
    > mkdir C:\inetpub\wwwroot\chat
-   > xcopy chat.web\chatTestPage.html C:\inetpub\wwwroot\chat
-   > xcopy chat.web\Silverlight.js C:\inetpub\wwwroot\chat
+   > xcopy chat.Web\index.html C:\inetpub\wwwroot\chat
+   > xcopy chat.Web\Silverlight.js C:\inetpub\wwwroot\chat
    > xcopy chat.Web\ClientBin C:\inetpub\wwwroot\chat\ClientBin /s /i
 
 6) The chat client should now be accessible at the following URL:
 
-   http://localhost/chat/chatTestPage.html
+   http://localhost/chat/index.html
 
 
 Notes:

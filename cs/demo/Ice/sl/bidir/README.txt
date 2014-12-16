@@ -28,22 +28,6 @@ use a bidirectional connection to receive callbacks.
 
 
 ==========================================================================
-Running the demo with .NET Compact Framework bidir server
-==========================================================================
-
-1) Start the bidir server according to the instructions in the
-   demo\Ice\compact\bidir\README.txt file. Before clicking the `Start
-   Server' button, update the port field to 4502.
-
-2) In the Silverlight project, choose "Properties > Debug", select
-   Out-of-browser application, and select "bidir" in the combo box.
-
-3) Start the Silverlight client using the "Debug > Start new instance"
-   command. Set the host field to the IP address used by the .NET CF
-   server, and click Run.
-
-
-==========================================================================
 Using a web server as a policy server
 ==========================================================================
 
@@ -66,20 +50,20 @@ IIS instructions:
 
    //initData.properties.setProperty("Ice.ClientAccessPolicyProtocol", "Http");
 
-4) Rebuild the demo. You must rebuild both bidir and bidir.web
+4) Rebuild the demo. You must rebuild both bidir and bidir.Web
    projects.
 
 5) Copy required files. In a command window, execute the following
    commands:
 
    > mkdir C:\inetpub\wwwroot\bidir
-   > xcopy bidir.web\bidirTestPage.html C:\inetpub\wwwroot\bidir
-   > xcopy bidir.web\Silverlight.js C:\inetpub\wwwroot\bidir
+   > xcopy bidir.Web\index.html C:\inetpub\wwwroot\bidir
+   > xcopy bidir.Web\Silverlight.js C:\inetpub\wwwroot\bidir
    > xcopy bidir.Web\ClientBin C:\inetpub\wwwroot\bidir\ClientBin /s /i
 
 6) The bidir client should now be accessible at the following URL:
 
-   http://localhost/bidir/bidirTestPage.html
+   http://localhost/bidir/index.html
 
 
 Notes:

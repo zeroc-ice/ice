@@ -45,19 +45,19 @@ IIS instructions:
 
    //initData.properties.setProperty("Ice.ClientAccessPolicyProtocol", "Http");
 
-4) Rebuild the demo. You must rebuild both hello and hello.web projects.
+4) Rebuild the demo. You must rebuild both hello and hello.Web projects.
 
 5) Copy required files. In a command window, execute the following
    commands:
 
    > mkdir C:\inetpub\wwwroot\hello
-   > xcopy hello.web\helloTestPage.html C:\inetpub\wwwroot\hello
-   > xcopy hello.web\Silverlight.js C:\inetpub\wwwroot\hello
+   > xcopy hello.Web\index.html C:\inetpub\wwwroot\hello
+   > xcopy hello.Web\Silverlight.js C:\inetpub\wwwroot\hello
    > xcopy hello.Web\ClientBin C:\inetpub\wwwroot\hello\ClientBin /s /i
 
 6) The hello client should now be accessible at the following URL:
 
-   http://localhost/hello/helloTestPage.html
+   http://localhost/hello/index.html
 
 
 Notes:
