@@ -129,3 +129,68 @@ def getPythonHome(arch):
             return None
     except WindowsError as error:
         return None
+
+def getRubyHome(arch):
+    import winreg
+    flags = winreg.KEY_READ
+    if arch == "amd64" or arch == "x64":
+        flags = flags | winreg.KEY_WOW64_64KEY
+    else:
+        flags = flags | winreg.KEY_WOW64_32KEY
+
+    #
+    # Unfortunately, the RubyInstaller creates a single for both the
+    # x86 and x64 installer.
+    #
+    for parent in [winreg.HKEY_LOCAL_MACHINE, winreg.HKEY_CURRENT_USER]:
+        try:
+            key = winreg.OpenKey(parent, "SOFTWARE\\RubyInstaller\\MRI\\2.1.5", 0, flags)
+            buildPlatform = winreg.QueryValueEx(key, "BuildPlatform")[0]
+
+            key = winreg.OpenKey(parent, "SOFTWARE\\RubyInstaller\\MRI\\2.1.5", 0, flags)
+            rubyHome = os.path.abspath(winreg.QueryValueEx(key, "InstallLocation")[0])
+            if not os.path.exists(rubyHome):
+                continue
+
+            if (arch == "amd64" or arch == "x64") == (buildPaltform.find("x64-") == 0):
+                return rubyHome
+            elif (arch == "amd64" or arch == "x64"):
+                rubyHome += "x64"
+            elif(rubyHome.find("-x64") > 0):
+                rubyHome = rubyHome[0:(len(rubyHome) - 4)]
+
+            if os.path.exists(rubyHome):
+                return rubyHome
+        except:
+            pass
+
+    #
+    # Check default installation directory
+    #
+    if (arch == "amd64" or arch == "x64"):
+        if os.path.exists("C:\Ruby21-x64"):
+            return "C:\Ruby21-x64"
+    else:
+        if os.path.exists("C:\Ruby21"):
+            return "C:\Ruby21"
+
+    return None
+
+def getNodeHome(arch):
+    import winreg
+    flags = winreg.KEY_READ
+    if arch == "amd64" or arch == "x64":
+        flags = flags | winreg.KEY_WOW64_64KEY
+    else:
+        flags = flags | winreg.KEY_WOW64_32KEY
+
+    for parent in [winreg.HKEY_LOCAL_MACHINE, winreg.HKEY_CURRENT_USER]:
+        try:
+            key = winreg.OpenKey(parent, "SOFTWARE\\Node.js", 0, flags)
+            nodeHome = os.path.abspath(winreg.QueryValueEx(key, "InstallPath")[0])
+            if os.path.exists(nodeHome):
+                return nodeHome
+        except:
+            pass
+    return None
+

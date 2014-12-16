@@ -9,7 +9,7 @@
 #
 # **********************************************************************
 
-import os, sys, fnmatch, re, getopt, atexit, shutil, subprocess, zipfile, time, datetime
+import os, sys, fnmatch, re, getopt, atexit, shutil, subprocess, zipfile, time, datetime, glob
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "lib")))
 
@@ -314,10 +314,11 @@ class Platform:
         self._skipBuild = False
         self._skipTests = False
         self._skipDemos = False
+        self._skipMissingInterpreters = False
         self._parallelJobs = 8
         self._testConfigurations = []
         self._demoConfiguration = ""
-
+        self._interpreters = {}
         self._sourceDir = None
         self._demoDir = None
 
@@ -335,19 +336,42 @@ class Platform:
             sys.exit(1)
 
         if self._archive and not os.path.exists(self._archive):
-            print(sys.argv[0] + "Ice source archive not found: `%s'" % self._archive)
-            print(sys.argv[0] + ": you must run testicedist.py from the directory created by makedist.py")
+            print("Ice source archive not found: `%s'" % self._archive)
+            print(": you must run testicedist.py from the directory created by makedist.py")
             sys.exit(1)
 
         if self._demoArchive and not os.path.exists(self._demoArchive):
-            print(sys.argv[0] + "Ice demo source archive not found: `%s'" % self._demoArchive)
-            print(sys.argv[0] + ": you must run testicedist.py from the directory created by makedist.py")
+            print("Ice demo source archive not found: `%s'" % self._demoArchive)
+            print(": you must run testicedist.py from the directory created by makedist.py")
             sys.exit(1)
 
         if self._demoScriptsArchive and not os.path.exists(self._demoScriptsArchive):
-            print(sys.argv[0] + "Ice demo scripts source archive not found: `%s'" % self._demoScriptsArchive)
-            print(sys.argv[0] + ": you must run testicedist.py from the directory created by makedist.py")
+            print("Ice demo scripts source archive not found: `%s'" % self._demoScriptsArchive)
+            print(": you must run testicedist.py from the directory created by makedist.py")
             sys.exit(1)
+
+        #
+        # Ensure all the require interpreters are installed.
+        #
+        missing = set()
+        for comp in self.getCompilers():
+            for arch in self.getArchitectures():
+                for conf in self.getConfigurations(comp, arch):
+                    for lang in self.getLanguageMappings(comp, arch, conf):
+                        (home, path, version, desc) = self.getInterpreter(comp, arch, conf, lang)
+                        if path and not version:
+                            missing.add("%s interpreter for %s configuration with %s/%s" % (desc, conf, comp, arch))
+
+        if len(missing) > 0:
+            if self._skipMissingInterpreters:
+                print("warning: missing interpreters:")
+            else:
+                print("error: missing interpreters (use --skip-missing-interpreters to skip missing interpreters):")
+            for m in missing:
+                print(" " + m)
+            if not self._skipMissingInterpreters:
+                sys.exit(1)
+            print("")
 
     def printConfigurationSummary(self, f = None):
         trace("Using `%s' path as build directory" % self._buildDir, f)
@@ -367,6 +391,66 @@ class Platform:
         trace("Languages: %s" % list(buildLanguages), f)
         trace("Build configurations: %s" % list(buildConfigs), f)
 
+        trace("\nInterpreters:", f)
+        interpreters = {}
+        for comp in self.getCompilers():
+            for arch in self.getArchitectures():
+                for conf in self.getConfigurations(comp, arch):
+                    for lang in self.getLanguageMappings(comp, arch, conf):
+                        (home, path, version, desc)  = self.getInterpreter(comp, arch, conf, lang)
+                        if home or path or version:
+                            if not lang in interpreters:
+                                interpreters[lang] = {}
+                                interpreters[lang][""] = set()
+                            if not conf in interpreters[lang]:
+                                interpreters[lang][conf] = {}
+                                interpreters[lang][conf][""] = set()
+                            if not arch in interpreters[lang][conf]:
+                                interpreters[lang][conf][arch] = {}
+                                interpreters[lang][conf][arch][""] = set()
+
+                            interpreter = (home, path, version, desc)
+                            interpreters[lang][""].add(interpreter)
+                            interpreters[lang][conf][""].add(interpreter)
+                            interpreters[lang][conf][arch][""].add(interpreter)
+                            interpreters[lang][conf][arch][comp] = interpreter
+
+        for lang in sorted(interpreters.keys()):
+            if len(interpreters[lang][""]) == 1:
+                (home, path, version, desc) = interpreters[lang][""].pop()
+                if not version:
+                    trace("- %s: *** missing %s ***" % (lang, desc), f)
+                else:
+                    trace("- %s: %s from %s" % (lang, version, home if home else "PATH"), f)
+            else:
+                trace("- %s:" % lang, f)
+                for conf in sorted(interpreters[lang].keys()):
+                    if conf == "": continue
+                    if len(interpreters[lang][conf][""]) == 1:
+                        (home, path, version, desc) = interpreters[lang][conf][""].pop()
+                        if not version or not home:
+                            trace(" %s = *** missing %s ***" % (conf, desc), f)
+                        else:
+                            trace(" %s = %s from %s" % (conf, version, home), f)
+                    else:
+                        for arch in sorted(interpreters[lang][conf].keys()):
+                            if arch == "": continue
+                            if len(interpreters[lang][conf][arch][""]) == 1:
+                                (home, path, version, desc) = interpreters[lang][conf][arch][""].pop()
+                                if not version or not home:
+                                    trace(" %s/%s = *** missing %s ***" % (conf, arch, desc), f)
+                                else:
+                                    trace(" %s/%s: %s from %s" % (conf, arch, version, home), f)
+                            else:
+                                for (comp, i) in sorted(interpreters[lang][conf][arch].items()):
+                                    if comp == "": continue
+                                    (home, path, version, desc) = i
+                                    if not version or not home:
+                                        trace(" %s/%s/%s = *** missing %s ***" % (conf, arch, comp, desc), f)
+                                    else:
+                                        trace(" %s/%s/%s: %s from %s" % (conf, arch, comp, version, home), f)
+
+
         if not self._skipTests:
             trace("\nTest configurations:", f)
             (_, total, runnableConfigs) = self.getBuildAndRunConfigs(self.filterTests)
@@ -376,7 +460,8 @@ class Platform:
                     for conf in filterRC(runnableConfigs, self.getSupportedConfigurations(comp, arch), comp, arch):
                         for lang in filterRC(runnableConfigs, self.getSupportedLanguages(), comp, arch, conf):
                             for c in runnableConfigs[comp][arch][conf][lang]:
-                                trace("- [%d] %s %s tests (%s/%s/%s)" % (count, lang, c.name, comp, arch, conf), f)
+                                options = "" if c.options == "" else " " + c.name
+                                trace("- [%d] %s%s tests (%s/%s)" % (count, lang, options, comp, arch), f)
                                 count += 1
 
         if not self._skipDemos:
@@ -387,7 +472,7 @@ class Platform:
                 for arch in filterRC(runnableConfigs, self.getSupportedArchitectures(), comp):
                     for conf in filterRC(runnableConfigs, self.getSupportedConfigurations(comp, arch), comp, arch):
                         for lang in filterRC(runnableConfigs, self.getSupportedLanguages(), comp, arch, conf):
-                            trace("- [%d] %s demos (%s/%s/%s)" % (count, lang, comp, arch, conf), f)
+                            trace("- [%d] %s %s demos (%s/%s)" % (count, lang, conf, comp, arch), f)
                             count += 1
 
         trace("", f)
@@ -470,23 +555,27 @@ class Platform:
         if self.isLinux():
             env["LP64"] = "yes" if self.is64(arch) else "no"
 
-        javaHome = self.getJavaHome(arch, self.getJavaVersion(buildConfiguration))
-        if javaHome:
-            env["JAVA_HOME"] = javaHome
-            prependPathToEnvironVar(env, "PATH", os.path.join(javaHome, "bin"))
+        if lang == "java":
+            javaHome = self.getJavaHome(arch, self.getJavaVersion(buildConfiguration))
+            if javaHome:
+                env["JAVA_HOME"] = javaHome
 
-        if os.path.exists(os.path.join(self._iceHome, "lib", "db.jar")):
-            prependPathToEnvironVar(env, "CLASSPATH", os.path.join(self._iceHome, "lib", "db.jar"))
+            if os.path.exists(os.path.join(self._iceHome, "lib", "db.jar")):
+                prependPathToEnvironVar(env, "CLASSPATH", os.path.join(self._iceHome, "lib", "db.jar"))
+
+        #
+        # If the interpreter isn't installed in the default location,
+        # add the directory where the command is located to the
+        # PATH. If the interpreter is missing, return None to skip
+        # the tests/demos with this interpreter.
+        #
+        (home, cmd, version, desc) = self.getInterpreter(compiler, arch, buildConfiguration, lang)
+        if cmd and not version:
+            return None
+        if home and cmd:
+            prependPathToEnvironVar(env, "PATH", os.path.dirname(cmd))
 
         return env
-
-    def checkJavaSupport(self, arch, buildConfiguration, output):
-        version = self.getJavaVersion(buildConfiguration)
-        javaHome = self.getJavaHome(arch, version)
-        if javaHome is None:
-            trace("could not detect java `%s' for %s/%s" % (version, arch, buildConfiguration), output)
-            return False
-        return True
 
     def is64(self, arch):
         return arch == "x64" or arch == "sparcv9"
@@ -531,6 +620,105 @@ class Platform:
 
     def getJavaHome(self, arch, version):
         return None
+
+    def getInterpreter(self, comp, arch, conf, lang):
+        try:
+            return self._interpreters[comp][arch][conf][lang]
+        except:
+            pass
+
+        def check_output(cmd):
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            output = ""
+            for line in p.stdout.readlines():
+                output += line.decode('UTF-8').strip() + "\n"
+            p.wait()
+            return output.strip()
+
+        #
+        # The home variable specifies the installation directory of
+        # the interpreter. Depending on the system, it might be None
+        # (e.g.: on Unix systems if the interpreter is installed in
+        # /usr). Some interpreters require to be installed in specific
+        # directories (we need the installation directory of Java for
+        # example or the installation directories for Ruby/Python on
+        # Windows).
+        #
+        # The cmd variable specifies the command to run for the
+        # interpreter. If home is not None, it contains the full path
+        # of the interpreter. This is used to run the interpreter to
+        # obtain its version.
+        #
+        # The version directory specifies the version of the
+        # interpreter. It's obtained by running the interpreter. If it
+        # is None, it indicates that the interpreter is missing.
+        #
+        home = None
+        cmd = None
+        version = None
+        desc = None
+        if lang == "java":
+            desc = "java " + self.getJavaVersion(conf)
+            home = self.getJavaHome(arch, self.getJavaVersion(conf))
+            cmd = os.path.join(home, "bin", "java") if home else "java"
+            # Require Java installation, don't use java from the PATH
+            if home:
+                try:
+                    version = check_output([cmd, "-version"]).splitlines()[0].strip()
+                    version = version.replace(" version", "").replace("\"", "")
+                except:
+                    pass
+        elif lang == "py":
+            desc = "python " + ("64-bits" if self.is64(arch) else "32 bits")
+            home = BuildUtils.getPythonHome(arch) if self.isWindows() else None
+            cmd = os.path.join(home, "python.exe") if home else "python"
+            # Require Python installation on Windows, on Unix platforms python from PATH is fine.
+            if home or not self.isWindows():
+                try:
+                    version = check_output([cmd, "-V"])
+                except:
+                    pass
+        elif lang == "rb":
+            desc = "ruby " + ("64-bits" if self.is64(arch) else "32 bits")
+            home = BuildUtils.getRubyHome(arch) if self.isWindows() else None
+            cmd = os.path.join(home, "bin", "ruby.exe") if home else "ruby"
+            # Require Ruby installation on Windows, on Unix platforms ruby from PATH is fine.
+            if home or not self.isWindows():
+                try:
+                    version = " ".join(check_output([cmd, "-v"]).split()[0:2])
+                except:
+                    pass
+        elif lang == "js":
+            desc = "node"
+            home = BuildUtils.getNodeHome(arch) if self.isWindows() else None
+            cmd = os.path.join(home, "node.exe") if home else self.getNodeCmd()
+            # Use NodeJS from the PATH or from installation directory on Windows if found
+            try:
+                version = "node " + check_output([cmd, "-v"]).strip()
+            except:
+                pass
+        elif lang == "php":
+            desc = "php"
+            cmd = "php.exe" if self.isWindows() else "php"
+            # Use PHP from the PATH
+            try:
+                version = " ".join(check_output([cmd, "-v"]).splitlines()[0].split()[0:2])
+            except:
+                pass
+
+        #
+        # Cache the interpreter for the given compiler/arch/configuration.
+        #
+        interpreter = (home, cmd, version, desc)
+        if not comp in self._interpreters:
+            self._interpreters[comp] = {}
+        if not arch in self._interpreters[comp]:
+            self._interpreters[comp][arch] = {}
+        if not conf in self._interpreters[comp][arch]:
+            self._interpreters[comp][arch][conf] = {}
+        self._interpreters[comp][arch][conf][lang] = interpreter
+
+        return interpreter
 
     def getLanguageMappings(self, compiler, arch, buildConfiguration):
         languages = []
@@ -736,18 +924,19 @@ class Platform:
         else:
             buildDir = os.path.join(self._sourceDir, lang, "test")
 
+        env = self.getPlatformEnvironment(compiler, arch, buildConfiguration, lang, True)
+        if not env:
+            trace("skipped (no interpreter)", report)
+            return True
+
         commands = []
         if buildConfiguration == "silverlight":
             commands.append(self.makeSilverlightCommand(compiler, arch, buildConfiguration, lang, buildDir))
 
         if lang == "java":
-            if not self.checkJavaSupport(arch, buildConfiguration, output):
-                return False
             commands.append("%s :test:assemble" % ("gradlew" if self.isWindows() else "./gradlew"))
         else:
             commands.append(self.makeCommand(compiler, arch, buildConfiguration, lang, buildDir))
-
-        env = self.getPlatformEnvironment(compiler, arch, buildConfiguration, lang, True)
 
         os.chdir(buildDir)
 
@@ -783,19 +972,26 @@ class Platform:
         if buildConfiguration == "silverlight":
             args += " --silverlight"
 
-        if lang == "java" and not self.checkJavaSupport(arch, buildConfiguration, output):
-            return False
+        trace("", report)
+        options = ""
+        if testConf.options != "":
+            options = " with " + testConf.options
+
+        trace("*** [%s] running %s tests%s (%s/%s/%s)" % (index, lang, options, compiler, arch, buildConfiguration),
+              report)
 
         env = self.getPlatformEnvironment(compiler, arch, buildConfiguration, lang, True)
+        if not env:
+            return False
+
+        (home, path, version, desc) = self.getInterpreter(compiler, arch, buildConfiguration, lang)
+        if home:
+            trace("Using %s from %s" % (version, home), report)
 
         command = "%s %s" % (self.runScriptCommand("allTests.py", compiler, arch, buildConfiguration, lang), args)
 
         if self._verbose:
             print(command)
-
-        trace("", report)
-        trace("*** [%s] %s: running %s tests with %s (%s/%s/%s)" % (index, testConf.name, lang, testConf.options,
-                                                                    compiler, arch, buildConfiguration), report)
         spawnAndWatch(command, env, lambda line: results.filter(line))
         return True
 
@@ -820,14 +1016,16 @@ class Platform:
             trace("ok", report)
             return True
 
-        if lang == "java" and not self.checkJavaSupport(arch, buildConfiguration, output):
-            return False
-
         sourceArchive = False # TODO: Support?
         if sourceArchive:
             buildDir = os.path.join(self._sourceDir, lang, "demo")
         else:
             buildDir = os.path.join(self._demoDir, lang)
+
+        env = self.getPlatformEnvironment(compiler, arch, buildConfiguration, lang, sourceArchive)
+        if not env:
+            trace("skipped (no interpreter)", report)
+            return True
 
         if lang == "java":
             commands = ("gradlew build" if self.isWindows() else "./gradlew build")
@@ -837,8 +1035,6 @@ class Platform:
             commands = self.makeDemosCommand(compiler, arch, buildConfiguration, lang, buildDir)
         if type(commands) == str:
             commands = [commands]
-
-        env = self.getPlatformEnvironment(compiler, arch, buildConfiguration, lang, sourceArchive)
 
         os.chdir(buildDir)
 
@@ -856,7 +1052,7 @@ class Platform:
             trace("ok", report)
         return status
 
-    def runDemos(self, compiler, arch, buildConfiguration, lang, testConf, results, start, index):
+    def runDemos(self, compiler, arch, buildConfiguration, lang, demoConf, results, start, index):
 
         sourceArchive = False # TODO: Support?
         sourceDir = None
@@ -871,8 +1067,8 @@ class Platform:
         if start:
             args += " --start=%s" % start
 
-        if testConf:
-            args += " --continue %s" % testConf
+        if demoConf:
+            args += " --continue %s" % demoConf
         else:
             args += " --continue"
 
@@ -889,22 +1085,29 @@ class Platform:
 
         args += " --fast"
 
-        if lang == "java" and not self.checkJavaSupport(arch, buildConfiguration, output):
+        options = ""
+        if demoConf != "":
+            options = " with " + demoConf
+
+        trace("", report)
+        trace("*** [%s] running %s demos%s (%s/%s/%s)" % (index, lang, options, compiler, arch, buildConfiguration),
+              report)
+        env = self.getPlatformEnvironment(compiler, arch, buildConfiguration, lang, sourceArchive)
+        if not env:
             return False
 
-        env = self.getPlatformEnvironment(compiler, arch, buildConfiguration, lang, sourceArchive)
+        (home, path, version, desc) = self.getInterpreter(compiler, arch, buildConfiguration, lang)
+        if home:
+            trace("Using %s from %s" % (version, home), report)
 
         command = "%s %s" % (self.runScriptCommand("allDemos.py", compiler, arch, buildConfiguration, lang), args)
 
         if self._verbose:
             print(command)
-
-        trace("", report)
-        trace("*** [%s] running %s demos (%s/%s/%s)" % (index, lang, compiler, arch, buildConfiguration), report)
         spawnAndWatch(command, env, lambda line: results.filter(line))
         return True
 
-    def filterDemos(self, compiler, arch, conf, lang, testConfigs):
+    def filterDemos(self, compiler, arch, conf, lang, demoConfigs):
         if conf == "silverlight": # Silverlight demos need manual intervention
             return False
         if conf == "winrt": # Winrt demos need manual intervention
@@ -912,7 +1115,7 @@ class Platform:
         if lang == "php":
             return False
 
-        testConfigs.append(self._demoConfiguration)
+        demoConfigs.append(self._demoConfiguration)
         return True
 
     def run(self, startTests, startDemos):
@@ -960,7 +1163,7 @@ class Darwin(Platform):
         return ["clang"]
 
     def getSupportedConfigurations(self, compiler, arch):
-        return ["default", "no-cpp11"]
+        return ["default", "no-cpp11", "java1.8"]
 
     def getSupportedLanguages(self):
         return ["cpp", "java", "py", "js"]
@@ -971,17 +1174,14 @@ class Darwin(Platform):
     def isDarwin(self):
         return True
 
-    def checkJavaSupport(self, arch, buildConfiguration, output):
-        return True # Disable check, use default java version
-
-    def getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist):
-        env = Platform.getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist)
-        if lang == "java":
-            #
-            # Set DYLD_LIBRARY_PATH for Berkeley DB
-            #
-            prependPathToEnvironVar(env, "DYLD_LIBRARY_PATH", os.path.join(self._iceHome, "lib"))
-        return env
+    def getJavaHome(self, arch, version):
+        jvmDirs = glob.glob("/Library/Java/JavaVirtualMachines/jdk%s.*" % version)
+        if len(jvmDirs) == 0:
+            return None
+        for jvm in jvmDirs[::-1]:
+            if os.path.exists(os.path.join(jvm, "Contents", "Home", "bin", "java")):
+                return os.path.join(jvm, "Contents", "Home")
+        return None
 
 class Linux(Platform):
 
@@ -1123,22 +1323,6 @@ class Linux(Platform):
             configurations.append("java1.8")
         return configurations
 
-    def getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist):
-        env = Platform.getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist)
-        if lang == "java":
-            #
-            # Set Berkeley DB classpath
-            #
-            prependPathToEnvironVar(env, "CLASSPATH", "/usr/share/java/db-5.3.28.jar")
-
-            #
-            # Set LD_LIBRARY_PATH for Berkeley DB
-            #
-            if self.isUbuntu():
-                prependPathToEnvironVar(env, "LD_LIBRARY_PATH", \
-                                        "/usr/lib/i386-linux-gnu/" if arch == "x86" else "/usr/lib/x86_64-linux-gnu/")
-        return env
-
 class Solaris(Platform):
 
     def __init__(self, distDir):
@@ -1148,9 +1332,6 @@ class Solaris(Platform):
     def isSolaris(self):
         return True
 
-    def checkJavaSupport(self, arch, buildConfiguration, output):
-        return True # Disable check, use default java version
-
     def getSupportedLanguages(self):
         return ["cpp", "java"]
 
@@ -1159,15 +1340,6 @@ class Solaris(Platform):
 
     def getSupportedArchitectures(self):
         return ["sparcv9", "sparc"]
-
-    def getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist):
-        env = Platform.getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist)
-        if lang == "java":
-            #
-            # Set Berkeley DB classpath
-            #
-            prependPathToEnvironVar(env, "CLASSPATH", "/usr/share/java/db-5.3.21.jar")
-        return env
 
     def makeCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
         command = "gmake"
@@ -1303,8 +1475,10 @@ def usage():
     print("  --rfilter-compilers=<name>         Just build and run the compilers not in the list")
     print("  --rfilter-archs=<name>             Just build and run the languages not in the list")
     print("  --rfilter-configurations=<name>    Just build and run the configurations not in the list")
+    print("  --skip-build                       Don't build")
     print("  --skip-tests                       Don't build or run tests")
     print("  --skip-demos                       Don't build or run demos")
+    print("  --skip-missing-interpreters        Skip missing interpreters")
     print("  --print-configurations             Print build and run configurations")
     print("  --tests-driver=<path>              Run tests with configurations from test driver file")
     print("                                     if --test-driver isn't used we run allTests.py with --all option")
@@ -1340,7 +1514,7 @@ try:
                                                   "filter-archs=", "filter-configurations=", "rfilter-languages=", \
                                                   "rfilter-compilers=", "rfilter-archs=", "rfilter-configurations=", \
                                                   "print-configurations", "test-driver=",
-                                                  "filter=","rfilter=", "skip-build",
+                                                  "filter=","rfilter=", "skip-build", "skip-missing-interpreters",
                                                   "start-with-demo=", "start-with-test="])
 except getopt.GetoptError as e:
     print("Error %s " % e)
@@ -1391,6 +1565,8 @@ for o, a in opts:
         platformObj._skipTests = True
     elif o == "--skip-demos":
         platformObj._skipDemos = True
+    elif o == "--skip-missing-interpreters":
+        platformObj._skipMissingInterpreters = True
     elif o == "--parallel-jobs":
         platformObj._parallelJobs = a
     elif o == "--print-configurations":
