@@ -457,6 +457,20 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
 }
 
 bool
+isLinklocal(const Address& addr)
+{
+    if (addr.saStorage.ss_family == AF_INET6)
+    {
+        return IN6_IS_ADDR_LINKLOCAL(&addr.saIn6.sin6_addr);
+    }
+    else if (addr.saStorage.ss_family == AF_INET)
+    {
+        return inetAddrToString(addr).find("169.254.") == 0;
+    }
+    return false;
+}
+
+bool
 isWildcard(const string& host, ProtocolSupport protocol, bool& ipv4)
 {
     try
@@ -1454,10 +1468,11 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
         for(vector<Address>::const_iterator p = addrs.begin(); p != addrs.end(); ++p)
         {
             //
-            // NOTE: We don't publish link-local IPv6 addresses as these addresses can only
-            // be accessed in general with a scope-id.
+            // NOTE: We don't publish link-local addresses as in most cases
+            //       these are not desired to be published and in some cases
+            //       will not work without extra configuration.
             //
-            if(p->saStorage.ss_family != AF_INET6 || !IN6_IS_ADDR_LINKLOCAL(&p->saIn6.sin6_addr))
+            if(!isLinklocal(*p))
             {
                 hosts.push_back(inetAddrToString(*p));
             }
