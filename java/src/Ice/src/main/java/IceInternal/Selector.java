@@ -75,8 +75,9 @@ public final class Selector
         }
         handler._disabled = handler._disabled & ~status;
 
-        if((handler._registered & status) != 0)
+        if(handler._key != null && (handler._registered & status) != 0)
         {
+            // If registered with the selector, update the registration.
             updateImpl(handler);
         }
     }
@@ -89,8 +90,9 @@ public final class Selector
         }
         handler._disabled = handler._disabled | status;
 
-        if((handler._registered & status) != 0)
+        if(handler._key != null && (handler._registered & status) != 0)
         {
+            // If registered with the selector, update the registration.
             updateImpl(handler);
         }
     }
