@@ -466,7 +466,7 @@ isLinklocal(const Address& addr)
     else if (addr.saStorage.ss_family == AF_INET)
     {
         // Check for 169.254.X.X in network order
-        return (addr.saIn.sin_addr.s_addr & 0x0000FFFF) == 0x0000FEA9;
+        return (addr.saIn.sin_addr.s_addr & 0xFF) == 169 && ((addr.saIn.sin_addr.s_addr & 0xFF00)>>8) == 254;
     }
     return false;
 }
