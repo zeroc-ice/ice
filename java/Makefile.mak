@@ -12,7 +12,7 @@ GRADLE = gradlew.bat
 !endif
 
 all:
-	$(GRADLE) assemble
+	$(GRADLE) build
 
 dist:
 	$(GRADLE) :Ice:assemble :Freeze:assemble :Glacier2:assemble :IceGrid:assemble :ant:assemble \
