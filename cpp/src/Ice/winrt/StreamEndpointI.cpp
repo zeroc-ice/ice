@@ -52,7 +52,7 @@ public:
     virtual bool
     secure() const
     {
-        return _type == IceSSL::EndpointType;
+        return _type == IceSSL::EndpointType || _type == WSSEndpointType;
     }
 
 private:
@@ -94,8 +94,10 @@ IceInternal::StreamEndpointI::getInfo() const
     switch(_instance->type())
     {
     case TCPEndpointType:
+    case WSEndpointType
         return new InfoI<Ice::TCPEndpointInfo>(_instance->type(), _timeout, _compress, _host, _port);
     case IceSSL::EndpointType:
+    case WSSEndpointType:
         return new InfoI<IceSSL::EndpointInfo>(_instance->type(), _timeout, _compress, _host, _port);
     default:
         assert(false);
@@ -163,7 +165,8 @@ IceInternal::StreamEndpointI::datagram() const
 bool
 IceInternal::StreamEndpointI::secure() const
 {
-    return _instance->type() == IceSSL::EndpointType;
+    return _instance->type() == IceSSL::EndpointType ||
+           _instance->type() == WSSEndpointType;
 }
 
 TransceiverPtr
@@ -301,6 +304,14 @@ IceInternal::StreamEndpointI::hashInit(Ice::Int& h) const
     IPEndpointI::hashInit(h);
     hashAdd(h, _timeout);
     hashAdd(h, _compress);
+}
+
+void
+IceInternal::StreamEndpointI::fillEndpointInfo(IPEndpointInfo* info) const
+{
+    IPEndpointI::fillEndpointInfo(info);
+    info->timeout = _timeout;
+    info->compress = _compress;
 }
 
 void

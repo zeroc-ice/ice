@@ -53,6 +53,7 @@ protected:
     virtual void streamWriteImpl(BasicStream*) const;
     virtual void hashInit(Ice::Int&) const;
     virtual void initWithOptions(std::vector<std::string>&, bool);
+    virtual void fillEndpointInfo(Ice::IPEndpointInfo*) const;
     virtual bool checkOption(const std::string&, const std::string&, const std::string&);
 
     virtual ConnectorPtr createConnector(const Address&, const NetworkProxyPtr&) const;

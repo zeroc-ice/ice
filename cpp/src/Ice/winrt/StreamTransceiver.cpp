@@ -135,7 +135,8 @@ IceInternal::StreamTransceiver::startWrite(Buffer& buf)
             IAsyncAction^ action = safe_cast<StreamSocket^>(_fd)->ConnectAsync(
                 _connectAddr.host,
                 _connectAddr.port,
-                _instance->type() == IceSSL::EndpointType ?
+                (_instance->type() == IceSSL::EndpointType ||
+                 _instance->type() == Ice::WSSEndpointType) ?
                         //
                         // SocketProtectionLevel::Tls12 is new in Windows 8.1 SDK
                         //
@@ -294,7 +295,7 @@ Ice::ConnectionInfoPtr
 IceInternal::StreamTransceiver::getInfo() const
 {
     Ice::IPConnectionInfoPtr info;
-    if(_instance->type() == IceSSL::EndpointType)
+    if(_instance->type() == IceSSL::EndpointType || _instance->type() == Ice::WSSEndpointType)
     {
         info = new IceSSL::ConnectionInfo();
     }
