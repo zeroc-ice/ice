@@ -274,6 +274,7 @@ def configurePaths():
                 binDir = os.path.join(binDir, "sparcv9")
             else:
                 binDir = os.path.join(binDir, "amd64")
+
     elif thirdPartyHome: 
         if isWin32():
             addenv("PATH", os.path.join(thirdPartyHome, "bin\\x64" if x64 else "bin"))
@@ -281,11 +282,23 @@ def configurePaths():
                 addenv("PATH", os.path.join(thirdPartyHome, "bin\\vc110\\x64" if x64 else "bin\\vc110"))
         elif isDarwin():
             addenv("PATH", os.path.join(thirdPartyHome, "bin"))
-    else:
+    elif isWin32() or isDarwin():
         print("warning: could not detect Ice Third Party installation")
 
     if binDir != os.path.join(getIceDir("cpp"), "bin"):
         addenv("PATH", binDir)
+
+    #
+    # Setting the library path is necessary for interpreters to find
+    # the IceSSL library.
+    #
+    if not isWin32() and iceHome != "/usr" and getMapping() in ["py", "rb", "php"]:
+        libDir = os.path.join(getIceDir("cpp"), "lib")
+        if isUbuntu():
+            libDir = os.path.join(libDir, "x86_64-linux-gnu" if x64 else "i386-linux-gnu")
+        elif x64 and isLinux():
+            libDir = libDir + "64"
+        addLdPath(libDir)
 
     if not iceHome:
         addenv("PATH", os.path.join(getIceDir("cs"), "bin"))
