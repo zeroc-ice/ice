@@ -65,7 +65,7 @@ if(document.location.protocol === "file:")
 {
     var setupDialog = "<div id=\"setup-modal\" class=\"reveal-modal\" data-reveal>" +
         "<p>The Ice for JavaScript demos require a web server. Please refer to the Sample Programs page from the " + 
-        "Ice for JavaScript <a href=\"http://doc.zeroc.com/display/Rel/Ice+for+JavaScript+0.1.0+Release+Notes\">" +
+        "Ice for JavaScript <a href=\"http://doc.zeroc.com/display/Rel/Ice+3.6b+Release+Notes\">" +
         " release notes</a> for instructions on how to run the web server included with your distribution.</p></div>";
     
     $("body").append(setupDialog);
