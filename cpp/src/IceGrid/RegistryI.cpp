@@ -1469,12 +1469,12 @@ RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry, const N
                     break;
                 }
             }
-	    ObjectInfoSeq infos;
+            ObjectInfoSeq infos;
             if(registry)
             {
                 try
                 {
-		    infos.push_back(_database->getObjectInfo(registry->ice_getIdentity()));
+                    infos.push_back(_database->getObjectInfo(registry->ice_getIdentity()));
                 }
                 catch(const ObjectNotRegisteredException&)
                 {
@@ -1482,12 +1482,12 @@ RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry, const N
             }
             try
             {
-	        infos.push_back(_database->getObjectInfo(replica->ice_getIdentity()));
+                infos.push_back(_database->getObjectInfo(replica->ice_getIdentity()));
             }
             catch(const ObjectNotRegisteredException&)
             {
             }
-	    _database->removeRegistryWellKnownObjects(infos);
+            _database->removeRegistryWellKnownObjects(infos);
 
             if(_traceLevels && _traceLevels->replica > 1)
             {
