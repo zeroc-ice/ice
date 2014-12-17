@@ -43,12 +43,9 @@ main(int argc, char* argv[])
 #endif
     Ice::InitializationData id;
     id.properties = Ice::createProperties();
-    id.properties->load("config.client");
-    const string programName = id.properties->getProperty("Ice.ProgramName");
-    
+    id.properties->load("config.client");    
     Client c;
     int status = c.main(argc, argv, id);
-
 #ifdef _WIN32
     SetConsoleOutputCP(cp);
 #endif

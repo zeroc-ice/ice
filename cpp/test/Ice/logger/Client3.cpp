@@ -38,7 +38,6 @@ main(int argc, char* argv[])
     Ice::InitializationData id;
     id.properties = Ice::createProperties();
     id.properties->load("config.client");
-    const string programName = id.properties->getProperty("Ice.ProgramName");
     Client c;
     int status = c.main(argc, argv, id);
 
