@@ -461,7 +461,8 @@ class Platform:
                         for lang in filterRC(runnableConfigs, self.getSupportedLanguages(), comp, arch, conf):
                             for c in runnableConfigs[comp][arch][conf][lang]:
                                 options = "" if c.options == "" else " " + c.name
-                                trace("- [%d] %s%s tests (%s/%s)" % (count, lang, options, comp, arch), f)
+                                cfg = "" if conf == "default" else "/" + conf
+                                trace("- [%d] %s%s tests (%s/%s%s)" % (count, lang, options, comp, arch, cfg), f)
                                 count += 1
 
         if not self._skipDemos:
@@ -472,7 +473,8 @@ class Platform:
                 for arch in filterRC(runnableConfigs, self.getSupportedArchitectures(), comp):
                     for conf in filterRC(runnableConfigs, self.getSupportedConfigurations(comp, arch), comp, arch):
                         for lang in filterRC(runnableConfigs, self.getSupportedLanguages(), comp, arch, conf):
-                            trace("- [%d] %s %s demos (%s/%s)" % (count, lang, conf, comp, arch), f)
+                            cfg = "" if conf == "default" else "/" + conf
+                            trace("- [%d] %s %s demos (%s/%s%s)" % (count, lang, conf, comp, arch, cfg), f)
                             count += 1
 
         trace("", f)
