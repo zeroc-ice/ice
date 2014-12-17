@@ -197,7 +197,7 @@ namespace IceInternal
             }
         }
 
-        public void sendResponse(int requestId, BasicStream os, byte status)
+        public void sendResponse(int requestId, BasicStream os, byte status, bool amd)
         {
             Ice.AsyncCallback cb = null;
             OutgoingAsync outAsync;
@@ -223,7 +223,14 @@ namespace IceInternal
 
             if(cb != null)
             {
-                outAsync.invokeCompleted(cb);
+                if(amd)
+                {
+                    outAsync.invokeCompletedAsync(cb);
+                }
+                else
+                {
+                    outAsync.invokeCompleted(cb);
+                }
             }
             _adapter.decDirectCount();
         }
@@ -235,17 +242,17 @@ namespace IceInternal
         }
 
         public bool
-        systemException(int requestId, Ice.SystemException ex)
+        systemException(int requestId, Ice.SystemException ex, bool amd)
         {
-            handleException(requestId, ex);
+            handleException(requestId, ex, amd);
             _adapter.decDirectCount();
             return true;
         }
 
         public void
-        invokeException(int requestId, Ice.LocalException ex, int invokeNum)
+        invokeException(int requestId, Ice.LocalException ex, int invokeNum, bool amd)
         {
-            handleException(requestId, ex);
+            handleException(requestId, ex, amd);
             _adapter.decDirectCount();
         }
 
@@ -441,7 +448,7 @@ namespace IceInternal
                     }
                     catch(Ice.ObjectAdapterDeactivatedException ex)
                     {
-                        handleException(requestId, ex);
+                        handleException(requestId, ex, false);
                         return;
                     }
 
@@ -453,12 +460,12 @@ namespace IceInternal
             }
             catch(Ice.LocalException ex)
             {
-                invokeException(requestId, ex, invokeNum); // Fatal invocation exception
+                invokeException(requestId, ex, invokeNum, false); // Fatal invocation exception
             }
         }
 
         void
-        handleException(int requestId, Ice.Exception ex)
+        handleException(int requestId, Ice.Exception ex, bool amd)
         {
             if(requestId == 0)
             {
@@ -478,7 +485,14 @@ namespace IceInternal
 
             if(cb != null)
             {
-                outAsync.invokeCompleted(cb);
+                if(amd)
+                {
+                    outAsync.invokeCompletedAsync(cb);
+                }
+                else
+                {
+                    outAsync.invokeCompleted(cb);
+                }
             }
         }
 

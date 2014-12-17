@@ -495,7 +495,7 @@ CollocatedRequestHandler::invokeAsyncBatchRequests(OutgoingAsyncBase* outAsync)
 }
 
 void 
-CollocatedRequestHandler::sendResponse(Int requestId, BasicStream* os, Byte)
+CollocatedRequestHandler::sendResponse(Int requestId, BasicStream* os, Byte, bool amd)
 {
     OutgoingAsyncPtr outAsync;
     {
@@ -533,7 +533,19 @@ CollocatedRequestHandler::sendResponse(Int requestId, BasicStream* os, Byte)
 
     if(outAsync)
     {
-        outAsync->invokeCompleted();
+        //
+        // If called from an AMD dispatch, invoke asynchronously
+        // the completion callback since this might be called from
+        // the user code.
+        //
+        if(amd)
+        {
+            outAsync->invokeCompletedAsync();
+        }
+        else
+        {
+            outAsync->invokeCompleted();
+        }
     }
 
     _adapter->decDirectCount();
@@ -546,17 +558,17 @@ CollocatedRequestHandler::sendNoResponse()
 }
 
 bool
-CollocatedRequestHandler::systemException(Int requestId, const SystemException& ex)
+CollocatedRequestHandler::systemException(Int requestId, const SystemException& ex, bool amd)
 {
-    handleException(requestId, ex);
+    handleException(requestId, ex, amd);
     _adapter->decDirectCount();
     return true;
 }
 
 void 
-CollocatedRequestHandler::invokeException(Int requestId, const LocalException& ex, int invokeNum)
+CollocatedRequestHandler::invokeException(Int requestId, const LocalException& ex, int invokeNum, bool amd)
 {
-    handleException(requestId, ex);
+    handleException(requestId, ex, amd);
     _adapter->decDirectCount();
 }
 
@@ -640,7 +652,7 @@ CollocatedRequestHandler::invokeAll(BasicStream* os, Int requestId, Int invokeNu
             }
             catch(const ObjectAdapterDeactivatedException& ex)
             {
-                handleException(requestId, ex);
+                handleException(requestId, ex, false);
                 return;
             }
 
@@ -651,12 +663,12 @@ CollocatedRequestHandler::invokeAll(BasicStream* os, Int requestId, Int invokeNu
     }
     catch(const LocalException& ex)
     {
-        invokeException(requestId, ex, invokeNum); // Fatal invocation exception
+        invokeException(requestId, ex, invokeNum, false); // Fatal invocation exception
     }
 }
 
 void
-CollocatedRequestHandler::handleException(int requestId, const Exception& ex)
+CollocatedRequestHandler::handleException(int requestId, const Exception& ex, bool amd)
 {
     if(requestId == 0)
     {
@@ -689,6 +701,18 @@ CollocatedRequestHandler::handleException(int requestId, const Exception& ex)
 
     if(outAsync)
     {
-        outAsync->invokeCompleted();
+        //
+        // If called from an AMD dispatch, invoke asynchronously
+        // the completion callback since this might be called from
+        // the user code.
+        //
+        if(amd)
+        {
+            outAsync->invokeCompletedAsync();
+        }
+        else
+        {
+            outAsync->invokeCompleted();
+        }
     }
 }

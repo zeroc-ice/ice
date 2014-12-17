@@ -106,7 +106,7 @@ public class IncomingAsync extends IncomingBase implements Ice.AMDCallback
     {
         try
         {
-            if(_locator != null && !__servantLocatorFinished())
+            if(_locator != null && !__servantLocatorFinished(true))
             {
                 return;
             }
@@ -119,7 +119,7 @@ public class IncomingAsync extends IncomingBase implements Ice.AMDCallback
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
                 }
-                _responseHandler.sendResponse(_current.requestId, _os, _compress);
+                _responseHandler.sendResponse(_current.requestId, _os, _compress, true);
             }
             else
             {
@@ -135,7 +135,7 @@ public class IncomingAsync extends IncomingBase implements Ice.AMDCallback
         }
         catch(Ice.LocalException ex)
         {
-            _responseHandler.invokeException(_current.requestId, ex, 1);
+            _responseHandler.invokeException(_current.requestId, ex, 1, true);
         }
     }
 
@@ -144,16 +144,16 @@ public class IncomingAsync extends IncomingBase implements Ice.AMDCallback
     {
         try
         {
-            if(_locator != null && !__servantLocatorFinished())
+            if(_locator != null && !__servantLocatorFinished(true))
             {
                 return;
             }
 
-            __handleException(exc);
+            __handleException(exc, true);
         }
         catch(Ice.LocalException ex)
         {
-            _responseHandler.invokeException(_current.requestId, ex, 1);
+            _responseHandler.invokeException(_current.requestId, ex, 1, true);
         }
     }
 

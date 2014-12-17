@@ -191,7 +191,7 @@ IceInternal::IncomingAsync::__response()
 {
     try
     {
-        if(_locator && !__servantLocatorFinished())
+        if(_locator && !__servantLocatorFinished(true))
         {
             return;
         }
@@ -201,7 +201,7 @@ IceInternal::IncomingAsync::__response()
         if(_response)
         {
             _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
-            _responseHandler->sendResponse(_current.requestId, &_os, _compress);
+            _responseHandler->sendResponse(_current.requestId, &_os, _compress, true);
         }
         else
         {
@@ -213,7 +213,7 @@ IceInternal::IncomingAsync::__response()
     }
     catch(const LocalException& ex)
     {
-        _responseHandler->invokeException(_current.requestId, ex, 1); // Fatal invocation exception
+        _responseHandler->invokeException(_current.requestId, ex, 1, true); // Fatal invocation exception
     }
 }
 
@@ -222,16 +222,16 @@ IceInternal::IncomingAsync::__exception(const std::exception& exc)
 {
     try
     {
-        if(_locator && !__servantLocatorFinished())
+        if(_locator && !__servantLocatorFinished(true))
         {
             return;
         }
 
-        __handleException(exc);
+        __handleException(exc, true);
     }
     catch(const LocalException& ex)
     {
-        _responseHandler->invokeException(_current.requestId, ex, 1);  // Fatal invocation exception
+        _responseHandler->invokeException(_current.requestId, ex, 1, true);  // Fatal invocation exception
     }
 }
 
@@ -240,16 +240,16 @@ IceInternal::IncomingAsync::__exception()
 {
     try
     {
-        if(_locator && !__servantLocatorFinished())
+        if(_locator && !__servantLocatorFinished(true))
         {
             return;
         }
 
-        __handleException();
+        __handleException(true);
     }
     catch(const LocalException& ex)
     {
-        _responseHandler->invokeException(_current.requestId, ex, 1);  // Fatal invocation exception
+        _responseHandler->invokeException(_current.requestId, ex, 1, true);  // Fatal invocation exception
     }
 }
 

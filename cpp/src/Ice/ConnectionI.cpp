@@ -1477,7 +1477,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, con
 }
 
 void
-Ice::ConnectionI::sendResponse(Int, BasicStream* os, Byte compressFlag)
+Ice::ConnectionI::sendResponse(Int, BasicStream* os, Byte compressFlag, bool /*amd*/)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     assert(_state > StateNotValidated);
@@ -1550,9 +1550,35 @@ Ice::ConnectionI::sendNoResponse()
 }
 
 bool
-Ice::ConnectionI::systemException(Int, const SystemException&)
+Ice::ConnectionI::systemException(Int, const SystemException&, bool /*amd*/)
 {
     return false; // System exceptions aren't marshalled.
+}
+
+void
+Ice::ConnectionI::invokeException(Ice::Int, const LocalException& ex, int invokeNum, bool /*amd*/)
+{
+    //
+    // Fatal exception while invoking a request. Since sendResponse/sendNoResponse isn't
+    // called in case of a fatal exception we decrement _dispatchCount here.
+    //
+
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    setState(StateClosed, ex);
+
+    if(invokeNum > 0)
+    {
+        assert(_dispatchCount >= invokeNum);
+        _dispatchCount -= invokeNum;
+        if(_dispatchCount == 0)
+        {
+            if(_state == StateFinished)
+            {
+                reap();
+            }
+            notifyAll();
+        }
+    }
 }
 
 EndpointIPtr
@@ -2357,32 +2383,6 @@ Ice::ConnectionI::exception(const LocalException& ex)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     setState(StateClosed, ex);
-}
-
-void
-Ice::ConnectionI::invokeException(Ice::Int, const LocalException& ex, int invokeNum)
-{
-    //
-    // Fatal exception while invoking a request. Since sendResponse/sendNoResponse isn't
-    // called in case of a fatal exception we decrement _dispatchCount here.
-    //
-
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-    setState(StateClosed, ex);
-
-    if(invokeNum > 0)
-    {
-        assert(_dispatchCount >= invokeNum);
-        _dispatchCount -= invokeNum;
-        if(_dispatchCount == 0)
-        {
-            if(_state == StateFinished)
-            {
-                reap();
-            }
-            notifyAll();
-        }
-    }
 }
 
 Ice::ConnectionI::ConnectionI(const CommunicatorPtr& communicator,
@@ -3708,7 +3708,7 @@ Ice::ConnectionI::invokeAll(BasicStream& stream, Int invokeNum, Int requestId, B
     }
     catch(const LocalException& ex)
     {
-        invokeException(requestId, ex, invokeNum);  // Fatal invocation exception
+        invokeException(requestId, ex, invokeNum, false);  // Fatal invocation exception
     }
 }
 

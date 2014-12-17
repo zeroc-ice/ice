@@ -217,7 +217,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
 
     @Override
     public void
-    sendResponse(int requestId, final BasicStream os, byte status)
+    sendResponse(int requestId, final BasicStream os, byte status, boolean amd)
     {
         OutgoingAsync outAsync = null;
         synchronized(this)
@@ -241,7 +241,19 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
 
         if(outAsync != null)
         {
-            outAsync.invokeCompleted();
+            //
+            // If called from an AMD dispatch, invoke asynchronously
+            // the completion callback since this might be called from
+            // the user code.
+            //
+            if(amd)
+            {
+                outAsync.invokeCompletedAsync();
+            }
+            else
+            {
+                outAsync.invokeCompleted();
+            }
         }
         _adapter.decDirectCount();
     }
@@ -255,18 +267,18 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
 
     @Override
     public boolean
-    systemException(int requestId, Ice.SystemException ex)
+    systemException(int requestId, Ice.SystemException ex, boolean amd)
     {
-        handleException(requestId, ex);
+        handleException(requestId, ex, amd);
         _adapter.decDirectCount();
         return true;
     }
 
     @Override
     public void
-    invokeException(int requestId, Ice.LocalException ex, int invokeNum)
+    invokeException(int requestId, Ice.LocalException ex, int invokeNum, boolean amd)
     {
-        handleException(requestId, ex);
+        handleException(requestId, ex, amd);
         _adapter.decDirectCount();
     }
 
@@ -444,7 +456,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
                 }
                 catch(Ice.ObjectAdapterDeactivatedException ex)
                 {
-                    handleException(requestId, ex);
+                    handleException(requestId, ex, false);
                     return;
                 }
 
@@ -456,7 +468,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         }
         catch(Ice.LocalException ex)
         {
-            invokeException(requestId, ex, invokeNum); // Fatal invocation exception
+            invokeException(requestId, ex, invokeNum, false); // Fatal invocation exception
         }
         catch(java.lang.AssertionError ex) // Upon assertion, we print the stack trace.
         {
@@ -467,7 +479,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
             pw.flush();
             uex.unknown = sw.toString();
             _logger.error(uex.unknown);
-            invokeException(requestId, uex, invokeNum);
+            invokeException(requestId, uex, invokeNum, false);
         }
         catch(java.lang.OutOfMemoryError ex)
         {
@@ -478,12 +490,12 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
             pw.flush();
             uex.unknown = sw.toString();
             _logger.error(uex.unknown);
-            invokeException(requestId, uex, invokeNum);
+            invokeException(requestId, uex, invokeNum, false);
         }
     }
 
     private void
-    handleException(int requestId, Ice.Exception ex)
+    handleException(int requestId, Ice.Exception ex, boolean amd)
     {
         if(requestId == 0)
         {
@@ -502,7 +514,19 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
 
         if(outAsync != null)
         {
-            outAsync.invokeCompleted();
+            //
+            // If called from an AMD dispatch, invoke asynchronously
+            // the completion callback since this might be called from
+            // the user code.
+            //
+            if(amd)
+            {
+                outAsync.invokeCompletedAsync();
+            }
+            else
+            {
+                outAsync.invokeCompleted();
+            }
         }
     }
 

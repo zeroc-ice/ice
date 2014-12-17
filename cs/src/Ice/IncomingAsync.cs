@@ -102,7 +102,7 @@ namespace IceInternal
         {
             try
             {
-                if(locator_ != null && !servantLocatorFinished__())
+                if(locator_ != null && !servantLocatorFinished__(true))
                 {
                     return;
                 }
@@ -115,7 +115,7 @@ namespace IceInternal
                     {
                         observer_.reply(os_.size() - Protocol.headerSize - 4);
                     }
-                    responseHandler_.sendResponse(current_.requestId, os_, compress_);
+                    responseHandler_.sendResponse(current_.requestId, os_, compress_, true);
                 }
                 else
                 {
@@ -131,7 +131,7 @@ namespace IceInternal
             }
             catch(Ice.LocalException ex)
             {
-                responseHandler_.invokeException(current_.requestId, ex, 1);
+                responseHandler_.invokeException(current_.requestId, ex, 1, true);
             }
         }
         
@@ -139,16 +139,16 @@ namespace IceInternal
         {
             try
             {
-                if(locator_ != null && !servantLocatorFinished__())
+                if(locator_ != null && !servantLocatorFinished__(true))
                 {
                     return;
                 }
 
-                handleException__(exc);
+                handleException__(exc, true);
             }
             catch(Ice.LocalException ex)
             {
-                responseHandler_.invokeException(current_.requestId, ex, 1);
+                responseHandler_.invokeException(current_.requestId, ex, 1, true);
             }
         }
         

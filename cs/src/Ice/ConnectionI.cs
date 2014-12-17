@@ -897,7 +897,7 @@ namespace Ice
             }
         }
 
-        public void sendResponse(int requestId, IceInternal.BasicStream os, byte compressFlag)
+        public void sendResponse(int requestId, IceInternal.BasicStream os, byte compressFlag, bool amd)
         {
             lock(this)
             {
@@ -969,9 +969,36 @@ namespace Ice
             }
         }
 
-        public bool systemException(int requestId, Ice.SystemException ex)
+        public bool systemException(int requestId, Ice.SystemException ex, bool amd)
         {
             return false; // System exceptions aren't marshalled.
+        }
+
+        public void invokeException(int requestId, LocalException ex, int invokeNum, bool amd)
+        {
+            //
+            // Fatal exception while invoking a request. Since sendResponse/sendNoResponse isn't
+            // called in case of a fatal exception we decrement _dispatchCount here.
+            //
+
+            lock(this)
+            {
+                setState(StateClosed, ex);
+
+                if(invokeNum > 0)
+                {
+                    Debug.Assert(_dispatchCount >= invokeNum);
+                    _dispatchCount -= invokeNum;
+                    if(_dispatchCount == 0)
+                    {
+                        if(_state == StateFinished)
+                        {
+                            reap();
+                        }
+                        System.Threading.Monitor.PulseAll(this);
+                    }
+                }
+            }
         }
 
         public IceInternal.EndpointI endpoint()
@@ -1749,33 +1776,6 @@ namespace Ice
             lock(this)
             {
                 setState(StateClosed, ex);
-            }
-        }
-
-        public void invokeException(int requestId, LocalException ex, int invokeNum)
-        {
-            //
-            // Fatal exception while invoking a request. Since sendResponse/sendNoResponse isn't
-            // called in case of a fatal exception we decrement _dispatchCount here.
-            //
-
-            lock(this)
-            {
-                setState(StateClosed, ex);
-
-                if(invokeNum > 0)
-                {
-                    Debug.Assert(_dispatchCount >= invokeNum);
-                    _dispatchCount -= invokeNum;
-                    if(_dispatchCount == 0)
-                    {
-                        if(_state == StateFinished)
-                        {
-                            reap();
-                        }
-                        System.Threading.Monitor.PulseAll(this);
-                    }
-                }
             }
         }
 
@@ -2811,7 +2811,7 @@ namespace Ice
             }
             catch(LocalException ex)
             {
-                invokeException(requestId, ex, invokeNum);
+                invokeException(requestId, ex, invokeNum, false);
             }
             finally
             {

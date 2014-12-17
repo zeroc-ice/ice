@@ -56,10 +56,10 @@ public:
     virtual void requestCanceled(OutgoingBase*, const Ice::LocalException&);
     virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, const Ice::LocalException&);
 
-    virtual void sendResponse(Ice::Int, BasicStream*, Ice::Byte);
+    virtual void sendResponse(Ice::Int, BasicStream*, Ice::Byte, bool);
     virtual void sendNoResponse();
-    virtual bool systemException(Ice::Int, const Ice::SystemException&);
-    virtual void invokeException(Ice::Int, const Ice::LocalException&, int);
+    virtual bool systemException(Ice::Int, const Ice::SystemException&, bool);
+    virtual void invokeException(Ice::Int, const Ice::LocalException&, int, bool);
 
     const ReferencePtr& getReference() const { return _reference; } // Inlined for performances.
 
@@ -78,7 +78,7 @@ public:
 
 private:
 
-    void handleException(Ice::Int, const Ice::Exception&);
+    void handleException(Ice::Int, const Ice::Exception&, bool);
 
     const Ice::ObjectAdapterIPtr _adapter;
     const bool _dispatcher;

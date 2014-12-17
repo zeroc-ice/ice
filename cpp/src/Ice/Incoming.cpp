@@ -207,7 +207,7 @@ IceInternal::IncomingBase::__warning(const string& msg) const
 }
 
 bool
-IceInternal::IncomingBase::__servantLocatorFinished()
+IceInternal::IncomingBase::__servantLocatorFinished(bool amd)
 {
     assert(_locator && _servant);
     try
@@ -232,7 +232,7 @@ IceInternal::IncomingBase::__servantLocatorFinished()
             _os.write(ex);
             _os.endWriteEncaps();
             _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
-            _responseHandler->sendResponse(_current.requestId, &_os, _compress);
+            _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
         }
         else
         {
@@ -244,23 +244,23 @@ IceInternal::IncomingBase::__servantLocatorFinished()
     }
     catch(const std::exception& ex)
     {
-        __handleException(ex);
+        __handleException(ex, amd);
     }
     catch(...)
     {
-        __handleException();
+        __handleException(amd);
     }
     return false;
 }
 
 void
-IceInternal::IncomingBase::__handleException(const std::exception& exc)
+IceInternal::IncomingBase::__handleException(const std::exception& exc, bool amd)
 {
     assert(_responseHandler);
 
     if(const SystemException* ex = dynamic_cast<const SystemException*>(&exc))
     {
-        if(_responseHandler->systemException(_current.requestId, *ex))
+        if(_responseHandler->systemException(_current.requestId, *ex, amd))
         {
             return;
         }
@@ -333,7 +333,7 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc)
             _os.write(rfe->operation, false);
 
             _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
-            _responseHandler->sendResponse(_current.requestId, &_os, _compress);
+            _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
         }
         else
         {
@@ -405,7 +405,7 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc)
             }
 
             _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
-            _responseHandler->sendResponse(_current.requestId, &_os, _compress);
+            _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
         }
         else
         {
@@ -433,7 +433,7 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc)
             _os.write(str.str(), false);
 
             _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
-            _responseHandler->sendResponse(_current.requestId, &_os, _compress);
+            _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
         }
         else
         {
@@ -446,7 +446,7 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc)
 }
 
 void
-IceInternal::IncomingBase::__handleException()
+IceInternal::IncomingBase::__handleException(bool amd)
 {
     if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
     {
@@ -467,7 +467,7 @@ IceInternal::IncomingBase::__handleException()
         string reason = "unknown c++ exception";
         _os.write(reason, false);
         _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
-        _responseHandler->sendResponse(_current.requestId, &_os, _compress);
+        _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
     }
     else
     {
@@ -648,7 +648,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
                         _os.write(ex);
                         _os.endWriteEncaps();
                         _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
-                        _responseHandler->sendResponse(_current.requestId, &_os, _compress);
+                        _responseHandler->sendResponse(_current.requestId, &_os, _compress, false);
                     }
                     else
                     {
@@ -662,13 +662,13 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
                 catch(const std::exception& ex)
                 {
                     _is->skipEncaps(); // Required for batch requests.
-                    __handleException(ex);
+                    __handleException(ex, false);
                     return;
                 }
                 catch(...)
                 {
                     _is->skipEncaps(); // Required for batch requests.
-                    __handleException();
+                    __handleException(false);
                     return;
                 }
             }
@@ -688,7 +688,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
                 return;
             }
 
-            if(_locator && !__servantLocatorFinished())
+            if(_locator && !__servantLocatorFinished(false))
             {
                 return;
             }
@@ -713,20 +713,20 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
     }
     catch(const std::exception& ex)
     {
-        if(_servant && _locator && !__servantLocatorFinished())
+        if(_servant && _locator && !__servantLocatorFinished(false))
         {
             return;
         }
-        __handleException(ex);
+        __handleException(ex, false);
         return;
     }
     catch(...)
     {
-        if(_servant && _locator && !__servantLocatorFinished())
+        if(_servant && _locator && !__servantLocatorFinished(false))
         {
             return;
         }
-        __handleException();
+        __handleException(false);
         return;
     }
 
@@ -739,7 +739,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
     if(_response)
     {
         _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
-        _responseHandler->sendResponse(_current.requestId, &_os, _compress);
+        _responseHandler->sendResponse(_current.requestId, &_os, _compress, false);
     }
     else
     {

@@ -173,7 +173,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
                             {
                                 _observer.reply(_os.size() - Protocol.headerSize - 4);
                             }
-                            _responseHandler.sendResponse(_current.requestId, _os, _compress);
+                            _responseHandler.sendResponse(_current.requestId, _os, _compress, false);
                         }
                         else
                         {
@@ -191,7 +191,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
                     catch(java.lang.Exception ex)
                     {
                         _is.skipEncaps(); // Required for batch requests.
-                        __handleException(ex);
+                        __handleException(ex, false);
                         return;
                     }
                 }
@@ -229,7 +229,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
                     }
                 }
 
-                if(_locator != null && !__servantLocatorFinished())
+                if(_locator != null && !__servantLocatorFinished(false))
                 {
                     return;
                 }
@@ -254,11 +254,11 @@ final public class Incoming extends IncomingBase implements Ice.Request
         }
         catch(java.lang.Exception ex)
         {
-            if(_servant != null && _locator != null && !__servantLocatorFinished())
+            if(_servant != null && _locator != null && !__servantLocatorFinished(false))
             {
                 return;
             }
-            __handleException(ex);
+            __handleException(ex, false);
             return;
         }
 
@@ -276,7 +276,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
             {
                 _observer.reply(_os.size() - Protocol.headerSize - 4);
             }
-            _responseHandler.sendResponse(_current.requestId, _os, _compress);
+            _responseHandler.sendResponse(_current.requestId, _os, _compress, false);
         }
         else
         {

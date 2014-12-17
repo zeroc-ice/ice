@@ -856,7 +856,7 @@ public final class ConnectionI extends IceInternal.EventHandler
     }
 
     @Override
-    synchronized public void sendResponse(int requestId, IceInternal.BasicStream os, byte compressFlag)
+    synchronized public void sendResponse(int requestId, IceInternal.BasicStream os, byte compressFlag, boolean amd)
     {
         assert (_state > StateNotValidated);
 
@@ -923,9 +923,36 @@ public final class ConnectionI extends IceInternal.EventHandler
     }
 
     @Override
-    public boolean systemException(int requestId, Ice.SystemException ex)
+    public boolean systemException(int requestId, Ice.SystemException ex, boolean amd)
     {
         return false; // System exceptions aren't marshalled.
+    }
+
+    @Override
+    public synchronized void invokeException(int requestId, LocalException ex, int invokeNum, boolean amd)
+    {
+        //
+        // Fatal exception while invoking a request. Since
+        // sendResponse/sendNoResponse isn't
+        // called in case of a fatal exception we decrement _dispatchCount here.
+        //
+
+        setState(StateClosed, ex);
+
+        if(invokeNum > 0)
+        {
+            assert (_dispatchCount > 0);
+            _dispatchCount -= invokeNum;
+            assert (_dispatchCount >= 0);
+            if(_dispatchCount == 0)
+            {
+                if(_state == StateFinished)
+                {
+                    reap();
+                }
+                notifyAll();
+            }
+        }
     }
 
     public IceInternal.EndpointI endpoint()
@@ -1607,33 +1634,6 @@ public final class ConnectionI extends IceInternal.EventHandler
     public synchronized void exception(LocalException ex)
     {
         setState(StateClosed, ex);
-    }
-
-    @Override
-    public synchronized void invokeException(int requestId, LocalException ex, int invokeNum)
-    {
-        //
-        // Fatal exception while invoking a request. Since
-        // sendResponse/sendNoResponse isn't
-        // called in case of a fatal exception we decrement _dispatchCount here.
-        //
-
-        setState(StateClosed, ex);
-
-        if(invokeNum > 0)
-        {
-            assert (_dispatchCount > 0);
-            _dispatchCount -= invokeNum;
-            assert (_dispatchCount >= 0);
-            if(_dispatchCount == 0)
-            {
-                if(_state == StateFinished)
-                {
-                    reap();
-                }
-                notifyAll();
-            }
-        }
     }
 
     public ConnectionI(Communicator communicator, IceInternal.Instance instance, IceInternal.ACMMonitor monitor,
@@ -2704,7 +2704,7 @@ public final class ConnectionI extends IceInternal.EventHandler
         }
         catch(LocalException ex)
         {
-            invokeException(requestId, ex, invokeNum);
+            invokeException(requestId, ex, invokeNum, false);
         }
         catch(java.lang.AssertionError ex) // Upon assertion, we print the stack
                                            // trace.
@@ -2716,7 +2716,7 @@ public final class ConnectionI extends IceInternal.EventHandler
             pw.flush();
             uex.unknown = sw.toString();
             _logger.error(uex.unknown);
-            invokeException(requestId, uex, invokeNum);
+            invokeException(requestId, uex, invokeNum, false);
         }
         catch(java.lang.OutOfMemoryError ex)
         {
@@ -2727,7 +2727,7 @@ public final class ConnectionI extends IceInternal.EventHandler
             pw.flush();
             uex.unknown = sw.toString();
             _logger.error(uex.unknown);
-            invokeException(requestId, uex, invokeNum);
+            invokeException(requestId, uex, invokeNum, false);
         }
         finally
         {

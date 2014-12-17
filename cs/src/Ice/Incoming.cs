@@ -247,7 +247,7 @@ namespace IceInternal
             }
         }
 
-        protected bool servantLocatorFinished__()
+        protected bool servantLocatorFinished__(bool amd)
         {
             Debug.Assert(locator_ != null && servant_ != null);
             try
@@ -278,7 +278,7 @@ namespace IceInternal
                     {
                         observer_.reply(os_.size() - Protocol.headerSize - 4);
                     }
-                    responseHandler_.sendResponse(current_.requestId, os_, compress_);
+                    responseHandler_.sendResponse(current_.requestId, os_, compress_, amd);
                 }
                 else
                 {
@@ -294,12 +294,12 @@ namespace IceInternal
             }
             catch(System.Exception ex)
             {
-                handleException__(ex);
+                handleException__(ex, amd);
             }
             return false;
         }
 
-        protected internal void handleException__(System.Exception exc)
+        protected internal void handleException__(System.Exception exc, bool amd)
         {
             Debug.Assert(responseHandler_ != null);
 
@@ -374,7 +374,7 @@ namespace IceInternal
                     {
                         observer_.reply(os_.size() - Protocol.headerSize - 4);
                     }
-                    responseHandler_.sendResponse(current_.requestId, os_, compress_);
+                    responseHandler_.sendResponse(current_.requestId, os_, compress_, amd);
                 }
                 else
                 {
@@ -402,7 +402,7 @@ namespace IceInternal
                     {
                         observer_.reply(os_.size() - Protocol.headerSize - 4);
                     }
-                    responseHandler_.sendResponse(current_.requestId, os_, compress_);
+                    responseHandler_.sendResponse(current_.requestId, os_, compress_, amd);
                 }
                 else
                 {
@@ -430,7 +430,7 @@ namespace IceInternal
                     {
                         observer_.reply(os_.size() - Protocol.headerSize - 4);
                     }
-                    responseHandler_.sendResponse(current_.requestId, os_, compress_);
+                    responseHandler_.sendResponse(current_.requestId, os_, compress_, amd);
                 }
                 else
                 {
@@ -458,7 +458,7 @@ namespace IceInternal
                     {
                         observer_.reply(os_.size() - Protocol.headerSize - 4);
                     }
-                    responseHandler_.sendResponse(current_.requestId, os_, compress_);
+                    responseHandler_.sendResponse(current_.requestId, os_, compress_, amd);
                 }
                 else
                 {
@@ -486,7 +486,7 @@ namespace IceInternal
                     {
                         observer_.reply(os_.size() - Protocol.headerSize - 4);
                     }
-                    responseHandler_.sendResponse(current_.requestId, os_, compress_);
+                    responseHandler_.sendResponse(current_.requestId, os_, compress_, amd);
                 }
                 else
                 {
@@ -497,7 +497,7 @@ namespace IceInternal
             {
                 if(ex is Ice.SystemException)
                 {
-                    if(responseHandler_.systemException(current_.requestId, (Ice.SystemException)ex))
+                    if(responseHandler_.systemException(current_.requestId, (Ice.SystemException)ex, amd))
                     {
                         return;
                     }
@@ -522,7 +522,7 @@ namespace IceInternal
                     {
                         observer_.reply(os_.size() - Protocol.headerSize - 4);
                     }
-                    responseHandler_.sendResponse(current_.requestId, os_, compress_);
+                    responseHandler_.sendResponse(current_.requestId, os_, compress_, amd);
                 }
                 else
                 {
@@ -550,7 +550,7 @@ namespace IceInternal
                     {
                         observer_.reply(os_.size() - Protocol.headerSize - 4);
                     }
-                    responseHandler_.sendResponse(current_.requestId, os_, compress_);
+                    responseHandler_.sendResponse(current_.requestId, os_, compress_, amd);
                 }
                 else
                 {
@@ -737,7 +737,7 @@ namespace IceInternal
                                 {
                                     observer_.reply(os_.size() - Protocol.headerSize - 4);
                                 }
-                                responseHandler_.sendResponse(current_.requestId, os_, compress_);
+                                responseHandler_.sendResponse(current_.requestId, os_, compress_, false);
                             }
                             else
                             {
@@ -755,7 +755,7 @@ namespace IceInternal
                         catch(System.Exception ex)
                         {
                             _is.skipEncaps(); // Required for batch requests.
-                            handleException__(ex);
+                            handleException__(ex, false);
                             return;
                         }
                     }
@@ -778,7 +778,7 @@ namespace IceInternal
                         return;
                     }
 
-                    if(locator_ != null && !servantLocatorFinished__())
+                    if(locator_ != null && !servantLocatorFinished__(false))
                     {
                         return;
                     }
@@ -803,11 +803,11 @@ namespace IceInternal
             }
             catch(System.Exception ex)
             {
-                if(servant_ != null && locator_ != null && !servantLocatorFinished__())
+                if(servant_ != null && locator_ != null && !servantLocatorFinished__(false))
                 {
                     return;
                 }
-                handleException__(ex);
+                handleException__(ex, false);
                 return;
             }
 
@@ -825,7 +825,7 @@ namespace IceInternal
                 {
                     observer_.reply(os_.size() - Protocol.headerSize - 4);
                 }
-                responseHandler_.sendResponse(current_.requestId, os_, compress_);
+                responseHandler_.sendResponse(current_.requestId, os_, compress_, false);
             }
             else
             {

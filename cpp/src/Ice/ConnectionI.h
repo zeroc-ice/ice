@@ -192,9 +192,10 @@ public:
     virtual void requestCanceled(IceInternal::OutgoingBase*, const LocalException&);
     virtual void asyncRequestCanceled(const IceInternal::OutgoingAsyncBasePtr&, const LocalException&);
 
-    virtual void sendResponse(Int, IceInternal::BasicStream*, Byte);
+    virtual void sendResponse(Int, IceInternal::BasicStream*, Byte, bool);
     virtual void sendNoResponse();
-    virtual bool systemException(Int, const SystemException&);
+    virtual bool systemException(Int, const SystemException&, bool);
+    virtual void invokeException(Ice::Int, const LocalException&, int, bool);
 
     IceInternal::EndpointIPtr endpoint() const;
     IceInternal::ConnectorPtr connector() const;
@@ -224,7 +225,6 @@ public:
     virtual ConnectionInfoPtr getInfo() const; // From Connection
 
     void exception(const LocalException&);
-    virtual void invokeException(Ice::Int, const LocalException&, int);
 
     void dispatch(const StartCallbackPtr&, const std::vector<OutgoingMessage>&, Byte, Int, Int,
                   const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&, const IceInternal::OutgoingAsyncPtr&,

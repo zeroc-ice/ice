@@ -47,10 +47,10 @@ protected:
     void __warning(const Ice::Exception&) const;
     void __warning(const std::string&) const;
 
-    bool __servantLocatorFinished();
+    bool __servantLocatorFinished(bool);
 
-    void __handleException(const std::exception&);
-    void __handleException();
+    void __handleException(const std::exception&, bool);
+    void __handleException(bool);
 
     Ice::Current _current;
     Ice::ObjectPtr _servant;

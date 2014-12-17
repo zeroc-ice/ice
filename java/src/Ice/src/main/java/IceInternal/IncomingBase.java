@@ -262,7 +262,7 @@ class IncomingBase
     }
 
     final protected boolean
-    __servantLocatorFinished()
+    __servantLocatorFinished(boolean amd)
     {
         assert(_locator != null && _servant != null);
         try
@@ -293,7 +293,7 @@ class IncomingBase
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
                 }
-                _responseHandler.sendResponse(_current.requestId, _os, _compress);
+                _responseHandler.sendResponse(_current.requestId, _os, _compress, amd);
             }
             else
             {
@@ -309,13 +309,13 @@ class IncomingBase
         }
         catch(java.lang.Exception ex)
         {
-            __handleException(ex);
+            __handleException(ex, amd);
         }
         return false;
     }
 
     final protected void
-    __handleException(java.lang.Exception exc)
+    __handleException(java.lang.Exception exc, boolean amd)
     {
         assert(_responseHandler != null);
 
@@ -390,7 +390,7 @@ class IncomingBase
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
                 }
-                _responseHandler.sendResponse(_current.requestId, _os, _compress);
+                _responseHandler.sendResponse(_current.requestId, _os, _compress, amd);
             }
             else
             {
@@ -418,7 +418,7 @@ class IncomingBase
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
                 }
-                _responseHandler.sendResponse(_current.requestId, _os, _compress);
+                _responseHandler.sendResponse(_current.requestId, _os, _compress, amd);
             }
             else
             {
@@ -446,7 +446,7 @@ class IncomingBase
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
                 }
-                _responseHandler.sendResponse(_current.requestId, _os, _compress);
+                _responseHandler.sendResponse(_current.requestId, _os, _compress, amd);
             }
             else
             {
@@ -474,7 +474,7 @@ class IncomingBase
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
                 }
-                _responseHandler.sendResponse(_current.requestId, _os, _compress);
+                _responseHandler.sendResponse(_current.requestId, _os, _compress, amd);
             }
             else
             {
@@ -485,7 +485,7 @@ class IncomingBase
         {
             if(ex instanceof Ice.SystemException)
             {
-                if(_responseHandler.systemException(_current.requestId, (Ice.SystemException)ex))
+                if(_responseHandler.systemException(_current.requestId, (Ice.SystemException)ex, amd))
                 {
                     return;
                 }
@@ -516,7 +516,7 @@ class IncomingBase
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
                 }
-                _responseHandler.sendResponse(_current.requestId, _os, _compress);
+                _responseHandler.sendResponse(_current.requestId, _os, _compress, amd);
             }
             else
             {
@@ -550,7 +550,7 @@ class IncomingBase
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
                 }
-                _responseHandler.sendResponse(_current.requestId, _os, _compress);
+                _responseHandler.sendResponse(_current.requestId, _os, _compress, amd);
             }
             else
             {
@@ -583,7 +583,7 @@ class IncomingBase
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
                 }
-                _responseHandler.sendResponse(_current.requestId, _os, _compress);
+                _responseHandler.sendResponse(_current.requestId, _os, _compress, amd);
             }
             else
             {
