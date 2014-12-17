@@ -182,11 +182,10 @@ $(document).ready(
                                     }
                                     else if(language == "java")
                                     {
-                                    // TODO: Enable when CS supports IceWS
-                                    //     language = "cs";
-                                    // }
-                                    // else
-                                    // {
+                                         language = "cs";
+                                    }
+                                    else
+                                    {
                                         language = "cpp";
                                     }
                                 }
