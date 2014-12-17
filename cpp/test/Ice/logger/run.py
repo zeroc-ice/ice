@@ -21,7 +21,12 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
-def test(out, match, enc):
+def test(cmd, match, enc):
+    p = subprocess.Popen([cmd], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=env)
+    out, err = p.communicate()
+    ret = p.poll()
+    if ret != 0:
+        print("%s failed! status %s " % (cmd, ret))
     if out.decode(enc).find(match.decode(enc)) == -1:
         raise RuntimeError("test failed")
 
@@ -29,13 +34,11 @@ TestUtil.simpleTest(os.path.join(os.getcwd(), "client1"))
 env = TestUtil.getTestEnv("cpp", os.getcwd())
 
 sys.stdout.write("testing logger ISO-8859-15 output... ")
-test(subprocess.check_output([os.path.join(os.getcwd(), "client2")], stderr=subprocess.STDOUT, env=env),
-     b'aplicaci\xf3n', "ISO-8859-15")
+test(os.path.join(os.getcwd(), "client2"), b'aplicaci\xf3n', "ISO-8859-15")
 print("ok")
 
 sys.stdout.write("testing logger UTF8 output without string converter... ")
-test(subprocess.check_output([os.path.join(os.getcwd(), "client3")], stderr=subprocess.STDOUT, env=env), 
-     b'aplicaci\xc3\xb3n', "UTF8")
+test(os.path.join(os.getcwd(), "client3"), b'aplicaci\xc3\xb3n', "UTF8")
 print("ok")
 
 sys.stdout.write("testing logger UTF8 output with ISO-8859-15 narrow string converter... ")
@@ -44,9 +47,8 @@ sys.stdout.write("testing logger UTF8 output with ISO-8859-15 narrow string conv
 # in Linux and OS X, the expected output is ISO-8859-15 because that is the narrow string
 # encoding used by the application.
 #
-out = subprocess.check_output([os.path.join(os.getcwd(), "client4")], stderr=subprocess.STDOUT, env=env)
 if TestUtil.isWin32():
-    test(out, b'aplicaci\xc3\xb3n', "UTF8")
+    test(os.path.join(os.getcwd(), "client4"), b'aplicaci\xc3\xb3n', "UTF8")
 else:
-    test(out, b'aplicaci\xf3n', "ISO-8859-15")
+    test(os.path.join(os.getcwd(), "client4"), b'aplicaci\xf3n', "ISO-8859-15")
 print("ok")
