@@ -1,5 +1,5 @@
 Ice 3.6b Third Party Packages
-------------------------------
+-----------------------------
 
 This distribution contains the development kit (including binaries)
 for the open-source packages used by Ice 3.6b on Windows. Its primary
@@ -43,14 +43,17 @@ This distribution provides:
    using Visual Studio 2012 in the bin\vc110 and bin\vc110\x64 
    directories.
 
- - DLLs and exes for Bzip2 built using Visual Studio 2010 in the
-   bin and bin\x64 directories.
+ - DLLs for Bzip2 built using Visual Studio 2010 in the bin and
+   bin\x64 directories. These files have a "_vc100" suffix.
 
  - DLL for Bzip2 built using MinGW 4.7.3 in the bin directory.
+   This file has a "_mingw" suffix.
 
  - DLL for Bzip2 built using MinGW 4.7.2 in the bin\x64 directory.
+   This file has a "_mingw" suffix.
 
- - JAR files for Berkeley DB in lib directory.
+ - JAR file for Berkeley DB in the lib directory.
+
 
 Source Code
 -----------
