@@ -213,31 +213,65 @@ UNITY_LIBS 		= "/r:$(UNITY_LIBDIR)\mscorlib.dll" \
 #MCSFLAGS 		= $(MCSFLAGS) -noconfig -nostdlib $(UNITY_LIBS)
 !elseif "$(SILVERLIGHT)" == "yes"
 
-#
-# Silverlight 5.0
-#
-!if "$(SILVERLIGHT_VERSION)" == ""
-!if exist ("$(PROGRAMFILES)\Microsoft Silverlight\5.0.61118.0")
-SILVERLIGHT_VERSION	= 5.0.61118.0
-!endif
+!if "$(PROCESSOR_ARCHITECTURE)" == "AMD64"
+SILVERLIGHT_BASE_PATH = $(PROGRAMFILES) (x86)\Microsoft Silverlight
+!else
+SILVERLIGHT_BASE_PATH = $(PROGRAMFILES)\Microsoft Silverlight
 !endif
 
 #
 # Silverlight 5.1
 #
 !if "$(SILVERLIGHT_VERSION)" == ""
-!if exist ("$(PROGRAMFILES)\Microsoft Silverlight\5.1.10411.0")
-SILVERLIGHT_VERSION	= 5.1.10411.0
+!if exist ("$(SILVERLIGHT_BASE_PATH)\5.1.30514.0")
+SILVERLIGHT_VERSION	= 5.1.30514.0
 !endif
 !endif
 
 !if "$(SILVERLIGHT_VERSION)" == ""
-!if exist ("$(PROGRAMFILES)\Microsoft Silverlight\5.1.20513.0")
+!if exist ("$(SILVERLIGHT_BASE_PATH)\5.1.30214.0")
+SILVERLIGHT_VERSION	= 5.1.30214.0
+!endif
+!endif
+
+!if "$(SILVERLIGHT_VERSION)" == ""
+!if exist ("$(SILVERLIGHT_BASE_PATH)\5.1.20913.0")
+SILVERLIGHT_VERSION	= 5.1.20913.0
+!endif
+!endif
+
+!if "$(SILVERLIGHT_VERSION)" == ""
+!if exist ("$(SILVERLIGHT_BASE_PATH)\5.1.20513.0")
 SILVERLIGHT_VERSION	= 5.1.20513.0
 !endif
 !endif
 
-SILVERLIGHT_HOME	= $(PROGRAMFILES)\Microsoft Silverlight\$(SILVERLIGHT_VERSION)
+!if "$(SILVERLIGHT_VERSION)" == ""
+!if exist ("$(SILVERLIGHT_BASE_PATH)\5.1.20125.0")
+SILVERLIGHT_VERSION	= 5.1.20125.0
+!endif
+!endif
+
+!if "$(SILVERLIGHT_VERSION)" == ""
+!if exist ("$(SILVERLIGHT_BASE_PATH)\5.1.10411.0")
+SILVERLIGHT_VERSION	= 5.1.10411.0
+!endif
+!endif
+
+#
+# Silverlight 5.0
+#
+!if "$(SILVERLIGHT_VERSION)" == ""
+!if exist ("$(SILVERLIGHT_BASE_PATH)\5.0.61118.0")
+SILVERLIGHT_VERSION	= 5.0.61118.0
+!endif
+!endif
+
+!if "$(SILVERLIGHT_VERSION)" == ""
+!error Could not detect a supported Silverlight version
+!endif
+
+SILVERLIGHT_HOME	= $(SILVERLIGHT_BASE_PATH)\$(SILVERLIGHT_VERSION)
 
 SILVERLIGHT_REFS		= "/r:$(SILVERLIGHT_HOME)\mscorlib.dll" \
 					"/r:$(SILVERLIGHT_HOME)\System.Core.dll" \
