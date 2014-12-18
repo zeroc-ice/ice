@@ -1,6 +1,6 @@
 --- a/config/Make.common.rules
 +++ b/config/Make.common.rules
-@@ -96,7 +96,10 @@
+@@ -95,7 +95,10 @@
          cpp11libsuffix		= ++11
          cpp11sonamedir		= ../
          binsuffix 		:= $(binsuffix)$(cpp11libsuffix)
@@ -11,7 +11,7 @@
  endif
  
  ifneq ($(findstring MINGW,$(UNAME)),)
-@@ -166,16 +169,16 @@
+@@ -165,16 +168,16 @@
  		ifneq ($(shell test -f $(ICE_HOME)/$(binsubdir)/$(slice_translator) && echo 0), 0)
  $(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please verify ICE_HOME is properly configured and Ice is correctly installed.)
  		endif
@@ -32,7 +32,7 @@
  	endif
  
      endif
-@@ -194,16 +197,16 @@
+@@ -193,16 +196,16 @@
  		ifneq ($(shell test -f $(ICE_HOME)/$(binsubdir)/$(slice_translator) && echo 0), 0)
  $(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please verify ICE_HOME is properly configured and Ice is correctly installed.)
  		endif
@@ -108,3 +108,15 @@
  INSTALL_SUBDIRS = $(install_pythondir) $(install_libdir)
  
  install:: install-common
+--- a/java/Makefile
++++ b/java/Makefile
+@@ -20,9 +20,6 @@
+ endif
+ 
+ all:
+-	$(GRADLE) build
+-
+-dist:
+ 	$(GRADLE) :Ice:assemble :Freeze:assemble :Glacier2:assemble :IceGrid:assemble :ant:assemble \
+ 		:IceBox:assemble :IceDiscovery:assemble :IcePatch2:assemble :IceStorm:assemble :IceGridGUI:assemble
+ 
