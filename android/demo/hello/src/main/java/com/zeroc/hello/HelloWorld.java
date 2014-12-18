@@ -89,7 +89,12 @@ public class HelloWorld extends Activity
         }
 
         String host = _host.getText().toString().trim();
-        assert (host.length() > 0);
+        System.out.println(host.length());
+        if(host.length() == 0)
+        {
+            _helloPrx = null;
+            return;
+        }
         // Change the preferences if necessary.
         if(!_prefs.getString(HOSTNAME_KEY, DEFAULT_HOST).equals(host))
         {
@@ -98,15 +103,23 @@ public class HelloWorld extends Activity
             edit.commit();
         }
 
-        String s = "hello:tcp -h " + host + " -p 10000:ssl -h " + host + " -p 10001:udp -h " + host + " -p 10000";
-        Ice.ObjectPrx prx = _communicator.stringToProxy(s);
-        prx = _deliveryMode.apply(prx);
-        int timeout = _timeout.getProgress();
-        if(timeout != 0)
+        try
         {
-            prx = prx.ice_timeout(timeout);
+            String s = "hello:tcp -h " + host + " -p 10000:ssl -h " + host + " -p 10001:udp -h " + host + " -p 10000";
+            Ice.ObjectPrx prx = _communicator.stringToProxy(s);
+            prx = _deliveryMode.apply(prx);
+            int timeout = _timeout.getProgress();
+            if(timeout != 0)
+            {
+                prx = prx.ice_timeout(timeout);
+            }
+            _helloPrx = Demo.HelloPrxHelper.uncheckedCast(prx);
         }
-        _helloPrx = Demo.HelloPrxHelper.uncheckedCast(prx);
+        catch(Ice.EndpointParseException e)
+        {
+            _helloPrx = null;
+            return;
+        }
     }
 
     class SayHelloI extends Demo.Callback_Hello_sayHello
@@ -180,6 +193,10 @@ public class HelloWorld extends Activity
 
     private void sayHello()
     {
+        if(_helloPrx == null)
+        {
+            return;
+        }
         try
         {
             if(!_deliveryMode.isBatch())
@@ -229,6 +246,10 @@ public class HelloWorld extends Activity
 
     private void shutdown()
     {
+        if(_helloPrx == null)
+        {
+            return;
+        }
         try
         {
             if(!_deliveryMode.isBatch())
