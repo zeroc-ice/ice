@@ -14,7 +14,7 @@ Ice::loadSlice('Hello.ice')
 
 begin
     communicator = Ice::initialize(ARGV)
-    hello = Demo::HelloPrx::checkedCast(communicator.stringToProxy("hello:tcp -h localhost -p 10000"))
+    hello = Demo::HelloPrx::checkedCast(communicator.stringToProxy("hello:default -h localhost -p 10000"))
     hello.sayHello()
     communicator.destroy()
 rescue => ex
