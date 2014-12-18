@@ -19,13 +19,13 @@ Demos in this directory:
   call back into an object provided by the client as part of that
   invocation.
 
-- converter
-
-  This demo shows how to use string converters.
-
 - context
 
   This demo shows how to use Ice request contexts.
+
+- converter
+
+  This demo shows how to use string converters.
 
 - hello
 
@@ -38,14 +38,18 @@ Demos in this directory:
   A simple latency test that measures the basic call dispatch delay of
   Ice.
 
-- minimal
-
-  This demo illustrates a minimal Ice application.
-
 - metrics
 
   This demo illustrates how to retrieve metrics information from an
   Ice application.
+
+- minimal
+
+  This demo illustrates a minimal Ice application.
+
+- optional
+
+  This demo shows the use of the optional keyword.
 
 - properties
 
@@ -69,7 +73,3 @@ Demos in this directory:
 
   This demo shows how to use classes, class factories, and the
   difference between local and remote invocations of class operations.
-
-- optional
-
-  This demo shows the use of the optional keyword.

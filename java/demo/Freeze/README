@@ -17,3 +17,8 @@ Demos in this directory:
 - phonebook
 
   Another application to illustrate the use of Freeze.
+
+- transform
+
+  Illustrates how to transform a Freeze map when its definition
+  changes.

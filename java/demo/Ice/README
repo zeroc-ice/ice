@@ -34,6 +34,11 @@ Demos in this directory:
   well as how to invoke oneway operations, use datagrams, secure
   invocations, and how to use batched invocations.
 
+- interrupt
+
+  This demo shows how to use Thread.interrupt to interrupt blocking
+  client-side invocations, and forcibly shutdown servers.
+
 - invoke
 
   This demo illustrates the use of the Ice streaming API.
@@ -55,6 +60,10 @@ Demos in this directory:
 
   A demo to illustrate how nested callbacks work, and how the size of
   the thread pool affects the maximum nesting depth.
+
+- optional
+
+  This demo shows the use of the optional keyword.
 
 - plugin
 
@@ -92,12 +101,3 @@ Demos in this directory:
 
   This demo shows how to use classes, class factories, and the
   difference between local and remote invocations of class operations.
-
-- optional
-
-  This demo shows the use of the optional keyword.
-
-- interrupt
-
-  This demo shows how to use Thread.interrupt to interrupt blocking
-  client-side invocations, and forcibly shutdown servers.
