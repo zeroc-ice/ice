@@ -18,26 +18,6 @@ public class HelloApplet extends JApplet
     public void init()
     {
         //
-        // Make sure we create the GUI from the Swing event dispatch thread.
-        //
-        try
-        {
-            SwingUtilities.invokeAndWait(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    initUI();
-                }
-            });
-        }
-        catch(Throwable ex)
-        {
-            ex.printStackTrace();
-            return;
-        }
-
-        //
         // Initialize an Ice communicator.
         //
         try
@@ -59,6 +39,26 @@ public class HelloApplet extends JApplet
         catch(Throwable ex)
         {
             handleException(ex);
+        }
+
+        //
+        // Make sure we create the GUI from the Swing event dispatch thread.
+        //
+        try
+        {
+            SwingUtilities.invokeAndWait(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    initUI();
+                }
+            });
+        }
+        catch(Throwable ex)
+        {
+            ex.printStackTrace();
+            return;
         }
     }
 
@@ -120,7 +120,12 @@ public class HelloApplet extends JApplet
         //
         // Default to the host from which the applet was downloaded.
         //
-        _hostname.setText(getCodeBase().getHost());
+        String host = getCodeBase().getHost();
+        if(host.isEmpty())
+        {
+            host = "127.0.0.1";
+        }
+        _hostname.setText(host);
 
         final String[] modes = new String[]
         {
@@ -164,6 +169,14 @@ public class HelloApplet extends JApplet
         changeDeliveryMode(_mode.getSelectedIndex());
 
         _timeoutSlider.addChangeListener(new SliderListener(_timeoutSlider, _timeoutLabel));
+        _timeoutSlider.addChangeListener(new ChangeListener()
+        {
+            @Override
+            public void stateChanged(ChangeEvent ce)
+            {
+                updateProxy();
+            }
+        });
         _timeoutSlider.setValue(0);
         _delaySlider.addChangeListener(new SliderListener(_delaySlider, _delayLabel));
         _delaySlider.setValue(0);
@@ -283,8 +296,6 @@ public class HelloApplet extends JApplet
         gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new Insets(0, 5, 5, 5);
         cp.add(_status, gridBagConstraints);
-
-        updateProxy();
     }
 
     private enum DeliveryMode
@@ -336,13 +347,13 @@ public class HelloApplet extends JApplet
         }
     }
 
-    private Demo.HelloPrx createProxy()
+    private void updateProxy()
     {
         String host = _hostname.getText().toString().trim();
         if(host.length() == 0)
         {
             _status.setText("No hostname");
-            return null;
+            return;
         }
 
         String s = "hello:tcp -h " + host + " -p 10000:ssl -h " + host + " -p 10001:udp -h " + host + " -p 10000";
@@ -353,13 +364,12 @@ public class HelloApplet extends JApplet
         {
             prx = prx.ice_invocationTimeout(timeout);
         }
-        return Demo.HelloPrxHelper.uncheckedCast(prx);
+        _helloPrx = Demo.HelloPrxHelper.uncheckedCast(prx);
+        _status.setText("Ready");
     }
 
     class SayHelloI extends Demo.Callback_Hello_sayHello
     {
-        private boolean _response = false;
-
         @Override
         synchronized public void response()
         {
@@ -393,12 +403,13 @@ public class HelloApplet extends JApplet
                 _status.setText("Ready");
             }
         }
+
+        private boolean _response = false;
     }
 
     private void sayHello()
     {
-        Demo.HelloPrx hello = createProxy();
-        if(hello == null)
+        if(_helloPrx == null)
         {
             return;
         }
@@ -408,7 +419,7 @@ public class HelloApplet extends JApplet
         {
             if(!_deliveryMode.isBatch())
             {
-                Ice.AsyncResult r = hello.begin_sayHello(delay, new SayHelloI());
+                Ice.AsyncResult r = _helloPrx.begin_sayHello(delay, new SayHelloI());
                 if(!r.sentSynchronously())
                 {
                     _status.setText("Sending request");
@@ -417,7 +428,7 @@ public class HelloApplet extends JApplet
             else
             {
                 _flush.setEnabled(true);
-                hello.sayHello(delay);
+                _helloPrx.sayHello(delay);
                 _status.setText("Queued sayHello request");
             }
         }
@@ -429,8 +440,7 @@ public class HelloApplet extends JApplet
 
     private void shutdown()
     {
-        Demo.HelloPrx hello = createProxy();
-        if(hello == null)
+        if(_helloPrx == null)
         {
             return;
         }
@@ -439,7 +449,7 @@ public class HelloApplet extends JApplet
         {
             if(!_deliveryMode.isBatch())
             {
-                hello.begin_shutdown(new Demo.Callback_Hello_shutdown()
+                _helloPrx.begin_shutdown(new Demo.Callback_Hello_shutdown()
                 {
                     @Override
                     public void response()
@@ -461,7 +471,7 @@ public class HelloApplet extends JApplet
             else
             {
                 _flush.setEnabled(true);
-                hello.shutdown();
+                _helloPrx.shutdown();
                 _status.setText("Queued shutdown request");
             }
         }
@@ -515,10 +525,17 @@ public class HelloApplet extends JApplet
             _deliveryMode = DeliveryMode.DATAGRAM_BATCH;
             break;
         }
+        updateProxy();
     }
 
     private void handleException(final Throwable ex)
     {
+        // Ignore CommunicatorDestroyedException which could occur on
+        // shutdown.
+        if(ex instanceof Ice.CommunicatorDestroyedException)
+        {
+            return;
+        }
         ex.printStackTrace();
         _status.setText(ex.getClass().getName());
     }
@@ -557,4 +574,6 @@ public class HelloApplet extends JApplet
 
     private Ice.Communicator _communicator;
     private DeliveryMode _deliveryMode;
+
+    private Demo.HelloPrx _helloPrx = null;
 }
