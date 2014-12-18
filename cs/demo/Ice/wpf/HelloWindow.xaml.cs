@@ -125,7 +125,7 @@ namespace Ice.wpf.client
         {
             if (_helloPrx == null)
             {
-                return;
+                updateProxy();
             }
 
             int delay =(int)delaySlider.Value;
@@ -186,7 +186,7 @@ namespace Ice.wpf.client
         {
             if(_helloPrx == null)
             {
-                return;
+                updateProxy();
             }
 
             int delay =(int)delaySlider.Value;
@@ -258,7 +258,7 @@ namespace Ice.wpf.client
         private void timeoutSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             timeoutLabel.Content =(timeoutSlider.Value / 1000.0).ToString("F1");
-            updateProxy();
+            _helloPrx = null;
         }
 
         private void delaySlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -277,7 +277,7 @@ namespace Ice.wpf.client
 
         private void modeSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            updateProxy();
+            _helloPrx = null;
         }
 
         private void hostname_TextChanged(object sender, TextChangedEventArgs e)
@@ -313,7 +313,7 @@ namespace Ice.wpf.client
                 }
                 
             }
-            updateProxy();
+            _helloPrx = null;
         }
 
     }
