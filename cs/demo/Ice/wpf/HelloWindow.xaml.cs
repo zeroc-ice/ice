@@ -123,7 +123,7 @@ namespace Ice.wpf.client
 
         private void sayHello_Click(object sender, RoutedEventArgs e)
         {
-            if (_helloPrx == null)
+            if(_helloPrx == null)
             {
                 updateProxy();
             }
@@ -237,12 +237,7 @@ namespace Ice.wpf.client
                 return;
             }
             String host = hostname.Text.Trim();
-            if(host.Length == 0)
-            {
-                status.Content = "No hostname";
-                _helloPrx = null;
-                return;
-            }
+            Debug.Assert(host.Length > 0);
 
             String s = "hello:tcp -h " + host + " -p 10000:ssl -h " + host + " -p 10001:udp -h " + host + " -p 10000";
             Ice.ObjectPrx prx = _communicator.stringToProxy(s);
@@ -296,6 +291,10 @@ namespace Ice.wpf.client
                 {
                     flush.IsEnabled = false;
                 }
+                if(status != null)
+                {
+                    status.Content = "No hostname";
+                }
             }
             else
             {
@@ -311,7 +310,10 @@ namespace Ice.wpf.client
                 {
                     flush.IsEnabled = false;
                 }
-                
+                if(status != null)
+                {
+                    status.Content = "Ready";
+                }
             }
             _helloPrx = null;
         }

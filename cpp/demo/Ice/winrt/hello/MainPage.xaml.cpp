@@ -55,7 +55,7 @@ hello::MainPage::updateProxy()
     string h = IceUtil::wstringToString(hostname->Text->Data());
     if (h.empty())
     {
-        print("Host is empty");
+        print("Host is empty.");
         _helloPrx = 0;
         return;
     }
@@ -114,6 +114,7 @@ hello::MainPage::updateProxy()
         prx = prx->ice_invocationTimeout(static_cast<int>(timeout->Value * 1000));
     }
     _helloPrx = Demo::HelloPrx::uncheckedCast(prx);
+    print("Ready.");
 }
 
 bool
@@ -177,7 +178,7 @@ hello::MainPage::hello_Click(Platform::Object^ sender, Windows::UI::Xaml::Routed
             else if(deliveryMode > 1)
             {
                 hello->IsEnabled = true;
-                print("Ready");
+                print("Ready.");
             }
         }
         else
