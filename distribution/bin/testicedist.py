@@ -277,22 +277,19 @@ def spawnAndWatch(command, env, filterFunc):
     while(True):
 
         line = p.stdout.readline()
-        if p.poll() is not None and not line:
+        if not line:
             # The process terminated
-            break
-        elif not line:
-            continue
+            return p.wait() == 0
 
         if type(line) != str:
             line = line.decode()
 
-        line = line.rstrip(os.linesep)
+        
+        line = line.rstrip()
         filterFunc(line)
 
         output.write("%s\n" % line)
         output.flush()
-
-    return p.poll() == 0
 
 class Platform:
 
