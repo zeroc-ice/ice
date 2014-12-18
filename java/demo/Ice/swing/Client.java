@@ -113,6 +113,37 @@ public class Client extends JFrame
         // Default to localhost.
         //
         _hostname.setText("127.0.0.1");
+        _hostname.getDocument().addDocumentListener(new DocumentListener()
+        {
+            @Override
+            public void changedUpdate(DocumentEvent e)
+            {
+                 updateProxy();
+            }
+
+            @Override
+            public void insertUpdate(DocumentEvent e)
+            {
+                if(e.getDocument().getLength() > 0)
+                {
+                    _hello.setEnabled(true);
+                    _shutdown.setEnabled(true);
+                }
+                updateProxy();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e)
+            {
+                if(e.getDocument().getLength() == 0)
+                {
+                    _hello.setEnabled(false);
+                    _shutdown.setEnabled(false);
+                    _flush.setEnabled(false);
+                }
+                updateProxy();
+            }
+        });
 
         final String[] modes = new String[]
         {
@@ -156,6 +187,14 @@ public class Client extends JFrame
         changeDeliveryMode(_mode.getSelectedIndex());
 
         _timeoutSlider.addChangeListener(new SliderListener(_timeoutSlider, _timeoutLabel));
+        _timeoutSlider.addChangeListener(new ChangeListener()
+        {
+            @Override
+            public void stateChanged(ChangeEvent ce)
+            {
+                updateProxy();
+            }
+        });
         _timeoutSlider.setValue(0);
         _delaySlider.addChangeListener(new SliderListener(_delaySlider, _delayLabel));
         _delaySlider.setValue(0);
@@ -382,13 +421,13 @@ public class Client extends JFrame
         }
     }
 
-    private Demo.HelloPrx createProxy()
+    private void updateProxy()
     {
         String host = _hostname.getText().toString().trim();
         if(host.length() == 0)
         {
             _status.setText("No hostname");
-            return null;
+            return;
         }
 
         String s = "hello:tcp -h " + host + " -p 10000:ssl -h " + host + " -p 10001:udp -h " + host + " -p 10000";
@@ -399,7 +438,8 @@ public class Client extends JFrame
         {
             prx = prx.ice_invocationTimeout(timeout);
         }
-        return Demo.HelloPrxHelper.uncheckedCast(prx);
+        _helloPrx = Demo.HelloPrxHelper.uncheckedCast(prx);
+        _status.setText("Ready");
     }
 
     class SayHelloI extends Demo.Callback_Hello_sayHello
@@ -443,8 +483,7 @@ public class Client extends JFrame
 
     private void sayHello()
     {
-        Demo.HelloPrx hello = createProxy();
-        if(hello == null)
+        if(_helloPrx == null)
         {
             return;
         }
@@ -455,12 +494,12 @@ public class Client extends JFrame
             if(!_deliveryMode.isBatch())
             {
                 _status.setText("Sending request");
-                hello.begin_sayHello(delay, new SayHelloI());
+                _helloPrx.begin_sayHello(delay, new SayHelloI());
             }
             else
             {
                 _flush.setEnabled(true);
-                hello.sayHello(delay);
+                _helloPrx.sayHello(delay);
                 _status.setText("Queued sayHello request");
             }
         }
@@ -472,8 +511,7 @@ public class Client extends JFrame
 
     private void shutdown()
     {
-        Demo.HelloPrx hello = createProxy();
-        if(hello == null)
+        if(_helloPrx == null)
         {
             return;
         }
@@ -482,7 +520,7 @@ public class Client extends JFrame
         {
             if(!_deliveryMode.isBatch())
             {
-                hello.begin_shutdown(new Demo.Callback_Hello_shutdown()
+                _helloPrx.begin_shutdown(new Demo.Callback_Hello_shutdown()
                 {
                     @Override
                     public void response()
@@ -504,7 +542,7 @@ public class Client extends JFrame
             else
             {
                 _flush.setEnabled(true);
-                hello.shutdown();
+                _helloPrx.shutdown();
                 _status.setText("Queued shutdown request");
             }
         }
@@ -558,6 +596,7 @@ public class Client extends JFrame
             _deliveryMode = DeliveryMode.DATAGRAM_BATCH;
             break;
         }
+        updateProxy();
     }
 
     private void handleException(final Throwable ex)
@@ -614,4 +653,6 @@ public class Client extends JFrame
     private Ice.Communicator _communicator;
     private DeliveryMode _deliveryMode;
     private Thread _shutdownHook;
+
+    private Demo.HelloPrx _helloPrx = null;
 }

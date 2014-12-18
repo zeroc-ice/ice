@@ -43,18 +43,19 @@
                         <ColumnDefinition Width="9*"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Style="{StaticResource LabelStyle}">Hostname:</TextBlock>
-                    <TextBox Grid.Column="1" x:Name="hostname" Text="127.0.0.1"/>
+                    <TextBox Grid.Column="1" x:Name="hostname" Text="127.0.0.1" TextChanged="hostname_TextChanged"/>
                 </Grid>
                 <Grid Grid.Row="1" Margin="0, 5, 0, 0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="9*"/>
+                        <ColumnDefinition Width="133*"/>
+                        <ColumnDefinition Width="87*"/>
+                        <ColumnDefinition Width="1106*"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Style="{StaticResource LabelStyle}">Mode:</TextBlock>
-                    <ComboBox Grid.Column="1" Name="mode" Padding="5, 5, 5, 5">
+                    <ComboBox Grid.Column="1" Name="mode" Padding="5, 5, 5, 5" SelectionChanged="mode_SelectionChanged" Grid.ColumnSpan="2">
                         <ComboBoxItem>
                             <x:String>Twoway</x:String>
                         </ComboBoxItem>
@@ -86,11 +87,12 @@
                         <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="9*"/>
+                        <ColumnDefinition Width="133*"/>
+                        <ColumnDefinition Width="98*"/>
+                        <ColumnDefinition Width="1095*"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Style="{StaticResource LabelStyle}">Timeout:</TextBlock>
-                    <Slider Grid.Column="1" Name="timeout" Maximum="5" Minimum="0" Orientation="Horizontal" StepFrequency="0.1"/>
+                    <Slider Grid.Column="1" Name="timeout" Maximum="5" Minimum="0" Orientation="Horizontal" StepFrequency="0.1" ValueChanged="timeout_ValueChanged" Grid.ColumnSpan="2"/>
                 </Grid>
                 <Grid Grid.Row="3" Margin="0, 5, 0, 0">
                     <Grid.RowDefinitions>

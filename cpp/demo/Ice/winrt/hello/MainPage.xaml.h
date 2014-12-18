@@ -25,15 +25,19 @@ public:
 
 private:
 
-    Demo::HelloPrx proxy();
+    void updateProxy();
     bool isBatch();
     void print(const std::string&);
 
     void hello_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
     void shutdown_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
     void flush_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+    void mode_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e);
+    void timeout_ValueChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::Primitives::RangeBaseValueChangedEventArgs^ e);
+    void hostname_TextChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::TextChangedEventArgs^ e);
 
     Ice::CommunicatorPtr _communicator;
+    Demo::HelloPrx _helloPrx;
     bool _response;
 };
 

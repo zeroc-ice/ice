@@ -57,6 +57,7 @@ namespace Ice.wpf.client
                     Dispatcher.BeginInvoke(DispatcherPriority.Normal, action);
                 };
                 _communicator = Ice.Util.initialize(initData);
+                updateProxy();
             }
             catch(Ice.LocalException ex)
             {
@@ -122,8 +123,7 @@ namespace Ice.wpf.client
 
         private void sayHello_Click(object sender, RoutedEventArgs e)
         {
-            Demo.HelloPrx hello = createProxy();
-            if(hello == null)
+            if (_helloPrx == null)
             {
                 return;
             }
@@ -135,7 +135,7 @@ namespace Ice.wpf.client
                 {
                     status.Content = "Sending request";
                     bool haveResponse = false;
-                    hello.begin_sayHello(delay).whenCompleted(
+                    _helloPrx.begin_sayHello(delay).whenCompleted(
                         () =>
                         {
                             Debug.Assert(!haveResponse);
@@ -167,7 +167,7 @@ namespace Ice.wpf.client
                 else
                 {
                     flush.IsEnabled = true;
-                    hello.sayHello(delay);
+                    _helloPrx.sayHello(delay);
                     status.Content = "Queued sayHello request";
                 }
             }
@@ -184,8 +184,7 @@ namespace Ice.wpf.client
 
         private void shutdown_Click(object sender, RoutedEventArgs e)
         {
-            Demo.HelloPrx hello = createProxy();
-            if(hello == null)
+            if(_helloPrx == null)
             {
                 return;
             }
@@ -196,7 +195,7 @@ namespace Ice.wpf.client
             {
                 if(!deliveryModeIsBatch())
                 {
-                    AsyncResult<Demo.Callback_Hello_shutdown> result = hello.begin_shutdown();
+                    AsyncResult<Demo.Callback_Hello_shutdown> result = _helloPrx.begin_shutdown();
                     status.Content = "Sending request";
                     result.whenCompleted(
                         () =>
@@ -211,7 +210,7 @@ namespace Ice.wpf.client
                 else
                 {
                     flush.IsEnabled = true;
-                    hello.shutdown();
+                    _helloPrx.shutdown();
                     status.Content = "Queued shutdown request";
                 }
             }
@@ -230,14 +229,19 @@ namespace Ice.wpf.client
             status.Content = "Flushed batch requests";
         }
 
-        Demo.HelloPrx
-        createProxy()
+        void
+        updateProxy()
         {
+            if(_communicator == null)
+            {
+                return;
+            }
             String host = hostname.Text.Trim();
             if(host.Length == 0)
             {
                 status.Content = "No hostname";
-                return null;
+                _helloPrx = null;
+                return;
             }
 
             String s = "hello:tcp -h " + host + " -p 10000:ssl -h " + host + " -p 10001:udp -h " + host + " -p 10000";
@@ -248,12 +252,13 @@ namespace Ice.wpf.client
             {
                 prx = prx.ice_invocationTimeout(timeout);
             }
-            return Demo.HelloPrxHelper.uncheckedCast(prx);
+            _helloPrx = Demo.HelloPrxHelper.uncheckedCast(prx);
         }
 
         private void timeoutSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             timeoutLabel.Content =(timeoutSlider.Value / 1000.0).ToString("F1");
+            updateProxy();
         }
 
         private void delaySlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -268,5 +273,48 @@ namespace Ice.wpf.client
         }
 
         private Ice.Communicator _communicator = null;
+        private Demo.HelloPrx _helloPrx = null;
+
+        private void modeSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            updateProxy();
+        }
+
+        private void hostname_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if(hostname.Text.Length == 0)
+            {
+                if (sayHello != null)
+                {
+                    sayHello.IsEnabled = false;
+                }
+                if (shutdown != null)
+                {
+                    shutdown.IsEnabled = false;
+                }
+                if (flush != null)
+                {
+                    flush.IsEnabled = false;
+                }
+            }
+            else
+            {
+                if(sayHello != null)
+                {
+                    sayHello.IsEnabled = true;
+                }
+                if(shutdown != null)
+                {
+                    shutdown.IsEnabled = true;
+                }
+                if(flush != null)
+                {
+                    flush.IsEnabled = false;
+                }
+                
+            }
+            updateProxy();
+        }
+
     }
 }

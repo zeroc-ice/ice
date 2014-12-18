@@ -35,6 +35,7 @@ protected:
     virtual void DoDataExchange(CDataExchange*);    // DDX/DDV support
 
     Ice::CommunicatorPtr _communicator;
+    Demo::HelloPrx _helloPrx;
     Demo::Callback_Hello_sayHelloPtr _sayHelloCallback;
     Demo::Callback_Hello_shutdownPtr _shutdownCallback;
     Ice::Callback_Communicator_flushBatchRequestsPtr _flushCallback;
@@ -53,6 +54,8 @@ protected:
     afx_msg void OnClose();
     afx_msg void OnPaint();
     afx_msg HCURSOR OnQueryDragIcon();
+    afx_msg void OnHostChanged();
+    afx_msg void OnModeChanged();
     afx_msg void OnHScroll(UINT, UINT, CScrollBar*);
     afx_msg void OnSayHello();
     afx_msg void OnFlush();
@@ -62,7 +65,7 @@ protected:
 
 private:
 
-    Demo::HelloPrx createProxy();
+    void updateProxy();
     BOOL deliveryModeIsBatch();
     void handleException(const IceUtil::Exception&);
 };

@@ -41,12 +41,24 @@ MainPage::MainPage()
                         }, CallbackContext::Any));
             });
     _communicator = Ice::initialize(id);
+    updateProxy();
 }
 
-Demo::HelloPrx
-hello::MainPage::proxy()
+void
+hello::MainPage::updateProxy()
 {
+    if (!_communicator)
+    {
+        return;
+    }
+
     string h = IceUtil::wstringToString(hostname->Text->Data());
+    if (h.empty())
+    {
+        print("Host is empty");
+        _helloPrx = 0;
+        return;
+    }
     Ice::ObjectPrx prx = _communicator->stringToProxy("hello:tcp -h " + h + " -p 10000:ssl -h " + h + 
                                                       " -p 10001:udp -h " + h + " -p 10000");
     switch(mode->SelectedIndex)
@@ -101,7 +113,7 @@ hello::MainPage::proxy()
     {
         prx = prx->ice_invocationTimeout(static_cast<int>(timeout->Value * 1000));
     }
-    return Demo::HelloPrx::uncheckedCast(prx);
+    _helloPrx = Demo::HelloPrx::uncheckedCast(prx);
 }
 
 bool
@@ -115,8 +127,7 @@ hello::MainPage::hello_Click(Platform::Object^ sender, Windows::UI::Xaml::Routed
 {
     try
     {
-        HelloPrx prx = proxy();
-        if(!prx)
+        if(!_helloPrx)
         {
             return;
         }
@@ -127,7 +138,7 @@ hello::MainPage::hello_Click(Platform::Object^ sender, Windows::UI::Xaml::Routed
             _response = false;
             hello->IsEnabled = false;
             int deliveryMode = mode->SelectedIndex;
-            Ice::AsyncResultPtr result = prx->begin_sayHello(static_cast<int>(delay->Value * 1000),
+            Ice::AsyncResultPtr result = _helloPrx->begin_sayHello(static_cast<int>(delay->Value * 1000),
                                         [=]()
                                             {
                                                 hello->IsEnabled = true;
@@ -172,7 +183,7 @@ hello::MainPage::hello_Click(Platform::Object^ sender, Windows::UI::Xaml::Routed
         else
         {
             print("Queued hello request.");
-            prx->sayHello(static_cast<int>(delay->Value * 1000));
+            _helloPrx->sayHello(static_cast<int>(delay->Value * 1000));
             flush->IsEnabled = true;
         }
     }
@@ -188,13 +199,12 @@ void hello::MainPage::shutdown_Click(Platform::Object^ sender, Windows::UI::Xaml
 {
     try
     {
-        HelloPrx prx = proxy();
-        if(!prx)
+        if (!_helloPrx)
         {
             return;
         }
-        prx = Demo::HelloPrx::uncheckedCast(prx->ice_twoway());
-        prx->begin_shutdown();
+        _helloPrx = Demo::HelloPrx::uncheckedCast(_helloPrx->ice_twoway());
+        _helloPrx->begin_shutdown();
     }
     catch(const Ice::Exception& ex)
     {
@@ -226,6 +236,36 @@ void hello::MainPage::flush_Click(Platform::Object^ sender, Windows::UI::Xaml::R
         os << ex;
         print(os.str());
     }
+}
+
+void 
+MainPage::mode_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e)
+{
+    updateProxy();
+}
+
+void 
+MainPage::timeout_ValueChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::Primitives::RangeBaseValueChangedEventArgs^ e)
+{
+    updateProxy();
+}
+
+void 
+MainPage::hostname_TextChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::TextChangedEventArgs^ e)
+{
+    if (hostname->Text->Length() == 0)
+    {
+        hello->IsEnabled = false;
+        shutdown->IsEnabled = false;
+        flush->IsEnabled = false;
+    }
+    else
+    {
+        hello->IsEnabled = true;
+        shutdown->IsEnabled = true;
+        flush->IsEnabled = false;
+    }
+    updateProxy();
 }
 
 void

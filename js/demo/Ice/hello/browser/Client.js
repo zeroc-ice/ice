@@ -13,11 +13,12 @@ var communicator = Ice.initialize();
 
 var flushEnabled = false;
 var batch = 0;
+var helloPrx = null;
 
 //
 // Create the hello proxy.
 //
-function createProxy()
+function updateProxy()
 {
     var hostname = document.location.hostname || "127.0.0.1";
     var proxy = communicator.stringToProxy("hello" +
@@ -58,7 +59,7 @@ function createProxy()
     {
         proxy = proxy.ice_batchOneway().ice_secure(true);
     }
-    return Demo.HelloPrx.uncheckedCast(proxy);
+    helloPrx = Demo.HelloPrx.uncheckedCast(proxy);
 }
 
 //
@@ -68,13 +69,12 @@ function sayHello()
 {
     setState(State.SendRequest);
 
-    var proxy = createProxy();
-    if(proxy.ice_isBatchOneway())
+    if(helloPrx.ice_isBatchOneway())
     {
         batch++;
     }
 
-    return proxy.sayHello($("#delay").val());
+    return helloPrx.sayHello($("#delay").val());
 }
 
 //
@@ -94,13 +94,12 @@ function shutdown()
 {
     setState(State.SendRequest);
 
-    var proxy = createProxy();
-    if(proxy.ice_isBatchOneway())
+    if(helloPrx.ice_isBatchOneway())
     {
         batch++;
     }
 
-    return proxy.shutdown();
+    return helloPrx.shutdown();
 }
 
 //
@@ -260,6 +259,24 @@ $("#mode").on("change",
             href = href.replace("8080", "9090");
             document.location.assign(href);
         }
+        else if (document.location.protocol === "https:" &&
+           (newMode === "twoway" || newMode === "oneway" || newMode === "oneway-batch"))
+        {
+            var href = document.location.protocol + "//" + document.location.host +
+                        document.location.pathname + "?mode=" + newMode;
+            href = href.replace("https", "http");
+            href = href.replace("9090", "8080");
+            document.location.assign(href);
+        }
+        console.log(newMode);
+        updateProxy();
     });
 
+$("#timeout").on("change",
+    function(e)
+    {
+        updateProxy();
+    });
+
+updateProxy();
 }());

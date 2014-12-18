@@ -283,6 +283,8 @@ public class HelloApplet extends JApplet
         gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new Insets(0, 5, 5, 5);
         cp.add(_status, gridBagConstraints);
+
+        updateProxy();
     }
 
     private enum DeliveryMode

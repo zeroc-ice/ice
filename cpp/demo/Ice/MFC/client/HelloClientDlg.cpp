@@ -103,6 +103,8 @@ BEGIN_MESSAGE_MAP(CHelloClientDlg, CDialog)
     ON_WM_PAINT()
     ON_WM_QUERYDRAGICON()
     ON_WM_HSCROLL()
+    ON_CBN_SELENDOK(IDC_MODE, OnModeChanged)
+    ON_EN_CHANGE(IDC_HOST, OnHostChanged)
     ON_BN_CLICKED(IDC_INVOKE, OnSayHello)
     ON_BN_CLICKED(IDC_FLUSH, OnFlush)
     ON_BN_CLICKED(IDC_SHUTDOWN, OnShutdown)
@@ -190,6 +192,7 @@ CHelloClientDlg::OnInitDialog()
     _delay->SetRangeMax(50);
     _delayStatus->SetWindowText(CString("0.0s"));
 
+    updateProxy();
     _status->SetWindowText(CString(" Ready"));
 
     return TRUE;  // return TRUE  unless you set the focus to a control
@@ -250,6 +253,18 @@ CHelloClientDlg::OnQueryDragIcon()
 }
 
 void
+CHelloClientDlg::OnHostChanged()
+{
+    updateProxy();
+}
+
+void
+CHelloClientDlg::OnModeChanged()
+{
+    updateProxy();
+}
+
+void
 CHelloClientDlg::OnHScroll(UINT, UINT, CScrollBar* scroll)
 {
     CSliderCtrl* slider = (CSliderCtrl*)scroll;
@@ -264,13 +279,13 @@ CHelloClientDlg::OnHScroll(UINT, UINT, CScrollBar* scroll)
         s << setiosflags(ios::fixed) << setprecision(1) << (long)_delay->GetPos()/10.0 << "s";
         _delayStatus->SetWindowText(CString(s.str().c_str()));
     }
+    updateProxy();
 }
 
 void
 CHelloClientDlg::OnSayHello()
 {
-    Demo::HelloPrx hello = createProxy();
-    if(!hello)
+    if(!_helloPrx)
     {
         return;
     }
@@ -280,12 +295,12 @@ CHelloClientDlg::OnSayHello()
         if(!deliveryModeIsBatch())
         {
             _status->SetWindowText(CString(" Sending request"));
-            hello->begin_sayHello(delay, _sayHelloCallback);
+            _helloPrx->begin_sayHello(delay, _sayHelloCallback);
         }
         else
         {
             _flush->EnableWindow(TRUE);
-            hello->sayHello(delay);
+            _helloPrx->sayHello(delay);
             _status->SetWindowText(CString(" Queued sayHello request"));
         }
     }
@@ -298,19 +313,22 @@ CHelloClientDlg::OnSayHello()
 void
 CHelloClientDlg::OnShutdown()
 {
-    Demo::HelloPrx hello = createProxy();
+    if(!_helloPrx)
+    {
+        return;
+    }
     try
     {
         if(!deliveryModeIsBatch())
         {
             _status->SetWindowText(CString(" Sending request"));
             CallbackPtr cb = new Callback(this);
-            hello->begin_shutdown(_shutdownCallback);
+            _helloPrx->begin_shutdown(_shutdownCallback);
         }
         else
         {
             _flush->EnableWindow(TRUE);
-            hello->shutdown();
+            _helloPrx->shutdown();
             _status->SetWindowText(CString(" Queued shutdown request"));
         }
     }
@@ -385,8 +403,8 @@ CHelloClientDlg::flushed()
     _status->SetWindowText(CString(" Flushed batch requests"));
 }
 
-Demo::HelloPrx
-CHelloClientDlg::createProxy()
+void
+CHelloClientDlg::updateProxy()
 {
     CString h;
     _host->GetWindowText(h);
@@ -394,6 +412,8 @@ CHelloClientDlg::createProxy()
     if(host.size() == 0)
     {
         _status->SetWindowText(CString(" No hostname"));
+        _helloPrx = 0;
+        return;
     }
 
     string s = "hello:tcp -h " + host + " -p 10000:ssl -h " + host + " -p 10001:udp -h " + host + " -p 10000";
@@ -434,7 +454,7 @@ CHelloClientDlg::createProxy()
         prx = prx->ice_invocationTimeout(timeout);
     }
 
-    return Demo::HelloPrx::uncheckedCast(prx);
+    _helloPrx = Demo::HelloPrx::uncheckedCast(prx);
 }
 
 BOOL

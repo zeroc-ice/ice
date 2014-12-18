@@ -39,8 +39,8 @@
             <Label Grid.Row="2" Grid.Column="0" Name="label1" Height="28" HorizontalAlignment="Left" VerticalAlignment="Top" Width="70">Timeout</Label>
             <Label Grid.Row="3" Grid.Column="0" Name="label3" VerticalAlignment="Top" HorizontalAlignment="Left" Width="70">Delay</Label>
             
-            <TextBox Grid.Row="0" Grid.Column="1" Name="hostname" VerticalAlignment="Top">127.0.0.1</TextBox>
-            <ComboBox Grid.Row="1" Grid.Column="1" Name="deliveryMode" VerticalAlignment="Top" IsReadOnly="True" SelectedIndex="0">
+            <TextBox Grid.Row="0" Grid.Column="1" Name="hostname" VerticalAlignment="Top" TextChanged="hostname_TextChanged">127.0.0.1</TextBox>
+            <ComboBox Grid.Row="1" Grid.Column="1" Name="deliveryMode" VerticalAlignment="Top" IsReadOnly="True" SelectedIndex="0" SelectionChanged="modeSelectionChanged">
                 <ComboBoxItem>Twoway</ComboBoxItem>
                 <ComboBoxItem>Twoway Secure</ComboBoxItem>
                 <ComboBoxItem>Oneway</ComboBoxItem>

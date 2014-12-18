@@ -11,12 +11,13 @@
             <TextBox x:Name="txtHost" HorizontalAlignment="Left" 
                         Text="localhost" 
                         TextWrapping="NoWrap"
+                        TextChanged="hostTextChanged"
                         VerticalAlignment="Top" Height="25" Width="320"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
                     Margin="5, 5, 5, 5">
             <TextBlock Text="Mode:" Height="25" Width="80" VerticalAlignment="Center"/>
-            <ComboBox x:Name="cmbModes" Height="25" Width="320" ItemsSource="{Binding}"/>
+            <ComboBox x:Name="cmbModes" Height="25" Width="320" ItemsSource="{Binding}" SelectionChanged="modeSelectionChanged"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
                     Margin="5, 5, 5, 5">

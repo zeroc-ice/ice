@@ -94,7 +94,7 @@ IceInternal::StreamEndpointI::getInfo() const
     switch(_instance->type())
     {
     case TCPEndpointType:
-    case WSEndpointType
+    case WSEndpointType:
         return new InfoI<Ice::TCPEndpointInfo>(_instance->type(), _timeout, _compress, _host, _port);
     case IceSSL::EndpointType:
     case WSSEndpointType:
