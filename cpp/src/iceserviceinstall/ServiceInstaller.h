@@ -33,6 +33,8 @@ public:
     static std::string serviceTypeToString(int);
     static std::string serviceTypeToLowerString(int);
 
+    static std::string getServiceInstallerPath();
+
 private:
 
     void initializeSid(const std::string&);

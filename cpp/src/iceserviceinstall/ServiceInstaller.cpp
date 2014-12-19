@@ -120,14 +120,17 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
     string imagePath = properties->getProperty("ImagePath");
     if(imagePath == "")
     {
-        char buffer[MAX_PATH];
-        DWORD size = GetModuleFileName(0, buffer, MAX_PATH);
-        if(size == 0)
+        string serviceInstallerPath = getServiceInstallerPath();
+        if(serviceInstallerPath.empty())
         {
-            throw "Can't get full path to self: " + IceUtilInternal::errorToString(GetLastError());
+            throw "Can't get full path to service installer!";
         }
-        imagePath = string(buffer, size);
-        imagePath.replace(imagePath.rfind('\\'), string::npos, "\\" + serviceTypeToLowerString(_serviceType) + ".exe");
+
+        imagePath = serviceInstallerPath + '\\' + serviceTypeToLowerString(_serviceType);
+#ifdef _DEBUG
+        imagePath += 'd';
+#endif
+        imagePath += ".exe";
     }
     else
     {
@@ -367,7 +370,7 @@ IceServiceInstaller::uninstall()
     }
 }
 
-vector<string>
+/*static*/ vector<string>
 IceServiceInstaller::getPropertyNames()
 {
     static const string propertyNames[] = { "ImagePath", "DisplayName", "ObjectName", "Password",
@@ -378,7 +381,7 @@ IceServiceInstaller::getPropertyNames()
     return result;
 }
 
-string
+/*static*/  string
 IceServiceInstaller::serviceTypeToString(int serviceType)
 {
     static const string serviceTypeArray[] = { "IceGridRegistry", "IceGridNode", "Glacier2Router" };
@@ -393,7 +396,7 @@ IceServiceInstaller::serviceTypeToString(int serviceType)
     }
 }
 
-string
+/*static*/ string
 IceServiceInstaller::serviceTypeToLowerString(int serviceType)
 {
     static const string serviceTypeArray[] = { "icegridregistry", "icegridnode", "glacier2router" };
@@ -406,6 +409,29 @@ IceServiceInstaller::serviceTypeToLowerString(int serviceType)
     {
         return "Unknown service";
     }
+}
+
+/*static*/ string
+IceServiceInstaller::getServiceInstallerPath()
+{
+    string path;
+
+    char buffer[MAX_PATH];
+    DWORD size = GetModuleFileName(0, buffer, MAX_PATH);
+    if(size > 0)
+    {
+        path = string(buffer, size);
+        size_t p = path.find_last_of("/\\");
+        if(p != string::npos)
+        {
+            path = path.substr(0, p);
+        }
+        else
+        {
+            path = "";
+        }
+    }
+    return path;
 }
 
 void

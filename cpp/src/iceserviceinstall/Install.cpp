@@ -184,6 +184,17 @@ Install::pause() const
 void
 Install::usage() const
 {
+    string defaultImagePath = IceServiceInstaller::getServiceInstallerPath();
+    if(defaultImagePath.empty())
+    {
+        defaultImagePath = string("<error: cannot retrieve path of ") + appName() + ">";
+    }
+    defaultImagePath += "\\<service>";
+#ifdef _DEBUG
+    defaultImagePath += 'd';
+#endif
+    defaultImagePath += ".exe";
+
     cerr << "Usage: " << appName()
          << " [options] service config-file [property] [property]\n";
     cerr <<
@@ -202,7 +213,7 @@ Install::usage() const
         "\n"
         "Valid properties:\n"
         "ImagePath            Full path to <service>.exe. The default value is\n"
-        "                     <directory of " << appName() << ">\\<service>.exe\n"
+        "                     " << defaultImagePath << "\n" <<
         "DisplayName          Display name of the service.\n"
         "Description          Description of the service.\n"
         "AutoStart            If non-zero, the service is started automatically when\n"
