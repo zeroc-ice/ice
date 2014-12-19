@@ -41,18 +41,18 @@ General Changes
 
 - We have relaxed the semantics of Ice.MessageSizeMax. The check for
   the maximum message size is now only performed on the receiver
-  side. If the size of the message is superior to the limit the
-  Ice::MemoryLimitException is raised and the connection is closed. 
+  side. If the size of the message is greater than the limit, Ice
+  raises Ice::MemoryLimitException and closes the connection.
   
   Previously, it was also used to limit the amount of data sent to a
   peer (either for a request or reply). This is no longer the case.
 
   A null or negative value now also disables the check and allows an
-  unlimited amout of data to be received. This should only be used in
+  unlimited amount of data to be received. This should only be used in
   a trusted environment.
 
   Finally, support for the <object adapter>.MessageSizeMax property
-  was added to allow setting this limit on a per object adapter basis.
+  was added to allow setting this limit on specific object adapters.
 
 - The Ice run time now raises Ice::IllegalServantException if a null
   servant is provided to a method that requires a non-null servant
@@ -298,8 +298,8 @@ General Changes
 C++ Changes
 ===========
 
-- Fixed bug where a private Windows Runtime delegate type could end up
-  being published in Windows Store Components metadata files (WINMD).
+- Fixed a bug where a private Windows Runtime delegate type could be
+  published in Windows Store Components metadata files (WINMD).
 
 - New garbage collection support for object graphs with cycles.
 
@@ -417,13 +417,13 @@ Java Changes
 C# Changes
 ==========
 
-- Fixed a bug in the Slice-To-C# compiler that would generate invalid
-  code if a interface inherited a method that had a optional value as
-  a return value.
+- Fixed a bug in the Slice-to-C# compiler that would generate invalid
+  code if an interface inherited a method that had an optional value
+  as a return value.
 
-- The "clr:collection" Slice metadata for sequences and dictionaries
-  as well as the CollectionBase and DictionaryBase classes have been
-  deprecated.
+- Deprecated the "clr:collection" Slice metadata for sequences and
+  dictionaries as well as the CollectionBase and DictionaryBase
+  classes.
 
 - Fixed a security vulnerability in IceSSL in which an untrusted
   self-signed CA certificate was accepted.
@@ -436,9 +436,6 @@ C# Changes
 
 - Fixed a bug where under certain circumstances the thread pool could
   serialize dispatch.
-
-- Added support for TCP Loopback Fast Path on Windows platforms that
-  support it.
 
 - The Ice.Communicator type now implements IDisposable, which allows
   communicator objects to be used as resources in using() statements.
