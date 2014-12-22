@@ -1066,18 +1066,14 @@ public class AllTests
 
         ctl.holdAdapter(); // Hold to block in request send.
 
-        byte[] seq = new byte[1024];
+        byte[] seq = new byte[10024];
         (new System.Random()).NextBytes(seq);
         OpAMICallback cbWP = new OpAMICallback();
 
-        //
-        // Fill up the receive and send buffers, stop when we're not
-        // sending synchronously anymore (an indication that the buffers
-        // are full).
-        //
-        while(backgroundOneway.begin_opWithPayload(seq).whenCompleted(cbWP.noResponse,
-                                                                      cbWP.noException).sentSynchronously())
+        // Fill up the receive and send buffers
+        for(int i = 0; i < 200; ++i) // 2MB
         {
+            backgroundOneway.begin_opWithPayload(seq).whenCompleted(cbWP.noResponse, cbWP.noException);
         }
 
         OpAMICallback cb = new OpAMICallback();
