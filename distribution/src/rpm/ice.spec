@@ -1150,12 +1150,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/icegridregistry.1.gz
 %dir %{_datadir}/Ice-%{version}
 %{_datadir}/Ice-%{version}/templates.xml
-%attr(755,root,root) %{_datadir}/Ice-%{version}/upgradeicegrid33.py*
-%attr(755,root,root) %{_datadir}/Ice-%{version}/upgradeicegrid35.py*
-%{_datadir}/Ice-%{version}/icegrid-slice.3.1.ice.gz
-%{_datadir}/Ice-%{version}/icegrid-slice.3.2.ice.gz
-%{_datadir}/Ice-%{version}/icegrid-slice.3.3.ice.gz
+%attr(755,root,root) %{_datadir}/Ice-%{version}/upgradeicegrid36.py*
 %{_datadir}/Ice-%{version}/icegrid-slice.3.5.ice.gz
+%{_datadir}/Ice-%{version}/icegrid-slice.3.6.ice.gz
 %if %{systemd}
 %attr(755,root,root) %{_unitdir}/icegridregistry.service
 %attr(755,root,root) %{_unitdir}/icegridnode.service
