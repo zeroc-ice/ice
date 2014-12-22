@@ -71,8 +71,14 @@ public abstract class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
     {
         try
         {
+            //
+            // It's important to let the retry queue do the retry. This is
+            // called from the connect request handler and the retry might
+            // require could end up waiting for the flush of the
+            // connection to be done.
+            //
             handleRetryException(ex);
-            retry();
+            _instance.retryQueue().add(this, 0);
         }
         catch(Ice.Exception exc)
         {

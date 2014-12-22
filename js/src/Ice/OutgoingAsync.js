@@ -99,7 +99,7 @@ var ProxyOutgoingAsyncBase = Ice.Class(OutgoingAsyncBase, {
         try
         {
             this.__handleRetryException(ex.inner);
-            this.__retry();
+            this._instance.retryQueue().add(this, 0);
         }
         catch(ex)
         {
