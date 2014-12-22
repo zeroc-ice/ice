@@ -45,15 +45,15 @@ if win32:
 # Show usage information.
 #
 def usage():
-    print "Usage: " + sys.argv[0] + " [options] olddbenv newdbenv"
-    print
-    print "This script upgrades a 3.5 IceGrid registry database environment"
-    print "to an IceGrid registry 3.6 (or newer) database environment."
-    print
-    print "Options:"
-    print "-h                      Show this message."
-    print "--server-version VER    Specifies an alternate Ice version for your"
-    print "                        IceGrid servers."
+    print("Usage: " + sys.argv[0] + " [options] olddbenv newdbenv")
+    print("")
+    print("This script upgrades a 3.5 IceGrid registry database environment")
+    print("to an IceGrid registry 3.6 (or newer) database environment.")
+    print("")
+    print("Options:")
+    print("-h                      Show this message.")
+    print("--server-version VER    Specifies an alternate Ice version for your")
+    print("                        IceGrid servers.")
     sys.exit(2)
 
 def printOutputFromPipe(pipe):
@@ -62,20 +62,20 @@ def printOutputFromPipe(pipe):
         if not line:
             break
         if line.find("warning") == -1:
-            os.write(1, line)
+            sys.stdout.write(line)
 
 def error(message):
-    print "error: " + message
+    print("error: " + message)
     sys.exit(1)
 
 def transformdb(olddbenv, newdbenv, db, desc, oldslice, newslice):
     global bindir
 
-    oldslicefile = open(os.path.join(newdbenv, oldslice), "w+")
+    oldslicefile = open(os.path.join(newdbenv, oldslice), "wb+")
     oldslicefile.write(gzip.GzipFile(os.path.join(os.path.dirname(__file__), oldslice + ".gz")).read())
     oldslicefile.close()
 
-    newslicefile = open(os.path.join(newdbenv, newslice), "w+")
+    newslicefile = open(os.path.join(newdbenv, newslice), "wb+")
     newslicefile.write(gzip.GzipFile(os.path.join(os.path.dirname(__file__), newslice + ".gz")).read())
     newslicefile.close()
 
@@ -84,7 +84,7 @@ def transformdb(olddbenv, newdbenv, db, desc, oldslice, newslice):
     tmpfile.write(desc)
     tmpfile.close()
 
-    transformdb = os.path.join(bindir, transformdbExe) + " -i" + \
+    transformdb = "\"" + os.path.join(bindir, transformdbExe) + "\" -i" + \
                   " --old " + os.path.join(newdbenv, oldslice) + \
                   " --new " + os.path.join(newdbenv, newslice)
 
@@ -135,7 +135,7 @@ except getopt.GetoptError:
     usage()
     
 if not args or len(args) != 2:
-    print sys.argv[0] + ": missing database environment arguments"
+    print(sys.argv[0] + ": missing database environment arguments")
     usage()
 olddbenv = args[0]
 newdbenv = args[1]
@@ -167,24 +167,20 @@ else:
     #
     # Check if transformdb and dumpdb are present in path
     #
-    print "Check " + transformdbExe + " -v"
     if(os.system(transformdbExe + " -v") != 0):
-        print "...error"
         error("can't locate the `" + transformdbExe + "' executable")
     
-    print "Check " + dumpdbExe + " -v "
     if(os.system(dumpdbExe + " -v") != 0):
-        print "...error"
         error("can't locate the `" + dumpdbExe + "' executable")
 
     #
     # Use transformdb and dumpdb from system path
     #
-    print "Using transformdb and dumpdb from system path"
+    print("Using transformdb and dumpdb from system path")
     bindir = ""
 
 
-print "upgrading 3.5 database environment...",
+sys.stdout.write("upgrading 3.5 database environment...")
 sys.stdout.flush()
 upgrade35(olddbenv, newdbenv, serverVersion)
-print "ok"
+print("ok")
