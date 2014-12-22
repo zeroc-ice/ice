@@ -8,14 +8,22 @@
 // **********************************************************************
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
+var fs = require("fs");
+
+function writeSync(stream, msg)
+{
+    var data = new Buffer(msg + "\n");
+    fs.writeSync(stream.fd, data, 0, data.length, stream.pos);
+}
+
 Ice.Debug =
 {
     assert: function(b, msg)
     {
         if(!b)
         {
-            console.log(msg === undefined ? "assertion failed" : msg);
-            console.log(Error().stack);
+            writeSync(process.stderr, msg === undefined ? "assertion failed" : msg);
+            writeSync(process.stderr, new Error().stack);
             process.exit(1);
         }
     }
