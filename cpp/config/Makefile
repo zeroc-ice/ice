@@ -16,10 +16,7 @@ all::
 
 install::
 	$(call installdata,templates.xml,$(DESTDIR)$(install_configdir))
-	$(call installdata,upgradeicegrid33.py,$(DESTDIR)$(install_configdir))
-	$(call installdata,upgradeicegrid35.py,$(DESTDIR)$(install_configdir))
-	$(call installdata,icegrid-slice.3.1.ice.gz,$(DESTDIR)$(install_configdir))
-	$(call installdata,icegrid-slice.3.2.ice.gz,$(DESTDIR)$(install_configdir))
-	$(call installdata,icegrid-slice.3.3.ice.gz,$(DESTDIR)$(install_configdir))
+	$(call installdata,upgradeicegrid36.py,$(DESTDIR)$(install_configdir))
 	$(call installdata,icegrid-slice.3.5.ice.gz,$(DESTDIR)$(install_configdir))
+	$(call installdata,icegrid-slice.3.6.ice.gz,$(DESTDIR)$(install_configdir))
 

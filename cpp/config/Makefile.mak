@@ -13,12 +13,9 @@ top_srcdir	= ..
 
 install::
 	copy templates.xml "$(install_configdir)"
-	copy upgradeicegrid33.py "$(install_configdir)"
-	copy upgradeicegrid35.py "$(install_configdir)"
+	copy upgradeicegrid36.py "$(install_configdir)"
 	copy icegridregistry.cfg "$(install_configdir)"
 	copy icegridnode.cfg "$(install_configdir)"
 	copy glacier2router.cfg "$(install_configdir)"
-	copy icegrid-slice.3.1.ice.gz "$(install_configdir)"
-	copy icegrid-slice.3.2.ice.gz "$(install_configdir)"
-	copy icegrid-slice.3.3.ice.gz "$(install_configdir)"
 	copy icegrid-slice.3.5.ice.gz "$(install_configdir)"
+	copy icegrid-slice.3.6.ice.gz "$(install_configdir)"
