@@ -44,7 +44,6 @@ public:
     virtual
     void run()
     {
-
         _callback->disconnected(_session);
     }
 
@@ -60,6 +59,7 @@ class SessionHelperI : public Glacier2::SessionHelper
 public:
 
     SessionHelperI(const Glacier2::SessionCallbackPtr&, const Ice::InitializationData&, const string&);
+    ~SessionHelperI();
     void destroy();
     Ice::CommunicatorPtr communicator() const;
     std::string categoryForClient() const;
@@ -100,6 +100,10 @@ private:
     const Ice::InitializationData _initData;
     const Glacier2::SessionCallbackPtr _callback;
     const string _finderStr;
+    
+    IceUtil::ThreadPtr _connectThread;
+    IceUtil::ThreadPtr _destroyThread;
+    IceUtil::ThreadPtr _connectFailedThread;
 };
 typedef IceUtil::Handle<SessionHelperI> SessionHelperIPtr;
 
@@ -177,6 +181,37 @@ SessionHelperI::SessionHelperI(const Glacier2::SessionCallbackPtr& callback,
 {
 }
 
+SessionHelperI::~SessionHelperI()
+{
+    IceUtil::ThreadPtr connectThread;
+    IceUtil::ThreadPtr connectFailedThread;
+    IceUtil::ThreadPtr destroyThread;
+    {
+        IceUtil::Mutex::Lock sync(_mutex);
+        connectThread = _connectThread;
+        _connectThread = 0;
+        connectFailedThread = _connectFailedThread;
+        _connectFailedThread = 0;
+        destroyThread = _destroyThread;
+        _destroyThread = 0;
+    }
+    
+    if(connectThread)
+    {
+        connectThread->getThreadControl().join();
+    }
+    
+    if(connectFailedThread)
+    {
+        connectFailedThread->getThreadControl().join();
+    }
+    
+    if(destroyThread)
+    {
+        destroyThread->getThreadControl().join();
+    }
+}
+
 void
 SessionHelperI::destroy()
 {
@@ -185,7 +220,7 @@ SessionHelperI::destroy()
 }
 
 void
-SessionHelperI::destroy(const IceUtil::ThreadPtr& destroyInternal)
+SessionHelperI::destroy(const IceUtil::ThreadPtr& destroyThread)
 {
     if(_destroy)
     {
@@ -210,7 +245,9 @@ SessionHelperI::destroy(const IceUtil::ThreadPtr& destroyInternal)
     // Run the destroyInternal in a thread. This is because it
     // destroyInternal makes remote invocations.
     //
-    destroyInternal->start().detach();
+    assert(!_destroyThread);
+    _destroyThread = destroyThread;
+    _destroyThread->start();
 }
 
 Ice::CommunicatorPtr
@@ -367,6 +404,8 @@ SessionHelperI::destroyInternal(const Ice::DispatcherCallPtr& disconnected)
 {
     assert(_destroy);
     Ice::CommunicatorPtr communicator;
+    IceUtil::ThreadPtr connectThread;
+    IceUtil::ThreadPtr dispatchCallThread;
     Glacier2::RouterPrx router;
     {
         IceUtil::Mutex::Lock sync(_mutex);
@@ -375,6 +414,8 @@ SessionHelperI::destroyInternal(const Ice::DispatcherCallPtr& disconnected)
         _connected = false;
 
         communicator = _communicator;
+        connectThread = _connectThread;
+        _connectThread = 0;
     }
 
     if(router)
@@ -407,6 +448,11 @@ SessionHelperI::destroyInternal(const Ice::DispatcherCallPtr& disconnected)
             }
         }
     }
+    
+    if(connectThread)
+    {
+        connectThread->getThreadControl().join();
+    }
 
     if(communicator)
     {
@@ -419,6 +465,7 @@ SessionHelperI::destroyInternal(const Ice::DispatcherCallPtr& disconnected)
         }
         communicator = 0;
     }
+    
     dispatchCallback(disconnected, 0);
 }
 
@@ -426,11 +473,12 @@ void
 SessionHelperI::connectFailed()
 {
     Ice::CommunicatorPtr communicator;
+    IceUtil::ThreadPtr connectThread;
     {
         IceUtil::Mutex::Lock sync(_mutex);
         communicator = _communicator;
     }
-
+    
     if(communicator)
     {
         try
@@ -596,7 +644,8 @@ void
 SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
 {
     assert(!_destroy);
-
+    assert(!_connectThread);
+    assert(!_connectFailedThread);
     try
     {
         _communicator = Ice::initialize(_initData);
@@ -604,14 +653,14 @@ SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
     catch(const Ice::LocalException& ex)
     {
         _destroy = true;
-        IceUtil::ThreadPtr thread = new DispatchCallThread(this, new ConnectFailed(_callback, this, ex), 0);
-        thread->start().detach();
+        _connectFailedThread = new DispatchCallThread(this, new ConnectFailed(_callback, this, ex), 0);
+        _connectFailedThread->start();
         return;
     }
 
     Ice::RouterFinderPrx finder = Ice::RouterFinderPrx::uncheckedCast(_communicator->stringToProxy(_finderStr));
-    IceUtil::ThreadPtr connectThread = new ConnectThread(_callback, this, factory, _communicator, finder);
-    connectThread->start().detach();
+    _connectThread = new ConnectThread(_callback, this, factory, _communicator, finder);
+    _connectThread->start();
 }
 
 namespace
@@ -702,8 +751,9 @@ SessionHelperI::connected(const Glacier2::RouterPrx& router, const Glacier2::Ses
             // Run the destroyInternal in a thread. This is because it
             // destroyInternal makes remote invocations.
             //
-            IceUtil::ThreadPtr thread = new DestroyInternal(this, _callback);
-            thread->start().detach();
+            assert(!_destroyThread);
+            _destroyThread = new DestroyInternal(this, _callback);
+            _destroyThread->start();
             return;
         }
 

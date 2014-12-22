@@ -144,7 +144,7 @@ public:
     virtual void
     connected(const Glacier2::SessionHelperPtr&)
     {
-            test(false);
+        test(false);
     }
 
     virtual void
