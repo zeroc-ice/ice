@@ -123,7 +123,14 @@ public class Server extends ListArrayTreeNode
                             {
                                 admin.end_stopServer(r);
                                 amiSuccess(prefix);
-                                rebuild(Server.this, false);
+                                SwingUtilities.invokeLater(new Runnable()
+                                {
+                                    @Override
+                                    public void run()
+                                    {
+                                        rebuild(Server.this, false);
+                                    }
+                                });
                             }
                             catch(Ice.UserException ex)
                             {
