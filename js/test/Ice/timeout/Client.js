@@ -251,7 +251,7 @@
             function(obj)
             {
                 to = obj;
-                return timeout.holdAdapter(500 * 2 * mult);
+                return timeout.holdAdapter(750 * 2 * mult);
             }
         ).then(
             function()
@@ -280,7 +280,7 @@
             function(obj)
             {
                 to = obj;
-                return timeout.holdAdapter(500 * 2 * mult);
+                return timeout.holdAdapter(750 * 2 * mult);
             }
         ).then(
             function()
@@ -332,6 +332,26 @@
         ).then(
             function()
             {
+                //
+                // Some browsers (Chrome) appear to not cancel the
+                // connection establishment even of the web socket is
+                // closed and the next connect succeeds. We perform
+                // another connection establishment and close the
+                // connection.
+                //
+                return to.ice_getConnection();
+            }
+        ).then(
+            function(con)
+            {
+                con.close(true);
+            },
+            function(ex)
+            {
+            }
+        ).then(
+            function()
+            {
                 return timeout.holdAdapter(750 * mult);
             }
         ).then(
@@ -344,7 +364,10 @@
                 return to.op();
             }
         ).then(
-            failCB,
+            function()
+            {
+                test(false);
+            },
             function(ex)
             {
                 test(ex instanceof Ice.ConnectTimeoutException);
@@ -430,8 +453,6 @@
         // buffers to fill up.
         //
         id.properties.setProperty("Ice.MessageSizeMax", "10000");
-
-        id.properties.setProperty("Ice.RetryIntervals", "-1");
 
         var c = Ice.initialize(id);
         return Promise.try(

@@ -42,7 +42,7 @@ var WSTransceiver = Ice.Class({
         this._logger = instance.logger();
         this._readBuffers = [];
         this._readPosition = 0;
-        this._maxSendPacketSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", 512 * 1204);
+        this._maxSendPacketSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", 512 * 1024);
     },
     setCallbacks: function(connectedCallback, bytesAvailableCallback, bytesWrittenCallback)
     {
