@@ -89,12 +89,8 @@ public class HelloWorld extends Activity
         }
 
         String host = _host.getText().toString().trim();
-        System.out.println(host.length());
-        if(host.length() == 0)
-        {
-            _helloPrx = null;
-            return;
-        }
+        assert (!host.isEmpty());
+
         // Change the preferences if necessary.
         if(!_prefs.getString(HOSTNAME_KEY, DEFAULT_HOST).equals(host))
         {
@@ -103,23 +99,15 @@ public class HelloWorld extends Activity
             edit.commit();
         }
 
-        try
+        String s = "hello:tcp -h " + host + " -p 10000:ssl -h " + host + " -p 10001:udp -h " + host + " -p 10000";
+        Ice.ObjectPrx prx = _communicator.stringToProxy(s);
+        prx = _deliveryMode.apply(prx);
+        int timeout = _timeout.getProgress();
+        if(timeout != 0)
         {
-            String s = "hello:tcp -h " + host + " -p 10000:ssl -h " + host + " -p 10001:udp -h " + host + " -p 10000";
-            Ice.ObjectPrx prx = _communicator.stringToProxy(s);
-            prx = _deliveryMode.apply(prx);
-            int timeout = _timeout.getProgress();
-            if(timeout != 0)
-            {
-                prx = prx.ice_timeout(timeout);
-            }
-            _helloPrx = Demo.HelloPrxHelper.uncheckedCast(prx);
+            prx = prx.ice_timeout(timeout);
         }
-        catch(Ice.EndpointParseException e)
-        {
-            _helloPrx = null;
-            return;
-        }
+        _helloPrx = Demo.HelloPrxHelper.uncheckedCast(prx);
     }
 
     class SayHelloI extends Demo.Callback_Hello_sayHello
@@ -195,7 +183,15 @@ public class HelloWorld extends Activity
     {
         if(_helloPrx == null)
         {
-            return;
+            try
+            {
+                updateProxy();
+            }
+            catch(Ice.LocalException e)
+            {
+                handleException(e);
+                return;
+            }
         }
         try
         {
@@ -248,7 +244,15 @@ public class HelloWorld extends Activity
     {
         if(_helloPrx == null)
         {
-            return;
+            try
+            {
+                updateProxy();
+            }
+            catch(Ice.LocalException e)
+            {
+                handleException(e);
+                return;
+            }
         }
         try
         {
@@ -393,7 +397,7 @@ public class HelloWorld extends Activity
             public void afterTextChanged(Editable s)
             {
                 String host = _host.getText().toString().trim();
-                if(host.length() == 0)
+                if(host.isEmpty())
                 {
                     _sayHelloButton.setEnabled(false);
                     _shutdownButton.setEnabled(false);
@@ -402,8 +406,8 @@ public class HelloWorld extends Activity
                 {
                     _sayHelloButton.setEnabled(true);
                     _shutdownButton.setEnabled(true);
-                    updateProxy();
                 }
+                _helloPrx = null;
             }
 
             public void beforeTextChanged(CharSequence s, int start, int count, int after)
@@ -434,7 +438,7 @@ public class HelloWorld extends Activity
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
             {
                 changeDeliveryMode(id);
-                updateProxy();
+                _helloPrx = null;
             }
 
 
@@ -478,7 +482,7 @@ public class HelloWorld extends Activity
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromThumb)
             {
                 timeoutView.setText(String.format("%.1f", progress / 1000.0));
-                updateProxy();
+                _helloPrx = null;
             }
 
             public void onStartTrackingTouch(SeekBar seekBar)
@@ -530,7 +534,6 @@ public class HelloWorld extends Activity
                         }
                         _status.setText("Ready");
                         _communicator = communicator;
-                        updateProxy();
                     }
                 });
             }
