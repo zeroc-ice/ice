@@ -177,6 +177,7 @@ namespace hello
                 }
                 else
                 {
+                    btnFlush.IsEnabled = true;
                     _helloPrx.sayHello(_delay);
                     txtOutput.Text = "Queued hello request";
                 }
@@ -210,22 +211,34 @@ namespace hello
             {
                 return;
             }
-            string host = txtHost.Text;
-            txtOutput.Text = "Shutting down...";
 
-            Ice.ObjectPrx proxy = _communicator.stringToProxy("hello:tcp -h " + host + " -p 4502");
-            _helloPrx = HelloPrxHelper.uncheckedCast(_helloPrx.ice_twoway());
-            _helloPrx.begin_shutdown().whenCompleted(
-                () =>
+            try
+            {
+                if(!_helloPrx.ice_isBatchOneway())
                 {
-                    txtOutput.Text = "Ready";
-                },
-                (Ice.Exception ex) =>
+                    txtOutput.Text = "Shutting down...";
+                    _helloPrx.begin_shutdown().whenCompleted(
+                        () =>
+                        {
+                            txtOutput.Text = "Ready";
+                        },
+                        (Ice.Exception ex) =>
+                        {
+                            txtOutput.Text = ex.ToString();
+                        });
+                }
+                else
                 {
-                    txtOutput.Text = ex.ToString();
-                });
+                    btnFlush.IsEnabled = true;
+                    _helloPrx.shutdown();
+                    txtOutput.Text = "Queued shutdown request";
+                }
+            }
+            catch(System.Exception ex)
+            {
+                txtOutput.Text = ex.ToString();
+            }
         }
-
         private int _timeout = 0;
         private int _delay = 0;
         private int _mode = 0;
