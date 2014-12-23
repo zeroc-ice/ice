@@ -37,6 +37,7 @@ var MimeTypes =
 };
 
 var iceHome = process.env.ICE_HOME;
+var iceLibDir;
 var useBinDist = process.env.USE_BIN_DIST && process.env.USE_BIN_DIST == "yes";
 var srcDist;
 try
@@ -58,6 +59,7 @@ if(srcDist && !iceHome && !useBinDist)
     var build;
     try
     {
+        iceLibDir = path.join(__dirname, "..", "lib");
         build = fs.statSync(path.join(__dirname, "..", "lib", iceJs)).isFile();
     }
     catch(e)
@@ -88,7 +90,8 @@ if(!srcDist || useBinDist)
             "C:\\Program Files\\ZeroC",
             "C:\\Program Files (x86)\\ZeroC",
             "/Library/Developer",
-            "/opt"
+            "/opt",
+            "/usr"
         ].some(
             function(basePath)
             {
@@ -97,6 +100,13 @@ if(!srcDist || useBinDist)
                     if(fs.statSync(path.join(basePath, dist, "lib", iceJs)).isFile())
                     {
                         iceHome = path.join(basePath, dist);
+                        iceLibDir = path.join(basePath, dist, "lib");
+                        return true;
+                    }
+                    else if(fs.statSync(path.join(basePath, dist, "share", "javascript", iceJs)).isFile())
+                    {
+                        iceHome = path.join(basePath, dist);
+                        iceLibDir = path.join(basePath, dist, "share", "javascript"); 
                         return true;
                     }
                 }
@@ -123,7 +133,7 @@ if(iceHome)
     var iceHomeValid;
     try
     {
-        iceHomeValid = fs.statSync(path.join(iceHome, "lib", iceJs)).isFile();
+        iceHomeValid = fs.statSync(path.join(iceLibDir, iceJs)).isFile();
     }
     catch(e)
     {
@@ -160,7 +170,7 @@ HttpServer.prototype.processRequest = function(req, res)
     //
     if(iceHome && iceLib)
     {
-        filePath = path.join(iceHome, req.url.pathname);
+        filePath = path.join(iceLibDir, req.url.pathname.substr(4));
     }
     else
     {
