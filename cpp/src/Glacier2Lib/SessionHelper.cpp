@@ -156,17 +156,12 @@ public:
     virtual void run()
     {
         _session->destroyInternal(_disconnected);
-        //
-        // We don't need to hold this references any longer
-        //
-        _session = 0;
-        _disconnected = 0;
     }
 
 private:
 
-    SessionHelperIPtr _session;
-    Ice::DispatcherCallPtr _disconnected;
+    const SessionHelperIPtr _session;
+    const Ice::DispatcherCallPtr _disconnected;
 };
 
 }
@@ -559,23 +554,15 @@ public:
 
             _session->dispatchCallback(new ConnectFailed(_callback, _session, ex), 0);
         }
-        
-        //
-        // We don't need to hold this references any longer
-        //
-        _callback = 0;
-        _session = 0;
-        _factory = 0;
-        _communicator = 0;
     }
 
 private:
 
-    Glacier2::SessionCallbackPtr _callback;
-    SessionHelperIPtr _session;
-    ConnectStrategyPtr _factory;
-    Ice::CommunicatorPtr _communicator;
-    string _finder;
+    const Glacier2::SessionCallbackPtr _callback;
+    const SessionHelperIPtr _session;
+    const ConnectStrategyPtr _factory;
+    const Ice::CommunicatorPtr _communicator;
+    const string _finder;
 };
 
 
@@ -595,19 +582,13 @@ public:
     virtual void run()
     {
         _session->dispatchCallback(_call, _conn);
-        //
-        // We don't need to hold this references any longer
-        //
-        _session = 0;
-        _call = 0;
-        _conn = 0;
     }
 
 private:
 
-    SessionHelperIPtr _session;
-    Ice::DispatcherCallPtr _call;
-    Ice::ConnectionPtr _conn;
+    const SessionHelperIPtr _session;
+    const Ice::DispatcherCallPtr _call;
+    const Ice::ConnectionPtr _conn;
 };
 
 }
