@@ -355,7 +355,7 @@ var ConnectRequestHandler = Ice.Class({
 
         Debug.assert(!this._initialized);
         this._exception = exception;
-        this._initialized = this._exception !== null;
+        this._initialized = this._exception === null;
         try
         {
             //
