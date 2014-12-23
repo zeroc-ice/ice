@@ -151,7 +151,7 @@ if(iceHome)
     {
         try
         {
-            iceLibDir = path.join(basePath, "share", "javascript", "ice-3.6b"); 
+            iceLibDir = path.join(iceHome, "share", "javascript", "ice-3.6b"); 
             iceHomeValid = fs.statSync(path.join(iceLibDir, iceJs)).isFile();
         }
         catch(e)
