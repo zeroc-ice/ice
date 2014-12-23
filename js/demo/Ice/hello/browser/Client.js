@@ -156,7 +156,14 @@ function setState(newState, ex)
         }
     }
 
-    assert(state !== newState);
+    if(state === newState)
+    {
+        //
+        // This event was queued before the event handler has time
+        // to disable the button, just ignore it.
+        //
+        return;
+    }
 
     switch(newState)
     {
