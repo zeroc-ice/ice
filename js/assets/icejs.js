@@ -92,7 +92,7 @@ function checkGenerated(files)
     var dialog = "<div id=\"build-required-modal\" class=\"reveal-modal\" data-reveal>" +
         "<p>Couldn't find generated file `%FILENAME%'. This is expected if you didn't build the JavaScript demos. " +
         "Please refer to the Sample Programs page from the Ice for JavaScript " +
-        "<a href=\"http://doc.zeroc.com/display/Rel/Ice+for+JavaScript+0.1.0+Release+Notes\">release notes</a> " + 
+        "<a href=\"http://doc.zeroc.com/display/Rel/Ice+3.6b+Release+Note\">release notes</a> " + 
         "for instructions on how to build the demos.</p>" +
         "</div>";
     
