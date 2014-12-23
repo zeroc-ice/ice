@@ -103,10 +103,17 @@ if(!srcDist || useBinDist)
                         iceLibDir = path.join(basePath, dist, "lib");
                         return true;
                     }
-                    else if(fs.statSync(path.join(basePath, dist, "share", "javascript", iceJs)).isFile())
+                }
+                catch(e)
+                {
+                }
+                
+                try
+                {
+                    if(fs.statSync(path.join(basePath, "share", "javascript", "ice-3.6b", iceJs)).isFile())
                     {
-                        iceHome = path.join(basePath, dist);
-                        iceLibDir = path.join(basePath, dist, "share", "javascript"); 
+                        iceHome = path.join(basePath);
+                        iceLibDir = path.join(basePath, "share", "javascript", "ice-3.6b"); 
                         return true;
                     }
                 }
@@ -133,10 +140,23 @@ if(iceHome)
     var iceHomeValid;
     try
     {
+        iceLibDir = path.join(iceHome, "lib"); 
         iceHomeValid = fs.statSync(path.join(iceLibDir, iceJs)).isFile();
     }
     catch(e)
     {
+    }
+    
+    if(!iceHomeValid)
+    {
+        try
+        {
+            iceLibDir = path.join(basePath, "share", "javascript", "ice-3.6b"); 
+            iceHomeValid = fs.statSync(path.join(iceLibDir, iceJs)).isFile();
+        }
+        catch(e)
+        {
+        }
     }
 
     if(!iceHomeValid)
@@ -145,7 +165,7 @@ if(iceHome)
                       "please verify ICE_HOME is properly configured and Ice is correctly insetalled");
         process.exit(1);
     }
-    console.log("Using Ice libraries from " + path.join(iceHome, "lib"));
+    console.log("Using Ice libraries from " + iceLibDir);
 }
 
 var libraries = ["/lib/Ice.js", "/lib/Ice.min.js",
