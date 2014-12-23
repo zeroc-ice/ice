@@ -41,7 +41,7 @@ var TcpTransceiver = Ice.Class({
         this._logger = instance.logger();
         this._readBuffers = [];
         this._readPosition = 0;
-        this._maxSendPacketSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", 512 * 1204);
+        this._maxSendPacketSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", 512 * 1024);
     },
     setCallbacks: function(connectedCallback, bytesAvailableCallback, bytesWrittenCallback)
     {
@@ -70,9 +70,17 @@ var TcpTransceiver = Ice.Class({
 
                 var self = this;
                 this._fd.on("connect", function() { self.socketConnected(); });
-                this._fd.on("close", function(err) { self.socketClosed(err); });
-                this._fd.on("error", function(err) { self.socketError(err); });
                 this._fd.on("data", function(buf) { self.socketBytesAvailable(buf); });
+
+                //
+                // The error callback can be triggered from the socket
+                // write(). We don't want it to dispached right away
+                // from within the write() so we delay the call with
+                // setTimeout. We do the same for close as a
+                // precaution. See also issue #6226.
+                //
+                this._fd.on("close", function(err) { setTimeout(function() { self.socketClosed(err); }, 0); });
+                this._fd.on("error", function(err) { setTimeout(function() { self.socketError(err); }, 0); });
 
                 return SocketOperation.Connect; // Waiting for connect to complete.
             }
@@ -176,17 +184,8 @@ var TcpTransceiver = Ice.Class({
                     return;
                 }
 
-                var bytesSent = packetSize;
                 byteBuffer.position = byteBuffer.position + packetSize;
-                if(this._maxSendPacketSize > 0 && byteBuffer.remaining > this._maxSendPacketSize)
-                {
-                    packetSize = this._maxSendPacketSize;
-                }
-                else
-                {
-                    packetSize = byteBuffer.remaining;
-                }
-                self._bytesWrittenCallback(bytesSent, bytesTotal);
+                self._bytesWrittenCallback(packetSize, bytesTotal);
             });
             /*jshint +W083 */
 
