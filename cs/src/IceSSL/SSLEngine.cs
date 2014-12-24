@@ -32,6 +32,7 @@ namespace IceSSL
             _initialized = false;
             _trustManager = new TrustManager(_communicator);
 
+#if !UNITY
             _tls12Support = false;
             try
             {
@@ -41,6 +42,7 @@ namespace IceSSL
             catch(Exception)
             {
             }
+#endif
         }
 
         internal void initialize()
@@ -59,6 +61,9 @@ namespace IceSSL
             //
             _defaultDir = properties.getProperty(prefix + "DefaultDir");
 
+#if UNITY
+            _certStore = null;
+#else
             string keySet = properties.getPropertyWithDefault(prefix + "KeySet", "DefaultKeySet");
             if(!keySet.Equals("DefaultKeySet") && !keySet.Equals("UserKeySet") && !keySet.Equals("MachineKeySet"))
             {
@@ -101,6 +106,7 @@ namespace IceSSL
                     importCertificate(name, val, keyStorageFlags);
                 }
             }
+#endif
 
             //
             // Protocols selects which protocols to enable, by default we only enable TLS1.0
@@ -108,8 +114,12 @@ namespace IceSSL
             //
             _protocols = parseProtocols(
                 properties.getPropertyAsListWithDefault(prefix + "Protocols", 
+#if UNITY
+                                                        new string[]{"TLS1_0"}));
+#else
                                                         _tls12Support ? new string[]{"TLS1_0", "TLS1_1", "TLS1_2"} :
                                                                         new string[]{"TLS1_0", "TLS1_1"}));
+#endif
             //
             // CheckCertName determines whether we compare the name in a peer's
             // certificate against its hostname.
@@ -128,6 +138,7 @@ namespace IceSSL
             //
             _checkCRL = properties.getPropertyAsIntWithDefault(prefix + "CheckCRL", 0);
 
+#if !UNITY
             //
             // Check for a certificate verifier.
             //
@@ -317,6 +328,7 @@ namespace IceSSL
                     }
                 }
             }
+#endif
 
             _initialized = true;
         }
@@ -423,10 +435,12 @@ namespace IceSSL
             s.Append("\nencrypted = " + (stream.IsEncrypted ? "yes" : "no"));
             s.Append("\nsigned = " + (stream.IsSigned ? "yes" : "no"));
             s.Append("\nmutually authenticated = " + (stream.IsMutuallyAuthenticated ? "yes" : "no"));
+#if !UNITY
             s.Append("\nhash algorithm = " + stream.HashAlgorithm + "/" + stream.HashStrength);
             s.Append("\ncipher algorithm = " + stream.CipherAlgorithm + "/" + stream.CipherStrength);
             s.Append("\nkey exchange algorithm = " + stream.KeyExchangeAlgorithm + "/" + stream.KeyExchangeStrength);
             s.Append("\nprotocol = " + stream.SslProtocol);
+#endif
             _logger.trace(_securityTraceCategory, s.ToString());
         }
 
@@ -740,6 +754,7 @@ namespace IceSSL
             return false;
         }
 
+#if !UNITY
         private void importCertificate(string propName, string propValue, X509KeyStorageFlags keyStorageFlags)
         {
             //
@@ -841,6 +856,7 @@ namespace IceSSL
                 store.Close();
             }
         }
+#endif
 
         //
         // Split strings using a delimiter. Quotes are supported.
@@ -971,6 +987,7 @@ namespace IceSSL
             return result;
         }
 
+#if !UNITY
         private static X509Certificate2Collection findCertificates(string prop, string storeSpec, string value)
         {
             StoreLocation storeLoc = 0;
@@ -1148,6 +1165,7 @@ namespace IceSSL
             }
             return result;
         }
+#endif
 
         private static bool decodeASN1Length(byte[] data, int start, out int len, out int next)
         {
@@ -1201,6 +1219,8 @@ namespace IceSSL
         private CertificateVerifier _verifier;
         private PasswordCallback _passwordCallback;
         private TrustManager _trustManager;
+#if !UNITY
         private bool _tls12Support;
+#endif
     }
 }

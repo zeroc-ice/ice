@@ -35,6 +35,17 @@ prefix			?= /opt/Ice-$(VERSION)
 #MANAGED		= yes
 
 #
+# Enable the UNITY flag to build for the Unity3D Web player. Enabling this
+# setting also implies MANAGED. In addition to the features removed by
+# MANAGED, this flag removes the following:
+#
+# - File I/O: property loading, file logger (Ice.LogFile), I/O redirection
+#   (Ice.StdOut, Ice.StdErr)
+# - ICE_CONFIG environment variable
+#
+#UNITY			= yes
+
+#
 # Define DEBUG as yes if you want to build with debug information and
 # assertions enabled.
 #
@@ -160,6 +171,14 @@ endif
 
 ifeq ($(OPTIMIZE),yes)
     MCSFLAGS := $(MCSFLAGS) -optimize+
+endif
+
+ifeq ($(MANAGED),yes)
+    MCSFLAGS := $(MCSFLAGS) -define:MANAGED
+endif
+
+ifeq ($(UNITY),yes)
+    MCSFLAGS := $(MCSFLAGS) -define:UNITY
 endif
 
 ifdef ice_src_dist

@@ -163,9 +163,7 @@ MCSFLAGS	:= $(MCSFLAGS) -target:library -out:$(TARGETS) -warnaserror-
 MCSFLAGS	:= $(MCSFLAGS) -keyfile:$(KEYFILE)
 MCSFLAGS	:= $(MCSFLAGS) /doc:$(assembliesdir)/$(PKG).xml /nowarn:1591
 
-ifeq ($(MANAGED),yes)
-    MCSFLAGS	:= $(MCSFLAGS) -define:MANAGED
-else
+ifneq ($(MANAGED),yes)
     MCSFLAGS    := $(MCSFLAGS) -unsafe+
 endif
 

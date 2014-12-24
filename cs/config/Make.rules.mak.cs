@@ -179,6 +179,14 @@ MCSFLAGS 		= $(MCSFLAGS) -define:DEBUG
 MCSFLAGS 		= $(MCSFLAGS) -optimize+
 !endif
 
+!if "$(MANAGED)" == "yes"
+MCSFLAGS		= $(MCSFLAGS) -define:MANAGED
+!endif
+
+!if "$(UNITY)" == "yes"
+MCSFLAGS		= $(MCSFLAGS) -define:UNITY
+!endif
+
 # Define for SupressMessage to work
 #MCSFLAGS		= $(MCSFLAGS) -define:CODE_ANALYSIS
 
@@ -202,15 +210,11 @@ MCSFLAGS 		= $(MCSFLAGS) -noconfig -nostdlib -define:COMPACT $(NETCF_REFS)
 # You can compile against the WebPlayer assemblies by enabling the MCSFLAGS line below.
 # You'll need to change UNITY_LIBDIR to the appropriate directory for your system.
 #
-# This setting works on Windows XP:
-#UNITY_LIBDIR		= C:\Documents and Settings\<user>\Local Settings\Application Data\Unity\WebPlayer\mono\Release3.x.x\Data\lib
-# This setting works on Windows 7:
-UNITY_LIBDIR		= C:\Users\<user>\AppData\LocalLow\Unity\WebPlayer\mono\Release3.x.x\Data\lib
-
+UNITY_LIBDIR		= C:\Program Files\Unity\Editor\Data\Mono\lib\mono\unity_web
 UNITY_LIBS 		= "/r:$(UNITY_LIBDIR)\mscorlib.dll" \
 			  "/r:$(UNITY_LIBDIR)\System.dll" \
 			  "/r:$(UNITY_LIBDIR)\System.Core.dll"
-#MCSFLAGS 		= $(MCSFLAGS) -noconfig -nostdlib $(UNITY_LIBS)
+MCSFLAGS 		= $(MCSFLAGS) -noconfig -nostdlib $(UNITY_LIBS)
 !elseif "$(SILVERLIGHT)" == "yes"
 
 !if "$(PROCESSOR_ARCHITECTURE)" == "AMD64"

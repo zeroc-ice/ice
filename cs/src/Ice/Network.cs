@@ -1253,7 +1253,6 @@ namespace IceInternal
             {
             }
 
-//#if !COMPACT && !SILVERLIGHT && !UNITY
 #if !COMPACT && !SILVERLIGHT && !UNITY
             NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
             try
