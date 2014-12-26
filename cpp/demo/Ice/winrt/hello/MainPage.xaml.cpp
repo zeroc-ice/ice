@@ -198,14 +198,36 @@ hello::MainPage::hello_Click(Platform::Object^ sender, Windows::UI::Xaml::Routed
 
 void hello::MainPage::shutdown_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
+    if(!_helloPrx)
+    {
+        return;
+    }
+
     try
     {
-        if (!_helloPrx)
+        if(_helloPrx->ice_isBatchOneway() || _helloPrx->ice_isBatchDatagram())
         {
-            return;
+            print("Queued shutdown request.");
+            _helloPrx->shutdown();
+            flush->IsEnabled = true;
         }
-        _helloPrx = Demo::HelloPrx::uncheckedCast(_helloPrx->ice_twoway());
-        _helloPrx->begin_shutdown();
+        else
+        {
+            print("Shutting down...");
+            shutdown->IsEnabled = false;
+            _helloPrx->begin_shutdown([=]()
+                                      {
+                                          shutdown->IsEnabled = true;
+                                          print("Ready.");
+                                      },
+                                      [=](const Ice::Exception& ex)
+                                      {
+                                          shutdown->IsEnabled = true;
+                                          ostringstream os;
+                                          os << ex;
+                                          print(os.str());
+                                      });
+        }
     }
     catch(const Ice::Exception& ex)
     {
