@@ -12,7 +12,6 @@ Table of Contents
   2. The RPM package directory
   3. Ice Source RPM
   4. Ice Binary RPMs
-     - SuSE Mono Notes
   5. Applying a Patch
 
 
@@ -39,7 +38,7 @@ The gpg settings are only needed if you want to sign your RPMs.
 Replace "/home/rpmbuilder" with a path name that is appropriate for
 your system.
 
-The value for %dist should be ".sles11", ".el6" or ".amzn1".
+The value for %dist should be ".sles11", ".el6", ".el7" or ".amzn1".
 
 
 ======================================================================
@@ -47,8 +46,9 @@ The value for %dist should be ".sles11", ".el6" or ".amzn1".
 ======================================================================
 
 The RPM package build directory is /usr/src/packages on SLES. For 
-RHEL 6 and Amazon Linux, create and use ~/rpmbuild. In this document
-we refer to the package directory symbolically as <rpm-package>.
+RHEL 6, RHEL 7, and Amazon Linux, create and use ~/rpmbuild. In this
+document we refer to the package directory symbolically as
+<rpm-package>.
 
 You may need to adjust the permissions on all subdirectories of this
 directory to be able to create RPMs as a non-root user.
@@ -94,8 +94,6 @@ dependencies are listed below:
  - php-devel (RHEL/Amzn)
  - ruby18-devel (Amzn)
  - php5-devel (SLES)
- - mono-core (SLES)
- - mono-devel (SLES)
 
 The db53* and mcpp-devel RPMs are provided by ZeroC. You can determine
 the version requirements for all other prerequisites by examining the
@@ -129,22 +127,6 @@ $ rpm -i ice-@ver@-1.src.rpm
 If you have not already done so, install the RPM prerequisites listed
 in step 3 above. The following additional steps are also necessary:
 
- - Install the JGoodies Looks 2.5.2 JAR file as
-
-   /usr/share/java/jgoodies-looks-2.5.2.jar
-
- - Install the JGoodies Forms 1.6.0 JAR file as
-
-   /usr/share/java/jgoodies-forms-1.6.0.jar
-
- - Install the JGoodies Common 1.4.0 JAR file as
-
-   /usr/share/java/jgoodies-common-1.4.0.jar
-
- - Install the ProGuard 4.8 JAR file as
-
-   /usr/share/java/proguard.jar
-
  - Install the Java Development Kit version 1.7 and verify that the
    'javac' command is present in your PATH
 
@@ -152,66 +134,34 @@ in step 3 above. The following additional steps are also necessary:
    Admin GUI client with full functionality. The build still
    maintains compatibility with Java6.
 
- - Install Apache Ant 1.7 or later and verify that the 'ant'
-   command is present in your PATH, such as by running
-
-   $ ant -version
-
  - Enable the %dist setting in ~/.rpmmacros (if you disabled it when
    building the source RPM)
 
-You can run the 'find-jar' program to verify that the JAR files are
-installed correctly. For example:
-
-$ find-jar jgoodies-looks-2.5.2.jar
-$ find-jar jgoodies-forms-1.6.0.jar
-$ find-jar jgoodies-common-1.4.0.jar
-$ find-jar proguard.jar
-
 Finally, build the RPMs as a non-root user.
 
-On Red Hat Enterprise Linux and Amazon Linux:
+On Red Hat Enterprise Linux 7 and Amazon Linux:
 
 $ cd <rpm-package>/SPECS
-$ rpmbuild -bb --sign --target i386,noarch ice.spec
+$ rpmbuild -bb --sign --target noarch,i686,x86_64 ice.spec
 
-On SuSE Linux Enterprise Server (also see Mono Notes below):
+On Red Hat Enterprise Linux 6:
 
 $ cd <rpm-package>/SPECS
-$ rpmbuild -bb --sign --target i586,noarch ice.spec
+$ rpmbuild -bb --sign --target noarch,i686 ice.spec
+
+Replace i686 with x86_64 on 64-bit platforms.
+
+On SuSE Linux Enterprise Server 11:
+
+$ cd <rpm-package>/SPECS
+$ rpmbuild -bb --sign --target noarch,i586 ice.spec
+
+Replace i586 with x86_64 on 64-bit platforms.
 
 Omit the --sign option if you do not want to sign the RPMs, or if you
 do not have a GnuPG key setup.
 
-On an x86_64 system, omit the --target option to build only x86_64
-RPMs.
-
 Upon completion, the binary RPMs can be found in <rpm-package>/RPMS.
-
-
-SuSE Mono Notes
----------------
-
-By default, the Mono assemblies are strong-name signed using the Ice
-development key included in the source distribution. If you would like
-to strong-name sign the assemblies using your own key, set the KEYFILE
-environment variable with the path name of your key file prior to
-building the binary RPMs.
-
-The Mono-related RPMs created during this process are shown below:
-
-  ice-mono-@ver@-1.sles11.noarch.rpm
-  ice-mono-devel-@ver@-1.sles11.<arch>.rpm
-
-The ice-mono-devel RPM is arch-specific because it contains the
-executable for the Slice-to-C# compiler.
-
-Note that building the binary RPMs also generates an arch-specific
-ice-mono package:
-
-  ice-mono-@ver@-1.sles11.<arch>.rpm
-
-This file is an artifact of the build process and should be removed.
 
 
 ======================================================================
