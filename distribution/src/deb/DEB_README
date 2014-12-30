@@ -34,8 +34,8 @@ Ice repository to be able to install these packages.
 
 First you need to install the GPG key used to sign the packages:
 
-  $ wget http://www.zeroc.com/download/RPM-GPG-KEY-zeroc-release
-  $ sudo apt-key add RPM-GPG-KEY-zeroc-release
+  $ wget http://www.zeroc.com/download/RPM-GPG-KEY-zeroc-beta
+  $ sudo apt-key add RPM-GPG-KEY-zeroc-beta
 
 After installing the GPG key, we must add the repository to your
 system apt sources:
@@ -80,16 +80,16 @@ the simplest is to use the webupd8team ppa repository:
 
 Install the Ice @ver@ source distribution:
 
-  $ mkdir ~/ice@mmver@
-  $ cd ~/ice@mmver@
-  $ apt-get source ice@mmver@
+  $ mkdir ~/zeroc-ice@mmver@
+  $ cd ~/zeroc-ice@mmver@
+  $ apt-get source zeroc-ice@mmver@
 
-Change the working directory to ice@mmver@-@ver@:
+Change the working directory to zeroc-ice@mmver@-@ver@:
 
-  $ cd ice@mmver@-@ver@
+  $ cd zeroc-ice@mmver@-@ver@
 
 Now you're ready to build Ice packages:
 
   $ dpkg-buildpackage -us -uc
 
-When finished, the .deb files will be in the ice@mmver@ directory.
+When finished, the .deb files will be in the zeroc-ice@mmver@ directory.

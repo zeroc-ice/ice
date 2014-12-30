@@ -82,19 +82,21 @@ APT::FTPArchive::Release {
 aptgenerateConf = """
 Dir::ArchiveDir ".";
 Dir::CacheDir ".";
-TreeDefault::Directory "pool/main/";
-TreeDefault::SrcDirectory "pool/main/";
+TreeDefault::Directory "pool/%(codename)s/main/";
+TreeDefault::SrcDirectory "pool/%(codename)s/main/";
 Default::Packages::Extensions ".deb";
 Default::Packages::Compress ". gzip bzip2";
 Default::Sources::Compress ". gzip bzip2";
 Default::Contents::Compress ". gzip bzip2";
+
 BinDirectory "dists/%(codename)s/main" {
   Packages "dists/%(codename)s/main/binary-i386/Packages";
   Packages "dists/%(codename)s/main/binary-amd64/Packages";
-  Contents "dists/%(codename)s/Contents-i386";
-  Contents "dists/%(codename)s/Contents-amd64";
+  Contents "dists/%(codename)s/main/Contents-i386";
+  Contents "dists/%(codename)s/main/Contents-amd64";
   SrcPackages "dists/%(codename)s/main/source/Sources";
 };
+
 Tree "dists/%(codename)s" {
   Sections "main";
   Architectures "amd64 i386 source";
@@ -105,7 +107,7 @@ repoLayout = [
     "dists/%(codename)s/main/binary-i386",
     "dists/%(codename)s/main/source",
     "dists/%(codename)s/main/binary-amd64",
-    "pool/main/i/ice@debmmver@"]
+    "pool/%(codename)s/main/i/ice@debmmver@"]
 
 
 buildCommand = """
@@ -239,13 +241,19 @@ for d in repoLayout:
 for host in [i386BuildHost, amd64BuildHost]:
     packages = i386Packages + noarchPackages if host == i386BuildHost else amd64Packages
     for package in packages:
-        runCommand("cd ubuntu && %(scpCommand)s %(sshUser)s@%(sshBuildHost)s:/home/%(sshUser)s/%(buildDir)s/%(codename)s/%(package)s pool/main/i/ice@debmmver@/" % 
+        runCommand("cd ubuntu && %(scpCommand)s %(sshUser)s@%(sshBuildHost)s:/home/%(sshUser)s/%(buildDir)s/%(codename)s/%(package)s pool/%(codename)s/main/i/ice@debmmver@/" % 
                 {"scpCommand": scpCommand,
                  "sshUser": sshUser,
                  "sshBuildHost": host,
                  "buildDir": buildDir,
                  "codename": codename,
                  "package": package})
+
+#
+# Sign the source package
+#
+for command in ["cd ubuntu && echo \"y\" | debsign -k %(signKey)s pool/%(codename)s/main/i/ice@debmmver@/zeroc-ice@debmmver@_@debver@-1.dsc"]:
+    runCommand(command % {"signKey": signKey, "codename": codename})
 
 f = open('ubuntu/aptftp.conf', 'w')
 f.write(aptftpConf % {"codename": codename})
@@ -260,11 +268,10 @@ runCommand("cd ubuntu && apt-ftparchive generate aptgenerate.conf")
 runCommand("cd ubuntu && apt-ftparchive release -c=aptftp.conf dists/%(codename)s > dists/%(codename)s/Release" % {"codename": codename})
 
 #
-# Sign packages
+# Sign changes and release files
 #
-for command in ["cd ubuntu && echo \"y\" | debsign -k %(signKey)s pool/main/i/ice@debmmver@/zeroc-ice@debmmver@_@debver@-1.dsc",
-                "cd ubuntu && echo \"y\" | debsign -k %(signKey)s pool/main/i/ice@debmmver@/zeroc-ice@debmmver@_@debver@-1_i386.changes",
-                "cd ubuntu && echo \"y\" | debsign -k %(signKey)s pool/main/i/ice@debmmver@/zeroc-ice@debmmver@_@debver@-1_amd64.changes",
+for command in ["cd ubuntu && echo \"y\" | debsign -k %(signKey)s pool/%(codename)s/main/i/ice@debmmver@/zeroc-ice@debmmver@_@debver@-1_i386.changes",
+                "cd ubuntu && echo \"y\" | debsign -k %(signKey)s pool/%(codename)s/main/i/ice@debmmver@/zeroc-ice@debmmver@_@debver@-1_amd64.changes",
                 "cd ubuntu && gpg --yes -u %(signKey)s -bao dists/%(codename)s/Release.gpg dists/%(codename)s/Release"]:
     runCommand(command % {"signKey": signKey, "codename": codename})
 
