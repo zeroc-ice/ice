@@ -28,7 +28,7 @@ var WSEndpoint = Class(EndpointI, {
     {
         this._instance = instance;
         this._delegate = del;
-        this._resource = re === undefined ? "" : re;
+        this._resource = re || "/";
     },
     getInfo: function()
     {
