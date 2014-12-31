@@ -284,12 +284,80 @@ def spawnAndWatch(command, env, filterFunc):
         if type(line) != str:
             line = line.decode()
 
-        
+
         line = line.rstrip()
         filterFunc(line)
 
         output.write("%s\n" % line)
         output.flush()
+
+class Interpreter:
+
+    def __init__(self, home, requireHome, exe, subdir, versionArg, versionFn = None):
+
+        self.home = home
+        self.version = None
+        self.exe = exe
+
+        if requireHome and not home:
+            self.cmd = None
+        elif home:
+            self.cmd = os.path.join(home, subdir, exe)
+        else:
+            self.cmd = exe
+
+        self._versionArg = versionArg
+        self._versionFn = versionFn or (lambda out: out)
+
+    def init(self):
+        def check_output(cmd):
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            output = ""
+            for line in p.stdout.readlines():
+                output += line.decode('UTF-8').strip() + "\n"
+            p.wait()
+            return output.strip()
+
+        if self.cmd:
+            try:
+                self.version = self._versionFn(check_output([self.cmd, self._versionArg]).splitlines()[0].strip())
+            except:
+                pass
+
+        return self
+
+    def isMissing(self):
+        return not self.version
+
+    def checkMissing(self, returnEvenIfMissing):
+        return self if returnEvenIfMissing or self.version else None
+
+    def __str__(self):
+        if not self.version:
+            return "*** missing %s ***" % self.exe
+        else:
+            return "%s from %s" % (self.version, self.home if self.home else "PATH")
+
+class JavaInterpreter(Interpreter):
+    def __init__(self, home):
+        Interpreter.__init__(self, home, True, "java", "bin", "-version",
+                             lambda out: out.replace(" version", "").replace("\"", ""))
+
+class PythonInterpreter(Interpreter):
+    def __init__(self, home = None, requireHome = False):
+        Interpreter.__init__(self, home, requireHome, "python", "", "-V")
+
+class RubyInterpreter(Interpreter):
+    def __init__(self, home = None, requireHome = False):
+        Interpreter.__init__(self, home, requireHome, "ruby", "", "-v", lambda out: " ".join(out.split()[0:2]))
+
+class NodeJSInterpreter(Interpreter):
+    def __init__(self, home = None, requireHome = False, exe = "node"):
+        Interpreter.__init__(self, home, requireHome, exe, "", "-v", lambda out: "%s %s" % (exe, out))
+
+class PhpInterpreter(Interpreter):
+    def __init__(self, home = None, requireHome = False):
+        Interpreter.__init__(self, home, requireHome, "php", "", "-v", lambda out: " ".join(out.split()[0:2]))
 
 class Platform:
 
@@ -318,6 +386,38 @@ class Platform:
         self._interpreters = {}
         self._sourceDir = None
         self._demoDir = None
+
+    def initInterpreters(self):
+        if self._interpreters:
+            return
+
+        languages = set()
+        defaultCompiler = self.getDefaultCompiler()
+        for arch in self.getArchitectures():
+            for conf in self.getConfigurations(defaultCompiler):
+                languages.update(self.getLanguageMappings(defaultCompiler, arch, conf, True))
+
+        self._interpreters = {}
+        for (lang, value) in self._supportedInterpreters.items():
+            if not lang in languages:
+                continue # lang filtered out or not supported
+
+            if isinstance(value, Interpreter):
+                self._interpreters[lang] = value.init()
+            else:
+                self._interpreters[lang] = {}
+                for (config, value2) in value.items():
+                    if config and (not config in self.getConfigurations(defaultCompiler)):
+                        continue # config filered out or not supported
+
+                    if isinstance(value2, Interpreter):
+                        self._interpreters[lang][config] = value2.init()
+                    else:
+                        self._interpreters[lang][config] = {}
+                        for (arch, interpreter) in value2.items():
+                            if arch and (not arch in self.getArchitectures()):
+                                continue # arch filered out or not supported
+                            self._interpreters[lang][config][arch] = interpreter.init()
 
     def validateConfiguration(self):
 
@@ -351,13 +451,12 @@ class Platform:
         # Ensure all the require interpreters are installed.
         #
         missing = set()
-        for comp in self.getCompilers():
-            for arch in self.getArchitectures():
-                for conf in self.getConfigurations(comp, arch):
-                    for lang in self.getLanguageMappings(comp, arch, conf):
-                        (home, path, version, desc) = self.getInterpreter(comp, arch, conf, lang)
-                        if path and not version:
-                            missing.add("%s interpreter for %s configuration with %s/%s" % (desc, conf, comp, arch))
+        for arch in self.getArchitectures():
+            for conf in self.getConfigurations(self.getDefaultCompiler()):
+                for lang in self.getLanguageMappings(self.getDefaultCompiler(), arch, conf, True):
+                    interpreter = self.getInterpreter(arch, conf, lang, True)
+                    if interpreter and interpreter.isMissing():
+                        missing.add("%s interpreter for %s/%s" % (interpreter.exe, conf, arch))
 
         if len(missing) > 0:
             if self._skipMissingInterpreters:
@@ -382,70 +481,30 @@ class Platform:
         buildLanguages = set()
         for comp in self.getCompilers():
             for arch in self.getArchitectures():
-                for c in self.getConfigurations(comp, arch):
+                for c in self.getConfigurations(comp):
                     buildConfigs.add(c)
                     buildLanguages.update(self.getLanguageMappings(comp, arch, c))
         trace("Languages: %s" % list(buildLanguages), f)
         trace("Build configurations: %s" % list(buildConfigs), f)
 
         trace("\nInterpreters:", f)
-        interpreters = {}
-        for comp in self.getCompilers():
-            for arch in self.getArchitectures():
-                for conf in self.getConfigurations(comp, arch):
-                    for lang in self.getLanguageMappings(comp, arch, conf):
-                        (home, path, version, desc)  = self.getInterpreter(comp, arch, conf, lang)
-                        if home or path or version:
-                            if not lang in interpreters:
-                                interpreters[lang] = {}
-                                interpreters[lang][""] = set()
-                            if not conf in interpreters[lang]:
-                                interpreters[lang][conf] = {}
-                                interpreters[lang][conf][""] = set()
-                            if not arch in interpreters[lang][conf]:
-                                interpreters[lang][conf][arch] = {}
-                                interpreters[lang][conf][arch][""] = set()
+        self.initInterpreters()
+        for lang in sorted(self._interpreters.keys()):
+            if isinstance(self._interpreters[lang], Interpreter):
+                trace("- %s: %s " % (lang, self._interpreters[lang]), f)
+                continue
 
-                            interpreter = (home, path, version, desc)
-                            interpreters[lang][""].add(interpreter)
-                            interpreters[lang][conf][""].add(interpreter)
-                            interpreters[lang][conf][arch][""].add(interpreter)
-                            interpreters[lang][conf][arch][comp] = interpreter
+            trace("- %s:" % lang, f)
+            for conf in sorted(self._interpreters[lang].keys()):
+                if isinstance(self._interpreters[lang][conf], Interpreter):
+                    trace(" %s = %s" % (conf if conf else "default", self._interpreters[lang][conf]), f)
+                    continue
 
-        for lang in sorted(interpreters.keys()):
-            if len(interpreters[lang][""]) == 1:
-                (home, path, version, desc) = interpreters[lang][""].pop()
-                if not version:
-                    trace("- %s: *** missing %s ***" % (lang, desc), f)
-                else:
-                    trace("- %s: %s from %s" % (lang, version, home if home else "PATH"), f)
-            else:
-                trace("- %s:" % lang, f)
-                for conf in sorted(interpreters[lang].keys()):
-                    if conf == "": continue
-                    if len(interpreters[lang][conf][""]) == 1:
-                        (home, path, version, desc) = interpreters[lang][conf][""].pop()
-                        if not version or not home:
-                            trace(" %s = *** missing %s ***" % (conf, desc), f)
-                        else:
-                            trace(" %s = %s from %s" % (conf, version, home), f)
+                for arch in sorted(self._interpreters[lang][conf].keys()):
+                    if conf:
+                        trace(" %s/%s = %s" % (conf, arch, self._interpreters[lang][conf][arch]), f)
                     else:
-                        for arch in sorted(interpreters[lang][conf].keys()):
-                            if arch == "": continue
-                            if len(interpreters[lang][conf][arch][""]) == 1:
-                                (home, path, version, desc) = interpreters[lang][conf][arch][""].pop()
-                                if not version or not home:
-                                    trace(" %s/%s = *** missing %s ***" % (conf, arch, desc), f)
-                                else:
-                                    trace(" %s/%s: %s from %s" % (conf, arch, version, home), f)
-                            else:
-                                for (comp, i) in sorted(interpreters[lang][conf][arch].items()):
-                                    if comp == "": continue
-                                    (home, path, version, desc) = i
-                                    if not version or not home:
-                                        trace(" %s/%s/%s = *** missing %s ***" % (conf, arch, comp, desc), f)
-                                    else:
-                                        trace(" %s/%s/%s: %s from %s" % (conf, arch, comp, version, home), f)
+                        trace(" %s = %s" % (arch, self._interpreters[lang][conf][arch]), f)
 
 
         if not self._skipTests:
@@ -454,7 +513,7 @@ class Platform:
             count = 1
             for comp in filterRC(runnableConfigs, self.getSupportedCompilers()):
                 for arch in filterRC(runnableConfigs, self.getSupportedArchitectures(), comp):
-                    for conf in filterRC(runnableConfigs, self.getSupportedConfigurations(comp, arch), comp, arch):
+                    for conf in filterRC(runnableConfigs, self.getSupportedConfigurations(comp), comp, arch):
                         for lang in filterRC(runnableConfigs, self.getSupportedLanguages(), comp, arch, conf):
                             for c in runnableConfigs[comp][arch][conf][lang]:
                                 options = "" if c.options == "" else " " + c.name
@@ -468,7 +527,7 @@ class Platform:
             count = 1
             for comp in filterRC(runnableConfigs, self.getSupportedCompilers()):
                 for arch in filterRC(runnableConfigs, self.getSupportedArchitectures(), comp):
-                    for conf in filterRC(runnableConfigs, self.getSupportedConfigurations(comp, arch), comp, arch):
+                    for conf in filterRC(runnableConfigs, self.getSupportedConfigurations(comp), comp, arch):
                         for lang in filterRC(runnableConfigs, self.getSupportedLanguages(), comp, arch, conf):
                             cfg = "" if conf == "default" else "/" + conf
                             trace("- [%d] %s %s demos (%s/%s%s)" % (count, lang, conf, comp, arch, cfg), f)
@@ -489,19 +548,24 @@ class Platform:
         defaultArch = self.getDefaultArchitecture()
         defaultCompiler = self.getDefaultCompiler()
         otherArchs = self.getSupportedArchitectures()
-        otherArchs.remove(defaultArch)
+        if defaultArch:
+            otherArchs.remove(defaultArch)
 
         configs = []
         # Add --all tests for default architecture, no --all for other architectures
-        configs.append(TestConfiguration("all", "--all" + f, archs = [defaultArch] , configs = ["default"]))
+        if defaultArch:
+            configs.append(TestConfiguration("all", "--all" + f, archs = [defaultArch] , configs = ["default"]))
         if(otherArchs):
             configs.append(TestConfiguration("default", "" + f, archs = otherArchs, configs = ["default"]))
 
         # Add cross tests
-        langs = set(["cpp", "java", "cs"]) & set(self.getLanguageMappings(defaultCompiler, defaultArch, "default"))
-        for l1 in langs:
-            for l2 in langs:
-                if l1 != l2:
+        if defaultArch and defaultCompiler:
+            langs = set(["cpp", "java", "cs"]) & set(self.getLanguageMappings(defaultCompiler, defaultArch, "default"))
+            for l1 in langs:
+                for l2 in langs:
+                    if l1 == l2:
+                        continue
+
                     configs.append(TestConfiguration("cross-tcp",
                                                      "--cross=%s%s" % (l2,f),
                                                      configs = ["default"],
@@ -516,13 +580,15 @@ class Platform:
                                                          archs = [defaultArch],
                                                          languages = [l1]))
 
+        #
         # Add test configuration for all other non-default
-        # configurations (except for WinRT where we can't
-        # run the tests from the command line yet).
+        # configurations (except for WinRT where we can't run the
+        # tests from the command line yet).
+        #
         buildConfigs = set()
         for comp in self.getCompilers():
             for arch in self.getArchitectures():
-                for c in self.getConfigurations(comp, arch):
+                for c in self.getConfigurations(comp):
                     if c != "default" and c != "winrt":
                         buildConfigs.add(c)
         for c in buildConfigs:
@@ -554,25 +620,24 @@ class Platform:
         if self.isLinux():
             env["LP64"] = "yes" if self.is64(arch) else "no"
 
-        if lang == "java":
-            javaHome = self.getJavaHome(arch, self.getJavaVersion(buildConfiguration))
-            if javaHome:
-                env["JAVA_HOME"] = javaHome
+        if self.requiresInterpreter(lang):
+            #
+            # If the interpreter isn't installed in the default location,
+            # add the directory where the command is located to the
+            # PATH. If the interpreter is missing, return None to skip
+            # the tests/demos with this interpreter.
+            #
+            interpreter = self.getInterpreter(arch, buildConfiguration, lang)
+            if not interpreter:
+                return None
+            if interpreter.home and interpreter.cmd:
+                prependPathToEnvironVar(env, "PATH", os.path.dirname(interpreter.cmd))
 
-            if os.path.exists(os.path.join(self._iceHome, "lib", "db.jar")):
-                prependPathToEnvironVar(env, "CLASSPATH", os.path.join(self._iceHome, "lib", "db.jar"))
-
-        #
-        # If the interpreter isn't installed in the default location,
-        # add the directory where the command is located to the
-        # PATH. If the interpreter is missing, return None to skip
-        # the tests/demos with this interpreter.
-        #
-        (home, cmd, version, desc) = self.getInterpreter(compiler, arch, buildConfiguration, lang)
-        if cmd and not version:
-            return None
-        if home and cmd:
-            prependPathToEnvironVar(env, "PATH", os.path.dirname(cmd))
+            if lang == "java":
+                if interpreter.home:
+                    env["JAVA_HOME"] = interpreter.home
+                if os.path.exists(os.path.join(self._iceHome, "lib", "db.jar")):
+                    prependPathToEnvironVar(env, "CLASSPATH", os.path.join(self._iceHome, "lib", "db.jar"))
 
         return env
 
@@ -580,12 +645,6 @@ class Platform:
         return arch == "x64" or arch == "sparcv9"
 
     def isWindows(self):
-        return False
-
-    def isSolaris(self):
-        return False
-
-    def isDarwin(self):
         return False
 
     def isLinux(self):
@@ -600,162 +659,79 @@ class Platform:
     def getLanguages(self):
         return list(filter(lambda x: include(x, self._languages, self._rlanguages), self.getSupportedLanguages()))
 
-    def getConfigurations(self, compiler, arch):
+    def getConfigurations(self, compiler):
         return list(filter(lambda x: include(x, self._configurations, self._rconfigurations),
-                           self.getSupportedConfigurations(compiler, arch)))
+                           self.getSupportedConfigurations(compiler)))
 
     def getDefaultArchitecture(self):
-        # Default architecture is by default first non-filtered architecture
-        for a in self.getArchitectures():
-            return a
+        # Default architecture is by default the first supported architecture
+        for a in self.getSupportedArchitectures():
+            return a if include(a, self._archs, self._rarchs) else None
 
     def getDefaultCompiler(self):
-        # Default architecture is by default first non-filtered architecture
-        for a in self.getCompilers():
-            return a
+        # Default compiler is by default the first supported compiler
+        for a in self.getSupportedCompilers():
+            return a if include(a, self._compilers, self._rcompilers) else None
 
-    def getJavaVersion(self, config):
-        return config[4:] if config.startswith("java") else "1.7"
+    def requiresInterpreter(self, lang):
+        self.initInterpreters()
+        return lang in self._interpreters
 
-    def getJavaHome(self, arch, version):
+    def getInterpreter(self, arch, conf, lang, returnEvenIfMissing = False):
+        self.initInterpreters()
+        if lang in self._interpreters:
+            if isinstance(self._interpreters[lang], Interpreter):
+                return self._interpreters[lang].checkMissing(returnEvenIfMissing)
+
+            conf = conf if conf in self._interpreters[lang] else ""
+            if conf in self._interpreters[lang]:
+                if isinstance(self._interpreters[lang][conf], Interpreter):
+                    return self._interpreters[lang][conf].checkMissing(returnEvenIfMissing)
+
+                arch = arch if arch in self._interpreters[lang][conf] else ""
+                if arch in self._interpreters[lang][conf]:
+                   return self._interpreters[lang][conf][arch].checkMissing(returnEvenIfMissing)
+
         return None
 
-    def getInterpreter(self, comp, arch, conf, lang):
-        try:
-            return self._interpreters[comp][arch][conf][lang]
-        except:
-            pass
+    def getLanguageMappings(self, compiler, arch, conf, returnEvenIfMissingInterpreter = False):
 
-        def check_output(cmd):
-            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            output = ""
-            for line in p.stdout.readlines():
-                output += line.decode('UTF-8').strip() + "\n"
-            p.wait()
-            return output.strip()
+        isDefaultCompilerAndArch = arch == self.getDefaultArchitecture() and compiler == self.getDefaultCompiler()
 
-        #
-        # The home variable specifies the installation directory of
-        # the interpreter. Depending on the system, it might be None
-        # (e.g.: on Unix systems if the interpreter is installed in
-        # /usr). Some interpreters require to be installed in specific
-        # directories (we need the installation directory of Java for
-        # example or the installation directories for Ruby/Python on
-        # Windows).
-        #
-        # The cmd variable specifies the command to run for the
-        # interpreter. If home is not None, it contains the full path
-        # of the interpreter. This is used to run the interpreter to
-        # obtain its version.
-        #
-        # The version directory specifies the version of the
-        # interpreter. It's obtained by running the interpreter. If it
-        # is None, it indicates that the interpreter is missing.
-        #
-        home = None
-        cmd = None
-        version = None
-        desc = None
-        if lang == "java":
-            desc = "java " + self.getJavaVersion(conf)
-            home = self.getJavaHome(arch, self.getJavaVersion(conf))
-            cmd = os.path.join(home, "bin", "java") if home else "java"
-            # Require Java installation, don't use java from the PATH
-            if home:
-                try:
-                    version = check_output([cmd, "-version"]).splitlines()[0].strip()
-                    version = version.replace(" version", "").replace("\"", "")
-                except:
-                    pass
-        elif lang == "py":
-            desc = "python " + ("64-bits" if self.is64(arch) else "32 bits")
-            home = BuildUtils.getPythonHome(arch) if self.isWindows() else None
-            cmd = os.path.join(home, "python.exe") if home else "python"
-            # Require Python installation on Windows, on Unix platforms python from PATH is fine.
-            if home or not self.isWindows():
-                try:
-                    version = check_output([cmd, "-V"])
-                except:
-                    pass
-        elif lang == "rb":
-            desc = "ruby " + ("64-bits" if self.is64(arch) else "32 bits")
-            home = BuildUtils.getRubyHome(arch) if self.isWindows() else None
-            cmd = os.path.join(home, "bin", "ruby.exe") if home else "ruby"
-            # Require Ruby installation on Windows, on Unix platforms ruby from PATH is fine.
-            if home or not self.isWindows():
-                try:
-                    version = " ".join(check_output([cmd, "-v"]).split()[0:2])
-                except:
-                    pass
-        elif lang == "js":
-            desc = "node"
-            home = BuildUtils.getNodeHome(arch) if self.isWindows() else None
-            cmd = os.path.join(home, "node.exe") if home else self.getNodeCmd()
-            # Use NodeJS from the PATH or from installation directory on Windows if found
-            try:
-                version = "node " + check_output([cmd, "-v"]).strip()
-            except:
-                pass
-        elif lang == "php":
-            desc = "php"
-            cmd = "php.exe" if self.isWindows() else "php"
-            # Use PHP from the PATH
-            try:
-                version = " ".join(check_output([cmd, "-v"]).splitlines()[0].split()[0:2])
-            except:
-                pass
-
-        #
-        # Cache the interpreter for the given compiler/arch/configuration.
-        #
-        interpreter = (home, cmd, version, desc)
-        if not comp in self._interpreters:
-            self._interpreters[comp] = {}
-        if not arch in self._interpreters[comp]:
-            self._interpreters[comp][arch] = {}
-        if not conf in self._interpreters[comp][arch]:
-            self._interpreters[comp][arch][conf] = {}
-        self._interpreters[comp][arch][conf][lang] = interpreter
-
-        return interpreter
-
-    def getLanguageMappings(self, compiler, arch, buildConfiguration):
-        languages = []
-        if buildConfiguration in ["debug", "cpp11", "no-cpp11", "winrt"]:
-            languages = ["cpp"]
-        elif buildConfiguration == "java1.8":
-            languages = ["java"] if arch == self.getDefaultArchitecture() else []
-        elif buildConfiguration == "silverlight":
-            if arch == "x86":
-                languages = ["cs"]
-        elif compiler == "VC110":
-            # Only test C++ and C# with a VC110 installation
-            languages = ["cpp", "cs"] if arch == self.getDefaultArchitecture() else ["cpp"]
-            if arch == "x86":
-                languages.append("php")
-        elif arch == self.getDefaultArchitecture():
-            #
-            # Test all supported languages if running on the default
-            # architecture
-            #
-            languages = self.getSupportedLanguages()
-
-            #
-            # On Windows, only test php with VC110 (see above), the
-            # VC110 runtime might not be installed otherwise.
-            #
-            if self.isWindows() and "php" in languages:
-                languages.remove("php")
+        languages = None
+        if conf == "java1.8":
+            languages = ["java"] if isDefaultCompilerAndArch else []
+        elif conf == "silverlight":
+            languages = ["cs"] if isDefaultCompilerAndArch else []
+        elif conf == "default":
+            if isDefaultCompilerAndArch:
+                languages = self.getSupportedLanguages()
+            elif self.isWindows() and compiler == self.getDefaultCompiler():
+                languages = ["cpp", "py", "rb", "php"] # On Windows, test C++/Python/Ruby/PHP with supported archs
+            else:
+                languages = ["cpp"] # Only test C++ if non-default compiler or architecture
         else:
-            #
-            # Only test a subset of the supported languages on
-            # non-default architecture
-            #
-            languages = set(["cpp", "py", "rb"] if self.isWindows() else ["cpp"]) & set(self.getSupportedLanguages())
+            languages = ["cpp"] # Only test C++ for other configurations (winrt, cpp11, etc).
 
-        return filter(lambda x: include(x, self._languages, self._rlanguages), languages)
+        #
+        # On Windows, only test php with VC110/x86, the VC110 runtime
+        # might not be installed otherwise.
+        #
+        if self.isWindows() and "php" in languages and (compiler != "VC110" or arch != "x86"):
+            languages.remove("php")
 
-    def getSupportedConfigurations(self, compiler, arch):
+        languages = filter(lambda x: include(x, self._languages, self._rlanguages), languages)
+
+        #
+        # If allowed to skip missing interpreters, filter out
+        # languages for which the interpreter is missing.
+        #
+        if not returnEvenIfMissingInterpreter and self._skipMissingInterpreters:
+            return [l for l in languages if not self.requiresInterpreter(l) or self.getInterpreter(arch, conf, l)]
+        else:
+            return languages
+
+    def getSupportedConfigurations(self, compiler):
         return ["default"]
 
     def makeCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
@@ -784,7 +760,7 @@ class Platform:
             runnableConfigs[compiler] = {}
             for arch in self.getArchitectures():
                 runnableConfigs[compiler][arch] = {}
-                for conf in self.getConfigurations(compiler, arch):
+                for conf in self.getConfigurations(compiler):
                     runnableConfigs[compiler][arch][conf] = {}
                     for lang in self.getLanguageMappings(compiler, arch, conf):
                         configs = []
@@ -802,7 +778,7 @@ class Platform:
         if not self._skipBuild:
             for comp in filterRC(runnableConfigs, self.getSupportedCompilers()):
                 for arch in filterRC(runnableConfigs, self.getSupportedArchitectures(), comp):
-                    for conf in filterRC(runnableConfigs, self.getSupportedConfigurations(comp, arch), comp, arch):
+                    for conf in filterRC(runnableConfigs, self.getSupportedConfigurations(comp), comp, arch):
                         extract(comp, arch, conf)
                         for lang in filterRC(runnableConfigs, self.getSupportedLanguages(), comp, arch, conf):
                             summary.startBuild()
@@ -828,7 +804,7 @@ class Platform:
 
         for comp in filterRC(runnableConfigs, self.getSupportedCompilers()):
             for arch in filterRC(runnableConfigs, self.getSupportedArchitectures(), comp):
-                for conf in filterRC(runnableConfigs, self.getSupportedConfigurations(comp, arch), comp, arch):
+                for conf in filterRC(runnableConfigs, self.getSupportedConfigurations(comp), comp, arch):
                     extract(comp, arch, conf)
                     for lang in filterRC(runnableConfigs, self.getSupportedLanguages(), comp, arch, conf):
                         for testConfig in runnableConfigs[comp][arch][conf][lang]:
@@ -983,9 +959,9 @@ class Platform:
         if not env:
             return False
 
-        (home, path, version, desc) = self.getInterpreter(compiler, arch, buildConfiguration, lang)
-        if home:
-            trace("Using %s from %s" % (version, home), report)
+        interpreter = self.getInterpreter(arch, buildConfiguration, lang)
+        if interpreter:
+            trace("Using %s" % interpreter, report)
 
         command = "%s %s" % (self.runScriptCommand("allTests.py", compiler, arch, buildConfiguration, lang), args)
 
@@ -1001,6 +977,7 @@ class Platform:
         for testConf in self._testConfigurations:
             if testConf.runWith(compiler, arch, conf, lang):
                 testConfigs.append(testConf)
+
         return True
 
     def buildDemos(self, compiler, arch, buildConfiguration, lang, index):
@@ -1095,9 +1072,9 @@ class Platform:
         if not env:
             return False
 
-        (home, path, version, desc) = self.getInterpreter(compiler, arch, buildConfiguration, lang)
-        if home:
-            trace("Using %s from %s" % (version, home), report)
+        interpreter = self.getInterpreter(arch, buildConfiguration, lang)
+        if interpreter:
+            trace("Using %s" % interpreter, report)
 
         command = "%s %s" % (self.runScriptCommand("allDemos.py", compiler, arch, buildConfiguration, lang), args)
 
@@ -1158,10 +1135,30 @@ class Darwin(Platform):
     def __init__(self, distDir):
         Platform.__init__(self, distDir)
 
+        def getJavaHome(version):
+            jvmDirs = glob.glob("/Library/Java/JavaVirtualMachines/jdk%s.*" % version)
+            if len(jvmDirs) == 0:
+                return None
+            for jvm in jvmDirs[::-1]:
+                if os.path.exists(os.path.join(jvm, "Contents", "Home", "bin", "java")):
+                    return os.path.join(jvm, "Contents", "Home")
+            return None
+
+        self._supportedInterpreters = {
+            "java": {
+                "": JavaInterpreter(getJavaHome("1.7")),
+                "java1.8": JavaInterpreter(getJavaHome("1.8")),
+            },
+            "py": PythonInterpreter(),
+            "js": NodeJSInterpreter(),
+            "rb": RubyInterpreter(),
+            "php": PhpInterpreter()
+        }
+
     def getSupportedCompilers(self):
         return ["clang"]
 
-    def getSupportedConfigurations(self, compiler, arch):
+    def getSupportedConfigurations(self, compiler):
         return ["default", "no-cpp11", "java1.8"]
 
     def getSupportedLanguages(self):
@@ -1170,17 +1167,6 @@ class Darwin(Platform):
     def getSupportedArchitectures(self):
         return ["x64"]
 
-    def isDarwin(self):
-        return True
-
-    def getJavaHome(self, arch, version):
-        jvmDirs = glob.glob("/Library/Java/JavaVirtualMachines/jdk%s.*" % version)
-        if len(jvmDirs) == 0:
-            return None
-        for jvm in jvmDirs[::-1]:
-            if os.path.exists(os.path.join(jvm, "Contents", "Home", "bin", "java")):
-                return os.path.join(jvm, "Contents", "Home")
-        return None
 
 class Linux(Platform):
 
@@ -1253,6 +1239,29 @@ class Linux(Platform):
             sys.exit(1)
         self._machine = p.stdout.readline().decode('UTF-8').strip()
 
+        def getJavaHome(version):
+            jvmDir = None
+            arch = self.getDefaultArchitecture()
+            if self.isUbuntu():
+                minorVersion = version.split('.')[1]
+                jvmDir = "/usr/lib/jvm/java-%s-openjdk-%s" % (minorVersion, "amd64" if arch == "x64" else "i386")
+                if not os.path.exists(jvmDir):
+                    jvmDir = "/usr/lib/jvm/java-%s-oracle" % (minorVersion)
+            else:
+                jvmDir = "/usr/%s/jvm/java-%s.0" % ("lib64" if self.isSles() and arch == "x64" else "lib", version)
+            return None if not os.path.exists(jvmDir) else jvmDir
+
+        self._supportedInterpreters = {
+            "java": {
+                "": JavaInterpreter(getJavaHome("1.7")),
+                "java1.8": JavaInterpreter(getJavaHome("1.8")),
+            },
+            "py": PythonInterpreter(),
+            "rb": RubyInterpreter(),
+            "php": PhpInterpreter(),
+            "js": NodeJSInterpreter(exe = "nodejs" if self.isUbuntu() else "node")
+        }
+
     def isLinux(self):
         return True
 
@@ -1271,24 +1280,6 @@ class Linux(Platform):
 
     def isSles(self, version = None):
         return self.isDistribution(["SUSE LINUX"], version)
-
-    def getJavaHome(self, arch, version):
-        jvmDir = None
-
-        if self.isUbuntu():
-            minorVersion = version.split('.')[1]
-            jvmDir = "/usr/lib/jvm/java-%s-openjdk-%s" % (minorVersion, "amd64" if arch == "x64" else "i386")
-            if not os.path.exists(jvmDir):
-                jvmDir = "/usr/lib/jvm/java-%s-oracle" % (minorVersion)
-        else:
-            jvmDir = "/usr/%s/jvm/java-%s.0" % ("lib64" if self.isSles() and arch == "x64" else "lib", version)
-
-        if not os.path.exists(jvmDir):
-            return None
-        return jvmDir
-
-    def getNodeCmd(self):
-        return "nodejs" if self.isUbuntu() else "node"
 
     def getSupportedLanguages(self):
         languages = ["cpp", "java", "php", "py", "rb"]
@@ -1312,7 +1303,7 @@ class Linux(Platform):
         else:
             return ["x86"]
 
-    def getSupportedConfigurations(self, compiler, arch):
+    def getSupportedConfigurations(self, compiler):
         configurations = ["default"]
         # Only test C++11 if default compiler is recent
         if not self.isRhel(6) and not self.isSles(11):
@@ -1322,33 +1313,6 @@ class Linux(Platform):
             configurations.append("java1.8")
         return configurations
 
-class Solaris(Platform):
-
-    def __init__(self, distDir):
-        Platform.__init__(self, distDir)
-        self._parallelJobs = 40
-
-    def isSolaris(self):
-        return True
-
-    def getSupportedLanguages(self):
-        return ["cpp", "java"]
-
-    def getSupportedCompilers(self):
-        return ["CC"]
-
-    def getSupportedArchitectures(self):
-        return ["sparcv9", "sparc"]
-
-    def makeCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
-        command = "gmake"
-        if self._parallelJobs:
-            command += " -j%s" % self._parallelJobs
-        return command
-
-    def makeCleanCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
-        return "gmake clean"
-
 class Windows(Platform):
 
     def __init__(self, distDir):
@@ -1356,6 +1320,28 @@ class Windows(Platform):
         self._archive = os.path.join(distDir, "Ice-%s.zip" % version)
         self._demoArchive = os.path.join(distDir, "Ice-%s-demos.zip" % version)
         self._demoScriptsArchive = os.path.join(distDir, "Ice-%s-demo-scripts.zip" % version)
+
+        defaultArch = self.getDefaultArchitecture()
+        self._supportedInterpreters = {
+            "java": {
+                "": JavaInterpreter(BuildUtils.getJavaHome(defaultArch, "1.7")),
+                "java1.8": JavaInterpreter(BuildUtils.getJavaHome(defaultArch, "1.8")),
+            },
+            "py": {
+                "": {
+                    "x86": PythonInterpreter(BuildUtils.getPythonHome("x86"), True), # Require Python installation
+                    "x64": PythonInterpreter(BuildUtils.getPythonHome("x64"), True)  # Require Python installation
+                }
+            },
+            "rb": {
+                "": {
+                    "x86": RubyInterpreter(BuildUtils.getPythonHome("x86"), True), # Require Ruby installation
+                    "x64": RubyInterpreter(BuildUtils.getPythonHome("x64"), True)  # Require Ruby installation
+                }
+            },
+            "php": PhpInterpreter(), # Use PHP from the PATH
+            "js": NodeJSInterpreter(BuildUtils.getNodeHome(defaultArch), False) # Use NodeJS install or from the PATH
+        }
 
     def canonicalArch(self, arch):
         if arch == "x64":
@@ -1407,22 +1393,18 @@ class Windows(Platform):
     def isWindows8(self):
         return sys.getwindowsversion()[0] == 6 and sys.getwindowsversion()[1] >= 2
 
-    def getSupportedConfigurations(self, compiler, arch):
-        buildConfigurations = ["default"]
+    def getSupportedConfigurations(self, compiler):
+        buildConfigurations = ["default", "debug", "java1.8"]
         if compiler == "VC120":
-            buildConfigurations.append("debug")
             buildConfigurations.append("silverlight")
-            buildConfigurations.append("java1.8")
             if self.isWindows8():
                 buildConfigurations.append("winrt")
-        elif compiler == "VC110":
-            buildConfigurations.append("debug")
         return buildConfigurations
 
-    #
-    # Return just the compilers that are installed in the system.
-    #
     def getSupportedCompilers(self):
+        #
+        # Return just the compilers that are installed in the system.
+        #
         compilers = []
         if BuildUtils.getVcVarsAll("VC120"):
             compilers.append("VC120")
@@ -1441,9 +1423,6 @@ class Windows(Platform):
         archs.append("x86")
         return archs
 
-    def getJavaHome(self, arch, version):
-        return BuildUtils.getJavaHome(arch, version)
-
     def getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist):
         env = Platform.getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist)
         if (lang == "cs" or lang == "vb") and not self.is64(arch):
@@ -1453,6 +1432,7 @@ class Windows(Platform):
             p = os.path.join(p, "x64")
             prependPathToEnvironVar(env, "PATH",p);
         return env
+
 #
 # Program usage.
 #
