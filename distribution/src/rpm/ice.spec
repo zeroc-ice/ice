@@ -85,7 +85,7 @@ Name: ice-all-runtime
 Version: 3.6b
 Summary: Ice meta package that includes all run-time components and services.
 Release: 1%{?dist}
-License: GPL with exceptions
+License: GPL v2 with exceptions
 Group: System Environment/Libraries
 Vendor: ZeroC, Inc.
 URL: http://www.zeroc.com/
