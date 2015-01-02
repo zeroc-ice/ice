@@ -13,6 +13,7 @@
 #include <IceUtil/Config.h>
 
 #include <exception>
+#include <vector>
 
 namespace IceUtil
 {
@@ -33,14 +34,14 @@ public:
 
     const char* ice_file() const;
     int ice_line() const;
-    const std::string& ice_stackTrace() const;
+    std::string ice_stackTrace() const;
     
 private:
     
     const char* _file;
     int _line;
     static const char* _name;
-    const std::string _stackTrace;
+    const std::vector<void*> _stackFrames;
     mutable ::std::string _str; // Initialized lazily in what().
 };
 

@@ -1,5 +1,5 @@
 ======================================================================
-CHANGES for Ice 3.6 beta
+CHANGES for Ice 3.6.0
 ======================================================================
 
 The entries below contain brief descriptions of the changes in a
@@ -297,6 +297,11 @@ General Changes
 
 C++ Changes
 ===========
+
+- Refactored the capture and printing of exception stack traces
+  to be more efficient when the stack traces are not printed. 
+  The signature of IceUtil::Exception::ice_stackTrace changed to:
+     std::string ice_stackTrace() const;
 
 - Fixed a bug where a private Windows Runtime delegate type could be
   published in Windows Store Components metadata files (WINMD).

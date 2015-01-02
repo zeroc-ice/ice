@@ -106,16 +106,7 @@ main(int argc, char* argv[])
 
     try
     {
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
-
-        //
-        // Getting stack traces is expensive and this test creates a lot 
-        // of DeadlockException.
-        //
-        initData.properties->setProperty("Ice.PrintStackTraces", "0");
-
-        communicator = Ice::initialize(argc, argv, initData);
+        communicator = Ice::initialize(argc, argv);
         status = run(argc, argv, communicator, envName);
     }
     catch(const Ice::Exception& ex)

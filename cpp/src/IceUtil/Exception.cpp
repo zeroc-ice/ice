@@ -32,18 +32,17 @@
 #if defined(__GNUC__) && !defined(__sun) && !defined(__FreeBSD__) && !defined(__MINGW32__)
 #  include <execinfo.h>
 #  include <cxxabi.h>
-#  define ICE_STACK_TRACES
 #  define ICE_GCC_STACK_TRACES
 #endif
 
-#ifdef ICE_WIN32_STACK_TRACES
+#if defined(_WIN32) && !defined(ICE_OS_WINRT)
+#  define ICE_WIN32_STACK_TRACES
 #  if defined(_MSC_VER) && _MSC_VER >= 1700
 #    define DBGHELP_TRANSLATE_TCHAR
 #    include <IceUtil/StringConverter.h>
 #  endif
 #  include <DbgHelp.h>
 #  include <tchar.h>
-#  define ICE_STACK_TRACES
 #endif
 
 using namespace std;
@@ -90,25 +89,58 @@ public:
 
 Init init;
 
-#ifdef ICE_STACK_TRACES
-string
-getStackTrace()
+
+vector<void*>
+getStackFrames()
 {
+    vector<void*> stackFrames;
+
     if(!IceUtilInternal::printStackTraces)
+    {
+        return stackFrames;
+    }
+
+#  if defined(ICE_WIN32_STACK_TRACES)
+
+    stackFrames.resize(61);
+    //
+    // 1: skip the first frame (the call to getStackFrames)
+    // 1 + stackSize < 63 on Windows XP according to the documentation for CaptureStackBackTrace
+    //
+    USHORT frameCount = CaptureStackBackTrace(1, static_cast<DWORD>(stackFrames.size()), &stackFrames.front(), 0);
+
+    stackFrames.resize(frameCount);
+
+#  elif defined(ICE_GCC_STACK_TRACES)
+    
+    stackFrames.resize(100);
+    size_t stackDepth = backtrace(&stackFrames.front(), stackFrames.size());
+    stackFrames.resize(stackDepth);
+
+#  endif
+
+    return stackFrames;
+}
+
+
+string
+getStackTrace(const vector<void*>& stackFrames)
+{
+    if(stackFrames.empty())
     {
         return "";
     }
 
     string stackTrace;
 
-#  ifdef ICE_WIN32_STACK_TRACES
+#  if defined(ICE_WIN32_STACK_TRACES)
+
     //
     // Note: the Sym functions are not thread-safe
     //
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
     if(process == 0)
     {
-
         //
         // Compute Search path (best effort)
         // consists of the current working directory, this DLL (or exe) directory and %_NT_SYMBOL_PATH%
@@ -174,102 +206,82 @@ getStackTrace()
     }
     lock.release();
 
-    const int stackSize = 61;
-    void* stack[stackSize];
-
-    //
-    // 1: skip the first frame (the call to getStackTrace)
-    // 1 + stackSize < 63 on XP according to the documentation for CaptureStackBackTrace
-    //
-    USHORT frames = CaptureStackBackTrace(1, stackSize, stack, 0);
-
-    if(frames > 0)
-    {
 #if defined(_MSC_VER) && (_MSC_VER >= 1600)
 #   if defined(DBGHELP_TRANSLATE_TCHAR)
-        static_assert(sizeof(TCHAR) == sizeof(wchar_t), "Bad TCHAR - should be wchar_t");
+    static_assert(sizeof(TCHAR) == sizeof(wchar_t), "Bad TCHAR - should be wchar_t");
 #   else
-        static_assert(sizeof(TCHAR) == sizeof(char), "Bad TCHAR - should be char");
+    static_assert(sizeof(TCHAR) == sizeof(char), "Bad TCHAR - should be char");
 #  endif
 #endif
 
-        char buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)];
-
-        SYMBOL_INFO* symbol = reinterpret_cast<SYMBOL_INFO*>(buffer);
-        symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
-        symbol->MaxNameLen = MAX_SYM_NAME;
-
-        IMAGEHLP_LINE64 line = {};
-        line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
-        DWORD displacement = 0;
-
-        lock.acquire();
-
-        // TODO: call SymRefreshModuleList here? (not available on XP)
-
+    char buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)];
+    
+    SYMBOL_INFO* symbol = reinterpret_cast<SYMBOL_INFO*>(buffer);
+    symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+    symbol->MaxNameLen = MAX_SYM_NAME;
+    
+    IMAGEHLP_LINE64 line = {};
+    line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
+    DWORD displacement = 0;
+    
+    lock.acquire();
+    
+    // TODO: call SymRefreshModuleList here? (not available on XP)
+    
 #ifdef DBGHELP_TRANSLATE_TCHAR
-        const IceUtil::StringConverterPtr converter = IceUtil::getProcessStringConverter();
+    const IceUtil::StringConverterPtr converter = IceUtil::getProcessStringConverter();
 #endif
-        for(int i = 0; i < frames; i++)
+    for(size_t i = 0; i < stackFrames.size(); i++)
+    {
+        if(!stackTrace.empty())
         {
-            if(!stackTrace.empty())
-            {
-                stackTrace += "\n";
-            }
-
-            stringstream s;
-            s << setw(3) << i << " ";
-
-            DWORD64 address = reinterpret_cast<DWORD64>(stack[i]);
-
-            //
-            // Don't need to use pass a wide string converter in the bellow
-            // calls to wstringToString as the wide strings come from
-            // Windows API.
-            //
-            BOOL ok = SymFromAddr(process, address, 0, symbol);
+            stackTrace += "\n";
+        }
+        
+        stringstream s;
+        s << setw(3) << i << " ";
+        
+        DWORD64 address = reinterpret_cast<DWORD64>(stackFrames[i]);
+        
+        BOOL ok = SymFromAddr(process, address, 0, symbol);
+        if(ok)
+        {
+#ifdef DBGHELP_TRANSLATE_TCHAR
+            s << IceUtil::wstringToString(symbol->Name, converter);
+#else
+            s << symbol->Name;
+#endif
+            ok = SymGetLineFromAddr64(process, address, &displacement, &line);
             if(ok)
             {
+                s << " at line " << line.LineNumber << " in "
 #ifdef DBGHELP_TRANSLATE_TCHAR
-                s << IceUtil::wstringToString(symbol->Name, converter);
+                  << IceUtil::wstringToString(line.FileName, converter);
 #else
-                s << symbol->Name;
+                  << line.FileName;
 #endif
-                ok = SymGetLineFromAddr64(process, address, &displacement, &line);
-                if(ok)
-                {
-                    s << " at line " << line.LineNumber << " in "
-#ifdef DBGHELP_TRANSLATE_TCHAR
-                      << IceUtil::wstringToString(line.FileName, converter);
-#else
-                      << line.FileName;
-#endif
-                }
             }
-            else
-            {
-                s << hex << "0x" << address;
-            }
-            stackTrace += s.str();
         }
-        lock.release();
+        else
+        {
+            s << hex << "0x" << address;
+        }
+        stackTrace += s.str();
     }
+    lock.release();
 
-#   elif defined(ICE_GCC_STACK_TRACES)
-
-    const size_t maxDepth = 100;
-    void *stackAddrs[maxDepth];
+#  elif defined(ICE_GCC_STACK_TRACES)
 
     // With some compilers/toolchains this can fail so we must check that
     // stackStrings is not null.
-    size_t stackDepth = backtrace(stackAddrs, maxDepth);
-    char **stackStrings = backtrace_symbols(stackAddrs, stackDepth);
-    if(stackStrings != NULL)
+    
+    char** stackStrings = backtrace_symbols(&stackFrames.front(), stackFrames.size());
+    if(stackStrings != 0)
     {
         //
         // Start at 1 to skip the top frame (== call to this function)
         //
-        for (size_t i = 1; i < stackDepth; i++)
+        for(size_t i = 1; i < stackFrames.size(); i++)
         {
             string line(stackStrings[i]);
 
@@ -362,38 +374,31 @@ getStackTrace()
             }
 
             stackTrace += s.str();
-
         }
         free(stackStrings);
     }
     else
     {
-        stackTrace += "<stack trace unavailable>";
+        stackTrace = "<stack trace unavailable>";
     }
 
-#   endif
+#  endif
 
     return stackTrace;
 }
-#endif
-
 }
 
 IceUtil::Exception::Exception() :
     _file(0),
-    _line(0)
-#ifdef ICE_STACK_TRACES
-    , _stackTrace(getStackTrace())
-#endif
+    _line(0), 
+    _stackFrames(getStackFrames())
 {
 }
 
 IceUtil::Exception::Exception(const char* file, int line) :
     _file(file),
-    _line(line)
-#ifdef ICE_STACK_TRACES
-    , _stackTrace(getStackTrace())
-#endif
+    _line(line), 
+    _stackFrames(getStackFrames())
 {
 }
 
@@ -465,10 +470,10 @@ IceUtil::Exception::ice_line() const
     return _line;
 }
 
-const string&
+string
 IceUtil::Exception::ice_stackTrace() const
 {
-    return _stackTrace;
+    return getStackTrace(_stackFrames);
 }
 
 ostream&
