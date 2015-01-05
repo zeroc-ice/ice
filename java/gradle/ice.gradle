@@ -28,11 +28,9 @@ def env = System.getenv()
 def isWindows = false
 def programFiles
 def slice2java = "slice2java"
-def slice2freezej = "slice2freezej"
 if (System.properties['os.name'].toLowerCase().contains('windows')) {
     isWindows = true
     slice2java = "slice2java.exe"
-    slice2freezej = "slice2freezej.exe"
 
 	def arch1 = env['PROCESSOR_ARCHITECTURE']
 	def arch2 = env['PROCESSOR_ARCHITEW6432']
@@ -88,8 +86,6 @@ if (!iceBinDist) {
 			iceCppDir = iceDir + "/cpp"
 		}
 
-		slice.slice2java = "$iceCppDir/bin/$slice2java"
-		slice.slice2freezej = "$iceCppDir/bin/$slice2freezej"
 		slice.iceHome = iceCppDir
 		slice.srcDist = true
 	}
@@ -132,8 +128,6 @@ if (!iceDir) {
 								  "configured and Ice is correctly installed.")
 	}
 
-	slice.slice2java = "${iceDir}/bin/${slice2java}"
-	slice.slice2freezej = "${iceDir}/bin/${slice2freezej}"
 	slice.iceHome = iceDir
 	slice.srcDist = false
 }

@@ -13,8 +13,8 @@ import org.gradle.api.NamedDomainObjectContainer
 
 class SliceExtension {
     final NamedDomainObjectContainer<Java> java;
-    def slice2java = "slice2java"
-    def slice2freezej = "slice2freezej"
+    def slice2java = null
+    def slice2freezej = null
     def iceHome = null
     def srcDist = false
     def output

@@ -206,7 +206,8 @@ class SliceTask extends DefaultTask {
         p.waitForProcessOutput(sout, serr)
         if (p.exitValue() != 0) {
             println serr.toString()
-            throw new GradleException("${project.slice.slice2freezej} command failed: " + p.exitValue())
+            def slice2freezej = getSlice2FreezeJ()
+            throw new GradleException("${slice2freezej} command failed: " + p.exitValue())
         }
 
         return parseSliceDependencyXML(new XmlSlurper().parseText(sout.toString()))
@@ -230,14 +231,15 @@ class SliceTask extends DefaultTask {
         p.waitForProcessOutput(sout, serr)
         if (p.exitValue() != 0) {
             println serr.toString()
-            throw new GradleException("${project.slice.slice2freezej} command failed: " + p.exitValue())
+            def slice2freezej = getSlice2FreezeJ()
+            throw new GradleException("${slice2freezej} command failed: " + p.exitValue())
         }
         return getFreezejGenerated(freezej)
     }
 
     def buildFreezeJCommandLine(freezej) {
         def command = []
-        command.add(project.slice.slice2freezej);
+        command.add(getSlice2FreezeJ());
     	command.add("--output-dir=" + project.slice.output.getAbsolutePath())
         freezej.include.each {
             command.add('-I' + it)
@@ -472,8 +474,9 @@ class SliceTask extends DefaultTask {
     // Run slice2java. Returns a dictionary of A -> [B] where A is a slice file,
     // and B is the list of produced java source files.
     def executeSlice2Java(java, files) {
+        def slice2java = getSlice2Java()
         def command = []
-        command.add(project.slice.slice2java);
+        command.add(slice2java);
         command.add("--list-generated")
         command.add("--output-dir=" + project.slice.output.getAbsolutePath())
         java.include.each {
@@ -498,7 +501,7 @@ class SliceTask extends DefaultTask {
         p.waitForProcessOutput(sout, serr)
         if (p.exitValue() != 0) {
             println serr.toString()
-            throw new GradleException("${project.slice.slice2java} command failed: " + p.exitValue())
+            throw new GradleException("${slice2java} command failed: " + p.exitValue())
         }
         return parseGeneratedXML(new XmlSlurper().parseText(sout.toString()))
     }
@@ -506,8 +509,9 @@ class SliceTask extends DefaultTask {
     // Executes slice2java to determine the slice file dependencies.
     // Returns a dictionary of A  -> [B] where A depends on B.
     def getDependencies(java, files) {
+        def slice2java = getSlice2Java()
         def command = []
-        command.add(project.slice.slice2java);
+        command.add(slice2java);
         command.add("--depend-xml")
         //command.add("--output-dir=" + project.slice.output.getAbsolutePath())
         java.include.each {
@@ -531,7 +535,7 @@ class SliceTask extends DefaultTask {
         p.waitForProcessOutput(sout, serr)
         if (p.exitValue() != 0) {
             println serr.toString()
-            throw new GradleException("${project.slice.slice2java} command failed: " + p.exitValue())
+            throw new GradleException("${slice2java} command failed: " + p.exitValue())
         }
 
         return parseSliceDependencyXML(new XmlSlurper().parseText(sout.toString()))
@@ -680,6 +684,32 @@ class SliceTask extends DefaultTask {
             }
         }
         return dependencies
+    }
+
+    def getSlice2Java() {
+        def slice2java = project.slice.slice2java
+        if (slice2java == null) {
+            def iceHome = project.slice.iceHome
+            if (iceHome == null) {
+                slice2java = "slice2java"
+            } else {
+                slice2java = iceHome + File.separator + "bin" + File.separator + "slice2java"
+            }
+        }
+        return slice2java
+    }
+
+    def getSlice2FreezeJ() {
+        def slice2freezej = project.slice.slice2freezej
+        if (slice2freezej == null) {
+            def iceHome = project.slice.iceHome
+            if (iceHome == null) {
+                slice2freezej = "slice2freezej"
+            } else {
+                slice2freezej = iceHome + File.separator + "bin" + File.separator + "slice2freezej"
+            }
+        }
+        return slice2freezej
     }
 
     def addLdLibraryPath() {
