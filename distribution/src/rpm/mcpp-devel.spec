@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2008-2014 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2008-2015 ZeroC, Inc. All rights reserved.
 #
 
 %define force_x86  0

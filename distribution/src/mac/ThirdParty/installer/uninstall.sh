@@ -7,7 +7,7 @@
 showHelp ()
 {
     echo "Ice @ver@ Third Party Packages uninstall script"
-    echo "Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved."
+    echo "Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved."
     echo "usage: "
     echo "  \"sudo $0\" -- uninstall all Ice @ver@ Third Party Packages installed on this system."
 }

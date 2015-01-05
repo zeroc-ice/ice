@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
 #
 diff -r -c -N ../db-5.3.28.NC-old/src/dbinc/atomic.h ./src/dbinc/atomic.h
 *** ../db-5.3.28.NC-old/src/dbinc/atomic.h	2012-05-11 19:57:53.000000000 +0200
