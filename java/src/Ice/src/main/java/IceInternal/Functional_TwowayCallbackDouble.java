@@ -30,7 +30,7 @@ public abstract class Functional_TwowayCallbackDouble
         __responseCb = responseCb;
     }
 
-    public void response(byte arg)
+    public void response(double arg)
     {
         if(__responseCb != null)
         {
