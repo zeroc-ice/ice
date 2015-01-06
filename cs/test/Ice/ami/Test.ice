@@ -24,12 +24,14 @@ interface TestIntf
     void opWithPayload(Ice::ByteSeq seq);
     int opWithResult();
     void opWithUE()
-        throws TestIntfException;    
+        throws TestIntfException;
     void opBatch();
     int opBatchCount();
     bool waitForBatch(int count);
     void close(bool force);
     void shutdown();
+
+    bool supportsFunctionalTests();
 };
 
 interface TestIntfController

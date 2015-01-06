@@ -33,6 +33,8 @@ public:
     virtual void close(bool, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
+    virtual bool supportsFunctionalTests(const Ice::Current&);
+
 private:
 
     int _batchCount;

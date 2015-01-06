@@ -84,6 +84,12 @@ public class TestI : TestIntfDisp_
         current.adapter.getCommunicator().shutdown();
     }
 
+    override public bool
+    supportsFunctionalTests(Ice.Current current)
+    {
+        return false;
+    }
+
     private int _batchCount;
 }
 
@@ -94,13 +100,13 @@ public class TestControllerI : TestIntfControllerDisp_
     {
         _adapter.hold();
     }
-    
+
     override public void
     resumeAdapter(Ice.Current current)
     {
         _adapter.activate();
     }
-    
+
     public
     TestControllerI(Ice.ObjectAdapter adapter)
     {

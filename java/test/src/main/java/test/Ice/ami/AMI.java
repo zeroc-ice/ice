@@ -679,6 +679,30 @@ public class AMI
             catch(TestIntfException ex)
             {
             }
+
+            if(p.supportsFunctionalTests())
+            {
+                result = p.begin_opBool(true);
+                test(p.end_opBool(result));
+
+                result = p.begin_opByte((byte)0xff);
+                test(p.end_opByte(result) == (byte)0xff);
+
+                result = p.begin_opShort(Short.MIN_VALUE);
+                test(p.end_opShort(result) == Short.MIN_VALUE);
+
+                result = p.begin_opInt(Integer.MIN_VALUE);
+                test(p.end_opInt(result) == Integer.MIN_VALUE);
+
+                result = p.begin_opLong(Long.MIN_VALUE);
+                test(p.end_opLong(result) == Long.MIN_VALUE);
+
+                result = p.begin_opFloat(3.14f);
+                test(p.end_opFloat(result) == 3.14f);
+
+                result = p.begin_opDouble(1.1E10);
+                test(p.end_opDouble(result) == 1.1E10);
+            }
         }
         out.println("ok");
 
@@ -1177,7 +1201,7 @@ public class AMI
                 Ice.ObjectPrx o = ic.stringToProxy(p.toString());
                 TestIntfPrx p2 = TestIntfPrxHelper.checkedCast(o);
                 ic.destroy();
-                
+
                 try
                 {
                     p2.begin_op();

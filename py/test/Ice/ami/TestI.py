@@ -58,6 +58,9 @@ class TestIntfI(Test.TestIntf):
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 
+    def supportsFunctionalTests(self, current=None):
+        return False
+
 class TestIntfControllerI(Test.TestIntfController):
     def __init__(self, adapter):
         self._adapter = adapter

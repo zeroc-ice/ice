@@ -61,6 +61,54 @@ public class TestI extends _TestIntfDisp
     }
 
     @Override
+    public boolean supportsFunctionalTests(Ice.Current current)
+    {
+        return true;
+    }
+
+    @Override
+    public boolean opBool(boolean b, Ice.Current current)
+    {
+        return b;
+    }
+
+    @Override
+    public byte opByte(byte b, Ice.Current current)
+    {
+        return b;
+    }
+
+    @Override
+    public short opShort(short s, Ice.Current current)
+    {
+        return s;
+    }
+
+    @Override
+    public int opInt(int i, Ice.Current current)
+    {
+        return i;
+    }
+
+    @Override
+    public long opLong(long l, Ice.Current current)
+    {
+        return l;
+    }
+
+    @Override
+    public float opFloat(float f, Ice.Current current)
+    {
+        return f;
+    }
+
+    @Override
+    public double opDouble(double d, Ice.Current current)
+    {
+        return d;
+    }
+
+    @Override
     public synchronized boolean
     waitForBatch(int count, Ice.Current current)
     {

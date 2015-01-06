@@ -108,30 +108,30 @@ class MyClass
                   out ByteS p3);
 
     BoolS opBoolS(BoolS p1, BoolS p2,
-                  out BoolS p3);        
+                  out BoolS p3);
 
     LongS opShortIntLongS(Test::ShortS p1, IntS p2, LongS p3,
                           out ::Test::ShortS p4, out IntS p5, out LongS p6);
 
     DoubleS opFloatDoubleS(FloatS p1, DoubleS p2,
                            out FloatS p3, out DoubleS p4);
-    
+
     StringS opStringS(StringS p1, StringS p2,
                       out StringS p3);
-    
+
     ByteSS opByteSS(ByteSS p1, ByteSS p2,
                     out ByteSS p3);
-    
+
     BoolSS opBoolSS(BoolSS p1, BoolSS p2,
                     out BoolSS p3);
-    
+
     LongSS opShortIntLongSS(ShortSS p1, IntSS p2, LongSS p3,
                             out ShortSS p4, out IntSS p5, out LongSS p6);
-    
-    
+
+
     DoubleSS opFloatDoubleSS(FloatSS p1, DoubleSS p2,
                              out FloatSS p3, out DoubleSS p4);
-    
+
     StringSS opStringSS(StringSS p1, StringSS p2,
                         out StringSS p3);
 

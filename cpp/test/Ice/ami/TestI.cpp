@@ -98,18 +98,24 @@ TestIntfI::shutdown(const Ice::Current& current)
     current.adapter->getCommunicator()->shutdown();
 }
 
+bool
+TestIntfI::supportsFunctionalTests(const Ice::Current&)
+{
+    return false;
+}
+
 void
 TestIntfControllerI::holdAdapter(const Ice::Current&)
 {
     _adapter->hold();
 }
-    
+
 void
 TestIntfControllerI::resumeAdapter(const Ice::Current&)
 {
     _adapter->activate();
 }
-    
+
 TestIntfControllerI::TestIntfControllerI(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter)
 {
 }
