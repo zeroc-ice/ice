@@ -19,7 +19,7 @@ Module BidirC
                 Return 1
             End If
 
-            Dim server As CallbackSenderPrx = CallbackSenderPrxHelper.checkedCast(communicator().propertyToProxy("Callback.Client.CallbackServer"))
+            Dim server As CallbackSenderPrx = CallbackSenderPrxHelper.checkedCast(communicator().propertyToProxy("CallbackSender.Proxy"))
             If server Is Nothing Then
                 System.Console.Error.WriteLine("invalid proxy")
                 Return 1

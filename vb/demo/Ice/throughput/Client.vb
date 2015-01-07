@@ -42,7 +42,7 @@ Module ThroughputC
                 Return 1
             End If
 
-            Dim throughput As ThroughputPrx = ThroughputPrxHelper.checkedCast(communicator.propertyToProxy("Throughput.Throughput"))
+            Dim throughput As ThroughputPrx = ThroughputPrxHelper.checkedCast(communicator.propertyToProxy("Throughput.Proxy"))
             If throughput Is Nothing Then
                 Console.Error.WriteLine("invalid proxy")
                 Return 1

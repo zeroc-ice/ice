@@ -21,7 +21,7 @@ Module LatencyC
                 Return 1
             End If
 
-            Dim ping As PingPrx = PingPrxHelper.checkedCast(communicator().propertyToProxy("Latency.Ping"))
+            Dim ping As PingPrx = PingPrxHelper.checkedCast(communicator().propertyToProxy("Ping.Proxy"))
             If ping Is Nothing Then
                 Console.Error.WriteLine("invalid proxy")
                 Return 1
