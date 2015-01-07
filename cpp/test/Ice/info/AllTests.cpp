@@ -18,6 +18,10 @@ using namespace Test;
 void
 allTests(const Ice::CommunicatorPtr& communicator)
 {
+    Ice::PropertiesPtr properties = communicator->getProperties();
+    properties->setProperty("Ice.UDP.SndSize", "1024");
+    properties->setProperty("Ice.UDP.RcvSize", "2048");
+
     cout << "testing proxy endpoint information... " << flush;
     {
         Ice::ObjectPrx p1 =
@@ -60,6 +64,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(!udpEndpoint->secure());
         test(udpEndpoint->datagram());
         test(udpEndpoint->type() == Ice::UDPEndpointType);
+        test(udpEndpoint->sndBufSize == -1);
+        test(udpEndpoint->rcvBufSize == -1);
 
         Ice::OpaqueEndpointInfoPtr opaqueEndpoint = Ice::OpaqueEndpointInfoPtr::dynamicCast(endps[2]->getInfo());
         test(opaqueEndpoint);
@@ -94,6 +100,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(udpEndpoint->host == defaultHost);
         test(udpEndpoint->datagram());
         test(udpEndpoint->port > 0);
+        test(udpEndpoint->sndBufSize == 1024);
+        test(udpEndpoint->rcvBufSize == 2048);
 
         adapter->destroy();
 

@@ -181,6 +181,20 @@ local class UDPEndpointInfo extends IPEndpointInfo
      *
      **/
      int mcastTtl;
+
+    /**
+     *
+     * The size of the UDP send buffer (-1 if not set).
+     *
+     **/
+     int sndBufSize;
+
+    /**
+     *
+     * The size of the UDP receive buffer (-1 if not set).
+     *
+     **/
+     int rcvBufSize;
 };
 
 /**

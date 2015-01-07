@@ -351,6 +351,10 @@ IcePHP::endpointInit(TSRMLS_D)
                                  STRCAST(""), ZEND_ACC_PUBLIC TSRMLS_CC);
     zend_declare_property_long(udpEndpointInfoClassEntry, STRCAST("mcastTtl"), sizeof("mcastTtl") - 1, 0,
                                ZEND_ACC_PUBLIC TSRMLS_CC);
+    zend_declare_property_long(udpEndpointInfoClassEntry, STRCAST("sndBufSize"), sizeof("sndBufSize") - 1, 0,
+                               ZEND_ACC_PUBLIC TSRMLS_CC);
+    zend_declare_property_long(udpEndpointInfoClassEntry, STRCAST("rcvBufSize"), sizeof("rcvBufSize") - 1, 0,
+                               ZEND_ACC_PUBLIC TSRMLS_CC);
 
     //
     // Define the WSEndpointInfo class.
@@ -439,6 +443,8 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p TSRMLS_DC)
         {
             add_property_string(zv, STRCAST("mcastInterface"), const_cast<char*>(info->mcastInterface.c_str()), 1);
             add_property_long(zv, STRCAST("mcastTtl"), static_cast<long>(info->mcastTtl));
+            add_property_long(zv, STRCAST("sndBufSize"), static_cast<long>(info->sndBufSize));
+            add_property_long(zv, STRCAST("rcvBufSize"), static_cast<long>(info->rcvBufSize));
         }
     }
     else if(Ice::WSEndpointInfoPtr::dynamicCast(p))

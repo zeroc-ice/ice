@@ -34,6 +34,10 @@ public class AllTests : TestCommon.TestApp
     public static void allTests(Ice.Communicator communicator)
 #endif
     {
+        Ice.Properties properties = communicator.getProperties();
+        properties.setProperty("Ice.UDP.SndSize", "1024");
+        properties.setProperty("Ice.UDP.RcvSize", "2048");
+
         Write("testing proxy endpoint information... ");
         Flush();
         {
@@ -83,6 +87,8 @@ public class AllTests : TestCommon.TestApp
             test(!udpEndpoint.secure());
             test(udpEndpoint.datagram());
             test(udpEndpoint.type() == 3);
+            test(udpEndpoint.sndBufSize == -1);
+            test(udpEndpoint.rcvBufSize == -1);
 
             Ice.OpaqueEndpointInfo opaqueEndpoint = (Ice.OpaqueEndpointInfo)endps[2].getInfo();
             test(opaqueEndpoint.rawBytes.Length > 0);
@@ -121,6 +127,8 @@ public class AllTests : TestCommon.TestApp
             test(udpEndpoint.host.Equals(defaultHost));
             test(udpEndpoint.datagram());
             test(udpEndpoint.port > 0);
+            test(udpEndpoint.sndBufSize == 1024);
+            test(udpEndpoint.rcvBufSize == 2048);
 
             adapter.destroy();
 

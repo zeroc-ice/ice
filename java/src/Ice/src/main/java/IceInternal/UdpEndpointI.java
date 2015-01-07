@@ -12,11 +12,14 @@ package IceInternal;
 final class UdpEndpointI extends IPEndpointI
 {
     public UdpEndpointI(ProtocolInstance instance, String ho, int po, java.net.InetSocketAddress sourceAddr,
-                        String mcastInterface, int mttl, boolean conn, String conId, boolean co)
+                        String mcastInterface, int mttl, int sndBufSize, int rcvBufSize, boolean conn, String conId,
+                        boolean co)
     {
         super(instance, ho, po, sourceAddr, conId);
         _mcastInterface = mcastInterface;
         _mcastTtl = mttl;
+        _sndBufSize = sndBufSize;
+        _rcvBufSize = rcvBufSize;
         _connect = conn;
         _compress = co;
     }
@@ -120,8 +123,8 @@ final class UdpEndpointI extends IPEndpointI
         }
         else
         {
-            return new UdpEndpointI(_instance, _host, _port, _sourceAddr, _mcastInterface, _mcastTtl, _connect,
-                                    _connectionId, compress);
+            return new UdpEndpointI(_instance, _host, _port, _sourceAddr, _mcastInterface, _mcastTtl, _sndBufSize,
+                                    _rcvBufSize, _connect, _connectionId, compress);
         }
     }
 
@@ -165,8 +168,14 @@ final class UdpEndpointI extends IPEndpointI
 
     public UdpEndpointI endpoint(UdpTransceiver transceiver)
     {
-        return new UdpEndpointI(_instance, _host, transceiver.effectivePort(), _sourceAddr, _mcastInterface,_mcastTtl,
-                                _connect, _connectionId, _compress);
+        return new UdpEndpointI(_instance, _host, transceiver.effectivePort(), _sourceAddr, _mcastInterface, _mcastTtl,
+                                transceiver.sndBufSize(), transceiver.rcvBufSize(), _connect, _connectionId, _compress);
+    }
+
+    public void setBufSize(int sndSize, int rcvSize)
+    {
+        _sndBufSize = sndSize;
+        _rcvBufSize = rcvSize;
     }
 
     //
@@ -296,6 +305,8 @@ final class UdpEndpointI extends IPEndpointI
             udpInfo.compress = _compress;
             udpInfo.mcastInterface = _mcastInterface;
             udpInfo.mcastTtl = _mcastTtl;
+            udpInfo.sndBufSize = _sndBufSize;
+            udpInfo.rcvBufSize = _rcvBufSize;
         }
     }
 
@@ -396,12 +407,14 @@ final class UdpEndpointI extends IPEndpointI
     @Override
     protected IPEndpointI createEndpoint(String host, int port, String connectionId)
     {
-        return new UdpEndpointI(_instance, host, port, _sourceAddr, _mcastInterface,_mcastTtl, _connect,
-                                connectionId, _compress);
+        return new UdpEndpointI(_instance, host, port, _sourceAddr, _mcastInterface,_mcastTtl, _sndBufSize, _rcvBufSize,
+                                _connect, connectionId, _compress);
     }
 
     private String _mcastInterface = "";
     private int _mcastTtl = -1;
+    private int _sndBufSize = -1;
+    private int _rcvBufSize = -1;
     private boolean _connect;
     private boolean _compress;
 }

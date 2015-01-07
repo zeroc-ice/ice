@@ -8,6 +8,10 @@
 # **********************************************************************
 
 def allTests(communicator)
+    properties = communicator.getProperties()
+    properties.setProperty("Ice.UDP.SndSize", "1024")
+    properties.setProperty("Ice.UDP.RcvSize", "2048")
+
     print "testing proxy endpoint information..."
     STDOUT.flush
 
@@ -46,6 +50,8 @@ def allTests(communicator)
     test(!udpEndpoint.secure())
     test(udpEndpoint.datagram())
     test(udpEndpoint.type() == Ice::UDPEndpointType)
+    test(udpEndpoint.sndBufSize == -1)
+    test(udpEndpoint.rcvBufSize == -1)
 
     opaqueEndpoint = endps[2].getInfo()
     test(opaqueEndpoint.is_a?(Ice::OpaqueEndpointInfo));

@@ -816,6 +816,16 @@ namespace IceInternal
             return Network.endpointPort(_addr);
         }
 
+        public int sndBufSize()
+        {
+            return _sndSize;
+        }
+
+        public int rcvBufSize()
+        {
+            return _rcvSize;
+        }
+
         //
         // Only for use by UdpConnector.
         //
@@ -999,6 +1009,11 @@ namespace IceInternal
                                                    sizeRequested + " adjusted to " + sizeSet);
                     }
                 }
+            }
+
+            if(_endpoint != null)
+            {
+                _endpoint.setBufSize(_sndSize, _rcvSize);
             }
         }
 

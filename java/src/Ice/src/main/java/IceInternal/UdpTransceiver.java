@@ -343,6 +343,16 @@ final class UdpTransceiver implements Transceiver
         return _addr.getPort();
     }
 
+    public final int sndBufSize()
+    {
+        return _sndSize;
+    }
+
+    public final int rcvBufSize()
+    {
+        return _rcvSize;
+    }
+
     //
     // Only for use by UdpEndpoint
     //
@@ -468,6 +478,11 @@ final class UdpTransceiver implements Transceiver
                                     + sizeRequested + " adjusted to " + sizeSet);
                 }
             }
+        }
+
+        if(_endpoint != null)
+        {
+            _endpoint.setBufSize(_sndSize, _rcvSize);
         }
     }
 

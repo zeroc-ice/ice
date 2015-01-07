@@ -25,11 +25,13 @@ using namespace IceInternal;
 IceUtil::Shared* IceInternal::upCast(UdpEndpointI* p) { return p; }
 
 IceInternal::UdpEndpointI::UdpEndpointI(const ProtocolInstancePtr& instance, const string& host, Int port,
-                                        const Address& sourceAddr, const string& mcastInterface, Int mttl, bool conn,
-                                        const string& conId, bool co) :
+                                        const Address& sourceAddr, const string& mcastInterface, Int mttl,
+                                        Int sndBufSize, Int rcvBufSize, bool conn, const string& conId, bool co) :
     IPEndpointI(instance, host, port, sourceAddr, conId),
     _mcastTtl(mttl),
     _mcastInterface(mcastInterface),
+    _sndBufSize(sndBufSize),
+    _rcvBufSize(rcvBufSize),
     _connect(conn),
     _compress(co)
 {
@@ -38,6 +40,8 @@ IceInternal::UdpEndpointI::UdpEndpointI(const ProtocolInstancePtr& instance, con
 IceInternal::UdpEndpointI::UdpEndpointI(const ProtocolInstancePtr& instance) :
     IPEndpointI(instance),
     _mcastTtl(-1),
+    _sndBufSize(-1),
+    _rcvBufSize(-1),
     _connect(false),
     _compress(false)
 {
@@ -46,6 +50,8 @@ IceInternal::UdpEndpointI::UdpEndpointI(const ProtocolInstancePtr& instance) :
 IceInternal::UdpEndpointI::UdpEndpointI(const ProtocolInstancePtr& instance, BasicStream* s) :
     IPEndpointI(instance, s),
     _mcastTtl(-1),
+    _sndBufSize(-1),
+    _rcvBufSize(-1),
     _connect(false),
     _compress(false)
 {
@@ -128,8 +134,8 @@ IceInternal::UdpEndpointI::compress(bool compress) const
     }
     else
     {
-        return new UdpEndpointI(_instance, _host, _port, _sourceAddr, _mcastInterface, _mcastTtl, _connect,
-                                _connectionId, compress);
+        return new UdpEndpointI(_instance, _host, _port, _sourceAddr, _mcastInterface, _mcastTtl, _sndBufSize,
+                                _rcvBufSize, _connect, _connectionId, compress);
     }
 }
 
@@ -161,7 +167,14 @@ UdpEndpointIPtr
 IceInternal::UdpEndpointI::endpoint(const UdpTransceiverPtr& transceiver) const
 {
     return new UdpEndpointI(_instance, _host, transceiver->effectivePort(), _sourceAddr, _mcastInterface, _mcastTtl,
-                            _connect, _connectionId, _compress);
+                            transceiver->sndBufSize(), transceiver->rcvBufSize(), _connect, _connectionId, _compress);
+}
+
+void
+IceInternal::UdpEndpointI::setBufSize(int sndSize, int rcvSize)
+{
+    const_cast<int&>(_sndBufSize) = sndSize;
+    const_cast<int&>(_rcvBufSize) = rcvSize;
 }
 
 string
@@ -335,6 +348,8 @@ IceInternal::UdpEndpointI::fillEndpointInfo(IPEndpointInfo* info) const
         udpInfo->compress = _compress;
         udpInfo->mcastTtl = _mcastTtl;
         udpInfo->mcastInterface = _mcastInterface;
+        udpInfo->sndBufSize = _sndBufSize;
+        udpInfo->rcvBufSize = _rcvBufSize;
     }
 }
 
@@ -432,8 +447,8 @@ IceInternal::UdpEndpointI::createConnector(const Address& address, const Network
 IPEndpointIPtr
 IceInternal::UdpEndpointI::createEndpoint(const string& host, int port, const string& connectionId) const
 {
-    return new UdpEndpointI(_instance, host, port, _sourceAddr, _mcastInterface, _mcastTtl, _connect, connectionId,
-                            _compress);
+    return new UdpEndpointI(_instance, host, port, _sourceAddr, _mcastInterface, _mcastTtl, _sndBufSize, _rcvBufSize,
+                            _connect, connectionId, _compress);
 }
 
 IceInternal::UdpEndpointFactory::UdpEndpointFactory(const ProtocolInstancePtr& instance) : _instance(instance)

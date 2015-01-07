@@ -14,6 +14,10 @@ def test(b):
         raise RuntimeError('test assertion failed')
 
 def allTests(communicator):
+    properties = communicator.getProperties()
+    properties.setProperty("Ice.UDP.SndSize", "1024")
+    properties.setProperty("Ice.UDP.RcvSize", "2048")
+
     sys.stdout.write("testing proxy endpoint information... ")
     sys.stdout.flush()
 
@@ -52,6 +56,8 @@ def allTests(communicator):
     test(not udpEndpoint.secure())
     test(udpEndpoint.datagram())
     test(udpEndpoint.type() == Ice.UDPEndpointType)
+    test(udpEndpoint.sndBufSize == -1)
+    test(udpEndpoint.rcvBufSize == -1)
 
     opaqueEndpoint = endps[2].getInfo()
     test(isinstance(opaqueEndpoint, Ice.OpaqueEndpointInfo))
@@ -82,6 +88,8 @@ def allTests(communicator):
     test(udpEndpoint.host == defaultHost)
     test(udpEndpoint.datagram())
     test(udpEndpoint.port > 0)
+    test(udpEndpoint.sndBufSize == 1024)
+    test(udpEndpoint.rcvBufSize == 2048)
 
     adapter.destroy()
 

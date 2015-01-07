@@ -884,6 +884,19 @@ IceInternal::UdpTransceiver::effectivePort() const
     return getPort(_addr);
 }
 
+int
+IceInternal::UdpTransceiver::sndBufSize() const
+{
+    return _sndSize;
+}
+
+int
+IceInternal::UdpTransceiver::rcvBufSize() const
+{
+    return _rcvSize;
+}
+
+
 IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
                                             const Address& addr,
 #ifdef ICE_OS_WINRT
@@ -1083,6 +1096,10 @@ IceInternal::UdpTransceiver::setBufSize(const Ice::PropertiesPtr& properties)
                     << sizeRequested << " adjusted to " << *addr;
             }
         }
+    }
+
+    if (_endpoint) {
+        _endpoint->setBufSize(_sndSize, _rcvSize);
     }
 }
 

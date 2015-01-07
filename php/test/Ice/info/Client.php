@@ -44,6 +44,9 @@ function allTests($communicator)
     $protocolVersionClass = $NS ? "Ice\\ProtocolVersion" : "Ice_ProtocolVersion";
     $encodingVersionClass = $NS ? "Ice\\EncodingVersion" : "Ice_EncodingVersion";
 
+    $communicator->getProperties()->setProperty("Ice.UDP.SndSize", "1024");
+    $communicator->getProperties()->setProperty("Ice.UDP.RcvSize", "2048");
+
     echo "testing proxy endpoint information... ";
     flush();
     {
@@ -83,6 +86,8 @@ function allTests($communicator)
         test(!$udpEndpoint->secure());
         test($udpEndpoint->datagram());
         test($udpEndpoint->type() == $udpEndpointType);
+        test($udpEndpoint->sndBufSize == -1);
+        test($udpEndpoint->rcvBufSize == -1);
 
         $opaqueEndpoint = $endps[2]->getInfo();
         test($opaqueEndpoint);
