@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h"]]
+[["cpp:header-ext:h", "objc:header-dir:objc"]]
 [["cpp:include:Glacier2/Config.h"]]
 
 #include <Ice/Router.ice>
@@ -24,6 +24,7 @@
  * security solution that is both non-intrusive and easy to configure.
  *
  **/
+["objc:prefix:GLACIER2"]
 module Glacier2
 {
 

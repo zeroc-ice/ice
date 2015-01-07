@@ -9,12 +9,13 @@
 
 #pragma once
 
-[["cpp:header-ext:h"]]
+[["cpp:header-ext:h", "objc:header-dir:objc"]]
 
 #include <Ice/Identity.ice>
 #include <Ice/Version.ice>
 #include <Ice/BuiltinSequences.ice>
 
+["objc:prefix:ICE"]
 module Ice
 {
 

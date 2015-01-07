@@ -9,13 +9,14 @@
 
 #pragma once
 
-[["cpp:header-ext:h"]]
+[["cpp:header-ext:h", "objc:header-dir:objc"]]
 [["cpp:include:Glacier2/Config.h"]]
 
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/Identity.ice>
 #include <Glacier2/SSLInfo.ice>
 
+["objc:prefix:GLACIER2"]
 module Glacier2
 {
 

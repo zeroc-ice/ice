@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h"]]
+[["cpp:header-ext:h", "objc:header-dir:objc"]]
 
 #include <Ice/LoggerF.ice>
 #include <Ice/InstrumentationF.ice>
@@ -32,6 +32,7 @@
  * additional functionality that supports high scalability.
  *
  **/
+["objc:prefix:ICE"]
 module Ice
 {
 

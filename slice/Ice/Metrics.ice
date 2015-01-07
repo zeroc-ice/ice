@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h"]]
+[["cpp:header-ext:h", "objc:header-dir:objc"]]
 
 #include <Ice/BuiltinSequences.ice>
 
@@ -20,6 +20,7 @@
  * metrics from Ice applications.
  * 
  **/
+["objc:prefix:ICEMX"]
 module IceMX
 {
 

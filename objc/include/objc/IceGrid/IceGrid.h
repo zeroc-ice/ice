@@ -1,0 +1,19 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice Touch is licensed to you under the terms described in the
+// ICE_TOUCH_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+#import <objc/IceGrid/Admin.h>
+#import <objc/IceGrid/Exception.h>
+#import <objc/IceGrid/Observer.h>
+#import <objc/IceGrid/Registry.h>
+#import <objc/IceGrid/UserAccountMapper.h>
+#import <objc/IceGrid/Descriptor.h>
+#import <objc/IceGrid/FileParser.h>
+#import <objc/IceGrid/Locator.h>
+#import <objc/IceGrid/Query.h>
+#import <objc/IceGrid/Session.h>

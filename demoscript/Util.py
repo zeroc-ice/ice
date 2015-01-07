@@ -292,7 +292,7 @@ def configurePaths():
     # Setting the library path is necessary for interpreters to find
     # the IceSSL library.
     #
-    if not isWin32() and iceHome != "/usr" and getMapping() in ["py", "rb", "php"]:
+    if not isWin32() and iceHome != "/usr" and getMapping() in ["py", "rb", "php", "objc"]:
         libDir = os.path.join(getIceDir("cpp"), "lib")
         if isUbuntu():
             libDir = os.path.join(libDir, "x86_64-linux-gnu" if x64 else "i386-linux-gnu")
@@ -731,7 +731,7 @@ def spawn(command, cwd = None, mapping = None):
             command = command.replace("java", "java -d64", 1)
         if javaCmd != "java":
             command = command.replace("java", javaCmd, 1)
-    elif mapping == "cpp":
+    elif (mapping == "cpp" or mapping == "objc"):
         if cwd != None:
             desc = os.path.join(cwd, desc)
         if isWin32():

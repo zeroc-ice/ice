@@ -9,8 +9,9 @@
 
 #pragma once
 
-[["cpp:header-ext:h"]]
+[["cpp:header-ext:h", "objc:header-dir:objc"]]
 
+["objc:prefix:GLACIER2"]
 module Glacier2
 {
 

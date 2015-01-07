@@ -11,7 +11,6 @@
 # Select an installation base directory. The directory will be created
 # if it does not exist.
 #
-
 prefix			?= /opt/Ice-$(VERSION)
 
 #

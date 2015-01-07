@@ -12,7 +12,7 @@ top_srcdir	= ..
 include $(top_srcdir)/config/Make.rules
 
 ifneq ($(findstring MINGW,$(UNAME)),)
-    SUBDIRS		= IceUtil \
+    SUBDIRS	= IceUtil \
 			  Slice \
 			  slice2cpp \
 			  slice2rb \
@@ -20,7 +20,7 @@ ifneq ($(findstring MINGW,$(UNAME)),)
 			  IceSSL \
 			  IceDiscovery
 else
-    SUBDIRS		= IceUtil \
+    SUBDIRS	= IceUtil \
 			  Slice \
 			  slice2cpp \
 			  slice2cs \
@@ -31,7 +31,13 @@ else
 			  slice2py \
 			  slice2rb \
 			  slice2html \
-			  slice2js \
+			  slice2js
+
+ifeq ($(UNAME),Darwin)
+	SUBDIRS	:= $(SUBDIRS) slice2objc
+endif
+
+	SUBDIRS	:= $(SUBDIRS) \
 			  Ice \
 			  IceXML \
 			  IceSSL \
@@ -59,7 +65,7 @@ endif
 
 Slice: IceUtil
 
-slice2cpp slice2cs slice2freeze slice2freezej slice2java slice2js slice2php slice2py slice2rb slice2html: Slice
+slice2cpp slice2cs slice2freeze slice2freezej slice2java slice2js slice2php slice2py slice2rb slice2html slice2objc: Slice
 
 Ice: slice2cpp
 

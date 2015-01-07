@@ -13,8 +13,9 @@
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/EndpointF.ice>
 
-[["cpp:header-ext:h"]]
+[["cpp:header-ext:h", "objc:header-dir:objc"]]
 
+["objc:prefix:ICE"]
 module Ice
 {
 

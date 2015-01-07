@@ -8,9 +8,16 @@
 # **********************************************************************
 
 SUBDIRS			= cpp java js py rb php
-CLEAN_SUBDIRS		= js java py rb php cpp
-DEPEND_SUBDIRS		= cpp py rb php
-INSTALL_SUBDIRS		= cpp java py rb php js
+CLEAN_SUBDIRS	= js java py rb php cpp
+DEPEND_SUBDIRS	= cpp py rb php
+INSTALL_SUBDIRS	= cpp java py rb php js
+
+ifeq ($(shell uname),Darwin)
+SUBDIRS			+= objc
+CLEAN_SUBDIRS	+= objc
+DEPEND_SUBDIRS	+= objc
+INSTALL_SUBDIRS	+= objc
+endif
 
 all::
 	@for subdir in $(SUBDIRS); \

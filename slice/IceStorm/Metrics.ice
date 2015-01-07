@@ -9,11 +9,12 @@
 
 #pragma once
 
-[["cpp:header-ext:h"]]
+[["cpp:header-ext:h", "objc:header-dir:objc"]]
 [["cpp:include:IceStorm/Config.h"]]
 
 #include <Ice/Metrics.ice>
 
+["objc:prefix:ICEMX"]
 module IceMX
 {
 

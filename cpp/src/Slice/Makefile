@@ -22,6 +22,7 @@ OBJS		= Checksum.o \
 		  JavaUtil.o \
 		  MD5.o \
 		  MD5I.o \
+		  ObjCUtil.o \
 		  Parser.o \
 		  PHPUtil.o \
 		  Preprocessor.o \

@@ -9,12 +9,13 @@
 
 #pragma once
 
-[["cpp:header-ext:h"]]
+[["cpp:header-ext:h", "objc:header-dir:objc"]]
 [["cpp:include:IceGrid/Config.h"]]
 
 #include <Glacier2/Session.ice>
 #include <IceGrid/Exception.ice>
 
+["objc:prefix:ICEGRID"]
 module IceGrid
 {
 

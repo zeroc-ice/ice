@@ -358,9 +358,9 @@ ifneq ($(SLICE_OBJS),)
 endif
 
 #
-# If dependencies has non been created yet make all OBJS depend
-# on all SRCS, Slice generated files will be created before C++
-# compilation starts and  avoid problems with parallel make
+# If dependencies haven't been created yet make all OBJS depend on all
+# SRCS, Slice generated files will be created before C++ compilation
+# starts. This prevents issues parallel make.
 #
 ifneq ($(OBJS),)
 

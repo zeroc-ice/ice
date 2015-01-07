@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h"]]
+[["cpp:header-ext:h", "objc:header-dir:objc"]]
 
 #include <Ice/CommunicatorF.ice>
 #include <Ice/ServantLocatorF.ice>
@@ -18,6 +18,7 @@
 #include <Ice/FacetMap.ice>
 #include <Ice/Endpoint.ice>
 
+["objc:prefix:ICE"]
 module Ice
 {
 

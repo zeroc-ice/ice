@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h"]]
+[["cpp:header-ext:h", "objc:header-dir:objc"]]
 [["cpp:include:IcePatch2/Config.h"]]
 
 #include <Ice/BuiltinSequences.ice>

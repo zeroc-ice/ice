@@ -11,9 +11,10 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-[["cpp:header-ext:h"]]
+[["cpp:header-ext:h", "objc:header-dir:objc"]]
 [["cpp:include:list"]]
 
+["objc:prefix:ICE"]
 module Ice
 {
 

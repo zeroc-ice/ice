@@ -492,8 +492,8 @@ def run(tests, root = False):
                 filters.append((testFilter, False))
         elif o == "--cross":
             global cross
-            if a not in ["cpp", "cs", "java", "js", "py", "rb" ]:
-                print("cross must be one of cpp, cs, java, js, py or rb")
+            if a not in ["cpp", "cs", "java", "js", "py", "rb", "objc" ]:
+                print("cross must be one of cpp, cs, java, js, py, rb or objc")
                 sys.exit(1)
             cross.append(a)
         elif o == "--all" :
@@ -872,7 +872,7 @@ def getDefaultMapping():
     here = os.getcwd().split(os.sep)
     here.reverse()
     for i in range(0, len(here)):
-        if here[i] in ["cpp", "cs", "java", "js", "php", "py", "rb", "cppe", "javae", "tmp"]:
+        if here[i] in ["cpp", "cs", "java", "js", "php", "py", "rb", "objc", "cppe", "javae", "tmp"]:
             return here[i]
     raise RuntimeError("cannot determine mapping")
 
@@ -1137,7 +1137,7 @@ def directoryToPackage():
 
 def getDefaultServerFile():
     lang = getDefaultMapping()
-    if lang in ["js", "rb", "php", "cpp", "cs", "cppe"]:
+    if lang in ["js", "rb", "php", "cpp", "cs", "objc", "cppe"]:
         return "server"
     if lang == "py":
         return "Server.py"
@@ -1155,7 +1155,7 @@ def getDefaultClientFile(lang = None):
         return "Client.rb"
     if lang == "php":
         return "Client.php"
-    if lang in ["cpp", "cs", "cppe"]:
+    if lang in ["cpp", "cs", "objc", "cppe"]:
         return "client"
     if lang == "py":
         return "Client.py"
@@ -1807,7 +1807,7 @@ def getTestEnv(lang, testdir):
     #
     if isWin32():
         addLdPath(getCppLibDir(lang), env)
-    elif lang in ["py", "rb", "php", "js"]:
+    elif lang in ["py", "rb", "php", "js", "objc"]:
         addLdPath(getCppLibDir(lang), env)
 
     if lang == "javae":
@@ -1976,8 +1976,8 @@ def processCmdLine():
         elif o == "--cross":
             global cross
             cross.append(a)
-            if not a in ["cpp", "cs", "java", "js", "py", "rb" ]:
-                print("cross must be one of cpp, cs, java, js, py or rb")
+            if not a in ["cpp", "cs", "java", "js", "py", "rb", "objc" ]:
+                print("cross must be one of cpp, cs, java, js, py, rb or objc")
                 sys.exit(1)
             if getTestName() not in crossTests:
                 print("*** This test does not support cross language testing")

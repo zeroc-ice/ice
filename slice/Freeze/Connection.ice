@@ -13,7 +13,7 @@
 #include <Ice/Version.ice>
 #include <Ice/CommunicatorF.ice>
 
-[["cpp:header-ext:h"]]
+[["cpp:header-ext:h", "objc:header-dir:objc"]]
 
 module Freeze
 {

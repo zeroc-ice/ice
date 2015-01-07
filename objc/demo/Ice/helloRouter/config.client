@@ -1,0 +1,57 @@
+#
+# Proxy to the iPhone router.
+#
+Ice.Default.Router=iPhoneRouter/Router:tcp -h 169.254.37.90 -p 12000
+
+#
+# The client reads this property to create the reference to the
+# "hello" object in the server.
+#
+Hello.Proxy=hello:tcp -p 10000
+
+#
+# Warn about connection exceptions
+#
+Ice.Warn.Connections=1
+
+#
+# Client-side ACM is enabled by default, with an interval of 60
+# seconds. For this demo, we want to use a short timeout of 10
+# seconds. By enabling network tracing below, you can see ACM
+# automatically close idle connections.
+#
+Ice.ACM.Client=10
+
+#
+# Network Tracing
+#
+# 0 = no network tracing
+# 1 = trace connection establishment and closure
+# 2 = like 1, but more detailed
+# 3 = like 2, but also trace data transfer
+#
+#Ice.Trace.Network=1
+
+#
+# Protocol Tracing
+#
+# 0 = no protocol tracing
+# 1 = trace protocol messages
+#
+#Ice.Trace.Protocol=1
+
+#
+# Security Tracing
+#
+# 0 = no security tracing
+# 1 = trace messages
+#
+#IceSSL.Trace.Security=1
+
+#
+# SSL Configuration
+#
+IceSSL.DefaultDir=../../../../certs
+IceSSL.CertAuthFile=cacert.pem
+IceSSL.CertFile=c_rsa1024_pub.pem
+IceSSL.KeyFile=c_rsa1024_priv.pem
