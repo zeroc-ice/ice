@@ -20,13 +20,11 @@ namespace IceInternal
     sealed class UdpEndpointI : IPEndpointI
     {
         public UdpEndpointI(ProtocolInstance instance, string ho, int po, EndPoint sourceAddr, string mcastInterface,
-                            int mttl, int sndBufSize, int rcvBufSize, bool conn, string conId, bool co) :
+                            int mttl, bool conn, string conId, bool co) :
             base(instance, ho, po, sourceAddr, conId)
         {
             _mcastInterface = mcastInterface;
             _mcastTtl = mttl;
-            _sndBufSize = sndBufSize;
-            _rcvBufSize = rcvBufSize;
             _connect = conn;
             _compress = co;
         }
@@ -130,8 +128,8 @@ namespace IceInternal
             }
             else
             {
-                return new UdpEndpointI(instance_, host_, port_, sourceAddr_, _mcastInterface, _mcastTtl, _sndBufSize,
-                                        _rcvBufSize, _connect, connectionId_, compress);
+                return new UdpEndpointI(instance_, host_, port_, sourceAddr_, _mcastInterface, _mcastTtl, _connect,
+                                        connectionId_, compress);
             }
         }
 
@@ -172,14 +170,7 @@ namespace IceInternal
         public UdpEndpointI endpoint(UdpTransceiver transceiver)
         {
             return new UdpEndpointI(instance_, host_, transceiver.effectivePort(), sourceAddr_, _mcastInterface,
-                                    _mcastTtl, transceiver.sndBufSize(), transceiver.rcvBufSize(), _connect,
-                                    connectionId_, _compress);
-        }
-
-        public void setBufSize(int sndSize, int rcvSize)
-        {
-            _sndBufSize = sndSize;
-            _rcvBufSize = rcvSize;
+                                    _mcastTtl, _connect, connectionId_, _compress);
         }
 
         public override string options()
@@ -303,8 +294,6 @@ namespace IceInternal
                 udpInfo.compress = _compress;
                 udpInfo.mcastInterface = _mcastInterface;
                 udpInfo.mcastTtl = _mcastTtl;
-                udpInfo.sndBufSize = _sndBufSize;
-                udpInfo.rcvBufSize = _rcvBufSize;
             }
         }
 
@@ -413,14 +402,12 @@ namespace IceInternal
 
         protected override IPEndpointI createEndpoint(string host, int port, string connectionId)
         {
-            return new UdpEndpointI(instance_, host, port, sourceAddr_, _mcastInterface, _mcastTtl, _sndBufSize,
-                                    _rcvBufSize, _connect, connectionId, _compress);
+            return new UdpEndpointI(instance_, host, port, sourceAddr_, _mcastInterface, _mcastTtl, _connect,
+                                    connectionId, _compress);
         }
 
         private string _mcastInterface = "";
         private int _mcastTtl = -1;
-        private int _sndBufSize = -1;
-        private int _rcvBufSize = -1;
         private bool _connect;
         private bool _compress;
     }

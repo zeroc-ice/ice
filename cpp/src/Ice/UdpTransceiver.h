@@ -63,8 +63,6 @@ public:
     virtual void checkSendSize(const Buffer&);
 
     int effectivePort() const;
-    int sndBufSize() const;
-    int rcvBufSize() const;
 
 private:
 

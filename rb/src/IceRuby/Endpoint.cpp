@@ -148,8 +148,6 @@ IceRuby::createEndpointInfo(const Ice::EndpointInfoPtr& p)
         rb_ivar_set(info, rb_intern("@sourceAddress"), createString(udp->sourceAddress));
         rb_ivar_set(info, rb_intern("@mcastInterface"), createString(udp->mcastInterface));
         rb_ivar_set(info, rb_intern("@mcastTtl"), INT2FIX(udp->mcastTtl));
-        rb_ivar_set(info, rb_intern("@sndBufSize"), INT2FIX(udp->sndBufSize));
-        rb_ivar_set(info, rb_intern("@rcvBufSize"), INT2FIX(udp->rcvBufSize));
     }
     else if(Ice::OpaqueEndpointInfoPtr::dynamicCast(p))
     {
@@ -293,8 +291,6 @@ IceRuby::initEndpoint(VALUE iceModule)
     //
     rb_define_attr(_udpEndpointInfoClass, "mcastInterface", 1, 0);
     rb_define_attr(_udpEndpointInfoClass, "mcastTtl", 1, 0);
-    rb_define_attr(_udpEndpointInfoClass, "sndBufSize", 1, 0);
-    rb_define_attr(_udpEndpointInfoClass, "rcvBufSize", 1, 0);
 
     //
     // OpaqueEndpointInfo

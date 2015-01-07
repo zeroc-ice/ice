@@ -18,17 +18,6 @@ Note that this file only includes changes since Ice 3.2.1. For the
 change history of prior releases, refer to the CHANGES file in the
 subdirectory of each language mapping (e.g., cpp/CHANGES).
 
-======================================================================
-Changes since version 3.6b
-======================================================================
-
-
-General Changes
-===============
-
-- Added sndBufSize and rcvBufSize members to UDPEndpointInfo class.
-  These are the send and recieve buffer sizes set on socket used by
-  the UDP endpoint.
 
 ======================================================================
 Changes since version 3.5.1
@@ -54,7 +43,7 @@ General Changes
   the maximum message size is now only performed on the receiver
   side. If the size of the message is greater than the limit, Ice
   raises Ice::MemoryLimitException and closes the connection.
-
+  
   Previously, it was also used to limit the amount of data sent to a
   peer (either for a request or reply). This is no longer the case.
 
@@ -310,7 +299,7 @@ C++ Changes
 ===========
 
 - Refactored the capture and printing of exception stack traces
-  to be more efficient when the stack traces are not printed.
+  to be more efficient when the stack traces are not printed. 
   The signature of IceUtil::Exception::ice_stackTrace changed to:
      std::string ice_stackTrace() const;
 

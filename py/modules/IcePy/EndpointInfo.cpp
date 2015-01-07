@@ -198,28 +198,6 @@ udpEndpointInfoGetMcastTtl(EndpointInfoObject* self)
 extern "C"
 #endif
 static PyObject*
-udpEndpointInfoGetSndBufSize(EndpointInfoObject* self)
-{
-    Ice::UDPEndpointInfoPtr info = Ice::UDPEndpointInfoPtr::dynamicCast(*self->endpointInfo);
-    assert(info);
-    return PyLong_FromLong(info->sndBufSize);
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
-udpEndpointInfoGetRcvBufSize(EndpointInfoObject* self)
-{
-    Ice::UDPEndpointInfoPtr info = Ice::UDPEndpointInfoPtr::dynamicCast(*self->endpointInfo);
-    assert(info);
-    return PyLong_FromLong(info->rcvBufSize);
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
 opaqueEndpointInfoGetRawBytes(EndpointInfoObject* self)
 {
     Ice::OpaqueEndpointInfoPtr info = Ice::OpaqueEndpointInfoPtr::dynamicCast(*self->endpointInfo);
@@ -281,10 +259,6 @@ static PyGetSetDef UDPEndpointInfoGetters[] =
         PyDoc_STR(STRCAST("multicast interface")), 0 },
     { STRCAST("mcastTtl"), reinterpret_cast<getter>(udpEndpointInfoGetMcastTtl), 0,
         PyDoc_STR(STRCAST("multicast time-to-live")), 0 },
-    { STRCAST("sndBufSize"), reinterpret_cast<getter>(udpEndpointInfoGetSndBufSize), 0,
-        PyDoc_STR(STRCAST("send buffer size")), 0 },
-    { STRCAST("rcvBufSize"), reinterpret_cast<getter>(udpEndpointInfoGetRcvBufSize), 0,
-        PyDoc_STR(STRCAST("recieve buffer size")), 0 },
     { 0, 0 } /* sentinel */
 };
 
