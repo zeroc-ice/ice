@@ -5,6 +5,11 @@
 CallbackSender.Proxy=sender:tcp -h localhost -p 10000
 
 #
+# Uncomment to use the WebSocket transport instead.
+#
+#CallbackSender.Proxy=sender:ws -h localhost -p 10002
+
+#
 # Warn about connection exceptions
 #
 Ice.Warn.Connections=1

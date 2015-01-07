@@ -2,7 +2,12 @@
 # The client reads this property to create the reference to the
 # "CallbackSender" object in the server.
 #
-CallbackSender.Proxy=sender:ws -h localhost -p 10002
+CallbackSender.Proxy=sender:tcp -h localhost -p 10002
+
+#
+# Uncomment to use the WebSocket transport instead.
+#
+#CallbackSender.Proxy=sender:ws -h localhost -p 10002
 
 #
 # Warn about connection exceptions

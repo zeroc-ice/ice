@@ -1,4 +1,9 @@
-Callback.Server.Endpoints=tcp -h localhost -p 10000
+#
+# The server creates one single object adapter with the name
+# "Callback.Server". The following line sets the endpoints for this
+# adapter.
+#
+Callback.Server.Endpoints=tcp -h localhost -p 10000:ws -h localhost -p 10002
 
 #
 # Warn about connection exceptions
