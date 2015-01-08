@@ -27,7 +27,11 @@
 #include <Ice/RequestHandler.h> // For RetryException
 #include <Ice/ReferenceFactory.h> // For createProxy().
 #include <Ice/ProxyFactory.h> // For createProxy().
-#ifndef ICE_OS_WINRT
+
+#if !defined(ICE_OS_WINRT)
+#    ifndef ICE_HAS_BZIP2
+#        define ICE_HAS_BZIP2
+#    endif
 #    include <bzlib.h>
 #endif
 
@@ -3014,7 +3018,7 @@ Ice::ConnectionI::sendNextMessage(vector<OutgoingMessage>& callbacks)
             //
             message = &_sendStreams.front();
             assert(!message->stream->i);
-#ifndef ICE_OS_WINRT
+#ifdef ICE_HAS_BZIP2
             if(message->compress && message->stream->b.size() >= 100) // Only compress messages > 100 bytes.
             {
                 //
@@ -3070,7 +3074,7 @@ Ice::ConnectionI::sendNextMessage(vector<OutgoingMessage>& callbacks)
                 {
                     traceSend(*message->stream, _logger, _traceLevels);
                 }
-#ifndef ICE_OS_WINRT
+#ifdef ICE_HAS_BZIP2
             }
 #endif
             _writeStream.swap(*message->stream);
@@ -3139,7 +3143,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
 
     message.stream->i = message.stream->b.begin();
     SocketOperation op;
-#ifndef ICE_OS_WINRT
+#ifdef ICE_HAS_BZIP2
     if(message.compress && message.stream->b.size() >= 100) // Only compress messages larger than 100 bytes.
     {
         //
@@ -3253,7 +3257,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
 
         _sendStreams.push_back(message);
         _sendStreams.back().adopt(0); // Adopt the stream.
-#ifndef ICE_OS_WINRT
+#ifdef ICE_HAS_BZIP2
     }
 #endif
 
@@ -3263,7 +3267,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
     return AsyncStatusQueued;
 }
 
-#ifndef ICE_OS_WINRT
+#ifdef ICE_HAS_BZIP2
 static string
 getBZ2Error(int bzError)
 {
@@ -3451,7 +3455,7 @@ Ice::ConnectionI::parseMessage(BasicStream& stream, Int& invokeNum, Int& request
         stream.read(messageType);
         stream.read(compress);
 
-#ifndef ICE_OS_WINRT
+#ifdef ICE_HAS_BZIP2
         if(compress == 2)
         {
             BasicStream ustream(_instance.get(), Ice::currentProtocolEncoding);
