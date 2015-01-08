@@ -28,11 +28,8 @@
 #include <Ice/ReferenceFactory.h> // For createProxy().
 #include <Ice/ProxyFactory.h> // For createProxy().
 
-#if !defined(ICE_OS_WINRT)
-#    ifndef ICE_HAS_BZIP2
-#        define ICE_HAS_BZIP2
-#    endif
-#    include <bzlib.h>
+#ifdef ICE_HAS_BZIP2
+#  include <bzlib.h>
 #endif
 
 using namespace std;
@@ -3455,14 +3452,18 @@ Ice::ConnectionI::parseMessage(BasicStream& stream, Int& invokeNum, Int& request
         stream.read(messageType);
         stream.read(compress);
 
-#ifdef ICE_HAS_BZIP2
         if(compress == 2)
         {
+#ifdef ICE_HAS_BZIP2
             BasicStream ustream(_instance.get(), Ice::currentProtocolEncoding);
             doUncompress(stream, ustream);
             stream.b.swap(ustream.b);
-        }
+#else
+            FeatureNotSupportedException ex(__FILE__, __LINE__);
+            ex.unsupportedFeature = "Cannot uncompress compressed message";
+            throw ex;
 #endif
+        }
         stream.i = stream.b.begin() + headerSize;
 
         switch(messageType)

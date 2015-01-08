@@ -15,6 +15,7 @@
 #include <IceUtil/Time.h>
 #include <IceUtil/StopWatch.h>
 #include <IceUtil/Timer.h>
+#include <IceUtil/UniquePtr.h>
 
 #include <Ice/CommunicatorF.h>
 #include <Ice/Connection.h>
@@ -38,7 +39,12 @@
 #include <Ice/ACM.h>
 
 #include <deque>
-#include <IceUtil/UniquePtr.h>
+
+#if !defined(ICE_OS_WINRT)
+#    ifndef ICE_HAS_BZIP2
+#        define ICE_HAS_BZIP2
+#    endif
+#endif
 
 namespace IceInternal
 {
@@ -266,7 +272,7 @@ private:
     IceInternal::SocketOperation sendNextMessage(std::vector<OutgoingMessage>&);
     IceInternal::AsyncStatus sendMessage(OutgoingMessage&);
 
-#ifndef ICE_OS_WINRT
+#ifdef ICE_HAS_BZIP2
     void doCompress(IceInternal::BasicStream&, IceInternal::BasicStream&);
     void doUncompress(IceInternal::BasicStream&, IceInternal::BasicStream&);
 #endif
