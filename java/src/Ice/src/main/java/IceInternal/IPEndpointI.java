@@ -90,6 +90,12 @@ public abstract class IPEndpointI extends EndpointI
     }
 
     @Override
+    public boolean secure()
+    {
+        return _instance.secure();
+    }
+
+    @Override
     public String connectionId()
     {
         return _connectionId;

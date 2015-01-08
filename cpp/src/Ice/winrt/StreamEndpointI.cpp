@@ -32,15 +32,15 @@ template<class T> class InfoI : public T
 {
 public:
 
-    InfoI(Ice::Short type, Ice::Int to, bool comp, const string& host, Ice::Int port) :
-        T(to, comp, host, port, ""), _type(type)
+    InfoI(const ProtocolInstancePtr& instance, Ice::Int to, bool comp, const string& host, Ice::Int port) :
+        T(to, comp, host, port, ""), _instance(instance)
     {
     }
 
     virtual Ice::Short
     type() const
     {
-        return _type;
+        return _instance->type();
     }
 
     virtual bool
@@ -52,12 +52,12 @@ public:
     virtual bool
     secure() const
     {
-        return _type == IceSSL::EndpointType || _type == WSSEndpointType;
+        return _instance->secure();
     }
 
 private:
 
-    Ice::Short _type;
+    ProtocolInstancePtr _instance;
 };
 
 }
@@ -95,10 +95,10 @@ IceInternal::StreamEndpointI::getInfo() const
     {
     case TCPEndpointType:
     case WSEndpointType:
-        return new InfoI<Ice::TCPEndpointInfo>(_instance->type(), _timeout, _compress, _host, _port);
+        return new InfoI<Ice::TCPEndpointInfo>(_instance, _timeout, _compress, _host, _port);
     case IceSSL::EndpointType:
     case WSSEndpointType:
-        return new InfoI<IceSSL::EndpointInfo>(_instance->type(), _timeout, _compress, _host, _port);
+        return new InfoI<IceSSL::EndpointInfo>(_instance, _timeout, _compress, _host, _port);
     default:
         assert(false);
         return 0;

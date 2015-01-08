@@ -61,6 +61,11 @@ namespace IceInternal
             return type_;
         }
 
+        public bool secure()
+        {
+            return type_ == 2 /*IceSSL.EndpointType.value*/ || type_ == Ice.WSSEndpointType.value;
+        }
+
         public Ice.Properties properties()
         {
             return properties_;

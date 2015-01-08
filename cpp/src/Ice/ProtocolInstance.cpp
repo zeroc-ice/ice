@@ -14,6 +14,8 @@
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/TraceLevels.h>
 
+#include <IceSSL/EndpointInfo.h>
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -38,6 +40,12 @@ IceInternal::ProtocolInstance::ProtocolInstance(const InstancePtr& instance, Sho
     _protocol(protocol),
     _type(type)
 {
+}
+
+bool
+IceInternal::ProtocolInstance::secure() const
+{
+    return _type == IceSSL::EndpointType || _type == WSSEndpointType;
 }
 
 bool
@@ -75,7 +83,6 @@ IceInternal::ProtocolInstance::defaultTimeout() const
 {
     return _instance->defaultsAndOverrides()->defaultTimeout;
 }
-
 
 NetworkProxyPtr
 IceInternal::ProtocolInstance::networkProxy() const

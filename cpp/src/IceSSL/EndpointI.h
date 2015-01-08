@@ -35,7 +35,6 @@ public:
     virtual bool compress() const;
     virtual IceInternal::EndpointIPtr compress(bool) const;
     virtual bool datagram() const;
-    virtual bool secure() const;
 
     virtual IceInternal::TransceiverPtr transceiver() const;
     virtual IceInternal::AcceptorPtr acceptor(const std::string&) const;

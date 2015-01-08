@@ -131,12 +131,6 @@ IceInternal::TcpEndpointI::datagram() const
     return false;
 }
 
-bool
-IceInternal::TcpEndpointI::secure() const
-{
-    return false;
-}
-
 TransceiverPtr
 IceInternal::TcpEndpointI::transceiver() const
 {

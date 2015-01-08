@@ -135,15 +135,6 @@ final class UdpEndpointI extends IPEndpointI
     }
 
     //
-    // Return true if the endpoint is secure.
-    //
-    @Override
-    public boolean secure()
-    {
-        return false;
-    }
-
-    //
     // Return a server side transceiver for this endpoint, or null if a
     // transceiver can only be created by an acceptor.
     //

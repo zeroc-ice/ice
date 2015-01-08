@@ -133,12 +133,6 @@ IceSSL::EndpointI::datagram() const
     return false;
 }
 
-bool
-IceSSL::EndpointI::secure() const
-{
-    return true;
-}
-
 IceInternal::TransceiverPtr
 IceSSL::EndpointI::transceiver() const
 {

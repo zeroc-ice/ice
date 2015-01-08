@@ -139,12 +139,6 @@ IceInternal::UdpEndpointI::datagram() const
     return true;
 }
 
-bool
-IceInternal::UdpEndpointI::secure() const
-{
-    return false;
-}
-
 TransceiverPtr
 IceInternal::UdpEndpointI::transceiver() const
 {

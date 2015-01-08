@@ -59,6 +59,7 @@ public:
         return _properties;
     }
 
+    bool secure() const;
     bool preferIPv6() const;
     ProtocolSupport protocolSupport() const;
     const std::string& defaultHost() const;

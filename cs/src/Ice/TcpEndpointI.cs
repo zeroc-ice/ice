@@ -110,11 +110,6 @@ namespace IceInternal
             return false;
         }
 
-        public override bool secure()
-        {
-            return false;
-        }
-
         public override Transceiver transceiver()
         {
             return null;

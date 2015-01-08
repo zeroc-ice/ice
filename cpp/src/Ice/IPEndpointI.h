@@ -50,6 +50,7 @@ public:
     virtual Ice::EndpointInfoPtr getInfo() const;
     virtual Ice::Short type() const;
     virtual const std::string& protocol() const;
+    virtual bool secure() const;
     virtual void streamWrite(BasicStream*) const;
 
     virtual const std::string& connectionId() const;

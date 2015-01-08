@@ -97,6 +97,11 @@ namespace IceInternal
             return instance_.protocol();
         }
 
+        public override bool secure()
+        {
+            return instance_.secure();
+        }
+
         public override string connectionId()
         {
             return connectionId_;

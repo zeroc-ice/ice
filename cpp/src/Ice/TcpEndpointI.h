@@ -34,7 +34,6 @@ public:
     virtual bool compress() const;
     virtual EndpointIPtr compress(bool) const;
     virtual bool datagram() const;
-    virtual bool secure() const;
 
     virtual TransceiverPtr transceiver() const;
     virtual AcceptorPtr acceptor(const std::string&) const;

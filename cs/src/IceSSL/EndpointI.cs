@@ -137,14 +137,6 @@ namespace IceSSL
         }
 
         //
-        // Return true if the endpoint is secure.
-        //
-        public override bool secure()
-        {
-            return true;
-        }
-
-        //
         // Return a server side transceiver for this endpoint, or null if a
         // transceiver can only be created by an acceptor.
         //

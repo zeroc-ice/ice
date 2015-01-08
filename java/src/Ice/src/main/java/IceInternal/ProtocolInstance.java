@@ -47,6 +47,11 @@ public class ProtocolInstance
         return _type;
     }
 
+    public boolean secure()
+    {
+        return _type == IceSSL.EndpointType.value || _type == Ice.WSSEndpointType.value;
+    }
+
     public Ice.Properties properties()
     {
         return _properties;

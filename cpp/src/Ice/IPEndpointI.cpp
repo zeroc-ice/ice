@@ -96,6 +96,12 @@ IceInternal::IPEndpointI::protocol() const
     return _instance->protocol();
 }
 
+bool
+IceInternal::IPEndpointI::secure() const
+{
+    return _instance->secure();
+}
+
 void
 IceInternal::IPEndpointI::streamWrite(BasicStream* s) const
 {
