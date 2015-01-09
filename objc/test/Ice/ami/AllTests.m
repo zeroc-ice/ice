@@ -10,7 +10,7 @@
 #import <objc/Ice.h>
 #import <TestCommon.h>
 #import <AMITest.h>
- 
+
 #import <Foundation/Foundation.h>
 
 @interface TestAMICallback : NSObject
@@ -113,6 +113,9 @@ amiAllTests(id<ICECommunicator> communicator)
         result = [p begin_ice_ids:ctx];
         test([[p end_ice_ids:result] count] == 2);
 
+        result = [p begin_ice_getConnection];
+        test([p end_ice_getConnection:result]);
+
         result = [p begin_op];
         [p end_op:result];
         result = [p begin_op:ctx];
@@ -165,10 +168,10 @@ amiAllTests(id<ICECommunicator> communicator)
         [p begin_ice_ping:ctx response:pingCB exception:exCB];
         [cb check];
 
-        void (^idCB)(NSString* typeId) = ^(NSString* typeId) 
-            { 
-                test([typeId isEqualToString:[TestAMITestIntfPrx ice_staticId]]); 
-                [cb called]; 
+        void (^idCB)(NSString* typeId) = ^(NSString* typeId)
+            {
+                test([typeId isEqualToString:[TestAMITestIntfPrx ice_staticId]]);
+                [cb called];
             };
 
         [p begin_ice_id:idCB exception:exCB];
@@ -176,15 +179,24 @@ amiAllTests(id<ICECommunicator> communicator)
         [p begin_ice_id:ctx response:idCB exception:exCB];
         [cb check];
 
-        void (^idsCB)(NSArray* types) = ^(NSArray* types) 
-            { 
-                test([types count] == 2); 
-                [cb called]; 
+        void (^idsCB)(NSArray* types) = ^(NSArray* types)
+            {
+                test([types count] == 2);
+                [cb called];
             };
 
         [p begin_ice_ids:idsCB exception:exCB];
         [cb check];
         [p begin_ice_ids:ctx response:idsCB exception:exCB];
+        [cb check];
+
+        void (^conCB)(id<ICEConnection>) = ^(id<ICEConnection> conn)
+            {
+                test(conn);
+                [cb called];
+            };
+
+        [p begin_ice_getConnection:conCB exception:exCB];
         [cb check];
 
         void (^opCB)() = ^ { [cb called]; };
@@ -195,10 +207,10 @@ amiAllTests(id<ICECommunicator> communicator)
         [p begin_op:nil exception:exCB];
         [p begin_op:ctx response:nil exception:exCB];
 
-        void (^opWithResultCB)(ICEInt) = ^(ICEInt r) 
-            { 
-                test(r == 15); 
-                [cb called]; 
+        void (^opWithResultCB)(ICEInt) = ^(ICEInt r)
+            {
+                test(r == 15);
+                [cb called];
             };
         [p begin_opWithResult:opWithResultCB exception:exCB];
         [cb check];
@@ -210,8 +222,8 @@ amiAllTests(id<ICECommunicator> communicator)
 #else
         void (^opWithUE)() = [ ^() { test(NO); } copy ];
 #endif
-        void (^opWithUEEx)(ICEException*) = ^(ICEException* ex) 
-        { 
+        void (^opWithUEEx)(ICEException*) = ^(ICEException* ex)
+        {
             @try
             {
                 @throw ex;
@@ -285,7 +297,7 @@ amiAllTests(id<ICECommunicator> communicator)
         id<ICECommunicator> ic = [ICEUtil createCommunicator:initData];
         id<ICEObjectPrx> obj = [ic stringToProxy:[p ice_toString]];
         id<TestAMITestIntfPrx> p2 = [TestAMITestIntfPrx checkedCast:obj];
-        
+
         [ic destroy];
 
         @try
@@ -349,6 +361,14 @@ amiAllTests(id<ICECommunicator> communicator)
         [i begin_ice_ids:idsCB exception:exCB];
         [cb check];
         [i begin_ice_ids:ctx response:idsCB exception:exCB];
+        [cb check];
+
+#if defined(__clang__) && !__has_feature(objc_arc)
+        void (^conCB)(id<ICEConnection>) = [[ ^(id<ICEConnection> ret) { test(NO); } copy ] autorelease];
+#else
+        void (^conCB)(id<ICEConnection>) = [ ^(id<ICEConnection> ret) { test(NO); } copy ];
+#endif
+        [i begin_ice_getConnection:conCB exception:exCB];
         [cb check];
 
 #if defined(__clang__) && !__has_feature(objc_arc)
@@ -420,8 +440,8 @@ amiAllTests(id<ICECommunicator> communicator)
                 TestAMICallback* cb = [TestAMICallback create];
                 while(true)
                 {
-                    if(![[p begin_opWithPayload:seq response:nil exception:exCB sent: 
-                                ^(BOOL ss) { 
+                    if(![[p begin_opWithPayload:seq response:nil exception:exCB sent:
+                                ^(BOOL ss) {
                                    [cb called];
                                }] sentSynchronously])
                     {
@@ -662,13 +682,13 @@ amiAllTests(id<ICECommunicator> communicator)
                 ICEByte d[1024];
                 ICEMutableByteSeq* seq = [ICEMutableByteSeq dataWithBytes:d length:sizeof(d)];
                 while([(r2 = [p begin_opWithPayload:seq]) sentSynchronously]);
-            
+
                 test(r1 == r1);
                 test(r1 != r2);
 
                 test(([r1 sentSynchronously] && [r1 isSent] && ![r1 isCompleted]) ||
                      (![r1 sentSynchronously] && ![r1 isCompleted]));
-            
+
                 test(![r2 sentSynchronously] && ![r2 isCompleted]);
             }
             @catch(NSException* ex)
