@@ -11,7 +11,7 @@
 #import <TestCommon.h>
 #import <ProxyTest.h>
 
- 
+
 TestProxyMyClassPrx*
 proxyAllTests(id<ICECommunicator> communicator)
 {
@@ -37,7 +37,7 @@ proxyAllTests(id<ICECommunicator> communicator)
          [[[b1 ice_getIdentity] category] length] == 0 &&
          [[b1 ice_getFacet] length] == 0);
     b1 = [communicator stringToProxy:@"'test -f facet'"];
-    test([[[b1 ice_getIdentity] name] isEqualToString:@"test -f facet"] && 
+    test([[[b1 ice_getIdentity] name] isEqualToString:@"test -f facet"] &&
          [[[b1 ice_getIdentity] category] length] == 0 &&
          [[b1 ice_getFacet] length] == 0);
     @try
@@ -57,7 +57,7 @@ proxyAllTests(id<ICECommunicator> communicator)
          [[[b1 ice_getIdentity] category] length] == 0 &&
          [[b1 ice_getFacet] length] == 0);
     b1 = [communicator stringToProxy:@"\"test -f facet@test @test\""];
-    test([[[b1 ice_getIdentity] name] isEqualToString:@"test -f facet@test @test"] && 
+    test([[[b1 ice_getIdentity] name] isEqualToString:@"test -f facet@test @test"] &&
          [[[b1 ice_getIdentity] category] length] == 0 &&
          [[b1 ice_getFacet] length] == 0);
     @try
@@ -69,7 +69,7 @@ proxyAllTests(id<ICECommunicator> communicator)
     {
     }
     b1 = [communicator stringToProxy:@"test\\040test"];
-    test([[[b1 ice_getIdentity] name] isEqualToString:@"test test"] && 
+    test([[[b1 ice_getIdentity] name] isEqualToString:@"test test"] &&
          [[[b1 ice_getIdentity] category] length] == 0);
     @try
     {
@@ -93,11 +93,11 @@ proxyAllTests(id<ICECommunicator> communicator)
     test([[[b1 ice_getIdentity] name] isEqualToString:@"test\1114test"]);
 
     b1 = [communicator stringToProxy:@"test\\b\\f\\n\\r\\t\\'\\\"\\\\test"];
-    test([[[b1 ice_getIdentity] name] isEqualToString:@"test\b\f\n\r\t\'\"\\test"] && 
+    test([[[b1 ice_getIdentity] name] isEqualToString:@"test\b\f\n\r\t\'\"\\test"] &&
          [[[b1 ice_getIdentity] category] length] == 0);
 
     b1 = [communicator stringToProxy:@"category/test"];
-    test([[[b1 ice_getIdentity] name] isEqualToString:@"test"] && 
+    test([[[b1 ice_getIdentity] name] isEqualToString:@"test"] &&
          [[[b1 ice_getIdentity] category] isEqualToString:@"category"] &&
          [[b1 ice_getAdapterId] length] == 0);
 
@@ -114,11 +114,11 @@ proxyAllTests(id<ICECommunicator> communicator)
     {
     }
     b1 = [communicator stringToProxy:@"category/test@adapter"];
-    test([[[b1 ice_getIdentity] name] isEqualToString:@"test"] && 
+    test([[[b1 ice_getIdentity] name] isEqualToString:@"test"] &&
          [[[b1 ice_getIdentity] category] isEqualToString:@"category"] &&
          [[b1 ice_getAdapterId] isEqualToString:@"adapter"]);
     b1 = [communicator stringToProxy:@"category/test@adapter:tcp"];
-    test([[[b1 ice_getIdentity] name] isEqualToString:@"test"] && 
+    test([[[b1 ice_getIdentity] name] isEqualToString:@"test"] &&
          [[[b1 ice_getIdentity] category] isEqualToString:@"category"] &&
          [[b1 ice_getAdapterId] isEqualToString:@"adapter:tcp"]);
     b1 = [communicator stringToProxy:@"'category 1/test'@adapter"];
@@ -126,11 +126,11 @@ proxyAllTests(id<ICECommunicator> communicator)
          [[[b1 ice_getIdentity] category] isEqualToString:@"category 1"] &&
          [[b1 ice_getAdapterId] isEqualToString:@"adapter"]);
     b1 = [communicator stringToProxy:@"'category/test 1'@adapter"];
-    test([[[b1 ice_getIdentity] name] isEqualToString:@"test 1"] && 
+    test([[[b1 ice_getIdentity] name] isEqualToString:@"test 1"] &&
          [[[b1 ice_getIdentity] category] isEqualToString:@"category"] &&
          [[b1 ice_getAdapterId] isEqualToString:@"adapter"]);
     b1 = [communicator stringToProxy:@"'category/test'@'adapter 1'"];
-    test([[[b1 ice_getIdentity] name] isEqualToString:@"test"] && 
+    test([[[b1 ice_getIdentity] name] isEqualToString:@"test"] &&
          [[[b1 ice_getIdentity] category] isEqualToString:@"category"] &&
          [[b1 ice_getAdapterId] isEqualToString:@"adapter 1"]);
     b1 = [communicator stringToProxy:@"\"category \\/test@foo/test\"@adapter"];
@@ -138,7 +138,7 @@ proxyAllTests(id<ICECommunicator> communicator)
          [[[b1 ice_getIdentity] category] isEqualToString:@"category /test@foo"] &&
          [[b1 ice_getAdapterId] isEqualToString:@"adapter"]);
     b1 = [communicator stringToProxy:@"\"category \\/test@foo/test\"@\"adapter:tcp\""];
-    test([[[b1 ice_getIdentity] name] isEqualToString:@"test"] && 
+    test([[[b1 ice_getIdentity] name] isEqualToString:@"test"] &&
          [[[b1 ice_getIdentity] category] isEqualToString:@"category /test@foo"] &&
          [[b1 ice_getAdapterId] isEqualToString:@"adapter:tcp"]);
 
@@ -311,14 +311,14 @@ proxyAllTests(id<ICECommunicator> communicator)
     b1 = [communicator propertyToProxy:propertyPrefix];
     test([b1 ice_isPreferSecure]);
     [prop  setProperty:property value:@""];
-    
+
     property = [propertyPrefix stringByAppendingString:@".ConnectionCached"];
     test([b1 ice_isConnectionCached]);
     [prop  setProperty:property value:@"0"];
     b1 = [communicator propertyToProxy:propertyPrefix];
     test(![b1 ice_isConnectionCached]);
     [prop  setProperty:property value:@""];
-    
+
     property = [propertyPrefix stringByAppendingString:@".EndpointSelection"];
     test([b1 ice_getEndpointSelection] == ICERandom);
     [prop  setProperty:property value:@"Random"];
@@ -392,7 +392,7 @@ proxyAllTests(id<ICECommunicator> communicator)
     test([[proxyProps objectForKey:@"Test.Locator.Router.LocatorCacheTimeout"] isEqualToString:@"200"]);
 
     tprintf("ok\n");
-    
+
     tprintf("testing ice_getCommunicator... ");
     test([base ice_getCommunicator] == communicator);
     tprintf("ok\n");
@@ -433,7 +433,7 @@ proxyAllTests(id<ICECommunicator> communicator)
     test(![[compObj ice_facet:@"facet"] isEqual:[compObj ice_facet:@"facet1"]]);
 //    test([compObj ice_facet:@"facet"] < [compObj ice_facet:"facet1"]);
 //    test(!([compObj ice_facet:@"facet"] < [compObj ice_facet:"facet"]));
-    
+
     test([[compObj ice_oneway] isEqual:[compObj ice_oneway]]);
     test(![[compObj ice_oneway] isEqual:[compObj ice_twoway]]);
 //     test([compObj ice_twoway] < [compObj ice_oneway]);
@@ -485,7 +485,7 @@ proxyAllTests(id<ICECommunicator> communicator)
 //     test(!([compObj ice_locator:loc1] < [compObj ice_locator:0]));
 //     test([compObj ice_locator:loc1] < [compObj ice_locator:loc2]);
 //     test(!([compObj ice_locator:loc2] < [compObj ice_locator:loc1]));
-    
+
     id<ICERouterPrx> rtr1 = [ICERouterPrx uncheckedCast:[communicator stringToProxy:@"rtr1:default -p 10000"]];
     id<ICERouterPrx> rtr2 = [ICERouterPrx uncheckedCast:[communicator stringToProxy:@"rtr2:default -p 10000"]];
     test([[compObj ice_router:0] isEqual:[compObj ice_router:0]]);
@@ -497,7 +497,7 @@ proxyAllTests(id<ICECommunicator> communicator)
 //     test(!([compObj ice_router:rtr1] < [compObj ice_router:0]));
 //     test([compObj ice_router:rtr1] < [compObj ice_router:rtr2]);
 //     test(!([compObj ice_router:rtr2] < [compObj ice_router:rtr1]));
-    
+
     ICEMutableContext* ctx1 = [ICEMutableContext dictionary];
     [ctx1 setObject:@"v1" forKey:@"ctx1"];
     ICEMutableContext* ctx2 = [ICEMutableContext dictionary];
@@ -509,35 +509,35 @@ proxyAllTests(id<ICECommunicator> communicator)
     test(![[compObj ice_context:ctx1] isEqual:[compObj ice_context:ctx2]]);
 //     test([compObj ice_context:ctx1] < [compObj ice_context:ctx2]);
 //     test(!([compObj ice_context:ctx2] < [compObj ice_context:ctx1]));
-    
+
     test([[compObj ice_preferSecure:YES] isEqual:[compObj ice_preferSecure:YES]]);
     test(![[compObj ice_preferSecure:YES] isEqual:[compObj ice_preferSecure:NO]]);
 //     test([compObj ice_preferSecure:NO] < [compObj ice_preferSecure:YES]);
 //     test(!([compObj ice_preferSecure:YES] < [compObj ice_preferSecure:NO]));
-    
+
     id<ICEObjectPrx> compObj1 = [communicator stringToProxy:@"foo:tcp -h 127.0.0.1 -p 10000"];
     id<ICEObjectPrx> compObj2 = [communicator stringToProxy:@"foo:tcp -h 127.0.0.1 -p 10001"];
     test(![compObj isEqual:compObj2]);
 //     test(compObj1 < compObj2);
 //     test(!(compObj2 < compObj1));
-    
+
     compObj1 = [communicator stringToProxy:@"foo@MyAdapter1"];
     compObj2 = [communicator stringToProxy:@"foo@MyAdapter2"];
     test(![compObj isEqual:compObj2]);
 //     test(compObj1 < compObj2);
 //     test(!(compObj2 < compObj1));
-    
+
     test([[compObj1 ice_locatorCacheTimeout:20] isEqual:[compObj1 ice_locatorCacheTimeout:20]]);
     test(![[compObj1 ice_locatorCacheTimeout:10] isEqual:[compObj1 ice_locatorCacheTimeout:20]]);
 //     test([compObj1 ice_locatorCacheTimeout:10] < [compObj1 ice_locatorCacheTimeout:20]);
 //     test(!([compObj1 ice_locatorCacheTimeout:20] < [compObj1 ice_locatorCacheTimeout:10]));
-    
+
     compObj1 = [communicator stringToProxy:@"foo:tcp -h 127.0.0.1 -p 1000"];
     compObj2 = [communicator stringToProxy:@"foo@MyAdapter1"];
     test(![compObj isEqual:compObj2]);
 //     test(compObj1 < compObj2);
 //     test(!(compObj2 < compObj1));
-    
+
     test([[compObj1 ice_encodingVersion:ICEEncoding_1_0] isEqual:[compObj1 ice_encodingVersion:ICEEncoding_1_0]]);
     test(![[compObj1 ice_encodingVersion:ICEEncoding_1_0] isEqual:[compObj1 ice_encodingVersion:ICEEncoding_1_1]]);
 
@@ -552,13 +552,13 @@ proxyAllTests(id<ICECommunicator> communicator)
     tprintf("testing checked cast... ");
     id<TestProxyMyClassPrx> cl = [TestProxyMyClassPrx checkedCast:base];
     test(cl);
-    
+
     id<TestProxyMyDerivedClassPrx> derived = [TestProxyMyDerivedClassPrx checkedCast:cl];
     test(derived);
     test([cl isEqual:base]);
     test([derived isEqual:base]);
     test([cl isEqual:derived]);
-    
+
     id<ICELocatorPrx> loc = [ICELocatorPrx checkedCast:base];
     test(loc == nil);
 
@@ -577,19 +577,19 @@ proxyAllTests(id<ICECommunicator> communicator)
     tprintf("testing checked cast with context... ");
     ICEMutableContext* c = [cl getContext];
     test([c count] == 0);
-    
+
     [c setObject:@"hello" forKey:@"one"];
     [c setObject:@"world" forKey:@"two"];
     cl = [TestProxyMyClassPrx checkedCast:base context:c];
     ICEContext* c2 = [cl getContext];
     test([c isEqual:c2]);
-    
+
     tprintf("ok\n");
 
     tprintf("testing encoding versioning... ");
     TestProxyMyClassPrx* cl20 = [TestProxyMyClassPrx uncheckedCast:
                                        [communicator stringToProxy:@"test -e 2.0:default -p 12010"]];
-    @try 
+    @try
     {
         [cl20 ice_ping];
         test(NO);
@@ -631,7 +631,7 @@ proxyAllTests(id<ICECommunicator> communicator)
         // The server threw an UnsupportedEncodingException
         test([ex.unknown rangeOfString:@"UnsupportedEncodingException"].location != NSNotFound);
     }
-    
+
     @try
     {
         // Send request with bogus 2.0 encoding.
@@ -657,7 +657,7 @@ proxyAllTests(id<ICECommunicator> communicator)
     tprintf("testing protocol versioning... ");
 
     cl20 = [TestProxyMyClassPrx uncheckedCast:[communicator stringToProxy:@"test -p 2.0:default -p 12010"]];
-    @try 
+    @try
     {
         [cl20 ice_ping];
         test(NO);
@@ -798,10 +798,11 @@ proxyAllTests(id<ICECommunicator> communicator)
     if([[communicator getProperties] getPropertyAsInt:@"Ice.IPv6"] == 0)
     {
         // Working?
-        BOOL ssl = [[[communicator getProperties] getProperty:@"Ice.Default.Protocol"] isEqualToString:@"ssl"];
-        if(!ssl)
+        //BOOL ssl = [[[communicator getProperties] getProperty:@"Ice.Default.Protocol"] isEqualToString:@"ssl"];
+        BOOL tcp = [[[communicator getProperties] getProperty:@"Ice.Default.Protocol"] isEqualToString:@"tcp"];
+        if(tcp)
         {
-            [p1 ice_ping];
+            [[p1 ice_encodingVersion:ICEEncoding_1_0] ice_ping];
         }
 
         // Two legal TCP endpoints expressed as opaque endpoints

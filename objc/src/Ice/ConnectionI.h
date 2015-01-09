@@ -31,6 +31,10 @@
 -(id) initWithUDPConnectionInfo:(Ice::UDPConnectionInfo*)udpConnectionInfo;
 @end
 
+@interface ICEWSConnectionInfo ()
+-(id) initWithWSConnectionInfo:(Ice::WSConnectionInfo*)wsConnectionInfo;
+@end
+
 @interface ICESSLConnectionInfo ()
 -(id) initWithSSLConnectionInfo:(IceSSL::ConnectionInfo*)sslConnectionInfo;
 @end

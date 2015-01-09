@@ -11,15 +11,16 @@
 #import <TestCommon.h>
 #import <InfoTest.h>
 
- 
+
 TestInfoTestIntfPrx*
 infoAllTests(id<ICECommunicator> communicator)
 {
     tprintf("testing proxy endpoint information... ");
     {
-        ICEObjectPrx* p1 = [communicator stringToProxy:@"test -t:default -h tcphost -p 10000 -t 1200 -z:"
-                                                        "udp -h udphost -p 10001 --interface eth0 --ttl 5:"
-                                                        "opaque -e 1.8 -t 100 -v ABCD"];
+        ICEObjectPrx* p1 =
+            [communicator stringToProxy:@"test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:"
+                                         "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:"
+                                         "opaque -e 1.8 -t 100 -v ABCD"];
 
         ICEEndpointSeq* endps = [p1 ice_getEndpoints];
         id<ICEEndpoint> endpoint = [endps objectAtIndex:0];
@@ -28,13 +29,18 @@ infoAllTests(id<ICECommunicator> communicator)
         test([[ipEndpoint host] isEqualToString:@"tcphost"]);
         test(ipEndpoint.port == 10000);
         test(ipEndpoint.timeout == 1200);
+        test([[ipEndpoint sourceAddress] isEqualToString:@"10.10.10.10"]);
         test(ipEndpoint.compress);
         test(![ipEndpoint datagram]);
         test(([ipEndpoint type] == ICETCPEndpointType && ![ipEndpoint secure]) ||
-             ([ipEndpoint type] == ICESSLEndpointType && [ipEndpoint secure]));
+             ([ipEndpoint type] == ICESSLEndpointType && [ipEndpoint secure]) ||
+             ([ipEndpoint type] == ICEWSEndpointType && ![ipEndpoint secure]) ||
+             ([ipEndpoint type] == ICEWSSEndpointType && [ipEndpoint secure]));
 
         test(([ipEndpoint type] == ICETCPEndpointType && [ipEndpoint isKindOfClass:[ICETCPEndpointInfo class]]) ||
-             ([ipEndpoint type] == ICESSLEndpointType && [ipEndpoint isKindOfClass:[ICESSLEndpointInfo class]]));
+             ([ipEndpoint type] == ICESSLEndpointType && [ipEndpoint isKindOfClass:[ICESSLEndpointInfo class]]) ||
+             ([ipEndpoint type] == ICEWSEndpointType && [ipEndpoint isKindOfClass:[ICEWSEndpointInfo class]]) ||
+             ([ipEndpoint type] == ICEWSSEndpointType && [ipEndpoint isKindOfClass:[ICEWSEndpointInfo class]]));
 
 
         endpoint = [endps objectAtIndex:1];
@@ -42,6 +48,7 @@ infoAllTests(id<ICECommunicator> communicator)
         test([udpEndpoint isKindOfClass:[ICEUDPEndpointInfo class]]);
         test([udpEndpoint.host isEqualToString:@"udphost"]);
         test(udpEndpoint.port == 10001);
+        test([[udpEndpoint sourceAddress] isEqualToString:@"10.10.10.10"]);
         test([udpEndpoint.mcastInterface isEqualToString:@"eth0"]);
         test(udpEndpoint.mcastTtl == 5);
         test(udpEndpoint.timeout == -1);
@@ -75,7 +82,8 @@ infoAllTests(id<ICECommunicator> communicator)
         id<ICEEndpoint> endpoint = [endpoints objectAtIndex:0];
         ICEIPEndpointInfo* ipEndpoint = (ICEIPEndpointInfo*)[endpoint getInfo];
         test([ipEndpoint isKindOfClass:[ICEIPEndpointInfo class]]);
-        test([ipEndpoint type] == ICETCPEndpointType || [ipEndpoint type] == ICESSLEndpointType);
+        test([ipEndpoint type] == ICETCPEndpointType || [ipEndpoint type] == ICESSLEndpointType ||
+             [ipEndpoint type] == ICEWSEndpointType || [ipEndpoint type] == ICEWSSEndpointType);
         test([ipEndpoint.host isEqualToString:defaultHost]);
         test(ipEndpoint.port > 0);
         test(ipEndpoint.timeout == 15000);
@@ -129,7 +137,7 @@ infoAllTests(id<ICECommunicator> communicator)
         test([[ctx objectForKey:@"host"] isEqualToString:ipinfo.host]);
         test([[ctx objectForKey:@"compress"] isEqualToString:@"false"]);
         test([[ctx objectForKey:@"port"] intValue] > 0);
-        
+
         info = [[[[base ice_datagram] ice_getConnection] getEndpoint] getInfo];
         ICEUDPEndpointInfo* udp = (ICEUDPEndpointInfo*)info;
         test([udp isKindOfClass:[ICEUDPEndpointInfo class]]);

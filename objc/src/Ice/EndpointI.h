@@ -36,6 +36,10 @@
 -(id) initWithUDPEndpointInfo:(Ice::UDPEndpointInfo*)udpEndpointInfo;
 @end
 
+@interface ICEWSEndpointInfo ()
+-(id) initWithWSEndpointInfo:(Ice::WSEndpointInfo*)wsEndpointInfo;
+@end
+
 @interface ICEOpaqueEndpointInfo ()
 -(id) initWithOpaqueEndpointInfo:(Ice::OpaqueEndpointInfo*)opaqueEndpointInfo;
 @end

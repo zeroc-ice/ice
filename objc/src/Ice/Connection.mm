@@ -40,7 +40,7 @@
 }
 
 -(BOOL) isEqual:(id)o_
-{   
+{
     if(self == o_)
     {
         return YES;
@@ -78,12 +78,17 @@
     }
     else if(dynamic_cast<Ice::TCPConnectionInfo*>(connectionInfo))
     {
-        return [[[ICETCPConnectionInfo alloc] 
+        return [[[ICETCPConnectionInfo alloc]
                     initWithTCPConnectionInfo:dynamic_cast<Ice::TCPConnectionInfo*>(connectionInfo)] autorelease];
+    }
+    else if(dynamic_cast<Ice::WSConnectionInfo*>(connectionInfo))
+    {
+        return [[[ICEWSConnectionInfo alloc]
+                    initWithWSConnectionInfo:dynamic_cast<Ice::WSConnectionInfo*>(connectionInfo)] autorelease];
     }
     else if(dynamic_cast<IceSSL::ConnectionInfo*>(connectionInfo))
     {
-        return [[[ICESSLConnectionInfo alloc] 
+        return [[[ICESSLConnectionInfo alloc]
                     initWithSSLConnectionInfo:dynamic_cast<IceSSL::ConnectionInfo*>(connectionInfo)] autorelease];
     }
     return nil;
@@ -118,7 +123,7 @@
 }
 
 -(BOOL) isEqual:(id)o_
-{   
+{
     if(self == o_)
     {
         return YES;
@@ -184,7 +189,7 @@
 }
 
 -(BOOL) isEqual:(id)o_
-{   
+{
     if(self == o_)
     {
         return YES;
@@ -207,6 +212,15 @@
         return NO;
     }
     return YES;
+}
+@end
+
+@implementation ICEWSConnectionInfo
+
+-(id) initWithWSConnectionInfo:(Ice::WSConnectionInfo*)wsConnectionInfo
+{
+    self = [super initWithIPConnectionInfo:wsConnectionInfo];
+    return self;
 }
 @end
 
@@ -234,7 +248,7 @@
 }
 
 -(BOOL) isEqual:(id)o_
-{   
+{
     if(self == o_)
     {
         return YES;
@@ -341,21 +355,21 @@
 }
 -(id<ICEAsyncResult>) begin_flushBatchRequests
 {
-    return beginCppCall(^(Ice::AsyncResultPtr& result) 
+    return beginCppCall(^(Ice::AsyncResultPtr& result)
                         {
-                            result = CONNECTION->begin_flushBatchRequests(); 
+                            result = CONNECTION->begin_flushBatchRequests();
                         });
 }
 -(id<ICEAsyncResult>) begin_flushBatchRequests:(void(^)(ICEException*))exception
 {
     return [self begin_flushBatchRequests:exception sent:nil];
 }
--(id<ICEAsyncResult>) begin_flushBatchRequests:(void(^)(ICEException*))exception sent:(void(^)(BOOL))sent 
+-(id<ICEAsyncResult>) begin_flushBatchRequests:(void(^)(ICEException*))exception sent:(void(^)(BOOL))sent
 {
-    return beginCppCall(^(Ice::AsyncResultPtr& result, const Ice::CallbackPtr& cb) 
+    return beginCppCall(^(Ice::AsyncResultPtr& result, const Ice::CallbackPtr& cb)
                         {
-                            result = CONNECTION->begin_flushBatchRequests(cb); 
-                        }, 
+                            result = CONNECTION->begin_flushBatchRequests(cb);
+                        },
                         ^(const Ice::AsyncResultPtr& result) {
                             CONNECTION->end_flushBatchRequests(result);
                         },
@@ -363,9 +377,9 @@
 }
 -(void) end_flushBatchRequests:(id<ICEAsyncResult>)result
 {
-    endCppCall(^(const Ice::AsyncResultPtr& r) 
+    endCppCall(^(const Ice::AsyncResultPtr& r)
                {
-                   CONNECTION->end_flushBatchRequests(r); 
+                   CONNECTION->end_flushBatchRequests(r);
                }, result);
 }
 -(NSString*) type

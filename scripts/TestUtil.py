@@ -866,6 +866,7 @@ if isDarwin():
 sslConfigTree["py"] = sslConfigTree["cpp"]
 sslConfigTree["rb"] = sslConfigTree["cpp"]
 sslConfigTree["php"] = sslConfigTree["cpp"]
+sslConfigTree["objc"] = sslConfigTree["cpp"]
 
 def getDefaultMapping():
     """Try and guess the language mapping out of the current path"""

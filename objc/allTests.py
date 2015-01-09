@@ -32,7 +32,7 @@ tests = [
      ("Ice/exceptions", ["core"]),
      ("Ice/inheritance", ["core"]),
      ("Ice/invoke", ["core"]),
-     ("Ice/metrics", ["core", "nossl", "noipv6", "nocompress"]),
+     ("Ice/metrics", ["core", "nows", "nossl", "noipv6", "nocompress"]),
      ("Ice/facets", ["core"]),
      ("Ice/objects", ["core"]),
      ("Ice/optional", ["core"]),

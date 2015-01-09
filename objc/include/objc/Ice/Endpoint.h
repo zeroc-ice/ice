@@ -18,6 +18,8 @@ typedef enum
 extern const int ICETCPEndpointType;
 extern const int ICESSLEndpointType;
 extern const int ICEUDPEndpointType;
+extern const int ICEWSEndpointType;
+extern const int ICEWSSEndpointType;
 
 @class ICEEncodingVersion; // Required by ICEOpaqueEndpointInfo
 
@@ -48,10 +50,12 @@ extern const int ICEUDPEndpointType;
 @private
     NSString* host;
     ICEInt port;
+    NSString* sourceAddress;
 }
 
 @property(nonatomic, retain) NSString* host;
 @property(nonatomic) ICEInt port;
+@property(nonatomic, retain) NSString* sourceAddress;
 @end
 
 
@@ -66,6 +70,14 @@ extern const int ICEUDPEndpointType;
 }
 @property(nonatomic, retain) NSString* mcastInterface;
 @property(nonatomic) ICEInt mcastTtl;
+@end
+
+@interface ICEWSEndpointInfo : ICEIPEndpointInfo
+{
+@private
+    NSString* resource;
+}
+@property(nonatomic, retain) NSString* resource;
 @end
 
 @interface ICEOpaqueEndpointInfo : ICEEndpointInfo

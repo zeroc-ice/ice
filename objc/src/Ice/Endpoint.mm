@@ -19,6 +19,8 @@
 const int ICETCPEndpointType = 1;
 const int ICESSLEndpointType = 2;
 const int ICEUDPEndpointType = 3;
+const int ICEWSEndpointType = 4;
+const int ICEWSSEndpointType = 5;
 
 #define ENDPOINT dynamic_cast<Ice::Endpoint*>(static_cast<IceUtil::Shared*>(cxxObject_))
 
@@ -41,7 +43,7 @@ const int ICEUDPEndpointType = 3;
 }
 
 -(BOOL) isEqual:(id)o_
-{   
+{
     if(self == o_)
     {
         return YES;
@@ -81,21 +83,26 @@ const int ICEUDPEndpointType = 3;
 }
 
 +(id) enpointInfoWithEndpointInfo:(Ice::EndpointInfo*)endpointInfo
-{   
+{
     if(!endpointInfo)
     {
         return nil;
     }
     else if(dynamic_cast<Ice::TCPEndpointInfo*>(endpointInfo))
     {
-        return [[[ICETCPEndpointInfo alloc] 
+        return [[[ICETCPEndpointInfo alloc]
                                 initWithTCPEndpointInfo:dynamic_cast<Ice::TCPEndpointInfo*>(endpointInfo)] autorelease];
     }
     else if(dynamic_cast<Ice::UDPEndpointInfo*>(endpointInfo))
     {
-        return [[[ICEUDPEndpointInfo alloc] 
+        return [[[ICEUDPEndpointInfo alloc]
                                 initWithUDPEndpointInfo:dynamic_cast<Ice::UDPEndpointInfo*>(endpointInfo)] autorelease];
-}
+    }
+    else if(dynamic_cast<Ice::WSEndpointInfo*>(endpointInfo))
+    {
+        return [[[ICEWSEndpointInfo alloc]
+                                initWithWSEndpointInfo:dynamic_cast<Ice::WSEndpointInfo*>(endpointInfo)] autorelease];
+    }
     else if(dynamic_cast<Ice::OpaqueEndpointInfo*>(endpointInfo))
     {
         return [[[ICEOpaqueEndpointInfo alloc]
@@ -103,14 +110,14 @@ const int ICEUDPEndpointType = 3;
     }
     else if(dynamic_cast<IceSSL::EndpointInfo*>(endpointInfo))
     {
-        return [[[ICESSLEndpointInfo alloc] 
+        return [[[ICESSLEndpointInfo alloc]
                                 initWithSSLEndpointInfo:dynamic_cast<IceSSL::EndpointInfo*>(endpointInfo)] autorelease];
     }
     return nil;
 }
 
 -(BOOL) isEqual:(id)o_
-{   
+{
     if(self == o_)
     {
         return YES;
@@ -163,6 +170,7 @@ const int ICEUDPEndpointType = 3;
 
 @synthesize host;
 @synthesize port;
+@synthesize sourceAddress;
 
 -(id) initWithIPEndpointInfo:(Ice::IPEndpointInfo*)ipEndpointInfo;
 {
@@ -171,6 +179,7 @@ const int ICEUDPEndpointType = 3;
     {
         self->host = [[NSString alloc] initWithUTF8String:ipEndpointInfo->host.c_str()];
         self->port = ipEndpointInfo->port;
+        self->sourceAddress = [[NSString alloc] initWithUTF8String:ipEndpointInfo->sourceAddress.c_str()];
     }
     return self;
 }
@@ -178,11 +187,12 @@ const int ICEUDPEndpointType = 3;
 -(void) dealloc
 {
     [self->host release];
+    [self->sourceAddress release];
     [super dealloc];
 }
 
 -(BOOL) isEqual:(id)o_
-{   
+{
     if(self == o_)
     {
         return YES;
@@ -201,6 +211,10 @@ const int ICEUDPEndpointType = 3;
         return NO;
     }
     if(self->port != obj_->port)
+    {
+        return NO;
+    }
+    if(![self->sourceAddress isEqualToString:obj_->sourceAddress])
     {
         return NO;
     }
@@ -240,7 +254,7 @@ const int ICEUDPEndpointType = 3;
 }
 
 -(BOOL) isEqual:(id)o_
-{   
+{
     if(self == o_)
     {
         return YES;
@@ -259,6 +273,50 @@ const int ICEUDPEndpointType = 3;
         return NO;
     }
     if(self->mcastTtl != obj_->mcastTtl)
+    {
+        return NO;
+    }
+    return YES;
+}
+@end
+
+@implementation ICEWSEndpointInfo
+
+@synthesize resource;
+
+-(id) initWithWSEndpointInfo:(Ice::WSEndpointInfo*)wsEndpointInfo
+{
+    self = [super initWithIPEndpointInfo:wsEndpointInfo];
+    if(self)
+    {
+        self->resource = [[NSString alloc] initWithUTF8String:wsEndpointInfo->resource.c_str()];
+    }
+    return self;
+}
+
+-(void) dealloc
+{
+    [self->resource release];
+    [super dealloc];
+
+}
+
+-(BOOL) isEqual:(id)o_
+{
+    if(self == o_)
+    {
+        return YES;
+    }
+    if(!o_ || ![o_ isKindOfClass:[self class]])
+    {
+        return NO;
+    }
+    if(![super isEqual:o_])
+    {
+        return NO;
+    }
+    ICEWSEndpointInfo* obj_ = (ICEWSEndpointInfo*)o_;
+    if(![self->resource isEqualToString:obj_->resource])
     {
         return NO;
     }
@@ -290,7 +348,7 @@ const int ICEUDPEndpointType = 3;
 }
 
 -(BOOL) isEqual:(id)o_
-{   
+{
     if(self == o_)
     {
         return YES;

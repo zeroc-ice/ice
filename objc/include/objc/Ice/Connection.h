@@ -61,6 +61,9 @@
 @property(nonatomic) ICEInt mcastPort;
 @end
 
+@interface ICEWSConnectionInfo : ICEIPConnectionInfo
+@end
+
 @interface ICESSLConnectionInfo : ICEIPConnectionInfo
 {
 @private

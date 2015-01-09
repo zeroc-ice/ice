@@ -43,8 +43,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
              (ipEndpoint->type() == Ice::WSSEndpointType && ipEndpoint->secure()));
         test((ipEndpoint->type() == Ice::TCPEndpointType && Ice::TCPEndpointInfoPtr::dynamicCast(ipEndpoint)) ||
              (ipEndpoint->type() == IceSSL::EndpointType && IceSSL::EndpointInfoPtr::dynamicCast(ipEndpoint)) ||
-             (ipEndpoint->type() == Ice::WSEndpointType && Ice::EndpointInfoPtr::dynamicCast(ipEndpoint)) ||
-             (ipEndpoint->type() == Ice::WSSEndpointType && Ice::EndpointInfoPtr::dynamicCast(ipEndpoint)));
+             (ipEndpoint->type() == Ice::WSEndpointType && Ice::WSEndpointInfoPtr::dynamicCast(ipEndpoint)) ||
+             (ipEndpoint->type() == Ice::WSSEndpointType && Ice::WSEndpointInfoPtr::dynamicCast(ipEndpoint)));
 
         Ice::UDPEndpointInfoPtr udpEndpoint = Ice::UDPEndpointInfoPtr::dynamicCast(endps[1]->getInfo());
         test(udpEndpoint);
