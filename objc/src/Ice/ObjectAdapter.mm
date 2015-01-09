@@ -14,6 +14,8 @@
 #import <ObjectI.h>
 #import <Util.h>
 
+#import <objc/Ice/Locator.h>
+
 #include <IceCpp/Locator.h>
 #include <IceCpp/ServantLocator.h>
 
@@ -22,29 +24,29 @@ namespace
 class DefaultServantLocator : public Ice::ServantLocator
 {
 public:
-    
+
     DefaultServantLocator(const Ice::ObjectPtr& s) :
         _servant(s)
     {
     }
 
-    virtual Ice::ObjectPtr 
+    virtual Ice::ObjectPtr
     locate(const Ice::Current&, Ice::LocalObjectPtr&)
     {
         return _servant;
     }
 
-    virtual void 
+    virtual void
     finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&)
     {
     }
 
-    virtual void 
+    virtual void
     deactivate(const std::string&)
     {
     }
-    
-    const Ice::ObjectPtr& 
+
+    const Ice::ObjectPtr&
     servant() const
     {
         return _servant;
@@ -507,6 +509,24 @@ private:
     {
         @throw nsex;
     }
+}
+
+-(id<ICELocatorPrx>) getLocator
+{
+    NSException* nsex = nil;
+    try
+    {
+        return (id<ICELocatorPrx>)[ICELocatorPrx objectPrxWithObjectPrx__:OBJECTADAPTER->getLocator()];
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    if(nsex != nil)
+    {
+        @throw nsex;
+    }
+    return nil; // Keep the compiler happy.
 }
 
 -(void) refreshPublishedEndpoints
