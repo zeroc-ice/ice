@@ -91,17 +91,13 @@ IceInternal::StreamEndpointI::StreamEndpointI(const ProtocolInstancePtr& instanc
 EndpointInfoPtr
 IceInternal::StreamEndpointI::getInfo() const
 {
-    switch(_instance->type())
+    if(_instance->secure())
     {
-    case TCPEndpointType:
-    case WSEndpointType:
-        return new InfoI<Ice::TCPEndpointInfo>(_instance, _timeout, _compress, _host, _port);
-    case IceSSL::EndpointType:
-    case WSSEndpointType:
         return new InfoI<IceSSL::EndpointInfo>(_instance, _timeout, _compress, _host, _port);
-    default:
-        assert(false);
-        return 0;
+    }
+    else
+    {
+        return new InfoI<Ice::TCPEndpointInfo>(_instance, _timeout, _compress, _host, _port);
     }
 }
 
