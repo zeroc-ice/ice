@@ -23,7 +23,7 @@ namespace IceSSL
     internal class Instance : IceInternal.ProtocolInstance
     {
         internal Instance(SSLEngine engine, short type, string protocol) :
-            base(engine.communicator(), type, protocol)
+            base(engine.communicator(), type, protocol, true)
         {
             _engine = engine;
         }

@@ -22,7 +22,7 @@ using namespace IceSSL;
 IceUtil::Shared* IceSSL::upCast(IceSSL::Instance* p) { return p; }
 
 IceSSL::Instance::Instance(const SSLEnginePtr& engine, Short type, const string& protocol) :
-    ProtocolInstance(engine->communicator(), type, protocol),
+    ProtocolInstance(engine->communicator(), type, protocol, true),
     _engine(engine)
 {
 }

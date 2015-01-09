@@ -22,30 +22,28 @@ using namespace IceInternal;
 
 IceUtil::Shared* IceInternal::upCast(ProtocolInstance* p) { return p; }
 
-IceInternal::ProtocolInstance::ProtocolInstance(const CommunicatorPtr& com, Short type, const string& protocol) :
+IceInternal::ProtocolInstance::ProtocolInstance(const CommunicatorPtr& com, Short type, const string& protocol,
+                                                 bool secure) :
     _instance(getInstance(com)),
     _traceLevel(_instance->traceLevels()->network),
     _traceCategory(_instance->traceLevels()->networkCat),
     _properties(_instance->initializationData().properties),
     _protocol(protocol),
-    _type(type)
+    _type(type),
+    _secure(secure)
 {
 }
 
-IceInternal::ProtocolInstance::ProtocolInstance(const InstancePtr& instance, Short type, const string& protocol) :
+IceInternal::ProtocolInstance::ProtocolInstance(const InstancePtr& instance, Short type, const string& protocol,
+                                                bool secure) :
     _instance(instance),
     _traceLevel(_instance->traceLevels()->network),
     _traceCategory(_instance->traceLevels()->networkCat),
     _properties(_instance->initializationData().properties),
     _protocol(protocol),
-    _type(type)
+    _type(type),
+    _secure(secure)
 {
-}
-
-bool
-IceInternal::ProtocolInstance::secure() const
-{
-    return _type == IceSSL::EndpointType || _type == WSSEndpointType;
 }
 
 bool

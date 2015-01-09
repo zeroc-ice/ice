@@ -14,7 +14,7 @@ namespace IceInternal
 
     public class ProtocolInstance
     {
-        public ProtocolInstance(Ice.Communicator communicator, short type, string protocol)
+        public ProtocolInstance(Ice.Communicator communicator, short type, string protocol, bool secure)
         {
             instance_ = Util.getInstance(communicator);
             traceLevel_ = instance_.traceLevels().network;
@@ -23,9 +23,10 @@ namespace IceInternal
             properties_ = instance_.initializationData().properties;
             type_ = type;
             protocol_ = protocol;
+            secure_ = secure;
         }
 
-        public ProtocolInstance(Instance instance, short type, string protocol)
+        public ProtocolInstance(Instance instance, short type, string protocol, bool secure)
         {
             instance_ = instance;
             traceLevel_ = instance_.traceLevels().network;
@@ -34,6 +35,7 @@ namespace IceInternal
             properties_ = instance_.initializationData().properties;
             type_ = type;
             protocol_ = protocol;
+            secure_ = secure;
         }
 
         public int traceLevel()
@@ -63,7 +65,7 @@ namespace IceInternal
 
         public bool secure()
         {
-            return type_ == 2 /*IceSSL.EndpointType.value*/ || type_ == Ice.WSSEndpointType.value;
+            return secure_;
         }
 
         public Ice.Properties properties()
@@ -126,6 +128,7 @@ namespace IceInternal
         protected Ice.Properties properties_;
         protected string protocol_;
         protected short type_;
+        protected bool secure_;
     }
 
 }

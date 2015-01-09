@@ -911,7 +911,7 @@ public final class Instance
                 }
             }
 
-            if(_initData.properties.getProperty("Ice.BatchAutoFlushSize").isEmpty() && 
+            if(_initData.properties.getProperty("Ice.BatchAutoFlushSize").isEmpty() &&
                !_initData.properties.getProperty("Ice.BatchAutoFlush").isEmpty())
             {
                 if(_initData.properties.getPropertyAsInt("Ice.BatchAutoFlush") > 0)
@@ -976,15 +976,15 @@ public final class Instance
             _networkProxy = createNetworkProxy(_initData.properties, _protocolSupport);
 
             _endpointFactoryManager = new EndpointFactoryManager(this);
-            ProtocolInstance tcpProtocolInstance = new ProtocolInstance(this, Ice.TCPEndpointType.value, "tcp");
+            ProtocolInstance tcpProtocolInstance = new ProtocolInstance(this, Ice.TCPEndpointType.value, "tcp", false);
             EndpointFactory tcpEndpointFactory = new TcpEndpointFactory(tcpProtocolInstance);
             _endpointFactoryManager.add(tcpEndpointFactory);
 
-            ProtocolInstance udpProtocolInstance = new ProtocolInstance(this, Ice.UDPEndpointType.value, "udp");
+            ProtocolInstance udpProtocolInstance = new ProtocolInstance(this, Ice.UDPEndpointType.value, "udp", false);
             EndpointFactory udpEndpointFactory = new UdpEndpointFactory(udpProtocolInstance);
             _endpointFactoryManager.add(udpEndpointFactory);
 
-            ProtocolInstance wsProtocolInstance = new ProtocolInstance(this, Ice.WSEndpointType.value, "ws");
+            ProtocolInstance wsProtocolInstance = new ProtocolInstance(this, Ice.WSEndpointType.value, "ws", false);
             EndpointFactory wsEndpointFactory = new WSEndpointFactory(wsProtocolInstance,
                                                                       tcpEndpointFactory.clone(wsProtocolInstance));
             _endpointFactoryManager.add(wsEndpointFactory);
@@ -1007,7 +1007,7 @@ public final class Instance
             //
             if(_initData.properties.getPropertyAsInt("Ice.ThreadInterruptSafe") > 0 || Util.isAndroid())
             {
-                _queueExecutor = new QueueExecutor(_initData.properties, 
+                _queueExecutor = new QueueExecutor(_initData.properties,
                                                    Util.createThreadName(_initData.properties, "Ice.BackgroundIO"));
                 _queueExecutorService = new QueueExecutorService(_queueExecutor);
 
@@ -1313,7 +1313,7 @@ public final class Instance
             // Now, destroy the thread pools. This must be done *only* after
             // all the connections are finished (the connections destruction
             // can require invoking callbacks with the thread pools).
-            // 
+            //
             if(_serverThreadPool != null)
             {
                 _serverThreadPool.destroy();

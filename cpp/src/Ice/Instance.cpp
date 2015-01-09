@@ -195,7 +195,7 @@ class Timer : public IceUtil::Timer
 {
 public:
 
-    Timer(int priority) : 
+    Timer(int priority) :
         IceUtil::Timer(priority),
         _hasObserver(false)
     {
@@ -1314,9 +1314,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         _locatorManager = new LocatorManager(_initData.properties);
 
         _referenceFactory = new ReferenceFactory(this, communicator);
-        
+
         _requestHandlerFactory = new RequestHandlerFactory(this);
-        
+
         _proxyFactory = new ProxyFactory(this);
 
         const bool isIPv6Supported = IceInternal::isIPv6Supported();
@@ -1344,28 +1344,28 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _endpointFactoryManager = new EndpointFactoryManager(this);
 #ifndef ICE_OS_WINRT
-        ProtocolInstancePtr tcpProtocolInstance = new ProtocolInstance(this, TCPEndpointType, "tcp");
+        ProtocolInstancePtr tcpProtocolInstance = new ProtocolInstance(this, TCPEndpointType, "tcp", false);
         EndpointFactoryPtr tcpEndpointFactory = new TcpEndpointFactory(tcpProtocolInstance);
         _endpointFactoryManager->add(tcpEndpointFactory);
 #else
-        ProtocolInstancePtr tcpProtocolInstance = new ProtocolInstance(this, TCPEndpointType, "tcp");
+        ProtocolInstancePtr tcpProtocolInstance = new ProtocolInstance(this, TCPEndpointType, "tcp", false);
         EndpointFactoryPtr tcpEndpointFactory = new StreamEndpointFactory(tcpProtocolInstance);
         _endpointFactoryManager->add(tcpEndpointFactory);
 
-        ProtocolInstancePtr sslProtocolInstance = new ProtocolInstance(this, IceSSL::EndpointType, "ssl");
+        ProtocolInstancePtr sslProtocolInstance = new ProtocolInstance(this, IceSSL::EndpointType, "ssl", true);
         EndpointFactoryPtr sslEndpointFactory = new StreamEndpointFactory(sslProtocolInstance);
         _endpointFactoryManager->add(sslEndpointFactory);
 
-        ProtocolInstancePtr wssProtocolInstance = new ProtocolInstance(this, WSSEndpointType, "wss");
+        ProtocolInstancePtr wssProtocolInstance = new ProtocolInstance(this, WSSEndpointType, "wss", true);
         EndpointFactoryPtr wssEndpointFactory = new WSEndpointFactory(wssProtocolInstance,
                                                                       sslEndpointFactory->clone(wssProtocolInstance));
         _endpointFactoryManager->add(wssEndpointFactory);
 #endif
-        ProtocolInstancePtr udpProtocolInstance = new ProtocolInstance(this, UDPEndpointType, "udp");
+        ProtocolInstancePtr udpProtocolInstance = new ProtocolInstance(this, UDPEndpointType, "udp", false);
         EndpointFactoryPtr udpEndpointFactory = new UdpEndpointFactory(udpProtocolInstance);
         _endpointFactoryManager->add(udpEndpointFactory);
 
-        ProtocolInstancePtr wsProtocolInstance = new ProtocolInstance(this, WSEndpointType, "ws");
+        ProtocolInstancePtr wsProtocolInstance = new ProtocolInstance(this, WSEndpointType, "ws", false);
         EndpointFactoryPtr wsEndpointFactory = new WSEndpointFactory(wsProtocolInstance,
                                                                      tcpEndpointFactory->clone(wsProtocolInstance));
 
@@ -1390,7 +1390,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         {
             _wstringConverter = new IceUtil::UnicodeWstringConverter;
         }
-    
+
         __setNoDelete(false);
     }
     catch(...)
@@ -1473,7 +1473,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
     {
         _wstringConverter = new IceUtil::UnicodeWstringConverter;
     }
-    
+
     //
     // Create Admin facets, if enabled.
     //
@@ -1746,7 +1746,7 @@ IceInternal::Instance::destroy()
     // Now, destroy the thread pools. This must be done *only* after
     // all the connections are finished (the connections destruction
     // can require invoking callbacks with the thread pools).
-    // 
+    //
     if(_serverThreadPool)
     {
         _serverThreadPool->destroy();
@@ -1781,7 +1781,7 @@ IceInternal::Instance::destroy()
         _endpointHostResolver->getThreadControl().join();
     }
 #endif
-    
+
     if(_servantFactoryManager)
     {
         _servantFactoryManager->destroy();

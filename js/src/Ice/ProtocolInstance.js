@@ -24,7 +24,7 @@ Ice.__M.require(module, ["../Ice/Class"]);
 // class bellow.
 //
 var ProtocolInstance = Ice.Class({
-    __init__: function(instance, type, protocol)
+    __init__: function(instance, type, protocol, secure)
     {
         this._instance = instance;
         this._traceLevel = instance.traceLevels().network;
@@ -33,6 +33,7 @@ var ProtocolInstance = Ice.Class({
         this._properties = instance.initializationData().properties;
         this._type = type;
         this._protocol = protocol;
+        this._secure = secure;
     },
     traceLevel: function()
     {
@@ -56,7 +57,7 @@ var ProtocolInstance = Ice.Class({
     },
     secure: function()
     {
-        return this._type == IceSSL.EndpointType || this._type == Ice.WSSEndpointType;
+        return this._secure;
     },
     properties: function()
     {

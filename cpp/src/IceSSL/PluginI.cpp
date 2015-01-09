@@ -47,9 +47,9 @@ IceSSL::PluginI::PluginI(const Ice::CommunicatorPtr& communicator)
 #else
     _engine = new OpenSSLEngine(communicator);
 #endif
-    
+
     IceInternal::ProtocolPluginFacadePtr facade = IceInternal::getProtocolPluginFacade(communicator);
-    
+
     //
     // Register the endpoint factory. We have to do this now, rather
     // than in initialize, because the communicator may need to
@@ -57,8 +57,9 @@ IceSSL::PluginI::PluginI(const Ice::CommunicatorPtr& communicator)
     //
     IceInternal::EndpointFactoryPtr sslFactory = new EndpointFactoryI(new Instance(_engine, EndpointType, "ssl"));
     facade->addEndpointFactory(sslFactory);
-    
-    IceInternal::ProtocolInstancePtr wss = new IceInternal::ProtocolInstance(communicator, WSSEndpointType, "wss");
+
+    IceInternal::ProtocolInstancePtr wss =
+        new IceInternal::ProtocolInstance(communicator, WSSEndpointType, "wss", true);
     facade->addEndpointFactory(new IceInternal::WSEndpointFactory(wss, sslFactory->clone(wss)));
 }
 

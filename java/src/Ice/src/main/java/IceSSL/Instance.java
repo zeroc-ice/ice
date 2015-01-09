@@ -13,7 +13,7 @@ class Instance extends IceInternal.ProtocolInstance
 {
     Instance(SSLEngine engine, short type, String protocol)
     {
-        super(engine.communicator(), type, protocol);
+        super(engine.communicator(), type, protocol, true);
         _engine = engine;
     }
 

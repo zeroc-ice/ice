@@ -11,7 +11,7 @@ package IceInternal;
 
 public class ProtocolInstance
 {
-    public ProtocolInstance(Ice.Communicator communicator, short type, String protocol)
+    public ProtocolInstance(Ice.Communicator communicator, short type, String protocol, boolean secure)
     {
         _instance = Util.getInstance(communicator);
         _traceLevel = _instance.traceLevels().network;
@@ -20,6 +20,7 @@ public class ProtocolInstance
         _properties = _instance.initializationData().properties;
         _type = type;
         _protocol = protocol;
+        _secure = secure;
     }
 
     public int traceLevel()
@@ -49,7 +50,7 @@ public class ProtocolInstance
 
     public boolean secure()
     {
-        return _type == IceSSL.EndpointType.value || _type == Ice.WSSEndpointType.value;
+        return _secure;
     }
 
     public Ice.Properties properties()
@@ -103,7 +104,7 @@ public class ProtocolInstance
         _instance.endpointHostResolver().resolve(host, port, type, endpt, callback);
     }
 
-    ProtocolInstance(Instance instance, short type, String protocol)
+    ProtocolInstance(Instance instance, short type, String protocol, boolean secure)
     {
         _instance = instance;
         _traceLevel = _instance.traceLevels().network;
@@ -112,6 +113,7 @@ public class ProtocolInstance
         _properties = _instance.initializationData().properties;
         _type = type;
         _protocol = protocol;
+        _secure = secure;
     }
 
     protected Instance _instance;
@@ -121,4 +123,5 @@ public class ProtocolInstance
     protected Ice.Properties _properties;
     protected String _protocol;
     protected short _type;
+    protected boolean _secure;
 }

@@ -364,19 +364,19 @@ var Instance = Ice.Class({
 
             this._endpointFactoryManager = new EndpointFactoryManager(this);
 
-            var tcpInstance = new Ice.ProtocolInstance(this, Ice.TCPEndpointType, "tcp");
+            var tcpInstance = new Ice.ProtocolInstance(this, Ice.TCPEndpointType, "tcp", false);
             var tcpEndpointFactory = new Ice.TcpEndpointFactory(tcpInstance);
             this._endpointFactoryManager.add(tcpEndpointFactory);
 
-            var wsInstance = new Ice.ProtocolInstance(this, Ice.WSEndpointType, "ws");
+            var wsInstance = new Ice.ProtocolInstance(this, Ice.WSEndpointType, "ws", false);
             var wsEndpointFactory = new Ice.WSEndpointFactory(wsInstance, tcpEndpointFactory.clone(wsInstance));
             this._endpointFactoryManager.add(wsEndpointFactory);
 
-            var sslInstance = new Ice.ProtocolInstance(this, IceSSL.EndpointType, "ssl");
+            var sslInstance = new Ice.ProtocolInstance(this, IceSSL.EndpointType, "ssl", true);
             var sslEndpointFactory = new Ice.TcpEndpointFactory(sslInstance);
             this._endpointFactoryManager.add(sslEndpointFactory);
 
-            var wssInstance = new Ice.ProtocolInstance(this, Ice.WSSEndpointType, "wss");
+            var wssInstance = new Ice.ProtocolInstance(this, Ice.WSSEndpointType, "wss", true);
             var wssEndpointFactory = new Ice.WSEndpointFactory(wssInstance, sslEndpointFactory.clone(wssInstance));
             this._endpointFactoryManager.add(wssEndpointFactory);
 

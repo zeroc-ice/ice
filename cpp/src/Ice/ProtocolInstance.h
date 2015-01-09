@@ -27,7 +27,7 @@ class ICE_API ProtocolInstance : public IceUtil::Shared
 {
 public:
 
-    ProtocolInstance(const Ice::CommunicatorPtr&, Ice::Short, const std::string&);
+    ProtocolInstance(const Ice::CommunicatorPtr&, Ice::Short, const std::string&, bool);
 
     int traceLevel() const
     {
@@ -59,7 +59,11 @@ public:
         return _properties;
     }
 
-    bool secure() const;
+    bool secure() const
+    {
+        return _secure;
+    }
+
     bool preferIPv6() const;
     ProtocolSupport protocolSupport() const;
     const std::string& defaultHost() const;
@@ -74,7 +78,7 @@ public:
 
 private:
 
-    ProtocolInstance(const InstancePtr&, Ice::Short, const std::string&);
+    ProtocolInstance(const InstancePtr&, Ice::Short, const std::string&, bool);
     friend class Instance;
     const InstancePtr _instance;
 
@@ -85,6 +89,7 @@ protected:
     const Ice::PropertiesPtr _properties;
     const std::string _protocol;
     const Ice::Short _type;
+    const bool _secure;
 };
 
 }

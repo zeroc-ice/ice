@@ -826,7 +826,7 @@ namespace IceInternal
                     }
                 }
 
-                if(_initData.properties.getProperty("Ice.BatchAutoFlushSize").Length == 0 && 
+                if(_initData.properties.getProperty("Ice.BatchAutoFlushSize").Length == 0 &&
                    _initData.properties.getProperty("Ice.BatchAutoFlush").Length > 0)
                 {
                     if(_initData.properties.getPropertyAsInt("Ice.BatchAutoFlush") > 0)
@@ -888,16 +888,17 @@ namespace IceInternal
                 _networkProxy = createNetworkProxy(_initData.properties, _protocolSupport);
 
                 _endpointFactoryManager = new EndpointFactoryManager(this);
-                ProtocolInstance tcpProtocolInstance = new ProtocolInstance(this, Ice.TCPEndpointType.value, "tcp");
+                ProtocolInstance tcpProtocolInstance =
+                    new ProtocolInstance(this, Ice.TCPEndpointType.value, "tcp", false);
                 EndpointFactory tcpEndpointFactory = new TcpEndpointFactory(tcpProtocolInstance);
                 _endpointFactoryManager.add(tcpEndpointFactory);
 
                 ProtocolInstance udpProtocolInstance =
-                    new ProtocolInstance(this, Ice.UDPEndpointType.value, "udp");
+                    new ProtocolInstance(this, Ice.UDPEndpointType.value, "udp", false);
                 EndpointFactory udpEndpointFactory = new UdpEndpointFactory(udpProtocolInstance);
                 _endpointFactoryManager.add(udpEndpointFactory);
 
-                ProtocolInstance wsProtocolInstance = new ProtocolInstance(this, Ice.WSEndpointType.value, "ws");
+                ProtocolInstance wsProtocolInstance = new ProtocolInstance(this, Ice.WSEndpointType.value, "ws", false);
                 _endpointFactoryManager.add(new WSEndpointFactory(wsProtocolInstance,
                                                                   tcpEndpointFactory.clone(wsProtocolInstance)));
 
@@ -1138,7 +1139,7 @@ namespace IceInternal
                 {
                     Monitor.Wait(this);
                 }
-                
+
                 if(_state == StateDestroyed)
                 {
                     return;
@@ -1190,7 +1191,7 @@ namespace IceInternal
             // Now, destroy the thread pools. This must be done *only* after
             // all the connections are finished (the connections destruction
             // can require invoking callbacks with the thread pools).
-            // 
+            //
             if(_serverThreadPool != null)
             {
                 _serverThreadPool.destroy();
