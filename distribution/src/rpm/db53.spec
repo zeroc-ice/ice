@@ -4,10 +4,15 @@
 # This is a heavily modified version of the spec file in Fedora Core 7's db4-4.5.20-4.fc7.src.rpm   
 #
 
+%if "%{dist}" == ".sles12"
+# SLES 12 should only be built on x86_64
+ExcludeArch: %{ix86}
+%endif
+
 %define force_x86  0
 
 %ifarch %{ix86}
-%if "%{dist}" == ".sles12" || "%{dist}" == ".amzn1"
+%if "%{dist}" == ".amzn1"
   #
   # Building a 32-bit distribution on an x64 platform.
   #
@@ -245,13 +250,13 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %changelog
 
-* Wed Oct 29 2014 Bernard Normier <mes@zeroc.com> 5.3.28-1ice
+* Wed Oct 29 2014 Mark Spruiell <mes@zeroc.com> 5.3.28-1ice
 - Updated Berkeley DB to version 5.3.28
 
 * Wed Oct 17 2012 Bernard Normier <bernard@zeroc.com> 5.3.21-1ice
 - Updated Berkeley DB to version 5.3.21
 
-* Thu May 14 2010 Mark Spruiell <mes@zeroc.com> 4.8.30-1ice
+* Fri May 14 2010 Mark Spruiell <mes@zeroc.com> 4.8.30-1ice
 - Updated Berkeley DB to version 4.8.30
 
 * Thu Dec 17 2009 Mark Spruiell <mes@zeroc.com> 4.8.24-1ice
@@ -541,7 +546,7 @@ rm -rf ${RPM_BUILD_ROOT}
 - swallow a local copy of db1 and build db185_dump statically with it, to
   remove the build dependency and simplify bootstrapping new arches
 
-* Mon Jan 27 2002 Nalin Dahyabhai <nalin@redhat.com> 4.0.14-2
+* Sun Jan 27 2002 Nalin Dahyabhai <nalin@redhat.com> 4.0.14-2
 - have subpackages obsolete their db3 counterparts, because they conflict anyway
 
 * Tue Jan  8 2002 Jeff Johnson <jbj@redhat.com> db4-4.0.14-1

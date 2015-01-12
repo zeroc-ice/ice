@@ -7,6 +7,11 @@
 #
 # **********************************************************************
 
+%if "%{dist}" == ".sles12"
+# SLES 12 should only be built on x86_64
+ExcludeArch: %{ix86}
+%endif
+
 %define ruby 1
 %define cpp11 0
 %define javascript 0
@@ -40,7 +45,6 @@
   %define systemdpkg systemd-rpm-macros
   %define cpp11 1
   %define shadow shadow
-  %define biarch 1
 %endif
 
 %define buildall 1
