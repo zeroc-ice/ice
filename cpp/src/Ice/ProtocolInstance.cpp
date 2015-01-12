@@ -14,8 +14,6 @@
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/TraceLevels.h>
 
-#include <IceSSL/EndpointInfo.h>
-
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
