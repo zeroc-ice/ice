@@ -395,7 +395,7 @@ public class HelloApplet extends JApplet
 
         public boolean isOneway()
         {
-            return this == ONEWAY || this == ONEWAY_SECURE;
+            return this == ONEWAY || this == ONEWAY_SECURE || this == DATAGRAM;
         }
 
         public boolean isBatch()
