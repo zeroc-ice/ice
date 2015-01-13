@@ -11,6 +11,7 @@ package com.zeroc.library;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -31,12 +32,8 @@ public class ViewActivity extends SessionActivity
 {
     private static final int EDIT_ID = Menu.FIRST;
     private static final int DELETE_ID = Menu.FIRST + 1;
-
-    public static final int BOOK_DELETED = RESULT_FIRST_USER;
-    public static final int BOOK_CHANGED = RESULT_FIRST_USER+1;
-
-    private static final int DIALOG_DELETE = DIALOG_NEXT;
-    private static final int DIALOG_RENT_BOOK = DIALOG_NEXT+1;
+    public static final String RENT_TAG = "rent";
+    public static final String DELETE_TAG = "delete";
 
     private Demo.BookDescription _desc;
     private TextView _isbn;
@@ -45,6 +42,64 @@ public class ViewActivity extends SessionActivity
     private LayoutInflater _inflater;
     private TextView _rentedBy;
     private Button _rent;
+
+    public static class RentBookDialogFragment extends DialogFragment
+    {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState)
+        {
+            // This example shows how to add a custom layout to an AlertDialog
+            LayoutInflater factory = LayoutInflater.from(getActivity());
+            final View entryView = factory.inflate(R.layout.rentername, null);
+            final EditText renter = (EditText)entryView.findViewById(R.id.renter);
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Enter Renter")
+                    .setView(entryView)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener()
+                    {
+                        public void onClick(DialogInterface dialog, int whichButton)
+                        {
+                            final String r = renter.getText().toString().trim();
+                            if(r.length() > 0)
+                            {
+                                ((ViewActivity)getActivity()).rentBook(r);
+                            }
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+                    {
+                        public void onClick(DialogInterface dialog, int whichButton)
+                        {
+                        }
+                    });
+            return builder.create();
+        }
+    }
+
+    public static class DeleteBookDialogFragment extends DialogFragment
+    {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder .setTitle("Delete")
+                    .setMessage("This book will be deleted.")
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener()
+                    {
+                        public void onClick(DialogInterface dialog, int whichButton)
+                        {
+                            ((ViewActivity)getActivity()).deleteBook();
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+                    {
+                        public void onClick(DialogInterface dialog, int whichButton)
+                        {
+                        }
+                    });
+            return builder.create();
+        }
+    }
 
     private void updateBookDescription()
     {
@@ -75,6 +130,17 @@ public class ViewActivity extends SessionActivity
         }
     }
 
+    private void deleteBook()
+    {
+        _queryController.deleteBook();
+    }
+
+    private void rentBook(String renter)
+    {
+        _rent.setEnabled(false);
+        _queryController.rentBook(renter);
+    }
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -96,7 +162,8 @@ public class ViewActivity extends SessionActivity
             {
                 if(_desc.rentedBy.length() == 0)
                 {
-                    showDialog(DIALOG_RENT_BOOK);
+                    DialogFragment dialog = new RentBookDialogFragment();
+                    dialog.show(getFragmentManager(), RENT_TAG);
                 }
                 else
                 {
@@ -132,7 +199,7 @@ public class ViewActivity extends SessionActivity
             public void onError()
             {
                 _rent.setEnabled(true);
-                showDialog(DIALOG_ERROR);
+                showDialogError();
             }
         });
     }
@@ -156,74 +223,11 @@ public class ViewActivity extends SessionActivity
             return true;
 
         case DELETE_ID:
-            showDialog(DIALOG_DELETE);
+            DialogFragment dialog = new DeleteBookDialogFragment();
+            dialog.show(getFragmentManager(), DELETE_TAG);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected Dialog onCreateDialog(final int id)
-    {
-        Dialog d = super.onCreateDialog(id);
-        if(d != null)
-        {
-            return d;
-        }
-        switch (id)
-        {
-        case DIALOG_DELETE:
-        {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Delete");
-            builder.setMessage("This book will be deleted.");
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener()
-            {
-                public void onClick(DialogInterface dialog, int whichButton)
-                {
-                    _queryController.deleteBook();
-                }
-            });
-            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener()
-            {
-                public void onClick(DialogInterface dialog, int whichButton)
-                {
-                }
-            });
-            return builder.create();
-        }
-
-        case DIALOG_RENT_BOOK:
-        {
-            // This example shows how to add a custom layout to an AlertDialog
-            LayoutInflater factory = LayoutInflater.from(this);
-            final View entryView = factory.inflate(R.layout.rentername, null);
-            final EditText renter = (EditText)entryView.findViewById(R.id.renter);
-            AlertDialog.Builder builder = new AlertDialog.Builder(ViewActivity.this);
-            builder.setTitle("Enter Renter");
-            builder.setView(entryView);
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener()
-            {
-                public void onClick(DialogInterface dialog, int whichButton)
-                {
-                    final String r = renter.getText().toString().trim();
-                    if(r.length() > 0)
-                    {
-                        _rent.setEnabled(false);
-                        _queryController.rentBook(r);
-                    }
-                }
-            });
-            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener()
-            {
-                public void onClick(DialogInterface dialog, int whichButton)
-                {
-                }
-            });
-            return builder.create();
-        }
-        }
-        return null;
     }
 }

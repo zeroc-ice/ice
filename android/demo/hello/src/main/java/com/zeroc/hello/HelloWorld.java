@@ -9,13 +9,14 @@
 
 package com.zeroc.hello;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.ProgressDialog;
+import Ice.LocalException;
+import android.app.*;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -32,433 +33,207 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 
 public class HelloWorld extends Activity
 {
-    enum DeliveryMode
+    public static class ErrorDialogFragment extends DialogFragment
     {
-        TWOWAY,
-        TWOWAY_SECURE,
-        ONEWAY,
-        ONEWAY_BATCH,
-        ONEWAY_SECURE,
-        ONEWAY_SECURE_BATCH,
-        DATAGRAM,
-        DATAGRAM_BATCH;
-
-        Ice.ObjectPrx apply(Ice.ObjectPrx prx)
+        public static ErrorDialogFragment newInstance(String message, boolean fatal)
         {
-            switch (this)
-            {
-            case TWOWAY:
-                prx = prx.ice_twoway();
-                break;
-            case TWOWAY_SECURE:
-                prx = prx.ice_twoway().ice_secure(true);
-                break;
-            case ONEWAY:
-                prx = prx.ice_oneway();
-                break;
-            case ONEWAY_BATCH:
-                prx = prx.ice_batchOneway();
-                break;
-            case ONEWAY_SECURE:
-                prx = prx.ice_oneway().ice_secure(true);
-                break;
-            case ONEWAY_SECURE_BATCH:
-                prx = prx.ice_batchOneway().ice_secure(true);
-                break;
-            case DATAGRAM:
-                prx = prx.ice_datagram();
-                break;
-            case DATAGRAM_BATCH:
-                prx = prx.ice_batchDatagram();
-                break;
-            }
-            return prx;
-        }
-
-        public boolean isBatch()
-        {
-            return this == ONEWAY_BATCH || this == DATAGRAM_BATCH || this == ONEWAY_SECURE_BATCH;
-        }
-    }
-
-    private void updateProxy()
-    {
-        if(_communicator == null)
-        {
-            return;
-        }
-
-        String host = _host.getText().toString().trim();
-        assert (!host.isEmpty());
-
-        // Change the preferences if necessary.
-        if(!_prefs.getString(HOSTNAME_KEY, DEFAULT_HOST).equals(host))
-        {
-            SharedPreferences.Editor edit = _prefs.edit();
-            edit.putString(HOSTNAME_KEY, host);
-            edit.commit();
-        }
-
-        String s = "hello:tcp -h " + host + " -p 10000:ssl -h " + host + " -p 10001:udp -h " + host + " -p 10000";
-        Ice.ObjectPrx prx = _communicator.stringToProxy(s);
-        prx = _deliveryMode.apply(prx);
-        int timeout = _timeout.getProgress();
-        if(timeout != 0)
-        {
-            prx = prx.ice_timeout(timeout);
-        }
-        _helloPrx = Demo.HelloPrxHelper.uncheckedCast(prx);
-    }
-
-    class SayHelloI extends Demo.Callback_Hello_sayHello
-    {
-        private boolean _response = false;
-
-        @Override
-        synchronized public void exception(final Ice.LocalException ex)
-        {
-            assert (!_response);
-            _response = true;
-
-            runOnUiThread(new Runnable()
-            {
-                public void run()
-                {
-                    handleException(ex);
-                }
-            });
+            ErrorDialogFragment frag = new ErrorDialogFragment();
+            Bundle args = new Bundle();
+            args.putString("message", message);
+            args.putBoolean("fatal", fatal);
+            frag.setArguments(args);
+            return frag;
         }
 
         @Override
-        synchronized public void sent(boolean sentSynchronously)
+        public Dialog onCreateDialog(Bundle savedInstanceState)
         {
-            if(_response)
-            {
-                return;
-            }
-            runOnUiThread(new Runnable()
-            {
-                public void run()
-                {
-                    if(isFinishing())
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Error")
+                   .setMessage(getArguments().getString("message"))
+                   .setPositiveButton("Ok", new DialogInterface.OnClickListener()
                     {
-                        return;
-                    }
-
-                    if(_deliveryMode == DeliveryMode.TWOWAY || _deliveryMode == DeliveryMode.TWOWAY_SECURE)
-                    {
-                        _status.setText("Waiting for response");
-                    }
-                    else
-                    {
-                        _status.setText("Ready");
-                        _activity.setVisibility(View.INVISIBLE);
-                    }
-                }
-            });
-        }
-
-        @Override
-        synchronized public void response()
-        {
-            assert (!_response);
-            _response = true;
-            runOnUiThread(new Runnable()
-            {
-                public void run()
-                {
-                    if(isFinishing())
-                    {
-                        return;
-                    }
-
-                    _activity.setVisibility(View.INVISIBLE);
-                    _status.setText("Ready");
-                }
-            });
-        }
-    }
-
-    private void sayHello()
-    {
-        if(_helloPrx == null)
-        {
-            try
-            {
-                updateProxy();
-            }
-            catch(Ice.LocalException e)
-            {
-                handleException(e);
-                return;
-            }
-        }
-        try
-        {
-            if(!_deliveryMode.isBatch())
-            {
-                Ice.AsyncResult r = _helloPrx.begin_sayHello(_delay.getProgress(), new SayHelloI());
-                if(r.sentSynchronously())
-                {
-                    if(_deliveryMode == DeliveryMode.TWOWAY || _deliveryMode == DeliveryMode.TWOWAY_SECURE)
-                    {
-                        _activity.setVisibility(View.VISIBLE);
-                        _status.setText("Waiting for response");
-                    }
-                }
-                else
-                {
-                    _activity.setVisibility(View.VISIBLE);
-                    _status.setText("Sending request");
-                }
-            }
-            else
-            {
-                _flushButton.setEnabled(true);
-                _helloPrx.sayHello(_delay.getProgress());
-                _status.setText("Queued hello request");
-            }
-        }
-        catch(Ice.LocalException ex)
-        {
-            handleException(ex);
-        }
-    }
-
-    private void handleException(Ice.LocalException ex)
-    {
-        if(isFinishing())
-        {
-            return;
-        }
-
-        _status.setText("Ready");
-        _activity.setVisibility(View.INVISIBLE);
-
-        _lastError = ex.toString();
-        showDialog(DIALOG_ERROR);
-        ex.printStackTrace();
-    }
-
-    private void shutdown()
-    {
-        if(_helloPrx == null)
-        {
-            try
-            {
-                updateProxy();
-            }
-            catch(Ice.LocalException e)
-            {
-                handleException(e);
-                return;
-            }
-        }
-        try
-        {
-            if(!_deliveryMode.isBatch())
-            {
-                _helloPrx.begin_shutdown(new Demo.Callback_Hello_shutdown()
-                {
-                    @Override
-                    public void exception(final Ice.LocalException ex)
-                    {
-                        runOnUiThread(new Runnable()
+                        public void onClick(DialogInterface dialog, int whichButton)
                         {
-                            public void run()
+                            if(getArguments().getBoolean("fatal"))
                             {
-                                handleException(ex);
+                                ((HelloWorld) getActivity()).finish();
                             }
-                        });
-                    }
-
-                    @Override
-                    public void response()
-                    {
-                        runOnUiThread(new Runnable()
-                        {
-                            public void run()
-                            {
-                                if(isFinishing())
-                                {
-                                    return;
-                                }
-
-                                _activity.setVisibility(View.INVISIBLE);
-                                _status.setText("Ready");
-                            }
-                        });
-                    }
-                });
-                if(_deliveryMode == DeliveryMode.TWOWAY || _deliveryMode == DeliveryMode.TWOWAY_SECURE)
-                {
-                    _activity.setVisibility(View.VISIBLE);
-                    _status.setText("Waiting for response");
-                }
-            }
-            else
-            {
-                _flushButton.setEnabled(true);
-                _helloPrx.shutdown();
-                _status.setText("Queued shutdown request");
-            }
-        }
-        catch(Ice.LocalException ex)
-        {
-            handleException(ex);
-        }
-    }
-
-    private void flush()
-    {
-        new Thread(new Runnable()
-        {
-            public void run()
-            {
-                try
-                {
-                    _communicator.flushBatchRequests();
-                }
-                catch(final Ice.LocalException ex)
-                {
-                    runOnUiThread(new Runnable()
-                    {
-                        public void run()
-                        {
-                            handleException(ex);
                         }
                     });
-                }
-            }
-        }).start();
-
-        _flushButton.setEnabled(false);
-        _status.setText("Flushed batch requests");
-    }
-
-    private void changeDeliveryMode(long id)
-    {
-        switch ((int)id)
-        {
-        case 0:
-            _deliveryMode = DeliveryMode.TWOWAY;
-            break;
-        case 1:
-            _deliveryMode = DeliveryMode.TWOWAY_SECURE;
-            break;
-        case 2:
-            _deliveryMode = DeliveryMode.ONEWAY;
-            break;
-        case 3:
-            _deliveryMode = DeliveryMode.ONEWAY_BATCH;
-            break;
-        case 4:
-            _deliveryMode = DeliveryMode.ONEWAY_SECURE;
-            break;
-        case 5:
-            _deliveryMode = DeliveryMode.ONEWAY_SECURE_BATCH;
-            break;
-        case 6:
-            _deliveryMode = DeliveryMode.DATAGRAM;
-            break;
-        case 7:
-            _deliveryMode = DeliveryMode.DATAGRAM_BATCH;
-            break;
+            return builder.create();
         }
     }
 
-    /** Called when the activity is first created. */
+    public static class InitializeDialogFragment extends DialogFragment
+    {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState)
+        {
+            ProgressDialog dialog = new ProgressDialog(getActivity());
+            dialog.setTitle("Initializing");
+            dialog.setMessage("Please wait while loading...");
+            dialog.setIndeterminate(true);
+            dialog.setCanceledOnTouchOutside(false);
+
+            setCancelable(false);
+            return dialog;
+        }
+    }
+
+    // These two arrays match.
+    private final static DeliveryMode DELIVERY_MODES[] = {
+        DeliveryMode.TWOWAY,
+        DeliveryMode.TWOWAY_SECURE,
+        DeliveryMode.ONEWAY,
+        DeliveryMode.ONEWAY_BATCH,
+        DeliveryMode.ONEWAY_SECURE,
+        DeliveryMode.ONEWAY_SECURE_BATCH,
+        DeliveryMode.DATAGRAM,
+        DeliveryMode.DATAGRAM_BATCH,
+    };
+
+    private final static String DELIVERY_MODE_DESC[] = new String[] {
+            "Twoway",
+            "Twoway Secure",
+            "Oneway",
+            "Oneway Batch",
+            "Oneway Secure",
+            "Oneway Secure Batch",
+            "Datagram",
+            "Datagram Batch"
+    };
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        _sayHelloButton = (Button)findViewById(R.id.sayHello);
-        _sayHelloButton.setOnClickListener(new OnClickListener()
-        {
-            public void onClick(android.view.View v)
-            {
-                sayHello();
-            }
-        });
-        _shutdownButton = (Button)findViewById(R.id.shutdown);
-        _shutdownButton.setOnClickListener(new OnClickListener()
-        {
-            public void onClick(android.view.View v)
-            {
-                shutdown();
-            }
-        });
+        final Button sayHelloButton = (Button)findViewById(R.id.sayHello);
+        final SeekBar delaySeekBar = (SeekBar)findViewById(R.id.delay);
+        final ProgressBar activityProgressBar = (ProgressBar)findViewById(R.id.activity);
+        final Button shutdownButton = (Button)findViewById(R.id.shutdown);
+        final EditText hostEditText = (EditText)findViewById(R.id.host);
+        final Button flushButton = (Button)findViewById(R.id.flush);
+        final TextView statusTextView = (TextView)findViewById(R.id.status);
+        final Spinner modeSpinner = (Spinner)findViewById(R.id.mode);
+        final TextView delayTextView = (TextView)findViewById(R.id.delayView);
+        final TextView timeoutTextView = (TextView)findViewById(R.id.timeoutView);
+        final SeekBar timeoutSeekBar = (SeekBar)findViewById(R.id.timeout);
+        final SharedPreferences prefs = getPreferences(MODE_PRIVATE);
 
-        _host = (EditText)findViewById(R.id.host);
-        _host.addTextChangedListener(new TextWatcher()
+        _app = (HelloApp)getApplication();
+
+        sayHelloButton.setOnClickListener(new OnClickListener()
         {
-            public void afterTextChanged(Editable s)
+            public void onClick(android.view.View v)
             {
-                String host = _host.getText().toString().trim();
-                if(host.isEmpty())
+                if(_app.getDeliveryMode().isBatch())
                 {
-                    _sayHelloButton.setEnabled(false);
-                    _shutdownButton.setEnabled(false);
+                    flushButton.setEnabled(true);
+                    _app.sayHello(delaySeekBar.getProgress());
+                    statusTextView.setText("Queued hello request");
+
                 }
                 else
                 {
-                    _sayHelloButton.setEnabled(true);
-                    _shutdownButton.setEnabled(true);
+                    _app.sayHelloAsync(delaySeekBar.getProgress());
                 }
-                _helloPrx = null;
+            }
+        });
+
+        shutdownButton.setOnClickListener(new OnClickListener()
+        {
+            public void onClick(android.view.View v)
+            {
+                if(_app.getDeliveryMode().isBatch())
+                {
+                    flushButton.setEnabled(true);
+                    _app.shutdown();
+                    statusTextView.setText("Queued shutdown request");
+                }
+                else
+                {
+                    _app.shutdownAsync();
+                }
+            }
+        });
+
+
+        hostEditText.addTextChangedListener(new TextWatcher()
+        {
+            @Override
+            public void afterTextChanged(Editable s)
+            {
+                String host = hostEditText.getText().toString().trim();
+                if(host.isEmpty())
+                {
+                    sayHelloButton.setEnabled(false);
+                    shutdownButton.setEnabled(false);
+                }
+                else
+                {
+                    sayHelloButton.setEnabled(true);
+                    shutdownButton.setEnabled(true);
+                }
+
+                _app.setHost(host);
+
+                // Change the preferences if necessary.
+                if(!prefs.getString(HOSTNAME_KEY, DEFAULT_HOST).equals(host))
+                {
+                    SharedPreferences.Editor edit = prefs.edit();
+                    edit.putString(HOSTNAME_KEY, host);
+                    edit.apply();
+                }
             }
 
+            @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after)
             {
             }
 
+            @Override
             public void onTextChanged(CharSequence s, int start, int count, int after)
             {
             }
         });
 
-        _flushButton = (Button)findViewById(R.id.flush);
-        _flushButton.setOnClickListener(new OnClickListener()
+        flushButton.setOnClickListener(new OnClickListener()
         {
             public void onClick(View v)
             {
-                flush();
+                _app.flush();
+                flushButton.setEnabled(false);
+                statusTextView.setText("Flushed batch requests");
             }
         });
 
-        Spinner mode = (Spinner)findViewById(R.id.mode);
         ArrayAdapter<String> modeAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,
-                new String[] { "Twoway", "Twoway Secure", "Oneway", "Oneway Batch", "Oneway Secure",
-                        "Oneway Secure Batch", "Datagram", "Datagram Batch" });
-        mode.setAdapter(modeAdapter);
-        mode.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener()
+                DELIVERY_MODE_DESC);
+        modeSpinner.setAdapter(modeAdapter);
+        modeSpinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener()
         {
+            @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
             {
-                changeDeliveryMode(id);
-                _helloPrx = null;
+                _app.setDeliveryMode(DELIVERY_MODES[(int) id]);
             }
 
-
+            @Override
             public void onNothingSelected(AdapterView<?> arg0)
             {
             }
         });
-        if(savedInstanceState == null)
-        {
-            mode.setSelection(0);
-        }
-        changeDeliveryMode(mode.getSelectedItemId());
+        modeSpinner.setSelection(0);
+        _app.setDeliveryMode(DELIVERY_MODES[(int)modeSpinner.getSelectedItemId()]);
 
-        final TextView delayView = (TextView)findViewById(R.id.delayView);
-        _delay = (SeekBar)findViewById(R.id.delay);
-        _delay.setOnSeekBarChangeListener(new OnSeekBarChangeListener()
+        delaySeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener()
         {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromThumb)
             {
-                delayView.setText(String.format("%.1f", progress / 1000.0));
+                delayTextView.setText(String.format("%.1f", progress / 1000.0));
             }
 
             public void onStartTrackingTouch(SeekBar seekBar)
@@ -469,20 +244,13 @@ public class HelloWorld extends Activity
             {
             }
         });
-        // BUGFIX: Android doesn't save/restore SeekBar state.
-        if(savedInstanceState != null)
-        {
-            _delay.setProgress(savedInstanceState.getInt(BUNDLE_KEY_DELAY));
-        }
 
-        final TextView timeoutView = (TextView)findViewById(R.id.timeoutView);
-        _timeout = (SeekBar)findViewById(R.id.timeout);
-        _timeout.setOnSeekBarChangeListener(new OnSeekBarChangeListener()
+        timeoutSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener()
         {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromThumb)
             {
-                timeoutView.setText(String.format("%.1f", progress / 1000.0));
-                _helloPrx = null;
+                timeoutTextView.setText(String.format("%.1f", progress / 1000.0));
+                _app.setTimeout(progress);
             }
 
             public void onStartTrackingTouch(SeekBar seekBar)
@@ -493,167 +261,168 @@ public class HelloWorld extends Activity
             {
             }
         });
-        // BUGFIX: Android doesn't save/restore SeekBar state.
-        if(savedInstanceState != null)
-        {
-            _timeout.setProgress(savedInstanceState.getInt(BUNDLE_KEY_TIMEOUT));
-        }
 
-        _activity = (ProgressBar)findViewById(R.id.activity);
-        _activity.setVisibility(View.INVISIBLE);
-
-        _status = (TextView)findViewById(R.id.status);
+        activityProgressBar.setVisibility(View.GONE);
 
         // Setup the defaults.
-        _prefs = getPreferences(MODE_PRIVATE);
-        if(savedInstanceState == null)
-        {
-            _host.setText(_prefs.getString(HOSTNAME_KEY, DEFAULT_HOST));
-            _flushButton.setEnabled(false);
-        }
-        else
-        {
-            _flushButton.setEnabled(savedInstanceState.getBoolean(BUNDLE_KEY_FLUSH_ENABLED));
-            _lastError = savedInstanceState.getString(BUNDLE_KEY_LAST_ERROR);
-        }
+        hostEditText.setText(prefs.getString(HOSTNAME_KEY, DEFAULT_HOST));
+        flushButton.setEnabled(false);
 
-        HelloApp app = (HelloApp)getApplication();
-        app.setCommunicatorCallback(new HelloApp.CommunicatorCallback()
-        {
-            private boolean dismiss = false;
+        statusTextView.setText("Ready");
 
-            public void onCreate(final Ice.Communicator communicator)
+        _handler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message m)
             {
-                runOnUiThread(new Runnable()
+                switch(m.what)
                 {
-                    public void run()
+                    case HelloApp.MSG_WAIT:
                     {
-                        if(dismiss)
+                        // Show the initializing dialog if it isn't already on the stack.
+                        if(getFragmentManager().findFragmentByTag(INITIALIZE_TAG) == null)
                         {
-                            dismissDialog(DIALOG_INITIALIZING);
+                            DialogFragment dialog = new InitializeDialogFragment();
+                            dialog.show(getFragmentManager(), INITIALIZE_TAG);
                         }
-                        _status.setText("Ready");
-                        _communicator = communicator;
+                        break;
                     }
-                });
-            }
 
-            public void onError(final Ice.LocalException ex)
-            {
-                runOnUiThread(new Runnable()
-                {
-                    public void run()
+                    case HelloApp.MSG_READY:
                     {
-                        if(dismiss)
+                        // Hide the initializing dialog if it is on the stack.
+                        DialogFragment initDialog = (DialogFragment) getFragmentManager().findFragmentByTag(INITIALIZE_TAG);
+                        if(initDialog != null)
                         {
-                            dismissDialog(DIALOG_INITIALIZING);
+                            initDialog.dismiss();
                         }
-                        _lastError = ex.toString();
-                        showDialog(DIALOG_FATAL);
 
+                        HelloApp.MessageReady ready = (HelloApp.MessageReady) m.obj;
+                        if(ready.ex != null)
+                        {
+                            LocalException ex = (LocalException) m.obj;
+                            DialogFragment dialog = ErrorDialogFragment.newInstance(ex.toString(), true);
+                            dialog.show(getFragmentManager(), ERROR_TAG);
+                        }
+                        statusTextView.setText("Ready");
+                        break;
                     }
-                });
-            }
 
-            public void onWait()
-            {
-                // Show the initializing dialog.
-                dismiss = true;
-                showDialog(DIALOG_INITIALIZING);
+                    case HelloApp.MSG_EXCEPTION:
+                    {
+                        statusTextView.setText("Ready");
+                        activityProgressBar.setVisibility(View.GONE);
+
+                        LocalException ex = (LocalException) m.obj;
+                        DialogFragment dialog = ErrorDialogFragment.newInstance(ex.toString(), false);
+                        dialog.show(getFragmentManager(), ERROR_TAG);
+                        break;
+                    }
+
+                    case HelloApp.MSG_RESPONSE:
+                    {
+                        activityProgressBar.setVisibility(View.GONE);
+                        statusTextView.setText("Ready");
+                        break;
+                    }
+                    case HelloApp.MSG_SENT:
+                    {
+                        DeliveryMode mode = (DeliveryMode) m.obj;
+                        if(mode == DeliveryMode.TWOWAY || mode == DeliveryMode.TWOWAY_SECURE)
+                        {
+                            activityProgressBar.setVisibility(View.VISIBLE);
+                            statusTextView.setText("Waiting for response");
+                        }
+                        else
+                        {
+                            statusTextView.setText("Ready");
+                            activityProgressBar.setVisibility(View.GONE);
+                        }
+                        break;
+                    }
+
+                    case HelloApp.MSG_SENDING:
+                    {
+                        activityProgressBar.setVisibility(View.VISIBLE);
+                        statusTextView.setText("Sending request");
+                        break;
+                    }
+                }
             }
-        });
+        };
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        _app.setHandler(_handler);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState)
+    {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        final SeekBar delaySeekBar = (SeekBar)findViewById(R.id.delay);
+        final Button flushButton = (Button)findViewById(R.id.flush);
+        final Spinner modeSpinner = (Spinner)findViewById(R.id.mode);
+        final SeekBar timeoutSeekBar = (SeekBar)findViewById(R.id.timeout);
+        final TextView statusTextView = (TextView)findViewById(R.id.status);
+        final ProgressBar activityProgressBar = (ProgressBar)findViewById(R.id.activity);
+
+        modeSpinner.setSelection(savedInstanceState.getInt(BUNDLE_KEY_MODE));
+        flushButton.setEnabled(savedInstanceState.getBoolean(BUNDLE_KEY_FLUSH_ENABLED));
+        delaySeekBar.setProgress(savedInstanceState.getInt(BUNDLE_KEY_DELAY));
+        timeoutSeekBar.setProgress(savedInstanceState.getInt(BUNDLE_KEY_TIMEOUT));
+        statusTextView.setText(savedInstanceState.getString(BUNDLE_KEY_STATUS));
+        activityProgressBar.setVisibility(
+                savedInstanceState.getBoolean(BUNDLE_KEY_PROGRESS) ? View.VISIBLE : View.GONE);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState)
     {
         super.onSaveInstanceState(outState);
-        // BUGFIX: The SeekBar doesn't save/restore state automatically.
-        outState.putInt(BUNDLE_KEY_DELAY, _delay.getProgress());
-        outState.putInt(BUNDLE_KEY_TIMEOUT, _timeout.getProgress());
-        outState.putBoolean(BUNDLE_KEY_FLUSH_ENABLED, _flushButton.isEnabled());
-        outState.putString(BUNDLE_KEY_LAST_ERROR, _lastError);
+
+        final SeekBar delaySeekBar = (SeekBar)findViewById(R.id.delay);
+        final Button flushButton = (Button)findViewById(R.id.flush);
+        final Spinner modeSpinner = (Spinner)findViewById(R.id.mode);
+        final SeekBar timeoutSeekBar = (SeekBar)findViewById(R.id.timeout);
+        final TextView statusTextView = (TextView)findViewById(R.id.status);
+        final ProgressBar activityProgressBar = (ProgressBar)findViewById(R.id.activity);
+
+        outState.putInt(BUNDLE_KEY_MODE, (int)modeSpinner.getSelectedItemId());
+        outState.putInt(BUNDLE_KEY_DELAY, delaySeekBar.getProgress());
+        outState.putInt(BUNDLE_KEY_TIMEOUT, timeoutSeekBar.getProgress());
+        outState.putBoolean(BUNDLE_KEY_FLUSH_ENABLED, flushButton.isEnabled());
+        outState.putString(BUNDLE_KEY_STATUS, statusTextView.getText().toString());
+        outState.putBoolean(BUNDLE_KEY_PROGRESS, activityProgressBar.getVisibility() == View.VISIBLE);
+
+        // Clear the application handler. We don't want any further messages while
+        // in the background.
+        _app.setHandler(null);
     }
 
     @Override
-    protected Dialog onCreateDialog(int id)
+    protected void onDestroy()
     {
-        switch (id)
-        {
-        case DIALOG_INITIALIZING:
-        {
-            ProgressDialog dialog = new ProgressDialog(this);
-            dialog.setTitle("Initializing");
-            dialog.setMessage("Please wait while loading...");
-            dialog.setIndeterminate(true);
-            dialog.setCancelable(false);
-            return dialog;
-        }
-
-        case DIALOG_ERROR:
-        case DIALOG_FATAL:
-        {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Error");
-            builder.setMessage(""); // Initialize to empty string so that we can modify during onPrepareDialog
-            if(id == DIALOG_FATAL)
-            {
-                builder.setPositiveButton("Ok", new DialogInterface.OnClickListener()
-                {
-                    public void onClick(DialogInterface dialog, int whichButton)
-                    {
-                        finish();
-                    }
-                });
-            }
-            return builder.create();
-        }
-
-        }
-
-        return null;
+        super.onDestroy();
+        _app.setHandler(null);
     }
 
-    protected void onPrepareDialog(int id, Dialog dialog)
-    {
-        switch (id)
-        {
-            case DIALOG_INITIALIZING:
-                break;
-            case DIALOG_ERROR:
-            case DIALOG_FATAL:
-            {
-                ((AlertDialog)dialog).setMessage(_lastError);
-            }
-
-        }
-    }
-
-    private static final int DIALOG_INITIALIZING = 1;
-    private static final int DIALOG_ERROR = 2;
-    private static final int DIALOG_FATAL = 3;
+    public static final String INITIALIZE_TAG = "initialize";
+    public static final String ERROR_TAG = "error";
 
     private static final String DEFAULT_HOST = "";
     private static final String HOSTNAME_KEY = "host";
 
+    private static final String BUNDLE_KEY_PROGRESS = "zeroc:progress";
+    private static final String BUNDLE_KEY_STATUS = "zeroc:status";
+    private static final String BUNDLE_KEY_MODE = "zeroc:mode";
     private static final String BUNDLE_KEY_TIMEOUT = "zeroc:timeout";
     private static final String BUNDLE_KEY_DELAY = "zeroc:delay";
     private static final String BUNDLE_KEY_FLUSH_ENABLED = "zeroc:flush";
-    private static final String BUNDLE_KEY_LAST_ERROR = "zeroc:lastError";
 
-    private Ice.Communicator _communicator = null;
-    private DeliveryMode _deliveryMode;
-    private Demo.HelloPrx _helloPrx = null;
-
-    private Button _sayHelloButton;
-    private Button _shutdownButton;
-    private EditText _host;
-    private TextView _status;
-    private SeekBar _delay;
-    private SeekBar _timeout;
-    private ProgressBar _activity;
-    private SharedPreferences _prefs;
-    private Button _flushButton;
-
-    private String _lastError = "";
+    private HelloApp _app;
+    private Handler _handler;
 }

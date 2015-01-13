@@ -11,6 +11,8 @@ apply plugin: 'com.android.application'
 apply from: "$rootProject.projectDir/../java/gradle/ice.gradle"
 apply plugin: 'slice'
 
+project.slice.output = project.file("${project.buildDir}/generated/source/ice")
+
 slice {
     java {
         set1 {
@@ -58,11 +60,6 @@ preBuild.dependsOn(copyBksTask)
 
 clean {
     delete("src/main/res/raw/client.bks")
-}
-
-idea.module {
-    excludeDirs -= file(buildDir)
-    buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
 }
 
 dependencies {

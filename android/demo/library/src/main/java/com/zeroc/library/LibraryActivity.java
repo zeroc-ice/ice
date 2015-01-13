@@ -96,7 +96,7 @@ public class LibraryActivity extends SessionActivity
             }
             return text;
         }
-    };
+    }
 
     private LibraryListAdapter _adapter;
 
@@ -111,7 +111,7 @@ public class LibraryActivity extends SessionActivity
 
         public void onError()
         {
-            showDialog(DIALOG_ERROR);
+            showDialogError();
         }
     };
 

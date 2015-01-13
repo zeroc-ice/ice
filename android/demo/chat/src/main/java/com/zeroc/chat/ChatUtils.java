@@ -36,17 +36,5 @@ public class ChatUtils
         dtf.setTimeZone(TimeZone.getDefault());
         return dtf.format(new Date(timestamp));
     }
-
-    public static String formatUsername(String in)
-    {
-        try
-        {
-            in = in.substring(0, 1).toUpperCase() + in.substring(1, in.length()).toLowerCase();
-        }
-        catch(IndexOutOfBoundsException ex)
-        {
-        }
-        return in;
-    }
-};
+}
 

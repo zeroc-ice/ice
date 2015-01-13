@@ -14,6 +14,7 @@ import java.util.List;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
@@ -33,10 +34,9 @@ import com.zeroc.library.controller.QueryModel;
 
 public class EditActivity extends SessionActivity
 {
-    private static final int DIALOG_DISCARD = DIALOG_NEXT;
-
     private static final int SAVE_ID = Menu.FIRST;
     private static final int DISCARD_ID = Menu.FIRST + 1;
+    public static final String DISCARD_TAG = "discard";
 
     private Demo.BookDescription _desc;
 
@@ -46,6 +46,39 @@ public class EditActivity extends SessionActivity
     private LinearLayout _authorsLayout;
     private LayoutInflater _inflater;
     private Button _save;
+
+    public static class DiscardDialogFragment extends DialogFragment
+    {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Discard changes")
+                    .setMessage("Your changes will be discarded.")
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener()
+                    {
+                        public void onClick(DialogInterface dialog, int whichButton)
+                        {
+                            ((EditActivity) getActivity()).discardOk();
+
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+                    {
+                        public void onClick(DialogInterface dialog, int whichButton)
+                        {
+                        }
+                    });
+            return builder.create();
+        }
+    }
+
+    private void
+    discardOk()
+    {
+        setResult(RESULT_CANCELED);
+        finish();
+    }
 
     private void addAuthorView(String author)
     {
@@ -131,7 +164,8 @@ public class EditActivity extends SessionActivity
         {
             public void onClick(View v)
             {
-                showDialog(DIALOG_DISCARD);
+                DialogFragment dialog = new DiscardDialogFragment();
+                dialog.show(getFragmentManager(), DISCARD_TAG);
             }
         });
     }
@@ -170,7 +204,7 @@ public class EditActivity extends SessionActivity
 
             public void onError()
             {
-                showDialog(DIALOG_ERROR);
+                showDialogError();
             }
         });
     }
@@ -202,7 +236,8 @@ public class EditActivity extends SessionActivity
             return true;
 
         case DISCARD_ID:
-            showDialog(DIALOG_DISCARD);
+            DialogFragment dialog = new DiscardDialogFragment();
+            dialog.show(getFragmentManager(), DISCARD_TAG);
             return true;
         }
 
@@ -251,41 +286,5 @@ public class EditActivity extends SessionActivity
         }
     }
 
-    @Override
-    protected Dialog onCreateDialog(final int id)
-    {
-        Dialog d = super.onCreateDialog(id);
-        if(d != null)
-        {
-            return d;
-        }
-
-        switch(id)
-        {
-        case DIALOG_DISCARD:
-        {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Discard changes");
-            builder.setMessage("Your changes will be discarded.");
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener()
-            {
-                public void onClick(DialogInterface dialog, int whichButton)
-                {
-                    setResult(RESULT_CANCELED);
-                    finish();
-                }
-            });
-            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener()
-            {
-                public void onClick(DialogInterface dialog, int whichButton)
-                {
-                }
-            });
-            return builder.create();
-        }
-        }
-
-        return null;
-    }
 
 }

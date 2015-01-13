@@ -48,12 +48,12 @@ public class UserViewActivity extends SessionActivity
 
         public void error()
         {
-            showDialog(DIALOG_FATAL);
+            showDialogFatal();
         }
 
         public void inactivity()
         {
-            showDialog(DIALOG_FATAL);
+            showDialogFatal();
         }
     };
 

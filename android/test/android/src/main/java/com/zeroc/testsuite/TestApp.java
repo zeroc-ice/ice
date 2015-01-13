@@ -588,7 +588,7 @@ public class TestApp extends Application
 
             setupAddress(args, _ipv6);
 
-            if(_testName == "plugin")
+            if(_testName.equals("plugin"))
             {
                 try
                 {
@@ -862,10 +862,6 @@ public class TestApp extends Application
 
     synchronized public void startTest(int position)
     {
-        assert !_mode.isSSL() || (_mode.isSSL() && _sslInitialized);
-
-        PrintWriter pw = new PrintWriter(new MyWriter());
-
         _currentTest = position;
         _complete = false;
         _strings.clear();
@@ -987,7 +983,7 @@ public class TestApp extends Application
             {
                 private SSLContext initializeContext(java.io.InputStream cert)
                     throws NoSuchAlgorithmException, KeyStoreException, IOException, CertificateException,
-                    FileNotFoundException, UnrecoverableKeyException, KeyManagementException
+                    UnrecoverableKeyException, KeyManagementException
                 {
                     SSLContext context = SSLContext.getInstance("TLS");
                     KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());

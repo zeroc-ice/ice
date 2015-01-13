@@ -12,10 +12,7 @@ package com.zeroc.testsuite;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.ListActivity;
-import android.app.ProgressDialog;
+import android.app.*;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -25,8 +22,9 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 
 public class TestSuite extends ListActivity
 {
-    private static final int DIALOG_INITIALIZING = 1;
-    private static final int DIALOG_SSL_FAILED = 2;
+    public static final String INITIALIZE_TAG = "initialize";
+    public static final String FAILED_TAG = "failed";
+
     private List<String> _tests = new ArrayList<String>();
 
     @Override
@@ -48,7 +46,11 @@ public class TestSuite extends ListActivity
             {
                 if(dismiss)
                 {
-                    dismissDialog(DIALOG_INITIALIZING);
+                    DialogFragment f= (DialogFragment)getFragmentManager().findFragmentByTag(INITIALIZE_TAG);
+                    if(f != null)
+                    {
+                        f.dismiss();
+                    }
                 }
             }
 
@@ -56,16 +58,22 @@ public class TestSuite extends ListActivity
             {
                 if(dismiss)
                 {
-                    dismissDialog(DIALOG_INITIALIZING);
+                    DialogFragment f= (DialogFragment)getFragmentManager().findFragmentByTag(INITIALIZE_TAG);
+                    if(f != null)
+                    {
+                        f.dismiss();
+                    }
                 }
-                showDialog(DIALOG_SSL_FAILED);
+                DialogFragment dialog = new SSLFailedDialogFragment();
+                dialog.show(getFragmentManager(), FAILED_TAG);
             }
 
             public void onWait()
             {
                 // Show the initializing dialog.
                 dismiss = true;
-                showDialog(DIALOG_INITIALIZING);
+                DialogFragment dialog = new InitializeDialogFragment();
+                dialog.show(getFragmentManager(), INITIALIZE_TAG);
             }
         });
         Spinner mode = (Spinner)findViewById(R.id.mode);
@@ -109,37 +117,37 @@ public class TestSuite extends ListActivity
         startActivity(new Intent(this, TestContainer.class));
     }
 
-    @Override
-    protected Dialog onCreateDialog(int id)
+    public static class InitializeDialogFragment extends DialogFragment
     {
-        switch (id)
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState)
         {
-        case DIALOG_INITIALIZING:
-        {
-            ProgressDialog dialog = new ProgressDialog(this);
+            ProgressDialog dialog = new ProgressDialog(getActivity());
             dialog.setTitle("Initializing");
             dialog.setMessage("Please wait while initializing SSL...");
             dialog.setIndeterminate(true);
             dialog.setCancelable(false);
             return dialog;
         }
+    }
 
-        case DIALOG_SSL_FAILED:
+    public static class SSLFailedDialogFragment extends DialogFragment
+    {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState)
         {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Error");
-            builder.setMessage("SSL Initialization failed");
-            builder.setCancelable(false);
-            builder.setPositiveButton("Ok", new DialogInterface.OnClickListener()
-            {
-                public void onClick(DialogInterface dialog, int whichButton)
-                {
-                    finish();
-                }
-            });
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Error")
+                    .setMessage("SSL Initialization failed")
+                    .setCancelable(false)
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener()
+                    {
+                        public void onClick(DialogInterface dialog, int whichButton)
+                        {
+                            getActivity().finish();
+                        }
+                    });
             return builder.create();
         }
-        }
-        return null;
     }
 }

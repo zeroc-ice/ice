@@ -9,6 +9,8 @@
 
 package com.zeroc.library;
 
+import android.app.DialogFragment;
+import android.os.Bundle;
 import com.zeroc.library.controller.QueryController;
 import com.zeroc.library.controller.SessionController;
 
@@ -20,12 +22,76 @@ import android.content.DialogInterface;
 // The base class of any activity created after a session has been established.
 public class SessionActivity extends Activity
 {
-    protected static final int DIALOG_ERROR = 0;
-    protected static final int DIALOG_FATAL = 1;
-    protected static final int DIALOG_NEXT = 2;
-
+    public static final String ERROR_TAG = "error";
+    public static final String FATAL_TAG = "fatal";
     protected SessionController _sessionController;
     protected QueryController _queryController;
+
+    public static class FatalDialogFragment extends DialogFragment
+    {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Error")
+                    .setMessage("The session was lost. Please login again.")
+                    .setCancelable(false)
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener()
+                    {
+                        public void onClick(DialogInterface dialog, int whichButton)
+                        {
+                            ((SessionActivity) getActivity()).fatalOk();
+                        }
+                    });
+            return builder.create();
+        }
+    }
+    public static class ErrorDialogFragment extends DialogFragment
+    {
+        public static ErrorDialogFragment newInstance(String message)
+        {
+            ErrorDialogFragment frag = new ErrorDialogFragment();
+            Bundle args = new Bundle();
+            args.putString("message", message);
+            frag.setArguments(args);
+            return frag;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Error")
+                    .setMessage(getArguments().getString("message"))
+                    .setCancelable(false)
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener()
+                    {
+                        public void onClick(DialogInterface dialog, int whichButton)
+                        {
+                            ((SessionActivity) getActivity()).errorOk();
+                        }
+                    });
+            return builder.create();
+        }
+    }
+
+    private void errorOk()
+    {
+        _queryController.clearLastError();
+    }
+
+    private void fatalOk()
+    {
+        LibraryApp app = (LibraryApp)getApplication();
+        app.logout();
+        finish();
+    }
+
+    void showDialogError()
+    {
+        DialogFragment dialog = ErrorDialogFragment.newInstance(_queryController.getLastError());
+        dialog.show(getFragmentManager(), SessionActivity.ERROR_TAG);
+    }
 
     @Override
     public void onResume()
@@ -44,64 +110,12 @@ public class SessionActivity extends Activity
         {
             public void onDestroy()
             {
-                showDialog(DIALOG_FATAL);
+                DialogFragment dialog = new FatalDialogFragment();
+                dialog.show(getFragmentManager(), FATAL_TAG);
             }
         });
 
         _queryController = _sessionController.getCurrentQuery();
     }
 
-    @Override
-    protected Dialog onCreateDialog(final int id)
-    {
-        switch (id)
-        {
-        case DIALOG_ERROR:
-        {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Error");
-            builder.setMessage(""); // Filled in onPrepareDialog.
-            builder.setCancelable(false);
-            builder.setPositiveButton("Ok", new DialogInterface.OnClickListener()
-            {
-                public void onClick(DialogInterface dialog, int whichButton)
-                {
-                    _queryController.clearLastError();
-                }
-            });
-            return builder.create();
-        }
-
-        case DIALOG_FATAL:
-        {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Error");
-            builder.setMessage("The session was lost. Please login again.");
-            builder.setCancelable(false);
-            builder.setPositiveButton("Ok", new DialogInterface.OnClickListener()
-            {
-                public void onClick(DialogInterface dialog, int whichButton)
-                {
-                    LibraryApp app = (LibraryApp)getApplication();
-                    app.logout();
-                    finish();
-                }
-            });
-            return builder.create();
-        }
-        }
-
-        return null;
-    }
-
-    @Override
-    protected void onPrepareDialog(int id, Dialog dialog)
-    {
-        super.onPrepareDialog(id, dialog);
-        if(id == DIALOG_ERROR)
-        {
-            AlertDialog alert = (AlertDialog)dialog;
-            alert.setMessage(_queryController.getLastError());
-        }
-    }
 }

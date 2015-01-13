@@ -12,10 +12,10 @@ package com.zeroc.library;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -34,9 +34,7 @@ public class LoginActivity extends Activity
     private static final String HOSTNAME_KEY = "host";
     private static final String SECURE_KEY = "secure";
     private static final String GLACIER2_KEY = "glacier2";
-
-    private static final int DIALOG_ERROR = 1;
-    private static final int DIALOG_INVALID_HOST = 2;
+    private static final String ERROR_TAG = "error";
 
     private Button _login;
     private EditText _hostname;
@@ -71,7 +69,8 @@ public class LoginActivity extends Activity
             _loginInProgress = false;
             setLoginState();
 
-            showDialog(DIALOG_ERROR);
+            DialogFragment dialog = ErrorDialogFragment.newInstance(_loginController.getLoginError());
+            dialog.show(getFragmentManager(), ERROR_TAG);
         }
     };
 
@@ -102,7 +101,8 @@ public class LoginActivity extends Activity
         final String ipre = "^([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$";
         if(!hostname.matches(hostre) && !hostname.matches(ipre))
         {
-            showDialog(DIALOG_INVALID_HOST);
+            DialogFragment dialog = new InvalidHostDialogFragment();
+            dialog.show(getFragmentManager(), "invalid");
             return;
         }
 
@@ -121,7 +121,7 @@ public class LoginActivity extends Activity
             edit.putBoolean(GLACIER2_KEY, glacier2);
         }
 
-        edit.commit();
+        edit.apply();
 
         LibraryApp app = (LibraryApp)getApplication();
         _loginController = app.login(hostname, secure, glacier2, _listener);
@@ -203,52 +203,53 @@ public class LoginActivity extends Activity
         }
     }
 
-    @Override
-    protected Dialog onCreateDialog(int id)
+    public static class InvalidHostDialogFragment extends DialogFragment
     {
-        switch(id)
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState)
         {
-        case DIALOG_ERROR:
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Error")
+                   .setMessage("The hostname is invalid");
+            return builder.create();
+        }
+    }
+    public static class ErrorDialogFragment extends DialogFragment
+    {
+        public static ErrorDialogFragment newInstance(String message)
         {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Error");
-            builder.setMessage(""); // The message is filled in onPrepareDialog.
-            builder.setCancelable(false);
-            builder.setPositiveButton("Ok", new DialogInterface.OnClickListener()
-            {
-                public void onClick(DialogInterface dialog, int whichButton)
-                {
-                    // Clean up the login controller upon login failure.
-                    if(_loginController != null)
+            ErrorDialogFragment frag = new ErrorDialogFragment();
+            Bundle args = new Bundle();
+            args.putString("message", message);
+            frag.setArguments(args);
+            return frag;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder .setTitle("Error")
+                    .setMessage(getArguments().getString("message"))
+                    .setCancelable(false)
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener()
                     {
-                        LibraryApp app = (LibraryApp)getApplication();
-                        app.loginFailure();
-                    }
-                }
-            });
+                        public void onClick(DialogInterface dialog, int whichButton)
+                        {
+                            ((LoginActivity) getActivity()).errorOk();
+                        }
+                    });
             return builder.create();
         }
-
-        case DIALOG_INVALID_HOST:
-        {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Error");
-            builder.setMessage("The hostname is invalid");
-            return builder.create();
-        }
-        }
-
-        return null;
     }
 
-    @Override
-    protected void onPrepareDialog(int id, Dialog dialog)
+    private void errorOk()
     {
-        super.onPrepareDialog(id, dialog);
-        if(id == DIALOG_ERROR)
+        // Clean up the login controller upon login failure.
+        if(_loginController != null)
         {
-            AlertDialog alert = (AlertDialog)dialog;
-            alert.setMessage(_loginController.getLoginError());
+            LibraryApp app = (LibraryApp)getApplication();
+            app.loginFailure();
         }
     }
 }

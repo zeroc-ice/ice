@@ -14,6 +14,7 @@ import java.util.List;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -31,11 +32,10 @@ import com.zeroc.chat.service.ChatRoomListener;
 
 public class ChatActivity extends SessionActivity
 {
-    private static final int DIALOG_MESSAGE_TOO_LONG = 2;
-
     private static final int USERS_ID = Menu.FIRST;
     private static final int LOGOUT_ID = Menu.FIRST + 1;
     private static final int MAX_MESSAGE_SIZE = 1024;
+    public static final String MESSAGE_TOO_LONG_TAG = "mtl";
 
     private EditText _text;
     private ArrayAdapter<String> _adapter;
@@ -65,12 +65,12 @@ public class ChatActivity extends SessionActivity
 
         public void error()
         {
-            showDialog(DIALOG_FATAL);
+            showDialogFatal();
         }
 
         public void inactivity()
         {
-            showDialog(DIALOG_FATAL);
+            showDialogFatal();
         }
 
         private void add(final String msg)
@@ -83,6 +83,18 @@ public class ChatActivity extends SessionActivity
             _adapter.notifyDataSetChanged();
         }
     };
+
+    public static class MessageTooLongDialogFragment extends DialogFragment
+    {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Error")
+                   .setMessage("Message length exceeded, maximum length is " + MAX_MESSAGE_SIZE + " characters.");
+            return builder.create();
+        }
+    }
 
     @Override
     ChatRoomListener getChatRoomListener()
@@ -173,20 +185,6 @@ public class ChatActivity extends SessionActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected Dialog onCreateDialog(final int id)
-    {
-        if(id == DIALOG_MESSAGE_TOO_LONG)
-        {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Error");
-            builder.setMessage("Message length exceeded, maximum length is " + MAX_MESSAGE_SIZE + " characters.");
-            return builder.create();
-        }
-
-        return super.onCreateDialog(id);
-    }
-
     private void sendText()
     {
         String t = _text.getText().toString().trim();
@@ -196,7 +194,8 @@ public class ChatActivity extends SessionActivity
         }
         if(t.length() > MAX_MESSAGE_SIZE)
         {
-            showDialog(DIALOG_MESSAGE_TOO_LONG);
+            DialogFragment dialog = new MessageTooLongDialogFragment();
+            dialog.show(getFragmentManager(), MESSAGE_TOO_LONG_TAG);
             return;
         }
         _text.setText("");

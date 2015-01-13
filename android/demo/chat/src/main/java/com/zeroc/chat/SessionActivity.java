@@ -9,6 +9,8 @@
 
 package com.zeroc.chat;
 
+import android.app.DialogFragment;
+import android.os.Bundle;
 import com.zeroc.chat.service.ChatRoomListener;
 import com.zeroc.chat.service.ChatService;
 import com.zeroc.chat.service.NoSessionException;
@@ -26,11 +28,40 @@ import android.os.IBinder;
 // Base of any activities that use the chat session.
 public abstract class SessionActivity extends Activity
 {
-    protected static final int DIALOG_FATAL = 1;
+    private static final String FATAL_TAG = "fatal";
     protected Service _service;
 
     abstract ChatRoomListener getChatRoomListener();
     abstract boolean replayEvents();
+
+    public static class FatalDialogFragment extends DialogFragment
+    {
+        public static FatalDialogFragment newInstance(String message)
+        {
+            FatalDialogFragment frag = new FatalDialogFragment();
+            Bundle args = new Bundle();
+            args.putString("message", message);
+            frag.setArguments(args);
+            return frag;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Error")
+                    .setMessage(getArguments().getString("message"))
+                    .setCancelable(false)
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener()
+                    {
+                        public void onClick(DialogInterface dialog, int whichButton)
+                        {
+                            ((SessionActivity) getActivity()).fatalOk();
+                        }
+                    });
+            return builder.create();
+        }
+    }
 
     final private ServiceConnection _connection = new ServiceConnection()
     {
@@ -77,41 +108,16 @@ public abstract class SessionActivity extends Activity
         }
     }
 
-    @Override
-    protected Dialog onCreateDialog(final int id)
+    void showDialogFatal()
     {
-        switch(id)
-        {
-        case DIALOG_FATAL:
-        {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Error");
-            builder.setMessage(""); // Details provided in onPrepareDialog
-            builder.setCancelable(false);
-            builder.setPositiveButton("Ok", new DialogInterface.OnClickListener()
-            {
-                public void onClick(DialogInterface dialog, int whichButton)
-                {
-                    _service.logout();
-                    finish();
-                }
-            });
-            return builder.create();
-        }
-
-        }
-
-        return null;
+        DialogFragment dialog = FatalDialogFragment.newInstance(
+                (_service != null) ? _service.getSessionError() : "");
+        dialog.show(getFragmentManager(), FATAL_TAG);
     }
 
-    @Override
-    protected void onPrepareDialog(int id, Dialog dialog)
+    private void fatalOk()
     {
-        super.onPrepareDialog(id, dialog);
-        if(id == DIALOG_FATAL)
-        {
-            AlertDialog alert = (AlertDialog)dialog;
-            alert.setMessage(_service.getSessionError());
-        }
+        _service.logout();
+        finish();
     }
 }

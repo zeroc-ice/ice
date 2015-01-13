@@ -12,6 +12,7 @@ package com.zeroc.chat;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -24,7 +25,6 @@ import android.text.TextWatcher;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.os.Build.VERSION;
 
 import com.zeroc.chat.service.ChatService;
 import com.zeroc.chat.service.Service;
@@ -32,16 +32,14 @@ import com.zeroc.chat.service.SessionListener;
 
 public class LoginActivity extends Activity
 {
-    private static final int DIALOG_ERROR = 1;
-    private static final int DIALOG_CONFIRM = 2;
-    private static final int DIALOG_INVALID_HOST = 3;
-
     private static final String DEFAULT_HOST = "demo.zeroc.com";
     private static final boolean DEFAULT_SECURE = false;
     private static final String HOSTNAME_KEY = "host";
     private static final String USERNAME_KEY = "username";
     private static final String PASSWORD_KEY = "password";
     private static final String SECURE_KEY = "secure";
+    public static final String LOGIN_ERROR_TAG = "loginerror";
+    public static final String INVALID_HOST_TAG = "invalidhost";
 
     private Button _login;
     private EditText _hostname;
@@ -54,6 +52,51 @@ public class LoginActivity extends Activity
     private Service _service;
     private Intent _chatServiceIntent;
 
+    public static class LoginErrorDialogFragment extends DialogFragment
+    {
+        public static LoginErrorDialogFragment newInstance(String message)
+        {
+            LoginErrorDialogFragment frag = new LoginErrorDialogFragment();
+            Bundle args = new Bundle();
+            args.putString("message", message);
+            frag.setArguments(args);
+            return frag;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage(getArguments().getString("message"))
+                   .setPositiveButton("Ok", new DialogInterface.OnClickListener()
+                   {
+                       public void onClick(DialogInterface dialog, int whichButton)
+                       {
+                           ((LoginActivity) getActivity()).loginErrorOk();
+                       }
+                   });
+            return builder.create();
+        }
+    }
+
+    public static class InvalidHostDialogFragment extends DialogFragment
+    {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Error")
+                   .setMessage("The hostname is invalid.")
+                   .setPositiveButton("Ok", new DialogInterface.OnClickListener()
+                   {
+                       public void onClick(DialogInterface dialog, int whichButton)
+                       {
+                       }
+                   });
+            return builder.create();
+        }
+    }
+
     private SessionListener _listener = new SessionListener()
     {
         public void onLoginInProgress()
@@ -64,7 +107,6 @@ public class LoginActivity extends Activity
 
         public void onConnectConfirm()
         {
-            showDialog(DIALOG_CONFIRM);
         }
 
         public void onLogin()
@@ -75,7 +117,9 @@ public class LoginActivity extends Activity
         public void onLoginError()
         {
             setLoginState();
-            showDialog(DIALOG_ERROR);
+            DialogFragment dialog = LoginErrorDialogFragment.newInstance(
+                (_service != null) ? _service.getLoginError() : "");
+            dialog.show(getFragmentManager(), LOGIN_ERROR_TAG);
         }
     };
 
@@ -98,6 +142,12 @@ public class LoginActivity extends Activity
         {
         }
     };
+
+    private void loginErrorOk()
+    {
+        _loginInProgress = false;
+        setLoginState();
+    }
 
     private void setLoginState()
     {
@@ -128,7 +178,8 @@ public class LoginActivity extends Activity
         final String ipre = "^([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$";
         if(!hostname.matches(hostre) && !hostname.matches(ipre))
         {
-            showDialog(DIALOG_INVALID_HOST);
+            DialogFragment dialog = new InvalidHostDialogFragment();
+            dialog.show(getFragmentManager(), INVALID_HOST_TAG);
             return;
         }
 
@@ -150,7 +201,7 @@ public class LoginActivity extends Activity
         {
             edit.putBoolean(SECURE_KEY, secure);
         }
-        edit.commit();
+        edit.apply();
 
         _login.setEnabled(false);
 
@@ -247,56 +298,5 @@ public class LoginActivity extends Activity
         // Start the ChatService.
         _chatServiceIntent = new Intent(LoginActivity.this, ChatService.class);
         startService(_chatServiceIntent);
-    }
-
-    @Override
-    protected Dialog onCreateDialog(int id)
-    {
-        switch (id)
-        {
-        case DIALOG_ERROR:
-        {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Error");
-            builder.setMessage(""); // Details provided in onPrepareDialog
-            builder.setPositiveButton("Ok", new DialogInterface.OnClickListener()
-            {
-                public void onClick(DialogInterface dialog, int whichButton)
-                {
-                    _loginInProgress = false;
-                    setLoginState();
-                }
-            });
-            return builder.create();
-        }
-
-        case DIALOG_INVALID_HOST:
-        {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Error");
-            builder.setMessage("The hostname is invalid.");
-            builder.setPositiveButton("Ok", new DialogInterface.OnClickListener()
-            {
-                public void onClick(DialogInterface dialog, int whichButton)
-                {
-                }
-            });
-            return builder.create();
-        }
-
-        }
-
-        return null;
-    }
-
-    @Override
-    protected void onPrepareDialog(int id, Dialog dialog)
-    {
-        super.onPrepareDialog(id, dialog);
-        if(id == DIALOG_ERROR)
-        {
-            AlertDialog alert = (AlertDialog)dialog;
-            alert.setMessage(_service.getLoginError());
-        }
     }
 }

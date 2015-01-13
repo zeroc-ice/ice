@@ -62,11 +62,11 @@ public class ChatService extends Service implements com.zeroc.chat.service.Servi
     }
 
     @Override
-    synchronized public void onStart(Intent intent, int startId)
+    synchronized public int onStartCommand(Intent intent, int flags, int startId)
     {
         // Find out if we were started by the alarm manager
         // to refresh the current session.
-        if(intent.hasExtra(REFRESH_EXTRA))
+        if(intent != null && intent.hasExtra(REFRESH_EXTRA))
         {
             // If there is no associated session, or the refresh failed then
             // mark the session as destroyed.
@@ -75,6 +75,7 @@ public class ChatService extends Service implements com.zeroc.chat.service.Servi
                 sessionDestroyed();
             }
         }
+        return START_STICKY;
     }
 
     // Called only from the UI thread.
@@ -229,9 +230,13 @@ public class ChatService extends Service implements com.zeroc.chat.service.Servi
         am.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstTime, refreshTimeout, sender);
 
         // Display a notification that the user is logged in.
-        Notification notification = new Notification(R.drawable.stat_notify, "Logged In", System.currentTimeMillis());
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, ChatActivity.class), 0);
-        notification.setLatestEventInfo(this, "Chat Demo", "You are logged into " + hostname, contentIntent);
+        Notification notification = new Notification.Builder(this)
+                .setSmallIcon(R.drawable.stat_notify)
+                .setContentText("Logged In")
+                .setWhen(System.currentTimeMillis())
+                .setContentTitle("You are logged into " + hostname)
+                .setContentIntent(PendingIntent.getActivity(this, 0, new Intent(this, ChatActivity.class), 0))
+                .build();
         NotificationManager n = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         n.notify(CHATACTIVE_NOTIFICATION, notification);
 
