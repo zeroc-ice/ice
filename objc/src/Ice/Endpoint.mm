@@ -13,7 +13,7 @@
 
 #import <objc/Ice/BuiltinSequences.h>
 
-#import <IceCpp/Endpoint.h>
+#import <Ice/Endpoint.h>
 
 
 const int ICETCPEndpointType = 1;

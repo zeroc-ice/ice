@@ -15,17 +15,19 @@ TARGETS		= $(CLIENT)
 
 SLICE_OBJS	= Test.o
 
-OBJS		= $(SLICE_OBJS) \
+COBJS		= $(SLICE_OBJS) \
 		  TestI.o \
 		  Client.o \
 		  InterceptorI.o \
 		  AMDInterceptorI.o \
 		  MyObjectI.o
 
+OBJS		= $(COBJS)
+
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
-$(CLIENT): $(OBJS)
+$(CLIENT): $(COBJS)
 	rm -f $@
-	$(call mktest,$@,$(OBJS),$(LIBS))
+	$(call mktest,$@,$(COBJS),$(LIBS))

@@ -9,7 +9,7 @@
 
 #import <objc/Ice/Identity.h>
 
-#include <IceCpp/Identity.h>
+#include <Ice/Identity.h>
 
 @interface ICEIdentity (ICEInternal)
 -(ICEIdentity*)initWithIdentity:(const Ice::Identity&)arg;

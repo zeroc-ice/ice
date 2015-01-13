@@ -11,7 +11,7 @@
 
 #import <Wrapper.h>
 
-#include <IceCpp/ObjectAdapter.h>
+#include <Ice/ObjectAdapter.h>
 
 @class ICECommunicator;
 

@@ -26,8 +26,6 @@ else
     mklibname	= lib$(1).dylib
 endif
 
-OBJS		:= $(addprefix $(OBJDIR)/,$(OBJS))
-
 CPPFLAGS	:= -I../include $(CPPFLAGS)
 
 ifeq ($(STATICLIBS),yes)
@@ -43,8 +41,4 @@ else
 	$(call mkshlib,$@,$(LIBNAME),$(OBJS),$(LIBS))
 
 endif
-
-$(OBJDIR)/%.o: %.m
-	$(CC) -c $(CPPFLAGS) $(OBJCFLAGS) $(CFLAGS) $< -o $@
-
 

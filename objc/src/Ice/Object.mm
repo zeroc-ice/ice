@@ -15,10 +15,10 @@
 
 #import <objc/Ice/LocalException.h>
 
-#include <IceCpp/Object.h>
-#include <IceCpp/IncomingAsync.h>
-#include <IceCpp/Initialize.h>
-#include <IceCpp/ObjectAdapter.h>
+#include <Ice/Object.h>
+#include <Ice/IncomingAsync.h>
+#include <Ice/Initialize.h>
+#include <Ice/ObjectAdapter.h>
 
 #import <Foundation/NSAutoreleasePool.h>
 

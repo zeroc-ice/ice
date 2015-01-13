@@ -19,9 +19,9 @@
 #import <ImplicitContextI.h>
 #import <ProxyI.h>
 
-#include <IceCpp/Router.h>
-#include <IceCpp/Locator.h>
-#include <IceCpp/ObjectFactory.h>
+#include <Ice/Router.h>
+#include <Ice/Locator.h>
+#include <Ice/ObjectFactory.h>
 
 #import <objc/Ice/Router.h>
 #import <objc/Ice/Locator.h>

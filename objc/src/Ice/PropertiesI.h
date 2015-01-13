@@ -11,8 +11,8 @@
 
 #import <Wrapper.h>
 
-#include <IceCpp/Properties.h>
-#include <IceCpp/NativePropertiesAdmin.h>
+#include <Ice/Properties.h>
+#include <Ice/NativePropertiesAdmin.h>
 
 @interface ICEProperties : ICEInternalWrapper<ICEProperties>
 {

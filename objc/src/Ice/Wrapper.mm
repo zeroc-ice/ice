@@ -26,7 +26,7 @@
    #include <map>
 #endif
 
-#include <IceUtilCpp/Shared.h>
+#include <IceUtil/Shared.h>
 #include <Foundation/Foundation.h>
 
 #define CXXOBJECT ((IceUtil::Shared*)cxxObject_)

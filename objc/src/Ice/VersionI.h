@@ -9,7 +9,7 @@
 
 #import <objc/Ice/Version.h>
 
-#include <IceCpp/Version.h>
+#include <Ice/Version.h>
 
 @interface ICEProtocolVersion (ICEInternal)
 +(void) load;

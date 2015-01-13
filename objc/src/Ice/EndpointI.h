@@ -11,8 +11,8 @@
 
 #import <Wrapper.h>
 
-#include <IceCpp/Endpoint.h>
-#include <IceSSLCpp/EndpointInfo.h>
+#include <Ice/Endpoint.h>
+#include <IceSSL/EndpointInfo.h>
 
 @interface ICEEndpoint : ICEInternalWrapper<ICEEndpoint>
 -(Ice::Endpoint*) endpoint;

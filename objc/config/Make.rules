@@ -87,9 +87,6 @@ ICECPPFLAGS		= -I$(slicedir)
 SLICE2OBJCFLAGS	= $(ICECPPFLAGS)
 FLEXFLAGS		=
 BISONFLAGS		= -dvt
-
-OBJDIR			= .
-
 CPPFLAGS		+= -I$(includedir)
 LDFLAGS			= $(OBJCFLAGS) -L$(libdir) 
 

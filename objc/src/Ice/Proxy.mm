@@ -20,11 +20,11 @@
 #import <objc/Ice/Router.h>
 #import <objc/Ice/Locator.h>
 
-#include <IceCpp/Initialize.h>
-#include <IceCpp/Proxy.h>
-#include <IceCpp/LocalException.h>
-#include <IceCpp/Router.h>
-#include <IceCpp/Locator.h>
+#include <Ice/Initialize.h>
+#include <Ice/Proxy.h>
+#include <Ice/LocalException.h>
+#include <Ice/Router.h>
+#include <Ice/Locator.h>
 
 #import <objc/runtime.h>
 #import <objc/message.h>

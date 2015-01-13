@@ -11,7 +11,7 @@
 
 #import <Wrapper.h>
 
-#include <IceCpp/Logger.h>
+#include <Ice/Logger.h>
 
 @interface ICELogger : NSObject<ICELogger>
 {

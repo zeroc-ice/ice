@@ -18,9 +18,9 @@
 
 #import <objc/Ice/LocalException.h>
 
-#include <IceCpp/Initialize.h>
-#include <IceUtilCpp/UUID.h>
-#include <IceUtilCpp/MutexPtrLock.h>
+#include <Ice/Initialize.h>
+#include <IceUtil/UUID.h>
+#include <IceUtil/MutexPtrLock.h>
 
 #include <Availability.h>
 

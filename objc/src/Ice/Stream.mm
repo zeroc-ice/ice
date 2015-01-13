@@ -17,8 +17,8 @@
 
 #import <objc/Ice/LocalException.h>
 
-#include <IceCpp/Stream.h>
-#include <IceCpp/SlicedData.h>
+#include <Ice/Stream.h>
+#include <Ice/SlicedData.h>
 
 #import <objc/runtime.h>
 

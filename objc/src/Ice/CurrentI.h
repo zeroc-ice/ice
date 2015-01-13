@@ -9,7 +9,7 @@
 
 #import <objc/Ice/Current.h>
 
-#include <IceCpp/Current.h>
+#include <Ice/Current.h>
 
 @interface ICECurrent ()
 -(ICECurrent*) initWithCurrent:(const Ice::Current&)arg;

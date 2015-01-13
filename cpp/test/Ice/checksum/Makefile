@@ -16,9 +16,11 @@ TARGETS		= $(CLIENT)
 
 SLICE_OBJS	= Test.o Types.o
 
-OBJS		= $(SLICE_OBJS) \
+COBJS		= $(SLICE_OBJS) \
 		  Client.o \
 		  AllTests.o
+
+OBJS		= $(COBJS)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -26,9 +28,9 @@ CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
 SLICE2CPPFLAGS  := --checksum $(SLICE2CPPFLAGS)
 
-$(CLIENT): $(OBJS)
+$(CLIENT): $(COBJS)
 	rm -f $@
-	$(call mktest,$@,$(OBJS),$(LIBS))
+	$(call mktest,$@,$(COBJS),$(LIBS))
 
 SUBDIRS		= server
 

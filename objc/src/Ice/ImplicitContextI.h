@@ -9,7 +9,7 @@
 
 #import <objc/Ice/ImplicitContext.h>
 
-#include <IceCpp/ImplicitContext.h>
+#include <Ice/ImplicitContext.h>
 
 @interface ICEImplicitContext : NSObject<ICEImplicitContext>
 {

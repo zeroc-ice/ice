@@ -14,7 +14,7 @@
 
 #import <objc/Ice/LocalException.h>
 
-#include <IceCpp/LocalException.h>
+#include <Ice/LocalException.h>
 
 #import <Foundation/NSKeyedArchiver.h>
 

@@ -16,8 +16,8 @@
 
 #import <objc/Ice/Locator.h>
 
-#include <IceCpp/Locator.h>
-#include <IceCpp/ServantLocator.h>
+#include <Ice/Locator.h>
+#include <Ice/ServantLocator.h>
 
 namespace
 {

@@ -9,7 +9,7 @@
 
 #import <objc/Ice/Proxy.h>
 
-#include <IceCpp/Proxy.h>
+#include <Ice/Proxy.h>
 
 @interface ICEAsyncResult : NSObject<ICEAsyncResult>
 {

@@ -14,8 +14,8 @@
 
 #import <objc/Ice/LocalException.h>
 
-#include <IceCpp/LocalException.h>
-#include <IceCpp/Initialize.h>
+#include <Ice/LocalException.h>
+#include <Ice/Initialize.h>
 
 #include <Block.h>
 

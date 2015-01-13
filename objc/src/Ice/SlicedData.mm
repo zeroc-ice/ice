@@ -10,7 +10,7 @@
 #import <SlicedDataI.h>
 #import <Util.h>
 
-#import <IceCpp/SlicedData.h>
+#import <Ice/SlicedData.h>
 
 @implementation ICESlicedData
 

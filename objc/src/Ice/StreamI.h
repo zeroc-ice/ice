@@ -10,7 +10,7 @@
 #import <objc/Ice/Stream.h>
 #import <Wrapper.h>
 
-#include <IceCpp/Stream.h>
+#include <Ice/Stream.h>
 
 @interface ICEInputStream : ICEInternalWrapper<ICEInputStream>
 {

@@ -9,7 +9,7 @@
 
 #import <objc/Ice/Object.h>
 
-#include <IceCpp/Object.h>
+#include <Ice/Object.h>
 
 //
 // Forward declarations.

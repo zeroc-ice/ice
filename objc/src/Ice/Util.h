@@ -12,8 +12,8 @@
 #import <objc/Ice/Config.h>
 #import <objc/Ice/Current.h>
 
-#include <IceCpp/Proxy.h>
-#include <IceCpp/Endpoint.h>
+#include <Ice/Proxy.h>
+#include <Ice/Endpoint.h>
 
 #import <EndpointI.h>
 

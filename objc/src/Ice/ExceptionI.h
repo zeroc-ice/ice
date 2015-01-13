@@ -9,7 +9,7 @@
 
 #import <objc/Ice/Exception.h>
 
-#include <IceCpp/Exception.h>
+#include <Ice/Exception.h>
 
 @interface ICELocalException ()
 -(id) initWithLocalException:(const Ice::LocalException&)ex;

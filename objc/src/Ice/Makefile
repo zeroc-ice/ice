@@ -61,36 +61,10 @@ SDIR		= $(slicedir)/Ice
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS		:= -I. -Iinclude $(CPPFLAGS)
+CPPFLAGS		:= -I. -I$(ice_cpp_dir)/include $(CPPFLAGS)
 SLICE2OBJCFLAGS	:= --ice --include-dir objc/Ice $(SLICE2OBJCFLAGS)
 DEPENDFLAGS		= --obj-dir
 LINKWITH		:= $(BASELIBS)
-
-ifeq ($(wildcard .depend/*.d),)
-
-ice_cpp_include = $(ice_cpp_dir)/include
-
-$(OBJCXX_OBJS:.o=.mm): \
-	$(patsubst $(ice_cpp_include)/IceUtil/%.h,include/IceUtilCpp/%.h,$(wildcard $(ice_cpp_include)/IceUtil/*.h)) \
-	$(patsubst $(ice_cpp_include)/Ice/%.h,include/IceCpp/%.h,$(wildcard $(ice_cpp_include)/Ice/*.h)) \
-	$(patsubst $(ice_cpp_include)/IceSSL/%.h,include/IceSSLCpp/%.h,$(wildcard $(ice_cpp_include)/IceSSL/*.h))
-
-include/IceUtilCpp/%.h: $(ice_cpp_include)/IceUtil/%.h
-	@echo Creating $@ from $<
-	@mkdir -p include/IceUtilCpp
-	@sed -e "s%IceUtil/%IceUtilCpp/%g" $< > $@
-
-include/IceCpp/%.h:  $(ice_cpp_include)/Ice/%.h
-	@echo Creating $@ from $<
-	@mkdir -p include/IceCpp
-	@sed -e "s%IceUtil/%IceUtilCpp/%g;s%Ice/%IceCpp/%g" $< > $@
-
-include/IceSSLCpp/%.h: $(ice_cpp_include)/IceSSL/%.h
-	@echo Creating $@ from $<
-	@mkdir -p include/IceSSLCpp
-	@sed -e "s%IceUtil/%IceUtilCpp/%g;s%Ice/%IceCpp/%g;s%IceSSL/%IceSSLCpp/%g" $< > $@
-
-endif
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@
@@ -135,6 +109,3 @@ $(HDIR)/ObjectFactory.h ObjectFactory.m:
 
 install:: all
 	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
-
-clean::
-	rm -rf include

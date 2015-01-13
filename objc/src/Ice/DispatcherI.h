@@ -12,7 +12,7 @@
 
 #import <Wrapper.h>
 
-#include <IceCpp/Dispatcher.h>
+#include <Ice/Dispatcher.h>
 
 @interface ICEDispatcher : NSObject
 +(Ice::Dispatcher*)dispatcherWithDispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))arg;

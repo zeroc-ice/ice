@@ -15,14 +15,16 @@ TARGETS		= $(CLIENT)
 
 SLICE_OBJS	= Test.o
 
-OBJS		= $(SLICE_OBJS) \
+COBJS		= $(SLICE_OBJS) \
 		  Client.o
+
+OBJS		= $(COBJS)
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 SLICE2CPPFLAGS	:= --stream $(SLICE2CPPFLAGS) -I$(slicedir)
 
-$(CLIENT): $(OBJS)
+$(CLIENT): $(COBJS)
 	rm -f $@
-	$(call mktest,$@,$(OBJS) $(LIBS))
+	$(call mktest,$@,$(COBJS) $(LIBS))

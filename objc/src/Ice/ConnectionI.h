@@ -11,8 +11,8 @@
 
 #import <Wrapper.h>
 
-#include <IceCpp/Connection.h>
-#include <IceSSLCpp/ConnectionInfo.h>
+#include <Ice/Connection.h>
+#include <IceSSL/ConnectionInfo.h>
 
 @interface ICEConnectionInfo ()
 -(id) initWithConnectionInfo:(Ice::ConnectionInfo*)connectionInfo;

@@ -9,7 +9,7 @@
 
 #import <objc/Ice/SlicedData.h>
 
-#include <IceCpp/SlicedData.h>
+#include <Ice/SlicedData.h>
 
 @interface ICESlicedData : NSObject<ICESlicedData>
 {

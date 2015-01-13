@@ -13,7 +13,7 @@
 
 #import <Foundation/NSSet.h>
 
-#include <IceCpp/Communicator.h>
+#include <Ice/Communicator.h>
 
 @class ICEObjectAdapter;
 
