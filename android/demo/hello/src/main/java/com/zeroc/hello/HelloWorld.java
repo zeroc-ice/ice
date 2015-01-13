@@ -327,16 +327,8 @@ public class HelloWorld extends Activity
                     case HelloApp.MSG_SENT:
                     {
                         DeliveryMode mode = (DeliveryMode) m.obj;
-                        if(mode == DeliveryMode.TWOWAY || mode == DeliveryMode.TWOWAY_SECURE)
-                        {
-                            activityProgressBar.setVisibility(View.VISIBLE);
-                            statusTextView.setText("Waiting for response");
-                        }
-                        else
-                        {
-                            statusTextView.setText("Ready");
-                            activityProgressBar.setVisibility(View.GONE);
-                        }
+                        activityProgressBar.setVisibility(View.VISIBLE);
+                        statusTextView.setText("Waiting for response");
                         break;
                     }
 

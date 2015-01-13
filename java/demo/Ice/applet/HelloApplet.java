@@ -126,6 +126,37 @@ public class HelloApplet extends JApplet
             host = "127.0.0.1";
         }
         _hostname.setText(host);
+        _hostname.getDocument().addDocumentListener(new DocumentListener()
+        {
+            @Override
+            public void changedUpdate(DocumentEvent e)
+            {
+                updateProxy();
+            }
+
+            @Override
+            public void insertUpdate(DocumentEvent e)
+            {
+                if(e.getDocument().getLength() > 0)
+                {
+                    _hello.setEnabled(true);
+                    _shutdown.setEnabled(true);
+                }
+                updateProxy();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e)
+            {
+                if(e.getDocument().getLength() == 0)
+                {
+                    _hello.setEnabled(false);
+                    _shutdown.setEnabled(false);
+                    _flush.setEnabled(false);
+                }
+                updateProxy();
+            }
+        });
 
         final String[] modes = new String[]
         {
@@ -298,6 +329,27 @@ public class HelloApplet extends JApplet
         cp.add(_status, gridBagConstraints);
     }
 
+    // These two arrays match and match the order of the delivery mode enumeration.
+    private final static DeliveryMode DELIVERY_MODES[] = {
+            DeliveryMode.TWOWAY,
+            DeliveryMode.TWOWAY_SECURE,
+            DeliveryMode.ONEWAY,
+            DeliveryMode.ONEWAY_BATCH,
+            DeliveryMode.ONEWAY_SECURE,
+            DeliveryMode.ONEWAY_SECURE_BATCH,
+            DeliveryMode.DATAGRAM,
+            DeliveryMode.DATAGRAM_BATCH,
+    };
+    private final static String DELIVERY_MODE_DESC[] = new String[] {
+            "Twoway",
+            "Twoway Secure",
+            "Oneway",
+            "Oneway Batch",
+            "Oneway Secure",
+            "Oneway Secure Batch",
+            "Datagram",
+            "Datagram Batch"
+    };
     private enum DeliveryMode
     {
         TWOWAY,
@@ -341,6 +393,11 @@ public class HelloApplet extends JApplet
             return prx;
         }
 
+        public boolean isOneway()
+        {
+            return this == ONEWAY || this == ONEWAY_SECURE;
+        }
+
         public boolean isBatch()
         {
             return this == ONEWAY_BATCH || this == DATAGRAM_BATCH || this == ONEWAY_SECURE_BATCH;
@@ -368,45 +425,6 @@ public class HelloApplet extends JApplet
         _status.setText("Ready");
     }
 
-    class SayHelloI extends Demo.Callback_Hello_sayHello
-    {
-        @Override
-        synchronized public void response()
-        {
-            assert (!_response);
-            _response = true;
-            _status.setText("Ready");
-        }
-
-        @Override
-        synchronized public void exception(final Ice.LocalException ex)
-        {
-            assert (!_response);
-            _response = true;
-            handleException(ex);
-        }
-
-        @Override
-        synchronized public void sent(boolean ss)
-        {
-            if(_response)
-            {
-                return;
-            }
-
-            if(_deliveryMode == DeliveryMode.TWOWAY || _deliveryMode == DeliveryMode.TWOWAY_SECURE)
-            {
-                _status.setText("Waiting for response");
-            }
-            else
-            {
-                _status.setText("Ready");
-            }
-        }
-
-        private boolean _response = false;
-    }
-
     private void sayHello()
     {
         if(_helloPrx == null)
@@ -419,11 +437,40 @@ public class HelloApplet extends JApplet
         {
             if(!_deliveryMode.isBatch())
             {
-                Ice.AsyncResult r = _helloPrx.begin_sayHello(delay, new SayHelloI());
-                if(!r.sentSynchronously())
-                {
-                    _status.setText("Sending request");
-                }
+                _status.setText("Sending request");
+                final DeliveryMode mode = _deliveryMode;
+                _helloPrx.begin_sayHello(delay, new Demo.Callback_Hello_sayHello() {
+                    @Override
+                    public void response()
+                    {
+                        assert (!_response);
+                        _response = true;
+                        _status.setText("Ready");
+                    }
+
+                    @Override
+                    public void exception(final Ice.LocalException ex)
+                    {
+                        assert (!_response);
+                        _response = true;
+                        handleException(ex);
+                    }
+
+                    @Override
+                    public void sent(boolean ss)
+                    {
+                        if(mode.isOneway())
+                        {
+                            _status.setText("Ready");
+                        }
+                        else if(!_response)
+                        {
+                            _status.setText("Waiting for response");
+                        }
+                    }
+
+                    private boolean _response = false;
+                });
             }
             else
             {
@@ -449,24 +496,39 @@ public class HelloApplet extends JApplet
         {
             if(!_deliveryMode.isBatch())
             {
+                _status.setText("Sending request");
+                final DeliveryMode mode = _deliveryMode;
                 _helloPrx.begin_shutdown(new Demo.Callback_Hello_shutdown()
                 {
                     @Override
                     public void response()
                     {
+                        _response = true;
                         _status.setText("Ready");
                     }
 
                     @Override
                     public void exception(final Ice.LocalException ex)
                     {
+                        _response = true;
                         handleException(ex);
                     }
+
+                    @Override
+                    public void sent(boolean ss)
+                    {
+                        if(mode.isOneway())
+                        {
+                            _status.setText("Ready");
+                        }
+                        else if(!_response)
+                        {
+                            _status.setText("Waiting for response");
+                        }
+                    }
+
+                    private boolean _response = false;
                 });
-                if(_deliveryMode == DeliveryMode.TWOWAY || _deliveryMode == DeliveryMode.TWOWAY_SECURE)
-                {
-                    _status.setText("Waiting for response");
-                }
             }
             else
             {
@@ -498,33 +560,7 @@ public class HelloApplet extends JApplet
 
     private void changeDeliveryMode(long id)
     {
-        switch ((int)id)
-        {
-        case 0:
-            _deliveryMode = DeliveryMode.TWOWAY;
-            break;
-        case 1:
-            _deliveryMode = DeliveryMode.TWOWAY_SECURE;
-            break;
-        case 2:
-            _deliveryMode = DeliveryMode.ONEWAY;
-            break;
-        case 3:
-            _deliveryMode = DeliveryMode.ONEWAY_BATCH;
-            break;
-        case 4:
-            _deliveryMode = DeliveryMode.ONEWAY_SECURE;
-            break;
-        case 5:
-            _deliveryMode = DeliveryMode.ONEWAY_SECURE_BATCH;
-            break;
-        case 6:
-            _deliveryMode = DeliveryMode.DATAGRAM;
-            break;
-        case 7:
-            _deliveryMode = DeliveryMode.DATAGRAM_BATCH;
-            break;
-        }
+        _deliveryMode = DELIVERY_MODES[(int)id];
         updateProxy();
     }
 

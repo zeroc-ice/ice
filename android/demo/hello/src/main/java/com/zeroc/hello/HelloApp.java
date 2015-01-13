@@ -237,7 +237,11 @@ public class HelloApp extends Application
                 @Override
                 synchronized public void sent(boolean sentSynchronously)
                 {
-                    if(!_response)
+                    if(_resultMode.isOneway())
+                    {
+                        _uiHandler.sendMessage(_uiHandler.obtainMessage(MSG_RESPONSE));
+                    }
+                    else if(!_response)
                     {
                         _uiHandler.sendMessage(_uiHandler.obtainMessage(MSG_SENT, _resultMode));
                     }
@@ -302,7 +306,11 @@ public class HelloApp extends Application
                         @Override
                         synchronized public void sent(boolean sentSynchronously)
                         {
-                            if(!_response)
+                            if(_resultMode.isOneway())
+                            {
+                                _uiHandler.sendMessage(_uiHandler.obtainMessage(MSG_RESPONSE));
+                            }
+                            else if(!_response)
                             {
                                 _uiHandler.sendMessage(_uiHandler.obtainMessage(MSG_SENT, _resultMode));
                             }

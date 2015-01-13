@@ -51,6 +51,10 @@ enum DeliveryMode
         return prx;
     }
 
+    public boolean isOneway()
+    {
+        return this == ONEWAY || this == ONEWAY_SECURE;
+    }
     public boolean isBatch()
     {
         return this == ONEWAY_BATCH || this == DATAGRAM_BATCH || this == ONEWAY_SECURE_BATCH;
