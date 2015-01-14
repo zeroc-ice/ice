@@ -855,7 +855,7 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
     else
     {
         requires["Ice"] = vector<string>();
-        requires["Ice"].push_back("icejs");
+        requires["Ice"].push_back("zeroc-icejs");
     }
 
     StringList includes = p->includeFiles();
@@ -869,7 +869,7 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
                 if(requires.find(*j) == requires.end())
                 {
                     requires[*j] = vector<string>();
-                    requires[*j].push_back("icejs");
+                    requires[*j].push_back("zeroc-icejs");
                 }
             }
             else
@@ -892,7 +892,7 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
 
     if(!_icejs)
     {
-        _out << nl << "var Ice = require(\"icejs\").Ice;";
+        _out << nl << "var Ice = require(\"zeroc-icejs\").Ice;";
         _out << nl << "var __M = Ice.__M;";
     }
     else
