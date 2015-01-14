@@ -7,8 +7,15 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/Class").Ice;
-    
+var Ice = require("../Ice/ModuleRegistry").Ice;
+Ice.__M.require(module,
+    [
+        "../Ice/Class",
+        "../Ice/TimerUtil"
+    ]);
+
+var Timer = Ice.Timer;
+
 //
 // Promise State
 //
@@ -67,9 +74,9 @@ var Promise = Ice.Class({
         var promise = new Promise();
         var self = this;
         //
-        // Use setTimeout so the listeners are not resolved until the call stack is empty.
+        // Use setImmediate so the listeners are not resolved until the call stack is empty.
         //
-        setTimeout(
+        Timer.setImmediate(
             function()
             {
                 self.__listeners.push(
@@ -79,7 +86,7 @@ var Promise = Ice.Class({
                         onException:onException
                     });
                 self.resolve();
-            }, 0);
+            });
         return promise;
     },
     exception: function(onException)
@@ -116,7 +123,7 @@ var Promise = Ice.Class({
             };
         };
         
-        setTimeout(
+        Timer.setImmediate(
             function(){
                 self.then(finallyHandler(p.succeed), finallyHandler(p.fail));
             });
@@ -133,7 +140,7 @@ var Promise = Ice.Class({
             return function()
             {
                 var args = arguments;
-                setTimeout(
+                Timer.setTimeout(
                     function()
                     {
                         method.apply(promise, args);
@@ -142,7 +149,7 @@ var Promise = Ice.Class({
             };
         };
         
-        setTimeout(function()
+        Timer.setImmediate(function()
                    {
                        self.then(delayHandler(p, p.succeed), delayHandler(p, p.fail));
                    });
@@ -172,10 +179,10 @@ var Promise = Ice.Class({
             this.__state = state;
             this._args = args;
             //
-            // Use setTimeout so the listeners are not resolved until the call stack is empty.
+            // Use setImmediate so the listeners are not resolved until the call stack is empty.
             //
             var self = this;
-            setTimeout(function(){ self.resolve(); }, 0);
+            Timer.setImmediate(function(){ self.resolve(); });
         }
     },
     succeed: function()

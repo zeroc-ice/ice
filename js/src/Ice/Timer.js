@@ -8,7 +8,7 @@
 // **********************************************************************
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, ["../Ice/HashMap", "../Ice/LocalException", "../Ice/Class"]);
+Ice.__M.require(module, ["../Ice/HashMap", "../Ice/LocalException", "../Ice/Class", "../Ice/TimerUtil"]);
 
 var HashMap = Ice.HashMap;
 var CommunicatorDestroyedException = Ice.CommunicatorDestroyedException;
@@ -39,7 +39,7 @@ var Timer = Ice.Class({
 
         var token = this._tokenId++;
         var self = this;
-        var id = setTimeout(function() { self.handleTimeout(token); }, delay);
+        var id = Timer.setTimeout(function() { self.handleTimeout(token); }, delay);
         this._tokens.set(token, { callback: callback, id: id, isInterval: false });
 
         return token;
@@ -54,7 +54,7 @@ var Timer = Ice.Class({
         var token = this._tokenId++;
         var self = this;
 
-        var id = setInterval(function() { self.handleInterval(token); }, period);
+        var id = Timer.setInterval(function() { self.handleInterval(token); }, period);
         this._tokens.set(token, { callback: callback, id: id, isInterval: true });
 
         return token;
@@ -75,11 +75,11 @@ var Timer = Ice.Class({
         this._tokens.delete(id);
         if(token.isInterval)
         {
-            clearInterval(token.id);
+            Timer.clearInterval(token.id);
         }
         else
         {
-            clearTimeout(token.id);
+            Timer.clearTimeout(token.id);
         }
 
         return true;
@@ -126,6 +126,12 @@ var Timer = Ice.Class({
         }
     }
 });
+
+Timer.setTimeout = Ice.Timer.setTimeout;
+Timer.clearTimeout = Ice.Timer.clearTimeout;
+Timer.setInterval = Ice.Timer.setInterval;
+Timer.clearInterval = Ice.Timer.clearInterval;
+Timer.setImmediate = Ice.Timer.setImmediate;
 
 Ice.Timer = Timer;
 module.exports.Ice = Ice;

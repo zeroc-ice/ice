@@ -375,7 +375,7 @@
                     function(newCount)
                     {
                         test(count == newCount);
-                        setTimeout(
+                        Ice.Timer.setTimeout(
                             function(){
                                 p.succeed(count);
                             }, 1200);
@@ -448,7 +448,7 @@
                 ).exception(
                     function(ex)
                     {
-                        setTimeout(
+                        Ice.Timer.setTimeout(
                             function(){
                                 p.fail(ex);
                             }, 1200);
@@ -990,7 +990,7 @@
                             function(newCount)
                             {
                                 test(count = newCount);
-                                setTimeout(
+                                Ice.Timer.setTimeout(
                                     function(){
                                         p1.succeed(count);
                                     }, 1200);
@@ -1039,7 +1039,7 @@
                             ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(1).ice_ping().then(
                                 function()
                                 {
-                                    setTimeout(function(){ f1(); }, 10000);
+                                    Ice.Timer.setTimeout(function(){ f1(); }, 10000);
                                 },
                                 function(ex)
                                 {
@@ -1074,7 +1074,7 @@
                             ic.stringToProxy("test3").ice_locatorCacheTimeout(1).ice_ping().then(
                                 function()
                                 {
-                                    setTimeout(function(){ f1(); }, 10000);
+                                    Ice.Timer.setTimeout(function(){ f1(); }, 10000);
                                 },
                                 function(ex)
                                 {

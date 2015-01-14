@@ -63,7 +63,7 @@
 
         delay_async: function(cb, ms, current)
         {
-            setTimeout(
+            Ice.Timer.setTimeout(
                 function()
                 {
                     cb.ice_response();

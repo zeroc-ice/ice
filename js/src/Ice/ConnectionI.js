@@ -707,7 +707,7 @@ var ConnectionI = Class({
             if(callback !== null)
             {
                 var self = this;
-                setTimeout(function() {
+                Timer.setImmediate(function() {
                     try
                     {
                         callback.closed(this);
@@ -716,7 +716,7 @@ var ConnectionI = Class({
                     {
                         self._logger.error("connection callback exception:\n" + ex + '\n' + self._desc);
                     }
-                }, 0);
+                });
             }
         }
         else
@@ -1115,7 +1115,7 @@ var ConnectionI = Class({
         if(this._hasMoreData.value)
         {
             var self = this;
-            setTimeout(function() { self.message(SocketOperation.Read); }, 0); // Don't tie up the thread.
+            Timer.setImmediate(function() { self.message(SocketOperation.Read); }); // Don't tie up the thread.
         }
     },
     dispatch: function(info)

@@ -17,7 +17,8 @@ Ice.__M.require(module,
         "../Ice/SocketOperation",
         "../Ice/Connection",
         "../Ice/Exception",
-        "../Ice/LocalException"
+        "../Ice/LocalException",
+        "../Ice/Timer"
     ]);
 
 var Debug = Ice.Debug;
@@ -27,6 +28,7 @@ var SocketOperation = Ice.SocketOperation;
 var Conn = Ice.Connection;
 var LocalException = Ice.LocalException;
 var SocketException = Ice.SocketException;
+var Timer = Ice.Timer;
 
 var StateNeedConnect = 0;
 var StateConnectPending = 1;
@@ -60,7 +62,7 @@ var WSTransceiver = Ice.Class({
                 }
                 else
                 {
-                    setTimeout(function() { transceiver._bytesWrittenCallback(bytesSent, bytesTotal); }, 50);
+                    Timer.setTimeout(function() { transceiver._bytesWrittenCallback(bytesSent, bytesTotal); }, 50);
                 }
             }
         };
@@ -217,7 +219,7 @@ var WSTransceiver = Ice.Class({
 
             if(this._fd.bufferedAmount > 0 && packetSize > 0)
             {
-                setTimeout(timeoutCb(transceiver), 50);
+                Timer.setTimeout(timeoutCb(transceiver), 50);
                 return false;
             }
         }

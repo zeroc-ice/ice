@@ -100,15 +100,17 @@
         "WSEndpointFactory.js"],
     
     "node":[
-        "Debug.js",
         "Buffer.js",
+        "Debug.js",
         "Ice.js",
         "ModuleRegistry.js",
-        "TcpTransceiver.js"],
+        "TcpTransceiver.js",
+        "TimerUtil.js"],
     
     "browser":[
         "browser/Buffer.js",
         "browser/Debug.js",
         "browser/ModuleRegistry.js",
+        "browser/TimerUtil.js",
         "browser/WSTransceiver.js"]
 }

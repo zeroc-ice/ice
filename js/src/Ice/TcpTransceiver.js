@@ -18,7 +18,8 @@ Ice.__M.require(module,
         "../Ice/SocketOperation",
         "../Ice/Connection",
         "../Ice/Exception",
-        "../Ice/LocalException"
+        "../Ice/LocalException",
+        "../Ice/Timer"
     ]);
 
 var Debug = Ice.Debug;
@@ -27,6 +28,7 @@ var Network = Ice.Network;
 var SocketOperation = Ice.SocketOperation;
 var LocalException = Ice.LocalException;
 var SocketException = Ice.SocketException;
+var Timer = Ice.Timer;
 
 var StateNeedConnect = 0;
 var StateConnectPending = 1;
@@ -76,11 +78,11 @@ var TcpTransceiver = Ice.Class({
                 // The error callback can be triggered from the socket
                 // write(). We don't want it to dispached right away
                 // from within the write() so we delay the call with
-                // setTimeout. We do the same for close as a
+                // setImmediate. We do the same for close as a
                 // precaution. See also issue #6226.
                 //
-                this._fd.on("close", function(err) { setTimeout(function() { self.socketClosed(err); }, 0); });
-                this._fd.on("error", function(err) { setTimeout(function() { self.socketError(err); }, 0); });
+                this._fd.on("close", function(err) { Timer.setImmediate(function() { self.socketClosed(err); }); });
+                this._fd.on("error", function(err) { Timer.setImmediate(function() { self.socketError(err); }); });
 
                 return SocketOperation.Connect; // Waiting for connect to complete.
             }
