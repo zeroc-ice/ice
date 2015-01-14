@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
-// ICE_TOUCH_LICENSE file included in this distribution.
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -30,16 +30,16 @@
 
 -(void) knownPreservedAsBase:(ICECurrent*)current
 {
-    @throw [TestSlicingExceptionsClientKnownPreservedDerived knownPreservedDerived:@"base" 
+    @throw [TestSlicingExceptionsClientKnownPreservedDerived knownPreservedDerived:@"base"
                                                                                 kp:@"preserved"
                                                                                kpd:@"derived"];
 }
 
 -(void) knownPreservedAsKnownPreserved:(ICECurrent*)current
 {
-    @throw [TestSlicingExceptionsClientKnownPreservedDerived knownPreservedDerived:@"base" 
+    @throw [TestSlicingExceptionsClientKnownPreservedDerived knownPreservedDerived:@"base"
                                                                                 kp:@"preserved"
-                                                                               kpd:@"derived"]; 
+                                                                               kpd:@"derived"];
 }
 
 -(void) unknownPreservedAsBase:(ICECurrent*)current
@@ -334,7 +334,7 @@ slicingExceptionsAllTests(id<ICECommunicator> communicator)
         [cb check];
     }
     tprintf("ok\n");
-   
+
     tprintf("slicing of unknown derived... ");
     {
         @try
@@ -706,7 +706,7 @@ slicingExceptionsAllTests(id<ICECommunicator> communicator)
     tprintf("preserved exceptions... ");
     {
         id<ICEObjectAdapter> adapter = [communicator createObjectAdapterWithEndpoints:@"Relay" endpoints:@"default"];
-        TestSlicingExceptionsClientRelayPrx* relay = 
+        TestSlicingExceptionsClientRelayPrx* relay =
             [TestSlicingExceptionsClientRelayPrx uncheckedCast:[adapter addWithUUID:[RelayI relayi]]];
         [adapter activate];
 
@@ -759,7 +759,7 @@ slicingExceptionsAllTests(id<ICECommunicator> communicator)
             test([ex.kp isEqualToString:@"preserved"]);
             test([ex.kpd isEqualToString:@"derived"]);
             test([[ex.p1 ice_id] isEqualToString:[TestSlicingExceptionsClientPreservedClass ice_staticId]]);
-            
+
             test([ex.p1 isKindOfClass:[TestSlicingExceptionsClientPreservedClass class]]);
             TestSlicingExceptionsClientPreservedClass* pc = (TestSlicingExceptionsClientPreservedClass*)ex.p1;
             test([pc.bc isEqualToString:@"bc"]);

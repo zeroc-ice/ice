@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
-// ICE_TOUCH_LICENSE file included in this distribution.
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -139,7 +139,7 @@ dispatcherAllTests(id<ICECommunicator> communicator)
             id response = ^{ [cb payload]; };
             id exception = ^(ICEException* ex) { [cb ignoreEx:ex]; };
             id sent = ^(BOOL ss) { [cb sent:ss]; };
-            
+
             while([(result = [p begin_opWithPayload:seq response:response
                                           exception:exception
                                                sent:sent]) sentSynchronously]);

@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
-// ICE_TOUCH_LICENSE file included in this distribution.
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -26,7 +26,7 @@
 -(id) init
 {
     self = [super init];
-    return self;    
+    return self;
 }
 +(id) cloki
 {
@@ -56,13 +56,13 @@ servicesAllTests(id<ICECommunicator> communicator)
         @catch(ICEException* ex)
         {
             test(NO);
-        } 
+        }
         tprintf("ok\n");
     }
 
     {
         tprintf("testing IceStorm stub... ");
-        ICESTORMTopicManagerPrx* manager = 
+        ICESTORMTopicManagerPrx* manager =
                     [ICESTORMTopicManagerPrx uncheckedCast:[communicator stringToProxy:@"test:default -p 12010"]];
 
         ICESTORMQoS* qos;
@@ -74,7 +74,7 @@ servicesAllTests(id<ICECommunicator> communicator)
         [adapter activate];
 
         @try
-        {  
+        {
             topic = [manager retrieve:topicName];
             [topic subscribeAndGetPublisher:qos subscriber:subscriber];
         }
@@ -95,11 +95,11 @@ servicesAllTests(id<ICECommunicator> communicator)
     {
         tprintf("testing IceGrid stub... ");
         ICEObjectPrx* base = [communicator stringToProxy:@"test:default -p 12010"];
-        ICEGRIDRegistryPrx* registry = [ICEGRIDRegistryPrx uncheckedCast:base]; 
+        ICEGRIDRegistryPrx* registry = [ICEGRIDRegistryPrx uncheckedCast:base];
         ICEGRIDAdminSessionPrx* session;
         ICEGRIDAdminPrx* admin;
         @try
-        { 
+        {
             session = [registry createAdminSession:@"username" password:@"password"];
             test(NO);
             admin = [session getAdmin];

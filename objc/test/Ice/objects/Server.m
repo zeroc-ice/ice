@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
-// ICE_TOUCH_LICENSE file included in this distribution.
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -58,7 +58,7 @@ run(id<ICECommunicator> communicator)
     [communicator addObjectFactory:factory sliceId:@"::Test::I"];
     [communicator addObjectFactory:factory sliceId:@"::Test::J"];
     [communicator addObjectFactory:factory sliceId:@"::Test::H"];
-    
+
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
 #if defined(__clang__) && !__has_feature(objc_arc)
@@ -67,7 +67,7 @@ run(id<ICECommunicator> communicator)
     ICEObject* initial = [[TestObjectsInitialI alloc] init];
 #endif
     [adapter add:initial identity:[communicator stringToIdentity:@"initial"]];
-    
+
 #if defined(__clang__) && !__has_feature(objc_arc)
     ICEObject* uoet = [[[UnexpectedObjectExceptionTestI alloc] init] autorelease];
 #else
@@ -99,7 +99,7 @@ main(int argc, char* argv[])
             initData.properties = defaultServerProperties(&argc, argv);
 #if TARGET_OS_IPHONE
             initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:
-                                      @"TestObjects", @"::Test", 
+                                      @"TestObjects", @"::Test",
                                       nil];
 #endif
             communicator = [ICEUtil createCommunicator:&argc argv:argv initData:initData];

@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
-// ICE_TOUCH_LICENSE file included in this distribution.
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -69,22 +69,22 @@
 
 -(void) unknownMostDerived1AsKnownIntermediate:(ICECurrent*)current
 {
-    @throw [TestSlicingExceptionsServerUnknownMostDerived1 unknownMostDerived1:@"UnknownMostDerived1.b" 
-                                                                            ki:@"UnknownMostDerived1.ki" 
+    @throw [TestSlicingExceptionsServerUnknownMostDerived1 unknownMostDerived1:@"UnknownMostDerived1.b"
+                                                                            ki:@"UnknownMostDerived1.ki"
                                                                           umd1:@"UnknownMostDerived1.umd1"];
 }
 
 -(void) unknownMostDerived2AsBase:(ICECurrent*)current
 {
-    @throw [TestSlicingExceptionsServerUnknownMostDerived2 unknownMostDerived2:@"UnknownMostDerived2.b" 
-                                                                            ui:@"UnknownMostDerived2.ui" 
+    @throw [TestSlicingExceptionsServerUnknownMostDerived2 unknownMostDerived2:@"UnknownMostDerived2.b"
+                                                                            ui:@"UnknownMostDerived2.ui"
                                                                           umd2:@"UnknownMostDerived2.umd2"];
 }
 
 -(void) unknownMostDerived2AsBaseCompact:(ICECurrent*)current
 {
-    @throw [TestSlicingExceptionsServerUnknownMostDerived2 unknownMostDerived2:@"UnknownMostDerived2.b" 
-                                                                            ui:@"UnknownMostDerived2.ui" 
+    @throw [TestSlicingExceptionsServerUnknownMostDerived2 unknownMostDerived2:@"UnknownMostDerived2.b"
+                                                                            ui:@"UnknownMostDerived2.ui"
                                                                           umd2:@"UnknownMostDerived2.umd2"];
 }
 

@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
-// ICE_TOUCH_LICENSE file included in this distribution.
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -126,19 +126,19 @@ retryAllTests(id<ICECommunicator> communicator)
     TestRetryCallback* cb2 = [[TestRetryCallback alloc] init];
 #endif
     tprintf("calling regular AMI operation with first proxy... ");
-    [retry1 begin_op:NO response:^{ [cb1 retryOpResponse]; } 
+    [retry1 begin_op:NO response:^{ [cb1 retryOpResponse]; }
            exception:^(ICEException* ex) { [cb1 retryOpException:ex]; }];
     [cb1 check];
     tprintf("ok\n");
 
     tprintf("calling AMI operation to kill connection with second proxy... ");
-    [retry2 begin_op:YES response:^{ [cb2 killRetryOpResponse]; } 
+    [retry2 begin_op:YES response:^{ [cb2 killRetryOpResponse]; }
            exception:^(ICEException* ex) { [cb2 killRetryOpException:ex]; }];
     [cb2 check];
     tprintf("ok\n");
 
     tprintf("calling regular AMI operation with first proxy again... ");
-    [retry1 begin_op:NO response:^{ [cb1 retryOpResponse]; } 
+    [retry1 begin_op:NO response:^{ [cb1 retryOpResponse]; }
            exception:^(ICEException* ex) { [cb1 retryOpException:ex]; }];
     [cb1 check];
     tprintf("ok\n");

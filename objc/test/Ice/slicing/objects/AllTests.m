@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
-// ICE_TOUCH_LICENSE file included in this distribution.
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -610,7 +610,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
     tprintf("base as Object (AMI)... ");
     {
         TestSlicingObjectsClientCallback* cb = [TestSlicingObjectsClientCallback create];
-        [test begin_SBaseAsObject:^(ICEObject* o) { [cb SBaseAsObjectResponse:o]; } 
+        [test begin_SBaseAsObject:^(ICEObject* o) { [cb SBaseAsObjectResponse:o]; }
                         exception:^(ICEException* ex) { [cb SBaseAsObjectException:ex]; }];
         [cb check];
     }
@@ -630,7 +630,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         }
     }
     tprintf("ok\n");
- 
+
     tprintf("base as base (AMI)... ");
     {
         TestSlicingObjectsClientCallback* cb = [TestSlicingObjectsClientCallback create];
@@ -801,12 +801,12 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             TestSlicingObjectsClientCallback* cb = [TestSlicingObjectsClientCallback create];
             if([[test ice_getEncodingVersion] isEqual:ICEEncoding_1_0])
             {
-                [test begin_SUnknownAsObject:^(ICEObject* o) { [cb SUnknownAsObjectResponse10:o]; } 
+                [test begin_SUnknownAsObject:^(ICEObject* o) { [cb SUnknownAsObjectResponse10:o]; }
                 exception:^(ICEException* e) { [cb SUnknownAsObjectException10:e]; }];
             }
             else
             {
-                [test begin_SUnknownAsObject:^(ICEObject* o) { [cb SUnknownAsObjectResponse11:o]; } 
+                [test begin_SUnknownAsObject:^(ICEObject* o) { [cb SUnknownAsObjectResponse11:o]; }
                 exception:^(ICEException* e) { [cb SUnknownAsObjectException11:e]; }];
             }
             [cb check];
@@ -2013,7 +2013,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         pcd.pbs = [NSArray arrayWithObjects:pcd, nil];
 
         TestSlicingObjectsClientPBase* r = [test exchangePBase:pcd];
-        
+
         if([[test ice_getEncodingVersion] isEqual:ICEEncoding_1_0])
         {
             test(![r isKindOfClass:[TestSlicingObjectsClientCompactPCDerived class]]);
@@ -2115,7 +2115,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         pd.pb = pd;
 
         TestSlicingObjectsClientCallback* cb = [TestSlicingObjectsClientCallback create];
-        [test begin_exchangePBase:pd 
+        [test begin_exchangePBase:pd
                          response:^(TestSlicingObjectsClientPBase* o) { [cb responsePreserved1:o]; }
                         exception:^(ICEException* ex) { [cb exception:ex]; }];
         [cb check];
@@ -2130,7 +2130,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         // Server only knows the base (non-preserved) type, so the object is sliced.
         //
         TestSlicingObjectsClientCallback* cb = [TestSlicingObjectsClientCallback create];
-        [test begin_exchangePBase:pu 
+        [test begin_exchangePBase:pu
                          response:^(TestSlicingObjectsClientPBase* o) { [cb responsePreserved2:o]; }
                         exception:^(ICEException* ex) { [cb exception:ex]; }];
         [cb check];
@@ -2148,13 +2148,13 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         TestSlicingObjectsClientCallback* cb = [TestSlicingObjectsClientCallback create];
         if([[test ice_getEncodingVersion] isEqual:ICEEncoding_1_0])
         {
-            [test begin_exchangePBase:pcd 
+            [test begin_exchangePBase:pcd
                              response:^(TestSlicingObjectsClientPBase* o) { [cb responsePreserved3:o]; }
                             exception:^(ICEException* ex) { [cb exception:ex]; }];
         }
         else
         {
-            [test begin_exchangePBase:pcd 
+            [test begin_exchangePBase:pcd
                              response:^(TestSlicingObjectsClientPBase* o) { [cb responsePreserved4:o]; }
                             exception:^(ICEException* ex) { [cb exception:ex]; }];
         }
@@ -2173,13 +2173,13 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         TestSlicingObjectsClientCallback* cb = [TestSlicingObjectsClientCallback create];
         if([[test ice_getEncodingVersion] isEqual:ICEEncoding_1_0])
         {
-            [test begin_exchangePBase:pcd 
+            [test begin_exchangePBase:pcd
                              response:^(TestSlicingObjectsClientPBase* o) { [cb responseCompactPreserved1:o]; }
                             exception:^(ICEException* ex) { [cb exception:ex]; }];
         }
         else
         {
-            [test begin_exchangePBase:pcd 
+            [test begin_exchangePBase:pcd
                              response:^(TestSlicingObjectsClientPBase* o) { [cb responseCompactPreserved2:o]; }
                             exception:^(ICEException* ex) { [cb exception:ex]; }];
         }
@@ -2213,13 +2213,13 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         TestSlicingObjectsClientCallback* cb = [TestSlicingObjectsClientCallback create];
         if([[test ice_getEncodingVersion] isEqual:ICEEncoding_1_0])
         {
-            [test begin_exchangePBase:pcd 
+            [test begin_exchangePBase:pcd
                              response:^(TestSlicingObjectsClientPBase* o) { [cb responsePreserved3:o]; }
                             exception:^(ICEException* ex) { [cb exception:ex]; }];
         }
         else
         {
-            [test begin_exchangePBase:pcd 
+            [test begin_exchangePBase:pcd
                              response:^(TestSlicingObjectsClientPBase* o) { [cb responsePreserved5:o]; }
                             exception:^(ICEException* ex) { [cb exception:ex]; }];
         }

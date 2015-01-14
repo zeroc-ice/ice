@@ -3,8 +3,8 @@
 #
 # Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
 #
-# This copy of Ice Touch is licensed to you under the terms described in the
-# ICE_TOUCH_LICENSE file included in this distribution.
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
 
@@ -24,5 +24,5 @@ print("Running test with sliced format.")
 TestUtil.clientServerTest()
 
 print("Running test with 1.0 encoding.")
-TestUtil.clientServerTest(additionalClientOptions="--Ice.Default.EncodingVersion=1.0", 
+TestUtil.clientServerTest(additionalClientOptions="--Ice.Default.EncodingVersion=1.0",
                           additionalServerOptions="--Ice.Default.EncodingVersion=1.0")

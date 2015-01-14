@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
-// ICE_TOUCH_LICENSE file included in this distribution.
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -136,8 +136,8 @@
     test([s isEqualToString:@"test"]);
     test([is readOptional:1 format:ICEOptionalFormatVSize]);
     NSMutableArray* o = [ICEStringSeqHelper read:is];
-    test(o != nil && [o count] == 4 && 
-         [[o objectAtIndex:0] isEqualToString:@"test1"] && 
+    test(o != nil && [o count] == 4 &&
+         [[o objectAtIndex:0] isEqualToString:@"test1"] &&
          [[o objectAtIndex:1] isEqualToString:@"test2"] &&
          [[o objectAtIndex:2] isEqualToString:@"test3"] &&
          [[o objectAtIndex:3] isEqualToString:@"test4"]);
@@ -270,7 +270,7 @@
     {
         return [FObjectReader new];
     }
-        
+
     return nil;
 }
 -(void) destroy
@@ -339,19 +339,19 @@ optionalAllTests(id<ICECommunicator> communicator)
 
     ICEShort shs[] = { 1 };
     mo1.shs = [TestOptionalShortSeq dataWithBytes:shs length:sizeof(shs)];
-    
+
     TestOptionalMyEnum es[] = { TestOptionalMyEnumMember, TestOptionalMyEnumMember };
     mo1.es = [TestOptionalMyEnumSeq dataWithBytes:es length:sizeof(es)];
     mo1.fss = [TestOptionalFixedStructSeq arrayWithObject:fs];
     mo1.vss = [TestOptionalVarStructSeq arrayWithObject:vs];
     mo1.oos = [TestOptionalOneOptionalSeq arrayWithObject:oo1];
-    id<TestOptionalOneOptionalPrx> oneOptionalProxy = 
+    id<TestOptionalOneOptionalPrx> oneOptionalProxy =
         [TestOptionalOneOptionalPrx uncheckedCast:[communicator stringToProxy:@"test"]];
     mo1.oops = [TestOptionalOneOptionalPrxSeq arrayWithObject:oneOptionalProxy];
     mo1.ied = [TestOptionalIntEnumDict dictionaryWithObjectsAndKeys:@(TestOptionalMyEnumMember), @4, nil];
     mo1.ifsd = [TestOptionalIntFixedStructDict dictionaryWithObjectsAndKeys:fs, @4, nil];
     mo1.ivsd = [TestOptionalIntVarStructDict dictionaryWithObjectsAndKeys:vs, @4, nil];
-    mo1.iood = [TestOptionalIntOneOptionalDict dictionaryWithObjectsAndKeys:[TestOptionalOneOptional oneOptional:@15], 
+    mo1.iood = [TestOptionalIntOneOptionalDict dictionaryWithObjectsAndKeys:[TestOptionalOneOptional oneOptional:@15],
                                                @5, nil];
     mo1.ioopd = [TestOptionalIntOneOptionalPrxDict dictionaryWithObjectsAndKeys:oneOptionalProxy, @5, nil];
     BOOL bos[] = { NO, YES, NO };
@@ -452,7 +452,7 @@ optionalAllTests(id<ICECommunicator> communicator)
     test(![mo4 hasIoopd]);
 
     test(![mo4 hasBos]);
-    
+
     //mo1.k = mo1;
     TestOptionalMultiOptional* mo5 = (TestOptionalMultiOptional*)[initial pingPong:mo1];
     test(mo5.a == mo1.a);
@@ -664,7 +664,7 @@ optionalAllTests(id<ICECommunicator> communicator)
     test([mc.shs length] == 300 * sizeof(ICEShort));
     test([mc.fss count] == 300);
     test([mc.ifsd count] == 300);
-    
+
     [factory setEnabled:YES];
     os = [ICEUtil createOutputStream:communicator];
     [os startEncapsulation];
@@ -679,7 +679,7 @@ optionalAllTests(id<ICECommunicator> communicator)
     [is endEncapsulation];
     test(obj != nil && [obj isKindOfClass:[TestObjectReader class]]);
     [factory setEnabled:NO];
-    
+
     tprintf("ok\n");
 
     tprintf("testing tag marshalling... ");
@@ -688,7 +688,7 @@ optionalAllTests(id<ICECommunicator> communicator)
     test(![b2 hasMa]);
     test(![b2 hasMb]);
     test(![b2 hasMc]);
-    
+
     b.ma = 10;
     b.mb = 11;
     b.mc = 12;
@@ -773,7 +773,7 @@ optionalAllTests(id<ICECommunicator> communicator)
             [is startEncapsulation];
             [is readObject:&obj];
             [is endEncapsulation];
-            test(obj != nil && [obj isKindOfClass:[CObjectReader class]]); 
+            test(obj != nil && [obj isKindOfClass:[CObjectReader class]]);
             [factory setEnabled:NO];
 
             [factory setEnabled:YES];
@@ -794,7 +794,7 @@ optionalAllTests(id<ICECommunicator> communicator)
             test(obj != nil && [obj isKindOfClass:[DObjectReader class]]);
             [(DObjectReader*)obj check];
             [factory setEnabled:NO];
-        }    
+        }
         tprintf("ok\n");
 
         tprintf("testing optionals with unknown classes...");
@@ -811,7 +811,7 @@ optionalAllTests(id<ICECommunicator> communicator)
 #endif
             [os endEncapsulation];
             inEncaps = [os finished];
-            test([initial ice_invoke:@"opClassAndUnknownOptional" mode:ICENormal inEncaps:inEncaps 
+            test([initial ice_invoke:@"opClassAndUnknownOptional" mode:ICENormal inEncaps:inEncaps
                            outEncaps:&outEncaps]);
             is = [ICEUtil createInputStream:communicator data:outEncaps];
             [is startEncapsulation];
@@ -826,7 +826,7 @@ optionalAllTests(id<ICECommunicator> communicator)
         id p3 = ICENone;
         id p2 = [initial opByte:p1 p3:&p3];
         test(p2 == ICENone && p3 == ICENone);
-        
+
         p1 = @0x56;
         p2 = [initial opByte:p1 p3:&p3];
         test([p2 isEqual:@0x56] && [p3 isEqual:@0x56]);
@@ -919,7 +919,7 @@ optionalAllTests(id<ICECommunicator> communicator)
         p2 = [initial opOneOptional:p1 p3:&p3];
         test([p2 isKindOfClass:[TestOptionalOneOptional class]] && [p3 isKindOfClass:[TestOptionalOneOptional class]]);
         test(((TestOptionalOneOptional*)p2).a == 58 && ((TestOptionalOneOptional*)p3).a == 58);
-        
+
         os = [ICEUtil createOutputStream:communicator];
         [os startEncapsulation];
         [ICEObjectHelper writeOpt:p1 stream:os tag:2];
@@ -947,7 +947,7 @@ optionalAllTests(id<ICECommunicator> communicator)
 
         p1 = [TestOptionalOneOptionalPrx uncheckedCast:[communicator stringToProxy:@"test"]];
         p2 = [initial opOneOptionalProxy:p1 p3:&p3];
-        test([p2 isKindOfClass:[TestOptionalOneOptionalPrx class]] && 
+        test([p2 isKindOfClass:[TestOptionalOneOptionalPrx class]] &&
              [p3 isKindOfClass:[TestOptionalOneOptionalPrx class]]);
         test([p2 isEqual:p1] && [p3 isEqual:p1]);
 
@@ -962,7 +962,7 @@ optionalAllTests(id<ICECommunicator> communicator)
         p2 = [TestOptionalOneOptionalPrxHelper readOpt:is tag:1];
         p3 = [TestOptionalOneOptionalPrxHelper readOpt:is tag:3];
         [is endEncapsulation];
-        test([p2 isKindOfClass:[TestOptionalOneOptionalPrx class]] && 
+        test([p2 isKindOfClass:[TestOptionalOneOptionalPrx class]] &&
              [p3 isKindOfClass:[TestOptionalOneOptionalPrx class]]);
         test([p2 isEqual:p1] && [p3 isEqual:p1]);
 
@@ -1268,7 +1268,7 @@ optionalAllTests(id<ICECommunicator> communicator)
 
         is = [ICEUtil createInputStream:communicator data:outEncaps];
         [is startEncapsulation];
-        [is endEncapsulation]; 
+        [is endEncapsulation];
     }
 
     {
@@ -1312,7 +1312,7 @@ optionalAllTests(id<ICECommunicator> communicator)
 
         is = [ICEUtil createInputStream:communicator data:outEncaps];
         [is startEncapsulation];
-        [is endEncapsulation]; 
+        [is endEncapsulation];
     }
 
     tprintf("ok\n");

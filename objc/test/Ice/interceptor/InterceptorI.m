@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
-// ICE_TOUCH_LICENSE file included in this distribution.
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -36,11 +36,11 @@
     [super dealloc];
 }
 #endif
- 
+
 -(BOOL) dispatch:(id<ICERequest>) request
 {
     ICECurrent* current = [request getCurrent];
-    
+
 #if defined(__clang__) && !__has_feature(objc_arc)
     [lastOperation release];
     lastOperation = [current.operation retain];
@@ -65,7 +65,7 @@
                 //
             }
         }
-        
+
         [(NSMutableDictionary*)current.ctx setObject:@"no" forKey:@"retry"];
 
         //
@@ -73,11 +73,11 @@
         //
         [servant ice_dispatch:request];
     }
-      
+
     lastStatus = [servant ice_dispatch:request];
     return lastStatus;
 }
-     
+
 -(BOOL) getLastStatus
 {
     return lastStatus;
@@ -87,7 +87,7 @@
 {
     return lastOperation;
 }
- 
+
 -(void) clear
 {
     lastStatus = NO;

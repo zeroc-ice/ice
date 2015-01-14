@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
-// ICE_TOUCH_LICENSE file included in this distribution.
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -72,12 +72,12 @@
     return TestOperationsenum3;
 }
 
--(id<TestOperationsMyClassPrx>) opMyClass:(id<TestOperationsMyClassPrx>)p1 p2:(id<TestOperationsMyClassPrx> *)p2 p3:(id<TestOperationsMyClassPrx> *)p3 
+-(id<TestOperationsMyClassPrx>) opMyClass:(id<TestOperationsMyClassPrx>)p1 p2:(id<TestOperationsMyClassPrx> *)p2 p3:(id<TestOperationsMyClassPrx> *)p3
                         current:(ICECurrent *)current
 {
     *p2 = p1;
-    *p3 = [TestOperationsMyClassPrx uncheckedCast:[current.adapter 
-                                           createProxy:[[current.adapter getCommunicator] 
+    *p3 = [TestOperationsMyClassPrx uncheckedCast:[current.adapter
+                                           createProxy:[[current.adapter getCommunicator]
                                                            stringToIdentity:@"noSuchIdentity"]]];
     return [TestOperationsMyClassPrx uncheckedCast:[current.adapter createProxy:[current id_]]];
 }
@@ -183,7 +183,7 @@
     for(NSString *element in enumerator)
     {
         [r addObject:element];
-    } 
+    }
     return r;
 }
 
@@ -213,7 +213,7 @@
     for(NSString *element in enumerator)
     {
         [r addObject:element];
-    } 
+    }
     return r;
 }
 
@@ -221,9 +221,9 @@
                          current:(ICECurrent *)current
 {
     *p3 = [TestOperationsMutableByteSS array];
-    NSEnumerator *enumerator = [p1 reverseObjectEnumerator]; 
+    NSEnumerator *enumerator = [p1 reverseObjectEnumerator];
     for(TestOperationsByteS *element in enumerator)
-    { 
+    {
         [(TestOperationsMutableByteSS *)*p3 addObject:element];
     }
 
@@ -239,9 +239,9 @@
     [(TestOperationsMutableBoolSS *)*p3 addObjectsFromArray:p2];
 
     TestOperationsMutableBoolSS *r = [TestOperationsMutableBoolSS array];
-    NSEnumerator *enumerator = [p1 reverseObjectEnumerator]; 
+    NSEnumerator *enumerator = [p1 reverseObjectEnumerator];
     for(TestOperationsBoolS *element in enumerator)
-    { 
+    {
         [r addObject:element];
     }
     return r;
@@ -253,9 +253,9 @@
 {
     *p4 = [TestOperationsShortSS arrayWithArray:p1];
     *p5 = [TestOperationsMutableIntSS array];
-    NSEnumerator *enumerator = [p2 reverseObjectEnumerator]; 
+    NSEnumerator *enumerator = [p2 reverseObjectEnumerator];
     for(TestOperationsIntS *element in enumerator)
-    { 
+    {
         [(TestOperationsMutableIntSS *)*p5 addObject:element];
     }
     *p6 = [TestOperationsMutableLongSS arrayWithArray:p3];
@@ -268,9 +268,9 @@
 {
     *p3 = [TestOperationsFloatSS arrayWithArray:p1];
     *p4 = [TestOperationsMutableDoubleSS array];
-    NSEnumerator *enumerator = [p2 reverseObjectEnumerator]; 
+    NSEnumerator *enumerator = [p2 reverseObjectEnumerator];
     for(TestOperationsDoubleS *element in enumerator)
-    { 
+    {
         [(TestOperationsMutableDoubleSS *)*p4 addObject:element];
     }
     TestOperationsMutableDoubleSS *r = [TestOperationsMutableDoubleSS arrayWithArray:p2];
@@ -284,9 +284,9 @@
     *p3 = [TestOperationsMutableStringSS arrayWithArray:p1];
     [(TestOperationsMutableStringSS *)*p3 addObjectsFromArray:p2];
     TestOperationsMutableStringSS *r = [TestOperationsMutableStringSS array];
-    NSEnumerator *enumerator = [p2 reverseObjectEnumerator]; 
+    NSEnumerator *enumerator = [p2 reverseObjectEnumerator];
     for(TestOperationsStringS *element in enumerator)
-    { 
+    {
         [r addObject:element];
     }
     return r;
@@ -300,7 +300,7 @@
     TestOperationsMutableStringSSS *r = [TestOperationsMutableStringSSS array];
     NSEnumerator *enumerator = [p2 reverseObjectEnumerator];
     for(TestOperationsStringSS *element in enumerator)
-    { 
+    {
         [r addObject:element];
     }
     return r;
@@ -342,7 +342,7 @@
     return r;
 }
 
--(TestOperationsStringMyEnumD *) opStringMyEnumD:(TestOperationsMutableStringMyEnumD *)p1 
+-(TestOperationsStringMyEnumD *) opStringMyEnumD:(TestOperationsMutableStringMyEnumD *)p1
                                               p2:(TestOperationsMutableStringMyEnumD *)p2
                                               p3:(TestOperationsStringMyEnumD **)p3 current:(ICECurrent *)current
 {
@@ -352,7 +352,7 @@
     return r;
 }
 
--(TestOperationsMyEnumStringD *) opMyEnumStringD:(TestOperationsMyEnumStringD*)p1 
+-(TestOperationsMyEnumStringD *) opMyEnumStringD:(TestOperationsMyEnumStringD*)p1
                                               p2:(TestOperationsMyEnumStringD*)p2
                                               p3:(TestOperationsMyEnumStringD**)p3
                                          current:(ICECurrent*)current
@@ -363,7 +363,7 @@
     return r;
 }
 
--(TestOperationsMyStructMyEnumD *) opMyStructMyEnumD:(TestOperationsMyStructMyEnumD*)p1 
+-(TestOperationsMyStructMyEnumD *) opMyStructMyEnumD:(TestOperationsMyStructMyEnumD*)p1
                                                   p2:(TestOperationsMyStructMyEnumD*)p2
                                                   p3:(TestOperationsMyStructMyEnumD**)p3
                                              current:(ICECurrent*)current

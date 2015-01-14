@@ -30,4 +30,3 @@ Router.h
 RouterF.h
 SliceChecksumDict.h
 Version.h
-include/**

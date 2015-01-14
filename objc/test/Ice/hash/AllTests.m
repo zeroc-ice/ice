@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
-// ICE_TOUCH_LICENSE file included in this distribution.
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -28,7 +28,7 @@ hashAllTests()
         NSMutableDictionary* seenObject = [[NSMutableDictionary alloc] init];
         for(int i = 0; collisions < maxCollisions && i < maxIterations; ++i)
         {
-            NSString* s = [NSString stringWithFormat:@"%i:tcp -p %i -t 10%i:udp -p %i -h %i", 
+            NSString* s = [NSString stringWithFormat:@"%i:tcp -p %i -t 10%i:udp -p %i -h %i",
                                          i, arc4random() % 65536, arc4random() % 1000000,
                                          arc4random() % 65536, arc4random() % 100];
             ICEObjectPrx* obj = [communicator stringToProxy:s];
@@ -101,7 +101,7 @@ hashAllTests()
             TestHashPointF* obj = [TestHashPointF pointF:(arc4random() % 1000)/3
                                                        y:(arc4random() % 1000)/5
                                                        z:(arc4random() % 1000)/7];
-            
+
             NSNumber* hash = [NSNumber numberWithUnsignedInteger:[obj hash]];
             if([seenObject objectForKey:hash])
             {
@@ -126,7 +126,7 @@ hashAllTests()
         [seenObject release];
 #endif
     }
-    
+
     {
         int collisions = 0;
         NSMutableDictionary* seenObject = [[NSMutableDictionary alloc] init];

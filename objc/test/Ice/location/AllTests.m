@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
-// ICE_TOUCH_LICENSE file included in this distribution.
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -26,13 +26,13 @@
 void
 locationAllTests(id<ICECommunicator> communicator, NSString* ref)
 {
-    id<TestLocationServerManagerPrx> manager = 
+    id<TestLocationServerManagerPrx> manager =
         [TestLocationServerManagerPrx checkedCast:[communicator stringToProxy:ref]];
-    id<TestLocationTestLocatorPrx> locator = 
+    id<TestLocationTestLocatorPrx> locator =
         [TestLocationTestLocatorPrx uncheckedCast:[communicator getDefaultLocator]];
     test(manager);
 
-    id<TestLocationTestLocatorRegistryPrx> registry = 
+    id<TestLocationTestLocatorRegistryPrx> registry =
         [TestLocationTestLocatorRegistryPrx checkedCast:[locator getRegistry]];
     test(registry);
 
@@ -40,7 +40,7 @@ locationAllTests(id<ICECommunicator> communicator, NSString* ref)
     id<ICEObjectPrx> base = [communicator stringToProxy:@"test @ TestAdapter"];
     id<ICEObjectPrx> base2 = [communicator stringToProxy:@"test @ TestAdapter"];
     id<ICEObjectPrx> base3 = [communicator stringToProxy:@"test"];
-    id<ICEObjectPrx> base4 = [communicator stringToProxy:@"ServerManager"]; 
+    id<ICEObjectPrx> base4 = [communicator stringToProxy:@"ServerManager"];
     id<ICEObjectPrx> base5 = [communicator stringToProxy:@"test2"];
     id<ICEObjectPrx> base6 = [communicator stringToProxy:@"test @ ReplicatedAdapter"];
     tprintf("ok\n");
@@ -57,8 +57,8 @@ locationAllTests(id<ICECommunicator> communicator, NSString* ref)
     test([[base ice_getLocator] compareIdentity:anotherLocator] == NSOrderedSame);
     [communicator setDefaultLocator:locator];
     base = [communicator stringToProxy:@"test @ TestAdapter"];
-    test([[base ice_getLocator] compareIdentity:[communicator getDefaultLocator]] == NSOrderedSame); 
-    
+    test([[base ice_getLocator] compareIdentity:[communicator getDefaultLocator]] == NSOrderedSame);
+
     //
     // We also test ice_router/ice_getRouter (perhaps we should add a
     // test/Ice/router test?)
@@ -97,7 +97,7 @@ locationAllTests(id<ICECommunicator> communicator, NSString* ref)
     id<TestLocationTestIntfPrx> obj6 = [TestLocationTestIntfPrx checkedCast:base6];
     test(obj6);
     tprintf("ok\n");
- 
+
     tprintf("testing id@AdapterId indirect proxy... ");
     [obj shutdown];
     [manager startServer];
@@ -111,8 +111,8 @@ locationAllTests(id<ICECommunicator> communicator, NSString* ref)
         NSLog(@"%@", ex);
         test(NO);
     }
-    tprintf("ok\n");    
-    
+    tprintf("ok\n");
+
     tprintf("testing id@ReplicaGroupId indirect proxy... ");
     [obj shutdown];
     [manager startServer];
@@ -126,7 +126,7 @@ locationAllTests(id<ICECommunicator> communicator, NSString* ref)
         NSLog(@"%@", ex);
         test(NO);
     }
-    tprintf("ok\n");    
+    tprintf("ok\n");
 
     tprintf("testing identity indirect proxy... ");
     [obj shutdown];
@@ -276,11 +276,11 @@ locationAllTests(id<ICECommunicator> communicator, NSString* ref)
     count += 2;
     test(count == [locator getRequestCount]);
 
-    [[[communicator stringToProxy:@"test@TestAdapter"] ice_locatorCacheTimeout:-1] ice_ping]; 
+    [[[communicator stringToProxy:@"test@TestAdapter"] ice_locatorCacheTimeout:-1] ice_ping];
     test(count == [locator getRequestCount]);
     [[[communicator stringToProxy:@"test"] ice_locatorCacheTimeout:-1] ice_ping];
     test(count == [locator getRequestCount]);
-    [[communicator stringToProxy:@"test@TestAdapter"] ice_ping]; 
+    [[communicator stringToProxy:@"test@TestAdapter"] ice_ping];
     test(count == [locator getRequestCount]);
     [[communicator stringToProxy:@"test"] ice_ping];
     test(count == [locator getRequestCount]);
@@ -355,7 +355,7 @@ locationAllTests(id<ICECommunicator> communicator, NSString* ref)
         test(NO);
     }
     @catch(ICELocalException* ex)
-    {   
+    {
     }
     @try
     {
@@ -374,7 +374,7 @@ locationAllTests(id<ICECommunicator> communicator, NSString* ref)
     {
         test(NO);
     }
-    
+
     [registry addObject:[communicator stringToProxy:@"test4"]];
     @try
     {
@@ -401,7 +401,7 @@ locationAllTests(id<ICECommunicator> communicator, NSString* ref)
     [obj migrateHello];
     [hello sayHello];
     tprintf("ok\n");
-    
+
     tprintf("testing locator encoding resolution... ");
     hello = [TestLocationHelloPrx checkedCast:[communicator stringToProxy:@"hello"]];
     count = [locator getRequestCount];
@@ -455,11 +455,11 @@ locationAllTests(id<ICECommunicator> communicator, NSString* ref)
 
 //     id<TestLocationTestLocatorRegistryPrx> registry = [TestLocationTestLocatorRegistryPrx checkedCast:[locator getRegistry]];
 //     test(registry);
-    
+
 //     ICEIdentity* ident = [ICEIdentity identity:[ICEUtil generateUUID] category:@""];
 //     [registry addObject:[adapter add:[[DummyHelloI alloc] init] identity:ident]];
 //     [adapter activate];
-    
+
 //     @try
 //     {
 //         id<TestLocationHelloPrx> helloPrx = [TestLocationHelloPrx checkedCast:[communicator stringToProxy:

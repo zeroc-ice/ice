@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
-// ICE_TOUCH_LICENSE file included in this distribution.
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -84,7 +84,7 @@
     [cond unlock];
 }
 @end
-    
+
 void
 twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
 {
@@ -187,7 +187,7 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         id<TestOperationsMyClassPrx> c1;
         id<TestOperationsMyClassPrx> c2;
         id<TestOperationsMyClassPrx> r;
-        
+
         r = [p opMyClass:p p2:&c1 p3:&c2];
         test([c1 compareIdentityAndFacet:p] == NSOrderedSame);
         test([c2 compareIdentityAndFacet:p] != NSOrderedSame);
@@ -274,7 +274,7 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
     {
 	BOOL buf1[] = { YES, YES, NO };
 	BOOL buf2[] = { NO };
-    
+
     TestOperationsMutableBoolS *bsi1 = [TestOperationsMutableBoolS data];
     TestOperationsMutableBoolS *bsi2 = [TestOperationsMutableBoolS data];
 

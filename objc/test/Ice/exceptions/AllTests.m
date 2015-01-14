@@ -2,15 +2,15 @@
 //
 // Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
-// ICE_TOUCH_LICENSE file included in this distribution.
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
 #import <objc/Ice.h>
 #import <TestCommon.h>
 #import <ExceptionsTest.h>
- 
+
 @interface ExceptionsEmptyI : TestExceptionsEmpty<TestExceptionsEmpty>
 @end
 
@@ -258,7 +258,7 @@ exceptionsAllTests(id<ICECommunicator> communicator, BOOL collocated)
     tprintf("ok\n");
 
     tprintf("catching derived types... ");
-        
+
     @try
     {
         [thrower throwBasA:1 b:2];
@@ -311,7 +311,7 @@ exceptionsAllTests(id<ICECommunicator> communicator, BOOL collocated)
     if([thrower supportsUndeclaredExceptions])
     {
         tprintf("catching unknown user exception... ");
-        
+
         @try
         {
             [thrower throwUndeclaredA:1];
@@ -324,7 +324,7 @@ exceptionsAllTests(id<ICECommunicator> communicator, BOOL collocated)
         {
             test(false);
         }
-        
+
         @try
         {
             [thrower throwUndeclaredB:1 b:2];
@@ -337,7 +337,7 @@ exceptionsAllTests(id<ICECommunicator> communicator, BOOL collocated)
         {
             test(false);
         }
-        
+
         @try
         {
             [thrower throwUndeclaredC:1 b:2 c:3];
@@ -350,7 +350,7 @@ exceptionsAllTests(id<ICECommunicator> communicator, BOOL collocated)
         {
             test(false);
         }
-        
+
         tprintf("ok\n");
     }
 
@@ -405,7 +405,7 @@ exceptionsAllTests(id<ICECommunicator> communicator, BOOL collocated)
     }
 
     tprintf("ok\n");
-    
+
     tprintf("catching facet not exist exception... ");
 
     @try
@@ -427,7 +427,7 @@ exceptionsAllTests(id<ICECommunicator> communicator, BOOL collocated)
     }
 
     tprintf("ok\n");
-    
+
     tprintf("catching operation not exist exception... ");
 
     @try
@@ -446,7 +446,7 @@ exceptionsAllTests(id<ICECommunicator> communicator, BOOL collocated)
     }
 
     tprintf("ok\n");
-    
+
     tprintf("catching unknown local exception... ");
 
     @try
@@ -479,9 +479,9 @@ exceptionsAllTests(id<ICECommunicator> communicator, BOOL collocated)
 
 
     tprintf("ok\n");
-    
+
     tprintf("catching unknown non-Ice exception... ");
-    
+
     @try
     {
         [thrower throwNonIceException];
@@ -494,7 +494,7 @@ exceptionsAllTests(id<ICECommunicator> communicator, BOOL collocated)
     {
         test(false);
     }
-    
+
     tprintf("ok\n");
 
     return thrower;

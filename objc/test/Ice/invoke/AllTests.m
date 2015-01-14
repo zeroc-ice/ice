@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
-// ICE_TOUCH_LICENSE file included in this distribution.
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -197,7 +197,7 @@ invokeAllTests(id<ICECommunicator> communicator)
         {
             test(NO);
         }
-        
+
         id<ICEOutputStream> outS = [ICEUtil createOutputStream:communicator];
         [outS startEncapsulation];
         [outS writeString:testString];
@@ -223,7 +223,7 @@ invokeAllTests(id<ICECommunicator> communicator)
         };
 
         TestInvokeCallback* cb = [[TestInvokeCallback alloc] initWithCommunicator:communicator];
-        [cl begin_ice_invoke:@"opString" mode:ICENormal inEncaps:inEncaps 
+        [cl begin_ice_invoke:@"opString" mode:ICENormal inEncaps:inEncaps
             response:^(BOOL ok, NSMutableData* outEncaps) { [cb opString:ok outEncaps:outEncaps]; }
             exception:^(ICEException* ex) { test(NO); }];
         [cb check];
@@ -262,7 +262,7 @@ invokeAllTests(id<ICECommunicator> communicator)
 
         // begin_ice_invoke with Callback_Object_ice_invoke
         TestInvokeCallback* cb = [[TestInvokeCallback alloc] initWithCommunicator:communicator];
-        [cl begin_ice_invoke:@"opException" mode:ICENormal inEncaps:inEncaps 
+        [cl begin_ice_invoke:@"opException" mode:ICENormal inEncaps:inEncaps
             response:^(BOOL ok, NSMutableData* outP) { [cb opException:ok outEncaps:outP]; }
             exception:^(ICEException* ex) { test(NO); }];
         [cb check];

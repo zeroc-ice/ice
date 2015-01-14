@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
-// ICE_TOUCH_LICENSE file included in this distribution.
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -90,7 +90,7 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
     *ba1 = *ba2;
     test([ba1.theS.str isEqualToString:@"hello"]);
     test([ba1.str isEqualToString:@"hi"]);
-    
+
     TestObjectsBase* bp1 = [TestObjectsBase base];
     *bp1 = *ba2;
     test([bp1.theS.str isEqualToString:@"hello"]);
@@ -103,22 +103,22 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
     TestObjectsB* b1 = [initial getB1];
     test(b1);
     tprintf("ok\n");
-    
+
     tprintf("getting B2... ");
     TestObjectsB* b2 = [initial getB2];
     test(b2);
     tprintf("ok\n");
-    
+
     tprintf("getting C... ");
     TestObjectsC* c = [initial getC];
     test(c);
     tprintf("ok\n");
-    
+
     tprintf("getting D... ");
     TestObjectsD* d = [initial getD];
     test(d);
     tprintf("ok\n");
-    
+
     tprintf("checking consistency... ");
     test(b1 != b2);
     test(b1 != (TestObjectsB*)c);
@@ -158,7 +158,7 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
     test(c);
     test(d);
     tprintf("ok\n");
-    
+
     tprintf("checking consistency... ");
     test(b1 != b2);
     test(b1 != (TestObjectsB*)c);
@@ -326,7 +326,7 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
         TestObjectsMutableBaseSeq* seq = [TestObjectsMutableBaseSeq array];
 
         [seq addObject:[NSNull null]];
-        
+
         TestObjectsBase* b = [TestObjectsBase base];
         b.theS = [TestObjectsS s];
         b.theS.str = @"Hello";

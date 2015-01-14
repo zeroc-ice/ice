@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
-// ICE_TOUCH_LICENSE file included in this distribution.
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -686,7 +686,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [p begin_opMyEnum:TestOperationsenum2 response:^(TestOperationsMyEnum ret, TestOperationsMyEnum p2) { [cb opMyEnumResponse:ret p2:p2]; } exception:^(ICEException* ex) { [cb opMyEnumException:ex]; }];
         test([cb check]);
     }
-    
+
     {
         TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
         [p begin_opMyClass:p response:^(id<TestOperationsMyClassPrx> ret, id<TestOperationsMyClassPrx>p2, id<TestOperationsMyClassPrx> p3) { [cb opMyClassResponse:ret p2:p2 p3:p3]; } exception:^(ICEException* ex) { [cb opMyClassException:ex]; }];
@@ -713,7 +713,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
     {
         ICEByte buf1[] = { 0x01, 0x11, 0x12, 0x22 };
         ICEByte buf2[] = { 0xf1, 0xf2, 0xf3, 0xf4 };
-        
+
         TestOperationsMutableByteS *bsi1 = [TestOperationsMutableByteS data];
         TestOperationsMutableByteS *bsi2 = [TestOperationsMutableByteS data];
 
@@ -728,10 +728,10 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
     {
         BOOL buf1[] = { YES, YES, NO };
         BOOL buf2[] = { NO };
-        
+
         TestOperationsMutableBoolS *bsi1 = [TestOperationsMutableBoolS data];
         TestOperationsMutableBoolS *bsi2 = [TestOperationsMutableBoolS data];
-        
+
         [bsi1 appendBytes:buf1 length:sizeof(buf1)];
         [bsi2 appendBytes:buf2 length:sizeof(buf2)];
 
@@ -748,7 +748,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         TestOperationsMutableShortS *ssi = [TestOperationsMutableShortS data];
         TestOperationsMutableIntS *isi = [TestOperationsMutableIntS data];
         TestOperationsMutableLongS *lsi = [TestOperationsMutableLongS data];
-        
+
         [ssi appendBytes:buf1 length:sizeof(buf1)];
         [isi appendBytes:buf2 length:sizeof(buf2)];
         [lsi appendBytes:buf3 length:sizeof(buf3)];
@@ -1009,10 +1009,10 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
 	[di2 setObject:@"querty" forKey:@(TestOperationsenum3)];
 
         TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
-        [p begin_opMyEnumStringD:di1 
-                              p2:di2 
-                        response:^(TestOperationsMutableMyEnumStringD* ret, 
-                                   TestOperationsMutableMyEnumStringD* p3) { [cb opMyEnumStringDResponse:ret 
+        [p begin_opMyEnumStringD:di1
+                              p2:di2
+                        response:^(TestOperationsMutableMyEnumStringD* ret,
+                                   TestOperationsMutableMyEnumStringD* p3) { [cb opMyEnumStringDResponse:ret
                                                                                                       p3:p3]; }
                        exception:^(ICEException* ex) { [cb opMyEnumStringDException:ex]; }];
         [cb check];
@@ -1033,10 +1033,10 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [di2 setObject:@(TestOperationsenum2) forKey:s23];
 
         TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
-        [p begin_opMyStructMyEnumD:di1 
-                                p2:di2 
-                          response:^(TestOperationsMutableMyStructMyEnumD* ret, 
-                                     TestOperationsMutableMyStructMyEnumD* p3) { [cb opMyStructMyEnumDResponse:ret 
+        [p begin_opMyStructMyEnumD:di1
+                                p2:di2
+                          response:^(TestOperationsMutableMyStructMyEnumD* ret,
+                                     TestOperationsMutableMyStructMyEnumD* p3) { [cb opMyStructMyEnumDResponse:ret
                                                                                                             p3:p3
                                                                                                            s11:s11
                                                                                                            s12:s12
@@ -1099,14 +1099,14 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         //
         // TestOperations implicit context propagation
         //
-        
+
         NSString *impls[] = {@"Shared", @"PerThread"};
         for(int i = 0; i < 2; i++)
         {
             ICEInitializationData* initData = [ICEInitializationData initializationData];
             [initData setProperties:[[communicator getProperties] clone]];
             [initData.properties setProperty:@"Ice.ImplicitContext" value:impls[i]];
-            
+
             id<ICECommunicator> ic = [ICEUtil createCommunicator:initData];
 
             ICEMutableContext *ctx = [ICEMutableContext dictionary];
@@ -1116,7 +1116,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
 
             id<TestOperationsMyClassPrx> p = [TestOperationsMyClassPrx uncheckedCast:
                                                                     [ic stringToProxy:@"test:default -p 12010"]];
-            
+
             [[ic getImplicitContext] setContext:(ctx)];
             test([[[ic getImplicitContext] getContext] isEqualToDictionary:ctx]);
             {
@@ -1128,23 +1128,23 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
             test([[ic getImplicitContext] get:@"zero"] == nil);
             [[ic getImplicitContext] put:@"zero" value:@"ZERO"];
             test([[[ic getImplicitContext] get:@"zero"] isEqualToString:@"ZERO"]);
-      
+
             ctx = [[ic getImplicitContext] getContext];
             {
                 id<ICEAsyncResult> r = [p begin_opContext];
                 ICEContext* c = [p end_opContext:r];
                 test([c isEqualToDictionary:ctx]);
             }
-            
+
             ICEMutableContext *prxContext = [ICEMutableContext dictionary];
             [prxContext setObject:@"UN" forKey:@"one"];
             [prxContext setObject:@"QUATRE" forKey:@"four"];
 
             ICEMutableContext *combined = [ICEMutableContext dictionaryWithDictionary:ctx];
             [combined addEntriesFromDictionary:prxContext];
-            
+
             p = [TestOperationsMyClassPrx uncheckedCast:[p ice_context:prxContext]];
-            
+
             [[ic getImplicitContext] setContext:[ICEMutableContext dictionary]];
             {
                 id<ICEAsyncResult> r = [p begin_opContext];

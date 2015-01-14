@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
-// ICE_TOUCH_LICENSE file included in this distribution.
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -120,11 +120,11 @@ run(int argc, char* argv[], id<ICECommunicator> communicator)
                 {
                     timeout = -1;
                 }
-                
+
                 twoway = [twoway ice_timeout:timeout];
                 oneway = [oneway ice_timeout:timeout];
                 batchOneway = [batchOneway ice_timeout:timeout];
-                
+
                 if(timeout == -1)
                 {
                     printf("timeout is now switched off\n");
@@ -146,7 +146,7 @@ run(int argc, char* argv[], id<ICECommunicator> communicator)
                 {
                     delay = 0;
                 }
-                
+
                 if(delay == 0)
                 {
                     printf("server delay is now deactivated\n");
@@ -161,13 +161,13 @@ run(int argc, char* argv[], id<ICECommunicator> communicator)
             else if(c == 'S')
             {
                 secure = !secure;
-                
+
                 twoway = [twoway ice_secure:secure];
                 oneway = [oneway ice_secure:secure];
                 batchOneway = [batchOneway ice_secure:secure];
                 datagram = [datagram ice_secure:secure];
                 batchDatagram = [batchDatagram ice_secure:secure];
-                
+
                 if(secure)
                 {
                     printf("secure mode is now on\n");

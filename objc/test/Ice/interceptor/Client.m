@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
-// ICE_TOUCH_LICENSE file included in this distribution.
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -20,20 +20,20 @@ static int
 run(id<ICECommunicator> communicator)
 {
     //
-    // Create OA and servants  
-    //  
+    // Create OA and servants
+    //
     id<ICEObjectAdapter> oa = [communicator createObjectAdapterWithEndpoints:@"MyOA" endpoints:@"tcp -h localhost"];
     ICEObject* servant = [[TestInterceptorMyObjectI alloc] init];
     InterceptorI* interceptor = [[InterceptorI alloc] init:servant];
-    
+
 #if defined(__clang__) && !__has_feature(objc_arc)
     [servant autorelease];
     [interceptor autorelease];
 #endif
     id<TestInterceptorMyObjectPrx> prx = [TestInterceptorMyObjectPrx uncheckedCast:[oa addWithUUID:interceptor]];
-    
+
     [oa activate];
-       
+
     tprintf("testing simple interceptor... ");
     test([[interceptor getLastOperation] length] == 0);
     [prx ice_ping];
@@ -55,7 +55,7 @@ run(id<ICECommunicator> communicator)
     test([[interceptor getLastOperation] isEqualToString:@"addWithRetry"]);
     test([interceptor getLastStatus]);
     tprintf("ok\n");
-   
+
     tprintf("testing user exception... ");
     @try
     {
@@ -70,7 +70,7 @@ run(id<ICECommunicator> communicator)
     test([interceptor getLastStatus] == NO);
     tprintf("ok\n");
     tprintf("testing ONE... ");
-    
+
     [interceptor clear];
     @try
     {
@@ -99,7 +99,7 @@ run(id<ICECommunicator> communicator)
     }
     test([[interceptor getLastOperation] isEqualToString:@"badSystemAdd"]);
     tprintf("ok\n");
-    
+
     return 0;
 }
 
@@ -129,7 +129,7 @@ main(int argc, char* argv[])
             [initData.properties setProperty:@"Ice.Warn.Dispatch" value:@"0"];
 #if TARGET_OS_IPHONE
             initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:
-                                      @"TestInterceptor", @"::Test", 
+                                      @"TestInterceptor", @"::Test",
                                       nil];
 #endif
             communicator = [ICEUtil createCommunicator:&argc argv:argv initData:initData];

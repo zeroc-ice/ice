@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
-// ICE_TOUCH_LICENSE file included in this distribution.
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -24,7 +24,7 @@
     [initData_.properties setProperty:@"TestAdapter.Endpoints" value:@"default"];
     [initData_.properties setProperty:@"TestAdapter.AdapterId" value:@"TestAdapter"];
     [initData_.properties setProperty:@"TestAdapter.ReplicaGroupId" value:@"ReplicatedAdapter"];
-    
+
     [initData_.properties setProperty:@"TestAdapter2.Endpoints" value:@"default"];
     [initData_.properties setProperty:@"TestAdapter2.AdapterId" value:@"TestAdapter2"];
 
@@ -60,7 +60,7 @@
     // its endpoints with the locator and create references containing
     // the adapter id instead of the endpoints.
     //
-    
+
     id<ICECommunicator> serverCommunicator = [ICEUtil createCommunicator:initData_];
     [communicators_ addObject:serverCommunicator];
 
@@ -105,8 +105,8 @@
 @end
 
 @implementation TestLocationI
--(id) init:(id<ICEObjectAdapter>)adapter 
-  adapter2:(id<ICEObjectAdapter>)adapter2 
+-(id) init:(id<ICEObjectAdapter>)adapter
+  adapter2:(id<ICEObjectAdapter>)adapter2
   registry:(ServerLocatorRegistry*)registry
 {
     self = [super init];
@@ -146,7 +146,7 @@
 
 -(id<TestLocationHelloPrx>) getHello:(ICECurrent*)current
 {
-    return [TestLocationHelloPrx uncheckedCast:[adapter1_ createIndirectProxy:[[adapter1_ getCommunicator] 
+    return [TestLocationHelloPrx uncheckedCast:[adapter1_ createIndirectProxy:[[adapter1_ getCommunicator]
                                                                           stringToIdentity:@"hello"]]];
 }
 

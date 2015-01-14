@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
-// ICE_TOUCH_LICENSE file included in this distribution.
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -174,7 +174,7 @@ allTests(id<ICECommunicator> communicator, NSArray* ports)
         {
             tprintf("testing server %d with AMI... ", i);
             Callback* cb = [[Callback alloc] init];
-            [obj begin_pid:^(ICEInt pid) { [cb pidResponse:pid]; } 
+            [obj begin_pid:^(ICEInt pid) { [cb pidResponse:pid]; }
                  exception:^(ICEException* ex) { [cb pidException:ex]; } ];
             [cb check];
             int pid = [cb pid];
@@ -198,7 +198,7 @@ allTests(id<ICECommunicator> communicator, NSArray* ports)
             {
                 tprintf("shutting down server %d with AMI... ", i);
                 Callback* cb = [[Callback alloc] init];
-                [obj begin_shutdown:^{ [cb shutdownResponse]; } 
+                [obj begin_shutdown:^{ [cb shutdownResponse]; }
                           exception:^(ICEException* ex) { [cb shutdownException:ex]; }];
                 [cb check];
 #if defined(__clang__) && !__has_feature(objc_arc)
@@ -261,7 +261,7 @@ allTests(id<ICECommunicator> communicator, NSArray* ports)
             {
                 tprintf("aborting server %d and #%d with idempotent AMI call... ", i, i + 1);
                 Callback* cb = [[Callback alloc] init];
-                [obj begin_idempotentAbort:^{ [cb idempotentAbortResponse]; } 
+                [obj begin_idempotentAbort:^{ [cb idempotentAbortResponse]; }
                        exception:^(ICEException* ex) { [cb idempotentAbortException:ex]; }];
                 [cb check];
 #if defined(__clang__) && !__has_feature(objc_arc)

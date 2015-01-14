@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
-// ICE_TOUCH_LICENSE file included in this distribution.
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -106,7 +106,7 @@ interface Relay
 
     void relayUnknownPreservedAsBase(Relay* r) throws Base;
     void relayUnknownPreservedAsKnownPreserved(Relay* r) throws KnownPreserved;
-    
+
     void shutdown();
 };
 

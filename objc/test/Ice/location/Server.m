@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
-// ICE_TOUCH_LICENSE file included in this distribution.
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -43,8 +43,8 @@ run(id<ICECommunicator> communicator, ICEInitializationData* initData)
     [registry addObject:[adapter createProxy:[communicator stringToIdentity:@"ServerManager"]]];
     [adapter add:serverManager identity:[communicator stringToIdentity:@"ServerManager"]];
 
-    id<ICELocatorRegistryPrx> registryPrx = 
-        [ICELocatorRegistryPrx uncheckedCast:[adapter add:registry 
+    id<ICELocatorRegistryPrx> registryPrx =
+        [ICELocatorRegistryPrx uncheckedCast:[adapter add:registry
                                                       identity:[communicator stringToIdentity:@"registry"]]];
 
 #if defined(__clang__) && !__has_feature(objc_arc)
@@ -81,7 +81,7 @@ main(int argc, char* argv[])
             initData.properties = defaultServerProperties(&argc, argv);
 #if TARGET_OS_IPHONE
             initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:
-                                      @"TestLocation", @"::Test", 
+                                      @"TestLocation", @"::Test",
                                       nil];
 #endif
             communicator = [ICEUtil createCommunicator:&argc argv:argv initData:initData];
