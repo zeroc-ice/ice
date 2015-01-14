@@ -72,6 +72,7 @@ cpp/test/IceBox/configuration/build.txt
 
 js/lib
 js/node_modules
+js/bower_components
 
 # OS X Keychain
 

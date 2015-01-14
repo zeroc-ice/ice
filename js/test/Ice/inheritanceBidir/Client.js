@@ -9,7 +9,7 @@
 
 (function(module, require, exports)
 {
-    var Ice = require("icejs").Ice;
+    var Ice = require("zeroc-icejs").Ice;
     var Test = require("Test").Test;
     var InitialI = require("InitialI").InitialI;
     var Client = require("../inheritance/Client");

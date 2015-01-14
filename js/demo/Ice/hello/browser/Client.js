@@ -256,11 +256,11 @@ $("#mode").on("change",
     function(e)
     {
         var newMode = $(this).val();
-
+        var href;
         if(document.location.protocol === "http:" &&
            (newMode === "twoway-secure" || newMode === "oneway-secure" || newMode === "oneway-batch-secure"))
         {
-            var href = document.location.protocol + "//" + document.location.host +
+            href = document.location.protocol + "//" + document.location.host +
                         document.location.pathname + "?mode=" + newMode;
             href = href.replace("http", "https");
             href = href.replace("8080", "9090");
@@ -269,7 +269,7 @@ $("#mode").on("change",
         else if (document.location.protocol === "https:" &&
            (newMode === "twoway" || newMode === "oneway" || newMode === "oneway-batch"))
         {
-            var href = document.location.protocol + "//" + document.location.host +
+            href = document.location.protocol + "//" + document.location.host +
                         document.location.pathname + "?mode=" + newMode;
             href = href.replace("https", "http");
             href = href.replace("9090", "8080");

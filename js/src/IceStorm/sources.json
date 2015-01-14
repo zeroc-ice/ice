@@ -1,0 +1,4 @@
+{
+    "modules": ["IceStorm"],
+    "slice": ["IceStorm/IceStorm.ice", "IceStorm/Metrics.ice"]
+}

@@ -11,8 +11,8 @@
 
 $(document).foundation();
 
-$("#timeout").noUiSlider({range: [0, 2500], start: 0, handles: 1});
-$("#delay").noUiSlider({range: [0, 2500], start: 0, handles: 1});
+$("#timeout").noUiSlider({range: {min: 0, max:2500}, start: 0, handles: 1});
+$("#delay").noUiSlider({range: {min: 0, max:2500}, start: 0, handles: 1});
 $("#progress .icon").spin("small");
 
 //
@@ -130,4 +130,15 @@ function checkGenerated(files)
                     }
                 });
         });
+}
+
+//
+// Browser sync doesn't work well with HTTPS as it open WS insecure socket and some
+// browsers refuse that when document has been loaded from HTTPS.
+//
+if(document.location.protocol === "http:")
+{
+    var script = document.createElement("script");
+    script.src = "//" + location.hostname + ":3000/browser-sync/browser-sync-client.js";
+    $("body").append(script);
 }

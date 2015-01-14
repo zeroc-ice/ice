@@ -9,8 +9,8 @@
 
 (function(module, require, exports)
 {
-    var Ice = require("icejs").Ice;
-    var Glacier2 = require("icejs").Glacier2;
+    var Ice = require("zeroc-icejs").Ice;
+    var Glacier2 = require("zeroc-icejs").Glacier2;
     var Test = require("Callback").Test;
     var Promise = Ice.Promise;
 

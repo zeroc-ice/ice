@@ -7,7 +7,7 @@
 //
 // **********************************************************************
     
-var Ice = require("icejs").Ice;
+var Ice = require("zeroc-icejs").Ice;
 var Demo = require("./Hello").Demo;
 
 function menu()

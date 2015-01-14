@@ -254,7 +254,8 @@
                             "menubar=no,scrollbars=yes,resizable=yes,toolbar=no");
                 return false;
             });
-        
+        /* jshint browser:true, jquery:true */
+        /* global checkGenerated: false */
         if(["http:", "https:"].indexOf(document.location.protocol) !== -1)
         {
             checkGenerated(["Chat.js"]);

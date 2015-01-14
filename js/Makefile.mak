@@ -7,29 +7,27 @@
 #
 # **********************************************************************
 
-top_srcdir	= .
+!if "$(NPM)" == ""
+NPM = gradlew.bat
+!endif
 
-!include $(top_srcdir)\config\Make.rules.mak.js
+all: npminstall
+	$(NPM) run gulp:build
 
-SUBDIRS		= src assets test demo
+dist: npminstall
+	$(NPM) run gulp:dist
 
-INSTALL_SUBDIRS = $(install_bindir) $(install_libdir) $(install_moduledir)
+clean: npminstall
+	$(NPM) run gulp:clean
 
-install:: install-common
-	@for %i in ( $(INSTALL_SUBDIRS) ) do \
-	    @if not exist %i \
-	        @echo "Creating %i..." && \
-	        mkdir "%i"
+install:: npminstall
+    $(NPM) run gulp:install
+    
+lint:: npminstall
+    $(NPM) run gulp:lint
 
-$(EVERYTHING_EXCEPT_INSTALL)::
-	@for %i in ( $(SUBDIRS) ) do \
-	    @echo "making $@ in %i" && \
-	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
+test:
+	@python .\allTests.py
 
-install::
-	@for %i in ( src ) do \
-	    @echo "making $@ in %i" && \
-	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
-
-test::
-	@python $(top_srcdir)/allTests.py
+npminstall:
+    $(NPM) install

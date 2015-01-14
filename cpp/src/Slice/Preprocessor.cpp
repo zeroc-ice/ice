@@ -15,6 +15,7 @@
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/UUID.h>
 #include <algorithm>
+#include <vector>
 #include <fstream>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -398,6 +399,10 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
     //
     // Process each dependency.
     //
+    
+    string sourceFile;
+    vector<string> dependencies;
+    
     string::size_type end;
     while((end = unprocessed.find(".ice", pos)) != string::npos)
     {
@@ -442,6 +447,17 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
                 result += "\n    <dependsOn name=\"" + file + "\"/>";
             }
         }
+        if(lang == JavaScriptJSON)
+        {
+            if(sourceFile.empty())
+            {
+                sourceFile = file;
+            }
+            else
+            {
+                dependencies.push_back(file);
+            }
+        }
         else
         {
             //
@@ -464,6 +480,30 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
     if(lang == JavaXML)
     {
         result += "\n  </source>\n";
+    }
+    else if(lang == JavaScriptJSON)
+    {
+        result = "\"" + sourceFile + "\":" + (dependencies.empty() ? "[]" : "[");
+        for(vector<string>::const_iterator i = dependencies.begin(); i != dependencies.end();)
+        {
+            string file = *i;
+            result += "\n    \"" + file + "\"";
+            if(++i == dependencies.end())
+            {
+                result += "]";
+            }
+            else
+            {
+                result += ",";
+            }
+        }
+        
+        string::size_type pos = 0;
+        while((pos = result.find("\\", pos + 1)) != string::npos)
+        {
+            result.insert(pos, 1, '\\');
+            ++pos;
+        }
     }
     else
     {
@@ -570,7 +610,9 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
             }
             break;
         }
-        case JS:
+        case JavaScriptJSON:
+            break;
+        case JavaScript:
         {
             //
             // Change .o[bj] suffix to .js suffix.

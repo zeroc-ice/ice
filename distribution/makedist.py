@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, fnmatch, re, getopt, atexit
+import os, sys, fnmatch, re, getopt, atexit, json
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "lib"))
 from DistUtils import *
@@ -79,8 +79,6 @@ for l in ["/java", "/py", "/php", "/cs", "/cpp/demo", "/js"]:
 #
 demoConfigFiles = [ \
     "Make.*", \
-    "build.js", \
-    "makebundle.js", \
 ]
 
 #
@@ -216,6 +214,7 @@ def createDistfilesDist(platform, whichDestDir):
     fixVersion(os.path.join("lib", "DistUtils.py"), *versions)
     fixVersion(os.path.join("bin", "makeubuntupackages.py"), *versions)
     fixVersion(os.path.join("bin", "makeubunturepo.py"), *versions)
+    fixVersion(os.path.join("bin", "makejspackages.py"), *versions)
     if platform == "UNIX":
         fixVersion(os.path.join("src", "rpm", "icegridregistry.conf"), *versions)
         fixVersion(os.path.join("src", "rpm", "RPM_README"), *versions)
@@ -252,14 +251,6 @@ def createDistfilesDist(platform, whichDestDir):
             os.chmod(os.path.join(root, d), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) # rwxr-xr-x
 
     print "ok"
-
-#
-# Install node http-proxy and esprima.
-#
-os.chdir(distDir)
-for m in ["http-proxy", "esprima"]:
-    if os.system("npm install --prefix %s %s" % (distDir, m)) != 0:
-        print("Error executing command `npm install %s'" % m)
 
 def createSourceDist(platform, destDir):
     if platform == "UNIX":
@@ -313,7 +304,6 @@ def createSourceDist(platform, destDir):
 
         for d in dirnames:
             os.chmod(os.path.join(root, d), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) # rwxr-xr-x
-    copy(os.path.join(distDir, "node_modules"), os.path.join(destDir, prefix, "js", "node_modules"));
 
     os.chdir(current)
     print "ok"
@@ -408,8 +398,6 @@ move("allDemos.py", os.path.join(demoscriptDir, "demoscript", "allDemos.py"))
 fixGitAttributes(True, True, excludeFiles + excludeUnixFiles + ["/demoscript", "expect.py", "allDemos.py"])
 createSourceDist("Windows", distDir)
 
-remove(os.path.join(distDir, "node_modules"))
-
 #
 # Consolidate demo, demo scripts distributions.
 #
@@ -422,7 +410,7 @@ copy("ICE_LICENSE", demoDir)
 copy(os.path.join(distFilesDir, "src", "common", "README.DEMOS"), demoDir)
 
 copyMatchingFiles(os.path.join(srcDir, "certs"), os.path.join(demoDir, "certs"), demoCertsFiles)
-for d in ["", "cpp", "java", "js"]:
+for d in ["", "cpp", "java"]:
     copyMatchingFiles(os.path.join(d, "config"), os.path.join(demoDir, "config"), demoConfigFiles)
 
 copy(os.path.join(distFilesDir, "src", "common", "Make.rules"), os.path.join(demoDir, "config"), False)
@@ -447,18 +435,6 @@ for d in os.listdir('.'):
 # Copy android demos into the java directory
 copy(os.path.join("android", "demo"), os.path.join(demoDir, "java", "android"))
 
-copy(os.path.join(srcDir, "js", "bin"), os.path.join(demoDir, "js", "bin"))
-copy(os.path.join(srcDir, "js", "assets"), os.path.join(demoDir, "js", "assets"))
-copy(os.path.join(srcDir, "js", "node_modules", "http-proxy"),
-     os.path.join(demoDir, "js", "node_modules", "http-proxy"));
-
-FixUtil.fileMatchAndReplace(os.path.join(demoDir, "js", "assets", "Makefile"),
-                            [(re.compile("top_srcdir.*= .."), "top_srcdir      = ../..")],
-                            False)
-os.chdir(os.path.join(demoDir, "js", "assets"))
-if os.system("MAKEDIST=yes make > /dev/null") != 0:
-    print "Error building JS assets"
-    sys.exit(1)
 os.chdir(srcDir)
 
 configSubstituteExprs = [(re.compile(regexpEscape("../../certs")), "../certs")]
@@ -466,6 +442,21 @@ for root, dirnames, filesnames in os.walk(demoDir):
     for f in filesnames:
         if fnmatch.fnmatch(f, "config*"):
             substitute(os.path.join(root, f), configSubstituteExprs)
+
+#
+# JS demos
+#
+copy(os.path.join(srcDir, "js", "bin"), os.path.join(demoDir, "js", "bin"))
+for f in ["bower.json", "gulpfile.js", "package.json"]:
+    copy(os.path.join(distFilesDir, "src", "js", "icejs-demos", f), os.path.join(demoDir, "js", f), False)
+
+copy(os.path.join(srcDir, "js", ".jshintrc"), os.path.join(demoDir, "js", ".jshintrc"))
+jshint = json.load(open(os.path.join(srcDir, "js", ".jshintrc_browser"), "r"))
+jshintDemo = json.load(open(os.path.join(srcDir, "js", "demo", ".jshintrc_browser"), "r"))
+
+for key, value in jshintDemo["globals"].iteritems():
+    jshint["globals"][key] = value
+json.dump(jshint, open(os.path.join(demoDir, "js", ".jshintrc_browser"), "w"), indent = 4, separators=(',', ': '))
 
 remove(os.path.join(srcDir, 'vb')) # vb directory in Unix source distribution only needed to copy demo scripts.
 
@@ -517,8 +508,6 @@ os.mkdir(os.path.join(winDemoDir, "config"))
 
 copy(os.path.join(winSrcDir, "config", "Make.common.rules.mak"), os.path.join(winDemoDir, "config"), False)
 copy(os.path.join(winSrcDir, "cpp", "config", "Make.rules.msvc"), os.path.join(winDemoDir, "config"), False)
-copy(os.path.join(winSrcDir, "js", "config", "build.js"), os.path.join(winDemoDir, "config"), False)
-copy(os.path.join(winSrcDir, "js", "config", "Make.rules.mak.js"), os.path.join(winDemoDir, "config"), False)
 
 copy(os.path.join(winDistFilesDir, "src", "common", "Make.rules.mak.php"), os.path.join(winDemoDir, "config"), False)
 
@@ -532,20 +521,6 @@ for sd in os.listdir(winSrcDir):
 
 # Copy android demos into the java directory
 copy(os.path.join("android", "demo"), os.path.join(winDemoDir, "java", "android"))
-
-copy(os.path.join(winSrcDir, "js", "bin"), os.path.join(winDemoDir, "js", "bin"))
-copy(os.path.join(winSrcDir, "js", "assets"), os.path.join(winDemoDir, "js", "assets"))
-copy(os.path.join(winSrcDir, "js", "node_modules", "http-proxy"),
-     os.path.join(winDemoDir, "js", "node_modules", "http-proxy"));
-
-for f in ["common.min.js", "common.min.js.gz", "common.css", "common.css.gz"]:
-    copy(os.path.join(demoDir, "js", "assets", f),
-         os.path.join(winDemoDir, "js", "assets", f))
-
-
-FixUtil.fileMatchAndReplace(os.path.join(winDemoDir, "js", "assets", "Makefile.mak"),
-                            [(re.compile("top_srcdir.*= .."), "top_srcdir      = ..\\..")],
-                            False)
 
 rmFiles = []
 
@@ -578,6 +553,22 @@ for d in ["cpp", "cs", "vb"]:
                     rmFiles.append(os.path.join(root[len(winDemoDir) + 1:], f))
 
 for f in rmFiles: remove(os.path.join(winDemoDir, f))
+
+
+#
+# JS demos
+#
+copy(os.path.join(srcDir, "js", "bin"), os.path.join(winDemoDir, "js", "bin"))
+for f in ["bower.json", "gulpfile.js", "package.json"]:
+    copy(os.path.join(distFilesDir, "src", "js", "icejs-demos", f), os.path.join(winDemoDir, "js", f), False)
+
+copy(os.path.join(srcDir, "js", ".jshintrc"), os.path.join(winDemoDir, "js", ".jshintrc"))
+jshint = json.load(open(os.path.join(srcDir, "js", ".jshintrc_browser"), "r"))
+jshintDemo = json.load(open(os.path.join(srcDir, "js", "demo", ".jshintrc_browser"), "r"))
+
+for key, value in jshintDemo["globals"].iteritems():
+    jshint["globals"][key] = value
+json.dump(jshint, open(os.path.join(winDemoDir, "js", ".jshintrc_browser"), "w"), indent = 4, separators=(',', ': '))
 
 # Fix up the Java build files
 os.mkdir(os.path.join(winDemoDir, "java", "gradle"))

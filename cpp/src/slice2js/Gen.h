@@ -55,6 +55,12 @@ public:
         const std::vector<std::string>&,
         const std::string&,
         bool);
+    
+    Gen(const std::string&,
+        const std::vector<std::string>&,
+        const std::string&,
+        bool,
+        std::ostream&);
     ~Gen();
 
     void generate(const UnitPtr&);
@@ -62,11 +68,13 @@ public:
 
 private:
 
+    std::ofstream _stdout;
     IceUtilInternal::Output _out;
 
     std::vector<std::string> _includePaths;
     std::string _fileBase;
     bool _icejs;
+    bool _useStdout;
     
     void printHeader();
 

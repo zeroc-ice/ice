@@ -9,7 +9,6 @@
 
 #pragma once
 
-#include <Ice/Metrics.ice>
 module Demo
 {
 
@@ -17,11 +16,6 @@ interface Hello
 {
     idempotent void sayHello(int delay);
     void shutdown();
-};
-
-class MyMetrics extends IceMX::Metrics
-{
-    string foo;
 };
 
 };

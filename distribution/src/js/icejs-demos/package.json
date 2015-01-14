@@ -1,0 +1,31 @@
+{
+  "name": "zeroc-icejs-demos",
+  "version": "3.6.0-beta.0",
+  "description": "Sample programs for Ice (Internet Communications Engine)",
+  "author": "ZeroC, Inc. <info@zeroc.com>",
+  "homepage": "https://www.zeroc.com",
+  "repository": "https://github.com/zeroc-inc/icejs-demos.git",
+  "license": "GPL-2.0+",
+  "dependencies": {
+    "bower": "^1.3.12",
+    "browser-sync": "^1.9.0",
+    "del": "^1.1.1",
+    "gulp": "^3.8.10",
+    "gulp-concat": "^2.4.3",
+    "gulp-ext-replace": "^0.1.0",
+    "gulp-gzip": "0.0.8",
+    "gulp-minify-css": "^0.3.12",
+    "gulp-newer": "^0.5.0",
+    "gulp-open": "^0.3.1",
+    "gulp-uglify": "^1.0.2",
+    "gulp-zeroc-slice2js": "^3.6.0-beta.0",
+    "http-proxy": "^1.8.1",
+    "zeroc-icejs": "^3.6.0-beta.0",
+    "vinyl-paths": "^1.0.0"
+  },
+  "scripts": {
+    "gulp:build": "gulp",
+    "gulp:watch": "gulp watch",
+    "gulp:clean": "gulp clean"
+  }
+}

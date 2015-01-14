@@ -1,0 +1,25 @@
+{
+  "name": "zeroc-icejs-demos",
+  "version": "3.6.0-beta.0",
+  "description": "Ice for JavaScript runtime",
+  "author": "Zeroc, Inc.",
+  "homepage": "http://zeroc.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zeroc-inc/icejs-demos.git"
+  },
+  "license": "GPL-2.0+",
+  "keywords": [
+    "Ice",
+    "IceJS"
+  ],
+  "dependencies": {
+    "foundation": "~5.5.0",
+    "jquery": "~2.1.3",
+    "animo.js": "~1.0.2",
+    "spin.js": "~2.0.2",
+    "nouislider": "~7.0.10",
+    "highlightjs": "~8.4.0",
+    "zeroc-icejs": "~3.6.0-beta.0"
+  }
+}

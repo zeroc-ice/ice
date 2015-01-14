@@ -1,3 +1,0 @@
-
-Hello.js: \
-    .\Hello.ice

@@ -16,6 +16,7 @@ Ice.__M.require(module,
         "../Ice/StringUtil",
         "../Ice/EndpointI",
         "../Ice/LocalException",
+        "../Ice/WSTransceiver"
     ]);
 
 var HashUtil = Ice.HashUtil;
@@ -208,3 +209,4 @@ else
 }
 
 Ice.WSEndpoint = WSEndpoint;
+exports.Ice = Ice;

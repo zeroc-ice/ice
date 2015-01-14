@@ -45,3 +45,4 @@ var WSEndpointFactory = Ice.Class({
     }
 });
 Ice.WSEndpointFactory = WSEndpointFactory;
+exports.Ice = Ice;

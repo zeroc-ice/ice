@@ -52,6 +52,6 @@ var __M =
 };
 
 var Ice = __M.module("Ice");
-Ice.Slice = {};
+Ice.Slice = Ice.Slice || {};
 Ice.__M = __M;
 exports.Ice = Ice;

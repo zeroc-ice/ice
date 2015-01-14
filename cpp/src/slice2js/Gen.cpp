@@ -573,7 +573,8 @@ Slice::JsVisitor::writeDocComment(const ContainedPtr& p, const string& deprecate
 
 Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir, bool icejs) :
     _includePaths(includePaths),
-    _icejs(icejs)
+    _icejs(icejs),
+    _useStdout(false)
 {
     _fileBase = base;
     string::size_type pos = base.find_last_of("/\\");
@@ -581,13 +582,14 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     {
         _fileBase = base.substr(pos + 1);
     }
+    
     string file = _fileBase + ".js";
 
     if(!dir.empty())
     {
         file = dir + '/' + file;
     }
-
+    
     _out.open(file.c_str());
     if(!_out)
     {
@@ -596,14 +598,32 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(file);
-    printHeader();
 
+    
+    printHeader();
+    printGeneratedHeader(_out, _fileBase + ".ice");
+}
+
+Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir, bool icejs, ostream& out) :
+    _out(out),
+    _includePaths(includePaths),
+    _icejs(icejs),
+    _useStdout(true)
+{
+    _fileBase = base;
+    string::size_type pos = base.find_last_of("/\\");
+    if(pos != string::npos)
+    {
+        _fileBase = base.substr(pos + 1);
+    }
+    
+    printHeader();
     printGeneratedHeader(_out, _fileBase + ".ice");
 }
 
 Slice::Gen::~Gen()
 {
-    if(_out.isOpen())
+    if(_out.isOpen() || _useStdout)
     {
         _out << '\n';
     }

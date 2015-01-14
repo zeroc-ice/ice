@@ -7,35 +7,27 @@
 #
 # **********************************************************************
 
-top_srcdir	= .
-
-include $(top_srcdir)/config/Make.rules.js
-
-SUBDIRS		= src assets
-
-ifneq ($(MAKECMDGOALS),install)
-SUBDIRS		:= $(SUBDIRS) test demo
+ifeq ($(NPM),)
+NPM = npm
 endif
 
-INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir) $(install_moduledir)
+all: npminstall
+	$(NPM) run gulp:build
 
-install:: install-common
-	@for subdir in $(INSTALL_SUBDIRS); \
-	do \
-	    if test ! -d $(DESTDIR)$$subdir ; \
-	    then \
-		echo "Creating $(DESTDIR)$$subdir..." ; \
-		mkdir -p $(DESTDIR)$$subdir ; \
-		chmod a+rx $(DESTDIR)$$subdir ; \
-	    fi ; \
-	done
+dist: npminstall
+	$(NPM) run gulp:dist
 
-$(EVERYTHING)::
-	@for subdir in $(SUBDIRS); \
-	do \
-	    echo "making $@ in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
-	done
+clean: npminstall
+	$(NPM) run gulp:clean
 
-test::
-	@python $(top_srcdir)/allTests.py
+install: npminstall
+	$(NPM) run gulp:install
+
+lint: npminstall
+	$(NPM) run gulp:lint
+
+test:
+	@python ./allTests.py
+
+npminstall:
+	$(NPM) install

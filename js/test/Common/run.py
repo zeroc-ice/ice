@@ -123,7 +123,6 @@ class ControllerI(Test.Controller):
         self.currentServer = None
 
     def runServer(self, lang, name, protocol, host, options, current):
-
         # If server is still running, terminate it
         if self.currentServer:
             try:
@@ -177,57 +176,26 @@ class Reader(threading.Thread):
 
 class Server(Ice.Application):
     def run(self, args):
-        jsDir = os.path.join(TestUtil.toplevel, "js")
-        nodeCmd = TestUtil.getNodeCommand()
-        httpServer = subprocess.Popen(nodeCmd + " \"" + os.path.join(jsDir, "bin", "HttpServer.js") + "\"", 
-                                      shell = True, 
-                                      stdin = subprocess.PIPE, 
-                                      stdout = subprocess.PIPE, 
-                                      stderr = None,
-                                      bufsize = 0)
-        #
-        # Wait for the HttpServer to start
-        #
-        while True:
-            line = httpServer.stdout.readline()
-            if httpServer.poll() is not None and not line:
-                #process terminated
-                return httpServer.poll()
-
-            if type(line) != str:
-                line = line.decode()
-            line = line.strip("\n")
-            if len(line) > 0:
-                print(line)
-            if line.find("listening on ports 8080 (http) and 9090 (https)...") != -1:
-                break
-
-        reader = Reader(httpServer)
-        reader.start()
-
         adapter = self.communicator().createObjectAdapter("ControllerAdapter")
         adapter.add(ControllerI(), self.communicator().stringToIdentity("controller"))
         adapter.activate()
         self.communicator().waitForShutdown()
-
-        if httpServer.poll() is None:
-            httpServer.terminate()
-
-        reader.join()
         return 0
 
 app = Server()
 initData = Ice.InitializationData()
 initData.properties = Ice.createProperties();
 initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL")
-initData.properties.setProperty("IceSSL.DefaultDir", os.path.join(TestUtil.toplevel, "certs"));
-initData.properties.setProperty("IceSSL.CertAuthFile", "cacert.pem");
-initData.properties.setProperty("IceSSL.CertFile", "s_rsa1024_pub.pem");
-initData.properties.setProperty("IceSSL.KeyFile", "s_rsa1024_priv.pem");
-initData.properties.setProperty("IceSSL.Keychain", "test.keychain");
-initData.properties.setProperty("IceSSL.KeychainPassword", "password");
+initData.properties.setProperty("IceSSL.DefaultDir", os.path.join(TestUtil.toplevel, "certs"))
+initData.properties.setProperty("IceSSL.CertAuthFile", "cacert.pem")
+initData.properties.setProperty("IceSSL.CertFile", "s_rsa1024_pub.pem")
+initData.properties.setProperty("IceSSL.KeyFile", "s_rsa1024_priv.pem")
+initData.properties.setProperty("IceSSL.Keychain", "test.keychain")
+initData.properties.setProperty("IceSSL.KeychainPassword", "password")
 initData.properties.setProperty("IceSSL.VerifyPeer", "0");
 initData.properties.setProperty("Ice.ThreadPool.Server.SizeMax", "10")
+#initData.properties.setProperty("Ice.Trace.Network", "3")
+#initData.properties.setProperty("Ice.Trace.Protocol", "1")
 initData.properties.setProperty("ControllerAdapter.Endpoints", "ws -p 12009:wss -p 12008")
 
 if TestUtil.isDarwin():

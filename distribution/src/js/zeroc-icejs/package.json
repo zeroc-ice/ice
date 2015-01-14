@@ -1,0 +1,20 @@
+{
+  "name": "zeroc-icejs",
+  "version": "3.6.0-beta.0",
+  "description": "Ice for JavaScript runtime",
+  "author": "Zeroc, Inc.",
+  "homepage": "https://www.zeroc.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zeroc-inc/zeroc-icejs.git"
+  },
+  "license": "GPL-2.0+",
+  "main": "src/zeroc-icejs.js",
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "keywords": [
+    "Ice",
+    "IceJS"
+  ]
+}

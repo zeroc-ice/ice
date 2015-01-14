@@ -66,8 +66,10 @@ usage(const char* n)
         "-UNAME                  Remove any definition for NAME.\n"
         "-IDIR                   Put DIR in the include file search path.\n"
         "-E                      Print preprocessor output on stdout.\n"
+        "--stdout                Print genreated code to stdout.\n"
         "--output-dir DIR        Create files in the directory DIR.\n"
         "--depend                Generate Makefile dependencies.\n"
+        "--depend-json           Generate Makefile dependencies in JSON format.\n"
         "-d, --debug             Print debug messages.\n"
         "--ice                   Permit `Ice' prefix (for building Ice source code only).\n"
         "--underscore            Permit underscores in Slice identifiers.\n"
@@ -85,8 +87,10 @@ compile(int argc, char* argv[])
     opts.addOpt("U", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("I", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("E");
+    opts.addOpt("", "stdout");
     opts.addOpt("", "output-dir", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "depend");
+    opts.addOpt("", "depend-json");
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
     opts.addOpt("", "underscore");
@@ -137,9 +141,13 @@ compile(int argc, char* argv[])
 
     bool preprocess = opts.isSet("E");
 
+    bool useStdout = opts.isSet("stdout");
+    
     string output = opts.optArg("output-dir");
 
     bool depend = opts.isSet("depend");
+    
+    bool dependJSON = opts.isSet("depend-json");
 
     bool debug = opts.isSet("debug");
 
@@ -161,18 +169,27 @@ compile(int argc, char* argv[])
     IceUtil::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
+    if(dependJSON)
+    {
+        cout << "{" << endl;
+    }
+    
+    //
+    // Create a copy of args without the duplicates.
+    //
+    vector<string> sources;
     for(vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
     {
-        //
-        // Ignore duplicates.
-        //
-        vector<string>::iterator p = find(args.begin(), args.end(), *i);
-        if(p != i)
+        vector<string>::iterator p = find(sources.begin(), sources.end(), *i);
+        if(p == sources.end())
         {
-            continue;
+            sources.push_back(*i);
         }
-
-        if(depend)
+    }
+    
+    for(vector<string>::const_iterator i = sources.begin(); i != sources.end();)
+    {        
+        if(depend || dependJSON)
         {
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
             FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2JS__");
@@ -190,8 +207,10 @@ compile(int argc, char* argv[])
             {
                 return EXIT_FAILURE;
             }
-
-            if(!icecpp->printMakefileDependencies(Preprocessor::JS, includePaths,
+            
+            bool last = (++i == sources.end());
+            
+            if(!icecpp->printMakefileDependencies(depend ? Preprocessor::JavaScript : Preprocessor::JavaScriptJSON, includePaths,
                                                   "-D__SLICE2JS__"))
             {
                 return EXIT_FAILURE;
@@ -200,6 +219,15 @@ compile(int argc, char* argv[])
             if(!icecpp->close())
             {
                 return EXIT_FAILURE;
+            }
+            
+            if(dependJSON)
+            {
+                if(!last)
+                {
+                    cout << ",";
+                }
+                cout << "\n";
             }
         }
         else
@@ -245,8 +273,16 @@ compile(int argc, char* argv[])
                 {
                     try
                     {
-                        Gen gen(icecpp->getBaseName(), includePaths, output, icejs);
-                        gen.generate(p);
+                        if(useStdout)
+                        {
+                            Gen gen(icecpp->getBaseName(), includePaths, output, icejs, cout);
+                            gen.generate(p);
+                        }
+                        else
+                        {
+                            Gen gen(icecpp->getBaseName(), includePaths, output, icejs);
+                            gen.generate(p);
+                        }
                     }
                     catch(const Slice::FileException& ex)
                     {
@@ -262,6 +298,7 @@ compile(int argc, char* argv[])
 
                 p->destroy();
             }
+            ++i;
         }
 
         {
@@ -273,6 +310,11 @@ compile(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
         }
+    }
+    
+    if(dependJSON)
+    {
+        cout << "}" << endl;
     }
 
     return status;

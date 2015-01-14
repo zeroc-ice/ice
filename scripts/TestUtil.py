@@ -1850,7 +1850,8 @@ def getTestEnv(lang, testdir):
             addPathToEnv("RUBYLIB", os.path.join(getIceDir("rb", testdir), "ruby"), env)
 
     if lang == "js":
-        addPathToEnv("NODE_PATH", os.path.join(getIceDir("js", testdir), "node_modules" if iceHome else "src"), env)
+        if os.environ.get("USE_BIN_DIST", "no") != "yes":
+            addPathToEnv("NODE_PATH", os.path.join(getIceDir("js", testdir), "src"), env)
         addPathToEnv("NODE_PATH", os.path.join(testdir), env)
 
     return env;

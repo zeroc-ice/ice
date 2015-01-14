@@ -1,3 +1,0 @@
-
-Throughput.js: \
-    .\Throughput.ice
