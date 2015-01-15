@@ -33,8 +33,16 @@ var toString = function(key, object, objectTable, ident)
     {
         return "\n" + ident + key + ": (recursive)";
     }
-
+    
     objectTable.push(object);
+    //
+    // For objects use the toString function if one is provided.
+    //
+    if(typeof object.toString == "function")
+    {
+        return s = "\n" + ident + key + ":" + object.toString();
+    }
+    
     var s = "\n" + ident + key + ":";
     for(var k in object)
     {
