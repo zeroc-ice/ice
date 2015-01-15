@@ -44,10 +44,12 @@ var common =
          "assets/icejs.css"]
 };
 
-gulp.task("reload", [],
+gulp.task("dist:libs", ["bower"],
     function()
     {
-        browserSync.reload();
+        return gulp.src(["bower_components/zeroc-icejs/lib/*"])
+            .pipe(newer("lib"))
+            .pipe(gulp.dest("lib"));
     });
 
 gulp.task("bower", [],
@@ -68,11 +70,14 @@ gulp.task("common:js", ["bower"],
             .pipe(gulp.dest("assets"));
     });
 
-gulp.task("common:js:watch", [],
+gulp.task("common:js:watch", ["common:js"],
     function()
     {
-        gulp.watch(common.scripts, ["common:js"]);
-        gulp.watch("assets/common.min.js.gz", ["reload"]);
+        gulp.watch(common.scripts, function(e){
+            gulp.start("common:js", function(){
+                browserSync.reload(e.path);
+            });
+        });
     });
 
 gulp.task("common:css", ["bower"],
@@ -87,11 +92,14 @@ gulp.task("common:css", ["bower"],
             .pipe(gulp.dest("assets"));
     });
 
-gulp.task("common:css:watch", [],
+gulp.task("common:css:watch", ["common:css"],
     function()
     {
-        gulp.watch(common.styles, ["common:css"]);
-        gulp.watch("assets/common.css.gz", ["reload"]);
+        gulp.watch(common.styles, function(e){
+            gulp.start("common:css", function(){
+                browserSync.reload(e.path);
+            });
+        });
     });
 
 gulp.task("common:clean", [],
@@ -109,15 +117,15 @@ var demos = [
     "Glacier2/chat",
     "ChatDemo"];
 
-function demoGenerateTask(name) { return "demo_" + name.replace("/", "_"); }
-function demoWatchTask(name) { return "demo_" + name.replace("/", "_") + ":watch"; }
-function demoCleanTask(name) { return "demo_" + name.replace("/", "_") + ":clean"; }
+function demoTaskName(name) { return "demo_" + name.replace("/", "_"); }
+function demoWatchTask(name) { return demoTaskName(name) + ":watch"; }
+function demoCleanTask(name) { return demoTaskName(name) + ":clean"; }
 function demoGeneratedFile(file){ return path.join(path.basename(file, ".ice") + ".js"); }
 
 demos.forEach(
     function(name)
     {
-        gulp.task(demoGenerateTask(name), ["common:js", "common:css"],
+        gulp.task(demoTaskName(name), [],
             function()
             {
                 return gulp.src(path.join(name, "*.ice"))
@@ -125,17 +133,20 @@ demos.forEach(
                     .pipe(gulp.dest(name));
             });
 
-        gulp.task(demoWatchTask(name), [],
+        gulp.task(demoWatchTask(name), [demoTaskName(name)],
             function()
             {
-                gulp.watch(path.join(name, "*.ice"), [demoGenerateTask(name)]);
+                gulp.watch(path.join(name, "*.ice"), [demoTaskName(name)]);
 
                 gulp.watch([path.join(name, "*.js"),
                             path.join(name, "browser", "*.js"),
-                            path.join(name, "*.html")], ["reload"]);
+                            path.join(name, "*.html")], 
+                    function(){
+                        browserSync.reload(e.path);
+                    });
             });
 
-        gulp.task(demoCleanTask(name), ["common:clean"],
+        gulp.task(demoCleanTask(name), [],
             function()
             {
                 return gulp.src(path.join(name, "*.ice"))
@@ -149,7 +160,7 @@ var minDemos =
     "Ice/minimal":
     {
         srcs: [
-            "bower_packages/Ice.min.js",
+            "lib/Ice.min.js",
             "demo/Ice/minimal/Hello.js",
             "demo/Ice/minimal/browser/Client.js"],
         dest: "demo/Ice/minimal/browser/"
@@ -157,8 +168,8 @@ var minDemos =
     "ChatDemo":
     {
         srcs: [
-            "bower_packages/Ice.min.js",
-            "bower_packages/Glacier2.min.js",
+            "lib/Ice.min.js",
+            "lib/Glacier2.min.js",
             "demo/ChatDemo/Chat.js",
             "demo/ChatDemo/ChatSession.js",
             "demo/ChatDemo/Client.js"],
@@ -166,7 +177,6 @@ var minDemos =
     }
 };
 
-function demoTaskName(name) { return "demo_" + name.replace("/", "_"); }
 function minDemoTaskName(name) { return demoTaskName(name) + ":min"; }
 function minDemoWatchTaskName(name) { return minDemoTaskName(name) + ":watch"; }
 function minDemoCleanTaskName(name) { return minDemoTaskName(name) + ":clean"; }
@@ -176,7 +186,7 @@ Object.keys(minDemos).forEach(
     {
         var demo = minDemos[name];
 
-        gulp.task(minDemoTaskName(name), [demoTaskName(name)],
+        gulp.task(minDemoTaskName(name), [demoTaskName(name), "common:css", "common:js", "dist:libs"],
             function()
             {
                 return gulp.src(demo.srcs)
@@ -202,11 +212,13 @@ Object.keys(minDemos).forEach(
             });
     });
 
-gulp.task("demo", demos.map(demoGenerateTask).concat(Object.keys(minDemos).map(minDemoTaskName)));
+gulp.task("demo:build", demos.map(demoTaskName).concat(Object.keys(minDemos).map(minDemoTaskName)));
 gulp.task("demo:watch", demos.map(demoWatchTask).concat(Object.keys(minDemos).map(minDemoWatchTaskName)));
 gulp.task("demo:clean", demos.map(demoCleanTask).concat(Object.keys(minDemos).map(minDemoCleanTaskName)));
+
 gulp.task("build", ["demo"]);
-gulp.task("watch", ["demo", "demo:watch", "common:css:watch", "common:js:watch"],
+
+gulp.task("watch", ["demo:build", "dist:libs", "demo:watch", "common:css:watch", "common:js:watch"],
     function()
     {
         browserSync();

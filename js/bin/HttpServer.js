@@ -34,25 +34,15 @@ function Init()
         css: "text/css",
         html: "text/html",
         ico: "image/x-icon",
-        jpeg: "image/jpeg",
-        jpg: "image/jpeg",
         js: "text/javascript",
-        png: "image/png",
     };
     
-    var useBinDist = process.env["USE_BIN_DIST"] == "yes";
     var demoDist = !isdir(path.join(__dirname, "..", "lib"));
 
     //
     // If using a demo distribution or USE_BIN_DIST was set,
     // resolve libraries in bower_components/zeroc-icejs directory.
     //
-    var iceLibDir;
-    if(demoDist || useBinDist)
-    {
-        iceLibDir = path.resolve(path.join(__dirname, "../bower_components/zeroc-icejs/lib"));
-    }
-
     var libraries = ["/lib/Ice.js", "/lib/Ice.min.js",
                     "/lib/Glacier2.js", "/lib/Glacier2.min.js",
                     "/lib/IceStorm.js", "/lib/IceStorm.min.js",
@@ -73,14 +63,7 @@ function Init()
         //
         // If ICE_HOME has been set resolve Ice libraries paths into ICE_HOME.
         //
-        if(iceLibDir && iceLib)
-        {
-            filePath = path.join(iceLibDir, req.url.pathname.substr(4));
-        }
-        else
-        {
-            filePath = path.resolve(path.join(this._basePath, req.url.pathname));
-        }
+        filePath = path.resolve(path.join(this._basePath, req.url.pathname));
 
         //
         // If OPTIMIZE is set resolve Ice libraries to the corresponding minified
@@ -166,7 +149,6 @@ function Init()
                     {
                         "Content-Type": MimeTypes[ext] || "text/plain",
                         "Content-Length": stats.size,
-                        "Last-Modified": new Date(stats.mtime).toUTCString(),
                         "Etag": hash.digest("hex")
                     };
 
@@ -176,8 +158,7 @@ function Init()
                     }
 
                     //
-                    // Check for conditional request headers, if-modified-since
-                    // and if-none-match.
+                    // Check for conditional request header if-none-match.
                     //
                     var modified = true;
                     if(req.headers["if-none-match"] !== undefined)
