@@ -386,6 +386,52 @@ class Platform:
         self._interpreters = {}
         self._sourceDir = None
         self._demoDir = None
+        self._npmRegistry = None
+        self._npmSetup = False
+        self._bowerContent = None
+        self._bowerSetup = False
+    
+    def setupNPM(self):
+        if not self._npmSetup:
+            p = subprocess.Popen("npm config get registry", shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            if(p.wait() != 0):
+                print("npm config get registry failed:\n" + p.stdout.read().strip())
+                sys.exit(1)
+            self._npmRegistry = p.stdout.readline().decode('UTF-8').strip()
+            runCommand("npm config set registry http://dev.vpn.zeroc.com:4873/", self._verbose)
+            self._npmSetup = True
+
+    def restoreNpm(self):
+        if self._npmSetup:
+            if self._npmRegistry == "https://registry.npmjs.org/": 
+                runCommand("npm config delete registry", self._verbose)
+            else:
+                runCommand("npm config set registry %s" % self._npmRegistry, self._verbose)
+            self._npmRegistry = None
+            self._npmSetup = False
+
+    def setupBower(self):
+        if not self._bowerSetup:
+            bowerrc = os.path.expanduser(os.path.join("~", ".bowerrc"))
+            if os.path.isfile(bowerrc):
+                f = open(bowerrc, "r")
+                self._bowerContent = f.read()
+                f.close()
+            f = open(bowerrc, "w")
+            f.write('{ "registry": "http://dev.vpn.zeroc.com:5678/" }')
+            f.close()
+            self._bowerSetup = True
+
+    def restoreBower(self):
+        if self._bowerSetup:
+            bowerrc = os.path.expanduser(os.path.join("~", ".bowerrc"))
+            if self._bowerContent:
+                f = open(bowerrc, "w")
+                f.write(self._bowerContent)
+                f.close()
+            else:
+                os.remove(bowerrc)
+            self._bowerSetup = False
 
     def initInterpreters(self):
         if self._interpreters:
@@ -638,7 +684,9 @@ class Platform:
                     env["JAVA_HOME"] = interpreter.home
                 if os.path.exists(os.path.join(self._iceHome, "lib", "db.jar")):
                     prependPathToEnvironVar(env, "CLASSPATH", os.path.join(self._iceHome, "lib", "db.jar"))
-
+            if lang == "js":
+                self.setupNPM()
+                self.setupBower()
         return env
 
     def is64(self, arch):
@@ -910,7 +958,7 @@ class Platform:
 
         if lang == "java":
             commands.append("%s :test:assemble" % ("gradlew" if self.isWindows() else "./gradlew"))
-        if lang == "js":
+        if lang == "js":            
             commands = ["npm cache clean && bower cache clean && npm install && " +
                         "npm install zeroc-icejs && npm install zeroc-slice2js && npm run gulp:build"]
         else:
@@ -971,6 +1019,10 @@ class Platform:
         if self._verbose:
             print(command)
         spawnAndWatch(command, env, lambda line: results.filter(line))
+        
+        if lang == "js":
+            self.restoreNpm()
+            self.restoreBower()
         return True
 
     def filterTests(self, compiler, arch, conf, lang, testConfigs):
@@ -1089,6 +1141,10 @@ class Platform:
         if self._verbose:
             print(command)
         spawnAndWatch(command, env, lambda line: results.filter(line))
+        
+        if lang == "js":
+            self.restoreNpm()
+            self.restoreBower()
         return True
 
     def filterDemos(self, compiler, arch, conf, lang, demoConfigs):
@@ -1645,6 +1701,12 @@ report = open(os.path.join(buildDir, "report.txt"), "w")
 
 platformObj.printConfigurationSummary(report)
 platformObj.run(startTests, startDemos)
+
+def cleanup():
+    platformObj.restoreNpm()
+    platformObj.restoreBower()
+    
+atexit.register(cleanup)
 
 output.close()
 report.close()
