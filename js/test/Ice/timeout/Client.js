@@ -106,15 +106,7 @@
                 out.write("testing connection timeout... ");
                 to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(100 * mult));
                 seq = Ice.Buffer.createNative(new Array(10000000));
-
-                //
-                // TODO: on Windows 8.1, sendData is sometime called
-                // after a significant delay. We use a 2s hold here to
-                // ensure the adapter is still holding while we send
-                // the data otherwise the test can frequently
-                // fail. See issue #6233.
-                //
-                return timeout.holdAdapter(1000 * 2 * mult);
+                return timeout.holdAdapter(1000 * mult);
             }
         ).then(
             function()
