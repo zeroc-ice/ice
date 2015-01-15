@@ -774,6 +774,72 @@ amiAllTests(id<ICECommunicator> communicator)
             [communicator end_flushBatchRequests:r];
         }
     }
+
+    if([p ice_getConnection])
+    {
+        [testController holdAdapter];
+
+        id<ICEAsyncResult> r;
+        ICEByte buf[10024];
+        ICEByteSeq* seq = [ICEByteSeq dataWithBytes:buf length:sizeof(buf)];
+        for(int i = 0; i < 200; ++i) // 2MB
+        {
+            r = [p begin_opWithPayload:seq];
+        }
+        test(![r isSent]);
+
+        id<ICEAsyncResult> r1 = [p begin_ice_ping];
+        id<ICEAsyncResult> r2 = [p begin_ice_id];
+        [r1 cancel];
+        [r2 cancel];
+        @try
+        {
+            [p end_ice_ping:r1];
+            test(NO);
+        }
+        @catch(ICEInvocationCanceledException*)
+        {
+        }
+        @try
+        {
+            [p end_ice_id:r2];
+            test(NO);
+        }
+        @catch(ICEInvocationCanceledException*)
+        {
+        }
+
+        [testController resumeAdapter];
+        [p ice_ping];
+        test(![r1 isSent] && [r1 isCompleted]);
+        test(![r2 isSent] && [r2 isCompleted]);
+
+        [testController holdAdapter];
+        r1 = [p begin_op];
+        r2 = [p begin_ice_id];
+        [r1 waitForSent];
+        [r2 waitForSent];
+        [r1 cancel];
+        [r2 cancel];
+        @try
+        {
+            [p end_op:r1];
+            test(NO);
+        }
+        @catch(ICEInvocationCanceledException*)
+        {
+        }
+        @try
+        {
+            [p end_ice_id:r2];
+            test(NO);
+        }
+        @catch(ICEInvocationCanceledException*)
+        {
+        }
+        [testController resumeAdapter];
+    }
+
     tprintf("ok\n");
 
     [p shutdown];

@@ -83,6 +83,17 @@ static BOOL isDispatcherThread()
     test(isDispatcherThread());
     [self called];
 }
+-(void) responseEx
+{
+    test(NO);
+}
+
+-(void) exceptionEx:(ICEException*)ex
+{
+    test([ex isKindOfClass:[ICEInvocationTimeoutException class]]);
+    test(isDispatcherThread());
+    [self called];
+}
 
 -(void) payload
 {
@@ -126,6 +137,10 @@ dispatcherAllTests(id<ICECommunicator> communicator)
 
         TestDispatcherTestIntfPrx* i = [p ice_adapterId:@"dummy"];
         [i begin_op:^ { [cb response]; } exception:^(ICEException* ex) { [cb exception:ex]; }];
+        [cb check];
+
+        TestDispatcherTestIntfPrx* to = [p ice_invocationTimeout:250];
+        [to begin_sleep:500 response:^ { [cb responseEx]; } exception:^(ICEException* ex) { [cb exceptionEx:ex]; }];
         [cb check];
 
         [testController holdAdapter];

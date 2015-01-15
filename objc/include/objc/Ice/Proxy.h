@@ -33,6 +33,9 @@ typedef void (^ICEMarshalCB)(id<ICEOutputStream>);
 typedef void (^ICEUnmarshalCB)(id<ICEInputStream>, BOOL);
 
 @protocol ICEAsyncResult <NSObject>
+
+-(void) cancel;
+
 -(id<ICECommunicator>) getCommunicator;
 -(id<ICEConnection>) getConnection;
 -(id<ICEObjectPrx>) getProxy;
@@ -129,6 +132,8 @@ typedef void (^ICEUnmarshalCB)(id<ICEInputStream>, BOOL);
 -(id) ice_locator:(id<ICELocatorPrx>)locator;
 //-(BOOL) ice_isCollocationOptimized;
 //-(id) ice_collocationOptimized:(BOOL)collocOptimized;
+-(ICEInt) ice_getInvocationTimeout;
+-(id) ice_invocationTimeout:(ICEInt)timeout;
 -(id) ice_twoway;
 -(BOOL) ice_isTwoway;
 -(id) ice_oneway;

@@ -27,7 +27,7 @@ import TestUtil
 tests = [ 
      ("Slice/keyword", []),
      ("Ice/proxy", ["core"]),
-     ("Ice/ami", ["core"]),
+     ("Ice/ami", ["core", "nocompress"]),
      ("Ice/operations", ["core"]),
      ("Ice/exceptions", ["core"]),
      ("Ice/inheritance", ["core"]),
@@ -49,7 +49,7 @@ tests = [
      ("Ice/slicing/exceptions", ["core"]),
      ("Ice/slicing/objects", ["core"]),
      ("Ice/retry", ["core"]),
-     ("Ice/timeout", ["core"]),
+     ("Ice/timeout", ["core", "nocompress"]),
      ("Ice/hash", ["core"]),
      ("Ice/info", ["core", "noipv6", "nocompress"]),
      ("Ice/enums", ["once"]),

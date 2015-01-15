@@ -59,38 +59,21 @@
     [cond signal];
     [cond unlock];
 }
--(void) sendDataResponse
+-(void) response
 {
     [self called];
 }
--(void) sendDataException:(ICEException*)ex
+-(void) exception:(ICEException*)ex
 {
     test(NO);
 }
--(void) sendDataExResponse
+-(void) responseEx
 {
     test(NO);
 }
--(void) sendDataExException:(ICEException*)ex
+-(void) exceptionEx:(ICEException*)ex
 {
-    test([ex isKindOfClass:[ICETimeoutException class]]);
-    [self called];
-}
--(void) sleepResponse
-{
-    [self called];
-}
--(void) sleepException:(ICEException*)ex
-{
-    test(NO);
-}
--(void) sleepExResponse
-{
-    test(NO);
-}
--(void) sleepExException:(ICEException*)ex
-{
-    test([ex isKindOfClass:[ICETimeoutException class]]);
+    test([ex isKindOfClass:[ICEInvocationTimeoutException class]]);
     [self called];
 }
 @end
@@ -178,6 +161,100 @@ timeoutAllTests(id<ICECommunicator> communicator)
         {
             test(NO);
         }
+    }
+    tprintf("ok\n");
+
+    tprintf("testing invocation timeout... ");
+    {
+        id<ICEConnection> connection = [obj ice_getConnection];
+        id<TestTimeoutTimeoutPrx> to = [TestTimeoutTimeoutPrx uncheckedCast:[obj ice_invocationTimeout:100]];
+        test(connection == [to ice_getConnection]);
+        @try
+        {
+            [to sleep:750];
+            test(NO);
+        }
+        @catch(ICEInvocationTimeoutException*)
+        {
+        }
+        [obj ice_ping];
+        to = [TestTimeoutTimeoutPrx uncheckedCast:[obj ice_invocationTimeout:500]];
+        test(connection == [to ice_getConnection]);
+        @try
+        {
+            [to sleep:250];
+        }
+        @catch(ICEInvocationTimeoutException*)
+        {
+            test(NO);
+        }
+        test(connection == [to ice_getConnection]);
+    }
+    {
+        //
+        // Expect InvocationTimeoutException.
+        //
+        id<TestTimeoutTimeoutPrx> to = [TestTimeoutTimeoutPrx uncheckedCast:[obj ice_invocationTimeout:100]];
+        TestTimeoutCallback* cb = [[TestTimeoutCallback alloc] init];
+        [to begin_sleep:750 response:^ { [cb responseEx]; } exception:^(ICEException* ex) { [cb exceptionEx:ex]; }];
+        [cb check];
+        [obj ice_ping];
+    }
+    {
+        //
+        // Expect Success.
+        //
+        id<TestTimeoutTimeoutPrx> to = [TestTimeoutTimeoutPrx uncheckedCast:[obj ice_invocationTimeout:500]];
+        TestTimeoutCallback* cb = [[TestTimeoutCallback alloc] init];
+        [to begin_sleep:250 response:^ { [cb response]; } exception:^(ICEException* ex) { [cb exception:ex]; }];
+        [cb check];
+    }
+    {
+        //
+        // Backward compatible connection timeouts
+        //
+        id<TestTimeoutTimeoutPrx> to =
+            [TestTimeoutTimeoutPrx uncheckedCast:[[obj ice_invocationTimeout:-2] ice_timeout:100]];
+        id<ICEConnection> con;
+        @try
+        {
+            con = [to ice_getConnection];
+            [to sleep:250];
+            test(NO);
+        }
+        @catch(ICETimeoutException*)
+        {
+            @try
+            {
+                [con getInfo];
+                test(NO);
+            }
+            @catch(ICETimeoutException*)
+            {
+                // Connection got closed as well.
+            }
+        }
+        [obj ice_ping];
+
+        @try
+        {
+            con = [to ice_getConnection];
+            [to end_sleep:[to begin_sleep:750]];
+            test(NO);
+        }
+        @catch(ICETimeoutException*)
+        {
+            @try
+            {
+                [con getInfo];
+                test(NO);
+            }
+            @catch(ICETimeoutException*)
+            {
+                // Connection got closed as well.
+            }
+        }
+        [obj ice_ping];
     }
     tprintf("ok\n");
 

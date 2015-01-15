@@ -121,9 +121,9 @@ run(int argc, char* argv[], id<ICECommunicator> communicator)
                     timeout = -1;
                 }
 
-                twoway = [twoway ice_timeout:timeout];
-                oneway = [oneway ice_timeout:timeout];
-                batchOneway = [batchOneway ice_timeout:timeout];
+                twoway = [twoway ice_invocationTimeout:timeout];
+                oneway = [oneway ice_invocationTimeout:timeout];
+                batchOneway = [batchOneway ice_invocationTimeout:timeout];
 
                 if(timeout == -1)
                 {

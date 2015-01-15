@@ -251,6 +251,11 @@ BOOL _returnsData;
     return operation_;
 }
 
+-(void) cancel
+{
+    ASYNCRESULT->cancel();
+}
+
 -(id<ICECommunicator>) getCommunicator
 {
     return [ICECommunicator wrapperWithCxxObject:ASYNCRESULT->getCommunicator().get()];
@@ -768,16 +773,6 @@ BOOL _returnsData;
         }
         return [ICEAsyncResult asyncResultWithAsyncResult__:r operation:operation proxy:self];
     }
-    catch(const IceUtil::IllegalArgumentException& ex)
-    {
-        if(os != nil)
-        {
-            [os release];
-            os = nil;
-        }
-        nsex = [NSException exceptionWithName:NSInvalidArgumentException reason:[toNSString(ex.reason()) autorelease]
-                            userInfo:nil];
-    }
     catch(const std::exception& ex)
     {
         if(os != nil)
@@ -895,16 +890,6 @@ BOOL _returnsData;
                 }
             }
         }
-    }
-    catch(const IceUtil::IllegalArgumentException& ex)
-    {
-        if(is != nil)
-        {
-            [is release];
-            is = nil;
-        }
-        nsex = [NSException exceptionWithName:NSInvalidArgumentException reason:[toNSString(ex.reason()) autorelease]
-                            userInfo:nil];
     }
     catch(const std::exception& ex)
     {
@@ -1521,7 +1506,16 @@ BOOL _returnsData;
 }
 -(id) ice_locatorCacheTimeout:(ICEInt)timeout
 {
-    return [[self class] objectPrxWithObjectPrx__:OBJECTPRX->ice_locatorCacheTimeout(timeout)];
+    NSException* nsex;
+    try
+    {
+        return [[self class] objectPrxWithObjectPrx__:OBJECTPRX->ice_locatorCacheTimeout(timeout)];
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    @throw nsex;
 }
 -(BOOL) ice_isConnectionCached
 {
@@ -1592,6 +1586,23 @@ BOOL _returnsData;
 // {
 //     return [[self class] objectPrxWithObjectPrx__:OBJECTPRX->ice_collocationOptimized(collocOptimized)];
 // }
+-(ICEInt) ice_getInvocationTimeout
+{
+    return OBJECTPRX->ice_getInvocationTimeout();
+}
+-(id) ice_invocationTimeout:(ICEInt)timeout
+{
+    NSException* nsex;
+    try
+    {
+        return [[self class] objectPrxWithObjectPrx__:OBJECTPRX->ice_invocationTimeout(timeout)];
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    @throw nsex;
+}
 -(id) ice_twoway
 {
     return [[self class] objectPrxWithObjectPrx__:OBJECTPRX->ice_twoway()];
@@ -1638,7 +1649,16 @@ BOOL _returnsData;
 }
 -(id) ice_timeout:(int)timeout
 {
-    return [[self class] objectPrxWithObjectPrx__:OBJECTPRX->ice_timeout(timeout)];
+    NSException* nsex;
+    try
+    {
+        return [[self class] objectPrxWithObjectPrx__:OBJECTPRX->ice_timeout(timeout)];
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    @throw nsex;
 }
 -(id) ice_connectionId:(NSString*)connectionId
 {
@@ -1658,8 +1678,6 @@ BOOL _returnsData;
     @throw nsex;
     return nil; // Keep the compiler happy.
 }
-
-
 
 -(id<ICEAsyncResult>) begin_ice_getConnection
 {
@@ -1694,10 +1712,6 @@ BOOL _returnsData;
                }, result);
     return ret__;
 }
-
-
-
-
 
 -(id<ICEConnection>) ice_getCachedConnection
 {

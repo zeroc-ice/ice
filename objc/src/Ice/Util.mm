@@ -22,7 +22,7 @@
 #import <objc/runtime.h>
 #import <Foundation/NSAutoreleasePool.h>
 
-namespace 
+namespace
 {
 
 class AsyncCallback : public IceUtil::Shared
@@ -50,7 +50,7 @@ void completed(const Ice::AsyncResultPtr& result)
         try
         {
             _completed(result);
-        }    
+        }
         catch(const Ice::Exception& ex)
         {
             @try
@@ -75,7 +75,7 @@ void completed(const Ice::AsyncResultPtr& result)
     {
         [pool drain];
     }
-        
+
     if(exception != nil)
     {
         rethrowCxxException(exception, true); // True = release the exception.
@@ -159,11 +159,6 @@ ICEAsyncResult* beginCppCall(void (^fn)(Ice::AsyncResultPtr&), ICEObjectPrx* prx
         fn(r);
         return [ICEAsyncResult asyncResultWithAsyncResult__:r operation:nil proxy:prx];
     }
-    catch(const IceUtil::IllegalArgumentException& ex)
-    {
-        nsex = [NSException exceptionWithName:NSInvalidArgumentException reason:[toNSString(ex.reason()) autorelease]
-                                                                       userInfo:nil];
-    }
     catch(const std::exception& ex)
     {
         nsex = toObjCException(ex);
@@ -171,10 +166,10 @@ ICEAsyncResult* beginCppCall(void (^fn)(Ice::AsyncResultPtr&), ICEObjectPrx* prx
     @throw nsex;
 }
 
-ICEAsyncResult* beginCppCall(void (^fn)(Ice::AsyncResultPtr&, const Ice::CallbackPtr&), 
+ICEAsyncResult* beginCppCall(void (^fn)(Ice::AsyncResultPtr&, const Ice::CallbackPtr&),
                              void (^completed)(const Ice::AsyncResultPtr&),
                              void (^exception)(ICEException*),
-                             void (^sent)(BOOL), 
+                             void (^sent)(BOOL),
                              ICEObjectPrx* prx)
 {
     NSException* nsex = nil;
@@ -186,11 +181,6 @@ ICEAsyncResult* beginCppCall(void (^fn)(Ice::AsyncResultPtr&, const Ice::Callbac
         fn(r, callback);
         return [ICEAsyncResult asyncResultWithAsyncResult__:r operation:nil proxy:prx];
     }
-    catch(const IceUtil::IllegalArgumentException& ex)
-    {
-        nsex = [NSException exceptionWithName:NSInvalidArgumentException reason:[toNSString(ex.reason()) autorelease]
-                                     userInfo:nil];
-    }
     catch(const std::exception& ex)
     {
         nsex = toObjCException(ex);
@@ -199,7 +189,7 @@ ICEAsyncResult* beginCppCall(void (^fn)(Ice::AsyncResultPtr&, const Ice::Callbac
 }
 
 ICEAsyncResult* beginCppCall(void (^fn)(Ice::AsyncResultPtr&, const Ice::Context&),
-                             ICEContext* context, 
+                             ICEContext* context,
                              ICEObjectPrx* prx)
 {
     NSException* nsex = nil;
@@ -211,11 +201,6 @@ ICEAsyncResult* beginCppCall(void (^fn)(Ice::AsyncResultPtr&, const Ice::Context
         fn(r, ctx);
         return [ICEAsyncResult asyncResultWithAsyncResult__:r operation:nil proxy:prx];
     }
-    catch(const IceUtil::IllegalArgumentException& ex)
-    {
-        nsex = [NSException exceptionWithName:NSInvalidArgumentException reason:[toNSString(ex.reason()) autorelease] 
-                                     userInfo:nil];
-    }
     catch(const std::exception& ex)
     {
         nsex = toObjCException(ex);
@@ -223,11 +208,11 @@ ICEAsyncResult* beginCppCall(void (^fn)(Ice::AsyncResultPtr&, const Ice::Context
     @throw nsex;
 }
 
-ICEAsyncResult* beginCppCall(void (^fn)(Ice::AsyncResultPtr&, const Ice::Context&, const Ice::CallbackPtr&), 
+ICEAsyncResult* beginCppCall(void (^fn)(Ice::AsyncResultPtr&, const Ice::Context&, const Ice::CallbackPtr&),
                              ICEContext* context,
                              void (^completed)(const Ice::AsyncResultPtr&),
                              void (^exception)(ICEException*),
-                             void (^sent)(BOOL), 
+                             void (^sent)(BOOL),
                              ICEObjectPrx* prx)
 {
     NSException* nsex = nil;
@@ -240,11 +225,6 @@ ICEAsyncResult* beginCppCall(void (^fn)(Ice::AsyncResultPtr&, const Ice::Context
         Ice::CallbackPtr callback = Ice::newCallback(cb, &AsyncCallback::completed, &AsyncCallback::sent);
         fn(r, ctx, callback);
         return [ICEAsyncResult asyncResultWithAsyncResult__:r operation:nil proxy:prx];
-    }
-    catch(const IceUtil::IllegalArgumentException& ex)
-    {
-        nsex = [NSException exceptionWithName:NSInvalidArgumentException reason:[toNSString(ex.reason()) autorelease]
-                            userInfo:nil];
     }
     catch(const std::exception& ex)
     {
@@ -260,11 +240,6 @@ void endCppCall(void (^fn)(const Ice::AsyncResultPtr&), ICEAsyncResult* r)
     {
         fn([r asyncResult__]);
         return;
-    }
-    catch(const IceUtil::IllegalArgumentException& ex)
-    {
-        nsex = [NSException exceptionWithName:NSInvalidArgumentException reason:[toNSString(ex.reason()) autorelease]
-                            userInfo:nil];
     }
     catch(const std::exception& ex)
     {
@@ -300,40 +275,51 @@ toObjCException(const std::exception& ex)
             {
                 Ice::UnknownUserException uuex(__FILE__, __LINE__, ex.what());
                 nsex = [ICEUnknownUserException localExceptionWithLocalException:uuex];
-            }    
+            }
             else
             {
-                const IceObjC::Exception* objCEx = dynamic_cast<const IceObjC::Exception*>(&ex);
-                if(objCEx)
+                const IceUtil::IllegalArgumentException* iaex =
+                    dynamic_cast<const IceUtil::IllegalArgumentException*>(&ex);
+                if(iaex)
                 {
-                    id<NSObject> oex = objCEx->exception();
-                    if(oex == nil)
-                    {
-                        nsex = [NSException exceptionWithName:@"unknown Objective-C exception" 
-                                                       reason:[NSString stringWithUTF8String:ex.what()]
-                                                     userInfo:nil];
-                    }
-                    else if([oex isKindOfClass:[NSException class]])
-                    {
-                        nsex = [[(NSException*)oex retain] autorelease];
-                    }
-                    else
-                    {
-                        nsex = [NSException exceptionWithName:@"unknown Objective-C exception" 
-                                                       reason:[oex description]
-                                                     userInfo:nil];
-                    }
+                    nsex = [NSException exceptionWithName:NSInvalidArgumentException
+                                        reason:[toNSString(iaex->reason()) autorelease]
+                                        userInfo:nil];
                 }
                 else
                 {
-                    //
-                    // std::exception from the Ice runtime are translated to NSException.
-                    //
-                    //Ice::UnknownException e(__FILE__, __LINE__, ex.what());
-                    //nsex = [ICEUnknownException localExceptionWithLocalException:e];
-                    nsex = [NSException exceptionWithName:@"std::exception" 
-                                                   reason:[NSString stringWithUTF8String:ex.what()]
-                                                 userInfo:nil];
+                    const IceObjC::Exception* objCEx = dynamic_cast<const IceObjC::Exception*>(&ex);
+                    if(objCEx)
+                    {
+                        id<NSObject> oex = objCEx->exception();
+                        if(oex == nil)
+                        {
+                            nsex = [NSException exceptionWithName:@"unknown Objective-C exception"
+                                                           reason:[NSString stringWithUTF8String:ex.what()]
+                                                         userInfo:nil];
+                        }
+                        else if([oex isKindOfClass:[NSException class]])
+                        {
+                            nsex = [[(NSException*)oex retain] autorelease];
+                        }
+                        else
+                        {
+                            nsex = [NSException exceptionWithName:@"unknown Objective-C exception"
+                                                           reason:[oex description]
+                                                         userInfo:nil];
+                        }
+                    }
+                    else
+                    {
+                        //
+                        // std::exception from the Ice runtime are translated to NSException.
+                        //
+                        //Ice::UnknownException e(__FILE__, __LINE__, ex.what());
+                        //nsex = [ICEUnknownException localExceptionWithLocalException:e];
+                        nsex = [NSException exceptionWithName:@"std::exception"
+                                                       reason:[NSString stringWithUTF8String:ex.what()]
+                                                     userInfo:nil];
+                    }
                 }
             }
         }
@@ -394,14 +380,14 @@ rethrowCxxException(id e, bool release)
     }
 }
 
-std::string 
+std::string
 toObjCSliceId(const std::string& sliceId, NSDictionary* prefixTable)
 {
     std::string objcType = sliceId;
 
     if(objcType.find("::Ice::") == 0)
     {
-        return objcType.replace(0, 7, "ICE"); 
+        return objcType.replace(0, 7, "ICE");
     }
 
     std::string::size_type pos = objcType.rfind("::");

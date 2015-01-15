@@ -10,9 +10,15 @@
 #import <objc/Ice.h>
 #import <dispatcher/TestI.h>
 
+#import <Foundation/NSThread.h>
+
 @implementation TestDispatcherTestIntfI
 -(void) op:(ICECurrent*)current
 {
+}
+-(void) sleep:(ICEInt)to current:(ICECurrent*)current
+{
+    [NSThread sleepForTimeInterval:to / 1000.0];
 }
 -(void) opWithPayload:(ICEMutableByteSeq*)data current:(ICECurrent*)current
 {

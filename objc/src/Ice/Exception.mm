@@ -639,6 +639,20 @@ localExceptionToString(const Ice::LocalException& ex)
 }
 @end
 
+@implementation ICEInvocationTimeoutException (ICEInternal)
+-(void) rethrowCxx
+{
+    throw Ice::InvocationTimeoutException(file, line);
+}
+@end
+
+@implementation ICEInvocationCanceledException (ICEInternal)
+-(void) rethrowCxx
+{
+    throw Ice::InvocationCanceledException(file, line);
+}
+@end
+
 @implementation ICEProtocolException (ICEInternal)
 -(id)initWithLocalException:(const Ice::LocalException&)ex
 {

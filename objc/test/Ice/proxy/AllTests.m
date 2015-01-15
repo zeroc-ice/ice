@@ -319,6 +319,13 @@ proxyAllTests(id<ICECommunicator> communicator)
     test(![b1 ice_isConnectionCached]);
     [prop  setProperty:property value:@""];
 
+    property = [propertyPrefix stringByAppendingString:@".InvocationTimeout"];
+    test([b1 ice_getInvocationTimeout] == -1);
+    [prop  setProperty:property value:@"1000"];
+    b1 = [communicator propertyToProxy:propertyPrefix];
+    test([b1 ice_getInvocationTimeout] == 1000);
+    [prop  setProperty:property value:@""];
+
     property = [propertyPrefix stringByAppendingString:@".EndpointSelection"];
     test([b1 ice_getEndpointSelection] == ICERandom);
     [prop  setProperty:property value:@"Random"];
@@ -346,6 +353,7 @@ proxyAllTests(id<ICECommunicator> communicator)
     b1 = [b1 ice_preferSecure:false];
     b1 = [b1 ice_endpointSelection:ICEOrdered];
     b1 = [b1 ice_locatorCacheTimeout:100];
+    b1 = [b1 ice_invocationTimeout:1234];
     ICEEncodingVersion* v = [ICEEncodingVersion encodingVersion:1 minor:0];
     b1 = [b1 ice_encodingVersion:v];
     id<ICEObjectPrx> router = [communicator stringToProxy:@"router"];
@@ -354,6 +362,7 @@ proxyAllTests(id<ICECommunicator> communicator)
     router = [router ice_preferSecure:YES];
     router = [router ice_endpointSelection:ICERandom];
     router = [router ice_locatorCacheTimeout:200];
+    router = [router ice_invocationTimeout:1500];
 
     id<ICEObjectPrx> locator = [communicator stringToProxy:@"locator"];
     //locator = [locator ice_collocationOptimized:YES];
@@ -361,6 +370,7 @@ proxyAllTests(id<ICECommunicator> communicator)
     locator = [locator ice_preferSecure:YES];
     locator = [locator ice_endpointSelection:ICERandom];
     locator = [locator ice_locatorCacheTimeout:300];
+    locator = [locator ice_invocationTimeout:1500];
 
     locator = [locator ice_router:[ICERouterPrx uncheckedCast:router]];
     b1 = [b1 ice_locator:[ICELocatorPrx uncheckedCast:locator]];
@@ -374,6 +384,7 @@ proxyAllTests(id<ICECommunicator> communicator)
     test([[proxyProps objectForKey:@"Test.PreferSecure"] isEqualToString:@"0"]);
     test([[proxyProps objectForKey:@"Test.EndpointSelection"] isEqualToString:@"Ordered"]);
     test([[proxyProps objectForKey:@"Test.LocatorCacheTimeout"] isEqualToString:@"100"]);
+    test([[proxyProps objectForKey:@"Test.InvocationTimeout"] isEqualToString:@"1234"]);
 
     NSString* sl = [NSString stringWithFormat:@"locator -t -e %@", [ICECurrentEncoding description]];
     test([[proxyProps objectForKey:@"Test.Locator"] isEqualToString:sl]);
@@ -382,6 +393,7 @@ proxyAllTests(id<ICECommunicator> communicator)
     test([[proxyProps objectForKey:@"Test.Locator.PreferSecure"] isEqualToString:@"1"]);
     test([[proxyProps objectForKey:@"Test.Locator.EndpointSelection"] isEqualToString:@"Random"]);
     test([[proxyProps objectForKey:@"Test.Locator.LocatorCacheTimeout"] isEqualToString:@"300"]);
+    test([[proxyProps objectForKey:@"Test.Locator.InvocationTimeout"] isEqualToString:@"1500"]);
 
     NSString* sr = [NSString stringWithFormat:@"router -t -e %@", [ICECurrentEncoding description]];
     test([[proxyProps objectForKey:@"Test.Locator.Router"] isEqualToString:sr]);
@@ -390,6 +402,7 @@ proxyAllTests(id<ICECommunicator> communicator)
     test([[proxyProps objectForKey:@"Test.Locator.Router.PreferSecure"] isEqualToString:@"1"]);
     test([[proxyProps objectForKey:@"Test.Locator.Router.EndpointSelection"] isEqualToString:@"Random"]);
     test([[proxyProps objectForKey:@"Test.Locator.Router.LocatorCacheTimeout"] isEqualToString:@"200"]);
+    test([[proxyProps objectForKey:@"Test.Locator.Router.InvocationTimeout"] isEqualToString:@"1500"]);
 
     tprintf("ok\n");
 
@@ -417,6 +430,83 @@ proxyAllTests(id<ICECommunicator> communicator)
     test([[[base ice_encodingVersion:ICEEncoding_1_0] ice_getEncodingVersion] isEqual:ICEEncoding_1_0]);
     test([[[base ice_encodingVersion:ICEEncoding_1_1] ice_getEncodingVersion] isEqual:ICEEncoding_1_1]);
     test(![[[base ice_encodingVersion:ICEEncoding_1_0] ice_getEncodingVersion] isEqual:ICEEncoding_1_1]);
+
+    @try
+    {
+        [base ice_timeout:0];
+        test(NO);
+    }
+    @catch(NSException* ex)
+    {
+        test([ex name] == NSInvalidArgumentException);
+    }
+
+    @try
+    {
+        [base ice_timeout:-1];
+    }
+    @catch(NSException* ex)
+    {
+        test(NO);
+    }
+
+    @try
+    {
+        [base ice_timeout:-2];
+        test(NO);
+    }
+    @catch(NSException* ex)
+    {
+        test([ex name] == NSInvalidArgumentException);
+    }
+
+    @try
+    {
+        [base ice_invocationTimeout:0];
+        test(NO);
+    }
+    @catch(NSException* ex)
+    {
+        test([ex name] == NSInvalidArgumentException);
+    }
+
+    @try
+    {
+        [base ice_invocationTimeout:-1];
+        [base ice_invocationTimeout:-2];
+    }
+    @catch(NSException* ex)
+    {
+        test(NO);
+    }
+
+    @try
+    {
+        [base ice_locatorCacheTimeout:0];
+    }
+    @catch(NSException* ex)
+    {
+        test(NO);
+    }
+
+    @try
+    {
+        [base ice_locatorCacheTimeout:-1];
+    }
+    @catch(NSException* ex)
+    {
+        test(NO);
+    }
+
+    @try
+    {
+        [base ice_locatorCacheTimeout:-2];
+        test(NO);
+    }
+    @catch(NSException* ex)
+    {
+        test([ex name] == NSInvalidArgumentException);
+    }
 
     tprintf("ok\n");
 
