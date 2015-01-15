@@ -73,6 +73,7 @@ cpp/test/IceBox/configuration/build.txt
 js/lib
 js/node_modules
 js/bower_components
+js/npm-debug.log
 
 # OS X Keychain
 
@@ -83,3 +84,4 @@ js/bower_components
 cpp/src/Ice/EventLoggerMsg.h
 cpp/src/Ice/EventLoggerMsg.rc
 *.bin
+

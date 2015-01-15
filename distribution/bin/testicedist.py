@@ -894,7 +894,7 @@ class Platform:
             return True
 
         buildDir = None
-        if lang == "java":
+        if lang == "java" or lang == "js":
             buildDir = os.path.join(self._sourceDir, lang)
         else:
             buildDir = os.path.join(self._sourceDir, lang, "test")
@@ -910,6 +910,9 @@ class Platform:
 
         if lang == "java":
             commands.append("%s :test:assemble" % ("gradlew" if self.isWindows() else "./gradlew"))
+        if lang == "js":
+            commands = ["npm cache clean && bower cache clean && npm install && " +
+                        "npm install zeroc-icejs && npm install zeroc-slice2js && npm run gulp:build"]
         else:
             commands.append(self.makeCommand(compiler, arch, buildConfiguration, lang, buildDir))
 
@@ -996,7 +999,10 @@ class Platform:
         if sourceArchive:
             buildDir = os.path.join(self._sourceDir, lang, "demo")
         else:
-            buildDir = os.path.join(self._demoDir, lang)
+            if lang == "js":
+                buildDir = os.path.join(self._buildDir, compiler, arch, buildConfiguration)
+            else:
+                buildDir = os.path.join(self._demoDir, lang)
 
         env = self.getPlatformEnvironment(compiler, arch, buildConfiguration, lang, sourceArchive)
         if not env:
@@ -1006,7 +1012,9 @@ class Platform:
         if lang == "java":
             commands = ("gradlew build" if self.isWindows() else "./gradlew build")
         elif lang == "js":
-            commands = "%s build.js" % self.getNodeCmd()
+            commands = ["git clone ssh://dev.zeroc.com/home/git/icejs-demos",
+                        ("cd icejs-demos && npm cache clean && bower cache clean && npm install && "
+                         "npm install zeroc-icejs && npm install zeroc-slice2js && npm run gul:build")]
         else:
             commands = self.makeDemosCommand(compiler, arch, buildConfiguration, lang, buildDir)
         if type(commands) == str:
@@ -1162,7 +1170,7 @@ class Darwin(Platform):
         return ["default", "no-cpp11", "java1.8"]
 
     def getSupportedLanguages(self):
-        return ["cpp", "java", "py", "js"]
+        return ["cpp", "java", "js", "py"]
 
     def getSupportedArchitectures(self):
         return ["x64"]
@@ -1259,7 +1267,7 @@ class Linux(Platform):
             "py": PythonInterpreter(),
             "rb": RubyInterpreter(),
             "php": PhpInterpreter(),
-            "js": NodeJSInterpreter(exe = "nodejs" if self.isUbuntu() else "node")
+            "js": NodeJSInterpreter()
         }
 
     def isLinux(self):
@@ -1282,14 +1290,7 @@ class Linux(Platform):
         return self.isDistribution(["SUSE LINUX"], version)
 
     def getSupportedLanguages(self):
-        languages = ["cpp", "java", "php", "py", "rb"]
-        #
-        # NodeJS modules are only installed for Ubuntu as other distributions
-        # doesn't provide nodejs packages.
-        #
-        if self.isUbuntu():
-            languages.append("js")
-        return languages
+        return ["cpp", "java", "js", "php", "py", "rb"]
 
     def getSupportedCompilers(self):
         return ["g++"]

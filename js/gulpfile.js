@@ -186,7 +186,14 @@ gulp.task("bower", [],
         bower.commands.install().on("end", function(){ cb(); });
     });
 
-gulp.task("dist", libs.map(minLibTask));
+gulp.task("dist:libs", ["bower"],
+    function()
+    {
+        return gulp.src(["bower_components/zeroc-icejs/lib/*"])
+            .pipe(gulp.dest("lib"));
+    });
+
+gulp.task("dist", useBinDist ? ["dist:libs"] : libs.map(minLibTask));
 gulp.task("dist:watch", libs.map(libWatchTask));
 gulp.task("dist:clean", libs.map(libCleanTask));
 
@@ -454,7 +461,7 @@ gulp.task("test:run-with-browser", ["watch"].concat(useBinDist ? ["test", "demo"
         HttpServer();
         
         var p  = require("child_process").spawn("python", ["test/Common/run.py"], {stdio: "inherit"});
-        var exit = function() { p.exit(); }
+        function exit() { p.exit(); }
         process.on("SIGINT", exit);
         process.on("exit", exit);
         return gulp.src("./index.html").pipe(open("", {url: "http://127.0.0.1:8080/index.html"}));
@@ -464,7 +471,7 @@ gulp.task("test:run-with-node", (useBinDist ? ["test"] : ["build"]),
     function()
     {
         var p  = require("child_process").spawn("python", ["allTests.py", "--all"], {stdio: "inherit"});
-        var exit = function() { p.exit(); }
+        function exit() { p.exit(); }
         process.on("SIGINT", exit);
         process.on("exit", exit);
     });
@@ -498,6 +505,6 @@ gulp.task("lint:js", ["build"],
     });
 
 gulp.task("lint", ["lint:js", "lint:html"]);
-gulp.task("build", useBinDist ? ["test", "demo"] : ["dist", "test", "demo"]);
+gulp.task("build", ["dist", "test", "demo"]);
 gulp.task("clean", ["test:clean", "demo:clean", "common:clean"].concat(useBinDist ? [] : ["dist:clean"]));
 gulp.task("default", ["build"]);

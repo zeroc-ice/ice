@@ -148,7 +148,7 @@ function workerCode()
         //
         // jshint worker: false
         //
-    };
+    }
     return w.toString() + "w();";
 }
 
