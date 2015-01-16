@@ -13,16 +13,9 @@
 
 #import <Foundation/Foundation.h>
 
-NSThread* dispatcherThread = nil;
-
 static BOOL isDispatcherThread()
 {
-    if(dispatcherThread == nil)
-    {
-        dispatcherThread = [NSThread currentThread];
-        test(dispatcherThread);
-    }
-    return dispatcherThread == [NSThread currentThread];
+    return strcmp(dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL), "Dispatcher") == 0;
 }
 
 @interface TestDispatcherCallback : NSObject

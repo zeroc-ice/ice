@@ -521,11 +521,7 @@ metricsAllTests(id<ICECommunicator> communicator)
 
     updateProps(clientProps, serverProps, update, props, @"");
 
-#if !TARGET_OS_IPHONE
     int threadCount = 4;
-#else
-    int threadCount = 3; // No endpoint host resolver thread with iOS.
-#endif
 
     ICELong timestamp = 0;
     ICEMXMetricsView* view = [clientMetrics getMetricsView:@"View" timestamp:&timestamp];
@@ -535,7 +531,7 @@ metricsAllTests(id<ICECommunicator> communicator)
          [[[view objectForKey:@"Connection"] objectAtIndex:0] total] == 1);
 
     test([[view objectForKey:@"Thread"] count] == 1);
-    test([[[view objectForKey:@"Thread"] objectAtIndex:0] current] == threadCount); 
+    test([[[view objectForKey:@"Thread"] objectAtIndex:0] current] == threadCount);
     test([[[view objectForKey:@"Thread"] objectAtIndex:0] total] == threadCount);
 
     tprintf("ok\n");
@@ -590,9 +586,9 @@ metricsAllTests(id<ICECommunicator> communicator)
 
     [bs setLength:456];
     [metrics opByteS:bs];
-
+    
     cm2 = (ICEMXConnectionMetrics*)
-            [[[clientMetrics getMetricsView:@"View" timestamp:&timestamp] objectForKey:@"Connection"] objectAtIndex:0];
+        [[[clientMetrics getMetricsView:@"View" timestamp:&timestamp] objectForKey:@"Connection"] objectAtIndex:0];
     sm2 = getServerConnectionMetrics(serverMetrics, sm1.sentBytes + replySz);
 
     // 4 is for the seq variable size
@@ -608,7 +604,7 @@ metricsAllTests(id<ICECommunicator> communicator)
     [metrics opByteS:bs];
 
     cm2 = (ICEMXConnectionMetrics*)
-            [[[clientMetrics getMetricsView:@"View" timestamp:&timestamp] objectForKey:@"Connection"] objectAtIndex:0];
+        [[[clientMetrics getMetricsView:@"View" timestamp:&timestamp] objectForKey:@"Connection"] objectAtIndex:0];
     sm2 = getServerConnectionMetrics(serverMetrics, sm1.sentBytes + replySz);
 
     // 4 is for the seq variable size
@@ -621,13 +617,13 @@ metricsAllTests(id<ICECommunicator> communicator)
     updateProps(clientProps, serverProps, update, props, @"Connection");
 
     NSMutableDictionary* map = 
-                        toMap([[serverMetrics getMetricsView:@"View" timestamp:&timestamp] objectForKey:@"Connection"]);
+        toMap([[serverMetrics getMetricsView:@"View" timestamp:&timestamp] objectForKey:@"Connection"]);
 
     test([[map objectForKey:@"active"] current] == 1);
 
     TestMetricsControllerPrx* controller = 
         [TestMetricsControllerPrx checkedCast:[communicator stringToProxy:@"controller:default -p 12011"]];
-
+    
     [controller hold];
 
     map = toMap([[clientMetrics getMetricsView:@"View" timestamp:&timestamp] objectForKey:@"Connection"]);
@@ -688,7 +684,8 @@ metricsAllTests(id<ICECommunicator> communicator)
 
     testAttribute(clientMetrics, clientProps, update, @"Connection", @"parent", @"Communicator", nil);
     //testAttribute(clientMetrics, clientProps, update, "Connection", "id", "");
-    testAttribute(clientMetrics, clientProps, update, @"Connection", @"endpoint", @"tcp -h 127.0.0.1 -p 12010 -t 500", nil);
+    testAttribute(clientMetrics, clientProps, update, @"Connection", @"endpoint", @"tcp -h 127.0.0.1 -p 12010 -t 500", 
+                  nil);
 
     testAttribute(clientMetrics, clientProps, update, @"Connection", @"endpointType", @"1", nil);
     testAttribute(clientMetrics, clientProps, update, @"Connection", @"endpointIsDatagram", @"false", nil);
