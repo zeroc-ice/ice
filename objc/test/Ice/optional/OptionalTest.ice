@@ -174,6 +174,13 @@ class F extends E
     optional(1) A af;
 };
 
+class Recursive;
+sequence<Recursive> RecursiveSeq;
+
+class Recursive {
+    optional(0) RecursiveSeq value;
+};
+
 class Initial
 {
     void shutdown();
@@ -274,6 +281,8 @@ class Initial
     bool supportsJavaSerializable();
 
     bool supportsCsharpSerializable();
+
+    bool supportsCppStringView();
 };
 
 };

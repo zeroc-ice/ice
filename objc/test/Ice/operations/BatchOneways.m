@@ -11,6 +11,8 @@
 #import <TestCommon.h>
 #import <OperationsTest.h>
 
+#import <Foundation/Foundation.h>
+
 void
 batchOneways(id<TestOperationsMyClassPrx> p)
 {
@@ -39,7 +41,7 @@ batchOneways(id<TestOperationsMyClassPrx> p)
 
     id<TestOperationsMyClassPrx> batch = [TestOperationsMyClassPrx uncheckedCast:[p ice_batchOneway]];
     int i;
-
+    [p opByteSOnewayCallCount];
     for(i = 0 ; i < 30 ; ++i)
     {
         @try
@@ -52,7 +54,59 @@ batchOneways(id<TestOperationsMyClassPrx> p)
         }
     }
 
-    // TODO: XXX: port 3.6b changes
+    int count = 0;
+    while(count < 27) // 3 * 9 requests auto-flushed.
+    {
+        count += [p opByteSOnewayCallCount];
+        [NSThread sleepForTimeInterval:10 / 1000.0];
+    }
 
-    [[batch ice_getConnection] flushBatchRequests];
+    if([batch ice_getConnection])
+    {
+        [[batch ice_getConnection] flushBatchRequests];
+
+        id<TestOperationsMyClassPrx> batch2 = [TestOperationsMyClassPrx uncheckedCast:[p ice_batchOneway]];
+
+        [batch ice_ping];
+        [batch2 ice_ping];
+        [batch ice_flushBatchRequests];
+        [[batch ice_getConnection] close:NO];
+        [batch ice_ping];
+        [batch2 ice_ping];
+
+        [batch ice_getConnection];
+        [batch2 ice_getConnection];
+
+        [batch ice_ping];
+        [[batch ice_getConnection] close:NO];
+        @try
+        {
+            [batch ice_ping];
+            test(NO);
+        }
+        @catch(ICECloseConnectionException*)
+        {
+        }
+        @try
+        {
+            [batch2 ice_ping];
+            test(NO);
+        }
+        @catch(ICECloseConnectionException*)
+        {
+        }
+        [batch ice_ping];
+        [batch2 ice_ping];
+    }
+
+    ICEIdentity *identity = [ICEIdentity identity:@"invalid" category:@""];
+    id<ICEObjectPrx> batch3 = [batch ice_identity:identity];
+    [batch3 ice_ping];
+    [batch3 ice_flushBatchRequests];
+
+    // Make sure that a bogus batch request doesn't cause troubles to other ones.
+    [batch3 ice_ping];
+    [batch ice_ping];
+    [batch ice_flushBatchRequests];
+    [batch ice_ping];
 }

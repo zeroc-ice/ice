@@ -19,14 +19,24 @@ run(id<ICECommunicator> communicator)
 {
     [[communicator getProperties] setProperty:@"Ice.Warn.Dispatch" value:@"0"];
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010:udp"];
+    [[communicator getProperties] setProperty:@"TestAdapter2.Endpoints" value:@"default -p 12011"];
+    [[communicator getProperties] setProperty:@"TestAdapter2.MessageSizeMax" value:@"0"];
+    [[communicator getProperties] setProperty:@"TestAdapter3.Endpoints" value:@"default -p 12012"];
+    [[communicator getProperties] setProperty:@"TestAdapter3.MessageSizeMax" value:@"1"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
+    id<ICEObjectAdapter> adapter2 = [communicator createObjectAdapter:@"TestAdapter2"];
+    id<ICEObjectAdapter> adapter3 = [communicator createObjectAdapter:@"TestAdapter3"];
 #if defined(__clang__) && !__has_feature(objc_arc)
     ICEObject* object = [[[ThrowerI alloc] init] autorelease];
 #else
     ICEObject* object = [[ThrowerI alloc] init];
 #endif
     [adapter add:object identity:[communicator stringToIdentity:@"thrower"]];
+    [adapter2 add:object identity:[communicator stringToIdentity:@"thrower"]];
+    [adapter3 add:object identity:[communicator stringToIdentity:@"thrower"]];
     [adapter activate];
+    [adapter2 activate];
+    [adapter3 activate];
 
     serverReady(communicator);
 

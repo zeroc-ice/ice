@@ -13,6 +13,26 @@
 #import <TestCommon.h>
 
 @implementation TestOperationsMyDerivedClassI
+-(id) init
+{
+    self = [super init];
+    if(!self)
+    {
+        return nil;
+    }
+    _opByteSOnewayCallCount = 0;
+    _cond = [[NSCondition alloc] init];
+    return self;
+}
+
+#if defined(__clang__) && !__has_feature(objc_arc)
+-(void) dealloc
+{
+    [_cond release];
+    [super dealloc];
+}
+#endif
+
 -(void) opVoid:(ICECurrent*)current
 {
 }
@@ -389,6 +409,24 @@
 
 -(void) opByteSOneway:(TestOperationsMutableByteS *)p1 current:(ICECurrent *)current
 {
+    [_cond lock];
+    ++_opByteSOnewayCallCount;
+    [_cond unlock];
+}
+
+-(ICEInt) opByteSOnewayCallCount:(ICECurrent *)current
+{
+    [_cond lock];
+    ICEInt count = _opByteSOnewayCallCount;
+    _opByteSOnewayCallCount = 0;
+    @try
+    {
+        return count;
+    }
+    @finally
+    {
+        [_cond unlock];
+    }
 }
 
 -(ICEContext *) opContext:(ICECurrent *)current

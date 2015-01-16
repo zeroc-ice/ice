@@ -41,14 +41,11 @@ main(int argc, char* argv[])
             initData.properties = defaultClientProperties(&argc, argv);
 
             //
-            // For this test, we want to disable retries.
-            //
-            [initData.properties setProperty:@"Ice.RetryIntervals" value:@"-1"];
-
-            //
             // This test kills connections, so we don't want warnings.
             //
             [initData.properties setProperty:@"Ice.Warn.Connections" value:@"0"];
+
+            [initData.properties setProperty:@"Ice.RetryIntervals" value:@"0 1 10 1"];
 
 #if TARGET_OS_IPHONE
             initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:

@@ -11,12 +11,46 @@
 #import <retry/TestI.h>
 
 @implementation TestRetryRetryI
+-(id) init
+{
+    self = [super init];
+    if(!self)
+    {
+        return nil;
+    }
+    _counter = 0;
+    return self;
+}
+
 -(void) op:(BOOL)kill current:(ICECurrent*)current
 {
    if(kill)
    {
        [[current con] close:YES];
    }
+}
+
+-(ICEInt) opIdempotent:(ICEInt)nRetry current:(ICECurrent*)current
+{
+    if(nRetry < 0)
+    {
+        _counter = 0;
+        return 0;
+    }
+
+    if(nRetry > _counter)
+    {
+        ++_counter;
+        @throw [ICEConnectionLostException connectionLostException:__FILE__ line:__LINE__];
+    }
+    int counter = _counter;
+    _counter = 0;
+    return counter;
+}
+
+-(void) opNotIdempotent:(ICECurrent*)current
+{
+    @throw [ICEConnectionLostException connectionLostException:__FILE__ line:__LINE__];
 }
 
 -(void) shutdown:(ICECurrent*)current

@@ -235,5 +235,9 @@
 {
     return NO;
 }
+-(BOOL) supportsCppStringView:(ICECurrent*)current
+{
+    return NO;
+}
 
 @end
