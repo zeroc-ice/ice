@@ -33,7 +33,9 @@ class SHA1::Hasher
 public:
     
     Hasher();
+#   ifdef _WIN32
     ~Hasher();
+#endif
     
     void update(const unsigned char*, std::size_t);
     void finalize(std::vector<unsigned char>&);
@@ -99,9 +101,6 @@ IceUtilInternal::SHA1::Hasher::Hasher()
 IceUtilInternal::SHA1::Hasher::Hasher()
 {
     SHA1_Init(&_ctx);
-}
-IceUtilInternal::SHA1::Hasher::~Hasher()
-{
 }
 #   endif
 
