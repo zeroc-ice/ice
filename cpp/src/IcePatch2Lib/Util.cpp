@@ -790,7 +790,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
             ByteSeq bytesSHA(20);
             if(!bytes.empty())
             {
-                IceUtil::sha1(reinterpret_cast<unsigned char*>(&bytes[0]), bytes.size(), bytesSHA);
+                IceUtilInternal::sha1(reinterpret_cast<unsigned char*>(&bytes[0]), bytes.size(), bytesSHA);
             }
             else
             {
@@ -859,7 +859,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
             }
             else
             {
-                IceUtil::SHA1 hasher;
+                IceUtilInternal::SHA1 hasher;
                 if(relPath.size() != 0)
                 {
                     hasher.update(reinterpret_cast<const IceUtil::Byte*>(relPath.c_str()), relPath.size());
@@ -1185,7 +1185,7 @@ IcePatch2::getFileTree0(const FileInfoSeq& infoSeq, FileTree0& tree0)
         
         if(!allChecksums1.empty())
         {
-            IceUtil::sha1(reinterpret_cast<unsigned char*>(&allChecksums1[0]), allChecksums1.size(), tree1.checksum);
+            IceUtilInternal::sha1(reinterpret_cast<unsigned char*>(&allChecksums1[0]), allChecksums1.size(), tree1.checksum);
         }
         else
         {
@@ -1197,7 +1197,7 @@ IcePatch2::getFileTree0(const FileInfoSeq& infoSeq, FileTree0& tree0)
 
     if(!allChecksums0.empty())
     {
-        IceUtil::sha1(reinterpret_cast<unsigned char*>(&allChecksums0[0]), allChecksums0.size(), tree0.checksum);
+        IceUtilInternal::sha1(reinterpret_cast<unsigned char*>(&allChecksums0[0]), allChecksums0.size(), tree0.checksum);
     }
     else
     {

@@ -9,14 +9,53 @@
 
 #include <IceUtil/SHA1.h>
 
-#if defined(_WIN32) && !defined(ICE_OS_WINRT)
-#   include <IceUtil/Exception.h>
+#ifndef ICE_OS_WINRT
+#   if defined(_WIN32)
+#      include <Wincrypt.h>
+#      include <IceUtil/Exception.h>
+#   elif defined(__APPLE__)
+#      include <CommonCrypto/CommonDigest.h>
+#   else
+#      include <openssl/sha.h>
+#   endif
 #endif
 
 using namespace std;
 using namespace IceUtil;
 
 #ifndef ICE_OS_WINRT
+
+namespace IceUtilInternal
+{
+
+class SHA1::Hasher
+{
+public:
+    
+    Hasher();
+    ~Hasher();
+    
+    void update(const unsigned char*, std::size_t);
+    void finalize(std::vector<unsigned char>&);
+    
+private:
+
+    // noncopyable
+    Hasher(const Hasher&);
+    Hasher operator=(const Hasher&);
+    
+#   if defined (_WIN32)
+    HCRYPTPROV _ctx;
+    HCRYPTHASH _hash;
+#   elif defined(__APPLE__)
+    CC_SHA1_CTX _ctx;
+#   else
+    SHA_CTX _ctx;
+#   endif
+};
+
+}
+
 #   if defined(_WIN32)
 
 namespace
@@ -24,7 +63,7 @@ namespace
 const int SHA_DIGEST_LENGTH = 20;
 }
 
-IceUtil::SHA1::SHA1() :
+IceUtilInternal::SHA1::Hasher::Hasher() :
     _ctx(0),
     _hash(0)
 {
@@ -39,7 +78,7 @@ IceUtil::SHA1::SHA1() :
     }
 }
 
-IceUtil::SHA1::~SHA1()
+IceUtilInternal::SHA1::Hasher::~Hasher()
 {
     if(_hash)
     {
@@ -52,19 +91,22 @@ IceUtil::SHA1::~SHA1()
     }
 }
 #   elif defined(__APPLE__)
-IceUtil::SHA1::SHA1()
+IceUtilInternal::SHA1::Hasher::Hasher()
 {
     CC_SHA1_Init(&_ctx);
 }
 #   else
-IceUtil::SHA1::SHA1()
+IceUtilInternal::SHA1::Hasher::Hasher()
 {
     SHA1_Init(&_ctx);
+}
+IceUtilInternal::SHA1::Hasher::~Hasher()
+{
 }
 #   endif
 
 void
-IceUtil::SHA1::update(const unsigned char* data, size_t length)
+IceUtilInternal::SHA1::Hasher::update(const unsigned char* data, size_t length)
 {
 #   if defined(_WIN32)
     if(!CryptHashData(_hash, data, static_cast<DWORD>(length), 0))
@@ -79,7 +121,7 @@ IceUtil::SHA1::update(const unsigned char* data, size_t length)
 }
 
 void
-IceUtil::SHA1::finalize(vector<unsigned char>& md)
+IceUtilInternal::SHA1::Hasher::finalize(vector<unsigned char>& md)
 {
 #   if defined(_WIN32)
     md.resize(SHA_DIGEST_LENGTH);
@@ -96,10 +138,31 @@ IceUtil::SHA1::finalize(vector<unsigned char>& md)
     SHA1_Final(&md[0], &_ctx);
 #   endif
 }
+
+IceUtilInternal::SHA1::SHA1() :
+    _hasher(new Hasher())
+{
+}
+
+IceUtilInternal::SHA1::~SHA1()
+{
+}
+
+void
+IceUtilInternal::SHA1::update(const unsigned char* data, std::size_t length)
+{
+    _hasher->update(data, length);
+}
+
+void
+IceUtilInternal::SHA1::finalize(std::vector<unsigned char>& md)
+{
+    _hasher->finalize(md);
+}
 #endif
 
 void
-IceUtil::sha1(const unsigned char* data, size_t length, vector<unsigned char>& md)
+IceUtilInternal::sha1(const unsigned char* data, size_t length, vector<unsigned char>& md)
 {
 #if defined(ICE_OS_WINRT)
     auto dataA =

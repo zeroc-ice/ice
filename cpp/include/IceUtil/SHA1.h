@@ -11,20 +11,11 @@
 #define ICE_UTIL_SHA1_H
 
 #include <IceUtil/Config.h>
+#include <IceUtil/UniquePtr.h>
 
 #include <vector>
 
-#ifndef ICE_OS_WINRT
-#   if defined(_WIN32)
-#      include <Wincrypt.h>
-#   elif defined(__APPLE__)
-#      include <CommonCrypto/CommonDigest.h>
-#   else
-#      include <openssl/sha.h>
-#   endif
-#endif
-
-namespace IceUtil
+namespace IceUtilInternal
 {
 
 ICE_UTIL_API void 
@@ -34,30 +25,21 @@ sha1(const unsigned char*, std::size_t, std::vector<unsigned char>&);
 class ICE_UTIL_API SHA1
 {
 public:
-    SHA1();
     
-#   ifdef _WIN32
+    SHA1();
     ~SHA1();
-#   endif
     
     void update(const unsigned char*, std::size_t);
-    
     void finalize(std::vector<unsigned char>&);
-
+    
 private:
-
+    
     // noncopyable
     SHA1(const SHA1&);
     SHA1 operator=(const SHA1&);
     
-#   if defined (_WIN32)
-    HCRYPTPROV _ctx;
-    HCRYPTHASH _hash;
-#   elif defined(__APPLE__)
-    CC_SHA1_CTX _ctx;
-#   else
-    SHA_CTX _ctx;
-#   endif
+    class Hasher;
+    IceUtil::UniquePtr<Hasher> _hasher;
 };
 #endif
 
