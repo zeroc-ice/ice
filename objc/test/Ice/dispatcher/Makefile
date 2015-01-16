@@ -11,8 +11,9 @@ top_srcdir	= ../../..
 
 CLIENT		= client
 SERVER		= server
+COLLOCATED 	= collocated
 
-TARGETS		= $(CLIENT) $(SERVER)
+TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
 
 SLICE_OBJS	= DispatcherTest.o
 
@@ -21,6 +22,10 @@ COBJS		= Client.o \
 
 SOBJS		= TestI.o \
 			  Server.o
+
+COLOBJS		= Collocated.o \
+			  TestI.o \
+			  AllTests.o
 
 OBJS		= $(COBJS) $(SOBJS) $(SLICE_OBJS)
 
@@ -35,3 +40,7 @@ $(CLIENT): $(COBJS) $(SLICE_OBJS)
 $(SERVER): $(SOBJS) $(SLICE_OBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(SOBJS) $(SLICE_OBJS) $(TEST_LIBS)
+
+$(COLLOCATED): $(COLOBJS) $(SLICE_OBJS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(COLOBJS) $(SLICE_OBJS) $(TEST_LIBS)

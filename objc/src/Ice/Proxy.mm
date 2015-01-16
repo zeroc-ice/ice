@@ -1578,14 +1578,14 @@ BOOL _returnsData;
     return [[self class] objectPrxWithObjectPrx__:OBJECTPRX->ice_locator(
             Ice::LocatorPrx::uncheckedCast(Ice::ObjectPrx([(ICEObjectPrx*)locator objectPrx__])))];
 }
-// -(BOOL) ice_isCollocationOptimized
-// {
-//     return OBJECTPRX->ice_isCollocationOptimized();
-// }
-// -(id) ice_collocationOptimized:(BOOL)collocOptimized
-// {
-//     return [[self class] objectPrxWithObjectPrx__:OBJECTPRX->ice_collocationOptimized(collocOptimized)];
-// }
+-(BOOL) ice_isCollocationOptimized
+{
+    return OBJECTPRX->ice_isCollocationOptimized();
+}
+-(id) ice_collocationOptimized:(BOOL)collocOptimized
+{
+    return [[self class] objectPrxWithObjectPrx__:OBJECTPRX->ice_collocationOptimized(collocOptimized)];
+}
 -(ICEInt) ice_getInvocationTimeout
 {
     return OBJECTPRX->ice_getInvocationTimeout();

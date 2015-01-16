@@ -30,3 +30,6 @@ TestUtil.clientServerTest(additionalClientOptions="--Ice.Default.SlicedFormat",
 print("Running test with 1.0 encoding.")
 TestUtil.clientServerTest(additionalClientOptions="--Ice.Default.EncodingVersion=1.0", 
                           additionalServerOptions="--Ice.Default.EncodingVersion=1.0")
+
+print("Running collocated test.")
+TestUtil.collocatedTest()

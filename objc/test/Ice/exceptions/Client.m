@@ -17,8 +17,8 @@
 static int
 run(id<ICECommunicator> communicator)
 {
-    TestExceptionsThrowerPrx* exceptionsAllTests(id<ICECommunicator>, BOOL);
-    TestExceptionsThrowerPrx* thrower = exceptionsAllTests(communicator, NO);
+    TestExceptionsThrowerPrx* exceptionsAllTests(id<ICECommunicator>);
+    TestExceptionsThrowerPrx* thrower = exceptionsAllTests(communicator);
     [thrower shutdown];
     return EXIT_SUCCESS;
 }

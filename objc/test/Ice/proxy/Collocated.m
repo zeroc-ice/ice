@@ -8,8 +8,8 @@
 // **********************************************************************
 
 #import <objc/Ice.h>
+#import <proxy/TestI.h>
 #import <TestCommon.h>
-#import <AMITest.h>
 #ifdef ICE_OBJC_GC
 #   import <Foundation/NSGarbageCollector.h>
 #endif
@@ -17,13 +17,24 @@
 static int
 run(id<ICECommunicator> communicator)
 {
-    void amiAllTests(id<ICECommunicator>, BOOL);
-    amiAllTests(communicator, false);
+    [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010"];
+    id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
+#if defined(__clang__) && !__has_feature(objc_arc)
+    [adapter add:[[[TestProxyMyDerivedClassI alloc] init] autorelease]
+        identity:[communicator stringToIdentity:@"test"]];
+#else
+    [adapter add:[[TestProxyMyDerivedClassI alloc] init] identity:[communicator stringToIdentity:@"test"]];
+#endif
+    //[adapter activate]; //adapter->activate(); // Don't activate OA to ensure collocation is used.
+
+    TestProxyMyClassPrx* proxyAllTests(id<ICECommunicator>);
+    proxyAllTests(communicator);
+
     return EXIT_SUCCESS;
 }
 
 #if TARGET_OS_IPHONE
-#  define main amiClient
+#  define main proxyCollocated
 #endif
 
 int
@@ -36,40 +47,20 @@ main(int argc, char* argv[])
 
         @try
         {
-
             ICEInitializationData* initData = [ICEInitializationData initializationData];
-            initData.properties = defaultClientProperties(&argc, argv);
-            //
-            // In this test, we need at least two threads in the
-            // client side thread pool for nested AMI.
-            //
-            [initData.properties setProperty:@"Ice.ThreadPool.Client.Size" value:@"2"];
-            [initData.properties setProperty:@"Ice.ThreadPool.Client.SizeWarn" value:@"0"];
-            [initData.properties setProperty:@"Ice.Warn.AMICallback" value:@"0"];
-
-            //
-            // We must set MessageSizeMax to an explicit values, because
-            // we run tests to check whether Ice.MemoryLimitException is
-            // raised as expected.
-            //
-            [initData.properties setProperty:@"Ice.MessageSizeMax" value:@"100"];
-
+            initData.properties = defaultServerProperties(&argc, argv);
+            [initData.properties setProperty:@"Ice.Warn.Dispatch" value:@"0"];
 #if TARGET_OS_IPHONE
             initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:
-                                      @"TestAMI", @"::Test",
+                                      @"TestProxy", @"::Test",
                                       nil];
 #endif
-
             communicator = [ICEUtil createCommunicator:&argc argv:argv initData:initData];
             status = run(communicator);
         }
         @catch(ICEException* ex)
         {
             tprintf("%@\n", ex);
-            status = EXIT_FAILURE;
-        }
-        @catch(TestFailedException* ex)
-        {
             status = EXIT_FAILURE;
         }
 

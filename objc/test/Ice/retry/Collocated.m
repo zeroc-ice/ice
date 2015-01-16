@@ -8,8 +8,8 @@
 // **********************************************************************
 
 #import <objc/Ice.h>
+#import <retry/TestI.h>
 #import <TestCommon.h>
-#import <AMITest.h>
 #ifdef ICE_OBJC_GC
 #   import <Foundation/NSGarbageCollector.h>
 #endif
@@ -17,13 +17,25 @@
 static int
 run(id<ICECommunicator> communicator)
 {
-    void amiAllTests(id<ICECommunicator>, BOOL);
-    amiAllTests(communicator, false);
+    [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010"];
+    id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
+#if defined(__clang__) && !__has_feature(objc_arc)
+    ICEObject* object = [[[TestRetryRetryI alloc] init] autorelease];
+#else
+    ICEObject* object = [[TestRetryRetryI alloc] init];
+#endif
+    [adapter add:object identity:[communicator stringToIdentity:@"retry"]];
+    //[adapter activate]; // Don't activate OA to ensure collocation is used.
+
+    TestRetryRetryPrx* retryAllTests(id<ICECommunicator>);
+    TestRetryRetryPrx* retry = retryAllTests(communicator);
+    [retry shutdown];
+
     return EXIT_SUCCESS;
 }
 
 #if TARGET_OS_IPHONE
-#  define main amiClient
+#  define main retryCollocated
 #endif
 
 int
@@ -36,40 +48,21 @@ main(int argc, char* argv[])
 
         @try
         {
-
             ICEInitializationData* initData = [ICEInitializationData initializationData];
-            initData.properties = defaultClientProperties(&argc, argv);
-            //
-            // In this test, we need at least two threads in the
-            // client side thread pool for nested AMI.
-            //
-            [initData.properties setProperty:@"Ice.ThreadPool.Client.Size" value:@"2"];
-            [initData.properties setProperty:@"Ice.ThreadPool.Client.SizeWarn" value:@"0"];
-            [initData.properties setProperty:@"Ice.Warn.AMICallback" value:@"0"];
-
-            //
-            // We must set MessageSizeMax to an explicit values, because
-            // we run tests to check whether Ice.MemoryLimitException is
-            // raised as expected.
-            //
-            [initData.properties setProperty:@"Ice.MessageSizeMax" value:@"100"];
-
+            initData.properties = defaultServerProperties(&argc, argv);
+	        [initData.properties setProperty:@"Ice.Warn.Dispatch" value:@"0"];
+            [initData.properties setProperty:@"Ice.RetryIntervals" value:@"0 1 10 1"];
 #if TARGET_OS_IPHONE
             initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:
-                                      @"TestAMI", @"::Test",
+                                      @"TestRetry", @"::Test",
                                       nil];
 #endif
-
             communicator = [ICEUtil createCommunicator:&argc argv:argv initData:initData];
             status = run(communicator);
         }
         @catch(ICEException* ex)
         {
             tprintf("%@\n", ex);
-            status = EXIT_FAILURE;
-        }
-        @catch(TestFailedException* ex)
-        {
             status = EXIT_FAILURE;
         }
 
@@ -81,7 +74,7 @@ main(int argc, char* argv[])
             }
             @catch(ICEException* ex)
             {
-            tprintf("%@\n", ex);
+                tprintf("%@\n", ex);
                 status = EXIT_FAILURE;
             }
         }

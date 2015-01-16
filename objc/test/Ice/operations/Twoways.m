@@ -916,7 +916,7 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         }
     }
 
-
+    if([p ice_getConnection])
     {
         //
         // TestOperations implicit context propagation

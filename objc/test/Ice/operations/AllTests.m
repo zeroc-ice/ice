@@ -12,7 +12,7 @@
 #import <OperationsTest.h>
 
 id<TestOperationsMyClassPrx>
-operationsAllTests(id<ICECommunicator> communicator, BOOL collocated)
+operationsAllTests(id<ICECommunicator> communicator)
 {
     NSString* ref = @"test:default -p 12010";
     id<ICEObjectPrx> base = [communicator stringToProxy:(ref)];

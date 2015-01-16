@@ -76,7 +76,7 @@
 @end
 
 void
-amiAllTests(id<ICECommunicator> communicator)
+amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
 {
     NSString* ref = @"test:default -p 12010";
     id<ICEObjectPrx> base = [communicator stringToProxy:(ref)];
@@ -113,8 +113,11 @@ amiAllTests(id<ICECommunicator> communicator)
         result = [p begin_ice_ids:ctx];
         test([[p end_ice_ids:result] count] == 2);
 
-        result = [p begin_ice_getConnection];
-        test([p end_ice_getConnection:result]);
+        if(!collocated)
+        {
+            result = [p begin_ice_getConnection];
+            test([p end_ice_getConnection:result]);
+        }
 
         result = [p begin_op];
         [p end_op:result];
@@ -196,8 +199,11 @@ amiAllTests(id<ICECommunicator> communicator)
                 [cb called];
             };
 
-        [p begin_ice_getConnection:conCB exception:exCB];
-        [cb check];
+        if(!collocated)
+        {
+            [p begin_ice_getConnection:conCB exception:exCB];
+            [cb check];
+        }
 
         void (^opCB)() = ^ { [cb called]; };
         [p begin_op:opCB exception:exCB];
@@ -292,22 +298,25 @@ amiAllTests(id<ICECommunicator> communicator)
         //
         // Check that CommunicatorDestroyedException is raised directly.
         //
-        ICEInitializationData* initData = [ICEInitializationData initializationData];
-        [initData setProperties:[[communicator getProperties] clone]];
-        id<ICECommunicator> ic = [ICEUtil createCommunicator:initData];
-        id<ICEObjectPrx> obj = [ic stringToProxy:[p ice_toString]];
-        id<TestAMITestIntfPrx> p2 = [TestAMITestIntfPrx checkedCast:obj];
-
-        [ic destroy];
-
-        @try
+        if([p ice_getConnection])
         {
-            [p2 begin_op];
-            test(NO);
-        }
-        @catch(ICECommunicatorDestroyedException*)
-        {
-            // Expected.
+            ICEInitializationData* initData = [ICEInitializationData initializationData];
+            [initData setProperties:[[communicator getProperties] clone]];
+            id<ICECommunicator> ic = [ICEUtil createCommunicator:initData];
+            id<ICEObjectPrx> obj = [ic stringToProxy:[p ice_toString]];
+            id<TestAMITestIntfPrx> p2 = [TestAMITestIntfPrx checkedCast:obj];
+
+            [ic destroy];
+
+            @try
+            {
+                [p2 begin_op];
+                test(NO);
+            }
+            @catch(ICECommunicatorDestroyedException*)
+            {
+                // Expected.
+            }
         }
     }
     tprintf("ok\n");
@@ -363,13 +372,16 @@ amiAllTests(id<ICECommunicator> communicator)
         [i begin_ice_ids:ctx response:idsCB exception:exCB];
         [cb check];
 
+        if(!collocated)
+        {
 #if defined(__clang__) && !__has_feature(objc_arc)
-        void (^conCB)(id<ICEConnection>) = [[ ^(id<ICEConnection> ret) { test(NO); } copy ] autorelease];
+            void (^conCB)(id<ICEConnection>) = [[ ^(id<ICEConnection> ret) { test(NO); } copy ] autorelease];
 #else
-        void (^conCB)(id<ICEConnection>) = [ ^(id<ICEConnection> ret) { test(NO); } copy ];
+            void (^conCB)(id<ICEConnection>) = [ ^(id<ICEConnection> ret) { test(NO); } copy ];
 #endif
-        [i begin_ice_getConnection:conCB exception:exCB];
-        [cb check];
+            [i begin_ice_getConnection:conCB exception:exCB];
+            [cb check];
+        }
 
 #if defined(__clang__) && !__has_feature(objc_arc)
         void (^opCB)() = [[ ^ { test(NO); } copy ] autorelease];
@@ -578,6 +590,7 @@ amiAllTests(id<ICECommunicator> communicator)
             test([p waitForBatch:2]);
         }
 
+        if([p ice_getConnection])
         {
             test([p opBatchCount] == 0);
             id<TestAMITestIntfPrx> b1 = [p ice_batchOneway];
@@ -594,70 +607,76 @@ amiAllTests(id<ICECommunicator> communicator)
     }
     tprintf("ok\n");
 
-    tprintf("testing batch requests with connection... ");
+    if([p ice_getConnection])
     {
+        tprintf("testing batch requests with connection... ");
         {
-            test([p opBatchCount] == 0);
-            id<TestAMITestIntfPrx> b1 = [p ice_batchOneway];
-            [b1 opBatch];
-            [b1 opBatch];
-            TestAMICallback* cb = [TestAMICallback create];
-            id<ICEAsyncResult> r = [[b1 ice_getConnection] begin_flushBatchRequests:^(ICEException* ex) { test(NO); }
-                                                            sent:^(BOOL sentSynchronously) { [cb called]; }];
-            [cb check];
-            test([r isSent]);
-            test([r isCompleted]);
-            test([p waitForBatch:2]);
-        }
+            {
+                test([p opBatchCount] == 0);
+                id<TestAMITestIntfPrx> b1 = [p ice_batchOneway];
+                [b1 opBatch];
+                [b1 opBatch];
+                TestAMICallback* cb = [TestAMICallback create];
+                id<ICEAsyncResult> r = [[b1 ice_getConnection] begin_flushBatchRequests:^(ICEException* ex) { test(NO); }
+                                                                sent:^(BOOL sentSynchronously) { [cb called]; }];
+                [cb check];
+                test([r isSent]);
+                test([r isCompleted]);
+                test([p waitForBatch:2]);
+            }
 
-        {
-            test([p opBatchCount] == 0);
-            TestAMITestIntfPrx* b1 = [p ice_batchOneway];
-            [b1 opBatch];
-            [[b1 ice_getConnection] close:false];
-            TestAMICallback* cb = [TestAMICallback create];
-            id<ICEAsyncResult> r = [[b1 ice_getConnection] begin_flushBatchRequests:
-                                                            ^(ICEException* ex) { [cb called]; }
-            sent:^(BOOL sentSynchronously) { test(NO); }];
-            [cb check];
-            test(![r isSent]);
-            test([r isCompleted]);
-            test([p opBatchCount] == 0);
+            if([p ice_getConnection])
+            {
+                test([p opBatchCount] == 0);
+                TestAMITestIntfPrx* b1 = [p ice_batchOneway];
+                [b1 opBatch];
+                [[b1 ice_getConnection] close:false];
+                TestAMICallback* cb = [TestAMICallback create];
+                id<ICEAsyncResult> r = [[b1 ice_getConnection] begin_flushBatchRequests:
+                                                                ^(ICEException* ex) { [cb called]; }
+                sent:^(BOOL sentSynchronously) { test(NO); }];
+                [cb check];
+                test(![r isSent]);
+                test([r isCompleted]);
+                test([p opBatchCount] == 0);
+            }
         }
+        tprintf("ok\n");
+
+
+        tprintf("testing batch requests with communicator... ");
+        {
+            {
+                test([p opBatchCount] == 0);
+                id<TestAMITestIntfPrx> b1 = [p ice_batchOneway];
+                [b1 opBatch];
+                [b1 opBatch];
+                TestAMICallback* cb = [TestAMICallback create];
+                id<ICEAsyncResult> r = [communicator begin_flushBatchRequests:^(ICEException* ex) { test(NO); }
+                                                                sent:^(BOOL sentSynchronously) { [cb called]; }];
+                [cb check];
+                test([r isSent]);
+                test([r isCompleted]);
+                test([p waitForBatch:2]);
+            }
+
+            if([p ice_getConnection])
+            {
+                test([p opBatchCount] == 0);
+                TestAMITestIntfPrx* b1 = [p ice_batchOneway];
+                [b1 opBatch];
+                [[b1 ice_getConnection] close:false];
+                TestAMICallback* cb = [TestAMICallback create];
+                id<ICEAsyncResult> r = [communicator begin_flushBatchRequests:^(ICEException* ex) { test(NO); }
+                                                                      sent:^(BOOL sentSynchronously) { [cb called]; }];
+                [cb check];
+                test([r isSent]);
+                test([r isCompleted]);
+                test([p opBatchCount] == 0);
+            }
+        }
+        tprintf("ok\n");
     }
-    tprintf("ok\n");
-
-    tprintf("testing batch requests with communicator... ");
-    {
-        {
-            test([p opBatchCount] == 0);
-            id<TestAMITestIntfPrx> b1 = [p ice_batchOneway];
-            [b1 opBatch];
-            [b1 opBatch];
-            TestAMICallback* cb = [TestAMICallback create];
-            id<ICEAsyncResult> r = [communicator begin_flushBatchRequests:^(ICEException* ex) { test(NO); }
-                                                            sent:^(BOOL sentSynchronously) { [cb called]; }];
-            [cb check];
-            test([r isSent]);
-            test([r isCompleted]);
-            test([p waitForBatch:2]);
-        }
-
-        {
-            test([p opBatchCount] == 0);
-            TestAMITestIntfPrx* b1 = [p ice_batchOneway];
-            [b1 opBatch];
-            [[b1 ice_getConnection] close:false];
-            TestAMICallback* cb = [TestAMICallback create];
-            id<ICEAsyncResult> r = [communicator begin_flushBatchRequests:^(ICEException* ex) { test(NO); }
-                                                                  sent:^(BOOL sentSynchronously) { [cb called]; }];
-            [cb check];
-            test([r isSent]);
-            test([r isCompleted]);
-            test([p opBatchCount] == 0);
-        }
-    }
-    tprintf("ok\n");
 
     tprintf("testing AsyncResult operations... ");
     {
@@ -686,10 +705,14 @@ amiAllTests(id<ICECommunicator> communicator)
                 test(r1 == r1);
                 test(r1 != r2);
 
-                test(([r1 sentSynchronously] && [r1 isSent] && ![r1 isCompleted]) ||
-                     (![r1 sentSynchronously] && ![r1 isCompleted]));
 
-                test(![r2 sentSynchronously] && ![r2 isCompleted]);
+                if([p ice_getConnection])
+                {
+                    test(([r1 sentSynchronously] && [r1 isSent] && ![r1 isCompleted]) ||
+                         (![r1 sentSynchronously] && ![r1 isCompleted]));
+
+                    test(![r2 sentSynchronously] && ![r2 isCompleted]);
+                }
             }
             @catch(NSException* ex)
             {
@@ -750,28 +773,31 @@ amiAllTests(id<ICECommunicator> communicator)
             test([[r getProxy] isEqual:p2]);
             [p2 end_ice_flushBatchRequests:r];
 
-            //
-            // Batch request via connection
-            //
-            id<ICEConnection> con = [p ice_getConnection];
-            p2 = [p ice_batchOneway];
-            [p2 ice_ping];
-            r = [con begin_flushBatchRequests];
-            test([[r getConnection] isEqual:con]);
-            test([r getCommunicator] == communicator);
-            test([r getProxy] == nil); // Expected
-            [con end_flushBatchRequests:r];
+            if([p ice_getConnection])
+            {
+                //
+                // Batch request via connection
+                //
+                id<ICEConnection> con = [p ice_getConnection];
+                p2 = [p ice_batchOneway];
+                [p2 ice_ping];
+                r = [con begin_flushBatchRequests];
+                test([[r getConnection] isEqual:con]);
+                test([r getCommunicator] == communicator);
+                test([r getProxy] == nil); // Expected
+                [con end_flushBatchRequests:r];
 
-            //
-            // Batch request via communicator
-            //
-            p2 = [p ice_batchOneway];
-            [p2 ice_ping];
-            r = [communicator begin_flushBatchRequests];
-            test([r getConnection] == nil); // Expected
-            test([r getCommunicator] == communicator);
-            test([r getProxy] == nil); // Expected
-            [communicator end_flushBatchRequests:r];
+                //
+                // Batch request via communicator
+                //
+                p2 = [p ice_batchOneway];
+                [p2 ice_ping];
+                r = [communicator begin_flushBatchRequests];
+                test([r getConnection] == nil); // Expected
+                test([r getCommunicator] == communicator);
+                test([r getProxy] == nil); // Expected
+                [communicator end_flushBatchRequests:r];
+            }
         }
     }
 

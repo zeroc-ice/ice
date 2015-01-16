@@ -292,12 +292,12 @@ dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d;
 
 @implementation ICEUtil
 +(id<ICEProperties>) createProperties
-{ 
+{
     return [self createProperties:nil argv:nil];
 }
 
 +(id<ICEProperties>) createProperties:(int*)argc argv:(char*[])argv
-{ 
+{
     NSException* nsex = nil;
     try
     {
@@ -321,17 +321,17 @@ dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d;
 }
 
 +(id<ICECommunicator>) createCommunicator
-{ 
+{
     return [self createCommunicator:nil argv:nil initData:nil];
 }
 
 +(id<ICECommunicator>) createCommunicator:(ICEInitializationData*)initData
-{ 
+{
     return [self createCommunicator:nil argv:nil initData:initData];
 }
 
 +(id<ICECommunicator>) createCommunicator:(int*)argc argv:(char*[])argv
-{ 
+{
     return [self createCommunicator:argc argv:argv initData:nil];
 }
 
@@ -347,7 +347,7 @@ dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d;
     id<ICEProperties> properties = [initData properties];
     if(properties != nil && ![properties isKindOfClass:[ICEProperties class]])
     {
-        @throw [ICEInitializationException initializationException:__FILE__ line:__LINE__ 
+        @throw [ICEInitializationException initializationException:__FILE__ line:__LINE__
                                            reason_:@"properties were not created with createProperties"];
     }
 
@@ -364,7 +364,6 @@ dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d;
         {
             data.properties = Ice::createProperties();
         }
-        data.properties->setProperty("Ice.Default.CollocationOptimized", "0");
 
         if(argc != nil && argv != nil)
         {

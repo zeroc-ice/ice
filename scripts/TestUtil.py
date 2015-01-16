@@ -1175,7 +1175,7 @@ def getDefaultCollocatedFile():
         return "Collocated.rb"
     if lang == "php":
         return "Collocated.php"
-    if lang in ["cpp", "cs", "cppe"]:
+    if lang in ["cpp", "cs", "cppe", "objc"]:
         return "collocated"
     if lang == "py":
         return "Collocated.py"

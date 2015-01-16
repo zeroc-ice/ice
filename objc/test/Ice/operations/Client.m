@@ -17,8 +17,8 @@
 static int
 run(id<ICECommunicator> communicator)
 {
-    id<TestOperationsMyClassPrx> operationsAllTests(id<ICECommunicator>, BOOL);
-    id<TestOperationsMyClassPrx> myClass = operationsAllTests(communicator, NO);
+    id<TestOperationsMyClassPrx> operationsAllTests(id<ICECommunicator>);
+    id<TestOperationsMyClassPrx> myClass = operationsAllTests(communicator);
     tprintf("testing server shutdown... ");
     [myClass shutdown];
     @try

@@ -8,8 +8,8 @@
 // **********************************************************************
 
 #import <objc/Ice.h>
+#import <ami/TestI.h>
 #import <TestCommon.h>
-#import <AMITest.h>
 #ifdef ICE_OBJC_GC
 #   import <Foundation/NSGarbageCollector.h>
 #endif
@@ -17,13 +17,37 @@
 static int
 run(id<ICECommunicator> communicator)
 {
+    [[communicator getProperties] setProperty:@"TestAMIAdapter.Endpoints" value:@"default -p 12010:udp"];
+    [[communicator getProperties] setProperty:@"ControllerAdapter.Endpoints" value:@"tcp -p 12011"];
+    [[communicator getProperties] setProperty:@"ControllerAdapter.ThreadPool.Size" value:@"1"];
+
+    id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAMIAdapter"];
+    id<ICEObjectAdapter> adapter2 = [communicator createObjectAdapter:@"ControllerAdapter"];
+
+#if defined(__clang__) && !__has_feature(objc_arc)
+    TestAMITestIntfControllerI* testController
+        = [[[TestAMITestIntfControllerI alloc] initWithAdapter:adapter] autorelease];
+
+    [adapter add:[[[TestAMITestIntfI alloc] init] autorelease] identity:[communicator stringToIdentity:@"test"]];
+#else
+    TestAMITestIntfControllerI* testController
+        = [[TestAMITestIntfControllerI alloc] initWithAdapter:adapter];
+
+    [adapter add:[[TestAMITestIntfI alloc] init] identity:[communicator stringToIdentity:@"test"]];
+#endif
+    //[adapter activate]; // Collocated test doesn't need to activate the OA
+
+    [adapter2 add:testController identity:[communicator stringToIdentity:@"testController"]];
+    //[adapter2 activate]; // Collocated test doesn't need to activate the OA
+
     void amiAllTests(id<ICECommunicator>, BOOL);
-    amiAllTests(communicator, false);
+    amiAllTests(communicator, true);
+
     return EXIT_SUCCESS;
 }
 
 #if TARGET_OS_IPHONE
-#  define main amiClient
+#  define main amiServer
 #endif
 
 int
@@ -36,40 +60,20 @@ main(int argc, char* argv[])
 
         @try
         {
-
             ICEInitializationData* initData = [ICEInitializationData initializationData];
-            initData.properties = defaultClientProperties(&argc, argv);
-            //
-            // In this test, we need at least two threads in the
-            // client side thread pool for nested AMI.
-            //
-            [initData.properties setProperty:@"Ice.ThreadPool.Client.Size" value:@"2"];
-            [initData.properties setProperty:@"Ice.ThreadPool.Client.SizeWarn" value:@"0"];
+            initData.properties = defaultServerProperties(&argc, argv);
             [initData.properties setProperty:@"Ice.Warn.AMICallback" value:@"0"];
-
-            //
-            // We must set MessageSizeMax to an explicit values, because
-            // we run tests to check whether Ice.MemoryLimitException is
-            // raised as expected.
-            //
-            [initData.properties setProperty:@"Ice.MessageSizeMax" value:@"100"];
-
 #if TARGET_OS_IPHONE
             initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:
-                                      @"TestAMI", @"::Test",
-                                      nil];
+                                  @"TestAMI", @"::Test",
+                                  nil];
 #endif
-
             communicator = [ICEUtil createCommunicator:&argc argv:argv initData:initData];
             status = run(communicator);
         }
         @catch(ICEException* ex)
         {
             tprintf("%@\n", ex);
-            status = EXIT_FAILURE;
-        }
-        @catch(TestFailedException* ex)
-        {
             status = EXIT_FAILURE;
         }
 
@@ -81,7 +85,7 @@ main(int argc, char* argv[])
             }
             @catch(ICEException* ex)
             {
-            tprintf("%@\n", ex);
+    	    tprintf("%@\n", ex);
                 status = EXIT_FAILURE;
             }
         }

@@ -148,7 +148,8 @@ dispatcherAllTests(id<ICECommunicator> communicator)
             id exception = ^(ICEException* ex) { [cb ignoreEx:ex]; };
             id sent = ^(BOOL ss) { [cb sent:ss]; };
 
-            while([(result = [p begin_opWithPayload:seq response:response
+            while([(result = [p begin_opWithPayload:seq
+                                           response:response
                                           exception:exception
                                                sent:sent]) sentSynchronously]);
             [testController resumeAdapter];

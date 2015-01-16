@@ -26,7 +26,14 @@
 {
    if(kill)
    {
-       [[current con] close:YES];
+        if([current con])
+        {
+            [[current con] close:YES];
+        }
+        else
+        {
+            @throw [ICEConnectionLostException connectionLostException:__FILE__ line:__LINE__];
+        }
    }
 }
 

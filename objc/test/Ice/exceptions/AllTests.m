@@ -18,7 +18,7 @@
 @end
 
 id<TestExceptionsThrowerPrx>
-exceptionsAllTests(id<ICECommunicator> communicator, BOOL collocated)
+exceptionsAllTests(id<ICECommunicator> communicator)
 {
     tprintf("testing object adapter registration exceptions... ");
     {
@@ -354,6 +354,7 @@ exceptionsAllTests(id<ICECommunicator> communicator, BOOL collocated)
         tprintf("ok\n");
     }
 
+    if([thrower ice_getConnection])
     {
         tprintf("testing memory limit marshal exception...");
         @try

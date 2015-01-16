@@ -74,7 +74,8 @@
 
 -(void) killRetryOpException:(ICEException*)ex
 {
-    test([ex isKindOfClass:[ICEConnectionLostException class]]);
+    test([ex isKindOfClass:[ICEConnectionLostException class]] ||
+         [ex isKindOfClass:[ICEUnknownLocalException class]]);
     [self called];
 };
 @end
@@ -109,10 +110,14 @@ retryAllTests(id<ICECommunicator> communicator)
         [retry2 op:YES];
         test(NO);
     }
+    @catch(ICEUnknownLocalException*)
+    {
+        // Expected with collocation
+    }
     @catch(ICEConnectionLostException*)
     {
-        tprintf("ok\n");
     }
+    tprintf("ok\n");
 
     tprintf("calling regular operation with first proxy again... ");
     [retry1 op:NO];
