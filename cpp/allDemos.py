@@ -72,11 +72,11 @@ demos = [
     "Manual/lifecycle"]
 
 #
-# Freeze backup doesn't work on x86 multiarch because it require to
-# use x86 db tools that are currently not available for x64 
-# distributions.
+# Freeze backup doesn't work on x86 multiarch because it require to use x86 db tools that are 
+# currently not available for x64  distributions.
 #
-if not "--x86" in sys.argv:
+if not (Util.isLinux64() and 
+        Util.isLinux32BitExe(os.path.join(os.path.dirname(os.path.abspath(__file__)), "demo/Freeze/backup/client"))):
     demos += ["Freeze/backup"]
 
 if not "--c++11" in sys.argv and not "--x86" in sys.argv:

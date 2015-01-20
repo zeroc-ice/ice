@@ -409,6 +409,24 @@ def isRhel():
 def isSles():
     return isLinux() and linuxDistribution and linuxDistribution == "SUSE LINUX"
 
+def isLinux64():
+    if not isLinux():
+        False
+    p = subprocess.Popen("uname -m", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
+    if(p.wait() != 0):
+        print("uname command failed:\n" + p.stdout.read().strip())
+        sys.exit(1)
+    return p.stdout.readline().decode('UTF-8').strip() == "x86_64"
+
+def isLinux32BitExe(f):
+    if not isLinux() or not os.path.isfile(f):
+        return False
+    p = subprocess.Popen("file %s" % f, shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
+    if(p.wait() != 0):
+        print("file command failed:\n" + p.stdout.read().strip())
+        sys.exit(1)
+    return p.stdout.readline().decode('UTF-8').strip().find("ELF 32-bit") != -1
+
 def getWinRegistryKeyValue(key, subKey):
     import winreg
     try:
