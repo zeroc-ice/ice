@@ -11,7 +11,7 @@ Ice.Admin.InstanceName=DemoIceBox
 #
 # The hello service
 #
-IceBox.Service.Hello=HelloService:create --Ice.Config=config.service
+IceBox.Service.Hello=./HelloService:create --Ice.Config=config.service
 
 #
 # Warn about connection exceptions
