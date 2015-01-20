@@ -7,12 +7,5 @@
 //
 // **********************************************************************
 
-#import <objc/Ice/Config.h>
-
-@protocol ICELogger <NSObject>
--(void) print:(NSString*)message;
--(void) trace:(NSString*)category message:(NSString*)message;
--(void) warning:(NSString*)message;
--(void) error:(NSString*)message;
--(NSString*) getPrefix;
-@end
+#import <objc/IceSSL/EndpointInfo.h>
+#import <objc/IceSSL/ConnectionInfo.h>

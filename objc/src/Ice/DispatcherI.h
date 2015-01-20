@@ -10,7 +10,7 @@
 #import <objc/Ice/Initialize.h>
 #import <objc/Ice/Connection.h>
 
-#import <Wrapper.h>
+#import <objc/Ice/LocalObject.h>
 
 #include <Ice/Dispatcher.h>
 

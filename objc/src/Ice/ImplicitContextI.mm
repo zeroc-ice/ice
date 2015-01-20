@@ -58,11 +58,11 @@
     return implicitContext__->containsKey(fromNSString(key));
 }
 
--(NSString*) get:(NSString*)key
+-(NSMutableString*) get:(NSString*)key
 {
     if(implicitContext__->containsKey(fromNSString(key)))
     {
-        return [toNSString(implicitContext__->get(fromNSString(key))) autorelease];
+        return [toNSMutableString(implicitContext__->get(fromNSString(key))) autorelease];
     }
     else
     {
@@ -70,14 +70,14 @@
     }
 }
 
--(NSString*) put:(NSString*)key value:(NSString*)value
+-(NSMutableString*) put:(NSString*)key value:(NSString*)value
 {
-    return [toNSString(implicitContext__->put(fromNSString(key), fromNSString(value))) autorelease];
+    return [toNSMutableString(implicitContext__->put(fromNSString(key), fromNSString(value))) autorelease];
 }
 
--(NSString*) remove:(NSString*)key
+-(NSMutableString*) remove:(NSString*)key
 {
-    return [toNSString(implicitContext__->remove(fromNSString(key))) autorelease];
+    return [toNSMutableString(implicitContext__->remove(fromNSString(key))) autorelease];
 }
 
 @end

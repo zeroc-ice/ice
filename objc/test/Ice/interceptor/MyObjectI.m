@@ -40,7 +40,7 @@
 
 -(int) badSystemAdd:(int)x y:(int)y current:(ICECurrent*)current
 {
-    @throw [ICEInitializationException initializationException:__FILE__ line:__LINE__ reason_:@"testing"];
+    @throw [ICEInitializationException initializationException:__FILE__ line:__LINE__ reason:@"testing"];
 }
 
 @end

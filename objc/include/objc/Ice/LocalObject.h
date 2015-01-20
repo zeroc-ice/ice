@@ -7,10 +7,10 @@
 //
 // **********************************************************************
 
-#import <objc/Ice/Current.h>
+#import <objc/Ice/Config.h>
 
-#include <Ice/Current.h>
-
-@interface ICECurrent (IceInternal)
--(ICECurrent*) initWithCurrent:(const Ice::Current&)arg;
+@interface ICELocalObject : NSObject
+{
+    void* cxxObject_;
+}
 @end

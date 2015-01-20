@@ -92,6 +92,27 @@ lookupKwd(const string& name, int baseType, bool mangleCasts = false)
     return name;
 }
 
+static string
+lookupParamIdKwd(const string& name)
+{
+    //
+    // All lists in this method *must* be kept in case-insensitive
+    // alphabetical order.
+    //
+    static string keywordList[] =
+    {
+        "nil", "NO", "YES"
+    };
+    if(binary_search(&keywordList[0],
+                     &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
+                     name,
+                     Slice::CICompare()))
+    {
+        return name + "_";
+    }
+    return name;
+}
+
 bool
 Slice::ObjCGenerator::addModule(const ModulePtr& m, const string& name)
 {
@@ -173,6 +194,56 @@ Slice::ObjCGenerator::fixName(const ContainedPtr& cont, int baseTypes, bool mang
 }
 
 string
+Slice::ObjCGenerator::getParamId(const ContainedPtr& param)
+{
+    string n;
+    if(ParamDeclPtr::dynamicCast(param) && param->findMetaData("objc:param:", n))
+    {
+        return lookupParamIdKwd(n.substr(11));
+    }
+    else
+    {
+        return lookupParamIdKwd(param->name());
+    }
+}
+
+string
+Slice::ObjCGenerator::getFactoryMethod(const ContainedPtr& p, bool deprecated)
+{
+    ClassDefPtr def = ClassDefPtr::dynamicCast(p);
+    if(def && def->declaration()->isLocal())
+    {
+        deprecated = false; // Local classes don't have this issue since they were added after this fix.
+    }
+
+    //
+    // If deprecated is true, we return uDPConnectionInfo for a class
+    // named UDPConnectionInfo, return udpConnectionInfo otherwise.
+    //
+    string name = fixId(p->name());
+    if(name.empty())
+    {
+        return name;
+    }
+    else if(deprecated || name.size() < 2 || !isupper(*(name.begin() + 1)))
+    {
+        *name.begin() = tolower(*name.begin());
+    }
+    else
+    {
+        for(string::iterator p = name.begin(); p != name.end() - 1; ++p)
+        {
+            if(!isupper(*(p + 1)))
+            {
+                break;
+            }
+            *p = tolower(*p);
+        }
+    }
+    return name;
+}
+
+string
 Slice::ObjCGenerator::typeToString(const TypePtr& type)
 {
     if(!type)
@@ -221,9 +292,24 @@ Slice::ObjCGenerator::typeToString(const TypePtr& type)
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-    if(cl && cl->isInterface())
+    if(cl)
     {
-        return "ICEObject";
+        if(cl->isInterface())
+        {
+            if(cl->isLocal())
+            {
+                return "id<" + fixName(cl) + ">";
+            }
+            else
+            {
+                return "ICEObject";
+            }
+        }
+        else if(cl->isLocal())
+        {
+            string name = fixName(cl);
+            return name + "<" + name + ">";
+        }
     }
 
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
@@ -397,7 +483,14 @@ Slice::ObjCGenerator::mapsToPointerType(const TypePtr& type)
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl && cl->isInterface())
     {
-        return true;
+        if(cl->isLocal())
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
     }
     return !ProxyPtr::dynamicCast(type);
 }

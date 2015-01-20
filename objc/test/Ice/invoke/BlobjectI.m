@@ -68,7 +68,7 @@
     {
         @throw [ICEOperationNotExistException operationNotExistException:__FILE__
                                               line:__LINE__
-                                              id_:current.id_
+                                              id:current.id_
                                               facet:current.facet
                                               operation:current.operation];
     }

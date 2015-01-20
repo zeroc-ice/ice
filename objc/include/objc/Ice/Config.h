@@ -19,6 +19,8 @@
 
 #import <stdlib.h>
 
+#define ICE_DEPRECATED_API(msg) __attribute__((deprecated(msg)))          
+
 //
 // Don't forget to update the conversion methods from Util.h if the types below
 // are changed.
@@ -34,8 +36,14 @@ typedef double ICEDouble;
 #  define ICE_STRONG_QUALIFIER __strong
 #  define ICE_AUTORELEASING_QUALIFIER __autoreleasing
 #  define ICE_STRONG_ATTR strong
+#  define ICE_AUTORELEASE(v) v
+#  define ICE_RETAIN(v) v
+#  define ICE_RELEASE(v)
 #else
 #  define ICE_STRONG_QUALIFIER
 #  define ICE_AUTORELEASING_QUALIFIER
 #  define ICE_STRONG_ATTR retain
+#  define ICE_AUTORELEASE(v) [v autorelease]
+#  define ICE_RETAIN(v) [v retain]
+#  define ICE_RELEASE(v) [v release]
 #endif

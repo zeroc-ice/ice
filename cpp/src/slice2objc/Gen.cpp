@@ -369,7 +369,7 @@ Slice::ObjCVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
         _M.useCurrentPosAsIndent();
         _M << "__FILE__";
         _M << nl << "line:__LINE__";
-        _M << nl << "id_:current.id_";
+        _M << nl << "id:current.id_";
         _M << nl << "facet:current.facet";
         _M << nl << "operation:current.operation];";
         _M.restoreIndent();
@@ -412,7 +412,7 @@ Slice::ObjCVisitor::getSelector(const OperationPtr& op) const
         }
         else
         {
-            result += fixId((*q)->name()) + ":";
+            result += getParamId(*q) + ":";
         }
     }
     return result;
@@ -435,12 +435,11 @@ Slice::ObjCVisitor::getParams(const OperationPtr& op) const
         {
             typeString = inTypeToString(type, (*q)->optional());
         }
-        string name = fixId((*q)->name());
         if(q != paramList.begin())
         {
-            result += " " + name;
+            result += " " + getParamId(*q);
         }
-        result += ":(" + typeString + ")" + name;
+        result += ":(" + typeString + ")" + fixId((*q)->name());
     }
     return result;
 }
@@ -455,12 +454,11 @@ Slice::ObjCVisitor::getMarshalParams(const OperationPtr& op) const
         if(!(*q)->isOutParam())
         {
             TypePtr type = (*q)->type();
-            string name = fixId((*q)->name());
             if(!result.empty())
             {
-                result += " " + name;
+                result += " " + getParamId(*q);
             }
-            result += ":(" + inTypeToString(type, (*q)->optional()) + ")" + name;
+            result += ":(" + inTypeToString(type, (*q)->optional()) + ")" + fixId((*q)->name());
         }
     }
     return result;
@@ -476,12 +474,11 @@ Slice::ObjCVisitor::getUnmarshalParams(const OperationPtr& op) const
         if((*q)->isOutParam())
         {
             TypePtr type = (*q)->type();
-            string name = fixId((*q)->name());
             if(!result.empty())
             {
-                result += " " + name;
+                result += " " + getParamId(*q);
             }
-            result += ":(" + outTypeToString(type, (*q)->optional(), false, true) + ")" + name;
+            result += ":(" + outTypeToString(type, (*q)->optional(), false, true) + ")" + fixId((*q)->name());
         }
     }
     return result;
@@ -504,12 +501,11 @@ Slice::ObjCVisitor::getServerParams(const OperationPtr& op) const
         {
             typeString = outTypeToString(type, (*q)->optional());
         }
-        string name = fixId((*q)->name());
         if(q != paramList.begin())
         {
-            result += " " + name;
+            result += " " + getParamId(*q);
         }
-        result += ":(" + typeString + ")" + name;
+        result += ":(" + typeString + ")" + fixId((*q)->name());
     }
     return result;
 }
@@ -530,7 +526,6 @@ Slice::ObjCVisitor::getResponseCBSig(const OperationPtr& op) const
         if((*q)->isOutParam())
         {
             TypePtr type = (*q)->type();
-            string name = fixId((*q)->name());
             if(!result.empty())
             {
                 result += ", ";
@@ -548,12 +543,11 @@ Slice::ObjCVisitor::getArgs(const OperationPtr& op) const
     ParamDeclList paramList = op->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
-        string name = fixId((*q)->name());
         if(q != paramList.begin())
         {
-            result += " " + name;
+            result += " " + getParamId(*q);
         }
-        result += ":" + name;
+        result += ":" + fixId((*q)->name());
     }
     return result;
 }
@@ -567,12 +561,11 @@ Slice::ObjCVisitor::getMarshalArgs(const OperationPtr& op) const
     {
         if(!(*q)->isOutParam())
         {
-            string name = fixId((*q)->name());
             if(!result.empty())
             {
-                result += " " + name;
+                result += " " + getParamId(*q);
             }
-            result += ":" + name;
+            result += ":" + fixId((*q)->name());
         }
     }
     return result;
@@ -587,12 +580,11 @@ Slice::ObjCVisitor::getUnmarshalArgs(const OperationPtr& op) const
     {
         if((*q)->isOutParam())
         {
-            string name = fixId((*q)->name());
             if(!result.empty())
             {
-                result += " " + name;
+                result += " " + getParamId(*q);
             }
-            result += ":" + name;
+            result += ":" + fixId((*q)->name());
         }
     }
     return result;
@@ -605,17 +597,16 @@ Slice::ObjCVisitor::getServerArgs(const OperationPtr& op) const
     ParamDeclList paramList = op->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
-        string name = fixId((*q)->name());
         if(q != paramList.begin())
         {
-            result += " " + name;
+            result += " " + getParamId(*q);
         }
         result += ":";
         if((*q)->isOutParam())
         {
             result += "&";
         }
-        result += name;
+        result += fixId((*q)->name());
     }
     return result;
 }
@@ -661,13 +652,6 @@ Slice::Gen::Gen(const string& name, const string& base, const string& include, c
     printHeader(_H);
     _H << nl << "// Generated from file `" << _base << ".ice'";
 
-    _H << sp << nl << "#import <objc/Ice/Config.h>";
-    _H << nl << "#import <objc/Ice/Proxy.h>";
-    _H << nl << "#import <objc/Ice/Object.h>";
-    _H << nl << "#import <objc/Ice/Current.h>";
-    _H << nl << "#import <objc/Ice/Exception.h>";
-    _H << nl << "#import <objc/Ice/Stream.h>";
-
     _M.open(fileM.c_str());
     if(!_M)
     {
@@ -704,11 +688,25 @@ Slice::Gen::generate(const UnitPtr& p)
 {
     ObjCGenerator::validateMetaData(p);
 
-    _M << nl << "\n#import <objc/Ice/LocalException.h>";
+    _H << sp << nl << "#import <objc/Ice/Config.h>";
+    if(p->hasNonLocalClassDecls())
+    {
+        _H << nl << "#import <objc/Ice/Proxy.h>";
+        _H << nl << "#import <objc/Ice/Current.h>";
+        _H << nl << "#import <objc/Ice/Object.h>";
+    }
+    else if(p->hasLocalClassDefsWithAsync())
+    {
+        _H << nl << "#import <objc/Ice/Proxy.h>";
+    }
+    _H << nl << "#import <objc/Ice/Stream.h>";
+    _H << nl << "#import <objc/Ice/LocalObject.h>";
+    _H << nl << "#import <objc/Ice/Exception.h>";
+    _M << nl << "#import <objc/Ice/LocalException.h>";
     _M << nl << "#import <objc/Ice/Stream.h>";
     if(p->hasContentsWithMetaData("preserve-slice"))
     {
-        _H << "\n#import <objc/Ice/SlicedData.h>";
+        _H << nl << "#import <objc/Ice/SlicedData.h>";
     }
     _M << nl << "#import <";
     if(!_include.empty())
@@ -839,7 +837,11 @@ Slice::Gen::ObjectDeclVisitor::ObjectDeclVisitor(Output& H, Output& M)
 void
 Slice::Gen::ObjectDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
-    _H << sp << nl << "@class " << fixName(p) << ";";
+    _H << sp;
+    if(!p->isLocal() || !p->isInterface())
+    {
+        _H << nl << "@class " << fixName(p) << ";";
+    }
     _H << nl << "@protocol " << fixName(p) << ";";
 }
 
@@ -851,8 +853,11 @@ Slice::Gen::ProxyDeclVisitor::ProxyDeclVisitor(Output& H, Output& M)
 void
 Slice::Gen::ProxyDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
-    _H << sp << nl << "@class " << fixName(p) << "Prx;";
-    _H << nl << "@protocol " << fixName(p) << "Prx;";
+    if(!p->isLocal())
+    {
+        _H << sp << nl << "@class " << fixName(p) << "Prx;";
+        _H << nl << "@protocol " << fixName(p) << "Prx;";
+    }
 }
 
 Slice::Gen::TypesVisitor::TypesVisitor(Output& H, Output& M)
@@ -904,9 +909,15 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         _H << ">";
     }
+    else
+    {
+        _H << " <NSObject>";
+    }
 
-    _M << sp << nl << "@implementation " << name;
-
+    if(!p->isLocal() || !p->isInterface())
+    {
+        _M << sp << nl << "@implementation " << name;
+    }
     return true;
 }
 
@@ -918,7 +929,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     bool basePreserved = p->inheritsMetaData("preserve-slice");
     bool preserved = p->hasMetaData("preserve-slice");
     bool hasBaseClass = !bases.empty() && !bases.front()->isInterface();
-    string baseName = hasBaseClass ? fixName(bases.front()) : "ICEObject";
+    string baseName = hasBaseClass ? fixName(bases.front()) : (p->isLocal() ? "ICELocalObject" : "ICEObject");
     DataMemberList baseDataMembers;
     if(hasBaseClass)
     {
@@ -929,6 +940,11 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     DataMemberList allDataMembers = p->allDataMembers();
 
     _H << nl << "@end";
+
+    if(p->isLocal() && p->isInterface())
+    {
+        return;
+    }
 
     _H << sp << nl << "@interface " << name << " : " << baseName;
 
@@ -962,113 +978,12 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     writeSynthesize(dataMembers, BaseTypeObject);
 
     //
-    // Constructor.
+    // Init, factory, copyWithZone and dealloc methods.
     //
-    if(!dataMembers.empty())
-    {
-        _H << sp;
-    }
-    if(!p->isInterface() && !dataMembers.empty())
-    {
-        if(p->hasDefaultValues())
-        {
-            _H << nl << "-(id) init;";
-            _M << sp << nl << "-(id) init";
-            _M << sb;
-            _M << nl << "self = [super init];";            
-            _M << nl << "if(!self)";
-            _M << sb;
-            _M << nl << "return nil;";
-            _M << eb;
-            writeMemberDefaultValueInit(dataMembers, BaseTypeObject);
-            _M << nl << "return self;";
-            _M << eb;
-        }
-        _H << nl << "-(id) init";
-        _M << sp << nl << "-(id) init";
-        writeMemberSignature(allDataMembers, BaseTypeObject, Other);
-        _H << ";";
-        _M << sb;
-        _M << nl << "self = [super init";
-        writeMemberCall(baseDataMembers, BaseTypeObject, Other, WithEscape);
-        _M << "];";
-        _M << nl << "if(!self)";
-        _M << sb;
-        _M << nl << "return nil;";
-        _M << eb;
-        writeMemberInit(dataMembers, BaseTypeObject);
-        _M << nl << "return self;";
-        _M << eb;
-    }
-
-    //
-    // Convenience constructors.
-    //
-    if(!allDataMembers.empty())
-    {
-        string lowerCaseName = fixId(p->name());
-        *(lowerCaseName.begin()) = tolower(*lowerCaseName.begin());
-
-        _H << nl << "+(id) " << lowerCaseName;
-        _M << sp << nl << "+(id) " << lowerCaseName;
-        writeMemberSignature(allDataMembers, BaseTypeObject, Other);
-        _H << ";";
-        _M << sb;
-
-        //
-        // The cast avoids a compiler warning that is emitted if different structs
-        // have members with the same name but different types.
-        //
-        _M << nl << name << " *s__ = [(" << name << " *)[" << name << " alloc] init";
-        writeMemberCall(allDataMembers, BaseTypeObject, Other, WithEscape);
-        _M << "];";
-
-        _M.zeroIndent();
-        _M << nl << "#if defined(__clang__) && !__has_feature(objc_arc)";
-        _M.restoreIndent();
-        _M << nl << "[s__ autorelease];";
-        _M.zeroIndent();
-        _M << nl << "#endif";
-        _M.restoreIndent();
-
-        _M << nl << "return s__;";
-        _M << eb;
-
-        _H << nl << "+(id) " << lowerCaseName << ";";
-        _M << sp << nl << "+(id) " << lowerCaseName;
-        _M << sb;
-        _M << nl << name << " *s__ = [[" << name << " alloc] init];";
-
-        _M.zeroIndent();
-        _M << nl << "#if defined(__clang__) && !__has_feature(objc_arc)";
-        _M.restoreIndent();
-        _M << nl << "[s__ autorelease];";
-        _M.zeroIndent();
-        _M << nl << "#endif";
-        _M.restoreIndent();
-
-        _M << nl << "return s__;";
-        _M << eb;
-    }
-
-    if(!p->isInterface())
-    {
-        //
-        //  copyWithZone and dealloc
-        //
-        if(!dataMembers.empty())
-        {
-            _M << sp << nl << "-(id) copyWithZone:(NSZone *)zone_p";
-            _M << sb;
-            _M << nl << "return [(" << name << " *)[[self class] allocWithZone:zone_p] init";
-            writeMemberCall(allDataMembers, BaseTypeObject, Other, NoEscape);
-            _M << "];";
-            _M << eb;
-            _H << nl << "// This class also overrides copyWithZone:.";
-
-            writeMemberDealloc(dataMembers, BaseTypeObject, preserved && !basePreserved);
-        }
-    }
+    writeInit(p, dataMembers, baseDataMembers, allDataMembers, p->hasDefaultValues(), BaseTypeObject, Other);
+    writeFactory(p, allDataMembers, BaseTypeObject, Other);
+    writeCopyWithZone(p, allDataMembers, BaseTypeObject, Other);
+    writeMemberDealloc(dataMembers, BaseTypeObject, preserved && !basePreserved);
 
     //
     // Setter, has, clear selectors for optionals
@@ -1090,97 +1005,113 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     //
     // Operations
     //
-    OperationList ops = p->operations();
-    OperationList::const_iterator r;
-    for(r = ops.begin(); r != ops.end(); ++r)
+    if(!p->isLocal())
     {
-        OperationPtr op = *r;
-        _H << nl << "+(BOOL)" << op->name() << "___:(id<" << name
-           << ">)target current:(ICECurrent *)current " 
-           << "is:(id<ICEInputStream>)is_ os:(id<ICEOutputStream>)os_;";
+        OperationList ops = p->operations();
+        OperationList::const_iterator r;
+        for(r = ops.begin(); r != ops.end(); ++r)
+        {
+            OperationPtr op = *r;
+            _H << nl << "+(BOOL)" << op->name() << "___:(id<" << name
+               << ">)target current:(ICECurrent *)current " 
+               << "is:(id<ICEInputStream>)is_ os:(id<ICEOutputStream>)os_;";
+        }
+
+        //
+        // Marshaling/unmarshaling
+        //
+
+        _M << sp << nl << "-(void) writeImpl__:(id<ICEOutputStream>)os_";
+        _M << sb;
+        _M << nl << "[os_ startSlice:@\"" << p->scoped() << "\" compactId: " << p->compactId() << " lastSlice:" 
+           << (!hasBaseClass ? "YES" : "NO") << "];";
+        writeMemberMarshal(dataMembers, optionalMembers, BaseTypeObject);
+        _M << nl << "[os_ endSlice];";
+        if(hasBaseClass)
+        {
+            _M << nl << "[super writeImpl__:os_];";
+        }
+        _M << eb;
+
+        _M << sp << nl << "-(void) readImpl__:(id<ICEInputStream>)is_";
+        _M << sb;
+        _M << nl << "[is_ startSlice];";
+        writeMemberUnmarshal(dataMembers, optionalMembers, BaseTypeObject);
+        _M << nl << "[is_ endSlice];";
+        if(hasBaseClass)
+        {
+            _M << nl << "[super readImpl__:is_];";
+        }
+        _M << eb;
+
+        writeDispatchAndMarshalling(p);
+
+        if(preserved && !basePreserved)
+        {        
+            _M << nl << "-(void) write__:(id<ICEOutputStream>)os";
+            _M << sb;
+            _M << nl << "[os startObject:slicedData__];";
+            _M << nl << "[self writeImpl__:os];";
+            _M << nl << "[os endObject];";
+            _M << eb;
+
+            _M << nl << "-(void) read__:(id<ICEInputStream>)is";
+            _M << sb;
+            _M << nl << "[is startObject];";
+            _M << nl << "[self readImpl__:is];";
+            _M << nl << "slicedData__ = [is endObject:YES];";
+            _M << eb;
+        }
     }
-
-    _M << sp << nl << "+(id)objectWithDelegate:(id)delegate";
-    _M << sb;
-    _M.zeroIndent();
-    _M << sp << nl << "#if defined(__clang__) && __has_feature(objc_arc)";
-    _M.restoreIndent();
-    _M << nl << "return [[" << name << " alloc] initWithDelegate:delegate];";
-    _M.zeroIndent();
-    _M << nl << "#else";
-    _M.restoreIndent();
-    _M << nl << "return [[[" << name << " alloc] initWithDelegate:delegate] autorelease];";
-    _M.zeroIndent();
-    _M << nl << "#endif";
-    _M.restoreIndent();
-    _M << eb;
-
-    //
-    // Marshaling/unmarshaling
-    //
-
-    _M << sp << nl << "-(void) writeImpl__:(id<ICEOutputStream>)os_";
-    _M << sb;
-    _M << nl << "[os_ startSlice:@\"" << p->scoped() << "\" compactId: " << p->compactId() << " lastSlice:" 
-                                                                     << (!hasBaseClass ? "YES" : "NO") << "];";
-    writeMemberMarshal(dataMembers, optionalMembers, BaseTypeObject);
-    _M << nl << "[os_ endSlice];";
-    if(hasBaseClass)
-    {
-        _M << nl << "[super writeImpl__:os_];";
-    }
-    _M << eb;
 
     _H << nl << "@end";
-
-    _M << sp << nl << "-(void) readImpl__:(id<ICEInputStream>)is_";
-    _M << sb;
-    _M << nl << "[is_ startSlice];";
-    writeMemberUnmarshal(dataMembers, optionalMembers, BaseTypeObject);
-    _M << nl << "[is_ endSlice];";
-    if(hasBaseClass)
-    {
-        _M << nl << "[super readImpl__:is_];";
-    }
-    _M << eb;
-
-    writeDispatchAndMarshalling(p);
-
-    if(preserved && !basePreserved)
-    {        
-        _M << nl << "-(void) write__:(id<ICEOutputStream>)os";
-        _M << sb;
-        _M << nl << "[os startObject:slicedData__];";
-        _M << nl << "[self writeImpl__:os];";
-        _M << nl << "[os endObject];";
-        _M << eb;
-
-        _M << nl << "-(void) read__:(id<ICEInputStream>)is";
-        _M << sb;
-        _M << nl << "[is startObject];";
-        _M << nl << "[self readImpl__:is];";
-        _M << nl << "slicedData__ = [is endObject:YES];";
-        _M << eb;
-    }
-
     _M << nl << "@end";
 }
 
 void
 Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
 {
+    ContainerPtr container = p->container();
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+
     string name = getName(p);
     TypePtr returnType = p->returnType();
-    string retString = typeToString(returnType);
-    string params = getServerParams(p);
-
-    
-    _H << nl << "-(" << inTypeToString(returnType, p->returnIsOptional()) << ") " << name << params;
-    if(!params.empty())
+    string retString;
+    string params;
+    if(cl->isLocal())
     {
-        _H << " current";
+        retString = outTypeToString(returnType, p->returnIsOptional());
+        params = getParams(p);
     }
-    _H << ":(ICECurrent *)current;";
+    else
+    {
+        retString = inTypeToString(returnType, p->returnIsOptional());
+        params = getServerParams(p);
+    }
+    
+    _H << nl << "-(" << retString << ") " << name << params;
+    if(!cl->isLocal())
+    {
+        if(!params.empty())
+        {
+            _H << " current";
+        }
+        _H << ":(ICECurrent *)current;";
+    }
+    else
+    {
+        _H << ";";
+    }
+
+    if(cl->isLocal() && (cl->hasMetaData("async") || p->hasMetaData("async")))
+    {
+        // TODO: add supports for parameters when needed.
+        _H << nl << "-(id<ICEAsyncResult>) begin_" << name << ";";
+        _H << nl << "-(id<ICEAsyncResult>) begin_" << name << ":(void(^)(ICEException*))exception;";
+        _H << nl << "-(id<ICEAsyncResult>) begin_" << name 
+           << ":(void(^)(ICEException*))exception sent:(void(^)(BOOL))sent;";
+        _H << nl << "-(void) end_" << name << ":(id<ICEAsyncResult>)result;";
+    }
 }
 
 void
@@ -1236,8 +1167,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 {
     string name = fixName(p);
 
-    string lowerCaseName = fixId(p->name());
-    *(lowerCaseName.begin()) = tolower(*lowerCaseName.begin());
     bool basePreserved = p->inheritsMetaData("preserve-slice");
     bool preserved = p->hasMetaData("preserve-slice");
     DataMemberList dataMembers = p->dataMembers();
@@ -1290,159 +1219,11 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _M << nl << "return @\"" << p->scoped().substr(2) << "\";";
     _M << eb;
 
-    //
-    // Constructors.
-    //
-    if(p->isLocal() && !dataMembers.empty())
-    {
-        _H << nl << "-(id) init:(const char*)file__p line:(int)line__p;";
-        _M << sp << nl << "-(id) init:(const char*)file__p line:(int)line__p";
-        _M << sb;
-        _M << nl << "self = [super init:file__p line:line__p];";
-        _M << nl << "if(!self)";
-        _M << sb;
-        _M << nl << "return nil;";
-        _M << eb;
-        _M << nl << "return self;";
-        _M << eb;
-    }
-    if(!dataMembers.empty())
-    {
-        if(!p->base() || p->hasDefaultValues())
-        {
-            _H << sp << nl << "-(id) init;";
-            _M << sp << nl << "-(id) init";
-            _M << sb;
-            _M << nl << "self = ";
-            if(!p->base())
-            {
-                _M << "[super initWithName:[self ice_name] reason:nil userInfo:nil];";
-            }
-            else
-            {
-                _M << nl << "[super init];";
-            }
-            _M << nl << "if(!self)";
-            _M << sb;
-            _M << nl << "return nil;";
-            _M << eb;
-            if(p->hasDefaultValues())
-            {
-                writeMemberDefaultValueInit(dataMembers, BaseTypeObject);
-            }
-            _M << nl << "return self;";
-            _M << eb;
-        }
-
-        _H << nl << "-(id) init";
-        _M << sp << nl << "-(id) init";
-        writeMemberSignature(allDataMembers, BaseTypeException, p->isLocal() ? LocalException : Other);
-        _H << ";";
-        _M << sb;
-        _M << nl << "self = ";
-        if(!p->base())
-        {
-            _M << nl << "[super initWithName:[self ice_name] reason:nil userInfo:nil];";
-        }
-        else
-        {
-            _M << nl << "[super init";
-            if(p->isLocal())
-            {
-                _M << ":file__p line:line__p ";
-            }
-            writeMemberCall(baseDataMembers, BaseTypeException, p->isLocal() ? LocalException : Other, WithEscape);
-            _M << "];";
-        }
-        _M << nl << "if(!self)";
-        _M << sb;
-        _M << nl << "return nil;";
-        _M << eb;
-        if(!dataMembers.empty())
-        {
-            writeMemberInit(dataMembers, BaseTypeException);
-        }
-        _M << nl << "return self;";
-        _M << eb;
-    }
-
-    //
-    // Convenience constructors.
-    //
-    _H << nl << "+(id) " << lowerCaseName;
-    _M << sp << nl << "+(id) " << lowerCaseName;
-    writeMemberSignature(allDataMembers, BaseTypeException, p->isLocal() ? LocalException : Other);
-    _H << ";";
-
-    //
-    // The cast avoids a compiler warning that is emitted if different exceptions
-    // have members with the same name but different types.
-    //
-    _M << sb;
-    _M << nl << name << " *s__ = [(" << name << " *)[" << name << " alloc] init";
-    if(p->isLocal())
-    {
-        _M << ":file__p line:line__p";
-    }
-    writeMemberCall(allDataMembers, BaseTypeException, p->isLocal() ? LocalException : Other, WithEscape);
-    _M << "];";
-    _M.zeroIndent();
-    _M << nl << "#if defined(__clang__) && !__has_feature(objc_arc)";
-    _M.restoreIndent();
-    _M << nl << "[s__ autorelease];";
-    _M.zeroIndent();
-    _M << nl << "#endif";
-    _M.restoreIndent();
-    _M << nl << "return s__;";
-    _M << eb;
-
-    if(!allDataMembers.empty())
-    {
-        _H << nl << "+(id) " << lowerCaseName;
-        _M << sp << nl << "+(id) " << lowerCaseName;
-        if(p->isLocal())
-        {
-            _H << ":(const char*)file__p line:(int)line__p";
-            _M << ":(const char*)file__p line:(int)line__p";
-        }
-        _H << ";";
-        _M << sb;
-        _M << nl << name << " *s__ = [[" << name << " alloc] init";
-        if(p->isLocal())
-        {
-            _M << ":file__p line:line__p";
-        }
-        _M << "];";
-        _M.zeroIndent();
-        _M << nl << "#if defined(__clang__) && !__has_feature(objc_arc)";
-        _M.restoreIndent();
-        _M << nl << "[s__ autorelease];";
-        _M.zeroIndent();
-        _M << nl << "#endif";
-        _M.restoreIndent();
-        _M << nl << "return s__;";
-        _M << eb;
-    }
-
-    //
-    // copyWithZone and dealloc
-    //
-    if(!dataMembers.empty())
-    {
-        _M << sp << nl << "-(id) copyWithZone:(NSZone *)zone_p";
-        _M << sb;
-        _M << nl << "return [(" << name << " *)[[self class] allocWithZone:zone_p] init";
-        if(p->isLocal())
-        {
-            _M << ":file line:line";
-        }
-        writeMemberCall(allDataMembers, BaseTypeException, p->isLocal() ? LocalException : Other, NoEscape);
-        _M << "];";
-        _M << eb;
-        _H << nl << "// This class also overrides copyWithZone:.";
-
-        writeMemberDealloc(dataMembers, BaseTypeException, preserved && !basePreserved);
-    }
+    ContainerType ct = p->isLocal() ? LocalException : Other;
+    writeInit(p, dataMembers, baseDataMembers, allDataMembers, p->hasDefaultValues(), BaseTypeException, ct);
+    writeFactory(p, allDataMembers, BaseTypeException, ct);
+    writeCopyWithZone(p, allDataMembers, BaseTypeException, ct);
+    writeMemberDealloc(dataMembers, BaseTypeException, preserved && !basePreserved);
 
     //
     // Setter, has, clear selectors for optionals
@@ -1551,89 +1332,10 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     writeProperties(dataMembers, BaseTypeObject);
     writeSynthesize(dataMembers, BaseTypeObject);
 
-    //
-    // Constructor.
-    //
-    if(p->hasDefaultValues())
-    {
-        _H << sp << nl << "-(id) init;";
-        _M << sp << nl << "-(id) init";
-        _M << sb;
-        _M << nl << "self = [super init];";
-        _M << nl << "if(!self)";
-        _M << sb;
-        _M << nl << "return nil;";
-        _M << eb;
-        writeMemberDefaultValueInit(dataMembers, BaseTypeObject);
-        _M << nl << "return self;";
-        _M << eb;
-    }
-    _H << sp << nl << "-(id) init";
-    _M << sp << nl << "-(id) init";
-    writeMemberSignature(dataMembers, BaseTypeObject, Other);
-    _H << ";";
-    _M << sb;
-    _M << nl << "self = [super init];";
-    _M << nl << "if(!self)";
-    _M << sb;
-    _M << nl << "return nil;";
-    _M << eb;
-    writeMemberInit(dataMembers, BaseTypeObject);
-    _M << nl << "return self;";
-    _M << eb;
-
-    //
-    // Convenience constructor.
-    //
-    string lowerCaseName = fixId(p->name());
-    *(lowerCaseName.begin()) = tolower(*lowerCaseName.begin());
-
-    _H << nl << "+(id) " << lowerCaseName;
-    _M << sp << nl << "+(id) " << lowerCaseName;
-    writeMemberSignature(dataMembers, BaseTypeObject, Other);
-    _H << ";";
-    _M << sb;
-
-    //
-    // The cast avoids a compiler warning that is emitted if different structs
-    // have members with the same name but different types.
-    //
-    _M << nl << name << " *s__ = [(" << name << "* )[" << name << " alloc] init";
-    writeMemberCall(dataMembers, BaseTypeObject, Other, WithEscape);
-    _M << "];";
-    _M.zeroIndent();
-    _M << nl << "#if defined(__clang__) && !__has_feature(objc_arc)";
-    _M.restoreIndent();
-    _M << nl << "[s__ autorelease];";
-    _M.zeroIndent();
-    _M << nl << "#endif";
-    _M.restoreIndent();
-    _M << nl << "return s__;";
-    _M << eb;
-
-    _H << nl << "+(id) " << lowerCaseName << ";";
-    _M << sp << nl << "+(id) " << lowerCaseName;
-    _M << sb;
-    _M << nl << name << " *s__ = [[" << name << " alloc] init];";
-    _M.zeroIndent();
-    _M << nl << "#if defined(__clang__) && !__has_feature(objc_arc)";
-    _M.restoreIndent();
-    _M << nl << "[s__ autorelease];";
-    _M.zeroIndent();
-    _M << nl << "#endif";
-    _M.restoreIndent();
-    _M << nl << "return s__;";
-    _M << eb;
-
-    //
-    // copyWithZone
-    //
-    _M << sp << nl << "-(id) copyWithZone:(NSZone *)zone_p";
-    _M << sb;
-    _M << nl << "return [(" << name << " *)[[self class] allocWithZone:zone_p] init";
-    writeMemberCall(dataMembers, BaseTypeObject, Other, NoEscape);
-    _M << "];";
-    _M << eb;
+    writeInit(p, dataMembers, DataMemberList(), dataMembers, p->hasDefaultValues(), BaseTypeObject, Other);
+    writeFactory(p, dataMembers, BaseTypeObject, Other);
+    writeCopyWithZone(p, dataMembers, BaseTypeObject, Other);
+    writeMemberDealloc(dataMembers, BaseTypeObject);
 
     //
     // hash
@@ -1656,28 +1358,26 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     writeMemberEquals(dataMembers, BaseTypeObject);
     _M << eb;
 
-    _H << nl << "// This class also overrides copyWithZone:, hash, and isEqual:";
+    _H << nl << "// This class also overrides hash, and isEqual:";
 
-    //
-    // dealloc
-    //
-    writeMemberDealloc(dataMembers, BaseTypeObject);
-
-    //
-    // Marshaling/unmarshaling
-    //
-    _H << nl << "-(void) write__:(id<ICEOutputStream>)os_;";
-    _H << nl << "-(void) read__:(id<ICEInputStream>)is_;";
-
-    _M << sp << nl << "-(void) write__:(id<ICEOutputStream>)os_";
-    _M << sb;
-    writeMemberMarshal(dataMembers, DataMemberList(), BaseTypeObject);
-    _M << eb;
-
-    _M << sp << nl << "-(void) read__:(id<ICEInputStream>)is_";
-    _M << sb;
-    writeMemberUnmarshal(dataMembers, DataMemberList(), BaseTypeObject);
-    _M << eb;
+    if(!p->isLocal())
+    {
+        //
+        // Marshaling/unmarshaling
+        //
+        _H << nl << "-(void) write__:(id<ICEOutputStream>)os_;";
+        _H << nl << "-(void) read__:(id<ICEInputStream>)is_;";
+        
+        _M << sp << nl << "-(void) write__:(id<ICEOutputStream>)os_";
+        _M << sb;
+        writeMemberMarshal(dataMembers, DataMemberList(), BaseTypeObject);
+        _M << eb;
+        
+        _M << sp << nl << "-(void) read__:(id<ICEInputStream>)is_";
+        _M << sb;
+        writeMemberUnmarshal(dataMembers, DataMemberList(), BaseTypeObject);
+        _M << eb;
+    }
 
     _H << nl << "@end";
     _M << nl << "@end";
@@ -1808,6 +1508,129 @@ Slice::Gen::TypesVisitor::writeConstantValue(IceUtilInternal::Output& out, const
 }
 
 void
+Slice::Gen::TypesVisitor::writeInit(const ContainedPtr& p, const DataMemberList& dataMembers,
+                                    const DataMemberList& baseDataMembers, const DataMemberList& allDataMembers, 
+                                    bool hasDefaultValues, int baseType, ContainerType ct) const
+{
+    if(dataMembers.empty())
+    {
+        return;
+    }
+
+    _H << sp;
+    if(hasDefaultValues)
+    {
+        _H << nl << "-(id) init;";
+        _M << sp << nl << "-(id) init";
+        _M << sb;
+        _M << nl << "self = [super init];";            
+        _M << nl << "if(!self)";
+        _M << sb;
+        _M << nl << "return nil;";
+        _M << eb;
+        writeMemberDefaultValueInit(dataMembers, baseType);
+        _M << nl << "return self;";
+        _M << eb;
+    }
+    _H << nl << "-(id) init";
+    _M << sp << nl << "-(id) init";
+    writeMemberSignature(allDataMembers, baseType, ct);
+    _H << ";";
+    _M << sb;
+    _M << nl << "self = [super init";
+    if(ct == LocalException)
+    {
+        _M << ":file__p line:line__p";
+    }
+    writeMemberCall(baseDataMembers, baseType, ct, WithEscape);
+    _M << "];";
+    _M << nl << "if(!self)";
+    _M << sb;
+    _M << nl << "return nil;";
+    _M << eb;
+    writeMemberInit(dataMembers, baseType);
+    _M << nl << "return self;";
+    _M << eb;
+}
+
+void
+Slice::Gen::TypesVisitor::writeFactory(const ContainedPtr& p, const DataMemberList& dataMembers, int baseType,
+                                       ContainerType ct) const
+{
+    if(!dataMembers.empty())
+    {
+        // Always write factory method with no parameters first
+        writeFactory(p, DataMemberList(), baseType, ct);
+    }
+
+    string name = fixName(p);
+    string factoryMethod = getFactoryMethod(p, false);
+
+    _H << nl << "+(id) " << factoryMethod;
+    _M << sp << nl << "+(id) " << factoryMethod;
+    writeMemberSignature(dataMembers, baseType, ct);
+    _H << ";";
+    _M << sb;
+    
+    //
+    // The cast avoids a compiler warning that is emitted if different structs
+    // have members with the same name but different types.
+    //
+    _M << nl << "return ICE_AUTORELEASE([(" << name << " *)[self alloc] init";
+    if(ct == LocalException)
+    {
+        _M << ":file__p line:line__p";
+    }
+    writeMemberCall(dataMembers, baseType, ct, WithEscape);
+    _M << "]);";
+    _M << eb;
+
+    //
+    // TODO: DEPRECATED: we used to 
+    //
+    string deprecatedFactoryMethod = getFactoryMethod(p, true);
+    if(factoryMethod != deprecatedFactoryMethod)
+    {
+        _H << nl << "+(id) " << deprecatedFactoryMethod;
+        _M << sp << nl << "+(id) " << deprecatedFactoryMethod;
+        writeMemberSignature(dataMembers, baseType, ct);
+        _H << " ICE_DEPRECATED_API(\"use " << factoryMethod << " instead\");";
+        _M << sb;
+        _M << nl << "return ICE_AUTORELEASE([self " << factoryMethod;
+        if(ct == LocalException)
+        {
+            _M << ":file__p line:line__p";
+        }
+        writeMemberCall(dataMembers, baseType, ct, WithEscape);
+        _M << "]);";
+        _M << eb;
+    }
+}
+
+void
+Slice::Gen::TypesVisitor::writeCopyWithZone(const ContainedPtr& p, const DataMemberList& dataMembers, 
+                                            int baseType, ContainerType ct) const
+{
+    if(dataMembers.empty())
+    {
+        return;
+    }
+
+    string name = fixName(p);
+    _M << sp << nl << "-(id) copyWithZone:(NSZone *)zone_p";
+    _M << sb;
+    _M << nl << "return [(" << name << " *)[[self class] allocWithZone:zone_p] init";
+    if(ct == LocalException)
+    {
+        _M << ":file line:line";
+    }
+    writeMemberCall(dataMembers, baseType, ct, NoEscape);
+    _M << "];";
+    _M << eb;
+    _H << nl << "// This class also overrides copyWithZone:";
+}
+
+void
 Slice::Gen::TypesVisitor::writeMembers(const DataMemberList& dataMembers, int baseType) const
 {
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -1815,10 +1638,19 @@ Slice::Gen::TypesVisitor::writeMembers(const DataMemberList& dataMembers, int ba
         TypePtr type = (*q)->type();
         string name = fixId((*q)->name(), baseType);
 
-        _H << nl << typeToString(type) << " ";
-        if(mapsToPointerType(type))
+        ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+        if(cl && cl->isInterface() && cl->isLocal())
         {
-            _H << "*";
+            // We can't just use id<PROTOCOL> here, PROTOCOL might be forward declared.
+            _H << nl << "ICELocalObject<" << fixName(cl) << "> *";
+        }
+        else
+        {
+            _H << nl << typeToString(type) << " ";
+            if(mapsToPointerType(type))
+            {
+                _H << "*";
+            }
         }
         _H << name << ";";
 
@@ -1841,13 +1673,23 @@ Slice::Gen::TypesVisitor::writeMemberSignature(const DataMemberList& dataMembers
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         TypePtr type = (*q)->type();
-        string typeString = inTypeToString(type, (*q)->optional());
-        string name = fixId((*q)->name(), baseType);
+        string typeString;
+        ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+        if(cl && cl->isInterface() && cl->isLocal())
+        {
+            // We can't just use id<PROTOCOL> here, PROTOCOL might be forward declared.
+            typeString = "ICELocalObject<" + fixName(cl) + "> *";
+        }
+        else
+        {
+            typeString = inTypeToString(type, (*q)->optional());
+        }
+
 
         if(q != dataMembers.begin() || ct == LocalException)
         {
-            _H << " " << name;
-            _M << " " << name;
+            _H << " " << getParamId(*q);
+            _M << " " << getParamId(*q);
         }
         _H << ":(" << typeString << ")" << fixId((*q)->name());
         _M << ":(" << typeString << ")" << fixId((*q)->name()) << "_p";
@@ -1864,7 +1706,7 @@ Slice::Gen::TypesVisitor::writeMemberCall(const DataMemberList& dataMembers, int
 
         if(q != dataMembers.begin() || ct == LocalException)
         {
-            _M << " " << fixId(name, baseType);
+            _M << " " << getParamId(*q);
         }
 
         name = esc == NoEscape ? fixId(name, baseType) : fixId(name);
@@ -1941,17 +1783,7 @@ Slice::Gen::TypesVisitor::writeMemberInit(const DataMemberList& dataMembers, int
             }
             else
             {
-                _M.zeroIndent();
-                _M << nl << "#if defined(__clang__) && __has_feature(objc_arc)";
-                _M.restoreIndent();
-                _M << nl << "self->" << fixId((*q)->name(), baseType) << " = " << name << "_p;";
-                _M.zeroIndent();
-                _M << nl << "#else";
-                _M.restoreIndent();
-                _M << nl << "self->" << fixId((*q)->name(), baseType) << " = [" << name << "_p retain];";
-                _M.zeroIndent();
-                _M << nl << "#endif";
-                _M.restoreIndent();
+                _M << nl << "self->" << fixId((*q)->name(), baseType) << " = ICE_RETAIN(" << name << "_p);";
             }
         }
     }
@@ -1965,11 +1797,24 @@ Slice::Gen::TypesVisitor::writeProperties(const DataMemberList& dataMembers, int
         TypePtr type = (*q)->type();
         string name = fixId((*q)->name(), baseType);
 
-        string typeString = typeToString(type);
-        bool isValue = isValueType(type);
+        string typeString;
+        ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+        if(cl && cl->isInterface() && cl->isLocal())
+        {
+            // We can't just use id<PROTOCOL> here, PROTOCOL might be forward declared.
+            typeString = "ICELocalObject<" + fixName(cl) + "> *";
+        }
+        else
+        {
+            typeString = typeToString(type) + " ";
+            if(mapsToPointerType(type))
+            {
+                typeString += "*";
+            }
+        }
 
         _H << nl << "@property(nonatomic, ";
-        if(isValue)
+        if(isValueType(type))
         {
             _H << "assign";
         }
@@ -1977,12 +1822,7 @@ Slice::Gen::TypesVisitor::writeProperties(const DataMemberList& dataMembers, int
         {
             _H << "ICE_STRONG_ATTR";
         }
-        _H << ") " << typeString << " ";
-        if(mapsToPointerType(type))
-        {
-            _H << "*";
-        }
-        _H << name << ";";
+        _H << ") " << typeString << name << ";";
     }
 }
 
@@ -2026,18 +1866,8 @@ Slice::Gen::TypesVisitor::writeOptionalDataMemberSelectors(const DataMemberList&
         }
         else
         {
-            _M.zeroIndent();
-            _M << nl << "#if defined(__clang__) && __has_feature(objc_arc)";
-            _M.restoreIndent();
-            _M << nl << "self->" << name << " = " << name << "_p;";
-            _M.zeroIndent();
-            _M << nl << "#else";
-            _M.restoreIndent();
-            _M << nl << "[self->" << name << " release];";
-            _M << nl << "self->" << name << " = [" << name << "_p retain];";
-            _M.zeroIndent();
-            _M << nl << "#endif";
-            _M.restoreIndent();
+            _M << nl << "ICE_RELEASE(self->" << name << ");";
+            _M << nl << "self->" << name << " = ICE_RETAIN(" << name << "_p);";
         }
         _M << eb;
 
@@ -2053,18 +1883,8 @@ Slice::Gen::TypesVisitor::writeOptionalDataMemberSelectors(const DataMemberList&
         _M << nl << "self->has_" << name << "__ = NO;";
         if(!isValue)
         {
-            _M.zeroIndent();
-            _M << nl << "#if defined(__clang__) && __has_feature(objc_arc)";
-            _M.restoreIndent();
+            _M << nl << "ICE_RELEASE(self->" << name << ");";
             _M << nl << "self->" << name << " = nil;";
-            _M.zeroIndent();
-            _M << nl << "#else";
-            _M.restoreIndent();
-            _M << nl << "[self->" << name << " release];";
-            _M << nl << "self->" << name << " = nil;";
-            _M.zeroIndent();
-            _M << nl << "#endif";
-            _M.restoreIndent();
         }
         _M << eb;
     }
@@ -2158,6 +1978,11 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, i
 void
 Slice::Gen::TypesVisitor::writeMemberDealloc(const DataMemberList& dataMembers, int baseType, bool slicedData) const
 {
+    if(dataMembers.empty())
+    {
+        return;
+    }
+
     bool once = false;
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
@@ -2193,7 +2018,7 @@ Slice::Gen::TypesVisitor::writeMemberDealloc(const DataMemberList& dataMembers, 
         _M.zeroIndent();
         _M << nl << "#endif";
         _M.restoreIndent();
-        _H << nl << "// This class also overrides dealloc.";
+        _H << nl << "// This class also overrides dealloc";
     }
 }
 
@@ -2254,6 +2079,11 @@ Slice::Gen::ProxyVisitor::ProxyVisitor(Output& H, Output& M)
 bool
 Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
+    if(p->isLocal())
+    {
+        return false;
+    }
+
     string name = fixName(p);
     ClassList bases = p->bases();
 
@@ -2363,6 +2193,11 @@ Slice::Gen::HelperVisitor::HelperVisitor(Output& H, Output& M) :
 bool
 Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
+    if(p->isLocal())
+    {
+        return false;
+    }
+
     //
     // Proxy helper
     // 
@@ -2407,6 +2242,11 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 void
 Slice::Gen::HelperVisitor::visitEnum(const EnumPtr& p)
 {
+    if(p->isLocal())
+    {
+        return;
+    }
+
     string name = moduleName(findModule(p)) + p->name() + "Helper";
 
     _H << sp << nl << "@interface " << name << " : ICEEnumHelper";
@@ -2427,6 +2267,11 @@ Slice::Gen::HelperVisitor::visitEnum(const EnumPtr& p)
 void
 Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 {
+    if(p->isLocal())
+    {
+        return;
+    }
+
     string name = moduleName(findModule(p)) + p->name() + "Helper";
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
@@ -2513,6 +2358,11 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 void
 Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 {
+    if(p->isLocal())
+    {
+        return;
+    }
+
     string name = moduleName(findModule(p)) + p->name() + "Helper";
 
     TypePtr keyType = p->keyType();
@@ -2601,6 +2451,11 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 bool
 Slice::Gen::HelperVisitor::visitStructStart(const StructPtr& p)
 {
+    if(p->isLocal())
+    {
+        return false;
+    }
+
     string name = fixName(p);
 
     _H << sp << nl << "@interface " << name  << "Helper : ICEStructHelper";
@@ -2652,6 +2507,11 @@ Slice::Gen::DelegateMVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
+    if(p->isLocal())
+    {
+        return false;
+    }
+
     string name = fixName(p);
     ClassList bases = p->bases();
     OperationList ops = p->allOperations();

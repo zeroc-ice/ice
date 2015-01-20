@@ -16,17 +16,39 @@ LIBNAME		= $(call mklibname,IceObjC$(libsuffix))
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
 SLICE_OBJS	= BuiltinSequences.o \
+			  Communicator.o \
+			  CommunicatorF.o \
+			  Connection.o \
+			  ConnectionF.o \
+			  Current.o \
+			  Endpoint.o \
+			  EndpointF.o \
+			  EndpointTypes.o \
+			  FacetMap.o \
 			  Identity.o \
+			  InstrumentationF.o \
+			  ImplicitContext.o \
+			  ImplicitContextF.o \
 			  Locator.o \
 			  LocatorF.o \
 			  LocalException.o \
+			  Logger.o \
+			  LoggerF.o \
 			  Metrics.o \
+			  ObjectAdapter.o \
+			  ObjectAdapterF.o \
+			  ObjectFactoryF.o \
+			  PluginF.o \
 			  Process.o \
 			  ProcessF.o \
+			  Properties.o \
+			  PropertiesF.o \
 			  PropertiesAdmin.o \
 			  RemoteLogger.o \
 			  Router.o \
 			  RouterF.o \
+		  	  ServantLocator.o \
+			  ServantLocatorF.o \
 			  SliceChecksumDict.o \
 			  Version.o
 
@@ -34,25 +56,25 @@ OBJC_OBJS	= DispatchInterceptor.o \
 		  	  Request.o \
 			  $(SLICE_OBJS)
 
-OBJCXX_OBJS	= Communicator.o \
-			  Connection.o \
-			  Current.o \
+OBJCXX_OBJS	= CommunicatorI.o \
+			  ConnectionI.o \
+			  CurrentI.o \
+			  EndpointI.o \
 			  Exception.o \
 			  Dispatcher.o \
 			  IdentityI.o \
+			  ImplicitContextI.o \
 			  Initialize.o \
-			  Logger.o \
+			  LocalObject.o \
+			  LoggerI.o \
 			  Object.o \
-			  ObjectAdapter.o \
-			  Properties.o \
+			  ObjectAdapterI.o \
+			  PropertiesI.o \
 			  Proxy.o \
 			  Stream.o \
 			  SlicedData.o \
 			  Util.o \
-			  VersionI.o \
-			  Wrapper.o \
-			  ImplicitContext.o \
-			  Endpoint.o
+			  VersionI.o
 
 OBJS		:= $(OBJC_OBJS) $(OBJCXX_OBJS)
 
@@ -79,30 +101,6 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 	ln -s $(SONAME) $@
 
 # Prevent generation of these files from .ice files
-
-$(HDIR)/ImplicitContext.h ImplicitContext.m:
-	@echo
-
-$(HDIR)/Communicator.h Communicator.m:
-	@echo
-
-$(HDIR)/Current.h Current.m:
-	@echo
-
-$(HDIR)/Logger.h Logger.m:
-	@echo
-
-$(HDIR)/ObjectAdapter.h ObjectAdapter.m:
-	@echo
-
-$(HDIR)/Properties.h Properties.m:
-	@echo
-
-$(HDIR)/Endpoint.h Endpoint.m:
-	@echo
-
-$(HDIR)/Connection.h Connection.m:
-	@echo
 
 $(HDIR)/ObjectFactory.h ObjectFactory.m:
 	@echo

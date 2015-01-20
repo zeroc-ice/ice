@@ -1960,7 +1960,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         //
         // Server only knows the base (non-preserved) type, so the object is sliced.
         //
-        TestSlicingObjectsClientPCUnknown* pu = [TestSlicingObjectsClientPCUnknown pCUnknown];
+        TestSlicingObjectsClientPCUnknown* pu = [TestSlicingObjectsClientPCUnknown pcUnknown];
         pu.pi = 3;
         pu.pu = @"preserved";
 
@@ -1978,7 +1978,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         // Server only knows the intermediate type Preserved. The object will be sliced to
         // Preserved for the 1.0 encoding; otherwise it should be returned intact.
         //
-        TestSlicingObjectsClientPCDerived* pcd = [TestSlicingObjectsClientPCDerived pCDerived];
+        TestSlicingObjectsClientPCDerived* pcd = [TestSlicingObjectsClientPCDerived pcDerived];
         pcd.pi = 3;
         pcd.pbs = [NSArray arrayWithObjects:pcd, nil];
 
@@ -2038,7 +2038,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         // Send an object that will have multiple preserved slices in the server.
         // The object will be sliced to Preserved for the 1.0 encoding.
         //
-        TestSlicingObjectsClientPCDerived3* pcd = [TestSlicingObjectsClientPCDerived3 pCDerived3];
+        TestSlicingObjectsClientPCDerived3* pcd = [TestSlicingObjectsClientPCDerived3 pcDerived3];
         pcd.pi = 3;
         //
         // Sending more than 254 objects exercises the encoding for object ids.
@@ -2047,7 +2047,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         pcd.pbs = [NSArray array];
         for(i = 0; i < 300; ++i)
         {
-            TestSlicingObjectsClientPCDerived2* p2 = [TestSlicingObjectsClientPCDerived2 pCDerived2];
+            TestSlicingObjectsClientPCDerived2* p2 = [TestSlicingObjectsClientPCDerived2 pcDerived2];
             p2.pi = i;
             p2.pbs = [NSArray arrayWithObjects:[NSNull null], nil]; // Nil reference. This slice should not have an indirection table.
             p2.pcd2 = i;
@@ -2122,7 +2122,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
     }
 
     {
-        TestSlicingObjectsClientPCUnknown* pu = [TestSlicingObjectsClientPCUnknown pCUnknown];
+        TestSlicingObjectsClientPCUnknown* pu = [TestSlicingObjectsClientPCUnknown pcUnknown];
         pu.pi = 3;
         pu.pu = @"preserved";
 
@@ -2141,7 +2141,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         // Server only knows the intermediate type Preserved. The object will be sliced to
         // Preserved for the 1.0 encoding; otherwise it should be returned intact.
         //
-        TestSlicingObjectsClientPCDerived* pcd = [TestSlicingObjectsClientPCDerived pCDerived];
+        TestSlicingObjectsClientPCDerived* pcd = [TestSlicingObjectsClientPCDerived pcDerived];
         pcd.pi = 3;
         pcd.pbs = [NSArray arrayWithObjects:pcd, nil];
 
@@ -2191,7 +2191,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         // Send an object that will have multiple preserved slices in the server.
         // The object will be sliced to Preserved for the 1.0 encoding.
         //
-        TestSlicingObjectsClientPCDerived3* pcd = [TestSlicingObjectsClientPCDerived3 pCDerived3];
+        TestSlicingObjectsClientPCDerived3* pcd = [TestSlicingObjectsClientPCDerived3 pcDerived3];
         pcd.pi = 3;
 
         //
@@ -2201,7 +2201,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         pcd.pbs = [NSArray array];
         for(i = 0; i < 300; ++i)
         {
-            TestSlicingObjectsClientPCDerived2* p2 = [TestSlicingObjectsClientPCDerived2 pCDerived2];
+            TestSlicingObjectsClientPCDerived2* p2 = [TestSlicingObjectsClientPCDerived2 pcDerived2];
             p2.pi = i;
             p2.pbs = [NSArray arrayWithObjects:[NSNull null], nil]; // Nil reference. This slice should not have an indirection table.
             p2.pcd2 = i;

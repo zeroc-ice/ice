@@ -8,11 +8,11 @@
 // **********************************************************************
 
 #import <objc/Ice/Stream.h>
-#import <Wrapper.h>
+#import <objc/Ice/LocalObject.h>
 
 #include <Ice/Stream.h>
 
-@interface ICEInputStream : ICEInternalWrapper<ICEInputStream>
+@interface ICEInputStream : ICELocalObject<ICEInputStream>
 {
     Ice::InputStream* is_;
 }
@@ -20,7 +20,7 @@
 -(Ice::InputStream*) is;
 @end
 
-@interface ICEOutputStream : ICEInternalWrapper<ICEOutputStream>
+@interface ICEOutputStream : ICELocalObject<ICEOutputStream>
 {
     Ice::OutputStream* os_;
     std::map<ICEObject*, Ice::ObjectPtr>* objectWriters_;

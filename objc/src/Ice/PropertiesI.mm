@@ -9,6 +9,7 @@
 
 #import <PropertiesI.h>
 #import <Util.h>
+#import <LocalObjectI.h>
 
 @implementation ICEProperties
 -(id) initWithCxxObject:(IceUtil::Shared*)cxxObject
@@ -28,12 +29,12 @@
 
 // @protocol ICEProperties methods.
 
--(NSString*) getProperty:(NSString*)key
+-(NSMutableString*) getProperty:(NSString*)key
 {
     NSException* nsex = nil;
     try
     {
-        return [toNSString(properties_->getProperty(fromNSString(key))) autorelease];
+        return [toNSMutableString(properties_->getProperty(fromNSString(key))) autorelease];
     }
     catch(const std::exception& ex)
     {
@@ -42,12 +43,13 @@
     @throw nsex;
     return nil; // Keep the compiler happy.
 }
--(NSString*) getPropertyWithDefault:(NSString*)key value:(NSString*)value
+-(NSMutableString*) getPropertyWithDefault:(NSString*)key value:(NSString*)value
 {
     NSException* nsex = nil;
     try
     {
-        return [toNSString(properties_->getPropertyWithDefault(fromNSString(key), fromNSString(value))) autorelease];
+        return [toNSMutableString(properties_->getPropertyWithDefault(fromNSString(key), 
+                                                                      fromNSString(value))) autorelease];
     }
     catch(const std::exception& ex)
     {
@@ -84,7 +86,7 @@
     @throw nsex;
     return 0; // Keep the compiler happy.
 }
--(NSArray*) getPropertyAsList:(NSString*)key
+-(ICEMutableStringSeq*) getPropertyAsList:(NSString*)key
 {
     NSException* nsex = nil;
     try
@@ -98,7 +100,7 @@
     @throw nsex;
     return nil; // Keep the compiler happy.
 }
--(NSArray*) getPropertyAsListWithDefault:(NSString*)key value:(NSArray*)value
+-(ICEMutableStringSeq*) getPropertyAsListWithDefault:(NSString*)key value:(NSArray*)value
 {
     NSException* nsex = nil;
     try
@@ -114,7 +116,7 @@
     @throw nsex;
     return nil; // Keep the compiler happy.
 }
--(NSDictionary*) getPropertiesForPrefix:(NSString*)prefix
+-(ICEMutablePropertyDict*) getPropertiesForPrefix:(NSString*)prefix
 {
     NSException* nsex = nil;
     try
@@ -144,7 +146,7 @@
         @throw nsex;
     }
 }
--(NSArray*) getCommandLineOptions
+-(ICEMutableStringSeq*) getCommandLineOptions
 {
     NSException* nsex = nil;
     try
@@ -158,7 +160,7 @@
     @throw nsex;
     return nil; // Keep the compiler happy.
 }
--(NSArray*) parseCommandLineOptions:(NSString*)prefix options:(NSArray*)options
+-(ICEMutableStringSeq*) parseCommandLineOptions:(NSString*)prefix options:(NSArray*)options
 {
     NSException* nsex = nil;
     try
@@ -174,7 +176,7 @@
     @throw nsex;
     return nil; // Keep the compiler happy.
 }
--(NSArray*) parseIceCommandLineOptions:(NSArray*)options
+-(ICEMutableStringSeq*) parseIceCommandLineOptions:(NSArray*)options
 {
     NSException* nsex = nil;
     try
@@ -211,7 +213,7 @@
     NSException* nsex = nil;
     try
     {
-        return [ICEProperties wrapperWithCxxObject:properties_->clone().get()];
+        return [ICEProperties localObjectWithCxxObject:properties_->clone().get()];
     }
     catch(const std::exception& ex)
     {
@@ -230,10 +232,8 @@ class UpdateCallbackI : public Ice::PropertiesAdminUpdateCallback
 {
 public:
 
-    UpdateCallbackI(id<ICEPropertiesAdminUpdateCallback> callback) :
-        _callback(callback)
+    UpdateCallbackI(id<ICEPropertiesAdminUpdateCallback> callback) : _callback(callback)
     {
-        [(ICEPropertiesAdminUpdateCallback*)callback setPropertiesAdminUpdateCallback:this];
     }
 
     void
@@ -242,63 +242,44 @@ public:
         [_callback updated:[toNSDictionary(properties) autorelease]];
     }
 
+    id<ICEPropertiesAdminUpdateCallback>
+    callback()
+    {
+        return _callback;
+    }
+
 private:
 
     id<ICEPropertiesAdminUpdateCallback> _callback;
 };
+typedef IceUtil::Handle<UpdateCallbackI> UpdateCallbackIPtr;
 
 }
-
-#define PROPERTIESADMINUPDATECALLBACK \
-                    dynamic_cast<Ice::PropertiesAdminUpdateCallback*>(static_cast<IceUtil::Shared*>(cxxObject_))
 
 @implementation ICEPropertiesAdminUpdateCallback
--(void) dealloc
-{
-    if(PROPERTIESADMINUPDATECALLBACK)
-    {
-        PROPERTIESADMINUPDATECALLBACK->__decRef();
-    }
-    [super dealloc];
-}
-
--(void) setPropertiesAdminUpdateCallback:(Ice::PropertiesAdminUpdateCallback*)cxxObject
-{
-    assert(!PROPERTIESADMINUPDATECALLBACK);
-    cxxObject_ = static_cast<IceUtil::Shared*>(cxxObject);
-    PROPERTIESADMINUPDATECALLBACK->__incRef();
-}
-
--(Ice::PropertiesAdminUpdateCallback*) propertiesAdminUpdateCallback
-{
-    return PROPERTIESADMINUPDATECALLBACK;
-}
 @end
 
 #define NATIVEPROPERTIESADMIN dynamic_cast<Ice::NativePropertiesAdmin*>(static_cast<IceUtil::Shared*>(cxxObject_))
 
 @implementation ICENativePropertiesAdmin
--(void) addUpdateCallback:(id<ICEPropertiesAdminUpdateCallback>)callback
+-(void) addUpdateCallback:(id<ICEPropertiesAdminUpdateCallback>)cb
 {
-    NSAssert([callback isKindOfClass:[ICEPropertiesAdminUpdateCallback class]], 
-             @"callback not extends ICEPropertiesAdminUpdateCallback class");
-    if([(ICEPropertiesAdminUpdateCallback*)callback propertiesAdminUpdateCallback])
-    {
-        NATIVEPROPERTIESADMIN->addUpdateCallback(
-                                        [(ICEPropertiesAdminUpdateCallback*)callback propertiesAdminUpdateCallback]);
-    }
-    else
-    {
-        NATIVEPROPERTIESADMIN->addUpdateCallback(new UpdateCallbackI(callback));
-    }
+    IceUtil::Mutex::Lock sync(mutex_);
+    callbacks_.push_back(new UpdateCallbackI(cb));
+    NATIVEPROPERTIESADMIN->addUpdateCallback(callbacks_.back());
 }
 
--(void) removeUpdateCallback:(id<ICEPropertiesAdminUpdateCallback>)callback
+-(void) removeUpdateCallback:(id<ICEPropertiesAdminUpdateCallback>)cb
 {
-    NSAssert([callback isKindOfClass:[ICEPropertiesAdminUpdateCallback class]], 
-             @"callback not extends ICEPropertiesAdminUpdateCallback class");
-
-    NATIVEPROPERTIESADMIN->removeUpdateCallback(
-                                        [(ICEPropertiesAdminUpdateCallback*)callback propertiesAdminUpdateCallback]);
+    IceUtil::Mutex::Lock sync(mutex_);
+    for(std::vector<Ice::PropertiesAdminUpdateCallbackPtr>::iterator p = callbacks_.begin(); p != callbacks_.end(); ++p)
+    {
+        if(UpdateCallbackIPtr::dynamicCast(*p)->callback() == cb)
+        {
+            NATIVEPROPERTIESADMIN->removeUpdateCallback(*p);
+            callbacks_.erase(p);
+            return;
+        }
+    }
 }
 @end

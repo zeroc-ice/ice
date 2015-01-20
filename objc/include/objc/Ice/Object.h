@@ -28,9 +28,6 @@ extern "C"
 #endif
 void ICEInternalCheckModeAndSelector(id, ICEOperationMode, SEL, ICECurrent*);
 
-@interface ICEInternalPrefixTable : NSObject
-@end
-
 @protocol ICERequest <NSObject>
 -(ICECurrent*) getCurrent;
 @end

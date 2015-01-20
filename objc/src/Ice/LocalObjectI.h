@@ -7,26 +7,25 @@
 //
 // **********************************************************************
 
-#import <objc/Ice/Config.h>
+#import <objc/Ice/LocalObject.h>
 
 namespace IceUtil
 {
 class Shared;
 }
 
-@interface ICEInternalWrapper : NSObject
-{
-    void* cxxObject_;
-}
+@interface ICELocalObject ()
 -(id) initWithCxxObject:(IceUtil::Shared*)arg;
+
 
 //
 // Note: the returned object is NOT retained. It must be held
 // some other way by the calling thread.
 //
-+(id) getWrapperWithCxxObjectNoAutoRelease:(IceUtil::Shared*)arg;
++(id) getLocalObjectWithCxxObjectNoAutoRelease:(IceUtil::Shared*)arg;
 
-+(id) wrapperWithCxxObjectNoAutoRelease:(IceUtil::Shared*)arg;
-+(id) wrapperWithCxxObject:(IceUtil::Shared*)arg;
++(id) localObjectWithCxxObjectNoAutoRelease:(IceUtil::Shared*)arg;
++(id) localObjectWithCxxObject:(IceUtil::Shared*)arg;
+
 -(IceUtil::Shared*) cxxObject;
 @end

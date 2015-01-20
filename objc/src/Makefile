@@ -11,7 +11,7 @@ top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS	= Ice Glacier2 IceStorm IceGrid
+SUBDIRS	= Ice IceSSL Glacier2 IceStorm IceGrid
 
 .PHONY: $(EVERYTHING) $(SUBDIRS)
 
@@ -19,7 +19,7 @@ SUBDIRS	= Ice Glacier2 IceStorm IceGrid
 # Dependencies for 'all' target when using -jx
 #
 
-Glacier2 IceStorm IceGrid: Ice
+IceSSL Glacier2 IceStorm IceGrid: Ice
 
 IceGrid: Glacier2
 

@@ -278,7 +278,7 @@ local interface Communicator
      * @see Properties
      *
      **/
-    ObjectAdapter createObjectAdapterWithRouter(string name, Router* rtr);
+    ObjectAdapter createObjectAdapterWithRouter(string name, ["objc:param:router"] Router* rtr);
 
     /**
      *
@@ -329,7 +329,7 @@ local interface Communicator
      * @see ObjectFactory
      *
      **/
-    void addObjectFactory(ObjectFactory factory, string id);
+    void addObjectFactory(ObjectFactory factory, ["objc:param:sliceId"] string id);
 
     /**
      *

@@ -9,13 +9,14 @@
 
 #import <objc/Ice/Logger.h>
 
-#import <Wrapper.h>
+#import <objc/Ice/LocalObject.h>
 
 #include <Ice/Logger.h>
 
-@interface ICELogger : NSObject<ICELogger>
+@interface ICELogger : ICELocalObject<ICELogger>
 {
+    NSString* prefix_;
+    NSString* formattedPrefix_;
 }
 +(Ice::Logger*)loggerWithLogger:(id<ICELogger>)arg;
-+(id) wrapperWithCxxObject:(IceUtil::Shared*)cxxObject;
 @end

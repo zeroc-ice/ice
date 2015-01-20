@@ -28,3 +28,4 @@
 #import <objc/Ice/Version.h>
 #import <objc/Ice/ImplicitContext.h>
 #import <objc/Ice/Metrics.h>
+#import <objc/Ice/NativePropertiesAdmin.h>

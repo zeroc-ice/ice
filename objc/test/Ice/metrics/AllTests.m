@@ -13,7 +13,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface UpdateCallbackI : ICEPropertiesAdminUpdateCallback<ICEPropertiesAdminUpdateCallback>
+@interface UpdateCallbackI : NSObject<ICEPropertiesAdminUpdateCallback>
 {
 @private
 BOOL updated;
@@ -462,7 +462,7 @@ clearView(ICEPropertiesAdminPrx* cprops, ICEPropertiesAdminPrx* sprops, UpdateCa
 void
 checkFailure(ICEMXMetricsAdminPrx* m, NSString* map, NSString* id_, NSString* failure, int count)
 {
-    ICEMXMetricsFailures* f = [m getMetricsFailures:@"View" map:map id_:id_];
+    ICEMXMetricsFailures* f = [m getMetricsFailures:@"View" map:map id:id_];
     if([f.failures objectForKey:failure] == nil)
     {
         NSLog(@"couldn't find failure `%@' for `%@'", failure, id_);

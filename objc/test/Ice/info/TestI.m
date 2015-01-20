@@ -22,7 +22,7 @@
 -(ICEContext*) getEndpointInfoAsContext:(ICECurrent*)current
 {
     id<ICEEndpoint> endpoint = [current.con getEndpoint];
-    ICEEndpointInfo* info = [endpoint getInfo];
+    ICEEndpointInfo<ICEEndpointInfo>* info = [endpoint getInfo];
 
     ICEMutableContext* ctx = [ICEMutableContext dictionaryWithObject:[NSString stringWithFormat:@"%d", [info timeout]]
                                                        forKey:@"timeout"];

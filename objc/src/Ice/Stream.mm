@@ -14,6 +14,7 @@
 #import <ObjectI.h>
 #import <SlicedDataI.h>
 #import <VersionI.h>
+#import <LocalObjectI.h>
 
 #import <objc/Ice/LocalException.h>
 
@@ -81,9 +82,9 @@ public:
         @try
         {
             //
-            // TODO: explain why calling getWrapperWithCxxObjectNoAutoRelease is safe here
+            // TODO: explain why calling getLocalObjectWithCxxObjectNoAutoRelease is safe here
             //
-            ICEInputStream* is = [ICEInputStream getWrapperWithCxxObjectNoAutoRelease:stream.get()];
+            ICEInputStream* is = [ICEInputStream getLocalObjectWithCxxObjectNoAutoRelease:stream.get()];
             assert(is != 0);
             [_obj read__:is];
         }
@@ -137,7 +138,7 @@ ReadObjectBase::checkType(ICEObject* o)
         
         @throw [ICEUnexpectedObjectException unexpectedObjectException:__FILE__
                                              line:__LINE__
-                                             reason_:reason
+                                             reason:reason
                                              type:actualType
                                              expectedType:expectedType];
     }
@@ -377,7 +378,7 @@ public:
     {
         ICEUserException* ex = nil;
         std::string objcId = toObjCSliceId(typeId, 
-                                   [[ICECommunicator wrapperWithCxxObject:_communicator.get()] getPrefixTable]);
+                                   [[ICECommunicator localObjectWithCxxObject:_communicator.get()] getPrefixTable]);
         Class c = objc_lookUpClass(objcId.c_str());
         if(c != nil)
         {
@@ -393,6 +394,9 @@ private:
 };
 
 }
+
+@implementation ICEInternalPrefixTable
+@end
 
 @interface ICEInternalNone : NSObject
 @end
@@ -449,7 +453,7 @@ private:
 
 -(id<ICECommunicator>) communicator
 {
-    return [ICECommunicator wrapperWithCxxObject:is_->communicator().get()];
+    return [ICECommunicator localObjectWithCxxObject:is_->communicator().get()];
 }
 
 -(void) sliceObjects:(BOOL)b
@@ -845,7 +849,7 @@ private:
     }
     if(val > max || val < min)
     {
-        @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason_:@"enumerator out of range"];
+        @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"enumerator out of range"];
     }
     return val;
 }
@@ -896,7 +900,7 @@ private:
                 if(*v > max || *v < min)
                 {
                     @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__
-                                                reason_:@"enumerator out of range"];
+                                                reason:@"enumerator out of range"];
                 }
                 ++v;
             }
@@ -909,7 +913,7 @@ private:
                 if(*v > max || *v < min)
                 {
                     @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__
-                                                         reason_:@"enumerator out of range"];
+                                                         reason:@"enumerator out of range"];
                 }
                 ++v;
             }
@@ -922,7 +926,7 @@ private:
                 if(*v > max || *v < min)
                 {
                     @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__
-                                                         reason_:@"enumerator out of range"];
+                                                         reason:@"enumerator out of range"];
                 }
                 ++v;
             }
@@ -1516,7 +1520,7 @@ private:
 
 -(id<ICECommunicator>) communicator
 {
-    return [ICECommunicator wrapperWithCxxObject:os_->communicator().get()];
+    return [ICECommunicator localObjectWithCxxObject:os_->communicator().get()];
 }
 
 -(void)writeBool:(BOOL)v
@@ -1830,7 +1834,7 @@ private:
     {
 	if(key == [NSNull null])
 	{
-	    @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason_:@"illegal NSNull value"];
+	    @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
 	}
 	[helper.key write:key stream:self];
 	NSObject *obj = [dictionary objectForKey:key];
@@ -1860,7 +1864,7 @@ private:
 {
     if(v > max || v < min)
     {
-        @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason_:@"enumerator out of range"];
+        @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"enumerator out of range"];
     }
     NSException* nsex = nil;
     try
@@ -1922,7 +1926,7 @@ private:
                 if(*p > max || *p < min)
                 {
                     @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__
-                                                         reason_:@"enumerator out of range"];
+                                                          reason:@"enumerator out of range"];
                 }
                 [self writeByte:*p++];
             }
@@ -1934,7 +1938,7 @@ private:
                 if(*p > max || *p < min)
                 {
                     @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__
-                                                reason_:@"enumerator out of range"];
+                                                reason:@"enumerator out of range"];
                 }
                 [self writeShort:*p++];
             }
@@ -1946,7 +1950,7 @@ private:
                 if(*p > max || *p < min)
                 {
                     @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__
-                                                reason_:@"enumerator out of range"];
+                                                reason:@"enumerator out of range"];
                 }
                 [self writeInt:*p++];
             }
@@ -2051,7 +2055,7 @@ private:
     {
 	if(key == [NSNull null])
 	{
-	    @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason_:@"illegal NSNull value"];
+	    @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
 	}
 	[helper write:key stream:self];
 	id obj = [dictionary objectForKey:key];
@@ -2407,7 +2411,7 @@ private:
 {
     if(obj == nil)
     {
-	@throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason_:@"illegal NSNull value"];
+	@throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
     }
     [stream writeBool:[obj boolValue]];
 }
@@ -2442,7 +2446,7 @@ private:
 {
     if(obj == nil)
     {
-	@throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason_:@"illegal NSNull value"];
+	@throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
     }
     [stream writeByte:[obj unsignedCharValue]];
 }
@@ -2477,7 +2481,7 @@ private:
 {
     if(obj == nil)
     {
-	@throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason_:@"illegal NSNull value"];
+	@throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
     }
     [stream writeShort:[obj shortValue]];
 }
@@ -2512,7 +2516,7 @@ private:
 {
     if(obj == nil)
     {
-	@throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason_:@"illegal NSNull value"];
+	@throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
     }
     [stream writeInt:[obj intValue]];
 }
@@ -2547,7 +2551,7 @@ private:
 {
     if(obj == nil)
     {
-	@throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason_:@"illegal NSNull value"];
+	@throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
     }
     [stream writeLong:[obj longValue]];
 }
@@ -2582,7 +2586,7 @@ private:
 {
     if(obj == nil)
     {
-	@throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason_:@"illegal NSNull value"];
+	@throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
     }
     [stream writeFloat:[obj floatValue]];
 }
@@ -2617,7 +2621,7 @@ private:
 {
     if(obj == nil)
     {
-	@throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason_:@"illegal NSNull value"];
+	@throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
     }
     [stream writeDouble:[obj doubleValue]];
 }
@@ -2688,7 +2692,7 @@ private:
 {
     if(obj == nil)
     {
-        @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason_:@"illegal NSNull value"];
+        @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
     }
     [stream writeEnumerator:[obj intValue] min:[self getMinValue] max:[self getMaxValue]];
 }

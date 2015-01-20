@@ -28,7 +28,7 @@
 @interface anddoI : anddo<anddo>
 @end
 
-@interface andfriendI : andfriend<andfriend>
+@interface andfriendI : ICELocalObject<andfriend>
 @end
 
 //
@@ -47,7 +47,9 @@ testSymbols()
     test(prx2 == 0);
 
     andswitchPrx* prx3 = 0;
-    [prx3 foo:0 volatile_:0];
+    [prx3 foo:0 volatile:0];
+    [prx3 foo2:0 y:0 nil2:0];
+    [prx3 foo3:0 nil_:0];
     test(prx3 == 0);
 
     anddoPrx* prx4 = 0;
@@ -55,9 +57,6 @@ testSymbols()
 
     anddoPrx* prx5 = 0;
     test(prx5 == 0);
-
-    andfriendPrx* prx6 = 0;
-    test(prx6 == 0);
 
     andcontinue c1 = andasm;
     test(c1 == andasm);

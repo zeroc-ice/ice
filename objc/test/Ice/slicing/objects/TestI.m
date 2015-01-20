@@ -24,25 +24,25 @@
 
 -(TestSlicingObjectsServerSBase*) SBSKnownDerivedAsSBase:(ICECurrent*)current
 {
-    return [TestSlicingObjectsServerSBSKnownDerived sBSKnownDerived:@"SBSKnownDerived.sb"
+    return [TestSlicingObjectsServerSBSKnownDerived sbsKnownDerived:@"SBSKnownDerived.sb"
                                                               sbskd:@"SBSKnownDerived.sbskd"];
 }
 
 -(TestSlicingObjectsServerSBSKnownDerived*) SBSKnownDerivedAsSBSKnownDerived:(ICECurrent*)current
 {
-    return [TestSlicingObjectsServerSBSKnownDerived sBSKnownDerived:@"SBSKnownDerived.sb"
+    return [TestSlicingObjectsServerSBSKnownDerived sbsKnownDerived:@"SBSKnownDerived.sb"
                                                               sbskd:@"SBSKnownDerived.sbskd"];
 }
 
 -(TestSlicingObjectsServerSBase*) SBSUnknownDerivedAsSBase:(ICECurrent*)current
 {
-    return [TestSlicingObjectsServerSBSUnknownDerived sBSUnknownDerived:@"SBSUnknownDerived.sb"
+    return [TestSlicingObjectsServerSBSUnknownDerived sbsUnknownDerived:@"SBSUnknownDerived.sb"
                                                                   sbsud:@"SBSUnknownDerived.sbsud"];
 }
 
 -(TestSlicingObjectsServerSBase*) SBSUnknownDerivedAsSBaseCompact:(ICECurrent*)current
 {
-    return [TestSlicingObjectsServerSBSUnknownDerived sBSUnknownDerived:@"SBSUnknownDerived.sb"
+    return [TestSlicingObjectsServerSBSUnknownDerived sbsUnknownDerived:@"SBSUnknownDerived.sb"
                                                                   sbsud:@"SBSUnknownDerived.sbsud"];
 }
 
@@ -499,8 +499,8 @@
 }
 -(void) throwPreservedException:(ICECurrent*)current
 {
-    TestSlicingObjectsServerPSUnknownException* ue = [TestSlicingObjectsServerPSUnknownException pSUnknownException];
-    ue.p = [TestSlicingObjectsServerPSUnknown2 pSUnknown2];
+    TestSlicingObjectsServerPSUnknownException* ue = [TestSlicingObjectsServerPSUnknownException psUnknownException];
+    ue.p = [TestSlicingObjectsServerPSUnknown2 psUnknown2];
     ue.p.pi = 5;
     ue.p.ps = @"preserved";
     ue.p.pb = ue.p;

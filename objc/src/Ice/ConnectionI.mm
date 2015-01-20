@@ -13,16 +13,17 @@
 #import <ObjectAdapterI.h>
 #import <ProxyI.h>
 #import <Util.h>
+#import <LocalObjectI.h>
 
-@implementation ICEConnectionInfo
+#import <objc/Ice/LocalException.h>
 
-@synthesize incoming;
-@synthesize adapterName;
-@synthesize connectionId;
+#import <objc/runtime.h>
+
+@implementation ICEConnectionInfo (ICEInternal)
 
 -(id) initWithConnectionInfo:(Ice::ConnectionInfo*)connectionInfo;
 {
-    self = [super init];
+    self = [super initWithCxxObject:connectionInfo];
     if(self != nil)
     {
         self->incoming = connectionInfo->incoming;
@@ -32,75 +33,9 @@
     return self;
 }
 
--(void) dealloc
-{
-    [self->adapterName release];
-    [self->connectionId release];
-    [super dealloc];
-}
-
--(BOOL) isEqual:(id)o_
-{
-    if(self == o_)
-    {
-        return YES;
-    }
-    if(!o_ || ![o_ isKindOfClass:[self class]])
-    {
-        return NO;
-    }
-    ICEConnectionInfo *obj_ = (ICEConnectionInfo *)o_;
-    if(self->incoming != obj_->incoming)
-    {
-        return NO;
-    }
-    if(![self->adapterName isEqualToString:obj_->adapterName])
-    {
-        return NO;
-    }
-    if(![self->connectionId isEqualToString:obj_->connectionId])
-    {
-        return NO;
-    }
-    return YES;
-}
-
-+(id) connectionInfoWithConnectionInfo:(Ice::ConnectionInfo*)connectionInfo
-{
-    if(!connectionInfo)
-    {
-        return nil;
-    }
-    else if(dynamic_cast<Ice::UDPConnectionInfo*>(connectionInfo))
-    {
-        return [[[ICEUDPConnectionInfo alloc]
-                    initWithUDPConnectionInfo:dynamic_cast<Ice::UDPConnectionInfo*>(connectionInfo)] autorelease];
-    }
-    else if(dynamic_cast<Ice::TCPConnectionInfo*>(connectionInfo))
-    {
-        return [[[ICETCPConnectionInfo alloc]
-                    initWithTCPConnectionInfo:dynamic_cast<Ice::TCPConnectionInfo*>(connectionInfo)] autorelease];
-    }
-    else if(dynamic_cast<Ice::WSConnectionInfo*>(connectionInfo))
-    {
-        return [[[ICEWSConnectionInfo alloc]
-                    initWithWSConnectionInfo:dynamic_cast<Ice::WSConnectionInfo*>(connectionInfo)] autorelease];
-    }
-    else if(dynamic_cast<IceSSL::ConnectionInfo*>(connectionInfo))
-    {
-        return [[[ICESSLConnectionInfo alloc]
-                    initWithSSLConnectionInfo:dynamic_cast<IceSSL::ConnectionInfo*>(connectionInfo)] autorelease];
-    }
-    return nil;
-}
 @end
 
-@implementation ICEIPConnectionInfo
-
-@synthesize localAddress;
-@synthesize localPort;
-@synthesize remoteAddress;
-@synthesize remotePort;
+@implementation ICEIPConnectionInfo (ICEInternal)
 
 -(id) initWithIPConnectionInfo:(Ice::IPConnectionInfo*)ipConnectionInfo
 {
@@ -115,50 +50,9 @@
     return self;
 }
 
--(void) dealloc
-{
-    [self->localAddress release];
-    [self->remoteAddress release];
-    [super dealloc];
-}
-
--(BOOL) isEqual:(id)o_
-{
-    if(self == o_)
-    {
-        return YES;
-    }
-    if(!o_ || ![o_ isKindOfClass:[self class]])
-    {
-        return NO;
-    }
-    if(![super isEqual:o_])
-    {
-        return NO;
-    }
-    ICEIPConnectionInfo *obj_ = (ICEIPConnectionInfo *)o_;
-    if(![self->localAddress isEqualToString:obj_->localAddress])
-    {
-        return NO;
-    }
-    if(self->localPort != obj_->localPort)
-    {
-        return NO;
-    }
-    if(![self->remoteAddress isEqualToString:obj_->remoteAddress])
-    {
-        return NO;
-    }
-    if(self->remotePort != obj_->remotePort)
-    {
-        return NO;
-    }
-    return YES;
-}
 @end
 
-@implementation ICETCPConnectionInfo
-
+@implementation ICETCPConnectionInfo (ICEInternal)
 -(id) initWithTCPConnectionInfo:(Ice::TCPConnectionInfo*)tcpConnectionInfo
 {
     self = [super initWithIPConnectionInfo:tcpConnectionInfo];
@@ -166,10 +60,7 @@
 }
 @end
 
-@implementation ICEUDPConnectionInfo
-
-@synthesize mcastAddress;
-@synthesize mcastPort;
+@implementation ICEUDPConnectionInfo (ICEInternal)
 
 -(id) initWithUDPConnectionInfo:(Ice::UDPConnectionInfo*)udpConnectionInfo
 {
@@ -182,41 +73,9 @@
     return self;
 }
 
--(void) dealloc
-{
-    [self->mcastAddress release];
-    [super dealloc];
-}
-
--(BOOL) isEqual:(id)o_
-{
-    if(self == o_)
-    {
-        return YES;
-    }
-    if(!o_ || ![o_ isKindOfClass:[self class]])
-    {
-        return NO;
-    }
-    if(![super isEqual:o_])
-    {
-        return NO;
-    }
-    ICEUDPConnectionInfo *obj_ = (ICEUDPConnectionInfo *)o_;
-    if(![self->mcastAddress isEqualToString:obj_->mcastAddress])
-    {
-        return NO;
-    }
-    if(self->mcastPort != obj_->mcastPort)
-    {
-        return NO;
-    }
-    return YES;
-}
 @end
 
-@implementation ICEWSConnectionInfo
-
+@implementation ICEWSConnectionInfo (ICEInternal)
 -(id) initWithWSConnectionInfo:(Ice::WSConnectionInfo*)wsConnectionInfo
 {
     self = [super initWithIPConnectionInfo:wsConnectionInfo];
@@ -224,55 +83,20 @@
 }
 @end
 
-@implementation ICESSLConnectionInfo
+// @implementation ICESSLConnectionInfo (ICEInternal)
 
-@synthesize cipher;
-@synthesize certs;
+// -(id) initWithSSLConnectionInfo:(IceSSL::ConnectionInfo*)sslConnectionInfo
+// {
+//     self = [super initWithIPConnectionInfo:sslConnectionInfo];
+//     if(self)
+//     {
+//         self->cipher = [[NSString alloc] initWithUTF8String:sslConnectionInfo->cipher.c_str()];
+//         self->certs = toNSArray(sslConnectionInfo->certs);
+//     }
+//     return self;
+// }
 
--(id) initWithSSLConnectionInfo:(IceSSL::ConnectionInfo*)sslConnectionInfo
-{
-    self = [super initWithIPConnectionInfo:sslConnectionInfo];
-    if(self)
-    {
-        self->cipher = [[NSString alloc] initWithUTF8String:sslConnectionInfo->cipher.c_str()];
-        self->certs = toNSArray(sslConnectionInfo->certs);
-    }
-    return self;
-}
-
--(void) dealloc
-{
-    [self->cipher release];
-    [self->certs release];
-    [super dealloc];
-}
-
--(BOOL) isEqual:(id)o_
-{
-    if(self == o_)
-    {
-        return YES;
-    }
-    if(!o_ || ![o_ isKindOfClass:[self class]])
-    {
-        return NO;
-    }
-    if(![super isEqual:o_])
-    {
-        return NO;
-    }
-    ICESSLConnectionInfo* obj_ = (ICESSLConnectionInfo*)o_;
-    if(![self->cipher isEqualToString:obj_->cipher])
-    {
-        return NO;
-    }
-    if(![self->certs isEqual:obj_->certs])
-    {
-        return NO;
-    }
-    return YES;
-}
-@end
+// @end
 
 #define CONNECTION dynamic_cast<Ice::Connection*>(static_cast<IceUtil::Shared*>(cxxObject_))
 
@@ -328,7 +152,7 @@
     NSException* nsex = nil;
     try
     {
-        return [ICEObjectAdapter wrapperWithCxxObject:CONNECTION->getAdapter().get()];
+        return [ICEObjectAdapter localObjectWithCxxObject:CONNECTION->getAdapter().get()];
     }
     catch(const std::exception& ex)
     {
@@ -382,17 +206,29 @@
                    CONNECTION->end_flushBatchRequests(r);
                }, result);
 }
--(NSString*) type
+-(void) setCallback:(ICELocalObject<ICEConnectionCallback>*)callback
 {
-    return [toNSString(CONNECTION->type()) autorelease];
+    @throw [ICEFeatureNotSupportedException featureNotSupportedException:__FILE__ line:__LINE__];
+}
+-(void) setACM:(id)timeout close:(id)close heartbeat:(id)heartbeat
+{
+    @throw [ICEFeatureNotSupportedException featureNotSupportedException:__FILE__ line:__LINE__];
+}
+-(ICEACM*) getACM
+{
+    @throw [ICEFeatureNotSupportedException featureNotSupportedException:__FILE__ line:__LINE__];
+}
+-(NSMutableString*) type
+{
+    return [toNSMutableString(CONNECTION->type()) autorelease];
 }
 -(ICEInt) timeout
 {
     return CONNECTION->timeout();
 }
--(NSString*) toString
+-(NSMutableString*) toString
 {
-    return [toNSString(CONNECTION->toString()) autorelease];
+    return [toNSMutableString(CONNECTION->toString()) autorelease];
 }
 -(NSString*) description
 {
@@ -405,7 +241,45 @@
     try
     {
         Ice::ConnectionInfoPtr info = CONNECTION->getInfo();
-        return [ICEConnectionInfo connectionInfoWithConnectionInfo:info.get()];
+        if(!info)
+        {
+            return nil;
+        }
+
+        Ice::UDPConnectionInfoPtr udpInfo = Ice::UDPConnectionInfoPtr::dynamicCast(info);
+        if(udpInfo)
+        {
+            return [[[ICEUDPConnectionInfo alloc] initWithUDPConnectionInfo:udpInfo.get()] autorelease];
+        }
+
+        Ice::TCPConnectionInfoPtr tcpInfo = Ice::TCPConnectionInfoPtr::dynamicCast(info);
+        if(tcpInfo)
+        {
+            return [[[ICETCPConnectionInfo alloc] initWithTCPConnectionInfo:tcpInfo.get()] autorelease];
+        }
+
+        Ice::WSConnectionInfoPtr wsInfo = Ice::WSConnectionInfoPtr::dynamicCast(info);
+        if(wsInfo)
+        {
+            return [[[ICEWSConnectionInfo alloc] initWithWSConnectionInfo:wsInfo.get()] autorelease];
+        }
+
+        std::ostringstream os;
+        os << "connectionInfoWithType_" << CONNECTION->type() << ":";
+        SEL selector = sel_registerName(os.str().c_str());
+        if([ICEConnectionInfo respondsToSelector:selector])
+        {
+            IceUtil::Shared* shared = info.get();
+            return [ICEConnectionInfo performSelector:selector withObject:[NSValue valueWithPointer:shared]];
+        }
+
+        Ice::IPConnectionInfoPtr ipInfo = Ice::IPConnectionInfoPtr::dynamicCast(info);
+        if(ipInfo)
+        {
+            return [[[ICEIPConnectionInfo alloc] initWithIPConnectionInfo:ipInfo.get()] autorelease];
+        }
+
+        return [[[ICEConnectionInfo alloc] initWithConnectionInfo:info.get()] autorelease];
     }
     catch(const std::exception& ex)
     {
@@ -423,7 +297,7 @@
     NSException* nsex = nil;
     try
     {
-        return [ICEEndpoint wrapperWithCxxObject:CONNECTION->getEndpoint().get()];
+        return [ICEEndpoint localObjectWithCxxObject:CONNECTION->getEndpoint().get()];
     }
     catch(const std::exception& ex)
     {

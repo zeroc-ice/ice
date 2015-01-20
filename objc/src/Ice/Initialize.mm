@@ -15,6 +15,7 @@
 #import <DispatcherI.h>
 #import <Util.h>
 #import <VersionI.h>
+#import <LocalObjectI.h>
 
 #import <objc/Ice/LocalException.h>
 
@@ -164,8 +165,8 @@ private:
 @synthesize dispatcher;
 @synthesize prefixTable__;
 
--(id) init:(id<ICEProperties>)props logger:(id<ICELogger>)log
-dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d;
+-(id) init:(id<ICEProperties>)props logger:(id<ICELogger>)log dispatcher:(void(^)(id<ICEDispatcherCall>, 
+                                                                                  id<ICEConnection>))d;
 {
     self = [super init];
     if(!self)
@@ -204,9 +205,9 @@ dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d;
 -(NSUInteger) hash;
 {
     NSUInteger h = 0;
-    h = (h << 1 ^ [properties hash]);
-    h = (h << 1 ^ [logger hash]);
-    h = (h << 1 ^ [prefixTable__ hash]);
+    h = (h << 5 ^ [properties hash]);
+    h = (h << 5 ^ [logger hash]);
+    h = (h << 5 ^ [prefixTable__ hash]);
     return h;
 }
 
@@ -224,58 +225,58 @@ dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d;
     if(!properties)
     {
         if(obj->properties)
-	{
-	    return NO;
-	}
+        {
+            return NO;
+        }
     }
     else
     {
         if(![properties isEqual:obj->properties])
-	{
-	    return NO;
-	}
+        {
+            return NO;
+        }
     }
     if(!logger)
     {
         if(obj->logger)
-	{
-	    return NO;
-	}
+        {
+            return NO;
+        }
     }
     else
     {
         if(![logger isEqual:obj->logger])
-	{
-	    return NO;
-	}
+        {
+            return NO;
+        }
     }
     if(!dispatcher)
     {
         if(obj->dispatcher)
-	{
-	    return NO;
-	}
+        {
+            return NO;
+        }
     }
     else
     {
         if(dispatcher == obj->dispatcher)
-	{
-	    return NO;
-	}
+        {
+            return NO;
+        }
     }
     if(!prefixTable__)
     {
         if(obj->prefixTable__)
-	{
-	    return NO;
-	}
+        {
+            return NO;
+        }
     }
     else
     {
         if(![prefixTable__ isEqual:obj->prefixTable__])
-	{
-	    return NO;
-	}
+        {
+            return NO;
+        }
     }
     return YES;
 }
@@ -310,7 +311,7 @@ dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d;
         {
             properties = Ice::createProperties();
         }
-        return [ICEProperties wrapperWithCxxObject:properties.get()];
+        return [ICEProperties localObjectWithCxxObject:properties.get()];
     }
     catch(const std::exception& ex)
     {
@@ -348,7 +349,7 @@ dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d;
     if(properties != nil && ![properties isKindOfClass:[ICEProperties class]])
     {
         @throw [ICEInitializationException initializationException:__FILE__ line:__LINE__
-                                           reason_:@"properties were not created with createProperties"];
+                                           reason:@"properties were not created with createProperties"];
     }
 
     NSException* nsex = nil;
@@ -380,7 +381,7 @@ dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d;
             communicator = Ice::initialize(data);
         }
 
-        ICECommunicator* c = [ICECommunicator wrapperWithCxxObject:communicator.get()];
+        ICECommunicator* c = [ICECommunicator localObjectWithCxxObject:communicator.get()];
         [c setup:initData.prefixTable__];
         return c;
     }
@@ -403,7 +404,7 @@ dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d;
         Ice::InputStreamPtr is = Ice::createInputStream(com, std::make_pair(start, end));
         if(is)
         {
-            return [ICEInputStream wrapperWithCxxObject:is.get()];
+            return [ICEInputStream localObjectWithCxxObject:is.get()];
         }
         else
         {
@@ -429,7 +430,7 @@ dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d;
         Ice::InputStreamPtr is = Ice::createInputStream(com, std::make_pair(start, end), [e encodingVersion]);
         if(is)
         {
-            return [ICEInputStream wrapperWithCxxObject:is.get()];
+            return [ICEInputStream localObjectWithCxxObject:is.get()];
         }
         else
         {
@@ -455,7 +456,7 @@ dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d;
         Ice::InputStreamPtr is = Ice::wrapInputStream(com, std::make_pair(start, end));
         if(is)
         {
-            return [ICEInputStream wrapperWithCxxObject:is.get()];
+            return [ICEInputStream localObjectWithCxxObject:is.get()];
         }
         else
         {
@@ -481,7 +482,7 @@ dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d;
         Ice::InputStreamPtr is = Ice::wrapInputStream(com, std::make_pair(start, end), [e encodingVersion]);
         if(is)
         {
-            return [ICEInputStream wrapperWithCxxObject:is.get()];
+            return [ICEInputStream localObjectWithCxxObject:is.get()];
         }
         else
         {
@@ -505,7 +506,7 @@ dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d;
         Ice::OutputStreamPtr os = Ice::createOutputStream(com);
         if(os)
         {
-            return [ICEOutputStream wrapperWithCxxObject:os.get()];
+            return [ICEOutputStream localObjectWithCxxObject:os.get()];
         }
         else
         {
@@ -529,7 +530,7 @@ dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d;
         Ice::OutputStreamPtr os = Ice::createOutputStream(com, [encoding encodingVersion]);
         if(os)
         {
-            return [ICEOutputStream wrapperWithCxxObject:os.get()];
+            return [ICEOutputStream localObjectWithCxxObject:os.get()];
         }
         else
         {

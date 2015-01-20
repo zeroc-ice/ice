@@ -7,14 +7,4 @@
 //
 // **********************************************************************
 
-#import <objc/Ice/Config.h>
-#import <objc/Ice/Current.h>
-
-@protocol ICEImplicitContext<NSObject>
--(ICEMutableContext*) getContext;
--(void) setContext:(ICEContext*)context;
--(BOOL) containsKey:(NSString*)key;
--(NSString*) get:(NSString*)key;
--(NSString*) put:(NSString*)key value:(NSString*)value;
--(NSString*) remove:(NSString*)key;
-@end
+#import "IceSSL/IceSSL.h"

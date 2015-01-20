@@ -15,6 +15,7 @@
 module Ice
 {
 
+["objc:prefix:ICEINSTRUMENTATION"]
 module Instrumentation
 {
 

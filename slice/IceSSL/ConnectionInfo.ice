@@ -13,6 +13,7 @@
 
 #include <Ice/Connection.ice>
 
+["objc:prefix:ICESSL"]
 module IceSSL
 {
 

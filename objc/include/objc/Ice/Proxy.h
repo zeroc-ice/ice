@@ -11,7 +11,8 @@
 
 #import <objc/Ice/Format.h>  // For ICEFormatType
 #import <objc/Ice/Current.h> // For ICEOperationMode
-#import <objc/Ice/Endpoint.h> // For ICEEndpointSelectionType
+#import <objc/Ice/EndpointTypes.h> // For ICEEndpointSelectionType
+#import <objc/Ice/EndpointF.h> // For ICEEndpointSeq
 
 #import <Foundation/NSProxy.h>
 
@@ -58,7 +59,7 @@ typedef void (^ICEUnmarshalCB)(id<ICEInputStream>, BOOL);
 -(NSComparisonResult) compareIdentityAndFacet:(id<ICEObjectPrx>)aProxy;
 
 -(id<ICECommunicator>) ice_getCommunicator;
--(NSString*) ice_toString;
+-(NSMutableString*) ice_toString;
 -(BOOL) ice_isA:(NSString*)typeId;
 -(BOOL) ice_isA:(NSString*)typeId context:(ICEContext*)context;
 -(id<ICEAsyncResult>) begin_ice_isA:(NSString*)typeId;
@@ -77,24 +78,24 @@ typedef void (^ICEUnmarshalCB)(id<ICEInputStream>, BOOL);
 -(id<ICEAsyncResult>) begin_ice_ping:(void(^)())response exception:(void(^)(ICEException*))exception sent:(void(^)(BOOL))sent;
 -(id<ICEAsyncResult>) begin_ice_ping:(ICEContext*)context response:(void(^)())response exception:(void(^)(ICEException*))exception sent:(void(^)(BOOL))sent;
 -(void) end_ice_ping:(id<ICEAsyncResult>)result;
--(NSArray*) ice_ids;
--(NSArray*) ice_ids:(ICEContext*)context;
+-(NSMutableArray*) ice_ids;
+-(NSMutableArray*) ice_ids:(ICEContext*)context;
 -(id<ICEAsyncResult>) begin_ice_ids;
 -(id<ICEAsyncResult>) begin_ice_ids:(ICEContext*)context;
 -(id<ICEAsyncResult>) begin_ice_ids:(void(^)(NSArray*))response exception:(void(^)(ICEException*))exception;
 -(id<ICEAsyncResult>) begin_ice_ids:(ICEContext*)context response:(void(^)(NSArray*))response exception:(void(^)(ICEException*))exception;
 -(id<ICEAsyncResult>) begin_ice_ids:(void(^)(NSArray*))response exception:(void(^)(ICEException*))exception sent:(void(^)(BOOL))sent;
 -(id<ICEAsyncResult>) begin_ice_ids:(ICEContext*)context response:(void(^)(NSArray*))response exception:(void(^)(ICEException*))exception sent:(void(^)(BOOL))sent;
--(NSArray*) end_ice_ids:(id<ICEAsyncResult>)result;
--(NSString*) ice_id;
--(NSString*) ice_id:(ICEContext*)context;
+-(NSMutableArray*) end_ice_ids:(id<ICEAsyncResult>)result;
+-(NSMutableString*) ice_id;
+-(NSMutableString*) ice_id:(ICEContext*)context;
 -(id<ICEAsyncResult>) begin_ice_id;
 -(id<ICEAsyncResult>) begin_ice_id:(ICEContext*)context;
 -(id<ICEAsyncResult>) begin_ice_id:(void(^)(NSString*))response exception:(void(^)(ICEException*))exception;
 -(id<ICEAsyncResult>) begin_ice_id:(ICEContext*)context response:(void(^)(NSString*))response exception:(void(^)(ICEException*))exception;
 -(id<ICEAsyncResult>) begin_ice_id:(void(^)(NSString*))response exception:(void(^)(ICEException*))exception sent:(void(^)(BOOL))sent;
 -(id<ICEAsyncResult>) begin_ice_id:(ICEContext*)context response:(void(^)(NSString*))response exception:(void(^)(ICEException*))exception sent:(void(^)(BOOL))sent;
--(NSString*) end_ice_id:(id<ICEAsyncResult>)result;
+-(NSMutableString*) end_ice_id:(id<ICEAsyncResult>)result;
 -(BOOL) ice_invoke:(NSString*)operation mode:(ICEOperationMode)mode inEncaps:(NSData*)inEncaps outEncaps:(NSMutableData**)outEncaps;
 -(BOOL) ice_invoke:(NSString*)operation mode:(ICEOperationMode)mode inEncaps:(NSData*)inEncaps outEncaps:(NSMutableData**)outEncaps context:(ICEContext*)context;
 -(id<ICEAsyncResult>) begin_ice_invoke:(NSString*)operation mode:(ICEOperationMode)mode inEncaps:(NSData*)inEncaps;
@@ -108,11 +109,11 @@ typedef void (^ICEUnmarshalCB)(id<ICEInputStream>, BOOL);
 -(id) ice_identity:(ICEIdentity*)identity;
 -(ICEMutableContext*) ice_getContext;
 -(id) ice_context:(ICEContext*)context;
--(NSString*) ice_getFacet;
+-(NSMutableString*) ice_getFacet;
 -(id) ice_facet:(NSString*)facet;
--(NSString*) ice_getAdapterId;
+-(NSMutableString*) ice_getAdapterId;
 -(id) ice_adapterId:(NSString*)adapterId;
--(ICEEndpointSeq*) ice_getEndpoints;
+-(ICEMutableEndpointSeq*) ice_getEndpoints;
 -(id) ice_endpoints:(ICEEndpointSeq*)endpoints;
 -(ICEInt) ice_getLocatorCacheTimeout;
 -(id) ice_locatorCacheTimeout:(ICEInt)timeout;

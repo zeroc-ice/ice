@@ -28,6 +28,7 @@
 {
     return [super initWithName:[self ice_name] reason:reason userInfo:nil];
 }
+
 -(NSString*)ice_name
 {
     NSAssert(false, @"ice_name not overriden");
@@ -101,9 +102,26 @@ localExceptionToString(const Ice::LocalException& ex)
 
 @synthesize line;
 
+-(id)init:(const char*)f line:(int)l reason_:(NSString*)r
+{
+    return [self init:f line:l reason:r];
+}
+
 -(id)init:(const char*)f line:(int)l
 {
     self = [super init];
+    if(!self)
+    {
+        return nil;
+    }
+    file = f;
+    line = l;
+    return self;
+}
+
+-(id)init:(const char*)f line:(int)l reason:(NSString*)r
+{
+    self = [super initWithReason:r];
     if(!self)
     {
         return nil;

@@ -189,7 +189,7 @@ local interface ObjectAdapter
      * @see #find
      *
      **/
-    Object* add(Object servant, Identity id);
+    Object* add(Object servant, ["objc:param:identity"] Identity id);
 
     /**
      *
@@ -213,7 +213,7 @@ local interface ObjectAdapter
      * @see #findFacet
      *
      **/
-    Object* addFacet(Object servant, Identity id, string facet);
+    Object* addFacet(Object servant, ["objc:param:identity"] Identity id, string facet);
 
     /**
      *

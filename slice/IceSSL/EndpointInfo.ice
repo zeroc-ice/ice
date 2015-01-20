@@ -18,6 +18,7 @@
  * IceSSL provides a secure transport for Ice.
  *
  **/
+["objc:prefix:ICESSL"]
 module IceSSL
 {
 

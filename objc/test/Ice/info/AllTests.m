@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #import <objc/Ice.h>
+#import <objc/IceSSL.h>
 #import <TestCommon.h>
 #import <InfoTest.h>
 
@@ -24,7 +25,7 @@ infoAllTests(id<ICECommunicator> communicator)
 
         ICEEndpointSeq* endps = [p1 ice_getEndpoints];
         id<ICEEndpoint> endpoint = [endps objectAtIndex:0];
-        ICEIPEndpointInfo* ipEndpoint = (ICEIPEndpointInfo*)[endpoint getInfo];
+        ICEIPEndpointInfo<ICEEndpointInfo>* ipEndpoint = (ICEIPEndpointInfo<ICEEndpointInfo>*)[endpoint getInfo];
         test([ipEndpoint isKindOfClass:[ICEIPEndpointInfo class]]);
         test([[ipEndpoint host] isEqualToString:@"tcphost"]);
         test(ipEndpoint.port == 10000);
@@ -44,7 +45,7 @@ infoAllTests(id<ICECommunicator> communicator)
 
 
         endpoint = [endps objectAtIndex:1];
-        ICEUDPEndpointInfo* udpEndpoint = (ICEUDPEndpointInfo*)[endpoint getInfo];
+        ICEUDPEndpointInfo<ICEEndpointInfo>* udpEndpoint = (ICEUDPEndpointInfo<ICEEndpointInfo>*)[endpoint getInfo];
         test([udpEndpoint isKindOfClass:[ICEUDPEndpointInfo class]]);
         test([udpEndpoint.host isEqualToString:@"udphost"]);
         test(udpEndpoint.port == 10001);
@@ -80,7 +81,7 @@ infoAllTests(id<ICECommunicator> communicator)
         test([endpoints isEqualToArray:publishedEndpoints]);
 
         id<ICEEndpoint> endpoint = [endpoints objectAtIndex:0];
-        ICEIPEndpointInfo* ipEndpoint = (ICEIPEndpointInfo*)[endpoint getInfo];
+        ICEIPEndpointInfo<ICEEndpointInfo>* ipEndpoint = (ICEIPEndpointInfo<ICEEndpointInfo>*)[endpoint getInfo];
         test([ipEndpoint isKindOfClass:[ICEIPEndpointInfo class]]);
         test([ipEndpoint type] == ICETCPEndpointType || [ipEndpoint type] == ICESSLEndpointType ||
              [ipEndpoint type] == ICEWSEndpointType || [ipEndpoint type] == ICEWSSEndpointType);
@@ -89,7 +90,7 @@ infoAllTests(id<ICECommunicator> communicator)
         test(ipEndpoint.timeout == 15000);
 
         endpoint = [endpoints objectAtIndex:1];
-        ICEUDPEndpointInfo* udpEndpoint = (ICEUDPEndpointInfo*)[endpoint getInfo];
+        ICEUDPEndpointInfo<ICEEndpointInfo>* udpEndpoint = (ICEUDPEndpointInfo<ICEEndpointInfo>*)[endpoint getInfo];
         test([udpEndpoint isKindOfClass:[ICEUDPEndpointInfo class]]);
         test([udpEndpoint.host isEqualToString:defaultHost]);
         test([udpEndpoint datagram]);
@@ -109,11 +110,11 @@ infoAllTests(id<ICECommunicator> communicator)
         for(id object in endpoints)
         {
             endpoint = (id<ICEEndpoint>)object;
-            ipEndpoint = (ICEIPEndpointInfo*)[endpoint getInfo];
+            ipEndpoint = (ICEIPEndpointInfo<ICEEndpointInfo>*)[endpoint getInfo];
             test(ipEndpoint.port == 12020);
         }
 
-        ipEndpoint = (ICEIPEndpointInfo*)[[publishedEndpoints objectAtIndex:0] getInfo];
+        ipEndpoint = (ICEIPEndpointInfo<ICEEndpointInfo>*)[[publishedEndpoints objectAtIndex:0] getInfo];
         test([ipEndpoint.host isEqualToString:@"127.0.0.1"]);
         test(ipEndpoint.port == 12020);
 

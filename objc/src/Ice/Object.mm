@@ -12,6 +12,7 @@
 #import <CurrentI.h>
 #import <Util.h>
 #import <Request.h>
+#import <LocalObjectI.h>
 
 #import <objc/Ice/LocalException.h>
 
@@ -101,7 +102,7 @@ ICEInternalCheckModeAndSelector(id target, ICEOperationMode expected, SEL sel, I
     {
         @throw [ICEOperationNotExistException operationNotExistException:__FILE__ 
                                               line:__LINE__ 
-                                              id_:current.id_ 
+                                              id:current.id_ 
                                               facet:current.facet
                                               operation:current.operation];
     }
@@ -190,11 +191,11 @@ IceObjC::ObjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
     ICEOutputStream* os = nil;
     {
         Ice::InputStreamPtr s = Ice::createInputStream(current.adapter->getCommunicator(), inParams);
-        is = [ICEInputStream wrapperWithCxxObjectNoAutoRelease:s.get()];
+        is = [ICEInputStream localObjectWithCxxObjectNoAutoRelease:s.get()];
     }
     {
         Ice::OutputStreamPtr s = Ice::createOutputStream(current.adapter->getCommunicator());
-        os = [ICEOutputStream wrapperWithCxxObjectNoAutoRelease:s.get()];
+        os = [ICEOutputStream localObjectWithCxxObjectNoAutoRelease:s.get()];
     }
     
     NSException* exception = nil;
@@ -270,9 +271,6 @@ IceObjC::BlobjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
     cb->ice_response(ok, std::make_pair((ICEByte*)[outE bytes], (ICEByte*)[outE bytes] + [outE length]));
     [outE release];
 }
-
-@implementation ICEInternalPrefixTable
-@end
 
 @implementation ICEObject (ICEInternal)
 
@@ -361,7 +359,7 @@ static NSString* ICEObject_all__[4] =
 
 +(id)objectWithDelegate:(id)delegate
 {
-    return [[[ICEObject alloc] initWithDelegate:delegate] autorelease];
+    return [[[self alloc] initWithDelegate:delegate] autorelease];
 }
 
 +(BOOL) ice_isA___:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os
@@ -503,7 +501,7 @@ static NSString* ICEObject_all__[4] =
     default:
         @throw [ICEOperationNotExistException requestFailedException:__FILE__ 
                                               line:__LINE__ 
-                                              id_:current.id_ 
+                                              id:current.id_ 
                                               facet:current.facet
                                               operation:current.operation];
     }

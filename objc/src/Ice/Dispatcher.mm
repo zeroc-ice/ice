@@ -10,6 +10,7 @@
 #import <DispatcherI.h>
 #import <Util.h>
 #import <ConnectionI.h>
+#import <LocalObjectI.h>
 
 #include <Block.h>
 
@@ -34,7 +35,7 @@ virtual ~DispatcherI()
 virtual void 
 dispatch(const Ice::DispatcherCallPtr& call, const Ice::ConnectionPtr& connection)
 {
-    id<ICEConnection> con = [ICEConnection wrapperWithCxxObjectNoAutoRelease:connection.get()];
+    id<ICEConnection> con = [ICEConnection localObjectWithCxxObjectNoAutoRelease:connection.get()];
     id<ICEDispatcherCall> c = [[ICEDispatcherCall alloc] initWithCall:call.get()];
     @try
     {

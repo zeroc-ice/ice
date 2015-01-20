@@ -108,7 +108,15 @@ error(const std::string& msg)
 virtual Ice::LoggerPtr
 cloneWithPrefix(const std::string& prefix)
 {
-    return this;
+    NSString* s = toNSString(prefix);
+    @try
+    {
+        return [ICELogger loggerWithLogger:[_logger cloneWithPrefix:s]];
+    }
+    @finally
+    {
+        [s release];
+    }
 }
 
 virtual std::string
@@ -147,11 +155,47 @@ typedef IceUtil::Handle<LoggerI> LoggerIPtr;
         return new LoggerI(logger);
     }
 }
-+(id) wrapperWithCxxObject:(IceUtil::Shared*)cxxObject
++(id) localObjectWithCxxObject:(IceUtil::Shared*)cxxObject
 {
     LoggerI* impl = dynamic_cast<LoggerI*>(cxxObject);
     assert(impl);
     return [[impl->getLogger() retain] autorelease];
+}
+
+-(id) init
+{
+    self = [super init];
+    if(!self)
+    {
+        return nil;
+    }
+    self->prefix_ = @"";
+    self->formattedPrefix_ = @"";
+    return self;
+}
+-(id) initWithPrefix:(NSString*)prefix
+{
+    self = [super init];
+    if(!self)
+    {
+        return nil;
+    }
+    self->prefix_ = prefix == nil ? @"" : [prefix retain];
+    if(self->prefix_.length > 0)
+    {
+        self->formattedPrefix_ = [[NSString alloc] initWithFormat:@"%@ :", prefix];
+    }
+    else
+    {
+        self->formattedPrefix_ = @"";
+    }
+    return self;
+}
+-(void) dealloc
+{
+    [self->prefix_ release];
+    [self->formattedPrefix_ release];
+    [super dealloc];
 }
 
 //
@@ -163,9 +207,9 @@ typedef IceUtil::Handle<LoggerI> LoggerIPtr;
     NSLog(@"%@", message);
 }
 
--(void) trace:(NSString*)category message:(NSString*)message
+-(void) trace:(NSString*)cat message:(NSString*)msg
 {
-    NSMutableString* s = [[NSMutableString alloc] initWithFormat:@"[%@: %@]", category, message];
+    NSMutableString* s = [[NSMutableString alloc] initWithFormat:@"%@[%@: %@]", self->formattedPrefix_, cat, msg];
 #if TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
     [s replaceOccurrencesOfString:@"\n" withString:@" " options:0 range:NSMakeRange(0, s.length)];
 #endif
@@ -175,20 +219,26 @@ typedef IceUtil::Handle<LoggerI> LoggerIPtr;
 
 -(void) warning:(NSString*)message
 {
-    NSString* s = [[NSString alloc] initWithFormat:@"warning: %@", message]; 
+    NSString* s = [[NSString alloc] initWithFormat:@"%@warning: %@", self->formattedPrefix_, message]; 
     [self print:s];
     [s release];
 }
 
 -(void) error:(NSString*)message
 {
-    NSString* s = [[NSString alloc] initWithFormat:@"error: %@", message];
+    NSString* s = [[NSString alloc] initWithFormat:@"%@error: %@", self->formattedPrefix_, message];
     [self print:s];
     [s release];
 }
 
--(NSString*) getPrefix
+-(NSMutableString*) getPrefix
 {
-    return @"";
+    return [[self->prefix_ mutableCopy] autorelease];
 }
+
+-(id<ICELogger>) cloneWithPrefix:(NSString*)prefix
+{
+    return [[[ICELogger alloc] initWithPrefix:prefix] autorelease];
+}
+
 @end

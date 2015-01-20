@@ -9,13 +9,13 @@
 
 #import <objc/Ice/ObjectAdapter.h>
 
-#import <Wrapper.h>
+#import <objc/Ice/LocalObject.h>
 
 #include <Ice/ObjectAdapter.h>
 
 @class ICECommunicator;
 
-@interface ICEObjectAdapter : ICEInternalWrapper<ICEObjectAdapter>
+@interface ICEObjectAdapter : ICELocalObject<ICEObjectAdapter>
 -(Ice::ObjectAdapter*) adapter;
 @end
 

@@ -25,6 +25,7 @@ module Ice
  * Ice core internal components (threads, connections, etc).
  *
  **/
+["objc:prefix:ICEINSTRUMENTATION"]
 module Instrumentation
 {
 

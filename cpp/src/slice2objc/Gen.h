@@ -128,6 +128,10 @@ private:
         enum ContainerType { LocalException, Other };
 
         void writeConstantValue(IceUtilInternal::Output&, const TypePtr&, const std::string&) const;
+        void writeInit(const ContainedPtr&, const DataMemberList&, const DataMemberList&, const DataMemberList&, bool, 
+                       int, ContainerType) const;
+        void writeFactory(const ContainedPtr&, const DataMemberList&, int, ContainerType) const;
+        void writeCopyWithZone(const ContainedPtr&, const DataMemberList&, int, ContainerType) const;
         void writeMembers(const DataMemberList&, int) const;
         void writeMemberSignature(const DataMemberList&, int, ContainerType) const;
         void writeMemberCall(const DataMemberList&, int, ContainerType, Escape) const;

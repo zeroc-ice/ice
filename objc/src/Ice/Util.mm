@@ -11,6 +11,7 @@
 #import <ExceptionI.h>
 #import <StreamI.h>
 #import <ProxyI.h>
+#import <LocalObjectI.h>
 
 #import <objc/Ice/LocalException.h>
 
@@ -453,7 +454,7 @@ IceObjC::Exception::ice_throw() const
 NSObject<NSCopying>*
 toObjC(const Ice::EndpointPtr& endpoint)
 {
-    return [ICEEndpoint wrapperWithCxxObjectNoAutoRelease:endpoint.get()];
+    return [ICEEndpoint localObjectWithCxxObjectNoAutoRelease:endpoint.get()];
 }
 
 void

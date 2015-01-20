@@ -34,6 +34,7 @@
 @property(nonatomic, readonly) int line;
 
 -(id)init:(const char*)file line:(int)line;
+-(id)init:(const char*)file line:(int)line reason:(NSString*)reason;
 +(id)localException:(const char*)file line:(int)line;
 @end
 

@@ -9,41 +9,35 @@
 
 #import <objc/Ice/Endpoint.h>
 
-#import <Wrapper.h>
+#import <objc/Ice/LocalObject.h>
 
 #include <Ice/Endpoint.h>
-#include <IceSSL/EndpointInfo.h>
 
-@interface ICEEndpoint : ICEInternalWrapper<ICEEndpoint>
+@interface ICEEndpoint : ICELocalObject<ICEEndpoint>
 -(Ice::Endpoint*) endpoint;
 @end
 
-
-@interface ICEEndpointInfo ()
+@interface ICEEndpointInfo (ICEInternal)
 -(id) initWithEndpointInfo:(Ice::EndpointInfo*)endpointInfo;
-+(id) enpointInfoWithEndpointInfo:(Ice::EndpointInfo*)endpointInfo;
 @end
 
-@interface ICEIPEndpointInfo ()
+@interface ICEIPEndpointInfo (ICEInternal)
 -(id) initWithIPEndpointInfo:(Ice::IPEndpointInfo*)ipEndpointInfo;
 @end
 
-@interface ICETCPEndpointInfo ()
+@interface ICETCPEndpointInfo (ICEInternal)
 -(id) initWithTCPEndpointInfo:(Ice::TCPEndpointInfo*)tcpEndpointInfo;
 @end
 
-@interface ICEUDPEndpointInfo ()
+@interface ICEUDPEndpointInfo (ICEInternal)
 -(id) initWithUDPEndpointInfo:(Ice::UDPEndpointInfo*)udpEndpointInfo;
 @end
 
-@interface ICEWSEndpointInfo ()
+@interface ICEWSEndpointInfo (ICEInternal)
 -(id) initWithWSEndpointInfo:(Ice::WSEndpointInfo*)wsEndpointInfo;
 @end
 
-@interface ICEOpaqueEndpointInfo ()
+@interface ICEOpaqueEndpointInfo (ICEInternal)
 -(id) initWithOpaqueEndpointInfo:(Ice::OpaqueEndpointInfo*)opaqueEndpointInfo;
 @end
 
-@interface ICESSLEndpointInfo ()
--(id) initWithSSLEndpointInfo:(IceSSL::EndpointInfo*)sslEndpointInfo;
-@end

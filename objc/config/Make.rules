@@ -118,7 +118,7 @@ endif
 
 ifeq ($(wildcard .depend/*.d),)
 ifneq ($(OBJCXX_OBJS),)
-$(OBJS): $(OBJC_OBJS:.o=.m) $(OBJCXX_OBJS:.o=.mm)
+$(OBJS): $(SLICE_OBJS:.o=.m) $(OBJC_OBJS:.o=.m) $(OBJCXX_OBJS:.o=.mm)
 else
 $(OBJS): $(OBJS:.o=.m)
 endif

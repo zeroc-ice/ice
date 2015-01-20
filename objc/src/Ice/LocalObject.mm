@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#import <Wrapper.h>
+#import <LocalObjectI.h>
 
 //
 // Using NSMapTable is necessary for this code to work properly with GC.
@@ -35,7 +35,7 @@
 namespace 
 {
 
-std::map<IceUtil::Shared*, ICEInternalWrapper*>* cachedObjects = 0;
+std::map<IceUtil::Shared*, ICELocalObject*>* cachedObjects = 0;
 
 class Init
 {
@@ -43,7 +43,7 @@ public:
 
     Init()
     {
-        cachedObjects = new std::map<IceUtil::Shared*, ICEInternalWrapper*>;
+        cachedObjects = new std::map<IceUtil::Shared*, ICELocalObject*>;
     }
 
     ~Init()
@@ -57,7 +57,7 @@ Init init;
 #endif
 
 
-@implementation ICEInternalWrapper
+@implementation ICELocalObject
 
 #ifdef ICE_USE_MAP_TABLE
 //
@@ -84,7 +84,16 @@ Init init;
     return instance;
 } 
 #endif
-
+-(id) init
+{
+    self = [super init];
+    if(!self)
+    {
+        return nil;
+    }
+    cxxObject_ = 0;
+    return self;
+}
 -(id) initWithCxxObject:(IceUtil::Shared*)arg
 {
     self = [super init];
@@ -99,13 +108,13 @@ Init init;
     //
     // No synchronization because initWithCxxObject is always called with mapTable locked, see below
     //
-    NSMapTable* mapTable = [ICEInternalWrapper mapTable];
+    NSMapTable* mapTable = [ICELocalObject mapTable];
     void* result = NSMapInsertIfAbsent(mapTable, arg, self); 
     // COMPILERFIX: NSMapTable bug where the entry sometime doesn't get properly
     // added. Adding it a second time works.
     if(NSMapGet(mapTable, arg) == 0)
     {
-        result = NSMapInsertIfAbsent([ICEInternalWrapper mapTable], arg, self);
+        result = NSMapInsertIfAbsent([ICELocalObject mapTable], arg, self);
     }
     assert(result == 0);
 #else
@@ -126,22 +135,24 @@ Init init;
 
 -(void) dealloc
 {  
-   
+    if(cxxObject_)
+    {
 #ifdef ICE_USE_MAP_TABLE
-    //
-    // No synchronization because dealloc is always called with 
-    // mapTable locked, see below
-    //
-    NSMapRemove([ICEInternalWrapper mapTable], cxxObject_);
+        //
+        // No synchronization because dealloc is always called with 
+        // mapTable locked, see below
+        //
+        NSMapRemove([ICELocalObject mapTable], cxxObject_);
 #else
-    //
-    // No synchronization because dealloc is always called with the wrapper class object locked
-    //
-    cachedObjects->erase(CXXOBJECT);
+        //
+        // No synchronization because dealloc is always called with the wrapper class object locked
+        //
+        cachedObjects->erase(CXXOBJECT);
 #endif
+        CXXOBJECT->__decRef();
+        cxxObject_ = 0;
+    }
 
-    CXXOBJECT->__decRef();
-    cxxObject_ = 0;
     [super dealloc];
 }
 
@@ -151,14 +162,17 @@ Init init;
 //
 -(void) finalize
 { 
-    assert(cxxObject_ != 0);
-    CXXOBJECT->__decRef();
-    cxxObject_ = 0;
+    if(cxxObject_)
+    {
+        assert(cxxObject_ != 0);
+        CXXOBJECT->__decRef();
+        cxxObject_ = 0;
+    }
     [super finalize];
 }
 #endif
 
-+(id) getWrapperWithCxxObjectNoAutoRelease:(IceUtil::Shared*)arg
++(id) getLocalObjectWithCxxObjectNoAutoRelease:(IceUtil::Shared*)arg
 {
     //
     // Note: the returned object is NOT retained. It must be held
@@ -171,16 +185,16 @@ Init init;
     }
     
 #ifdef ICE_USE_MAP_TABLE
-    NSMapTable* mapTable = [ICEInternalWrapper mapTable];
+    NSMapTable* mapTable = [ICELocalObject mapTable];
     @synchronized(mapTable)
     {
         id val = (id)NSMapGet(mapTable, arg);
         return val;
     }
 #else
-    @synchronized([ICEInternalWrapper class])
+    @synchronized([ICELocalObject class])
     {
-        std::map<IceUtil::Shared*, ICEInternalWrapper*>::const_iterator p = cachedObjects->find(arg);
+        std::map<IceUtil::Shared*, ICELocalObject*>::const_iterator p = cachedObjects->find(arg);
         if(p != cachedObjects->end())
         {
             return p->second;
@@ -190,7 +204,7 @@ Init init;
     return nil;
 }
 
-+(id) wrapperWithCxxObjectNoAutoRelease:(IceUtil::Shared*)arg
++(id) localObjectWithCxxObjectNoAutoRelease:(IceUtil::Shared*)arg
 {
     if(arg == 0)
     {
@@ -198,7 +212,7 @@ Init init;
     }
     
 #ifdef ICE_USE_MAP_TABLE
-    NSMapTable* mapTable = [ICEInternalWrapper mapTable];
+    NSMapTable* mapTable = [ICELocalObject mapTable];
     @synchronized(mapTable)
     {
         id val = (id)NSMapGet(mapTable, arg);
@@ -213,9 +227,9 @@ Init init;
         }
     }
 #else
-    @synchronized([ICEInternalWrapper class])
+    @synchronized([ICELocalObject class])
     {
-        std::map<IceUtil::Shared*, ICEInternalWrapper*>::const_iterator p = cachedObjects->find(arg);
+        std::map<IceUtil::Shared*, ICELocalObject*>::const_iterator p = cachedObjects->find(arg);
         if(p != cachedObjects->end())
         {
             return [p->second retain];
@@ -229,9 +243,9 @@ Init init;
     return nil; // Keep the compiler happy.
 }
 
-+(id) wrapperWithCxxObject:(IceUtil::Shared*)arg
++(id) localObjectWithCxxObject:(IceUtil::Shared*)arg
 {
-    return [[self wrapperWithCxxObjectNoAutoRelease:arg] autorelease];
+    return [[self localObjectWithCxxObjectNoAutoRelease:arg] autorelease];
 }
 
 
@@ -244,9 +258,9 @@ Init init;
 -(oneway void) release
 {
 #ifdef ICE_USE_MAP_TABLE
-    @synchronized([ICEInternalWrapper mapTable])
+    @synchronized([ICELocalObject mapTable])
 #else
-    @synchronized([ICEInternalWrapper class])  
+    @synchronized([ICELocalObject class])  
 #endif
     {
         if(NSDecrementExtraRefCountWasZero(self))

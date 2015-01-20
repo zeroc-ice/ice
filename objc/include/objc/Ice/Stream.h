@@ -22,6 +22,9 @@
 @class ICEUserException;
 @class ICEEncodingVersion;
 
+@interface ICEInternalPrefixTable : NSObject
+@end
+
 typedef enum
 {
     ICEOptionalFormatF1 = 0,    

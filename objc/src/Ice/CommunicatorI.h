@@ -9,7 +9,7 @@
 
 #import <objc/Ice/Communicator.h>
 
-#import <Wrapper.h>
+#import <objc/Ice/LocalObject.h>
 
 #import <Foundation/NSSet.h>
 
@@ -17,7 +17,7 @@
 
 @class ICEObjectAdapter;
 
-@interface ICECommunicator : ICEInternalWrapper<ICECommunicator>
+@interface ICECommunicator : ICELocalObject<ICECommunicator>
 {
     NSMutableDictionary* objectFactories_;
     NSDictionary* prefixTable_;

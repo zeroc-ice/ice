@@ -9,22 +9,22 @@
 
 #import <objc/Ice/Properties.h>
 
-#import <Wrapper.h>
+#import <objc/Ice/LocalObject.h>
+#import <objc/Ice/NativePropertiesAdmin.h>
 
 #include <Ice/Properties.h>
 #include <Ice/NativePropertiesAdmin.h>
 
-@interface ICEProperties : ICEInternalWrapper<ICEProperties>
+@interface ICEProperties : ICELocalObject<ICEProperties>
 {
     Ice::Properties* properties_;
 }
 -(Ice::Properties*)properties;
 @end
 
-@interface ICEPropertiesAdminUpdateCallback ()
--(void) setPropertiesAdminUpdateCallback:(Ice::PropertiesAdminUpdateCallback*)callback;
--(Ice::PropertiesAdminUpdateCallback*) propertiesAdminUpdateCallback;
-@end
-
-@interface ICENativePropertiesAdmin : ICEInternalWrapper<ICENativePropertiesAdmin>
+@interface ICENativePropertiesAdmin : ICELocalObject<ICENativePropertiesAdmin>
+{
+    IceUtil::Mutex mutex_;
+    std::vector<Ice::PropertiesAdminUpdateCallbackPtr> callbacks_;
+}
 @end

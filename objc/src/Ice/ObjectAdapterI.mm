@@ -13,7 +13,9 @@
 #import <IdentityI.h>
 #import <ObjectI.h>
 #import <Util.h>
+#import <LocalObjectI.h>
 
+#import <objc/Ice/LocalException.h>
 #import <objc/Ice/Locator.h>
 
 #include <Ice/Locator.h>
@@ -55,6 +57,7 @@ public:
 private:
     Ice::ObjectPtr _servant;
 };
+typedef IceUtil::Handle<DefaultServantLocator> DefaultServantLocatorPtr;
 }
 
 #define OBJECTADAPTER dynamic_cast<Ice::ObjectAdapter*>(static_cast<IceUtil::Shared*>(cxxObject_))
@@ -73,7 +76,7 @@ private:
     NSException* nsex = nil;
     try
     {
-        return [ICECommunicator wrapperWithCxxObject:OBJECTADAPTER->getCommunicator().get()];
+        return [ICECommunicator localObjectWithCxxObject:OBJECTADAPTER->getCommunicator().get()];
     }
     catch(const std::exception& ex)
     {
@@ -83,12 +86,12 @@ private:
     return nil; // Keep the compiler happy.
 }
 
--(NSString*) getName
+-(NSMutableString*) getName
 {
     NSException* nsex = nil;
     try
     {
-        return [toNSString(OBJECTADAPTER->getName()) autorelease];
+        return [toNSMutableString(OBJECTADAPTER->getName()) autorelease];
     }
     catch(const std::exception& ex)
     {
@@ -349,6 +352,32 @@ private:
     return nil; // Keep the compiler happy.
 }
 
+-(ICEObject*) removeDefaultServant:(NSString*)category
+{
+    NSException* nsex = nil;
+    try
+    {
+        Ice::ServantLocatorPtr locator = OBJECTADAPTER->removeServantLocator(fromNSString(category));
+        if(!locator)
+        {
+            return nil;
+        }
+        DefaultServantLocatorPtr defaultServantLocator = DefaultServantLocatorPtr::dynamicCast(locator);
+        if(!defaultServantLocator)
+        {
+            return nil;
+        }
+        Ice::ObjectPtr wrapper = defaultServantLocator->servant();
+        return [[IceObjC::ObjectWrapperPtr::dynamicCast(wrapper)->getObject() retain] autorelease];
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    @throw nsex;
+    return nil; // Keep the compiler happy.
+}
+
 -(ICEObject*) find:(ICEIdentity*)ident
 {
     NSException* nsex = nil;
@@ -420,6 +449,19 @@ private:
     return nil; // Keep the compiler happy.
 }
 
+-(void) addServantLocator:(id<ICEServantLocator>)locator category:(NSString*)category
+{
+    @throw [ICEFeatureNotSupportedException featureNotSupportedException:__FILE__ line:__LINE__];
+}
+-(id<ICEServantLocator>) removeServantLocator:(NSString*)category
+{
+    @throw [ICEFeatureNotSupportedException featureNotSupportedException:__FILE__ line:__LINE__];
+}
+-(id<ICEServantLocator>) findServantLocator:(NSString*)category
+{
+    @throw [ICEFeatureNotSupportedException featureNotSupportedException:__FILE__ line:__LINE__];
+}
+
 -(ICEObject*) findDefaultServant:(NSString*)category
 {
     NSException* nsex = nil;
@@ -430,7 +472,7 @@ private:
         {
             return nil;
         }
-        DefaultServantLocator* defaultServantLocator = dynamic_cast<DefaultServantLocator*>(servantLocator.get());
+        DefaultServantLocatorPtr defaultServantLocator = DefaultServantLocatorPtr::dynamicCast(servantLocator);
         if(defaultServantLocator == 0)
         {
             return nil; // should never happen!
