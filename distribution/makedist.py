@@ -558,13 +558,13 @@ for f in rmFiles: remove(os.path.join(winDemoDir, f))
 #
 # JS demos
 #
-copy(os.path.join(srcDir, "js", "bin"), os.path.join(winDemoDir, "js", "bin"))
+copy(os.path.join(winSrcDir, "js", "bin"), os.path.join(winDemoDir, "js", "bin"))
 for f in ["bower.json", "gulpfile.js", "package.json"]:
-    copy(os.path.join(distFilesDir, "src", "js", "icejs-demos", f), os.path.join(winDemoDir, "js", f), False)
+    copy(os.path.join(winDistFilesDir, "src", "js", "icejs-demos", f), os.path.join(winDemoDir, "js", f), False)
 
-copy(os.path.join(srcDir, "js", ".jshintrc"), os.path.join(winDemoDir, "js", ".jshintrc"))
-jshint = json.load(open(os.path.join(srcDir, "js", ".jshintrc_browser"), "r"))
-jshintDemo = json.load(open(os.path.join(srcDir, "js", "demo", ".jshintrc_browser"), "r"))
+copy(os.path.join(winSrcDir, "js", ".jshintrc"), os.path.join(winDemoDir, "js", ".jshintrc"))
+jshint = json.load(open(os.path.join(winSrcDir, "js", ".jshintrc_browser"), "r"))
+jshintDemo = json.load(open(os.path.join(winSrcDir, "js", "demo", ".jshintrc_browser"), "r"))
 
 for key, value in jshintDemo["globals"].iteritems():
     jshint["globals"][key] = value
@@ -572,13 +572,13 @@ json.dump(jshint, open(os.path.join(winDemoDir, "js", ".jshintrc_browser"), "w")
 
 # Fix up the Java build files
 os.mkdir(os.path.join(winDemoDir, "java", "gradle"))
-copy(os.path.join(srcDir, "java", "gradlew.bat"), os.path.join(winDemoDir, "java"), False)
-copy(os.path.join(srcDir, "java", "gradle", "wrapper"), os.path.join(winDemoDir, "java", "gradle", "wrapper"), False)
-copy(os.path.join(srcDir, "java", "gradle", "GRADLE_LICENSE"), os.path.join(winDemoDir, "java", "gradle", "GRADLE_LICENSE"), False)
-copy(os.path.join(distFilesDir, "src", "common", "ice.gradle"), os.path.join(winDemoDir, "java", "gradle"), False)
-copy(os.path.join(distFilesDir, "src", "common", "gradle.properties"), os.path.join(winDemoDir, "java"), False)
-copy(os.path.join(distFilesDir, "src", "common", "build.gradle"), os.path.join(winDemoDir, "java"), False)
-copy(os.path.join(distFilesDir, "src", "common", "settings.gradle"), os.path.join(winDemoDir, "java"), False)
+copy(os.path.join(winSrcDir, "java", "gradlew.bat"), os.path.join(winDemoDir, "java"), False)
+copy(os.path.join(winSrcDir, "java", "gradle", "wrapper"), os.path.join(winDemoDir, "java", "gradle", "wrapper"), False)
+copy(os.path.join(winSrcDir, "java", "gradle", "GRADLE_LICENSE"), os.path.join(winDemoDir, "java", "gradle", "GRADLE_LICENSE"), False)
+copy(os.path.join(winDistFilesDir, "src", "common", "ice.gradle"), os.path.join(winDemoDir, "java", "gradle"), False)
+copy(os.path.join(winDistFilesDir, "src", "common", "gradle.properties"), os.path.join(winDemoDir, "java"), False)
+copy(os.path.join(winDistFilesDir, "src", "common", "build.gradle"), os.path.join(winDemoDir, "java"), False)
+copy(os.path.join(winDistFilesDir, "src", "common", "settings.gradle"), os.path.join(winDemoDir, "java"), False)
 
 gradleSubstituteExprs = [(re.compile(re.escape("../java/gradle/ice.gradle")), "../gradle/ice.gradle"),
                          (re.compile(re.escape("project(\":demo/")), "project(\":")]
@@ -589,13 +589,13 @@ for root, dirnames, filesnames in os.walk(os.path.join(winDemoDir, "java")):
 
 # Fix up the Android build files
 os.mkdir(os.path.join(winDemoDir, "java", "android", "gradle"))
-copy(os.path.join(srcDir, "android", "gradlew.bat"), os.path.join(winDemoDir, "java", "android"), False)
-copy(os.path.join(srcDir, "android", "gradle", "wrapper"), os.path.join(winDemoDir, "java", "android", "gradle", "wrapper"), False)
-copy(os.path.join(srcDir, "android", "gradle", "GRADLE_LICENSE"), os.path.join(winDemoDir, "java", "android", "gradle", "GRADLE_LICENSE"), False)
-copy(os.path.join(srcDir, "android", "build.gradle"), os.path.join(winDemoDir, "java", "android"), False)
-copy(os.path.join(distFilesDir, "src", "common", "gradle.properties.android"), os.path.join(winDemoDir, "java", "android", "gradle.properties"), False)
-copy(os.path.join(distFilesDir, "src", "common", "settings.gradle.android"), os.path.join(winDemoDir, "java", "android", "settings.gradle"), False)
-copy(os.path.join(distFilesDir, "src", "common", "props.gradle"), os.path.join(winDemoDir, "java", "android", "gradle"), False)
+copy(os.path.join(winSrcDir, "android", "gradlew.bat"), os.path.join(winDemoDir, "java", "android"), False)
+copy(os.path.join(winSrcDir, "android", "gradle", "wrapper"), os.path.join(winDemoDir, "java", "android", "gradle", "wrapper"), False)
+copy(os.path.join(winSrcDir, "android", "gradle", "GRADLE_LICENSE"), os.path.join(winDemoDir, "java", "android", "gradle", "GRADLE_LICENSE"), False)
+copy(os.path.join(winSrcDir, "android", "build.gradle"), os.path.join(winDemoDir, "java", "android"), False)
+copy(os.path.join(winDistFilesDir, "src", "common", "gradle.properties.android"), os.path.join(winDemoDir, "java", "android", "gradle.properties"), False)
+copy(os.path.join(winDistFilesDir, "src", "common", "settings.gradle.android"), os.path.join(winDemoDir, "java", "android", "settings.gradle"), False)
+copy(os.path.join(winDistFilesDir, "src", "common", "props.gradle"), os.path.join(winDemoDir, "java", "android", "gradle"), False)
 
 gradleSubstituteExprs = [(re.compile(re.escape("apply plugin: 'slice'")), ""),
                          (re.compile(re.escape("../certs/client.bks")), "../../certs/client.bks")]
