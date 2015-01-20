@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <ORACLE_HOME>C:\oracle\product\12.1.0\dbhome_1</ORACLE_HOME>
+    <ORACLE_INSTANTCLIENT_HOME>C:\instantclient_12_1</ORACLE_INSTANTCLIENT_HOME>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(PlatformToolset)' == 'v110' And '$(Platform)' == 'x64' And '$(Configuration)' == 'Release'">
+    <LibraryPath>$(ORACLE_HOME)\OCI\lib\msvc\VC11;$(ORACLE_INSTANTCLIENT_HOME)\sdk\lib\msvc;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ORACLE_HOME)\OCI\include;$(IncludePath)</IncludePath>
+    <ExecutablePath>$(ORACLE_HOME)\bin;$(ExecutablePath)</ExecutablePath>
+    <OciBinDir>$(ORACLE_HOME)\bin</OciBinDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="('$(PlatformToolset)' == 'v110' And '$(Platform)' == 'Win32') Or ('$(PlatformToolset)' == 'v110' And '$(Platform)' == 'x64' And '$(Configuration)' == 'Debug')">
+    <LibraryPath>$(ORACLE_INSTANTCLIENT_HOME)\sdk\lib\msvc\VC11;$(ORACLE_INSTANTCLIENT_HOME)\sdk\lib\msvc;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ORACLE_INSTANTCLIENT_HOME)\sdk\include;$(IncludePath)</IncludePath>
+    <ExecutablePath>$(ORACLE_HOME)\bin;$(ExecutablePath)</ExecutablePath>
+    <OciBinDir>$(ORACLE_INSTANTCLIENT_HOME)\vc11;$(ORACLE_INSTANTCLIENT_HOME)</OciBinDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(PlatformToolset)' == 'v120'">
+    <LibraryPath>$(ORACLE_INSTANTCLIENT_HOME)\sdk\lib\msvc\VC12;$(ORACLE_INSTANTCLIENT_HOME)\sdk\lib\msvc;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ORACLE_INSTANTCLIENT_HOME)\sdk\include;$(IncludePath)</IncludePath>
+    <ExecutablePath>$(ORACLE_HOME)\bin;$(ExecutablePath)</ExecutablePath>
+    <OciBinDir>$(ORACLE_INSTANTCLIENT_HOME)\vc12;$(ORACLE_INSTANTCLIENT_HOME)</OciBinDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup />
+  <ItemGroup>
+    <BuildMacro Include="ORACLE_HOME">
+      <Value>$(ORACLE_HOME)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="ORACLE_INSTANTCLIENT_HOME">
+      <Value>$(ORACLE_INSTANTCLIENT_HOME)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="OciBinDir">
+      <Value>$(OciBinDir)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

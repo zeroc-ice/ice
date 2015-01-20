@@ -26,21 +26,33 @@ SLICE_OBJS	= .\HR.obj
 COBJS		= $(SLICE_OBJS) \
 		  .\Client.obj
 
-SOBJS		= $(PROC_SRCS:.pc=.obj)
+SOBJS		= $(SLICE_OBJS) \
+		$(PROC_SRCS:.pc=.obj)
 
 OBJS		= $(COBJS) \
 		  $(SOBJS)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I. -I"$(ORACLE_HOME)\precomp\public" -DSQLCA_NONE $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
+#
+# Oracle
+#
+!if "$(ORACLE_CLIENT_HOME)" == ""
+ORACLE_LIBDIR 		= $(ORACLE_HOME)\precomp\LIB
+ORACLE_INCLUDEDIR	= $(ORACLE_HOME)\precomp\public
+!else
+ORACLE_LIBDIR 		= $(ORACLE_CLIENT_HOME)\precomp\LIB
+ORACLE_INCLUDEDIR	= $(ORACLE_CLIENT_HOME)\precomp\public
+!endif
+
+#
+# Change to orasql11.lib if you're linking with Oracle 11
+#
+ORACLE_LIBS     = -LIBPATH:"$(ORACLE_LIBDIR)" orasql12.lib
+
+CPPFLAGS	= -I. -I"$(ORACLE_INCLUDEDIR)" -DSQLCA_NONE $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
 GENERATED_PROC_FILES  = $(PROC_SRCS:.pc=.cpp)
-
-#
-# Change to orasql10.lib if you're linking with Oracle 10
-#
-ORACLE_LIBS     = -LIBPATH:"$(ORACLE_HOME)\precomp\lib" orasql11.lib
 
 .SUFFIXES:
 .SUFFIXES:		.ice .pc .cpp .c .obj

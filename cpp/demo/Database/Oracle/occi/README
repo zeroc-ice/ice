@@ -20,10 +20,10 @@ platform and C++ compiler supported by both Ice and OCCI.
 
 OCCI oracle drivers are available at:
 
- http://www.oracle.com/technetwork/database/occidownloads-083553.html
+ http://www.oracle.com/technetwork/database/features/instant-client/index-097480.html
 
 - Setup an Oracle database with the traditional EMP/DEPT schema. 
-  With Oracle server 11.1, the corresponding SQL script is 
+  With Oracle server 12c, the corresponding SQL script is 
   $ORACLE_HOME/rdbms/admin/utlsampl.sql.
 
 - Ensure that your user (by default, scott) has the CREATE VIEW
@@ -48,26 +48,38 @@ OCCI oracle drivers are available at:
 - Set the environment variable ORACLE_HOME to point to your Oracle
   installation home directory.
 
-- On Windows with Visual Studio 2010 Project Files, add the 
-  following directories to your Visual C++ environment: 
+- On Windows with Visual Studio Project Files: 
 
-  - Include files: $(ORACLE_HOME)\oci\include
+  - Oracle settings are configured using a property sheet named oracle
+    that is attached to the server project configurations, open the 
+    Visual Studio  Property Manager from "View > Property Manager" menu.
 
-  - Library files: $(ORACLE_HOME)\oci\lib\msvc\vc10
-                   $(ORACLE_HOME)\oci\lib\msvc
+  - Expand the server configuration and double click oracle property
+    sheet to edit it.
 
-    (make sure to list the driver folder before lib\msvc)
+  - Click "Common Properties > User Macros" and set ORACLE_HOME value to
+    match your Oracle deployment.
 
-  - Executable files: 
+  - Occi libraries and drivers for Visual Studio 2012 x64 are included
+    with Oracle 12c, if you are using a different compiler or arch you
+    will need to install the correspoding oracle instant client package
+    from:
 
-    $(ORACLE_HOME)\oci\lib\msvc\vc10;$(ORACLE_HOME)\bin
+    http://www.oracle.com/technetwork/database/features/instant-client/index-097480.html
 
-  - If OCCI driver isn't installed in the standard location,
-  update Library and Executable files to match your installation
-  directories
+    Follow the link corresponding the platform you want to use and setup both:
 
-- On Windows, when using nmake Makefiles, please review 
-  Makefile.mak.
+    - instantclient-basic-nt-12.1.0.2.0.zip 
+    - instantclient-sdk-nt-12.1.0.2.0.zip 
+
+    After that set ORACLE_INSTANTCLIENT_HOME value in the oracle property sheet
+    to match you setup.
+
+  - Make sure to save the changes to the property sheet using the save button in the Propery
+    Manager windows so changes take effect.
+
+- On Windows, when using nmake Makefiles, set ORACLE_HOME and ORACLE_INSTANTCLIENT_HOME
+  variables in your enviroment to match you Oracle setup and review Makefile.mak.
 
 - Then build as usual.
 

@@ -34,10 +34,6 @@ OBJS		= $(COBJS) \
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-#
-# Disable warnings 4101 and 4291 issued when compiling DbTypes.cpp
-#
-CPPFLAGS	= -I. -I$(ORACLE_HOME)\oci\include -wd4101 -wd4291 $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
 !if "$(GENERATE_PDB)" == "yes"
 CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
@@ -45,23 +41,36 @@ SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 !endif
 
 #
-# OCCI first
+# OCCI
 #
-!if "$(CPP_COMPILER)" == "VC100"
-
-#
-# OCCI libraries default location, adjust to match your setup.
-#
-ORACLE_LIBS     = -LIBPATH:"$(ORACLE_HOME)\oci\lib\msvc\vc10" oraocci11$(LIBSUFFIX).lib
+!if "$(CPP_COMPILER)" == "VC120"
+OCCI_LIBSUBDIR = VC12
+!else if "$(CPP_COMPILER)" == "VC110"
+OCCI_LIBSUBDIR = VC11
 !else
 !error "$(CPP_COMPILER) is not supported by this demo"
 !endif
 
 #
-# OCI
+# Oracle instantclient home
 #
-ORACLE_LIBS = $(ORACLE_LIBS) -LIBPATH:"$(ORACLE_HOME)\oci\lib\msvc" oci.lib
+!if "$(ORACLE_INSTANTCLIENT_HOME)" == ""
+OCCI_LIBDIR 	= $(ORACLE_HOME)\oci\lib\msvc
+OCCI_INCLUDEDIR	= $(ORACLE_HOME)\oci\include
+!else
+OCCI_LIBDIR 	= $(ORACLE_INSTANTCLIENT_HOME)\sdk\lib\msvc
+OCCI_INCLUDEDIR	= $(ORACLE_INSTANTCLIENT_HOME)\sdk\include
+!endif
 
+#
+# OCCI libraries default location, adjust to match your setup.
+#
+ORACLE_LIBS     = -LIBPATH:"$(OCCI_LIBDIR)\msvc\$(OCCI_LIBSUBDIR)" oraocci12$(LIBSUFFIX).lib -LIBPATH:"$(OCCI_LIBDIR)" oci.lib
+
+#
+# Disable warnings 4101 and 4291 issued when compiling DbTypes.cpp
+#
+CPPFLAGS	= -I. -I$(OCCI_INCLUDEDIR) -wd4101 -wd4291 $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
 $(CLIENT): $(COBJS)
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)

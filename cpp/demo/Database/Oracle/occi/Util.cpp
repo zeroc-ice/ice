@@ -129,7 +129,7 @@ decodeRef(const string& str, Environment* env, Connection* con)
 
     sword status = OCIRefFromHex(env->getOCIEnvironment(), error,
                                  con->getOCIServiceContext(), 
-                                 reinterpret_cast<const OraText*>(str.c_str()), str.length(),
+                                 reinterpret_cast<const OraText*>(str.c_str()), static_cast<ub4>(str.length()),
                                  &ref);
 
     

@@ -19,14 +19,28 @@ Building the demo
 On Linux or Unix, set ORACLE_HOME to point to your Oracle installation
 home directory. Then build as usual.
 
-On Windows using Visual Studio Project files, you need to add the 
-following directories to your Visual C++ environment: 
+On Windows with Visual Studio Project Files: 
 
- - Include files: <oracle-home>\precomp\public
- - Library files: <oracle-home>\precomp\lib
- - Executable files: <oracle-home>\bin
+  - Oracle settings are configured using a property sheet named oracle
+    that is attached to the server project configurations, open the 
+    Visual Studio  Property Manager from "View > Property Manager" menu.
 
-On Windows with nmake Makefiles, please review Makefile.mak.
+  - Expand the server configuration and double click oracle property
+    sheet to edit it.
+
+  - Click "Common Properties > User Macros" and set ORACLE_HOME value to
+    match your Oracle deployment.
+
+  - Oracle 12c just include 64 bit libraries and binaries to buid with Win32
+    configurations you need to install the winnt_12c_client32.zip package 
+    available at Oracle 12c download page:
+
+    http://www.oracle.com/technetwork/database/enterprise-edition/downloads/database12c-win64-download-1968077.html
+
+    and set the ORACLE_CLIENT_HOME value to match your deployment.
+
+On Windows, when using nmake Makefiles, set ORACLE_HOME and ORACLE_CLIENT_HOME
+variables in your enviroment to match you Oracle setup and review Makefile.mak.
 
 Then build as usual.
 
@@ -35,7 +49,7 @@ Running the demo
 ----------------
 
 - Setup an Oracle database with the traditional EMP/DEPT schema. 
-  With Oracle server 10.2 or 11.1, the corresponding SQL script is 
+  With Oracle server 12c, the corresponding SQL script is 
   $ORACLE_HOME/rdbms/admin/utlsampl.sql.
 
 - Review the Oracle.ConnectInfo property in the config.server file.
