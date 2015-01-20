@@ -83,13 +83,13 @@ ib2.expect('Topic: time: remove replica observer: [-0-9A-Fa-f]+')
 ib3.expect('Topic: time: unsubscribe: [-0-9A-Fa-f]+')
 
 admin = Util.spawn(Util.getIceBoxAdmin() + ' --IceBoxAdmin.ServiceManager.Proxy="icebox1/admin \
-  -f IceBox.ServiceManager:tcp -p 9990 -h 127.0.0.1" shutdown')
-admin.waitTestSuccess()
-admin = Util.spawn(Util.getIceBoxAdmin() + ' --IceBoxAdmin.ServiceManager.Proxy="icebox2/admin \
   -f IceBox.ServiceManager:tcp -p 9991 -h 127.0.0.1" shutdown')
 admin.waitTestSuccess()
-admin = Util.spawn(Util.getIceBoxAdmin() + ' --IceBoxAdmin.ServiceManager.Proxy="icebox3/admin \
+admin = Util.spawn(Util.getIceBoxAdmin() + ' --IceBoxAdmin.ServiceManager.Proxy="icebox2/admin \
   -f IceBox.ServiceManager:tcp -p 9992 -h 127.0.0.1" shutdown')
+admin.waitTestSuccess()
+admin = Util.spawn(Util.getIceBoxAdmin() + ' --IceBoxAdmin.ServiceManager.Proxy="icebox3/admin \
+  -f IceBox.ServiceManager:tcp -p 9993 -h 127.0.0.1" shutdown')
 admin.waitTestSuccess()
 
 ib1.waitTestSuccess()
