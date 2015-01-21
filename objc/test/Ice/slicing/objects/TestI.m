@@ -67,25 +67,16 @@
 
 -(TestSlicingObjectsServerB*) oneElementCycle:(ICECurrent*)current
 {
-    TestSlicingObjectsServerB* b1 = [[TestSlicingObjectsServerB alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [b1 autorelease];
-#endif
+    TestSlicingObjectsServerB* b1 = ICE_AUTORELEASE([[TestSlicingObjectsServerB alloc] init]);
     b1.sb = @"B1.sb";
     b1.pb = b1;
     return b1;
 }
 -(TestSlicingObjectsServerB*) twoElementCycle:(ICECurrent*)current
 {
-    TestSlicingObjectsServerB* b1 = [[TestSlicingObjectsServerB alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [b1 autorelease];
-#endif
+    TestSlicingObjectsServerB* b1 = ICE_AUTORELEASE([[TestSlicingObjectsServerB alloc] init]);
     b1.sb = @"B1.sb";
-    TestSlicingObjectsServerB* b2 = [[TestSlicingObjectsServerB alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [b2 autorelease];
-#endif
+    TestSlicingObjectsServerB* b2 = ICE_AUTORELEASE([[TestSlicingObjectsServerB alloc] init]);
     b2.sb = @"B2.sb";
     b2.pb = b1;
     b1.pb = b2;
@@ -93,17 +84,11 @@
 }
 -(TestSlicingObjectsServerB*) D1AsB:(ICECurrent*)current
 {
-    TestSlicingObjectsServerD1* d1 = [[TestSlicingObjectsServerD1 alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [d1 autorelease];
-#endif
+    TestSlicingObjectsServerD1* d1 = ICE_AUTORELEASE([[TestSlicingObjectsServerD1 alloc] init]);
     d1.sb = @"D1.sb";
     d1.sd1 = @"D1.sd1";
 
-    TestSlicingObjectsServerD2* d2 = [[TestSlicingObjectsServerD2 alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [d2 autorelease];
-#endif
+    TestSlicingObjectsServerD2* d2 = ICE_AUTORELEASE([[TestSlicingObjectsServerD2 alloc] init]);
     d2.pb = d1;
     d2.sb = @"D2.sb";
     d2.sd2 = @"D2.sd2";
@@ -114,16 +99,10 @@
 }
 -(TestSlicingObjectsServerD1*) D1AsD1:(ICECurrent*)current
 {
-    TestSlicingObjectsServerD1* d1 = [[TestSlicingObjectsServerD1 alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [d1 autorelease];
-#endif
+    TestSlicingObjectsServerD1* d1 = ICE_AUTORELEASE([[TestSlicingObjectsServerD1 alloc] init]);
     d1.sb = @"D1.sb";
     d1.sd1 = @"D1.sd1";
-    TestSlicingObjectsServerD2* d2 = [[TestSlicingObjectsServerD2 alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [d2 autorelease];
-#endif
+    TestSlicingObjectsServerD2* d2 = ICE_AUTORELEASE([[TestSlicingObjectsServerD2 alloc] init]);
     d2.pb = d1;
     d2.sb = @"D2.sb";
     d2.sd2 = @"D2.sd2";
@@ -134,16 +113,10 @@
 }
 -(TestSlicingObjectsServerB*) D2AsB:(ICECurrent*)current
 {
-    TestSlicingObjectsServerD2* d2 = [[TestSlicingObjectsServerD2 alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [d2 autorelease];
-#endif
+    TestSlicingObjectsServerD2* d2 = ICE_AUTORELEASE([[TestSlicingObjectsServerD2 alloc] init]);
     d2.sb = @"D2.sb";
     d2.sd2 = @"D2.sd2";
-    TestSlicingObjectsServerD1* d1 = [[TestSlicingObjectsServerD1 alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [d1 autorelease];
-#endif
+    TestSlicingObjectsServerD1* d1 = ICE_AUTORELEASE([[TestSlicingObjectsServerD1 alloc] init]);
     d1.pb = d2;
     d1.sb = @"D1.sb";
     d1.sd1 = @"D1.sd1";
@@ -154,16 +127,10 @@
 }
 -(void) paramTest1:(TestSlicingObjectsServerB**)p1 p2:(TestSlicingObjectsServerB**)p2 current:(ICECurrent*)current
 {
-    TestSlicingObjectsServerD1* d1 = [[TestSlicingObjectsServerD1 alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [d1 autorelease];
-#endif
+    TestSlicingObjectsServerD1* d1 = ICE_AUTORELEASE([[TestSlicingObjectsServerD1 alloc] init]);
     d1.sb = @"D1.sb";
     d1.sd1 = @"D1.sd1";
-    TestSlicingObjectsServerD2* d2 = [[TestSlicingObjectsServerD2 alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [d2 autorelease];
-#endif
+    TestSlicingObjectsServerD2* d2 = ICE_AUTORELEASE([[TestSlicingObjectsServerD2 alloc] init]);
     d2.pb = d1;
     d2.sb = @"D2.sb";
     d2.sd2 = @"D2.sd2";
@@ -179,38 +146,26 @@
 }
 -(TestSlicingObjectsServerB*) paramTest3:(TestSlicingObjectsServerB**)p1 p2:(TestSlicingObjectsServerB**)p2 current:(ICECurrent*)current
 {
-    TestSlicingObjectsServerD2* d2 = [[TestSlicingObjectsServerD2 alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [d2 autorelease];
-#endif
+    TestSlicingObjectsServerD2* d2 = ICE_AUTORELEASE([[TestSlicingObjectsServerD2 alloc] init]);
     d2.sb = @"D2.sb (p1 1)";
     d2.pb = 0;
     d2.sd2 = @"D2.sd2 (p1 1)";
     *p1 = d2;
 
-    TestSlicingObjectsServerD1* d1 = [[TestSlicingObjectsServerD1 alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [d1 autorelease];
-#endif
+    TestSlicingObjectsServerD1* d1 = ICE_AUTORELEASE([[TestSlicingObjectsServerD1 alloc] init]);
     d1.sb = @"D1.sb (p1 2)";
     d1.pb = 0;
     d1.sd1 = @"D1.sd2 (p1 2)";
     d1.pd1 = 0;
     d2.pd2 = d1;
 
-    TestSlicingObjectsServerD2* d4 = [[TestSlicingObjectsServerD2 alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [d4 autorelease];
-#endif
+    TestSlicingObjectsServerD2* d4 = ICE_AUTORELEASE([[TestSlicingObjectsServerD2 alloc] init]);
     d4.sb = @"D2.sb (p2 1)";
     d4.pb = 0;
     d4.sd2 = @"D2.sd2 (p2 1)";
     *p2 = d4;
 
-    TestSlicingObjectsServerD1* d3 = [[TestSlicingObjectsServerD1 alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [d3 autorelease];
-#endif
+    TestSlicingObjectsServerD1* d3 = ICE_AUTORELEASE([[TestSlicingObjectsServerD1 alloc] init]);
     d3.sb = @"D1.sb (p2 2)";
     d3.pb = 0;
     d3.sd1 = @"D1.sd2 (p2 2)";
@@ -221,21 +176,12 @@
 }
 -(TestSlicingObjectsServerB*) paramTest4:(TestSlicingObjectsServerB**)p1 current:(ICECurrent*)current
 {
-    TestSlicingObjectsServerD4* d4 = [[TestSlicingObjectsServerD4 alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [d4 autorelease];
-#endif
+    TestSlicingObjectsServerD4* d4 = ICE_AUTORELEASE([[TestSlicingObjectsServerD4 alloc] init]);
     d4.sb = @"D4.sb (1)";
     d4.pb = 0;
-    d4.p1 = [[TestSlicingObjectsServerB alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [d4.p1 autorelease];
-#endif
+    d4.p1 = ICE_AUTORELEASE([[TestSlicingObjectsServerB alloc] init]);
     d4.p1.sb = @"B.sb (1)";
-    d4.p2 = [[TestSlicingObjectsServerB alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [d4.p2 autorelease];
-#endif
+    d4.p2 = ICE_AUTORELEASE([[TestSlicingObjectsServerB alloc] init]);
     d4.p2.sb = @"B.sb (2)";
     *p1 = d4;
     return d4.p2;
@@ -269,10 +215,7 @@
     for(i = 0; i < 10; ++i)
     {
         TestSlicingObjectsServerB* b = [bin objectForKey:[NSNumber numberWithInt:i]];
-        TestSlicingObjectsServerD2* d2 = [[TestSlicingObjectsServerD2 alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-        [d2 autorelease];
-#endif
+        TestSlicingObjectsServerD2* d2 = ICE_AUTORELEASE([[TestSlicingObjectsServerD2 alloc] init]);
         d2.sb = b.sb;
         d2.pb = b.pb;
         d2.sd2 = @"D2";
@@ -282,10 +225,7 @@
     TestSlicingObjectsServerMutableBDict* r = [TestSlicingObjectsServerMutableBDict dictionary];
     for(i = 0; i < 10; ++i)
     {
-        TestSlicingObjectsServerD1* d1 = [[TestSlicingObjectsServerD1 alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-        [d1 autorelease];
-#endif
+        TestSlicingObjectsServerD1* d1 = ICE_AUTORELEASE([[TestSlicingObjectsServerD1 alloc] init]);
         d1.sb = [NSString stringWithFormat:@"D1.%d",(i * 20)];
         d1.pb = (i == 0 ? nil : [r objectForKey:[NSNumber numberWithInt:((i - 1) * 20)]]);
         d1.sd1 = d1.sb;
@@ -415,37 +355,22 @@
 
 -(void) throwBaseAsBase:(ICECurrent*)current
 {
-    TestSlicingObjectsServerBaseException* be = [[TestSlicingObjectsServerBaseException alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [be autorelease];
-#endif
+    TestSlicingObjectsServerBaseException* be = ICE_AUTORELEASE([[TestSlicingObjectsServerBaseException alloc] init]);
     be.sbe = @"sbe";
-    be.pb = [[TestSlicingObjectsServerB alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [be.pb autorelease];
-#endif
+    be.pb = ICE_AUTORELEASE([[TestSlicingObjectsServerB alloc] init]);
     be.pb.sb = @"sb";
     be.pb.pb = be.pb;
     @throw be;
 }
 -(void) throwDerivedAsBase:(ICECurrent*)current
 {
-    TestSlicingObjectsServerDerivedException* de = [[TestSlicingObjectsServerDerivedException alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [de autorelease];
-#endif
+    TestSlicingObjectsServerDerivedException* de = ICE_AUTORELEASE([[TestSlicingObjectsServerDerivedException alloc] init]);
     de.sbe = @"sbe";
-    de.pb = [[TestSlicingObjectsServerB alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [de.pb autorelease];
-#endif
+    de.pb = ICE_AUTORELEASE([[TestSlicingObjectsServerB alloc] init]);
     de.pb.sb = @"sb1";
     de.pb.pb = de.pb;
     de.sde = @"sde1";
-    de.pd1 = [[TestSlicingObjectsServerD1 alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [de.pd1 autorelease];
-#endif
+    de.pd1 = ICE_AUTORELEASE([[TestSlicingObjectsServerD1 alloc] init]);
     de.pd1.sb = @"sb2";
     de.pd1.pb = de.pd1;
     de.pd1.sd1 = @"sd2";
@@ -454,22 +379,13 @@
 }
 -(void) throwDerivedAsDerived:(ICECurrent*)current
 {
-    TestSlicingObjectsServerDerivedException* de = [[TestSlicingObjectsServerDerivedException alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [de autorelease];
-#endif
+    TestSlicingObjectsServerDerivedException* de = ICE_AUTORELEASE([[TestSlicingObjectsServerDerivedException alloc] init]);
     de.sbe = @"sbe";
-    de.pb = [[TestSlicingObjectsServerB alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [de.pb autorelease];
-#endif
+    de.pb = ICE_AUTORELEASE([[TestSlicingObjectsServerB alloc] init]);
     de.pb.sb = @"sb1";
     de.pb.pb = de.pb;
     de.sde = @"sde1";
-    de.pd1 = [[TestSlicingObjectsServerD1 alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [de.pd1 autorelease];
-#endif
+    de.pd1 = ICE_AUTORELEASE([[TestSlicingObjectsServerD1 alloc] init]);
     de.pd1.sb = @"sb2";
     de.pd1.pb = de.pd1;
     de.pd1.sd1 = @"sd2";
@@ -478,19 +394,14 @@
 }
 -(void) throwUnknownDerivedAsBase:(ICECurrent*)current
 {
-    TestSlicingObjectsServerD2* d2 = [[TestSlicingObjectsServerD2 alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [d2 autorelease];
-#endif
+    TestSlicingObjectsServerD2* d2 = ICE_AUTORELEASE([[TestSlicingObjectsServerD2 alloc] init]);
     d2.sb = @"sb d2";
     d2.pb = d2;
     d2.sd2 = @"sd2 d2";
     d2.pd2 = d2;
 
-    TestSlicingObjectsServerUnknownDerivedException* ude = [[TestSlicingObjectsServerUnknownDerivedException alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [ude autorelease];
-#endif
+    TestSlicingObjectsServerUnknownDerivedException* ude = 
+    	ICE_AUTORELEASE([[TestSlicingObjectsServerUnknownDerivedException alloc] init]);
     ude.sbe = @"sbe";
     ude.pb = d2;
     ude.sude = @"sude";
@@ -504,19 +415,14 @@
     ue.p.pi = 5;
     ue.p.ps = @"preserved";
     ue.p.pb = ue.p;
+    if(ex_ != nil)
+    {
+        ex_.p.pb = nil;
 #if defined(__clang__) && !__has_feature(objc_arc)
-    if(ex_ != nil)
-    {
-        ex_.p.pb = nil;
         [ex_ release];
-    }
-    ex_ = [ue retain];
-#else
-    if(ex_ != nil)
-    {
-        ex_.p.pb = nil;
-    }
 #endif
+    }
+    ex_ = ICE_RETAIN(ue);
     @throw ue;
 }
 -(void) useForward:(TestSlicingObjectsServerForward**)f current:(ICECurrent*)current

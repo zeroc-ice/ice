@@ -10,5 +10,4 @@
 #import <Hello.h>
 
 @interface HelloI : DemoHello<DemoHello>
-+(id) helloI;
 @end

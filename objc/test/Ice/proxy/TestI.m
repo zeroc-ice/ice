@@ -43,10 +43,8 @@
 {
 #if defined(__clang__) && !__has_feature(objc_arc)
     [_ctx release];
-    _ctx = [[current ctx] retain];
-#else
-    _ctx = [current ctx];
 #endif
+    _ctx = ICE_RETAIN([current ctx]);
     return [super ice_isA:s current:current];
 }
 

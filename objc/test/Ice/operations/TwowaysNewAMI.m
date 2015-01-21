@@ -38,11 +38,7 @@
 
 +(id) create
 {
-#if defined(__clang__) && __has_feature(objc_arc)
-    return [[TestNewAMIOperationsCallback alloc] init];
-#else
-    return [[[TestNewAMIOperationsCallback alloc] init] autorelease];
-#endif
+    return ICE_AUTORELEASE([[TestNewAMIOperationsCallback alloc] init]);
 }
 
 #if defined(__clang__) && !__has_feature(objc_arc)

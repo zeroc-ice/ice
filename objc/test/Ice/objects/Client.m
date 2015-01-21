@@ -72,11 +72,7 @@
 static int
 run(id<ICECommunicator> communicator)
 {
-#if defined(__clang__) && !__has_feature(objc_arc)
-    id<ICEObjectFactory> factory = [[[ClientMyObjectFactory alloc] init] autorelease];
-#else
-    id<ICEObjectFactory> factory = [[ClientMyObjectFactory alloc] init];
-#endif
+    id<ICEObjectFactory> factory = ICE_AUTORELEASE([[ClientMyObjectFactory alloc] init]);
 
     [communicator addObjectFactory:factory sliceId:@"::Test::B"];
     [communicator addObjectFactory:factory sliceId:@"::Test::C"];

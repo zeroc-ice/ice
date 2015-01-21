@@ -68,11 +68,7 @@
     self = [super init];
     if(self)
     {
-#if defined(__clang__) && !__has_feature(objc_arc)
-        self->adapter = [adapter_p retain];
-#else
-        self->adapter = adapter_p;
-#endif
+        self->adapter = ICE_RETAIN(adapter_p);
     }
     return self;
 }

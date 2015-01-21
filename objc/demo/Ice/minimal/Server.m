@@ -28,7 +28,7 @@ main(int argc, char* argv[])
 
             id<ICEObjectAdapter> adapter = [communicator createObjectAdapterWithEndpoints:@"Hello"
                                                          endpoints:@"default -p 10000"];
-            [adapter add:[HelloI helloI] identity:[communicator stringToIdentity:@"hello"]];
+            [adapter add:[HelloI hello] identity:[communicator stringToIdentity:@"hello"]];
             [adapter activate];
             [communicator waitForShutdown];
         }

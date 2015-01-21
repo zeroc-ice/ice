@@ -33,22 +33,14 @@
     {
         return nil;
     }
-#if defined(__clang__) && !__has_feature(objc_arc)
-    adapter_ = [adapter retain];
-#else
-    adapter_ = adapter;
-#endif
+    adapter_ = ICE_RETAIN(adapter);
     timeout_ = timeout;
     return self;
 }
 
 +(id) activateAdapterThread:(id<ICEObjectAdapter>)adapter timeout:(int)timeout
 {
-#if defined(__clang__) && !__has_feature(objc_arc)
-    return [[[self alloc] init:adapter timeout:timeout] autorelease];
-#else
-    return [[self alloc] init:adapter timeout:timeout];
-#endif
+    return ICE_AUTORELEASE([[self alloc] init:adapter timeout:timeout]);
 }
 -(void) main
 {

@@ -71,11 +71,7 @@
     [adapter setLocator:[ICELocatorPrx uncheckedCast:locator]];
     [adapter2 setLocator:[ICELocatorPrx uncheckedCast:locator]];
 
-#if defined(__clang__) && !__has_feature(objc_arc)
-    ICEObject* object = [[[TestLocationI alloc] init:adapter adapter2:adapter2 registry:registry_] autorelease];
-#else
-    ICEObject* object = [[TestLocationI alloc] init:adapter adapter2:adapter2 registry:registry_];
-#endif
+    ICEObject* object = ICE_AUTORELEASE([[TestLocationI alloc] init:adapter adapter2:adapter2 registry:registry_]);
     [registry_ addObject:[adapter add:object identity:[serverCommunicator stringToIdentity:@"test"]]];
     [registry_ addObject:[adapter add:object identity:[serverCommunicator stringToIdentity:@"test2"]]];
     [adapter add:object identity:[serverCommunicator stringToIdentity:@"test3"]];
@@ -114,19 +110,11 @@
     {
         return nil;
     }
-#if defined(__clang__) && !__has_feature(objc_arc)
-    adapter1_ = [adapter retain];
-    adapter2_ = [adapter2 retain];
+    adapter1_ = ICE_RETAIN(adapter);
+    adapter2_ = ICE_RETAIN(adapter2);
     registry_ = registry;
-    [registry_ addObject:[adapter1_ add:[[[HelloI alloc] init] autorelease]
+    [registry_ addObject:[adapter1_ add:ICE_AUTORELEASE([[HelloI alloc] init])
                                     identity:[[adapter1_ getCommunicator] stringToIdentity:@"hello"]]];
-#else
-    adapter1_ = adapter;
-    adapter2_ = adapter2;
-    registry_ = registry;
-    [registry_ addObject:[adapter1_ add:[[HelloI alloc] init]
-                                    identity:[[adapter1_ getCommunicator] stringToIdentity:@"hello"]]];
-#endif
     return self;
 }
 

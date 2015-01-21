@@ -130,25 +130,15 @@
     {
         return nil;
     }
-#if defined(__clang__) && !__has_feature(objc_arc)
-    ca_ = [TestInheritanceMACAPrx uncheckedCast:[adapter addWithUUID:[[[CAI alloc] init] autorelease]]];
-    cb_ = [TestInheritanceMBCBPrx uncheckedCast:[adapter addWithUUID:[[[CBI alloc] init] autorelease]]];
-    cc_ = [TestInheritanceMACCPrx uncheckedCast:[adapter addWithUUID:[[[CCI alloc] init] autorelease]]];
-    cd_ = [TestInheritanceMACDPrx uncheckedCast:[adapter addWithUUID:[[[CDI alloc] init] autorelease]]];
-    ia_ = [TestInheritanceMAIAPrx uncheckedCast:[adapter addWithUUID:[[[IAI alloc] init] autorelease]]];
-    ib1_ = [TestInheritanceMBIB1Prx uncheckedCast:[adapter addWithUUID:[[[IB1I alloc] init] autorelease]]];
-    ib2_ = [TestInheritanceMBIB2Prx uncheckedCast:[adapter addWithUUID:[[[IB2I alloc] init] autorelease]]];
-    ic_ = [TestInheritanceMAICPrx uncheckedCast:[adapter addWithUUID:[[[ICI alloc] init] autorelease]]];
-#else
-    ca_ = [TestInheritanceMACAPrx uncheckedCast:[adapter addWithUUID:[[CAI alloc] init]]];
-    cb_ = [TestInheritanceMBCBPrx uncheckedCast:[adapter addWithUUID:[[CBI alloc] init]]];
-    cc_ = [TestInheritanceMACCPrx uncheckedCast:[adapter addWithUUID:[[CCI alloc] init]]];
-    cd_ = [TestInheritanceMACDPrx uncheckedCast:[adapter addWithUUID:[[CDI alloc] init]]];
-    ia_ = [TestInheritanceMAIAPrx uncheckedCast:[adapter addWithUUID:[[IAI alloc] init]]];
-    ib1_ = [TestInheritanceMBIB1Prx uncheckedCast:[adapter addWithUUID:[[IB1I alloc] init]]];
-    ib2_ = [TestInheritanceMBIB2Prx uncheckedCast:[adapter addWithUUID:[[IB2I alloc] init]]];
-    ic_ = [TestInheritanceMAICPrx uncheckedCast:[adapter addWithUUID:[[ICI alloc] init]]];
-#endif
+    ca_ = [TestInheritanceMACAPrx uncheckedCast:[adapter addWithUUID:ICE_AUTORELEASE([[CAI alloc] init])]];
+    cb_ = [TestInheritanceMBCBPrx uncheckedCast:[adapter addWithUUID:ICE_AUTORELEASE([[CBI alloc] init])]];
+    cc_ = [TestInheritanceMACCPrx uncheckedCast:[adapter addWithUUID:ICE_AUTORELEASE([[CCI alloc] init])]];
+    cd_ = [TestInheritanceMACDPrx uncheckedCast:[adapter addWithUUID:ICE_AUTORELEASE([[CDI alloc] init])]];
+    ia_ = [TestInheritanceMAIAPrx uncheckedCast:[adapter addWithUUID:ICE_AUTORELEASE([[IAI alloc] init])]];
+    ib1_ = [TestInheritanceMBIB1Prx uncheckedCast:[adapter addWithUUID:ICE_AUTORELEASE([[IB1I alloc] init])]];
+    ib2_ = [TestInheritanceMBIB2Prx uncheckedCast:[adapter addWithUUID:ICE_AUTORELEASE([[IB2I alloc] init])]];
+    ic_ = [TestInheritanceMAICPrx uncheckedCast:[adapter addWithUUID:ICE_AUTORELEASE([[ICI alloc] init])]];
+
     return self;
 }
 -(void) shutdown:(ICECurrent*)current

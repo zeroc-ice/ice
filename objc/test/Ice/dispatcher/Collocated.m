@@ -25,17 +25,11 @@ run(id<ICECommunicator> communicator)
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
     id<ICEObjectAdapter> adapter2 = [communicator createObjectAdapter:@"ControllerAdapter"];
 
-#if defined(__clang__) && !__has_feature(objc_arc)
     TestDispatcherTestIntfControllerI* testController
-        = [[[TestDispatcherTestIntfControllerI alloc] initWithAdapter:adapter] autorelease];
+        = ICE_AUTORELEASE([[TestDispatcherTestIntfControllerI alloc] initWithAdapter:adapter]);
 
-    ICEObject* object = [[[TestDispatcherTestIntfI alloc] init] autorelease];
-#else
-    TestDispatcherTestIntfControllerI* testController
-        = [[TestDispatcherTestIntfControllerI alloc] initWithAdapter:adapter];
+    ICEObject* object = ICE_AUTORELEASE([[TestDispatcherTestIntfI alloc] init]);
 
-    ICEObject* object = [[TestDispatcherTestIntfI alloc] init];
-#endif
     [adapter add:object identity:[communicator stringToIdentity:@"test"]];
     //[adapter activate]; // Don't activate OA to ensure collocation is used.
 

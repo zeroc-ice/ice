@@ -20,20 +20,14 @@ run(id<ICECommunicator> communicator)
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
 
-    ICEObject* object = [[MetricsI alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [object autorelease];
-#endif
+    ICEObject* object = ICE_AUTORELEASE([[MetricsI alloc] init]);
     [adapter add:object identity:[communicator stringToIdentity:@"metrics"]];
     [adapter activate];
 
     [[communicator getProperties] setProperty:@"ControllerAdapter.Endpoints" value:@"default -p 12011"];
     id<ICEObjectAdapter> controllerAdapter = [communicator createObjectAdapter:@"ControllerAdapter"];
 
-    ICEObject* controller = [[ControllerI alloc] init:adapter];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [controller autorelease];
-#endif
+    ICEObject* controller = ICE_AUTORELEASE([[ControllerI alloc] init:adapter]);
     [controllerAdapter add:controller identity:[communicator stringToIdentity:@"controller"]];
     [controllerAdapter activate];
 

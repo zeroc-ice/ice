@@ -36,11 +36,7 @@
 
 +(id) create
 {
-#if defined(__clang__) && __has_feature(objc_arc)
-    return [[OnewayNewAMICallback alloc] init];
-#else
-    return [[[OnewayNewAMICallback alloc] init] autorelease];
-#endif
+    return ICE_AUTORELEASE([[OnewayNewAMICallback alloc] init]);
 }
 
 #if defined(__clang__) && !__has_feature(objc_arc)

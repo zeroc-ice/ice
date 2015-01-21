@@ -50,29 +50,18 @@
 static int
 run(id<ICECommunicator> communicator)
 {
-#if defined(__clang__) && !__has_feature(objc_arc)
-    id<ICEObjectFactory> factory = [[[ServerMyObjectFactory alloc] init] autorelease];
-#else
-    id<ICEObjectFactory> factory = [[ServerMyObjectFactory alloc] init];
-#endif
+    id<ICEObjectFactory> factory = ICE_AUTORELEASE([[ServerMyObjectFactory alloc] init]);
+
     [communicator addObjectFactory:factory sliceId:@"::Test::I"];
     [communicator addObjectFactory:factory sliceId:@"::Test::J"];
     [communicator addObjectFactory:factory sliceId:@"::Test::H"];
 
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    ICEObject* initial = [[[TestObjectsInitialI alloc] init] autorelease];
-#else
-    ICEObject* initial = [[TestObjectsInitialI alloc] init];
-#endif
+    ICEObject* initial = ICE_AUTORELEASE([[TestObjectsInitialI alloc] init]);
     [adapter add:initial identity:[communicator stringToIdentity:@"initial"]];
 
-#if defined(__clang__) && !__has_feature(objc_arc)
-    ICEObject* uoet = [[[UnexpectedObjectExceptionTestI alloc] init] autorelease];
-#else
-    ICEObject* uoet = [[UnexpectedObjectExceptionTestI alloc] init];
-#endif
+    ICEObject* uoet = ICE_AUTORELEASE([[UnexpectedObjectExceptionTestI alloc] init]);
     [adapter add:uoet identity:[communicator stringToIdentity:@"uoet"]];
     [adapter activate];
 

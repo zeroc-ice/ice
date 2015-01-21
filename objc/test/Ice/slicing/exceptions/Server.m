@@ -20,11 +20,7 @@ run(id<ICECommunicator> communicator)
     [[communicator getProperties] setProperty:@"Ice.Warn.Dispatch" value:@"0"];
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    ICEObject* object = [[[TestSlicingExceptionsServerI alloc] init] autorelease];
-#else
-    ICEObject* object = [[TestSlicingExceptionsServerI alloc] init];
-#endif
+    ICEObject* object = ICE_AUTORELEASE([[TestSlicingExceptionsServerI alloc] init]);
     [adapter add:object identity:[communicator stringToIdentity:@"Test"]];
     [adapter activate];
 

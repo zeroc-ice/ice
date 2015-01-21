@@ -225,11 +225,7 @@
 @implementation FactoryI
 +(FactoryI*) factoryI
 {
-#if defined(__clang__) && __has_feature(objc_arc)
-    return [[FactoryI alloc] init];
-#else
-    return [[[FactoryI alloc] init] autorelease];
-#endif
+    return ICE_AUTORELEASE([[FactoryI alloc] init]);
 }
 -(id) init
 {
@@ -357,10 +353,7 @@ optionalAllTests(id<ICECommunicator> communicator)
     BOOL bos[] = { NO, YES, NO };
     mo1.bos = [TestOptionalBoolSeq dataWithBytes:bos length:sizeof(bos)];
 
-    TestOptionalMultiOptional* mo3 = [mo1 copy];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [mo3 autorelease];
-#endif
+    TestOptionalMultiOptional* mo3 = ICE_AUTORELEASE([mo1 copy]);
     test(mo3.a == 15);
     test(mo3.b == YES);
     test(mo3.c == 19);
@@ -489,10 +482,7 @@ optionalAllTests(id<ICECommunicator> communicator)
     test([mo5.bos isEqual:mo1.bos]);
 
     // Clear the first half of the optional parameters
-    TestOptionalMultiOptional* mo6 = [mo5 copy];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [mo6 autorelease];
-#endif
+    TestOptionalMultiOptional* mo6 = ICE_AUTORELEASE([mo5 copy]);
     [mo6 clearA];
     [mo6 clearC];
     [mo6 clearE];
@@ -544,10 +534,7 @@ optionalAllTests(id<ICECommunicator> communicator)
     test(![mo7 hasIoopd]);
 
     // Clear the second half of the optional parameters
-    TestOptionalMultiOptional* mo8 = [mo5 copy];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [mo8 autorelease];
-#endif
+    TestOptionalMultiOptional* mo8 = ICE_AUTORELEASE([mo5 copy]);
     [mo8 clearB];
     [mo8 clearD];
     [mo8 clearF];

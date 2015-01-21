@@ -56,11 +56,7 @@ run(int argc, char** argv, id<ICECommunicator> communicator)
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:endpts];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
 
-#if defined(__clang__) && !__has_feature(objc_arc)
-    ICEObject* object = [[[TestI alloc] init] autorelease];
-#else
-    ICEObject* object = [[TestI alloc] init];
-#endif
+    ICEObject* object = ICE_AUTORELEASE([[TestI alloc] init]);
     [adapter add:object identity:[communicator stringToIdentity:@"test"]];
     [adapter activate];
     [communicator waitForShutdown];

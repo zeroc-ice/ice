@@ -105,11 +105,7 @@
 -(TestOperationsStructure *) opStruct:(TestOperationsStructure *)p1 p2:(TestOperationsStructure *)p2 p3:(TestOperationsStructure **)p3
                             current:(ICECurrent *)current;
 {
-#if defined(__clang__) && !__has_feature(objc_arc)
-    *p3 = [[p1 copy] autorelease];
-#else
-    *p3 = [p1 copy];
-#endif
+    *p3 = ICE_AUTORELEASE([p1 copy]);
     (*p3).s.s = @"a new string";
     return p2;
 }

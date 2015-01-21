@@ -24,17 +24,10 @@ run(id<ICECommunicator> communicator)
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAMIAdapter"];
     id<ICEObjectAdapter> adapter2 = [communicator createObjectAdapter:@"ControllerAdapter"];
 
-#if defined(__clang__) && !__has_feature(objc_arc)
     TestAMITestIntfControllerI* testController 
-        = [[[TestAMITestIntfControllerI alloc] initWithAdapter:adapter] autorelease];
+        = ICE_AUTORELEASE([[TestAMITestIntfControllerI alloc] initWithAdapter:adapter]);
 
-    [adapter add:[[[TestAMITestIntfI alloc] init] autorelease] identity:[communicator stringToIdentity:@"test"]];
-#else
-    TestAMITestIntfControllerI* testController 
-        = [[TestAMITestIntfControllerI alloc] initWithAdapter:adapter];
-
-    [adapter add:[[TestAMITestIntfI alloc] init] identity:[communicator stringToIdentity:@"test"]];
-#endif
+    [adapter add:ICE_AUTORELEASE([[TestAMITestIntfI alloc] init]) identity:[communicator stringToIdentity:@"test"]];
     [adapter activate];
 
     [adapter2 add:testController identity:[communicator stringToIdentity:@"testController"]];

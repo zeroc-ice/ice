@@ -16,5 +16,4 @@
 @private
     NSMutableDictionary* contacts_;
 }
-+(id) contactDBI;
 @end

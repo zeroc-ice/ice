@@ -52,11 +52,7 @@
 -(void) response:(NSString*)name
 {
     [cond_ lock];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    name_ = [name retain];
-#else
-    name_ = name;
-#endif
+    name_ = ICE_RETAIN(name);
     [cond_ signal];
     [cond_ unlock];
 }
@@ -74,11 +70,7 @@
         {
             [cond_ wait];
         }
-#if defined(__clang__) && !__has_feature(objc_arc)
-        return [[name_ retain] autorelease];
-#else
-        return name_;
-#endif
+        return ICE_AUTORELEASE(ICE_RETAIN(name_));
     }
     @finally
     {
@@ -91,11 +83,7 @@
 NSString*
 getAdapterNameWithAMI(id<TestBindingTestIntfPrx> test)
 {
-#if defined(__clang__) && !__has_feature(objc_arc)
-    GetAdapterNameCB* cb = [[[GetAdapterNameCB alloc] init] autorelease];
-#else
-    GetAdapterNameCB* cb = [[GetAdapterNameCB alloc] init];
-#endif
+    GetAdapterNameCB* cb = ICE_AUTORELEASE([[GetAdapterNameCB alloc] init]);
     [test begin_getAdapterName:^(NSMutableString* name) { [cb response:name]; } 
                      exception:^(ICEException* ex) { [cb exception:ex]; }];
     return [cb getResult];
@@ -229,10 +217,8 @@ bindingAllTests(id<ICECommunicator> communicator)
         [names addObject:@"Adapter13"];
         while([names count] != 0)
         {
-            NSMutableArray* adpts = [adapters mutableCopy];
-#if defined(__clang__) && !__has_feature(objc_arc)
-            [adpts autorelease];            
-#endif
+            NSMutableArray* adpts = ICE_AUTORELEASE([adapters mutableCopy]);
+
             id<TestBindingTestIntfPrx> test1 = createTestIntfPrx(adpts);
             random_shuffle(adpts);
             id<TestBindingTestIntfPrx> test2 = createTestIntfPrx(adpts);
@@ -278,10 +264,8 @@ bindingAllTests(id<ICECommunicator> communicator)
         [names addObject:@"Adapter13"];
         while([names count] != 0)
         {
-            NSMutableArray* adpts = [adapters mutableCopy];
-#if defined(__clang__) && !__has_feature(objc_arc)
-            [adpts autorelease];
-#endif
+            NSMutableArray* adpts = ICE_AUTORELEASE([adapters mutableCopy]);
+
             id<TestBindingTestIntfPrx> test1 = createTestIntfPrx(adpts);
             random_shuffle(adpts);
             id<TestBindingTestIntfPrx> test2 = createTestIntfPrx(adpts);
@@ -324,10 +308,7 @@ bindingAllTests(id<ICECommunicator> communicator)
         [names addObject:@"AdapterAMI13"];
         while([names count] != 0)
         {
-            NSMutableArray* adpts = [adapters mutableCopy];
-#if defined(__clang__) && !__has_feature(objc_arc)
-            [adpts autorelease];
-#endif
+            NSMutableArray* adpts = ICE_AUTORELEASE([adapters mutableCopy]);
 
             id<TestBindingTestIntfPrx> test1 = createTestIntfPrx(adpts);
             random_shuffle(adpts);
@@ -374,10 +355,7 @@ bindingAllTests(id<ICECommunicator> communicator)
         [names addObject:@"AdapterAMI13"];
         while([names count] != 0)
         {
-            NSMutableArray* adpts = [adapters mutableCopy];
-#if defined(__clang__) && !__has_feature(objc_arc)
-            [adpts autorelease];
-#endif
+            NSMutableArray* adpts = ICE_AUTORELEASE([adapters mutableCopy]);
 
             id<TestBindingTestIntfPrx> test1 = createTestIntfPrx(adpts);
             random_shuffle(adpts);

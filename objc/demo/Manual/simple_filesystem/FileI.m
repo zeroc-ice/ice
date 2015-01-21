@@ -20,10 +20,7 @@
 
 +(id) filei:(NSString *)name parent:(DirectoryI *)parent
 {
-    FileI *instance = [[FileI alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [instance autorelease];
-#endif
+    FileI *instance = ICE_AUTORELEASE([[FileI alloc] init]);
     if(instance == nil)
     {
         return nil;

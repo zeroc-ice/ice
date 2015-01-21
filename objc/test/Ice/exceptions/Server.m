@@ -26,11 +26,7 @@ run(id<ICECommunicator> communicator)
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
     id<ICEObjectAdapter> adapter2 = [communicator createObjectAdapter:@"TestAdapter2"];
     id<ICEObjectAdapter> adapter3 = [communicator createObjectAdapter:@"TestAdapter3"];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    ICEObject* object = [[[ThrowerI alloc] init] autorelease];
-#else
-    ICEObject* object = [[ThrowerI alloc] init];
-#endif
+    ICEObject* object = ICE_AUTORELEASE([[ThrowerI alloc] init]);
     [adapter add:object identity:[communicator stringToIdentity:@"thrower"]];
     [adapter2 add:object identity:[communicator stringToIdentity:@"thrower"]];
     [adapter3 add:object identity:[communicator stringToIdentity:@"thrower"]];

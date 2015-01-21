@@ -20,7 +20,7 @@ run(int argc, char* argv[], id<ICECommunicator> communicator)
         return EXIT_FAILURE;
     }
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"Hello"];
-    [adapter add:[HelloI helloI] identity:[communicator stringToIdentity:@"hello"]];
+    [adapter add:[HelloI hello] identity:[communicator stringToIdentity:@"hello"]];
     [adapter activate];
     [communicator waitForShutdown];
     return EXIT_SUCCESS;

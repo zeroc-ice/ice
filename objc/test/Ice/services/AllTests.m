@@ -18,7 +18,6 @@
 
 @interface ClockI : TestServicesClock<TestServicesClock>
 -(id) init;
-+(id) cloki;
 -(void)tick:(NSString*)time current:(ICECurrent*)current;
 @end
 
@@ -28,15 +27,6 @@
     self = [super init];
     return self;
 }
-+(id) cloki
-{
-#if defined(__clang__) && !__has_feature(objc_arc)
-    return [[[ClockI alloc] init] autorelease];
-#else
-    return [[ClockI alloc] init];
-#endif
-}
-
 -(void)tick:(NSString*)time current:(ICECurrent*)current
 {
     NSLog(@"%@", time);
@@ -70,7 +60,7 @@ servicesAllTests(id<ICECommunicator> communicator)
         NSString* topicName = @"time";
 
         id<ICEObjectAdapter> adapter = [communicator createObjectAdapterWithEndpoints:@"subscriber" endpoints:@"tcp"];
-        ICEObjectPrx* subscriber = [adapter addWithUUID:[ClockI cloki]];
+        ICEObjectPrx* subscriber = [adapter addWithUUID:[ClockI clock]];
         [adapter activate];
 
         @try

@@ -15,15 +15,6 @@
 #import <stdio.h>
 
 @implementation HelloI
-+(id) helloI
-{
-    id instance = [[HelloI alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [instance autorelease];
-#endif
-    return instance;
-}
-
 -(void) sayHello:(int)delay current:(ICECurrent*)c
 {
     if(delay != 0)

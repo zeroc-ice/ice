@@ -34,11 +34,7 @@
     if(self)
     {
         self->called = NO;
-#if defined(__clang__) && !__has_feature(objc_arc)
-        self->proxy = [proxy_ retain];
-#else
-        self->proxy = proxy_;
-#endif
+        self->proxy = ICE_RETAIN(proxy_);
         cond = [[NSCondition alloc] init];
     }
     return self;
@@ -46,11 +42,7 @@
 
 +(id) create:(id<TestOperationsMyClassPrx>)proxy_
 {
-#if defined(__clang__) && __has_feature(objc_arc)
-    return [[PerThreadContextInvokeThread alloc] init:proxy_];
-#else
-    return [[[PerThreadContextInvokeThread alloc] init:proxy_] autorelease];
-#endif
+    return ICE_AUTORELEASE([[PerThreadContextInvokeThread alloc] init:proxy_]);
 }
 
 #if defined(__clang__) && !__has_feature(objc_arc)

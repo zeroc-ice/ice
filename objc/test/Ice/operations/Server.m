@@ -19,14 +19,8 @@ run(id<ICECommunicator> communicator)
 {
     [[communicator getProperties] setProperty:@"TestOperationsAdapter.Endpoints" value:@"default -p 12010:udp"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestOperationsAdapter"];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [adapter add:[[[TestOperationsMyDerivedClassI alloc] init] autorelease]
+    [adapter add:ICE_AUTORELEASE([[TestOperationsMyDerivedClassI alloc] init])
              identity:[communicator stringToIdentity:@"test"]];
-#else
-    [adapter add:[[TestOperationsMyDerivedClassI alloc] init]
-             identity:[communicator stringToIdentity:@"test"]];
-
-#endif
     [adapter activate];
 
     serverReady(communicator);

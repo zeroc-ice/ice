@@ -66,11 +66,7 @@
 
 +(id) create
 {
-#if defined(__clang__) && __has_feature(objc_arc)
-    return [[TestAMICallback alloc] init];
-#else
-    return [[[TestAMICallback alloc] init] autorelease];
-#endif
+    return ICE_AUTORELEASE([[TestAMICallback alloc] init]);
 }
 
 @end
@@ -223,11 +219,7 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
         [p begin_opWithResult:ctx response:opWithResultCB exception:exCB];
         [cb check];
 
-#if defined(__clang__) && !__has_feature(objc_arc)
-        void (^opWithUE)() = [[ ^() { test(NO); } copy ] autorelease];
-#else
-        void (^opWithUE)() = [ ^() { test(NO); } copy ];
-#endif
+        void (^opWithUE)() = ICE_AUTORELEASE([ ^() { test(NO); } copy]);
         void (^opWithUEEx)(ICEException*) = ^(ICEException* ex)
         {
             @try
@@ -332,41 +324,25 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
             [cb called];
         };
 
-#if defined(__clang__) && !__has_feature(objc_arc)
-        void (^isACB)(BOOL) = [[ ^(BOOL ret) { test(NO); } copy ] autorelease];
-#else
-        void (^isACB)(BOOL) = [ ^(BOOL ret) { test(NO); } copy ];
-#endif
+        void (^isACB)(BOOL) = ICE_AUTORELEASE([ ^(BOOL ret) { test(NO); } copy ]);
         [i begin_ice_isA:@"dummy" response:isACB exception:exCB];
         [cb check];
         [i begin_ice_isA:@"dummy" context:ctx response:isACB exception:exCB];
         [cb check];
 
-#if defined(__clang__) && !__has_feature(objc_arc)
-        void (^pingCB)() = [[ ^ { test(NO); } copy ] autorelease];
-#else
-        void (^pingCB)() = [ ^ { test(NO); } copy ];
-#endif
+        void (^pingCB)() = ICE_AUTORELEASE([ ^ { test(NO); } copy ]);
         [i begin_ice_ping:pingCB exception:exCB];
         [cb check];
         [i begin_ice_ping:ctx response:pingCB exception:exCB];
         [cb check];
 
-#if defined(__clang__) && !__has_feature(objc_arc)
-        void (^idCB)(NSString*) = [[ ^(NSString* ret) { test(NO); } copy ] autorelease];
-#else
-        void (^idCB)(NSString*) = [ ^(NSString* ret) { test(NO); } copy ];
-#endif
+        void (^idCB)(NSString*) = ICE_AUTORELEASE([ ^(NSString* ret) { test(NO); } copy ]);
         [i begin_ice_id:idCB exception:exCB];
         [cb check];
         [i begin_ice_id:ctx response:idCB exception:exCB];
         [cb check];
 
-#if defined(__clang__) && !__has_feature(objc_arc)
-        void (^idsCB)(NSArray*) = [[ ^(NSArray* ret) { test(NO); } copy ] autorelease];
-#else
-        void (^idsCB)(NSArray*) = [ ^(NSArray* ret) { test(NO); } copy ];
-#endif
+        void (^idsCB)(NSArray*) = ICE_AUTORELEASE([ ^(NSArray* ret) { test(NO); } copy ]);
         [i begin_ice_ids:idsCB exception:exCB];
         [cb check];
         [i begin_ice_ids:ctx response:idsCB exception:exCB];
@@ -374,20 +350,12 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
 
         if(!collocated)
         {
-#if defined(__clang__) && !__has_feature(objc_arc)
-            void (^conCB)(id<ICEConnection>) = [[ ^(id<ICEConnection> ret) { test(NO); } copy ] autorelease];
-#else
-            void (^conCB)(id<ICEConnection>) = [ ^(id<ICEConnection> ret) { test(NO); } copy ];
-#endif
+            void (^conCB)(id<ICEConnection>) = ICE_AUTORELEASE([ ^(id<ICEConnection> ret) { test(NO); } copy ]);
             [i begin_ice_getConnection:conCB exception:exCB];
             [cb check];
         }
 
-#if defined(__clang__) && !__has_feature(objc_arc)
-        void (^opCB)() = [[ ^ { test(NO); } copy ] autorelease];
-#else
-        void (^opCB)() = [ ^ { test(NO); } copy ];
-#endif
+        void (^opCB)() = ICE_AUTORELEASE([ ^ { test(NO); } copy ]);
         [i begin_op:opCB exception:exCB];
         [cb check];
         [i begin_op:ctx response:opCB exception:exCB];

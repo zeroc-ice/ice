@@ -76,10 +76,7 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
     test([ba2.str isEqualToString:@"hi"]);
     ba2.theS = nil;
 
-    TestObjectsBase* ba3 = [ba2 copy];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [ba3 autorelease];
-#endif
+    TestObjectsBase* ba3 = ICE_AUTORELEASE([ba2 copy]);
     test(ba3 != ba2);
     test(ba3.theS == ba2.theS);
     test(ba3.str == ba2.str);

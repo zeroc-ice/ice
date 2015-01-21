@@ -23,13 +23,9 @@ run(id<ICECommunicator> communicator)
     // Create OA and servants
     //
     id<ICEObjectAdapter> oa = [communicator createObjectAdapterWithEndpoints:@"MyOA" endpoints:@"tcp -h localhost"];
-    ICEObject* servant = [[TestInterceptorMyObjectI alloc] init];
-    InterceptorI* interceptor = [[InterceptorI alloc] init:servant];
+    ICEObject* servant = ICE_AUTORELEASE([[TestInterceptorMyObjectI alloc] init]);
+    InterceptorI* interceptor = ICE_AUTORELEASE([[InterceptorI alloc] init:servant]);
 
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [servant autorelease];
-    [interceptor autorelease];
-#endif
     id<TestInterceptorMyObjectPrx> prx = [TestInterceptorMyObjectPrx uncheckedCast:[oa addWithUUID:interceptor]];
 
     [oa activate];

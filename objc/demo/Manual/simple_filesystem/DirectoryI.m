@@ -19,10 +19,7 @@
 
 +(id) directoryi:(NSString *)name parent:(DirectoryI *)parent
 {
-    DirectoryI *instance = [[DirectoryI alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [instance autorelease];
-#endif
+    DirectoryI *instance = ICE_AUTORELEASE([[DirectoryI alloc] init]);
     if(instance == nil)
     {
         return nil;

@@ -33,13 +33,9 @@ run(id<ICECommunicator> communicator, ICEInitializationData* initData)
     // locator interface, this locator is used by the clients and the
     // 'servers' created with the server manager interface.
     //
-#if defined(__clang__) && !__has_feature(objc_arc)
-    ServerLocatorRegistry* registry = [[[ServerLocatorRegistry alloc] init] autorelease];
-    ServerManagerI* serverManager = [[[ServerManagerI alloc] init:registry initData:initData] autorelease];
-#else
-    ServerLocatorRegistry* registry = [[ServerLocatorRegistry alloc] init];
-    ServerManagerI* serverManager = [[ServerManagerI alloc] init:registry initData:initData];
-#endif
+    ServerLocatorRegistry* registry = ICE_AUTORELEASE([[ServerLocatorRegistry alloc] init]);
+    ServerManagerI* serverManager = ICE_AUTORELEASE([[ServerManagerI alloc] init:registry initData:initData]);
+
     [registry addObject:[adapter createProxy:[communicator stringToIdentity:@"ServerManager"]]];
     [adapter add:serverManager identity:[communicator stringToIdentity:@"ServerManager"]];
 
@@ -47,11 +43,7 @@ run(id<ICECommunicator> communicator, ICEInitializationData* initData)
         [ICELocatorRegistryPrx uncheckedCast:[adapter add:registry
                                                       identity:[communicator stringToIdentity:@"registry"]]];
 
-#if defined(__clang__) && !__has_feature(objc_arc)
-    ServerLocator* locator = [[[ServerLocator alloc] init:registry proxy:registryPrx] autorelease];
-#else
-    ServerLocator* locator = [[ServerLocator alloc] init:registry proxy:registryPrx];
-#endif
+    ServerLocator* locator = ICE_AUTORELEASE([[ServerLocator alloc] init:registry proxy:registryPrx]);
     [adapter add:locator identity:[communicator stringToIdentity:@"locator"]];
 
     [adapter activate];

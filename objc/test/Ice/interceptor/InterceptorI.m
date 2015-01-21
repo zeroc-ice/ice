@@ -20,11 +20,7 @@
     {
         return nil;
     }
-#if defined(__clang__) && !__has_feature(objc_arc)
-    servant = [servant_ retain];
-#else
-    servant = servant_;
-#endif
+    servant = ICE_RETAIN(servant_);
     return self;
 }
 
@@ -43,10 +39,8 @@
 
 #if defined(__clang__) && !__has_feature(objc_arc)
     [lastOperation release];
-    lastOperation = [current.operation retain];
-#else
-    lastOperation = current.operation;
 #endif
+    lastOperation = ICE_RETAIN(current.operation);
 
     if([lastOperation isEqualToString:@"addWithRetry"])
     {

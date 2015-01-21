@@ -32,13 +32,8 @@ run(id<ICECommunicator> communicator)
     [[communicator getProperties] setProperty:@"TestAdapter2.ThreadPool.Serialize" value:@"1"];
     id<ICEObjectAdapter> adapter2 = [communicator createObjectAdapter:@"TestAdapter2"];
     
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [adapter1 add:[[[HoldI alloc] init] autorelease] identity:[communicator stringToIdentity:@"hold"]];
-    [adapter2 add:[[[HoldI alloc] init] autorelease] identity:[communicator stringToIdentity:@"hold"]];
-#else
-    [adapter1 add:[[HoldI alloc] init] identity:[communicator stringToIdentity:@"hold"]];
-    [adapter2 add:[[HoldI alloc] init] identity:[communicator stringToIdentity:@"hold"]];
-#endif
+    [adapter1 add:ICE_AUTORELEASE([[HoldI alloc] init]) identity:[communicator stringToIdentity:@"hold"]];
+    [adapter2 add:ICE_AUTORELEASE([[HoldI alloc] init]) identity:[communicator stringToIdentity:@"hold"]];
 
     [adapter1 activate];
     [adapter2 activate];

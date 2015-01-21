@@ -19,15 +19,9 @@ run(id<ICECommunicator> communicator)
 {
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    ICEObject* d = [[[TestFacetsDI alloc] init] autorelease];
-    ICEObject* f = [[[TestFacetsFI alloc] init] autorelease];
-    ICEObject* h = [[[TestFacetsHI alloc] init] autorelease];
-#else
-    ICEObject* d = [[TestFacetsDI alloc] init];
-    ICEObject* f = [[TestFacetsFI alloc] init];
-    ICEObject* h = [[TestFacetsHI alloc] init];
-#endif
+    ICEObject* d = ICE_AUTORELEASE([[TestFacetsDI alloc] init]);
+    ICEObject* f = ICE_AUTORELEASE([[TestFacetsFI alloc] init]);
+    ICEObject* h = ICE_AUTORELEASE([[TestFacetsHI alloc] init]);
     [adapter add:d identity:[communicator stringToIdentity:@"d"]];
     [adapter addFacet:d identity:[communicator stringToIdentity:@"d"] facet:@"facetABCD"];
     [adapter addFacet:f identity:[communicator stringToIdentity:@"d"] facet:@"facetEF"];

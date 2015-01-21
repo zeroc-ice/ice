@@ -14,19 +14,9 @@
 #import <Foundation/Foundation.h>
 
 @interface RelayI : TestSlicingExceptionsClientRelay<TestSlicingExceptionsClientRelay>
-+(id) relayi;
 @end
 
 @implementation RelayI
-
-+(id) relayi
-{
-#if defined(__clang__) && !__has_feature(objc_arc)
-    return [[[RelayI alloc] init] autorelease];
-#else
-    return [[RelayI alloc] init];
-#endif
-}
 
 -(void) knownPreservedAsBase:(ICECurrent*)current
 {
@@ -44,29 +34,23 @@
 
 -(void) unknownPreservedAsBase:(ICECurrent*)current
 {
-    TestSlicingExceptionsClientPreserved2* ex = [TestSlicingExceptionsClientPreserved2 alloc];
+    TestSlicingExceptionsClientPreserved2* ex = ICE_AUTORELEASE([TestSlicingExceptionsClientPreserved2 alloc]);
     ex.b = @"base";
     ex.kp = @"preserved";
     ex.kpd = @"derived";
     ex.p1 = [TestSlicingExceptionsClientPreservedClass preservedClass:@"bc" pc:@"pc"];
     ex.p2 = ex.p1;
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [ex autorelease];
-#endif
     @throw ex;
 }
 
 -(void) unknownPreservedAsKnownPreserved:(ICECurrent*)current
 {
-    TestSlicingExceptionsClientPreserved2* ex = [TestSlicingExceptionsClientPreserved2 alloc];
+    TestSlicingExceptionsClientPreserved2* ex = ICE_AUTORELEASE([TestSlicingExceptionsClientPreserved2 alloc]);
     ex.b = @"base";
     ex.kp = @"preserved";
     ex.kpd = @"derived";
     ex.p1 = [TestSlicingExceptionsClientPreservedClass preservedClass:@"bc" pc:@"pc"];
     ex.p2 = ex.p1;
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [ex autorelease];
-#endif
     @throw ex;
 }
 
@@ -103,11 +87,7 @@
 
 +(id) create
 {
-#if defined(__clang__) && __has_feature(objc_arc)
-    return [[TestSlicingExceptionsClientCallback alloc] init];
-#else
-    return [[[TestSlicingExceptionsClientCallback alloc] init] autorelease];
-#endif
+    return ICE_AUTORELEASE([[TestSlicingExceptionsClientCallback alloc] init]);
 }
 
 -(void) check
@@ -707,7 +687,7 @@ slicingExceptionsAllTests(id<ICECommunicator> communicator)
     {
         id<ICEObjectAdapter> adapter = [communicator createObjectAdapterWithEndpoints:@"Relay" endpoints:@"default"];
         TestSlicingExceptionsClientRelayPrx* relay =
-            [TestSlicingExceptionsClientRelayPrx uncheckedCast:[adapter addWithUUID:[RelayI relayi]]];
+            [TestSlicingExceptionsClientRelayPrx uncheckedCast:[adapter addWithUUID:[RelayI relay]]];
         [adapter activate];
 
         @try

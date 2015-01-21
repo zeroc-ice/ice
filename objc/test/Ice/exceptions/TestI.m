@@ -126,11 +126,7 @@
 
 -(void) throwNonIceException:(ICECurrent*)current
 {
-#if defined(__clang__) && !__has_feature(objc_arc)
-    @throw [[[FooException alloc] init] autorelease];
-#else
-    @throw [[FooException alloc] init];
-#endif
+    @throw ICE_AUTORELEASE([[FooException alloc] init]);
 }
 
 -(void) throwAssertException:(ICECurrent*)current

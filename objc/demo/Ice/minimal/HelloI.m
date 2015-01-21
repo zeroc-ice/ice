@@ -12,15 +12,6 @@
 #include <stdio.h>
 
 @implementation HelloI
-+(id) helloI
-{
-    id instance = [[HelloI alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [instance autorelease];
-#endif
-    return instance;
-}
-
 -(void) sayHello:(ICECurrent*)current
 {
     printf("Hello World!\n");

@@ -43,11 +43,7 @@
 
 +(id) create
 {
-#if defined(__clang__) && __has_feature(objc_arc)
-    return [[TestSlicingObjectsClientCallback alloc] init];
-#else
-    return [[[TestSlicingObjectsClientCallback alloc] init] autorelease];
-#endif
+    return ICE_AUTORELEASE([[TestSlicingObjectsClientCallback alloc] init]);
 }
 
 #if defined(__clang__) && !__has_feature(objc_arc)

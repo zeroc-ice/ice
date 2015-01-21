@@ -31,11 +31,7 @@ NSCondition* cond;
     self = [super init];
     if(self)
     {
-#if defined(__clang__) && !__has_feature(objc_arc)
-        self->serverProps = [serverProps_ retain];
-#else
-        self->serverProps = serverProps_;
-#endif
+        self->serverProps = ICE_RETAIN(serverProps_);
         self->cond = [[NSCondition alloc] init];
     }
     return self;
@@ -103,11 +99,7 @@ NSCondition* cond;
 
 +(id) callback
 {
-#if defined(__clang__) && !__has_feature(objc_arc)
-    return [[[Callback alloc] init] autorelease];
-#else
-    return [[Callback alloc] init];
-#endif
+    return ICE_AUTORELEASE([[Callback alloc] init]);
 }
 
 #if defined(__clang__) && !__has_feature(objc_arc)
@@ -157,11 +149,7 @@ NSCondition* cond;
     self = [super init];
     if(self)
     {
-#if defined(__clang__) && !__has_feature(objc_arc)
-        self->proxy = [proxy_ retain];
-#else
-        self->proxy = proxy_;
-#endif
+        self->proxy = ICE_RETAIN(proxy_);
     }
     return self;
 }
@@ -190,11 +178,7 @@ NSCondition* cond;
 
 +(id) connect:(ICEObjectPrx*)proxy_
 {
-#if defined(__clang__) && !__has_feature(objc_arc)
-    return [[[Connect alloc] init:proxy_] autorelease];
-#else
-    return [[Connect alloc] init:proxy_];
-#endif
+    return ICE_AUTORELEASE([[Connect alloc] init:proxy_]);
 }
 
 -(void) run
@@ -233,11 +217,7 @@ NSCondition* cond;
 
 +(id) invokeOp:(ICEObjectPrx*)proxy_
 {
-#if defined(__clang__) && !__has_feature(objc_arc)
-    return [[[InvokeOp alloc] init:proxy_] autorelease];
-#else
-    return [[InvokeOp alloc] init:proxy_];
-#endif
+    return ICE_AUTORELEASE([[InvokeOp alloc] init:proxy_]);
 }
 
 -(void) run
@@ -282,11 +262,7 @@ ICEMutablePropertyDict*
 getClientProps(id<ICEPropertiesAdminPrx> p, ICEMutablePropertyDict* orig, NSString* m)
 {
     ICEMutablePropertyDict* props = [p getPropertiesForPrefix:@"IceMX.Metrics"];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    ICEPropertyDict* cprops = [[props copy] autorelease];
-#else
-    ICEPropertyDict* cprops = [props copy];
-#endif
+    ICEPropertyDict* cprops = ICE_AUTORELEASE([props copy]);
     [cprops enumerateKeysAndObjectsUsingBlock: ^(id key, id obj, BOOL *stop)
         {
             [props setObject:@"" forKey:key];
@@ -317,11 +293,7 @@ ICEMutablePropertyDict*
 getServerProps(id<ICEPropertiesAdminPrx> p, ICEMutablePropertyDict* orig, NSString* m)
 {
     ICEMutablePropertyDict* props = [p getPropertiesForPrefix:@"IceMX.Metrics"];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    ICEPropertyDict* sprops = [[props copy] autorelease];
-#else
-    ICEPropertyDict* sprops = [props copy];
-#endif
+    ICEPropertyDict* sprops = ICE_AUTORELEASE([props copy]);
     [sprops enumerateKeysAndObjectsUsingBlock: ^(id key, id obj, BOOL *stop)
         {
             [props setObject:@"" forKey:key];
@@ -427,11 +399,7 @@ testAttribute(ICEMXMetricsAdminPrx* metrics,
     else
     {
         [props setProperties:getServerProps(props, dict, map)];
-#if defined(__clang__) && !__has_feature(objc_arc)
         [props setProperties:[ICEPropertyDict dictionary]];
-#else
-        [props setProperties:[ICEPropertyDict dictionary]];
-#endif
     }
 }
 
@@ -505,10 +473,7 @@ metricsAllTests(id<ICECommunicator> communicator)
     id<ICEMXMetricsAdminPrx> serverMetrics = [ICEMXMetricsAdminPrx checkedCast:admin facet:@"Metrics"];
     test(serverProps && serverMetrics);
 
-    UpdateCallbackI* update = [[UpdateCallbackI alloc] initWithServerProps:serverProps];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [update autorelease];
-#endif
+    UpdateCallbackI* update = ICE_AUTORELEASE([[UpdateCallbackI alloc] initWithServerProps:serverProps]);
     id<ICENativePropertiesAdmin> nativePropertiesAdmin = 
                                             (id<ICENativePropertiesAdmin>)[communicator findAdminFacet:@"Properties"];
     [nativePropertiesAdmin addUpdateCallback:update];

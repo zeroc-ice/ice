@@ -15,14 +15,6 @@
 @end
 
 @implementation PrinterI
-+(id) printerI
-{
-    id instance = [[PrinterI alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [instance autorelease];
-#endif
-    return instance;
-}
 -(void) printString:(NSMutableString *)s current:(ICECurrent *)current
 {
     printf("%s\n", [s UTF8String]);
@@ -42,7 +34,7 @@ main(int argc, char* argv[])
             communicator = [ICEUtil createCommunicator:&argc argv:argv];
             id<ICEObjectAdapter> adapter = [communicator createObjectAdapterWithEndpoints:@"SimplePrinterAdapter"
                                                                                 endpoints:@"default -p 10000"];
-            [adapter add:[PrinterI printerI] identity:[communicator stringToIdentity:@"SimplePrinter"]];
+            [adapter add:[PrinterI printer] identity:[communicator stringToIdentity:@"SimplePrinter"]];
             [adapter activate];
 
             [communicator waitForShutdown];

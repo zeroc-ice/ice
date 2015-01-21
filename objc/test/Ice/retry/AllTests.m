@@ -123,13 +123,9 @@ retryAllTests(id<ICECommunicator> communicator)
     [retry1 op:NO];
     tprintf("ok\n");
 
-#if defined(__clang__) && !__has_feature(objc_arc)
-    TestRetryCallback* cb1 = [[[TestRetryCallback alloc] init] autorelease];
-    TestRetryCallback* cb2 = [[[TestRetryCallback alloc] init] autorelease];
-#else
-    TestRetryCallback* cb1 = [[TestRetryCallback alloc] init];
-    TestRetryCallback* cb2 = [[TestRetryCallback alloc] init];
-#endif
+    TestRetryCallback* cb1 = ICE_AUTORELEASE([[TestRetryCallback alloc] init]);
+    TestRetryCallback* cb2 = ICE_AUTORELEASE([[TestRetryCallback alloc] init]);
+
     tprintf("calling regular AMI operation with first proxy... ");
     [retry1 begin_op:NO response:^{ [cb1 retryOpResponse]; }
            exception:^(ICEException* ex) { [cb1 retryOpException:ex]; }];

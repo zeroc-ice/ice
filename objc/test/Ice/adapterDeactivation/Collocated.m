@@ -19,11 +19,7 @@ run(id<ICECommunicator> communicator)
 {
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [adapter add:[[[TestAdapterDeactivationI alloc] init] autorelease] identity:[communicator stringToIdentity:@"test"]];
-#else
-    [adapter add:[[TestAdapterDeactivationI alloc] init] identity:[communicator stringToIdentity:@"test"]];
-#endif
+    [adapter add:ICE_AUTORELEASE([[TestAdapterDeactivationI alloc] init]) identity:[communicator stringToIdentity:@"test"]];
 
     id<TestAdapterDeactivationTestIntfPrx> adapterDeactivationAllTests(id<ICECommunicator>);
     adapterDeactivationAllTests(communicator);

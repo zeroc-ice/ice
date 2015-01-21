@@ -19,12 +19,8 @@ run(id<ICECommunicator> communicator)
 {
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [adapter add:[[[TestProxyMyDerivedClassI alloc] init] autorelease]
-        identity:[communicator stringToIdentity:@"test"]];
-#else
-    [adapter add:[[TestProxyMyDerivedClassI alloc] init] identity:[communicator stringToIdentity:@"test"]];
-#endif
+    [adapter add:ICE_AUTORELEASE([[TestProxyMyDerivedClassI alloc] init])
+    	identity:[communicator stringToIdentity:@"test"]];
     //[adapter activate]; //adapter->activate(); // Don't activate OA to ensure collocation is used.
 
     TestProxyMyClassPrx* proxyAllTests(id<ICECommunicator>);

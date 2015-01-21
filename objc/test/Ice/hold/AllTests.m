@@ -57,11 +57,7 @@
         return nil;
     }
     cond = [[NSCondition alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    condition = [c retain];
-#else
-    condition = c;
-#endif
+    condition = ICE_RETAIN(c);
     expected = e;
     return self;
 }
@@ -148,20 +144,12 @@ allTests(id<ICECommunicator> communicator)
 
     tprintf("testing without serialize mode... ");
     {
-#if defined(__clang__) && !__has_feature(objc_arc)
-        Condition* cond = [[[Condition alloc] initWithValue:YES] autorelease];
-#else
-        Condition* cond = [[Condition alloc] initWithValue:YES];
-#endif
+        Condition* cond = ICE_AUTORELEASE([[Condition alloc] initWithValue:YES]);
         int value = 0;
         AMICheckSetValue* cb;
         while([cond value])
         {
-#if defined(__clang__) && !__has_feature(objc_arc)
-            cb = [[[AMICheckSetValue alloc] init:cond expected:value] autorelease];
-#else
-            cb = [[AMICheckSetValue alloc] init:cond expected:value];
-#endif
+            cb = ICE_AUTORELEASE([[AMICheckSetValue alloc] init:cond expected:value]);
             if([hold begin_set:++value delay:(random() % 5 + 1) response:^(ICEInt r) { [cb ice_response:r]; }
                      exception:^(ICEException* ex) { [cb ice_exception:ex]; } sent:^(BOOL ss) { [cb ice_sent]; }])
             {
@@ -186,11 +174,7 @@ allTests(id<ICECommunicator> communicator)
 
     tprintf("testing with serialize mode... ");
     {
-#if defined(__clang__) && !__has_feature(objc_arc)
-        Condition* cond = [[[Condition alloc] initWithValue:YES] autorelease];
-#else
-        Condition* cond = [[Condition alloc] initWithValue:YES];
-#endif
+        Condition* cond = ICE_AUTORELEASE([[Condition alloc] initWithValue:YES]);
         int value = 0;
         AMICheckSetValue* cb;
 #if TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
@@ -199,11 +183,7 @@ allTests(id<ICECommunicator> communicator)
         while(value < 3000 && [cond value])
 #endif
         {
-#if defined(__clang__) && !__has_feature(objc_arc)
-            cb = [[[AMICheckSetValue alloc] init:cond expected:value] autorelease];
-#else
-            cb = [[AMICheckSetValue alloc] init:cond expected:value];
-#endif
+            cb = ICE_AUTORELEASE([[AMICheckSetValue alloc] init:cond expected:value]);
             if([holdSerialized begin_set:++value delay:0 response:^(ICEInt r) { [cb ice_response:r]; }
                      exception:^(ICEException* ex) { [cb ice_exception:ex]; } sent:^(BOOL ss) { [cb ice_sent]; }])
             {

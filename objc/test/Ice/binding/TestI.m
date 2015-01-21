@@ -29,11 +29,7 @@
     id<ICECommunicator> com = [current.adapter getCommunicator];
     [[com getProperties] setProperty:[name stringByAppendingString:@".ThreadPool.Size"] value:@"1"];
     id<ICEObjectAdapter> adapter = [com createObjectAdapterWithEndpoints:name endpoints:endpts];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    RemoteObjectAdapterI* remote = [[[RemoteObjectAdapterI alloc] initWithAdapter:adapter] autorelease];
-#else
-    RemoteObjectAdapterI* remote = [[RemoteObjectAdapterI alloc] initWithAdapter:adapter];
-#endif
+    RemoteObjectAdapterI* remote = ICE_AUTORELEASE([[RemoteObjectAdapterI alloc] initWithAdapter:adapter]);
     return [TestBindingRemoteObjectAdapterPrx uncheckedCast:[current.adapter addWithUUID:remote]];
 }
 
@@ -56,17 +52,10 @@
     {
         return nil;
     }
-#if defined(__clang__) && !__has_feature(objc_arc)
-    adapter_ = [adapter retain];
-    testIntf_ = [TestBindingTestIntfPrx uncheckedCast:[adapter_ add:[[[TestBindingI alloc] init] autorelease]
-                                                    identity:[[adapter_ getCommunicator] stringToIdentity:@"test"]]];
-    [testIntf_ retain];
-#else
-    adapter_ = adapter;
-    testIntf_ = [TestBindingTestIntfPrx uncheckedCast:[
-                adapter_ add:[[TestBindingI alloc] init]
-                    identity:[[adapter_ getCommunicator] stringToIdentity:@"test"]]];
-#endif
+    adapter_ = ICE_RETAIN(adapter);
+    testIntf_ = ICE_RETAIN([TestBindingTestIntfPrx uncheckedCast:[
+                		adapter_ add:ICE_AUTORELEASE([[TestBindingI alloc] init])
+                    		    identity:[[adapter_ getCommunicator] stringToIdentity:@"test"]]]);
     [adapter_ activate];
     return self;
 }

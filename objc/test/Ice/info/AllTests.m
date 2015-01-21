@@ -61,10 +61,7 @@ infoAllTests(id<ICECommunicator> communicator)
         endpoint = [endps objectAtIndex:2];
         ICEOpaqueEndpointInfo* opaqueEndpoint = (ICEOpaqueEndpointInfo*)[endpoint getInfo];
         test([opaqueEndpoint isKindOfClass:[ICEOpaqueEndpointInfo class]]);
-        ICEEncodingVersion* rev = [[ICEEncodingVersion alloc] init:1 minor:8];
-#if defined(__clang__) && !__has_feature(objc_arc)
-        [rev autorelease];
-#endif
+        ICEEncodingVersion* rev = ICE_AUTORELEASE([[ICEEncodingVersion alloc] init:1 minor:8]);
         test([opaqueEndpoint.rawEncoding isEqual:rev]);
     }
     tprintf("ok\n");

@@ -222,29 +222,17 @@
 
 -(TestObjectsI*) getI:(ICECurrent*)current
 {
-#if defined(__clang__) && !__has_feature(objc_arc)
-    return [[[TestObjectsI alloc] init] autorelease];
-#else
-    return [[TestObjectsI alloc] init];
-#endif
+    return ICE_AUTORELEASE([[TestObjectsI alloc] init]);
 }
 
 -(TestObjectsI*) getJ:(ICECurrent*)current
 {
-#if defined(__clang__) && !__has_feature(objc_arc)
-    return (TestObjectsI*)[[[TestObjectsJ alloc] init] autorelease];
-#else
-    return (TestObjectsI*)[[TestObjectsJ alloc] init];
-#endif
+    return (TestObjectsI*)ICE_AUTORELEASE([[TestObjectsJ alloc] init]);
 }
 
 -(TestObjectsI*) getH:(ICECurrent*)current
 {
-#if defined(__clang__) && !__has_feature(objc_arc)
-    return (TestObjectsI*)[[[TestObjectsH alloc] init] autorelease];
-#else
-    return (TestObjectsI*)[[TestObjectsH alloc] init];
-#endif
+    return (TestObjectsI*)ICE_AUTORELEASE([[TestObjectsH alloc] init]);
 }
 
 -(TestObjectsBaseSeq*) opBaseSeq:(TestObjectsMutableBaseSeq*)inSeq outSeq:(TestObjectsBaseSeq**)outSeq
@@ -256,11 +244,7 @@
 
 -(TestObjectsCompact*) getCompact:(ICECurrent*)current
 {
-#if defined(__clang__) && !__has_feature(objc_arc)
-    return (TestObjectsCompact*)[[[TestObjectsCompactExt alloc] init] autorelease];
-#else
-    return (TestObjectsCompact*)[[TestObjectsCompactExt alloc] init];
-#endif
+    return (TestObjectsCompact*)ICE_AUTORELEASE([[TestObjectsCompactExt alloc] init]);
 }
 
 -(void) setI:(TestObjectsI*)i current:(ICECurrent*)current
@@ -314,11 +298,7 @@
     id<ICECommunicator> communicator = [current.adapter getCommunicator];
     id<ICEOutputStream> o = [ICEUtil createOutputStream:communicator];
     [o startEncapsulation];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    TestObjectsAlsoEmpty* ae = [[[TestObjectsAlsoEmpty alloc] init] autorelease];
-#else
-    TestObjectsAlsoEmpty* ae = [[TestObjectsAlsoEmpty alloc] init];
-#endif
+    TestObjectsAlsoEmpty* ae = ICE_AUTORELEASE([[TestObjectsAlsoEmpty alloc] init]);
     [o writeObject:ae];
     [o writePendingObjects];
     [o endEncapsulation];

@@ -19,11 +19,7 @@ run(id<ICECommunicator> communicator)
 {
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010:udp"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    ICEObject* object = [[[TestRetryRetryI alloc] init] autorelease];
-#else
-    ICEObject* object = [[TestRetryRetryI alloc] init];
-#endif
+    ICEObject* object = ICE_AUTORELEASE([[TestRetryRetryI alloc] init]);
     [adapter add:object identity:[communicator stringToIdentity:@"retry"]];
     [adapter activate];
 

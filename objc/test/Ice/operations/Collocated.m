@@ -19,13 +19,8 @@ run(id<ICECommunicator> communicator)
 {
     [[communicator getProperties] setProperty:@"TestOperationsAdapter.Endpoints" value:@"default -p 12010"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestOperationsAdapter"];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    id<ICEObjectPrx> prx = [adapter add:[[[TestOperationsMyDerivedClassI alloc] init] autorelease]
+    id<ICEObjectPrx> prx = [adapter add:ICE_AUTORELEASE([[TestOperationsMyDerivedClassI alloc] init])
              identity:[communicator stringToIdentity:@"test"]];
-#else
-    id<ICEObjectPrx> prx = [adapter add:[[TestOperationsMyDerivedClassI alloc] init]
-             identity:[communicator stringToIdentity:@"test"]];
-#endif
     //[adapter activate]; // Don't activate OA to ensure collocation is used.
 
     test(![prx ice_getConnection]);

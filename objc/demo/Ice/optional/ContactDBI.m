@@ -32,15 +32,6 @@
 }
 #endif
 
-+(id) contactDBI
-{
-    id instance = [[ContactDBI alloc] init];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [instance autorelease];
-#endif
-    return instance;
-}
-
 -(void) addContact:(NSMutableString*)name type:(id)type number:(id)number dialGroup:(id)dialGroup
            current:(ICECurrent*)current
 {
