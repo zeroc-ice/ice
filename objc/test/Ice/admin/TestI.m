@@ -52,7 +52,7 @@
 -(void) dealloc
 {
     [_communicator release];
-    [_cond release]);
+    [_cond release];
     [super dealloc];
 }
 #endif
