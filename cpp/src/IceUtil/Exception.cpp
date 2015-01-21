@@ -35,7 +35,7 @@
 #  define ICE_GCC_STACK_TRACES
 #endif
 
-#if defined(_WIN32) && !defined(ICE_OS_WINRT)
+#if defined(_WIN32) && !defined(ICE_OS_WINRT) && !defined(__MINGW32__)
 #  define ICE_WIN32_STACK_TRACES
 #  if defined(_MSC_VER) && _MSC_VER >= 1700
 #    define DBGHELP_TRANSLATE_TCHAR
