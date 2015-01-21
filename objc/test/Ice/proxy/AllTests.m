@@ -336,19 +336,19 @@ proxyAllTests(id<ICECommunicator> communicator)
     test([b1 ice_getEndpointSelection] == ICEOrdered);
     [prop  setProperty:property value:@""];
 
-//     property = [propertyPrefix stringByAppendingString:@".CollocationOptimized"];
-//     test([b1 ice_isCollocationOptimized]);
-//     [prop  setProperty:property value:@"0"];
-//     b1 = [communicator propertyToProxy:propertyPrefix];
-//     test(![b1 ice_isCollocationOptimized]);
-//     [prop  setProperty:property value:@""];
+    property = [propertyPrefix stringByAppendingString:@".CollocationOptimized"];
+    test([b1 ice_isCollocationOptimized]);
+    [prop  setProperty:property value:@"0"];
+    b1 = [communicator propertyToProxy:propertyPrefix];
+    test(![b1 ice_isCollocationOptimized]);
+    [prop  setProperty:property value:@""];
 
     tprintf("ok\n");
 
     tprintf("testing proxyToProperty... ");
 
     b1 = [communicator stringToProxy:@"test"];
-    //b1 = [b1 ice_collocationOptimized:YES];
+    b1 = [b1 ice_collocationOptimized:YES];
     b1 = [b1 ice_connectionCached:YES];
     b1 = [b1 ice_preferSecure:false];
     b1 = [b1 ice_endpointSelection:ICEOrdered];
@@ -357,7 +357,7 @@ proxyAllTests(id<ICECommunicator> communicator)
     ICEEncodingVersion* v = [ICEEncodingVersion encodingVersion:1 minor:0];
     b1 = [b1 ice_encodingVersion:v];
     id<ICEObjectPrx> router = [communicator stringToProxy:@"router"];
-    //router = [router ice_collocationOptimized:false];
+    router = [router ice_collocationOptimized:false];
     router = [router ice_connectionCached:YES];
     router = [router ice_preferSecure:YES];
     router = [router ice_endpointSelection:ICERandom];
@@ -365,7 +365,7 @@ proxyAllTests(id<ICECommunicator> communicator)
     router = [router ice_invocationTimeout:1500];
 
     id<ICEObjectPrx> locator = [communicator stringToProxy:@"locator"];
-    //locator = [locator ice_collocationOptimized:YES];
+    locator = [locator ice_collocationOptimized:YES];
     locator = [locator ice_connectionCached:false];
     locator = [locator ice_preferSecure:YES];
     locator = [locator ice_endpointSelection:ICERandom];
@@ -379,7 +379,7 @@ proxyAllTests(id<ICECommunicator> communicator)
     test([proxyProps count] == 21);
 
     test([[proxyProps objectForKey:@"Test"] isEqualToString:@"test -t -e 1.0"]);
-    //test([[proxyProps[ objectForKey:@"Test.CollocationOptimized"] isEqualToString:@"1"]);
+    test([[proxyProps objectForKey:@"Test.CollocationOptimized"] isEqualToString:@"1"]);
     test([[proxyProps objectForKey:@"Test.ConnectionCached"] isEqualToString:@"1"]);
     test([[proxyProps objectForKey:@"Test.PreferSecure"] isEqualToString:@"0"]);
     test([[proxyProps objectForKey:@"Test.EndpointSelection"] isEqualToString:@"Ordered"]);
@@ -388,7 +388,7 @@ proxyAllTests(id<ICECommunicator> communicator)
 
     NSString* sl = [NSString stringWithFormat:@"locator -t -e %@", [ICECurrentEncoding description]];
     test([[proxyProps objectForKey:@"Test.Locator"] isEqualToString:sl]);
-    //test([[proxyProps objectForKey:@"Test.Locator.CollocationOptimized"] isEqualToString:@"1"]);
+    test([[proxyProps objectForKey:@"Test.Locator.CollocationOptimized"] isEqualToString:@"1"]);
     test([[proxyProps objectForKey:@"Test.Locator.ConnectionCached"] isEqualToString:@"0"]);
     test([[proxyProps objectForKey:@"Test.Locator.PreferSecure"] isEqualToString:@"1"]);
     test([[proxyProps objectForKey:@"Test.Locator.EndpointSelection"] isEqualToString:@"Random"]);
@@ -397,7 +397,7 @@ proxyAllTests(id<ICECommunicator> communicator)
 
     NSString* sr = [NSString stringWithFormat:@"router -t -e %@", [ICECurrentEncoding description]];
     test([[proxyProps objectForKey:@"Test.Locator.Router"] isEqualToString:sr]);
-    //test([proxyProps objectForKey:@"Test.Locator.Router.CollocationOptimized"] isEqualToString:@"0"]);
+    test([[proxyProps objectForKey:@"Test.Locator.Router.CollocationOptimized"] isEqualToString:@"0"]);
     test([[proxyProps objectForKey:@"Test.Locator.Router.ConnectionCached"] isEqualToString:@"1"]);
     test([[proxyProps objectForKey:@"Test.Locator.Router.PreferSecure"] isEqualToString:@"1"]);
     test([[proxyProps objectForKey:@"Test.Locator.Router.EndpointSelection"] isEqualToString:@"Random"]);
@@ -422,8 +422,8 @@ proxyAllTests(id<ICECommunicator> communicator)
     test([[base ice_batchDatagram] ice_isBatchDatagram]);
     test([[base ice_secure:YES] ice_isSecure]);
     test(![[base ice_secure:NO] ice_isSecure]);
-//    test([[base ice_collocationOptimized:YES] ice_isCollocationOptimized]);
-//    test(![[base ice_collocationOptimized:NO] ice_isCollocationOptimized]);
+    test([[base ice_collocationOptimized:YES] ice_isCollocationOptimized]);
+    test(![[base ice_collocationOptimized:NO] ice_isCollocationOptimized]);
     test([[base ice_preferSecure:YES] ice_isPreferSecure]);
     test(![[base ice_preferSecure:NO] ice_isPreferSecure]);
 
@@ -534,10 +534,10 @@ proxyAllTests(id<ICECommunicator> communicator)
 //     test([compObj ice_secure:NO] < [compObj ice_secure:YES]);
 //    test(!([compObj ice_secure:YES] < [compObj ice_secure:NO]));
 
-//    test([[compObj ice_collocationOptimized:YES] isEqual:[compObj ice_collocationOptimized:YES]]);
-//    test(![[compObj ice_collocationOptimized:NO] isEqual:[compObj ice_collocationOptimized:YES]]);
-//     test([compObj ice_collocationOptimized:NO] < [compObj ice_collocationOptimized:YES]);
-//     test(!([compObj ice_collocationOptimized:YES] < [compObj ice_collocationOptimized:NO]));
+    test([[compObj ice_collocationOptimized:YES] isEqual:[compObj ice_collocationOptimized:YES]]);
+    test(![[compObj ice_collocationOptimized:NO] isEqual:[compObj ice_collocationOptimized:YES]]);
+//    test([compObj ice_collocationOptimized:NO] < [compObj ice_collocationOptimized:YES]);
+//    test(!([compObj ice_collocationOptimized:YES] < [compObj ice_collocationOptimized:NO]));
 
     test([[compObj ice_connectionCached:YES] isEqual:[compObj ice_connectionCached:YES]]);
     test(![[compObj ice_connectionCached:NO] isEqual:[compObj ice_connectionCached:YES]]);
