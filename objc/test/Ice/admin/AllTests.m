@@ -9,7 +9,7 @@
 
 #import <objc/Ice.h>
 #import <TestCommon.h>
-#import <TestI.h>
+#import <admin/TestI.h>
 
 #import <Foundation/Foundation.h>
 

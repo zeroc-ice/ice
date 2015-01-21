@@ -177,7 +177,7 @@ void
 serverReady(id<ICECommunicator> c)
 {
     ICE_RELEASE(communicator);
-    communicator = ICE_RETAIN(C);
+    communicator = ICE_RETAIN(c);
     [testRun performSelectorOnMainThread:readySelector withObject:nil waitUntilDone:NO];
 }
 

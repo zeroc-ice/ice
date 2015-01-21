@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#import <TestI.h>
+#import <admin/TestI.h>
 
 //
 // A no-op Logger, used when testing the Logger Admin
