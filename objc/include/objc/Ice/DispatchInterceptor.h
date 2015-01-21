@@ -13,7 +13,7 @@
 -(BOOL) dispatch:(id<ICERequest>)request;
 @end
 
-@interface ICEDispatchInterceptor : ICEObject
+@interface ICEDispatchInterceptor : ICEServant
 @end
 
 @interface ICEMainThreadDispatch : ICEDispatchInterceptor<ICEDispatchInterceptor>

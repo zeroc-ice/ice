@@ -9,23 +9,18 @@
 
 #import <objc/Ice.h>
 #import <TestCommon.h>
-#import <DispatcherTest.h>
-#include <dispatch/dispatch.h>
-#ifdef ICE_OBJC_GC
-#   import <Foundation/NSGarbageCollector.h>
-#endif
+#import <AdminTest.h>
 
 static int
 run(id<ICECommunicator> communicator)
 {
-    TestDispatcherTestIntfPrx* dispatcherAllTests(id<ICECommunicator>);
-    TestDispatcherTestIntfPrx* dispatcher = dispatcherAllTests(communicator);
-    [dispatcher shutdown];
+    void adminAllTests(id<ICECommunicator>);
+    adminAllTests(communicator);
     return EXIT_SUCCESS;
 }
 
 #if TARGET_OS_IPHONE
-#  define main dispatcherClient
+#  define main adminClient
 #endif
 
 int
@@ -35,25 +30,17 @@ main(int argc, char* argv[])
     @autoreleasepool
     {
         id<ICECommunicator> communicator = nil;
-
         @try
         {
             ICEInitializationData* initData = [ICEInitializationData initializationData];
             initData.properties = defaultClientProperties(&argc, argv);
-            dispatch_queue_t queue = dispatch_queue_create("Dispatcher", DISPATCH_QUEUE_SERIAL);
-            initData.dispatcher = ^(id<ICEDispatcherCall> call, id<ICEConnection> con) {
-                dispatch_sync(queue, ^ { [call run]; });
-            };
 #if TARGET_OS_IPHONE
             initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:
-                                      @"TestDispatcher", @"::Test", 
+                                      @"TestAdmin", @"::Test", 
                                       nil];
 #endif
             communicator = [ICEUtil createCommunicator:&argc argv:argv initData:initData];
             status = run(communicator);
-#if defined(__clang__) && !__has_feature(objc_arc)
-            dispatch_release(queue);
-#endif
         }
         @catch(ICEException* ex)
         {
@@ -78,8 +65,5 @@ main(int argc, char* argv[])
             }
         }
     }
-#ifdef ICE_OBJC_GC
-    [[NSGarbageCollector defaultCollector] collectExhaustively];
-#endif
     return status;
 }

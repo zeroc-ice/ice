@@ -12,6 +12,8 @@
 #import <StreamI.h>
 #import <ProxyI.h>
 #import <LocalObjectI.h>
+#import <ObjectI.h>
+#import <PropertiesI.h>
 
 #import <objc/Ice/LocalException.h>
 
@@ -252,80 +254,66 @@ void endCppCall(void (^fn)(const Ice::AsyncResultPtr&), ICEAsyncResult* r)
 NSException*
 toObjCException(const std::exception& ex)
 {
-    NSException* nsex;
+    const Ice::LocalException* lex = dynamic_cast<const Ice::LocalException*>(&ex);
+    if(lex)
     {
-        const Ice::LocalException* lex = dynamic_cast<const Ice::LocalException*>(&ex);
-        if(lex)
+        std::string typeId = std::string("ICE") + lex->ice_name().substr(5);
+        Class c = objc_getClass(typeId.c_str());
+        if(c != nil)
         {
-            std::string typeId = std::string("ICE") + lex->ice_name().substr(5);
-            Class c = objc_getClass(typeId.c_str());
-            if(c != nil)
-            {
-                nsex = [c localExceptionWithLocalException:*lex];
-            }
-            else
-            {
-                Ice::UnknownLocalException ulex(__FILE__, __LINE__, ex.what());
-                nsex = [ICEUnknownLocalException localExceptionWithLocalException:ulex];
-            }
+            return [c localExceptionWithLocalException:*lex];
         }
         else
         {
-            const Ice::UserException* uex = dynamic_cast<const Ice::UserException*>(&ex);
-            if(uex)
-            {
-                Ice::UnknownUserException uuex(__FILE__, __LINE__, ex.what());
-                nsex = [ICEUnknownUserException localExceptionWithLocalException:uuex];
-            }
-            else
-            {
-                const IceUtil::IllegalArgumentException* iaex =
-                    dynamic_cast<const IceUtil::IllegalArgumentException*>(&ex);
-                if(iaex)
-                {
-                    nsex = [NSException exceptionWithName:NSInvalidArgumentException
-                                        reason:[toNSString(iaex->reason()) autorelease]
-                                        userInfo:nil];
-                }
-                else
-                {
-                    const IceObjC::Exception* objCEx = dynamic_cast<const IceObjC::Exception*>(&ex);
-                    if(objCEx)
-                    {
-                        id<NSObject> oex = objCEx->exception();
-                        if(oex == nil)
-                        {
-                            nsex = [NSException exceptionWithName:@"unknown Objective-C exception"
-                                                           reason:[NSString stringWithUTF8String:ex.what()]
-                                                         userInfo:nil];
-                        }
-                        else if([oex isKindOfClass:[NSException class]])
-                        {
-                            nsex = [[(NSException*)oex retain] autorelease];
-                        }
-                        else
-                        {
-                            nsex = [NSException exceptionWithName:@"unknown Objective-C exception"
-                                                           reason:[oex description]
-                                                         userInfo:nil];
-                        }
-                    }
-                    else
-                    {
-                        //
-                        // std::exception from the Ice runtime are translated to NSException.
-                        //
-                        //Ice::UnknownException e(__FILE__, __LINE__, ex.what());
-                        //nsex = [ICEUnknownException localExceptionWithLocalException:e];
-                        nsex = [NSException exceptionWithName:@"std::exception"
-                                                       reason:[NSString stringWithUTF8String:ex.what()]
-                                                     userInfo:nil];
-                    }
-                }
-            }
+            Ice::UnknownLocalException ulex(__FILE__, __LINE__, ex.what());
+            return [ICEUnknownLocalException localExceptionWithLocalException:ulex];
         }
     }
-    return nsex;
+
+    const Ice::UserException* uex = dynamic_cast<const Ice::UserException*>(&ex);
+    if(uex)
+    {
+        Ice::UnknownUserException uuex(__FILE__, __LINE__, ex.what());
+        return [ICEUnknownUserException localExceptionWithLocalException:uuex];
+    }
+
+    const IceUtil::IllegalArgumentException* iaex = dynamic_cast<const IceUtil::IllegalArgumentException*>(&ex);
+    if(iaex)
+    {
+        return [NSException exceptionWithName:NSInvalidArgumentException reason:[toNSString(iaex->reason()) autorelease]
+                                     userInfo:nil];
+    }
+    
+    const IceObjC::Exception* objCEx = dynamic_cast<const IceObjC::Exception*>(&ex);
+    if(objCEx)
+    {
+        id<NSObject> oex = objCEx->exception();
+        if(oex == nil)
+        {
+            return [NSException exceptionWithName:@"unknown Objective-C exception"
+                                           reason:[NSString stringWithUTF8String:ex.what()]
+                                         userInfo:nil];
+        }
+        else if([oex isKindOfClass:[NSException class]])
+        {
+            return [[(NSException*)oex retain] autorelease];
+        }
+        else
+        {
+            return [NSException exceptionWithName:@"unknown Objective-C exception"
+                                           reason:[oex description]
+                                         userInfo:nil];
+        }
+    }
+
+    //
+    // std::exception from the Ice runtime are translated to NSException.
+    //
+    //Ice::UnknownException e(__FILE__, __LINE__, ex.what());
+    //nsex = [ICEUnknownException localExceptionWithLocalException:e];
+    return [NSException exceptionWithName:@"std::exception"
+                                   reason:[NSString stringWithUTF8String:ex.what()]
+                                 userInfo:nil];
 }
 
 void
@@ -461,4 +449,38 @@ void
 fromObjC(id object, Ice::EndpointPtr& endpoint)
 {
     endpoint = object == [NSNull null] ? 0 : [object endpoint];
+}
+
+ICEObject* 
+toObjC(const Ice::ObjectPtr& object)
+{
+    if(!object)
+    {
+        return nil;
+    }
+
+    IceObjC::ObjectWrapperPtr wrapper = IceObjC::ObjectWrapperPtr::dynamicCast(object);
+    if(wrapper)
+    {
+        //
+        // Given object is an Objective-C servant wrapped into a C++
+        // object, return the wrapped Objective-C object.
+        //
+        return [[wrapper->getObject() retain] autorelease];
+    }
+    else if(Ice::NativePropertiesAdminPtr::dynamicCast(object))
+    {
+        //
+        // Given object is a properties admin facet, return the am
+        // Objective-C wrapper.
+        //
+        return [ICENativePropertiesAdmin objectWrapperWithCxxObject:object.get()];
+    }
+    else
+    {
+        //
+        // Given object is a C++ servant, return an Objective-C wrapper.
+        //
+        return [ICEObjectWrapper objectWrapperWithCxxObject:object.get()];
+    }
 }

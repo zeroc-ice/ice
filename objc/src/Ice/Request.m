@@ -35,7 +35,7 @@
     return self;
 }
 
--(BOOL) callDispatch:(ICEObject*)servant
+-(BOOL) callDispatch:(ICEServant*)servant
 {
     if(needReset == NO)
     {

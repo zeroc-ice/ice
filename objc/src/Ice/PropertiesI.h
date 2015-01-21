@@ -12,6 +12,8 @@
 #import <objc/Ice/LocalObject.h>
 #import <objc/Ice/NativePropertiesAdmin.h>
 
+#import <ObjectI.h>
+
 #include <Ice/Properties.h>
 #include <Ice/NativePropertiesAdmin.h>
 
@@ -22,7 +24,7 @@
 -(Ice::Properties*)properties;
 @end
 
-@interface ICENativePropertiesAdmin : ICELocalObject<ICENativePropertiesAdmin>
+@interface ICENativePropertiesAdmin : ICEObjectWrapper<ICENativePropertiesAdmin>
 {
     IceUtil::Mutex mutex_;
     std::vector<Ice::PropertiesAdminUpdateCallbackPtr> callbacks_;

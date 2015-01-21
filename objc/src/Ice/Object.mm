@@ -20,39 +20,15 @@
 #include <Ice/IncomingAsync.h>
 #include <Ice/Initialize.h>
 #include <Ice/ObjectAdapter.h>
-
+#include <Ice/NativePropertiesAdmin.h>
 #import <Foundation/NSAutoreleasePool.h>
 
-int
-ICEInternalLookupString(NSString* const array[], size_t count, NSString* __unsafe_unretained str)
+namespace 
 {
-    size_t low = 0;
-    size_t high = count - 1;
-    while(low <= high)
-    {
-        size_t mid = (low + high) / 2;
-        switch([array[mid] compare:str])
-        {
-        case NSOrderedDescending:
-            if(mid == 0)
-            {
-                return -1;
-            }
-            high = mid - 1;
-            break;
-        case NSOrderedAscending:
-            low = mid + 1;
-            break;
-        case NSOrderedSame:
-            return mid;
-        default:
-            return -1; // Can't be reached
-        }
-    }
-    return -1;
-}
 
-static NSString*
+std::map<Ice::Object*, ICEObjectWrapper*> cachedObjects;
+
+NSString*
 operationModeToString(ICEOperationMode mode)
 {
     switch(mode)
@@ -71,51 +47,11 @@ operationModeToString(ICEOperationMode mode)
     }
 }
 
-void
-ICEInternalCheckModeAndSelector(id target, ICEOperationMode expected, SEL sel, ICECurrent* current)
-{
-    ICEOperationMode received = current.mode;
-    if(expected != received)
-    {
-        if(expected == ICEIdempotent && received == ICENonmutating)
-        {
-            // 
-            // Fine: typically an old client still using the deprecated nonmutating keyword
-            //
-            
-            //
-            // Note that expected == Nonmutating and received == Idempotent is not ok:
-            // the server may still use the deprecated nonmutating keyword to detect updates
-            // and the client should not break this (deprecated) feature.
-            //
-        }
-        else
-        {
-            ICEMarshalException* ex = [ICEMarshalException marshalException:__FILE__ line:__LINE__];
-            [ex setReason_:[NSString stringWithFormat:@"unexpected operation mode. expected = %@ received=%@", 
-                                     operationModeToString(expected), operationModeToString(received)]]; 
-            @throw ex;
-        }
-    }
-
-    if(![target respondsToSelector:sel])
-    {
-        @throw [ICEOperationNotExistException operationNotExistException:__FILE__ 
-                                              line:__LINE__ 
-                                              id:current.id_ 
-                                              facet:current.facet
-                                              operation:current.operation];
-    }
-}
-
-namespace IceObjC
-{
-
-class ObjectI : public ObjectWrapper, public Ice::BlobjectArrayAsync
+class ObjectI : public IceObjC::ObjectWrapper, public Ice::BlobjectArrayAsync
 {
 public:
 
-    ObjectI(id<ICEObject>);
+    ObjectI(ICEServant*);
 
     virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&, 
                                   const std::pair<const Ice::Byte*, const Ice::Byte*>&,
@@ -140,10 +76,10 @@ public:
 
 private:
 
-    ICEObject* _object;
+    ICEServant* _object;
 };
 
-class BlobjectI : public ObjectWrapper, public Ice::BlobjectArrayAsync
+class BlobjectI : public IceObjC::ObjectWrapper, public Ice::BlobjectArrayAsync
 {
 public:
 
@@ -176,14 +112,12 @@ private:
     id _target;
 };
 
-}
-
-IceObjC::ObjectI::ObjectI(id<ICEObject> object) : _object((ICEObject*)object)
+ObjectI::ObjectI(ICEServant* object) : _object(object)
 {
 }
 
 void
-IceObjC::ObjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb, 
+ObjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb, 
                                    const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
                                    const Ice::Current& current)
 {
@@ -230,12 +164,12 @@ IceObjC::ObjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
     cb->ice_response(ok, std::make_pair(&outParams[0], &outParams[0] + outParams.size()));
 }
 
-IceObjC::BlobjectI::BlobjectI(ICEBlobject* blobject) : _blobject(blobject), _target([blobject target__])
+BlobjectI::BlobjectI(ICEBlobject* blobject) : _blobject(blobject), _target([blobject target__])
 {
 }
 
 void
-IceObjC::BlobjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb, 
+BlobjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb, 
                                      const std::pair<const Ice::Byte*, const Ice::Byte*>& inEncaps,
                                      const Ice::Current& current)
 {
@@ -272,7 +206,182 @@ IceObjC::BlobjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
     [outE release];
 }
 
+}
+
+int
+ICEInternalLookupString(NSString* const array[], size_t count, NSString* __unsafe_unretained str)
+{
+    size_t low = 0;
+    size_t high = count - 1;
+    while(low <= high)
+    {
+        size_t mid = (low + high) / 2;
+        switch([array[mid] compare:str])
+        {
+        case NSOrderedDescending:
+            if(mid == 0)
+            {
+                return -1;
+            }
+            high = mid - 1;
+            break;
+        case NSOrderedAscending:
+            low = mid + 1;
+            break;
+        case NSOrderedSame:
+            return mid;
+        default:
+            return -1; // Can't be reached
+        }
+    }
+    return -1;
+}
+
+void
+ICEInternalCheckModeAndSelector(id target, ICEOperationMode expected, SEL sel, ICECurrent* current)
+{
+    ICEOperationMode received = current.mode;
+    if(expected != received)
+    {
+        if(expected == ICEIdempotent && received == ICENonmutating)
+        {
+            // 
+            // Fine: typically an old client still using the deprecated nonmutating keyword
+            //
+            
+            //
+            // Note that expected == Nonmutating and received == Idempotent is not ok:
+            // the server may still use the deprecated nonmutating keyword to detect updates
+            // and the client should not break this (deprecated) feature.
+            //
+        }
+        else
+        {
+            ICEMarshalException* ex = [ICEMarshalException marshalException:__FILE__ line:__LINE__];
+            [ex setReason_:[NSString stringWithFormat:@"unexpected operation mode. expected = %@ received=%@", 
+                                     operationModeToString(expected), operationModeToString(received)]]; 
+            @throw ex;
+        }
+    }
+
+    if(![target respondsToSelector:sel])
+    {
+        @throw [ICEOperationNotExistException operationNotExistException:__FILE__ 
+                                              line:__LINE__ 
+                                              id:current.id_ 
+                                              facet:current.facet
+                                              operation:current.operation];
+    }
+}
+
 @implementation ICEObject (ICEInternal)
+-(Ice::Object*) object__
+{
+    NSAssert(NO, @"object__ requires override");
+    return 0;
+}
+@end
+
+@implementation ICEObject
+static NSString* ICEObject_ids__[1] =
+{
+    @"::Ice::Object"
+};
+
+-(id)init
+{
+    self = [super init];
+    if(!self)
+    {
+        return nil;
+    }
+    return self;
+}
+
+-(void) dealloc
+{
+    [super dealloc];
+}
+-(BOOL) ice_isA:(NSString*)typeId
+{
+    return [self ice_isA:typeId current:nil];
+}
+-(void) ice_ping
+{
+    [self ice_ping:nil];
+}
+-(NSString*) ice_id
+{
+    return [self ice_id:nil];
+}
+-(NSArray*) ice_ids
+{
+    return [self ice_ids:nil];
+}
+-(void) ice_preMarshal
+{
+}
+-(void) ice_postUnmarshal
+{
+}
+-(BOOL) ice_isA:(NSString*)typeId current:(ICECurrent*)current
+{
+    NSAssert(NO, @"ice_isA requires override");
+    return nil;
+}
+-(void) ice_ping:(ICECurrent*)current
+{
+    NSAssert(NO, @"ice_ping requires override");
+}
+-(NSString*) ice_id:(ICECurrent*)current
+{
+    NSAssert(NO, @"ice_id requires override");
+    return nil;
+}
+-(NSArray*) ice_ids:(ICECurrent*)current
+{
+    NSAssert(NO, @"ice_ids requires override");
+    return nil;
+}
+-(BOOL) ice_dispatch:(id<ICERequest>)request;
+{
+    NSAssert(NO, @"ice_dispatch requires override");
+    return NO;
+}
++(NSString*) ice_staticId
+{
+    int count, index;
+    NSString*const* staticIds = [self staticIds__:&count idIndex:&index];
+    return staticIds[index];
+}
++(NSString*const*) staticIds__:(int*)count idIndex:(int*)idx
+{
+    *count = sizeof(ICEObject_ids__) / sizeof(NSString*);
+    *idx = 0;
+    return ICEObject_ids__;
+}
+-(void) write__:(id<ICEOutputStream>)os
+{
+    NSAssert(NO, @"write__ requires override");
+}
+-(void) read__:(id<ICEInputStream>)is
+{
+    NSAssert(NO, @"read__ requires override");
+}
+-(id) copyWithZone:(NSZone*)zone
+{
+    return [[[self class] allocWithZone:zone] init];
+}
+@end
+
+@implementation ICEServant
+static NSString* ICEObject_all__[4] =
+{
+    @"ice_id",
+    @"ice_ids",
+    @"ice_isA",
+    @"ice_ping"
+};
 
 -(id)init
 {
@@ -286,64 +395,6 @@ IceObjC::BlobjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
     return self;
 }
 
--(Ice::Object*) object__
-{
-    @synchronized([self class])
-    {
-        if(object__ == 0)
-        {
-            //
-            // NOTE: IceObjC::ObjectI implements it own reference counting and there's no need
-            // to call __incRef/__decRef here. The C++ object and Objective-C object are sharing
-            // the same reference count (the one of the Objective-C object). This is necessary 
-            // to properly release both objects when there's either no more C++ handle/ObjC 
-            // reference to the object (without this, servants added to the object adapter 
-            // couldn't be retained or released easily).
-            //
-            object__ = (IceObjC::ObjectWrapper*)new IceObjC::ObjectI(self);
-        }
-    }
-    return (IceObjC::ObjectWrapper*)object__;
-}
-
--(void) dealloc
-{
-    if(object__)
-    {
-        delete (IceObjC::ObjectWrapper*)object__;
-        object__ = 0;
-    }
-    [delegate__ release];
-    [super dealloc];
-}
-
--(void) finalize
-{
-    if(object__)
-    {
-        delete (IceObjC::ObjectWrapper*)object__;
-        object__ = 0;
-    }
-    [super finalize];
-}
-
-@end
-
-@implementation ICEObject
-
-static NSString* ICEObject_ids__[1] =
-{
-    @"::Ice::Object"
-};
-
-static NSString* ICEObject_all__[4] =
-{
-    @"ice_id",
-    @"ice_ids",
-    @"ice_isA",
-    @"ice_ping"
-};
-
 -(id)initWithDelegate:(id)delegate
 {
     self = [super init];
@@ -351,15 +402,63 @@ static NSString* ICEObject_all__[4] =
     {
         return nil;
     }
-    
     object__ = 0;
     delegate__ = [delegate retain];
     return self;
 }
 
+-(void) dealloc
+{
+    if(object__)
+    {
+        delete static_cast<IceObjC::ObjectWrapper*>(object__);
+        object__ = 0;
+    }
+    [delegate__ release];
+    [super dealloc];
+}
+
 +(id)objectWithDelegate:(id)delegate
 {
     return [[[self alloc] initWithDelegate:delegate] autorelease];
+}
+
+-(BOOL) ice_isA:(NSString*)typeId current:(ICECurrent*)current
+{
+    int count, index;
+    NSString*const* staticIds = [[self class] staticIds__:&count idIndex:&index];
+    return ICEInternalLookupString(staticIds, count, typeId) >= 0;
+}
+
+-(void) ice_ping:(ICECurrent*)current
+{
+    // Nothing to do.
+}
+
+-(NSString*) ice_id:(ICECurrent*)current
+{
+    return [[self class] ice_staticId];
+}
+
+-(NSArray*) ice_ids:(ICECurrent*)current
+{
+    int count, index;
+    NSString*const* staticIds = [[self class] staticIds__:&count idIndex:&index];
+    return [NSArray arrayWithObjects:staticIds count:count];
+}
+
+-(BOOL) ice_dispatch:(id<ICERequest>)request
+{
+    @try
+    {
+        ICERequest* requestI = (ICERequest*)request;
+        return [requestI callDispatch:self];
+    }
+    @catch(ICELocalException*)
+    {
+        @throw;
+    }
+    return FALSE;
 }
 
 +(BOOL) ice_isA___:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os
@@ -406,98 +505,18 @@ static NSString* ICEObject_all__[4] =
     return YES;
 }
 
--(BOOL) ice_isA:(NSString*)typeId
-{
-    return [self ice_isA:typeId current:nil];
-}
-
--(BOOL) ice_isA:(NSString*)typeId current:(ICECurrent*)current
-{
-    int count, index;
-    NSString*const* staticIds = [[self class] staticIds__:&count idIndex:&index];
-    return ICEInternalLookupString(staticIds, count, typeId) >= 0;
-}
-
--(void) ice_ping
-{
-    [self ice_ping:nil];
-}
-
--(void) ice_ping:(ICECurrent*)current
-{
-    // Nothing to do.
-}
-
--(NSString*) ice_id
-{
-    return [self ice_id:nil];
-}
-
--(NSString*) ice_id:(ICECurrent*)current
-{
-    return [[self class] ice_staticId];
-}
-
--(NSArray*) ice_ids
-{
-    return [self ice_ids:nil];
-}
-
--(NSArray*) ice_ids:(ICECurrent*)current
-{
-    int count, index;
-    NSString*const* staticIds = [[self class] staticIds__:&count idIndex:&index];
-    return [NSArray arrayWithObjects:staticIds count:count];
-}
-
-+(NSString*) ice_staticId
-{
-    int count, index;
-    NSString*const* staticIds = [self staticIds__:&count idIndex:&index];
-    return staticIds[index];
-}
-
--(void) ice_preMarshal
-{
-}
-
--(void) ice_postUnmarshal
-{
-}
-
-+(NSString*const*) staticIds__:(int*)count idIndex:(int*)idx
-{
-    *count = sizeof(ICEObject_ids__) / sizeof(NSString*);
-    *idx = 0;
-    return ICEObject_ids__;
-}
-
--(BOOL) ice_dispatch:(id<ICERequest>)request
-{
-    @try
-    {
-        ICERequest* requestI = (ICERequest*)request;
-        return [requestI callDispatch:self];
-    }
-    @catch(ICELocalException*)
-    {
-        @throw;
-    }
-    return FALSE;
-}
-
 -(BOOL) dispatch__:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os
 {
     switch(ICEInternalLookupString(ICEObject_all__, sizeof(ICEObject_all__) / sizeof(NSString*), current.operation))
     {
     case 0:
-        return [ICEObject ice_id___:self current:current is:is os:os];
+        return [ICEServant ice_id___:self current:current is:is os:os];
     case 1:
-        return [ICEObject ice_ids___:self current:current is:is os:os];
+        return [ICEServant ice_ids___:self current:current is:is os:os];
     case 2:
-        return [ICEObject ice_isA___:self current:current is:is os:os];
+        return [ICEServant ice_isA___:self current:current is:is os:os];
     case 3:
-        return [ICEObject ice_ping___:self current:current is:is os:os];
+        return [ICEServant ice_ping___:self current:current is:is os:os];
     default:
         @throw [ICEOperationNotExistException requestFailedException:__FILE__ 
                                               line:__LINE__ 
@@ -531,14 +550,29 @@ static NSString* ICEObject_all__[4] =
     NSAssert(NO, @"readImpl__ requires override");
 }
 
--(id) copyWithZone:(NSZone*)zone
-{
-    return [[[self class] allocWithZone:zone] init];
-}
-
 -(id)target__
 {
     return (delegate__ == 0) ? self : delegate__;
+}
+
+-(Ice::Object*) object__
+{
+    @synchronized([self class])
+    {
+        if(object__ == 0)
+        {
+            //
+            // NOTE: IceObjC::ObjectI implements it own reference counting and there's no need
+            // to call __incRef/__decRef here. The C++ object and Objective-C object are sharing
+            // the same reference count (the one of the Objective-C object). This is necessary 
+            // to properly release both objects when there's either no more C++ handle/ObjC 
+            // reference to the object (without this, servants added to the object adapter 
+            // couldn't be retained or released easily).
+            //
+            object__ = static_cast<IceObjC::ObjectWrapper*>(new ObjectI(self));
+        }
+    }
+    return static_cast<IceObjC::ObjectWrapper*>(object__);
 }
 @end
 
@@ -557,9 +591,148 @@ static NSString* ICEObject_all__[4] =
             // reference to the object (without this, servants added to the object adapter 
             // couldn't be retained or released easily).
             //
-            object__ = (IceObjC::ObjectWrapper*)new IceObjC::BlobjectI(self);
+            object__ = static_cast<IceObjC::ObjectWrapper*>(new BlobjectI(self));
         }
     }
-    return (IceObjC::ObjectWrapper*)object__;
+    return static_cast<IceObjC::ObjectWrapper*>(object__);
+}
+@end
+
+@implementation ICEObjectWrapper
+-(id) initWithCxxObject:(Ice::Object*)arg
+{
+    self = [super init];
+    if(!self)
+    {
+        return nil;
+    }
+
+    object__ = arg;
+    object__->__incRef();
+    assert(cachedObjects.find(object__) == cachedObjects.end());
+    cachedObjects.insert(std::make_pair(object__, self));
+    return self;
+}
+-(void) dealloc
+{
+    cachedObjects.erase(object__);
+    object__->__decRef();
+    [super dealloc];
+}
++(id) objectWrapperWithCxxObject:(Ice::Object*)arg
+{
+    @synchronized([ICEObjectWrapper class])
+    {
+        std::map<Ice::Object*, ICEObjectWrapper*>::const_iterator p = cachedObjects.find(arg);
+        if(p != cachedObjects.end())
+        {
+            return [p->second retain];
+        }
+        else
+        {
+            return [[(ICEObjectWrapper*)[self alloc] initWithCxxObject:arg] autorelease];
+        }
+    }
+}
+-(id) retain
+{
+    NSIncrementExtraRefCount(self);
+    return self;
+}
+-(oneway void) release
+{
+    @synchronized([ICEObjectWrapper class])  
+    {
+        if(NSDecrementExtraRefCountWasZero(self))
+        {
+            [self dealloc];
+        }
+    }
+}
+-(BOOL) ice_isA:(NSString*)typeId current:(ICECurrent*)current
+{
+    NSException* nsex = nil;
+    try
+    {
+        return object__->ice_isA(fromNSString(typeId), Ice::Current());
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    @throw nsex;
+}
+-(void) ice_ping:(ICECurrent*)current
+{
+    NSException* nsex = nil;
+    try
+    {
+        return object__->ice_ping(Ice::Current());
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    @throw nsex;
+}
+-(NSString*) ice_id:(ICECurrent*)current
+{
+    NSException* nsex = nil;
+    try
+    {
+        return toNSString(object__->ice_id(Ice::Current()));
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    @throw nsex;
+}
+-(NSArray*) ice_ids:(ICECurrent*)current
+{
+    NSException* nsex = nil;
+    try
+    {
+        return toNSArray(object__->ice_ids(Ice::Current()));
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    @throw nsex;
+}
+-(BOOL) ice_dispatch:(id<ICERequest>)request
+{
+    @throw [ICEFeatureNotSupportedException featureNotSupportedException:__FILE__ line:__LINE__];
+}
+-(void) write__:(id<ICEOutputStream>)os
+{
+    NSException* nsex = nil;
+    try
+    {
+        object__->__write([(ICEOutputStream*)os os]);
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    @throw nsex;
+}
+-(void) read__:(id<ICEInputStream>)is
+{
+    NSException* nsex = nil;
+    try
+    {
+        object__->__read([(ICEInputStream*)is is]);
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    @throw nsex;
+}
+-(Ice::Object*) object__
+{
+    return object__;
 }
 @end

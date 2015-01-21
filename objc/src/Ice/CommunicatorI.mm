@@ -19,6 +19,7 @@
 #import <ImplicitContextI.h>
 #import <ProxyI.h>
 #import <LocalObjectI.h>
+#import <ObjectI.h>
 
 #include <Ice/Router.h>
 #include <Ice/Locator.h>
@@ -458,7 +459,7 @@ private:
     NSException* nsex = nil;
     try
     {
-        return [ICELogger localObjectWithCxxObject:COMMUNICATOR->getLogger().get()];
+        return [ICELoggerWrapper loggerWithLogger:COMMUNICATOR->getLogger().get()];
     }
     catch(const std::exception& ex)
     {
@@ -586,9 +587,20 @@ private:
                    COMMUNICATOR->end_flushBatchRequests(r); 
                }, result);
 }
--(id<ICEObjectPrx>) createAdmin:(id<ICEObjectAdapter>)adminAdapter adminId:(ICEIdentity*)adminId
+-(id<ICEObjectPrx>) createAdmin:(id<ICEObjectAdapter>)adapter adminId:(ICEIdentity*)adminId
 {
-    @throw [ICEFeatureNotSupportedException featureNotSupportedException:__FILE__ line:__LINE__];
+    NSException* nsex = nil;
+    try
+    {
+        Ice::ObjectAdapterPtr adminAdapter = [(ICEObjectAdapter*)adapter adapter];
+        return [ICEObjectPrx objectPrxWithObjectPrx__:COMMUNICATOR->createAdmin(adminAdapter, [adminId identity])];
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    @throw nsex;
+    return nil; // Keep the compiler happy.
 }
 -(id<ICEObjectPrx>) getAdmin
 {
@@ -606,27 +618,58 @@ private:
 }
 -(void) addAdminFacet:(ICEObject*)servant facet:(NSString*)facet
 {
-    @throw [ICEFeatureNotSupportedException featureNotSupportedException:__FILE__ line:__LINE__];
+    NSException* nsex = nil;
+    try
+    {
+        COMMUNICATOR->addAdminFacet([servant object__], fromNSString(facet));
+        return;
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    @throw nsex;
 }
 -(ICEObject*) removeAdminFacet:(NSString*)facet
 {
-    @throw [ICEFeatureNotSupportedException featureNotSupportedException:__FILE__ line:__LINE__];
+    NSException* nsex = nil;
+    try
+    {
+        return toObjC(COMMUNICATOR->removeAdminFacet(fromNSString(facet)));
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    @throw nsex;
+    return nil; // Keep the compiler happy.
 }
 -(ICEObject*) findAdminFacet:(NSString*)facet
 {
-    if([facet isEqualToString:@"Properties"])
+    NSException* nsex = nil;
+    try
     {
-        Ice::ObjectPtr obj = COMMUNICATOR->findAdminFacet(fromNSString(facet));
-        return [ICENativePropertiesAdmin localObjectWithCxxObject:
-                                                              Ice::NativePropertiesAdminPtr::dynamicCast(obj).get()];
+        return toObjC(COMMUNICATOR->findAdminFacet(fromNSString(facet)));
     }
-    else
+    catch(const std::exception& ex)
     {
-        return nil;
+        nsex = toObjCException(ex);
     }
+    @throw nsex;
+    return nil; // Keep the compiler happy.
 }
--(ICEFacetMap*) findAllAdminFacets
+-(ICEMutableFacetMap*) findAllAdminFacets
 {
-    @throw [ICEFeatureNotSupportedException featureNotSupportedException:__FILE__ line:__LINE__];
+    NSException* nsex = nil;
+    try
+    {
+        return toNSDictionary(COMMUNICATOR->findAllAdminFacets());
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    @throw nsex;
+    return nil; // Keep the compiler happy.
 }
 @end

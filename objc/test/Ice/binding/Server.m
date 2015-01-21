@@ -10,21 +10,13 @@
 #import <objc/Ice.h>
 #import <binding/TestI.h>
 #import <TestCommon.h>
-#ifdef ICE_OBJC_GC
-#   import <Foundation/NSGarbageCollector.h>
-#endif
 
 static int
 run(id<ICECommunicator> communicator)
 {
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010:udp"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
-    ICEIdentity* ident = [communicator stringToIdentity:@"communicator"];
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [adapter add:[[[RemoteCommunicatorI alloc] init] autorelease] identity:ident];
-#else
-    [adapter add:[[RemoteCommunicatorI alloc] init] identity:ident];
-#endif
+    [adapter add:[RemoteCommunicatorI remoteCommunicator] identity:[communicator stringToIdentity:@"communicator"]];
     [adapter activate];
 
     // Disable ready print for further adapters.
@@ -78,9 +70,6 @@ main(int argc, char* argv[])
                 status = EXIT_FAILURE;
             }
         }
-#ifdef ICE_OBJC_GC
-        [[NSGarbageCollector defaultCollector] collectExhaustively];
-#endif
         return status;
     }
 }

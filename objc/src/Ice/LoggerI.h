@@ -20,3 +20,10 @@
 }
 +(Ice::Logger*)loggerWithLogger:(id<ICELogger>)arg;
 @end
+
+@interface ICELoggerWrapper : ICELocalObject<ICELogger>
+{
+    Ice::Logger* logger_;
+}
++(id)loggerWithLogger:(Ice::Logger*)arg;
+@end

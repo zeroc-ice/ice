@@ -176,12 +176,8 @@ TestCommonTestInit(id r, SEL ready, BOOL s, BOOL sl, BOOL e10)
 void
 serverReady(id<ICECommunicator> c)
 {
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [communicator release];
-    communicator = [c retain];
-#else
-    communicator = c;
-#endif
+    ICE_RELEASE(communicator);
+    communicator = ICE_RETAIN(C);
     [testRun performSelectorOnMainThread:readySelector withObject:nil waitUntilDone:NO];
 }
 
@@ -196,14 +192,9 @@ tprintf(const char* fmt, ...)
 {
     va_list va;
     va_start(va, fmt);
-#if defined(__clang__) && !__has_feature(objc_arc)
-    NSString* s = [[[NSString alloc] initWithFormat:[NSString stringWithCString:fmt encoding:NSUTF8StringEncoding]
-                             arguments:va] autorelease];
-#else
-    NSString* s = [[NSString alloc] initWithFormat:[NSString stringWithCString:fmt encoding:NSUTF8StringEncoding]
-                             arguments:va];
-
-#endif
+    NSString* s = ICE_AUTORELEASE([[NSString alloc] initWithFormat:[NSString stringWithCString:fmt 
+                                                                                      encoding:NSUTF8StringEncoding]
+                                                         arguments:va]);
     va_end(va);
     [outputTarget performSelectorOnMainThread:outputSelector withObject:s waitUntilDone:NO];
 }
@@ -213,11 +204,7 @@ testFailed(const char* expr, const char* file, unsigned int line)
 {
     tprintf("failed!\n");
     tprintf("%s:%u: assertion `%s' failed\n", file, line, expr);
-#if defined(__clang__) && !__has_feature(objc_arc)
-    @throw [[[TestFailedException alloc] init] autorelease];
-#else
-    @throw [[TestFailedException alloc] init];
-#endif
+    @throw ICE_AUTORELEASE([[TestFailedException alloc] init]);
 }
 
 #else
@@ -229,8 +216,9 @@ tprintf(const char* fmt, ...)
 {
     va_list va;
     va_start(va, fmt);
-    NSString* s = [[[NSString alloc] initWithFormat:[NSString stringWithCString:fmt encoding:NSUTF8StringEncoding]
-                             arguments:va] autorelease];
+    NSString* s = ICE_AUTORELEASE([[NSString alloc] initWithFormat:[NSString stringWithCString:fmt 
+                                                                                      encoding:NSUTF8StringEncoding]
+                                                         arguments:va]);
     va_end(va);
     fputs([s UTF8String], stdout);
     fflush(stdout);

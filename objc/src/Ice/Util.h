@@ -84,6 +84,8 @@ fromObjC(id object, std::string& s)
 NSObject<NSCopying>* toObjC(const Ice::EndpointPtr& endpoint);
 void fromObjC(id object, Ice::EndpointPtr& endpoint);
 
+ICEObject* toObjC(const Ice::ObjectPtr& object);
+
 inline NSMutableArray*
 toNSArray(const char* arr[], size_t size)
 {

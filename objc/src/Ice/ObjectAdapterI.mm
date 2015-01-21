@@ -303,8 +303,7 @@ typedef IceUtil::Handle<DefaultServantLocator> DefaultServantLocatorPtr;
     NSException* nsex = nil;
     try
     {
-        Ice::ObjectPtr wrapper = OBJECTADAPTER->remove([ident identity]);
-        return [[IceObjC::ObjectWrapperPtr::dynamicCast(wrapper)->getObject() retain] autorelease];
+        return toObjC(OBJECTADAPTER->remove([ident identity]));
     }
     catch(const std::exception& ex)
     {
@@ -318,8 +317,7 @@ typedef IceUtil::Handle<DefaultServantLocator> DefaultServantLocatorPtr;
     NSException* nsex = nil;
     try
     {
-        Ice::ObjectPtr wrapper = OBJECTADAPTER->removeFacet([ident identity], fromNSString(facet));
-        return [[IceObjC::ObjectWrapperPtr::dynamicCast(wrapper)->getObject() retain] autorelease];
+        return toObjC(OBJECTADAPTER->removeFacet([ident identity], fromNSString(facet)));
     }
     catch(const std::exception& ex)
     {
@@ -329,20 +327,12 @@ typedef IceUtil::Handle<DefaultServantLocator> DefaultServantLocatorPtr;
     return nil; // Keep the compiler happy.
 }
 
--(NSDictionary*) removeAllFacets:(ICEIdentity*)ident
+-(ICEMutableFacetMap*) removeAllFacets:(ICEIdentity*)ident
 {
     NSException* nsex = nil;
     try
     {
-        Ice::FacetMap wrappers = OBJECTADAPTER->removeAllFacets([ident identity]);
-        NSMutableDictionary* servants = [[[NSMutableDictionary alloc] initWithCapacity:wrappers.size()] autorelease];
-        for(Ice::FacetMap::const_iterator p = wrappers.begin(); p != wrappers.end(); ++p)
-        {
-            NSObject<NSCopying>* key = toObjC(p->first);
-            [servants setObject:IceObjC::ObjectWrapperPtr::dynamicCast(p->second)->getObject() forKey:key];
-            [key release];
-        }
-        return servants;
+        return toNSDictionary(OBJECTADAPTER->removeAllFacets([ident identity]));
     }
     catch(const std::exception& ex)
     {
@@ -367,8 +357,7 @@ typedef IceUtil::Handle<DefaultServantLocator> DefaultServantLocatorPtr;
         {
             return nil;
         }
-        Ice::ObjectPtr wrapper = defaultServantLocator->servant();
-        return [[IceObjC::ObjectWrapperPtr::dynamicCast(wrapper)->getObject() retain] autorelease];
+        return toObjC(defaultServantLocator->servant());
     }
     catch(const std::exception& ex)
     {
@@ -383,8 +372,7 @@ typedef IceUtil::Handle<DefaultServantLocator> DefaultServantLocatorPtr;
     NSException* nsex = nil;
     try
     {
-        Ice::ObjectPtr wrapper = OBJECTADAPTER->find([ident identity]);
-        return [[IceObjC::ObjectWrapperPtr::dynamicCast(wrapper)->getObject() retain] autorelease];
+        return toObjC(OBJECTADAPTER->find([ident identity]));
     }
     catch(const std::exception& ex)
     {
@@ -399,8 +387,7 @@ typedef IceUtil::Handle<DefaultServantLocator> DefaultServantLocatorPtr;
     NSException* nsex = nil;
     try
     {
-        Ice::ObjectPtr wrapper = OBJECTADAPTER->findFacet([ident identity], fromNSString(facet));
-        return [[IceObjC::ObjectWrapperPtr::dynamicCast(wrapper)->getObject() retain] autorelease];
+        return toObjC(OBJECTADAPTER->findFacet([ident identity], fromNSString(facet)));
     }
     catch(const std::exception& ex)
     {
@@ -410,20 +397,12 @@ typedef IceUtil::Handle<DefaultServantLocator> DefaultServantLocatorPtr;
     return nil; // Keep the compiler happy.
 }
 
--(NSDictionary*) findAllFacets:(ICEIdentity*)ident
+-(NSMutableDictionary*) findAllFacets:(ICEIdentity*)ident
 {
     NSException* nsex = nil;
     try
     {
-        Ice::FacetMap wrappers = OBJECTADAPTER->findAllFacets([ident identity]);
-        NSMutableDictionary* servants = [[[NSMutableDictionary alloc] initWithCapacity:wrappers.size()] autorelease];
-        for(Ice::FacetMap::const_iterator p = wrappers.begin(); p != wrappers.end(); ++p)
-        {
-            NSObject<NSCopying>* key = toObjC(p->first);
-            [servants setObject:IceObjC::ObjectWrapperPtr::dynamicCast(p->second)->getObject() forKey:key];
-            [key release];
-        }
-        return servants;
+        return toNSDictionary(OBJECTADAPTER->findAllFacets([ident identity]));
     }
     catch(const std::exception& ex)
     {
@@ -438,8 +417,7 @@ typedef IceUtil::Handle<DefaultServantLocator> DefaultServantLocatorPtr;
     NSException* nsex = nil;
     try
     {
-        Ice::ObjectPtr wrapper = OBJECTADAPTER->findByProxy([(ICEObjectPrx*)proxy objectPrx__]);
-        return [[IceObjC::ObjectWrapperPtr::dynamicCast(wrapper)->getObject() retain] autorelease];
+        return toObjC(OBJECTADAPTER->findByProxy([(ICEObjectPrx*)proxy objectPrx__]));
     }
     catch(const std::exception& ex)
     {
@@ -479,8 +457,7 @@ typedef IceUtil::Handle<DefaultServantLocator> DefaultServantLocatorPtr;
         }
         else
         {
-            Ice::ObjectPtr wrapper = defaultServantLocator->servant();
-            return [[IceObjC::ObjectWrapperPtr::dynamicCast(wrapper)->getObject() retain] autorelease];
+            return toObjC(defaultServantLocator->servant());
         }
     }
     catch(const std::exception& ex)

@@ -17,10 +17,13 @@
 #import <objc/Ice/LocalException.h>
 #import <objc/Ice/Locator.h>
 #import <objc/Ice/Logger.h>
+#import <objc/Ice/NativePropertiesAdmin.h>
 #import <objc/Ice/Object.h>
 #import <objc/Ice/ObjectAdapter.h>
+#import <objc/Ice/Process.h>
 #import <objc/Ice/Properties.h>
 #import <objc/Ice/Proxy.h>
+#import <objc/Ice/RemoteLogger.h>
 #import <objc/Ice/Router.h>
 #import <objc/Ice/Stream.h>
 #import <objc/Ice/ObjectFactory.h>

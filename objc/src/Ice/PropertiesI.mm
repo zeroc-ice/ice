@@ -11,6 +11,8 @@
 #import <Util.h>
 #import <LocalObjectI.h>
 
+#include <Ice/NativePropertiesAdmin.h>
+
 @implementation ICEProperties
 -(id) initWithCxxObject:(IceUtil::Shared*)cxxObject
 {
@@ -259,13 +261,14 @@ typedef IceUtil::Handle<UpdateCallbackI> UpdateCallbackIPtr;
 @implementation ICEPropertiesAdminUpdateCallback
 @end
 
-#define NATIVEPROPERTIESADMIN dynamic_cast<Ice::NativePropertiesAdmin*>(static_cast<IceUtil::Shared*>(cxxObject_))
+#define NATIVEPROPERTIESADMIN dynamic_cast<Ice::NativePropertiesAdmin*>(object__)
 
 @implementation ICENativePropertiesAdmin
 -(void) addUpdateCallback:(id<ICEPropertiesAdminUpdateCallback>)cb
 {
     IceUtil::Mutex::Lock sync(mutex_);
     callbacks_.push_back(new UpdateCallbackI(cb));
+    assert(Ice::NativePropertiesAdminPtr::dynamicCast(object__));
     NATIVEPROPERTIESADMIN->addUpdateCallback(callbacks_.back());
 }
 

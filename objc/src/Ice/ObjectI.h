@@ -35,3 +35,10 @@ typedef IceUtil::Handle<ObjectWrapper> ObjectWrapperPtr;
 @interface ICEObject (ICEInternal)
 -(Ice::Object*) object__;
 @end
+
+@interface ICEObjectWrapper : ICEObject
+{
+    Ice::Object* object__;
+}
++(id) objectWrapperWithCxxObject:(Ice::Object*)arg;
+@end

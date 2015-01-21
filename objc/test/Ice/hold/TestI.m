@@ -23,13 +23,13 @@
     }
     return self;
 }
+#if defined(__clang__) && !__has_feature(objc_arc)
 -(void) dealloc
 {
     dispatch_release(queue);
-#if defined(__clang__) && !__has_feature(objc_arc)
     [super dealloc];
-#endif
 }
+#endif
 -(void) schedule:(void(^)())callback timeout:(ICEInt)t 
 {
     dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
@@ -37,7 +37,9 @@
     dispatch_source_set_event_handler(timer, ^{
             callback();
             dispatch_source_cancel(timer);
+#if defined(__clang__) && !__has_feature(objc_arc)
             dispatch_release(timer);
+#endif
         });
     dispatch_resume(timer);
 }

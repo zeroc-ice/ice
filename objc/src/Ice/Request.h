@@ -19,5 +19,5 @@
 }
 +(id) request:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
 -(id) init:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
--(BOOL) callDispatch:(ICEObject*)servant;
+-(BOOL) callDispatch:(ICEServant*)servant;
 @end

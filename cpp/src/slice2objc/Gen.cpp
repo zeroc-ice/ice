@@ -358,9 +358,15 @@ Slice::ObjCVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
         {
             _M << nl << "case " << i++ << ':';
             _M.inc();
-            string target = (q->second == "ICEObject") ? "self" : "target__";
-            _M << nl << "return [" << q->second << " " << q->first << "___:(id<" << q->second
-               << ">)" << target << " current:current is:is os:os];";
+            if(q->second == "ICEObject")
+            {
+                _M << nl << "return [ICEServant " << q->first << "___:(id<" << q->second << ">)self";
+            }
+            else
+            {
+                _M << nl << "return [" << q->second << " " << q->first << "___:(id<" << q->second << ">)target__";
+            }
+            _M << " current:current is:is os:os];";
             _M.dec();
         }
         _M << nl << "default:";
@@ -929,7 +935,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     bool basePreserved = p->inheritsMetaData("preserve-slice");
     bool preserved = p->hasMetaData("preserve-slice");
     bool hasBaseClass = !bases.empty() && !bases.front()->isInterface();
-    string baseName = hasBaseClass ? fixName(bases.front()) : (p->isLocal() ? "ICELocalObject" : "ICEObject");
+    string baseName = hasBaseClass ? fixName(bases.front()) : (p->isLocal() ? "ICELocalObject" : "ICEServant");
     DataMemberList baseDataMembers;
     if(hasBaseClass)
     {

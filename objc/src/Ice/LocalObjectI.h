@@ -17,7 +17,6 @@ class Shared;
 @interface ICELocalObject ()
 -(id) initWithCxxObject:(IceUtil::Shared*)arg;
 
-
 //
 // Note: the returned object is NOT retained. It must be held
 // some other way by the calling thread.
