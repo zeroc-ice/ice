@@ -8,15 +8,12 @@ Build-Depends: debhelper (>= 9.0.0),
  libssl-dev,
  libdb5.3++-dev (>=5.3.28),
  libdb5.3-java (>=5.3.28),
- proguard,
  oracle-java7-installer,
  python2.7-dev,
  ruby1.9.1-dev,
  php5-dev,
  php5-cli,
- javahelper (>= 0.45),
- nodejs,
- libclosure-compiler-java
+ javahelper (>= 0.45)
 Standards-Version: 3.9.4
 Homepage: http://www.zeroc.com
 
@@ -26,7 +23,6 @@ Section: web
 Depends: zeroc-ice-slice (=${binary:Version}),
  libzeroc-ice@debmmver@ (=${binary:Version}),
  libzeroc-freeze@debmmver@ (=${binary:Version}),
- node-zeroc-ice (=${binary:Version}),
  php5-zeroc-ice (=${binary:Version}),
  python-zeroc-ice (=${binary:Version}),
  ruby-zeroc-ice (=${binary:Version}),
@@ -54,11 +50,10 @@ Architecture: all
 Section: devel
 Depends: libzeroc-ice-dev (=${binary:Version}),
  libzeroc-ice-java (=${binary:Version}),
- libjs-zeroc-ice (=${binary:Version}),
- node-zeroc-ice-dev (=${binary:Version}),
  php5-zeroc-ice-dev (=${binary:Version}),
  python-zeroc-ice-dev (=${binary:Version}),
- ruby-zeroc-ice-dev (=${binary:Version}),
+ ruby-zeroc-ice-dev (=${binary:Version})
+Replaces: libzeroc-ice-java (<=3.5.1)
 Description: Ice development packages
  Ice development packages.
 
@@ -106,35 +101,12 @@ Architecture: any
 Multi-Arch: foreign
 Section: devel
 Replaces:libice-java-dev, ice35-translators, libzeroc-ice3.5-java
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${java:Depends}, 
+Depends: ${shlibs:Depends}, ${misc:Depends},
  zeroc-ice-slice (=${binary:Version}), 
  libzeroc-ice@debmmver@ (=${binary:Version}), 
+ openjdk-7-jdk | openjdk-8-jdk | oracle-java7-installer | oracle-java8-installer
 Description: Tools for developing Ice applications in Java
  Tools for developing Ice applications in Java.
-
-Package: libjs-zeroc-ice
-Architecture: any
-Multi-Arch: foreign
-Section: devel
-Depends: ${misc:Depends}, ${shlibs:Depends},
- libzeroc-ice@debmmver@ (=${binary:Version}),
- zeroc-ice-slice (=${binary:Version})
-Description: Tools for developing Ice applications in JavaScript
- Tools for developing Ice applications in JavaScript.
-
-Package: node-zeroc-ice
-Architecture: all
-Section: web
-Depends: ${misc:Depends}
-Description: JavaScript Ice run time for NodeJS
- JavaScript Ice run time for NodeJS.
- 
-Package: node-zeroc-ice-dev
-Architecture: all
-Section: web
-Depends: ${misc:Depends}, nodejs, node-zeroc-ice (=${binary:Version}), libjs-zeroc-ice (=${binary:Version})
-Description: JavaScript Ice run time for NodeJS
- JavaScript Ice run time for NodeJS.
 
 Package: php5-zeroc-ice
 Architecture: any
@@ -157,7 +129,6 @@ Depends: php5-cli | php5, ${shlibs:Depends},
 Description: Tools for developing Ice applications in PHP
  Tools for developing Ice applications in PHP.
 
- 
 Package: python-zeroc-ice
 Architecture: any
 Section: python
@@ -277,5 +248,7 @@ Architecture: all
 Section: admin
 Replaces:ice-utils, icegrid-gui
 Depends: ${java:Depends}, ${misc:Depends}, ${python:Depends}, 
- zeroc-ice-utils (=${binary:Version})
+ zeroc-ice-utils (=${binary:Version}),
+ openjdk-7-jdk | openjdk-8-jdk | oracle-java7-installer | oracle-java8-installer |
+ openjdk-7-jre | openjdk-8-jre
 Description: IceGrid Admin graphical client for IceGrid

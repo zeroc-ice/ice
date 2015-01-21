@@ -1,3 +1,8 @@
+zeroc-ice3.6 (3.6.0-1000) unstable; urgency=low
+  * 3.6.0 release
+  
+ -- Jose <jose@zeroc.com>  Wed, 21 Jan 2015 09:15:00 +0200
+
 zeroc-ice3.6 (3.6.0-1) unstable; urgency=low
   * 3.6 beta release
   

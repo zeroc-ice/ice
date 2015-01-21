@@ -12,7 +12,6 @@ import os, sys, fnmatch, re, getopt, atexit, shutil, subprocess, threading
 
 
 i386Packages = [
-    "libjs-zeroc-ice_@debver@-1_i386.deb",
     "libzeroc-freeze@debmmver@_@debver@-1_i386.deb",
     "libzeroc-ice@debmmver@_@debver@-1_i386.deb",
     "libzeroc-ice-dev_@debver@-1_i386.deb",
@@ -32,7 +31,6 @@ i386Packages = [
     "zeroc-ice-utils_@debver@-1_i386.deb"]
 
 amd64Packages = [
-    "libjs-zeroc-ice_@debver@-1_amd64.deb",
     "libzeroc-freeze@debmmver@_@debver@-1_amd64.deb",
     "libzeroc-ice@debmmver@_@debver@-1_amd64.deb",
     "libzeroc-ice-dev_@debver@-1_amd64.deb",
@@ -52,8 +50,6 @@ amd64Packages = [
     "zeroc-ice-utils_@debver@-1_amd64.deb"]
 
 noarchPackages = [
-    "node-zeroc-ice_@debver@-1_all.deb",
-    "node-zeroc-ice-dev_@debver@-1_all.deb",
     "zeroc-ice@debmmver@_@debver@-1.debian.tar.gz",
     "zeroc-ice@debmmver@_@debver@-1.dsc",
     "zeroc-ice@debmmver@_@debver@.orig.tar.gz",

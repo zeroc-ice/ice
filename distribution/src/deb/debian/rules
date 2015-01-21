@@ -12,7 +12,6 @@ export OPTIMIZE=yes
 export prefix=/usr
 export CLASSPATH=/usr/share/java/proguard.jar
 export DESTDIR=$(CURDIR)/debian/tmp
-export NODE=nodejs
 export GRADLE_HOME=$(HOME)/.gradle
 export GRADLE = ./gradlew -g $(GRADLE_HOME)
 export CLOSURE_COMPILER=/usr/share/java/closure-compiler.jar
@@ -22,7 +21,6 @@ PACKAGE_NAMES = zeroc-ice \
 	zeroc-ice-slice \
 	libzeroc-ice@debmmver@ \
 	libzeroc-freeze@debmmver@ \
-	node-zeroc-ice \
 	php5-zeroc-ice \
 	python-zeroc-ice \
 	ruby-zeroc-ice \
@@ -35,8 +33,6 @@ PACKAGE_NAMES = zeroc-ice \
 	zeroc-ice-utils-java \
 	libzeroc-ice-dev \
 	libzeroc-ice-java \
-	libjs-zeroc-ice \
-	node-zeroc-ice-dev \
 	php5-zeroc-ice-dev \
 	python-zeroc-ice-dev \
 	ruby-zeroc-ice-dev

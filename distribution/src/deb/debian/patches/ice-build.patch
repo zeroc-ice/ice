@@ -69,19 +69,6 @@
  INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir)$(cpp11libdirsuffix) $(install_includedir) \
  	$(install_configdir) $(install_mandir)
  
---- a/js/Makefile
-+++ b/js/Makefile
-@@ -13,10 +13,6 @@
- 
- SUBDIRS		= src assets
- 
--ifneq ($(MAKECMDGOALS),install)
--SUBDIRS		:= $(SUBDIRS) test demo
--endif
--
- INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir) $(install_moduledir)
- 
- install:: install-common
 --- a/php/Makefile
 +++ b/php/Makefile
 @@ -13,10 +13,6 @@
@@ -120,3 +107,19 @@
  	$(GRADLE) :Ice:assemble :Freeze:assemble :Glacier2:assemble :IceGrid:assemble :ant:assemble \
  		:IceBox:assemble :IceDiscovery:assemble :IcePatch2:assemble :IceStorm:assemble :IceGridGUI:assemble
  
+--- a/Makefile
++++ b/Makefile
+@@ -7,10 +7,10 @@
+ #
+ # **********************************************************************
+ 
+-SUBDIRS			= cpp java js py rb php
+-CLEAN_SUBDIRS	= js java py rb php cpp
++SUBDIRS			= cpp java py rb php
++CLEAN_SUBDIRS	= java py rb php cpp
+ DEPEND_SUBDIRS	= cpp py rb php
+-INSTALL_SUBDIRS	= cpp java py rb php js
++INSTALL_SUBDIRS	= cpp java py rb php
+ 
+ ifeq ($(shell uname),Darwin)
+ SUBDIRS			+= objc
