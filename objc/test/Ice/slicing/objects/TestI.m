@@ -256,7 +256,7 @@
 }
 -(TestSlicingObjectsServerSS*) sequenceTest:(TestSlicingObjectsServerSS1*)p1 p2:(TestSlicingObjectsServerSS2*)p2 current:(ICECurrent*)current
 {
-    TestSlicingObjectsServerSS* ss = [TestSlicingObjectsServerSS sS];
+    TestSlicingObjectsServerSS* ss = [TestSlicingObjectsServerSS ss];
     ss.c1 = p1;
     ss.c2 = p2;
     return ss;

@@ -745,7 +745,7 @@ optionalAllTests(id<ICECommunicator> communicator)
     tprintf("ok\n");
 
     tprintf("testing optional with default values... ");
-    TestOptionalWD* wd = (TestOptionalWD*)[initial pingPong:[TestOptionalWD wD]];
+    TestOptionalWD* wd = (TestOptionalWD*)[initial pingPong:[TestOptionalWD wd]];
     test(wd.a == 5);
     test([wd.s isEqualToString:@"test"]);
     [wd clearA];
