@@ -3,7 +3,7 @@
   "version": "3.6.0-beta.0",
   "description": "Ice for JavaScript runtime",
   "author": "Zeroc, Inc.",
-  "homepage": "http://zeroc.com",
+  "homepage": "https://zeroc.com",
   "repository": {
     "type": "git",
     "url": "https://github.com/zeroc-inc/icejs-demos.git"

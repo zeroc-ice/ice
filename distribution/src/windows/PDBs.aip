@@ -10,7 +10,7 @@
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
     <ROW Property="ARPCONTACT" Value="info@zeroc.com"/>
     <ROW Property="ARPNOMODIFY" MultiBuildValue="DefaultBuild:1"/>
-    <ROW Property="ARPURLINFOABOUT" Value="http://www.zeroc.com"/>
+    <ROW Property="ARPURLINFOABOUT" Value="https://www.zeroc.com"/>
     <ROW Property="BannerBitmap" Value="banner" MultiBuildValue="DefaultBuild:installerheader.bmp" Type="1" MsiKey="BannerBitmap"/>
     <ROW Property="DialogBitmap" Value="dialog" MultiBuildValue="DefaultBuild:installermain.bmp" Type="1" MsiKey="DialogBitmap"/>
     <ROW Property="Manufacturer" Value="ZeroC, Inc"/>

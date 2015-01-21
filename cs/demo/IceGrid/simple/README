@@ -1,20 +1,3 @@
-Note for Mono:
-
-    For this demo to work properly using Mono on Linux, you must
-    configure Linux to recognize Mono binaries. More details are
-    provided in the release notes:
-
-    http://doc.zeroc.com/display/Ice/Release+Notes
-
-    Alternatively, if you do not want to reconfigure your kernel, edit
-    application.xml and change the <server> element to read:
-
-    <server id="SimpleServer" exe="mono" activation="on-demand">
-      <option>./server.exe</option>
-
-    Note that we use "mono" (the Mono interpreter) as the executable
-    and pass the path name of the actual server as an argument.
-
 To run the demo, first start the IceGrid service:
 
 $ icegridnode --Ice.Config=config.grid

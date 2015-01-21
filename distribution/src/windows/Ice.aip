@@ -9,7 +9,7 @@
     <ROW Property="ALLUSERS" Value="2"/>
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
     <ROW Property="ARPCONTACT" Value="info@zeroc.com"/>
-    <ROW Property="ARPURLINFOABOUT" Value="http://www.zeroc.com"/>
+    <ROW Property="ARPURLINFOABOUT" Value="https://www.zeroc.com"/>
     <ROW Property="BannerBitmap" Value="banner" MultiBuildValue="DefaultBuild:installer_header.bmp_1" Type="1" MsiKey="BannerBitmap"/>
     <ROW Property="CTRLS" Value="1"/>
     <ROW Property="DEMO_DIR" Value="C:\IceBuild\dist\Ice-3.6b-demos"/>
@@ -5935,7 +5935,7 @@
     <ROW Name="icegridgui.exe" SourcePath="..\..\..\installer\Ice-3.6b-src\java\src\IceGridGUI\src\main\resources\icons\icegrid.ico" Index="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIniFileComponent">
-    <ROW IniFile="URL" FileName="Releas~1.url|Release Notes.url" DirProperty="Ice_3.4.2_DIR" Section="InternetShortcut" Key="URL" Value="http://doc.zeroc.com/display/Rel/Ice+3.6b+Release+Notes" Action="0" Component_="__7"/>
+    <ROW IniFile="URL" FileName="Releas~1.url|Release Notes.url" DirProperty="Ice_3.4.2_DIR" Section="InternetShortcut" Key="URL" Value="https://doc.zeroc.com/display/Rel/Ice+3.6.0+Release+Notes" Action="0" Component_="__7"/>
     <ROW IniFile="WorkingDirectory" FileName="Releas~1.url|Release Notes.url" DirProperty="Ice_3.4.2_DIR" Section="InternetShortcut" Key="WorkingDirectory" Value="[Ice_3.4.2_DIR]" Action="0" Component_="__7"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">

@@ -498,7 +498,7 @@
     <ROW Path="&lt;AI_DICTS&gt;ui_en.ail"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DigCertStoreComponent">
-    <ROW DigitalCertificate="..\..\..\release\authenticode\zeroc2014.pfx" TimeStampUrl="http://timestamp.verisign.com/scripts/timstamp.dll" SignerDescription="[|ProductName]" DescriptionUrl="http://www.zeroc.com" SignOptions="7" SignTool="0" Password="4199AAA4CF93E3035080B853BE42AB11DAFB687AF580"/>
+    <ROW DigitalCertificate="..\..\..\release\authenticode\zeroc2014.pfx" TimeStampUrl="http://timestamp.verisign.com/scripts/timstamp.dll" SignerDescription="[|ProductName]" DescriptionUrl="https://www.zeroc.com" SignOptions="7" SignTool="0" Password="4199AAA4CF93E3035080B853BE42AB11DAFB687AF580"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.FragmentComponent">
     <ROW Fragment="CommonUI.aip" Path="&lt;AI_FRAGS&gt;CommonUI.aip"/>

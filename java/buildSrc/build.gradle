@@ -9,7 +9,7 @@ task writeNewPom {
 } << {
     pom {
         project {
-            url 'http://www.zeroc.com'
+            url 'https://www.zeroc.com'
             packaging 'jar'
             groupId 'com.zeroc.gradle.plugins'
             artifactId 'ice-gradle-plugin'

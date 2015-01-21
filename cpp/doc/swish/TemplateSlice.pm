@@ -92,7 +92,7 @@ sub page_header {
 		    </h1>
 		</div>
 		<div style="position: absolute; top: 0; right: 0;">
-		    <a href="http://www.zeroc.com"><img class="Logo" src="../doc/images/logo.gif" alt="Logo"
+		    <a href="https://www.zeroc.com"><img class="Logo" src="../doc/images/logo.gif" alt="Logo"
 		       style="border-style: none;"/></a>
 		</div>
 	    </div>

@@ -15,7 +15,7 @@ Build-Depends: debhelper (>= 9.0.0),
  php5-cli,
  javahelper (>= 0.45)
 Standards-Version: 3.9.4
-Homepage: http://www.zeroc.com
+Homepage: https://www.zeroc.com
 
 Package: zeroc-ice-all-runtime
 Architecture: all

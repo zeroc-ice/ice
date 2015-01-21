@@ -6,7 +6,7 @@ on the various demos.
 The Manual directory contains demos for some of the code examples in
 the Ice manual available online:
 
-   http://doc.zeroc.com/display/Ice/Ice+Manual
+   https://doc.zeroc.com/display/Ice/Ice+Manual
 
-For more examples of the features of the Ice services (Glacier2, IceGrid,
-IceStorm) please see the demos in the Ice for C++ distribution.
+For more examples of the features of the Ice services (Glacier2,
+IceGrid, IceStorm) please see the Ice for C++ demos.

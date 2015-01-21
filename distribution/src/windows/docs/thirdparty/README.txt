@@ -62,4 +62,4 @@ The source distributions of Berkeley DB, bzip2/libbzip2, OpenSSL,
 Expat and MCPP used to build this distribution can be downloaded
 at no cost from
 
-  http://www.zeroc.com/download_beta.html
+  https://www.zeroc.com/download.html

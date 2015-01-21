@@ -102,7 +102,7 @@ buildscript {
 		    }
 	    } else {
 	        maven {
-	            url 'http://repo.zeroc.com/nexus/content/repositories/releases'
+	            url 'https://repo.zeroc.com/nexus/content/repositories/releases'
 	        }
         }
     }

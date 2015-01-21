@@ -24,10 +24,10 @@ subprojects {
 
 	    if (!useLocalOnly) {
 		    maven {
-		        url 'http://repo.zeroc.com/nexus/content/repositories/thirdparty'
+		        url 'https://repo.zeroc.com/nexus/content/repositories/thirdparty'
 		    }
 		    maven {
-		        url 'http://repo.zeroc.com/nexus/content/repositories/releases'
+		        url 'https://repo.zeroc.com/nexus/content/repositories/releases'
 		    }
 	    }
     }

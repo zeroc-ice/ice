@@ -182,7 +182,7 @@ $(SDK_BASE_PATH)\$(SDK_MANIFEST): $(SDK_BASE_PATH)
 	AppliesTo = "WindowsAppContainer + VisualC"
 	SupportedArchitecture = "x86;x64;ARM"
 	SupportsMultipleVersion = "Error"
-	MoreInfo = "http://doc.zeroc.com">
+	MoreInfo = "https://doc.zeroc.com">
 </FileList>
 <<KEEP
 	move $(SDK_MANIFEST) $(SDK_BASE_PATH)

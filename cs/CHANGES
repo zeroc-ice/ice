@@ -833,8 +833,8 @@ Changes since Alpha 2
 
 - Added support for protocol compression.
 
-- Added extensive documentation for the language mapping to
-  "Distributed Programming with Ice" (http://www.zeroc.com/Ice-Manual.pdf).
+- Added extensive documentation for the language mapping to the Ice
+  manual.
 
 - Added support for AMI and AMD.
 

@@ -8,7 +8,7 @@ IceGrid is the server deployment and monitoring for the Internet\
 Communications Engine (Ice). An IceGrid domain consists of one master\
 registry, zero or more slave registries, and zero or more IceGrid nodes.
 Documentation=man:icegridnode(1)
-Documentation=http://doc.zeroc.com/display/Ice/icegridnode
+Documentation=https://doc.zeroc.com/display/Ice/icegridnode
 After=syslog.target network.target icegridregistry.service
 
 [Service]
