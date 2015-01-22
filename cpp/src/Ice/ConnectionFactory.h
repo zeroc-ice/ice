@@ -163,7 +163,6 @@ private:
 class IncomingConnectionFactory : public EventHandler,
                                   public Ice::ConnectionI::StartCallback,
                                   public IceUtil::Monitor<IceUtil::Mutex>
-
 {
 public:
 
@@ -200,7 +199,7 @@ public:
 private:
 
     IncomingConnectionFactory(const InstancePtr&, const EndpointIPtr&, const Ice::ObjectAdapterIPtr&);
-    void initialize(const std::string&);
+    void initialize();
     virtual ~IncomingConnectionFactory();
     friend class Ice::ObjectAdapterI;
 
@@ -213,14 +212,16 @@ private:
     };
 
     void setState(State);
-    void closeAcceptor(bool);
+
+    void createAcceptor();
+    void closeAcceptor();
 
     const InstancePtr _instance;
     const FactoryACMMonitorPtr _monitor;
 
-    const AcceptorPtr _acceptor;
+    AcceptorPtr _acceptor;
     const TransceiverPtr _transceiver;
-    const EndpointIPtr _endpoint;
+    EndpointIPtr _endpoint;
 
     Ice::ObjectAdapterIPtr _adapter;
 

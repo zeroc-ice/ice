@@ -1272,6 +1272,11 @@ namespace IceInternal
             {
                 return false;
             }
+            else if(_acceptor == null)
+            {
+                completedSynchronously = true;
+                return true;
+            }
 
             Debug.Assert(_acceptor != null);
             try
@@ -1298,33 +1303,35 @@ namespace IceInternal
 
         public override bool finishAsync(int unused)
         {
-            Debug.Assert(_acceptor != null);
-            try
+            if(_acceptor != null)
             {
-                _acceptor.finishAccept();
-            }
-            catch(Ice.LocalException ex)
-            {
-                if(Network.noMoreFds(ex.InnerException))
+                try
                 {
-                    string s = "can't accept more connections:\n" + ex + '\n' + _acceptor.ToString();
-                    try
-                    {
-                        _instance.initializationData().logger.error(s);
-                    }
-                    finally
-                    {
-#if !COMPACT && !SILVERLIGHT
-                        System.Environment.FailFast(s);
-#endif
-                    }
-                    return false;
+                    _acceptor.finishAccept();
                 }
-                else
+                catch(Ice.LocalException ex)
                 {
-                    string s = "couldn't accept connection:\n" + ex + '\n' + _acceptor.ToString();
-                    _instance.initializationData().logger.error(s);
-                    return false;
+                    if(Network.noMoreFds(ex.InnerException))
+                    {
+                        string s = "can't accept more connections:\n" + ex + '\n' + _acceptor.ToString();
+                        try
+                        {
+                            _instance.initializationData().logger.error(s);
+                        }
+                        finally
+                        {
+#if !COMPACT && !SILVERLIGHT
+                            System.Environment.FailFast(s);
+#endif
+                        }
+                        return false;
+                    }
+                    else
+                    {
+                        string s = "couldn't accept connection:\n" + ex + '\n' + _acceptor.ToString();
+                        _instance.initializationData().logger.error(s);
+                        return false;
+                    }
                 }
             }
             return _state < StateClosed;
@@ -1364,6 +1371,11 @@ namespace IceInternal
                         {
                             _connections.Remove(c);
                         }
+                    }
+
+                    if(_acceptor == null)
+                    {
+                        return;
                     }
 
                     //
@@ -1465,9 +1477,11 @@ namespace IceInternal
             {
                 return _transceiver.ToString();
             }
-
-            Debug.Assert(_acceptor != null);
-            return _acceptor.ToString();
+            else if(_acceptor != null)
+            {
+                return _acceptor.ToString();
+            }
+            return "";
         }
 
         //
@@ -1503,8 +1517,7 @@ namespace IceInternal
             }
         }
 
-        public IncomingConnectionFactory(Instance instance, EndpointI endpoint, Ice.ObjectAdapterI adapter,
-                                         string adapterName)
+        public IncomingConnectionFactory(Instance instance, EndpointI endpoint, Ice.ObjectAdapterI adapter)
         {
             _instance = instance;
             _endpoint = endpoint;
@@ -1547,29 +1560,7 @@ namespace IceInternal
                 }
                 else
                 {
-                    _acceptor = _endpoint.acceptor(adapterName);
-                    Debug.Assert(_acceptor != null);
-
-                    if(_instance.traceLevels().network >= 2)
-                    {
-                        StringBuilder s = new StringBuilder("attempting to bind to ");
-                        s.Append(_endpoint.protocol());
-                        s.Append(" socket ");
-                        s.Append(_acceptor.ToString());
-                        _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
-                    }
-                    _endpoint = _acceptor.listen();
-
-                    if(_instance.traceLevels().network >= 1)
-                    {
-                        StringBuilder s = new StringBuilder("listening for ");
-                        s.Append(_endpoint.protocol());
-                        s.Append(" connections\n");
-                        s.Append(_acceptor.toDetailedString());
-                        _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
-                    }
-
-                    _adapter.getThreadPool().initialize(this);
+                    createAcceptor();
                 }
             }
             catch(System.Exception ex)
@@ -1586,18 +1577,6 @@ namespace IceInternal
                     catch(Ice.LocalException)
                     {
                         // Ignore
-                    }
-                }
-
-                if(_acceptor != null)
-                {
-                    try
-                    {
-                        closeAcceptor(false);
-                    }
-                    catch(Ice.LocalException)
-                    {
-                        // Here we ignore any exceptions in close().
                     }
                 }
 
@@ -1689,7 +1668,7 @@ namespace IceInternal
                     if(_acceptor != null)
                     {
                         _adapter.getThreadPool().finish(this);
-                        closeAcceptor(true);
+                        closeAcceptor();
                     }
                     else
                     {
@@ -1714,9 +1693,53 @@ namespace IceInternal
             System.Threading.Monitor.PulseAll(this);
         }
 
-        private void closeAcceptor(bool trace)
+        private void createAcceptor()
         {
-            if(trace && _instance.traceLevels().network >= 1)
+            try
+            {
+                _acceptor = _endpoint.acceptor(_adapter.getName());
+                Debug.Assert(_acceptor != null);
+
+                if(_instance.traceLevels().network >= 2)
+                {
+                    StringBuilder s = new StringBuilder("attempting to bind to ");
+                    s.Append(_endpoint.protocol());
+                    s.Append(" socket ");
+                    s.Append(_acceptor.ToString());
+                    _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
+                }
+                _endpoint = _acceptor.listen();
+
+                if(_instance.traceLevels().network >= 1)
+                {
+                    StringBuilder s = new StringBuilder("listening for ");
+                    s.Append(_endpoint.protocol());
+                    s.Append(" connections\n");
+                    s.Append(_acceptor.toDetailedString());
+                    _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
+                }
+
+                _adapter.getThreadPool().initialize(this);
+
+                if(_state == StateActive)
+                {
+                    _adapter.getThreadPool().unregister(this, SocketOperation.Read);
+                }
+            }
+            catch(Ice.LocalException ex)
+            {
+                if(_acceptor != null)
+                {
+                    _acceptor.close();
+                    _acceptor = null;
+                }
+                throw ex;
+            }
+        }
+
+        private void closeAcceptor()
+        {
+            if(_instance.traceLevels().network >= 1)
             {
                 StringBuilder s = new StringBuilder("stopping to accept ");
                 s.Append(_endpoint.protocol());
@@ -1724,7 +1747,9 @@ namespace IceInternal
                 s.Append(_acceptor.ToString());
                 _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
             }
+
             _acceptor.close();
+            _acceptor = null;
         }
 
         private void warning(Ice.LocalException ex)

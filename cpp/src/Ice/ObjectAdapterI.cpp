@@ -1005,7 +1005,7 @@ Ice::ObjectAdapterI::initialize(const RouterPrx& router)
             for(vector<EndpointIPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
             {
                 IncomingConnectionFactoryPtr factory = new IncomingConnectionFactory(_instance, *p, this);
-                 factory->initialize(_name);
+                 factory->initialize();
                 _incomingConnectionFactories.push_back(factory);
             }
 

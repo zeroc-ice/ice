@@ -280,7 +280,8 @@ toObjCException(const std::exception& ex)
     const IceUtil::IllegalArgumentException* iaex = dynamic_cast<const IceUtil::IllegalArgumentException*>(&ex);
     if(iaex)
     {
-        return [NSException exceptionWithName:NSInvalidArgumentException reason:[toNSString(iaex->reason()) autorelease]
+        return [NSException exceptionWithName:NSInvalidArgumentException
+                                       reason:[NSString stringWithUTF8String:iaex->reason().c_str()]
                                      userInfo:nil];
     }
     
@@ -309,8 +310,6 @@ toObjCException(const std::exception& ex)
     //
     // std::exception from the Ice runtime are translated to NSException.
     //
-    //Ice::UnknownException e(__FILE__, __LINE__, ex.what());
-    //nsex = [ICEUnknownException localExceptionWithLocalException:e];
     return [NSException exceptionWithName:@"std::exception"
                                    reason:[NSString stringWithUTF8String:ex.what()]
                                  userInfo:nil];

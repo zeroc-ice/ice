@@ -1216,6 +1216,10 @@ IceInternal::IncomingConnectionFactory::startAsync(SocketOperation)
     {
         return false;
     }
+    else if(!_acceptor)
+    {
+        return true;
+    }
 
     try
     {
@@ -1235,16 +1239,18 @@ IceInternal::IncomingConnectionFactory::startAsync(SocketOperation)
 bool
 IceInternal::IncomingConnectionFactory::finishAsync(SocketOperation)
 {
-    assert(_acceptor);
-    try
+    if(_acceptor)
     {
-        _acceptor->finishAccept();
-    }
-    catch(const LocalException& ex)
-    {
-        Error out(_instance->initializationData().logger);
-        out << "couldn't accept connection:\n" << ex << '\n' << _acceptor->toString();
-        return false;
+        try
+        {
+            _acceptor->finishAccept();
+        }
+        catch(const LocalException& ex)
+        {
+            Error out(_instance->initializationData().logger);
+            out << "couldn't accept connection:\n" << ex << '\n' << _acceptor->toString();
+            return false;
+        }
     }
     return _state < StateClosed;
 }
@@ -1284,6 +1290,11 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
         for(vector<Ice::ConnectionIPtr>::const_iterator p = cons.begin(); p != cons.end(); ++p)
         {
             _connections.erase(*p);
+        }
+
+        if(!_acceptor)
+        {
+            return;
         }
 
         //
@@ -1365,11 +1376,9 @@ IceInternal::IncomingConnectionFactory::finished(ThreadPoolCurrent&, bool close)
     assert(_state == StateClosed);
     setState(StateFinished);
 
-    assert(_acceptor);
-
-    if(close)
+    if(_acceptor && close)
     {
-        closeAcceptor(true);
+        closeAcceptor();
     }
 }
 
@@ -1382,9 +1391,11 @@ IceInternal::IncomingConnectionFactory::toString() const
     {
         return _transceiver->toString();
     }
-
-    assert(_acceptor);
-    return _acceptor->toString();
+    else if(_acceptor)
+    {
+        return _acceptor->toString();
+    }
+    return string();
 }
 
 NativeInfoPtr
@@ -1447,18 +1458,16 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
 }
 
 void
-IceInternal::IncomingConnectionFactory::initialize(const string& oaName)
+IceInternal::IncomingConnectionFactory::initialize()
 {
     if(_instance->defaultsAndOverrides()->overrideTimeout)
     {
-        const_cast<EndpointIPtr&>(_endpoint) =
-            _endpoint->timeout(_instance->defaultsAndOverrides()->overrideTimeoutValue);
+        _endpoint = _endpoint->timeout(_instance->defaultsAndOverrides()->overrideTimeoutValue);
     }
 
     if(_instance->defaultsAndOverrides()->overrideCompress)
     {
-        const_cast<EndpointIPtr&>(_endpoint) =
-            _endpoint->compress(_instance->defaultsAndOverrides()->overrideCompressValue);
+        _endpoint = _endpoint->compress(_instance->defaultsAndOverrides()->overrideCompressValue);
     }
 
     try
@@ -1480,24 +1489,7 @@ IceInternal::IncomingConnectionFactory::initialize(const string& oaName)
         }
         else
         {
-            const_cast<AcceptorPtr&>(_acceptor) = _endpoint->acceptor(oaName);
-            assert(_acceptor);
-
-            if(_instance->traceLevels()->network >= 2)
-            {
-                Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
-                out << "attempting to bind to " << _endpoint->protocol() << " socket " << _acceptor->toString();
-            }
-
-            const_cast<EndpointIPtr&>(_endpoint) = _acceptor->listen();
-
-            if(_instance->traceLevels()->network >= 1)
-            {
-                Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
-                out << "listening for " << _endpoint->protocol() << " connections\n" << _acceptor->toDetailedString();
-            }
-
-            _adapter->getThreadPool()->initialize(this);
+            createAcceptor();
         }
     }
     catch(const Ice::Exception&)
@@ -1507,19 +1499,6 @@ IceInternal::IncomingConnectionFactory::initialize(const string& oaName)
             try
             {
                 _transceiver->close();
-            }
-            catch(const Ice::LocalException&)
-            {
-                // Ignore
-            }
-        }
-
-
-        if(_acceptor)
-        {
-            try
-            {
-                closeAcceptor(false);
             }
             catch(const Ice::LocalException&)
             {
@@ -1601,7 +1580,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
                 //
                 if(_adapter->getThreadPool()->finish(this, true))
                 {
-                    closeAcceptor(true);
+                    closeAcceptor();
                 }
             }
             else
@@ -1626,14 +1605,59 @@ IceInternal::IncomingConnectionFactory::setState(State state)
 }
 
 void
-IceInternal::IncomingConnectionFactory::closeAcceptor(bool trace)
+IceInternal::IncomingConnectionFactory::createAcceptor()
 {
-    if(trace && _instance->traceLevels()->network >= 1)
+    assert(!_acceptor);
+
+    try
+    {
+        _acceptor = _endpoint->acceptor(_adapter->getName());
+        assert(_acceptor);
+
+        if(_instance->traceLevels()->network >= 2)
+        {
+            Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
+            out << "attempting to bind to " << _endpoint->protocol() << " socket " << _acceptor->toString();
+        }
+
+        _endpoint = _acceptor->listen();
+
+        if(_instance->traceLevels()->network >= 1)
+        {
+            Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
+            out << "listening for " << _endpoint->protocol() << " connections\n" << _acceptor->toDetailedString();
+        }
+
+        _adapter->getThreadPool()->initialize(this);
+
+        if(_state == StateActive)
+        {
+            _adapter->getThreadPool()->_register(this, SocketOperationRead);
+        }
+    }
+    catch(const Ice::LocalException&)
+    {
+        if(_acceptor)
+        {
+            _acceptor->close();
+            _acceptor = 0;
+        }
+        throw;
+    }
+}
+
+void
+IceInternal::IncomingConnectionFactory::closeAcceptor()
+{
+    assert(_acceptor);
+
+    if(_instance->traceLevels()->network >= 1)
     {
         Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
         out << "stopping to accept " << _endpoint->protocol() << " connections at " << _acceptor->toString();
     }
 
     _acceptor->close();
+    _acceptor = 0;
 }
 

@@ -1045,7 +1045,7 @@ public final class ObjectAdapterI implements ObjectAdapter
                     parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
                 for(IceInternal.EndpointI endp : endpoints)
                 {
-                    IncomingConnectionFactory factory = new IncomingConnectionFactory(instance, endp, this, _name);
+                    IncomingConnectionFactory factory = new IncomingConnectionFactory(instance, endp, this);
                     _incomingConnectionFactories.add(factory);
                 }
                 if(endpoints.size() == 0)

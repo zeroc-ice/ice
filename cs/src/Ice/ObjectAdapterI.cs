@@ -991,7 +991,7 @@ namespace Ice
                     List<EndpointI> endpoints =  parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
                     foreach(EndpointI endp in endpoints)
                     {
-                        IncomingConnectionFactory factory = new IncomingConnectionFactory(instance, endp, this, _name);
+                        IncomingConnectionFactory factory = new IncomingConnectionFactory(instance, endp, this);
                         _incomingConnectionFactories.Add(factory);
                     }
                     if(endpoints.Count == 0)

@@ -340,8 +340,7 @@ namespace IceInternal
                     handler._registered = SocketOperation.None;
                     executeNonBlocking(() =>
                        {
-                           ThreadPoolCurrent current =
-                               new ThreadPoolCurrent(this, handler, SocketOperation.None);
+                           ThreadPoolCurrent current = new ThreadPoolCurrent(this, handler, SocketOperation.None);
                            handler.finished(ref current);
                        });
                 }
