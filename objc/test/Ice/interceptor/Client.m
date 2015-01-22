@@ -12,9 +12,6 @@
 #import <InterceptorTest.h>
 #import <interceptor/MyObjectI.h>
 #import <interceptor/InterceptorI.h>
-#ifdef ICE_OBJC_GC
-#   import <Foundation/NSGarbageCollector.h>
-#endif
 
 static int
 run(id<ICECommunicator> communicator)
@@ -154,9 +151,6 @@ main(int argc, char* argv[])
             }
         }
     }
-#ifdef ICE_OBJC_GC
-    [[NSGarbageCollector defaultCollector] collectExhaustively];
-#endif
     return status;
 }
 

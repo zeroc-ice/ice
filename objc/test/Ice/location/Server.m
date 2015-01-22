@@ -11,9 +11,6 @@
 #import <location/ServerLocator.h>
 #import <location/TestI.h>
 #import <TestCommon.h>
-#ifdef ICE_OBJC_GC
-#  import <Foundation/NSGarbageCollector.h>
-#endif
 
 static int
 run(id<ICECommunicator> communicator, ICEInitializationData* initData)
@@ -98,8 +95,5 @@ main(int argc, char* argv[])
             }
         }
     }
-#ifdef ICE_OBJC_GC
-    [[NSGarbageCollector defaultCollector] collectExhaustively];
-#endif
     return status;
 }

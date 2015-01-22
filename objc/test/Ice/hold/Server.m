@@ -10,9 +10,6 @@
 #import <objc/Ice.h>
 #import <hold/TestI.h>
 #import <TestCommon.h>
-#ifdef ICE_OBJC_GC
-#   import <Foundation/NSGarbageCollector.h>
-#endif
 
 static int
 run(id<ICECommunicator> communicator)
@@ -88,9 +85,6 @@ main(int argc, char* argv[])
                 status = EXIT_FAILURE;
             }
         }
-#ifdef ICE_OBJC_GC
-        [[NSGarbageCollector defaultCollector] collectExhaustively];
-#endif
         return status;
     }
 }

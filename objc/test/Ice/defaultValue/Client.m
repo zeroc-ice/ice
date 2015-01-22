@@ -10,9 +10,6 @@
 #import <objc/Ice.h>
 #import <TestCommon.h>
 #import <DefaultValueTest.h>
-#ifdef ICE_OBJC_GC
-#   import <Foundation/NSGarbageCollector.h>
-#endif
 
 static int
 run()
@@ -45,9 +42,6 @@ main(int argc, char* argv[])
         {
             status = EXIT_FAILURE;
         }
-#ifdef ICE_OBJC_GC
-        [[NSGarbageCollector defaultCollector] collectExhaustively];
-#endif
         return status;
     }
 }

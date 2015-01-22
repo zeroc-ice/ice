@@ -9,9 +9,6 @@
 
 #import <objc/Ice.h>
 #import <faultTolerance/TestI.h>
-#ifdef ICE_OBJC_GC
-#   import <Foundation/NSGarbageCollector.h>
-#endif
 
 #import <stdio.h>
 
@@ -104,8 +101,5 @@ main(int argc, char* argv[])
             }
         }
     }
-#ifdef ICE_OBJC_GC
-    [[NSGarbageCollector defaultCollector] collectExhaustively];
-#endif
     return status;
 }

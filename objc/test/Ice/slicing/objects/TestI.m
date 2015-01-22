@@ -418,9 +418,7 @@
     if(ex_ != nil)
     {
         ex_.p.pb = nil;
-#if defined(__clang__) && !__has_feature(objc_arc)
-        [ex_ release];
-#endif
+        ICE_RELEASE(ex_);
     }
     ex_ = ICE_RETAIN(ue);
     @throw ue;
@@ -436,9 +434,7 @@
     if(ex_ != nil)
     {
         ex_.p.pb = nil;
-#if defined(__clang__) && !__has_feature(objc_arc)
-        [ex_ release];
-#endif
+        ICE_RELEASE(ex_);
     }
     [[current.adapter getCommunicator] shutdown];
 }

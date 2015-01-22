@@ -11,9 +11,6 @@
 #import <TestCommon.h>
 #import <DispatcherTest.h>
 #include <dispatch/dispatch.h>
-#ifdef ICE_OBJC_GC
-#   import <Foundation/NSGarbageCollector.h>
-#endif
 
 static int
 run(id<ICECommunicator> communicator)
@@ -78,8 +75,5 @@ main(int argc, char* argv[])
             }
         }
     }
-#ifdef ICE_OBJC_GC
-    [[NSGarbageCollector defaultCollector] collectExhaustively];
-#endif
     return status;
 }

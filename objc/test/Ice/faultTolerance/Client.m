@@ -11,9 +11,6 @@
 #import <TestCommon.h>
 #import <faultTolerance/Test.h>
 #import <stdio.h>
-#ifdef ICE_OBJC_GC
-#   import <Foundation/NSGarbageCollector.h>
-#endif
 
 void
 usage(const char* n)
@@ -99,8 +96,5 @@ main(int argc, char* argv[])
             }
         }
     }
-#ifdef ICE_OBJC_GC
-    [[NSGarbageCollector defaultCollector] collectExhaustively];
-#endif
     return status;
 }

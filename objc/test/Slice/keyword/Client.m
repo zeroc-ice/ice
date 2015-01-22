@@ -11,9 +11,6 @@
 #import <TestCommon.h>
 #import <Key.h>
 #import <Inherit.h>
-#ifdef ICE_OBJC_GC
-#   import <Foundation/NSGarbageCollector.h>
-#endif
 
 // Verify that the expected symbols are present
 @interface andbreakI : andbreak<andbreak>
@@ -214,9 +211,6 @@ main(int argc, char* argv[])
             }
         }
     }
-#ifdef ICE_OBJC_GC
-    [[NSGarbageCollector defaultCollector] collectExhaustively];
-#endif
     return status;
 }
 

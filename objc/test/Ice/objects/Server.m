@@ -10,9 +10,6 @@
 #import <objc/Ice.h>
 #import <TestCommon.h>
 #import <objects/TestI.h>
-#ifdef ICE_OBJC_GC
-#   import <Foundation/NSGarbageCollector.h>
-#endif
 
 @interface ServerMyObjectFactory : NSObject<ICEObjectFactory>
 @end
@@ -113,8 +110,5 @@ main(int argc, char* argv[])
             }
         }
     }
-#ifdef ICE_OBJC_GC
-    [[NSGarbageCollector defaultCollector] collectExhaustively];
-#endif
     return status;
 }
