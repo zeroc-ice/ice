@@ -32,18 +32,12 @@
 
 -(ICEContext*) getContext:(ICECurrent*)c
 {
-#if defined(__clang__) && !__has_feature(objc_arc)
-    return [[_ctx retain] autorelease];
-#else
-    return _ctx;
-#endif
+    return ICE_AUTORELEASE(ICE_RETAIN(_ctx));
 }
 
 -(BOOL) ice_isA:(NSString*)s current:(ICECurrent*)current
 {
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [_ctx release];
-#endif
+    ICE_RELEASE(_ctx);
     _ctx = ICE_RETAIN([current ctx]);
     return [super ice_isA:s current:current];
 }

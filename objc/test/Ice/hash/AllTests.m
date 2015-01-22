@@ -55,9 +55,7 @@ hashAllTests()
         }
         [seenObject removeAllObjects];
         [communicator destroy];
-#if defined(__clang__) && !__has_feature(objc_arc)
-        [seenObject release];
-#endif
+        ICE_RELEASE(seenObject);
         tprintf("ok\n");
     }
 
@@ -89,9 +87,7 @@ hashAllTests()
             test(collisions < maxCollisions);
         }
         [seenObject removeAllObjects];
-#if defined(__clang__) && !__has_feature(objc_arc)
-        [seenObject release];
-#endif
+        ICE_RELEASE(seenObject);
     }
     {
         int collisions = 0;
@@ -122,9 +118,7 @@ hashAllTests()
             test(collisions < maxCollisions);
         }
         [seenObject removeAllObjects];
-#if defined(__clang__) && !__has_feature(objc_arc)
-        [seenObject release];
-#endif
+        ICE_RELEASE(seenObject);
     }
 
     {
@@ -155,9 +149,7 @@ hashAllTests()
             test(collisions < maxCollisions);
         }
         [seenObject removeAllObjects];
-#if defined(__clang__) && !__has_feature(objc_arc)
-        [seenObject release];
-#endif
+        ICE_RELEASE(seenObject);
     }
     tprintf("ok\n");
 }

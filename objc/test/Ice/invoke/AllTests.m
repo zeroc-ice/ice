@@ -227,9 +227,7 @@ invokeAllTests(id<ICECommunicator> communicator)
             response:^(BOOL ok, NSMutableData* outEncaps) { [cb opString:ok outEncaps:outEncaps]; }
             exception:^(ICEException* ex) { test(NO); }];
         [cb check];
-#if defined(__clang__) && !__has_feature(objc_arc)
-        [cb release];
-#endif
+        ICE_RELEASE(cb);
     }
 
     {
@@ -266,9 +264,7 @@ invokeAllTests(id<ICECommunicator> communicator)
             response:^(BOOL ok, NSMutableData* outP) { [cb opException:ok outEncaps:outP]; }
             exception:^(ICEException* ex) { test(NO); }];
         [cb check];
-#if defined(__clang__) && !__has_feature(objc_arc)
-        [cb release];
-#endif
+        ICE_RELEASE(cb);
     }
 
     tprintf("ok\n");

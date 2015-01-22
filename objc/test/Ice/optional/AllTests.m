@@ -180,12 +180,10 @@
 
 -(void) read__:(id<ICEInputStream>)is
 {
-#if defined(__clang__) && !__has_feature(objc_arc)
     if(f_ != nil)
     {
-        [f_ release];
+        ICE_RELEASE(f_);
     }
-#endif
     f_ = [TestOptionalF new];
     [is startObject];
     [is startSlice];
@@ -768,9 +766,7 @@ optionalAllTests(id<ICECommunicator> communicator)
             [os startEncapsulation];
             ICEObject* d = [DObjectWriter new];
             [os writeObject:d];
-#if defined(__clang__) && !__has_feature(objc_arc)
-            [d release];
-#endif
+            ICE_RELEASE(d);
             [os endEncapsulation];
             inEncaps = [os finished];
             test([initial ice_invoke:@"pingPong" mode:ICENormal inEncaps:inEncaps outEncaps:&outEncaps]);
@@ -793,9 +789,7 @@ optionalAllTests(id<ICECommunicator> communicator)
             [os writeObject:a];
             DObjectWriter* writer = [DObjectWriter new];
             [ICEObjectHelper writeOpt:writer stream:os tag:1];
-#if defined(__clang__) && !__has_feature(objc_arc)
-            [writer release];
-#endif
+            ICE_RELEASE(writer);
             [os endEncapsulation];
             inEncaps = [os finished];
             test([initial ice_invoke:@"opClassAndUnknownOptional" mode:ICENormal inEncaps:inEncaps

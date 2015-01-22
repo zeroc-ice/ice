@@ -47,9 +47,7 @@
         [c waitForShutdown];
         [c destroy];
     }
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [communicators_ release];
-#endif
+    ICE_RELEASE(communicators_);
     communicators_ = [[NSMutableArray alloc] init];
 
     //

@@ -180,9 +180,7 @@ allTests(id<ICECommunicator> communicator, NSArray* ports)
             int pid = [cb pid];
             test(pid != oldPid);
             oldPid = pid;
-#if defined(__clang__) && !__has_feature(objc_arc)
-            [cb release];
-#endif
+            ICE_RELEASE(cb);
             tprintf("ok\n");
         }
 
@@ -201,9 +199,7 @@ allTests(id<ICECommunicator> communicator, NSArray* ports)
                 [obj begin_shutdown:^{ [cb shutdownResponse]; }
                           exception:^(ICEException* ex) { [cb shutdownException:ex]; }];
                 [cb check];
-#if defined(__clang__) && !__has_feature(objc_arc)
-                [cb release];
-#endif
+                ICE_RELEASE(cb);
                 tprintf("ok\n");
             }
         }
@@ -232,9 +228,7 @@ allTests(id<ICECommunicator> communicator, NSArray* ports)
                 Callback* cb = [[Callback alloc] init];
                 [obj begin_abort:^{ [cb abortResponse]; } exception:^(ICEException* ex) { [cb abortException:ex]; }];
                 [cb check];
-#if defined(__clang__) && !__has_feature(objc_arc)
-                [cb release];
-#endif
+                ICE_RELEASE(cb);
                 tprintf("ok\n");
             }
         }
@@ -264,9 +258,7 @@ allTests(id<ICECommunicator> communicator, NSArray* ports)
                 [obj begin_idempotentAbort:^{ [cb idempotentAbortResponse]; }
                        exception:^(ICEException* ex) { [cb idempotentAbortException:ex]; }];
                 [cb check];
-#if defined(__clang__) && !__has_feature(objc_arc)
-                [cb release];
-#endif
+                ICE_RELEASE(cb);
                 tprintf("ok\n");
             }
 

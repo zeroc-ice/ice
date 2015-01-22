@@ -37,9 +37,7 @@
 {
     ICECurrent* current = [request getCurrent];
 
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [lastOperation release];
-#endif
+    ICE_RELEASE(lastOperation);
     lastOperation = ICE_RETAIN(current.operation);
 
     if([lastOperation isEqualToString:@"addWithRetry"])
@@ -85,9 +83,7 @@
 -(void) clear
 {
     lastStatus = NO;
-#if defined(__clang__) && !__has_feature(objc_arc)
-    [lastOperation release];
-#endif
+    ICE_RELEASE(lastOperation);
     lastOperation = nil;
 }
 

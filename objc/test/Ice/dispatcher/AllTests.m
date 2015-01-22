@@ -155,9 +155,7 @@ dispatcherAllTests(id<ICECommunicator> communicator)
             [testController resumeAdapter];
             [result waitForCompleted];
         }
-#if defined(__clang__) && !__has_feature(objc_arc)
-        [cb release];
-#endif
+        ICE_RELEASE(cb);
     }
     tprintf("ok\n");
 
