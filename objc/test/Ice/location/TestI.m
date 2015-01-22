@@ -111,8 +111,7 @@
     adapter1_ = ICE_RETAIN(adapter);
     adapter2_ = ICE_RETAIN(adapter2);
     registry_ = registry;
-    [registry_ addObject:[adapter1_ add:ICE_AUTORELEASE([[HelloI alloc] init])
-                                    identity:[[adapter1_ getCommunicator] stringToIdentity:@"hello"]]];
+    [registry_ addObject:[adapter1_ add:[HelloI hello] identity:[[adapter1_ getCommunicator] stringToIdentity:@"hello"]]];
     return self;
 }
 

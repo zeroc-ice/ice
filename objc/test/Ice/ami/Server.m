@@ -24,7 +24,7 @@ run(id<ICECommunicator> communicator)
     TestAMITestIntfControllerI* testController 
         = ICE_AUTORELEASE([[TestAMITestIntfControllerI alloc] initWithAdapter:adapter]);
 
-    [adapter add:ICE_AUTORELEASE([[TestAMITestIntfI alloc] init]) identity:[communicator stringToIdentity:@"test"]];
+    [adapter add:[TestAMITestIntfI testIntf] identity:[communicator stringToIdentity:@"test"]];
     [adapter activate];
 
     [adapter2 add:testController identity:[communicator stringToIdentity:@"testController"]];

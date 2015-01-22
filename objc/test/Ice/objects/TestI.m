@@ -222,17 +222,17 @@
 
 -(TestObjectsI*) getI:(ICECurrent*)current
 {
-    return ICE_AUTORELEASE([[TestObjectsI alloc] init]);
+    return [TestObjectsI i];
 }
 
 -(TestObjectsI*) getJ:(ICECurrent*)current
 {
-    return (TestObjectsI*)ICE_AUTORELEASE([[TestObjectsJ alloc] init]);
+    return (TestObjectsI*)[TestObjectsJ j];
 }
 
 -(TestObjectsI*) getH:(ICECurrent*)current
 {
-    return (TestObjectsI*)ICE_AUTORELEASE([[TestObjectsH alloc] init]);
+    return (TestObjectsI*)[TestObjectsH h];
 }
 
 -(TestObjectsBaseSeq*) opBaseSeq:(TestObjectsMutableBaseSeq*)inSeq outSeq:(TestObjectsBaseSeq**)outSeq
@@ -244,7 +244,7 @@
 
 -(TestObjectsCompact*) getCompact:(ICECurrent*)current
 {
-    return (TestObjectsCompact*)ICE_AUTORELEASE([[TestObjectsCompactExt alloc] init]);
+    return (TestObjectsCompact*)[TestObjectsCompactExt compactExt];
 }
 
 -(void) setI:(TestObjectsI*)i current:(ICECurrent*)current
@@ -298,7 +298,7 @@
     id<ICECommunicator> communicator = [current.adapter getCommunicator];
     id<ICEOutputStream> o = [ICEUtil createOutputStream:communicator];
     [o startEncapsulation];
-    TestObjectsAlsoEmpty* ae = ICE_AUTORELEASE([[TestObjectsAlsoEmpty alloc] init]);
+    TestObjectsAlsoEmpty* ae = [TestObjectsAlsoEmpty alsoEmpty];
     [o writeObject:ae];
     [o writePendingObjects];
     [o endEncapsulation];

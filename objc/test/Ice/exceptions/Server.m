@@ -23,7 +23,7 @@ run(id<ICECommunicator> communicator)
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
     id<ICEObjectAdapter> adapter2 = [communicator createObjectAdapter:@"TestAdapter2"];
     id<ICEObjectAdapter> adapter3 = [communicator createObjectAdapter:@"TestAdapter3"];
-    ICEObject* object = ICE_AUTORELEASE([[ThrowerI alloc] init]);
+    ICEObject* object = [ThrowerI thrower];
     [adapter add:object identity:[communicator stringToIdentity:@"thrower"]];
     [adapter2 add:object identity:[communicator stringToIdentity:@"thrower"]];
     [adapter3 add:object identity:[communicator stringToIdentity:@"thrower"]];

@@ -16,7 +16,7 @@ run(id<ICECommunicator> communicator)
 {
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
-    [adapter add:ICE_AUTORELEASE([[TestProxyMyDerivedClassI alloc] init])
+    [adapter add:[TestProxyMyDerivedClassI myDerivedClass]
     	identity:[communicator stringToIdentity:@"test"]];
     //[adapter activate]; //adapter->activate(); // Don't activate OA to ensure collocation is used.
 

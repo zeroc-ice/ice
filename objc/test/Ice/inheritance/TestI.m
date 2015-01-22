@@ -130,14 +130,14 @@
     {
         return nil;
     }
-    ca_ = [TestInheritanceMACAPrx uncheckedCast:[adapter addWithUUID:ICE_AUTORELEASE([[CAI alloc] init])]];
-    cb_ = [TestInheritanceMBCBPrx uncheckedCast:[adapter addWithUUID:ICE_AUTORELEASE([[CBI alloc] init])]];
-    cc_ = [TestInheritanceMACCPrx uncheckedCast:[adapter addWithUUID:ICE_AUTORELEASE([[CCI alloc] init])]];
-    cd_ = [TestInheritanceMACDPrx uncheckedCast:[adapter addWithUUID:ICE_AUTORELEASE([[CDI alloc] init])]];
-    ia_ = [TestInheritanceMAIAPrx uncheckedCast:[adapter addWithUUID:ICE_AUTORELEASE([[IAI alloc] init])]];
-    ib1_ = [TestInheritanceMBIB1Prx uncheckedCast:[adapter addWithUUID:ICE_AUTORELEASE([[IB1I alloc] init])]];
-    ib2_ = [TestInheritanceMBIB2Prx uncheckedCast:[adapter addWithUUID:ICE_AUTORELEASE([[IB2I alloc] init])]];
-    ic_ = [TestInheritanceMAICPrx uncheckedCast:[adapter addWithUUID:ICE_AUTORELEASE([[ICI alloc] init])]];
+    ca_ = [TestInheritanceMACAPrx uncheckedCast:[adapter addWithUUID:[CAI ca]]];
+    cb_ = [TestInheritanceMBCBPrx uncheckedCast:[adapter addWithUUID:[CBI cb]]];
+    cc_ = [TestInheritanceMACCPrx uncheckedCast:[adapter addWithUUID:[CCI cc]]];
+    cd_ = [TestInheritanceMACDPrx uncheckedCast:[adapter addWithUUID:[CDI cd]]];
+    ia_ = [TestInheritanceMAIAPrx uncheckedCast:[adapter addWithUUID:[IAI ia]]];
+    ib1_ = [TestInheritanceMBIB1Prx uncheckedCast:[adapter addWithUUID:[IB1I ib1]]];
+    ib2_ = [TestInheritanceMBIB2Prx uncheckedCast:[adapter addWithUUID:[IB2I ib2]]];
+    ic_ = [TestInheritanceMAICPrx uncheckedCast:[adapter addWithUUID:[ICI ic]]];
 
     return self;
 }

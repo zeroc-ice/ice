@@ -67,16 +67,16 @@
 
 -(TestSlicingObjectsServerB*) oneElementCycle:(ICECurrent*)current
 {
-    TestSlicingObjectsServerB* b1 = ICE_AUTORELEASE([[TestSlicingObjectsServerB alloc] init]);
+    TestSlicingObjectsServerB* b1 = [TestSlicingObjectsServerB b];
     b1.sb = @"B1.sb";
     b1.pb = b1;
     return b1;
 }
 -(TestSlicingObjectsServerB*) twoElementCycle:(ICECurrent*)current
 {
-    TestSlicingObjectsServerB* b1 = ICE_AUTORELEASE([[TestSlicingObjectsServerB alloc] init]);
+    TestSlicingObjectsServerB* b1 = [TestSlicingObjectsServerB b];
     b1.sb = @"B1.sb";
-    TestSlicingObjectsServerB* b2 = ICE_AUTORELEASE([[TestSlicingObjectsServerB alloc] init]);
+    TestSlicingObjectsServerB* b2 = [TestSlicingObjectsServerB b];
     b2.sb = @"B2.sb";
     b2.pb = b1;
     b1.pb = b2;
@@ -84,11 +84,11 @@
 }
 -(TestSlicingObjectsServerB*) D1AsB:(ICECurrent*)current
 {
-    TestSlicingObjectsServerD1* d1 = ICE_AUTORELEASE([[TestSlicingObjectsServerD1 alloc] init]);
+    TestSlicingObjectsServerD1* d1 = [TestSlicingObjectsServerD1 d1];
     d1.sb = @"D1.sb";
     d1.sd1 = @"D1.sd1";
 
-    TestSlicingObjectsServerD2* d2 = ICE_AUTORELEASE([[TestSlicingObjectsServerD2 alloc] init]);
+    TestSlicingObjectsServerD2* d2 = [TestSlicingObjectsServerD2 d2];
     d2.pb = d1;
     d2.sb = @"D2.sb";
     d2.sd2 = @"D2.sd2";
@@ -99,10 +99,10 @@
 }
 -(TestSlicingObjectsServerD1*) D1AsD1:(ICECurrent*)current
 {
-    TestSlicingObjectsServerD1* d1 = ICE_AUTORELEASE([[TestSlicingObjectsServerD1 alloc] init]);
+    TestSlicingObjectsServerD1* d1 = [TestSlicingObjectsServerD1 d1];
     d1.sb = @"D1.sb";
     d1.sd1 = @"D1.sd1";
-    TestSlicingObjectsServerD2* d2 = ICE_AUTORELEASE([[TestSlicingObjectsServerD2 alloc] init]);
+    TestSlicingObjectsServerD2* d2 = [TestSlicingObjectsServerD2 d2];
     d2.pb = d1;
     d2.sb = @"D2.sb";
     d2.sd2 = @"D2.sd2";
@@ -113,10 +113,10 @@
 }
 -(TestSlicingObjectsServerB*) D2AsB:(ICECurrent*)current
 {
-    TestSlicingObjectsServerD2* d2 = ICE_AUTORELEASE([[TestSlicingObjectsServerD2 alloc] init]);
+    TestSlicingObjectsServerD2* d2 = [TestSlicingObjectsServerD2 d2];
     d2.sb = @"D2.sb";
     d2.sd2 = @"D2.sd2";
-    TestSlicingObjectsServerD1* d1 = ICE_AUTORELEASE([[TestSlicingObjectsServerD1 alloc] init]);
+    TestSlicingObjectsServerD1* d1 = [TestSlicingObjectsServerD1 d1];
     d1.pb = d2;
     d1.sb = @"D1.sb";
     d1.sd1 = @"D1.sd1";
@@ -127,10 +127,10 @@
 }
 -(void) paramTest1:(TestSlicingObjectsServerB**)p1 p2:(TestSlicingObjectsServerB**)p2 current:(ICECurrent*)current
 {
-    TestSlicingObjectsServerD1* d1 = ICE_AUTORELEASE([[TestSlicingObjectsServerD1 alloc] init]);
+    TestSlicingObjectsServerD1* d1 = [TestSlicingObjectsServerD1 d1];
     d1.sb = @"D1.sb";
     d1.sd1 = @"D1.sd1";
-    TestSlicingObjectsServerD2* d2 = ICE_AUTORELEASE([[TestSlicingObjectsServerD2 alloc] init]);
+    TestSlicingObjectsServerD2* d2 = [TestSlicingObjectsServerD2 d2];
     d2.pb = d1;
     d2.sb = @"D2.sb";
     d2.sd2 = @"D2.sd2";
@@ -146,26 +146,26 @@
 }
 -(TestSlicingObjectsServerB*) paramTest3:(TestSlicingObjectsServerB**)p1 p2:(TestSlicingObjectsServerB**)p2 current:(ICECurrent*)current
 {
-    TestSlicingObjectsServerD2* d2 = ICE_AUTORELEASE([[TestSlicingObjectsServerD2 alloc] init]);
+    TestSlicingObjectsServerD2* d2 = [TestSlicingObjectsServerD2 d2];
     d2.sb = @"D2.sb (p1 1)";
     d2.pb = 0;
     d2.sd2 = @"D2.sd2 (p1 1)";
     *p1 = d2;
 
-    TestSlicingObjectsServerD1* d1 = ICE_AUTORELEASE([[TestSlicingObjectsServerD1 alloc] init]);
+    TestSlicingObjectsServerD1* d1 = [TestSlicingObjectsServerD1 d1];
     d1.sb = @"D1.sb (p1 2)";
     d1.pb = 0;
     d1.sd1 = @"D1.sd2 (p1 2)";
     d1.pd1 = 0;
     d2.pd2 = d1;
 
-    TestSlicingObjectsServerD2* d4 = ICE_AUTORELEASE([[TestSlicingObjectsServerD2 alloc] init]);
+    TestSlicingObjectsServerD2* d4 = [TestSlicingObjectsServerD2 d2];
     d4.sb = @"D2.sb (p2 1)";
     d4.pb = 0;
     d4.sd2 = @"D2.sd2 (p2 1)";
     *p2 = d4;
 
-    TestSlicingObjectsServerD1* d3 = ICE_AUTORELEASE([[TestSlicingObjectsServerD1 alloc] init]);
+    TestSlicingObjectsServerD1* d3 = [TestSlicingObjectsServerD1 d1];
     d3.sb = @"D1.sb (p2 2)";
     d3.pb = 0;
     d3.sd1 = @"D1.sd2 (p2 2)";
@@ -176,12 +176,12 @@
 }
 -(TestSlicingObjectsServerB*) paramTest4:(TestSlicingObjectsServerB**)p1 current:(ICECurrent*)current
 {
-    TestSlicingObjectsServerD4* d4 = ICE_AUTORELEASE([[TestSlicingObjectsServerD4 alloc] init]);
+    TestSlicingObjectsServerD4* d4 = [TestSlicingObjectsServerD4 d4];
     d4.sb = @"D4.sb (1)";
     d4.pb = 0;
-    d4.p1 = ICE_AUTORELEASE([[TestSlicingObjectsServerB alloc] init]);
+    d4.p1 = [TestSlicingObjectsServerB b];
     d4.p1.sb = @"B.sb (1)";
-    d4.p2 = ICE_AUTORELEASE([[TestSlicingObjectsServerB alloc] init]);
+    d4.p2 = [TestSlicingObjectsServerB b];
     d4.p2.sb = @"B.sb (2)";
     *p1 = d4;
     return d4.p2;
@@ -215,7 +215,7 @@
     for(i = 0; i < 10; ++i)
     {
         TestSlicingObjectsServerB* b = [bin objectForKey:[NSNumber numberWithInt:i]];
-        TestSlicingObjectsServerD2* d2 = ICE_AUTORELEASE([[TestSlicingObjectsServerD2 alloc] init]);
+        TestSlicingObjectsServerD2* d2 = [TestSlicingObjectsServerD2 d2];
         d2.sb = b.sb;
         d2.pb = b.pb;
         d2.sd2 = @"D2";
@@ -225,7 +225,7 @@
     TestSlicingObjectsServerMutableBDict* r = [TestSlicingObjectsServerMutableBDict dictionary];
     for(i = 0; i < 10; ++i)
     {
-        TestSlicingObjectsServerD1* d1 = ICE_AUTORELEASE([[TestSlicingObjectsServerD1 alloc] init]);
+        TestSlicingObjectsServerD1* d1 = [TestSlicingObjectsServerD1 d1];
         d1.sb = [NSString stringWithFormat:@"D1.%d",(i * 20)];
         d1.pb = (i == 0 ? nil : [r objectForKey:[NSNumber numberWithInt:((i - 1) * 20)]]);
         d1.sd1 = d1.sb;
@@ -355,22 +355,22 @@
 
 -(void) throwBaseAsBase:(ICECurrent*)current
 {
-    TestSlicingObjectsServerBaseException* be = ICE_AUTORELEASE([[TestSlicingObjectsServerBaseException alloc] init]);
+    TestSlicingObjectsServerBaseException* be = [TestSlicingObjectsServerBaseException baseException];
     be.sbe = @"sbe";
-    be.pb = ICE_AUTORELEASE([[TestSlicingObjectsServerB alloc] init]);
+    be.pb = [TestSlicingObjectsServerB b];
     be.pb.sb = @"sb";
     be.pb.pb = be.pb;
     @throw be;
 }
 -(void) throwDerivedAsBase:(ICECurrent*)current
 {
-    TestSlicingObjectsServerDerivedException* de = ICE_AUTORELEASE([[TestSlicingObjectsServerDerivedException alloc] init]);
+    TestSlicingObjectsServerDerivedException* de = [TestSlicingObjectsServerDerivedException derivedException];
     de.sbe = @"sbe";
-    de.pb = ICE_AUTORELEASE([[TestSlicingObjectsServerB alloc] init]);
+    de.pb = [TestSlicingObjectsServerB b];
     de.pb.sb = @"sb1";
     de.pb.pb = de.pb;
     de.sde = @"sde1";
-    de.pd1 = ICE_AUTORELEASE([[TestSlicingObjectsServerD1 alloc] init]);
+    de.pd1 = [TestSlicingObjectsServerD1 d1];
     de.pd1.sb = @"sb2";
     de.pd1.pb = de.pd1;
     de.pd1.sd1 = @"sd2";
@@ -379,13 +379,13 @@
 }
 -(void) throwDerivedAsDerived:(ICECurrent*)current
 {
-    TestSlicingObjectsServerDerivedException* de = ICE_AUTORELEASE([[TestSlicingObjectsServerDerivedException alloc] init]);
+    TestSlicingObjectsServerDerivedException* de = [TestSlicingObjectsServerDerivedException derivedException];
     de.sbe = @"sbe";
-    de.pb = ICE_AUTORELEASE([[TestSlicingObjectsServerB alloc] init]);
+    de.pb = [TestSlicingObjectsServerB b];
     de.pb.sb = @"sb1";
     de.pb.pb = de.pb;
     de.sde = @"sde1";
-    de.pd1 = ICE_AUTORELEASE([[TestSlicingObjectsServerD1 alloc] init]);
+    de.pd1 = [TestSlicingObjectsServerD1 d1];
     de.pd1.sb = @"sb2";
     de.pd1.pb = de.pd1;
     de.pd1.sd1 = @"sd2";
@@ -394,14 +394,13 @@
 }
 -(void) throwUnknownDerivedAsBase:(ICECurrent*)current
 {
-    TestSlicingObjectsServerD2* d2 = ICE_AUTORELEASE([[TestSlicingObjectsServerD2 alloc] init]);
+    TestSlicingObjectsServerD2* d2 = [TestSlicingObjectsServerD2 d2];
     d2.sb = @"sb d2";
     d2.pb = d2;
     d2.sd2 = @"sd2 d2";
     d2.pd2 = d2;
 
-    TestSlicingObjectsServerUnknownDerivedException* ude = 
-    	ICE_AUTORELEASE([[TestSlicingObjectsServerUnknownDerivedException alloc] init]);
+    TestSlicingObjectsServerUnknownDerivedException* ude = [TestSlicingObjectsServerUnknownDerivedException unknownDerivedException];
     ude.sbe = @"sbe";
     ude.pb = d2;
     ude.sude = @"sude";

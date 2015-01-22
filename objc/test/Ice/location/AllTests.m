@@ -457,7 +457,7 @@ locationAllTests(id<ICECommunicator> communicator, NSString* ref)
 //     test(registry);
 
 //     ICEIdentity* ident = [ICEIdentity identity:[ICEUtil generateUUID] category:@""];
-//     [registry addObject:[adapter add:[[DummyHelloI alloc] init] identity:ident]];
+//     [registry addObject:[adapter add:[DummyHelloI hello] identity:ident]];
 //     [adapter activate];
 
 //     @try

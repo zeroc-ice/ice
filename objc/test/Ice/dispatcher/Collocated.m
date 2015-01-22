@@ -25,7 +25,7 @@ run(id<ICECommunicator> communicator)
     TestDispatcherTestIntfControllerI* testController
         = ICE_AUTORELEASE([[TestDispatcherTestIntfControllerI alloc] initWithAdapter:adapter]);
 
-    ICEObject* object = ICE_AUTORELEASE([[TestDispatcherTestIntfI alloc] init]);
+    ICEObject* object = [TestDispatcherTestIntfI testIntf];
 
     [adapter add:object identity:[communicator stringToIdentity:@"test"]];
     //[adapter activate]; // Don't activate OA to ensure collocation is used.

@@ -20,7 +20,7 @@
 
 +(id) filei:(NSString *)name parent:(DirectoryI *)parent
 {
-    FileI *instance = ICE_AUTORELEASE([[FileI alloc] init]);
+    FileI *instance = [FileI file];
     if(instance == nil)
     {
         return nil;

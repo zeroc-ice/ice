@@ -20,7 +20,7 @@ run(id<ICECommunicator> communicator)
     //  
     id<ICEObjectAdapter> oa = [communicator createObjectAdapterWithEndpoints:@"MyOA" endpoints:@"tcp -h localhost"];
     [oa activate];
-    ICEObject* servant = ICE_AUTORELEASE([[TestDefaultServantMyObjectI alloc] init]);
+    ICEObject* servant = [TestDefaultServantMyObjectI myObject];
 
     //
     // Register default servant with category "foo"

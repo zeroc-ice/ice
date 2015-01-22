@@ -17,7 +17,7 @@ run(id<ICECommunicator> communicator)
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
 
-    ICEObject* object = ICE_AUTORELEASE([[MetricsI alloc] init]);
+    ICEObject* object = [MetricsI metrics];
     [adapter add:object identity:[communicator stringToIdentity:@"metrics"]];
     [adapter activate];
 

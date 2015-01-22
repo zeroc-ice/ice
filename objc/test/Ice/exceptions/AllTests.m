@@ -65,7 +65,7 @@ exceptionsAllTests(id<ICECommunicator> communicator)
     {
         [[communicator getProperties] setProperty:@"TestAdapter1.Endpoints" value:@"default"];
 	id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter1"];
-	ICEObject* obj = ICE_AUTORELEASE([[ExceptionsEmptyI alloc] init]);
+	ICEObject* obj = [ExceptionsEmptyI empty];
 	[adapter add:obj identity:[communicator stringToIdentity:@"x"]];
 	@try
 	{

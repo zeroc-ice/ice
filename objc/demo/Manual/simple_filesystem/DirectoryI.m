@@ -19,7 +19,7 @@
 
 +(id) directoryi:(NSString *)name parent:(DirectoryI *)parent
 {
-    DirectoryI *instance = ICE_AUTORELEASE([[DirectoryI alloc] init]);
+    DirectoryI *instance = [DirectoryI directory];
     if(instance == nil)
     {
         return nil;

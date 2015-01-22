@@ -53,7 +53,7 @@ run(int argc, char** argv, id<ICECommunicator> communicator)
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:endpts];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
 
-    ICEObject* object = ICE_AUTORELEASE([[TestI alloc] init]);
+    ICEObject* object = [TestI testIntf];
     [adapter add:object identity:[communicator stringToIdentity:@"test"]];
     [adapter activate];
     [communicator waitForShutdown];

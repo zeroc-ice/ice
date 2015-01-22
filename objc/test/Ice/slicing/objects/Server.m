@@ -18,7 +18,7 @@ run(id<ICECommunicator> communicator)
     [properties setProperty:@"Ice.Warn.Dispatch" value:@"0"];
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
-    ICEObject* object = ICE_AUTORELEASE([[TestSlicingObjectsServerI alloc] init]);
+    ICEObject* object = [TestSlicingObjectsServerI testIntf];
     [adapter add:object identity:[communicator stringToIdentity:@"Test"]];
     [adapter activate];
 

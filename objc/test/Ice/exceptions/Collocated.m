@@ -16,7 +16,7 @@ run(id<ICECommunicator> communicator)
 {
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
-    ICEObject* object = ICE_AUTORELEASE([[ThrowerI alloc] init]);
+    ICEObject* object = [ThrowerI thrower];
     [adapter add:object identity:[communicator stringToIdentity:@"thrower"]];
 
     TestExceptionsThrowerPrx* exceptionsAllTests(id<ICECommunicator>);
