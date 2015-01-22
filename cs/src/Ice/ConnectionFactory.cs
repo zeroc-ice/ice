@@ -1272,11 +1272,6 @@ namespace IceInternal
             {
                 return false;
             }
-            else if(_acceptor == null)
-            {
-                completedSynchronously = true;
-                return true;
-            }
 
             Debug.Assert(_acceptor != null);
             try
@@ -1303,35 +1298,32 @@ namespace IceInternal
 
         public override bool finishAsync(int unused)
         {
-            if(_acceptor != null)
+            try
             {
-                try
+                _acceptor.finishAccept();
+            }
+            catch(Ice.LocalException ex)
+            {
+                if(Network.noMoreFds(ex.InnerException))
                 {
-                    _acceptor.finishAccept();
-                }
-                catch(Ice.LocalException ex)
-                {
-                    if(Network.noMoreFds(ex.InnerException))
+                    string s = "can't accept more connections:\n" + ex + '\n' + _acceptor.ToString();
+                    try
                     {
-                        string s = "can't accept more connections:\n" + ex + '\n' + _acceptor.ToString();
-                        try
-                        {
-                            _instance.initializationData().logger.error(s);
-                        }
-                        finally
-                        {
-#if !COMPACT && !SILVERLIGHT
-                            System.Environment.FailFast(s);
-#endif
-                        }
-                        return false;
-                    }
-                    else
-                    {
-                        string s = "couldn't accept connection:\n" + ex + '\n' + _acceptor.ToString();
                         _instance.initializationData().logger.error(s);
-                        return false;
                     }
+                    finally
+                    {
+#if !COMPACT && !SILVERLIGHT
+                        System.Environment.FailFast(s);
+#endif
+                    }
+                    return false;
+                }
+                else
+                {
+                    string s = "couldn't accept connection:\n" + ex + '\n' + _acceptor.ToString();
+                    _instance.initializationData().logger.error(s);
+                    return false;
                 }
             }
             return _state < StateClosed;
@@ -1371,11 +1363,6 @@ namespace IceInternal
                         {
                             _connections.Remove(c);
                         }
-                    }
-
-                    if(_acceptor == null)
-                    {
-                        return;
                     }
 
                     //
@@ -1477,11 +1464,7 @@ namespace IceInternal
             {
                 return _transceiver.ToString();
             }
-            else if(_acceptor != null)
-            {
-                return _acceptor.ToString();
-            }
-            return "";
+            return _acceptor.ToString();
         }
 
         //
@@ -1731,7 +1714,6 @@ namespace IceInternal
                 if(_acceptor != null)
                 {
                     _acceptor.close();
-                    _acceptor = null;
                 }
                 throw ex;
             }
@@ -1749,7 +1731,6 @@ namespace IceInternal
             }
 
             _acceptor.close();
-            _acceptor = null;
         }
 
         private void warning(Ice.LocalException ex)

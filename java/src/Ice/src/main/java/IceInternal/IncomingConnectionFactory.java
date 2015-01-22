@@ -218,11 +218,6 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                 }
             }
 
-            if(_acceptor == null)
-            {
-                return;
-            }
-
             //
             // Now accept a new connection.
             //
@@ -308,7 +303,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
         assert(_state == StateClosed);
         setState(StateFinished);
 
-        if(_acceptor != null && close)
+        if(close)
         {
             closeAcceptor();
         }
@@ -322,11 +317,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
         {
             return _transceiver.toString();
         }
-        else if(_acceptor != null)
-        {
-            return _acceptor.toString();
-        }
-        return "";
+        return _acceptor.toString();
     }
 
     @Override
@@ -615,7 +606,6 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             if(_acceptor != null)
             {
                 _acceptor.close();
-                _acceptor = null;
             }
             throw ex;
         }
@@ -633,7 +623,6 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
         }
         _acceptor.close();
-        _acceptor = null;
     }
 
     private void

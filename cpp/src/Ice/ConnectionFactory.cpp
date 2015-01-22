@@ -1216,10 +1216,6 @@ IceInternal::IncomingConnectionFactory::startAsync(SocketOperation)
     {
         return false;
     }
-    else if(!_acceptor)
-    {
-        return true;
-    }
 
     try
     {
@@ -1239,18 +1235,15 @@ IceInternal::IncomingConnectionFactory::startAsync(SocketOperation)
 bool
 IceInternal::IncomingConnectionFactory::finishAsync(SocketOperation)
 {
-    if(_acceptor)
+    try
     {
-        try
-        {
-            _acceptor->finishAccept();
-        }
-        catch(const LocalException& ex)
-        {
-            Error out(_instance->initializationData().logger);
-            out << "couldn't accept connection:\n" << ex << '\n' << _acceptor->toString();
-            return false;
-        }
+        _acceptor->finishAccept();
+    }
+    catch(const LocalException& ex)
+    {
+        Error out(_instance->initializationData().logger);
+        out << "couldn't accept connection:\n" << ex << '\n' << _acceptor->toString();
+        return false;
     }
     return _state < StateClosed;
 }
@@ -1290,11 +1283,6 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
         for(vector<Ice::ConnectionIPtr>::const_iterator p = cons.begin(); p != cons.end(); ++p)
         {
             _connections.erase(*p);
-        }
-
-        if(!_acceptor)
-        {
-            return;
         }
 
         //
@@ -1376,7 +1364,7 @@ IceInternal::IncomingConnectionFactory::finished(ThreadPoolCurrent&, bool close)
     assert(_state == StateClosed);
     setState(StateFinished);
 
-    if(_acceptor && close)
+    if(close)
     {
         closeAcceptor();
     }
@@ -1391,11 +1379,7 @@ IceInternal::IncomingConnectionFactory::toString() const
     {
         return _transceiver->toString();
     }
-    else if(_acceptor)
-    {
-        return _acceptor->toString();
-    }
-    return string();
+    return _acceptor->toString();
 }
 
 NativeInfoPtr
@@ -1640,7 +1624,6 @@ IceInternal::IncomingConnectionFactory::createAcceptor()
         if(_acceptor)
         {
             _acceptor->close();
-            _acceptor = 0;
         }
         throw;
     }
@@ -1658,6 +1641,5 @@ IceInternal::IncomingConnectionFactory::closeAcceptor()
     }
 
     _acceptor->close();
-    _acceptor = 0;
 }
 
