@@ -64,10 +64,15 @@ localExceptionToString(const Ice::LocalException& ex)
     std::ostringstream os;
     os << ex;
     std::string str = os.str();
-    const std::string prefix = "../../../cpp/src/";
-    if(str.find(prefix) == 0)
+    // Remove the lengthy path part of the C++ filename.
+    std::string::size_type pos = str.find(".cpp");
+    if(pos != std::string::npos)
     {
-        str = str.substr(prefix.size());
+        pos = str.rfind('/', pos);
+        if(pos != std::string::npos)
+        {
+            str = str.substr(pos + 1);
+        }
     }
     return [NSString stringWithUTF8String:str.c_str()];
 }

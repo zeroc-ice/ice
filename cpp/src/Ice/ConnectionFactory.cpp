@@ -1591,8 +1591,6 @@ IceInternal::IncomingConnectionFactory::setState(State state)
 void
 IceInternal::IncomingConnectionFactory::createAcceptor()
 {
-    assert(!_acceptor);
-
     try
     {
         _acceptor = _endpoint->acceptor(_adapter->getName());
