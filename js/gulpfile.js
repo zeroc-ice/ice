@@ -225,6 +225,12 @@ gulp.task("common:slice", [],
             .pipe(gulp.dest("test/Common"));
     });
 
+gulp.task("common:slice:clean", [],
+    function()
+    {
+        del(["test/Common/Controller.js"]);
+    });
+
 gulp.task("common:slice:watch", ["common:slice"],
     function()
     {
@@ -404,7 +410,8 @@ Object.keys(subprojects).forEach(
                               ["common:css:watch", "common:js:watch"].concat(Object.keys(minDemos).map(minDemoWatchTaskName))));
         
         gulp.task(group + ":clean", subprojects[group].map(groupCleanTask).concat(
-            group == "test" ? subprojects.test.map(testHtmlCleanTask) : ["demo_Ice_minimal:min:clean", "demo_ChatDemo:min:clean"]));
+            group == "test" ? subprojects.test.map(testHtmlCleanTask).concat(["common:slice:clean"]) : 
+                              ["demo_Ice_minimal:min:clean", "demo_ChatDemo:min:clean"]));
     });
 
 function demoTaskName(name) { return "demo_" + name.replace("/", "_"); }
@@ -460,8 +467,8 @@ gulp.task("test:run-with-browser", ["watch"].concat(useBinDist ? ["test", "demo"
         browserSync();
         HttpServer();
         
-        var p  = require("child_process").spawn("python", ["test/Common/run.py"], {stdio: "inherit"});
-        function exit() { p.exit(); }
+        var p  = require("child_process").spawn("python", ["../scripts/TestController.py"], {stdio: "inherit"});
+        function exit() { p.kill(); }
         process.on("SIGINT", exit);
         process.on("exit", exit);
         return gulp.src("./index.html").pipe(open("", {url: "http://127.0.0.1:8080/index.html"}));
@@ -471,7 +478,7 @@ gulp.task("test:run-with-node", (useBinDist ? ["test"] : ["build"]),
     function()
     {
         var p  = require("child_process").spawn("python", ["allTests.py", "--all"], {stdio: "inherit"});
-        function exit() { p.exit(); }
+        function exit() { p.kill(); }
         process.on("SIGINT", exit);
         process.on("exit", exit);
     });

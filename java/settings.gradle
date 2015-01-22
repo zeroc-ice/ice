@@ -35,6 +35,8 @@ project(':ant-ice').projectDir = new File('src/ant-ice')
 include ':test'
 include ':testPlugins'
 project(':testPlugins').projectDir = new File('test/plugins')
+include ':testController'
+project(':testController').projectDir = new File('test/controller')
 
 // Map of dir->subdir for each of the demos.
 def demos = [

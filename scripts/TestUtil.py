@@ -1458,6 +1458,7 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
         server = getCommandLine(server, serverCfg, additionalServerOptions)
         serverProc = spawnServer(server, env = serverenv, lang=serverCfg.lang, mx=serverCfg.mx)
         print("ok")
+        sys.stdout.flush()
 
         if not serverOnly:
             if clientLang == lang:
@@ -1479,6 +1480,9 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
             appVerifierAfterTestEnd([clientExe, serverExe])
 
 def collocatedTest(additionalOptions = ""):
+    if serverOnly:
+        print("** skipping collocated test")
+        return
     lang = getDefaultMapping()
     if len(cross) > 0 and cross[0] != lang:
         print("** skipping cross test")
@@ -1589,6 +1593,7 @@ def clientEchoTest(additionalServerOptions = "", additionalClientOptions = "",
         server = getCommandLine(server, serverCfg, additionalServerOptions)
         serverProc = spawnServer(server, env = serverenv, lang=serverCfg.lang, mx=serverCfg.mx)
         print("ok")
+        sys.stdout.flush()
 
         if not serverOnly:
             if clientLang == lang:

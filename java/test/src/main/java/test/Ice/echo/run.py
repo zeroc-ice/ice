@@ -25,5 +25,6 @@ sys.stdout.write("starting server... ")
 sys.stdout.flush()
 p = TestUtil.startServer("test.Ice.echo.Server")
 print("ok")
+sys.stdout.flush()
 
 p.waitTestSuccess()

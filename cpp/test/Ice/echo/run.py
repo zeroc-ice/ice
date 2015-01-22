@@ -25,5 +25,5 @@ sys.stdout.flush()
 server = server = os.path.join(os.getcwd(), "server")
 p = TestUtil.startServer(server)
 print("ok")
-
+sys.stdout.flush()
 p.waitTestSuccess()
