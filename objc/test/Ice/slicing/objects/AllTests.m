@@ -1522,13 +1522,13 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
                 ss2d1.pd1 = ss1d3;
                 ss2d3.pd3 = ss1d1;
 
-                TestSlicingObjectsClientSS1* ss1 = [TestSlicingObjectsClientSS1 sS1];
+                TestSlicingObjectsClientSS1* ss1 = [TestSlicingObjectsClientSS1 ss1];
                 ss1.s = [TestSlicingObjectsClientMutableBSeq arrayWithCapacity:0];
                 [(TestSlicingObjectsClientMutableBSeq*)ss1.s addObject:ss1b];
                 [(TestSlicingObjectsClientMutableBSeq*)ss1.s addObject:ss1d1];
                 [(TestSlicingObjectsClientMutableBSeq*)ss1.s addObject:ss1d3];
 
-                TestSlicingObjectsClientSS2* ss2 = [TestSlicingObjectsClientSS2 sS2];
+                TestSlicingObjectsClientSS2* ss2 = [TestSlicingObjectsClientSS2 ss2];
                 ss2.s = [TestSlicingObjectsClientMutableBSeq arrayWithCapacity:0];
                 [(TestSlicingObjectsClientMutableBSeq*)ss2.s addObject:ss2b];
                 [(TestSlicingObjectsClientMutableBSeq*)ss2.s addObject:ss2d1];
@@ -1611,13 +1611,13 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
                 ss2d1.pd1 = ss1d3;
                 ss2d3.pd3 = ss1d1;
 
-                TestSlicingObjectsClientSS1* ss1 = [TestSlicingObjectsClientSS1 sS1];
+                TestSlicingObjectsClientSS1* ss1 = [TestSlicingObjectsClientSS1 ss1];
                 ss1.s = [TestSlicingObjectsClientMutableBSeq array];
                 [(NSMutableArray*)ss1.s addObject:ss1b];
                 [(NSMutableArray*)ss1.s addObject:ss1d1];
                 [(NSMutableArray*)ss1.s addObject:ss1d3];
 
-                TestSlicingObjectsClientSS2* ss2 = [TestSlicingObjectsClientSS2 sS2];
+                TestSlicingObjectsClientSS2* ss2 = [TestSlicingObjectsClientSS2 ss2];
                 ss2.s = [TestSlicingObjectsClientMutableBSeq array];
                 [(NSMutableArray*)ss2.s addObject:ss2b];
                 [(NSMutableArray*)ss2.s addObject:ss2d1];

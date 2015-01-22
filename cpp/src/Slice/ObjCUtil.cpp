@@ -231,9 +231,9 @@ Slice::ObjCGenerator::getFactoryMethod(const ContainedPtr& p, bool deprecated)
     }
     else
     {
-        for(string::iterator p = name.begin(); p != name.end(); ++p)
+        for(string::iterator p = name.begin(); p != name.end() && isalpha(*p); ++p)
         {
-            if(p != name.end() - 1 && !isupper(*(p + 1)))
+            if(p != name.end() - 1 && isalpha(*(p + 1)) && !isupper(*(p + 1)))
             {
                 break;
             }
