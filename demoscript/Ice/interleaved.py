@@ -9,6 +9,7 @@
 # **********************************************************************
 
 import sys
+from demoscript import Util
 
 def runseries(client):
     print("testing bytes...")
@@ -17,19 +18,20 @@ def runseries(client):
     client.expect('==> ', timeout=2000)
     print("echo: %s " % (client.before))
 
-    print("testing strings...")
-    client.sendline('2')
-    client.expect('==> ', timeout=240)
-    client.sendline('e')
-    client.expect('==> ', timeout=2000)
-    print("echo: %s " % (client.before))
+    if not Util.fast:
+    	print("testing strings...")
+    	client.sendline('2')
+    	client.expect('==> ', timeout=240)
+    	client.sendline('e')
+    	client.expect('==> ', timeout=2000)
+    	print("echo: %s " % (client.before))
 
-    print("testing structs with string...")
-    client.sendline('3')
-    client.expect('==> ', timeout=240)
-    client.sendline('e')
-    client.expect('==> ', timeout=2000)
-    print("echo: %s " % (client.before))
+    	print("testing structs with string...")
+    	client.sendline('3')
+    	client.expect('==> ', timeout=240)
+    	client.sendline('e')
+    	client.expect('==> ', timeout=2000)
+    	print("echo: %s " % (client.before))
 
     print("testing structs with two ints and double...")
     client.sendline('4')
