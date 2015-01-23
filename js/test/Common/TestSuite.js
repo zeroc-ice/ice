@@ -73,7 +73,7 @@ $(document).ready(
                 {
                     str = "controller:wss -h " + defaultHost + " -p 12008";
                 }
-                var controller = test.common.ControllerPrx.uncheckedCast(communicator.stringToProxy(str));
+                var controller = test.Common.ControllerPrx.uncheckedCast(communicator.stringToProxy(str));
 
                 var p;
                 var server;
@@ -84,7 +84,7 @@ $(document).ready(
                     if(typeof(__runEchoServer__) !== "undefined")
                     {
                         srv = "Ice/echo";
-                        if(typeof(__runEchoServerOptions__) === "Array")
+                        if(typeof(__runEchoServerOptions__) !== "undefined")
                         {
                             options = options.concat(__runEchoServerOptions__);
                         }
@@ -101,7 +101,7 @@ $(document).ready(
                             var ref = proxy.ice_getIdentity().name + ":" + protocol + " -h " + defaultHost + " -p " + 
                                 (protocol == "ws" ? "12009" : "12008");
                             out.writeLine("ok");
-                            server = test.common.ServerPrx.uncheckedCast(communicator.stringToProxy(ref));
+                            server = test.Common.ServerPrx.uncheckedCast(communicator.stringToProxy(ref));
                                 
                             var testCase = TestCases[current];
                             if(testCase.configurations === undefined)

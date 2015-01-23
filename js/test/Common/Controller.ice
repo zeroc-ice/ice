@@ -10,7 +10,7 @@
 module test
 {
 
-module common
+module Common
 {
 
 interface Server

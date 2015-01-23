@@ -7,11 +7,11 @@
 //
 // **********************************************************************
 
-package test.common;
+package test.Common;
 
-import test.common._ControllerDisp;
-import test.common._ServerDisp;
-import test.common.ServerPrx;
+import test.Common._ControllerDisp;
+import test.Common._ServerDisp;
+import test.Common.ServerPrx;
 
 import java.io.File;
 import java.io.BufferedReader;
@@ -45,9 +45,9 @@ public class ControllerServer extends Ice.Application
                         String line = null;
                         while((line = reader.readLine()) != null)
                         {
-                            if(line.matches(Pattern.quote("starting server... ok")) ||
-                               line.matches(Pattern.quote("starting serveramd... ok")) ||
-                               line.matches("starting test.*" + Pattern.quote("Server... ok")))
+                            if(line.matches(Pattern.quote("starting server...") + ".*ok") ||
+                               line.matches(Pattern.quote("starting serveramd...") + ".*ok") ||
+                               line.matches("starting test.*" + Pattern.quote("Server...") + ".*ok"))
                             {
                                 synchronized(ServerI.this)
                                 {
@@ -155,7 +155,7 @@ public class ControllerServer extends Ice.Application
             }
             
             String script = name.equals("Ice/echo") ?
-                (lang.equals("java") ? "java/test/src/main/java/" : "cpp/") + "test/Ice/echo/run.py" :
+                lang + (lang.equals("java") ? "/test/src/main/java/" : "/") + "test/Ice/echo/run.py" :
                 "allTests.py";
                 
             java.util.List<String> args = new java.util.ArrayList<String>();
