@@ -7,11 +7,11 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..
+top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= Ice IceDiscovery Database Manual
+SUBDIRS		= hello
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

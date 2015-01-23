@@ -26,6 +26,7 @@ from demoscript import Util
 demos = [
     "Ice/hello",
     "Ice/minimal",
+    "IceDiscovery/hello",
     "Manual/simple_filesystem",
     "Manual/printer"]
 
