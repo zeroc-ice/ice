@@ -60,7 +60,7 @@ ContextClient::run(int argc, char* argv[])
 
     menu();
 
-    char c;
+    char c = 'x';
     do
     {
         try

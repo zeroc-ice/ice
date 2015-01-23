@@ -75,7 +75,7 @@ PropsClient::run(int argc, char* argv[])
     show(admin);
     menu();
 
-    char c;
+    char c = 'x';
     do
     {
         try

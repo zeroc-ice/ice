@@ -64,7 +64,7 @@ Demo::Client::run(int argc, char* argv[])
 
     string greeting = "Bonne journ\351e";
 
-    char c;
+    char c = 'x';
     do
     {
         try

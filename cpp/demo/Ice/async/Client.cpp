@@ -78,7 +78,7 @@ AsyncClient::run(int argc, char* argv[])
 
     CallbackPtr cb = new Callback();
 
-    char c;
+    char c = 'x';
     do
     {
         try

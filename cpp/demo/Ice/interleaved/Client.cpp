@@ -144,7 +144,7 @@ ThroughputClient::run(int argc, char* argv[])
     Callback_Throughput_echoFixedSeqPtr fixedSeqCB = newCallback_Throughput_echoFixedSeq(
         cb, &Callback::responseFS, &Callback::exception);
 
-    char c;
+    char c = 'x';
     do
     {
         try
@@ -236,7 +236,7 @@ ThroughputClient::run(int argc, char* argv[])
                 cout << " sequences of size " << seqSize;
 
                 cout << "..." << endl;
-                
+
                 list<Ice::AsyncResultPtr> results;
                 for(int i = 0; i < repetitions; ++i)
                 {

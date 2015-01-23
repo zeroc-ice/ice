@@ -20,7 +20,7 @@ class CallbackClient : public Glacier2::Application
 public:
 
     CallbackClient();
-    
+
     virtual int runWithSession(int, char*[]);
     virtual Glacier2::SessionPrx createSession();
 };
@@ -74,7 +74,7 @@ CallbackClient::createSession()
         string pw;
         cout << "password: " << flush;
         cin >> pw;
-    
+
         try
         {
             session = router()->createSession(id, pw);
@@ -100,7 +100,7 @@ CallbackClient::runWithSession(int argc, char*[])
         cerr << appName() << ": too many arguments" << endl;
         return EXIT_FAILURE;
     }
-    
+
     Ice::Identity callbackReceiverIdent = createCallbackIdentity("callbackReceiver");
 
     Ice::Identity callbackReceiverFakeIdent;
@@ -111,10 +111,10 @@ CallbackClient::runWithSession(int argc, char*[])
     CallbackPrx twoway = CallbackPrx::checkedCast(base);
     CallbackPrx oneway = CallbackPrx::uncheckedCast(twoway->ice_oneway());
     CallbackPrx batchOneway = CallbackPrx::uncheckedCast(twoway->ice_batchOneway());
-    
+
     objectAdapter()->add(new CallbackReceiverI, callbackReceiverIdent);
-    
-    // Should never be called for the fake identity. 
+
+    // Should never be called for the fake identity.
     objectAdapter()->add(new CallbackReceiverI, callbackReceiverFakeIdent);
 
     CallbackReceiverPrx twowayR = CallbackReceiverPrx::uncheckedCast(
@@ -126,7 +126,7 @@ CallbackClient::runWithSession(int argc, char*[])
 
     menu();
 
-    char c;
+    char c = 'x';
     do
     {
         cout << "==> ";
@@ -192,7 +192,7 @@ CallbackClient::runWithSession(int argc, char*[])
                 twowayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_identity(callbackReceiverIdent));
                 onewayR = CallbackReceiverPrx::uncheckedCast(onewayR->ice_identity(callbackReceiverIdent));
             }
-            
+
             cout << "callback receiver identity: " << communicator()->identityToString(twowayR->ice_getIdentity())
                  << endl;
         }
@@ -220,6 +220,6 @@ CallbackClient::runWithSession(int argc, char*[])
     }
     while(cin.good() && c != 'x');
 
-    
+
     return EXIT_SUCCESS;
 }

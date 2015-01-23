@@ -73,7 +73,7 @@ InvokeClient::run(int argc, char*[])
 
     menu();
 
-    char ch;
+    char ch = 'x';
     do
     {
         try

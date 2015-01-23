@@ -251,7 +251,7 @@ def configurePaths():
     binDir = os.path.join(getIceDir("cpp"), "bin")
 
     # Always add the bin directory to the PATH, it contains executable
-    # which might not be in the compiler/arch bin sub-directory. 
+    # which might not be in the compiler/arch bin sub-directory.
     if iceHome != "/usr":
         addenv("PATH", binDir)
 
@@ -275,7 +275,7 @@ def configurePaths():
             else:
                 binDir = os.path.join(binDir, "amd64")
 
-    elif thirdPartyHome: 
+    elif thirdPartyHome:
         if isWin32():
             addenv("PATH", os.path.join(thirdPartyHome, "bin\\x64" if x64 else "bin"))
             if getCppCompiler() == "VC110":
@@ -411,7 +411,7 @@ def isSles():
 
 def isLinux64():
     if not isLinux():
-        False
+        return False
     p = subprocess.Popen("uname -m", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
     if(p.wait() != 0):
         print("uname command failed:\n" + p.stdout.read().strip())
@@ -542,7 +542,7 @@ def run(demos, protobufDemos = [], root = False):
     try:
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:", [
             "filter=", "rfilter=", "start=", "loop", "fast", "trace=", "debug", "host=", "mode=",
-            "continue", "ice-home=", "x64", "x86", "preferIPv4", "env", "noenv", "script", "protobuf", 
+            "continue", "ice-home=", "x64", "x86", "preferIPv4", "env", "noenv", "script", "protobuf",
             "service-dir=", "c++11"])
     except getopt.GetoptError:
         usage()
@@ -674,7 +674,7 @@ def getIceBox(mapping = "cpp"):
             if not x64:
                 iceBox += "32"
             if cpp11:
-                iceBox += "++11"        
+                iceBox += "++11"
         return iceBox
     elif mapping == "cs":
         if isMono():
@@ -721,8 +721,8 @@ def spawn(command, cwd = None, mapping = None):
         args = '%s %s' % (args, defaultHost)
 
     # magic
-    knownCommands = [ "icegridnode", "icegridnoded", "icegridregistry", "icegridregistryd", "icebox", "iceboxd", 
-                      "icebox32", "icebox++11", "icebox32++11", "icegridadmin", "icestormadmin", "iceboxadmin", 
+    knownCommands = [ "icegridnode", "icegridnoded", "icegridregistry", "icegridregistryd", "icebox", "iceboxd",
+                      "icebox32", "icebox++11", "icebox32++11", "icegridadmin", "icestormadmin", "iceboxadmin",
                       "transformdb", "glacier2router" ]
     if mapping == None:
         if desc in knownCommands:
@@ -789,7 +789,7 @@ def getJavaLibraryPath():
         if iceHome:
             return "-Djava.library.path=%s " % os.path.join(iceHome, "lib")
         elif thirdPartyHome:
-            return "-Djava.library.path=%s " % os.path.join(thirdPartyHome, "lib")            
+            return "-Djava.library.path=%s " % os.path.join(thirdPartyHome, "lib")
     elif isRhel() or isSles():
         return "-Djava.library.path=%s " % ("/usr/lib64" if x64 else "/usr/lib")
     elif isUbuntu():
