@@ -10,12 +10,20 @@
 #include <Slice/Util.h>
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/StringUtil.h>
+#include <climits>
+
+#ifndef _MSC_VER
+#  include <unistd.h> // For readlink()
+#endif
 
 using namespace std;
 using namespace Slice;
 
+namespace
+{
+
 string
-Slice::normalizePath(const string& path)
+normalizePath(const string& path)
 {
     string result = path;
 
@@ -71,9 +79,23 @@ Slice::normalizePath(const string& path)
     return result;
 }
 
+}
+
 string
 Slice::fullPath(const string& path)
 {
+    //
+    // This function returns the canonicalized absolute pathname of
+    // the given path.
+    //
+    // It is used for instance used to normalize the paths provided
+    // with -I options. Like mcpp, we need to follow the symbolic
+    // links to ensure changeIncludes works correctly. For example, it
+    // must be possible to specify -I/opt/Ice-3.6 where Ice-3.6 is
+    // symbolic link to Ice-3.6.0 (if we don't do the same as mcpp,
+    // the generated headers will contain a full path...)
+    //
+
     string result = path;
     if(!IceUtilInternal::isAbsolutePath(result))
     {
@@ -84,24 +106,56 @@ Slice::fullPath(const string& path)
         }
     }
 
-    return normalizePath(result);
+    result = normalizePath(result);
+
+#ifdef _WIN32
+    return result;
+#else
+
+    string::size_type beg = 0;
+    string::size_type next;
+    do
+    {
+        string subpath;
+        next = result.find('/', beg + 1);
+        if(next == string::npos)
+        {
+            subpath = result;
+        }
+        else
+        {
+            subpath = result.substr(0, next);
+        }
+
+        char buf[PATH_MAX + 1];
+        int len = static_cast<int>(readlink(subpath.c_str(), buf, sizeof(buf)));
+        if(len > 0)
+        {
+            buf[len] = '\0';
+            string linkpath = buf;
+            if(!IceUtilInternal::isAbsolutePath(linkpath)) // Path relative to the location of the link
+            {
+                string::size_type pos = subpath.rfind('/');
+                assert(pos != string::npos);
+                linkpath = subpath.substr(0, pos + 1) + linkpath;
+            }
+            result = normalizePath(linkpath) + (next != string::npos ? result.substr(next) : string());
+            beg = 0;
+            next = 0;
+        }
+        else
+        {
+            beg = next;
+        }
+    }
+    while(next != string::npos);
+    return result;
+#endif
 }
 
 string
-Slice::changeInclude(const string& orig, const vector<string>& includePaths)
+Slice::changeInclude(const string& file, const vector<string>& includePaths)
 {
-    //
-    // MCPP does not follow symlinks included files so we only
-    // call fullPath on the base directory and not the file itself.
-    //
-    string file = orig;
-    string::size_type pos;
-    if((pos = orig.rfind('/')) != string::npos)
-    {
-        string base = orig.substr(0, pos);
-        file = fullPath(base) + orig.substr(pos);
-    }
-
     //
     // Compare each include path against the included file and select
     // the path that produces the shortest relative filename.
@@ -119,15 +173,9 @@ Slice::changeInclude(const string& orig, const vector<string>& includePaths)
         }
     }
 
-    if(result == file)
-    {
-        //
-        // Don't return a full path if we couldn't reduce the given path, instead
-        // return the normalized given path.
-        //
-        result = normalizePath(orig);
-    }
+    result = normalizePath(result); // Normalize the result.
 
+    string::size_type pos;
     if((pos = result.rfind('.')) != string::npos)
     {
         result.erase(pos);
