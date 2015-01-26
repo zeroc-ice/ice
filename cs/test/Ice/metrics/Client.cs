@@ -45,6 +45,7 @@ public class Client
             initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
             initData.properties.setProperty("Ice.Warn.Connections", "0");
             initData.properties.setProperty("Ice.MessageSizeMax", "50000");
+            initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
 #if COMPACT
             //
             // When using Ice for .NET Compact Framework, we need to specify

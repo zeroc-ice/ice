@@ -31,6 +31,7 @@ public class Client extends test.Util.Application
         Ice.InitializationData initData = createInitializationData() ;
         initData.properties = Ice.Util.createProperties(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.IceBox.configuration");
+        initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
         return initData;
     }
 

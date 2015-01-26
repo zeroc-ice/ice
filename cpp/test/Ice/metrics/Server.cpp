@@ -52,6 +52,7 @@ main(int argc, char* argv[])
         initData.properties->setProperty("Ice.Warn.Connections", "0");
         initData.properties->setProperty("Ice.Warn.Dispatch", "0");
         initData.properties->setProperty("Ice.MessageSizeMax", "50000");
+        initData.properties->setProperty("Ice.Default.Host", "127.0.0.1");
         communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }

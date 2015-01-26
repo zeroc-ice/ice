@@ -21,11 +21,11 @@ using System.Reflection;
 public class Client
 {
     private static int run(string[] args, Ice.Communicator communicator)
-    { 
+    {
         AllTests.allTests(communicator);
-        
+
         //
-        // Shutdown the IceBox server. 
+        // Shutdown the IceBox server.
         //
         Ice.ProcessPrxHelper.uncheckedCast(
             communicator.stringToProxy("DemoIceBox/admin -f Process:default -p 9996")).shutdown();
@@ -39,7 +39,10 @@ public class Client
 
         try
         {
-            communicator = Ice.Util.initialize(ref args);
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = Ice.Util.createProperties(ref args);
+            initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
+            communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
         }
         catch(System.Exception ex)

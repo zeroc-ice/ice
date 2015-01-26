@@ -24,7 +24,7 @@ public class Collocated
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new MetricsI(), communicator.stringToIdentity("metrics"));
         //adapter.activate(); // Don't activate OA to ensure collocation is used.
-        
+
         communicator.getProperties().setProperty("ControllerAdapter.Endpoints", "default -p 12011");
         Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
         controllerAdapter.add(new ControllerI(adapter), communicator.stringToIdentity("controller"));
@@ -49,13 +49,14 @@ public class Collocated
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties(ref args);
             initData.properties.setProperty("Ice.Package.Test", "test.Ice.metrics");
-            initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010"); 
+            initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
             initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
             initData.properties.setProperty("Ice.Admin.InstanceName", "client");
             initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
             initData.properties.setProperty("Ice.Warn.Connections", "0");
             initData.properties.setProperty("Ice.Warn.Dispatch", "0");
             initData.properties.setProperty("Ice.MessageSizeMax", "50000");
+            initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
 #if COMPACT
             //
             // When using Ice for .NET Compact Framework, we need to specify

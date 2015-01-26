@@ -18,7 +18,7 @@ public class Server extends test.Util.Application
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new MetricsI(), communicator.stringToIdentity("metrics"));
         adapter.activate();
-        
+
         communicator.getProperties().setProperty("ControllerAdapter.Endpoints", "default -p 12011");
         Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
         controllerAdapter.add(new ControllerI(adapter), communicator.stringToIdentity("controller"));
@@ -39,6 +39,7 @@ public class Server extends test.Util.Application
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
         initData.properties.setProperty("Ice.MessageSizeMax", "50000");
+        initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
         return initData;
     }
 

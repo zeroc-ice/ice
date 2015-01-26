@@ -45,6 +45,7 @@ main(int argc, char* argv[])
             [initData.properties setProperty:@"IceMX.Metrics.Debug.GroupBy" value:@"id"];
             [initData.properties setProperty:@"IceMX.Metrics.Parent.GroupBy" value:@"parent"];
             [initData.properties setProperty:@"IceMX.Metrics.All.GroupBy" value:@"none"];
+            [initData.properties setProperty:@"Ice.Default.Host" value:@"127.0.0.1"];
 #if TARGET_OS_IPHONE
             initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:
                                       @"TestMetrics", @"::Test",

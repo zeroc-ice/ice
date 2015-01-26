@@ -9,11 +9,12 @@
 
 package test.IceBox.admin;
 
-public class Client
+public class Client extends test.Util.Application
 {
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    @Override
+    public int run(String[] args)
     {
+        Ice.Communicator communicator = communicator();
         AllTests.allTests(communicator);
 
         //
@@ -24,37 +25,20 @@ public class Client
         return 0;
     }
 
-    public static void
-    main(String[] args)
+    @Override
+    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
+        Ice.InitializationData initData = createInitializationData() ;
+        initData.properties = Ice.Util.createProperties(argsH);
+        initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
+        return initData;
+    }
 
-        try
-        {
-            communicator = Ice.Util.initialize(args);
-            status = run(args, communicator);
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch (Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
-
+    public static void main(String[] args)
+    {
+        Client app = new Client();
+        int result = app.main("Client", args);
         System.gc();
-        System.exit(status);
+        System.exit(result);
     }
 }

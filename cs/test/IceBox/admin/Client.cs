@@ -42,7 +42,10 @@ public class Client
 
         try
         {
-            communicator = Ice.Util.initialize(ref args);
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = Ice.Util.createProperties(ref args);
+            initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
+            communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
         }
         catch(System.Exception ex)
@@ -66,4 +69,5 @@ public class Client
 
         return status;
     }
+
 }

@@ -152,9 +152,11 @@ infoAllTests(id<ICECommunicator> communicator)
         test([info.adapterName isEqualToString:@""]);
         test(info.localPort > 0);
         test(info.remotePort == 12010);
-        test([info.remoteAddress isEqualToString:defaultHost]);
-        test([info.localAddress isEqualToString:defaultHost]);
-
+        if([defaultHost isEqualToString:@"127.0.0.1"])
+        {
+            test([info.remoteAddress isEqualToString:defaultHost]);
+            test([info.localAddress isEqualToString:defaultHost]);
+        }
 
         ICEContext* ctx = [testIntf getConnectionInfoAsContext];
         test([[ctx objectForKey:@"incoming"] isEqualToString:@"true"]);
@@ -170,8 +172,11 @@ infoAllTests(id<ICECommunicator> communicator)
         test([info.adapterName isEqualToString:@""]);
         test(info.localPort > 0);
         test(info.remotePort == 12010);
-        test([info.remoteAddress isEqualToString:defaultHost]);
-        test([info.localAddress isEqualToString:defaultHost]);
+        if([defaultHost isEqualToString:@"127.0.0.1"])
+        {
+            test([info.remoteAddress isEqualToString:defaultHost]);
+            test([info.localAddress isEqualToString:defaultHost]);
+        }
     }
     tprintf("ok\n");
 
