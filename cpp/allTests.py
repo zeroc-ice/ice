@@ -36,6 +36,7 @@ tests = [
     ("Slice/keyword", ["once"]),
     ("Slice/structure", ["once"]),
     ("Slice/macros", ["once"]),
+    ("Slice/headers", ["once", "nowin32"]),
     ("Ice/properties", ["once", "nomingw"]),
     ("Ice/proxy", ["core"]),
     ("Ice/operations", ["core"]),
