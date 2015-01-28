@@ -28,7 +28,7 @@
       <parameter name="publish-replica-group"/>
       <parameter name="topic-manager-replica-group"/>
 
-      <service name="${instance-name}${node-id}" entry="IceStormService,36b:createIceStorm">
+      <service name="${instance-name}${node-id}" entry="IceStormService,36:createIceStorm">
 
         <dbenv name="${service}"/>
 

@@ -9,7 +9,7 @@ Ice.Admin.InstanceName=icebox
 # The IceStorm service. The service is configured using a separate
 # configuration file (see config.service).
 #
-IceBox.Service.IceStorm=IceStormService,36b:createIceStorm --Ice.Config=config.service
+IceBox.Service.IceStorm=IceStormService,36:createIceStorm --Ice.Config=config.service
 
 #
 # Warn about connection exceptions

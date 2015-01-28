@@ -50,7 +50,7 @@ def intVersion(version):
             patch = 50 + int(gr3[1:])
         else:
             patch = 51
-    return ("%2d%02d%02d" % (major, minor, patch)).strip()        
+    return ("%2d%02d%02d" % (major, minor, patch)).strip()
 
 def betaVersion(version):
     r = re.search(vpatParse, version)
@@ -87,7 +87,7 @@ def shortVersion(version):
 
 def patchVersion(version):
     r = re.search(vpatParse, version)
-    
+
     gr3 = r.group(3)
     patch = -1
     if gr3.startswith("."):
@@ -99,6 +99,16 @@ def patchVersion(version):
             patch = 51
 
     return ("%d" % (patch)).strip()
+
+def jsonVersion(version):
+    r = re.search(vpatParse, version)
+    major = int(r.group(1))
+    minor = int(r.group(2))
+    v = ("%d.%d" % (major, minor)).strip()
+    if r.group(3).startswith("b"):
+        return v + "0-beta.0"
+    else:
+        return ("%s%s" % (v, r.group(3))).strip()
 
 #
 # Find files matching a pattern.

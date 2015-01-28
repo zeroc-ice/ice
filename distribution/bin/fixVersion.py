@@ -86,6 +86,12 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "common
 FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "windows", "docs", "thirdparty", "README.txt"),
                             [("Ice " + FixUtil.vpatMatch, version)])
 
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "common", "gradle.properties"),
+                            [("iceVersion[\t\s]*= " + FixUtil.vpatMatch, version)])
+
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "common", "gradle.properties.android"),
+                            [("iceVersion[\t\s]*= " + FixUtil.vpatMatch, version)])
+
 for f in FixUtil.find("*.py"):
     FixUtil.fileMatchAndReplace(f, [("iceVersion[\t\s]*= '" + FixUtil.vpatMatch, version)], False)
 
@@ -190,10 +196,14 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "java", "bin", "icegridgui.deb
 #
 icejs_home = os.path.join(ice_dir, "js")
 
-FixUtil.fileMatchAndReplace(os.path.join(icejs_home, "config", "build.js"),
-                            [("Ice-" + FixUtil.vpatMatch, version)])
 FixUtil.fileMatchAndReplace(os.path.join(icejs_home, "bin", "HttpServer.js"),
                             [("Ice-" + FixUtil.vpatMatch, version)])
+
+FixUtil.fileMatchAndReplace(os.path.join(icejs_home, "package.json"),
+                            [("\"version\": \"([^\"]+)\"", FixUtil.jsonVersion(version))])
+
+FixUtil.fileMatchAndReplace(os.path.join(icejs_home, "bower.json"),
+                            [("\"version\": \"([^\"]+)\"", FixUtil.jsonVersion(version))])
 
 #
 # C# specific files

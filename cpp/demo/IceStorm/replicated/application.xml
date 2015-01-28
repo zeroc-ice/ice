@@ -32,7 +32,7 @@
            <properties refid="mx"/>
          </properties>
       
-         <service name="IceStorm" entry="IceStormService,36b:createIceStorm">
+         <service name="IceStorm" entry="IceStormService,36:createIceStorm">
 
            <dbenv name="${service}"/>
 

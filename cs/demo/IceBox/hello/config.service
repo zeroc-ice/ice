@@ -30,7 +30,7 @@ Ice.Warn.Connections=1
 #
 # SSL plug-in configuration
 #
-Ice.Plugin.IceSSL="IceSSL,Version=3.6.51.0":IceSSL.PluginFactory
+Ice.Plugin.IceSSL="IceSSL,Version=3.6.0.0":IceSSL.PluginFactory
 IceSSL.DefaultDir=../../../../certs
 IceSSL.CertAuthFile=cacert.pem
 IceSSL.CertFile=s_rsa1024.pfx

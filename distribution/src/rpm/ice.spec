@@ -86,7 +86,7 @@ ExcludeArch: %{ix86}
 %endif
 
 Name: ice-all-runtime
-Version: 3.6b
+Version: 3.6.0
 Summary: Ice meta package that includes all run-time components and services.
 Release: 1%{?dist}
 License: GPL v2 with exceptions
@@ -98,8 +98,8 @@ Source1: Ice-rpmbuild-%{version}.tar.gz
 
 BuildRoot: %{_tmppath}/ice-%{version}-%{release}-root-%(%{__id_u} -n)
 
-%define soversion 36b
-%define dotnetversion 3.6.51
+%define soversion 36
+%define dotnetversion 3.6.0
 %define mmversion 3.6
 
 %define commonversion 1.8.0

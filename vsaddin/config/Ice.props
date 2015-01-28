@@ -2,7 +2,7 @@
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">  
 
     <PropertyGroup Condition="!Exists('$(IceSourceHome)')">
-        <IceHome>$(Registry:HKEY_LOCAL_MACHINE\Software\ZeroC\Ice 3.6b@InstallDir)</IceHome>
+        <IceHome>$(Registry:HKEY_LOCAL_MACHINE\Software\ZeroC\Ice 3.6.0@InstallDir)</IceHome>
         <IceInclude>$(IceHome)\include</IceInclude>
         <IceToolsBin>$(IceHome)\bin</IceToolsBin>
     </PropertyGroup>
