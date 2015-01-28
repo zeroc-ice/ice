@@ -38,10 +38,10 @@ if not os.path.isfile("Ice-@ver@.tar.gz"):
     sys.exit(1)
 
 thirdPartyPackage = "ThirdParty-Sources-@ver@"
-downloadUrl = "http://www.zeroc.com/download/Ice/3.6/"
+downloadUrl = "http://www.zeroc.com/download/Ice/@debmmver@/"
 
 if not os.path.isfile(os.path.expanduser("~/Downloads/%s.tar.gz" % thirdPartyPackage)):
-    runCommand(os.path.expanduser("cd ~/Downloads && wget http://www.zeroc.com/download/Ice/3.6/%s.tar.gz" % thirdPartyPackage))
+    runCommand(os.path.expanduser("cd ~/Downloads && wget http://www.zeroc.com/download/Ice/@debmmver@/%s.tar.gz" % thirdPartyPackage))
 
 runCommand(os.path.expanduser(
            "rm -rf %(thirdParty)s && tar zxf ~/Downloads/%(thirdParty)s.tar.gz && cd %(thirdParty)s && tar zxf mcpp-2.7.2.tar.gz && "
@@ -93,7 +93,7 @@ for d in ["IceUtil", "Slice"]:
 for d in ["Glacier2", "Ice", "IceGrid", "IceSSL", "IceStorm"]:
     copyMatchingFiles(os.path.join("Ice-@ver@/slice", d), os.path.join("packages/zeroc-slice2js/slice", d), ["*.ice"])
 
-copy("distfiles-3.6b/src/unix/MCPP_LICENSE", "packages/zeroc-slice2js/MCPP_LICENSE")
+copy("distfiles-@ver@/src/unix/MCPP_LICENSE", "packages/zeroc-slice2js/MCPP_LICENSE")
 
 #
 # gulp-zeroc-slice2js package
