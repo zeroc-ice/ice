@@ -24,7 +24,7 @@ gulp.task('compile', function() {
 The path to the slice2js executable. By default the npm package [zeroc-slice2js](https://github.com/ZeroC-Inc/zeroc-slice2js) will be used.
 
 ```js
-slice2js({exe: "/opt/Ice-3.6b/slice2js"})
+slice2js({exe: "/opt/Ice-@ver@/slice2js"})
 ```
 
 ### args `Array`
@@ -32,7 +32,7 @@ slice2js({exe: "/opt/Ice-3.6b/slice2js"})
 The list of arguments passed to slice2js.
 
 ```js
-slice2js({args: ["-I/opt/Ice-3.6b/slice"]})
+slice2js({args: ["-I/opt/Ice-@ver@/slice"]})
 ```
 
 For a full list of arguments you can pass to the slice2js compiler refer to the [zeroc-slice2js package](https://github.com/ZeroC-Inc/zeroc-slice2js).

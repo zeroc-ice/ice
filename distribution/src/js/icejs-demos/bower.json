@@ -1,6 +1,6 @@
 {
   "name": "zeroc-icejs-demos",
-  "version": "3.6.0-beta.0",
+  "version": "@jsonver@",
   "description": "Ice for JavaScript runtime",
   "author": "Zeroc, Inc.",
   "homepage": "https://zeroc.com",
@@ -20,6 +20,6 @@
     "spin.js": "~2.0.2",
     "nouislider": "~7.0.10",
     "highlightjs": "~8.4.0",
-    "zeroc-icejs": "~3.6.0-beta.0"
+    "zeroc-icejs": "~@jsonver@"
   }
 }

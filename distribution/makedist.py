@@ -165,11 +165,12 @@ libversion = mmversion.replace('.', '')
 majorVersion = FixUtil.majorVersion(version)
 minorVersion = FixUtil.minorVersion(version)
 patchVersion = FixUtil.patchVersion(version) if FixUtil.patchVersion(version) != "51" else "0"
+jsonVersion = FixUtil.jsonVersion(version)
 
 debmmversion = majorVersion + "." + minorVersion
 debversion = majorVersion + "." + minorVersion + "." + patchVersion
 
-versions = (version, mmversion, libversion, debversion, debmmversion, majorVersion, minorVersion)
+versions = (version, mmversion, libversion, debversion, debmmversion, majorVersion, minorVersion, jsonVersion)
 config.close()
 
 #
@@ -244,6 +245,9 @@ def createDistfilesDist(platform, whichDestDir):
             filepath = os.path.join(root, f)
             # Fix version of README files
             if fnmatch.fnmatch(f, "README*"):
+                fixVersion(filepath, *versions)
+            # Fix version of JSON files
+            if fnmatch.fnmatch(f, "*.json"):
                 fixVersion(filepath, *versions)
             fixFilePermission(filepath, verbose)
 
