@@ -12,9 +12,11 @@ top_srcdir	= ..\..\..
 !if "$(WINRT)" != "yes"
 NAME_PREFIX	= 
 EXT		= .exe
+OBJDIR		= .
 !else
 NAME_PREFIX	= Ice_optional_
 EXT		= .dll
+OBJDIR		= winrt
 !endif
 
 CLIENT		= $(NAME_PREFIX)client
@@ -23,20 +25,20 @@ SERVERAMD	= $(NAME_PREFIX)serveramd
 
 TARGETS		= $(CLIENT)$(EXT) $(SERVER)$(EXT) $(SERVERAMD)$(EXT)
 
-SLICE_OBJS	= .\Test.obj .\TestAMD.obj
+SLICE_OBJS	= $(OBJDIR)\Test.obj $(OBJDIR)\TestAMD.obj
 
-COBJS		= .\Test.obj \
-		  .\TestI.obj \
-		  .\Client.obj \
-		  .\AllTests.obj
+COBJS		= $(OBJDIR)\Test.obj \
+		  $(OBJDIR)\TestI.obj \
+		  $(OBJDIR)\Client.obj \
+		  $(OBJDIR)\AllTests.obj
 
-SOBJS		= .\Test.obj \
-		  .\TestI.obj \
-		  .\Server.obj
+SOBJS		= $(OBJDIR)\Test.obj \
+		  $(OBJDIR)\TestI.obj \
+		  $(OBJDIR)\Server.obj
 
-SAMDOBJS	= .\TestAMD.obj \
-		  .\TestAMDI.obj \
-		  .\ServerAMD.obj
+SAMDOBJS	= $(OBJDIR)\TestAMD.obj \
+		  $(OBJDIR)\TestAMDI.obj \
+		  $(OBJDIR)\ServerAMD.obj
 
 OBJS		= $(COBJS) \
 		  $(SOBJS) \

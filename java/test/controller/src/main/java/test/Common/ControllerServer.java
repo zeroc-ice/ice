@@ -82,7 +82,19 @@ public class ControllerServer extends Ice.Application
                 //
                 System.out.print("terminating " + _name + "... ");
                 System.out.flush();
+                
                 _process.destroy();
+                while(true)
+                {
+                    try
+                    {
+                        _process.waitFor();
+                        break;
+                    }
+                    catch(InterruptedException e)
+                    {
+                    }
+                }
                 
                 current.adapter.remove(current.id);
                 System.out.println("ok");
@@ -96,6 +108,7 @@ public class ControllerServer extends Ice.Application
             {
                 p = _process;
             }
+            
             if(p != null)
             {
                 while(true)
@@ -154,19 +167,12 @@ public class ControllerServer extends Ice.Application
                 }
             }
             
-            String script = name.equals("Ice/echo") ?
-                lang + (lang.equals("java") ? "/test/src/main/java/" : "/") + "test/Ice/echo/run.py" :
-                "allTests.py";
+            String script = lang + (lang.equals("java") ? "/test/src/main/java/" : "/") + "test/" + name + "/run.py";
                 
             java.util.List<String> args = new java.util.ArrayList<String>();
             args.add("python");
             args.add(script);
             args.add("--server");
-            if(!name.equals("Ice/echo"))
-            {
-                args.add("--filter");
-                args.add("^" + lang + "/test/" + name + "$");
-            }
             args.add("--protocol");
             args.add(protocol);
             args.add("--host");
@@ -228,9 +234,8 @@ public class ControllerServer extends Ice.Application
             File toplevel = new File(
                 new File(ControllerServer.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent(),
                 "../../../../../");
-                
-            ControllerServer app = new ControllerServer(toplevel);
 
+            ControllerServer app = new ControllerServer(toplevel);
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties(args);
             initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
@@ -239,8 +244,9 @@ public class ControllerServer extends Ice.Application
             initData.properties.setProperty("IceSSL.Password", "password");
             initData.properties.setProperty("IceSSL.VerifyPeer", "0");
             initData.properties.setProperty("Ice.ThreadPool.Server.SizeMax", "10");
-            initData.properties.setProperty("ControllerAdapter.Endpoints", "ws -p 12009:wss -p 12008");
-            
+            initData.properties.setProperty("ControllerAdapter.Endpoints",
+                                            "tcp -p 15000:ssl -p 15001: ws -p 15002:wss -p 15003");
+
             int status = app.main("ControllerServer", args, initData);
             System.exit(status);
         }

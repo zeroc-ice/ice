@@ -12,19 +12,21 @@ top_srcdir	= ..\..\..
 !if "$(WINRT)" != "yes"
 NAME_PREFIX	= 
 EXT		= .exe
+OBJDIR		= .
 !else
 NAME_PREFIX	= Ice_stream_
 EXT		= .dll
+OBJDIR		= winrt
 !endif
 
 CLIENT		= $(NAME_PREFIX)client
 
 TARGETS		= $(CLIENT)$(EXT)
 
-SLICE_OBJS	= .\Test.obj
+SLICE_OBJS	= $(OBJDIR)\Test.obj
 
 OBJS		= $(SLICE_OBJS) \
-		  .\Client.obj
+		  $(OBJDIR)\Client.obj
 
 !include $(top_srcdir)/config/Make.rules.mak
 

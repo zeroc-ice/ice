@@ -12,9 +12,11 @@ top_srcdir	= ..\..\..
 !if "$(WINRT)" != "yes"
 NAME_PREFIX	= 
 EXT		= .exe
+OBJDIR		= .
 !else
 NAME_PREFIX	= Ice_exceptions_
 EXT		= .dll
+OBJDIR		= winrt
 !endif
 
 CLIENT		= $(NAME_PREFIX)client
@@ -24,29 +26,29 @@ COLLOCATED	= $(NAME_PREFIX)collocated
 
 TARGETS		= $(CLIENT)$(EXT) $(SERVER)$(EXT) $(SERVERAMD)$(EXT) $(COLLOCATED)$(EXT)
 
-SLICE_OBJS	= .\Test.obj .\TestAMD.obj
-COMMON_OBJS	= .\ExceptionsI.obj
+SLICE_OBJS	= $(OBJDIR)\Test.obj $(OBJDIR)\TestAMD.obj
+COMMON_OBJS	= $(OBJDIR)\ExceptionsI.obj
 
 COBJS		= $(COMMON_OBJS) \
-		  .\Test.obj \
-		  .\Client.obj \
-		  .\AllTests.obj
+		  $(OBJDIR)\Test.obj \
+		  $(OBJDIR)\Client.obj \
+		  $(OBJDIR)\AllTests.obj
 
 SOBJS		= $(COMMON_OBJS) \
-		  .\Test.obj \
-		  .\TestI.obj \
-		  .\Server.obj
+		  $(OBJDIR)\Test.obj \
+		  $(OBJDIR)\TestI.obj \
+		  $(OBJDIR)\Server.obj
 
 SAMDOBJS	= $(COMMON_OBJS) \
-		  .\TestAMD.obj \
-		  .\TestAMDI.obj \
-		  .\ServerAMD.obj
+		  $(OBJDIR)\TestAMD.obj \
+		  $(OBJDIR)\TestAMDI.obj \
+		  $(OBJDIR)\ServerAMD.obj
 
 COLOBJS		= $(COMMON_OBJS) \
-		  .\Test.obj \
-		  .\TestI.obj \
-		  .\Collocated.obj \
-		  .\AllTests.obj
+		  $(OBJDIR)\Test.obj \
+		  $(OBJDIR)\TestI.obj \
+		  $(OBJDIR)\Collocated.obj \
+		  $(OBJDIR)\AllTests.obj
 
 OBJS		= $(COBJS) \
 		  $(SOBJS) \

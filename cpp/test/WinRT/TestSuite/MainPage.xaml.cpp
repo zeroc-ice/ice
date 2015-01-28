@@ -11,9 +11,15 @@
 #include <TestCommon.h>
 #include <string>
 #include <iostream>
+#include <memory>
 #include <Ice/Ice.h>
+
+#include <Controller.h>
+
 using namespace std;
 using namespace TestSuite;
+
+using namespace test::Common;
 
 using namespace Platform;
 using namespace Windows::Foundation;
@@ -29,41 +35,12 @@ using namespace Windows::UI::Xaml::Navigation;
 
 using namespace Platform::Collections;
 
-TextBlock^ output = nullptr;
-ScrollViewer^ scroller = nullptr;
-MainPage^ page = nullptr;
-
 namespace
 {
 
-void
-printToConsoleOutput(const std::string& message)
-{
-    assert(output != nullptr);
-    String^ msg = ref new String(IceUtil::stringToWstring(message).c_str());
-    output->Dispatcher->RunAsync(CoreDispatcherPriority::Normal,
-                                 ref new DispatchedHandler(
-                                     [msg] ()
-                                     {
-                                         output->Text += msg;
-                                         output->UpdateLayout();
-#if (_WIN32_WINNT > 0x0602)
-                                         scroller->ChangeView(nullptr, scroller->ScrollableHeight, nullptr);
-#else
-                                         scroller->ScrollToVerticalOffset(scroller->ScrollableHeight);
-#endif
-                                     }, CallbackContext::Any));
-}
+typedef int(*MAIN_ENTRY_POINT)(int, char**, Test::MainHelper*);
 
-void
-printLineToConsoleOutput(const std::string& msg)
-{
-    printToConsoleOutput(msg + '\n');
-}
-
-typedef int (*MAIN_ENTRY_POINT)(int, char**, Test::MainHelper*);
-
-typedef int (*SHUTDOWN_ENTRY_POINT)();
+typedef int(*SHUTDOWN_ENTRY_POINT)();
 
 enum TestConfigType { TestConfigTypeClient, TestConfigTypeServer, TestConfigTypeColloc };
 
@@ -73,232 +50,27 @@ struct TestConfig
     string protocol;
     bool serialize;
     bool ipv6;
+
+    string server;
+    string host;
 };
 
-bool 
+bool
 configUseWS(const TestConfig& config)
 {
     return config.protocol == "ws" || config.protocol == "wss";
 }
 
-bool 
+bool
 configUseSSL(const TestConfig& config)
 {
     return config.protocol == "ssl" || config.protocol == "wss";
 }
 
-class Runnable : public IceUtil::Thread, public Test::MainHelper
-{
-public:
-
-    Runnable(const string& test, const TestConfig& config) :
-        _test(test),
-        _config(config),
-        _started(false),
-        _completed(false),
-        _status(0)
-    {
-    }
-
-    virtual ~Runnable()
-    {
-        if(_hnd != 0)
-        {
-            FreeLibrary(_hnd);
-        }
-    }
-    
-    virtual void 
-    run()
-    {
-        _hnd = LoadPackagedLibrary(IceUtil::stringToWstring(_test).c_str(), 0);
-        if(_hnd == 0)
-        {
-            ostringstream os;
-            os << "failed to load `" << _test + "': error code: " << GetLastError();
-            printLineToConsoleOutput(os.str());
-            completed(-1);
-            return;
-        }
-
-        _dllTestShutdown = GetProcAddress(_hnd, "dllTestShutdown");
-        if(_dllTestShutdown == 0)
-        {
-            printLineToConsoleOutput("failed to find dllTestShutdown function from `" + _test + "'");
-            completed(-1);
-            return;
-        }
-
-        FARPROC dllMain = GetProcAddress(_hnd, "dllMain");
-        if(dllMain == 0)
-        {
-            printLineToConsoleOutput("failed to find dllMain function from `" + _test + "'");
-            completed(-1);
-            return;
-        }
-
-        vector<string> args;
-        //
-        // NOTE: When testing for SSL on a WinRT device, this needs to
-        // be set to the IP addresse of the host running the SSL
-        // server.
-        //
-        args.push_back("--Ice.NullHandleAbort=1");
-        args.push_back("--Ice.Warn.Connections=1");
-        //args.push_back("--Ice.Trace.Network=2");
-        //args.push_back("--Ice.Trace.Protocol=2");
-        args.push_back("--Ice.ProgramName=" + _test);
-        if(_config.serialize)
-        {
-            args.push_back("--Ice.ThreadPool.Server.Serialize=1");
-        }
-
-        if(_config.ipv6)
-        {
-            args.push_back("--Ice.Default.Host=0:0:0:0:0:0:0:1");
-            args.push_back("--Ice.IPv4=1");
-            args.push_back("--Ice.IPv6=1");
-            args.push_back("--Ice.PreferIPv6Address=1");
-        }
-        else
-        {
-            args.push_back("--Ice.Default.Host=127.0.0.1");
-            args.push_back("--Ice.IPv4=1");
-            args.push_back("--Ice.IPv6=0");
-        }
-
-        if(_config.type != TestConfigTypeClient)
-        {
-            args.push_back("--Ice.ThreadPool.Server.Size=1");
-            args.push_back("--Ice.ThreadPool.Server.SizeMax=3");
-            args.push_back("--Ice.ThreadPool.Server.SizeWarn=0");
-        }
-
-        args.push_back("--Ice.Default.Protocol=" + _config.protocol);
-
-        char** argv = new char*[args.size() + 1];
-        for(unsigned int i = 0; i < args.size(); ++i)
-        {
-            argv[i] = const_cast<char*>(args[i].c_str());
-        }
-        argv[args.size()] = 0;
-        int status = EXIT_FAILURE;
-        try
-        {
-            status = reinterpret_cast<MAIN_ENTRY_POINT>(dllMain)(static_cast<int>(args.size()), argv, this);
-        }
-        catch(const std::exception& ex)
-        {
-            print("unexpected exception while running `" + _test + "':\n" + ex.what());
-        }
-        catch(...)
-        {
-            print("unexpected unknown exception while running `" + _test + "'");
-        }
-
-        completed(status);
-        delete[] argv;
-    }
-    
-    void
-    waitForStart()
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
-        while(!_started && !_completed)
-        {
-            _monitor.wait();
-        }
-        if(_completed && _status != 0)
-        {
-            ostringstream os;
-            os << "failed with status = " << _status;
-            throw os.str();
-        }
-    }
-    
-    virtual void 
-    waitForCompleted()
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
-        while(!_completed)
-        {
-            _monitor.wait();
-        }
-        if(_status != 0)
-        {
-            ostringstream os;
-            os << "failed with status = " << _status;
-            throw os.str();
-        }
-    }
-
-    //
-    // MainHelper implementation
-    //
-
-    virtual void 
-    serverReady()
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
-        _started = true;
-        _monitor.notify();
-    }
-
-    virtual void 
-    shutdown()
-    {
-        if(_dllTestShutdown)
-        {
-            reinterpret_cast<SHUTDOWN_ENTRY_POINT>(_dllTestShutdown)();
-        }
-    }
-    
-    virtual bool
-    redirect()
-    {
-        return _config.type == TestConfigTypeClient || _config.type == TestConfigTypeColloc;
-    }
-
-    virtual void
-    print(const string& message)
-    {
-        printToConsoleOutput(message);
-    }
-
-    int
-    status()
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
-        return _status;
-    }
-
-private:
-
-    void 
-    completed(int status)
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
-        _completed = true;
-        _status = status;
-        _monitor.notify();
-    }
-
-    IceUtil::Monitor<IceUtil::Mutex> _monitor;
-    string _test;
-    TestConfig _config;
-    bool _started;
-    bool _completed;
-    int _status;
-    Ice::CommunicatorPtr _communicator;
-    FARPROC _dllTestShutdown;
-    HINSTANCE _hnd;
-};
-typedef IceUtil::Handle<Runnable> RunnablePtr;
-
-bool 
+bool
 isIn(const string s[], const string& name)
 {
-    int l = sizeof(s)/sizeof(string*);
+    int l = sizeof(s) / sizeof(string*);
     for(int i = 0; i < l; ++i)
     {
         if(s[i] == name)
@@ -325,161 +97,609 @@ static const string noIPv6[] =
     "metrics"
 };
 
-struct TestCase
+void
+addConfiguration(const TestCasePtr& test, const string& name, const vector<string>& options = vector<string>(),
+                 const vector<string>& languages = vector<string>())
 {
-    TestCase(const string& module, const string& name, const char* client, const char* server, 
-             const char* serverAMD = 0, const char* collocated = 0) :
-        name(module + "\\" + name),
-        prefix(module + "_" + name + "_"),
-        client(client),
-        server(server),
-        serverAMD(serverAMD),
-        collocated(collocated),
-        sslSupport(!isIn(noSSL, name)),
-        ipv6Support(!isIn(noIPv6, name)),
-        wsSupport(!isIn(noWS, name))
+    TestConfigurationPtr configuration(new TestConfiguration(name, options, languages));
+    test->configurations.push_back(configuration);
+}
+
+vector<TestCasePtr> allTest(bool remoteserver)
+{
+    vector<TestCasePtr> all;
+
+    TestCasePtr test;
+    TestConfigurationPtr configuration;
+
+    test.reset(new TestCase("Ice", "adapterDeactivation", "client.dll", "server.dll", "", "collocated.dll"));
+    all.push_back(test);
+
+    test.reset(new TestCase("Ice", "ami", "client.dll", "server.dll"));
+    all.push_back(test);
+
+    test.reset(new TestCase("Ice", "binding", "client.dll", "server.dll"));
+    all.push_back(test);
+
+    test.reset(new TestCase("Ice", "dispatcher", "client.dll", "server.dll"));
+    all.push_back(test);
+
+    test.reset(new TestCase("Ice", "exceptions", "client.dll", "server.dll", "serveramd.dll", "collocated.dll"));
+    addConfiguration(test, "compact (default) format");
+    addConfiguration(test, "sliced format", { "--Ice.Default.SlicedFormat" });
+    addConfiguration(test, "1.0 encoding", { "--Ice.Default.EncodingVersion=1.0" });
+    addConfiguration(test, "compact (default) format and AMD server");
+    addConfiguration(test, "sliced format and AMD server", { "--Ice.Default.SlicedFormat" });
+    addConfiguration(test, "1.0 encoding and AMD server", { "--Ice.Default.EncodingVersion=1.0" });
+    all.push_back(test);
+
+    test.reset(new TestCase("Ice", "facets", "client.dll", "server.dll", "", "collocated.dll"));
+    all.push_back(test);
+
+    test.reset(new TestCase("Ice", "hold", "client.dll", "server.dll"));
+    all.push_back(test);
+
+    test.reset(new TestCase("Ice", "info", "client.dll", "server.dll"));
+    all.push_back(test);
+
+    test.reset(new TestCase("Ice", "inheritance", "client.dll", "server.dll", "", "collocated.dll"));
+    all.push_back(test);
+
+    test.reset(new TestCase("Ice", "invoke", "client.dll", "server.dll"));
+    addConfiguration(test, "Blobject server", {}, { "cpp", "java", "C#" });
+    addConfiguration(test, "BlobjectArray server", {}, { "cpp" });
+    addConfiguration(test, "BlobjectAsync server", {}, { "cpp", "java", "C#" });
+    addConfiguration(test, "BlobjectAsyncArray server", {}, { "cpp" });
+    all.push_back(test);
+
+    test.reset(new TestCase("Ice", "location", "client.dll", "server.dll"));
+    all.push_back(test);
+
+    test.reset(new TestCase("Ice", "objects", "client.dll", "server.dll", "", "collocated.dll"));
+    addConfiguration(test, "compact (default) format");
+    addConfiguration(test, "sliced format", { "--Ice.Default.SlicedFormat" });
+    addConfiguration(test, "1.0 encoding", { "--Ice.Default.EncodingVersion=1.0" });
+    all.push_back(test);
+
+    test.reset(new TestCase("Ice", "operations", "client.dll", "server.dll", "serveramd.dll", "collocated.dll"));
+    addConfiguration(test, "regular server");
+    addConfiguration(test, "AMD server");
+    addConfiguration(test, "TIE server", {}, {"java", "C#"});
+    addConfiguration(test, "AMD TIE server", {}, { "java", "C#" });
+    all.push_back(test);
+
+    test.reset(new TestCase("Ice", "proxy", "client.dll", "server.dll", "serveramd.dll", "collocated.dll"));
+    addConfiguration(test, "regular server");
+    addConfiguration(test, "AMD server");
+    all.push_back(test);
+
+    test.reset(new TestCase("Ice", "retry", "client.dll", "server.dll"));
+    all.push_back(test);
+
+    test.reset(new TestCase("Ice", "stream", "client.dll"));
+    all.push_back(test);
+
+    test.reset(new TestCase("Ice", "timeout", "client.dll", "server.dll"));
+    all.push_back(test);
+
+    test.reset(new TestCase("Ice", "acm", "client.dll", "server.dll"));
+    all.push_back(test);
+
+    if(!remoteserver)
     {
+        test.reset(new TestCase("Ice", "udp", "client.dll", "server.dll"));
+        all.push_back(test);
     }
 
-    string name;
-    string prefix;
-    const char* client;
-    const char* server;
-    const char* serverAMD;
-    const char* collocated;
-    bool sslSupport;
-    bool ipv6Support;
-    bool wsSupport;
-};
+    test.reset(new TestCase("Ice", "hash", "client.dll"));
+    all.push_back(test);
 
-static const TestCase allTest[] =
+    if(!remoteserver)
+    {
+        test.reset(new TestCase("Ice", "metrics", "client.dll", "server.dll", "serveramd.dll"));
+        all.push_back(test);
+    }
+
+    test.reset(new TestCase("Ice", "optional", "client.dll", "server.dll"));
+    addConfiguration(test, "compact (default) format");
+    addConfiguration(test, "sliced format", { "--Ice.Default.SlicedFormat" });
+    addConfiguration(test, "AMD server");
+    all.push_back(test);
+
+    test.reset(new  TestCase("Ice", "admin", "client.dll", "server.dll"));
+    all.push_back(test);
+
+    test.reset(new TestCase("Ice", "enums", "client.dll", "server.dll"));
+    addConfiguration(test, "1.0 encoding", { "--Ice.Default.EncodingVersion=1.0" });
+    addConfiguration(test, "1.1 encoding");
+
+    all.push_back(test);
+
+    return all;
+}
+
+class TestRunner;
+typedef IceUtil::Handle<TestRunner> TestRunnerPtr;
+
+class Runnable : public IceUtil::Thread, public Test::MainHelper
 {
-    TestCase("Ice", "adapterDeactivation", "client.dll", "server.dll", 0, "collocated.dll"),
-    TestCase("Ice", "ami", "client.dll", "server.dll", 0, 0),
-    TestCase("Ice", "binding", "client.dll", "server.dll", 0, 0),
-    TestCase("Ice", "dispatcher", "client.dll", "server.dll", 0, 0),
-    TestCase("Ice", "exceptions", "client.dll", "server.dll", "serveramd.dll", "collocated.dll"),
-    TestCase("Ice", "facets", "client.dll", "server.dll", 0, "collocated.dll"),
-    TestCase("Ice", "hold", "client.dll", "server.dll", 0, 0),
-    TestCase("Ice", "info", "client.dll", "server.dll", 0, 0),
-    TestCase("Ice", "inheritance", "client.dll", "server.dll", 0, "collocated.dll"),
-    TestCase("Ice", "invoke", "client.dll", "server.dll", 0, 0),
-    TestCase("Ice", "location", "client.dll", "server.dll", 0, 0),
-    TestCase("Ice", "objects", "client.dll", "server.dll", 0, "collocated.dll"),
-    TestCase("Ice", "operations", "client.dll", "server.dll", "serveramd.dll", "collocated.dll"),
-    TestCase("Ice", "proxy", "client.dll", "server.dll", "serveramd.dll", "collocated.dll"),
-    TestCase("Ice", "retry", "client.dll", "server.dll", 0, 0),
-    TestCase("Ice", "stream", "client.dll", 0, 0, 0),
-    TestCase("Ice", "timeout", "client.dll", "server.dll", 0, 0),
-    TestCase("Ice", "acm", "client.dll", "server.dll", 0, 0),
-    TestCase("Ice", "udp", "client.dll", "server.dll", 0, 0),
-    TestCase("Ice", "hash", "client.dll", 0, 0, 0),
-    TestCase("Ice", "metrics", "client.dll", "server.dll", "serveramd.dll", 0),
-    TestCase("Ice", "optional", "client.dll", "server.dll", 0, 0),
-    TestCase("Ice", "admin", "client.dll", "server.dll", 0, 0),
-    TestCase("Ice", "enums", "client.dll", "server.dll", 0, 0),
+public:
+
+	Runnable(const TestRunnerPtr&, const string&, const TestConfig&, const vector<string>& options = vector<string>());
+    virtual ~Runnable();
+    virtual void run();
+    void waitForStart();
+    virtual void waitForCompleted();
+    virtual void serverReady();
+    virtual void shutdown();
+    virtual bool redirect();
+    virtual void print(const string& message);
+    int status();
+
+private:
+
+    void completed(int);
+
+    IceUtil::Monitor<IceUtil::Mutex> _monitor;
+	TestRunnerPtr _runner;
+    string _test;
+    TestConfig _config;
+    bool _started;
+    bool _completed;
+    int _status;
+    Ice::CommunicatorPtr _communicator;
+    FARPROC _dllTestShutdown;
+    HINSTANCE _hnd;
+    vector<string> _options;
 };
+typedef IceUtil::Handle<Runnable> RunnablePtr;
 
 class TestRunner : public IceUtil::Thread
 {
 public:
 
-    TestRunner(const TestCase& test, const TestConfig& config) : _test(test), _config(config)
+    TestRunner(const std::shared_ptr<TestCase>&, const TestConfig&, MainPage^, 
+			   Vector<Platform::String^>^, ListBox^, const Ice::CommunicatorPtr&);
+    virtual void run();
+    void runClientServerTest(const string&, const string&);
+    void runClientServerTestWithRemoteServer(const string&);
+    void runClientTest(const string&, bool);
+
+	void printToConsoleOutput(const std::string&);
+	void printLineToConsoleOutput(const std::string&);
+
+private:
+
+    std::shared_ptr<TestCase> _test;
+    TestConfig _config;
+    MainPage^ _page;
+	Vector<Platform::String^>^ _messages;
+	ListBox^ _output;
+    Ice::CommunicatorPtr _communicator;
+};
+
+Runnable::Runnable(const TestRunnerPtr& runner, const string& test, const TestConfig& config, const vector<string>& options) :
+	_runner(runner),
+    _test(test),
+    _config(config),
+    _started(false),
+    _completed(false),
+    _status(0),
+    _options(options)
+{
+}
+
+Runnable::~Runnable()
+{
+    if(_hnd != 0)
     {
+        FreeLibrary(_hnd);
+    }
+}
+
+void
+Runnable::run()
+{
+    _hnd = LoadPackagedLibrary(IceUtil::stringToWstring(_test).c_str(), 0);
+    if(_hnd == 0)
+    {
+        ostringstream os;
+        os << "failed to load `" << _test + "': error code: " << GetLastError();
+        _runner->printLineToConsoleOutput(os.str());
+        completed(-1);
+        return;
     }
 
-    virtual void
-    run()
+    _dllTestShutdown = GetProcAddress(_hnd, "dllTestShutdown");
+    if(_dllTestShutdown == 0)
     {
-        try
+		_runner->printLineToConsoleOutput("failed to find dllTestShutdown function from `" + _test + "'");
+        completed(-1);
+        return;
+    }
+
+    FARPROC dllMain = GetProcAddress(_hnd, "dllMain");
+    if(dllMain == 0)
+    {
+		_runner->printLineToConsoleOutput("failed to find dllMain function from `" + _test + "'");
+        completed(-1);
+        return;
+    }
+
+    vector<string> args;
+    args.push_back("--Ice.NullHandleAbort=1");
+    args.push_back("--Ice.Warn.Connections=1");
+    args.push_back("--Ice.ProgramName=" + _test);
+    if(_config.serialize)
+    {
+        args.push_back("--Ice.ThreadPool.Server.Serialize=1");
+    }
+
+    if(_config.ipv6)
+    {
+        args.push_back("--Ice.Default.Host=0:0:0:0:0:0:0:1");
+        args.push_back("--Ice.IPv4=1");
+        args.push_back("--Ice.IPv6=1");
+        args.push_back("--Ice.PreferIPv6Address=1");
+    }
+    else
+    {
+        args.push_back("--Ice.Default.Host=127.0.0.1");
+        args.push_back("--Ice.IPv4=1");
+        args.push_back("--Ice.IPv6=0");
+    }
+
+    if(_config.type != TestConfigTypeClient)
+    {
+        args.push_back("--Ice.ThreadPool.Server.Size=1");
+        args.push_back("--Ice.ThreadPool.Server.SizeMax=3");
+        args.push_back("--Ice.ThreadPool.Server.SizeWarn=0");
+    }
+
+    args.push_back("--Ice.Default.Host=" + _config.host);
+    args.push_back("--Ice.Default.Protocol=" + _config.protocol);
+
+    for(vector<string>::const_iterator i = _options.begin(); i != _options.end(); i++)
+    {
+        args.push_back(*i);
+    }
+
+    char** argv = new char*[args.size() + 1];
+    for(unsigned int i = 0; i < args.size(); ++i)
+    {
+        argv[i] = const_cast<char*>(args[i].c_str());
+    }
+    argv[args.size()] = 0;
+    int status = EXIT_FAILURE;
+    try
+    {
+        status = reinterpret_cast<MAIN_ENTRY_POINT>(dllMain)(static_cast<int>(args.size()), argv, this);
+    }
+    catch(const std::exception& ex)
+    {
+        print("unexpected exception while running `" + _test + "':\n" + ex.what());
+    }
+    catch(...)
+    {
+        print("unexpected unknown exception while running `" + _test + "'");
+    }
+
+    completed(status);
+    delete[] argv;
+}
+
+void
+Runnable::waitForStart()
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+    while(!_started && !_completed)
+    {
+        _monitor.wait();
+    }
+    if(_completed && _status != 0)
+    {
+        ostringstream os;
+        os << "failed with status = " << _status;
+        throw os.str();
+    }
+}
+
+void
+Runnable::waitForCompleted()
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+    while(!_completed)
+    {
+        _monitor.wait();
+    }
+    if(_status != 0)
+    {
+        ostringstream os;
+        os << "failed with status = " << _status;
+        throw os.str();
+    }
+}
+
+void
+Runnable::serverReady()
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+    _started = true;
+    _monitor.notify();
+}
+
+void
+Runnable::shutdown()
+{
+    if(_dllTestShutdown)
+    {
+        reinterpret_cast<SHUTDOWN_ENTRY_POINT>(_dllTestShutdown)();
+    }
+}
+
+bool
+Runnable::redirect()
+{
+    return _config.type == TestConfigTypeClient || _config.type == TestConfigTypeColloc;
+}
+
+void
+Runnable::print(const string& message)
+{
+	_runner->printToConsoleOutput(message);
+}
+
+int
+Runnable::status()
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+    return _status;
+}
+
+void
+Runnable::completed(int status)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+    _completed = true;
+    _status = status;
+    _monitor.notify();
+}
+
+TestRunner::TestRunner(const TestCasePtr& test, const TestConfig& config, MainPage^ page,
+					   Vector<Platform::String^>^ messages, ListBox^ output,
+					   const Ice::CommunicatorPtr& communicator) :
+    _test(test),
+    _config(config),
+    _page(page),
+	_messages(messages),
+	_output(output),
+    _communicator(communicator)
+{
+}
+
+void
+TestRunner::printToConsoleOutput(const std::string& message)
+{
+	vector<string> lines;
+	string::size_type pos = 0;
+	string data = message;
+	while((pos = data.find("\n")) != string::npos)
+	{
+		lines.push_back(data.substr(0, pos));
+		data = data.substr(pos + 1);
+	}
+	lines.push_back(data);
+
+	for(vector<string>::const_iterator i = lines.begin(); i != lines.end(); ++i)
+	{
+		_page->printToConsoleOutput(ref new String(IceUtil::stringToWstring(*i).c_str()), i != lines.begin());
+	}
+}
+
+void
+TestRunner::printLineToConsoleOutput(const std::string& msg)
+{
+	printToConsoleOutput(msg + '\n');
+}
+
+void
+TestRunner::run()
+{
+    try
+    {
+        if(configUseWS(_config) && !_test->wsSupport)
         {
-            if(configUseWS(_config) && !_test.wsSupport)
+            printLineToConsoleOutput("**** test " + _test->name + " not supported with WS");
+        }
+        else if(configUseSSL(_config) && !_test->sslSupport)
+        {
+            printLineToConsoleOutput("**** test " + _test->name + " not supported with SSL");
+        }
+        else if(_config.ipv6 && !_test->ipv6Support)
+        {
+            printLineToConsoleOutput("**** test " + _test->name + " not supported with IPv6");
+        }
+        else if(configUseSSL(_config) && _config.ipv6)
+        {
+            printLineToConsoleOutput("**** test " + _test->name + " not supported with IPv6 SSL");
+        }
+        else
+        {
+            if(!_test->server.empty())
             {
-                printLineToConsoleOutput("**** test " + _test.name + " not supported with WS");   
-            }
-            else if(configUseSSL(_config) && !_test.sslSupport)
-            {
-                printLineToConsoleOutput("**** test " + _test.name + " not supported with SSL");   
-            }
-            else if(_config.ipv6 && !_test.ipv6Support)
-            {
-                printLineToConsoleOutput("**** test " + _test.name + " not supported with IPv6");
-            }
-            else if(configUseSSL(_config) && _config.ipv6)
-            {
-                printLineToConsoleOutput("**** test " + _test.name + " not supported with IPv6 SSL");
-            }
-            else
-            {
-                if(_test.server)
+                if(_config.server == "winrt")
                 {
-                    printLineToConsoleOutput("**** running test " + _test.name);
-                    runClientServerTest(_test.server, _test.client);        
-                    printLineToConsoleOutput("");
+                    printLineToConsoleOutput("**** running test " + _test->name);
+                    runClientServerTest(_test->server, _test->client);
                 }
                 else
                 {
-                    assert(_test.client);
-                    printLineToConsoleOutput("**** running test " + _test.name);
-                    runClientTest(_test.client, false);
-                    printLineToConsoleOutput("");
-                }
-
-                if(_test.serverAMD)
-                {
-                    printLineToConsoleOutput("*** running test with AMD server " + _test.name);
-                    runClientServerTest(_test.server, _test.client);
-                    printLineToConsoleOutput("");
-                }
-
-                //
-                // Don't run collocated tests with SSL as there isn't SSL server side.
-                //
-                if(_test.collocated && !configUseSSL(_config))
-                {
-                    printLineToConsoleOutput("*** running collocated test " + _test.name);
-                    runClientTest(_test.collocated, true);
-                    printLineToConsoleOutput("");
+                    printLineToConsoleOutput("**** running test " + _test->name);
+                    runClientServerTestWithRemoteServer(_test->client);
                 }
             }
+            else
+            {
+                assert(!_test->client.empty());
+                printLineToConsoleOutput("**** running test " + _test->name);
+                runClientTest(_test->client, false);
+            }
 
-            page->completed();
+            if(!_test->serverAMD.empty() && _config.server == "winrt")
+            {
+                printLineToConsoleOutput("*** running test with AMD server " + _test->name);
+                runClientServerTest(_test->server, _test->client);
+            }
+
+            //
+            // Don't run collocated tests with SSL as there isn't SSL server side.
+            //
+            if(!_test->collocated.empty() && !configUseSSL(_config) && _config.server == "winrt")
+            {
+                printLineToConsoleOutput("*** running collocated test " + _test->name);
+                runClientTest(_test->collocated, true);
+            }
         }
-        catch(Platform::Exception^ ex)
-        {
-            page->failed(ex->Message);
-        }
-        catch(const std::exception& ex)
-        {
-            page->failed(ref new String(IceUtil::stringToWstring(ex.what()).c_str()));
-        }
-        catch(const string& ex)
-        {
-            page->failed(ref new String(IceUtil::stringToWstring(ex).c_str()));
-        }
-        catch(...)
-        {
-            page->failed("unknown exception");
-        }
+        _page->completed();
     }
-    
-    void 
-    runClientServerTest(const string& server, const string& client)
+    catch(Platform::Exception^ ex)
     {
-        RunnablePtr serverRunable;
-        if(!configUseSSL(_config))
+        _page->failed(ex->Message);
+    }
+    catch(const std::exception& ex)
+    {
+        _page->failed(ref new String(IceUtil::stringToWstring(ex.what()).c_str()));
+    }
+    catch(const string& ex)
+    {
+        _page->failed(ref new String(IceUtil::stringToWstring(ex).c_str()));
+    }
+    catch(...)
+    {
+        _page->failed("unknown exception");
+    }
+}
+
+void
+TestRunner::runClientServerTest(const string& server, const string& client)
+{
+    RunnablePtr serverRunable;
+    TestConfig svrConfig = _config;
+    svrConfig.type = TestConfigTypeServer;
+    serverRunable = new Runnable(this, _test->prefix + server, svrConfig);
+    serverRunable->start();
+    serverRunable->getThreadControl().detach();
+    serverRunable->waitForStart();
+
+    TestConfig cltConfig = _config;
+    cltConfig.type = TestConfigTypeClient;
+	RunnablePtr clientRunable = new Runnable(this, _test->prefix + client, cltConfig);
+    clientRunable->start();
+    clientRunable->getThreadControl().detach();
+
+    try
+    {
+        clientRunable->waitForCompleted();
+    }
+    catch(...)
+    {
+        if(serverRunable)
         {
-            TestConfig svrConfig = _config;
-            svrConfig.type = TestConfigTypeServer;
-            serverRunable = new Runnable(_test.prefix + server, svrConfig);
-            serverRunable->start();
-            serverRunable->getThreadControl().detach();
-            serverRunable->waitForStart();
+            serverRunable->shutdown();
+            serverRunable->waitForCompleted();
         }
+        throw;
+    }
+
+    if(serverRunable)
+    {
+        serverRunable->waitForCompleted();
+    }
+}
+
+string
+createProxy(const string id, TestConfig config)
+{
+    ostringstream os;
+    os << id << ":" << config.protocol << " -t 10000 -h " << config.host << " -p ";
+    if(config.protocol == "tcp")
+    {
+        os << 15000;
+    }
+    else if(config.protocol == "ssl")
+    {
+        os << 15001;
+    }
+    else if(config.protocol == "ws")
+    {
+        os << 15002;
+    }
+    else if(config.protocol == "wss")
+    {
+        os << 15003;
+    }
+    return os.str();
+}
+
+void
+TestRunner::runClientServerTestWithRemoteServer(const string& client)
+{
+    RunnablePtr serverRunable;
+    ControllerPrx controller = ControllerPrx::uncheckedCast(
+        _communicator->stringToProxy(createProxy("controller", _config)));
+    StringSeq options;
+    if(_config.serialize)
+    {
+        options.push_back("Ice.ThreadPool.Server.Serialize=1");
+    }
+
+    if(_config.ipv6)
+    {
+        options.push_back("Ice.IPv4=1");
+        options.push_back("Ice.IPv6=1");
+        options.push_back("Ice.PreferIPv6Address=1");
+    }
+    else
+    {
+        options.push_back("Ice.IPv4=1");
+        options.push_back("Ice.IPv6=0");
+    }
+
+    ServerPrx server =
+        controller->runServer(_config.server, _test->name, _config.protocol, _config.host, true, options);
+
+    server = ServerPrx::uncheckedCast(
+        _communicator->stringToProxy(createProxy(server->ice_getIdentity().name, _config)));
+
+    vector<TestConfigurationPtr> configurations;
+    if(_test->configurations.empty())
+    {
+        TestConfigurationPtr configuration(new TestConfiguration());
+        configurations.push_back(configuration);
+    }
+    else
+    {
+        configurations = _test->configurations;
+    }
+
+    for(vector<TestConfigurationPtr>::const_iterator i = configurations.begin(); 
+        i != configurations.end(); ++i)
+    {
+        TestConfigurationPtr configuration = *i;
+        if(!configuration->languages.empty() &&
+            find(configuration->languages.begin(), 
+                 configuration->languages.end(), _config.server) == configuration->languages.end())
+        {
+            continue;
+        }
+
+        printLineToConsoleOutput("*** Running test with " + 
+                                 (configuration->name.empty() ? "regular server" : configuration->name));
+        server->waitForServer();
 
         TestConfig cltConfig = _config;
         cltConfig.type = TestConfigTypeClient;
-        RunnablePtr clientRunable = new Runnable(_test.prefix + client, cltConfig);
+		RunnablePtr clientRunable = new Runnable(this, _test->prefix + client, cltConfig, configuration->options);
         clientRunable->start();
         clientRunable->getThreadControl().detach();
 
@@ -489,63 +709,97 @@ public:
         }
         catch(...)
         {
-            if(serverRunable)
+            if(server)
             {
-                serverRunable->shutdown();
-                serverRunable->waitForCompleted();
+                try
+                {
+                    server->terminate();
+                }
+                catch(const Ice::LocalException&)
+                {
+                }
             }
             throw;
         }
-
-        if(serverRunable)
-        {
-            serverRunable->waitForCompleted();
-        }
     }
-
-    void 
-    runClientTest(const string& client, bool collocated)
-    {
-        TestConfig cltConfig = _config;
-        cltConfig.type = collocated ? TestConfigTypeColloc : TestConfigTypeClient;
-        RunnablePtr clientRunable = new Runnable(_test.prefix + client, cltConfig);
-        clientRunable->start();
-        clientRunable->getThreadControl().detach();
-        clientRunable->waitForCompleted();
-    }
-    
-private:
-
-    TestCase _test;
-    TestConfig _config;
-};
-
-typedef IceUtil::Handle<TestRunner> TestRunnerPtr;
-
 }
 
-// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
-
-MainPage::MainPage()
+void
+TestRunner::runClientTest(const string& client, bool collocated)
 {
-    _names = ref new Vector<String^>();
-    for(int i = 0; i < sizeof(allTest)/sizeof(allTest[0]); ++i)
-    {
-        _names->Append(ref new String(IceUtil::stringToWstring(allTest[i].name).c_str()));
-    }
-    InitializeComponent();
-    page = this;
-    output = Output;
-    scroller = Scroller;
-    TestList->ItemsSource = _names;
-    TestList->SelectedIndex = 0;
+    TestConfig cltConfig = _config;
+    cltConfig.type = collocated ? TestConfigTypeColloc : TestConfigTypeClient;
+	RunnablePtr clientRunable = new Runnable(this, _test->prefix + client, cltConfig);
+    clientRunable->start();
+    clientRunable->getThreadControl().detach();
+    clientRunable->waitForCompleted();
 }
 
-/// <summary>
-/// Invoked when this page is about to be displayed in a Frame.
-/// </summary>
-/// <param name="e">Event data that describes how this page was reached.  The Parameter
-/// property is typically used to configure the page.</param>
+}
+
+TestConfiguration::TestConfiguration(const string& name, const vector<string>& options, 
+                                     const vector<string>& languages) :
+    name(name),
+    options(options),
+    languages(languages)
+{
+}
+
+TestCase::TestCase(const string& module, const string& name, const string& client, const string& server,
+                   const string& serverAMD, const string& collocated) :
+    name(module + "/" + name),
+    prefix(module + "_" + name + "_"),
+    client(client),
+    server(server),
+    serverAMD(serverAMD),
+    collocated(collocated),
+    sslSupport(!isIn(noSSL, name)),
+    ipv6Support(!isIn(noIPv6, name)),
+    wsSupport(!isIn(noWS, name))
+{
+}
+
+MainPage::MainPage() :
+    _names(ref new Vector<String^>()),
+    _protocols(ref new Vector<String^>()),
+    _messages(ref new Vector<String^>())
+{
+    InitializeComponent();
+}
+
+void
+MainPage::Tests_Loaded(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+    _tests = findChild<ListBox>(this, "ListBox");
+    _tests->ItemsSource = _names;
+}
+
+void
+MainPage::Output_Loaded(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+    _output = findChild<ListBox>(this, "Output");
+    _output->ItemsSource = _messages;
+}
+
+void
+MainPage::Configuration_Loaded(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+    _language = findChild<ComboBox>(this, "Language");
+
+    _host = findChild<TextBox>(this, "Host");
+    _host->IsEnabled = false;
+
+    _protocol = findChild<ComboBox>(this, "Protocol");
+    _loop = findChild<CheckBox>(this, "Loop");
+    _serialize = findChild<CheckBox>(this, "Serialize");
+    _ipv6 = findChild<CheckBox>(this, "IPv6");
+    _run = findChild<Button>(this, "Run");
+    _stop = findChild<Button>(this, "Stop");
+	_stop->IsEnabled = false;
+
+    initializeSupportedProtocols();
+    initializeSupportedTests();
+}
 
 void 
 MainPage::OnNavigatedTo(NavigationEventArgs^ e)
@@ -553,64 +807,196 @@ MainPage::OnNavigatedTo(NavigationEventArgs^ e)
     (void) e;   // Unused parameter
 }
 
-
 void
 MainPage::failed(String^ msg)
 {
-    printLineToConsoleOutput("Test failed");
-    printLineToConsoleOutput(IceUtil::wstringToString(msg->Data()));
+	_messages->Append(ref new String(L"Test failed"));
+	_messages->Append(msg);
     completed();
 }
 
 void 
 MainPage::completed()
 {
-    page->Dispatcher->RunAsync(
-        CoreDispatcherPriority::Normal, 
-        ref new DispatchedHandler([=] ()
-                                  {
-                                      if(!chkLoop->IsChecked->Value)
-                                      {
-                                          TestList->IsEnabled = true;
-                                          btnRun->IsEnabled = true;
-                                          return;
-                                      }                                      
-                                      TestList->IsEnabled = true;
-                                      if(TestList->SelectedIndex == (sizeof(allTest)/sizeof(allTest[0])) -1)
-                                      {
-                                          TestList->SelectedIndex = 0;
-                                      }
-                                      else
-                                      {
-                                          TestList->SelectedIndex++;
-                                      }
-                                      TestList->IsEnabled = false;
-                                      runSelectedTest();
-                                  }));
+    Dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler(
+        [=] ()
+        {
+            if(!_loop->IsChecked->Value)
+            {
+                _tests->IsEnabled = true;
+                _protocol->IsEnabled = true;
+                if(selectedLanguage() != "winrt")
+                {
+                    _host->IsEnabled = true;
+                }
+                _language->IsEnabled = true;
+                _loop->IsEnabled = true;
+                _serialize->IsEnabled = true;
+                _ipv6->IsEnabled = true;
+                _run->IsEnabled = true;
+                _stop->Content = "Stop";
+                return;
+            }                                      
+            _tests->IsEnabled = true;
+            if(_tests->SelectedIndex == _allTests.size() - 1)
+            {
+                _tests->SelectedIndex = 0;
+            }
+            else
+            {
+                _tests->SelectedIndex++;
+            }
+            _tests->IsEnabled = false;
+            runSelectedTest();
+        }));
 }
 
 void 
 MainPage::btnRun_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
-    if(TestList->SelectedIndex >= 0 && TestList->SelectedIndex < sizeof(allTest)/sizeof(allTest[0]))
+    if(_tests->SelectedIndex >= 0 && _tests->SelectedIndex < static_cast<int>(_allTests.size()))
     {
-        TestList->IsEnabled = false;
-        btnRun->IsEnabled = false;
-        output->Text = "";
+        _tests->IsEnabled = false;
+        _protocol->IsEnabled = false;
+        _host->IsEnabled = false;
+        _language->IsEnabled = false;
+        _loop->IsEnabled = false;
+        _serialize->IsEnabled = false;
+        _ipv6->IsEnabled = false;
+        _run->IsEnabled = false;
+        _stop->IsEnabled = _loop->IsChecked->Value;
+        _messages->Clear();
         runSelectedTest();
     }
+}
+
+void
+MainPage::btnStop_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+    _loop->IsChecked = false;
+    _stop->IsEnabled = false;
+    _stop->Content = "Wainting for test to finish...";
+}
+
+Ice::CommunicatorPtr
+MainPage::communicator()
+{
+    if(!_communicator)
+    {
+        _communicator = Ice::initialize();
+    }
+    return _communicator;
 }
 
 void 
 MainPage::runSelectedTest()
 {
-    static const string protocols[] = { "tcp", "ssl", "ws", "wss" };
     TestConfig config;
-    config.protocol = protocols[protocol->SelectedIndex];
-    config.serialize = chkSerialize->IsChecked->Value;
-    config.ipv6 = chkIPv6->IsChecked->Value;
+    config.protocol = selectedProtocol();
+    config.serialize = _serialize->IsChecked->Value;
+    config.ipv6 = _ipv6->IsChecked->Value;
 
-    TestRunnerPtr t = new TestRunner(allTest[TestList->SelectedIndex], config);
+    config.server = selectedLanguage();
+    config.host = IceUtil::wstringToString(_host->Text->Data());
+
+    TestRunnerPtr t = new TestRunner(_allTests[_tests->SelectedIndex], config, this, _messages, _output, communicator());
     t->start();
     t->getThreadControl().detach();
+}
+
+void
+TestSuite::MainPage::initializeSupportedTests()
+{
+     _allTests = allTest(selectedLanguage() != "winrt");
+     _names->Clear();
+    for(vector<TestCasePtr>::const_iterator i = _allTests.begin(); i != _allTests.end(); ++i)
+    {
+        TestCasePtr test = *i;
+        _names->Append(ref new String(IceUtil::stringToWstring(test->name).c_str()));
+    }
+    _tests->SelectedIndex = 0;
+}
+
+void
+TestSuite::MainPage::initializeSupportedProtocols()
+{
+    _protocols->Clear();
+    if(selectedLanguage() == "winrt")
+    {
+        _protocols->Append("tcp");
+        _protocols->Append("ws");
+    }
+    else
+    {
+        _protocols->Append("tcp");
+        _protocols->Append("ssl");
+        _protocols->Append("ws");
+        _protocols->Append("wss");
+    }
+
+    _protocol->ItemsSource = _protocols;
+    _protocol->SelectedIndex = 0;
+}
+
+std::string
+TestSuite::MainPage::selectedProtocol()
+{
+    if(selectedLanguage() == "winrt")
+    {
+        const char* protocols[] = { "tcp", "ws" };
+        assert(_protocol->SelectedIndex < sizeof(protocols) / sizeof(const char*));
+        return protocols[_protocol->SelectedIndex];
+    }
+    else
+    {
+        const char* protocols[] = { "tcp", "ssl", "ws", "wss" };
+        assert(_protocol->SelectedIndex < sizeof(protocols) / sizeof(const char*));
+        return protocols[_protocol->SelectedIndex];
+    }
+}
+std::string
+TestSuite::MainPage::selectedLanguage()
+{
+    static const char* languages[] = {"winrt", "cpp", "cs", "java"};
+    assert(_language->SelectedIndex < sizeof(languages) / sizeof(const char*));
+    return languages[_language->SelectedIndex];
+}
+
+void
+TestSuite::MainPage::Language_SelectionChanged(Platform::Object^ sender, SelectionChangedEventArgs^ e)
+{
+    if(_language)
+    {
+        _host->IsEnabled = selectedLanguage() != "winrt";    
+        initializeSupportedTests();
+        initializeSupportedProtocols();
+    }
+}
+
+void
+TestSuite::MainPage::printToConsoleOutput(String^ message, bool newline)
+{
+	_output->Dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler(
+		[=]()
+	{
+		if(newline)
+		{
+			_messages->Append(ref new String(L""));
+		}
+
+		if(_messages->Size > 0)
+		{
+			String^ item = _messages->GetAt(_messages->Size - 1);
+			wstring s(item->Data());
+			s += wstring(message->Data());
+			_messages->SetAt(_messages->Size - 1, ref new String(s.c_str()));
+		}
+		else
+		{
+			_messages->Append(message);
+		}
+
+		_output->SelectedIndex = _messages->Size - 1;
+		_output->ScrollIntoView(_output->SelectedItem);
+	}, CallbackContext::Any));
 }

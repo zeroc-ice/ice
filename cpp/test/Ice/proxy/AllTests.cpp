@@ -977,7 +977,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     Ice::ObjectPrx p2 = communicator->stringToProxy("test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
     test(communicator->proxyToString(p2) == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");
 
-    if(communicator->getProperties()->getPropertyAsInt("Ice.IPv6") == 0)
+    if(communicator->getProperties()->getPropertyAsInt("Ice.IPv6") == 0 &&
+       communicator->getProperties()->getProperty("Ice.Default.Host") == "127.0.0.1")
     {
         // Working?
 #ifndef ICE_OS_WINRT

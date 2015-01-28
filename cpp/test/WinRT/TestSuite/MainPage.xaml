@@ -14,70 +14,141 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-
-        <!-- Header -->
         <StackPanel Grid.Row="0">
-            <TextBlock Text="ZeroC - Ice Test Suite" Style="{StaticResource TitleStyle}"
-                       Margin="5, 5, 5, 5"
+            <TextBlock Text="ZeroC - Ice Test Suite" 
+                       Style="{StaticResource TitleStyle}" 
+                       Margin="5" 
                        VerticalAlignment="Bottom" TextWrapping="Wrap"/>
         </StackPanel>
+        <Hub Grid.Row="1" 
+             Grid.Column="0" 
+             Margin="0" 
+             Padding="0">
+            <HubSection Width="300"  
+                        VerticalContentAlignment="Stretch" 
+                        HorizontalContentAlignment="Stretch" 
+                        Padding="10"
+                        Loaded="Tests_Loaded">
+                <DataTemplate>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <ListBox Grid.Row="0"
+                                 Grid.Column="0"
+                                 x:Name="ListBox"
+                                 Background="LightGray"></ListBox>
+                    </Grid>
+                </DataTemplate>
+            </HubSection>
 
-        <!-- Content -->
-        <Grid Grid.Row="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
-                <ListBox x:Name="TestList" HorizontalAlignment="Left"
-                             Padding="5, 5, 15, 5">
-                </ListBox>
-            </StackPanel>
-            <Grid Grid.Row="0" Grid.Column="1">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" 
-                           Style="{StaticResource H1Style}" 
-                           Text="Output" Margin="5, 5, 5, 5"/>
-                <Border Grid.Row="1" Grid.Column="0"  BorderThickness="2" BorderBrush="Gray" Background="Gray">
-                    <ScrollViewer x:Name="Scroller"  VerticalScrollBarVisibility="Auto" 
-                        HorizontalScrollBarVisibility="Disabled" 
-                        Width="Auto" Height="Auto"
-                        ZoomMode="Disabled">
-                        <TextBlock x:Name="Output" Style="{StaticResource OutputStyle}"   
-                                   Padding="5, 5, 5, 5" TextWrapping="Wrap"/>
-                    </ScrollViewer>
-                </Border>
-                <Border Grid.Row="2" Padding="5, 5, 5, 5">
-                    <StackPanel Orientation="Horizontal">                    
-                        <Button x:Name="btnRun" Content="Run" Click="btnRun_Click"/>
-                        <CheckBox x:Name="chkLoop" Content="Run In A Loop" Margin="10, 0, 0, 0"/>
-                        <CheckBox x:Name="chkSerialize" Content="Enable Serialize Mode" Margin="10, 0, 0, 0"/>
-                        <CheckBox x:Name="chkIPv6" Content="Use IPv6" Margin="10, 0, 0, 0"/>
-                        <TextBlock Text="Protocol" Margin="10, 0, 0, 0" VerticalAlignment="Center" Style="{StaticResource BasicTextStyle}" FontSize="16"/>
-                        <ComboBox x:Name="protocol" SelectedIndex="0" Margin="10, 0, 0, 0">
-                            <ComboBoxItem Name="tcp">tcp</ComboBoxItem>
-                            <ComboBoxItem Name="ssl">ssl</ComboBoxItem>
-                            <ComboBoxItem Name="ws">ws</ComboBoxItem>
-                            <ComboBoxItem Name="wss">wss</ComboBoxItem>
-                        </ComboBox>
-                    </StackPanel>
-                </Border>
-            </Grid>
-        </Grid>
-        <!-- Footer -->
+            <HubSection Width="300"
+                        Padding="5"
+                        VerticalContentAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        Loaded="Configuration_Loaded">
+                <DataTemplate>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel
+                            Grid.Row="0" 
+                            Grid.Column="0" 
+                            VerticalAlignment="Stretch" 
+                            HorizontalAlignment="Stretch">
+                            <TextBlock Margin="5" 
+                                       Text="Server" 
+                                       Style="{StaticResource BasicTextStyle}" 
+                                       FontSize="16"/>
+                            <ComboBox Margin="5"
+                                      x:Name="Language"
+                                      SelectedIndex="0"
+                                      SelectionChanged="Language_SelectionChanged">
+                                <ComboBoxItem Name="winrt">winrt</ComboBoxItem>
+                                <ComboBoxItem Name="cpp">C++</ComboBoxItem>
+                                <ComboBoxItem Name="cs">C#</ComboBoxItem>
+                                <ComboBoxItem Name="java">Java</ComboBoxItem>
+                            </ComboBox>
+                            <TextBlock Margin="5" 
+                                       Text="Host"
+                                       Style="{StaticResource BasicTextStyle}"
+                                       FontSize="16"/>
+                            <TextBox Padding="10"
+                                     x:Name="Host"
+                                     Text="127.0.0.1"
+                                     FontSize="16"/>
+                            <TextBlock Margin="5" 
+                                       Text="Protocol"
+                                       FontSize="16"/>
+                            <ComboBox Margin="5" 
+                                      x:Name="Protocol"
+                                      SelectedIndex="0">
+                                <ComboBoxItem Name="tcp">tcp</ComboBoxItem>
+                                <ComboBoxItem Name="ssl">ssl</ComboBoxItem>
+                                <ComboBoxItem Name="ws">ws</ComboBoxItem>
+                                <ComboBoxItem Name="wss">wss</ComboBoxItem>
+                            </ComboBox>
+                            <CheckBox Margin="5" 
+                                      x:Name="Loop" 
+                                      Content="Run In A Loop"
+                                      FontSize="16"/>
+                            <CheckBox Margin="5" 
+                                      x:Name="Serialize"
+                                      Content="Enable Serialize Mode"
+                                      FontSize="16"/>
+                            <CheckBox Margin="5"
+                                      x:Name="IPv6"
+                                      Content="Use IPv6"
+                                      FontSize="16"/>
+                            <Button Margin="5" 
+                                    x:Name="Run"
+                                    Content="Run"
+                                    Click="btnRun_Click"
+                                    HorizontalAlignment="Stretch"
+                                    FontSize="16"/>
+                            <Button Margin="5" 
+                                    x:Name="Stop"
+                                    Content="Stop"
+                                    Click="btnStop_Click"
+                                    HorizontalAlignment="Stretch"
+                                    FontSize="16"/>
+                        </StackPanel>
+                    </Grid>
+                </DataTemplate>
+            </HubSection>
+            <HubSection Width="800" 
+                        VerticalContentAlignment="Stretch" 
+                        HorizontalContentAlignment="Stretch"
+                        Padding="10"
+                        Loaded="Output_Loaded">
+                <DataTemplate>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <ListBox Grid.Row="0" 
+                                 Grid.Column="0" 
+                                 x:Name="Output"
+                                 Background="LightGray"></ListBox>
+                    </Grid>
+                </DataTemplate>
+            </HubSection>
+        </Hub>
         <StackPanel Grid.Row="2" VerticalAlignment="Bottom">
-            <TextBlock Margin="5, 5, 5, 5"  Style="{StaticResource FooterStyle}" 
-                       Text="Copyright © 2012-2015 ZeroC, Inc. All rights reserved."  TextWrapping="Wrap"/>
+            <TextBlock Text="Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved." 
+                       Style="{StaticResource FooterStyle}"
+                       Margin="5"
+                       TextWrapping="Wrap"/>
         </StackPanel>
     </Grid>
 </Page>

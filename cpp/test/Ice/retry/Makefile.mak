@@ -12,9 +12,11 @@ top_srcdir	= ..\..\..
 !if "$(WINRT)" != "yes"
 NAME_PREFIX	= 
 EXT		= .exe
+OBJDIR		= .
 !else
 NAME_PREFIX	= Ice_retry_
 EXT		= .dll
+OBJDIR		= winrt
 !endif
 
 CLIENT		= $(NAME_PREFIX)client
@@ -23,22 +25,22 @@ COLLOCATED	= $(NAME_PREFIX)collocated
 
 TARGETS		= $(CLIENT)$(EXT) $(SERVER)$(EXT) $(COLLOCATED)$(EXT)
 
-SLICE_OBJS	= .\Test.obj
+SLICE_OBJS	= $(OBJDIR)\Test.obj
 
 COBJS		= $(SLICE_OBJS) \
-		  .\Client.obj \
-		  .\InstrumentationI.obj \
-		  .\AllTests.obj
+		  $(OBJDIR)\Client.obj \
+		  $(OBJDIR)\InstrumentationI.obj \
+		  $(OBJDIR)\AllTests.obj
 
 SOBJS		= $(SLICE_OBJS) \
-		  .\TestI.obj \
-		  .\Server.obj
+		  $(OBJDIR)\TestI.obj \
+		  $(OBJDIR)\Server.obj
 
 COLOBJS		= $(SLICE_OBJS) \
-		  .\Collocated.obj \
-		  .\AllTests.obj \
-		  .\InstrumentationI.obj \
-		  .\TestI.obj
+		  $(OBJDIR)\Collocated.obj \
+		  $(OBJDIR)\AllTests.obj \
+		  $(OBJDIR)\InstrumentationI.obj \
+		  $(OBJDIR)\TestI.obj
 
 OBJS		= $(COBJS) \
 		  $(SOBJS) \

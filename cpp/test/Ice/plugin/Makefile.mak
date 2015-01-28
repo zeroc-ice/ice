@@ -12,9 +12,11 @@ top_srcdir	= ..\..\..
 !if "$(WINRT)" != "yes"
 NAME_PREFIX	= 
 EXT		= .exe
+OBJDIR		= .
 !else
 NAME_PREFIX	= Ice_plugin_
 EXT		= .dll
+OBJDIR		= winrt
 !endif
 
 CLIENT		= $(NAME_PREFIX)client
@@ -24,9 +26,9 @@ PLUGINDIR	= plugins
 
 TARGETS		= $(CLIENT)$(EXT) $(PLUGINDIR)\$(LIBNAME) $(PLUGINDIR)\$(DLLNAME)
 
-COBJS		= .\Client.obj
+COBJS		= $(OBJDIR)\Client.obj
 
-POBJS		= .\Plugin.obj
+POBJS		= $(OBJDIR)\Plugin.obj
 
 OBJS		= $(COBJS) \
 		  $(POBJS)

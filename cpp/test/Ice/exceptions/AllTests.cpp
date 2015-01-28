@@ -498,7 +498,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
             // Expected
         }
 
-        communicator->getProperties()->setProperty("TestAdapter0.Endpoints", "default");
+        string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ? 
+            "127.0.0.1" : "0:0:0:0:0:0:0:1";
+        communicator->getProperties()->setProperty("TestAdapter0.Endpoints", "default -h " + host);
         first = communicator->createObjectAdapter("TestAdapter0");
         try
         {
@@ -538,7 +540,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing servant registration exceptions... " << flush;
     {
-        communicator->getProperties()->setProperty("TestAdapter1.Endpoints", "default");
+        string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ? 
+            "127.0.0.1" : "0:0:0:0:0:0:0:1";
+        communicator->getProperties()->setProperty("TestAdapter1.Endpoints", "default -h " + host);
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter1");
         Ice::ObjectPtr obj = new EmptyI;
         adapter->add(obj, communicator->stringToIdentity("x"));
@@ -605,7 +609,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing servant locator registrations exceptions... " << flush;
     {
-        communicator->getProperties()->setProperty("TestAdapter2.Endpoints", "default");
+        string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ? 
+            "127.0.0.1" : "0:0:0:0:0:0:0:1";
+        communicator->getProperties()->setProperty("TestAdapter2.Endpoints", "default -h " + host);
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter2");
         Ice::ServantLocatorPtr loc = new ServantLocatorI;
         adapter->addServantLocator(loc, "x");

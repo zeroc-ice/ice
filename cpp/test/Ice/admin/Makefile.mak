@@ -12,9 +12,11 @@ top_srcdir	= ..\..\..
 !if "$(WINRT)" != "yes"
 NAME_PREFIX	= 
 EXT		= .exe
+OBJDIR		= .
 !else
 NAME_PREFIX	= Ice_admin_
 EXT		= .dll
+OBJDIR		= winrt
 !endif
 
 CLIENT		= $(NAME_PREFIX)client
@@ -22,15 +24,15 @@ SERVER		= $(NAME_PREFIX)server
 
 TARGETS		= $(CLIENT)$(EXT) $(SERVER)$(EXT)
 
-SLICE_OBJS	= .\Test.obj
+SLICE_OBJS	= $(OBJDIR)\Test.obj
 
 COBJS		= $(SLICE_OBJS) \
-		  .\Client.obj \
-		  .\AllTests.obj
+		  $(OBJDIR)\Client.obj \
+		  $(OBJDIR)\AllTests.obj
 
-SOBJS		= .\Test.obj \
-		  .\TestI.obj \
-		  .\Server.obj
+SOBJS		= $(OBJDIR)\Test.obj \
+		  $(OBJDIR)\TestI.obj \
+		  $(OBJDIR)\Server.obj
 
 OBJS		= $(COBJS) \
 		  $(SOBJS)

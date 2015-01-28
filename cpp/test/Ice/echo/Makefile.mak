@@ -12,20 +12,22 @@ top_srcdir	= ..\..\..
 !if "$(WINRT)" != "yes"
 NAME_PREFIX	=
 EXT		= .exe
+OBJDIR		= .
 !else
 NAME_PREFIX	= Ice_invoke_
 EXT		= .dll
+OBJDIR		= winrt
 !endif
 
 SERVER		= $(NAME_PREFIX)server
 
 TARGETS		= $(SERVER)$(EXT)
 
-SLICE_OBJS	= .\Test.obj
+SLICE_OBJS	= $(OBJDIR)\Test.obj
 
 OBJS		= $(SLICE_OBJS) \
-		  .\BlobjectI.obj \
-		  .\Server.obj
+		  $(OBJDIR)\BlobjectI.obj \
+		  $(OBJDIR)\Server.obj
 
 !include $(top_srcdir)/config/Make.rules.mak
 

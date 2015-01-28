@@ -67,11 +67,11 @@ $(document).ready(
                 var str;
                 if(protocol == "ws")
                 {
-                    str = "controller:ws -h " + defaultHost + " -p 12009";
+                    str = "controller:ws -h " + defaultHost + " -p 15002";
                 }
                 else
                 {
-                    str = "controller:wss -h " + defaultHost + " -p 12008";
+                    str = "controller:wss -h " + defaultHost + " -p 15003";
                 }
                 var controller = test.Common.ControllerPrx.uncheckedCast(communicator.stringToProxy(str));
 
@@ -99,7 +99,7 @@ $(document).ready(
                         function(proxy)
                         {
                             var ref = proxy.ice_getIdentity().name + ":" + protocol + " -h " + defaultHost + " -p " + 
-                                (protocol == "ws" ? "12009" : "12008");
+                                (protocol == "ws" ? "15002" : "15003");
                             out.writeLine("ok");
                             server = test.Common.ServerPrx.uncheckedCast(communicator.stringToProxy(ref));
                                 

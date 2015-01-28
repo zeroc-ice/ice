@@ -20,7 +20,7 @@
                 <Setter Property="FontSize" Value="16" />
             </Style>
             <Style x:Key="OutputStyle" TargetType="TextBlock">
-                <Setter Property="Foreground" Value="White" />
+                <Setter Property="Foreground" Value="Black" />
                 <Setter Property="FontFamily" Value="Segoe UI Light" />
                 <Setter Property="FontSize" Value="16" />
             </Style>

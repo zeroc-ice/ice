@@ -44,14 +44,15 @@ if TestUtil.isDarwin():
 version = "3.6b"
 jar = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..",
                    "java/test/controller/build/libs/testController-%(version)s.jar" % {"version": version})
-command = ("java -jar %(jar)s" % {"jar":jar})
+command = ["%s/bin/java" % os.environ.get("JAVA_HOME"), "-jar", jar]
 
-p = subprocess.Popen(command, shell = True, stdin = subprocess.PIPE, stdout = subprocess.PIPE,
+p = subprocess.Popen(command, shell = False, stdin = subprocess.PIPE, stdout = subprocess.PIPE,
                      stderr = subprocess.STDOUT, bufsize = 0)
 
 def signal_handler(signal, frame):
     if p:
         p.terminate()
+    sys.exit(0)
 signal.signal(signal.SIGINT, signal_handler)
 
 while(True):

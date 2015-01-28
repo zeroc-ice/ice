@@ -295,6 +295,7 @@ depend:: $(SLICE_SRCS:.ice=.d)
 
 !if "$(SLICE_OBJS)" != ""
 SLICE_SRCS = $(SLICE_OBJS:.obj=.cpp)
+SLICE_SRCS = $(SLICE_SRCS:winrt\=)
 SLICE_SRCS = $(SLICE_SRCS:.\=)
 all:: $(SLICE_SRCS)
 !endif
@@ -317,6 +318,10 @@ depend:: $(SRCS) $(OBJS_DEPEND)
 {..}.cpp{$(ARCH)\$(CONFIG)\}.obj::
 	@if not exist "$(ARCH)\$(CONFIG)" mkdir $(ARCH)\$(CONFIG)
 	$(CXX) /c /Fo$(ARCH)\$(CONFIG)\ $(CPPFLAGS) $(CXXFLAGS) $<
+
+.cpp{$(OBJDIR)\}.obj::
+	@if not exist "$(OBJDIR)" mkdir $(OBJDIR)
+	$(CXX) /c /Fo$(OBJDIR)\ $(CPPFLAGS) $(CXXFLAGS) $<
 
 {$(slicedir)\Glacier2\}.ice{Glacier2\}.d:
 	@echo Generating dependencies for $<
@@ -408,8 +413,13 @@ clean::
 
 !endif
 
+!if "$(OBJDIR)" == ""
 clean::
 	-del /q *.obj *.bak *.ilk *.exp *.pdb *.tds *.idb
+!else
+clean::
+	-del /q $(OBJDIR)\*.obj $(OBJDIR)\*.bak $(OBJDIR)\*.ilk $(OBJDIR)\*.exp $(OBJDIR)\*.pdb $(OBJDIR)\*.tds $(OBJDIR)\*.idb
+!endif
 
 install::
 

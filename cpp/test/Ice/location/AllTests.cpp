@@ -622,26 +622,30 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     }
     cout << "ok" << endl;
 
-    cout << "testing indirect proxies to collocated objects... " << flush;
-    //
-    // Set up test for calling a collocated object through an indirect, adapterless reference.
-    //
-    Ice::PropertiesPtr properties = communicator->getProperties();
-    properties->setProperty("Ice.PrintAdapterReady", "0");
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("Hello", "default");
-    adapter->setLocator(locator);
+    string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ? 
+            "127.0.0.1" : "0:0:0:0:0:0:0:1";
+    if(communicator->getProperties()->getProperty("Ice.Default.Host") == host)
+    {
+        cout << "testing indirect proxies to collocated objects... " << flush;
+        //
+        // Set up test for calling a collocated object through an indirect, adapterless reference.
+        //
+        Ice::PropertiesPtr properties = communicator->getProperties();
+        properties->setProperty("Ice.PrintAdapterReady", "0");
+        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("Hello", "default");
+        adapter->setLocator(locator);
 
-    Ice::Identity id;
-    id.name = IceUtil::generateUUID();
-    registry->addObject(adapter->add(new HelloI, id));
-    adapter->activate();
-    
-    HelloPrx helloPrx = HelloPrx::checkedCast(communicator->stringToProxy(communicator->identityToString(id)));
-    test(!helloPrx->ice_getConnection());
+        Ice::Identity id;
+        id.name = IceUtil::generateUUID();
+        registry->addObject(adapter->add(new HelloI, id));
+        adapter->activate();
+        
+        HelloPrx helloPrx = HelloPrx::checkedCast(communicator->stringToProxy(communicator->identityToString(id)));
+        test(!helloPrx->ice_getConnection());
 
-    adapter->deactivate();
-    cout << "ok" << endl;
-
+        adapter->deactivate();
+        cout << "ok" << endl;
+    }
     cout << "shutdown server manager... " << flush;
     manager->shutdown();
     cout << "ok" << endl;

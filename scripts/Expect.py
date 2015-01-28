@@ -329,8 +329,13 @@ def cleanup():
         except:
             pass
     processes.clear()
-
 atexit.register(cleanup)
+
+def signal_handler(signal, frame):
+    cleanup()
+    sys.exit(0)
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
 
 class Expect (object):
     def __init__(self, command, startReader = True, timeout=30, logfile=None, mapping = None, desc = None, cwd = None, env = None):
