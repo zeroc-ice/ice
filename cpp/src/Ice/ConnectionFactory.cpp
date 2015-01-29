@@ -1617,7 +1617,7 @@ IceInternal::IncomingConnectionFactory::createAcceptor()
             _adapter->getThreadPool()->_register(this, SocketOperationRead);
         }
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::Exception&)
     {
         if(_acceptor)
         {
