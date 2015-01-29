@@ -291,7 +291,6 @@ public abstract class Application extends Ice.Application
         boolean restart = false;
         status.value = 0;
 
-
         try
         {
             _communicator = Ice.Util.initialize(argHolder, initData);
@@ -336,6 +335,10 @@ public abstract class Application extends Ice.Application
                     catch(Ice.OperationNotExistException ex)
                     {
                     }
+                    if(acmTimeout <= 0)
+                    {
+                        acmTimeout = (int)_router.getSessionTimeout();
+                    }
                     if(acmTimeout > 0)
                     {
                         Ice.Connection connection = _router.ice_getCachedConnection();
@@ -344,61 +347,6 @@ public abstract class Application extends Ice.Application
                                           null,
                                           new Ice.Optional<Ice.ACMHeartbeat>(Ice.ACMHeartbeat.HeartbeatAlways));
                         connection.setCallback(new ConnectionCallbackI());
-                    }
-                    else
-                    {
-                        long timeout = _router.getSessionTimeout();
-                        if(timeout > 0)
-                        {
-                            java.util.concurrent.ScheduledExecutorService timer =
-                                IceInternal.Util.getInstance(_communicator).timer();
-                            //
-                            // We don't need to cancel the task as the communicator is destroyed at the end and
-                            // ContinueExistingPeriodicTasksAfterShutdownPolicy is false.
-                            //
-                            timer.scheduleAtFixedRate(new Runnable()
-                                {
-                                    @Override
-                                    public void run()
-                                    {
-                                        _router.begin_refreshSession(new Glacier2.Callback_Router_refreshSession()
-                                            {
-                                                @Override
-                                                public void
-                                                response()
-                                                {
-                                                }
-
-                                                @Override
-                                                public void
-                                                exception(Ice.LocalException ex)
-                                                {
-                                                    //
-                                                    // Here the session has gone and we notify the application that
-                                                    // the session has been destroyed.
-                                                    //
-                                                    sessionDestroyed();
-                                                }
-
-                                                @Override
-                                                public void
-                                                exception(Ice.UserException ex)
-                                                {
-                                                    //
-                                                    // Here the session has gone and we notify the application that
-                                                    // the session has been destroyed.
-                                                    //
-                                                    sessionDestroyed();
-                                                }
-                                            });
-                                        //
-                                        // AMI requests can raise CommunicatorDestroyedException directly. We let this
-                                        // out of the task and terminate the timer.
-                                        //
-
-                                    }
-                                }, timeout / 2, timeout / 2, java.util.concurrent.TimeUnit.SECONDS);
-                        }
                     }
                     _category = _router.getCategoryForClient();
                     status.value = runWithSession(argHolder.value);

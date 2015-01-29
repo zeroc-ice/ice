@@ -23,50 +23,6 @@ string Glacier2::Application::_category;
 namespace
 {
 
-class SessionRefreshTask : public IceUtil::TimerTask
-{
-    
-public:
-    
-    SessionRefreshTask(Glacier2::Application* app, const Glacier2::RouterPrx& router) :
-        _app(app),
-        _router(router)
-    {
-        _callback = Glacier2::newCallback_Router_refreshSession(this, &SessionRefreshTask::exception);
-    }
-
-    void
-    exception(const Ice::Exception&)
-    {
-        //
-        // Here the session has been destroyed. Notify the application that the
-        // session has been destroyed.
-        //
-        _app->sessionDestroyed();
-    }
-
-    virtual void
-    runTimerTask()
-    {
-        try
-        {
-            _router->begin_refreshSession(_callback);
-        }
-        catch(const Ice::CommunicatorDestroyedException&)
-        {
-            //
-            // AMI requests can raise CommunicatorDestroyedException directly.
-            //
-        }
-    }
-
-private:
-    
-    Glacier2::Application* _app;
-    Glacier2::RouterPrx _router;
-    Glacier2::Callback_Router_refreshSessionPtr _callback;
-};
-
 class ConnectionCallbackI : public Ice::ConnectionCallback
 {
 public:
@@ -230,7 +186,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
 
             if(_createdSession)
             {
-                int acmTimeout = 0;
+                Ice::Int acmTimeout = 0;
                 try
                 { 
                     acmTimeout = _router->getACMTimeout();
@@ -238,27 +194,17 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
                 catch(const Ice::OperationNotExistException&)
                 {
                 }
+                if(acmTimeout <= 0)
+                {
+                    acmTimeout = static_cast<Ice::Int>(_router->getSessionTimeout());
+                }
+
                 if(acmTimeout > 0)
                 {
                     Ice::ConnectionPtr connection = _router->ice_getCachedConnection();
                     assert(connection);
                     connection->setACM(acmTimeout, IceUtil::None, Ice::HeartbeatAlways);
                     connection->setCallback(new ConnectionCallbackI(this));
-                }
-                else
-                {
-                    IceUtil::Int64 sessionTimeout = _router->getSessionTimeout();
-                    if(sessionTimeout > 0)
-                    {
-                        //
-                        // Create a ping timer task. The task itself doesn't
-                        // need to be canceled as the communicator is destroyed
-                        // at the end.
-                        //
-                        IceUtil::TimerPtr timer = IceInternal::getInstanceTimer(communicator());
-                        timer->scheduleRepeated(new SessionRefreshTask(this, _router),
-                            IceUtil::Time::seconds(sessionTimeout/2));
-                    }
                 }
 
                 _category = _router->getCategoryForClient();

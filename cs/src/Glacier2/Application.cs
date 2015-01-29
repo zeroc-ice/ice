@@ -24,7 +24,7 @@ namespace Glacier2
 /// error output.
 ///
 /// Applications must create a derived class that implements the {@link #run} method.
-/// 
+///
 /// A program can contain only one instance of this class.
 /// </summary>
 public abstract class Application : Ice.Application
@@ -49,7 +49,7 @@ public abstract class Application : Ice.Application
     /// Initializes an instance that handles signals according to the signal
     /// policy.
     /// </summary>
-    /// <param name="signalPolicy">@param signalPolicy Determines how to 
+    /// <param name="signalPolicy">@param signalPolicy Determines how to
     /// respond to signals.</param>
     public
     Application(Ice.SignalPolicy signalPolicy) : base(signalPolicy)
@@ -93,7 +93,7 @@ public abstract class Application : Ice.Application
     /// method never returns. The exception produce an application restart
     /// when called from the Application main thread.
     /// </summary>
-    /// <returns>throws RestartSessionException This exception is 
+    /// <returns>throws RestartSessionException This exception is
     /// always thrown.</returns>
     ///
     public void
@@ -104,7 +104,7 @@ public abstract class Application : Ice.Application
 
     /// <summary>
     /// Creates a new Glacier2 session. A call to createSession always
-    /// precedes a call to runWithSession. If Ice.LocalException is thrown 
+    /// precedes a call to runWithSession. If Ice.LocalException is thrown
     /// from this method, the application is terminated.
     /// </summary>
     /// <returns> The Glacier2 session.</returns>
@@ -205,42 +205,6 @@ public abstract class Application : Ice.Application
         return _adapter;
     }
 
-    private class SessionRefreshTask : IceInternal.TimerTask
-    {
-        public SessionRefreshTask(Application app, Glacier2.RouterPrx router)
-        {
-            _app = app;
-            _router = router;
-        }
-
-        public void
-        runTimerTask()
-        {
-            try
-            {
-                _router.begin_refreshSession().whenCompleted(
-                    (Ice.Exception ex) => 
-                    {
-                        //
-                        // Here the session has been destroyed. Notify the
-                        // application that the session has been destroyed.
-                        //
-                        _app.sessionDestroyed();
-                    });
-            }
-            catch(Ice.CommunicatorDestroyedException)
-            {
-                //
-                // AMI requests can raise CommunicatorDestroyedException
-                // directly.
-                //
-            }
-        }
-
-        private Application _app;
-        private Glacier2.RouterPrx _router;
-    }
-
     private class ConnectionCallbackI : Ice.ConnectionCallback
     {
         internal ConnectionCallbackI(Application application)
@@ -250,7 +214,7 @@ public abstract class Application : Ice.Application
 
         public void heartbeat(Ice.Connection con)
         {
-                
+
         }
 
         public void closed(Ice.Connection con)
@@ -346,21 +310,16 @@ public abstract class Application : Ice.Application
                     catch(Ice.OperationNotExistException)
                     {
                     }
+                    if(acmTimeout <= 0)
+                    {
+                        acmTimeout = (int)_router.getSessionTimeout();
+                    }
                     if(acmTimeout > 0)
                     {
                         Ice.Connection connection = _router.ice_getCachedConnection();
                         Debug.Assert(connection != null);
-                        connection.setACM(acmTimeout, Ice.Util.None, Ice.ACMHeartbeat.HeartbeatAlways);
+                        connection.setACM((int)acmTimeout, Ice.Util.None, Ice.ACMHeartbeat.HeartbeatAlways);
                         connection.setCallback(new ConnectionCallbackI(this));
-                    }
-                    else
-                    {
-                        long timeout = _router.getSessionTimeout();
-                        if(timeout > 0)
-                        {
-                            IceInternal.Timer timer = IceInternal.Util.getInstance(communicator()).timer();
-                            timer.scheduleRepeated(new SessionRefreshTask(this, _router), (timeout * 1000) / 2);
-                        }
                     }
                     _category = _router.getCategoryForClient();
                     status = runWithSession(args);
@@ -468,7 +427,7 @@ public abstract class Application : Ice.Application
                 //
                 // Not expected.
                 //
-                Ice.Util.getProcessLogger().error("unexpected exception when destroying the session:\n" + 
+                Ice.Util.getProcessLogger().error("unexpected exception when destroying the session:\n" +
                                                   ex.ToString());
             }
             _router = null;

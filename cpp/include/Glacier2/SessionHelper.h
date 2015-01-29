@@ -96,6 +96,9 @@ public:
 
     void setConnectContext(std::map<std::string, std::string> context);
 
+    void setUseCallbacks(bool);
+    bool getUseCallbacks() const;
+
     SessionHelperPtr connect();
     SessionHelperPtr connect(const std::string&,  const std::string&);
 
@@ -116,6 +119,7 @@ private:
     Ice::InitializationData _initData;
     SessionCallbackPtr _callback;
     std::map< std::string, std::string> _context;
+    bool _useCallbacks;
 };
 typedef IceUtil::Handle<SessionFactoryHelper> SessionFactoryHelperPtr;
 

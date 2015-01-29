@@ -19,12 +19,16 @@ public class SessionHelper
      *
      * @param callback The callback for notifications about session establishment.
      * @param initData The {@link Ice.InitializationData} for initializing the communicator.
+     * @param finderStr The stringified Ice.RouterFinder proxy.
+     * @param useCallbacks True if the session should create an object adapter for receiving callbacks.
      */
-    public SessionHelper(SessionCallback callback, Ice.InitializationData initData, String finderStr)
+    public SessionHelper(SessionCallback callback, Ice.InitializationData initData, String finderStr,
+                         boolean useCallbacks)
     {
         _callback = callback;
         _initData = initData;
         _finderStr = finderStr;
+        _useCallbacks = useCallbacks;
     }
 
     /**
@@ -71,8 +75,7 @@ public class SessionHelper
         }
 
         //
-        // Run the destroyInternal in a thread. This is because it
-        // destroyInternal makes remote invocations.
+        // Run destroyInternal in a thread because it makes remote invocations.
         //
         new Thread(new Runnable()
         {
@@ -182,10 +185,10 @@ public class SessionHelper
         {
             throw new SessionNotExistException();
         }
-        if(_adapter == null)
+        if(!_useCallbacks)
         {
-            _adapter = _communicator.createObjectAdapterWithRouter("", _router);
-            _adapter.activate();
+            throw new Ice.InitializationException(
+                "Object adapter not available, call SessionFactoryHelper.setUseCallbacks(true)");
         }
         return _adapter;
     }
@@ -246,8 +249,12 @@ public class SessionHelper
     private void
     connected(RouterPrx router, SessionPrx session)
     {
+        //
+        // Remote invocation should be done without acquiring a mutex lock.
+        //
+        assert(router != null);
+        Ice.Connection conn = router.ice_getCachedConnection();
         String category = router.getCategoryForClient();
-        long sessionTimeout = router.getSessionTimeout();
         int acmTimeout = 0;
         try
         {
@@ -256,7 +263,24 @@ public class SessionHelper
         catch(Ice.OperationNotExistException ex)
         {
         }
-        Ice.Connection conn = router.ice_getCachedConnection();
+
+        if(acmTimeout <= 0)
+        {
+            acmTimeout = (int)router.getSessionTimeout();
+        }
+
+        //
+        // We create the callback object adapter here because createObjectAdapter internally
+        // makes synchronous RPCs to the router. We can't create the OA on-demand when the
+        // client calls objectAdapter() or addWithUUID() because they can be called from the
+        // GUI thread.
+        //
+        if(_useCallbacks)
+        {
+            assert(_adapter == null);
+            _adapter = _communicator.createObjectAdapterWithRouter("", router);
+            _adapter.activate();
+        }
 
         synchronized(this)
         {
@@ -265,8 +289,7 @@ public class SessionHelper
             if(_destroy)
             {
                 //
-                // Run the destroyInternal in a thread. This is because it
-                // destroyInternal makes remote invocations.
+                // Run destroyInternal in a thread because it makes remote invocations.
                 //
                 new Thread(new Runnable()
                 {
@@ -310,45 +333,6 @@ public class SessionHelper
                                                destroy();
                                            }
                                        });
-            }
-            else if(sessionTimeout > 0)
-            {
-                java.util.concurrent.ScheduledExecutorService timer =
-                    IceInternal.Util.getInstance(_communicator).timer();
-                //
-                // We don't need to cancel the task as the communicator is destroyed at the end and
-                // ContinueExistingPeriodicTasksAfterShutdownPolicy is false.
-                //
-                timer.scheduleAtFixedRate(new Runnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            _router.begin_refreshSession(new Glacier2.Callback_Router_refreshSession()
-                            {
-                                @Override
-                                public void response()
-                                {
-                                }
-
-                                @Override
-                                public void exception(Ice.LocalException ex)
-                                {
-                                    SessionHelper.this.destroy();
-                                }
-
-                                @Override
-                                public void exception(Ice.UserException ex)
-                                {
-                                    SessionHelper.this.destroy();
-                                }
-                            });
-                            //
-                            // AMI requests can raise CommunicatorDestroyedException directly. We let this
-                            // out of the task and terminate the timer.
-                            //
-                        }
-                    }, sessionTimeout / 2, sessionTimeout / 2, java.util.concurrent.TimeUnit.SECONDS);
             }
 
             _shutdownHook = new Thread("Shutdown hook")
@@ -601,6 +585,7 @@ public class SessionHelper
     private Glacier2.SessionPrx _session;
     private String _category;
     private String _finderStr;
+    private boolean _useCallbacks;
 
     private final SessionCallback _callback;
     private boolean _destroy = false;

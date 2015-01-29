@@ -59,7 +59,7 @@ class SessionHelperI : public Glacier2::SessionHelper
 
 public:
 
-    SessionHelperI(const Glacier2::SessionCallbackPtr&, const Ice::InitializationData&, const string&);
+    SessionHelperI(const Glacier2::SessionCallbackPtr&, const Ice::InitializationData&, const string&, bool);
     void destroy();
     Ice::CommunicatorPtr communicator() const;
     std::string categoryForClient() const;
@@ -100,47 +100,9 @@ private:
     const Ice::InitializationData _initData;
     const Glacier2::SessionCallbackPtr _callback;
     const string _finder;
+    const bool _useCallbacks;
 };
 typedef IceUtil::Handle<SessionHelperI> SessionHelperIPtr;
-
-class SessionRefreshTask : public IceUtil::TimerTask
-{
-public:
-
-    SessionRefreshTask(const Glacier2::SessionHelperPtr& session, const Glacier2::RouterPrx& router) :
-        _session(session),
-        _router(router),
-        _callback(Glacier2::newCallback_Router_refreshSession(this, &SessionRefreshTask::exception))
-    {
-    }
-
-    virtual void
-    runTimerTask()
-    {
-        try
-        {
-            _router->begin_refreshSession(_callback);
-        }
-        catch(const Ice::CommunicatorDestroyedException&)
-        {
-            //
-            // AMI requests can raise CommunicatorDestroyedException directly.
-            //
-        }
-    }
-
-    void
-    exception(const Ice::Exception&)
-    {
-        _session->destroy();
-    }
-
-private:
-
-    const Glacier2::SessionHelperPtr _session;
-    const Glacier2::RouterPrx _router;
-    const Glacier2::Callback_Router_refreshSessionPtr _callback;
-};
 
 class DestroyInternal : public IceUtil::Thread
 {
@@ -168,12 +130,14 @@ private:
 
 SessionHelperI::SessionHelperI(const Glacier2::SessionCallbackPtr& callback,
                                const Ice::InitializationData& initData,
-                               const string& finderStr) :
+                               const string& finderStr,
+                               bool useCallbacks) :
     _connected(false),
     _destroy(false),
     _initData(initData),
     _callback(callback),
-    _finder(finderStr)
+    _finder(finderStr),
+    _useCallbacks(useCallbacks)
 {
 }
 
@@ -207,8 +171,7 @@ SessionHelperI::destroy(const IceUtil::ThreadPtr& destroyInternal)
     _connected = false;
 
     //
-    // Run the destroyInternal in a thread. This is because it
-    // destroyInternal makes remote invocations.
+    // Run destroyInternal in a thread because it makes remote invocations.
     //
     destroyInternal->start().detach();
 }
@@ -289,10 +252,10 @@ SessionHelperI::internalObjectAdapter()
     {
         throw Glacier2::SessionNotExistException();
     }
-    if(!_adapter)
+    if(!_useCallbacks)
     {
-        _adapter = _communicator->createObjectAdapterWithRouter("", _router);
-        _adapter->activate();
+        throw Ice::InitializationException(__FILE__, __LINE__, 
+            "Object adapter not available, call SessionFactoryHelper.setUseCallbacks(true)");
     }
     return _adapter;
 }
@@ -677,19 +640,35 @@ void
 SessionHelperI::connected(const Glacier2::RouterPrx& router, const Glacier2::SessionPrx& session)
 {
     //
-    // Remote invocation should be done without acquire a mutex lock.
+    // Remote invocation should be done without acquiring a mutex lock.
     //
     assert(router);
     Ice::ConnectionPtr conn = router->ice_getCachedConnection();
     string category = router->getCategoryForClient();
-    Ice::Long sessionTimeout = router->getSessionTimeout();
-    int acmTimeout = 0;
+    Ice::Int acmTimeout = 0;
     try
     {
         acmTimeout = router->getACMTimeout();
     }
     catch(const Ice::OperationNotExistException&)
     {
+    }
+
+    if(acmTimeout <= 0)
+    {
+        acmTimeout = static_cast<Ice::Int>(router->getSessionTimeout());
+    }
+
+    //
+    // We create the callback object adapter here because createObjectAdapter internally
+    // makes synchronous RPCs to the router. We can't create the OA on-demand when the
+    // client calls objectAdapter() or addWithUUID() because they can be called from the
+    // GUI thread.
+    //
+    if(_useCallbacks)
+    {
+        _adapter = _communicator->createObjectAdapterWithRouter("", router);
+        _adapter->activate();
     }
 
     {
@@ -699,8 +678,7 @@ SessionHelperI::connected(const Glacier2::RouterPrx& router, const Glacier2::Ses
         if(_destroy)
         {
             //
-            // Run the destroyInternal in a thread. This is because it
-            // destroyInternal makes remote invocations.
+            // Run destroyInternal in a thread because it makes remote invocations.
             //
             IceUtil::ThreadPtr thread = new DestroyInternal(this, _callback);
             thread->start().detach();
@@ -724,16 +702,6 @@ SessionHelperI::connected(const Glacier2::RouterPrx& router, const Glacier2::Ses
             assert(connection);
             connection->setACM(acmTimeout, IceUtil::None, Ice::HeartbeatAlways);
             connection->setCallback(new ConnectionCallbackI(this));
-        }
-        else if(sessionTimeout > 0)
-        {
-            //
-            // Create a ping timer task. The task itself doesn't need to be
-            // canceled as the communicator is destroyed at the end.
-            //
-            IceUtil::TimerPtr timer = IceInternal::getInstanceTimer(communicator());
-            timer->scheduleRepeated(new SessionRefreshTask(this, _router),
-                IceUtil::Time::seconds(sessionTimeout/2));
         }
     }
     dispatchCallback(new Connected(_callback, this), conn);
@@ -802,7 +770,8 @@ Glacier2::SessionFactoryHelper::SessionFactoryHelper(const SessionCallbackPtr& c
     _protocol("ssl"),
     _port(0),
     _timeout(10000),
-    _callback(callback)
+    _callback(callback),
+    _useCallbacks(true)
 {
     _initData.properties = Ice::createProperties();
     setDefaultProperties();
@@ -815,7 +784,8 @@ Glacier2::SessionFactoryHelper::SessionFactoryHelper(const Ice::InitializationDa
     _port(0),
     _timeout(10000),
     _initData(initData),
-    _callback(callback)
+    _callback(callback),
+    _useCallbacks(true)
 {
     if(!initData.properties)
     {
@@ -830,7 +800,8 @@ Glacier2::SessionFactoryHelper::SessionFactoryHelper(const Ice::PropertiesPtr& p
     _protocol("ssl"),
     _port(0),
     _timeout(10000),
-    _callback(callback)
+    _callback(callback),
+    _useCallbacks(true)
 {
     if(!properties)
     {
@@ -890,7 +861,7 @@ Glacier2::SessionFactoryHelper::setProtocol(const string& protocol)
        protocol != "ws" &&
        protocol != "wss")
     {
-        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "Unknow protocol `" + protocol + "'");
+        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "Unknown protocol `" + protocol + "'");
     }
     _protocol = protocol;
 }
@@ -951,11 +922,25 @@ Glacier2::SessionFactoryHelper::setConnectContext(map<string, string> context)
     _context = context;
 }
 
+void
+Glacier2::SessionFactoryHelper::setUseCallbacks(bool useCallbacks)
+{
+    IceUtil::Mutex::Lock sync(_mutex);
+    _useCallbacks = useCallbacks;
+}
+
+bool
+Glacier2::SessionFactoryHelper::getUseCallbacks() const
+{
+    IceUtil::Mutex::Lock sync(_mutex);
+    return _useCallbacks;
+}
+
 Glacier2::SessionHelperPtr
 Glacier2::SessionFactoryHelper::connect()
 {
     IceUtil::Mutex::Lock sync(_mutex);
-    SessionHelperIPtr session = new SessionHelperI(_callback, createInitData(), getRouterFinderStr());
+    SessionHelperIPtr session = new SessionHelperI(_callback, createInitData(), getRouterFinderStr(), _useCallbacks);
     session->connect(_context);
     return session;
 }
@@ -964,7 +949,7 @@ Glacier2::SessionHelperPtr
 Glacier2::SessionFactoryHelper::connect(const string& user,  const string& password)
 {
     IceUtil::Mutex::Lock sync(_mutex);
-    SessionHelperIPtr session = new SessionHelperI(_callback, createInitData(), getRouterFinderStr());
+    SessionHelperIPtr session = new SessionHelperI(_callback, createInitData(), getRouterFinderStr(), _useCallbacks);
     session->connect(user, password, _context);
     return session;
 }

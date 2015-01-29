@@ -20,37 +20,6 @@ namespace Glacier2
 /// </summary>
 public class SessionHelper
 {
-    private class SessionRefreshTask : IceInternal.TimerTask
-    {
-        public SessionRefreshTask(SessionHelper session, Glacier2.RouterPrx router)
-        {
-            _session = session;
-            _router = router;
-        }
-
-        public void
-        runTimerTask()
-        {
-            try
-            {
-                _router.begin_refreshSession().whenCompleted(
-                    (Ice.Exception ex) =>
-                    {
-                        _session.destroy();
-                    });
-            }
-            catch(Ice.CommunicatorDestroyedException)
-            {
-                //
-                // AMI requests can raise CommunicatorDestroyedException directly.
-                //
-            }
-        }
-
-        private SessionHelper _session;
-        private Glacier2.RouterPrx _router;
-    }
-
     private class ConnectionCallbackI : Ice.ConnectionCallback
     {
         internal ConnectionCallbackI(SessionHelper sessionHelper)
@@ -79,11 +48,13 @@ public class SessionHelper
     /// <param name="initData">The Ice.InitializationData for initializing
     /// the communicator.</param>
     /// <param name="finderStr">The stringified Ice.RouterFinder proxy.</param>
-    public SessionHelper(SessionCallback callback, Ice.InitializationData initData, string finderStr)
+    /// <param name="useCallbacks">True if the session should create an object adapter for receiving callbacks.</param>
+    public SessionHelper(SessionCallback callback, Ice.InitializationData initData, string finderStr, bool useCallbacks)
     {
         _callback = callback;
         _initData = initData;
         _finderStr = finderStr;
+        _useCallbacks = useCallbacks;
     }
 
     /// <summary>
@@ -115,8 +86,7 @@ public class SessionHelper
             _session = null;
             _connected = false;
             //
-            // Run the destroyInternal in a thread. This is because it
-            // destroyInternal makes remote invocations.
+            // Run destroyInternal in a thread because it makes remote invocations.
             //
             Thread t = new Thread(new ThreadStart(destroyInternal));
             t.Start();
@@ -215,7 +185,7 @@ public class SessionHelper
     /// <summary>
     /// Returns an object adapter for callback objects, creating it if necessary.
     /// </summary>
-    /// <return>The object adapter. throws SessionNotExistException
+    /// <return>The object adapter. Throws SessionNotExistException
     /// if no session exists.</return>
     public Ice.ObjectAdapter
     objectAdapter()
@@ -223,9 +193,6 @@ public class SessionHelper
         return internalObjectAdapter();
     }
 
-    //
-    // Only call this method when the calling thread owns the lock
-    //
     private Ice.ObjectAdapter
     internalObjectAdapter()
     {
@@ -235,10 +202,10 @@ public class SessionHelper
             {
                 throw new SessionNotExistException();
             }
-            if(_adapter == null)
+            if(!_useCallbacks)
             {
-                _adapter = _communicator.createObjectAdapterWithRouter("", _router);
-                _adapter.activate();
+                throw new Ice.InitializationException(
+                    "Object adapter not available, call SessionFactoryHelper.setUseCallbacks(true)");
             }
             return _adapter;
         }
@@ -288,8 +255,12 @@ public class SessionHelper
     private void
     connected(RouterPrx router, SessionPrx session)
     {
+        //
+        // Remote invocation should be done without acquiring a mutex lock.
+        //
+        Debug.Assert(router != null);
+        Ice.Connection conn = router.ice_getCachedConnection();
         string category = router.getCategoryForClient();
-        long sessionTimeout = router.getSessionTimeout();
         int acmTimeout = 0;
         try
         {
@@ -298,7 +269,24 @@ public class SessionHelper
         catch(Ice.OperationNotExistException)
         {
         }
-        Ice.Connection conn = router.ice_getCachedConnection();
+
+        if(acmTimeout <= 0)
+        {
+            acmTimeout = (int)router.getSessionTimeout();
+        }
+
+        //
+        // We create the callback object adapter here because createObjectAdapter internally
+        // makes synchronous RPCs to the router. We can't create the OA on-demand when the
+        // client calls objectAdapter() or addWithUUID() because they can be called from the
+        // GUI thread.
+        //
+        if(_useCallbacks)
+        {
+            Debug.Assert(_adapter == null);
+            _adapter = _communicator.createObjectAdapterWithRouter("", router);
+            _adapter.activate();
+        }
 
         lock(this)
         {
@@ -307,8 +295,7 @@ public class SessionHelper
             if(_destroy)
             {
                 //
-                // Run the destroyInternal in a thread. This is because it
-                // destroyInternal makes remote invocations.
+                // Run destroyInternal in a thread because it makes remote invocations.
                 //
                 Thread t = new Thread(new ThreadStart(destroyInternal));
                 t.Start();
@@ -332,11 +319,6 @@ public class SessionHelper
                 Debug.Assert(connection != null);
                 connection.setACM(acmTimeout, Ice.Util.None, Ice.ACMHeartbeat.HeartbeatAlways);
                 connection.setCallback(new ConnectionCallbackI(this));
-            }
-            else if(sessionTimeout > 0)
-            {
-                IceInternal.Timer timer = IceInternal.Util.getInstance(communicator()).timer();
-                timer.scheduleRepeated(new SessionRefreshTask(this, _router), (sessionTimeout * 1000)/2);
             }
         }
 
@@ -397,7 +379,6 @@ public class SessionHelper
             communicator.getLogger().warning("SessionHelper: unexpected exception when destroying the session:\n" + e);
         }
 
-
         try
         {
             communicator.destroy();
@@ -450,8 +431,8 @@ public class SessionHelper
                 }
                 catch(Exception)
                 {
-                    // In case of error getting router identity from RouterFinder use
-                    // default identity.
+                    //
+                    // In case of error getting router identity from RouterFinder use default identity.
                     //
                     Ice.Identity ident = new Ice.Identity("router", "Glacier2");
                     _communicator.setDefaultRouter(Ice.RouterPrxHelper.uncheckedCast(finder.ice_identity(ident)));
@@ -465,8 +446,7 @@ public class SessionHelper
                         _callback.createdCommunicator(this);
                     });
 
-                Glacier2.RouterPrx routerPrx = Glacier2.RouterPrxHelper.uncheckedCast(
-                    _communicator.getDefaultRouter());
+                Glacier2.RouterPrx routerPrx = Glacier2.RouterPrxHelper.uncheckedCast(_communicator.getDefaultRouter());
                 Glacier2.SessionPrx session = factory(routerPrx);
                 connected(routerPrx, session);
             }
@@ -537,6 +517,7 @@ public class SessionHelper
     private bool _connected = false;
     private string _category;
     private string _finderStr;
+    private bool _useCallbacks;
 
     private readonly SessionCallback _callback;
     private bool _destroy = false;

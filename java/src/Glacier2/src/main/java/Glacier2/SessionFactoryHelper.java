@@ -272,6 +272,30 @@ public class SessionFactoryHelper
     }
 
     /**
+     * Determines whether the session should create an object adapter that the client
+     * can use for receiving callbacks.
+     *
+     * @param useCallbacks True if the session should create an object adapter.
+     */
+    synchronized public void
+    setUseCallbacks(boolean useCallbacks)
+    {
+        _useCallbacks = useCallbacks;
+    }
+
+    /**
+     * Indicates whether a newly-created session will also create an object adapter that
+     * the client can use for receiving callbacks.
+     *
+     * @return True if the session will create an object adapter.
+     */
+    synchronized public boolean
+    getUseCallbacks()
+    {
+        return _useCallbacks;
+    }
+
+    /**
      * Connects to the Glacier2 router using the associated SSL credentials.
      *
      * Once the connection is established, {@link SessionCallback#connected} is called on the callback object;
@@ -282,7 +306,7 @@ public class SessionFactoryHelper
     synchronized public SessionHelper
     connect()
     {
-        SessionHelper session = new SessionHelper(_callback, createInitData(), getRouterFinderStr());
+        SessionHelper session = new SessionHelper(_callback, createInitData(), getRouterFinderStr(), _useCallbacks);
         session.connect(_context);
         return session;
     }
@@ -300,7 +324,7 @@ public class SessionFactoryHelper
     synchronized public SessionHelper
     connect(final String username, final String password)
     {
-        SessionHelper session = new SessionHelper(_callback, createInitData(), getRouterFinderStr());
+        SessionHelper session = new SessionHelper(_callback, createInitData(), getRouterFinderStr(), _useCallbacks);
         session.connect(username, password, _context);
         return session;
     }
@@ -368,6 +392,7 @@ public class SessionFactoryHelper
     private int _port = 0;
     private int _timeout = 10000;
     private java.util.Map<String, String> _context;
+    private boolean _useCallbacks = true;
     private static final int GLACIER2_SSL_PORT = 4064;
     private static final int GLACIER2_TCP_PORT = 4063;
 }

@@ -167,7 +167,7 @@ public class SessionFactoryHelper
                !protocol.Equals("wss") &&
                !protocol.Equals("ws"))
             {
-                throw new ArgumentException("Unknow protocol `" + protocol + "'");
+                throw new ArgumentException("Unknown protocol `" + protocol + "'");
             }
             _protocol = protocol;
         }
@@ -276,6 +276,34 @@ public class SessionFactoryHelper
     }
 
     /// <summary>
+    /// Determines whether the session should create an object adapter that the client
+    /// can use for receiving callbacks.
+    /// </summary>
+    /// <param name="useCallbacks">True if the session should create an object adapter.</param>
+    public void
+    setUseCallbacks(bool useCallbacks)
+    {
+        lock(this)
+        {
+            _useCallbacks = useCallbacks;
+        }
+    }
+
+    /// <summary>
+    /// Indicates whether a newly-created session will also create an object adapter that
+    /// the client can use for receiving callbaks.
+    /// </summary>
+    /// <returns>True if the session will create an object adapter.</returns>
+    public bool
+    getUseCallbacks()
+    {
+        lock(this)
+        {
+            return _useCallbacks;
+        }
+    }
+
+    /// <summary>
     /// Connects to the Glacier2 router using the associated SSL credentials.
     ///
     /// Once the connection is established, SesssionCallback.connected is called on
@@ -288,7 +316,7 @@ public class SessionFactoryHelper
     {
         lock(this)
         {
-            SessionHelper session = new SessionHelper(_callback, createInitData(), getRouterFinderStr());
+            SessionHelper session = new SessionHelper(_callback, createInitData(), getRouterFinderStr(), _useCallbacks);
             session.connect(_context);
             return session;
         }
@@ -309,7 +337,7 @@ public class SessionFactoryHelper
     {
         lock(this)
         {
-            SessionHelper session = new SessionHelper(_callback, createInitData(), getRouterFinderStr());
+            SessionHelper session = new SessionHelper(_callback, createInitData(), getRouterFinderStr(), _useCallbacks);
             session.connect(username, password, _context);
             return session;
         }
@@ -384,6 +412,7 @@ public class SessionFactoryHelper
     private int _port = 0;
     private int _timeout = 10000;
     private Dictionary<string, string> _context;
+    private bool _useCallbacks = true;
     private static int GLACIER2_SSL_PORT = 4064;
     private static int GLACIER2_TCP_PORT = 4063;
 }

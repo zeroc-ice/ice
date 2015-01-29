@@ -33,49 +33,6 @@ class RestartSessionException(Exception):
     def __init__(self):
         pass
 
-class SessionPingThread(threading.Thread):
-    def __init__(self, app, router, period):
-        threading.Thread.__init__(self)
-        self._app = app
-        self._router = router
-        self._period = period
-        self._done = False
-        self._cond = threading.Condition()
-
-    def run(self):
-        self._cond.acquire()
-        try:
-            while not self._done:
-                self._router.begin_refreshSession(self.response, self.exception)
-
-                if not self._done:
-                    self._cond.wait(self._period)
-        finally:
-            self._cond.release()
-
-    def done(self):
-        self._cond.acquire()
-        try:
-            if not self._done:
-                self._done = True
-                self._cond.notify()
-        finally:
-            self._cond.release()
-
-    def response(self):
-        #
-        # Ignore successful call to refreshSession.
-        #
-        pass
-
-    def exception(self, ex):
-        #
-        # Here the session has gone. The thread terminates, and we notify the
-        # application that the session has been destroyed.
-        #
-        self.done()
-        self._app.sessionDestroyed()
-        
 class ConnectionCallbackI(Ice.ConnectionCallback):
     def __init__(self, app):
         self._app = app
@@ -159,7 +116,6 @@ Application.NoSignalHandling.
         restart = False
         status = 0
 
-        ping = None
         try:
             Ice.Application._communicator = Ice.initialize(args, initData)
 
@@ -188,16 +144,13 @@ Application.NoSignalHandling.
                         acmTimeout = Application._router.getACMTimeout()
                     except(Ice.OperationNotExistException):
                         pass
+                    if acmTimeout <= 0:
+                        acmTimeout = Application._router.getSessionTimeout()
                     if acmTimeout > 0:
                         connection = Application._router.ice_getCachedConnection()
                         assert(connection)
                         connection.setACM(acmTimeout, Ice.Unset, Ice.ACMHeartbeat.HeartbeatAlways)
                         connection.setCallback(ConnectionCallbackI(self))
-                    else:
-                        timeout = Application._router.getSessionTimeout()
-                        if timeout > 0:
-                            ping = SessionPingThread(self, Application._router, timeout / 2)
-                            ping.start()
                     Application._category = Application._router.getCategoryForClient()
                     status = self.runWithSession(args)
 
@@ -236,10 +189,6 @@ Application.NoSignalHandling.
             # remaining callback won't do anything
             #
         Ice.Application._condVar.release()
-
-        if ping:
-            ping.done()
-            ping.join()
 
         if Application._createdSession and Application._router:
             try:

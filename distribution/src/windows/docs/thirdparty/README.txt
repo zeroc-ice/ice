@@ -1,5 +1,5 @@
 Ice 3.6.0 Third Party Packages
------------------------------
+------------------------------
 
 This distribution contains the development kit (including binaries)
 for the open-source packages used by Ice 3.6.0 on Windows. Its primary
