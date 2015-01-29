@@ -45,7 +45,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing facet registration exceptions... " << flush;
     string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ? 
-            "127.0.0.1" : "0:0:0:0:0:0:0:1";
+            "127.0.0.1" : "\"0:0:0:0:0:0:0:1\"";
     communicator->getProperties()->setProperty("FacetExceptionTestAdapter.Endpoints", "default -h " + host);
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("FacetExceptionTestAdapter");
     Ice::ObjectPtr obj = new EmptyI;

@@ -623,7 +623,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     cout << "ok" << endl;
 
     string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ? 
-            "127.0.0.1" : "0:0:0:0:0:0:0:1";
+            "127.0.0.1" : "\"0:0:0:0:0:0:0:1\"";
     if(communicator->getProperties()->getProperty("Ice.Default.Host") == host)
     {
         cout << "testing indirect proxies to collocated objects... " << flush;
