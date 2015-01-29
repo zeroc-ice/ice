@@ -27,15 +27,20 @@ PRELIBPATH      = /LIBPATH:
 GENERATE_PDB	= yes
 !endif
 
-CPPFLAGS	= $(CPPFLAGS) -nologo -W3 -WX -wd4250 -wd4251 -GR -EHsc
-ARFLAGS	        = $(ARFLAGS) -nologo -WX 
+CPPFLAGS	= $(CPPFLAGS) -nologo -GR -EHsc
+!if "$(MAXWARN)" != "yes"
+CPPFLAGS	= $(CPPFLAGS) -W3 -WX -wd4250 -wd4251
+!else
+CPPFLAGS	= $(CPPFLAGS) -W4
+!endif
+ARFLAGS	        = $(ARFLAGS) -nologo -WX
 
 !if "$(WINRT)" == "yes"
 CPPFLAGS	= $(CPPFLAGS) -DWINAPI_FAMILY=2 -Gm- -Oy- -Gd -ZW -D_UNICODE -DUNICODE
 #
 # We ignore these two warnings
 # 4264 http://msdn.microsoft.com/en-us/library/windows/apps/hh771041(v=vs.110).aspx
-# 4221 is "This object file does not define any previously undefined public symbols", 
+# 4221 is "This object file does not define any previously undefined public symbols",
 #
 ARFLAGS		= $(ARFLAGS) /ignore:4264 /ignore:4221
 !else
@@ -54,7 +59,7 @@ CPPFLAGS        = $(CPPFLAGS) -MP
 !if "$(OPTIMIZE)" == "yes"
 
 CPPFLAGS	= $(CPPFLAGS) -O2 -DNDEBUG -MD
-CONFIG		= Retail	
+CONFIG		= Retail
 
 !if "$(RELEASEPDBS)" == "yes"
 CPPFLAGS        = $(CPPFLAGS) -Zi -Oy-
@@ -75,7 +80,7 @@ CPPFLAGS        = $(CPPFLAGS) -DICE_STATIC_LIBS
 LDFLAGS		= $(LDFLAGS) /nologo
 
 !if "$(WINRT)" == "yes"
-LDFLAGS		= $(LDFLAGS) /NXCOMPAT /MANIFEST:NO /APPCONTAINER /NOLOGO 
+LDFLAGS		= $(LDFLAGS) /NXCOMPAT /MANIFEST:NO /APPCONTAINER /NOLOGO
 !if "$(CPP_COMPILER)" == "VC120"
 !if "$(ARCH)" == "x86"
 LDFLAGS   = $(LDFLAGS) /LIBPATH:"$(VCINSTALLDIR)\lib\store"
@@ -152,25 +157,25 @@ $(SDK_LICENSE) $(SDK_ICE_LICENSE):
 	type $(top_srcdir)\..\LICENSE | find "" /v > $(SDK_LICENSE)
 	type $(top_srcdir)\..\ICE_LICENSE | find "" /v > $(SDK_ICE_LICENSE)
 !endif
-	
+
 $(SDK_BASE_PATH):
 	mkdir $(SDK_BASE_PATH)
-	
+
 $(SDK_LIBRARY_PATH):
 	mkdir $(SDK_LIBRARY_PATH)
 
 $(SDK_REDIST_PATH):
 	mkdir $(SDK_REDIST_PATH)
-	
+
 $(SDK_REFERENCES_PATH):
 	mkdir $(SDK_REFERENCES_PATH)
-	
+
 $(SDK_PROPS_PATH):
 	mkdir $(SDK_PROPS_PATH)
 
 $(SDK_INCLUDE_PATH):
 	mkdir $(SDK_INCLUDE_PATH)
-	
+
 $(SDK_BASE_PATH)\$(SDK_MANIFEST): $(SDK_BASE_PATH)
 				@echo <<$(SDK_MANIFEST)
 <FileList
@@ -186,7 +191,7 @@ $(SDK_BASE_PATH)\$(SDK_MANIFEST): $(SDK_BASE_PATH)
 </FileList>
 <<KEEP
 	move $(SDK_MANIFEST) $(SDK_BASE_PATH)
-	
+
 $(SDK_PROPS_PATH)\$(SDK_PROPS_FILE): $(SDK_PROPS_PATH)
 	@echo <<$(SDK_PROPS_FILE)
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -205,7 +210,7 @@ $(SDK_PROPS_PATH)\$(SDK_PROPS_FILE): $(SDK_PROPS_PATH)
 	<PropertyGroup>
 		<IceWinRTHome>$$(Registry:HKEY_LOCAL_MACHINE\Software\Microsoft\Microsoft SDKs\Windows\v$(TARGET_PLATFORM_VERSION)\ExtensionSDKS\$(SDK_NAME)\$(SDK_VERSION)@)</IceWinRTHome>
 		<IncludePath>$$(IceWinRTHome)\Designtime\CommonConfiguration\Neutral\include;$$(IncludePath)</IncludePath>
-		<LibraryPath>$$(IceWinRTHome)\Designtime\$$(ConfigurationPrefix)\$$(PlatformTarget);$$(LibraryPath)</LibraryPath> 
+		<LibraryPath>$$(IceWinRTHome)\Designtime\$$(ConfigurationPrefix)\$$(PlatformTarget);$$(LibraryPath)</LibraryPath>
  </PropertyGroup>
 </Project>
 <<KEEP
@@ -213,7 +218,7 @@ $(SDK_PROPS_PATH)\$(SDK_PROPS_FILE): $(SDK_PROPS_PATH)
 
 $(ARCH)\$(CONFIG):
 	mkdir $(ARCH)\$(CONFIG)
-	
+
 sdks: $(SDK_LIBRARY_PATH) $(SDK_REDIST_PATH) $(SDK_REFERENCES_PATH) $(SDK_BASE_PATH)\$(SDK_MANIFEST) \
 	$(SDK_PROPS_PATH)\$(SDK_PROPS_FILE) $(SDK_INCLUDE_PATH) $(ARCH)\$(CONFIG) $(SDK_LICENSE) $(SDK_ICE_LICENSE)
 
