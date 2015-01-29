@@ -98,7 +98,8 @@ Timer.onmessage = function(e)
 
 function workerCode()
 {
-    function w()
+    return "(" +
+    function()
     {
         //
         // jshint worker: true
@@ -148,8 +149,7 @@ function workerCode()
         //
         // jshint worker: false
         //
-    }
-    return w.toString() + "w();";
+    }.toString() + "());";
 }
 
 if(worker === undefined)
