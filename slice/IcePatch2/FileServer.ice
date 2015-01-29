@@ -21,6 +21,7 @@
  * compressed before download.
  *
  **/
+["objc:prefix:ICEPATCH2"]
 module IcePatch2
 {
 

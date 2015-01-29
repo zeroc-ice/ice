@@ -662,14 +662,14 @@ namespace IceInternal
             _resource = resource;
             _incoming = false;
 
+            // 
+            // Use a 16KB write buffer size. We use 16KB for the write
+            // buffer size because all the data needs to be copied to the
+            // write buffer for the purpose of masking. A 16KB buffer
+            // appears to be a good compromise to reduce the number of
+            // socket write calls and not consume too much memory.
             //
-            // For client connections, the sent frame payload must be
-            // masked. So we copy and send the message buffer data in
-            // chuncks of data whose size is up to the write buffer
-            // size.
-            //
-            Socket fd = del.fd();
-            _writeBufferSize = Math.Max(Network.getSendBufferSize(fd), 1024);
+            _writeBufferSize = 16 * 1024;
 
             //
             // Write and read buffer size must be large enough to hold the frame header!

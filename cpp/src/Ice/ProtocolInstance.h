@@ -76,14 +76,11 @@ public:
     void resolve(const std::string&, int, Ice::EndpointSelectionType, const IPEndpointIPtr&,
                  const EndpointI_connectorsPtr&) const;
 
-private:
+protected:
 
     ProtocolInstance(const InstancePtr&, Ice::Short, const std::string&, bool);
     friend class Instance;
     const InstancePtr _instance;
-
-protected:
-
     const int _traceLevel;
     const std::string _traceCategory;
     const Ice::PropertiesPtr _properties;

@@ -14,6 +14,7 @@
 
 #include <Ice/BuiltinSequences.ice>
 
+["objc:prefix:ICEPATCH2"]
 module IcePatch2
 {
 

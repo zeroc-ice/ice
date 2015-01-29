@@ -980,12 +980,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
     if(communicator->getProperties()->getPropertyAsInt("Ice.IPv6") == 0 &&
        communicator->getProperties()->getProperty("Ice.Default.Host") == "127.0.0.1")
     {
-        // Working?
-#ifndef ICE_OS_WINRT
-        const bool ssl = communicator->getProperties()->getProperty("Ice.Default.Protocol") == "ssl";
-#else
-        const bool ssl = true;
-#endif
+        // SSL enabled?
+        bool ssl;
+        try
+        {
+            Ice::ObjectPrx prx = communicator->stringToProxy("dummy:ssl");
+            ssl = true;
+        }
+        catch(const Ice::EndpointParseException&)
+        {
+            ssl = false;
+        }
+
         const bool tcp = communicator->getProperties()->getProperty("Ice.Default.Protocol") == "tcp";
         if(tcp)
         {

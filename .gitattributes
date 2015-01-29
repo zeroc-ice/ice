@@ -10,7 +10,6 @@
 
 # Files which are never exported.
 /ndk export-ignore
-/objc export-ignore
 /perf export-ignore
 /eclipse export-ignore
 

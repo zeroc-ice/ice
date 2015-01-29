@@ -217,7 +217,7 @@ IceInternal::WSTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer, 
             //
             // We don't know how much we'll need to read.
             //
-            _readBuffer.b.resize(1024);
+            _readBuffer.b.resize(_readBufferSize);
             _readI = _readBuffer.i = _readBuffer.b.begin();
 
             //
@@ -814,7 +814,7 @@ IceInternal::WSTransceiver::checkSendSize(const Buffer& buf)
 }
 
 IceInternal::WSTransceiver::WSTransceiver(const ProtocolInstancePtr& instance, const TransceiverPtr& del,
-                                            const string& host, int port, const string& resource) :
+                                          const string& host, int port, const string& resource) :
     _instance(instance),
     _delegate(del),
     _host(host),
@@ -830,24 +830,19 @@ IceInternal::WSTransceiver::WSTransceiver(const ProtocolInstancePtr& instance, c
     _readHeaderLength(0),
     _readPayloadLength(0),
     _writeState(WriteStateHeader),
-    _writeBufferSize(1024),
+    _writeBufferSize(16 * 1024),
     _readPending(false),
     _writePending(false),
     _closingInitiator(false),
     _closingReason(CLOSURE_NORMAL)
 {
+    // 
+    // Use 1KB read and 16KB write buffer sizes. We use 16KB for the
+    // write buffer size because all the data needs to be copied to
+    // the write buffer for the purpose of masking. A 16KB buffer
+    // appears to be a good compromise to reduce the number of socket
+    // write calls and not consume too much memory.
     //
-    // For client connections, the sent frame payload must be
-    // masked. So we copy and send the message buffer data in chuncks
-    // of data whose size is up to the write buffer size.
-    //
-    const_cast<size_t&>(_writeBufferSize) = max(IceInternal::getSendBufferSize(del->getNativeInfo()->fd()), 1024);
-
-    //
-    // Write and read buffer size must be large enough to hold the frame header!
-    //
-    assert(_writeBufferSize > 256);
-    assert(_readBufferSize > 256);
 }
 
 IceInternal::WSTransceiver::WSTransceiver(const ProtocolInstancePtr& instance, const TransceiverPtr& del) :
@@ -870,11 +865,9 @@ IceInternal::WSTransceiver::WSTransceiver(const ProtocolInstancePtr& instance, c
     _closingInitiator(false),
     _closingReason(CLOSURE_NORMAL)
 {
+    // 
+    // Use 1KB read and write buffer sizes.
     //
-    // Write and read buffer size must be large enough to hold the frame header!
-    //
-    assert(_writeBufferSize > 256);
-    assert(_readBufferSize > 256);
 }
 
 IceInternal::WSTransceiver::~WSTransceiver()

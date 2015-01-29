@@ -31,5 +31,4 @@ for line in fileinput.input("-"):
     if line.endswith(": \\"):
         line = prefix + line
 
-    
     print(line)
