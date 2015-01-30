@@ -28,7 +28,7 @@ slice
 
 jar {
     manifest {
-        attributes("Main-Class": "test.Common.ControllerServer")
+        attributes("Main-Class": "Test.Common.ControllerServer")
         attributes("Class-Path": configurations.runtime.resolve().collect { it.toURI() }.join(' '))
     }
 }                                                                                                                                    

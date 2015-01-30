@@ -19,7 +19,7 @@
 using namespace std;
 using namespace TestSuite;
 
-using namespace test::Common;
+using namespace Test::Common;
 
 using namespace Platform;
 using namespace Windows::Foundation;

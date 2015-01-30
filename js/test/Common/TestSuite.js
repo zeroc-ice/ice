@@ -73,7 +73,7 @@ $(document).ready(
                 {
                     str = "controller:wss -h " + defaultHost + " -p 15003";
                 }
-                var controller = test.Common.ControllerPrx.uncheckedCast(communicator.stringToProxy(str));
+                var controller = Test.Common.ControllerPrx.uncheckedCast(communicator.stringToProxy(str));
 
                 var p;
                 var server;
@@ -101,7 +101,7 @@ $(document).ready(
                             var ref = proxy.ice_getIdentity().name + ":" + protocol + " -h " + defaultHost + " -p " + 
                                 (protocol == "ws" ? "15002" : "15003");
                             out.writeLine("ok");
-                            server = test.Common.ServerPrx.uncheckedCast(communicator.stringToProxy(ref));
+                            server = Test.Common.ServerPrx.uncheckedCast(communicator.stringToProxy(ref));
                                 
                             var testCase = TestCases[current];
                             if(testCase.configurations === undefined)

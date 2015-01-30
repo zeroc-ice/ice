@@ -7,11 +7,11 @@
 //
 // **********************************************************************
 
-package test.Common;
+package Test.Common;
 
-import test.Common._ControllerDisp;
-import test.Common._ServerDisp;
-import test.Common.ServerPrx;
+import Test.Common._ControllerDisp;
+import Test.Common._ServerDisp;
+import Test.Common.ServerPrx;
 
 import java.io.File;
 import java.io.BufferedReader;

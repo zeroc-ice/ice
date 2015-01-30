@@ -41,7 +41,7 @@ if TestUtil.isDarwin():
     except getopt.GetoptError:
         pass
 
-version = "3.6b"
+version = "3.6.0"
 jar = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..",
                    "java/test/controller/build/libs/testController-%(version)s.jar" % {"version": version})
 command = ["%s/bin/java" % os.environ.get("JAVA_HOME"), "-jar", jar]
