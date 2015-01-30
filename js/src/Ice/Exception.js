@@ -40,7 +40,7 @@ var toString = function(key, object, objectTable, ident)
     //
     if(typeof object.toString == "function")
     {
-        return s = "\n" + ident + key + ":" + object.toString();
+        return "\n" + ident + key + ":" + object.toString();
     }
     
     var s = "\n" + ident + key + ":";

@@ -13,6 +13,7 @@ var PLUGIN_NAME = "gulp-slice2js-bundle";
 var through = require("through2");
 var fs = require("fs");
 var path = require("path");
+var sourcemap = require('source-map');
 
 function rmfile(path)
 {
@@ -228,10 +229,28 @@ StringBuffer.prototype.write = function(data)
     this.buffer = Buffer.concat([this.buffer, new Buffer(data, "utf8")]);
 };
 
+function sourceMapRelativePath(file)
+{
+    var modules = ["Ice", "Glacier2", "IceStorm", "IceGrid"],
+        rel = "",
+        filepath = file,
+        basename;
+    while(true)
+    {
+        basename = path.basename(filepath);
+        rel = path.join(basename, rel);
+        filepath = path.dirname(filepath);
+        if(modules.indexOf(basename) != -1)
+        {
+            break;
+        }
+    }
+    return rel;
+}
+
 function bundle(args)
 {
     var files = [];
-    var outputFile = null;
 
     return through.obj(
         function(file, enc, cb)
@@ -246,16 +265,11 @@ function bundle(args)
                 return this.emit('error', new PluginError(PLUGIN_NAME, 'Streaming not supported'));
             }
 
-            if(!outputFile)
-            {
-                outputFile = file;
-            }
-
             files.push(file);
             cb();
         },
         function(cb)
-        {
+        {            
             if(!isfile(args.target) ||
                files.some(function(f){ return isnewer(f.path, args.target); }))
             {
@@ -269,6 +283,12 @@ function bundle(args)
                     });
 
                 d.depends = d.expand().sort();
+                
+                var sourceMap = new sourcemap.SourceMapGenerator(
+                    {
+                        file: path.basename(args.target)
+                    });
+                var lineOffset = 0;
 
                 //
                 // Wrap the library in a closure to hold the private __Slice module.
@@ -295,31 +315,42 @@ function bundle(args)
                 var sb = new StringBuffer();
 
                 sb.write(preamble);
-
+                lineOffset += 2;
+                
                 args.modules.forEach(
                     function(m){
                         sb.write("    window." + m + " = window." + m + " || {};\n");
+                        lineOffset++;
+                        
                         if(m == "Ice")
                         {
                             sb.write("    Ice.Slice = Ice.Slice || {};\n");
+                            lineOffset++;
                         }
                     });
-                sb.write("    var Slice = Ice.Slice;");
-
+                sb.write("    var Slice = Ice.Slice;\n");
+                lineOffset++;
+                
                 for(var i = 0;  i < d.depends.length; ++i)
                 {
                     sb.write(modulePreamble);
+                    lineOffset += 3;
+                    
                     var data = d.depends[i].file.contents.toString();
+                    var file = d.depends[i].file;
                     var lines = data.toString().split("\n");
 
                     var skip = false;
                     var skipUntil;
                     var skipAuto = false;
                     var line;
+                    var out;
 
-                    for(var j in lines)
+                    var j = 0;
+                    for(j = 0; j < lines.length; j++)
                     {
-                        line = lines[j].trim();
+                        out = lines[j];
+                        line = out.trim();
 
                         if(line == "/* slice2js browser-bundle-skip */")
                         {
@@ -380,7 +411,6 @@ function bundle(args)
                             continue;
                         }
 
-                        var out = lines[j];
                         if(line.indexOf("module.exports.") === 0)
                         {
                             continue;
@@ -393,34 +423,52 @@ function bundle(args)
                         {
                             continue;
                         }
-
-                        if(line.indexOf("__M.type") !== -1)
-                        {
-                            out = out.replace(/__M\.type/g, "eval");
-                        }
-
+                        
                         sb.write("        " + out + "\n");
+                        
+                        sourceMap.addMapping(
+                            {
+                                generated:
+                                {
+                                    line: lineOffset + 1,
+                                    column: 8
+                                },
+                                original:
+                                {
+                                    line: j + 1,
+                                    column:0
+                                },
+                                source: sourceMapRelativePath(file.path)
+                            });
+                        lineOffset++;
                     }
                     sb.write(moduleEpilogue);
+                    lineOffset++;
                 }
                 sb.write("\n");
+                lineOffset++;
+                
                 //
                 // Now exports the modules to the global Window object.
                 //
                 args.modules.forEach(
                     function(m){
                         sb.write("    window." + m + " = " + m + ";\n");
+                        lineOffset++;
                     });
 
                 sb.write(epilogue);
+                lineOffset++;
 
-                this.push(new gutil.File(
+                var target = new gutil.File(
                     {
                         cwd: "",
                         base:"",
                         path:path.basename(args.target),
                         contents:sb.buffer
-                    }));
+                    });
+                target.sourceMap = JSON.parse(sourceMap.toString());
+                this.push(target);
             }
             cb();
         });

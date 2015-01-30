@@ -22,6 +22,7 @@ var open        = require("gulp-open");
 var path        = require("path");
 var paths       = require('vinyl-paths');
 var spawn       = require("child_process").spawn;
+var sourcemaps  = require('gulp-sourcemaps');
 var uglify      = require("gulp-uglify");
 
 var HttpServer  = require("./bin/HttpServer");
@@ -139,12 +140,14 @@ libs.forEach(
             function()
             {
                 return gulp.src(libSources(lib, sources))
-                    .pipe(bundle(
-                        {
-                            srcDir: srcDir(lib),
-                            modules: sources.modules,
-                            target: libFile(lib)
-                        }))
+                    .pipe(sourcemaps.init())
+                        .pipe(bundle(
+                            {
+                                srcDir: srcDir(lib),
+                                modules: sources.modules,
+                                target: libFile(lib)
+                            }))
+                    .pipe(sourcemaps.write("../lib", {sourceRoot:"/src"}))
                     .pipe(gulp.dest("lib"))
                     .pipe(gzip())
                     .pipe(gulp.dest("lib"));
@@ -155,8 +158,10 @@ libs.forEach(
             {
                 return gulp.src(libFile(lib))
                     .pipe(newer(libFileMin(lib)))
-                    .pipe(extreplace(".min.js"))
-                    .pipe(uglify())
+                    .pipe(sourcemaps.init({loadMaps:true, sourceRoot:"./"}))
+                        .pipe(uglify({compress:false}))
+                        .pipe(extreplace(".min.js"))
+                    .pipe(sourcemaps.write("../lib", {includeContent: false}))
                     .pipe(gulp.dest("lib"))
                     .pipe(gzip())
                     .pipe(gulp.dest("lib"));

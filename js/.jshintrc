@@ -2,6 +2,7 @@
     "node": true,
     "undef": true,
     "evil": true,
+    "elision": true,
     "globals":
     {
         "WebSocket" : false,

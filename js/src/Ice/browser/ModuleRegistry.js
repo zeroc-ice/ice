@@ -22,6 +22,25 @@ var __M =
     require: function(name)
     {
         return window;
+    },
+    type: function(scoped)
+    {
+        if(scoped === undefined)
+        {
+            return undefined;
+        }
+        var components = scoped.split(".");
+        var T = window;
+
+        for(var i = 0, length = components.length; i < length; ++i)
+        {
+            T = T[components[i]];
+            if(T === undefined)
+            {
+                return undefined;
+            }
+        }
+        return T;
     }
 };
 
