@@ -350,7 +350,7 @@ Parser::shutdown()
 }
 
 //
-// With older flex version <= 2.5.35 YY_INPUT second 
+// With older flex version <= 2.5.35 YY_INPUT second
 // paramenter is of type int&, in newer versions it
 // changes to size_t&
 //
@@ -379,7 +379,7 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
         {
             add_history(line);
         }
-        
+
         result = strlen(line) + 1;
         if(result > maxSize)
         {
@@ -394,31 +394,28 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
             free(line);
         }
     }
-    
+
 #else
 
     cout << parser->getPrompt() << flush;
 
     string line;
-    while(true)
+    char c;
+    do
     {
-        char c = static_cast<char>(getc(yyin));
+        c = static_cast<char>(getc(yyin));
         if(c == EOF)
         {
             if(line.size())
             {
                 line += '\n';
             }
-            break;
         }
-
-        line += c;
-
-        if(c == '\n')
+        else
         {
-            break;
+            line += c;
         }
-    }
+    } while(c != EOF && c != '\n');
 
     result = static_cast<int>(line.length());
     if(result > maxSize)

@@ -138,10 +138,13 @@ public:
 
 private:
 
+    // Required to prevent compiler warnings with MSVC++
+    IsbnToBook& operator=(const IsbnToBook&);
+
     const Ice::ObjectAdapterPtr _adapter;
 };
 
-LibraryI::LibraryI(const Ice::CommunicatorPtr& communicator, 
+LibraryI::LibraryI(const Ice::CommunicatorPtr& communicator,
                    const string& envName, const string& dbName,
                    const Freeze::EvictorPtr& evictor) :
     _evictor(evictor),
@@ -266,7 +269,7 @@ void
 LibraryI::remove(const BookDescription& description)
 {
     IceUtil::Mutex::Lock lock(*this);
-    
+
     //
     // Note: no need to catch and retry on deadlock since all access to
     // _authors is serialized.
@@ -275,7 +278,7 @@ LibraryI::remove(const BookDescription& description)
     try
     {
         StringIsbnSeqDict::iterator p = _authors.find(description.authors);
-        
+
         assert(p != _authors.end());
 
         //
@@ -284,7 +287,7 @@ LibraryI::remove(const BookDescription& description)
         Ice::StringSeq isbnSeq  = p->second;
         isbnSeq.erase(remove_if(isbnSeq.begin(), isbnSeq.end(), bind2nd(equal_to<string>(), description.isbn)),
                          isbnSeq.end());
-        
+
         if(isbnSeq.empty())
         {
             //

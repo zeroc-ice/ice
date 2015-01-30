@@ -78,7 +78,7 @@ CallbackClient::run(int argc, char*[])
         cerr << appName() << ": invalid proxy" << endl;
         return EXIT_FAILURE;
     }
-    
+
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Callback.Client");
     CallbackReceiverPtr cr = new CallbackReceiverI;
     adapter->add(cr, communicator()->stringToIdentity("callbackReceiver"));
@@ -89,7 +89,7 @@ CallbackClient::run(int argc, char*[])
 
     menu();
 
-    char c;
+    char c = 'x';
     do
     {
         try

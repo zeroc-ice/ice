@@ -24,10 +24,10 @@ CallbackSenderI::destroy()
 {
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
-        
+
         cout << "destroying callback sender" << endl;
         _destroy = true;
-        
+
         notify();
     }
 
@@ -49,7 +49,8 @@ void
 CallbackSenderI::run()
 {
     int num = 0;
-    while(true)
+    bool destroy = false;
+    while(!destroy)
     {
         std::set<Demo::CallbackReceiverPrx> clients;
         {
@@ -58,7 +59,8 @@ CallbackSenderI::run()
 
             if(_destroy)
             {
-                break;
+                destroy = true;
+                continue;
             }
 
             clients = _clients;

@@ -26,7 +26,11 @@ SUBDIRS		= $(SUBDIRS) \
 		  IcePatch2
 !endif
 
+!if "$(ice_git_dist)" != ""
+MAXWARN		= MAXWARN=yes
+!endif
+
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \
 	    @echo "making $@ in %i" && \
-	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
+	    cmd /c "cd %i && $(MAKE) $(MAXWARN) -nologo -f Makefile.mak $@" || exit 1

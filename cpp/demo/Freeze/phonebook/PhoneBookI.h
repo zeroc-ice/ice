@@ -46,6 +46,9 @@ public:
 
 private:
 
+    // Required to prevent compiler warnings with MSVC++
+    ContactI& operator=(const ContactI&);
+
     const ContactFactoryPtr _factory;
 };
 
@@ -55,7 +58,7 @@ private:
 
 class PhoneBookI : public Demo::PhoneBook
 {
-public: 
+public:
 
     PhoneBookI(const Freeze::EvictorPtr& evictor, const ContactFactoryPtr& factory, const NameIndexPtr& index);
 
@@ -65,6 +68,9 @@ public:
     virtual void shutdown(const Ice::Current&);
 
 private:
+
+    // Required to prevent compiler warnings with MSVC++
+    PhoneBookI& operator=(const PhoneBookI&);
 
     const Freeze::EvictorPtr _evictor;
     const ContactFactoryPtr _contactFactory;

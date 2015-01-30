@@ -65,8 +65,7 @@ HelloClient::run(int argc, char* argv[])
     }
 
     IceGrid::SessionPrx session;
-
-    while(true)
+    while(!session)
     {
         cout << "This demo accepts any user-id / password combination.\n";
 
@@ -114,10 +113,10 @@ HelloClient::run(int argc, char* argv[])
         {
             hello = HelloPrx::checkedCast(session->allocateObjectByType("::Demo::Hello"));
         }
-        
+
         menu();
-        
-        char c;
+
+        char c = 'x';
         do
         {
             try
@@ -165,7 +164,7 @@ HelloClient::run(int argc, char* argv[])
     }
 
     session->destroy();
-        
+
     return status;
 }
 

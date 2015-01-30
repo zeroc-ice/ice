@@ -62,6 +62,9 @@ BetResolver::add(const CasinoStore::PersistentBetPrx& bet, Ice::Long closeTime)
         }
 
     private:
+
+        Task& operator=(const Task&) { return *this; }
+
         BetResolver& _resolver;
         CasinoStore::PersistentBetPrx _bet;
 

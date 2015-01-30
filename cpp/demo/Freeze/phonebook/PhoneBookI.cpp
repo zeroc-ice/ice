@@ -99,6 +99,9 @@ public:
 
 private:
 
+    // Required to prevent compiler warnings with MSVC++
+    IdentityToContact& operator=(const IdentityToContact&);
+
     const Ice::ObjectAdapterPtr _adapter;
 };
 
@@ -116,14 +119,14 @@ PhoneBookI::createContact(const Ice::Current& c)
     // Create a new Contact Servant.
     //
     ContactIPtr contact = new ContactI(_contactFactory);
-    
+
     //
     // Create a new Ice Object in the evictor, using the new identity
     // and the new Servant.
     //
     _evictor->add(contact, ident);
 
-    
+
     //
     // Turn the identity into a Proxy and return the Proxy to the
     // caller.
@@ -137,7 +140,7 @@ PhoneBookI::findContacts(const string& name, const Ice::Current& c) const
     try
     {
         vector<Ice::Identity> identities = _index->find(name);
-        
+
         Contacts contacts;
         contacts.reserve(identities.size());
         transform(identities.begin(), identities.end(), back_inserter(contacts), IdentityToContact(c.adapter));

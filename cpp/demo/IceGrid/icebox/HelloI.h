@@ -21,6 +21,10 @@ public:
     virtual void sayHello(const Ice::Current&);
 
 private:
+
+	// Required to prevent compiler warnings with MSVC++
+	HelloI& operator=(const HelloI&);
+
     const std::string _serviceName;
 };
 

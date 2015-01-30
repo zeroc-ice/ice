@@ -63,7 +63,7 @@ Glacier2::SessionPrx
 CallbackClient::createSession()
 {
     Glacier2::SessionPrx session;
-     while(true)
+    while(!session)
     {
         cout << "This demo accepts any user-id / password combination.\n";
 

@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
- 
+
 #include <CounterObserverI.h>
 
 using namespace std;
@@ -60,7 +60,7 @@ Client::run(int argc, char*[])
     MTPrinterPtr printer = new MTPrinter();
 
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints("Observer", "tcp");
-    CounterObserverPrx observer = 
+    CounterObserverPrx observer =
         CounterObserverPrx::uncheckedCast(adapter->addWithUUID(new CounterObserverI(printer)));
     adapter->activate();
 
@@ -68,7 +68,7 @@ Client::run(int argc, char*[])
 
     menu(printer);
 
-    char c;
+    char c = 'x';
     do
     {
         try

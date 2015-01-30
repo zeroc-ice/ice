@@ -23,6 +23,9 @@ public:
     virtual Demo::SessionPrx create(const std::string&, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
+
+    SessionFactoryI& operator=(const SessionFactoryI&) { return *this; }
+
 private:
 
     const ReapTaskPtr _reaper;

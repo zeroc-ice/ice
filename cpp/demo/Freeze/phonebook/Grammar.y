@@ -17,6 +17,12 @@
 #   pragma warning( disable : 4102 )
 // warning C4065: switch statement contains 'default' but no 'case' labels
 #   pragma warning( disable : 4065 )
+// warning C4127: conditional expression is constant
+#   pragma warning( disable : 4127 )
+// warning C4244: '=' : conversion from 'int' to 'yytype_int16', possible loss of data
+#   pragma warning( disable : 4244 )
+// warning C4702: unreachable code
+#   pragma warning( disable : 4702 )
 #endif
 
 using namespace std;

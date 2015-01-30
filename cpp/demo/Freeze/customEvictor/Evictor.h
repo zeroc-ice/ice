@@ -47,12 +47,15 @@ struct EvictorEntry : public Ice::LocalObject
 {
     EvictorEntry(const ItemIPtr&);
 
+    // Required to prevent compiler warnings with MSVC++
+    EvictorEntry& operator=(const EvictorEntry&);
+
     //
     // Immutable after initialization / insertion into the Cache map.
     //
     const Ice::ObjectPtr servant;
     EvictorCache::Position cachePosition;
-   
+
     //
     // Protected by the Evictor mutex.
     //
@@ -64,13 +67,13 @@ struct EvictorEntry : public Ice::LocalObject
 class Evictor : public Ice::ServantLocator
 {
 public:
-    
+
     Evictor(CurrentDatabase&, int);
-    
+
     virtual Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&);
     virtual void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
     virtual void deactivate(const std::string&);
-    
+
 private:
 
     void evict();

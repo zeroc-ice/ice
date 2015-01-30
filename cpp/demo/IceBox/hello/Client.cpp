@@ -67,7 +67,7 @@ HelloClient::run(int argc, char* argv[])
 
     menu();
 
-    char c;
+    char c = 'x';
     do
     {
         try
@@ -115,13 +115,13 @@ HelloClient::run(int argc, char* argv[])
             else if(c == 'S')
             {
                 secure = !secure;
-                
+
                 twoway = HelloPrx::uncheckedCast(twoway->ice_secure(secure));
                 oneway = HelloPrx::uncheckedCast(oneway->ice_secure(secure));
                 batchOneway = HelloPrx::uncheckedCast(batchOneway->ice_secure(secure));
                 datagram = HelloPrx::uncheckedCast(datagram->ice_secure(secure));
                 batchDatagram = HelloPrx::uncheckedCast(batchDatagram->ice_secure(secure));
-                
+
                 if(secure)
                 {
                     cout << "secure mode is now on" << endl;

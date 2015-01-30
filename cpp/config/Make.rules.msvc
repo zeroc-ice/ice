@@ -27,9 +27,9 @@ PRELIBPATH      = /LIBPATH:
 GENERATE_PDB	= yes
 !endif
 
-CPPFLAGS	= $(CPPFLAGS) -nologo -GR -EHsc
+CPPFLAGS	= $(CPPFLAGS) -nologo -GR -EHsc -WX
 !if "$(MAXWARN)" != "yes"
-CPPFLAGS	= $(CPPFLAGS) -W3 -WX -wd4250 -wd4251
+CPPFLAGS	= $(CPPFLAGS) -W3 -wd4250 -wd4251
 !else
 CPPFLAGS	= $(CPPFLAGS) -W4
 !endif

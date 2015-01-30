@@ -27,6 +27,9 @@ public:
 
 private:
 
+    // Required to prevent compiler warnings with MSVC++
+    InitialI& operator=(const InitialI&);
+
     const Demo::SimplePtr _simple;
     const Demo::PrinterPtr _printer;
     const Demo::PrinterPrx _printerProxy;

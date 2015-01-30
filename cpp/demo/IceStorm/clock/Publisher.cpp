@@ -130,13 +130,14 @@ Publisher::run(int argc, char* argv[])
     {
         publisher = publisher->ice_oneway();
     }
-    
+
     ClockPrx clock = ClockPrx::uncheckedCast(publisher);
 
     cout << "publishing tick events. Press ^C to terminate the application." << endl;
     try
     {
-        while(true)
+        bool stop = false;
+        while(!stop)
         {
             clock->tick(IceUtil::Time::now().toDateTime());
             IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));

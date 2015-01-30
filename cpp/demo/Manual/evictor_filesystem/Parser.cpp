@@ -44,7 +44,7 @@ Parser::usage()
 }
 
 // Print the contents of directory "dir". If recursive is true,
-// print in tree fashion. 
+// print in tree fashion.
 // For files, show the contents of each file. The "depth"
 // parameter is the current nesting level (for indentation).
 
@@ -339,25 +339,22 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
     cout << parser->getPrompt() << flush;
 
     string line;
-    while(true)
+    char c;
+    do
     {
-        char c = static_cast<char>(getc(yyin));
+        c = static_cast<char>(getc(yyin));
         if(c == EOF)
         {
             if(line.size())
             {
                 line += '\n';
             }
-            break;
         }
-
-        line += c;
-
-        if(c == '\n')
+        else
         {
-            break;
+            line += c;
         }
-    }
+    } while(c != EOF && c != '\n');
 
     result = line.length();
     if(result > maxSize)

@@ -56,7 +56,7 @@ HelloClient::run(int argc, char* argv[])
 
     int status = EXIT_SUCCESS;
 
-    IceGrid::RegistryPrx registry = 
+    IceGrid::RegistryPrx registry =
         IceGrid::RegistryPrx::checkedCast(communicator()->stringToProxy("DemoIceGrid/Registry"));
     if(!registry)
     {
@@ -65,7 +65,7 @@ HelloClient::run(int argc, char* argv[])
     }
 
     IceGrid::SessionPrx session;
-    while(true)
+    while(!session)
     {
         cout << "This demo accepts any user-id / password combination.\n";
 
@@ -80,7 +80,7 @@ HelloClient::run(int argc, char* argv[])
         password = trim(password);
 
         try
-        {  
+        {
             session = registry->createSession(id, password);
             break;
         }
@@ -102,7 +102,7 @@ HelloClient::run(int argc, char* argv[])
 
         menu();
 
-        char c;
+        char c = 'x';
         do
         {
             try

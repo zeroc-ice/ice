@@ -96,6 +96,9 @@ public:
 
 private:
 
+    // Required to prevent compiler warnings with MSVC++
+    RandomGenerator& operator=(const RandomGenerator&);
+
     const int _max;
 };
 
@@ -132,6 +135,9 @@ public:
 
 private:
 
+    // Required to prevent compiler warnings with MSVC++
+    SequentialGenerator& operator=(const SequentialGenerator&);
+
     const int _min;
     const int _max;
     int _current;
@@ -140,38 +146,38 @@ private:
 class TestApp : public Ice::Application
 {
 public:
-    
+
     TestApp(const string&);
 
     virtual int run(int, char*[]);
 
 private:
 
-    void IntIntMapIndexTest(IntIntMap&) 
+    void IntIntMapIndexTest(IntIntMap&)
     {}
-    
+
     void IntIntMapIndexTest(IndexedIntIntMap&);
-    template<class T> void IntIntMapTest(const string&, T* = 0);   
-    
+    template<class T> void IntIntMapTest(const string&, T* = 0);
+
     void generatedReadWithIndex(IntIntMap&, int, const GeneratorPtr&)
     {}
     void generatedReadWithIndex(IndexedIntIntMap&, int, const GeneratorPtr&);
-    template<class T> void generatedRead(T&, int, const GeneratorPtr&);   
-    void Struct1Struct2MapIndexTest(Struct1Struct2Map&) 
+    template<class T> void generatedRead(T&, int, const GeneratorPtr&);
+    void Struct1Struct2MapIndexTest(Struct1Struct2Map&)
     {}
     void Struct1Struct2MapIndexTest(IndexedStruct1Struct2Map&);
     template<class T> void Struct1Struct2MapTest(const string& mapName, T* = 0);
-   
-    void Struct1Class1MapIndexTest(Struct1Class1Map&) 
+
+    void Struct1Class1MapIndexTest(Struct1Class1Map&)
     {}
     void Struct1Class1MapIndexTest(IndexedStruct1Class1Map&);
     template<class T> void Struct1Class1MapTest(const string& mapName, T* = 0);
-   
+
     void IntIntMapReadIndexTest(IntIntMap&)
     {}
     void IntIntMapReadIndexTest(IndexedIntIntMap&);
     template<class T> void IntIntMapReadTest(const string& mapName, T* = 0);
-    
+
     void Struct1ObjectMapTest();
 
     const string _envName;
@@ -208,10 +214,10 @@ TestApp::IntIntMapIndexTest(IndexedIntIntMap& m)
     cout << "\ttime per reverse read: " << perRecord * 1000 << "ms" << endl;
 }
 
-template<class T> void 
+template<class T> void
 TestApp::IntIntMapTest(const string& mapName, T*)
 {
-    T m(_connection, mapName);      
+    T m(_connection, mapName);
     //
     // Populate the database.
     //
@@ -230,7 +236,7 @@ TestApp::IntIntMapTest(const string& mapName, T*)
 
     cout << "\ttime for " << _repetitions << " writes: " << total * 1000 << "ms" << endl;
     cout << "\ttime per write: " << perRecord * 1000 << "ms" << endl;
-    
+
     //
     // Read each record.
     //
@@ -243,15 +249,15 @@ TestApp::IntIntMapTest(const string& mapName, T*)
     }
     total = _watch.stop();
     perRecord = total / _repetitions;
-    
+
     cout << "\ttime for " << _repetitions << " reads: " << total * 1000  << "ms" << endl;
     cout << "\ttime per read: " << perRecord * 1000 << "ms" << endl;
-    
+
     //
     // Optional index sub-test
     //
     IntIntMapIndexTest(m);
-    
+
     //
     // Remove each record.
     //
@@ -266,7 +272,7 @@ TestApp::IntIntMapTest(const string& mapName, T*)
     }
     total = _watch.stop();
     perRecord = total / _repetitions;
-    
+
     cout << "\ttime for " << _repetitions << " removes: " << total * 1000 << "ms" << endl;
     cout << "\ttime per remove: " << perRecord * 1000 << "ms" << endl;
 }
@@ -290,7 +296,7 @@ TestApp::generatedReadWithIndex(IndexedIntIntMap& m, int reads, const GeneratorP
     cout << "\ttime per reverse read: " << perRecord * 1000 << "ms" << endl;
 }
 
-template<class T> void 
+template<class T> void
 TestApp::generatedRead(T& m, int reads , const GeneratorPtr& gen)
 {
     _watch.start();
@@ -303,11 +309,11 @@ TestApp::generatedRead(T& m, int reads , const GeneratorPtr& gen)
     }
     IceUtil::Time total = _watch.stop();
     IceUtil::Time perRecord = total / reads;
-    
+
     cout << "\ttime for " << reads << " reads of " << gen->toString() << " records: " << total * 1000 << "ms"
             << endl;
     cout << "\ttime per read: " << perRecord * 1000 << "ms" << endl;
-    
+
     generatedReadWithIndex(m, reads, gen);
 }
 void
@@ -325,7 +331,7 @@ TestApp::Struct1Struct2MapIndexTest(IndexedStruct1Struct2Map& m)
         test(p->first.l == i);
         test(p->second.s1.l == i);
     }
-    
+
     for(i = 0; i < _repetitions; ++i)
     {
         Struct1 s1;
@@ -343,11 +349,11 @@ TestApp::Struct1Struct2MapIndexTest(IndexedStruct1Struct2Map& m)
     cout << "\ttime per indexed read: " << perRecord * 1000 << "ms" << endl;
 }
 
-template<class T> void 
+template<class T> void
 TestApp::Struct1Struct2MapTest(const string& mapName, T*)
 {
     T m(_connection, mapName);
-    
+
     //
     // Populate the database.
     //
@@ -370,10 +376,10 @@ TestApp::Struct1Struct2MapTest(const string& mapName, T*)
     }
     IceUtil::Time total = _watch.stop();
     IceUtil::Time perRecord = total / _repetitions;
-    
+
     cout << "\ttime for " << _repetitions << " writes: " << total * 1000 << "ms" << endl;
     cout << "\ttime per write: " << perRecord * 1000 << "ms" << endl;
-    
+
     //
     // Read each record.
     //
@@ -389,15 +395,15 @@ TestApp::Struct1Struct2MapTest(const string& mapName, T*)
     }
     total = _watch.stop();
     perRecord = total / _repetitions;
-    
+
     cout << "\ttime for " << _repetitions << " reads: " << total * 1000 << "ms" << endl;
     cout << "\ttime per read: " << perRecord * 1000 << "ms" << endl;
-    
+
     //
     // Optional index test
     //
     Struct1Struct2MapIndexTest(m);
-    
+
     //
     // Remove each record.
     //
@@ -413,7 +419,7 @@ TestApp::Struct1Struct2MapTest(const string& mapName, T*)
     }
     total = _watch.stop();
     perRecord = total / _repetitions;
-    
+
     cout << "\ttime for " << _repetitions << " removes: " << total * 1000 << "ms" << endl;
     cout << "\ttime per remove: " << perRecord * 1000 << "ms" << endl;
 }
@@ -441,11 +447,11 @@ TestApp::Struct1Class1MapIndexTest(IndexedStruct1Class1Map& m)
     cout << "\ttime per indexed read: " << perRecord * 1000 << "ms" << endl;
 }
 
-template<class T> void 
+template<class T> void
 TestApp::Struct1Class1MapTest(const string& mapName, T*)
 {
     T m(_connection, mapName);
-    
+
     //
     // Populate the database.
     //
@@ -467,10 +473,10 @@ TestApp::Struct1Class1MapTest(const string& mapName, T*)
     }
     IceUtil::Time total = _watch.stop();
     IceUtil::Time perRecord = total / _repetitions;
-    
+
     cout << "\ttime for " << _repetitions << " writes: " << total * 1000 << "ms" << endl;
     cout << "\ttime per write: " << perRecord * 1000 << "ms" << endl;
-    
+
     //
     // Read each record.
     //
@@ -486,16 +492,16 @@ TestApp::Struct1Class1MapTest(const string& mapName, T*)
     }
     total = _watch.stop();
     perRecord = total / _repetitions;
-    
+
     cout << "\ttime for " << _repetitions << " reads: " << total * 1000 << "ms" << endl;
     cout << "\ttime per read: " << perRecord * 1000 << "ms" << endl;
-    
+
     //
     // Optional index test
     //
-    
+
     Struct1Class1MapIndexTest(m);
-    
+
     //
     // Remove each record.
     //
@@ -511,7 +517,7 @@ TestApp::Struct1Class1MapTest(const string& mapName, T*)
     }
     total = _watch.stop();
     perRecord = total / _repetitions;
-    
+
     cout << "\ttime for " << _repetitions << " removes: " << total * 1000 << "ms" << endl;
     cout << "\ttime per remove: " << perRecord * 1000 << "ms" << endl;
 }
@@ -613,11 +619,11 @@ TestApp::Struct1ObjectMapTest()
     cout << "\ttime per remove: " << perRecord * 1000 << "ms" << endl;
 }
 
-template<class T> void 
+template<class T> void
 TestApp::IntIntMapReadTest(const string& mapName, T*)
 {
     T m(_connection, mapName);
-    
+
     //
     // Populate the database.
     //
@@ -633,10 +639,10 @@ TestApp::IntIntMapReadTest(const string& mapName, T*)
     }
     IceUtil::Time total = _watch.stop();
     IceUtil::Time perRecord = total / _repetitions;
-    
+
     cout << "\ttime for " << _repetitions << " writes: " << total * 1000 << "ms" << endl;
     cout << "\ttime per write: " << perRecord * 1000 << "ms" << endl;
-    
+
     //
     // Do some read tests.
     //
@@ -644,12 +650,12 @@ TestApp::IntIntMapReadTest(const string& mapName, T*)
     generatedRead(m, _repetitions, new SequentialGenerator(2000, 2009));
     generatedRead(m, _repetitions, new SequentialGenerator(3000, 3099));
     generatedRead(m, _repetitions, new SequentialGenerator(4000, 4999));
-    
+
     //
     // Do a random read test.
     //
     generatedRead(m, _repetitions, new RandomGenerator(0, 10000));
-    
+
     //
     // Remove each record.
     //
@@ -664,7 +670,7 @@ TestApp::IntIntMapReadTest(const string& mapName, T*)
         }
         total = _watch.stop();
         perRecord = total / _repetitions;
-        
+
         cout << "\ttime for " << _repetitions << " removes: " << total * 1000 << "ms" << endl;
         cout << "\ttime per remove: " << perRecord * 1000 << "ms" << endl;
     */
@@ -687,7 +693,7 @@ public:
         }
         return 0;
     }
-    
+
     void
     destroy()
     {
@@ -708,7 +714,7 @@ TestApp::run(int argc, char*[])
 
     cout << "IntIntMap" << endl;
     IntIntMapTest<IntIntMap>("IntIntMap");
-    
+
     cout << "IntIntMap with index" << endl;
     IntIntMapTest<IndexedIntIntMap>("IndexedIntIntMap");
 
@@ -734,9 +740,9 @@ TestApp::run(int argc, char*[])
 
     cout <<"IntIntMap with index (read test)" << endl;
     IntIntMapReadTest<IndexedIntIntMap>("IndexedIntIntMap");
-    
+
     _connection->close();
-    
+
     return EXIT_SUCCESS;
 }
 

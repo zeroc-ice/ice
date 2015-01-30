@@ -21,11 +21,14 @@ class RegistryPluginI : public Ice::Plugin
 public:
 
     RegistryPluginI(const Ice::CommunicatorPtr&);
-    
+
     virtual void initialize();
     virtual void destroy();
 
 private:
+
+    // Required to prevent compiler warnings with MSVC++
+    RegistryPluginI& operator=(const RegistryPluginI&);
 
     const Ice::CommunicatorPtr _communicator;
 };
@@ -81,9 +84,9 @@ ReplicaGroupFilterI::ReplicaGroupFilterI(const IceGrid::RegistryPluginFacadePtr&
 }
 
 Ice::StringSeq
-ReplicaGroupFilterI::filter(const string& /* replicaGroupId */, 
-                            const Ice::StringSeq& adapters, 
-                            const Ice::ConnectionPtr&, 
+ReplicaGroupFilterI::filter(const string& /* replicaGroupId */,
+                            const Ice::StringSeq& adapters,
+                            const Ice::ConnectionPtr&,
                             const Ice::Context& ctx)
 {
     Ice::Context::const_iterator p = ctx.find("currency");

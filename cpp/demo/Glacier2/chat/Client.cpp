@@ -50,25 +50,25 @@ public:
         Glacier2::Application(Ice::NoSignalHandling)
     {
     }
-    
+
     virtual Glacier2::SessionPrx
     createSession()
     {
         ChatSessionPrx session;
-        while(true)
+        while(!session)
         {
             cout << "This demo accepts any user-id / password combination.\n";
-            
+
             string id;
             cout << "user id: " << flush;
             getline(cin, id);
             id = trim(id);
-            
+
             string pw;
             cout << "password: " << flush;
             getline(cin, pw);
             pw = trim(pw);
-            
+
             try
             {
                 session = ChatSessionPrx::uncheckedCast(router()->createSession(id, pw));
@@ -96,7 +96,7 @@ public:
         }
 
         Ice::Identity callbackReceiverIdent = createCallbackIdentity("callbackReceiver");
-    
+
 
         ChatCallbackPtr cb = new ChatCallbackI;
         ChatCallbackPrx callback = ChatCallbackPrx::uncheckedCast(objectAdapter()->add(cb, callbackReceiverIdent));

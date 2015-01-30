@@ -124,6 +124,9 @@ CasinoServer::run(int argc, char*[])
         }
 
     private:
+
+        BankInitializer& operator=(const BankInitializer&) { return *this; }
+
         CasinoServer& _server;
     };
 
@@ -165,6 +168,9 @@ CasinoServer::run(int argc, char*[])
         }
 
     private:
+
+        PlayerInitializer& operator=(const PlayerInitializer&) { return *this; }
+
         CasinoServer& _server;
     };
 
@@ -203,6 +209,9 @@ CasinoServer::run(int argc, char*[])
         }
 
     private:
+
+        BetInitializer& operator=(const BetInitializer&) { return *this; }
+
         CasinoServer& _server;
     };
 
@@ -257,7 +266,7 @@ CasinoServer::run(int argc, char*[])
 
         Freeze::ConnectionPtr connection = Freeze::createConnection(communicator(), _envName);
         Freeze::TransactionPtr tx = connection->beginTransaction();
-        
+
         _playerEvictor->setCurrentTransaction(tx);
 
         for(size_t i = 0; i < 12; ++i)

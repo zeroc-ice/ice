@@ -31,6 +31,10 @@ private:
     {
         SessionProxyPair(const Demo::SessionPrx& p, const SessionIPtr& s) :
             proxy(p), session(s) { }
+
+        // Required to prevent compiler warnings with MSVC++
+        SessionProxyPair& operator=(const SessionProxyPair&);
+
         const Demo::SessionPrx proxy;
         const SessionIPtr session;
     };

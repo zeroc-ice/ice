@@ -31,6 +31,9 @@ public:
 
 private:
 
+    // Required to prevent compiler warnings with MSVC++
+    FileI& operator=(const FileI&);
+
     void halt(const Freeze::DatabaseException&) const;
 
     const Ice::CommunicatorPtr _communicator;
@@ -53,6 +56,9 @@ public:
     static std::string directoriesDB();
 
 private:
+
+    // Required to prevent compiler warnings with MSVC++
+    DirectoryI& operator=(const DirectoryI&);
 
     void halt(const Freeze::DatabaseException&) const;
 

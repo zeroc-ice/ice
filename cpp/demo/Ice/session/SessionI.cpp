@@ -36,6 +36,9 @@ public:
 
 private:
 
+    // Required to prevent compiler warnings with MSVC++
+    HelloI& operator=(const HelloI&);
+
     const string _name;
     const int _id;
 };

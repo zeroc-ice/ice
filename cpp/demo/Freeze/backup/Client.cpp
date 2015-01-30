@@ -39,11 +39,11 @@ main(int argc, char* argv[])
 
     Freeze::ConnectionPtr connection = Freeze::createConnection(communicator, "backup");
     IntLongMap m(connection, "IntLongMap", true);
-    
+
     const int size = 10000;
 
     if(m.size() == 0)
-    {   
+    {
         cout << "********* Creating new map ***********" << endl;
         Freeze::TransactionHolder txHolder(connection);
 
@@ -56,7 +56,7 @@ main(int argc, char* argv[])
         }
         txHolder.commit();
     }
-   
+
     cout << "Updating map" << endl;
 
     for(;;)
@@ -76,23 +76,26 @@ main(int argc, char* argv[])
                 cerr << "old time (ms) == " << oldMs << endl;
                 cerr << "current current (ms) == " << p->second << endl;
             }
-            
+
             test(p->second == oldMs);
             p.set(ms);
             count++;
         } while(++p != m.end());
 
-        cout << "Read " << IceUtil::Time::milliSeconds(oldMs).toDateTime() << " in all records;" 
+        cout << "Read " << IceUtil::Time::milliSeconds(oldMs).toDateTime() << " in all records;"
              << " updating with " << time.toDateTime() << " ... " << flush;
-          
+
         txHolder.commit();
         cout << "done" << endl;
         test(count == size);
     }
 
-    connection->close();
-
-    communicator->destroy();
+    //
+    // Since above loop never exits this code is unreachable and causes
+    // warnings with some compilers.
+    //
+    //connection->close();
+    //communicator->destroy();
 
     return EXIT_SUCCESS;
 }

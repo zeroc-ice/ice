@@ -50,6 +50,9 @@ public:
 
 private:
 
+    // Required to prevent compiler warnings with MSVC++
+    DiscoverI& operator=(const DiscoverI&);
+
     const Ice::ObjectPrx _obj;
 };
 

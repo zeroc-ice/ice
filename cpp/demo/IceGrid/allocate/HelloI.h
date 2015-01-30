@@ -22,7 +22,10 @@ public:
     virtual void shutdown(const Ice::Current&);
 
 private:
-    
+
+	// Required to prevent compiler warnings with MSVC++
+	HelloI& operator=(const HelloI&);
+
     const std::string _name;
 };
 

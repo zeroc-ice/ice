@@ -21,6 +21,9 @@ public:
 
 private:
 
+	// Required to prevent compiler warnings with MSVC++
+	NestedI& operator=(const NestedI&);
+
     const Demo::NestedPrx _self;
 };
 

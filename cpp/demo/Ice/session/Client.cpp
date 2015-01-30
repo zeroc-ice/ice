@@ -46,6 +46,9 @@ public:
 
 private:
 
+    // Required to prevent compiler warnings with MSVC++
+    RefreshTask& operator=(const RefreshTask&);
+
     const Ice::LoggerPtr _logger;
     const SessionPrx _session;
 };
@@ -115,7 +118,7 @@ SessionClient::run(int argc, char* argv[])
     {
         IceUtil::Mutex::Lock sync(_mutex);
         _session = factory->create(name);
-        
+
         _timer = new IceUtil::Timer();
         _timer->scheduleRepeated(new RefreshTask(communicator()->getLogger(), _session), IceUtil::Time::seconds(5));
     }
@@ -128,60 +131,59 @@ SessionClient::run(int argc, char* argv[])
     {
         bool destroy = true;
         bool shutdown = false;
-        while(true)
+        do
         {
             cout << "==> ";
             char c;
             cin >> c;
-            if(!cin.good())
+            if(cin.good())
             {
-                break;
-            }
-            if(isdigit(c))
-            {
-                string s;
-                s += c;
-                vector<HelloPrx>::size_type index = atoi(s.c_str());
-                if(index < hellos.size())
+                if(isdigit(c))
                 {
-                    hellos[index]->sayHello();
+                    string s;
+                    s += c;
+                    vector<HelloPrx>::size_type index = atoi(s.c_str());
+                    if(index < hellos.size())
+                    {
+                        hellos[index]->sayHello();
+                    }
+                    else
+                    {
+                        cout << "Index is too high. " << hellos.size() << " hello objects exist so far.\n"
+                             << "Use `c' to create a new hello object." << endl;
+                    }
+                }
+                else if(c == 'c')
+                {
+                    hellos.push_back(_session->createHello());
+                    cout << "Created hello object " << hellos.size() - 1 << endl;
+                }
+                else if(c == 's')
+                {
+                    destroy = false;
+                    shutdown = true;
+                    break;
+                }
+                else if(c == 'x')
+                {
+                    break;
+                }
+                else if(c == 't')
+                {
+                    destroy = false;
+                    break;
+                }
+                else if(c == '?')
+                {
+                    menu();
                 }
                 else
                 {
-                    cout << "Index is too high. " << hellos.size() << " hello objects exist so far.\n"
-                         << "Use `c' to create a new hello object." << endl;
+                    cout << "Unknown command `" << c << "'." << endl;
+                    menu();
                 }
             }
-            else if(c == 'c')
-            {
-                hellos.push_back(_session->createHello());
-                cout << "Created hello object " << hellos.size() - 1 << endl;
-            }
-            else if(c == 's')
-            {
-                destroy = false;
-                shutdown = true;
-                break;
-            }
-            else if(c == 'x')
-            {
-                break;
-            }
-            else if(c == 't')
-            {
-                destroy = false;
-                break;
-            }
-            else if(c == '?')
-            {
-                menu();
-            }
-            else
-            {
-                cout << "Unknown command `" << c << "'." << endl;
-                menu();
-            }
-        }
+        } while(cin.good());
 
         cleanup(destroy);
         if(shutdown)
@@ -220,7 +222,7 @@ SessionClient::cleanup(bool destroy)
         _timer->destroy();
         _timer = 0;
     }
-    
+
     if(destroy && _session)
     {
         _session->destroy();
