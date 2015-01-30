@@ -16,6 +16,7 @@
 #include <Ice/StreamI.h>
 #include <Ice/LoggerI.h>
 #include <Ice/Instance.h>
+#include <Ice/PluginManagerI.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/StringConverter.h>
@@ -349,6 +350,12 @@ Ice::setProcessLogger(const LoggerPtr& logger)
 {
    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(processLoggerMutex);
    processLogger = logger;
+}
+
+void
+Ice::registerPluginFactory(const std::string& name, PLUGIN_FACTORY factory, bool loadOnInitialize)
+{
+    PluginManagerI::registerPluginFactory(name, factory, loadOnInitialize);
 }
 
 InstancePtr

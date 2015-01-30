@@ -54,8 +54,7 @@ public:
 
     ~MyPlugin()
     {
-        test(_initialized);
-        test(_destroyed);
+        test(!_initialized || _destroyed); // If initialized, we must be destroyed too.
     }
 
 private:
@@ -68,11 +67,64 @@ typedef IceUtil::Handle<MyPlugin> MyPluginPtr;
 
 }
 
+extern "C"
+{
+
+Ice::Plugin*
+createMyPlugin(const ::Ice::CommunicatorPtr&, const std::string&, const ::Ice::StringSeq&)
+{
+    return new MyPlugin();
+}
+
+}
+
 int
 main(int argc, char* argv[])
 {
     int status = EXIT_SUCCESS;
     Ice::CommunicatorPtr communicator;
+
+    Ice::registerPluginFactory("Static1", createMyPlugin, true); // true = Load on communicator initialization
+    Ice::registerPluginFactory("Static2", createMyPlugin, false);
+
+    cout << "testing static plugin factory... " << flush;
+    try
+    {
+        communicator = Ice::initialize(argc, argv);
+        MyPluginPtr plugin = MyPluginPtr::dynamicCast(communicator->getPluginManager()->getPlugin("Static1"));
+        test(plugin && plugin->isInitialized());
+        try
+        {
+            communicator->getPluginManager()->getPlugin("Static2");
+        }
+        catch(const Ice::NotRegisteredException&)
+        {
+        }
+        communicator->destroy();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        cerr << ex << endl;
+        test(false);
+    }
+    try
+    {
+        Ice::InitializationData initData;
+        initData.properties = Ice::createProperties(argc, argv);
+        initData.properties->setProperty("Ice.Plugin.Static2", "1");
+        communicator = Ice::initialize(argc, argv, initData);
+        MyPluginPtr plugin = MyPluginPtr::dynamicCast(communicator->getPluginManager()->getPlugin("Static1"));
+        test(plugin && plugin->isInitialized());
+        plugin = MyPluginPtr::dynamicCast(communicator->getPluginManager()->getPlugin("Static2"));
+        test(plugin && plugin->isInitialized());
+        communicator->destroy();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        cerr << ex << endl;
+        test(false);
+    }
+    cout << "ok" << endl;
 
     cout << "testing a simple plug-in... " << flush;
     try
