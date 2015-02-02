@@ -80,30 +80,30 @@ public class ProjectProperties extends PropertyPage
             if(_config.getAddJars())
             {
                 java.util.List<String> jars = new ArrayList<String>();
-                jars.add("Ice.jar");
+                jars.add(_config.getJarName("Ice"));
                 if(_freezeJar.getSelection())
                 {
-                    jars.add("Freeze.jar");
+                    jars.add(_config.getJarName("Freeze"));
                 }
                 if(_glacier2Jar.getSelection())
                 {
-                    jars.add("Glacier2.jar");
+                    jars.add(_config.getJarName("Glacier2"));
                 }
                 if(_iceBoxJar.getSelection())
                 {
-                    jars.add("IceBox.jar");
+                    jars.add(_config.getJarName("IceBox"));
                 }
                 if(_iceStormJar.getSelection())
                 {
-                    jars.add("IceStorm.jar");
+                    jars.add(_config.getJarName("IceStorm"));
                 }
                 if(_iceGridJar.getSelection())
                 {
-                    jars.add("IceGrid.jar");
+                    jars.add(_config.getJarName("IceGrid"));
                 }
                 if(_icePatch2Jar.getSelection())
                 {
-                    jars.add("IcePatch2.jar");
+                    jars.add(_config.getJarName("IcePatch2"));
                 }
                 _config.setJars(jars);
             }
@@ -219,27 +219,27 @@ public class ProjectProperties extends PropertyPage
         for(Iterator<String> iter = _config.getJars().iterator(); iter.hasNext();)
         {
             String jarFile = iter.next();
-            if(jarFile.equals("Freeze.jar"))
+            if(jarFile.equals(_config.getJarName("Freeze")))
             {
                 _freezeJar.setSelection(true);
             }
-            else if(jarFile.equals("Glacier2.jar"))
+            else if(jarFile.equals(_config.getJarName("Glacier2")))
             {
                 _glacier2Jar.setSelection(true);
             }
-            else if(jarFile.equals("IceBox.jar"))
+            else if(jarFile.equals(_config.getJarName("IceBox")))
             {
                 _iceBoxJar.setSelection(true);
             }
-            else if(jarFile.equals("IceGrid.jar"))
+            else if(jarFile.equals(_config.getJarName("IceGrid")))
             {
                 _iceGridJar.setSelection(true);
             }
-            else if(jarFile.equals("IcePatch2.jar"))
+            else if(jarFile.equals(_config.getJarName("IcePatch2")))
             {
                 _icePatch2Jar.equals(true);
             }
-            else if(jarFile.equals("IceStorm.jar"))
+            else if(jarFile.equals(_config.getJarName("IceStorm")))
             {
                 _iceStormJar.setSelection(true);
             }

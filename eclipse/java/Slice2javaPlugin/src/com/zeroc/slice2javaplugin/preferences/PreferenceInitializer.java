@@ -27,23 +27,31 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer
         String os = System.getProperty("os.name"); //$NON-NLS-1$
         if(os.startsWith("Windows")) //$NON-NLS-1$
         {
-            File f = new File("C:\\Program Files\\ZeroC\\Ice-" + Messages.IceStringVersion);
-            if(!f.exists())
+            final String[] defaultLocations = new String[]{
+                "C:\\Program Files\\ZeroC\\Ice-" + Messages.IceStringVersion,
+                "C:\\Program Files (x86)\\ZeroC\\Ice-" + Messages.IceStringVersion,
+                "C:\\Ice-" + Messages.IceStringVersion};
+            for(String s : defaultLocations)
             {
-                File f2 = new File("C:\\Program Files (x86)\\ZeroC\\Ice-" + Messages.IceStringVersion);
-                if(f2.exists())
+                if(new File(s).exists())
                 {
-                    return f2.toString();
+                    return s;
                 }
             }
-            return f.toString();
         }
-        if(os.equals("Linux")) //$NON-NLS-1$
+        else
         {
-            File f = new File("/usr/bin/slice2java"); //$NON-NLS-1$
-            if(f.exists())
+            final String[] defaultLocations = new String[]{
+                    "/usr/bin/slice2java",
+                    "/usr/local/bin/slice2java",
+                    "/opt/Ice-" + Messages.IceStringVersion + "/bin/slice2java"};
+            
+            for(String s : defaultLocations)
             {
-                return "/usr"; //$NON-NLS-1$
+                if(new File(s).exists())
+                {
+                    return s.replace("/bin/slice2java", "");
+                }
             }
         }
         return "/opt/Ice-" + Messages.IceStringVersion; //$NON-NLS-1$

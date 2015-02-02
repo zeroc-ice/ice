@@ -70,7 +70,7 @@ public class Configuration
         _store.setDefault(ADD_JARS_KEY, true);
         _store.setDefault(UNDERSCORE_KEY, false);
 
-        _store.setDefault(JARS_KEY, "Ice.jar");
+        _store.setDefault(JARS_KEY, getJarName("Ice"));
     }
 
     /**
@@ -230,12 +230,12 @@ public class Configuration
         IJavaProject javaProject = JavaCore.create(_project);
         if(isAndroidProject())
         {
-            removeLibrary(javaProject, "Ice.jar");
-            removeLibrary(javaProject, "Glacier2.jar");
-            removeLibrary(javaProject, "IceBox.jar");
-            removeLibrary(javaProject, "IceGrid.jar");
-            removeLibrary(javaProject, "IcePatch2.jar");
-            removeLibrary(javaProject, "IceStorm.jar");
+            removeLibrary(javaProject, getJarName("Ice"));
+            removeLibrary(javaProject, getJarName("Glacier2"));
+            removeLibrary(javaProject, getJarName("IceBox"));
+            removeLibrary(javaProject, getJarName("IceGrid"));
+            removeLibrary(javaProject, getJarName("IcePatch2"));
+            removeLibrary(javaProject, getJarName("IceStorm"));
         }
         else
         {
@@ -247,6 +247,29 @@ public class Configuration
         {
             generatedFolder.delete(true, null);
         }
+    }
+    
+    public String getJarName(String base)
+    {
+        String version = getIceVersion();
+        
+        int intVersion = 306;
+        if(version != null)
+        {
+            String tokens[] = version.split(java.util.regex.Pattern.quote("."));
+            if(tokens.length >= 2)
+            {
+                intVersion = (Integer.parseInt(tokens[0]) * 100) + 
+                            Integer.parseInt(tokens[1]);
+            }
+        }
+        
+        if(intVersion >= 306)
+        {
+            base = base.toLowerCase() + "-" + version;
+        }
+    
+        return base + ".jar";
     }
 
     public boolean isAndroidProject()
@@ -448,26 +471,24 @@ public class Configuration
         List<String> s = toList(_store.getString(INCLUDES_KEY));
         
         String iceHome = getIceHome();
-        String os = System.getProperty("os.name");
         String path = null;
-        if(os.equals("Linux") && iceHome.equals("/usr"))
+        if(!System.getProperty("os.name").startsWith("Windows") && 
+           (iceHome.equals("/usr") || iceHome.equals("/usr/local")))
         {
             String version = getIceVersion();
             if(version != null)
             {
-                File f = new File("/usr/share/Ice-" + version + "/slice");
+                File f = new File(iceHome + "/share/Ice-" + version + "/slice");
                 if(f.exists())
                 {
                     path = f.toString();
                 }
             }
         }
-
         if(path == null)
         {
             path = new File(iceHome + File.separator + "slice").toString();
         }
-
         s.add(path);
         return s;
     }
@@ -516,11 +537,11 @@ public class Configuration
             {
                 IJavaProject javaProject = JavaCore.create(_project);
                 ArrayList<String> removeJars = new ArrayList<String>();
-                removeJars.add("Glacier2.jar");
-                removeJars.add("IceBox.jar");
-                removeJars.add("IceGrid.jar");
-                removeJars.add("IcePatch2.jar");
-                removeJars.add("IceStorm.jar");
+                removeJars.add(getJarName("Ice"));
+                removeJars.add(getJarName("IceBox"));
+                removeJars.add(getJarName("IceGrid"));
+                removeJars.add(getJarName("IcePatch2"));
+                removeJars.add(getJarName("IceStorm"));
                 
                 for(String jar : jars)
                 {
@@ -693,7 +714,30 @@ public class Configuration
     public static void setupSharedLibraryPath(Map<String, String> env)
     {
         String iceHome = getIceHome();
-
+        String os = System.getProperty("os.name");
+        
+        if(iceHome.equals("/usr") && os.equals("Linux"))
+        {
+            return;
+        }
+        
+        String lib32Subdir = "lib";
+        String lib64Subdir = "lib64";
+        if(os.equals("Linux"))
+        {
+            if(new File("/usr/lib/i386-linux-gnu").exists())
+            {
+                lib32Subdir = "lib" + File.separator + "i386-linux-gnu";
+            }
+            
+            if(new File("/usr/lib/x86_64-linux-gnu").exists())
+            {
+                lib64Subdir = "lib" + File.separator + "x86_64-linux-gnu";
+            }
+        }
+        
+        
+        
         String libPath;
         boolean srcdist = false;
         if(new File(iceHome + File.separator + "cpp" + File.separator + "bin").exists())
@@ -704,14 +748,13 @@ public class Configuration
         }
         else
         {
-            libPath = new File(iceHome + File.separator + "lib").toString();
+            libPath = new File(iceHome + File.separator + lib32Subdir).toString();
         }
 
         String ldLibPathEnv = null;
         String ldLib64PathEnv = null;
         String lib64Path = null;
-
-        String os = System.getProperty("os.name");
+        
         if(os.equals("Mac OS X"))
         {
             ldLibPathEnv = "DYLD_LIBRARY_PATH";
@@ -771,7 +814,7 @@ public class Configuration
             }
             else
             {
-                lib64Path = new File(iceHome + File.separator + "lib64").toString();
+                lib64Path = new File(iceHome + File.separator + lib64Subdir).toString();
             }
         }
 
@@ -816,7 +859,8 @@ public class Configuration
     {
         String iceHome = getIceHome();
         String os = System.getProperty("os.name");
-        if(os.equals("Linux") && iceHome.equals("/usr"))
+        if(!System.getProperty("os.name").startsWith("Windows") && 
+           (iceHome.equals("/usr") || iceHome.equals("/usr/local")))
         {
             File f = new File(iceHome + File.separator + "share" + File.separator + "java");
             if(f.exists())
@@ -881,31 +925,36 @@ public class Configuration
     // Obtain the Ice version by executing the translator with the -v option.
     private String getIceVersion()
     {
-        String version = null;
-        String exec = getTranslatorForHome(getIceHome());
-        if(exec != null)
+        String iceHome = getIceHome();
+        if(_version == null || !iceHome.equals(_iceHome))
         {
-            try
+            _version = null;
+            String exec = getTranslatorForHome(getIceHome());
+            if(exec != null)
             {
-                ProcessBuilder b = new ProcessBuilder(exec, "-v");
-                b.redirectErrorStream(true);
-                Map<String, String> env = b.environment();
-                setupSharedLibraryPath(env);
-                Process p = b.start();
-                int status = p.waitFor();
-                if(status == 0)
+                try
                 {
-                    BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                    String line = r.readLine();
-                    version = line.trim();
+                    ProcessBuilder b = new ProcessBuilder(exec, "-v");
+                    b.redirectErrorStream(true);
+                    Map<String, String> env = b.environment();
+                    setupSharedLibraryPath(env);
+                    Process p = b.start();
+                    int status = p.waitFor();
+                    if(status == 0)
+                    {
+                        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                        String line = r.readLine();
+                        _version = line.trim();
+                        _iceHome = iceHome;
+                    }
+                }
+                catch(Throwable ex)
+                {
+                    // Ignore.
                 }
             }
-            catch(Throwable ex)
-            {
-                // Ignore.
-            }
         }
-        return version;
+        return _version;
     }
 
     private static String getTranslatorForHome(String dir)
@@ -920,6 +969,15 @@ public class Configuration
         if(f.exists())
         {
             return f.toString();
+        }
+        if(os.startsWith("Windows"))
+        {
+            f = new File(dir + File.separator + "bin" + File.separator +
+                         "x64" + File.separator + "slice2java" + suffix);
+            if(f.exists())
+            {
+                return f.toString();
+            }
         }
         f = new File(dir + File.separator + "cpp" + File.separator + "bin" + File.separator + "slice2java" + suffix);
         if(f.exists())
@@ -939,8 +997,8 @@ public class Configuration
         }
         else
         {
-            cpEntry = JavaCore.newVariableEntry(new Path("ICE_JAR_HOME/Ice.jar"), 
-                                                new Path("ICE_JAR_HOME/Ice.jar"), 
+            final String iceJarPath = "ICE_JAR_HOME/" + getJarName("Ice"); 
+            cpEntry = JavaCore.newVariableEntry(new Path(iceJarPath), new Path(iceJarPath), 
                                                 new Path("ICE_JAR_HOME/lib/"), 
                                                 true);
         }
@@ -1134,4 +1192,7 @@ public class Configuration
     private IProject _project;
 
     private boolean _androidProject;
+    
+    private static String _version = null;
+    private static String _iceHome = null;
 }

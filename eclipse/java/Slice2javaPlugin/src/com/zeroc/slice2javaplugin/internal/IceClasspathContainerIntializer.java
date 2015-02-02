@@ -55,6 +55,40 @@ public class IceClasspathContainerIntializer extends ClasspathContainerInitializ
 
         configure(c, javaProject, containerPath);
     }
+    
+    private static String componentName(String jar)
+    {
+        String[] jars = new String[]{"Ice.jar", "Glacier2.jar", "IceBox.jar", "IceStorm.jar", "IceGrid.jar"};
+        for(String f : jars)
+        {
+            if(f.equals(jar))
+            {
+                return jar.replace(".jar", "");
+            }
+        }
+        
+        if(jar.matches("ice-.*"))
+        {
+            return "Ice";
+        }
+        else if(jar.matches("glacier2-.*"))
+        {
+            return "Glacier2";
+        }
+        else if(jar.matches("icebox-.*"))
+        {
+            return "IceBox";
+        }
+        else if(jar.matches("icestorm-.*"))
+        {
+            return "IceStorm";
+        }
+        else if(jar.matches("icegrid-.*"))
+        {
+            return "IceGrid";
+        }
+        return null;
+    }
 
     private static void configure(Configuration c, IJavaProject javaProject, IPath containerPath)
         throws JavaModelException
@@ -65,7 +99,7 @@ public class IceClasspathContainerIntializer extends ClasspathContainerInitializ
             List<IClasspathEntry> entries = new ArrayList<IClasspathEntry>();
             for(String jar : c.getJars())
             {
-                IPath path = dir.append(new Path(jar));
+                IPath path = dir.append(new Path(c.getJarName(componentName(jar))));
                 IClasspathEntry classpathEntry = JavaCore.newLibraryEntry(path, null, null, new IAccessRule[0], new IClasspathAttribute[0], false);
                 entries.add(classpathEntry);
             }
