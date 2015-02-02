@@ -112,7 +112,7 @@ class DiscoveryPluginI implements Ice.Plugin
 
     private static class LocatorI extends Ice.BlobjectAsync
     {
-        LocatorI(LookupPrx lookup, Ice.Properties properties, String instanceName, IceGrid.LocatorPrx voidLocator)
+        LocatorI(LookupPrx lookup, Ice.Properties properties, String instanceName, Ice.LocatorPrx voidLocator)
         {
             _lookup = lookup;
             _timeout = properties.getPropertyAsIntWithDefault("IceGridDiscovery.Timeout", 300);
@@ -140,7 +140,7 @@ class DiscoveryPluginI implements Ice.Plugin
         }
 
         public synchronized void
-        foundLocator(LocatorPrx locator)
+        foundLocator(Ice.LocatorPrx locator)
         {
             if(locator == null ||
                (!_instanceName.isEmpty() && !locator.ice_getIdentity().category.equals(_instanceName)))
@@ -205,7 +205,7 @@ class DiscoveryPluginI implements Ice.Plugin
                     }
 
                 }
-                _locator = (LocatorPrx)_locator.ice_endpoints(
+                _locator = (Ice.LocatorPrx)_locator.ice_endpoints(
                     newEndpoints.toArray(new Ice.Endpoint[newEndpoints.size()]));
             }
             else
@@ -308,7 +308,7 @@ class DiscoveryPluginI implements Ice.Plugin
 
         @Override
         public void
-        foundLocator(LocatorPrx locator, Ice.Current curr)
+        foundLocator(Ice.LocatorPrx locator, Ice.Current curr)
         {
             _locator.foundLocator(locator);
         }

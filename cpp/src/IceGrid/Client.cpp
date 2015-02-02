@@ -69,10 +69,10 @@ class LookupReplyI : public LookupReply, private IceUtil::Monitor<IceUtil::Mutex
 public:
 
     virtual void
-    foundLocator(const IceGrid::LocatorPrx& locator, const Ice::Current&)
+    foundLocator(const Ice::LocatorPrx& locator, const Ice::Current&)
     {
         Lock sync(*this);
-        for(vector<IceGrid::LocatorPrx>::iterator p = _locators.begin(); p != _locators.end(); ++p)
+        for(vector<Ice::LocatorPrx>::iterator p = _locators.begin(); p != _locators.end(); ++p)
         {
             if((*p)->ice_getIdentity() == locator->ice_getIdentity())
             {
@@ -105,7 +105,7 @@ public:
         notify();
     }
 
-    vector<IceGrid::LocatorPrx>
+    vector<Ice::LocatorPrx>
     getLocators()
     {
         Lock sync(*this);
@@ -128,7 +128,7 @@ public:
 
 private:
 
-    vector<IceGrid::LocatorPrx> _locators;
+    vector<Ice::LocatorPrx> _locators;
 };
 typedef IceUtil::Handle<LookupReplyI> LookupReplyIPtr;
 
@@ -616,12 +616,12 @@ Client::run(StringSeq& originalArgs)
                 }
                 adapter->destroy();
 
-                vector<IceGrid::LocatorPrx> locators = reply->getLocators();
+                vector<Ice::LocatorPrx> locators = reply->getLocators();
                 if(locators.size() > 1)
                 {
-                    cout << "found " << locators.size() << " IceGrid locators:" << endl;
+                    cout << "found " << locators.size() << " Ice locators:" << endl;
                     unsigned int num = 0;
-                    for(vector<IceGrid::LocatorPrx>::const_iterator p = locators.begin(); p != locators.end(); ++p)
+                    for(vector<Ice::LocatorPrx>::const_iterator p = locators.begin(); p != locators.end(); ++p)
                     {
                         cout << ++num << ": proxy = `" << *p << "'" <<endl;
                     }

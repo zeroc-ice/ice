@@ -123,7 +123,7 @@ namespace IceGrid
         }
 
         public void
-        foundLocator(LocatorPrx locator)
+        foundLocator(Ice.LocatorPrx locator)
         {
             lock(this)
             {
@@ -187,7 +187,7 @@ namespace IceGrid
                             newEndpoints.Add(p);
                         }
                     }
-                    _locator = (LocatorPrx) _locator.ice_endpoints(newEndpoints.ToArray());
+                    _locator = (Ice.LocatorPrx) _locator.ice_endpoints(newEndpoints.ToArray());
                 }
                 else
                 {
@@ -286,7 +286,7 @@ namespace IceGrid
         }
 
         public override void
-        foundLocator(LocatorPrx locator, Ice.Current current)
+        foundLocator(Ice.LocatorPrx locator, Ice.Current current)
         {
             _locator.foundLocator(locator);
         }

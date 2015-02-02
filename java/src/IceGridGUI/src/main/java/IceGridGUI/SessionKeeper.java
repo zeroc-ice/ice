@@ -1170,7 +1170,7 @@ public class SessionKeeper
                 _discoveryLookupReply = new _LookupReplyDisp()
                     {
                         @Override
-                        public void foundLocator(final LocatorPrx locator, Ice.Current curr)
+                        public void foundLocator(final Ice.LocatorPrx locator, Ice.Current curr)
                         {
                             SwingUtilities.invokeLater(new Runnable()
                                 {
@@ -1182,7 +1182,7 @@ public class SessionKeeper
                                             Ice.Endpoint[] endps = locator.ice_getEndpoints();
                                             for(Ice.Endpoint e : endps)
                                             {
-                                                LocatorPrx prx = LocatorPrxHelper.uncheckedCast(
+                                                Ice.LocatorPrx prx = Ice.LocatorPrxHelper.uncheckedCast(
                                                             communicator.stringToProxy(
                                                                 communicator.identityToString(locator.ice_getIdentity()) + 
                                                                 ":" + e.toString()));
@@ -1394,8 +1394,8 @@ public class SessionKeeper
 
             // Direct Discovery Endpoint List
             {
-                _directDiscoveryEndpointModel = new DefaultListModel<LocatorPrx>();
-                _directDiscoveryEndpointList = new JList<LocatorPrx>(_directDiscoveryEndpointModel);
+                _directDiscoveryEndpointModel = new DefaultListModel<Ice.LocatorPrx>();
+                _directDiscoveryEndpointList = new JList<Ice.LocatorPrx>(_directDiscoveryEndpointModel);
                 _directDiscoveryEndpointList.setVisibleRowCount(7);
                 _directDiscoveryEndpointList.addMouseListener(
                     new MouseAdapter()
@@ -1407,7 +1407,7 @@ public class SessionKeeper
                                 {
                                     Object obj = _directDiscoveryEndpointModel.getElementAt(
                                                             _directDiscoveryEndpointList.locationToIndex(e.getPoint()));
-                                    if(obj != null && obj instanceof LocatorPrx)
+                                    if(obj != null && obj instanceof Ice.LocatorPrx)
                                     {
                                         _nextButton.doClick(0);
                                     }
@@ -2181,7 +2181,7 @@ public class SessionKeeper
                                 } 
                                 else 
                                 {
-                                    LocatorPrx locator = _directDiscoveryEndpointList.getSelectedValue();
+                                    Ice.LocatorPrx locator = _directDiscoveryEndpointList.getSelectedValue();
                                     _directInstanceName.setText(locator.ice_getIdentity().category);
                                     _directCustomEndpointValue.setText(locator.ice_getEndpoints()[0].toString());
                                     _directCustomEndpoints.setSelected(true);
@@ -3231,8 +3231,8 @@ public class SessionKeeper
         private JCheckBox _directConnectToMaster;
 
         // Direct Discovery Endpoints
-        private JList<LocatorPrx> _directDiscoveryEndpointList;
-        private DefaultListModel<LocatorPrx> _directDiscoveryEndpointModel;
+        private JList<Ice.LocatorPrx> _directDiscoveryEndpointList;
+        private DefaultListModel<Ice.LocatorPrx> _directDiscoveryEndpointModel;
         private JRadioButton _directDiscoveryDiscoveredEndpoint;
         private JLabel _discoveryStatus;
         private JButton _discoveryRefresh;

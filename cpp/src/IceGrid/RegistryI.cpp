@@ -73,7 +73,7 @@ public:
         }
     }
 
-    virtual IceGrid::LocatorPrx
+    virtual Ice::LocatorPrx
     getLocator(const Ice::Current&)
     {
         return _wellKnownObjects->getLocator();

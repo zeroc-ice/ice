@@ -52,10 +52,6 @@ Ice::PluginManagerI::registerPluginFactory(const std::string& name, PLUGIN_FACTO
     {
         factories = new map<string, PLUGIN_FACTORY>();
     }
-    if(loadOnInitialization == 0)
-    {
-        loadOnInitialization = new vector<string>();
-    }
 
     map<string, PLUGIN_FACTORY>::const_iterator p = factories->find(name);
     if(p == factories->end())

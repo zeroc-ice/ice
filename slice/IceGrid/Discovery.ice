@@ -12,7 +12,7 @@
 [["cpp:header-ext:h", "objc:header-dir:objc"]]
 [["cpp:include:IceGrid/Config.h"]]
 
-#include <IceGrid/Locator.ice>
+#include <Ice/Locator.ice>
 
 ["objc:prefix:ICEGRID"]
 module IceGrid
@@ -38,7 +38,7 @@ interface LookupReply
      * @param prx The proxy of the locator.
      *
      **/
-    void foundLocator(Locator* prx);
+    void foundLocator(Ice::Locator* prx);
 };
 
 /**
