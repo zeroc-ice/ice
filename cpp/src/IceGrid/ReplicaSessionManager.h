@@ -77,7 +77,7 @@ public:
     void destroy();
 
     void registerAllWellKnownObjects();
-    ReplicaSessionPrx getSession() const { return _thread->getSession(); }
+    ReplicaSessionPrx getSession() const { return _thread ? _thread->getSession() : ReplicaSessionPrx(); }
 
     IceGrid::InternalRegistryPrx findInternalRegistryForReplica(const Ice::Identity&);
     
