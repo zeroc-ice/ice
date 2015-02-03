@@ -7,13 +7,13 @@
 //
 // **********************************************************************
 
-package IceGrid;
+package IceLocatorDiscovery;
 
 import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
 
-class DiscoveryPluginI implements Ice.Plugin
+class PluginI implements Ice.Plugin
 {
     private static class Request
     {
@@ -50,14 +50,22 @@ class DiscoveryPluginI implements Ice.Plugin
                     public void
                     exception(Ice.LocalException ex)
                     {
-                        _locator.invoke(_locatorPrx, Request.this); // Retry with new locator proxy
-                    }
-
-                    @Override
-                    public void
-                    exception(Ice.SystemException ex)
-                    {
-                        _locator.invoke(_locatorPrx, Request.this); // Retry with new locator proxy
+                        try
+                        {
+                            throw ex;
+                        }
+                        catch(Ice.RequestFailedException exc)
+                        {
+                            _amdCB.ice_exception(ex);
+                        }
+                        catch(Ice.UnknownException exc)
+                        {
+                            _amdCB.ice_exception(ex);
+                        }
+                        catch(Ice.LocalException exc)
+                        {
+                            _locator.invoke(_locatorPrx, Request.this); // Retry with new locator proxy
+                        }
                     }
                 });
         }
@@ -72,7 +80,7 @@ class DiscoveryPluginI implements Ice.Plugin
         private Ice.LocatorPrx _locatorPrx;
     };
 
-    static private class VoidLocatorI extends IceGrid._LocatorDisp
+    static private class VoidLocatorI extends Ice._LocatorDisp
     {
         @Override
         public void
@@ -94,20 +102,6 @@ class DiscoveryPluginI implements Ice.Plugin
         {
             return null;
         }
-
-        @Override
-        public IceGrid.RegistryPrx
-        getLocalRegistry(Ice.Current current)
-        {
-            return null;
-        }
-
-        @Override
-        public IceGrid.QueryPrx
-        getLocalQuery(Ice.Current current)
-        {
-            return null;
-        }
     };
 
     private static class LocatorI extends Ice.BlobjectAsync
@@ -115,9 +109,9 @@ class DiscoveryPluginI implements Ice.Plugin
         LocatorI(LookupPrx lookup, Ice.Properties properties, String instanceName, Ice.LocatorPrx voidLocator)
         {
             _lookup = lookup;
-            _timeout = properties.getPropertyAsIntWithDefault("IceGridDiscovery.Timeout", 300);
-            _retryCount = properties.getPropertyAsIntWithDefault("IceGridDiscovery.RetryCount", 3);
-            _retryDelay = properties.getPropertyAsIntWithDefault("IceGridDiscovery.RetryDelay", 2000);
+            _timeout = properties.getPropertyAsIntWithDefault("IceLocatorDiscovery.Timeout", 300);
+            _retryCount = properties.getPropertyAsIntWithDefault("IceLocatorDiscovery.RetryCount", 3);
+            _retryDelay = properties.getPropertyAsIntWithDefault("IceLocatorDiscovery.RetryDelay", 2000);
             _timer = IceInternal.Util.getInstance(lookup.ice_getCommunicator()).timer();
             _instanceName = instanceName;
             _warned = false;
@@ -159,11 +153,11 @@ class DiscoveryPluginI implements Ice.Plugin
                     _warned = true; // Only warn once
 
                     locator.ice_getCommunicator().getLogger().warning(
-                        "received IceGrid locator with different instance name:\n" +
+                        "received Ice locator with different instance name:\n" +
                         "using = `" + _locator.ice_getIdentity().category + "'\n" +
                         "received = `" + locator.ice_getIdentity().category + "'\n" +
-                        "This is typically the case if multiple IceGrid registries with different " +
-                        "instance names are deployed and the property `IceGridDiscovery.InstanceName'" +
+                        "This is typically the case if multiple Ice locators with different " +
+                        "instance names are deployed and the property `IceLocatorDiscovery.InstanceName'" +
                         "is not set.");
                 }
                 return;
@@ -317,7 +311,7 @@ class DiscoveryPluginI implements Ice.Plugin
     };
 
     public
-    DiscoveryPluginI(Ice.Communicator communicator)
+    PluginI(Ice.Communicator communicator)
     {
         _communicator = communicator;
     }
@@ -333,16 +327,16 @@ class DiscoveryPluginI implements Ice.Plugin
         String address;
         if(ipv4 && !preferIPv6)
         {
-            address = properties.getPropertyWithDefault("IceGridDiscovery.Address", "239.255.0.1");
+            address = properties.getPropertyWithDefault("IceLocatorDiscovery.Address", "239.255.0.1");
         }
         else
         {
-            address = properties.getPropertyWithDefault("IceGridDiscovery.Address", "ff15::1");
+            address = properties.getPropertyWithDefault("IceLocatorDiscovery.Address", "ff15::1");
         }
-        int port = properties.getPropertyAsIntWithDefault("IceGridDiscovery.Port", 4061);
-        String intf = properties.getProperty("IceGridDiscovery.Interface");
+        int port = properties.getPropertyAsIntWithDefault("IceLocatorDiscovery.Port", 4061);
+        String intf = properties.getProperty("IceLocatorDiscovery.Interface");
 
-        if(properties.getProperty("IceGridDiscovery.Reply.Endpoints").isEmpty())
+        if(properties.getProperty("IceLocatorDiscovery.Reply.Endpoints").isEmpty())
         {
             StringBuilder s = new StringBuilder();
             s.append("udp");
@@ -350,21 +344,21 @@ class DiscoveryPluginI implements Ice.Plugin
             {
                 s.append(" -h \"").append(intf).append("\"");
             }
-            properties.setProperty("IceGridDiscovery.Reply.Endpoints", s.toString());
+            properties.setProperty("IceLocatorDiscovery.Reply.Endpoints", s.toString());
         }
-        if(properties.getProperty("IceGridDiscovery.Locator.Endpoints").isEmpty())
+        if(properties.getProperty("IceLocatorDiscovery.Locator.Endpoints").isEmpty())
         {
-            properties.setProperty("IceGridDiscovery.Locator.AdapterId", java.util.UUID.randomUUID().toString());
+            properties.setProperty("IceLocatorDiscovery.Locator.AdapterId", java.util.UUID.randomUUID().toString());
         }
 
-        _replyAdapter = _communicator.createObjectAdapter("IceGridDiscovery.Reply");
-        _locatorAdapter = _communicator.createObjectAdapter("IceGridDiscovery.Locator");
+        _replyAdapter = _communicator.createObjectAdapter("IceLocatorDiscovery.Reply");
+        _locatorAdapter = _communicator.createObjectAdapter("IceLocatorDiscovery.Locator");
 
         // We don't want those adapters to be registered with the locator so clear their locator.
         _replyAdapter.setLocator(null);
         _locatorAdapter.setLocator(null);
 
-        String lookupEndpoints = properties.getProperty("IceGridDiscovery.Lookup");
+        String lookupEndpoints = properties.getProperty("IceLocatorDiscovery.Lookup");
         if(lookupEndpoints.isEmpty())
         {
             StringBuilder s = new StringBuilder();
@@ -376,7 +370,7 @@ class DiscoveryPluginI implements Ice.Plugin
             lookupEndpoints = s.toString();
         }
 
-        Ice.ObjectPrx lookupPrx = _communicator.stringToProxy("IceGrid/Lookup -d:" + lookupEndpoints);
+        Ice.ObjectPrx lookupPrx = _communicator.stringToProxy("IceLocatorDiscovery/Lookup -d:" + lookupEndpoints);
         lookupPrx = lookupPrx.ice_collocationOptimized(false); // No collocation optimization for the multicast proxy!
         try
         {
@@ -385,14 +379,14 @@ class DiscoveryPluginI implements Ice.Plugin
         catch(Ice.LocalException ex)
         {
             StringBuilder s = new StringBuilder();
-            s.append("unable to establish multicast connection, IceGrid discovery will be disabled:\n");
+            s.append("unable to establish multicast connection, Ice locator discovery will be disabled:\n");
             s.append("proxy = ").append(lookupPrx.toString()).append("\n").append(ex);
             throw new Ice.PluginInitializationException(s.toString());
         }
 
-        LocatorPrx voidLoc = LocatorPrxHelper.uncheckedCast(_locatorAdapter.addWithUUID(new VoidLocatorI()));
+        Ice.LocatorPrx voidLoc = Ice.LocatorPrxHelper.uncheckedCast(_locatorAdapter.addWithUUID(new VoidLocatorI()));
 
-        String instanceName = properties.getProperty("IceGridDiscovery.InstanceName");
+        String instanceName = properties.getProperty("IceLocatorDiscovery.InstanceName");
         Ice.Identity id = new Ice.Identity();
         id.name = "Locator";
         id.category = !instanceName.isEmpty() ? instanceName : java.util.UUID.randomUUID().toString();

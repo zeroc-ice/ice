@@ -7,12 +7,21 @@
 //
 // **********************************************************************
 
-namespace IceGrid
+namespace IceLocatorDiscovery
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Text;
+
+    public sealed class PluginFactory : Ice.PluginFactory
+    {
+        public Ice.Plugin
+        create(Ice.Communicator communicator, string name, string[] args)
+        {
+            return new PluginI(communicator);
+        }
+    }
 
     internal class Request
     {
@@ -43,7 +52,22 @@ namespace IceGrid
                 },
                 (Ice.Exception ex) =>
                 {
-                    _locator.invoke(_locatorPrx, self); // Retry with new locator proxy
+                    try
+                    {
+                        throw ex;
+                    }
+                    catch(Ice.RequestFailedException exc)
+                    {
+                        _amdCB.ice_exception(exc);
+                    }
+                    catch(Ice.UnknownException exc)
+                    {
+                        _amdCB.ice_exception(exc);
+                    }
+                    catch(Ice.Exception)
+                    {
+                        _locator.invoke(_locatorPrx, self); // Retry with new locator proxy
+                    }
                 });
         }
 
@@ -57,7 +81,7 @@ namespace IceGrid
         private Ice.LocatorPrx _locatorPrx;
     }
 
-    internal class VoidLocatorI : LocatorDisp_
+    internal class VoidLocatorI : Ice.LocatorDisp_
     {
         public override void 
         findObjectById_async(Ice.AMD_Locator_findObjectById amdCB, Ice.Identity id, Ice.Current current)
@@ -76,29 +100,17 @@ namespace IceGrid
         {
             return null;
         }
-        
-        public override IceGrid.RegistryPrx 
-        getLocalRegistry(Ice.Current current)
-        {
-            return null;
-        }
-        
-        public override IceGrid.QueryPrx 
-        getLocalQuery(Ice.Current current)
-        {
-            return null;
-        }
     };
 
     internal class LocatorI : Ice.BlobjectAsync, IceInternal.TimerTask
     {
         public
-        LocatorI(LookupPrx lookup, Ice.Properties properties, string instanceName, IceGrid.LocatorPrx voidLocator)
+        LocatorI(LookupPrx lookup, Ice.Properties properties, string instanceName, Ice.LocatorPrx voidLocator)
         {
             _lookup = lookup;
-            _timeout = properties.getPropertyAsIntWithDefault("IceGridDiscovery.Timeout", 300);
-            _retryCount = properties.getPropertyAsIntWithDefault("IceGridDiscovery.RetryCount", 3);
-            _retryDelay = properties.getPropertyAsIntWithDefault("IceGridDiscovery.RetryDelay", 2000);
+            _timeout = properties.getPropertyAsIntWithDefault("IceLocatorDiscovery.Timeout", 300);
+            _retryCount = properties.getPropertyAsIntWithDefault("IceLocatorDiscovery.RetryCount", 3);
+            _retryDelay = properties.getPropertyAsIntWithDefault("IceLocatorDiscovery.RetryDelay", 2000);
             _timer = IceInternal.Util.getInstance(lookup.ice_getCommunicator()).timer();
             _instanceName = instanceName;
             _warned = false;
@@ -144,11 +156,11 @@ namespace IceGrid
                         _warned = true; // Only warn once
 
                         locator.ice_getCommunicator().getLogger().warning(
-                        "received IceGrid locator with different instance name:\n" +
+                        "received Ice locator with different instance name:\n" +
                         "using = `" + _locator.ice_getIdentity().category + "'\n" +
                         "received = `" + locator.ice_getIdentity().category + "'\n" +
-                        "This is typically the case if multiple IceGrid registries with different " +
-                        "nstance names are deployed and the property `IceGridDiscovery.InstanceName'" +
+                        "This is typically the case if multiple Ice locators with different " +
+                        "instance names are deployed and the property `IceLocatorDiscovery.InstanceName'" +
                         "is not set.");
 
                     }
@@ -271,7 +283,7 @@ namespace IceGrid
         private bool _warned;
         private LookupReplyPrx _lookupReply;
         private Ice.LocatorPrx _locator;
-        private IceGrid.LocatorPrx _voidLocator;
+        private Ice.LocatorPrx _voidLocator;
 
         private int _pendingRetryCount;
         private List<Request> _pendingRequests = new List<Request>();
@@ -294,10 +306,10 @@ namespace IceGrid
         private LocatorI _locator;
     }
 
-    class DiscoveryPluginI : Ice.Plugin
+    class PluginI : Ice.Plugin
     {
         public
-        DiscoveryPluginI(Ice.Communicator communicator)
+        PluginI(Ice.Communicator communicator)
         {
            _communicator = communicator;
         }
@@ -312,16 +324,16 @@ namespace IceGrid
             string address;
             if(ipv4 && !preferIPv6)
             {
-                address = properties.getPropertyWithDefault("IceGridDiscovery.Address", "239.255.0.1");
+                address = properties.getPropertyWithDefault("IceLocatorDiscovery.Address", "239.255.0.1");
             }
             else
             {
-                address = properties.getPropertyWithDefault("IceGridDiscovery.Address", "ff15::1");
+                address = properties.getPropertyWithDefault("IceLocatorDiscovery.Address", "ff15::1");
             }
-            int port = properties.getPropertyAsIntWithDefault("IceGridDiscovery.Port", 4061);
-            string intf = properties.getProperty("IceGridDiscovery.Interface");
+            int port = properties.getPropertyAsIntWithDefault("IceLocatorDiscovery.Port", 4061);
+            string intf = properties.getProperty("IceLocatorDiscovery.Interface");
 
-            if(properties.getProperty("IceGridDiscovery.Reply.Endpoints").Length == 0)
+            if(properties.getProperty("IceLocatorDiscovery.Reply.Endpoints").Length == 0)
             {
                 System.Text.StringBuilder s = new System.Text.StringBuilder();
                 s.Append("udp");
@@ -331,21 +343,21 @@ namespace IceGrid
                     s.Append(intf);
                     s.Append("\"");
                 }
-                properties.setProperty("IceGridDiscovery.Reply.Endpoints", s.ToString());
+                properties.setProperty("IceLocatorDiscovery.Reply.Endpoints", s.ToString());
             }
-            if(properties.getProperty("IceGridDiscovery.Locator.Endpoints").Length == 0)
+            if(properties.getProperty("IceLocatorDiscovery.Locator.Endpoints").Length == 0)
             {
-                properties.setProperty("IceGridDiscovery.Locator.AdapterId", Guid.NewGuid().ToString());
+                properties.setProperty("IceLocatorDiscovery.Locator.AdapterId", Guid.NewGuid().ToString());
             }
 
-            _replyAdapter = _communicator.createObjectAdapter("IceGridDiscovery.Reply");
-            _locatorAdapter = _communicator.createObjectAdapter("IceGridDiscovery.Locator");
+            _replyAdapter = _communicator.createObjectAdapter("IceLocatorDiscovery.Reply");
+            _locatorAdapter = _communicator.createObjectAdapter("IceLocatorDiscovery.Locator");
 
             // We don't want those adapters to be registered with the locator so clear their locator.
             _replyAdapter.setLocator(null);
             _locatorAdapter.setLocator(null);
 
-            string lookupEndpoints = properties.getProperty("IceGridDiscovery.Lookup");
+            string lookupEndpoints = properties.getProperty("IceLocatorDiscovery.Lookup");
             if(lookupEndpoints.Length == 0)
             {
                 System.Text.StringBuilder s = new System.Text.StringBuilder();
@@ -362,7 +374,7 @@ namespace IceGrid
                 lookupEndpoints = s.ToString();
             }
 
-            Ice.ObjectPrx lookupPrx = _communicator.stringToProxy("IceGrid/Lookup -d:" + lookupEndpoints);
+            Ice.ObjectPrx lookupPrx = _communicator.stringToProxy("IceLocatorDiscovery/Lookup -d:" + lookupEndpoints);
             lookupPrx = lookupPrx.ice_collocationOptimized(false); // No colloc optimization for the multicast proxy!
             try
             {
@@ -371,7 +383,7 @@ namespace IceGrid
             catch (Ice.LocalException ex)
             {
                 System.Text.StringBuilder s = new System.Text.StringBuilder();
-                s.Append("unable to establish multicast connection, IceGrid discovery will be disabled:\n");
+                s.Append("unable to establish multicast connection, Ice locator discovery will be disabled:\n");
                 s.Append("proxy = ");
                 s.Append(lookupPrx.ToString());
                 s.Append("\n");
@@ -379,9 +391,9 @@ namespace IceGrid
                 throw new Ice.PluginInitializationException(s.ToString());
             }
 
-            LocatorPrx voidLo = LocatorPrxHelper.uncheckedCast(_locatorAdapter.addWithUUID(new VoidLocatorI()));
+            Ice.LocatorPrx voidLo = Ice.LocatorPrxHelper.uncheckedCast(_locatorAdapter.addWithUUID(new VoidLocatorI()));
         
-            string instanceName = properties.getProperty("IceGridDiscovery.InstanceName");
+            string instanceName = properties.getProperty("IceLocatorDiscovery.InstanceName");
             Ice.Identity id = new Ice.Identity();
             id.name = "Locator";
             id.category = instanceName.Length > 0 ? instanceName : Guid.NewGuid().ToString();

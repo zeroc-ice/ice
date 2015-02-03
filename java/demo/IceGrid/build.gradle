@@ -20,6 +20,7 @@
 			compile localDependency("ice")
 			compile localDependency("icebox")
 			compile localDependency("icegrid")
+			compile localDependency("icelocatordiscovery")
 			if (!useLocalOnly) {
 				runtime "org.apache.tools:bzip2:1.0"
 			}

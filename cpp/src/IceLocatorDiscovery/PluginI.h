@@ -7,19 +7,19 @@
 //
 // **********************************************************************
 
-#ifndef PLUGIN_I_H
-#define PLUGIN_I_H
+#ifndef LOCATOR_DISCOVERY_PLUGIN_I_H
+#define LOCATOR_DISCOVERY_PLUGIN_I_H
 
 #include <Ice/Plugin.h>
 
-namespace IceGrid
+namespace IceLocatorDiscovery
 {
 
-class DiscoveryPluginI : public Ice::Plugin
+class PluginI : public Ice::Plugin
 {
 public:
     
-    DiscoveryPluginI(const Ice::CommunicatorPtr&);
+    PluginI(const Ice::CommunicatorPtr&);
 
     virtual void initialize();
     virtual void destroy();

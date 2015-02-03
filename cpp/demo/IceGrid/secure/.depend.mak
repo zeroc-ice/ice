@@ -210,7 +210,6 @@ Client.obj: \
     "$(includedir)\IceGrid\Session.h" \
     "$(includedir)\IceGrid\UserAccountMapper.h" \
     "$(includedir)\IceGrid\PluginFacade.h" \
-    "$(includedir)\IceGrid\Discovery.h" \
     "Hello.h" \
 
 HelloI.obj: \

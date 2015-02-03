@@ -128,6 +128,7 @@ SHA1.obj: \
 	SHA1.cpp \
     "$(includedir)\IceUtil\SHA1.h" \
     "$(includedir)\IceUtil\Config.h" \
+    "$(includedir)\IceUtil\UniquePtr.h" \
     "$(includedir)\IceUtil\Exception.h" \
 
 Shared.obj: \

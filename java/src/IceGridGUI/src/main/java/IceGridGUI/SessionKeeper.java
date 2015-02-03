@@ -58,6 +58,12 @@ import java.security.MessageDigest;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
+import IceLocatorDiscovery.LookupPrx;
+import IceLocatorDiscovery.LookupPrxHelper;
+import IceLocatorDiscovery.LookupReplyPrx;
+import IceLocatorDiscovery.LookupReplyPrxHelper;
+import IceLocatorDiscovery._LookupReplyDisp;
+
 import IceGrid.*;
 
 //
@@ -1251,8 +1257,8 @@ public class SessionKeeper
             try
             {
                 final LookupPrx lookupPrx = LookupPrxHelper.uncheckedCast(
-                    communicator.stringToProxy("IceGrid/Lookup -d:" + lookupEndpoints).ice_collocationOptimized(false)
-                    .ice_router(null));
+                    communicator.stringToProxy("IceLocatorDiscovery/Lookup -d:" + 
+                                               lookupEndpoints).ice_collocationOptimized(false).ice_router(null));
                 
                 new Thread(new Runnable()
                 {

@@ -25,6 +25,7 @@ SUBDIRS		= IceUtil \
 		  Ice \
 		  IceSSL \
 		  IceDiscovery \
+		  IceLocatorDiscovery
 !else
 SUBDIRS		= IceUtil \
 		  Slice \
@@ -41,6 +42,7 @@ SUBDIRS		= IceUtil \
 		  Ice \
 		  IceSSL \
 		  IceDiscovery \
+		  IceLocatorDiscovery \
 		  ca \
 		  IceXML \
 		  Freeze \

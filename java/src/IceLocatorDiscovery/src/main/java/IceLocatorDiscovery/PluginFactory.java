@@ -7,16 +7,14 @@
 //
 // **********************************************************************
 
-#if !SILVERLIGHT
-namespace IceGrid
+package IceLocatorDiscovery;
+
+public class PluginFactory implements Ice.PluginFactory
 {
-    class DiscoveryPluginFactoryI : Ice.PluginFactory
+    @Override
+    public Ice.Plugin
+    create(Ice.Communicator communicator, String name, String[] args)
     {
-        public Ice.Plugin
-        create(Ice.Communicator communicator, string name, string[] args)
-        {
-            return new DiscoveryPluginI(communicator);
-        }
+        return new PluginI(communicator);
     }
 }
-#endif

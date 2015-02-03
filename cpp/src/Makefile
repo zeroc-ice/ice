@@ -18,7 +18,8 @@ ifneq ($(findstring MINGW,$(UNAME)),)
 			  slice2rb \
 			  Ice \
 			  IceSSL \
-			  IceDiscovery
+			  IceDiscovery \
+			  IceLocatorDiscovery
 else
     SUBDIRS	= IceUtil \
 			  Slice \

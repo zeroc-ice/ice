@@ -343,7 +343,6 @@ AllTests.obj: \
     "$(includedir)\IceGrid\Session.h" \
     "$(includedir)\IceGrid\UserAccountMapper.h" \
     "$(includedir)\IceGrid\PluginFacade.h" \
-    "$(includedir)\IceGrid\Discovery.h" \
     "$(includedir)\Glacier2\Router.h" \
     "$(includedir)\Glacier2\PermissionsVerifier.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \

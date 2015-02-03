@@ -14,6 +14,7 @@
 #include <Ice/Network.h>
 #include <Ice/ProtocolPluginFacade.h> // Just to get the hostname
 
+
 #include <IceStorm/Service.h>
 #include <IceSSL/IceSSL.h>
 #include <Glacier2/PermissionsVerifier.h>
@@ -22,7 +23,6 @@
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/Database.h>
 #include <IceGrid/ReapThread.h>
-#include <IceGrid/Discovery.h>
 #include <IceGrid/RegistryI.h>
 #include <IceGrid/LocatorI.h>
 #include <IceGrid/LocatorRegistryI.h>
@@ -36,6 +36,7 @@
 #include <IceGrid/FileUserAccountMapperI.h>
 #include <IceGrid/WellKnownObjectsManager.h>
 #include <IceGrid/FileCache.h>
+#include <IceGrid/IceLocatorDiscovery.h>
 
 #include <IceGrid/RegistryAdminRouter.h>
 
@@ -50,7 +51,7 @@ using namespace IceGrid;
 namespace
 {
 
-class LookupI : public IceGrid::Lookup
+class LookupI : public IceLocatorDiscovery::Lookup
 {
 public:
 
@@ -60,7 +61,7 @@ public:
     }
 
     virtual void
-    findLocator(const string& instanceName, const LookupReplyPrx& reply, const Ice::Current&)
+    findLocator(const string& instanceName, const IceLocatorDiscovery::LookupReplyPrx& reply, const Ice::Current&)
     {
         if(!instanceName.empty() && instanceName != _instanceName)
         {
@@ -304,7 +305,7 @@ RegistryI::startImpl()
     _instanceName = properties->getProperty("IceGrid.InstanceName");
     if(_instanceName.empty())
     {
-        _instanceName = properties->getProperty("IceGridDiscovery.InstanceName");
+        _instanceName = properties->getProperty("IceLocatorDiscovery.InstanceName");
     }
     if(_instanceName.empty() && _communicator->getDefaultLocator())
     {
@@ -606,7 +607,7 @@ RegistryI::startImpl()
 
         try
         {
-            Ice::Identity lookupId = _communicator->stringToIdentity("IceGrid/Lookup");
+            Ice::Identity lookupId = _communicator->stringToIdentity("IceLocatorDiscovery/Lookup");
             discoveryAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Discovery");
             discoveryAdapter->add(new LookupI(_instanceName, _wellKnownObjects), lookupId);
         }

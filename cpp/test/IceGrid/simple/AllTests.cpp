@@ -66,11 +66,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         Ice::InitializationData initData;
         initData.properties = communicator->getProperties()->clone();
         initData.properties->setProperty("Ice.Default.Locator", "");
-        initData.properties->setProperty("Ice.Plugin.IceGridDiscovery", "IceGrid:createIceGridDiscovery");
+        initData.properties->setProperty("Ice.Plugin.IceLocatorDiscovery", "IceLocatorDiscovery:createIceLocatorDiscovery");
 #ifdef __APPLE__
         if(initData.properties->getPropertyAsInt("Ice.PreferIPv6Address") > 0)
         {
-            initData.properties->setProperty("IceGridDiscovery.Interface", "::1");
+            initData.properties->setProperty("IceLocatorDiscovery.Interface", "::1");
         }
 #endif
         initData.properties->setProperty("AdapterForDiscoveryTest.AdapterId", "discoveryAdapter");
@@ -82,6 +82,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         com->stringToProxy("test")->ice_ping();
 
         test(com->getDefaultLocator()->getRegistry());
+        test(IceGrid::LocatorPrx::checkedCast(com->getDefaultLocator()));
         test(IceGrid::LocatorPrx::uncheckedCast(com->getDefaultLocator())->getLocalRegistry());
         test(IceGrid::LocatorPrx::uncheckedCast(com->getDefaultLocator())->getLocalQuery());
 
@@ -95,9 +96,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Now, ensure that the IceGrid discovery locator correctly
         // handles failure to find a locator.
         // 
-        initData.properties->setProperty("IceGridDiscovery.InstanceName", "unknown");
-        initData.properties->setProperty("IceGridDiscovery.RetryCount", "1");
-        initData.properties->setProperty("IceGridDiscovery.Timeout", "100");
+        initData.properties->setProperty("IceLocatorDiscovery.InstanceName", "unknown");
+        initData.properties->setProperty("IceLocatorDiscovery.RetryCount", "1");
+        initData.properties->setProperty("IceLocatorDiscovery.Timeout", "100");
         com = Ice::initialize(initData);
         test(com->getDefaultLocator());
         try
@@ -115,8 +116,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
         }
         test(!com->getDefaultLocator()->getRegistry());
-        test(!IceGrid::LocatorPrx::uncheckedCast(com->getDefaultLocator())->getLocalRegistry());
-        test(!IceGrid::LocatorPrx::uncheckedCast(com->getDefaultLocator())->getLocalQuery());
+        test(!IceGrid::LocatorPrx::checkedCast(com->getDefaultLocator()));
+        try
+        {
+            test(IceGrid::LocatorPrx::uncheckedCast(com->getDefaultLocator())->getLocalQuery());
+        }
+        catch(const Ice::OperationNotExistException&)
+        {
+        }
 
         adapter = com->createObjectAdapter("AdapterForDiscoveryTest");
         adapter->activate();

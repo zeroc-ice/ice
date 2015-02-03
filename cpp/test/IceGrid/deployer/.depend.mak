@@ -335,7 +335,6 @@ AllTests.obj: \
     "$(includedir)\IceGrid\Session.h" \
     "$(includedir)\IceGrid\UserAccountMapper.h" \
     "$(includedir)\IceGrid\PluginFacade.h" \
-    "$(includedir)\IceGrid\Discovery.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \

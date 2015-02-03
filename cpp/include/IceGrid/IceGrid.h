@@ -21,7 +21,6 @@
 #include <IceGrid/Session.h>
 #include <IceGrid/UserAccountMapper.h>
 #include <IceGrid/PluginFacade.h>
-#include <IceGrid/Discovery.h>
 
 namespace IceGrid
 {

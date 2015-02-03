@@ -18,7 +18,6 @@ TARGETS         = $(LIBTARGETS) $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)
 
 SLICE_OBJS	= Admin.o \
 		  Descriptor.o \
-		  Discovery.o \
 		  Exception.o \
 		  FileParser.o \
 		  Locator.o \
@@ -29,8 +28,7 @@ SLICE_OBJS	= Admin.o \
 		  Session.o \
 		  UserAccountMapper.o
 
-OBJS		= DiscoveryPluginI.o \
-		  PluginFacadeI.o \
+OBJS		= PluginFacadeI.o \
 		  $(SLICE_OBJS)
 
 

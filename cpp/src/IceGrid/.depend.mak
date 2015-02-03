@@ -17,6 +17,12 @@ Internal.h: \
     "$(slicedir)/IceGrid/Registry.ice" \
     "$(slicedir)/IceGrid/Session.ice"
 
+IceLocatorDiscovery.h: \
+    "$(slicedir)\IceLocatorDiscovery\IceLocatorDiscovery.ice" \
+    "$(slicedir)/Ice/Locator.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/ProcessF.ice"
+
 Client.obj: \
 	Client.cpp \
     "$(includedir)\IceUtil\DisableWarnings.h" \
@@ -154,7 +160,7 @@ Client.obj: \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
     "$(includedir)\IceGrid\Locator.h" \
-    "$(includedir)\IceGrid\Discovery.h" \
+    "IceLocatorDiscovery.h" \
     "$(includedir)\Glacier2\Router.h" \
     "$(includedir)\Glacier2\PermissionsVerifier.h" \
 
@@ -1245,6 +1251,89 @@ Internal.obj: \
     "$(includedir)\Ice\OutgoingAsyncF.h" \
     "$(includedir)\Ice\SlicedData.h" \
     "$(includedir)\Ice\SliceChecksums.h" \
+
+IceLocatorDiscovery.obj: \
+	IceLocatorDiscovery.cpp \
+    "IceLocatorDiscovery.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
+    "$(includedir)\Ice\ProxyF.h" \
+    "$(includedir)\IceUtil\Shared.h" \
+    "$(includedir)\IceUtil\Config.h" \
+    "$(includedir)\Ice\Config.h" \
+    "$(includedir)\Ice\ProxyHandle.h" \
+    "$(includedir)\IceUtil\Handle.h" \
+    "$(includedir)\IceUtil\Exception.h" \
+    "$(includedir)\Ice\ObjectF.h" \
+    "$(includedir)\Ice\Handle.h" \
+    "$(includedir)\Ice\Exception.h" \
+    "$(includedir)\Ice\Format.h" \
+    "$(includedir)\Ice\StreamF.h" \
+    "$(includedir)\Ice\LocalObject.h" \
+    "$(includedir)\Ice\LocalObjectF.h" \
+    "$(includedir)\Ice\StreamHelpers.h" \
+    "$(includedir)\IceUtil\ScopedArray.h" \
+    "$(includedir)\IceUtil\Iterator.h" \
+    "$(includedir)\Ice\Proxy.h" \
+    "$(includedir)\IceUtil\Mutex.h" \
+    "$(includedir)\IceUtil\Lock.h" \
+    "$(includedir)\IceUtil\ThreadException.h" \
+    "$(includedir)\IceUtil\Time.h" \
+    "$(includedir)\IceUtil\MutexProtocol.h" \
+    "$(includedir)\Ice\ProxyFactoryF.h" \
+    "$(includedir)\Ice\ConnectionIF.h" \
+    "$(includedir)\Ice\RequestHandlerF.h" \
+    "$(includedir)\Ice\EndpointF.h" \
+    "$(includedir)\IceUtil\Optional.h" \
+    "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
+    "$(includedir)\Ice\EndpointTypes.h" \
+    "$(includedir)\Ice\ObjectAdapterF.h" \
+    "$(includedir)\Ice\ReferenceF.h" \
+    "$(includedir)\Ice\AsyncResult.h" \
+    "$(includedir)\IceUtil\Monitor.h" \
+    "$(includedir)\IceUtil\Cond.h" \
+    "$(includedir)\IceUtil\UniquePtr.h" \
+    "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\Ice\InstanceF.h" \
+    "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\ObserverHelper.h" \
+    "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\Ice\Current.h" \
+    "$(includedir)\Ice\Identity.h" \
+    "$(includedir)\Ice\Version.h" \
+    "$(includedir)\Ice\BasicStream.h" \
+    "$(includedir)\IceUtil\StringConverter.h" \
+    "$(includedir)\Ice\Object.h" \
+    "$(includedir)\Ice\IncomingAsyncF.h" \
+    "$(includedir)\Ice\ObjectFactoryF.h" \
+    "$(includedir)\Ice\ObjectFactoryManagerF.h" \
+    "$(includedir)\Ice\Buffer.h" \
+    "$(includedir)\Ice\Protocol.h" \
+    "$(includedir)\Ice\SlicedDataF.h" \
+    "$(includedir)\Ice\UserExceptionFactory.h" \
+    "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\GCObject.h" \
+    "$(includedir)\IceUtil\MutexPtrLock.h" \
+    "$(includedir)\Ice\Incoming.h" \
+    "$(includedir)\Ice\ServantLocatorF.h" \
+    "$(includedir)\Ice\ServantManagerF.h" \
+    "$(includedir)\Ice\ResponseHandlerF.h" \
+    "$(includedir)\Ice\IncomingAsync.h" \
+    "$(includedir)\Ice\FactoryTableInit.h" \
+    "$(includedir)\Ice\DefaultObjectFactory.h" \
+    "$(includedir)\Ice\ObjectFactory.h" \
+    "$(includedir)\Ice\Locator.h" \
+    "$(includedir)\Ice\ProcessF.h" \
+    "$(includedir)\Ice\LocalException.h" \
+    "$(includedir)\Ice\BuiltinSequences.h" \
+    "$(includedir)\Ice\Outgoing.h" \
+    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\IceUtil\Timer.h" \
+    "$(includedir)\IceUtil\Thread.h" \
+    "$(includedir)\Ice\OutgoingAsyncF.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
 
 AdminRouter.obj: \
 	AdminRouter.cpp \
@@ -3771,7 +3860,6 @@ Database.obj: \
     "$(includedir)\IceGrid\FileParser.h" \
     "$(includedir)\IceGrid\Locator.h" \
     "$(includedir)\IceGrid\UserAccountMapper.h" \
-    "$(includedir)\IceGrid\Discovery.h" \
     "SerialsDict.h" \
 
 FileUserAccountMapperI.obj: \
@@ -5815,9 +5903,8 @@ RegistryI.obj: \
     "StringAdapterInfoDict.h" \
     "IdentityObjectInfoDict.h" \
     "ReapThread.h" \
-    "$(includedir)\IceGrid\Discovery.h" \
-    "$(includedir)\IceGrid\Locator.h" \
     "RegistryI.h" \
+    "$(includedir)\IceGrid\Locator.h" \
     "PlatformInfo.h" \
     "ReplicaSessionManager.h" \
     "SessionManager.h" \
@@ -5840,6 +5927,7 @@ RegistryI.obj: \
     "$(includedir)\IceGrid\UserAccountMapper.h" \
     "WellKnownObjectsManager.h" \
     "FileCache.h" \
+    "IceLocatorDiscovery.h" \
     "RegistryAdminRouter.h" \
     "AdminRouter.h" \
 

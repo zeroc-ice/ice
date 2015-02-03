@@ -24,7 +24,8 @@ REGISTRY_SERVER	= $(top_srcdir)\bin\icegridregistry$(LIBSUFFIX).exe
 
 TARGETS         = $(ADMIN) $(NODE_SERVER) $(REGISTRY_SERVER)
 
-SLICE_OBJS      = .\Internal.obj
+SLICE_OBJS      = .\Internal.obj \
+		  .\IceLocatorDiscovery.obj
 
 all:: StringApplicationInfoDict.h StringApplicationInfoDict.cpp \
 	  IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp \
@@ -159,6 +160,15 @@ Grammar.cpp Grammar.h: Grammar.y
 	move Grammar.tab.c Grammar.cpp
 	move Grammar.tab.h Grammar.h
 	del /q Grammar.output
+
+IceLocatorDiscovery.h IceLocatorDiscovery.cpp: $(slicedir)\IceLocatorDiscovery\IceLocatorDiscovery.ice "$(SLICE2CPP)" "$(SLICEPARSERLIB)"
+	del /q $(*F).h $(*F).cpp
+	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) $(slicedir)\IceLocatorDiscovery\IceLocatorDiscovery.ice
+
+{$(slicedir)\IceLocatorDiscovery}.ice{$(SLICE_DEPEND_DIR)\}.d:
+	@echo Generating dependencies for $<
+	@"$(SLICE2CPP)" $(SLICE2CPPFLAGS) --depend $< | cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice
+
 
 StringApplicationInfoDict.h StringApplicationInfoDict.cpp: $(SDIR)\Admin.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	del /q StringApplicationInfoDict.h StringApplicationInfoDict.cpp

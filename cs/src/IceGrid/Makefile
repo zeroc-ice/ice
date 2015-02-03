@@ -14,13 +14,10 @@ LIBNAME		= $(PKG).dll
 TARGETS		= $(assembliesdir)/$(LIBNAME)
 POLICY_TARGET	= $(POLICY).dll
 
-SRCS		= AssemblyInfo.cs \
-		  DiscoveryPluginI.cs \
-		  DiscoveryPluginFactoryI.cs
+SRCS		= AssemblyInfo.cs
 
 SLICE_SRCS	= $(SDIR)/Admin.ice \
 		  $(SDIR)/Descriptor.ice \
-		  $(SDIR)/Discovery.ice \
 		  $(SDIR)/Exception.ice \
 		  $(SDIR)/FileParser.ice \
 		  $(SDIR)/Locator.ice \

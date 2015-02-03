@@ -211,7 +211,6 @@ Client.obj: \
     "$(includedir)\IceGrid\Session.h" \
     "$(includedir)\IceGrid\UserAccountMapper.h" \
     "$(includedir)\IceGrid\PluginFacade.h" \
-    "$(includedir)\IceGrid\Discovery.h" \
     "Pricing.h" \
 
 RegistryPlugin.obj: \
@@ -346,7 +345,6 @@ RegistryPlugin.obj: \
     "$(includedir)\IceGrid\Session.h" \
     "$(includedir)\IceGrid\UserAccountMapper.h" \
     "$(includedir)\IceGrid\PluginFacade.h" \
-    "$(includedir)\IceGrid\Discovery.h" \
 
 PricingI.obj: \
 	PricingI.cpp \

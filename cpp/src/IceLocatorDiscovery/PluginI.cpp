@@ -7,18 +7,28 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_API_EXPORTS
-#   define ICE_GRID_API_EXPORTS
-#endif
-
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
 
-#include <IceGridLib/DiscoveryPluginI.h>
-#include <IceGrid/Discovery.h>
+#include <IceLocatorDiscovery/PluginI.h>
+#include <IceLocatorDiscovery/IceLocatorDiscovery.h>
 
 using namespace std;
-using namespace IceGrid;
+using namespace IceLocatorDiscovery;
+
+//
+// Plugin factory function.
+//
+extern "C"
+{
+
+ICE_DECLSPEC_EXPORT Ice::Plugin*
+createIceLocatorDiscovery(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq&)
+{
+    return new PluginI(communicator);
+}
+
+}
 
 namespace
 {
@@ -31,9 +41,9 @@ public:
 
     Request(LocatorI* locator, 
             const string& operation,
-            ::Ice::OperationMode mode, 
+            Ice::OperationMode mode, 
             const pair<const Ice::Byte*, const Ice::Byte*>& inParams, 
-            const ::Ice::Context& ctx,
+            const Ice::Context& ctx,
             const Ice::AMD_Object_ice_invokePtr& amdCB) :
         _locator(locator), 
         _operation(operation),
@@ -111,137 +121,44 @@ private:
     const LocatorIPtr _locator;
 };
 
-const ::std::string IceGrid_Locator_ids[3] =
-{
-    "::Ice::Locator",
-    "::Ice::Object",
-    "::IceGrid::Locator"
-};
-
 //
 // The void locator implementation below is used when no locator is found.
 //
-class VoidLocatorI : public Ice::DispatchInterceptor
+class VoidLocatorI : public Ice::Locator
 {
 public:
     
-    //
-    // We don't want to depend on IceGrid::Locator to not have to
-    // depend on all its dependencies. This is important for mappings
-    // which are including this plugin (Python, Ruby, etc).
-    //
-
-    class LocatorI : public Ice::Locator
+    virtual void
+    findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& amdCB,
+                         const Ice::Identity&,
+                         const Ice::Current&) const
     {
-    public:
-
-        bool
-        ice_isA(const string& s, const Ice::Current&) const
-        {
-            return s == IceGrid_Locator_ids[0];
-        }
-
-        vector<string>
-        ice_ids(const Ice::Current&) const
-        {
-            return vector<string>(&IceGrid_Locator_ids[0], &IceGrid_Locator_ids[1]);
-        }
-
-        const string&
-        ice_id(const Ice::Current&) const
-        {
-            return IceGrid_Locator_ids[0];
-        }
-
-        virtual void
-        findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& amdCB,
-                             const Ice::Identity&,
-                             const Ice::Current&) const
-        {
-            amdCB->ice_response(0);
-        }
-
-        virtual void
-        findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& amdCB,
-                              const string&,
-                              const Ice::Current&) const
-        {
-            amdCB->ice_response(0);
-        }
-
-        virtual Ice::LocatorRegistryPrx
-        getRegistry(const Ice::Current&) const
-        {
-            return 0;
-        }
-    };
-
-    class IceGridLocatorI : public Ice::Blobject
-    {
-    public:
-
-        bool
-        ice_invoke(const Ice::ByteSeq& inParams, Ice::ByteSeq& outParams, const Ice::Current& current)
-        {
-            //
-            // Implements IceGrid::Locator operations getLocalRegistry
-            // and getLocalQuery. Returns a null proxy.
-            //
-            Ice::OutputStreamPtr out = Ice::createOutputStream(current.adapter->getCommunicator());
-            out->startEncapsulation();
-            out->writeProxy(0);
-            out->endEncapsulation();
-            out->finished(outParams);
-            return true;
-        }
-    };
-
-    VoidLocatorI() : _locator(new LocatorI()), _icegridLocator(new IceGridLocatorI())
-    {
+        amdCB->ice_response(0);
     }
-
-    virtual Ice::DispatchStatus
-    dispatch(Ice::Request& request)
+    
+    virtual void
+    findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& amdCB,
+                          const string&,
+                          const Ice::Current&) const
     {
-        string operation = request.getCurrent().operation;
-        if(operation == "getLocalRegistry" || operation == "getLocalQuery")
-        {
-            return _icegridLocator->ice_dispatch(request);
-        }
-        else
-        {
-            return _locator->ice_dispatch(request);
-        }
+        amdCB->ice_response(0);
     }
-
-private:
-
-    Ice::ObjectPtr _locator;
-    Ice::ObjectPtr _icegridLocator;
+    
+    virtual Ice::LocatorRegistryPrx
+    getRegistry(const Ice::Current&) const
+    {
+        return 0;
+    }
 };
 
 }
 
-//
-// Plugin factory function.
-//
-extern "C"
-{
-
-ICE_DECLSPEC_EXPORT Ice::Plugin*
-createIceGridDiscovery(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq&)
-{
-    return new DiscoveryPluginI(communicator);
-}
-
-}
-
-DiscoveryPluginI::DiscoveryPluginI(const Ice::CommunicatorPtr& communicator) : _communicator(communicator)
+PluginI::PluginI(const Ice::CommunicatorPtr& communicator) : _communicator(communicator)
 {
 }
 
 void
-DiscoveryPluginI::initialize()
+PluginI::initialize()
 {
     Ice::PropertiesPtr properties = _communicator->getProperties();
 
@@ -250,16 +167,16 @@ DiscoveryPluginI::initialize()
     string address;
     if(ipv4 && !preferIPv6)
     {
-        address = properties->getPropertyWithDefault("IceGridDiscovery.Address", "239.255.0.1");
+        address = properties->getPropertyWithDefault("IceLocatorDiscovery.Address", "239.255.0.1");
     }
     else
     {
-        address = properties->getPropertyWithDefault("IceGridDiscovery.Address", "ff15::1");
+        address = properties->getPropertyWithDefault("IceLocatorDiscovery.Address", "ff15::1");
     }
-    int port = properties->getPropertyAsIntWithDefault("IceGridDiscovery.Port", 4061);
-    string intf = properties->getProperty("IceGridDiscovery.Interface");
+    int port = properties->getPropertyAsIntWithDefault("IceLocatorDiscovery.Port", 4061);
+    string intf = properties->getProperty("IceLocatorDiscovery.Interface");
 
-    if(properties->getProperty("IceGridDiscovery.Reply.Endpoints").empty())
+    if(properties->getProperty("IceLocatorDiscovery.Reply.Endpoints").empty())
     {
         ostringstream os;
         os << "udp";
@@ -267,21 +184,21 @@ DiscoveryPluginI::initialize()
         {
             os << " -h \"" << intf << "\"";
         }
-        properties->setProperty("IceGridDiscovery.Reply.Endpoints", os.str());
+        properties->setProperty("IceLocatorDiscovery.Reply.Endpoints", os.str());
     }
-    if(properties->getProperty("IceGridDiscovery.Locator.Endpoints").empty())
+    if(properties->getProperty("IceLocatorDiscovery.Locator.Endpoints").empty())
     {
-        properties->setProperty("IceGridDiscovery.Locator.AdapterId", IceUtil::generateUUID()); // Collocated adapter
+        properties->setProperty("IceLocatorDiscovery.Locator.AdapterId", IceUtil::generateUUID()); // Collocated adapter
     }
 
-    _replyAdapter = _communicator->createObjectAdapter("IceGridDiscovery.Reply");
-    _locatorAdapter = _communicator->createObjectAdapter("IceGridDiscovery.Locator");
+    _replyAdapter = _communicator->createObjectAdapter("IceLocatorDiscovery.Reply");
+    _locatorAdapter = _communicator->createObjectAdapter("IceLocatorDiscovery.Locator");
 
     // We don't want those adapters to be registered with the locator so clear their locator.
     _replyAdapter->setLocator(0);
     _locatorAdapter->setLocator(0);
 
-    string lookupEndpoints = properties->getProperty("IceGridDiscovery.Lookup");
+    string lookupEndpoints = properties->getProperty("IceLocatorDiscovery.Lookup");
     if(lookupEndpoints.empty())
     {
         ostringstream os;
@@ -293,7 +210,7 @@ DiscoveryPluginI::initialize()
         lookupEndpoints = os.str();
     }
 
-    Ice::ObjectPrx lookupPrx = _communicator->stringToProxy("IceGrid/Lookup -d:" + lookupEndpoints);
+    Ice::ObjectPrx lookupPrx = _communicator->stringToProxy("IceLocatorDiscovery/Lookup -d:" + lookupEndpoints);
     lookupPrx = lookupPrx->ice_collocationOptimized(false); // No collocation optimization for the multicast proxy!
     try
     {
@@ -302,7 +219,7 @@ DiscoveryPluginI::initialize()
     catch(const Ice::LocalException& ex)
     {
         ostringstream os;
-        os << "unable to establish multicast connection, IceGrid discovery will be disabled:\n";
+        os << "unable to establish multicast connection, Ice locator discovery will be disabled:\n";
         os << "proxy = " << lookupPrx << '\n';
         os << ex;
         throw Ice::PluginInitializationException(__FILE__, __LINE__, os.str());
@@ -310,7 +227,7 @@ DiscoveryPluginI::initialize()
 
     Ice::LocatorPrx voidLocator = Ice::LocatorPrx::uncheckedCast(_locatorAdapter->addWithUUID(new VoidLocatorI()));
 
-    string instanceName = properties->getProperty("IceGridDiscovery.InstanceName");
+    string instanceName = properties->getProperty("IceLocatorDiscovery.InstanceName");
     Ice::Identity id;
     id.name = "Locator";
     id.category = !instanceName.empty() ? instanceName : IceUtil::generateUUID();
@@ -325,7 +242,7 @@ DiscoveryPluginI::initialize()
 }
 
 void
-DiscoveryPluginI::destroy()
+PluginI::destroy()
 {
     _replyAdapter->destroy();
     _locatorAdapter->destroy();
@@ -348,17 +265,32 @@ Request::response(bool ok, const pair<const Ice::Byte*, const Ice::Byte*>& outPa
 void
 Request::exception(const Ice::Exception& ex)
 {
-    _locator->invoke(_locatorPrx, this); // Retry with new locator proxy
+    try
+    {
+        ex.ice_throw();
+    }
+    catch(const Ice::RequestFailedException&)
+    {
+        _amdCB->ice_exception(ex);
+    }
+    catch(const Ice::UnknownException&)
+    {
+        _amdCB->ice_exception(ex);
+    }
+    catch(const Ice::Exception&)
+    {
+        _locator->invoke(_locatorPrx, this); // Retry with new locator proxy
+    }
 }
 
 LocatorI::LocatorI(const LookupPrx& lookup,
-                   const Ice::PropertiesPtr& props,
+                   const Ice::PropertiesPtr& p,
                    const string& instanceName,
                    const Ice::LocatorPrx& voidLocator) :
     _lookup(lookup),
-    _timeout(IceUtil::Time::milliSeconds(props->getPropertyAsIntWithDefault("IceGridDiscovery.Timeout", 300))),
-    _retryCount(props->getPropertyAsIntWithDefault("IceGridDiscovery.RetryCount", 3)),
-    _retryDelay(IceUtil::Time::milliSeconds(props->getPropertyAsIntWithDefault("IceGridDiscovery.RetryDelay", 2000))),
+    _timeout(IceUtil::Time::milliSeconds(p->getPropertyAsIntWithDefault("IceLocatorDiscovery.Timeout", 300))),
+    _retryCount(p->getPropertyAsIntWithDefault("IceLocatorDiscovery.RetryCount", 3)),
+    _retryDelay(IceUtil::Time::milliSeconds(p->getPropertyAsIntWithDefault("IceLocatorDiscovery.RetryDelay", 2000))),
     _timer(IceInternal::getInstanceTimer(lookup->ice_getCommunicator())),
     _instanceName(instanceName),
     _warned(false),
@@ -402,11 +334,11 @@ LocatorI::foundLocator(const Ice::LocatorPrx& locator)
             _warned = true; // Only warn once.
 
             Ice::Warning out(locator->ice_getCommunicator()->getLogger());
-            out << "received IceGrid locator with different instance name:\n";
+            out << "received Ice locator with different instance name:\n";
             out << "using = `" << _locator->ice_getIdentity().category << "'\n";
             out << "received = `" << locator->ice_getIdentity().category << "'\n";
-            out << "This is typically the case if multiple IceGrid registries with different ";
-            out << "instance names are deployed and the property `IceGridDiscovery.InstanceName' ";
+            out << "This is typically the case if multiple Ice locators with different";
+            out << "instance names are deployed and the property `IceLocatorDiscovery.InstanceName' ";
             out << "is not set.";
         }
         return;

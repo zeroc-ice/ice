@@ -53,9 +53,13 @@ $(libdir)$(cpp11libdirsuffix)/$(LIBNAME): $(libdir)/$(SONAME)
 	ln -s $(cpp11sonamedir)$(SONAME) $@
 endif
 
-../IceDiscovery/IceDiscovery.h IceDiscovery.cpp: $(slicedir)/IceDiscovery/IceDiscovery.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	rm -f IceDiscovery.h IceDiscovery.cpp
+../IceDiscovery/IceDiscovery.h IceDiscovery.cpp: \
+	$(slicedir)/IceDiscovery/IceDiscovery.ice $(SLICE2CPP) $(SLICEPARSERLIB)
+	rm -f $(*F).h $(*F).cpp
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(slicedir)/IceDiscovery/IceDiscovery.ice
+	@touch $(*F).cpp
+	@mkdir -p .depend
+	@$(SLICE2CPP) $(SLICE2CPPFLAGS) --depend $(slicedir)/IceDiscovery/IceDiscovery.ice > .depend/$(*F).ice.d
 
 install:: all
 	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))

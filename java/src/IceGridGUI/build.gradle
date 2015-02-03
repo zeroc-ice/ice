@@ -38,6 +38,7 @@ configurations {
 
 dependencies {
       compile project(':ice')
+      compile project(':icelocatordiscovery')
       compile project(':icebox')
       compile project(':icegrid')
       compile 'com.jgoodies:jgoodies-common:1.8.0'

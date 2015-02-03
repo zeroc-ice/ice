@@ -8,21 +8,18 @@
 // **********************************************************************
 
 #pragma once
-
 [["cpp:header-ext:h", "objc:header-dir:objc"]]
-[["cpp:include:IceGrid/Config.h"]]
 
 #include <Ice/Locator.ice>
 
-["objc:prefix:ICEGRID"]
-module IceGrid
+module IceLocatorDiscovery
 {
 
 /**
  *
- * The IceGrid lookup reply interface provides must be implemented by
- * clients which are searching for IceGrid locators. IceGrid
- * registries invoke on this interface to provide their locator proxy.
+ * The Ice lookup reply interface must be implemented by clients which
+ * are searching for Ice locators. Ice locator implemenations invoke
+ * on this interface to provide their locator proxy.
  *
  * @see Locator
  * @see Lookup
@@ -43,12 +40,12 @@ interface LookupReply
 
 /**
  *
- * The IceGrid lookup interface is implemented by IceGrid registries
- * and can be used by clients to find available IceGrid locators on
- * the network. 
+ * The Ice lookup interface is implemented by Ice locator
+ * implementations and can be used by clients to find available Ice
+ * locators on the network.
  * 
- * IceGrid registries provide a well-known `IceGrid/Lookup' object
- * accessible through UDP multicast. Clients typically make a
+ * Ice locator implementations provide a well-known `Ice/LocatorLookup' 
+ * object accessible through UDP multicast. Clients typically make a 
  * multicast findLocator request to find the locator proxy.
  *
  * @see Locator
@@ -61,7 +58,7 @@ interface Lookup
      *
      * Find a locator proxy with the given instance name.
      *
-     * @param instanceName Restrict the search to IceGrid registries
+     * @param instanceName Restrict the search to Ice registries
      * configured with the given instance name. If empty, all the
      * available registries will reply.
      *

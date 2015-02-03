@@ -21,7 +21,7 @@
 #include <IceGrid/FileParserI.h>
 #include <IceGrid/Registry.h>
 #include <IceGrid/Locator.h>
-#include <IceGrid/Discovery.h>
+#include <IceGrid/IceLocatorDiscovery.h>
 #include <Glacier2/Router.h>
 #include <fstream>
 
@@ -36,6 +36,7 @@
 
 using namespace std;
 using namespace Ice;
+using namespace IceLocatorDiscovery;
 using namespace IceGrid;
 
 class Client;
@@ -575,7 +576,7 @@ Client::run(StringSeq& originalArgs)
                     lookupEndpoints = os.str();
                 }
 
-                ObjectPrx prx = communicator()->stringToProxy("IceGrid/Lookup -d:" + lookupEndpoints);
+                ObjectPrx prx = communicator()->stringToProxy("IceLocatorDiscovery/Lookup -d:" + lookupEndpoints);
                 LookupPrx lookupPrx = LookupPrx::uncheckedCast(prx->ice_collocationOptimized(false));
 
                 if(properties->getProperty("IceGridAdmin.Discovery.Reply.Endpoints").empty())

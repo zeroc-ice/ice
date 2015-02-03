@@ -16,7 +16,6 @@ TARGETS         = $(LIBNAME) $(DLLNAME)
 
 SLICE_OBJS	= .\Admin.obj \
 		  .\Descriptor.obj \
-		  .\Discovery.obj \
 		  .\Exception.obj \
 		  .\FileParser.obj \
 		  .\Locator.obj \
@@ -27,8 +26,7 @@ SLICE_OBJS	= .\Admin.obj \
 		  .\Session.obj \
 		  .\UserAccountMapper.obj
 
-OBJS		= .\DiscoveryPluginI.obj \
-		  .\PluginFacadeI.obj \
+OBJS		= .\PluginFacadeI.obj \
                   $(SLICE_OBJS)
 
 HDIR		= $(headerdir)\IceGrid
@@ -59,7 +57,6 @@ $(DLLNAME): $(OBJS) IceGrid.res
 clean::
 	-del /q Admin.cpp $(HDIR)\Admin.h
 	-del /q Descriptor.cpp $(HDIR)\Descriptor.h
-	-del /q Discovery.cpp $(HDIR)\Discovery.h
 	-del /q Exception.cpp $(HDIR)\Exception.h
 	-del /q FileParser.cpp $(HDIR)\FileParser.h
 	-del /q Locator.cpp $(HDIR)\Locator.h

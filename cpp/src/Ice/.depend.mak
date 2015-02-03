@@ -1077,6 +1077,7 @@ ConnectionFactory.obj: \
     "..\..\src\IceUtil\StopWatch.h" \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\Thread.h" \
+    "$(includedir)\IceUtil\UniquePtr.h" \
     "$(includedir)\Ice\Connection.h" \
     "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\Ice\ProxyFactoryF.h" \
@@ -1087,7 +1088,6 @@ ConnectionFactory.obj: \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
     "$(includedir)\Ice\AsyncResult.h" \
-    "$(includedir)\IceUtil\UniquePtr.h" \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\InstanceF.h" \
     "$(includedir)\Ice\AsyncResultF.h" \
@@ -1200,6 +1200,7 @@ ConnectionI.obj: \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\IceUtil\Handle.h" \
+    "$(includedir)\IceUtil\UniquePtr.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
     "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
@@ -1228,7 +1229,6 @@ ConnectionI.obj: \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
     "$(includedir)\Ice\AsyncResult.h" \
-    "$(includedir)\IceUtil\UniquePtr.h" \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\InstanceF.h" \
     "$(includedir)\Ice\AsyncResultF.h" \
@@ -2577,6 +2577,7 @@ IncomingAsync.obj: \
     "..\..\src\IceUtil\StopWatch.h" \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\Thread.h" \
+    "$(includedir)\IceUtil\UniquePtr.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
     "$(includedir)\Ice\Connection.h" \
     "$(includedir)\Ice\Proxy.h" \
@@ -2585,7 +2586,6 @@ IncomingAsync.obj: \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ReferenceF.h" \
     "$(includedir)\Ice\AsyncResult.h" \
-    "$(includedir)\IceUtil\UniquePtr.h" \
     "$(includedir)\Ice\AsyncResultF.h" \
     "$(includedir)\Ice\Endpoint.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
@@ -2754,6 +2754,7 @@ Initialize.obj: \
     "ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\Process.h" \
+    "PluginManagerI.h" \
 
 Instance.obj: \
 	Instance.cpp \
@@ -4791,12 +4792,9 @@ PluginManagerI.obj: \
     "$(includedir)\Ice\FacetMap.h" \
     "$(includedir)\Ice\LoggerUtil.h" \
     "$(includedir)\Ice\Logger.h" \
-    "$(includedir)\Ice\Initialize.h" \
+    "Instance.h" \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\Thread.h" \
-    "$(includedir)\Ice\PropertiesF.h" \
-    "$(includedir)\Ice\Dispatcher.h" \
-    "Instance.h" \
     "TraceLevelsF.h" \
     "DefaultsAndOverridesF.h" \
     "RouterInfoF.h" \
@@ -4808,12 +4806,15 @@ PluginManagerI.obj: \
     "$(includedir)\Ice\ACMF.h" \
     "$(includedir)\Ice\Connection.h" \
     "$(includedir)\Ice\Endpoint.h" \
+    "$(includedir)\Ice\PropertiesF.h" \
     "$(includedir)\Ice\ObjectAdapterFactoryF.h" \
     "EndpointFactoryManagerF.h" \
     "IPEndpointIF.h" \
     "RetryQueueF.h" \
     "NetworkF.h" \
     "NetworkProxyF.h" \
+    "$(includedir)\Ice\Initialize.h" \
+    "$(includedir)\Ice\Dispatcher.h" \
     "ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \

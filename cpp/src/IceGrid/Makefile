@@ -15,7 +15,8 @@ REGISTRY_SERVER	= $(bindir)/icegridregistry
 
 TARGETS         = $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)
 
-SLICE_OBJS      = Internal.o
+SLICE_OBJS      = Internal.o \
+				  IceLocatorDiscovery.o
 
 ADMIN_OBJS	= Client.o \
 		  DescriptorBuilder.o \
@@ -119,6 +120,14 @@ $(NODE_SERVER): $(NODE_SVR_OBJS) $(LIBTARGETS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(NODE_SVR_OBJS) -lIceGrid -lIceStorm -lIceStormService -lIceBox -lGlacier2 \
 	-lFreeze -lIcePatch2 $(EXPAT_RPATH_LINK) -lIceXML -lIceSSL $(OPENSSL_LIBS) $(LIBS)
+
+../IceGrid/IceLocatorDiscovery.h IceLocatorDiscovery.cpp: \
+	$(slicedir)/IceLocatorDiscovery/IceLocatorDiscovery.ice $(SLICE2CPP) $(SLICEPARSERLIB)
+	rm -f $(*F).h $(*F).cpp
+	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(slicedir)/IceLocatorDiscovery/$(*F).ice
+	@touch $(*F).cpp
+	@mkdir -p .depend
+	@$(SLICE2CPP) $(SLICE2CPPFLAGS) --depend $(slicedir)/IceLocatorDiscovery/$(*F).ice > .depend/$(*F).ice.d
 
 # The slice2freeze rules are structured like this to avoid issues with
 # parallel make.

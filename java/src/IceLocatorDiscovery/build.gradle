@@ -1,0 +1,25 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+sourceCompatibility = iceSourceCompatibility
+targetCompatibility = iceTargetCompatibility
+
+slice {
+    java {
+    	include = ["${sliceDir}"]
+        args = "--ice"
+        files = fileTree(dir: "$sliceDir/IceLocatorDiscovery", includes:['*.ice'], excludes:["*F.ice"])
+    }
+}
+
+dependencies {
+    compile project(':ice')
+}
+
+apply from: "$rootProject.projectDir/gradle/library.gradle"

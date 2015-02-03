@@ -1754,7 +1754,8 @@ def getTestEnv(lang, testdir):
     #
     # Jar files from the source of binary distribution
     #
-    iceJARs = ["ice", "glacier2", "freeze", "icebox", "icestorm", "icegrid", "icepatch2", "icediscovery"]
+    iceJARs = ["ice", "glacier2", "freeze", "icebox", "icestorm", "icegrid", "icepatch2", "icediscovery", 
+               "icelocatordiscovery"]
     jarSuffix = "-" + iceVersion + ".jar"
 
     # First sanitize the environment.

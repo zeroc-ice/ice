@@ -89,11 +89,12 @@ public class AllTests
             Ice.InitializationData initData = app.createInitializationData();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
-            initData.properties.setProperty("Ice.Plugin.IceGridDiscovery", "IceGrid:IceGrid.DiscoveryPluginFactoryI");
+            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery", 
+                                            "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory");
             if(System.getProperty("os.name").contains("OS X") && 
                initData.properties.getPropertyAsInt("Ice.PreferIPv6Address") > 0)
             {
-                initData.properties.setProperty("IceGridDiscovery.Interface", "::1");
+                initData.properties.setProperty("IceLocatorDiscovery.Interface", "::1");
             }
             initData.properties.setProperty("AdapterForDiscoveryTest.AdapterId", "discoveryAdapter");
             initData.properties.setProperty("AdapterForDiscoveryTest.Endpoints", "default");
@@ -116,9 +117,9 @@ public class AllTests
             // Now, ensure that the IceGrid discovery locator correctly
             // handles failure to find a locator.
             // 
-            initData.properties.setProperty("IceGridDiscovery.InstanceName", "unknown");
-            initData.properties.setProperty("IceGridDiscovery.RetryCount", "1");
-            initData.properties.setProperty("IceGridDiscovery.Timeout", "100");
+            initData.properties.setProperty("IceLocatorDiscovery.InstanceName", "unknown");
+            initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "1");
+            initData.properties.setProperty("IceLocatorDiscovery.Timeout", "100");
             com = Ice.Util.initialize(initData);
             test(com.getDefaultLocator() != null);
             try
@@ -136,8 +137,14 @@ public class AllTests
             {
             }
             test(com.getDefaultLocator().getRegistry() == null);
-            test(IceGrid.LocatorPrxHelper.uncheckedCast(com.getDefaultLocator()).getLocalRegistry() == null);
-            test(IceGrid.LocatorPrxHelper.uncheckedCast(com.getDefaultLocator()).getLocalQuery() == null);
+            test(IceGrid.LocatorPrxHelper.checkedCast(com.getDefaultLocator()) == null);
+            try
+            {
+                IceGrid.LocatorPrxHelper.uncheckedCast(com.getDefaultLocator()).getLocalQuery();
+            }
+            catch(Ice.OperationNotExistException ex)
+            {
+            }
 
             adapter = com.createObjectAdapter("AdapterForDiscoveryTest");
             adapter.activate();
