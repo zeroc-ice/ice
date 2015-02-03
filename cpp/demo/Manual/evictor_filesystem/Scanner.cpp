@@ -497,6 +497,7 @@ char *yytext;
 //
 // **********************************************************************
 
+#include <IceUtil/PushDisableWarnings.h>
 #include <Parser.h>
 #include <Grammar.h>
 
@@ -541,7 +542,7 @@ using namespace std;
 
 #define YY_INPUT(buf, result, maxSize) parser->getInput(buf, result, maxSize)
 
-#line 544 "lex.yy.c"
+#line 545 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -723,10 +724,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 64 "Scanner.l"
+#line 65 "Scanner.l"
 
 
-#line 729 "lex.yy.c"
+#line 730 "lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -811,7 +812,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 66 "Scanner.l"
+#line 67 "Scanner.l"
 {
     // C++-style comment
     int c;
@@ -824,7 +825,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 76 "Scanner.l"
+#line 77 "Scanner.l"
 {
     // C-style comment
     while(true)
@@ -852,77 +853,77 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 101 "Scanner.l"
+#line 102 "Scanner.l"
 {
     return TOK_HELP;
 }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 105 "Scanner.l"
+#line 106 "Scanner.l"
 {
     return TOK_EXIT;
 }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 109 "Scanner.l"
+#line 110 "Scanner.l"
 {
     return TOK_LIST;
 }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 113 "Scanner.l"
+#line 114 "Scanner.l"
 {
     return TOK_LIST_RECURSIVE;
 }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 117 "Scanner.l"
+#line 118 "Scanner.l"
 {
     return TOK_CREATE_FILE;
 }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 121 "Scanner.l"
+#line 122 "Scanner.l"
 {
     return TOK_CREATE_DIR;
 }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 125 "Scanner.l"
+#line 126 "Scanner.l"
 {
     return TOK_PWD;
 }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 129 "Scanner.l"
+#line 130 "Scanner.l"
 {
     return TOK_CD;
 }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 133 "Scanner.l"
+#line 134 "Scanner.l"
 {
     return TOK_CAT;
 }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 137 "Scanner.l"
+#line 138 "Scanner.l"
 {
     return TOK_WRITE;
 }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 141 "Scanner.l"
+#line 142 "Scanner.l"
 {
     return TOK_RM;
 }
@@ -930,7 +931,7 @@ YY_RULE_SETUP
 case 14:
 /* rule 14 can match eol */
 YY_RULE_SETUP
-#line 145 "Scanner.l"
+#line 146 "Scanner.l"
 {
     size_t len = strlen(yytext);
     for(size_t i = 0; i < len; ++i)
@@ -945,14 +946,14 @@ YY_RULE_SETUP
 case 15:
 /* rule 15 can match eol */
 YY_RULE_SETUP
-#line 156 "Scanner.l"
+#line 157 "Scanner.l"
 {
     return ';';
 }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 160 "Scanner.l"
+#line 161 "Scanner.l"
 {
     // "..."-type strings
     string s;
@@ -1029,7 +1030,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 234 "Scanner.l"
+#line 235 "Scanner.l"
 {
     // '...'-type strings
     string s;
@@ -1057,7 +1058,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 259 "Scanner.l"
+#line 260 "Scanner.l"
 {
     // Simple strings
     string s;
@@ -1084,10 +1085,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 283 "Scanner.l"
+#line 284 "Scanner.l"
 ECHO;
 	YY_BREAK
-#line 1090 "lex.yy.c"
+#line 1091 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2081,7 +2082,9 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 283 "Scanner.l"
+#line 284 "Scanner.l"
 
 
+
+#include <IceUtil/PopDisableWarnings.h>
 

@@ -22,13 +22,13 @@ exception DatabaseException
 class Contact
 {
     ["cpp:const"] idempotent string getName();
-    ["freeze:write"] idempotent void setName(string name) throws DatabaseException;
+    ["freeze:write"] idempotent void setName(string nm) throws DatabaseException;
 
     ["cpp:const"] idempotent string getAddress();
-    ["freeze:write"] idempotent void setAddress(string address);
+    ["freeze:write"] idempotent void setAddress(string addr);
 
     ["cpp:const"] idempotent string getPhone();
-    ["freeze:write"] idempotent void setPhone(string phone);
+    ["freeze:write"] idempotent void setPhone(string pn);
 
     ["freeze:write"] void destroy() throws DatabaseException;
 

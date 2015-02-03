@@ -25,9 +25,9 @@ main(int argc, char* argv[])
         hello->sayHello();
         communicator->destroy();
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception& ex1)
     {
-        cerr << ex << endl;
+        cerr << ex1 << endl;
         try
         {
             if(communicator)
@@ -35,9 +35,9 @@ main(int argc, char* argv[])
                 communicator->destroy();
             }
         }
-        catch(const Ice::Exception& ex)
+        catch(const Ice::Exception& ex2)
         {
-            cerr << ex << endl;
+            cerr << ex2 << endl;
         }
         exit(1);
     }

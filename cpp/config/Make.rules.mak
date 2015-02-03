@@ -110,10 +110,6 @@ includedir		= $(top_srcdir)\include
 includedir		= $(ice_dir)\include
 !endif
 
-!if exist ($(top_srcdir)\..\.gitignore)
-ice_git_dist  = 1
-!endif
-
 install_bindir		= $(prefix)\bin$(x64suffix)
 install_libdir	  	= $(prefix)\lib$(x64suffix)
 install_includedir	= $(prefix)\include

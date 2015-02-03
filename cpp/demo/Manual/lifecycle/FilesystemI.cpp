@@ -40,8 +40,8 @@ FilesystemI::NodeI::id() const
 
 // NodeI constructor.
 
-FilesystemI::NodeI::NodeI(const string& name, const DirectoryIPtr& parent)
-    : _name(name), _parent(parent), _destroyed(false)
+FilesystemI::NodeI::NodeI(const string& nm, const DirectoryIPtr& parent)
+    : _name(nm), _parent(parent), _destroyed(false)
 {
     //
     // Create an identity. The root directory has the fixed identity "RootDir".
@@ -108,8 +108,8 @@ FilesystemI::FileI::destroy(const Current& c)
 
 // FileI constructor.
 
-FilesystemI::FileI::FileI(const string& name, const DirectoryIPtr& parent)
-    : NodeI(name, parent)
+FilesystemI::FileI::FileI(const string& nm, const DirectoryIPtr& parent)
+    : NodeI(nm, parent)
 {
 }
 
@@ -140,7 +140,7 @@ FilesystemI::DirectoryI::list(const Current& c)
 // Slice Directory::find() operation.
 
 NodeDesc
-FilesystemI::DirectoryI::find(const string& name, const Current& c)
+FilesystemI::DirectoryI::find(const string& nm, const Current& c)
 {
     IceUtil::Mutex::Lock lock(_m);
     
@@ -149,15 +149,15 @@ FilesystemI::DirectoryI::find(const string& name, const Current& c)
         throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
     }
 
-    Contents::const_iterator pos = _contents.find(name);
+    Contents::const_iterator pos = _contents.find(nm);
     if(pos == _contents.end())
     {
-        throw NoSuchName(name);
+        throw NoSuchName(nm);
     }
 
     NodeIPtr p = pos->second;
     NodeDesc d;
-    d.name = name;
+    d.name = nm;
     d.type = FilePtr::dynamicCast(p) ? FileType : DirType;
     d.proxy = NodePrx::uncheckedCast(c.adapter->createProxy(p->id()));
     return d;
@@ -166,7 +166,7 @@ FilesystemI::DirectoryI::find(const string& name, const Current& c)
 // Slice Directory::createFile() operation.
 
 FilePrx
-FilesystemI::DirectoryI::createFile(const string& name, const Current& c)
+FilesystemI::DirectoryI::createFile(const string& nm, const Current& c)
 {
     IceUtil::Mutex::Lock lock(_m);
 
@@ -175,21 +175,21 @@ FilesystemI::DirectoryI::createFile(const string& name, const Current& c)
         throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
     }
 
-    if(name.empty() || _contents.find(name) != _contents.end())
+    if(nm.empty() || _contents.find(nm) != _contents.end())
     {
-        throw NameInUse(name);
+        throw NameInUse(nm);
     }
 
-    FileIPtr f = new FileI(name, this);
+    FileIPtr f = new FileI(nm, this);
     ObjectPrx node = c.adapter->add(f, f->id());
-    _contents[name] = f;
+    _contents[nm] = f;
     return FilePrx::uncheckedCast(node);
 }
 
 // Slice Directory::createDirectory() operation.
 
 DirectoryPrx
-FilesystemI::DirectoryI::createDirectory(const string& name, const Current& c)
+FilesystemI::DirectoryI::createDirectory(const string& nm, const Current& c)
 {
     IceUtil::Mutex::Lock lock(_m);
 
@@ -198,14 +198,14 @@ FilesystemI::DirectoryI::createDirectory(const string& name, const Current& c)
         throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
     }
 
-    if(name.empty() || _contents.find(name) != _contents.end())
+    if(nm.empty() || _contents.find(nm) != _contents.end())
     {
-        throw NameInUse(name);
+        throw NameInUse(nm);
     }
 
-    DirectoryIPtr d = new DirectoryI(name, this);
+    DirectoryIPtr d = new DirectoryI(nm, this);
     ObjectPrx node = c.adapter->add(d, d->id());
-    _contents[name] = d;
+    _contents[nm] = d;
     return DirectoryPrx::uncheckedCast(node);
 }
 
@@ -241,18 +241,18 @@ FilesystemI::DirectoryI::destroy(const Current& c)
 
 // DirectoryI constructor.
 
-FilesystemI::DirectoryI::DirectoryI(const string& name, const DirectoryIPtr& parent)
-    : NodeI(name, parent)
+FilesystemI::DirectoryI::DirectoryI(const string& nm, const DirectoryIPtr& parent)
+    : NodeI(nm, parent)
 {
 }
 
 // Remove the entry from the _contents map.
 
 void
-FilesystemI::DirectoryI::removeEntry(const string& name)
+FilesystemI::DirectoryI::removeEntry(const string& nm)
 {
     IceUtil::Mutex::Lock lock(_m);
-    Contents::iterator i = _contents.find(name);
+    Contents::iterator i = _contents.find(nm);
     if(i != _contents.end())
     {
         _contents.erase(i);

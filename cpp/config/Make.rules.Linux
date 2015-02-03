@@ -81,6 +81,15 @@ ifeq ($(CXX),g++)
 
     CXXFLAGS		+= $(CXXARCHFLAGS) -fvisibility=hidden -Wall -Werror -pthread
 
+    # If MAXWARN is set then enable extra warnings
+    ifeq ($(MAXWARN),yes)
+        CXXFLAGS		+= -Wextra -Wshadow
+	GCC_GTEQ_460 := $(shell expr `gcc -dumpversion | sed -e 's/\.\([0-9][0-9]\)/\1/g' -e 's/\.\([0-9]\)/0\1/g' -e 's/^[0-9]\{3,4\}$$/&00/'` \>= 40600)
+    	ifeq ($(GCC_GTEQ_460),1)
+		CXXFLAGS	+= -Wredundant-decls
+	endif
+    endif
+
     ifneq ($(GENPIC),no)
         CXXFLAGS		+= -fPIC
     endif

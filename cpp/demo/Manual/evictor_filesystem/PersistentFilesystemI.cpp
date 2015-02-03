@@ -68,7 +68,7 @@ Filesystem::FileI::read(const Ice::Current& c)
 }
 
 void
-Filesystem::FileI::write(const Filesystem::Lines& text, const Ice::Current& c)
+Filesystem::FileI::write(const Filesystem::Lines& txt, const Ice::Current& c)
 {
     IceUtil::Mutex::Lock lock(_mutex);
 
@@ -77,7 +77,7 @@ Filesystem::FileI::write(const Filesystem::Lines& text, const Ice::Current& c)
         throw Ice::ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
     }
 
-    this->text = text;
+    this->text = txt;
 }
 
 //
@@ -152,7 +152,7 @@ Filesystem::DirectoryI::list(const Ice::Current& c)
 }
 
 Filesystem::NodeDesc
-Filesystem::DirectoryI::find(const string& name, const Ice::Current& c)
+Filesystem::DirectoryI::find(const string& nm, const Ice::Current& c)
 {
     IceUtil::Mutex::Lock lock(_mutex);
 
@@ -161,16 +161,16 @@ Filesystem::DirectoryI::find(const string& name, const Ice::Current& c)
         throw Ice::ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
     }
 
-    NodeDict::iterator p = nodes.find(name);
+    NodeDict::iterator p = nodes.find(nm);
     if(p == nodes.end())
     {
-        throw NoSuchName(name);
+        throw NoSuchName(nm);
     }
     return p->second;
 }
 
 Filesystem::DirectoryPrx
-Filesystem::DirectoryI::createDirectory(const string& name, const Ice::Current& c)
+Filesystem::DirectoryI::createDirectory(const string& nm, const Ice::Current& c)
 {
     IceUtil::Mutex::Lock lock(_mutex);
 
@@ -179,29 +179,29 @@ Filesystem::DirectoryI::createDirectory(const string& name, const Ice::Current& 
         throw Ice::ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
     }
 
-    if(name.empty() || nodes.find(name) != nodes.end())
+    if(nm.empty() || nodes.find(nm) != nodes.end())
     {
-        throw NameInUse(name);
+        throw NameInUse(nm);
     }
 
     Ice::Identity id;
     id.name = IceUtil::generateUUID();
     PersistentDirectoryPtr dir = new DirectoryI;
-    dir->nodeName = name;
+    dir->nodeName = nm;
     dir->parent = PersistentDirectoryPrx::uncheckedCast(c.adapter->createProxy(c.id));
     DirectoryPrx proxy = DirectoryPrx::uncheckedCast(_evictor->add(dir, id));
 
     NodeDesc nd;
-    nd.name = name;
+    nd.name = nm;
     nd.type = DirType;
     nd.proxy = proxy;
-    nodes[name] = nd;
+    nodes[nm] = nd;
 
     return proxy;
 }
 
 Filesystem::FilePrx
-Filesystem::DirectoryI::createFile(const string& name, const Ice::Current& c)
+Filesystem::DirectoryI::createFile(const string& nm, const Ice::Current& c)
 {
     IceUtil::Mutex::Lock lock(_mutex);
 
@@ -210,33 +210,33 @@ Filesystem::DirectoryI::createFile(const string& name, const Ice::Current& c)
         throw Ice::ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
     }
 
-    if(name.empty() || nodes.find(name) != nodes.end())
+    if(nm.empty() || nodes.find(nm) != nodes.end())
     {
-        throw NameInUse(name);
+        throw NameInUse(nm);
     }
 
     Ice::Identity id;
     id.name = IceUtil::generateUUID();
     PersistentFilePtr file = new FileI;
-    file->nodeName = name;
+    file->nodeName = nm;
     file->parent = PersistentDirectoryPrx::uncheckedCast(c.adapter->createProxy(c.id));
     FilePrx proxy = FilePrx::uncheckedCast(_evictor->add(file, id));
 
     NodeDesc nd;
-    nd.name = name;
+    nd.name = nm;
     nd.type = FileType;
     nd.proxy = proxy;
-    nodes[name] = nd;
+    nodes[nm] = nd;
 
     return proxy;
 }
 
 void
-Filesystem::DirectoryI::removeNode(const string& name, const Ice::Current&)
+Filesystem::DirectoryI::removeNode(const string& nm, const Ice::Current&)
 {
     IceUtil::Mutex::Lock lock(_mutex);
 
-    NodeDict::iterator p = nodes.find(name);
+    NodeDict::iterator p = nodes.find(nm);
     assert(p != nodes.end());
     nodes.erase(p);
 }

@@ -23,7 +23,7 @@ void
 CallbackSenderI::destroy()
 {
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+        IceUtil::Monitor<IceUtil::Mutex>::Lock lck(*this);
 
         cout << "destroying callback sender" << endl;
         _destroy = true;
@@ -37,7 +37,7 @@ CallbackSenderI::destroy()
 void
 CallbackSenderI::addClient(const Identity& ident, const Current& current)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock lck(*this);
 
     cout << "adding client `" << _communicator->identityToString(ident) << "'"<< endl;
 
@@ -49,17 +49,17 @@ void
 CallbackSenderI::run()
 {
     int num = 0;
-    bool destroy = false;
-    while(!destroy)
+    bool destroyed = false;
+    while(!destroyed)
     {
         std::set<Demo::CallbackReceiverPrx> clients;
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+            IceUtil::Monitor<IceUtil::Mutex>::Lock lck(*this);
             timedWait(IceUtil::Time::seconds(2));
 
             if(_destroy)
             {
-                destroy = true;
+                destroyed = true;
                 continue;
             }
 
@@ -80,7 +80,7 @@ CallbackSenderI::run()
                     cerr << "removing client `" << _communicator->identityToString((*p)->ice_getIdentity()) << "':\n"
                          << ex << endl;
 
-                    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+                    IceUtil::Monitor<IceUtil::Mutex>::Lock lck(*this);
                     _clients.erase(*p);
                 }
             }

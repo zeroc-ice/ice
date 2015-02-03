@@ -274,7 +274,7 @@ DirectoryI::list(const Ice::Current& c)
 }
 
 NodeDesc
-DirectoryI::find(const string& name, const Ice::Current& c)
+DirectoryI::find(const string& nm, const Ice::Current& c)
 {
     const Freeze::ConnectionPtr connection(Freeze::createConnection(_communicator, _envName));
     IdentityDirectoryEntryMap directoryDB(connection, directoriesDB());
@@ -288,10 +288,10 @@ DirectoryI::find(const string& name, const Ice::Current& c)
             {
                 throw Ice::ObjectNotExistException(__FILE__, __LINE__);
             }
-            StringNodeDescDict::const_iterator q = p->second.nodes.find(name);
+            StringNodeDescDict::const_iterator q = p->second.nodes.find(nm);
             if(q == p->second.nodes.end())
             {
-                throw NoSuchName(name);
+                throw NoSuchName(nm);
             }
             return q->second;
         }
@@ -307,7 +307,7 @@ DirectoryI::find(const string& name, const Ice::Current& c)
 }
 
 DirectoryPrx
-DirectoryI::createDirectory(const string& name, const Ice::Current& c)
+DirectoryI::createDirectory(const string& nm, const Ice::Current& c)
 {
     const Freeze::ConnectionPtr connection(Freeze::createConnection(_communicator, _envName));
     IdentityDirectoryEntryMap directoryDB(connection, directoriesDB());
@@ -329,13 +329,13 @@ DirectoryI::createDirectory(const string& name, const Ice::Current& c)
             }
 
             DirectoryEntry entry = p->second;
-            if(name.empty() || entry.nodes.find(name) != entry.nodes.end())
+            if(nm.empty() || entry.nodes.find(nm) != entry.nodes.end())
             {
-                throw NameInUse(name);
+                throw NameInUse(nm);
             }
 
             DirectoryEntry d;
-            d.name = name;
+            d.name = nm;
             d.parent = c.id;
 
             Ice::Identity id;
@@ -343,10 +343,10 @@ DirectoryI::createDirectory(const string& name, const Ice::Current& c)
             DirectoryPrx proxy = DirectoryPrx::uncheckedCast(c.adapter->createProxy(id));
 
             NodeDesc nd;
-            nd.name = name;
+            nd.name = nm;
             nd.type = DirType;
             nd.proxy = proxy;
-            entry.nodes.insert(make_pair(name, nd));
+            entry.nodes.insert(make_pair(nm, nd));
 
             p.set(entry);
 #ifdef __SUNPRO_CC
@@ -371,7 +371,7 @@ DirectoryI::createDirectory(const string& name, const Ice::Current& c)
 }
 
 FilePrx
-DirectoryI::createFile(const string& name, const Ice::Current& c)
+DirectoryI::createFile(const string& nm, const Ice::Current& c)
 {
     const Freeze::ConnectionPtr connection(Freeze::createConnection(_communicator, _envName));
     IdentityFileEntryMap fileDB(connection, FileI::filesDB());
@@ -394,13 +394,13 @@ DirectoryI::createFile(const string& name, const Ice::Current& c)
             }
 
             DirectoryEntry entry = p->second;
-            if(name.empty() || entry.nodes.find(name) != entry.nodes.end())
+            if(nm.empty() || entry.nodes.find(nm) != entry.nodes.end())
             {
-                throw NameInUse(name);
+                throw NameInUse(nm);
             }
 
             FileEntry d;
-            d.name = name;
+            d.name = nm;
             d.parent = c.id;
 
             Ice::Identity id;
@@ -409,10 +409,10 @@ DirectoryI::createFile(const string& name, const Ice::Current& c)
             FilePrx proxy = FilePrx::uncheckedCast(c.adapter->createProxy(id));
 
             NodeDesc nd;
-            nd.name = name;
+            nd.name = nm;
             nd.type = FileType;
             nd.proxy = proxy;
-            entry.nodes.insert(make_pair(name, nd));
+            entry.nodes.insert(make_pair(nm, nd));
 
             p.set(entry);
 

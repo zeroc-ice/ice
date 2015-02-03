@@ -21,7 +21,7 @@ BookI::BookI(const LibraryIPtr& library) :
 void
 BookI::destroy(const Ice::Current&)
 {
-    IceUtil::Mutex::Lock lock(*this);
+    IceUtil::Mutex::Lock lck(*this);
     if(_destroyed)
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
@@ -43,7 +43,7 @@ BookI::destroy(const Ice::Current&)
 Demo::BookDescription
 BookI::getBookDescription(const Ice::Current&) const
 {
-    IceUtil::Mutex::Lock lock(*this);
+    IceUtil::Mutex::Lock lck(*this);
 
     if(_destroyed)
     {
@@ -59,7 +59,7 @@ BookI::getBookDescription(const Ice::Current&) const
 string
 BookI::getRenterName(const Ice::Current&) const
 {
-    IceUtil::Mutex::Lock lock(*this);
+    IceUtil::Mutex::Lock lck(*this);
 
     if(_destroyed)
     {
@@ -76,7 +76,7 @@ BookI::getRenterName(const Ice::Current&) const
 void
 BookI::rentBook(const string& name, const Ice::Current&)
 {
-    IceUtil::Mutex::Lock lock(*this);
+    IceUtil::Mutex::Lock lck(*this);
 
     if(_destroyed)
     {
@@ -93,7 +93,7 @@ BookI::rentBook(const string& name, const Ice::Current&)
 void
 BookI::returnBook(const Ice::Current&)
 {
-    IceUtil::Mutex::Lock lock(*this);
+    IceUtil::Mutex::Lock lck(*this);
 
     if(_destroyed)
     {
@@ -156,7 +156,7 @@ LibraryI::LibraryI(const Ice::CommunicatorPtr& communicator,
 Demo::BookPrx
 LibraryI::createBook(const Demo::BookDescription& description, const Ice::Current& c)
 {
-    IceUtil::Mutex::Lock lock(*this);
+    IceUtil::Mutex::Lock lck(*this);
 
     BookPrx book = IsbnToBook(c.adapter)(description.isbn);
     try
@@ -231,7 +231,7 @@ LibraryI::findByIsbn(const string& isbn, const Ice::Current& c) const
 Demo::BookPrxSeq
 LibraryI::findByAuthors(const string& authors, const Ice::Current& c) const
 {
-    IceUtil::Mutex::Lock lock(*this);
+    IceUtil::Mutex::Lock lck(*this);
 
     //
     // Lookup all books that match the given authors, and return them
@@ -268,7 +268,7 @@ LibraryI::shutdown(const Ice::Current& current)
 void
 LibraryI::remove(const BookDescription& description)
 {
-    IceUtil::Mutex::Lock lock(*this);
+    IceUtil::Mutex::Lock lck(*this);
 
     //
     // Note: no need to catch and retry on deadlock since all access to

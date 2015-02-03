@@ -28,12 +28,12 @@ listRecursive(const DirectoryPrx& dir, int depth = 0)
 
     for(NodeSeq::const_iterator i = contents.begin(); i != contents.end(); ++i)
     {
-        DirectoryPrx dir = DirectoryPrx::checkedCast(*i);
+        DirectoryPrx d = DirectoryPrx::checkedCast(*i);
         FilePrx file = FilePrx::uncheckedCast(*i);
-        cout << indent << (*i)->name() << (dir ? " (directory):" : " (file):") << endl;
-        if(dir)
+        cout << indent << (*i)->name() << (d ? " (directory):" : " (file):") << endl;
+        if(d)
         {
-            listRecursive(dir, depth);
+            listRecursive(d, depth);
         }
         else
         {

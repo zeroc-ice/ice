@@ -9,6 +9,10 @@
 
 top_srcdir	= ..\..\..
 
+!if exist ($(top_srcdir)\..\.gitignore)
+MAXWARN         = yes
+!endif
+
 PUBLISHER	= publisher.exe
 SUBSCRIBER	= subscriber.exe
 

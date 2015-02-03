@@ -9,6 +9,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/PushDisableWarnings.h>
 #include <Parser.h>
 #include <Grammar.h>
 
@@ -285,3 +286,5 @@ NL	[\n]
 }
 
 %%
+
+#include <IceUtil/PopDisableWarnings.h>

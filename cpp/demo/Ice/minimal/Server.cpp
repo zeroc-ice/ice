@@ -36,9 +36,9 @@ main(int argc, char* argv[])
             {
                 communicator->destroy();
             }
-            catch(const Ice::Exception& ex)
+            catch(const Ice::Exception& ex2)
             {
-                cerr << ex << endl;
+                cerr << ex2 << endl;
             }
         }
         exit(1);

@@ -93,11 +93,11 @@ BetI::BetI()
 {
 }
 
-BetI::BetI(int amount, Ice::Long closeTime, const CasinoStore::PersistentBankPrx& bank,
+BetI::BetI(int amnt, Ice::Long clseTime, const CasinoStore::PersistentBankPrx& bank,
            const Freeze::TransactionalEvictorPtr& evictor, int bankEdge)
 {
-    this->amount = amount;
-    this->closeTime = closeTime;
+    amount = amnt;
+    closeTime = clseTime;
     init(evictor, bankEdge);
     potentialWinners.push_back(bank);
 }

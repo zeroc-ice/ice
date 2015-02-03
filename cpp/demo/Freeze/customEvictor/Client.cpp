@@ -49,7 +49,7 @@ public:
         //
         // Measures how long it takes to read 'readCount' items at random
         //
-        IceUtil::Time start = IceUtil::Time::now(IceUtil::Time::Monotonic);
+        IceUtil::Time startTime = IceUtil::Time::now(IceUtil::Time::Monotonic);
 
         try
         {
@@ -58,15 +58,15 @@ public:
                 int id = rand() % objectCount;
                 ostringstream os;
                 os << "P/N " << id;
-                string name = os.str();
+                string nm = os.str();
 
                 Ice::Identity identity;
-                identity.name = name;
+                identity.name = nm;
                 ItemPrx item = ItemPrx::uncheckedCast(_anItem->ice_identity(identity));
                 item->getDescription();
             }
             _requestsPerSecond = 
-                static_cast<int>(readCount / (IceUtil::Time::now(IceUtil::Time::Monotonic) - start).toSecondsDouble());
+                static_cast<int>(readCount / (IceUtil::Time::now(IceUtil::Time::Monotonic) - startTime).toSecondsDouble());
         }
         catch(const IceUtil::Exception& e)
         {
@@ -101,7 +101,7 @@ public:
         //
         // Measure how long it takes to write 'writeCount' items at random.
         //
-        IceUtil::Time start = IceUtil::Time::now(IceUtil::Time::Monotonic);
+        IceUtil::Time startTime = IceUtil::Time::now(IceUtil::Time::Monotonic);
 
         try
         {
@@ -111,16 +111,16 @@ public:
                 
                 ostringstream os;
                 os << "P/N " << id;
-                string name = os.str();
+                string nm = os.str();
 
                 Ice::Identity identity;
-                identity.name = name;
+                identity.name = nm;
                 ItemPrx item = ItemPrx::uncheckedCast(_anItem->ice_identity(identity));
 
                 item->adjustStock(1);
             }
             _requestsPerSecond = 
-                static_cast<int>(writeCount / (IceUtil::Time::now(IceUtil::Time::Monotonic) - start).toSecondsDouble());
+                static_cast<int>(writeCount / (IceUtil::Time::now(IceUtil::Time::Monotonic) - startTime).toSecondsDouble());
         }
         catch(const IceUtil::Exception& e)
         {

@@ -70,15 +70,14 @@ ThroughputClient::run(int argc, char* argv[])
     vector<Util::string_view> stringViewSeq(StringSeqSize, "hello");
 
     StringDoubleSeq structSeq(StringDoubleSeqSize);
-    int i;
-    for(i = 0; i < StringDoubleSeqSize; ++i)
+    for(int i = 0; i < StringDoubleSeqSize; ++i)
     {
         structSeq[i].s = "hello";
         structSeq[i].d = 3.14;
     }
 
     FixedSeq fixedSeq(FixedSeqSize);
-    for(i = 0; i < FixedSeqSize; ++i)
+    for(int i = 0; i < FixedSeqSize; ++i)
     {
         fixedSeq[i].i = 0;
         fixedSeq[i].j = 0;

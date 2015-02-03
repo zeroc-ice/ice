@@ -9,6 +9,10 @@
 
 top_srcdir	= ../../..
 
+ifeq ($(shell test -f $(top_srcdir)/../.gitignore && echo 0),0)
+MAXWARN         = yes
+endif
+
 CLIENT		= client
 
 LIBFILENAME     = $(call mklibfilename,HelloService)

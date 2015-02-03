@@ -104,11 +104,11 @@ ReplicaGroupFilterI::filter(const string& /* replicaGroupId */,
     // context.
     //
     Ice::StringSeq filteredAdapters;
-    for(Ice::StringSeq::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+    for(Ice::StringSeq::const_iterator q = adapters.begin(); q != adapters.end(); ++q)
     {
-        if(_facade->getPropertyForAdapter(*p, "Currencies").find(currency) != string::npos)
+        if(_facade->getPropertyForAdapter(*q, "Currencies").find(currency) != string::npos)
         {
-            filteredAdapters.push_back(*p);
+            filteredAdapters.push_back(*q);
         }
     }
     return filteredAdapters;

@@ -62,8 +62,8 @@ CallbackClient::CallbackClient() :
 Glacier2::SessionPrx
 CallbackClient::createSession()
 {
-    Glacier2::SessionPrx session;
-    while(!session)
+    Glacier2::SessionPrx sess;
+    while(!sess)
     {
         cout << "This demo accepts any user-id / password combination.\n";
 
@@ -77,7 +77,7 @@ CallbackClient::createSession()
 
         try
         {
-            session = router()->createSession(id, pw);
+            sess = router()->createSession(id, pw);
             break;
         }
         catch(const Glacier2::PermissionDeniedException& ex)
@@ -89,7 +89,7 @@ CallbackClient::createSession()
             cout << "cannot create session:\n" << ex.reason << endl;
         }
     }
-    return session;
+    return sess;
 }
 
 int

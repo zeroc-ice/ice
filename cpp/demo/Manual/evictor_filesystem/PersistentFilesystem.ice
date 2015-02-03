@@ -29,7 +29,7 @@ module Filesystem
     class PersistentDirectory extends PersistentNode implements Directory
     {
         ["freeze:write"]
-        void removeNode(string name);
+        void removeNode(string nm);
 
         NodeDict nodes;
     };

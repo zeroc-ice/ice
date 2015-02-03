@@ -558,7 +558,7 @@ interface Admin
      * @throws PatchException Raised if the patch failed.
      *
      **/
-    ["amd"] void patchApplication(string name, bool shutdown)
+    ["amd"] void patchApplication(string name, bool shutdwn)
         throws ApplicationNotExistException, PatchException;
 
     /**
@@ -792,7 +792,7 @@ interface Admin
      * @throws PatchException Raised if the patch failed.
      *
      **/
-    ["amd"] void patchServer(string id, bool shutdown)
+    ["amd"] void patchServer(string id, bool shutdwn)
         throws ServerNotExistException, NodeUnreachableException, DeploymentException, PatchException;
 
     /**

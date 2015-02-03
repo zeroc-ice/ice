@@ -9,6 +9,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/PushDisableWarnings.h>
 #include <Parser.h>
 
 #ifdef _MSC_VER
@@ -150,3 +151,5 @@ strings
 ;
 
 %%
+
+#include <IceUtil/PopDisableWarnings.h>

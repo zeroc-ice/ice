@@ -157,11 +157,11 @@ CasinoServer::run(int argc, char*[])
         }
 
         virtual void
-        initialize(const Ice::ObjectAdapterPtr& adapter, const Ice::Identity& identity, const string& /*facet*/,
+        initialize(const Ice::ObjectAdapterPtr& adptr, const Ice::Identity& identity, const string& /*facet*/,
                    const Ice::ObjectPtr& servant)
         {
             CasinoStore::PersistentPlayerPrx prx =
-                CasinoStore::PersistentPlayerPrx::uncheckedCast(adapter->createProxy(identity));
+                CasinoStore::PersistentPlayerPrx::uncheckedCast(adptr->createProxy(identity));
 
             PlayerI* player = dynamic_cast<PlayerI*>(servant.get());
             player->init(prx,  _server._playerEvictor, _server._bankPrx);

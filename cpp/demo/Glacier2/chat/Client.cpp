@@ -54,8 +54,8 @@ public:
     virtual Glacier2::SessionPrx
     createSession()
     {
-        ChatSessionPrx session;
-        while(!session)
+        ChatSessionPrx sess;
+        while(!sess)
         {
             cout << "This demo accepts any user-id / password combination.\n";
 
@@ -71,7 +71,7 @@ public:
 
             try
             {
-                session = ChatSessionPrx::uncheckedCast(router()->createSession(id, pw));
+                sess = ChatSessionPrx::uncheckedCast(router()->createSession(id, pw));
                 break;
             }
             catch(const Glacier2::PermissionDeniedException& ex)
@@ -83,7 +83,7 @@ public:
                 cout << "cannot create session:\n" << ex.reason << endl;
             }
         }
-        return session;
+        return sess;
     }
 
     virtual int
