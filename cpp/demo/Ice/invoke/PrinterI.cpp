@@ -159,6 +159,4 @@ PrinterI::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice::Byte>& outPa
         ex.operation = current.operation;
         throw ex;
     }
-
-    return false;
 }
