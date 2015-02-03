@@ -1524,6 +1524,7 @@ def usage():
     print("                                     languages otherwise apply just to the given languages.")
     print("  --start-with-test=bi/ti            Resume running the tests at the given build/test index.")
     print("  --start-with-demo=bi/di            Resume running the demos at the given build/demo index.")
+    print("  --service                          Run service testing.")
     print("")
 
 
@@ -1551,7 +1552,7 @@ try:
                                                   "rfilter-compilers=", "rfilter-archs=", "rfilter-configurations=", \
                                                   "print-configurations", "test-driver=",
                                                   "filter=","rfilter=", "skip-build", "skip-missing-interpreters",
-                                                  "start-with-demo=", "start-with-test="])
+                                                  "start-with-demo=", "start-with-test=", "service"])
 except getopt.GetoptError as e:
     print("Error %s " % e)
     usage()
@@ -1567,6 +1568,8 @@ filterArg = None
 rfilterArg = None
 startTests = None
 startDemos= None
+serviceTesting = False
+
 for o, a in opts:
     if o == "--help":
         usage()
@@ -1613,6 +1616,15 @@ for o, a in opts:
         startTests = a
     elif o == "--start-with-demo":
         startDemos = a
+    elif o == "--service":
+        serviceTesting = True
+        
+if serviceTesting:
+    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
+    import testservice
+    
+    testservice.run(platformObj)
+    sys.exit(0)
 
 #
 # If there's a test driver file, parse it and setup test configurations
