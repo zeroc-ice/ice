@@ -17,7 +17,6 @@ TARGETS 	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(li
 
 SLICE_OBJS	= Admin.o \
 			  Descriptor.o \
-			  Discovery.o \
 			  Exception.o \
 			  FileParser.o \
 			  Locator.o \
