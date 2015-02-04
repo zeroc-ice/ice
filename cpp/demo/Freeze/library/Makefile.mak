@@ -21,12 +21,14 @@ TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
 
 SLICE_OBJS	= .\Library.obj
 
+BISON_FLEX_OBJS = .\Grammar.obj \
+                  .\Scanner.obj
+
 COBJS		= $(SLICE_OBJS) \
 		  .\Client.obj \
-		  .\Grammar.obj \
 		  .\Parser.obj \
 		  .\RunParser.obj \
-		  .\Scanner.obj
+                  $(BISON_FLEX_OBJS)
 
 SOBJS		= $(SLICE_OBJS) \
 		  .\LibraryTypes.obj \
@@ -38,11 +40,10 @@ COLOBJS		= $(SLICE_OBJS) \
 		  .\LibraryTypes.obj \
 		  .\BookFactory.obj \
 		  .\Collocated.obj \
-		  .\Grammar.obj \
 		  .\LibraryI.obj \
 		  .\Parser.obj \
 		  .\RunParser.obj \
-		  .\Scanner.obj
+                  $(BISON_FLEX_OBJS)	
 
 OBJS		= $(COBJS) \
 		  $(SOBJS) \
@@ -80,19 +81,6 @@ LibraryTypes.h LibraryTypes.cpp: Library.ice "$(SLICE2FREEZE)" "$(SLICEPARSERLIB
 	del /q LibraryTypes.h LibraryTypes.cpp
 	"$(SLICE2FREEZE)" --ice -I. -I"$(slicedir)" --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes "$(slicedir)/Ice/BuiltinSequences.ice" Library.ice
 
-Scanner.cpp : Scanner.l
-	flex Scanner.l
-	del /q $@
-	echo #include "IceUtil/ScannerConfig.h" >> Scanner.cpp
-	type lex.yy.c >> Scanner.cpp
-	del /q lex.yy.c
-
-Grammar.cpp Grammar.h: Grammar.y
-	del /q Grammar.h Grammar.cpp
-	bison -dvt Grammar.y
-	move Grammar.tab.c Grammar.cpp
-	move Grammar.tab.h Grammar.h
-	del /q Grammar.output
 
 clean::
 	del /q Library.cpp Library.h

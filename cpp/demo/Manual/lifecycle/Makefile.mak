@@ -20,11 +20,13 @@ TARGETS		= $(CLIENT) $(SERVER)
 
 SLICE_OBJS	= .\Filesystem.obj
 
+BISON_FLEX_OBJS = .\Grammar.obj \
+                  .\Scanner.obj
+
 COBJS		= $(SLICE_OBJS) \
 		  .\Client.obj \
-		  .\Grammar.obj \
 		  .\Parser.obj \
-		  .\Scanner.obj
+		  $(BISON_FLEX_OBJS)
 
 SOBJS		= $(SLICE_OBJS) \
 		  .\FilesystemI.obj \
@@ -51,20 +53,6 @@ $(SERVER): $(SOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
-
-Scanner.cpp: Scanner.l
-	flex Scanner.l
-	-del /q $@
-	echo #include "IceUtil/ScannerConfig.h" >> Scanner.cpp
-	type lex.yy.c >> Scanner.cpp
-	-del /q lex.yy.c
-
-Grammar.cpp Grammar.h: Grammar.y
-	-del /q Grammar.h Grammar.cpp
-	bison -dvt Grammar.y
-	move Grammar.tab.c Grammar.cpp
-	move Grammar.tab.h Grammar.h
-	-del /q Grammar.output
 
 clean::
 	-del /q Filesystem.cpp Filesystem.h

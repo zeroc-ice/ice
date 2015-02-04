@@ -15,9 +15,12 @@ TARGETS		= $(CLIENT)
 
 SLICE_OBJS	= .\Complex.obj
 
+BISON_FLEX_OBJS = .\Grammar.obj \
+                  .\Scanner.obj
+
+
 OBJS		= $(SLICE_OBJS) \
-		  .\Grammar.obj \
-		  .\Scanner.obj \
+		  $(BISON_FLEX_OBJS) \
 		  .\Parser.obj \
 		  .\Client.obj \
 		  .\ComplexDict.obj
@@ -40,20 +43,6 @@ $(CLIENT): $(OBJS)
 ComplexDict.h ComplexDict.cpp: Complex.ice "$(SLICE2FREEZE)" "$(SLICEPARSERLIB)"
 	del /q ComplexDict.h ComplexDict.cpp
 	"$(SLICE2FREEZE)" -I. -I"$(slicedir)" --dict Complex::ComplexDict,Complex::Key,Complex::Node ComplexDict Complex.ice
-
-Scanner.cpp : Scanner.l
-	flex Scanner.l
-	del /q $@
-	echo #include "IceUtil/ScannerConfig.h" >> Scanner.cpp
-	type lex.yy.c >> Scanner.cpp
-	del /q lex.yy.c
-
-Grammar.cpp Grammar.h: Grammar.y
-	del /q Grammar.h Grammar.cpp
-	bison -dvt Grammar.y
-	move Grammar.tab.c Grammar.cpp
-	move Grammar.tab.h Grammar.h
-	del /q Grammar.output
 
 clean::
 	del /q Complex.cpp Complex.h

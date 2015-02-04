@@ -21,11 +21,13 @@ TARGETS		= $(CLIENT) $(SERVER)
 SLICE_OBJS	= .\Filesystem.obj \
 		  .\FilesystemDB.obj
 
+BISON_FLEX_OBJS = .\Grammar.obj \
+                  .\Scanner.obj
+
 COBJS		= .\Filesystem.obj \
 		  .\Client.obj \
-		  .\Grammar.obj \
 		  .\Parser.obj \
-		  .\Scanner.obj
+		  $(BISON_FLEX_OBJS)
 
 SOBJS		= $(SLICE_OBJS) \
 		  .\FilesystemI.obj \
@@ -71,20 +73,6 @@ IdentityDirectoryEntryMap.cpp: FilesystemDB.ice Filesystem.ice "$(SLICE2FREEZE)"
 	"$(SLICE2FREEZE)" -I"$(slicedir)" -I. --ice \
                 --dict FilesystemDB::IdentityDirectoryEntryMap,Ice::Identity,FilesystemDB::DirectoryEntry \
 		IdentityDirectoryEntryMap FilesystemDB.ice "$(slicedir)/Ice/Identity.ice"
-
-Scanner.cpp: Scanner.l
-	flex Scanner.l
-	-del /q $@
-	echo #include "IceUtil/ScannerConfig.h" >> Scanner.cpp
-	type lex.yy.c >> Scanner.cpp
-	-del /q lex.yy.c
-
-Grammar.cpp Grammar.h: Grammar.y
-	-del /q Grammar.h Grammar.cpp
-	bison -dvt Grammar.y
-	move Grammar.tab.c Grammar.cpp
-	move Grammar.tab.h Grammar.h
-	-del /q Grammar.output
 
 clean::
 	-del /q Filesystem.cpp Filesystem.h

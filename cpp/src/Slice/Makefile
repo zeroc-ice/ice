@@ -62,3 +62,4 @@ $(libdir)$(cpp11libdirsuffix)/$(LIBNAME): $(libdir)/$(SONAME)
 install:: all
 	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
 endif
+

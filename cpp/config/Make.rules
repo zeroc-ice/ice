@@ -165,6 +165,11 @@ USE_READLINE		?= no
 # ----------------------------------------------------------------------
 
 #
+# Compile scanner and grammar files?
+#
+#BISON_FLEX ?= yes
+
+#
 # Common definitions
 #
 ice_language     = cpp
@@ -408,6 +413,8 @@ $(HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	@mkdir -p .depend
 	@$(SLICE2CPP) $(SLICE2CPPFLAGS) --depend $(*F).ice > .depend/$(*F).ice.d
 
+ifeq ($(BISON_FLEX),yes)
+
 %.h %.cpp: %.y
 	rm -f $(*F).h $(*F).cpp
 	bison $(BISONFLAGS) $<
@@ -421,6 +428,8 @@ $(HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	echo '#include <IceUtil/ScannerConfig.h>' >> $@
 	cat lex.yy.c >> $@
 	rm -f lex.yy.c
+
+endif
 
 clean::
 	-rm -f $(TARGETS)

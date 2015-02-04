@@ -14,12 +14,14 @@ DLLNAME		= $(top_srcdir)\bin\slice$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
+BISON_FLEX_OBJS = .\Grammar.obj \
+                  .\Scanner.obj
+
 OBJS		= .\Checksum.obj \
 		  .\CPlusPlusUtil.obj \
 		  .\CsUtil.obj \
 		  .\DotNetNames.obj \
 		  .\FileTracker.obj \
-		  .\Grammar.obj \
 		  .\JavaUtil.obj \
 		  .\MD5.obj \
 		  .\MD5I.obj \
@@ -28,12 +30,13 @@ OBJS		= .\Checksum.obj \
 		  .\Preprocessor.obj \
 		  .\PythonUtil.obj \
 		  .\RubyUtil.obj \
-		  .\Scanner.obj \
-		  .\Util.obj
+		  .\Util.obj \
+                  $(BISON_FLEX_OBJS)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
 CPPFLAGS	= -I.. $(CPPFLAGS) -DSLICE_API_EXPORTS  -DWIN32_LEAN_AND_MEAN
+BISONFLAGS	= --name-prefix "slice_" $(BISONFLAGS)
 
 !if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
@@ -61,20 +64,6 @@ $(DLLNAME): $(OBJS) Slice.res
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 !endif
-
-Scanner.cpp : Scanner.l
-	flex Scanner.l
-	del /q $@
-	echo #include "IceUtil/ScannerConfig.h" >> Scanner.cpp
-	type lex.yy.c >> Scanner.cpp
-	del /q lex.yy.c
-
-Grammar.cpp Grammar.h: Grammar.y
-	del /q Grammar.h Grammar.cpp
-	bison -dvt --name-prefix "slice_" Grammar.y
-	move Grammar.tab.c Grammar.cpp
-	move Grammar.tab.h Grammar.h
-	del /q Grammar.output
 
 clean::
 	-del /q Slice.res

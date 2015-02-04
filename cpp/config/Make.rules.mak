@@ -87,6 +87,13 @@ ice_require_cpp  = 1
 CPP_COMPILER=auto
 !endif
 
+#
+# Compile scanner and grammar files?
+#
+!if "$(BISON_FLEX)" == ""
+#BISON_FLEX             = yes
+!endif
+
 !if exist ($(top_srcdir)\..\config\Make.common.rules.mak)
 !include $(top_srcdir)\..\config\Make.common.rules.mak
 !else
@@ -175,6 +182,7 @@ EXPAT_LIBS              = libexpat.lib
 CPPFLAGS		= $(CPPFLAGS) -I"$(includedir)"
 ICECPPFLAGS		= -I"$(slicedir)"
 SLICE2CPPFLAGS		= $(ICECPPFLAGS) $(SLICE2CPPFLAGS)
+BISONFLAGS		= -dvt
 
 !if "$(WINRT)" != "yes"
 !if "$(ice_src_dist)" != ""
@@ -213,7 +221,7 @@ EVERYTHING		= all clean install depend
 EVERYTHING_EXCEPT_INSTALL = all clean depend
 
 .SUFFIXES:
-.SUFFIXES:		.ice .cpp .c .obj .res .rc .h .d
+.SUFFIXES: .y .l .ice .cpp .c .obj .res .rc .h .d
 
 DEPEND_DIR = .depend.mak
 SLICE_DEPEND_DIR = .depend.mak\slice
@@ -239,6 +247,14 @@ all:: $(SLICE_SRCS)
 SLICE_OBJS_DEPEND = $(SLICE_OBJS:.obj=.d)
 SLICE_OBJS_DEPEND = $(SLICE_OBJS_DEPEND:.\=.depend.mak\slice\)
 depend:: $(SLICE_SRCS) $(SLICE_OBJS_DEPEND)
+!endif
+
+!if "$(BISON_FLEX_OBJS)" != ""
+BISON_FLEX_SRCS = $(BISON_FLEX_OBJS:.obj=.cpp)
+BISON_FLEX_SRCS = $(BISON_FLEX_SRCS:.\=)
+
+all:: $(BISON_FLEX_SRCS)
+
 !endif
 
 !if "$(OBJS)" != ""
@@ -281,6 +297,23 @@ depend:: $(OBJS:.obj=.cpp) $(RC_SRCS:.rc=.h) $(OBJS_DEPEND)
 .ice.cpp:
 	del /q $(*F).h $(*F).cpp
 	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) $(*F).ice
+
+
+!if "$(BISON_FLEX)" == "yes"
+.y.cpp:
+	del /q $(*F).h $(*F).cpp
+	bison $(BISONFLAGS) $<
+	move $(*F).tab.c $(*F).cpp
+	move $(*F).tab.h $(*F).h
+	del /q $(*F).output
+
+.l.cpp:
+	flex $<
+	del /q $@
+	echo #include "IceUtil/ScannerConfig.h" >> $(*F).cpp
+	type lex.yy.c >> $@
+	del /q lex.yy.c
+!endif
 
 !else
 
@@ -350,6 +383,22 @@ depend:: $(SRCS) $(OBJS_DEPEND)
 .ice.cpp:
 	del /q $(*F).h $(*F).cpp
 	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) $(*F).ice
+
+!if "$(BISON_FLEX)" == "yes"
+.y.cpp:
+	del /q $(*F).h $(*F).cpp
+	bison $(BISONFLAGS) $<
+	move $(*F).tab.c $(*F).cpp
+	move $(*F).tab.h $(*F).h
+	del /q $(*F).output
+
+.l.cpp:
+	flex $<
+	del /q $@
+	echo #include "IceUtil/ScannerConfig.h" >> $(*F).cpp
+	type lex.yy.c >> $@
+	del /q lex.yy.c
+!endif
 
 !if "$(INCLUDE_DIR)" != ""
 .h{$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\}.h:

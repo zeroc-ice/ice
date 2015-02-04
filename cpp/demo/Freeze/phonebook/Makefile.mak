@@ -21,12 +21,15 @@ TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
 
 SLICE_OBJS	= .\PhoneBook.obj
 
+BISON_FLEX_OBJS = .\Grammar.obj \
+                  .\Scanner.obj
+
 COBJS		= $(SLICE_OBJS) \
 		  .\Client.obj \
-		  .\Grammar.obj \
 		  .\Parser.obj \
 		  .\RunParser.obj \
-		  .\Scanner.obj
+                  $(BISON_FLEX_OBJS)
+		 
 
 SOBJS		= $(SLICE_OBJS) \
 		  .\NameIndex.obj \
@@ -38,11 +41,10 @@ COLOBJS		= $(SLICE_OBJS) \
 		  .\NameIndex.obj \
 		  .\Collocated.obj \
 		  .\ContactFactory.obj \
-		  .\Grammar.obj \
 		  .\Parser.obj \
 		  .\PhoneBookI.obj \
 		  .\RunParser.obj \
-		  .\Scanner.obj
+                  $(BISON_FLEX_OBJS)
 
 OBJS		= $(COBJS) \
 		  $(SOBJS) \
@@ -79,19 +81,6 @@ NameIndex.h NameIndex.cpp: PhoneBook.ice "$(SLICE2FREEZE)" "$(SLICEPARSERLIB)"
 	del /q NameIndex.h NameIndex.cpp
 	"$(SLICE2FREEZE)" -I. $(ICECPPFLAGS) --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice
 
-Scanner.cpp : Scanner.l
-	flex Scanner.l
-	del /q $@
-	echo #include "IceUtil/ScannerConfig.h" >> Scanner.cpp
-	type lex.yy.c >> Scanner.cpp
-	del /q lex.yy.c
-
-Grammar.cpp Grammar.h: Grammar.y
-	del /q Grammar.h Grammar.cpp
-	bison -dvt Grammar.y
-	move Grammar.tab.c Grammar.cpp
-	move Grammar.tab.h Grammar.h
-	del /q Grammar.output
 
 clean::
 	del /q PhoneBook.cpp PhoneBook.h

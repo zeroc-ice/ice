@@ -32,16 +32,18 @@ all:: StringApplicationInfoDict.h StringApplicationInfoDict.cpp \
 	  StringAdapterInfoDict.h StringAdapterInfoDict.cpp \
 	  SerialsDict.h SerialsDict.cpp
 
+BISON_FLEX_OBJS = .\Grammar.obj \
+                  .\Scanner.obj
+
 ADMIN_OBJS	= .\Client.obj \
 		  .\DescriptorBuilder.obj \
 		  .\DescriptorHelper.obj \
 		  .\DescriptorParser.obj \
 		  .\FileParserI.obj \
-		  .\Grammar.obj \
 		  .\Parser.obj \
-		  .\Scanner.obj \
 		  .\Util.obj \
-		  $(SLICE_OBJS)
+		  $(SLICE_OBJS) \
+                  $(BISON_FLEX_OBJS)
 
 COMMON_OBJS	= .\AdminRouter.obj \
 		  .\DescriptorBuilder.obj \
@@ -146,20 +148,6 @@ $(NODE_SERVER): $(NODE_SVR_OBJS) IceGridNode.res
 	$(LINK) $(LD_EXEFLAGS) $(NPDBFLAGS) $(NODE_SVR_OBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(NLINKWITH) $(NRES_FILE)
 	@if exist $@.manifest \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
-
-Scanner.cpp : Scanner.l
-	flex Scanner.l
-	del /q $@
-	echo #include "IceUtil/ScannerConfig.h" >> Scanner.cpp
-	type lex.yy.c >> Scanner.cpp
-	del /q lex.yy.c
-
-Grammar.cpp Grammar.h: Grammar.y
-	del /q Grammar.h Grammar.cpp
-	bison -dvt Grammar.y
-	move Grammar.tab.c Grammar.cpp
-	move Grammar.tab.h Grammar.h
-	del /q Grammar.output
 
 IceLocatorDiscovery.h IceLocatorDiscovery.cpp: $(slicedir)\IceLocatorDiscovery\IceLocatorDiscovery.ice "$(SLICE2CPP)" "$(SLICEPARSERLIB)"
 	del /q $(*F).h $(*F).cpp

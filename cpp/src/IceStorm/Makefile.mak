@@ -26,6 +26,9 @@ SLICE_OBJS      = .\Election.obj \
 		  .\V31Format.obj \
 		  .\V32Format.obj
 
+BISON_FLEX_OBJS = .\Grammar.obj \
+                  .\Scanner.obj
+
 LIB_OBJS	= .\Instance.obj \
 		  .\InstrumentationI.obj \
 		  .\LLUMap.obj \
@@ -45,10 +48,9 @@ LIB_OBJS	= .\Instance.obj \
                   $(SLICE_OBJS)
 
 AOBJS		= .\Admin.obj \
-		  .\Grammar.obj \
 		  .\Parser.obj \
-		  .\Scanner.obj \
-                  $(SLICE_OBJS)
+                  $(SLICE_OBJS) \
+                  $(BISON_FLEX_OBJS)
 
 MOBJS		= .\LLUMap.obj \
                   .\Migrate.obj \
@@ -108,20 +110,6 @@ $(MIGRATE): $(MOBJS) $(MRES_FILE)
 {..\IceStorm\}.ice{..\IceStorm\}.h:
 	del /q $(*F).h $(*F).cpp
 	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) $(*F).ice
-
-Scanner.cpp: Scanner.l
-	flex Scanner.l
-	del /q $@
-	echo #include "IceUtil/ScannerConfig.h" >> Scanner.cpp
-	type lex.yy.c >> Scanner.cpp
-	del /q lex.yy.c
-
-Grammar.cpp Grammar.h: Grammar.y
-	del /q Grammar.h Grammar.cpp
-	bison -dvt Grammar.y
-	move Grammar.tab.c Grammar.cpp
-	move Grammar.tab.h Grammar.h
-	del /q Grammar.output
 
 LLUMap.h LLUMap.cpp: ..\IceStorm\LLURecord.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	del /q LLUMap.h LLUMap.cpp
