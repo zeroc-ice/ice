@@ -23,9 +23,7 @@ OBJS		= $(ARCH)\$(CONFIG)\Admin.obj \
 		  $(ARCH)\$(CONFIG)\Query.obj \
 		  $(ARCH)\$(CONFIG)\Registry.obj \
 		  $(ARCH)\$(CONFIG)\Session.obj \
-		  $(ARCH)\$(CONFIG)\UserAccountMapper.obj \
-		  $(ARCH)\$(CONFIG)\Discovery.obj \
-		  $(ARCH)\$(CONFIG)\DiscoveryPluginI.obj
+		  $(ARCH)\$(CONFIG)\UserAccountMapper.obj
 
 SLICE_SRCS	= IceGrid\Admin.ice \
 		  IceGrid\Descriptor.ice \
@@ -36,8 +34,7 @@ SLICE_SRCS	= IceGrid\Admin.ice \
 		  IceGrid\Query.ice \
 		  IceGrid\Registry.ice \
 		  IceGrid\Session.ice \
-		  IceGrid\UserAccountMapper.ice \
-		  IceGrid\Discovery.ice
+		  IceGrid\UserAccountMapper.ice
 
 SRCS		= $(OBJS:.obj=.cpp)
 SRCS		= $(SRCS:x86\=)
