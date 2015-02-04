@@ -24,22 +24,25 @@ namespace IceSSL
         public void close()
         {
             Debug.Assert(_acceptFd == null);
-
-            try
+            if(_fd != null)
             {
-                _fd.Close();
+                IceInternal.Network.closeSocketNoThrow(_fd);
                 _fd = null;
-            }
-            catch(System.Exception)
-            {
-                // Ignore.
             }
         }
 
         public IceInternal.EndpointI listen()
         {
-            _addr = IceInternal.Network.doBind(_fd, _addr);
-            IceInternal.Network.doListen(_fd, _backlog);
+            try
+            {
+                _addr = IceInternal.Network.doBind(_fd, _addr);
+                IceInternal.Network.doListen(_fd, _backlog);
+            }
+            catch(SystemException)
+            {
+                _fd = null;
+                throw;
+            }
             _endpoint = _endpoint.endpoint(this);
             return _endpoint;
         }

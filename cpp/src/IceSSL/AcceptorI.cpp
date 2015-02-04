@@ -53,18 +53,19 @@ IceSSL::AcceptorI::getAsyncInfo(IceInternal::SocketOperation)
 void
 IceSSL::AcceptorI::close()
 {
-    SOCKET fd = _fd;
-    _fd = INVALID_SOCKET;
-    IceInternal::closeSocket(fd);
+    if(_fd != INVALID_SOCKET)
+    {
+        IceInternal::closeSocketNoThrow(_fd);
+        _fd = INVALID_SOCKET;
+    }
 }
 
 IceInternal::EndpointIPtr
 IceSSL::AcceptorI::listen()
 {
-    const_cast<IceInternal::Address&>(_addr) = IceInternal::doBind(_fd, _addr);
-
     try
     {
+        const_cast<IceInternal::Address&>(_addr) = IceInternal::doBind(_fd, _addr);
         IceInternal::doListen(_fd, _backlog);
     }
     catch(...)
@@ -72,7 +73,6 @@ IceSSL::AcceptorI::listen()
         _fd = INVALID_SOCKET;
         throw;
     }
-
     _endpoint = _endpoint->endpoint(this);
     return _endpoint;
 }

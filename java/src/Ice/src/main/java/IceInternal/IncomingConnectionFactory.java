@@ -601,7 +601,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                 _adapter.getThreadPool().register(this, SocketOperation.Read);
             }
         }
-        catch(Ice.LocalException ex)
+        catch(Exception ex)
         {
             if(_acceptor != null)
             {

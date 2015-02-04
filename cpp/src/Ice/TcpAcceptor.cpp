@@ -49,18 +49,19 @@ IceInternal::TcpAcceptor::getAsyncInfo(SocketOperation)
 void
 IceInternal::TcpAcceptor::close()
 {
-    SOCKET fd = _fd;
-    _fd = INVALID_SOCKET;
-    closeSocket(fd);
+    if(_fd != INVALID_SOCKET)
+    {
+        closeSocketNoThrow(_fd);
+        _fd = INVALID_SOCKET;
+    }
 }
 
 EndpointIPtr
 IceInternal::TcpAcceptor::listen()
 {
-    const_cast<Address&>(_addr) = doBind(_fd, _addr);
-
     try
     {
+        const_cast<Address&>(_addr) = doBind(_fd, _addr);
         doListen(_fd, _backlog);
     }
     catch(...)
@@ -68,7 +69,6 @@ IceInternal::TcpAcceptor::listen()
         _fd = INVALID_SOCKET;
         throw;
     }
-
     _endpoint = _endpoint->endpoint(this);
     return _endpoint;
 }

@@ -1709,7 +1709,7 @@ namespace IceInternal
                     _adapter.getThreadPool().unregister(this, SocketOperation.Read);
                 }
             }
-            catch(Ice.LocalException ex)
+            catch(SystemException ex)
             {
                 if(_acceptor != null)
                 {

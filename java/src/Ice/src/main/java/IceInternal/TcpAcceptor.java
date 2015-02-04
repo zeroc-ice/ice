@@ -20,15 +20,25 @@ class TcpAcceptor implements Acceptor
     @Override
     public void close()
     {
-        assert(_fd != null);
-        Network.closeSocketNoThrow(_fd);
-        _fd = null;
+        if(_fd != null)
+        {
+            Network.closeSocketNoThrow(_fd);
+            _fd = null;
+        }
     }
 
     @Override
     public EndpointI listen()
     {
-        _addr = Network.doBind(_fd, _addr, _backlog);
+        try
+        {
+            _addr = Network.doBind(_fd, _addr, _backlog);
+        }
+        catch(Ice.Exception ex)
+        {
+            _fd = null;
+            throw ex;
+        }
         _endpoint = _endpoint.endpoint(this);
         return _endpoint;
     }

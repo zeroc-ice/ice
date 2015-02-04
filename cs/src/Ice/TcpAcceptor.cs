@@ -23,14 +23,25 @@ namespace IceInternal
         public virtual void close()
         {
             Debug.Assert(_acceptFd == null);
-            _fd.Close();
-            _fd = null;
+            if(_fd != null)
+            {
+                Network.closeSocketNoThrow(_fd);
+                _fd = null;
+            }
         }
 
         public virtual EndpointI listen()
         {
-            _addr = Network.doBind(_fd, _addr);
-            Network.doListen(_fd, _backlog);
+            try
+            {
+                _addr = Network.doBind(_fd, _addr);
+                Network.doListen(_fd, _backlog);
+            }
+            catch(SystemException)
+            {
+                _fd = null;
+                throw;
+            }
             _endpoint = _endpoint.endpoint(this);
             return _endpoint;
         }

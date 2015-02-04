@@ -20,15 +20,25 @@ final class AcceptorI implements IceInternal.Acceptor
     @Override
     public void close()
     {
-        assert(_fd != null);
-        IceInternal.Network.closeSocketNoThrow(_fd);
-        _fd = null;
+        if(_fd != null)
+        {
+            IceInternal.Network.closeSocketNoThrow(_fd);
+            _fd = null;
+        }
     }
 
     @Override
     public IceInternal.EndpointI listen()
     {
-        _addr = IceInternal.Network.doBind(_fd, _addr, _backlog);
+        try
+        {
+            _addr = IceInternal.Network.doBind(_fd, _addr, _backlog);
+        }
+        catch(Ice.Exception ex)
+        {
+            _fd = null;
+            throw ex;
+        }
         _endpoint = _endpoint.endpoint(this);
         return _endpoint;
     }
