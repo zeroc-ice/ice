@@ -9,9 +9,7 @@
 
 top_srcdir	= ..\..\..
 
-!if exist ($(top_srcdir)\..\.gitignore)
 MAXWARN         = yes
-!endif
 
 CLIENT1		= client1.exe
 CLIENT2		= client2.exe

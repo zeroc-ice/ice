@@ -9,9 +9,7 @@
 
 top_srcdir	= ../../..
 
-ifeq ($(shell test -f $(top_srcdir)/../.gitignore && echo 0),0)
 MAXWARN         = yes
-endif
 
 CLIENT1		= client1
 CLIENT2		= client2

@@ -9,9 +9,7 @@
 
 top_srcdir	= ..\..\..
 
-!if exist ($(top_srcdir)\..\.gitignore)
 MAXWARN         = yes
-!endif
 
 CREATE          = create.exe
 READ            = read.exe
