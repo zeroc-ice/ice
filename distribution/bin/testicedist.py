@@ -689,6 +689,9 @@ class Platform:
                 self.setupBower()
         return env
 
+    def iceHome(self):
+        return self._iceHome
+    
     def is64(self, arch):
         return arch == "x64" or arch == "sparcv9"
 

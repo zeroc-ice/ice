@@ -11,24 +11,12 @@
 
 import os, sys, subprocess, time, atexit, re
 
-path = [ ".", "..", "../..", "../../..", "../../../.." ]
-head = os.path.dirname(sys.argv[0])
-if len(head) > 0:
-    path = [os.path.join(head, p) for p in path]
-path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
-
-if len(path) == 0:
-    raise RuntimeError("can't find toplevel directory!")
-sys.path.append(os.path.join(path[0], "scripts"))
-import TestUtil
-
-
-configDir = os.path.join(TestUtil.getIceDir("cpp"), "config")
-
 class ServiceController:
+    
+    def __init__(self):
+        self._env = {}
 
     def runCommand(self, command, expectedStatus = 0):
-
         p = subprocess.Popen(command,
                              shell = False, 
                              stdin = subprocess.PIPE, 
@@ -56,7 +44,7 @@ class ServiceController:
 
             if c == '\n':
                 lines.append(line.rstrip())
-		line = ""
+                line = ""
         return "\n".join(lines)
 
     def installService(self, service):
@@ -79,18 +67,19 @@ class ServiceController:
 
 class WindowsServiceController(ServiceController):
 
-    def __init__(self):
-        self._iceserviceinstall = os.path.join(TestUtil.getIceDir("cpp"), "bin", "iceserviceinstall")
-        self._notrunning = re.compile("STATE\s*:\s*1\s*STOPED")
+    def __init__(self, platform):
+        ServiceController.__init__(self)
+        self._iceserviceinstall = os.path.join(platform.iceHome(), "bin", "iceserviceinstall.exe")
+        self._configDir = os.path.join(platform.iceHome(), "config")
+        self._stopped = re.compile("STATE\s*:\s*1\s*STOPPED")
         self._startPending = re.compile("STATE\s*:\s*2\s*START_PENDING")
         self._stopPending = re.compile("STATE\s*:\s*3\s*STOP_PENDING")
         self._running = re.compile("STATE\s*:\s*4\s*RUNNING")
-        self._env = TestUtil.getTestEnv("cpp", os.path.abspath(os.getcwd()))
 
     def installService(self, service):
         sys.stdout.write("Installing %s service... " % service.name())
         sys.stdout.flush()
-        config = os.path.join(configDir, ("%s.cfg" % service.name()))
+        config = os.path.join(self._configDir, ("%s.cfg" % service.name()))
         self.runCommand([self._iceserviceinstall, "-n", service.name(), config])
         print("ok")
 
@@ -109,38 +98,33 @@ class WindowsServiceController(ServiceController):
     def queryService(self, service):
         return self.runCommand(["sc", "query", service.serviceName()])
 
-    def uninstallService(self, service, quiet = False):
-        if not quiet:
-            sys.stdout.write("Uninstalling %s service... " % service.name())
-            sys.stdout.flush()
-        
-        config = os.path.join(configDir, ("%s.cfg" % service.name()))
+    def uninstallService(self, service):
+        sys.stdout.write("Uninstalling %s service... " % service.name())
+        sys.stdout.flush()
+        config = os.path.join(self._configDir, ("%s.cfg" % service.name()))
         while(True):
             out = self.queryService(service)
             if self._startPending.search(out) or self._stopPending.search(out):
                 time.sleep(1)
                 continue
-            out = self.runCommand([self._iceserviceinstall, "-n", "-u", service.name(), config])
+            self.runCommand([self._iceserviceinstall, "-n", "-u", service.name(), config])
             break
-        if not quiet:
-            print("ok")
+        print("ok")
 
     def isRunning(self, service):
         return self._running.search(self.queryService(service))
-    
-    def isStopped(self, service):
-        return self._running.search(self.queryService(service))
 
+    def isStopped(self, service):
+        return self._stopped.search(self.queryService(service))
 
 class UbuntuServiceController(ServiceController):
 
-    def __init__(self):
-        self._running = re.compile("is running")
-        self._notrunning = re.compile("is not running")
-                
-        self._env = TestUtil.getTestEnv("cpp", os.path.abspath(os.getcwd()))
+    def __init__(self, platform):
+        ServiceController.__init__(self)
         self._env["INIT_VERBOSE"] = "yes"
-        
+        self._running = re.compile("is running")
+        self._stopped = re.compile("is not running")
+
     def startService(self, service):
         sys.stdout.write("Starting %s service... " % service.name())
         sys.stdout.flush()
@@ -150,10 +134,10 @@ class UbuntuServiceController(ServiceController):
             print("failed!")
             sys.exit(1)
         print("ok")
-        
+
     def queryService(self, service, expectedStatus = 0):
         return self.runCommand(["/etc/init.d/%s" % service.name(), "status"], expectedStatus)
-        
+
     def stopService(self, service):
         sys.stdout.write("Stoping %s service... " % service.name())
         sys.stdout.flush()
@@ -162,21 +146,19 @@ class UbuntuServiceController(ServiceController):
             print("failed!")
             sys.exit(1)
         print("ok")
-        
-    
+
     def isRunning(self, service):
         return self._running.search(self.queryService(service))
     
     def isStopped(self, service):
-        return self._notrunning.search(self.queryService(service, expectedStatus = 3))
+        return self._stopped.search(self.queryService(service, expectedStatus = 3))
 
 class Rhel6ServiceController(ServiceController):
 
-    def __init__(self):
+    def __init__(self, platform):
+        ServiceController.__init__(self)
         self._running = re.compile("is running")
-        self._notrunning = re.compile("is stopped")
-                
-        self._env = TestUtil.getTestEnv("cpp", os.path.abspath(os.getcwd()))
+        self._stopped = re.compile("is stopped")
         
     def startService(self, service):
         sys.stdout.write("Starting %s service... " % service.name())
@@ -204,12 +186,12 @@ class Rhel6ServiceController(ServiceController):
         return self._running.search(self.queryService(service))
     
     def isStopped(self, service):
-        return self._notrunning.search(self.queryService(service, expectedStatus = 3))
+        return self._stopped.search(self.queryService(service, expectedStatus = 3))
     
 class SystemdServiceController(ServiceController):
 
-    def __init__(self):
-        self._env = TestUtil.getTestEnv("cpp", os.path.abspath(os.getcwd()))
+    def __init__(self, platform):
+        ServiceController.__init__(self)
         
     def installService(self, service):
         sys.stdout.write("Enabling %s service... " % service.name())
@@ -246,8 +228,8 @@ class SystemdServiceController(ServiceController):
 
 class SLES11ServiceController(ServiceController):
 
-    def __init__(self):
-        self._env = TestUtil.getTestEnv("cpp", os.path.abspath(os.getcwd()))
+    def __init__(self, platform):
+        ServiceController.__init__(self)
         
     def startService(self, service):
         sys.stdout.write("Starting %s service... " % service.name())
@@ -272,7 +254,7 @@ class SLES11ServiceController(ServiceController):
         print("ok")
     
     def isRunning(self, service):
-	pattern = re.compile("Checking for service %s.*running" % service.name())
+        pattern = re.compile("Checking for service %s.*running" % service.name())
         return pattern.search(self.queryService(service))
     
     def isStopped(self, service):
@@ -300,22 +282,24 @@ def run(platform):
     services = [
         SystemService("glacier2router", "DemoGlacier2Router"),
         SystemService("icegridnode", "DemoIceGrid.node1"),
-        SystemService("icegridregistry", "DemoIceGrid")
-    ]
+        SystemService("icegridregistry", "DemoIceGrid")]
 
     if platform.isWindows():
-        controller = WindowsServiceController()
+        controller = WindowsServiceController(platform)
     elif platform.isLinux():
         if platform.isUbuntu():
-            controller = UbuntuServiceController()
+            controller = UbuntuServiceController(platform)
         elif platform.isRhel(7):
-            controller = SystemdServiceController()
+            controller = SystemdServiceController(platform)
         elif platform.isRhel():
-            controller = Rhel6ServiceController()
-	elif platform.isSles(12):
-            controller = SystemdServiceController()
-	elif platform.isSles():
-	    controller = SLES11ServiceController()
+            controller = Rhel6ServiceController(platform)
+        elif platform.isSles(12):
+                controller = SystemdServiceController(platform)
+        elif platform.isSles():
+            controller = SLES11ServiceController(platform)
+        else:
+            print("Service testing not supported with platform: %s" % sys.platform)
+            return
     else:
         print("Service testing not supported with platform: %s" % sys.platform)
         return
