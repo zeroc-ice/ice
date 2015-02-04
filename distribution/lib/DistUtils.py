@@ -187,61 +187,6 @@ def copyMatchingFiles(srcpath, destpath, patterns, warnDestExists = True, verbos
     for p in patterns:
         for f in glob.glob(os.path.join(srcpath, p)):
             copy(f, os.path.join(destpath, os.path.basename(f)), warnDestExists)
-
-#
-# Comment out rules in a Makefile.
-#
-def fixMakefileForFile(path):
-    (dir,file) = os.path.split(path)
-    (base,ext) = os.path.splitext(file)
-    # File the makefile file from the same directory as the file.
-    for f in glob.glob(os.path.join(dir, "Makefile*")):
-        fixMakefile(f, base, ext)
-
-#
-# Comment out rules in a Makefile.
-#
-def fixMakefile(file, base, ext):
-
-    origfile = file + ".orig"
-    os.rename(file, origfile)
-    oldMakefile = open(origfile, "r")
-    newMakefile = open(file, "w")
-    origLines = oldMakefile.readlines()
-
-    doComment = 0
-    doCheck = 0
-    newLines = []
-    for x in origLines:
-        #
-        # If the rule contains the target string, then
-        # comment out this rule.
-        #
-        if not x.startswith("\t") and x.find(base + ext) != -1:
-            doComment = 1
-        #
-        # If the line starts with "clean::", then check
-        # the following lines and comment out any that
-        # contain the target string.
-        #
-        elif x.startswith("clean::"):
-            doCheck = 1
-        #
-        # Stop when we encounter an empty line.
-        #
-        elif len(x.strip()) == 0:
-            doComment = 0
-            doCheck = 0
-
-        if doComment or (doCheck and x.find(base) != -1):
-            x = "#" + x
-        newLines.append(x)
-
-    newMakefile.writelines(newLines)
-    newMakefile.close()
-    oldMakefile.close()
-    os.remove(origfile)
-
 #
 # Comment out rules in VC project.
 #
@@ -287,35 +232,6 @@ def fixProject(file, target):
     oldProject.close()
     os.remove(origfile)
 
-#
-# Comment out implicit parser/scanner rules in config/Make.rules.
-#
-def fixMakeRules(file):
-    origfile = file + ".orig"
-    os.rename(file, origfile)
-    oldFile = open(origfile, "r")
-    newFile = open(file, "w")
-    origLines = oldFile.readlines()
-
-    doComment = 0
-    newLines = []
-    for x in origLines:
-        if x.find("%.y") != -1 or x.find("%.l") != -1:
-            doComment = 1
-        #
-        # Stop when we encounter an empty line.
-        #
-        elif len(x.strip()) == 0:
-            doComment = 0
-
-        if doComment:
-            x = "#" + x
-        newLines.append(x)
-
-    newFile.writelines(newLines)
-    newFile.close()
-    oldFile.close()
-    os.remove(origfile)
 
 #
 # Fix version in given file.

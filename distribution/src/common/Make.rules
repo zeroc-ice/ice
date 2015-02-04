@@ -63,6 +63,11 @@ embedded_runpath ?= yes
 # ----------------------------------------------------------------------
 
 #
+# Compile scanner and grammar files?
+#
+#BISON_FLEX ?= yes
+
+#
 # Common definitions
 #
 ice_language     = cpp
@@ -132,6 +137,8 @@ EVERYTHING_EXCEPT_ALL   = clean
 	rm -f $(*F).h $(*F).cpp
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(*F).ice	
 
+ifeq ($(BISON_FLEX),yes)
+
 %.h %.cpp: %.y
 	rm -f $(*F).h $(*F).cpp
 	bison $(BISONFLAGS) $<
@@ -145,6 +152,8 @@ EVERYTHING_EXCEPT_ALL   = clean
 	echo '#include <IceUtil/Config.h>' > $@
 	cat lex.yy.c >> $@
 	rm -f lex.yy.c
+
+endif
 
 all:: $(SRCS) $(TARGETS)
 

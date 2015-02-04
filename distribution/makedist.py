@@ -279,9 +279,6 @@ def createSourceDist(platform, destDir):
         fixVersion(os.path.join("vsaddin", "config", "Ice-VS2013.AddIn"), *versions)
         fixVersion(os.path.join("vsaddin", "config", "Ice.props"), *versions)
 
-    if os.path.exists(os.path.join("cpp", "config", "Make.rules")):
-        fixMakeRules(os.path.join("cpp", "config", "Make.rules"))
-
     for root, dirnames, filenames in os.walk('.'):
         for f in filenames:
             filepath = os.path.join(root, f)
@@ -290,8 +287,6 @@ def createSourceDist(platform, destDir):
                 continue
             elif fnmatch.fnmatch(f, "README*") or fnmatch.fnmatch(f, "*.Addin"):
                 fixVersion(filepath, *versions)
-            elif fnmatch.fnmatch(f, "*.y") or fnmatch.fnmatch(f, "*.l"):
-                fixMakefileForFile(filepath)
             elif f == "Grammar.cpp":
                 checkBisonVersion(filepath)
             elif f == "Scanner.cpp":
