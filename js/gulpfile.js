@@ -111,6 +111,15 @@ function libFiles(name)
         path.join("lib", name + ".min.js.gz")];
 }
 
+function mapFiles(name)
+{
+    return [
+        path.join("lib", name + ".js.map"),
+        path.join("lib", name + ".js.map.gz"),
+        path.join("lib", name + ".min.js.map"),
+        path.join("lib", name + ".min.js.map.gz")];
+}
+
 function libGeneratedFiles(lib, sources)
 {
     return sources.slice.map(function(f)
@@ -118,6 +127,7 @@ function libGeneratedFiles(lib, sources)
                 return path.join(srcDir(lib), path.basename(f, ".ice") + ".js");
             })
         .concat(libFiles(lib))
+        .concat(mapFiles(lib))
         .concat([path.join(srcDir(lib), ".depend", "*")]);
 }
 
