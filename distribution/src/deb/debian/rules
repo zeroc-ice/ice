@@ -50,7 +50,7 @@ CPP11_LIB_NAMES = 	libFreeze \
 	libIceStormService \
 	libIceUtil
 
-VERSION = @mmver@
+VERSION = @ver@
 
 ARTIFACT_NAMES = freeze \
 	glacier2 \
@@ -62,7 +62,7 @@ ARTIFACT_NAMES = freeze \
 	icestorm \
 	ant-ice \
 	ice-gradle-plugin
-	
+
 ifeq ($(DEB_HOST_MULTIARCH),i386-linux-gnu)
 ICEBOX = icebox32
 else
@@ -92,6 +92,16 @@ override_dh_auto_install:
 override_dh_install: icebox_install
 	mkdir -p $(DESTDIR)$(prefix)/share/java
 	mv $(DESTDIR)$(prefix)/lib/*.jar $(DESTDIR)$(prefix)/share/java
+	
+	#
+	# Sign JAR files
+	#
+	@if test "$(SIGNJARS)" = "yes" ; \
+        then \
+		echo "signing jar file: $(DESTDIR)/usr/share/java/icegridgui.jar" ; \
+		jarsigner -keystore $(JARSIGNER_KEYSTORE) -storepass "$(JARSIGNER_KEYSTORE_PASSWORD)" \
+			$(DESTDIR)/usr/share/java/icegridgui.jar zeroc.com -tsa http://timestamp.digicert.com > /dev/null ; \
+        fi
 	
 	#
 	# Install Maven artifact
