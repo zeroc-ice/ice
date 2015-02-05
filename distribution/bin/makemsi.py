@@ -257,7 +257,7 @@ def usage():
     print(r"  --key-file=<path>           Key file used to sign the .NET Assemblies")
     print("")
 
-version = "3.6b"
+version = "3.6.0"
 verbose = False
 
 args = None

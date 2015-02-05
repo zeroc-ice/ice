@@ -34,32 +34,32 @@ usr/share/java/icepatch2-@ver@-source.jar
 usr/share/java/icestorm-@ver@.jar
 usr/share/java/icestorm-@ver@-source.jar
 
-usr/share/maven-repo/com/zeroc/ant-ice/3.6b/ant-ice-@ver@.jar
-usr/share/maven-repo/com/zeroc/ant-ice/3.6b/ant-ice-@ver@.pom
+usr/share/maven-repo/com/zeroc/ant-ice/@ver@/ant-ice-@ver@.jar
+usr/share/maven-repo/com/zeroc/ant-ice/@ver@/ant-ice-@ver@.pom
 
-usr/share/maven-repo/com/zeroc/ice-gradle-plugin/3.6b/ice-gradle-plugin-@ver@.jar
-usr/share/maven-repo/com/zeroc/ice-gradle-plugin/3.6b/ice-gradle-plugin-@ver@.pom
+usr/share/maven-repo/com/zeroc/ice-gradle-plugin/@ver@/ice-gradle-plugin-@ver@.jar
+usr/share/maven-repo/com/zeroc/ice-gradle-plugin/@ver@/ice-gradle-plugin-@ver@.pom
 
-usr/share/maven-repo/com/zeroc/freeze/3.6b/freeze-@ver@.jar
-usr/share/maven-repo/com/zeroc/freeze/3.6b/freeze-@ver@.pom
+usr/share/maven-repo/com/zeroc/freeze/@ver@/freeze-@ver@.jar
+usr/share/maven-repo/com/zeroc/freeze/@ver@/freeze-@ver@.pom
 
-usr/share/maven-repo/com/zeroc/glacier2/3.6b/glacier2-@ver@.jar
-usr/share/maven-repo/com/zeroc/glacier2/3.6b/glacier2-@ver@.pom
+usr/share/maven-repo/com/zeroc/glacier2/@ver@/glacier2-@ver@.jar
+usr/share/maven-repo/com/zeroc/glacier2/@ver@/glacier2-@ver@.pom
 
-usr/share/maven-repo/com/zeroc/ice/3.6b/ice-@ver@.jar
-usr/share/maven-repo/com/zeroc/ice/3.6b/ice-@ver@.pom
+usr/share/maven-repo/com/zeroc/ice/@ver@/ice-@ver@.jar
+usr/share/maven-repo/com/zeroc/ice/@ver@/ice-@ver@.pom
 
-usr/share/maven-repo/com/zeroc/icebox/3.6b/icebox-@ver@.jar
-usr/share/maven-repo/com/zeroc/icebox/3.6b/icebox-@ver@.pom
+usr/share/maven-repo/com/zeroc/icebox/@ver@/icebox-@ver@.jar
+usr/share/maven-repo/com/zeroc/icebox/@ver@/icebox-@ver@.pom
 
-usr/share/maven-repo/com/zeroc/icediscovery/3.6b/icediscovery-@ver@.jar
-usr/share/maven-repo/com/zeroc/icediscovery/3.6b/icediscovery-@ver@.pom
+usr/share/maven-repo/com/zeroc/icediscovery/@ver@/icediscovery-@ver@.jar
+usr/share/maven-repo/com/zeroc/icediscovery/@ver@/icediscovery-@ver@.pom
 
-usr/share/maven-repo/com/zeroc/icegrid/3.6b/icegrid-@ver@.jar
-usr/share/maven-repo/com/zeroc/icegrid/3.6b/icegrid-@ver@.pom
+usr/share/maven-repo/com/zeroc/icegrid/@ver@/icegrid-@ver@.jar
+usr/share/maven-repo/com/zeroc/icegrid/@ver@/icegrid-@ver@.pom
 
-usr/share/maven-repo/com/zeroc/icepatch2/3.6b/icepatch2-@ver@.jar
-usr/share/maven-repo/com/zeroc/icepatch2/3.6b/icepatch2-@ver@.pom
+usr/share/maven-repo/com/zeroc/icepatch2/@ver@/icepatch2-@ver@.jar
+usr/share/maven-repo/com/zeroc/icepatch2/@ver@/icepatch2-@ver@.pom
 
-usr/share/maven-repo/com/zeroc/icestorm/3.6b/icestorm-@ver@.jar
-usr/share/maven-repo/com/zeroc/icestorm/3.6b/icestorm-@ver@.pom
+usr/share/maven-repo/com/zeroc/icestorm/@ver@/icestorm-@ver@.jar
+usr/share/maven-repo/com/zeroc/icestorm/@ver@/icestorm-@ver@.pom

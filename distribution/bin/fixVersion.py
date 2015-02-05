@@ -92,6 +92,12 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "common
 FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "common", "gradle.properties.android"),
                             [("iceVersion[\t\s]*= " + FixUtil.vpatMatch, version)])
 
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "bin", "testicedist.py"),
+                            [("version[\t\s]*= \"" + FixUtil.vpatMatch + "\"", version)])
+
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "bin", "makemsi.py"),
+                            [("version[\t\s]*= \"" + FixUtil.vpatMatch + "\"", version)])
+
 for f in FixUtil.find("*.py"):
     FixUtil.fileMatchAndReplace(f, [("iceVersion[\t\s]*= '" + FixUtil.vpatMatch, version)], False)
 
@@ -185,12 +191,23 @@ icej_home = os.path.join(ice_dir, "java")
 FixUtil.fileMatchAndReplace(os.path.join(icej_home, "gradle.properties"),
                             [("iceVersion[\t\s]*= " + FixUtil.vpatMatch, version)])
 
+FixUtil.fileMatchAndReplace(os.path.join(icej_home, "buildSrc", "build.gradle"),
+                            [("version[\t\s]* '" + FixUtil.vpatMatch + "'", version)])
+
 FixUtil.fileMatchAndReplace(os.path.join(icej_home, "src", "Ice", "src", "main", "java", "Ice", "Util.java"),
                             [("return \"" + FixUtil.vpatMatch +"\".*A=major", version),
                              ("return ([0-9]*).*AA=major", FixUtil.intVersion(version))])
 FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "java", "bin", "icegridgui.deb"),
                             [("IceGridGUI-" + FixUtil.vpatMatch, version)])
 
+#
+# Android Files
+#
+for f in FixUtil.find("*.iml"):
+    FixUtil.fileMatchAndReplace(f,
+                                [("version=\"" + FixUtil.vpatMatch + "\"", version),
+                                 ("name=\"ice-" + FixUtil.vpatMatch + "\"", version),
+                                 ("name=\"glacier2-" + FixUtil.vpatMatch + "\"", version)])
 #
 # JavaScript specific files
 #

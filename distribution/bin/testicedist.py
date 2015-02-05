@@ -15,7 +15,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "l
 
 import BuildUtils, FixUtil
 
-version = "3.6b"
+version = "3.6.0"
 
 #
 # Substitute development PublicKeyToken by release PublicKeyToken in Silverlight projects

@@ -13,7 +13,7 @@ task writeNewPom {
             packaging 'jar'
             groupId 'com.zeroc.gradle.plugins'
             artifactId 'ice-gradle-plugin'
-            version '3.6b'
+            version '3.6.0'
             // TODO: Extend with licensing information.
         }
     }.writeTo(pomName)
