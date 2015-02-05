@@ -210,7 +210,7 @@ public:
         notify();
     }
 
-    void 
+    void
     waitForClosed()
     {
         Lock sync(*this);

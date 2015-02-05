@@ -53,6 +53,7 @@ tests = [
      ("Ice/hash", ["core"]),
      ("Ice/info", ["core", "noipv6", "nocompress"]),
      ("Ice/enums", ["once"]),
+     ("Ice/acm", ["core"]),
     ]
 
 if __name__ == "__main__":

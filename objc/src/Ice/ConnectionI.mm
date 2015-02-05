@@ -98,6 +98,60 @@
 
 // @end
 
+namespace
+{
+
+class ConnectionCallbackI : public Ice::ConnectionCallback
+{
+public:
+
+    ConnectionCallbackI(id<ICEConnection> connection, id<ICEConnectionCallback> callback) :
+        _connection(ICE_RETAIN(connection)),
+        _callback(callback)
+    {
+        CFRetain(_callback);
+    }
+
+    ~ConnectionCallbackI()
+    {
+        CFRelease(_callback);
+        ICE_RELEASE(_connection);
+    }
+
+    void
+    heartbeat(const Ice::ConnectionPtr& connection)
+    {
+        @try
+        {
+            [_callback heartbeat:_connection];
+        }
+        @catch(id ex)
+        {
+            rethrowCxxException(ex);
+        }
+    }
+
+    void
+    closed(const Ice::ConnectionPtr& connection)
+    {
+        @try
+        {
+            [_callback closed:_connection];
+        }
+        @catch(id ex)
+        {
+            rethrowCxxException(ex);
+        }
+    }
+
+private:
+
+    id<ICEConnection> _connection;
+    id<ICEConnectionCallback> _callback;
+};
+
+}
+
 #define CONNECTION dynamic_cast<Ice::Connection*>(static_cast<IceUtil::Shared*>(cxxObject_))
 
 @implementation ICEConnection
@@ -206,17 +260,35 @@
                    CONNECTION->end_flushBatchRequests(r);
                }, result);
 }
--(void) setCallback:(ICELocalObject<ICEConnectionCallback>*)callback
+-(void) setCallback:(id<ICEConnectionCallback>)callback
 {
-    @throw [ICEFeatureNotSupportedException featureNotSupportedException:__FILE__ line:__LINE__];
+    CONNECTION->setCallback(new ConnectionCallbackI(self, callback));
 }
 -(void) setACM:(id)timeout close:(id)close heartbeat:(id)heartbeat
 {
-    @throw [ICEFeatureNotSupportedException featureNotSupportedException:__FILE__ line:__LINE__];
+    IceUtil::Optional<int> to;
+    ICEInt intValue;
+    if([ICEOptionalGetter getInt:timeout value:&intValue])
+    {
+        to = intValue;
+    }
+    IceUtil::Optional<Ice::ACMClose> c;
+    if([ICEOptionalGetter getInt:close value:&intValue])
+    {
+        c = (Ice::ACMClose)intValue;
+    }
+    IceUtil::Optional<Ice::ACMHeartbeat> hb;
+    if([ICEOptionalGetter getInt:heartbeat value:&intValue])
+    {
+        hb = (Ice::ACMHeartbeat)intValue;
+    }
+
+    CONNECTION->setACM(to, c, hb);
 }
 -(ICEACM*) getACM
 {
-    @throw [ICEFeatureNotSupportedException featureNotSupportedException:__FILE__ line:__LINE__];
+    Ice::ACM acm = CONNECTION->getACM();
+    return [ICEACM acm:acm.timeout close:(ICEACMClose)acm.close heartbeat:(ICEACMHeartbeat)acm.heartbeat];
 }
 -(NSMutableString*) type
 {
