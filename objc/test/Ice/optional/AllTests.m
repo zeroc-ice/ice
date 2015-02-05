@@ -837,6 +837,90 @@ optionalAllTests(id<ICECommunicator> communicator)
     {
         id p1 = ICENone;
         id p3 = ICENone;
+        id p2 = [initial opBool:p1 p3:&p3];
+        test(p2 == ICENone && p3 == ICENone);
+
+        p1 = @YES;
+        p2 = [initial opBool:p1 p3:&p3];
+        test([p2 isEqual:@YES] && [p3 isEqual:@YES]);
+
+        os = [ICEUtil createOutputStream:communicator];
+        [os startEncapsulation];
+        [ICEBoolHelper writeOpt:p1 stream:os tag:2];
+        [os endEncapsulation];
+        inEncaps = [os finished];
+        [initial ice_invoke:@"opBool" mode:ICENormal inEncaps:inEncaps outEncaps:&outEncaps];
+        is = [ICEUtil createInputStream:communicator data:outEncaps];
+        [is startEncapsulation];
+        p2 = [ICEBoolHelper readOpt:is tag:1];
+        p3 = [ICEBoolHelper readOpt:is tag:3];
+        [is endEncapsulation];
+        test([p2 isEqual:@YES] && [p3 isEqual:@YES]);
+
+        is = [ICEUtil createInputStream:communicator data:outEncaps];
+        [is startEncapsulation];
+        [is endEncapsulation];
+    }
+
+    {
+        id p1 = ICENone;
+        id p3 = ICENone;
+        id p2 = [initial opShort:p1 p3:&p3];
+        test(p2 == ICENone && p3 == ICENone);
+
+        p1 = @56;
+        p2 = [initial opShort:p1 p3:&p3];
+        test([p2 isEqual:@56] && [p3 isEqual:@56]);
+
+        os = [ICEUtil createOutputStream:communicator];
+        [os startEncapsulation];
+        [ICEShortHelper writeOpt:p1 stream:os tag:2];
+        [os endEncapsulation];
+        inEncaps = [os finished];
+        [initial ice_invoke:@"opShort" mode:ICENormal inEncaps:inEncaps outEncaps:&outEncaps];
+        is = [ICEUtil createInputStream:communicator data:outEncaps];
+        [is startEncapsulation];
+        p2 = [ICEShortHelper readOpt:is tag:1];
+        p3 = [ICEShortHelper readOpt:is tag:3];
+        [is endEncapsulation];
+        test([p2 isEqual:@56] && [p3 isEqual:@56]);
+
+        is = [ICEUtil createInputStream:communicator data:outEncaps];
+        [is startEncapsulation];
+        [is endEncapsulation];
+    }
+
+    {
+        id p1 = ICENone;
+        id p3 = ICENone;
+        id p2 = [initial opInt:p1 p3:&p3];
+        test(p2 == ICENone && p3 == ICENone);
+
+        p1 = @56;
+        p2 = [initial opInt:p1 p3:&p3];
+        test([p2 isEqual:@56] && [p3 isEqual:@56]);
+
+        os = [ICEUtil createOutputStream:communicator];
+        [os startEncapsulation];
+        [ICEIntHelper writeOpt:p1 stream:os tag:2];
+        [os endEncapsulation];
+        inEncaps = [os finished];
+        [initial ice_invoke:@"opInt" mode:ICENormal inEncaps:inEncaps outEncaps:&outEncaps];
+        is = [ICEUtil createInputStream:communicator data:outEncaps];
+        [is startEncapsulation];
+        p2 = [ICEIntHelper readOpt:is tag:1];
+        p3 = [ICEIntHelper readOpt:is tag:3];
+        [is endEncapsulation];
+        test([p2 isEqual:@56] && [p3 isEqual:@56]);
+
+        is = [ICEUtil createInputStream:communicator data:outEncaps];
+        [is startEncapsulation];
+        [is endEncapsulation];
+    }
+
+    {
+        id p1 = ICENone;
+        id p3 = ICENone;
         id p2 = [initial opLong:p1 p3:&p3];
         test(p2 == ICENone && p3 == ICENone);
 
@@ -865,6 +949,62 @@ optionalAllTests(id<ICECommunicator> communicator)
     {
         id p1 = ICENone;
         id p3 = ICENone;
+        id p2 = [initial opFloat:p1 p3:&p3];
+        test(p2 == ICENone && p3 == ICENone);
+
+        p1 = @1.0f;
+        p2 = [initial opFloat:p1 p3:&p3];
+        test([p2 isEqual:@1.0f] && [p3 isEqual:@1.0f]);
+
+        os = [ICEUtil createOutputStream:communicator];
+        [os startEncapsulation];
+        [ICEFloatHelper writeOpt:p1 stream:os tag:2];
+        [os endEncapsulation];
+        inEncaps = [os finished];
+        [initial ice_invoke:@"opFloat" mode:ICENormal inEncaps:inEncaps outEncaps:&outEncaps];
+        is = [ICEUtil createInputStream:communicator data:outEncaps];
+        [is startEncapsulation];
+        p3 = [ICEFloatHelper readOpt:is tag:1];
+        p2 = [ICEFloatHelper readOpt:is tag:3];
+        [is endEncapsulation];
+        test([p2 isEqual:@1.0f] && [p3 isEqual:@1.0f]);
+
+        is = [ICEUtil createInputStream:communicator data:outEncaps];
+        [is startEncapsulation];
+        [is endEncapsulation];
+    }
+
+    {
+        id p1 = ICENone;
+        id p3 = ICENone;
+        id p2 = [initial opDouble:p1 p3:&p3];
+        test(p2 == ICENone && p3 == ICENone);
+
+        p1 = @1.0;
+        p2 = [initial opDouble:p1 p3:&p3];
+        test([p2 isEqual:@1.0] && [p3 isEqual:@1.0]);
+
+        os = [ICEUtil createOutputStream:communicator];
+        [os startEncapsulation];
+        [ICEDoubleHelper writeOpt:p1 stream:os tag:2];
+        [os endEncapsulation];
+        inEncaps = [os finished];
+        [initial ice_invoke:@"opDouble" mode:ICENormal inEncaps:inEncaps outEncaps:&outEncaps];
+        is = [ICEUtil createInputStream:communicator data:outEncaps];
+        [is startEncapsulation];
+        p3 = [ICEDoubleHelper readOpt:is tag:1];
+        p2 = [ICEDoubleHelper readOpt:is tag:3];
+        [is endEncapsulation];
+        test([p2 isEqual:@1.0] && [p3 isEqual:@1.0]);
+
+        is = [ICEUtil createInputStream:communicator data:outEncaps];
+        [is startEncapsulation];
+        [is endEncapsulation];
+    }
+
+    {
+        id p1 = ICENone;
+        id p3 = ICENone;
         id p2 = [initial opString:p1 p3:&p3];
         test(p2 == ICENone && p3 == ICENone);
 
@@ -884,6 +1024,118 @@ optionalAllTests(id<ICECommunicator> communicator)
         p3 = [ICEStringHelper readOpt:is tag:3];
         [is endEncapsulation];
         test([p2 isEqualToString:@"test"] && [p3 isEqualToString:@"test"]);
+
+        is = [ICEUtil createInputStream:communicator data:outEncaps];
+        [is startEncapsulation];
+        [is endEncapsulation];
+    }
+
+   {
+        id p1 = ICENone;
+        id p3 = ICENone;
+        id p2 = [initial opMyEnum:p1 p3:&p3];
+        test(p2 == ICENone && p3 == ICENone);
+
+        p1 = @(TestOptionalMyEnumMember);
+        p2 = [initial opMyEnum:p1 p3:&p3];
+        test([p2 isEqual:@(TestOptionalMyEnumMember)] && [p3 isEqual:@(TestOptionalMyEnumMember)]);
+
+        os = [ICEUtil createOutputStream:communicator];
+        [os startEncapsulation];
+        [TestOptionalMyEnumHelper writeOpt:p1 stream:os tag:2];
+        [os endEncapsulation];
+        inEncaps = [os finished];
+        [initial ice_invoke:@"opMyEnum" mode:ICENormal inEncaps:inEncaps outEncaps:&outEncaps];
+        is = [ICEUtil createInputStream:communicator data:outEncaps];
+        [is startEncapsulation];
+        p2 = [TestOptionalMyEnumHelper readOpt:is tag:1];
+        p3 = [TestOptionalMyEnumHelper readOpt:is tag:3];
+        [is endEncapsulation];
+        test([p2 isEqual:@(TestOptionalMyEnumMember)] && [p3 isEqual:@(TestOptionalMyEnumMember)]);
+
+        is = [ICEUtil createInputStream:communicator data:outEncaps];
+        [is startEncapsulation];
+        [is endEncapsulation];
+    }
+
+    {
+        id p1 = ICENone;
+        id p3 = ICENone;
+        id p2 = [initial opSmallStruct:p1 p3:&p3];
+        test(p2 == ICENone && p3 == ICENone);
+
+        p1 = [TestOptionalSmallStruct smallStruct:56];
+        p2 = [initial opSmallStruct:p1 p3:&p3];
+        test(((TestOptionalSmallStruct*)p2).m == 56 && ((TestOptionalSmallStruct*)p3).m== 56);
+
+        os = [ICEUtil createOutputStream:communicator];
+        [os startEncapsulation];
+        [TestOptionalSmallStructHelper writeOpt:p1 stream:os tag:2];
+        [os endEncapsulation];
+        inEncaps = [os finished];
+        [initial ice_invoke:@"opSmallStruct" mode:ICENormal inEncaps:inEncaps outEncaps:&outEncaps];
+        is = [ICEUtil createInputStream:communicator data:outEncaps];
+        [is startEncapsulation];
+        p2 = [TestOptionalSmallStructHelper readOpt:is tag:1];
+        p3 = [TestOptionalSmallStructHelper readOpt:is tag:3];
+        [is endEncapsulation];
+        test(((TestOptionalSmallStruct*)p2).m == 56 && ((TestOptionalSmallStruct*)p3).m== 56);
+
+        is = [ICEUtil createInputStream:communicator data:outEncaps];
+        [is startEncapsulation];
+        [is endEncapsulation];
+    }
+
+    {
+        id p1 = ICENone;
+        id p3 = ICENone;
+        id p2 = [initial opFixedStruct:p1 p3:&p3];
+        test(p2 == ICENone && p3 == ICENone);
+
+        p1 = [TestOptionalFixedStruct fixedStruct:56];
+        p2 = [initial opFixedStruct:p1 p3:&p3];
+        test(((TestOptionalFixedStruct*)p2).m == 56 && ((TestOptionalFixedStruct*)p3).m== 56);
+
+        os = [ICEUtil createOutputStream:communicator];
+        [os startEncapsulation];
+        [TestOptionalFixedStructHelper writeOpt:p1 stream:os tag:2];
+        [os endEncapsulation];
+        inEncaps = [os finished];
+        [initial ice_invoke:@"opFixedStruct" mode:ICENormal inEncaps:inEncaps outEncaps:&outEncaps];
+        is = [ICEUtil createInputStream:communicator data:outEncaps];
+        [is startEncapsulation];
+        p2 = [TestOptionalFixedStructHelper readOpt:is tag:1];
+        p3 = [TestOptionalFixedStructHelper readOpt:is tag:3];
+        [is endEncapsulation];
+        test(((TestOptionalFixedStruct*)p2).m == 56 && ((TestOptionalFixedStruct*)p3).m== 56);
+
+        is = [ICEUtil createInputStream:communicator data:outEncaps];
+        [is startEncapsulation];
+        [is endEncapsulation];
+    }
+
+    {
+        id p1 = ICENone;
+        id p3 = ICENone;
+        id p2 = [initial opVarStruct:p1 p3:&p3];
+        test(p2 == ICENone && p3 == ICENone);
+
+        p1 = [TestOptionalVarStruct varStruct:@"test"];
+        p2 = [initial opVarStruct:p1 p3:&p3];
+        test([((TestOptionalVarStruct*)p2).m isEqual:@"test"] && [((TestOptionalVarStruct*)p3).m isEqual:@"test"]);
+
+        os = [ICEUtil createOutputStream:communicator];
+        [os startEncapsulation];
+        [TestOptionalVarStructHelper writeOpt:p1 stream:os tag:2];
+        [os endEncapsulation];
+        inEncaps = [os finished];
+        [initial ice_invoke:@"opVarStruct" mode:ICENormal inEncaps:inEncaps outEncaps:&outEncaps];
+        is = [ICEUtil createInputStream:communicator data:outEncaps];
+        [is startEncapsulation];
+        p2 = [TestOptionalVarStructHelper readOpt:is tag:1];
+        p3 = [TestOptionalVarStructHelper readOpt:is tag:3];
+        [is endEncapsulation];
+        test([((TestOptionalVarStruct*)p2).m isEqual:@"test"] && [((TestOptionalVarStruct*)p3).m isEqual:@"test"]);
 
         is = [ICEUtil createInputStream:communicator data:outEncaps];
         [is startEncapsulation];
