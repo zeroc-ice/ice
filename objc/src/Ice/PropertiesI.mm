@@ -50,7 +50,7 @@
     NSException* nsex = nil;
     try
     {
-        return [toNSMutableString(properties_->getPropertyWithDefault(fromNSString(key), 
+        return [toNSMutableString(properties_->getPropertyWithDefault(fromNSString(key),
                                                                       fromNSString(value))) autorelease];
     }
     catch(const std::exception& ex)
@@ -236,6 +236,12 @@ public:
 
     UpdateCallbackI(id<ICEPropertiesAdminUpdateCallback> callback) : _callback(callback)
     {
+        CFRetain(_callback);
+    }
+
+    ~UpdateCallbackI()
+    {
+        CFRelease(_callback);
     }
 
     void
