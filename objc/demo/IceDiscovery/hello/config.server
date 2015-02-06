@@ -3,8 +3,13 @@
 # "Hello". The following sets the endpoints and the adapter ID for
 # this adapter.
 #
-Hello.Endpoints=tcp -h localhost:udp -h localhost:ssl -h localhost
+Hello.Endpoints=tcp:udp:ssl
 Hello.AdapterId=HelloAdapter
+
+#
+# Only listen on the localhost interface by default.
+#
+Ice.Default.Host=localhost
 
 #
 # Warn about connection exceptions

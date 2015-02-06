@@ -3,7 +3,7 @@
 # "Hello". The following line sets the endpoints for this
 # adapter.
 #
-Hello.Endpoints=tcp -h localhost:udp -h localhost:ssl -h localhost
+Hello.Endpoints=tcp:udp:ssl
 Hello.AdapterId=HelloAdapter
 
 #
