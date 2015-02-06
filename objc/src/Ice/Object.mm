@@ -21,9 +21,8 @@
 #include <Ice/Initialize.h>
 #include <Ice/ObjectAdapter.h>
 #include <Ice/NativePropertiesAdmin.h>
-#import <Foundation/NSAutoreleasePool.h>
 
-namespace 
+namespace
 {
 
 std::map<Ice::Object*, ICEObjectWrapper*> cachedObjects;
@@ -53,7 +52,7 @@ public:
 
     ObjectI(ICEServant*);
 
-    virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&, 
+    virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&,
                                   const std::pair<const Ice::Byte*, const Ice::Byte*>&,
                                   const Ice::Current&);
 
@@ -84,8 +83,8 @@ class BlobjectI : public IceObjC::ObjectWrapper, public Ice::BlobjectArrayAsync
 public:
 
     BlobjectI(ICEBlobject*);
-    
-    virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&, 
+
+    virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&,
                                   const std::pair<const Ice::Byte*, const Ice::Byte*>&,
                                   const Ice::Current&);
 
@@ -117,7 +116,7 @@ ObjectI::ObjectI(ICEServant* object) : _object(object)
 }
 
 void
-ObjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb, 
+ObjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
                                    const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
                                    const Ice::Current& current)
 {
@@ -131,24 +130,25 @@ ObjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
         Ice::OutputStreamPtr s = Ice::createOutputStream(current.adapter->getCommunicator());
         os = [ICEOutputStream localObjectWithCxxObjectNoAutoRelease:s.get()];
     }
-    
+
     NSException* exception = nil;
     BOOL ok = YES; // Keep the compiler happy
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-    ICECurrent* c = [[ICECurrent alloc] initWithCurrent:current];
-    @try
+    @autoreleasepool
     {
-        ok = [_object dispatch__:c is:is os:os];
-    }
-    @catch(id ex)
-    {
-        exception = [ex retain];
-    }
-    @finally
-    {
-        [c release];
-        [is release];
-        [pool drain];
+        ICECurrent* c = [[ICECurrent alloc] initWithCurrent:current];
+        @try
+        {
+            ok = [_object dispatch__:c is:is os:os];
+        }
+        @catch(id ex)
+        {
+            exception = [ex retain];
+        }
+        @finally
+        {
+            [c release];
+            [is release];
+        }
     }
 
     if(exception != nil)
@@ -156,11 +156,11 @@ ObjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
         [os release];
         rethrowCxxException(exception, true); // True = release the exception.
     }
-    
+
     std::vector<Ice::Byte> outParams;
     [os os]->finished(outParams);
     [os release];
-    
+
     cb->ice_response(ok, std::make_pair(&outParams[0], &outParams[0] + outParams.size()));
 }
 
@@ -169,7 +169,7 @@ BlobjectI::BlobjectI(ICEBlobject* blobject) : _blobject(blobject), _target([blob
 }
 
 void
-BlobjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb, 
+BlobjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
                                      const std::pair<const Ice::Byte*, const Ice::Byte*>& inEncaps,
                                      const Ice::Current& current)
 {
@@ -177,31 +177,32 @@ BlobjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
     BOOL ok = YES; // Keep the compiler happy.
     NSMutableData* outE = nil;
 
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-    ICECurrent* c = [[ICECurrent alloc] initWithCurrent:current];
-    NSData* inE = [NSData dataWithBytesNoCopy:const_cast<Ice::Byte*>(inEncaps.first) 
-                                       length:(inEncaps.second - inEncaps.first) 
-                                 freeWhenDone:NO];
-    @try
+    @autoreleasepool
     {
-        ok = [_target ice_invoke:inE outEncaps:&outE current:c];
-        [outE retain];
-    }
-    @catch(id ex)
-    {
-        exception = [ex retain];
-    }
-    @finally
-    {
-        [c release];
-        [pool drain];
+        ICECurrent* c = [[ICECurrent alloc] initWithCurrent:current];
+        NSData* inE = [NSData dataWithBytesNoCopy:const_cast<Ice::Byte*>(inEncaps.first)
+                                           length:(inEncaps.second - inEncaps.first)
+                                     freeWhenDone:NO];
+        @try
+        {
+            ok = [_target ice_invoke:inE outEncaps:&outE current:c];
+            [outE retain];
+        }
+        @catch(id ex)
+        {
+            exception = [ex retain];
+        }
+        @finally
+        {
+            [c release];
+        }
     }
 
     if(exception != nil)
     {
         rethrowCxxException(exception, true); // True = release the exception.
     }
-    
+
     cb->ice_response(ok, std::make_pair((ICEByte*)[outE bytes], (ICEByte*)[outE bytes] + [outE length]));
     [outE release];
 }
@@ -245,10 +246,10 @@ ICEInternalCheckModeAndSelector(id target, ICEOperationMode expected, SEL sel, I
     {
         if(expected == ICEIdempotent && received == ICENonmutating)
         {
-            // 
+            //
             // Fine: typically an old client still using the deprecated nonmutating keyword
             //
-            
+
             //
             // Note that expected == Nonmutating and received == Idempotent is not ok:
             // the server may still use the deprecated nonmutating keyword to detect updates
@@ -258,17 +259,17 @@ ICEInternalCheckModeAndSelector(id target, ICEOperationMode expected, SEL sel, I
         else
         {
             ICEMarshalException* ex = [ICEMarshalException marshalException:__FILE__ line:__LINE__];
-            [ex setReason_:[NSString stringWithFormat:@"unexpected operation mode. expected = %@ received=%@", 
-                                     operationModeToString(expected), operationModeToString(received)]]; 
+            [ex setReason_:[NSString stringWithFormat:@"unexpected operation mode. expected = %@ received=%@",
+                                     operationModeToString(expected), operationModeToString(received)]];
             @throw ex;
         }
     }
 
     if(![target respondsToSelector:sel])
     {
-        @throw [ICEOperationNotExistException operationNotExistException:__FILE__ 
-                                              line:__LINE__ 
-                                              id:current.id_ 
+        @throw [ICEOperationNotExistException operationNotExistException:__FILE__
+                                              line:__LINE__
+                                              id:current.id_
                                               facet:current.facet
                                               operation:current.operation];
     }
@@ -518,9 +519,9 @@ static NSString* ICEObject_all__[4] =
     case 3:
         return [ICEServant ice_ping___:self current:current is:is os:os];
     default:
-        @throw [ICEOperationNotExistException requestFailedException:__FILE__ 
-                                              line:__LINE__ 
-                                              id:current.id_ 
+        @throw [ICEOperationNotExistException requestFailedException:__FILE__
+                                              line:__LINE__
+                                              id:current.id_
                                               facet:current.facet
                                               operation:current.operation];
     }
@@ -564,9 +565,9 @@ static NSString* ICEObject_all__[4] =
             //
             // NOTE: IceObjC::ObjectI implements it own reference counting and there's no need
             // to call __incRef/__decRef here. The C++ object and Objective-C object are sharing
-            // the same reference count (the one of the Objective-C object). This is necessary 
-            // to properly release both objects when there's either no more C++ handle/ObjC 
-            // reference to the object (without this, servants added to the object adapter 
+            // the same reference count (the one of the Objective-C object). This is necessary
+            // to properly release both objects when there's either no more C++ handle/ObjC
+            // reference to the object (without this, servants added to the object adapter
             // couldn't be retained or released easily).
             //
             object__ = static_cast<IceObjC::ObjectWrapper*>(new ObjectI(self));
@@ -586,9 +587,9 @@ static NSString* ICEObject_all__[4] =
             //
             // NOTE: IceObjC::ObjectI implements it own reference counting and there's no need
             // to call __incRef/__decRef here. The C++ object and Objective-C object are sharing
-            // the same reference count (the one of the Objective-C object). This is necessary 
-            // to properly release both objects when there's either no more C++ handle/ObjC 
-            // reference to the object (without this, servants added to the object adapter 
+            // the same reference count (the one of the Objective-C object). This is necessary
+            // to properly release both objects when there's either no more C++ handle/ObjC
+            // reference to the object (without this, servants added to the object adapter
             // couldn't be retained or released easily).
             //
             object__ = static_cast<IceObjC::ObjectWrapper*>(new BlobjectI(self));
@@ -641,7 +642,7 @@ static NSString* ICEObject_all__[4] =
 }
 -(oneway void) release
 {
-    @synchronized([ICEObjectWrapper class])  
+    @synchronized([ICEObjectWrapper class])
     {
         if(NSDecrementExtraRefCountWasZero(self))
         {

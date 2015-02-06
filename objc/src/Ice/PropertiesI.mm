@@ -247,7 +247,22 @@ public:
     void
     updated(const Ice::PropertyDict& properties)
     {
-        [_callback updated:[toNSDictionary(properties) autorelease]];
+        NSException* ex = nil;
+        @autoreleasepool
+        {
+            @try
+            {
+                [_callback updated:[toNSDictionary(properties) autorelease]];
+            }
+            @catch(id e)
+            {
+                ex = [e retain];
+            }
+        }
+        if(ex != nil)
+        {
+            rethrowCxxException(ex, true); // True = release the exception.
+        }
     }
 
     id<ICEPropertiesAdminUpdateCallback>

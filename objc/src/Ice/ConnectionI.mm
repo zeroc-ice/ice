@@ -106,26 +106,42 @@ public:
     void
     heartbeat(const Ice::ConnectionPtr& connection)
     {
-        @try
+        NSException* ex = nil;
+        @autoreleasepool
         {
-            [_callback heartbeat:_connection];
+            @try
+            {
+                [_callback heartbeat:_connection];
+            }
+            @catch(id e)
+            {
+                ex = [e retain];
+            }
         }
-        @catch(id ex)
+        if(ex != nil)
         {
-            rethrowCxxException(ex);
+            rethrowCxxException(ex, true); // True = release the exception.
         }
     }
 
     void
     closed(const Ice::ConnectionPtr& connection)
     {
-        @try
+        NSException* ex = nil;
+        @autoreleasepool
         {
-            [_callback closed:_connection];
+            @try
+            {
+                [_callback closed:_connection];
+            }
+            @catch(id e)
+            {
+                ex = [e retain];
+            }
         }
-        @catch(id ex)
+        if(ex != nil)
         {
-            rethrowCxxException(ex);
+            rethrowCxxException(ex, true); // True = release the exception.
         }
     }
 

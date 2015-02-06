@@ -10,6 +10,7 @@
 #import <objc/Ice.h>
 #import <dispatcher/TestI.h>
 #import <TestCommon.h>
+#include <dispatch/dispatch.h>
 
 static int
 run(id<ICECommunicator> communicator)
@@ -53,6 +54,10 @@ main(int argc, char* argv[])
         {
             ICEInitializationData* initData = [ICEInitializationData initializationData];
             initData.properties = defaultServerProperties(&argc, argv);
+            dispatch_queue_t queue = dispatch_queue_create("Dispatcher", DISPATCH_QUEUE_SERIAL);
+            initData.dispatcher = ^(id<ICEDispatcherCall> call, id<ICEConnection> con) {
+                dispatch_sync(queue, ^ { [call run]; });
+            };
 #if TARGET_OS_IPHONE
             initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:
                                       @"TestDispatcher", @"::Test",

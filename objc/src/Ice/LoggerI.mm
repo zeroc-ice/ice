@@ -32,77 +32,109 @@ virtual ~LoggerWrapperI()
     CFRelease(_logger);
 }
 
-virtual void 
+virtual void
 print(const std::string& msg)
 {
-    NSString* s = toNSString(msg);
-    @try
+    NSException* ex = nil;
+    @autoreleasepool
     {
-        [_logger print:s];
+        NSString* s = toNSString(msg);
+        @try
+        {
+            [_logger print:s];
+        }
+        @catch(id e)
+        {
+            ex = [e retain];
+        }
+        @finally
+        {
+            [s release];
+        }
     }
-    @catch(id ex)
+    if(ex != nil)
     {
-        rethrowCxxException(ex);
-    }
-    @finally
-    {
-        [s release];
+        rethrowCxxException(ex, true); // True = release the exception.
     }
 }
 
-virtual void 
+virtual void
 trace(const std::string& category, const std::string& msg)
 {
-    NSString* s1 = toNSString(category);
-    NSString* s2 = toNSString(msg);
-    @try
+    NSException* ex = nil;
+    @autoreleasepool
     {
-        [_logger trace:s1 message:s2];
+        NSString* s1 = toNSString(category);
+        NSString* s2 = toNSString(msg);
+        @try
+        {
+            [_logger trace:s1 message:s2];
+        }
+        @catch(id e)
+        {
+            ex = [e retain];
+        }
+        @finally
+        {
+            [s1 release];
+            [s2 release];
+        }
     }
-    @catch(id ex)
+    if(ex != nil)
     {
-        rethrowCxxException(ex);
-    }
-    @finally
-    {
-        [s1 release];
-        [s2 release];
+        rethrowCxxException(ex, true); // True = release the exception.
     }
 }
 
-virtual void 
+virtual void
 warning(const std::string& msg)
 {
-    NSString* s = toNSString(msg);
-    @try
+    NSException* ex = nil;
+    @autoreleasepool
     {
-        [_logger warning:s];
+        NSString* s = toNSString(msg);
+        @try
+        {
+            [_logger warning:s];
+        }
+        @catch(id e)
+        {
+            ex = [e retain];
+        }
+        @finally
+        {
+            [s release];
+        }
     }
-    @catch(id ex)
+    if(ex != nil)
     {
-        rethrowCxxException(ex);
-    }
-    @finally
-    {
-        [s release];
+        rethrowCxxException(ex, true); // True = release the exception.
     }
 }
 
-virtual void 
+virtual void
 error(const std::string& msg)
 {
-    NSString* s = toNSString(msg);
-    @try
+    NSException* ex = nil;
+    @autoreleasepool
     {
-        [_logger error:s];
+        NSString* s = toNSString(msg);
+        @try
+        {
+            [_logger error:s];
+        }
+        @catch(id e)
+        {
+            ex = [e retain];
+        }
+        @finally
+        {
+            [s release];
+        }
     }
-    @catch(id ex)
+    if(ex != nil)
     {
-        rethrowCxxException(ex);
-    }
-    @finally
-    {
-        [s release];
+        rethrowCxxException(ex, true); // True = release the exception.
     }
 }
 
@@ -259,7 +291,7 @@ typedef IceUtil::Handle<LoggerWrapperI> LoggerWrapperIPtr;
 
 -(void) warning:(NSString*)message
 {
-    NSString* s = [[NSString alloc] initWithFormat:@"%@warning: %@", self->formattedPrefix_, message]; 
+    NSString* s = [[NSString alloc] initWithFormat:@"%@warning: %@", self->formattedPrefix_, message];
     [self print:s];
     [s release];
 }

@@ -23,7 +23,6 @@
 #include <Block.h>
 
 #import <objc/runtime.h>
-#import <Foundation/NSAutoreleasePool.h>
 
 namespace
 {
@@ -47,36 +46,34 @@ virtual ~AsyncCallback()
 void completed(const Ice::AsyncResultPtr& result)
 {
     NSException* exception = nil;
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-    @try
+    @autoreleasepool
     {
-        try
+        @try
         {
-            _completed(result);
-        }
-        catch(const Ice::Exception& ex)
-        {
-            @try
+            try
             {
-                NSException* nsex = toObjCException(ex);
-                @throw nsex;
+                _completed(result);
             }
-            @catch(ICEException* e)
+            catch(const Ice::Exception& ex)
             {
-                if(_exception)
+                @try
                 {
-                    _exception(e);
+                    NSException* nsex = toObjCException(ex);
+                    @throw nsex;
+                }
+                @catch(ICEException* e)
+                {
+                    if(_exception)
+                    {
+                        _exception(e);
+                    }
                 }
             }
         }
-    }
-    @catch(NSException* e)
-    {
-        exception = [e retain];
-    }
-    @finally
-    {
-        [pool drain];
+        @catch(NSException* e)
+        {
+            exception = [e retain];
+        }
     }
 
     if(exception != nil)
@@ -284,7 +281,7 @@ toObjCException(const std::exception& ex)
                                        reason:[NSString stringWithUTF8String:iaex->reason().c_str()]
                                      userInfo:nil];
     }
-    
+
     const IceObjC::Exception* objCEx = dynamic_cast<const IceObjC::Exception*>(&ex);
     if(objCEx)
     {
@@ -450,7 +447,7 @@ fromObjC(id object, Ice::EndpointPtr& endpoint)
     endpoint = object == [NSNull null] ? 0 : [object endpoint];
 }
 
-ICEObject* 
+ICEObject*
 toObjC(const Ice::ObjectPtr& object)
 {
     if(!object)

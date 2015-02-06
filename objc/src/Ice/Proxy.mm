@@ -32,7 +32,6 @@
 
 #import <Foundation/NSThread.h>
 #import <Foundation/NSInvocation.h>
-#import <Foundation/NSAutoreleasePool.h>
 
 #include <Block.h>
 
@@ -115,35 +114,36 @@ void completed(const Ice::AsyncResultPtr& result)
     }
 
     NSException* exception = nil;
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-    @try
+    @autoreleasepool
     {
-        if(nsex != nil)
+        @try
         {
-            @try
+            if(nsex != nil)
             {
-                @throw nsex;
-            }
-            @catch(ICEException* ex)
-            {
-                if(_exception)
+                @try
                 {
-                    _exception(ex);
+                    @throw nsex;
                 }
-                return;
+                @catch(ICEException* ex)
+                {
+                    if(_exception)
+                    {
+                        _exception(ex);
+                    }
+                    return;
+                }
             }
-        }
 
-        _completed(is, ok);
-    }
-    @catch(id e)
-    {
-        exception = [e retain];
-    }
-    @finally
-    {
-        [is release];
-        [pool drain];
+            _completed(is, ok);
+        }
+        @catch(id e)
+        {
+            exception = [e retain];
+        }
+        @finally
+        {
+            [is release];
+        }
     }
 
     if(exception != nil)
@@ -159,19 +159,17 @@ void sent(const Ice::AsyncResultPtr& result)
         return;
     }
 
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     NSException* exception = nil;
-    @try
+    @autoreleasepool
     {
-        _sent(result->sentSynchronously());
-    }
-    @catch(id e)
-    {
-        exception = [e retain];
-    }
-    @finally
-    {
-        [pool drain];
+        @try
+        {
+            _sent(result->sentSynchronously());
+        }
+        @catch(id e)
+        {
+            exception = [e retain];
+        }
     }
 
     if(exception != nil)

@@ -32,19 +32,30 @@ virtual ~DispatcherI()
     Block_release(_dispatcher);
 }
 
-virtual void 
+virtual void
 dispatch(const Ice::DispatcherCallPtr& call, const Ice::ConnectionPtr& connection)
 {
-    id<ICEConnection> con = [ICEConnection localObjectWithCxxObjectNoAutoRelease:connection.get()];
-    id<ICEDispatcherCall> c = [[ICEDispatcherCall alloc] initWithCall:call.get()];
-    @try
+    NSException* ex = nil;
+    @autoreleasepool
     {
-        _dispatcher(c, con);
+        id<ICEConnection> con = [ICEConnection localObjectWithCxxObject:connection.get()];
+        id<ICEDispatcherCall> c = [[ICEDispatcherCall alloc] initWithCall:call.get()];
+        @try
+        {
+            _dispatcher(c, con);
+        }
+        @catch(id e)
+        {
+            ex = [e retain];
+        }
+        @finally
+        {
+            [c release];
+        }
     }
-    @finally
+    if(ex != nil)
     {
-        [con release];
-        [c release];
+        rethrowCxxException(ex, true); // True = release the exception.
     }
 }
 
