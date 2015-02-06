@@ -107,7 +107,12 @@ PluginI::initialize()
     try
     {
         // Ensure we can establish a connection to the multicast proxy
-        lookupPrx->ice_getConnection();
+        // but don't block.
+        Ice::AsyncResultPtr result = lookupPrx->begin_ice_getConnection();
+        if(result->sentSynchronously())
+        {
+            lookupPrx->end_ice_getConnection(result);
+        }
     }
     catch(const Ice::LocalException& ex)
     {

@@ -214,7 +214,13 @@ PluginI::initialize()
     lookupPrx = lookupPrx->ice_collocationOptimized(false); // No collocation optimization for the multicast proxy!
     try
     {
-        lookupPrx->ice_getConnection(); // Ensure we can establish a connection to the multicast proxy
+        // Ensure we can establish a connection to the multicast proxy
+        // but don't block.
+        Ice::AsyncResultPtr result = lookupPrx->begin_ice_getConnection();
+        if(result->sentSynchronously())
+        {
+            lookupPrx->end_ice_getConnection(result);
+        }
     }
     catch(const Ice::LocalException& ex)
     {
