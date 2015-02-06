@@ -595,6 +595,7 @@ private:
 }
 -(id<ICEObjectPrx>) createAdmin:(id<ICEObjectAdapter>)adapter adminId:(ICEIdentity*)adminId
 {
+    NSException* nsex;
     try
     {
         Ice::ObjectAdapterPtr adminAdapter = [(ICEObjectAdapter*)adapter adapter];
@@ -602,22 +603,26 @@ private:
     }
     catch(const std::exception& ex)
     {
-        @throw toObjCException(ex);
+        nsex = toObjCException(ex);
     }
+    @throw nsex;
 }
 -(id<ICEObjectPrx>) getAdmin
 {
+    NSException* nsex;
     try
     {
         return [ICEObjectPrx objectPrxWithObjectPrx__:COMMUNICATOR->getAdmin()];
     }
     catch(const std::exception& ex)
     {
-        @throw toObjCException(ex);
+        nsex = toObjCException(ex);
     }
+    @throw nsex;
 }
 -(void) addAdminFacet:(ICEObject*)servant facet:(NSString*)facet
 {
+    NSException* nsex;
     try
     {
         COMMUNICATOR->addAdminFacet([servant object__], fromNSString(facet));
@@ -629,11 +634,13 @@ private:
     }
     catch(const std::exception& ex)
     {
-        @throw toObjCException(ex);
+        nsex = toObjCException(ex);
     }
+    @throw nsex;
 }
 -(ICEObject*) removeAdminFacet:(NSString*)facet
 {
+    NSException* nsex;
     try
     {
         @synchronized(adminFacets_)
@@ -644,11 +651,13 @@ private:
     }
     catch(const std::exception& ex)
     {
-        @throw toObjCException(ex);
+        nsex = toObjCException(ex);
     }
+    @throw nsex;
 }
 -(ICEObject*) findAdminFacet:(NSString*)facet
 {
+    NSException* nsex;
     try
     {
         @synchronized(adminFacets_)
@@ -668,11 +677,13 @@ private:
     }
     catch(const std::exception& ex)
     {
-        @throw toObjCException(ex);
+        nsex = toObjCException(ex);
     }
+    @throw nsex;
 }
 -(ICEMutableFacetMap*) findAllAdminFacets
 {
+    NSException* nsex;
     try
     {
         ICEMutableFacetMap* facetMap = toNSDictionary(COMMUNICATOR->findAllAdminFacets());
@@ -684,7 +695,8 @@ private:
     }
     catch(const std::exception& ex)
     {
-        @throw toObjCException(ex);
+        nsex = toObjCException(ex);
     }
+    @throw nsex;
 }
 @end
