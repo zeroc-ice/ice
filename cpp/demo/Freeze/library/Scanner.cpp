@@ -520,12 +520,12 @@ char *yytext;
 // The result of fread() is a size_t and gets inserted into an int
 //
 #   pragma warning( disable : 4267)
+#endif
 //
 // 'initializing' : conversion from '__int64' to 'int', possible loss of data
 // Puts a pointer-difference into an int
 //
 #   pragma warning( disable : 4244)
-#endif
 //
 // conditional expression is constant
 //
