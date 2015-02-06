@@ -72,6 +72,7 @@ class StreamEndpointFactory : public EndpointFactory
 {
 public:
 
+    StreamEndpointFactory(const ProtocolInstancePtr&);
     virtual ~StreamEndpointFactory();
 
     virtual Ice::Short type() const;
@@ -83,9 +84,6 @@ public:
     virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&) const;
 
 private:
-
-    StreamEndpointFactory(const ProtocolInstancePtr&);
-    friend class Instance;
 
     ProtocolInstancePtr _instance;
 };

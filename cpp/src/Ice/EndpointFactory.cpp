@@ -8,6 +8,8 @@
 // **********************************************************************
 
 #include <Ice/EndpointFactory.h>
+#include <Ice/Instance.h>
+#include <Ice/EndpointFactoryManager.h>
 
 using namespace std;
 using namespace Ice;
@@ -23,3 +25,19 @@ IceInternal::EndpointFactory::~EndpointFactory()
 {
 }
 
+IceInternal::EndpointFactoryPlugin::EndpointFactoryPlugin(const CommunicatorPtr& communicator,
+                                                          const EndpointFactoryPtr& factory)
+{
+    assert(communicator);
+    getInstance(communicator)->endpointFactoryManager()->add(factory);
+}
+
+void
+IceInternal::EndpointFactoryPlugin::initialize()
+{
+}
+
+void
+IceInternal::EndpointFactoryPlugin::destroy()
+{
+}

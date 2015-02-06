@@ -888,19 +888,12 @@ namespace IceInternal
                 _networkProxy = createNetworkProxy(_initData.properties, _protocolSupport);
 
                 _endpointFactoryManager = new EndpointFactoryManager(this);
-                ProtocolInstance tcpProtocolInstance =
-                    new ProtocolInstance(this, Ice.TCPEndpointType.value, "tcp", false);
-                EndpointFactory tcpEndpointFactory = new TcpEndpointFactory(tcpProtocolInstance);
-                _endpointFactoryManager.add(tcpEndpointFactory);
 
-                ProtocolInstance udpProtocolInstance =
-                    new ProtocolInstance(this, Ice.UDPEndpointType.value, "udp", false);
-                EndpointFactory udpEndpointFactory = new UdpEndpointFactory(udpProtocolInstance);
-                _endpointFactoryManager.add(udpEndpointFactory);
+                ProtocolInstance tcpInstance = new ProtocolInstance(this, Ice.TCPEndpointType.value, "tcp", false);
+                _endpointFactoryManager.add(new TcpEndpointFactory(tcpInstance));
 
-                ProtocolInstance wsProtocolInstance = new ProtocolInstance(this, Ice.WSEndpointType.value, "ws", false);
-                _endpointFactoryManager.add(new WSEndpointFactory(wsProtocolInstance,
-                                                                  tcpEndpointFactory.clone(wsProtocolInstance)));
+                ProtocolInstance udpInstance = new ProtocolInstance(this, Ice.UDPEndpointType.value, "udp", false);
+                _endpointFactoryManager.add(new UdpEndpointFactory(udpInstance));
 
 #if !SILVERLIGHT
                 _pluginManager = new Ice.PluginManagerI(communicator);
@@ -931,6 +924,23 @@ namespace IceInternal
             Ice.PluginManagerI pluginManagerImpl = (Ice.PluginManagerI)_pluginManager;
             pluginManagerImpl.loadPlugins(ref args);
 #endif
+
+            //
+            // Add WS and WSS endpoint factories if TCP/SSL factories are installed.
+            //
+            EndpointFactory tcpFactory = _endpointFactoryManager.get(Ice.TCPEndpointType.value);
+            if(tcpFactory != null)
+            {
+                ProtocolInstance instance = new ProtocolInstance(this, Ice.WSEndpointType.value, "ws", false);
+                _endpointFactoryManager.add(new WSEndpointFactory(instance, tcpFactory.clone(instance)));
+            }
+            EndpointFactory sslFactory = _endpointFactoryManager.get(Ice.SSLEndpointType.value);
+            if(sslFactory != null)
+            {
+                ProtocolInstance instance = new ProtocolInstance(this, Ice.WSSEndpointType.value, "wss", true);
+                _endpointFactoryManager.add(new WSEndpointFactory(instance, sslFactory.clone(instance)));
+            }
+
             //
             // Create Admin facets, if enabled.
             //
@@ -1064,7 +1074,8 @@ namespace IceInternal
             //
             if(_referenceFactory.getDefaultRouter() == null)
             {
-                Ice.RouterPrx r = Ice.RouterPrxHelper.uncheckedCast(_proxyFactory.propertyToProxy("Ice.Default.Router"));
+                Ice.RouterPrx r = Ice.RouterPrxHelper.uncheckedCast(
+                    _proxyFactory.propertyToProxy("Ice.Default.Router"));
                 if(r != null)
                 {
                     _referenceFactory = _referenceFactory.setDefaultRouter(r);
@@ -1073,7 +1084,8 @@ namespace IceInternal
 
             if(_referenceFactory.getDefaultLocator() == null)
             {
-                Ice.LocatorPrx l = Ice.LocatorPrxHelper.uncheckedCast(_proxyFactory.propertyToProxy("Ice.Default.Locator"));
+                Ice.LocatorPrx l = Ice.LocatorPrxHelper.uncheckedCast(
+                    _proxyFactory.propertyToProxy("Ice.Default.Locator"));
                 if(l != null)
                 {
                     _referenceFactory = _referenceFactory.setDefaultLocator(l);

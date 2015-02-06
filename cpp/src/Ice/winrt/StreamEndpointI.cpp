@@ -25,6 +25,25 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+extern "C"
+{
+
+Plugin*
+createIceTCP(const CommunicatorPtr& com, const string&, const StringSeq&)
+{
+    ProtocolInstancePtr instance = new ProtocolInstance(com, TCPEndpointType, "tcp", false);
+    return new EndpointFactoryPlugin(com, new StreamEndpointFactory(instance));
+}
+
+Plugin*
+createIceSSL(const CommunicatorPtr& com, const string&, const StringSeq&)
+{
+    ProtocolInstancePtr instance = new ProtocolInstance(com, SSLEndpointType, "ssl", true);
+    return new EndpointFactoryPlugin(com, new StreamEndpointFactory(instance));
+}
+
+}
+
 namespace
 {
 

@@ -28,6 +28,13 @@ const short TCPEndpointType = 1;
 
 /**
  *
+ * Uniquely identifies SSL endpoints.
+ *
+ **/
+const short SSLEndpointType = 2;
+
+/**
+ *
  * Uniquely identifies UDP endpoints.
  *
  **/

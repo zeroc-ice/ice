@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/DisableWarnings.h>
+
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/DefaultsAndOverrides.h>
@@ -26,25 +27,28 @@
 #include <Ice/PropertiesI.h>
 #include <Ice/PropertiesAdminI.h>
 #include <Ice/LoggerI.h>
-#include <Ice/Network.h>
 #include <Ice/NetworkProxy.h>
 #include <Ice/EndpointFactoryManager.h>
+#include <Ice/IPEndpointI.h> // For EndpointHostResolver
+#include <Ice/WSEndpoint.h>
 #include <Ice/RequestHandlerFactory.h>
 #include <Ice/RetryQueue.h>
 #include <Ice/DynamicLibrary.h>
 #include <Ice/PluginManagerI.h>
 #include <Ice/Initialize.h>
 #include <Ice/LoggerUtil.h>
-#include <IceUtil/StringUtil.h>
 #include <Ice/PropertiesI.h>
 #include <Ice/Communicator.h>
 #include <Ice/InstrumentationI.h>
 #include <Ice/ProtocolInstance.h>
 #include <Ice/LoggerAdminI.h>
+#include <Ice/RegisterPlugins.h>
+#include <Ice/ObserverHelper.h>
+
+#include <IceUtil/StringUtil.h>
 #include <IceUtil/UUID.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
-#include <Ice/ObserverHelper.h>
 
 #include <stdio.h>
 #include <list>
@@ -61,17 +65,6 @@
 #if defined(__linux) || defined(__sun)
 #   include <grp.h> // for initgroups
 #endif
-
-#include <Ice/UdpEndpointI.h>
-
-#ifndef ICE_OS_WINRT
-#   include <Ice/TcpEndpointI.h>
-#else
-#   include <IceSSL/EndpointInfo.h> // For IceSSL::EndpointType
-#   include <Ice/winrt/StreamEndpointI.h>
-#endif
-
-#include <Ice/WSEndpoint.h>
 
 using namespace std;
 using namespace Ice;
@@ -167,6 +160,11 @@ public:
 };
 
 Init init;
+
+//
+// Static initializer to register plugins.
+//
+IceInternal::RegisterPluginsInit initPlugins;
 
 }
 
@@ -1343,33 +1341,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         _networkProxy = IceInternal::createNetworkProxy(_initData.properties, _protocolSupport);
 
         _endpointFactoryManager = new EndpointFactoryManager(this);
-#ifndef ICE_OS_WINRT
-        ProtocolInstancePtr tcpProtocolInstance = new ProtocolInstance(this, TCPEndpointType, "tcp", false);
-        EndpointFactoryPtr tcpEndpointFactory = new TcpEndpointFactory(tcpProtocolInstance);
-        _endpointFactoryManager->add(tcpEndpointFactory);
-#else
-        ProtocolInstancePtr tcpProtocolInstance = new ProtocolInstance(this, TCPEndpointType, "tcp", false);
-        EndpointFactoryPtr tcpEndpointFactory = new StreamEndpointFactory(tcpProtocolInstance);
-        _endpointFactoryManager->add(tcpEndpointFactory);
-
-        ProtocolInstancePtr sslProtocolInstance = new ProtocolInstance(this, IceSSL::EndpointType, "ssl", true);
-        EndpointFactoryPtr sslEndpointFactory = new StreamEndpointFactory(sslProtocolInstance);
-        _endpointFactoryManager->add(sslEndpointFactory);
-
-        ProtocolInstancePtr wssProtocolInstance = new ProtocolInstance(this, WSSEndpointType, "wss", true);
-        EndpointFactoryPtr wssEndpointFactory = new WSEndpointFactory(wssProtocolInstance,
-                                                                      sslEndpointFactory->clone(wssProtocolInstance));
-        _endpointFactoryManager->add(wssEndpointFactory);
-#endif
-        ProtocolInstancePtr udpProtocolInstance = new ProtocolInstance(this, UDPEndpointType, "udp", false);
-        EndpointFactoryPtr udpEndpointFactory = new UdpEndpointFactory(udpProtocolInstance);
-        _endpointFactoryManager->add(udpEndpointFactory);
-
-        ProtocolInstancePtr wsProtocolInstance = new ProtocolInstance(this, WSEndpointType, "ws", false);
-        EndpointFactoryPtr wsEndpointFactory = new WSEndpointFactory(wsProtocolInstance,
-                                                                     tcpEndpointFactory->clone(wsProtocolInstance));
-
-        _endpointFactoryManager->add(wsEndpointFactory);
 
         _dynamicLibraryList = new DynamicLibraryList;
 
@@ -1458,6 +1429,22 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
     PluginManagerI* pluginManagerImpl = dynamic_cast<PluginManagerI*>(_pluginManager.get());
     assert(pluginManagerImpl);
     pluginManagerImpl->loadPlugins(argc, argv);
+
+    //
+    // Add WS and WSS endpoint factories if TCP/SSL factories are installed.
+    //
+    EndpointFactoryPtr tcpFactory = _endpointFactoryManager->get(TCPEndpointType);
+    if(tcpFactory)
+    {
+        ProtocolInstancePtr instance = new ProtocolInstance(communicator, WSEndpointType, "ws", false);
+        _endpointFactoryManager->add(new WSEndpointFactory(instance, tcpFactory->clone(instance)));
+    }
+    EndpointFactoryPtr sslFactory = _endpointFactoryManager->get(SSLEndpointType);
+    if(sslFactory)
+    {
+        ProtocolInstancePtr instance = new ProtocolInstance(communicator, WSSEndpointType, "wss", true);
+        _endpointFactoryManager->add(new WSEndpointFactory(instance, sslFactory->clone(instance)));
+    }
 
     //
     // Reset _stringConverter and _wstringConverter, in case a plugin changed them

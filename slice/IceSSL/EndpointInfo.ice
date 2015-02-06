@@ -27,7 +27,9 @@ module IceSSL
  * Uniquely identifies SSL endpoints.
  *
  **/
-const short EndpointType = 2;
+#ifndef __SLICE2OBJC__ // In Objective-C, Ice::SSLEndpointType is already mapped to ICESSLEndpointType
+const short EndpointType = Ice::SSLEndpointType;
+#endif
 
 /**
  *

@@ -14,6 +14,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/IPEndpointI.h>
 #include <Ice/HashUtil.h>
+#include <Ice/EndpointFactoryManager.h>
 
 using namespace std;
 using namespace Ice;
@@ -26,8 +27,8 @@ IceInternal::WSEndpoint::WSEndpoint(const ProtocolInstancePtr& instance, const E
 {
 }
 
-IceInternal::WSEndpoint::WSEndpoint(const ProtocolInstancePtr& instance, const EndpointIPtr& del, vector<string>& args) :
-    _instance(instance), _delegate(IPEndpointIPtr::dynamicCast(del))
+IceInternal::WSEndpoint::WSEndpoint(const ProtocolInstancePtr& inst, const EndpointIPtr& del, vector<string>& args) :
+    _instance(inst), _delegate(IPEndpointIPtr::dynamicCast(del))
 {
     initWithOptions(args);
 

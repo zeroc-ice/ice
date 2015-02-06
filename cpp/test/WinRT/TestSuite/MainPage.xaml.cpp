@@ -875,7 +875,7 @@ MainPage::btnStop_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEvent
 {
     _loop->IsChecked = false;
     _stop->IsEnabled = false;
-    _stop->Content = "Wainting for test to finish...";
+    _stop->Content = "Waiting for test to finish...";
 }
 
 Ice::CommunicatorPtr

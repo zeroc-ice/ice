@@ -14,6 +14,8 @@
 #include <Ice/EndpointIF.h>
 #include <Ice/EndpointFactoryF.h>
 #include <Ice/ProtocolInstanceF.h>
+#include <Ice/CommunicatorF.h>
+#include <Ice/Plugin.h>
 
 namespace IceInternal
 {
@@ -37,6 +39,16 @@ public:
 protected:
 
     EndpointFactory();
+};
+
+class ICE_API EndpointFactoryPlugin : public Ice::Plugin
+{
+public:
+
+    EndpointFactoryPlugin(const Ice::CommunicatorPtr&, const EndpointFactoryPtr&);
+
+    virtual void initialize();
+    virtual void destroy();
 };
 
 }

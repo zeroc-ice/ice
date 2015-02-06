@@ -119,16 +119,23 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\WSConnector.obj \
 		  $(ARCH)\$(CONFIG)\WSEndpoint.obj \
 		  $(ARCH)\$(CONFIG)\WSTransceiver.obj \
-		  $(ARCH)\$(CONFIG)\HttpParser.obj
+		  $(ARCH)\$(CONFIG)\HttpParser.obj \
+		  $(ARCH)\$(CONFIG)\IceDiscovery\IceDiscovery.obj \
+		  $(ARCH)\$(CONFIG)\IceDiscovery\LookupI.obj \
+		  $(ARCH)\$(CONFIG)\IceDiscovery\LocatorI.obj \
+		  $(ARCH)\$(CONFIG)\IceDiscovery\PluginI.obj \
+		  $(ARCH)\$(CONFIG)\IceLocatorDiscovery\IceLocatorDiscovery.obj \
+		  $(ARCH)\$(CONFIG)\IceLocatorDiscovery\PluginI.obj
 
-LOCAL_OBJS	= $(ARCH)\$(CONFIG)\StreamAcceptor.obj \
+LOCAL_OBJS	= $(ARCH)\$(CONFIG)\RegisterPlugins.obj \
+		  $(ARCH)\$(CONFIG)\StreamAcceptor.obj \
 		  $(ARCH)\$(CONFIG)\StreamConnector.obj \
 		  $(ARCH)\$(CONFIG)\StreamEndpointI.obj \
 		  $(ARCH)\$(CONFIG)\StreamTransceiver.obj \
 		  $(ARCH)\$(CONFIG)\EndpointInfo.obj \
 		  $(ARCH)\$(CONFIG)\ConnectionInfo.obj \
 
-SLICE_CORE_SRCS	= Ice\BuiltinSequences.ice \
+SLICE_SRCS	= Ice\BuiltinSequences.ice \
 		  Ice\CommunicatorF.ice \
 		  Ice\Communicator.ice \
 		  Ice\ConnectionF.ice \
@@ -165,13 +172,11 @@ SLICE_CORE_SRCS	= Ice\BuiltinSequences.ice \
 		  Ice\SliceChecksumDict.ice \
 		  Ice\Version.ice \
 		  Ice\Metrics.ice \
-		  Ice\Instrumentation.ice
-
-
-
-SLICE_SSL_SRCS	= IceSSL\EndpointInfo.ice \
-		  IceSSL\ConnectionInfo.ice
-
+		  Ice\Instrumentation.ice \
+		  IceSSL\EndpointInfo.ice \
+		  IceSSL\ConnectionInfo.ice \
+		  IceDiscovery\IceDiscovery.ice \
+		  IceLocatorDiscovery\IceLocatorDiscovery.ice
 
 SRCS		= $(OBJS:.obj=.cpp)
 SRCS		= $(SRCS:x86\=)
@@ -207,9 +212,10 @@ HDIR		= $(headerdir)\Ice
 SDIR		= $(slicedir)\Ice
 
 PDBNAME			= $(LIBNAME:.lib=.pdb)
-CPPFLAGS		= /Fd$(PDBNAME) -I..\.. $(CPPFLAGS) -DICE_API_EXPORTS -DWIN32_LEAN_AND_MEAN
-CORE_SLICE2CPPFLAGS	= --ice --include-dir Ice --dll-export ICE_API $(SLICE2CPPFLAGS)
-SSL_SLICE2CPPFLAGS 	= --ice --include-dir IceSSL --dll-export ICE_SSL_API $(SLICE2CPPFLAGS)
+CPPFLAGS		= /Fd$(PDBNAME) -I. -I..\.. $(CPPFLAGS) -DICE_API_EXPORTS -DWIN32_LEAN_AND_MEAN
+SLICE2CPPFLAGS		= --ice $(SLICE2CPPFLAGS)
+CORE_SLICE2CPPFLAGS	= --include-dir Ice --dll-export ICE_API $(SLICE2CPPFLAGS)
+SSL_SLICE2CPPFLAGS 	= --include-dir IceSSL --dll-export ICE_SSL_API $(SLICE2CPPFLAGS)
 
 !include $(top_srcdir)\config\Make.rules.mak
 
@@ -223,13 +229,41 @@ $(LIBNAME): $(LOCAL_OBJS) $(OBJS) sdks
 .cpp.d:
 	@if not exist "$(ARCH)\$(CONFIG)" mkdir $(ARCH)\$(CONFIG)
 	@echo Generating dependencies for $<
-	$(CXX) /E /Fo$(ARCH)\$(CONFIG)\ $(CPPFLAGS) $(CXXFLAGS) /showIncludes $< 1>$(*F).i 2>$(*F).d && \
+	@$(CXX) /E /Fo$(ARCH)\$(CONFIG)\ $(CPPFLAGS) $(CXXFLAGS) /showIncludes $< 1>$(*F).i 2>$(*F).d && \
 	cscript /NoLogo $(top_srcdir)\..\config\makedepend.vbs $(*F).cpp $(top_srcdir)
 	@del /q $(*F).d $(*F).i
 
 .cpp{$(ARCH)\$(CONFIG)\}.obj::
 	@if not exist "$(ARCH)\$(CONFIG)" mkdir $(ARCH)\$(CONFIG)
 	$(CXX) /c /Fo$(ARCH)\$(CONFIG)\ $(CPPFLAGS) $(CXXFLAGS) $<
+
+.cpp{$(ARCH)\$(CONFIG)\IceDiscovery\}.obj:: 
+	@if not exist "$(ARCH)\$(CONFIG)\IceDiscovery" mkdir $(ARCH)\$(CONFIG)\IceDiscovery
+	$(CXX) /c /Fo$(ARCH)\$(CONFIG)\IceDiscovery\ $(CPPFLAGS) $(CXXFLAGS) $<
+
+.cpp{$(ARCH)\$(CONFIG)\IceLocatorDiscovery\}.obj::
+	@if not exist "$(ARCH)\$(CONFIG)\IceLocatorDiscovery" mkdir $(ARCH)\$(CONFIG)\IceLocatorDiscovery
+	$(CXX) /c /Fo$(ARCH)\$(CONFIG)\IceLocatorDiscovery\ $(CPPFLAGS) $(CXXFLAGS) $<
+
+{..\..\IceDiscovery\}.cpp{$(ARCH)\$(CONFIG)\IceDiscovery\}.obj::
+	@if not exist "$(ARCH)\$(CONFIG)\IceDiscovery" mkdir $(ARCH)\$(CONFIG)\IceDiscovery
+	$(CXX) /c /Fo$(ARCH)\$(CONFIG)\IceDiscovery\ $(CPPFLAGS) $(CXXFLAGS) $<
+
+{..\..\IceLocatorDiscovery\}.cpp{$(ARCH)\$(CONFIG)\IceLocatorDiscovery\}.obj::
+	@if not exist "$(ARCH)\$(CONFIG)\IceLocatorDiscovery" mkdir $(ARCH)\$(CONFIG)\IceLocatorDiscovery
+	$(CXX) /c /Fo$(ARCH)\$(CONFIG)\IceLocatorDiscovery\ $(CPPFLAGS) $(CXXFLAGS) $<
+
+.cpp{$(DEPEND_DIR)\IceDiscovery}.d:
+	@echo Generating dependencies for $<
+	@$(CXX) /E $(CPPFLAGS) $(CXXFLAGS) /showIncludes $< 1>$(*F).i 2>$(*F).d && \
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend.vbs $(*F).cpp $(top_srcdir)
+	@del /q $(*F).d $(*F).i
+
+.cpp{$(DEPEND_DIR)\IceLocatorDiscovery}.d:
+	@echo Generating dependencies for $<
+	@$(CXX) /E $(CPPFLAGS) $(CXXFLAGS) /showIncludes $< 1>$(*F).i 2>$(*F).d && \
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend.vbs $(*F).cpp $(top_srcdir)
+	@del /q $(*F).d $(*F).i
 
 {$(slicedir)\Ice\}.ice{Ice\}.d:
 	@echo Generating dependencies for $<
@@ -262,6 +296,40 @@ $(LIBNAME): $(LOCAL_OBJS) $(OBJS) sdks
 	del /q $(headerdir)\IceSSL\$(*F).h $(*F).cpp
 	"$(SLICE2CPP)" $(SSL_SLICE2CPPFLAGS) $<
 	move $(*F).h $(headerdir)\IceSSL
+
+{$(slicedir)\IceDiscovery\}.ice{IceDiscovery\}.d:
+	@echo Generating dependencies for $<
+	@"$(SLICE2CPP)" --include-dir IceDiscovery $(SLICE2CPPFLAGS) --depend $< | \
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice "..\"
+
+{$(slicedir)\IceDiscovery}.ice.cpp:
+	@if not exist "IceDiscovery" mkdir IceDiscovery
+	del /q IceDiscovery\$(*F).h $(*F).cpp
+	"$(SLICE2CPP)" --include-dir IceDiscovery $(SLICE2CPPFLAGS) $<
+	move $(*F).h IceDiscovery
+
+{$(slicedir)\IceDiscovery}.ice{IceDiscovery}.h:
+	@if not exist "IceDiscovery" mkdir IceDiscovery
+	del /q IceDiscovery\$(*F).h $(*F).cpp
+	"$(SLICE2CPP)" --include-dir IceDiscovery $(SLICE2CPPFLAGS) $<
+	move $(*F).h IceDiscovery
+
+{$(slicedir)\IceLocatorDiscovery\}.ice{IceLocatorDiscovery\}.d:
+	@echo Generating dependencies for $<
+	@"$(SLICE2CPP)" --include-dir IceLocatorDiscovery $(SLICE2CPPFLAGS) --depend $< | \
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice "..\"
+
+{$(slicedir)\IceLocatorDiscovery}.ice.cpp:
+	@if not exist "IceLocatorDiscovery" mkdir IceLocatorDiscovery
+	del /q IceLocatorDiscovery\$(*F).h $(*F).cpp
+	"$(SLICE2CPP)" --include-dir IceLocatorDiscovery $(SLICE2CPPFLAGS) $<
+	move $(*F).h IceLocatorDiscovery
+
+{$(slicedir)\IceLocatorDiscovery}.ice{IceLocatorDiscovery}.h:
+	@if not exist "IceLocatorDiscovery" mkdir IceLocatorDiscovery
+	del /q IceLocatorDiscovery\$(*F).h $(*F).cpp
+	"$(SLICE2CPP)" --include-dir IceLocatorDiscovery $(SLICE2CPPFLAGS) $<
+	move $(*F).h IceLocatorDiscovery
 
 clean::
 	-del /q $(SOURCE_DIR)\BuiltinSequences.cpp $(HDIR)\BuiltinSequences.h

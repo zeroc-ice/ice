@@ -24,6 +24,17 @@ using namespace IceInternal;
 
 IceUtil::Shared* IceInternal::upCast(UdpEndpointI* p) { return p; }
 
+extern "C"
+{
+
+Plugin*
+createIceUDP(const CommunicatorPtr& c, const string&, const StringSeq&)
+{
+    return new EndpointFactoryPlugin(c, new UdpEndpointFactory(new ProtocolInstance(c, UDPEndpointType, "udp", false)));
+}
+
+}
+
 IceInternal::UdpEndpointI::UdpEndpointI(const ProtocolInstancePtr& instance, const string& host, Int port,
                                         const Address& sourceAddr, const string& mcastInterface, Int mttl, bool conn,
                                         const string& conId, bool co) :

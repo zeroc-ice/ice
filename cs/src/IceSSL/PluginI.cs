@@ -45,14 +45,8 @@ namespace IceSSL
             // in initialize, because the communicator may need to interpret
             // proxies before the plug-in is fully initialized.
             //
-            IceInternal.EndpointFactory sslEndpointFactory = 
-                                    new EndpointFactoryI(new Instance(_engine, IceSSL.EndpointType.value, "ssl"));
-            facade.addEndpointFactory(sslEndpointFactory);
-            
-            IceInternal.ProtocolInstance wssProtocolInstance = 
-                                    new IceInternal.ProtocolInstance(communicator, Ice.WSSEndpointType.value, "wss", true);
-            facade.addEndpointFactory(new IceInternal.WSEndpointFactory(wssProtocolInstance, 
-                                                             sslEndpointFactory.clone(wssProtocolInstance)));
+            EndpointFactoryI factory  = new EndpointFactoryI(new Instance(_engine, IceSSL.EndpointType.value, "ssl"));
+            facade.addEndpointFactory(factory);
         }
 
         public override void initialize()

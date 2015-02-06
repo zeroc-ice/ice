@@ -2,7 +2,6 @@ SDK_HEADERS = \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Admin.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Config.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Descriptor.h \
- $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Discovery.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Exception.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\FileParser.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\IceGrid.h \

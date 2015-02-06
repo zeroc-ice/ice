@@ -71,6 +71,7 @@ class UdpEndpointFactory : public EndpointFactory
 {
 public:
 
+    UdpEndpointFactory(const ProtocolInstancePtr&);
     virtual ~UdpEndpointFactory();
 
     virtual Ice::Short type() const;
@@ -82,9 +83,6 @@ public:
     virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&) const;
 
 private:
-
-    UdpEndpointFactory(const ProtocolInstancePtr&);
-    friend class Instance;
 
     ProtocolInstancePtr _instance;
 };

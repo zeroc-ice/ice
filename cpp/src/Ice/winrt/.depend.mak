@@ -1,4 +1,214 @@
 
+..\BuiltinSequences.h: \
+    "$(slicedir)\Ice\BuiltinSequences.ice"
+
+..\CommunicatorF.h: \
+    "$(slicedir)\Ice\CommunicatorF.ice"
+
+..\Communicator.h: \
+    "$(slicedir)\Ice\Communicator.ice" \
+    "$(slicedir)/Ice/LoggerF.ice" \
+    "$(slicedir)/Ice/InstrumentationF.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/ObjectFactoryF.ice" \
+    "$(slicedir)/Ice/RouterF.ice" \
+    "$(slicedir)/Ice/LocatorF.ice" \
+    "$(slicedir)/Ice/PluginF.ice" \
+    "$(slicedir)/Ice/ImplicitContextF.ice" \
+    "$(slicedir)/Ice/Current.ice" \
+    "$(slicedir)/Ice/ConnectionF.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/Ice/Properties.ice" \
+    "$(slicedir)/Ice/PropertiesAdmin.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/FacetMap.ice"
+
+..\ConnectionF.h: \
+    "$(slicedir)\Ice\ConnectionF.ice"
+
+..\Connection.h: \
+    "$(slicedir)\Ice\Connection.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Endpoint.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/EndpointF.ice"
+
+..\Current.h: \
+    "$(slicedir)\Ice\Current.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/ConnectionF.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Version.ice"
+
+..\Endpoint.h: \
+    "$(slicedir)\Ice\Endpoint.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/EndpointF.ice"
+
+..\EndpointF.h: \
+    "$(slicedir)\Ice\EndpointF.ice"
+
+..\EndpointTypes.h: \
+    "$(slicedir)\Ice\EndpointTypes.ice"
+
+..\FacetMap.h: \
+    "$(slicedir)\Ice\FacetMap.ice"
+
+..\Identity.h: \
+    "$(slicedir)\Ice\Identity.ice"
+
+..\ImplicitContextF.h: \
+    "$(slicedir)\Ice\ImplicitContextF.ice"
+
+..\ImplicitContext.h: \
+    "$(slicedir)\Ice\ImplicitContext.ice" \
+    "$(slicedir)/Ice/LocalException.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/Current.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/ConnectionF.ice"
+
+..\LocalException.h: \
+    "$(slicedir)\Ice\LocalException.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
+
+..\LocatorF.h: \
+    "$(slicedir)\Ice\LocatorF.ice"
+
+..\Locator.h: \
+    "$(slicedir)\Ice\Locator.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/ProcessF.ice"
+
+..\LoggerF.h: \
+    "$(slicedir)\Ice\LoggerF.ice"
+
+..\Logger.h: \
+    "$(slicedir)\Ice\Logger.ice"
+
+..\ObjectAdapterF.h: \
+    "$(slicedir)\Ice\ObjectAdapterF.ice"
+
+..\ObjectAdapter.h: \
+    "$(slicedir)\Ice\ObjectAdapter.ice" \
+    "$(slicedir)/Ice/CommunicatorF.ice" \
+    "$(slicedir)/Ice/ServantLocatorF.ice" \
+    "$(slicedir)/Ice/LocatorF.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/FacetMap.ice" \
+    "$(slicedir)/Ice/Endpoint.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/EndpointF.ice"
+
+..\ObjectFactoryF.h: \
+    "$(slicedir)\Ice\ObjectFactoryF.ice"
+
+..\ObjectFactory.h: \
+    "$(slicedir)\Ice\ObjectFactory.ice"
+
+..\PluginF.h: \
+    "$(slicedir)\Ice\PluginF.ice"
+
+..\Plugin.h: \
+    "$(slicedir)\Ice\Plugin.ice" \
+    "$(slicedir)/Ice/LoggerF.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
+
+..\ProcessF.h: \
+    "$(slicedir)\Ice\ProcessF.ice"
+
+..\Process.h: \
+    "$(slicedir)\Ice\Process.ice"
+
+..\PropertiesF.h: \
+    "$(slicedir)\Ice\PropertiesF.ice"
+
+..\Properties.h: \
+    "$(slicedir)\Ice\Properties.ice" \
+    "$(slicedir)/Ice/PropertiesAdmin.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
+
+..\PropertiesAdmin.h: \
+    "$(slicedir)\Ice\PropertiesAdmin.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
+
+..\RemoteLogger.h: \
+    "$(slicedir)\Ice\RemoteLogger.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
+
+..\Router.h: \
+    "$(slicedir)\Ice\Router.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
+
+..\RouterF.h: \
+    "$(slicedir)\Ice\RouterF.ice"
+
+..\ServantLocatorF.h: \
+    "$(slicedir)\Ice\ServantLocatorF.ice"
+
+..\ServantLocator.h: \
+    "$(slicedir)\Ice\ServantLocator.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/Current.ice" \
+    "$(slicedir)/Ice/ConnectionF.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Version.ice"
+
+..\SliceChecksumDict.h: \
+    "$(slicedir)\Ice\SliceChecksumDict.ice"
+
+..\Version.h: \
+    "$(slicedir)\Ice\Version.ice"
+
+..\Metrics.h: \
+    "$(slicedir)\Ice\Metrics.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
+
+..\Instrumentation.h: \
+    "$(slicedir)\Ice\Instrumentation.ice" \
+    "$(slicedir)/Ice/EndpointF.ice" \
+    "$(slicedir)/Ice/ConnectionF.ice" \
+    "$(slicedir)/Ice/Current.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Version.ice"
+
+EndpointInfo.h: \
+    "$(slicedir)\IceSSL\EndpointInfo.ice" \
+    "$(slicedir)/Ice/Endpoint.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/EndpointF.ice"
+
+ConnectionInfo.h: \
+    "$(slicedir)\IceSSL\ConnectionInfo.ice" \
+    "$(slicedir)/Ice/Connection.ice" \
+    "$(slicedir)/Ice/ObjectAdapterF.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/Endpoint.ice" \
+    "$(slicedir)/Ice/Version.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/EndpointF.ice"
+
+..\IceDiscovery.h: \
+    "$(slicedir)\IceDiscovery\IceDiscovery.ice" \
+    "$(slicedir)/Ice/Identity.ice"
+
+..\IceLocatorDiscovery.h: \
+    "$(slicedir)\IceLocatorDiscovery\IceLocatorDiscovery.ice" \
+    "$(slicedir)/Ice/Locator.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Ice/ProcessF.ice"
+
 $(ARCH)\$(CONFIG)\Acceptor.obj: \
 	..\Acceptor.cpp \
     "..\..\..\src\Ice\Acceptor.h" \
@@ -1037,6 +1247,7 @@ $(ARCH)\$(CONFIG)\ConnectionFactory.obj: \
     "..\..\..\src\IceUtil\StopWatch.h" \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\Thread.h" \
+    "$(includedir)\IceUtil\UniquePtr.h" \
     "$(includedir)\Ice\Connection.h" \
     "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\Ice\ProxyFactoryF.h" \
@@ -1047,7 +1258,6 @@ $(ARCH)\$(CONFIG)\ConnectionFactory.obj: \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
     "$(includedir)\Ice\AsyncResult.h" \
-    "$(includedir)\IceUtil\UniquePtr.h" \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\InstanceF.h" \
     "$(includedir)\Ice\AsyncResultF.h" \
@@ -1160,6 +1370,7 @@ $(ARCH)\$(CONFIG)\ConnectionI.obj: \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\IceUtil\Handle.h" \
+    "$(includedir)\IceUtil\UniquePtr.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
     "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
@@ -1188,7 +1399,6 @@ $(ARCH)\$(CONFIG)\ConnectionI.obj: \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
     "$(includedir)\Ice\AsyncResult.h" \
-    "$(includedir)\IceUtil\UniquePtr.h" \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\InstanceF.h" \
     "$(includedir)\Ice\AsyncResultF.h" \
@@ -1720,6 +1930,9 @@ $(ARCH)\$(CONFIG)\EndpointFactoryManager.obj: \
     "..\..\..\src\Ice\AcceptorF.h" \
     "..\..\..\src\Ice\EndpointFactory.h" \
     "..\..\..\src\Ice\ProtocolInstanceF.h" \
+    "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\Ice\Plugin.h" \
+    "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\Ice\BasicStream.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\Ice\Object.h" \
@@ -1742,7 +1955,6 @@ $(ARCH)\$(CONFIG)\EndpointFactoryManager.obj: \
     "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\IceUtil\Monitor.h" \
     "$(includedir)\IceUtil\Cond.h" \
-    "$(includedir)\Ice\CommunicatorF.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "..\..\..\src\Ice\TraceLevelsF.h" \
     "..\..\..\src\Ice\DefaultsAndOverridesF.h" \
@@ -1765,7 +1977,6 @@ $(ARCH)\$(CONFIG)\EndpointFactoryManager.obj: \
     "$(includedir)\Ice\ObserverHelper.h" \
     "$(includedir)\Ice\Instrumentation.h" \
     "$(includedir)\Ice\PropertiesF.h" \
-    "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\Ice\ObjectAdapterFactoryF.h" \
     "..\..\..\src\Ice\IPEndpointIF.h" \
     "..\..\..\src\Ice\RetryQueueF.h" \
@@ -1775,7 +1986,6 @@ $(ARCH)\$(CONFIG)\EndpointFactoryManager.obj: \
     "..\..\..\src\Ice\NetworkProxyF.h" \
     "$(includedir)\Ice\Initialize.h" \
     "$(includedir)\Ice\Dispatcher.h" \
-    "$(includedir)\Ice\Plugin.h" \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\FacetMap.h" \
@@ -1806,6 +2016,100 @@ $(ARCH)\$(CONFIG)\EndpointFactory.obj: \
     "$(includedir)\Ice\Config.h" \
     "..\..\..\src\Ice\EndpointFactoryF.h" \
     "..\..\..\src\Ice\ProtocolInstanceF.h" \
+    "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
+    "$(includedir)\Ice\ProxyF.h" \
+    "$(includedir)\Ice\ProxyHandle.h" \
+    "$(includedir)\Ice\ObjectF.h" \
+    "$(includedir)\Ice\Exception.h" \
+    "$(includedir)\Ice\Format.h" \
+    "$(includedir)\Ice\StreamF.h" \
+    "$(includedir)\Ice\LocalObject.h" \
+    "$(includedir)\Ice\LocalObjectF.h" \
+    "$(includedir)\Ice\StreamHelpers.h" \
+    "$(includedir)\IceUtil\ScopedArray.h" \
+    "$(includedir)\IceUtil\Iterator.h" \
+    "$(includedir)\IceUtil\Optional.h" \
+    "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
+    "$(includedir)\Ice\Plugin.h" \
+    "$(includedir)\Ice\LoggerF.h" \
+    "$(includedir)\Ice\BuiltinSequences.h" \
+    "..\..\..\src\Ice\Instance.h" \
+    "$(includedir)\IceUtil\Mutex.h" \
+    "$(includedir)\IceUtil\Lock.h" \
+    "$(includedir)\IceUtil\ThreadException.h" \
+    "$(includedir)\IceUtil\Time.h" \
+    "$(includedir)\IceUtil\MutexProtocol.h" \
+    "$(includedir)\IceUtil\RecMutex.h" \
+    "$(includedir)\IceUtil\Timer.h" \
+    "$(includedir)\IceUtil\Thread.h" \
+    "$(includedir)\IceUtil\Monitor.h" \
+    "$(includedir)\IceUtil\Cond.h" \
+    "$(includedir)\IceUtil\StringConverter.h" \
+    "$(includedir)\Ice\InstanceF.h" \
+    "$(includedir)\Ice\InstrumentationF.h" \
+    "..\..\..\src\Ice\TraceLevelsF.h" \
+    "..\..\..\src\Ice\DefaultsAndOverridesF.h" \
+    "..\..\..\src\Ice\RouterInfoF.h" \
+    "..\..\..\src\Ice\LocatorInfoF.h" \
+    "..\..\..\src\Ice\ReferenceFactoryF.h" \
+    "$(includedir)\Ice\ProxyFactoryF.h" \
+    "$(includedir)\Ice\ThreadPoolF.h" \
+    "$(includedir)\Ice\ConnectionFactoryF.h" \
+    "..\..\..\src\Ice\ACM.h" \
+    "$(includedir)\Ice\ACMF.h" \
+    "$(includedir)\Ice\Connection.h" \
+    "$(includedir)\Ice\Proxy.h" \
+    "$(includedir)\Ice\ConnectionIF.h" \
+    "$(includedir)\Ice\RequestHandlerF.h" \
+    "$(includedir)\Ice\EndpointF.h" \
+    "$(includedir)\Ice\EndpointTypes.h" \
+    "$(includedir)\Ice\ObjectAdapterF.h" \
+    "$(includedir)\Ice\ReferenceF.h" \
+    "$(includedir)\Ice\AsyncResult.h" \
+    "$(includedir)\IceUtil\UniquePtr.h" \
+    "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\ObserverHelper.h" \
+    "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\Ice\Current.h" \
+    "$(includedir)\Ice\Identity.h" \
+    "$(includedir)\Ice\Version.h" \
+    "$(includedir)\Ice\BasicStream.h" \
+    "$(includedir)\Ice\Object.h" \
+    "$(includedir)\Ice\IncomingAsyncF.h" \
+    "$(includedir)\Ice\ObjectFactoryF.h" \
+    "$(includedir)\Ice\ObjectFactoryManagerF.h" \
+    "$(includedir)\Ice\Buffer.h" \
+    "$(includedir)\Ice\Protocol.h" \
+    "$(includedir)\Ice\SlicedDataF.h" \
+    "$(includedir)\Ice\UserExceptionFactory.h" \
+    "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\Endpoint.h" \
+    "$(includedir)\Ice\PropertiesF.h" \
+    "$(includedir)\Ice\ObjectAdapterFactoryF.h" \
+    "..\..\..\src\Ice\EndpointFactoryManagerF.h" \
+    "..\..\..\src\Ice\IPEndpointIF.h" \
+    "..\..\..\src\Ice\RetryQueueF.h" \
+    "$(includedir)\Ice\DynamicLibraryF.h" \
+    "$(includedir)\Ice\PluginF.h" \
+    "..\..\..\src\Ice\NetworkF.h" \
+    "..\..\..\src\Ice\NetworkProxyF.h" \
+    "$(includedir)\Ice\Initialize.h" \
+    "$(includedir)\Ice\Dispatcher.h" \
+    "..\..\..\src\Ice\ImplicitContextI.h" \
+    "$(includedir)\Ice\ImplicitContext.h" \
+    "$(includedir)\Ice\LocalException.h" \
+    "$(includedir)\Ice\FacetMap.h" \
+    "$(includedir)\Ice\Process.h" \
+    "$(includedir)\Ice\GCObject.h" \
+    "$(includedir)\IceUtil\MutexPtrLock.h" \
+    "$(includedir)\Ice\Incoming.h" \
+    "$(includedir)\Ice\ServantLocatorF.h" \
+    "$(includedir)\Ice\ServantManagerF.h" \
+    "$(includedir)\Ice\ResponseHandlerF.h" \
+    "..\..\..\src\Ice\EndpointFactoryManager.h" \
 
 $(ARCH)\$(CONFIG)\Endpoint.obj: \
 	..\Endpoint.cpp \
@@ -2480,6 +2784,7 @@ $(ARCH)\$(CONFIG)\IncomingAsync.obj: \
     "..\..\..\src\IceUtil\StopWatch.h" \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\Thread.h" \
+    "$(includedir)\IceUtil\UniquePtr.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
     "$(includedir)\Ice\Connection.h" \
     "$(includedir)\Ice\Proxy.h" \
@@ -2488,7 +2793,6 @@ $(ARCH)\$(CONFIG)\IncomingAsync.obj: \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ReferenceF.h" \
     "$(includedir)\Ice\AsyncResult.h" \
-    "$(includedir)\IceUtil\UniquePtr.h" \
     "$(includedir)\Ice\AsyncResultF.h" \
     "$(includedir)\Ice\Endpoint.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
@@ -2784,6 +3088,7 @@ $(ARCH)\$(CONFIG)\Initialize.obj: \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\Process.h" \
+    "..\..\..\src\Ice\PluginManagerI.h" \
 
 $(ARCH)\$(CONFIG)\Instance.obj: \
 	..\Instance.cpp \
@@ -2938,6 +3243,10 @@ $(ARCH)\$(CONFIG)\Instance.obj: \
     "..\..\..\src\Ice\NetworkProxy.h" \
     "..\..\..\src\Ice\EndpointFactoryManager.h" \
     "..\..\..\src\Ice\EndpointFactoryF.h" \
+    "..\..\..\src\Ice\IPEndpointI.h" \
+    "..\..\..\src\Ice\WSEndpoint.h" \
+    "..\..\..\src\Ice\EndpointFactory.h" \
+    "..\..\..\src\Ice\ProtocolInstance.h" \
     "..\..\..\src\Ice\RequestHandlerFactory.h" \
     "..\..\..\src\Ice\RetryQueue.h" \
     "$(includedir)\Ice\DynamicLibrary.h" \
@@ -2950,16 +3259,9 @@ $(ARCH)\$(CONFIG)\Instance.obj: \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\MetricsAdminI.h" \
     "$(includedir)\Ice\MetricsFunctional.h" \
-    "..\..\..\src\Ice\ProtocolInstance.h" \
     "..\..\..\src\Ice\LoggerAdminI.h" \
+    "..\..\..\src\Ice\RegisterPlugins.h" \
     "$(includedir)\IceUtil\UUID.h" \
-    "..\..\..\src\Ice\UdpEndpointI.h" \
-    "..\..\..\src\Ice\IPEndpointI.h" \
-    "..\..\..\src\Ice\EndpointFactory.h" \
-    "$(includedir)\IceSSL\EndpointInfo.h" \
-    "StreamEndpointI.h" \
-    "StreamF.h" \
-    "..\..\..\src\Ice\WSEndpoint.h" \
 
 $(ARCH)\$(CONFIG)\IPEndpointI.obj: \
 	..\IPEndpointI.cpp \
@@ -4859,6 +5161,9 @@ $(ARCH)\$(CONFIG)\OpaqueEndpointI.obj: \
     "..\..\..\src\Ice\EndpointFactory.h" \
     "..\..\..\src\Ice\EndpointFactoryF.h" \
     "..\..\..\src\Ice\ProtocolInstanceF.h" \
+    "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\Ice\Plugin.h" \
+    "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\Ice\BasicStream.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\Ice\InstanceF.h" \
@@ -4892,14 +5197,12 @@ $(ARCH)\$(CONFIG)\OpaqueEndpointI.obj: \
     "$(includedir)\IceUtil\Monitor.h" \
     "$(includedir)\IceUtil\Cond.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
-    "$(includedir)\Ice\CommunicatorF.h" \
     "$(includedir)\Ice\AsyncResultF.h" \
     "$(includedir)\Ice\ObserverHelper.h" \
     "$(includedir)\Ice\Instrumentation.h" \
     "..\..\..\src\Ice\Network.h" \
     "..\..\..\src\Ice\NetworkF.h" \
     "..\..\..\src\Ice\NetworkProxyF.h" \
-    "$(includedir)\Ice\LoggerF.h" \
     "..\..\..\src\Ice\EventHandlerF.h" \
     "..\..\..\src\Ice\Base64.h" \
     "..\..\..\src\Ice\HashUtil.h" \
@@ -5247,12 +5550,9 @@ $(ARCH)\$(CONFIG)\PluginManagerI.obj: \
     "$(includedir)\Ice\FacetMap.h" \
     "$(includedir)\Ice\LoggerUtil.h" \
     "$(includedir)\Ice\Logger.h" \
-    "$(includedir)\Ice\Initialize.h" \
+    "..\..\..\src\Ice\Instance.h" \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\Thread.h" \
-    "$(includedir)\Ice\PropertiesF.h" \
-    "$(includedir)\Ice\Dispatcher.h" \
-    "..\..\..\src\Ice\Instance.h" \
     "..\..\..\src\Ice\TraceLevelsF.h" \
     "..\..\..\src\Ice\DefaultsAndOverridesF.h" \
     "..\..\..\src\Ice\RouterInfoF.h" \
@@ -5264,12 +5564,15 @@ $(ARCH)\$(CONFIG)\PluginManagerI.obj: \
     "$(includedir)\Ice\ACMF.h" \
     "$(includedir)\Ice\Connection.h" \
     "$(includedir)\Ice\Endpoint.h" \
+    "$(includedir)\Ice\PropertiesF.h" \
     "$(includedir)\Ice\ObjectAdapterFactoryF.h" \
     "..\..\..\src\Ice\EndpointFactoryManagerF.h" \
     "..\..\..\src\Ice\IPEndpointIF.h" \
     "..\..\..\src\Ice\RetryQueueF.h" \
     "..\..\..\src\Ice\NetworkF.h" \
     "..\..\..\src\Ice\NetworkProxyF.h" \
+    "$(includedir)\Ice\Initialize.h" \
+    "$(includedir)\Ice\Dispatcher.h" \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
@@ -8243,6 +8546,7 @@ $(ARCH)\$(CONFIG)\UdpEndpointI.obj: \
     "..\..\..\src\Ice\EventHandlerF.h" \
     "..\..\..\src\Ice\EndpointFactory.h" \
     "..\..\..\src\Ice\EndpointFactoryF.h" \
+    "$(includedir)\Ice\Plugin.h" \
     "..\..\..\src\Ice\UdpConnector.h" \
     "..\..\..\src\Ice\Connector.h" \
     "..\..\..\src\Ice\UdpTransceiver.h" \
@@ -8270,7 +8574,6 @@ $(ARCH)\$(CONFIG)\UdpEndpointI.obj: \
     "$(includedir)\Ice\PluginF.h" \
     "$(includedir)\Ice\Initialize.h" \
     "$(includedir)\Ice\Dispatcher.h" \
-    "$(includedir)\Ice\Plugin.h" \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\FacetMap.h" \
@@ -8366,6 +8669,7 @@ $(ARCH)\$(CONFIG)\UdpTransceiver.obj: \
     "..\..\..\src\Ice\AcceptorF.h" \
     "..\..\..\src\Ice\EndpointFactory.h" \
     "..\..\..\src\Ice\EndpointFactoryF.h" \
+    "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\Connection.h" \
     "..\..\..\src\Ice\ProtocolInstance.h" \
     "..\..\..\src\Ice\Instance.h" \
@@ -8388,7 +8692,6 @@ $(ARCH)\$(CONFIG)\UdpTransceiver.obj: \
     "$(includedir)\Ice\PluginF.h" \
     "$(includedir)\Ice\Initialize.h" \
     "$(includedir)\Ice\Dispatcher.h" \
-    "$(includedir)\Ice\Plugin.h" \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
@@ -8730,9 +9033,11 @@ $(ARCH)\$(CONFIG)\WSEndpoint.obj: \
     "..\..\..\src\Ice\EndpointFactory.h" \
     "..\..\..\src\Ice\EndpointFactoryF.h" \
     "..\..\..\src\Ice\ProtocolInstanceF.h" \
+    "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\Ice\Plugin.h" \
+    "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\Ice\InstanceF.h" \
     "..\..\..\src\Ice\ProtocolInstance.h" \
-    "$(includedir)\Ice\CommunicatorF.h" \
     "$(includedir)\Ice\PropertiesF.h" \
     "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\IceUtil\Mutex.h" \
@@ -8766,7 +9071,6 @@ $(ARCH)\$(CONFIG)\WSEndpoint.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\Ice\LoggerF.h" \
     "..\..\..\src\Ice\NetworkF.h" \
     "..\..\..\src\Ice\Instance.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
@@ -8791,7 +9095,6 @@ $(ARCH)\$(CONFIG)\WSEndpoint.obj: \
     "..\..\..\src\Ice\NetworkProxyF.h" \
     "$(includedir)\Ice\Initialize.h" \
     "$(includedir)\Ice\Dispatcher.h" \
-    "$(includedir)\Ice\Plugin.h" \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
@@ -8811,6 +9114,7 @@ $(ARCH)\$(CONFIG)\WSEndpoint.obj: \
     "..\..\..\src\Ice\Connector.h" \
     "..\..\..\src\Ice\IPEndpointI.h" \
     "..\..\..\src\Ice\HashUtil.h" \
+    "..\..\..\src\Ice\EndpointFactoryManager.h" \
 
 $(ARCH)\$(CONFIG)\WSTransceiver.obj: \
 	..\WSTransceiver.cpp \
@@ -8989,6 +9293,153 @@ $(ARCH)\$(CONFIG)\HttpParser.obj: \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\DisableWarnings.h" \
 
+$(ARCH)\$(CONFIG)\IceDiscovery.obj: \
+	IceDiscovery.cpp \
+    "..\..\..\src\IceDiscovery\IceDiscovery.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
+    "$(includedir)\Ice\ProxyF.h" \
+    "$(includedir)\IceUtil\Shared.h" \
+    "$(includedir)\IceUtil\Config.h" \
+    "$(includedir)\Ice\Config.h" \
+    "$(includedir)\Ice\ProxyHandle.h" \
+    "$(includedir)\IceUtil\Handle.h" \
+    "$(includedir)\IceUtil\Exception.h" \
+    "$(includedir)\Ice\ObjectF.h" \
+    "$(includedir)\Ice\Handle.h" \
+    "$(includedir)\Ice\Exception.h" \
+    "$(includedir)\Ice\Format.h" \
+    "$(includedir)\Ice\StreamF.h" \
+    "$(includedir)\Ice\LocalObject.h" \
+    "$(includedir)\Ice\LocalObjectF.h" \
+    "$(includedir)\Ice\StreamHelpers.h" \
+    "$(includedir)\IceUtil\ScopedArray.h" \
+    "$(includedir)\IceUtil\Iterator.h" \
+    "$(includedir)\Ice\Proxy.h" \
+    "$(includedir)\IceUtil\Mutex.h" \
+    "$(includedir)\IceUtil\Lock.h" \
+    "$(includedir)\IceUtil\ThreadException.h" \
+    "$(includedir)\IceUtil\Time.h" \
+    "$(includedir)\IceUtil\MutexProtocol.h" \
+    "$(includedir)\Ice\ProxyFactoryF.h" \
+    "$(includedir)\Ice\ConnectionIF.h" \
+    "$(includedir)\Ice\RequestHandlerF.h" \
+    "$(includedir)\Ice\EndpointF.h" \
+    "$(includedir)\IceUtil\Optional.h" \
+    "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
+    "$(includedir)\Ice\EndpointTypes.h" \
+    "$(includedir)\Ice\ObjectAdapterF.h" \
+    "$(includedir)\Ice\ReferenceF.h" \
+    "$(includedir)\Ice\AsyncResult.h" \
+    "$(includedir)\IceUtil\Monitor.h" \
+    "$(includedir)\IceUtil\Cond.h" \
+    "$(includedir)\IceUtil\UniquePtr.h" \
+    "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\Ice\InstanceF.h" \
+    "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\ObserverHelper.h" \
+    "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\Ice\Current.h" \
+    "$(includedir)\Ice\Identity.h" \
+    "$(includedir)\Ice\Version.h" \
+    "$(includedir)\Ice\BasicStream.h" \
+    "$(includedir)\IceUtil\StringConverter.h" \
+    "$(includedir)\Ice\Object.h" \
+    "$(includedir)\Ice\IncomingAsyncF.h" \
+    "$(includedir)\Ice\ObjectFactoryF.h" \
+    "$(includedir)\Ice\ObjectFactoryManagerF.h" \
+    "$(includedir)\Ice\Buffer.h" \
+    "$(includedir)\Ice\Protocol.h" \
+    "$(includedir)\Ice\SlicedDataF.h" \
+    "$(includedir)\Ice\UserExceptionFactory.h" \
+    "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\GCObject.h" \
+    "$(includedir)\IceUtil\MutexPtrLock.h" \
+    "$(includedir)\Ice\Incoming.h" \
+    "$(includedir)\Ice\ServantLocatorF.h" \
+    "$(includedir)\Ice\ServantManagerF.h" \
+    "$(includedir)\Ice\ResponseHandlerF.h" \
+    "$(includedir)\Ice\LocalException.h" \
+    "$(includedir)\Ice\BuiltinSequences.h" \
+    "$(includedir)\Ice\ObjectFactory.h" \
+    "$(includedir)\Ice\Outgoing.h" \
+    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\IceUtil\Timer.h" \
+    "$(includedir)\IceUtil\Thread.h" \
+    "$(includedir)\Ice\OutgoingAsyncF.h" \
+
+$(ARCH)\$(CONFIG)\RegisterPlugins.obj: \
+	RegisterPlugins.cpp \
+    "$(includedir)\Ice\Initialize.h" \
+    "$(includedir)\IceUtil\Timer.h" \
+    "$(includedir)\IceUtil\Shared.h" \
+    "$(includedir)\IceUtil\Config.h" \
+    "$(includedir)\IceUtil\Thread.h" \
+    "$(includedir)\IceUtil\Handle.h" \
+    "$(includedir)\IceUtil\Exception.h" \
+    "$(includedir)\IceUtil\Mutex.h" \
+    "$(includedir)\IceUtil\Lock.h" \
+    "$(includedir)\IceUtil\ThreadException.h" \
+    "$(includedir)\IceUtil\Time.h" \
+    "$(includedir)\IceUtil\MutexProtocol.h" \
+    "$(includedir)\IceUtil\Monitor.h" \
+    "$(includedir)\IceUtil\Cond.h" \
+    "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
+    "$(includedir)\Ice\ProxyF.h" \
+    "$(includedir)\Ice\Config.h" \
+    "$(includedir)\Ice\ProxyHandle.h" \
+    "$(includedir)\Ice\ObjectF.h" \
+    "$(includedir)\Ice\Handle.h" \
+    "$(includedir)\Ice\Exception.h" \
+    "$(includedir)\Ice\Format.h" \
+    "$(includedir)\Ice\StreamF.h" \
+    "$(includedir)\Ice\LocalObject.h" \
+    "$(includedir)\Ice\LocalObjectF.h" \
+    "$(includedir)\Ice\StreamHelpers.h" \
+    "$(includedir)\IceUtil\ScopedArray.h" \
+    "$(includedir)\IceUtil\Iterator.h" \
+    "$(includedir)\IceUtil\Optional.h" \
+    "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
+    "$(includedir)\Ice\PropertiesF.h" \
+    "$(includedir)\Ice\Proxy.h" \
+    "$(includedir)\Ice\ProxyFactoryF.h" \
+    "$(includedir)\Ice\ConnectionIF.h" \
+    "$(includedir)\Ice\RequestHandlerF.h" \
+    "$(includedir)\Ice\EndpointF.h" \
+    "$(includedir)\Ice\EndpointTypes.h" \
+    "$(includedir)\Ice\ObjectAdapterF.h" \
+    "$(includedir)\Ice\ReferenceF.h" \
+    "$(includedir)\Ice\AsyncResult.h" \
+    "$(includedir)\IceUtil\UniquePtr.h" \
+    "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\Ice\InstanceF.h" \
+    "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\ObserverHelper.h" \
+    "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\Ice\Current.h" \
+    "$(includedir)\Ice\Identity.h" \
+    "$(includedir)\Ice\Version.h" \
+    "$(includedir)\Ice\BasicStream.h" \
+    "$(includedir)\IceUtil\StringConverter.h" \
+    "$(includedir)\Ice\Object.h" \
+    "$(includedir)\Ice\IncomingAsyncF.h" \
+    "$(includedir)\Ice\ObjectFactoryF.h" \
+    "$(includedir)\Ice\ObjectFactoryManagerF.h" \
+    "$(includedir)\Ice\Buffer.h" \
+    "$(includedir)\Ice\Protocol.h" \
+    "$(includedir)\Ice\SlicedDataF.h" \
+    "$(includedir)\Ice\UserExceptionFactory.h" \
+    "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\LoggerF.h" \
+    "$(includedir)\Ice\InstrumentationF.h" \
+    "$(includedir)\Ice\Dispatcher.h" \
+    "$(includedir)\Ice\BuiltinSequences.h" \
+    "$(includedir)\Ice\Plugin.h" \
+    "..\..\..\src\Ice\RegisterPlugins.h" \
+
 $(ARCH)\$(CONFIG)\StreamAcceptor.obj: \
 	StreamAcceptor.cpp \
     "StreamAcceptor.h" \
@@ -9074,6 +9525,7 @@ $(ARCH)\$(CONFIG)\StreamAcceptor.obj: \
     "..\..\..\src\Ice\ConnectorF.h" \
     "..\..\..\src\Ice\EndpointFactory.h" \
     "..\..\..\src\Ice\EndpointFactoryF.h" \
+    "$(includedir)\Ice\Plugin.h" \
     "..\..\..\src\Ice\ProtocolInstance.h" \
     "..\..\..\src\Ice\Instance.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
@@ -9096,7 +9548,6 @@ $(ARCH)\$(CONFIG)\StreamAcceptor.obj: \
     "$(includedir)\Ice\PluginF.h" \
     "$(includedir)\Ice\Initialize.h" \
     "$(includedir)\Ice\Dispatcher.h" \
-    "$(includedir)\Ice\Plugin.h" \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
@@ -9199,6 +9650,7 @@ $(ARCH)\$(CONFIG)\StreamConnector.obj: \
     "..\..\..\src\Ice\AcceptorF.h" \
     "..\..\..\src\Ice\EndpointFactory.h" \
     "..\..\..\src\Ice\EndpointFactoryF.h" \
+    "$(includedir)\Ice\Plugin.h" \
     "StreamF.h" \
     "..\..\..\src\Ice\ProtocolInstance.h" \
     "..\..\..\src\Ice\Instance.h" \
@@ -9222,7 +9674,6 @@ $(ARCH)\$(CONFIG)\StreamConnector.obj: \
     "$(includedir)\Ice\PluginF.h" \
     "$(includedir)\Ice\Initialize.h" \
     "$(includedir)\Ice\Dispatcher.h" \
-    "$(includedir)\Ice\Plugin.h" \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
@@ -9317,6 +9768,7 @@ $(ARCH)\$(CONFIG)\StreamEndpointI.obj: \
     "..\..\..\src\Ice\EventHandlerF.h" \
     "..\..\..\src\Ice\EndpointFactory.h" \
     "..\..\..\src\Ice\EndpointFactoryF.h" \
+    "$(includedir)\Ice\Plugin.h" \
     "StreamF.h" \
     "StreamAcceptor.h" \
     "..\..\..\src\Ice\Acceptor.h" \
@@ -9347,7 +9799,6 @@ $(ARCH)\$(CONFIG)\StreamEndpointI.obj: \
     "$(includedir)\Ice\PluginF.h" \
     "$(includedir)\Ice\Initialize.h" \
     "$(includedir)\Ice\Dispatcher.h" \
-    "$(includedir)\Ice\Plugin.h" \
     "..\..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\FacetMap.h" \
@@ -10072,203 +10523,3 @@ $(ARCH)\$(CONFIG)\ServantLocatorF.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\IceUtil\PopDisableWarnings.h" \
-
-..\BuiltinSequences.h: \
-    "$(slicedir)\Ice\BuiltinSequences.ice"
-
-..\CommunicatorF.h: \
-    "$(slicedir)\Ice\CommunicatorF.ice"
-
-..\Communicator.h: \
-    "$(slicedir)\Ice\Communicator.ice" \
-    "$(slicedir)/Ice/LoggerF.ice" \
-    "$(slicedir)/Ice/InstrumentationF.ice" \
-    "$(slicedir)/Ice/ObjectAdapterF.ice" \
-    "$(slicedir)/Ice/ObjectFactoryF.ice" \
-    "$(slicedir)/Ice/RouterF.ice" \
-    "$(slicedir)/Ice/LocatorF.ice" \
-    "$(slicedir)/Ice/PluginF.ice" \
-    "$(slicedir)/Ice/ImplicitContextF.ice" \
-    "$(slicedir)/Ice/Current.ice" \
-    "$(slicedir)/Ice/ConnectionF.ice" \
-    "$(slicedir)/Ice/Identity.ice" \
-    "$(slicedir)/Ice/Version.ice" \
-    "$(slicedir)/Ice/Properties.ice" \
-    "$(slicedir)/Ice/PropertiesAdmin.ice" \
-    "$(slicedir)/Ice/BuiltinSequences.ice" \
-    "$(slicedir)/Ice/FacetMap.ice"
-
-..\ConnectionF.h: \
-    "$(slicedir)\Ice\ConnectionF.ice"
-
-..\Connection.h: \
-    "$(slicedir)\Ice\Connection.ice" \
-    "$(slicedir)/Ice/ObjectAdapterF.ice" \
-    "$(slicedir)/Ice/Identity.ice" \
-    "$(slicedir)/Ice/Endpoint.ice" \
-    "$(slicedir)/Ice/Version.ice" \
-    "$(slicedir)/Ice/BuiltinSequences.ice" \
-    "$(slicedir)/Ice/EndpointF.ice"
-
-..\Current.h: \
-    "$(slicedir)\Ice\Current.ice" \
-    "$(slicedir)/Ice/ObjectAdapterF.ice" \
-    "$(slicedir)/Ice/ConnectionF.ice" \
-    "$(slicedir)/Ice/Identity.ice" \
-    "$(slicedir)/Ice/Version.ice"
-
-..\Endpoint.h: \
-    "$(slicedir)\Ice\Endpoint.ice" \
-    "$(slicedir)/Ice/Version.ice" \
-    "$(slicedir)/Ice/BuiltinSequences.ice" \
-    "$(slicedir)/Ice/EndpointF.ice"
-
-..\EndpointF.h: \
-    "$(slicedir)\Ice\EndpointF.ice"
-
-..\EndpointTypes.h: \
-    "$(slicedir)\Ice\EndpointTypes.ice"
-
-..\FacetMap.h: \
-    "$(slicedir)\Ice\FacetMap.ice"
-
-..\Identity.h: \
-    "$(slicedir)\Ice\Identity.ice"
-
-..\ImplicitContextF.h: \
-    "$(slicedir)\Ice\ImplicitContextF.ice"
-
-..\ImplicitContext.h: \
-    "$(slicedir)\Ice\ImplicitContext.ice" \
-    "$(slicedir)/Ice/LocalException.ice" \
-    "$(slicedir)/Ice/Identity.ice" \
-    "$(slicedir)/Ice/Version.ice" \
-    "$(slicedir)/Ice/BuiltinSequences.ice" \
-    "$(slicedir)/Ice/Current.ice" \
-    "$(slicedir)/Ice/ObjectAdapterF.ice" \
-    "$(slicedir)/Ice/ConnectionF.ice"
-
-..\LocalException.h: \
-    "$(slicedir)\Ice\LocalException.ice" \
-    "$(slicedir)/Ice/Identity.ice" \
-    "$(slicedir)/Ice/Version.ice" \
-    "$(slicedir)/Ice/BuiltinSequences.ice"
-
-..\LocatorF.h: \
-    "$(slicedir)\Ice\LocatorF.ice"
-
-..\Locator.h: \
-    "$(slicedir)\Ice\Locator.ice" \
-    "$(slicedir)/Ice/Identity.ice" \
-    "$(slicedir)/Ice/ProcessF.ice"
-
-..\LoggerF.h: \
-    "$(slicedir)\Ice\LoggerF.ice"
-
-..\Logger.h: \
-    "$(slicedir)\Ice\Logger.ice"
-
-..\ObjectAdapterF.h: \
-    "$(slicedir)\Ice\ObjectAdapterF.ice"
-
-..\ObjectAdapter.h: \
-    "$(slicedir)\Ice\ObjectAdapter.ice" \
-    "$(slicedir)/Ice/CommunicatorF.ice" \
-    "$(slicedir)/Ice/ServantLocatorF.ice" \
-    "$(slicedir)/Ice/LocatorF.ice" \
-    "$(slicedir)/Ice/Identity.ice" \
-    "$(slicedir)/Ice/FacetMap.ice" \
-    "$(slicedir)/Ice/Endpoint.ice" \
-    "$(slicedir)/Ice/Version.ice" \
-    "$(slicedir)/Ice/BuiltinSequences.ice" \
-    "$(slicedir)/Ice/EndpointF.ice"
-
-..\ObjectFactoryF.h: \
-    "$(slicedir)\Ice\ObjectFactoryF.ice"
-
-..\ObjectFactory.h: \
-    "$(slicedir)\Ice\ObjectFactory.ice"
-
-..\PluginF.h: \
-    "$(slicedir)\Ice\PluginF.ice"
-
-..\Plugin.h: \
-    "$(slicedir)\Ice\Plugin.ice" \
-    "$(slicedir)/Ice/LoggerF.ice" \
-    "$(slicedir)/Ice/BuiltinSequences.ice"
-
-..\ProcessF.h: \
-    "$(slicedir)\Ice\ProcessF.ice"
-
-..\Process.h: \
-    "$(slicedir)\Ice\Process.ice"
-
-..\PropertiesF.h: \
-    "$(slicedir)\Ice\PropertiesF.ice"
-
-..\Properties.h: \
-    "$(slicedir)\Ice\Properties.ice" \
-    "$(slicedir)/Ice/PropertiesAdmin.ice" \
-    "$(slicedir)/Ice/BuiltinSequences.ice"
-
-..\PropertiesAdmin.h: \
-    "$(slicedir)\Ice\PropertiesAdmin.ice" \
-    "$(slicedir)/Ice/BuiltinSequences.ice"
-
-..\RemoteLogger.h: \
-    "$(slicedir)\Ice\RemoteLogger.ice" \
-    "$(slicedir)/Ice/BuiltinSequences.ice"
-
-..\Router.h: \
-    "$(slicedir)\Ice\Router.ice" \
-    "$(slicedir)/Ice/BuiltinSequences.ice"
-
-..\RouterF.h: \
-    "$(slicedir)\Ice\RouterF.ice"
-
-..\ServantLocatorF.h: \
-    "$(slicedir)\Ice\ServantLocatorF.ice"
-
-..\ServantLocator.h: \
-    "$(slicedir)\Ice\ServantLocator.ice" \
-    "$(slicedir)/Ice/ObjectAdapterF.ice" \
-    "$(slicedir)/Ice/Current.ice" \
-    "$(slicedir)/Ice/ConnectionF.ice" \
-    "$(slicedir)/Ice/Identity.ice" \
-    "$(slicedir)/Ice/Version.ice"
-
-..\SliceChecksumDict.h: \
-    "$(slicedir)\Ice\SliceChecksumDict.ice"
-
-..\Version.h: \
-    "$(slicedir)\Ice\Version.ice"
-
-..\Metrics.h: \
-    "$(slicedir)\Ice\Metrics.ice" \
-    "$(slicedir)/Ice/BuiltinSequences.ice"
-
-..\Instrumentation.h: \
-    "$(slicedir)\Ice\Instrumentation.ice" \
-    "$(slicedir)/Ice/EndpointF.ice" \
-    "$(slicedir)/Ice/ConnectionF.ice" \
-    "$(slicedir)/Ice/Current.ice" \
-    "$(slicedir)/Ice/ObjectAdapterF.ice" \
-    "$(slicedir)/Ice/Identity.ice" \
-    "$(slicedir)/Ice/Version.ice"
-
-EndpointInfo.h: \
-    "$(slicedir)\IceSSL\EndpointInfo.ice" \
-    "$(slicedir)/Ice/Endpoint.ice" \
-    "$(slicedir)/Ice/Version.ice" \
-    "$(slicedir)/Ice/BuiltinSequences.ice" \
-    "$(slicedir)/Ice/EndpointF.ice"
-
-ConnectionInfo.h: \
-    "$(slicedir)\IceSSL\ConnectionInfo.ice" \
-    "$(slicedir)/Ice/Connection.ice" \
-    "$(slicedir)/Ice/ObjectAdapterF.ice" \
-    "$(slicedir)/Ice/Identity.ice" \
-    "$(slicedir)/Ice/Endpoint.ice" \
-    "$(slicedir)/Ice/Version.ice" \
-    "$(slicedir)/Ice/BuiltinSequences.ice" \
-    "$(slicedir)/Ice/EndpointF.ice"

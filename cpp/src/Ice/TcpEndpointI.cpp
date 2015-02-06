@@ -23,6 +23,17 @@ using namespace IceInternal;
 
 IceUtil::Shared* IceInternal::upCast(TcpEndpointI* p) { return p; }
 
+extern "C"
+{
+
+Plugin*
+createIceTCP(const CommunicatorPtr& c, const string&, const StringSeq&)
+{
+    return new EndpointFactoryPlugin(c, new TcpEndpointFactory(new ProtocolInstance(c, TCPEndpointType, "tcp", false)));
+}
+
+}
+
 IceInternal::TcpEndpointI::TcpEndpointI(const ProtocolInstancePtr& instance, const string& host, Int port,
                                         const Address& sourceAddr, Int timeout, const string& connectionId,
                                         bool compress) :

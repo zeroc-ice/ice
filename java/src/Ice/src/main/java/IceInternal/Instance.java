@@ -976,18 +976,12 @@ public final class Instance
             _networkProxy = createNetworkProxy(_initData.properties, _protocolSupport);
 
             _endpointFactoryManager = new EndpointFactoryManager(this);
+
             ProtocolInstance tcpProtocolInstance = new ProtocolInstance(this, Ice.TCPEndpointType.value, "tcp", false);
-            EndpointFactory tcpEndpointFactory = new TcpEndpointFactory(tcpProtocolInstance);
-            _endpointFactoryManager.add(tcpEndpointFactory);
+            _endpointFactoryManager.add(new TcpEndpointFactory(tcpProtocolInstance));
 
             ProtocolInstance udpProtocolInstance = new ProtocolInstance(this, Ice.UDPEndpointType.value, "udp", false);
-            EndpointFactory udpEndpointFactory = new UdpEndpointFactory(udpProtocolInstance);
-            _endpointFactoryManager.add(udpEndpointFactory);
-
-            ProtocolInstance wsProtocolInstance = new ProtocolInstance(this, Ice.WSEndpointType.value, "ws", false);
-            EndpointFactory wsEndpointFactory = new WSEndpointFactory(wsProtocolInstance,
-                                                                      tcpEndpointFactory.clone(wsProtocolInstance));
-            _endpointFactoryManager.add(wsEndpointFactory);
+            _endpointFactoryManager.add(new UdpEndpointFactory(udpProtocolInstance));
 
             _pluginManager = new Ice.PluginManagerI(communicator, this);
 
@@ -1068,6 +1062,22 @@ public final class Instance
         assert(_serverThreadPool == null);
         Ice.PluginManagerI pluginManagerImpl = (Ice.PluginManagerI)_pluginManager;
         pluginManagerImpl.loadPlugins(args);
+
+        //
+        // Add WS and WSS endpoint factories if TCP/SSL factories are installed.
+        //
+        final EndpointFactory tcpFactory = _endpointFactoryManager.get(Ice.TCPEndpointType.value);
+        if(tcpFactory != null)
+        {
+            final ProtocolInstance instance = new ProtocolInstance(this, Ice.WSEndpointType.value, "ws", false);
+            _endpointFactoryManager.add(new WSEndpointFactory(instance, tcpFactory.clone(instance)));
+        }
+        final EndpointFactory sslFactory = _endpointFactoryManager.get(Ice.SSLEndpointType.value);
+        if(sslFactory != null)
+        {
+            final ProtocolInstance instance = new ProtocolInstance(this, Ice.WSSEndpointType.value, "wss", true);
+            _endpointFactoryManager.add(new WSEndpointFactory(instance, sslFactory.clone(instance)));
+        }
 
         //
         // Create Admin facets, if enabled.

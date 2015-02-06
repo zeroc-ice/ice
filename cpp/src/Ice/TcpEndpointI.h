@@ -69,6 +69,7 @@ class TcpEndpointFactory : public EndpointFactory
 {
 public:
 
+    TcpEndpointFactory(const ProtocolInstancePtr&);
     virtual ~TcpEndpointFactory();
 
     virtual Ice::Short type() const;
@@ -80,9 +81,6 @@ public:
     virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&) const;
 
 private:
-
-    TcpEndpointFactory(const ProtocolInstancePtr&);
-    friend class Instance;
 
     ProtocolInstancePtr _instance;
 };

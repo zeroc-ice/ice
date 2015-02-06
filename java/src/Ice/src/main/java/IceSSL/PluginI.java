@@ -13,8 +13,7 @@ class PluginI implements Plugin
 {
     public PluginI(Ice.Communicator communicator)
     {
-        IceInternal.ProtocolPluginFacade facade = IceInternal.Util.getProtocolPluginFacade(communicator);
-
+        final IceInternal.ProtocolPluginFacade facade = IceInternal.Util.getProtocolPluginFacade(communicator);
         _engine = new SSLEngine(facade);
 
         //
@@ -22,15 +21,8 @@ class PluginI implements Plugin
         // in initialize, because the communicator may need to interpret
         // proxies before the plug-in is fully initialized.
         //
-        IceInternal.EndpointFactory sslEndpointFactory =
-            new EndpointFactoryI(new Instance(_engine, IceSSL.EndpointType.value, "ssl"));
-        facade.addEndpointFactory(sslEndpointFactory);
-
-        IceInternal.ProtocolInstance wssProtocolInstance =
-            new IceInternal.ProtocolInstance(communicator, Ice.WSSEndpointType.value, "wss", true);
-        IceInternal.EndpointFactory wssEndpointFactory =
-            new IceInternal.WSEndpointFactory(wssProtocolInstance, sslEndpointFactory.clone(wssProtocolInstance));
-        facade.addEndpointFactory(wssEndpointFactory);
+        EndpointFactoryI factory = new EndpointFactoryI(new Instance(_engine, IceSSL.EndpointType.value, "ssl"));
+        facade.addEndpointFactory(factory);
     }
 
     @Override
