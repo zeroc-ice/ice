@@ -184,6 +184,7 @@ private:
     {
         prefixTable_ = [ICEInternalPrefixTable newPrefixTable];
     }
+    adminFacets_ = [[NSMutableDictionary alloc] init];
     COMMUNICATOR->addObjectFactory(new IceObjC::UnknownSlicedObjectFactoryI, "::Ice::Object");
     COMMUNICATOR->addObjectFactory(new IceObjC::ObjectFactoryI(objectFactories_, prefixTable_), "");
 }
@@ -191,6 +192,7 @@ private:
 {
     [prefixTable_ release];
     [objectFactories_ release];
+    [adminFacets_ release];
     [super dealloc];
 }
 -(Ice::Communicator*) communicator
@@ -212,6 +214,10 @@ private:
     try
     {
         COMMUNICATOR->destroy();
+        @synchronized(adminFacets_)
+        {
+            [adminFacets_ removeAllObjects];
+        }
         return;
     }
     catch(const std::exception& ex)
@@ -589,7 +595,6 @@ private:
 }
 -(id<ICEObjectPrx>) createAdmin:(id<ICEObjectAdapter>)adapter adminId:(ICEIdentity*)adminId
 {
-    NSException* nsex = nil;
     try
     {
         Ice::ObjectAdapterPtr adminAdapter = [(ICEObjectAdapter*)adapter adapter];
@@ -597,79 +602,89 @@ private:
     }
     catch(const std::exception& ex)
     {
-        nsex = toObjCException(ex);
+        @throw toObjCException(ex);
     }
-    @throw nsex;
-    return nil; // Keep the compiler happy.
 }
 -(id<ICEObjectPrx>) getAdmin
 {
-    NSException* nsex = nil;
     try
     {
         return [ICEObjectPrx objectPrxWithObjectPrx__:COMMUNICATOR->getAdmin()];
     }
     catch(const std::exception& ex)
     {
-        nsex = toObjCException(ex);
+        @throw toObjCException(ex);
     }
-    @throw nsex;
-    return nil; // Keep the compiler happy.
 }
 -(void) addAdminFacet:(ICEObject*)servant facet:(NSString*)facet
 {
-    NSException* nsex = nil;
     try
     {
         COMMUNICATOR->addAdminFacet([servant object__], fromNSString(facet));
+        @synchronized(adminFacets_)
+        {
+            [adminFacets_ setObject:servant forKey:facet];
+        }
         return;
     }
     catch(const std::exception& ex)
     {
-        nsex = toObjCException(ex);
+        @throw toObjCException(ex);
     }
-    @throw nsex;
 }
 -(ICEObject*) removeAdminFacet:(NSString*)facet
 {
-    NSException* nsex = nil;
     try
     {
+        @synchronized(adminFacets_)
+        {
+            [adminFacets_ removeObjectForKey:facet];
+        }
         return toObjC(COMMUNICATOR->removeAdminFacet(fromNSString(facet)));
     }
     catch(const std::exception& ex)
     {
-        nsex = toObjCException(ex);
+        @throw toObjCException(ex);
     }
-    @throw nsex;
-    return nil; // Keep the compiler happy.
 }
 -(ICEObject*) findAdminFacet:(NSString*)facet
 {
-    NSException* nsex = nil;
     try
     {
-        return toObjC(COMMUNICATOR->findAdminFacet(fromNSString(facet)));
+        @synchronized(adminFacets_)
+        {
+            ICEObject* obj = [adminFacets_ objectForKey:facet];
+            if(obj != nil)
+            {
+                return obj;
+            }
+            obj = toObjC(COMMUNICATOR->findAdminFacet(fromNSString(facet)));
+            if(obj != nil)
+            {
+                [adminFacets_ setObject:obj forKey:facet];
+            }
+            return obj;
+        }
     }
     catch(const std::exception& ex)
     {
-        nsex = toObjCException(ex);
+        @throw toObjCException(ex);
     }
-    @throw nsex;
-    return nil; // Keep the compiler happy.
 }
 -(ICEMutableFacetMap*) findAllAdminFacets
 {
-    NSException* nsex = nil;
     try
     {
-        return toNSDictionary(COMMUNICATOR->findAllAdminFacets());
+        ICEMutableFacetMap* facetMap = toNSDictionary(COMMUNICATOR->findAllAdminFacets());
+        @synchronized(adminFacets_)
+        {
+            [adminFacets_ addEntriesFromDictionary:facetMap];
+        }
+        return facetMap;
     }
     catch(const std::exception& ex)
     {
-        nsex = toObjCException(ex);
+        @throw toObjCException(ex);
     }
-    @throw nsex;
-    return nil; // Keep the compiler happy.
 }
 @end

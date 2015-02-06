@@ -21,6 +21,7 @@
 {
     NSMutableDictionary* objectFactories_;
     NSDictionary* prefixTable_;
+    NSMutableDictionary* adminFacets_;
 }
 -(void)setup:(NSDictionary*)prefixTable;
 -(Ice::Communicator*)communicator;

@@ -470,7 +470,7 @@ toObjC(const Ice::ObjectPtr& object)
     else if(Ice::NativePropertiesAdminPtr::dynamicCast(object))
     {
         //
-        // Given object is a properties admin facet, return the am
+        // Given object is a properties admin facet, return the
         // Objective-C wrapper.
         //
         return [ICENativePropertiesAdmin objectWrapperWithCxxObject:object.get()];

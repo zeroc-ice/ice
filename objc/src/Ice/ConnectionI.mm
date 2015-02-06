@@ -83,21 +83,6 @@
 }
 @end
 
-// @implementation ICESSLConnectionInfo (ICEInternal)
-
-// -(id) initWithSSLConnectionInfo:(IceSSL::ConnectionInfo*)sslConnectionInfo
-// {
-//     self = [super initWithIPConnectionInfo:sslConnectionInfo];
-//     if(self)
-//     {
-//         self->cipher = [[NSString alloc] initWithUTF8String:sslConnectionInfo->cipher.c_str()];
-//         self->certs = toNSArray(sslConnectionInfo->certs);
-//     }
-//     return self;
-// }
-
-// @end
-
 namespace
 {
 
@@ -106,16 +91,16 @@ class ConnectionCallbackI : public Ice::ConnectionCallback
 public:
 
     ConnectionCallbackI(id<ICEConnection> connection, id<ICEConnectionCallback> callback) :
-        _connection(ICE_RETAIN(connection)),
-        _callback(callback)
+        _connection(connection), _callback(callback)
     {
-        CFRetain(_callback);
+        [_connection retain];
+        [_callback retain];
     }
 
     ~ConnectionCallbackI()
     {
-        CFRelease(_callback);
-        ICE_RELEASE(_connection);
+        [_connection release];
+        [_callback release];
     }
 
     void

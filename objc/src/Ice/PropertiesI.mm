@@ -236,12 +236,12 @@ public:
 
     UpdateCallbackI(id<ICEPropertiesAdminUpdateCallback> callback) : _callback(callback)
     {
-        CFRetain(_callback);
+        [_callback retain];
     }
 
     ~UpdateCallbackI()
     {
-        CFRelease(_callback);
+        [_callback release];
     }
 
     void
