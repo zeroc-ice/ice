@@ -148,9 +148,9 @@ Ice::LoggerI::write(const string& message, bool indent)
     }
     else
     {
-#if !defined(_WIN32) || defined(ICE_OS_WINRT)
-        cerr << s << endl;
-#else
+#if defined(ICE_OS_WINRT)
+        OutputDebugString(IceUtil::stringToWstring(s).c_str());
+#elif defined(_WIN32)
         //
         // Convert the message from the native narrow string encoding to the console
         // code page encoding for printing. If the _convert member is set to false 
@@ -194,6 +194,8 @@ Ice::LoggerI::write(const string& message, bool indent)
             }
             fflush(stderr);
         }
+#else
+        cerr << s << endl;
 #endif
     }
 }
