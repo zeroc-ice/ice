@@ -259,7 +259,7 @@ class TestRunner : public IceUtil::Thread
 public:
 
     TestRunner(const std::shared_ptr<TestCase>&, const TestConfig&, MainPage^, 
-			   Vector<Platform::String^>^, ListBox^, const Ice::CommunicatorPtr&);
+			   const Ice::CommunicatorPtr&);
     virtual void run();
     void runClientServerTest(const string&, const string&);
     void runClientServerTestWithRemoteServer(const string&);
@@ -273,8 +273,6 @@ private:
     std::shared_ptr<TestCase> _test;
     TestConfig _config;
     MainPage^ _page;
-	Vector<Platform::String^>^ _messages;
-	ListBox^ _output;
     Ice::CommunicatorPtr _communicator;
 };
 
@@ -465,14 +463,11 @@ Runnable::completed(int status)
     _monitor.notify();
 }
 
-TestRunner::TestRunner(const TestCasePtr& test, const TestConfig& config, MainPage^ page,
-					   Vector<Platform::String^>^ messages, ListBox^ output,
+TestRunner::TestRunner(const TestCasePtr& test, const TestConfig& config, MainPage^ page, 
 					   const Ice::CommunicatorPtr& communicator) :
     _test(test),
     _config(config),
     _page(page),
-	_messages(messages),
-	_output(output),
     _communicator(communicator)
 {
 }
@@ -810,9 +805,9 @@ MainPage::OnNavigatedTo(NavigationEventArgs^ e)
 void
 MainPage::failed(String^ msg)
 {
-	_messages->Append(ref new String(L"Test failed"));
-	_messages->Append(msg);
-    completed();
+	printToConsoleOutput(ref new String(L"Test failed"), false);
+	printToConsoleOutput(msg, true);
+	completed();
 }
 
 void 
@@ -899,7 +894,7 @@ MainPage::runSelectedTest()
     config.server = selectedLanguage();
     config.host = IceUtil::wstringToString(_host->Text->Data());
 
-    TestRunnerPtr t = new TestRunner(_allTests[_tests->SelectedIndex], config, this, _messages, _output, communicator());
+    TestRunnerPtr t = new TestRunner(_allTests[_tests->SelectedIndex], config, this, communicator());
     t->start();
     t->getThreadControl().detach();
 }
