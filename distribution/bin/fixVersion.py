@@ -203,6 +203,9 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "java", "bin", "icegridgui.deb
 #
 # Android Files
 #
+FixUtil.fileMatchAndReplace(os.path.join(os.path.join(ice_dir, "android"), "gradle.properties"),
+                            [("iceVersion[\t\s]*= " + FixUtil.vpatMatch, version)])
+
 for f in FixUtil.find("*.iml"):
     FixUtil.fileMatchAndReplace(f,
                                 [("version=\"" + FixUtil.vpatMatch + "\"", version),

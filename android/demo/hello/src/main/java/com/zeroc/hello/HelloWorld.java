@@ -299,7 +299,7 @@ public class HelloWorld extends Activity
                         HelloApp.MessageReady ready = (HelloApp.MessageReady) m.obj;
                         if(ready.ex != null)
                         {
-                            LocalException ex = (LocalException) m.obj;
+                            LocalException ex = (LocalException) ready.ex;
                             DialogFragment dialog = ErrorDialogFragment.newInstance(ex.toString(), true);
                             dialog.show(getFragmentManager(), ERROR_TAG);
                         }
