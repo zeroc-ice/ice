@@ -20,7 +20,7 @@ Ice.Warn.Connections=1
 # seconds. By enabling network tracing below, you can see ACM
 # automatically close idle connections.
 #
-Ice.ACM.Client=10
+Ice.ACM.Client.Timeout=10
 
 #
 # Network Tracing

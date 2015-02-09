@@ -20,7 +20,7 @@ Ice.Default.Router=DemoGlacier2/router:ssl -p 4064 -h demo2.zeroc.com -t 10000
 # No active connection management is permitted because of the session
 # interfaces. Connections must remain established.
 #
-Ice.ACM.Client=0
+Ice.ACM.Client.Timeout=0
 
 #
 # Connection retry is not possible because of the session
