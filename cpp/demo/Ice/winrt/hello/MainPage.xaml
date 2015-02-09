@@ -29,6 +29,7 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
@@ -46,6 +47,16 @@
                     <TextBox Grid.Column="1" x:Name="hostname" Text="127.0.0.1" TextChanged="hostname_TextChanged"/>
                 </Grid>
                 <Grid Grid.Row="1" Margin="0, 5, 0, 0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="9*"/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox Name="useDiscovery" Grid.Column="1" Unchecked="useDiscovery_Changed" Checked="useDiscovery_Changed">Use IceDiscovery</CheckBox>
+                </Grid>
+                <Grid Grid.Row="2" Margin="0, 5, 0, 0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
@@ -82,7 +93,7 @@
                         </ComboBoxItem>
                     </ComboBox>
                 </Grid>
-                <Grid Grid.Row="2" Margin="0, 5, 0, 0">
+                <Grid Grid.Row="3" Margin="0, 5, 0, 0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
@@ -94,7 +105,7 @@
                     <TextBlock Grid.Column="0" Style="{StaticResource LabelStyle}">Timeout:</TextBlock>
                     <Slider Grid.Column="1" Name="timeout" Maximum="5" Minimum="0" Orientation="Horizontal" StepFrequency="0.1" ValueChanged="timeout_ValueChanged" Grid.ColumnSpan="2"/>
                 </Grid>
-                <Grid Grid.Row="3" Margin="0, 5, 0, 0">
+                <Grid Grid.Row="4" Margin="0, 5, 0, 0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
@@ -105,12 +116,12 @@
                     <TextBlock Grid.Column="0" Style="{StaticResource LabelStyle}">Delay:</TextBlock>
                     <Slider Grid.Column="1" Name="delay" Maximum="5" Minimum="0" Orientation="Horizontal" StepFrequency="0.1"/>
                 </Grid>
-                <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0, 5, 0, 0">
+                <StackPanel Grid.Row="5" Orientation="Horizontal" Margin="0, 5, 0, 0">
                     <Button x:Name="hello" Content="Hello World!" Click="hello_Click"/>
                     <Button x:Name="shutdown" Content="Shutdown" Click="shutdown_Click"/>
                     <Button x:Name="flush" Content="Flush" Click="flush_Click" IsEnabled="False"/>
                 </StackPanel>
-                <TextBlock Grid.Row="5" Style="{StaticResource LabelStyle}" Padding="5, 5, 5, 5" Text="Client Output"
+                <TextBlock Grid.Row="6" Style="{StaticResource LabelStyle}" Padding="5, 5, 5, 5" Text="Client Output"
                            Margin="0, 5, 0, 0"/>
                 <Border Grid.Row="6" BorderThickness="2" BorderBrush="Gray" Background="Gray"
                         Margin="0, 5, 0, 0">
