@@ -79,9 +79,11 @@ using namespace IceInternal;
 #ifdef ICE_OS_WINRT
 using namespace Platform;
 using namespace Windows::Foundation;
+using namespace Windows::Foundation::Collections;
 using namespace Windows::Storage::Streams;
 using namespace Windows::Networking;
 using namespace Windows::Networking::Sockets;
+using namespace Windows::Networking::Connectivity;
 #endif
 
 namespace
@@ -1449,12 +1451,32 @@ IceInternal::isAddressValid(const Address& addr)
 
 #ifdef ICE_OS_WINRT
 vector<string>
-IceInternal::getHostsForEndpointExpand(const string&, ProtocolSupport, bool)
+IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport protocolSupport, bool includeLoopback)
 {
-    //
-    // No support for expanding wildcard addresses on WinRT
-    //
     vector<string> hosts;
+    if(host.empty() || host == "0.0.0.0" || host == "::" || host == "0:0:0:0:0:0:0:0")
+    {
+        for(IIterator<HostName^>^ it = NetworkInformation::GetHostNames()->First(); it->HasCurrent; it->MoveNext())
+        {
+            HostName^ h = it->Current;
+            if(h->IPInformation != nullptr && h->IPInformation->NetworkAdapter != nullptr)
+            {
+                hosts.push_back(IceUtil::wstringToString(h->CanonicalName->Data(), 
+                                                         IceUtil::getProcessStringConverter()));
+            }
+        }
+        if(includeLoopback)
+        {
+            if(protocolSupport != EnableIPv6)
+            {
+                hosts.push_back("127.0.0.1");
+            }
+            if(protocolSupport != EnableIPv4)
+            {
+                hosts.push_back("::1");
+            }
+        }
+    }
     return hosts;
 }
 #else
