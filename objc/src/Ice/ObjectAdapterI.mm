@@ -196,10 +196,10 @@ public:
         @autoreleasepool
         {
             ICECurrent* cu = [[ICECurrent alloc] initWithCurrent:current];
-            CookiePtr co = CookiePtr::dynamicCast(cookie);
+            id co = cookie ? CookiePtr::dynamicCast(cookie)->cookie() : nil;
             @try
             {
-                [_locator finished:cu servant:toObjC(servant) cookie:co->cookie()];
+                [_locator finished:cu servant:toObjC(servant) cookie:co];
             }
             @catch(id e)
             {
