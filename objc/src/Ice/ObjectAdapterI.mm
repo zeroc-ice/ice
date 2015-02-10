@@ -14,12 +14,16 @@
 #import <ObjectI.h>
 #import <Util.h>
 #import <LocalObjectI.h>
+#import <CurrentI.h>
+#import <StreamI.h>
 
 #import <objc/Ice/LocalException.h>
 #import <objc/Ice/Locator.h>
+#import <objc/Ice/ServantLocator.h>
 
 #include <Ice/Locator.h>
 #include <Ice/ServantLocator.h>
+#include <Ice/Stream.h>
 
 namespace
 {
@@ -58,6 +62,202 @@ private:
     Ice::ObjectPtr _servant;
 };
 typedef IceUtil::Handle<DefaultServantLocator> DefaultServantLocatorPtr;
+
+class Cookie : public Ice::LocalObject
+{
+public:
+
+    Cookie(id cookie) : _cookie(cookie)
+    {
+        [_cookie retain];
+    }
+
+    ~Cookie()
+    {
+        [_cookie release];
+    }
+
+    id cookie()
+    {
+        return _cookie;
+    }
+private:
+
+    id _cookie;
+};
+typedef IceUtil::Handle<Cookie> CookiePtr;
+
+class ExceptionWriter : public Ice::UserExceptionWriter
+{
+public:
+
+    ExceptionWriter(const Ice::CommunicatorPtr& communicator, ICEUserException* ex) :
+        Ice::UserExceptionWriter(communicator), _ex(ex)
+    {
+    }
+
+    ~ExceptionWriter() throw()
+    {
+        [_ex release];
+    }
+
+    void
+    write(const Ice::OutputStreamPtr& s) const
+    {
+        ICEOutputStream* os = [ICEOutputStream localObjectWithCxxObjectNoAutoRelease:s.get()];
+        [_ex write__:os];
+        [os release];
+    }
+
+    bool
+    usesClasses() const
+    {
+        return [_ex usesClasses__];
+    }
+
+    std::string
+    ice_name() const
+    {
+        return [[_ex ice_name] UTF8String];
+    }
+
+    Ice::UserException*
+    ice_clone() const
+    {
+        return new ExceptionWriter(*this);
+    }
+
+    void
+    ice_throw() const
+    {
+        throw *this;
+    }
+
+private:
+
+    ICEUserException* _ex;
+};
+
+class ServantLocatorWrapper : public Ice::ServantLocator
+{
+public:
+
+    ServantLocatorWrapper(id<ICEServantLocator> locator) :
+        _locator(locator)
+    {
+        [_locator retain];
+    }
+
+    ~ServantLocatorWrapper()
+    {
+        [_locator release];
+    }
+
+    virtual Ice::ObjectPtr
+    locate(const Ice::Current& current, Ice::LocalObjectPtr& cookie)
+    {
+        NSException* ex = nil;
+        @autoreleasepool
+        {
+            ICECurrent* cu = [[ICECurrent alloc] initWithCurrent:current];
+            id co = nil;
+            @try
+            {
+                ICEObject* servant = [_locator locate:cu cookie:&co];
+                if(co != nil)
+                {
+                    cookie = new Cookie(co);
+                }
+                return [servant object__];
+            }
+            @catch(id e)
+            {
+                ex = [e retain];
+            }
+            @finally
+            {
+                [cu release];
+            }
+        }
+        if(ex != nil)
+        {
+            if([ex isKindOfClass:[ICEUserException class]])
+            {
+                throw ExceptionWriter(current.adapter->getCommunicator(), (ICEUserException*)ex);
+            }
+            rethrowCxxException(ex, true); // True = release the exception.
+        }
+    }
+
+    virtual void
+    finished(const Ice::Current& current, const Ice::ObjectPtr& servant, const Ice::LocalObjectPtr& cookie)
+    {
+        NSException* ex = nil;
+        @autoreleasepool
+        {
+            ICECurrent* cu = [[ICECurrent alloc] initWithCurrent:current];
+            CookiePtr co = CookiePtr::dynamicCast(cookie);
+            @try
+            {
+                [_locator finished:cu servant:toObjC(servant) cookie:co->cookie()];
+            }
+            @catch(id e)
+            {
+                ex = [e retain];
+            }
+            @finally
+            {
+                [cu release];
+            }
+        }
+        if(ex != nil)
+        {
+            if([ex isKindOfClass:[ICEUserException class]])
+            {
+                throw ExceptionWriter(current.adapter->getCommunicator(), (ICEUserException*)ex);
+            }
+            rethrowCxxException(ex, true); // True = release the exception.
+        }
+    }
+
+    virtual void
+    deactivate(const std::string& category)
+    {
+        NSException* ex = nil;
+        @autoreleasepool
+        {
+            NSString* cat = toNSString(category);
+            @try
+            {
+                [_locator deactivate:cat];
+            }
+            @catch(id e)
+            {
+                ex = [e retain];
+            }
+            @finally
+            {
+                [cat release];
+            }
+        }
+        if(ex != nil)
+        {
+            rethrowCxxException(ex, true); // True = release the exception.
+        }
+    }
+
+    id<ICEServantLocator>
+    locator() const
+    {
+        return _locator;
+    }
+
+private:
+
+    id<ICEServantLocator> _locator;
+};
+typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
+
 }
 
 #define OBJECTADAPTER dynamic_cast<Ice::ObjectAdapter*>(static_cast<IceUtil::Shared*>(cxxObject_))
@@ -429,15 +629,45 @@ typedef IceUtil::Handle<DefaultServantLocator> DefaultServantLocatorPtr;
 
 -(void) addServantLocator:(id<ICEServantLocator>)locator category:(NSString*)category
 {
-    @throw [ICEFeatureNotSupportedException featureNotSupportedException:__FILE__ line:__LINE__];
+    NSException* nsex = nil;
+    try
+    {
+        OBJECTADAPTER->addServantLocator(new ServantLocatorWrapper(locator), fromNSString(category));
+        return;
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    @throw nsex;
 }
 -(id<ICEServantLocator>) removeServantLocator:(NSString*)category
 {
-    @throw [ICEFeatureNotSupportedException featureNotSupportedException:__FILE__ line:__LINE__];
+    NSException* nsex = nil;
+    try
+    {
+        Ice::ServantLocatorPtr locator = OBJECTADAPTER->removeServantLocator(fromNSString(category));
+        return ServantLocatorWrapperPtr::dynamicCast(locator)->locator();
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    @throw nsex;
 }
 -(id<ICEServantLocator>) findServantLocator:(NSString*)category
 {
-    @throw [ICEFeatureNotSupportedException featureNotSupportedException:__FILE__ line:__LINE__];
+    NSException* nsex = nil;
+    try
+    {
+        Ice::ServantLocatorPtr locator = OBJECTADAPTER->removeServantLocator(fromNSString(category));
+        return locator ? ServantLocatorWrapperPtr::dynamicCast(locator)->locator() : nil;
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    @throw nsex;
 }
 
 -(ICEObject*) findDefaultServant:(NSString*)category

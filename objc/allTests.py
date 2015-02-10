@@ -39,6 +39,7 @@ tests = [
      ("Ice/interceptor", ["core"]),
      ("Ice/dispatcher", ["core"]),
      ("Ice/defaultServant", ["core"]),
+     ("Ice/servantLocator", ["core"]),
      ("Ice/defaultValue", ["core"]),
      ("Ice/binding", ["core"]),
      ("Ice/stream", ["core"]),

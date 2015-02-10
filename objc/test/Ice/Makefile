@@ -39,7 +39,8 @@ SUBDIRS		= proxy \
 		  hash \
 		  info \
 		  metrics \
-		  services
+		  services \
+		  servantLocator
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

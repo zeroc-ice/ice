@@ -46,12 +46,12 @@ lookupKwd(const string& name, int baseType, bool mangleCasts = false)
         "typedef", "union", "unsigned", "void", "volatile", "while", "YES"
     };
 
-    static string nsObjectList[] = 
+    static string nsObjectList[] =
     {
         "autorelease", "class", "classForCoder", "copy", "dealloc", "description", "hash", "init", "isa",
         "isProxy", "mutableCopy", "release", "retain", "retainCount", "superclass", "zone"
     };
-    static string nsExceptionList[] = 
+    static string nsExceptionList[] =
     {
         "callStackReturnAddresses", "name", "raise", "reason", "reserved", "userInfo",
     };
@@ -478,7 +478,7 @@ Slice::ObjCGenerator::mapsToPointerType(const TypePtr& type)
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-       return builtin->kind() != Builtin::KindObjectProxy;
+       return builtin->kind() != Builtin::KindObjectProxy && builtin->kind() != Builtin::KindLocalObject;
     }
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl && cl->isInterface())
@@ -683,7 +683,7 @@ Slice::ObjCGenerator::getOptionalFormat(const TypePtr& type)
 }
 
 void
-Slice::ObjCGenerator::writeMarshalUnmarshalCode(Output &out, const TypePtr& type, const string& param, 
+Slice::ObjCGenerator::writeMarshalUnmarshalCode(Output &out, const TypePtr& type, const string& param,
                                                 bool marshal, bool autoreleased) const
 {
     string stream = marshal ? "os_" : "is_";
@@ -828,12 +828,12 @@ Slice::ObjCGenerator::writeMarshalUnmarshalCode(Output &out, const TypePtr& type
     {
         if(marshal)
         {
-            out << nl << "[" << stream << " writeEnumerator:" << param << " min:" << en->minValue() 
+            out << nl << "[" << stream << " writeEnumerator:" << param << " min:" << en->minValue()
                 << " max:" << en->maxValue() << "];";
         }
         else
         {
-            out << nl << param << " = " << "[" << stream << " readEnumerator:" << en->minValue() 
+            out << nl << param << " = " << "[" << stream << " readEnumerator:" << en->minValue()
                 << " max:" << en->maxValue() << "];";
         }
         return;
@@ -856,11 +856,11 @@ Slice::ObjCGenerator::writeMarshalUnmarshalCode(Output &out, const TypePtr& type
         {
             out << nl << param << " = [" << name << " readRetained:" << stream << "];";
         }
-    } 
+    }
 }
 
 void
-Slice::ObjCGenerator::writeOptMemberMarshalUnmarshalCode(Output &out, const TypePtr& type, const string& param, 
+Slice::ObjCGenerator::writeOptMemberMarshalUnmarshalCode(Output &out, const TypePtr& type, const string& param,
                                                          bool marshal) const
 {
     string stream = marshal ? "os_" : "is_";
@@ -930,7 +930,7 @@ Slice::ObjCGenerator::writeOptMemberMarshalUnmarshalCode(Output &out, const Type
             writeMarshalUnmarshalCode(out, type, param, marshal, false);
             return;
         }
-        else 
+        else
         {
             optionalHelper = "ICEFixedSequenceOptionalHelper";
         }
@@ -964,7 +964,7 @@ Slice::ObjCGenerator::writeOptMemberMarshalUnmarshalCode(Output &out, const Type
 }
 
 void
-Slice::ObjCGenerator::writeOptParamMarshalUnmarshalCode(Output &out, const TypePtr& type, const string& param, 
+Slice::ObjCGenerator::writeOptParamMarshalUnmarshalCode(Output &out, const TypePtr& type, const string& param,
                                                         int tag, bool marshal) const
 {
     string helper;
@@ -1195,7 +1195,7 @@ Slice::ObjCGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
         for(p = meta.begin(); p != meta.end(); ++p)
         {
             const string prefix = "prefix:";
-            string name; 
+            string name;
             if(p->substr(_objcPrefix.size(), prefix.size()) == prefix)
             {
                 foundPrefix = true;

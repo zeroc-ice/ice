@@ -20,6 +20,7 @@
 #import <objc/Ice/NativePropertiesAdmin.h>
 #import <objc/Ice/Object.h>
 #import <objc/Ice/ObjectAdapter.h>
+#import <objc/Ice/ServantLocator.h>
 #import <objc/Ice/Process.h>
 #import <objc/Ice/Properties.h>
 #import <objc/Ice/Proxy.h>
