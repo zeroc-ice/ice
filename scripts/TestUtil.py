@@ -1063,13 +1063,16 @@ def getCommandLineProperties(exe, config):
     output.close()
     return properties
 
-def getCommandLine(exe, config, options = ""):
+def getCommandLine(exe, config, options = "", interpreterOptions = ""):
     output = getStringIO()
 
     if config.mono and config.lang == "cs":
         output.write("mono --debug '%s.exe' " % exe)
     elif config.lang == "rb" and config.type == "client":
-        output.write("ruby '" + exe + "' ")
+        output.write("ruby")
+        if interpreterOptions:
+            output.write(" " + interpreterOptions)
+        output.write(' "%s" ' % exe)   
     elif config.silverlight and config.lang == "cs" and config.type == "client":
         xap = "obj/sl/%s.xap" % os.path.basename(os.getcwd())
         if os.environ.get("PROCESSOR_ARCHITECTURE") == "AMD64" or os.environ.get("PROCESSOR_ARCHITEW6432") == "":
@@ -1083,13 +1086,24 @@ def getCommandLine(exe, config, options = ""):
         if not config.ipv6:
             output.write("-Djava.net.preferIPv4Stack=true ")
         output.write(getJavaLibraryPath())
-        output.write(exe + " ")
+        if interpreterOptions:
+            output.write(" " + interpreterOptions)
+        output.write(" " + exe + " ")
     elif config.lang == "py":
-        output.write(sys.executable + ' "%s" ' % exe)
+        output.write(sys.executable)
+        if interpreterOptions:
+            output.write(" " + interpreterOptions)
+        output.write(' "%s" ' % exe)
     elif config.lang == "php" and config.type == "client":
-        output.write(phpCmd + " -n -c tmp.ini -f \""+ exe +"\" -- ")
+        output.write(phpCmd + " -n -c tmp.ini")
+        if interpreterOptions:
+            output.write(" " + interpreterOptions)
+        output.write(" -f \""+ exe +"\" -- ")
     elif config.lang == "js":
-        output.write(nodeCmd + ' "%s" ' % exe)
+        output.write(nodeCmd)
+        if interpreterOptions:
+            output.write(" " + interpreterOptions)
+        output.write(' "%s" ' % exe)
     elif config.lang == "cpp" and config.valgrind:
         # --child-silent-after-fork=yes is required for the IceGrid/activator test where the node
         # forks a process with execv failing (invalid exe name).
@@ -1376,7 +1390,8 @@ def getClientCrossTestDir(base):
 
 
 def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
-                     server = None, client = None, serverenv = None, clientenv = None):
+                     server = None, client = None, serverenv = None, clientenv = None,
+                     interpreterOptions = ""):
     if server is None:
         server = getDefaultServerFile()
     if client is None:
@@ -1455,7 +1470,7 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
         serverCfg = DriverConfig("server")
         if lang in ["rb", "php", "js"]:
             serverCfg.lang = "cpp"
-        server = getCommandLine(server, serverCfg, additionalServerOptions)
+        server = getCommandLine(server, serverCfg, additionalServerOptions, interpreterOptions)
         serverProc = spawnServer(server, env = serverenv, lang=serverCfg.lang, mx=serverCfg.mx)
         print("ok")
         sys.stdout.flush()
@@ -1466,7 +1481,7 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
             else:
                 sys.stdout.write("starting %s %s ... " % (clientLang, clientDesc))
             sys.stdout.flush()
-            client = getCommandLine(client, clientCfg, additionalClientOptions)
+            client = getCommandLine(client, clientCfg, additionalClientOptions, interpreterOptions)
             clientProc = spawnClient(client, env = clientenv, cwd = clientdir, startReader = False, lang=clientCfg.lang)
             print("ok")
 
@@ -1634,24 +1649,25 @@ def startClient(exe, args = "", config=None, env=None, echo = True, startReader 
         phpSetup(clientConfig, iceOptions, iceProfile)
     return spawnClient(cmd, env = env, echo = echo, startReader = startReader, lang=config.lang)
 
-def startServer(exe, args = "", config = None, env = None, adapter = None, count = 1, echo = True, timeout = 60):
+def startServer(exe, args = "", config = None, env = None, adapter = None, count = 1, echo = True, timeout = 60,
+                interpreterOptions = ""):
     if config is None:
         config = DriverConfig("server")
     if env is None:
         env = getTestEnv(getDefaultMapping(), os.getcwd())
-    cmd = getCommandLine(exe, config, args)
+    cmd = getCommandLine(exe, config, args, interpreterOptions)
     return spawnServer(cmd, env = env, adapter = adapter, count = count, echo = echo, lang = config.lang, mx = config.mx, timeout = timeout)
 
-def startColloc(exe, args, config=None, env=None):
+def startColloc(exe, args, config=None, env=None, interpreterOptions = ""):
     exe = quoteArgument(exe)
     if config is None:
         config = DriverConfig("colloc")
     if env is None:
         env = getTestEnv(config.lang, testdir)
-    cmd = getCommandLine(exe, config, args)
+    cmd = getCommandLine(exe, config, args, interpreterOptions)
     return spawnClient(cmd, env = env, lang=config.lang)
 
-def simpleTest(exe = None, options = ""):
+def simpleTest(exe = None, options = "", interpreterOptions = ""):
     if exe is None:
         exe = getDefaultClientFile()
     if appverifier:
@@ -1664,7 +1680,7 @@ def simpleTest(exe = None, options = ""):
 
     sys.stdout.write("starting client... ")
     sys.stdout.flush()
-    command = getCommandLine(exe, config, options)
+    command = getCommandLine(exe, config, options, interpreterOptions)
     client = spawnClient(command, startReader = False, env = env, lang = config.lang)
     print("ok")
     client.startReader()
