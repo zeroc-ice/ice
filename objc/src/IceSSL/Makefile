@@ -29,7 +29,7 @@ SDIR		= $(slicedir)/IceSSL
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS		:= -I../Ice -I$(ice_cpp_dir)/include $(CPPFLAGS)
-SLICE2OBJCFLAGS	:= --ice --include-dir objc/IceSSL $(SLICE2OBJCFLAGS)
+SLICE2OBJCFLAGS	:= --ice --include-dir objc/IceSSL --dll-export ICE_SSL_API $(SLICE2OBJCFLAGS)
 LINKWITH        := -lIceObjC$(libsuffix) $(BASELIBS)
 
 $(libdir)/$(LIBFILENAME): $(OBJS)

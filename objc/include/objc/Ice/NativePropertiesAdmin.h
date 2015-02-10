@@ -10,15 +10,15 @@
 #import <objc/Ice/Config.h>
 #import <objc/Ice/PropertiesAdmin.h>
 
-@protocol ICEPropertiesAdminUpdateCallback <NSObject>
+ICE_API @protocol ICEPropertiesAdminUpdateCallback <NSObject>
 -(void) updated:(ICEMutablePropertyDict*)properties;
 @end
 
 ICE_DEPRECATED_API("Use NSObject instead") 
-@interface ICEPropertiesAdminUpdateCallback : NSObject
+ICE_API @interface ICEPropertiesAdminUpdateCallback : NSObject
 @end
 
-@protocol ICENativePropertiesAdmin <NSObject>
+ICE_API @protocol ICENativePropertiesAdmin <NSObject>
 -(void) addUpdateCallback:(id<ICEPropertiesAdminUpdateCallback>)callback;
 -(void) removeUpdateCallback:(id<ICEPropertiesAdminUpdateCallback>)callback;
 @end

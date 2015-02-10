@@ -25,7 +25,7 @@ SDIR		= $(slicedir)/IceStorm
 
 include $(top_srcdir)/config/Make.rules
 
-SLICE2OBJCFLAGS	:= --ice --include-dir objc/IceStorm $(SLICE2OBJCFLAGS)
+SLICE2OBJCFLAGS	:= --ice --include-dir objc/IceStorm --dll-export ICE_STORM_API $(SLICE2OBJCFLAGS)
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	@mkdir -p $(dir $@)

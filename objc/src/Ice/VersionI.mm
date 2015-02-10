@@ -10,9 +10,9 @@
 #import <VersionI.h>
 #import <Util.h>
 
-ICEEncodingVersion* ICEEncoding_1_0;
-ICEEncodingVersion* ICEEncoding_1_1;
-ICEEncodingVersion* ICECurrentEncoding;
+ICE_API ICEEncodingVersion* ICEEncoding_1_0;
+ICE_API ICEEncodingVersion* ICEEncoding_1_1;
+ICE_API ICEEncodingVersion* ICECurrentEncoding;
 
 @implementation ICEEncodingVersion (ICEInternal)
 

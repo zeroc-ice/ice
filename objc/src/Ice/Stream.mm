@@ -23,7 +23,7 @@
 
 #import <objc/runtime.h>
 
-id ICENone = nil;
+ICE_API id ICENone = nil;
 
 namespace IceObjC
 {

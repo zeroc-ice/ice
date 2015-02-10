@@ -20,11 +20,11 @@
 //
 @protocol ICELogger;
 
-@protocol ICEDispatcherCall <NSObject>
+ICE_API @protocol ICEDispatcherCall <NSObject>
 -(void) run;
 @end
 
-@interface ICEInitializationData : NSObject
+ICE_API @interface ICEInitializationData : NSObject
 {
 @private
     id<ICEProperties> properties;
@@ -53,7 +53,7 @@ extern ICEProtocolVersion* ICEProtocol_1_0;
 extern ICEProtocolVersion* ICECurrentProtocol;
 extern ICEEncodingVersion* ICECurrentProtocolEncoding;
 
-@interface ICEUtil : NSObject
+ICE_API @interface ICEUtil : NSObject
 +(id<ICEProperties>) createProperties;
 +(id<ICEProperties>) createProperties:(int*)argc argv:(char*[])argv;
 +(id<ICECommunicator>) createCommunicator;

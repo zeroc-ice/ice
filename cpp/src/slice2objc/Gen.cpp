@@ -102,7 +102,7 @@ public:
 
 }
 
-Slice::ObjCVisitor::ObjCVisitor(Output& h, Output& m) : _H(h), _M(m)
+Slice::ObjCVisitor::ObjCVisitor(Output& h, Output& m, const string& dllExport) : _H(h), _M(m), _dllExport(dllExport)
 {
 }
 
@@ -618,10 +618,11 @@ Slice::ObjCVisitor::getServerArgs(const OperationPtr& op) const
 }
 
 Slice::Gen::Gen(const string& name, const string& base, const string& include, const vector<string>& includePaths,
-                const string& dir)
+                const string& dir, const string& dllExport)
     : _base(base),
       _include(include),
-      _includePaths(includePaths)
+      _includePaths(includePaths),
+      _dllExport(dllExport)
 {
     for(vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
     {
@@ -746,25 +747,48 @@ Slice::Gen::generate(const UnitPtr& p)
         _H << changeInclude(*q, _includePaths) << ".h>";
     }
 
-    UnitVisitor unitVisitor(_H, _M);
+    if(_dllExport.size())
+    {
+        _M << nl;
+        _M << nl << "#ifndef " << _dllExport << "_EXPORTS";
+        _M << nl << "#   define " << _dllExport << "_EXPORTS";
+        _M << nl << "#endif";
+        _M << nl;
+
+        _H << nl;
+        _H << nl << "#ifndef " << _dllExport;
+        _H << nl << "#   ifdef " << _dllExport << "_EXPORTS";
+        _H << nl << "#       define " << _dllExport << " ICE_DECLSPEC_EXPORT";
+        _H << nl << "#   else";
+        _H << nl << "#       define " << _dllExport << " ICE_DECLSPEC_IMPORT";
+        _H << nl << "#   endif";
+        _H << nl << "#endif";
+    }
+
+    if(!_dllExport.empty())
+    {
+        _dllExport += " ";
+    }
+
+    UnitVisitor unitVisitor(_H, _M, _dllExport);
     p->visit(&unitVisitor, false);
 
-    ObjectDeclVisitor objectDeclVisitor(_H, _M);
+    ObjectDeclVisitor objectDeclVisitor(_H, _M, _dllExport);
     p->visit(&objectDeclVisitor, false);
 
-    ProxyDeclVisitor proxyDeclVisitor(_H, _M);
+    ProxyDeclVisitor proxyDeclVisitor(_H, _M, _dllExport);
     p->visit(&proxyDeclVisitor, false);
 
-    TypesVisitor typesVisitor(_H, _M);
+    TypesVisitor typesVisitor(_H, _M, _dllExport);
     p->visit(&typesVisitor, false);
 
-    ProxyVisitor proxyVisitor(_H, _M);
+    ProxyVisitor proxyVisitor(_H, _M, _dllExport);
     p->visit(&proxyVisitor, false);
 
-    DelegateMVisitor delegateMVisitor(_H, _M);
+    DelegateMVisitor delegateMVisitor(_H, _M, _dllExport);
     p->visit(&delegateMVisitor, false);
 
-    HelperVisitor HelperVisitor(_H, _M);
+    HelperVisitor HelperVisitor(_H, _M, _dllExport);
     p->visit(&HelperVisitor, false);
 }
 
@@ -793,8 +817,8 @@ Slice::Gen::printHeader(Output& o)
     o << "\n// Ice version " << ICE_STRING_VERSION;
 }
 
-Slice::Gen::UnitVisitor::UnitVisitor(Output& H, Output& M) :
-    ObjCVisitor(H, M)
+Slice::Gen::UnitVisitor::UnitVisitor(Output& H, Output& M, const string& dllExport) :
+    ObjCVisitor(H, M, dllExport)
 {
 }
 
@@ -835,8 +859,8 @@ Slice::Gen::UnitVisitor::visitUnitEnd(const UnitPtr& unit)
     }
 }
 
-Slice::Gen::ObjectDeclVisitor::ObjectDeclVisitor(Output& H, Output& M)
-    : ObjCVisitor(H, M)
+Slice::Gen::ObjectDeclVisitor::ObjectDeclVisitor(Output& H, Output& M, const string& dllExport)
+    : ObjCVisitor(H, M, dllExport)
 {
 }
 
@@ -851,8 +875,8 @@ Slice::Gen::ObjectDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     _H << nl << "@protocol " << fixName(p) << ";";
 }
 
-Slice::Gen::ProxyDeclVisitor::ProxyDeclVisitor(Output& H, Output& M)
-    : ObjCVisitor(H, M)
+Slice::Gen::ProxyDeclVisitor::ProxyDeclVisitor(Output& H, Output& M, const string& dllExport)
+    : ObjCVisitor(H, M, dllExport)
 {
 }
 
@@ -866,8 +890,8 @@ Slice::Gen::ProxyDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     }
 }
 
-Slice::Gen::TypesVisitor::TypesVisitor(Output& H, Output& M)
-    : ObjCVisitor(H, M)
+Slice::Gen::TypesVisitor::TypesVisitor(Output& H, Output& M, const string& dllExport)
+    : ObjCVisitor(H, M, dllExport)
 {
 }
 
@@ -900,7 +924,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     string name = fixName(p);
     ClassList bases = p->bases();
 
-    _H << sp << nl << "@protocol " << name;
+    _H << sp << nl << _dllExport << "@protocol " << name;
     if(!bases.empty())
     {
         _H << " <";
@@ -952,7 +976,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         return;
     }
 
-    _H << sp << nl << "@interface " << name << " : " << baseName;
+    _H << sp << nl << _dllExport << "@interface " << name << " : " << baseName;
 
     if(!dataMembers.empty() || (preserved && !basePreserved))
     {
@@ -1149,7 +1173,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     _H << sp;
 
-    _H << nl << "@interface " << name << " : ";
+    _H << nl << _dllExport << "@interface " << name << " : ";
     if(base)
     {
         _H << fixName(base);
@@ -1305,7 +1329,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     _H << sp;
 
-    _H << nl << "@interface " << name << " : NSObject <NSCopying>";
+    _H << nl << _dllExport << "@interface " << name << " : NSObject <NSCopying>";
     _H << sb;
     _H << nl << "@private";
     _H.inc();
@@ -2077,8 +2101,8 @@ Slice::Gen::TypesVisitor::writeMemberUnmarshal(const DataMemberList& dataMembers
     }
 }
 
-Slice::Gen::ProxyVisitor::ProxyVisitor(Output& H, Output& M)
-    : ObjCVisitor(H, M)
+Slice::Gen::ProxyVisitor::ProxyVisitor(Output& H, Output& M, const string& dllExport)
+    : ObjCVisitor(H, M, dllExport)
 {
 }
 
@@ -2093,7 +2117,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     string name = fixName(p);
     ClassList bases = p->bases();
 
-    _H << sp << nl << "@protocol " << name << "Prx <";
+    _H << sp << nl << _dllExport << "@protocol " << name << "Prx <";
     if(bases.empty())
     {
         _H << "ICEObjectPrx";
@@ -2191,8 +2215,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     _H << " response:(" << responseCBSig << ")response_ exception:(void(^)(ICEException*))exception_ sent:(void(^)(BOOL))sent_;";
 }
 
-Slice::Gen::HelperVisitor::HelperVisitor(Output& H, Output& M) :
-    ObjCVisitor(H, M)
+Slice::Gen::HelperVisitor::HelperVisitor(Output& H, Output& M, const string& dllExport) :
+    ObjCVisitor(H, M, dllExport)
 {
 }
 
@@ -2209,7 +2233,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     // 
     {
         string name = moduleName(findModule(p)) + p->name() + "PrxHelper";
-        _H << sp << nl << "@interface " << name << " : ICEProxyHelper";
+        _H << sp << nl << _dllExport << "@interface " << name << " : ICEProxyHelper";
         _H << nl << "@end";
         
         _M << sp << nl << "@implementation " << name;
@@ -2231,7 +2255,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         else
         {
-            _H << sp << nl << "@interface " << name << " : ICEObjectHelper";
+            _H << sp << nl << _dllExport << "@interface " << name << " : ICEObjectHelper";
             _H << nl << "@end";
             
             _M << sp << nl << "@implementation " << name;
@@ -2255,7 +2279,7 @@ Slice::Gen::HelperVisitor::visitEnum(const EnumPtr& p)
 
     string name = moduleName(findModule(p)) + p->name() + "Helper";
 
-    _H << sp << nl << "@interface " << name << " : ICEEnumHelper";
+    _H << sp << nl << _dllExport << "@interface " << name << " : ICEEnumHelper";
     _H << nl << "@end";
 
     _M << sp << nl << "@implementation " << name;
@@ -2290,7 +2314,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     EnumPtr en = EnumPtr::dynamicCast(p->type());
     if(en)
     {
-        _H << sp << nl << "@interface " << name << " : ICEEnumSequenceHelper";
+        _H << sp << nl << _dllExport << "@interface " << name << " : ICEEnumSequenceHelper";
         _H << nl << "@end";
 
         string typeS = typeToString(en);
@@ -2312,7 +2336,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(p->type());
     if(cl)
     {
-        _H << sp << nl << "@interface " << name << " : ICEObjectSequenceHelper";
+        _H << sp << nl << _dllExport << "@interface " << name << " : ICEObjectSequenceHelper";
         _H << nl << "@end";
 
         _M << sp << nl << "@implementation " << name;
@@ -2326,7 +2350,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 
     ProxyPtr proxy = ProxyPtr::dynamicCast(p->type());
     ContainedPtr contained = ContainedPtr::dynamicCast(p->type());
-    _H << sp << nl << "@interface " << name << " : ICEArraySequenceHelper";
+    _H << sp << nl << _dllExport << "@interface " << name << " : ICEArraySequenceHelper";
     _H << nl << "@end";
 
     _M << sp << nl << "@implementation " << name;
@@ -2390,7 +2414,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     ClassDeclPtr valueClass = ClassDeclPtr::dynamicCast(valueType);
     if((valueBuiltin && valueBuiltin->kind() == Builtin::KindObject) || valueClass)
     {
-        _H << sp << nl << "@interface " << name << " : ICEObjectDictionaryHelper";
+        _H << sp << nl << _dllExport << "@interface " << name << " : ICEObjectDictionaryHelper";
         _H << nl << "@end";
         
         _M << sp << nl << "@implementation " << name;
@@ -2428,7 +2452,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         ContainedPtr contained = ContainedPtr::dynamicCast(valueType);
         valueS = moduleName(findModule(contained)) + contained->name() + "Helper";
     }
-    _H << sp << nl << "@interface " << name << " : ICEDictionaryHelper";
+    _H << sp << nl << _dllExport << "@interface " << name << " : ICEDictionaryHelper";
     _H << nl << "@end";
 
     _M << sp << nl << "@implementation " << name;
@@ -2464,7 +2488,7 @@ Slice::Gen::HelperVisitor::visitStructStart(const StructPtr& p)
 
     string name = fixName(p);
 
-    _H << sp << nl << "@interface " << name  << "Helper : ICEStructHelper";
+    _H << sp << nl << _dllExport << "@interface " << name  << "Helper : ICEStructHelper";
     _H << nl << "@end";
 
     _M << sp << nl << "@implementation " << name << "Helper";
@@ -2494,8 +2518,8 @@ Slice::Gen::HelperVisitor::visitStructStart(const StructPtr& p)
     return false;
 }
 
-Slice::Gen::DelegateMVisitor::DelegateMVisitor(Output& H, Output& M)
-    : ObjCVisitor(H, M)
+Slice::Gen::DelegateMVisitor::DelegateMVisitor(Output& H, Output& M, const string& dllExport)
+    : ObjCVisitor(H, M, dllExport)
 {
 }
 
@@ -2523,7 +2547,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
     OperationList ops = p->allOperations();
     OperationList::const_iterator r;
 
-    _H << sp << nl << "@interface " << name << "Prx : ICEObjectPrx <" << name << "Prx>";
+    _H << sp << nl << _dllExport << "@interface " << name << "Prx : ICEObjectPrx <" << name << "Prx>";
     _H << nl << "+(NSString *) ice_staticId;";
     
     _M << sp << nl << "@implementation " << name << "Prx";

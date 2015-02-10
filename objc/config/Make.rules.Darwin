@@ -16,7 +16,7 @@ OSX_TARGET_MIN_SDK_VERSION = 10.9
 CC     = xcrun clang
 CXX    = xcrun clang++
 
-CPPFLAGS		+= -pthread 
+CPPFLAGS		+= -pthread -fvisibility=hidden
 OBJCFLAGS		+= -Wall -Werror -mmacosx-version-min=$(OSX_TARGET_MIN_SDK_VERSION)
 
 

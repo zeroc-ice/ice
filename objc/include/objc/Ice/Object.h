@@ -20,19 +20,19 @@
 
 #if defined(__cplusplus)
 extern "C"
+{
 #endif
-int ICEInternalLookupString(NSString * const
- arr[], size_t, NSString * __unsafe_unretained);
+ICE_API int ICEInternalLookupString(NSString * const arr[], size_t, NSString * __unsafe_unretained);
+ICE_API void ICEInternalCheckModeAndSelector(id, ICEOperationMode, SEL, ICECurrent*);
 #if defined(__cplusplus)
-extern "C"
+}
 #endif
-void ICEInternalCheckModeAndSelector(id, ICEOperationMode, SEL, ICECurrent*);
 
-@protocol ICERequest <NSObject>
+ICE_API @protocol ICERequest <NSObject>
 -(ICECurrent*) getCurrent;
 @end
 
-@protocol ICEObject <NSObject>
+ICE_API @protocol ICEObject <NSObject>
 -(BOOL) ice_isA:(NSString*)typeId current:(ICECurrent*)current;
 -(void) ice_ping:(ICECurrent*)current;
 -(NSString*) ice_id:(ICECurrent*)current;
@@ -42,7 +42,7 @@ void ICEInternalCheckModeAndSelector(id, ICEOperationMode, SEL, ICECurrent*);
 -(BOOL) ice_dispatch:(id<ICERequest>)request;
 @end
 
-@interface ICEObject : NSObject<ICEObject, NSCopying>
+ICE_API @interface ICEObject : NSObject<ICEObject, NSCopying>
 -(BOOL) ice_isA:(NSString*)typeId;
 -(void) ice_ping;
 -(NSString*) ice_id;
@@ -54,7 +54,7 @@ void ICEInternalCheckModeAndSelector(id, ICEOperationMode, SEL, ICECurrent*);
 -(void) read__:(id<ICEInputStream>)is;
 @end
 
-@interface ICEServant : ICEObject
+ICE_API @interface ICEServant : ICEObject
 {
     void* object__;
     id delegate__;
@@ -71,9 +71,9 @@ void ICEInternalCheckModeAndSelector(id, ICEOperationMode, SEL, ICECurrent*);
 -(id) target__;
 @end
 
-@protocol ICEBlobject<ICEObject>
+ICE_API @protocol ICEBlobject<ICEObject>
 -(BOOL) ice_invoke:(NSData*)inEncaps outEncaps:(NSMutableData**)outEncaps current:(ICECurrent*)current;
 @end
 
-@interface ICEBlobject : ICEServant
+ICE_API @interface ICEBlobject : ICEServant
 @end

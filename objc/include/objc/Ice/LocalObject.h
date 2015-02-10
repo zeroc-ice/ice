@@ -9,7 +9,7 @@
 
 #import <objc/Ice/Config.h>
 
-@interface ICELocalObject : NSObject
+ICE_API @interface ICELocalObject : NSObject
 {
     void* cxxObject_;
 }

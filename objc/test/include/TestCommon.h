@@ -9,27 +9,36 @@
 
 #import <Foundation/NSObject.h>
 #import <Foundation/NSException.h>
+#import <objc/Ice/Config.h>
 
-@interface TestFailedException : NSException
+#ifndef TEST_API
+#   ifdef TEST_API_EXPORTS
+#       define TEST_API ICE_DECLSPEC_EXPORT
+#    else
+#       define TEST_API ICE_DECLSPEC_IMPORT
+#    endif
+#endif
+
+TEST_API @interface TestFailedException : NSException
 @end
 
 #if TARGET_OS_IPHONE
-void TestCommonInit(id, SEL);
-void TestCommonTestInit(id, SEL, BOOL, BOOL, BOOL);
+TEST_API void TestCommonInit(id, SEL);
+TEST_API void TestCommonTestInit(id, SEL, BOOL, BOOL, BOOL);
 #endif
 
 @protocol ICECommunicator;
 @protocol ICEProperties;
 
-id<ICEProperties> defaultServerProperties();
-id<ICEProperties> defaultClientProperties();
+TEST_API id<ICEProperties> defaultServerProperties();
+TEST_API id<ICEProperties> defaultClientProperties();
 
-void serverReady(id<ICECommunicator>);
+TEST_API void serverReady(id<ICECommunicator>);
 
-void serverStop();
+TEST_API void serverStop();
 
-void tprintf(const char* fmt, ...);
+TEST_API void tprintf(const char* fmt, ...);
 
-void testFailed(const char*, const char*, unsigned int);
+TEST_API void testFailed(const char*, const char*, unsigned int);
 
 #define test(ex) ((ex) ? ((void)0) : testFailed(#ex, __FILE__, __LINE__))

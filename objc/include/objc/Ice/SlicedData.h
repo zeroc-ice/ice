@@ -11,10 +11,10 @@
 
 #import <objc/Ice/Object.h>
 
-@protocol ICESlicedData<NSObject>
+ICE_API @protocol ICESlicedData<NSObject>
 @end
 
-@interface ICEUnknownSlicedObject : ICEObject
+ICE_API @interface ICEUnknownSlicedObject : ICEObject
 {
 @private
     NSString* unknownTypeId_;

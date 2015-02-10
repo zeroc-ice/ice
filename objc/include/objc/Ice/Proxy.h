@@ -33,7 +33,7 @@
 typedef void (^ICEMarshalCB)(id<ICEOutputStream>);
 typedef void (^ICEUnmarshalCB)(id<ICEInputStream>, BOOL);
 
-@protocol ICEAsyncResult <NSObject>
+ICE_API @protocol ICEAsyncResult <NSObject>
 
 -(void) cancel;
 
@@ -53,7 +53,7 @@ typedef void (^ICEUnmarshalCB)(id<ICEInputStream>, BOOL);
 -(NSString*) getOperation;
 @end
 
-@protocol ICEObjectPrx <NSObject, NSCopying>
+ICE_API @protocol ICEObjectPrx <NSObject, NSCopying>
 
 -(NSComparisonResult) compareIdentity:(id<ICEObjectPrx>)aProxy;
 -(NSComparisonResult) compareIdentityAndFacet:(id<ICEObjectPrx>)aProxy;
@@ -160,7 +160,7 @@ typedef void (^ICEUnmarshalCB)(id<ICEInputStream>, BOOL);
 -(void) end_ice_flushBatchRequests:(id<ICEAsyncResult>)result;
 @end
 
-@interface ICEObjectPrx : NSObject<ICEObjectPrx>
+ICE_API @interface ICEObjectPrx : NSObject<ICEObjectPrx>
 {
     void* objectPrx__;
     id<ICECommunicator> communicator__;

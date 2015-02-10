@@ -67,6 +67,7 @@ usage(const char* n)
         "-E                      Print preprocessor output on stdout.\n"
         "--include-dir DIR       Use DIR as the header include directory in source files.\n"
         "--output-dir DIR        Create files in the directory DIR.\n"
+        "--dll-export SYMBOL     Use SYMBOL for DLL exports.\n"
         "--depend                Generate Makefile dependencies.\n"
         "--depend-xml            Generate dependencies in XML format.\n"
         "-d, --debug             Print debug messages.\n"
@@ -88,6 +89,7 @@ main(int argc, char* argv[])
     opts.addOpt("E");
     opts.addOpt("", "include-dir", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "output-dir", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "dll-export", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "depend");
     opts.addOpt("", "depend-xml");
     opts.addOpt("d", "debug");
@@ -144,6 +146,8 @@ main(int argc, char* argv[])
     string include = opts.optArg("include-dir");
 
     string output = opts.optArg("output-dir");
+
+    string dllExport = opts.optArg("dll-export");
 
     bool depend = opts.isSet("depend");
     bool dependxml = opts.isSet("depend-xml");
@@ -247,7 +251,7 @@ main(int argc, char* argv[])
                 {
                     try
                     {
-                        Gen gen(argv[0], icecpp->getBaseName(), include, includePaths, output);
+                        Gen gen(argv[0], icecpp->getBaseName(), include, includePaths, output, dllExport);
                         if(!gen)
                         {
                             u->destroy();

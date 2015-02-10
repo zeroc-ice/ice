@@ -83,8 +83,8 @@ SDIR		= $(slicedir)/Ice
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS		:= -I. -I$(ice_cpp_dir)/include $(CPPFLAGS)
-SLICE2OBJCFLAGS	:= --ice --include-dir objc/Ice $(SLICE2OBJCFLAGS)
+CPPFLAGS		:= -I. -I$(ice_cpp_dir)/include -DICE_API_EXPORTS $(CPPFLAGS)
+SLICE2OBJCFLAGS	:= --ice --include-dir objc/Ice --dll-export ICE_API $(SLICE2OBJCFLAGS)
 DEPENDFLAGS		= --obj-dir
 LINKWITH		:= $(BASELIBS)
 

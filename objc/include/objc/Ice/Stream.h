@@ -22,7 +22,7 @@
 @class ICEUserException;
 @class ICEEncodingVersion;
 
-@interface ICEInternalPrefixTable : NSObject
+ICE_API @interface ICEInternalPrefixTable : NSObject
 @end
 
 typedef enum
@@ -37,7 +37,7 @@ typedef enum
     ICEOptionalFormatClass = 7
 } ICEOptionalFormat;
 
-@protocol ICEReadObjectCallback <NSObject>
+ICE_API @protocol ICEReadObjectCallback <NSObject>
 -(void)invoke:(ICEObject*)obj;
 @end
 
@@ -52,7 +52,7 @@ typedef struct
     Class value;
 } ICEKeyValueTypeHelper;
 
-@protocol ICEInputStream <NSObject>
+ICE_API @protocol ICEInputStream <NSObject>
 
 -(id<ICECommunicator>) communicator;
 
@@ -144,7 +144,7 @@ typedef struct
 -(void) skipSize;
 @end
 
-@protocol ICEOutputStream <NSObject>
+ICE_API @protocol ICEOutputStream <NSObject>
 
 -(id<ICECommunicator>) communicator;
 
@@ -217,7 +217,7 @@ typedef struct
 // Helper protocol implemented by helpers for marshaling/un-marshaling
 // Slice types.
 //
-@protocol ICEStreamHelper
+ICE_API @protocol ICEStreamHelper
 +(id) readRetained:(id<ICEInputStream>)stream NS_RETURNS_RETAINED;
 +(id) read:(id<ICEInputStream>)stream;
 +(void) write:(id)obj stream:(id<ICEOutputStream>)stream;
@@ -227,139 +227,139 @@ typedef struct
 +(ICEInt) minWireSize;
 @end
 
-@interface ICEStreamHelper : NSObject<ICEStreamHelper>
+ICE_API @interface ICEStreamHelper : NSObject<ICEStreamHelper>
 @end
 
 //
 // Helper classes for streaming Slice types
 //
-@interface ICEBoolHelper : ICEStreamHelper
+ICE_API @interface ICEBoolHelper : ICEStreamHelper
 @end
 
-@interface ICEByteHelper : ICEStreamHelper
+ICE_API @interface ICEByteHelper : ICEStreamHelper
 @end
 
-@interface ICEShortHelper : ICEStreamHelper
+ICE_API @interface ICEShortHelper : ICEStreamHelper
 @end
 
-@interface ICEIntHelper : ICEStreamHelper
+ICE_API @interface ICEIntHelper : ICEStreamHelper
 @end
 
-@interface ICELongHelper : ICEStreamHelper
+ICE_API @interface ICELongHelper : ICEStreamHelper
 @end
 
-@interface ICEFloatHelper : ICEStreamHelper
+ICE_API @interface ICEFloatHelper : ICEStreamHelper
 @end
 
-@interface ICEDoubleHelper : ICEStreamHelper
+ICE_API @interface ICEDoubleHelper : ICEStreamHelper
 @end
 
-@interface ICEStringHelper : ICEStreamHelper
+ICE_API @interface ICEStringHelper : ICEStreamHelper
 @end
 
-@interface ICEObjectHelper : ICEStreamHelper
+ICE_API @interface ICEObjectHelper : ICEStreamHelper
 +(void)read:(ICEObject**)v stream:(id<ICEInputStream>)stream;
 +(void)readOpt:(id*)v stream:(id<ICEInputStream>)stream tag:(ICEInt)tag;
 @end
 
-@interface ICEProxyHelper : ICEStreamHelper
+ICE_API @interface ICEProxyHelper : ICEStreamHelper
 @end
 
-@interface ICEEnumHelper : ICEStreamHelper
+ICE_API @interface ICEEnumHelper : ICEStreamHelper
 +(ICEInt) getMinValue;
 +(ICEInt) getMaxValue;
 @end
 
-@interface ICEStructHelper : ICEStreamHelper
+ICE_API @interface ICEStructHelper : ICEStreamHelper
 +(Class) getOptionalHelper;
 @end
 
-@protocol ICESequenceStreamHelper<ICEStreamHelper>
+ICE_API @protocol ICESequenceStreamHelper<ICEStreamHelper>
 +(Class) getElementHelper;
 +(ICEInt) count:(id)obj;
 @end
 
-@interface ICEArraySequenceHelper : ICEStreamHelper<ICESequenceStreamHelper>
+ICE_API @interface ICEArraySequenceHelper : ICEStreamHelper<ICESequenceStreamHelper>
 +(Class) getOptionalHelper;
 @end
 
-@interface ICEDataSequenceHelper : ICEStreamHelper<ICESequenceStreamHelper>
+ICE_API @interface ICEDataSequenceHelper : ICEStreamHelper<ICESequenceStreamHelper>
 @end
 
-@interface ICEBoolSequenceHelper : ICEDataSequenceHelper
+ICE_API @interface ICEBoolSequenceHelper : ICEDataSequenceHelper
 @end
 
-@interface ICEByteSequenceHelper : ICEDataSequenceHelper
+ICE_API @interface ICEByteSequenceHelper : ICEDataSequenceHelper
 @end
 
-@interface ICEShortSequenceHelper : ICEDataSequenceHelper
+ICE_API @interface ICEShortSequenceHelper : ICEDataSequenceHelper
 @end
 
-@interface ICEIntSequenceHelper : ICEDataSequenceHelper
+ICE_API @interface ICEIntSequenceHelper : ICEDataSequenceHelper
 @end
 
-@interface ICELongSequenceHelper : ICEDataSequenceHelper
+ICE_API @interface ICELongSequenceHelper : ICEDataSequenceHelper
 @end
 
-@interface ICEFloatSequenceHelper : ICEDataSequenceHelper
+ICE_API @interface ICEFloatSequenceHelper : ICEDataSequenceHelper
 @end
 
-@interface ICEDoubleSequenceHelper : ICEDataSequenceHelper
+ICE_API @interface ICEDoubleSequenceHelper : ICEDataSequenceHelper
 @end
 
-@interface ICEEnumSequenceHelper : ICEDataSequenceHelper
+ICE_API @interface ICEEnumSequenceHelper : ICEDataSequenceHelper
 @end
 
-@interface ICEStringSequenceHelper : ICEArraySequenceHelper
+ICE_API @interface ICEStringSequenceHelper : ICEArraySequenceHelper
 @end
 
-@interface ICEObjectSequenceHelper : ICEArraySequenceHelper
+ICE_API @interface ICEObjectSequenceHelper : ICEArraySequenceHelper
 @end
 
-@interface ICEProxySequenceHelper : ICEArraySequenceHelper
+ICE_API @interface ICEProxySequenceHelper : ICEArraySequenceHelper
 @end
 
-@protocol ICEDictionaryStreamHelper<ICEStreamHelper>
+ICE_API @protocol ICEDictionaryStreamHelper<ICEStreamHelper>
 +(ICEInt) count:(id)obj;
 @end
 
-@interface ICEDictionaryHelper : ICEStreamHelper<ICEDictionaryStreamHelper>
+ICE_API @interface ICEDictionaryHelper : ICEStreamHelper<ICEDictionaryStreamHelper>
 +(Class) getOptionalHelper;
 @end
 
-@interface ICEObjectDictionaryHelper : ICEDictionaryHelper
+ICE_API @interface ICEObjectDictionaryHelper : ICEDictionaryHelper
 @end
 
 //
 // Helper for optionals
 //
-@protocol ICEOptionalStreamHelper
+ICE_API @protocol ICEOptionalStreamHelper
 +(id) readRetained:(id<ICEInputStream>)stream helper:(Class)helper NS_RETURNS_RETAINED;
 +(void) write:(id)obj stream:(id<ICEOutputStream>)stream helper:(Class)helper;
 +(ICEOptionalFormat) optionalFormat;
 @end
 
-@interface ICEFixedLengthOptionalHelper : NSObject<ICEOptionalStreamHelper>
+ICE_API @interface ICEFixedLengthOptionalHelper : NSObject<ICEOptionalStreamHelper>
 @end
 
-@interface ICEVarLengthOptionalHelper : NSObject<ICEOptionalStreamHelper>
+ICE_API @interface ICEVarLengthOptionalHelper : NSObject<ICEOptionalStreamHelper>
 @end
 
-@interface ICEFixedSequenceOptionalHelper : NSObject<ICEOptionalStreamHelper>
+ICE_API @interface ICEFixedSequenceOptionalHelper : NSObject<ICEOptionalStreamHelper>
 @end
 
-@interface ICEFixedSize1SequenceOptionalHelper : NSObject<ICEOptionalStreamHelper>
+ICE_API @interface ICEFixedSize1SequenceOptionalHelper : NSObject<ICEOptionalStreamHelper>
 @end
 
-@interface ICEFixedDictionaryOptionalHelper : NSObject<ICEOptionalStreamHelper>
+ICE_API @interface ICEFixedDictionaryOptionalHelper : NSObject<ICEOptionalStreamHelper>
 @end
  
-@interface CompactIdMapHelper : NSObject
+ICE_API @interface CompactIdMapHelper : NSObject
 +(void) initialize;
 +(void) registerClass:(NSString*)type value:(ICEInt)value;
 @end
 
-@interface ICEOptionalGetter : NSObject
+ICE_API @interface ICEOptionalGetter : NSObject
 +(BOOL) get:(id)value value:(id ICE_STRONG_QUALIFIER*)v type:(Class)cl;
 +(BOOL) getRetained:(id)value value:(id ICE_STRONG_QUALIFIER*)v type:(Class)cl;
 +(BOOL) getByte:(id)value value:(ICEByte*)v;

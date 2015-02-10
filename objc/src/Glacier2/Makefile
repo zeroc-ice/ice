@@ -30,7 +30,7 @@ SDIR		= $(slicedir)/Glacier2
 
 include $(top_srcdir)/config/Make.rules
 
-SLICE2OBJCFLAGS	:= --ice --include-dir objc/Glacier2 $(SLICE2OBJCFLAGS)
+SLICE2OBJCFLAGS	:= --ice --include-dir objc/Glacier2 --dll-export GLACIER2_API $(SLICE2OBJCFLAGS)
 
 $(libdir)/$(LIBFILENAME): $(OBJS) $(HDIR)/PermissionsVerifierF.h $(HDIR)/RouterF.h
 	@mkdir -p $(dir $@)

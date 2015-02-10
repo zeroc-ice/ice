@@ -20,6 +20,16 @@
 #import <stdlib.h>
 
 #define ICE_DEPRECATED_API(msg) __attribute__((deprecated(msg)))          
+#define ICE_DECLSPEC_EXPORT __attribute__((visibility ("default")))
+#define ICE_DECLSPEC_IMPORT __attribute__((visibility ("default")))
+
+#ifndef ICE_API
+#   ifdef ICE_API_EXPORTS
+#       define ICE_API ICE_DECLSPEC_EXPORT
+#    else
+#       define ICE_API ICE_DECLSPEC_IMPORT
+#    endif
+#endif
 
 //
 // Don't forget to update the conversion methods from Util.h if the types below

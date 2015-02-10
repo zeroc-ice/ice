@@ -9,14 +9,14 @@
 
 #import <objc/Ice/Object.h>
 
-@protocol ICEDispatchInterceptor <ICEObject>
+ICE_API @protocol ICEDispatchInterceptor <ICEObject>
 -(BOOL) dispatch:(id<ICERequest>)request;
 @end
 
-@interface ICEDispatchInterceptor : ICEServant
+ICE_API @interface ICEDispatchInterceptor : ICEServant
 @end
 
-@interface ICEMainThreadDispatch : ICEDispatchInterceptor<ICEDispatchInterceptor>
+ICE_API @interface ICEMainThreadDispatch : ICEDispatchInterceptor<ICEDispatchInterceptor>
 {
     ICEObject* servant;
 }

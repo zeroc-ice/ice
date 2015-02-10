@@ -19,11 +19,11 @@
 
 @class NSCoder;
 
-@interface ICEException : NSException
+ICE_API @interface ICEException : NSException
 -(NSString*)ice_name;
 @end
 
-@interface ICELocalException : ICEException
+ICE_API @interface ICELocalException : ICEException
 {
 @protected
     const char* file;
@@ -38,7 +38,7 @@
 +(id)localException:(const char*)file line:(int)line;
 @end
 
-@interface ICEUserException : ICEException
+ICE_API @interface ICEUserException : ICEException
 -(BOOL)usesClasses__;
 -(void)write__:(id<ICEOutputStream>)stream;
 -(void) writeImpl__:(id<ICEOutputStream>)os;

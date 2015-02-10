@@ -34,7 +34,7 @@ SDIR		= $(slicedir)/IceGrid
 
 include $(top_srcdir)/config/Make.rules
 
-SLICE2OBJCFLAGS	:= --ice --include-dir objc/IceGrid $(SLICE2OBJCFLAGS)
+SLICE2OBJCFLAGS	:= --ice --include-dir objc/IceGrid --dll-export ICE_GRID_API $(SLICE2OBJCFLAGS)
 LINKWITH        := -lGlacier2ObjC $(LIBS)
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
