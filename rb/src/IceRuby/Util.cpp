@@ -308,73 +308,64 @@ IceRuby::createString(const string& str)
 #endif
 }
 
+namespace
+{
+
+template <typename T> 
+struct RubyCallArgs
+{
+    VALUE val;
+    T ret;
+};
+
+//
+// Wrapper function to call rb_num2long with rb_protect
+//
+VALUE
+rb_num2long_wrapper(VALUE val)
+{
+    RubyCallArgs<long>* data = (RubyCallArgs<long>*)val;
+    data->ret = rb_num2long(data->val);
+    return val;
+}
+
+//
+// Wrapper function to call rb_num2ll with rb_protect
+//
+VALUE
+rb_num2ll_wrapper(VALUE val)
+{
+    RubyCallArgs<Ice::Long>* data = (RubyCallArgs<Ice::Long>*)val;
+    data->ret = rb_num2ll(data->val);
+    return val;
+}
+
+}
+
 long
 IceRuby::getInteger(VALUE val)
 {
-    if(!FIXNUM_P(val) && TYPE(val) != T_BIGNUM)
+    RubyCallArgs<long> arg= {val, -1};
+    int error = 0;
+    rb_protect(rb_num2long_wrapper, (VALUE)&arg, &error);
+    if(error)
     {
-        val = callRuby(rb_Integer, val);
+        throw RubyException(rb_eTypeError, "unable to convert value to an int");
     }
-    if(FIXNUM_P(val))
-    {
-        return FIX2LONG(val);
-    }
-    else if(TYPE(val) == T_BIGNUM)
-    {
-        Ice::Long l = getLong(val);
-        if(l >= static_cast<Ice::Long>(INT_MIN) && l <= static_cast<Ice::Long>(INT_MAX))
-        {
-            return static_cast<long>(l);
-        }
-    }
-    throw RubyException(rb_eTypeError, "unable to convert value to an integer");
+    return arg.ret;
 }
-
-#define BITSPERDIG (SIZEOF_BDIGITS*CHAR_BIT)
-#define BIGUP(x) ((BDIGIT_DBL)(x) << BITSPERDIG)
 
 Ice::Long
 IceRuby::getLong(VALUE val)
 {
-    //
-    // The rb_num2ll function raises exceptions, but we can't call it using callProtected
-    // because its return type is long long and not VALUE.
-    //
-    volatile VALUE v = callRuby(rb_Integer, val);
-    if(NIL_P(v))
+    RubyCallArgs<Ice::Long> arg= {val, -1};
+    int error = 0;
+    rb_protect(rb_num2ll_wrapper, (VALUE)&arg, &error);
+    if(error)
     {
         throw RubyException(rb_eTypeError, "unable to convert value to a long");
     }
-    if(FIXNUM_P(v))
-    {
-        return FIX2LONG(v);
-    }
-    else
-    {
-        assert(TYPE(v) == T_BIGNUM);
-        long len = RBIGNUM_LEN(v);
-        if(len > SIZEOF_LONG_LONG/SIZEOF_BDIGITS)
-        {
-            throw RubyException(rb_eRangeError, "bignum too big to convert into long");
-        }
-        BDIGIT *ds = RBIGNUM_DIGITS(v);
-        BDIGIT_DBL num = 0;
-        while(len--)
-        {
-            num = BIGUP(num);
-            num += ds[len];
-        }
-        Ice::Long l = static_cast<Ice::Long>(num);
-        if(l < 0 && (RBIGNUM_SIGN(v) || l != LLONG_MIN))
-        {
-            throw RubyException(rb_eRangeError, "bignum too big to convert into long");
-        }
-        if (!RBIGNUM_SIGN(v))
-        {
-            return -l;
-        }
-        return l;
-    }
+    return arg.ret;
 }
 
 bool
