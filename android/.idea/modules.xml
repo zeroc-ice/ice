@@ -9,7 +9,6 @@
       <module fileurl="file://$PROJECT_DIR$/demo/hello/hello.iml" filepath="$PROJECT_DIR$/demo/hello/hello.iml" />
       <module fileurl="file://$PROJECT_DIR$/src/Ice/ice.iml" filepath="$PROJECT_DIR$/src/Ice/ice.iml" />
       <module fileurl="file://$PROJECT_DIR$/src/IceBox/icebox.iml" filepath="$PROJECT_DIR$/src/IceBox/icebox.iml" />
-      <module fileurl="file://$PROJECT_DIR$/src/IceDiscovery/icediscovery.iml" filepath="$PROJECT_DIR$/src/IceDiscovery/icediscovery.iml" />
       <module fileurl="file://$PROJECT_DIR$/src/IceGrid/icegrid.iml" filepath="$PROJECT_DIR$/src/IceGrid/icegrid.iml" />
       <module fileurl="file://$PROJECT_DIR$/src/IcePatch2/icepatch2.iml" filepath="$PROJECT_DIR$/src/IcePatch2/icepatch2.iml" />
       <module fileurl="file://$PROJECT_DIR$/src/IceStorm/icestorm.iml" filepath="$PROJECT_DIR$/src/IceStorm/icestorm.iml" />
