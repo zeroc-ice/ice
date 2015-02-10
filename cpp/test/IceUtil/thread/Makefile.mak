@@ -17,6 +17,7 @@ OBJS		= .\TestBase.obj \
 		  .\CreateTest.obj \
 		  .\AliveTest.obj \
 		  .\StartTest.obj \
+		  .\SleepTest.obj \
 		  .\RecMutexTest.obj \
 		  .\MutexTest.obj \
 		  .\MonitorMutexTest.obj \

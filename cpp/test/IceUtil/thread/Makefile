@@ -17,6 +17,7 @@ OBJS		= TestBase.o \
 		  CreateTest.o \
 		  AliveTest.o \
 		  StartTest.o \
+		  SleepTest.o \
 		  RecMutexTest.o \
 		  MutexTest.o \
 		  MonitorMutexTest.o \

@@ -103,6 +103,11 @@ IceUtil::ThreadControl::id() const
 void
 IceUtil::ThreadControl::sleep(const Time& timeout)
 {
+    IceUtil::Int64 msTimeout = timeout.toMilliSeconds();
+    if(msTimeout < 0 || msTimeout > 0x7FFFFFFF)
+    {
+        throw IceUtil::InvalidTimeoutException(__FILE__, __LINE__, timeout);
+    }
     this_thread::sleep_for(chrono::microseconds(timeout.toMicroSeconds()));
 }
 
@@ -330,6 +335,11 @@ IceUtil::ThreadControl::id() const
 void
 IceUtil::ThreadControl::sleep(const Time& timeout)
 {
+    IceUtil::Int64 msTimeout = timeout.toMilliSeconds();
+    if(msTimeout < 0 || msTimeout > 0x7FFFFFFF)
+    {
+        throw IceUtil::InvalidTimeoutException(__FILE__, __LINE__, timeout);
+    }
     Sleep(static_cast<long>(timeout.toMilliSeconds()));
 }
 
@@ -590,6 +600,11 @@ IceUtil::ThreadControl::id() const
 void
 IceUtil::ThreadControl::sleep(const Time& timeout)
 {
+    IceUtil::Int64 msTimeout = timeout.toMilliSeconds();
+    if(msTimeout < 0 || msTimeout > 0x7FFFFFFF)
+    {
+        throw IceUtil::InvalidTimeoutException(__FILE__, __LINE__, timeout);
+    }
     struct timeval tv = timeout;
     struct timespec ts;
     ts.tv_sec = tv.tv_sec;
