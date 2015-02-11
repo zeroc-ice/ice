@@ -24,7 +24,7 @@ TEST_API @interface TestFailedException : NSException
 
 #if TARGET_OS_IPHONE
 TEST_API void TestCommonInit(id, SEL);
-TEST_API void TestCommonTestInit(id, SEL, BOOL, BOOL, BOOL);
+TEST_API void TestCommonTestInit(id, SEL, NSString*, BOOL, BOOL);
 #endif
 
 @protocol ICECommunicator;

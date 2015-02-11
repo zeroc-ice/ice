@@ -31,14 +31,14 @@
 #import <Foundation/NSObject.h>
 #import <Foundation/NSThread.h>
 
-#include <Ice/Ice.h>
+#include <objc/Ice.h>
 
 static id outputTarget;
 static id testRun;
 static SEL readySelector;
 static SEL outputSelector;
 static id<ICECommunicator> communicator = nil;
-static BOOL ssl;
+static NSString* protocol;
 
 static BOOL sliced;
 static BOOL encoding10;
@@ -67,7 +67,6 @@ defaultServerProperties(int *argc, char** argv)
 
     static NSString* ssldefaults[] =
     {
-        @"Ice.Default.Protocol", @"ssl",
         @"Ice.Override.ConnectTimeout", @"10000", // COMPILERFIX: Workaround for SSL hang on iOS devices
         @"IceSSL.CertAuthFile", @"cacert.der",
         @"IceSSL.CheckCertName", @"0",
@@ -80,7 +79,8 @@ defaultServerProperties(int *argc, char** argv)
     {
         [properties setProperty:defaults[i] value:defaults[i+1]];
     }
-    if(ssl)
+    [properties setProperty:@"Ice.Default.Protocol" value:protocol];
+    if([protocol isEqualToString:@"ssl"] || [protocol isEqualToString:@"wss"])
     {
         for(i = 0; i < sizeof(ssldefaults)/sizeof(ssldefaults[0]); i += 2)
         {
@@ -121,7 +121,6 @@ defaultClientProperties(int* argc, char** argv)
 
     static NSString* ssldefaults[] =
     {
-        @"Ice.Default.Protocol", @"ssl",
         @"Ice.Override.ConnectTimeout", @"10000", // COMPILERFIX: Workaround for SSL hang on iOS devices
         @"IceSSL.CheckCertName", @"0",
         @"IceSSL.CertAuthFile", @"cacert.der",
@@ -136,7 +135,8 @@ defaultClientProperties(int* argc, char** argv)
         [properties setProperty:defaults[i] value:defaults[i+1]];
     }
 
-    if(ssl)
+    [properties setProperty:@"Ice.Default.Protocol" value:protocol];
+    if([protocol isEqualToString:@"ssl"] || [protocol isEqualToString:@"wss"])
     {
         for(i = 0; i < sizeof(ssldefaults)/sizeof(ssldefaults[0]); i += 2)
         {
@@ -168,11 +168,11 @@ TestCommonInit(id target, SEL output)
 }
 
 void
-TestCommonTestInit(id r, SEL ready, BOOL s, BOOL sl, BOOL e10)
+TestCommonTestInit(id r, SEL ready, NSString* p, BOOL sl, BOOL e10)
 {
     testRun = r;
     readySelector = ready;
-    ssl = s;
+    protocol = p;
     sliced = sl;
     encoding10 = e10;
 }
