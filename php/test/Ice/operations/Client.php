@@ -455,6 +455,345 @@ function twoways($communicator, $p)
     }
 
     {
+        $dsi1 = array(array(10 => true, 100 => false ), array(10 => true, 11 => false, 101 => true));
+        $dsi2 = array(array(100 => false, 101 => false));
+
+        $ro = $p->opByteBoolDS($dsi1, $dsi2, $_do);
+
+        test(count($ro) == 2);
+        test(count($ro[0]) == 3);
+        test($ro[0][10]);
+        test(!$ro[0][11]);
+        test($ro[0][101]);
+        test(count($ro[1]) == 2);
+        test($ro[1][10]);
+        test(!$ro[1][100]);
+        test(count($_do) == 3);
+        test(count($_do[0]) == 2);
+        test(!$_do[0][100]);
+        test(!$_do[0][101]);
+        test(count($_do[1]) == 2);
+        test($_do[1][10]);
+        test(!$_do[1][100]);
+        test(count($_do[2]) == 3);
+        test($_do[2][10]);
+        test(!$_do[2][11]);
+        test($_do[2][101]);
+    }
+
+    {
+        $dsi1 = array(array(110 => -1, 1100 => 123123), array(110 => -1, 111 => -100, 1101 => 0));
+        $dsi2 = array(array(100 => -1001));
+
+        $ro= $p->opShortIntDS($dsi1, $dsi2, $_do);
+
+        test(count($ro) == 2);
+        test(count($ro[0]) == 3);
+        test($ro[0][110] == -1);
+        test($ro[0][111] == -100);
+        test($ro[0][1101] == 0);
+        test(count($ro[1]) == 2);
+        test($ro[1][110] == -1);
+        test($ro[1][1100] == 123123);
+
+        test(count($_do) == 3);
+        test(count($_do[0]) == 1);
+        test($_do[0][100] == -1001);
+        test(count($_do[1]) == 2);
+        test($_do[1][110] == -1);
+        test($_do[1][1100] == 123123);
+        test(count($_do[2]) == 3);
+        test($_do[2][110] == -1);
+        test($_do[2][111] == -100);
+        test($_do[2][1101] == 0);
+    }
+
+    {
+        $dsi1 = array(array(999999110 => -1.1, 999999111 => 123123.2 ),
+                      array(999999110 => -1.1, 999999120 => -100.4, 999999130 => 0.5 ));
+        $dsi2 = array(array(999999140 => 3.14 ));
+
+        $ro = $p->opLongFloatDS($dsi1, $dsi2, $_do);
+
+        test(count($ro) == 2);
+        test(count($ro[0]) == 3);
+        test($ro[0][999999110] - -1.1 < 0.01);
+        test($ro[0][999999120] - -100.4 < 0.01);
+        test($ro[0][999999130] - 0.5 < 0.01);
+        test(count($ro[1]) == 2);
+        test($ro[1][999999110] - -1.1 < 0.01);
+        test($ro[1][999999111] - 123123.2 < 0.01);
+
+        test(count($_do) == 3);
+        test(count($_do[0]) == 1);
+        test($_do[0][999999140] - 3.14 < 0.01);
+        test(count($_do[1]) == 2);
+        test($_do[1][999999110] - -1.1 < 0.01);
+        test($_do[1][999999111] - 123123.2 < 0.01);
+        test(count($_do[2]) == 3);
+        test($_do[2][999999110] - -1.1 < 0.01);
+        test($_do[2][999999120] - -100.4 < 0.01);
+        test($_do[2][999999130] - 0.5 < 0.01);
+    }
+
+    {
+        $dsi1 = array(array("foo" => "abc -1.1", "bar" => "abc 123123.2" ),
+                      array("foo" => "abc -1.1", "FOO" => "abc -100.4", "BAR" => "abc 0.5" ));
+        $dsi2 = array(array("f00" => "ABC -3.14" ));
+
+        $ro = $p->opStringStringDS($dsi1, $dsi2, $_do);
+
+        test(count($ro) == 2);
+        test(count($ro[0]) == 3);
+        test($ro[0]["foo"] == "abc -1.1");
+        test($ro[0]["FOO"] == "abc -100.4");
+        test($ro[0]["BAR"] == "abc 0.5");
+        test(count($ro[1]) == 2);
+        test($ro[1]["foo"] == "abc -1.1");
+        test($ro[1]["bar"] == "abc 123123.2");
+
+        test(count($_do) == 3);
+        test(count($_do[0]) == 1);
+        test($_do[0]["f00"] == "ABC -3.14");
+        test(count($_do[1]) == 2);
+        test($_do[1]["foo"] == "abc -1.1");
+        test($_do[1]["bar"] == "abc 123123.2");
+        test(count($_do[2]) == 3);
+        test($_do[2]["foo"] == "abc -1.1");
+        test($_do[2]["FOO"] == "abc -100.4");
+        test($_do[2]["BAR"] == "abc 0.5");
+    }
+
+    {
+        $dsi1 = array(array("abc" => $enum1, "" => $enum2),
+                     array("abc" => $enum1, "qwerty" => $enum3, "Hello!!" => $enum2));
+        $dsi2 = array(array("Goodbye" => $enum1));
+
+        $ro = $p->opStringMyEnumDS($dsi1, $dsi2, $_do);
+
+        test(count($ro) == 2);
+        test(count($ro[0]) == 3);
+        test($ro[0]["abc"] == $enum1);
+        test($ro[0]["qwerty"] == $enum3);
+        test($ro[0]["Hello!!"] == $enum2);
+        test(count($ro[1]) == 2);
+        test($ro[1]["abc"] == $enum1);
+        test($ro[1][""] == $enum2);
+
+        test(count($_do) == 3);
+        test(count($_do[0]) == 1);
+        test($_do[0]["Goodbye"] == $enum1);
+        test(count($_do[1]) == 2);
+        test($_do[1]["abc"] == $enum1);
+        test($_do[1][""] == $enum2);
+        test(count($_do[2]) == 3);
+        test($_do[2]["abc"] == $enum1);
+        test($_do[2]["qwerty"] == $enum3);
+        test($_do[2]["Hello!!"] == $enum2);
+    }
+
+    {
+        $dsi1 = array(array($enum1 => 'abc'), array($enum2 => 'Hello!!', $enum3 => 'qwerty'));
+        $dsi2 = array(array($enum1 => 'Goodbye'));
+
+        $ro = $p->opMyEnumStringDS($dsi1, $dsi2, $_do);
+
+        test(count($ro) == 2);
+        test(count($ro[0]) == 2);
+        test($ro[0][$enum2] == "Hello!!");
+        test($ro[0][$enum3] == "qwerty");
+        test(count($ro[1]) == 1);
+        test($ro[1][$enum1] == "abc");
+
+        test(count($_do) == 3);
+        test(count($_do[0]) == 1);
+        test($_do[0][$enum1] == "Goodbye");
+        test(count($_do[1]) == 1);
+        test($_do[1][$enum1] == "abc");
+        test(count($_do[2]) == 2);
+        test($_do[2][$enum2] == "Hello!!");
+        test($_do[2][$enum3] == "qwerty");
+    }
+
+    {
+        $sdi1 = array(0x01 => array(0x01, 0x11), 0x22 => array(0x12));
+        $sdi2 = array(0xf1 => array(0xf2, 0xf3));
+
+        $ro = $p->opByteByteSD($sdi1, $sdi2, $_do);
+
+        test($_do == $sdi2);
+        test(count($ro) == 3);
+        test(count($ro[0x01]) == 2);
+        test($ro[0x01][0] == 0x01);
+        test($ro[0x01][1] == 0x11);
+        test(count($ro[0x22]) == 1);
+        test($ro[0x22][0] == 0x12);
+        test(count($ro[0xf1]) == 2);
+        test($ro[0xf1][0] == 0xf2);
+        test($ro[0xf1][1] == 0xf3);
+    }
+
+    {
+        $sdi1 = array(false => array(true, false), true => array(false, true, true));
+        $sdi2 = array(false => array(true, false));
+
+        $ro = $p->opBoolBoolSD($sdi1, $sdi2, $_do);
+
+        test($_do == $sdi2);
+        test(count($ro) == 2);
+        test(count($ro[false]) == 2);
+        test($ro[false][0]);
+        test(!$ro[false][1]);
+        test(count($ro[true]) == 3);
+        test(!$ro[true][0]);
+        test($ro[true][1]);
+        test($ro[true][2]);
+    }
+
+    {
+        $sdi1 = array(1 => array(1, 2, 3), 2 => array(4, 5));
+        $sdi2 = array(4 => array(6, 7));
+
+        $ro = $p->opShortShortSD($sdi1, $sdi2, $_do);
+
+        test($_do == $sdi2);
+        test(count($ro) == 3);
+        test(count($ro[1]) == 3);
+        test($ro[1][0] == 1);
+        test($ro[1][1] == 2);
+        test($ro[1][2] == 3);
+        test(count($ro[2]) == 2);
+        test($ro[2][0] == 4);
+        test($ro[2][1] == 5);
+        test(count($ro[4]) == 2);
+        test($ro[4][0] == 6);
+        test($ro[4][1] == 7);
+    }
+
+    {
+        $sdi1 = array(100 => array(100, 200, 300), 200 => array(400, 500));
+        $sdi2 = array(400 => array(600, 700));
+
+        $ro = $p->opIntIntSD($sdi1, $sdi2, $_do);
+
+        test($_do == $sdi2);
+        test(count($ro) == 3);
+        test(count($ro[100]) == 3);
+        test($ro[100][0] == 100);
+        test($ro[100][1] == 200);
+        test($ro[100][2] == 300);
+        test(count($ro[200]) == 2);
+        test($ro[200][0] == 400);
+        test($ro[200][1] == 500);
+        test(count($ro[400]) == 2);
+        test($ro[400][0] == 600);
+        test($ro[400][1] == 700);
+    }
+
+    {
+        $sdi1 = array(999999990 => array(999999110, 999999111, 999999110), 999999991 => array(999999120, 999999130));
+        $sdi2 = array(999999992 => array(999999110, 999999120));
+
+        $ro = $p->opLongLongSD($sdi1, $sdi2, $_do);
+
+        test($_do == $sdi2);
+        test(count($ro) == 3);
+        test(count($ro[999999990]) == 3);
+        test($ro[999999990][0] == 999999110);
+        test($ro[999999990][1] == 999999111);
+        test($ro[999999990][2] == 999999110);
+        test(count($ro[999999991]) == 2);
+        test($ro[999999991][0] == 999999120);
+        test($ro[999999991][1] == 999999130);
+        test(count($ro[999999992]) == 2);
+        test($ro[999999992][0] == 999999110);
+        test($ro[999999992][1] == 999999120);
+    }
+
+    {
+        $sdi1 = array("abc" => array(-1.1, 123123.2, 100.0), "ABC" => array(42.24, -1.61));
+        $sdi2 = array("aBc" => array(-3.14, 3.14));
+
+        $ro = $p->opStringFloatSD($sdi1, $sdi2, $_do);
+
+        test(count($_do) == 1);
+        test(count($_do["aBc"]) == 2);
+        test($_do["aBc"][0] - -3.14 < 0.01);
+        test($_do["aBc"][1] - 3.14 < 0.01);
+        test(count($ro) == 3);
+        test(count($ro["abc"]) == 3);
+        test($ro["abc"][0] - -1.1 < 0.01);
+        test($ro["abc"][1] - 123123.2 < 0.01);
+        test($ro["abc"][2] - 100.0 < 0.01);
+        test(count($ro["ABC"]) == 2);
+        test($ro["ABC"][0] - 42.24 < 0.01);
+        test($ro["ABC"][1] - -1.61 < 0.01);
+        test(count($ro["aBc"]) == 2);
+        test($ro["aBc"][0] - -3.14 < 0.01);
+        test($ro["aBc"][1] - 3.14 < 0.01);
+    }
+
+    {
+        $sdi1 = array("Hello!!" => array(1.1E10, 1.2E10, 1.3E10), "Goodbye" => array(1.4E10, 1.5E10));
+        $sdi2 = array("" => array(1.6E10, 1.7E10));
+
+        $ro = $p->opStringDoubleSD($sdi1, $sdi2, $_do);
+
+        test($_do == $sdi2);
+        test(count($ro) == 3);
+        test(count($ro["Hello!!"]) == 3);
+        test($ro["Hello!!"][0] == 1.1E10);
+        test($ro["Hello!!"][1] == 1.2E10);
+        test($ro["Hello!!"][2] == 1.3E10);
+        test(count($ro["Goodbye"]) == 2);
+        test($ro["Goodbye"][0] == 1.4E10);
+        test($ro["Goodbye"][1] == 1.5E10);
+        test(count($ro[""]) == 2);
+        test($ro[""][0] == 1.6E10);
+        test($ro[""][1] == 1.7E10);
+    }
+
+    {
+        $sdi1 = array("abc" => array("abc", "de", "fghi") , "def" => array("xyz", "or"));
+        $sdi2 = array("ghi" => array("and", "xor"));
+
+        $ro = $p->opStringStringSD($sdi1, $sdi2, $_do);
+
+        test($_do == $sdi2);
+        test(count($ro) == 3);
+        test(count($ro["abc"]) == 3);
+        test($ro["abc"][0] == "abc");
+        test($ro["abc"][1] == "de");
+        test($ro["abc"][2] == "fghi");
+        test(count($ro["def"]) == 2);
+        test($ro["def"][0] == "xyz");
+        test($ro["def"][1] == "or");
+        test(count($ro["ghi"]) == 2);
+        test($ro["ghi"][0] == "and");
+        test($ro["ghi"][1] == "xor");
+    }
+
+    {
+        $sdi1 = array($enum3 => array($enum1, $enum1, $enum2), $enum2 => array($enum1, $enum2));
+        $sdi2 = array($enum1 => array($enum3, $enum3));
+
+        $ro = $p->opMyEnumMyEnumSD($sdi1, $sdi2, $_do);
+
+        test($_do == $sdi2);
+        test(count($ro) == 3);
+        test(count($ro[$enum3]) == 3);
+        test($ro[$enum3][0] == $enum1);
+        test($ro[$enum3][1] == $enum1);
+        test($ro[$enum3][2] == $enum2);
+        test(count($ro[$enum2]) == 2);
+        test($ro[$enum2][0] == $enum1);
+        test($ro[$enum2][1] == $enum2);
+        test(count($ro[$enum1]) == 2);
+        test($ro[$enum1][0] == $enum3);
+        test($ro[$enum1][1] == $enum3);
+    }
+
+    {
         $lengths = array(0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000);
         foreach($lengths as $l)
         {

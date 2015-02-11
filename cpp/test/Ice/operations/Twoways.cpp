@@ -831,8 +831,8 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
             test(_do[0][101] == false);
             test(_do[1].size() == 2);
             test(_do[1][10] == true);
-            test(_do[1][101] == false);
-            test(_do[1].size() == 3);
+            test(_do[1][100] == false);
+            test(_do[2].size() == 3);
             test(_do[2][10] == true);
             test(_do[2][11] == false);
             test(_do[2][101] == true);

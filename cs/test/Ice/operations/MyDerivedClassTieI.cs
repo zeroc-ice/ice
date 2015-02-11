@@ -332,6 +332,289 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
         return r;
     }
 
+    public Dictionary<byte,bool>[] opByteBoolDS(Dictionary<byte,bool>[] p1,
+                                                Dictionary<byte,bool>[] p2,
+                                                out Dictionary<byte,bool>[] p3,
+                                                Ice.Current current)
+    {
+        p3 = new Dictionary<byte, bool>[p1.Length + p2.Length];
+        Array.Copy(p2, p3, p2.Length);
+        Array.Copy(p1, 0, p3, p2.Length, p1.Length);
+
+        Dictionary<byte, bool>[] r = new Dictionary<byte, bool>[p1.Length];
+        for(int i = 0; i < p1.Length; i++)
+        {
+            r[i] = p1[p1.Length - (i + 1)];
+        }
+        return r;
+    }
+
+    public Dictionary<short, int>[] opShortIntDS(Dictionary<short, int>[] p1,
+                                                 Dictionary<short, int>[] p2,
+                                                 out Dictionary<short, int>[] p3,
+                                                 Ice.Current current)
+    {
+        p3 = new Dictionary<short, int>[p1.Length + p2.Length];
+        Array.Copy(p2, p3, p2.Length);
+        Array.Copy(p1, 0, p3, p2.Length, p1.Length);
+
+        Dictionary<short, int>[] r = new Dictionary<short, int>[p1.Length];
+        for(int i = 0; i < p1.Length; i++)
+        {
+            r[i] = p1[p1.Length - (i + 1)];
+        }
+        return r;
+    }
+
+    public Dictionary<long,float>[] opLongFloatDS(Dictionary<long,float>[] p1,
+                                                  Dictionary<long,float>[] p2,
+                                                  out Dictionary<long,float>[] p3,
+                                                  Ice.Current current)
+    {
+        p3 = new Dictionary<long, float>[p1.Length + p2.Length];
+        Array.Copy(p2, p3, p2.Length);
+        Array.Copy(p1, 0, p3, p2.Length, p1.Length);
+
+        Dictionary<long, float>[] r = new Dictionary<long, float>[p1.Length];
+        for(int i = 0; i < p1.Length; i++)
+        {
+            r[i] = p1[p1.Length - (i + 1)];
+        }
+        return r;
+    }
+
+    public Dictionary<string, string>[] opStringStringDS(Dictionary<string, string>[] p1,
+                                                         Dictionary<string, string>[] p2,
+                                                         out Dictionary<string, string>[] p3,
+                                                         Ice.Current current)
+    {
+        p3 = new Dictionary<string, string>[p1.Length + p2.Length];
+        Array.Copy(p2, p3, p2.Length);
+        Array.Copy(p1, 0, p3, p2.Length, p1.Length);
+
+        Dictionary<string, string>[] r = new Dictionary<string, string>[p1.Length];
+        for(int i = 0; i < p1.Length; i++)
+        {
+            r[i] = p1[p1.Length - (i + 1)];
+        }
+        return r;
+    }
+
+    public Dictionary<string, Test.MyEnum>[] opStringMyEnumDS(Dictionary<string, Test.MyEnum>[] p1,
+                                                              Dictionary<string, Test.MyEnum>[] p2,
+                                                              out Dictionary<string, Test.MyEnum>[] p3,
+                                                              Ice.Current current)
+    {
+        p3 = new Dictionary<string, Test.MyEnum>[p1.Length + p2.Length];
+        Array.Copy(p2, p3, p2.Length);
+        Array.Copy(p1, 0, p3, p2.Length, p1.Length);
+
+        Dictionary<string, Test.MyEnum>[] r = new Dictionary<string, Test.MyEnum>[p1.Length];
+        for(int i = 0; i < p1.Length; i++)
+        {
+            r[i] = p1[p1.Length - (i + 1)];
+        }
+        return r;
+    }
+
+    public Dictionary<Test.MyEnum, string>[] opMyEnumStringDS(Dictionary<Test.MyEnum, string>[] p1,
+                                                              Dictionary<Test.MyEnum, string>[] p2,
+                                                              out Dictionary<Test.MyEnum, string>[] p3,
+                                                              Ice.Current current)
+    {
+        p3 = new Dictionary<Test.MyEnum, string>[p1.Length + p2.Length];
+        Array.Copy(p2, p3, p2.Length);
+        Array.Copy(p1, 0, p3, p2.Length, p1.Length);
+
+        Dictionary<Test.MyEnum, string>[] r = new Dictionary<Test.MyEnum, string>[p1.Length];
+        for(int i = 0; i < p1.Length; i++)
+        {
+            r[i] = p1[p1.Length - (i + 1)];
+        }
+        return r;
+    }
+
+    public Dictionary<Test.MyStruct, Test.MyEnum>[] opMyStructMyEnumDS(
+        Dictionary<Test.MyStruct, Test.MyEnum>[] p1,
+        Dictionary<Test.MyStruct, Test.MyEnum>[] p2,
+        out Dictionary<Test.MyStruct, Test.MyEnum>[] p3,
+        Ice.Current current)
+    {
+        p3 = new Dictionary<Test.MyStruct, Test.MyEnum>[p1.Length + p2.Length];
+        Array.Copy(p2, p3, p2.Length);
+        Array.Copy(p1, 0, p3, p2.Length, p1.Length);
+
+        Dictionary<Test.MyStruct, Test.MyEnum>[] r = new Dictionary<Test.MyStruct, Test.MyEnum>[p1.Length];
+        for(int i = 0; i < p1.Length; i++)
+        {
+            r[i] = p1[p1.Length - (i + 1)];
+        }
+        return r;
+    }
+
+    public Dictionary<byte, byte[]> opByteByteSD(Dictionary<byte, byte[]> p1,
+                                                 Dictionary<byte, byte[]> p2,
+                                                 out Dictionary<byte, byte[]> p3,
+                                                 Ice.Current current)
+    {
+        p3 = p2;
+        Dictionary<byte, byte[]> r = new Dictionary<byte, byte[]>();
+        foreach(KeyValuePair<byte, byte[]> e in p1)
+        {
+            r[e.Key] = e.Value;
+        }
+        foreach(KeyValuePair<byte, byte[]> e in p2)
+        {
+            r[e.Key] = e.Value;
+        }
+        return r;
+    }
+
+    public Dictionary<bool, bool[]> opBoolBoolSD(Dictionary<bool, bool[]> p1,
+                                                 Dictionary<bool, bool[]> p2,
+                                                 out Dictionary<bool, bool[]> p3,
+                                                 Ice.Current current)
+    {
+        p3 = p2;
+        Dictionary<bool, bool[]> r = new Dictionary<bool, bool[]>();
+        foreach(KeyValuePair<bool, bool[]> e in p1)
+        {
+            r[e.Key] = e.Value;
+        }
+        foreach(KeyValuePair<bool, bool[]> e in p2)
+        {
+            r[e.Key] = e.Value;
+        }
+        return r;
+    }
+
+    public Dictionary<short, short[]> opShortShortSD(Dictionary<short, short[]> p1,
+                                                     Dictionary<short, short[]> p2,
+                                                     out Dictionary<short, short[]> p3,
+                                                     Ice.Current current)
+    {
+        p3 = p2;
+        Dictionary<short, short[]> r = new Dictionary<short, short[]>();
+        foreach(KeyValuePair<short, short[]> e in p1)
+        {
+            r[e.Key] = e.Value;
+        }
+        foreach(KeyValuePair<short, short[]> e in p2)
+        {
+            r[e.Key] = e.Value;
+        }
+        return r;
+    }
+
+    public Dictionary<int, int[]> opIntIntSD(Dictionary<int, int[]> p1,
+                                             Dictionary<int, int[]> p2,
+                                             out Dictionary<int, int[]> p3,
+                                             Ice.Current current)
+    {
+        p3 = p2;
+        Dictionary<int, int[]> r = new Dictionary<int, int[]>();
+        foreach(KeyValuePair<int, int[]> e in p1)
+        {
+            r[e.Key] = e.Value;
+        }
+        foreach(KeyValuePair<int, int[]> e in p2)
+        {
+            r[e.Key] = e.Value;
+        }
+        return r;
+    }
+
+    public Dictionary<long, long[]> opLongLongSD(Dictionary<long, long[]> p1,
+                                                 Dictionary<long, long[]> p2,
+                                                 out Dictionary<long, long[]> p3,
+                                                 Ice.Current current)
+    {
+        p3 = p2;
+        Dictionary<long, long[]> r = new Dictionary<long, long[]>();
+        foreach(KeyValuePair<long, long[]> e in p1)
+        {
+            r[e.Key] = e.Value;
+        }
+        foreach(KeyValuePair<long, long[]> e in p2)
+        {
+            r[e.Key] = e.Value;
+        }
+        return r;
+    }
+
+    public Dictionary<string, float[]> opStringFloatSD(Dictionary<string, float[]> p1,
+                                                       Dictionary<string, float[]> p2,
+                                                       out Dictionary<string, float[]> p3,
+                                                       Ice.Current current)
+    {
+        p3 = p2;
+        Dictionary<string, float[]> r = new Dictionary<string, float[]>();
+        foreach(KeyValuePair<string, float[]> e in p1)
+        {
+            r[e.Key] = e.Value;
+        }
+        foreach(KeyValuePair<string, float[]> e in p2)
+        {
+            r[e.Key] = e.Value;
+        }
+        return r;
+    }
+
+    public Dictionary<string, double[]> opStringDoubleSD(Dictionary<string, double[]> p1,
+                                                         Dictionary<string, double[]> p2,
+                                                         out Dictionary<string, double[]> p3,
+                                                         Ice.Current current)
+    {
+        p3 = p2;
+        Dictionary<string, double[]> r = new Dictionary<string, double[]>();
+        foreach(KeyValuePair<string, double[]> e in p1)
+        {
+            r[e.Key] = e.Value;
+        }
+        foreach(KeyValuePair<string, double[]> e in p2)
+        {
+            r[e.Key] = e.Value;
+        }
+        return r;
+    }
+
+    public Dictionary<string, string[]> opStringStringSD(Dictionary<string, string[]> p1,
+                                                         Dictionary<string, string[]> p2,
+                                                         out Dictionary<string, string[]> p3,
+                                                         Ice.Current current)
+    {
+        p3 = p2;
+        Dictionary<string, string[]> r = new Dictionary<string, string[]>();
+        foreach(KeyValuePair<string, string[]> e in p1)
+        {
+            r[e.Key] = e.Value;
+        }
+        foreach(KeyValuePair<string, string[]> e in p2)
+        {
+            r[e.Key] = e.Value;
+        }
+        return r;
+    }
+
+    public Dictionary<Test.MyEnum, Test.MyEnum[]> opMyEnumMyEnumSD(
+        Dictionary<Test.MyEnum, Test.MyEnum[]> p1,
+        Dictionary<Test.MyEnum, Test.MyEnum[]> p2,
+        out Dictionary<Test.MyEnum, Test.MyEnum[]> p3,
+        Ice.Current ice)
+    {
+        p3 = p2;
+        Dictionary<Test.MyEnum, Test.MyEnum[]> r = new Dictionary<Test.MyEnum, Test.MyEnum[]>();
+        foreach(KeyValuePair<Test.MyEnum, Test.MyEnum[]> e in p1)
+        {
+            r[e.Key] = e.Value;
+        }
+        foreach(KeyValuePair<Test.MyEnum, Test.MyEnum[]> e in p2)
+        {
+            r[e.Key] = e.Value;
+        }
+        return r;
+    }
+
     public int[] opIntS(int[] s, Ice.Current current)
     {
         int[] r = new int[s.Length];

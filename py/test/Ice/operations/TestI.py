@@ -194,6 +194,102 @@ class MyDerivedClassI(Test.MyDerivedClass):
         r.update(p2)
         return (r, p3)
 
+    def opByteBoolDS(self, p1, p2, current=None):
+        p3 = p2[0:]
+        p3.extend(p1)
+        r = p1[::-1]
+        return (r, p3)
+
+    def opShortIntDS(self, p1, p2, current=None):
+        p3 = p2[0:]
+        p3.extend(p1)
+        r = p1[::-1]
+        return (r, p3)
+
+    def opLongFloatDS(self, p1, p2, current=None):
+        p3 = p2[0:]
+        p3.extend(p1)
+        r = p1[::-1]
+        return (r, p3)
+
+    def opStringStringDS(self, p1, p2, current=None):
+        p3 = p2[0:]
+        p3.extend(p1)
+        r = p1[::-1]
+        return (r, p3)
+
+    def opStringMyEnumDS(self, p1, p2, current=None):
+        p3 = p2[0:]
+        p3.extend(p1)
+        r = p1[::-1]
+        return (r, p3)
+
+    def opMyEnumStringDS(self, p1, p2, current=None):
+        p3 = p2[0:]
+        p3.extend(p1)
+        r = p1[::-1]
+        return (r, p3)
+
+    def opMyStructMyEnumDS(self, p1, p2, current=None):
+        p3 = p2[0:]
+        p3.extend(p1)
+        r = p1[::-1]
+        return (r, p3)
+
+    def opByteByteSD(self, p1, p2, current=None):
+        p3 = p2.copy()
+        r = p1.copy()
+        r.update(p2)
+        return (r, p3)
+
+    def opBoolBoolSD(self, p1, p2, current=None):
+        p3 = p2.copy()
+        r = p1.copy()
+        r.update(p2)
+        return (r, p3)
+
+    def opShortShortSD(self, p1, p2, current=None):
+        p3 = p2.copy()
+        r = p1.copy()
+        r.update(p2)
+        return (r, p3)
+
+    def opIntIntSD(self, p1, p2, current=None):
+        p3 = p2.copy()
+        r = p1.copy()
+        r.update(p2)
+        return (r, p3)
+
+    def opLongLongSD(self, p1, p2, current=None):
+        p3 = p2.copy()
+        r = p1.copy()
+        r.update(p2)
+        return (r, p3)
+
+    def opStringFloatSD(self, p1, p2, current=None):
+        p3 = p2.copy()
+        r = p1.copy()
+        r.update(p2)
+        return (r, p3)
+
+    def opStringDoubleSD(self, p1, p2, current=None):
+        p3 = p2.copy()
+        r = p1.copy()
+        r.update(p2)
+        return (r, p3)
+
+    def opStringStringSD(self, p1, p2, current=None):
+        p3 = p2.copy()
+        r = p1.copy()
+        r.update(p2)
+        return (r, p3)
+
+    def opMyEnumMyEnumSD(self, p1, p2, current=None):
+        p3 = p2.copy()
+        r = p1.copy()
+        r.update(p2)
+        return (r, p3)
+
     def opIntS(self, s, current=None):
         return [-x for x in s]
 

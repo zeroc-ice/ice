@@ -9,49 +9,10 @@
 
 package test.Ice.operations;
 
-import test.Ice.operations.AMD.Test.AMD_MyClass_opBool;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opBoolS;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opBoolSS;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opByte;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opByteBoolD;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opByteS;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opByteSOneway;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opByteSOnewayCallCount;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opByteSS;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opContext;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opDoubleMarshaling;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opFloatDouble;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opFloatDoubleS;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opFloatDoubleSS;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opIdempotent;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opIntS;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opLongFloatD;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opMyClass;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opMyEnum;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opMyStructMyEnumD;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opNonmutating;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opShortIntD;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opShortIntLong;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opShortIntLongS;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opShortIntLongSS;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opString;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opStringMyEnumD;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opMyEnumStringD;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opStringS;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opStringSS;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opStringSSS;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opStringStringD;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opStruct;
-import test.Ice.operations.AMD.Test.AMD_MyClass_opVoid;
-import test.Ice.operations.AMD.Test.AMD_MyClass_shutdown;
-import test.Ice.operations.AMD.Test.AMD_MyClass_delay;
-import test.Ice.operations.AMD.Test.AMD_MyDerivedClass_opDerived;
-import test.Ice.operations.AMD.Test.MyClassPrx;
-import test.Ice.operations.AMD.Test.MyClassPrxHelper;
-import test.Ice.operations.AMD.Test._MyDerivedClassOperations;
-import test.Ice.operations.AMD.Test.MyEnum;
-import test.Ice.operations.AMD.Test.MyStruct;
-import test.Ice.operations.AMD.Test.Structure;
+import Ice.Current;
+import test.Ice.operations.AMD.Test.*;
+
+import java.util.*;
 
 public final class AMDTieMyDerivedClassI implements _MyDerivedClassOperations
 {
@@ -66,8 +27,7 @@ public final class AMDTieMyDerivedClassI implements _MyDerivedClassOperations
 
     static class Thread_opVoid extends Thread
     {
-        public
-        Thread_opVoid(AMD_MyClass_opVoid cb)
+        public Thread_opVoid(AMD_MyClass_opVoid cb)
         {
             _cb = cb;
         }
@@ -191,7 +151,7 @@ public final class AMDTieMyDerivedClassI implements _MyDerivedClassOperations
                  byte p1, byte p2,
                  Ice.Current current)
     {
-        cb.ice_response(p1, (byte)(p1 ^ p2));
+        cb.ice_response(p1, (byte) (p1 ^ p2));
     }
 
     @Override
@@ -312,7 +272,7 @@ public final class AMDTieMyDerivedClassI implements _MyDerivedClassOperations
     {
         MyClassPrx p2 = p1;
         MyClassPrx p3 = MyClassPrxHelper.uncheckedCast(
-            current.adapter.createProxy(current.adapter.getCommunicator().stringToIdentity("noSuchIdentity")));
+                current.adapter.createProxy(current.adapter.getCommunicator().stringToIdentity("noSuchIdentity")));
         cb.ice_response(MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(current.id)), p2, p3);
     }
 
@@ -432,6 +392,236 @@ public final class AMDTieMyDerivedClassI implements _MyDerivedClassOperations
     }
 
     @Override
+    public void opByteBoolDS_async(AMD_MyClass_opByteBoolDS cb,
+                                   List<Map<Byte, Boolean>> p1,
+                                   List<Map<Byte, Boolean>> p2,
+                                   Ice.Current current)
+    {
+
+        ArrayList<Map<Byte, Boolean>> p3= new ArrayList<>();
+        p3.addAll(p2);
+        p3.addAll(p1);
+
+        List<Map<Byte, Boolean>> r = new ArrayList<>(p1);
+        Collections.reverse(r);
+
+        cb.ice_response(r, p3);
+    }
+
+    @Override
+    public void opShortIntDS_async(AMD_MyClass_opShortIntDS cb,
+                                   List<Map<Short, Integer>> p1,
+                                   List<Map<Short, Integer>> p2,
+                                   Ice.Current current)
+    {
+        List<Map<Short, Integer>> p3= new ArrayList<>();
+        p3.addAll(p2);
+        p3.addAll(p1);
+
+        List<Map<Short, Integer>> r = new ArrayList<>(p1);
+        Collections.reverse(r);
+
+        cb.ice_response(r, p3);
+    }
+
+    @Override
+    public void opLongFloatDS_async(AMD_MyClass_opLongFloatDS cb,
+                                    List<Map<Long, Float>> p1,
+                                    List<Map<Long, Float>> p2,
+                                    Ice.Current current)
+    {
+        List<Map<Long, Float>> p3= new ArrayList<>();
+        p3.addAll(p2);
+        p3.addAll(p1);
+
+        List<Map<Long, Float>> r = new ArrayList<>(p1);
+        Collections.reverse(r);
+
+        cb.ice_response(r, p3);
+    }
+
+    @Override
+    public void opStringStringDS_async(AMD_MyClass_opStringStringDS cb,
+                                       List<Map<String, String>> p1,
+                                       List<Map<String, String>> p2,
+                                       Ice.Current current)
+    {
+        List<Map<String, String>> p3= new ArrayList<>();
+        p3.addAll(p2);
+        p3.addAll(p1);
+
+        List<Map<String, String>> r = new ArrayList<>(p1);
+        Collections.reverse(r);
+
+        cb.ice_response(r, p3);
+    }
+
+    @Override
+    public void opStringMyEnumDS_async(AMD_MyClass_opStringMyEnumDS cb,
+                                       List<Map<String, MyEnum>> p1,
+                                       List<Map<String, MyEnum>> p2,
+                                       Ice.Current current)
+    {
+        List<Map<String, MyEnum>> p3= new ArrayList<>();
+        p3.addAll(p2);
+        p3.addAll(p1);
+
+        List<Map<String, MyEnum>> r = new ArrayList<>(p1);
+        Collections.reverse(r);
+
+        cb.ice_response(r, p3);
+    }
+
+    @Override
+    public void opMyEnumStringDS_async(AMD_MyClass_opMyEnumStringDS cb,
+                                       List<Map<MyEnum, String>> p1,
+                                       List<Map<MyEnum, String>> p2,
+                                       Ice.Current current)
+    {
+        List<Map<MyEnum, String>> p3= new ArrayList<>();
+        p3.addAll(p2);
+        p3.addAll(p1);
+
+        List<Map<MyEnum, String>> r = new ArrayList<>(p1);
+        Collections.reverse(r);
+
+        cb.ice_response(r, p3);
+    }
+
+    @Override
+    public void opMyStructMyEnumDS_async(AMD_MyClass_opMyStructMyEnumDS cb,
+                                         List<Map<MyStruct, MyEnum>> p1,
+                                         List<Map<MyStruct, MyEnum>> p2,
+                                         Ice.Current current)
+    {
+        List<Map<MyStruct, MyEnum>> p3= new ArrayList<>();
+        p3.addAll(p2);
+        p3.addAll(p1);
+
+        List<Map<MyStruct, MyEnum>> r = new ArrayList<>(p1);
+        Collections.reverse(r);
+
+        cb.ice_response(r, p3);
+    }
+
+    @Override
+    public void opByteByteSD_async(AMD_MyClass_opByteByteSD cb,
+                                   Map<Byte, byte[]> p1,
+                                   Map<Byte, byte[]> p2,
+                                   Ice.Current current)
+    {
+        Map<Byte, byte[]> p3 = p2;
+        Map<Byte, byte[]> r = new HashMap<>();
+        r.putAll(p1);
+        r.putAll(p2);
+        cb.ice_response(r, p3);
+    }
+
+    @Override
+    public void opBoolBoolSD_async(AMD_MyClass_opBoolBoolSD cb,
+                                   Map<Boolean, boolean[]> p1,
+                                   Map<Boolean, boolean[]> p2,
+                                   Ice.Current current)
+    {
+        Map<Boolean, boolean[]> p3 = p2;
+        Map<Boolean, boolean[]> r = new HashMap<>();
+        r.putAll(p1);
+        r.putAll(p2);
+        cb.ice_response(r, p3);
+    }
+
+    @Override
+    public void opShortShortSD_async(AMD_MyClass_opShortShortSD cb,
+                                     Map<Short, short[]> p1,
+                                     Map<Short, short[]> p2,
+                                     Ice.Current current)
+    {
+        Map<Short, short[]> p3 = p2;
+        Map<Short, short[]> r = new HashMap<>();
+        r.putAll(p1);
+        r.putAll(p2);
+        cb.ice_response(r, p3);
+    }
+
+    @Override
+    public void opIntIntSD_async(AMD_MyClass_opIntIntSD cb,
+                                 Map<Integer, int[]> p1,
+                                 Map<Integer, int[]> p2,
+                                 Ice.Current current)
+    {
+        Map<Integer, int[]> p3 = p2;
+        Map<Integer, int[]> r = new HashMap<>();
+        r.putAll(p1);
+        r.putAll(p2);
+        cb.ice_response(r, p3);
+    }
+
+    @Override
+    public void opLongLongSD_async(AMD_MyClass_opLongLongSD cb,
+                                   Map<Long, long[]> p1,
+                                   Map<Long, long[]> p2,
+                                   Ice.Current current)
+    {
+        Map<Long, long[]> p3 = p2;
+        Map<Long, long[]> r = new HashMap<>();
+        r.putAll(p1);
+        r.putAll(p2);
+        cb.ice_response(r, p3);
+    }
+
+    @Override
+    public void opStringFloatSD_async(AMD_MyClass_opStringFloatSD cb,
+                                      Map<String, float[]> p1,
+                                      Map<String, float[]> p2,
+                                      Ice.Current current)
+    {
+        Map<String, float[]> p3 = p2;
+        Map<String, float[]> r = new HashMap<>();
+        r.putAll(p1);
+        r.putAll(p2);
+        cb.ice_response(r, p3);
+    }
+
+    @Override
+    public void opStringDoubleSD_async(AMD_MyClass_opStringDoubleSD cb,
+                                       Map<String, double[]> p1,
+                                       Map<String, double[]> p2,
+                                       Ice.Current current)
+    {
+        Map<String, double[]> p3 = p2;
+        Map<String, double[]> r = new HashMap<>();
+        r.putAll(p1);
+        r.putAll(p2);
+        cb.ice_response(r, p3);
+    }
+
+    @Override
+    public void opStringStringSD_async(AMD_MyClass_opStringStringSD cb,
+                                       Map<String, String[]> p1,
+                                       Map<String, String[]> p2,
+                                       Ice.Current current)
+    {
+        Map<String, String[]> p3 = p2;
+        Map<String, String[]> r = new HashMap<>();
+        r.putAll(p1);
+        r.putAll(p2);
+        cb.ice_response(r, p3);
+    }
+
+    @Override
+    public void opMyEnumMyEnumSD_async(AMD_MyClass_opMyEnumMyEnumSD cb,
+                                       Map<MyEnum, MyEnum[]> p1,
+                                       Map<MyEnum, MyEnum[]> p2,
+                                       Ice.Current current)
+    {
+        Map<MyEnum, MyEnum[]> p3 = p2;
+        Map<MyEnum, MyEnum[]> r = new HashMap<>();
+        r.putAll(p1);
+        r.putAll(p2);
+        cb.ice_response(r, p3);
+    }
+
+    @Override
     public void
     opIntS_async(AMD_MyClass_opIntS cb, int[] s, Ice.Current current)
     {
@@ -519,8 +709,8 @@ public final class AMDTieMyDerivedClassI implements _MyDerivedClassOperations
     @Override
     public void
     opStringSSS_async(AMD_MyClass_opStringSSS cb,
-                     String[][][] p1, String[][][] p2,
-                     Ice.Current current)
+                      String[][][] p1, String[][][] p2,
+                      Ice.Current current)
     {
         String[][][] p3 = new String[p1.length + p2.length][][];
         System.arraycopy(p1, 0, p3, 0, p1.length);

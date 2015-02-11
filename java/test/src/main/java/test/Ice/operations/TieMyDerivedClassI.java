@@ -9,39 +9,10 @@
 
 package test.Ice.operations;
 
-import test.Ice.operations.Test.BoolSHolder;
-import test.Ice.operations.Test.BoolSSHolder;
-import test.Ice.operations.Test.ByteBoolDHolder;
-import test.Ice.operations.Test.ByteSHolder;
-import test.Ice.operations.Test.ByteSSHolder;
-import test.Ice.operations.Test.DoubleSHolder;
-import test.Ice.operations.Test.DoubleSSHolder;
-import test.Ice.operations.Test.FloatSHolder;
-import test.Ice.operations.Test.FloatSSHolder;
-import test.Ice.operations.Test.IntSHolder;
-import test.Ice.operations.Test.IntSSHolder;
-import test.Ice.operations.Test.LongFloatDHolder;
-import test.Ice.operations.Test.LongSHolder;
-import test.Ice.operations.Test.LongSSHolder;
-import test.Ice.operations.Test.MyClassPrx;
-import test.Ice.operations.Test.MyClassPrxHelper;
-import test.Ice.operations.Test.MyClassPrxHolder;
-import test.Ice.operations.Test._MyDerivedClassOperations;
-import test.Ice.operations.Test.MyEnum;
-import test.Ice.operations.Test.MyEnumHolder;
-import test.Ice.operations.Test.MyStruct;
-import test.Ice.operations.Test.MyStructMyEnumDHolder;
-import test.Ice.operations.Test.ShortIntDHolder;
-import test.Ice.operations.Test.ShortSHolder;
-import test.Ice.operations.Test.ShortSSHolder;
-import test.Ice.operations.Test.StringMyEnumDHolder;
-import test.Ice.operations.Test.MyEnumStringDHolder;
-import test.Ice.operations.Test.StringSHolder;
-import test.Ice.operations.Test.StringSSHolder;
-import test.Ice.operations.Test.StringSSSHolder;
-import test.Ice.operations.Test.StringStringDHolder;
-import test.Ice.operations.Test.Structure;
-import test.Ice.operations.Test.StructureHolder;
+import Ice.Current;
+import test.Ice.operations.Test.*;
+
+import java.util.*;
 
 public final class TieMyDerivedClassI implements _MyDerivedClassOperations
 {
@@ -133,7 +104,7 @@ public final class TieMyDerivedClassI implements _MyDerivedClassOperations
            Ice.ByteHolder p3,
            Ice.Current current)
     {
-        p3.value = (byte)(p1 ^ p2);
+        p3.value = (byte) (p1 ^ p2);
         return p1;
     }
 
@@ -255,7 +226,7 @@ public final class TieMyDerivedClassI implements _MyDerivedClassOperations
     {
         p2.value = p1;
         p3.value = MyClassPrxHelper.uncheckedCast(
-            current.adapter.createProxy(current.adapter.getCommunicator().stringToIdentity("noSuchIdentity")));
+                current.adapter.createProxy(current.adapter.getCommunicator().stringToIdentity("noSuchIdentity")));
         return MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(current.id));
     }
 
@@ -376,6 +347,235 @@ public final class TieMyDerivedClassI implements _MyDerivedClassOperations
     }
 
     @Override
+    public List<Map<Byte, Boolean>> opByteBoolDS(List<Map<Byte, Boolean>> p1,
+                                                 List<Map<Byte, Boolean>> p2,
+                                                 ByteBoolDSHolder p3,
+                                                 Ice.Current current)
+    {
+        p3.value = new ArrayList<>();
+        p3.value.addAll(p2);
+        p3.value.addAll(p1);
+
+        List<Map<Byte, Boolean>> r = new ArrayList<>(p1);
+        Collections.reverse(r);
+
+        return r;
+    }
+
+    @Override
+    public List<Map<Short, Integer>> opShortIntDS(List<Map<Short, Integer>> p1,
+                                                  List<Map<Short, Integer>> p2,
+                                                  ShortIntDSHolder p3,
+                                                  Ice.Current current)
+    {
+        p3.value = new ArrayList<>();
+        p3.value.addAll(p2);
+        p3.value.addAll(p1);
+
+        List<Map<Short, Integer>> r = new ArrayList<>(p1);
+        Collections.reverse(r);
+
+        return r;
+    }
+
+    @Override
+    public List<Map<Long, Float>> opLongFloatDS(List<Map<Long, Float>> p1,
+                                                List<Map<Long, Float>> p2,
+                                                LongFloatDSHolder p3,
+                                                Ice.Current current)
+    {
+        p3.value = new ArrayList<>();
+        p3.value.addAll(p2);
+        p3.value.addAll(p1);
+
+        List<Map<Long, Float>> r = new ArrayList<>(p1);
+        Collections.reverse(r);
+
+        return r;
+    }
+
+    @Override
+    public List<Map<String, String>> opStringStringDS(List<Map<String, String>> p1,
+                                                      List<Map<String, String>> p2,
+                                                      StringStringDSHolder p3,
+                                                      Ice.Current current)
+    {
+        p3.value = new ArrayList<>();
+        p3.value.addAll(p2);
+        p3.value.addAll(p1);
+
+        List<Map<String, String>> r = new ArrayList<>(p1);
+        Collections.reverse(r);
+
+        return r;
+    }
+
+    @Override
+    public List<Map<String, MyEnum>> opStringMyEnumDS(List<Map<String, MyEnum>> p1,
+                                                      List<Map<String, MyEnum>> p2,
+                                                      StringMyEnumDSHolder p3,
+                                                      Ice.Current current)
+    {
+        p3.value = new ArrayList<>();
+        p3.value.addAll(p2);
+        p3.value.addAll(p1);
+
+        List<Map<String, MyEnum>> r = new ArrayList<>(p1);
+        Collections.reverse(r);
+
+        return r;
+    }
+
+    @Override
+    public List<Map<MyEnum, String>> opMyEnumStringDS(List<Map<MyEnum, String>> p1,
+                                                      List<Map<MyEnum, String>> p2,
+                                                      MyEnumStringDSHolder p3,
+                                                      Ice.Current current)
+    {
+        p3.value = new ArrayList<>();
+        p3.value.addAll(p2);
+        p3.value.addAll(p1);
+
+        List<Map<MyEnum, String>> r = new ArrayList<>(p1);
+        Collections.reverse(r);
+
+        return r;
+    }
+
+    @Override
+    public List<Map<MyStruct, MyEnum>> opMyStructMyEnumDS(List<Map<MyStruct, MyEnum>> p1,
+                                                          List<Map<MyStruct, MyEnum>> p2,
+                                                          MyStructMyEnumDSHolder p3,
+                                                          Ice.Current current)
+    {
+        p3.value = new ArrayList<>();
+        p3.value.addAll(p2);
+        p3.value.addAll(p1);
+
+        List<Map<MyStruct, MyEnum>> r = new ArrayList<>(p1);
+        Collections.reverse(r);
+
+        return r;
+    }
+
+    @Override
+    public Map<Byte, byte[]> opByteByteSD(Map<Byte, byte[]> p1,
+                                          Map<Byte, byte[]> p2,
+                                          ByteByteSDHolder p3,
+                                          Ice.Current current)
+    {
+        p3.value = p2;
+        Map<Byte, byte[]> r = new HashMap<>();
+        r.putAll(p1);
+        r.putAll(p2);
+        return r;
+    }
+
+    @Override
+    public Map<Boolean, boolean[]> opBoolBoolSD(Map<Boolean, boolean[]> p1,
+                                                Map<Boolean, boolean[]> p2,
+                                                BoolBoolSDHolder p3,
+                                                Ice.Current current)
+    {
+        p3.value = p2;
+        Map<Boolean, boolean[]> r = new HashMap<>();
+        r.putAll(p1);
+        r.putAll(p2);
+        return r;
+    }
+
+    @Override
+    public Map<Short, short[]> opShortShortSD(Map<Short, short[]> p1,
+                                              Map<Short, short[]> p2,
+                                              ShortShortSDHolder p3,
+                                              Ice.Current current)
+    {
+        p3.value = p2;
+        Map<Short, short[]> r = new HashMap<>();
+        r.putAll(p1);
+        r.putAll(p2);
+        return r;
+    }
+
+    @Override
+    public Map<Integer, int[]> opIntIntSD(Map<Integer, int[]> p1,
+                                          Map<Integer, int[]> p2,
+                                          IntIntSDHolder p3,
+                                          Ice.Current current)
+    {
+        p3.value = p2;
+        Map<Integer, int[]> r = new HashMap<>();
+        r.putAll(p1);
+        r.putAll(p2);
+        return r;
+    }
+
+    @Override
+    public Map<Long, long[]> opLongLongSD(Map<Long, long[]> p1,
+                                          Map<Long, long[]> p2,
+                                          LongLongSDHolder p3,
+                                          Ice.Current current)
+    {
+        p3.value = p2;
+        Map<Long, long[]> r = new HashMap<>();
+        r.putAll(p1);
+        r.putAll(p2);
+        return r;
+    }
+
+    @Override
+    public Map<String, float[]> opStringFloatSD(Map<String, float[]> p1,
+                                                Map<String, float[]> p2,
+                                                StringFloatSDHolder p3,
+                                                Ice.Current current)
+    {
+        p3.value = p2;
+        Map<String, float[]> r = new HashMap<>();
+        r.putAll(p1);
+        r.putAll(p2);
+        return r;
+    }
+
+    @Override
+    public Map<String, double[]> opStringDoubleSD(Map<String, double[]> p1,
+                                                  Map<String, double[]> p2,
+                                                  StringDoubleSDHolder p3,
+                                                  Ice.Current current)
+    {
+        p3.value = p2;
+        Map<String, double[]> r = new HashMap<>();
+        r.putAll(p1);
+        r.putAll(p2);
+        return r;
+    }
+
+    @Override
+    public Map<String, String[]> opStringStringSD(Map<String, String[]> p1,
+                                                  Map<String, String[]> p2,
+                                                  StringStringSDHolder p3,
+                                                  Ice.Current current)
+    {
+        p3.value = p2;
+        Map<String, String[]> r = new HashMap<>();
+        r.putAll(p1);
+        r.putAll(p2);
+        return r;
+    }
+
+    @Override
+    public Map<MyEnum, MyEnum[]> opMyEnumMyEnumSD(Map<MyEnum, MyEnum[]> p1,
+                                                  Map<MyEnum, MyEnum[]> p2,
+                                                  MyEnumMyEnumSDHolder p3,
+                                                  Ice.Current current)
+    {
+        p3.value = p2;
+        Map<MyEnum, MyEnum[]> r = new HashMap<>();
+        r.putAll(p1);
+        r.putAll(p2);
+        return r;
+    }
+
+    @Override
     public int[]
     opIntS(int[] s, Ice.Current current)
     {
@@ -461,8 +661,8 @@ public final class TieMyDerivedClassI implements _MyDerivedClassOperations
     @Override
     public String[][][]
     opStringSSS(String[][][] p1, String[][][] p2,
-               StringSSSHolder p3,
-               Ice.Current current)
+                StringSSSHolder p3,
+                Ice.Current current)
     {
         p3.value = new String[p1.length + p2.length][][];
         System.arraycopy(p1, 0, p3.value, 0, p1.length);

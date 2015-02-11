@@ -390,6 +390,217 @@
     return r;
 }
 
+-(TestOperationsByteBoolDS*) opByteBoolDS:(TestOperationsMutableByteBoolDS*)p1
+                             p2:(TestOperationsMutableByteBoolDS*)p2
+                             p3:(TestOperationsByteBoolDS**)p3
+                             current:(ICECurrent *)current
+{
+    *p3 = [TestOperationsMutableByteBoolDS arrayWithArray:p2];
+    [(TestOperationsMutableByteBoolDS *)*p3 addObjectsFromArray:p1];
+    TestOperationsMutableByteBoolDS *r = [TestOperationsMutableByteBoolDS array];
+    NSEnumerator *enumerator = [p1 reverseObjectEnumerator];
+    for(TestOperationsByteBoolDS *element in enumerator)
+    {
+        [r addObject:element];
+    }
+    return r;
+}
+
+-(TestOperationsShortIntDS*) opShortIntDS:(TestOperationsMutableShortIntDS*)p1
+                             p2:(TestOperationsMutableShortIntDS*)p2
+                             p3:(TestOperationsShortIntDS**)p3
+                             current:(ICECurrent *)current
+{
+    *p3 = [TestOperationsMutableShortIntDS arrayWithArray:p2];
+    [(TestOperationsMutableShortIntDS *)*p3 addObjectsFromArray:p1];
+    TestOperationsMutableShortIntDS *r = [TestOperationsMutableShortIntDS array];
+    NSEnumerator *enumerator = [p1 reverseObjectEnumerator];
+    for(TestOperationsShortIntDS *element in enumerator)
+    {
+        [r addObject:element];
+    }
+    return r;
+}
+
+-(TestOperationsLongFloatDS*) opLongFloatDS:(TestOperationsMutableLongFloatDS*)p1
+                              p2:(TestOperationsMutableLongFloatDS*)p2
+                              p3:(TestOperationsLongFloatDS**)p3
+                              current:(ICECurrent *)current
+{
+    *p3 = [TestOperationsMutableLongFloatDS arrayWithArray:p2];
+    [(TestOperationsMutableLongFloatDS *)*p3 addObjectsFromArray:p1];
+    TestOperationsMutableLongFloatDS *r = [TestOperationsMutableLongFloatDS array];
+    NSEnumerator *enumerator = [p1 reverseObjectEnumerator];
+    for(TestOperationsLongFloatDS *element in enumerator)
+    {
+        [r addObject:element];
+    }
+    return r;
+}
+
+-(TestOperationsStringStringDS*) opStringStringDS:(TestOperationsMutableStringStringDS*)p1
+                                 p2:(TestOperationsMutableStringStringDS*)p2
+                                 p3:(TestOperationsStringStringDS**)p3
+                                 current:(ICECurrent *)current
+{
+    *p3 = [TestOperationsMutableStringStringDS arrayWithArray:p2];
+    [(TestOperationsMutableStringStringDS *)*p3 addObjectsFromArray:p1];
+    TestOperationsMutableStringStringDS *r = [TestOperationsMutableStringStringDS array];
+    NSEnumerator *enumerator = [p1 reverseObjectEnumerator];
+    for(TestOperationsStringStringDS *element in enumerator)
+    {
+        [r addObject:element];
+    }
+    return r;
+}
+
+-(TestOperationsStringMyEnumDS*) opStringMyEnumDS:(TestOperationsMutableStringMyEnumDS*)p1
+                                 p2:(TestOperationsMutableStringMyEnumDS*)p2
+                                 p3:(TestOperationsStringMyEnumDS**)p3
+                                 current:(ICECurrent *)current
+{
+    *p3 = [TestOperationsMutableStringMyEnumDS arrayWithArray:p2];
+    [(TestOperationsMutableStringMyEnumDS *)*p3 addObjectsFromArray:p1];
+    TestOperationsMutableStringMyEnumDS *r = [TestOperationsMutableStringMyEnumDS array];
+    NSEnumerator *enumerator = [p1 reverseObjectEnumerator];
+    for(TestOperationsStringMyEnumDS *element in enumerator)
+    {
+        [r addObject:element];
+    }
+    return r;
+}
+
+-(TestOperationsMyEnumStringDS*) opMyEnumStringDS:(TestOperationsMutableMyEnumStringDS*)p1
+                                 p2:(TestOperationsMutableMyEnumStringDS*)p2
+                                 p3:(TestOperationsMyEnumStringDS**)p3
+                                 current:(ICECurrent *)current
+{
+    *p3 = [TestOperationsMutableMyEnumStringDS arrayWithArray:p2];
+    [(TestOperationsMutableMyEnumStringDS *)*p3 addObjectsFromArray:p1];
+    TestOperationsMutableMyEnumStringDS *r = [TestOperationsMutableMyEnumStringDS array];
+    NSEnumerator *enumerator = [p1 reverseObjectEnumerator];
+    for(TestOperationsMyEnumStringDS *element in enumerator)
+    {
+        [r addObject:element];
+    }
+    return r;
+}
+
+-(TestOperationsMyStructMyEnumDS*) opMyStructMyEnumDS:(TestOperationsMutableMyStructMyEnumDS*)p1
+                                   p2:(TestOperationsMutableMyStructMyEnumDS*)p2
+                                   p3:(TestOperationsMyStructMyEnumDS**)p3
+                                   current:(ICECurrent *)current
+{
+    *p3 = [TestOperationsMutableMyStructMyEnumDS arrayWithArray:p2];
+    [(TestOperationsMutableMyStructMyEnumDS *)*p3 addObjectsFromArray:p1];
+    TestOperationsMutableMyStructMyEnumDS *r = [TestOperationsMutableMyStructMyEnumDS array];
+    NSEnumerator *enumerator = [p1 reverseObjectEnumerator];
+    for(TestOperationsMyStructMyEnumDS *element in enumerator)
+    {
+        [r addObject:element];
+    }
+    return r;
+}
+
+-(TestOperationsByteByteSD*) opByteByteSD:(TestOperationsMutableByteByteSD*)p1
+                             p2:(TestOperationsMutableByteByteSD*)p2
+                             p3:(TestOperationsByteByteSD**)p3
+                             current:(ICECurrent *)current
+{
+    *p3 = [TestOperationsMutableByteByteSD dictionaryWithDictionary:p2];
+    TestOperationsMutableByteByteSD *r = [TestOperationsMutableByteByteSD dictionaryWithDictionary:p1];
+    [r addEntriesFromDictionary:p2];
+    return r;
+}
+
+-(TestOperationsBoolBoolSD*) opBoolBoolSD:(TestOperationsMutableBoolBoolSD*)p1
+                             p2:(TestOperationsMutableBoolBoolSD*)p2
+                             p3:(TestOperationsBoolBoolSD**)p3
+                             current:(ICECurrent *)current
+{
+    *p3 = [TestOperationsMutableBoolBoolSD dictionaryWithDictionary:p2];
+    TestOperationsMutableBoolBoolSD *r = [TestOperationsMutableBoolBoolSD dictionaryWithDictionary:p1];
+    [r addEntriesFromDictionary:p2];
+    return r;
+}
+
+-(TestOperationsShortShortSD*) opShortShortSD:(TestOperationsMutableShortShortSD*)p1
+                               p2:(TestOperationsMutableShortShortSD*)p2
+                               p3:(TestOperationsShortShortSD**)p3
+                               current:(ICECurrent *)current
+{
+    *p3 = [TestOperationsMutableShortShortSD dictionaryWithDictionary:p2];
+    TestOperationsMutableShortShortSD *r = [TestOperationsMutableShortShortSD dictionaryWithDictionary:p1];
+    [r addEntriesFromDictionary:p2];
+    return r;
+}
+
+-(TestOperationsIntIntSD*) opIntIntSD:(TestOperationsMutableIntIntSD*)p1
+                           p2:(TestOperationsMutableIntIntSD*)p2
+                           p3:(TestOperationsIntIntSD**)p3
+                           current:(ICECurrent *)current
+{
+    *p3 = [TestOperationsMutableIntIntSD dictionaryWithDictionary:p2];
+    TestOperationsMutableIntIntSD *r = [TestOperationsMutableIntIntSD dictionaryWithDictionary:p1];
+    [r addEntriesFromDictionary:p2];
+    return r;
+}
+
+-(TestOperationsLongLongSD*) opLongLongSD:(TestOperationsMutableLongLongSD*)p1
+                             p2:(TestOperationsMutableLongLongSD*)p2
+                             p3:(TestOperationsLongLongSD**)p3
+                             current:(ICECurrent *)current
+{
+    *p3 = [TestOperationsMutableLongLongSD dictionaryWithDictionary:p2];
+    TestOperationsMutableLongLongSD *r = [TestOperationsMutableLongLongSD dictionaryWithDictionary:p1];
+    [r addEntriesFromDictionary:p2];
+    return r;
+}
+
+-(TestOperationsStringFloatSD*) opStringFloatSD:(TestOperationsMutableStringFloatSD*)p1
+                                p2:(TestOperationsMutableStringFloatSD*)p2
+                                p3:(TestOperationsStringFloatSD**)p3
+                                current:(ICECurrent *)current
+{
+    *p3 = [TestOperationsMutableStringFloatSD dictionaryWithDictionary:p2];
+    TestOperationsMutableStringFloatSD *r = [TestOperationsMutableStringFloatSD dictionaryWithDictionary:p1];
+    [r addEntriesFromDictionary:p2];
+    return r;
+}
+
+-(TestOperationsStringDoubleSD*) opStringDoubleSD:(TestOperationsMutableStringDoubleSD*)p1
+                                 p2:(TestOperationsMutableStringDoubleSD*)p2
+                                 p3:(TestOperationsStringDoubleSD**)p3
+                                 current:(ICECurrent *)current
+{
+    *p3 = [TestOperationsMutableStringDoubleSD dictionaryWithDictionary:p2];
+    TestOperationsMutableStringDoubleSD *r = [TestOperationsMutableStringDoubleSD dictionaryWithDictionary:p1];
+    [r addEntriesFromDictionary:p2];
+    return r;
+}
+
+-(TestOperationsStringStringSD*) opStringStringSD:(TestOperationsMutableStringStringSD*)p1
+                                 p2:(TestOperationsMutableStringStringSD*)p2
+                                 p3:(TestOperationsStringStringSD**)p3
+                                 current:(ICECurrent *)current
+{
+    *p3 = [TestOperationsMutableStringStringSD dictionaryWithDictionary:p2];
+    TestOperationsMutableStringStringSD *r = [TestOperationsMutableStringStringSD dictionaryWithDictionary:p1];
+    [r addEntriesFromDictionary:p2];
+    return r;
+}
+
+-(TestOperationsMyEnumMyEnumSD*) opMyEnumMyEnumSD:(TestOperationsMutableMyEnumMyEnumSD*)p1
+                                 p2:(TestOperationsMutableMyEnumMyEnumSD*)p2
+                                 p3:(TestOperationsMyEnumMyEnumSD**)p3
+                                 current:(ICECurrent *)current
+{
+    *p3 = [TestOperationsMutableMyEnumMyEnumSD dictionaryWithDictionary:p2];
+    TestOperationsMutableMyEnumMyEnumSD *r = [TestOperationsMutableMyEnumMyEnumSD dictionaryWithDictionary:p1];
+    [r addEntriesFromDictionary:p2];
+    return r;
+}
+
 -(TestOperationsIntS *) opIntS:(TestOperationsMutableIntS *)p1 current:(ICECurrent *)current
 {
     NSUInteger count = [p1 length] / sizeof(ICEInt);

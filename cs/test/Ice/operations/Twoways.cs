@@ -709,6 +709,590 @@ class Twoways
         }
 
         {
+            Dictionary<byte, bool>[] dsi1 = new Dictionary<byte, bool>[2];
+            Dictionary<byte, bool>[] dsi2 = new Dictionary<byte, bool>[1];
+
+            Dictionary<byte, bool> di1 = new Dictionary<byte, bool>();
+            di1[10] = true;
+            di1[100] = false;
+            Dictionary<byte, bool> di2 = new Dictionary<byte, bool>();
+            di2[10] = true;
+            di2[11] = false;
+            di2[101] = true;
+            Dictionary<byte, bool> di3 = new Dictionary<byte, bool>();
+            di3[100] = false;
+            di3[101] = false;
+
+            dsi1[0] = di1;
+            dsi1[1] = di2;
+            dsi2[0] = di3;
+
+            Dictionary<byte, bool>[] _do;
+            Dictionary<byte, bool>[] ro = p.opByteBoolDS(dsi1, dsi2, out _do);
+
+            test(ro.Length == 2);
+            test(ro[0].Count == 3);
+            test(ro[0][10]);
+            test(!ro[0][11]);
+            test(ro[0][101]);
+            test(ro[1].Count == 2);
+            test(ro[1][10]);
+            test(!ro[1][100]);
+
+            test(_do.Length == 3);
+            test(_do[0].Count == 2);
+            test(!_do[0][100]);
+            test(!_do[0][101]);
+            test(_do[1].Count == 2);
+            test(_do[1][10]);
+            test(!_do[1][100]);
+            test(_do[2].Count == 3);
+            test(_do[2][10]);
+            test(!_do[2][11]);
+            test(_do[2][101]);
+        }
+
+        {
+            Dictionary<short, int>[] dsi1 = new Dictionary<short, int>[2];
+            Dictionary<short, int>[] dsi2 = new Dictionary<short, int>[1];
+
+            Dictionary<short, int> di1 = new Dictionary<short, int>();
+            di1[110] = -1;
+            di1[1100] = 123123;
+            Dictionary<short, int> di2 = new Dictionary<short, int>();
+            di2[110] = -1;
+            di2[111] = -100;
+            di2[1101] = 0;
+            Dictionary<short, int> di3 = new Dictionary<short, int>();
+            di3[100] = -1001;
+
+            dsi1[0] = di1;
+            dsi1[1] = di2;
+            dsi2[0] = di3;
+
+            Dictionary<short, int>[] _do;
+            Dictionary<short, int>[] ro = p.opShortIntDS(dsi1, dsi2, out _do);
+
+            test(ro.Length == 2);
+            test(ro[0].Count == 3);
+            test(ro[0][110] == -1);
+            test(ro[0][111] == -100);
+            test(ro[0][1101] == 0);
+            test(ro[1].Count == 2);
+            test(ro[1][110] == -1);
+            test(ro[1][1100] == 123123);
+
+            test(_do.Length == 3);
+            test(_do[0].Count == 1);
+            test(_do[0][100] == -1001);
+            test(_do[1].Count == 2);
+            test(_do[1][110] == -1);
+            test(_do[1][1100] == 123123);
+            test(_do[2].Count == 3);
+            test(_do[2][110] == -1);
+            test(_do[2][111] == -100);
+            test(_do[2][1101] == 0);
+        }
+
+        {
+            Dictionary<long, float>[] dsi1 = new Dictionary<long, float>[2];
+            Dictionary<long, float>[] dsi2 = new Dictionary<long, float>[1];
+
+            Dictionary<long, float> di1 = new Dictionary<long, float>();
+            di1[999999110L] = -1.1f;
+            di1[999999111L] = 123123.2f;
+            Dictionary<long, float> di2 = new Dictionary<long, float>();
+            di2[999999110L] = -1.1f;
+            di2[999999120L] = -100.4f;
+            di2[999999130L] = 0.5f;
+            Dictionary<long, float> di3 = new Dictionary<long, float>();
+            di3[999999140L] = 3.14f;
+
+            dsi1[0] = di1;
+            dsi1[1] = di2;
+            dsi2[0] = di3;
+
+            Dictionary<long, float>[] _do;
+            Dictionary<long, float>[] ro = p.opLongFloatDS(dsi1, dsi2, out _do);
+
+            test(ro.Length == 2);
+            test(ro[0].Count == 3);
+            test(ro[0][999999110L] == -1.1f);
+            test(ro[0][999999120L] == -100.4f);
+            test(ro[0][999999130L] == 0.5f);
+            test(ro[1].Count == 2);
+            test(ro[1][999999110L] == -1.1f);
+            test(ro[1][999999111L] == 123123.2f);
+
+            test(_do.Length == 3);
+            test(_do[0].Count == 1);
+            test(_do[0][999999140L] == 3.14f);
+            test(_do[1].Count == 2);
+            test(_do[1][999999110L] == -1.1f);
+            test(_do[1][999999111L] == 123123.2f);
+            test(_do[2].Count == 3);
+            test(_do[2][999999110L] == -1.1f);
+            test(_do[2][999999120L] == -100.4f);
+            test(_do[2][999999130L] == 0.5f);
+
+        }
+
+        {
+            Dictionary<string, string>[] dsi1 = new Dictionary<string, string>[2];
+            Dictionary<string, string>[] dsi2 = new Dictionary<string, string>[1];
+
+            Dictionary<string, string> di1 = new Dictionary<string, string>();
+            di1["foo"] = "abc -1.1";
+            di1["bar"] = "abc 123123.2";
+            Dictionary<string, string> di2 = new Dictionary<string, string>();
+            di2["foo"] = "abc -1.1";
+            di2["FOO"] = "abc -100.4";
+            di2["BAR"] = "abc 0.5";
+            Dictionary<string, string> di3 = new Dictionary<string, string>();
+            di3["f00"] = "ABC -3.14";
+
+            dsi1[0] = di1;
+            dsi1[1] = di2;
+            dsi2[0] = di3;
+
+            Dictionary<string, string>[] _do;
+            Dictionary<string, string>[] ro = p.opStringStringDS(dsi1, dsi2, out _do);
+
+            test(ro.Length == 2);
+            test(ro[0].Count == 3);
+            test(ro[0]["foo"].Equals("abc -1.1"));
+            test(ro[0]["FOO"].Equals("abc -100.4"));
+            test(ro[0]["BAR"].Equals("abc 0.5"));
+            test(ro[1].Count == 2);
+            test(ro[1]["foo"] == "abc -1.1");
+            test(ro[1]["bar"] == "abc 123123.2");
+
+            test(_do.Length == 3);
+            test(_do[0].Count == 1);
+            test(_do[0]["f00"].Equals("ABC -3.14"));
+            test(_do[1].Count == 2);
+            test(_do[1]["foo"].Equals("abc -1.1"));
+            test(_do[1]["bar"].Equals("abc 123123.2"));
+            test(_do[2].Count == 3);
+            test(_do[2]["foo"].Equals("abc -1.1"));
+            test(_do[2]["FOO"].Equals("abc -100.4"));
+            test(_do[2]["BAR"].Equals("abc 0.5"));
+        }
+
+        {
+            Dictionary<string, Test.MyEnum>[] dsi1 = new Dictionary<string, Test.MyEnum>[2];
+            Dictionary<string, Test.MyEnum>[] dsi2 = new Dictionary<string, Test.MyEnum>[1];
+
+            Dictionary<string, Test.MyEnum> di1 = new Dictionary<string, Test.MyEnum>();
+            di1["abc"] = Test.MyEnum.enum1;
+            di1[""] = Test.MyEnum.enum2;
+            Dictionary<string, Test.MyEnum> di2 = new Dictionary<string, Test.MyEnum>();
+            di2["abc"] = Test.MyEnum.enum1;
+            di2["qwerty"] = Test.MyEnum.enum3;
+            di2["Hello!!"] = Test.MyEnum.enum2;
+            Dictionary<string, Test.MyEnum> di3 = new Dictionary<string, Test.MyEnum>();
+            di3["Goodbye"] = Test.MyEnum.enum1;
+
+            dsi1[0] = di1;
+            dsi1[1] = di2;
+            dsi2[0] = di3;
+
+            Dictionary<string, Test.MyEnum>[] _do;
+            Dictionary<string, Test.MyEnum>[] ro = p.opStringMyEnumDS(dsi1, dsi2, out _do);
+
+            test(ro.Length == 2);
+            test(ro[0].Count == 3);
+            test(ro[0]["abc"] == Test.MyEnum.enum1);
+            test(ro[0]["qwerty"] == Test.MyEnum.enum3);
+            test(ro[0]["Hello!!"] == Test.MyEnum.enum2);
+            test(ro[1].Count == 2);
+            test(ro[1]["abc"] == Test.MyEnum.enum1);
+            test(ro[1][""] == Test.MyEnum.enum2);
+
+            test(_do.Length == 3);
+            test(_do[0].Count == 1);
+            test(_do[0]["Goodbye"] == Test.MyEnum.enum1);
+            test(_do[1].Count == 2);
+            test(_do[1]["abc"] == Test.MyEnum.enum1);
+            test(_do[1][""] == Test.MyEnum.enum2);
+            test(_do[2].Count == 3);
+            test(_do[2]["abc"] == Test.MyEnum.enum1);
+            test(_do[2]["qwerty"] == Test.MyEnum.enum3);
+            test(_do[2]["Hello!!"] == Test.MyEnum.enum2);
+        }
+
+        {
+            Dictionary<Test.MyEnum, string>[] dsi1 = new Dictionary<Test.MyEnum, string>[2];
+            Dictionary<Test.MyEnum, string>[] dsi2 = new Dictionary<Test.MyEnum, string>[1];
+
+            Dictionary<Test.MyEnum, string> di1 = new Dictionary<Test.MyEnum, string>();
+            di1[Test.MyEnum.enum1] = "abc";
+            Dictionary<Test.MyEnum, string> di2 = new Dictionary<Test.MyEnum, string>();
+            di2[Test.MyEnum.enum2] = "Hello!!";
+            di2[Test.MyEnum.enum3] = "qwerty";
+            Dictionary<Test.MyEnum, string> di3 = new Dictionary<Test.MyEnum, string>();
+            di3[Test.MyEnum.enum1] = "Goodbye";
+
+            dsi1[0] = di1;
+            dsi1[1] = di2;
+            dsi2[0] = di3;
+
+            Dictionary<Test.MyEnum, string>[] _do;
+            Dictionary<Test.MyEnum, string>[] ro = p.opMyEnumStringDS(dsi1, dsi2, out _do);
+
+            test(ro.Length == 2);
+            test(ro[0].Count == 2);
+            test(ro[0][Test.MyEnum.enum2].Equals("Hello!!"));
+            test(ro[0][Test.MyEnum.enum3].Equals("qwerty"));
+            test(ro[1].Count == 1);
+            test(ro[1][Test.MyEnum.enum1].Equals("abc"));
+
+            test(_do.Length == 3);
+            test(_do[0].Count == 1);
+            test(_do[0][Test.MyEnum.enum1].Equals("Goodbye"));
+            test(_do[1].Count == 1);
+            test(_do[1][Test.MyEnum.enum1].Equals("abc"));
+            test(_do[2].Count == 2);
+            test(_do[2][Test.MyEnum.enum2].Equals("Hello!!"));
+            test(_do[2][Test.MyEnum.enum3].Equals("qwerty"));
+        }
+
+        {
+            Dictionary<Test.MyStruct, Test.MyEnum>[] dsi1 = new Dictionary<Test.MyStruct, Test.MyEnum>[2];
+            Dictionary<Test.MyStruct, Test.MyEnum>[] dsi2 = new Dictionary<Test.MyStruct, Test.MyEnum>[1];
+
+            Test.MyStruct s11 = new Test.MyStruct(1, 1);
+            Test.MyStruct s12 = new Test.MyStruct(1, 2);
+            Dictionary<Test.MyStruct, Test.MyEnum> di1 = new Dictionary<Test.MyStruct, Test.MyEnum>();
+            di1[s11] = Test.MyEnum.enum1;
+            di1[s12] = Test.MyEnum.enum2;
+
+            Test.MyStruct s22 = new Test.MyStruct(2, 2);
+            Test.MyStruct s23 = new Test.MyStruct(2, 3);
+            Dictionary<Test.MyStruct, Test.MyEnum> di2 = new Dictionary<Test.MyStruct, Test.MyEnum>();
+            di2[s11] = Test.MyEnum.enum1;
+            di2[s22] = Test.MyEnum.enum3;
+            di2[s23] = Test.MyEnum.enum2;
+
+            Dictionary<Test.MyStruct, Test.MyEnum> di3 = new Dictionary<Test.MyStruct, Test.MyEnum>();
+            di3[s23] = Test.MyEnum.enum3;
+
+            dsi1[0] = di1;
+            dsi1[1] = di2;
+            dsi2[0] = di3;
+
+            Dictionary<Test.MyStruct, Test.MyEnum>[] _do;
+            Dictionary<Test.MyStruct, Test.MyEnum>[] ro = p.opMyStructMyEnumDS(dsi1, dsi2, out _do);
+
+            test(ro.Length == 2);
+            test(ro[0].Count == 3);
+            test(ro[0][s11] == Test.MyEnum.enum1);
+            test(ro[0][s22] == Test.MyEnum.enum3);
+            test(ro[0][s23] == Test.MyEnum.enum2);
+            test(ro[1].Count == 2);
+            test(ro[1][s11] == Test.MyEnum.enum1);
+            test(ro[1][s12] == Test.MyEnum.enum2);
+
+            test(_do.Length == 3);
+            test(_do[0].Count == 1);
+            test(_do[0][s23] == Test.MyEnum.enum3);
+            test(_do[1].Count == 2);
+            test(_do[1][s11] == Test.MyEnum.enum1);
+            test(_do[1][s12] == Test.MyEnum.enum2);
+            test(_do[2].Count == 3);
+            test(_do[2][s11] == Test.MyEnum.enum1);
+            test(_do[2][s22] == Test.MyEnum.enum3);
+            test(_do[2][s23] == Test.MyEnum.enum2);
+        }
+
+        {
+            Dictionary<byte, byte[]> sdi1 = new Dictionary<byte, byte[]>();
+            Dictionary<byte, byte[]> sdi2 = new Dictionary<byte, byte[]>();
+
+            byte[] si1 = new byte[] { 0x01, 0x11 };
+            byte[] si2 = new byte[] { 0x12 };
+            byte[] si3 = new byte[] { 0xf2, 0xf3 };
+
+            sdi1[0x01] = si1;
+            sdi1[0x22] = si2;
+            sdi2[0xf1] = si3;
+
+            Dictionary<byte, byte[]> _do;
+            Dictionary<byte, byte[]> ro = p.opByteByteSD(sdi1, sdi2, out _do);
+
+            test(_do.Count == 1);
+            test(_do[0xf1].Length == 2);
+            test(_do[0xf1][0] == 0xf2);
+            test(_do[0xf1][1] == 0xf3);
+
+            test(ro.Count == 3);
+            test(ro[0x01].Length == 2);
+            test(ro[0x01][0] == 0x01);
+            test(ro[0x01][1] == 0x11);
+            test(ro[0x22].Length == 1);
+            test(ro[0x22][0] == 0x12);
+            test(ro[0xf1].Length == 2);
+            test(ro[0xf1][0] == 0xf2);
+            test(ro[0xf1][1] == 0xf3);
+        }
+
+        {
+            Dictionary<bool, bool[]> sdi1 = new Dictionary<bool, bool[]>();
+            Dictionary<bool, bool[]> sdi2 = new Dictionary<bool, bool[]>();
+
+            bool[] si1 = new bool[] { true, false };
+            bool[] si2 = new bool[] { false, true, true };
+
+            sdi1[false] = si1;
+            sdi1[true] = si2;
+            sdi2[false] = si1;
+
+            Dictionary<bool, bool[]> _do;
+            Dictionary<bool, bool[]> ro = p.opBoolBoolSD(sdi1, sdi2, out _do);
+
+            test(_do.Count == 1);
+            test(_do[false].Length == 2);
+            test(_do[false][0]);
+            test(!_do[false][1]);
+            test(ro.Count == 2);
+            test(ro[false].Length == 2);
+            test(ro[false][0]);
+            test(!ro[false][1]);
+            test(ro[true].Length == 3);
+            test(!ro[true][0]);
+            test(ro[true][1]);
+            test(ro[true][2]);
+        }
+
+        {
+            Dictionary<short, short[]> sdi1 = new Dictionary<short, short[]>();
+            Dictionary<short, short[]> sdi2 = new Dictionary<short, short[]>();
+
+            short[] si1 = new short[] { 1, 2, 3 };
+            short[] si2 = new short[] { 4, 5 };
+            short[] si3 = new short[] { 6, 7 };
+
+            sdi1[1] = si1;
+            sdi1[2] = si2;
+            sdi2[4] = si3;
+
+            Dictionary<short, short[]> _do;
+            Dictionary<short, short[]> ro = p.opShortShortSD(sdi1, sdi2, out _do);
+
+            test(_do.Count == 1);
+            test(_do[4].Length == 2);
+            test(_do[4][0] == 6);
+            test(_do[4][1] == 7);
+
+            test(ro.Count == 3);
+            test(ro[1].Length == 3);
+            test(ro[1][0] == 1);
+            test(ro[1][1] == 2);
+            test(ro[1][2] == 3);
+            test(ro[2].Length == 2);
+            test(ro[2][0] == 4);
+            test(ro[2][1] == 5);
+            test(ro[4].Length == 2);
+            test(ro[4][0] == 6);
+            test(ro[4][1] == 7);
+        }
+
+        {
+            Dictionary<int, int[]> sdi1 = new Dictionary<int, int[]>();
+            Dictionary<int, int[]> sdi2 = new Dictionary<int, int[]>();
+
+            int[] si1 = new int[] { 100, 200, 300 };
+            int[] si2 = new int[] { 400, 500 };
+            int[] si3 = new int[] { 600, 700 };
+
+            sdi1[100] = si1;
+            sdi1[200] = si2;
+            sdi2[400] = si3;
+
+            Dictionary<int, int[]> _do;
+            Dictionary<int, int[]> ro = p.opIntIntSD(sdi1, sdi2, out _do);
+
+            test(_do.Count == 1);
+            test(_do[400].Length == 2);
+            test(_do[400][0] == 600);
+            test(_do[400][1] == 700);
+
+            test(ro.Count == 3);
+            test(ro[100].Length == 3);
+            test(ro[100][0] == 100);
+            test(ro[100][1] == 200);
+            test(ro[100][2] == 300);
+            test(ro[200].Length == 2);
+            test(ro[200][0] == 400);
+            test(ro[200][1] == 500);
+            test(ro[400].Length == 2);
+            test(ro[400][0] == 600);
+            test(ro[400][1] == 700);
+        }
+
+        {
+            Dictionary<long, long[]> sdi1 = new Dictionary<long, long[]>();
+            Dictionary<long, long[]> sdi2 = new Dictionary<long, long[]>();
+
+            long[] si1 = new long[] { 999999110L, 999999111L, 999999110L };
+            long[] si2 = new long[] { 999999120L, 999999130L };
+            long[] si3 = new long[] { 999999110L, 999999120L };
+
+            sdi1[999999990L] = si1;
+            sdi1[999999991L] = si2;
+            sdi2[999999992L] = si3;
+
+            Dictionary<long, long[]> _do;
+            Dictionary<long, long[]> ro = p.opLongLongSD(sdi1, sdi2, out _do);
+
+            test(_do.Count == 1);
+            test(_do[999999992L].Length == 2);
+            test(_do[999999992L][0] == 999999110L);
+            test(_do[999999992L][1] == 999999120L);
+            test(ro.Count == 3);
+            test(ro[999999990L].Length == 3);
+            test(ro[999999990L][0] == 999999110L);
+            test(ro[999999990L][1] == 999999111L);
+            test(ro[999999990L][2] == 999999110L);
+            test(ro[999999991L].Length == 2);
+            test(ro[999999991L][0] == 999999120L);
+            test(ro[999999991L][1] == 999999130L);
+            test(ro[999999992L].Length == 2);
+            test(ro[999999992L][0] == 999999110L);
+            test(ro[999999992L][1] == 999999120L);
+        }
+
+        {
+            Dictionary<string, float[]> sdi1 = new Dictionary<string, float[]>();
+            Dictionary<string, float[]> sdi2 = new Dictionary<string, float[]>();
+
+            float[] si1 = new float[] { -1.1f, 123123.2f, 100.0f };
+            float[] si2 = new float[] { 42.24f, -1.61f };
+            float[] si3 = new float[] { -3.14f, 3.14f };
+
+            sdi1["abc"] = si1;
+            sdi1["ABC"] = si2;
+            sdi2["aBc"] = si3;
+
+            Dictionary<string, float[]> _do;
+            Dictionary<string, float[]> ro = p.opStringFloatSD(sdi1, sdi2, out _do);
+
+            test(_do.Count == 1);
+            test(_do["aBc"].Length == 2);
+            test(_do["aBc"][0] == -3.14f);
+            test(_do["aBc"][1] == 3.14f);
+
+            test(ro.Count == 3);
+            test(ro["abc"].Length == 3);
+            test(ro["abc"][0] == -1.1f);
+            test(ro["abc"][1] == 123123.2f);
+            test(ro["abc"][2] == 100.0f);
+            test(ro["ABC"].Length == 2);
+            test(ro["ABC"][0] == 42.24f);
+            test(ro["ABC"][1] == -1.61f);
+            test(ro["aBc"].Length == 2);
+            test(ro["aBc"][0] == -3.14f);
+            test(ro["aBc"][1] == 3.14f);
+        }
+
+        {
+            Dictionary<string, double[]> sdi1 = new Dictionary<string, double[]>();
+            Dictionary<string, double[]> sdi2 = new Dictionary<string, double[]>();
+
+            double[] si1 = new double[] { 1.1E10, 1.2E10, 1.3E10 };
+            double[] si2 = new double[] { 1.4E10, 1.5E10 };
+            double[] si3 = new double[] { 1.6E10, 1.7E10 };
+
+            sdi1["Hello!!"] = si1;
+            sdi1["Goodbye"] = si2;
+            sdi2[""] = si3;
+
+            Dictionary<string, double[]> _do;
+            Dictionary<string, double[]> ro = p.opStringDoubleSD(sdi1, sdi2, out _do);
+
+            test(_do.Count == 1);
+            test(_do[""].Length == 2);
+            test(_do[""][0] == 1.6E10);
+            test(_do[""][1] == 1.7E10);
+            test(ro.Count == 3);
+            test(ro["Hello!!"].Length == 3);
+            test(ro["Hello!!"][0] == 1.1E10);
+            test(ro["Hello!!"][1] == 1.2E10);
+            test(ro["Hello!!"][2] == 1.3E10);
+            test(ro["Goodbye"].Length == 2);
+            test(ro["Goodbye"][0] == 1.4E10);
+            test(ro["Goodbye"][1] == 1.5E10);
+            test(ro[""].Length == 2);
+            test(ro[""][0] == 1.6E10);
+            test(ro[""][1] == 1.7E10);
+        }
+
+        {
+            Dictionary<string, string[]> sdi1 = new Dictionary<string, string[]>();
+            Dictionary<string, string[]> sdi2 = new Dictionary<string, string[]>();
+
+            string[] si1 = new string[] { "abc", "de", "fghi" };
+            string[] si2 = new string[] { "xyz", "or" };
+            string[] si3 = new string[] { "and", "xor" };
+
+            sdi1["abc"] = si1;
+            sdi1["def"] = si2;
+            sdi2["ghi"] = si3;
+
+            Dictionary<string, string[]> _do;
+            Dictionary<string, string[]> ro = p.opStringStringSD(sdi1, sdi2, out _do);
+
+            test(_do.Count == 1);
+            test(_do["ghi"].Length == 2);
+            test(_do["ghi"][0].Equals("and"));
+            test(_do["ghi"][1].Equals("xor"));
+
+            test(ro.Count == 3);
+            test(ro["abc"].Length == 3);
+            test(ro["abc"][0].Equals("abc"));
+            test(ro["abc"][1].Equals("de"));
+            test(ro["abc"][2].Equals("fghi"));
+            test(ro["def"].Length == 2);
+            test(ro["def"][0].Equals("xyz"));
+            test(ro["def"][1].Equals("or"));
+            test(ro["ghi"].Length == 2);
+            test(ro["ghi"][0].Equals("and"));
+            test(ro["ghi"][1].Equals("xor"));
+        }
+
+        {
+            Dictionary<Test.MyEnum, Test.MyEnum[]> sdi1 = new Dictionary<Test.MyEnum, Test.MyEnum[]>();
+            Dictionary<Test.MyEnum, Test.MyEnum[]> sdi2 = new Dictionary<Test.MyEnum, Test.MyEnum[]>();
+
+            Test.MyEnum[] si1 = new Test.MyEnum[] { Test.MyEnum.enum1, Test.MyEnum.enum1, Test.MyEnum.enum2 };
+            Test.MyEnum[] si2 = new Test.MyEnum[] { Test.MyEnum.enum1, Test.MyEnum.enum2 };
+            Test.MyEnum[] si3 = new Test.MyEnum[] { Test.MyEnum.enum3, Test.MyEnum.enum3 };
+
+            sdi1[Test.MyEnum.enum3] = si1;
+            sdi1[Test.MyEnum.enum2] = si2;
+            sdi2[Test.MyEnum.enum1] = si3;
+
+            Dictionary<Test.MyEnum, Test.MyEnum[]> _do;
+            Dictionary<Test.MyEnum, Test.MyEnum[]> ro = p.opMyEnumMyEnumSD(sdi1, sdi2, out _do);
+
+            test(_do.Count == 1);
+            test(_do[Test.MyEnum.enum1].Length == 2);
+            test(_do[Test.MyEnum.enum1][0] == Test.MyEnum.enum3);
+            test(_do[Test.MyEnum.enum1][1] == Test.MyEnum.enum3);
+            test(ro.Count == 3);
+            test(ro[Test.MyEnum.enum3].Length == 3);
+            test(ro[Test.MyEnum.enum3][0] == Test.MyEnum.enum1);
+            test(ro[Test.MyEnum.enum3][1] == Test.MyEnum.enum1);
+            test(ro[Test.MyEnum.enum3][2] == Test.MyEnum.enum2);
+            test(ro[Test.MyEnum.enum2].Length == 2);
+            test(ro[Test.MyEnum.enum2][0] == Test.MyEnum.enum1);
+            test(ro[Test.MyEnum.enum2][1] == Test.MyEnum.enum2);
+            test(ro[Test.MyEnum.enum1].Length == 2);
+            test(ro[Test.MyEnum.enum1][0] == Test.MyEnum.enum3);
+            test(ro[Test.MyEnum.enum1][1] == Test.MyEnum.enum3);
+        }
+
+        {
             int[] lengths = new int[] { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
 
             for(int l = 0; l < lengths.Length; ++l)

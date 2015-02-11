@@ -367,6 +367,287 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
         cb.ice_response(r, p3);
     }
 
+    public void opByteBoolDS_async(Test.AMD_MyClass_opByteBoolDS cb,
+                                   Dictionary<byte, bool>[] p1,
+                                   Dictionary<byte, bool>[] p2,
+                                   Ice.Current current)
+    {
+        Dictionary<byte, bool>[] p3 = new Dictionary<byte, bool>[p1.Length + p2.Length];
+        Array.Copy(p2, p3, p2.Length);
+        Array.Copy(p1, 0, p3, p2.Length, p1.Length);
+
+        Dictionary<byte, bool>[] r = new Dictionary<byte, bool>[p1.Length];
+        for(int i = 0; i < p1.Length; i++)
+        {
+            r[i] = p1[p1.Length - (i + 1)];
+        }
+        cb.ice_response(r,p3);
+    }
+
+    public void opShortIntDS_async(Test.AMD_MyClass_opShortIntDS cb,
+                                   Dictionary<short, int>[] p1,
+                                   Dictionary<short, int>[] p2,
+                                   Ice.Current current)
+    {
+        Dictionary<short, int>[] p3 = new Dictionary<short, int>[p1.Length + p2.Length];
+        Array.Copy(p2, p3, p2.Length);
+        Array.Copy(p1, 0, p3, p2.Length, p1.Length);
+
+        Dictionary<short, int>[] r = new Dictionary<short, int>[p1.Length];
+        for(int i = 0; i < p1.Length; i++)
+        {
+            r[i] = p1[p1.Length - (i + 1)];
+        }
+        cb.ice_response(r,p3);
+    }
+
+    public void opLongFloatDS_async(Test.AMD_MyClass_opLongFloatDS cb,
+                                    Dictionary<long, float>[] p1,
+                                    Dictionary<long, float>[] p2,
+                                    Ice.Current current)
+    {
+        Dictionary<long, float>[] p3 = new Dictionary<long, float>[p1.Length + p2.Length];
+        Array.Copy(p2, p3, p2.Length);
+        Array.Copy(p1, 0, p3, p2.Length, p1.Length);
+
+        Dictionary<long, float>[] r = new Dictionary<long, float>[p1.Length];
+        for(int i = 0; i < p1.Length; i++)
+        {
+            r[i] = p1[p1.Length - (i + 1)];
+        }
+        cb.ice_response(r,p3);
+    }
+
+    public void opStringStringDS_async(Test.AMD_MyClass_opStringStringDS cb,
+                                       Dictionary<string, string>[] p1,
+                                       Dictionary<string, string>[] p2,
+                                       Ice.Current current)
+    {
+        Dictionary<string, string>[] p3 = new Dictionary<string, string>[p1.Length + p2.Length];
+        Array.Copy(p2, p3, p2.Length);
+        Array.Copy(p1, 0, p3, p2.Length, p1.Length);
+
+        Dictionary<string, string>[] r = new Dictionary<string, string>[p1.Length];
+        for(int i = 0; i < p1.Length; i++)
+        {
+            r[i] = p1[p1.Length - (i + 1)];
+        }
+        cb.ice_response(r,p3);
+    }
+
+    public void opStringMyEnumDS_async(Test.AMD_MyClass_opStringMyEnumDS cb,
+                                       Dictionary<string, Test.MyEnum>[] p1,
+                                       Dictionary<string, Test.MyEnum>[] p2,
+                                       Ice.Current current)
+    {
+        Dictionary<string, Test.MyEnum>[] p3 = new Dictionary<string, Test.MyEnum>[p1.Length + p2.Length];
+        Array.Copy(p2, p3, p2.Length);
+        Array.Copy(p1, 0, p3, p2.Length, p1.Length);
+
+        Dictionary<string, Test.MyEnum>[] r = new Dictionary<string, Test.MyEnum>[p1.Length];
+        for(int i = 0; i < p1.Length; i++)
+        {
+            r[i] = p1[p1.Length - (i + 1)];
+        }
+        cb.ice_response(r,p3);
+    }
+
+    public void opMyEnumStringDS_async(Test.AMD_MyClass_opMyEnumStringDS cb,
+                                       Dictionary<Test.MyEnum, string>[] p1,
+                                       Dictionary<Test.MyEnum, string>[] p2,
+                                       Ice.Current current)
+    {
+        Dictionary<Test.MyEnum, string>[] p3 = new Dictionary<Test.MyEnum, string>[p1.Length + p2.Length];
+        Array.Copy(p2, p3, p2.Length);
+        Array.Copy(p1, 0, p3, p2.Length, p1.Length);
+
+        Dictionary<Test.MyEnum, string>[] r = new Dictionary<Test.MyEnum, string>[p1.Length];
+        for(int i = 0; i < p1.Length; i++)
+        {
+            r[i] = p1[p1.Length - (i + 1)];
+        }
+        cb.ice_response(r,p3);
+    }
+
+    public void opMyStructMyEnumDS_async(Test.AMD_MyClass_opMyStructMyEnumDS cb,
+                                         Dictionary<Test.MyStruct, Test.MyEnum>[] p1,
+                                         Dictionary<Test.MyStruct, Test.MyEnum>[] p2,
+                                         Ice.Current current)
+    {
+        Dictionary<Test.MyStruct, Test.MyEnum>[] p3 = new Dictionary<Test.MyStruct, Test.MyEnum>[p1.Length + p2.Length];
+        Array.Copy(p2, p3, p2.Length);
+        Array.Copy(p1, 0, p3, p2.Length, p1.Length);
+
+        Dictionary<Test.MyStruct, Test.MyEnum>[] r = new Dictionary<Test.MyStruct, Test.MyEnum>[p1.Length];
+        for(int i = 0; i < p1.Length; i++)
+        {
+            r[i] = p1[p1.Length - (i + 1)];
+        }
+        cb.ice_response(r,p3);
+    }
+
+    public void opByteByteSD_async(Test.AMD_MyClass_opByteByteSD cb,
+                                   Dictionary<byte, byte[]> p1,
+                                   Dictionary<byte, byte[]> p2,
+                                   Ice.Current current)
+    {
+        Dictionary<byte, byte[]> p3 = p2;
+        Dictionary<byte, byte[]> r = new Dictionary<byte, byte[]>();
+        foreach(KeyValuePair<byte, byte[]> e in p1)
+        {
+            r[e.Key] = e.Value;
+        }
+        foreach(KeyValuePair<byte, byte[]> e in p2)
+        {
+            r[e.Key] = e.Value;
+        }
+        cb.ice_response(r,p3);
+    }
+
+    public void opBoolBoolSD_async(Test.AMD_MyClass_opBoolBoolSD cb,
+                                   Dictionary<bool, bool[]> p1,
+                                   Dictionary<bool, bool[]> p2,
+                                   Ice.Current current)
+    {
+        Dictionary<bool, bool[]>  p3 = p2;
+        Dictionary<bool, bool[]> r = new Dictionary<bool, bool[]>();
+        foreach(KeyValuePair<bool, bool[]> e in p1)
+        {
+            r[e.Key] = e.Value;
+        }
+        foreach(KeyValuePair<bool, bool[]> e in p2)
+        {
+            r[e.Key] = e.Value;
+        }
+        cb.ice_response(r,p3);
+    }
+
+    public void opShortShortSD_async(Test.AMD_MyClass_opShortShortSD cb,
+                                     Dictionary<short, short[]> p1,
+                                     Dictionary<short, short[]> p2,
+                                     Ice.Current current)
+    {
+        Dictionary<short, short[]> p3 = p2;
+        Dictionary<short, short[]> r = new Dictionary<short, short[]>();
+        foreach(KeyValuePair<short, short[]> e in p1)
+        {
+            r[e.Key] = e.Value;
+        }
+        foreach(KeyValuePair<short, short[]> e in p2)
+        {
+            r[e.Key] = e.Value;
+        }
+        cb.ice_response(r,p3);
+    }
+
+    public void opIntIntSD_async(Test.AMD_MyClass_opIntIntSD cb,
+                                 Dictionary<int, int[]> p1,
+                                 Dictionary<int, int[]> p2,
+                                 Ice.Current current)
+    {
+        Dictionary<int, int[]> p3 = p2;
+        Dictionary<int, int[]> r = new Dictionary<int, int[]>();
+        foreach(KeyValuePair<int, int[]> e in p1)
+        {
+            r[e.Key] = e.Value;
+        }
+        foreach(KeyValuePair<int, int[]> e in p2)
+        {
+            r[e.Key] = e.Value;
+        }
+        cb.ice_response(r,p3);
+    }
+
+    public void opLongLongSD_async(Test.AMD_MyClass_opLongLongSD cb,
+                                   Dictionary<long, long[]> p1,
+                                   Dictionary<long, long[]> p2,
+                                   Ice.Current current)
+    {
+        Dictionary<long, long[]> p3 = p2;
+        Dictionary<long, long[]> r = new Dictionary<long, long[]>();
+        foreach(KeyValuePair<long, long[]> e in p1)
+        {
+            r[e.Key] = e.Value;
+        }
+        foreach(KeyValuePair<long, long[]> e in p2)
+        {
+            r[e.Key] = e.Value;
+        }
+        cb.ice_response(r,p3);
+    }
+
+    public void opStringFloatSD_async(Test.AMD_MyClass_opStringFloatSD cb,
+                                      Dictionary<string, float[]> p1,
+                                      Dictionary<string, float[]> p2,
+                                      Ice.Current current)
+    {
+        Dictionary<string, float[]> p3 = p2;
+        Dictionary<string, float[]> r = new Dictionary<string, float[]>();
+        foreach(KeyValuePair<string, float[]> e in p1)
+        {
+            r[e.Key] = e.Value;
+        }
+        foreach(KeyValuePair<string, float[]> e in p2)
+        {
+            r[e.Key] = e.Value;
+        }
+        cb.ice_response(r,p3);
+    }
+
+    public void opStringDoubleSD_async(Test.AMD_MyClass_opStringDoubleSD cb,
+                                       Dictionary<string, double[]> p1,
+                                       Dictionary<string, double[]> p2,
+                                       Ice.Current current)
+    {
+        Dictionary<string, double[]> p3 = p2;
+        Dictionary<string, double[]> r = new Dictionary<string, double[]>();
+        foreach(KeyValuePair<string, double[]> e in p1)
+        {
+            r[e.Key] = e.Value;
+        }
+        foreach(KeyValuePair<string, double[]> e in p2)
+        {
+            r[e.Key] = e.Value;
+        }
+        cb.ice_response(r,p3);
+    }
+
+    public void opStringStringSD_async(Test.AMD_MyClass_opStringStringSD cb,
+                                       Dictionary<string, string[]> p1,
+                                       Dictionary<string, string[]> p2,
+                                       Ice.Current current)
+    {
+        Dictionary<string, string[]> p3 = p2;
+        Dictionary<string, string[]> r = new Dictionary<string, string[]>();
+        foreach(KeyValuePair<string, string[]> e in p1)
+        {
+            r[e.Key] = e.Value;
+        }
+        foreach(KeyValuePair<string, string[]> e in p2)
+        {
+            r[e.Key] = e.Value;
+        }
+        cb.ice_response(r,p3);
+    }
+
+    public void opMyEnumMyEnumSD_async(Test.AMD_MyClass_opMyEnumMyEnumSD cb,
+                                       Dictionary<Test.MyEnum, Test.MyEnum[]> p1,
+                                       Dictionary<Test.MyEnum, Test.MyEnum[]> p2,
+                                       Ice.Current ice)
+    {
+        Dictionary<Test.MyEnum, Test.MyEnum[]> p3 = p2;
+        Dictionary<Test.MyEnum, Test.MyEnum[]> r = new Dictionary<Test.MyEnum, Test.MyEnum[]>();
+        foreach(KeyValuePair<Test.MyEnum, Test.MyEnum[]> e in p1)
+        {
+            r[e.Key] = e.Value;
+        }
+        foreach(KeyValuePair<Test.MyEnum, Test.MyEnum[]> e in p2)
+        {
+            r[e.Key] = e.Value;
+        }
+        cb.ice_response(r,p3);
+    }
+
     public void opIntS_async(Test.AMD_MyClass_opIntS cb, int[] s, Ice.Current current)
     {
         int[] r = new int[s.Length];

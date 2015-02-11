@@ -220,6 +220,127 @@
             cb.ice_response(r, p1);
         },
 
+        opByteBoolDS_async: function(cb, p1, p2, current)
+        {
+            var p3 = p2.concat(p1);
+            var r = p1.reverse();
+            cb.ice_response(r, p3);
+        },
+
+        opShortIntDS_async: function(cb, p1, p2, current)
+        {
+            var p3 = p2.concat(p1);
+            var r = p1.reverse();
+            cb.ice_response(r, p3);
+        },
+
+        opLongFloatDS_async: function(cb, p1, p2, current)
+        {
+            var p3 = p2.concat(p1);
+            var r = p1.reverse();
+            cb.ice_response(r, p3);
+        },
+
+        opStringStringDS_async: function(cb, p1, p2, current)
+        {
+            var p3 = p2.concat(p1);
+            var r = p1.reverse();
+            cb.ice_response(r, p3);
+        },
+
+        opStringMyEnumDS_async: function(cb, p1, p2, current)
+        {
+            var p3 = p2.concat(p1);
+            var r = p1.reverse();
+            cb.ice_response(r, p3);
+        },
+
+        opMyEnumStringDS_async: function(cb, p1, p2, current)
+        {
+            var p3 = p2.concat(p1);
+            var r = p1.reverse();
+            cb.ice_response(r, p3);
+        },
+
+        opMyStructMyEnumDS_async: function(cb, p1, p2, current)
+        {
+            var p3 = p2.concat(p1);
+            var r = p1.reverse();
+            cb.ice_response(r, p3);
+        },
+
+        opByteByteSD_async: function(cb, p1, p2, current)
+        {
+            var r = p1.clone();
+            r.merge(p2);
+            var p3 = p2.clone();
+            cb.ice_response(r, p3);
+        },
+
+        opBoolBoolSD_async: function(cb, p1, p2, current)
+        {
+            var r = p1.clone();
+            r.merge(p2);
+            var p3 = p2.clone();
+            cb.ice_response(r, p3);
+        },
+
+        opShortShortSD_async: function(cb, p1, p2, current)
+        {
+            var r = p1.clone();
+            r.merge(p2);
+            var p3 = p2.clone();
+            cb.ice_response(r, p3);
+        },
+
+        opIntIntSD_async: function(cb, p1, p2, current)
+        {
+            var r = p1.clone();
+            r.merge(p2);
+            var p3 = p2.clone();
+            cb.ice_response(r, p3);
+        },
+
+        opLongLongSD_async: function(cb, p1, p2, current)
+        {
+            var r = p1.clone();
+            r.merge(p2);
+            var p3 = p2.clone();
+            cb.ice_response(r, p3);
+        },
+
+        opStringFloatSD_async: function(cb, p1, p2, current)
+        {
+            var r = p1.clone();
+            r.merge(p2);
+            var p3 = p2.clone();
+            cb.ice_response(r, p3);
+        },
+
+        opStringDoubleSD_async: function(cb, p1, p2, current)
+        {
+            var r = p1.clone();
+            r.merge(p2);
+            var p3 = p2.clone();
+            cb.ice_response(r, p3);
+        },
+
+        opStringStringSD_async: function(cb, p1, p2, current)
+        {
+            var r = p1.clone();
+            r.merge(p2);
+            var p3 = p2.clone();
+            cb.ice_response(r, p3);
+        },
+
+        opMyEnumMyEnumSD_async: function(cb, p1, p2, current)
+        {
+            var r = p1.clone();
+            r.merge(p2);
+            var p3 = p2.clone();
+            cb.ice_response(r, p3);
+        },
+
         opIntS_async: function(cb, s, current)
         {
             cb.ice_response(s.map(function(v, i, arr) { return -v; }));

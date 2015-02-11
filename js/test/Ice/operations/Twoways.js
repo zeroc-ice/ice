@@ -676,7 +676,534 @@
                 test(retval.get(ts22) === Test.MyEnum.enum3);
                 test(retval.get(ts23) === Test.MyEnum.enum2);
 
-                var promise2 = new Ice.Promise();
+                var ds1 = new Test.ByteBoolD();
+                ds1.set(10, true);
+                ds1.set(100, false);
+                var ds2 = new Test.ByteBoolD();
+                ds2.set(10, true);
+                ds2.set(11, false);
+                ds2.set(101, true);
+                var ds3 = new Test.ByteBoolD();
+                ds3.set(100, false);
+                ds3.set(101, false);
+
+                return prx.opByteBoolDS([ds1, ds2], [ds3]);
+            }
+        ).then(
+            function(retval, p3)
+            {
+                test(retval.length == 2);
+                test(retval[0].size == 3);
+                test(retval[0].get(10) === true);
+                test(retval[0].get(11) === false);
+                test(retval[0].get(101) === true);
+                test(retval[1].size === 2);
+                test(retval[1].get(10) === true);
+                test(retval[1].get(100) === false);
+                test(p3.length == 3);
+                test(p3[0].size == 2);
+                test(p3[0].get(100) === false);
+                test(p3[0].get(101) === false);
+                test(p3[1].size == 2);
+                test(p3[1].get(10) === true);
+                test(p3[1].get(100) === false);
+                test(p3[2].size == 3);
+                test(p3[2].get(10) === true);
+                test(p3[2].get(11) === false);
+                test(p3[2].get(101) === true);
+
+                var di1 = new Test.ShortIntD();
+                di1.set(110, -1);
+                di1.set(1100, 123123);
+                var di2 = new Test.ShortIntD();
+                di2.set(110, -1);
+                di2.set(111, -100);
+                di2.set(1101, 0);
+                var di3 = new Test.ShortIntD();
+                di3.set(100, -1001);
+
+                return prx.opShortIntDS([di1, di2], [di3]);
+            }
+        ).then(
+            function(retval, p3)
+            {
+                test(retval.length == 2);
+                test(retval[0].size == 3);
+                test(retval[0].get(110) === -1);
+                test(retval[0].get(111) === -100);
+                test(retval[0].get(1101) === 0);
+                test(retval[1].size === 2);
+                test(retval[1].get(110) === -1);
+                test(retval[1].get(1100) === 123123);
+
+                test(p3.length === 3);
+                test(p3[0].size === 1);
+                test(p3[0].get(100) === -1001);
+                test(p3[1].size === 2);
+                test(p3[1].get(110) === -1);
+                test(p3[1].get(1100) === 123123);
+                test(p3[2].size === 3);
+                test(p3[2].get(110) === -1);
+                test(p3[2].get(111) === -100);
+                test(p3[2].get(1101) === 0);
+
+                var di1 = new Test.LongFloatD();
+                di1.set(new Ice.Long(0, 999999110), -1.1);
+                di1.set(new Ice.Long(0, 999999111), 123123.2);
+                var di2 = new Test.LongFloatD();
+                di2.set(new Ice.Long(0, 999999110), -1.1);
+                di2.set(new Ice.Long(0, 999999120), -100.4);
+                di2.set(new Ice.Long(0, 999999130), 0.5);
+                var di3 = new Test.LongFloatD();
+                di3.set(new Ice.Long(0, 999999140), 3.14);
+
+                return prx.opLongFloatDS([di1, di2], [di3]);
+            }
+        ).then(
+            function(retval, p3)
+            {
+                test(retval.length == 2);
+                test(retval[0].size == 3);
+                test(retval[0].get(new Ice.Long(0, 999999110)) - Math.abs(-1.1) <= 0.1);
+                test(retval[0].get(new Ice.Long(0, 999999120)) - Math.abs(-100.4) <= 0.1);
+                test(retval[0].get(new Ice.Long(0, 999999130)) - 0.5 <= 0.1);
+                test(retval[1].size == 2);
+                test(retval[1].get(new Ice.Long(0, 999999110)) - Math.abs(-1.1) <= 0.1);
+                test(retval[1].get(new Ice.Long(0, 999999111)) - 123123.2 <= 0.1);
+
+                test(p3.length == 3);
+                test(p3[0].size == 1);
+                test(p3[0].get(new Ice.Long(0, 999999140)) - 3.14 <= 0.1);
+                test(p3[1].size == 2);
+                test(p3[1].get(new Ice.Long(0, 999999110)) - Math.abs(-1.1) <= 0.1);
+                test(p3[1].get(new Ice.Long(0, 999999111)) - 123123.2 <= 0.1);
+                test(p3[2].size == 3);
+                test(p3[2].get(new Ice.Long(0, 999999110)) - Math.abs(-1.1) <= 0.1);
+                test(p3[2].get(new Ice.Long(0, 999999120)) - Math.abs(-100.4) <= 0.1);
+                test(p3[2].get(new Ice.Long(0, 999999130)) - 0.5 <= 0.1);
+
+                var di1 = new Test.StringStringD();
+                di1.set("foo", "abc -1.1");
+                di1.set("bar", "abc 123123.2");
+                var di2 = new Test.StringStringD();
+                di2.set("foo", "abc -1.1");
+                di2.set("FOO", "abc -100.4");
+                di2.set("BAR", "abc 0.5");
+                var di3 = new Test.StringStringD();
+                di3.set("f00", "ABC -3.14");
+
+                return prx.opStringStringDS([di1, di2], [di3]);
+            }
+        ).then(
+            function(retval, p3)
+            {
+                test(retval.length === 2);
+                test(retval[0].size === 3);
+                test(retval[0].get("foo") === "abc -1.1");
+                test(retval[0].get("FOO") === "abc -100.4");
+                test(retval[0].get("BAR") === "abc 0.5");
+                test(retval[1].size === 2);
+                test(retval[1].get("foo") === "abc -1.1");
+                test(retval[1].get("bar") === "abc 123123.2");
+
+                test(p3.length === 3);
+                test(p3[0].size === 1);
+                test(p3[0].get("f00") === "ABC -3.14");
+                test(p3[1].size === 2);
+                test(p3[1].get("foo") === "abc -1.1");
+                test(p3[1].get("bar") === "abc 123123.2");
+                test(p3[2].size === 3);
+                test(p3[2].get("foo") === "abc -1.1");
+                test(p3[2].get("FOO") === "abc -100.4");
+                test(p3[2].get("BAR") === "abc 0.5");
+
+                var di1 = new Test.StringMyEnumD();
+                di1.set("abc", Test.MyEnum.enum1);
+                di1.set("", Test.MyEnum.enum2);
+                var di2 = new Test.StringMyEnumD();
+                di2.set("abc", Test.MyEnum.enum1);
+                di2.set("qwerty", Test.MyEnum.enum3);
+                di2.set("Hello!!", Test.MyEnum.enum2);
+                var di3 = new Test.StringMyEnumD();
+                di3.set("Goodbye", Test.MyEnum.enum1);
+                
+                return prx.opStringMyEnumDS([di1, di2], [di3]);
+            }
+        ).then(
+            function(retval, p3)
+            {
+                test(retval.length == 2);
+                test(retval[0].size == 3);
+                test(retval[0].get("abc") == Test.MyEnum.enum1);
+                test(retval[0].get("qwerty") == Test.MyEnum.enum3);
+                test(retval[0].get("Hello!!") == Test.MyEnum.enum2);
+                test(retval[1].size == 2);
+                test(retval[1].get("abc") == Test.MyEnum.enum1);
+                test(retval[1].get("") == Test.MyEnum.enum2);
+
+                test(p3.length == 3);
+                test(p3[0].size == 1);
+                test(p3[0].get("Goodbye") == Test.MyEnum.enum1);
+                test(p3[1].size == 2);
+                test(p3[1].get("abc") == Test.MyEnum.enum1);
+                test(p3[1].get("") == Test.MyEnum.enum2);
+                test(p3[2].size == 3);
+                test(p3[2].get("abc") == Test.MyEnum.enum1);
+                test(p3[2].get("qwerty") == Test.MyEnum.enum3);
+                test(p3[2].get("Hello!!") == Test.MyEnum.enum2);
+
+                var di1 = new Test.MyEnumStringD();
+                di1.set(Test.MyEnum.enum1, "abc");
+                var di2 = new Test.MyEnumStringD();
+                di2.set(Test.MyEnum.enum2, "Hello!!");
+                di2.set(Test.MyEnum.enum3, "qwerty");
+                var di3 = new Test.MyEnumStringD();
+                di3.set(Test.MyEnum.enum1, "Goodbye");
+
+                return prx.opMyEnumStringDS([di1, di2], [di3]);
+            }
+        ).then(
+            function(retval, p3)
+            {
+                test(retval.length == 2);
+                test(retval[0].size == 2);
+                test(retval[0].get(Test.MyEnum.enum2) === "Hello!!");
+                test(retval[0].get(Test.MyEnum.enum3) === "qwerty");
+                test(retval[1].size == 1);
+                test(retval[1].get(Test.MyEnum.enum1) === "abc");
+
+                test(p3.length == 3);
+                test(p3[0].size == 1);
+                test(p3[0].get(Test.MyEnum.enum1) === "Goodbye");
+                test(p3[1].size == 1);
+                test(p3[1].get(Test.MyEnum.enum1) === "abc");
+                test(p3[2].size == 2);
+                test(p3[2].get(Test.MyEnum.enum2) === "Hello!!");
+                test(p3[2].get(Test.MyEnum.enum3) === "qwerty");
+
+                var s11 = new Test.MyStruct(1, 1);
+                var s12 = new Test.MyStruct(1, 2);
+                var di1 = new Test.MyStructMyEnumD();
+                di1.set(s11, Test.MyEnum.enum1);
+                di1.set(s12, Test.MyEnum.enum2);
+
+                var s22 = new Test.MyStruct(2, 2);
+                var s23 = new Test.MyStruct(2, 3);
+                var di2 = new Test.MyStructMyEnumD();
+                di2.set(s11, Test.MyEnum.enum1);
+                di2.set(s22, Test.MyEnum.enum3);
+                di2.set(s23, Test.MyEnum.enum2);
+
+                var di3 = new Test.MyStructMyEnumD();
+                di3.set(s23, Test.MyEnum.enum3);
+
+                return prx.opMyStructMyEnumDS([di1, di2], [di3]);
+            }
+        ).then(
+            function(retval, p3)
+            {
+                var s11 = new Test.MyStruct(1, 1);
+                var s12 = new Test.MyStruct(1, 2);
+                var s22 = new Test.MyStruct(2, 2);
+                var s23 = new Test.MyStruct(2, 3);
+
+                test(retval.length == 2);
+                test(retval[0].size == 3);
+                test(retval[0].get(s11) === Test.MyEnum.enum1);
+                test(retval[0].get(s22) === Test.MyEnum.enum3);
+                test(retval[0].get(s23) === Test.MyEnum.enum2);
+                test(retval[1].size == 2);
+                test(retval[1].get(s11) === Test.MyEnum.enum1);
+                test(retval[1].get(s12) === Test.MyEnum.enum2);
+
+                test(p3.length == 3);
+                test(p3[0].size == 1);
+                test(p3[0].get(s23) === Test.MyEnum.enum3);
+                test(p3[1].size == 2);
+                test(p3[1].get(s11) === Test.MyEnum.enum1);
+                test(p3[1].get(s12) === Test.MyEnum.enum2);
+                test(p3[2].size == 3);
+                test(p3[2].get(s11) === Test.MyEnum.enum1);
+                test(p3[2].get(s22) === Test.MyEnum.enum3);
+                test(p3[2].get(s23) === Test.MyEnum.enum2);
+
+                var sdi1 = new Test.ByteByteSD();
+                sdi1.set(0x01, Ice.Buffer.createNative([0x01, 0x11]));
+                sdi1.set(0x22, Ice.Buffer.createNative([0x12]));
+                var sdi2 = new Test.ByteByteSD();
+                sdi2.set(0xf1, Ice.Buffer.createNative([0xf2, 0xf3]));
+
+                return prx.opByteByteSD(sdi1, sdi2);
+            }
+        ).then(
+            function(retval, p3)
+            {
+                test(p3.size == 1);
+                test(p3.get(0xf1).length === 2);
+                test(p3.get(0xf1)[0] === 0xf2);
+                test(p3.get(0xf1)[1] === 0xf3);
+                test(retval.size === 3);
+                test(retval.get(0x01).length === 2);
+                test(retval.get(0x01)[0] === 0x01);
+                test(retval.get(0x01)[1] === 0x11);
+                test(retval.get(0x22).length === 1);
+                test(retval.get(0x22)[0] === 0x12);
+                test(retval.get(0xf1).length === 2);
+                test(retval.get(0xf1)[0] === 0xf2);
+                test(retval.get(0xf1)[1] === 0xf3);
+
+
+                var si1 = [true, false];
+                var si2 = [false, true, true];
+
+                var sdi1 = new Test.BoolBoolSD();
+                sdi1.set(false, si1);
+                sdi1.set(true, si2);
+                var sdi2 = new Test.BoolBoolSD();
+                sdi2.set(false, si1);
+
+                return prx.opBoolBoolSD(sdi1, sdi2);
+            }
+        ).then(
+            function(retval, p3)
+            {
+                test(p3.size === 1);
+                test(p3.get(false).length === 2);
+                test(p3.get(false)[0] === true);
+                test(p3.get(false)[1] === false);
+                test(retval.size === 2);
+                test(retval.get(false).length === 2);
+                test(retval.get(false)[0] === true);
+                test(retval.get(false)[1] === false);
+                test(retval.get(true).length === 3);
+                test(retval.get(true)[0] === false);
+                test(retval.get(true)[1] === true);
+                test(retval.get(true)[2] === true);
+
+                var sdi1 = new Test.ShortShortSD();
+                var sdi2 = new Test.ShortShortSD();
+
+                var si1 = [1, 2, 3];
+                var si2 = [4, 5];
+                var si3 = [6, 7];
+
+                sdi1.set(1, si1);
+                sdi1.set(2, si2);
+                sdi2.set(4, si3);
+
+                return prx.opShortShortSD(sdi1, sdi2);
+            }
+        ).then(
+            function(retval, p3)
+            {
+                test(p3.size === 1);
+                test(p3.get(4).length === 2);
+                test(p3.get(4)[0] === 6);
+                test(p3.get(4)[1] === 7);
+                test(retval.size === 3);
+                test(retval.get(1).length === 3);
+                test(retval.get(1)[0] === 1);
+                test(retval.get(1)[1] === 2);
+                test(retval.get(1)[2] === 3);
+                test(retval.get(2).length === 2);
+                test(retval.get(2)[0] === 4);
+                test(retval.get(2)[1] === 5);
+                test(retval.get(4).length === 2);
+                test(retval.get(4)[0] === 6);
+                test(retval.get(4)[1] === 7);
+
+                var sdi1 = new Test.IntIntSD();
+                var sdi2 = new Test.IntIntSD();
+
+                var si1 = [100, 200, 300];
+                var si2 = [400, 500];
+                var si3 = [600, 700];
+
+                sdi1.set(100, si1);
+                sdi1.set(200, si2);
+                sdi2.set(400, si3);
+
+                return prx.opIntIntSD(sdi1, sdi2);
+            }
+        ).then(
+            function(retval, p3)
+            {
+                test(p3.size === 1);
+                test(p3.get(400).length === 2);
+                test(p3.get(400)[0] === 600);
+                test(p3.get(400)[1] === 700);
+                test(retval.size === 3);
+                test(retval.get(100).length === 3);
+                test(retval.get(100)[0] === 100);
+                test(retval.get(100)[1] === 200);
+                test(retval.get(100)[2] === 300);
+                test(retval.get(200).length === 2);
+                test(retval.get(200)[0] === 400);
+                test(retval.get(200)[1] === 500);
+                test(retval.get(400).length === 2);
+                test(retval.get(400)[0] === 600);
+                test(retval.get(400)[1] === 700);
+
+                var sdi1 = new Test.LongLongSD();
+                var sdi2 = new Test.LongLongSD();
+
+                var si1 = [new Ice.Long(0, 999999110), new Ice.Long(0, 999999111), new Ice.Long(0, 999999110)];
+                var si2 = [new Ice.Long(0, 999999120), new Ice.Long(0, 999999130)];
+                var si3 = [new Ice.Long(0, 999999110), new Ice.Long(0, 999999120)];
+
+                sdi1.set(new Ice.Long(0, 999999990), si1);
+                sdi1.set(new Ice.Long(0, 999999991), si2);
+                sdi2.set(new Ice.Long(0, 999999992), si3);
+
+                return prx.opLongLongSD(sdi1, sdi2);
+            }
+        ).then(
+            function(retval, p3)
+            {
+                test(p3.size == 1);
+                test(p3.get(new Ice.Long(0, 999999992)).length === 2);
+                test(p3.get(new Ice.Long(0, 999999992))[0].equals(new Ice.Long(0, 999999110)));
+                test(p3.get(new Ice.Long(0, 999999992))[1].equals(new Ice.Long(0, 999999120)));
+                test(retval.size == 3);
+                test(retval.get(new Ice.Long(0, 999999990)).length === 3);
+                test(retval.get(new Ice.Long(0, 999999990))[0].equals(new Ice.Long(0, 999999110)));
+                test(retval.get(new Ice.Long(0, 999999990))[1].equals(new Ice.Long(0, 999999111)));
+                test(retval.get(new Ice.Long(0, 999999990))[2].equals(new Ice.Long(0, 999999110)));
+                test(retval.get(new Ice.Long(0, 999999991)).length === 2);
+                test(retval.get(new Ice.Long(0, 999999991))[0].equals(new Ice.Long(0, 999999120)));
+                test(retval.get(new Ice.Long(0, 999999991))[1].equals(new Ice.Long(0, 999999130)));
+                test(retval.get(new Ice.Long(0, 999999992)).length === 2);
+                test(retval.get(new Ice.Long(0, 999999992))[0].equals(new Ice.Long(0, 999999110)));
+                test(retval.get(new Ice.Long(0, 999999992))[1].equals(new Ice.Long(0, 999999120)));
+
+                var sdi1 = new Test.StringFloatSD();
+                var sdi2 = new Test.StringFloatSD();
+
+                var si1 = [-1.1, 123123.2, 100.0];
+                var si2 = [42.24, -1.61];
+                var si3 = [-3.14, 3.14];
+
+                sdi1.set("abc", si1);
+                sdi1.set("ABC", si2);
+                sdi2.set("aBc", si3);
+
+                return prx.opStringFloatSD(sdi1, sdi2);
+            }
+        ).then(
+            function(retval, p3)
+            {
+                test(p3.size === 1);
+                test(p3.get("aBc").length === 2);
+                test(p3.get("aBc")[0] - Math.abs(3.14) <= 0.1);
+                test(p3.get("aBc")[1] - 3.14 <= 0.1);
+                test(retval.size === 3);
+                test(retval.get("abc").length === 3);
+                test(retval.get("abc")[0] - Math.abs(1.1) <= 0.1);
+                test(retval.get("abc")[1] - 123123.2 <= 0.1);
+                test(retval.get("abc")[2] - 100.0 <= 0.1);
+                test(retval.get("ABC").length === 2);
+                test(retval.get("ABC")[0] - 42.24 <= 0.1);
+                test(retval.get("ABC")[1] - Math.abs(1.61) <= 0.1);
+                test(retval.get("aBc").length === 2);
+                test(retval.get("aBc")[0] - Math.abs(3.14) <= 0.1);
+                test(retval.get("aBc")[1] - 3.14 <= 0.1);
+
+                var sdi1 = new Test.StringDoubleSD();
+                var sdi2 = new Test.StringDoubleSD();
+
+                var si1 = [1.1E10, 1.2E10, 1.3E10];
+                var si2 = [1.4E10, 1.5E10];
+                var si3 = [1.6E10, 1.7E10];
+
+                sdi1.set("Hello!!", si1);
+                sdi1.set("Goodbye",  si2);
+                sdi2.set("", si3);
+
+                return prx.opStringDoubleSD(sdi1, sdi2);
+            }
+        ).then(
+            function(retval, p3)
+            {
+                test(p3.size === 1);
+                test(p3.get("").length === 2);
+                test(p3.get("")[0] === 1.6E10);
+                test(p3.get("")[1] === 1.7E10);
+                test(retval.size=== 3);
+                test(retval.get("Hello!!").length === 3);
+                test(retval.get("Hello!!")[0] === 1.1E10);
+                test(retval.get("Hello!!")[1] === 1.2E10);
+                test(retval.get("Hello!!")[2] === 1.3E10);
+                test(retval.get("Goodbye").length === 2);
+                test(retval.get("Goodbye")[0] === 1.4E10);
+                test(retval.get("Goodbye")[1] === 1.5E10);
+                test(retval.get("").length=== 2);
+                test(retval.get("")[0] === 1.6E10);
+                test(retval.get("")[1] === 1.7E10);
+
+                var sdi1 = new Test.StringStringSD();
+                var sdi2 = new Test.StringStringSD();
+
+                var si1 = ["abc", "de", "fghi"];
+                var si2 = ["xyz", "or"];
+                var si3 = ["and", "xor"];
+
+                sdi1.set("abc", si1);
+                sdi1.set("def", si2);
+                sdi2.set("ghi", si3);
+
+                return prx.opStringStringSD(sdi1, sdi2);
+            }
+        ).then(
+            function(retval, p3)
+            {
+                test(p3.size === 1);
+                test(p3.get("ghi").length ===2);
+                test(p3.get("ghi")[0] === "and");
+                test(p3.get("ghi")[1] === "xor");
+                test(retval.size === 3);
+                test(retval.get("abc").length === 3);
+                test(retval.get("abc")[0] === "abc");
+                test(retval.get("abc")[1] === "de");
+                test(retval.get("abc")[2] === "fghi");
+                test(retval.get("def").length === 2);
+                test(retval.get("def")[0] === "xyz");
+                test(retval.get("def")[1] === "or");
+                test(retval.get("ghi").length === 2);
+                test(retval.get("ghi")[0] === "and");
+                test(retval.get("ghi")[1] === "xor");
+
+                var sdi1 = new Test.MyEnumMyEnumSD();
+                var sdi2 = new Test.MyEnumMyEnumSD();
+
+                var si1 = [Test.MyEnum.enum1, Test.MyEnum.enum1, Test.MyEnum.enum2];
+                var si2 = [Test.MyEnum.enum1, Test.MyEnum.enum2];
+                var si3 = [Test.MyEnum.enum3, Test.MyEnum.enum3];
+
+                sdi1.set(Test.MyEnum.enum3, si1);
+                sdi1.set(Test.MyEnum.enum2, si2);
+                sdi2.set(Test.MyEnum.enum1, si3);
+
+                return prx.opMyEnumMyEnumSD(sdi1, sdi2);
+            }
+        ).then(
+            function(retval, p3)
+            {
+                test(p3.size == 1);
+                test(p3.get(Test.MyEnum.enum1).length == 2);
+                test(p3.get(Test.MyEnum.enum1)[0] == Test.MyEnum.enum3);
+                test(p3.get(Test.MyEnum.enum1)[1] == Test.MyEnum.enum3);
+                test(retval.size== 3);
+                test(retval.get(Test.MyEnum.enum3).length == 3);
+                test(retval.get(Test.MyEnum.enum3)[0] == Test.MyEnum.enum1);
+                test(retval.get(Test.MyEnum.enum3)[1] == Test.MyEnum.enum1);
+                test(retval.get(Test.MyEnum.enum3)[2] == Test.MyEnum.enum2);
+                test(retval.get(Test.MyEnum.enum2).length == 2);
+                test(retval.get(Test.MyEnum.enum2)[0] == Test.MyEnum.enum1);
+                test(retval.get(Test.MyEnum.enum2)[1] == Test.MyEnum.enum2);
+                test(retval.get(Test.MyEnum.enum1).length == 2);
+                test(retval.get(Test.MyEnum.enum1)[0] == Test.MyEnum.enum3);
+                test(retval.get(Test.MyEnum.enum1)[1] == Test.MyEnum.enum3);
+
                 var next = function(n)
                 {
                     var lengths = [ 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 ];

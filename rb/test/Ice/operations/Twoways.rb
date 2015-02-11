@@ -539,6 +539,433 @@ def twoways(communicator, p)
     test(ro[s23] == Test::MyEnum::Enum2)
 
     #
+    # opByteBoolDS
+    #
+    # di1 = {10=>true, 100=>false}
+    # di2 = {10=>true, 11=>false, 101=>true}
+
+    dsi1 = [{ 10=>true, 100=>false }, { 10=>true, 11=>false, 101=>true }]
+    dsi2 = [{ 100=>false, 101=>false }]
+
+    ro, d = p.opByteBoolDS(dsi1, dsi2)
+
+    test(ro.length == 2)
+    test(ro[0].length == 3)
+    test(ro[0][10])
+    test(!ro[0][11])
+    test(ro[0][101])
+    test(ro[1].length == 2)
+    test(ro[1][10])
+    test(!ro[1][100])
+    test(d.length == 3)
+    test(d[0].length == 2)
+    test(!d[0][100])
+    test(!d[0][101])
+    test(d[1].length == 2)
+    test(d[1][10])
+    test(!d[1][100])
+    test(d[2].length == 3)
+    test(d[2][10])
+    test(!d[2][11])
+    test(d[2][101])
+
+    #
+    # opShortIntDS
+    #
+    dsi1 = [{ 110=>-1, 1100=>123123 }, { 110=>-1, 111=>-100, 1101=>0 }]
+    dsi2 = [{ 100=>-1001 }]
+
+    ro, d = p.opShortIntDS(dsi1, dsi2)
+
+    test(ro.length == 2)
+    test(ro[0].length == 3)
+    test(ro[0][110] == -1)
+    test(ro[0][111] == -100)
+    test(ro[0][1101] == 0)
+    test(ro[1].length == 2)
+    test(ro[1][110] == -1)
+    test(ro[1][1100] == 123123)
+
+    test(d.length == 3)
+    test(d[0].length == 1)
+    test(d[0][100] == -1001)
+    test(d[1].length == 2)
+    test(d[1][110] == -1)
+    test(d[1][1100] == 123123)
+    test(d[2].length == 3)
+    test(d[2][110] == -1)
+    test(d[2][111] == -100)
+    test(d[2][1101] == 0)
+
+    #
+    # opLongFloatDS
+    #
+    dsi1 = [{ 999999110=>-1.1, 999999111=>123123.2 }, { 999999110=>-1.1, 999999120=>-100.4, 999999130=>0.5 }]
+    dsi2 = [{ 999999140=>3.14 }]
+
+    ro, d = p.opLongFloatDS(dsi1, dsi2)
+
+    test(ro.length == 2)
+    test(ro[0].length == 3)
+    test(ro[0][999999110] - -1.1 < 0.01)
+    test(ro[0][999999120] - -100.4 < 0.01)
+    test(ro[0][999999130] - 0.5 < 0.01)
+    test(ro[1].length == 2)
+    test(ro[1][999999110] - -1.1 < 0.01)
+    test(ro[1][999999111] - 123123.2 < 0.01)
+    test(d.length == 3)
+    test(d[0].length == 1)
+    test(d[0][999999140] - 3.14 < 0.01)
+    test(d[1].length == 2)
+    test(d[1][999999110] - -1.1 < 0.01)
+    test(d[1][999999111] - 123123.2 < 0.01)
+    test(d[2].length == 3)
+    test(d[2][999999110] - -1.1 < 0.01)
+    test(d[2][999999120] - -100.4 < 0.01)
+    test(d[2][999999130] - 0.5 < 0.01)
+
+    #
+    # opStringStringDS
+    #
+
+    dsi1 = [{ "foo"=>"abc -1.1", "bar"=>"abc 123123.2" }, { "foo"=>"abc -1.1", "FOO"=>"abc -100.4", "BAR"=>"abc 0.5" }]
+    dsi2 = [{ "f00"=>"ABC -3.14" }]
+
+    ro, d = p.opStringStringDS(dsi1, dsi2)
+
+    test(ro.length == 2)
+    test(ro[0].length == 3)
+    test(ro[0]["foo"] == "abc -1.1")
+    test(ro[0]["FOO"] == "abc -100.4")
+    test(ro[0]["BAR"] == "abc 0.5")
+    test(ro[1].length == 2)
+    test(ro[1]["foo"] == "abc -1.1")
+    test(ro[1]["bar"] == "abc 123123.2")
+
+    test(d.length == 3)
+    test(d[0].length == 1)
+    test(d[0]["f00"] == "ABC -3.14")
+    test(d[1].length == 2)
+    test(d[1]["foo"] == "abc -1.1")
+    test(d[1]["bar"] == "abc 123123.2")
+    test(d[2].length == 3)
+    test(d[2]["foo"] == "abc -1.1")
+    test(d[2]["FOO"] == "abc -100.4")
+    test(d[2]["BAR"] == "abc 0.5")
+
+    #
+    # opStringMyEnumDS
+    #
+    dsi1 = [
+            { "abc"=>Test::MyEnum::Enum1, ""=>Test::MyEnum::Enum2 },
+            { "abc"=>Test::MyEnum::Enum1, "qwerty"=>Test::MyEnum::Enum3, "Hello!!"=>Test::MyEnum::Enum2 }
+           ]
+
+    dsi2 = [{ "Goodbye"=>Test::MyEnum::Enum1 }]
+
+    ro, d = p.opStringMyEnumDS(dsi1, dsi2)
+
+    test(ro.length == 2)
+    test(ro[0].length == 3)
+    test(ro[0]["abc"] == Test::MyEnum::Enum1)
+    test(ro[0]["qwerty"] == Test::MyEnum::Enum3)
+    test(ro[0]["Hello!!"] == Test::MyEnum::Enum2)
+    test(ro[1].length == 2)
+    test(ro[1]["abc"] == Test::MyEnum::Enum1)
+    test(ro[1][""] == Test::MyEnum::Enum2)
+
+    test(d.length == 3)
+    test(d[0].length == 1)
+    test(d[0]["Goodbye"] == Test::MyEnum::Enum1)
+    test(d[1].length == 2)
+    test(d[1]["abc"] == Test::MyEnum::Enum1)
+    test(d[1][""] == Test::MyEnum::Enum2)
+    test(d[2].length == 3)
+    test(d[2]["abc"] == Test::MyEnum::Enum1)
+    test(d[2]["qwerty"] == Test::MyEnum::Enum3)
+    test(d[2]["Hello!!"] == Test::MyEnum::Enum2)
+
+    #
+    # opMyEnumStringDS
+    #
+    dsi1 = [{ Test::MyEnum::Enum1=>'abc' }, { Test::MyEnum::Enum2=>'Hello!!', Test::MyEnum::Enum3=>'qwerty'}]
+    dsi2 = [{ Test::MyEnum::Enum1=>'Goodbye' }]
+
+    ro, d = p.opMyEnumStringDS(dsi1, dsi2)
+
+    test(ro.length == 2)
+    test(ro[0].length == 2)
+    test(ro[0][Test::MyEnum::Enum2] == "Hello!!")
+    test(ro[0][Test::MyEnum::Enum3] == "qwerty")
+    test(ro[1].length == 1)
+    test(ro[1][Test::MyEnum::Enum1] == "abc")
+
+    test(d.length == 3)
+    test(d[0].length == 1)
+    test(d[0][Test::MyEnum::Enum1] == "Goodbye")
+    test(d[1].length == 1)
+    test(d[1][Test::MyEnum::Enum1] == "abc")
+    test(d[2].length == 2)
+    test(d[2][Test::MyEnum::Enum2] == "Hello!!")
+    test(d[2][Test::MyEnum::Enum3] == "qwerty")
+
+    #
+    # opMyStructMyEnumDS
+    #
+    s11 = Test::MyStruct.new
+    s11.i = 1
+    s11.j = 1
+    s12 = Test::MyStruct.new
+    s12.i = 1
+    s12.j = 2
+    s22 = Test::MyStruct.new
+    s22.i = 2
+    s22.j = 2
+    s23 = Test::MyStruct.new
+    s23.i = 2
+    s23.j = 3
+
+    dsi1 = [
+            { s11=>Test::MyEnum::Enum1, s12=>Test::MyEnum::Enum2 },
+            { s11=>Test::MyEnum::Enum1, s22=>Test::MyEnum::Enum3, s23=>Test::MyEnum::Enum2 }
+           ]
+    dsi2 = [{ s23=>Test::MyEnum::Enum3 }]
+
+    ro, d = p.opMyStructMyEnumDS(dsi1, dsi2)
+
+    test(ro.length == 2)
+    test(ro[0].length == 3)
+    test(ro[0][s11] == Test::MyEnum::Enum1)
+    test(ro[0][s22] == Test::MyEnum::Enum3)
+    test(ro[0][s23] == Test::MyEnum::Enum2)
+    test(ro[1].length == 2)
+    test(ro[1][s11] == Test::MyEnum::Enum1)
+    test(ro[1][s12] == Test::MyEnum::Enum2)
+
+    test(d.length == 3)
+    test(d[0].length == 1)
+    test(d[0][s23] == Test::MyEnum::Enum3)
+    test(d[1].length == 2)
+    test(d[1][s11] == Test::MyEnum::Enum1)
+    test(d[1][s12] == Test::MyEnum::Enum2)
+    test(d[2].length == 3)
+    test(d[2][s11] == Test::MyEnum::Enum1)
+    test(d[2][s22] == Test::MyEnum::Enum3)
+    test(d[2][s23] == Test::MyEnum::Enum2)
+
+    #
+    # opByteByteSD
+    #
+    sdi1 = { 0x01=>[0x01, 0x11], 0x22=>[0x12] }
+    sdi2 = { 0xf1=>[0xf2, 0xf3] }
+
+    ro, d = p.opByteByteSD(sdi1, sdi2)
+
+    test(d.length == 1)
+    test(d[0xf1].length == 2)
+    test(d[0xf1].unpack("C*") == [0xf2, 0xf3])
+    test(ro.length == 3)
+    test(ro[0x01].length == 2)
+    test(ro[0x01].unpack("C*") == [0x01, 0x11])
+    test(ro[0x22].length == 1)
+    test(ro[0x22].unpack("C*") == [0x12])
+    test(ro[0xf1].length == 2)
+    test(ro[0xf1].unpack("C*") == [0xf2, 0xf3])
+
+    #
+    # opBoolBoolSD
+    #
+    sdi1 = { false=>[true, false], true=>[false, true, true] }
+    sdi2 = { false=>[true, false] }
+
+    ro, d = p.opBoolBoolSD(sdi1, sdi2)
+
+    test(d.length == 1)
+    test(d[false].length == 2)
+    test(d[false][0])
+    test(!d[false][1])
+    test(ro.length == 2)
+    test(ro[false].length == 2)
+    test(ro[false][0])
+    test(!ro[false][1])
+    test(ro[true].length == 3)
+    test(!ro[true][0])
+    test(ro[true][1])
+    test(ro[true][2])
+
+    #
+    # opShortShortSD
+    #
+    sdi1 = { 1=>[1, 2, 3], 2=>[4, 5] }
+    sdi2 = { 4=>[6, 7] }
+
+    ro, d = p.opShortShortSD(sdi1, sdi2)
+
+    test(d.length == 1)
+    test(d[4].length == 2)
+    test(d[4][0] == 6)
+    test(d[4][1] == 7)
+    test(ro.length == 3)
+    test(ro[1].length == 3)
+    test(ro[1][0] == 1)
+    test(ro[1][1] == 2)
+    test(ro[1][2] == 3)
+    test(ro[2].length == 2)
+    test(ro[2][0] == 4)
+    test(ro[2][1] == 5)
+    test(ro[4].length == 2)
+    test(ro[4][0] == 6)
+    test(ro[4][1] == 7)
+
+    #
+    # opIntIntSD
+    #
+    sdi1 = { 100=>[100, 200, 300], 200=>[400, 500] }
+    sdi2 = { 400=>[600, 700] }
+
+    ro, d = p.opIntIntSD(sdi1, sdi2)
+
+    test(d.length == 1)
+    test(d[400].length == 2)
+    test(d[400][0] == 600)
+    test(d[400][1] == 700)
+    test(ro.length == 3)
+    test(ro[100].length == 3)
+    test(ro[100][0] == 100)
+    test(ro[100][1] == 200)
+    test(ro[100][2] == 300)
+    test(ro[200].length == 2)
+    test(ro[200][0] == 400)
+    test(ro[200][1] == 500)
+    test(ro[400].length == 2)
+    test(ro[400][0] == 600)
+    test(ro[400][1] == 700)
+
+    #
+    # opLongLongSD
+    #
+    sdi1 = { 999999990=>[999999110, 999999111, 999999110], 999999991=>[999999120, 999999130] }
+    sdi2 = { 999999992=>[999999110, 999999120] }
+
+    ro, d = p.opLongLongSD(sdi1, sdi2)
+
+    test(d.length == 1)
+    test(d[999999992].length == 2)
+    test(d[999999992][0] == 999999110)
+    test(d[999999992][1] == 999999120)
+    test(ro.length == 3)
+    test(ro[999999990].length == 3)
+    test(ro[999999990][0] == 999999110)
+    test(ro[999999990][1] == 999999111)
+    test(ro[999999990][2] == 999999110)
+    test(ro[999999991].length == 2)
+    test(ro[999999991][0] == 999999120)
+    test(ro[999999991][1] == 999999130)
+    test(ro[999999992].length == 2)
+    test(ro[999999992][0] == 999999110)
+    test(ro[999999992][1] == 999999120)
+
+    #
+    # opStringFloatSD
+    #
+    sdi1 = { "abc"=>[-1.1, 123123.2, 100.0], "ABC"=>[42.24, -1.61] }
+    sdi2 = { "aBc"=>[-3.14, 3.14] }
+
+    ro, d = p.opStringFloatSD(sdi1, sdi2)
+
+    test(d.length == 1)
+    test(d["aBc"].length == 2)
+    test(d["aBc"][0] - -3.14 < 0.01)
+    test(d["aBc"][1] - 3.14 < 0.01)
+
+    test(ro.length == 3)
+    test(ro["abc"].length == 3)
+    test(ro["abc"][0] - -1.1 < 0.01)
+    test(ro["abc"][1] - 123123.2 < 0.01)
+    test(ro["abc"][2] - 100.0 < 0.01)
+    test(ro["ABC"].length == 2)
+    test(ro["ABC"][0] - 42.24 < 0.01)
+    test(ro["ABC"][1] - -1.61 < 0.01)
+    test(ro["aBc"].length == 2)
+    test(ro["aBc"][0] - -3.14 < 0.01)
+    test(ro["aBc"][1] - 3.14 < 0.01)
+
+    #
+    # opStringDoubleSD
+    #
+    sdi1 = { "Hello!!"=>[1.1E10, 1.2E10, 1.3E10], "Goodbye"=>[1.4E10, 1.5E10] }
+    sdi2 = { ""=>[1.6E10, 1.7E10] }
+
+    ro, d = p.opStringDoubleSD(sdi1, sdi2);
+
+    test(d.length == 1)
+    test(d[""].length == 2)
+    test(d[""][0] == 1.6E10)
+    test(d[""][1] == 1.7E10)
+    test(ro.length == 3)
+    test(ro["Hello!!"].length == 3)
+    test(ro["Hello!!"][0] == 1.1E10)
+    test(ro["Hello!!"][1] == 1.2E10)
+    test(ro["Hello!!"][2] == 1.3E10)
+    test(ro["Goodbye"].length == 2)
+    test(ro["Goodbye"][0] == 1.4E10)
+    test(ro["Goodbye"][1] == 1.5E10)
+    test(ro[""].length == 2)
+    test(ro[""][0] == 1.6E10)
+    test(ro[""][1] == 1.7E10)
+
+    #
+    # opStringStringSD
+    #
+    sdi1 = { "abc"=>["abc", "de", "fghi"] , "def"=>["xyz", "or"] }
+    sdi2 = { "ghi"=>["and", "xor"] }
+
+    ro, d = p.opStringStringSD(sdi1, sdi2)
+
+    test(d.length == 1)
+    test(d["ghi"].length == 2)
+    test(d["ghi"][0] == "and")
+    test(d["ghi"][1] == "xor")
+    test(ro.length == 3)
+    test(ro["abc"].length == 3)
+    test(ro["abc"][0] == "abc")
+    test(ro["abc"][1] == "de")
+    test(ro["abc"][2] == "fghi")
+    test(ro["def"].length == 2)
+    test(ro["def"][0] == "xyz")
+    test(ro["def"][1] == "or")
+    test(ro["ghi"].length == 2)
+    test(ro["ghi"][0] == "and")
+    test(ro["ghi"][1] == "xor")
+
+    #
+    # opMyEnumMyEnumSD
+    #
+    sdi1 = {
+            Test::MyEnum::Enum3=>[Test::MyEnum::Enum1, Test::MyEnum::Enum1, Test::MyEnum::Enum2],
+            Test::MyEnum::Enum2=>[Test::MyEnum::Enum1, Test::MyEnum::Enum2]
+           }
+    sdi2 = { Test::MyEnum::Enum1=>[Test::MyEnum::Enum3, Test::MyEnum::Enum3] }
+
+    ro, d = p.opMyEnumMyEnumSD(sdi1, sdi2)
+
+    test(d.length == 1)
+    test(d[Test::MyEnum::Enum1].length == 2)
+    test(d[Test::MyEnum::Enum1][0] == Test::MyEnum::Enum3)
+    test(d[Test::MyEnum::Enum1][1] == Test::MyEnum::Enum3)
+    test(ro.length == 3)
+    test(ro[Test::MyEnum::Enum3].length == 3)
+    test(ro[Test::MyEnum::Enum3][0] == Test::MyEnum::Enum1)
+    test(ro[Test::MyEnum::Enum3][1] == Test::MyEnum::Enum1)
+    test(ro[Test::MyEnum::Enum3][2] == Test::MyEnum::Enum2)
+    test(ro[Test::MyEnum::Enum2].length == 2)
+    test(ro[Test::MyEnum::Enum2][0] == Test::MyEnum::Enum1)
+    test(ro[Test::MyEnum::Enum2][1] == Test::MyEnum::Enum2)
+    test(ro[Test::MyEnum::Enum1].length == 2)
+    test(ro[Test::MyEnum::Enum1][0] == Test::MyEnum::Enum3)
+    test(ro[Test::MyEnum::Enum1][1] == Test::MyEnum::Enum3)
+
+    #
     # opIntS
     #
     lengths = [ 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 ]

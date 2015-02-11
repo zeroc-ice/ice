@@ -218,6 +218,127 @@
             return [r, p1];
         },
 
+        opByteBoolDS: function(p1, p2, current)
+        {
+            var p3 = p2.concat(p1);
+            var r = p1.reverse();
+            return [r, p3];
+        },
+
+        opShortIntDS: function(p1, p2, current)
+        {
+            var p3 = p2.concat(p1);
+            var r = p1.reverse();
+            return [r, p3];
+        },
+
+        opLongFloatDS: function(p1, p2, current)
+        {
+            var p3 = p2.concat(p1);
+            var r = p1.reverse();
+            return [r, p3];
+        },
+
+        opStringStringDS: function(p1, p2, current)
+        {
+            var p3 = p2.concat(p1);
+            var r = p1.reverse();
+            return [r, p3];
+        },
+
+        opStringMyEnumDS: function(p1, p2, current)
+        {
+            var p3 = p2.concat(p1);
+            var r = p1.reverse();
+            return [r, p3];
+        },
+
+        opMyEnumStringDS: function(p1, p2, current)
+        {
+            var p3 = p2.concat(p1);
+            var r = p1.reverse();
+            return [r, p3];
+        },
+
+        opMyStructMyEnumDS: function(p1, p2, current)
+        {
+            var p3 = p2.concat(p1);
+            var r = p1.reverse();
+            return [r, p3];
+        },
+
+        opByteByteSD: function(p1, p2, current)
+        {
+            var r = p1.clone();
+            r.merge(p2);
+            var p3 = p2.clone();
+            return [r, p3];
+        },
+
+        opBoolBoolSD: function(p1, p2, current)
+        {
+            var r = p1.clone();
+            r.merge(p2);
+            var p3 = p2.clone();
+            return [r, p3];
+        },
+
+        opShortShortSD: function(p1, p2, current)
+        {
+            var r = p1.clone();
+            r.merge(p2);
+            var p3 = p2.clone();
+            return [r, p3];
+        },
+
+        opIntIntSD: function(p1, p2, current)
+        {
+            var r = p1.clone();
+            r.merge(p2);
+            var p3 = p2.clone();
+            return [r, p3];
+        },
+
+        opLongLongSD: function(p1, p2, current)
+        {
+            var r = p1.clone();
+            r.merge(p2);
+            var p3 = p2.clone();
+            return [r, p3];
+        },
+
+        opStringFloatSD: function(p1, p2, current)
+        {
+            var r = p1.clone();
+            r.merge(p2);
+            var p3 = p2.clone();
+            return [r, p3];
+        },
+
+        opStringDoubleSD: function(p1, p2, current)
+        {
+            var r = p1.clone();
+            r.merge(p2);
+            var p3 = p2.clone();
+            return [r, p3];
+        },
+
+        opStringStringSD: function(p1, p2, current)
+        {
+            var r = p1.clone();
+            r.merge(p2);
+            var p3 = p2.clone();
+            return [r, p3];
+        },
+
+        opMyEnumMyEnumSD: function(p1, p2, current)
+        {
+            var r = p1.clone();
+            r.merge(p2);
+            var p3 = p2.clone();
+            return [r, p3];
+        },
+
         opIntS: function(s, current)
         {
             return s.map(function(v, i, arr) { return -v; });

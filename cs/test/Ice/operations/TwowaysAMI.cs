@@ -548,6 +548,372 @@ public class TwowaysAMI
             called();
         }
 
+        public void opByteBoolDS(Dictionary<byte,bool>[] ro,
+                                 Dictionary<byte,bool>[] _do)
+        {
+            test(ro.Length == 2);
+            test(ro[0].Count == 3);
+            test(ro[0][10]);
+            test(!ro[0][11]);
+            test(ro[0][101]);
+            test(ro[1].Count == 2);
+            test(ro[1][10]);
+            test(!ro[1][100]);
+
+            test(_do.Length == 3);
+            test(_do[0].Count == 2);
+            test(!_do[0][100]);
+            test(!_do[0][101]);
+            test(_do[1].Count == 2);
+            test(_do[1][10]);
+            test(!_do[1][100]);
+            test(_do[2].Count == 3);
+            test(_do[2][10]);
+            test(!_do[2][11]);
+            test(_do[2][101]);
+            called();
+        }
+
+        public void opShortIntDS(Dictionary<short, int>[] ro,
+                                 Dictionary<short, int>[] _do)
+        {
+            test(ro.Length == 2);
+            test(ro[0].Count == 3);
+            test(ro[0][110] == -1);
+            test(ro[0][111] == -100);
+            test(ro[0][1101] == 0);
+            test(ro[1].Count == 2);
+            test(ro[1][110] == -1);
+            test(ro[1][1100] == 123123);
+
+            test(_do.Length == 3);
+            test(_do[0].Count == 1);
+            test(_do[0][100] == -1001);
+            test(_do[1].Count == 2);
+            test(_do[1][110] == -1);
+            test(_do[1][1100] == 123123);
+            test(_do[2].Count == 3);
+            test(_do[2][110] == -1);
+            test(_do[2][111] == -100);
+            test(_do[2][1101] == 0);
+            called();
+        }
+
+        public void opLongFloatDS(Dictionary<long,float>[] ro,
+                                  Dictionary<long,float>[] _do)
+        {
+            test(ro.Length == 2);
+            test(ro[0].Count == 3);
+            test(ro[0][999999110L] == -1.1f);
+            test(ro[0][999999120L] == -100.4f);
+            test(ro[0][999999130L] == 0.5f);
+            test(ro[1].Count == 2);
+            test(ro[1][999999110L] == -1.1f);
+            test(ro[1][999999111L] == 123123.2f);
+
+            test(_do.Length == 3);
+            test(_do[0].Count == 1);
+            test(_do[0][999999140L] == 3.14f);
+            test(_do[1].Count == 2);
+            test(_do[1][999999110L] == -1.1f);
+            test(_do[1][999999111L] == 123123.2f);
+            test(_do[2].Count == 3);
+            test(_do[2][999999110L] == -1.1f);
+            test(_do[2][999999120L] == -100.4f);
+            test(_do[2][999999130L] == 0.5f);
+            called();
+        }
+
+        public void opStringStringDS(Dictionary<string, string>[] ro,
+                                     Dictionary<string, string>[] _do)
+        {
+            test(ro.Length == 2);
+            test(ro[0].Count == 3);
+            test(ro[0]["foo"].Equals("abc -1.1"));
+            test(ro[0]["FOO"].Equals("abc -100.4"));
+            test(ro[0]["BAR"].Equals("abc 0.5"));
+            test(ro[1].Count == 2);
+            test(ro[1]["foo"] == "abc -1.1");
+            test(ro[1]["bar"] == "abc 123123.2");
+
+            test(_do.Length == 3);
+            test(_do[0].Count == 1);
+            test(_do[0]["f00"].Equals("ABC -3.14"));
+            test(_do[1].Count == 2);
+            test(_do[1]["foo"].Equals("abc -1.1"));
+            test(_do[1]["bar"].Equals("abc 123123.2"));
+            test(_do[2].Count == 3);
+            test(_do[2]["foo"].Equals("abc -1.1"));
+            test(_do[2]["FOO"].Equals("abc -100.4"));
+            test(_do[2]["BAR"].Equals("abc 0.5"));
+            called();
+        }
+
+        public void opStringMyEnumDS(Dictionary<string, Test.MyEnum>[] ro,
+                                     Dictionary<string, Test.MyEnum>[] _do)
+        {
+            test(ro.Length == 2);
+            test(ro[0].Count == 3);
+            test(ro[0]["abc"] == Test.MyEnum.enum1);
+            test(ro[0]["qwerty"] == Test.MyEnum.enum3);
+            test(ro[0]["Hello!!"] == Test.MyEnum.enum2);
+            test(ro[1].Count == 2);
+            test(ro[1]["abc"] == Test.MyEnum.enum1);
+            test(ro[1][""] == Test.MyEnum.enum2);
+
+            test(_do.Length == 3);
+            test(_do[0].Count == 1);
+            test(_do[0]["Goodbye"] == Test.MyEnum.enum1);
+            test(_do[1].Count == 2);
+            test(_do[1]["abc"] == Test.MyEnum.enum1);
+            test(_do[1][""] == Test.MyEnum.enum2);
+            test(_do[2].Count == 3);
+            test(_do[2]["abc"] == Test.MyEnum.enum1);
+            test(_do[2]["qwerty"] == Test.MyEnum.enum3);
+            test(_do[2]["Hello!!"] == Test.MyEnum.enum2);
+            called();
+        }
+
+        public void opMyEnumStringDS(Dictionary<Test.MyEnum, string>[] ro,
+                                     Dictionary<Test.MyEnum, string>[] _do)
+        {
+            test(ro.Length == 2);
+            test(ro[0].Count == 2);
+            test(ro[0][Test.MyEnum.enum2].Equals("Hello!!"));
+            test(ro[0][Test.MyEnum.enum3].Equals("qwerty"));
+            test(ro[1].Count == 1);
+            test(ro[1][Test.MyEnum.enum1].Equals("abc"));
+
+            test(_do.Length == 3);
+            test(_do[0].Count == 1);
+            test(_do[0][Test.MyEnum.enum1].Equals("Goodbye"));
+            test(_do[1].Count == 1);
+            test(_do[1][Test.MyEnum.enum1].Equals("abc"));
+            test(_do[2].Count == 2);
+            test(_do[2][Test.MyEnum.enum2].Equals("Hello!!"));
+            test(_do[2][Test.MyEnum.enum3].Equals("qwerty"));
+            called();
+        }
+
+        public void opMyStructMyEnumDS(Dictionary<Test.MyStruct, Test.MyEnum>[] ro,
+                                       Dictionary<Test.MyStruct, Test.MyEnum>[] _do)
+        {
+            Test.MyStruct s11 = new Test.MyStruct(1, 1);
+            Test.MyStruct s12 = new Test.MyStruct(1, 2);
+            Test.MyStruct s22 = new Test.MyStruct(2, 2);
+            Test.MyStruct s23 = new Test.MyStruct(2, 3);
+
+            test(ro.Length == 2);
+            test(ro[0].Count == 3);
+            test(ro[0][s11] == Test.MyEnum.enum1);
+            test(ro[0][s22] == Test.MyEnum.enum3);
+            test(ro[0][s23] == Test.MyEnum.enum2);
+            test(ro[1].Count == 2);
+            test(ro[1][s11] == Test.MyEnum.enum1);
+            test(ro[1][s12] == Test.MyEnum.enum2);
+
+            test(_do.Length == 3);
+            test(_do[0].Count == 1);
+            test(_do[0][s23] == Test.MyEnum.enum3);
+            test(_do[1].Count == 2);
+            test(_do[1][s11] == Test.MyEnum.enum1);
+            test(_do[1][s12] == Test.MyEnum.enum2);
+            test(_do[2].Count == 3);
+            test(_do[2][s11] == Test.MyEnum.enum1);
+            test(_do[2][s22] == Test.MyEnum.enum3);
+            test(_do[2][s23] == Test.MyEnum.enum2);
+            called();
+        }
+
+        public void opByteByteSD(Dictionary<byte, byte[]> ro,
+                                 Dictionary<byte, byte[]> _do)
+        {
+            test(_do.Count == 1);
+            test(_do[0xf1].Length == 2);
+            test(_do[0xf1][0] == 0xf2);
+            test(_do[0xf1][1] == 0xf3);
+
+            test(ro.Count == 3);
+            test(ro[0x01].Length == 2);
+            test(ro[0x01][0] == 0x01);
+            test(ro[0x01][1] == 0x11);
+            test(ro[0x22].Length == 1);
+            test(ro[0x22][0] == 0x12);
+            test(ro[0xf1].Length == 2);
+            test(ro[0xf1][0] == 0xf2);
+            test(ro[0xf1][1] == 0xf3);
+            called();
+        }
+
+        public void opBoolBoolSD(Dictionary<bool, bool[]> ro,
+                                 Dictionary<bool, bool[]> _do)
+        {
+            test(_do.Count == 1);
+            test(_do[false].Length == 2);
+            test(_do[false][0]);
+            test(!_do[false][1]);
+            test(ro.Count == 2);
+            test(ro[false].Length == 2);
+            test(ro[false][0]);
+            test(!ro[false][1]);
+            test(ro[true].Length == 3);
+            test(!ro[true][0]);
+            test(ro[true][1]);
+            test(ro[true][2]);
+            called();
+        }
+
+        public void opShortShortSD(Dictionary<short, short[]> ro,
+                                   Dictionary<short, short[]> _do)
+        {
+            test(_do.Count == 1);
+            test(_do[4].Length == 2);
+            test(_do[4][0] == 6);
+            test(_do[4][1] == 7);
+
+            test(ro.Count == 3);
+            test(ro[1].Length == 3);
+            test(ro[1][0] == 1);
+            test(ro[1][1] == 2);
+            test(ro[1][2] == 3);
+            test(ro[2].Length == 2);
+            test(ro[2][0] == 4);
+            test(ro[2][1] == 5);
+            test(ro[4].Length == 2);
+            test(ro[4][0] == 6);
+            test(ro[4][1] == 7);
+            called();
+        }
+
+        public void opIntIntSD(Dictionary<int, int[]> ro,
+                               Dictionary<int, int[]> _do)
+        {
+            test(_do.Count == 1);
+            test(_do[400].Length == 2);
+            test(_do[400][0] == 600);
+            test(_do[400][1] == 700);
+
+            test(ro.Count == 3);
+            test(ro[100].Length == 3);
+            test(ro[100][0] == 100);
+            test(ro[100][1] == 200);
+            test(ro[100][2] == 300);
+            test(ro[200].Length == 2);
+            test(ro[200][0] == 400);
+            test(ro[200][1] == 500);
+            test(ro[400].Length == 2);
+            test(ro[400][0] == 600);
+            test(ro[400][1] == 700);
+            called();
+        }
+
+        public void opLongLongSD(Dictionary<long, long[]> ro,
+                                 Dictionary<long, long[]> _do)
+        {
+            test(_do.Count == 1);
+            test(_do[999999992L].Length == 2);
+            test(_do[999999992L][0] == 999999110L);
+            test(_do[999999992L][1] == 999999120L);
+            test(ro.Count == 3);
+            test(ro[999999990L].Length == 3);
+            test(ro[999999990L][0] == 999999110L);
+            test(ro[999999990L][1] == 999999111L);
+            test(ro[999999990L][2] == 999999110L);
+            test(ro[999999991L].Length == 2);
+            test(ro[999999991L][0] == 999999120L);
+            test(ro[999999991L][1] == 999999130L);
+            test(ro[999999992L].Length == 2);
+            test(ro[999999992L][0] == 999999110L);
+            test(ro[999999992L][1] == 999999120L);
+            called();
+        }
+
+        public void opStringFloatSD(Dictionary<string, float[]> ro,
+                                    Dictionary<string, float[]> _do)
+        {
+            test(_do.Count == 1);
+            test(_do["aBc"].Length == 2);
+            test(_do["aBc"][0] == -3.14f);
+            test(_do["aBc"][1] == 3.14f);
+
+            test(ro.Count == 3);
+            test(ro["abc"].Length == 3);
+            test(ro["abc"][0] == -1.1f);
+            test(ro["abc"][1] == 123123.2f);
+            test(ro["abc"][2] == 100.0f);
+            test(ro["ABC"].Length == 2);
+            test(ro["ABC"][0] == 42.24f);
+            test(ro["ABC"][1] == -1.61f);
+            test(ro["aBc"].Length == 2);
+            test(ro["aBc"][0] == -3.14f);
+            test(ro["aBc"][1] == 3.14f);
+            called();
+        }
+
+        public void opStringDoubleSD(Dictionary<string, double[]> ro,
+                                     Dictionary<string, double[]> _do)
+        {
+            test(_do.Count == 1);
+            test(_do[""].Length == 2);
+            test(_do[""][0] == 1.6E10);
+            test(_do[""][1] == 1.7E10);
+            test(ro.Count == 3);
+            test(ro["Hello!!"].Length == 3);
+            test(ro["Hello!!"][0] == 1.1E10);
+            test(ro["Hello!!"][1] == 1.2E10);
+            test(ro["Hello!!"][2] == 1.3E10);
+            test(ro["Goodbye"].Length == 2);
+            test(ro["Goodbye"][0] == 1.4E10);
+            test(ro["Goodbye"][1] == 1.5E10);
+            test(ro[""].Length == 2);
+            test(ro[""][0] == 1.6E10);
+            test(ro[""][1] == 1.7E10);
+            called();
+        }
+
+        public void opStringStringSD(Dictionary<string, string[]> ro,
+                                     Dictionary<string, string[]> _do)
+        {
+            test(_do.Count == 1);
+            test(_do["ghi"].Length == 2);
+            test(_do["ghi"][0].Equals("and"));
+            test(_do["ghi"][1].Equals("xor"));
+
+            test(ro.Count == 3);
+            test(ro["abc"].Length == 3);
+            test(ro["abc"][0].Equals("abc"));
+            test(ro["abc"][1].Equals("de"));
+            test(ro["abc"][2].Equals("fghi"));
+            test(ro["def"].Length == 2);
+            test(ro["def"][0].Equals("xyz"));
+            test(ro["def"][1].Equals("or"));
+            test(ro["ghi"].Length == 2);
+            test(ro["ghi"][0].Equals("and"));
+            test(ro["ghi"][1].Equals("xor"));
+            called();
+        }
+
+        public void opMyEnumMyEnumSD(Dictionary<Test.MyEnum, Test.MyEnum[]> ro,
+                                     Dictionary<Test.MyEnum, Test.MyEnum[]> _do)
+        {
+            test(_do.Count == 1);
+            test(_do[Test.MyEnum.enum1].Length == 2);
+            test(_do[Test.MyEnum.enum1][0] == Test.MyEnum.enum3);
+            test(_do[Test.MyEnum.enum1][1] == Test.MyEnum.enum3);
+            test(ro.Count == 3);
+            test(ro[Test.MyEnum.enum3].Length == 3);
+            test(ro[Test.MyEnum.enum3][0] == Test.MyEnum.enum1);
+            test(ro[Test.MyEnum.enum3][1] == Test.MyEnum.enum1);
+            test(ro[Test.MyEnum.enum3][2] == Test.MyEnum.enum2);
+            test(ro[Test.MyEnum.enum2].Length == 2);
+            test(ro[Test.MyEnum.enum2][0] == Test.MyEnum.enum1);
+            test(ro[Test.MyEnum.enum2][1] == Test.MyEnum.enum2);
+            test(ro[Test.MyEnum.enum1].Length == 2);
+            test(ro[Test.MyEnum.enum1][0] == Test.MyEnum.enum3);
+            test(ro[Test.MyEnum.enum1][1] == Test.MyEnum.enum3);
+            called();
+        }
+
         public void opIntS(int[] r)
         {
             test(r.Length == _l);
@@ -1535,6 +1901,468 @@ public class TwowaysAMI
                  Dictionary<Test.MyStruct, Test.MyEnum> _do) =>
                 {
                     cb.opMyStructMyEnumD(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Dictionary<byte, bool>[] dsi1 = new Dictionary<byte, bool>[2];
+            Dictionary<byte, bool>[] dsi2 = new Dictionary<byte, bool>[1];
+
+            Dictionary<byte, bool> di1 = new Dictionary<byte, bool>();
+            di1[10] = true;
+            di1[100] = false;
+            Dictionary<byte, bool> di2 = new Dictionary<byte, bool>();
+            di2[10] = true;
+            di2[11] = false;
+            di2[101] = true;
+            Dictionary<byte, bool> di3 = new Dictionary<byte, bool>();
+            di3[100] = false;
+            di3[101] = false;
+
+            dsi1[0] = di1;
+            dsi1[1] = di2;
+            dsi2[0] = di3;
+
+            Callback cb = new Callback();
+            p.begin_opByteBoolDS(dsi1, dsi2).whenCompleted(
+                (Dictionary<byte, bool>[] ro,
+                 Dictionary<byte, bool>[] _do) =>
+                {
+                    cb.opByteBoolDS(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Dictionary<short, int>[] dsi1 = new Dictionary<short, int>[2];
+            Dictionary<short, int>[] dsi2 = new Dictionary<short, int>[1];
+
+            Dictionary<short, int> di1 = new Dictionary<short, int>();
+            di1[110] = -1;
+            di1[1100] = 123123;
+            Dictionary<short, int> di2 = new Dictionary<short, int>();
+            di2[110] = -1;
+            di2[111] = -100;
+            di2[1101] = 0;
+            Dictionary<short, int> di3 = new Dictionary<short, int>();
+            di3[100] = -1001;
+
+            dsi1[0] = di1;
+            dsi1[1] = di2;
+            dsi2[0] = di3;
+
+            Callback cb = new Callback();
+            p.begin_opShortIntDS(dsi1, dsi2).whenCompleted(
+                (Dictionary<short, int>[] ro,
+                 Dictionary<short, int>[] _do) =>
+                {
+                    cb.opShortIntDS(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Dictionary<long, float>[] dsi1 = new Dictionary<long, float>[2];
+            Dictionary<long, float>[] dsi2 = new Dictionary<long, float>[1];
+
+            Dictionary<long, float> di1 = new Dictionary<long, float>();
+            di1[999999110L] = -1.1f;
+            di1[999999111L] = 123123.2f;
+            Dictionary<long, float> di2 = new Dictionary<long, float>();
+            di2[999999110L] = -1.1f;
+            di2[999999120L] = -100.4f;
+            di2[999999130L] = 0.5f;
+            Dictionary<long, float> di3 = new Dictionary<long, float>();
+            di3[999999140L] = 3.14f;
+
+            dsi1[0] = di1;
+            dsi1[1] = di2;
+            dsi2[0] = di3;
+
+            Callback cb = new Callback();
+            p.begin_opLongFloatDS(dsi1, dsi2).whenCompleted(
+                (Dictionary<long, float>[] ro,
+                 Dictionary<long, float>[] _do) =>
+                {
+                    cb.opLongFloatDS(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Dictionary<string, string>[] dsi1 = new Dictionary<string, string>[2];
+            Dictionary<string, string>[] dsi2 = new Dictionary<string, string>[1];
+
+            Dictionary<string, string> di1 = new Dictionary<string, string>();
+            di1["foo"] = "abc -1.1";
+            di1["bar"] = "abc 123123.2";
+            Dictionary<string, string> di2 = new Dictionary<string, string>();
+            di2["foo"] = "abc -1.1";
+            di2["FOO"] = "abc -100.4";
+            di2["BAR"] = "abc 0.5";
+            Dictionary<string, string> di3 = new Dictionary<string, string>();
+            di3["f00"] = "ABC -3.14";
+
+            dsi1[0] = di1;
+            dsi1[1] = di2;
+            dsi2[0] = di3;
+
+            Callback cb = new Callback();
+            p.begin_opStringStringDS(dsi1, dsi2).whenCompleted(
+                (Dictionary<string, string>[] ro,
+                 Dictionary<string, string>[] _do) =>
+                {
+                    cb.opStringStringDS(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Dictionary<string, Test.MyEnum>[] dsi1 = new Dictionary<string, Test.MyEnum>[2];
+            Dictionary<string, Test.MyEnum>[] dsi2 = new Dictionary<string, Test.MyEnum>[1];
+
+            Dictionary<string, Test.MyEnum> di1 = new Dictionary<string, Test.MyEnum>();
+            di1["abc"] = Test.MyEnum.enum1;
+            di1[""] = Test.MyEnum.enum2;
+            Dictionary<string, Test.MyEnum> di2 = new Dictionary<string, Test.MyEnum>();
+            di2["abc"] = Test.MyEnum.enum1;
+            di2["qwerty"] = Test.MyEnum.enum3;
+            di2["Hello!!"] = Test.MyEnum.enum2;
+            Dictionary<string, Test.MyEnum> di3 = new Dictionary<string, Test.MyEnum>();
+            di3["Goodbye"] = Test.MyEnum.enum1;
+
+            dsi1[0] = di1;
+            dsi1[1] = di2;
+            dsi2[0] = di3;
+
+            Callback cb = new Callback();
+            p.begin_opStringMyEnumDS(dsi1, dsi2).whenCompleted(
+                (Dictionary<string, Test.MyEnum>[] ro,
+                 Dictionary<string, Test.MyEnum>[] _do) =>
+                {
+                    cb.opStringMyEnumDS(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Dictionary<Test.MyEnum, string>[] dsi1 = new Dictionary<Test.MyEnum, string>[2];
+            Dictionary<Test.MyEnum, string>[] dsi2 = new Dictionary<Test.MyEnum, string>[1];
+
+            Dictionary<Test.MyEnum, string> di1 = new Dictionary<Test.MyEnum, string>();
+            di1[Test.MyEnum.enum1] = "abc";
+            Dictionary<Test.MyEnum, string> di2 = new Dictionary<Test.MyEnum, string>();
+            di2[Test.MyEnum.enum2] = "Hello!!";
+            di2[Test.MyEnum.enum3] = "qwerty";
+            Dictionary<Test.MyEnum, string> di3 = new Dictionary<Test.MyEnum, string>();
+            di3[Test.MyEnum.enum1] = "Goodbye";
+
+            dsi1[0] = di1;
+            dsi1[1] = di2;
+            dsi2[0] = di3;
+
+            Callback cb = new Callback();
+            p.begin_opMyEnumStringDS(dsi1, dsi2).whenCompleted(
+                (Dictionary<Test.MyEnum, string>[] ro,
+                 Dictionary<Test.MyEnum, string>[] _do) =>
+                {
+                    cb.opMyEnumStringDS(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Dictionary<Test.MyStruct, Test.MyEnum>[] dsi1 = new Dictionary<Test.MyStruct, Test.MyEnum>[2];
+            Dictionary<Test.MyStruct, Test.MyEnum>[] dsi2 = new Dictionary<Test.MyStruct, Test.MyEnum>[1];
+
+            Test.MyStruct s11 = new Test.MyStruct(1, 1);
+            Test.MyStruct s12 = new Test.MyStruct(1, 2);
+            Dictionary<Test.MyStruct, Test.MyEnum> di1 = new Dictionary<Test.MyStruct, Test.MyEnum>();
+            di1[s11] = Test.MyEnum.enum1;
+            di1[s12] = Test.MyEnum.enum2;
+
+            Test.MyStruct s22 = new Test.MyStruct(2, 2);
+            Test.MyStruct s23 = new Test.MyStruct(2, 3);
+            Dictionary<Test.MyStruct, Test.MyEnum> di2 = new Dictionary<Test.MyStruct, Test.MyEnum>();
+            di2[s11] = Test.MyEnum.enum1;
+            di2[s22] = Test.MyEnum.enum3;
+            di2[s23] = Test.MyEnum.enum2;
+
+            Dictionary<Test.MyStruct, Test.MyEnum> di3 = new Dictionary<Test.MyStruct, Test.MyEnum>();
+            di3[s23] = Test.MyEnum.enum3;
+
+            dsi1[0] = di1;
+            dsi1[1] = di2;
+            dsi2[0] = di3;
+
+            Callback cb = new Callback();
+            p.begin_opMyStructMyEnumDS(dsi1, dsi2).whenCompleted(
+                (Dictionary<Test.MyStruct, Test.MyEnum>[] ro,
+                 Dictionary<Test.MyStruct, Test.MyEnum>[] _do) =>
+                {
+                    cb.opMyStructMyEnumDS(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Dictionary<byte, byte[]> sdi1 = new Dictionary<byte, byte[]>();
+            Dictionary<byte, byte[]> sdi2 = new Dictionary<byte, byte[]>();
+
+            byte[] si1 = new byte[] { 0x01, 0x11 };
+            byte[] si2 = new byte[] { 0x12 };
+            byte[] si3 = new byte[] { 0xf2, 0xf3 };
+
+            sdi1[0x01] = si1;
+            sdi1[0x22] = si2;
+            sdi2[0xf1] = si3;
+
+            Callback cb = new Callback();
+            p.begin_opByteByteSD(sdi1, sdi2).whenCompleted(
+                (Dictionary<byte, byte[]> ro,
+                 Dictionary<byte, byte[]> _do) =>
+                {
+                    cb.opByteByteSD(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Dictionary<bool, bool[]> sdi1 = new Dictionary<bool, bool[]>();
+            Dictionary<bool, bool[]> sdi2 = new Dictionary<bool, bool[]>();
+
+            bool[] si1 = new bool[] { true, false };
+            bool[] si2 = new bool[] { false, true, true };
+
+            sdi1[false] = si1;
+            sdi1[true] = si2;
+            sdi2[false] = si1;
+
+            Callback cb = new Callback();
+            p.begin_opBoolBoolSD(sdi1, sdi2).whenCompleted(
+                (Dictionary<bool, bool[]> ro,
+                 Dictionary<bool, bool[]> _do) =>
+                {
+                    cb.opBoolBoolSD(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Dictionary<short, short[]> sdi1 = new Dictionary<short, short[]>();
+            Dictionary<short, short[]> sdi2 = new Dictionary<short, short[]>();
+
+            short[] si1 = new short[] { 1, 2, 3 };
+            short[] si2 = new short[] { 4, 5 };
+            short[] si3 = new short[] { 6, 7 };
+
+            sdi1[1] = si1;
+            sdi1[2] = si2;
+            sdi2[4] = si3;
+
+            Callback cb = new Callback();
+            p.begin_opShortShortSD(sdi1, sdi2).whenCompleted(
+                (Dictionary<short, short[]> ro,
+                 Dictionary<short, short[]> _do) =>
+                {
+                    cb.opShortShortSD(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Dictionary<int, int[]> sdi1 = new Dictionary<int, int[]>();
+            Dictionary<int, int[]> sdi2 = new Dictionary<int, int[]>();
+
+            int[] si1 = new int[] { 100, 200, 300 };
+            int[] si2 = new int[] { 400, 500 };
+            int[] si3 = new int[] { 600, 700 };
+
+            sdi1[100] = si1;
+            sdi1[200] = si2;
+            sdi2[400] = si3;
+
+            Callback cb = new Callback();
+            p.begin_opIntIntSD(sdi1, sdi2).whenCompleted(
+                (Dictionary<int, int[]> ro,
+                 Dictionary<int, int[]> _do) =>
+                {
+                    cb.opIntIntSD(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Dictionary<long, long[]> sdi1 = new Dictionary<long, long[]>();
+            Dictionary<long, long[]> sdi2 = new Dictionary<long, long[]>();
+
+            long[] si1 = new long[] { 999999110L, 999999111L, 999999110L };
+            long[] si2 = new long[] { 999999120L, 999999130L };
+            long[] si3 = new long[] { 999999110L, 999999120L };
+
+            sdi1[999999990L] = si1;
+            sdi1[999999991L] = si2;
+            sdi2[999999992L] = si3;
+
+            Callback cb = new Callback();
+            p.begin_opLongLongSD(sdi1, sdi2).whenCompleted(
+                (Dictionary<long, long[]> ro,
+                 Dictionary<long, long[]> _do) =>
+                {
+                    cb.opLongLongSD(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Dictionary<string, float[]> sdi1 = new Dictionary<string, float[]>();
+            Dictionary<string, float[]> sdi2 = new Dictionary<string, float[]>();
+
+            float[] si1 = new float[] { -1.1f, 123123.2f, 100.0f };
+            float[] si2 = new float[] { 42.24f, -1.61f };
+            float[] si3 = new float[] { -3.14f, 3.14f };
+
+            sdi1["abc"] = si1;
+            sdi1["ABC"] = si2;
+            sdi2["aBc"] = si3;
+
+            Callback cb = new Callback();
+            p.begin_opStringFloatSD(sdi1, sdi2).whenCompleted(
+                (Dictionary<string, float[]> ro,
+                 Dictionary<string, float[]> _do) =>
+                {
+                    cb.opStringFloatSD(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Dictionary<string, double[]> sdi1 = new Dictionary<string, double[]>();
+            Dictionary<string, double[]> sdi2 = new Dictionary<string, double[]>();
+
+            double[] si1 = new double[] { 1.1E10, 1.2E10, 1.3E10 };
+            double[] si2 = new double[] { 1.4E10, 1.5E10 };
+            double[] si3 = new double[] { 1.6E10, 1.7E10 };
+
+            sdi1["Hello!!"] = si1;
+            sdi1["Goodbye"] = si2;
+            sdi2[""] = si3;
+
+            Callback cb = new Callback();
+            p.begin_opStringDoubleSD(sdi1, sdi2).whenCompleted(
+                (Dictionary<string, double[]> ro,
+                 Dictionary<string, double[]> _do) =>
+                {
+                    cb.opStringDoubleSD(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Dictionary<string, string[]> sdi1 = new Dictionary<string, string[]>();
+            Dictionary<string, string[]> sdi2 = new Dictionary<string, string[]>();
+
+            string[] si1 = new string[] { "abc", "de", "fghi" };
+            string[] si2 = new string[] { "xyz", "or" };
+            string[] si3 = new string[] { "and", "xor" };
+
+            sdi1["abc"] = si1;
+            sdi1["def"] = si2;
+            sdi2["ghi"] = si3;
+
+            Callback cb = new Callback();
+            p.begin_opStringStringSD(sdi1, sdi2).whenCompleted(
+                (Dictionary<string, string[]> ro,
+                 Dictionary<string, string[]> _do) =>
+                {
+                    cb.opStringStringSD(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Dictionary<Test.MyEnum, Test.MyEnum[]> sdi1 = new Dictionary<Test.MyEnum, Test.MyEnum[]>();
+            Dictionary<Test.MyEnum, Test.MyEnum[]> sdi2 = new Dictionary<Test.MyEnum, Test.MyEnum[]>();
+
+            Test.MyEnum[] si1 = new Test.MyEnum[] { Test.MyEnum.enum1, Test.MyEnum.enum1, Test.MyEnum.enum2 };
+            Test.MyEnum[] si2 = new Test.MyEnum[] { Test.MyEnum.enum1, Test.MyEnum.enum2 };
+            Test.MyEnum[] si3 = new Test.MyEnum[] { Test.MyEnum.enum3, Test.MyEnum.enum3 };
+
+            sdi1[Test.MyEnum.enum3] = si1;
+            sdi1[Test.MyEnum.enum2] = si2;
+            sdi2[Test.MyEnum.enum1] = si3;
+
+            Callback cb = new Callback();
+            p.begin_opMyEnumMyEnumSD(sdi1, sdi2).whenCompleted(
+                (Dictionary<Test.MyEnum, Test.MyEnum[]> ro,
+                 Dictionary<Test.MyEnum, Test.MyEnum[]> _do) =>
+                {
+                    cb.opMyEnumMyEnumSD(ro, _do);
                 },
                 (Ice.Exception ex) =>
                 {

@@ -231,6 +231,102 @@ class MyDerivedClassI(Test.MyDerivedClass):
         r.update(p2)
         cb.ice_response(r, p3)
 
+    def opByteBoolDS_async(self, cb, p1, p2, current=None):
+        p3 = p2[0:]
+        p3.extend(p1)
+        r = p1[::-1]
+        cb.ice_response(r, p3)
+
+    def opShortIntDS_async(self, cb, p1, p2, current=None):
+        p3 = p2[0:]
+        p3.extend(p1)
+        r = p1[::-1]
+        cb.ice_response(r, p3)
+
+    def opLongFloatDS_async(self, cb, p1, p2, current=None):
+        p3 = p2[0:]
+        p3.extend(p1)
+        r = p1[::-1]
+        cb.ice_response(r, p3)
+
+    def opStringStringDS_async(self, cb, p1, p2, current=None):
+        p3 = p2[0:]
+        p3.extend(p1)
+        r = p1[::-1]
+        cb.ice_response(r, p3)
+
+    def opStringMyEnumDS_async(self, cb, p1, p2, current=None):
+        p3 = p2[0:]
+        p3.extend(p1)
+        r = p1[::-1]
+        cb.ice_response(r, p3)
+
+    def opMyEnumStringDS_async(self, cb, p1, p2, current=None):
+        p3 = p2[0:]
+        p3.extend(p1)
+        r = p1[::-1]
+        cb.ice_response(r, p3)
+
+    def opMyStructMyEnumDS_async(self, cb, p1, p2, current=None):
+        p3 = p2[0:]
+        p3.extend(p1)
+        r = p1[::-1]
+        cb.ice_response(r, p3)
+
+    def opByteByteSD_async(self, cb, p1, p2, current=None):
+        p3 = p2.copy()
+        r = p1.copy()
+        r.update(p2)
+        cb.ice_response(r, p3)
+
+    def opBoolBoolSD_async(self, cb, p1, p2, current=None):
+        p3 = p2.copy()
+        r = p1.copy()
+        r.update(p2)
+        cb.ice_response(r, p3)
+
+    def opShortShortSD_async(self, cb, p1, p2, current=None):
+        p3 = p2.copy()
+        r = p1.copy()
+        r.update(p2)
+        cb.ice_response(r, p3)
+
+    def opIntIntSD_async(self, cb, p1, p2, current=None):
+        p3 = p2.copy()
+        r = p1.copy()
+        r.update(p2)
+        cb.ice_response(r, p3)
+
+    def opLongLongSD_async(self, cb, p1, p2, current=None):
+        p3 = p2.copy()
+        r = p1.copy()
+        r.update(p2)
+        cb.ice_response(r, p3)
+
+    def opStringFloatSD_async(self, cb, p1, p2, current=None):
+        p3 = p2.copy()
+        r = p1.copy()
+        r.update(p2)
+        cb.ice_response(r, p3)
+
+    def opStringDoubleSD_async(self, cb, p1, p2, current=None):
+        p3 = p2.copy()
+        r = p1.copy()
+        r.update(p2)
+        cb.ice_response(r, p3)
+
+    def opStringStringSD_async(self, cb, p1, p2, current=None):
+        p3 = p2.copy()
+        r = p1.copy()
+        r.update(p2)
+        cb.ice_response(r, p3)
+
+    def opMyEnumMyEnumSD_async(self, cb, p1, p2, current=None):
+        p3 = p2.copy()
+        r = p1.copy()
+        r.update(p2)
+        cb.ice_response(r, p3)
+
     def opIntS_async(self, cb, s, current=None):
         cb.ice_response([-x for x in s])
 

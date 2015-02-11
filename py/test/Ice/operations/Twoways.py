@@ -436,26 +436,26 @@ def twoways(communicator, p):
     bsi2 = ((False, False, True),)
 
     rso, bso = p.opBoolSS(bsi1, bsi2)
-    test(len(bso) == 4);
-    test(len(bso[0]) == 1);
-    test(bso[0][0]);
-    test(len(bso[1]) == 1);
-    test(not bso[1][0]);
-    test(len(bso[2]) == 2);
-    test(bso[2][0]);
-    test(bso[2][1]);
-    test(len(bso[3]) == 3);
-    test(not bso[3][0]);
-    test(not bso[3][1]);
-    test(bso[3][2]);
-    test(len(rso) == 3);
-    test(len(rso[0]) == 2);
-    test(rso[0][0]);
-    test(rso[0][1]);
-    test(len(rso[1]) == 1);
-    test(not rso[1][0]);
-    test(len(rso[2]) == 1);
-    test(rso[2][0]);
+    test(len(bso) == 4)
+    test(len(bso[0]) == 1)
+    test(bso[0][0])
+    test(len(bso[1]) == 1)
+    test(not bso[1][0])
+    test(len(bso[2]) == 2)
+    test(bso[2][0])
+    test(bso[2][1])
+    test(len(bso[3]) == 3)
+    test(not bso[3][0])
+    test(not bso[3][1])
+    test(bso[3][2])
+    test(len(rso) == 3)
+    test(len(rso[0]) == 2)
+    test(rso[0][0])
+    test(rso[0][1])
+    test(len(rso[1]) == 1)
+    test(not rso[1][0])
+    test(len(rso[2]) == 1)
+    test(rso[2][0])
 
     #
     # opShortIntLongSS
@@ -465,31 +465,31 @@ def twoways(communicator, p):
     lsi = ((496, 1729),)
 
     rso, sso, iso, lso = p.opShortIntLongSS(ssi, isi, lsi)
-    test(len(rso) == 1);
-    test(len(rso[0]) == 2);
-    test(rso[0][0] == 496);
-    test(rso[0][1] == 1729);
-    test(len(sso) == 3);
-    test(len(sso[0]) == 3);
-    test(sso[0][0] == 1);
-    test(sso[0][1] == 2);
-    test(sso[0][2] == 5);
-    test(len(sso[1]) == 1);
-    test(sso[1][0] == 13);
-    test(len(sso[2]) == 0);
-    test(len(iso) == 2);
-    test(len(iso[0]) == 1);
-    test(iso[0][0] == 42);
-    test(len(iso[1]) == 2);
-    test(iso[1][0] == 24);
-    test(iso[1][1] == 98);
-    test(len(lso) == 2);
-    test(len(lso[0]) == 2);
-    test(lso[0][0] == 496);
-    test(lso[0][1] == 1729);
-    test(len(lso[1]) == 2);
-    test(lso[1][0] == 496);
-    test(lso[1][1] == 1729);
+    test(len(rso) == 1)
+    test(len(rso[0]) == 2)
+    test(rso[0][0] == 496)
+    test(rso[0][1] == 1729)
+    test(len(sso) == 3)
+    test(len(sso[0]) == 3)
+    test(sso[0][0] == 1)
+    test(sso[0][1] == 2)
+    test(sso[0][2] == 5)
+    test(len(sso[1]) == 1)
+    test(sso[1][0] == 13)
+    test(len(sso[2]) == 0)
+    test(len(iso) == 2)
+    test(len(iso[0]) == 1)
+    test(iso[0][0] == 42)
+    test(len(iso[1]) == 2)
+    test(iso[1][0] == 24)
+    test(iso[1][1] == 98)
+    test(len(lso) == 2)
+    test(len(lso[0]) == 2)
+    test(lso[0][0] == 496)
+    test(lso[0][1] == 1729)
+    test(len(lso[1]) == 2)
+    test(lso[1][0] == 496)
+    test(lso[1][1] == 1729)
 
     #
     # opFloatDoubleSS
@@ -700,6 +700,442 @@ def twoways(communicator, p):
     test(ro[s23] == Test.MyEnum.enum2)
 
     #
+    # opByteBoolDS
+    #
+    dsi1 = ({ 10: True, 100: False }, { 10: True, 11: False, 101: True })
+    dsi2 = ({ 100: False, 101: False },)
+
+    ro, do = p.opByteBoolDS(dsi1, dsi2)
+
+    test(len(ro) == 2)
+    test(len(ro[0]) == 3)
+    test(ro[0][10])
+    test(not ro[0][11])
+    test(ro[0][101])
+    test(len(ro[1]) == 2)
+    test(ro[1][10])
+    test(not ro[1][100])
+    test(len(do) == 3)
+    test(len(do[0]) == 2)
+    test(not do[0][100])
+    test(not do[0][101])
+    test(len(do[1]) == 2)
+    test(do[1][10])
+    test(not do[1][100])
+    test(len(do[2]) == 3)
+    test(do[2][10])
+    test(not do[2][11])
+    test(do[2][101])
+
+    #
+    # opShortIntDS
+    #
+    dsi1 = ({ 110: -1, 1100: 123123 }, { 110: -1, 111: -100, 1101: 0 })
+    dsi2 = ({ 100: -1001 },)
+
+    ro, do = p.opShortIntDS(dsi1, dsi2)
+
+    test(len(ro) == 2)
+    test(len(ro[0]) == 3)
+    test(ro[0][110] == -1)
+    test(ro[0][111] == -100)
+    test(ro[0][1101] == 0)
+    test(len(ro[1]) == 2)
+    test(ro[1][110] == -1)
+    test(ro[1][1100] == 123123)
+
+    test(len(do) == 3)
+    test(len(do[0]) == 1)
+    test(do[0][100] == -1001)
+    test(len(do[1]) == 2)
+    test(do[1][110] == -1)
+    test(do[1][1100] == 123123)
+    test(len(do[2]) == 3)
+    test(do[2][110] == -1)
+    test(do[2][111] == -100)
+    test(do[2][1101] == 0)
+
+    #
+    # opLongFloatDS
+    #
+    dsi1 = ({ 999999110: -1.1, 999999111: 123123.2 }, { 999999110: -1.1, 999999120: -100.4, 999999130: 0.5 })
+    dsi2 = ({ 999999140: 3.14 },)
+
+    ro, do = p.opLongFloatDS(dsi1, dsi2)
+
+    test(len(ro) == 2)
+    test(len(ro[0]) == 3)
+    test(ro[0][999999110] - -1.1 < 0.01)
+    test(ro[0][999999120] - -100.4 < 0.01)
+    test(ro[0][999999130] - 0.5 < 0.01)
+    test(len(ro[1]) == 2)
+    test(ro[1][999999110] - -1.1 < 0.01)
+    test(ro[1][999999111] - 123123.2 < 0.01)
+
+    test(len(do) == 3)
+    test(len(do[0]) == 1)
+    test(do[0][999999140] - 3.14 < 0.01)
+    test(len(do[1]) == 2)
+    test(do[1][999999110] - -1.1 < 0.01)
+    test(do[1][999999111] - 123123.2 < 0.01)
+    test(len(do[2]) == 3)
+    test(do[2][999999110] - -1.1 < 0.01)
+    test(do[2][999999120] - -100.4 < 0.01)
+    test(do[2][999999130] - 0.5 < 0.01)
+
+    #
+    # opStringStringDS
+    #
+
+    dsi1 = ({ "foo": "abc -1.1", "bar": "abc 123123.2" }, { "foo": "abc -1.1", "FOO": "abc -100.4", "BAR": "abc 0.5" })
+    dsi2 = ({ "f00": "ABC -3.14" },)
+
+    ro, do = p.opStringStringDS(dsi1, dsi2)
+
+    test(len(ro) == 2)
+    test(len(ro[0]) == 3)
+    test(ro[0]["foo"] == "abc -1.1")
+    test(ro[0]["FOO"] == "abc -100.4")
+    test(ro[0]["BAR"] == "abc 0.5")
+    test(len(ro[1]) == 2)
+    test(ro[1]["foo"] == "abc -1.1")
+    test(ro[1]["bar"] == "abc 123123.2")
+
+    test(len(do) == 3)
+    test(len(do[0]) == 1)
+    test(do[0]["f00"] == "ABC -3.14")
+    test(len(do[1]) == 2)
+    test(do[1]["foo"] == "abc -1.1")
+    test(do[1]["bar"] == "abc 123123.2")
+    test(len(do[2]) == 3)
+    test(do[2]["foo"] == "abc -1.1")
+    test(do[2]["FOO"] == "abc -100.4")
+    test(do[2]["BAR"] == "abc 0.5")
+
+    #
+    # opStringMyEnumDS
+    #
+    dsi1 = (
+            { "abc": Test.MyEnum.enum1, "": Test.MyEnum.enum2 },
+            { "abc": Test.MyEnum.enum1, "qwerty": Test.MyEnum.enum3, "Hello!!": Test.MyEnum.enum2 }
+           )
+
+    dsi2 = ({ "Goodbye": Test.MyEnum.enum1 },)
+
+    ro, do = p.opStringMyEnumDS(dsi1, dsi2)
+
+    test(len(ro) == 2)
+    test(len(ro[0]) == 3)
+    test(ro[0]["abc"] == Test.MyEnum.enum1)
+    test(ro[0]["qwerty"] == Test.MyEnum.enum3)
+    test(ro[0]["Hello!!"] == Test.MyEnum.enum2)
+    test(len(ro[1]) == 2)
+    test(ro[1]["abc"] == Test.MyEnum.enum1)
+    test(ro[1][""] == Test.MyEnum.enum2)
+
+    test(len(do) == 3)
+    test(len(do[0]) == 1)
+    test(do[0]["Goodbye"] == Test.MyEnum.enum1)
+    test(len(do[1]) == 2)
+    test(do[1]["abc"] == Test.MyEnum.enum1)
+    test(do[1][""] == Test.MyEnum.enum2)
+    test(len(do[2]) == 3)
+    test(do[2]["abc"] == Test.MyEnum.enum1)
+    test(do[2]["qwerty"] == Test.MyEnum.enum3)
+    test(do[2]["Hello!!"] == Test.MyEnum.enum2)
+
+    #
+    # opMyEnumStringDS
+    #
+    dsi1 = ({ Test.MyEnum.enum1: 'abc' }, { Test.MyEnum.enum2: 'Hello!!', Test.MyEnum.enum3: 'qwerty'})
+    dsi2 = ({ Test.MyEnum.enum1: 'Goodbye' },)
+
+    ro, do = p.opMyEnumStringDS(dsi1, dsi2)
+
+    test(len(ro) == 2)
+    test(len(ro[0]) == 2)
+    test(ro[0][Test.MyEnum.enum2] == "Hello!!")
+    test(ro[0][Test.MyEnum.enum3] == "qwerty")
+    test(len(ro[1]) == 1)
+    test(ro[1][Test.MyEnum.enum1] == "abc")
+
+    test(len(do) == 3)
+    test(len(do[0]) == 1)
+    test(do[0][Test.MyEnum.enum1] == "Goodbye")
+    test(len(do[1]) == 1)
+    test(do[1][Test.MyEnum.enum1] == "abc")
+    test(len(do[2]) == 2)
+    test(do[2][Test.MyEnum.enum2] == "Hello!!")
+    test(do[2][Test.MyEnum.enum3] == "qwerty")
+
+    #
+    # opMyStructMyEnumDS
+    #
+    s11 = Test.MyStruct(1, 1)
+    s12 = Test.MyStruct(1, 2)
+
+    s22 = Test.MyStruct(2, 2)
+    s23 = Test.MyStruct(2, 3)
+
+    dsi1 = (
+            { s11: Test.MyEnum.enum1, s12: Test.MyEnum.enum2 },
+            { s11: Test.MyEnum.enum1, s22: Test.MyEnum.enum3, s23: Test.MyEnum.enum2 }
+           )
+    dsi2 = ({ s23: Test.MyEnum.enum3 },)
+
+    ro, do = p.opMyStructMyEnumDS(dsi1, dsi2)
+
+    test(len(ro) == 2)
+    test(len(ro[0]) == 3)
+    test(ro[0][s11] == Test.MyEnum.enum1)
+    test(ro[0][s22] == Test.MyEnum.enum3)
+    test(ro[0][s23] == Test.MyEnum.enum2)
+    test(len(ro[1]) == 2)
+    test(ro[1][s11] == Test.MyEnum.enum1)
+    test(ro[1][s12] == Test.MyEnum.enum2)
+
+    test(len(do) == 3)
+    test(len(do[0]) == 1)
+    test(do[0][s23] == Test.MyEnum.enum3)
+    test(len(do[1]) == 2)
+    test(do[1][s11] == Test.MyEnum.enum1)
+    test(do[1][s12] == Test.MyEnum.enum2)
+    test(len(do[2]) == 3)
+    test(do[2][s11] == Test.MyEnum.enum1)
+    test(do[2][s22] == Test.MyEnum.enum3)
+    test(do[2][s23] == Test.MyEnum.enum2)
+
+    #
+    #opByteByteSD
+    #
+    sdi1 = { 0x01: (0x01, 0x11), 0x22: (0x12,) }
+    sdi2 = { 0xf1: (0xf2, 0xf3) }
+
+    ro, do = p.opByteByteSD(sdi1, sdi2)
+
+    if sys.version_info[0] == 2:
+        test(len(do) == 1)
+        test(len(do[0xf1]) == 2)
+        test(do[0xf1][0] == '\xf2')
+        test(do[0xf1][1] == '\xf3')
+        test(len(ro) == 3)
+        test(len(ro[0x01]) == 2)
+        test(ro[0x01][0] == '\x01')
+        test(ro[0x01][1] == '\x11')
+        test(len(ro[0x22]) == 1)
+        test(ro[0x22][0] == '\x12')
+        test(len(ro[0xf1]) == 2)
+        test(ro[0xf1][0] == '\xf2')
+        test(ro[0xf1][1] == '\xf3')
+    else:
+        test(len(do) == 1)
+        test(len(do[0xf1]) == 2)
+        test(do[0xf1][0] == 0xf2)
+        test(do[0xf1][1] == 0xf3)
+        test(len(ro) == 3)
+        test(len(ro[0x01]) == 2)
+        test(ro[0x01][0] == 0x01)
+        test(ro[0x01][1] == 0x11)
+        test(len(ro[0x22]) == 1)
+        test(ro[0x22][0] == 0x12)
+        test(len(ro[0xf1]) == 2)
+        test(ro[0xf1][0] == 0xf2)
+        test(ro[0xf1][1] == 0xf3)
+
+    #
+    # opBoolBoolSD
+    #
+    sdi1 = { False: (True, False), True: (False, True, True) }
+    sdi2 = { False: (True, False) }
+
+    ro, do = p.opBoolBoolSD(sdi1, sdi2)
+
+    test(len(do) == 1)
+    test(len(do[False]) == 2)
+    test(do[False][0])
+    test(not do[False][1])
+    test(len(ro) == 2)
+    test(len(ro[False]) == 2)
+    test(ro[False][0])
+    test(not ro[False][1])
+    test(len(ro[True]) == 3)
+    test(not ro[True][0])
+    test(ro[True][1])
+    test(ro[True][2])
+
+    #
+    # opShortShortSD
+    #
+    sdi1 = { 1: (1, 2, 3), 2: (4, 5) }
+    sdi2 = { 4: (6, 7) }
+
+    ro, do = p.opShortShortSD(sdi1, sdi2)
+
+    test(len(do) == 1)
+    test(len(do[4]) == 2)
+    test(do[4][0] == 6)
+    test(do[4][1] == 7)
+    test(len(ro) == 3)
+    test(len(ro[1]) == 3)
+    test(ro[1][0] == 1)
+    test(ro[1][1] == 2)
+    test(ro[1][2] == 3)
+    test(len(ro[2]) == 2)
+    test(ro[2][0] == 4)
+    test(ro[2][1] == 5)
+    test(len(ro[4]) == 2)
+    test(ro[4][0] == 6)
+    test(ro[4][1] == 7)
+
+    #
+    # opIntIntSD
+    #
+    sdi1 = { 100: (100, 200, 300), 200: (400, 500) }
+    sdi2 = { 400: (600, 700) }
+
+    ro, do = p.opIntIntSD(sdi1, sdi2)
+
+    test(len(do) == 1)
+    test(len(do[400]) == 2)
+    test(do[400][0] == 600)
+    test(do[400][1] == 700)
+    test(len(ro) == 3)
+    test(len(ro[100]) == 3)
+    test(ro[100][0] == 100)
+    test(ro[100][1] == 200)
+    test(ro[100][2] == 300)
+    test(len(ro[200]) == 2)
+    test(ro[200][0] == 400)
+    test(ro[200][1] == 500)
+    test(len(ro[400]) == 2)
+    test(ro[400][0] == 600)
+    test(ro[400][1] == 700)
+
+    #
+    # opLongLongSD
+    #
+    sdi1 = { 999999990: (999999110, 999999111, 999999110), 999999991: (999999120, 999999130) }
+    sdi2 = { 999999992: (999999110, 999999120) }
+
+    ro, do = p.opLongLongSD(sdi1, sdi2)
+
+    test(len(do) == 1)
+    test(len(do[999999992]) == 2)
+    test(do[999999992][0] == 999999110)
+    test(do[999999992][1] == 999999120)
+    test(len(ro) == 3)
+    test(len(ro[999999990]) == 3)
+    test(ro[999999990][0] == 999999110)
+    test(ro[999999990][1] == 999999111)
+    test(ro[999999990][2] == 999999110)
+    test(len(ro[999999991]) == 2)
+    test(ro[999999991][0] == 999999120)
+    test(ro[999999991][1] == 999999130)
+    test(len(ro[999999992]) == 2)
+    test(ro[999999992][0] == 999999110)
+    test(ro[999999992][1] == 999999120)
+
+    #
+    # opStringFloatSD
+    #
+    sdi1 = { "abc": (-1.1, 123123.2, 100.0), "ABC": (42.24, -1.61) }
+    sdi2 = { "aBc": (-3.14, 3.14) }
+
+    ro, do = p.opStringFloatSD(sdi1, sdi2)
+
+    test(len(do) == 1)
+    test(len(do["aBc"]) == 2)
+    test(do["aBc"][0] - -3.14 < 0.01)
+    test(do["aBc"][1] - 3.14 < 0.01)
+
+    test(len(ro) == 3)
+    test(len(ro["abc"]) == 3)
+    test(ro["abc"][0] - -1.1 < 0.01)
+    test(ro["abc"][1] - 123123.2 < 0.01)
+    test(ro["abc"][2] - 100.0 < 0.01)
+    test(len(ro["ABC"]) == 2)
+    test(ro["ABC"][0] - 42.24 < 0.01)
+    test(ro["ABC"][1] - -1.61 < 0.01)
+    test(len(ro["aBc"]) == 2)
+    test(ro["aBc"][0] - -3.14 < 0.01)
+    test(ro["aBc"][1] - 3.14 < 0.01)
+
+    #
+    # opStringDoubleSD
+    #
+    sdi1 = { "Hello!!": (1.1E10, 1.2E10, 1.3E10), "Goodbye": (1.4E10, 1.5E10) }
+    sdi2 = { "": (1.6E10, 1.7E10) }
+
+    ro, do = p.opStringDoubleSD(sdi1, sdi2);
+
+    test(len(do) == 1)
+    test(len(do[""]) == 2)
+    test(do[""][0] == 1.6E10)
+    test(do[""][1] == 1.7E10)
+    test(len(ro) == 3)
+    test(len(ro["Hello!!"]) == 3)
+    test(ro["Hello!!"][0] == 1.1E10)
+    test(ro["Hello!!"][1] == 1.2E10)
+    test(ro["Hello!!"][2] == 1.3E10)
+    test(len(ro["Goodbye"]) == 2)
+    test(ro["Goodbye"][0] == 1.4E10)
+    test(ro["Goodbye"][1] == 1.5E10)
+    test(len(ro[""]) == 2)
+    test(ro[""][0] == 1.6E10)
+    test(ro[""][1] == 1.7E10)
+
+    #
+    # opStringStringSD
+    #
+    sdi1 = { "abc": ("abc", "de", "fghi") , "def": ("xyz", "or") }
+    sdi2 = { "ghi": ("and", "xor") }
+
+    ro, do = p.opStringStringSD(sdi1, sdi2)
+
+    test(len(do) == 1)
+    test(len(do["ghi"]) == 2)
+    test(do["ghi"][0] == "and")
+    test(do["ghi"][1] == "xor")
+    test(len(ro) == 3)
+    test(len(ro["abc"]) == 3)
+    test(ro["abc"][0] == "abc")
+    test(ro["abc"][1] == "de")
+    test(ro["abc"][2] == "fghi")
+    test(len(ro["def"]) == 2)
+    test(ro["def"][0] == "xyz")
+    test(ro["def"][1] == "or")
+    test(len(ro["ghi"]) == 2)
+    test(ro["ghi"][0] == "and")
+    test(ro["ghi"][1] == "xor")
+
+    #
+    # opMyEnumMyEnumSD
+    #
+    sdi1 = {
+            Test.MyEnum.enum3: (Test.MyEnum.enum1, Test.MyEnum.enum1, Test.MyEnum.enum2),
+            Test.MyEnum.enum2: (Test.MyEnum.enum1, Test.MyEnum.enum2)
+           }
+    sdi2 = { Test.MyEnum.enum1: (Test.MyEnum.enum3, Test.MyEnum.enum3) }
+
+    ro, do = p.opMyEnumMyEnumSD(sdi1, sdi2)
+
+    test(len(do) == 1)
+    test(len(do[Test.MyEnum.enum1]) == 2)
+    test(do[Test.MyEnum.enum1][0] == Test.MyEnum.enum3)
+    test(do[Test.MyEnum.enum1][1] == Test.MyEnum.enum3)
+    test(len(ro) == 3)
+    test(len(ro[Test.MyEnum.enum3]) == 3)
+    test(ro[Test.MyEnum.enum3][0] == Test.MyEnum.enum1)
+    test(ro[Test.MyEnum.enum3][1] == Test.MyEnum.enum1)
+    test(ro[Test.MyEnum.enum3][2] == Test.MyEnum.enum2)
+    test(len(ro[Test.MyEnum.enum2]) == 2)
+    test(ro[Test.MyEnum.enum2][0] == Test.MyEnum.enum1)
+    test(ro[Test.MyEnum.enum2][1] == Test.MyEnum.enum2)
+    test(len(ro[Test.MyEnum.enum1]) == 2)
+    test(ro[Test.MyEnum.enum1][0] == Test.MyEnum.enum3)
+    test(ro[Test.MyEnum.enum1][1] == Test.MyEnum.enum3)
+
+    #
     # opIntS
     #
     lengths = ( 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 )
@@ -747,43 +1183,43 @@ def twoways(communicator, p):
             ctx = {'one': 'ONE', 'two': 'TWO', 'three': 'THREE'}
 
             p1 = Test.MyClassPrx.uncheckedCast(ic.stringToProxy('test:default -p 12010'))
-            
+
             ic.getImplicitContext().setContext(ctx)
             test(ic.getImplicitContext().getContext() == ctx)
             test(p1.opContext() == ctx)
-            
-            test(ic.getImplicitContext().containsKey('zero') == False);
-            r = ic.getImplicitContext().put('zero', 'ZERO');
-            test(r == '');
-            test(ic.getImplicitContext().containsKey('zero') == True);
-            test(ic.getImplicitContext().get('zero') == 'ZERO');
+
+            test(ic.getImplicitContext().containsKey('zero') == False)
+            r = ic.getImplicitContext().put('zero', 'ZERO')
+            test(r == '')
+            test(ic.getImplicitContext().containsKey('zero') == True)
+            test(ic.getImplicitContext().get('zero') == 'ZERO')
 
             ctx = ic.getImplicitContext().getContext()
             test(p1.opContext() == ctx)
-            
+
             prxContext = {'one': 'UN', 'four': 'QUATRE'}
-            
+
             combined = ctx.copy()
             combined.update(prxContext)
             test(combined['one'] == 'UN')
-            
+
             p2 = Test.MyClassPrx.uncheckedCast(p1.ice_context(prxContext))
-            
+
             ic.getImplicitContext().setContext({})
             test(p2.opContext() == prxContext)
-            
+
             ic.getImplicitContext().setContext(ctx)
             test(p2.opContext() == combined)
-            
-            test(ic.getImplicitContext().remove('one') == 'ONE');
-            
+
+            test(ic.getImplicitContext().remove('one') == 'ONE')
+
             ic.destroy()
 
-    d = 1278312346.0 / 13.0;
+    d = 1278312346.0 / 13.0
     ds = []
     for i in range(5):
-        ds.append(d);
-    p.opDoubleMarshaling(d, ds);
+        ds.append(d)
+    p.opDoubleMarshaling(d, ds)
 
     #
     # opIdempotent

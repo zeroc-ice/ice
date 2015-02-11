@@ -1170,11 +1170,10 @@ public class TwowaysLambdaAMI
 
             opShortIntLongSSI cb = new opShortIntLongSSI();
             p.begin_opShortIntLongSS(ssi, isi, lsi,
-                    (long[][] rso, short[][] sso, int[][] iso, long lso[][]) -> cb.response(rso, sso, iso, lso),
+                    (long[][] rso, short[][] sso, int[][] iso, long[][] lso) -> cb.response(rso, sso, iso, lso),
                     (Ice.Exception ex) -> test(false));
             cb.check();
         }
-
         {
             final float[][] fsi =
                 {

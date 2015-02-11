@@ -860,6 +860,686 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
     }
 
     {
+        TestOperationsMutableByteBoolDS* dsi1 = [TestOperationsMutableByteBoolDS array];
+        TestOperationsMutableByteBoolDS* dsi2 = [TestOperationsMutableByteBoolDS array];
+
+        TestOperationsMutableByteBoolD *di1 = [TestOperationsMutableByteBoolD dictionary];
+        [di1 setObject:[NSNumber numberWithBool:YES] forKey:[NSNumber numberWithUnsignedChar:10]];
+        [di1 setObject:[NSNumber numberWithBool:NO] forKey:[NSNumber numberWithUnsignedChar:100]];
+        TestOperationsMutableByteBoolD *di2 = [TestOperationsMutableByteBoolD dictionary];
+        [di2 setObject:[NSNumber numberWithBool:YES] forKey:[NSNumber numberWithUnsignedChar:10]];
+        [di2 setObject:[NSNumber numberWithBool:NO] forKey:[NSNumber numberWithUnsignedChar:11]];
+        [di2 setObject:[NSNumber numberWithBool:TRUE] forKey:[NSNumber numberWithUnsignedChar:101]];
+        TestOperationsMutableByteBoolD *di3 = [TestOperationsMutableByteBoolD dictionary];
+        [di3 setObject:[NSNumber numberWithBool:NO] forKey:[NSNumber numberWithUnsignedChar:100]];
+        [di3 setObject:[NSNumber numberWithBool:NO] forKey:[NSNumber numberWithUnsignedChar:101]];
+
+        [dsi1 addObject:di1];
+        [dsi1 addObject:di2];
+        [dsi2 addObject:di3];
+
+        TestOperationsMutableByteBoolDS* _do;
+        TestOperationsByteBoolDS* ro = [p opByteBoolDS:dsi1 p2:dsi2 p3:&_do];
+
+        test([ro count] == 2);
+        test([[ro objectAtIndex:0] count] == 3);
+        test([[[ro objectAtIndex:0] objectForKey:[NSNumber numberWithUnsignedChar:10]] boolValue] == YES);
+        test([[[ro objectAtIndex:0] objectForKey:[NSNumber numberWithUnsignedChar:11]] boolValue] == NO);
+        test([[[ro objectAtIndex:0] objectForKey:[NSNumber numberWithUnsignedChar:101]] boolValue] == YES);
+        test([[ro objectAtIndex:1] count] == 2);
+        test([[[ro objectAtIndex:1] objectForKey:[NSNumber numberWithUnsignedChar:10]] boolValue] == YES);
+        test([[[ro objectAtIndex:1] objectForKey:[NSNumber numberWithUnsignedChar:100]] boolValue] == NO);
+        test([_do count] == 3);
+        test([[_do objectAtIndex:0] count] == 2);
+        test([[[_do objectAtIndex:0] objectForKey:[NSNumber numberWithUnsignedChar:100]] boolValue] == NO);
+        test([[[_do objectAtIndex:0] objectForKey:[NSNumber numberWithUnsignedChar:101]] boolValue] == NO);
+        test([[_do objectAtIndex:1] count] == 2);
+        test([[[_do objectAtIndex:1] objectForKey:[NSNumber numberWithUnsignedChar:10]] boolValue] == YES);
+        test([[[_do objectAtIndex:1] objectForKey:[NSNumber numberWithUnsignedChar:100]] boolValue] == NO);
+        test([[_do objectAtIndex:2] count] == 3);
+        test([[[_do objectAtIndex:2] objectForKey:[NSNumber numberWithUnsignedChar:10]] boolValue] == YES);
+        test([[[_do objectAtIndex:2] objectForKey:[NSNumber numberWithUnsignedChar:11]] boolValue] == NO);
+        test([[[_do objectAtIndex:2] objectForKey:[NSNumber numberWithUnsignedChar:101]] boolValue] == YES);
+    }
+
+    {
+        TestOperationsMutableShortIntDS *dsi1 = [TestOperationsMutableShortIntDS array];
+        TestOperationsMutableShortIntDS *dsi2 = [TestOperationsMutableShortIntDS array];
+
+        TestOperationsMutableShortIntD *di1 = [TestOperationsMutableShortIntD dictionary];
+        [di1 setObject:[NSNumber numberWithInt:-1] forKey:[NSNumber numberWithShort:110]];
+        [di1 setObject:[NSNumber numberWithInt:123123] forKey:[NSNumber numberWithShort:1100]];
+        TestOperationsMutableShortIntD *di2 = [TestOperationsMutableShortIntD dictionary];
+        [di2 setObject:[NSNumber numberWithInt:-1] forKey:[NSNumber numberWithShort:110]];
+        [di2 setObject:[NSNumber numberWithInt:-100] forKey:[NSNumber numberWithShort:111]];
+        [di2 setObject:[NSNumber numberWithInt:0] forKey:[NSNumber numberWithShort:1101]];
+        TestOperationsMutableShortIntD *di3 = [TestOperationsMutableShortIntD dictionary];
+        [di3 setObject:[NSNumber numberWithInt:-1001] forKey:[NSNumber numberWithShort:100]];
+
+        [dsi1 addObject:di1];
+        [dsi1 addObject:di2];
+        [dsi2 addObject:di3];
+
+        TestOperationsMutableShortIntDS *_do;
+        TestOperationsShortIntDS *ro = [p opShortIntDS:dsi1 p2:dsi2 p3:&_do];
+
+        test([ro count] == 2);
+        test([[ro objectAtIndex:0] count] == 3);
+        test([[[ro objectAtIndex:0] objectForKey:[NSNumber numberWithShort:110]] intValue] == -1);
+        test([[[ro objectAtIndex:0] objectForKey:[NSNumber numberWithShort:111]] intValue] == -100);
+        test([[[ro objectAtIndex:0] objectForKey:[NSNumber numberWithShort:1101]] intValue] == 0);
+        test([[ro objectAtIndex:1] count] == 2);
+        test([[[ro objectAtIndex:1] objectForKey:[NSNumber numberWithShort:110]] intValue] == -1);
+        test([[[ro objectAtIndex:1] objectForKey:[NSNumber numberWithShort:1100]] intValue] == 123123);
+        test([_do count] == 3);
+        test([[_do objectAtIndex:0] count] == 1);
+        test([[[_do objectAtIndex:0] objectForKey:[NSNumber numberWithShort:100]] intValue] == -1001);
+        test([[_do objectAtIndex:1] count] == 2);
+        test([[[_do objectAtIndex:1] objectForKey:[NSNumber numberWithShort:110]] intValue] == -1);
+        test([[[_do objectAtIndex:1] objectForKey:[NSNumber numberWithShort:1100]] intValue] == 123123);
+        test([[_do objectAtIndex:2] count] == 3);
+        test([[[_do objectAtIndex:2] objectForKey:[NSNumber numberWithShort:110]] intValue] == -1);
+        test([[[_do objectAtIndex:2] objectForKey:[NSNumber numberWithShort:111]] intValue] == -100);
+        test([[[_do objectAtIndex:2] objectForKey:[NSNumber numberWithShort:1101]] intValue] == 0);
+    }
+
+    {
+        TestOperationsMutableLongFloatDS *dsi1 = [TestOperationsMutableLongFloatDS array];
+        TestOperationsMutableLongFloatDS *dsi2 = [TestOperationsMutableLongFloatDS array];
+
+        TestOperationsMutableLongFloatD *di1 = [TestOperationsMutableLongFloatD dictionary];
+        [di1 setObject:[NSNumber numberWithFloat:-1.1f] forKey:[NSNumber numberWithLong:999999110]];
+        [di1 setObject:[NSNumber numberWithFloat:123123.2f] forKey:[NSNumber numberWithLong:999999111]];
+        TestOperationsMutableLongFloatD *di2 = [TestOperationsMutableLongFloatD dictionary];
+        [di2 setObject:[NSNumber numberWithFloat:-1.1f] forKey:[NSNumber numberWithLong:999999110]];
+        [di2 setObject:[NSNumber numberWithFloat:-100.4f] forKey:[NSNumber numberWithLong:999999120]];
+        [di2 setObject:[NSNumber numberWithFloat:0.5f] forKey:[NSNumber numberWithLong:999999130]];
+        TestOperationsMutableLongFloatD *di3 = [TestOperationsMutableLongFloatD dictionary];
+        [di3 setObject:[NSNumber numberWithFloat:3.14f] forKey:[NSNumber numberWithLong:999999140]];
+
+        [dsi1 addObject:di1];
+        [dsi1 addObject:di2];
+        [dsi2 addObject:di3];
+
+        TestOperationsMutableLongFloatDS *_do;
+        TestOperationsLongFloatDS *ro = [p opLongFloatDS:dsi1 p2:dsi2 p3:&_do];
+
+        test([ro count] == 2);
+        test([[ro objectAtIndex:0] count] == 3);
+        test([[[ro objectAtIndex:0] objectForKey:[NSNumber numberWithLong:999999110]] floatValue] == -1.1f);
+        test([[[ro objectAtIndex:0] objectForKey:[NSNumber numberWithLong:999999120]] floatValue] == -100.4f);
+        test([[[ro objectAtIndex:0] objectForKey:[NSNumber numberWithLong:999999130]] floatValue] == 0.5f);
+        test([[ro objectAtIndex:1] count] == 2);
+        test([[[ro objectAtIndex:1] objectForKey:[NSNumber numberWithLong:999999110]] floatValue] == -1.1f);
+        test([[[ro objectAtIndex:1] objectForKey:[NSNumber numberWithLong:999999111]] floatValue] == 123123.2f);
+        test([_do count] == 3);
+        test([[_do objectAtIndex:0] count] == 1);
+        test([[[_do objectAtIndex:0] objectForKey:[NSNumber numberWithLong:999999140]] floatValue] == 3.14f);
+        test([[_do objectAtIndex:1] count] == 2);
+        test([[[_do objectAtIndex:1] objectForKey:[NSNumber numberWithLong:999999110]] floatValue] == -1.1f);
+        test([[[_do objectAtIndex:1] objectForKey:[NSNumber numberWithLong:999999111]] floatValue] == 123123.2f);
+        test([[_do objectAtIndex:2] count] == 3);
+        test([[[_do objectAtIndex:2] objectForKey:[NSNumber numberWithLong:999999110]] floatValue] == -1.1f);
+        test([[[_do objectAtIndex:2] objectForKey:[NSNumber numberWithLong:999999120]] floatValue] == -100.4f);
+        test([[[_do objectAtIndex:2] objectForKey:[NSNumber numberWithLong:999999130]] floatValue] == 0.5f);
+    }
+
+    {
+        TestOperationsMutableStringStringDS *dsi1 = [TestOperationsMutableStringStringDS array];
+        TestOperationsMutableStringStringDS *dsi2 = [TestOperationsMutableStringStringDS array];
+
+        TestOperationsMutableStringStringD *di1 = [TestOperationsMutableStringStringD dictionary];
+        [di1 setObject:@"abc -1.1" forKey:@"foo"];
+        [di1 setObject:@"abc 123123.2" forKey:@"bar"];
+        TestOperationsMutableStringStringD *di2 = [TestOperationsMutableStringStringD dictionary];
+        [di2 setObject:@"abc -1.1" forKey:@"foo"];
+        [di2 setObject:@"abc -100.4" forKey:@"FOO"];
+        [di2 setObject:@"abc 0.5" forKey:@"BAR"];
+        TestOperationsMutableStringStringD *di3 = [TestOperationsMutableStringStringD dictionary];
+        [di3 setObject:@"ABC -3.14" forKey:@"f00"];
+
+        [dsi1 addObject:di1];
+        [dsi1 addObject:di2];
+        [dsi2 addObject:di3];
+
+        TestOperationsMutableStringStringDS *_do;
+        TestOperationsStringStringDS *ro = [p opStringStringDS:dsi1 p2:dsi2 p3:&_do];
+
+        test([ro count] == 2);
+        test([[ro objectAtIndex:0] count] == 3);
+        test([[[ro objectAtIndex:0] objectForKey:@"foo"] isEqualToString:@"abc -1.1"]);
+        test([[[ro objectAtIndex:0] objectForKey:@"FOO"] isEqualToString:@"abc -100.4"]);
+        test([[[ro objectAtIndex:0] objectForKey:@"BAR"] isEqualToString:@"abc 0.5"]);
+        test([[ro objectAtIndex:1] count] == 2);
+        test([[[ro objectAtIndex:1] objectForKey:@"foo"] isEqualToString:@"abc -1.1"]);
+        test([[[ro objectAtIndex:1] objectForKey:@"bar"] isEqualToString:@"abc 123123.2"]);
+        test([_do count] == 3);
+        test([[_do objectAtIndex:0] count] == 1);
+        test([[[_do objectAtIndex:0] objectForKey:@"f00"] isEqualToString:@"ABC -3.14"]);
+        test([[_do objectAtIndex:1] count] == 2);
+        test([[[_do objectAtIndex:1] objectForKey:@"foo"] isEqualToString:@"abc -1.1"]);
+        test([[[_do objectAtIndex:1] objectForKey:@"bar"] isEqualToString:@"abc 123123.2"]);
+        test([[_do objectAtIndex:2] count] == 3);
+        test([[[_do objectAtIndex:2] objectForKey:@"foo"] isEqualToString:@"abc -1.1"]);
+        test([[[_do objectAtIndex:2] objectForKey:@"FOO"] isEqualToString:@"abc -100.4"]);
+        test([[[_do objectAtIndex:2] objectForKey:@"BAR"] isEqualToString:@"abc 0.5"]);
+    }
+
+    {
+        TestOperationsMutableStringMyEnumDS *dsi1 = [TestOperationsMutableStringMyEnumDS array];
+        TestOperationsMutableStringMyEnumDS *dsi2 = [TestOperationsMutableStringMyEnumDS array];
+
+        TestOperationsMutableStringMyEnumD *di1 = [TestOperationsMutableStringMyEnumD dictionary];
+        [di1 setObject:[NSNumber numberWithInt:TestOperationsenum1] forKey:@"abc"];
+        [di1 setObject:[NSNumber numberWithInt:TestOperationsenum2] forKey:@""];
+        TestOperationsMutableStringMyEnumD *di2 = [TestOperationsMutableStringMyEnumD dictionary];
+        [di2 setObject:[NSNumber numberWithInt:TestOperationsenum1] forKey:@"abc"];
+        [di2 setObject:[NSNumber numberWithInt:TestOperationsenum3] forKey:@"querty"];
+        [di2 setObject:[NSNumber numberWithInt:TestOperationsenum2] forKey:@"Hello!!"];
+        TestOperationsMutableStringMyEnumD *di3 = [TestOperationsMutableStringMyEnumD dictionary];
+        [di3 setObject:[NSNumber numberWithInt:TestOperationsenum1] forKey:@"Goodbye"];
+
+        [dsi1 addObject:di1];
+        [dsi1 addObject:di2];
+        [dsi2 addObject:di3];
+
+        TestOperationsMutableStringMyEnumDS *_do;
+        TestOperationsStringMyEnumDS *ro = [p opStringMyEnumDS:dsi1 p2:dsi2 p3:&_do];
+
+        test([ro count] == 2);
+        test([[ro objectAtIndex:0] count] == 3);
+        test([[[ro objectAtIndex:0] objectForKey:@"abc"] intValue] == TestOperationsenum1);
+        test([[[ro objectAtIndex:0] objectForKey:@"querty"] intValue] == TestOperationsenum3);
+        test([[[ro objectAtIndex:0] objectForKey:@"Hello!!"] intValue] == TestOperationsenum2);
+        test([[ro objectAtIndex:1] count] == 2);
+        test([[[ro objectAtIndex:1] objectForKey:@"abc"] intValue] == TestOperationsenum1);
+        test([[[ro objectAtIndex:1] objectForKey:@""] intValue] == TestOperationsenum2);
+        test([_do count] == 3);
+        test([[_do objectAtIndex:0] count] == 1);
+        test([[[_do objectAtIndex:0] objectForKey:@"Goodbye"] intValue] == TestOperationsenum1);
+        test([[_do objectAtIndex:1] count] == 2);
+        test([[[_do objectAtIndex:1] objectForKey:@"abc"] intValue] == TestOperationsenum1);
+        test([[[_do objectAtIndex:1] objectForKey:@""] intValue] == TestOperationsenum2);
+        test([[_do objectAtIndex:2] count] == 3);
+        test([[[_do objectAtIndex:2] objectForKey:@"abc"] intValue] == TestOperationsenum1);
+        test([[[_do objectAtIndex:2] objectForKey:@"querty"] intValue] == TestOperationsenum3);
+        test([[[_do objectAtIndex:2] objectForKey:@"Hello!!"] intValue] == TestOperationsenum2);
+    }
+
+    {
+        TestOperationsMutableMyEnumStringDS *dsi1 = [TestOperationsMutableMyEnumStringDS array];
+        TestOperationsMutableMyEnumStringDS *dsi2 = [TestOperationsMutableMyEnumStringDS array];
+
+        TestOperationsMutableMyEnumStringD *di1 = [TestOperationsMutableMyEnumStringD dictionary];
+        [di1 setObject:@"abc" forKey:@(TestOperationsenum1)];
+        TestOperationsMutableMyEnumStringD *di2 = [TestOperationsMutableMyEnumStringD dictionary];
+        [di2 setObject:@"Hello!!" forKey:@(TestOperationsenum2)];
+        [di2 setObject:@"querty" forKey:@(TestOperationsenum3)];
+        TestOperationsMutableMyEnumStringD *di3 = [TestOperationsMutableMyEnumStringD dictionary];
+        [di3 setObject:@"Goodbye" forKey:@(TestOperationsenum1)];
+
+        [dsi1 addObject:di1];
+        [dsi1 addObject:di2];
+        [dsi2 addObject:di3];
+
+        TestOperationsMutableMyEnumStringDS *_do;
+        TestOperationsMyEnumStringDS *ro = [p opMyEnumStringDS:dsi1 p2:dsi2 p3:&_do];
+
+        test([ro count] == 2);
+        test([[ro objectAtIndex:0] count] == 2);
+        test([[[ro objectAtIndex:0] objectForKey:@(TestOperationsenum2)] isEqualToString:@"Hello!!"]);
+        test([[[ro objectAtIndex:0] objectForKey:@(TestOperationsenum3)] isEqualToString:@"querty"]);
+        test([[ro objectAtIndex:1] count] == 1);
+        test([[[ro objectAtIndex:1] objectForKey:@(TestOperationsenum1)] isEqualToString:@"abc"]);
+        test([_do count] == 3);
+        test([[_do objectAtIndex:0] count] == 1);
+        test([[[_do objectAtIndex:0] objectForKey:@(TestOperationsenum1)] isEqualToString:@"Goodbye"]);
+        test([[_do objectAtIndex:1] count] == 1);
+        test([[[_do objectAtIndex:1] objectForKey:@(TestOperationsenum1)] isEqualToString:@"abc"]);
+        test([[_do objectAtIndex:2] count] == 2);
+        test([[[_do objectAtIndex:2] objectForKey:@(TestOperationsenum2)] isEqualToString:@"Hello!!"]);
+        test([[[_do objectAtIndex:2] objectForKey:@(TestOperationsenum3)] isEqualToString:@"querty"]);
+    }
+
+    {
+        TestOperationsMutableMyStructMyEnumDS *dsi1 = [TestOperationsMutableMyStructMyEnumDS array];
+        TestOperationsMutableMyStructMyEnumDS *dsi2 = [TestOperationsMutableMyStructMyEnumDS array];
+
+        TestOperationsMyStruct* s11 = [TestOperationsMyStruct myStruct:1 j:1];
+        TestOperationsMyStruct* s12 = [TestOperationsMyStruct myStruct:1 j:2];
+        TestOperationsMutableMyStructMyEnumD* di1 = [TestOperationsMutableMyStructMyEnumD dictionary];
+        [di1 setObject:@(TestOperationsenum1) forKey:s11];
+        [di1 setObject:@(TestOperationsenum2) forKey:s12];
+
+        TestOperationsMyStruct* s22 = [TestOperationsMyStruct myStruct:2 j:2];
+        TestOperationsMyStruct* s23 = [TestOperationsMyStruct myStruct:2 j:3];
+        TestOperationsMutableMyStructMyEnumD* di2 = [TestOperationsMutableMyStructMyEnumD dictionary];
+        [di2 setObject:@(TestOperationsenum1) forKey:s11];
+        [di2 setObject:@(TestOperationsenum3) forKey:s22];
+        [di2 setObject:@(TestOperationsenum2) forKey:s23];
+
+        TestOperationsMutableMyStructMyEnumD* di3 = [TestOperationsMutableMyStructMyEnumD dictionary];
+        [di3 setObject:@(TestOperationsenum3) forKey:s23];
+
+        [dsi1 addObject:di1];
+        [dsi1 addObject:di2];
+        [dsi2 addObject:di3];
+
+        TestOperationsMutableMyStructMyEnumDS* _do;
+        TestOperationsMyStructMyEnumDS* ro = [p opMyStructMyEnumDS:dsi1 p2:dsi2 p3:&_do];
+
+        test([ro count] == 2);
+        test([[ro objectAtIndex:0] count] == 3);
+        test([[[ro objectAtIndex:0] objectForKey:s11] intValue] == TestOperationsenum1);
+        test([[[ro objectAtIndex:0] objectForKey:s22] intValue] == TestOperationsenum3);
+        test([[[ro objectAtIndex:0] objectForKey:s23] intValue] == TestOperationsenum2);
+        test([[ro objectAtIndex:1] count] == 2);
+        test([[[ro objectAtIndex:1] objectForKey:s11] intValue] == TestOperationsenum1);
+        test([[[ro objectAtIndex:1] objectForKey:s12] intValue] == TestOperationsenum2);
+        test([_do count] == 3);
+        test([[_do objectAtIndex:0] count] == 1);
+        test([[[_do objectAtIndex:0] objectForKey:s23] intValue] == TestOperationsenum3);
+        test([[_do objectAtIndex:1] count] == 2);
+        test([[[_do objectAtIndex:1] objectForKey:s11] intValue] == TestOperationsenum1);
+        test([[[_do objectAtIndex:1] objectForKey:s12] intValue] == TestOperationsenum2);
+        test([[_do objectAtIndex:2] count] == 3);
+        test([[[_do objectAtIndex:2] objectForKey:s11] intValue] == TestOperationsenum1);
+        test([[[_do objectAtIndex:2] objectForKey:s22] intValue] == TestOperationsenum3);
+        test([[[_do objectAtIndex:2] objectForKey:s23] intValue] == TestOperationsenum2);
+    }
+
+    {
+        TestOperationsMutableByteByteSD *sdi1 = [TestOperationsMutableByteByteSD dictionary];
+        TestOperationsMutableByteByteSD *sdi2 = [TestOperationsMutableByteByteSD dictionary];
+
+        ICEByte buf1[] = { 0x01, 0x11 };
+        ICEByte buf2[] = { 0x12 };
+        ICEByte buf3[] = { 0xf2, 0xf3 };
+
+        TestOperationsMutableByteS *si1 = [TestOperationsMutableBoolS data];
+        TestOperationsMutableBoolS *si2 = [TestOperationsMutableBoolS data];
+        TestOperationsMutableBoolS *si3 = [TestOperationsMutableBoolS data];
+
+        [si1 appendBytes:buf1 length:sizeof(buf1)];
+        [si2 appendBytes:buf2 length:sizeof(buf2)];
+        [si3 appendBytes:buf3 length:sizeof(buf3)];
+
+        [sdi1 setObject:si1 forKey:[NSNumber numberWithUnsignedChar:(ICEByte)0x01]];
+        [sdi1 setObject:si2 forKey:[NSNumber numberWithUnsignedChar:(ICEByte)0x22]];
+        [sdi2 setObject:si3 forKey:[NSNumber numberWithUnsignedChar:(ICEByte)0xf1]];
+
+        TestOperationsMutableByteByteSD *_do;
+        TestOperationsByteByteSD *ro = [p opByteByteSD:sdi1 p2:sdi2 p3:&_do];
+
+        const ICEByte *p;
+        test([_do count] == 1);
+        test([[_do objectForKey:[NSNumber numberWithUnsignedChar:(ICEByte)0xf1]] length] / sizeof(ICEByte) == 2);
+        p = [[_do objectForKey:[NSNumber numberWithUnsignedChar:(ICEByte)0xf1]] bytes];
+        test(p[0] == 0xf2);
+        test(p[1] == 0xf3);
+        test([ro count] == 3);
+        test([[ro objectForKey:[NSNumber numberWithUnsignedChar:(ICEByte)0x01]] length] / sizeof(ICEByte) == 2);
+        p = [[ro objectForKey:[NSNumber numberWithUnsignedChar:(ICEByte)0x01]] bytes];
+        test(p[0] == 0x01);
+        test(p[1] == 0x11);
+        test([[ro objectForKey:[NSNumber numberWithUnsignedChar:(ICEByte)0x22]] length] / sizeof(ICEByte) == 1);
+        p = [[ro objectForKey:[NSNumber numberWithUnsignedChar:(ICEByte)0x22]] bytes];
+        test(p[0] == 0x12);
+        test([[ro objectForKey:[NSNumber numberWithUnsignedChar:(ICEByte)0xf1]] length] / sizeof(ICEByte) == 2);
+        p = [[ro objectForKey:[NSNumber numberWithUnsignedChar:(ICEByte)0xf1]] bytes];
+        test(p[0] == 0xf2);
+        test(p[1] == 0xf3);
+    }
+
+    {
+        TestOperationsMutableBoolBoolSD *sdi1 = [TestOperationsMutableBoolBoolSD dictionary];
+        TestOperationsMutableBoolBoolSD *sdi2 = [TestOperationsMutableBoolBoolSD dictionary];
+
+        BOOL buf1[] = { YES, NO };
+        BOOL buf2[] = { NO, YES, YES };
+
+        TestOperationsMutableBoolS *si1 = [TestOperationsMutableBoolS data];
+        TestOperationsMutableBoolS *si2 = [TestOperationsMutableBoolS data];
+
+        [si1 appendBytes:buf1 length:sizeof(buf1)];
+        [si2 appendBytes:buf2 length:sizeof(buf2)];
+
+        [sdi1 setObject:si1 forKey:[NSNumber numberWithBool:NO]];
+        [sdi1 setObject:si2 forKey:[NSNumber numberWithBool:YES]];
+        [sdi2 setObject:si1 forKey:[NSNumber numberWithBool:NO]];
+
+        TestOperationsMutableBoolBoolSD *_do;
+        TestOperationsBoolBoolSD *ro = [p opBoolBoolSD:sdi1 p2:sdi2 p3:&_do];
+
+        const BOOL *p;
+        test([_do count] == 1);
+        test([[_do objectForKey:[NSNumber numberWithBool:NO]] length] / sizeof(BOOL) == 2);
+        p = [[_do objectForKey:[NSNumber numberWithBool:NO]] bytes];
+        test(p[0] == YES);
+        test(p[1] == NO);
+        test([ro count] == 2);
+        test([[ro objectForKey:[NSNumber numberWithBool:NO]] length] / sizeof(BOOL) == 2);
+        p = [[ro objectForKey:[NSNumber numberWithBool:NO]] bytes];
+        test(p[0] == YES);
+        test(p[1] == NO);
+        test([[ro objectForKey:[NSNumber numberWithBool:YES]] length] / sizeof(BOOL) == 3);
+        p = [[ro objectForKey:[NSNumber numberWithBool:YES]] bytes];
+        test(p[0] == NO);
+        test(p[1] == YES);
+        test(p[2] == YES);
+    }
+
+    {
+        TestOperationsMutableShortShortSD *sdi1 = [TestOperationsMutableShortShortSD dictionary];
+        TestOperationsMutableShortShortSD *sdi2 = [TestOperationsMutableShortShortSD dictionary];
+
+        ICEShort buf1[] = { 1, 2, 3 };
+        ICEShort buf2[] = { 4, 5 };
+        ICEShort buf3[] = { 6, 7 };
+
+        TestOperationsMutableShortS *si1 = [TestOperationsMutableShortS data];
+        TestOperationsMutableShortS *si2 = [TestOperationsMutableShortS data];
+        TestOperationsMutableShortS *si3 = [TestOperationsMutableShortS data];
+
+        [si1 appendBytes:buf1 length:sizeof(buf1)];
+        [si2 appendBytes:buf2 length:sizeof(buf2)];
+        [si3 appendBytes:buf3 length:sizeof(buf3)];
+
+        [sdi1 setObject:si1 forKey:[NSNumber numberWithShort:1]];
+        [sdi1 setObject:si2 forKey:[NSNumber numberWithShort:2]];
+        [sdi2 setObject:si3 forKey:[NSNumber numberWithShort:4]];
+
+        TestOperationsMutableShortShortSD *_do;
+        TestOperationsShortShortSD *ro = [p opShortShortSD:sdi1 p2:sdi2 p3:&_do];
+
+        const ICEShort *p;
+        test([_do count] == 1);
+        test([[_do objectForKey:[NSNumber numberWithShort:4]] length] / sizeof(ICEShort) == 2);
+        p = [[_do objectForKey:[NSNumber numberWithShort:4]] bytes];
+        test(p[0] == 6);
+        test(p[1] == 7);
+        test([ro count] == 3);
+        test([[ro objectForKey:[NSNumber numberWithShort:1]] length] / sizeof(ICEShort) == 3);
+        p = [[ro objectForKey:[NSNumber numberWithShort:1]] bytes];
+        test(p[0] == 1);
+        test(p[1] == 2);
+        test(p[2] == 3);
+        test([[ro objectForKey:[NSNumber numberWithShort:2]] length] / sizeof(ICEShort) == 2);
+        p = [[ro objectForKey:[NSNumber numberWithShort:2]] bytes];
+        test(p[0] == 4);
+        test(p[1] == 5);
+        test([[ro objectForKey:[NSNumber numberWithShort:4]] length] / sizeof(ICEShort) == 2);
+        p = [[ro objectForKey:[NSNumber numberWithShort:4]] bytes];
+        test(p[0] == 6);
+        test(p[1] == 7);
+    }
+
+    {
+        TestOperationsMutableIntIntSD *sdi1 = [TestOperationsMutableIntIntSD dictionary];
+        TestOperationsMutableIntIntSD *sdi2 = [TestOperationsMutableIntIntSD dictionary];
+
+        ICEInt buf1[] = { 100, 200, 300 };
+        ICEInt buf2[] = { 400, 500 };
+        ICEInt buf3[] = { 600, 700 };
+
+        TestOperationsMutableIntS *si1 = [TestOperationsMutableIntS data];
+        TestOperationsMutableIntS *si2 = [TestOperationsMutableIntS data];
+        TestOperationsMutableIntS *si3 = [TestOperationsMutableIntS data];
+
+        [si1 appendBytes:buf1 length:sizeof(buf1)];
+        [si2 appendBytes:buf2 length:sizeof(buf2)];
+        [si3 appendBytes:buf3 length:sizeof(buf3)];
+
+        [sdi1 setObject:si1 forKey:[NSNumber numberWithInt:100]];
+        [sdi1 setObject:si2 forKey:[NSNumber numberWithInt:200]];
+        [sdi2 setObject:si3 forKey:[NSNumber numberWithInt:400]];
+
+        TestOperationsMutableIntIntSD *_do;
+        TestOperationsIntIntSD *ro = [p opIntIntSD:sdi1 p2:sdi2 p3:&_do];
+
+        const ICEInt *p;
+        test([_do count] == 1);
+        test([[_do objectForKey:[NSNumber numberWithInt:400]] length] / sizeof(ICEInt) == 2);
+        p = [[_do objectForKey:[NSNumber numberWithInt:400]] bytes];
+        test(p[0] == 600);
+        test(p[1] == 700);
+        test([ro count] == 3);
+        test([[ro objectForKey:[NSNumber numberWithInt:100]] length] / sizeof(ICEInt) == 3);
+        p = [[ro objectForKey:[NSNumber numberWithInt:100]] bytes];
+        test(p[0] == 100);
+        test(p[1] == 200);
+        test(p[2] == 300);
+        test([[ro objectForKey:[NSNumber numberWithInt:200]] length] / sizeof(ICEInt) == 2);
+        p = [[ro objectForKey:[NSNumber numberWithInt:200]] bytes];
+        test(p[0] == 400);
+        test(p[1] == 500);
+        test([[ro objectForKey:[NSNumber numberWithInt:400]] length] / sizeof(ICEInt) == 2);
+        p = [[ro objectForKey:[NSNumber numberWithInt:400]] bytes];
+        test(p[0] == 600);
+        test(p[1] == 700);
+    }
+
+    {
+        TestOperationsMutableLongLongSD *sdi1 = [TestOperationsMutableLongLongSD dictionary];
+        TestOperationsMutableLongLongSD *sdi2 = [TestOperationsMutableLongLongSD dictionary];
+
+        ICELong buf1[] = { 999999110, 999999111, 999999110 };
+        ICELong buf2[] = { 999999120, 999999130 };
+        ICELong buf3[] = { 999999110, 999999120 };
+
+        TestOperationsMutableLongS *si1 = [TestOperationsMutableLongS data];
+        TestOperationsMutableLongS *si2 = [TestOperationsMutableLongS data];
+        TestOperationsMutableLongS *si3 = [TestOperationsMutableLongS data];
+
+        [si1 appendBytes:buf1 length:sizeof(buf1)];
+        [si2 appendBytes:buf2 length:sizeof(buf2)];
+        [si3 appendBytes:buf3 length:sizeof(buf3)];
+
+        [sdi1 setObject:si1 forKey:[NSNumber numberWithLong:999999990]];
+        [sdi1 setObject:si2 forKey:[NSNumber numberWithLong:999999991]];
+        [sdi2 setObject:si3 forKey:[NSNumber numberWithLong:999999992]];
+
+        TestOperationsMutableLongLongSD *_do;
+        TestOperationsLongLongSD *ro = [p opLongLongSD:sdi1 p2:sdi2 p3:&_do];
+
+        const ICELong *p;
+        test([_do count] == 1);
+        test([[_do objectForKey:[NSNumber numberWithLong:999999992]] length] / sizeof(ICELong) == 2);
+        p = [[_do objectForKey:[NSNumber numberWithLong:999999992]] bytes];
+        test(p[0] == 999999110);
+        test(p[1] == 999999120);
+        test([ro count] == 3);
+        test([[ro objectForKey:[NSNumber numberWithLong:999999990]] length] / sizeof(ICELong) == 3);
+        p = [[ro objectForKey:[NSNumber numberWithLong:999999990]] bytes];
+        test(p[0] == 999999110);
+        test(p[1] == 999999111);
+        test(p[2] == 999999110);
+        test([[ro objectForKey:[NSNumber numberWithLong:999999991]] length] / sizeof(ICELong) == 2);
+        p = [[ro objectForKey:[NSNumber numberWithLong:999999991]] bytes];
+        test(p[0] == 999999120);
+        test(p[1] == 999999130);
+        test([[ro objectForKey:[NSNumber numberWithLong:999999992]] length] / sizeof(ICELong) == 2);
+        p = [[ro objectForKey:[NSNumber numberWithLong:999999992]] bytes];
+        test(p[0] == 999999110);
+        test(p[1] == 999999120);
+    }
+
+    {
+        TestOperationsMutableStringFloatSD *sdi1 = [TestOperationsMutableStringFloatSD dictionary];
+        TestOperationsMutableStringFloatSD *sdi2 = [TestOperationsMutableStringFloatSD dictionary];
+
+        ICEFloat buf1[] = { -1.1f, 123123.2f, 100.0f };
+        ICEFloat buf2[] = { 42.24f, -1.61f };
+        ICEFloat buf3[] = { -3.14, 3.14 };
+
+        TestOperationsMutableFloatS *si1 = [TestOperationsMutableFloatS data];
+        TestOperationsMutableFloatS *si2 = [TestOperationsMutableFloatS data];
+        TestOperationsMutableFloatS *si3 = [TestOperationsMutableFloatS data];
+
+        [si1 appendBytes:buf1 length:sizeof(buf1)];
+        [si2 appendBytes:buf2 length:sizeof(buf2)];
+        [si3 appendBytes:buf3 length:sizeof(buf3)];
+
+        [sdi1 setObject:si1 forKey:@"abc"];
+        [sdi1 setObject:si2 forKey:@"ABC"];
+        [sdi2 setObject:si3 forKey:@"aBc"];
+
+        TestOperationsMutableStringFloatSD *_do;
+        TestOperationsStringFloatSD *ro = [p opStringFloatSD:sdi1 p2:sdi2 p3:&_do];
+
+        const ICEFloat *p;
+        test([_do count] == 1);
+        test([[_do objectForKey:@"aBc"] length] / sizeof(ICEFloat) == 2);
+        p = [[_do objectForKey:@"aBc"] bytes];
+        test(p[0] == -3.14f);
+        test(p[1] == 3.14f);
+        test([ro count] == 3);
+        test([[ro objectForKey:@"abc"] length] / sizeof(ICEFloat) == 3);
+        p = [[ro objectForKey:@"abc"] bytes];
+        test(p[0] == -1.1f);
+        test(p[1] == 123123.2f);
+        test(p[2] == 100.0f);
+        test([[ro objectForKey:@"ABC"] length] / sizeof(ICEFloat) == 2);
+        p = [[ro objectForKey:@"ABC"] bytes];
+        test(p[0] == 42.24f);
+        test(p[1] == -1.61f);
+        test([[ro objectForKey:@"aBc"] length] / sizeof(ICEFloat) == 2);
+        p = [[ro objectForKey:@"aBc"] bytes];
+        test(p[0] == -3.14f);
+        test(p[1] == 3.14f);
+    }
+
+    {
+        TestOperationsMutableStringDoubleSD *sdi1 = [TestOperationsMutableStringDoubleSD dictionary];
+        TestOperationsMutableStringDoubleSD *sdi2 = [TestOperationsMutableStringDoubleSD dictionary];
+
+        ICEDouble buf1[] = { 1.1E10, 1.2E10, 1.3E10 };
+        ICEDouble buf2[] = { 1.4E10, 1.5E10 };
+        ICEDouble buf3[] = { 1.6E10, 1.7E10 };
+
+        TestOperationsMutableDoubleS *si1 = [TestOperationsMutableDoubleS data];
+        TestOperationsMutableDoubleS *si2 = [TestOperationsMutableDoubleS data];
+        TestOperationsMutableDoubleS *si3 = [TestOperationsMutableDoubleS data];
+
+        [si1 appendBytes:buf1 length:sizeof(buf1)];
+        [si2 appendBytes:buf2 length:sizeof(buf2)];
+        [si3 appendBytes:buf3 length:sizeof(buf3)];
+
+        [sdi1 setObject:si1 forKey:@"Hello!!"];
+        [sdi1 setObject:si2 forKey:@"Goodbye"];
+        [sdi2 setObject:si3 forKey:@""];
+
+        TestOperationsMutableStringDoubleSD *_do;
+        TestOperationsStringDoubleSD *ro = [p opStringDoubleSD:sdi1 p2:sdi2 p3:&_do];
+
+        const ICEDouble *p;
+        test([_do count] == 1);
+        test([[_do objectForKey:@""] length] / sizeof(ICEDouble) == 2);
+        p = [[_do objectForKey:@""] bytes];
+        test(p[0] == 1.6E10);
+        test(p[1] == 1.7E10);
+        test([ro count] == 3);
+        test([[ro objectForKey:@"Hello!!"] length] / sizeof(ICEDouble) == 3);
+        p = [[ro objectForKey:@"Hello!!"] bytes];
+        test(p[0] == 1.1E10);
+        test(p[1] == 1.2E10);
+        test(p[2] == 1.3E10);
+        test([[ro objectForKey:@"Goodbye"] length] / sizeof(ICEDouble) == 2);
+        p = [[ro objectForKey:@"Goodbye"] bytes];
+        test(p[0] == 1.4E10);
+        test(p[1] == 1.5E10);
+        test([[ro objectForKey:@""] length] / sizeof(ICEDouble) == 2);
+        p = [[ro objectForKey:@""] bytes];
+        test(p[0] == 1.6E10);
+        test(p[1] == 1.7E10);
+    }
+
+    {
+        TestOperationsMutableStringStringSD *sdi1 = [TestOperationsMutableStringStringSD dictionary];
+        TestOperationsMutableStringStringSD *sdi2 = [TestOperationsMutableStringStringSD dictionary];
+
+        TestOperationsMutableStringS *si1 = [TestOperationsMutableStringS array];
+        TestOperationsMutableStringS *si2 = [TestOperationsMutableStringS array];
+        TestOperationsMutableStringS *si3 = [TestOperationsMutableStringS array];
+
+        [si1 addObject:@"abc"];
+        [si1 addObject:@"de"];
+        [si1 addObject:@"fghi"];
+        [si2 addObject:@"xyz"];
+        [si2 addObject:@"or"];
+        [si3 addObject:@"and"];
+        [si3 addObject:@"xor"];
+
+        [sdi1 setObject:si1 forKey:@"abc"];
+        [sdi1 setObject:si2 forKey:@"def"];
+        [sdi2 setObject:si3 forKey:@"ghi"];
+
+        TestOperationsMutableStringStringSD *_do;
+        TestOperationsStringStringSD *ro = [p opStringStringSD:sdi1 p2:sdi2 p3:&_do];
+
+        test([[_do objectForKey:@"ghi"] count] == 2);
+        test([[[_do objectForKey:@"ghi"] objectAtIndex:0] isEqualToString:@"and"]);
+        test([[[_do objectForKey:@"ghi"] objectAtIndex:1] isEqualToString:@"xor"]);
+        test([ro count] == 3);
+        test([[ro objectForKey:@"abc"] count] == 3);
+        test([[[ro objectForKey:@"abc"] objectAtIndex:0] isEqualToString:@"abc"]);
+        test([[[ro objectForKey:@"abc"] objectAtIndex:1] isEqualToString:@"de"]);
+        test([[[ro objectForKey:@"abc"] objectAtIndex:2] isEqualToString:@"fghi"]);
+        test([[ro objectForKey:@"def"] count] == 2);
+        test([[[ro objectForKey:@"def"] objectAtIndex:0] isEqualToString:@"xyz"]);
+        test([[[ro objectForKey:@"def"] objectAtIndex:1] isEqualToString:@"or"]);
+        test([[ro objectForKey:@"ghi"] count] == 2);
+        test([[[ro objectForKey:@"ghi"] objectAtIndex:0] isEqualToString:@"and"]);
+        test([[[ro objectForKey:@"ghi"] objectAtIndex:1] isEqualToString:@"xor"]);
+    }
+
+    {
+        TestOperationsMutableMyEnumMyEnumSD *sdi1 = [TestOperationsMutableMyEnumMyEnumSD dictionary];
+        TestOperationsMutableMyEnumMyEnumSD *sdi2 = [TestOperationsMutableMyEnumMyEnumSD dictionary];
+
+
+        TestOperationsMyEnum buf1[] = { TestOperationsenum1, TestOperationsenum1, TestOperationsenum2 };
+        TestOperationsMyEnum buf2[] = { TestOperationsenum1, TestOperationsenum2 };
+        TestOperationsMyEnum buf3[] = { TestOperationsenum3, TestOperationsenum3 };
+
+        TestOperationsMutableMyEnumS *si1 = [TestOperationsMutableMyEnumS data];
+        TestOperationsMutableMyEnumS *si2 = [TestOperationsMutableMyEnumS data];
+        TestOperationsMutableMyEnumS *si3 = [TestOperationsMutableMyEnumS data];
+
+        [si1 appendBytes:buf1 length:sizeof(buf1)];
+        [si2 appendBytes:buf2 length:sizeof(buf2)];
+        [si3 appendBytes:buf3 length:sizeof(buf3)];
+
+        [sdi1 setObject:si1 forKey:@(TestOperationsenum3)];
+        [sdi1 setObject:si2 forKey:@(TestOperationsenum2)];
+        [sdi2 setObject:si3 forKey:@(TestOperationsenum1)];
+
+        TestOperationsMutableMyEnumMyEnumSD *_do;
+        TestOperationsMyEnumMyEnumSD *ro = [p opMyEnumMyEnumSD:sdi1 p2:sdi2 p3:&_do];
+
+        const TestOperationsMyEnum *p;
+        test([_do count] == 1);
+        test([[_do objectForKey:@(TestOperationsenum1)] length] / sizeof(TestOperationsMyEnum) == 2);
+        p = [[_do objectForKey:@(TestOperationsenum1)] bytes];
+        test(p[0] == TestOperationsenum3);
+        test(p[1] == TestOperationsenum3);
+        test([ro count] == 3);
+        test([[ro objectForKey:@(TestOperationsenum3)] length] / sizeof(TestOperationsMyEnum) == 3);
+        p = [[ro objectForKey:@(TestOperationsenum3)] bytes];
+        test(p[0] == TestOperationsenum1);
+        test(p[1] == TestOperationsenum1);
+        test(p[2] == TestOperationsenum2);
+        test([[ro objectForKey:@(TestOperationsenum2)] length] / sizeof(TestOperationsMyEnum) == 2);
+        p = [[ro objectForKey:@(TestOperationsenum2)] bytes];
+        test(p[0] == TestOperationsenum1);
+        test(p[1] == TestOperationsenum2);
+        test([[ro objectForKey:@(TestOperationsenum1)] length] / sizeof(TestOperationsMyEnum) == 2);
+        p = [[ro objectForKey:@(TestOperationsenum1)] bytes];
+        test(p[0] == TestOperationsenum3);
+        test(p[1] == TestOperationsenum3);
+    }
+
+    {
         const int lengths[] = { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
 
 	int l;
