@@ -85,7 +85,7 @@ IceStorm: IceBox IceStormLib IceGridLib Glacier2Lib Freeze
 
 IceGrid: IceGridLib IceStorm IcePatch2Lib Freeze IceSSL IceBox IceXML
 
-IceDiscovery: Ice
+IceDiscovery IceLocatorDiscovery: Ice
 
 all:: $(SUBDIRS)
 
