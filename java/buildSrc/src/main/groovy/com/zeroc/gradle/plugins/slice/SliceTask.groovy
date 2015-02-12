@@ -32,6 +32,11 @@ class SliceTask extends DefaultTask {
             }
         }
 
+        // Make sure default source set is present
+        if (project.slice.java.isEmpty()) {
+            project.slice.java.create("default")
+        }
+
         project.slice.java.each {
             processJavaSet(it)
         }
@@ -42,6 +47,12 @@ class SliceTask extends DefaultTask {
     @InputFiles
     def getInputFiles() {
         def files = []
+
+        // Make sure default source set is present
+        if (project.slice.java.isEmpty()) {
+            project.slice.java.create("default")
+        }
+
         project.slice.java.each {
             if (it.files == null) {
                 files.addAll(project.fileTree(dir: it.srcDir).include('**/*.ice'))
@@ -355,7 +366,10 @@ class SliceTask extends DefaultTask {
         def timestamps = getTimestamps(sourceFiles)
 
         // Dictionary of A  -> [B] where A depends on B.
-        def sliceDependencies = getDependencies(java, sourceFiles)
+        def sliceDependencies = [:]
+        if(!sourceFiles.isEmpty()) {
+            getDependencies(java, sourceFiles)
+        }
 
         // Dictionary of A -> timestamp, [B] where A is a slice file,
         // timestamp is the  modified time for A at last build and B is the

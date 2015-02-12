@@ -10,21 +10,11 @@
 sourceCompatibility = iceSourceCompatibility
 targetCompatibility = iceTargetCompatibility
 
-
-
 dependencies {
     compile project(':ice')
 }
 
 apply plugin: 'slice'
-
-// Force the default source set.
-slice
-{
-    java{
-        args = ""
-    }
-}
 
 jar {
     manifest {
