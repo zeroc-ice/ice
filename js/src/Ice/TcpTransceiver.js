@@ -135,12 +135,22 @@ var TcpTransceiver = Ice.Class({
     },
     unregister: function()
     {
+        if(this._fd === null)
+        {
+            Debug.assert(this._exception); // Socket creation failed.
+            return;
+        }
         this._registered = false;
         this._fd.pause();
     },
     close: function()
     {
-        Debug.assert(this._fd !== null);
+        if(this._fd === null)
+        {
+            Debug.assert(this._exception); // Socket creation failed.
+            return;
+        }
+        
         try
         {
             this._fd.destroy();

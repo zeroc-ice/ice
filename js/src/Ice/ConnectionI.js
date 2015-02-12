@@ -1535,20 +1535,14 @@ var ConnectionI = Class({
                 {
                     return;
                 }
-                if(this._state > StateNotInitialized)
-                {
-                    this._transceiver.unregister();
-                }
+                this._transceiver.unregister();
                 break;
             }
 
             case StateFinished:
             {
                 Debug.assert(this._state === StateClosed);
-                if(this._initialized)
-                {
-                    this._transceiver.close();
-                }
+                this._transceiver.close();
                 this._communicator = null;
                 break;
             }
