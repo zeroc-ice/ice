@@ -326,7 +326,7 @@ public class SessionHelper
                                            public void heartbeat(Ice.Connection con)
                                            {
                                            }
-                                           
+
                                            @Override
                                            public void closed(Ice.Connection con)
                                            {
@@ -396,7 +396,6 @@ public class SessionHelper
             _router = null;
 
             communicator = _communicator;
-            _communicator = null;
         }
 
         assert communicator != null;
@@ -521,7 +520,6 @@ public class SessionHelper
                     try
                     {
                         _communicator.destroy();
-                        _communicator = null;
                     }
                     catch(Throwable ex1)
                     {
