@@ -118,6 +118,74 @@ function twoways($communicator, $p)
 
     {
         //
+        // Test invalid ranges for numbers.
+        //
+        try
+        {
+            $r = $p->opByte(0x01ff, 0x0f, $b);
+            test(false);
+        }
+        catch(InvalidArgumentException $ex)
+        {
+        }
+
+        try
+        {
+            $r = $p->opShortIntLong($SHORT_MAX + 1, 0, 0, $s, $i, $l);
+            test(false);
+        }
+        catch(InvalidArgumentException $ex)
+        {
+        }
+
+        try
+        {
+            $r = $p->opShortIntLong($SHORT_MIN - 1, 0, 0, $s, $i, $l);
+            test(false);
+        }
+        catch(InvalidArgumentException $ex)
+        {
+        }
+
+        try
+        {
+            $r = $p->opShortIntLong(0, $INT_MAX + 1, 0, $s, $i, $l);
+            test(false);
+        }
+        catch(InvalidArgumentException $ex)
+        {
+        }
+
+        try
+        {
+            $r = $p->opShortIntLong(0, $INT_MIN - 1, 0, $s, $i, $l);
+            test(false);
+        }
+        catch(InvalidArgumentException $ex)
+        {
+        }
+
+        try
+        {
+            $r = $p->opShortIntLong(0, 0, $LONG_MAX + 1, $s, $i, $l);
+            test(false);
+        }
+        catch(InvalidArgumentException $ex)
+        {
+        }
+
+        try
+        {
+            $r = $p->opShortIntLong(0, 0, $LONG_MIN - 1, $s, $i, $l);
+            test(false);
+        }
+        catch(InvalidArgumentException $ex)
+        {
+        }
+    }
+
+    {
+        //
         // Verify that null is accepted for strings.
         //
         $r = $p->opString(null, null, $s);

@@ -88,6 +88,51 @@ def twoways(communicator, p)
     test(r == 1.1E10)
 
     #
+    # Test invalid ranges for numbers
+    #
+    begin
+        r, b = p.opByte(0x01ff, 0x01ff)
+        test(false)
+    rescue TypeError
+    end
+
+    begin
+        r, s, i, l = p.opShortIntLong(32767 + 1, 0, 0)
+        test(false)
+    rescue TypeError
+    end
+
+    begin
+        r, s, i, l = p.opShortIntLong(-32768 - 1, 0, 0)
+        test(false)
+    rescue TypeError
+    end
+
+    begin
+        r, s, i, l = p.opShortIntLong(0, 2147483647 + 1, 0)
+        test(false)
+    rescue TypeError
+    end
+
+    begin
+        r, s, i, l = p.opShortIntLong(0, -2147483648 - 1, 0)
+        test(false)
+    rescue TypeError
+    end
+
+    begin
+        r, s, i, l = p.opShortIntLong(0, 0, 9223372036854775807 + 1)
+        test(false)
+    rescue TypeError
+    end
+
+    begin
+        r, s, i, l = p.opShortIntLong(0, 0, -9223372036854775808 - 1)
+        test(false)
+    rescue TypeError
+    end
+
+    #
     # opString
     #
     r, s = p.opString("hello", "world")
