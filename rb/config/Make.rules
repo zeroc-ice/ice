@@ -16,7 +16,7 @@ prefix			?= /opt/Ice-$(VERSION)
 
 #
 # The "root directory" for runpath embedded in executables. Can be set
-# to change the runpath added to Ice executables. The default is 
+# to change the runpath added to Ice executables. The default is
 # platform dependent.
 #
 #embedded_runpath_prefix ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
@@ -102,9 +102,15 @@ else
     endif
 
     RUBY_LIBS = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(LIBRUBYARG)")')
+
     ifneq ($(findstring MINGW, $(shell uname)),)
         RUBY_BIN_DIR = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(bindir)")')
         RUBY_LIBS := -L$(RUBY_BIN_DIR) $(RUBY_LIBS)
+    else
+        LIB_DIR = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(libdir)")')
+        ifneq ($(LIB_DIR),)
+            RUBY_LIBS := -L$(LIB_DIR) $(RUBY_LIBS)
+        endif
     endif
 endif
 
