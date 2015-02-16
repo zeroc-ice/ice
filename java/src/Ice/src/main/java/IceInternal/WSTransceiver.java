@@ -484,6 +484,7 @@ final class WSTransceiver implements Transceiver
         info.localPort = di.localPort;
         info.remoteAddress = di.remoteAddress;
         info.remotePort = di.remotePort;
+        info.headers = _parser.getHeaders();
         return info;
     }
 
@@ -501,7 +502,7 @@ final class WSTransceiver implements Transceiver
         _resource = resource;
         _incoming = false;
 
-        // 
+        //
         // Use a 16KB write buffer size. We use 16KB for the write
         // buffer size because all the data needs to be copied to the
         // write buffer for the purpose of masking. A 16KB buffer
@@ -947,9 +948,9 @@ final class WSTransceiver implements Transceiver
                 {
                     if(_instance.traceLevel() >= 2)
                     {
-                        _instance.logger().trace(_instance.traceCategory(), "received " + protocol() + 
+                        _instance.logger().trace(_instance.traceCategory(), "received " + protocol() +
                                                  (_readOpCode == OP_DATA ? " data" : " continuation") +
-                                                 " frame with payload length of " + _readPayloadLength + " bytes\n" + 
+                                                 " frame with payload length of " + _readPayloadLength + " bytes\n" +
                                                  toString());
                     }
 
@@ -966,7 +967,7 @@ final class WSTransceiver implements Transceiver
                 {
                     if(_instance.traceLevel() >= 2)
                     {
-                        _instance.logger().trace(_instance.traceCategory(), "received " + protocol() + 
+                        _instance.logger().trace(_instance.traceCategory(), "received " + protocol() +
                                                  " connection close frame\n" + toString());
                     }
 
@@ -1236,7 +1237,7 @@ final class WSTransceiver implements Transceiver
             // For an outgoing connection, each message must be masked with a random
             // 32-bit value, so we copy the entire message into the internal buffer
             // for writing. For incoming connections, we just copy the start of the
-            // message in the internal buffer after the hedaer. If the message is 
+            // message in the internal buffer after the hedaer. If the message is
             // larger, the reminder is sent directly from the message buffer to avoid
             // copying.
             //

@@ -63,7 +63,7 @@ TestI::getConnectionInfoAsContext(const Ice::Current& c)
     ctx["adapterName"] = info->adapterName;
     ctx["incoming"] = info->incoming ? "true" : "false";
     ostringstream os;
-    
+
     Ice::IPConnectionInfoPtr ipinfo = Ice::IPConnectionInfoPtr::dynamicCast(info);
     test(ipinfo);
     ctx["localAddress"] = ipinfo->localAddress;
@@ -75,7 +75,14 @@ TestI::getConnectionInfoAsContext(const Ice::Current& c)
     os << ipinfo->remotePort;
     ctx["remotePort"] = os.str();
 
+    Ice::WSConnectionInfoPtr wsinfo = Ice::WSConnectionInfoPtr::dynamicCast(info);
+    if(wsinfo)
+    {
+        for(Ice::HeaderDict::const_iterator p = wsinfo->headers.begin(); p != wsinfo->headers.end(); ++p)
+        {
+            ctx["ws." + p->first] = p->second;
+        }
+    }
+
     return ctx;
 }
-
-

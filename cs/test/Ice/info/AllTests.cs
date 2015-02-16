@@ -202,6 +202,22 @@ public class AllTests : TestCommon.TestApp
             test(ctx["remotePort"].Equals(info.localPort.ToString()));
             test(ctx["localPort"].Equals(info.remotePort.ToString()));
 
+            if(@base.ice_getConnection().type().Equals("ws") || @base.ice_getConnection().type().Equals("wss"))
+            {
+                test(info is Ice.WSConnectionInfo);
+                Ice.WSConnectionInfo wsinfo = (Ice.WSConnectionInfo)info;
+                test(wsinfo.headers["Upgrade"].Equals("websocket"));
+                test(wsinfo.headers["Connection"].Equals("Upgrade"));
+                test(wsinfo.headers["Sec-WebSocket-Protocol"].Equals("ice.zeroc.com"));
+                test(wsinfo.headers["Sec-WebSocket-Accept"] != null);
+
+                test(ctx["ws.Upgrade"].Equals("websocket"));
+                test(ctx["ws.Connection"].Equals("Upgrade"));
+                test(ctx["ws.Sec-WebSocket-Protocol"].Equals("ice.zeroc.com"));
+                test(ctx["ws.Sec-WebSocket-Version"].Equals("13"));
+                test(ctx["ws.Sec-WebSocket-Key"] != null);
+            }
+
             info = (Ice.IPConnectionInfo)@base.ice_datagram().ice_getConnection().getInfo();
             test(!info.incoming);
             test(info.adapterName.Length == 0);

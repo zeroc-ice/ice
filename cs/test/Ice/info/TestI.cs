@@ -47,14 +47,22 @@ public class TestI : TestIntfDisp_
         Ice.ConnectionInfo info = c.con.getInfo();
         ctx["adapterName"] = info.adapterName;
         ctx["incoming"] = info.incoming ? "true" : "false";
-    
+
         Ice.IPConnectionInfo ipinfo = (Ice.IPConnectionInfo)info;
         ctx["localAddress"] = ipinfo.localAddress;
         ctx["localPort"] = ipinfo.localPort.ToString();
         ctx["remoteAddress"] = ipinfo.remoteAddress;
         ctx["remotePort"] = ipinfo.remotePort.ToString();
 
+        if(info is Ice.WSConnectionInfo)
+        {
+            Ice.WSConnectionInfo wsinfo = (Ice.WSConnectionInfo)info;
+            foreach(KeyValuePair<string, string> e in wsinfo.headers)
+            {
+                ctx["ws." + e.Key] = e.Value;
+            }
+        }
+
         return ctx;
     }
 }
-

@@ -284,7 +284,7 @@ var WSTransceiver = Ice.Class({
     getInfo: function()
     {
         Debug.assert(this._fd !== null);
-        var info = this.createInfo();
+        var info = new Ice.WSConnectionInfo();
 
         //
         // The WebSocket API doens't provide this info
@@ -293,11 +293,8 @@ var WSTransceiver = Ice.Class({
         info.localPort = -1;
         info.remoteAddress = this._addr.host;
         info.remotePort = this._addr.port;
+        info.headers = {};
         return info;
-    },
-    createInfo: function()
-    {
-        return new Ice.WSConnectionInfo();
     },
     checkSendSize: function(stream)
     {

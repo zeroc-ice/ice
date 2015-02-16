@@ -444,7 +444,7 @@ namespace IceInternal
                 }
             }
             while(postRead(buf));
-            
+
             if(!buf.b.hasRemaining())
             {
                 hasMoreData |= _readBufferPos < _readBuffer.b.position();
@@ -635,6 +635,7 @@ namespace IceInternal
             info.localPort = di.localPort;
             info.remoteAddress = di.remoteAddress;
             info.remotePort = di.remotePort;
+            info.headers = _parser.getHeaders();
             return info;
         }
 
@@ -662,7 +663,7 @@ namespace IceInternal
             _resource = resource;
             _incoming = false;
 
-            // 
+            //
             // Use a 16KB write buffer size. We use 16KB for the write
             // buffer size because all the data needs to be copied to the
             // write buffer for the purpose of masking. A 16KB buffer
@@ -1098,9 +1099,9 @@ namespace IceInternal
                     {
                         if(_instance.traceLevel() >= 2)
                         {
-                            _instance.logger().trace(_instance.traceCategory(), "received " + protocol() + 
+                            _instance.logger().trace(_instance.traceCategory(), "received " + protocol() +
                                                      (_readOpCode == OP_DATA ? " data" : " continuation") +
-                                                     " frame with payload length of " + _readPayloadLength + 
+                                                     " frame with payload length of " + _readPayloadLength +
                                                      " bytes\n" + ToString());
                         }
 
@@ -1356,7 +1357,7 @@ namespace IceInternal
                 // For an outgoing connection, each message must be masked with a random
                 // 32-bit value, so we copy the entire message into the internal buffer
                 // for writing. For incoming connections, we just copy the start of the
-                // message in the internal buffer after the hedaer. If the message is 
+                // message in the internal buffer after the hedaer. If the message is
                 // larger, the reminder is sent directly from the message buffer to avoid
                 // copying.
                 //
@@ -1391,7 +1392,7 @@ namespace IceInternal
                         int n = Math.Min(_writeBuffer.b.remaining(), buf.b.remaining());
                         int pos = _writeBuffer.b.position();
                         System.Buffer.BlockCopy(buf.b.rawBytes(), 0, _writeBuffer.b.rawBytes(), pos, n);
-                        _writeBuffer.b.position(pos + n); 
+                        _writeBuffer.b.position(pos + n);
                         _writePayloadLength = n;
                    }
                     _writeBuffer.b.flip();

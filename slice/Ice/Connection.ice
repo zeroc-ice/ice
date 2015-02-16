@@ -87,7 +87,7 @@ local enum ACMClose
     CloseOnInvocationAndIdle,
     CloseOnIdleForceful
 };
-    
+
 local enum ACMHeartbeat
 {
     HeartbeatOff,
@@ -216,7 +216,7 @@ local interface Connection
      * @param heartbeat The hertbeat condition
      *
      **/
-    ["java:optional"] 
+    ["java:optional"]
     void setACM(optional(1) int timeout, optional(2) ACMClose close, optional(3) ACMHeartbeat heartbeat);
 
     /**
@@ -311,6 +311,8 @@ local class UDPConnectionInfo extends IPConnectionInfo
     int mcastPort = -1;
 };
 
+dictionary<string, string> HeaderDict;
+
 /**
  *
  * Provides access to the connection details of a WebSocket connection
@@ -318,7 +320,8 @@ local class UDPConnectionInfo extends IPConnectionInfo
  **/
 local class WSConnectionInfo extends IPConnectionInfo
 {
+    /** The headers from the HTTP upgrade request. */
+    HeaderDict headers;
 };
 
 };
-

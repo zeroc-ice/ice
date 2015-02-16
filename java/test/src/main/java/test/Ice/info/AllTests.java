@@ -168,6 +168,22 @@ public class AllTests
             test(ctx.get("remotePort").equals(Integer.toString(info.localPort)));
             test(ctx.get("localPort").equals(Integer.toString(info.remotePort)));
 
+            if(base.ice_getConnection().type().equals("ws") || base.ice_getConnection().type().equals("wss"))
+            {
+                test(info instanceof Ice.WSConnectionInfo);
+                Ice.WSConnectionInfo wsinfo = (Ice.WSConnectionInfo)info;
+                test(wsinfo.headers.get("Upgrade").equals("websocket"));
+                test(wsinfo.headers.get("Connection").equals("Upgrade"));
+                test(wsinfo.headers.get("Sec-WebSocket-Protocol").equals("ice.zeroc.com"));
+                test(wsinfo.headers.get("Sec-WebSocket-Accept") != null);
+
+                test(ctx.get("ws.Upgrade").equals("websocket"));
+                test(ctx.get("ws.Connection").equals("Upgrade"));
+                test(ctx.get("ws.Sec-WebSocket-Protocol").equals("ice.zeroc.com"));
+                test(ctx.get("ws.Sec-WebSocket-Version").equals("13"));
+                test(ctx.get("ws.Sec-WebSocket-Key") != null);
+            }
+
             info = (Ice.IPConnectionInfo)base.ice_datagram().ice_getConnection().getInfo();
             test(!info.incoming);
             test(info.adapterName.length() == 0);

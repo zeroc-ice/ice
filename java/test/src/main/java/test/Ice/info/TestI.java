@@ -54,12 +54,21 @@ public class TestI extends _TestIntfDisp
         Ice.ConnectionInfo info = c.con.getInfo();
         ctx.put("adapterName", info.adapterName);
         ctx.put("incoming", info.incoming ? "true" : "false");
-    
+
         Ice.IPConnectionInfo ipinfo = (Ice.IPConnectionInfo)info;
         ctx.put("localAddress", ipinfo.localAddress);
         ctx.put("localPort", Integer.toString(ipinfo.localPort));
         ctx.put("remoteAddress", ipinfo.remoteAddress);
         ctx.put("remotePort", Integer.toString(ipinfo.remotePort));
+
+        if(info instanceof Ice.WSConnectionInfo)
+        {
+            Ice.WSConnectionInfo wsinfo = (Ice.WSConnectionInfo)info;
+            for(java.util.Map.Entry<String, String> e : wsinfo.headers.entrySet())
+            {
+                ctx.put("ws." + e.getKey(), e.getValue());
+            }
+        }
 
         return ctx;
     }

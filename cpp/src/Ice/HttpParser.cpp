@@ -258,10 +258,9 @@ IceInternal::HttpParser::parse(const Ice::Byte* begin, const Ice::Byte* end)
                     {
                         throw WebSocketException("malformed header");
                     }
-                    HeaderMap::iterator q = _headers.find(_headerName);
+                    HeaderFields::iterator q = _headers.find(_headerName);
                     assert(q != _headers.end());
-                    string newValue = q->second + " " + string(start, p);
-                    _headers[_headerName] = newValue;
+                    q->second.second = q->second.second + " " + string(start, p);
                     _state = c == CR ? StateHeaderFieldLF : StateHeaderFieldStart;
                 }
                 else
@@ -301,13 +300,13 @@ IceInternal::HttpParser::parse(const Ice::Byte* begin, const Ice::Byte* end)
             if(_headerName.empty())
             {
                 _headerName = IceUtilInternal::toLower(string(start, p));
-                HeaderMap::iterator q = _headers.find(_headerName);
+                HeaderFields::iterator q = _headers.find(_headerName);
                 //
                 // Add a placeholder entry if necessary.
                 //
                 if(q == _headers.end())
                 {
-                    _headers[_headerName] = "";
+                    _headers[_headerName] = make_pair(string(start, p), "");
                 }
             }
 
@@ -362,14 +361,18 @@ IceInternal::HttpParser::parse(const Ice::Byte* begin, const Ice::Byte* end)
             assert(c == CR || c == LF);
             if(p > start)
             {
-                HeaderMap::iterator q = _headers.find(_headerName);
-                if(q == _headers.end() || q->second.empty())
+                HeaderFields::iterator q = _headers.find(_headerName);
+                if(q == _headers.end())
                 {
-                    _headers[_headerName] = string(start, p);
+                    throw WebSocketException("malformed header");
+                }
+                else if(q->second.second.empty())
+                {
+                    q->second.second = string(start, p);
                 }
                 else
                 {
-                    _headers[_headerName] = q->second + ", " + string(start, p);
+                    q->second.second = q->second.second + ", " + string(start, p);
                 }
             }
 
@@ -663,18 +666,27 @@ IceInternal::HttpParser::reason() const
 bool
 IceInternal::HttpParser::getHeader(const string& name, string& value, bool toLower) const
 {
-    HeaderMap::const_iterator q = _headers.find(IceUtilInternal::toLower(name));
+    HeaderFields::const_iterator q = _headers.find(IceUtilInternal::toLower(name));
     if(q != _headers.end())
     {
-        value = toLower ? IceUtilInternal::toLower(IceUtilInternal::trim(q->second)) : IceUtilInternal::trim(q->second);
+        value = IceUtilInternal::trim(q->second.second);
+        if(toLower)
+        {
+            value = IceUtilInternal::toLower(value);
+        }
         return true;
     }
 
     return false;
 }
 
-const HttpParser::HeaderMap&
-IceInternal::HttpParser::headers() const
+map<string, string>
+IceInternal::HttpParser::getHeaders() const
 {
-    return _headers;
+    map<string, string> headers;
+    for(HeaderFields::const_iterator q = _headers.begin(); q != _headers.end(); ++q)
+    {
+        headers.insert(make_pair(q->second.first, IceUtilInternal::trim(q->second.second)));
+    }
+    return headers;
 }

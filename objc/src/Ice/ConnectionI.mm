@@ -79,6 +79,10 @@
 -(id) initWithWSConnectionInfo:(Ice::WSConnectionInfo*)wsConnectionInfo
 {
     self = [super initWithIPConnectionInfo:wsConnectionInfo];
+    if(self)
+    {
+        self->headers = toNSDictionary(wsConnectionInfo->headers);
+    }
     return self;
 }
 @end

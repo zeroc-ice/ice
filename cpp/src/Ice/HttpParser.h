@@ -19,7 +19,7 @@ namespace IceInternal
 
 std::vector<unsigned char> calcSHA1(const std::vector<unsigned char>&);
 
-typedef std::map<std::string, std::string> HeaderFields;
+typedef std::map<std::string, std::pair<std::string, std::string> > HeaderFields;
 
 class WebSocketException
 {
@@ -58,9 +58,7 @@ public:
 
     bool getHeader(const std::string&, std::string&, bool) const;
 
-    typedef std::map<std::string, std::string> HeaderMap;
-
-    const HeaderMap& headers() const;
+    std::map<std::string, std::string> getHeaders() const;
 
 private:
 
@@ -69,7 +67,7 @@ private:
     std::string _method;
     std::string _uri;
 
-    HeaderMap _headers;
+    HeaderFields _headers;
     std::string _headerName;
 
     int _versionMajor;

@@ -55,6 +55,14 @@
     [ctx setObject:[NSString stringWithFormat:@"%d", ipinfo.localPort] forKey:@"localPort"];
     [ctx setObject:ipinfo.remoteAddress forKey:@"remoteAddress"];
     [ctx setObject:[NSString stringWithFormat:@"%d", ipinfo.remotePort] forKey:@"remotePort"];
+    if([info isKindOfClass:[ICEWSConnectionInfo class]])
+    {
+        ICEWSConnectionInfo* wsinfo = (ICEWSConnectionInfo*)info;
+        for(NSString* key in wsinfo.headers)
+        {
+            [ctx setObject:[wsinfo.headers objectForKey:key] forKey:[NSString stringWithFormat:@"ws.%@", key]];
+        }
+    }
     return ctx;
 }
 @end

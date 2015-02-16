@@ -150,7 +150,7 @@ var TcpTransceiver = Ice.Class({
             Debug.assert(this._exception); // Socket creation failed.
             return;
         }
-        
+
         try
         {
             this._fd.destroy();
@@ -279,16 +279,12 @@ var TcpTransceiver = Ice.Class({
     getInfo: function()
     {
         Debug.assert(this._fd !== null);
-        var info = this.createInfo();
+        var info = new Ice.TCPConnectionInfo();
         info.localAddress = this._fd.localAddress;
         info.localPort = this._fd.localPort;
         info.remoteAddress = this._fd.remoteAddress;
         info.remotePort = this._fd.remotePort;
         return info;
-    },
-    createInfo: function()
-    {
-        return new Ice.TCPConnectionInfo();
     },
     checkSendSize: function(stream)
     {

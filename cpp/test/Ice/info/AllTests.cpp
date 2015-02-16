@@ -177,6 +177,23 @@ allTests(const Ice::CommunicatorPtr& communicator)
         os << info->remotePort;
         test(ctx["localPort"] == os.str());
 
+        if(base->ice_getConnection()->type() == "ws" || base->ice_getConnection()->type() == "wss")
+        {
+            Ice::WSConnectionInfoPtr wsinfo = Ice::WSConnectionInfoPtr::dynamicCast(info);
+            test(wsinfo);
+
+            test(wsinfo->headers["Upgrade"] == "websocket");
+            test(wsinfo->headers["Connection"] == "Upgrade");
+            test(wsinfo->headers["Sec-WebSocket-Protocol"] == "ice.zeroc.com");
+            test(wsinfo->headers.find("Sec-WebSocket-Accept") != wsinfo->headers.end());
+
+            test(ctx["ws.Upgrade"] == "websocket");
+            test(ctx["ws.Connection"] == "Upgrade");
+            test(ctx["ws.Sec-WebSocket-Protocol"] == "ice.zeroc.com");
+            test(ctx["ws.Sec-WebSocket-Version"] == "13");
+            test(ctx.find("ws.Sec-WebSocket-Key") != ctx.end());
+        }
+
         info = Ice::IPConnectionInfoPtr::dynamicCast(base->ice_datagram()->ice_getConnection()->getInfo());
         test(!info->incoming);
         test(info->adapterName.empty());
@@ -187,7 +204,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(info->remoteAddress == defaultHost);
             test(info->localAddress == defaultHost);
         }
-
     }
     cout << "ok" << endl;
 

@@ -166,6 +166,21 @@ infoAllTests(id<ICECommunicator> communicator)
         test([[ctx objectForKey:@"remotePort"] intValue] == info.localPort);
         test([[ctx objectForKey:@"localPort"] intValue] == info.remotePort);
 
+        if([info isKindOfClass:[ICEWSConnectionInfo class]])
+        {
+            ICEWSConnectionInfo* wsinfo = (ICEWSConnectionInfo*)info;
+            test([[wsinfo.headers objectForKey:@"Upgrade"] isEqualToString:@"websocket"]);
+            test([[wsinfo.headers objectForKey:@"Connection"] isEqualToString:@"Upgrade"]);
+            test([[wsinfo.headers objectForKey:@"Sec-WebSocket-Protocol"] isEqualToString:@"ice.zeroc.com"]);
+            test([wsinfo.headers objectForKey:@"Sec-WebSocket-Accept"] != nil);
+
+            test([[ctx objectForKey:@"ws.Upgrade"] isEqualToString:@"websocket"]);
+            test([[ctx objectForKey:@"ws.Connection"] isEqualToString:@"Upgrade"]);
+            test([[ctx objectForKey:@"ws.Sec-WebSocket-Protocol"] isEqualToString:@"ice.zeroc.com"]);
+            test([[ctx objectForKey:@"ws.Sec-WebSocket-Version"] isEqualToString:@"13"]);
+            test([ctx objectForKey:@"ws.Sec-WebSocket-Key"] != nil);
+        }
+
         info = (ICEIPConnectionInfo*)[[[base ice_datagram] ice_getConnection] getInfo];
         test([info isKindOfClass:[ICEIPConnectionInfo class]]);
         test(!info.incoming);

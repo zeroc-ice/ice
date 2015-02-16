@@ -507,7 +507,7 @@ IceInternal::WSTransceiver::write(Buffer& buf)
                 {
                     return s;
                 }
-            } 
+            }
             else if(_incoming && !buf.b.empty() && _writeState == WriteStatePayload)
             {
                 SocketOperation s = _delegate->write(buf);
@@ -804,6 +804,7 @@ IceInternal::WSTransceiver::getInfo() const
     info->localPort = di->localPort;
     info->remoteAddress = di->remoteAddress;
     info->remotePort = di->remotePort;
+    info->headers = _parser->getHeaders();
     return info;
 }
 
@@ -836,7 +837,7 @@ IceInternal::WSTransceiver::WSTransceiver(const ProtocolInstancePtr& instance, c
     _closingInitiator(false),
     _closingReason(CLOSURE_NORMAL)
 {
-    // 
+    //
     // Use 1KB read and 16KB write buffer sizes. We use 16KB for the
     // write buffer size because all the data needs to be copied to
     // the write buffer for the purpose of masking. A 16KB buffer
@@ -865,7 +866,7 @@ IceInternal::WSTransceiver::WSTransceiver(const ProtocolInstancePtr& instance, c
     _closingInitiator(false),
     _closingReason(CLOSURE_NORMAL)
 {
-    // 
+    //
     // Use 1KB read and write buffer sizes.
     //
 }
@@ -1497,7 +1498,7 @@ IceInternal::WSTransceiver::preWrite(Buffer& buf)
         // For an outgoing connection, each message must be masked with a random
         // 32-bit value, so we copy the entire message into the internal buffer
         // for writing. For incoming connections, we just copy the start of the
-        // message in the internal buffer after the hedaer. If the message is 
+        // message in the internal buffer after the hedaer. If the message is
         // larger, the reminder is sent directly from the message buffer to avoid
         // copying.
         //
@@ -1508,7 +1509,7 @@ IceInternal::WSTransceiver::preWrite(Buffer& buf)
             {
                 _writeBuffer.i = _writeBuffer.b.begin();
             }
-            
+
             size_t n = buf.i - buf.b.begin();
             for(; n < buf.b.size() && _writeBuffer.i < _writeBuffer.b.end(); ++_writeBuffer.i, ++n)
             {
@@ -1712,4 +1713,3 @@ IceInternal::WSTransceiver::prepareWriteHeader(Byte opCode, IceInternal::Buffer:
         _writeBuffer.i += sizeof(_writeMask);
     }
 }
-

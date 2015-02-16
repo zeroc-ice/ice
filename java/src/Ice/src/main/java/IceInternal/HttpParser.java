@@ -246,7 +246,7 @@ final class HttpParser
                 {
                     if(p > start)
                     {
-                        if(_headerName.length() == 0)
+                        if(_headerName.isEmpty())
                         {
                             throw new WebSocketException("malformed header");
                         }
@@ -295,7 +295,7 @@ final class HttpParser
             }
             case HeaderFieldNameEnd:
             {
-                if(_headerName.length() == 0)
+                if(_headerName.isEmpty())
                 {
                     StringBuffer str = new StringBuffer();
                     for(int i = start; i < p; ++i)
@@ -309,6 +309,7 @@ final class HttpParser
                     if(!_headers.containsKey(_headerName))
                     {
                         _headers.put(_headerName, "");
+                        _headerNames.put(_headerName, str.toString());
                     }
                 }
 
@@ -664,12 +665,23 @@ final class HttpParser
         return null;
     }
 
+    java.util.Map<String, String> getHeaders()
+    {
+        java.util.Map<String, String> headers = new java.util.HashMap<String, String>();
+        for(java.util.Map.Entry<String, String> entry : _headers.entrySet())
+        {
+            headers.put(_headerNames.get(entry.getKey()), entry.getValue().trim()); // Return original header name.
+        }
+        return headers;
+    }
+
     private Type _type;
 
     private StringBuffer _method = new StringBuffer();
     private StringBuffer _uri = new StringBuffer();
 
     private java.util.Map<String, String> _headers = new java.util.HashMap<String, String>();
+    private java.util.Map<String, String> _headerNames = new java.util.HashMap<String, String>();
     private String _headerName = "";
 
     private int _versionMajor;

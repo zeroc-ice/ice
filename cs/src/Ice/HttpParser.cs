@@ -339,6 +339,7 @@ namespace IceInternal
                         if(!_headers.ContainsKey(_headerName))
                         {
                             _headers[_headerName] = "";
+                            _headerNames[_headerName] = str.ToString();
                         }
                     }
 
@@ -706,9 +707,14 @@ namespace IceInternal
             return null;
         }
 
-        internal Dictionary<string, string> headers()
+        internal Dictionary<string, string> getHeaders()
         {
-            return _headers;
+            Dictionary<string, string> dict = new Dictionary<string, string>();
+            foreach(KeyValuePair<string, string> e in _headers)
+            {
+                dict[_headerNames[e.Key]] = e.Value.Trim();
+            }
+            return dict;
         }
 
         private Type _type;
@@ -717,6 +723,7 @@ namespace IceInternal
         private StringBuilder _uri = new StringBuilder();
 
         private Dictionary<string, string> _headers = new Dictionary<string, string>();
+        private Dictionary<string, string> _headerNames = new Dictionary<string, string>();
         private string _headerName = "";
 
         private int _versionMajor;
