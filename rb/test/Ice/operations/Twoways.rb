@@ -193,6 +193,18 @@ def twoways(communicator, p)
     test(so.s.s == "a new string")
     so.p.opVoid()
 
+    # Test marshalling of null structs and structs with null members.
+    si1 = Test::Structure.new
+    si2 = nil
+
+    rso, so = p.opStruct(si1, si2)
+    test(!rso.p)
+    test(rso.e == Test::MyEnum::Enum1)
+    test(rso.s.s == "")
+    test(!so.p)
+    test(so.e == Test::MyEnum::Enum1)
+    test(so.s.s == "a new string")
+
     #
     # opByteS
     #

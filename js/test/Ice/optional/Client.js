@@ -558,6 +558,13 @@
             {
                 test(p1 === Test.MyEnum.MyEnumMember);
                 test(p2 === Test.MyEnum.MyEnumMember);
+                return initial.opMyEnum(null); // Test null enum
+            }
+        ).then(
+            function(p1, p2)
+            {
+                test(p1 === Test.MyEnum.MyEnumMember);
+                test(p2 === Test.MyEnum.MyEnumMember);
                 return initial.opSmallStruct();
             }
         ).then(
@@ -572,6 +579,13 @@
             {
                 test(p1.equals(new Test.SmallStruct(56)));
                 test(p2.equals(new Test.SmallStruct(56)));
+                return initial.opSmallStruct(null); // Test null struct
+            }
+        ).then(
+            function(p1, p2)
+            {
+                test(p1.equals(new Test.SmallStruct(0)));
+                test(p2.equals(new Test.SmallStruct(0)));
                 return initial.opFixedStruct();
             }
         ).then(

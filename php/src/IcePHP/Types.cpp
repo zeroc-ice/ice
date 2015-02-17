@@ -1270,7 +1270,7 @@ convertDataMembers(zval* zv, DataMemberList& reqMembers, DataMemberList& optMemb
 // StructInfo implementation.
 //
 IcePHP::StructInfo::StructInfo(const string& ident, const string& n, zval* m TSRMLS_DC) :
-    id(ident), name(n)
+    id(ident), name(n), _nullMarshalValue(0)
 {
     DataMemberList opt;
     convertDataMembers(m, const_cast<DataMemberList&>(members), opt, false TSRMLS_CC);
@@ -1299,7 +1299,11 @@ IcePHP::StructInfo::getId() const
 bool
 IcePHP::StructInfo::validate(zval* zv TSRMLS_DC)
 {
-    if(Z_TYPE_P(zv) != IS_OBJECT)
+    if(Z_TYPE_P(zv) == IS_NULL)
+    {
+        return true;
+    }
+    else if(Z_TYPE_P(zv) != IS_OBJECT)
     {
         string s = zendTypeToString(Z_TYPE_P(zv));
         invalidArgument("expected struct value of type %s but received %s" TSRMLS_CC, zce->name, s.c_str());
@@ -1354,8 +1358,26 @@ IcePHP::StructInfo::usesClasses() const
 void
 IcePHP::StructInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap* objectMap, bool optional TSRMLS_DC)
 {
-    assert(Z_TYPE_P(zv) == IS_OBJECT); // validate() should have caught this.
-    assert(Z_OBJCE_P(zv) == zce); // validate() should have caught this.
+    assert(Z_TYPE_P(zv) == IS_NULL || (Z_TYPE_P(zv) == IS_OBJECT && Z_OBJCE_P(zv) == zce));
+
+    if(Z_TYPE_P(zv) == IS_NULL)
+    {
+        if(_nullMarshalValue == 0)
+        {
+            MAKE_STD_ZVAL(_nullMarshalValue);
+            if(object_init_ex(_nullMarshalValue, const_cast<zend_class_entry*>(zce)) != SUCCESS)
+            {
+                runtimeError("unable to initialize object of type %s" TSRMLS_CC, zce->name);
+                throw AbortMarshaling();
+            }
+
+            if(!invokeMethod(_nullMarshalValue, ZEND_CONSTRUCTOR_FUNC_NAME))
+            {
+                assert(false);
+            }
+        }
+        zv = _nullMarshalValue;
+    }
 
     Ice::OutputStream::size_type sizePos = 0;
     if(optional)
@@ -1440,24 +1462,33 @@ IcePHP::StructInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHis
         out << "<invalid value - expected " << id << ">";
         return;
     }
-    out.sb();
-    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
-    {
-        DataMemberPtr member = *q;
 
-        out << nl << member->name << " = ";
-        void* data;
-        if(zend_hash_find(Z_OBJPROP_P(zv), STRCAST(member->name.c_str()), member->name.size() + 1, &data) == SUCCESS)
-        {
-            zval** val = reinterpret_cast<zval**>(data);
-            member->type->print(*val, out, history TSRMLS_CC);
-        }
-        else
-        {
-            out << "<not defined>";
-        }
+    if(Z_TYPE_P(zv) == IS_NULL)
+    {
+        out << "<nil>";
     }
-    out.eb();
+    else
+    {
+        out.sb();
+        for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+        {
+            DataMemberPtr member = *q;
+
+            out << nl << member->name << " = ";
+            void* data;
+            if(zend_hash_find(Z_OBJPROP_P(zv), STRCAST(member->name.c_str()), member->name.size() + 1, &data) ==
+               SUCCESS)
+            {
+                zval** val = reinterpret_cast<zval**>(data);
+                member->type->print(*val, out, history TSRMLS_CC);
+            }
+            else
+            {
+                out << "<not defined>";
+            }
+        }
+        out.eb();
+    }
 }
 
 void
@@ -1468,6 +1499,11 @@ IcePHP::StructInfo::destroy()
         (*p)->type->destroy();
     }
     const_cast<DataMemberList&>(members).clear();
+    if(_nullMarshalValue != 0)
+    {
+        zval_ptr_dtor(&_nullMarshalValue);
+        _nullMarshalValue = 0;
+    }
 }
 
 //
@@ -2956,7 +2992,7 @@ IcePHP::ObjectWriter::writeMembers(const Ice::OutputStreamPtr& os, const DataMem
         DataMemberPtr member = *q;
 
         void* data;
-        if(zend_hash_find(Z_OBJPROP_P(_object), 
+        if(zend_hash_find(Z_OBJPROP_P(_object),
                           STRCAST(member->name.c_str()), static_cast<int>(member->name.size() + 1), &data) == FAILURE)
         {
             runtimeError("member `%s' of %s is not defined" TSRMLS_CC, member->name.c_str(), _info->id.c_str());
@@ -3274,7 +3310,7 @@ IcePHP::ExceptionInfo::printMembers(zval* zv, IceUtilInternal::Output& out, Prin
 
         out << nl << member->name << " = ";
         void* data;
-        if(zend_hash_find(Z_OBJPROP_P(zv), STRCAST(member->name.c_str()), static_cast<int>(member->name.size() + 1), 
+        if(zend_hash_find(Z_OBJPROP_P(zv), STRCAST(member->name.c_str()), static_cast<int>(member->name.size() + 1),
                           &data) == SUCCESS)
         {
             zval** val = reinterpret_cast<zval**>(data);

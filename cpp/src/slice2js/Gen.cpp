@@ -582,14 +582,14 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     {
         _fileBase = base.substr(pos + 1);
     }
-    
+
     string file = _fileBase + ".js";
 
     if(!dir.empty())
     {
         file = dir + '/' + file;
     }
-    
+
     _out.open(file.c_str());
     if(!_out)
     {
@@ -599,7 +599,7 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     }
     FileTracker::instance()->addFile(file);
 
-    
+
     printHeader();
     printGeneratedHeader(_out, _fileBase + ".ice");
 }
@@ -616,7 +616,7 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     {
         _fileBase = base.substr(pos + 1);
     }
-    
+
     printHeader();
     printGeneratedHeader(_out, _fileBase + ".ice");
 }
@@ -1815,7 +1815,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     _out << sp;
     writeDocComment(p, getDeprecateReason(p, 0, "type"));
-    _out << nl << localScope << '.' << name << " = Slice.defineEnum({";
+    _out << nl << localScope << '.' << name << " = Slice.defineEnum([";
     _out.inc();
     _out << nl;
 
@@ -1834,9 +1834,9 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
                 _out << ", ";
             }
         }
-        _out << "'" << fixId((*en)->name()) << "':" << (*en)->value();
+        _out << "['" << fixId((*en)->name()) << "', " << (*en)->value() << ']';
     }
-    _out << "});";
+    _out << "]);";
     _out.dec();
 
     //

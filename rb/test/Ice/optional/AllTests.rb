@@ -379,13 +379,13 @@ def allTests(communicator)
     STDOUT.flush
 
     f = Test::F.new
-    
+
     f.af = Test::A.new
     f.ae = f.af
-    
+
     rf = initial.pingPong(f)
     test(rf.ae == rf.af)
-    
+
     puts "ok"
 
     print "testing optional with default values... "
@@ -487,6 +487,8 @@ def allTests(communicator)
     p1 = Test::SmallStruct.new(56)
     p2, p3 = initial.opSmallStruct(p1)
     test(p2 == p1 && p3 == p1)
+    p2, p3 = initial.opSmallStruct(nil) # Test null struct
+    test(p2.m == 0 && p3.m == 0)
 
     p2, p3 = initial.opFixedStruct(Ice::Unset)
     test(p2 == Ice::Unset && p3 == Ice::Unset)

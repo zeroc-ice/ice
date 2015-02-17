@@ -4323,6 +4323,31 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         }
         _out << eb;
 
+        if(isClass)
+        {
+            emitGeneratedCodeAttribute();
+            _out << nl << "public static void write__(IceInternal.BasicStream os__, " << name << " v__)";
+            _out << sb;
+            _out << nl << "if(v__ == null)";
+            _out << sb;
+            _out << nl << "nullMarshalValue__.write__(os__);";
+            _out << eb;
+            _out << nl << "else";
+            _out << sb;
+            _out << nl << "v__.write__(os__);";
+            _out << eb;
+            _out << eb;
+
+            _out << sp;
+            emitGeneratedCodeAttribute();
+            _out << nl << "public static " << name << " readNew__(IceInternal.BasicStream is__)";
+            _out << sb;
+            _out << nl << name << " v__ = new " << name << "();";
+            _out << nl << "v__.read__(is__);";
+            _out << nl << "return v__;";
+            _out << eb;
+        }
+
         if(_stream)
         {
             _out << sp;
@@ -4346,8 +4371,37 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                                                classMemberCount);
             }
             _out << eb;
+
+            if(isClass)
+            {
+                emitGeneratedCodeAttribute();
+                _out << nl << "public static void ice_write(Ice.OutputStream outS__, " << name << " v__)";
+                _out << sb;
+                _out << nl << "if(v__ == null)";
+                _out << sb;
+                _out << nl << "nullMarshalValue__.ice_write(outS__);";
+                _out << eb;
+                _out << nl << "else";
+                _out << sb;
+                _out << nl << "v__.ice_write(outS__);";
+                _out << eb;
+                _out << eb;
+
+                _out << sp;
+                emitGeneratedCodeAttribute();
+                _out << nl << "public static " << name << " ice_readNew(Ice.InputStream inS__)";
+                _out << sb;
+                _out << nl << name << " v__ = new " << name << "();";
+                _out << nl << "v__.ice_read(inS__);";
+                _out << nl << "return v__;";
+                _out << eb;
+            }
         }
 
+        if(isClass)
+        {
+            _out << nl << nl << "private static readonly " << name << " nullMarshalValue__ = new " << name << "();";
+        }
         _out << sp << nl << "#endregion"; // Marshalling support
     }
 

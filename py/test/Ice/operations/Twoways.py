@@ -203,6 +203,18 @@ def twoways(communicator, p):
     test(so.s.s == "a new string")
     so.p.opVoid()
 
+    # Test marshalling of null structs and structs with null members.
+    si1 = Test.Structure()
+    si2 = None
+
+    rso, so = p.opStruct(si1, si2)
+    test(rso.p is None)
+    test(rso.e == Test.MyEnum.enum1)
+    test(rso.s.s == "")
+    test(so.p is None)
+    test(so.e == Test.MyEnum.enum1)
+    test(so.s.s == "a new string")
+
     #
     # opByteS
     #
@@ -1275,4 +1287,3 @@ def twoways(communicator, p):
     # opNonmutating
     #
     p.opNonmutating()
-

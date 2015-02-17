@@ -253,6 +253,7 @@ private:
 
     bool _variableLength;
     int _wireSize;
+    VALUE _nullMarshalValue;
 };
 typedef IceUtil::Handle<StructInfo> StructInfoPtr;
 

@@ -401,14 +401,14 @@ function allTests($communicator)
 
     $fcls = $NS ? "Test\\F" : "Test_F";
     $f = new $fcls;
-    
+
     $acls = $NS ? "Test\\A" : "Test_A";
     $f->af = new $acls;
     $f->ae = $f->af;
-    
+
     $rf = $initial->pingPong($f);
     test($rf->ae == $rf->af);
-    
+
     echo "ok\n";
 
     echo "testing optional with default values... ";
@@ -518,6 +518,8 @@ function allTests($communicator)
     $p1 = new $sscls(56);
     $p3 = $initial->opSmallStruct($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
+    $p3 = $initial->opSmallStruct(null, $p2); // Testing null struct
+    test($p2->m == 0 && $p3->m == 0);
 
     $p3 = $initial->opFixedStruct(Ice_Unset, $p2);
     test($p2 == Ice_Unset && $p3 == Ice_Unset);

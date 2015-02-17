@@ -1249,7 +1249,7 @@ IcePy::StructInfo::getId() const
 bool
 IcePy::StructInfo::validate(PyObject* val)
 {
-    return PyObject_IsInstance(val, pythonType.get()) == 1;
+    return val == Py_None || PyObject_IsInstance(val, pythonType.get()) == 1;
 }
 
 bool
@@ -1288,7 +1288,19 @@ void
 IcePy::StructInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap* objectMap, bool optional,
                            const Ice::StringSeq*)
 {
-    assert(PyObject_IsInstance(p, pythonType.get()) == 1); // validate() should have caught this.
+    assert(p == Py_None || PyObject_IsInstance(p, pythonType.get()) == 1); // validate() should have caught this.
+
+    if(p == Py_None)
+    {
+        if(!_nullMarshalValue.get())
+        {
+            PyObjectHandle args = PyTuple_New(0);
+            PyTypeObject* type = reinterpret_cast<PyTypeObject*>(pythonType.get());
+            _nullMarshalValue = type->tp_new(type, args.get(), 0);
+            type->tp_init(_nullMarshalValue.get(), args.get(), 0); // Initialize the struct members
+        }
+        p = _nullMarshalValue.get();
+    }
 
     Ice::OutputStream::size_type sizePos = 0;
     if(optional)
@@ -1369,23 +1381,31 @@ IcePy::StructInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObj
         out << "<invalid value - expected " << id << ">";
         return;
     }
-    out.sb();
-    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+
+    if(value == Py_None)
     {
-        DataMemberPtr member = *q;
-        char* memberName = const_cast<char*>(member->name.c_str());
-        PyObjectHandle attr = PyObject_GetAttrString(value, memberName);
-        out << nl << member->name << " = ";
-        if(!attr.get())
-        {
-            out << "<not defined>";
-        }
-        else
-        {
-            member->type->print(attr.get(), out, history);
-        }
+        out << "<nil>";
     }
-    out.eb();
+    else
+    {
+        out.sb();
+        for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+        {
+            DataMemberPtr member = *q;
+            char* memberName = const_cast<char*>(member->name.c_str());
+            PyObjectHandle attr = PyObject_GetAttrString(value, memberName);
+            out << nl << member->name << " = ";
+            if(!attr.get())
+            {
+                out << "<not defined>";
+            }
+            else
+            {
+                member->type->print(attr.get(), out, history);
+            }
+        }
+        out.eb();
+    }
 }
 
 void
@@ -1396,6 +1416,10 @@ IcePy::StructInfo::destroy()
         (*p)->type->destroy();
     }
     const_cast<DataMemberList&>(members).clear();
+    if(_nullMarshalValue.get())
+    {
+        _nullMarshalValue.release();
+    }
 }
 
 PyObject*

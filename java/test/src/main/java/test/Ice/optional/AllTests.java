@@ -962,6 +962,9 @@ public class AllTests
             p1.set(MyEnum.MyEnumMember);
             p2 = initial.opMyEnum(p1, p3);
             test(p2.get() == MyEnum.MyEnumMember && p3.get() == MyEnum.MyEnumMember);
+            p1.set(MyEnum.MyEnumMember);
+            p2 = initial.opMyEnum(new Ice.Optional<MyEnum>((MyEnum)null), p3); // Test null enum
+            test(p2.get() == MyEnum.MyEnumMember && p3.get() == MyEnum.MyEnumMember);
             Ice.AsyncResult r = initial.begin_opMyEnum(p1);
             p2 = initial.end_opMyEnum(p3, r);
             test(p2.get() == MyEnum.MyEnumMember && p3.get() == MyEnum.MyEnumMember);
@@ -1006,6 +1009,8 @@ public class AllTests
             p1.set(new SmallStruct((byte)56));
             p2 = initial.opSmallStruct(p1, p3);
             test(p2.get().m == (byte)56 && p3.get().m == (byte)56);
+            p2 = initial.opSmallStruct(new Ice.Optional<SmallStruct>((SmallStruct)null), p3); // Test null struct
+            test(p2.get().m == (byte)0 && p3.get().m == (byte)0);
             Ice.AsyncResult r = initial.begin_opSmallStruct(p1);
             p2 = initial.end_opSmallStruct(p3, r);
             test(p2.get().m == (byte)56 && p3.get().m == (byte)56);

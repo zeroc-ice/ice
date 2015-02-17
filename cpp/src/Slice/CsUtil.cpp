@@ -629,48 +629,27 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
     {
         if(marshal)
         {
+            const string write = streamingAPI ? "ice_write" : "write__";
             if(!isValueType(st))
             {
-                out << nl << "if(" << param << " == null)";
-                out << sb;
-                string typeS = typeToString(st);
-                out << nl << typeS << " tmp__ = new " << typeS << "();";
-                out << nl << "tmp__.";
-                out << (streamingAPI ? "ice_write" : "write__") << "(" << stream << ");";
-                out << eb;
-                out << nl << "else";
-                out << sb;
-                out << nl << param << "." << (streamingAPI ? "ice_write" : "write__") << "(" << stream << ");";
-                out << eb;
+                out << nl << typeToString(st) << "." << write << "(" << stream << ", " << param << ");";
             }
             else
             {
-                if(streamingAPI)
-                {
-                    out << nl << param << ".ice_write(" << stream << ");";
-                }
-                else
-                {
-                    out << nl << param << ".write__(" << stream << ");";
-                }
+                out << nl << param << "." << write << "(" << stream << ");";
             }
         }
         else
         {
             if(!isValueType(st))
             {
-                out << nl << "if(" << param << " == null)";
-                out << sb;
-                out << nl << param << " = new " << typeToString(type) << "();";
-                out << eb;
-            }
-            if(streamingAPI)
-            {
-                out << nl << param << ".ice_read(" << stream << ");";
+                const string read = streamingAPI ? "ice_readNew" : "readNew__";
+                out << nl << param << " = " << typeToString(type) << "." << read << "(" << stream << ");";
             }
             else
             {
-                out << nl << param << ".read__(" << stream << ");";
+                const string read = streamingAPI ? "ice_read" : "read__";
+                out << nl << param << "." << read << "(" << stream << ");";
             }
         }
         return;

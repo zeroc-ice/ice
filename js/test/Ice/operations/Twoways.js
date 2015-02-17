@@ -115,6 +115,14 @@
             {
                 test(p2 === Test.MyEnum.enum2);
                 test(retval === Test.MyEnum.enum3);
+                // Test null enum
+                return prx.opMyEnum(null);
+            }
+        ).then(
+            function(retval, p2)
+            {
+                test(p2 === Test.MyEnum.enum1);
+                test(retval === Test.MyEnum.enum3);
                 return prx.opMyClass(prx);
             }
         ).then(
@@ -144,6 +152,21 @@
                 test(retval.s.s === "def");
                 test(p3.p !== null);
                 test(p3.e === Test.MyEnum.enum3);
+                test(p3.s.s === "a new string");
+
+                si1 = new Test.Structure();
+                si2 = null;
+                // Test null struct
+                return prx.opStruct(si1, si2);
+            }
+        ).then(
+            function(retval, p3)
+            {
+                test(retval.p === null);
+                test(retval.e === Test.MyEnum.enum1);
+                test(retval.s.s === "");
+                test(p3.p === null);
+                test(p3.e === Test.MyEnum.enum1);
                 test(p3.s.s === "a new string");
 
                 var bsi1 = Ice.Buffer.createNative([ 0x01, 0x11, 0x12, 0x22 ]);
@@ -826,7 +849,7 @@
                 di2.set("Hello!!", Test.MyEnum.enum2);
                 var di3 = new Test.StringMyEnumD();
                 di3.set("Goodbye", Test.MyEnum.enum1);
-                
+
                 return prx.opStringMyEnumDS([di1, di2], [di3]);
             }
         ).then(
@@ -1380,4 +1403,3 @@
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
  typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
  typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));
-

@@ -259,6 +259,7 @@ private:
 
     bool _variableLength;
     int _wireSize;
+    PyObjectHandle _nullMarshalValue;
 };
 typedef IceUtil::Handle<StructInfo> StructInfoPtr;
 

@@ -381,13 +381,13 @@ def allTests(communicator):
     sys.stdout.flush()
 
     f = Test.F()
-    
+
     f.af = Test.A()
     f.ae = f.af
-    
+
     rf = initial.pingPong(f)
     test(rf.ae == rf.af)
-    
+
     print("ok")
 
     sys.stdout.write("testing optional with default values... ")
@@ -515,6 +515,8 @@ def allTests(communicator):
     p1 = Test.SmallStruct(56)
     (p2, p3) = initial.opSmallStruct(p1)
     test(p2 == p1 and p3 == p1)
+    (p2, p3) = initial.opSmallStruct(None) # Test null struct
+    test(p2.m == 0 and p3.m == 0)
     r = initial.begin_opSmallStruct(p1)
     (p2, p3) = initial.end_opSmallStruct(r)
     test(p2 == p1 and p3 == p1)

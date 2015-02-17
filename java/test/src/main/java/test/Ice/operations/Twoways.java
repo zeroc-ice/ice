@@ -1,4 +1,3 @@
-
 // **********************************************************************
 //
 // Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
@@ -161,6 +160,14 @@ class Twoways
             r = p.opMyEnum(MyEnum.enum2, e);
             test(e.value == MyEnum.enum2);
             test(r == MyEnum.enum3);
+
+            //
+            // Test marshalling of null enum (firt enum value is
+            // marshalled in this case).
+            //
+            r = p.opMyEnum(null, e);
+            test(e.value == MyEnum.enum1);
+            test(r == MyEnum.enum3);
         }
 
         {
@@ -214,6 +221,21 @@ class Twoways
             test(so.value.e == MyEnum.enum3);
             test(so.value.s.s.equals("a new string"));
             so.value.p.opVoid();
+
+            //
+            // Test marshalling of null structs and structs with null members.
+            //
+            si1 = new Structure();
+            si2 = null;
+
+            so = new StructureHolder();
+            rso = p.opStruct(si1, si2, so);
+            test(rso.p == null);
+            test(rso.e == MyEnum.enum1);
+            test(rso.s.s.equals(""));
+            test(so.value.p == null);
+            test(so.value.e == MyEnum.enum1);
+            test(so.value.s.s.equals("a new string"));
         }
 
         {

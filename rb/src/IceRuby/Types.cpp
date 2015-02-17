@@ -923,7 +923,7 @@ convertDataMembers(VALUE members, DataMemberList& reqMembers, DataMemberList& op
 // StructInfo implementation.
 //
 IceRuby::StructInfo::StructInfo(VALUE ident, VALUE t, VALUE m) :
-    rubyClass(t)
+    rubyClass(t), _nullMarshalValue(Qnil)
 {
     const_cast<string&>(id) = getString(ident);
 
@@ -952,7 +952,7 @@ IceRuby::StructInfo::getId() const
 bool
 IceRuby::StructInfo::validate(VALUE val)
 {
-    return callRuby(rb_obj_is_kind_of, val, rubyClass) == Qtrue;
+    return NIL_P(val) || callRuby(rb_obj_is_kind_of, val, rubyClass) == Qtrue;
 }
 
 bool
@@ -990,7 +990,17 @@ IceRuby::StructInfo::usesClasses() const
 void
 IceRuby::StructInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap* objectMap, bool optional)
 {
-    assert(callRuby(rb_obj_is_kind_of, p, rubyClass) == Qtrue); // validate() should have caught this.
+    assert(NIL_P(p) || callRuby(rb_obj_is_kind_of, p, rubyClass) == Qtrue); // validate() should have caught this.
+
+    if(NIL_P(p))
+    {
+        if(NIL_P(_nullMarshalValue))
+        {
+            _nullMarshalValue = callRuby(rb_class_new_instance, 0, static_cast<VALUE*>(0), rubyClass);
+            rb_gc_register_address(&_nullMarshalValue); // Prevent garbage collection
+        }
+        p = _nullMarshalValue;
+    }
 
     Ice::OutputStream::size_type sizePos = -1;
     if(optional)
@@ -1058,22 +1068,30 @@ IceRuby::StructInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObjec
         out << "<invalid value - expected " << id << ">";
         return;
     }
-    out.sb();
-    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+
+    if(NIL_P(value))
     {
-        DataMemberPtr member = *q;
-        out << nl << member->name << " = ";
-        if(callRuby(rb_ivar_defined, value, member->rubyID) == Qfalse)
-        {
-            out << "<not defined>";
-        }
-        else
-        {
-            volatile VALUE val = callRuby(rb_ivar_get, value, member->rubyID);
-            member->type->print(val, out, history);
-        }
+        out << "<nil>";
     }
-    out.eb();
+    else
+    {
+        out.sb();
+        for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+        {
+            DataMemberPtr member = *q;
+            out << nl << member->name << " = ";
+            if(callRuby(rb_ivar_defined, value, member->rubyID) == Qfalse)
+            {
+                out << "<not defined>";
+            }
+            else
+            {
+                volatile VALUE val = callRuby(rb_ivar_get, value, member->rubyID);
+                member->type->print(val, out, history);
+            }
+        }
+        out.eb();
+    }
 }
 
 void
@@ -1084,6 +1102,11 @@ IceRuby::StructInfo::destroy()
         (*p)->type->destroy();
     }
     const_cast<DataMemberList&>(members).clear();
+    if(!NIL_P(_nullMarshalValue))
+    {
+        rb_gc_unregister_address(&_nullMarshalValue); // Prevent garbage collection
+        _nullMarshalValue = Qnil;
+    }
 }
 
 //

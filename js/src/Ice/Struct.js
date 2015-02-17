@@ -19,7 +19,7 @@ var ArrayUtil = Ice.ArrayUtil;
 
 //
 // Use generic equality test from ArrayUtil.
-// 
+//
 var eq = ArrayUtil.eq;
 
 var equals = function(other)
@@ -136,7 +136,7 @@ Ice.Slice.defineStruct = function(constructor, legalKeyType, writeImpl, readImpl
     var obj = constructor;
 
     obj.prototype.clone = clone;
-    
+
     obj.prototype.equals = equals;
 
     //
@@ -146,13 +146,21 @@ Ice.Slice.defineStruct = function(constructor, legalKeyType, writeImpl, readImpl
     {
         obj.prototype.hashCode = hashCode;
     }
-    
+
     if(readImpl && writeImpl)
     {
         obj.prototype.__write = writeImpl;
         obj.prototype.__read = readImpl;
         obj.write = function(os, v)
         {
+            if(!v)
+            {
+                if(!obj.prototype._nullMarshalValue)
+                {
+                    obj.prototype._nullMarshalValue = new this();
+                }
+                v = obj.prototype._nullMarshalValue;
+            }
             v.__write(os);
         };
         obj.read = function(is)

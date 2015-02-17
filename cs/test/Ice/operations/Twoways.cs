@@ -209,6 +209,20 @@ class Twoways
             test(so.e == Test.MyEnum.enum3);
             test(so.s.s.Equals("a new string"));
             so.p.opVoid();
+
+            //
+            // Test marshalling of null structs and structs with null members.
+            //
+            si1 = new Test.Structure();
+            si2 = null;
+
+            rso = p.opStruct(si1, si2, out so);
+            test(rso.p == null);
+            test(rso.e == Test.MyEnum.enum1);
+            test(rso.s.s.Equals(""));
+            test(so.p == null);
+            test(so.e == Test.MyEnum.enum1);
+            test(so.s.s.Equals("a new string"));
         }
 
         {

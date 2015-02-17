@@ -81,15 +81,6 @@ var EnumHelper = Ice.Class({
 
 Ice.EnumHelper = EnumHelper;
 
-var write = function(os, v)
-{
-    os.writeEnum(v);
-};
-var writeOpt = function(os, tag, v)
-{
-    os.writeOptValue(tag, Ice.OptionalFormat.Size, Ice.BasicStream.prototype.writeEnum, v);
-};
-
 var Slice = Ice.Slice;
 Slice.defineEnum = function(enumerators)
 {
@@ -103,11 +94,16 @@ Slice.defineEnum = function(enumerators)
 
     var enums = [];
     var maxValue = 0;
-    for(var e in enumerators)
+    var firstEnum = null;
+    for(var idx in enumerators)
     {
-        var value = enumerators[e];
+        var e = enumerators[idx][0], value = enumerators[idx][1];
         var enumerator = new type(e, value);
         enums[value] = enumerator;
+        if(!firstEnum)
+        {
+            firstEnum = enumerator;
+        }
         Object.defineProperty(type, e, {
             enumerable: true,
             value: enumerator
@@ -122,12 +118,31 @@ Slice.defineEnum = function(enumerators)
         get: function(){ return 1; }
     });
 
-    type.__write = write;
+    type.__write = function(os, v)
+    {
+        if(v)
+        {
+            os.writeEnum(v);
+        }
+        else
+        {
+            os.writeEnum(firstEnum);
+        }
+    }
     type.__read = function(is)
     {
         return is.readEnum(type);
     };
-    type.__writeOpt = writeOpt;
+    type.__writeOpt = function(os, tag, v)
+    {
+        if(v !== undefined)
+        {
+            if(os.writeOpt(tag, Ice.OptionalFormat.Size))
+            {
+                type.__write(os, v);
+            }
+        }
+    }
     type.__readOpt = function(is, tag)
     {
         return is.readOptEnum(tag, type);
@@ -141,7 +156,8 @@ Slice.defineEnum = function(enumerators)
             {
                 return type;
             }
-            return enums[v]; }
+            return enums[v];
+        }
     });
 
     Object.defineProperty(type, 'maxValue', {

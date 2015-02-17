@@ -4010,6 +4010,49 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             }
             out << eb;
         }
+
+        out << sp << nl << "static public void" << nl << "__write(IceInternal.BasicStream __os, " << name << " __v)";
+        out << sb;
+        out << nl << "if(__v == null)";
+        out << sb;
+        out << nl << "__nullMarshalValue.__write(__os);";
+        out << eb;
+        out << nl << "else";
+        out << sb;
+        out << nl << "__v.__write(__os);";
+        out << eb;
+        out << eb;
+
+        out << sp << nl << "static public " << name << nl << "__readNew(IceInternal.BasicStream __is)";
+        out << sb;
+        out << nl << name << " __v = new " << name << "();";
+        out << nl << "__v.__read(__is);";
+        out << nl << "return __v;";
+        out << eb;
+
+        if(_stream)
+        {
+            out << sp << nl << "static public void" << nl << "ice_write(Ice.OutputStream __outS, " << name << " __v)";
+            out << sb;
+            out << nl << "if(__v == null)";
+            out << sb;
+            out << nl << "__nullMarshalValue.ice_write(__outS);";
+            out << eb;
+            out << nl << "else";
+            out << sb;
+            out << nl << "__v.ice_write(__outS);";
+            out << eb;
+            out << eb;
+
+            out << sp << nl << "static public " << name << nl << "ice_readNew(Ice.InputStream __inS)";
+            out << sb;
+            out << nl << name << " __v = new " << name << "();";
+            out << nl << "__v.ice_read(__inS);";
+            out << nl << "return __v;";
+            out << eb;
+        }
+
+        out << nl << nl << "private static final " << name << " __nullMarshalValue = new " << name << "();";
     }
 
     out << sp << nl << "public static final long serialVersionUID = ";
@@ -4383,6 +4426,19 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         out << nl << "__os.writeEnum(value(), " << p->maxValue() << ");";
         out << eb;
 
+        out << sp << nl << "public static void" << nl << "__write(IceInternal.BasicStream __os, " << name << " __v)";
+        out << sb;
+        out << nl << "if(__v == null)";
+        out << sb;
+        string firstEnum = fixKwd(enumerators.front()->name());
+        out << nl << "__os.writeEnum(" << absolute << '.' << firstEnum << ".value(), " << p->maxValue() << ");";
+        out << eb;
+        out << nl << "else";
+        out << sb;
+        out << nl << "__os.writeEnum(__v.value(), " << p->maxValue() << ");";
+        out << eb;
+        out << eb;
+
         out << sp << nl << "public static " << name << nl << "__read(IceInternal.BasicStream __is)";
         out << sb;
         out << nl << "int __v = __is.readEnum(" << p->maxValue() << ");";
@@ -4394,6 +4450,18 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
             out << sp << nl << "public void" << nl << "ice_write(Ice.OutputStream __outS)";
             out << sb;
             out << nl << "__outS.writeEnum(value(), " << p->maxValue() << ");";
+            out << eb;
+
+            out << sp << nl << "public static void" << nl << "ice_write(Ice.OutputStream __outS, " << name << " __v)";
+            out << sb;
+            out << nl << "if(__v == null)";
+            out << sb;
+            out << nl << "__outS.writeEnum(" << absolute << '.' << firstEnum << ".value(), " << p->maxValue() << ");";
+            out << eb;
+            out << nl << "else";
+            out << sb;
+            out << nl << "__outS.writeEnum(__v.value(), " << p->maxValue() << ");";
+            out << eb;
             out << eb;
 
             out << sp << nl << "public static " << name << nl << "ice_read(Ice.InputStream __inS)";
@@ -4752,7 +4820,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << sb;
         if(op->returnsData())
         {
-            out << nl << "IceInternal.OutgoingAsync __result = IceInternal.OutgoingAsync.check(__iresult, this, __" 
+            out << nl << "IceInternal.OutgoingAsync __result = IceInternal.OutgoingAsync.check(__iresult, this, __"
                 << op->name() << "_name);";
             out << nl << "try";
             out << sb;
@@ -6744,4 +6812,3 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         }
     }
 }
-

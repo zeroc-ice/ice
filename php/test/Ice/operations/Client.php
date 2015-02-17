@@ -255,6 +255,18 @@ function twoways($communicator, $p)
         test($so->e == $enum3);
         test($so->s->s == "a new string");
         $so->p->opVoid();
+
+        // Test marshalling of null structs and structs with null members.
+        $si1 = $NS ? eval("return new Test\\Structure;") : eval("return new Test_Structure;");
+        $si2 = null;
+
+        $rso = $p->opStruct($si1, $si2, $so);
+        test($rso->p == null);
+        test($rso->e == $enum1);
+        test($rso->s->s == "");
+        test($so->p == null);
+        test($so->e == $enum1);
+        test($so->s->s == "a new string");
     }
 
     {

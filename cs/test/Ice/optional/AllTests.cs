@@ -1117,6 +1117,11 @@ public class AllTests : TestCommon.TestApp
             p1 = new Test.VarStruct("test");
             p2 = initial.opVarStruct(p1, out p3);
             test(p2.Value.m.Equals("test") && p3.Value.m.Equals("test"));
+
+            // Test null struct
+            p2 = initial.opVarStruct((Test.VarStruct)null, out p3);
+            test(p2.Value.m.Equals("") && p3.Value.m.Equals(""));
+
             Ice.AsyncResult r = initial.begin_opVarStruct(p1);
             p2 = initial.end_opVarStruct(out p3, r);
             test(p2.Value.m.Equals("test") && p3.Value.m.Equals("test"));

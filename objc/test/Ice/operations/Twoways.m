@@ -207,27 +207,41 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
 
     {
         TestOperationsStructure *si1 = [TestOperationsStructure structure];
-	si1.p = p;
-	si1.e = TestOperationsenum3;
-	si1.s = [TestOperationsAnotherStruct anotherStruct];
-	si1.s.s = @"abc";
-	TestOperationsStructure *si2 = [TestOperationsStructure structure];
-	si2.p = nil;
-	si2.e = TestOperationsenum2;
-	si2.s = [TestOperationsAnotherStruct anotherStruct];
-	si2.s.s = @"def";
+        si1.p = p;
+        si1.e = TestOperationsenum3;
+        si1.s = [TestOperationsAnotherStruct anotherStruct];
+        si1.s.s = @"abc";
+        TestOperationsStructure *si2 = [TestOperationsStructure structure];
+        si2.p = nil;
+        si2.e = TestOperationsenum2;
+        si2.s = [TestOperationsAnotherStruct anotherStruct];
+        si2.s.s = @"def";
 
-	TestOperationsStructure *so;
-	TestOperationsStructure *rso = [p opStruct:si1 p2:si2 p3:&so];
+        TestOperationsStructure *so;
+        TestOperationsStructure *rso = [p opStruct:si1 p2:si2 p3:&so];
 
-	test(rso.p == nil);
-	test(rso.e == TestOperationsenum2);
-	test([rso.s.s isEqualToString:@"def"]);
-	test(so.p != nil);
-	test([so.p isEqual:p]);
-	test(so.e == TestOperationsenum3);
-	test([so.s.s isEqualToString:@"a new string"]);
-	[so.p opVoid];
+        test(rso.p == nil);
+        test(rso.e == TestOperationsenum2);
+        test([rso.s.s isEqualToString:@"def"]);
+        test(so.p != nil);
+        test([so.p isEqual:p]);
+        test(so.e == TestOperationsenum3);
+        test([so.s.s isEqualToString:@"a new string"]);
+        [so.p opVoid];
+
+        // Testing null struct
+        si1 = [TestOperationsStructure structure];
+        si2 = nil;
+        rso = [p opStruct:si1 p2:si2 p3:&so];
+
+        test(rso.p == nil);
+        test(rso.e == TestOperationsenum1);
+        test([rso.s.s isEqualToString:@""]);
+        test(so.p == nil);
+        test([so.p isEqual:@""]);
+        test(so.e == TestOperationsenum1);
+        test([so.s.s isEqualToString:@"a new string"]);
+
     }
 
     {
