@@ -53,7 +53,7 @@ function parseParam(p)
         type = __M.type(type);
         /*jshint +W061 */
     }
-    
+
     return {
         "type": type,
         "isObject": (p[1] === true),
@@ -453,7 +453,7 @@ var __dispatchImpl = function(servant, op, incomingAsync, current)
             //
             if(numExpectedResults > 1 && !(results instanceof Array))
             {
-                throw new Ice.MarshalException("operation `" + op.servantMethod + 
+                throw new Ice.MarshalException("operation `" + op.servantMethod +
                                                "' should return an array of length " + numExpectedResults);
             }
             else if(numExpectedResults === 1)
@@ -642,6 +642,28 @@ function addProxyOperation(proxyType, name, data)
         {
             marshalFn = function(os, params)
             {
+                var i, p, v;
+
+                //
+                // Validate the parameters.
+                //
+                for(i = 0; i < op.inParams.length; ++i)
+                {
+                    p = op.inParams[i];
+                    v = params[p.pos];
+                    if(!p.tag || v !== undefined)
+                    {
+                        if(typeof p.type.validate === "function")
+                        {
+                            if(!p.type.validate(v))
+                            {
+                                throw new Ice.MarshalException("invalid value for argument " + (i + 1)  +
+                                                               " in operation `" + op.servantMethod + "'");
+                            }
+                        }
+                    }
+                }
+
                 marshalParams(os, params, undefined, op.inParams, op.inParamsOpt, op.sendsClasses);
             };
         }

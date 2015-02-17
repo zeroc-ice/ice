@@ -31,6 +31,8 @@
             }
         };
 
+        var failCB = function(){ test(false); };
+
         var si1, si2, ctx, combined;
         Ice.Promise.try(
             function()
@@ -95,12 +97,62 @@
                 test(retval.equals(lo));
                 return prx.opFloatDouble(3.14, 1.1E10);
             }
-        ).then(
+       ).then(
             function(retval, f, d)
             {
                 test((f - 3.14) <= 0.01);
                 test(d == 1.1E10);
                 test(retval == 1.1E10);
+                return prx.opByte(0xffff, 0xff0f).then(
+                    failCB,
+                    function(ex)
+                    {
+                        test(ex instanceof Ice.MarshalException);
+                    });
+            }
+        ).then(
+            function()
+            {
+                return prx.opShortIntLong(-32768 - 1, 0, 0).then(
+                    failCB,
+                    function(ex)
+                    {
+                        test(ex instanceof Ice.MarshalException);
+                    });
+            }
+        ).then(
+            function()
+            {
+                return prx.opShortIntLong(32767 + 1, 0, 0).then(
+                    failCB,
+                    function(ex)
+                    {
+                        test(ex instanceof Ice.MarshalException);
+                    });
+            }
+        ).then(
+            function()
+            {
+                return prx.opShortIntLong(0, -2147483648 - 1, 0).then(
+                    failCB,
+                    function(ex)
+                    {
+                        test(ex instanceof Ice.MarshalException);
+                    });
+            }
+        ).then(
+            function()
+            {
+                return prx.opShortIntLong(0, 2147483647 + 1, 0).then(
+                    failCB,
+                    function(ex)
+                    {
+                        test(ex instanceof Ice.MarshalException);
+                    });
+            }
+        ).then(
+            function()
+            {
                 return prx.opString("hello", "world");
             }
         ).then(

@@ -2890,6 +2890,23 @@ defineProperty(BasicStream.prototype, "buffer", {
     get: function() { return this._buf; }
 });
 
+var defineBuiltinHelperWithRangeCheck = function(write, read, sz, format, min, max)
+{
+    var helper = {
+        write: function(os, v) { return write.call(os, v); },
+        read: function(is) { return read.call(is); },
+        writeOpt: function(os, tag, v) { os.writeOptValue(tag, format, write, v); },
+        readOpt: function(is, tag) { return is.readOptValue(tag, format, read); },
+        validate: function(v) {
+            return v >= min && v <= max;
+        }
+    };
+    defineProperty(helper, "minWireSize", {
+        get: function() { return sz; }
+    });
+    return helper;
+};
+
 var defineBuiltinHelper = function(write, read, sz, format)
 {
     var helper = {
@@ -2905,13 +2922,18 @@ var defineBuiltinHelper = function(write, read, sz, format)
 };
 
 var stream = BasicStream.prototype;
-Ice.ByteHelper = defineBuiltinHelper(stream.writeByte, stream.readByte, 1, Ice.OptionalFormat.F1);
-Ice.BoolHelper = defineBuiltinHelper(stream.writeBool, stream.readBool, 1, Ice.OptionalFormat.F1);
-Ice.ShortHelper = defineBuiltinHelper(stream.writeShort, stream.readShort, 2, Ice.OptionalFormat.F2);
-Ice.IntHelper = defineBuiltinHelper(stream.writeInt, stream.readInt, 4, Ice.OptionalFormat.F4);
-Ice.LongHelper = defineBuiltinHelper(stream.writeLong, stream.readLong, 8, Ice.OptionalFormat.F8);
+Ice.ByteHelper =
+    defineBuiltinHelperWithRangeCheck(stream.writeByte, stream.readByte, 1, Ice.OptionalFormat.F1, 0, 255);
+Ice.ShortHelper =
+    defineBuiltinHelperWithRangeCheck(stream.writeShort, stream.readShort, 2, Ice.OptionalFormat.F2, -32768, 32767);
+Ice.IntHelper =
+    defineBuiltinHelperWithRangeCheck(stream.writeInt, stream.readInt, 4, Ice.OptionalFormat.F4, -2147483648, 2147483647);
+
 Ice.FloatHelper = defineBuiltinHelper(stream.writeFloat, stream.readFloat, 4, Ice.OptionalFormat.F4);
 Ice.DoubleHelper = defineBuiltinHelper(stream.writeDouble, stream.readDouble, 8, Ice.OptionalFormat.F8);
+
+Ice.BoolHelper = defineBuiltinHelper(stream.writeBool, stream.readBool, 1, Ice.OptionalFormat.F1);
+Ice.LongHelper = defineBuiltinHelper(stream.writeLong, stream.readLong, 8, Ice.OptionalFormat.F8);
 Ice.StringHelper = defineBuiltinHelper(stream.writeString, stream.readString, 1, Ice.OptionalFormat.VSize);
 
 Ice.ObjectHelper = {
