@@ -326,7 +326,15 @@ public class Client
 
                 Console.Out.Write("testing SessionHelper communicator after destroy... ");
                 Console.Out.Flush();
-                test(_session.communicator() != null);
+                try
+                {
+                    test(_session.communicator() != null);
+                    _session.communicator().stringToProxy("dummy");
+                    test(false);
+                }
+                catch(Ice.CommunicatorDestroyedException)
+                {
+                }
                 Console.Out.WriteLine("ok");
 
 
@@ -398,7 +406,15 @@ public class Client
 
                 Console.Out.Write("testing SessionHelper communicator after connect failure... ");
                 Console.Out.Flush();
-                test(_session.communicator() != null);
+                try
+                {
+                    test(_session.communicator() != null);
+                    _session.communicator().stringToProxy("dummy");
+                    test(false);
+                }
+                catch(Ice.CommunicatorDestroyedException)
+                {
+                }
                 Console.Out.WriteLine("ok");
 
                 Console.Out.Write("testing SessionHelper destroy after connect failure... ");

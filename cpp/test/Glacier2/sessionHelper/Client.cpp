@@ -360,7 +360,15 @@ public:
 //             }
 
             cout << "testing SessionHelper communicator after destroy... " << flush;
-            test(_session->communicator());
+            try
+            {
+                test(_session->communicator());
+                _session->communicator()->stringToProxy("dummy");
+                test(false);
+            }
+            catch(const Ice::CommunicatorDestroyedException&)
+            {
+            }
             cout << "ok" << endl;
 
 
@@ -423,7 +431,15 @@ public:
             cout << "ok" << endl;
 
             cout << "testing SessionHelper communicator after connect failure... " << flush;
-            test(_session->communicator());
+            try
+            {
+                test(_session->communicator());
+                _session->communicator()->stringToProxy("dummy");
+                test(false);
+            }
+            catch(const Ice::CommunicatorDestroyedException&)
+            {
+            }
             cout << "ok" << endl;
 
             cout << "testing SessionHelper destroy after connect failure... " << flush;

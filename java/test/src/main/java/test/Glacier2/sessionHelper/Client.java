@@ -55,7 +55,7 @@ public class Client extends test.Util.Application
     {
         String protocol = communicator().getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp");
         String host = communicator().getProperties().getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
-        
+
         _factory = new Glacier2.SessionFactoryHelper(_initData, new Glacier2.SessionCallback()
             {
                 @Override
@@ -279,7 +279,15 @@ public class Client extends test.Util.Application
 
             out.print("testing SessionHelper communicator after destroy... ");
             out.flush();
-            test(_session.communicator() == null);
+            try
+            {
+                test(_session.communicator() != null);
+                _session.communicator().stringToProxy("dummy");
+                test(false);
+            }
+            catch(Ice.CommunicatorDestroyedException ex)
+            {
+            }
             out.println("ok");
 
 
@@ -407,7 +415,15 @@ public class Client extends test.Util.Application
 
             out.print("testing SessionHelper communicator after connect failure... ");
             out.flush();
-            test(_session.communicator() == null);
+            try
+            {
+                test(_session.communicator() != null);
+                _session.communicator().stringToProxy("dummy");
+                test(false);
+            }
+            catch(Ice.CommunicatorDestroyedException ex)
+            {
+            }
             out.println("ok");
 
             out.print("testing SessionHelper destroy after connect failure... ");
