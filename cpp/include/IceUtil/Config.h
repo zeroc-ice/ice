@@ -38,6 +38,7 @@
 //
 #if defined(__sun) && (defined(__sparcv9) || defined(__x86_64))    || \
       defined(__linux) && defined(__x86_64)                        || \
+      defined(__APPLE__) && defined(__x86_64)                      || \
       defined(__hppa) && defined(__LP64__)                         || \
       defined(_ARCH_COM) && defined(__64BIT__)                     || \
       defined(__alpha__)                                           || \
