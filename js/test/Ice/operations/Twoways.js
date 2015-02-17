@@ -103,56 +103,104 @@
                 test((f - 3.14) <= 0.01);
                 test(d == 1.1E10);
                 test(retval == 1.1E10);
-                return prx.opByte(0xffff, 0xff0f).then(
-                    failCB,
-                    function(ex)
-                    {
-                        test(ex instanceof Ice.MarshalException);
-                    });
+                return prx.opByte(0xffff, 0xff0f);
             }
         ).then(
-            function()
+            failCB,
+            function(ex)
             {
-                return prx.opShortIntLong(-32768 - 1, 0, 0).then(
-                    failCB,
-                    function(ex)
-                    {
-                        test(ex instanceof Ice.MarshalException);
-                    });
+                test(ex instanceof Ice.MarshalException);
+                return prx.opShortIntLong(-32768 - 1, 0, 0);
             }
         ).then(
-            function()
+            failCB,
+            function(ex)
             {
-                return prx.opShortIntLong(32767 + 1, 0, 0).then(
-                    failCB,
-                    function(ex)
-                    {
-                        test(ex instanceof Ice.MarshalException);
-                    });
+                test(ex instanceof Ice.MarshalException);
+                return prx.opShortIntLong(32767 + 1, 0, 0);
             }
         ).then(
-            function()
+            failCB,
+            function(ex)
             {
-                return prx.opShortIntLong(0, -2147483648 - 1, 0).then(
-                    failCB,
-                    function(ex)
-                    {
-                        test(ex instanceof Ice.MarshalException);
-                    });
+                test(ex instanceof Ice.MarshalException);
+                return prx.opShortIntLong(0, -2147483648 - 1, 0);
             }
         ).then(
-            function()
+            failCB,
+            function(ex)
             {
-                return prx.opShortIntLong(0, 2147483647 + 1, 0).then(
-                    failCB,
-                    function(ex)
-                    {
-                        test(ex instanceof Ice.MarshalException);
-                    });
+                test(ex instanceof Ice.MarshalException);
+                return prx.opShortIntLong(0, 2147483647 + 1, 0);
             }
         ).then(
-            function()
+            failCB,
+            function(ex)
             {
+                test(ex instanceof Ice.MarshalException);
+                return prx.opShortIntLong(0, 0, new Ice.Long(0, 0xFFFFFFFF + 1));
+            }
+        ).then(
+            failCB,
+            function(ex)
+            {
+                test(ex instanceof Ice.MarshalException);
+                return prx.opShortIntLong(0, 0, new Ice.Long(0xFFFFFFFF + 1, 0));
+            }
+        ).then(
+            failCB,
+            function(ex)
+            {
+                test(ex instanceof Ice.MarshalException);
+                return prx.opShortIntLong(0, 0, new Ice.Long(0, -1));
+            }
+        ).then(
+            failCB,
+            function(ex)
+            {
+                test(ex instanceof Ice.MarshalException);
+                return prx.opShortIntLong(Number.NaN, 0, new Ice.Long(0, 0));
+            }
+        ).then(
+            failCB,
+            function(ex)
+            {
+                test(ex instanceof Ice.MarshalException);
+                return prx.opFloatDouble(Number.MAX_VALUE, 0);
+            }
+        ).then(
+            failCB,
+            function(ex)
+            {
+                test(ex instanceof Ice.MarshalException);
+                return prx.opFloatDouble(-Number.MAX_VALUE, 0);
+            }
+        ).then(
+            failCB,
+            function(ex)
+            {
+                test(ex instanceof Ice.MarshalException);
+                return prx.opFloatDouble(0, Number.MAX_VALUE * 2);
+            }
+        ).then(
+            failCB,
+            function(ex)
+            {
+                test(ex instanceof Ice.MarshalException);
+                return prx.opFloatDouble(0, -Number.MAX_VALUE * 2);
+            }
+        ).then(
+            failCB,
+            function(ex)
+            {
+                test(ex instanceof Ice.MarshalException);
+                return prx.opFloatDouble(0, Number.NaN);
+            }
+        ).then(
+            failCB,
+            function(ex)
+            {
+                test(ex instanceof Ice.MarshalException);
                 return prx.opString("hello", "world");
             }
         ).then(

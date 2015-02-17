@@ -2890,31 +2890,21 @@ defineProperty(BasicStream.prototype, "buffer", {
     get: function() { return this._buf; }
 });
 
-var defineBuiltinHelperWithRangeCheck = function(write, read, sz, format, min, max)
+var defineBuiltinHelper = function(write, read, sz, format, min, max)
 {
     var helper = {
         write: function(os, v) { return write.call(os, v); },
         read: function(is) { return read.call(is); },
         writeOpt: function(os, tag, v) { os.writeOptValue(tag, format, write, v); },
         readOpt: function(is, tag) { return is.readOptValue(tag, format, read); },
-        validate: function(v) {
+    };
+    
+    if(min !== undefined && max != undefined)
+    {
+        helper.validate = function(v) {
             return v >= min && v <= max;
         }
-    };
-    defineProperty(helper, "minWireSize", {
-        get: function() { return sz; }
-    });
-    return helper;
-};
-
-var defineBuiltinHelper = function(write, read, sz, format)
-{
-    var helper = {
-        write: function(os, v) { return write.call(os, v); },
-        read: function(is) { return read.call(is); },
-        writeOpt: function(os, tag, v) { os.writeOptValue(tag, format, write, v); },
-        readOpt: function(is, tag) { return is.readOptValue(tag, format, read); },
-    };
+    }
     defineProperty(helper, "minWireSize", {
         get: function() { return sz; }
     });
@@ -2922,18 +2912,52 @@ var defineBuiltinHelper = function(write, read, sz, format)
 };
 
 var stream = BasicStream.prototype;
-Ice.ByteHelper =
-    defineBuiltinHelperWithRangeCheck(stream.writeByte, stream.readByte, 1, Ice.OptionalFormat.F1, 0, 255);
-Ice.ShortHelper =
-    defineBuiltinHelperWithRangeCheck(stream.writeShort, stream.readShort, 2, Ice.OptionalFormat.F2, -32768, 32767);
-Ice.IntHelper =
-    defineBuiltinHelperWithRangeCheck(stream.writeInt, stream.readInt, 4, Ice.OptionalFormat.F4, -2147483648, 2147483647);
 
-Ice.FloatHelper = defineBuiltinHelper(stream.writeFloat, stream.readFloat, 4, Ice.OptionalFormat.F4);
-Ice.DoubleHelper = defineBuiltinHelper(stream.writeDouble, stream.readDouble, 8, Ice.OptionalFormat.F8);
+
+//
+// Constants to use in number type range checks.
+//
+var MIN_UINT8_VALUE = 0x0;
+var MAX_UINT8_VALUE = 0xFF;
+
+var MIN_INT16_VALUE = -0x8000;
+var MAX_INT16_VALUE = 0x7FFF;
+
+var MIN_UINT32_VALUE = 0x0;
+var MAX_UINT32_VALUE = 0xFFFFFFFF;
+
+var MIN_INT32_VALUE = -0x80000000;
+var MAX_INT32_VALUE = 0x7FFFFFFF;
+
+var MIN_FLOAT32_VALUE = -3.4028234664e+38;
+var MAX_FLOAT32_VALUE = 3.4028234664e+38;
+
+Ice.ByteHelper = defineBuiltinHelper(stream.writeByte, stream.readByte, 1, Ice.OptionalFormat.F1, 
+                                     MIN_UINT8_VALUE, MAX_UINT8_VALUE);
+
+Ice.ShortHelper = defineBuiltinHelper(stream.writeShort, stream.readShort, 2, Ice.OptionalFormat.F2,
+                                      MIN_INT16_VALUE, MAX_INT16_VALUE);
+
+Ice.IntHelper = defineBuiltinHelper(stream.writeInt, stream.readInt, 4, Ice.OptionalFormat.F4, 
+                                    MIN_INT32_VALUE, MAX_INT32_VALUE);
+
+Ice.FloatHelper = defineBuiltinHelper(stream.writeFloat, stream.readFloat, 4, Ice.OptionalFormat.F4,
+                                      MIN_FLOAT32_VALUE, MAX_FLOAT32_VALUE);
+
+Ice.DoubleHelper = defineBuiltinHelper(stream.writeDouble, stream.readDouble, 8, Ice.OptionalFormat.F8,
+                                       -Number.MAX_VALUE, Number.MAX_VALUE);
 
 Ice.BoolHelper = defineBuiltinHelper(stream.writeBool, stream.readBool, 1, Ice.OptionalFormat.F1);
 Ice.LongHelper = defineBuiltinHelper(stream.writeLong, stream.readLong, 8, Ice.OptionalFormat.F8);
+Ice.LongHelper.validate = function(v)
+{
+    //
+    // For a long to be valid both words must be within the range of UINT32
+    //
+    return v.low >= MIN_UINT32_VALUE && v.low <= MAX_UINT32_VALUE && 
+           v.high >= MIN_UINT32_VALUE && v.high <= MAX_UINT32_VALUE;
+}
+
 Ice.StringHelper = defineBuiltinHelper(stream.writeString, stream.readString, 1, Ice.OptionalFormat.VSize);
 
 Ice.ObjectHelper = {
