@@ -238,10 +238,8 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         test(rso.e == TestOperationsenum1);
         test([rso.s.s isEqualToString:@""]);
         test(so.p == nil);
-        test([so.p isEqual:@""]);
         test(so.e == TestOperationsenum1);
         test([so.s.s isEqualToString:@"a new string"]);
-
     }
 
     {
