@@ -45,6 +45,34 @@ struct FileInfo
  **/
 sequence<FileInfo> FileInfoSeq;
 
+
+/**
+ *
+ * Basic information about a single file.
+ *
+ **/
+struct LargeFileInfo
+{
+    /** The pathname. **/
+    string path;
+
+    /** The SHA-1 checksum of the file. **/
+    Ice::ByteSeq checksum;
+
+    /** The size of the compressed file in number of bytes. **/
+    long size;
+
+    /** The executable flag. */
+    bool executable;
+};
+
+/**
+ *
+ * A sequence with information about many files.
+ *
+ **/
+sequence<LargeFileInfo> LargeFileInfoSeq;
+
 };
 
 

@@ -26,7 +26,7 @@ SDIR		= $(slicedir)\IcePatch2
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-CPPFLAGS	= -I. -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
+CPPFLAGS	= -I. -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN -wd4996
 
 SLICE2CPPFLAGS	= --ice --include-dir IcePatch2 --dll-export ICE_PATCH2_API $(SLICE2CPPFLAGS)
 

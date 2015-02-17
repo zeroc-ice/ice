@@ -14,7 +14,7 @@
 #include <IcePatch2/FileInfo.h>
 #include <stdio.h>
 
-namespace IcePatch2
+namespace IcePatch2Internal
 {
 
 ICE_PATCH2_API extern const char* checksumFile;
@@ -48,12 +48,14 @@ ICE_PATCH2_API void createDirectoryRecursive(const std::string&);
 
 ICE_PATCH2_API void compressBytesToFile(const std::string&, const Ice::ByteSeq&, Ice::Int);
 ICE_PATCH2_API void decompressFile(const std::string&);
-ICE_PATCH2_API void setFileFlags(const std::string&, const FileInfo&);
 
-struct FileInfoEqual: public std::binary_function<const FileInfo&, const FileInfo&, bool>
+ICE_PATCH2_API void setFileFlags(const std::string&, const IcePatch2::FileInfo&);
+ICE_PATCH2_API void setFileFlags(const std::string&, const IcePatch2::LargeFileInfo&);
+
+struct FileInfoEqual : public std::binary_function<const IcePatch2::LargeFileInfo&, const IcePatch2::LargeFileInfo&, bool>
 {
     bool
-    operator()(const FileInfo& lhs, const FileInfo& rhs)
+    operator()(const IcePatch2::LargeFileInfo& lhs, const IcePatch2::LargeFileInfo& rhs)
     {
         if(lhs.path != rhs.path)
         {
@@ -66,8 +68,8 @@ struct FileInfoEqual: public std::binary_function<const FileInfo&, const FileInf
         // not take the actual size into account, as it might be set
         // to 0 if no compressed file is available.
         //
-        Ice::Int lsz = lhs.size > 0 ? 0 : lhs.size;
-        Ice::Int rsz = rhs.size > 0 ? 0 : rhs.size;
+        Ice::Long lsz = lhs.size > 0 ? 0 : lhs.size;
+        Ice::Long rsz = rhs.size > 0 ? 0 : rhs.size;
         if(lsz != rsz)
         {
             return false;
@@ -82,16 +84,16 @@ struct FileInfoEqual: public std::binary_function<const FileInfo&, const FileInf
     }
 };
 
-struct FileInfoWithoutFlagsLess: public std::binary_function<const FileInfo&, const FileInfo&, bool>
+struct FileInfoWithoutFlagsLess : public std::binary_function<const IcePatch2::LargeFileInfo&, const IcePatch2::LargeFileInfo&, bool>
 {
     bool
-    operator()(const FileInfo& lhs, const FileInfo& rhs)
+    operator()(const IcePatch2::LargeFileInfo& lhs, const IcePatch2::LargeFileInfo& rhs)
     {
         return compareWithoutFlags(lhs, rhs) < 0;
     }
 
     int
-    compareWithoutFlags(const FileInfo& lhs, const FileInfo& rhs)
+    compareWithoutFlags(const IcePatch2::LargeFileInfo& lhs, const IcePatch2::LargeFileInfo& rhs)
     {
         if(lhs.path < rhs.path)
         {
@@ -108,8 +110,8 @@ struct FileInfoWithoutFlagsLess: public std::binary_function<const FileInfo&, co
         // not take the actual size into account, as it might be set
         // to 0 if no compressed file is available.
         //
-        Ice::Int lsz = lhs.size > 0 ? 0 : lhs.size;
-        Ice::Int rsz = rhs.size > 0 ? 0 : rhs.size;
+        Ice::Long lsz = lhs.size > 0 ? 0 : lhs.size;
+        Ice::Long rsz = rhs.size > 0 ? 0 : rhs.size;
         if(lsz < rsz)
         {
             return -1;
@@ -135,7 +137,7 @@ struct FileInfoWithoutFlagsLess: public std::binary_function<const FileInfo&, co
 struct FileInfoLess : public FileInfoWithoutFlagsLess
 {
     bool
-    operator()(const FileInfo& lhs, const FileInfo& rhs)
+    operator()(const IcePatch2::LargeFileInfo& lhs, const IcePatch2::LargeFileInfo& rhs)
     {
         int rc = compareWithoutFlags(lhs, rhs);
         if(rc < 0)
@@ -162,18 +164,30 @@ public:
     virtual bool compress(const std::string&) = 0;
 };
 
-ICE_PATCH2_API bool getFileInfoSeq(const std::string&, int, GetFileInfoSeqCB*, FileInfoSeq&);
-ICE_PATCH2_API bool getFileInfoSeqSubDir(const std::string&, const std::string&, int, GetFileInfoSeqCB*, FileInfoSeq&);
+ICE_PATCH2_API bool getFileInfoSeq(const std::string&, int, GetFileInfoSeqCB*, IcePatch2::FileInfoSeq&);
+ICE_PATCH2_API bool getFileInfoSeq(const std::string&, int, GetFileInfoSeqCB*, IcePatch2::LargeFileInfoSeq&);
 
-ICE_PATCH2_API void saveFileInfoSeq(const std::string&, const FileInfoSeq&);
-ICE_PATCH2_API void loadFileInfoSeq(const std::string&, FileInfoSeq&);
+ICE_PATCH2_API bool getFileInfoSeqSubDir(const std::string&, const std::string&, int, GetFileInfoSeqCB*, IcePatch2::FileInfoSeq&);
+ICE_PATCH2_API bool getFileInfoSeqSubDir(const std::string&, const std::string&, int, GetFileInfoSeqCB*, IcePatch2::LargeFileInfoSeq&);
 
-ICE_PATCH2_API bool readFileInfo(FILE*, FileInfo&);
-ICE_PATCH2_API bool writeFileInfo(FILE*, const FileInfo&);
+ICE_PATCH2_API void saveFileInfoSeq(const std::string&, const IcePatch2::FileInfoSeq&);
+ICE_PATCH2_API void saveFileInfoSeq(const std::string&, const IcePatch2::LargeFileInfoSeq&);
+
+ICE_PATCH2_API void loadFileInfoSeq(const std::string&, IcePatch2::FileInfoSeq&);
+ICE_PATCH2_API void loadFileInfoSeq(const std::string&, IcePatch2::LargeFileInfoSeq&);
+
+ICE_PATCH2_API bool readFileInfo(FILE*, IcePatch2::FileInfo&);
+ICE_PATCH2_API bool readFileInfo(FILE*, IcePatch2::LargeFileInfo&);
+
+ICE_PATCH2_API IcePatch2::FileInfo toFileInfo(const IcePatch2::LargeFileInfo&);
+ICE_PATCH2_API IcePatch2::LargeFileInfo toLargeFileInfo(const IcePatch2::FileInfo&);
+
+ICE_PATCH2_API bool writeFileInfo(FILE*, const IcePatch2::FileInfo&);
+ICE_PATCH2_API bool writeFileInfo(FILE*, const IcePatch2::LargeFileInfo&);
 
 struct FileTree1
 {
-    FileInfoSeq files;
+    IcePatch2::LargeFileInfoSeq files;
     Ice::ByteSeq checksum;
 };
 
@@ -185,7 +199,8 @@ struct FileTree0
     Ice::ByteSeq checksum;
 };
 
-ICE_PATCH2_API void getFileTree0(const FileInfoSeq&, FileTree0&);
+ICE_PATCH2_API void getFileTree0(const IcePatch2::FileInfoSeq&, FileTree0&);
+ICE_PATCH2_API void getFileTree0(const IcePatch2::LargeFileInfoSeq&, FileTree0&);
 
 }
 

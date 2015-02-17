@@ -17,7 +17,7 @@
 #include <IceGrid/PlatformInfo.h>
 #include <IceGrid/TraceLevels.h>
 
-#include <IcePatch2/Util.h>
+#include <set>
 #include <climits>
 
 #if defined(_WIN32)

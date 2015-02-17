@@ -129,7 +129,7 @@ ClientUtil.obj: \
     "$(includedir)\IcePatch2\FileServer.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
     "$(includedir)\IcePatch2\Config.h" \
-    "$(includedir)\IcePatch2\Util.h" \
+    "Util.h" \
 
 Util.obj: \
 	Util.cpp \
@@ -164,7 +164,7 @@ Util.obj: \
     "$(includedir)\IceUtil\StringUtil.h" \
     "..\..\src\IceUtil\FileUtil.h" \
     "$(includedir)\IceUtil\SHA1.h" \
-    "$(includedir)\IcePatch2\Util.h" \
+    "Util.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
@@ -260,6 +260,7 @@ Util.obj: \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
     "$(includedir)\IcePatch2\Config.h" \
+    "$(includedir)\IcePatch2\FileServer.h" \
 
 FileInfo.obj: \
 	FileInfo.cpp \

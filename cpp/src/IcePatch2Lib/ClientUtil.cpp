@@ -11,7 +11,7 @@
 #include <IceUtil/FileUtil.h>
 #define ICE_PATCH2_API_EXPORTS
 #include <IcePatch2/ClientUtil.h>
-#include <IcePatch2/Util.h>
+#include <IcePatch2Lib/Util.h>
 #include <list>
 #include <iterator>
 
@@ -19,175 +19,194 @@ using namespace std;
 using namespace Ice;
 using namespace IceUtil;
 using namespace IcePatch2;
+using namespace IcePatch2Internal;
 
-namespace IcePatch2
+namespace
 {
 
 class Decompressor : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    Decompressor(const string& dataDir) :
-        _dataDir(dataDir),
-        _destroy(false)
-    {
-    }
+    Decompressor(const string&);
+    virtual ~Decompressor();
 
-    virtual ~Decompressor()
-    {
-        assert(_destroy);
-    }
-
-    void
-    destroy()
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        _destroy = true;
-        notify();
-    }
-
-    void
-    add(const FileInfo& info)
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        if(!_exception.empty())
-        {
-            throw _exception;
-        }
-        _files.push_back(info);
-        notify();
-    }
-
-    void
-    exception() const
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        if(!_exception.empty())
-        {
-            throw _exception;
-        }
-    }
-
-    void
-    log(FILE* fp)
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-
-        for(FileInfoSeq::const_iterator p = _filesDone.begin(); p != _filesDone.end(); ++p)
-        {
-            if(fputc('+', fp) == EOF || !writeFileInfo(fp, *p))
-            {
-                throw "error writing log file:\n" + IceUtilInternal::lastErrorToString();
-            }
-        }
-
-        _filesDone.clear();
-    }
-
-    virtual void
-    run()
-    {
-        FileInfo info;
-        
-        while(true)
-        {
-            {
-                IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-            
-                if(!info.path.empty())
-                {
-                    _filesDone.push_back(info);
-                }
-            
-                while(!_destroy && _files.empty())
-                {
-                    wait();
-                }
-            
-                if(!_files.empty())
-                {
-                    info = _files.front();
-                    _files.pop_front();
-                }
-                else
-                {
-                    return;
-                }
-            }
-        
-            try
-            {
-                decompressFile(_dataDir + '/' + info.path);
-                setFileFlags(_dataDir + '/' + info.path, info);
-                remove(_dataDir + '/' + info.path + ".bz2");
-            }
-            catch(const string& ex)
-            {
-                IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-                _destroy = true;
-                _exception = ex;
-                return;
-            }
-        }
-    }
+    void destroy();
+    void add(const LargeFileInfo&);
+    void exception() const;
+    void log(FILE* fp);
+    virtual void run();
 
 private:
 
     const string _dataDir;
 
     string _exception;
-    list<FileInfo> _files;
-    FileInfoSeq _filesDone;
-
+    list<LargeFileInfo> _files;
+    LargeFileInfoSeq _filesDone;
     bool _destroy;
 };
+typedef IceUtil::Handle<Decompressor> DecompressorPtr;
 
-}
-
-namespace
+class PatcherI : public Patcher
 {
+public:
 
-string
-getDataDir(const CommunicatorPtr& communicator, const string& defaultValue)
-{
-    return communicator->getProperties()->getPropertyWithDefault("IcePatch2Client.Directory", defaultValue);
-}
+    PatcherI(const Ice::CommunicatorPtr&, const PatcherFeedbackPtr&);
+    PatcherI(const FileServerPrx&, const PatcherFeedbackPtr&, const std::string&, bool, Ice::Int, Ice::Int);
+    virtual ~PatcherI();
 
-int
-getThorough(const CommunicatorPtr& communicator, int defaultValue)
-{
-    return communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2Client.Thorough", defaultValue);
-}
+    virtual bool prepare();
+    virtual bool patch(const std::string&);
+    virtual void finish();
 
-int
-getChunkSize(const CommunicatorPtr& communicator, int defaultValue)
-{
-    return communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2Client.ChunkSize", defaultValue);
-}
+private:
 
-int
-getRemove(const CommunicatorPtr& communicator, int defaultValue)
-{
-    return communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2Client.Remove", defaultValue);
-}
+    void init(const FileServerPrx&);
+    bool removeFiles(const LargeFileInfoSeq&);
+    bool updateFiles(const LargeFileInfoSeq&);
+    bool updateFilesInternal(const LargeFileInfoSeq&, const DecompressorPtr&);
+    bool updateFlags(const LargeFileInfoSeq&);
 
-}
+    const PatcherFeedbackPtr _feedback;
+    const std::string _dataDir;
+    const bool _thorough;
+    const Ice::Int _chunkSize;
+    const Ice::Int _remove;
+    const FileServerPrx _serverCompress;
+    const FileServerPrx _serverNoCompress;
 
-
-IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFeedbackPtr& feedback) :
-    _feedback(feedback),
-    _dataDir(getDataDir(communicator, ".")),
-    _thorough(getThorough(communicator, 0) > 0),
-    _chunkSize(getChunkSize(communicator, 100)),
-    _remove(getRemove(communicator, 1)),
-    _log(0)
-{
-    const PropertiesPtr properties = communicator->getProperties();
-    const char* clientProxyProperty = "IcePatch2Client.Proxy";
-    std::string clientProxy = properties->getProperty(clientProxyProperty);
-    ObjectPrx serverBase = communicator->stringToProxy(clientProxy);
+    LargeFileInfoSeq _localFiles;
+    LargeFileInfoSeq _updateFiles;
+    LargeFileInfoSeq _updateFlags;
+    LargeFileInfoSeq _removeFiles;
     
-    FileServerPrx server = FileServerPrx::checkedCast(serverBase);
+    FILE* _log;
+    bool _useSmallFileAPI;
+};
+
+Decompressor::Decompressor(const string& dataDir) :
+    _dataDir(dataDir),
+    _destroy(false)
+{
+}
+
+Decompressor::~Decompressor()
+{
+    assert(_destroy);
+}
+
+void
+Decompressor::destroy()
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    _destroy = true;
+    notify();
+}
+
+void
+Decompressor::add(const LargeFileInfo& info)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    if(!_exception.empty())
+    {
+        throw _exception;
+    }
+    _files.push_back(info);
+    notify();
+}
+
+void
+Decompressor::exception() const
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    if(!_exception.empty())
+    {
+        throw _exception;
+    }
+}
+
+void
+Decompressor::log(FILE* fp)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+    for(LargeFileInfoSeq::const_iterator p = _filesDone.begin(); p != _filesDone.end(); ++p)
+    {
+        if(fputc('+', fp) == EOF || !writeFileInfo(fp, *p))
+        {
+            throw "error writing log file:\n" + IceUtilInternal::lastErrorToString();
+        }
+    }
+
+    _filesDone.clear();
+}
+
+void
+Decompressor::run()
+{
+    LargeFileInfo info;
+    
+    while(true)
+    {
+        {
+            IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        
+            if(!info.path.empty())
+            {
+                _filesDone.push_back(info);
+            }
+        
+            while(!_destroy && _files.empty())
+            {
+                wait();
+            }
+        
+            if(!_files.empty())
+            {
+                info = _files.front();
+                _files.pop_front();
+            }
+            else
+            {
+                return;
+            }
+        }
+    
+        try
+        {
+            decompressFile(_dataDir + '/' + info.path);
+            setFileFlags(_dataDir + '/' + info.path, info);
+            remove(_dataDir + '/' + info.path + ".bz2");
+        }
+        catch(const string& ex)
+        {
+            IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+            _destroy = true;
+            _exception = ex;
+            return;
+        }
+    }
+}
+
+
+PatcherI::PatcherI(const CommunicatorPtr& communicator, const PatcherFeedbackPtr& feedback) :
+    _feedback(feedback),
+    _dataDir(communicator->getProperties()->getPropertyWithDefault("IcePatch2Client.Directory", ".")),
+    _thorough(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2Client.Thorough", 0) > 0),
+    _chunkSize(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2Client.ChunkSize", 100)),
+    _remove(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2Client.Remove", 1)),
+    _log(0),
+    _useSmallFileAPI(false)
+{
+    const char* clientProxyProperty = "IcePatch2Client.Proxy";
+    string clientProxy = communicator->getProperties()->getProperty(clientProxyProperty);
+    if(clientProxy.empty())
+    {
+        throw "property `IcePatch2Client.Proxy' is not set";
+    }
+    
+    FileServerPrx server = FileServerPrx::checkedCast(communicator->stringToProxy(clientProxy));
     if(!server)
     {
         throw "proxy `" + clientProxy + "' is not a file server.";
@@ -196,22 +215,23 @@ IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFe
     init(server);
 }
 
-IcePatch2::Patcher::Patcher(const FileServerPrx& server,
-                            const PatcherFeedbackPtr& feedback,
-                            const string& dataDir,
-                            bool thorough,
-                            Ice::Int chunkSize,
-                            Ice::Int remove) :
+PatcherI::PatcherI(const FileServerPrx& server,
+                   const PatcherFeedbackPtr& feedback,
+                   const string& dataDir,
+                   bool thorough,
+                   Ice::Int chunkSize,
+                   Ice::Int remove) :
     _feedback(feedback),
     _dataDir(dataDir),
     _thorough(thorough),
     _chunkSize(chunkSize),
-    _remove(remove)
+    _remove(remove),
+    _useSmallFileAPI(false)
 {
     init(server);
 }
 
-IcePatch2::Patcher::~Patcher()
+PatcherI::~PatcherI()
 {
     if(_log != 0)
     {
@@ -219,9 +239,6 @@ IcePatch2::Patcher::~Patcher()
         _log = 0;
     }
 }
-
-namespace
-{
 
 class PatcherGetFileInfoSeqCB : public GetFileInfoSeqCB
 {
@@ -255,10 +272,8 @@ private:
     const PatcherFeedbackPtr _feedback;
 };
 
-}
-
 bool
-IcePatch2::Patcher::prepare()
+PatcherI::prepare()
 {
     _localFiles.clear();
 
@@ -316,95 +331,122 @@ IcePatch2::Patcher::prepare()
         {
             throw string("server returned illegal value");
         }
-        
-        AsyncResultPtr curCB;
-        AsyncResultPtr nxtCB;
 
-        for(int node0 = 0; node0 < 256; ++node0)
+        while(true)
         {
-            if(tree0.nodes[node0].checksum != checksumSeq[node0])
+            AsyncResultPtr curCB;
+            AsyncResultPtr nxtCB;
+            try
             {
-                if(!curCB)
+                for(int node0 = 0; node0 < 256; ++node0)
                 {
-                    assert(!nxtCB);
-                    curCB = _serverCompress->begin_getFileInfoSeq(node0);
+                    if(tree0.nodes[node0].checksum != checksumSeq[node0])
+                    {
+                        if(!curCB)
+                        {
+                            assert(!nxtCB);
+                            curCB = _useSmallFileAPI ? _serverCompress->begin_getFileInfoSeq(node0) :
+                                                       _serverCompress->begin_getLargeFileInfoSeq(node0);
+                        }
+                        else
+                        {
+                            assert(nxtCB);
+                            swap(nxtCB, curCB);
+                        }
+                        
+                        int node0Nxt = node0;
+                        
+                        do
+                        {
+                            ++node0Nxt;
+                        }
+                        while(node0Nxt < 256 && tree0.nodes[node0Nxt].checksum == checksumSeq[node0Nxt]);
+
+                        if(node0Nxt < 256)
+                        {
+                            nxtCB = _useSmallFileAPI ? _serverCompress->begin_getFileInfoSeq(node0Nxt) :
+                                                       _serverCompress->begin_getLargeFileInfoSeq(node0Nxt);
+                        }
+
+                        LargeFileInfoSeq files;
+                        if(_useSmallFileAPI)
+                        {
+                            FileInfoSeq smallFiles = _serverCompress->end_getFileInfoSeq(curCB);
+                            files.resize(smallFiles.size());
+                            transform(smallFiles.begin(), smallFiles.end(), files.begin(), toLargeFileInfo);
+                        }
+                        else
+                        {
+                            files = _serverCompress->end_getLargeFileInfoSeq(curCB);
+                        }
+                        
+                        sort(files.begin(), files.end(), FileInfoLess());
+                        files.erase(unique(files.begin(), files.end(), FileInfoEqual()), files.end());
+
+                        //
+                        // Compute the set of files which were removed.
+                        //
+                        set_difference(tree0.nodes[node0].files.begin(),
+                                       tree0.nodes[node0].files.end(),
+                                       files.begin(),
+                                       files.end(),
+                                       back_inserter(_removeFiles),
+                                       FileInfoWithoutFlagsLess()); // NOTE: We ignore the flags here.
+
+                        //
+                        // Compute the set of files which were updated (either the file contents, flags or both).
+                        //
+                        LargeFileInfoSeq updatedFiles;
+                        updatedFiles.reserve(files.size());
+                                            
+                        set_difference(files.begin(),
+                                       files.end(),
+                                       tree0.nodes[node0].files.begin(),
+                                       tree0.nodes[node0].files.end(),
+                                       back_inserter(updatedFiles),
+                                       FileInfoLess());
+
+                        //
+                        // Compute the set of files whose contents was updated.
+                        //
+                        LargeFileInfoSeq contentsUpdatedFiles;
+                        contentsUpdatedFiles.reserve(files.size());
+
+                        set_difference(files.begin(),
+                                       files.end(),
+                                       tree0.nodes[node0].files.begin(),
+                                       tree0.nodes[node0].files.end(),
+                                       back_inserter(contentsUpdatedFiles),
+                                       FileInfoWithoutFlagsLess()); // NOTE: We ignore the flags here.
+                        copy(contentsUpdatedFiles.begin(), contentsUpdatedFiles.end(), back_inserter(_updateFiles));
+
+                        //
+                        // Compute the set of files whose flags were updated.
+                        //
+                        set_difference(updatedFiles.begin(),
+                                       updatedFiles.end(),
+                                       contentsUpdatedFiles.begin(),
+                                       contentsUpdatedFiles.end(),
+                                       back_inserter(_updateFlags),
+                                       FileInfoLess());
+                    }
+
+                    if(!_feedback->fileListProgress((node0 + 1) * 100 / 256))
+                    {
+                        return false;
+                    }
                 }
-                else
-                {
-                    assert(nxtCB);
-                    swap(nxtCB, curCB);
-                }
-                
-                int node0Nxt = node0;
-                
-                do
-                {
-                    ++node0Nxt;
-                }
-                while(node0Nxt < 256 && tree0.nodes[node0Nxt].checksum == checksumSeq[node0Nxt]);
-
-                if(node0Nxt < 256)
-                {
-                    nxtCB = _serverCompress->begin_getFileInfoSeq(node0Nxt);
-                }
-
-                FileInfoSeq files = _serverCompress->end_getFileInfoSeq(curCB);
-                
-                sort(files.begin(), files.end(), FileInfoLess());
-                files.erase(unique(files.begin(), files.end(), FileInfoEqual()), files.end());
-
-                //
-                // Compute the set of files which were removed.
-                //
-                set_difference(tree0.nodes[node0].files.begin(),
-                               tree0.nodes[node0].files.end(),
-                               files.begin(),
-                               files.end(),
-                               back_inserter(_removeFiles),
-                               FileInfoWithoutFlagsLess()); // NOTE: We ignore the flags here.
-
-                //
-                // Compute the set of files which were updated (either the file contents, flags or both).
-                //
-                FileInfoSeq updatedFiles;
-                updatedFiles.reserve(files.size());
-                                    
-                set_difference(files.begin(),
-                               files.end(),
-                               tree0.nodes[node0].files.begin(),
-                               tree0.nodes[node0].files.end(),
-                               back_inserter(updatedFiles),
-                               FileInfoLess());
-
-                //
-                // Compute the set of files whose contents was updated.
-                //
-                FileInfoSeq contentsUpdatedFiles;
-                contentsUpdatedFiles.reserve(files.size());
-
-                set_difference(files.begin(),
-                               files.end(),
-                               tree0.nodes[node0].files.begin(),
-                               tree0.nodes[node0].files.end(),
-                               back_inserter(contentsUpdatedFiles),
-                               FileInfoWithoutFlagsLess()); // NOTE: We ignore the flags here.
-                copy(contentsUpdatedFiles.begin(), contentsUpdatedFiles.end(), back_inserter(_updateFiles));
-
-                //
-                // Compute the set of files whose flags were updated.
-                //
-                set_difference(updatedFiles.begin(),
-                               updatedFiles.end(),
-                               contentsUpdatedFiles.begin(),
-                               contentsUpdatedFiles.end(),
-                               back_inserter(_updateFlags),
-                               FileInfoLess());
             }
-
-            if(!_feedback->fileListProgress((node0 + 1) * 100 / 256))
+            catch(const Ice::OperationNotExistException&)
             {
-                return false;
+                if(!_useSmallFileAPI)
+                {
+                    _useSmallFileAPI = true;
+                    continue;
+                }
+                throw;
             }
+            break;
         }
 
         if(!_feedback->fileListEnd())
@@ -428,7 +470,7 @@ IcePatch2::Patcher::prepare()
 }
 
 bool
-IcePatch2::Patcher::patch(const string& d)
+PatcherI::patch(const string& d)
 {
     string dir = simplify(d);
 
@@ -464,8 +506,8 @@ IcePatch2::Patcher::patch(const string& d)
     {
         string dirWithSlash = simplify(dir + '/');
 
-        FileInfoSeq remove;
-        for(FileInfoSeq::const_iterator p = _removeFiles.begin(); p != _removeFiles.end(); ++p)
+        LargeFileInfoSeq remove;
+        for(LargeFileInfoSeq::const_iterator p = _removeFiles.begin(); p != _removeFiles.end(); ++p)
         {
             if(p->path == dir)
             {
@@ -477,8 +519,8 @@ IcePatch2::Patcher::patch(const string& d)
             }
         }
 
-        FileInfoSeq update;
-        for(FileInfoSeq::const_iterator p = _updateFiles.begin(); p != _updateFiles.end(); ++p)
+        LargeFileInfoSeq update;
+        for(LargeFileInfoSeq::const_iterator p = _updateFiles.begin(); p != _updateFiles.end(); ++p)
         {
             if(p->path == dir)
             {
@@ -490,8 +532,8 @@ IcePatch2::Patcher::patch(const string& d)
             }
         }
 
-        FileInfoSeq updateFlag;
-        for(FileInfoSeq::const_iterator p = _updateFlags.begin(); p != _updateFlags.end(); ++p)
+        LargeFileInfoSeq updateFlag;
+        for(LargeFileInfoSeq::const_iterator p = _updateFlags.begin(); p != _updateFlags.end(); ++p)
         {
             if(p->path == dir)
             {
@@ -532,7 +574,7 @@ IcePatch2::Patcher::patch(const string& d)
 }
 
 void
-IcePatch2::Patcher::finish()
+PatcherI::finish()
 {
     if(_log != 0)
     {
@@ -544,7 +586,7 @@ IcePatch2::Patcher::finish()
 }
 
 void
-IcePatch2::Patcher::init(const FileServerPrx& server)
+PatcherI::init(const FileServerPrx& server)
 {
     if(_dataDir.empty())
     {
@@ -592,14 +634,14 @@ IcePatch2::Patcher::init(const FileServerPrx& server)
 }
 
 bool
-IcePatch2::Patcher::removeFiles(const FileInfoSeq& files)
+PatcherI::removeFiles(const LargeFileInfoSeq& files)
 {
     if(_remove < 1)
     {
         return true;
     }
 
-    for(FileInfoSeq::const_reverse_iterator p = files.rbegin(); p != files.rend(); ++p)
+    for(LargeFileInfoSeq::const_reverse_iterator p = files.rbegin(); p != files.rend(); ++p)
     {
         try
         {
@@ -618,7 +660,7 @@ IcePatch2::Patcher::removeFiles(const FileInfoSeq& files)
         }
     }
     
-    FileInfoSeq newLocalFiles;
+    LargeFileInfoSeq newLocalFiles;
     newLocalFiles.reserve(_localFiles.size());
     
     set_difference(_localFiles.begin(),
@@ -630,7 +672,7 @@ IcePatch2::Patcher::removeFiles(const FileInfoSeq& files)
     
     _localFiles.swap(newLocalFiles);
     
-    FileInfoSeq newRemoveFiles;
+    LargeFileInfoSeq newRemoveFiles;
     
     set_difference(_removeFiles.begin(),
                    _removeFiles.end(),
@@ -643,9 +685,9 @@ IcePatch2::Patcher::removeFiles(const FileInfoSeq& files)
 
     return true;
 }
-    
+
 bool
-IcePatch2::Patcher::updateFiles(const FileInfoSeq& files)
+PatcherI::updateFiles(const LargeFileInfoSeq& files)
 {
     DecompressorPtr decompressor = new Decompressor(_dataDir);
 #if defined(__hppa)
@@ -680,12 +722,12 @@ IcePatch2::Patcher::updateFiles(const FileInfoSeq& files)
 }
 
 bool
-IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const DecompressorPtr& decompressor)
+PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorPtr& decompressor)
 {
     Long total = 0;
     Long updated = 0;
     
-    for(FileInfoSeq::const_iterator p = files.begin(); p != files.end(); ++p)
+    for(LargeFileInfoSeq::const_iterator p = files.begin(); p != files.end(); ++p)
     {
         if(p->size > 0) // Regular, non-empty file?
         {
@@ -696,7 +738,7 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
     AsyncResultPtr curCB;
     AsyncResultPtr nxtCB;
 
-    for(FileInfoSeq::const_iterator p = files.begin(); p != files.end(); ++p)
+    for(LargeFileInfoSeq::const_iterator p = files.begin(); p != files.end(); ++p)
     {
         if(p->size < 0) // Directory?
         {
@@ -749,14 +791,16 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
 
                 try
                 {
-                    Int pos = 0;
+                    Ice::Long pos = 0;
 
                     while(pos < p->size)
                     {
                         if(!curCB)
                         {
                             assert(!nxtCB);
-                            curCB = _serverNoCompress->begin_getFileCompressed(p->path, pos, _chunkSize);
+                            curCB = _useSmallFileAPI ? 
+                                _serverNoCompress->begin_getFileCompressed(p->path, static_cast<Ice::Int>(pos), _chunkSize) :
+                                _serverNoCompress->begin_getLargeFileCompressed(p->path, pos, _chunkSize);
                         }
                         else
                         {
@@ -766,11 +810,13 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
 
                         if(pos + _chunkSize < p->size)
                         {
-                            nxtCB = _serverNoCompress->begin_getFileCompressed(p->path, pos + _chunkSize, _chunkSize);
+                            nxtCB = _useSmallFileAPI ?
+                                _serverNoCompress->begin_getFileCompressed(p->path, static_cast<Ice::Int>(pos + _chunkSize), _chunkSize) :
+                                _serverNoCompress->begin_getLargeFileCompressed(p->path, pos + _chunkSize, _chunkSize);
                         }
                         else
                         {
-                            FileInfoSeq::const_iterator q = p + 1;
+                            LargeFileInfoSeq::const_iterator q = p + 1;
 
                             while(q != files.end() && q->size <= 0)
                             {
@@ -779,7 +825,9 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
 
                             if(q != files.end())
                             {
-                                nxtCB = _serverNoCompress->begin_getFileCompressed(q->path, 0, _chunkSize);
+                                nxtCB = _useSmallFileAPI ?
+                                    _serverNoCompress->begin_getFileCompressed(q->path, 0, _chunkSize) :
+                                    _serverNoCompress->begin_getLargeFileCompressed(q->path, 0, _chunkSize);
                             }
                         }
 
@@ -787,7 +835,8 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
 
                         try
                         {
-                            bytes = _serverNoCompress->end_getFileCompressed(curCB);
+                            bytes = _useSmallFileAPI ? _serverNoCompress->end_getFileCompressed(curCB) :
+                                                       _serverNoCompress->end_getLargeFileCompressed(curCB);
                         }
                         catch(const FileAccessException& ex)
                         {
@@ -804,7 +853,7 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
                             throw ": cannot write `" + pathBZ2 + "':\n" + IceUtilInternal::lastErrorToString();
                         }
 
-                        pos += static_cast<int>(bytes.size());
+                        pos += bytes.size();
                         updated += bytes.size();
 
                         if(!_feedback->patchProgress(pos, p->size, updated, total))
@@ -833,7 +882,7 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
         }
     }
 
-    FileInfoSeq newLocalFiles;
+    LargeFileInfoSeq newLocalFiles;
     newLocalFiles.reserve(_localFiles.size());
         
     set_union(_localFiles.begin(),
@@ -845,7 +894,7 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
         
     _localFiles.swap(newLocalFiles);
 
-    FileInfoSeq newUpdateFiles;
+    LargeFileInfoSeq newUpdateFiles;
 
     set_difference(_updateFiles.begin(),
                    _updateFiles.end(),
@@ -860,9 +909,9 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
 }
 
 bool
-IcePatch2::Patcher::updateFlags(const FileInfoSeq& files)
+PatcherI::updateFlags(const LargeFileInfoSeq& files)
 {
-    for(FileInfoSeq::const_iterator p = files.begin(); p != files.end(); ++p)
+    for(LargeFileInfoSeq::const_iterator p = files.begin(); p != files.end(); ++p)
     {
         if(p->size >= 0) // Regular file?
         {
@@ -874,7 +923,7 @@ IcePatch2::Patcher::updateFlags(const FileInfoSeq& files)
     // Remove the old files whose flags were updated from the set of
     // local files.
     // 
-    FileInfoSeq localFiles;
+    LargeFileInfoSeq localFiles;
     localFiles.reserve(_localFiles.size());
     set_difference(_localFiles.begin(),
                    _localFiles.end(),
@@ -894,7 +943,7 @@ IcePatch2::Patcher::updateFlags(const FileInfoSeq& files)
               back_inserter(_localFiles),
               FileInfoLess());
 
-    FileInfoSeq newUpdateFlags;
+    LargeFileInfoSeq newUpdateFlags;
 
     set_difference(_updateFlags.begin(),
                    _updateFlags.end(),
@@ -908,3 +957,25 @@ IcePatch2::Patcher::updateFlags(const FileInfoSeq& files)
     return true;
 }
 
+}
+
+PatcherPtr
+PatcherFactory::create(const Ice::CommunicatorPtr& communicator, const PatcherFeedbackPtr& feedback)
+{
+    return new PatcherI(communicator, feedback);
+}
+
+//
+// Create a patcher with the given parameters. These parameters
+// are equivalent to the configuration properties described above.
+//
+PatcherPtr
+PatcherFactory::create(const FileServerPrx& server,
+                       const PatcherFeedbackPtr& feedback,
+                       const string& dataDir,
+                       bool thorough,
+                       Ice::Int chunkSize,
+                       Ice::Int remove)
+{
+    return new PatcherI(server, feedback, dataDir, thorough, chunkSize, remove);
+}

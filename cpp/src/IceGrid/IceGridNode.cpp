@@ -23,7 +23,7 @@
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/DescriptorParser.h>
 #include <IceGrid/Util.h>
-#include <IcePatch2/Util.h>
+#include <IcePatch2Lib/Util.h>
 
 #ifdef _WIN32
 #   include <direct.h>
@@ -363,9 +363,9 @@ NodeService::startImpl(int argc, char* argv[], int& status)
             dataPath += "/"; 
         }
 
-        IcePatch2::createDirectory(dataPath + "servers");
-        IcePatch2::createDirectory(dataPath + "tmp");
-        IcePatch2::createDirectory(dataPath + "distrib");
+        IcePatch2Internal::createDirectory(dataPath + "servers");
+        IcePatch2Internal::createDirectory(dataPath + "tmp");
+        IcePatch2Internal::createDirectory(dataPath + "distrib");
 
 #ifdef _WIN32
         //

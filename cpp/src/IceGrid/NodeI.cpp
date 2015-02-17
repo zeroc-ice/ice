@@ -10,7 +10,7 @@
 #include <IceUtil/Timer.h>
 #include <IceUtil/FileUtil.h>
 #include <Ice/Ice.h>
-#include <IcePatch2/Util.h>
+#include <IcePatch2Lib/Util.h>
 #include <IcePatch2/ClientUtil.h>
 #include <IceGrid/NodeI.h>
 #include <IceGrid/Activator.h>
@@ -22,6 +22,7 @@
 
 using namespace std;
 using namespace IcePatch2;
+using namespace IcePatch2Internal;
 using namespace IceGrid;
 
 namespace
@@ -1075,7 +1076,7 @@ NodeI::removeServer(const ServerIPtr& server, const std::string& application)
             {
                 try
                 {
-                    IcePatch2::removeRecursive(appDir);
+                    IcePatch2Internal::removeRecursive(appDir);
                 }
                 catch(const string& msg)
                 {
@@ -1260,8 +1261,8 @@ void
 NodeI::patch(const FileServerPrx& icepatch, const string& dest, const vector<string>& directories)
 {
     IcePatch2::PatcherFeedbackPtr feedback = new LogPatcherFeedback(_traceLevels, dest);
-    IcePatch2::createDirectory(_dataDir + "/" + dest);
-    PatcherPtr patcher = new Patcher(icepatch, feedback, _dataDir + "/" + dest, false, 100, 1);
+    IcePatch2Internal::createDirectory(_dataDir + "/" + dest);
+    PatcherPtr patcher = PatcherFactory::create(icepatch, feedback, _dataDir + "/" + dest, false, 100, 1);
     bool aborted = !patcher->prepare();
     if(!aborted)
     {

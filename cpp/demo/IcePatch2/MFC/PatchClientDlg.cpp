@@ -414,7 +414,7 @@ CPatchDlg::OnStartPatch()
         properties->setProperty("IcePatch2Client.Remove", remove);
 
         DialogPatcherFeedbackPtr feedback = new DialogPatcherFeedback(this);
-        IcePatch2::PatcherPtr patcher = new IcePatch2::Patcher(_communicator, feedback);
+        IcePatch2::PatcherPtr patcher = IcePatch2::PatcherFactory::create(_communicator, feedback);
 
         //
         // Disable a few controls during the patch process.

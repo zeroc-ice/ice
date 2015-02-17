@@ -7,9 +7,10 @@ FileServerI.obj: \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\Exception.h" \
+    "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "FileServerI.h" \
-    "$(includedir)\IcePatch2\Util.h" \
+    "..\..\src\IcePatch2Lib\Util.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\Config.h" \
@@ -242,7 +243,7 @@ Server.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "FileServerI.h" \
-    "$(includedir)\IcePatch2\Util.h" \
+    "..\..\src\IcePatch2Lib\Util.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
     "$(includedir)\IcePatch2\Config.h" \
     "$(includedir)\IcePatch2\FileServer.h" \
@@ -365,7 +366,7 @@ Client.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\Service.h" \
-    "$(includedir)\IcePatch2\Util.h" \
+    "..\..\src\IcePatch2Lib\Util.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
     "$(includedir)\IcePatch2\Config.h" \
     "$(includedir)\IcePatch2\ClientUtil.h" \
@@ -385,7 +386,7 @@ Calc.obj: \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "..\..\src\IceUtil\FileUtil.h" \
-    "$(includedir)\IcePatch2\Util.h" \
+    "..\..\src\IcePatch2Lib\Util.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\Config.h" \

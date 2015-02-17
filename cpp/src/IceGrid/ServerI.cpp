@@ -18,7 +18,7 @@
 #include <IceGrid/ServerAdapterI.h>
 #include <IceGrid/DescriptorHelper.h>
 
-#include <IcePatch2/Util.h>
+#include <IcePatch2Lib/Util.h>
 #include <IceUtil/FileUtil.h>
 
 #include <sys/types.h>
@@ -1889,7 +1889,7 @@ ServerI::destroy()
     {
         try
         {
-            IcePatch2::removeRecursive(_serverDir);
+            IcePatch2Internal::removeRecursive(_serverDir);
         }
         catch(const string& msg)
         {
@@ -2049,7 +2049,7 @@ ServerI::update()
                 //
                 try
                 {
-                    IcePatch2::removeRecursive(_serverDir);
+                    IcePatch2Internal::removeRecursive(_serverDir);
                 }
                 catch(const string&)
                 {
@@ -2270,7 +2270,7 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
     //
     for(Ice::StringSeq::const_iterator p = _desc->logs.begin(); p != _desc->logs.end(); ++p)
     {
-        string path = IcePatch2::simplify(*p);
+        string path = IcePatch2Internal::simplify(*p);
         if(IceUtilInternal::isAbsolutePath(path))
         {
             _logs.push_back(path);
@@ -2348,7 +2348,7 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
         //
         // Remove old configuration files.
         //
-        Ice::StringSeq files = IcePatch2::readDirectory(_serverDir + "/config");
+        Ice::StringSeq files = IcePatch2Internal::readDirectory(_serverDir + "/config");
         Ice::StringSeq toDel;
         set_difference(files.begin(), files.end(), knownFiles.begin(), knownFiles.end(), back_inserter(toDel));
         for(Ice::StringSeq::const_iterator q = toDel.begin(); q != toDel.end(); ++q)
@@ -2357,7 +2357,7 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
             {
                 try
                 {
-                    IcePatch2::remove(_serverDir + "/config/" + *q);
+                    IcePatch2Internal::remove(_serverDir + "/config/" + *q);
                 }
                 catch(const string& msg)
                 {
@@ -2412,14 +2412,14 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
         //
         // Remove old database environments.
         //
-        Ice::StringSeq dbEnvs = IcePatch2::readDirectory(_serverDir + "/dbs");
+        Ice::StringSeq dbEnvs = IcePatch2Internal::readDirectory(_serverDir + "/dbs");
         Ice::StringSeq toDel;
         set_difference(dbEnvs.begin(), dbEnvs.end(), knownDbEnvs.begin(), knownDbEnvs.end(), back_inserter(toDel));
         for(Ice::StringSeq::const_iterator p = toDel.begin(); p != toDel.end(); ++p)
         {
             try
             {
-                IcePatch2::removeRecursive(_serverDir + "/dbs/" + *p);
+                IcePatch2Internal::removeRecursive(_serverDir + "/dbs/" + *p);
             }
             catch(const string& msg)
             {
@@ -3047,7 +3047,7 @@ ServerI::createOrUpdateDirectory(const string& dir)
 {
     try
     {
-        IcePatch2::createDirectory(dir);
+        IcePatch2Internal::createDirectory(dir);
     }
     catch(const string&)
     {
@@ -3148,7 +3148,7 @@ ServerI::getFilePath(const string& filename) const
     }
     else if(!filename.empty() && filename[0] == '#')
     {
-        string path = IcePatch2::simplify(filename.substr(1));
+        string path = IcePatch2Internal::simplify(filename.substr(1));
         if(!IceUtilInternal::isAbsolutePath(path))
         {
             path = _node->getPlatformInfo().getCwd() + "/" + path;

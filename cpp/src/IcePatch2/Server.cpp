@@ -10,13 +10,15 @@
 #include <IceUtil/Options.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
+#include <IceUtil/DisableWarnings.h>
 #include <Ice/Service.h>
 #include <IcePatch2/FileServerI.h>
-#include <IcePatch2/Util.h>
+#include <IcePatch2Lib/Util.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IcePatch2;
+using namespace IcePatch2Internal;
 
 namespace IcePatch2
 {
@@ -96,7 +98,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[], int& status)
         return false;
     }
 
-    FileInfoSeq infoSeq;
+    LargeFileInfoSeq infoSeq;
 
     try
     {

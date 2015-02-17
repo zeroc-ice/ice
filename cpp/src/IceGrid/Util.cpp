@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <IcePatch2/Util.h>
 #include <IceGrid/Util.h>
 #include <IceGrid/Admin.h>
 #include <IceGrid/Internal.h>

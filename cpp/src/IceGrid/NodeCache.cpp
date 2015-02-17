@@ -18,8 +18,6 @@
 #include <IceGrid/ReplicaCache.h>
 #include <IceGrid/DescriptorHelper.h>
 
-#include <IcePatch2/Util.h>
-
 using namespace std;
 using namespace IceGrid;
 

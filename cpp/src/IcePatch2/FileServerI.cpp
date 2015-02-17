@@ -9,6 +9,7 @@
 
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/FileUtil.h>
+#include <IceUtil/StringUtil.h>
 #include <IceUtil/ScopedArray.h>
 #include <IcePatch2/FileServerI.h>
 
@@ -21,8 +22,9 @@
 using namespace std;
 using namespace Ice;
 using namespace IcePatch2;
+using namespace IcePatch2Internal;
 
-IcePatch2::FileServerI::FileServerI(const std::string& dataDir, const FileInfoSeq& infoSeq) :
+IcePatch2::FileServerI::FileServerI(const std::string& dataDir, const LargeFileInfoSeq& infoSeq) :
     _dataDir(dataDir), _tree0(FileTree0())
 {
     FileTree0& tree0 = const_cast<FileTree0&>(_tree0);
@@ -30,7 +32,17 @@ IcePatch2::FileServerI::FileServerI(const std::string& dataDir, const FileInfoSe
 }
 
 FileInfoSeq
-IcePatch2::FileServerI::getFileInfoSeq(Int node0, const Current&) const
+IcePatch2::FileServerI::getFileInfoSeq(Int node0, const Current& c) const
+{
+   LargeFileInfoSeq largeFiles = getLargeFileInfoSeq(node0, c);
+   FileInfoSeq files;
+   files.resize(largeFiles.size());
+   transform(largeFiles.begin(), largeFiles.end(), files.begin(), toFileInfo);
+   return files;
+}
+
+LargeFileInfoSeq
+IcePatch2::FileServerI::getLargeFileInfoSeq(Int node0, const Current&) const
 {
     if(node0 < 0 || node0 > 255)
     {
@@ -63,12 +75,56 @@ void
 IcePatch2::FileServerI::getFileCompressed_async(const AMD_FileServer_getFileCompressedPtr& cb,
                                                 const string& pa, Int pos, Int num, const Current&) const
 {
+    try
+    {
+        vector<Byte> buffer;
+        getFileCompressedInternal(pa, pos, num, buffer, false);
+        if(buffer.empty())
+        {
+            cb->ice_response(make_pair<const Byte*, const Byte*>(0, 0));
+        }
+        else
+        {
+            cb->ice_response(make_pair<const Byte*, const Byte*>(&buffer[0], &buffer[0] + buffer.size()));
+        }
+    }
+    catch(const std::exception& ex)
+    {
+        cb->ice_exception(ex);
+    }
+}
+
+void
+IcePatch2::FileServerI::getLargeFileCompressed_async(const AMD_FileServer_getLargeFileCompressedPtr& cb,
+                                                     const string& pa, Long pos, Int num, const Current&) const
+{
+    try
+    {
+        vector<Byte> buffer;
+        getFileCompressedInternal(pa, pos, num, buffer, true);
+        if(buffer.empty())
+        {
+            cb->ice_response(make_pair<const Byte*, const Byte*>(0, 0));
+        }
+        else
+        {
+            cb->ice_response(make_pair<const Byte*, const Byte*>(&buffer[0], &buffer[0] + buffer.size()));
+        }
+        
+    }
+    catch(const std::exception& ex)
+    {
+        cb->ice_exception(ex);
+    }
+}
+
+void
+IcePatch2::FileServerI::getFileCompressedInternal(const std::string& pa, Ice::Long pos, Ice::Int num, 
+                                                  vector<Byte>& buffer, bool largeFile) const
+{
     if(IceUtilInternal::isAbsolutePath(pa))
     {
-        FileAccessException ex;
-        ex.reason = "illegal absolute path `" + pa + "'";
-        cb->ice_exception(ex);
-        return;
+        throw FileAccessException(string("illegal absolute path `") + pa + "'");
     }
 
     string path = simplify(pa);
@@ -77,31 +133,35 @@ IcePatch2::FileServerI::getFileCompressed_async(const AMD_FileServer_getFileComp
        path.find("/../") != string::npos ||
        (path.size() >= 3 && (path.substr(0, 3) == "../" || path.substr(path.size() - 3, 3) == "/..")))
     {
-        FileAccessException ex;
-        ex.reason = "illegal `..' component in path `" + path + "'";
-        cb->ice_exception(ex);
-        return;
+        throw FileAccessException(string("illegal `..' component in path `") + path + "'");
     }
-
-#if (defined(_MSC_VER) && (_MSC_VER >= 1600))
-    pair<const Byte*, const Byte*> ret(static_cast<const Byte*>(nullptr), static_cast<const Byte*>(nullptr));
-#else
-    pair<const Byte*, const Byte*> ret(0, 0);
-#endif
     
     if(num <= 0 || pos < 0)
     {   
-        cb->ice_response(ret);
         return;
     }
-
-    int fd = IceUtilInternal::open(_dataDir + '/' + path + ".bz2", O_RDONLY|O_BINARY);
+    
+    string absolutePath = _dataDir + '/' + path + ".bz2";
+    int fd = IceUtilInternal::open(absolutePath, O_RDONLY|O_BINARY);
     if(fd == -1)
     {
-        FileAccessException ex;
-        ex.reason = "cannot open `" + path + "' for reading: " + strerror(errno);
-        cb->ice_exception(ex);
-        return;
+        throw FileAccessException(string("cannot open `") + path + "' for reading: " + strerror(errno));
+    }
+    
+    if(!largeFile)
+    {
+        IceUtilInternal::structstat buf;
+        if(IceUtilInternal::stat(absolutePath, &buf) == -1)
+        {
+            throw FileAccessException(string("cannot stat `") + path + "':\n" + IceUtilInternal::lastErrorToString());
+        }
+        
+        if(buf.st_size > 0x7FFFFFFF)
+        {
+            ostringstream os;
+            os << "cannot encode size `" << buf.st_size << "' for file `" << path << "' as Ice::Int" << endl;
+            throw FileAccessException(os.str());
+        }
     }
 
     if(
@@ -117,32 +177,22 @@ IcePatch2::FileServerI::getFileCompressed_async(const AMD_FileServer_getFileComp
         ostringstream posStr;
         posStr << pos;
 
-        FileAccessException ex;
-        ex.reason = "cannot seek position " + posStr.str() + " in file `" + path + "': " + strerror(errno);
-        cb->ice_exception(ex);
-        return;
+        throw FileAccessException("cannot seek position " + posStr.str() + " in file `" + path + "': " +
+                                  strerror(errno));
     }
 
-    IceUtil::ScopedArray<Byte> bytes(new Byte[num]);
+    buffer.resize(num);
 #ifdef _WIN32
     int r;
-    if((r = _read(fd, bytes.get(), static_cast<unsigned int>(num))) == -1)
+    if((r = _read(fd, &buffer[0], static_cast<unsigned int>(num))) == -1)
 #else
     ssize_t r;
-    if((r = read(fd, bytes.get(), static_cast<size_t>(num))) == -1)
+    if((r = read(fd, &buffer[0], static_cast<size_t>(num))) == -1)
 #endif
     {
         IceUtilInternal::close(fd);
-
-        FileAccessException ex;
-        ex.reason = "cannot read `" + path + "': " + strerror(errno);
-        cb->ice_exception(ex);
-        return;
+        throw FileAccessException("cannot read `" + path + "': " + strerror(errno));
     }
 
     IceUtilInternal::close(fd);
-
-    ret.first = bytes.get();
-    ret.second = ret.first + r;
-    cb->ice_response(ret);
 }

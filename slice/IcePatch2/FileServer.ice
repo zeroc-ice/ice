@@ -61,11 +61,44 @@ exception FileAccessException
 
 /**
  *
+ * This exception is raised if {@link FileServer#getFileCompressed} or
+ * {@link FileServer#getFileInfoSeq} try to operate in files with size
+ * large than 2.1 GB, these operations does not support working with
+ * large files instead {@link FileServer#getLargeFileCompressed} and 
+ * {@link FileServer#getLargeFileInfoSeq} must be used.
+ *
+ **/
+exception FileSizeRangeException extends FileAccessException
+{
+};
+
+/**
+ *
  * The interface that provides access to files.
  *
  **/
 interface FileServer
 {
+    /**
+     *
+     * Return the {@link FileInfoSeq} for the specified partition. If the
+     * partion number is out of range, the operation throws
+     * 
+     * <p class="Deprecated"> This operation is deprecated, and only keep for
+     * compativility with old Ice clients (older than version 3.6).
+     *
+     * {@link PartitionOutOfRangException}.
+     *
+     * @param partition The partition number in the range 0-255.
+     *
+     * @return A sequence containing the {@link FileInfo} structures for
+     * files in the specified partition.
+     *
+     **/
+    ["deprecate:getFileInfoSeq() is deprecated, use getLargeFileInfoSeq() instead.",
+     "nonmutating", "cpp:const"] idempotent FileInfoSeq getFileInfoSeq(int partition)
+        throws PartitionOutOfRangeException, FileSizeRangeException;
+        
     /**
      *
      * Return the {@link FileInfoSeq} for the specified partition. If the
@@ -78,7 +111,7 @@ interface FileServer
      * files in the specified partition.
      *
      **/
-    ["nonmutating", "cpp:const"] idempotent FileInfoSeq getFileInfoSeq(int partition)
+    ["nonmutating", "cpp:const"] idempotent LargeFileInfoSeq getLargeFileInfoSeq(int partition)
         throws PartitionOutOfRangeException;
 
     /**
@@ -111,6 +144,31 @@ interface FileServer
      * return fewer bytes than requested in case there was an
      * end-of-file condition.
      *
+     * <p class="Deprecated"> This operation is deprecated, and only keep for
+     * compativility with old Ice clients (older than version 3.6).
+     *
+     * @param path The pathname (relative to the data directory) for
+     * the file to be read.
+     *
+     * @param pos The file offset at which to begin reading.
+     *
+     * @param num The number of bytes to be read.
+     *
+     * @return A sequence containing the compressed file contents.
+     *
+     **/
+    ["deprecate:getFileCompressed() is deprecated, use getLargeFileCompressed() instead.",
+     "amd", "nonmutating", "cpp:const", "cpp:array"] 
+    idempotent Ice::ByteSeq getFileCompressed(string path, int pos, int num)
+        throws FileAccessException, FileSizeRangeException;
+        
+    /**
+     *
+     * Read the specified file. If the read operation fails, the
+     * operation throws {@link FileAccessException}. This operation may only
+     * return fewer bytes than requested in case there was an
+     * end-of-file condition.
+     *
      * @param path The pathname (relative to the data directory) for
      * the file to be read.
      *
@@ -122,9 +180,8 @@ interface FileServer
      *
      **/
     ["amd", "nonmutating", "cpp:const", "cpp:array"] 
-    idempotent Ice::ByteSeq getFileCompressed(string path, int pos, int num)
+    idempotent Ice::ByteSeq getLargeFileCompressed(string path, long pos, int num)
         throws FileAccessException;
 };
 
 };
-

@@ -68,11 +68,7 @@ public:
     virtual bool patchProgress(Ice::Long, Ice::Long, Ice::Long, Ice::Long) = 0;
     virtual bool patchEnd() = 0;
 };
-
 typedef IceUtil::Handle<PatcherFeedback> PatcherFeedbackPtr;
-
-class Decompressor;
-typedef IceUtil::Handle<Decompressor> DecompressorPtr;
 
 //
 // IcePatch2 clients instantiate the IcePatch2::Patcher class to patch
@@ -81,7 +77,45 @@ typedef IceUtil::Handle<Decompressor> DecompressorPtr;
 class ICE_PATCH2_API Patcher : public IceUtil::Shared
 {
 public:
+    //
+    // Prepare the patching. This involves creating the local checksum
+    // files if no summary file exists or if a thorough patch was
+    // specified. This method also computes the list of files to be
+    // patched. This should be called once before any call to patch().
+    // 
+    // Returns true if the patch preparation was successful, false if
+    // preparation failed (for example, because a thorough patch is
+    // necessary, but the user chose not to patch thorough), or raises
+    // std::string as an exception if there was an error.
+    //
+    virtual bool prepare() = 0;
 
+    //
+    // Patch the files from the given path.
+    //
+    // Returns true if patching was successful, false if patching was
+    // aborted by the user, or raises std::string as an exception if
+    // there was an error.
+    //
+    virtual bool patch(const std::string&) = 0;
+
+    //
+    // Finish the patching. This needs to be called once when the
+    // patching is finished to write the local checksum files to the
+    // disk.
+    //
+    virtual void finish() = 0;
+};
+typedef IceUtil::Handle<Patcher> PatcherPtr;
+
+//
+// IcePatch2 clients instantiate the IcePatch2::Patcher class
+// using the patcher factory.
+//
+class ICE_PATCH2_API PatcherFactory : public IceUtil::noncopyable
+{
+public:
+    
     //
     // Create a patcher using configuration properties. The following
     // properties are used to configure the patcher: 
@@ -95,70 +129,14 @@ public:
     //
     // See the Ice manual for more information on these properties.
     //
-    Patcher(const Ice::CommunicatorPtr&, const PatcherFeedbackPtr&);
+    static PatcherPtr create(const Ice::CommunicatorPtr&, const PatcherFeedbackPtr&);
 
     //
     // Create a patcher with the given parameters. These parameters
     // are equivalent to the configuration properties described above.
     //
-    Patcher(const FileServerPrx&, const PatcherFeedbackPtr&, const std::string&, bool, Ice::Int, Ice::Int);
-
-    virtual ~Patcher();
-
-    //
-    // Prepare the patching. This involves creating the local checksum
-    // files if no summary file exists or if a thorough patch was
-    // specified. This method also computes the list of files to be
-    // patched. This should be called once before any call to patch().
-    // 
-    // Returns true if the patch preparation was successful, false if
-    // preparation failed (for example, because a thorough patch is
-    // necessary, but the user chose not to patch thorough), or raises
-    // std::string as an exception if there was an error.
-    //
-    bool prepare();
-
-    //
-    // Patch the files from the given path.
-    //
-    // Returns true if patching was successful, false if patching was
-    // aborted by the user, or raises std::string as an exception if
-    // there was an error.
-    //
-    bool patch(const std::string&);
-
-    //
-    // Finish the patching. This needs to be called once when the
-    // patching is finished to write the local checksum files to the
-    // disk.
-    //
-    void finish();
-
-private:
-
-    void init(const FileServerPrx&);
-    bool removeFiles(const FileInfoSeq&);
-    bool updateFiles(const FileInfoSeq&);
-    bool updateFilesInternal(const FileInfoSeq&, const DecompressorPtr&);
-    bool updateFlags(const FileInfoSeq&);
-
-    const PatcherFeedbackPtr _feedback;
-    const std::string _dataDir;
-    const bool _thorough;
-    const Ice::Int _chunkSize;
-    const Ice::Int _remove;
-    const FileServerPrx _serverCompress;
-    const FileServerPrx _serverNoCompress;
-
-    FileInfoSeq _localFiles;
-    FileInfoSeq _updateFiles;
-    FileInfoSeq _updateFlags;
-    FileInfoSeq _removeFiles;
-
-    FILE* _log;
+    static PatcherPtr create(const FileServerPrx&, const PatcherFeedbackPtr&, const std::string&, bool, Ice::Int, Ice::Int);
 };
-
-typedef IceUtil::Handle<Patcher> PatcherPtr;
 
 }
 

@@ -47,17 +47,6 @@ FileTracker.obj: \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\Exception.h" \
 
-Grammar.obj: \
-	Grammar.cpp \
-    "GrammarUtil.h" \
-    "$(includedir)\Slice\Parser.h" \
-    "$(includedir)\IceUtil\Shared.h" \
-    "$(includedir)\IceUtil\Config.h" \
-    "$(includedir)\IceUtil\Handle.h" \
-    "$(includedir)\IceUtil\Exception.h" \
-    "$(includedir)\IceUtil\InputUtil.h" \
-    "$(includedir)\IceUtil\UUID.h" \
-
 JavaUtil.obj: \
 	JavaUtil.cpp \
     "$(includedir)\IceUtil\DisableWarnings.h" \
@@ -173,18 +162,6 @@ RubyUtil.obj: \
     "$(includedir)\IceUtil\Functional.h" \
     "$(includedir)\IceUtil\InputUtil.h" \
 
-Scanner.obj: \
-	Scanner.cpp \
-    "$(includedir)\IceUtil\ScannerConfig.h" \
-    "$(includedir)\IceUtil\Config.h" \
-    "GrammarUtil.h" \
-    "$(includedir)\Slice\Parser.h" \
-    "$(includedir)\IceUtil\Shared.h" \
-    "$(includedir)\IceUtil\Handle.h" \
-    "$(includedir)\IceUtil\Exception.h" \
-    "Grammar.h" \
-    "$(includedir)\IceUtil\InputUtil.h" \
-
 Util.obj: \
 	Util.cpp \
     "$(includedir)\Slice\Util.h" \
@@ -196,3 +173,26 @@ Util.obj: \
     "$(includedir)\IceUtil\OutputUtil.h" \
     "..\..\src\IceUtil\FileUtil.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
+
+Grammar.obj: \
+	Grammar.cpp \
+    "GrammarUtil.h" \
+    "$(includedir)\Slice\Parser.h" \
+    "$(includedir)\IceUtil\Shared.h" \
+    "$(includedir)\IceUtil\Config.h" \
+    "$(includedir)\IceUtil\Handle.h" \
+    "$(includedir)\IceUtil\Exception.h" \
+    "$(includedir)\IceUtil\InputUtil.h" \
+    "$(includedir)\IceUtil\UUID.h" \
+
+Scanner.obj: \
+	Scanner.cpp \
+    "$(includedir)\IceUtil\ScannerConfig.h" \
+    "$(includedir)\IceUtil\Config.h" \
+    "GrammarUtil.h" \
+    "$(includedir)\Slice\Parser.h" \
+    "$(includedir)\IceUtil\Shared.h" \
+    "$(includedir)\IceUtil\Handle.h" \
+    "$(includedir)\IceUtil\Exception.h" \
+    "Grammar.h" \
+    "$(includedir)\IceUtil\InputUtil.h" \

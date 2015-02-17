@@ -581,9 +581,7 @@ EndpointFactory.obj: \
     "EndpointFactory.h" \
     "..\..\..\src\Ice\EndpointFactory.h" \
     "..\..\..\src\Ice\ProtocolInstanceF.h" \
-    "EndpointI.h" \
-    "..\..\..\src\Ice\EndpointI.h" \
-    "$(includedir)\Ice\Endpoint.h" \
+    "$(includedir)\Ice\CommunicatorF.h" \
     "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
@@ -597,10 +595,15 @@ EndpointFactory.obj: \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
-    "$(includedir)\Ice\Version.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\IceUtil\PopDisableWarnings.h" \
+    "$(includedir)\Ice\Plugin.h" \
+    "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
+    "EndpointI.h" \
+    "..\..\..\src\Ice\EndpointI.h" \
+    "$(includedir)\Ice\Endpoint.h" \
+    "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "..\..\..\src\Ice\TransceiverF.h" \
@@ -617,7 +620,6 @@ EndpointFactory.obj: \
     "$(includedir)\IceUtil\Monitor.h" \
     "$(includedir)\IceUtil\Cond.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
-    "$(includedir)\Ice\CommunicatorF.h" \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\AsyncResultF.h" \
     "$(includedir)\Ice\ObserverHelper.h" \
@@ -659,7 +661,6 @@ EndpointFactory.obj: \
     "..\..\..\src\Ice\NetworkF.h" \
     "..\..\..\src\Ice\NetworkProxyF.h" \
     "$(includedir)\Ice\PropertiesF.h" \
-    "$(includedir)\Ice\LoggerF.h" \
     "..\..\..\src\Ice\EventHandlerF.h" \
 
 PluginI.obj: \

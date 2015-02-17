@@ -217,6 +217,7 @@ AcceptorI.obj: \
     "..\..\src\Ice\ConnectorF.h" \
     "..\..\src\Ice\EndpointFactory.h" \
     "..\..\src\Ice\EndpointFactoryF.h" \
+    "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\IceSSL\EndpointInfo.h" \
     "Instance.h" \
     "..\..\src\Ice\ProtocolInstance.h" \
@@ -241,7 +242,6 @@ AcceptorI.obj: \
     "$(includedir)\Ice\PluginF.h" \
     "$(includedir)\Ice\Initialize.h" \
     "$(includedir)\Ice\Dispatcher.h" \
-    "$(includedir)\Ice\Plugin.h" \
     "..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
@@ -566,6 +566,7 @@ EndpointI.obj: \
     "..\..\src\Ice\ProtocolInstanceF.h" \
     "..\..\src\Ice\EndpointFactory.h" \
     "..\..\src\Ice\EndpointFactoryF.h" \
+    "$(includedir)\Ice\Plugin.h" \
     "InstanceF.h" \
     "$(includedir)\IceSSL\EndpointInfo.h" \
     "AcceptorI.h" \
@@ -595,7 +596,6 @@ EndpointI.obj: \
     "$(includedir)\Ice\PluginF.h" \
     "$(includedir)\Ice\Initialize.h" \
     "$(includedir)\Ice\Dispatcher.h" \
-    "$(includedir)\Ice\Plugin.h" \
     "..\..\src\Ice\ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\LocalException.h" \
@@ -857,7 +857,6 @@ PluginI.obj: \
     "..\..\src\Ice\EndpointFactory.h" \
     "..\..\src\Ice\EndpointFactoryF.h" \
     "$(includedir)\IceSSL\EndpointInfo.h" \
-    "..\..\src\Ice\WSEndpoint.h" \
     "..\..\src\Ice\ProtocolPluginFacade.h" \
     "..\..\src\Ice\ProtocolPluginFacadeF.h" \
 

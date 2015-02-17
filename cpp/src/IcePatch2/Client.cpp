@@ -10,7 +10,7 @@
 #include <IceUtil/Options.h>
 #include <IceUtil/StringUtil.h>
 #include <Ice/Application.h>
-#include <IcePatch2/Util.h>
+#include <IcePatch2Lib/Util.h>
 #include <IcePatch2/ClientUtil.h>
 
 #ifdef _WIN32
@@ -23,6 +23,7 @@
 using namespace std;
 using namespace Ice;
 using namespace IcePatch2;
+using namespace IcePatch2Internal;
 
 class TextPatcherFeedback : public PatcherFeedback
 {
@@ -282,7 +283,7 @@ Client::run(int argc, char* argv[])
     try
     {
         PatcherFeedbackPtr feedback = new TextPatcherFeedback;
-        PatcherPtr patcher = new Patcher(communicator(), feedback);
+        PatcherPtr patcher = PatcherFactory::create(communicator(), feedback);
 
         aborted = !patcher->prepare();
 
