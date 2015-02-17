@@ -96,6 +96,6 @@ main(int argc, char* argv[])
     //
     //connection->close();
     //communicator->destroy();
-
-    return EXIT_SUCCESS;
+    //
+    //return EXIT_SUCCESS;
 }
