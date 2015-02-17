@@ -22,6 +22,7 @@ static VALUE _connectionInfoClass;
 static VALUE _ipConnectionInfoClass;
 static VALUE _tcpConnectionInfoClass;
 static VALUE _udpConnectionInfoClass;
+static VALUE _wsConnectionInfoClass;
 
 // **********************************************************************
 // Connection
@@ -295,6 +296,25 @@ IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
         rb_ivar_set(info, rb_intern("@mcastAddress"), createString(udp->mcastAddress));
         rb_ivar_set(info, rb_intern("@mcastPort"), INT2FIX(udp->mcastPort));
     }
+    else if(Ice::WSConnectionInfoPtr::dynamicCast(p))
+    {
+        info = Data_Wrap_Struct(_wsConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
+
+        Ice::WSConnectionInfoPtr ws = Ice::WSConnectionInfoPtr::dynamicCast(p);
+        rb_ivar_set(info, rb_intern("@localAddress"), createString(ws->localAddress));
+        rb_ivar_set(info, rb_intern("@localPort"), INT2FIX(ws->localPort));
+        rb_ivar_set(info, rb_intern("@remoteAddress"), createString(ws->remoteAddress));
+        rb_ivar_set(info, rb_intern("@remotePort"), INT2FIX(ws->remotePort));
+
+        volatile VALUE result = callRuby(rb_hash_new);
+        for(Ice::HeaderDict::const_iterator q = ws->headers.begin(); q != ws->headers.end(); ++q)
+        {
+            volatile VALUE key = createString(q->first);
+            volatile VALUE value = createString(q->second);
+            callRuby(rb_hash_aset, result, key, value);
+        }
+        rb_ivar_set(info, rb_intern("@headers"), result);
+    }
     else if(Ice::IPConnectionInfoPtr::dynamicCast(p))
     {
         info = Data_Wrap_Struct(_ipConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
@@ -345,10 +365,10 @@ IceRuby::initConnection(VALUE iceModule)
     _connectionInfoClass = rb_define_class_under(iceModule, "ConnectionInfo", rb_cObject);
 
     //
-    // Instance members. 
+    // Instance members.
     //
-    rb_define_attr(_connectionInfoClass, "incoming", 1, 0); 
-    rb_define_attr(_connectionInfoClass, "adapterName", 1, 0); 
+    rb_define_attr(_connectionInfoClass, "incoming", 1, 0);
+    rb_define_attr(_connectionInfoClass, "adapterName", 1, 0);
 
     //
     // IPConnectionInfo
@@ -356,12 +376,12 @@ IceRuby::initConnection(VALUE iceModule)
     _ipConnectionInfoClass = rb_define_class_under(iceModule, "IPConnectionInfo", _connectionInfoClass);
 
     //
-    // Instance members. 
+    // Instance members.
     //
-    rb_define_attr(_ipConnectionInfoClass, "localAddress", 1, 0); 
-    rb_define_attr(_ipConnectionInfoClass, "localPort", 1, 0); 
-    rb_define_attr(_ipConnectionInfoClass, "remoteAddress", 1, 0); 
-    rb_define_attr(_ipConnectionInfoClass, "remotePort", 1, 0); 
+    rb_define_attr(_ipConnectionInfoClass, "localAddress", 1, 0);
+    rb_define_attr(_ipConnectionInfoClass, "localPort", 1, 0);
+    rb_define_attr(_ipConnectionInfoClass, "remoteAddress", 1, 0);
+    rb_define_attr(_ipConnectionInfoClass, "remotePort", 1, 0);
 
     //
     // TCPConnectionInfo
@@ -374,8 +394,18 @@ IceRuby::initConnection(VALUE iceModule)
     _udpConnectionInfoClass = rb_define_class_under(iceModule, "UDPConnectionInfo", _ipConnectionInfoClass);
 
     //
-    // Instance members. 
+    // Instance members.
     //
-    rb_define_attr(_udpConnectionInfoClass, "mcastAddress", 1, 0); 
-    rb_define_attr(_udpConnectionInfoClass, "mcastPort", 1, 0); 
+    rb_define_attr(_udpConnectionInfoClass, "mcastAddress", 1, 0);
+    rb_define_attr(_udpConnectionInfoClass, "mcastPort", 1, 0);
+
+    //
+    // WSConnectionInfo
+    //
+    _wsConnectionInfoClass = rb_define_class_under(iceModule, "WSConnectionInfo", _ipConnectionInfoClass);
+
+    //
+    // Instance members.
+    //
+    //rb_define_attr(_wsConnectionInfoClass, "headers", 1, 0);
 }

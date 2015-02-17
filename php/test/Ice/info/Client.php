@@ -40,6 +40,7 @@ function allTests($communicator)
     $udpEndpointInfoClass = $NS ? "Ice\\UDPEndpointInfo" : "Ice_UDPEndpointInfo";
     $sslEndpointType = 2;
     $wsEndpointType = $NS ? constant("Ice\\WSEndpointType") : constant("Ice_WSEndpointType");
+    $wsEndpointInfoClass = $NS ? "Ice\\WSEndpointInfo" : "Ice_WSEndpointInfo";
     $wssEndpointType = $NS ? constant("Ice\\WSSEndpointType") : constant("Ice_WSSEndpointType");
     $protocolVersionClass = $NS ? "Ice\\ProtocolVersion" : "Ice_ProtocolVersion";
     $encodingVersionClass = $NS ? "Ice\\EncodingVersion" : "Ice_EncodingVersion";
@@ -68,8 +69,8 @@ function allTests($communicator)
              ($ipEndpoint->type() == $wssEndpointType && $ipEndpoint->secure()));
         test(($ipEndpoint->type() == $tcpEndpointType && ($ipEndpoint instanceof $tcpEndpointInfoClass)) ||
              ($ipEndpoint->type() == $sslEndpointType && ($ipEndpoint instanceof $ipEndpointInfoClass)) ||
-             ($ipEndpoint->type() == $wsEndpointType && ($ipEndpoint instanceof $ipEndpointInfoClass)) ||
-             ($ipEndpoint->type() == $wssEndpointType && ($ipEndpoint instanceof $ipEndpointInfoClass)));
+             ($ipEndpoint->type() == $wsEndpointType && ($ipEndpoint instanceof $wsEndpointInfoClass)) ||
+             ($ipEndpoint->type() == $wssEndpointType && ($ipEndpoint instanceof $wsEndpointInfoClass)));
 
         $udpEndpoint = $endps[1]->getInfo();
         test($udpEndpoint instanceof $udpEndpointInfoClass);
@@ -118,6 +119,7 @@ function allTests($communicator)
     flush();
     {
         $ipConnectionInfoClass = $NS ? "Ice\\IPConnectionInfo" : "Ice_IPConnectionInfo";
+        $wsConnectionInfoClass = $NS ? "Ice\\WSConnectionInfo" : "Ice_WSConnectionInfo";
 
         $info = $base->ice_getConnection()->getInfo();
         test($info instanceof $ipConnectionInfoClass);
@@ -137,6 +139,22 @@ function allTests($communicator)
         test($ctx["localAddress"] == $info->remoteAddress);
         test($ctx["remotePort"] == $info->localPort);
         test($ctx["localPort"] == $info->remotePort);
+
+        if($base->ice_getConnection()->type() == "ws" || $base->ice_getConnection()->type() == "wss")
+        {
+            test($info instanceof $wsConnectionInfoClass);
+
+            test($info->headers["Upgrade"] == "websocket");
+            test($info->headers["Connection"] == "Upgrade");
+            test($info->headers["Sec-WebSocket-Protocol"] == "ice.zeroc.com");
+            test(isset($info->headers["Sec-WebSocket-Accept"]));
+
+            test($ctx["ws.Upgrade"] == "websocket");
+            test($ctx["ws.Connection"] == "Upgrade");
+            test($ctx["ws.Sec-WebSocket-Protocol"] == "ice.zeroc.com");
+            test($ctx["ws.Sec-WebSocket-Version"] == "13");
+            test(isset($ctx["ws.Sec-WebSocket-Key"]));
+        }
     }
     echo "ok\n";
 

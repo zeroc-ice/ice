@@ -32,13 +32,13 @@ def allTests(communicator):
     test(ipEndpoint.compress)
     test(not ipEndpoint.datagram())
     test((ipEndpoint.type() == Ice.TCPEndpointType and not ipEndpoint.secure()) or
-         (ipEndpoint.type() == 2 and ipEndpoint.secure()) or # SSL
-         (ipEndpoint.type() == 4 and not ipEndpoint.secure()) or # WS
-         (ipEndpoint.type() == 5 and ipEndpoint.secure())) # WS
+         (ipEndpoint.type() == Ice.SSLEndpointType and ipEndpoint.secure()) or # SSL
+         (ipEndpoint.type() == Ice.WSEndpointType and not ipEndpoint.secure()) or # WS
+         (ipEndpoint.type() == Ice.WSSEndpointType and ipEndpoint.secure())) # WS
     test((ipEndpoint.type() == Ice.TCPEndpointType and isinstance(ipEndpoint, Ice.TCPEndpointInfo)) or
-         (ipEndpoint.type() == 2) or # SSL
-         (ipEndpoint.type() == 4) or # WS
-         (ipEndpoint.type() == 5)) # WSS
+         (ipEndpoint.type() == Ice.SSLEndpointType) or
+         (ipEndpoint.type() == Ice.WSEndpointType and isinstance(ipEndpoint, Ice.WSEndpointInfo)) or
+         (ipEndpoint.type() == Ice.WSSEndpointType and isinstance(ipEndpoint, Ice.WSEndpointInfo)))
 
     udpEndpoint = endps[1].getInfo()
     test(isinstance(udpEndpoint, Ice.UDPEndpointInfo))
@@ -147,6 +147,20 @@ def allTests(communicator):
     test(ctx["localAddress"] == info.remoteAddress)
     test(ctx["remotePort"] == str(info.localPort))
     test(ctx["localPort"] == str(info.remotePort))
+
+    if(base.ice_getConnection().type() == "ws" or base.ice_getConnection().type() == "wss"):
+        test(isinstance(info, Ice.WSConnectionInfo))
+
+        test(info.headers["Upgrade"] == "websocket")
+        test(info.headers["Connection"] == "Upgrade")
+        test(info.headers["Sec-WebSocket-Protocol"] == "ice.zeroc.com")
+        test("Sec-WebSocket-Accept" in info.headers);
+
+        test(ctx["ws.Upgrade"] == "websocket")
+        test(ctx["ws.Connection"] == "Upgrade")
+        test(ctx["ws.Sec-WebSocket-Protocol"] == "ice.zeroc.com")
+        test(ctx["ws.Sec-WebSocket-Version"] == "13")
+        test("ws.Sec-WebSocket-Key" in ctx)
 
     print("ok")
 

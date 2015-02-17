@@ -458,6 +458,8 @@ del TCPEndpointInfo
 TCPEndpointInfo =  IcePy.TCPEndpointInfo
 del UDPEndpointInfo
 UDPEndpointInfo =  IcePy.UDPEndpointInfo
+del WSEndpointInfo
+WSEndpointInfo =  IcePy.WSEndpointInfo
 del OpaqueEndpointInfo
 OpaqueEndpointInfo =  IcePy.OpaqueEndpointInfo
 
@@ -472,6 +474,8 @@ del TCPConnectionInfo
 TCPConnectionInfo =  IcePy.TCPConnectionInfo
 del UDPConnectionInfo
 UDPConnectionInfo =  IcePy.UDPConnectionInfo
+del WSConnectionInfo
+WSConnectionInfo =  IcePy.WSConnectionInfo
 
 class ThreadNotification(object):
     '''Base class for thread notification callbacks. A subclass must

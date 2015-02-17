@@ -20,6 +20,7 @@ static VALUE _endpointInfoClass;
 static VALUE _ipEndpointInfoClass;
 static VALUE _tcpEndpointInfoClass;
 static VALUE _udpEndpointInfoClass;
+static VALUE _wsEndpointInfoClass;
 static VALUE _opaqueEndpointInfoClass;
 
 // **********************************************************************
@@ -148,6 +149,16 @@ IceRuby::createEndpointInfo(const Ice::EndpointInfoPtr& p)
         rb_ivar_set(info, rb_intern("@sourceAddress"), createString(udp->sourceAddress));
         rb_ivar_set(info, rb_intern("@mcastInterface"), createString(udp->mcastInterface));
         rb_ivar_set(info, rb_intern("@mcastTtl"), INT2FIX(udp->mcastTtl));
+    }
+    else if(Ice::WSEndpointInfoPtr::dynamicCast(p))
+    {
+        info = Data_Wrap_Struct(_wsEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
+
+        Ice::WSEndpointInfoPtr ws = Ice::WSEndpointInfoPtr::dynamicCast(p);
+        rb_ivar_set(info, rb_intern("@host"), createString(ws->host));
+        rb_ivar_set(info, rb_intern("@port"), INT2FIX(ws->port));
+        rb_ivar_set(info, rb_intern("@sourceAddress"), createString(ws->sourceAddress));
+        rb_ivar_set(info, rb_intern("@resource"), createString(ws->resource));
     }
     else if(Ice::OpaqueEndpointInfoPtr::dynamicCast(p))
     {
@@ -291,6 +302,16 @@ IceRuby::initEndpoint(VALUE iceModule)
     //
     rb_define_attr(_udpEndpointInfoClass, "mcastInterface", 1, 0);
     rb_define_attr(_udpEndpointInfoClass, "mcastTtl", 1, 0);
+
+    //
+    // WSEndpointInfo
+    //
+    _wsEndpointInfoClass = rb_define_class_under(iceModule, "WSEndpointInfo", _ipEndpointInfoClass);
+
+    //
+    // Instance members.
+    //
+    rb_define_attr(_wsEndpointInfoClass, "resource", 1, 0);
 
     //
     // OpaqueEndpointInfo

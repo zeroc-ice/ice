@@ -198,6 +198,17 @@ udpEndpointInfoGetMcastTtl(EndpointInfoObject* self)
 extern "C"
 #endif
 static PyObject*
+wsEndpointInfoGetResource(EndpointInfoObject* self)
+{
+    Ice::WSEndpointInfoPtr info = Ice::WSEndpointInfoPtr::dynamicCast(*self->endpointInfo);
+    assert(info);
+    return createString(info->resource);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 opaqueEndpointInfoGetRawBytes(EndpointInfoObject* self)
 {
     Ice::OpaqueEndpointInfoPtr info = Ice::OpaqueEndpointInfoPtr::dynamicCast(*self->endpointInfo);
@@ -259,6 +270,13 @@ static PyGetSetDef UDPEndpointInfoGetters[] =
         PyDoc_STR(STRCAST("multicast interface")), 0 },
     { STRCAST("mcastTtl"), reinterpret_cast<getter>(udpEndpointInfoGetMcastTtl), 0,
         PyDoc_STR(STRCAST("multicast time-to-live")), 0 },
+    { 0, 0 } /* sentinel */
+};
+
+static PyGetSetDef WSEndpointInfoGetters[] =
+{
+    { STRCAST("resource"), reinterpret_cast<getter>(wsEndpointInfoGetResource), 0,
+        PyDoc_STR(STRCAST("resource")), 0 },
     { 0, 0 } /* sentinel */
 };
 
@@ -462,6 +480,53 @@ PyTypeObject UDPEndpointInfoType =
     0,                               /* tp_is_gc */
 };
 
+PyTypeObject WSEndpointInfoType =
+{
+    /* The ob_type field must be initialized in the module init function
+     * to be portable to Windows without using C++. */
+    PyVarObject_HEAD_INIT(0, 0)
+    STRCAST("IcePy.WSEndpointInfo"), /* tp_name */
+    sizeof(EndpointInfoObject),      /* tp_basicsize */
+    0,                               /* tp_itemsize */
+    /* methods */
+    reinterpret_cast<destructor>(endpointInfoDealloc), /* tp_dealloc */
+    0,                               /* tp_print */
+    0,                               /* tp_getattr */
+    0,                               /* tp_setattr */
+    0,                               /* tp_reserved */
+    0,                               /* tp_repr */
+    0,                               /* tp_as_number */
+    0,                               /* tp_as_sequence */
+    0,                               /* tp_as_mapping */
+    0,                               /* tp_hash */
+    0,                               /* tp_call */
+    0,                               /* tp_str */
+    0,                               /* tp_getattro */
+    0,                               /* tp_setattro */
+    0,                               /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
+    0,                               /* tp_doc */
+    0,                               /* tp_traverse */
+    0,                               /* tp_clear */
+    0,                               /* tp_richcompare */
+    0,                               /* tp_weaklistoffset */
+    0,                               /* tp_iter */
+    0,                               /* tp_iternext */
+    0,                               /* tp_methods */
+    0,                               /* tp_members */
+    WSEndpointInfoGetters,           /* tp_getset */
+    0,                               /* tp_base */
+    0,                               /* tp_dict */
+    0,                               /* tp_descr_get */
+    0,                               /* tp_descr_set */
+    0,                               /* tp_dictoffset */
+    0,                               /* tp_init */
+    0,                               /* tp_alloc */
+    reinterpret_cast<newfunc>(endpointInfoNew), /* tp_new */
+    0,                               /* tp_free */
+    0,                               /* tp_is_gc */
+};
+
 PyTypeObject OpaqueEndpointInfoType =
 {
     /* The ob_type field must be initialized in the module init function
@@ -557,6 +622,17 @@ IcePy::initEndpointInfo(PyObject* module)
         return false;
     }
 
+    WSEndpointInfoType.tp_base = &IPEndpointInfoType; // Force inheritance from IPEndpointType.
+    if(PyType_Ready(&WSEndpointInfoType) < 0)
+    {
+        return false;
+    }
+    type = &WSEndpointInfoType; // Necessary to prevent GCC's strict-alias warnings.
+    if(PyModule_AddObject(module, STRCAST("WSEndpointInfo"), reinterpret_cast<PyObject*>(type)) < 0)
+    {
+        return false;
+    }
+
     OpaqueEndpointInfoType.tp_base = &EndpointInfoType; // Force inheritance from EndpointType.
     if(PyType_Ready(&OpaqueEndpointInfoType) < 0)
     {
@@ -590,6 +666,10 @@ IcePy::createEndpointInfo(const Ice::EndpointInfoPtr& endpointInfo)
     else if(Ice::UDPEndpointInfoPtr::dynamicCast(endpointInfo))
     {
         type = &UDPEndpointInfoType;
+    }
+    else if(Ice::WSEndpointInfoPtr::dynamicCast(endpointInfo))
+    {
+        type = &WSEndpointInfoType;
     }
     else if(Ice::OpaqueEndpointInfoPtr::dynamicCast(endpointInfo))
     {

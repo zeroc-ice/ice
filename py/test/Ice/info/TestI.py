@@ -62,4 +62,8 @@ class MyDerivedClassI(Test.TestIntf):
         ctx["remoteAddress"] = info.remoteAddress
         ctx["remotePort"] = str(info.remotePort)
 
+        if isinstance(info, Ice.WSConnectionInfo):
+            for key, value in info.headers.items():
+                ctx["ws." + key] = value
+
         return ctx

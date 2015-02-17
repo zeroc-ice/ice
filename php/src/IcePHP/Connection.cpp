@@ -26,6 +26,7 @@ static zend_class_entry* connectionInfoClassEntry = 0;
 static zend_class_entry* ipConnectionInfoClassEntry = 0;
 static zend_class_entry* tcpConnectionInfoClassEntry = 0;
 static zend_class_entry* udpConnectionInfoClassEntry = 0;
+static zend_class_entry* wsConnectionInfoClassEntry = 0;
 
 //
 // Ice::Connection support.
@@ -531,6 +532,19 @@ IcePHP::connectionInit(TSRMLS_D)
     zend_declare_property_long(udpConnectionInfoClassEntry, STRCAST("mcastPort"), sizeof("mcastPort") - 1, 0,
                                ZEND_ACC_PUBLIC TSRMLS_CC);
 
+    //
+    // Register the WSConnectionInfo class.
+    //
+#ifdef ICEPHP_USE_NAMESPACES
+    INIT_NS_CLASS_ENTRY(ce, "Ice", "WSConnectionInfo", NULL);
+#else
+    INIT_CLASS_ENTRY(ce, "Ice_WSConnectionInfo", NULL);
+#endif
+    ce.create_object = handleConnectionInfoAlloc;
+    wsConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, ipConnectionInfoClassEntry, NULL TSRMLS_CC);
+    zend_declare_property_string(wsConnectionInfoClassEntry, STRCAST("headers"), sizeof("headers") - 1,
+                                 STRCAST(""), ZEND_ACC_PUBLIC TSRMLS_CC);
+
     return true;
 }
 
@@ -590,6 +604,24 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p TSRMLS_DC
         {
             add_property_string(zv, STRCAST("mcastAddress"), const_cast<char*>(info->mcastAddress.c_str()), 1);
             add_property_long(zv, STRCAST("mcastPort"), static_cast<long>(info->mcastPort));
+        }
+    }
+    else if(Ice::WSConnectionInfoPtr::dynamicCast(p))
+    {
+        Ice::WSConnectionInfoPtr info = Ice::WSConnectionInfoPtr::dynamicCast(p);
+        if((status = object_init_ex(zv, wsConnectionInfoClassEntry)) == SUCCESS)
+        {
+            zval* zmap;
+            MAKE_STD_ZVAL(zmap);
+            AutoDestroy mapDestroyer(zmap);
+            if(createStringMap(zmap, info->headers TSRMLS_CC))
+            {
+                add_property_zval(zv, STRCAST("headers"), zmap);
+            }
+            else
+            {
+                return false;
+            }
         }
     }
     else if(Ice::IPConnectionInfoPtr::dynamicCast(p))

@@ -26,13 +26,13 @@ def allTests(communicator)
     test(ipEndpoint.compress)
     test(!ipEndpoint.datagram())
     test((ipEndpoint.type() == Ice::TCPEndpointType && !ipEndpoint.secure()) ||
-         (ipEndpoint.type() == 2 && ipEndpoint.secure()) ||
-         (ipEndpoint.type() == 4 && !ipEndpoint.secure()) ||
-         (ipEndpoint.type() == 5 && ipEndpoint.secure()))
+         (ipEndpoint.type() == Ice::SSLEndpointType && ipEndpoint.secure()) ||
+         (ipEndpoint.type() == Ice::WSEndpointType && !ipEndpoint.secure()) ||
+         (ipEndpoint.type() == Ice::WSSEndpointType && ipEndpoint.secure()))
     test((ipEndpoint.type() == Ice::TCPEndpointType && ipEndpoint.is_a?(Ice::TCPEndpointInfo)) ||
-         (ipEndpoint.type() == 2) ||
-         (ipEndpoint.type() == 4) ||
-         (ipEndpoint.type() == 5))
+         (ipEndpoint.type() == Ice::SSLEndpointType) ||
+         (ipEndpoint.type() == Ice::WSEndpointType && ipEndpoint.is_a?(Ice::WSEndpointInfo)) ||
+         (ipEndpoint.type() == Ice::WSSEndpointType && ipEndpoint.is_a?(Ice::WSEndpointInfo)))
 
     udpEndpoint = endps[1].getInfo()
     test(udpEndpoint.is_a?(Ice::UDPEndpointInfo));
@@ -96,6 +96,21 @@ def allTests(communicator)
     test(ctx["localAddress"] == info.remoteAddress)
     test(ctx["remotePort"] == info.localPort.to_s())
     test(ctx["localPort"] == info.remotePort.to_s())
+
+    if base.ice_getConnection().type() == "ws" || base.ice_getConnection().type() == "wss"
+        test(info.is_a?(Ice::WSConnectionInfo))
+
+        test(info.headers["Upgrade"] == "websocket")
+        test(info.headers["Connection"] == "Upgrade")
+        test(info.headers["Sec-WebSocket-Protocol"] == "ice.zeroc.com")
+        test(info.headers.has_key?("Sec-WebSocket-Accept"))
+
+        test(ctx["ws.Upgrade"] == "websocket")
+        test(ctx["ws.Connection"] == "Upgrade")
+        test(ctx["ws.Sec-WebSocket-Protocol"] == "ice.zeroc.com")
+        test(ctx["ws.Sec-WebSocket-Version"] == "13")
+        test(ctx.has_key?("ws.Sec-WebSocket-Key"))
+    end
 
     puts "ok"
 
