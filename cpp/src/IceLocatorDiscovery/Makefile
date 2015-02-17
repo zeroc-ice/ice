@@ -48,8 +48,7 @@ $(libdir)$(cpp11libdirsuffix)/$(LIBNAME): $(libdir)/$(SONAME)
 	ln -s $(cpp11sonamedir)$(SONAME) $@
 endif
 
-../IceLocatorDiscovery/IceLocatorDiscovery.h IceLocatorDiscovery.cpp: \
-	$(slicedir)/IceLocatorDiscovery/IceLocatorDiscovery.ice $(SLICE2CPP) $(SLICEPARSERLIB)
+../IceLocatorDiscovery/%.h %.cpp: $(slicedir)/IceLocatorDiscovery/%.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	rm -f $(*F).h $(*F).cpp
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(slicedir)/IceLocatorDiscovery/$(*F).ice
 	@touch $(*F).cpp
