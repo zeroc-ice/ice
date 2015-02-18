@@ -38,7 +38,11 @@
 typedef unsigned char ICEByte;
 typedef short ICEShort;
 typedef int ICEInt;
+#if defined(__x86_64)
+typedef long ICELong;
+#else
 typedef long long ICELong;
+#endif
 typedef float ICEFloat;
 typedef double ICEDouble;
 
