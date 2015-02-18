@@ -14,6 +14,8 @@
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
+// BUGFIX: With MSVC2013 if this isn't included you get strange linker errors.
+#include <IceUtil/FileUtil.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/FileTracker.h>
 #include <Slice/PythonUtil.h>
