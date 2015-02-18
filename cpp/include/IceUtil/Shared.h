@@ -12,7 +12,9 @@
 
 #include <IceUtil/Config.h>
 
-#if defined(ICE_USE_MUTEX_SHARED)
+#if defined(ICE_CPP11)
+#   include <atomic>
+#elif defined(ICE_USE_MUTEX_SHARED)
 
 #   include <IceUtil/Mutex.h>
 
@@ -28,10 +30,6 @@
                  defined(__i686) || defined(__x86_64))))
 
 #   define ICE_HAS_GCC_BUILTINS
-
-#elif (defined(__APPLE__) || defined(__linux) || defined(__FreeBSD__)) && (defined(__i386) || defined(__x86_64)) && !defined(__ICC)
-
-#   define ICE_HAS_ATOMIC_FUNCTIONS
 
 #elif defined(_WIN32)
 // Nothing to include
@@ -152,10 +150,12 @@ public:
     
 protected:
 
-#if defined(_WIN32)
+#if defined(ICE_CPP11)
+    std::atomic_int _ref;
+#elif defined(_WIN32)
     LONG _ref;
-#elif defined(ICE_HAS_ATOMIC_FUNCTIONS) || defined(ICE_HAS_GCC_BUILTINS)
-    volatile int _ref;
+#elif defined(ICE_HAS_GCC_BUILTINS)
+    int _ref;
 #else
     int _ref;
     Mutex _mutex;
