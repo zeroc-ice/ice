@@ -18,7 +18,7 @@ from stat import *
 
 version = "@ver@"
 if version[0] == "@":
-    version = "3.6b"
+    version = "3.6.0"
 distDir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(os.path.join(distDir, "lib"))
 import DistUtils
@@ -113,7 +113,7 @@ if forceclean or not os.path.exists(srcDir):
             os.chdir(cwd)
             sys.exit(1)
 
-    sliceBuildDirs = [ "cpp/src/Ice", "cpp/src/IceSSL", "cpp/src/IceDiscovery" ]
+    sliceBuildDirs = [ "cpp/src/Ice", "cpp/src/IceSSL", "cpp/src/IceDiscovery", "cpp/src/IceLocatorDiscovery" ]
     for l in sliceBuildDirs:
         print "building sources in " + os.path.join(srcDir, l)
         os.chdir(os.path.join(srcDir, l))
@@ -128,7 +128,8 @@ if forceclean or not os.path.exists(srcDir):
     print
 
 os.chdir(buildRootDir)
-thirdPartyPackage = "ThirdParty-Sources-" + version
+#thirdPartyPackage = "ThirdParty-Sources-" + version
+thirdPartyPackage = "ThirdParty-Sources-3.6b"
 downloadUrl = "http://www.zeroc.com/download/Ice/3.6/"
 
 if not os.path.isfile(os.path.expanduser("~/Downloads/%s.tar.gz" % thirdPartyPackage)):
@@ -214,7 +215,7 @@ DistUtils.copyMatchingFiles(os.path.join(srcDir, "rb/src/IceRuby"), gemDirExt, [
 #
 copyDirs = [ "cpp/src/IceUtil", "cpp/src/Slice", "cpp/src/Ice", "cpp/include/IceUtil",
              "cpp/include/Slice", "cpp/include/Ice", "cpp/src/IceSSL", "cpp/include/IceSSL",
-             "cpp/include/IceDiscovery", "cpp/src/IceDiscovery" ]
+             "cpp/include/IceDiscovery", "cpp/src/IceDiscovery", "cpp/include/IceLocatorDiscovery", "cpp/src/IceLocatorDiscovery" ]
 for d in copyDirs:
     DistUtils.copyMatchingFiles(os.path.join(srcDir, d), os.path.join(gemDirIce, d), ["*.cpp", "*.h", "Makefile"], False, verbose)
 
