@@ -204,14 +204,14 @@ endif
 include	 $(top_srcdir)/config/Make.rules.$(UNAME)
 
 install_includedir	:= $(prefix)/include
-install_docdir		:= $(prefix)/doc
 install_bindir	  	:= $(prefix)/$(binsubdir)$(cpp11suffix)
 install_libdir	  	:= $(prefix)/$(libsubdir)$(cpp11suffix)
-install_configdir 	:= $(prefix)/config
 
-ifneq ($(prefix),/usr)
+ifndef usr_dir_install
 install_mandir		:= $(prefix)/man/man1
+install_configdir 	:= $(prefix)/config
 else
+install_configdir 	:= $(prefix)/share/config
 install_mandir		:= $(prefix)/share/man/man1
 endif
 
@@ -229,7 +229,9 @@ ifeq ($(SSL_OS_LIBS),)
 	SSL_OS_LIBS = $(OPENSSL_LIBS)
 endif
 
-BZIP2_FLAGS             = $(if $(BZIP2_HOME),-I$(BZIP2_HOME)/include)
+ifneq ($(BZIP2_HOME),)
+	BZIP2_FLAGS             = I$(BZIP2_HOME)/include)
+endif
 ifeq ($(BZIP2_LIBS),)
 	BZIP2_LIBS              = $(if $(BZIP2_HOME),-L$(BZIP2_HOME)/$(libsubdir)) -lbz2
 endif
@@ -289,7 +291,7 @@ ICECPPFLAGS		= -I$(slicedir)
 
 SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 
-ifeq ($(ice_dir), /usr)
+ifeq ($(ice_dir), $(usr_dir))
 	LDFLAGS		= $(LDPLATFORMFLAGS) $(CXXFLAGS)
 	ifeq ($(CPP11),yes)
             LDFLAGS = $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(ice_dir)/$(libsubdir)$(cpp11libdirsuffix)
@@ -328,7 +330,11 @@ ifeq ($(mktest),)
 endif
 
 ifdef ice_src_dist
+ifeq ($(STATICLIBS),yes)
+	SLICEPARSERLIB	=
+else
 	SLICEPARSERLIB	= $(libdir)/$(call mklibfilename,Slice,$(VERSION))
+endif
 	SLICE2CPP	= $(bindir)/slice2cpp
 	SLICE2FREEZE	= $(bindir)/slice2freeze
 else
@@ -352,8 +358,8 @@ ifeq ($(ICESSL_LIBS),)
 	ICESSL_LIBS         = -lIceSSL
 endif
 
-EVERYTHING		= all clean install
-EVERYTHING_EXCEPT_ALL   = clean install
+EVERYTHING		= all clean install compile-slice
+EVERYTHING_EXCEPT_ALL   = clean install compile-slice
 
 .SUFFIXES:
 .SUFFIXES:		.cpp .c .o
@@ -396,7 +402,7 @@ $(HDIR)/%F.h: $(SDIR)/%F.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	mv $(*F)F.h $(HDIR)
 	@touch $(*F)F.cpp
 	@mkdir -p .depend
-	@$(SLICE2CPP) $(SLICE2CPPFLAGS) --depend $< | $(ice_dir)/config/makedepend.py "\$$(HDIR)/" > .depend/$(*F)F.ice.d
+	@$(SLICE2CPP) $(SLICE2CPPFLAGS) --depend $< | sed 's/\(.*: \\\)/\$$(HDIR)\/\1/' > .depend/$(*F)F.ice.d
 
 $(HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	rm -f $(HDIR)/$(*F).h $(*F).cpp
@@ -404,9 +410,11 @@ $(HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	mv $(*F).h $(HDIR)
 	@touch $(*F).cpp
 	@mkdir -p .depend
-	@$(SLICE2CPP) $(SLICE2CPPFLAGS) --depend $< | $(ice_dir)/config/makedepend.py "\$$(HDIR)/" > .depend/$(*F).ice.d
+	@$(SLICE2CPP) $(SLICE2CPPFLAGS) --depend $< | sed 's/\(.*: \\\)/\$$(HDIR)\/\1/' > .depend/$(*F).ice.d
 
-%.h %.cpp: %.ice $(SLICE2CPP) $(SLICEPARSERLIB)
+#%.h %.cpp: %.ice $(SLICE2CPP) $(SLICEPARSERLIB)
+
+%.h %.cpp: %.ice $(SLICE2CPP)
 	rm -f $(*F).h $(*F).cpp
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(*F).ice
 	@touch $(*F).cpp
@@ -445,6 +453,12 @@ endif
 ifneq ($(HDIR),)
 clean::
 	rm -f $(addprefix $(HDIR)/, $(addsuffix .h, $(basename $(SLICE_OBJS))))
+endif
+
+ifneq ($(SLICE_OBJS),)
+compile-slice:: $(SLICE_OBJS:.o=.cpp)
+else
+compile-slice::
 endif
 
 install::

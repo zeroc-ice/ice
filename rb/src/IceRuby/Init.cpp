@@ -26,9 +26,15 @@ static VALUE iceModule;
 extern "C"
 {
 
+Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
+Ice::Plugin* createIceDiscovery(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
+
 void
 ICE_DECLSPEC_EXPORT Init_IceRuby()
 {
+    Ice::registerPluginFactory("IceSSL", createIceSSL, false);
+    Ice::registerPluginFactory("IceDiscovery", createIceDiscovery, false);
+
     iceModule = rb_define_module("Ice");
     initCommunicator(iceModule);
     initLogger(iceModule);

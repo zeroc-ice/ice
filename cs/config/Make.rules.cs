@@ -100,7 +100,7 @@ endif
 
 install_libdir		    = $(prefix)/lib
 
-ifneq ($(prefix),/usr)
+ifndef usr_dir_install
 install_mandir		:= $(prefix)/man/man1
 else
 install_mandir		:= $(prefix)/share/man/man1
@@ -108,7 +108,7 @@ endif
 
 install_pkgconfigdir    = $(prefix)/lib/pkgconfig
 
-ifeq ($(ice_dir),/usr)
+ifeq ($(ice_dir), $(usr_dir))
     ref = -pkg:$(1)
 else
     ifdef ice_src_dist

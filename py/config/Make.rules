@@ -46,19 +46,20 @@ embedded_runpath ?= yes
 
 #
 # If multiple versions of Python are installed and you want a specific
-# version used for building the Ice extension, then set PYTHON_VERSION
-# to a value like "python2.5". Otherwise, the settings below use the
-# default Python interpreter found in your PATH.
+# version used for building the Ice extension, then set PYTHON to
+# the specific to the location of the python interpreter.
 #
-PYTHON_VERSION	    ?= python$(shell python -c "import sys; import distutils.sysconfig as ds; sys.stdout.write(ds.get_python_version())")
+PYTHON              ?= python
 
-PYTHON_BASE_VERSION ?= $(shell $(PYTHON_VERSION) -c "import sys; import distutils.sysconfig as ds; sys.stdout.write(ds.get_python_version())")
+PYTHON_VERSION      ?= python$(shell $(PYTHON) -c "import sys; import distutils.sysconfig as ds; sys.stdout.write(ds.get_python_version())")
 
-PYTHON_INCLUDE_DIR  ?= $(shell $(PYTHON_VERSION) -c "import sys; import distutils.sysconfig as ds; sys.stdout.write(ds.get_python_inc())")
+PYTHON_BASE_VERSION ?= $(shell $(PYTHON) -c "import sys; import distutils.sysconfig as ds; sys.stdout.write(ds.get_python_version())")
 
-PYTHON_LIB_DIR	    ?= $(shell $(PYTHON_VERSION) -c "import sys; import distutils.sysconfig as ds; sys.stdout.write(ds.get_config_var('LIBPL'))")
+PYTHON_INCLUDE_DIR  ?= $(shell $(PYTHON) -c "import sys; import distutils.sysconfig as ds; sys.stdout.write(ds.get_python_inc())")
 
-PYTHON_LIB_SUFFIX   ?= $(shell $(PYTHON_VERSION) -c "import sys; sys.stdout.write(sys.__dict__['abiflags'] if 'abiflags' in sys.__dict__ else '')")
+PYTHON_LIB_DIR	    ?= $(shell $(PYTHON) -c "import sys; import distutils.sysconfig as ds; sys.stdout.write(ds.get_config_var('LIBPL'))")
+
+PYTHON_LIB_SUFFIX   ?= $(shell $(PYTHON) -c "import sys; sys.stdout.write(sys.__dict__['abiflags'] if 'abiflags' in sys.__dict__ else '')")
 
 PYTHON_LIB_NAME	    ?= $(PYTHON_VERSION)$(PYTHON_LIB_SUFFIX)
 
@@ -91,7 +92,7 @@ else
 	include $(top_srcdir)/../config/Make.common.rules
 endif
 
-ifneq ($(prefix),/usr)
+ifndef usr_dir_install
 RPATH_DIR	= $(prefix)/$(libsubdir)
 endif
 
@@ -105,29 +106,17 @@ else
 endif
 
 libdir                  = $(top_srcdir)/python
-ifneq ($(prefix), /usr)
+
+ifndef usr_dir_install
     install_pythondir		= $(prefix)/python
     install_libdir			= $(prefix)/python
 else
-    ifeq ($(shell test -d $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/dist-packages && echo 0),0)
-        install_pythondir	= $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/dist-packages
-        install_libdir		= $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/dist-packages
-    endif
+    #
+    # The install_dir script says where python wants site-packages installed.
+    #
 
-    ifeq ($(shell test -d $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/site-packages && echo 0),0)
-        install_pythondir	= $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/site-packages
-        install_libdir		= $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/site-packages
-    endif
-
-    ifeq ($(shell test -d $(prefix)/lib/$(PYTHON_VERSION)/dist-packages && echo 0),0)
-        install_pythondir	= $(prefix)/lib/$(PYTHON_VERSION)/dist-packages
-        install_libdir		= $(prefix)/lib/$(PYTHON_VERSION)/dist-packages
-    endif
-
-    ifeq ($(shell test -d $(prefix)/lib/$(PYTHON_VERSION)/site-packages && echo 0),0)
-        install_pythondir	= $(prefix)/lib/$(PYTHON_VERSION)/site-packages
-        install_libdir		= $(prefix)/lib/$(PYTHON_VERSION)/site-packages
-    endif
+    install_pythondir = $(shell $(PYTHON) $(top_srcdir)/config/install_dir)
+    install_libdir = $(install_pythondir)
 endif
 
 ifeq ($(UNAME),SunOS)

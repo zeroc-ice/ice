@@ -107,7 +107,8 @@ else
 endif
 
 libdir			= $(top_srcdir)/lib
-ifneq ($(prefix), /usr)
+
+ifndef usr_dir_install
 install_phpdir      = $(prefix)/php
 install_libdir      = $(prefix)/php
 else

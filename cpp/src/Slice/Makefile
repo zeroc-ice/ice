@@ -27,7 +27,9 @@ OBJS		= Checksum.o \
 		  PHPUtil.o \
 		  Preprocessor.o \
 		  PythonUtil.o \
+		  Python.o \
 		  RubyUtil.o \
+		  Ruby.o \
 		  Scanner.o \
 		  Util.o \
 		  ../Slice/Grammar.o

@@ -29,8 +29,12 @@ OBJS		= .\Checksum.obj \
 		  .\PHPUtil.obj \
 		  .\Preprocessor.obj \
 		  .\PythonUtil.obj \
+		  .\Python.obj \
 		  .\RubyUtil.obj \
 		  .\Util.obj \
+		  .\Ruby.obj \
+		  .\Scanner.obj \
+		  .\Util.obj
                   $(BISON_FLEX_OBJS)
 
 !include $(top_srcdir)/config/Make.rules.mak

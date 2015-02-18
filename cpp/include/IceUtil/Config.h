@@ -170,7 +170,7 @@
 #   include <errno.h>
 #endif
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(ICE_NO_PRAGMA_COMMENT)
 #   if !defined(ICE_STATIC_LIBS) && (!defined(_DLL) || !defined(_MT))
 #       error "Only multi-threaded DLL libraries can be used with Ice!"
 #   endif

@@ -48,7 +48,6 @@ sgenerated
 *.suo
 *.xap
 core.*
-cpp/src/Ice/EventLoggerMsg.res
 tmp_*.xml
 obj
 *.RES
@@ -77,7 +76,6 @@ js/npm-debug.log
 
 .depend
 
-cpp/src/Ice/EventLoggerMsg.h
-cpp/src/Ice/EventLoggerMsg.rc
+cpp/src/Ice/EventLoggerMsg.res
 *.bin
 

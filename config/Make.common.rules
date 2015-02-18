@@ -40,6 +40,30 @@ ifeq ($(USE_BIN_DIST),yes)
 ice_bin_dist = 1
 endif
 
+ifeq ($(UNAME),Darwin)
+    usr_dir = /usr/local
+else
+    usr_dir = /usr
+endif
+
+#
+# usr_dir_install means we want to install with a /usr style layout.
+#
+ifeq ($(prefix), /usr)
+    usr_dir_install = 1
+endif
+
+ifeq ($(prefix), /usr/local)
+    usr_dir_install = 1
+endif
+
+#
+# A /usr style layout can be forced by setting USR_DIR_INSTALL=yes.
+#
+ifeq ($(USR_DIR_INSTALL),yes)
+    usr_dir_install = 1
+endif
+
 ifeq ($(UNAME),SunOS)
     ifeq ($(MACHINE_TYPE),sun4u)
        lp64suffix	= /64
@@ -65,14 +89,14 @@ ifeq ($(UNAME),Linux)
       #
       # Ubuntu.
       #
-      ifeq ($(shell test -d /usr/lib/x86_64-linux-gnu && echo 0),0)
+      ifeq ($(shell test -d $(usr_dir)/lib/x86_64-linux-gnu && echo 0),0)
          lp64suffix	= /x86_64-linux-gnu
       endif
       
       #
       # Rhel/SLES
       #
-      ifeq ($(shell test -d /usr/lib64 && echo 0),0)
+      ifeq ($(shell test -d $(usr_dir)/lib64 && echo 0),0)
           lp64suffix	= 64
       endif
       
@@ -80,12 +104,14 @@ ifeq ($(UNAME),Linux)
           LP64      	= yes
       endif
    endif
-   ifneq ($(LP64),yes)
-       binsuffix     = 32
-   endif
+   ifneq ($(STATICLIBS),yes)
+	ifneq ($(LP64),yes)
+	    binsuffix     = 32
+	endif
+    endif
 endif
 
-ifeq ($(shell test -d /usr/lib/i386-linux-gnu && echo 0),0)
+ifeq ($(shell test -d $(usr_dir)/lib/i386-linux-gnu && echo 0),0)
     lp32suffix     = /i386-linux-gnu
 endif
 
@@ -119,10 +145,8 @@ else
 	#
 	ifeq ($(MACHINE_TYPE),x86_64)
 		ifeq ($(UNAME),Linux)
-			ifeq ($(shell test -d /usr/lib/x86_64-linux-gnu && echo 0),0)
-				ifeq ($(ice_dir),/usr)
-					lib64subdir               = lib/x86_64-linux-gnu
-				endif
+			ifeq ($(shell test -d $(usr_dir)/lib/x86_64-linux-gnu && echo 0),0)
+				lib64subdir               = lib/x86_64-linux-gnu
 			else
 				lib64subdir               = lib$(lp64suffix)
 			endif
@@ -225,13 +249,13 @@ $(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please v
         ifeq ($(shell test -f $(top_srcdir)/bin/$(slice_translator) && echo 0), 0)
             ice_dir = $(top_srcdir)
         else 
-	        ifeq ($(shell test -f /usr/bin/$(slice_translator) && echo 0), 0)
-                ice_dir = /usr
+	        ifeq ($(shell test -f $(usr_dir)/bin/$(slice_translator) && echo 0), 0)
+                ice_dir = $(usr_dir)
                 ifeq ($(shell test -f /opt/Ice-$(VERSION)/bin/$(slice_translator) && echo 0), 0)
-                   $(warning Found $(slice_translator) in both /usr/bin and /opt/Ice-$(VERSION)/bin, /usr/bin/$(slice_translator) will be used!)
+                   $(warning Found $(slice_translator) in both $(usr_dir)/bin and /opt/Ice-$(VERSION)/bin, $(usr_dir)/bin/$(slice_translator) will be used!)
                 endif
                 ifeq ($(shell test -f /Library/Developer/Ice-$(VERSION)/bin/$(slice_translator) && echo 0), 0)
-                   $(warning Found $(slice_translator) in both /usr/bin and /Library/Developer/Ice-$(VERSION)/bin, /usr/bin/$(slice_translator) will be used!)
+                   $(warning Found $(slice_translator) in both $(usr_dir)/bin and /Library/Developer/Ice-$(VERSION)/bin, $(usr_dir)/bin/$(slice_translator) will be used!)
                 endif
             else
                 ifeq ($(shell test -f /Library/Developer/Ice-$(VERSION)/$(binsubdir)/$(slice_translator) && echo 0), 0)
@@ -269,29 +293,34 @@ endif
 #
 # Clear the embedded runpath prefix if building against RPM distribution.
 #
-ifeq ($(ice_dir), /usr)
+ifeq ($(ice_dir), $(usr_dir))
     embedded_runpath_prefix =
 endif
 
 #
 # Set slicedir to the path of the directory containing the Slice files.
 #
-ifeq ($(ice_dir), /usr)
-    slicedir = /usr/share/Ice-$(VERSION)/slice
+ifeq ($(ice_dir), $(usr_dir))
+    slicedir = $(usr_dir)/share/slice
 else
     slicedir = $(ice_dir)/slice
 endif
 
-ifeq ($(prefix), /usr)
-    install_slicedir = /usr/share/Ice-$(VERSION)/slice
+#
+# Installation location for slice and doc files.
+#
+ifdef usr_dir_install
+    install_slicedir = $(prefix)/share/Ice-$(VERSION)/slice
+    install_docdir = $(prefix)/share/Ice-$(VERSION)
 else
     install_slicedir = $(prefix)/slice
+    install_docdir = $(prefix)
 endif
 
 #
 # Set environment variables for the Slice translator.
 #
-ifneq ($(ice_dir), /usr)
+ifneq ($(ice_dir), $(usr_dir))
     ifdef ice_src_dist
         ice_lib_dir = $(ice_cpp_dir)/$(libsubdir)
     else
@@ -425,16 +454,20 @@ else
 endif
 
 install-common::
-	@if test ! -d $(prefix) ; \
+	@if test ! -d $(DESTDIR)$(prefix) ; \
 	then \
 	    echo "Creating $(prefix)..." ; \
-	    $(call mkdir,$(prefix), -p) ; \
+	    $(call mkdir,$(DESTDIR)$(prefix), -p) ; \
 	fi
 
 	@if test ! -d $(DESTDIR)$(install_slicedir) ; \
 	then \
 	    echo "Creating $(DESTDIR)$(install_slicedir)..." ; \
 	    $(call mkdir, $(DESTDIR)$(install_slicedir), -p) ; \
+	    if test ! -z "$(usr_dir_install)" ; \
+	    then \
+		    ln -s Ice-$(VERSION)/slice $(DESTDIR)/$(prefix)/share/slice ; \
+	    fi ; \
 	    cd $(top_srcdir)/../slice ; \
 	    for subdir in * ; \
 	    do \
@@ -443,17 +476,17 @@ install-common::
 	    done ; \
 	    fi
 
-	@if test ! -f $(DESTDIR)$(prefix)/ICE_LICENSE$(TEXT_EXTENSION) ; \
+	@if test ! -f $(DESTDIR)$(install_docdir)/ICE_LICENSE$(TEXT_EXTENSION) ; \
 	then \
-	    $(call installdata,$(top_srcdir)/../ICE_LICENSE$(TEXT_EXTENSION),$(DESTDIR)$(prefix)) ; \
+	    $(call installdata,$(top_srcdir)/../ICE_LICENSE$(TEXT_EXTENSION),$(DESTDIR)$(install_docdir)) ; \
 	fi
 
-	@if test ! -f $(DESTDIR)$(prefix)/LICENSE$(TEXT_EXTENSION) ; \
+	@if test ! -f $(DESTDIR)$(install_docdir)/LICENSE$(TEXT_EXTENSION) ; \
     then \
-        $(call installdata,$(top_srcdir)/../LICENSE$(TEXT_EXTENSION),$(DESTDIR)$(prefix)) ; \
+        $(call installdata,$(top_srcdir)/../LICENSE$(TEXT_EXTENSION),$(DESTDIR)$(install_docdir)) ; \
     fi
 
-	@if test ! -f $(DESTDIR)$(prefix)/CHANGES$(TEXT_EXTENSION) ; \
+	@if test ! -f $(DESTDIR)$(install_docdir)/CHANGES$(TEXT_EXTENSION) ; \
 	then \
-		$(call installdata,$(top_srcdir)/../CHANGES$(TEXT_EXTENSION),$(DESTDIR)$(prefix)) ; \
+		$(call installdata,$(top_srcdir)/../CHANGES$(TEXT_EXTENSION),$(DESTDIR)$(install_docdir)) ; \
 	fi

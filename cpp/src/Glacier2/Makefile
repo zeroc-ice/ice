@@ -33,12 +33,12 @@ RPATH_DIR	= $(LOADER_PATH)/../$(libsubdir)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) $(OPENSSL_FLAGS)
+CPPFLAGS	:= -I.. $(CPPFLAGS)
 SLICE2CPPFLAGS	:= --include-dir Glacier2 $(SLICE2CPPFLAGS)
 
 $(ROUTER): $(OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(OBJS) -lGlacier2 $(LIBS) -lIceSSL $(OPENSSL_LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(OBJS) -lGlacier2 $(LIBS) -lIceSSL $(OPENSSL_RPATH_LINK)
 
 install:: all
 	$(call installprogram,$(ROUTER),$(DESTDIR)$(install_bindir))

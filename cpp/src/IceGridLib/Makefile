@@ -42,6 +42,12 @@ ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS 	:= --checksum --ice --include-dir IceGrid --dll-export ICE_GRID_API $(SLICE2CPPFLAGS)
 LINKWITH        := -lGlacier2 $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
+ifeq ($(STATICLIBS),yes)
+$(libdir)/$(LIBNAME): $(OBJS)
+	@mkdir -p $(dir $@)
+	rm -f $@
+	$(call mklib,$@,$(OBJS))
+else
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	@mkdir -p $(dir $@)
 	rm -f $@
@@ -55,6 +61,7 @@ $(libdir)$(cpp11libdirsuffix)/$(LIBNAME): $(libdir)/$(SONAME)
 	@mkdir -p $(libdir)$(cpp11libdirsuffix)
 	rm -f $@
 	ln -s $(cpp11sonamedir)$(SONAME) $@
+endif
 
 install:: all
 	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))

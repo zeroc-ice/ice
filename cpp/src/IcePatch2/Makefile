@@ -30,7 +30,7 @@ RPATH_DIR	= $(LOADER_PATH)/../$(libsubdir)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. -I.. $(CPPFLAGS) $(OPENSSL_FLAGS) $(BZIP2_FLAGS)
+CPPFLAGS	:= -I. -I.. $(CPPFLAGS) $(BZIP2_FLAGS)
 
 $(SERVER): $(SOBJS) $(LIBTARGETS)
 	rm -f $@

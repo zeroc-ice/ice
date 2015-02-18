@@ -25,6 +25,7 @@
 #include <Proxy.h>
 #include <Slice.h>
 #include <Types.h>
+#include <Ice/Initialize.h>
 
 using namespace std;
 using namespace IcePy;
@@ -87,6 +88,8 @@ static PyMethodDef methods[] =
         PyDoc_STR(STRCAST("loadSlice(cmd) -> None")) },
     { STRCAST("cleanup"), reinterpret_cast<PyCFunction>(IcePy_cleanup), METH_NOARGS,
         PyDoc_STR(STRCAST("internal function")) },
+    { STRCAST("compile"), reinterpret_cast<PyCFunction>(IcePy_compile), METH_VARARGS,
+        PyDoc_STR(STRCAST("internal function")) },
     { 0, 0 } /* sentinel */
 };
 
@@ -115,6 +118,12 @@ PyDoc_STRVAR(moduleDoc, "The Internet Communications Engine.");
 
 #endif
 
+extern "C"
+{
+Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
+Ice::Plugin* createIceDiscovery(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
+}
+
 PyMODINIT_FUNC
 #ifndef _WIN32 // On Windows, PyMODINIT_FUNC already defines dllexport
 ICE_DECLSPEC_EXPORT
@@ -126,6 +135,9 @@ initIcePy(void)
 #endif
 {
     PyObject* module;
+
+    Ice::registerPluginFactory("IceSSL", createIceSSL, false);
+    Ice::registerPluginFactory("IceDiscovery", createIceDiscovery, false);
 
     //
     // Notify Python that we are a multi-threaded extension.

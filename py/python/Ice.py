@@ -294,6 +294,14 @@ def getSliceDir():
     '''Convenience function for locating the directory containing the Slice files.'''
 
     #
+    # Detect setup.py installation in site-packages. The slice
+    # files live along side Ice.py
+    #
+    dir = os.path.join(os.path.dirname(__file__), "slice")
+    if os.path.isdir(dir):
+        return dir
+
+    #
     # Get the parent of the directory containing this file (Ice.py).
     #
     pyHome = os.path.join(os.path.dirname(__file__), "..")

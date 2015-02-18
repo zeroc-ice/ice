@@ -23,7 +23,7 @@
 //
 // Automatically link Slice[D].lib with Visual C++
 //
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(ICE_NO_PRAGMA_COMMENT)
 #   if defined(ICE_STATIC_LIBS)
 #      pragma comment(lib, "Slice.lib")
 #   elif !defined(SLICE_API_EXPORTS)

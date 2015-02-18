@@ -7,11 +7,6 @@
 #
 # **********************************************************************
 
-$(warning ===================================================================) 
-$(warning OS X is currently an unsupported platform for Ice for Ruby.)
-$(warning Contact sales@zeroc.com if you wish to sponsor official support.)
-$(warning ===================================================================) 
-
 #
 # This file is included by Make.rules when uname is Darwin.
 #

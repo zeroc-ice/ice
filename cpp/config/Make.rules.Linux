@@ -121,7 +121,7 @@ ifeq ($(CXX),g++)
         #
         # Clear the rpath dir when doing a system install.
         #
-        ifeq ($(ice_dir), /usr)
+        ifeq ($(ice_dir), $(usr_dir))
             RPATH_DIR =
         endif
 

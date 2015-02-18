@@ -11,6 +11,7 @@
 #include <Util.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/RubyUtil.h>
+#include <Slice/Util.h>
 #include <IceUtil/Options.h>
 
 using namespace std;
@@ -156,8 +157,67 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
     return Qnil;
 }
 
+extern "C"
+VALUE
+IceRuby_compile(int argc, VALUE* argv, VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+        if(argc != 1)
+        {
+            throw RubyException(rb_eArgError, "wrong number of arguments");
+        }
+
+        vector<string> argSeq;
+	if(!arrayToStringSeq(argv[0], argSeq))
+	{
+	    throw RubyException(rb_eTypeError, "argument is not an array");
+	}
+	char** argv = new char*[argSeq.size()+1];
+	// Manufacture a fake argv[0].
+	argv[0] = const_cast<char*>("slice2rb");
+	for(size_t i = 0; i < argSeq.size(); ++i)
+	{
+	    argv[i+1] = const_cast<char*>(argSeq[i].c_str());
+	}
+
+	int rc;
+	try
+	{
+	    rc = Slice::Ruby::compile(argSeq.size()+1, argv);
+	}
+	catch(const std::exception& ex)
+	{
+	    getErrorStream() << argv[0] << ": error:" << ex.what() << endl;
+	    rc = EXIT_FAILURE;
+	}
+	catch(const std::string& msg)
+	{
+	    getErrorStream() << argv[0] << ": error:" << msg << endl;
+	    rc = EXIT_FAILURE;
+	}
+	catch(const char* msg)
+	{
+	    getErrorStream() << argv[0] << ": error:" << msg << endl;
+	    rc = EXIT_FAILURE;
+	}
+	catch(...)
+	{
+	    getErrorStream() << argv[0] << ": error:" << "unknown exception" << endl;
+	    rc = EXIT_FAILURE;
+	}
+
+	delete[] argv;
+        return INT2FIX(rc);
+    }
+    ICE_RUBY_CATCH
+
+    return Qnil;
+}
+
 void
 IceRuby::initSlice(VALUE iceModule)
 {
     rb_define_module_function(iceModule, "loadSlice", CAST_METHOD(IceRuby_loadSlice), -1);
+    rb_define_module_function(iceModule, "compile", CAST_METHOD(IceRuby_compile), -1);
 }
