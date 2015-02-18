@@ -151,7 +151,7 @@ public:
 protected:
 
 #if defined(ICE_CPP11)
-    std::atomic_int _ref;
+    std::atomic<int> _ref;
 #elif defined(_WIN32)
     LONG _ref;
 #elif defined(ICE_HAS_GCC_BUILTINS)
