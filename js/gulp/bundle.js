@@ -7,13 +7,13 @@
 //
 // **********************************************************************
 
-var gutil = require("gulp-util");
+var gutil       = require("gulp-util");
 var PluginError = gutil.PluginError;
 var PLUGIN_NAME = "gulp-slice2js-bundle";
-var through = require("through2");
-var fs = require("fs");
-var path = require("path");
-var sourcemap = require('source-map');
+var through     = require("through2");
+var fs          = require("fs");
+var path        = require("path");
+var sourcemap   = require('source-map');
 
 function rmfile(path)
 {
@@ -269,7 +269,7 @@ function bundle(args)
             cb();
         },
         function(cb)
-        {            
+        {
             if(!isfile(args.target) ||
                files.some(function(f){ return isnewer(f.path, args.target); }))
             {
@@ -283,7 +283,7 @@ function bundle(args)
                     });
 
                 d.depends = d.expand().sort();
-                
+
                 var sourceMap = new sourcemap.SourceMapGenerator(
                     {
                         file: path.basename(args.target)
@@ -316,12 +316,12 @@ function bundle(args)
 
                 sb.write(preamble);
                 lineOffset += 2;
-                
+
                 args.modules.forEach(
                     function(m){
                         sb.write("    window." + m + " = window." + m + " || {};\n");
                         lineOffset++;
-                        
+
                         if(m == "Ice")
                         {
                             sb.write("    Ice.Slice = Ice.Slice || {};\n");
@@ -330,12 +330,12 @@ function bundle(args)
                     });
                 sb.write("    var Slice = Ice.Slice;\n");
                 lineOffset++;
-                
+
                 for(var i = 0;  i < d.depends.length; ++i)
                 {
                     sb.write(modulePreamble);
                     lineOffset += 3;
-                    
+
                     var data = d.depends[i].file.contents.toString();
                     var file = d.depends[i].file;
                     var lines = data.toString().split("\n");
@@ -423,9 +423,9 @@ function bundle(args)
                         {
                             continue;
                         }
-                        
+
                         sb.write("        " + out + "\n");
-                        
+
                         sourceMap.addMapping(
                             {
                                 generated:
@@ -447,7 +447,7 @@ function bundle(args)
                 }
                 sb.write("\n");
                 lineOffset++;
-                
+
                 //
                 // Now exports the modules to the global Window object.
                 //

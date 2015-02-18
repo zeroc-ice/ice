@@ -120,7 +120,7 @@ function compile(slice2js, file, args, cb)
         });
 }
 
-module.exports = function(options)
+module.exports.compile = function(options)
 {
     var opts = options || {};
     var slice2js;
@@ -130,7 +130,7 @@ module.exports = function(options)
     {
         try
         {
-            slice2js = require("zeroc-slice2js");
+            slice2js = require("zeroc-slice2js").compile;
         }
         catch(e)
         {
@@ -200,3 +200,14 @@ module.exports = function(options)
             }
         });
 };
+
+module.exports.sliceDir = (function() {
+    try
+    {
+        return require('zeroc-slice2js').sliceDir;
+    }
+    catch(e)
+    {
+        return null;
+    }
+})();

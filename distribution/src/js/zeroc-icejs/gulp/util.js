@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 // **********************************************************************
 //
 // Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
@@ -8,7 +7,13 @@
 //
 // **********************************************************************
 
-'use strict';
+var path = require('path');
+var gulpSlice2js = require('gulp-zeroc-slice2js');
+var sliceDir = gulpSlice2js.sliceDir;
 
-var slice2js = require('../slice2js');
-slice2js.compile(process.argv.slice(2), {stdio: 'inherit'}).on('exit', process.exit);
+function slice2js(options) {
+    return gulpSlice2js.compile(options);
+}
+
+module.exports.slice2js = slice2js;
+module.exports.sliceDir = sliceDir;

@@ -51,6 +51,17 @@ Add the necessary `<script>` tags to your html to include the Ice for JavaScript
 
 Minified versions are available with the `.min.js` extension.
 
+## Rebuild Browser Libraries
+
+You can rebuild the Ice for Javascript browser libraries by using the following gulp tasks:
+```bash
+$ npm run gulp:build // Build the browser libraries
+$ npm run gulp:watch // Watch for file changes and reload
+$ npm run gulp:clean // Clean the browser libraries
+```
+
+Note: You must have installed `zeroc-icejs` without the `--production` flag.
+
 ## Documentation
 
 See the [Ice Documentation](https://doc.zeroc.com/display/Ice36/JavaScript+Mapping).

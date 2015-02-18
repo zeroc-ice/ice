@@ -13,16 +13,17 @@ var os        = require('os');
 var platform  = os.platform();
 var arch      = os.arch();
 
-module.exports = function(args, options)
+var sliceDir = path.resolve(path.join(__dirname, 'slice'));
+var slice2js = path.join(path.join(__dirname, 'build', 'Release'),
+                                   platform === 'win32' ? 'slice2js.exe' : 'slice2js');
+
+function compile(args, options)
 {
-  var bin_dir   = path.join(__dirname, 'build', 'Release');
-  var slice2js  = platform === 'win32' ? 'slice2js.exe' : 'slice2js';
-  slice2js      = path.join(bin_dir, slice2js);
+    args = args || [];
+    var slice2jsArgs = args.slice();
+    slice2jsArgs.push('-I' + sliceDir);
+    return spawn(slice2js, slice2jsArgs, options);
+}
 
-  var slice_dir = path.resolve(path.join(__dirname, 'slice'));
-
-  var slice2js_args = args.slice();
-  slice2js_args.push('-I' + slice_dir);
-
-  return spawn(slice2js, slice2js_args, options);
-};
+module.exports.compile  = compile;
+module.exports.sliceDir = sliceDir;

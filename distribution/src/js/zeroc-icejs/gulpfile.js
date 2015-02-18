@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 // **********************************************************************
 //
 // Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
@@ -8,7 +7,11 @@
 //
 // **********************************************************************
 
-'use strict';
+var gulp = require('gulp');
+var path = require('path');
 
-var slice2js = require('../slice2js');
-slice2js.compile(process.argv.slice(2), {stdio: 'inherit'}).on('exit', process.exit);
+var libTasks = require('./gulp/libTasks')(gulp);
+
+gulp.task('build', libTasks.buildTasks);
+gulp.task('clean', libTasks.cleanTasks);
+gulp.task('watch', libTasks.watchTasks);

@@ -70,7 +70,7 @@ for package in packages:
     # copy dist files to repositories
     #
     runCommand("cp -rf distfiles-@ver@/src/js/%(package)s/* packages/%(package)s/" % {"package": package})
-    
+
     #
     # copy license files to each package
     #
@@ -86,7 +86,7 @@ copy("%s/mcpp-2.7.2/src" % thirdPartyPackage, "packages/zeroc-slice2js/mcpp/src"
 
 for d in ["IceUtil", "Slice", "slice2js"]:
     copyMatchingFiles(os.path.join("Ice-@ver@/cpp/src", d), os.path.join("packages/zeroc-slice2js/src", d), ["*.cpp", "*.h"])
-    
+
 for d in ["IceUtil", "Slice"]:
     copyMatchingFiles(os.path.join("Ice-@ver@/cpp/include", d), os.path.join("packages/zeroc-slice2js/include", d), ["*.h"])
 
@@ -103,10 +103,8 @@ copy("Ice-@ver@/js/gulp/gulp-slice2js/index.js", "packages/gulp-zeroc-slice2js/i
 #
 # zeroc-icejs package
 #
-for d in ["Ice", "Glacier2", "IceStorm", "IceGrid"]:
-    copyMatchingFiles(os.path.join("Ice-@ver@/js/src", d), os.path.join("packages/zeroc-icejs/src", d), ["*.js"])
-copy("Ice-@ver@/js/src/zeroc-icejs.js", "packages/zeroc-icejs/src/zeroc-icejs.js")
-
+copy("Ice-@ver@/js/src", "packages/zeroc-icejs/src")
+copyMatchingFiles("Ice-@ver@/js/gulp", "packages/zeroc-icejs/gulp", ['bundle.js', 'libTasks.js'])
 copyMatchingFiles("Ice-@ver@/js/lib", "packages/zeroc-icejs/lib", ["*.js", "*.gz"])
 
 #
@@ -129,6 +127,6 @@ for key, value in jshintDemo["globals"].iteritems():
 json.dump(jshint, open("packages/icejs-demos/.jshintrc_browser", "w"), indent = 4, separators=(',', ': '))
 
 for package in packages:
-    runCommand("cd packages/%(package)s && git add . && git commit . -m '%(package)s version @ver@'" % 
+    runCommand("cd packages/%(package)s && git add . && git commit . -m '%(package)s version @ver@'" %
                {"package": package})
 
