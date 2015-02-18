@@ -151,7 +151,7 @@ public abstract class Reference implements Cloneable
             return this;
         }
         Reference r = _instance.referenceFactory().copy(this);
-        r._identity = (Ice.Identity)newIdentity.clone();
+        r._identity = newIdentity.clone();
         return r;
     }
 
@@ -477,20 +477,18 @@ public abstract class Reference implements Cloneable
     }
 
     @Override
-    public Object clone()
+    public Reference clone()
     {
-        //
-        // A member-wise copy is safe because the members are immutable.
-        //
-        Object o = null;
-        try
-        {
-            o = super.clone();
-        }
-        catch(CloneNotSupportedException ex)
-        {
-        }
-        return o;
+	Reference c = null;
+	try
+	{
+	    c = (Reference)super.clone();
+	}
+	catch(CloneNotSupportedException ex)
+	{
+	    assert false;
+	}
+	return c;
     }
 
     protected int _hashValue;

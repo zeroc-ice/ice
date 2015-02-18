@@ -20,7 +20,7 @@ public interface Object
      *
      * @return The cloned object.
      **/
-    java.lang.Object clone() throws java.lang.CloneNotSupportedException;
+    Object clone() throws java.lang.CloneNotSupportedException;
 
     /**
      * Tests whether this object supports a specific Slice interface.

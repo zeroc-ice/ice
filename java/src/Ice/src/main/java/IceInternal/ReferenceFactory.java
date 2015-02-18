@@ -65,7 +65,7 @@ public final class ReferenceFactory
         {
             return null;
         }
-        return (Reference)r.clone();
+	return r.clone();
     }
 
     public Reference

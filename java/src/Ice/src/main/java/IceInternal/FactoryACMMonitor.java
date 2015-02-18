@@ -122,7 +122,7 @@ class FactoryACMMonitor implements ACMMonitor
     {
         assert(_instance != null);
 
-        ACMConfig config = (ACMConfig)_config.clone();
+        ACMConfig config = _config.clone();
         if(timeout != null && timeout.isSet())
         {
             config.timeout = timeout.get() * 1000; // To milliseconds

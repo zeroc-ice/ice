@@ -266,7 +266,7 @@ public abstract class Application extends Ice.Application
             // needs to be passed to doMainInternal, as these can be
             // changed by the application.
             //
-            Ice.InitializationData id = (Ice.InitializationData)initData.clone();
+            Ice.InitializationData id = initData.clone();
             id.properties = id.properties._clone();
             Ice.StringSeqHolder h = new Ice.StringSeqHolder();
             h.value = argHolder.value.clone();

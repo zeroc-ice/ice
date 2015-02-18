@@ -21,7 +21,7 @@ class ReplicaGroup extends TreeNode
     static public ReplicaGroupDescriptor
     copyDescriptor(ReplicaGroupDescriptor d)
     {
-        return (ReplicaGroupDescriptor)d.clone();
+        return d.clone();
     }
 
     @Override

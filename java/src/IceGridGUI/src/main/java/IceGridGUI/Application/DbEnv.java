@@ -20,7 +20,7 @@ class DbEnv extends TreeNode implements DescriptorHolder
 {
     static public DbEnvDescriptor copyDescriptor(DbEnvDescriptor d)
     {
-        return (DbEnvDescriptor)d.clone();
+        return d.clone();
     }
 
     static public java.util.List<DbEnvDescriptor> copyDescriptors(java.util.List<DbEnvDescriptor> list)

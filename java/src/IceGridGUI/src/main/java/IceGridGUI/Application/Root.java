@@ -80,7 +80,7 @@ public class Root extends ListTreeNode
 
         _origVariables = _descriptor.variables;
         _origDescription = _descriptor.description;
-        _origDistrib = (DistributionDescriptor)_descriptor.distrib.clone();
+        _origDistrib = _descriptor.distrib.clone();
 
         _propertySets = new PropertySets(this, _descriptor.propertySets);
         _replicaGroups = new ReplicaGroups(this, _descriptor.replicaGroups);
@@ -108,7 +108,7 @@ public class Root extends ListTreeNode
     static public ApplicationDescriptor
     copyDescriptor(ApplicationDescriptor ad)
     {
-        ApplicationDescriptor copy = (ApplicationDescriptor)ad.clone();
+        ApplicationDescriptor copy = ad.clone();
 
         copy.propertySets = PropertySets.copyDescriptors(copy.propertySets);
 
@@ -120,7 +120,7 @@ public class Root extends ListTreeNode
 
         copy.nodes = Nodes.copyDescriptors(copy.nodes);
 
-        copy.distrib = (DistributionDescriptor)copy.distrib.clone();
+        copy.distrib = copy.distrib.clone();
         return copy;
     }
 
@@ -985,7 +985,7 @@ public class Root extends ListTreeNode
         _editable.commit();
         _origVariables = _descriptor.variables;
         _origDescription = _descriptor.description;
-        _origDistrib = (DistributionDescriptor)_descriptor.distrib.clone();
+        _origDistrib = _descriptor.distrib.clone();
 
         _nodes.commit();
         _propertySets.commit();
@@ -1092,7 +1092,7 @@ public class Root extends ListTreeNode
             if(desc.distrib != null)
             {
                 _descriptor.distrib = desc.distrib.value;
-                _origDistrib = (DistributionDescriptor)_descriptor.distrib.clone();
+                _origDistrib = _descriptor.distrib.clone();
             }
 
             //
@@ -1279,8 +1279,8 @@ public class Root extends ListTreeNode
 
     ApplicationDescriptor saveDescriptor()
     {
-        ApplicationDescriptor clone = (ApplicationDescriptor)_descriptor.clone();
-        clone.distrib = (IceGrid.DistributionDescriptor)clone.distrib.clone();
+        ApplicationDescriptor clone = _descriptor.clone();
+        clone.distrib = clone.distrib.clone();
         return clone;
     }
 

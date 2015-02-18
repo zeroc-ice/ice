@@ -32,18 +32,19 @@ public abstract class Exception extends RuntimeException implements Cloneable
      * @return The copy of this exception.
      **/
     @Override
-    public java.lang.Object clone()
+    public Exception clone()
     {
-        java.lang.Object o = null;
-        try
-        {
-            o = super.clone();
-        }
-        catch(CloneNotSupportedException ex)
-        {
-            assert false; // Impossible
-        }
-        return o;
+	Exception c = null;
+
+	try
+	{
+	    c = (Exception)super.clone();
+	}
+	catch(CloneNotSupportedException ex)
+	{
+	    assert false;
+	}
+	return c;
     }
 
     /**

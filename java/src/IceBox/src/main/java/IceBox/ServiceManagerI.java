@@ -99,7 +99,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                         throw new AlreadyStartedException();
                     }
                     p.status = StatusStarting;
-                    info = (ServiceInfo)p.clone();
+                    info = p.clone();
                     break;
                 }
             }
@@ -172,7 +172,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                         throw new AlreadyStoppedException();
                     }
                     p.status = StatusStopping;
-                    info = (ServiceInfo)p.clone();
+                    info = p.clone();
                     break;
                 }
             }
@@ -905,20 +905,20 @@ public class ServiceManagerI extends _ServiceManagerDisp
     public final static int StatusStarting = 2;
     public final static int StatusStarted = 3;
 
-    static class ServiceInfo implements Cloneable
+    static final class ServiceInfo implements Cloneable
     {
         @Override
-        public Object clone()
+        public ServiceInfo clone()
         {
-            Object o = null;
+            ServiceInfo c = null;
             try
             {
-                o = super.clone();
+                c = (ServiceInfo)super.clone();
             }
             catch(CloneNotSupportedException ex)
             {
             }
-            return o;
+            return c;
         }
 
         public String name;

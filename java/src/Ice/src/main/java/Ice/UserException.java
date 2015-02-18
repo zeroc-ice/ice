@@ -29,18 +29,19 @@ public abstract class UserException extends java.lang.Exception implements Clone
      * @return The copy of this exception.
      **/
     @Override
-    public java.lang.Object clone()
+    public UserException clone()
     {
-        java.lang.Object o = null;
-        try
-        {
-            o = super.clone();
-        }
-        catch(CloneNotSupportedException ex)
-        {
-            assert false; // Impossible
-        }
-        return o;
+	UserException c = null;
+
+	try
+	{
+	    c = (UserException)super.clone();
+	}
+	catch(CloneNotSupportedException ex)
+	{
+	    assert false;
+	}
+	return c;
     }
 
     /**

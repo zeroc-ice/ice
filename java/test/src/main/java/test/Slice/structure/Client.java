@@ -60,38 +60,38 @@ public class Client
         {
             S2 v;
 
-            v = (S2)def_s2.clone();
+            v = def_s2.clone();
             test(v.equals(def_s2));
 
-            v = (S2)def_s2.clone();
+            v = def_s2.clone();
             v.bo = false;
             test(!v.equals(def_s2));
 
-            v = (S2)def_s2.clone();
+            v = def_s2.clone();
             v.by--;
             test(!v.equals(def_s2));
 
-            v = (S2)def_s2.clone();
+            v = def_s2.clone();
             v.sh--;
             test(!v.equals(def_s2));
 
-            v = (S2)def_s2.clone();
+            v = def_s2.clone();
             v.i--;
             test(!v.equals(def_s2));
 
-            v = (S2)def_s2.clone();
+            v = def_s2.clone();
             v.l--;
             test(!v.equals(def_s2));
 
-            v = (S2)def_s2.clone();
+            v = def_s2.clone();
             v.f--;
             test(!v.equals(def_s2));
 
-            v = (S2)def_s2.clone();
+            v = def_s2.clone();
             v.d--;
             test(!v.equals(def_s2));
 
-            v = (S2)def_s2.clone();
+            v = def_s2.clone();
             v.str = "";
             test(!v.equals(def_s2));
         }
@@ -102,22 +102,22 @@ public class Client
         {
             S2 v1, v2;
 
-            v1 = (S2)def_s2.clone();
+            v1 = def_s2.clone();
             v1.str = new String(def_s2.str);
             test(v1.equals(def_s2));
 
-            v1 = (S2)def_s2.clone();
-            v2 = (S2)def_s2.clone();
+            v1 = def_s2.clone();
+            v2 = def_s2.clone();
             v1.str = null;
             test(!v1.equals(v2));
 
-            v1 = (S2)def_s2.clone();
-            v2 = (S2)def_s2.clone();
+            v1 = def_s2.clone();
+            v2 = def_s2.clone();
             v2.str = null;
             test(!v1.equals(v2));
 
-            v1 = (S2)def_s2.clone();
-            v2 = (S2)def_s2.clone();
+            v1 = def_s2.clone();
+            v2 = def_s2.clone();
             v1.str = null;
             v2.str = null;
             test(v1.equals(v2));
@@ -129,17 +129,17 @@ public class Client
         {
             S2 v1, v2;
 
-            v1 = (S2)def_s2.clone();
+            v1 = def_s2.clone();
             v1.ss = def_s2.ss.clone();
             test(v1.equals(def_s2));
 
-            v1 = (S2)def_s2.clone();
-            v2 = (S2)def_s2.clone();
+            v1 = def_s2.clone();
+            v2 = def_s2.clone();
             v1.ss = null;
             test(!v1.equals(v2));
 
-            v1 = (S2)def_s2.clone();
-            v2 = (S2)def_s2.clone();
+            v1 = def_s2.clone();
+            v2 = def_s2.clone();
             v2.ss = null;
             test(!v1.equals(v2));
         }
@@ -150,21 +150,21 @@ public class Client
         {
             S2 v1, v2;
 
-            v1 = (S2)def_s2.clone();
+            v1 = def_s2.clone();
             v1.il = new ArrayList<Integer>(def_s2.il);
             test(v1.equals(def_s2));
 
-            v1 = (S2)def_s2.clone();
+            v1 = def_s2.clone();
             v1.il = new ArrayList<Integer>();
             test(!v1.equals(def_s2));
 
-            v1 = (S2)def_s2.clone();
-            v2 = (S2)def_s2.clone();
+            v1 = def_s2.clone();
+            v2 = def_s2.clone();
             v1.il = null;
             test(!v1.equals(v2));
 
-            v1 = (S2)def_s2.clone();
-            v2 = (S2)def_s2.clone();
+            v1 = def_s2.clone();
+            v2 = def_s2.clone();
             v2.il = null;
             test(!v1.equals(v2));
         }
@@ -175,21 +175,21 @@ public class Client
         {
             S2 v1, v2;
 
-            v1 = (S2)def_s2.clone();
+            v1 = def_s2.clone();
             v1.sd = new HashMap<String, String>(def_s2.sd);
             test(v1.equals(def_s2));
 
-            v1 = (S2)def_s2.clone();
+            v1 = def_s2.clone();
             v1.sd = new HashMap<String, String>();
             test(!v1.equals(def_s2));
 
-            v1 = (S2)def_s2.clone();
-            v2 = (S2)def_s2.clone();
+            v1 = def_s2.clone();
+            v2 = def_s2.clone();
             v1.sd = null;
             test(!v1.equals(v2));
 
-            v1 = (S2)def_s2.clone();
-            v2 = (S2)def_s2.clone();
+            v1 = def_s2.clone();
+            v2 = def_s2.clone();
             v2.sd = null;
             test(!v1.equals(v2));
         }
@@ -200,25 +200,25 @@ public class Client
         {
             S2 v1, v2;
 
-            v1 = (S2)def_s2.clone();
-            v1.s = (S1)def_s2.s.clone();
+            v1 = def_s2.clone();
+            v1.s = def_s2.s.clone();
             test(v1.equals(def_s2));
 
-            v1 = (S2)def_s2.clone();
+            v1 = def_s2.clone();
             v1.s = new S1("name");
             test(v1.equals(def_s2));
 
-            v1 = (S2)def_s2.clone();
+            v1 = def_s2.clone();
             v1.s = new S1("noname");
             test(!v1.equals(def_s2));
 
-            v1 = (S2)def_s2.clone();
-            v2 = (S2)def_s2.clone();
+            v1 = def_s2.clone();
+            v2 = def_s2.clone();
             v1.s = null;
             test(!v1.equals(v2));
 
-            v1 = (S2)def_s2.clone();
-            v2 = (S2)def_s2.clone();
+            v1 = def_s2.clone();
+            v2 = def_s2.clone();
             v2.s = null;
             test(!v1.equals(v2));
         }
@@ -229,17 +229,17 @@ public class Client
         {
             S2 v1, v2;
 
-            v1 = (S2)def_s2.clone();
-            v1.cls = (C)def_s2.cls.clone();
+            v1 = def_s2.clone();
+            v1.cls = def_s2.cls.clone();
             test(!v1.equals(def_s2));
 
-            v1 = (S2)def_s2.clone();
-            v2 = (S2)def_s2.clone();
+            v1 = def_s2.clone();
+            v2 = def_s2.clone();
             v1.cls = null;
             test(!v1.equals(v2));
 
-            v1 = (S2)def_s2.clone();
-            v2 = (S2)def_s2.clone();
+            v1 = def_s2.clone();
+            v2 = def_s2.clone();
             v2.cls = null;
             test(!v1.equals(v2));
         }
@@ -250,21 +250,21 @@ public class Client
         {
             S2 v1, v2;
 
-            v1 = (S2)def_s2.clone();
+            v1 = def_s2.clone();
             v1.prx = communicator.stringToProxy("test");
             test(v1.equals(def_s2));
 
-            v1 = (S2)def_s2.clone();
+            v1 = def_s2.clone();
             v1.prx = communicator.stringToProxy("test2");
             test(!v1.equals(def_s2));
 
-            v1 = (S2)def_s2.clone();
-            v2 = (S2)def_s2.clone();
+            v1 = def_s2.clone();
+            v2 = def_s2.clone();
             v1.prx = null;
             test(!v1.equals(v2));
 
-            v1 = (S2)def_s2.clone();
-            v2 = (S2)def_s2.clone();
+            v1 = def_s2.clone();
+            v2 = def_s2.clone();
             v2.prx = null;
             test(!v1.equals(v2));
         }

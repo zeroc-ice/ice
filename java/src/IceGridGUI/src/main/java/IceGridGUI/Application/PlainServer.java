@@ -25,14 +25,14 @@ class PlainServer extends Communicator implements Server
     static public ServerDescriptor
     copyDescriptor(ServerDescriptor sd)
     {
-        ServerDescriptor copy = (ServerDescriptor)sd.clone();
+        ServerDescriptor copy = sd.clone();
 
         copy.adapters = Adapter.copyDescriptors(copy.adapters);
         copy.dbEnvs = DbEnv.copyDescriptors(copy.dbEnvs);
 
         copy.propertySet = PropertySet.copyDescriptor(copy.propertySet);
 
-        copy.distrib = (DistributionDescriptor)copy.distrib.clone();
+        copy.distrib = copy.distrib.clone();
 
         if(copy instanceof IceBoxDescriptor)
         {
@@ -243,8 +243,8 @@ class PlainServer extends Communicator implements Server
     @Override
     public Object saveDescriptor()
     {
-        ServerDescriptor clone = (ServerDescriptor)_descriptor.clone();
-        clone.distrib = (DistributionDescriptor)clone.distrib.clone();
+        ServerDescriptor clone = _descriptor.clone();
+        clone.distrib = clone.distrib.clone();
         return clone;
     }
 

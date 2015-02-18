@@ -22,7 +22,7 @@ class PlainService extends Communicator implements Service, Cloneable
     static public ServiceDescriptor
     copyDescriptor(ServiceDescriptor sd)
     {
-        ServiceDescriptor copy = (ServiceDescriptor)sd.clone();
+        ServiceDescriptor copy = sd.clone();
         copy.adapters = Adapter.copyDescriptors(copy.adapters);
         copy.dbEnvs = DbEnv.copyDescriptors(copy.dbEnvs);
         copy.propertySet = PropertySet.copyDescriptor(copy.propertySet);

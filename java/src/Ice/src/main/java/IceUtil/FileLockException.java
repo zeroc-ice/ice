@@ -32,18 +32,18 @@ public class FileLockException extends RuntimeException implements Cloneable
     }
 
     @Override
-    public java.lang.Object clone()
+    public FileLockException clone()
     {
-        java.lang.Object o = null;
-        try
-        {
-            o = super.clone();
-        }
-        catch(CloneNotSupportedException ex)
-        {
-            assert false; // Impossible
-        }
-        return o;
+	FileLockException c = null;
+	try
+	{
+	    c = (FileLockException)super.clone();
+	}
+	catch(CloneNotSupportedException ex)
+	{
+	    assert false;
+	}
+	return c; 
     }
 
     public String

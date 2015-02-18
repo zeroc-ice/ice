@@ -25,7 +25,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
     static public ServerInstanceDescriptor
     copyDescriptor(ServerInstanceDescriptor sid)
     {
-        ServerInstanceDescriptor copy = (ServerInstanceDescriptor)sid.clone();
+        ServerInstanceDescriptor copy = sid.clone();
         copy.propertySet = PropertySet.copyDescriptor(copy.propertySet);
         return copy;
     }

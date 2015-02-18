@@ -21,7 +21,7 @@ class PropertySet extends TreeNode
     static public PropertySetDescriptor
     copyDescriptor(PropertySetDescriptor d)
     {
-        PropertySetDescriptor psd = (PropertySetDescriptor)d.clone();
+        PropertySetDescriptor psd = d.clone();
         psd.properties = new java.util.LinkedList<PropertyDescriptor>(psd.properties);
         return psd;
     }

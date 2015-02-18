@@ -26,7 +26,7 @@ class Adapter extends TreeNode implements DescriptorHolder
 
     static public AdapterDescriptor copyDescriptor(AdapterDescriptor d)
     {
-        return (AdapterDescriptor)d.clone();
+        return d.clone();
     }
 
     static public java.util.List<AdapterDescriptor>

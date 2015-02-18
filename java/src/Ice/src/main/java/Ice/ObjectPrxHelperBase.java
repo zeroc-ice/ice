@@ -1516,7 +1516,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final Identity
     ice_getIdentity()
     {
-        return (Identity)_reference.getIdentity().clone();
+        return _reference.getIdentity().clone();
     }
 
     /**
@@ -1901,7 +1901,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final Ice.EncodingVersion
     ice_getEncodingVersion()
     {
-        return (Ice.EncodingVersion)_reference.getEncoding().clone();
+        return _reference.getEncoding().clone();
     }
 
     /**

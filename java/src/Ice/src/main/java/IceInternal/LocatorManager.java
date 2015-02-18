@@ -11,7 +11,7 @@ package IceInternal;
 
 public final class LocatorManager
 {
-    static private class LocatorKey implements Cloneable
+    static private final class LocatorKey implements Cloneable
     {
         @Override
         public boolean
@@ -41,19 +41,19 @@ public final class LocatorManager
         }
 
         @Override
-        public java.lang.Object
+        public LocatorKey
         clone()
         {
-            java.lang.Object o = null;
+            LocatorKey c = null;
             try
             {
-                o = super.clone();
+                c = (LocatorKey)super.clone();
             }
             catch(CloneNotSupportedException ex)
             {
                     assert false; // impossible
             }
-            return o;
+            return c;
         }
 
         LocatorKey set(Ice.LocatorPrx locator)
@@ -119,7 +119,7 @@ public final class LocatorManager
                 if(table == null)
                 {
                     table = new LocatorTable();
-                    _locatorTables.put((LocatorKey)_lookupKey.clone(), table);
+                    _locatorTables.put(_lookupKey.clone(), table);
                 }
 
                 info = new LocatorInfo(locator, table, _background);

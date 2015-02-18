@@ -24,7 +24,7 @@ class ServerTemplate extends Communicator
     static public TemplateDescriptor
     copyDescriptor(TemplateDescriptor templateDescriptor)
     {
-        TemplateDescriptor copy = (TemplateDescriptor)templateDescriptor.clone();
+        TemplateDescriptor copy = templateDescriptor.clone();
 
         copy.descriptor = PlainServer.copyDescriptor((ServerDescriptor)copy.descriptor);
         return copy;
@@ -191,8 +191,8 @@ class ServerTemplate extends Communicator
         //
         // Shallow copy
         //
-        TemplateDescriptor clone = (TemplateDescriptor)_templateDescriptor.clone();
-        clone.descriptor = (ServerDescriptor)_templateDescriptor.descriptor.clone();
+        TemplateDescriptor clone = _templateDescriptor.clone();
+        clone.descriptor = _templateDescriptor.descriptor.clone();
         return clone;
     }
 

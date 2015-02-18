@@ -61,19 +61,19 @@ public final class ACMConfig implements java.lang.Cloneable
     }
 
     @Override
-    public java.lang.Object
+    public ACMConfig
     clone()
     {
-        java.lang.Object o = null;
+        ACMConfig c = null;
         try
         {
-            o = super.clone();
+            c = (ACMConfig)super.clone();
         }
         catch(CloneNotSupportedException ex)
         {
             assert false; // impossible
         }
-        return o;
+        return c;
     }
 
     public int timeout;

@@ -2661,12 +2661,12 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if(p->isLocal())
     {
-        out << sp << nl << "public java.lang.Object clone()";
+        out << sp << nl << "public _" << name << "Tie clone()";
         out.inc();
         out << nl << "throws java.lang.CloneNotSupportedException";
         out.dec();
         out << sb;
-        out << nl << "return super.clone();";
+        out << nl << "return (_" << name << "Tie)super.clone();";
         out << eb;
     }
 
@@ -2878,12 +2878,16 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         out << "class " << fixKwd(name);
         out.useCurrentPosAsIndent();
+
+	StringList implements;
         bool implementsOnNewLine = true;
+
         if(bases.empty() || bases.front()->isInterface())
         {
             if(p->isLocal())
             {
                 implementsOnNewLine = false;
+		implements.push_back("java.lang.Cloneable");
             }
             else
             {
@@ -2900,7 +2904,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
         // Implement interfaces
         //
-        StringList implements;
+       
         if(p->isAbstract())
         {
             if(!p->isLocal())
@@ -3230,6 +3234,41 @@ void
 Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
     Output& out = output();
+
+    ClassList bases = p->bases();
+    ClassDefPtr baseClass;
+    if(!bases.empty() && !bases.front()->isInterface())
+    {
+        baseClass = bases.front();
+    }
+
+    string name = fixKwd(p->name());
+
+    if(!p->isInterface())
+    {
+	out << sp << nl << "public " << name << nl << "clone()";
+	out << sb;
+
+	if(p->isLocal() && !baseClass)
+	{
+	    out << nl << name << " c = null;";
+	    out << nl << "try";
+	    out << sb;
+	    out << nl << "c = (" << name << ")super.clone();";
+	    out << eb;
+	    out << nl << "catch(CloneNotSupportedException ex)";
+	    out << sb;
+	    out << nl << "assert false; // impossible";
+	    out << eb;
+	    out << nl << "return c;";
+	   
+	}
+	else
+	{
+	    out << nl << "return (" << name << ")super.clone();";
+	}
+	out << eb;
+    }
 
     if(p->isInterface() && !p->isLocal())
     {
@@ -3946,18 +3985,18 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << nl << "return __h;";
     out << eb;
 
-    out << sp << nl << "public java.lang.Object" << nl << "clone()";
+    out << sp << nl << "public " << name << nl << "clone()";
     out << sb;
-    out << nl << "java.lang.Object o = null;";
+    out << nl << name << " c = null;";
     out << nl << "try";
     out << sb;
-    out << nl << "o = super.clone();";
+    out << nl << "c = (" << name << ")super.clone();";
     out << eb;
     out << nl << "catch(CloneNotSupportedException ex)";
     out << sb;
     out << nl << "assert false; // impossible";
     out << eb;
-    out << nl << "return o;";
+    out << nl << "return c;";
     out << eb;
 
     if(!p->isLocal())

@@ -29,19 +29,20 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
      * @return The cloned object.
      **/
     @Override
-    public java.lang.Object
+    public ObjectImpl
     clone()
     {
-        java.lang.Object o = null;
-        try
-        {
-            o = super.clone();
-        }
-        catch(java.lang.CloneNotSupportedException ex)
-        {
-            assert false; // Impossible
-        }
-        return o;
+	ObjectImpl c = null;
+
+	try
+	{
+	   c = (ObjectImpl)super.clone();
+	}
+	catch(CloneNotSupportedException ex)
+	{
+	    assert false;
+	}
+	return c;
     }
 
     public final static String[] __ids =

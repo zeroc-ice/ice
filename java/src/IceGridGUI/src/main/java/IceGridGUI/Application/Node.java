@@ -28,7 +28,7 @@ class Node extends TreeNode implements PropertySetParent
     static public NodeDescriptor
     copyDescriptor(NodeDescriptor nd)
     {
-        NodeDescriptor copy = (NodeDescriptor)nd.clone();
+        NodeDescriptor copy = nd.clone();
 
         copy.propertySets = PropertySets.copyDescriptors(copy.propertySets);
 
@@ -437,7 +437,7 @@ class Node extends TreeNode implements PropertySetParent
 
     NodeDescriptor saveDescriptor()
     {
-        return (NodeDescriptor)_descriptor.clone();
+        return _descriptor.clone();
     }
 
     void restoreDescriptor(NodeDescriptor copy)

@@ -22,7 +22,7 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
     static public ServiceInstanceDescriptor
     copyDescriptor(ServiceInstanceDescriptor instanceDescriptor)
     {
-        ServiceInstanceDescriptor copy = (ServiceInstanceDescriptor)instanceDescriptor.clone();
+        ServiceInstanceDescriptor copy = instanceDescriptor.clone();
 
         copy.propertySet = PropertySet.copyDescriptor(copy.propertySet);
 
@@ -141,7 +141,7 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
         //
         // Must be a shallow copy
         //
-        ServiceInstanceDescriptor saved = (ServiceInstanceDescriptor)_descriptor.clone();
+        ServiceInstanceDescriptor saved = _descriptor.clone();
         assert saved.descriptor == null;
         return saved;
     }

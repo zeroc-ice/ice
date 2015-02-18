@@ -158,7 +158,7 @@ public final class Util
         }
         else
         {
-            initData = (InitializationData)initData.clone();
+            initData = initData.clone();
         }
         initData.properties = createProperties(args, initData.properties);
 
@@ -205,7 +205,7 @@ public final class Util
         }
         else
         {
-            initData = (InitializationData)initData.clone();
+            initData = initData.clone();
         }
 
         CommunicatorI result = new CommunicatorI(initData);
@@ -651,7 +651,7 @@ public final class Util
     static public Ice.ProtocolVersion
     currentProtocol()
     {
-        return (Ice.ProtocolVersion)IceInternal.Protocol.currentProtocol.clone();
+        return IceInternal.Protocol.currentProtocol.clone();
     }
 
     /**
@@ -662,7 +662,7 @@ public final class Util
     static public Ice.EncodingVersion
     currentEncoding()
     {
-        return (Ice.EncodingVersion)IceInternal.Protocol.currentEncoding.clone();
+        return IceInternal.Protocol.currentEncoding.clone();
     }
 
     static private byte

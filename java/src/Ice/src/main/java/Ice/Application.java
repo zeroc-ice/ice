@@ -159,7 +159,7 @@ public abstract class Application
         InitializationData initData;
         if(initializationData != null)
         {
-            initData = (InitializationData)initializationData.clone();
+            initData = initializationData.clone();
         }
         else
         {
