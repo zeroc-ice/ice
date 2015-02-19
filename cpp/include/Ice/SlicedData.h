@@ -64,11 +64,6 @@ public:
     const SliceInfoSeq slices;
 
     void __gcVisitMembers(IceInternal::GCVisitor&);
-
-    void __decRefUnsafe()
-    {
-        --_ref;
-    }
 };
 
 //

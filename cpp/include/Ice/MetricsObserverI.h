@@ -11,6 +11,7 @@
 #define ICEMX_METRICSOBSERVER_I_H
 
 #include <IceUtil/StopWatch.h>
+#include <IceUtil/Atomic.h>
 
 #include <Ice/Instrumentation.h>
 #include <Ice/Endpoint.h>
@@ -430,7 +431,7 @@ public:
     typedef std::vector<IceUtil::Handle<IceInternal::MetricsMapT<MetricsType> > > MetricsMapSeqType;
 
     ObserverFactoryT(const IceInternal::MetricsAdminIPtr& metrics, const std::string& name) : 
-        _metrics(metrics), _name(name), _enabled(false)
+        _metrics(metrics), _name(name), _enabled(0)
     {
         _metrics->registerMap<MetricsType>(name, this);
     }
@@ -517,12 +518,13 @@ public:
 
     bool isEnabled() const
     {
-        return _enabled;
+        return _enabled != 0;
     }
 
     virtual void update()
     {
         UpdaterPtr updater;
+        bool enabled = false;
         {
             IceUtil::Mutex::Lock sync(*this);
             if(!_metrics)
@@ -537,10 +539,10 @@ public:
                 _maps.push_back(IceUtil::Handle<IceInternal::MetricsMapT<MetricsType> >::dynamicCast(*p));
                 assert(_maps.back());
             }
-            _enabled = !_maps.empty();
+            enabled = !_maps.empty();
             updater = _updater;
         }
-
+        _enabled.exchange(enabled ? 1 : 0);
         if(updater)
         {
             updater->update();
@@ -565,7 +567,11 @@ private:
     IceInternal::MetricsAdminIPtr _metrics;
     const std::string _name;
     MetricsMapSeqType _maps;
-    volatile bool _enabled;
+    //
+    // TODO: Replace by std::atomic<bool> when it becomes widely
+    // available.
+    //
+    IceUtilInternal::Atomic _enabled;
     UpdaterPtr _updater;
 };
 

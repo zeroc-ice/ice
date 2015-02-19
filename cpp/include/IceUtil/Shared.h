@@ -11,32 +11,7 @@
 #define ICE_UTIL_SHARED_H
 
 #include <IceUtil/Config.h>
-
-#if defined(ICE_CPP11)
-#   include <atomic>
-#elif defined(ICE_USE_MUTEX_SHARED)
-
-#   include <IceUtil/Mutex.h>
-
-// Using the gcc builtins requires gcc 4.1 or better. For Linux, i386
-// doesn't work. Apple is supported for all architectures. Sun only
-// supports sparc (32 and 64 bit).
-
-#elif ((defined(__GNUC__) && (((__GNUC__* 100) + __GNUC_MINOR__) >= 401)) || __clang__)  &&                         \
-        ((defined(__sun) && (defined(__sparc) || defined(__sparcv9))) || \
-         defined(__APPLE__) || \
-        (defined(__linux) && \
-                (defined(__i486) || defined(__i586) || \
-                 defined(__i686) || defined(__x86_64))))
-
-#   define ICE_HAS_GCC_BUILTINS
-
-#elif defined(_WIN32)
-// Nothing to include
-#else
-// Use a simple mutex
-#   include <IceUtil/Mutex.h>
-#endif
+#include <IceUtil/Atomic.h>
 
 //
 // Base classes for reference counted types. The IceUtil::Handle
@@ -150,16 +125,7 @@ public:
     
 protected:
 
-#if defined(ICE_CPP11)
-    std::atomic<int> _ref;
-#elif defined(_WIN32)
-    LONG _ref;
-#elif defined(ICE_HAS_GCC_BUILTINS)
-    int _ref;
-#else
-    int _ref;
-    Mutex _mutex;
-#endif
+    IceUtilInternal::Atomic _ref;
     unsigned char _flags;
 };
 
