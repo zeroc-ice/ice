@@ -21,6 +21,7 @@ ConvertUTF.obj: \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\IceUtil\Shared.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\Handle.h" \
 
 CountDownLatch.obj: \
@@ -56,6 +57,7 @@ Exception.obj: \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\IceUtil\Shared.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\Handle.h" \
 
 FileUtil.obj: \
@@ -64,6 +66,7 @@ FileUtil.obj: \
     "FileUtil.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\Shared.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
@@ -89,6 +92,7 @@ Options.obj: \
     "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\IceUtil\MutexProtocol.h" \
     "$(includedir)\IceUtil\Shared.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
 
@@ -98,6 +102,7 @@ OutputUtil.obj: \
     "$(includedir)\IceUtil\Config.h" \
     "FileUtil.h" \
     "$(includedir)\IceUtil\Shared.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\Exception.h" \
 
@@ -135,6 +140,7 @@ Shared.obj: \
 	Shared.cpp \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
 
 StringConverter.obj: \
 	StringConverter.cpp \
@@ -142,6 +148,7 @@ StringConverter.obj: \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\IceUtil\Shared.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\IceUtil\ThreadException.h" \
@@ -160,6 +167,7 @@ StringUtil.obj: \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\IceUtil\Shared.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\Handle.h" \
 
 Thread.obj: \
@@ -167,6 +175,7 @@ Thread.obj: \
     "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\Shared.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\IceUtil\Mutex.h" \
@@ -194,6 +203,7 @@ Timer.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\Exception.h" \
@@ -212,6 +222,7 @@ Unicode.obj: \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\IceUtil\Shared.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "ConvertUTF.h" \
 
