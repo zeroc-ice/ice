@@ -49,6 +49,7 @@
 #include <IceUtil/UUID.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
+#include <IceUtil/Atomic.h>
 
 #include <stdio.h>
 #include <list>
@@ -195,12 +196,12 @@ public:
 
     Timer(int priority) :
         IceUtil::Timer(priority),
-        _hasObserver(false)
+        _hasObserver(0)
     {
     }
 
     Timer() :
-        _hasObserver(false)
+        _hasObserver(0)
     {
     }
 
@@ -211,7 +212,11 @@ private:
     virtual void runTimerTask(const IceUtil::TimerTaskPtr&);
 
     IceUtil::Mutex _mutex;
-    volatile bool _hasObserver;
+    //
+    // TODO: Replace by std::atomic<bool> when it becomes widely
+    // available.
+    //
+    IceUtilInternal::Atomic _hasObserver;
     ObserverHelperT<Ice::Instrumentation::ThreadObserver> _observer;
 };
 
@@ -220,19 +225,23 @@ private:
 void
 Timer::updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr& obsv)
 {
-    IceUtil::Mutex::Lock sync(_mutex);
-    assert(obsv);
-    _observer.attach(obsv->getThreadObserver("Communicator",
-                                             "Ice.Timer",
-                                             Ice::Instrumentation::ThreadStateIdle,
-                                             _observer.get()));
-    _hasObserver = _observer.get();
+    bool hasObserver = false;
+    {
+        IceUtil::Mutex::Lock sync(_mutex);
+        assert(obsv);
+        _observer.attach(obsv->getThreadObserver("Communicator",
+                                                "Ice.Timer",
+                                                Ice::Instrumentation::ThreadStateIdle,
+                                                _observer.get()));
+        hasObserver = _observer.get();
+    }
+    _hasObserver.exchange(hasObserver ? 1 : 0);
 }
 
 void
 Timer::runTimerTask(const IceUtil::TimerTaskPtr& task)
 {
-    if(_hasObserver)
+    if(_hasObserver != 0)
     {
         Ice::Instrumentation::ThreadObserverPtr threadObserver;
         {
