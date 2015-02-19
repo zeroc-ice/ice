@@ -9,11 +9,11 @@ usr/share/man/man1/icegridnode.1
 usr/bin/icegridregistry
 usr/share/man/man1/icegridregistry.1
 
-usr/config/icegrid-slice.3.5.ice.gz usr/share/Ice-@ver@
-usr/config/icegrid-slice.3.6.ice.gz usr/share/Ice-@ver@
+usr/share/Ice-@ver@/icegrid-slice.3.5.ice.gz
+usr/share/Ice-@ver@/icegrid-slice.3.6.ice.gz
 
-usr/config/templates.xml usr/share/Ice-@ver@
-usr/config/upgradeicegrid36.py usr/share/Ice-@ver@
+usr/share/Ice-@ver@/templates.xml
+usr/share/Ice-@ver@/upgradeicegrid36.py
 
 var/lib/ice/icegrid/registry/
 var/lib/ice/icegrid/node1/

@@ -115,11 +115,11 @@
  
 -SUBDIRS			= cpp java js py rb php
 -CLEAN_SUBDIRS	= js java py rb php cpp
-+SUBDIRS			= cpp java py rb php
-+CLEAN_SUBDIRS	= java py rb php cpp
++SUBDIRS			= cpp java php
++CLEAN_SUBDIRS	= java php cpp
  DEPEND_SUBDIRS	= cpp py rb php
 -INSTALL_SUBDIRS	= cpp java py rb php js
-+INSTALL_SUBDIRS	= cpp java py rb php
++INSTALL_SUBDIRS	= cpp java php
  
  ifeq ($(shell uname),Darwin)
  SUBDIRS			+= objc

@@ -129,51 +129,6 @@ Depends: php5-cli | php5, ${shlibs:Depends},
 Description: Tools for developing Ice applications in PHP
  Tools for developing Ice applications in PHP.
 
-Package: python-zeroc-ice
-Architecture: any
-Section: python
-Replaces:libice-3.5-python, python-zeroc-ice (<=3.5.1)
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends},
- zeroc-ice-slice (=${binary:Version}),
- libzeroc-ice@debmmver@ (=${binary:Version})
-XS-Python-Version: 2.7
-Description: The Ice run time for Python
- The Ice run time for Python.
-
-Package: python-zeroc-ice-dev
-Architecture: any
-Multi-Arch: foreign
-Section: devel
-Replaces:libice-python-dev, ice35-translators
-Depends: ${shlibs:Depends}, ${misc:Depends}, 
- zeroc-ice-slice (=${binary:Version}), 
- libzeroc-ice@debmmver@ (=${binary:Version}),
- python-zeroc-ice (=${binary:Version})
-Description: Tools for developing Ice applications in Python
- Tools for developing Ice applications in Python.
-
-Package: ruby-zeroc-ice
-Architecture: any
-Section: ruby
-Replaces:libice3.5-ruby
-Depends: ${shlibs:Depends}, ${misc:Depends}, ruby1.9.1,
- zeroc-ice-slice (=${binary:Version}),
- libzeroc-ice@debmmver@ (=${binary:Version})
-Description: The Ice run time for Ruby
- The Ice run time for Ruby.
-
-Package: ruby-zeroc-ice-dev
-Architecture: any
-Multi-Arch: foreign
-Section: devel
-Replaces:libice-ruby-dev, ice35-translators
-Depends: ${shlibs:Depends}, ${misc:Depends},
- zeroc-ice-slice (=${binary:Version}), 
- libzeroc-ice@debmmver@ (=${binary:Version}),
- ruby-zeroc-ice (=${binary:Version})
-Description: Tools for developing Ice applications in Ruby
- Tools for developing Ice applications in Ruby.
-
 Package: zeroc-glacier2
 Architecture: any
 Multi-Arch: foreign

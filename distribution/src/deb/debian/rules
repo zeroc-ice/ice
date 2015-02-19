@@ -22,8 +22,6 @@ PACKAGE_NAMES = zeroc-ice \
 	libzeroc-ice@debmmver@ \
 	libzeroc-freeze@debmmver@ \
 	php5-zeroc-ice \
-	python-zeroc-ice \
-	ruby-zeroc-ice \
 	zeroc-glacier2 \
 	zeroc-icebox \
 	zeroc-icegrid \
@@ -33,9 +31,7 @@ PACKAGE_NAMES = zeroc-ice \
 	zeroc-ice-utils-java \
 	libzeroc-ice-dev \
 	libzeroc-ice-java \
-	php5-zeroc-ice-dev \
-	python-zeroc-ice-dev \
-	ruby-zeroc-ice-dev
+	php5-zeroc-ice-dev
 
 CPP11_DESTDIR = $(CURDIR)/debian/tmp-cpp11
 CPP11_LIB_NAMES = 	libFreeze \
@@ -75,12 +71,12 @@ icebox_install:
 	@echo usr/share/man/man1/icebox.1 >> $(CURDIR)/debian/zeroc-icebox.install
 
 %:
-	dh $@ --with python2 --with php5 --with javahelper
+	dh $@ --with php5 --with javahelper
 
 override_dh_auto_build:
 	cp -r cpp cpp11
 	cd cpp11/src && CPP11=yes $(MAKE) -j4
-	$(MAKE) -j4 embedded_runpath_prefix="" PYTHON_LIBS=""
+	$(MAKE) -j4 embedded_runpath_prefix=""
 
 override_dh_auto_install:
 	cd cpp11 && DESTDIR=$(CPP11_DESTDIR) CPP11=yes $(MAKE) install

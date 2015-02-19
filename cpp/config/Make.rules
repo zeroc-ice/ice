@@ -211,7 +211,7 @@ ifndef usr_dir_install
 install_mandir		:= $(prefix)/man/man1
 install_configdir 	:= $(prefix)/config
 else
-install_configdir 	:= $(prefix)/share/config
+install_configdir 	:= $(prefix)/share/Ice-$(VERSION)
 install_mandir		:= $(prefix)/share/man/man1
 endif
 
