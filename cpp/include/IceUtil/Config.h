@@ -216,12 +216,15 @@ private:
 #if defined(_WIN32) && defined(_MSC_VER)
 typedef __int64 Int64;
 #    define ICE_INT64(n) n##i64
+#    define ICE_INT64_FORMAT "l"
 #elif defined(ICE_64) && !defined(_WIN32)
 typedef long Int64;
 #    define ICE_INT64(n) n##L
+#    define ICE_INT64_FORMAT "l"
 #else
 typedef long long Int64;
 #    define ICE_INT64(n) n##LL
+#    define ICE_INT64_FORMAT "ll"
 #endif
 
 }
