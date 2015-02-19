@@ -38,8 +38,8 @@ setVersion(VALUE p, const T& version, const char* type)
 {
     assert(checkIsInstance(p, type));
 
-    VALUE major = callRuby(rb_int2inum, version.major);
-    VALUE minor = callRuby(rb_int2inum, version.minor);
+    volatile VALUE major = callRuby(rb_int2inum, version.major);
+    volatile VALUE minor = callRuby(rb_int2inum, version.minor);
     rb_ivar_set(p, rb_intern("@major"), major);
     rb_ivar_set(p, rb_intern("@minor"), minor);
 
@@ -314,7 +314,7 @@ namespace
 template <typename T> 
 struct RubyCallArgs
 {
-    VALUE val;
+    volatile VALUE val;
     T ret;
 };
 
@@ -743,7 +743,7 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
 VALUE
 IceRuby::createArrayHelper(long sz)
 {
-    VALUE arr = callRuby(rb_ary_new2, sz);
+    volatile VALUE arr = callRuby(rb_ary_new2, sz);
     if(sz > 0)
     {
         callRubyVoid(rb_ary_store, arr, sz - 1, Qnil);
