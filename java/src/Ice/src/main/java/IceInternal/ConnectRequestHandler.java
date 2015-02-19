@@ -11,6 +11,8 @@ package IceInternal;
 
 import Ice.ConnectionI;
 
+import java.util.concurrent.Callable;
+
 public class ConnectRequestHandler
     implements RequestHandler, Reference.GetConnectionCallback, RouterInfo.AddProxyCallback
 {
@@ -389,6 +391,27 @@ public class ConnectRequestHandler
     private void
     flushRequests()
     {
+        if(_reference.getInstance().queueRequests())
+        {
+            _reference.getInstance().getQueueExecutor().executeNoThrow(new Callable<Void>()
+            {
+                @Override
+                public Void call() throws Exception
+                {
+                    flushRequestsImpl();
+                    return null;
+                }
+            });
+        }
+        else
+        {
+            flushRequestsImpl();
+        }
+    }
+
+    private void
+    flushRequestsImpl()
+    {
         synchronized(this)
         {
             assert(_connection != null && !_initialized);
@@ -402,7 +425,6 @@ public class ConnectRequestHandler
             _flushing = true;
         }
 
-        final java.util.List<OutgoingAsyncBase> sentCallbacks = new java.util.ArrayList<OutgoingAsyncBase>();
         java.util.Iterator<Request> p = _requests.iterator(); // _requests is immutable when _flushing = true
         Ice.LocalException exception = null;
         while(p.hasNext())
