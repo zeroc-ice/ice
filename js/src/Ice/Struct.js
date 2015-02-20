@@ -163,9 +163,12 @@ Ice.Slice.defineStruct = function(constructor, legalKeyType, writeImpl, readImpl
             }
             v.__write(os);
         };
-        obj.read = function(is)
+        obj.read = function(is, v)
         {
-            var v = new this();
+            if(!v || !(v instanceof this))
+            {
+                v = new this();
+            }
             v.__read(is);
             return v;
         };

@@ -548,7 +548,7 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
         }
         else
         {
-            out << nl << param << " = " << typeToString(type) << ".read(" << stream << ");";
+            out << nl << param << " = " << typeToString(type) << ".read(" << stream << ", " << param << ");";
         }
         return;
     }
