@@ -524,7 +524,6 @@ public:
     virtual void update()
     {
         UpdaterPtr updater;
-        bool enabled = false;
         {
             IceUtil::Mutex::Lock sync(*this);
             if(!_metrics)
@@ -539,10 +538,10 @@ public:
                 _maps.push_back(IceUtil::Handle<IceInternal::MetricsMapT<MetricsType> >::dynamicCast(*p));
                 assert(_maps.back());
             }
-            enabled = !_maps.empty();
+            _enabled.exchange(_maps.empty() ? 0 : 1);
             updater = _updater;
         }
-        _enabled.exchange(enabled ? 1 : 0);
+        
         if(updater)
         {
             updater->update();

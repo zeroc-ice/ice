@@ -225,17 +225,13 @@ private:
 void
 Timer::updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr& obsv)
 {
-    bool hasObserver = false;
-    {
-        IceUtil::Mutex::Lock sync(_mutex);
-        assert(obsv);
-        _observer.attach(obsv->getThreadObserver("Communicator",
-                                                "Ice.Timer",
-                                                Ice::Instrumentation::ThreadStateIdle,
-                                                _observer.get()));
-        hasObserver = _observer.get();
-    }
-    _hasObserver.exchange(hasObserver ? 1 : 0);
+    IceUtil::Mutex::Lock sync(_mutex);
+    assert(obsv);
+    _observer.attach(obsv->getThreadObserver("Communicator",
+                                            "Ice.Timer",
+                                            Ice::Instrumentation::ThreadStateIdle,
+                                            _observer.get()));
+    _hasObserver.exchange(_observer.get());
 }
 
 void
