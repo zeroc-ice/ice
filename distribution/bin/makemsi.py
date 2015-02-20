@@ -112,6 +112,8 @@ global signTool
 global certFile
 global certPassword
 
+global jarKeystore
+global jarKeystorePassword
 
 def sign(f, name = None):
     command = [signTool, 
@@ -127,6 +129,13 @@ def sign(f, name = None):
         return False
     return True
 
+def signJar(filepath):
+    command = ("\"%(java_home)s\\bin\\jarsigner\" -keystore %(keystore)s -storepass %(password)s %(filepath)s " +
+               "zeroc.com -tsa http://timestamp.digicert.com")
+    runCommand(command % {"java_home": getJavaHome("x86", "1.7"),
+                          "keystore": jarKeystore,
+                          "password": jarKeystorePassword,
+                          "filepath": filepath}, True)
 
 def _handle_error(fn, path, excinfo):  
     print("error removing %s" % path)
@@ -196,6 +205,8 @@ def copyIfModified(source, target, verbose, signFile = True):
             if not sign(target):
                 os.remove(target)
                 sys.exit(1)
+        return True
+    return False
 #
 # Program usage.
 #
@@ -215,27 +226,6 @@ def usage():
     print("")
     print(r"  --php-bin-home=<path>       PHP binaries location, default location")
     print(r"                              is C:\Program Files (x86)\PHP")
-    print("")
-    print(r"  --ruby-x86-home             Ruby location, default location is")
-    print(r"                              C:\Ruby21")
-    print("")
-    print(r"  --ruby-amd64-home           Ruby location, default location is")
-    print(r"                              C:\Ruby21-x64")
-    print("")
-    print(r"  --ruby-devkit-x86-home      Ruby DevKit location, default location is")
-    print(r"                              C:\DevKit-mingw64-32-4.7.3")
-    print("")
-    print(r"  --ruby-devkit-amd64-home    Ruby DevKit location, default location is")
-    print(r"                              C:\DevKit-mingw64-64-4.7.2")
-    print("")
-    print(r"  --nodejs-home               NodeJS location, default location is")
-    print(r"                              C:\Program Files (x86)\nodejs")
-    print("")
-    print(r"  --gzip-home                 Gzip location, default location is")
-    print(r"                              C:\Program Files (x86)\GnuWin32")
-    print("")
-    print(r"  --closure-home              Google closure compiler location, default location is")
-    print(r"                              C:\closure")
     print("")
     print(r"  --skip-build                Skip build and go directly to installer creation,")
     print(r"                              existing build will be used")
@@ -263,20 +253,8 @@ verbose = False
 args = None
 opts = None
 
-proguardHome = None
 phpHome = None
 phpBinHome = None
-rubyHome = None
-rubyX86Home = None
-rubyAmd64Home = None
-rubyDevKitHome = None
-rubyDevKitX86Home = None
-rubyDevKitAmd64Home = None
-nodejsHome = None
-nodejsExe = None
-gzipHome = None
-gzipExe = None
-closureHome = None
 skipBuild = False
 skipInstaller = False
 
@@ -296,16 +274,17 @@ signTool = None
 certFile = None
 certPassword = None
 keyFile = None
+jarKeystore = None
+jarKeystorePassword = None
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "", ["help", "verbose", "proguard-home=", "php-home=", "php-bin-home=",
-                                                  "ruby-x86-home=", "ruby-amd64-home=", "ruby-devkit-x86-home=", 
-                                                  "ruby-devkit-amd64-home=", "nodejs-home", "gzip-home", "closure-home", 
+    opts, args = getopt.getopt(sys.argv[1:], "", ["help", "verbose", "php-home=", "php-bin-home=",
                                                   "skip-build", "skip-installer", "filter-languages=", 
                                                   "filter-compilers=", "filter-archs=","filter-confs=", 
                                                   "filter-profiles=", "filter-languages=", "filter-compilers=", 
                                                   "filter-archs=", "filter-confs=", "filter-profiles=", "sign-tool=", 
-                                                  "cert-file=", "cert-password=", "key-file="])
+                                                  "cert-file=", "cert-password=", "key-file=", "jar-keystore=", 
+                                                  "jar-keystore-password="])
 except getopt.GetoptError as e:
     print("Error %s " % e)
     usage()
@@ -321,26 +300,10 @@ for o, a in opts:
         sys.exit(0)
     elif o == "--verbose":
         verbose = True
-    elif o == "--proguard-home":
-        proguardHome = a
     elif o == "--php-home":
         phpHome = a
     elif o == "--php-bin-home":
         phpBinHome = a
-    elif o == "--ruby-x86-home":
-        rubyX86Home = a
-    elif o == "--ruby-amd64-home":
-        rubyAmd64Home = a
-    elif o == "--ruby-devkit-x86-home":
-        rubyDevKitX86Home = a
-    elif o == "--ruby-devkit-amd64-home":
-        rubyDevKitAmd64Home = a
-    elif o == "--nodejs-home":
-        nodejsHome = a
-    elif o == "--gzip-home":
-        gzipHome = a
-    elif o == "--closure-home":
-        closureHome = a
     elif o == "--skip-build":
         skipBuild = True
     elif o == "--skip-installer":
@@ -373,6 +336,10 @@ for o, a in opts:
         certPassword = a
     elif o == "--key-file":
         keyFile = a
+    elif o == "--jar-keystore":
+        jarKeystore = a
+    elif o == "--jar-keystore-password":
+        jarKeystorePassword = a
 
 basePath = os.path.abspath(os.path.dirname(__file__))
 iceBuildHome = os.path.abspath(os.path.join(basePath, "..", ".."))
@@ -444,18 +411,28 @@ if keyFile is None:
 if not os.path.exists(keyFile):
     print("Key file `%s' not found")
     sys.exit(1)
+    
+if not jarKeystore:
+    if os.path.exists("c:\\release\\jarsigner\\keystore.jks"):
+        jarKeystore = "c:\\release\\jarsigner\\keystore.jks"
+    elif os.path.exists(os.path.join(os.getcwd(), "..", "..", "release", "jarsigner", "keystore.jks")):
+        jarKeystore = os.path.join(os.getcwd(), "..", "..", "release", "jarsigner", "keystore.jks")
+else:
+    if not os.path.isabs(jarKeystore):
+        jarKeystore = os.path.abspath(os.path.join(os.getcwd(), jarKeystore))
+        
+if jarKeystore is None:
+    print("You need to specify the JAR keystore using --jar-keystore option")
+    sys.exit(1)
 
-if proguardHome:
-    if not os.path.isabs(proguardHome):
-        proguardHome = os.path.abspath(os.path.join(os.getcwd(), proguardHome))
+if not os.path.exists(jarKeystore):
+    print("Keystore `%s' not found")
+    sys.exit(1)
 
-    if not os.path.exists(proguardHome):
-        #
-        # Invalid proguard-home setting
-        #
-        print("--proguard-home points to nonexistent directory")
-        sys.exit(1)
-
+if jarKeystorePassword is None:
+    print("You need to set the JAR keystore password using --jar-keystore-password option")
+    sys.exit(1)
+    
 if phpHome:
     if not os.path.isabs(phpHome):
         phpHome = os.path.abspath(os.path.join(os.getcwd(), phpHome))
@@ -478,61 +455,6 @@ if phpBinHome:
         print("--php-bin-home points to nonexistent directory")
         sys.exit(1)
 
-if rubyDevKitAmd64Home is None:
-    defaultRubyAmd64Home = "C:\\DevKit-mingw64-64-4.7.2"
-    if not os.path.exists(defaultRubyAmd64Home):
-        print("Ruby DevKit x64 not found in %s" % defaultRubyAmd64Home)
-        sys.exit(1)
-    rubyDevKitAmd64Home = defaultRubyAmd64Home
-elif not os.path.exists(rubyDevKitAmd64Home):
-    print("Ruby DevKit x64 not found in %s" % rubyDevKitAmd64Home)
-    sys.exit(1)
-
-if rubyDevKitX86Home is None:
-    defaultRubyX86Home = "C:\\DevKit-mingw64-32-4.7.3"
-    if not os.path.exists(defaultRubyX86Home):
-        print("Ruby DevKit x64 not found in %s" % defaultRubyX86Home)
-        sys.exit(1)
-    rubyDevKitX86Home = defaultRubyX86Home
-elif not os.path.exists(rubyDevKitX86Home):
-    print("Ruby DevKit x86 not found in %s" % rubyDevKitX86Home)
-    sys.exit(1)
-
-if nodejsHome:
-    if not os.path.isabs(nodejsHome):
-        nodejsHome = os.path.abspath(os.path.join(os.getcwd(), nodejsHome))
-
-    nodejsExe = os.path.join(nodejsHome, "node.exe")
-    if not os.path.exists(nodejsExe):
-        #
-        # Invalid proguard-home setting
-        #
-        print("node.exe not found in " + nodejsHome)
-        sys.exit(1)
-
-if gzipHome:
-    if not os.path.isabs(gzipHome):
-        gzipHome = os.path.abspath(os.path.join(os.getcwd(), gzipHome))
-
-    gzipExe = os.path.join(gzipHome, "bin", "gzip.exe")
-    if not os.path.exists(gzipExe):
-        #
-        # Invalid proguard-home setting
-        #
-        print("node.exe not found in " + os.path.join(gzipHome, "bin"))
-        sys.exit(1)
-
-if closureHome:
-    if not os.path.isabs(closureHome):
-        closureHome = os.path.abspath(os.path.join(os.getcwd(), closureHome))
-
-    if not os.path.exists(closureHome):
-        #
-        # Invalid proguard-home setting
-        #
-        print("--closure-home points to nonexistent directory")
-        sys.exit(1)
-
 if not os.path.exists(sourceArchive):
     print("Couldn't find %s in %s" % (os.path.basename(sourceArchive), os.path.dirname(sourceArchive)))
     sys.exit(1)
@@ -548,18 +470,8 @@ if not os.path.exists(demoArchive):
 global builds
 global buildCompilers
 
-buildCompilers = ["MINGW", "VC100", "VC110", "VC120"]
+buildCompilers = ["VC110", "VC120"]
 builds = {
-    "MINGW": {
-        "x86": {
-            "release": ["cpp", "rb"]},
-        "amd64": {
-            "release": ["cpp", "rb"]}},
-    "VC100": {
-        "x86": {
-            "release": ["cpp", "py"]},
-        "amd64": {
-            "release": ["cpp", "py"]}},
     "VC110": {
         "x86": {
             "release": ["cpp", "php", "vsaddin"], 
@@ -569,7 +481,7 @@ builds = {
             "debug": ["cpp"]}},
     "VC120": {
         "x86": {
-            "release": ["cpp", "java", "js", "cs", "vsaddin"], 
+            "release": ["cpp", "java", "cs", "vsaddin"], 
             "debug": ["cpp"]},
         "amd64": {
             "release": ["cpp"],
@@ -588,12 +500,11 @@ if not skipBuild:
         if rFilterCompilers and compiler in rFilterCompilers:
             continue
         
-        if compiler not in ["MINGW"]:
-            vcvars = getVcVarsAll(compiler)
+        vcvars = getVcVarsAll(compiler)
 
-            if vcvars is None:
-                print("Compiler %s not found" % compiler)
-                sys.exit(1)
+        if vcvars is None:
+            print("Compiler %s not found" % compiler)
+            sys.exit(1)
     
         for arch in ["x86", "amd64", "arm"]:
             
@@ -651,16 +562,6 @@ if not skipBuild:
                     if conf == "release":
                         env["OPTIMIZE"] = "yes"
 
-                    if lang == "py":
-                        pythonHome = getPythonHome(arch)
-                        if pythonHome is None:
-                            #
-                            # Python installation not detected
-                            #
-                            print("Python 3.4 for arch %s not found" % arch)
-                            sys.exit(1)
-                        env["PYTHON_HOME"] = pythonHome
-
                     if lang == "java":
                         javaHome = getJavaHome(arch, "1.7")
 
@@ -671,19 +572,6 @@ if not skipBuild:
                             print("Java 1.7 for arch %s not found" % arch)
                             sys.exit(1)
                         env["JAVA_HOME"] = javaHome
-
-                        if proguardHome is None:
-                            #
-                            # Proguard installation not detected
-                            #
-                            if not os.path.exists(r"C:\proguard"):
-                                print("Proguard not found")
-                                sys.exit(1)
-                            proguardHome = r"C:\proguard"
-                        #
-                        # We override CLASSPATH, we just need proguard in classpath to build Ice.
-                        #
-                        env["CLASSPATH"] = os.path.join(proguardHome, "lib", "proguard.jar")
 
                     if lang == "php":
                         if phpHome is None:
@@ -701,54 +589,6 @@ if not skipBuild:
                         env["PHP_HOME"] = phpHome
                         env["PHP_BIN_HOME"] = phpBinHome
 
-                    if lang == "js":
-                        if nodejsExe is None:
-                            nodejsHome = r"C:\Program Files (x86)\nodejs"
-                            nodejsExe = os.path.join(nodejsHome, "node.exe")
-                            if not os.path.exists(nodejsExe):
-                                print("NodeJS not found in default location: `" + nodejsHome + "'")
-                                sys.exit(1)
-
-                        if gzipExe is None:
-                            gzipHome = r"C:\Program Files (x86)\GnuWin32"
-                            gzipExe = os.path.join(gzipHome, "bin", "gzip.exe")
-                            if not os.path.exists(gzipExe):
-                                print("Gzip executable not found in default location `" + os.path.join(gzipHome, "bin") + "'")
-                                sys.exit(1)
-                            
-                        if closureHome is None:
-                            closureHome = r"C:\closure"
-                            if not os.path.exists(closureHome):
-                                print("Google closure compiler not found in default location `" + closureHome + "'")
-                                sys.exit(1)
-                            
-                        env["NODE"] = nodejsExe
-                        env["GZIP_PATH"] = gzipExe
-                        env["CLOSURE_PATH"] = closureHome
-
-                    if compiler == "MINGW":
-                        if arch =="amd64":
-                            rubyDevKitHome = rubyDevKitAmd64Home
-                        if arch == "x86":
-                            rubyDevKitHome = rubyDevKitX86Home
-                            
-                    if lang == "rb":
-                        if arch == "amd64":
-                            if rubyAmd64Home is None:
-                                if not os.path.exists(r"C:\Ruby21-x64"):
-                                    print("Ruby not found")
-                                    sys.exit(1)
-                                rubyAmd64Home= r"C:\Ruby21-x64"
-                            rubyHome = rubyAmd64Home
-                            
-                        if arch == "x86":
-                            if rubyX86Home is None:
-                                if not os.path.exists(r"C:\Ruby21"):
-                                    print("Ruby not found")
-                                    sys.exit(1)
-                                rubyX86Home= r"C:\Ruby21"
-                            rubyHome = rubyX86Home
-
                     if lang == "vsaddin":
                         env["DISABLE_SYSTEM_INSTALL"] = "yes"
                         if compiler == "VC110":
@@ -764,19 +604,14 @@ if not skipBuild:
 
                     os.chdir(os.path.join(sourceDir, lang))
 
-                    command = None
-                    if compiler != "MINGW":
-                        command = "\"%s\" %s  && nmake /f Makefile.mak install prefix=\"%s\"" % \
-                                  (vcvars, arch, installDir)
+                    command = "\"%s\" %s  && nmake /f Makefile.mak install prefix=\"%s\"" % (vcvars, arch, installDir)
                     
-                    if lang not in ["java", "rb"]:
+                    if lang not in ["java"]:
                         rules = "Make.rules.mak"
                         if lang == "cs":
                             rules += ".cs"
                         elif lang == "php":
                             rules += ".php"
-                        elif lang == "js":
-                            rules += ".js"
 
                         setMakefileOption(os.path.join(sourceDir, lang, "config", rules), "prefix", installDir)
 
@@ -804,19 +639,6 @@ if not skipBuild:
                                 newEnv["WINRT"] = "yes"
                                 executeCommand(command, newEnv)
 
-                    elif compiler == "MINGW":
-                        prefix = installDir
-                        if prefix[1] == ":":
-                            prefix = "/%s/%s" % (prefix[0], prefix[2:])
-                        prefix = re.sub(re.escape("\\"), "/", prefix) 
-                        if lang == "cpp":
-                            command = "%s\\devkitvars.bat && make -j16 install prefix=\"%s\"" % (rubyDevKitHome, prefix)
-                            executeCommand(command, env)
-                        elif lang == "rb":
-                            command = "%s\\bin\\setrbvars.bat && %s\\devkitvars.bat && make -j16 install prefix=\"%s\"" % \
-                                      (rubyHome, rubyDevKitHome, prefix)
-                            executeCommand(command, env)
-
                     elif lang == "cs":
                         for profile in [".NET", "SILVERLIGHT"]:
 
@@ -838,7 +660,7 @@ if not skipBuild:
 #
 # Filter files, list of files that must not be included.
 #
-filterFiles = ["slice35d.dll", "slice35d.pdb", "sliced.lib"]
+filterFiles = ["slice36d.dll", "slice36d.pdb", "sliced.lib"]
 
 if not os.path.exists(os.path.join(iceBuildHome, "installer")):
     os.makedirs(os.path.join(iceBuildHome, "installer"))
@@ -933,7 +755,7 @@ for root, dirnames, filenames in os.walk(installerDemoDir):
             shutil.rmtree(os.path.join(root, d))
 
 for arch in ["x86", "amd64"]:
-    for compiler in ["VC100", "MINGW", "VC110", "VC120"]:
+    for compiler in ["VC110", "VC120"]:
         for conf in ["release", "debug"]:
 
             buildDir = os.path.join(iceBuildHome, "build-%s-%s-%s" % (arch, compiler, conf))
@@ -941,7 +763,7 @@ for arch in ["x86", "amd64"]:
             installDir = os.path.join(buildDir, "Ice-%s" % version)
 
             if compiler == "VC120" and arch == "x86" and conf == "release":
-                for d in ["Assemblies", "bin", "config", "include", "lib", "node_modules", "python", "slice", "vsaddin"]:
+                for d in ["Assemblies", "bin", "config", "include", "lib", "slice", "vsaddin"]:
                     for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
                         for f in filenames:
                             if f in filterFiles:
@@ -956,7 +778,12 @@ for arch in ["x86", "amd64"]:
                             if targetFile.endswith(".pdb"):
                                 targetFile = targetFile.replace(installerDir, pdbinstallerDir)
 
-                            copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
+                            if copyIfModified(os.path.join(root, f), targetFile, verbose = verbose):
+                                if f == "icegridgui.jar":
+                                    #
+                                    # Sign icegridgui.jar
+                                    #
+                                    signJar(targetFile)
 
                 for f in ["CHANGES.txt", "LICENSE.txt", "ICE_LICENSE.txt"]:
                     copyIfModified(os.path.join(sourceDir, f), os.path.join(installerDir, f), verbose = verbose)
@@ -1048,81 +875,6 @@ for arch in ["x86", "amd64"]:
                                 targetFile = targetFile.replace(installerDir, pdbinstallerDir)
                             copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
 
-
-            #
-            # VC100 binaries and libaries
-            #
-            if compiler == "VC100" and arch == "x86" and conf == "release":
-                for d in ["bin", "python"]:
-                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
-                        for f in filenames:
-                            if f in filterFiles or (not f.endswith("_vc100.dll") and
-                                                    not f.endswith("_vc100.pdb") and
-                                                    not f.endswith(".py") and
-                                                    not f.endswith(".pyd")):
-                                continue
-                            if f in mainDistOnly:
-                                continue
-                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                            if targetFile.endswith(".pdb"):
-                                targetFile = targetFile.replace(installerDir, pdbinstallerDir)
-                            copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
-
-
-            if compiler == "VC100" and arch == "amd64":
-                for d in ["bin", "python"]:
-                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
-                        for f in filenames:
-                            if f in filterFiles or (not f.endswith("_vc100.dll") and
-                                                    not f.endswith("_vc100.pdb") and
-                                                    not f.endswith(".py") and
-                                                    not f.endswith(".pyd")):
-                                continue
-                            if f in mainDistOnly:
-                                continue
-                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                            if targetFile.endswith(".pdb"):
-                                targetFile = targetFile.replace(installerDir, pdbinstallerDir)
-                            copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
-
-            #
-            # MINGW binaries
-            #
-            if compiler == "MINGW" and arch == "x86" and conf == "release":
-                for d in ["bin", "ruby"]:
-                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
-                        for f in filenames:
-                            if f in filterFiles or (not f.endswith(".dll") and
-                                                    not f.endswith(".so") and
-                                                    not f.endswith(".rb")):
-                                continue
-                            if f in mainDistOnly:
-                                continue
-                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                            copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
-
-            if compiler == "MINGW" and arch == "amd64":
-                for d in ["bin", "ruby"]:
-                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
-                        for f in filenames:
-                            if f in filterFiles or (not f.endswith(".dll") and
-                                                    not f.endswith(".so") and
-                                                    not f.endswith(".rb")):
-                                continue
-                            if f in mainDistOnly:
-                                continue
-                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                            copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
-
-#
-# MINGW run-time libraries
-#
-for f in ["libstdc++-6.dll", "libgcc_s_sjlj-1.dll"]:
-    copyIfModified(os.path.join(rubyDevKitX86Home, "mingw", "bin", f), 
-                    os.path.join(installerDir, "bin", f), verbose = verbose, signFile = False)
-    copyIfModified(os.path.join(rubyDevKitAmd64Home, "mingw", "bin", f), 
-                    os.path.join(installerDir, "bin", "x64", f), verbose = verbose, signFile = False)
-
 #
 # docs dir
 #
@@ -1138,6 +890,16 @@ for root, dirnames, filenames in os.walk(thirdPartyHome):
         if f in filterFiles:
             continue
         targetFile = relPath(thirdPartyHome, installerDir, os.path.join(root, f))
+
+        #
+        # exclude mingw and vc100 files
+        #
+        if (f.endswith("_vc100.dll") or 
+            f.endswith("_vc100.pdb") or 
+            f.endswith("_mingw.dll") or
+            targetFile.find("vc100/") or
+            targetFile.find("mingw/")):
+            continue
         if os.path.splitext(f)[1] in [".exe", ".dll", ".jar", ".pdb"]:
             if targetFile.endswith(".pdb"):
                 targetFile = targetFile.replace(installerDir, pdbinstallerDir)
