@@ -49,7 +49,6 @@ ICE_PATCH2_API void createDirectoryRecursive(const std::string&);
 ICE_PATCH2_API void compressBytesToFile(const std::string&, const Ice::ByteSeq&, Ice::Int);
 ICE_PATCH2_API void decompressFile(const std::string&);
 
-ICE_PATCH2_API void setFileFlags(const std::string&, const IcePatch2::FileInfo&);
 ICE_PATCH2_API void setFileFlags(const std::string&, const IcePatch2::LargeFileInfo&);
 
 struct FileInfoEqual : public std::binary_function<const IcePatch2::LargeFileInfo&, const IcePatch2::LargeFileInfo&, bool>
@@ -164,25 +163,19 @@ public:
     virtual bool compress(const std::string&) = 0;
 };
 
-ICE_PATCH2_API bool getFileInfoSeq(const std::string&, int, GetFileInfoSeqCB*, IcePatch2::FileInfoSeq&);
 ICE_PATCH2_API bool getFileInfoSeq(const std::string&, int, GetFileInfoSeqCB*, IcePatch2::LargeFileInfoSeq&);
 
-ICE_PATCH2_API bool getFileInfoSeqSubDir(const std::string&, const std::string&, int, GetFileInfoSeqCB*, IcePatch2::FileInfoSeq&);
 ICE_PATCH2_API bool getFileInfoSeqSubDir(const std::string&, const std::string&, int, GetFileInfoSeqCB*, IcePatch2::LargeFileInfoSeq&);
 
-ICE_PATCH2_API void saveFileInfoSeq(const std::string&, const IcePatch2::FileInfoSeq&);
 ICE_PATCH2_API void saveFileInfoSeq(const std::string&, const IcePatch2::LargeFileInfoSeq&);
 
-ICE_PATCH2_API void loadFileInfoSeq(const std::string&, IcePatch2::FileInfoSeq&);
 ICE_PATCH2_API void loadFileInfoSeq(const std::string&, IcePatch2::LargeFileInfoSeq&);
 
-ICE_PATCH2_API bool readFileInfo(FILE*, IcePatch2::FileInfo&);
 ICE_PATCH2_API bool readFileInfo(FILE*, IcePatch2::LargeFileInfo&);
 
 ICE_PATCH2_API IcePatch2::FileInfo toFileInfo(const IcePatch2::LargeFileInfo&);
 ICE_PATCH2_API IcePatch2::LargeFileInfo toLargeFileInfo(const IcePatch2::FileInfo&);
 
-ICE_PATCH2_API bool writeFileInfo(FILE*, const IcePatch2::FileInfo&);
 ICE_PATCH2_API bool writeFileInfo(FILE*, const IcePatch2::LargeFileInfo&);
 
 struct FileTree1
@@ -199,7 +192,6 @@ struct FileTree0
     Ice::ByteSeq checksum;
 };
 
-ICE_PATCH2_API void getFileTree0(const IcePatch2::FileInfoSeq&, FileTree0&);
 ICE_PATCH2_API void getFileTree0(const IcePatch2::LargeFileInfoSeq&, FileTree0&);
 
 }

@@ -81,12 +81,6 @@ IcePatch2Internal::toLargeFileInfo(const FileInfo& info)
 }
 
 bool
-IcePatch2Internal::writeFileInfo(FILE* fp, const FileInfo& info)
-{
-    return writeFileInfo(fp, toLargeFileInfo(info));
-}
-
-bool
 IcePatch2Internal::writeFileInfo(FILE* fp, const LargeFileInfo& info)
 {
     int rc = fprintf(fp, "%s\t%s\t%" ICE_INT64_FORMAT "d\t%d\n", 
@@ -95,18 +89,6 @@ IcePatch2Internal::writeFileInfo(FILE* fp, const LargeFileInfo& info)
                      info.size,
                      static_cast<int>(info.executable));
     return rc > 0;
-}
-
-bool
-IcePatch2Internal::readFileInfo(FILE* fp, FileInfo& info)
-{
-    LargeFileInfo largeInfo;
-    bool retval = readFileInfo(fp, largeInfo);
-    if(retval)
-    {
-        info = toFileInfo(largeInfo);
-    }
-    return retval;
 }
 
 bool
@@ -746,12 +728,6 @@ IcePatch2Internal::decompressFile(const string& pa)
     fclose(fp);
 }
 
-void
-IcePatch2Internal::setFileFlags(const string& pa, const FileInfo& info)
-{
-    setFileFlags(pa, toLargeFileInfo(info));
-}
-
 #ifndef _WIN32
 void
 IcePatch2Internal::setFileFlags(const string& pa, const LargeFileInfo& info)
@@ -1044,31 +1020,10 @@ getFileInfoSeqInternal(const string& basePath, const string& relPath, int compre
 }
 
 bool
-IcePatch2Internal::getFileInfoSeq(const string& basePath, int compress, GetFileInfoSeqCB* cb, FileInfoSeq& infoSeq)
-{
-    LargeFileInfoSeq largeInfoSeq;
-    bool retval = getFileInfoSeq(basePath, compress, cb, largeInfoSeq);
-    infoSeq.resize(largeInfoSeq.size());
-    transform(largeInfoSeq.begin(), largeInfoSeq.end(), infoSeq.begin(), toFileInfo);
-    return retval;
-}
-
-bool
 IcePatch2Internal::getFileInfoSeq(const string& basePath, int compress, GetFileInfoSeqCB* cb, 
                                   LargeFileInfoSeq& infoSeq)
 {
     return getFileInfoSeqSubDir(basePath, ".", compress, cb, infoSeq);
-}
-
-bool
-IcePatch2Internal::getFileInfoSeqSubDir(const string& basePa, const string& relPa, int compress, GetFileInfoSeqCB* cb,
-                                        FileInfoSeq& infoSeq)
-{
-    LargeFileInfoSeq largeInfoSeq;
-    bool retval = getFileInfoSeqSubDir(basePa, relPa, compress, cb, largeInfoSeq);
-    infoSeq.resize(largeInfoSeq.size());
-    transform(largeInfoSeq.begin(), largeInfoSeq.end(), infoSeq.begin(), toFileInfo);
-    return retval;
 }
 
 bool
@@ -1087,14 +1042,6 @@ IcePatch2Internal::getFileInfoSeqSubDir(const string& basePa, const string& relP
     infoSeq.erase(unique(infoSeq.begin(), infoSeq.end(), FileInfoEqual()), infoSeq.end());
 
     return true;
-}
-
-void
-IcePatch2Internal::saveFileInfoSeq(const string& pa, const FileInfoSeq& infoSeq)
-{
-    LargeFileInfoSeq largeInfoSeq(infoSeq.size());
-    transform(infoSeq.begin(), infoSeq.end(), largeInfoSeq.begin(), toLargeFileInfo);
-    saveFileInfoSeq(pa, largeInfoSeq);
 }
 
 void
@@ -1136,15 +1083,6 @@ IcePatch2Internal::saveFileInfoSeq(const string& pa, const LargeFileInfoSeq& inf
         {
         }
     }
-}
-
-void
-IcePatch2Internal::loadFileInfoSeq(const string& pa, FileInfoSeq& infoSeq)
-{
-    LargeFileInfoSeq largeInfoSeq;
-    loadFileInfoSeq(pa, largeInfoSeq);
-    infoSeq.resize(largeInfoSeq.size());
-    transform(largeInfoSeq.begin(), largeInfoSeq.end(), infoSeq.begin(), toFileInfo);
 }
 
 void
@@ -1244,14 +1182,6 @@ IcePatch2Internal::loadFileInfoSeq(const string& pa, LargeFileInfoSeq& infoSeq)
             saveFileInfoSeq(pa, infoSeq);
         }
     }
-}
-
-void
-IcePatch2Internal::getFileTree0(const FileInfoSeq& infoSeq, FileTree0& tree0)
-{
-    LargeFileInfoSeq largeInfoSeq(infoSeq.size());
-    transform(infoSeq.begin(), infoSeq.end(), largeInfoSeq.begin(), toLargeFileInfo);
-    getFileTree0(largeInfoSeq, tree0);
 }
 
 void
