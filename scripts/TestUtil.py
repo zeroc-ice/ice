@@ -363,8 +363,7 @@ if os.environ.get("USE_BIN_DIST", "no") == "yes":
     elif isLinux():
         iceHome = "/usr"
     elif isDarwin():
-        if os.path.exists("/Library/Developer/Ice-%s/lib/db.jar" % iceVersion):
-            iceHome = "/Library/Developer/Ice-%s/" % iceVersion
+        iceHome = "/usr/local"
     elif isWin32():
         path = getWinRegistryKeyValue("SOFTWARE\\ZeroC\\Ice %s" % iceVersion, "InstallDir")
         if path and len(path) > 0 and os.path.exists(path[0]):
@@ -378,9 +377,6 @@ thirdPartyHome = None
 if not iceHome:
     if os.environ.get("THIRDPARTY_HOME"):
         thirdPartyHome = os.environ.get("THIRDPARTY_HOME")
-    elif isDarwin():
-        if os.path.exists("/Library/Developer/Ice-%s-ThirdParty/lib/db.jar" % iceVersion):
-            thirdPartyHome = "/Library/Developer/Ice-%s-ThirdParty/" % iceVersion
     elif isWin32():
         path = getWinRegistryKeyValue("SOFTWARE\\ZeroC\\Ice %s Third Party Packages" % iceVersion, "InstallDir")
         if path and len(path) > 0 and os.path.exists(path[0]):
@@ -1744,10 +1740,7 @@ def getJavaLibraryPath():
         else:
             return "-Djava.library.path=\"%s\" " % os.path.join(thirdPartyHome, "bin\\x64" if x64 else "bin")
     elif isDarwin():
-        if iceHome:
-            return "-Djava.library.path=%s " % os.path.join(iceHome, "lib")
-        elif thirdPartyHome:
-            return "-Djava.library.path=%s " % os.path.join(thirdPartyHome, "lib")
+        return "-Djava.library.path=%s " % os.path.join("/usr/local/lib")
     elif isRhel() or isSles():
         return "-Djava.library.path=%s " % ("/usr/lib64" if x64 else "/usr/lib")
     elif isUbuntu():
@@ -1788,25 +1781,24 @@ def getTestEnv(lang, testdir):
         addClasspath(os.path.join(toplevel, "java", "lib", "test.jar"), env)
 
     #
-    # DB CLASSPATH, in Windows and OS X db.jar come from Ice home or
+    # DB CLASSPATH, in Windows db.jar come from Ice home or
     # from Third Party Home
     #
-    if isDarwin() or isWin32():
+    if isWin32():
         if iceHome:
             addClasspath(os.path.join(getIceDir("java", testdir), "lib", "db.jar"), env)
         elif thirdPartyHome:
             #
             # Add third party home to PATH, to use db_xx tools
             #
-            if isWin32():
-                addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin\\x64" if x64 else "bin"), env)
-                if getCppCompiler() == "VC110":
-                    addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin\\vc110\\x64" if x64 else "bin\\vc110"), env)
-            elif isDarwin():
-                addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin"), env)
+            addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin\\x64" if x64 else "bin"), env)
+            if getCppCompiler() == "VC110":
+                addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin\\vc110\\x64" if x64 else "bin\\vc110"), env)
             addClasspath(os.path.join(thirdPartyHome, "lib", "db.jar"), env)
         else:
             print("warning: could not detect Ice Third Party installation")
+    elif isDarwin():
+        addClasspath(os.path.join("/", "usr", "local", "lib", "db.jar"), env)
     else:
         addClasspath(os.path.join("/", "usr", "share", "java", "db.jar"), env)
 

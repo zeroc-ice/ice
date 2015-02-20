@@ -226,29 +226,29 @@ if (!android) {
                 }
                 subdirs = [ "${thirdpartyhome}/lib/" ]
             }
-		} else {
-			subdirs = [
-				"/Library/Developer/Ice-${project.version}-ThirdParty/lib/",
-				"/usr/share/java/",
-				"/opt/Ice-${project.version}/lib/",
-				"/opt/db/lib/",
-				"/usr/lib/"
-			]
-		}
+        } else {
+            subdirs = [
+                "/usr/local/lib/",
+                "/usr/share/java/",
+                "/opt/Ice-${project.version}/lib/",
+                "/opt/db/lib/",
+                "/usr/lib/"
+            ]
+        }
 
-		def candidates = ["db-5.3.28.jar", "db-5.3.21.jar", "db.jar"].collect {
-			def dbJarName = it
-			subdirs.collect {
-				it.concat(dbJarName)
-			}
-		}.flatten()
+        def candidates = ["db-5.3.28.jar", "db-5.3.21.jar", "db.jar"].collect {
+            def dbJarName = it
+            subdirs.collect {
+                it.concat(dbJarName)
+            }
+        }.flatten()
 
-		ext.dbJar = candidates.find {
-			new File(it).exists()
-		}
-	}
+        ext.dbJar = candidates.find {
+            new File(it).exists()
+        }
+    }
 
-	if(!ext.dbJar || !new File(ext.dbJar).exists()) {
-		throw new GradleException("Unable to locate the required third party BerkeleyDB jar file `db.jar'.")
-	}
+    if(!ext.dbJar || !new File(ext.dbJar).exists()) {
+        throw new GradleException("Unable to locate the required third party BerkeleyDB jar file `db.jar'.")
+    }
 }
