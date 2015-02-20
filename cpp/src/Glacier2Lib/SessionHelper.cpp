@@ -17,6 +17,30 @@
 
 using namespace std;
 
+namespace Glacier2
+{
+
+class SessionThreadCallback : public IceUtil::Shared
+{
+public:
+    SessionThreadCallback(const Glacier2::SessionFactoryHelperPtr& factory) :
+        _factory(factory)
+    {
+    }
+
+    void add(const SessionHelper* session, const IceUtil::ThreadPtr& thread)
+    {
+        _factory->addThread(session, thread);
+    }
+
+private:
+
+    const Glacier2::SessionFactoryHelperPtr _factory;
+};
+typedef IceUtil::Handle<SessionThreadCallback> SessionThreadCallbackPtr;
+
+};
+
 namespace
 {
 
@@ -59,7 +83,8 @@ class SessionHelperI : public Glacier2::SessionHelper
 
 public:
 
-    SessionHelperI(const Glacier2::SessionCallbackPtr&, const Ice::InitializationData&, const string&, bool);
+    SessionHelperI(const Glacier2::SessionThreadCallbackPtr&, const Glacier2::SessionCallbackPtr&,
+                   const Ice::InitializationData&, const string&, bool);
     void destroy();
     Ice::CommunicatorPtr communicator() const;
     std::string categoryForClient() const;
@@ -98,6 +123,7 @@ private:
     bool _connected;
     bool _destroy;
     const Ice::InitializationData _initData;
+    Glacier2::SessionThreadCallbackPtr _threadCB;
     const Glacier2::SessionCallbackPtr _callback;
     const string _finder;
     const bool _useCallbacks;
@@ -128,13 +154,15 @@ private:
 
 }
 
-SessionHelperI::SessionHelperI(const Glacier2::SessionCallbackPtr& callback,
+SessionHelperI::SessionHelperI(const Glacier2::SessionThreadCallbackPtr& threadCB,
+                               const Glacier2::SessionCallbackPtr& callback,
                                const Ice::InitializationData& initData,
                                const string& finderStr,
                                bool useCallbacks) :
     _connected(false),
     _destroy(false),
     _initData(initData),
+    _threadCB(threadCB),
     _callback(callback),
     _finder(finderStr),
     _useCallbacks(useCallbacks)
@@ -153,6 +181,7 @@ SessionHelperI::destroy(const IceUtil::ThreadPtr& destroyInternal)
 {
     if(_destroy)
     {
+        _threadCB = 0;
         return;
     }
     _destroy = true;
@@ -165,6 +194,7 @@ SessionHelperI::destroy(const IceUtil::ThreadPtr& destroyInternal)
         // destroyed when the connection establishment has
         // completed.
         //
+        _threadCB = 0;
         return;
     }
     _session = 0;
@@ -173,7 +203,9 @@ SessionHelperI::destroy(const IceUtil::ThreadPtr& destroyInternal)
     //
     // Run destroyInternal in a thread because it makes remote invocations.
     //
-    destroyInternal->start().detach();
+    _threadCB->add(this, destroyInternal);
+    destroyInternal->start();
+    _threadCB = 0;
 }
 
 Ice::CommunicatorPtr
@@ -254,7 +286,7 @@ SessionHelperI::internalObjectAdapter()
     }
     if(!_useCallbacks)
     {
-        throw Ice::InitializationException(__FILE__, __LINE__, 
+        throw Ice::InitializationException(__FILE__, __LINE__,
             "Object adapter not available, call SessionFactoryHelper.setUseCallbacks(true)");
     }
     return _adapter;
@@ -482,7 +514,7 @@ public:
         {
             if(!_communicator->getDefaultRouter())
             {
-                Ice::RouterFinderPrx finder = 
+                Ice::RouterFinderPrx finder =
                     Ice::RouterFinderPrx::uncheckedCast(_communicator->stringToProxy(_finder));
                 try
                 {
@@ -569,12 +601,14 @@ SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
     {
         _destroy = true;
         IceUtil::ThreadPtr thread = new DispatchCallThread(this, new ConnectFailed(_callback, this, ex), 0);
-        thread->start().detach();
+        _threadCB->add(this, thread);
+        thread->start();
         return;
     }
 
-    IceUtil::ThreadPtr connectThread = new ConnectThread(_callback, this, factory, _communicator, _finder);
-    connectThread->start().detach();
+    IceUtil::ThreadPtr thread = new ConnectThread(_callback, this, factory, _communicator, _finder);
+    _threadCB->add(this, thread);
+    thread->start();
 }
 
 namespace
@@ -671,40 +705,47 @@ SessionHelperI::connected(const Glacier2::RouterPrx& router, const Glacier2::Ses
         _adapter->activate();
     }
 
+    bool destroy;
     {
         IceUtil::Mutex::Lock sync(_mutex);
         _router = router;
+        destroy = _destroy;
 
-        if(_destroy)
+        if(!_destroy)
         {
             //
-            // Run destroyInternal in a thread because it makes remote invocations.
+            // Cache the category.
             //
-            IceUtil::ThreadPtr thread = new DestroyInternal(this, _callback);
-            thread->start().detach();
-            return;
-        }
+            _category = category;
 
-        //
-        // Cache the category.
-        //
-        _category = category;
+            //
+            // Assign the session after _destroy is checked.
+            //
+            _session = session;
+            _connected = true;
 
-        //
-        // Assign the session after _destroy is checked.
-        //
-        _session = session;
-        _connected = true;
-
-        if(acmTimeout > 0)
-        {
-            Ice::ConnectionPtr connection = _router->ice_getCachedConnection();
-            assert(connection);
-            connection->setACM(acmTimeout, IceUtil::None, Ice::HeartbeatAlways);
-            connection->setCallback(new ConnectionCallbackI(this));
+            if(acmTimeout > 0)
+            {
+                Ice::ConnectionPtr connection = _router->ice_getCachedConnection();
+                assert(connection);
+                connection->setACM(acmTimeout, IceUtil::None, Ice::HeartbeatAlways);
+                connection->setCallback(new ConnectionCallbackI(this));
+            }
         }
     }
-    dispatchCallback(new Connected(_callback, this), conn);
+
+    if(destroy)
+    {
+        //
+        // connected() is only called from the ConnectThread so it is ok to
+        // call destroyInternal here.
+        //
+        destroyInternal(new Disconnected(this, _callback));
+    }
+    else
+    {
+        dispatchCallback(new Connected(_callback, this), conn);
+    }
 }
 
 void
@@ -810,6 +851,34 @@ Glacier2::SessionFactoryHelper::SessionFactoryHelper(const Ice::PropertiesPtr& p
     }
     _initData.properties = properties;
     setDefaultProperties();
+}
+
+Glacier2::SessionFactoryHelper::~SessionFactoryHelper()
+{
+    destroy();
+}
+
+void
+Glacier2::SessionFactoryHelper::addThread(const SessionHelper* session, const IceUtil::ThreadPtr& thread)
+{
+    //
+    // A SessionHelper can only ever have one thread running. Therefore any
+    // currently registered thread for the same session must be finished, so
+    // we just replace it.
+    //
+    IceUtil::Mutex::Lock sync(_mutex);
+    _threads.insert(make_pair(session, thread));
+}
+
+void
+Glacier2::SessionFactoryHelper::destroy()
+{
+    IceUtil::Mutex::Lock sync(_mutex);
+    for(map<const SessionHelper*, IceUtil::ThreadPtr>::iterator p = _threads.begin(); p != _threads.end(); ++p)
+    {
+        p->second->getThreadControl().join();
+    }
+    _threads.clear();
 }
 
 void
@@ -939,17 +1008,29 @@ Glacier2::SessionFactoryHelper::getUseCallbacks() const
 Glacier2::SessionHelperPtr
 Glacier2::SessionFactoryHelper::connect()
 {
-    IceUtil::Mutex::Lock sync(_mutex);
-    SessionHelperIPtr session = new SessionHelperI(_callback, createInitData(), getRouterFinderStr(), _useCallbacks);
-    session->connect(_context);
+    SessionHelperIPtr session;
+    map<string, string> context;
+    {
+        IceUtil::Mutex::Lock sync(_mutex);
+        session = new SessionHelperI(new SessionThreadCallback(this), _callback, createInitData(),
+                                     getRouterFinderStr(), _useCallbacks);
+        context = _context;
+    }
+    session->connect(context);
     return session;
 }
 
 Glacier2::SessionHelperPtr
 Glacier2::SessionFactoryHelper::connect(const string& user,  const string& password)
 {
-    IceUtil::Mutex::Lock sync(_mutex);
-    SessionHelperIPtr session = new SessionHelperI(_callback, createInitData(), getRouterFinderStr(), _useCallbacks);
+    SessionHelperIPtr session;
+    map<string, string> context;
+    {
+        IceUtil::Mutex::Lock sync(_mutex);
+        session = new SessionHelperI(new SessionThreadCallback(this), _callback, createInitData(),
+                                     getRouterFinderStr(), _useCallbacks);
+        context = _context;
+    }
     session->connect(user, password, _context);
     return session;
 }
@@ -974,7 +1055,7 @@ Glacier2::SessionFactoryHelper::createInitData()
     // plug-in has already been setup we don't want to override the
     // configuration so it can be loaded from a custom location.
     //
-    if((_protocol == "ssl" || _protocol == "wss") && 
+    if((_protocol == "ssl" || _protocol == "wss") &&
        initData.properties->getProperty("Ice.Plugin.IceSSL").empty())
     {
         initData.properties->setProperty("Ice.Plugin.IceSSL","IceSSL:createIceSSL");

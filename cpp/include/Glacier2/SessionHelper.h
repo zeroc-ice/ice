@@ -63,14 +63,21 @@ public:
 };
 typedef IceUtil::Handle<SessionCallback> SessionCallbackPtr;
 
+class SessionThreadCallback;
+
 class GLACIER2_API SessionFactoryHelper : public IceUtil::Shared
 {
+    friend class SessionThreadCallback; // To access thread functions
 
 public:
 
     SessionFactoryHelper(const SessionCallbackPtr& callback);
     SessionFactoryHelper(const Ice::InitializationData&, const SessionCallbackPtr&);
     SessionFactoryHelper(const Ice::PropertiesPtr&, const SessionCallbackPtr&);
+
+    ~SessionFactoryHelper();
+
+    void destroy();
 
     void setRouterIdentity(const Ice::Identity&);
     Ice::Identity getRouterIdentity() const;
@@ -82,7 +89,7 @@ public:
     void setSecure(bool);
     ICE_DEPRECATED_API("is deprecated, use SessionFactoryHelper::getProtocol instead")
     bool getSecure() const;
-    
+
     void setProtocol(const std::string&);
     std::string getProtocol() const;
 
@@ -104,6 +111,8 @@ public:
 
 private:
 
+    void addThread(const SessionHelper*, const IceUtil::ThreadPtr&);
+
     Ice::InitializationData createInitData();
     std::string getRouterFinderStr();
     int getPortInternal() const;
@@ -120,6 +129,7 @@ private:
     SessionCallbackPtr _callback;
     std::map< std::string, std::string> _context;
     bool _useCallbacks;
+    std::map<const SessionHelper*, IceUtil::ThreadPtr> _threads;
 };
 typedef IceUtil::Handle<SessionFactoryHelper> SessionFactoryHelperPtr;
 
