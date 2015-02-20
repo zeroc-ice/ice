@@ -26,10 +26,10 @@ protected:
 
     void writeMarshalUnmarshalParams(const ParamDeclList&, const OperationPtr&, bool);
     void writePostUnmarshalParams(const ParamDeclList&, const OperationPtr&);
-    void writeMarshalDataMember(const DataMemberPtr&);
-    void writeUnmarshalDataMember(const DataMemberPtr&);
+    void writeMarshalDataMembers(const DataMemberList&);
+    void writeUnmarshalDataMembers(const DataMemberList&);
+    void writeInitDataMembers(const DataMemberList&, const std::string&);
 
-    virtual void writeDispatchAndMarshalling(const ClassDefPtr&);
     virtual std::vector<std::string> getParams(const OperationPtr&);
     virtual std::vector<std::string> getParamsAsync(const OperationPtr&, bool, bool = false);
     virtual std::vector<std::string> getParamsAsyncCB(const OperationPtr&, bool = false, bool = true);
@@ -40,7 +40,7 @@ protected:
     std::string getValue(const std::string&, const TypePtr&);
 
     void writeConstantValue(const std::string&, const TypePtr&, const SyntaxTreeBasePtr&, const std::string&);
-    
+
     static StringList splitComment(const ContainedPtr&);
     void writeDocComment(const ContainedPtr&, const std::string&, const std::string& = "");
 
@@ -55,7 +55,7 @@ public:
         const std::vector<std::string>&,
         const std::string&,
         bool);
-    
+
     Gen(const std::string&,
         const std::vector<std::string>&,
         const std::string&,
@@ -75,7 +75,7 @@ private:
     std::string _fileBase;
     bool _icejs;
     bool _useStdout;
-    
+
     void printHeader();
 
     class RequireVisitor : public JsVisitor
@@ -132,7 +132,7 @@ private:
         std::vector<std::string> _seenModules;
         bool _icejs;
     };
-    
+
     class ExportVisitor : public JsVisitor
     {
     public:

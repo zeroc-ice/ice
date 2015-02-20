@@ -183,7 +183,7 @@ class Derived extends Base
     Color c1 = ::Test::red;
     Color c2 = Test::green;
     Color c3 = blue;
-    
+
     Nested::Color nc1 = ::Test::Nested::red;
     Nested::Color nc2 = Nested::green;
     Nested::Color nc3 = Nested::blue;
@@ -214,7 +214,7 @@ exception DerivedEx extends BaseEx
     Color c1 = ConstColor1;
     Color c2 = ConstColor2;
     Color c3 = ConstColor3;
-    
+
     Nested::Color nc1 = ConstNestedColor1;
     Nested::Color nc2 = ConstNestedColor2;
     Nested::Color nc3 = ConstNestedColor3;
@@ -287,6 +287,66 @@ exception ExceptionProperty
     float zeroDotF = 0.0;
     double zeroD = 0;
     double zeroDotD = 0;
+};
+
+sequence<byte> ByteSeq;
+sequence<int> IntSeq;
+dictionary<int, string> IntStringDict;
+
+struct InnerStruct
+{
+    int a;
+};
+
+struct InnerStruct2
+{
+    string a;
+};
+
+struct StructNoDefaults
+{
+    bool bo;
+    byte b;
+    short s;
+    int i;
+    long l;
+    float f;
+    double d;
+    string str;
+    Color c1;
+    ByteSeq bs;
+    IntSeq iseq;
+    InnerStruct st;
+    InnerStruct2 st2;
+    IntStringDict dict;
+};
+
+exception ExceptionNoDefaultsBase
+{
+    string str;
+    Color c1;
+    ByteSeq bs;
+};
+
+exception ExceptionNoDefaults extends ExceptionNoDefaultsBase
+{
+    InnerStruct st;
+    InnerStruct2 st2;
+    IntStringDict dict;
+};
+
+class ClassNoDefaultsBase
+{
+    string str;
+    Color c1;
+    ByteSeq bs;
+};
+
+class ClassNoDefaults extends ClassNoDefaultsBase
+{
+    InnerStruct st;
+    InnerStruct2 st2;
+    IntStringDict dict;
 };
 
 };

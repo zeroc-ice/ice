@@ -47,7 +47,7 @@ namespace Slice
 {
 
 #if defined(_WIN32) && !defined(__MINGW32__)
- 
+
 const IceUtil::Int64 Int32Max =  0x7fffffffi64;
 const IceUtil::Int64 Int32Min = -Int32Max - 1i64;
 
@@ -594,7 +594,7 @@ private:
 class SLICE_API Operation : virtual public Contained, virtual public Container
 {
 public:
-    
+
     //
     // Note: The order of definitions here *must* match the order of
     // definitions of ::Ice::OperationMode in slice/Ice/Current.ice!
@@ -838,7 +838,7 @@ public:
 
 protected:
 
-    Dictionary(const ContainerPtr&, const std::string&, const TypePtr&, const StringList&, const TypePtr&, 
+    Dictionary(const ContainerPtr&, const std::string&, const TypePtr&, const StringList&, const TypePtr&,
                const StringList&, bool);
     friend class Container;
 
@@ -988,8 +988,9 @@ public:
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
 
+
 protected:
-    
+
     DataMember(const ContainerPtr&, const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr&,
                const std::string&, const std::string&);
     friend class ClassDef;
@@ -1078,7 +1079,7 @@ public:
     virtual void visit(ParserVisitor*, bool);
 
     BuiltinPtr builtin(Builtin::Kind); // Not const, as builtins are created on the fly. (Lazy initialization.)
-    
+
     void addTopLevelModule(const std::string&, const std::string&);
     std::set<std::string> getTopLevelModules(const std::string&) const;
 

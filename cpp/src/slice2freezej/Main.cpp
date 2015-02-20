@@ -939,6 +939,10 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
             out << nl << "Patcher __p = new Patcher();";
             patchParams = "__p";
         }
+        else if(StructPtr::dynamicCast(type))
+        {
+            out << nl << typeS << " __r = null;";
+        }
         else
         {
             out << nl << typeS << " __r;";
@@ -1082,7 +1086,14 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
             list<string> metaData;
             string patchParams;
 
-            out << nl << indexKeyTypeS << " r;";
+            if(StructPtr::dynamicCast(indexTypes[i]))
+            {
+                out << nl << indexKeyTypeS << " r = null;";
+            }
+            else
+            {
+                out << nl << indexKeyTypeS << " r;";
+            }
 
             BuiltinPtr b = BuiltinPtr::dynamicCast(indexTypes[i]);
             if(b != 0)
@@ -1737,7 +1748,7 @@ compile(int argc, char* argv[])
 
     IceUtil::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
-    
+
     if(dependxml)
     {
         cout << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
@@ -1811,7 +1822,7 @@ compile(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
         }
-        
+
         {
             IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(globalMutex);
 
@@ -1821,7 +1832,7 @@ compile(int argc, char* argv[])
             }
         }
     }
-    
+
     if(dependxml)
     {
         cout << "</dependencies>\n";

@@ -2045,6 +2045,27 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
     }
 }
 
+bool
+Slice::CsVisitor::requiresDataMemberInitializers(const DataMemberList& members)
+{
+    for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
+    {
+        if((*p)->defaultValueType())
+        {
+            return true;
+        }
+        else if((*p)->optional())
+        {
+            return true;
+        }
+        else if(BuiltinPtr::dynamicCast((*p)->type()) || StructPtr::dynamicCast((*p)->type()))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 void
 Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, int baseTypes, bool propertyMapping)
 {
@@ -2069,6 +2090,20 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, int
         {
             _out << nl << "this." << fixId((*p)->name(), baseTypes) << " = new " << typeToString((*p)->type(), true)
                  << "();";
+        }
+        else
+        {
+            BuiltinPtr builtin = BuiltinPtr::dynamicCast((*p)->type());
+            if(builtin && builtin->kind() == Builtin::KindString)
+            {
+                _out << nl << fixId((*p)->name(), baseTypes) << " = \"\";";
+            }
+
+            StructPtr st = StructPtr::dynamicCast((*p)->type());
+            if(st)
+            {
+                _out << nl << fixId((*p)->name(), baseTypes) << " = new " << typeToString(st, false) << "();";
+            }
         }
     }
 }
@@ -3555,9 +3590,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     _out << sp << nl << "#region Constructors";
 
-    const bool hasDefaultValues = p->hasDefaultValues();
-
-    if(hasDefaultValues)
+    const bool hasDataMemberInitializers = requiresDataMemberInitializers(dataMembers);
+    if(hasDataMemberInitializers)
     {
         _out << sp << nl << "private void initDM__()";
         _out << sb;
@@ -3569,7 +3603,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     emitGeneratedCodeAttribute();
     _out << nl << "public " << name << "()";
     _out << sb;
-    if(hasDefaultValues)
+    if(hasDataMemberInitializers)
     {
         _out << nl << "initDM__();";
     }
@@ -3579,7 +3613,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     emitGeneratedCodeAttribute();
     _out << nl << "public " << name << "(_System.Exception ex__) : base(ex__)";
     _out << sb;
-    if(hasDefaultValues)
+    if(hasDataMemberInitializers)
     {
         _out << nl << "initDM__();";
     }

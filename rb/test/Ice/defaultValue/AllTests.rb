@@ -56,7 +56,7 @@ def allTests()
     test(v.zeroDotF == Test::ConstZeroDotF)
     test(v.zeroD == Test::ConstZeroD)
     test(v.zeroDotD == Test::ConstZeroDotD)
-    
+
     v = Test::Base.new
     test(!v.boolFalse)
     test(v.boolTrue)
@@ -68,14 +68,13 @@ def allTests()
     test(v.d == 6.2)
     test(v.str == "foo \\ \"bar\n \r\n\t\v\f\a\b? \007 \x07")
     test(v.noDefault == '')
-    test(v.noDefault == '')
     test(v.zeroI == 0)
     test(v.zeroL == 0)
     test(v.zeroF == 0)
     test(v.zeroDotF == 0)
     test(v.zeroD == 0)
     test(v.zeroDotD == 0)
-    
+
     v = Test::Derived.new
     test(!v.boolFalse)
     test(v.boolTrue)
@@ -93,14 +92,13 @@ def allTests()
     test(v.nc2 == Test::Nested::Color::Green)
     test(v.nc3 == Test::Nested::Color::Blue)
     test(v.noDefault == '')
-    test(v.noDefault == '')
     test(v.zeroI == 0)
     test(v.zeroL == 0)
     test(v.zeroF == 0)
     test(v.zeroDotF == 0)
     test(v.zeroD == 0)
     test(v.zeroDotD == 0)
-    
+
     v = Test::BaseEx.new
     test(!v.boolFalse)
     test(v.boolTrue)
@@ -112,14 +110,13 @@ def allTests()
     test(v.d == 6.2)
     test(v.str == "foo \\ \"bar\n \r\n\t\v\f\a\b? \007 \x07")
     test(v.noDefault == '')
-    test(v.noDefault == '')
     test(v.zeroI == 0)
     test(v.zeroL == 0)
     test(v.zeroF == 0)
     test(v.zeroDotF == 0)
     test(v.zeroD == 0)
     test(v.zeroDotD == 0)
-    
+
     v = Test::DerivedEx.new
     test(!v.boolFalse)
     test(v.boolTrue)
@@ -144,6 +141,41 @@ def allTests()
     test(v.zeroDotF == 0)
     test(v.zeroD == 0)
     test(v.zeroDotD == 0)
-    
+
     puts "ok"
+
+    print "testing default constructor... "
+    STDOUT.flush
+
+    v = Test::StructNoDefaults.new
+    test(v.bo == false)
+    test(v.b == 0)
+    test(v.s == 0)
+    test(v.i == 0)
+    test(v.l == 0)
+    test(v.f == 0.0)
+    test(v.d == 0.0)
+    test(v.str == '')
+    test(v.c1 == Test::Color::Red)
+    test(v.bs == nil)
+    test(v.is == nil)
+    test(v.st.instance_of?(Test::InnerStruct));
+    test(v.dict == nil);
+
+    e = Test::ExceptionNoDefaults.new
+    test(e.str == '')
+    test(e.c1 == Test::Color::Red)
+    test(e.bs == nil)
+    test(e.st.instance_of?(Test::InnerStruct));
+    test(e.dict == nil);
+
+    c = Test::ClassNoDefaults.new
+    test(c.str == '')
+    test(c.c1 == Test::Color::Red)
+    test(c.bs == nil)
+    test(c.st.instance_of?(Test::InnerStruct));
+    test(c.dict == nil);
+
+    puts("ok")
+
 end

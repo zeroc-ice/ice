@@ -34,14 +34,6 @@ using namespace IceUtilInternal;
 namespace
 {
 
-bool
-isObjectType(const TypePtr& type)
-{
-    BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-    return cl || (b && b->kind() == Builtin::KindObject);
-}
-
 string
 sliceModeToIceMode(Operation::Mode opMode)
 {
@@ -178,35 +170,79 @@ Slice::JsVisitor::writeMarshalUnmarshalParams(const ParamDeclList& params, const
 }
 
 void
-Slice::JsVisitor::writeMarshalDataMember(const DataMemberPtr& member)
+Slice::JsVisitor::writeMarshalDataMembers(const DataMemberList& dataMembers)
 {
-    if(member->optional())
+    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        writeOptionalMarshalUnmarshalCode(_out, member->type(), "this." + fixId(member->name()), member->tag(), true);
-    }
-    else
-    {
-        writeMarshalUnmarshalCode(_out, member->type(), "this." + fixId(member->name()), true);
+        if((*q)->optional())
+        {
+            writeOptionalMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), (*q)->tag(), true);
+        }
+        else
+        {
+            writeMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), true);
+        }
     }
 }
 
 void
-Slice::JsVisitor::writeUnmarshalDataMember(const DataMemberPtr& member)
+Slice::JsVisitor::writeUnmarshalDataMembers(const DataMemberList& dataMembers)
 {
-    if(member->optional())
+    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        writeOptionalMarshalUnmarshalCode(_out, member->type(), "this." + fixId(member->name()),
-                                          member->tag(), false);
+        if(isClassType((*q)->type()))
+        {
+            _out << nl << "var self = this;";
+            break;
+        }
     }
-    else
+
+    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        writeMarshalUnmarshalCode(_out, member->type(), "this." + fixId(member->name()), false);
+        if((*q)->optional())
+        {
+            writeOptionalMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), (*q)->tag(), false);
+        }
+        else
+        {
+            writeMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), false);
+        }
     }
 }
 
 void
-Slice::JsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
+Slice::JsVisitor::writeInitDataMembers(const DataMemberList& dataMembers, const string& scope)
 {
+    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+        const string m = fixId((*q)->name());
+        if((*q)->optional())
+        {
+            if((*q)->defaultValueType())
+            {
+                _out << nl << "this." << m << " = " << m << " !== undefined ? " << m << " : ";
+                writeConstantValue(scope, (*q)->type(), (*q)->defaultValueType(), (*q)->defaultValue());
+                _out << ';';
+            }
+            else
+            {
+                _out << nl << "this." << m << " = " << m << ';';
+            }
+        }
+        else
+        {
+            _out << nl << "this." << m << " = " << m << " !== undefined ? " << m << " : ";
+            if((*q)->defaultValueType())
+            {
+                writeConstantValue(scope, (*q)->type(), (*q)->defaultValueType(), (*q)->defaultValue());
+            }
+            else
+            {
+                _out << getValue(scope, (*q)->type());
+            }
+            _out << ';';
+        }
+    }
 }
 
 vector<string>
@@ -387,6 +423,10 @@ Slice::JsVisitor::getValue(const string& scope, const TypePtr& type)
                 return "0.0";
                 break;
             }
+            case Builtin::KindString:
+            {
+                return "\"\"";
+            }
             default:
             {
                 return "null";
@@ -398,7 +438,13 @@ Slice::JsVisitor::getValue(const string& scope, const TypePtr& type)
     EnumPtr en = EnumPtr::dynamicCast(type);
     if(en)
     {
-        return getReference(scope, (*en->getEnumerators().begin())->scoped());
+        return getReference(scope, en->scoped()) + '.' + fixId((*en->getEnumerators().begin())->name());
+    }
+
+    StructPtr st = StructPtr::dynamicCast(type);
+    if(st)
+    {
+        return "new " + typeToString(type) + "()";
     }
 
     return "null";
@@ -1047,17 +1093,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         allParamNames.push_back(fixId((*q)->name()));
     }
 
-    bool hasClassMembers = false;
-    vector<string> paramNames;
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        paramNames.push_back(fixId((*q)->name()));
-        if(!hasClassMembers && isClassType((*q)->type()))
-        {
-            hasClassMembers = true;
-        }
-    }
-
     vector<string> baseParamNames;
     DataMemberList baseDataMembers;
 
@@ -1083,37 +1118,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             _out << nl << baseRef << ".call" << spar << "this" << baseParamNames << epar << ';';
         }
-
-        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-        {
-            const string m = fixId((*q)->name());
-            if((*q)->optional())
-            {
-                if((*q)->defaultValueType())
-                {
-                    _out << nl << "this." << m << " = " << m << " !== undefined ? " << m << " : ";
-                    writeConstantValue(scope, (*q)->type(), (*q)->defaultValueType(), (*q)->defaultValue());
-                    _out << ';';
-                }
-                else
-                {
-                    _out << nl << "this." << m << " = " << m << ';';
-                }
-            }
-            else
-            {
-                _out << nl << "this." << m << " = " << m << " !== undefined ? " << m << " : ";
-                if((*q)->defaultValueType())
-                {
-                    writeConstantValue(scope, (*q)->type(), (*q)->defaultValueType(), (*q)->defaultValue());
-                }
-                else
-                {
-                    _out << getValue(scope, (*q)->type());
-                }
-                _out << ';';
-            }
-        }
+        writeInitDataMembers(dataMembers, scope);
         _out << eb;
     }
     else
@@ -1208,22 +1213,11 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             _out << nl << "function(__os)";
             _out << sb;
-            for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-            {
-                writeMarshalDataMember(*q);
-            }
+            writeMarshalDataMembers(dataMembers);
             _out << eb << ",";
-
             _out << nl << "function(__is)";
             _out << sb;
-            if(hasClassMembers)
-            {
-                _out << nl << "var self = this;";
-            }
-            for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-            {
-                writeUnmarshalDataMember(*q);
-            }
+            writeUnmarshalDataMembers(dataMembers);
             _out << eb << ",";
             _out << nl;
         }
@@ -1367,7 +1361,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 if(ret)
                 {
                     _out << '[' << encodeTypeForOperation(ret);
-                    const bool isObj = isObjectType(ret);
+                    const bool isObj = isClassType(ret);
                     if(isObj)
                     {
                         _out << ", true";
@@ -1398,7 +1392,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                         }
                         TypePtr t = (*pli)->type();
                         _out << '[' << encodeTypeForOperation(t);
-                        const bool isObj = isObjectType(t);
+                        const bool isObj = isClassType(t);
                         if(isObj)
                         {
                             _out << ", true";
@@ -1431,7 +1425,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                         }
                         TypePtr t = (*pli)->type();
                         _out << '[' << encodeTypeForOperation(t);
-                        const bool isObj = isObjectType(t);
+                        const bool isObj = isClassType(t);
                         if(isObj)
                         {
                             _out << ", true";
@@ -1549,17 +1543,6 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         allParamNames.push_back(fixId((*q)->name()));
     }
 
-    vector<string> paramNames;
-    bool hasClassMembers = false;
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        paramNames.push_back(fixId((*q)->name()));
-        if(!hasClassMembers && ClassDeclPtr::dynamicCast((*q)->type()))
-        {
-            hasClassMembers = true;
-        }
-    }
-
     vector<string> baseParamNames;
     DataMemberList baseDataMembers;
 
@@ -1580,36 +1563,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << nl << "function" << spar << allParamNames << "_cause" << epar;
     _out << sb;
     _out << nl << baseRef << ".call" << spar << "this" << baseParamNames << "_cause" << epar << ';';
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        const string m = fixId((*q)->name());
-        if((*q)->optional())
-        {
-            if((*q)->defaultValueType())
-            {
-                _out << nl << "this." << m << " = " << m << " !== undefined ? " << m << " : ";
-                writeConstantValue(scope, (*q)->type(), (*q)->defaultValueType(), (*q)->defaultValue());
-                _out << ';';
-            }
-            else
-            {
-                _out << nl << "this." << m << " = " << m << ';';
-            }
-        }
-        else
-        {
-            _out << nl << "this." << m << " = " << m << " !== undefined ? " << m << " : ";
-            if((*q)->defaultValueType())
-            {
-                writeConstantValue(scope, (*q)->type(), (*q)->defaultValueType(), (*q)->defaultValue());
-            }
-            else
-            {
-                _out << getValue(scope, (*q)->type());
-            }
-            _out << ';';
-        }
-    }
+    writeInitDataMembers(dataMembers, scope);
     _out << eb << ",";
     _out << nl << baseRef << ",";
     _out << nl << "\"" << p->scoped().substr(2) << "\"";
@@ -1623,21 +1577,11 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         {
             _out << nl << "function(__os)";
             _out << sb;
-            for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-            {
-                writeMarshalDataMember(*q);
-            }
+            writeMarshalDataMembers(dataMembers);
             _out << eb << ",";
             _out << nl << "function(__is)";
             _out << sb;
-            if(hasClassMembers)
-            {
-                _out << nl << "var self = this;";
-            }
-            for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-            {
-                writeUnmarshalDataMember(*q);
-            }
+            writeUnmarshalDataMembers(dataMembers);
             _out << eb;
         }
         else
@@ -1692,26 +1636,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     _out.inc();
     _out << nl << "function" << spar << paramNames << epar;
     _out << sb;
-    bool hasClassMembers = false;
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        if(!hasClassMembers && isClassType((*q)->type()))
-        {
-            hasClassMembers = true;
-        }
-
-        string memberName = fixId((*q)->name());
-        _out << nl << "this." << memberName << " = " << memberName << " !== undefined ? " << memberName << " : ";
-        if((*q)->defaultValueType())
-        {
-            writeConstantValue(scope, (*q)->type(), (*q)->defaultValueType(), (*q)->defaultValue());
-        }
-        else
-        {
-            _out << getValue(scope, (*q)->type());
-        }
-        _out << ';';
-    }
+    writeInitDataMembers(dataMembers, scope);
     _out << eb << ",";
 
     _out << nl << (legalKeyType ? "true" : "false");
@@ -1721,25 +1646,12 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         _out << ",";
         _out << nl << "function(__os)";
         _out << sb;
-        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-        {
-            writeMarshalDataMember(*q);
-        }
+        writeMarshalDataMembers(dataMembers);
         _out << eb << ",";
-
         _out << nl << "function(__is)";
         _out << sb;
-        if(hasClassMembers)
-        {
-            _out << nl << "var self = this;";
-        }
-        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-        {
-            writeUnmarshalDataMember(*q);
-        }
-        _out << eb << ","
-             << nl << p->minWireSize() << ", "
-             << nl << (p->isVariableLength() ? "false" : "true");
+        writeUnmarshalDataMembers(dataMembers);
+        _out << eb << "," << nl << p->minWireSize() << ", " << nl << (p->isVariableLength() ? "false" : "true");
         _out.dec();
         _out << ");";
     }

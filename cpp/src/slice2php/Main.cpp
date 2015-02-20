@@ -84,7 +84,7 @@ private:
     //
     // Write a default value for a given type.
     //
-    void writeDefaultValue(const TypePtr&);
+    void writeDefaultValue(const DataMemberPtr&);
 
     struct MemberInfo
     {
@@ -950,7 +950,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     _out << sb;
     _out << nl << "class " << name;
     _out << sb;
-    
+
     {
         long i = 0;
         for(EnumeratorList::iterator q = enums.begin(); q != enums.end(); ++q, ++i)
@@ -1129,8 +1129,9 @@ CodeVisitor::writeType(const TypePtr& p)
 }
 
 void
-CodeVisitor::writeDefaultValue(const TypePtr& p)
+CodeVisitor::writeDefaultValue(const DataMemberPtr& m)
 {
+    TypePtr p = m->type();
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
     if(builtin)
     {
@@ -1187,8 +1188,7 @@ CodeVisitor::writeDefaultValue(const TypePtr& p)
     // Instead we use null as the default value and allocate an instance in
     // the constructor.
     //
-    StructPtr st = StructPtr::dynamicCast(p);
-    if(st)
+    if(StructPtr::dynamicCast(p))
     {
         _out << "null";
         return;
@@ -1392,7 +1392,7 @@ CodeVisitor::writeConstructorParams(const MemberInfoList& members)
         }
         else
         {
-            writeDefaultValue(member->type());
+            writeDefaultValue(member);
         }
     }
 }
@@ -1573,7 +1573,7 @@ static void
 usage(const char* n)
 {
     getErrorStream() << "Usage: " << n << " [options] slice-files...\n";
-    getErrorStream() <<        
+    getErrorStream() <<
         "Options:\n"
         "-h, --help           Show this message.\n"
         "-v, --version        Display the Ice version.\n"
@@ -1611,7 +1611,7 @@ compile(int argc, char* argv[])
     opts.addOpt("", "all");
     opts.addOpt("", "checksum");
     opts.addOpt("n", "namespace");
-     
+
     vector<string> args;
     try
     {

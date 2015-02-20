@@ -669,6 +669,10 @@ Slice::JavaVisitor::writeMarshalUnmarshalParams(Output& out, const string& packa
                 out << nl << retS << "Holder __ret = new " << retS << "Holder();";
                 holder = true;
             }
+            else if(StructPtr::dynamicCast(ret))
+            {
+                out << nl << retS << " __ret = null;";
+            }
             else
             {
                 out << nl << retS << " __ret;";
@@ -1270,6 +1274,10 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
                         {
                             out << nl << typeS << "Holder " << paramName << " = new " << typeS << "Holder();";
                         }
+                        else if(StructPtr::dynamicCast(paramType))
+                        {
+                            out << nl << typeS << ' ' << paramName << " = null;";
+                        }
                         else
                         {
                             out << nl << typeS << ' ' << paramName << ';';
@@ -1413,6 +1421,10 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
                         if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
                         {
                             out << nl << typeS << "Holder " << paramName << " = new " << typeS << "Holder();";
+                        }
+                        else if(StructPtr::dynamicCast(paramType))
+                        {
+                            out << nl << typeS << ' ' << paramName << " = null;";
                         }
                         else
                         {
@@ -1920,6 +1932,7 @@ Slice::JavaVisitor::writeDataMemberInitializers(Output& out, const DataMemberLis
 {
     for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
     {
+        TypePtr t = (*p)->type();
         if((*p)->defaultValueType())
         {
             if((*p)->optional())
@@ -1927,14 +1940,36 @@ Slice::JavaVisitor::writeDataMemberInitializers(Output& out, const DataMemberLis
                 string capName = (*p)->name();
                 capName[0] = toupper(static_cast<unsigned char>(capName[0]));
                 out << nl << "set" << capName << '(';
-                writeConstantValue(out, (*p)->type(), (*p)->defaultValueType(), (*p)->defaultValue(), package);
+                writeConstantValue(out, t, (*p)->defaultValueType(), (*p)->defaultValue(), package);
                 out << ");";
             }
             else
             {
                 out << nl << fixKwd((*p)->name()) << " = ";
-                writeConstantValue(out, (*p)->type(), (*p)->defaultValueType(), (*p)->defaultValue(), package);
+                writeConstantValue(out, t, (*p)->defaultValueType(), (*p)->defaultValue(), package);
                 out << ';';
+            }
+        }
+        else
+        {
+            BuiltinPtr builtin = BuiltinPtr::dynamicCast(t);
+            if(builtin && builtin->kind() == Builtin::KindString)
+            {
+                out << nl << fixKwd((*p)->name()) << " = \"\";";
+            }
+
+            EnumPtr en = EnumPtr::dynamicCast(t);
+            if(en)
+            {
+                string firstEnum = fixKwd(en->getEnumerators().front()->name());
+                out << nl << fixKwd((*p)->name()) << " = " << getAbsolute(en, package) << '.' << firstEnum << ';';
+            }
+
+            StructPtr st = StructPtr::dynamicCast(t);
+            if(st)
+            {
+                string memberType = typeToString(st, TypeModeMember, package, (*p)->getMetaData());
+                out << nl << fixKwd((*p)->name()) << " = new " << memberType << "();";
             }
         }
     }
@@ -2904,7 +2939,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
         // Implement interfaces
         //
-       
+
         if(p->isAbstract())
         {
             if(!p->isLocal())
@@ -3261,7 +3296,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    out << nl << "assert false; // impossible";
 	    out << eb;
 	    out << nl << "return c;";
-	   
+
 	}
 	else
 	{
@@ -3836,10 +3871,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     out << sp << nl << "public " << name << "()";
     out << sb;
-    if(p->hasDefaultValues())
-    {
-        writeDataMemberInitializers(out, members, package);
-    }
+    writeDataMemberInitializers(out, members, package);
     out << eb;
 
     //
@@ -4062,9 +4094,12 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         out << eb;
         out << eb;
 
-        out << sp << nl << "static public " << name << nl << "__readNew(IceInternal.BasicStream __is)";
+        out << sp << nl << "static public " << name << nl << "__read(IceInternal.BasicStream __is, " << name << " __v)";
         out << sb;
-        out << nl << name << " __v = new " << name << "();";
+        out << nl << "if(__v == null)";
+        out << sb;
+        out << nl << " __v = new " << name << "();";
+        out << eb;
         out << nl << "__v.__read(__is);";
         out << nl << "return __v;";
         out << eb;
@@ -4083,9 +4118,12 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             out << eb;
             out << eb;
 
-            out << sp << nl << "static public " << name << nl << "ice_readNew(Ice.InputStream __inS)";
+            out << sp << nl << "static public " << name << nl << "ice_read(Ice.InputStream __inS, " << name << " __v)";
             out << sb;
-            out << nl << name << " __v = new " << name << "();";
+            out << nl << "if(__v == null)";
+            out << sb;
+            out << nl << " __v = new " << name << "();";
+            out << eb;
             out << nl << "__v.ice_read(__inS);";
             out << nl << "return __v;";
             out << eb;
@@ -4648,36 +4686,10 @@ Slice::Gen::HolderVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Gen::HolderVisitor::visitSequence(const SequencePtr& p)
 {
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
-    if(builtin && builtin->kind() == Builtin::KindByte)
+    if(sequenceHasHolder(p))
     {
-        string prefix = "java:serializable:";
-        string meta;
-        if(p->findMetaData(prefix, meta))
-        {
-            return; // No holders for serializable types.
-        }
-        prefix = "java:protobuf:";
-        if(p->findMetaData(prefix, meta))
-        {
-            return; // No holders for protobuf types.
-        }
+        writeHolder(p);
     }
-
-    if(builtin &&
-       (builtin->kind() == Builtin::KindByte || builtin->kind() == Builtin::KindShort ||
-        builtin->kind() == Builtin::KindInt || builtin->kind() == Builtin::KindLong ||
-        builtin->kind() == Builtin::KindFloat || builtin->kind() == Builtin::KindDouble))
-    {
-        string meta;
-        string prefix = "java:buffer";
-        if(p->findMetaData(prefix, meta))
-        {
-            return; // No holders for buffer types.
-        }
-    }
-
-    writeHolder(p);
 }
 
 void

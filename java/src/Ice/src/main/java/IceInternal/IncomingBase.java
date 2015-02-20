@@ -325,12 +325,12 @@ class IncomingBase
         }
         catch(Ice.RequestFailedException ex)
         {
-            if(ex.id == null)
+            if(ex.id == null || ex.id.name == null || ex.id.name.isEmpty())
             {
                 ex.id = _current.id;
             }
 
-            if(ex.facet == null)
+            if(ex.facet == null || ex.facet.isEmpty())
             {
                 ex.facet = _current.facet;
             }

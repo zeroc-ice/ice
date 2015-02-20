@@ -121,7 +121,7 @@ private:
     //
     // Write an initializer value for a given type.
     //
-    void writeInitializer(const TypePtr&);
+    void writeInitializer(const DataMemberPtr&);
 
     //
     // Add a value to a hash code.
@@ -1674,8 +1674,9 @@ Slice::Python::CodeVisitor::writeType(const TypePtr& p)
 }
 
 void
-Slice::Python::CodeVisitor::writeInitializer(const TypePtr& p)
+Slice::Python::CodeVisitor::writeInitializer(const DataMemberPtr& m)
 {
+    TypePtr p = m->type();
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
     if(builtin)
     {
@@ -1988,7 +1989,7 @@ Slice::Python::CodeVisitor::writeConstructorParams(const MemberInfoList& members
         }
         else
         {
-            writeInitializer(member->type());
+            writeInitializer(member);
         }
     }
 }
@@ -2450,15 +2451,16 @@ Slice::Python::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
             string s = *r;
             if(_history.count(s) == 0)
             {
+                _history.insert(s);
                 if(s.find(prefix) == 0)
                 {
                     static const string packagePrefix = "python:package:";
-                    if(s.find(packagePrefix) != 0 || s.size() == packagePrefix.size())
+                    if(s.find(packagePrefix) == 0 && s.size() > packagePrefix.size())
                     {
-                        emitWarning(file, "", "ignoring invalid global metadata `" + s + "'");
+                        continue;
                     }
+                    emitWarning(file, "", "ignoring invalid global metadata `" + s + "'");
                 }
-                _history.insert(s);
             }
         }
     }
@@ -2601,9 +2603,7 @@ void
 Slice::Python::MetaDataVisitor::reject(const ContainedPtr& cont)
 {
     StringList localMetaData = cont->getMetaData();
-
     static const string prefix = "python:";
-
     for(StringList::const_iterator p = localMetaData.begin(); p != localMetaData.end(); ++p)
     {
         if(p->find(prefix) == 0)

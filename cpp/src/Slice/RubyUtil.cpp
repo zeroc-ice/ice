@@ -64,7 +64,7 @@ private:
     //
     // Get an initializer value for a given type.
     //
-    string getInitializer(const TypePtr&);
+    string getInitializer(const DataMemberPtr&);
 
     //
     // Add a value to a hash code.
@@ -113,8 +113,8 @@ lookupKwd(const string& name)
     // conflict with a Slice identifier, so names such as "inspect" and
     // "send" are included but "to_s" is not.
     //
-    static const string keywordList[] = 
-    {       
+    static const string keywordList[] =
+    {
         "BEGIN", "END", "alias", "and", "begin", "break", "case", "class", "clone", "def", "display", "do", "dup",
         "else", "elsif", "end", "ensure", "extend", "false", "for", "freeze", "hash", "if", "in", "initialize_copy",
         "inspect", "instance_eval", "instance_variable_get", "instance_variable_set", "instance_variables", "method",
@@ -1363,8 +1363,9 @@ Slice::Ruby::CodeVisitor::writeType(const TypePtr& p)
 }
 
 string
-Slice::Ruby::CodeVisitor::getInitializer(const TypePtr& p)
+Slice::Ruby::CodeVisitor::getInitializer(const DataMemberPtr& m)
 {
+    TypePtr p = m->type();
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
     if(builtin)
     {
@@ -1582,7 +1583,7 @@ Slice::Ruby::CodeVisitor::writeConstructorParams(const MemberInfoList& members)
         }
         else
         {
-            _out << getInitializer(member->type());
+            _out << getInitializer(member);
         }
     }
 }

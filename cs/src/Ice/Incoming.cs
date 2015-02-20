@@ -17,7 +17,7 @@ namespace IceInternal
 
     public class IncomingBase
     {
-        protected internal IncomingBase(Instance instance, ResponseHandler handler, Ice.ConnectionI connection, 
+        protected internal IncomingBase(Instance instance, ResponseHandler handler, Ice.ConnectionI connection,
                                         Ice.ObjectAdapter adapter, bool response, byte compress, int requestId)
         {
             instance_ = instance;
@@ -102,17 +102,17 @@ namespace IceInternal
                 os_.writeByte((byte)0);
                 os_.startWriteEncaps(current_.encoding, format);
             }
-            
+
             //
             // We still return the stream even if no response is expected. The
             // servant code might still write some out parameters if for
             // example a method with out parameters somehow and erroneously
-            // invoked as oneway (or if the invocation is invoked on a 
+            // invoked as oneway (or if the invocation is invoked on a
             // blobject and the blobject erroneously writes a response).
             //
             return os_;
         }
-        
+
         public void endWriteParams__(bool ok)
         {
             if(!ok && observer_ != null)
@@ -129,7 +129,7 @@ namespace IceInternal
                 os_.endWriteEncaps();
             }
         }
-        
+
         public void writeEmptyParams__()
         {
             if(response_)
@@ -139,7 +139,7 @@ namespace IceInternal
                 os_.writeEmptyEncaps(current_.encoding);
             }
         }
-        
+
         public void writeParamEncaps__(byte[] v, bool ok)
         {
             if(!ok && observer_ != null)
@@ -168,11 +168,11 @@ namespace IceInternal
             os__.writeUserException(ex);
             endWriteParams__(false);
         }
-        
+
         //
         // These functions allow this object to be reused, rather than reallocated.
         //
-        public virtual void reset(Instance instance, ResponseHandler handler, Ice.ConnectionI connection, 
+        public virtual void reset(Instance instance, ResponseHandler handler, Ice.ConnectionI connection,
                                   Ice.ObjectAdapter adapter, bool response, byte compress, int requestId)
         {
             instance_ = instance;
@@ -262,7 +262,7 @@ namespace IceInternal
                 if(observer_ != null)
                 {
                     observer_.userException();
-                } 
+                }
 
                 //
                 // The operation may have already marshaled a reply; we must overwrite that reply.
@@ -309,12 +309,12 @@ namespace IceInternal
             }
             catch(Ice.RequestFailedException ex)
             {
-                if(ex.id == null)
+                if(ex.id == null || ex.id.name == null || ex.id.name.Length == 0)
                 {
                     ex.id = current_.id;
                 }
 
-                if(ex.facet == null)
+                if(ex.facet == null || ex.facet.Length == 0)
                 {
                     ex.facet = current_.facet;
                 }
@@ -332,7 +332,7 @@ namespace IceInternal
                 if(observer_ != null)
                 {
                     observer_.failed(ex.ice_name());
-                } 
+                }
 
                 if(response_)
                 {
@@ -391,7 +391,7 @@ namespace IceInternal
                 if(observer_ != null)
                 {
                     observer_.failed(ex.ice_name());
-                } 
+                }
 
                 if(response_)
                 {
@@ -419,7 +419,7 @@ namespace IceInternal
                 if(observer_ != null)
                 {
                     observer_.failed(ex.ice_name());
-                } 
+                }
 
                 if(response_)
                 {
@@ -447,7 +447,7 @@ namespace IceInternal
                 if(observer_ != null)
                 {
                     observer_.failed(ex.ice_name());
-                } 
+                }
 
                 if(response_)
                 {
@@ -475,7 +475,7 @@ namespace IceInternal
                 if(observer_ != null)
                 {
                     observer_.failed(ex.ice_name());
-                } 
+                }
 
                 if(response_)
                 {
@@ -511,7 +511,7 @@ namespace IceInternal
                 if(observer_ != null)
                 {
                     observer_.failed(ex.ice_name());
-                } 
+                }
 
                 if(response_)
                 {
@@ -539,7 +539,7 @@ namespace IceInternal
                 if(observer_ != null)
                 {
                     observer_.failed(ex.GetType().FullName);
-                } 
+                }
 
                 if(response_)
                 {
@@ -595,7 +595,7 @@ namespace IceInternal
             if(response)
             {
                 os_.writeBlob(IceInternal.Protocol.replyHdr);
-                
+
                 //
                 // Add the request ID.
                 //
@@ -612,7 +612,7 @@ namespace IceInternal
         //
         // These functions allow this object to be reused, rather than reallocated.
         //
-        public override void reset(Instance instance, ResponseHandler handler, Ice.ConnectionI connection, 
+        public override void reset(Instance instance, ResponseHandler handler, Ice.ConnectionI connection,
                                    Ice.ObjectAdapter adapter, bool response, byte compress, int requestId)
         {
             _cb = null;
@@ -626,7 +626,7 @@ namespace IceInternal
             if(response)
             {
                 os_.writeBlob(IceInternal.Protocol.replyHdr);
-                
+
                 //
                 // Add the request ID.
                 //
@@ -687,7 +687,7 @@ namespace IceInternal
                 // Read the encapsulation size.
                 int size = _is.readInt();
                 _is.pos(_is.pos() - 4);
-                
+
                 observer_ = obsv.getDispatchObserver(current_, _is.pos() - start + size);
                 if(observer_ != null)
                 {
@@ -721,7 +721,7 @@ namespace IceInternal
                         catch(Ice.UserException ex)
                         {
                             Ice.EncodingVersion encoding = _is.skipEncaps(); // Required for batch requests.
-                            
+
                             if(observer_ != null)
                             {
                                 observer_.userException();
@@ -789,7 +789,7 @@ namespace IceInternal
                     // Skip the input parameters, this is required for reading
                     // the next batch request if dispatching batch requests.
                     //
-                    _is.skipEncaps(); 
+                    _is.skipEncaps();
 
                     if(servantManager != null && servantManager.hasServant(current_.id))
                     {
@@ -904,7 +904,7 @@ namespace IceInternal
             current_.encoding = _is.startReadEncaps();
             return _is;
         }
-    
+
         public void endReadParams()
         {
             _is.endReadEncaps();

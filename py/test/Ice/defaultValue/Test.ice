@@ -21,6 +21,7 @@ enum Color { red, green, blue };
 
 };
 
+
 struct Struct1
 {
     bool boolFalse = false;
@@ -77,7 +78,7 @@ struct Struct2
     long l = ConstLong;
     float f = ConstFloat;
     double d = ConstDouble;
-    string str = ConstString;    
+    string str = ConstString;
     Color c1 = ConstColor1;
     Color c2 = ConstColor2;
     Color c3 = ConstColor3;
@@ -150,6 +151,58 @@ exception DerivedEx extends BaseEx
     Nested::Color nc1 = ConstNestedColor1;
     Nested::Color nc2 = ConstNestedColor2;
     Nested::Color nc3 = ConstNestedColor3;
+};
+
+sequence<byte> ByteSeq;
+sequence<int> IntSeq;
+dictionary<int, string> IntStringDict;
+
+struct InnerStruct
+{
+    int a;
+};
+
+struct StructNoDefaults
+{
+    bool bo;
+    byte b;
+    short s;
+    int i;
+    long l;
+    float f;
+    double d;
+    string str;
+    Color c1;
+    ByteSeq bs;
+    IntSeq iseq;
+    IntStringDict dict;
+    InnerStruct st;
+};
+
+exception ExceptionNoDefaultsBase
+{
+    string str;
+    Color c1;
+    ByteSeq bs;
+};
+
+exception ExceptionNoDefaults extends ExceptionNoDefaultsBase
+{
+    InnerStruct st;
+    IntStringDict dict;
+};
+
+class ClassNoDefaultsBase
+{
+    string str;
+    Color c1;
+    ByteSeq bs;
+};
+
+class ClassNoDefaults extends ClassNoDefaultsBase
+{
+    InnerStruct st;
+    IntStringDict dict;
 };
 
 };

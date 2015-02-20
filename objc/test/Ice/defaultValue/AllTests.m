@@ -107,4 +107,38 @@ defaultValueAllTests()
     }
 
     tprintf("ok\n");
+
+    tprintf("testing default constructor... ");
+
+    {
+        TestDefaultValueStructNoDefaults* v = [TestDefaultValueStructNoDefaults structNoDefaults];
+        test(v.bo == NO);
+        test(v.b == 0);
+        test(v.s == 0);
+        test(v.i == 0);
+        test(v.l == 0);
+        test(v.f == 0.0);
+        test(v.d == 0.0);
+        test([v.str isEqual:@""]);
+        test(v.c1 == TestDefaultValuered);
+        test(v.bs == nil);
+        test(v.is == nil);
+        test(v.st != nil);
+        test(v.dict == nil);
+
+        TestDefaultValueExceptionNoDefaults* e = [TestDefaultValueExceptionNoDefaults exceptionNoDefaults];
+        test([e.str isEqual:@""]);
+        test(e.c1 == TestDefaultValuered);
+        test(e.bs == nil);
+        test(e.st != nil);
+        test(e.dict == nil);
+
+        TestDefaultValueClassNoDefaults* cl = [TestDefaultValueClassNoDefaults classNoDefaults];
+        test([cl.str isEqual:@""]);
+        test(cl.c1 == TestDefaultValuered);
+        test(cl.bs == nil);
+        test(cl.st != nil);
+        test(cl.dict == nil);
+    }
+    tprintf("ok\n");
 }

@@ -31,7 +31,7 @@
                 }
             }
         };
-        
+
         Promise.try(
             function()
             {
@@ -52,14 +52,14 @@
                 test(v.nc1 === Test.Nested.Color.red);
                 test(v.nc2 === Test.Nested.Color.green);
                 test(v.nc3 === Test.Nested.Color.blue);
-                test(v.noDefault === null);
+                test(v.noDefault === "");
                 test(v.zeroI === 0);
                 test(v.zeroL.equals(new Ice.Long(0, 0)));
                 test(v.zeroF === 0);
                 test(v.zeroDotF === 0);
                 test(v.zeroD === 0);
                 test(v.zeroDotD === 0);
-                
+
                 v = new Test.Struct2();
                 test(v.boolTrue === Test.ConstBool);
                 test(v.b === Test.ConstByte);
@@ -75,7 +75,7 @@
                 test(v.nc1 === Test.ConstNestedColor1);
                 test(v.nc2 === Test.ConstNestedColor2);
                 test(v.nc3 === Test.ConstNestedColor3);
-                
+
                 v = new Test.Base();
                 test(!v.boolFalse);
                 test(v.boolTrue);
@@ -86,14 +86,14 @@
                 test(v.f === 5.1);
                 test(v.d === 6.2);
                 test(v.str == "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b?");
-                test(v.noDefault === null);
+                test(v.noDefault === "");
                 test(v.zeroI === 0);
                 test(v.zeroL.equals(new Ice.Long(0, 0)));
                 test(v.zeroF === 0);
                 test(v.zeroDotF === 0);
                 test(v.zeroD === 0);
                 test(v.zeroDotD === 0);
-                
+
                 v = new Test.Derived();
                 test(!v.boolFalse);
                 test(v.boolTrue);
@@ -110,14 +110,14 @@
                 test(v.nc1 === Test.Nested.Color.red);
                 test(v.nc2 === Test.Nested.Color.green);
                 test(v.nc3 === Test.Nested.Color.blue);
-                test(v.noDefault === null);
+                test(v.noDefault === "");
                 test(v.zeroI === 0);
                 test(v.zeroL.equals(new Ice.Long(0, 0)));
                 test(v.zeroF === 0);
                 test(v.zeroDotF === 0);
                 test(v.zeroD === 0);
                 test(v.zeroDotD === 0);
-                
+
                 v = new Test.BaseEx();
                 test(!v.boolFalse);
                 test(v.boolTrue);
@@ -128,14 +128,14 @@
                 test(v.f === 5.1);
                 test(v.d === 6.2);
                 test(v.str == "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b?");
-                test(v.noDefault === null);
+                test(v.noDefault === "");
                 test(v.zeroI === 0);
                 test(v.zeroL.equals(new Ice.Long(0, 0)));
                 test(v.zeroF === 0);
                 test(v.zeroDotF === 0);
                 test(v.zeroD === 0);
                 test(v.zeroDotD === 0);
-                
+
                 v = new Test.DerivedEx();
                 test(!v.boolFalse);
                 test(v.boolTrue);
@@ -146,7 +146,7 @@
                 test(v.f === 5.1);
                 test(v.d === 6.2);
                 test(v.str == "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b?");
-                test(v.noDefault === null);
+                test(v.noDefault === "");
                 test(v.c1 === Test.Color.red);
                 test(v.c2 === Test.Color.green);
                 test(v.c3 === Test.Color.blue);
@@ -159,7 +159,41 @@
                 test(v.zeroDotF === 0);
                 test(v.zeroD === 0);
                 test(v.zeroDotD === 0);
-                
+
+                out.writeLine("ok");
+
+
+                out.write("testing default constructor... ");
+
+                var v2 = new Test.StructNoDefaults();
+                test(v2.bo == false);
+                test(v2.b == 0);
+                test(v2.s == 0);
+                test(v2.i == 0);
+                test(v2.l == 0);
+                test(v2.f == 0.0);
+                test(v2.d == 0.0);
+                test(v2.str == "");
+                test(v2.c1 == Test.Color.red);
+                test(v2.bs == null);
+                test(v2.is == null);
+                test(v2.st != null && v2.st instanceof Test.InnerStruct);
+                test(v2.dict == null);
+
+                var e = new Test.ExceptionNoDefaults();
+                test(e.str == "");
+                test(e.c1 == Test.Color.red);
+                test(e.bs == null);
+                test(e.st != null && e.st instanceof Test.InnerStruct);
+                test(e.dict == null);
+
+                var cl = new Test.ClassNoDefaults();
+                test(cl.str == "");
+                test(cl.c1 == Test.Color.red);
+                test(cl.bs == null);
+                test(cl.st != null && cl.st instanceof Test.InnerStruct);
+                test(cl.dict == null);
+
                 out.writeLine("ok");
             }
         ).then(

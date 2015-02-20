@@ -153,4 +153,56 @@ exception DerivedEx extends BaseEx
     Nested::Color nc3 = ConstNestedColor3;
 };
 
+sequence<byte> ByteSeq;
+sequence<int> IntSeq;
+dictionary<int, string> IntStringDict;
+
+struct InnerStruct
+{
+    int a;
+};
+
+struct StructNoDefaults
+{
+    bool bo;
+    byte b;
+    short s;
+    int i;
+    long l;
+    float f;
+    double d;
+    string str;
+    Color c1;
+    ByteSeq bs;
+    IntSeq is;
+    InnerStruct st;
+    IntStringDict dict;
+};
+
+exception ExceptionNoDefaultsBase
+{
+    string str;
+    Color c1;
+    ByteSeq bs;
+};
+
+exception ExceptionNoDefaults extends ExceptionNoDefaultsBase
+{
+    InnerStruct st;
+    IntStringDict dict;
+};
+
+class ClassNoDefaultsBase
+{
+    string str;
+    Color c1;
+    ByteSeq bs;
+};
+
+class ClassNoDefaults extends ClassNoDefaultsBase
+{
+    InnerStruct st;
+    IntStringDict dict;
+};
+
 };

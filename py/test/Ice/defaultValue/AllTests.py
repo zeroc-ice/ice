@@ -41,7 +41,7 @@ def allTests():
     test(v.zeroDotF == 0)
     test(v.zeroD == 0)
     test(v.zeroDotD == 0)
-    
+
     v = Test.Struct2()
     test(v.boolTrue == Test.ConstBool)
     test(v.b == Test.ConstByte)
@@ -63,7 +63,7 @@ def allTests():
     test(v.zeroDotF == Test.ConstZeroDotF)
     test(v.zeroD == Test.ConstZeroD)
     test(v.zeroDotD == Test.ConstZeroDotD)
-    
+
     v = Test.Base()
     test(not v.boolFalse)
     test(v.boolTrue)
@@ -81,7 +81,7 @@ def allTests():
     test(v.zeroDotF == 0)
     test(v.zeroD == 0)
     test(v.zeroDotD == 0)
-            
+
     v = Test.Derived()
     test(not v.boolFalse)
     test(v.boolTrue)
@@ -147,5 +147,38 @@ def allTests():
     test(v.zeroDotF == 0)
     test(v.zeroD == 0)
     test(v.zeroDotD == 0)
+
+    print("ok")
+
+    sys.stdout.write("testing default constructor... ")
+    sys.stdout.flush()
+    v = Test.StructNoDefaults()
+    test(v.bo == False)
+    test(v.b == 0)
+    test(v.s == 0)
+    test(v.i == 0)
+    test(v.l == 0)
+    test(v.f == 0.0)
+    test(v.d == 0.0)
+    test(v.str == '')
+    test(v.c1 == Test.Color.red)
+    test(v.bs is None)
+    test(v.iseq is None)
+    test(isinstance(v.st, Test.InnerStruct));
+    test(v.dict is None);
+
+    e = Test.ExceptionNoDefaults()
+    test(e.str == '')
+    test(e.c1 == Test.Color.red)
+    test(e.bs is None)
+    test(isinstance(e.st, Test.InnerStruct));
+    test(e.dict is None);
+
+    c = Test.ClassNoDefaults()
+    test(c.str == '')
+    test(c.c1 == Test.Color.red)
+    test(c.bs is None)
+    test(isinstance(c.st, Test.InnerStruct));
+    test(c.dict is None);
 
     print("ok")

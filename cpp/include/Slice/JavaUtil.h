@@ -233,6 +233,8 @@ protected:
                             std::string&, std::string&) const;
     bool getSequenceTypes(const SequencePtr&, const std::string&, const StringList&, std::string&, std::string&) const;
 
+    bool sequenceHasHolder(const SequencePtr&) const;
+
     virtual JavaOutput* createOutput();
 
     static const std::string _getSetMetaData;

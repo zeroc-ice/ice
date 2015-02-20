@@ -121,8 +121,7 @@ $(NODE_SERVER): $(NODE_SVR_OBJS) $(LIBTARGETS)
 	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(NODE_SVR_OBJS) -lIceGrid -lIceStorm -lIceStormService -lIceBox -lGlacier2 \
 	-lFreeze -lIcePatch2 $(EXPAT_RPATH_LINK) -lIceXML -lIceSSL $(OPENSSL_RPATH_LINK) $(LIBS)
 
-../IceGrid/IceLocatorDiscovery.h IceLocatorDiscovery.cpp: \
-	$(slicedir)/IceLocatorDiscovery/IceLocatorDiscovery.ice $(SLICE2CPP) $(SLICEPARSERLIB)
+../IceLocatorDiscovery/%.h %.cpp: $(slicedir)/IceLocatorDiscovery/%.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	rm -f $(*F).h $(*F).cpp
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(slicedir)/IceLocatorDiscovery/$(*F).ice
 	@touch $(*F).cpp

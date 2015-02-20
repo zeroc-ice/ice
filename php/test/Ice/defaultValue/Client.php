@@ -186,6 +186,41 @@ function allTests()
         test($v->zeroDotD == 0);
     }
     echo "ok\n";
+
+    echo "testing default constructor... ";
+    flush();
+    {
+        $v = $NS ? eval("return new Test\\StructNoDefaults;") : eval("return new Test_StructNoDefaults;");
+        $innerStructClass = $NS ? "Test\\InnerStruct" : "Test_InnerStruct";
+        test($v->bo == false);
+        test($v->b == 0);
+        test($v->s == 0);
+        test($v->i == 0);
+        test($v->l == 0);
+        test($v->f == 0.0);
+        test($v->d == 0.0);
+        test($v->str == "");
+        test($v->c1 == $red);
+        test($v->bs == null);
+        test($v->is == null);
+        test($v->dict == null);
+        test($v->st instanceof $innerStructClass);
+
+        $e = $NS ? eval("return new Test\\ExceptionNoDefaults;") : eval("return new Test_ExceptionNoDefaults;");
+        test($e->str == '');
+        test($e->c1 == $red);
+        test($e->bs == null);
+        test($e->st instanceof $innerStructClass);
+        test($e->dict == null);
+
+        $cl = $NS ? eval("return new Test\\ClassNoDefaults;") : eval("return new Test_ClassNoDefaults;");
+        test($cl->str == '');
+        test($cl->c1 == $red);
+        test($cl->bs == null);
+        test($cl->st instanceof $innerStructClass);
+        test($cl->dict == null);
+    }
+    echo "ok\n";
 }
 
 allTests();

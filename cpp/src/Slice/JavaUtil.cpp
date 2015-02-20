@@ -839,47 +839,20 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
     {
         if(mode == TypeModeOut)
         {
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
-            if(builtin && builtin->kind() == Builtin::KindByte)
-            {
-                string prefix = "java:serializable:";
-                string meta;
-                if(seq->findMetaData(prefix, meta))
-                {
-                    return string("Ice.Holder<") + meta.substr(prefix.size()) + " >";
-                }
-                prefix = "java:protobuf:";
-                if(seq->findMetaData(prefix, meta))
-                {
-                    return string("Ice.Holder<") + meta.substr(prefix.size()) + " >";
-                }
-            }
-
-            if(builtin &&
-               (builtin->kind() == Builtin::KindByte || builtin->kind() == Builtin::KindShort ||
-                builtin->kind() == Builtin::KindInt || builtin->kind() == Builtin::KindLong ||
-                builtin->kind() == Builtin::KindFloat || builtin->kind() == Builtin::KindDouble))
-            {
-                string prefix = "java:buffer";
-                string meta;
-                string ignore;
-                if(seq->findMetaData(prefix, meta) || findMetaData(prefix, metaData, ignore))
-                {
-                    return string("Ice.Holder<") + typeToBufferString(seq->type()) + ">";
-                }
-            }
-
-            //
-            // Only use the type's generated holder if the instance and
-            // formal types match.
-            //
             string instanceType, formalType;
             getSequenceTypes(seq, "", metaData, instanceType, formalType);
-            string origInstanceType, origFormalType;
-            getSequenceTypes(seq, "", StringList(), origInstanceType, origFormalType);
-            if(formalType == origFormalType && instanceType == origInstanceType)
+            if(sequenceHasHolder(seq))
             {
-                return getAbsolute(seq, package, "", "Holder");
+                //
+                // Only use the type's generated holder if the instance and
+                // formal types match.
+                //
+                string origInstanceType, origFormalType;
+                getSequenceTypes(seq, "", StringList(), origInstanceType, origFormalType);
+                if(formalType == origFormalType && instanceType == origInstanceType)
+                {
+                    return getAbsolute(seq, package, "", "Holder");
+                }
             }
 
             //
@@ -891,37 +864,6 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         }
         else
         {
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
-            if(builtin && builtin->kind() == Builtin::KindByte)
-            {
-                string prefix = "java:serializable:";
-                string meta;
-                if(seq->findMetaData(prefix, meta))
-                {
-                    return meta.substr(prefix.size());
-                }
-
-                prefix = "java:protobuf:";
-                if(seq->findMetaData(prefix, meta))
-                {
-                    return meta.substr(prefix.size());
-                }
-            }
-
-            if(builtin &&
-               (builtin->kind() == Builtin::KindByte || builtin->kind() == Builtin::KindShort ||
-                builtin->kind() == Builtin::KindInt || builtin->kind() == Builtin::KindLong ||
-                builtin->kind() == Builtin::KindFloat || builtin->kind() == Builtin::KindDouble))
-            {
-                string prefix = "java:buffer";
-                string meta;
-                string ignore;
-                if(seq->findMetaData(prefix, meta) || findMetaData(prefix, metaData, ignore))
-                {
-                    return typeToBufferString(seq->type());
-                }
-            }
-
             string instanceType, formalType;
             getSequenceTypes(seq, package, metaData, instanceType, formalType);
             return formal ? formalType : instanceType;
@@ -1511,11 +1453,11 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 {
                     out << nl << stream << ".skipSize();";
                 }
-                out << nl << v << " = " << typeS << ".__readNew(" << stream << ");";
+                out << nl << v << " = " << typeS << ".__read(" << stream << ", " << v << ");";
             }
             else
             {
-                out << nl << v << " = " << typeS << ".__readNew(" << stream << ");";
+                out << nl << v << " = " << typeS << ".__read(" << stream << ", " << v << ");";
             }
         }
         return;
@@ -2042,7 +1984,14 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
             }
             else
             {
-                out << nl << typeS << ' ' << arg << ';';
+                if(StructPtr::dynamicCast(type))
+                {
+                    out << nl << typeS << ' ' << arg << " = null;";
+                }
+                else
+                {
+                    out << nl << typeS << ' ' << arg << ';';
+                }
                 writeMarshalUnmarshalCode(out, package, type, OptionalNone, false, 0, arg, false, iter, false);
             }
         }
@@ -2359,7 +2308,14 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             }
             else
             {
-                out << nl << cont << " __elem;";
+                if(StructPtr::dynamicCast(type))
+                {
+                    out << nl << cont << " __elem = null;";
+                }
+                else
+                {
+                    out << nl << cont << " __elem;";
+                }
                 writeMarshalUnmarshalCode(out, package, type, OptionalNone, false, 0, "__elem", false, iter, false);
             }
             if(!isObject)
@@ -2877,7 +2833,7 @@ Slice::JavaGenerator::writeStreamMarshalUnmarshalCode(Output& out,
                     out << nl << stream << ".skipSize();";
                 }
             }
-            out << nl << v << " = " << typeS << ".ice_readNew(" << stream << ");";
+            out << nl << v << " = " << typeS << ".ice_read(" << stream << ", " << v << ");";
         }
         return;
     }
@@ -3216,7 +3172,14 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
             }
             else
             {
-                out << nl << s << ' ' << arg << ';';
+                if(StructPtr::dynamicCast(type))
+                {
+                    out << nl << s << ' ' << arg << " = null;";
+                }
+                else
+                {
+                    out << nl << s << ' ' << arg << ';';
+                }
                 writeStreamMarshalUnmarshalCode(out, package, type, false, 0, arg, false, iter, false);
             }
         }
@@ -3532,7 +3495,14 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
             }
             else
             {
-                out << nl << cont << " __elem;";
+                if(StructPtr::dynamicCast(type))
+                {
+                    out << nl << cont << " __elem = null;";
+                }
+                else
+                {
+                    out << nl << cont << " __elem;";
+                }
                 writeStreamMarshalUnmarshalCode(out, package, type, false, 0, "__elem", false, iter, false);
             }
             if(!isObject)
@@ -3876,18 +3846,6 @@ Slice::JavaGenerator::getDictionaryTypes(const DictionaryPtr& dict,
                                          string& instanceType,
                                          string& formalType) const
 {
-    bool customType = false;
-
-    //
-    // Collect metadata for a custom type.
-    //
-    string ct, at;
-    customType = getTypeMetaData(metaData, ct, at);
-    if(!customType)
-    {
-        customType = getTypeMetaData(dict->getMetaData(), ct, at);
-    }
-
     //
     // Get the types of the key and value.
     //
@@ -3895,36 +3853,25 @@ Slice::JavaGenerator::getDictionaryTypes(const DictionaryPtr& dict,
     string valueTypeStr = typeToObjectString(dict->valueType(), TypeModeIn, package);
 
     //
-    // Handle a custom type.
+    // Collect metadata for a custom type.
     //
-    if(customType)
+    if(getTypeMetaData(metaData, instanceType, formalType) ||
+       getTypeMetaData(dict->getMetaData(), instanceType, formalType))
     {
-        assert(!ct.empty());
-        instanceType = ct;
-        formalType = at;
+        assert(!instanceType.empty());
+        if(formalType.empty())
+        {
+            formalType = "java.util.Map<" + keyTypeStr + ", " + valueTypeStr + ">";
+        }
+        return true;
     }
 
     //
     // Return a default type for the platform.
     //
-    if(instanceType.empty())
-    {
-        instanceType = "java.util.HashMap<" + keyTypeStr + ", " + valueTypeStr + ">";
-    }
-
-    //
-    // If a formal type is not defined, we use the instance type as the default.
-    // If instead we chose a default formal type, such as Map<K, V>, then we
-    // might inadvertently generate uncompilable code. The Java5 compiler does not
-    // allow polymorphic assignment between generic types if it can weaken the
-    // compile-time type safety rules.
-    //
-    if(formalType.empty())
-    {
-        formalType = "java.util.Map<" + keyTypeStr + ", " + valueTypeStr + ">";
-    }
-
-    return customType;
+    instanceType = "java.util.HashMap<" + keyTypeStr + ", " + valueTypeStr + ">";
+    formalType = "java.util.Map<" + keyTypeStr + ", " + valueTypeStr + ">";
+    return false;
 }
 
 bool
@@ -3934,58 +3881,97 @@ Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
                                        string& instanceType,
                                        string& formalType) const
 {
-    bool customType = false;
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+    if(builtin)
+    {
+        if(builtin->kind() == Builtin::KindByte)
+        {
+            string prefix = "java:serializable:";
+            string meta;
+            if(seq->findMetaData(prefix, meta))
+            {
+                instanceType = formalType = meta.substr(prefix.size());
+                return true;
+            }
+            prefix = "java:protobuf:";
+            if(seq->findMetaData(prefix, meta))
+            {
+                instanceType = formalType = meta.substr(prefix.size());
+                return true;
+            }
+        }
+
+        if((builtin->kind() == Builtin::KindByte || builtin->kind() == Builtin::KindShort ||
+            builtin->kind() == Builtin::KindInt || builtin->kind() == Builtin::KindLong ||
+            builtin->kind() == Builtin::KindFloat || builtin->kind() == Builtin::KindDouble))
+        {
+            string prefix = "java:buffer";
+            string meta;
+            string ignore;
+            if(seq->findMetaData(prefix, meta) || findMetaData(prefix, metaData, ignore))
+            {
+                instanceType = formalType = typeToBufferString(seq->type());
+                return true;
+            }
+        }
+    }
 
     //
     // Collect metadata for a custom type.
     //
-    string ct, at;
-    customType = getTypeMetaData(metaData, ct, at);
-    if(!customType)
+    if(getTypeMetaData(metaData, instanceType, formalType) ||
+       getTypeMetaData(seq->getMetaData(), instanceType, formalType))
     {
-        customType = getTypeMetaData(seq->getMetaData(), ct, at);
-    }
-
-    //
-    // Get the inner type.
-    //
-    string typeStr = typeToObjectString(seq->type(), TypeModeIn, package);
-
-    //
-    // Handle a custom type.
-    //
-    if(customType)
-    {
-        assert(!ct.empty());
-        instanceType = ct;
-
-        if(!at.empty())
+        assert(!instanceType.empty());
+        if(formalType.empty())
         {
-            formalType = at;
+            formalType = "java.util.List<" + typeToObjectString(seq->type(), TypeModeIn, package) + ">";
         }
-        else
-        {
-            //
-            // If a formal type is not defined, we use the instance type as the default.
-            // If instead we chose a default formal type, such as List<T>, then we
-            // might inadvertently generate uncompilable code. The Java5 compiler does not
-            // allow polymorphic assignment between generic types if it can weaken the
-            // compile-time type safety rules.
-            //
-            formalType = "java.util.List<" + typeStr + ">";
-        }
+        return true;
     }
 
     //
     // The default mapping is a native array.
     //
-    if(instanceType.empty())
+    instanceType = formalType = typeToString(seq->type(), TypeModeIn, package, metaData) + "[]";
+    return false;
+}
+
+bool
+Slice::JavaGenerator::sequenceHasHolder(const SequencePtr& p) const
+{
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+    if(builtin && builtin->kind() == Builtin::KindByte)
     {
-        instanceType = formalType = typeToString(seq->type(), TypeModeIn, package) + "[]";
+        string prefix = "java:serializable:";
+        string meta;
+        if(p->findMetaData(prefix, meta))
+        {
+            return false;
+        }
+        prefix = "java:protobuf:";
+        if(p->findMetaData(prefix, meta))
+        {
+            return false;
+        }
     }
 
-    return customType;
+    if(builtin &&
+       (builtin->kind() == Builtin::KindByte || builtin->kind() == Builtin::KindShort ||
+        builtin->kind() == Builtin::KindInt || builtin->kind() == Builtin::KindLong ||
+        builtin->kind() == Builtin::KindFloat || builtin->kind() == Builtin::KindDouble))
+    {
+        string meta;
+        string prefix = "java:buffer";
+        if(p->findMetaData(prefix, meta))
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
+
 
 JavaOutput*
 Slice::JavaGenerator::createOutput()
