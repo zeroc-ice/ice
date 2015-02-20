@@ -9,8 +9,6 @@ Build-Depends: debhelper (>= 9.0.0),
  libdb5.3++-dev (>=5.3.28),
  libdb5.3-java (>=5.3.28),
  oracle-java7-installer,
- python2.7-dev,
- ruby1.9.1-dev,
  php5-dev,
  php5-cli,
  javahelper (>= 0.45)
