@@ -45,8 +45,8 @@ module Filesystem
     interface Directory extends Node
     {
         idempotent NodeDescSeq list();
-        idempotent NodeDesc find(string nm) throws NoSuchName;
-        File* createFile(string nm) throws NameInUse;
-        Directory* createDirectory(string nm) throws NameInUse;
+        idempotent NodeDesc find(string name) throws NoSuchName;
+        File* createFile(string name) throws NameInUse;
+        Directory* createDirectory(string name) throws NameInUse;
     };
 };

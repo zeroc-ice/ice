@@ -50,12 +50,12 @@ module Filesystem
     {
         idempotent NodeDescSeq list();
 
-        idempotent NodeDesc find(string nm) throws NoSuchName;
+        idempotent NodeDesc find(string name) throws NoSuchName;
 
         ["freeze:write"]
-        File* createFile(string nm) throws NameInUse;
+        File* createFile(string name) throws NameInUse;
 
         ["freeze:write"]
-        Directory* createDirectory(string nm) throws NameInUse;
+        Directory* createDirectory(string name) throws NameInUse;
     };
 };

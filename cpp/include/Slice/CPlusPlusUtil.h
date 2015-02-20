@@ -48,9 +48,9 @@ SLICE_API void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypeP
                                          bool, const StringList& = StringList(), int = 0, const std::string& = "",
                                          bool = true);
                                              
-SLICE_API void writeMarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, int = 0);
-SLICE_API void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, int = 0);
-SLICE_API void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, int = 0);
+SLICE_API void writeMarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool prepend, int = 0);
+SLICE_API void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool prepend, int = 0);
+SLICE_API void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool prepend, int = 0);
 
 SLICE_API std::string getEndArg(const TypePtr&, const StringList&, const std::string&);
 SLICE_API void writeEndCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&);

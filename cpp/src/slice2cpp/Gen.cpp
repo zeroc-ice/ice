@@ -2075,7 +2075,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << nl << "try";
         C << sb;
         C << nl<< "::IceInternal::BasicStream* __os = __og.startWriteParams(" << opFormatTypeToString(p) << ");";
-        writeMarshalCode(C, inParams, 0, TypeContextInParam);
+        writeMarshalCode(C, inParams, 0, false, TypeContextInParam);
         if(p->sendsClasses(false))
         {
             C << nl << "__os->writePendingObjects();";
@@ -2152,9 +2152,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
         if(ret || !outParams.empty())
         {
-            writeAllocateCode(C, ParamDeclList(), p, _useWstring);
+            writeAllocateCode(C, ParamDeclList(), p, false, _useWstring);
             C << nl << "::IceInternal::BasicStream* __is = __og.startReadParams();";
-            writeUnmarshalCode(C, outParams, p);
+            writeUnmarshalCode(C, outParams, p, false);
             if(p->returnsClasses(false))
             {
                 C << nl << "__is->readPendingObjects();";
@@ -2189,7 +2189,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     else
     {
         C << nl << "::IceInternal::BasicStream* __os = __result->startWriteParams(" << opFormatTypeToString(p) <<");";
-        writeMarshalCode(C, inParams, 0, TypeContextInParam);
+        writeMarshalCode(C, inParams, 0, false, TypeContextInParam);
         if(p->sendsClasses(false))
         {
             C << nl << "__os->writePendingObjects();";
@@ -2268,7 +2268,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << sb;
         C << nl << clScope << clName << "Prx __proxy = " << clScope << clName
           << "Prx::uncheckedCast(__result->getProxy());";
-        writeAllocateCode(C, outParams, p, _useWstring | TypeContextInParam | TypeContextAMICallPrivateEnd);
+        writeAllocateCode(C, outParams, p, false, _useWstring | TypeContextInParam | TypeContextAMICallPrivateEnd);
         C << nl << "try";
         C << sb;
         C << nl;
@@ -2352,7 +2352,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         // access violations errors with the test/Ice/slicing/objects test on VC9
         // and Windows 64 bits when compiled with optimization (see bug 4400).
         //
-        writeAllocateCode(C, ParamDeclList(), p, _useWstring | TypeContextAMIEnd);
+        writeAllocateCode(C, ParamDeclList(), p, false, _useWstring | TypeContextAMIEnd);
         C << nl << "if(!__result->__wait())";
         C << sb;
         C << nl << "try";
@@ -2386,7 +2386,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         if(ret || !outParams.empty())
         {
             C << nl << "::IceInternal::BasicStream* __is = __result->__startReadParams();";
-            writeUnmarshalCode(C, outParams, p, _useWstring | TypeContextAMIEnd);
+            writeUnmarshalCode(C, outParams, p, false, _useWstring | TypeContextAMIEnd);
             if(p->returnsClasses(false))
             {
                 C << nl << "__is->readPendingObjects();";
@@ -2449,7 +2449,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         if(ret || !outParams.empty())
         {
             C << nl << "::IceInternal::BasicStream* __is = __result->__startReadParams();";
-            writeUnmarshalCode(C, outParams, p, _useWstring | TypeContextAMIPrivateEnd);
+            writeUnmarshalCode(C, outParams, p, false, _useWstring | TypeContextAMIPrivateEnd);
             if(p->returnsClasses(false))
             {
                 C << nl << "__is->readPendingObjects();";
@@ -3406,9 +3406,9 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
     ParamDeclList outParams;
     ParamDeclList paramList = p->parameters();
     vector< string> outDecls;
-    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+    for(ParamDeclList::iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
-        string paramName = fixKwd((*q)->name());
+        string paramName = fixKwd(string("__p_") + (*q)->name());
         TypePtr type = (*q)->type();
         bool isOutParam = (*q)->isOutParam();
         string typeString;
@@ -3528,8 +3528,8 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
             if(!inParams.empty())
             {
                 C << nl << "::IceInternal::BasicStream* __is = __inS.startReadParams();";
-                writeAllocateCode(C, inParams, 0, _useWstring | TypeContextInParam);
-                writeUnmarshalCode(C, inParams, 0, TypeContextInParam);
+                writeAllocateCode(C, inParams, 0, true, _useWstring | TypeContextInParam);
+                writeUnmarshalCode(C, inParams, 0, true, TypeContextInParam);
                 if(p->sendsClasses(false))
                 {
                     C << nl << "__is->readPendingObjects();";
@@ -3541,7 +3541,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
                 C << nl << "__inS.readEmptyParams();";
             }
 
-            writeAllocateCode(C, outParams, 0, _useWstring);
+            writeAllocateCode(C, outParams, 0, true, _useWstring);
             if(!throws.empty())
             {
                 C << nl << "try";
@@ -3557,7 +3557,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
             {
                 C << nl << "::IceInternal::BasicStream* __os = __inS.__startWriteParams("
                   << opFormatTypeToString(p) << ");";
-                writeMarshalCode(C, outParams, p);
+                writeMarshalCode(C, outParams, p, true);
                 if(p->returnsClasses(false))
                 {
                     C << nl << "__os->writePendingObjects();";
@@ -3590,8 +3590,8 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
             if(!inParams.empty())
             {
                 C << nl << "::IceInternal::BasicStream* __is = __inS.startReadParams();";
-                writeAllocateCode(C, inParams, 0, _useWstring | TypeContextInParam);
-                writeUnmarshalCode(C, inParams, 0, TypeContextInParam);
+                writeAllocateCode(C, inParams, 0, true, _useWstring | TypeContextInParam);
+                writeUnmarshalCode(C, inParams, 0, true, TypeContextInParam);
                 if(p->sendsClasses(false))
                 {
                     C << nl << "__is->readPendingObjects();";
@@ -4167,7 +4167,7 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
         H << sb;
         H << nl << clScope << clName << "Prx __proxy = " << clScope << clName
           << "Prx::uncheckedCast(__result->getProxy());";
-        writeAllocateCode(H, outParams, p, _useWstring | TypeContextInParam | TypeContextAMICallPrivateEnd);
+        writeAllocateCode(H, outParams, p, false, _useWstring | TypeContextInParam | TypeContextAMICallPrivateEnd);
         H << nl << "try";
         H << sb;
         H << nl;
@@ -5001,7 +5001,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
         C << nl << "try";
         C << sb;
         C << nl << "::IceInternal::BasicStream* __os = __startWriteParams(" << opFormatTypeToString(p) << ");";
-        writeMarshalCode(C, outParams, p, TypeContextInParam);
+        writeMarshalCode(C, outParams, p, false, TypeContextInParam);
         if(p->returnsClasses(false))
         {
             C << nl << "__os->writePendingObjects();";
