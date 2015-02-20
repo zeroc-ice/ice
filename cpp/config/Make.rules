@@ -380,6 +380,12 @@ $(OBJS):$(OBJS:.o=.cpp)
 else
 -include $(addprefix .depend/, $(OBJS:.o=.d))
 
+#
+# OBJS depend on the non existing sources so generated files are created
+# before compilation takes place.
+#
+$(OBJS):$(filter-out $(wildcard $(OBJS:.o=.cpp)) ,$(OBJS:.o=.cpp))
+
 clean::
 	rm -rf .depend
 endif
