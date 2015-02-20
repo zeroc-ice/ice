@@ -848,13 +848,27 @@ Slice::ObjCGenerator::writeMarshalUnmarshalCode(Output &out, const TypePtr& type
     }
     else
     {
-        if(autoreleased)
+        if(StructPtr::dynamicCast(type))
         {
-            out << nl << param << " = [" << name << " read:" << stream << "];";
+            if(autoreleased)
+            {
+                out << nl << param << " = [" << name << " read:" << stream << " value:" << param << "];";
+            }
+            else
+            {
+                out << nl << param << " = [" << name << " readRetained:" << stream << " value:" << param << "];";
+            }
         }
         else
         {
-            out << nl << param << " = [" << name << " readRetained:" << stream << "];";
+            if(autoreleased)
+            {
+                out << nl << param << " = [" << name << " read:" << stream << "];";
+            }
+            else
+            {
+                out << nl << param << " = [" << name << " readRetained:" << stream << "];";
+            }
         }
     }
 }
@@ -1294,4 +1308,3 @@ Slice::ObjCGenerator::MetaDataVisitor::modulePrefixError(const ModulePtr& m, con
     os << " as `" << mp.name << "'" << endl;
     emitWarning(file, line, os.str());
 }
-

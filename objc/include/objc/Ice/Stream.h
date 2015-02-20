@@ -27,9 +27,9 @@ ICE_API @interface ICEInternalPrefixTable : NSObject
 
 typedef enum
 {
-    ICEOptionalFormatF1 = 0,    
+    ICEOptionalFormatF1 = 0,
     ICEOptionalFormatF2 = 1,
-    ICEOptionalFormatF4 = 2,    
+    ICEOptionalFormatF4 = 2,
     ICEOptionalFormatF8 = 3,
     ICEOptionalFormatSize = 4,
     ICEOptionalFormatVSize = 5,
@@ -113,7 +113,7 @@ ICE_API @protocol ICEInputStream <NSObject>
 -(NSMutableDictionary*) newDictionary:(ICEKeyValueTypeHelper)type;
 -(NSMutableDictionary*) readDictionary:(ICEKeyValueTypeHelper)type;
 
--(BOOL) readOptional:(ICEInt)tag format:(ICEOptionalFormat)format; 
+-(BOOL) readOptional:(ICEInt)tag format:(ICEOptionalFormat)format;
 
 -(ICEInt) readSize;
 -(ICEInt) readAndCheckSeqSize:(ICEInt)minSize;
@@ -184,7 +184,7 @@ ICE_API @protocol ICEOutputStream <NSObject>
 -(void) writeSequence:(NSArray*)arr helper:(Class)helper;
 -(void) writeDictionary:(NSDictionary*)dictionary helper:(ICEKeyValueTypeHelper)helper;
 
--(BOOL) writeOptional:(ICEInt)tag format:(ICEOptionalFormat)format; 
+-(BOOL) writeOptional:(ICEInt)tag format:(ICEOptionalFormat)format;
 
 -(void) writeSize:(ICEInt)v;
 
@@ -271,6 +271,8 @@ ICE_API @interface ICEEnumHelper : ICEStreamHelper
 @end
 
 ICE_API @interface ICEStructHelper : ICEStreamHelper
++(id) readRetained:(id<ICEInputStream>)stream value:(id)v NS_RETURNS_RETAINED;
++(id) read:(id<ICEInputStream>)stream value:(id)v;
 +(Class) getOptionalHelper;
 @end
 
@@ -353,7 +355,7 @@ ICE_API @interface ICEFixedSize1SequenceOptionalHelper : NSObject<ICEOptionalStr
 
 ICE_API @interface ICEFixedDictionaryOptionalHelper : NSObject<ICEOptionalStreamHelper>
 @end
- 
+
 ICE_API @interface CompactIdMapHelper : NSObject
 +(void) initialize;
 +(void) registerClass:(NSString*)type value:(ICEInt)value;

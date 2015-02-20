@@ -4374,9 +4374,12 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
             _out << sp;
             emitGeneratedCodeAttribute();
-            _out << nl << "public static " << name << " readNew__(IceInternal.BasicStream is__)";
+            _out << nl << "public static " << name << " read__(IceInternal.BasicStream is__, " << name << " v__)";
             _out << sb;
-            _out << nl << name << " v__ = new " << name << "();";
+            _out << nl << "if(v__ == null)";
+            _out << sb;
+            _out << nl << "v__ = new " << name << "();";
+            _out << eb;
             _out << nl << "v__.read__(is__);";
             _out << nl << "return v__;";
             _out << eb;
@@ -4423,9 +4426,12 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
                 _out << sp;
                 emitGeneratedCodeAttribute();
-                _out << nl << "public static " << name << " ice_readNew(Ice.InputStream inS__)";
+                _out << nl << "public static " << name << " ice_read(Ice.InputStream inS__, " << name << " v__)";
                 _out << sb;
-                _out << nl << name << " v__ = new " << name << "();";
+                _out << nl << "if(v__ == null)";
+                _out << sb;
+                _out << nl << "v__ = new " << name << "();";
+                _out << eb;
                 _out << nl << "v__.ice_read(inS__);";
                 _out << nl << "return v__;";
                 _out << eb;

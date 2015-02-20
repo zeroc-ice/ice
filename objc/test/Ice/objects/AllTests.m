@@ -65,8 +65,8 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
 
     TestObjectsBase* ba1 = [TestObjectsBase base];
 
-    test(ba1.theS.str == nil);
-    test(ba1.str == nil);
+    test([ba1.theS.str isEqual:@""]);
+    test([ba1.str isEqual:@""]);
     ba1.theS = nil;
 
     TestObjectsS* s = [TestObjectsS s];

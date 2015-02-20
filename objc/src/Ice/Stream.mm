@@ -31,7 +31,7 @@ namespace IceObjC
 class ObjectWriter : public Ice::ObjectWriter
 {
 public:
-    
+
     ObjectWriter(ICEObject* obj, ICEOutputStream* stream) : _obj(obj), _stream(stream)
     {
     }
@@ -63,7 +63,7 @@ private:
 class ObjectReader : public Ice::ObjectReader
 {
 public:
-    
+
     // We must explicitely CFRetain/CFRelease so that the garbage
     // collector does not trash the _obj.
     ObjectReader(ICEObject* obj) : _obj(obj)
@@ -114,15 +114,15 @@ typedef IceUtil::Handle<ObjectReader> ObjectReaderPtr;
 class ReadObjectBase : public Ice::ReadObjectCallback
 {
 public:
-    
+
     ReadObjectBase(Class expectedType) : _expectedType(expectedType)
     {
     }
-    
+
     void checkType(ICEObject*);
 
 private:
-    
+
     Class _expectedType;
 };
 
@@ -135,7 +135,7 @@ ReadObjectBase::checkType(ICEObject* o)
         NSString* expectedType = [_expectedType ice_staticId];
         NSString* reason = [NSString stringWithFormat:@"expected element of type `%@' but received `%@'",
                                      expectedType, actualType];
-        
+
         @throw [ICEUnexpectedObjectException unexpectedObjectException:__FILE__
                                              line:__LINE__
                                              reason:reason
@@ -147,8 +147,8 @@ ReadObjectBase::checkType(ICEObject* o)
 class ReadObject : public ReadObjectBase
 {
 public:
-    
-    ReadObject(ICEObject** addr, Class expectedType, bool autorelease) : 
+
+    ReadObject(ICEObject** addr, Class expectedType, bool autorelease) :
         ReadObjectBase(expectedType), _addr(addr), _autorelease(autorelease)
     {
     }
@@ -188,8 +188,8 @@ private:
 class ReadObjectAtIndex : public ReadObjectBase
 {
 public:
-    
-    ReadObjectAtIndex(NSMutableArray* array, ICEInt index, Class expectedType) : 
+
+    ReadObjectAtIndex(NSMutableArray* array, ICEInt index, Class expectedType) :
         ReadObjectBase(expectedType), _array(array), _index(index)
     {
     }
@@ -221,10 +221,10 @@ private:
 class ReadObjectForKey : public ReadObjectBase
 {
 public:
-    
+
     // We must explicitely CFRetain/CFRelease so that the garbage
     // collector does not trash the _key.
-    ReadObjectForKey(NSMutableDictionary* dict, id key, Class expectedType) : 
+    ReadObjectForKey(NSMutableDictionary* dict, id key, Class expectedType) :
         ReadObjectBase(expectedType), _dict(dict), _key(key)
     {
         CFRetain(_key);
@@ -234,7 +234,7 @@ public:
     {
         CFRelease(_key);
     }
-    
+
     virtual void
     invoke(const Ice::ObjectPtr& obj)
     {
@@ -267,7 +267,7 @@ class ExceptionWriter : public Ice::UserExceptionWriter
 {
 public:
 
-    ExceptionWriter(const Ice::CommunicatorPtr& communicator, ICEOutputStream* stream, ICEUserException* ex) : 
+    ExceptionWriter(const Ice::CommunicatorPtr& communicator, ICEOutputStream* stream, ICEUserException* ex) :
         Ice::UserExceptionWriter(communicator),
         _stream(stream),
         _ex(ex)
@@ -377,7 +377,7 @@ public:
     virtual void createAndThrow(const std::string& typeId) const
     {
         ICEUserException* ex = nil;
-        std::string objcId = toObjCSliceId(typeId, 
+        std::string objcId = toObjCSliceId(typeId,
                                    [[ICECommunicator localObjectWithCxxObject:_communicator.get()] getPrefixTable]);
         Class c = objc_lookUpClass(objcId.c_str());
         if(c != nil)
@@ -406,22 +406,22 @@ private:
 {
     ICENone = [[ICEInternalNone alloc] init];
 }
--(id) copyWithZone:(NSZone *)zone 
+-(id) copyWithZone:(NSZone *)zone
 {
     return self;
 }
--(id) retain 
+-(id) retain
 {
     return self;
 }
--(NSUInteger) retainCount 
+-(NSUInteger) retainCount
 {
     return NSUIntegerMax;
 }
--(oneway void) release 
+-(oneway void) release
 {
 }
--(id) autorelease 
+-(id) autorelease
 {
     return self;
 }
@@ -543,7 +543,7 @@ private:
         std::pair<const Ice::Byte*, const Ice::Byte*> seq;
         is_->read(seq);
         return [[NSMutableData alloc] initWithBytes:seq.first length:(seq.second - seq.first)];
-    }    
+    }
     catch(const std::exception& ex)
     {
         nsex = toObjCException(ex);
@@ -558,9 +558,9 @@ private:
     {
         std::pair<const Ice::Byte*, const Ice::Byte*> seq;
         is_->read(seq);
-        return [NSData dataWithBytesNoCopy:const_cast<Ice::Byte*>(seq.first) 
+        return [NSData dataWithBytesNoCopy:const_cast<Ice::Byte*>(seq.first)
                        length:(seq.second - seq.first) freeWhenDone:NO];
-    }    
+    }
     catch(const std::exception& ex)
     {
         nsex = toObjCException(ex);
@@ -855,7 +855,7 @@ private:
 }
 
 //
-// Size of an enum. Slice enum underling type is specified as ICEInt so 
+// Size of an enum. Slice enum underling type is specified as ICEInt so
 // all Slice enums have the same size as an ICEInt.
 //
 #define ENUM_SIZE sizeof(ICEInt)
@@ -1213,9 +1213,9 @@ private:
     NSException* nsex = nil;
     try
     {
-        Ice::UserExceptionReaderFactoryPtr factory = 
+        Ice::UserExceptionReaderFactoryPtr factory =
             new IceObjC::UserExceptionReaderFactoryI(is_->communicator().get(), self);
-        is_->throwException(factory);        
+        is_->throwException(factory);
     }
     catch(const IceObjC::ExceptionReader& reader)
     {
@@ -1576,7 +1576,7 @@ private:
 }
 
 -(void) writeByteSeq:(NSData*)v
-{ 
+{
     NSException* nsex = nil;
     try
     {
@@ -2375,7 +2375,6 @@ private:
 +(id) read:(id<ICEInputStream>)stream
 {
     return [[self readRetained:stream] autorelease];
-    return nil;
 }
 +(void) write:(id)obj stream:(id<ICEOutputStream>)stream
 {
@@ -2671,7 +2670,7 @@ private:
 +(void) writeOpt:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
 {
     NSString* value;
-    if([ICEOptionalGetter get:v value:&value type:[NSString class]] && 
+    if([ICEOptionalGetter get:v value:&value type:[NSString class]] &&
        [stream writeOptional:tag format:ICEOptionalFormatVSize])
     {
         [stream writeString:v];
@@ -2762,7 +2761,7 @@ private:
 +(void) writeOpt:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
 {
     ICEObject* value;
-    if([ICEOptionalGetter get:v value:&value type:[ICEObject class]] && 
+    if([ICEOptionalGetter get:v value:&value type:[ICEObject class]] &&
        [stream writeOptional:tag format:ICEOptionalFormatClass])
     {
         [self write:value stream:stream];
@@ -2816,7 +2815,7 @@ private:
 +(void) writeOpt:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
 {
     ICEObjectPrx* value;
-    if([ICEOptionalGetter get:v value:&value type:[ICEObjectPrx class]] && 
+    if([ICEOptionalGetter get:v value:&value type:[ICEObjectPrx class]] &&
        [stream writeOptional:tag format:ICEOptionalFormatFSize])
     {
         [ICEVarLengthOptionalHelper write:v stream:stream helper:self];
@@ -2831,7 +2830,19 @@ private:
 @implementation ICEStructHelper
 +(id) readRetained:(id<ICEInputStream>)stream
 {
-    id p = [[self getType] new];
+    return [self readRetained:stream value:nil];
+}
++(id) readRetained:(id<ICEInputStream>)stream value:(id)p
+{
+    if(p == nil)
+    {
+        p = [[self getType] new];
+    }
+    else
+    {
+        [p retain];
+    }
+
     @try
     {
         [p read__:stream];
@@ -2842,6 +2853,10 @@ private:
         @throw ex;
     }
     return p;
+}
++(id) read:(id<ICEInputStream>)stream value:(id)p
+{
+    return [[self readRetained:stream value:p] autorelease];
 }
 +(void) write:(id)obj stream:(id<ICEOutputStream>)stream
 {
@@ -2965,7 +2980,7 @@ private:
 +(void) writeOpt:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
 {
     NSData* a;
-    if([ICEOptionalGetter get:v value:&a type:[NSData class]] && 
+    if([ICEOptionalGetter get:v value:&a type:[NSData class]] &&
        [stream writeOptional:tag format:ICEOptionalFormatVSize])
     {
         [ICEFixedSequenceOptionalHelper write:a stream:stream helper:self];
@@ -3005,7 +3020,7 @@ private:
 +(void) writeOpt:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
 {
     NSData* a;
-    if([ICEOptionalGetter get:v value:&a type:[NSData class]] && 
+    if([ICEOptionalGetter get:v value:&a type:[NSData class]] &&
        [stream writeOptional:tag format:ICEOptionalFormatVSize])
     {
         [stream writeBoolSeq:a];
@@ -3037,7 +3052,7 @@ private:
 +(void) writeOpt:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
 {
     NSData* a;
-    if([ICEOptionalGetter get:v value:&a type:[NSData class]] && 
+    if([ICEOptionalGetter get:v value:&a type:[NSData class]] &&
        [stream writeOptional:tag format:ICEOptionalFormatVSize])
     {
         [stream writeByteSeq:a];

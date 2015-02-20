@@ -643,8 +643,8 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
         {
             if(!isValueType(st))
             {
-                const string read = streamingAPI ? "ice_readNew" : "readNew__";
-                out << nl << param << " = " << typeToString(type) << "." << read << "(" << stream << ");";
+                const string r = streamingAPI ? "ice_read" : "read__";
+                out << nl << param << " = " << typeToString(type) << "." << r << "(" << stream << ", " << param << ");";
             }
             else
             {
