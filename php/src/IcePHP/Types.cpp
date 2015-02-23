@@ -1371,7 +1371,7 @@ IcePHP::StructInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap*
                 throw AbortMarshaling();
             }
 
-            if(!invokeMethod(_nullMarshalValue, ZEND_CONSTRUCTOR_FUNC_NAME))
+            if(!invokeMethod(_nullMarshalValue, ZEND_CONSTRUCTOR_FUNC_NAME TSRMLS_CC))
             {
                 assert(false);
             }
