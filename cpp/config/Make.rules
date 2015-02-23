@@ -142,14 +142,6 @@ USE_READLINE		?= no
 #THIRDPARTY_HOME	?= C:\Program Files (x86)\ZeroC\Ice-$(VERSION)-ThirdParty
 
 #
-# If building on OS X and third party libraries are not installed
-# in the default location and THIRDPARTY_HOME is not set in your
-# environment variables, change the following setting to reflect the
-# installation location.
-#
-#THIRDPARTY_HOME ?= /Library/Developer/Ice-$(VERSION)-ThirdParty
-
-#
 # Default Mutex protocol: one of PrioNone or PrioInherit.
 #
 #DEFAULT_MUTEX_PROTOCOL  ?= PrioNone
