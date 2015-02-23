@@ -17,6 +17,7 @@ namespace Slice
 {
 
 SLICE_API extern FeatureProfile featureProfile;
+SLICE_API extern std::string paramPrefix;
 
 struct ToIfdef
 {
@@ -47,13 +48,13 @@ SLICE_API std::string fixKwd(const std::string&);
 SLICE_API void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, bool, int, const std::string&,
                                          bool, const StringList& = StringList(), int = 0, const std::string& = "",
                                          bool = true);
-                                             
-SLICE_API void writeMarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool prepend, int = 0);
-SLICE_API void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool prepend, int = 0);
-SLICE_API void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool prepend, int = 0);
+
+SLICE_API void writeMarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0);
+SLICE_API void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0);
+SLICE_API void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0);
 
 SLICE_API std::string getEndArg(const TypePtr&, const StringList&, const std::string&);
-SLICE_API void writeEndCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&);
+SLICE_API void writeEndCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool = false);
 
 SLICE_API std::string findMetaData(const StringList&, int = 0);
 SLICE_API bool inWstringModule(const SequencePtr&);

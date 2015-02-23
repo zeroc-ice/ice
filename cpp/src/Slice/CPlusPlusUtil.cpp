@@ -297,7 +297,7 @@ writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string&
 void
 writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const OperationPtr& op, bool marshal, bool prepend, int typeCtx)
 {
-    string prefix = prepend ? "__p_" : "";
+    string prefix = prepend ? paramPrefix : "";
 
     //
     // Marshal non optional parameters.
@@ -361,6 +361,7 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
 }
 
 Slice::FeatureProfile Slice::featureProfile = Slice::Ice;
+string Slice::paramPrefix = "__p_";
 
 char
 Slice::ToIfdef::operator()(char c)
@@ -948,7 +949,7 @@ Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const Operat
 void
 Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend, int typeCtx)
 {
-    string prefix = prepend ? "__p_" : "";
+    string prefix = prepend ? paramPrefix : "";
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
         writeParamAllocateCode(out, (*p)->type(), (*p)->optional(), fixKwd(prefix + (*p)->name()), (*p)->getMetaData(),
@@ -1004,11 +1005,12 @@ Slice::getEndArg(const TypePtr& type, const StringList& metaData, const string& 
 }
 
 void
-Slice::writeEndCode(Output& out, const ParamDeclList& params, const OperationPtr& op)
+Slice::writeEndCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend)
 {
+    string prefix = prepend ? paramPrefix : "";
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
-        writeParamEndCode(out, (*p)->type(), (*p)->optional(), fixKwd((*p)->name()), (*p)->getMetaData());
+        writeParamEndCode(out, (*p)->type(), (*p)->optional(), fixKwd(prefix + (*p)->name()), (*p)->getMetaData());
     }
     if(op && op->returnType())
     {
