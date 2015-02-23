@@ -22,7 +22,6 @@ Depends: zeroc-ice-slice (=${binary:Version}),
  libzeroc-ice@debmmver@ (=${binary:Version}),
  libzeroc-freeze@debmmver@ (=${binary:Version}),
  php5-zeroc-ice (=${binary:Version}),
- python-zeroc-ice (=${binary:Version}),
  ruby-zeroc-ice (=${binary:Version}),
  zeroc-glacier2 (=${binary:Version}),
  zeroc-icebox (=${binary:Version}),
@@ -31,7 +30,7 @@ Depends: zeroc-ice-slice (=${binary:Version}),
  zeroc-icepatch2 (=${binary:Version}),
  zeroc-ice-utils (=${binary:Version}),
  zeroc-ice-utils-java (=${binary:Version})
-Replaces: libice-3.5-python, python-zeroc-ice (<=3.5.1), icebox
+Replaces: icebox
 Provides:icebox
 Description: Ice (Internet Communications Engine)
  Ice is a modern object-oriented toolkit that enables you to build
@@ -48,9 +47,7 @@ Architecture: all
 Section: devel
 Depends: libzeroc-ice-dev (=${binary:Version}),
  libzeroc-ice-java (=${binary:Version}),
- php5-zeroc-ice-dev (=${binary:Version}),
- python-zeroc-ice-dev (=${binary:Version}),
- ruby-zeroc-ice-dev (=${binary:Version})
+ php5-zeroc-ice-dev (=${binary:Version})
 Replaces: libzeroc-ice-java (<=3.5.1)
 Description: Ice development packages
  Ice development packages.
