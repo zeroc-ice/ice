@@ -154,21 +154,32 @@ Slice::fullPath(const string& path)
 }
 
 string
-Slice::changeInclude(const string& file, const vector<string>& includePaths)
+Slice::changeInclude(const string& path, const vector<string>& includePaths)
 {
     //
     // Compare each include path against the included file and select
     // the path that produces the shortest relative filename.
     //
-    string result = file;
-    for(vector<string>::const_iterator p = includePaths.begin(); p != includePaths.end(); ++p)
+    string result = path;
+    set<string> paths;
+    paths.insert(path);
+    //
+    // if path is not a canonical path we also test with its canonical
+    // path
+    //
+    paths.insert(fullPath(path));
+
+    for(set<string>::const_iterator i = paths.begin(); i != paths.end(); ++i)
     {
-        if(file.compare(0, p->length(), *p) == 0)
+        for(vector<string>::const_iterator j = includePaths.begin(); j != includePaths.end(); ++j)
         {
-            string s = file.substr(p->length() + 1); // + 1 for the '/'
-            if(s.size() < result.size())
+            if(i->compare(0, j->length(), *j) == 0)
             {
-                result = s;
+                string s = i->substr(j->length() + 1); // + 1 for the '/'
+                if(s.size() < result.size())
+                {
+                    result = s;
+                }
             }
         }
     }
