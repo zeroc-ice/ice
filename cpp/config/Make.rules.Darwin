@@ -103,13 +103,7 @@ SSL_OS_LIBS             = -framework Security -framework CoreFoundation
 PLATFORM_HAS_READLINE   := yes
 
 ifeq ($(DB_HOME),)
-    ifneq ($(wildcard /usr/local/$(libsubdir)/libdb_cxx.dylib),)
-        DB_HOME = /usr/local
-    endif
-endif
-
-ifeq ($(MCPP_HOME),)
-    ifneq ($(wildcard /usr/local/$(libsubdir)/libmcpp.a),)
-        MCPP_HOME = /usr/local
+    ifneq ($(wildcard /usr/local/opt/berkeley-db53),)
+        DB_HOME = /usr/local/opt/berkeley-db53
     endif
 endif

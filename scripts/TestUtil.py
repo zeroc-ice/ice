@@ -1740,7 +1740,10 @@ def getJavaLibraryPath():
         else:
             return "-Djava.library.path=\"%s\" " % os.path.join(thirdPartyHome, "bin\\x64" if x64 else "bin")
     elif isDarwin():
-        return "-Djava.library.path=%s " % os.path.join("/usr/local/lib")
+        if os.path.exists('/usr/local/opt/ice/libexec/lib'):
+            return "-Djava.library.path=/usr/local/opt/ice/libexec/lib "
+        else:
+            return "-Djava.library.path=/usr/local/opt/berkeley-db53/lib "
     elif isRhel() or isSles():
         return "-Djava.library.path=%s " % ("/usr/lib64" if x64 else "/usr/lib")
     elif isUbuntu():
