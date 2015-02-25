@@ -28,7 +28,8 @@ def clean():
               os.path.join("slices", "dir1", "linktoa3.ice")]:
         if os.path.exists(f):
             os.unlink(f)
-
+    os.system("rm -rf project1 tmp")
+    
 clean()
 os.symlink("slices", "linktoslices")
 os.symlink("dir1", os.path.join("slices", "linktodir1"))
@@ -37,6 +38,7 @@ os.symlink("dir2", os.path.join("slices", "linktodir2"))
 
 slice2cpp = TestUtil.getSliceTranslator()
 
+basedir = os.path.dirname(os.path.abspath(__file__))
 slicedir = os.path.join(TestUtil.getIceDir(), "slice")
 os.symlink(slicedir, "iceslices")
 
@@ -65,7 +67,67 @@ runTest("%s -I%s -Ilinktoslices linktoslices/linktodir2/b.ice" % (slice2cpp, sli
 if os.path.exists("SLICES"):
     runTest("%s -IICESLICES -ISLICES SLICES/DIR2/B.ice" % (slice2cpp))
     runTest("%s -IICESLICES -ILINKTOSLICES LINKTOSLICES/LINKTODIR2/B.ice" % (slice2cpp))
+    
+#
+# Slice files are symlinks, include dir is a regular directory
+#
+os.system("mkdir -p project1/git/services.settings.slices")
+os.system("mkdir -p project1/src/services/settings")
+os.system("cd project1/src/services/settings &&  ln -s ../../../git/services.settings.slices slices")
+
+f = open("project1/git/services.settings.slices/A.ice", "w")
+f.write("// dumy file")
+f.close()
+f = open("project1/git/services.settings.slices/B.ice", "w")
+f.write("#include <services/settings/slices/A.ice>")
+f.close()
+
+os.system("cd project1 && %s -Isrc src/services/settings/slices/B.ice" % slice2cpp)
+f = open("project1/B.h")
+
+if not re.search(re.escape('#include <services/settings/slices/A.h>'), f.read()):
+    print("failed!")
+    sys.exit(1)
+
+clean()
+
+#
+# Slice file is regular file, include dir is a symlink to a second symlink
+#
+os.system("mkdir -p tmp/Ice-x.y.z/share")
+os.system("cd tmp/Ice-x.y.z/share && ln -s %s" % TestUtil.getIceDir("slice"))
+
+
+os.system("mkdir -p project1/share")
+os.system("cd project1/share && ln -s %s/tmp/Ice-x.y.z/share/slice" % basedir)
+f = open("project1/A.ice", "w")
+f.write("#include <Ice/Identity.ice>")
+f.close()
+os.system("cd project1 && %s -Ishare/slice A.ice" % slice2cpp)
+f = open("project1/A.h")
+if not re.search(re.escape('#include <Ice/Identity.h>'), f.read()):
+    print("failed!")
+    sys.exit(1)
+
+clean()
+
+#
+# Typical Ice install with symlink Ice-x.y -> Ice-x.y.z
+#
+os.system("mkdir -p tmp/Ice-x.y.z/slice/Ice")
+os.system("cd tmp && ln -s Ice-x.y.z Ice-x.y")
+f = open("tmp/Ice-x.y.z/slice/Ice/Identity.ice", "w")
+f.write("// dumy file")
+
+os.system("mkdir -p project1")
+f = open("project1/A.ice", "w")
+f.write("#include <Ice/Identity.ice>")
+f.close()
+os.system("cd project1 && %s -I%s/tmp/Ice-x.y/slice A.ice" % (slice2cpp, basedir))
+f = open("project1/A.h")
+if not re.search(re.escape('#include <Ice/Identity.h>'), f.read()):
+    print("failed!")
+    sys.exit(1)
 
 print("ok")
-
 clean()

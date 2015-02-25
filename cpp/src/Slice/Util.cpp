@@ -161,18 +161,22 @@ Slice::changeInclude(const string& path, const vector<string>& includePaths)
     // the path that produces the shortest relative filename.
     //
     string result = path;
-    set<string> paths;
-    paths.insert(path);
+    vector<string> paths;
+    paths.push_back(path);
     //
     // if path is not a canonical path we also test with its canonical
     // path
     //
-    paths.insert(fullPath(path));
-
-    for(set<string>::const_iterator i = paths.begin(); i != paths.end(); ++i)
+    string canonicalPath = fullPath(path);
+    if(canonicalPath != path)
+    {
+        paths.push_back(canonicalPath);
+    }
+    
+    for(vector<string>::const_iterator i = paths.begin(); i != paths.end(); ++i)
     {
         for(vector<string>::const_iterator j = includePaths.begin(); j != includePaths.end(); ++j)
-        {
+        {            
             if(i->compare(0, j->length(), *j) == 0)
             {
                 string s = i->substr(j->length() + 1); // + 1 for the '/'
@@ -181,6 +185,15 @@ Slice::changeInclude(const string& path, const vector<string>& includePaths)
                     result = s;
                 }
             }
+        }
+        
+        //
+        // If the path has been already shortened no need to test
+        // with canonical path.
+        //
+        if(result != path)
+        {
+            break;
         }
     }
 
