@@ -648,7 +648,7 @@ Slice::CsVisitor::writeInheritedOperations(const ClassDefPtr& p)
             else
             {
                 vector<string> params = getParamsAsync(*op, true);
-                vector<string> args = getArgsAsync(*op);
+                vector<string> args = getArgsAsync(*op, true);
 
                 _out << sp << nl << "public void " << name << "_async" << spar << params << epar;
                 _out << sb;
@@ -1722,7 +1722,7 @@ Slice::CsVisitor::getParams(const OperationPtr& op)
 }
 
 vector<string>
-Slice::CsVisitor::getParamsAsync(const OperationPtr& op, bool amd, bool newAMI)
+Slice::CsVisitor::getParamsAsync(const OperationPtr& op, bool amd)
 {
     vector<string> params;
 
@@ -1730,9 +1730,9 @@ Slice::CsVisitor::getParamsAsync(const OperationPtr& op, bool amd, bool newAMI)
     ContainerPtr container = op->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container); // Get the class containing the op.
     string scope = fixId(cl->scope());
-    if(!newAMI)
+    if(amd)
     {
-        params.push_back(scope + (amd ? "AMD_" : "AMI_") + cl->name() + '_' + op->name() + " cb__");
+        params.push_back(scope + "AMD_" + cl->name() + '_' + op->name() + " cb__");
     }
 
     ParamDeclList paramList = op->parameters();
@@ -1748,11 +1748,11 @@ Slice::CsVisitor::getParamsAsync(const OperationPtr& op, bool amd, bool newAMI)
 }
 
 vector<string>
-Slice::CsVisitor::getParamsAsyncCB(const OperationPtr& op, bool newAMI, bool outKeyword)
+Slice::CsVisitor::getParamsAsyncCB(const OperationPtr& op, bool amd, bool outKeyword)
 {
     vector<string> params;
 
-    if(!newAMI)
+    if(amd)
     {
         TypePtr ret = op->returnType();
         if(ret)
@@ -1766,7 +1766,7 @@ Slice::CsVisitor::getParamsAsyncCB(const OperationPtr& op, bool newAMI, bool out
     {
         if((*q)->isOutParam())
         {
-            if(!newAMI)
+            if(amd)
             {
                 params.push_back(getParamAttributes(*q) + typeToString((*q)->type(), (*q)->optional()) + ' ' +
                                  fixId((*q)->name()));
@@ -1805,11 +1805,11 @@ Slice::CsVisitor::getArgs(const OperationPtr& op)
 }
 
 vector<string>
-Slice::CsVisitor::getArgsAsync(const OperationPtr& op, bool newAMI)
+Slice::CsVisitor::getArgsAsync(const OperationPtr& op, bool amd)
 {
     vector<string> args;
 
-    if(!newAMI)
+    if(amd)
     {
         args.push_back("cb__");
     }
@@ -1822,38 +1822,6 @@ Slice::CsVisitor::getArgsAsync(const OperationPtr& op, bool newAMI)
             args.push_back(fixId((*q)->name()));
         }
     }
-    return args;
-}
-
-vector<string>
-Slice::CsVisitor::getArgsAsyncCB(const OperationPtr& op, bool newAMI, bool outKeyword)
-{
-    vector<string> args;
-
-    if(!newAMI)
-    {
-        TypePtr ret = op->returnType();
-        if(ret)
-        {
-            args.push_back("ret__");
-        }
-    }
-
-    ParamDeclList paramList = op->parameters();
-    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-    {
-        if((*q)->isOutParam())
-        {
-            string s;
-            if(outKeyword)
-            {
-                s = "out ";
-            }
-            s += fixId((*q)->name());
-            args.push_back(s);
-        }
-    }
-
     return args;
 }
 
@@ -2461,9 +2429,9 @@ Slice::CsVisitor::writeDocCommentOp(const OperationPtr& p)
 }
 
 void
-Slice::CsVisitor::writeDocCommentAsync(const OperationPtr& p, ParamDir paramType, const string& extraParam, bool newAMI)
+Slice::CsVisitor::writeDocCommentAsync(const OperationPtr& p, ParamDir paramType, const string& extraParam, bool amd)
 {
-    // TODO: this needs fixing for newAMI == true
+    // TODO: this needs fixing for AMI (amd == false)
     ContainerPtr container = p->container();
     ClassDefPtr contained = ClassDefPtr::dynamicCast(container);
     string deprecateReason = getDeprecateReason(p, contained, "operation");
@@ -2480,7 +2448,7 @@ Slice::CsVisitor::writeDocCommentAsync(const OperationPtr& p, ParamDir paramType
 
     if(paramType == OutParam)
     {
-        if(!newAMI)
+        if(amd)
         {
             _out << nl << "/// <summary>";
             _out << nl << "/// ice_response indicates that";
@@ -2568,7 +2536,7 @@ Slice::CsVisitor::writeDocCommentAsync(const OperationPtr& p, ParamDir paramType
     //
     // Write the comments for the parameters.
     //
-    writeDocCommentParam(p, paramType, newAMI);
+    writeDocCommentParam(p, paramType, amd);
 
     if(!extraParam.empty())
     {
@@ -2585,7 +2553,7 @@ Slice::CsVisitor::writeDocCommentAsync(const OperationPtr& p, ParamDir paramType
 }
 
 void
-Slice::CsVisitor::writeDocCommentParam(const OperationPtr& p, ParamDir paramType, bool newAMI)
+Slice::CsVisitor::writeDocCommentParam(const OperationPtr& p, ParamDir paramType, bool amd)
 {
     //
     // Collect the names of the in- or -out parameters to be documented.
@@ -2607,7 +2575,7 @@ Slice::CsVisitor::writeDocCommentParam(const OperationPtr& p, ParamDir paramType
     //
     // Print a comment for the callback parameter.
     //
-    if(paramType == InParam && !newAMI)
+    if(paramType == InParam && amd)
     {
         _out << nl << "/// <param name=\"cb__\">The callback object for the operation.</param>";
     }
@@ -3289,7 +3257,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
     else
     {
         params = getParamsAsync(p, true);
-        args = getArgsAsync(p);
+        args = getArgsAsync(p, true);
         retS = "void";
         name = name + "_async";
     }
@@ -3338,7 +3306,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
 
     if(isLocal && (classDef->hasMetaData("async") || p->hasMetaData("async")))
     {
-        vector<string> paramsNewAsync = getParamsAsync(p, false, true);
+        vector<string> paramsNewAsync = getParamsAsync(p, false);
 
         _out << sp;
         emitAttributes(p);
@@ -3377,7 +3345,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
             _out << "public abstract ";
         }
         _out << typeToString(p->returnType(), p->returnIsOptional()) << " end_" << name << spar
-             << getParamsAsyncCB(p, true) << "Ice.AsyncResult r__" << epar << ';';
+             << getParamsAsyncCB(p, false, true) << "Ice.AsyncResult r__" << epar << ';';
     }
 }
 
@@ -4912,7 +4880,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     //
     // Write the operations for the new async mapping.
     //
-    vector<string> paramsNewAsync = getParamsAsync(p, false, true);
+    vector<string> paramsNewAsync = getParamsAsync(p, false);
     string clScope = fixId(cl->scope());
     string delType = clScope + "Callback_" + cl->name() + "_" + p->name();
 
@@ -4953,7 +4921,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     // end_ method.
     //
     _out << sp;
-    _out << nl << retS << " end_" << p->name() << spar << getParamsAsyncCB(p, true) << "Ice.AsyncResult r__" << epar
+    _out << nl << retS << " end_" << p->name() << spar << getParamsAsyncCB(p, false, true) << "Ice.AsyncResult r__" << epar
          << ';';
 }
 
@@ -5000,7 +4968,7 @@ Slice::Gen::AsyncDelegateVisitor::visitOperation(const OperationPtr& p)
         return;
     }
 
-    vector<string> paramDeclAMI = getParamsAsyncCB(p, true, false);
+    vector<string> paramDeclAMI = getParamsAsyncCB(p, false, false);
     string retS = typeToString(p->returnType(), p->returnIsOptional());
     string delName = "Callback_" + cl->name() + "_" + p->name();
 
@@ -5139,7 +5107,7 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
         }
         if(amd)
         {
-            writeDocCommentAsync(*r, InParam, extraCurrent);
+            writeDocCommentAsync(*r, InParam, extraCurrent, true);
         }
         else
         {
@@ -5330,8 +5298,8 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         OperationPtr op = *r;
 
         ClassDefPtr containingClass = ClassDefPtr::dynamicCast(op->container());
-        vector<string> paramsAMI = getParamsAsync(op, false, true);
-        vector<string> argsAMI = getArgsAsync(op, true);
+        vector<string> paramsAMI = getParamsAsync(op, false);
+        vector<string> argsAMI = getArgsAsync(op, false);
 
         string opName = op->name();
 
@@ -5367,7 +5335,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         _out << sp;
         writeDocCommentAsync(op, InParam,
-                             "<param name=\"ctx__\">The Context map to send with the invocation.</param>", true);
+                             "<param name=\"ctx__\">The Context map to send with the invocation.</param>", false);
         _out << nl << "public Ice.AsyncResult<" << delType << "> begin_" << opName << spar << paramsAMI
              << "_System.Collections.Generic.Dictionary<string, string> ctx__" << epar;
         _out << sb;
@@ -5384,7 +5352,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << eb;
 
         _out << sp;
-        // TODO writeDocCommentAsync(op, InParam, "", true);
+        // TODO writeDocCommentAsync(op, InParam, "", false);
         _out << nl << "public Ice.AsyncResult begin_" << opName << spar << paramsAMI
              << "_System.Collections.Generic.Dictionary<string, string> ctx__" << "Ice.AsyncCallback cb__"
              << "object cookie__" << epar;
@@ -5401,7 +5369,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         TypePtr ret = op->returnType();
         string retS = typeToString(ret, op->returnIsOptional());
-        _out << sp << nl << "public " << retS << " end_" << opName << spar << getParamsAsyncCB(op, true)
+        _out << sp << nl << "public " << retS << " end_" << opName << spar << getParamsAsyncCB(op, false, true)
              << "Ice.AsyncResult r__" << epar;
         _out << sb;
         if(op->returnsData())
@@ -6251,7 +6219,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             opname = opname + "_async";
             params = getParamsAsync(*op, true);
-            args = getArgsAsync(*op);
+            args = getArgsAsync(*op, true);
         }
         else
         {
@@ -6346,7 +6314,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         string classNameAMD = "AMD_" + cl->name();
         string classNameAMDI = "_AMD_" + cl->name();
 
-        vector<string> paramsAMD = getParamsAsyncCB(p);
+        vector<string> paramsAMD = getParamsAsyncCB(p, true, true);
 
         _out << sp;
         writeDocCommentOp(p);
@@ -6355,7 +6323,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         _out << nl << "public interface " << classNameAMD << '_' << name << " : Ice.AMDCallback";
         _out << sb;
         _out << sp;
-        writeDocCommentAsync(p, OutParam);
+        writeDocCommentAsync(p, OutParam, "", true);
         _out << nl << "void ice_response" << spar << paramsAMD << epar << ';';
         _out << eb;
 
@@ -6563,7 +6531,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
         if(hasAMD)
         {
             params = getParamsAsync((*r), true);
-            args = getArgsAsync(*r);
+            args = getArgsAsync(*r, true);
         }
         else
         {
@@ -6625,7 +6593,7 @@ Slice::Gen::TieVisitor::writeInheritedOperationsWithOpNames(const ClassDefPtr& p
         if(hasAMD)
         {
             params = getParamsAsync((*r), true);
-            args = getArgsAsync(*r);
+            args = getArgsAsync(*r, true);
         }
         else
         {

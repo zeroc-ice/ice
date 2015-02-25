@@ -35,11 +35,10 @@ protected:
     virtual void writeInheritedOperations(const ClassDefPtr&);
     virtual void writeDispatchAndMarshalling(const ClassDefPtr&, bool);
     virtual std::vector<std::string> getParams(const OperationPtr&);
-    virtual std::vector<std::string> getParamsAsync(const OperationPtr&, bool, bool = false);
-    virtual std::vector<std::string> getParamsAsyncCB(const OperationPtr&, bool = false, bool = true);
+    virtual std::vector<std::string> getParamsAsync(const OperationPtr&, bool);
+    virtual std::vector<std::string> getParamsAsyncCB(const OperationPtr&, bool, bool);
     virtual std::vector<std::string> getArgs(const OperationPtr&);
-    virtual std::vector<std::string> getArgsAsync(const OperationPtr&, bool = false);
-    virtual std::vector<std::string> getArgsAsyncCB(const OperationPtr&, bool = false, bool = false);
+    virtual std::vector<std::string> getArgsAsync(const OperationPtr&, bool);
 
     void emitAttributes(const ContainedPtr&);
     void emitComVisibleAttribute();
@@ -67,8 +66,8 @@ protected:
     void writeDocCommentOp(const OperationPtr&);
 
     enum ParamDir { InParam, OutParam };
-    void writeDocCommentAsync(const OperationPtr&, ParamDir, const std::string& = "", bool = false);
-    void writeDocCommentParam(const OperationPtr&, ParamDir, bool = false);
+    void writeDocCommentAsync(const OperationPtr&, ParamDir, const std::string&, bool);
+    void writeDocCommentParam(const OperationPtr&, ParamDir, bool);
 
     ::IceUtilInternal::Output& _out;
 };
