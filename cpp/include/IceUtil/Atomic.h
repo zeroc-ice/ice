@@ -167,7 +167,7 @@ private:
     
     ATOMIC_T _ref;
 #if !defined(_WIN32) && !defined(ICE_HAS_GCC_BUILTINS)
-    Mutex _mutex;
+    IceUtil::Mutex _mutex;
 #endif
 };
 
