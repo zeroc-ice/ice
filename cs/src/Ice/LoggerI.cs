@@ -27,7 +27,7 @@ namespace Ice
             {
                 _formattedPrefix = prefix + ": ";
             }
-            
+
             _date = "d";
             _time = "HH:mm:ss:fff";
         }
@@ -40,9 +40,42 @@ namespace Ice
             }
         }
 
-        public void trace(string category, string message)
+        public virtual void trace(string category, string message)
         {
-            System.Text.StringBuilder s = new System.Text.StringBuilder("-- ");
+            string s = format("--", category, message);
+            lock(_globalMutex)
+            {
+                write(s);
+            }
+        }
+
+        public virtual void warning(string message)
+        {
+            string s = format("-!", "warning", message);
+            lock(_globalMutex)
+            {
+                write(s);
+            }
+        }
+
+        public virtual void error(string message)
+        {
+            string s = format("!!", "error", message);
+            lock(_globalMutex)
+            {
+                write(s);
+            }
+        }
+
+        public string getPrefix()
+        {
+            return _prefix;
+        }
+
+        private string format(string prefix, string category, string message)
+        {
+            System.Text.StringBuilder s = new System.Text.StringBuilder(prefix);
+            s.Append(' ');
             s.Append(System.DateTime.Now.ToString(_date, CultureInfo.CurrentCulture));
             s.Append(' ');
             s.Append(System.DateTime.Now.ToString(_time, CultureInfo.CurrentCulture));
@@ -52,52 +85,7 @@ namespace Ice
             s.Append(": ");
             s.Append(message);
             s.Replace("\n", "\n   ");
-
-            lock(_globalMutex)
-            {
-                write(s.ToString());
-            }
-        }
-        
-        public void warning(string message)
-        {
-            System.Text.StringBuilder s = new System.Text.StringBuilder("-! ");
-            s.Append(System.DateTime.Now.ToString(_date, CultureInfo.CurrentCulture));
-            s.Append(' ');
-            s.Append(System.DateTime.Now.ToString(_time, CultureInfo.CurrentCulture));
-            s.Append(' ');
-            s.Append(_formattedPrefix);
-            s.Append("warning: ");
-            s.Append(message);
-            s.Replace("\n", "\n   ");
-
-            lock(_globalMutex)
-            {
-                write(s.ToString());
-            }
-        }
-        
-        public void error(string message)
-        {
-            System.Text.StringBuilder s = new System.Text.StringBuilder("!! ");
-            s.Append(System.DateTime.Now.ToString(_date, CultureInfo.CurrentCulture));
-            s.Append(' ');
-            s.Append(System.DateTime.Now.ToString(_time, CultureInfo.CurrentCulture));
-            s.Append(' ');
-            s.Append(_formattedPrefix);
-            s.Append("error: ");
-            s.Append(message);
-            s.Replace("\n", "\n   ");
-
-            lock(_globalMutex)
-            {
-                write(s.ToString());
-            }
-        }
-
-        public string getPrefix()
-        {
-            return _prefix;
+            return s.ToString();
         }
 
         public abstract Logger cloneWithPrefix(string prefix);
@@ -117,6 +105,8 @@ namespace Ice
         public ConsoleLoggerI(string prefix)
             : base(prefix)
         {
+            _date = "d";
+            _time = "HH:mm:ss:fff";
         }
 
         public override Logger cloneWithPrefix(string prefix)
@@ -157,6 +147,53 @@ namespace Ice
 
 
 #  if !COMPACT
+    public class ConsoleListener : TraceListener
+    {
+        public ConsoleListener()
+        {
+            _date = "d";
+            _time = "HH:mm:ss:fff";
+        }
+
+        public override void TraceEvent(TraceEventCache cache, string source, TraceEventType type,
+                                        int id, string message)
+        {
+            System.Text.StringBuilder s;
+            if(type == TraceEventType.Error)
+            {
+                s = new System.Text.StringBuilder("!!");
+            }
+            else if(type == TraceEventType.Warning)
+            {
+                s = new System.Text.StringBuilder("-!");
+            }
+            else
+            {
+                s = new System.Text.StringBuilder("--");
+            }
+            s.Append(' ');
+            s.Append(System.DateTime.Now.ToString(_date, CultureInfo.CurrentCulture));
+            s.Append(' ');
+            s.Append(System.DateTime.Now.ToString(_time, CultureInfo.CurrentCulture));
+            s.Append(' ');
+            s.Append(message);
+            this.WriteLine(s.ToString());
+        }
+
+        public override void Write(string message)
+        {
+            System.Console.Error.Write(message);
+        }
+
+        public override void WriteLine(string message)
+        {
+            System.Console.Error.WriteLine(message);
+        }
+
+        internal string _date = null;
+        internal string _time = null;
+    }
+
     public sealed class TraceLoggerI : LoggerI
     {
         public TraceLoggerI(string prefix, bool console)
@@ -166,6 +203,35 @@ namespace Ice
             if(console && !Trace.Listeners.Contains(_consoleListener))
             {
                 Trace.Listeners.Add(_consoleListener);
+            }
+        }
+
+        public override void trace(string category, string message)
+        {
+            string s = format(category, message);
+            lock(_globalMutex)
+            {
+                Trace.TraceInformation(s);
+                Trace.Flush();
+            }
+        }
+
+        public override void warning(string message)
+        {
+            string s = format("warning", message);
+            lock(_globalMutex)
+            {
+                Trace.TraceWarning(s);
+                Trace.Flush();
+            }
+        }
+
+        public override void error(string message)
+        {
+            string s = format("error", message);
+            {
+                Trace.TraceError(s);
+                Trace.Flush();
             }
         }
 
@@ -180,8 +246,18 @@ namespace Ice
             Trace.Flush();
         }
 
+        private string format(string category, string message)
+        {
+            System.Text.StringBuilder s = new System.Text.StringBuilder(_formattedPrefix);
+            s.Append(category);
+            s.Append(": ");
+            s.Append(message);
+            s.Replace("\n", "\n   ");
+            return s.ToString();
+        }
+
         private bool _console;
-        internal static ConsoleTraceListener _consoleListener = new ConsoleTraceListener(true);
+        internal static ConsoleListener _consoleListener = new ConsoleListener();
     }
 #  endif
 #endif
