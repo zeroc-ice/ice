@@ -24,7 +24,7 @@ var RetryQueue = Class({
         {
             throw new Ice.CommunicatorDestroyedException();
         }
-        var task = new RetryTask(this, outAsync);
+        var task = new RetryTask(this._instance, this, outAsync);
         outAsync.__cancelable(task); // This will throw if the request is canceled
         task.token = this._instance.timer().schedule(function()
                                                      {
@@ -40,7 +40,7 @@ var RetryQueue = Class({
             this._requests[i].destroy();
         }
         this._requests = [];
-        this._instance = null; 
+        this._instance = null;
     },
     remove: function(task)
     {
@@ -64,22 +64,22 @@ var RetryQueue = Class({
 Ice.RetryQueue = RetryQueue;
 
 var RetryTask = Class({
-    __init__: function(queue, outAsync, interval)
+    __init__: function(instance, queue, outAsync, interval)
     {
-        this.queue = queue;
-        this.outAsync = outAsync;
+        this._instance = instance;
+        this._queue = queue;
+        this._outAsync = outAsync;
     },
     run: function()
     {
-        this.outAsync.__retry();
-
-        this.queue.remove(this);
+        this._outAsync.__retry();
+        this._queue.remove(this);
     },
     destroy: function()
     {
         try
         {
-            this.outAsync.__abort(new Ice.CommunicatorDestroyedException());
+            this._outAsync.__abort(new Ice.CommunicatorDestroyedException());
         }
         catch(ex)
         {
@@ -88,9 +88,14 @@ var RetryTask = Class({
     },
     asyncRequestCanceled: function(outAsync, ex)
     {
-        if(this.queue.cancel(this))
+        if(this._queue.cancel(this))
         {
-            this.outAsync.__completedEx(ex);
+            if(this._instance.traceLevels().retry >= 1)
+            {
+                this._instance.initializationData().logger.trace(this._instance.traceLevels().retryCat,
+                                                                 "operation retry canceled\n" + ex.toString());
+            }
+            this._outAsync.__completedEx(ex);
         }
     }
 });

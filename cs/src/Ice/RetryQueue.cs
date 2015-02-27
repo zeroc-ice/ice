@@ -14,8 +14,9 @@ namespace IceInternal
 
     public class RetryTask : TimerTask, CancellationHandler
     {
-        public RetryTask(RetryQueue retryQueue, ProxyOutgoingAsyncBase outAsync)
+        public RetryTask(Instance instance, RetryQueue retryQueue, ProxyOutgoingAsyncBase outAsync)
         {
+            _instance = instance;
             _retryQueue = retryQueue;
             _outAsync = outAsync;
         }
@@ -38,6 +39,11 @@ namespace IceInternal
             Debug.Assert(_outAsync == outAsync);
             if(_retryQueue.cancel(this))
             {
+                if(_instance.traceLevels().retry >= 1)
+                {
+                    string s = "operation retry canceled\n" + ex;
+                    _instance.initializationData().logger.trace(_instance.traceLevels().retryCat, s);
+                }
                 Ice.AsyncCallback cb = _outAsync.completed(ex);
                 if(cb != null)
                 {
@@ -58,6 +64,7 @@ namespace IceInternal
             }
         }
 
+        private Instance _instance;
         private RetryQueue _retryQueue;
         private ProxyOutgoingAsyncBase _outAsync;
     }
@@ -77,7 +84,7 @@ namespace IceInternal
                 {
                     throw new Ice.CommunicatorDestroyedException();
                 }
-                RetryTask task = new RetryTask(this, outAsync);
+                RetryTask task = new RetryTask(_instance, this, outAsync);
                 outAsync.cancelable(task); // This will throw if the request is canceled.
                 _instance.timer().schedule(task, interval);
                 _requests.Add(task, null);

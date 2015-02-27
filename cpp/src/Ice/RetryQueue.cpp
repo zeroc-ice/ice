@@ -11,6 +11,8 @@
 #include <Ice/OutgoingAsync.h>
 #include <Ice/LocalException.h>
 #include <Ice/Instance.h>
+#include <Ice/TraceLevels.h>
+#include <Ice/LoggerUtil.h>
 
 using namespace std;
 using namespace Ice;
@@ -18,8 +20,12 @@ using namespace IceInternal;
 
 IceUtil::Shared* IceInternal::upCast(RetryQueue* p) { return p; }
 
-IceInternal::RetryTask::RetryTask(const RetryQueuePtr& queue, const ProxyOutgoingAsyncBasePtr& outAsync) :
-    _queue(queue), _outAsync(outAsync)
+IceInternal::RetryTask::RetryTask(const InstancePtr& instance,
+                                  const RetryQueuePtr& queue,
+                                  const ProxyOutgoingAsyncBasePtr& outAsync) :
+    _instance(instance),
+    _queue(queue),
+    _outAsync(outAsync)
 {
 }
 
@@ -37,7 +43,7 @@ IceInternal::RetryTask::runTimerTask()
     _queue->remove(this);
 }
 
-void 
+void
 IceInternal::RetryTask::requestCanceled(OutgoingBase*, const Ice::LocalException&)
 {
     assert(false);
@@ -48,6 +54,11 @@ IceInternal::RetryTask::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsyn
 {
     if(_queue->cancel(this))
     {
+        if(_instance->traceLevels()->retry >= 1)
+        {
+            Trace out(_instance->initializationData().logger, _instance->traceLevels()->retryCat);
+            out << "operation retry canceled\n" << ex;
+        }
         if(_outAsync->completed(ex))
         {
             _outAsync->invokeCompletedAsync();
@@ -86,7 +97,7 @@ IceInternal::RetryQueue::add(const ProxyOutgoingAsyncBasePtr& out, int interval)
     {
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
-    RetryTaskPtr task = new RetryTask(this, out);
+    RetryTaskPtr task = new RetryTask(_instance, this, out);
     out->cancelable(task); // This will throw if the request is canceled.
     try
     {

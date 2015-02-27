@@ -11,8 +11,9 @@ package IceInternal;
 
 class RetryTask implements Runnable, CancellationHandler
 {
-    RetryTask(RetryQueue queue, ProxyOutgoingAsyncBase outAsync)
+    RetryTask(Instance instance, RetryQueue queue, ProxyOutgoingAsyncBase outAsync)
     {
+        _instance = instance;
         _queue = queue;
         _outAsync = outAsync;
     }
@@ -21,7 +22,7 @@ class RetryTask implements Runnable, CancellationHandler
     public void run()
     {
         _outAsync.retry();
-        
+
         //
         // NOTE: this must be called last, destroy() blocks until all task
         // are removed to prevent the client thread pool to be destroyed
@@ -36,6 +37,13 @@ class RetryTask implements Runnable, CancellationHandler
     {
         if(_queue.remove(this) && _future.cancel(false))
         {
+            if(_instance.traceLevels().retry >= 1)
+            {
+                StringBuilder s = new StringBuilder(128);
+                s.append("operation retry canceled\n");
+                s.append(Ex.toString(ex));
+                _instance.initializationData().logger.trace(_instance.traceLevels().retryCat, s.toString());
+            }
             if(_outAsync.completed(ex))
             {
                 _outAsync.invokeCompletedAsync();
@@ -65,6 +73,7 @@ class RetryTask implements Runnable, CancellationHandler
         _future = future;
     }
 
+    private final Instance _instance;
     private final RetryQueue _queue;
     private final ProxyOutgoingAsyncBase _outAsync;
     private java.util.concurrent.Future<?> _future;

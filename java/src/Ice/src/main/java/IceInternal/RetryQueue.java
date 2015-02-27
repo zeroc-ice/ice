@@ -22,7 +22,7 @@ public class RetryQueue
         {
             throw new Ice.CommunicatorDestroyedException();
         }
-        RetryTask task = new RetryTask(this, outAsync);
+        RetryTask task = new RetryTask(_instance, this, outAsync);
         outAsync.cancelable(task); // This will throw if the request is canceled
         task.setFuture(_instance.timer().schedule(task, interval, java.util.concurrent.TimeUnit.MILLISECONDS));
         _requests.add(task);

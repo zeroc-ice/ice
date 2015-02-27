@@ -25,7 +25,7 @@ class RetryTask : public IceUtil::TimerTask, public CancellationHandler
 {
 public:
 
-    RetryTask(const RetryQueuePtr&, const ProxyOutgoingAsyncBasePtr&);
+    RetryTask(const InstancePtr&, const RetryQueuePtr&, const ProxyOutgoingAsyncBasePtr&);
 
     virtual void runTimerTask();
 
@@ -39,6 +39,7 @@ public:
 
 private:
 
+    const InstancePtr _instance;
     const RetryQueuePtr _queue;
     const ProxyOutgoingAsyncBasePtr _outAsync;
 };
