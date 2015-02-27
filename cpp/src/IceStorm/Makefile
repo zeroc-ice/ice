@@ -93,7 +93,7 @@ $(ADMIN): $(AOBJS) $(LIBTARGETS)
 
 $(MIGRATE): $(MOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(MOBJS) -lIceStorm -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) $(DB_RPATH_LINK) $(LDEXEFLAGS) -o $@ $(MOBJS) -lIceStorm -lFreeze $(LIBS)
 
 # The slice2freeze rules are structured like this to avoid issues with
 # parallel make.

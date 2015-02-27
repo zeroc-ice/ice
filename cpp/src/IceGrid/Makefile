@@ -114,12 +114,12 @@ $(ADMIN): $(ADMIN_OBJS) $(LIBTARGETS)
 $(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS) $(LIBTARGETS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(REGISTRY_SVR_OBJS) -lIceGrid -lIceStorm -lIceStormService -lGlacier2 -lIcePatch2 \
-	-lFreeze -lIceBox $(EXPAT_RPATH_LINK) -lIceXML -lIceSSL $(OPENSSL_RPATH_LINK) $(LIBS)
+	$(DB_RPATH_LINK) -lFreeze -lIceBox $(EXPAT_RPATH_LINK) -lIceXML -lIceSSL $(OPENSSL_RPATH_LINK) $(LIBS)
 
 $(NODE_SERVER): $(NODE_SVR_OBJS) $(LIBTARGETS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(NODE_SVR_OBJS) -lIceGrid -lIceStorm -lIceStormService -lIceBox -lGlacier2 \
-	-lFreeze -lIcePatch2 $(EXPAT_RPATH_LINK) -lIceXML -lIceSSL $(OPENSSL_RPATH_LINK) $(LIBS)
+	$(DB_RPATH_LINK) -lFreeze -lIcePatch2 $(EXPAT_RPATH_LINK) -lIceXML -lIceSSL $(OPENSSL_RPATH_LINK) $(LIBS)
 
 ../IceLocatorDiscovery/%.h %.cpp: $(slicedir)/IceLocatorDiscovery/%.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	rm -f $(*F).h $(*F).cpp

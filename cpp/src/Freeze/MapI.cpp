@@ -1759,7 +1759,11 @@ Freeze::MapHelperI::closeAllIteratorsExcept(const IteratorHelperI::TxPtr& tx) co
 
 extern "C"
 {
+#if (DB_VERSION_MAJOR <= 5)
     static int customIndexCompare(DB* db, const DBT* dbt1, const DBT* dbt2)
+#else
+    static int customIndexCompare(DB* db, const DBT* dbt1, const DBT* dbt2, size_t*)
+#endif
     {
         MapIndexI* me = static_cast<MapIndexI*>(db->app_private);
         Byte* first = static_cast<Byte*>(dbt1->data);
