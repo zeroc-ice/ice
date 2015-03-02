@@ -739,6 +739,71 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
     public void opDerived(Ice.Current current)
     {
     }
+    
+    public byte opByte1(byte opByte1, Ice.Current current)
+    {
+        return opByte1;
+    }
+    
+    public short opShort1(short opShort1, Ice.Current current)
+    {
+        return opShort1;
+    }
+    
+    public int opInt1(int opInt1, Ice.Current current)
+    {
+        return opInt1;
+    }
+    
+    public long opLong1(long opLong1, Ice.Current current)
+    {
+        return opLong1;
+    }
+    
+    public float opFloat1(float opFloat1, Ice.Current current)
+    {
+        return opFloat1;
+    }
+    
+    public double opDouble1(double opDouble1, Ice.Current current)
+    {
+        return opDouble1;
+    }
+    
+    public string opString1(string opString1, Ice.Current current)
+    {
+        return opString1;
+    }
+    
+    public string[] opStringS1(string[] opStringS1, Ice.Current current)
+    {
+        return opStringS1;
+    }
+    
+    public Dictionary<byte, bool> opByteBoolD1(Dictionary<byte, bool> opByteBoolD1, Ice.Current current)
+    {
+        return opByteBoolD1;
+    }
+    
+    public string[] opStringS2(string[] opStringS2, Ice.Current current)
+    {
+        return opStringS2;
+    }
+    
+    public Dictionary<byte, bool> opByteBoolD2(Dictionary<byte, bool> opByteBoolD2, Ice.Current current)
+    {
+        return opByteBoolD2;
+    }
+    
+    public Test.MyClass1 opMyClass1(Test.MyClass1 c, Ice.Current current)
+    {
+        return c;
+    }
+    
+    public Test.MyStruct1 opMyStruct1(Test.MyStruct1 s, Ice.Current current)
+    {
+        return s;
+    }
 
     private int _opByteSOnewayCallCount = 0;
 }

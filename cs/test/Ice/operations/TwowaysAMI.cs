@@ -51,7 +51,42 @@ public class TwowaysAMI
             }
         }
 
-        private bool _called;
+        public bool _called;
+    }
+    
+    private class GenericCallback<T> : CallbackBase
+    {
+        public GenericCallback(T value)
+        {
+            this._value = value;
+        }
+        
+        public void response(T value)
+        {
+            _value = value;
+            _succeeded = true;
+            called();
+        }
+        
+        public void exception(Ice.Exception ex)
+        {
+            _succeeded = false;
+            called();
+        }
+        
+        public bool succeeded()
+        {
+            check();
+            return _succeeded;
+        }
+        
+        public T value()
+        {
+            return _value;
+        }
+        
+        private T _value;
+        private bool _succeeded = false;
     }
 
     private class Callback : CallbackBase
@@ -2660,6 +2695,160 @@ public class TwowaysAMI
                      cb.exCB(ex);
                 });
             cb.check();
+        }
+
+        {
+            GenericCallback<byte> cb = new GenericCallback<byte>(0);
+            p.begin_opByte1(0xFF).whenCompleted(
+                (byte value) =>
+                {
+                    cb.response(value);
+                },
+                (Ice.Exception ex) =>
+                {
+                    cb.exception(ex);
+                });
+            test(cb.succeeded() && cb.value() == 0xFF);
+        }
+
+        {
+            GenericCallback<short> cb = new GenericCallback<short>(0);
+            p.begin_opShort1(0x7FFF).whenCompleted(
+                (short value) =>
+                {
+                    cb.response(value);
+                },
+                (Ice.Exception ex) =>
+                {
+                    cb.exception(ex);
+                });
+            test(cb.succeeded() && cb.value() == 0x7FFF);
+        }
+
+        {
+            GenericCallback<int> cb = new GenericCallback<int>(0);
+            p.begin_opInt1(0x7FFFFFFF).whenCompleted(
+                (int value) =>
+                {
+                    cb.response(value);
+                },
+                (Ice.Exception ex) =>
+                {
+                    cb.exception(ex);
+                });
+            test(cb.succeeded() && cb.value() == 0x7FFFFFFF);
+        }
+
+        {
+            GenericCallback<long> cb = new GenericCallback<long>(0);
+            p.begin_opLong1(0x7FFFFFFFFFFFFFFF).whenCompleted(
+                (long value) =>
+                {
+                    cb.response(value);
+                },
+                (Ice.Exception ex) =>
+                {
+                    cb.exception(ex);
+                });
+            test(cb.succeeded() && cb.value() == 0x7FFFFFFFFFFFFFFF);
+        }
+
+        {
+            GenericCallback<float> cb = new GenericCallback<float>(0);
+            p.begin_opFloat1(1.0f).whenCompleted(
+                (float value) =>
+                {
+                    cb.response(value);
+                },
+                (Ice.Exception ex) =>
+                {
+                    cb.exception(ex);
+                });
+            test(cb.succeeded() && cb.value() == 1.0f);
+        }
+
+        {
+            GenericCallback<double> cb = new GenericCallback<double>(0);
+            p.begin_opDouble1(1.0d).whenCompleted(
+                (double value) =>
+                {
+                    cb.response(value);
+                },
+                (Ice.Exception ex) =>
+                {
+                    cb.exception(ex);
+                });
+            test(cb.succeeded() && cb.value() == 1.0d);
+        }
+
+        {
+            GenericCallback<string> cb = new GenericCallback<string>("");
+            p.begin_opString1("opString1").whenCompleted(
+                (string value) =>
+                {
+                    cb.response(value);
+                },
+                (Ice.Exception ex) =>
+                {
+                    cb.exception(ex);
+                });
+            test(cb.succeeded() && cb.value().Equals("opString1"));
+        }
+
+        {
+            GenericCallback<string[]> cb = new GenericCallback<string[]>(null);
+            p.begin_opStringS1(null).whenCompleted(
+                (string[] seq) =>
+                {
+                    cb.response(seq);
+                },
+                (Ice.Exception ex) =>
+                {
+                    cb.exception(ex);
+                });
+           test(cb.succeeded() && cb.value().Length == 0);
+        }
+
+        {
+            GenericCallback<Dictionary<byte, bool>> cb = new GenericCallback<Dictionary<byte, bool>>(null);
+            p.begin_opByteBoolD1(null).whenCompleted(
+                (Dictionary<byte, bool> value) =>
+                {
+                    cb.response(value);
+                },
+                (Ice.Exception ex) =>
+                {
+                    cb.exception(ex);
+                });
+            test(cb.succeeded() && cb.value().Count == 0);
+        }
+        
+        {
+            GenericCallback<string[]> cb = new GenericCallback<string[]>(null);
+            p.begin_opStringS2(null).whenCompleted(
+                (string[] seq) =>
+                {
+                    cb.response(seq);
+                },
+                (Ice.Exception ex) =>
+                {
+                    cb.exception(ex);
+                });
+           test(cb.succeeded() && cb.value().Length == 0);
+        }
+
+        {
+            GenericCallback<Dictionary<byte, bool>> cb = new GenericCallback<Dictionary<byte, bool>>(null);
+            p.begin_opByteBoolD2(null).whenCompleted(
+                (Dictionary<byte, bool> value) =>
+                {
+                    cb.response(value);
+                },
+                (Ice.Exception ex) =>
+                {
+                    cb.exception(ex);
+                });
+            test(cb.succeeded() && cb.value().Count == 0);
         }
     }
 }

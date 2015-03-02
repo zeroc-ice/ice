@@ -694,3 +694,86 @@ MyDerivedClassI::opDerived_async(const Test::AMD_MyDerivedClass_opDerivedPtr& cb
 {
     cb->ice_response();
 }
+
+void
+MyDerivedClassI::opByte1_async(const Test::AMD_MyClass_opByte1Ptr& cb, Ice::Byte b, const Ice::Current&)
+{
+    cb->ice_response(b);
+}
+
+void
+MyDerivedClassI::opShort1_async(const Test::AMD_MyClass_opShort1Ptr& cb, Ice::Short s, const Ice::Current&)
+{
+    cb->ice_response(s);
+}
+
+void
+MyDerivedClassI::opInt1_async(const Test::AMD_MyClass_opInt1Ptr& cb, Ice::Int i, const Ice::Current&)
+{
+    cb->ice_response(i);
+}
+
+void
+MyDerivedClassI::opLong1_async(const Test::AMD_MyClass_opLong1Ptr& cb, Ice::Long l, const Ice::Current&)
+{
+    cb->ice_response(l);
+}
+
+void
+MyDerivedClassI::opFloat1_async(const Test::AMD_MyClass_opFloat1Ptr& cb, Ice::Float f, const Ice::Current&)
+{
+    cb->ice_response(f);
+}
+
+void
+MyDerivedClassI::opDouble1_async(const Test::AMD_MyClass_opDouble1Ptr& cb, Ice::Double d, const Ice::Current&)
+{
+    cb->ice_response(d);
+}
+
+void
+MyDerivedClassI::opString1_async(const Test::AMD_MyClass_opString1Ptr& cb, const std::string& s,
+                                 const Ice::Current&)
+{
+    cb->ice_response(s);
+}
+
+void
+MyDerivedClassI::opStringS1_async(const Test::AMD_MyClass_opStringS1Ptr& cb, const Test::StringS& seq,
+                                  const Ice::Current&)
+{
+    cb->ice_response(seq);
+}
+
+void
+MyDerivedClassI::opByteBoolD1_async(const Test::AMD_MyClass_opByteBoolD1Ptr& cb, const Test::ByteBoolD& dict,
+                                    const Ice::Current&)
+{
+    cb->ice_response(dict);
+}
+
+void
+MyDerivedClassI::opStringS2_async(const Test::AMD_MyClass_opStringS2Ptr& cb, const Test::StringS& seq,
+                                  const Ice::Current&)
+{
+    cb->ice_response(seq);
+}
+
+void
+MyDerivedClassI::opByteBoolD2_async(const Test::AMD_MyClass_opByteBoolD2Ptr& cb, const Test::ByteBoolD& dict,
+                                    const Ice::Current&)
+{
+    cb->ice_response(dict);
+}
+
+void
+MyDerivedClassI::opMyStruct1_async(const Test::AMD_MyDerivedClass_opMyStruct1Ptr& cb, const Test::MyStruct1& s, const Ice::Current&)
+{
+    cb->ice_response(s);
+}
+
+void
+MyDerivedClassI::opMyClass1_async(const Test::AMD_MyDerivedClass_opMyClass1Ptr& cb, const Test::MyClass1Ptr& c, const Ice::Current&)
+{
+    cb->ice_response(c);
+}

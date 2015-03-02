@@ -424,6 +424,71 @@
         opDerived_async: function(cb, current)
         {
             cb.ice_response();
+        },
+        
+        opByte1_async: function(cb, value, current)
+        {
+            cb.ice_response(value);
+        },
+        
+        opShort1_async: function(cb, value, current)
+        {
+            cb.ice_response(value);
+        },
+        
+        opInt1_async: function(cb, value, current)
+        {
+            cb.ice_response(value);
+        },
+        
+        opLong1_async: function(cb, value, current)
+        {
+            cb.ice_response(value);
+        },
+        
+        opFloat1_async: function(cb, value, current)
+        {
+            cb.ice_response(value);
+        },
+        
+        opDouble1_async: function(cb, value, current)
+        {
+            cb.ice_response(value);
+        },
+        
+        opString1_async: function(cb, value, current)
+        {
+            cb.ice_response(value);
+        },
+        
+        opStringS1_async: function(cb, value, current)
+        {
+            cb.ice_response(value);
+        },
+        
+        opByteBoolD1_async: function(cb, value, current)
+        {
+            cb.ice_response(value);
+        },
+        
+        opStringS2_async: function(cb, value, current)
+        {
+            cb.ice_response(value);
+        },
+        
+        opByteBoolD2_async: function(cb, value, current)
+        {
+            cb.ice_response(value);
+        },
+        
+        opMyClass1_async: function(cb, value, current)
+        {
+            return cb.ice_response(value);
+        },
+        
+        opMyStruct1_async: function(cb, value, current)
+        {
+            return cb.ice_response(value);
         }
     });
 

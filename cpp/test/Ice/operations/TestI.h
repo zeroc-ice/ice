@@ -243,6 +243,32 @@ public:
 
     virtual void opDerived(const Ice::Current&);
 
+    virtual Ice::Byte opByte1(Ice::Byte, const Ice::Current&);
+
+    virtual Ice::Short opShort1(Ice::Short, const Ice::Current&);
+
+    virtual Ice::Int opInt1(Ice::Int, const Ice::Current&);
+
+    virtual Ice::Long opLong1(Ice::Long, const Ice::Current&);
+
+    virtual Ice::Float opFloat1(Ice::Float, const Ice::Current&);
+
+    virtual Ice::Double opDouble1(Ice::Double, const Ice::Current&);
+
+    virtual std::string opString1(const std::string&, const Ice::Current&);
+
+    virtual Test::StringS opStringS1(const Test::StringS&, const Ice::Current&);
+
+    virtual Test::ByteBoolD opByteBoolD1(const Test::ByteBoolD&, const Ice::Current&);
+    
+    virtual Test::StringS opStringS2(const Test::StringS&, const Ice::Current&);
+    
+    virtual Test::ByteBoolD opByteBoolD2(const Test::ByteBoolD&, const Ice::Current&);
+    
+    virtual Test::MyStruct1 opMyStruct1(const Test::MyStruct1&, const Ice::Current&);
+
+    virtual Test::MyClass1Ptr opMyClass1(const Test::MyClass1Ptr&, const Ice::Current&);
+
 private:
 
     IceUtil::Mutex _mutex;

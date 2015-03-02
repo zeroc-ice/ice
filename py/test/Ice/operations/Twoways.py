@@ -1287,3 +1287,33 @@ def twoways(communicator, p):
     # opNonmutating
     #
     p.opNonmutating()
+    
+    test(p.opByte1(0xFF) == 0xFF)
+    test(p.opShort1(0x7FFF) == 0x7FFF)
+    test(p.opInt1(0x7FFFFFFF) == 0x7FFFFFFF)
+    test(p.opLong1(0x7FFFFFFFFFFFFFFF) == 0x7FFFFFFFFFFFFFFF)
+    test(p.opFloat1(1.0) == 1.0)
+    test(p.opDouble1(1.0) == 1.0)
+    test(p.opString1("opString1") == "opString1")
+    test(len(p.opStringS1(None)) == 0)
+    test(len(p.opByteBoolD1(None)) == 0)
+    test(len(p.opStringS2(None)) == 0)
+    test(len(p.opByteBoolD2(None)) == 0)
+    
+    d = Test.MyDerivedClassPrx.uncheckedCast(p)
+    s = Test.MyStruct1()
+    s.tesT = "Test.MyStruct1.s"
+    s.myClass = None
+    s.myStruct1 = "Test.MyStruct1.myStruct1"
+    s = d.opMyStruct1(s)
+    test(s.tesT == "Test.MyStruct1.s")
+    test(s.myClass == None)
+    test(s.myStruct1 == "Test.MyStruct1.myStruct1")
+    c = Test.MyClass1()
+    c.tesT = "Test.MyClass1.testT"
+    c.myClass = None
+    c.myClass1 = "Test.MyClass1.myClass1"
+    c = d.opMyClass1(c)
+    test(c.tesT == "Test.MyClass1.testT")
+    test(c.myClass == None)
+    test(c.myClass1 == "Test.MyClass1.myClass1")

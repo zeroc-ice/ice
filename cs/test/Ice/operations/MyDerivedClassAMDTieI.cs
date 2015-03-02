@@ -778,6 +778,75 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
     {
         cb.ice_response();
     }
+    
+    public void opByte1_async(Test.AMD_MyClass_opByte1 cb, byte value, Ice.Current current)
+    {
+        cb.ice_response(value);
+    }
+    
+    public void opShort1_async(Test.AMD_MyClass_opShort1 cb, short value, Ice.Current current)
+    {
+        cb.ice_response(value);
+    }
+    
+    public void opInt1_async(Test.AMD_MyClass_opInt1 cb, int value, Ice.Current current)
+    {
+        cb.ice_response(value);
+    }
+    
+    public void opLong1_async(Test.AMD_MyClass_opLong1 cb, long value, Ice.Current current)
+    {
+        cb.ice_response(value);
+    }
+    
+    public void opFloat1_async(Test.AMD_MyClass_opFloat1 cb, float value, Ice.Current current)
+    {
+        cb.ice_response(value);
+    }
+    
+    public void opDouble1_async(Test.AMD_MyClass_opDouble1 cb, double value, Ice.Current current)
+    {
+        cb.ice_response(value);
+    }
+    
+    public void opString1_async(Test.AMD_MyClass_opString1 cb, string value, Ice.Current current)
+    {
+        cb.ice_response(value);
+    }
+    
+    public void opStringS1_async(Test.AMD_MyClass_opStringS1 cb, string[] value, Ice.Current current)
+    {
+        cb.ice_response(value);
+    }
+    
+    public void opByteBoolD1_async(Test.AMD_MyClass_opByteBoolD1 cb, Dictionary<byte, bool> value,
+                                   Ice.Current current)
+    {
+        cb.ice_response(value);
+    }
+    
+    public void opStringS2_async(Test.AMD_MyClass_opStringS2 cb, string[] value, Ice.Current current)
+    {
+        cb.ice_response(value);
+    }
+    
+    public void opByteBoolD2_async(Test.AMD_MyClass_opByteBoolD2 cb, Dictionary<byte, bool> value,
+                                   Ice.Current current)
+    {
+        cb.ice_response(value);
+    }
+    
+    public void opMyClass1_async(Test.AMD_MyDerivedClass_opMyClass1 cb, Test.MyClass1 value,
+                                 Ice.Current current)
+    {
+        cb.ice_response(value);
+    }
+    
+    public void opMyStruct1_async(Test.AMD_MyDerivedClass_opMyStruct1 cb, Test.MyStruct1 value,
+                                  Ice.Current current)
+    {
+        cb.ice_response(value);
+    }
 
     private Thread_opVoid _opVoidThread;
     private int _opByteSOnewayCallCount = 0;

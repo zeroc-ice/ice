@@ -364,6 +364,46 @@ class MyDerivedClassI(Test.MyDerivedClass):
     def opDerived_async(self, cb, current=None):
         cb.ice_response()
 
+    def opByte1_async(self, cb, value, current=None):
+        cb.ice_response(value)
+
+    def opShort1_async(self, cb, value, current=None):
+        cb.ice_response(value)
+    
+    def opInt1_async(self, cb, value, current=None):
+        cb.ice_response(value)
+    
+    def opLong1_async(self, cb, value, current=None):
+        cb.ice_response(value)
+    
+    def opFloat1_async(self, cb, value, current=None):
+        cb.ice_response(value)
+    
+    def opDouble1_async(self, cb, value, current=None):
+        cb.ice_response(value)
+    
+    def opString1_async(self, cb, value, current=None):
+        cb.ice_response(value)
+    
+    def opStringS1_async(self, cb, value, current=None):
+        cb.ice_response(value)
+    
+    def opByteBoolD1_async(self, cb, value, current=None):
+        cb.ice_response(value)
+        
+    def opStringS2_async(self, cb, value, current=None):
+        cb.ice_response(value)
+    
+    def opByteBoolD2_async(self, cb, value, current=None):
+        cb.ice_response(value)
+        
+    def opMyClass1_async(self, cb, value, current=None):
+        return cb.ice_response(value)
+
+    def opMyStruct1_async(self, cb, value, current=None):
+        return cb.ice_response(value)
+    
+
 def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp")
     adapter = communicator.createObjectAdapter("TestAdapter")

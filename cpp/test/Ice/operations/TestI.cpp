@@ -660,3 +660,82 @@ void
 MyDerivedClassI::opDerived(const Ice::Current&)
 {
 }
+
+Ice::Byte
+MyDerivedClassI::opByte1(Ice::Byte b, const Ice::Current&)
+{
+    return b;
+}
+
+Ice::Short
+MyDerivedClassI::opShort1(Ice::Short s, const Ice::Current&)
+{
+    return s;
+}
+
+Ice::Int
+MyDerivedClassI::opInt1(Ice::Int i, const Ice::Current&)
+{
+    return i;
+}
+
+Ice::Long
+MyDerivedClassI::opLong1(Ice::Long l, const Ice::Current&)
+{
+    return l;
+}
+
+Ice::Float
+MyDerivedClassI::opFloat1(Ice::Float f, const Ice::Current&)
+{
+    return f;
+}
+
+Ice::Double
+MyDerivedClassI::opDouble1(Ice::Double d, const Ice::Current&)
+{
+    return d;
+}
+
+std::string
+MyDerivedClassI::opString1(const std::string& s, const Ice::Current&)
+{
+    return s;
+}
+
+Test::StringS
+MyDerivedClassI::opStringS1(const Test::StringS& seq, const Ice::Current&)
+{
+    return seq;
+}
+
+Test::ByteBoolD
+MyDerivedClassI::opByteBoolD1(const Test::ByteBoolD& dict, const Ice::Current&)
+{
+    return dict;
+}
+
+Test::StringS
+MyDerivedClassI::opStringS2(const Test::StringS& seq, const Ice::Current&)
+{
+    return seq;
+}
+
+Test::ByteBoolD
+MyDerivedClassI::opByteBoolD2(const Test::ByteBoolD& dict, const Ice::Current&)
+{
+    return dict;
+}
+
+Test::MyStruct1
+MyDerivedClassI::opMyStruct1(const Test::MyStruct1& s, const Ice::Current&)
+{
+    return s;
+}
+
+Test::MyClass1Ptr
+MyDerivedClassI::opMyClass1(const Test::MyClass1Ptr& c, const Ice::Current&)
+{
+    return c;
+}
+    

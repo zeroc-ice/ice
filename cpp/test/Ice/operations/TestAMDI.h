@@ -224,8 +224,59 @@ public:
     virtual void opDerived_async(const Test::AMD_MyDerivedClass_opDerivedPtr&,
                                  const Ice::Current&);
 
-private:
+    virtual void opByte1_async(const Test::AMD_MyClass_opByte1Ptr&,
+                               Ice::Byte,
+                               const Ice::Current&);
 
+    virtual void opShort1_async(const Test::AMD_MyClass_opShort1Ptr&,
+                                Ice::Short,
+                                const Ice::Current&);
+
+    virtual void opInt1_async(const Test::AMD_MyClass_opInt1Ptr&,
+                              Ice::Int,
+                              const Ice::Current&);
+
+    virtual void opLong1_async(const Test::AMD_MyClass_opLong1Ptr&,
+                               Ice::Long,
+                               const Ice::Current&);
+
+    virtual void opFloat1_async(const Test::AMD_MyClass_opFloat1Ptr&,
+                                Ice::Float,
+                                const Ice::Current&);
+
+    virtual void opDouble1_async(const Test::AMD_MyClass_opDouble1Ptr&,
+                                 Ice::Double,
+                                 const Ice::Current&);
+
+    virtual void opString1_async(const Test::AMD_MyClass_opString1Ptr&,
+                                 const std::string&,
+                                 const Ice::Current&);
+
+    virtual void opStringS1_async(const Test::AMD_MyClass_opStringS1Ptr&,
+                                  const Test::StringS&,
+                                  const Ice::Current&);
+
+    virtual void opByteBoolD1_async(const Test::AMD_MyClass_opByteBoolD1Ptr&,
+                                    const Test::ByteBoolD&,
+                                    const Ice::Current&);
+    
+    virtual void opStringS2_async(const Test::AMD_MyClass_opStringS2Ptr&,
+                                  const Test::StringS&,
+                                  const Ice::Current&);
+    
+    virtual void opByteBoolD2_async(const Test::AMD_MyClass_opByteBoolD2Ptr&,
+                                    const Test::ByteBoolD&,
+                                    const Ice::Current&);
+
+    virtual void opMyStruct1_async(const Test::AMD_MyDerivedClass_opMyStruct1Ptr&, 
+                                   const Test::MyStruct1&,
+                                   const Ice::Current&);
+
+    virtual void opMyClass1_async(const Test::AMD_MyDerivedClass_opMyClass1Ptr&,
+                                  const Test::MyClass1Ptr&,
+                                  const Ice::Current&);
+
+private:
     IceUtil::ThreadPtr _opVoidThread;
     IceUtil::Mutex _opVoidMutex;
 

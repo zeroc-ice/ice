@@ -236,11 +236,44 @@ dictionary<MyEnum, MyEnumS> MyEnumMyEnumSD;
     idempotent void opIdempotent();
 
     ["nonmutating"] idempotent void opNonmutating();
+
+    //
+    // Test operation with a parameter that has the same name
+    //
+    byte opByte1(byte opByte1);
+    short opShort1(short opShort1);
+    int opInt1(int opInt1);
+    long opLong1(long opLong1);
+    float opFloat1(float opFloat1);
+    double opDouble1(double opDouble1);
+    string opString1(string opString1);
+    StringS opStringS1(StringS opStringS1);
+    ByteBoolD opByteBoolD1(ByteBoolD opByteBoolD1);
+    
+    StringS opStringS2(StringS stringS);
+    ByteBoolD opByteBoolD2(ByteBoolD byteBoolD);
 };
+
+struct MyStruct1
+{
+    string tesT; // Same name as the enclosing module
+    MyClass myClass; // Same name as an already defined class
+    string myStruct1; // Same name as the enclosing struct
+};
+
+class MyClass1
+{
+    string tesT; // Same name as the enclosing module
+    MyClass myClass; // Same name as an already defined class
+    string myClass1; // Same name as the enclosing class
+};
+
 
 ["amd"] class MyDerivedClass extends MyClass
 {
     void opDerived();
+    MyClass1 opMyClass1(MyClass1 c);
+    MyStruct1 opMyStruct1(MyStruct1 c);
 };
 
 };

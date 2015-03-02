@@ -322,3 +322,44 @@ class MyDerivedClassI(Test.MyDerivedClass):
 
     def opDerived(self, current=None):
         pass
+
+    def opByte1(self, value, current=None):
+        return value
+
+    def opShort1(self, value, current=None):
+        return value
+    
+    def opInt1(self, value, current=None):
+        return value
+    
+    def opLong1(self, value, current=None):
+        return value
+    
+    def opFloat1(self, value, current=None):
+        return value
+    
+    def opDouble1(self, value, current=None):
+        return value
+    
+    def opString1(self, value, current=None):
+        return value
+    
+    def opStringS1(self, value, current=None):
+        return value
+    
+    def opByteBoolD1(self, value, current=None):
+        return value
+    
+    def opStringS2(self, value, current=None):
+        return value
+    
+    def opByteBoolD2(self, value, current=None):
+        return value
+    
+    def opMyClass1(self, value, current=None):
+        return value
+
+    def opMyStruct1(self, value, current=None):
+        return value
+
+    

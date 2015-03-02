@@ -809,6 +809,84 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
     {
         cb.ice_response();
     }
+    
+    @Override
+    public void opByte1_async(AMD_MyClass_opByte1 cb, byte value, Ice.Current current)
+    {
+        cb.ice_response(value);
+    }
+    
+    @Override
+    public void opShort1_async(AMD_MyClass_opShort1 cb, short value, Ice.Current current)
+    {
+        cb.ice_response(value);
+    }
+    
+    @Override
+    public void opInt1_async(AMD_MyClass_opInt1 cb, int value, Ice.Current current)
+    {
+        cb.ice_response(value);
+    }
+    
+    @Override
+    public void opLong1_async(AMD_MyClass_opLong1 cb, long value, Ice.Current current)
+    {
+        cb.ice_response(value);
+    }
+    
+    @Override
+    public void opFloat1_async(AMD_MyClass_opFloat1 cb, float value, Ice.Current current)
+    {
+        cb.ice_response(value);
+    }
+    
+    @Override
+    public void opDouble1_async(AMD_MyClass_opDouble1 cb, double value, Ice.Current current)
+    {
+        cb.ice_response(value);
+    }
+    
+    @Override
+    public void opString1_async(AMD_MyClass_opString1 cb, String value, Ice.Current current)
+    {
+        cb.ice_response(value);
+    }
+    
+    @Override
+    public void opStringS1_async(AMD_MyClass_opStringS1 cb, String[] value, Ice.Current current)
+    {
+        cb.ice_response(value);
+    }
+    
+    @Override
+    public void opByteBoolD1_async(AMD_MyClass_opByteBoolD1 cb, Map<Byte, Boolean> value, Ice.Current current)
+    {
+        cb.ice_response(value);
+    }
+    
+    @Override
+    public void opStringS2_async(AMD_MyClass_opStringS2 cb, String[] value, Ice.Current current)
+    {
+        cb.ice_response(value);
+    }
+    
+    @Override
+    public void opByteBoolD2_async(AMD_MyClass_opByteBoolD2 cb, Map<Byte, Boolean> value, Ice.Current current)
+    {
+        cb.ice_response(value);
+    }
+    
+    @Override
+    public void opMyClass1_async(AMD_MyDerivedClass_opMyClass1 cb, MyClass1 value, Ice.Current current)
+    {
+        cb.ice_response(value);
+    }
+    
+    @Override
+    public void opMyStruct1_async(AMD_MyDerivedClass_opMyStruct1 cb, MyStruct1 value, Ice.Current current)
+    {
+        cb.ice_response(value);
+    }
 
     private Thread _opVoidThread;
     private int _opByteSOnewayCallCount = 0;

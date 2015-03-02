@@ -2075,12 +2075,9 @@ Slice::Container::checkIntroduced(const string& scoped, ContainedPtr namedThing)
     if(namedThing == 0)
     {
         ContainedList cl = lookupContained(firstComponent, false);
-        if(namedThing == 0)
+        if(cl.empty())
         {
-            if(cl.empty())
-            {
-                return true; // Ignore types whose creation failed previously.
-            }
+            return true; // Ignore types whose creation failed previously.
         }
         namedThing = cl.front();
     }
@@ -2137,6 +2134,24 @@ Slice::Container::checkIntroduced(const string& scoped, ContainedPtr namedThing)
         //
         if(it->second != namedThing)
         {
+            //
+            // Parameter are in its own scope.
+            //
+            if((ParamDeclPtr::dynamicCast(it->second) && !ParamDeclPtr::dynamicCast(namedThing)) || 
+               (!ParamDeclPtr::dynamicCast(it->second) && ParamDeclPtr::dynamicCast(namedThing)))
+            {
+                return true;
+            }
+            
+            //
+            // Data members are in its own scope.
+            //
+            if((DataMemberPtr::dynamicCast(it->second) && !DataMemberPtr::dynamicCast(namedThing)) || 
+               (!DataMemberPtr::dynamicCast(it->second) && DataMemberPtr::dynamicCast(namedThing)))
+            {
+                return true;
+            }
+            
             _unit->error("`" + firstComponent + "' has changed meaning");
             return false;
         }
@@ -3189,6 +3204,7 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
                 return p;
             }
         }
+
         if(matches.front()->name() != name)
         {
             string msg = "data member `" + name + "' differs only in capitalization from ";
@@ -3204,26 +3220,7 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
         }
     }
 
-    //
-    // Check whether enclosing class has the same name.
-    //
-    if(name == this->name())
-    {
-        string msg = "class name `";
-        msg += name;
-        msg += "' cannot be used as data member name";
-        _unit->error(msg);
-        return 0;
-    }
-
     string newName = IceUtilInternal::toLower(name);
-    string thisName = IceUtilInternal::toLower(this->name());
-    if(newName == thisName)
-    {
-        string msg = "data member `" + name + "' differs only in capitalization from enclosing class name `";
-        msg += this->name() + "'";
-        _unit->error(msg);
-    }
 
     //
     // Check whether any bases have defined something with the same name already.
@@ -3760,27 +3757,7 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
         }
     }
 
-    //
-    // Check whether enclosing exception has the same name.
-    //
-    if(name == this->name())
-    {
-        string msg = "exception name `";
-        msg += name;
-        msg += "' cannot be used as exception member name";
-        _unit->error(msg);
-        return 0;
-    }
-
     string newName = IceUtilInternal::toLower(name);
-    string thisName = IceUtilInternal::toLower(this->name());
-    if(newName == thisName)
-    {
-        string msg = "exception member `" + name + "' differs only in capitalization ";
-        msg += "from enclosing exception name `" + this->name() + "'";
-        _unit->error(msg);
-    }
-
     //
     // Check whether any bases have defined a member with the same name already.
     //
@@ -4133,27 +4110,6 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool op
             _unit->error(msg);
             return 0;
         }
-    }
-
-    //
-    // Check whether enclosing struct has the same name.
-    //
-    if(name == this->name())
-    {
-        string msg = "struct name `";
-        msg += name;
-        msg += "' cannot be used as member name";
-        _unit->error(msg);
-        return 0;
-    }
-
-    string newName = IceUtilInternal::toLower(name);
-    string thisName = IceUtilInternal::toLower(this->name());
-    if(newName == thisName)
-    {
-        string msg = "struct member `" + name + "' differs only in capitalization from enclosing struct name `";
-        msg += this->name() + "'";
-        _unit->error(msg);
     }
 
     //
@@ -5009,26 +4965,8 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
         }
     }
 
-    //
-    // Check whether enclosing operation has the same name.
-    //
-    if(name == this->name())
-    {
-        string msg = "operation name `";
-        msg += name;
-        msg += "' cannot be used as parameter name";
-        _unit->error(msg);
-        return 0;
-    }
-
     string newName = IceUtilInternal::toLower(name);
     string thisName = IceUtilInternal::toLower(this->name());
-    if(newName == thisName)
-    {
-        string msg = "parameter `" + name + "' differs only in capitalization from operation name `";
-        msg += this->name() + "'";
-        _unit->error(msg);
-    }
 
     //
     // Check that in parameters don't follow out parameters.

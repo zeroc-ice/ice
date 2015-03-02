@@ -898,6 +898,18 @@ function twoways($communicator, $p)
     {
         $p->opNonmutating();
     }
+    
+    test($p->opByte1(0xFF) == 0xFF);
+    test($p->opShort1(0x7FFF) == 0x7FFF);
+    test($p->opInt1(0x7FFFFFFF) == 0x7FFFFFFF);
+    test($p->opLong1(0x7FFFFFFFFFFFFFFF) == 0x7FFFFFFFFFFFFFFF);
+    test($p->opFloat1(1.0) == 1.0);
+    test($p->opDouble1(1.0) == 1.0);
+    test($p->opString1("opString1") == "opString1");
+    test(count($p->opStringS1(null)) == 0);
+    test(count($p->opByteBoolD1(null)) == 0);
+    test(count($p->opStringS2(null)) == 0);
+    test(count($p->opByteBoolD2(null)) == 0);
 }
 
 function allTests($communicator)

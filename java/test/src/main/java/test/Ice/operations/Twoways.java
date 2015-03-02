@@ -1492,5 +1492,36 @@ class Twoways
         p.opIdempotent();
 
         p.opNonmutating();
+        
+        test(p.opByte1((byte)0xFF) == (byte)0xFF);
+        test(p.opShort1((short)0x7FFF) == (short)0x7FFF);
+        test(p.opInt1(0x7FFFFFFF) == 0x7FFFFFFF);
+        //test(p.opLong1(0x7FFFFFFFFFFFFFFF) == 0x7FFFFFFFFFFFFFFF);
+        test(p.opFloat1(1.0f) == 1.0f);
+        test(p.opDouble1(1.0d) == 1.0d);
+        test(p.opString1("opString1").equals("opString1"));
+        test(p.opStringS1(null).length == 0);
+        test(p.opByteBoolD1(null).size() == 0);
+        test(p.opStringS2(null).length == 0);
+        test(p.opByteBoolD2(null).size() == 0);
+        
+        
+        MyDerivedClassPrx d = MyDerivedClassPrxHelper.uncheckedCast(p);
+        MyStruct1 s = new MyStruct1();
+        s.tesT = "Test.MyStruct1.s";
+        s.myClass = null;
+        s.myStruct1 = "Test.MyStruct1.myStruct1";
+        s = d.opMyStruct1(s);
+        test(s.tesT.equals("Test.MyStruct1.s"));
+        test(s.myClass == null);
+        test(s.myStruct1.equals("Test.MyStruct1.myStruct1"));
+        MyClass1 c = new MyClass1();
+        c.tesT = "Test.MyClass1.testT";
+        c.myClass = null;
+        c.myClass1 = "Test.MyClass1.myClass1";
+        c = d.opMyClass1(c);
+        test(c.tesT.equals("Test.MyClass1.testT"));
+        test(c.myClass == null);
+        test(c.myClass1.equals("Test.MyClass1.myClass1"));
     }
 }

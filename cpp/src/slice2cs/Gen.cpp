@@ -3293,7 +3293,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
         {
             _out << "return ";
         }
-        _out << name << spar << args << "Ice.ObjectImpl.defaultCurrent" << epar << ';';
+        _out << "this." << name << spar << args << "Ice.ObjectImpl.defaultCurrent" << epar << ';';
         _out << eb;
     }
 
@@ -5231,7 +5231,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             _out << "return ";
         }
-        _out << opName << spar << args << "null" << "false" << epar << ';';
+        _out << "this." << opName << spar << args << "null" << "false" << epar << ';';
         _out << eb;
 
         _out << sp;
@@ -5245,7 +5245,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             _out << "return ";
         }
-        _out << opName << spar << args << "context__" << "true" << epar << ';';
+        _out << "this." << opName << spar << args << "context__" << "true" << epar << ';';
         _out << eb;
 
         _out << sp << nl << "private " << retS << " " << opName << spar << params

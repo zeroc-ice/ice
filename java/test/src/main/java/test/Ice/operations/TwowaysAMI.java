@@ -120,6 +120,41 @@ class TwowaysAMI
 
         private boolean _called;
     }
+    
+    private static class GenericCallback<T> extends Callback
+    {
+        public GenericCallback(T value)
+        {
+            _value = value;
+        }
+        
+        public void response(T value)
+        {
+            _value = value;
+            _succeeded = true;
+            called();
+        }
+        
+        public void exception(Ice.LocalException ex)
+        {
+            _succeeded = false;
+            called();
+        }
+        
+        public boolean succeeded()
+        {
+            check();
+            return _succeeded;
+        }
+        
+        public T value()
+        {
+            return _value;
+        }
+        
+        private T _value;
+        private boolean _succeeded = false;
+    }
 
     private static class pingI extends Ice.Callback_Object_ice_ping
     {
@@ -2734,6 +2769,168 @@ class TwowaysAMI
             opDerivedI cb = new opDerivedI();
             derived.begin_opDerived(cb);
             cb.check();
+        }
+        
+        {
+            final GenericCallback<Byte> cb = new GenericCallback<Byte>((byte)0);
+            p.begin_opByte1((byte)0xFF,
+                new test.Ice.operations.Test.Callback_MyClass_opByte1()
+                    {
+                        public void response(byte value)
+                        {
+                            cb.response(value);
+                        }
+                        
+                        public void exception(Ice.LocalException ex)
+                        {
+                            cb.exception(ex);
+                        }
+                    });
+            test(cb.succeeded() && cb.value() == (byte)0xFF);
+        }
+        
+        {
+            final GenericCallback<Short> cb = new GenericCallback<Short>((short)0);
+            p.begin_opShort1((short)0x7FFF,
+                new test.Ice.operations.Test.Callback_MyClass_opShort1()
+                    {
+                        public void response(short value)
+                        {
+                            cb.response(value);
+                        }
+                        
+                        public void exception(Ice.LocalException ex)
+                        {
+                            cb.exception(ex);
+                        }
+                    });
+            test(cb.succeeded() && cb.value() == 0x7FFF);
+        }
+        
+        {
+            final GenericCallback<Integer> cb = new GenericCallback<Integer>(0);
+            p.begin_opInt1(0x7FFFFFFF,
+                new test.Ice.operations.Test.Callback_MyClass_opInt1()
+                    {
+                        public void response(int value)
+                        {
+                            cb.response(value);
+                        }
+                        
+                        public void exception(Ice.LocalException ex)
+                        {
+                            cb.exception(ex);
+                        }
+                    });
+            test(cb.succeeded() && cb.value() == 0x7FFFFFFF);
+        }
+        
+        {
+            final GenericCallback<Long> cb = new GenericCallback<Long>((long)0);
+            p.begin_opLong1(0x7FFFFFFF,
+                new test.Ice.operations.Test.Callback_MyClass_opLong1()
+                    {
+                        public void response(long value)
+                        {
+                            cb.response(value);
+                        }
+                        
+                        public void exception(Ice.LocalException ex)
+                        {
+                            cb.exception(ex);
+                        }
+                    });
+            test(cb.succeeded() && cb.value() == 0x7FFFFFFF);
+        }
+        
+        {
+            final GenericCallback<Float> cb = new GenericCallback<Float>(0.0f);
+            p.begin_opFloat1(1.0f,
+                new test.Ice.operations.Test.Callback_MyClass_opFloat1()
+                    {
+                        public void response(float value)
+                        {
+                            cb.response(value);
+                        }
+                        
+                        public void exception(Ice.LocalException ex)
+                        {
+                            cb.exception(ex);
+                        }
+                    });
+            test(cb.succeeded() && cb.value() == 1.0f);
+        }
+        
+        {
+            final GenericCallback<Double> cb = new GenericCallback<Double>(0.0);
+            p.begin_opDouble1(1.0,
+                new test.Ice.operations.Test.Callback_MyClass_opDouble1()
+                    {
+                        public void response(double value)
+                        {
+                            cb.response(value);
+                        }
+                        
+                        public void exception(Ice.LocalException ex)
+                        {
+                            cb.exception(ex);
+                        }
+                    });
+            test(cb.succeeded() && cb.value() == 1.0);
+        }
+        
+        {
+            final GenericCallback<String> cb = new GenericCallback<String>("");
+            p.begin_opString1("opString1",
+                new test.Ice.operations.Test.Callback_MyClass_opString1()
+                    {
+                        public void response(String value)
+                        {
+                            cb.response(value);
+                        }
+                        
+                        public void exception(Ice.LocalException ex)
+                        {
+                            cb.exception(ex);
+                        }
+                    });
+            test(cb.succeeded() && cb.value().equals("opString1"));
+        }
+        
+        {
+            final GenericCallback<String[]> cb = new GenericCallback<String[]>(null);
+            p.begin_opStringS1(null,
+                new test.Ice.operations.Test.Callback_MyClass_opStringS1()
+                    {
+                        public void response(String[] value)
+                        {
+                            cb.response(value);
+                        }
+                        
+                        public void exception(Ice.LocalException ex)
+                        {
+                            cb.exception(ex);
+                        }
+                    });
+            test(cb.succeeded() && cb.value().length == 0);
+        }
+        
+        {
+            final GenericCallback<Map<Byte, Boolean>> cb = new GenericCallback<Map<Byte, Boolean>>(null);
+            p.begin_opByteBoolD1(null,
+                new test.Ice.operations.Test.Callback_MyClass_opByteBoolD1()
+                    {
+                        public void response(Map<Byte, Boolean> value)
+                        {
+                            cb.response(value);
+                        }
+                        
+                        public void exception(Ice.LocalException ex)
+                        {
+                            cb.exception(ex);
+                        }
+                    });
+            test(cb.succeeded() && cb.value().size() == 0);
         }
     }
 }

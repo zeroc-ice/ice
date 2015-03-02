@@ -417,7 +417,73 @@
 
         opDerived: function(current)
         {
+        },
+        
+        opByte1: function(value, current)
+        {
+            return value;
+        },
+        
+        opShort1: function(value, current)
+        {
+            return value;
+        },
+        
+        opInt1: function(value, current)
+        {
+            return value;
+        },
+        
+        opLong1: function(value, current)
+        {
+            return value;
+        },
+        
+        opFloat1: function(value, current)
+        {
+            return value;
+        },
+        
+        opDouble1: function(value, current)
+        {
+            return value;
+        },
+        
+        opString1: function(value, current)
+        {
+            return value;
+        },
+        
+        opStringS1: function(value, current)
+        {
+            return value;
+        },
+        
+        opByteBoolD1: function(value, current)
+        {
+            return value;
+        },
+        
+        opStringS2: function(value, current)
+        {
+            return value;
+        },
+        
+        opByteBoolD2: function(value, current)
+        {
+            return value;
+        },
+        
+        opMyClass1: function(value, current)
+        {
+            return value;
+        },
+        
+        opMyStruct1: function(value, current)
+        {
+            return value
         }
+        
     });
 
     exports.MyDerivedClassI = MyDerivedClassI;

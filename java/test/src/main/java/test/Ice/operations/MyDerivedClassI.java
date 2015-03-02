@@ -754,6 +754,84 @@ public final class MyDerivedClassI extends MyDerivedClass
     opDerived(Ice.Current current)
     {
     }
+    
+    @Override
+    public byte opByte1(byte value, Ice.Current current)
+    {
+        return value;
+    }
+    
+    @Override
+    public short opShort1(short value, Ice.Current current)
+    {
+        return value;
+    }
+    
+    @Override
+    public int opInt1(int value, Ice.Current current)
+    {
+        return value;
+    }
+    
+    @Override
+    public long opLong1(long value, Ice.Current current)
+    {
+        return value;
+    }
+    
+    @Override
+    public float opFloat1(float value, Ice.Current current)
+    {
+        return value;
+    }
+    
+    @Override
+    public double opDouble1(double value, Ice.Current current)
+    {
+        return value;
+    }
+    
+    @Override
+    public String opString1(String value, Ice.Current current)
+    {
+        return value;
+    }
+    
+    @Override
+    public String[] opStringS1(String[] value, Ice.Current current)
+    {
+        return value;
+    }
+    
+    @Override
+    public Map<Byte, Boolean> opByteBoolD1(Map<Byte, Boolean> value, Ice.Current current)
+    {
+        return value;
+    }
+    
+    @Override
+    public String[] opStringS2(String[] value, Ice.Current current)
+    {
+        return value;
+    }
+    
+    @Override
+    public Map<Byte, Boolean> opByteBoolD2(Map<Byte, Boolean> value, Ice.Current current)
+    {
+        return value;
+    }
+    
+    @Override
+    public MyClass1 opMyClass1(MyClass1 value, Ice.Current current)
+    {
+        return value;
+    }
+    
+    @Override
+    public MyStruct1 opMyStruct1(MyStruct1 value, Ice.Current current)
+    {
+        return value;
+    }
 
     private int _opByteSOnewayCallCount = 0;
 }
