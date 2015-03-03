@@ -753,13 +753,23 @@ class SliceTask extends DefaultTask {
             } else {
                 ldLibPathEnv = "LD_LIBRARY_PATH"
                 ldLib64PathEnv = "LD_LIBRARY_PATH"
-                if(srcdist) {
-                    lib64Path = libPath
-                } else {
-                    lib64Path = new File(iceInstall + File.separator + "lib64").toString()
+                lib64Path = new File(iceInstall + File.separator + "lib64").toString()
+                
+                if(new File(iceInstall + File.separator + "lib" + File.separator + "i386-linux-gnu").exists())
+                {
+                    libPath = new File(iceInstall + File.separator + 
+                                       "lib" + File.separator + 
+                                       "i386-linux-gnu").toString()
+                }
+                
+                if(new File(iceInstall + File.separator + "lib" + File.separator + "x86_64-linux-gnu").exists())
+                {
+                    lib64Path = new File(iceInstall + File.separator + 
+                                         "lib" + File.separator + 
+                                         "x86_64-linux-gnu").toString();
                 }
             }
-
+            
             if(ldLibPathEnv != null) {
                 if(ldLibPathEnv.equals(ldLib64PathEnv)) {
                     libPath = libPath + File.pathSeparator + lib64Path;
