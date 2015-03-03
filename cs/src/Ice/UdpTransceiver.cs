@@ -856,7 +856,7 @@ namespace IceInternal
             try
             {
                 _fd = Network.createSocket(true, _addr.AddressFamily);
-                setBufSize(instance.properties());
+                setBufSize();
 #if !SILVERLIGHT
                 Network.setBlock(_fd, false);
                 if(AssemblyUtil.osx_)
@@ -912,7 +912,7 @@ namespace IceInternal
 #endif
 
                 _fd = Network.createServerSocket(true, _addr.AddressFamily, instance.protocolSupport());
-                setBufSize(instance.properties());
+                setBufSize();
 #if !SILVERLIGHT
                 Network.setBlock(_fd, false);
 #endif
@@ -934,17 +934,19 @@ namespace IceInternal
             }
         }
 
-        private void setBufSize(Ice.Properties properties)
+        private void setBufSize()
         {
             Debug.Assert(_fd != null);
 
             for (int i = 0; i < 2; ++i)
             {
+                bool isSnd;
                 string direction;
                 string prop;
                 int dfltSize;
                 if(i == 0)
                 {
+                    isSnd = false;
                     direction = "receive";
                     prop = "Ice.UDP.RcvSize";
                     dfltSize = Network.getRecvBufferSize(_fd);
@@ -952,6 +954,7 @@ namespace IceInternal
                 }
                 else
                 {
+                    isSnd = true;
                     direction = "send";
                     prop = "Ice.UDP.SndSize";
                     dfltSize = Network.getSendBufferSize(_fd);
@@ -961,7 +964,7 @@ namespace IceInternal
                 //
                 // Get property for buffer size and check for sanity.
                 //
-                int sizeRequested = properties.getPropertyAsIntWithDefault(prop, dfltSize);
+                int sizeRequested = _instance.properties().getPropertyAsIntWithDefault(prop, dfltSize);
                 if(sizeRequested < (_udpOverhead + IceInternal.Protocol.headerSize))
                 {
                     _instance.logger().warning("Invalid " + prop + " value of " + sizeRequested + " adjusted to " +
@@ -991,12 +994,27 @@ namespace IceInternal
                     }
 
                     //
-                    // Warn if the size that was set is less than the requested size.
+                    // Warn if the size that was set is less than the requested size
+                    // and we have not already warned
                     //
                     if(sizeSet < sizeRequested)
                     {
-                        _instance.logger().warning("UDP " + direction + " buffer size: requested size of " +
-                                                   sizeRequested + " adjusted to " + sizeSet);
+                        BufSizeWarnInfo winfo = _instance.getBufSizeWarn(Ice.UDPEndpointType.value);
+                        if((isSnd && (!winfo.sndWarn || winfo.sndSize != sizeRequested)) ||
+                           (!isSnd && (!winfo.rcvWarn || winfo.rcvSize != sizeRequested)))
+                        {
+                            _instance.logger().warning("UDP " + direction + " buffer size: requested size of " +
+                                                       sizeRequested + " adjusted to " + sizeSet);
+
+                            if(isSnd)
+                            {
+                                _instance.setSndBufSizeWarn(Ice.UDPEndpointType.value, sizeRequested);
+                            }
+                            else
+                            {
+                                _instance.setRcvBufSizeWarn(Ice.UDPEndpointType.value, sizeRequested);
+                            }
+                        }
                     }
                 }
             }

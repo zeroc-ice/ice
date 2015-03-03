@@ -115,7 +115,7 @@ final class AcceptorI implements IceInternal.Acceptor
         {
             _fd = IceInternal.Network.createTcpServerSocket();
             IceInternal.Network.setBlock(_fd, false);
-            IceInternal.Network.setTcpBufSize(_fd, _instance.properties(), _instance.logger());
+            IceInternal.Network.setTcpBufSize(_fd, _instance);
             if(!System.getProperty("os.name").startsWith("Windows"))
             {
                 //

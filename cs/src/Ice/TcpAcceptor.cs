@@ -137,7 +137,7 @@ namespace IceInternal
                 _fd = Network.createServerSocket(false, _addr.AddressFamily, protocol);
                 Network.setBlock(_fd, false);
 #  if !COMPACT
-                Network.setTcpBufSize(_fd, _instance.properties(), _instance.logger());
+                Network.setTcpBufSize(_fd, _instance);
 #  endif
                 if(AssemblyUtil.platform_ != AssemblyUtil.Platform.Windows)
                 {

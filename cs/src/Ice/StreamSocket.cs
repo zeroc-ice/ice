@@ -558,7 +558,7 @@ namespace IceInternal
 #if !SILVERLIGHT
             Network.setBlock(_fd, false);
 #endif
-            Network.setTcpBufSize(_fd, instance.properties(), instance.logger());
+            Network.setTcpBufSize(_fd, instance);
 
 #if ICE_SOCKET_ASYNC_API
             _readEventArgs = new SocketAsyncEventArgs();

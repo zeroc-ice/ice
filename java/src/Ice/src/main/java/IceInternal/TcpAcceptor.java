@@ -92,7 +92,7 @@ class TcpAcceptor implements Acceptor
         {
             _fd = Network.createTcpServerSocket();
             Network.setBlock(_fd, false);
-            Network.setTcpBufSize(_fd, instance.properties(), _instance.logger());
+            Network.setTcpBufSize(_fd, instance);
             if(!System.getProperty("os.name").startsWith("Windows"))
             {
                 //

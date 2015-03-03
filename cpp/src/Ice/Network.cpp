@@ -23,6 +23,7 @@
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/StringConverter.h>
 #include <Ice/LocalException.h>
+#include <Ice/ProtocolInstance.h> // For setTcpBufSize
 #include <Ice/Properties.h> // For setTcpBufSize
 #include <Ice/LoggerUtil.h> // For setTcpBufSize
 #include <Ice/Buffer.h>
@@ -1461,7 +1462,7 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
             HostName^ h = it->Current;
             if(h->IPInformation != nullptr && h->IPInformation->NetworkAdapter != nullptr)
             {
-                hosts.push_back(IceUtil::wstringToString(h->CanonicalName->Data(), 
+                hosts.push_back(IceUtil::wstringToString(h->CanonicalName->Data(),
                                                          IceUtil::getProcessStringConverter()));
             }
         }
@@ -1633,7 +1634,7 @@ IceInternal::isMulticast(const Address& addr)
 }
 
 void
-IceInternal::setTcpBufSize(SOCKET fd, const Ice::PropertiesPtr& properties, const Ice::LoggerPtr& logger)
+IceInternal::setTcpBufSize(SOCKET fd, const ProtocolInstancePtr& instance)
 {
     assert(fd != INVALID_SOCKET);
 
@@ -1646,9 +1647,7 @@ IceInternal::setTcpBufSize(SOCKET fd, const Ice::PropertiesPtr& properties, cons
 #else
     const int dfltBufSize = 0;
 #endif
-    Int sizeRequested;
-
-    sizeRequested = properties->getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
+    Int sizeRequested = instance->properties()->getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
     if(sizeRequested > 0)
     {
         //
@@ -1658,14 +1657,21 @@ IceInternal::setTcpBufSize(SOCKET fd, const Ice::PropertiesPtr& properties, cons
         //
         setRecvBufferSize(fd, sizeRequested);
         int size = getRecvBufferSize(fd);
-        if(size > 0 && size < sizeRequested) // Warn if the size that was set is less than the requested size.
+        if(size > 0 && size < sizeRequested)
         {
-            Ice::Warning out(logger);
-            out << "TCP receive buffer size: requested size of " << sizeRequested << " adjusted to " << size;
+            // Warn if the size that was set is less than the requested size and
+            // we have not already warned.
+            BufSizeWarnInfo winfo = instance->getBufSizeWarn(TCPEndpointType);
+            if(!winfo.rcvWarn || sizeRequested != winfo.rcvSize)
+            {
+                Ice::Warning out(instance->logger());
+                out << "TCP receive buffer size: requested size of " << sizeRequested << " adjusted to " << size;
+                instance->setRcvBufSizeWarn(TCPEndpointType, sizeRequested);
+            }
         }
     }
 
-    sizeRequested = properties->getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
+    sizeRequested = instance->properties()->getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
     if(sizeRequested > 0)
     {
         //
@@ -1675,10 +1681,17 @@ IceInternal::setTcpBufSize(SOCKET fd, const Ice::PropertiesPtr& properties, cons
         //
         setSendBufferSize(fd, sizeRequested);
         int size = getSendBufferSize(fd);
-        if(size > 0 && size < sizeRequested) // Warn if the size that was set is less than the requested size.
+        if(size > 0 && size < sizeRequested)
         {
-            Ice::Warning out(logger);
-            out << "TCP send buffer size: requested size of " << sizeRequested << " adjusted to " << size;
+            // Warn if the size that was set is less than the requested size and
+            // we have not already warned.
+            BufSizeWarnInfo winfo = instance->getBufSizeWarn(TCPEndpointType);
+            if(!winfo.sndWarn || sizeRequested != winfo.sndSize)
+            {
+                Ice::Warning out(instance->logger());
+                out << "TCP send buffer size: requested size of " << sizeRequested << " adjusted to " << size;
+                instance->setSndBufSizeWarn(TCPEndpointType, sizeRequested);
+            }
         }
     }
 }

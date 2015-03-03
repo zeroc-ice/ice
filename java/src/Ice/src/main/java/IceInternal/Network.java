@@ -117,7 +117,7 @@ public final class Network
         return false;
     }
 
-    public static boolean 
+    public static boolean
     isIPv6Supported()
     {
         try
@@ -797,7 +797,7 @@ public final class Network
     }
 
     public static java.util.List<java.net.InetSocketAddress>
-    getAddresses(String host, int port, int protocol, Ice.EndpointSelectionType selType, boolean preferIPv6, 
+    getAddresses(String host, int port, int protocol, Ice.EndpointSelectionType selType, boolean preferIPv6,
                  boolean blocking)
     {
         if(!blocking)
@@ -988,7 +988,7 @@ public final class Network
     }
 
     public static void
-    setTcpBufSize(java.nio.channels.SocketChannel socket, Ice.Properties properties, Ice.Logger logger)
+    setTcpBufSize(java.nio.channels.SocketChannel socket, ProtocolInstance instance)
     {
         //
         // By default, on Windows we use a 128KB buffer size. On Unix
@@ -1000,7 +1000,9 @@ public final class Network
             dfltBufSize = 128 * 1024;
         }
 
-        int sizeRequested = properties.getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
+        System.err.println("XXX");
+
+        int sizeRequested = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
         if(sizeRequested > 0)
         {
             //
@@ -1010,13 +1012,21 @@ public final class Network
             //
             setRecvBufferSize(socket, sizeRequested);
             int size = getRecvBufferSize(socket);
-            if(size < sizeRequested) // Warn if the size that was set is less than the requested size.
+            //if(size < sizeRequested)
             {
-                logger.warning("TCP receive buffer size: requested size of " + sizeRequested + " adjusted to " + size);
+                // Warn if the size that was set is less than the requested size and
+                // we have not already warned.
+                BufSizeWarnInfo winfo = instance.getBufSizeWarn(Ice.TCPEndpointType.value);
+                if(!winfo.rcvWarn || sizeRequested != winfo.rcvSize)
+                {
+                    instance.logger().warning("TCP receive buffer size: requested size of " + sizeRequested +
+                                              " adjusted to " + size);
+                    instance.setRcvBufSizeWarn(Ice.TCPEndpointType.value, sizeRequested);
+                }
             }
         }
 
-        sizeRequested = properties.getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
+        sizeRequested = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
         if(sizeRequested > 0)
         {
             //
@@ -1026,15 +1036,23 @@ public final class Network
             //
             setSendBufferSize(socket, sizeRequested);
             int size = getSendBufferSize(socket);
-            if(size < sizeRequested) // Warn if the size that was set is less than the requested size.
+            //if(size < sizeRequested)
             {
-                logger.warning("TCP send buffer size: requested size of " + sizeRequested + " adjusted to " + size);
+                // Warn if the size that was set is less than the requested size and
+                // we have not already warned.
+                BufSizeWarnInfo winfo = instance.getBufSizeWarn(Ice.TCPEndpointType.value);
+                if(!winfo.sndWarn || sizeRequested != winfo.sndSize)
+                {
+                    instance.logger().warning("TCP send buffer size: requested size of " + sizeRequested +
+                                              " adjusted to " + size);
+                    instance.setSndBufSizeWarn(Ice.TCPEndpointType.value, sizeRequested);
+                }
             }
         }
     }
 
     public static void
-    setTcpBufSize(java.nio.channels.ServerSocketChannel socket, Ice.Properties properties, Ice.Logger logger)
+    setTcpBufSize(java.nio.channels.ServerSocketChannel socket, ProtocolInstance instance)
     {
         //
         // By default, on Windows we use a 128KB buffer size. On Unix
@@ -1046,10 +1064,12 @@ public final class Network
             dfltBufSize = 128 * 1024;
         }
 
+        System.err.println("YYY");
+
         //
         // Get property for buffer size.
         //
-        int sizeRequested = properties.getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
+        int sizeRequested = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
         if(sizeRequested > 0)
         {
             //
@@ -1059,9 +1079,17 @@ public final class Network
             //
             setRecvBufferSize(socket, sizeRequested);
             int size = getRecvBufferSize(socket);
-            if(size < sizeRequested) // Warn if the size that was set is less than the requested size.
+            //if(size < sizeRequested)
             {
-                logger.warning("TCP receive buffer size: requested size of " + sizeRequested + " adjusted to " + size);
+                // Warn if the size that was set is less than the requested size and
+                // we have not already warned.
+                BufSizeWarnInfo winfo = instance.getBufSizeWarn(Ice.TCPEndpointType.value);
+                if(!winfo.rcvWarn || sizeRequested != winfo.rcvSize)
+                {
+                    instance.logger().warning("TCP receive buffer size: requested size of " + sizeRequested +
+                                              " adjusted to " + size);
+                    instance.setRcvBufSizeWarn(Ice.TCPEndpointType.value, sizeRequested);
+                }
             }
         }
     }

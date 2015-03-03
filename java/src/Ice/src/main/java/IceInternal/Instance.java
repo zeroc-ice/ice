@@ -1471,6 +1471,50 @@ public final class Instance
         }
     }
 
+    public BufSizeWarnInfo getBufSizeWarn(short type)
+    {
+        synchronized(_setBufSizeWarn)
+        {
+            BufSizeWarnInfo info;
+            if(!_setBufSizeWarn.containsKey(type))
+            {
+                info = new BufSizeWarnInfo();
+                info.sndWarn = false;
+                info.sndSize = -1;
+                info.rcvWarn = false;
+                info.rcvSize = -1;
+                _setBufSizeWarn.put(type, info);
+            }
+            else
+            {
+                info = _setBufSizeWarn.get(type);
+            }
+            return info;
+        }
+    }
+
+    public void setSndBufSizeWarn(short type, int size)
+    {
+        synchronized(_setBufSizeWarn)
+        {
+            BufSizeWarnInfo info = getBufSizeWarn(type);
+            info.sndWarn = true;
+            info.sndSize = size;
+            _setBufSizeWarn.put(type, info);
+        }
+    }
+
+    public void setRcvBufSizeWarn(short type, int size)
+    {
+        synchronized(_setBufSizeWarn)
+        {
+            BufSizeWarnInfo info = getBufSizeWarn(type);
+            info.rcvWarn = true;
+            info.rcvSize = size;
+            _setBufSizeWarn.put(type, info);
+        }
+    }
+
     private void
     updateConnectionObservers()
     {
@@ -1698,6 +1742,7 @@ public final class Instance
     private java.util.Map<String, Ice.Object> _adminFacets = new java.util.HashMap<String, Ice.Object>();
     private java.util.Set<String> _adminFacetFilter = new java.util.HashSet<String>();
     private Ice.Identity _adminIdentity;
+    private java.util.Map<Short, BufSizeWarnInfo> _setBufSizeWarn = new java.util.HashMap<Short, BufSizeWarnInfo>();
 
     private java.util.Map<String, String> _typeToClassMap = new java.util.HashMap<String, String>();
     final private String[] _packages;

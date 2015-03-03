@@ -16,6 +16,21 @@ namespace IceInternal
     using System.Threading;
     using System;
 
+    public sealed class BufSizeWarnInfo
+    {
+        // Whether send size warning has been emitted
+        public bool sndWarn;
+
+        // The send size for which the warning wwas emitted
+        public int sndSize;
+
+        // Whether receive size warning has been emitted
+        public bool rcvWarn;
+
+        // The receive size for which the warning wwas emitted
+        public int rcvSize;
+    }
+
     public sealed class Instance
     {
         private class ObserverUpdaterI : Ice.Instrumentation.ObserverUpdater
@@ -1323,6 +1338,50 @@ namespace IceInternal
             }
         }
 
+        public BufSizeWarnInfo getBufSizeWarn(short type)
+        {
+            lock(_setBufSizeWarn)
+            {
+                BufSizeWarnInfo info;
+                if(!_setBufSizeWarn.ContainsKey(type))
+                {
+                    info = new BufSizeWarnInfo();
+                    info.sndWarn = false;
+                    info.sndSize = -1;
+                    info.rcvWarn = false;
+                    info.rcvSize = -1;
+                    _setBufSizeWarn.Add(type, info);
+                }
+                else
+                {
+                    info = _setBufSizeWarn[type];
+                }
+                return info;
+            }
+        }
+
+        public void setSndBufSizeWarn(short type, int size)
+        {
+            lock(_setBufSizeWarn)
+            {
+                BufSizeWarnInfo info = getBufSizeWarn(type);
+                info.sndWarn = true;
+                info.sndSize = size;
+                _setBufSizeWarn[type] = info;
+            }
+        }
+
+        public void setRcvBufSizeWarn(short type, int size)
+        {
+            lock(_setBufSizeWarn)
+            {
+                BufSizeWarnInfo info = getBufSizeWarn(type);
+                info.rcvWarn = true;
+                info.rcvSize = size;
+                _setBufSizeWarn[type] = info;
+            }
+        }
+
         internal void updateConnectionObservers()
         {
             try
@@ -1507,6 +1566,7 @@ namespace IceInternal
         private Dictionary<string, Ice.Object> _adminFacets = new Dictionary<string, Ice.Object>();
         private HashSet<string> _adminFacetFilter = new HashSet<string>();
         private Ice.Identity _adminIdentity;
+        private Dictionary<short, BufSizeWarnInfo> _setBufSizeWarn = new Dictionary<short, BufSizeWarnInfo>();
 
 #if !SILVERLIGHT
         private static bool _printProcessIdDone = false;

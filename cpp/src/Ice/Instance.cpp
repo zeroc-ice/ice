@@ -1890,6 +1890,57 @@ IceInternal::Instance::updateThreadObservers()
     }
 }
 
+
+BufSizeWarnInfo
+IceInternal::Instance::getBufSizeWarn(Short type)
+{
+    IceUtil::Mutex::Lock lock(_setBufSizeWarnMutex);
+
+    return getBufSizeWarnInternal(type);
+}
+
+BufSizeWarnInfo
+IceInternal::Instance::getBufSizeWarnInternal(Short type)
+{
+    BufSizeWarnInfo info;
+    map<Short, BufSizeWarnInfo>::iterator p = _setBufSizeWarn.find(type);
+    if(p == _setBufSizeWarn.end())
+    {
+        info.sndWarn = false;
+        info.sndSize = -1;
+        info.rcvWarn = false;
+        info.rcvSize = -1;
+        _setBufSizeWarn.insert(make_pair(type, info));
+    }
+    else
+    {
+        info = p->second;
+    }
+    return info;
+}
+
+void
+IceInternal::Instance::setSndBufSizeWarn(Short type, int size)
+{
+    IceUtil::Mutex::Lock lock(_setBufSizeWarnMutex);
+
+    BufSizeWarnInfo info = getBufSizeWarnInternal(type);
+    info.sndWarn = true;
+    info.sndSize = size;
+    _setBufSizeWarn[type] =  info;
+}
+
+void
+IceInternal::Instance::setRcvBufSizeWarn(Short type, int size)
+{
+    IceUtil::Mutex::Lock lock(_setBufSizeWarnMutex);
+
+    BufSizeWarnInfo info = getBufSizeWarnInternal(type);
+    info.rcvWarn = true;
+    info.rcvSize = size;
+    _setBufSizeWarn[type] =  info;
+}
+
 IceInternal::ProcessI::ProcessI(const CommunicatorPtr& communicator) :
     _communicator(communicator)
 {

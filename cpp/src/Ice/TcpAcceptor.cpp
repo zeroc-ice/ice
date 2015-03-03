@@ -207,7 +207,7 @@ IceInternal::TcpAcceptor::TcpAcceptor(const TcpEndpointIPtr& endpoint,
 #endif
 
     setBlock(_fd, false);
-    setTcpBufSize(_fd, _instance->properties(), _instance->logger());
+    setTcpBufSize(_fd, _instance);
 #ifndef _WIN32
     //
     // Enable SO_REUSEADDR on Unix platforms to allow re-using the

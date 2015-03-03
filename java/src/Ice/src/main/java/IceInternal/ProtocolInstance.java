@@ -104,6 +104,21 @@ public class ProtocolInstance
         _instance.endpointHostResolver().resolve(host, port, type, endpt, callback);
     }
 
+    public BufSizeWarnInfo getBufSizeWarn(short type)
+    {
+        return _instance.getBufSizeWarn(type);
+    }
+
+    public void setSndBufSizeWarn(short type, int size)
+    {
+        _instance.setSndBufSizeWarn(type, size);
+    }
+
+    public void setRcvBufSizeWarn(short type, int size)
+    {
+        _instance.setRcvBufSizeWarn(type, size);
+    }
+
     ProtocolInstance(Instance instance, short type, String protocol, boolean secure)
     {
         _instance = instance;

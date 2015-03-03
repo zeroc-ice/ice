@@ -72,7 +72,7 @@ private:
 
     virtual ~UdpTransceiver();
 
-    void setBufSize(const Ice::PropertiesPtr&);
+    void setBufSize();
 
 #ifdef ICE_OS_WINRT
     bool checkIfErrorOrCompleted(SocketOperation, Windows::Foundation::IAsyncInfo^);

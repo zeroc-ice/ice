@@ -1024,7 +1024,7 @@ namespace IceInternal
         }
 
         public static void
-        setTcpBufSize(Socket socket, Ice.Properties properties, Ice.Logger logger)
+        setTcpBufSize(Socket socket, ProtocolInstance instance)
         {
             //
             // By default, on Windows we use a 128KB buffer size. On Unix
@@ -1036,7 +1036,7 @@ namespace IceInternal
                 dfltBufSize = 128 * 1024;
             }
 
-            int sizeRequested = properties.getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
+            int sizeRequested = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
             if(sizeRequested > 0)
             {
                 //
@@ -1046,14 +1046,21 @@ namespace IceInternal
                 //
                 setRecvBufferSize(socket, sizeRequested);
                 int size = getRecvBufferSize(socket);
-                if(size < sizeRequested) // Warn if the size that was set is less than the requested size.
+                if(size < sizeRequested)
                 {
-                    logger.warning("TCP receive buffer size: requested size of " + sizeRequested + " adjusted to " +
-                                   size);
+                    // Warn if the size that was set is less than the requested size and
+                    // we have not already warned.
+                    BufSizeWarnInfo winfo = instance.getBufSizeWarn(Ice.TCPEndpointType.value);
+                    if(!winfo.rcvWarn || sizeRequested != winfo.rcvSize)
+                    {
+                        instance.logger().warning("TCP receive buffer size: requested size of " + sizeRequested +
+                                                  " adjusted to " + size);
+                        instance.setRcvBufSizeWarn(Ice.TCPEndpointType.value, sizeRequested);
+                    }
                 }
             }
 
-            sizeRequested = properties.getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
+            sizeRequested = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
             if(sizeRequested > 0)
             {
                 //
@@ -1065,7 +1072,15 @@ namespace IceInternal
                 int size = getSendBufferSize(socket);
                 if(size < sizeRequested) // Warn if the size that was set is less than the requested size.
                 {
-                    logger.warning("TCP send buffer size: requested size of " + sizeRequested + " adjusted to " + size);
+                    // Warn if the size that was set is less than the requested size and
+                    // we have not already warned.
+                    BufSizeWarnInfo winfo = instance.getBufSizeWarn(Ice.TCPEndpointType.value);
+                    if(!winfo.sndWarn || sizeRequested != winfo.sndSize)
+                    {
+                        instance.logger().warning("TCP send buffer size: requested size of " + sizeRequested +
+                                                  " adjusted to " + size);
+                        instance.setSndBufSizeWarn(Ice.TCPEndpointType.value, sizeRequested);
+                    }
                 }
             }
         }

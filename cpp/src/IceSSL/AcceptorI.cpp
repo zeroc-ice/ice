@@ -231,7 +231,7 @@ IceSSL::AcceptorI::AcceptorI(const EndpointIPtr& endpoint, const InstancePtr& in
     _acceptBuf.resize((sizeof(sockaddr_storage) + 16) * 2);
 #endif
     IceInternal::setBlock(_fd, false);
-    IceInternal::setTcpBufSize(_fd, _instance->properties(), _instance->logger());
+    IceInternal::setTcpBufSize(_fd, _instance);
 #ifndef _WIN32
     //
     // Enable SO_REUSEADDR on Unix platforms to allow re-using the

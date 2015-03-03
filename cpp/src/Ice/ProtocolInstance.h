@@ -64,6 +64,21 @@ public:
         return _secure;
     }
 
+    BufSizeWarnInfo getBufSizeWarn(Ice::Short type)
+    {
+        return _instance->getBufSizeWarn(type);
+    }
+
+    void setSndBufSizeWarn(Ice::Short type, int size)
+    {
+        _instance->setSndBufSizeWarn(type, size);
+    }
+
+    void setRcvBufSizeWarn(Ice::Short type, int size)
+    {
+        _instance->setRcvBufSizeWarn(type, size);
+    }
+
     bool preferIPv6() const;
     ProtocolSupport protocolSupport() const;
     const std::string& defaultHost() const;

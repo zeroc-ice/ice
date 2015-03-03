@@ -239,7 +239,7 @@ ICE_API int getPort(const Address&);
 ICE_API void setPort(Address&, int);
 
 ICE_API bool isMulticast(const Address&);
-ICE_API void setTcpBufSize(SOCKET, const Ice::PropertiesPtr&, const Ice::LoggerPtr&);
+ICE_API void setTcpBufSize(SOCKET, const ProtocolInstancePtr&);
 
 ICE_API void setBlock(SOCKET, bool);
 ICE_API void setSendBufferSize(SOCKET, int);

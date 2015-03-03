@@ -16,11 +16,11 @@ using namespace IceInternal;
 StreamSocket::StreamSocket(const ProtocolInstancePtr& instance,
                            const NetworkProxyPtr& proxy,
                            const Address& addr,
-                           const Address& sourceAddr) : 
+                           const Address& sourceAddr) :
     NativeInfo(createSocket(false, proxy ? proxy->getAddress() : addr)),
-    _proxy(proxy), 
-    _addr(addr), 
-    _sourceAddr(sourceAddr), 
+    _proxy(proxy),
+    _addr(addr),
+    _sourceAddr(sourceAddr),
     _state(StateNeedConnect)
 #ifdef ICE_USE_IOCP
     , _read(SocketOperationRead),
@@ -37,7 +37,7 @@ StreamSocket::StreamSocket(const ProtocolInstancePtr& instance,
     _desc = fdToString(_fd, _proxy, _addr);
 }
 
-StreamSocket::StreamSocket(const ProtocolInstancePtr& instance, SOCKET fd) : 
+StreamSocket::StreamSocket(const ProtocolInstancePtr& instance, SOCKET fd) :
     NativeInfo(fd),
     _state(StateConnected)
 #ifdef ICE_USE_IOCP
@@ -54,7 +54,7 @@ StreamSocket::~StreamSocket()
     assert(_fd == INVALID_SOCKET);
 }
 
-SocketOperation 
+SocketOperation
 StreamSocket::connect(Buffer& readBuffer, Buffer& writeBuffer)
 {
     if(_state == StateNeedConnect)
@@ -100,7 +100,7 @@ StreamSocket::connect(Buffer& readBuffer, Buffer& writeBuffer)
     return IceInternal::SocketOperationNone;
 }
 
-bool 
+bool
 StreamSocket::isConnected()
 {
     return _state == StateConnected;
@@ -116,7 +116,7 @@ StreamSocket::getSendPacketSize(size_t length)
 #endif
 }
 
-size_t 
+size_t
 StreamSocket::getRecvPacketSize(size_t length)
 {
 #ifdef ICE_USE_IOCP
@@ -145,7 +145,7 @@ StreamSocket::read(Buffer& buf)
                 return SocketOperationNone;
             }
         }
-    }    
+    }
     buf.i += read(reinterpret_cast<char*>(&*buf.i), buf.b.end() - buf.i);
     return buf.i != buf.b.end() ? SocketOperationRead : SocketOperationNone;
 }
@@ -173,7 +173,7 @@ StreamSocket::write(Buffer& buf)
     buf.i += write(reinterpret_cast<const char*>(&*buf.i), buf.b.end() - buf.i);
     return buf.i != buf.b.end() ? SocketOperationWrite : SocketOperationNone;
 }
-   
+
 ssize_t
 StreamSocket::read(char* buf, size_t length)
 {
@@ -230,7 +230,7 @@ StreamSocket::read(char* buf, size_t length)
         buf += ret;
         read += ret;
         length -= ret;
-        
+
         if(packetSize > length)
         {
             packetSize = length;
@@ -239,11 +239,11 @@ StreamSocket::read(char* buf, size_t length)
     return read;
 }
 
-ssize_t 
+ssize_t
 StreamSocket::write(const char* buf, size_t length)
 {
     assert(_fd != INVALID_SOCKET);
-    
+
 #ifdef ICE_USE_IOCP
     //
     // On Windows, limiting the buffer size is important to prevent
@@ -314,7 +314,7 @@ StreamSocket::write(const char* buf, size_t length)
 }
 
 #ifdef ICE_USE_IOCP
-AsyncInfo* 
+AsyncInfo*
 StreamSocket::getAsyncInfo(SocketOperation op)
 {
     switch(op)
@@ -463,7 +463,7 @@ StreamSocket::finishRead(Buffer& buf)
 }
 #endif
 
-void 
+void
 StreamSocket::close()
 {
     assert(_fd != INVALID_SOCKET);
@@ -479,17 +479,17 @@ StreamSocket::close()
     }
 }
 
-const std::string& 
+const std::string&
 StreamSocket::toString() const
 {
     return _desc;
 }
 
-void    
+void
 StreamSocket::init(const ProtocolInstancePtr& instance)
 {
     setBlock(_fd, false);
-    setTcpBufSize(_fd, instance->properties(), instance->logger());
+    setTcpBufSize(_fd, instance);
 
 #ifdef ICE_USE_IOCP
     //

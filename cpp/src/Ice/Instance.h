@@ -63,6 +63,24 @@ typedef IceUtil::Handle<MetricsAdminI> MetricsAdminIPtr;
 class RequestHandlerFactory;
 typedef IceUtil::Handle<RequestHandlerFactory> RequestHandlerFactoryPtr;
 
+//
+// Structure to track warnings for attempts to set socket buffer sizes
+//
+struct BufSizeWarnInfo
+{
+    // Whether send size warning has been emitted
+    bool sndWarn;
+
+    // The send size for which the warning wwas emitted
+    int sndSize;
+
+    // Whether receive size warning has been emitted
+    bool rcvWarn;
+
+    // The receive size for which the warning wwas emitted
+    int rcvSize;
+};
+
 class Instance : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::RecMutex>
 {
 public:
@@ -118,7 +136,11 @@ public:
 
     IceUtil::StringConverterPtr getStringConverter() const { return _stringConverter; }
     IceUtil::WstringConverterPtr getWstringConverter() const { return _wstringConverter; }
-   
+
+    BufSizeWarnInfo getBufSizeWarn(Ice::Short type);
+    void setSndBufSizeWarn(Ice::Short type, int size);
+    void setRcvBufSizeWarn(Ice::Short type, int size);
+
 private:
 
     Instance(const Ice::CommunicatorPtr&, const Ice::InitializationData&);
@@ -133,6 +155,8 @@ private:
 
     void addAllAdminFacets();
     void setServerProcessProxy(const Ice::ObjectAdapterPtr&, const Ice::Identity&);
+
+    BufSizeWarnInfo getBufSizeWarnInternal(Ice::Short type);
 
     enum State
     {
@@ -177,6 +201,8 @@ private:
     Ice::Identity _adminIdentity;
     std::set<std::string> _adminFacetFilter;
     IceInternal::MetricsAdminIPtr _metricsAdmin;
+    std::map<Ice::Short, BufSizeWarnInfo> _setBufSizeWarn;
+    IceUtil::Mutex _setBufSizeWarnMutex;
 };
 
 class ProcessI : public Ice::Process

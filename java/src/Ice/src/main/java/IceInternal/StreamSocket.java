@@ -12,8 +12,8 @@ package IceInternal;
 public class StreamSocket
 {
     public StreamSocket(ProtocolInstance instance,
-                        NetworkProxy proxy, 
-                        java.net.InetSocketAddress addr, 
+                        NetworkProxy proxy,
+                        java.net.InetSocketAddress addr,
                         java.net.InetSocketAddress sourceAddr)
     {
         _instance = instance;
@@ -106,10 +106,10 @@ public class StreamSocket
         else if(_state == StateProxyConnected)
         {
             _proxy.finish(readBuffer, writeBuffer);
-            
+
             readBuffer.clear();
             writeBuffer.clear();
-            
+
             _state = StateConnected;
         }
 
@@ -121,7 +121,7 @@ public class StreamSocket
     {
         return _state == StateConnected;
     }
-    
+
     public java.nio.channels.SocketChannel fd()
     {
         return _fd;
@@ -203,8 +203,8 @@ public class StreamSocket
             }
         }
         return read;
-    }    
-    
+    }
+
     public int write(java.nio.ByteBuffer buf)
     {
         assert(_fd != null);
@@ -226,7 +226,7 @@ public class StreamSocket
                 {
                     ret = _fd.write(buf);
                 }
-                
+
                 if(ret == -1)
                 {
                     throw new Ice.ConnectionLostException();
@@ -275,7 +275,7 @@ public class StreamSocket
     private void init()
     {
         Network.setBlock(_fd, false);
-        Network.setTcpBufSize(_fd, _instance.properties(), _instance.logger());
+        Network.setTcpBufSize(_fd, _instance);
 
         if(System.getProperty("os.name").startsWith("Windows"))
         {

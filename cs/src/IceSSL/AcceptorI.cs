@@ -162,7 +162,7 @@ namespace IceSSL
                     IPEndPoint;
                 _fd = IceInternal.Network.createServerSocket(false, _addr.AddressFamily, protocol);
                 IceInternal.Network.setBlock(_fd, false);
-                IceInternal.Network.setTcpBufSize(_fd, _instance.properties(), _instance.logger());
+                IceInternal.Network.setTcpBufSize(_fd, _instance);
                 if(IceInternal.AssemblyUtil.platform_ != IceInternal.AssemblyUtil.Platform.Windows)
                 {
                     //

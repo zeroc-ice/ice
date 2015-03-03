@@ -121,6 +121,21 @@ namespace IceInternal
         }
 #endif
 
+        public BufSizeWarnInfo getBufSizeWarn(short type)
+        {
+            return instance_.getBufSizeWarn(type);
+        }
+
+        public void setSndBufSizeWarn(short type, int size)
+        {
+            instance_.setSndBufSizeWarn(type, size);
+        }
+
+        public void setRcvBufSizeWarn(short type, int size)
+        {
+            instance_.setRcvBufSizeWarn(type, size);
+        }
+
         protected Instance instance_;
         protected int traceLevel_;
         protected string traceCategory_;
