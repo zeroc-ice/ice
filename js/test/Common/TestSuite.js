@@ -285,7 +285,14 @@ $(document).ready(
         $("#test").on("change",
             function(e)
             {
-                document.location.assign($(this).val());
+                document.location.assign($(this).val() + "?language=" + $("#language").val());
+                return false;
+            });
+        
+        $("#language").on("change",
+            function(e)
+            {
+                document.location.assign(document.location.pathname + "?language=" + $("#language").val());
                 return false;
             });
 
@@ -310,6 +317,7 @@ $(document).ready(
                         href = href.replace("http", "https");
                         href = href.replace("8080", "9090");
                     }
+                    href += "?language=" + $("#language").val();
                     document.location.assign(href);
                 }
             });
