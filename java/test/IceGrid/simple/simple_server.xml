@@ -1,0 +1,13 @@
+<icegrid>
+  <application name="Test">
+    <node name="localnode">
+      <server id="server" exe="java" pwd="." activation="on-demand">
+        <option>-Djava.security.egd=file:/dev/urandom</option>
+	<option>test.IceGrid.simple.Server</option>
+	<adapter name="TestAdapter" id="TestAdapter" endpoints="default">
+	  <object identity="test" type="Test"/>
+	</adapter>
+      </server>
+    </node>
+  </application>
+</icegrid>

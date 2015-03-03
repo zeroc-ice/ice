@@ -1,0 +1,606 @@
+/* Text Styles */
+hr { color: #000000}
+body, table /* Normal */
+{
+ font-size: 15px;
+ font-family: 'Arial';
+ font-style: normal;
+ font-weight: normal;
+ color: #000000;
+ text-decoration: none;
+}
+span.f_BodyText /* Body Text */
+{
+ font-size: 13px;
+}
+span.f_Callouts /* Callouts */
+{
+ font-size: 13px;
+ font-family: 'Verdana';
+}
+span.f_Code /* Code */
+{
+ font-size: 11px;
+ font-family: 'Courier New';
+ color: #000000;
+}
+span.f_CodeExample /* Code Example */
+{
+ font-size: 11px;
+ font-family: 'Courier New';
+}
+span.f_Comment /* Comment */
+{
+}
+span.f_Example /* Example */
+{
+ font-size: 13px;
+ font-family: 'Courier New';
+ letter-spacing: -1px;
+}
+span.f_ExampleIndent2 /* Example Indent2 */
+{
+ font-size: 13px;
+ font-family: 'Courier New';
+ letter-spacing: -1px;
+}
+span.f_ExampleIndent3 /* Example Indent3 */
+{
+ font-size: 13px;
+ font-family: 'Courier New';
+ letter-spacing: -1px;
+}
+span.f_FAQLinks /* FAQ Links */
+{
+ font-size: 12px;
+ font-family: 'Verdana';
+ font-weight: bold;
+}
+span.f_Heading1 /* Heading1 */
+{
+ font-size: 21px;
+ font-weight: bold;
+ color: #ffffff;
+}
+span.f_Heading2 /* Heading2 */
+{
+ font-size: 19px;
+ font-style: italic;
+ font-weight: bold;
+ color: #000080;
+}
+span.f_Heading2Sub /* Heading2 Sub */
+{
+ font-size: 17px;
+ font-style: italic;
+ font-weight: bold;
+ color: #000080;
+}
+span.f_Heading2Sub2 /* Heading2 Sub2 */
+{
+ font-size: 17px;
+ font-style: italic;
+ font-weight: bold;
+ color: #000080;
+}
+span.f_Heading3 /* Heading3 */
+{
+ font-size: 17px;
+ font-weight: bold;
+ color: ;
+}
+span.f_Heading3HowTo /* Heading3HowTo */
+{
+ font-size: 17px;
+ font-weight: bold;
+ color: ;
+}
+span.f_Heading3Line /* Heading3Line */
+{
+ font-size: 17px;
+ font-weight: bold;
+ color: #000080;
+}
+span.f_Heading4 /* Heading4 */
+{
+ font-size: 16px;
+ font-weight: bold;
+ color: #000080;
+ text-decoration: underline;
+}
+span.f_Heading4FAQ /* Heading4 FAQ */
+{
+ font-size: 16px;
+ font-style: italic;
+ font-weight: bold;
+ color: #000080;
+}
+span.f_Heading4IconList /* Heading4 IconList */
+{
+ font-size: 16px;
+ font-weight: bold;
+ color: #000080;
+}
+span.f_Heading4Indent /* Heading4 Indent */
+{
+ font-size: 16px;
+ font-weight: bold;
+ color: #000080;
+ text-decoration: underline;
+}
+span.f_Heading4IndentNoBefore /* Heading4 Indent NoBefore */
+{
+ font-size: 16px;
+ font-weight: bold;
+ color: #000080;
+ text-decoration: underline;
+}
+span.f_Heading4Plain /* Heading4 Plain */
+{
+ font-size: 16px;
+ font-weight: bold;
+ color: #000080;
+}
+span.f_ImageCaption /* Image Caption */
+{
+ font-size: 12px;
+ font-family: 'Verdana';
+ font-style: italic;
+}
+span.f_Indent4 /* Indent4 */
+{
+}
+span.f_IndentListButtonList /* IndentList ButtonList */
+{
+}
+span.f_IndentList1 /* IndentList1 */
+{
+}
+span.f_IndentList115 /* IndentList1 1.5" */
+{
+}
+span.f_IndentList115Callout /* IndentList1 1.5" Callout */
+{
+ font-size: 13px;
+ font-family: 'Verdana';
+ letter-spacing: -1px;
+}
+span.f_IndentList1Header /* IndentList1 Header */
+{
+ font-weight: bold;
+}
+span.f_Indentlist1Larger /* Indentlist1 Larger */
+{
+}
+span.f_IndentList115 /* IndentList1+ 1.5" */
+{
+}
+span.f_IndentList2 /* IndentList2 */
+{
+}
+span.f_IndentList2Callout /* IndentList2 Callout */
+{
+ font-size: 13px;
+ font-family: 'Verdana';
+ letter-spacing: -1px;
+}
+span.f_IndentList2Noafter /* IndentList2 Noafter */
+{
+}
+span.f_IndentList2Note /* IndentList2 Note */
+{
+}
+span.f_IndentList2QA /* IndentList2 QA */
+{
+ font-style: italic;
+ font-weight: bold;
+}
+span.f_IndentList3 /* IndentList3 */
+{
+}
+span.f_IndentList3Buttons /* IndentList3 Buttons */
+{
+}
+span.f_IndentList3Callout /* IndentList3 Callout */
+{
+ font-size: 13px;
+ font-family: 'Verdana';
+ letter-spacing: -1px;
+}
+span.f_IndentList3noafter /* IndentList3noafter */
+{
+}
+span.f_IndentList4Callout /* IndentList4 Callout */
+{
+ font-size: 13px;
+ font-family: 'Verdana';
+ letter-spacing: -1px;
+}
+span.f_InThisTopicHeading /* InThisTopic Heading */
+{
+ font-size: 13px;
+ font-family: 'Verdana';
+ font-weight: bold;
+ color: #ffffff;
+ letter-spacing: -1px;
+ text-transform: uppercase;
+}
+span.f_InThisTopicLinkList /* InThisTopic LinkList */
+{
+ font-size: 13px;
+ font-family: 'Verdana';
+ letter-spacing: -1px;
+}
+span.f_NormalHead /* Normal Head */
+{
+ font-weight: bold;
+}
+span.f_NormalHeadIndent1 /* Normal Head Indent1 */
+{
+ font-weight: bold;
+}
+span.f_NormalNoAfter /* Normal NoAfter */
+{
+}
+span.f_Notes /* Notes */
+{
+}
+span.f_NotesBox /* NotesBox */
+{
+}
+span.f_PopupBox /* Popup Box */
+{
+ font-size: 12px;
+}
+span.f_SeeAlso /* SeeAlso */
+{
+ font-size: 16px;
+ font-style: italic;
+ font-weight: bold;
+}
+span.f_SettingsLocationFoot /* Settings Location Foot */
+{
+ font-size: 16px;
+ font-family: 'Times New Roman';
+ font-weight: bold;
+}
+span.f_SettingsLocationHead /* Settings Location Head */
+{
+ font-size: 16px;
+ font-style: italic;
+ font-weight: bold;
+}
+span.f_SyntaxTableHeading /* SyntaxTable Heading */
+{
+ font-size: 16px;
+ font-family: 'Verdana';
+ font-weight: bold;
+ color: #ffffff;
+ letter-spacing: -1px;
+}
+span.f_T_Code /* T_Code */
+{
+ font-family: 'Courier New';
+ letter-spacing: -1px;
+}
+span.f_T_Entry /* T_Entry */
+{
+ font-family: 'Verdana';
+ font-style: italic;
+ letter-spacing: -1px;
+}
+span.f_T_Entry10pt /* T_Entry 10pt */
+{
+ font-size: 13px;
+ font-family: 'Verdana';
+ font-style: italic;
+ letter-spacing: -1px;
+}
+span.f_T_Menu /* T_Menu */
+{
+ font-family: 'Times New Roman';
+ font-weight: bold;
+}
+span.f_T_Menu10p /* T_Menu 10p */
+{
+ font-size: 13px;
+ font-family: 'Times New Roman';
+ font-weight: bold;
+}
+span.f_TableText /* Table Text */
+{
+ font-size: 13px;
+ font-family: 'Verdana';
+}
+/* Paragraph styles */
+p /* Normal */
+{
+ text-align: left;
+ text-indent: 0px;
+ padding: 0px 0px 0px 0px;
+ margin: 0px 0px 10px 0px;
+}
+.p_BodyText /* Body Text */
+{
+ text-align: center;
+ margin: 0px 0px 18px 0px;
+}
+.p_Callouts /* Callouts */
+{
+ margin: 0px 0px 0px 0px;
+}
+.p_Code /* Code */
+{
+ margin: 0px 0px 0px 0px;
+}
+.p_CodeExample /* Code Example */
+{
+ white-space: nowrap;
+ margin: 0px 0px 0px 0px;
+}
+.p_Comment /* Comment */
+{
+ text-align: center;
+}
+.p_Example /* Example */
+{
+ border-color: #e9e9e9;
+ border-style: solid;
+ border-width: 5px;
+ background: #eaeaea;
+ margin: 10px 0px 19px 0px;
+}
+.p_ExampleIndent2 /* Example Indent2 */
+{
+ border-color: #e9e9e9;
+ border-style: solid;
+ border-width: 5px;
+ background: #eaeaea;
+ margin: 10px 0px 19px 29px;
+}
+.p_ExampleIndent3 /* Example Indent3 */
+{
+ border-color: #e9e9e9;
+ border-style: solid;
+ border-width: 5px;
+ background: #eaeaea;
+ margin: 10px 0px 19px 60px;
+}
+.p_FAQLinks /* FAQ Links */
+{
+ margin: 0px 100px 5px 45px;
+}
+.p_Heading1 /* Heading1 */
+{
+ margin: 0px 0px 0px 0px;
+}
+.p_Heading2 /* Heading2 */
+{
+ margin: 19px 0px 10px 0px;
+}
+.p_Heading2Sub /* Heading2 Sub */
+{
+ margin: 5px 0px 10px 29px;
+}
+.p_Heading2Sub2 /* Heading2 Sub2 */
+{
+ margin: 5px 0px 10px 60px;
+}
+.p_Heading3 /* Heading3 */
+{
+ margin: 10px 0px 10px 0px;
+}
+.p_Heading3HowTo /* Heading3HowTo */
+{
+ border-color: #cdfefd;
+ border-style: solid;
+ border-width: 5px;
+ background: #cdfefd;
+ margin: 20px 0px 15px 0px;
+}
+.p_Heading3Line /* Heading3Line */
+{
+ border-color: #000000;
+ border-style: solid;
+ border-width: 1px;
+ border-right: none;
+ border-bottom: none;
+ border-left: none;
+ padding: 3px 3px 3px 3px;
+ margin: 7px -3px 7px -3px;
+}
+.p_Heading4 /* Heading4 */
+{
+ margin: 10px 0px 10px 0px;
+}
+.p_Heading4FAQ /* Heading4 FAQ */
+{
+}
+.p_Heading4IconList /* Heading4 IconList */
+{
+ text-indent: -48px;
+ margin: 0px 0px 10px 60px;
+}
+.p_Heading4Indent /* Heading4 Indent */
+{
+ margin: 10px 0px 10px 29px;
+}
+.p_Heading4IndentNoBefore /* Heading4 Indent NoBefore */
+{
+ margin: 0px 0px 10px 29px;
+}
+.p_Heading4Plain /* Heading4 Plain */
+{
+ margin: 0px 0px 0px 0px;
+}
+.p_ImageCaption /* Image Caption */
+{
+}
+.p_Indent4 /* Indent4 */
+{
+ margin: 0px 0px 10px 80px;
+}
+.p_IndentListButtonList /* IndentList ButtonList */
+{
+ text-indent: -154px;
+ margin: 0px 0px 10px 183px;
+}
+.p_IndentList1 /* IndentList1 */
+{
+ text-indent: -200px;
+ margin: 0px 0px 10px 230px;
+}
+.p_IndentList115 /* IndentList1 1.5" */
+{
+ text-indent: -144px;
+ margin: 0px 0px 10px 173px;
+}
+.p_IndentList115Callout /* IndentList1 1.5" Callout */
+{
+ text-indent: -23px;
+ margin: 0px 110px 10px 197px;
+}
+.p_IndentList1Header /* IndentList1 Header */
+{
+ border-color: #000000;
+ border-style: solid;
+ border-width: 1px;
+ border-top: none;
+ border-right: none;
+ border-left: none;
+ padding: 3px 3px 3px 3px;
+ margin: 7px -3px 16px 27px;
+}
+.p_Indentlist1Larger /* Indentlist1 Larger */
+{
+ text-indent: -174px;
+ margin: 0px 0px 10px 234px;
+}
+.p_IndentList115 /* IndentList1+ 1.5" */
+{
+ text-indent: -100px;
+ margin: 0px 0px 10px 160px;
+}
+.p_IndentList2 /* IndentList2 */
+{
+ margin: 0px 0px 10px 30px;
+}
+.p_IndentList2Callout /* IndentList2 Callout */
+{
+ text-indent: -23px;
+ margin: 0px 149px 10px 52px;
+}
+.p_IndentList2Noafter /* IndentList2 Noafter */
+{
+ margin: 0px 0px 0px 30px;
+}
+.p_IndentList2Note /* IndentList2 Note */
+{
+ text-indent: -59px;
+ margin: 0px 0px 10px 88px;
+}
+.p_IndentList2QA /* IndentList2 QA */
+{
+ margin: 0px 0px 10px 20px;
+}
+.p_IndentList3 /* IndentList3 */
+{
+ margin: 0px 0px 10px 60px;
+}
+.p_IndentList3Buttons /* IndentList3 Buttons */
+{
+ text-indent: -31px;
+ margin: 0px 0px 10px 84px;
+}
+.p_IndentList3Callout /* IndentList3 Callout */
+{
+ text-indent: -23px;
+ margin: 0px 100px 10px 83px;
+}
+.p_IndentList3noafter /* IndentList3noafter */
+{
+ margin: 0px 0px 0px 60px;
+}
+.p_IndentList4Callout /* IndentList4 Callout */
+{
+ text-indent: -23px;
+ margin: 0px 100px 10px 103px;
+}
+.p_InThisTopicHeading /* InThisTopic Heading */
+{
+ text-align: center;
+ white-space: nowrap;
+ margin: 0px 0px 0px 0px;
+}
+.p_InThisTopicLinkList /* InThisTopic LinkList */
+{
+ white-space: nowrap;
+ margin: 0px 0px 0px 0px;
+}
+.p_NormalHead /* Normal Head */
+{
+ margin: 5px 0px 5px 0px;
+}
+.p_NormalHeadIndent1 /* Normal Head Indent1 */
+{
+ margin: 5px 0px 5px 30px;
+}
+.p_NormalNoAfter /* Normal NoAfter */
+{
+ margin: 0px 0px 0px 0px;
+}
+.p_Notes /* Notes */
+{
+}
+.p_NotesBox /* NotesBox */
+{
+ margin: 10px 0px 10px 0px;
+}
+.p_PopupBox /* Popup Box */
+{
+}
+.p_SeeAlso /* SeeAlso */
+{
+ border-color: #000000;
+ border-style: solid;
+ border-width: 1px;
+ border-right: none;
+ border-bottom: none;
+ border-left: none;
+ padding: 4px 4px 4px 4px;
+ margin: 15px -4px 6px -4px;
+}
+.p_SettingsLocationFoot /* Settings Location Foot */
+{
+ text-align: center;
+ border-color: #000000;
+ border-style: solid;
+ border-width: 1px;
+ border-top: none;
+ border-right: none;
+ border-left: none;
+ padding: 6px 6px 6px 6px;
+ margin: -6px -6px 4px -6px;
+}
+.p_SettingsLocationHead /* Settings Location Head */
+{
+ text-align: center;
+ border-color: #000000;
+ border-style: solid;
+ border-width: 1px;
+ border-right: none;
+ border-bottom: none;
+ border-left: none;
+ padding: 4px 4px 4px 4px;
+ margin: 15px -4px 6px -4px;
+}
+.p_SyntaxTableHeading /* SyntaxTable Heading */
+{
+ text-align: center;
+ white-space: nowrap;
+ margin: 0px 0px 0px 0px;
+}
+.p_TableText /* Table Text */
+{
+ margin: 0px 0px 0px 0px;
+}

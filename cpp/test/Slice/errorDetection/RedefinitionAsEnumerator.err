@@ -1,0 +1,2 @@
+RedefinitionAsEnumerator.ice:17: redefinition of class `C' as enumerator
+RedefinitionAsEnumerator.ice:17: redefinition of sequence `Seq' as enumerator

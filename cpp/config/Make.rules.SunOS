@@ -1,0 +1,187 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# This file is included by Make.rules when uname is SunOS.
+#
+
+#
+# If CXX is not defined anywhere, the default (from gmake) is g++. 
+# If you want to build with another compiler, you can edit this line and
+# uncomment it, or define CXX=<desired-compiler> in your environment.
+#
+#CXX = CC
+
+# This variable is used to determine the machine type.
+# For SUN UltraSPARC machines: sun4u
+# For x86/x64 machines:        i86pc
+#
+MACHINE_TYPE                := $(shell uname -m)
+
+
+ifeq ($(CXX),CC)
+    #
+    # Sun CC
+    #
+
+    #
+    # Which version of CC are we using?
+    #
+    CCVERSION		    = $(filter 5.%, $(shell CC -V 2>&1))
+
+    ifeq ($(CCVERSION),5.9)
+        ifeq ($(LP64),yes)
+	    CXXARCHFLAGS	+= -m64
+	else
+	    CXXARCHFLAGS	+= -m32
+	endif
+    else
+        ifeq ($(MACHINE_TYPE),sun4u)
+            ifeq ($(LP64),yes)
+                CXXARCHFLAGS    += -xarch=v9
+            else
+                CXXARCHFLAGS    += -xarch=v8plus
+            endif
+        endif
+
+        ifeq ($(MACHINE_TYPE),i86pc)
+            ifeq ($(LP64),yes)
+                CXXARCHFLAGS    += -xarch=amd64
+            endif
+        endif
+    endif
+
+    ifeq ($(CCVERSION),5.3)
+        FLEX_NOLINE	    = yes
+        BISON_NOLINE	    = yes
+        TEMPLATE_REPOSITORY = SunWS_cache
+    else
+        ifeq ($(CCVERSION),5.4)
+            CXXWARNFLAGS	= +w
+            TEMPLATE_REPOSITORY	= SunWS_cache
+        else
+            #
+            # Assumes >= 5.5
+            #
+            # wvarhidenmem,wvarhidemem: various name hiding
+            #
+            CXXWARNFLAGS    = +w -erroff=wvarhidenmem,wvarhidemem
+            CXXSCOPEFLAGS   = -xldscope=hidden
+        endif
+    endif
+
+    #
+    # -features=tmplife is needed to destroy temporary objects immediately
+    # (as specified by ISO C++) instead of at the end of the current block.
+    # This is very useful to avoid deadlocks when using Freeze Map 
+    # iterators.
+    #
+
+    CXXFLAGS		    = -mt +p -features=tmplife $(CXXSCOPEFLAGS) $(CXXWARNFLAGS) $(CXXARCHFLAGS)
+
+    ifneq ($(GENPIC),no)
+	CXXFLAGS	    += -KPIC
+    endif
+
+    ifeq ($(OPTIMIZE),yes)
+        CXXFLAGS	    += -O -DNDEBUG
+    else
+        CXXFLAGS	    += -g
+    endif
+
+    #
+    # C++ run-time libraries, necessary for linking some shared libraries.
+    #
+    CXXLIBS		    = -lCstd -lCrun
+
+    mkshlib		    = $(CXX) -G $(LDFLAGS) -o $(1) -h $(2) $(3) $(4)
+
+    mklib		    = $(CXX) -xar -o $(1) $(2)
+
+    ifneq ($(embedded_runpath_prefix),)
+         LDPLATFORMFLAGS    = -norunpath -R $(runpath_libdir):/usr/sfw/$(libsubdir) -z text $(PLATFORMLIBDIRS)
+    else
+         LDPLATFORMFLAGS    = -norunpath -R /usr/sfw/$(libsubdir) -z text $(PLATFORMLIBDIRS)
+    endif
+
+    #
+    # On SPARC, we also link with <SUNWspro>/lib or lib/v9.
+    # See http://forum.java.sun.com/thread.jspa?threadID=5279267 
+    #
+    ifeq ($(MACHINE_TYPE),sun4u)
+        CCLIBDIR                = $(shell whatdir CC)/../../lib
+    	ifeq ($(LP64),yes)
+		PLATFORMLIBDIRS    := -L$(CCLIBDIR)/v9
+        else
+		PLATFORMLIBDIRS    := -L$(CCLIBDIR)
+        endif
+    endif
+endif
+
+ifeq ($(CXX),gcc)
+    CXX			    = g++
+endif
+
+ifeq ($(CXX),g++)
+
+    CC			    = gcc
+
+    ifeq ($(LP64),yes)
+        CXXARCHFLAGS	    += -m64
+    endif
+
+    CXXFLAGS		    = $(CXXARCHFLAGS) -Wall -D_REENTRANT
+
+    ifeq ($(STATICLIBS),)
+	CXXFLAGS	    += -fPIC
+    endif
+
+    ifeq ($(OPTIMIZE),yes)
+        CXXFLAGS	    += -O2 -DNDEBUG
+    else
+        CXXFLAGS	    += -g
+    endif
+    
+    mkshlib		    = $(CXX) -shared $(LDFLAGS) -o $(1) -h $(2) $(3) $(4)
+
+    mklib		    = ar cr $(1) $(2)
+
+    ifneq ($(embedded_runpath_prefix),)
+         LDPLATFORMFLAGS    = -R $(runpath_libdir):/usr/sfw/$(libsubdir) $(PLATFORMLIBDIRS)
+    else
+         LDPLATFORMFLAGS    = -R /usr/sfw/$(libsubdir) $(PLATFORMLIBDIRS)
+    endif
+
+    ifeq ($(MACHINE_TYPE),i86pc)
+        ICONV_LIB	    = -liconv
+    endif
+endif
+
+rpathlink                   = -L$(1)
+
+BASELIBS		    = -lIceUtil -lpthread
+LIBS			    = $(BZIP2_RPATH_LINK) -lIce $(BASELIBS)
+
+ifneq ($(QT_HOME),)
+   QT_FLAGS             = -I$(QT_HOME)/include
+   QT_LIBS              = -L$(QT_HOME)/$(libsubdir) -lQtCore -lQtSql
+endif
+
+ICEUTIL_OS_LIBS		    = -lpthread -lrt
+ICE_OS_LIBS		    = -ldl -lsocket
+
+ifeq ($(MACHINE_TYPE),sun4u)
+   lp64suffix		    = /sparcv9
+   lp64binsuffix	    = /sparcv9
+endif
+ifeq ($(MACHINE_TYPE),i86pc)
+    lp64suffix		    = /amd64
+    lp64binsuffix	    = /amd64
+endif
+

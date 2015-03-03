@@ -1,0 +1,20 @@
+<icegrid>
+  <application name="Test">
+    <node name="localnode">
+      <server id="server" exe="${test.dir}/server" activation="on-demand">
+
+        <adapter name="TestAdapter" endpoints="default" id="TestAdapter">
+	  <object identity="test" type="Test"/>
+	</adapter>
+
+	<target name="debug">
+	  <properties>
+	    <property name="Ice.Trace.Network" value="0"/>
+	    <property name="Ice.Trace.Protocol" value="0"/>
+	  </properties>
+	</target>
+
+      </server>
+    </node>
+  </application>
+</icegrid>

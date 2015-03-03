@@ -1,0 +1,10 @@
+#
+# The client reads this property to create the reference to the
+# "Throughput" object in the server.
+#
+Throughput.Proxy=throughput:default -p 10000 -h 127.0.0.1
+
+#
+# Disable client-side ACM.
+#
+Ice.ACM.Client=0

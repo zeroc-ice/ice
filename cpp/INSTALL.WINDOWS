@@ -1,0 +1,281 @@
+======================================================================
+Introduction
+======================================================================
+
+This file describes the Ice source distribution, including information
+about compiler requirements, third-party dependencies, and
+instructions for building and testing the distribution.
+
+If you prefer, you can download a Windows installer that contains
+pre-compiled debug and release libraries, executables, and everything
+else necessary to build Ice applications on Windows at the link below:
+
+  http://www.zeroc.com/download.html
+
+
+======================================================================
+Requirements
+======================================================================
+
+
+Windows version
+---------------
+
+Ice has been extensively tested on:
+
+ - Windows XP with Service Pack 3 (x86)
+ - Windows Server 2003 Standard with Service Pack 2 (x86 & x64)
+ - Windows Server 2008 Standard with Service Pack 2 (x86 & x64)
+ - Windows Server 2008 Standard R2 (x64)
+ - Windows Vista with Service Pack 2 (x86 & x64)
+ - Windows 7 (x86 & x64)
+
+Ice does not work on Windows 2000. However, porting Ice to Windows
+2000 should be fairly simple if you do not require UDP multicast or
+IPv6.
+
+The Ice binary distribution for Windows can be downloaded from:
+
+  http://www.zeroc.com/download.html
+
+The distribution includes everything necessary to build Ice 
+applications and requires one of the Windows platforms listed above.
+
+
+C++ compiler
+------------
+
+The following C++ compilers are supported:
+
+- Microsoft Visual C++ 2010 (Professional and Express editions)
+
+  Visual C++ 2010 Express is available for download from:
+
+  http://www.microsoft.com/express/downloads/
+
+- Microsoft Visual C++ 2008 SP1 (Professional and Express editions)
+
+  Visual C++ 2008 Express is available for download from:
+
+  http://www.microsoft.com/express/downloads/
+
+- Microsoft Visual C++ 6.0 SP5 with the Windows Server 2003 PSDK
+  and STLport 4.6.2 (or later)
+
+  Visual C++ 6.0 is only supported in order to build the Ice extension
+  for Ruby. Visual C++ 6.0 is not supported for general application 
+  development in this release.
+
+- CodeGear C++Builder 2010
+
+  The Ice services (IceGrid, IceStorm, etc.) are not supported with
+  C++Builder builds. C++Builder applications can use the Ice services
+  but the service executables themselves must come from either a 
+  Visual C++ 2008/2010 build or from the Windows installer (which 
+  includes executables built using Visual C++ 2008 and Visual C++
+  2010).
+
+
+C++Builder 2010 Setup
+---------------------
+
+Users of C++Builder 2010 need to install the Microsoft Platform SDK:
+
+  http://www.microsoft.com/Downloads/details.aspx?familyid=0BAF2B35-C656-4969-ACE8-E4C0C0716ADB&displaylang=en
+
+Once installed, you need to add the Platform SDK directories to the
+INCLUDE, LIB and PATH environment variables. This can be done by
+executing the following script from within the compiler command
+prompt:
+
+  C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\SetEnv.Cmd
+
+
+Visual C++ 6.0 Setup
+--------------------
+
+Users of Visual C++ 6.0 need to install the February 2003 Microsoft
+Platform SDK in order to compile Ice.
+
+MSDN subscribers may download the PSDK from the MSDN Subscriber Downloads. 
+In the content tree open:
+
+  Tools and Resources / Platform SDK and DDKs / Platform SDK - February 2003 Edition (English)
+
+and then download the file en_platformsdk_win2003.exe.
+
+Once installed, you need to add the Platform SDK directories to the
+INCLUDE, LIB and PATH environment variables. This can be done by
+executing the following script:
+
+  C:\Program Files\Microsoft SDK\SetEnv.Bat
+
+Note that you must execute this script after setting up your VC60
+build environment to ensure that the Platform SDK include directory
+appears before the VC60 include directories in the INCLUDE environment
+variable.
+
+This Platform SDK is only required to compile Ice and is not necessary
+to build applications using Ice.
+
+To build the MFC demos, you must have the Unicode library installed.
+If you get a link failure about a missing MFC42UD.LIB, run Visual Studio
+setup, and add the Unicode library (under "MFC and Template Libraries",
+"MS Foundation Class Libraries", "Shared Libraries for Unicode") to
+your Visual Studio installation.
+
+
+Third-party libraries
+---------------------
+
+Ice has dependencies on a number of third-party libraries:
+
+- Berkeley DB 4.8.30
+- expat 2.0
+- OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
+- bzip2 1.0
+- mcpp 2.7.2 (with patches)
+- STLport 4.6.2 or later (only for Visual C++ 6.0)
+- QT 4.5.3 (optional)
+
+You do not need to build these packages yourself, as ZeroC supplies a
+Windows installer that contains release and debug libraries for all of
+the third-party dependencies.
+
+If you intend to build the third-party dependencies from source, we
+recommend downloading the Ice third-party source archive from
+
+  http://www.zeroc.com/download.html
+
+This archive contains the source distributions for each of the
+third-party dependencies, as well as required source patches and 
+configuration instructions.
+
+For more information about these dependencies, please refer to
+the links below:
+
+Berkeley DB    http://www.oracle.com/database/berkeley-db/index.html
+expat          http://expat.sourceforge.net
+OpenSSL        http://www.openssl.org
+bzip2          http://sources.redhat.com/bzip2
+mcpp           http://mcpp.sourceforge.net
+STLport        http://www.stlport.org
+QT             http://qt.nokia.com
+
+
+Monotonic clock
+---------------
+
+Ice uses the QueryPerformanceCounter Windows API function to measure
+time with a monotonic clock. If you are experiencing timing or
+performance issues, there are two knowledgebase articles that may be
+relevant for your system:
+
+  http://support.microsoft.com/?id=896256
+  http://support.microsoft.com/?id=895980
+
+
+======================================================================
+Compilation and Testing
+======================================================================
+
+
+Building Ice
+------------
+
+Using your favorite Zip tool, unzip the Ice source archive anywhere 
+you like.
+
+Add the "bin" directory of the third-party libraries to your PATH.
+
+Open a command prompt that is configured for your target architecture.
+For example, when using Visual Studio 2008 or Visual Studio 2010, you
+have several alternatives:
+
+ - Visual Studio Command Prompt
+ - Visual Studio x64 Win64 Command Prompt
+ - Visual Studio x64 Cross Tools Command Prompt
+
+Using the first configuration produces 32-bit binaries, while the
+second produces 64-bit binaries. In order to build a 64-bit version of
+Ice using a "Cross Tools" command prompt, you must set the following
+environment variable:
+
+> set XTARGET=x64
+
+Note that you must be using a Windows x64 platform when compiling a
+64-bit version of Ice.
+
+For C++Builder use the "RAD Studio Command Prompt".
+
+Change the working directory to Ice-3.4.2. For example:
+
+> cd C:\Ice-3.4.2\cpp
+
+Edit config\Make.rules.mak to establish your build configuration. The
+comments in the file provide more information. In particular, you
+must set CPP_COMPILER to the appropriate compiler.
+
+Now you're ready to build Ice:
+
+> nmake /f Makefile.mak
+
+
+Running the Test Suite
+----------------------
+
+Python is required to run the test suite:
+
+  http://www.python.org/download
+
+You can now run the test suite. Open a command prompt and change to
+the top-level Ice directory. At the command prompt, execute:
+
+> python allTests.py
+
+If everything worked out, you should see lots of "ok" messages. In
+case of a failure, the tests abort with "failed".
+
+If you want to try out any of the demos, make sure to update your PATH
+environment variable to add the "bin" directory, which contains the
+Ice DLLs and executables.
+
+
+======================================================================
+x64 Platform
+======================================================================
+
+Building Ice on x64 with the Visual Studio 2008 or Visual Studio 2010
+C++ compiler is like building Ice on x86. You just need need to
+perform the build in a "Visual Studio x64 Win64 Command Prompt", and
+not in a regular "Visual Studio 2008/2010 Command Prompt".
+
+You can also use the "Visual Studio x64 Cross Tools Command Prompt" if
+you set the following environment variable:
+
+> set XTARGET=x64
+
+Note that you must be using a Windows x64 platform when compiling a
+64-bit version of Ice.
+
+
+======================================================================
+Installation
+======================================================================
+
+Simply run "nmake /f Makefile.mak install". This will install Ice in
+the directory specified by the "prefix" variable in
+config\Make.rules.mak.
+
+After installation, if you plan to use the Visual Studio IDE for your
+Ice project, make sure to add the bin directory to the Visual C++
+"Executable files", the include directory to the "Include files" and
+the lib directory to the "Library files" in the IDE:
+
+  * Visual C++ 6.0: Tools->Options->Directories
+
+  * Visual C++ 2008: Tools->Options->Projects and Solutions->
+                                                    VC++ Directories
+
+If you built Ice on x64, the binaries are installed in the bin\x64
+directory and the libraries are installed in the lib\x64 directory.

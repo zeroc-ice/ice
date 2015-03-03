@@ -1,0 +1,12 @@
+      <TextView
+    	  xmlns:android="http://schemas.android.com/apk/res/android"
+    	  android:id="@+id/author"
+          android:paddingLeft="8dip"
+          android:layout_width="fill_parent"
+          android:layout_height="38dip"
+          android:layout_marginRight="4dip"
+          android:gravity="bottom"
+          android:singleLine="true"
+          android:capitalize="words"
+          android:text="author name"
+      />

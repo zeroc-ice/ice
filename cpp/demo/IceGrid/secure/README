@@ -1,0 +1,102 @@
+This demo shows how to prevent unauthorized access to the IceGrid
+registry and node, to the Glacier2 administrative router and the
+Ice.Admin functionality of IceGrid-managed servers. These components
+use IceSSL secure connections to communicate and restrict access to
+their endpoints.
+
+The client and server use a regular TCP endpoint to communicate, but
+they could also use a secure endpoint if necessary.
+
+To run the demo, you first need to generate certificates for the
+IceGrid registry and node, the Glacier2 administrative router, and the
+server. Run the makecerts.py script to create these certificates:
+
+$ makecerts.py
+
+Follow the instructions provided by the script. Note that to run the
+script you must have java (Java5 or greater) in your path.
+
+For simplicity, the certificates created by makecerts.py are not
+protected with a password. In a real world deployment, to ensure that
+only privileged users can create new certificates and start the
+IceGrid components, you would typically use a password for the
+certificate authority, the IceGrid registry and node certificates and
+the Glacier2 certificate. 
+
+You could also protect the server certificate with a password and
+specify the password in the server configuration in clear text.
+However, this would not improve security as you would still rely on
+filesystem permissions to restrict access to the configuration file,
+so you might as well use a certificate without a password and rely on
+the filesystem permissions to restrict access to the certificate.
+
+Once the certificates are generated, you can start the IceGrid
+registry, node, and Glacier2 router:
+
+$ icegridregistry --Ice.Config=config.registry
+$ icegridnode --Ice.Config=config.node
+$ glacier2router --Ice.Config=config.glacier2
+
+In a separate window:
+
+$ icegridadmin --Ice.Config=config.admin -e \
+    "application add application.xml"
+$ client
+
+This will deploy the application described in the file
+"application.xml" and start the client.
+
+To use icegridadmin through the Glacier2 router, you can use the
+following command:
+
+$ icegridadmin --Ice.Config=config.admin \
+  --Ice.Default.Router="DemoGlacier2/router:ssl -p 4064" 
+
+Alternatively, you can edit the config.admin file and uncomment the
+Ice.Default.Router property definition.
+
+To use the IceGrid administrative GUI, use the following settings in
+the GUI Login dialog:
+
+- To connect directly to IceGrid, in the "Direct" tab:
+
+  * Check the "Enable IceSSL" checkbox
+  * Set the IceGrid instance name to "DemoIceGrid"
+  * Set the IceGrid registry endpoints to "ssl -p 4062"
+  * In the SSL configuration section, select the "Basic" tab
+  * Set the Keystore file to the certs.jks file from the certs
+    directory of this demo
+  * Set the password to the Java keystore password to "password"
+
+- To connect via Glacier2, in the "Routed" tab:
+
+  * Check the "Enable IceSSL" checkbox
+  * Set the Glacier2 instance name to "DemoGlacier2"
+  * Set the Glacier2 router endpoints to "ssl -p 4064"
+  * In the SSL configuration section, select the "Basic" tab
+  * Set the Keystore file to the certs.jks file from the certs
+    directory of this demo
+  * Set the password to the Java keystore password to "password"
+
+The IceGrid registry and Glacier2 router are configured to use the
+"null permissions verifier" so you can use any username/password to
+login with the admin tools. In a real world deployment, you would
+instead typically use the file-based permissions verifier or a custom
+permissions verifier implementation.
+
+
+Vista Note
+----------
+
+On Vista-derived operating systems, the IceGrid node may emit the
+following warning:
+
+  warning: Unable to lookup the performance counter name:
+  Unable to connect to the specified computer or the computer is
+  offline. This usually occurs when you do not have sufficient
+  privileges.
+
+This issue can be resolved by granting appropriate permissions to the
+node's user account. Please refer to the Troubleshooting section of
+the "Windows Services" appendix in the Ice manual for more
+information.

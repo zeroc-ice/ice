@@ -1,0 +1,457 @@
+NOTE: This file is no longer being updated. See the CHANGES file in
+      the top-level directory.
+
+
+Changes since version 3.2.0
+---------------------------
+
+- Added the methods Ice.proxyIdentityCompare and
+  Ice.proxyIdentityAndFacetCompare.
+
+- Implemented __hash__ in proxies, which allows proxies to be used as
+  keys in Python's dictionary type.
+
+- Fixed Communicator.isShutdown, which always returned None.
+
+- Added support for protected class data members using the new
+  metadata tag ["protected"]. The tag can be applied to a Slice class
+  or to individual data members.
+
+- Changed the throughput demo to better support cross-language
+  testing.
+
+- Fixed a bug that caused a crash when terminating a server with a
+  signal.
+
+- Added missing requestId to Ice.Current.
+
+- All local methods on a proxy that return the "same" proxy with
+  a different attribute (such as ice_oneway and ice_secure) now return
+  a proxy of the same class as the original. As a result, once you
+  have downcast a proxy, it will rarely be necessary to downcast it
+  again. For example, you can rewrite the following statements
+
+  twoway = Demo.HelloPrx.checkedCast(...)
+  oneway = Demo.HelloPrx.uncheckedCast(twoway.ice_oneway())
+
+  as simply
+
+  twoway = Demo.HelloPrx.checkedCast(...)
+  oneway = twoway.ice_oneway()
+
+  The local methods ice_facet and ice_identity still return a proxy of
+  the base class Ice.ObjectPrx, since a change to the proxy's facet
+  or identity typically refers to an object with a different Slice
+  type and therefore requires a new downcast.
+
+  This change does not affect the behavior of existing code. However,
+  code that depends on these new semantics will not run correctly
+  using prior versions of Ice.
+
+- Fixed a bug that caused Properties.parseCommandLineOptions and
+  parseIceCommandLineOptions to always return None.
+
+Changes since version 3.1.1
+---------------------------
+
+- Fixed a bug that prevented an application from calling
+  Ice.initialize() with only an InitializationData argument.
+
+- Fixed a bug that would cause a crash if you attempted to obtain the
+  string representation of a proxy after the communicator was
+  destroyed.
+
+- Added support for a user-defined signal handler in Ice::Application.
+  A subclass must override the interruptCallback method and invoke
+  callbackOnInterrupt to activate it.
+
+- Fixed a bug in Application.holdInterrupt.
+
+- Added missing implementation of the createIndirectProxy() method to
+  the ObjectAdapter interface.
+
+- Added support for metadata to modify the mapping of a Slice
+  sequence type. The default mapping for sequences remains unchanged
+  (except for sequence<byte> as described below): a sequence is
+  received as a Python list. Using metadata, you can now specify that
+  a sequence be received as a tuple instead:
+
+  ["python:seq:tuple"] sequence<string> StringTuple;
+
+  In this example, all occurrences of StringTuple are received as
+  a tuple. You can also apply the metadata more selectively:
+
+  sequence<string> StringList;
+  struct S {
+      StringList l;
+      ["python:seq:tuple"] StringList stringTuple;
+  };
+  interface I {
+      ["python:seq:tuple"] StringList op(StringList l);
+  };
+
+  In this case, the default mapping is used for all occurrences of
+  StringList except for the stringTuple member of the structure and
+  the return value of op().
+
+  The metadata "python:seq:list" forces a sequence to be received
+  as a list, which you can use to override a prior metadata
+  definition:
+
+  ["python:seq:tuple"] sequence<string> StringTuple;
+  struct S {
+      ["python:seq:list"] StringTuple stringList;
+  };
+
+  Finally, the metadata "python:seq:default" directs the extension
+  to use the default mapping for the sequence, which is a list for all 
+  sequence types except sequence<byte>.
+
+- The default mapping for the Slice type sequence<byte> is now a
+  Python string, and therefore a string is also accepted as a legal
+  value for sequence<byte>. For programs that need to continue
+  receiving a sequence<byte> value as a list, you can use a metadata
+  directive to modify the mapping as shown below:
+
+  ["python:seq:list"] sequence<byte> ByteList;
+
+- The extension now accepts an object that implements the buffer
+  protocol as a legal value for sequences of most primitive types.
+  For example, it is more efficient to transfer an array of integer
+  values constructed using the "array" module than it is using a tuple
+  or a list. Note that no type- or range-checking is performed on the
+  contents of a buffer.
+
+- createObjectAdapter() and propertyToProxy() print warnings if
+  unknown properties are found during creation of the adapter or
+  proxy. These warnings can be disabled by setting the property
+  Ice.Warn.UnknownProperties=0.
+
+- Added the property Ice.Default.EndpointSelection. If not defined,
+  the default value is "Random".
+
+- Proxies and object adapters can now be configured to use
+  thread-per-connection.
+
+- Added Communicator::isShutdown() and ObjectAdapter::isDeactivated()
+  to allow applications to determine whether a communicator has been
+  shutdown or an object adapter has been deactivated, respectively.
+
+- Added destroy() operation to the ObjectAdapter interface. This
+  operation must be called in order to reclaim the adapter's resources
+  and be able to recreate a new adapter with the same name. Destroying
+  a communicator automatically calls destroy on all of its adapters.
+
+- Added a per-process logger and two methods to get/set the logger,
+  Ice.getProcessLogger() and Ice.setProcessLogger(). Calling
+  getProcessLogger() creates a default logger if setProcessLogger()
+  has not been called. The process logger is also used as the default
+  logger for all communicators that do not have a logger explicitly
+  set.
+
+- Message batches are now automatically flushed when the total size of
+  the batch reaches the message size maximum. This feature can be
+  controlled using the Ice.BatchAutoFlush property, which is on by
+  default.
+
+- During the creation of an object adapter, the communicator now
+  raises InitializationException if the adapter has no configuration.
+  It is possible to create an adapter with no configuration, which
+  is useful for bidirectional connections, by passing an empty string
+  as the argument to createObjectAdapter.
+
+- Added Communicator::propertyToProxy() which creates a proxy from
+  a set of properties. This operation allows you to set various local
+  proxy settings, such as the locator cache timeout, which cannot be
+  set using stringToProxy().
+
+- The Ice.Logger.Timestamp property has been removed. Timestamps are
+  now always printed.
+
+- Added the property Ice.Default.PreferSecure, which if set to 1
+  causes secure endpoints to be preferred over non-secure endpoints.
+  By default this property is set to 0. Also added functions to
+  control this behavior on a per-proxy rather than global basis:
+  ice_isPreferSecure() and ice_preferSecure().
+
+- Added a demo to illustrate use of AMI/AMD.
+
+- If a proxy does not specify a hostname (via -h HOST), the client
+  only attempts to connect to the loopback interface (127.0.0.1).
+
+- Attempts to change the attributes of a fixed proxy now result in a
+  FixedProxyException rather than just ignoring the change request and
+  returning the same proxy. Also, attempts to marshal a fixed proxy
+  now result in a FixedProxyException rather than a MarshalException.
+
+- Added support for implicit request contexts. When you invoke an
+  operation on a proxy and don't pass an explicit context, Ice uses
+  the "implicit context" combined with the per-proxy context (if any).
+  You can obtain the implicit context using the new communicator
+  operation getImplicitContext(). Three implementations of implicit
+  context are available; you select one by setting the property
+  Ice.ImplicitContext to one of the following values:
+
+  * None: No implicit context at all (default).
+  * PerThread: The implementation maintains a context per thread.
+  * Shared: The implementation maintains a single thread-safe context
+    that is shared by all threads.
+
+- Removed defaultContext from InitializationData.
+
+- Communicator::setDefaultContext(), Communicator::getDefaultContext()
+  and Proxy::ice_defaultContext() have been deprecated.
+
+- For object adapters without endpoints, Ice.Trace.Network >= 2 now
+  prints a trace message.
+
+- Added Ice.Override.Secure which forces a client to only use
+  secure connections.
+
+- Added UnexpectedObjectException. This exception is raised if you
+  use Slice classes and client and server are compiled with mismatched
+  Slice definitions. Alternatively, this exception is raised if you
+  use dynamic invocation and pass a class of the wrong type as an
+  operation parameter.
+
+- New Slice metadata for operations:
+
+  - ["nonmutating"] provides backward compatibility for idempotent
+    operations that were previously declared using the deprecated
+    'nonmutating' keyword. You can replace the 'nonmutating' keyword
+    with '["nonmutating"] idempotent' to maintain compatibility with
+    objects implemented using Ice 3.0 or 3.1.
+
+Changes since version 3.1.0
+---------------------------
+
+- Added compatibility with Python 2.5.
+
+- Fixed a bug with the IceGrid allocate and sessionAllocation demos 
+  where the session would not be destroyed in the event of an 
+  allocation failure.
+
+- Restored Communicator::setDefaultContext.
+
+Changes since version 3.0.1
+---------------------------
+
+- Removed removeObjectFactory() from the communicator interface.
+
+- Removed getDefaultProperties() functions, and the global default
+  properties. If you need global properties, you can easily create
+  your own global variable.
+
+- The signature of Ice.createProperties() is now:
+
+  def createProperties(args=[], defaults=None)
+
+  where "defaults" represents an optional set of default properties
+  used to initialize the new Properties object. Ice properties 
+  defined on the command line and properties defined in a
+  configuration file override these default properties.
+
+- Added ability to configure Ice thread start/stop hooks through
+  InitializationData.
+
+- Added identityToString and stringToIdentity to the Communicator
+  interface.
+
+- It is now possible to recreate a new object adapter with the same 
+  name as an old adapter once waitForDeactivate() has completed on the
+  old adapter.
+
+- Added new operation Communicator::createObjectAdapterWithRouter(),
+  which creates a routed object adapter. An object adapter may now
+  be associated with at most one router, which is defined using this
+  operation or by setting the <AdapterName>.Router property. Also
+  as a result of this change, the ObjectAdapter::addRouter() and
+  ObjectAdapter::removeRouter() operations have been removed.
+
+- The Ice.initialize() function now takes an optional argument of type
+  Ice.InitializationData. This class contains containing communicator
+  members that may only be set during communicator initialization.
+  Currently included are Properties, Logger, Stats, default context
+  and the thread hooks. The initializeWithXXX functions have been
+  deprecated and the setLogger(), setStats() and setDefaultContext()
+  operations have been removed.
+
+- Fixed an assertion failure in the object adapter when find is called
+  for a non-existent identity.
+
+- Added a new operation addProxies() to Ice::Router, which can return
+  evicted proxies. The old operation addProxy() is now deprecated.
+  Note that this is an internal interface for communications between
+  clients and routers (such as Glacier2).
+
+- The ice_timeout and ice_compress proxy methods now correctly
+  override the timeout and compress flag of indirect proxy endpoints.
+
+- Added proxy methods ice_isSecure, ice_getLocator, ice_getRouter.
+
+- Deprecated the following proxy methods:
+
+  ice_communicator
+  ice_connection
+  ice_newIdentity
+  ice_newFacet
+  ice_newContext
+  ice_newAdapterId
+  ice_newEndpoints
+
+  These methods will be removed in the next major release. You should
+  use the new methods shown below:
+
+  ice_getCommunicator
+  ice_getConnection
+  ice_identity
+  ice_facet
+  ice_context
+  ice_adapterId
+  ice_endpoints
+
+- Added requestId to Current, which allows a servant to determine
+  whether an operation was invoked with oneway or twoway semantics.
+  The requestId member is 0 for oneway invocations.
+
+- AMI invocations will now reuse the connection cached with the
+  proxy instead of always looking up an existing connection for
+  each invocation. As a side effect of this change, AMI invocations 
+  on a proxy with collocation optimization enabled will now raise
+  Ice::CollocationOptimizationException.
+
+- Added the property Ice.Default.LocatorCacheTimeout and the proxy
+  method ice_locatorCacheTimeout(). If a cached endpoint is older
+  than the configured cache timeout, the Ice runtime won't use
+  the cached endpoint. Instead, the Ice runtime will query the
+  Ice locator service to retrieve up-to-date endpoints and then update
+  the locator cache. Please see the Ice manual for more information.
+
+- Added the proxy method ice_endpointSelection, which allows an
+  application to control how endpoints are selected at connection
+  establishment. Two endpoint selection types are currently supported:
+  Random and Ordered.
+
+- Added the proxy method ice_connectionCached. This method allows you
+  to enable or disable the caching of the connection by the proxy. By
+  default, the proxy will cache the connection to avoid looking it up
+  for each request. Disabling the connection caching is useful to do
+  per-request load balancing: the proxy will select a connection for
+  each request and the request will eventually be sent to different 
+  servers.
+
+- Performance improvements if an AMI callback object is reused with
+  the same proxy.
+
+- If several proxies share the same connection, and an operation call
+  on one of the proxies causes a failure and the shared connection to
+  be closed, then subsequent calls on the other proxies will try to
+  establish a new connection instead of throwing an exception, even if
+  retries are disabled.
+
+- If a proxy is not configured with the -h parameter, Ice will now
+  attempt to connect using all local interfaces. The loopback
+  interface (127.0.0.1) will only be tried if it is the only local
+  interface present.
+
+Changes since version 3.0.0
+---------------------------
+
+- Fixed a bug where Ice plug-in command line options were not parsed.
+
+- Fixed a bug in the Slice parser that caused problems if an
+  included file contained white space in the file name.
+
+- Added IceGrid, IceStorm and Glacier2 demos.
+
+Changes since version 2.1.2
+---------------------------
+
+- IcePy shared library has been moved into the python directory,
+  removing the need to add an additional directory to your PYTHONPATH
+  environment variable.
+
+- Removed ice_default() method from proxies.
+
+- Added the proxy method ice_connectionId, which allows an application
+  to control connection reuse.
+
+- Added the new methods Ice.initializeWithLogger() and
+  Ice.initializeWithPropertiesAndLogger(), which ensure that a
+  custom logger is used to record any errors during communicator
+  initialization.
+
+- Invocations on collocated servants are now supported.
+
+- Added proxy methods to retrieve the proxy adapter id and endpoints
+  (ice_getAdapterId() and ice_getEndpoints()) and to create a new
+  proxy with a new adapter id or new endpoints (ice_newAdapterId() and
+  ice_newEndpoints()).
+
+- Exception stack trace information is now included when possible in
+  the 'unknown' member of Ice.UnknownException and its derived types.
+
+- Fixed compilation errors for 64-bit GCC builds.
+
+- Added ice_communicator() to proxies. This function returns the
+  communicator that was used to create the proxy.
+
+- Added ice_toString() to proxies. This function returns the
+  stringified proxy. This function can be more convenient to use than
+  communicator.proxyToString() because you do not need the
+  communicator to stringify a proxy that way.
+
+- Ice.ObjectImpl is now an abstract class that cannot be instantiated.
+  This change should be transparent to application code.
+
+Changes since version 2.1.1
+---------------------------
+
+- Fixed a bug that resulted in an UnmarshalOutOfBoundsException when
+  Slice definitions are reloaded.
+
+Changes since version 2.1.0
+---------------------------
+
+- Added sequences of fixed-length elements to throughput demo.
+
+- Added -E option to the various Slice compilers to print preprocessor
+  output on stdout.
+
+- Fixed a bug in the option parsing for Ice tools such as slice2cpp,
+  slice2java, slice2cs, etc. The option parser used to incorrectly
+  complain about repeated options when in fact no option was
+  repeated. Also changed the parser to permit options to follow an
+  argument, so
+
+      slice2cpp -I. x.ice
+
+  and
+
+      slice2cpp x.ice -I.
+
+  are now equivalent.
+
+Changes since version 2.0.0
+---------------------------
+
+- Added support for Mac OS X 10.3.x
+
+- Added support for stringifying generated types.
+
+- Added support for Ice::Connection, which is accessible to servants
+  from Ice::Current, and to clients from the proxy operation
+  ice_connection.
+
+- Added setDefaultContext() and getDefaultContext() to the
+  Ice::Communicator interface. This allows a default context to be
+  established on a communicator-wide basis. See section 29.9.3 in
+  the doc.
+
+  Added ice_defaultContext to Ice::ObjectProxy. This creates a new
+  proxy that uses the default context established on the communicator.
+
+- Modified the checkedCast member function of the generated Prx
+  classes to accept an optional trailing argument of type Ice::Context.
+  This makes it possible to do stateful things that require a context
+  in a servant locator's activate() method.

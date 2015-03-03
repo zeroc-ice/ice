@@ -1,0 +1,20 @@
+ChangedMeaning.ice:19: `ls' has changed meaning
+ChangedMeaning.ice:30: `ls' has changed meaning
+ChangedMeaning.ice:49: `M' has changed meaning
+ChangedMeaning.ice:55: `M' has changed meaning
+ChangedMeaning.ice:62: `i1' has changed meaning
+ChangedMeaning.ice:63: `i2' has changed meaning
+ChangedMeaning.ice:84: `e1' has changed meaning
+ChangedMeaning.ice:85: `e2' has changed meaning
+ChangedMeaning.ice:97: `c1' has changed meaning
+ChangedMeaning.ice:98: `c2' has changed meaning
+ChangedMeaning.ice:109: `blue' has changed meaning
+ChangedMeaning.ice:119: `CounterSeq' has changed meaning
+ChangedMeaning.ice:126: `counter' has changed meaning
+ChangedMeaning.ice:127: `counter' is not a type
+ChangedMeaning.ice:128: redefinition of parameter `param'
+ChangedMeaning.ice:134: `is' has changed meaning
+ChangedMeaning.ice:146: `E' is not an exception
+ChangedMeaning.ice:146: `E' has changed meaning
+ChangedMeaning.ice:153: `E' has changed meaning
+ChangedMeaning.ice:159: `E' has changed meaning

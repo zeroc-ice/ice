@@ -1,0 +1,62 @@
+Build instructions
+------------------
+
+The Visual Basic demos have been built and tested with:
+
+- Microsoft Visual Studio 2008 SP1 and .NET Framework Version 3.5 SP1
+
+- Microsoft Visual Studio 2010 and .NET Framework Version 4.0
+
+Unpack the archive. The Visual Basic demo sources will be 
+contained in the Ice-3.4.2\vb subdirectory.
+
+You will need the Slice to C# translator and supporting executables
+and libraries from Ice for C++. You can download a binary distribution
+from the ZeroC web site, or you can build Ice for C++ yourself.
+
+Binary distributions for the supported platforms are available at
+
+  http://www.zeroc.com/download.html
+
+To use Visual Basic (or other .NET languages) with Ice, you need
+the run-time support provided by the Ice for .NET assembly (Ice.dll).
+See ..\cs\INSTALL.VISUAL_C# for instructions on building the .NET
+assembly.
+
+Follow these steps to build the demos:
+
+1) If you have not built Ice for C++ in the cpp subdirectory, set
+   ICE_HOME to the directory of your Ice for C++ installation.
+   For example:
+
+   > set ICE_HOME=C:\Ice-3.4.2
+
+2) Change to the top-level directory of the Visual Basic demos:
+
+   > cd Ice-3.4.2\vb
+
+3) Open config\Make.rules.mak.vb and review the comments that describe
+   the settings you can modify. For example, you may wish to enable
+   optimization.
+
+4) Run nmake:
+
+   > nmake /f Makefile.mak
+
+For the Slice definitions, slice2cs is used to generate C# source code
+and the C# compiler is used to compile the generated code into
+a DLL. That DLL is then referenced from the Visual Basic project.
+
+You can also build the demos using the Visual Studio solution located
+in demo\demo.sln. Note that the demo projects require the Ice Visual
+Studio Add-In. The add-in is installed automatically when you
+use the Ice installer, or you can install the add-in manually by
+following the instructions in ..\vsaddin\INSTALL.txt.
+
+
+Running the demos
+-----------------
+
+To run the demos, you need to have the cpp\bin directory in your PATH
+and the cs\bin directory in your DEVPATH. See the README file in each
+demo directory for a description of the demo.

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Hello World, Chat</string>
+    <string name="app_name">Chat</string>
+    <string name="users_name">Users</string>
+    <string name="menu_users">Show Users</string>
+    <string name="menu_logout">Logout</string>
+</resources>

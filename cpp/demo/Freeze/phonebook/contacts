@@ -1,0 +1,36 @@
+add "Doe, John" "Doe, Jane" "Doe, Jack" "Doe, Bob"
+add "Doe, John" "Doe, John"
+
+find "Doe, John"
+address "10 Main Street, Smalltown, XY 01234, USA"
+phone "(123) 345-7890"
+
+next
+address "10 Broadway, Mutable City, CD 22222, USA"
+phone "(555) 111-2222"
+
+next
+address "11 Narrowway, Static Town, EF 33333, USA"
+phone "(678) 234-2299"
+
+find "Doe, Jane"
+address "10 Main Street, Smalltown, XY 01234, USA"
+phone "(123) 345-7890"
+
+find "Doe, Jack"
+address "11 Great Road, Bigtown, YZ 43210, USA"
+phone "(777) 123-456"
+
+find "Doe, Bob"
+address "99 Little Road, Nowhere, AB 11111, USA"
+phone "(777) 123-456"
+
+add "Mustermann, Manfred" "Mustermann, Matilda"
+
+find "Mustermann, Manfred"
+address "Musterstrasse 10, D-12345 Kleinstadt, Germany"
+phone "(01234) 56789"
+
+find "Mustermann, Matilda"
+address "Musterstrasse 10, D-12345 Kleinstadt, Germany"
+phone "(01234) 56789"

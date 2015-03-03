@@ -1,0 +1,44 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+<project name="demo_Ice_hello" default="all" basedir=".">
+
+    <!-- set global properties for this build -->
+    <property name="top.dir" value="../../.."/>
+
+    <!-- import common definitions -->
+    <import file="${top.dir}/config/common.xml"/>
+
+    <target name="generate" depends="init">
+        <!-- Create the output directory for generated code -->
+        <mkdir dir="${generated.dir}"/>
+        <slice2java outputdir="${generated.dir}">
+            <fileset dir="." includes="Hello.ice"/>
+        </slice2java>
+    </target>
+
+    <target name="compile" depends="generate">
+        <mkdir dir="${class.dir}"/>
+	<javac srcdir=".:${generated.dir}" destdir="${class.dir}" debug="${debug}">
+            <exclude name="${generated.dir}/**"/>
+            <classpath refid="ice.classpath"/>
+	    <compilerarg value="${javac.lint}"/>
+        </javac>
+    </target>
+
+    <target name="all" depends="compile"/>
+
+    <target name="clean">
+        <delete dir="${generated.dir}"/>
+        <delete dir="${class.dir}"/>
+    </target>
+
+</project>

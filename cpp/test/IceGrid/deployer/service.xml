@@ -1,0 +1,39 @@
+<icegrid>
+
+  <service-template id="ServiceTemplate">
+    <parameter name="name"/>
+    <parameter name="NodeVarOverridedByParam"/>
+
+    <service name="${name}" entry="TestService:create">
+
+      <adapter name="${service}" endpoints="default">
+	<object identity="${server}-${service}" type="::Test" property="Test${service}Identity"/>
+      </adapter>
+
+      <log path="test-${service}.log" property="LogFilePath"/>
+      <log path="test.log" property="LogFilePath-${service}"/>
+
+      <property name="Ice.Warn.UnknownProperties" value="0"/>
+      <property name="${name}.Identity" value="${server}-${name}"/>
+      <property name="${name}.Type" value="standard"/>
+      <property name="${name}.ServiceName" value="${name}"/>
+
+      <property name="PropertyWithSpaces" value="   test   "/>
+      <property name="WindowsPath" value="C:\Program Files (x86)\ZeroC\"/>
+      <property name="UNCPath" value="\\server\foo bar\file"/>
+      <property name="PropertyWith=" value="foo=bar"/>
+      <property name="PropertyWithHash" value="foo#bar"/>
+      <property name="PropertyWithTab" value="foo&#9;bar"/>
+      <property name="PropertyWithEscapeSpace" value="foo\ "/>
+      <property name="PropertyWithProperty"
+                value="Plugin.EntryPoint=foo:bar --Ice.Config=\\\server\foo bar\file.cfg"/>
+      
+      <include file="varproperties.xml"/>
+
+      <property name="AppVarOverridedByParamProp" value="${AppVarOverridedByParam}"/>
+      <property name="NodeVarOverridedByParamProp" value="${NodeVarOverridedByParam}"/>
+
+    </service>
+  </service-template>
+
+</icegrid>

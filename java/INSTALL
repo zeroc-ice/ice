@@ -1,0 +1,398 @@
+This file describes how to build and install Ice for Java from source
+code.
+
+If you prefer, you can download binary distributions for supported
+platforms at the link below:
+
+  http://www.zeroc.com/download.html
+
+
+======================================================================
+Requirements
+======================================================================
+
+
+Operating systems
+-----------------
+
+Ice for Java has been tested under Linux, Solaris, MacOS X, and
+Windows XP/Server 2003/Vista/7, but due to the portability of Java, it
+is very likely that it will also work on other platforms for which a
+suitable Java implementation is available.
+
+Note, however, that you will need the Slice to Java translator (see
+below). ZeroC provides translator binaries for supported platforms.
+For other platforms, you will have to either port Ice for C++ (which
+contains the Slice to Java translator), or you will have to translate
+your Slice files to Java on a supported platform, and copy the
+generated Java files to your target platform.
+
+
+Java version
+------------
+
+Ice for Java requires J2SE 1.5.0 or later.
+
+You can download Java5 and Java6 for Solaris, Windows, and Linux from:
+
+  http://www.oracle.com/technetwork/java/index.html
+
+Make sure to add javac and java to your PATH.
+
+When using the Ice for Java SSL plug-in (IceSSL), you may experience
+occasional hangs. The most likely reason is that your system's entropy
+pool is empty. If you have sufficient system privileges, you can solve
+this issue by editing the following file
+
+  <java.home>/jre/lib/security/java.security
+
+and changing it to use /dev/urandom instead of /dev/random. If you do
+not have permission to modify the security file, you can also use the
+command-line option shown below:
+
+  java -Djava.security.egd=file:/dev/urandom MyClass ...
+
+On systems with IPv6 enabled, you may experience occasional hangs 
+the first time an Ice object adapter is activated within a JVM. A 
+work-around is to disable IPv6 support by setting the Java property 
+java.net.preferIPv4Stack to true. For example:
+
+  java -Djava.net.preferIPv4Stack=true MyClass ...
+
+For more information on this issue, refer to Sun's bug database:
+
+  http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6483406
+
+
+Slice to Java translator
+------------------------
+
+You will need the Slice to Java translator and supporting executables
+and libraries. You can download a binary distribution from the ZeroC
+web site, or you can build Ice for C++ yourself.
+
+Binary distributions for supported platforms are available at
+
+  http://www.zeroc.com/download.html
+
+
+Berkeley DB
+-----------
+
+"Freeze" is an optional Ice component that provides a persistence
+facility for Ice applications. Freeze uses Berkeley DB as its
+underlying database and currently requires Berkeley DB 4.8.30.
+
+ZeroC provides Berkeley DB binary distributions (with Java support)
+for many platforms: 
+
+  http://www.zeroc.com/download.html
+
+Alternatively, you can build Berkeley DB yourself; the Berkeley DB 
+source distribution is available at
+
+  http://www.oracle.com/database/berkeley-db/index.html
+
+This source distribution is also available at
+
+  http://www.zeroc.com/download.html#src_third_party
+
+When you build Berkeley DB, make sure to configure Berkeley DB with
+Java support. For Linux, this is done by specifying the --enable-java
+option when running the configure script. On Windows, you must select
+the project "db_java -- Win32 Release".
+
+In order to run an application that uses Freeze, you must add db.jar
+to your CLASSPATH and verify that the Berkeley DB shared libraries are
+in your java.library.path. On Linux, this can be achieved by adding
+<Berkeley DB home>/lib to your LD_LIBRARY_PATH, for example:
+
+  $ export LD_LIBRARY_PATH=/opt/db48/lib:$LD_LIBRARY_PATH
+
+
+bzip2
+-----
+
+Ice for Java supports protocol compression using the bzip2 classes
+included with Apache Ant (see "Compiling the Source" below).
+
+Compression is automatically enabled if the classes are present in the
+CLASSPATH. You can either add ant.jar to your CLASSPATH, or download
+only the bzip2 classes from
+
+  http://www.kohsuke.org/bzip2/
+
+Note that these classes are a pure Java implementation of the bzip2
+algorithm and therefore add significant latency to Ice requests.
+
+
+JGoodies
+--------
+
+The graphical IceGrid administrative tool (see "IceGrid Administrative
+Console") uses JGoodies Common, JGoodies Forms, and JGoodies Looks.
+
+The libraries are available here:
+
+  http://www.jgoodies.com/downloads/libraries.html
+
+The IceGrid administrative tool has been tested with the following
+versions:
+
+  JGoodies Common 1.2.0
+  JGoodies Forms 1.4.1
+  JGoodies Looks 2.4.1
+
+
+ProGuard
+--------
+
+ProGuard is used to create the standalone JAR file for the graphical
+IceGrid administrative tool (see "IceGrid Administrative Console").
+
+ProGuard is available here:
+
+  http://proguard.sourceforge.net
+
+Ice for Java has been tested with ProGuard 4.6.
+
+
+Android
+-------
+
+The Ice run time (lib/Ice.jar) is fully compatible with Android 2.1 or
+later. The IceSSL plug-in requires Android 2.2 or later (see the
+release notes for more information on SSL in Android).
+
+Refer to the sections "Eclipse Development" and "Using Ice in Android"
+below for additional details.
+
+
+======================================================================
+Compiling the Source
+======================================================================
+
+
+Preparing to Build
+------------------
+
+The Ice for Java build system requires Apache Ant 1.7.0 or later. Ant
+is available at the link below:
+
+  http://ant.apache.org/
+
+This source distribution cannot be compiled successfully without the
+Berkeley DB run time for Java (db.jar). On Unix platforms, the build
+system searches for this file in two locations:
+
+  * /usr/share/java/db-4.8.30.jar
+  * /opt/Ice-3.4.2/lib/db.jar
+
+If neither of these files is present on your system, or if you are not
+using a Unix platform, you must add db.jar to your CLASSPATH.
+
+The build system also requires the Slice translators from Ice for C++.
+If you have not built Ice for C++ in this source distribution, you
+must set the ICE_HOME environment variable with the path name of your
+Ice installation. For example:
+
+  # On Unix.
+  $ export ICE_HOME=/opt/Ice-3.4.2  (For local build)
+  $ export ICE_HOME=/usr            (For RPM installation)
+
+  # On Windows
+  > set ICE_HOME=C:\Ice-3.4.2
+
+Before building Ice for Java, review the settings in the file
+config/build.properties and edit as necessary.
+
+If you intend to build the IceGrid Administrative Console, you have
+two options:
+
+1. Build it as a standalone JAR file. In this case, confirm the
+   locations of the JGoodies libraries in config/build.properties and
+   add ProGuard to your CLASSPATH.
+
+2. Build it as a regular JAR file. The JGoodies libraries must either
+   be present in your CLASSPATH or available at the locations defined
+   in config/build.properties.
+
+
+Building Ice for Java
+---------------------
+
+To build only the Ice run time (Ice.jar), use the following command:
+
+  ant ice-jar
+
+To build the Ice run time along with Freeze and the IceGrid
+administrative console, use this command:
+
+  ant jar
+
+Finally, to build the entire source distribution, including tests
+and sample programs, use this command:
+
+  ant
+
+Upon completion, the JAR files can be found in the "lib" subdirectory.
+
+If at any time you wish to discard the current build and start a new
+one, use these commands:
+
+  ant clean
+  ant
+
+
+Ant Tasks
+---------
+
+The build system uses some Ice-specific Ant tasks for executing the
+Slice translators that you may find useful in your own Ant projects.
+The Java classes for the tasks are supplied in lib/ant-ice.jar. You
+can use an Ant project file from any of the sample programs as a
+guide for using the tasks, or you can review the source code in
+the src/ant subdirectory.
+
+
+======================================================================
+Installation
+======================================================================
+
+Simply run "ant install". This will install Ice in the directory
+specified by the "prefix" variable in config/build.properties.
+It is not necessary to rebuild Ice for Java after changing the
+value of the prefix variable.
+
+After installation add Ice.jar (and optionally Freeze.jar) to your
+CLASSPATH.
+
+
+======================================================================
+Eclipse Development
+======================================================================
+
+ZeroC has created a Slice2Java plug-in for Eclipse that automates the
+translation of your Slice files. If you use Eclipse, we strongly
+recommend using this plug-in for your own development.
+
+Note that the Slice2Java plug-in is required if you intend to build
+any of the Android sample projects included in this distribution.
+
+For more information on installing the plug-in, please refer to the
+link below:
+
+  http://www.zeroc.com/eclipse.html
+
+The Ice manual provides usage instructions for the plug-in:
+
+  http://doc.zeroc.com/display/Ice/Eclipse+Plug-in
+
+
+======================================================================
+Using Ice in Android
+======================================================================
+
+Ice requires Android 2.1 or later. Aside from that, there are no other
+special requirements for using Ice in an Android application. We
+strongly recommend installing our Slice2Java plug-in for Eclipse to
+automate the compilation of your Slice definitions.
+
+
+Sample Projects
+---------------
+
+Several sample Android projects are provided in the demo/android
+subdirectory. You must use Eclipse and the Slice2Java plug-in to build
+these projects.
+
+In Eclipse, you can open a sample project by choosing File->Import...;
+in the "General" group, select "Existing Project into Workspace", then
+open one of the subdirectories of demo/android.
+
+The sample projects are configured to locate the Ice run time JAR file
+(Ice.jar) via the ICE_HOME classpath variable, as described in the Ice
+manual:
+
+  http://doc.zeroc.com/display/Ice/Eclipse+Plug-in
+
+If you installed Ice.jar in a different location, you will need to add
+it as an external JAR file in each sample project:
+
+ 1. Open the project's properties and select Java Build Path
+ 2. Click on the Libraries tab
+ 3. Click Add External JARs... and navigate to Ice.jar
+ 4. Click OK to save your settings
+
+
+======================================================================
+Tests and Demos
+======================================================================
+
+Some of the Ice for Java tests employ applications that are part of
+the Ice for C++ distribution. If you have not built Ice for C++ in
+this source distribution then you must set the ICE_HOME environment
+variable with the path name of your Ice installation:
+
+  # On Unix
+  $ export ICE_HOME=/opt/Ice-3.4.2  (For local build)
+  $ export ICE_HOME=/usr            (For RPM installation)
+
+  # On Windows
+  > set ICE_HOME=c:\Ice-3.4.2
+
+Python is required to run the test suite:
+
+  http://www.python.org/download
+
+To run the tests, open a command window and change to the top-level
+directory. At the command prompt, execute:
+
+  python allTests.py
+
+You can also run tests individually by changing to the test directory
+and running this command:
+
+  python run.py
+
+If everything worked out, you should see lots of "ok" messages. In
+case of a failure, the tests abort with "failed".
+
+Note that the Glacier2/router test will fail if it is run with the
+--compress option but the bzip2 classes are not present in your
+CLASSPATH.
+
+If you want to try out any of the demos, make sure to add lib/Ice.jar
+and "classes" to your CLASSPATH. Then change to the desired demo
+directory and follow the instructions in the README file. If no README
+file is present, the demo can be run by entering the following command
+to start the server:
+
+  $ java Server
+
+Then in a separate window enter the following command to start the
+client:
+
+  $ java Client
+
+
+======================================================================
+IceGrid Administrative Console
+======================================================================
+
+Ice for Java includes a graphical administrative console for IceGrid.
+If you elected to build the console, it can be found in the file
+
+  lib/IceGridGUI.jar
+
+If you built this JAR file using ProGuard, it is completely self-
+contained and has no external dependencies, in which case you can
+start the console with the following command:
+
+  java -jar IceGridGUI.jar
+
+If you compiled the console without ProGuard, you will need to add
+Ice.jar, IceGridGUI.jar, and the JGoodies libraries to your CLASSPATH.
+You can start the console with this command:
+
+  java IceGridGUI.Main

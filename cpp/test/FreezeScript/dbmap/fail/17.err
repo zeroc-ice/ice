@@ -1,0 +1,4 @@
+transformdb: class ::Test::C declared but not defined
+
+The following types had no matching definitions in the new Slice:
+  ::Test::C

@@ -1,0 +1,1 @@
+Client$(OBJEXT): Client.cpp "$(includedir)/IceUtil/Unicode.h" "$(includedir)/IceUtil/Config.h" "$(includedir)/IceUtil/Exception.h" "$(includedir)/IceUtil/FileUtil.h" "$(includedir)/IceUtil/Shared.h" "$(includedir)/IceUtil/Handle.h" ../../include/TestCommon.h

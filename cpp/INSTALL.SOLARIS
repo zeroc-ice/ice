@@ -1,0 +1,158 @@
+======================================================================
+Requirements
+======================================================================
+
+
+Operating System
+----------------
+
+Ice is expected to build and run properly on Solaris 8, Solaris 9
+and Solaris 10 on SPARC and x86/x64. However, Ice is officially
+supported only on Solaris 10 update 5 or greater for both SPARC and
+x86/x64.
+
+You also need to have /dev/urandom installed. This is installed by
+default on Solaris 9 and Solaris 10; on Solaris 8, you need to install 
+patch 112438-01.
+
+
+C++ compiler
+------------
+
+Ice is expected to build properly with GCC 3.4 or later. However, only
+the following compilers are officially supported:
+
+- GCC 3.4.3 on x86/x64
+- GCC 4.3.2 on SPARC
+
+
+Third-party libraries
+---------------------
+
+Ice has dependencies on a number of third-party libraries:
+
+- Berkeley DB 4.8.30
+- expat 1.95.7 or 2.0.0
+- OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
+- bzip2 1.0.x
+- mcpp 2.7.2 (with patches)
+- libiconv 1.13.1 (x86/x64 only)
+- QT 4.5.3 (optional)
+
+We recommend downloading the Ice third-party source archive from
+
+  http://www.zeroc.com/download.html
+
+This archive contains the source distributions for each of the
+third-party dependencies, as well as required source patches and 
+configuration instructions.
+
+For more information about these dependencies, please refer to
+the links below:
+
+Berkeley DB    http://www.oracle.com/database/berkeley-db/index.html
+expat          http://expat.sourceforge.net
+OpenSSL        http://www.openssl.org
+bzip2          http://sources.redhat.com/bzip2
+mcpp           http://mcpp.sourceforge.net
+libiconv       http://www.gnu.org/software/libiconv
+QT             http://qt.nokia.com
+
+
+GNU Make 3.80
+-------------
+
+GNU Make 3.80 is required to build Ice on Solaris. GNU make is
+distributed on the "Solaris 10 OS Companion Software DVD":
+
+http://www.sun.com/software/solaris/freeware/
+
+
+======================================================================
+Compilation and Testing
+======================================================================
+
+Extract the Ice archive in any directory you like (for example, in
+your home directory):
+
+$ gtar xvfz Ice-3.4.2.tar.gz
+
+Change the working directory to Ice-3.4.2/cpp:
+
+$ cd Ice-3.4.2/cpp
+
+Edit config/Make.rules to establish your build configuration. The
+comments in the file provide more information. Pay particular
+attention to the variables that define the locations of the third-
+party libraries.
+
+If you want to build with Sun CC instead of g++, edit the file
+config/Make.rules.SunOS and change or uncomment the CXX = <compiler>
+line (at the top of the file). The default value for CXX with GNU make
+is g++.
+
+Now you're ready to build Ice:
+
+$ gmake
+
+This will build the Ice core libraries, services, tests and examples.
+
+Python is required to run the test suite:
+
+  http://www.python.org/download
+
+After a successful build, you can run the test suite:
+
+$ gmake test
+
+This is equivalent to:
+
+$ python allTests.py
+
+If everything worked out, you should see lots of "ok" messages. In
+case of a failure, the tests abort with "failed".
+
+If you want to try out any of the demos, make sure to update your PATH
+environment variable to add the "bin" directory, and your
+LD_LIBRARY_PATH environment variable to add the "lib" directory.  For
+64-bit builds, add "lib" to LD_LIBRARY_PATH_64:
+
+$ export PATH=`pwd`/bin:$PATH
+$ export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
+$ export LD_LIBRARY_PATH_64=`pwd`/lib:$LD_LIBRARY_PATH_64
+
+
+======================================================================
+64-bit builds
+======================================================================
+
+To build Ice in 64-bit mode, you need to do the following:
+
+- Obtain or build all the third-party dependencies, and put the 64-bit
+  libraries in the appropriate lib subdirectory (lib/sparcv9 on SPARC,
+  lib/amd64 on x86).
+
+- Set the environment variable LP64 to yes, as shown below:
+
+  $ export LP64=yes
+
+- Build and test as described above.
+
+
+======================================================================
+Installation
+======================================================================
+
+Simply run "gmake install". This will install Ice in the directory
+specified by the "prefix" variable in config/Make.rules.
+
+After installation, make sure that the <prefix>/bin directory is in
+your PATH, and the <prefix>/lib directory is in your LD_LIBRARY_PATH.
+When compiling Ice programs, you must pass the location of the
+<prefix>/include directory to the compiler with the -I option, and the
+location of the <prefix>/lib directory with the -L option.
+
+If you built in 64-bit mode, the libraries are installed in
+<prefix>/lib/sparcv9 or <prefix>/lib/amd64, depending on your system's
+architecture. Executables are installed in <prefix>/bin/sparcv9 or
+<prefix>/bin/amd64. No other changes are necessary.

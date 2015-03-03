@@ -1,0 +1,28 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+           android:layout_width="fill_parent"
+           android:layout_height="wrap_content"
+           android:orientation="horizontal"
+           android:padding="0dip"
+           android:gravity="center_vertical"
+           android:baselineAligned="false"
+       >
+
+      <EditText android:id="@+id/author"
+          android:layout_width="0dip"
+          android:layout_weight="1"
+          android:layout_height="wrap_content"
+          android:layout_marginRight="4dip"
+          android:gravity="center_vertical"
+          android:singleLine="true"
+          android:capitalize="words"
+          android:text="title"
+      />
+     <Button android:id="@+id/delete"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:gravity="center_vertical"
+          android:singleLine="true"
+          android:capitalize="words"
+          android:text="X"
+      />
+</LinearLayout>

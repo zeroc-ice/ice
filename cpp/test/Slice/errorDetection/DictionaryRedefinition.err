@@ -1,0 +1,6 @@
+DictionaryRedefinition.ice:15: illegal identifier: `Dictionary' differs from keyword `dictionary' only in capitalization
+DictionaryRedefinition.ice:15: keyword `dictionary' cannot be used as dictionary name
+DictionaryRedefinition.ice:16: illegal identifier: `Dictionary' differs from keyword `dictionary' only in capitalization
+DictionaryRedefinition.ice:16: redefinition of dictionary `dictionary' as dictionary
+DictionaryRedefinition.ice:16: keyword `dictionary' cannot be used as dictionary name
+DictionaryRedefinition.ice:18: redefinition of dictionary `foo' as dictionary

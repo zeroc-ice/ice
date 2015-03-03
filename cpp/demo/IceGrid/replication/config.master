@@ -1,0 +1,31 @@
+#
+# The IceGrid instance name.
+#
+IceGrid.InstanceName=DemoIceGrid
+
+#
+# IceGrid registry configuration.
+#
+IceGrid.Registry.Client.Endpoints=default -p 12000 -t 10000
+IceGrid.Registry.Server.Endpoints=default -t 10000
+IceGrid.Registry.Internal.Endpoints=default -t 10000
+IceGrid.Registry.Data=db/master
+IceGrid.Registry.PermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
+IceGrid.Registry.AdminPermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
+
+#
+# IceGrid SQL configuration if using SQL database.
+#
+#Ice.Plugin.DB=IceGridSqlDB:createSqlDB
+#IceGrid.SQL.DatabaseType=QSQLITE
+#IceGrid.SQL.DatabaseName=db/master/Registry.db
+
+Ice.StdErr=db/master/stderr.txt
+Ice.StdOut=db/master/stdout.txt
+
+#
+# Trace properties.
+#
+Ice.ProgramName=Master
+IceGrid.Registry.Trace.Node=2
+IceGrid.Registry.Trace.Replica=2

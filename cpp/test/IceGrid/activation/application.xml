@@ -1,0 +1,89 @@
+<icegrid>
+  <application name="Test">
+
+    <server-template id="Server">
+      <parameter name="id"/>
+      <parameter name="activation" default="on-demand"/>
+      <parameter name="activation-timeout" default="60"/>
+      <parameter name="deactivation-timeout" default="60"/>
+      <parameter name="activation-delay" default="0"/>
+      <parameter name="deactivation-delay" default="0"/>
+      <parameter name="fail-on-startup" default="0"/>
+      <server id="${id}" exe="${test.dir}/server"
+                         activation="${activation}" 
+                         activation-timeout="${activation-timeout}" 
+                         deactivation-timeout="${deactivation-timeout}">
+        <adapter name="TestAdapter" endpoints="default">
+	  <object identity="${server}" type="Test"/>
+	  <allocatable identity="${server}" type="Test"/>
+	</adapter>
+        <property name="ActivationDelay" value="${activation-delay}"/>
+        <property name="DeactivationDelay" value="${deactivation-delay}"/>
+        <property name="FailOnStartup" value="${fail-on-startup}"/>
+      </server>
+    </server-template>
+  
+    <server-template id="IceGridNode">
+      <parameter name="id"/>
+      <parameter name="disable-on-failure" default="0"/>
+      <server id="${id}" exe="${ice.bindir}/icegridnode" activation="manual">
+        <option>--nowarn</option>
+        <dbenv name="data"/>
+        <property name="IceGrid.Node.Endpoints" value="default"/>
+        <property name="IceGrid.Node.Name" value="${server}"/>
+        <property name="IceGrid.Node.Data" value="${node.datadir}/servers/${server}/dbs/data"/>
+        <property name="IceGrid.Node.PropertiesOverride"
+                  value="${properties-override} Ice.ServerIdleTime=0 Ice.PrintProcessId=0 Ice.PrintAdapterReady=0"/>
+        <property name="IceGrid.Node.DisableOnFailure" value="${disable-on-failure}"/>
+      </server>
+    </server-template>
+
+    <node name="localnode">
+      <server-instance template="IceGridNode" id="node-1" disable-on-failure="-1"/>
+      <server-instance template="IceGridNode" id="node-2" disable-on-failure="2"/>
+
+      <server-instance template="Server" id="server"/>
+      <server-instance template="Server" id="server-manual" activation="manual"/>
+      <server-instance template="Server" id="server-always" activation="always"/>
+      <server-instance template="Server" id="server-session" activation="session"/>
+      <server-instance template="Server" id="server-activation-timeout" activation-delay="5" activation-timeout="3"/>
+      <server-instance template="Server" id="server-deactivation-timeout" deactivation-delay="60" 
+                       deactivation-timeout="3"/>
+      <server-instance template="Server" id="fail-on-startup" fail-on-startup="1"/>
+
+      <server id="invalid-exe" exe="server2" activation="on-demand">
+        <adapter name="TestAdapter" endpoints="default">
+	  <object identity="${server}" type="Test"/>
+	</adapter>
+      </server>
+      <server id="invalid-pwd" exe="./server" pwd="./bogus">
+        <adapter name="TestAdapter" endpoints="default">
+	  <object identity="${server}" type="Test"/>
+	</adapter>
+      </server>
+      <server id="invalid-exe-no-oa" exe="./server2">
+        <property name="Ice.Admin.Endpoints" value=""/>
+      </server>
+      <server id="invalid-pwd-no-oa" exe="./server" pwd="bogus">
+        <property name="Ice.Admin.Endpoints" value=""/>
+      </server>
+    </node>
+
+    <node name="node-1">
+      <server-instance template="Server" id="server1"/>
+      <server-instance template="Server" id="server1-manual" activation="manual"/>
+      <server-instance template="Server" id="server1-always" activation="always"/>
+      <server-instance template="Server" id="server1-activation-timeout" activation-delay="5"/>
+      <server-instance template="Server" id="server1-deactivation-timeout" deactivation-delay="60"/>
+    </node>
+
+    <node name="node-2">
+      <server-instance template="Server" id="server2"/>
+      <server-instance template="Server" id="server2-manual" activation="manual"/>
+      <server-instance template="Server" id="server2-always" activation="always"/>
+      <server-instance template="Server" id="server2-activation-timeout" activation-delay="5"/>
+      <server-instance template="Server" id="server2-deactivation-timeout" deactivation-delay="60"/>
+    </node>
+
+  </application>
+</icegrid>

@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="robots" content="noindex">
+	<title>
+TITLE
+	</title>
+	<style type="text/css">
+	    body {
+		font-family: Arial, Helvetica, sans-serif;
+	    }
+	    .Page {
+		width: 850px;
+		margin-left: auto;
+		margin-right: auto;
+	    }
+	    .Symbol {
+		font-family: "Courier New", Courier, mono;
+	    }
+	    .CollapsibleList {
+	        margin: 0;
+		padding: 0;
+	        list-style-type: none;
+	    }
+	    .ListEntry {
+		padding-left: 20px;
+	    }
+	    .CollapsedList {
+	        list-style-type: none;
+		padding-left: 20px;
+		width: 20px;
+		background: url("images/opened.gif") no-repeat;
+		cursor: pointer;
+	    }
+	    .ExpandedList {
+	        list-style-type: none;
+		padding-left: 20px;
+		width: 20px;
+		background: url("images/closed.gif") no-repeat;
+		cursor: pointer;
+	    }
+	    .ExpandCollapseButtonTable {
+	        margin-bottom: 15px;
+	    }
+	    #ExpandAllButton {
+		cursor: pointer;
+	    }
+	    #CollapseAllButton {
+		cursor: pointer;
+	    }
+	    .HeaderFooter {
+		width: 100%;
+	    }
+	    .Button {
+	        border-style: none;
+	    }
+	    .Logo {
+	        border-style: none;
+	    }
+	</style>
+    </head>
+    <body>
+        <div class="Page">
+
+        <!-- SwishCommand noindex -->
+        <table class="HeaderFooter">
+            <tr>
+                <td align="left">
+                    <table>
+                        <tr>
+                            <td><a href="index.html"><img class="Button" src="images/home.gif" alt="Home"></a></td>
+                        </tr>
+                    </table>
+                </td>
+                <td align="center">
+                    <table>
+                        <tr>
+                            <td>
+                                <form method="get" action="/cgi-bin/swish.cgi" enctype="application/x-www-form-urlencoded" class="form">
+                                    <div>
+                                        <input maxlength="100" value="" type="text" name="query">
+                                        <input type="submit" value="Search" name="submit"></div>
+                                </form></td>
+                        </tr>
+                    </table>
+                </td>
+                <td align="right">
+                    <table class="LogoTable">
+                        <tr>
+                            <td><a href="http://www.zeroc.com"><img class="Logo" src="images/logo.gif" alt="Logo"></a></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <!-- SwishCommand index -->
+        
+        <hr>

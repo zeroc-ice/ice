@@ -1,0 +1,90 @@
+IdentAsKeywordUnderscore.ice:15: illegal identifier: `INTERFACE' differs from keyword `interface' only in capitalization
+IdentAsKeywordUnderscore.ice:17: illegal identifier: `Void' differs from keyword `void' only in capitalization
+IdentAsKeywordUnderscore.ice:17: keyword `void' cannot be used as exception name
+IdentAsKeywordUnderscore.ice:18: keyword `int' cannot be used as exception name
+IdentAsKeywordUnderscore.ice:20: illegal identifier: `OUT' differs from keyword `out' only in capitalization
+IdentAsKeywordUnderscore.ice:20: keyword `out' cannot be used as struct name
+IdentAsKeywordUnderscore.ice:21: keyword `double' cannot be used as struct name
+IdentAsKeywordUnderscore.ice:23: illegal identifier: `Int' differs from keyword `int' only in capitalization
+IdentAsKeywordUnderscore.ice:23: keyword `int' cannot be used as data member name
+IdentAsKeywordUnderscore.ice:24: keyword `byte' cannot be used as data member name
+IdentAsKeywordUnderscore.ice:25: illegal identifier: `Int' differs from keyword `int' only in capitalization
+IdentAsKeywordUnderscore.ice:25: keyword `int' cannot be used as data member name
+IdentAsKeywordUnderscore.ice:26: keyword `byte' cannot be used as data member name
+IdentAsKeywordUnderscore.ice:28: illegal identifier: `inTERface' differs from keyword `interface' only in capitalization
+IdentAsKeywordUnderscore.ice:28: keyword `interface' cannot be used as class name
+IdentAsKeywordUnderscore.ice:29: keyword `interface' cannot be used as class name
+IdentAsKeywordUnderscore.ice:31: illegal identifier: `MOdule' differs from keyword `module' only in capitalization
+IdentAsKeywordUnderscore.ice:31: keyword `module' cannot be used as class name
+IdentAsKeywordUnderscore.ice:32: keyword `module' cannot be used as class name
+IdentAsKeywordUnderscore.ice:32: redefinition of class `module'
+IdentAsKeywordUnderscore.ice:34: illegal identifier: `extendS' differs from keyword `extends' only in capitalization
+IdentAsKeywordUnderscore.ice:34: keyword `extends' cannot be used as data member name
+IdentAsKeywordUnderscore.ice:35: redefinition of class `C'
+IdentAsKeywordUnderscore.ice:35: keyword `extends' cannot be used as data member name
+IdentAsKeywordUnderscore.ice:36: keyword `extends' cannot be used as data member name
+IdentAsKeywordUnderscore.ice:38: keyword `local' cannot be used as interface name
+IdentAsKeywordUnderscore.ice:39: illegal identifier: `Local' differs from keyword `local' only in capitalization
+IdentAsKeywordUnderscore.ice:39: keyword `local' cannot be used as interface name
+IdentAsKeywordUnderscore.ice:41: keyword `Object' cannot be used as interface name
+IdentAsKeywordUnderscore.ice:42: illegal identifier: `object' differs from keyword `Object' only in capitalization
+IdentAsKeywordUnderscore.ice:42: keyword `Object' cannot be used as interface name
+IdentAsKeywordUnderscore.ice:42: redefinition of interface `Object'
+IdentAsKeywordUnderscore.ice:43: keyword `long' cannot be used as interface name
+IdentAsKeywordUnderscore.ice:45: illegal identifier: `impLEments' differs from keyword `implements' only in capitalization
+IdentAsKeywordUnderscore.ice:45: keyword `implements' cannot be used as sequence name
+IdentAsKeywordUnderscore.ice:46: redefinition of sequence `implements' as sequence
+IdentAsKeywordUnderscore.ice:46: keyword `implements' cannot be used as sequence name
+IdentAsKeywordUnderscore.ice:47: keyword `short' cannot be used as sequence name
+IdentAsKeywordUnderscore.ice:49: syntax error
+IdentAsKeywordUnderscore.ice:50: illegal identifier: `moDule' differs from keyword `module' only in capitalization
+IdentAsKeywordUnderscore.ice:50: syntax error
+IdentAsKeywordUnderscore.ice:52: keyword `throws' cannot be used as dictionary name
+IdentAsKeywordUnderscore.ice:53: illegal identifier: `thRows' differs from keyword `throws' only in capitalization
+IdentAsKeywordUnderscore.ice:53: redefinition of dictionary `throws' as dictionary
+IdentAsKeywordUnderscore.ice:53: keyword `throws' cannot be used as dictionary name
+IdentAsKeywordUnderscore.ice:54: illegal identifier: `LOCALobject' differs from keyword `LocalObject' only in capitalization
+IdentAsKeywordUnderscore.ice:54: keyword `LocalObject' cannot be used as dictionary name
+IdentAsKeywordUnderscore.ice:56: syntax error
+IdentAsKeywordUnderscore.ice:57: illegal identifier: `MODULE' differs from keyword `module' only in capitalization
+IdentAsKeywordUnderscore.ice:57: syntax error
+IdentAsKeywordUnderscore.ice:59: syntax error
+IdentAsKeywordUnderscore.ice:60: illegal identifier: `OUT' differs from keyword `out' only in capitalization
+IdentAsKeywordUnderscore.ice:60: syntax error
+IdentAsKeywordUnderscore.ice:62: syntax error
+IdentAsKeywordUnderscore.ice:63: illegal identifier: `VOID' differs from keyword `void' only in capitalization
+IdentAsKeywordUnderscore.ice:63: syntax error
+IdentAsKeywordUnderscore.ice:63: illegal identifier: `VOID' differs from keyword `void' only in capitalization
+IdentAsKeywordUnderscore.ice:65: keyword `local' cannot be used as enumeration name
+IdentAsKeywordUnderscore.ice:65: redefinition of interface `local' as enumeration
+IdentAsKeywordUnderscore.ice:66: illegal identifier: `LOCAL' differs from keyword `local' only in capitalization
+IdentAsKeywordUnderscore.ice:66: keyword `local' cannot be used as enumeration name
+IdentAsKeywordUnderscore.ice:66: redefinition of interface `local' as enumeration
+IdentAsKeywordUnderscore.ice:66: enumerator `c' differs only in capitalization from class `C'
+IdentAsKeywordUnderscore.ice:68: keyword `long' cannot be used as enumerator
+IdentAsKeywordUnderscore.ice:68: keyword `byte' cannot be used as enumerator
+IdentAsKeywordUnderscore.ice:69: illegal identifier: `LONG' differs from keyword `long' only in capitalization
+IdentAsKeywordUnderscore.ice:69: keyword `long' cannot be used as enumerator
+IdentAsKeywordUnderscore.ice:69: illegal identifier: `BYTE' differs from keyword `byte' only in capitalization
+IdentAsKeywordUnderscore.ice:69: keyword `byte' cannot be used as enumerator
+IdentAsKeywordUnderscore.ice:71: keyword `module' cannot be used as operation name
+IdentAsKeywordUnderscore.ice:72: illegal identifier: `mODule' differs from keyword `module' only in capitalization
+IdentAsKeywordUnderscore.ice:72: keyword `module' cannot be used as operation name
+IdentAsKeywordUnderscore.ice:74: keyword `exception' cannot be used as operation name
+IdentAsKeywordUnderscore.ice:75: illegal identifier: `EXception' differs from keyword `exception' only in capitalization
+IdentAsKeywordUnderscore.ice:75: keyword `exception' cannot be used as operation name
+IdentAsKeywordUnderscore.ice:77: syntax error
+IdentAsKeywordUnderscore.ice:78: illegal identifier: `OUT' differs from keyword `out' only in capitalization
+IdentAsKeywordUnderscore.ice:78: syntax error
+IdentAsKeywordUnderscore.ice:80: keyword `byte' cannot be used as parameter name
+IdentAsKeywordUnderscore.ice:81: illegal identifier: `BYTE' differs from keyword `byte' only in capitalization
+IdentAsKeywordUnderscore.ice:81: keyword `byte' cannot be used as parameter name
+IdentAsKeywordUnderscore.ice:83: keyword `byte' cannot be used as parameter name
+IdentAsKeywordUnderscore.ice:84: illegal identifier: `BYTE' differs from keyword `byte' only in capitalization
+IdentAsKeywordUnderscore.ice:84: keyword `byte' cannot be used as parameter name
+IdentAsKeywordUnderscore.ice:88: illegal leading underscore in identifier `_a'
+IdentAsKeywordUnderscore.ice:89: illegal leading underscore in identifier `_true'
+IdentAsKeywordUnderscore.ice:90: illegal leading underscore in identifier `_true'
+IdentAsKeywordUnderscore.ice:92: illegal trailing underscore in identifier `b_'
+IdentAsKeywordUnderscore.ice:94: illegal double underscore in identifier `b__c'
+IdentAsKeywordUnderscore.ice:95: illegal double underscore in identifier `b___c'

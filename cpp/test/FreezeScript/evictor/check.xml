@@ -1,0 +1,29 @@
+<transformdb>
+    <database key="::Ice::Identity" value="::Freeze::ObjectRecord">
+	<record>
+            <fail test="newvalue.servant.ice_id == '::Test::DerivedMainObject'"/>
+            <fail test="newvalue.servant.ice_id == '::Test::DerivedFacetObject'"/>
+        </record>
+    </database>
+    
+    <!-- enum ::Test::E -->
+    <transform type="::Test::E"/>
+    
+    <!-- class ::Test::MainObject -->
+    <transform type="::Test::MainObject">
+        <fail test="new.boolToString != 'true'"/>
+        <fail test="new.byteToShort != 0"/>
+        <fail test="new.shortToByte != 255"/>
+        <fail test="new.intToShort != 32767"/>
+        <fail test="new.longToInt != 2147483647"/>
+        <fail test="new.floatToString != '4567.8'"/>
+        <fail test="new.doubleToFloat - 8765.4 > 0.001"/>
+        <fail test="new.stringToEnum != ::New::Test::E1"/>
+        <fail test="new.newname != ::New::Test::E2"/>
+    </transform>
+    
+    <!-- class ::Test::RenamedFacetObject -->
+    <transform type="::Test::RenamedFacetObject">
+        <fail test="new.doubleToString != '901235' and new.doubleToString != '901234'"/>
+    </transform>
+</transformdb>

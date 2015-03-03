@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Oracle", "Oracle", "{22A022BD-EC5A-4A25-A934-B54BEF313FEB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "occi", "occi", "{DABB27AB-6CB7-43DB-B03C-58F6A1161A65}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "client", "Database\Oracle\occi\client.vcproj", "{8DC8367E-FC55-4BDC-AAC0-85DFA76E0074}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server", "Database\Oracle\occi\server.vcproj", "{C234B2E6-EE0A-44BD-AA82-CFBF3E47239D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "proc", "proc", "{E071EB99-B198-4A20-BCE1-F420B362217A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "client", "Database\Oracle\proc\client.vcproj", "{D92187DE-BAA2-4A40-B3FA-7CFC97DD3147}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server", "Database\Oracle\proc\server.vcproj", "{135D833C-4166-4073-8DD0-B4DCC96C9A4E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8DC8367E-FC55-4BDC-AAC0-85DFA76E0074}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8DC8367E-FC55-4BDC-AAC0-85DFA76E0074}.Debug|Win32.Build.0 = Debug|Win32
+		{8DC8367E-FC55-4BDC-AAC0-85DFA76E0074}.Release|Win32.ActiveCfg = Release|Win32
+		{8DC8367E-FC55-4BDC-AAC0-85DFA76E0074}.Release|Win32.Build.0 = Release|Win32
+		{C234B2E6-EE0A-44BD-AA82-CFBF3E47239D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C234B2E6-EE0A-44BD-AA82-CFBF3E47239D}.Debug|Win32.Build.0 = Debug|Win32
+		{C234B2E6-EE0A-44BD-AA82-CFBF3E47239D}.Release|Win32.ActiveCfg = Release|Win32
+		{C234B2E6-EE0A-44BD-AA82-CFBF3E47239D}.Release|Win32.Build.0 = Release|Win32
+		{D92187DE-BAA2-4A40-B3FA-7CFC97DD3147}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D92187DE-BAA2-4A40-B3FA-7CFC97DD3147}.Debug|Win32.Build.0 = Debug|Win32
+		{D92187DE-BAA2-4A40-B3FA-7CFC97DD3147}.Release|Win32.ActiveCfg = Release|Win32
+		{D92187DE-BAA2-4A40-B3FA-7CFC97DD3147}.Release|Win32.Build.0 = Release|Win32
+		{135D833C-4166-4073-8DD0-B4DCC96C9A4E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{135D833C-4166-4073-8DD0-B4DCC96C9A4E}.Debug|Win32.Build.0 = Debug|Win32
+		{135D833C-4166-4073-8DD0-B4DCC96C9A4E}.Release|Win32.ActiveCfg = Release|Win32
+		{135D833C-4166-4073-8DD0-B4DCC96C9A4E}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DABB27AB-6CB7-43DB-B03C-58F6A1161A65} = {22A022BD-EC5A-4A25-A934-B54BEF313FEB}
+		{E071EB99-B198-4A20-BCE1-F420B362217A} = {22A022BD-EC5A-4A25-A934-B54BEF313FEB}
+		{8DC8367E-FC55-4BDC-AAC0-85DFA76E0074} = {DABB27AB-6CB7-43DB-B03C-58F6A1161A65}
+		{C234B2E6-EE0A-44BD-AA82-CFBF3E47239D} = {DABB27AB-6CB7-43DB-B03C-58F6A1161A65}
+		{D92187DE-BAA2-4A40-B3FA-7CFC97DD3147} = {E071EB99-B198-4A20-BCE1-F420B362217A}
+		{135D833C-4166-4073-8DD0-B4DCC96C9A4E} = {E071EB99-B198-4A20-BCE1-F420B362217A}
+	EndGlobalSection
+EndGlobal

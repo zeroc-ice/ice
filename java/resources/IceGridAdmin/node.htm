@@ -1,0 +1,148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<!-- saved from url=(0029)http://www.helpandmanual.com/ -->
+<head><script type="text/javascript" src="helpman_topicinit.js"></script>
+<!-- Redirect browser to frame page if page is not in the content frame. -->
+<script type="text/javascript">
+<!--
+if (top.location.search.lastIndexOf("toc=0")<=0) {
+  if (top.frames.length==0) { top.location.href="index.html?node.htm"; }
+  else { parent.lazysync('node.htm'); }
+}
+//-->
+</script>
+<script type="text/javascript" src="highlight.js"></script>
+   <title>Node</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="Node">
+   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <link type="text/css" href="styles.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style TYPE="text/css" media="screen"> 
+   <!-- 
+   body {    
+      margin:0; 
+      padding:0; 
+      overflow: auto; 
+      background: #FFFFFF; 
+   } 
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   -->
+   </style>
+   
+<style TYPE="text/css" MEDIA="print">
+<!--
+/* Hide navigation links and add space between header
+     and text in the printed version. Not valid for eBooks. */
+#idnav { display:none;	 }
+.topichead { padding: 5px 5px 20px 5px; }
+-->
+</style>   
+</head>
+<body onload="highlight();">
+<div id="hmpopupDiv" style="visibility:hidden; position:absolute; z-index:1000; filter:progid:DXImageTransform.Microsoft.DropShadow(color='b0b0b0', Direction=135, OffX='3', OffY='3') progid:DXImageTransform.Microsoft.Fade(Overlap=1.00);"></div>
+<!--ZOOMSTOP-->
+
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; color: #6F6F6F; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="live_deployment.htm">Live Deployment</a> &gt; <a href="runtime_components.htm">Runtime Components</a>&nbsp;&gt;</p>
+   <p class="p_Heading1"><span class="f_Heading1">Node</span></p>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    <a href="javascript: print();"
+    		onmouseover="document.images.prntr.src='print1.gif'" 
+        onmouseout="document.images.prntr.src='print2.gif'"
+        ><img name="prntr" border="0" alt="Print this Topic" title="Print this Topic" src="print2.gif"
+        ></a>
+     <a href="slave_registry.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="runtime_components.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="server.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<p>A node represents an IceGrid node process registered with the IceGrid registry.</p>
+<p class="p_Heading2"><span class="f_Heading2">States</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">A node can be either up (</span><img src="node_up.png" width="16" height="16" border="0" alt=""><span class="f_IndentList2">) or down (</span><img src="node_down.png" width="16" height="16" border="0" alt=""><span class="f_IndentList2">). A &quot;down&quot; node is shown only when it is described by an application deployed on this IceGrid registry.</span></p>
+<p class="p_Heading2"><span class="f_Heading2">Actions</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">A node provides the following actions, from its contextual menu and from the </span><span class="f_T_Menu">Tools &gt; Node</span><span class="f_IndentList2"> menu:</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Retrieve stdout</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">Retrieve the stdout log file of the IceGrid node into a <a href="log_file_dialog.htm">Log File Dialog</a>. This retrieval succeeds only when the node stdout output has been redirected to a file using the</span><span class="f_T_Menu"> </span><span class="f_T_Code">Ice.StdOut</span><span class="f_IndentList3"> property.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Retrieve stderr</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">Retrieve the stderr log file of the IceGrid node into a <a href="log_file_dialog.htm">Log File Dialog</a>. This retrieval succeeds only when the node stderr output has been redirected to a file using the</span><span class="f_T_Menu"> </span><span class="f_T_Code">Ice.StdErr</span><span class="f_IndentList3"> property.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Shutdown</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">Shutdown the IceGrid node process. </span></p>
+<p class="p_IndentList3"><img src="warning.gif" width="24" height="24" border="0" alt=""><span class="f_IndentList3"> You cannot restart an IceGrid node from IceGrid Admin.</span></p>
+<p class="p_Heading2"><span class="f_Heading2">Properties</span></p>
+<p class="p_IndentList2"><img src="node-properties.png" width="487" height="329" border="0" alt=""></p>
+<p class="p_IndentList2"><span class="f_IndentList2">The Node Properties panel shows:</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Hostname</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">The name of the host on which the IceGrid node process is running.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Operating System</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">The operating system name and version of the host on which the IceGrid node process is running.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Machine Type</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">The type of CPUs and the number of CPUs of the host on which the IceGrid node process is running.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">CPU Usage (Windows) or Load Average (Linux/Unix)</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">On Windows, shows the percentage of CPU utilization in the past 1, 5, and 15 minutes. On Linux/Unix, shows the load-average in the past 1, 5 and 15 minutes. These values are retrieved when the Node Properties panel is displayed. Click on the Refresh button to retrieve the latest values.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Load Factor</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">Shows the load factor defined by each application using this node.</span></p>
+<p class="p_Heading2"><span class="f_Heading2">Children</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">A registry node can only have two types of children:</span></p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 30px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList2"><a href="server.htm">Regular Server</a></span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 30px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList2"><a href="server.htm">IceBox Server</a></span></td></tr></table></div>
+<!--ZOOMSTOP-->
+<p>&nbsp;</p><hr size="1"><p class="fsmall">Page url: 
+<a href="http://www.zeroc.com/doc/Ice-3.4.2/IceGridAdmin/index.html?node.htm" target="_top">http://www.zeroc.com/doc/Ice-3.4.2/IceGridAdmin/index.html?node.htm</a>
+</p>
+</div></div>
+<script type="text/javascript"> 
+<!-- 
+var lastSlashPos = document.URL.lastIndexOf("/") >
+document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") :
+document.URL.lastIndexOf("\\");
+if( document.URL.substring( lastSlashPos + 1, lastSlashPos + 4
+).toLowerCase() != "~hh" )
+{
+    nsrInit();
+}
+--> 
+</script> 
+</body>
+</html>

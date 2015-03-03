@@ -1,0 +1,297 @@
+<transformdb>
+    <database key="int" value="::Test::S">
+	<record>
+        </record>
+    </database>
+    
+    <!-- enum ::E -->
+    <transform type="::Test::E"/>
+    
+    <!-- struct ::S -->
+    <transform type="::Test::S">
+
+        <!-- Primitives -->
+
+        <set target="new.boolToString" value="true"/>
+
+        <set target="new.byteToByte" value="255"/>
+        <set target="new.byteToShort" value="255"/>
+        <set target="new.byteToInt" value="255"/>
+        <set target="new.byteToLong" value="255"/>
+        <set target="new.byteToString" value="255"/>
+
+        <set target="new.shortToByte" value="256"/>
+        <set target="new.shortToShort" value="32767"/>
+        <set target="new.shortToInt" value="-32768"/>
+        <set target="new.shortToLong" value="32767"/>
+        <set target="new.shortToString" value="255"/>
+
+        <set target="new.intToByte" value="256"/>
+        <set target="new.intToShort" value="32768"/>
+        <set target="new.intToInt" value="2147483647"/>
+        <set target="new.intToLong" value="-2147483648"/>
+        <set target="new.intToString" value="255"/>
+
+        <set target="new.longToByte" value="256"/>
+        <set target="new.longToShort" value="32768"/>
+        <set target="new.longToInt" value="2147483648"/>
+        <set target="new.longToLong" value="9223372036854775807"/>
+        <set target="new.longToString" value="255"/>
+
+        <set target="new.floatToFloat" value="2920.1"/>
+        <set target="new.floatToDouble" value="2920.1"/>
+        <set target="new.floatToString" value="2920.1"/>
+
+        <set target="new.doubleToFloat" value="9290.9"/>
+        <set target="new.doubleToDouble" value="9290.9"/>
+        <set target="new.doubleToString" value="9290.9"/>
+
+        <set target="new.stringToBool" value="'false'"/>
+        <set target="new.stringToByte" value="'255'"/>
+        <set target="new.stringToShort" value="'32767'"/>
+        <set target="new.stringToInt" value="'2147483647'"/>
+        <set target="new.stringToLong" value="'9223372036854775807'"/>
+        <set target="new.stringToFloat" value="'2920.1'"/>
+        <set target="new.stringToDouble" value="'9290.9'"/>
+        <set target="new.stringToString" value="'hello world'"/>
+        <set target="new.stringToEnum" value="'E1'"/>
+        <set target="new.stringToProxy" value="'foo:tcp -p 1000'"/>
+
+        <!-- Sequences -->
+
+        <set target="new.boolSeqToStringSeq" length="2"/>
+        <set target="new.boolSeqToStringSeq[0]" value="false"/>
+        <set target="new.boolSeqToStringSeq[1]" value="true"/>
+
+        <set target="new.byteSeqToByteSeq" length="2"/>
+        <set target="new.byteSeqToByteSeq[0]" value="0"/>
+        <set target="new.byteSeqToByteSeq[1]" value="255"/>
+
+        <set target="new.byteSeqToShortSeq" length="2"/>
+        <set target="new.byteSeqToShortSeq[0]" value="0"/>
+        <set target="new.byteSeqToShortSeq[1]" value="255"/>
+
+        <set target="new.byteSeqToIntSeq" length="2"/>
+        <set target="new.byteSeqToIntSeq[0]" value="0"/>
+        <set target="new.byteSeqToIntSeq[1]" value="255"/>
+
+        <set target="new.byteSeqToLongSeq" length="2"/>
+        <set target="new.byteSeqToLongSeq[0]" value="0"/>
+        <set target="new.byteSeqToLongSeq[1]" value="255"/>
+
+        <set target="new.byteSeqToStringSeq" length="2"/>
+        <set target="new.byteSeqToStringSeq[0]" value="0"/>
+        <set target="new.byteSeqToStringSeq[1]" value="255"/>
+
+        <set target="new.shortSeqToByteSeq" length="4"/>
+        <set target="new.shortSeqToByteSeq[0]" value="0"/>
+        <set target="new.shortSeqToByteSeq[1]" value="255"/>
+        <set target="new.shortSeqToByteSeq[2]" value="256"/>
+        <set target="new.shortSeqToByteSeq[3]" value="-127"/>
+
+        <set target="new.shortSeqToShortSeq" length="2"/>
+        <set target="new.shortSeqToShortSeq[0]" value="-32768"/>
+        <set target="new.shortSeqToShortSeq[1]" value="32767"/>
+
+        <set target="new.shortSeqToIntSeq" length="2"/>
+        <set target="new.shortSeqToIntSeq[0]" value="-32768"/>
+        <set target="new.shortSeqToIntSeq[1]" value="32767"/>
+
+        <set target="new.shortSeqToLongSeq" length="2"/>
+        <set target="new.shortSeqToLongSeq[0]" value="-32768"/>
+        <set target="new.shortSeqToLongSeq[1]" value="32767"/>
+
+        <set target="new.shortSeqToStringSeq" length="2"/>
+        <set target="new.shortSeqToStringSeq[0]" value="-32768"/>
+        <set target="new.shortSeqToStringSeq[1]" value="32767"/>
+
+        <set target="new.intSeqToByteSeq" length="4"/>
+        <set target="new.intSeqToByteSeq[0]" value="0"/>
+        <set target="new.intSeqToByteSeq[1]" value="255"/>
+        <set target="new.intSeqToByteSeq[2]" value="256"/>
+        <set target="new.intSeqToByteSeq[3]" value="-127"/>
+
+        <set target="new.intSeqToShortSeq" length="4"/>
+        <set target="new.intSeqToShortSeq[0]" value="-32768"/>
+        <set target="new.intSeqToShortSeq[1]" value="32767"/>
+        <set target="new.intSeqToShortSeq[2]" value="-32769"/>
+        <set target="new.intSeqToShortSeq[3]" value="32768"/>
+
+        <set target="new.intSeqToIntSeq" length="2"/>
+        <set target="new.intSeqToIntSeq[0]" value="-2147483648"/>
+        <set target="new.intSeqToIntSeq[1]" value="2147483647"/>
+
+        <set target="new.intSeqToLongSeq" length="2"/>
+        <set target="new.intSeqToLongSeq[0]" value="-2147483648"/>
+        <set target="new.intSeqToLongSeq[1]" value="2147483647"/>
+
+        <set target="new.intSeqToStringSeq" length="2"/>
+        <set target="new.intSeqToStringSeq[0]" value="-2147483648"/>
+        <set target="new.intSeqToStringSeq[1]" value="2147483647"/>
+
+        <set target="new.longSeqToByteSeq" length="4"/>
+        <set target="new.longSeqToByteSeq[0]" value="0"/>
+        <set target="new.longSeqToByteSeq[1]" value="255"/>
+        <set target="new.longSeqToByteSeq[2]" value="256"/>
+        <set target="new.longSeqToByteSeq[3]" value="-127"/>
+
+        <set target="new.longSeqToShortSeq" length="4"/>
+        <set target="new.longSeqToShortSeq[0]" value="-32768"/>
+        <set target="new.longSeqToShortSeq[1]" value="32767"/>
+        <set target="new.longSeqToShortSeq[2]" value="-32769"/>
+        <set target="new.longSeqToShortSeq[3]" value="32768"/>
+
+        <set target="new.longSeqToIntSeq" length="4"/>
+        <set target="new.longSeqToIntSeq[0]" value="-2147483648"/>
+        <set target="new.longSeqToIntSeq[1]" value="2147483647"/>
+        <set target="new.longSeqToIntSeq[2]" value="-2147483649"/>
+        <set target="new.longSeqToIntSeq[3]" value="2147483648"/>
+
+        <set target="new.longSeqToLongSeq" length="2"/>
+        <set target="new.longSeqToLongSeq[0]" value="-9223372036854775808"/>
+        <set target="new.longSeqToLongSeq[1]" value="9223372036854775807"/>
+
+        <set target="new.longSeqToStringSeq" length="2"/>
+        <set target="new.longSeqToStringSeq[0]" value="-9223372036854775808"/>
+        <set target="new.longSeqToStringSeq[1]" value="9223372036854775807"/>
+
+        <set target="new.floatSeqToFloatSeq" length="2"/>
+        <set target="new.floatSeqToFloatSeq[0]" value="2920.1"/>
+        <set target="new.floatSeqToFloatSeq[1]" value="2920.2"/>
+
+        <set target="new.floatSeqToDoubleSeq" length="2"/>
+        <set target="new.floatSeqToDoubleSeq[0]" value="2920.1"/>
+        <set target="new.floatSeqToDoubleSeq[1]" value="2920.2"/>
+
+        <set target="new.floatSeqToStringSeq" length="2"/>
+        <set target="new.floatSeqToStringSeq[0]" value="2920.1"/>
+        <set target="new.floatSeqToStringSeq[1]" value="2920.2"/>
+
+        <set target="new.doubleSeqToFloatSeq" length="2"/>
+        <set target="new.doubleSeqToFloatSeq[0]" value="9290.8"/>
+        <set target="new.doubleSeqToFloatSeq[1]" value="9290.9"/>
+
+        <set target="new.doubleSeqToDoubleSeq" length="2"/>
+        <set target="new.doubleSeqToDoubleSeq[0]" value="9290.8"/>
+        <set target="new.doubleSeqToDoubleSeq[1]" value="9290.9"/>
+
+        <set target="new.doubleSeqToStringSeq" length="2"/>
+        <set target="new.doubleSeqToStringSeq[0]" value="9290.8"/>
+        <set target="new.doubleSeqToStringSeq[1]" value="9290.9"/>
+
+        <set target="new.stringSeqToBoolSeq" length="2"/>
+        <set target="new.stringSeqToBoolSeq[0]" value="'false'"/>
+        <set target="new.stringSeqToBoolSeq[1]" value="'true'"/>
+
+        <set target="new.stringSeqToByteSeq" length="4"/>
+        <set target="new.stringSeqToByteSeq[0]" value="'0'"/>
+        <set target="new.stringSeqToByteSeq[1]" value="'255'"/>
+        <set target="new.stringSeqToByteSeq[2]" value="'256'"/>
+        <set target="new.stringSeqToByteSeq[3]" value="'-127'"/>
+
+        <set target="new.stringSeqToShortSeq" length="4"/>
+        <set target="new.stringSeqToShortSeq[0]" value="'-32768'"/>
+        <set target="new.stringSeqToShortSeq[1]" value="'32767'"/>
+        <set target="new.stringSeqToShortSeq[2]" value="'-32769'"/>
+        <set target="new.stringSeqToShortSeq[3]" value="'32768'"/>
+
+        <set target="new.stringSeqToIntSeq" length="4"/>
+        <set target="new.stringSeqToIntSeq[0]" value="'-2147483648'"/>
+        <set target="new.stringSeqToIntSeq[1]" value="'2147483647'"/>
+        <set target="new.stringSeqToIntSeq[2]" value="'-2147483649'"/>
+        <set target="new.stringSeqToIntSeq[3]" value="'2147483648'"/>
+
+        <set target="new.stringSeqToLongSeq" length="2"/>
+        <set target="new.stringSeqToLongSeq[0]" value="'-9223372036854775808'"/>
+        <set target="new.stringSeqToLongSeq[1]" value="'9223372036854775807'"/>
+
+        <set target="new.stringSeqToFloatSeq" length="2"/>
+        <set target="new.stringSeqToFloatSeq[0]" value="'2920.1'"/>
+        <set target="new.stringSeqToFloatSeq[1]" value="'2920.2'"/>
+
+        <set target="new.stringSeqToDoubleSeq" length="2"/>
+        <set target="new.stringSeqToDoubleSeq[0]" value="'9290.8'"/>
+        <set target="new.stringSeqToDoubleSeq[1]" value="'9290.9'"/>
+
+        <set target="new.stringSeqToStringSeq" length="2"/>
+        <set target="new.stringSeqToStringSeq[0]" value="'hello'"/>
+        <set target="new.stringSeqToStringSeq[1]" value="'world'"/>
+
+        <set target="new.stringSeqToEnumSeq" length="2"/>
+        <set target="new.stringSeqToEnumSeq[0]" value="'E2'"/>
+        <set target="new.stringSeqToEnumSeq[1]" value="'E3'"/>
+
+        <set target="new.stringSeqToProxySeq" length="2"/>
+        <set target="new.stringSeqToProxySeq[0]" value="'foo1:tcp -p 1000'"/>
+        <set target="new.stringSeqToProxySeq[1]" value="'foo2:tcp -p 1001'"/>
+
+        <!-- Dictionaries -->
+
+        <add target="new.boolToStringDict" key="0" value="false"/>
+        <add target="new.boolToStringDict" key="1" value="true"/>
+
+        <add target="new.longToByteDict" key="0" value="0"/>
+        <add target="new.longToByteDict" key="1" value="255"/>
+        <add target="new.longToByteDict" key="2" value="256"/>
+        <add target="new.longToByteDict" key="3" value="-127"/>
+
+        <add target="new.longToShortDict" key="0" value="-32768"/>
+        <add target="new.longToShortDict" key="1" value="32767"/>
+        <add target="new.longToShortDict" key="2" value="-32769"/>
+        <add target="new.longToShortDict" key="3" value="32768"/>
+
+        <add target="new.longToIntDict" key="0" value="-2147483648"/>
+        <add target="new.longToIntDict" key="1" value="2147483647"/>
+        <add target="new.longToIntDict" key="2" value="-2147483649"/>
+        <add target="new.longToIntDict" key="3" value="2147483648"/>
+
+        <add target="new.longToStringDict" key="0" value="-9223372036854775808"/>
+        <add target="new.longToStringDict" key="1" value="9223372036854775807"/>
+
+        <add target="new.doubleToFloatDict" key="0" value="9290.8"/>
+        <add target="new.doubleToFloatDict" key="1" value="9290.9"/>
+
+        <add target="new.doubleToStringDict" key="0" value="9290.8"/>
+        <add target="new.doubleToStringDict" key="1" value="9290.9"/>
+
+        <add target="new.stringToBoolDict" key="0" value="'false'"/>
+        <add target="new.stringToBoolDict" key="1" value="'true'"/>
+
+        <add target="new.stringToLongDict" key="0" value="'-9223372036854775808'"/>
+        <add target="new.stringToLongDict" key="1" value="'9223372036854775807'"/>
+
+        <add target="new.stringToDoubleDict" key="0" value="'9290.8'"/>
+        <add target="new.stringToDoubleDict" key="1" value="'9290.9'"/>
+
+        <add target="new.stringToEnumDict" key="0" value="'E2'"/>
+        <add target="new.stringToEnumDict" key="1" value="'E3'"/>
+
+        <!-- Objects -->
+
+        <set target="new.baseObject" type="::Test::F"/>
+        <set target="new.baseObject.stringToEnumSeq" length="2"/>
+        <set target="new.baseObject.stringToEnumSeq[0]" value="'E1'"/>
+        <set target="new.baseObject.stringToEnumSeq[1]" value="'E3'"/>
+
+        <set target="new.cObject" type="::Test::C"/>
+        <add target="new.cObject.boolToStringDict" key="0" value="false"/>
+        <add target="new.cObject.boolToStringDict" key="1" value="true"/>
+
+        <set target="new.dAsCObject" type="::Test::D"/>
+        <add target="new.dAsCObject.boolToStringDict" key="0" value="false"/>
+        <add target="new.dAsCObject.boolToStringDict" key="1" value="true"/>
+        <set target="new.dAsCObject.stringToByteSeq" length="2"/>
+        <set target="new.dAsCObject.stringToByteSeq[0]" value="'0'"/>
+        <set target="new.dAsCObject.stringToByteSeq[1]" value="'255'"/>
+        <set target="new.dAsCObject.obj" type="::Test::F"/>
+
+        <set target="new.dObject" type="::Test::D"/>
+        <add target="new.dObject.boolToStringDict" key="0" value="false"/>
+        <add target="new.dObject.boolToStringDict" key="1" value="true"/>
+        <set target="new.dObject.stringToByteSeq" length="2"/>
+        <set target="new.dObject.stringToByteSeq[0]" value="'0'"/>
+        <set target="new.dObject.stringToByteSeq[1]" value="'255'"/>
+        <set target="new.dObject.obj" value="new.cObject"/>
+
+    </transform>
+</transformdb>

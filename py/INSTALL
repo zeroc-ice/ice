@@ -1,0 +1,167 @@
+======================================================================
+Requirements
+======================================================================
+
+- Ice 3.4.2
+- Python 2.3, 2.4, 2.5 or 2.6 built with a C++ compiler compatible 
+  with the C++ compiler used to build Ice for C++.
+
+Depending on your platform, you may need to download the Python source
+distribution from http://www.python.org and make your own Python
+build.
+
+You can use the Ice for C++ binary distribution for your platform to
+build the Ice extension for Python.
+
+
+======================================================================
+Building the Ice extension for Python (Linux/Solaris/Mac OS X)
+======================================================================
+
+Follow these steps to build the Ice extension for Python:
+
+1) Change to Ice for Python source subdirectory.
+
+   > cd Ice-3.4.2/py
+
+2) If you have not built Ice for C++ in the cpp subdirectory, set
+   ICE_HOME to the directory of your Ice for C++ installation.
+   For example:
+
+   > export ICE_HOME=/opt/Ice-3.4.2
+
+3) Edit config/Make.rules and do the following:
+
+   * Modify the installation prefix (if necessary).
+
+   * Review the comments describing the PYTHON_VERSION variable.
+
+4) Execute 'python -V' to verify that the correct Python interpreter
+   is in your executable search path.
+
+5) Run 'make'.
+
+6) Upon successful completion, run 'make install'. You may need
+   additional user privileges to install in the directory specified by
+   config/Make.rules.
+
+7) See "Configuring your Environment" below.
+
+
+======================================================================
+Building the Ice extension for Python (Windows)
+======================================================================
+
+The Python interpreter is readily available on Windows platforms. You
+can build it yourself using Microsoft Visual C++, or obtain a binary
+distribution from the Python web site (http://www.python.org).
+
+Note that the binary distribution for Python 2.5.x available from
+www.python.org is compiled with Visual C++ 7.1, which is not a
+compiler that Ice supports. Although the Python developers do not
+support the use of Python extensions that are compiled with other
+versions of Visual C++, we have tested the Ice extension built with
+Visual C++ 8.0 SP1 and experienced no issues in combination with
+Python's binary distribution. The Python 2.6.x binary distribution
+is compiled with Visual C++ 9.0, and you should use this binary
+distribution if you want to compile the Ice extension with Visual C++
+9.0.
+
+Visual C++ 6.0 is not supported with Ice for Python.
+
+Follow these steps to build the Ice extension for Python:
+
+1) Open a command prompt that supports command-line compilation with
+   Visual C++. For example, you can execute the Visual C++ batch file
+   vcvars32.bat to configure your environment. Alternatively, you can
+   start a "Visual Studio Command Prompt" by selecting the appropriate
+   entry from the Visual Studio program group in your Start menu.
+
+2) Change to the Ice for Python source subdirectory.
+
+  > cd Ice-3.4.2\py
+
+3) If you have not built Ice for C++ from the cpp subdirectory, set
+   ICE_HOME to the directory of your Ice for C++ installation.
+   For example:
+
+   > set ICE_HOME=C:\Ice-3.4.2
+
+4) Edit config\Make.rules.mak and review the settings. In particular
+   you must set CPP_COMPILER to the appropriate compiler.
+
+5) Run nmake:
+
+   > nmake /f Makefile.mak
+
+NOTES:
+
+ * Normally you should build with OPTIMIZE=yes. If you wish to build
+   a debug version of the Ice extension, set OPTIMIZE=no. In this
+   case, you will also need to build a debug version of the Python
+   interpreter from sources.
+
+ * The Ice extension is created as python\IcePy.pyd. The extension
+   was named python\IcePy.dll in prior releases, but the .dll suffix
+   is no longer supported by Python 2.5.
+
+
+======================================================================
+Configuring your Environment
+======================================================================
+
+Unix:
+
+  Modify your PYTHONPATH environment variable to include the Ice 
+  extension for Python. Assuming you installed the extension in the
+  default directory (/opt/Ice-3.4.2), you would modify your
+  environment as shown below:
+
+  $ export ICEPY_HOME=/opt/Ice-3.4.2
+  $ export PYTHONPATH=$ICEPY_HOME/python:$PYTHONPATH
+
+Windows:
+
+  Modify your environment to allow Python to find the Ice extension
+  for Python. The interpreter must be able to locate the extension
+  DLL as well as the Python source files in the "python" subdirectory.
+  This is normally accomplished by setting the PYTHONPATH environment
+  variable to contain the necessary subdirectory. For example, if
+  the Ice for Python extension is installed in C:\Ice-3.4.2, you
+  could configure your environment as follows:
+
+  > set ICEPY_HOME=C:\Ice-3.4.2
+  > set PYTHONPATH=%ICEPY_HOME%\python
+
+
+======================================================================
+Running the Tests
+======================================================================
+
+To run the tests, open a command window and change to the top-level
+directory. At the command prompt, execute:
+
+  > python allTests.py
+
+You can also run tests individually by changing to the test directory
+and running this command:
+
+  > python run.py
+
+If everything worked out, you should see lots of "ok" messages. In
+case of a failure, the tests abort with "failed".
+
+
+======================================================================
+Solaris Notes
+======================================================================
+
+Python needs to be configured and built with the following options in
+order to successfully load the Ice extension:
+
+  $ ./configure --enable-shared --with-cxx-main=CC --without-gcc ...
+
+After running configure, edit the generated makefile to comment out
+the following line:
+
+BASECFLAGS=     -OPT:Olimit=0

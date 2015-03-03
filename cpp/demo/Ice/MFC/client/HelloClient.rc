@@ -1,0 +1,207 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#include ""res\\HelloClient.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\HelloClient.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_HELLOCLIENT_DIALOG DIALOGEX 0, 0, 171, 121
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Ice Hello Client"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    LTEXT           "Mode",IDC_MODELABEL,7,30,19,8
+    COMBOBOX        IDC_MODE,41,28,123,70,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "Hello World!",IDC_INVOKE,7,81,63,14
+    PUSHBUTTON      "Flush",IDC_FLUSH,126,81,38,14
+    PUSHBUTTON      "Shutdown",IDC_SHUTDOWN,72,81,52,14
+    LTEXT           "",IDC_STATUSBAR,7,105,157,12,SS_CENTERIMAGE | SS_ENDELLIPSIS
+    EDITTEXT        IDC_HOST,41,11,123,14,ES_AUTOHSCROLL
+    LTEXT           "Hostname",IDC_HOSTLABEL,7,12,31,8
+    CONTROL         "",IDC_TIMEOUT_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,37,45,109,15
+    LTEXT           "Timeout",IDC_TIMEOUTLABEL,7,48,26,8
+    LTEXT           "Delay",IDC_DELAYLABEL,7,66,19,8
+    CONTROL         "",IDC_DELAY_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,37,61,109,15
+    LTEXT           "",IDC_TIMEOUT_STATUS,148,46,16,12,SS_CENTERIMAGE | SS_ENDELLIPSIS
+    LTEXT           "",IDC_DELAY_STATUS,148,62,16,12,SS_CENTERIMAGE | SS_ENDELLIPSIS
+    LTEXT           "_______________________________________",IDC_STATIC,7,95,157,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 3,4,2,0
+ PRODUCTVERSION 3,4,2,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904e4"
+        BEGIN
+            VALUE "CompanyName", "ZeroC, Inc."
+            VALUE "FileDescription", "Ice Hello Client"
+            VALUE "FileVersion", "3.4.2"
+            VALUE "InternalName", "HelloClient.exe"
+            VALUE "LegalCopyright", "Copyright (c) 2003-2011 ZeroC, Inc.  All rights reserved."
+            VALUE "OriginalFilename", "HelloClient.exe"
+            VALUE "ProductName", "Ice"
+            VALUE "ProductVersion", "3.4.2"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_HELLOCLIENT_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 164
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 117
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_HELLOCLIENT_DIALOG DLGINIT
+BEGIN
+    IDC_MODE, 0x403, 7, 0
+0x7754, 0x776f, 0x7961, "\000" 
+    IDC_MODE, 0x403, 14, 0
+0x7754, 0x776f, 0x7961, 0x5320, 0x6365, 0x7275, 0x0065, 
+    IDC_MODE, 0x403, 7, 0
+0x6e4f, 0x7765, 0x7961, "\000" 
+    IDC_MODE, 0x403, 14, 0
+0x6e4f, 0x7765, 0x7961, 0x5320, 0x6365, 0x7275, 0x0065, 
+    IDC_MODE, 0x403, 13, 0
+0x6e4f, 0x7765, 0x7961, 0x4220, 0x7461, 0x6863, "\000" 
+    IDC_MODE, 0x403, 20, 0
+0x6e4f, 0x7765, 0x7961, 0x5320, 0x6365, 0x7275, 0x2065, 0x6142, 0x6374, 
+0x0068, 
+    IDC_MODE, 0x403, 9, 0
+0x6144, 0x6174, 0x7267, 0x6d61, "\000" 
+    IDC_MODE, 0x403, 15, 0
+0x6144, 0x6174, 0x7267, 0x6d61, 0x4220, 0x7461, 0x6863, "\000" 
+    0
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#include "res\HelloClient.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

@@ -1,0 +1,19 @@
+#
+# The server creates one single object adapter with the name
+# "Latency". The following line sets the endpoints for this adapter.
+#
+Latency.Endpoints=default -p 10000 -h 127.0.0.1
+
+#
+# Warn about connection exceptions
+#
+Ice.Warn.Connections=1
+
+#
+# SSL Configuration
+#
+Ice.Plugin.IceSSL=IceSSL:createIceSSL
+IceSSL.DefaultDir=../../../../certs
+IceSSL.CertAuthFile=cacert.pem
+IceSSL.CertFile=s_rsa1024_pub.pem
+IceSSL.KeyFile=s_rsa1024_priv.pem

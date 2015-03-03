@@ -1,0 +1,56 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# This file is included by Make.rules.mak when using Borland C++Builder.
+#
+# The following warnings are suppressed when building Ice:
+#
+# -w-par: W8057 - Parameter is never used
+# -w-lvc: W8031 - Temporary used for parameter
+# -w-rch: W8066 - Unreachable code
+#
+# Ice and Ice applications must be built with multi-threaded support (-tWM)
+# and linked with the multi-threaded runtime library (cw32mti.lib).
+#
+
+CXX		= bcc32.exe
+CC		= bcc32.exe
+LINK 		= ilink32.exe
+RC		= brc32.exe
+
+BASE		= -b
+PREOUT		= ,
+PRELIBS		= ,,
+PRELIBPATH      = -L
+
+SETARGV		= wildargs.obj
+
+CPPFLAGS	= $(CPPFLAGS) -q -w-par -w-lvc -w-rch -vi- -tWM -c -DNO_STRICT;_NO_VCL;_RTLDLL
+
+!if "$(OPTIMIZE)" == "yes"
+CPPFLAGS	= $(CPPFLAGS) -O2 -k- -DNDEBUG
+!else
+CPPFLAGS	= $(CPPFLAGS) -Od -v -k -D_DEBUG
+!endif
+
+LDFLAGS		= $(LDFLAGS) -L"$(BDS)\lib" -q -Gn -v -x
+
+LD_DLLFLAGS	= $(LDFLAGS) -Gi -Tpd c0d32.obj
+LD_EXEFLAGS	= $(LDFLAGS) -Tpe c0x32.obj
+
+ICE_OS_LIBS     = cw32mti.lib import32.lib
+
+BASELIBS	= iceutil$(LIBSUFFIX).lib $(ICE_OS_LIBS)
+LIBS		= ice$(LIBSUFFIX).lib $(BASELIBS)
+
+BZIP2_LIBS      = libbz2.lib
+DB_LIBS         = libdb48.lib
+MCPP_LIBS       = mcpp.lib
+ICONV_LIB       = libiconv-bcc.lib

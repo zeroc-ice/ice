@@ -1,0 +1,5 @@
+#
+# This flag speeds up the demo, but it's a trade-off: we loose the D
+# (Durable) in ACID. See the Berkeley DB documentation for details.
+#
+set_flags DB_TXN_NOSYNC

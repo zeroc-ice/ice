@@ -1,0 +1,277 @@
+NOTE: This file is no longer being updated. See the CHANGES file in
+      the top-level directory.
+
+
+Changes since version 3.2.0
+---------------------------
+
+- Added support for protected class data members using the new
+  metadata tag ["protected"]. The tag can be applied to a Slice class
+  or to individual data members.
+
+- Added Communicator::setProperty.
+
+- All local methods on a proxy that return the "same" proxy with
+  a different attribute (such as ice_oneway and ice_secure) now return
+  a proxy of the same class as the original. As a result, once you
+  have downcast a proxy, it will rarely be necessary to downcast it
+  again. For example, you can rewrite the following statements
+
+  $base = $ICE->stringToProxy(...);
+  $twoway = $base->ice_checkedCast("::Demo::Hello");
+  $oneway = $twoway->ice_oneway()->ice_uncheckedCast("::Demo::Hello");
+
+  as simply
+
+  $base = $ICE->stringToProxy(...);
+  $twoway = $base->ice_checkedCast("::Demo::Hello");
+  $oneway = $twoway->ice_oneway();
+
+  The local methods ice_facet and ice_identity still return a proxy of
+  the base class Ice_ObjectPrx, since a change to the proxy's facet
+  or identity typically refers to an object with a different Slice
+  type and therefore requires a new downcast.
+
+  This change does not affect the behavior of existing code. However,
+  code that depends on these new semantics will not run correctly
+  using prior versions of Ice.
+
+Changes since version 3.1.1
+---------------------------
+
+- This release is compatible with PHP 5.1.6, 5.2.0, and 5.2.1.
+
+- Added the following proxy methods:
+
+  ice_isPreferSecure
+  ice_preferSecure
+  ice_isThreadPerConnection
+  ice_threadPerConnection
+  ice_getCachedConnection
+
+- Added Communicator::propertyToProxy() which creates a proxy from
+  a set of properties. This function allows you to set various local
+  proxy settings, such as the locator cache timeout, which cannot be
+  set using stringToProxy().
+
+- The supported platforms for IcePHP are now Linux and Windows XP.
+  The process for building IcePHP on Linux has also changed; see the
+  INSTALL file for details.
+
+- Added UnexpectedObjectException. This exception is raised if you
+  use Slice classes and client and server are compiled with mismatched
+  Slice definitions. Alternatively, this exception is raised if you
+  use dynamic invocation and pass a class of the wrong type as an
+  operation parameter.
+
+Changes since version 3.1.0
+---------------------------
+
+- No changes.
+
+Changes since version 3.0.1
+---------------------------
+
+- Removed removeObjectFactory() from the communicator interface.
+
+- PHP 5.1.4 is the required version for this release.
+
+- Added identityToString and stringToIdentity to the Communicator
+  interface.
+
+- Removed setDefaultContext operation on Communicator.
+
+- Eliminated the source of deprecation warnings when E_STRICT is
+  enabled.
+
+- Added proxy method ice_getSecure.
+
+- Deprecated the following proxy methods:
+
+  ice_communicator
+  ice_connection
+  ice_newIdentity
+  ice_newFacet
+  ice_newContext
+  ice_newAdapterId
+  ice_newEndpoints
+
+  These methods will be removed in the next major release. You should
+  use the new methods shown below:
+
+  ice_getCommunicator
+  ice_getConnection
+  ice_identity
+  ice_facet
+  ice_context
+  ice_adapterId
+  ice_endpoints
+
+- Added the property Ice.Default.LocatorCacheTimeout and the proxy
+  method ice_locatorCacheTimeout(). If a cached endpoint is older
+  than the configured cache timeout, the Ice runtime won't use
+  the cached endpoint. Instead, the Ice runtime will query the
+  Ice locator service to retrieve up-to-date endpoints and then update
+  the locator cache. Please see the Ice manual for more information.
+
+- Added the proxy method ice_endpointSelection, which allows an
+  application to control how endpoints are selected at connection
+  establishment. Two endpoint selection types are currently supported:
+  Random and Ordered.
+
+- Added the proxy method ice_cacheConnection. This method allows you
+  to enable or disable the caching of the connection by the proxy. By
+  default, the proxy will cache the connection to avoid looking it up
+  for each request. Disabling the connection caching is useful to do
+  per-request load balancing: the proxy will select a connection for
+  each request and the request will eventually be sent to different 
+  servers.
+
+- Added support for the Ice::Connection interface.
+
+Changes since version 3.0.0
+---------------------------
+
+- Fixed a bug in the Slice parser that caused problems if an
+  included file contained white space in the file name.
+
+- Added source compatibility with PHP 5.1.2. A configure script for
+  PHP 5.1.2 is provided as configure-5.1.2.gz.
+
+Changes since version 2.1.2
+---------------------------
+
+- Removed ice_default() method from proxies.
+
+- Added the proxy method ice_connectionId, which allows an application
+  to control connection reuse.
+
+- Ice_loadProfile now raises Ice_ProfileNotFoundException if a
+  given profile is not found and Ice_ProfileAlreadyLoadedException
+  if a profile has already been loaded.
+
+- Added proxy methods to retrieve the proxy adapter id and endpoints
+  (ice_getAdapterId() and ice_getEndpoints()) and to create a new
+  proxy with a new adapter id or new endpoints (ice_newAdapterId() and
+  ice_newEndpoints()).
+
+- Added ice_communicator() and ice_toString() to proxies. The return
+  value of ice_communicator() is always the value of $ICE.
+
+- Ice.ObjectImpl is now an abstract class that cannot be instantiated.
+  This change should be transparent to application code.
+
+Changes since version 2.1.0
+---------------------------
+
+- Added -E option to the various Slice compilers to print preprocessor
+  output on stdout.
+
+- A crash occurred if the global variable $ICE was used before a
+  profile was loaded. This now causes an error message.
+
+- Attempting to print a proxy value resulted in a fatal error.
+  This has been fixed so that printing a proxy displays it in
+  stringified form.
+
+Changes since version 2.0.0
+---------------------------
+
+- Added setDefaultContext() and getDefaultContext() to the
+  Ice::Communicator interface. This allows a default context to be
+  established on a communicator-wide basis. See section 29.8.3 in
+  the doc.
+
+  Added ice_defaultContext to Ice::ObjectProxy. This creates a new
+  proxy that uses the default context established on the communicator.
+
+Changes since version 1.1.2
+---------------------------
+
+- Compatibility with Ice 2.0.0.
+
+- Added the communicator method getProperty(name[, default]).
+
+- The configuration directives in an INI file are now named
+  "ice.config", "ice.slice", and "ice.options", for consistency
+  with the global directives. The previous directive names are
+  still supported.
+
+- Fixed a bug that prevented Apache 1.x from starting.
+
+- The documentation has always stated that same-named constructs
+  cannot be directly nested inside each other. (For example, a
+  module `M' cannot contain a constant named `M'.) The Slice parser
+  compiler did not enforce this correctly up to now for modules
+  containing constructs with the same name as the enclosing module.
+  This has been fixed and now results in a diagnostic.
+
+- The Slice parser now deprecates Slice definitions at global scope:
+  only modules can be defined at global scope. Everything else
+  (constants, classes, interfaces, etc.) must be defined inside a
+  module.
+
+  For the time being, the compiler issues a warning for each global
+  definition but continues to compile the code. Global non-module
+  definitions will elicit a hard error two releases from now.
+
+Changes since version 1.1.1
+---------------------------
+
+- Fixed a compilation error for Visual C++.
+
+Changes since version 1.1.0
+---------------------------
+
+- Compatibility with PHP 5.0.0 (final).
+
+Changes since version 1.0.3
+---------------------------
+
+- Changed facet interface to be compatible with Ice 1.4.0.
+
+- Added the proxy methods ice_newContext and ice_getContext.
+
+- Fixed a bug that could cause a marshaling exception for uninitialized
+  string data members.
+
+- Fixed a marshaling bug that caused an assertion failure in the value
+  demo.
+
+Changes since version 1.0.2
+---------------------------
+
+- Fixed a link error when compiling with Visual C++ 6.0.
+
+Changes since version 1.0.1
+---------------------------
+
+- Updated for compatibility with Ice 1.3.0 and PHP5 beta4. The patch
+  in the file patch.txt must be applied to PHP5b4 prior to building
+  it on Unix platforms.
+
+- Added the member functions ice_preMarshal and ice_postUnmarshal to
+  Ice_Object. The default implementations do nothing, but subclasses
+  may override them to take special action before marshaling and after
+  unmarshaling, respectively.
+
+- Added __toString functions to certain Ice exceptions.
+
+- Added support for building on HP-UX with aCC.
+
+- Added configure script to simplify building on Linux/Solaris/HP-UX.
+
+Changes since version 1.0.0
+---------------------------
+
+- Minor fixes for compatibility with PHP 5.0.0b2.
+
+- Fixes for Ice 1.2.0 API changes. The ice_flush operation has been
+  removed from proxies, and the operation flushBatchRequests has been
+  added to the communicator.
+
+- The base Ice exception class (Ice_Exception) now derives from the PHP
+  base exception class (Exception). Also, the mapping for exceptions now
+  supports an optional string argument to constructors. This argument
+  represents the exception "message" and is passed to the base Exception
+  constructor unmodified.

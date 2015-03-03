@@ -1,0 +1,196 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<!-- saved from url=(0029)http://www.helpandmanual.com/ -->
+<head><script type="text/javascript" src="helpman_topicinit.js"></script>
+<!-- Redirect browser to frame page if page is not in the content frame. -->
+<script type="text/javascript">
+<!--
+if (top.location.search.lastIndexOf("toc=0")<=0) {
+  if (top.frames.length==0) { top.location.href="index.html?server.htm"; }
+  else { parent.lazysync('server.htm'); }
+}
+//-->
+</script>
+<script type="text/javascript" src="highlight.js"></script>
+   <title>Server</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="Server">
+   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <link type="text/css" href="styles.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style TYPE="text/css" media="screen"> 
+   <!-- 
+   body {    
+      margin:0; 
+      padding:0; 
+      overflow: auto; 
+      background: #FFFFFF; 
+   } 
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   -->
+   </style>
+   
+<style TYPE="text/css" MEDIA="print">
+<!--
+/* Hide navigation links and add space between header
+     and text in the printed version. Not valid for eBooks. */
+#idnav { display:none;	 }
+.topichead { padding: 5px 5px 20px 5px; }
+-->
+</style>   
+</head>
+<body onload="highlight();">
+<div id="hmpopupDiv" style="visibility:hidden; position:absolute; z-index:1000; filter:progid:DXImageTransform.Microsoft.DropShadow(color='b0b0b0', Direction=135, OffX='3', OffY='3') progid:DXImageTransform.Microsoft.Fade(Overlap=1.00);"></div>
+<!--ZOOMSTOP-->
+
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; color: #6F6F6F; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="live_deployment.htm">Live Deployment</a> &gt; <a href="runtime_components.htm">Runtime Components</a>&nbsp;&gt;</p>
+   <p class="p_Heading1"><span class="f_Heading1">Server</span></p>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    <a href="javascript: print();"
+    		onmouseover="document.images.prntr.src='print1.gif'" 
+        onmouseout="document.images.prntr.src='print2.gif'"
+        ><img name="prntr" border="0" alt="Print this Topic" title="Print this Topic" src="print2.gif"
+        ></a>
+     <a href="node.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="runtime_components.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="adapter.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<p>A server represents an Ice server process. It can be either regular server (with typically a single Ice communicator) or an IceBox server hosting a number of IceBox services.</p>
+<p class="p_Heading2"><span class="f_Heading2">States</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">A server is always in one of the following states (the first icon is for regular servers, the second for IceBox servers):</span></p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 30px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList2">Unknown (<img src="server_unknown.png" width="16" height="16" border="0" alt="">, <img src="icebox_server_unknown.png" width="16" height="16" border="0" alt="">): this state is shown when the parent IceGrid node is down.</span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 30px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList2">Inactive (</span><img src="server_inactive.png" width="16" height="16" border="0" alt=""><span class="f_IndentList2">, </span><img src="icebox_server_inactive.png" width="16" height="16" border="0" alt=""><span class="f_IndentList2">): the server is not running.</span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 30px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList2">Activating (</span><img src="server_activating.png" width="16" height="16" border="0" alt=""><span class="f_IndentList2">, </span><img src="icebox_server_activating.png" width="16" height="16" border="0" alt=""><span class="f_IndentList2">): the server is starting up. The IceGrid registry is waiting for the server to register all its object adapters with server lifetime.</span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 30px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList2">Active (</span><img src="server_active.png" width="16" height="16" border="0" alt=""><span class="f_IndentList2">, </span><img src="icebox_server_active.png" width="16" height="16" border="0" alt=""><span class="f_IndentList2">): the server is running, and has registered all its object adapters with server lifetime with the IceGrid registry.</span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 30px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList2">Deactivating (</span><img src="server_deactivating.png" width="16" height="16" border="0" alt=""><span class="f_IndentList2">, </span><img src="icebox_server_deactivating.png" width="16" height="16" border="0" alt=""><span class="f_IndentList2">): the server is shutting down. The IceGrid registry is waiting for the server process to exit.</span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 30px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList2">Destroyed (</span><img src="server_destroyed.png" width="16" height="16" border="0" alt=""><span class="f_IndentList2">, </span><img src="icebox_server_destroyed.png" width="16" height="16" border="0" alt=""><span class="f_IndentList2">): the server being removed of the IceGrid registry. This is a very transient state.</span></td></tr></table></div><p class="p_IndentList2"><span class="f_IndentList2">A server can also be either enabled or disabled; when disabled, the icons above are grayed-out. A disabled server cannot be started until it is re-enabled.</span></p>
+<p class="p_Heading2"><span class="f_Heading2">Actions</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">A server provides the following actions, from its contextual menu, &nbsp;from the </span><span class="f_T_Menu">Tools &gt; Server</span><span class="f_IndentList2"> menu, and from buttons on the Server Properties panel:</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Start</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">Instruct the IceGrid node to start the server.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Stop</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">Instruct the IceGrid node to shutdown the server.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Enable</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">Mark the server as &quot;enabled&quot;.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Disable</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">Mark the server as &quot;disabled&quot;. A disabled server cannot be started; however an already running server can be marked &quot;disabled&quot;.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Patch Distribution</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">Patch the server's distribution, that is, instruct the IceGrid node to download the latest files from the server's distribution.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Write Message</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">Open a dialog that allows you to write a message to the server's stdout or stderr. </span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Retrieve stdout</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">Retrieve the stdout log file of this server into a <a href="log_file_dialog.htm">Log File Dialog</a>. This retrieval succeeds only when the server's stdout output has been redirected to a file using the</span><span class="f_T_Menu"> </span><span class="f_T_Code">Ice.StdOut</span><span class="f_IndentList3"> property. This is usually achieved by setting the </span><span class="f_T_Code">IceGrid.Node.Output</span><span class="f_IndentList3"> property in the IceGrid node configuration file.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Retrieve stderr</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">Retrieve the stderr log file of this server into a <a href="log_file_dialog.htm">Log File Dialog</a>. This retrieval succeeds only when the server's stderr output has been redirected to a file using the</span><span class="f_T_Menu"> </span><span class="f_T_Code">Ice.StdErr</span><span class="f_IndentList3"> property. This is usually achieved by setting the </span><span class="f_T_Code">IceGrid.Node.Output</span><span class="f_IndentList3"> property in the IceGrid node configuration file.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Retrieve Log</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">Retrieve a log file of this server into a <a href="log_file_dialog.htm">Log File Dialog</a>.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Send Signal</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">Send a signal to a server, for example SIGQUIT. Available only for non-Windows servers.</span></p>
+<p class="p_Heading2"><span class="f_Heading2">Properties</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">The Server Properties panel shows first the Runtime Status of the server, i.e. &quot;live&quot; values retrieved from the server:</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">State</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">The state of the server (Active, Deactivating, Inactive etc., see above)</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Enabled</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">A checkbox that is checked when the server is enabled.</span></p>
+<p class="p_IndentList3"><span class="f_Heading2Sub2">Process Id</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">The process ID of the server.</span></p>
+<p class="p_IndentList3"><span class="f_Heading2Sub2">Build Id</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">The build Id of this server: this corresponds to the Ice property </span><span class="f_T_Code">BuildId</span><span class="f_IndentList3">.</span></p>
+<p class="p_IndentList3"><span class="f_Heading2Sub2">Properties</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">A table showing all the Ice properties currently set in this server. These properties are retrieved each time you select a new server in IceGrid Admin, and each time you click on the Refresh button next to the Build Id field.</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">The remaining Server Properties come from the IceGrid descriptors associated with this server:</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Application</span></p>
+<p class="p_Heading2Sub2"><img src="server-application.png" width="406" height="77" border="0" alt=""></p>
+<p class="p_IndentList3"><span class="f_IndentList3">The name of the application containing this server's definition. The button on the right shows the server definition in an Application tab.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Description</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">A free-text description of this server.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Properties</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">A table showing all the Ice properties of this server. These properties may come from template definitions, property sets, server-instance properties etc. They are all combined in this table.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Path to Executable</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">The path to the server's executable, used by the IceGrid node to start the server.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Ice Version</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">The Ice version of this server.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Working Directory</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">The path to the server's working directory used by the IceGrid node when starting the server.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Command Arguments</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">The command-line arguments given to the server when started by IceGrid.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Run as</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">On Linux/Unix, a server may be started as a specific user when IceGrid node runs as root. </span><span class="f_T_Entry">Run as</span><span class="f_IndentList3"> shows this username. When blank, the server runs as the IceGrid node user except if IceGrid node runs as root (on Linux/Unix); in this case, the server runs as nobody.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Environment Variables</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">A server started by IceGrid node gets these environment variables in addition to the environment variables inherited from the IceGrid node.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Activation Mode</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">The server's activation mode.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Activation Timeout</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">The server's activation timeout.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Deactivation Timeout</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">The server's deactivation timeout.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Allocatable</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">This checkbox Shows whether this server is allocatable or not.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Depends on the application distribution</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">If this checkbox is checked, this server depends on the enclosing application's distribution: each time this distribution is patched, the server is automatically shut down before the patch.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">IcePatch2 Proxy</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">A stringified (or well-known) proxy for the IcePatch2 server than contains this server's distribution. When blank, this server does not have its own distribution.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Directories</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">List of directories included in the server distribution. When blank, the entire IcePatch2 server repository is used as the server distribution.</span></p>
+<p class="p_Heading2"><span class="f_Heading2">Children</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">A regular server node can have two types of children:</span></p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 30px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList2"><a href="adapter.htm">Adapter</a></span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 30px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList2"><a href="dbenv.htm">Database Environment</a></span></td></tr></table></div><p class="p_IndentList2"><span class="f_IndentList2">An IceBox server node can have only one type of children:</span></p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 30px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList2"><a href="service.htm">Service</a></span></td></tr></table></div>
+<!--ZOOMSTOP-->
+<p>&nbsp;</p><hr size="1"><p class="fsmall">Page url: 
+<a href="http://www.zeroc.com/doc/Ice-3.4.2/IceGridAdmin/index.html?server.htm" target="_top">http://www.zeroc.com/doc/Ice-3.4.2/IceGridAdmin/index.html?server.htm</a>
+</p>
+</div></div>
+<script type="text/javascript"> 
+<!-- 
+var lastSlashPos = document.URL.lastIndexOf("/") >
+document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") :
+document.URL.lastIndexOf("\\");
+if( document.URL.substring( lastSlashPos + 1, lastSlashPos + 4
+).toLowerCase() != "~hh" )
+{
+    nsrInit();
+}
+--> 
+</script> 
+</body>
+</html>

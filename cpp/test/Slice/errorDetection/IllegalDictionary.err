@@ -1,0 +1,11 @@
+IllegalDictionary.ice:22: dictionary `b1' uses an illegal key type
+IllegalDictionary.ice:23: dictionary `b2' uses an illegal key type
+IllegalDictionary.ice:24: dictionary `b3' uses an illegal key type
+IllegalDictionary.ice:25: dictionary `b4' uses an illegal key type
+IllegalDictionary.ice:26: dictionary `b5' uses an illegal key type
+IllegalDictionary.ice:29: warning: use of sequences in dictionary keys has been deprecated
+IllegalDictionary.ice:32: dictionary `b6' uses an illegal key type
+IllegalDictionary.ice:35: warning: use of sequences in dictionary keys has been deprecated
+IllegalDictionary.ice:49: dictionary `b8' uses an illegal key type
+IllegalDictionary.ice:55: warning: use of sequences in dictionary keys has been deprecated
+IllegalDictionary.ice:57: dictionary `b9' uses an illegal key type

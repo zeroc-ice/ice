@@ -1,0 +1,98 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# This file is included by Make.rules when uname is Darwin.
+#
+
+CXX	                = c++
+
+CXXFLAGS		= -Wall -D_REENTRANT
+
+ifeq ($(OPTIMIZE),yes)
+     CXXFLAGS		:= $(CXXARCHFLAGS) -O2 -DNDEBUG $(CXXFLAGS)
+else
+     CXXFLAGS		:= $(CXXARCHFLAGS) -g $(CXXFLAGS)
+endif
+
+
+#
+# C++ run-time libraries, necessary for linking some shared libraries.
+#
+CXXLIBS			=
+
+ifneq ($(embedded_runpath_prefix),)
+    # Only use -rpath if Mac OS X >= 10.5
+    release = $(shell uname -r)
+    ifeq ($(shell test $(firstword $(subst ., ,$(release))) -ge 9 && echo 0),0)
+	LDPLATFORMFLAGS     = -Wl,-rpath,$(runpath_libdir)
+    endif
+endif
+
+LDPLATFORMFLAGS		+= -rdynamic
+
+#
+# Needed to link IcePHP extension.
+#
+ifeq ($(ice_language), php)
+    shlibldflags = ${wl}-flat_namespace ${wl}-undefined ${wl}suppress
+else
+    ifdef ice_src_dist
+        shlibldflags    = $(CXXFLAGS) -L$(libdir)
+    else
+        shlibldflags    = $(CXXFLAGS) -L$(ice_dir)/$(libsubdir)
+    endif
+endif
+
+mklibfilename       	= $(if $(2),lib$(1).$(2).dylib,lib$(1).dylib)
+mksoname           	= $(if $(2),lib$(1).$(2).dylib,lib$(1).dylib)
+
+mklibname           	= lib$(1).dylib
+curdir			= $(shell pwd)
+
+ifneq ($(embedded_runpath_prefix),)
+   mkshlib                 = $(CXX)  -dynamiclib $(shlibldflags) -o $(1) -install_name $(runpath_libdir)/$(2) $(3) $(4)
+else
+   mkshlib                 = $(CXX)  -dynamiclib $(shlibldflags) -o $(1) -install_name $(2) $(3) $(4)
+endif
+
+ifeq ($(DB_HOME),)
+   #
+   # If DB_HOME is not set and the BerkeleyDB library is not at the expected location
+   # but in the ICE_DIR/lib directory, we set DB_RPATH_LINK to tell the linker where 
+   # to find it.
+   #
+   ifndef ice_src_dist
+       ifeq ($(shell test -f $(ice_dir)/$(libsubdir)/libFreeze.$(VERSION).dylib && echo 0),0)
+          dblib_install_name=$(firstword $(strip $(shell otool -L $(ice_dir)/$(libsubdir)/libFreeze.$(VERSION).dylib | grep libdb_cxx)))
+          ifeq ($(shell test ! -f $(dblib_install_name) -a -f $(ice_dir)/$(libsubdir)/$(notdir $(dblib_install_name)) && echo 0),0)
+             DB_RPATH_LINK=-dylib_file $(dblib_install_name):$(ice_dir)/$(libsubdir)/$(notdir $(dblib_install_name))
+	   endif
+       endif
+   endif
+endif
+
+ifneq ($(QT_HOME),)
+   ifneq ($(QT_HOME), /Library/Frameworks)
+      # Frameworks are installed in the lib directory
+      QT_FLAGS             = -F$(QT_HOME)/lib
+      QT_LIBS              = -F$(QT_HOME)/lib
+   endif
+   QT_LIBS := $(QT_LIBS) -framework QtCore -framework QtSql
+endif
+
+BASELIBS		= -lIceUtil -lpthread 
+LIBS			= -lIce $(BASELIBS)
+
+ICONV_LIB               = -liconv
+
+ICEUTIL_OS_LIBS         = -lpthread
+ICE_OS_LIBS             = -ldl
+
+PLATFORM_HAS_READLINE   := no
