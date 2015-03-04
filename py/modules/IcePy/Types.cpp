@@ -21,6 +21,7 @@
 #include <Ice/SlicedData.h>
 
 #include <list>
+#include <limits>
 
 using namespace std;
 using namespace IcePy;
@@ -689,6 +690,37 @@ IcePy::PrimitiveInfo::validate(PyObject* p)
         break;
     }
     case PrimitiveInfo::KindFloat:
+    {
+        if(!PyFloat_Check(p))
+        {
+            if(PyLong_Check(p))
+            {
+                PyLong_AsDouble(p); // Just to see if it raises an error.
+                if(PyErr_Occurred())
+                {
+                    return false;
+                }
+            }
+#if PY_VERSION_HEX < 0x03000000
+            else if(PyInt_Check(p))
+            {
+                return true;
+            }
+#endif
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            // Ensure double does not exceed maximum float value before casting
+            double val = PyFloat_AsDouble(p);
+            return val <= numeric_limits<float>::max() && val >= -numeric_limits<float>::max();
+        }
+
+        break;
+    }
     case PrimitiveInfo::KindDouble:
     {
         if(!PyFloat_Check(p))

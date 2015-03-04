@@ -754,6 +754,11 @@ IcePHP::PrimitiveInfo::validate(zval* zv TSRMLS_DC)
             invalidArgument("expected float value but received %s" TSRMLS_CC, s.c_str());
             return false;
         }
+        if(Z_TYPE_P(zv) == IS_DOUBLE)
+        {
+            double val = val = Z_DVAL_P(zv);
+            return val <= numeric_limits<float>::max() && val >= -numeric_limits<float>::max();
+        }
         break;
     }
     case PrimitiveInfo::KindDouble:

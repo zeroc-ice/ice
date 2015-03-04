@@ -594,7 +594,12 @@ IceRuby::PrimitiveInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectM
             throw RubyException(rb_eTypeError, "unable to convert value to a float");
         }
         assert(TYPE(val) == T_FLOAT);
-        os->write(static_cast<float>(RFLOAT_VALUE(val)));
+        double d = static_cast<double>(RFLOAT_VALUE(val));
+        if(d > numeric_limits<float>::max() || d < -numeric_limits<float>::max())
+        {
+            throw RubyException(rb_eTypeError, "value is out of range for a float");
+        }
+        os->write(static_cast<float>(d));
         break;
     }
     case PrimitiveInfo::KindDouble:

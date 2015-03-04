@@ -138,6 +138,21 @@ def twoways(communicator, p):
     except ValueError:
         pass
 
+    r, f, d = p.opFloatDouble(3.402823466E38, 0.0)
+    r, f, d = p.opFloatDouble(-3.402823466E38, 0.0)
+
+    try:
+        r, f, d = p.opFloatDouble(3.402823466E38*2, 0.0)
+        test(False)
+    except ValueError:
+        pass
+
+    try:
+        r, f, d = p.opFloatDouble(-3.402823466E38*2, 0.0)
+        test(False)
+    except ValueError:
+        pass
+
     #
     # opString
     #
@@ -1287,7 +1302,7 @@ def twoways(communicator, p):
     # opNonmutating
     #
     p.opNonmutating()
-    
+
     test(p.opByte1(0xFF) == 0xFF)
     test(p.opShort1(0x7FFF) == 0x7FFF)
     test(p.opInt1(0x7FFFFFFF) == 0x7FFFFFFF)
@@ -1299,7 +1314,7 @@ def twoways(communicator, p):
     test(len(p.opByteBoolD1(None)) == 0)
     test(len(p.opStringS2(None)) == 0)
     test(len(p.opByteBoolD2(None)) == 0)
-    
+
     d = Test.MyDerivedClassPrx.uncheckedCast(p)
     s = Test.MyStruct1()
     s.tesT = "Test.MyStruct1.s"

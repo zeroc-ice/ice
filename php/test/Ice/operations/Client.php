@@ -182,6 +182,27 @@ function twoways($communicator, $p)
         catch(InvalidArgumentException $ex)
         {
         }
+
+        $r = $p->opFloatDouble(3.402823466E38, 0.0, $f, $d);
+        $r = $p->opFloatDouble(-3.402823466E38, 0.0, $f, $d);
+
+        try
+        {
+            $r = $p->opFloatDouble(3.402823466E38*2, 0.0, $f, $d);
+            test(false);
+        }
+        catch(InvalidArgumentException $ex)
+        {
+        }
+
+        try
+        {
+            $r = $p->opFloatDouble(-3.402823466E38*2, 0.0, $f, $d);
+            test(false);
+        }
+        catch(InvalidArgumentException $ex)
+        {
+        }
     }
 
     {
@@ -898,7 +919,7 @@ function twoways($communicator, $p)
     {
         $p->opNonmutating();
     }
-    
+
     test($p->opByte1(0xFF) == 0xFF);
     test($p->opShort1(0x7FFF) == 0x7FFF);
     test($p->opInt1(0x7FFFFFFF) == 0x7FFFFFFF);

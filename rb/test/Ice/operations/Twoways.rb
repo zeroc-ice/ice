@@ -132,6 +132,21 @@ def twoways(communicator, p)
     rescue TypeError
     end
 
+    r, f, d = p.opFloatDouble(3.402823466E38, 0.0)
+    r, f, d = p.opFloatDouble(-3.402823466E38, 0.0)
+
+    begin
+        r, f, d = p.opFloatDouble(3.402823466E38*2, 0.0)
+        test(false)
+    rescue TypeError
+    end
+
+    begin
+        r, f, d = p.opFloatDouble(-3.402823466E38*2, 0.0)
+        test(false)
+    rescue TypeError
+    end
+
     #
     # opString
     #
@@ -1067,7 +1082,7 @@ def twoways(communicator, p)
     # opNonmutating
     #
     p.opNonmutating
-    
+
     test(p.opByte1(0xFF) == 0xFF)
     test(p.opShort1(0x7FFF) == 0x7FFF)
     test(p.opInt1(0x7FFFFFFF) == 0x7FFFFFFF)
@@ -1079,7 +1094,7 @@ def twoways(communicator, p)
     test(p.opByteBoolD1(nil).length == 0)
     test(p.opStringS2(nil).length == 0)
     test(p.opByteBoolD2(nil).length == 0)
-    
+
     d = Test::MyDerivedClassPrx::uncheckedCast(p)
     s = Test::MyStruct1.new
     s.tesT = "Test.MyStruct1.s"
