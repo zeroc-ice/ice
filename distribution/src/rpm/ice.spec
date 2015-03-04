@@ -47,6 +47,7 @@ ExcludeArch: %{ix86}
 
 %define buildall 1
 %define makeopts -j1
+%define runpath embedded_runpath=no
 
 %define core_arches %{ix86} x86_64
 
@@ -392,9 +393,9 @@ rmdir tmp
 
 cd $RPM_BUILD_DIR/Ice-%{version}/cpp/src
 %if %{cppx86}
-make %{makeopts} CXXARCHFLAGS="-m32 -march=i686" LP64=no OPTIMIZE=yes embedded_runpath_prefix=""
+make %{makeopts} CXXARCHFLAGS="-m32 -march=i686" LP64=no OPTIMIZE=yes %{runpath}
 %else
-make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
+make %{makeopts} OPTIMIZE=yes %{runpath}
 %endif
 
 %if %{cpp11}
@@ -403,9 +404,9 @@ mv cpp cpp.sav
 mv cpp11 cpp
 cd cpp/src
 %if %{cppx86}
-make %{makeopts} CXXARCHFLAGS="-m32 -march=i686" LP64=no CPP11=yes OPTIMIZE=yes embedded_runpath_prefix=""
+make %{makeopts} CXXARCHFLAGS="-m32 -march=i686" LP64=no CPP11=yes OPTIMIZE=yes %{runpath}
 %else
-make %{makeopts} CPP11=yes OPTIMIZE=yes embedded_runpath_prefix=""
+make %{makeopts} CPP11=yes OPTIMIZE=yes %{runpath}
 %endif
 cd $RPM_BUILD_DIR/Ice-%{version}
 mv cpp cpp11
@@ -415,7 +416,7 @@ mv cpp.sav cpp
 %if ! %{cppx86}
 
 cd $RPM_BUILD_DIR/Ice-%{version}/php
-make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
+make %{makeopts} OPTIMIZE=yes %{runpath}
 
 cd $RPM_BUILD_DIR/Ice-%{version}/java
 make dist
@@ -428,16 +429,16 @@ make dist
 # Build only what we need in C++.
 #
 cd $RPM_BUILD_DIR/Ice-%{version}/cpp/src/IceUtil
-make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
+make %{makeopts} OPTIMIZE=yes %{runpath}
 
 cd $RPM_BUILD_DIR/Ice-%{version}/cpp/src/Slice
-make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
+make %{makeopts} OPTIMIZE=yes %{runpath}
 
 cd $RPM_BUILD_DIR/Ice-%{version}/cpp/src/slice2java
-make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
+make %{makeopts} OPTIMIZE=yes %{runpath}
 
 cd $RPM_BUILD_DIR/Ice-%{version}/cpp/src/slice2freezej
-make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
+make %{makeopts} OPTIMIZE=yes %{runpath}
 
 cd $RPM_BUILD_DIR/Ice-%{version}/java
 make dist
@@ -462,7 +463,7 @@ mkdir -p $RPM_BUILD_ROOT/lib
 %if %{cppx86}
 
 cd $RPM_BUILD_DIR/Ice-%{version}/cpp
-make prefix=$RPM_BUILD_ROOT LP64=no embedded_runpath_prefix="" install
+make prefix=$RPM_BUILD_ROOT LP64=no install
 
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
 mv $RPM_BUILD_ROOT/bin/icebox32 $RPM_BUILD_ROOT%{_bindir}
@@ -475,7 +476,7 @@ rm -rf $RPM_BUILD_ROOT/include/*
 %else
 
 cd $RPM_BUILD_DIR/Ice-%{version}/cpp
-make prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
+make prefix=$RPM_BUILD_ROOT install
 
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
 %ifarch %{ix86}
@@ -497,9 +498,9 @@ mv cpp11 cpp
 cd cpp/src
 mkdir -p $RPM_BUILD_ROOT/%_lib/c++11
 %if %{cppx86}
-make CPP11=yes prefix=$RPM_BUILD_ROOT LP64=no embedded_runpath_prefix="" install
+make CPP11=yes prefix=$RPM_BUILD_ROOT LP64=no install
 %else
-make CPP11=yes prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
+make CPP11=yes prefix=$RPM_BUILD_ROOT install
 %endif
 cd $RPM_BUILD_DIR/Ice-%{version}
 mv cpp cpp11
