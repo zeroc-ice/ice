@@ -15,7 +15,7 @@ SUBDIRS		= config src include
 
 ifneq ($(MAKECMDGOALS),install)
     SUBDIRS		:= $(SUBDIRS) test
-    ifeq ($(shell uname | grep MINGW),)
+    ifneq ($(GEMBUILD),yes)
         SUBDIRS		:= $(SUBDIRS) demo
     endif
 endif

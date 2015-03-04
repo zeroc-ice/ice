@@ -11,11 +11,16 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
+ifneq ($(findstring MINGW,$(UNAME)),)
+SUBDIRS		= printer \
+		  simple_filesystem
+else
 SUBDIRS		= printer \
 		  simple_filesystem \
 		  lifecycle \
 		  evictor_filesystem \
                   map_filesystem
+endif
 
 .PHONY: $(EVERYTHING) $(SUBDIRS)
 

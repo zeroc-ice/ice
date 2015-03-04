@@ -1713,7 +1713,7 @@ def getCppBinDir(lang = None):
     return binDir
 
 def getSliceTranslator(lang = "cpp"):
-    return os.path.join(os.path.join(iceHome if iceHome else getIceDir("cpp"), "bin") , "slice2%s" % lang)
+    return os.path.join((iceHome if iceHome else getIceDir("cpp")) , "bin", "slice2%s" % lang)
 
 def getCppLibDir(lang = None):
     if isWin32():
@@ -1860,11 +1860,11 @@ def getTestEnv(lang, testdir):
         else:
             addPathToEnv("PYTHONPATH", pythonDir, env)
 
-    if lang == "rb":
-        if isWin32() and x64:
-            addPathToEnv("RUBYLIB", os.path.join(getIceDir("rb", testdir), "ruby", "x64"), env)
-        else:
-            addPathToEnv("RUBYLIB", os.path.join(getIceDir("rb", testdir), "ruby"), env)
+    #
+    # If testing with source dist we need to set RUBYLIB
+    #
+    if lang == "rb" and not iceHome:
+        addPathToEnv("RUBYLIB", os.path.join(getIceDir("rb", testdir), "ruby"), env)
 
     if lang == "js":
         if os.environ.get("USE_BIN_DIST", "no") != "yes":

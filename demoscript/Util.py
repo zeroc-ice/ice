@@ -319,9 +319,7 @@ def configurePaths():
     else:
         addenv("PYTHONPATH", os.path.join(getIceDir("py"), "python"))
 
-    if isWin32() and x64:
-        addenv("RUBYLIB", os.path.join(getIceDir("rb"), "ruby", "x64"))
-    else:
+    if not iceHome:
         addenv("RUBYLIB", os.path.join(getIceDir("rb"), "ruby"))
 
     if getMapping() == "js":

@@ -11,6 +11,11 @@ top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules
 
+ifneq ($(findstring MINGW,$(UNAME)),)
+SUBDIRS		= Ice \
+		  IceDiscovery \
+		  Manual
+else
 SUBDIRS		= IceUtil \
 		  Ice \
 		  IceDiscovery \
@@ -20,6 +25,7 @@ SUBDIRS		= IceUtil \
 		  Glacier2 \
 		  IceGrid \
 		  Manual
+endif
 
 .PHONY: $(EVERYTHING) $(SUBDIRS)
 

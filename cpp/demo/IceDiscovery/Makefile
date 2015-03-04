@@ -11,8 +11,12 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
+ifneq ($(findstring MINGW,$(UNAME)),)
+SUBDIRS		= hello
+else
 SUBDIRS		= hello \
 		  replication
+endif
 
 .PHONY: $(EVERYTHING) $(SUBDIRS)
 
