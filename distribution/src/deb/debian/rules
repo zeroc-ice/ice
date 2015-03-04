@@ -108,6 +108,7 @@ override_dh_install: icebox_install
 		mkdir -p $(DESTDIR)/$(prefix)/share/maven-repo/com/zeroc/$$name/$(VERSION) ; \
 		cp $(DESTDIR)/$(prefix)/lib/$$name-$(VERSION).pom $(DESTDIR)/$(prefix)/share/maven-repo/com/zeroc/$$name/$(VERSION) ; \
 		cd $(DESTDIR)/$(prefix)/share/maven-repo/com/zeroc/$$name/$(VERSION) && ln -s ../../../../../java/$$name-$(VERSION).jar . ; \
+		cd $(DESTDIR)/$(prefix)/share/maven-repo/com/zeroc/$$name/$(VERSION) && ln -s ../../../../../java/$$name-$(VERSION)-source.jar . ; \
 	done ;
 	
 	mkdir -p $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH)/c++11
