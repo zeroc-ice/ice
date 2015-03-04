@@ -1,0 +1,62 @@
+#
+# To use SSL you must use it in the following endpoints.
+#
+
+#
+# The proxy to the Glacier2 router for all outgoing connections. This
+# must match the value of Glacier2.Client.Endpoints in config.glacier2.
+#
+Ice.Default.Router=DemoGlacier2/router:tcp -p 4063 -h localhost:ssl -p 4064 -h localhost
+
+#
+# We don't need any endpoints for the client if we use a
+# router. Incoming requests are received through connections
+# established from the client to the router.
+#
+Callback.Client.Endpoints=
+
+#
+# This must match the value of Callback.Server.Endpoints in
+# config.server.
+#
+Callback.Proxy=callback:tcp -h localhost -p 10000
+
+#
+# Warn about connection exceptions
+#
+#Ice.Warn.Connections=1
+
+#
+# Network Tracing
+#
+# 0 = no network tracing
+# 1 = trace connection establishment and closure
+# 2 = like 1, but more detailed
+# 3 = like 2, but also trace data transfer
+#
+#Ice.Trace.Network=1
+
+#
+# Protocol Tracing
+#
+# 0 = no protocol tracing
+# 1 = trace protocol messages
+#
+#Ice.Trace.Protocol=1
+
+#
+# Security Tracing
+#
+# 0 = no security tracing
+# 1 = trace messages
+#
+#IceSSL.Trace.Security=1
+
+#
+# SSL Configuration
+#
+Ice.Plugin.IceSSL=IceSSL:IceSSL.PluginFactory
+IceSSL.DefaultDir=../../../../certs
+IceSSL.ImportCert.CurrentUser.Root=cacert.pem
+IceSSL.CertFile=c_rsa1024.pfx
+IceSSL.Password=password

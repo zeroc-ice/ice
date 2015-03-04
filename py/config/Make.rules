@@ -1,0 +1,196 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# Select an installation base directory. The directory will be created
+# if it does not exist.
+#
+
+prefix			?= /opt/Ice-$(VERSION)
+
+#
+# The "root directory" for runpath embedded in executables. Can be unset
+# to avoid adding a runpath to Ice executables.
+#
+embedded_runpath_prefix  ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
+
+#
+# Define OPTIMIZE as yes if you want to build with optimization.
+# Otherwise the Ice extension is built with debug information.
+#
+
+#OPTIMIZE		= yes
+
+#
+# Define LP64 as yes if you want to build in 64 bit mode on a platform
+# that supports both 32 and 64 bit.
+#
+#LP64			:= yes
+
+#
+# The values below can be overridden by defining them as environment
+# variables.
+#
+
+#
+# If multiple versions of Python are installed and you want a specific
+# version used for building the Ice extension, then set PYTHON_VERSION
+# to a value like "python2.5". Otherwise, the settings below use the
+# default Python interpreter found in your PATH.
+#
+PYTHON_VERSION	    ?= python$(shell python -c "import sys; import distutils.sysconfig as ds; sys.stdout.write(ds.get_python_version())")
+
+PYTHON_BASE_VERSION ?= $(shell $(PYTHON_VERSION) -c "import sys; import distutils.sysconfig as ds; sys.stdout.write(ds.get_python_version())")
+
+PYTHON_INCLUDE_DIR  ?= $(shell $(PYTHON_VERSION) -c "import sys; import distutils.sysconfig as ds; sys.stdout.write(ds.get_python_inc())")
+
+PYTHON_LIB_DIR	    ?= $(shell $(PYTHON_VERSION) -c "import sys; import distutils.sysconfig as ds; sys.stdout.write(ds.get_config_var('LIBPL'))")
+
+PYTHON_LIB_SUFFIX   ?= $(shell $(PYTHON_VERSION) -c "import sys; sys.stdout.write(sys.__dict__['abiflags'] if 'abiflags' in sys.__dict__ else '')")
+
+PYTHON_LIB_NAME	    ?= $(PYTHON_VERSION)$(PYTHON_LIB_SUFFIX)
+
+PYTHON_FLAGS	    ?= -I$(PYTHON_INCLUDE_DIR)
+PYTHON_LIBS	    ?= -L$(PYTHON_LIB_DIR) -l$(PYTHON_LIB_NAME)
+
+#
+# The build architectures for gcc based builds. The format of these
+# build flags are OS dependent. For example, under OS X to build
+# binaries which support both i386 and x86_64 you would use "-arch
+# i386 -arch x86_64".  The default is OS version dependent. Be aware
+# that this value may conflict with the setting of LP64 above.
+#
+#CXXARCHFLAGS                = -arch i386 -arch x86_64
+
+# ----------------------------------------------------------------------
+# Don't change anything below this line!
+# ----------------------------------------------------------------------
+
+#
+# Common definitions
+#
+ice_language     = py
+ice_require_cpp  = yes
+slice_translator = slice2py
+
+ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
+    include $(top_srcdir)/config/Make.common.rules
+else
+    include $(top_srcdir)/../config/Make.common.rules
+endif
+
+#
+# Platform specific definitions
+#
+ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.$(UNAME) && echo 0),0)
+    include $(top_srcdir)/config/Make.rules.$(UNAME)
+else
+    include $(top_srcdir)/../cpp/config/Make.rules.$(UNAME)
+endif 
+
+libdir                  = $(top_srcdir)/python
+ifneq ($(prefix), /usr)
+install_pythondir       = $(prefix)/python
+install_libdir          = $(prefix)/python
+else
+    ifeq ($(shell test -d $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/dist-packages && echo 0),0)
+        install_pythondir       = $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/dist-packages
+        install_libdir          = $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/dist-packages
+    else
+        install_pythondir       = $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/site-packages
+        install_libdir          = $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/site-packages
+    endif
+endif
+
+ifeq ($(UNAME),SunOS)
+   ifeq ($(LP64),yes)
+      libdir            = $(top_srcdir)/python$(lp64suffix)
+      install_libdir    = $(prefix)/python$(lp64suffix)
+   endif
+endif
+
+ifdef ice_src_dist
+    ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
+        ICE_LIB_DIR = -L$(ice_cpp_dir)/lib
+    else
+        ICE_LIB_DIR = -L$(ice_cpp_dir)/$(libsubdir)
+    endif
+    ICE_LIB_DIR = -L$(ice_cpp_dir)/lib
+    ICE_FLAGS 	= -I$(ice_cpp_dir)/include
+endif
+ifdef ice_bin_dist
+    ICE_LIB_DIR = -L$(ice_dir)/$(libsubdir)
+    ICE_FLAGS	= -I$(ice_dir)/include
+endif
+ICE_LIBS = $(ICE_LIB_DIR) -lIce -lSlice -lIceUtil
+
+ifneq ($(embedded_runpath_prefix),)
+   runpath_libdir	:= $(embedded_runpath_prefix)/$(libsubdir)
+endif
+
+CPPFLAGS		=
+ICECPPFLAGS		= -I$(slicedir)
+SLICE2PYFLAGS		= $(ICECPPFLAGS)
+LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
+
+ifdef ice_src_dist
+    ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
+        SLICE2PY 	= $(ice_cpp_dir)/bin/slice2py
+	SLICEPARSERLIB	= $(ice_cpp_dir)/lib/$(call mklibfilename,Slice,$(VERSION))
+    else
+        SLICE2PY 	= $(ice_cpp_dir)/$(binsubdir)/slice2py
+	SLICEPARSERLIB	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
+    endif
+else
+    SLICE2PY 		= $(ice_dir)/$(binsubdir)/slice2py
+    SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
+endif
+
+#
+# A Python extension library cannot have a "lib" prefix, so Python-specific
+# functions are defined that strip "lib" from the regular library name.
+#
+mkpylibfilename     = $(subst dy,dylib,$(subst lib,,$(call mklibfilename,$(1),$(2))))
+mkpysoname      = $(subst dy,dylib,$(subst lib,,$(call mksoname,$(1),$(2))))
+mkpylibname     = $(subst dy,dylib,$(subst lib,,$(call mklibname,$(1))))
+
+EVERYTHING		= all depend clean install
+
+.SUFFIXES:
+.SUFFIXES:		.cpp .o .py
+
+all:: $(SRCS)
+
+%_ice.py: $(slicedir)/%.ice
+	rm -f $(*F).py
+	$(SLICE2PY) $(SLICE2PYFLAGS) $<
+
+.cpp.o:
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+
+clean::
+	-rm -f $(TARGETS)
+	-rm -f core *.o *.pyc *.bak
+
+all:: $(SRCS) $(TARGETS)
+
+ifneq ($(SRCS),)
+depend:: $(SRCS)
+	-rm -f .depend .depend.mak
+	if test -n "$(SRCS)" ; then \
+	    $(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | $(ice_dir)/config/makedepend.py; \
+	fi
+endif
+
+ifneq ($(TEMPLATE_REPOSITORY),)
+clean::
+	rm -fr $(TEMPLATE_REPOSITORY)
+endif
+
+install::

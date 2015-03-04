@@ -1,0 +1,70 @@
+.TH icegridadmin 1
+
+.SH NAME
+
+icegridadmin - The IceGrid command-line administrative utility.
+
+.SH SYNOPSIS
+
+icegridadmin [options]
+
+.SH DESCRIPTION
+
+The icegridadmin utility is a command-line tool for administering an IceGrid 
+domain. Deploying an application with this utility requires an XML file that 
+defines the descriptors. Full documentation for icegridadmin is available 
+online at: 
+.br
+"http://doc.zeroc.com/display/Ice/icegridadmin+Command+Line+Tool".
+
+.SH OPTIONS
+
+.TP
+.BR \-h ", " \-\-help\fR
+.br
+Show program help.
+
+.TP
+.BR \-v ", " \-\-version\fR
+.br
+Display the Ice version.
+
+.TP
+.BR \-e " " COMMANDS\fR
+.br
+Execute COMMANDS.
+
+.TP
+.BR \-d ", " \-\-debug\fR
+.br
+Print debug messages.
+
+.TP
+.BR \-s ", " \-\-server\fR
+.br
+Start icegridadmin as a server (to parse XML files).
+
+.TP
+.BR\-u ", " \-\-username\fR
+.br
+Login with the given username.
+
+.TP
+.BR \-p ", " \-\-password\fR
+.br
+Login with the given password.
+
+.TP
+.BR \-S ", " \-\-ssl\fR
+.br
+Authenticate through SSL.
+
+.TP
+.BR \-r ", " \-\-replica " " NAME\fR
+.br
+Connect to the replica NAME.
+
+.SH SEE ALSO
+
+.BR icegridnode (1),
+.BR icegridregistry (1),

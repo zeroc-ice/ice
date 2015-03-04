@@ -1,0 +1,12 @@
+#
+# The server creates an object adapter with the name "Warehouse". The
+# following line sets the endpoints for this adapter.
+#
+Warehouse.Endpoints=tcp -h localhost -p 10000
+
+#
+# Configure 10 threads in the server side thread pool. Setting
+# SizeWarn to 10 disables warnings if we start to run out of threads.
+#
+Ice.ThreadPool.Server.Size=10
+Ice.ThreadPool.Server.SizeWarn=10

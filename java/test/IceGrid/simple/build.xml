@@ -1,0 +1,30 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+<project name="test_IceGrid_simple" default="all" basedir=".">
+
+    <!-- set global properties for this build -->
+    <property name="top.dir" value="../../.."/>
+
+    <!-- import common definitions -->
+    <import file="${top.dir}/config/common.xml"/>
+
+    <target name="all"/>
+
+    <target name="clean">
+        <delete quiet="true" includeEmptyDirs="true">
+	    <fileset dir="db/node"/>
+	    <fileset dir="db/registry"/>
+	    <fileset dir="db/replica-1"/>
+        </delete>
+    </target>
+
+</project>

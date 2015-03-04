@@ -1,0 +1,201 @@
+<icegrid>
+
+  <application name="Test" import-default-templates="true">
+
+    <description>APP ${AppVar}</description>
+
+    <properties id="AppProperties2">
+      <property name="AppProperty2" value="${AppVarOverrided}"/>
+      <property name="AppProperty21" value="${RecursiveAppVar}"/>
+    </properties>
+
+    <properties id="AppProperties">
+      <properties refid="AppProperties2"/>
+      <property name="AppProperty" value="${AppVar}"/>
+    </properties>
+
+    <!-- Include server templates -->
+    <include file="icebox.xml"/>
+    <include file="server.xml"/>    
+
+    <replica-group id="ReplicatedAdapter">
+      <description>REPLICA GROUP ${AppVar}</description>
+      <object identity="ReplicatedObject" type="::Test"/>
+    </replica-group>
+
+    <replica-group id="ReplicatedAdapter2" proxy-options="-e 1.4">
+      <description>REPLICA GROUP ${AppVar}</description>
+      <object identity="ReplicatedObject15" type="::Test" proxy-options="-e 1.5"/>
+      <object identity="ReplicatedObject14" type="::Test"/>
+    </replica-group>
+
+    <!-- Variables for variable test -->
+    <variable name="AppVar" value="AppVar"/>
+    <variable name="RecursiveAppVar" value="${var1}"/>
+    <variable name="AppVarOverrided" value="OverrideMe"/>
+    <variable name="var1" value="${application}"/>
+    <variable name="AppVarDefinedInNode" value="${RecursiveNodeVar}"/>
+    <variable name="EscapedAppVar" value="$${escaped}"/>
+    <variable name="RecursiveEscapedAppVar" value="${EscapedAppVar}"/>
+    <variable name="Recursive2EscapedAppVar" value="${RecursiveEscapedAppVar}"/>
+    <variable name="test.dir" value="NotThisValue"/> 
+
+    <variable name="encoding10" value="1.0"/>
+    <variable name="encoding12" value="1.2"/>
+    <variable name="encoding13" value="1.3"/>
+
+    <!-- Variables for parameter test -->
+    <variable name="AppVarOverridedByParam" value="Test"/>
+
+    <!-- Variables for object identity test -->
+    <variable name="ObjectId" value="cat/name1"/>
+    <variable name="ObjectName1" value="name1"/>
+    <variable name="ObjectCategory1" value="cat1"/>
+    <variable name="ObjectIdSlash" value="/"/>
+    <variable name="ObjectName2" value="n2\/n2"/>
+    <variable name="ObjectCategory2" value="c2\/c2"/>
+    <variable name="service4" value="Service4"/>
+
+    <node name="localnode">
+      <description>NODE ${NodeVar}</description>
+
+      <properties id="NodeProperties">
+        <property name="NodeProperty" value="${NodeVar}"/>
+        <property name="AppProperty21" value="Override"/>
+      </properties>
+ 
+      <!-- Variables for variable test -->
+      <variable name="NodeVar" value="NodeVar"/>
+      <variable name="AppVarOverrided" value="OverridedInNode"/>
+      <variable name="RecursiveNodeVar" value="${node}"/>
+
+      <!-- Variables for parameter test -->
+      <variable name="NodeVarOverridedByParam" value="Test"/>
+      <variable name="escaped" value="escapedvalue"/>
+      <variable name="varpe" value="$${escaped}"/>
+      <variable name="varpde" value="$$${escaped}"/>
+
+      <server-instance template="IceBoxTemplate" name="IceBox1" AppVarOverridedByParam="Overrided">
+        <properties service="Service1">
+          <property name="ServerInstanceServiceProperty" value="service1"/>           
+        </properties>
+        <properties service="Service4">
+          <property name="ServerInstanceServiceProperty" value="service4"/>
+        </properties>
+      </server-instance>
+      <server-instance template="IceBoxTemplate" name="IceBox2" AppVarOverridedByParam="Overrided">
+        <properties>
+          <property name="IceBox.InheritProperties" value="1"/>
+          <property name="IceBoxInstanceProperty" value="${name}"/>
+        </properties>
+        <properties service="${service4}">
+          <property name="IceBoxInstanceProperty" value="overriden"/>
+        </properties>
+      </server-instance>
+
+      <server-instance template="ServerTemplate" name="Server1"
+        AppVarOverridedByParam="Overrided" Param1="Param1"
+        Param2="${AppVar}" ParamEscaped="$${escaped}" ParamDoubleEscaped="$$${escaped}"/>
+      <server-instance template="ServerTemplate" name="Server2"
+        AppVarOverridedByParam="Overrided" Param1="Param12"
+        Param2="${AppVarOverrided}" ParamEscaped="${varpe}"
+        ParamDoubleEscaped="${varpde}" DefaultParam="OTHERVALUE">
+        <properties>
+          <property name="ServerInstanceProperty" value="${name}"/>
+        </properties>
+      </server-instance>
+
+      <server id="SimpleServer" exe="${test.dir}/server" activation="on-demand" pwd=".">
+        <description>SERVER ${NodeVar}</description>
+        <adapter name="Server" endpoints="default">
+          <description>ADAPTER ${NodeVar}</description>
+  	  <object identity="${server}" type="::Test"/>
+          <object identity="cat\/cat/name\/name" type="::Test"/>
+          <object identity="${ObjectId}" type="::TestId1"/>
+          <object identity="${ObjectCategory1}/${ObjectName1}" type="::TestId2"/>
+          <object identity="${ObjectCategory1}${ObjectIdSlash}${ObjectName1}-bis" type="::TestId3"/>
+          <object identity="${ObjectCategory2}/${ObjectName2}" type="::TestId4"/>
+          <object identity="${ObjectIdSlash}${ObjectName2}" type="::TestId5"/>
+        </adapter>
+
+        <dbenv name="DbEnv">
+          <description>DBENV ${NodeVar}</description>
+        </dbenv>
+        <option>--Test.Test=2</option>
+        <env>MY_ENV_VARIABLE=12</env>
+        <env>MY_UNIX_COMPOSED_VARIABLE=BAR;$MY_FOO</env>
+        <env>MY_WINDOWS_COMPOSED_VARIABLE=BAR;%MY_FOO%</env>
+        <env>MY_ENV_UNICODE_VARIABLE=A Coruña</env>
+        <env>MY_ENV_VÄRIABLE=1</env>
+        <env>my_env_väriable=2</env>
+        <properties>
+          <properties refid="AppProperties"/>
+          <properties refid="NodeProperties"/>
+          <include file="varproperties.xml"/>
+        </properties>
+      </server>
+
+      <server id="server-proxyoptions" exe="dummy">
+        <adapter name="ProxyOptionsOA" endpoints="default" proxy-options="-e ${encoding12}">
+          <object identity="oaoptions"/>
+          <object identity="encoding10-oneway" proxy-options="-e ${encoding10} -o"/>
+          <object identity="encoding10-secure" proxy-options="-e ${encoding10} -s"/>
+        </adapter>
+        <adapter name="CommunicatorOptionsOA" endpoints="default">
+          <object identity="communicatoroptions"/>
+        </adapter>
+        <property name="Ice.Default.EncodingVersion" value="${encoding13}"/>
+      </server>
+      <server id="server34" exe="dummy" ice-version="3.4">
+        <adapter name="ProxyOptionsOA" endpoints="default">
+          <object identity="34options"/>
+        </adapter>
+      </server>
+
+      <icebox id="SimpleIceBox" exe="${icebox.exe}" activation="on-demand" pwd=".">
+        <description>SERVER ${NodeVar}</description>
+	<service name="SimpleService" entry="TestService:create">
+	  <adapter name="${service}" endpoints="default">
+	    <object identity="${server}-${service}" type="::Test"/>
+	  </adapter>
+          <property name="Ice.Warn.UnknownProperties" value="0"/>
+	  <property name="${service}.Identity" value="${server}-${service}"/>
+	  <property name="${service}.Type" value="standard"/>
+	  <property name="${service}.ServiceName" value="${service}"/>
+	  <include file="varproperties.xml"/>
+	</service>
+      </icebox>
+
+      <target name="moreservers">
+        <server-instance template="IceBoxTemplate" name="IceBox3" AppVarOverridedByParam="Overrided"/>
+        <server-instance template="ServerTemplate" name="Server3"
+          AppVarOverridedByParam="Overrided" Param1="Param12"
+          Param2="${AppVarOverrided}" ParamEscaped="${varpe}" ParamDoubleEscaped="${varpde}"/>
+      </target>
+
+      <server id="LogServer" exe="${test.dir}/server" activation="on-demand" pwd=".">
+        <adapter name="Server" endpoints="default">
+  	  <object identity="${server}" type="::Test"/>
+        </adapter>
+
+        <log path="${test.dir}/log1.txt"/>
+        <log path="${test.dir}/log2.txt"/>
+        <log path="${test.dir}/log3.txt"/>
+        <log path="${test.dir}/log4.txt"/>
+        <env>MY_ENV_VARIABLE=12</env>
+        <env>MY_UNIX_COMPOSED_VARIABLE=BAR;$MY_FOO</env>
+        <env>MY_WINDOWS_COMPOSED_VARIABLE=BAR;%MY_FOO%</env>
+        <env>MY_ENV_UNICODE_VARIABLE=A Coruña</env>
+        <env>MY_ENV_VÄRIABLE=1</env>
+        <env>my_env_väriable=2</env>
+        <properties>
+          <property name="Ice.StdErr" value="${node.datadir}/servers/${server}.out"/>
+          <property name="Ice.StdOut" value="${node.datadir}/servers/${server}.err"/>
+        </properties>
+      </server>
+
+    </node>
+
+  </application>
+
+</icegrid>

@@ -1,0 +1,14 @@
+#
+# Proxy to the IceBox ServiceManager:
+#
+
+#
+# When the IceBox.ServiceManager object adapter is configured: 
+#
+#IceBoxAdmin.ServiceManager.Proxy=DemoIceBox/ServiceManager:tcp -p 9998 -h localhost
+
+#
+# When Ice.Admin is configured:
+#
+IceBoxAdmin.ServiceManager.Proxy=DemoIceBox/admin -f IceBox.ServiceManager:tcp -p 9996 -h localhost
+

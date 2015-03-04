@@ -1,0 +1,10 @@
+#
+# The client reads this property to create the reference to the
+# "hello" object in the server.
+#
+Hello.Proxy=hello
+
+#
+# The IceGrid locator proxy.
+#
+Ice.Default.Locator=DemoIceGrid/Locator:default -t 30000 -h localhost -p 4061

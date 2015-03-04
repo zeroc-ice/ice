@@ -1,0 +1,122 @@
+.TH slice2java 1
+
+.SH NAME
+
+slice2freezej - Generates Freeze map and index classes in Java.
+
+.SH SYNOPSIS
+
+slice2freezej [options] [files]
+
+.SH DESCRIPTION
+
+slice2java generates Freeze map and index classes in Java.
+
+Full documentation for slice2freezej is available online at:
+.br
+"http://doc.zeroc.com/display/Ice/Using+a+Freeze+Map+in+Java".
+
+.SH OPTIONS
+
+.TP
+.BR \-h ", " \-\-help\fR
+.br
+Displays a help message.
+
+.TP
+.BR \-v ", " \-\-version\fR
+Displays the compiler version.
+
+.TP
+.BR \-DNAME\fR
+.br
+Defines the preprocessor symbol NAME.
+
+.TP
+.BR \-DNAME=DEF\fR
+.br 
+Defines the preprocessor symbol NAME with the value DEF.
+
+.TP
+.BR \-UNAME\fR
+.br
+Undefines the preprocessor symbol NAME.
+
+.TP
+.BR \-IDIR\fR
+.br
+Add the directory DIR to the search path for #include directives.
+
+.TP
+.BR \-E\fR
+.br
+Print the preprocessor output on stdout.
+
+.TP
+.BR \-\-output-dir " " DIR\fR
+.br
+Place the generated files into directory DIR.
+
+.TP
+.BR \-d ", " \-\-debug\fR
+.br
+Print debug information showing the operation of the Slice parser.
+
+.TP
+.BR \-\-ice\fR
+.br
+Permit use of the normally reserved prefix Ice for identifiers. Use this
+option only when compiling the source code for the Ice run time.
+
+.TP
+.BR \-\-underscore\fR
+.br
+Permit use of underscores in Slice identifiers.
+
+.TP
+.BR \-\-dict " " NAME,KEY,VALUE\fR
+.br
+Generate a Freeze map class named NAME using KEY as key and VALUE as value.
+This option may be specified multiple times to generate several Freeze maps.
+NAME may be a scoped Java name, such as Demo.Struct1ObjectMap. KEY and VALUE
+represent Slice types and therefore must use Slice syntax, such as bool or
+Ice::Identity.
+
+.TP
+.BR \-\-dict\-index " " MAP[,MEMBER][,case\-sensitive|case\-insensitive]\fR
+.br
+Add an index to the Freeze map named MAP. If MEMBER is specified, the map
+value type must be a structure or a class, and MEMBER must be the name of a 
+member of that type. If MEMBER is not specified, the entire value is indexed.
+When the indexed member (or entire value) is a string, the index can be
+case-sensitive (default) or case-insensitive.
+
+.TP
+.BR \-\-index " " CLASS,TYPE,MEMBER[,case\-sensitive|case\-insensitive]\fR
+.br
+Generate an index class for a Freeze evictor. CLASS is the name of the index
+class to be generated. TYPE denotes the type of class to be indexed (objects
+of different classes are not included in this index). MEMBER is the name of
+the data member in TYPE to index. When MEMBER has type string, it is possible
+to specify whether the index is case-sensitive or not. The default is
+case-sensitive.
+
+.TP
+.BR \-\-meta " " META\fR
+.br
+Define the global metadata directive META. Using this option is equivalent to
+defining the global metadata META in each named Slice file, as well as in any
+file included by a named Slice file. Global metadata specified with --meta
+overrides any corresponding global metadata directive in the files being
+compiled.
+
+.SH SEE ALSO
+
+.BR slice2cpp (1),
+.BR slice2cs (1),
+.BR slice2freeze (1),
+.BR slice2html (1),
+.BR slice2java (1), 
+.BR slice2php (1),
+.BR slice2py (1),
+.BR slice2rb (1)

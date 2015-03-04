@@ -1,0 +1,409 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# Select an installation base directory. The directory will be created
+# if it does not exist.
+#
+prefix			?= /opt/Ice-$(VERSION)
+
+#
+# The "root directory" for runpath embedded in executables. Can be unset
+# to avoid adding a runpath to Ice executables.
+#
+embedded_runpath_prefix ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
+
+#
+# Define create_runpath_symlink as yes if you would like 'make install'
+# to automatically create a symbolic link for the embedded runpath
+# directory. Only applies if embedded_runpath_prefix is also set.
+#
+create_runpath_symlink	?= no
+
+#
+# Define OPTIMIZE as yes if you want to build with
+# optimization. Otherwise Ice is build with debug information.
+#
+#OPTIMIZE		= yes
+
+#
+# Define LP64 as yes or no if you want force a 32 or 64 bit. The
+# default is platform-dependent. This property has no effect on 
+# OS X. On OS X, use CXXARCHFLAGS bellow to establish the build
+# architectures.
+#
+#LP64			?= yes
+
+#
+# The build architectures for gcc/llvm based builds. The format of
+# these build flags are OS dependent. For example, under OS X to
+# build binaries which support both i386 and x86_64 you would use
+# "-arch i386 -arch x86_64".  The default is OS version dependent. Be
+# aware that this value may conflict with the setting of LP64 above.
+#
+#CXXARCHFLAGS		     = -arch i386 -arch x86_64
+
+#
+# Define USE_READLINE as yes if you want to build parts of Ice using
+# readline on platforms where readline is available (see
+# PLATFORM_HAS_READLINE in Make.rules.$(UNAME))
+#
+# readline is used by a number of Ice admin programs to provide
+# command history, an optional feature.
+#
+# readline is licensed by the Free Software Foundation under the GNU
+# Public License v2, and cannot be combined with GPL-incompatible
+# software in any program. In particular the OpenSSL license is
+# GPL-incompatible.
+#
+# If you combine Ice with more GPL-incompatible software, or have
+# licensed Ice under a commercial (non-GPL) license, you should ponder
+# the licensing implications of using readline.
+# 
+USE_READLINE		?= no
+
+#
+# If libbzip2 is not installed in a standard location where the
+# compiler can find it, set BZIP2_HOME to the bzip2 installation
+# directory.
+#
+#BZIP2_HOME		?= /opt/bzip2
+
+#
+# If Berkeley DB is not installed in a standard location where the
+# compiler can find it, set DB_HOME to the Berkeley DB installation
+# directory.
+#
+#DB_HOME		?= /opt/db
+
+#
+# If expat is not installed in a standard location where the compiler
+# can find it, set EXPAT_HOME to the expat installation directory.
+#
+#EXPAT_HOME		?= /opt/expat
+
+#
+# If OpenSSL is not installed in a standard location where the
+# compiler can find it, set OPENSSL_HOME to the OpenSSL installation
+# directory.
+#
+#OPENSSL_HOME		?= /opt/openssl
+
+#
+# If MCPP is not installed in a standard location where the compiler 
+# can find it, set MCPP_HOME to the Mcpp installation directory.
+#
+#MCPP_HOME		?= /opt/mcpp
+
+#
+# If libiconv is not installed in a standard location where the compiler 
+# can find it, set ICONV_HOME to the libiconv installation directory.
+#
+#ICONV_HOME		?= /opt/libiconv
+
+#
+# If readline is not installed in a standard location where the
+# compiler can find it, AND you want to use readline, set
+# READLINE_HOME to the readline installation directory.
+#
+#READLINE_HOME		?= /opt/readline
+
+#
+# If you want to build the deprecated SQL database plugins for IceStorm 
+# and IceGrid, set QT_HOME to the Qt installation directory, and go
+# to the database plugins directories to build them.
+#
+#
+QT_HOME                ?= /usr
+#QT_HOME		= /usr/local/Trolltech/Qt-4.5.3
+#QT_HOME		= /Library/Frameworks
+
+#
+# Generate position independent code unless GENPIC is set to no
+#
+#GENPIC			?= yes
+
+#
+# If building with MinGW and third party libraries are not installed
+# in the default location and THIRDPARTY_HOME is not set in your
+# environment variables, change the following setting to reflect the
+# installation location.
+#
+THIRDPARTY_HOME	?= "C:\Program Files\ZeroC\Ice-$(VERSION)-ThirdParty"
+
+#
+# Default Mutex protocol: one of PrioNone or PrioInherit.
+#
+#DEFAULT_MUTEX_PROTOCOL  ?= PrioNone
+
+#
+# Define CPP11 as yes if you want to enable C++11 features in GCC or 
+# Clang.
+#
+#CPP11     ?= yes
+
+# ----------------------------------------------------------------------
+# Don't change anything below this line!
+# ----------------------------------------------------------------------
+
+#
+# Common definitions
+#
+ice_language     = cpp
+ifneq ($(shell test "$(USE_BIN_DIST)" != "yes" -a -d $(top_srcdir)/../$(ice_language) && echo 0),0)
+    slice_translator = slice2cpp
+    ice_require_cpp  = 1
+endif
+
+ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
+    include $(top_srcdir)/config/Make.common.rules
+else
+    include $(top_srcdir)/../config/Make.common.rules
+endif
+
+bindir			= $(top_srcdir)/bin
+libdir			= $(top_srcdir)/lib
+headerdir		= $(top_srcdir)/include
+
+#
+# includedir is not handled the same as bindir and libdir
+# because it is used in the .depend files
+#
+ifdef ice_src_dist
+    includedir		= $(top_srcdir)/include
+else
+    includedir		= $(ice_dir)/include
+endif
+
+#
+# Platform specific definitions
+#
+include	 $(top_srcdir)/config/Make.rules.$(UNAME)
+
+install_includedir	:= $(prefix)/include
+install_docdir		:= $(prefix)/doc
+install_bindir	  	:= $(prefix)/$(binsubdir)$(cpp11suffix)
+install_libdir	  	:= $(prefix)/$(libsubdir)$(cpp11suffix)
+install_configdir 	:= $(prefix)/config
+
+ifneq ($(prefix),/usr)
+install_mandir		:= $(prefix)/man/man1
+else
+install_mandir		:= $(prefix)/share/man/man1
+endif
+
+ifneq ($(embedded_runpath_prefix),)
+    runpath_libdir	:= $(embedded_runpath_prefix)/$(libsubdir)
+else
+    create_runpath_symlink = no
+endif
+
+ifeq ($(DEFAULT_MUTEX_PROTOCOL), PrioInherit)
+    ICEUTIL_FLAGS           = -DICE_PRIO_INHERIT
+endif
+
+OPENSSL_FLAGS           += $(if $(OPENSSL_HOME),-I$(OPENSSL_HOME)/include)
+ifeq ($(OPENSSL_LIBS),)
+    OPENSSL_LIBS            = $(if $(OPENSSL_HOME),-L$(OPENSSL_HOME)/$(libsubdir)) -lssl -lcrypto
+endif
+OPENSSL_RPATH_LINK      = $(if $(OPENSSL_HOME),$(call rpathlink,$(OPENSSL_HOME)/$(libsubdir)))
+
+BZIP2_FLAGS             = $(if $(BZIP2_HOME),-I$(BZIP2_HOME)/include)
+ifeq ($(BZIP2_LIBS),)
+    BZIP2_LIBS              = $(if $(BZIP2_HOME),-L$(BZIP2_HOME)/$(libsubdir)) -lbz2
+endif
+BZIP2_RPATH_LINK        = $(if $(BZIP2_HOME),$(call rpathlink,$(BZIP2_HOME)/$(libsubdir)))
+
+ifeq ($(ICONV_LIBS),)
+    ICONV_LIBS              = $(if $(ICONV_HOME),-L$(ICONV_HOME)/$(libsubdir)) $(ICONV_LIB)
+endif
+
+ifneq ($(DB_HOME),)
+    DB_FLAGS             = -I$(DB_HOME)/include
+    ifeq ($(DB_LIBS),)
+      DB_LIBS              = -L$(DB_HOME)/$(libsubdir)$(cpp11suffix) -ldb_cxx
+    endif
+    DB_RPATH_LINK        = $(call rpathlink,$(DB_HOME)/$(libsubdir)$(cpp11suffix))
+else
+   ifeq ($(shell if [ -d /usr/include/db53 -a -d /usr/$(libsubdir)/db53 ] ; then echo yes; fi), yes)
+      DB_FLAGS          = -I/usr/include/db53
+      DB_LIBS           = -L/usr/$(libsubdir)/db53 -ldb_cxx
+   else
+      ifeq ($(shell if [ -d /usr/local/include/db53 -a -d /usr/local/$(libsubdir)/db53 ] ; then echo yes; fi), yes)
+          DB_FLAGS          = -I/usr/local/include/db53
+          DB_LIBS           = -L/usr/local/$(libsubdir)/db53 -ldb_cxx
+      else
+        DB_LIBS      = -ldb_cxx
+      endif
+   endif
+endif
+
+EXPAT_FLAGS             = $(if $(EXPAT_HOME),-I$(EXPAT_HOME)/include)
+ifeq ($(EXPAT_LIBS),)
+    EXPAT_LIBS              = $(if $(EXPAT_HOME),-L$(EXPAT_HOME)/$(libsubdir)) -lexpat
+endif
+EXPAT_RPATH_LINK        = $(if $(EXPAT_HOME),$(call rpathlink,$(EXPAT_HOME)/$(libsubdir)))
+
+ifeq ($(MCPP_LIBS),)
+    ifeq ($(MCPP_HOME),)
+        #
+        # If libmcpp.a is in the third-party subdirectory, we are building the core C++ distribution
+        # and we used that mcpp package.
+        #
+        ifneq ($(wildcard ../../../third-party/mcpp/lib/libmcpp.a),)
+            MCPP_HOME = ../../../third-party/mcpp
+        endif
+    endif
+    MCPP_LIBS              = $(if $(MCPP_HOME),-L$(MCPP_HOME)/$(libsubdir)) -lmcpp
+endif
+MCPP_RPATH_LINK        = $(if $(MCPP_HOME),$(call rpathlink,$(MCPP_HOME)/$(libsubdir)))
+
+
+ifeq ($(PLATFORM_HAS_READLINE),yes)
+    ifeq ($(USE_READLINE),yes)
+	READLINE_FLAGS  = -DHAVE_READLINE $(if $(READLINE_HOME),-I$(READLINE_HOME)/include)
+	READLINE_LIBS   = $(if $(READLINE_HOME),-L$(READLINE_HOME)/$(libsubdir)) -lreadline
+    endif
+endif
+
+ICECPPFLAGS		= -I$(slicedir)
+
+SLICE2CPPFLAGS		= $(ICECPPFLAGS)
+
+ifeq ($(ice_dir), /usr) 
+    LDFLAGS		= $(LDPLATFORMFLAGS) $(CXXFLAGS)
+else
+    CPPFLAGS	+= -I$(includedir)
+    ifdef ice_src_dist
+	LDFLAGS	= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
+    else
+	LDFLAGS	= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(ice_dir)/$(libsubdir)$(cpp11suffix)
+    endif
+endif
+
+ifeq ($(FLEX_NOLINE),yes)
+    FLEXFLAGS	       := -L
+else
+    FLEXFLAGS	       :=
+endif
+
+ifeq ($(BISON_NOLINE),yes)
+    BISONFLAGS		:= -dvtl
+else
+    BISONFLAGS		:= -dvt
+endif
+
+ifeq ($(mkshlib),)
+    $(error You need to define mkshlib in Make.rules.$(UNAME)) 
+endif
+
+ifeq ($(mktestname),)
+    mktestname	= $(1)$(EXE_EXT)
+endif
+
+ifeq ($(mktest),)
+    mktest 	  = $(CXX) $(LDFLAGS) -o $(@) $(2) $(3)
+endif
+
+ifdef ice_src_dist
+    SLICEPARSERLIB	= $(libdir)/$(call mklibfilename,Slice,$(VERSION))
+    SLICE2CPP		= $(bindir)/slice2cpp
+    SLICE2FREEZE	= $(bindir)/slice2freeze
+else
+    SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)$(cpp11suffix)/$(call mklibfilename,Slice,$(VERSION))
+    SLICE2CPP		= $(ice_dir)/$(binsubdir)$(cpp11suffix)/slice2cpp
+    SLICE2FREEZE	= $(ice_dir)/$(binsubdir)$(cpp11suffix)/slice2freeze
+endif
+
+ifeq ($(SLICE_LIBS),)
+    SLICE_LIBS		= -lSlice $(BASELIBS)
+endif
+
+ifeq ($(ICESSL_LIBS),)
+    ICESSL_LIBS         = -lIceSSL $(LIBS)
+endif
+
+EVERYTHING		= all depend clean install
+EVERYTHING_EXCEPT_ALL   = depend clean install
+
+.SUFFIXES:
+.SUFFIXES:		.cpp .c .o
+
+.cpp.o:
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+
+.c.o:
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
+
+$(HDIR)/%F.h: $(SDIR)/%F.ice $(SLICE2CPP) $(SLICEPARSERLIB)
+	rm -f $(HDIR)/$(*F)F.h $(*F)F.cpp
+	$(SLICE2CPP) $(SLICE2CPPFLAGS) $<
+	mv $(*F)F.h $(HDIR)
+	rm -f $(*F)F.cpp
+
+$(HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP) $(SLICEPARSERLIB)
+	rm -f $(HDIR)/$(*F).h $(*F).cpp
+	$(SLICE2CPP) $(SLICE2CPPFLAGS) $<
+	mv $(*F).h $(HDIR)
+
+%.h %.cpp: %.ice $(SLICE2CPP) $(SLICEPARSERLIB)
+	rm -f $(*F).h $(*F).cpp
+	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(*F).ice	
+
+#%.h %.cpp: %.y
+#	rm -f $(*F).h $(*F).cpp
+#	bison $(BISONFLAGS) $<
+#	mv $(*F).tab.c $(*F).cpp
+#	mv $(*F).tab.h $(*F).h
+#	rm -f $(*F).output
+
+#%.cpp: %.l
+#	flex $(FLEXFLAGS) $<
+#	rm -f $@
+#	echo '#include <IceUtil/ScannerConfig.h>' >> $@
+#	cat lex.yy.c >> $@
+#	rm -f lex.yy.c
+
+all:: $(SRCS) $(TARGETS)
+
+depend:: $(SRCS) $(patsubst $(SDIR)/%.ice,$(HDIR)/%.h,$(wildcard $(SDIR)/*F.ice)) $(SLICE_SRCS)
+	-rm -f .depend .depend.mak
+	if test -n "$(SRCS)" ; then \
+		$(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | $(ice_dir)/config/makedepend.py; \
+	fi
+	if test -n "$(SLICE_SRCS)" ; then \
+		if test -n "$(HDIR)"; then \
+			$(SLICE2CPP) --depend $(SLICE2CPPFLAGS) $(SLICE_SRCS) | $(ice_dir)/config/makedepend.py "\$$(HDIR)"; \
+		else \
+			$(SLICE2CPP) --depend $(SLICE2CPPFLAGS) $(SLICE_SRCS) | $(ice_dir)/config/makedepend.py; \
+		fi \
+	fi
+
+clean::
+	-rm -f $(TARGETS)
+	-rm -f core *.o *.bak
+
+ifneq ($(SLICE_SRCS),)
+clean::
+	rm -f $(addsuffix .cpp, $(basename $(notdir $(SLICE_SRCS))))
+	rm -f $(addsuffix .h, $(basename $(notdir $(SLICE_SRCS))))
+endif
+
+ifneq ($(HDIR),)
+clean::
+	rm -f $(addprefix $(HDIR), $(addsuffix .h, $(basename $(subst $(SDIR),, \
+	$(filter $(SDIR)/%.ice, $(SLICE_SRCS))))))
+endif
+
+ifneq ($(TEMPLATE_REPOSITORY),)
+clean::
+	rm -fr $(TEMPLATE_REPOSITORY)
+endif
+
+install::

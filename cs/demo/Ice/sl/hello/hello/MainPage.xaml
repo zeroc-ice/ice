@@ -1,0 +1,56 @@
+﻿<UserControl x:Class="hello.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
+
+    <StackPanel Margin="10, 10, 10, 10" HorizontalAlignment="Center">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
+                    Margin="5, 5, 5, 5">
+            <TextBlock Text="Host:" Height="25" Width="80" VerticalAlignment="Center"/>
+            <TextBox x:Name="txtHost" HorizontalAlignment="Left" 
+                        Text="localhost" 
+                        TextWrapping="NoWrap"
+                        VerticalAlignment="Top" Height="25" Width="320"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
+                    Margin="5, 5, 5, 5">
+            <TextBlock Text="Mode:" Height="25" Width="80" VerticalAlignment="Center"/>
+            <ComboBox x:Name="cmbModes" Height="25" Width="320" ItemsSource="{Binding}"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
+                    Margin="5, 5, 5, 5">
+            <TextBlock Text="Timeout:" Height="25" Width="80" VerticalAlignment="Center"/>
+            <Slider Height="25" Width="235" IsHitTestVisible="True" Minimum="0" Maximum="2" 
+                    SmallChange="0.1" LargeChange="0.1" ValueChanged="timeoutValueChanged"/>
+            <TextBox x:Name="txtTimeout" HorizontalAlignment="Right" 
+                        Text="0 ms" 
+                        TextWrapping="NoWrap"
+                        VerticalAlignment="Top" Height="25" Width="80"
+                        Margin="5, 0, 0, 0" IsReadOnly="True"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
+                    Margin="5, 5, 5, 5">
+            <TextBlock Text="Delay:" Height="25" Width="80" VerticalAlignment="Center"/>
+            <Slider Height="25" Width="235" IsHitTestVisible="True" Minimum="0" Maximum="2" 
+                    SmallChange="0.1" LargeChange="0.1" ValueChanged="delayValueChanged"/>
+            <TextBox x:Name="txtDelay" HorizontalAlignment="Right" 
+                        Text="0 ms" 
+                        TextWrapping="NoWrap"
+                        VerticalAlignment="Top" Height="25" Width="80"
+                        Margin="5, 0, 0, 0" IsReadOnly="True"/>
+        </StackPanel>
+        <Grid Margin="5, 5, 5, 5">
+            <TextBox x:Name="txtOutput"
+                     FontSize="12" Text="" TextWrapping="Wrap" IsEnabled="True" Height="120"
+                     Width="400" ScrollViewer.HorizontalScrollBarVisibility="Auto" 
+                     ScrollViewer.VerticalScrollBarVisibility="Auto" IsReadOnly="True"/>
+        </Grid>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
+                    Margin="5, 5, 5, 5">
+            <Button Name="btnSayHello" Content="Say Hello" Click="btnSayHelloClick" />
+            <Button Name="btnFlush" Content="Flush" Margin="5, 0, 0, 0" IsEnabled="False" Click="btnFlushClick" />
+            <Button Name="btnShutdown" Content="Shutdown" Margin="5, 0, 0, 0" Click="btnShutdownClick" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>

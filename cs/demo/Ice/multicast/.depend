@@ -1,0 +1,2 @@
+generated/Discovery.cs: ./Discovery.ice $(SLICE2CS) $(SLICEPARSERLIB)
+generated/Hello.cs: ./Hello.ice $(SLICE2CS) $(SLICEPARSERLIB)

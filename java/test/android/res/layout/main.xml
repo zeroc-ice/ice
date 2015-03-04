@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:padding="5dip"
+    >
+
+	<ListView xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:id="@android:id/list"
+	    android:layout_width="fill_parent" 
+	    android:layout_height="0dip"
+	    android:layout_weight="1"
+	    android:stackFromBottom="true"
+	        
+	 />    
+
+	<LinearLayout
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:paddingBottom="5dip"
+		>
+	
+		<TextView
+		    android:layout_width="0dip" 
+		    android:layout_height="wrap_content"
+		    android:layout_weight="30" 
+		    android:text="@string/ssl"
+		    />	 
+			
+		<CheckBox
+			android:id="@+id/secure"
+			android:layout_width="0dip"
+			android:layout_weight="70"
+			android:layout_height="wrap_content"
+			/>
+		
+		<TextView
+		    android:layout_width="0dip" 
+		    android:layout_height="wrap_content"
+		    android:layout_weight="30" 
+		    android:text="@string/ipv6"
+		    />	
+		    
+		<CheckBox
+			android:id="@+id/ipv6"
+			android:layout_width="0dip"
+			android:layout_weight="70"
+			android:layout_height="wrap_content"
+			/>
+	
+	</LinearLayout>
+</LinearLayout>

@@ -1,0 +1,27 @@
+#
+# The client reads this property to create the reference to the
+# "Throughput" object in the server.
+#
+Throughput.Proxy=throughput:default -p 10000 -h localhost
+
+#
+# Disable client-side ACM.
+#
+Ice.ACM.Client=0
+
+#
+# SSL Configuration
+#
+Ice.Plugin.IceSSL=IceSSL:createIceSSL
+IceSSL.DefaultDir=../../../../certs
+IceSSL.CertAuthFile=cacert.pem
+IceSSL.CertFile=c_rsa1024_pub.pem
+IceSSL.KeyFile=c_rsa1024_priv.pem
+
+#
+# IceMX configuration.
+#
+#Ice.Admin.Endpoints=tcp -h localhost -p 10003
+Ice.Admin.InstanceName=client
+IceMX.Metrics.Debug.GroupBy=id
+IceMX.Metrics.ByParent.GroupBy=parent

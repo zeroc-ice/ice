@@ -1,0 +1,94 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# This file is included by Make.rules when uname is Darwin.
+#
+
+CXX			= xcrun clang++
+
+CPPFLAGS 	        += -pthread
+CXXFLAGS		+= -Wall -Werror
+
+ifeq ($(OPTIMIZE),yes)
+     #
+     # By default we build binaries with both architectures when optimization is enabled.
+     #
+     ifeq ($(CXXARCHFLAGS),)
+     	CXXARCHFLAGS	:= -arch i386 -arch x86_64
+     endif   
+     CXXFLAGS		:= $(CXXARCHFLAGS) -O2 -DNDEBUG $(CXXFLAGS)
+else
+     CXXFLAGS		:= $(CXXARCHFLAGS) -g $(CXXFLAGS)
+endif
+
+ifeq ($(CPP11), yes)
+    CPPFLAGS += --std=c++11
+    CXXFLAGS += --stdlib=libc++
+endif
+
+#
+# C++ run-time libraries, necessary for linking some shared libraries.
+#
+CXXLIBS		=
+
+ifeq ($(RPATH_DIR),)
+    ifdef ice_src_dist
+        RPATH_DIR = @loader_path/$(libdir)
+    else
+        RPATH_DIR = $(runpath_libdir)
+    endif
+endif
+LDPLATFORMFLAGS     = -Wl,-rpath,$(RPATH_DIR)
+
+ifeq ($(CXX),g++)
+     LDPLATFORMFLAGS		+= -rdynamic
+endif
+
+
+ifdef ice_src_dist
+    shlibldflags    = $(CXXFLAGS) -L$(libdir)
+else
+    shlibldflags    = $(CXXFLAGS) -L$(ice_dir)/$(libsubdir)$(cpp11suffix)
+endif
+
+mklibfilename       	= $(if $(2),lib$(1).$(2).dylib,lib$(1).dylib)
+mksoname           	= $(if $(2),lib$(1).$(2).dylib,lib$(1).dylib)
+
+mklibname           	= lib$(1).dylib
+curdir			= $(shell pwd)
+
+mkshlib     = $(CXX)  -dynamiclib $(shlibldflags) -o $(1) -install_name @rpath/$(2) $(3) $(4)
+
+#
+# Avoid OpenSSL deprecation warnings on OS X
+#
+OPENSSL_FLAGS   	= -DMAC_OS_X_VERSION_MIN_REQUIRED=MAC_OS_X_VERSION_10_6
+
+BASELIBS		= -lIceUtil 
+LIBS			= -lIce $(BASELIBS)
+
+ICONV_LIB               = -liconv
+
+ICEUTIL_OS_LIBS         =
+ICE_OS_LIBS             = -ldl
+
+PLATFORM_HAS_READLINE   := yes
+
+#
+# QT is used only for the deprecated IceGrid and IceStorm SQL plugins
+#
+ifneq ($(QT_HOME),)
+   ifneq ($(QT_HOME), /Library/Frameworks)
+      # Frameworks are installed in the lib directory
+      QT_FLAGS             = -F$(QT_HOME)/lib
+      QT_LIBS              = -F$(QT_HOME)/lib
+   endif
+   QT_LIBS := $(QT_LIBS) -framework QtCore -framework QtSql
+endif

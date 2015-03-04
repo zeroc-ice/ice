@@ -1,0 +1,71 @@
+<icegrid>
+
+  <application name="Test">
+
+    <server-template id="IceGridNode">
+      <parameter name="id"/>
+      <parameter name="encoding" default=""/>
+      <server id="${id}" exe="${ice.bindir}/icegridnode" activation="manual">
+        <option>--nowarn</option>
+        <dbenv name="data"/>
+        <property name="IceGrid.Node.Endpoints" value="default"/>
+        <property name="IceGrid.InstanceName" value="TestIceGrid"/>
+        <property name="IceGrid.Node.Name" value="${server}"/>
+        <property name="IceGrid.Node.Data" value="${node.datadir}/servers/${server}/dbs/data"/>
+        <property name="IceGrid.Node.PropertiesOverride"
+                  value="${properties-override} Ice.ServerIdleTime=0 Ice.PrintProcessId=0 Ice.PrintAdapterReady=0"/>
+        <property name="Ice.Default.Locator" value="TestIceGrid/Locator:default -p 12050:default -p 12051:default -p 12052"/>
+        <property name="IceGrid.Node.Trace.Replica" value="0"/> 
+        <property name="IceGrid.Node.Trace.Adapter" value="0"/> 
+        <property name="Ice.Trace.Network" value="0"/>
+        <property name="Ice.Warn.Connections" value="0"/>
+        <property name="Ice.Admin.Endpoints" value=""/>
+
+        <property name="Ice.Default.EncodingVersion" value="${encoding}"/>
+      </server>
+    </server-template>
+
+    <server-template id="IceGridRegistry">
+      <parameter name="id"/>
+      <parameter name="port"/>
+      <parameter name="replicaName"/>
+      <parameter name="encoding" default=""/>
+      <parameter name="arg" default=""/>
+      <server id="${id}" exe="${ice.bindir}/icegridregistry" activation="manual">
+        <option>--nowarn</option>
+        <option>${arg}</option>
+        <dbenv name="data">
+          <!-- Try to make the test run a bit faster... -->
+          <dbproperty name="set_flags" value="DB_TXN_NOSYNC"/>
+        </dbenv>
+        <property name="IceGrid.InstanceName" value="TestIceGrid"/>
+        <property name="IceGrid.Registry.Client.Endpoints" value="default -p ${port}"/>
+        <property name="IceGrid.Registry.Server.Endpoints" value="default"/>
+        <property name="IceGrid.Registry.Internal.Endpoints" value="default"/>
+        <property name="IceGrid.Registry.SessionManager.Endpoints" value="default"/>
+        <property name="IceGrid.Registry.AdminSessionManager.Endpoints" value="default"/>
+        <property name="IceGrid.Registry.ReplicaName" value="${replicaName}"/>
+        <property name="IceGrid.Registry.Data" value="${node.datadir}/servers/${server}/dbs/data"/>
+        <property name="IceGrid.Registry.PermissionsVerifier" value="TestIceGrid/NullPermissionsVerifier"/>
+        <property name="IceGrid.Registry.SSLPermissionsVerifier" value="TestIceGrid/NullSSLPermissionsVerifier"/>
+        <property name="IceGrid.Registry.AdminPermissionsVerifier" value="TestIceGrid/NullPermissionsVerifier"/>
+        <property name="IceGrid.Registry.SessionTimeout" value="0"/>
+	<property name="IceGrid.Registry.DynamicRegistration" value="1"/>
+        <property name="Ice.Default.Locator" value="TestIceGrid/Locator:default -p 12050:default -p 12051:default -p 12052"/>
+        <property name="IceGrid.Registry.Trace.Replica" value="0"/> 
+        <property name="IceGrid.Registry.Trace.Node" value="0"/> 
+        <property name="Ice.Trace.Network" value="0"/>
+        <property name="Ice.Warn.Connections" value="0"/>
+        <property name="IceGrid.Registry.Trace.Locator" value="0"/> 
+        <property name="IceGrid.Registry.UserAccounts" value="${test.dir}/useraccounts.txt"/>
+        <property name="Ice.Admin.Endpoints" value=""/>
+        <property name="Ice.Plugin.DB" value="${db-plugin}"/>
+        <property name="IceGrid.SQL.DatabaseType" value="QSQLITE"/>
+
+        <property name="Ice.Default.EncodingVersion" value="${encoding}"/>
+      </server>
+    </server-template>
+
+  </application>
+
+</icegrid>

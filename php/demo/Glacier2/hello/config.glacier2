@@ -1,0 +1,23 @@
+#
+# Set the Glacier2 instance name.
+#
+Glacier2.InstanceName=DemoGlacier2
+
+#
+# The client-visible endpoint of Glacier2. This should be an endpoint
+# visible from the public Internet, and it should typically be secure.
+# 
+Glacier2.Client.Endpoints=tcp -p 4063 -h localhost
+
+# 
+# For this demo, we use the null permissions verifier. This permissions
+# verifier allows any user-id / password combination.
+# 
+Glacier2.PermissionsVerifier=DemoGlacier2/NullPermissionsVerifier
+
+#
+# The timeout for inactive sessions. If any client session is inactive
+# for longer than this value, the session expires and is removed. The
+# unit is seconds.
+#
+Glacier2.SessionTimeout=30

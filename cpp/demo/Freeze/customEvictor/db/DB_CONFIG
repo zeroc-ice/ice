@@ -1,0 +1,8 @@
+# 20K
+#set_cachesize 0 20480 1
+
+# about 128K
+#set_cachesize 0 128000 1
+
+# about 100MB
+#set_cachesize 0 100000000 1

@@ -1,0 +1,21 @@
+<!--
+// **********************************************************************
+//
+// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+-->
+<Application x:Class="Glacier2.chat.client.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Startup="start" ShutdownMode="OnLastWindowClose">
+    <Application.Resources>
+        <Style x:Key="Menu">
+            <Setter Property="MenuItem.FontFamily" Value="Times New Romans"/>
+            <Setter Property="MenuItem.FontSize" Value="12"/>
+        </Style>
+    </Application.Resources>
+</Application>

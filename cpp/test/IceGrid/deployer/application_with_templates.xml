@@ -1,0 +1,18 @@
+<icegrid>
+
+  <application name="test">
+
+    <!-- Include server templates -->
+    <include descriptor="icebox.xml"/>
+    <include descriptor="server.xml"/>    
+
+    <node name="localnode">
+      <server-instance template="IceBoxTemplate" name="IceBox1"/>
+      <server-instance template="IceBoxTemplate" name="IceBox2"/>
+      <server-instance template="ServerTemplate" name="Server1"/>
+      <server-instance template="ServerTemplate" name="Server2"/>
+    </node>
+
+  </application>
+
+</icegrid>

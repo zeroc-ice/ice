@@ -1,0 +1,28 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+<project name="test_Freeze" default="all" basedir=".">
+
+    <target name="all">
+        <ant dir="dbmap"/>
+        <ant dir="complex"/>
+        <ant dir="evictor"/>
+        <ant dir="fileLock"/>
+    </target>
+
+    <target name="clean">
+        <ant dir="dbmap" target="clean"/>
+        <ant dir="complex" target="clean"/>
+        <ant dir="evictor" target="clean"/>
+        <ant dir="fileLock" target="clean"/>
+    </target>
+
+</project>

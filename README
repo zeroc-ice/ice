@@ -1,0 +1,7 @@
+This archive contains the Ice source code for the C++, Java, .NET,
+Python, Ruby and PHP language mappings. The vsaddin subdirectory
+contains the source code for the Ice Visual Studio Add-In.
+
+For build and installation instructions, please refer to the manual:
+
+http://doc.zeroc.com/display/Rel/Ice+3.5.1+Build+Instructions

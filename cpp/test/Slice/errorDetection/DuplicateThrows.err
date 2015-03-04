@@ -1,0 +1,4 @@
+DuplicateThrows.ice:17: operation `op' has a throws clause with a duplicate exception: `e'
+DuplicateThrows.ice:18: operation `op' has a throws clause with a duplicate exception: `e'
+DuplicateThrows.ice:19: operation `op' has a throws clause with a duplicate exception: `e2'
+DuplicateThrows.ice:20: operation `op' has a throws clause with duplicate exceptions: `e', `e2'

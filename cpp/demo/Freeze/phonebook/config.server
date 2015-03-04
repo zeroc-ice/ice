@@ -1,0 +1,62 @@
+#
+# Configure the server endpoints.
+#
+PhoneBook.Endpoints=tcp -h localhost -p 10000
+
+#
+# Set the evictor size. The size set here (3) is far too small for
+# real-world applications. However, for the purposes of this demo,
+# setting the size to 3 allows us to see the operation of the evictor
+# with evictor tracing.
+#
+EvictorSize=3
+
+#
+# Set the save period for the contacts Freeze evictor
+# to 10 seconds.
+#
+Freeze.Evictor.db.contacts.SavePeriod=10000
+
+#
+# Freeze Evictor Tracing.
+#
+# 0 = No evictor activity trace (default). 
+# 1 = Trace Ice object and facet creation and destruction, facet
+#     streaming time, facet saving time, object eviction (every 50
+#     objects) and evictor deactivation.
+# 2 = Also trace object lookups, and all object evictions. 
+# 3 = Also trace object retrieval from the database.
+#
+Freeze.Trace.Evictor=2
+
+#
+# Freeze Database Environment Tracing.
+#
+# 0 = No database environment activity trace (default).
+# 1 = Trace database open and close.
+# 2 = Also trace checkpoints and the removal of old log files.
+#
+Freeze.Trace.DbEnv=2
+
+#
+# Warn about connection exceptions
+#
+Ice.Warn.Connections=1
+
+#
+# Network Tracing
+#
+# 0 = no network tracing
+# 1 = trace connection establishment and closure
+# 2 = like 1, but more detailed
+# 3 = like 2, but also trace data transfer
+#
+#Ice.Trace.Network=1
+
+#
+# Protocol Tracing
+#
+# 0 = no protocol tracing
+# 1 = trace protocol messages
+#
+#Ice.Trace.Protocol=1

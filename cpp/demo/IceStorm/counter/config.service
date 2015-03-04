@@ -1,0 +1,65 @@
+#
+# The IceStorm service instance name.
+#
+IceStorm.InstanceName=DemoIceStorm
+
+#
+# This property defines the endpoints on which the IceStorm
+# TopicManager listens.
+#
+IceStorm.TopicManager.Endpoints=default -h localhost -p 10000
+#
+# This property defines the endpoints on which the topic
+# publisher objects listen.
+#
+IceStorm.Publish.Endpoints=default -h localhost
+
+#
+# TopicManager Tracing
+#
+# 0 = no tracing
+# 1 = trace topic creation, subscription, unsubscription
+# 2 = like 1, but with more detailed subscription information
+#
+IceStorm.Trace.TopicManager=2
+
+#
+# Topic Tracing
+#
+# 0 = no tracing
+# 1 = trace unsubscription diagnostics
+# 2 = like 1, but with more detailed subscription information
+#
+IceStorm.Trace.Topic=1
+
+#
+# Subscriber Tracing
+#
+# 0 = no tracing
+# 1 = subscriber diagnostics (subscription, unsubscription, event
+#     propagation failures)
+# 2 = like 1, but with more detailed subscription information
+#
+IceStorm.Trace.Subscriber=1
+
+#
+# Amount of time in milliseconds between flushes for batch mode
+# transfer. The minimum allowable value is 100ms.
+#
+IceStorm.Flush.Timeout=2000
+
+#
+# Network Tracing
+#
+# 0 = no network tracing
+# 1 = trace connection establishment and closure
+# 2 = like 1, but more detailed
+# 3 = like 2, but also trace data transfer
+#
+#Ice.Trace.Network=1
+
+#
+# This property defines the home directory of the Freeze 
+# database environment for the IceStorm service.
+#
+Freeze.DbEnv.IceStorm.DbHome=db

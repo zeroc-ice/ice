@@ -1,0 +1,63 @@
+#
+# Configure the server endpoints.
+#
+SessionFactory.Endpoints=tcp -h localhost -p 10000:ssl -h localhost -p 10001
+
+# JDBC configuration.
+JDBC.Username=USER
+JDBC.Password=PASSWORD
+JDBC.Url=jdbc:mysql://localhost/library
+
+# The number of connections in the JDBC connection pool. This number
+# should be at least as big as the number of the threads in the server
+# thread pool.
+JDBC.NumConnections=5
+
+# Number of threads in the server-side dispatch thread pool.
+Ice.ThreadPool.Server.Size=5
+
+#
+# How long to keep sessions alive with no activity. Its best to use
+# the same value as config.glacier2.
+#
+SessionTimeout=30
+
+#
+# Warn about connection exceptions
+#
+Ice.Warn.Connections=1
+
+#
+# Network Tracing
+#
+# 0 = no network tracing
+# 1 = trace connection establishment and closure
+# 2 = like 1, but more detailed
+# 3 = like 2, but also trace data transfer
+#
+#Ice.Trace.Network=1
+
+#
+# Protocol Tracing
+#
+# 0 = no protocol tracing
+# 1 = trace protocol messages
+#
+#Ice.Trace.Protocol=1
+
+#
+# Security Tracing
+#
+# 0 = no security tracing
+# 1 = trace messages
+#
+#IceSSL.Trace.Security=1
+
+#
+# SSL Configuration
+#
+Ice.Plugin.IceSSL=IceSSL.PluginFactory
+IceSSL.VerifyPeer=0
+IceSSL.DefaultDir=../../../../certs
+IceSSL.Keystore=server.jks
+IceSSL.Password=password

@@ -1,0 +1,168 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# This file is included by Make.rules when uname is Linux.
+#
+
+USE_SPARC_ASM           = irrelevant
+MACHINE                 = $(shell uname -m)
+SUSE_i586		= $(shell grep i586 /etc/SuSE-release 2>/dev/null)
+
+ifneq ($(shell grep 'release 4' /etc/redhat-release 2>/dev/null),)
+   NPTL_LIB		= -L/usr/$(libsubdir)/nptl
+   NPTL_FLAGS		= -I/usr/include/nptl
+endif
+
+#
+# Default compiler is c++ (aka g++).
+#
+ifeq ($(CXX),)
+   CXX			= g++
+endif
+
+ifeq ($(CXX),c++)
+   CXX			= g++
+endif
+
+ifeq ($(CXX),g++)
+
+    ifneq ($(SUSE_i586),)
+        CXXARCHFLAGS	+= -march=i586
+    endif
+
+    ifeq ($(CPP11), yes)
+        CPPFLAGS += -std=c++0x
+    endif
+
+   ifeq ($(MACHINE),sparc64)
+      #
+      # We are an ultra, at least, and so have the atomic instructions
+      #
+      $(warning ===================================================================) 
+      $(warning Linux on SPARC is currently unsupported. The Ice team does not)
+      $(warning maintain SPARC specific portions of the source code or build)
+      $(warning system. Contact sales@zeroc.com if you wish to sponsor official)
+      $(warning support.)
+      $(warning ===================================================================) 
+      USE_SPARC_ASM	= yes
+      CXXARCHFLAGS	+= -mcpu=ultrasparc -pipe -Wno-deprecated -DUSE_SPARC_ASM
+   endif
+
+   ifeq ($(MACHINE),sparc)
+      #
+      # We are a sun4m or sun4c
+      # On sun4m, there is a bug in some CPU/kernel/gcc configurations which
+      # prevent us from using '-mcpu=v8'
+      #
+      $(warning ===================================================================) 
+      $(warning Linux on SPARC is currently unsupported. The Ice team does not)
+      $(warning maintain SPARC specific portions of the source code or build)
+      $(warning system. Contact sales@zeroc.com if you wish to sponsor official)
+      $(warning support.)
+      $(warning ===================================================================) 
+      USE_SPARC_ASM	= no
+      CXXARCHFLAGS	+= -mtune=v8 -pipe -Wno-deprecated -DICE_USE_MUTEX_SHARED
+   endif
+
+   ifeq ($(MACHINE),x86_64)
+      ifeq ($(LP64),yes)
+         CXXARCHFLAGS	+= -m64
+      else
+         CXXARCHFLAGS	+= -m32
+      endif
+   endif
+
+   CXXFLAGS		= $(CXXARCHFLAGS) -Wall -Werror -pthread
+
+   ifneq ($(GENPIC),no)
+      CXXFLAGS		+= -fPIC
+   endif
+
+   ifeq ($(OPTIMIZE),yes)
+      CXXFLAGS		+= -O2 -DNDEBUG
+   else
+      CXXFLAGS		+= -g 
+   endif
+
+   #
+   # C++ run-time libraries, necessary for linking some shared libraries.
+   #
+   CXXLIBS		=
+
+   mkshlib		= $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4)
+
+   mklib		= ar cr $(1) $(2)
+
+   rpathlink            = -Wl,-rpath-link,$(1) 
+
+   ifneq ($(embedded_runpath_prefix),)
+      LDPLATFORMFLAGS      = -Wl,--enable-new-dtags -Wl,-rpath,$(runpath_libdir)
+   else
+      LDPLATFORMFLAGS      = -Wl,--enable-new-dtags
+   endif
+
+   LDPLATFORMFLAGS	+= -rdynamic
+
+endif
+
+ifeq ($(CXX),icpc)
+   $(warning ===================================================================) 
+   $(warning Intel C++ is currently not supported. The Ice team does not)
+   $(warning maintain Intel C++ specific portions of the source code or build)
+   $(warning system.  Contact sales@zeroc.com if you wish to sponsor official)
+   $(warning support.)
+   $(warning ===================================================================) 
+   CXXFLAGS		= -D_REENTRANT    
+
+   ifneq ($(GENPIC),no)
+      CXXFLAGS		+= -fPIC
+   endif
+
+   ifeq ($(OPTIMIZE),yes)
+      CXXFLAGS		+= -O2 -DNDEBUG
+   else
+      CXXFLAGS		+= -g
+   endif
+
+   #
+   # C++ run-time libraries, necessary for linking some shared libraries.
+   #
+   CXXLIBS		=
+
+   mkshlib		= $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4) -lpthread
+
+   mklib		= ar cr $(1) $(2)
+
+   rpathlink            = -Wl,-rpath-link,$(1) 
+
+endif
+
+BASELIBS		= -lIceUtil
+ifneq ($(NPTL_LIB),)
+    CXXFLAGS		+= $(NPTL_FLAGS)
+    BASELIBS		:= $(NPTL_LIB) $(BASELIBS)
+endif
+
+LIBS			= $(BZIP2_RPATH_LINK) -lIce $(BASELIBS)
+
+ICEUTIL_OS_LIBS         = -lrt
+ICE_OS_LIBS             = -ldl
+
+PLATFORM_HAS_READLINE   = yes
+
+
+#
+# QT is used only for the deprecated IceGrid and IceStorm SQL plugins
+#
+ifneq ($(QT_HOME),)
+   QT_FLAGS             = -I$(QT_HOME)/include
+   QT_LIBS              = -L$(QT_HOME)/$(libsubdir) -lQtCore -lQtSql
+   QT_RPATH_LINK        = $(call rpathlink,$(QT_HOME)/$(libsubdir))
+endif

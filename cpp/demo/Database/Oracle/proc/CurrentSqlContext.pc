@@ -1,0 +1,171 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+#include <Ice/Ice.h>
+#include <CurrentSqlContext.h>
+#include <sqlca.h>
+#include <Util.h>
+
+using namespace std;
+
+#ifndef TRACE
+// #   define TRACE 1
+#endif
+
+#ifdef _MSC_VER
+   #define __thread __declspec(thread)
+#endif
+
+namespace
+{
+
+//
+// Each CurrentSqlContext object gets its own slot (index) in the vector
+// (and there is a separate vector in each thread)
+//
+__thread std::vector<sql_context>* _current = 0;
+size_t _currentIndex = 0;
+
+
+class Notification : public Ice::ThreadNotification
+{
+public:
+    
+    Notification(size_t index) :
+        _index(index)
+    {
+    }
+
+    virtual void start()
+    {
+    }
+
+    virtual void stop()
+    {
+        if(_current != 0 && _index < _current->size())
+        {
+#ifdef TRACE
+            cerr << "Disconnecting from Oracle in thread " << IceUtil::ThreadControl().id() << endl;
+#endif
+            EXEC SQL BEGIN DECLARE SECTION;
+            sql_context ctx = (*_current)[_index];
+            EXEC SQL END DECLARE SECTION;
+            
+            if(ctx != 0)
+            {
+                (*_current)[_index] = 0;
+                EXEC SQL CONTEXT USE :ctx;
+
+                sqlca sqlca;
+                EXEC SQL ROLLBACK RELEASE;
+                EXEC SQL CONTEXT FREE :ctx;
+            }
+
+            if(find_if(_current->begin(), _current->end(), bind2nd(not_equal_to<sql_context>(), static_cast<void*>(0)))
+               == _current->end())
+            {
+#ifdef TRACE
+                cerr << "Deleting _current in thread " << IceUtil::ThreadControl().id() << endl;
+#endif
+                delete _current;
+                _current = 0;
+            }
+        }
+    }
+
+private:
+    const size_t _index;
+};
+
+
+}
+
+namespace
+{
+IceUtil::Mutex* _globalMutex = 0;
+class Init
+{
+public:
+
+	Init()
+	{
+             _globalMutex = new IceUtil::Mutex();
+	}
+	
+	~Init()
+	{
+	    delete _globalMutex;
+	    _globalMutex = 0;
+	}
+};
+
+Init init;
+}
+
+CurrentSqlContext::CurrentSqlContext(const string& connectInfo) :
+    _connectInfo(connectInfo)
+{
+    {
+        IceUtil::Mutex::Lock lock(*_globalMutex);
+        _index = _currentIndex++;
+    }
+    _hook = new Notification(_index);
+}
+
+Ice::ThreadNotificationPtr
+CurrentSqlContext::getHook() const
+{ 
+    return _hook;
+}
+
+CurrentSqlContext::operator sql_context() const
+{
+    if(_current == 0)
+    {
+        _current = new std::vector<sql_context>(_index + 1);
+    }
+    if(_index >= _current->size())
+    {
+        _current->resize(_index + 1);
+    }
+
+    EXEC SQL BEGIN DECLARE SECTION;
+    sql_context ctx = (*_current)[_index];
+    const char* connectInfo = _connectInfo.c_str();
+    EXEC SQL END DECLARE SECTION;
+    
+    EXEC SQL WHENEVER SQLERROR DO handleSqlError(sqlca, ctx);
+
+    if(ctx == 0)
+    {
+#ifdef TRACE
+        cerr << "Connecting to Oracle in thread " << IceUtil::ThreadControl().id() << endl;
+#endif
+        //
+        // Allocate and connect
+        //
+        sqlca sqlca;
+        
+        EXEC SQL CONTEXT ALLOCATE :ctx;
+        EXEC SQL CONTEXT USE :ctx;
+        EXEC SQL CONNECT :connectInfo;
+
+        (*_current)[_index] = ctx;
+    }
+
+    return ctx;
+
+}
+
+
+
+
+
+
+

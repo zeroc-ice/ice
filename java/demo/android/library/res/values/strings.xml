@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Hello World, LoginActivity</string>
+    <string name="app_name">Library</string>
+    <string name="menu_save">Save</string>
+    <string name="menu_discard">Discard changes</string>
+    <string name="menu_edit">Edit</string>
+    <string name="menu_delete">Delete book</string>
+    <string name="menu_add">Add</string>
+    <string name="menu_logout">Logout</string>
+</resources>

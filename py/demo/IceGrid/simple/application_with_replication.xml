@@ -1,0 +1,43 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+<icegrid>
+
+  <application name="Simple">
+
+    <server-template id="SimpleServer">
+      <parameter name="index"/>
+      <server id="SimpleServer-${index}" exe="python" activation="on-demand">
+        <option>Server.py</option>
+        <adapter name="Hello" endpoints="tcp -h localhost" replica-group="ReplicatedHelloAdapter"/>
+        <property name="Identity" value="hello"/>
+
+        <property name="IceMX.Metrics.Debug.GroupBy" value="id"/>
+        <property name="IceMX.Metrics.Debug.Disabled" value="1"/>
+        <property name="IceMX.Metrics.ByParent.GroupBy" value="parent"/>
+        <property name="IceMX.Metrics.ByParent.Disabled" value="1"/>
+      </server>
+    </server-template>
+
+    <replica-group id="ReplicatedHelloAdapter">
+      <load-balancing type="round-robin"/>
+      <object identity="hello" type="::Demo::Hello"/>
+    </replica-group>
+
+    <node name="node1">
+      <server-instance template="SimpleServer" index="1"/>
+      <server-instance template="SimpleServer" index="2"/>
+      <server-instance template="SimpleServer" index="3"/>
+    </node>
+
+  </application>
+
+</icegrid>

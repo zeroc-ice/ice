@@ -1,0 +1,24 @@
+#
+# The IceGrid instance name.
+#
+IceGrid.InstanceName=DemoIceGrid
+
+#
+# IceGrid registry configuration.
+#
+IceGrid.Registry.Client.Endpoints=default -h localhost -p 12000 -t 10000
+IceGrid.Registry.Server.Endpoints=default -h localhost -t 10000
+IceGrid.Registry.Internal.Endpoints=default -h localhost -t 10000
+IceGrid.Registry.Data=db/master
+IceGrid.Registry.PermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
+IceGrid.Registry.AdminPermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
+
+Ice.StdErr=db/master/stderr.txt
+Ice.StdOut=db/master/stdout.txt
+
+#
+# Trace properties.
+#
+Ice.ProgramName=Master
+IceGrid.Registry.Trace.Node=2
+IceGrid.Registry.Trace.Replica=2

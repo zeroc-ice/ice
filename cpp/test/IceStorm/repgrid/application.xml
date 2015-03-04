@@ -1,0 +1,116 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+<icegrid>
+
+  <application name="Test" import-default-templates="true">
+
+    <!--
+	This is the IceStorm-HA template, except we include
+        configuration for running with SQLite.
+    -->
+    <service-template id="IceStorm-HA-withsql">
+
+      <parameter name="instance-name" default="${application}.IceStorm"/>
+      <parameter name="node-id"/>
+      <parameter name="topic-manager-endpoints" default="default"/>
+      <parameter name="publish-endpoints" default="default"/>
+      <parameter name="node-endpoints" default="default"/>
+      <parameter name="flush-timeout" default="1000"/>
+      <parameter name="publish-replica-group"/>
+      <parameter name="topic-manager-replica-group"/>
+
+      <service name="${instance-name}${node-id}" entry="IceStormService,35:createIceStorm">
+
+        <dbenv name="${service}"/>
+
+        <adapter name="${service}.TopicManager"
+                 id="${instance-name}${node-id}.TopicManager" 
+                 endpoints="${topic-manager-endpoints}"
+                 replica-group="${topic-manager-replica-group}"/>
+
+        <adapter name="${service}.Publish" 
+                 id="${instance-name}${node-id}.Publish" 
+                 endpoints="${publish-endpoints}"
+                 replica-group="${publish-replica-group}"/>
+
+        <adapter name="${service}.Node"
+                 id="${instance-name}${node-id}.Node" 
+                 endpoints="${node-endpoints}"/>
+
+        <properties>
+           <property name="${service}.InstanceName" value="${instance-name}"/>
+           <property name="${service}.NodeId" value="${node-id}"/>
+           <property name="${service}.Flush.Timeout" value="${flush-timeout}"/>
+           <property name="Ice.Plugin.DB" value="${db-plugin}"/>
+           <property name="${service}.SQL.DatabaseType" value="QSQLITE"/>
+           <property name="${service}.SQL.DatabaseName" value="db/${instance-name}${node-id}.db"/>
+        </properties>
+      </service>
+
+    </service-template>
+
+    <!--
+	This is the IceStorm-HA template, except we use a variable
+        substitution for the icebox executable.
+    -->
+    <server-template id="IceStorm-HA-withsub">
+
+      <parameter name="instance-name" default="${application}.IceStorm"/>
+      <parameter name="node-id"/>
+      <parameter name="topic-manager-endpoints" default="default"/>
+      <parameter name="publish-endpoints" default="default"/>
+      <parameter name="node-endpoints" default="default"/>
+      <parameter name="flush-timeout" default="1000"/>
+      <parameter name="publish-replica-group"/>
+      <parameter name="topic-manager-replica-group"/>
+
+      <icebox id="${instance-name}${node-id}" exe="${icebox.exe}" activation="on-demand">
+        <service-instance template="IceStorm-HA-withsql"
+			  instance-name="${instance-name}" 
+			  node-id="${node-id}" 
+			  topic-manager-endpoints="${topic-manager-endpoints}"
+			  publish-endpoints="${publish-endpoints}"
+			  node-endpoints="${node-endpoints}"
+			  flush-timeout="${flush-timeout}"
+                          publish-replica-group="${publish-replica-group}"
+                          topic-manager-replica-group="${topic-manager-replica-group}"/>
+      </icebox>
+
+   </server-template>
+
+     <replica-group id="PublishReplicaGroup">
+     </replica-group>
+
+     <replica-group id="TopicManagerReplicaGroup">
+       <object identity="Test.IceStorm/TopicManager" type="::IceStorm::TopicManager"/>
+     </replica-group>
+
+     <node name="localnode">
+       <server-instance template="IceStorm-HA-withsub"
+        node-id="1" publish-replica-group="PublishReplicaGroup"
+        topic-manager-replica-group="TopicManagerReplicaGroup"/>
+
+      <icebox id="Test.IceStorm" exe="${icebox.exe}" activation="on-demand">
+        <service-instance template="IceStorm-HA-withsql"
+			  node-id="2"
+       	                  publish-replica-group="PublishReplicaGroup"
+                          topic-manager-replica-group="TopicManagerReplicaGroup"/>
+        <service-instance template="IceStorm-HA-withsql"
+			  node-id="3"
+       	                  publish-replica-group="PublishReplicaGroup"
+                          topic-manager-replica-group="TopicManagerReplicaGroup"/>
+      </icebox>
+     </node>
+
+  </application>
+
+</icegrid>

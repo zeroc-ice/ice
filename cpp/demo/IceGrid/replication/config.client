@@ -1,0 +1,19 @@
+#
+# The IceGrid locator proxy.
+#
+Ice.Default.Locator=DemoIceGrid/Locator:default -h localhost -p 12000:default -h localhost -p 12001:default -h localhost -p 12002
+
+Ice.Override.Timeout=10000
+
+#
+# Trace properties.
+#
+#Ice.Trace.Network=1
+#Ice.Trace.Locator=1
+
+#
+# IceGrid admin properties to allow running IceGrid admin clients.
+#
+IceGridAdmin.Username=benoit
+IceGridAdmin.Password=dummy
+

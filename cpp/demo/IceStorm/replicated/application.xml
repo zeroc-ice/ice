@@ -1,0 +1,79 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+<icegrid>
+
+  <application name="DemoIceStorm">
+
+     <properties id="mx">
+       <property name="IceMX.Metrics.Debug.GroupBy" value="id"/>
+       <property name="IceMX.Metrics.Debug.Disabled" value="1"/>
+       <property name="IceMX.Metrics.ByParent.GroupBy" value="parent"/>
+       <property name="IceMX.Metrics.ByParent.Disabled" value="1"/>
+     </properties>
+   
+     <server-template id="IceStorm">
+       <parameter name="index"/>
+       <parameter name="topic-manager-endpoints" default="default -h localhost"/>
+       <parameter name="publish-endpoints" default="default -h localhost"/>
+       <parameter name="node-endpoints" default="default -h localhost"/>
+       <parameter name="instance-name"/>
+
+       <icebox id="${instance-name}-${index}" exe="icebox" activation="on-demand">
+
+         <properties>
+           <properties refid="mx"/>
+         </properties>
+      
+         <service name="IceStorm" entry="IceStormService,35:createIceStorm">
+
+           <dbenv name="${service}"/>
+
+           <adapter name="${service}.TopicManager"
+                    endpoints="${topic-manager-endpoints}"
+                    replica-group="${instance-name}-TopicManagerReplicaGroup"/>
+
+      	   <adapter name="${service}.Publish" 
+                    endpoints="${publish-endpoints}" 
+                    replica-group="${instance-name}-PublishReplicaGroup"/>
+
+     	   <adapter name="${service}.Node" 
+                    endpoints="${node-endpoints}"/>
+           
+           <properties>
+             <properties refid="mx"/>
+             <property name="${service}.InstanceName" value="${instance-name}"/>
+             <property name="${service}.Trace.TopicManager" value="2"/>
+             <property name="${service}.Trace.Topic" value="1"/>
+             <property name="${service}.Trace.Subscriber" value="1"/>
+             <property name="${service}.Trace.Election" value="1"/>
+             <property name="${service}.NodeId" value="${index}"/>
+           </properties>
+
+         </service>
+       </icebox>
+     </server-template>
+
+     <replica-group id="DemoIceStorm-PublishReplicaGroup">
+     </replica-group>
+
+     <replica-group id="DemoIceStorm-TopicManagerReplicaGroup">
+       <object identity="DemoIceStorm/TopicManager" type="::IceStorm::TopicManager"/>
+     </replica-group>
+
+     <node name="node1">
+       <server-instance template="IceStorm" index="1" instance-name="DemoIceStorm"/>
+       <server-instance template="IceStorm" index="2" instance-name="DemoIceStorm"/>
+       <server-instance template="IceStorm" index="3" instance-name="DemoIceStorm"/>
+     </node>
+
+  </application>
+
+</icegrid>

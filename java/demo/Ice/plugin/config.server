@@ -1,0 +1,33 @@
+#
+# Warn about connection exceptions
+#
+Ice.Warn.Connections=1
+
+#
+# Network Tracing
+#
+# 0 = no network tracing
+# 1 = trace connection establishment and closure
+# 2 = like 1, but more detailed
+# 3 = like 2, but also trace data transfer
+#
+Ice.Trace.Network=1
+
+#
+# Protocol Tracing
+#
+# 0 = no protocol tracing
+# 1 = trace protocol messages
+#
+#Ice.Trace.Protocol=1
+
+#
+# Logger Plugin Configuration
+#
+Ice.Plugin.Logger=LoggerPluginFactoryI
+
+#
+# Tracing Plugin Configuration
+#
+Ice.Plugin.Hello=HelloPluginFactoryI
+Hello.Endpoints=tcp -h localhost -p 10000

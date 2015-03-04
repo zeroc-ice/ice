@@ -1,0 +1,30 @@
+#
+# The IceGrid locator proxy.
+#
+Ice.Default.Locator=DemoIceGrid/Locator:ssl -h localhost -p 4062 -t 10000:ssl -h localhost -p 14062 -t 10000
+
+#
+# IceGrid node configuration.
+#
+IceGrid.Node.Name=Node
+IceGrid.Node.Endpoints=ssl -h localhost -t 10000
+IceGrid.Node.Data=db/node
+
+#
+# Trace properties.
+#
+Ice.ProgramName=Node
+IceGrid.Node.Trace.Replica=2
+IceGrid.Node.Trace.Activator=1
+
+#
+# SSL Configuration
+#
+Ice.Plugin.IceSSL=IceSSL:createIceSSL
+IceSSL.DefaultDir=certs
+IceSSL.CertAuthFile=ca_cert.pem
+IceSSL.CertFile=node_cert.pem
+IceSSL.KeyFile=node_key.pem
+
+IceSSL.TrustOnly.Client=CN="Server";CN="Master";CN="Slave"
+IceSSL.TrustOnly.Server=CN="Master";CN="Slave"

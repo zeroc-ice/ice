@@ -1,0 +1,233 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# Select an installation base directory. The directory will be created
+# if it does not exist.
+#
+
+prefix			?= /opt/Ice-$(VERSION)
+
+#
+# The "root directory" for runpath embedded in executables. Can be unset
+# to avoid adding a runpath to Ice executables.
+#
+embedded_runpath_prefix  ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
+
+#
+# Define OPTIMIZE as yes if you want to build with optimization.
+# Otherwise the Ice extension is built with debug information.
+#
+
+#OPTIMIZE		= yes
+
+#
+# Define LP64 as yes if you want to build in 64 bit mode on a platform
+# that supports both 32 and 64 bit.
+#
+#LP64			:= yes
+
+#
+# If you have not built Ice for C++ from the cpp subdirectory or if
+# you have installed the Ice @ver@ for C++ development kit in a
+# non-standard location, set the ICE_HOME to the installation directory. 
+#
+#ICE_HOME	= C:\Program Files\ZeroC\Ice-$(VERSION)
+
+#
+# If the Ruby interpreter is in your PATH, the settings below will
+# work properly in most cases. If you want to use a particular
+# installation of Ruby, set RUBY_HOME with the installation directory.
+#
+
+ifneq ($(RUBY_HOME),)
+    RUBY = $(RUBY_HOME)/bin/ruby
+else
+    RUBY = ruby
+endif
+
+ifeq ($(RUBY18), yes)
+	RUBY_MAJOR_VERSION	= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(MAJOR)")')
+	RUBY_MINOR_VERSION	= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(MINOR)")')
+
+	ifeq ("$(RUBY_MAJOR_VERSION).$(RUBY_MINOR_VERSION)", "1.8")
+		RUBY_FLAGS		= -I$(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(archdir)")')
+	else
+		RUBY_FLAGS		= -I$(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(rubyhdrdir)")') \
+							-I$(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(rubyhdrdir)/$$(arch)")')
+	endif
+
+	LIB_DIR			= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(libdir)")')
+
+	RUBY_SHARED		= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::MAKEFILE_CONFIG["ENABLE_SHARED"]')
+
+	ifeq ("$(RUBY_SHARED)","yes")
+		RUBY_LIB		= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("-l$$(RUBY_SO_NAME)")')
+	else
+		RUBY_LIB		= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("-l$$(RUBY_SO_NAME)-static")')
+	endif
+else
+	RUBY_MAJOR_VERSION	= $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(MAJOR)")')
+	RUBY_MINOR_VERSION	= $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(MINOR)")')
+
+	RUBY_LIB_DIR = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(rubylibdir)")')
+	RUBY_ARCH = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(arch)")')
+
+	ifeq ("$(RUBY_MAJOR_VERSION).$(RUBY_MINOR_VERSION)", "1.8")
+		RUBY_FLAGS		= -I$(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(archdir)")')
+	else
+		RUBY_FLAGS		= -I$(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(rubyhdrdir)")') \
+							-I$(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(rubyhdrdir)/$$(arch)")')
+	endif
+
+	LIB_DIR			= $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(libdir)")')
+
+	RUBY_SHARED		= $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::MAKEFILE_CONFIG["ENABLE_SHARED"]')
+
+	ifeq ("$(RUBY_SHARED)","yes")
+		RUBY_LIB		= $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("-l$$(RUBY_SO_NAME)")')
+	else
+		RUBY_LIB		= $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("-l$$(RUBY_SO_NAME)-static")')
+	endif
+endif
+
+RUBY_LIBS		= -L$(LIB_DIR) $(RUBY_LIB)
+
+#
+# The build architectures for gcc based builds. The format of these
+# build flags are OS dependent. For example, under OS X to build
+# binaries which support both i386 and x86_64 you would use "-arch
+# i386 -arch x86_64".  The default is OS version dependent. Be aware
+# that this value may conflict with the setting of LP64 above.
+#
+#CXXARCHFLAGS                = -arch i386 -arch x86_64
+
+# ----------------------------------------------------------------------
+# Don't change anything below this line!
+# ----------------------------------------------------------------------
+
+#
+# Common definitions
+#
+ice_language     = rb
+ice_require_cpp  = yes
+slice_translator = slice2rb
+
+ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
+    include $(top_srcdir)/config/Make.common.rules
+else
+    include $(top_srcdir)/../config/Make.common.rules
+endif
+
+libdir			= $(top_srcdir)/ruby
+ifneq ($(prefix), /usr)
+install_rubydir		= $(prefix)/ruby
+install_libdir		= $(prefix)/ruby
+else
+install_rubydir		= $(RUBY_LIB_DIR)
+install_libdir		= $(RUBY_LIB_DIR)/$(RUBY_ARCH)
+endif
+install_bindir		= $(prefix)/$(binsubdir)
+
+#
+# Platform specific definitions
+#
+ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.$(UNAME) && echo 0),0)
+    configdir = $(top_srcdir)/config
+else
+    configdir = $(top_srcdir)/../cpp/config
+endif 
+include	 $(configdir)/Make.rules.$(UNAME)
+
+ifdef ice_src_dist
+    ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
+	ICE_LIB_DIR = -L$(ice_cpp_dir)/lib
+    else
+	ICE_LIB_DIR = -L$(ice_cpp_dir)/$(libsubdir)
+    endif
+    ICE_FLAGS 	= -I$(ice_cpp_dir)/include
+endif
+ifdef ice_bin_dist
+    ICE_LIB_DIR = -L$(ice_dir)/$(libsubdir)
+    ICE_FLAGS	= -I$(ice_dir)/include
+endif
+ICE_LIBS = $(ICE_LIB_DIR) -lIce -lSlice -lIceUtil
+
+ifneq ($(embedded_runpath_prefix),)
+    runpath_libdir	:= $(embedded_runpath_prefix)/$(libsubdir)
+endif
+
+CPPFLAGS		=
+ICECPPFLAGS		= -I$(slicedir)
+SLICE2RBFLAGS		= $(ICECPPFLAGS)
+LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
+
+ifdef ice_src_dist
+    ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
+	ifeq ($(SLICEPARSERLIB),)
+	    SLICEPARSERLIB	= $(ice_cpp_dir)/lib/$(call mklibfilename,Slice,$(VERSION))
+	endif
+	SLICE2RB	= $(ice_cpp_dir)/bin/$(slice_translator)
+    else
+	SLICEPARSERLIB	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
+	SLICE2RB	= $(ice_cpp_dir)/$(binsubdir)/$(slice_translator)
+    endif
+else
+    SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
+    SLICE2CPP		= $(ice_dir)/$(binsubdir)/$(slice_translator)
+endif
+
+#
+# A Ruby extension library cannot have a "lib" prefix, so Ruby-specific
+# functions are defined that strip "lib" from the regular library name.
+#
+ifeq ($(mkrblibfilename),)
+    mkrblibfilename	= $(subst lib,,$(call mklibfilename,$(1),$(2)))
+endif
+ifeq ($(mkrbsoname),)
+    mkrbsoname		= $(subst lib,,$(call mksoname,$(1),$(2)))
+endif
+ifeq ($(mkrblibname),)
+    mkrblibname		= $(subst lib,,$(call mklibname,$(1)))
+endif
+
+EVERYTHING		= all depend clean install
+
+.SUFFIXES:
+.SUFFIXES:		.cpp .o .rb
+
+all:: $(SRCS)
+
+%.rb: $(SDIR)/%.ice
+	rm -f $(*F).rb
+	$(SLICE2RB) $(SLICE2RBFLAGS) $<
+
+.cpp.o:
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+
+clean::
+	-rm -f $(TARGETS)
+	-rm -f core *.o *.bak
+
+all:: $(SRCS) $(TARGETS)
+
+ifneq ($(SRCS),)
+depend:: $(SRCS)
+	-rm -f .depend .depend.mak
+	if test -n "$(SRCS)" ; then \
+	    $(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | $(ice_dir)/config/makedepend.py; \
+	fi
+endif
+
+ifneq ($(TEMPLATE_REPOSITORY),)
+clean::
+	rm -fr $(TEMPLATE_REPOSITORY)
+endif
+
+install::

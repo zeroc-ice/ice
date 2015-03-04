@@ -1,0 +1,18 @@
+#
+# Put the data and log files in different subdirectories
+#
+set_data_dir data
+set_lg_dir logs
+
+#
+# (Optional) Additional Berkeley DB messages during recovery.
+#
+set_verbose DB_VERB_RECOVERY
+
+#
+# Reduces the size of log files only for demonstration purposes
+# Please keep the default for real applications
+#
+set_lg_max 2000000
+
+

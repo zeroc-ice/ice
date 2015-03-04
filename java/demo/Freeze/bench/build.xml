@@ -1,0 +1,75 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+<project name="demo_Freeze_bench" default="all" basedir=".">
+
+    <!-- Check if we are building in CVS -->
+    <property name="top.dir" value= "../../.." />
+
+    <!-- import common definitions -->
+    <import file="${top.dir}/config/common.xml"/>
+
+    <target name="generate" depends="init">
+        <!-- Create the output directory for generated code -->
+        <mkdir dir="${generated.dir}"/>
+        <slice2java outputdir="${generated.dir}">
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
+            <fileset dir="." includes="Test.ice"/>
+        </slice2java>
+        <slice2freezej outputdir="${generated.dir}">
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
+	    <dict name="Demo.IntIntMap" key="int" value="int"/>
+            <dict name="Demo.IndexedIntIntMap" key="int" value="int"/>
+            <dictindex name="Demo.IndexedIntIntMap"/>
+        </slice2freezej>
+        <slice2freezej outputdir="${generated.dir}">
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
+            <fileset dir="." includes="Test.ice"/>
+	    <dict name="Demo.Struct1Struct2Map" key="Demo::Struct1" value="Demo::Struct2"/>
+	    <dict name="Demo.Struct1Class1Map" key="Demo::Struct1" value="Demo::Class1"/>
+	    <dict name="Demo.Struct1ObjectMap" key="Demo::Struct1" value="Object"/>
+            <dict name="Demo.IndexedStruct1Struct2Map" key="Demo::Struct1" value="Demo::Struct2"/>
+            <dictindex name="Demo.IndexedStruct1Struct2Map" member="s" casesensitive="no"/>
+            <dictindex name="Demo.IndexedStruct1Struct2Map" member="s1"/>
+	    <dict name="Demo.IndexedStruct1Class1Map" key="Demo::Struct1" value="Demo::Class1"/>
+            <dictindex name="Demo.IndexedStruct1Class1Map" member="s" casesensitive="yes"/>
+        </slice2freezej>
+    </target>
+
+    <target name="compile" depends="generate">
+        <mkdir dir="${class.dir}"/>
+	<javac srcdir=".:${generated.dir}" destdir="${class.dir}" debug="${debug}">
+            <exclude name="${generated.dir}/**"/>
+            <classpath>
+                <path refid="ice.classpath"/>
+                <path refid="freeze.classpath"/>
+            </classpath>
+	    <compilerarg value="${javac.lint}"/>
+        </javac>
+    </target>
+
+    <target name="all" depends="compile"/>
+
+    <target name="clean">
+        <delete dir="${generated.dir}"/>
+        <delete dir="${class.dir}"/>
+        <delete includeEmptyDirs="true">
+	    <fileset dir="db" includes="*" excludes=".gitignore"/>
+        </delete>
+    </target>
+
+</project>

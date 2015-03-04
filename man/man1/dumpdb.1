@@ -1,0 +1,144 @@
+.TH dumpdb 1
+
+.SH NAME
+
+dumpdb - The Freeze database inspector.
+
+.SH SYNOPSIS
+
+dumpdb [options] dbenv db
+
+.SH DESCRIPTION
+
+The FreezeScript tool dumpdb is used to examine a Freeze database. Its 
+simplest invocation displays every record of the database, but the tool also
+supports more selective activities. In fact, dumpdb supports a scripted mode 
+that shares many of the same XML descriptors as transformdb, enabling 
+sophisticated filtering and reporting. Full documentation for dumpdb is 
+available online at: 
+.br
+"http://doc.zeroc.com/display/Ice/Using+dumpdb".
+
+.SH OPTIONS
+
+.TP
+.BR \-h ", " \-\-help\fR
+.br
+Displays help message.
+
+.TP
+.BR \-v ", " \-\-version\fR
+Displays the Ice version.
+
+.TP
+.BR \-DNAME\fR
+.br
+Defines the preprocessor symbol NAME.
+
+.TP
+.BR \-DNAME=DEF\fR
+.br 
+Defines the preprocessor symbol NAME with the value DEF.
+
+.TP
+.BR \-UNAME\fR
+.br
+Undefines the preprocessor symbol NAME.
+
+.TP
+.BR \-IDIR\fR
+.br
+Add the directory DIR to the search path for #include directives.
+
+.TP
+.BR \-E\fR
+.br
+Print the preprocessor output on stdout.
+
+.TP
+.BR \-\-output-dir " " DIR\fR
+.br
+Place the generated files into directory DIR.
+
+.TP
+.BR \-d ", " \-\-debug\fR
+.br
+Print debug information showing the operation of the Slice parser.
+
+.TP
+.BR \-\-ice\fR
+.br
+Permit use of the normally reserved prefix Ice for identifiers. Use this 
+option only when compiling the source code for the Ice run time.
+
+.TP
+.BR \-\-underscore\fR
+.br
+Permit use of underscores in Slice identifiers.
+
+.TP
+.BR \-\-load " " SLICE\fR
+.br
+Loads the Slice definitions contained in the file SLICE. This option may be
+specified multiple times if several files must be loaded. However, it is the
+user's responsibility to ensure that duplicate definitions do not occur (which
+is possible when two files are loaded that share a common include file). One
+strategy for avoiding duplicate definitions is to load a single Slice file
+that contains only #include statements for each of the Slice files to be
+loaded. No duplication is possible in this case if the included files use
+include guards correctly.
+
+.TP
+.BR \-\-key " " TYPE\fR
+.TP
+.BR \-\-value " " TYPE\fR
+.br
+Specifies the Slice type of the database key and value. If these options are
+not specified, and the -e option is not used, dumpdb obtains type information
+from the Freeze catalog.
+
+.TP
+.BR \-e\fR
+.br
+Indicates that a Freeze evictor database is being examined. As a convenience,
+this option automatically sets the database key and value types to those
+appropriate for the Freeze evictor, and therefore the --key and --value
+options are not necessary. Specifically, the key type of a Freeze evictor
+database is Ice::Identity, and the value type is Freeze::ObjectRecord. 
+The latter is defined in the Slice file Freeze/EvictorStorage.ice, however 
+this file does not need to be explicitly loaded. If this option is not 
+specified, and the --key and --value options are not used, dumpdb obtains 
+type information from the Freeze catalog.
+
+.TP
+.BR \-o " " FILE\fR
+.br
+Create a file named FILE containing sample descriptors for the loaded Slice
+definitions. If type information is not specified, dumpdb obtains it from the
+Freeze catalog. If the --select option is used, its expression is included in
+the sample descriptors. Database traversal does not occur when the -o option
+is used.
+
+.TP
+.BR \-f " " FILE\fR
+.br
+Execute the descriptors in the file named FILE. The file's <database> 
+descriptor specifies the key and value types, therefore it is not necessary to
+supply type information.
+
+.TP
+.BR \-\-select " " EXPR\fR
+.br
+Only display those records for which the expression EXPR is true. The
+expression can refer to the symbols key and value.
+
+.TP
+.BR \-c ", " \-\-catalog\fR
+.br
+Display information about the databases in an environment, or about a
+particular database. This option presents the type information contained in
+the Freeze catalog.
+
+.SH SEE ALSO
+
+.BR transformdb (1)

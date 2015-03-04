@@ -1,0 +1,33 @@
+#
+# The Glacier2 instance name
+#
+Glacier2.InstanceName=DemoGlacier2
+
+Glacier2.Client.Endpoints=ssl -p 4064 -h localhost
+Glacier2.Server.Endpoints=ssl -h localhost
+
+Glacier2.SessionManager=DemoIceGrid/AdminSessionManager
+Glacier2.PermissionsVerifier=DemoGlacier2/NullPermissionsVerifier
+
+Glacier2.SessionTimeout=30
+
+Ice.Default.Locator=DemoIceGrid/Locator:ssl -t 10000 -h localhost -p 4062
+
+#
+# SSL Configuration
+#
+Ice.Plugin.IceSSL=IceSSL:createIceSSL
+IceSSL.DefaultDir=certs
+IceSSL.CertAuthFile=ca_cert.pem
+IceSSL.CertFile=glacier2_cert.pem
+IceSSL.KeyFile=glacier2_key.pem
+
+#
+# Don't require certificates. This is useful for admin clients that don't
+# use certificate but still need to establish a secure connection for the
+# username/password authentication
+#
+IceSSL.VerifyPeer=1
+
+IceSSL.TrustOnly.Client=CN="Master";CN="Slave"
+IceSSL.TrustOnly.Server.Glacier2.Server=CN="Master";CN="Slave";CN="Server"

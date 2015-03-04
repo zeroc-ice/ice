@@ -1,0 +1,69 @@
+<!--
+// **********************************************************************
+//
+// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+-->
+<Window x:Class="Glacier2.chat.client.ChatWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Glacier2.chat.client"
+    Title="Chat Window" Height="300" Width="300" Closed="windowClosed">
+    <Window.CommandBindings>
+        <CommandBinding Command="local:ChatCommands.Login" Executed="login" CanExecute="isLoginEnabled"/>
+        <CommandBinding Command="local:ChatCommands.Logout" Executed="logout" CanExecute="isLogoutEnabled"/>
+        <CommandBinding Command="local:ChatCommands.Exit" Executed="exit"/>
+    </Window.CommandBindings>
+    <DockPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" DockPanel.Dock="Top">
+            <Menu Style="{StaticResource Menu}" Background="White">
+                <MenuItem Header="Session">
+                    <MenuItem Header="_Login" Command="local:ChatCommands.Login" Background="White"/>
+                    <MenuItem Header="_Logout" Command="local:ChatCommands.Logout" Background="White"/>
+                    <MenuItem Header="E_xit" Command="local:ChatCommands.Exit" Background="White"/>
+                </MenuItem>
+            </Menu>
+        </StackPanel>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="5*"></RowDefinition>
+            <RowDefinition Height="AUTO"></RowDefinition>
+            <RowDefinition Height="AUTO"></RowDefinition>
+            <RowDefinition Height="AUTO"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+            <!-- Define a text box to show chat messages. -->
+            <TextBox Grid.Column="0" Grid.Row="0" x:Name="txtMessages"
+                 FontSize="12" Text="" TextWrapping="Wrap" IsEnabled="True"    
+                 ScrollViewer.CanContentScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" 
+                 ScrollViewer.VerticalScrollBarVisibility="Auto" IsReadOnly="True"
+                 MinLines="4" SizeChanged="scrollDown"/>
+        
+        <!-- Define another splitter to separate the upper view and the text box used
+            for input messages. -->
+        <GridSplitter Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Height="2"
+                      ResizeDirection="Rows" HorizontalAlignment="Stretch"/>
+
+        <!--- Define an editable text box for the user to write messages. -->
+        <TextBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
+                 Name="input"
+                 IsEnabled="False"
+                 TextWrapping="Wrap" 
+                 ScrollViewer.CanContentScroll="True"
+                 HorizontalScrollBarVisibility="Hidden"
+                 VerticalScrollBarVisibility="Auto"
+                 Background="WhiteSmoke" KeyDown="sendMessage" TabIndex="1"></TextBox>
+
+            <!-- TextBlock with the status message -->
+            <Label Grid.Row="3" Name="status" Grid.Column="0" VerticalAlignment="Bottom" Content="Not connected"/>
+
+        </Grid>
+    </DockPanel>
+</Window>

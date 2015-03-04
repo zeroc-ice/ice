@@ -1,0 +1,7 @@
+HR.Endpoints=tcp -h localhost -p 12000
+
+Ice.ThreadPool.Server.Size=5
+
+Oracle.Username=scott
+Oracle.Password=tiger
+Oracle.ConnectString=orcl

@@ -1,0 +1,56 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+<project name="demo_Ice" default="all" basedir=".">
+
+    <target name="all">
+        <ant dir="applet"/>
+        <ant dir="async"/>
+        <ant dir="bidir"/>
+        <ant dir="callback"/>
+        <ant dir="hello"/>
+        <ant dir="invoke"/>
+        <ant dir="latency"/>
+        <ant dir="minimal"/>
+        <ant dir="multicast"/>
+        <ant dir="nested"/>
+        <ant dir="plugin"/>
+        <ant dir="properties"/>
+        <ant dir="serialize"/>
+        <ant dir="session"/>
+        <ant dir="swing"/>
+        <ant dir="throughput"/>
+        <ant dir="value"/>
+        <ant dir="optional"/>
+    </target>
+
+    <target name="clean">
+        <ant dir="applet" target="clean"/>
+        <ant dir="async" target="clean"/>
+        <ant dir="bidir" target="clean"/>
+        <ant dir="callback" target="clean"/>
+        <ant dir="hello" target="clean"/>
+        <ant dir="invoke" target="clean"/>
+        <ant dir="latency" target="clean"/>
+        <ant dir="minimal" target="clean"/>
+        <ant dir="multicast" target="clean"/>
+        <ant dir="nested" target="clean"/>
+        <ant dir="plugin" target="clean"/>
+        <ant dir="properties" target="clean"/>
+        <ant dir="serialize" target="clean"/>
+        <ant dir="session" target="clean"/>
+        <ant dir="swing" target="clean"/>
+        <ant dir="throughput" target="clean"/>
+        <ant dir="value" target="clean"/>
+        <ant dir="optional" target="clean"/>
+    </target>
+
+</project>

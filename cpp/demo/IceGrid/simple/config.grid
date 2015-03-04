@@ -1,0 +1,45 @@
+#
+# The IceGrid instance name.
+#
+IceGrid.InstanceName=DemoIceGrid
+
+#
+# The IceGrid locator proxy.
+#
+Ice.Default.Locator=DemoIceGrid/Locator:default -t 30000 -h localhost -p 4061
+
+#
+# IceGrid registry configuration.
+#
+IceGrid.Registry.Client.Endpoints=default -t 30000 -h localhost -p 4061
+IceGrid.Registry.Server.Endpoints=default -t 30000 -h localhost
+IceGrid.Registry.Internal.Endpoints=default -t 30000 -h localhost
+IceGrid.Registry.Data=db/registry
+IceGrid.Registry.PermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
+IceGrid.Registry.AdminPermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
+IceGrid.Registry.SSLPermissionsVerifier=DemoIceGrid/NullSSLPermissionsVerifier
+IceGrid.Registry.AdminSSLPermissionsVerifier=DemoIceGrid/NullSSLPermissionsVerifier
+
+#
+# IceGrid node configuration.
+#
+IceGrid.Node.Name=node1
+IceGrid.Node.Endpoints=default -t 30000 -h localhost
+IceGrid.Node.Data=db/node
+IceGrid.Node.CollocateRegistry=1
+#IceGrid.Node.Output=db
+#IceGrid.Node.RedirectErrToOut=1
+
+#
+# Trace properties.
+#
+IceGrid.Node.Trace.Activator=1
+#IceGrid.Node.Trace.Adapter=2
+#IceGrid.Node.Trace.Server=3
+
+#
+# Dummy username and password for icegridadmin.
+#
+IceGridAdmin.Username=foo
+IceGridAdmin.Password=bar
+

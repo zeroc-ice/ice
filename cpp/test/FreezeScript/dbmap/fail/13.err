@@ -1,0 +1,39 @@
+transformdb: unsupported type change in c1m1 from Object* to bool
+transformdb: unsupported type change in c1m2 from Object* to byte
+transformdb: unsupported type change in c1m3 from Object* to short
+transformdb: unsupported type change in c1m4 from Object* to int
+transformdb: unsupported type change in c1m5 from Object* to long
+transformdb: unsupported type change in c1m6 from Object* to float
+transformdb: unsupported type change in c1m7 from Object* to double
+transformdb: unsupported type change in c1m9 from Object* to enumeration ::Test::E
+transformdb: unsupported type change in c1m10 from Object* to struct ::Test::S1
+transformdb: unsupported type change in c1m11 from Object* to sequence ::Test::Seq1
+transformdb: unsupported type change in c1m12 from Object* to dictionary ::Test::D1
+transformdb: unsupported type change in c1m14 from Object* to Object
+transformdb: unsupported type change in c1m16 from Object* to class ::Test::C1
+transformdb: unsupported type change in c2m1 from Object* to bool
+transformdb: unsupported type change in c2m2 from Object* to byte
+transformdb: unsupported type change in c2m3 from Object* to short
+transformdb: unsupported type change in c2m4 from Object* to int
+transformdb: unsupported type change in c2m5 from Object* to long
+transformdb: unsupported type change in c2m6 from Object* to float
+transformdb: unsupported type change in c2m7 from Object* to double
+transformdb: unsupported type change in c2m9 from Object* to enumeration ::Test::E
+transformdb: unsupported type change in c2m10 from Object* to struct ::Test::S1
+transformdb: unsupported type change in c2m11 from Object* to sequence ::Test::Seq1
+transformdb: unsupported type change in c2m12 from Object* to dictionary ::Test::D1
+transformdb: unsupported type change in c2m14 from Object* to Object
+transformdb: unsupported type change in c2m16 from Object* to class ::Test::C1
+transformdb: unsupported type change in m1 from Object* to bool
+transformdb: unsupported type change in m2 from Object* to byte
+transformdb: unsupported type change in m3 from Object* to short
+transformdb: unsupported type change in m4 from Object* to int
+transformdb: unsupported type change in m5 from Object* to long
+transformdb: unsupported type change in m6 from Object* to float
+transformdb: unsupported type change in m7 from Object* to double
+transformdb: unsupported type change in m9 from Object* to enumeration ::Test::E
+transformdb: unsupported type change in m10 from Object* to struct ::Test::S1
+transformdb: unsupported type change in m11 from Object* to sequence ::Test::Seq1
+transformdb: unsupported type change in m12 from Object* to dictionary ::Test::D1
+transformdb: unsupported type change in m14 from Object* to Object
+transformdb: unsupported type change in m16 from Object* to class ::Test::C1

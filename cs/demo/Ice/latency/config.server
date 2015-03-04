@@ -1,0 +1,18 @@
+#
+# The server creates one single object adapter with the name
+# "Latency". The following line sets the endpoints for this adapter.
+#
+Latency.Endpoints=default -p 10000 -h localhost
+
+#
+# Warn about connection exceptions
+#
+Ice.Warn.Connections=1
+
+#
+# IceMX configuration.
+#
+#Ice.Admin.Endpoints=tcp -h localhost -p 10002
+Ice.Admin.InstanceName=server
+IceMX.Metrics.Debug.GroupBy=id
+IceMX.Metrics.ByParent.GroupBy=parent

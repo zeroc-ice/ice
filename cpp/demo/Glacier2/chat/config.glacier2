@@ -1,0 +1,70 @@
+#
+# Set the Glacier2 instance name.
+#
+Glacier2.InstanceName=DemoGlacier2
+
+#
+# The client-visible endpoint of Glacier2. This should be an endpoint
+# visible from the public Internet, and it should be secure.
+# 
+Glacier2.Client.Endpoints=ssl -p 4064 -h 127.0.0.1
+
+#
+# The server-visible endpoint of Glacier2. This endpoint is only
+# required if callbacks are needed (leave empty otherwise). This
+# should be an endpoint on an internal network (like 192.168.x.x), or
+# on the loopback, so that the server is not directly accessible from
+# the Internet.
+#
+Glacier2.Server.Endpoints=tcp -h localhost
+
+# 
+# The proxy of the session manager.
+#
+Glacier2.SessionManager=ChatSessionManager:tcp -h localhost -p 10001
+
+# 
+# For this demo, we use a custom permissions verifier collocated with
+# the session manager.
+# 
+Glacier2.PermissionsVerifier=ChatSessionVerifier:tcp -h localhost -p 10001
+
+#
+# The timeout for inactive sessions. If any client session is inactive
+# for longer than this value, the session expires and is removed. The
+# unit is seconds.
+#
+Glacier2.SessionTimeout=30
+
+#
+# Security Tracing
+#
+# 0 = no security tracing
+# 1 = trace messages
+#
+#IceSSL.Trace.Security=1
+
+#
+# SSL Configuration
+#
+Ice.Plugin.IceSSL=IceSSL:createIceSSL
+IceSSL.DefaultDir=../../../../certs
+IceSSL.CertAuthFile=cacert.pem
+IceSSL.CertFile=s_rsa1024_pub.pem
+IceSSL.KeyFile=s_rsa1024_priv.pem
+
+#
+# Uncomment the properties below if you want run the demo with the
+# Windows Store App chat client. 
+#
+#Glacier2.Client.Endpoints=ssl -p 4064
+#IceSSL.VerifyPeer=0
+#IceSSL.DefaultDir=../../../../certs/winrt
+
+#
+# IceMX configuration.
+#
+#Ice.Admin.Endpoints=tcp -h localhost -p 10004
+Ice.Admin.InstanceName=glacier2router
+IceMX.Metrics.Debug.GroupBy=id
+IceMX.Metrics.ByParent.GroupBy=parent

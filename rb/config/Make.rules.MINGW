@@ -1,0 +1,31 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# Include C++ Make.rules.MINGW
+#
+include	 $(top_srcdir)/../cpp/config/Make.rules.MINGW
+
+mkrblibfilename	= $(1).so
+#
+# Define the following names so the rule to build $(libdir)/$(LIBFILENAME)
+# is not override by $(libdir)/$(SONAME) and $(libdir)/$(LIBNAME)
+# targets.
+#
+mkrbsoname	= $(if $(2),lib$(1).xxx.$(2),lib$(1).xxx)
+mkrblibname     = $(1).xxx
+
+
+libdir		= $(top_srcdir)/ruby
+
+ifdef ice_src_dist
+    ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
+         SLICEPARSERLIB	= $(ice_cpp_dir)/bin/$(call mklibfilename,Slice,$(VERSION))
+    endif
+endif

@@ -1,0 +1,11 @@
+#
+# The server creates one single object adapter with the name
+# "ContactDB". The following line sets the endpoints for this
+# adapter.
+#
+ContactDB.Endpoints=default -p 10000 -h localhost
+
+#
+# Warn about connection exceptions
+#
+Ice.Warn.Connections=1

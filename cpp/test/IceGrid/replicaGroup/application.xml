@@ -1,0 +1,85 @@
+<icegrid>
+
+  <application name="Test">
+
+    <replica-group id="Default">
+      <object identity="Default" type="::Test::TestIntf"/>
+    </replica-group>
+
+    <replica-group id="RoundRobin">
+      <load-balancing type="round-robin" n-replicas="1"/>
+      <object identity="RoundRobin" type="::Test::TestIntf"/>
+    </replica-group>
+
+    <replica-group id="RoundRobin-2">
+      <load-balancing type="round-robin" n-replicas="2"/>
+      <object identity="RoundRobin-2" type="::Test::TestIntf"/>
+    </replica-group>
+
+    <replica-group id="RoundRobin-All">
+      <load-balancing type="round-robin" n-replicas="0"/>
+      <object identity="RoundRobin-All" type="::Test::TestIntf"/>
+    </replica-group>
+
+    <replica-group id="Ordered">
+      <load-balancing type="ordered" n-replicas="1"/>
+      <object identity="Ordered" type="::Test::TestIntf"/>
+    </replica-group>
+
+    <replica-group id="Adaptive">
+      <load-balancing type="adaptive" n-replicas="1"/>
+      <object identity="Adaptive" type="::Test::TestIntf"/>
+    </replica-group>
+
+    <replica-group id="Random">
+      <load-balancing type="random" n-replicas="1"/>
+      <object identity="Random" type="::Test::TestIntf"/>
+    </replica-group>
+
+    <server-template id="Server">
+      <parameter name="id"/>
+      <parameter name="replicaGroup"/>
+      <parameter name="priority" default="0"/>
+      <parameter name="encoding" default=""/>
+      <server id="${id}" exe="${test.dir}/server" activation="on-demand" pwd=".">
+        <adapter name="ReplicatedAdapter" endpoints="default" replica-group="${replicaGroup}" priority="${priority}"/>
+        <property name="Identity" value="${replicaGroup}"/>
+        <property name="Ice.Admin.DelayCreation" value="1"/>
+        <property name="Ice.Default.EncodingVersion" value="${encoding}"/>
+      </server>
+    </server-template>
+
+    <service-template id="Service">
+      <parameter name="name"/>
+      <parameter name="replicaGroup"/>
+      <parameter name="priority"/>
+      <service name="${name}" entry="TestService:create">
+        <adapter name="${service}" endpoints="default"
+                 replica-group="${replicaGroup}" priority="${priority}" server-lifetime="false">
+          <object identity="${service}"/>
+        </adapter>
+        <property name="Identity" value="${replicaGroup}"/>
+      </service>
+    </service-template>
+
+    <server-template id="IceBox">
+      <parameter name="id"/>
+      <parameter name="replicaGroup"/>
+      <icebox id="${id}" exe="${icebox.exe}" activation="on-demand" pwd=".">
+        <service-instance template="Service" name="Service1" replicaGroup="${replicaGroup}" priority="3"/>
+        <service-instance template="Service" name="Service2" replicaGroup="${replicaGroup}" priority="2"/>
+        <service-instance template="Service" name="Service3" replicaGroup="${replicaGroup}" priority="1"/>
+
+        <!-- Dummy service with server lifetime adapter to ensure all
+             the services are started when the server is marked as
+             Active -->
+        <service name="Dummy" entry="TestService:create">
+          <adapter name="${service}" endpoints="default" server-lifetime="true"/>
+          <property name="Identity" value="dummy"/>
+        </service>
+      </icebox>
+    </server-template>
+
+  </application>
+
+</icegrid>

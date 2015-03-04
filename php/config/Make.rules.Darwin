@@ -1,0 +1,16 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# This file is included by Make.rules when uname is Darwin.
+#
+
+include $(top_srcdir)/../cpp/config/Make.rules.$(UNAME)
+
+shlibldflags = ${wl}-flat_namespace ${wl}-undefined ${wl}suppress -Wl,-rpath,$(embedded_runpath_prefix)/$(libsubdir)

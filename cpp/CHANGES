@@ -1,0 +1,2731 @@
+NOTE: This file is no longer being updated. See the CHANGES file
+      in the top-level directory.
+
+
+Changes since version 3.2.0
+---------------------------
+
+- Added demo book/lifecycle.
+
+- Added two new IceGrid properties:
+
+    IceGrid.Registry.SessionFilters
+    IceGrid.Registry.AdminSessionFilters 
+
+  These properties allow disabling the setup of Glacier2 filters for
+  IceGrid client and administrative sessions created through
+  Glacier2. See the Ice manual for more information.
+
+- Fixed object adapter activation deadlock. The deadlock could occur
+  when the adapter register its endpoints with the locator registry
+  and if another thread invokes concurrently on the locator.
+  
+- If the glacier2router can not contact the permissions verifier or
+  session manager on startup it now prints a warning and continues
+  rather than exiting. These warnings are disabled if the router is
+  started with the --nowarn command line option.
+
+- Added support for protected class data members using the new
+  metadata tag ["protected"]. The tag can be applied to a Slice class
+  or to individual data members.
+
+- IceGrid now allows you to define an object adapter with a replica
+  group from a different IceGrid application.
+
+- Changed the throughput demo to better support cross-language
+  testing.
+
+- Fixed a bug in IceUtil::Cond under Windows that could cause a
+  deadlock if a signal was used in conjunction with multiple waiting
+  threads where at least one thread is using timedWait. Note that this
+  bug also affects IceUtil::Monitor since this uses IceUtil::Cond.
+
+- Fixed throughput performance problem on Windows that would occur
+  when sending large requests.
+
+- Added Ice.TCP.RcvSize and Ice.TCP.SndSize properties. These
+  properties control the size of the TCP receive and send buffers for
+  the TCP and SSL transports.
+
+- Added support for opaque endpoints. For example:
+
+  opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==
+
+  This is the same as:
+
+  ssl -h 127.0.0.1 -p 10001
+
+  The "opaque" protocol identifier indicates an unknown protocol.
+  Both the -t and the -v option must be present:
+
+  -t <num>:    Indicates the protocol type (TCP = 1, SSL = 2, UDP = 3).
+
+  -v <base64>: Provides the value of the opaque endpoint. The option
+               argument is the marshaled representation of the endpoint
+               (including the endpoint's enclosing encapsulation) in
+               base64 encoding.
+
+  This syntax is useful if, for example, a client that has the SSL
+  plug-in configured sends a proxy with an SSL endpoint to a server
+  without the SSL plug-in. Prior to this version, the server would
+  drop the unknown SSL endpoint when it stringified the proxy.
+  As of this version, the server preserves the endpoint and, when the server
+  stringifies a proxy containing an unknown endpoint, it uses the above opaque syntax.
+
+- Trailing characters past the adapter id in a stringified proxy
+  will now raise a ProxyParseException.
+
+- Fixed IceGrid registry assert which would be triggered on registration
+  of duplicate well-known objects with the same object adapter.
+
+- Added code generated from FileParser.ice to the IceGrid library.
+
+- Fixed collocation optimization to also work for indirect proxies
+  referring to a replica group.
+
+- The findAllReplicas() operation in the IceGrid::Query interface now
+  accepts well-known proxies from a replica group. This allows you to
+  retrieve the replicas of a replicated object using its well-known
+  proxy.
+
+Changes since version 3.2b
+--------------------------
+
+- The icegridadmin command line utility now tries to connect to a
+  slave registry if the master is not available.
+
+Changes since version 3.1.1
+---------------------------
+
+- Deprecated Ice.UseEventLog. Windows services should no longer use
+  this property! Also fixed a bug with the windows event logger which
+  would cause hangs if the event log became full.
+
+- Under Windows Ice Services (Ice::Service) always use the windows
+  event logger unless initData is otherwise configured. Installing the
+  service will now create the appropriate registry keys, and uninstalling
+  the service will remove them.
+
+- createObjectAdapter() and propertyToProxy() print warnings if
+  unknown properties are found during creation of the adapter or
+  proxy. These warnings can be disabled by setting the property
+  Ice.Warn.UnknownProperties=0.
+
+- Fixed a race condition that could cause an assertion failure when
+  using thread-per-connection.
+
+- Added the property Ice.Default.EndpointSelection. If not defined,
+  the default value is "Random".
+
+- Proxies and object adapters can now be configured to use
+  thread-per-connection.
+
+- IceBox services no longer inherit the properties of the container
+  by default. If this is the desired behavior set the property
+  IceBox.InheritProperties to 1.
+
+- Fixed a bug where new connections are being accepted but not
+  serviced correctly when using the thread pool concurrency model if
+  the number of file descriptors registered with the thread pool
+  exceeds FD_SETSIZE.
+
+- Added Communicator::isShutdown() and ObjectAdapter::isDeactivated()
+  to allow applications to determine whether a communicator has been
+  shutdown or an object adapter has been deactivated, respectively.
+
+- The Glacier2 SessionControl object is now registered with the Server
+  adapter rather than the Admin adapter.
+
+- Added "null" permissions verifier objects to Glacier2.
+
+- Renamed the property Glacier2.AddUserToAllowCategories to
+  Glacier2.Filter.Category.AcceptUser. The old property name has been
+  deprecated and will be removed in a future release.
+
+- Added destroy() operation to the ObjectAdapter interface. This
+  operation must be called in order to reclaim the adapter's resources
+  and be able to recreate a new adapter with the same name. Destroying
+  a communicator automatically calls destroy on all of its adapters.
+
+- Added a per-process logger and two methods to get/set the logger,
+  Ice::getProcessLogger() and Ice::setProcessLogger(). Calling
+  getProcessLogger() creates a default logger if setProcessLogger()
+  has not been called. The process logger is also used as the default
+  logger for all communicators that do not have a logger explicitly
+  set.
+
+- Added the property Glacier2.ReturnClientProxy to control whether
+  Glacier2's implementation of the Router::getClientProxy() operation
+  returns a proxy or just null. By default this property is set to 0.
+  For backward compatibility with clients that use Ice versions older
+  than 3.2, this property must be set to 1.
+
+- Added support for a user-defined signal handler in Ice::Application.
+  A subclass must override the interruptCallback method and invoke
+  callbackOnInterrupt to activate it.
+
+- Message batches are now automatically flushed when the total size of
+  the batch reaches the message size maximum. This feature can be
+  controlled using the Ice.BatchAutoFlush property, which is on by
+  default.
+
+- It is now possible to identify log files for IceGrid servers using
+  the `log' XML element of a server descriptor. Server logs can be
+  viewed remotely by the IceGrid GUI or the icegridadmin command-
+  line utility.
+
+- Added support to the IceGrid GUI and icegridadmin command-line
+  utility for viewing the standard error and standard output files
+  of an IceGrid node, registry, and server.
+
+- Added new `property' attribute to IceGrid object descriptors. If
+  this attribute is specified, the registry generates a property
+  that supplies the object's identity. For example:
+
+     <object id="hello" property="Identity"/>
+  
+  generates the property "Identity=hello".
+
+- Patching a distribution with IceGrid should no longer result in an
+  Ice::TimeoutException exception if the patching takes a long time.
+
+- Fixed IceGrid to no longer return Ice::NoEndpointException to a
+  client if the object adapter of a server managed by an IceGrid node
+  is being deactivated. IceGrid will now queue the locate request from
+  the client, reactivate the server and send the response of the
+  locate request when the object adapter is active again.
+
+- Replaced the IceGrid `wait-for-activation' attribute of an adapter
+  descriptor with a new `server-lifetime' attribute. An adapter with
+  the `server-lifetime' attribute set to true is expected to be active
+  for the duration of the server execution. IceGrid considers a server
+  active when all the adapters with this attribute set to true are
+  active and considers that a server is being deactivated as soon as
+  at least one such adapter is deactivated.
+
+- Added findAllReplicas() method to the IceGrid::Query interface. This
+  operation allows you to retrieve all the replicas associated with a
+  given proxy.
+
+- Added support for service property sets in server instances. These
+  property sets allow you to specify additional properties for IceBox
+  services hosted by IceBox server template instances. For example:
+   
+    <server-instance template="MyIceBoxTemplate">
+      <properties service="MyService">
+        <property name="Dummy" value="Dummy"/>
+      </properties>
+    </server-instance>
+
+- Added new IceGrid `Ordered' load balancing policy. The endpoints of
+  a replica group configured with this load balancing policy are
+  ordered by the priority of each replica. A replica's priority is set
+  with the new object adapter `priority' attribute.
+
+- Removed the `None' load balancing policy from IceGrid. This load
+  balancing policy is equivalent to the `Random' policy configured to
+  return the endpoints of all the replicas (i.e., with the
+  `n-replicas' attribute set to 0).
+
+- Setting the n-replicas attribute of an IceGrid replica group load
+  balancing policy to 0 is no longer equivalent to 1. It now causes
+  the locator to return the endpoints of all the replicas that are
+  members of the replica group.
+
+- The IceGrid registry now supports replication in a master/slave
+  scheme. See the Ice manual for information on the configuration
+  of replicated IceGrid registries.
+
+- During the creation of an object adapter, the communicator now
+  raises InitializationException if the adapter has no configuration.
+  It is possible to create an adapter with no configuration, which
+  is useful for bidirectional connections, by passing an empty string
+  as the argument to createObjectAdapter.
+
+- It is now possible to start and stop individual IceBox services
+  using the IceBox admin utility.
+
+- Added Communicator::propertyToProxy() which creates a proxy from
+  a set of properties. This operation allows you to set various local
+  proxy settings, such as the locator cache timeout, which cannot be
+  set using stringToProxy().
+
+- Added ["cpp:class"] C++ metadata to map a slice struct to a
+  reference counted class.
+
+- Glacier2.AllowCategories is now deprecated and superseded by
+  Glacier2.Filter.Category.Accept.
+
+- The Ice.Logger.Timestamp property has been removed. Timestamps are
+  now always printed.
+
+- Added the property Ice.Default.PreferSecure, which if set to 1
+  causes secure endpoints to be preferred over non-secure endpoints.
+  By default this property is set to 0. Also added functions to
+  control this behavior on a per-proxy rather than global basis:
+  ice_isPreferSecure() and ice_preferSecure().
+
+- Added a demo to illustrate the use of AMI/AMD.
+
+- IceBox services are now stopped in the reverse order from which they 
+  were started.
+
+- If a proxy does not specify a hostname (via -h HOST), the client
+  only attempts to connect to the loopback interface (127.0.0.1).
+
+- All Ice exceptions now derive from std::exception.
+
+- Attempts to change the attributes of a fixed proxy now result in a
+  FixedProxyException rather than just ignoring the change request and
+  returning the same proxy. Also, attempts to marshal a fixed proxy
+  now result in a FixedProxyException rather than a MarshalException.
+
+- Fixed a bug in the IceGrid locator implementation that could cause
+  a memory corruption when using replica groups.
+
+- Added support for implicit request contexts. When you invoke an
+  operation on a proxy and don't pass an explicit context, Ice uses
+  the "implicit context" combined with the per-proxy context (if any).
+  You can obtain the implicit context using the new communicator
+  operation getImplicitContext(). Three implementations of implicit
+  context are available; you select one by setting the property
+  Ice.ImplicitContext to one of the following values:
+
+  * None: No implicit context at all (default).
+  * PerThread: The implementation maintains a context per thread.
+  * Shared: The implementation maintains a single thread-safe context
+    that is shared by all threads.
+
+- Removed defaultContext from InitializationData.
+
+- Communicator::setDefaultContext(), Communicator::getDefaultContext()
+  and Proxy::ice_defaultContext() have been deprecated.
+
+- Ice now uses the epoll() system call on Linux and the poll() system
+  call on other Unix platforms instead of select().
+
+- Setting the IceGrid.Node.Name property is now required; this
+  property no longer uses the hostname as its default value.
+
+- For object adapters without endpoints, Ice.Trace.Network >= 2 now
+  prints a trace message.
+
+- Added new overload of Ice::initialize() that accepts a StringSeq as
+  the first argument.
+
+- IceStorm changes:
+
+  Changed IceStorm federation such that IceStorm now detects when
+  a downstream topic is unavailable. Once a link is diagnosed as
+  non-functional, events are thrown out until a timer expires
+  (specified using the property IceStorm.Discard.Interval in seconds,
+  default value is 1 minute). At that point, delivery of the link
+  is attempted once again.
+
+  Added a new property IceStorm.Send.Timeout. This specifies a timeout
+  in milliseconds that is used for all link and subscriber proxies.
+  The default value is 1 minute.
+
+  All message sending is now faster. In particular, oneway QoS is now
+  significantly faster.
+
+  All message propagation is now fully buffered through a dynamic
+  thread pool. Tracing for the thread pool can be enabled using the
+  property IceStorm.Trace.SubscriberPool. The thread pool size is
+  controlled by the following properties.
+
+  * IceStorm.SubscriberPool.Size: The initial size of the thread
+    pool. The default value is 1.
+  * IceStorm.SubscriberPool.SizeMax: The maximum size of the thread
+    pool. The default value is 0, which means unlimited.
+  * IceStorm.SubscriberPool.SizeWarn: A warning is issued if the size
+    of the thread pool exceeds this value. The default is 0, which
+    means never warn.
+  * IceStorm.SubscriberPool.Timeout: Specifies a timeout in
+    milliseconds. IceStorm spawns a new thread, up to the maximum
+    size of the thread pool, if a stall is detected for longer than
+    this timeout value. The default value is one second.
+
+  It is now possible to call unlink with a topic proxy that refers
+  to an IceStorm topic that is not currently reachable.
+
+  Added per-subscriber publisher objects to IceStorm. The new
+  operation Topic::subscribeAndGetPublisher returns a proxy that is
+  used to send an event to only that particular subscriber. See
+  demo/IceStorm/counter for an example of this feature.
+
+  The legal values for the reliability QoS passed to the operation
+  subscribeAndGetPublisher() are different than that of subscribe().
+  The new operation accepts only "ordered" or an empty string and
+  derives the desired QoS from the mode of the subscriber's proxy.
+  For example, passing a subscriber proxy configured for oneway
+  invocations enables oneway delivery in IceStorm. The "ordered" QoS
+  requires a twoway proxy otherwise a BadQoS exception is raised.
+  Topic::subscribe has been deprecated and retains the old QoS
+  semantics.
+
+  The property IceStorm.InstanceName is now used to produce unique
+  identities for each IceStorm topic. The identities used are now:
+
+    <instance-name>/topic.<topic name>
+    <instance-name>/publisher.<topic name>
+    <instance-name>/link.<topic name>
+
+  IceStorm is still fully compatible with prior releases.
+
+  The IceStorm database format was changed to accommodate the new
+  identity semantics. The script config/upgradeicestorm.py can be
+  used to upgrade existing IceStorm databases to the new format.
+
+- Changes in icestormadmin:
+
+  Removed support for the "graph" command.
+
+  The various icestormadmin commands take the topic manager as an
+  optional part of the arguments. For example, the command
+  "create MyTopicManager/foo" creates the topic "foo" on the topic
+  manager using the instance name MyTopicManager. See the Ice manual
+  for more information.
+
+  The program obtains the proxy for a topic manager using a property
+  of the form IceStormAdmin.TopicManager.NAME. If an icestormadmin
+  command does not specify a topic manager, the program uses the
+  proxy in the property IceStormAdmin.TopicManager.Default. For
+  backward compatibility, the property IceStorm.TopicManager.Proxy
+  also sets the default topic manager.
+
+  Added a new command "current" to set the default topic manager.
+
+  The list command now takes the topic manager as the first argument,
+  and the topics are the remaining arguments.
+
+- Added Ice.Override.Secure which forces a client to only use
+  secure connections.
+
+- IceGrid registry now cleans up any existing administrative and
+  regular client sessions that do not correctly time out. This could
+  occur if the Glacier2 router terminates unexpectedly.
+
+- Added Glacier2::SessionControl::getSessionTimeout.
+
+- Fixed a bug in slice2cpp so that the #include statements in a
+  generated header file are correctly modified by -I options.
+
+- The icegridadmin command tool now must establish an administrative
+  session with the IceGrid registry -- anonymous administration is no
+  longer permitted. As with the IceGrid GUI, authentication occurs
+  through the IceGrid Client endpoints either using a username and
+  password or through SSL. See the Ice manual for full details.
+
+- The IceGrid registry Admin endpoints have been removed. A new set of
+  endpoints has been added for the Glacier2 session manager. These
+  should only be enabled if Glacier2 integration is desired since it
+  presents a security threat. The endpoints are defined by the
+  property IceGrid.Registry.SessionManager.Endpoints.
+
+- The ice_name() member function of exceptions derived from
+  Ice::Exception (and, hence, IceUtil::Exception) now returns a
+  non-const string instead of a const string:
+
+  	const ::std::string ice_name() const; // Old signature
+
+	::std::string ice_name() const; // New signature
+
+- Changed IceUtil::Options to allow testing for synonyms without
+  having to check both the short and long options. For example:
+
+    IceUtil::Options opts;
+    opts.addOpt("v", "version");
+    opts.parse();
+
+  Previously, to test whether the -v or --version option was set, you
+  had to write:
+
+    if(opts.isSet("v" || opts.isSet("version"))
+	// show version...
+
+  With the new behavior, you can test for either "v" or "version",
+  and the test returns true if either the long or short option
+  was set:
+
+    if(opts.isSet("version"))
+	// show version...
+
+  or:
+
+    if(opts.isSet("v"))
+	// show version...
+
+  Either test works correctly, regardless of whether the actual option
+  passed to the executable was -v or --version.
+
+  Note that, for this to work, you must add both long and short option
+  in a single call to addOpt():
+
+    opts.addOpt("v", "version"); // -v and --version are synonyms
+
+  If you add the options in separate calls, they are not recognized
+  as synonyms:
+
+    opts.addOpt("v");		// --version is considered a separate
+				// option from --version
+    opts.addOpt("", "version"); // --version is considered a separate
+				// option from -v
+
+- The exceptions raised by IceUtil::Options have changed:
+
+  - IceUtil::Options::APIError is now IceUtil::APIException
+
+  - IceUtil::Options::BadOpt is now IceUtil::BadOptException
+
+  - IceUtil::Options::BadQuote has been removed.
+
+  APIException and BadOptException are now derived from
+  IceUtil::Exception. IceUtil::Options::parse() and
+  IceUtil::Options::split() now raise BadOptException (instead of
+  BadQuote) if a closing quote is missing from a command-line
+  argument.
+
+- Added zero-copy functions to the stream classes.
+
+- Added the NullSSLPermissionsVerifier to the IceGrid registry.
+
+- Added more tracing to the IceSSL plug-in to aid in using the
+  TrustOnly properties.
+
+- Added --ip and --dns command line options to the iceca sign command.
+  This adds support for subjectAltName in certificates.
+
+- Merged the simple CA scripts into a single iceca script.
+
+- Removed support for the following configuration properties that were
+  deprecated in Ice 3.0:
+
+  IceBox.ServiceManager.Identity
+  IcePatch2.AdminIdentity
+  IcePatch2.Identity
+  Glacier2.AdminIdentity
+  Glacier2.RouterIdentity
+
+  Each of these services supports an InstanceName property that should
+  be used instead.
+
+- Added UnexpectedObjectException. This exception is raised if you
+  use Slice classes and client and server are compiled with mismatched
+  Slice definitions. Alternatively, this exception is raised if you
+  use dynamic invocation and pass a class of the wrong type as an
+  operation parameter.
+
+- The Slice keyword 'nonmutating' is now deprecated; 'idempotent'
+  should be used instead. A new metadata directive is supported for
+  backward-compatibility (see below).
+
+- Added the Freeze property Freeze.Evictor.UseNonmutating.
+
+  When set to a non-zero value, the Freeze Evictor behaves like it did
+  in previous Ice releases in that it assumes nonmutating operations
+  do not update the target object, while all other operations do
+  update the target.
+
+  As of this release, the recommended mechanism is to use the
+  "freeze:read" and "freeze:write" metadata (see below).
+
+  If not defined, the default value of this property is 0.
+
+- New Slice metadata for operations:
+
+  - ["cpp:const"] generates a const member function on the
+    corresponding servant base class.
+
+  - ["freeze:read"] or ["freeze:write"] marks the operation as "read"
+    or "write" for the Freeze evictor. The default is the Freeze mode
+    of the enclosing interface/class.
+
+  - ["nonmutating"] provides backward compatibility for idempotent
+    operations that were previously declared using the deprecated
+    'nonmutating' keyword. You can replace the 'nonmutating' keyword
+    with '["nonmutating"] idempotent' to maintain compatibility with
+    objects implemented using Ice 3.0 or 3.1.
+
+- New Slice metadata for interfaces/classes:
+
+  - ["freeze:read"] or ["freeze:write"] defines the default Freeze
+    mode for operations on the interface/class. The default is read.
+    This metadata has no effect on derived types.
+
+- For non-abstract Slice classes, the C++ code generator now adds a
+  protected destructor. This prevents accidental allocation of
+  class instances on the stack or as static variables. For the
+  implementation of abstract Slice classes, and for servant classes,
+  applications can do the same thing and add a protected destructor
+  to prevent non-heap allocation.
+
+- Fixed a bug in slice2cpp that caused incorrect code to be generated
+  if a class had a member that was an interface (not class) by value:
+
+  interface I
+  {
+      void op();
+  };
+
+  class C
+  {
+      void op();
+  };
+
+  class MyClass
+  {
+      I myI;		// Note: I, not I*. Bad code generated for this in 3.1.0.
+      I* myIstar;	// OK, no problem with 3.1.0.
+      C myC;		// OK, no problem with 3.1.0.
+      C myCstar;	// OK, no problem with 3.1.0.
+  };
+
+Changes since version 3.1.0
+---------------------------     
+
+- Fixed a bug in slice2docbook that could cause the "Used By" section of a
+  symbol to list the same operation more than once.
+
+- slice2doc book now adds a "Used By" section for exceptions. (Previously,
+  exceptions did not have this section, only other types.)
+
+- Fixed IceGrid allocation bug which could cause allocation failures
+  when allocating multiple objects by type from allocatable servers
+  and with the same session.
+
+- Fixed the Slice translators to support spaces in paths of the
+  -I option.
+
+- Fixed a bug where proxy operator< could return an incorrect result
+  for proxies of different types (e.g., direct vs. indirect proxies).
+
+- Removed obsolete --no-globals option from slice2docbook.
+
+- Fixed a bug in IceStorm where IceStorm stops sending events to
+  linked topics if the linked topic becomes unavailable for any
+  reason.
+
+- Fixed a bug where the number of endpoints returned for a replica
+  group with no load balancing policy was random.
+
+- It's now possible to invoke on the IceGrid::Query object from an
+  IceGrid admin session created through Glacier2.
+
+- Fixed a Glacier2 shutdown bug where active sessions would not be
+  destroyed properly.
+
+- A bug was fixed where the glacier2router would throw a
+  NullHandleException if a permission verifier was used that was not
+  configured.
+
+- Fixed a bug with the IceGrid allocate and sessionAllocation demos 
+  where the session would not be destroyed in the event of an 
+  allocation failure.
+
+- Fixed a bug with config/ca/import.py script when importing
+  certificates without an encrypted private key into a java keystore.
+
+- Added support for Borland C++Builder 2006.
+
+- Fixed a bug where variables from distribution descriptors were not
+  substituted.
+
+- Fixed an assert in the IceGrid locator implementation that could
+  occur when using dynamic adapter registration. The assert was
+  triggered when an adapter was removed and a client was requesting
+  at the same time the adapter endpoints through the locator
+  interface.
+
+- Fixed a bug in the IceGrid replication code that would cause clients
+  to get an Ice::NoEndpointException if the node of a replica was
+  inactive.
+
+- Fixed a bug in the IceGrid XML parser that could cause a crash if
+  the adapter element for the IceBox.ServiceManager adapter was
+  specified in the icebox element.
+
+- Restored Communicator::setDefaultContext.
+
+- Fixed a bug in Ice::initialize() that raised a NullHandleException
+  when the function was called without arguments or when the
+  properties member of InitializationData was null.
+
+Changes since version 3.0.1
+---------------------------
+
+- Fixed a bug in slice2cpp that could cause incorrect code to
+  be generated if a class contained a member to another class,
+  but that class was only forward declared.
+
+- Unsupported port to Solaris 10 on Intel/AMD contributed by
+  Markus Bernhardt.
+
+- Removed removeObjectFactory() from the communicator interface.
+
+- Added a new object and server allocation mechanism to IceGrid. See
+  the Ice manual for more information.
+
+- The IceGrid XML descriptor <adapter> can only be used to specify
+  indirect adapters. It's no longer possible to specify an adapter
+  with an empty id. You can use properties to configure direct
+  adapters.
+
+- Fixed a bug where IceGrid would fail to register well-known objects
+  with an identity containing reserved characters for proxies.
+
+- Added "always" and "session" activation modes to IceGrid. See the
+  Ice manual for more information.
+
+- Changed the entry point of the IceSSL plug-in to be 
+  IceSSL:createIceSSL.
+
+- Changed the entry point of the IceStorm service to be 
+  IceStormService,31:createIceStorm.
+
+- ObjectAdapter::deactivate() now notifies the locator registry when
+  the adapter is deactivated.
+
+- Fixed ObjectAdapter::activate() to activate the object adapter
+  only if it is able to register its endpoints and process proxy with
+  the locator. Calling activate() again retries a failed registration.
+
+- Glacier2.AllowCategories is now deprecated and superseded by
+  Glacier2.Filter.Category.Accept.
+
+- A new address filtering mechanism has been added to the Glacier2
+  router. See the description of the Glacier2.Filter.Address.Accept
+  and Glacier2.Filter.Address.Reject properties in the Ice manual
+  for details.
+
+- The Glacier2 router's identity-based filtering is now modifiable at
+  runtime through the Glacier2::SessionControl interface.
+
+- Generating new streaming functions for a Slice structure. The
+  ice_write and ice_read member functions replace their internal
+  equivalents (__write and __read).
+
+- Removed getDefaultProperties() functions, and the global default
+  properties. If you need global properties, you can easily create
+  your own global variable.
+
+- In Ice::Service, main(), run() and initializeCommunicator() now take
+  a third parameter, const InitializationData&. It's defaulted for
+  main() and run().
+
+- The signature of createProperties(argc, argv) is now:
+
+  PropertiesPtr createProperties(int* argc, char* argv[],
+                                 const PropertiesPtr& defaults = 0,
+				 const StringConverterPtr& conv = 0);
+
+  where "defaults" represents an optional set of default properties
+  used to initialize the new Properties object. Ice properties 
+  defined on the command line and properties defined in a
+  configuration file override these default properties.
+
+- Fixed a bug in dumpdb so that it handles object graphs correctly.
+
+- Fixed a bug where the proxy timeout, compress flag and connection
+  id attributes would be ignored for direct proxies using a router.
+
+- Added ability to configure Ice thread start/stop hooks through
+  InitializationData.
+
+- Added SSL authorization as an alternative to username/password
+  for Glacier2. To authorize with SSL, use the new operation
+  Glacier2::Router::createSessionFromSecureConnection(). On the
+  server side, the new interfaces Glacier2::SSLPermissionsVerifier and
+  Glacier2::SSLSessionManager must be implemented.
+
+- The Glacier2.CryptPasswords property no longer has a default value.
+  To reproduce the router's behavior from previous releases, define
+
+  Glacier2.CryptPasswords=passwords
+
+- Added identityToString and stringToIdentity to the Communicator
+  interface. If a string converter is configured, these functions
+  must be used instead of the current static functions.
+
+- Added ability to configure user-defined string and wstring 
+  converters that are used during marshalling/unmarshalling to
+  convert between UTF8 (as required by the Ice protocol) and the
+  user's character set.
+
+- Added operators <=, > and >= for Slice classes, proxies and
+  structures.
+
+- Added operation that allows a Glacier2 session to be destroyed from
+  a backend server.
+
+- It is now possible to recreate a new object adapter with the same 
+  name as an old adapter once waitForDeactivate() has completed on the
+  old adapter.
+
+- Added new operation Communicator::createObjectAdapterWithRouter(),
+  which creates a routed object adapter. An object adapter may now
+  be associated with at most one router, which is defined using this
+  operation or by setting the <AdapterName>.Router property. Also
+  as a result of this change, the ObjectAdapter::addRouter() and
+  ObjectAdapter::removeRouter() operations have been removed.
+
+- Added property sets to IceGrid descriptors. Property sets allow you
+  to define a set of properties in application, node and template
+  descriptors. These property sets can then be referenced from the
+  server, service and instance descriptors. See the IceGrid chapter in
+  the Ice manual for more information.
+
+- Changed the IceGrid::Admin::getApplicationDescriptor operation to
+  return the application descriptor without performing any variable
+  substitutions.
+
+- Fixed a bug in the adaptive load policy implementation that could
+  cause the IceGrid registry to crash.
+ 
+- Fixed a deadlock in the IceGrid registry that could occur when
+  using the adaptive load balancing policy or the IceGrid::Query
+  findObjectByTypeOnLeastLoadedNode operation.
+
+- Added communicator initialize functions that takes an argument of
+  type Ice::InitializationData. This structure contains communicator
+  members that may only be set during communicator initialization.
+  Currently included are Properties, Logger, Stats, default context,
+  string converters and the thread hooks. The initializeWithXXX
+  functions have been deprecated and the setLogger(), setStats() and
+  setDefaultContext() operations have been removed.
+
+- Added the new Slice metadata "deprecate" that can be used to
+  qualify operations. On most platforms this will cause a compiler
+  warning to be issued if user code uses the deprecated operation.
+
+- Integrated contributed updates for Tru64.
+
+- Added a new operation addProxies() to Ice::Router, which can return
+  evicted proxies. The old operation addProxy() is now deprecated.
+  Note that this is an internal interface for communications between
+  clients and routers (such as Glacier2).
+
+- Added a new property Glacier2.RoutingTable.MaxSize. If more proxies
+  are added than permitted by this property, proxies are evicted from
+  Glacier2's internal routing table on a least recently used basis.
+  Ice clients from version 3.1 on will automatically retry operation
+  calls on such evicted proxies, thereby re-adding them to Glacier2's
+  routing table. Ice clients older than version 3.0 will receive an
+  ObjectNotExistException. To continue to support such old clients,
+  you must set the maximum high enough so that Glacier2 will not evict
+  proxies. Upgrading your clients to 3.1 is highly recommended to avoid
+  large routing table sizes in Glacier2.
+
+- Replaced the IceSSL plug-in. The new plug-in no longer uses an XML
+  configuration file but rather relies solely on properties. A Python
+  script is provided in config/convertssl.py to convert old XML files
+  to the new properties. See the Ice manual for more information on
+  the plug-in.
+
+- Added support for new Slice metadata ("cpp:type:wstring") that
+  generates code to use std::wstring instead of std::string. See the
+  Ice manual for more details.
+
+- The ice_timeout and ice_compress proxy methods now correctly
+  override the timeout and compress flag of indirect proxy endpoints.
+
+- Added proxy methods ice_isSecure, ice_getLocator, ice_getRouter,
+  ice_isCollocationOptimized.
+
+- Deprecated the following proxy methods:
+
+  ice_hash
+  ice_communicator
+  ice_collocationOptimization
+  ice_connection
+  ice_newIdentity
+  ice_newFacet
+  ice_newContext
+  ice_newAdapterId
+  ice_newEndpoints
+
+  These methods will be removed in the next major release. You should
+  use the new methods shown below:
+
+  ice_getHash
+  ice_getCommunicator
+  ice_collocationOptimized
+  ice_getConnection
+  ice_identity
+  ice_facet
+  ice_context
+  ice_adapterId
+  ice_endpoints
+
+- Changed the Ice core and services to use the random generator from
+  IceUtil. The initialization of the communicator doesn't call srand
+  or srand48 anymore. Your application should call it if necessary.
+
+- Added random generator to IceUtil (in include/IceUtil/Random.h). The
+  random generator is using /dev/urandom on Unix platforms and the
+  cryptography API on Windows (CryptGenRandom).
+
+- Added requestId to Current, which allows a servant to determine
+  whether an operation was invoked with collocated, oneway or twoway
+  semantics. The requestId member is 0 for oneway invocations and
+  -1 for collocated invocations.
+
+- Added typedefs for ProxyType and PointerType to the generated class 
+  for Slice classes and interfaces to allow for easier templating.
+
+- Fixed a bug in the Glacier2 router that could cause the router 
+  to leak resources when a session is destroyed and hang on shutdown.
+
+- Fixed a buffered mode bug in the Glacier2 router that could cause
+  hangs in the router if a client misbehaved.
+
+- AMI invocations will now reuse the connection cached with the
+  proxy instead of always looking up an existing connection for
+  each invocation. As a side effect of this change, AMI invocations 
+  on a proxy with collocation optimization enabled will now raise
+  Ice::CollocationOptimizationException.
+
+- Added the property Ice.Default.LocatorCacheTimeout and the proxy
+  method ice_locatorCacheTimeout(). If a cached endpoint is older
+  than the configured cache timeout, the Ice runtime won't use
+  the cached endpoint. Instead, the Ice runtime will query the
+  Ice locator service to retrieve up-to-date endpoints and then update
+  the locator cache. Please see the Ice manual for more information.
+
+- Added the proxy method ice_endpointSelection, which allows an
+  application to control how endpoints are selected at connection
+  establishment. Two endpoint selection types are currently supported:
+  Random and Ordered.
+
+- Added the proxy method ice_connectionCached. This method allows you
+  to enable or disable the caching of the connection by the proxy. By
+  default, the proxy will cache the connection to avoid looking it up
+  for each request. Disabling the connection caching is useful to do
+  per-request load balancing: the proxy will select a connection for
+  each request and the request will eventually be sent to different 
+  servers.
+
+- Removed the Ice.Warn.Leaks property.
+
+- Performance improvements if an AMI callback object is reused with
+  the same proxy.
+
+- If several proxies share the same connection, and an operation call
+  on one of the proxies causes a failure and the shared connection to
+  be closed, then subsequent calls on the other proxies will try to
+  establish a new connection instead of throwing an exception, even if
+  retries are disabled.
+
+- IcePatch2 now performs incremental reads of files during compression
+  and checksum calculation. Previously the entire file being processed
+  was read into memory.
+
+- If a proxy is not configured with the -h parameter, Ice will now
+  attempt to connect using all local interfaces. The loopback
+  interface (127.0.0.1) will only be tried if it is the only local
+  interface present.
+
+- Added the ability to specify alternate mappings for Slice sequences
+  other than std::vector. Please see the Ice manual for more details.
+
+- Fixed a bug in slice2cpp that caused one-shot constructors for
+  classes to incorrectly initialize base classes for class hierarchies
+  three or more levels deep.
+
+- Fixed a bug in slice2cpp that caused a compiler warning about an
+  unused parameter in the generated code for operations on classes
+  with void return type, no parameters, and no exception
+  specification.
+
+- Fixed a bug in the IceGrid deployment mechanism that would prevent
+  the use of a variable in an object identity's category.
+
+- Added Glacier2::Router::getCategoryForClient that should be used to
+  get the category for Glacier2 client callback objects. This
+  operation is a convenience that replaces the equivalent code
+  getServerProxy()->ice_getIdentity().category.
+
+- The Glacier2 router now forwards the context set by the client when
+  calling PermissionsVerifier::checkPermissions and
+  SessionManager::create.
+
+- Fixed a bug in IceBox and IceGrid that would prevent running IceBox
+  servers from a directory containing spaces.
+
+- Fixed a bug in the class garbage collector that could result in
+  double deallocation of class instances.
+
+Changes since version 3.0.0
+---------------------------
+
+- Fixed an assert that could occur during connection establishment if
+  the communicator was shutdown or destroyed concurrently.
+
+- IceUtil::Time::toString() has been deprecated and should no longer
+  be used. Instead, use IceUtil::Time::toDateTime() to get a date
+  and time string. (toString() will continue to work as a synonym for
+  two more releases and will then be removed.)
+
+  IceUtil::Time::toDuration() is a new function that returns a
+  duration string of the form "days hh:mm:ss.usec". (The number of
+  days and micro seconds is printed only if they are non-zero.)
+
+- Fixed a bug in the Slice parser that caused problems if an included
+  file contained white space in the file name.
+
+- Fixed a bug where the IceGrid node would fail to retrieve the CPU
+  utilization on localized Windows versions.
+
+- The Glacier2 router now logs a warning if a request arrives on an
+  unknown connection if Glacier2.Client.Trace.Reject >= 1.
+
+- Fixed a bug in IceGrid on Windows where environment variables set
+  in server descriptors would not override those already set in the
+  node's environment.
+
+- Fixed a bug in slice2freeze in which using the --output-dir option
+  was causing include paths to be modified in generated files.
+
+- Fixed a bug where the IceGrid node, if installed as a Windows
+  service, wouldn't correctly start on boot.
+
+- Fixed a bug where the IceGrid node could incorrectly remove
+  configuration files or database environment directories if they were
+  not specified in alphabetical order (sorted by name) in the
+  descriptor.
+
+- Added --enable-new-dtags to Linux linker options.
+
+- Added support for Apple Xcode 2.2.
+
+- Windows x64 port; INSTALL.WINDOWS now shows how to target the x64
+  platform.
+
+Changes since version 2.1.2
+---------------------------
+
+- Added support for custom comparison in Freeze Maps. You can now
+  provide your own compare functors for keys and indices. See the
+  slice2freeze usage for the new options. The default behavior is
+  backward compatible, comparing binary strings in the Ice encoding.
+
+  Map have 4 new functions:
+
+    - lower_bound (const and non-const)
+    - upper_bound (const and non-const)
+
+  In addition, the implementation of equal_range is now correct. 
+
+  Generated index classes have 6 new functions:
+
+    - lowerBoundFor<name> (const and non-const)
+    - upperBoundFor<name> (const and non-const)
+    - equalRangeFor<name> (const and non-const)
+
+  The findBy<name> also takes a new bool parameter, "onlyDups"; its
+  default value is true for compatibility with previous releases.
+  When onlyDups is true, findBy<name> returns only the elements that
+  match the given index value; when false, the iterator returns first
+  these elements and then lets you iterate over the remainder of the
+  database (according to the order defined by the index).
+
+- Fixed a deadlock during shutdown that could happen with
+  bi-directional connections.
+
+- Removed ice_default() method from proxies.
+
+- Added downgrade() to IceUtil::RWRecMutex and fixed a bug in
+  upgrade(). Previously, upgrade() was equivalent to calling unlock()
+  followed by writeLock(), which could allow a thread to acquire a
+  write lock while another thread was in the middle of an upgrade.
+  upgrade() is now atomic, so whatever state is protected by a read
+  lock is guaranteed to remain unchanged when upgrade() completes.
+
+- Connection::close(false) (i.e., graceful connection shutdown) now
+  waits until all outstanding requests have completed.
+
+- Added a new object adapter property, <adapter>.ReplicaGroupId, which
+  allows adapters to be replicated. See the IceGrid chapter in the
+  manual for more information.
+
+- Added the following properties:
+
+  IceBox.InstanceName
+  IcePatch2.InstanceName
+  IceStorm.InstanceName
+  Glacier2.InstanceName
+
+  These properties make it more convenient to configure multiple
+  instances of these services by modifying the identity category of
+  their well-known objects. The properties listed below are now
+  deprecated and will be removed in a future release:
+
+  IceBox.ServiceManager.Identity
+  IcePatch2.Identity
+  IcePatch2.AdminIdentity
+  IceStorm.TopicManagerIdentity
+  Glacier2.AdminIdentity
+  Glacier2.RouterIdentity
+
+- Added the proxy method ice_connectionId, which allows an application
+  to control connection reuse.
+
+- Added the new methods Ice::initializeWithLogger() and
+  Ice::initializeWithPropertiesAndLogger(), which ensure that a custom
+  logger is used to record any errors during communicator
+  initialization.
+
+- Ice will now listen on all local interfaces if no -h parameter is
+  present in the endpoint configuration and no default host has been
+  set. It will also listen to all interfaces if the -h parameter is
+  set to 0.0.0.0. In such configurations the endpoints published in
+  proxies will not contain the loopback interface (127.0.0.1) unless
+  it is the only local interface present.
+
+- Fixed a race condition with the object adapter holding state.
+
+- Changed the way servant locators work if a server has a servant
+  locator registered for a specific category, in addition to a default
+  servant locator. Previously, if the locator for the specific
+  category failed to locate the servant, the run time would then call
+  the default locator. With the new behavior, if the locator for the
+  specific category does not return a servant, the default locator is
+  not called.
+
+- Added proxy methods to retrieve the proxy adapter id and endpoints
+  (ice_getAdapterId() and ice_getEndpoints()) and to create a new
+  proxy with a new adapter id or new endpoints (ice_newAdapterId() and
+  ice_newEndpoints()).
+
+- Added Slice Ice::Endpoint local interface in slice/Ice/Endpoint.ice.
+
+- Fixed a bug that would cause UDP server connections to be closed on
+  transient errors, thus preventing the reception of any more UDP
+  messages until a server restart.
+
+- Communicator::setDefaultContext() no longer changes the context
+  information set on existing proxies.
+
+- slice2cpp and slice2freeze now provide the --add-header option. It
+  adds a #include directive for the specified header at the beginning
+  of the generated source file. For example:
+
+      slice2cpp --add-header=precompiled.h x.ice
+
+  adds "#include <precompiled.h> to the beginning of x.cpp (before any
+  other include directives).
+
+  You can specify an optional guard, for example:
+
+      slice2cpp --add-header=precompiled.h,__PRECOMPILED_H__ x.ice
+
+  With this, the beginning of x.cpp contains:
+
+      #ifndef __PRECOMPILED_H__
+      #define __PRECOMPILED_H__
+      #include <precompiled.h>
+      #endif
+
+  You can repeat the --add-header option to include several headers in
+  the generated source.
+
+- Ice::Communicator::createObjectAdapter() throws
+  Ice::AlreadyRegisteredException if it is called with the name of an
+  object adapter that already exists.
+
+- Fixed a bug in the slice2java code generator, which would cause
+  incorrect code to be generated when metadata was used to modify
+  dictionary types used as class or struct members.
+
+- Fixed a bug in the slice2java code generator, which could cause
+  incorrect code to be generated for certain custom sequence types.
+
+- Fixed a bug in the slice2cs code generator: if an operation had a
+  parameter named i or szx, incorrect code was generated in some
+  cases.
+
+- Fixed a bug in the slice2vb code generator: if an operation had a
+  parameter named ix or spx, incorrect code was generated in some
+  cases.
+
+- Added unsupported and untested "support" for Tru64 (with gcc).
+
+- Renamed CompressionNotSupportException to a more general
+  FeatureNotSupportedException.
+
+- Fixed a bug in proxyToString() for bidirectional proxies.
+
+- Added ice_communicator() to proxies. This function returns the
+  communicator that was used to create the proxy.
+
+- Added ice_toString() to proxies. This function returns the
+  stringified proxy. This function can be more convenient to use than
+  communicator->stringToProxy() because you do not need the
+  communicator to stringify a proxy that way.
+
+  operator<< is overloaded for proxies and proxy handles, so you can
+  write:
+
+  Ice::ObjectPrx o = ...;
+  cout << o << endl;		// Print stringified proxy, empty
+				// string if o is null
+  cout << *o << endl;		// Print stringified proxy
+
+- IceUtil/Config.h no longer includes winsock.h under WIN32. Ice can
+  now build with WIN32_LEAN_AND_MEAN.
+
+- Removed operator timeval() from IceUtil::Time for WIN32.
+
+- Parsing a stringified proxy no longer completely fails if the proxy
+  contains an endpoint type that is unknown to the Ice runtime as long
+  as the proxy contains other endpoints that are known. A warning is
+  printed for the unknown types that are encountered.
+
+- Ice::Object is now an abstract class that cannot be instantiated.
+  This change should be transparent to application code.
+
+- For abstract classes, ice_clone() now throws a
+  CloneNotImplementedException if the concrete implementation class
+  does not override ice_clone().  (Previously, ice_clone() incorrectly
+  sliced the cloned abstract class to the most derived- concrete class
+  or Ice::Object.)
+
+- Added new features to the C++ mapping:
+
+  - Classes and exceptions now have one-shot constructors. For
+    example, for a class
+
+      class Example {
+          int i;
+	  string s;
+      };
+
+    the following constructors are generated:
+
+      class Example {
+	  Example();
+	  Example(::Ice::Int, const ::std::string&);
+	  // ...
+      };
+
+    This allows you to construct a class or exception and supply
+    values for the data members in a single statement, instead of
+    having to assign to the members of a default-constructed instance.
+
+    For derived exceptions and classes, the constructor expects values
+    for all data members, including those of base exceptions or
+    classes, in base-to-derived order of declaration.
+
+  - Classes are now copyable and assignable. For example, using the
+    previous Example class, the following statements are now valid
+    (whereas, previously, they would have caused compile-time errors):
+
+      Example e1;
+      Example e2(1, "hello");
+      e1 = e2;
+      ExamplePtr ep1 = new Example();
+      *ep1 = e2;
+
+- Removed IceSSL's internal handshake retry loop, along with the
+  related property IceSSL.Client.Handshake.Retries.
+
+- Added support for OpenSSL 0.98.
+
+Changes since version 2.1.1
+---------------------------
+
+- Fixed a bug in proxyToString() for bidirectional proxies.
+
+- Fixed a bug with dynamic thread pools, where new threads were
+  destroyed immediately after dispatch if <threadpool>.Size=1 and
+  <threadpool>.SizeMax > 1.
+
+- Fixed a few Windows bugs in the Ice::Service class.
+
+- Fixed a bug in the Ice core involving command-line arguments that
+  could result in an array access violation.
+
+- Changed the Ice::Service class on Windows so that service failures
+  do not cause the obscure message "Error1: Incorrect function".
+
+- Removed the 64KB packet size limitation for TCP in Windows.
+
+- Changed the C++ translator so that generated code no longer uses
+  static function data.
+
+- Fixed a bug in IcePack where stopping a server could hang if the
+  server didn't answer the Ice::Process::shutdown() call.
+
+- Changed IceStorm subscriber reaping to release dead subscribers
+  more quickly from memory.
+
+- Fixed a bug in IceStorm where the mode (idempotent or nonmutating)
+  of the request wasn't correctly forwarded to the subscribers.
+
+- Added IcePack.Registry.AdminIdentity, IcePack.Registry.QueryIdentity
+  and IcePack.Registry.LocatorIdentity properties to allow configuring
+  the identities of well-known IcePack registry interfaces.
+
+- Added the configuration property Ice.Compression.Level to provide
+  more control over the bzip2 algorithm used to compress Ice protocol
+  messages.
+
+- Fixed a bug in the Glacier2 router where buffered mode serialized
+  twoway requests when it should not.
+
+Changes since version 2.1.0
+---------------------------
+
+- Fixed bug with the random selection of an endpoint for a proxy with
+  multiple endpoints configured. The random number generator used
+  by GCC was not being seeded, causing the selection order to always
+  be the same.
+
+- Fixed Slice compilers to allow file names containing whitespace.
+
+- Fixed a thread pool bug on Win32 in which the file descriptors for
+  the pipe were not closed.
+
+- Fixed a bug in Freeze Maps: you can now add an index to an existing
+  Freeze Map.
+
+- Added sequences of fixed-length elements to throughput demo.
+
+- Added RTLD_GLOBAL when calling dlopen on Unix platforms.
+
+- Fixed a bug that could cause an assert if connections could not be
+  established in thread-per-connection mode.
+
+- Added two new properties for controlling Active Connection
+  Management (ACM). In prior releases ACM was governed by the property
+  Ice.ConnectionIdleTime, which affected client- and server-side
+  behavior. The new properties, Ice.ACM.Client and Ice.ACM.Server,
+  now allow independent timeouts to be specified for client- and
+  server-side ACM. Ice.ConnectionIdleTime is now deprecated.
+
+- Reverted a change introduced in 2.1.0 in which retries were not
+  attempted for oneway and batch oneway requests. Ice now behaves
+  as it did in prior releases: if the connection associated with a
+  oneway or batch oneway proxy is closed, an invocation on the proxy
+  will transparently reestablish the connection. Please see the Ice
+  manual for more information on the reliability of oneway and batch
+  oneway reliability.
+
+- A race condition with Glacier2 detaching the request handler thread
+  has been fixed.
+
+- Added -E option to the various Slice compilers to print preprocessor
+  output on stdout.
+
+- Ice::ObjectNotExistException is now retried for invocations made on
+  indirect proxies. This allows the transparent migration of objects
+  or objects adapters.
+
+- As announced with version 1.5, slice2cpp and slice2freeze now
+  require all Slice definitions to be nested inside a module;
+  definitions at global scope (other than module definitions) now
+  cause a hard error (whereas, previously, they only caused a
+  warning).
+
+- Fixed a bug in the option parsing for Ice tools such as slice2cpp,
+  slice2java, slice2cs, etc. The option parser used to incorrectly
+  complain about repeated options when in fact no option was
+  repeated. Also changed the parser to permit options to follow an
+  argument, so
+
+      slice2cpp -I. x.ice
+
+  and
+
+      slice2cpp x.ice -I.
+
+  are now equivalent.
+
+- Fixed bug where the IcePack node with a collocated registry wouldn't
+  terminate after the admin "shutdown" command.
+
+- The Windows demo/IcePatch2/MFC example displays an error dialog when
+  the patch client is run without the --IcePatch2.Endpoints option.
+
+- Fixed bug where data transfer statistics were not being reported on
+  outgoing datagram requests.
+
+Changes since version 2.0.0
+---------------------------
+
+- Fixed bug in the code generators for C# and VB: for sequences
+  of structs and sequences of Object*, incorrect code was generated
+  if a ["cs:collection"] or ["vb:collection"] metadata directive
+  was used.
+
+- We do not retry oneway or batch oneway requests anymore, except if
+  there are problems during connection establishment. If we retry a
+  oneway or batch oneway, previous oneways from the same batch, or
+  previous oneways that are buffered by the IP stack implementation,
+  are silently thrown away. This can lead to a situation where the
+  latest oneway succeeds due to retry, but former oneways are
+  discarded.
+
+- Fixed race between connection validation and activation for UDP
+  endpoints in thread-per-connection mode.
+
+- Fixed a deadlock that could occur if a server cannot send data
+  during connection validation.
+
+- Glacier2 could hang if a server is not running. This has been fixed.
+
+- Added support for g++ builds on Solaris.
+
+- Fixed IcePack node and registry database environment names. They
+  have been changed to be the name of the node for IcePack nodes and
+  'Registry' for the IcePack registry. This means that you can now
+  configure the database environment using the properties prefixed
+  with Freeze.DbEnv.<node name> or Freeze.DbEnv.Registry.
+
+- Fixed a bug where the endpoint cache for indirect proxies wasn't
+  always cleared upon a communication failure with an object.
+
+- Fixed a race condition in the IcePack on-demand server activation
+  code which could cause clients to hang under rare conditions if the
+  server couldn't be activated.
+
+- Fixed a small memory leak in the IcePack node that would occur each
+  time a process is forked (Unix only).
+
+- Added 'object list' and 'object describe' IcePack admin commands.
+
+- Changed the signature of IcePack::Admin::removeObject() to take the
+  identity of the object instead of its proxy.
+
+- Connection validation now checks for the timeout specified by the
+  property Ice.Override.ConnectTimeout and will raise
+  Ice::ConnectTimeoutException if the connection validation times out.
+
+- Fixed an assert that could occur during connection establishment if
+  no more file descriptors are available.
+
+- Improved support for on-demand server activation in IcePack.
+
+- Improved the IcePack registry to prevent potential deadlocks caused
+  by thread starvation.
+
+- The Ice manual stated that the IcePack configuration property
+  IcePack.Registry.Internal.Endpoints was only necessary when nodes
+  were being used, but in fact the property is required regardless
+  of whether nodes are used. The manual has been updated accordingly.
+
+- Fixed a bug where Ice::ObjectAdapter::activate() could throw
+  Ice::ObjectAdapterDeactivatedException if the object adapter was
+  deactivated concurrently.
+
+- Fixed a bug where setting the locator proxy on an indirect proxy
+  could cause an assert.
+
+- Fixed a bug in IceSSL when multiple communicators are used.
+
+- Added an optimization to the Freeze evictor for the ice_ping
+  operation. The object is no longer loaded into the cache by this
+  operation; Freeze simply checks if the object is in the cache or
+  the database.
+
+- Fixed a slice2cpp failure when the --output-dir option specified a
+  directory containing backslashes.
+
+- Changed the signature of Ice::Service::main() and
+  Ice::Service::run() to accept a reference to argc (int & argc)
+  rather than passing argc by value (int argc). This is to ensure
+  that, if Ice::initialize() or Ice::Service::initializeCommunicator()
+  rewrites argv, argc reflects the number of elements of the rewritten
+  argument vector.
+
+- Fixed an encoding bug in IceSSL.
+
+- Fixed incorrect logging message if no more endpoints are available
+  for retry.
+
+- Added setDefaultContext() and getDefaultContext() to the
+  Ice::Communicator interface. This allows a default context to be
+  established on a communicator-wide basis. See section 29.9.3 in the
+  doc.
+
+  Added ice_defaultContext to Ice::ObjectProxy. This creates a new
+  proxy that uses the default context established on the communicator.
+
+- Fixed a rare proxy marshaling bug that could cause the receiver to
+  encounter an UnmarshalOutOfBoundsException.
+
+- Overloaded the checkedCast member function of the generated Prx
+  classes to allow a trailing argument of type Ice::Context. This
+  makes it possible to do stateful things that require a context in a
+  servant locator's activate() method.
+
+- Added catalogs for Freeze: each database environment used by Freeze
+  now contains a special dictionary (named __catalog) that keeps track
+  of all evictor and dictionary databases in this environment.
+
+- Fixed a bug in slice2cs and slice2vb: incorrect code was generated
+  if an interface was derived from a base interface in a different
+  module and if the base interface contained an AMD operation.
+
+Changes since version 1.5.1
+---------------------------
+
+- Fixed a bug in IcePack which could cause a core dump of the IcePack
+  registry or node when updating an application deployment.
+
+- The proxy returned by the object adapter operations addFacet and
+  addFacetWithUUID did not contain the facet. This required the
+  application to make an extra call to ice_newFacet in order to
+  obtain the correct proxy. This has been fixed.
+
+- Added the object adapter property <name>.PublishedEndpoints, which
+  specifies endpoints to advertise in proxies created by the adapter.
+
+- For WIN32, Thread::getThreadControl() set the thread id of the
+  ThreadControl object to the current thread instead of the thread the
+  control object belongs to. This has been fixed.
+
+- Changed Ice::Service to use _exit() in the daemon parent.
+
+- Fixed a bug with AMD exception handling, where it was possible that
+  certain exceptions propagate out of ice_response() or
+  ice_exception(), and therefore such exceptions were not handled
+  properly.
+
+- Exceptions raised while marshaling data for batch requests resulted
+  in a connection deadlock. This has been fixed.
+
+- Fixed a bug in slice2cs: the generated code was incorrect for
+  dictionaries with sequence value types, if that sequence value type
+  was mapped to an array.
+
+- Fixed bug in IcePack that would prevent dynamically added adapters
+  from being used again after the IcePack registry was restarted.
+
+- Fixed tracing of operation mode.
+
+- Fixed bug in slice2cpp: for statically linked binaries under
+  Windows, exceptions and classes could cause an
+  UnmarshalOutOfBoundsException.
+
+- Fixed bug in slice2java: with the --impl-tie option, incorrect code
+  was generated for local interfaces and classes.
+
+- Tightened semantic check for all Slice compilers: previously, a
+  local interface or class could be derived from a non-local interface
+  or class. This is now correctly diagnosed as an error.
+
+- Changed code generation in slice2java: for local interfaces, only an
+  OperationsNC (but no Operations) interface is generated
+  now. (Previously, both interfaces were generated, with one of them
+  being empty.)
+
+- The IceSSL plug-in was using regular mutexes in some places where
+  static mutexes are necessary. This has been fixed.
+
+- Fixed a bug in the garbage collector that caused a crash in rare
+  circumstances.
+
+- Freeze dictionaries now support indices. You can index on the full
+  value of the dictionary, or on a member (when the value is a struct
+  or a class). When you index on a member, you can define several
+  indices (for different members). See the Freeze bench demo and the
+  Freeze dbmap test for examples.
+
+- The Ice::Service class no longer resets the umask to 0, but rather
+  uses the inherited umask.
+
+- Fixed a code generation problem in slice2cpp. This problem showed up
+  only for the --impl option.
+
+- Changed the way C++ keywords are escaped. Previously, a Slice
+  identifier that is a C++ keyword was escaped everywhere. For
+  example, Slice "while" was mapped to "_cpp_while" and
+  "_cpp_whilePrx". With the change, Slice "while" is mapped to
+  "_cpp_while" and "whilePrx".
+
+- Fixed the slice2java and slice2cs compilers for operations with
+  multiple exceptions in an exception specification: if an exception
+  was a base of one or more other exceptions in the same exception
+  specification, the code generator sometimes emitted the catch blocks
+  in the marshaling and dispatch code in the wrong order. (This
+  applied only to interfaces with an ["amd"] metadata directive.)
+
+- Fixed a bug in the slice2cs code generator:
+  
+  ["cs:collection"] sequence<Object> S1;
+  ["cs:collection"] sequence<Object*> S2;
+
+  Sequences of Object or Object* caused incorrect code to be generated
+  if they were marked as "cs:collection".
+
+- Fixed a bug in the slice2cs code generator: for nested sequences,
+  incorrect code was generated if both the inner and the outer
+  sequence were mapped as arrays.
+
+- Fixed a number of bugs in slice2cs that caused incorrect code to be
+  generated if C# keywords were used as Slice identifiers.
+
+- Fixed a bug in slice2cpp that permitted impossible exceptions to be
+  received by a client if client and server used Slice definitions
+  with mismatched exception specifications. The client now correctly
+  receives UnknownUserException if the server throws an exception
+  that, according to the client's view of the operation, is
+  impossible.
+
+- The documentation has always stated that same-named constructs
+  cannot be directly nested inside each other. (For example, a module
+  `M' cannot contain a constant named `M'.) The Slice compilers did
+  not enforce this correctly up to now for modules containing
+  constructs with the same name as the enclosing module.  This has
+  been fixed and now results in a diagnostic.
+
+- The slice2cpp compiler now deprecates Slice definitions at global
+  scope: only modules can be defined at global scope. Everything else
+  (constants, classes, interfaces, etc.) must be defined inside a
+  module.
+
+  For the time being, the compiler issues a warning for each global
+  definition but continues to compile the code. Global non-module
+  definitions will elicit a hard error two releases from now.
+
+- Several demos used Slice classes where interfaces were more
+  appropriate. This has been fixed.
+
+- Fixed a bug in the Windows IcePack registry project that would cause
+  a compilation error if the registry was compiled before the node.
+
+- Fixed a hang in the IcePack registry that would occur if multiple
+  nodes were started simultaneously.
+
+- Added new properties Ice.StdErr and Ice.StdOut to redirect the
+  standard error and output streams of a process. Reimplemented
+  IcePack's error/output redirection using these properties.
+
+Changes since version 1.5.0
+---------------------------
+
+- The relevant Windows project files were fixed to generate Slice
+  checksums.
+
+- Fixed harmless warnings emitted by the IcePatch client.
+
+- Fixed a bug in IceStorm that caused a subscriber to no longer
+  receive events after unsubscribing and resubscribing to the same
+  topic.
+
+- Fixed a bug in the slice2cs code generator: classes with multiple
+  sequence members caused incorrect code to be generated.
+
+- Added work-around for clients "hanging" at exit when using IcePack
+  on Windows.
+
+Changes since version 1.4.0
+---------------------------
+
+- Added support for generating checksums of Slice definitions,
+  enabling peers to verify that they share the same client-server
+  contract. See the manual for more information.
+
+- Fixed a bug that could cause an assert or exception in some rare
+  circumstances, if an operation is invoked after the object adapter
+  for the Ice object has been deactivated.
+
+- Fixed a bug in the C++ translator that caused compile errors when
+  two Slice classes with the same name appeared in different modules
+  in the same file.
+
+- Changed the names of Windows executables to lower case, for
+  consistency with non-Windows platforms. The following executables
+  have been renamed:
+
+    DumpDB.exe		-> dumpdb.exe
+    GlacierRouter.exe	-> glacierrouter.exe
+    GlacierStarter.exe	-> glacierstarter.exe
+    IcePackNode.exe	-> icepacknode.exe
+    IcePackRegistry.exe	-> icepackregistry.exe
+    IcePatchCalc.exe	-> icepatchcalc.exe
+    TransformDB.exe	-> transformdb.exe
+
+  All library names have also been renamed accordingly.
+
+- Changed the default behavior of the IcePatch client to dynamically
+  calculate the unique signatures of local files in order to reduce
+  the number of cache files, and added the property IcePatch.Dynamic
+  to control this behavior.
+
+- AIX 5.2/VisualAge 6.0 port.
+
+- Changed the --depend option of slice2java. If you get dependencies
+  for a file x.ice that includes y.ice, the dependency line that is
+  written now is "x.ice: y.ice". (Previously, it was "x.cpp: x.ice
+  y.ice".) If a Slice file does not include any other Slice file, no
+  dependency is printed. With some post-processing, this is sufficient
+  to generate dependencies for tools such as ant and make.
+
+- Removed IceBox::ServiceBase and IceBox::FreezeService. There's now a
+  single IceBox::Service interface.
+
+- IcePack descriptors have been redesigned. See the manual for more
+  information on the new descriptor format.
+
+- Some IcePack improvements:
+  
+  * Descriptors are now parsed only by the icepackadmin tool,
+    therefore it is no longer necessary to store the descriptor files
+    on each IcePack node or registry host.
+  
+  * It is now possible to update an application or server deployment
+    by modifying its XML descriptor and using the `application update'
+    or `server update' commands in icepackadmin.
+
+  * It is now possible to define variables from the icepackadmin
+    command line when deploying or updating an application or server.
+
+  * An icepackadmin `node remove' command has been added to clean up
+    resources associated with a given node.
+
+  * A command line option `--checkdb' has been added to the
+    icepacknode executable. When the node is started with this option,
+    it performs a consistency check on its database to remove servers
+    that are no longer registered with the IcePack registry.
+
+Changes since version 1.3.0
+---------------------------
+
+- Added a fix to the mutex tests in test/IceUtil/thread for FreeBSD.
+
+- Modified the Ice::Service class to support the Ice.Nohup property,
+  rename the win9x function to checkSystem, and add more flexibility
+  in configuring services. See the reference manual for more
+  information.
+
+- Added unsupported FreeBSD port.
+
+- Ice now builds with GCC 3.4.0.
+
+- Fixed a bug when making asynchronous invocations on a routed proxy.
+
+- Removed slice2wsdl.
+
+- Changed the way sequences are unmarshaled to protect against
+  malicious messages with faked very large sequence count values.
+  While even with previous versions of Ice, buffer overruns were
+  impossible, malicious messages could cause large amounts of memory
+  to be preallocated, causing the receiving process to run out of
+  memory. This is no longer possible -- the total amount of memory
+  preallocated for sequences during unmarshaling is now capped at
+  Ice.MessageSizeMax.
+
+- Freeze Evictor changes to adapt to the facet redesign, and 
+  make several improvements:
+  
+  * The Freeze Evictor now has add, addFacet, remove and removeFacet
+    operations with the same signature and behavior as the Ice
+    ObjectAdapter.
+
+  * The createObject and destroyObject operations were kept for 
+    compatibility with Ice 1.2/1.3, but are now deprecated.
+
+  * getIterator now takes a facet parameter, and no longer takes
+    a loadServants parameter.
+
+  * Indices can now be defined for facets (not just the "" facet).
+ 
+  * The ServantInitializer initialize operation now takes a facet
+    parameter. 
+
+  * The ServantInitializer is now provided to the Evictor in the
+    createEvictor call. In this way, the Evictor can consider the
+    servant initializer immutable and avoid locking.
+
+  * Servant initialization is now performed without holding any
+    Evictor locks. As a result, a servant initializer can perform
+    any remote call, except one that comes back to the object
+    being initialized (which would result in a deadlock).
+
+  * The Evictor is now associated with a single object adapter;
+    this object adapter is provided in the createEvictor call.
+
+  * The Evictor is now "deactivate-safe": if you deactivate the
+    evictor while other threads are performing other Evictor 
+    operations, deactivate() will wait until these operations
+    have completed.
+
+  * The new keep and release operations let you lock and unlock 
+    an object in an Evictor's cache.
+
+- Removed a bogus assert that could happen under certain race
+  conditions when a connection timeout occurs.
+
+- Facets have been significantly redesigned.
+
+  * Facets are no longer hierarchical. As a result, FacetPath (which
+    was a sequence of strings) is now simply a string. This is
+    reflected in all APIs that used FacetPath.
+
+  * There is no longer an active facet map in Ice::Object. As a
+    result, the following operations have been removed:
+
+    + On proxies: ice_facets, ice_appendFacet.
+
+    + On Object: ice_facets, ice_addFacet, ice_removeFacet,
+      ice_updateFacet, ice_removeAllFacets, ice_findFacet,
+      ice_findFacetPath.
+
+  * The object adapter is now used to register facets instead of the
+    active facet map. The following operations have been added to
+    Ice::ObjectAdapter: addFacet, addFacetWithUUID, removeFacet,
+    removeAllFacets, findFacet, and findAllFacets.
+
+    Please see the reference manual for more information. For naming
+    consistency, the following object adapter operations have been
+    renamed:
+
+    + identityToServant has been renamed to find.
+    + proxyToServant has been renamed to findByProxy.
+
+  * This object model design change means that facets are no longer
+    transferred with an object sent by value.
+
+  * If your application receives an object with facets from an older
+    version of Ice, a MarshalException is raised. This is unavoidable
+    because it is a change to the object model, and not just to the
+    way objects are transferred or encoded.
+
+  * If your application receives a request or reply with a facet path
+    with more than one element, the run time throws a MarshalException.
+
+  * If your application receives a proxy with a facet path with
+    more than one element, the run time throws ProxyUnmarshalException.
+
+- Ice no longer retries operation calls on RequestFailedException.
+  (ObjectNotExistException, OperationNotExistException, and
+  FacetNotExistException are derived from RequestFailedException.)
+
+- Fixed link errors when building Ice without BerkeleyDB in the
+  shared library search path.
+
+- Added ConnectionRefusedException as a specialization of
+  ConnectFailedException, to indicate if a connection fails because a
+  server actively refuses the connection.
+
+- The documentation claimed that the Ice.ProgramName property was
+  initialized to the value of argv[0], but that initialization was in
+  fact not happening. As of this version, Ice.ProgramName is
+  initialized correctly.
+
+- Fixed the slice2cpp compiler for operations with multiple exceptions
+  in an exception specification: if an exception was a base of one or
+  more other exceptions in the same exception specification, the code
+  generator sometimes emitted the catch blocks in the marshaling and
+  dispatch code in the wrong order.
+
+Changes since version 1.2.0
+---------------------------
+
+- Added FreezeScript, which consists of the tools dumpdb and
+  transformdb for inspecting and migrating Freeze databases,
+  respectively.
+
+- The IceStorm server now uses a single database for all topics,
+  which makes topic creation much faster.
+
+- Added the virtual member functions ice_preMarshal and
+  ice_postUnmarshal to Ice::Object. The default implementations do
+  nothing, but subclasses may override them to take special action
+  before marshaling and after unmarshaling, respectively.
+
+- Added the demo/IcePack/simple example.
+
+- Fixed a bug in IcePack that could cause the node to crash if a
+  server failed to start.
+
+- IceBox services deployed with IcePack are now loaded in the order
+  they appear in the XML IceBox descriptor.
+
+- Connections are no longer closed when the last proxy using the
+  connection is destroyed. Doing so is error prone:
+
+  * Quite often, proxies are created on the fly, resulting in
+    connections being opened and closed all the time. This is
+    especially true for services that receive a proxy and data, and
+    then forward this data using the proxy.
+
+  * Often, connections are stay open for too long, because proxies are
+    kept even though they are never used again.
+
+  * It doesn't work well with AMI requests, because the AMI callback
+    objects keep track of connections directly. This would mean that
+    if a process only uses AMI requests, a connection is opened and
+    closed for each request, as each request typically has its own
+    AMI callback object.
+
+  Instead, ACM (Automatic Connection Management) is now enabled by
+  default, with a default value of one minute. This means that idle
+  connections are closed after one minute, regardless of whether there
+  are proxies using the connection or not. This closing of connections
+  is transparent, i.e., closed connections are automatically
+  reestablished in case they are needed again. Please see the
+  description of the Ice.ConnectionIdleTime property for details.
+
+- ACM has been completely reworked. It now works properly with respect
+  to retrying failed requests.
+
+- Added the IceSSL.Client.IgnoreValidPeriod and
+  IceSSL.Server.IgnoreValidPeriod properties. See the description in
+  the manual for details.
+
+- Added the IceBox.LoadOrder property, which specifies the order
+  in which IceBox services are loaded.
+
+- Added support for the Intel C++ compiler (v8.0) on Linux x86.
+
+- Removed the Ice.Daemon, Ice.DaemonNoChdir and Ice.DaemonNoClose
+  properties. Support for Unix daemons and Win32 services has been
+  integrated into the Ice::Service class.
+
+- The default thread pool size is now just one thread. This is the
+  fastest possible setting, still allows one level of nesting, and
+  doesn't require that servants be thread safe. (Please see the
+  description of the thread pool properties in the manual for
+  information on how to increase the number of threads.)
+
+- HP-UX port. See INSTALL.HP-UX.
+
+- Added extra file integrity checks to IcePatch::Client.
+
+- Fixed a problem with servers not shutting down properly under
+  certain circumstances.
+
+- IceUtil::Thread now calls srand() in each new thread (Windows only).
+
+- When unmarshaling a string sequence parameter, Ice was not clearing
+  the vector before appending elements to it. This has been fixed.
+  
+- Fixed a rare connection deadlock, that could happen if lots of long
+  messages are sent rapidly in parallel, using separate threads or
+  AMI.
+
+- Fixed a race condition that could lead to a deadlock if a thread
+  tried to join with another thread from within the destructor of a
+  servant or class.
+
+- Added support for IcePack and Glacier on Windows platforms.
+  The IcePack Registry, IcePack Node and Glacier Starter programs
+  can optionally be installed as Windows services. See the Ice
+  manual for more information.
+
+- Added a new logger implementation that uses the Windows Event Log.
+  To use it, set the Ice.UseEventLog property to a non-zero value.
+
+- Three new icepackadmin commands:
+
+  * server signal NAME SIGNAL
+
+    Causes the IcePackNode to send a signal to a server. (Unix only)
+
+  * server stdout NAME MESSAGE
+
+    Writes MESSAGE on server's stdout.
+
+  * server stderr NAME MESSAGE
+
+    Writes MESSAGE on server's stderr.
+
+- Two new IcePack.Node properties:
+
+  * IcePack.Node.Output=<path>
+
+    If set, the IcePack node will redirect the stdout and stderr 
+    output of the started servers to files named <server>.out and 
+    <server>.err in this directory. Otherwise, the started servers 
+    share the stdout and stderr of the IcePack node.
+
+  * IcePack.Node.RedirectErrToOut=<num>
+
+    If <num> is set to a value larger than zero, the stderr of each
+    started server is redirected to the server's stdout.
+
+- Added Slice interface Ice::Process in slice/Ice/Process.ice. This
+  interface enables IcePack to properly shut down a process without
+  relying on signals, which is necessary for successful operation
+  on Windows.
+
+- Added setServerProcessProxy to Ice::LocatorRegistry.
+
+- Added new properties <ObjectAdapter>.RegisterProcess and
+  Ice.ServerId. If RegisterProcess is defined, the object adapter
+  creates a servant implementing the Ice::Process interface and
+  registers it with the locator registry using the server id
+  defined by Ice.ServerId.
+
+- Added the "register" attribute to the <adapter> element in the
+  IcePack descriptors. If true, the RegisterProcess property is
+  defined for the object adapter.
+
+- Added getLocator to ObjectAdapter.
+
+- Eliminated Glacier's dependency on the crypt library. It now
+  uses an equivalent function from OpenSSL.
+
+- Fixed a bug that could cause a crash if an application used
+  Ice::Application and was interrupted by a signal, resulting
+  in two calls to Communicator::destroy().
+
+- Replaced interface Glacier::PasswordVerifier with
+  Glacier::PermissionsVerifier, property
+  Glacier.Starter.PasswordVerifier with
+  Glacier.Starter.PermissionsVerifier, and changed
+  Glacier::Starter::startRouter() to throw PermissionDeniedException
+  instead of InvalidPasswordException.
+
+- Fixed a problem with the random selection of SSL endpoints.
+
+- Ice is now supported on Windows 98 SE. See INSTALL.WINDOWS.
+
+- Fixed an incorrect complaint in the Slice parser about a change of
+  meaning for enumeration constant definitions.
+
+- The glacierrouter and glacierstarter processes used to abort if
+  given a non-existent config file.
+
+- Changed Ice::Exception::ice_name() to return const std::string&
+  instead of returning a string by value.
+
+- Added support for "global" metadata, which can only be specified
+  once in a file and must appear before any definitions. The syntax
+  is similar to that of local metadata, but with an extra set of
+  brackets: [["metadata1","metadata2","etc."]]. The first use of this
+  metadata is for specifying a package in Java.
+
+- The IcePatch server no longer changes the working directory.
+  This avoids potential problems with core files being generated in
+  the data directory.
+
+- Ice now uses gethostbyname_r() if available.
+
+- Errors during close() or shutdown() on connections now cause
+  exceptions.
+
+- Fixed a deadlock that could happen if requests were sent from the
+  exception() AMI callback.
+
+- Eliminated the need to define _UNICODE when building Ice on Windows.
+
+- Fixed problems with generated code in slice2cpp and slice2freeze
+  when --header-ext is used.
+
+- The Slice parser and database transformer didn't parse negative
+  floating-point numbers correctly. This has been fixed.
+
+- If the Glacier Starter couldn't start the Glacier Router, the
+  starter terminated. This has been fixed.
+
+- Visual C++ 7.x builds can now be used by applications built with 
+  /Zc:wchar_t.
+
+- Fixed a bug in IceSSL that caused the error message "WRN unable
+  to load certificate authorities" to be logged when no value
+  was specified for the "path" attribute of <certauthority>.
+
+- Added property Ice.Override.ConnectTimeout. See the manual for
+  details.
+
+- Fixed a rare deadlock in the object adapter, when a locator was
+  used.
+
+- Fixed a bug that could cause an abort if communicators were created
+  and destroyed in rapid succession.
+
+- Fixed transformdb to take separate arguments for specifying
+  include paths. The option -I has been replaced with the options
+  --include-old and --include-new.
+
+- Added twoway-throttling to Glacier. See the descriptions of the
+  properties Glacier.Router.Client.Throttle.Twoways and
+  Glacier.Router.Server.Throttle.Twoways for details. To trace
+  throttling, set the property Glacier.Router.Trace.Throttle.
+
+- The properties Glacier.Router.Client.BatchSleepTime and
+  Glacier.Router.Server.BatchSleepTime have been replaced with
+  Glacier.Router.Client.SleepTime and Glacier.Router.Server.SleepTime.
+  Please see the description of the properties in the manual for the
+  new semantics of the sleep times.
+
+- Added STL functors for partial proxy comparison:
+
+  * ProxyIdentityLess
+  * ProxyIdentityEqual
+  * ProxyIdentityAndFacetLess
+  * ProxyIdentityAndFacetEqual
+
+- A DNSException could cause a deadlock. This has been fixed.
+
+- Changed FD_SETSIZE under Windows to 1024. (The default permits only
+  64 concurrent connections, which is too small for some applications.)
+
+- The IcePatch server now ignores Ice exceptions in the update thread
+  instead of terminating the update thread.
+
+- Fixed a concurrency bug that could cause the IcePack registry to
+  crash.
+
+Changes since version 1.1.1
+---------------------------
+
+- Added a garbage collector for class graphs that form cycles. (See
+  the C++ mapping chapter in the documentation for details.)
+
+- Manual retry in the exception() callback of asynchronous requests
+  didn't work. This has been fixed.
+
+- Fixed a crash that could happen during shutdown.
+
+- Fixed a deadlock that could happen during connection establishment.
+
+- Fixed deadlock during shutdown that can happen if a thread pool with
+  only one thread is used.
+
+- Moved UserExceptionFactory from Ice namespace to IceInternal namespace
+  because UserExceptionFactory is no longer an interface for use
+  by applications.
+
+- Bi-directional connections are now handled by the client-side thread
+  pool instead of the server-side thread pool.
+
+- Fixed a bug in the generated code that caused "at-most-once"
+  semantics to be ignored for collocated invocations.
+
+- Removed all Ice dependencies on Xerces. Added a simple C++ wrapper
+  around the expat XML parser as IceXML/Parser.h.
+
+- Implemented TwowayOnlyException. That exception is raised if an
+  attempt is made to invoke an operation that has a return value,
+  out parameters, or an exception specification via a oneway or
+  datagram proxy.
+
+- Removed ice_flush() on the proxy base class. Batch requests are
+  now flushed by calling Communicator::flushBatchRequests(). This
+  flushes all requests that are currently batched in the communicator,
+  (for all connections).
+
+- Added back the connection closure timeout, but only for misbehaving
+  peers. If a timeout is set, and a peer doesn't react to a close
+  connection message, the connection is forcefully closed after the
+  timeout. However, it is never forcefully closed if requests are
+  still outstanding. Doing so would violate ordering guarantees for
+  finished() and deactivate() on servant locators.
+
+- Fixed a bug in the slice2java code generator: if a parameter was
+  named "current", illegal code was generated.
+
+- Fixed a bug in the slice2java code generator: tie classes were not
+  generated correctly for operations with an "amd" metadata directive.
+
+- On Windows, you can now build IceUtil in such a way that mutexes 
+  are used instead of critical sections. See IceUtil/Config.h.
+
+- Fixed a bug where Ice would print a dispatch warning for
+  Ice::RequestFailedException even if the Ice.Warn.Dispatch property
+  was set to 1.
+
+- Added per-proxy contexts. The change is source-code compatible with
+  the previous approach, that is, it is still possible to pass an
+  explicit Ice::Context to an operation call as an additional,
+  trailing parameter. However, IceProxy::Ice::Object now contains two
+  new operations:
+
+  - ice_getContext()
+
+    This returns the context currently associated with a particular
+    proxy by value. (By default, the context associated with proxies
+    is empty.)
+
+  - ice_newContext(const ::Ice::Context& context)
+
+    This creates a new proxy that is associated with the passed
+    context. Thereafter, calls via the new proxy always pass the
+    context that was passed to ice_newContext() when that proxy was
+    created.
+
+  The net effect of this is that it is now possible to establish the
+  context for a proxy once and, thereafter, have that same context
+  sent automatically whenever an operation is invoked via the proxy
+  (instead of having to pass an explicit context parameter on every
+  call).
+
+- Added Ice::Properties::parseIceCommandLineOptions(). This operation
+  converts to properties all options that start with one of the
+  following prefixes: --Ice, --IceBox, --IcePack, --IcePatch,
+  --IceSSL, --IceStorm, --Freeze, and --Glacier.
+
+- Added ice_clone() member function to non-abstract classes.
+  ice_clone() polymorphically copies a class instance. The copy is a
+  deep copy for all types except for class members; class members are
+  copied shallow, that is, if a class contains a class member, the
+  original and the clone contain a Ptr that points at the same single
+  class instance.
+
+- Improved marshaling performance for built-in types (byte, bool,
+  short, int, long, float, double, and string). This is noticeable in
+  particular when transmitting sequences of these types, sequences of
+  structures containing these types, or large dictionaries containing
+  these types.
+
+- Added menu with several options to throughput demo.
+
+- Major Freeze update:
+
+  - Removed support for the XML encoding. Freeze now always uses the
+    binary encoding.
+
+  - Removed the lowest Freeze layer. You should now use Berkeley
+    DB directly.
+
+  - Replaced the database transformation tool with one that supports
+    the binary encoding.
+
+  - For Freeze Maps and Evictors, the underlying Berkeley DB
+    environment is now always transactional. New configuration
+    variables:
+
+      - Freeze.DbEnv.<envName>.DbHome provides the path to the DB home, 
+        and defaults to <envName>.
+
+      - Freeze.DbEnv.<envName>.DbRecoverFatal triggers "fatal recovery" 
+        when set to a value other than 0 (defaults to 0).
+
+      - Freeze.DbEnv.<envName>.DbPrivate when set to a value other than 0
+        tells Berkeley DB to use process private memory instead of
+        shared memory. Defaults to 1. Set it to 0 when you want to run
+        db_archive (or another Berkeley DB utility) on a running
+        environment.
+
+      - Freeze.DbEnv.<envName>.DbCheckpointPeriod: each Berkeley DB
+        environment created by Freeze has an associated thread that
+        checkpoints this environment every DbCheckpointPeriod seconds.
+        Defaults to 120 seconds.
+
+      - Freeze.DbEnv.<envName>.PeriodicCheckpointMinSize defines the 
+        minimum size in kbytes for the periodic checkpoint (see above). 
+        This value is passed to Berkeley DB's checkpoint function. Defaults
+        to 0 (no minimum).
+
+      - Freeze.DbEnv.<envName>.OldLogsAutoDelete: when set to a value 
+        other than 0, old transactional logs no longer in use are deleted
+        after each periodic checkpoint. Defaults to 1.
+
+       - Freeze.Trace.Map: trace the Map operations
+
+       - Freeze.Trace.DbEnv: trace the operations on the DbEnv, which
+         is shared between Maps and Evictors.
+
+     Such a Freeze-created Berkeley DB environment is created and
+     opened when the first Freeze Map or Evictor using it is created,
+     and is closed when the last Freeze Map or Evictor using it is
+     closed.
+
+  - Freeze Map update:
+
+    Freeze Maps are now opened/created directly using their constructor:
+
+    C++: Map(const Freeze::ConnectionPtr& connection, 
+             const std::string& dbName, 
+             bool createDb = true);
+
+    Java: public
+          Map(Connection connection, 
+              String dbName, 
+              boolean createDb);
+
+    Connection is a new local interface similar to the DBEnvironment
+    local interface (which was removed). However, Connection is not
+    thread-safe: access to a given Connection object must be serialized.
+    A connection can be used to create a Transaction (similar to the
+    old DBTransaction); likewise, a Transaction is not thread-safe. 
+
+    To access concurrently the "same" map, you should create multiple
+    connections and associated maps.
+
+    In Java, it is necessary to call close() on the Map if you want to
+    close the underlying Berkeley DB database (and indirectly the
+    environment) before the Map is finalized.
+
+    As a consequence of using a transactional Berkeley DB environment,
+    all Map writes are now transactional:
+
+    - Non-iterator writes use DB_AUTO_COMMIT.
+
+    - Writable iterators (non-const C++ iterators, Java Iterators)
+      have an associated transaction that is committed when the
+      iterator is closed.
+
+    Concurrent reads and writes to the same underlying Map can
+    generate deadlocks, even with a single writer. Berkeley DB detects
+    such deadlocks and "kills" one locker (iterator or transaction) to
+    resolve it. For non-iterator access, Freeze handles this situation
+    and retries transparently. When using iterators, a DeadlockException
+    is raised to the application, which is responsible for closing the
+    affected iterator(s) or transaction, and retrying.
+
+    Serialized access or concurrent reads never produce deadlocks.
+
+    In C++, the copy constructor and assignment operator of Freeze Map
+    iterators duplicate the source iterator. When the source iterator
+    is non-const, the duplicate iterator will use the same transaction.
+    This transaction is committed only when its last associated iterator
+    is closed (i.e., destroyed or assigned end()).
+
+    In both C++ and Java, write operations that are not within a user-
+    controlled transaction automatically close all open iterators
+    in the target Map. This reduces the likelihood of self-deadlocks.
+  
+ - Freeze Evictor update:
+
+   Freeze Evictors are now created directly using a static createEvictor
+   function:
+
+    C++: Freeze::EvictorPtr
+         Freeze::createEvictor(const Ice::CommunicatorPtr& communicator, 
+                               const std::string& envName, 
+                               const std::string& dbName,
+                               const std::vector<IndexPtr> indices = 
+                                     std::vector<IndexPtr>(), 
+                               bool createDb = true);
+
+    Java (in class Freeze.Util): 
+         public static Evictor
+         createEvictor(Ice.Communicator communicator, 
+                       String envName, 
+                       String dbName,
+                       Index[] indices, 
+                       boolean createDb);
+
+   The persistence strategies have been removed. 
+
+   Ice objects are now saved by a background thread, controlled by
+   the following configuration variables.
+
+     - Freeze.Evictor.<envName>.<dbName>.SaveSizeTrigger: as soon as
+       SaveSizeTrigger objects have been created, modified or
+       destroyed, the background thread wakes up to save them. When set
+       to a negative value, there is no size trigger. Defaults to 10.
+
+     - Freeze.Evictor.<envName>.<dbName>.SavePeriod: the saving thread
+       wakes up every SavePeriod ms and saves any created, modified or
+       destroyed object. When set to 0, there is no periodic wake up.
+       Defaults to 1 minute (60,000 ms).
+
+     - Freeze.Evictor.<envName>.<dbName>.MaxTxSize: the saving thread
+       saves objects (facets) using transactions. MaxTxSize sets the 
+       maximum number of objects saved by a single transaction.
+       Defaults to 10 * SaveSizeTrigger; if the provided or default
+       value is negative, the actual value is set to 100.
+ 
+    And instead of saving full objects, Freeze now saves on a per facet
+    basis -- but still loads complete objects (with all their facets).
+    Once a persistent object has been created using the Freeze Evictor,
+    it is possible to add or remove persistent facets to this object
+    using the following new Evictor operations:
+  
+      void addFacet(Ice::Identity identity, Ice::FacetPath facet, 
+                    Object servant);
+      void removeFacet(Ice::Identity identity, Ice::FacetPath facet);
+      void removeAllFacets(Ice::Identity identity);
+
+    When saving an object (facet), the background saving thread locks 
+    this object. In Java, it locks the object itself; in C++, the object 
+    is expected to implement IceUtil::AbstractMutex. Naturally the
+    application must use the same synchronization to access the
+    persistent state of the object.
+ 
+    The EvictorIterator also changed slightly: the destroy operation
+    has been removed. More importantly, identities are now retrieved
+    in batch (internally) and the application can request that
+    the corresponding servants be loaded. This is achieved with
+    the new parameters of Evictor::getIterator:
+
+      EvictorIterator getIterator(int batchSize, bool loadServants);
+
+    You can also define Evictor indices for fast secondary key 
+    lookups: see the Freeze/phonebook demo.
+
+ - Freeze now requires Berkeley DB 4.1. It no longer compiles with older
+   Berkeley DB releases.
+
+   With Visual C++, you need to use the same project directory
+   settings when building Berkeley DB and Ice. In particular, if you
+   build Ice with STLPort, you need to build Berkeley DB with the same
+   STLPort.
+
+ - Added Freeze hot backup demo.
+
+- Added new C++ AbstractMutex class, and helper templates
+  (AbstractMutexI, AbstractMutexReadI, AbstractMutexWriteI) to easily
+  implement AbstractMutex using Mutex, RecMutex, Monitor or
+  RWRecMutex.
+
+- Fixed a bug in the implementation of StaticMutex on Windows, which
+  could result in a crash at exit.
+
+- Added Ice.UDP.RcvSize and Ice.UDP.SndSize properties. These
+  properties control the size of the UDP receive and send buffers as
+  well as controlling the maximum size of a datagram invocation. If a
+  datagram exceeds the configured size, the Ice run time throws a
+  DatagramLimitException. (Note that, on the receiving size, detection
+  of this condition is dependent on the local UDP implementation --
+  some UDP implementations silently drop datagrams that are too large
+  to fit into the receive buffer instead of reporting the error or
+  delivering a truncated datagram.)
+
+- Added Ice.Warn.Datagrams. This property prints a warning on the
+  server side if a DatagramLimitException is thrown.
+
+- Added Ice.MessageSizeMax property. This property controls the
+  maximum message size accepted by the Ice protocol in kiloBytes. The
+  default value is 1024 (1 MB).
+
+- Fixed a number of incorrect property settings in the config files
+  for the demos.
+
+- Added new property: Ice.Trace.Slicing. When set to a value > 0,
+  unknown exception and class types that are sliced emit a warning.
+
+- Added destroyOnInterrupt() to the Application class.
+  destroyOnInterrupt() is now the default behavior, because
+  shutdownOnInterrupt() only shuts down the server side of an
+  application, and therefore doesn't work with pure clients.
+
+- ObjectAdapter::removeServantLocator() no longer exists. The life
+  cycle of servant locators that are registered with an object adapter
+  ends when the adapter is destroyed.
+
+- Changed Ice::ServantLocator::deactivate to be passed the category
+  for which a servant locator is being deactivated.
+
+- Added --noindex option to slice2docbook to suppress generation of
+  index pages for pdf version of documentation.
+
+- Changed the behavior of Freeze::Map::insert to match the insert
+  behavior on associative containers in the C++ standard: if the
+  element is already there, it is not updated. Added Freeze::Map::put
+  function, to insert or replace an element, like the old insert. This
+  corresponds to the behavior of Berkeley DB's DB->put().
+
+- Added a test to the Slice parser to complain if an operation on a
+  local interface or class has an exception specification.
+
+- Added a test to the property parsing code to print a warning on
+  stderr if a property is not recognized. This prevents silly typos,
+  such as "Ice.config=MyFile" (instead of "Ice.Config=MyFile") from
+  slipping through undetected.
+
+- Changed the mapping of the Slice byte type: Ice::Byte is now a
+  typedef for unsigned char. (Previously, Ice::Byte was a typedef to
+  char.) This change guarantees that byte values are always in the
+  range 0..255 (instead of either -128..127 or 0..255, depending on
+  the CPU architecture). This change also permits function overloading
+  for Ice::Byte and char (which can be useful if you use both strings
+  and byte sequences).
+
+- Changed the python code for printing output from test clients, so
+  that you get each line as it comes.
+
+Changes since version 1.1.0
+---------------------------
+
+- Fixed a bug in IceXML that prevented successful extraction of
+  strings containing 8-bit characters.
+
+- Added support for a default object factory, similar to the semantics
+  of servant locators. Specifically, a factory registered with an
+  empty type id is invoked when a type-specific factory cannot be
+  found.
+
+- Added Linux/SPARC port from Ferris McCormick.
+
+- Fixed a bug where a daemonized Ice::Application wouldn't shutdown
+  properly.
+
+- Added support for user-defined variables in IcePack service and
+  server descriptors.
+
+- Fixed server-side bug with batch oneways or batch datagrams.
+
+- Fixed a performance problem in Glacier which would occur when using
+  message batching.
+
+- Portability fix in src/IceSSL/OpenSSLPluginI.cpp.
+
+- config/Make.rules now checks that mkshlib is defined.
+
+- src/IceUtil/CtrlCHandler.cpp now handles (ignores) EINTR returned by
+  sigwait.
+
+- Added DB_PRIVATE flag to DBEnv->open() on Linux, allowing Ice to use
+  the Berkeley DB library included with RedHat 9.
+
+Changes since version 1.0.1
+---------------------------
+
+- Added support for Visual Studio .NET 2003 aka VC 7.1
+
+- In IceUtil, all "try" and "timed" functions now return false when
+  the resource could not be acquired (i.e., an expected failure). The
+  "Try" from "timedTry" functions was removed, and for consistency the
+  functions trylock, readlock and writelock were renamed to tryLock,
+  readLock and writeLock.
+
+- Update to the library versioning scheme:
+
+  On Windows, only the major and minor version are now used, for
+  example: ice11d.dll (11d means 1.1 debug). In 1.0.x, the patch level
+  was included in the version string, for example ice101d.dll.
+
+  On Unix, the internal name (soname) is now constructed as
+  lib<name>.so.<major version><minor version>, for example
+  libIce.so.11 (for Ice 1.1.x). This internal name identifies a
+  symbolic link to lib<name>.so.<full version>, for example:
+  libIce.so.11 -> libIce.so.1.1.0. In 1.0.x, the internal name was set
+  to the actual shared library file name, lib<name>.so.<full version>.
+
+- Ice now implements slicing for exceptions and classes: if a process
+  receives an exception or class that is of a more derived type than
+  the receiver understands, the exception or class is automatically
+  sliced. (Previously, this situation resulted in an exception.)
+
+- Class factories are no longer necessary for non-abstract classes
+  (that is, for classes that do not have operations). For non-abstract
+  classes, the necessary factories are automatically installed by the
+  Ice run time. If you have existing code that implements factories
+  for non-abstract classes, you can simply delete that code.  Note
+  that for abstract classes (that is, classes with operations), it is
+  necessary to install a factory for each abstract class, exactly as
+  in version 1.0.x.
+
+- User exception factories and user exception factory managers no
+  longer exist. The factories for user exceptions are now
+  automatically installed by the Ice run time. If you have existing
+  code that implements user exception factories, you can simply delete
+  it.
+
+- Fixed a bug in the Slice parser: the semantic check to see whether
+  an identifier introduced into a scope has changed meaning was too
+  stringent.
+
+- If a client receives a derived exception for which it does not have
+  a user exception factory installed, the client receives the
+  exception sliced to a known base exception. In 1.0.x, the client
+  would have received NoUserExceptionFactoryException, an exception
+  that no longer exists in 1.1.x.
+
+- Fixed a bug with connections being closed even though they have
+  outstanding batch requests.
+
+- Fixed bug in the WIN32 icepatch client. The removal of orphaned
+  files didn't take into account that WIN32 file names are not case
+  sensitive.
+
+- New Ice.Nohup property: when its value is >0, shutdownOnInterrupt()
+  in Application will ignore SIGHUP on Unix and CTRL_LOGOFF_EVENT on
+  Windows.
+
+- Updated Application class: 
+
+  * The default behavior is now shutdownOnInterrupt().
+
+  * Removed the member function defaultInterrupt().
+ 
+- Removed Communicator::signalShutdown(): Ice is not using signal
+  handlers anymore, so Communicator::shutdown() can be used all the
+  time.
+
+- Added IceUtil::CtrlCHandler: a class that provides portable handling
+  of CTRL+C and CTRL+C-like signals,
+
+- Added IceUtil::StaticMutex, for simple, non-recursive, statically
+  allocated and initialized mutexes.
+
+- Updated Mutex, RecMutex and RWRecMutex APIs: lock and unlock now
+  return void, and trylock returns a bool that indicates whether the
+  mutex was acquired or not. Also added new member functions to LockT,
+  TryLockT, RLockT, TryLockT, WLockT, TryWLockT: acquire(),
+  tryAcquire(), release(), acquired() and more.
+
+- Removed dependency on E2FSPROGS for UUID generation. On Unix, UUIDs
+  are now generated directly with /dev/urandom.
+
+- Added support for `env' XML element in IcePack descriptors to allow
+  setting environment variables.
+
+- Fixed a bug in the Slice parser: the semantic check to see whether
+  an identifier introduced into a scope has changed meaning was too
+  stringent.
+
+- Fixed integer parsing bugs in the C++ XML stream class.
+
+- Changed glacier router to send all requests from a separate
+  thread. Previously, only requests forwarded as batch would be sent
+  from a separate thread.
+
+- Added support for SPARC/Solaris with the Sun C++ 5.3, 5.4 and 5.5
+  compilers (32 and 64 bit). See INSTALL.SOLARIS for details.
+
+- Replaced the Freeze::EvictorPersistenceMode enumeration with the
+  interface Freeze::PersistenceStrategy.
+
+- Added support for GCC 2.95.3.
+
+- Several incompatible IceStorm changes:
+
+  * Moved the subscribe and unsubscribe operations to the Topic
+    interface.
+
+  * Added an object adapter to host publisher objects, and hence a new
+    configuration property IceStorm.Publish.Endpoints.
+
+- Added dynamic thread pools, i.e., thread pools that grow and shrink
+  based on a calculated load factor. Please see the section about
+  thread pools in the manual for further details.
+
+- Structs and sequences which hold other structs or sequences are now
+  legal dictionary key types, as long as such nested structs or
+  sequences are (recursively) legal.
+
+- The connection timeout is now also used when connections are
+  closed. This avoid hanging processes if the peer misbehaves, or if
+  asynchronous methods invocations don't return.
+
+- In some cases, communicator destruction could result in a
+  NullHandleException. This has been fixed. Now a
+  CommunicatorDestroyedException is raised.
+
+- A monitor now holds the mutex lock while signaling a condition
+  variable. Otherwise it's possible that the condition variable is
+  destroyed before the signaling call returns, resulting in undefined
+  behavior. The performance difference is minimal, hardly measurable.
+
+- Further performance improvements with respect to latency.
+
+- Added demo/Ice/throughput, which can be used to measure the transfer
+  time of large sequences.
+
+- Fixed a bug in the slice2cpp code generator: if a class was forward
+  declared and used as a class member, but the definition of the class
+  was not supplied in the same Slice compilation unit, invalid code
+  was generated.
+
+- Inlined most operators in IceUtil::Time for performance reasons.
+
+- Added IceUtil::ThreadControl::isAlive(). This function is useful for
+  implementing a non-blocking join().
+
+- Added IceUtil::ThreadControl::id() member function.
+
+- The scope of IceUtil::Thread::ThreadId has been changed to
+  IceUtil::ThreadId. This is the type returned by both Thread::id()
+  and ThreadControl::id().
+
+- Joining with a thread more than once, joining with a detached
+  thread, or detaching a detached thread now have undefined
+  behavior. (Previously, doing any of these things raised an
+  exception.)
+
+- Added timestamps to the default Ice logger. You can enable
+  timestamps by setting the `Ice.Logger.Timestamp' property to a value
+  larger than zero. By default timestamps are disabled.
+
+- Added several conversion functions to IceUtil::Time: toString,
+  toSeconds, toMilliSeconds, toMicroSeconds.
+
+- Fixed a bug in Freeze::DBEnvironment which caused the sync method to
+  hang.
+
+- Improved IceBox service deactivation. Instead of successively
+  stopping a service and destroying its communicator, services are now
+  all stopped first and then their communicators are destroyed.
+
+- Modified the Ice protocol to marshal sizes more efficiently.  Sizes
+  less than 255 now require a single byte whereas previously, sizes
+  between 127 and 254 required five bytes.
+
+- Modified the Ice protocol to fix a problem with compression. The
+  compressed message types have been removed, and a field has been
+  added to the message header indicating compression status.
+
+- Added version negotiation to the Ice protocol. This permits future
+  protocol extensions to be added without breaking interoperability
+  with older deployed clients and servers. Unfortunately, doing this
+  broke compatibility with the existing protocol so, when upgrading to
+  this version, you must make sure that clients and servers use the
+  same version of libIce.so.
+
+- Added a magic number to the Ice protocol. All Ice protocol messages
+  have 'I', 'c', 'e', 'P' (encoded as ASCII) in the first four bytes.
+  This is useful to allow protocol analyzers to recognize Ice
+  messages.
+
+- Changed the encoding of encapsulations. An encapsulation now looks
+  like:
+
+	size (4 bytes)
+	major version number (1 byte)
+	minor version number (1 byte)
+	data (n bytes)
+
+  The size includes the count of bytes for the size and versions, so
+  the value of size is n + 6.
+
+- Added -v and -e options to stringified UDP endpoints. -v sets the
+  protocol version and -e sets the encoding version. (The current
+  version for both protocol and encoding is 1.0.)
+
+- Compatibility fixes for GCC 2.96.
+
+- Added `option' and `vm-option' elements to IcePack server
+  descriptors. These elements are used to pass command line options to
+  server processes.
+
+- Added scandir() and alphasort() for Sun-OS and other Unix systems
+  that do not have these BSD calls.
+
+Changes since version 1.0.0
+---------------------------
+
+- Added --header-ext and --source-ext command-line options to
+  slice2cpp and slice2freeze. These permit setting header and
+  source file extensions for C++ other than the default `h' and
+  `cpp' file extensions.
+
+- Added the macro ICE_INT64 as a portable wrapper for long long
+  constants.
+
+- Added support for Xerces 2.2.0.
+
+- Added support for OpenSSL 0.97a.
+
+- Added OPENSSL_FLAGS to several Makefiles that were missing it.
+
+- Changed signature of IceUtil::Time::milliSeconds() to
+  IceUtil::Int64, to avoid overflows.
+
+- Renamed Lock and TryLock templates to LockT and TryLockT, to avoid
+  compilation problems with Sun Forte 6.2.
+
+- Fixed a bug with throwing exceptions in AMD calls after invoking
+  ice_response().
+
+- Fixed a bug with throwing exceptions in AMI from within
+  ice_response().
+
+- For posix threads, PTHREAD_MUTEX_RECURSIVE_NP is now only used if
+  __linux__ is defined. Otherwise, PTHREAD_MUTEX_RECURSIVE is used.
+
+- The EPROTO error code is now only used if it is defined (such as
+  on Linux).
+
+- Several other changes that make Ice for C++ more portable.
+
+- Updated SSL test certificates. The old ones have expired.
+

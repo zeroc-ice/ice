@@ -1,0 +1,226 @@
+#!/bin/sh
+# **********************************************************************
+#
+# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+openssl version | grep -i -q "openssl 1."
+if [ $? != 0 ]; then
+    echo "You must run this script with OpenSSL 1.0.x in your PATH."
+    echo "See the README file for more information."
+    exit 1
+fi
+
+TMP=tmp
+
+#
+# Generate RSA certificates and keys.
+#
+if ! [ -f cakey1.pem ]; then
+
+    if [ -d $TMP ]; then
+        rm -rf $TMP
+    fi
+    mkdir $TMP
+    echo '01' > $TMP/serial
+    touch $TMP/index.txt
+
+    #
+    # Generate CA certificates.
+    #
+    openssl req -config test_ca1.cnf -x509 -days 3650 -newkey rsa:1024 -keyout cakey1.pem -out cacert1.pem \
+        -outform PEM -nodes
+    openssl req -config test_ca2.cnf -x509 -days 3650 -newkey rsa:1024 -keyout cakey2.pem -out cacert2.pem \
+        -outform PEM -nodes
+
+    #
+    # In order for OpenSSL to locate CA certificates dynamically at run time, the
+    # directory containing the certificates must be indexed. Typically this is
+    # accomplished using the c_rehash script. The problem is c_rehash creates
+    # symbolic links, which isn't very portable. Therefore, we simply create
+    # copies of the certificates using the same naming scheme as c_rehash, in
+    # which the certificate's hash value is used in the filename.
+    #
+    cp cacert1.pem `openssl x509 -hash -noout -in cacert1.pem`.0
+    cp cacert2.pem `openssl x509 -hash -noout -in cacert2.pem`.0
+    #
+    # Note that the hashing scheme changed in OpenSSL 1.0 so that the hash values
+    # are no longer backward-compatible. In order to remain compatible with
+    # earlier versions of OpenSSL, we make another set of copies using the old hashing
+    # scheme.
+    #
+    cp cacert1.pem `openssl x509 -subject_hash_old -noout -in cacert1.pem`.0
+    cp cacert2.pem `openssl x509 -subject_hash_old -noout -in cacert2.pem`.0
+
+    #
+    # Create a server certificate and key (no password).
+    #
+    rm -rf $TMP
+    mkdir $TMP
+    echo '01' > $TMP/serial
+    touch $TMP/index.txt
+    openssl req -config server.cnf -newkey rsa:1024 -nodes -keyout s_rsa_nopass_ca1_priv.pem \
+        -keyform PEM -out $TMP/req.pem
+    openssl ca -config server.cnf -batch -in $TMP/req.pem -out s_rsa_nopass_ca1_pub.pem \
+        -cert cacert1.pem -keyfile cakey1.pem
+
+    #
+    # Create a server certificate and key (with password).
+    #
+    rm -rf $TMP
+    mkdir $TMP
+    echo '01' > $TMP/serial
+    touch $TMP/index.txt
+    openssl req -config server.cnf -newkey rsa:1024 -passout pass:server -keyout s_rsa_pass_ca1_priv.pem \
+        -keyform PEM -out $TMP/req.pem
+    openssl ca -config server.cnf -batch -in $TMP/req.pem -out s_rsa_pass_ca1_pub.pem \
+        -cert cacert1.pem -keyfile cakey1.pem -key server
+
+    #
+    # Create an expired server certificate and key (no password).
+    #
+    rm -rf $TMP
+    mkdir $TMP
+    echo '01' > $TMP/serial
+    touch $TMP/index.txt
+    openssl req -config server.cnf -newkey rsa:1024 -nodes -keyout s_rsa_nopass_ca1_exp_priv.pem \
+        -keyform PEM -out $TMP/req.pem
+    openssl ca -config server.cnf -batch -in $TMP/req.pem -out s_rsa_nopass_ca1_exp_pub.pem \
+        -cert cacert1.pem -keyfile cakey1.pem -enddate 051231000000Z
+
+    #
+    # Create a server certificate and key using "127.0.0.1" as the common name and without
+    # subjectAltNames (no password).
+    #
+    rm -rf $TMP
+    mkdir $TMP
+    echo '01' > $TMP/serial
+    touch $TMP/index.txt
+    sed -e 's/= Server$/= 127.0.0.1/' -e 's/^subjectAltName.*$//' < server.cnf > server_cn.cnf
+    openssl req -config server_cn.cnf -newkey rsa:1024 -nodes -keyout s_rsa_nopass_ca1_cn1_priv.pem \
+        -keyform PEM -out $TMP/req.pem
+    openssl ca -config server_cn.cnf -batch -in $TMP/req.pem -out s_rsa_nopass_ca1_cn1_pub.pem \
+        -cert cacert1.pem -keyfile cakey1.pem
+    rm -f server_cn.cnf
+
+    #
+    # Create a server certificate and key using "127.0.0.11" as the common name and without
+    # subjectAltNames (no password). The test uses this certificate to ensure that the
+    # address "127.0.0.1" does NOT match the common name.
+    #
+    rm -rf $TMP
+    mkdir $TMP
+    echo '01' > $TMP/serial
+    touch $TMP/index.txt
+    sed -e 's/= Server$/= 127.0.0.11/' -e 's/^subjectAltName.*$//' < server.cnf > server_cn.cnf
+    openssl req -config server_cn.cnf -newkey rsa:1024 -nodes -keyout s_rsa_nopass_ca1_cn2_priv.pem \
+        -keyform PEM -out $TMP/req.pem
+    openssl ca -config server_cn.cnf -batch -in $TMP/req.pem -out s_rsa_nopass_ca1_cn2_pub.pem \
+        -cert cacert1.pem -keyfile cakey1.pem
+    rm -f server_cn.cnf
+
+    #
+    # Create a client certificate and key (no password).
+    #
+    rm -rf $TMP
+    mkdir $TMP
+    echo '01' > $TMP/serial
+    touch $TMP/index.txt
+    openssl req -config client.cnf -newkey rsa:1024 -nodes -keyout c_rsa_nopass_ca1_priv.pem \
+        -keyform PEM -out $TMP/req.pem
+    openssl ca -config client.cnf -batch -in $TMP/req.pem -out c_rsa_nopass_ca1_pub.pem \
+        -cert cacert1.pem -keyfile cakey1.pem
+
+    #
+    # Create a client certificate and key (with password).
+    #
+    rm -rf $TMP
+    mkdir $TMP
+    echo '01' > $TMP/serial
+    touch $TMP/index.txt
+    openssl req -config client.cnf -newkey rsa:1024 -passout pass:client -keyout c_rsa_pass_ca1_priv.pem \
+        -keyform PEM -out $TMP/req.pem
+    openssl ca -config client.cnf -batch -in $TMP/req.pem -out c_rsa_pass_ca1_pub.pem \
+        -cert cacert1.pem -keyfile cakey1.pem -key client
+
+    #
+    # Create an expired client certificate and key (no password).
+    #
+    rm -rf $TMP
+    mkdir $TMP
+    echo '01' > $TMP/serial
+    touch $TMP/index.txt
+    openssl req -config client.cnf -newkey rsa:1024 -nodes -keyout c_rsa_nopass_ca1_exp_priv.pem \
+        -keyform PEM -out $TMP/req.pem
+    openssl ca -config client.cnf -batch -in $TMP/req.pem -out c_rsa_nopass_ca1_exp_pub.pem \
+        -cert cacert1.pem -keyfile cakey1.pem -enddate 051231000000Z
+
+    #
+    # Create a server certificate and key (no password) using a different CA.
+    #
+    rm -rf $TMP
+    mkdir $TMP
+    echo '01' > $TMP/serial
+    touch $TMP/index.txt
+    openssl req -config server.cnf -newkey rsa:1024 -nodes -keyout s_rsa_nopass_ca2_priv.pem \
+        -keyform PEM -out $TMP/req.pem
+    openssl ca -config server.cnf -batch -in $TMP/req.pem -out s_rsa_nopass_ca2_pub.pem \
+        -cert cacert2.pem -keyfile cakey2.pem
+
+    #
+    # Create a client certificate and key (no password) using a different CA.
+    #
+    rm -rf $TMP
+    mkdir $TMP
+    echo '01' > $TMP/serial
+    touch $TMP/index.txt
+    openssl req -config client.cnf -newkey rsa:1024 -nodes -keyout c_rsa_nopass_ca2_priv.pem \
+        -keyform PEM -out $TMP/req.pem
+    openssl ca -config client.cnf -batch -in $TMP/req.pem -out c_rsa_nopass_ca2_pub.pem \
+        -cert cacert2.pem -keyfile cakey2.pem
+
+    rm -f dsaparam1024.pem
+fi
+
+#
+# Generate DSA parameters and keys.
+#
+if ! [ -f dsaparam1024.pem ]; then
+
+    if [ -d $TMP ]; then
+        rm -rf $TMP
+    fi
+    mkdir $TMP
+    echo '01' > $TMP/serial
+    touch $TMP/index.txt
+
+    openssl dsaparam -out dsaparam1024.pem -outform PEM 1024
+
+    #
+    # Create a server certificate and key (no password).
+    #
+    rm -rf $TMP
+    mkdir $TMP
+    echo '01' > $TMP/serial
+    touch $TMP/index.txt
+    openssl req -config server.cnf -newkey dsa:dsaparam1024.pem -nodes -keyout s_dsa_nopass_ca1_priv.pem \
+        -keyform PEM -out $TMP/req.pem
+    openssl ca -config server.cnf -batch -in $TMP/req.pem -out s_dsa_nopass_ca1_pub.pem \
+        -cert cacert1.pem -keyfile cakey1.pem
+
+    #
+    # Create a client certificate and key (no password).
+    #
+    rm -rf $TMP
+    mkdir $TMP
+    echo '01' > $TMP/serial
+    touch $TMP/index.txt
+    openssl req -config client.cnf -newkey dsa:dsaparam1024.pem -nodes -keyout c_dsa_nopass_ca1_priv.pem \
+        -keyform PEM -out $TMP/req.pem
+    openssl ca -config client.cnf -batch -in $TMP/req.pem -out c_dsa_nopass_ca1_pub.pem \
+        -cert cacert1.pem -keyfile cakey1.pem
+fi

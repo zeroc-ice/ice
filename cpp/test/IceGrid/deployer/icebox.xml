@@ -1,0 +1,41 @@
+<icegrid>
+
+  <!-- Include service templates -->
+  <include file="service.xml"/>
+  <include file="freezeservice.xml"/>
+
+  <server-template id="IceBoxTemplate">
+    <parameter name="name"/>
+    <parameter name="AppVarOverridedByParam"/>
+
+    <icebox id="${name}" exe="${icebox.exe}" activation="on-demand" pwd=".">  
+      <service-instance template="ServiceTemplate" name="Service1" NodeVarOverridedByParam="Overrided"/>
+      <service-instance template="FreezeServiceTemplate" name="Service2">
+        <properties>
+          <property name="ServiceInstanceProperty" value="${name}"/>
+        </properties>
+      </service-instance>
+      <target name="moreservices">
+        <service-instance template="ServiceTemplate" name="Service3" NodeVarOverridedByParam="Overrided"/>
+      </target>
+      
+      <service name="Service4" entry="TestService:create">
+        <adapter name="${service}" endpoints="default">
+	  <object identity="${server}-${service}" type="::Test"/>
+        </adapter>
+        <properties>
+          <property name="Ice.Warn.UnknownProperties" value="0"/>
+          <property name="${service}.Identity" value="${server}-${service}"/>
+        </properties>
+      </service>
+     
+      <properties>
+        <properties refid="AppProperties"/>
+        <properties refid="NodeProperties"/>
+        <property name="Ice.Warn.Connections" value="1"/>
+      </properties>
+
+    </icebox>
+  </server-template>
+
+</icegrid>

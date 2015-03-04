@@ -1,0 +1,77 @@
+﻿<Page
+    x:Class="TestSuite.MainPage"
+    IsTabStop="false"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:TestSuite"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="ZeroC - Ice Test Suite" Style="{StaticResource TitleStyle}"
+                       Margin="5, 5, 5, 5"
+                       VerticalAlignment="Bottom" TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <!-- Content -->
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+                <ListBox x:Name="TestList" HorizontalAlignment="Left"
+                             Padding="5, 5, 15, 5">
+                </ListBox>
+            </StackPanel>
+            <Grid Grid.Row="0" Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" 
+                           Style="{StaticResource H1Style}" 
+                           Text="Output" Margin="5, 5, 5, 5"/>
+                <Border Grid.Row="1" Grid.Column="0"  BorderThickness="2" BorderBrush="Gray" Background="Gray">
+                    <ScrollViewer x:Name="Scroller"  VerticalScrollBarVisibility="Auto" 
+                        HorizontalScrollBarVisibility="Disabled" 
+                        Width="Auto" Height="Auto"
+                        ZoomMode="Disabled">
+                        <TextBlock x:Name="Output" Style="{StaticResource OutputStyle}"   
+                                   Padding="5, 5, 5, 5" TextWrapping="Wrap"/>
+                    </ScrollViewer>
+                </Border>
+                <Border Grid.Row="2" Padding="5, 5, 5, 5">
+                    <StackPanel Orientation="Horizontal">                    
+                        <Button x:Name="btnRun" Content="Run" Click="btnRun_Click"/>
+                        <CheckBox x:Name="chkLoop" Content="Run In A Loop" Margin="10, 0, 0, 0"/>
+                        <CheckBox x:Name="chkSerialize" Content="Enable Serialize Mode" Margin="10, 0, 0, 0"/>
+                        <CheckBox x:Name="chkIPv6" Content="Use IPv6" Margin="10, 0, 0, 0"/>
+                        <CheckBox x:Name="chkSSL" Content="Enable SSL" Margin="10, 0, 0, 0"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+        <!-- Footer -->
+        <StackPanel Grid.Row="2" VerticalAlignment="Bottom">
+            <TextBlock Margin="5, 5, 5, 5"  Style="{StaticResource FooterStyle}" 
+                       Text="Copyright © 2012-2013 ZeroC, Inc. All rights reserved."  TextWrapping="Wrap"/>
+        </StackPanel>
+    </Grid>
+</Page>

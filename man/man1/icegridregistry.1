@@ -1,0 +1,66 @@
+.TH icegridregistry 1
+
+.SH NAME
+
+icegridregistry - The IceGrid registry server.
+
+.SH SYNOPSIS
+
+icegridregistry [options] [command...]
+
+.SH DESCRIPTION
+
+The IceGrid registry is a centralized repository of information, including
+deployed applications and well-known objects. A registry can optionally be
+collocated with an IceGrid node, which conserves resources and can be
+convenient during development and testing. The registry server is implemented
+by the icegridregistry executable. Full documentation for icegridregistry is
+available online at: 
+.br
+"http://doc.zeroc.com/display/Ice/icegridregistry".
+
+.SH OPTIONS
+
+.TP
+.BR \-h ", " \-\-help\fR
+.br
+Displays a help message.
+
+.TP
+.BR \-v ", " \-\-version\fR
+Displays the Ice version.
+
+.TP
+.BR \-\-daemon\fR
+.br
+Run as a daemon.
+
+.TP
+.BR \-\-pidfile " " FILE
+.br
+Write process ID into FILE.
+
+.TP
+.BR \-\-noclose\fR
+.br
+Do not close open file descriptors.
+
+.TP
+.BR \-\-nochdir\fR
+.br
+Do not change the current working directory.
+
+.TP
+.BR \-\-nowarn\fR
+.br
+Do not print security warnings.
+
+.TP
+.BR \-\-readonly\fR
+.br
+Start the master registry in read-only mode.
+
+.SH SEE ALSO
+
+.BR icegridadmin (1),
+.BR icegridnode (1)

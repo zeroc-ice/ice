@@ -1,0 +1,173 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:scrollbarStyle="insideInset"
+    android:fillViewport="true">
+
+	<LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical">
+
+	 	<LinearLayout
+	   		android:layout_width="fill_parent"
+	   		android:layout_height="wrap_content"
+	   		android:orientation="vertical">
+
+		    <TextView
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+		        android:gravity="center_vertical"
+		        android:textColor="?android:attr/textColorSecondary"
+		        android:textStyle="bold"
+		        android:textSize="14sp"
+		        android:paddingLeft="8dip"
+		        android:text="ISBN"
+			    />
+
+		    <View
+		        android:layout_width="fill_parent"
+		        android:layout_height="1dip"
+		        android:background="?android:attr/listDivider"
+			    />
+
+		</LinearLayout>
+
+	    <EditText android:id="@+id/isbn"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginRight="4dip"
+	        android:gravity="center_vertical"
+	        android:singleLine="true"
+	        android:capitalize="words"
+	        android:text="isbn"
+	    />
+
+	 	<LinearLayout
+	   		android:layout_width="fill_parent"
+	   		android:layout_height="wrap_content"
+	   		android:orientation="vertical">
+
+	   		<View
+		        android:layout_width="fill_parent"
+		        android:layout_height="1dip"
+		        android:background="?android:attr/listDivider"
+			    />
+
+		    <TextView
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+		        android:gravity="center_vertical"
+		        android:textColor="?android:attr/textColorSecondary"
+		        android:textStyle="bold"
+		        android:textSize="14sp"
+		        android:paddingLeft="8dip"
+		        android:text="Title"
+			    />
+
+		    <View
+		        android:layout_width="fill_parent"
+		        android:layout_height="1dip"
+		        android:background="?android:attr/listDivider"
+			    />
+
+		</LinearLayout>
+
+	    <EditText android:id="@+id/title"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginRight="4dip"
+	        android:gravity="center_vertical"
+	        android:singleLine="true"
+	        android:capitalize="words"
+	        android:text="title"
+	    />
+
+		<LinearLayout
+	   		android:layout_width="fill_parent"
+	   		android:layout_height="wrap_content"
+	   		android:orientation="vertical">
+
+			<View
+		        android:layout_width="fill_parent"
+		        android:layout_height="1dip"
+		        android:background="?android:attr/listDivider"
+			    />
+
+		    <TextView
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+		        android:gravity="center_vertical"
+		        android:textColor="?android:attr/textColorSecondary"
+		        android:textStyle="bold"
+		        android:textSize="14sp"
+		        android:paddingLeft="8dip"
+		        android:text="Authors"
+			    />
+
+		    <View
+		        android:layout_width="fill_parent"
+		        android:layout_height="1dip"
+		        android:background="?android:attr/listDivider"
+			    />
+
+		</LinearLayout>
+
+		<LinearLayout
+		    android:layout_width="fill_parent"
+		    android:layout_height="0dip"
+		    android:layout_weight="1"
+		    android:orientation="vertical"
+		>
+
+			<!-- The edit items -->
+		    <LinearLayout android:id="@+id/authorsList"
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+		        android:orientation="vertical"
+		    >
+		    <View
+		        android:layout_width="fill_parent"
+		        android:layout_height="1dip"
+		        android:background="?android:attr/listDivider"
+		    />
+		    <Button android:id="@+id/addAuthor"
+		    	android:layout_width="fill_parent"
+		        android:layout_height="fill_parent"
+		        android:text="Add Author"
+		        />
+		    </LinearLayout>
+
+		</LinearLayout>
+
+		<RelativeLayout
+		    android:layout_width="fill_parent"
+		    android:layout_height="?android:attr/listPreferredItemHeight"
+		    android:layout_marginTop="1dip"
+		    android:background="@android:drawable/bottom_bar"
+		>
+		    <Button android:id="@+id/saveButton"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_centerVertical="true"
+		        android:layout_alignParentLeft="true"
+		        android:text="Save"
+		        android:minWidth="120dip"
+		        android:minHeight="48dip"
+		    />
+
+		    <Button android:id="@+id/discardButton"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_centerVertical="true"
+		        android:layout_alignParentRight="true"
+		        android:text="Discard"
+		        android:minWidth="120dip"
+		        android:minHeight="48dip"
+		    />
+		</RelativeLayout>
+
+    </LinearLayout>
+
+</ScrollView>

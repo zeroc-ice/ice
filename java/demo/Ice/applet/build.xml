@@ -1,0 +1,121 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+<project name="demo_Ice_applet" default="all" basedir=".">
+
+    <!-- set global properties for this build -->
+    <property name="top.dir" value="../../.."/>
+
+    <!-- import common definitions -->
+    <import file="${top.dir}/config/common.xml"/>
+
+    <condition property="proguard-found">
+        <available classname="proguard.ant.ProGuardTask" classpath="${env.CLASSPATH}" />
+    </condition>
+
+    <target name="generate" depends="init">
+        <!-- Create the output directory for generated code -->
+        <mkdir dir="${generated.dir}"/>
+        <slice2java outputdir="${generated.dir}">
+	    <includepath>
+	        <pathelement path="${slice.dir}"/>
+	    </includepath>
+            <fileset dir="." includes="Hello.ice"/>
+        </slice2java>
+    </target>
+
+    <target name="compile" depends="generate">
+        <mkdir dir="${class.dir}"/>
+	<javac srcdir=".:${generated.dir}" destdir="${class.dir}" debug="${debug}">
+            <exclude name="${generated.dir}/**"/>
+            <classpath refid="ice.classpath"/>
+	    <compilerarg value="${javac.lint}"/>
+        </javac>
+    </target>
+
+    <target name="jar" depends="compile" unless="proguard-found">
+        <jar jarfile="Hello.jar" basedir="${class.dir}">
+            <include name="Demo/**"/>
+            <include name="HelloApplet*"/>
+        </jar>
+        <jar jarfile="Hello.jar" update="true" basedir="${certs.dir}">
+            <include name="client.jks"/>
+        </jar>
+        <jar jarfile="Hello.jar" update="true" basedir=".">
+            <include name="config.applet"/>
+        </jar>
+    </target>
+
+    <target name="proguard-jar" depends="jar" if="proguard-found">
+        <condition property="library.jarfiles" value="classes.jar,jsse.jar">
+            <and>
+                <os family="mac"/>
+                <not>
+                    <available file="${java.home}/lib/rt.jar"/>
+                </not>
+            </and>
+        </condition>
+        <condition property="library.jarfiles" value="rt.jar,jsse.jar">
+            <!-- Library jar files for Sun JDK -->
+            <and>
+                <available file="${java.home}/lib/rt.jar"/>
+                <not>
+                    <equals arg1="${java.vm.name}" arg2="IBM J9 VM"/>
+                </not>
+            </and>
+        </condition>
+        <condition property="library.jarfiles" value="vm.jar,rt.jar,security.jar,java.util.jar,ibmjssefw.jar,ibmcertpathfw.jar,jlm.jar">
+            <!-- Library jar files for IBM J9 (from SuSE Linux i586) -->
+            <and>
+                <equals arg1="${java.vm.name}" arg2="IBM J9 VM"/>
+                <equals arg1="${os.arch}" arg2="x86"/>
+            </and>
+        </condition>
+        <condition property="library.jarfiles" value="amd64/default/jclSC160/vm.jar,rt.jar,security.jar,java.util.jar,ibmjssefw.jar,ibmcertpathfw.jar,jlm.jar">
+            <!-- Library jar files for IBM J9 (from SuSE Linux x86_64) -->
+            <and>
+                <equals arg1="${java.vm.name}" arg2="IBM J9 VM"/>
+                <equals arg1="${os.arch}" arg2="amd64"/>
+            </and>
+        </condition>
+        <condition property="library.jarpath" value="${java.home}/../Classes" else="${java.home}/lib">
+            <and>
+                <os family="mac"/>
+                <not>
+                    <available file="${java.home}/lib/rt.jar"/>
+                </not>
+            </and>
+        </condition>
+        <pathconvert property="library.jars">
+           <filelist dir="${library.jarpath}" files="${library.jarfiles}"/>
+        </pathconvert>
+
+        <taskdef resource="proguard/ant/task.properties"/>
+
+        <proguard configuration="applet.pro">
+            <injar path="${class.dir}"/>
+            <injar path="${certs.dir}/client.jks"/>
+            <injar path="config.applet"/>
+            <injar refid="ice.classpath" filter="!META-INF/**"/>
+            <outjar path="Hello.jar"/>
+            <libraryjar path="${library.jars}"/>
+        </proguard>
+    </target>
+
+    <target name="all" depends="proguard-jar"/>
+
+    <target name="clean">
+        <delete file="Hello.jar"/>
+        <delete dir="${generated.dir}"/>
+        <delete dir="${class.dir}"/>
+    </target>
+
+</project>

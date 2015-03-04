@@ -1,0 +1,52 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# ZeroC base OpenSSL configuration file.
+#
+
+###############################################################################
+###  Self Signed Root Certificate
+###############################################################################
+
+[ ca ]
+default_ca = ice
+
+
+[ ice ]
+default_days     = 3650    # How long certs are valid.
+default_md       = md5     # The Message Digest type.
+preserve         = no      # Keep passed DN ordering?
+
+
+[ req ]
+default_bits        = 2048
+default_md          = md5
+prompt              = no
+distinguished_name  = root_ca_distinguished_name
+x509_extensions     = root_ca_extensions
+
+
+[ root_ca_distinguished_name ]
+countryName            = US
+stateOrProvinceName    = Florida
+localityName           = Palm Beach Gardens
+organizationName       = ZeroC, Inc.
+organizationalUnitName = Ice
+commonName             = ZeroC Test CA 1
+emailAddress           = info@zeroc.com
+
+
+[ root_ca_extensions ]
+basicConstraints = CA:true
+
+# PKIX recommendation.
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer:always
+

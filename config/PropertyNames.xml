@@ -1,0 +1,610 @@
+<?xml version="1.0"?>
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+<!--
+This file defines the valid properties that are used by various Ice
+components. It is used to generate source code using the makeprops.py
+utility, so we do not need to redundantly maintain the same property
+definitions in several languages (and risk having them go out of sync).
+
+The root node has zero or more section elements. Section elements must
+have a name attribute that defines a "section label". Section elements
+may also have a noCmdLine attribute. If noCmdLine has the value "true",
+command line options that match the section label are not parsed by
+Ice::PropertiesI::parseCommandLineOptions(). If noCmdLine has a value
+other than "true" or is omitted, Ice::PropertiesI::parseCommandLineOptions()
+processes properties that match the respective section name.
+
+Each root node may also have zero or more class elements. A class
+element has a name attribute, a prefix-only attribute and zero or more
+suffix elements. Suffix elements appear similar to the property elements
+found in the property sections. How classes are used is described below.
+
+Each section node has zero or more property elements. Property elements
+must have a name attribute. Property elements may also have a property
+class attribute. The property class attribute allows you to define a
+list of properties that are repeatedly defined for different property
+categories. Here's how it works:
+ 
+ - Define a property class with the list of property suffixes common to
+   that class.
+
+ - Include the class attribute in a property declaration.
+
+The generated code will take each property that has a class attribute
+and expand it by creating new properties for each suffix in the
+specified class. The new property names are constructed as follows: 
+
+generated property name = 
+    relevant section name + 
+    property name containing the class attribute + 
+    the suffix in the class. 
+    
+Let's illustrate by comparing a case using classes vs. without
+classes:
+
+    <class name="proxy" prefix-only="false">
+        <suffix name="EndpointSelection" />
+        <suffix name="ConnectionCached" />
+        <suffix name="PreferSecure"  />
+        <suffix name="LocatorCacheTimeout"  />
+        <suffix name="Locator"  />
+        <suffix name="Router"  />
+        <suffix name="CollocationOptimization" deprecated="true"
+            deprecatedBy="CollocationOptimized" />
+        <suffix name="CollocationOptimized" />
+    </class>
+    .
+    .
+    .
+    <section name="Ice">
+        <property name="Default.Locator" class="proxy" />
+    </section>
+
+This definition is equivalent to the following:
+
+    <section name="Ice">
+        <property name="Default.Locator" />
+        <property name="Default.Locator.EndpointSelection" />
+        <property name="Default.Locator.ConnectionCached" />
+        <property name="Default.Locator.PreferSecure" />
+        <property name="Default.Locator.LocatorCacheTimeout" />
+        <property name="Default.Locator.Locator" />
+        <property name="Default.Locator.Router" />
+        <property name="Default.Locator.CollocationOptimization"
+            deprecatedBy="Ice.Default.Locator.CollocationOptimized" />
+        <property name="Default.Locator.CollocationOptimized" />
+    </section>
+
+The benefit is that several categories have the same properties because
+they are the same `type' of property. Without a property class, changes
+to a supported type of property require modifying the file in several
+locations, e.g.:
+
+    <section name="Ice">
+        <property name="Default.Router" class="proxy" />
+        <property name="Default.Locator" class="proxy" />
+    </section>
+
+Notice the `prefix-only' attribute on the property class node. If
+prefix-only is set to true the property containing the property class
+works as a prefix and place holder; code isn't actually generated for
+the property itself. When set to false, properties are expanded as
+described above `in addition to' the property containing the property
+class.
+
+Property elements may also include the deprecated and deprecatedBy
+attributes. A property that has a deprecated attribute with the value 
+"true" will be marked internally as deprecated and Ice may issue warnings
+if a deprecated property is used. The deprecatedBy attribute allows the
+Ice run time to transparently replace the deprecated property name with a
+new property name that supersedes the deprecated property.
+
+The "deprecatedBy" attribute is currently treated differently when used
+in a property class. In the regular property list, deprecatedBy is treated
+as an absolute property name and does not prepend the section name or
+substring of the property being deprecated. This is not useful for property
+classes. When using deprecatedBy in property classes, the deprecatedBy value
+is appended to a string constructed from the current section name and the
+name attribute in the property list containing the class attributed. For
+example:
+
+<class name="proxy">
+    ...
+    <suffix name="CollocationOptimization" deprecatedBy="CollocationOptimized" />
+    <suffix name="CollocationOptimized" />
+</class>
+
+<properties>
+    <section name="Ice">
+        <property name="Default.Locator" class="proxy" />
+        ...
+    </section>
+</properties>
+
+This definition is equivalent to the following:
+
+<properties>
+    <section name="Ice">
+        <property name="DefaultLocator.CollocationOptimization"
+            deprecatedBy="Ice.DefaultLocator.CollocationOptimized" />
+        <property name="DefaultLocator.CollocationOptimized" />
+        ...
+    </section>
+</properties>
+
+Property element name attributes have some additional syntax: The token
+"<any>" (denoted in valid XML as [any]) is a wildcard and matches any
+non-empty sequence of non-whitespace characters.
+
+Examples:
+
+"Ice.Foo.<any>" allows all properties with that prefix, such as "Ice.Foo.Bar".
+"Ice.Foo<any>" allows properties such as "Ice.Foo.Bar" and "Ice.FooBar".
+
+Property definitions are translated into each language by makeprops.py.
+For example, consider the following definitions:
+
+    <properties>
+        <section name="Ice">
+            <property name="ChangeUser" />
+            <property name="Package.[any]" />
+            <property name="QuenchRequests" deprecated="true"  />
+            <property name="Foo" deprecated="true" deprecatedBy="Bar" />
+            <property name="Bar" />
+            <property name="Default.Locator" proxy="true" />
+            <property name="ThreadPool.Client" threadpool="true" />
+        </section>
+        <section name="IceBox">
+            <property name="LoadOrder" />
+        </section>
+    </properties>
+
+If the source file is called Properties.xml, makeprops.py generates
+code similar to the following for the C++ header and source file:
+
+//
+// Properties.h
+//
+namespace IceInternal
+{
+
+//
+// ... definitions for IceInternal::Property and IceInternal::PropertyArray
+// omitted...
+
+class Properties
+{
+public:
+
+    static const PropertyArray const IceProps;
+    static const PropertyArray const IceBoxProps;
+
+    static const PropertyArray validProps[];
+};
+
+}
+
+// Properties.cpp
+const IceInternal::Property IceInternal::Properties::IcePropsData[] =
+{
+    IceInternal::Property("Ice.ChangeUser", false, 0),
+    IceInternal::Property("Ice.Package.*", false, 0),
+    IceInternal::Property("Ice.QuenchRequests", true, 0),
+    IceInternal::Property("Ice.Foo", true, "Ice.Bar"),
+    IceInternal::Property("Ice.Bar", false, 0),
+    IceInternal::Property("Ice.Default.Locator", false, 0),
+    IceInternal::Property("Ice.Default.Locator.EndpointSelection", false, 0),
+    IceInternal::Property("Ice.Default.Locator.ConnectionCached", false, 0),
+    IceInternal::Property("Ice.Default.Locator.PreferSecure", false, 0),
+    IceInternal::Property("Ice.Default.Locator.LocatorCacheTimeout", false, 0),
+    IceInternal::Property("Ice.Default.Locator.Locator", false, 0),
+    IceInternal::Property("Ice.Default.Locator.Router", false, 0),
+    IceInternal::Property("Ice.Default.Locator.CollocationOptimization", false, 0),
+    IceInternal::Property("Ice.ThreadPool.Client.Size", false, 0),
+    IceInternal::Property("Ice.ThreadPool.Client.SizeMax", false, 0),
+    IceInternal::Property("Ice.ThreadPool.Client.SizeWarn", false, 0),
+    IceInternal::Property("Ice.ThreadPool.Client.StackSize", false, 0)
+};
+
+const IceInternal::PropertyArray
+    IceInternal::Properties::IceProps(IcePropsData, sizeof(IcePropsData) /
+        sizeof(IcePropsData[0]));
+
+const IceInternal::Property IceInternal::Properties::IceBoxPropsData[] =
+{
+    IceInternal::Property("IceBox.LoadOrder", false, 0)
+};
+
+const IceInternal::PropertyArray
+    IceInternal::Properties::IceBoxProps(IceBoxPropsData, sizeof(IceBoxPropsData) /
+        sizeof(IceBoxPropsData[0]));
+
+const PropertyArray IceInternal::Properties::validProps[] =
+{
+    IceProps,
+    IceBoxProps,
+    IceInternal::PropertyArray(0, 0)
+};
+
+Note that the class name ("Properties" in this example) is generated
+from the file name, and the first component of the property name is
+generated from the section label.
+
+-->
+<properties>
+    <class name="proxy" prefix-only="false">
+        <suffix name="EndpointSelection" />
+        <suffix name="ConnectionCached" />
+        <suffix name="PreferSecure" />
+        <suffix name="LocatorCacheTimeout" />
+        <suffix name="Locator" />
+        <suffix name="Router" />
+        <suffix name="CollocationOptimized" />
+    </class>
+
+    <class name="threadpool" prefix-only="true">
+        <suffix name="Size" />
+        <suffix name="SizeMax" />
+        <suffix name="SizeWarn" />
+        <suffix name="StackSize" />
+        <suffix name="Serialize" />
+        <suffix name="ThreadIdleTime" />
+        <suffix name="ThreadPriority" />
+    </class>
+
+    <class name="objectadapter" prefix-only="true">
+        <suffix name="ACM" />
+        <suffix name="AdapterId" />
+        <suffix name="Endpoints" />
+        <suffix name="Locator" class="proxy"/>
+        <suffix name="PublishedEndpoints" />
+        <suffix name="ReplicaGroupId" />
+        <suffix name="Router" class="proxy"/>
+        <suffix name="ProxyOptions" />
+        <suffix name="ThreadPool" class="threadpool" />
+    </class>
+
+    <class name="deprecatedthreadpool" prefix-only="true">
+        <suffix name="Size" deprecated="true" />
+        <suffix name="SizeMax" deprecated="true" />
+        <suffix name="SizeWarn" deprecated="true" />
+        <suffix name="StackSize" deprecated="true" />
+    </class>
+
+    <class name="deprecatedobjectadapter" prefix-only="true">
+        <suffix name="AdapterId" deprecated="true" />
+        <suffix name="Endpoints" deprecated="true" />
+        <suffix name="Locator" deprecated="true" />
+        <suffix name="PublishedEndpoints" deprecated="true" />
+        <suffix name="ReplicaGroupId" deprecated="true" />
+        <suffix name="Router" deprecated="true" />
+        <suffix name="ThreadPool" class="deprecatedthreadpool"/>
+    </class>
+
+    <class name="mx" prefix-only="false">
+        <suffix name="GroupBy" />
+        <suffix name="Map" />
+        <suffix name="RetainDetached" />
+        <suffix name="Accept" />
+        <suffix name="Reject" />
+    </class>
+
+    <section name="Ice">
+        <property name="ACM.Client" />
+        <property name="ACM.Server" />
+        <property name="Admin" class="objectadapter" />
+        <property name="Admin.DelayCreation" />
+        <property name="Admin.Facets" />
+        <property name="Admin.InstanceName" />
+        <property name="Admin.ServerId" />
+        <property name="BackgroundLocatorCacheUpdates"/>
+        <property name="BatchAutoFlush" />
+        <property name="ChangeUser" />
+        <property name="ClientAccessPolicyProtocol" />
+        <property name="Compression.Level" />
+        <property name="Config" />
+        <property name="ConsoleListener" />
+        <property name="Default.CollocationOptimized" />
+        <property name="Default.EncodingVersion" />
+        <property name="Default.EndpointSelection" />
+        <property name="Default.Host" />
+        <property name="Default.Locator" class="proxy" />
+        <property name="Default.LocatorCacheTimeout" />
+        <property name="Default.Package" />
+        <property name="Default.PreferSecure" />
+        <property name="Default.Protocol" />
+        <property name="Default.Router" class="proxy" />
+        <property name="Default.SlicedFormat" />
+        <property name="IPv4" />
+        <property name="IPv6" />
+        <property name="EventLog.Source" />
+        <property name="FactoryAssemblies" />
+        <property name="GC.Interval" />
+        <property name="ImplicitContext" />
+        <property name="InitPlugins" />
+        <property name="LogFile" />
+        <property name="MessageSizeMax" />
+        <property name="MonitorConnections" />
+        <property name="Nohup" />
+        <property name="NullHandleAbort" />
+        <property name="Override.CloseTimeout" />
+        <property name="Override.Compress" />
+        <property name="Override.ConnectTimeout" />
+        <property name="Override.Timeout" />
+        <property name="Override.Secure" />
+        <property name="Package.[any]" />
+        <property name="Plugin.[any]" />
+        <property name="PluginLoadOrder" />
+        <property name="PreferIPv6Address" />
+        <property name="PrintAdapterReady" />
+        <property name="PrintProcessId" />
+        <property name="PrintStackTraces" />
+        <property name="ProgramName" />
+        <property name="RetryIntervals" />
+        <property name="ServerIdleTime" />
+        <property name="SOCKSProxyHost" />
+        <property name="SOCKSProxyPort" />
+        <property name="StdErr" />
+        <property name="StdOut" />
+        <property name="SyslogFacility" />
+        <property name="ThreadPool.Client" class="threadpool" />
+        <property name="ThreadPool.Server" class="threadpool" />
+        <property name="ThreadPriority"/>
+        <property name="Trace.Admin.Properties" />
+        <property name="Trace.GC" />
+        <property name="Trace.Locator" />
+        <property name="Trace.Network" />
+        <property name="Trace.Protocol" />
+        <property name="Trace.Retry" />
+        <property name="Trace.Slicing" />
+        <property name="Trace.ThreadPool" />
+        <property name="UDP.RcvSize" />
+        <property name="UDP.SndSize" />
+        <property name="TCP.Backlog" />
+        <property name="TCP.RcvSize" />
+        <property name="TCP.SndSize" />
+        <property name="UseApplicationClassLoader" />
+        <property name="UseSyslog" />
+        <property name="Warn.AMICallback" />
+        <property name="Warn.Connections" />
+        <property name="Warn.Datagrams" />
+        <property name="Warn.Dispatch" />
+        <property name="Warn.Endpoints" />
+        <property name="Warn.UnknownProperties" />
+        <property name="Warn.UnusedProperties" />
+        <property name="CacheMessageBuffers" />
+    </section>
+
+    <section name="IceMX">
+        <property name="Metrics.[any]" class="mx" />
+    </section>
+
+    <section name="IceBox">
+        <property name="InheritProperties" />
+        <property name="InstanceName" />
+        <property name="LoadOrder" />
+        <property name="PrintServicesReady" />
+        <property name="Service.[any]" />
+        <property name="ServiceManager" class="objectadapter" />
+        <property name="Trace.ServiceObserver" />
+        <property name="UseSharedCommunicator.[any]" />
+    </section>
+
+    <section name="IceBoxAdmin">
+        <property name="ServiceManager.Proxy" class="proxy"/>
+    </section>
+
+    <section name="IceGridAdmin">
+        <property name="AuthenticateUsingSSL" />
+        <property name="MetricsConfig" />
+        <property name="Username" />
+        <property name="Password" />
+        <property name="Replica" />
+        <property name="Trace.Observers" />
+        <property name="Trace.SaveToRegistry" />
+    </section>
+
+    <section name="IceGrid">
+        <property name="AdminRouter" class="objectadapter" />
+        <property name="InstanceName" />
+        <property name="Node" class="objectadapter" />
+        <property name="Node.AllowRunningServersAsRoot" />
+        <property name="Node.AllowEndpointsOverride" />
+        <property name="Node.CollocateRegistry" />
+        <property name="Node.Data" />
+        <property name="Node.DisableOnFailure" />
+        <property name="Node.Name" />
+        <property name="Node.Output" />
+        <property name="Node.ProcessorSocketCount" />
+        <property name="Node.PrintServersReady" />
+        <property name="Node.PropertiesOverride" />
+        <property name="Node.RedirectErrToOut" />
+        <property name="Node.Trace.Activator" />
+        <property name="Node.Trace.Adapter" />
+        <property name="Node.Trace.Patch" />
+        <property name="Node.Trace.Replica" />
+        <property name="Node.Trace.Server" />
+        <property name="Node.UserAccounts" />
+        <property name="Node.UserAccountMapper" class="proxy" />
+        <property name="Node.WaitTime" />
+        <property name="Registry.AdminCryptPasswords" />
+        <property name="Registry.AdminPermissionsVerifier" class="proxy" />
+        <property name="Registry.AdminSessionFilters" />
+        <property name="Registry.AdminSessionManager" class="objectadapter" />
+        <property name="Registry.AdminSSLPermissionsVerifier" class="proxy" />
+        <property name="Registry.Client" class="objectadapter" />
+        <property name="Registry.CryptPasswords" />
+        <property name="Registry.Data" />
+        <property name="Registry.DefaultTemplates" />
+        <property name="Registry.DynamicRegistration" />
+        <property name="Registry.Internal" class="objectadapter" />
+        <property name="Registry.NodeSessionTimeout" />
+        <property name="Registry.PermissionsVerifier" class="proxy" />
+        <property name="Registry.ReplicaName" />
+        <property name="Registry.ReplicaSessionTimeout" />
+        <property name="Registry.RequireNodeCertCN" />
+        <property name="Registry.RequireReplicaCertCN" />
+        <property name="Registry.Server" class="objectadapter" />
+        <property name="Registry.SessionFilters" />
+        <property name="Registry.SessionManager" class="objectadapter" />
+        <property name="Registry.SessionTimeout" />
+        <property name="Registry.SSLPermissionsVerifier" class="proxy" />
+        <property name="Registry.Trace.Application" />
+        <property name="Registry.Trace.Adapter" />
+        <property name="Registry.Trace.Locator" />
+        <property name="Registry.Trace.Node" />
+        <property name="Registry.Trace.Object" />
+        <property name="Registry.Trace.Patch" />
+        <property name="Registry.Trace.Replica" />
+        <property name="Registry.Trace.Server" />
+        <property name="Registry.Trace.Session" />
+        <property name="Registry.Trace.Subscriber"/>
+        <property name="Registry.Trace.Topic"/>
+        <property name="Registry.Trace.TopicManager"/>
+        <property name="Registry.UserAccounts" />
+        <property name="SQL.DatabaseType" />
+        <property name="SQL.EncodingVersion" />
+        <property name="SQL.HostName" />
+        <property name="SQL.Port" />
+        <property name="SQL.DatabaseName" />
+        <property name="SQL.UserName" />
+        <property name="SQL.Password" />
+</section>
+    
+    <section name="IcePatch2">
+        <property class="objectadapter" />
+        <property name="ChunkSize" deprecated="true" deprecatedBy="IcePatch2Client.ChunkSize"/>
+        <property name="Directory" />
+        <property name="InstanceName" />
+        <property name="Remove" deprecated="true" deprecatedBy="IcePatch2Client.Remove"/>
+        <property name="Thorough" deprecated="true" deprecatedBy="IcePatch2Client.Thorough"/>
+    </section>
+    
+    <section name="IcePatch2Client">
+        <property name="ChunkSize" />
+        <property name="Directory" />
+        <property name="Proxy" />
+        <property name="Remove" />
+        <property name="Thorough" />
+    </section>
+
+    <section name="IceSSL">
+        <property name="Alias" />
+        <property name="CertAuthDir" />
+        <property name="CertAuthFile" />
+        <property name="CertFile" />
+        <property name="CertVerifier" />
+        <property name="CheckCertName" />
+        <property name="CheckCRL" />
+        <property name="Ciphers" />
+        <property name="DefaultDir" />
+        <property name="DH.[any]" />
+        <property name="EntropyDaemon" />
+        <property name="FindCert.[any]" />
+        <property name="ImportCert.[any]" />
+        <property name="InitOpenSSL" />
+        <property name="KeyFile" />
+        <property name="KeySet"/>
+        <property name="Keystore" />
+        <property name="KeystorePassword" />
+        <property name="KeystoreType" />
+        <property name="Password" />
+        <property name="PasswordCallback" />
+        <property name="PasswordRetryMax" />
+        <property name="PersistKeySet"/>
+        <property name="Protocols" />
+        <property name="Random" />
+        <property name="Trace.Security" />
+        <property name="TrustOnly" />
+        <property name="TrustOnly.Client" />
+        <property name="TrustOnly.Server" />
+        <property name="TrustOnly.Server.[any]" />
+        <property name="Truststore" />
+        <property name="TruststorePassword" />
+        <property name="TruststoreType" />
+        <property name="VerifyDepthMax" />
+        <property name="VerifyPeer" />
+    </section>
+
+    <section name="IceStormAdmin">
+        <property name="TopicManager.[any]" />
+    </section>
+
+    <section name="Glacier2">
+        <property name="AddSSLContext" deprecated="true"/>
+        <property name="AddConnectionContext"/>
+        <property name="Client" class="objectadapter"/>
+        <property name="Client.AlwaysBatch" />
+        <property name="Client.Buffered" />
+        <property name="Client.ForwardContext" />
+        <property name="Client.SleepTime" />
+        <property name="Client.Trace.Override" />
+        <property name="Client.Trace.Reject" />
+        <property name="Client.Trace.Request" />
+        <property name="Filter.Address.Reject" />
+        <property name="Filter.Address.Accept" />
+        <property name="Filter.ProxySizeMax" />
+        <property name="Filter.Category.Accept"  />
+        <property name="Filter.Category.AcceptUser" />
+        <property name="Filter.AdapterId.Accept" />
+        <property name="Filter.Identity.Accept" />
+        <property name="CryptPasswords" />
+        <property name="InstanceName" />
+        <property name="PermissionsVerifier" class="proxy" />
+        <property name="ReturnClientProxy" />
+        <property name="SSLPermissionsVerifier" class="proxy" />
+        <property name="RoutingTable.MaxSize" />
+        <property name="Server" class="objectadapter" />
+        <property name="Server.AlwaysBatch" />
+        <property name="Server.Buffered" />
+        <property name="Server.ForwardContext" />
+        <property name="Server.SleepTime" />
+        <property name="Server.Trace.Override" />
+        <property name="Server.Trace.Request" />
+        <property name="SessionManager" class="proxy" />
+        <property name="SSLSessionManager" class="proxy" />
+        <property name="SessionTimeout" />
+        <property name="Trace.RoutingTable" />
+        <property name="Trace.Session" />
+    </section>
+
+    <section name="Freeze">
+        <property name="DbEnv.[any].CheckpointPeriod" />
+        <property name="DbEnv.[any].DbHome" />
+        <property name="DbEnv.[any].DbPrivate" />
+        <property name="DbEnv.[any].DbRecoverFatal" />
+        <property name="DbEnv.[any].EncodingVersion" />
+        <property name="DbEnv.[any].LockFile" />
+        <property name="DbEnv.[any].OldLogsAutoDelete" />
+        <property name="DbEnv.[any].PeriodicCheckpointMinSize" />
+        <property name="Evictor.[any].BtreeMinKey" />
+        <property name="Evictor.[any].Checksum" />
+        <property name="Evictor.[any].MaxTxSize" />
+        <property name="Evictor.[any].PageSize" />
+        <property name="Evictor.[any].PopulateEmptyIndices" />
+        <property name="Evictor.[any].RollbackOnUserException" />
+        <property name="Evictor.[any].SavePeriod" />
+        <property name="Evictor.[any].SaveSizeTrigger" />
+        <property name="Evictor.[any].StreamTimeout" />
+        <property name="Map.[any].BtreeMinKey" />
+        <property name="Map.[any].Checksum" />
+        <property name="Map.[any].PageSize" />
+        <property name="Trace.DbEnv" />
+        <property name="Trace.Evictor" />
+        <property name="Trace.Map" />
+        <property name="Trace.Transaction" />
+        <property name="Warn.Deadlocks" />
+        <property name="Warn.Rollback" />
+    </section>
+
+</properties>

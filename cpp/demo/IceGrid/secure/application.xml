@@ -1,0 +1,46 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+<icegrid>
+  <application name="Simple">
+
+    <properties id="Secure-Ice.Admin">
+      <property name="Ice.Plugin.IceSSL" value="IceSSL:createIceSSL"/>
+      <property name="IceSSL.CertAuthFile" value="ca_cert.pem"/>
+      <property name="IceSSL.CertFile" value="server_cert.pem"/>
+      <property name="IceSSL.KeyFile" value="server_key.pem"/>
+      <property name="IceSSL.DefaultDir" value="certs"/>
+
+      <property name="Ice.Admin.Endpoints" value="ssl -h localhost"/>
+      <property name="IceSSL.TrustOnly.Client" value="CN=Master;CN=Slave"/>
+      <property name="IceSSL.TrustOnly.Client" value="CN=Master;CN=Slave"/>
+      <property name="IceSSL.TrustOnly.Server.Ice.Admin" value="CN=Node"/>
+    </properties>
+
+    <node name="Node">
+      <server id="SimpleServer" exe="./server" activation="on-demand">
+	<adapter name="Hello" endpoints="tcp -h localhost">
+	  <object identity="hello" type="::Demo::Hello" property="Identity"/>
+	</adapter>
+
+        <properties>
+           <properties refid="Secure-Ice.Admin"/>
+
+           <property name="IceMX.Metrics.Debug.GroupBy" value="id"/>
+           <property name="IceMX.Metrics.Debug.Disabled" value="1"/>
+           <property name="IceMX.Metrics.ByParent.GroupBy" value="parent"/>
+           <property name="IceMX.Metrics.ByParent.Disabled" value="1"/>
+        </properties>
+      </server>
+    </node>
+
+  </application>
+</icegrid>

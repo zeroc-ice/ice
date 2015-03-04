@@ -1,0 +1,11 @@
+#
+# The server creates one single object adapter with the name
+# "SessionFactory". The following line sets the endpoints for this
+# adapter.
+#
+SessionFactory.Endpoints=default -h localhost -p 10000
+
+#
+# Warn about connection exceptions
+#
+Ice.Warn.Connections=1

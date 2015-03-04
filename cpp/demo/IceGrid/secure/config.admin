@@ -1,0 +1,21 @@
+Ice.Default.Locator=DemoIceGrid/Locator:ssl -h localhost -p 4062 -t 10000
+#Ice.Default.Router=DemoGlacier2/router:ssl -h localhost -p 4064 -t 10000
+
+IceGridAdmin.Username=demo
+IceGridAdmin.Password=dummy
+
+#
+# Trace properties.
+#
+#Ice.Trace.Network=1
+#Ice.Trace.Locator=1
+
+#
+# SSL Configuration
+#
+IceSSL.DefaultDir=certs
+IceSSL.TrustOnly.Client=CN="Master";CN="Slave";CN="Glacier2"
+
+# C++ configuration
+Ice.Plugin.IceSSL.cpp=IceSSL:createIceSSL
+IceSSL.CertAuthFile=ca_cert.pem

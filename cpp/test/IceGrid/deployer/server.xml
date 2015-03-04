@@ -1,0 +1,74 @@
+<icegrid>
+
+  <server-template id="ServerTemplate">
+
+    <parameter name="name"/>
+    <parameter name="AppVarOverridedByParam"/>
+    <parameter name="Param1"/>
+    <parameter name="Param2"/>
+    <parameter name="ParamEscaped"/>
+    <parameter name="ParamDoubleEscaped"/>
+    <parameter name="DefaultParam" default="VALUE"/>
+
+    <server id="${name}" exe="${test.dir}/server" activation="on-demand" pwd=".">
+
+      <option>--Test.Test=2</option>
+      <option>--Test.Test1=0</option>
+
+      <adapter name="Server" endpoints="default">
+	<object identity="${server}" type="::Test" property="Test${server}Identity"/>
+      </adapter>
+      <adapter name="ReplicatedAdapter" endpoints="default" replica-group="ReplicatedAdapter"/>
+
+      <log path="test-${server}.log" property="LogFilePath"/>
+      <log path="test.log" property="LogFilePath-${server}"/>
+
+      <properties>
+        <properties refid="AppProperties"/>
+        <properties refid="NodeProperties"/>
+        <property name="Ice.Warn.Connections" value="1"/>
+
+	<property name="Type" value="Server"/>
+	<property name="Name" value="${name}"/>
+	<property name="NameName" value="${name}${name}"/>
+	<property name="NameEscaped" value="$${name}"/>
+	<property name="NameEscapeEscaped" value="$$${name}"/> 
+	<property name="NameEscapedEscapeEscaped" value="$$$${name}"/> 
+	<property name="ManyEscape" value="$$$$$$$${name}"/>
+	<property name="Ice.Warn.Connections" value="1"/>
+
+        <property name="PropertyWithSpaces" value="   test   "/>
+	<property name="WindowsPath" value="C:\Program Files (x86)\ZeroC\"/>
+	<property name="UNCPath" value="\\server\foo bar\file"/>
+        <property name="PropertyWith=" value="foo=bar"/>
+        <property name="PropertyWithHash" value="foo#bar"/>
+        <property name="PropertyWithTab" value="foo&#9;bar"/>
+	<property name="PropertyWithEscapeSpace" value="foo\ "/>
+	<property name="PropertyWithProperty"
+                  value="Plugin.EntryPoint=foo:bar --Ice.Config=\\\server\foo bar\file.cfg"/>
+
+	<include file="varproperties.xml"/>
+
+	<property name="Param1Prop" value="${Param1}"/>
+	<property name="Param2Prop" value="${Param2}"/>
+	<property name="ParamEscapedProp" value="${ParamEscaped}"/>
+	<property name="ParamDoubleEscapedProp" value="${ParamDoubleEscaped}"/>
+	<property name="AppVarOverridedByParamProp" value="${AppVarOverridedByParam}"/>
+	<property name="NodeVarOverridedByParamProp" value="${NodeVarOverridedByParam}"/>
+	<property name="DefaultParamProp" value="${DefaultParam}"/>
+      </properties>
+
+      <env>MY_ENV_VARIABLE=12</env>
+      <env>MY_UNIX_COMPOSED_VARIABLE=BAR;$MY_FOO</env>
+      <env>MY_WINDOWS_COMPOSED_VARIABLE=BAR;%MY_FOO%</env>
+      <env>MY_ENV_UNICODE_VARIABLE=A Coruña</env>
+      <env>MY_ENV_VÄRIABLE=1</env>
+      <env>my_env_väriable=2</env>
+
+      <target name="moreproperties">
+        <property name="TargetProp" value="1"/>
+      </target>
+
+    </server>
+  </server-template>
+</icegrid>

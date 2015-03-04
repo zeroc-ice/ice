@@ -1,0 +1,30 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+<project name="demo_Freeze" default="all" basedir=".">
+
+    <target name="all">
+        <ant dir="casino"/>
+        <ant dir="phonebook"/>
+        <ant dir="library"/>
+        <ant dir="bench"/>
+        <ant dir="transform"/>
+    </target>
+
+    <target name="clean">
+        <ant dir="casino" target="clean"/>
+        <ant dir="phonebook" target="clean"/>
+        <ant dir="library" target="clean"/>
+        <ant dir="bench" target="clean"/>
+        <ant dir="transform" target="clean"/>
+    </target>
+
+</project>

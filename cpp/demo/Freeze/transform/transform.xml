@@ -1,0 +1,14 @@
+
+<transformdb>
+
+    <database name="contacts" key="string" value="::Demo::ContactData">
+        <record>
+           <set target="newvalue.emailAddress"
+            value="oldkey + '@gmail.com'"/>
+        
+        </record>
+    </database>
+    
+    <!-- struct ::Demo::ContactData -->
+    <transform type="::Demo::ContactData"/>
+</transformdb>

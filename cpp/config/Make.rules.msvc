@@ -1,0 +1,214 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# This file is included by Make.rules.mak when using a Microsoft C++
+# compiler
+#
+
+CXX		= cl.exe
+CC		= cl.exe
+LINK 		= link.exe
+AR 		= lib.exe
+RC		= rc.exe
+
+BASE		= /base
+PREOUT		= /out:
+PRELIBS		=
+PRELIBPATH      = /LIBPATH:
+
+!if "$(OPTIMIZE)" != "yes" || "$(RELEASEPDBS)" == "yes"
+GENERATE_PDB	= yes
+!endif
+
+CPPFLAGS	= $(CPPFLAGS) -nologo -W3 -WX -GR -EHsc
+ARFLAGS	        = $(ARFLAGS) -nologo -WX 
+
+!if "$(WINRT)" == "yes"
+CPPFLAGS	= $(CPPFLAGS) -DWINAPI_FAMILY=2 -Gm- -Oy- -Gd -ZW -D_UNICODE -DUNICODE
+#
+# We ignore these two warnings
+# 4264 http://msdn.microsoft.com/en-us/library/windows/apps/hh771041(v=vs.110).aspx
+# 4221 is "This object file does not define any previously undefined public symbols", 
+#
+ARFLAGS		= $(ARFLAGS) /ignore:4264 /ignore:4221
+!else
+CPPFLAGS	= $(CPPFLAGS) -D_CONSOLE
+!endif
+
+CPPFLAGS        = $(CPPFLAGS) -MP
+
+!if "$(OPTIMIZE)" == "yes"
+
+CPPFLAGS	= $(CPPFLAGS) -O2 -DNDEBUG -MD
+CONFIG		= Retail	
+
+!if "$(RELEASEPDBS)" == "yes"
+CPPFLAGS        = $(CPPFLAGS) -Zi -Oy-
+!endif
+
+
+!else
+
+CPPFLAGS	= $(CPPFLAGS) -Zi -Od -D_DEBUG -MDd -RTC1
+CONFIG		= Debug
+
+!endif
+
+!if "$(STATICLIBS)" == "yes"
+CPPFLAGS        = $(CPPFLAGS) -DICE_STATIC_LIBS
+!endif
+
+LDFLAGS		= $(LDFLAGS) /nologo
+
+!if "$(WINRT)" == "yes"
+LDFLAGS		= $(LDFLAGS) /NXCOMPAT /MANIFEST:NO /APPCONTAINER /NOLOGO 
+!else
+LDFLAGS		= $(LDFLAGS) /FIXED:no
+!endif
+
+!if "$(OPTIMIZE)" == "yes"
+LDFLAGS         = $(LDFLAGS) /OPT:REF
+!endif
+
+!if "$(GENERATE_PDB)" != "yes"
+LDFLAGS         = $(LDFLAGS) /pdb:none
+!else
+LDFLAGS         = $(LDFLAGS) /debug /incremental:no
+!endif
+
+
+LD_DLLFLAGS	= $(LDFLAGS) /dll
+LD_EXEFLAGS	= $(LDFLAGS)
+
+!if "$(WINRT)" == "yes"
+ICE_OS_LIBS     = kernel32.lib user32.lib
+ICEUTIL_OS_LIBS = $(ICE_OS_LIBS)
+!else
+ICE_OS_LIBS     = rpcrt4.lib advapi32.lib
+ICEUTIL_OS_LIBS = $(ICE_OS_LIBS) DbgHelp.lib
+BZIP2_LIBS      = libbz2$(LIBSUFFIX).lib
+DB_LIBS         = libdb53$(LIBSUFFIX).lib
+MCPP_LIBS       = mcpp$(LIBSUFFIX).lib
+ICONV_LIB       = libiconv.lib
+!endif
+
+!if "$(WINRT)" != "yes"
+BASELIBS	= iceutil$(LIBSUFFIX).lib $(ICE_OS_LIBS)
+LIBS		= ice$(LIBSUFFIX).lib $(BASELIBS)
+!else
+BASELIBS	= iceutil.lib $(ICE_OS_LIBS)
+LIBS		= ice.lib $(BASELIBS)
+!endif
+
+!if "$(WINRT)" == "yes"
+
+SDK_VERSION		= $(SHORT_VERSION)
+SDK_NAME		= Ice
+SDK_REG_FILE		= $(SDK_NAME).reg
+SDK_MANIFEST		= SDKManifest.xml
+!if "$(ice_src_dist)" != ""
+SDK_BASE_PATH		= $(top_srcdir)\SDKs\$(SDK_NAME)\$(SDK_VERSION)
+!else
+SDK_BASE_PATH		= $(ice_dir)\SDKs\$(SDK_NAME)\$(SDK_VERSION)
+!endif
+SDK_INCLUDE_PATH	= $(SDK_BASE_PATH)\DesignTime\CommonConfiguration\Neutral\include
+SDK_LIBRARY_PATH	= $(SDK_BASE_PATH)\DesignTime\$(CONFIG)\$(ARCH)
+SDK_REFERENCES_PATH	= $(SDK_BASE_PATH)\References\$(CONFIG)\$(ARCH)
+SDK_REDIST_PATH		= $(SDK_BASE_PATH)\Redist\$(CONFIG)\$(ARCH)
+SDK_PROPS_PATH		= $(SDK_BASE_PATH)\DesignTime\CommonConfiguration\Neutral
+SDK_PROPS_FILE		= $(SDK_NAME).props
+SDK_LICENSE		= $(SDK_BASE_PATH)\LICENSE.txt
+SDK_ICE_LICENSE		= $(SDK_BASE_PATH)\ICE_LICENSE.txt
+
+
+#
+# Copy License files to SDK Root and fix line ends.
+#
+!if exist ($(top_srcdir)\..\ICE_LICENSE.txt)
+$(SDK_LICENSE) $(SDK_ICE_LICENSE):
+  copy $(top_srcdir)\..\LICENSE.txt $(SDK_BASE_PATH)
+  copy $(top_srcdir)\..\ICE_LICENSE.txt $(SDK_BASE_PATH)
+!else
+$(SDK_LICENSE) $(SDK_ICE_LICENSE):
+  type $(top_srcdir)\..\LICENSE | find "" /v > $(SDK_LICENSE)
+  type $(top_srcdir)\..\ICE_LICENSE | find "" /v > $(SDK_ICE_LICENSE)
+!endif
+	
+$(SDK_BASE_PATH):
+	mkdir $(SDK_BASE_PATH)
+	
+$(SDK_LIBRARY_PATH):
+	mkdir $(SDK_LIBRARY_PATH)
+
+$(SDK_REDIST_PATH):
+	mkdir $(SDK_REDIST_PATH)
+	
+$(SDK_REFERENCES_PATH):
+	mkdir $(SDK_REFERENCES_PATH)
+	
+$(SDK_PROPS_PATH):
+	mkdir $(SDK_PROPS_PATH)
+
+$(SDK_INCLUDE_PATH):
+	mkdir $(SDK_INCLUDE_PATH)
+	
+$(SDK_BASE_PATH)\$(SDK_MANIFEST): $(SDK_BASE_PATH)
+        @echo <<$(SDK_MANIFEST)
+<FileList
+  Identity = "$(SDK_NAME), Version=$(SDK_VERSION)"
+  DisplayName = "$(SDK_NAME) SDK"
+  ProductFamiliyName = "ZeroC SDKs"
+  MinVSVersion = "11.0"
+  AppliesTo = "WindowsAppContainer + VisualC"
+  SupportedArchitecture = "x86;x64;ARM"
+  SupportsMultipleVersion = "Error"
+  MoreInfo = "http://doc.zeroc.com">
+</FileList>
+<<KEEP
+	move $(SDK_MANIFEST) $(SDK_BASE_PATH)
+	
+$(SDK_PROPS_PATH)\$(SDK_PROPS_FILE): $(SDK_PROPS_PATH)
+	@echo <<$(SDK_PROPS_FILE)
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$$(Configuration)' == 'Debug'">
+        <ConfigurationPrefix>Debug</ConfigurationPrefix>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$$(Configuration)' == 'Release'">
+        <ConfigurationPrefix>Retail</ConfigurationPrefix>
+  </PropertyGroup>
+  <ItemGroup>
+        <BuildMacro Include="ConfigurationPrefix">
+            <Value>$(ConfigurationPrefix)</Value>
+            <EnvironmentVariable>true</EnvironmentVariable>
+        </BuildMacro>
+  </ItemGroup>
+  <PropertyGroup>
+    <IceWinRTHome>$$(Registry:HKEY_LOCAL_MACHINE\Software\Microsoft\Microsoft SDKs\Windows\v8.0\ExtensionSDKS\$(SDK_NAME)\$(SDK_VERSION)@)</IceWinRTHome>
+    <IncludePath>$$(IceWinRTHome)\Designtime\CommonConfiguration\Neutral\include;$$(IncludePath)</IncludePath>
+    <LibraryPath>$$(IceWinRTHome)\Designtime\$$(ConfigurationPrefix)\$$(PlatformTarget);$$(LibraryPath)</LibraryPath> 
+ </PropertyGroup>
+ <ItemDefinitionGroup>
+    <Link>
+      <AdditionalDependencies>icegrid.lib;icestorm.lib;glacier2.lib;ice.lib;iceutil.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+</Project>
+<<KEEP
+	move $(SDK_PROPS_FILE) $(SDK_PROPS_PATH)
+
+$(ARCH)\$(CONFIG):
+	mkdir $(ARCH)\$(CONFIG)
+	
+sdks: $(SDK_LIBRARY_PATH) $(SDK_REDIST_PATH) $(SDK_REFERENCES_PATH) $(SDK_BASE_PATH)\$(SDK_MANIFEST) \
+	$(SDK_PROPS_PATH)\$(SDK_PROPS_FILE) $(SDK_INCLUDE_PATH) $(ARCH)\$(CONFIG) $(SDK_LICENSE) $(SDK_ICE_LICENSE)
+
+
+!endif
+

@@ -1,0 +1,17 @@
+transformdb: unsupported type change in ::Test::Seq1 sequence type from string to struct ::Test::S1
+transformdb: unsupported type change in ::Test::D1 value type from string to struct ::Test::S1
+transformdb: unsupported type change in c1m10 from string to struct ::Test::S1
+transformdb: unsupported type change in c1m11 from string to sequence ::Test::Seq1
+transformdb: unsupported type change in c1m12 from string to dictionary ::Test::D1
+transformdb: unsupported type change in c1m14 from string to Object
+transformdb: unsupported type change in c1m16 from string to class ::Test::C1
+transformdb: unsupported type change in c2m10 from string to struct ::Test::S1
+transformdb: unsupported type change in c2m11 from string to sequence ::Test::Seq1
+transformdb: unsupported type change in c2m12 from string to dictionary ::Test::D1
+transformdb: unsupported type change in c2m14 from string to Object
+transformdb: unsupported type change in c2m16 from string to class ::Test::C1
+transformdb: unsupported type change in m10 from string to struct ::Test::S1
+transformdb: unsupported type change in m11 from string to sequence ::Test::Seq1
+transformdb: unsupported type change in m12 from string to dictionary ::Test::D1
+transformdb: unsupported type change in m14 from string to Object
+transformdb: unsupported type change in m16 from string to class ::Test::C1

@@ -1,0 +1,128 @@
+#
+# Set the instance name
+#
+Glacier2.InstanceName=DemoGlacier2
+
+#
+# The client-visible endpoint of Glacier2. This should be an endpoint
+# visible from the public Internet, and it should be secure.
+# 
+Glacier2.Client.Endpoints=ssl -p 4064 -h localhost
+
+#
+# The server-visible endpoint of Glacier2. This endpoint is only
+# required if callbacks are needed (leave empty otherwise). This
+# should be an endpoint on an internal network (like 192.168.x.x), or
+# on the loopback, so that the server is not directly accessible from
+# the Internet.
+#
+Glacier2.Server.Endpoints=tcp -h localhost
+
+# 
+# For this demo, we use a null permissions verifier.
+# 
+Glacier2.PermissionsVerifier=DemoGlacier2/NullPermissionsVerifier
+
+#
+# The timeout for inactive sessions. If any client session is inactive
+# for longer than this value, the session expires and is removed. The
+# unit is seconds.
+#
+Glacier2.SessionTimeout=30
+
+#
+# Glacier can forward requests buffered or unbuffered. Unbuffered
+# means a lower resource consumption, as buffering requires one
+# additional thread per connected client or server. However, without
+# buffering, messages cannot be batched and message overriding doesn't
+# work either. Also, with unbuffered request forwarding, the caller
+# thread blocks for twoway requests.
+# The default is to use buffering (=1), in both directions.
+#Glacier2.Client.Buffered=0
+#Glacier2.Server.Buffered=0
+
+#
+# These two lines instruct Glacier2 to forward contexts both for
+# regular routing, as well as for callbacks (reverse routing).
+#
+Glacier2.Client.ForwardContext=1
+Glacier2.Server.ForwardContext=1
+
+#
+# To prevent Glacier2 from being flooded with requests from or to one
+# particular client, Glacier2 can be configured to sleep for a certain
+# period after all current requests for this client have been
+# forwarded. During this sleep period, new requests for the client are
+# queued. These requests are then all sent once the sleep period is
+# over. The unit is milliseconds.
+#
+Glacier2.Client.SleepTime=500
+Glacier2.Server.SleepTime=500
+
+#
+# With the two settings below, Glacier2 can be instructed to always
+# batch oneways, even if they are sent with a _fwd/o instead of a
+# _fwd/O context.
+# The default value for Glacier2.Client.AlwaysBatch and 
+# Glacier2.Server.AlwaysBatch is 0.
+#Glacier2.Client.AlwaysBatch=1
+#Glacier2.Server.AlwaysBatch=1
+
+#
+# Glacier2 always disables active connection management so there is no
+# need to configure this manually. Connection retry does not need to
+# be disabled, as it's safe for Glacier2 to retry outgoing connections
+# to servers. Retry for incoming connections from clients must be
+# disabled in the clients.
+#
+
+#
+# Various settings to trace requests, overrides, etc.
+#
+Glacier2.Client.Trace.Request=1
+Glacier2.Server.Trace.Request=1
+Glacier2.Client.Trace.Override=1
+Glacier2.Server.Trace.Override=1
+Glacier2.Client.Trace.Reject=1
+Glacier2.Trace.Session=1
+Glacier2.Trace.RoutingTable=1
+
+#
+# Warn about connection exceptions
+#
+Ice.Warn.Connections=1
+
+#
+# Network Tracing
+#
+# 0 = no network tracing
+# 1 = trace connection establishment and closure
+# 2 = like 1, but more detailed
+# 3 = like 2, but also trace data transfer
+#
+#Ice.Trace.Network=1
+
+#
+# Protocol Tracing
+#
+# 0 = no protocol tracing
+# 1 = trace protocol messages
+#
+#Ice.Trace.Protocol=1
+
+#
+# Security Tracing
+#
+# 0 = no security tracing (default)
+# 1 = trace messages
+#
+#IceSSL.Trace.Security=1
+
+#
+# SSL Configuration
+#
+Ice.Plugin.IceSSL=IceSSL:createIceSSL
+IceSSL.DefaultDir=../../../../certs
+IceSSL.CertAuthFile=cacert.pem
+IceSSL.CertFile=s_rsa1024_pub.pem
+IceSSL.KeyFile=s_rsa1024_priv.pem

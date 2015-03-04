@@ -1,0 +1,82 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# This file is included by Make.rules when building with MinGW.
+#
+
+#
+# Default compiler is c++ (aka g++).
+#
+ifeq ($(CXX),)
+   CXX          = c++
+endif
+
+CXXFLAGS       	= $(CXXARCHFLAGS) -fexceptions -mthreads -Wall -Werror -DWIN32_LEAN_AND_MEAN
+LDFLAGS         = -Wl,-no-undefined 
+
+ifeq ($(CXX), i686-pc-mingw32-c++)
+    LDPLATFORMFLAGS := $(LDFLAGS) -static-libstdc++ -static-libgcc
+endif
+
+ifeq ($(OPTIMIZE),yes)
+    CXXFLAGS		+= -O2 -DNDEBUG
+else
+    CXXFLAGS		+= -g -D_DEBUG
+endif
+
+COMPSUFFIX	= _mingw
+
+mklibfilename	= $(shell echo $(1) | tr A-Z a-z)$(SOVERSION)$(COMPSUFFIX).dll
+
+ifeq ($(STATICLIBS),yes)
+    mklibtargets	= $(3)
+else
+    mklibtargets	= $(1)
+endif
+
+#
+# Shared library linking command. We transform -lxxx parameters into
+# -lxxx<ver>$(COMPSUFFIX).dll here to avoid having to fix all the Makefiles
+# which need to link with the MinGW libraries.
+#
+mkshlib			= $(CXX) -shared $(LDFLAGS) -o $(1) $(3) \
+			  $(subst cpp/lib,cpp/bin, \
+			  $(subst -lIce,-lice$(SOVERSION)$(COMPSUFFIX), \
+			  $(subst -lIceUtil,-liceutil$(SOVERSION)$(COMPSUFFIX), \
+			  $(subst -lSlice,-lslice$(SOVERSION)$(COMPSUFFIX), \
+			  $(subst -lIceSSL,-licessl$(SOVERSION)$(COMPSUFFIX),$(4))))))
+
+mklib			= ar cr $(1) $(2)
+
+libdir			= $(top_srcdir)/bin
+libsubdir	  	= bin
+
+installlib		= $(INSTALL) $(2)/$(3) $(1); \
+			  chmod a+rx $(1)/$(3) 
+
+installprogram		= $(INSTALL_PROGRAM) $(1) $(2); \
+			  chmod a+rx $(2)/$(notdir $(1))
+
+CPPFLAGS		:= -I"$(THIRDPARTY_HOME)/include" $(CPPFLAGS) 
+LDPLATFORMFLAGS		:= -L"$(THIRDPARTY_HOME)/bin" $(LDFLAGS)
+
+OPENSSL_LIBS            = -leay32$(COMPSUFFIX) -lssleay32$(COMPSUFFIX) -lws2_32
+MCPP_LIBS               = -L"$(THIRDPARTY_HOME)/lib/mingw" -lmcpp
+BZIP2_LIBS		= -lbzip2$(COMPSUFFIX)
+
+BASELIBS		= -liceutil$(SOVERSION)$(COMPSUFFIX)
+LIBS			= -lice$(SOVERSION)$(COMPSUFFIX) $(BASELIBS) 
+ICESSL_LIBS             = -licessl$(SOVERSION)$(COMPSUFFIX) $(LIBS)
+SLICE_LIBS		= -lslice$(SOVERSION)$(COMPSUFFIX) $(BASELIBS)
+
+ICEUTIL_OS_LIBS		= -lrpcrt4  -ladvapi32
+ICE_OS_LIBS		= $(ICEUTIL_OS_LIBS) -lIphlpapi -lws2_32
+
+EXE_EXT = .exe

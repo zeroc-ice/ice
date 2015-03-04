@@ -1,0 +1,109 @@
+Freeze online backup demo
+=========================
+
+This demo helps you experiment with Berkeley DB's hot backup
+capabilities, and shows how to configure Freeze to support hot
+backups.
+
+The client program is very simple: it creates an Int to Long Freeze
+map, with 10000 elements. The client uses a transaction to update all
+the elements with the current date-time (as a number of milliseconds
+since the epoch -- 01/01/1970 at 00:00:00 UTC). It also verifies that
+the old values are all the same.
+
+This program runs forever: you need to kill it (e.g., with CTRL-C) to
+terminate it.
+
+
+db utility names
+----------------
+
+The Berkeley DB utilities are usually named db_hotbackup, db_archive,
+db_recover, etc. If you use the Berkeley DB 5.3.21 RPMs or Solaris 
+binaries provided by ZeroC, the utility names are db53_hotbackup, 
+db53_archive, etc. Please adjust the instructions below accordingly.
+
+
+Backup
+------
+
+While the program is running, you can perform a hot backup with the
+backup shell script (on Unix/Linux) or batch file (on Windows).
+
+These two scripts illustrate how to use the Berkeley DB db_hotbackup
+utility. For a full description of db_hotbackup, please refer to:
+
+  http://www.oracle.com/technology/documentation/berkeley-db/db/utility/db_hotbackup.html
+
+The following command creates a full backup (both data and log files)
+in the 'hotbackup' directory:
+
+ $ ./backup full
+
+Or on Windows:
+
+ > backup full
+
+Alternatively, you can perform an incremental backup, which only moves
+and copies log files to the hotbackup directory:
+
+ $ ./backup incremental
+
+Or on Windows:
+
+ > backup incremental
+
+Note that the Ice configuration file (named config) disables the
+automatic deletion of old log files:
+
+Freeze.DbEnv.backup.OldLogsAutoDelete=0
+
+The file also sets DbPrivate to 0 to allow db_archive to access the db
+environment while the client is running:
+
+Freeze.DbEnv.backup.DbPrivate=0
+
+The db/DB_CONFIG file is used to put the data files and log files in
+different subdirectories, which simplifies archiving.
+
+
+Recovery
+--------
+
+After a successful backup, the hotbackup directory always contains
+a full backup that is ready to use. To switch over to this backup, you
+only need to do the following:
+
+ 1. Make sure the client is not running.
+
+ 2. Move the old 'db' directory out of the way:
+
+    $ mv db db.old
+
+    Or on Windows:
+
+    > move db db.old
+
+ 3. Move or copy the hotbackup directory to db:
+
+    $ cp -R hotbackup db
+
+    Or on Windows:
+
+    > xcopy /s hotbackup db\
+
+If you have recent uncorrupted log files in your original db
+directory, you can also copy these log files over your restored log
+files and perform a catastrophic recovery to recover these updates.
+
+With the example above:
+ 
+  $ cp db.old/logs/log.* db/logs
+  $ db_recover -c -h db
+
+Or on Windows:
+
+  > xcopy /y db.old\logs\log.* db\logs
+  > db_recover -c -h db
+
+Finally, restart the client.

@@ -1,0 +1,39 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+<icegrid>
+
+  <application name="Simple">
+
+    <server-template id="SimpleServer">
+      <parameter name="index"/>
+      <server id="SimpleServer-${index}" exe="java" activation="on-demand">
+        <option>Server</option>
+        <adapter name="Hello" endpoints="tcp -h localhost">
+          <object identity="hello-${index}" type="::Demo::Hello" property="Identity"/>
+        </adapter>
+
+        <property name="IceMX.Metrics.Debug.GroupBy" value="id"/>
+        <property name="IceMX.Metrics.Debug.Disabled" value="1"/>
+        <property name="IceMX.Metrics.ByParent.GroupBy" value="parent"/>
+        <property name="IceMX.Metrics.ByParent.Disabled" value="1"/>
+      </server>
+    </server-template>
+
+    <node name="node1">
+      <server-instance template="SimpleServer" index="1"/>
+      <server-instance template="SimpleServer" index="2"/>
+      <server-instance template="SimpleServer" index="3"/>
+    </node>
+
+  </application>
+
+</icegrid>

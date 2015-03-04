@@ -1,0 +1,31 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+<icegrid>
+
+  <application name="Session">
+
+    <node name="node1">
+      <server id="SessionServer" exe="./server" activation="session">
+	<adapter name="Hello" endpoints="tcp -h localhost">
+	  <allocatable identity="hello" property="Identity"/>
+	</adapter>
+
+        <property name="IceMX.Metrics.Debug.GroupBy" value="id"/>
+        <property name="IceMX.Metrics.Debug.Disabled" value="1"/>
+        <property name="IceMX.Metrics.ByParent.GroupBy" value="parent"/>
+        <property name="IceMX.Metrics.ByParent.Disabled" value="1"/>
+      </server>
+    </node>
+
+  </application>
+
+</icegrid>

@@ -1,0 +1,18 @@
+#
+# The client reads this property to create the reference to the "Ping"
+# object in the server.
+#
+Ping.Proxy=ping:default -p 10000 -h localhost
+
+#
+# Disable client-side ACM.
+#
+Ice.ACM.Client=0
+
+#
+# IceMX configuration.
+#
+#Ice.Admin.Endpoints=tcp -h localhost -p 10003
+Ice.Admin.InstanceName=client
+IceMX.Metrics.Debug.GroupBy=id
+IceMX.Metrics.ByParent.GroupBy=parent

@@ -1,0 +1,25 @@
+#
+# The Default Locator
+#
+Ice.Default.Locator=DemoIceGrid/Locator:default -p 4061
+
+#
+# This property is used by the clients to connect to IceStorm.
+#
+TopicManager.Proxy=DemoIceStorm/TopicManager
+
+#
+# This property is used to configure the endpoints of the clock
+# subscriber adapter.
+#
+Clock.Subscriber.Endpoints=tcp:udp
+
+#
+# Network Tracing
+#
+# 0 = no network tracing
+# 1 = trace connection establishment and closure
+# 2 = like 1, but more detailed
+# 3 = like 2, but also trace data transfer
+#
+#Ice.Trace.Network=1

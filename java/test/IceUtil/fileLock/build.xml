@@ -1,0 +1,38 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+<project name="test_Ice_operations" default="all" basedir=".">
+
+    <!-- set global properties for this build -->
+    <property name="top.dir" value="../../.."/>
+
+    <!-- import common definitions -->
+    <import file="${top.dir}/config/common.xml"/>
+
+    <target name="compile" depends="init">
+        <mkdir dir="${class.dir}"/>
+        <javac srcdir="${generated.dir}" destdir="${class.dir}"
+               classpathref="ice.classpath" debug="${debug}">
+            <compilerarg value="${javac.lint}"/>
+        </javac>
+        <javac srcdir="." destdir="${class.dir}"
+               classpathref="ice.classpath" excludes="generated/**" debug="${debug}">
+            <compilerarg value="${javac.lint}"/>
+        </javac>
+    </target>
+
+    <target name="all" depends="compile"/>
+
+    <target name="clean">
+        <delete dir="${class.dir}"/>
+        <delete file="file.lock"/>
+    </target>
+</project>

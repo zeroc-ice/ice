@@ -1,0 +1,145 @@
+.TH slice2freeze 1
+
+.SH NAME
+
+slice2freeze - Generates Freeze map and index classes in C++.
+
+.SH SYNOPSIS
+
+slice2freeze [options] [files]
+
+.SH DESCRIPTION
+
+slice2freeze generates Freeze map and index classes in C++.
+
+Full documentation for slice2freeze is available online at: 
+.br
+"http://doc.zeroc.com/pages/viewpage.action?pageId=5048540".
+
+.SH OPTIONS
+
+.TP
+.BR \-h ", " \-\-help\fR
+.br
+Displays a help message.
+
+.TP
+.BR \-v ", " \-\-version\fR
+Displays the compiler version.
+
+.TP
+.BR \-DNAME\fR
+.br
+Defines the preprocessor symbol NAME.
+
+.TP
+.BR \-DNAME=DEF\fR
+.br 
+Defines the preprocessor symbol NAME with the value DEF.
+
+.TP
+.BR \-UNAME\fR
+.br
+Undefines the preprocessor symbol NAME.
+
+.TP
+.BR \-IDIR\fR
+.br
+Add the directory DIR to the search path for #include directives.
+
+.TP
+.BR \-E\fR
+.br
+Print the preprocessor output on stdout.
+
+.TP
+.BR \-\-output-dir " " DIR\fR
+.br
+Place the generated files into directory DIR.
+
+.TP
+.BR \-d ", " \-\-debug\fR
+.br
+Print debug information showing the operation of the Slice parser.
+
+.TP
+.BR \-\-ice\fR
+.br
+Permit use of the normally reserved prefix Ice for identifiers. Use this
+option only when compiling the source code for the Ice run time.
+
+.TP
+.BR \-\-underscore\fR
+.br
+Permit use of underscores in Slice identifiers.
+
+.TP
+.BR \-\-header-ext " " EXT\fR
+.br
+Changes the file extension for the generated header files from the default h
+to EXT.
+
+.TP
+.BR \-\-source-ext " " EXT\fR
+.br
+Changes the file extension for the generated source files from the default
+cpp to EXT.
+
+.TP
+.BR \-\-add-header " " HDR[,GUARD]
+.br
+This option adds an include directive for the specified header at the
+beginning of the generated source file (preceding any other include 
+directives). If GUARD is specified, the include directive is protected by the
+specified guard.
+
+.TP
+.BR \-\-include-dir " " DIR\fR
+.br
+Modifies #include directives in source files to prepend the path name of each
+header file with the directory DIR.
+
+.TP
+.BR \-\-dll-export " " SYMBOL\fR
+.br
+Use SYMBOL to control DLL exports or imports. This option allows you to
+selectively export or import global symbols in the generated code.
+
+.TP
+.BR \-\-dict " " NAME,KEY,VALUE[,sort[,COMPARE]]\fR
+.br
+Generate a Freeze map class named NAME using KEY as key and VALUE as value. 
+This option may be specified multiple times to generate several Freeze maps. 
+NAME may be a scoped C++ name, such as Demo::Struct1ObjectMap. KEY and VALUE 
+represent Slice types and therefore must use Slice syntax, such as bool or 
+Ice::Identity. By default, keys are sorted using their binary Ice-encoded
+representation. Include sort to sort with the COMPARE functor class. If
+COMPARE is not specified, the default value is std::less<KEY>.
+
+.TP
+.BR \-\-dict\-index " " MAP[,MEMBER] " " [,case\-sensitive|case\-insensitive][,sort[,COMPARE]]\fR
+.br
+Add an index to the Freeze map named MAP. If MEMBER is specified, the map 
+value type must be a structure or a class, and MEMBER must be a member of this
+structure or class.
+
+.TP
+.BR \-\-index " " CLASS,TYPE,MEMBER " " [,case-sensitive|case-insensitive]\fR
+.br
+Generate an index class for a Freeze evictor. CLASS is the name of the class
+to be generated. TYPE denotes the type of class to be indexed (objects of
+different classes are not included in this index). MEMBER is the name of the
+data member in TYPE to index. When MEMBER has type string, it is possible to
+specify whether the index is case-sensitive or not. The default is 
+case-sensitive.
+
+.SH SEE ALSO
+
+.BR slice2cpp (1),
+.BR slice2cs (1),
+.BR slice2freezej (1),
+.BR slice2html (1),
+.BR slice2java (1), 
+.BR slice2php (1),
+.BR slice2py (1),
+.BR slice2rb (1)

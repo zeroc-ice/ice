@@ -1,0 +1,31 @@
+#
+# The server creates one single object adapter with the name
+# "Throughput". The following line sets the endpoints for this
+# adapter.
+#
+Throughput.Endpoints=default -p 10000 -h localhost
+
+#
+# For this test since the server is constantly receiving requests we
+# want two threads in the pool.
+#
+Ice.ThreadPool.Server.Size=2
+
+#
+# No warnings please.
+#
+Ice.ThreadPool.Server.SizeWarn=0
+
+#
+# Warn about connection exceptions
+#
+Ice.Warn.Connections=1
+
+#
+# SSL Configuration
+#
+Ice.Plugin.IceSSL=IceSSL:createIceSSL
+IceSSL.DefaultDir=../../../../certs
+IceSSL.CertAuthFile=cacert.pem
+IceSSL.CertFile=s_rsa1024_pub.pem
+IceSSL.KeyFile=s_rsa1024_priv.pem

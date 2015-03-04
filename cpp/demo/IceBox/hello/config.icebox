@@ -1,0 +1,60 @@
+#
+# The IceBox ServiceManager object can be provided by configuring 
+# IceBox.ServiceManager.Endpoints (and optionally
+# IceBox.InstanceName), or as a facet of the Ice.Admin object
+# (or both if you like). Make sure to keep config.admin
+# synchronized with these settings.
+# 
+
+#
+# IceBox.ServiceManager configuration
+#
+
+#
+# The IceBox instance name is used to set the category field of the
+# IceBox ServiceManager identity.
+#
+#IceBox.InstanceName=DemoIceBox
+
+#
+# The IceBox server endpoint configuration
+#
+#IceBox.ServiceManager.Endpoints=tcp -p 9998 -h localhost
+
+#
+# Ice.Admin configuration
+#
+
+#
+# Enable Ice.Admin object:
+#
+Ice.Admin.InstanceName=DemoIceBox
+Ice.Admin.Endpoints=tcp -p 9996 -h localhost
+
+#
+# The hello service
+#
+IceBox.Service.Hello=HelloService:create --Ice.Config=config.service
+
+#
+# Warn about connection exceptions
+#
+Ice.Warn.Connections=1
+
+#
+# Network Tracing
+#
+# 0 = no network tracing
+# 1 = trace connection establishment and closure
+# 2 = like 1, but more detailed
+# 3 = like 2, but also trace data transfer
+#
+#Ice.Trace.Network=1
+
+#
+# Protocol Tracing
+#
+# 0 = no protocol tracing
+# 1 = trace protocol messages
+#
+#Ice.Trace.Protocol=1

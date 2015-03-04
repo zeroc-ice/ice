@@ -1,0 +1,72 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+#include <Ice/Ice.h>
+#include <HR.h>
+#include <Util.h>
+#include <sstream>
+
+using namespace std;
+
+void 
+handleSqlError(const sqlca& badca, sql_context sc)
+{
+    //
+    // First rollback transaction
+    //
+    EXEC SQL BEGIN DECLARE SECTION;
+    sql_context ctx = sc;
+    EXEC SQL END DECLARE SECTION;
+    
+    sqlca sqlca;
+    EXEC SQL CONTEXT USE :ctx;
+    EXEC SQL ROLLBACK;
+
+    string msg(badca.sqlerrm.sqlerrmc, badca.sqlerrm.sqlerrml);
+    throw HR::SqlException(msg);
+}
+
+void 
+handleNotFound(const Ice::Current& current, sql_context sc)
+{
+    //
+    // First rollback transaction
+    //
+    EXEC SQL BEGIN DECLARE SECTION;
+    sql_context ctx = sc;
+    EXEC SQL END DECLARE SECTION;
+    
+    sqlca sqlca;
+    EXEC SQL CONTEXT USE :ctx;
+    EXEC SQL ROLLBACK;
+
+    throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
+}
+
+int 
+decodeName(const string& name)
+{
+    int result = 0;
+    istringstream is(name);
+    is >> result;
+    if(!is || !is.eof())
+    {
+        cerr << "Unable to decode " << name << endl;
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
+    return result;
+}
+
+string 
+encodeName(int n)
+{
+    ostringstream os;
+    os << n;
+    return os.str();
+}

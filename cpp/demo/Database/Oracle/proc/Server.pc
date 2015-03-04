@@ -1,0 +1,106 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+
+#include <EmpI.h>
+#include <DeptI.h>
+#include <DeptFactoryI.h>
+#include <Ice/Application.h>
+#include <Ice/ServantLocator.h>
+#include <sqlca.h>
+
+using namespace std;
+
+class HRServer : public Ice::Application
+{
+public:
+
+    HRServer(const CurrentSqlContext&);
+
+    virtual int run(int, char*[]);
+
+private:
+    CurrentSqlContext _currentCtx;
+};
+
+class DefaultServantLocator : public Ice::ServantLocator
+{
+public:
+    
+    DefaultServantLocator(const Ice::ObjectPtr& servant) :
+        _servant(servant)
+    {
+    }
+
+    virtual Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&)
+    {
+        return _servant;
+    }
+
+    virtual void finished(const Ice::Current& curr, 
+                          const Ice::ObjectPtr& servant, 
+                          const Ice::LocalObjectPtr& cookie)
+    {
+    }
+
+    virtual void deactivate(const std::string&)
+    {
+    }
+
+private:
+    Ice::ObjectPtr _servant;
+};
+
+
+int
+main(int argc, char* argv[])
+{
+    sqlca sqlca;
+    EXEC SQL CONTEXT USE DEFAULT;
+    EXEC SQL ENABLE THREADS;
+    
+    Ice::InitializationData initData;
+    initData.properties = Ice::createProperties(argc, argv);
+    initData.properties->load("config.server");
+
+    const string connectInfo = initData.properties
+        ->getPropertyWithDefault("Oracle.ConnectInfo", "scott/tiger");
+    CurrentSqlContext currentCtx(connectInfo);
+    initData.threadHook = currentCtx.getHook();
+
+    HRServer app(currentCtx);
+    return app.main(argc, argv, initData);
+}
+
+HRServer::HRServer(const CurrentSqlContext& currentCtx) :
+    _currentCtx(currentCtx)
+{
+}
+
+int
+HRServer::run(int argc, char* argv[])
+{
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("HR");
+
+    const string empCategory = "Emp";
+    const string deptCategory = "Dept";
+
+    adapter->addServantLocator(new DefaultServantLocator(new EmpI(_currentCtx, empCategory, deptCategory)),
+                               empCategory);
+
+    adapter->addServantLocator(new DefaultServantLocator(new DeptI(_currentCtx, empCategory)), deptCategory);
+
+    adapter->add(new DeptFactoryI(_currentCtx, deptCategory, empCategory), 
+                 communicator()->stringToIdentity("DeptFactory"));
+    
+    adapter->activate();
+    communicator()->waitForShutdown();
+    return EXIT_SUCCESS;
+}
+

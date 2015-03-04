@@ -1,0 +1,87 @@
+Oracle OCCI demo
+================
+
+This demo shows how to implement an Ice server that uses Oracle
+through its Oracle C++ Call Interface (OCCI) API.
+
+It is a fairly simple demo that illustrates how to:
+
+ - Map relational data to Ice objects, in particular convert between 
+   Ice and OCCI types.
+ - Use an OCCI pool to provide Oracle connections to Ice requests.
+ - Use an Ice servant locator.
+
+
+Building the demo
+-----------------
+
+OCCI is only available for some C++ compilers. Make sure to select a 
+platform and C++ compiler supported by both Ice and OCCI.
+
+OCCI oracle drivers are available at:
+
+ http://www.oracle.com/technetwork/database/occidownloads-083553.html
+
+- Setup an Oracle database with the traditional EMP/DEPT schema. 
+  With Oracle server 11.1, the corresponding SQL script is 
+  $ORACLE_HOME/rdbms/admin/utlsampl.sql.
+
+- Ensure that your user (by default, scott) has the CREATE VIEW
+  privilege.
+
+- Create object types and views using the provided createTypes.sql 
+  script. For example:
+
+     % sqlplus /nolog
+     SQL> @createTypes.sql
+
+  This script assumes that you can connect to your database with 
+  'scott/tiger@orcl'. If you need another connect-string, edit
+  createTypes.sql.
+
+- Oracle's ott utility needs to connect to the database in order to 
+  generate code from the file 'DbTypes.typ'. The default connect-
+  string is "scott/tiger@orcl". If this is not appropriate, edit the
+  corresponding Makefile target, or the Custom build rule for
+  Visual Studio projects. 
+
+- Set the environment variable ORACLE_HOME to point to your Oracle
+  installation home directory.
+
+- On Windows with Visual Studio 2010 Project Files, add the 
+  following directories to your Visual C++ environment: 
+
+  - Include files: $(ORACLE_HOME)\oci\include
+
+  - Library files: $(ORACLE_HOME)\oci\lib\msvc\vc10
+                   $(ORACLE_HOME)\oci\lib\msvc
+
+    (make sure to list the driver folder before lib\msvc)
+
+  - Executable files: 
+
+    $(ORACLE_HOME)\oci\lib\msvc\vc10;$(ORACLE_HOME)\bin
+
+  - If OCCI driver isn't installed in the standard location,
+  update Library and Executable files to match your installation
+  directories
+
+- On Windows, when using nmake Makefiles, please review 
+  Makefile.mak.
+
+- Then build as usual.
+
+
+Running the demo
+----------------
+
+- Review the Oracle properties in the config.server file.
+  You may need to change them to connect to your Oracle instance.
+
+- Start the server:
+
+  $ server
+
+- Start the client in a separate window:
+
+  $ client

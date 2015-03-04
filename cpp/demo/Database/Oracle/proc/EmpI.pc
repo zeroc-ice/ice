@@ -1,0 +1,179 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+#include <EmpI.h>
+#include <Util.h>
+#include <sqlca.h>
+
+EXEC SQL WHENEVER SQLERROR DO handleSqlError(sqlca, ctx);
+EXEC SQL WHENEVER NOT FOUND DO handleNotFound(current, ctx);
+
+using namespace std;
+
+EmpI::EmpI(const CurrentSqlContext& currentCtx,
+           const string& empCategory, const string& deptCategory) :
+    _currentCtx(currentCtx), 
+    _empCategory(empCategory), 
+    _deptCategory(deptCategory)
+{
+}
+
+void 
+EmpI::ice_ping(const Ice::Current& current) const
+{
+    sqlca sqlca;
+    EXEC SQL BEGIN DECLARE SECTION;
+    sql_context ctx = _currentCtx;
+    int empno = decodeName(current.id.name);
+    int count = 0;
+    EXEC SQL END DECLARE SECTION;
+
+    EXEC SQL CONTEXT USE :ctx;
+    EXEC SQL SELECT COUNT(*) INTO :count FROM EMP WHERE EMPNO = :empno;
+    EXEC SQL COMMIT;
+
+    if(count == 0)
+    {
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
+}
+
+HR::EmpDesc 
+EmpI::getDesc(const Ice::Current& current)
+{
+    sqlca sqlca;
+    EXEC SQL BEGIN DECLARE SECTION;
+    sql_context ctx = _currentCtx;
+    int empno = decodeName(current.id.name);
+    char ename[21];
+    short enameInd;
+    char job[10];
+    short jobInd;
+    int mgr;
+    short mgrInd;
+    char hiredate[30];
+    short hiredateInd;
+    char sal[11];
+    short salInd;
+    char comm[11];
+    short commInd;
+    int deptno;
+    short deptnoInd;
+    EXEC SQL END DECLARE SECTION;
+    
+    EXEC SQL CONTEXT USE :ctx;
+    EXEC SQL SELECT ENAME, JOB, MGR, HIREDATE, SAL, COMM, DEPTNO 
+             INTO :ename:enameInd, :job:jobInd, :mgr:mgrInd, :hiredate:hiredateInd, :sal:salInd, :comm:commInd, 
+                  :deptno:deptnoInd
+             FROM EMP WHERE EMPNO = :empno;
+    EXEC SQL COMMIT;
+  
+    HR::EmpDesc result;
+    result.empno = empno;
+
+    if(enameInd >= 0)
+    {
+        result.ename = ename;
+    }
+    if(jobInd >= 0)
+    {
+        result.job = job;
+    }
+    if(mgrInd >= 0)
+    {
+        Ice::Identity mgrId;
+        mgrId.name = encodeName(mgr);
+        mgrId.category = _empCategory;
+        result.mgr = HR::EmpPrx::uncheckedCast(current.adapter->createProxy(mgrId));
+    }
+    if(hiredateInd >= 0)
+    {
+        result.hiredate = hiredate;
+    }
+    if(salInd >= 0)
+    {
+        result.sal = sal;
+    }
+    if(commInd >= 0)
+    {
+        result.comm = comm;
+    }
+    if(deptnoInd >= 0)
+    {
+        Ice::Identity deptId;
+        deptId.name = encodeName(deptno);
+        deptId.category = _deptCategory;
+        result.edept = HR::DeptPrx::uncheckedCast(current.adapter->createProxy(deptId));
+    }
+    return result;
+}
+    
+void 
+EmpI::updateField(const string& field, const string& newValue, const Ice::Current& current)
+{
+    const string updateEmpStr =
+        "UPDATE EMP SET " + field + " = '" + newValue + "' WHERE EMPNO = " + current.id.name;
+
+    sqlca sqlca;
+    EXEC SQL BEGIN DECLARE SECTION;
+    const char* updateEmp = updateEmpStr.c_str();
+    sql_context ctx = _currentCtx;
+    EXEC SQL END DECLARE SECTION;
+    
+    EXEC SQL CONTEXT USE :ctx;
+    EXEC SQL EXECUTE IMMEDIATE :updateEmp;
+    EXEC SQL COMMIT;
+}
+
+void 
+EmpI::updateMgr(int newMgr, const Ice::Current& current)
+{
+    sqlca sqlca;
+    EXEC SQL BEGIN DECLARE SECTION;
+    sql_context ctx = _currentCtx;
+    int empno = decodeName(current.id.name);
+    int mgr = newMgr;
+    short mgrInd = newMgr == 0 ? -1 : 0;
+    EXEC SQL END DECLARE SECTION;
+    
+    EXEC SQL CONTEXT USE :ctx;
+    EXEC SQL UPDATE EMP SET MGR = :mgr:mgrInd WHERE EMPNO = :empno;
+    EXEC SQL COMMIT;
+}
+
+void 
+EmpI::updateDept(int newDept, const Ice::Current& current)
+{
+    sqlca sqlca;
+    EXEC SQL BEGIN DECLARE SECTION;
+    sql_context ctx = _currentCtx;
+    int empno = decodeName(current.id.name);
+    int dept = newDept;
+    short deptInd = newDept == 0 ? -1 : 0;
+    EXEC SQL END DECLARE SECTION;
+    
+    EXEC SQL CONTEXT USE :ctx;
+    EXEC SQL UPDATE EMP SET DEPTNO = :dept:deptInd WHERE EMPNO = :empno;
+    EXEC SQL COMMIT;
+}
+
+void 
+EmpI::remove(const Ice::Current& current)
+{
+    sqlca sqlca;
+    EXEC SQL BEGIN DECLARE SECTION;
+    sql_context ctx = _currentCtx;
+    int empno = decodeName(current.id.name);
+    EXEC SQL END DECLARE SECTION;
+
+    EXEC SQL CONTEXT USE :ctx;
+    EXEC SQL DELETE FROM EMP WHERE EMPNO = :empno;
+    EXEC SQL COMMIT;
+}
+

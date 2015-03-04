@@ -1,0 +1,38 @@
+        <hr>
+        <!-- SwishCommand noindex -->
+        <table class="HeaderFooter">
+            <tr>
+                <td align="left">
+                    <table>
+                        <tr>
+                            <td><a href="index.html"><img class="Button" src="images/home.gif" alt="Home"></a></td>
+                        </tr>
+                    </table>
+                </td>
+                <td align="center">
+                    <table>
+                        <tr>
+                            <td>
+                                <form method="get" action="/cgi-bin/swish.cgi" enctype="application/x-www-form-urlencoded" class="form">
+                                    <div>
+                                        <input maxlength="100" value="" type="text" name="query">
+                                        <input type="submit" value="Search" name="submit"></div>
+                                </form></td>
+                        </tr>
+                    </table>
+                </td>
+                <td align="right">
+                    <table class="LogoTable">
+                        <tr>
+                            <td><a href="http://www.zeroc.com"><img class="Logo" src="images/logo.gif" alt="Logo"></a></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <!-- SwishCommand index -->
+	<script type="text/javascript" src="symboltree.js">
+	    symboltree.main();
+	</script>
+	</div>
+    </body>

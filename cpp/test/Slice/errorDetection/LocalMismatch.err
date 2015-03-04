@@ -1,0 +1,12 @@
+LocalMismatch.ice:16: local `Intf1' was declared non-local
+LocalMismatch.ice:17: local `Intf1' was declared non-local
+LocalMismatch.ice:20: local `Intf2' was defined non-local
+LocalMismatch.ice:23: non-local `Intf3' was declared local
+LocalMismatch.ice:24: non-local `Intf3' was declared local
+LocalMismatch.ice:27: non-local `Intf4' was defined local
+LocalMismatch.ice:30: local `Class1' was declared non-local
+LocalMismatch.ice:31: local `Class1' was declared non-local
+LocalMismatch.ice:34: local `Class2' was defined non-local
+LocalMismatch.ice:37: non-local `Class3' was declared local
+LocalMismatch.ice:38: non-local `Class3' was declared local
+LocalMismatch.ice:41: non-local `Class4' was defined local

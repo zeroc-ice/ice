@@ -1,0 +1,30 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+<project name="demo_book" default="all" basedir=".">
+
+    <target name="all">
+        <ant dir="printer"/>
+        <ant dir="simple_filesystem"/>
+        <ant dir="evictor_filesystem"/>
+        <ant dir="map_filesystem"/>
+        <ant dir="lifecycle"/>
+    </target>
+
+    <target name="clean">
+        <ant dir="printer" target="clean"/>
+        <ant dir="simple_filesystem" target="clean"/>
+        <ant dir="lifecycle" target="clean"/>
+        <ant dir="evictor_filesystem" target="clean"/>
+        <ant dir="map_filesystem" target="clean"/>
+    </target>
+
+</project>

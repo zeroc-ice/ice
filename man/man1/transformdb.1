@@ -1,0 +1,176 @@
+.TH transformdb 1
+
+.SH NAME
+
+transformdb - The Freeze database migration tool.
+
+.SH SYNOPSIS
+
+.p
+transformdb -o FILE [-i] [slice-options] [type-options]
+.IP
+Generates descriptors in FILE for a database.
+
+.P
+transformdb -o FILE [-i] [slice-options] DBENV
+.IP
+Generates descriptors in FILE for all databases in the environment DBENV.
+
+.P
+transformdb [options] [slice-options] [type-options] DBENV DB NEWDBENV
+.IP
+Transform the database DB in the environment DBENV. A database of the
+same name is created in the environment NEWDBENV.
+
+.P
+transformdb [options] [slice-options] DBENV NEWDBENV
+.IP
+Transform all databases from the environment DBENV into the
+environment NEWDBENV.
+
+.SH DESCRIPTION
+
+The FreezeScript tool transformdb migrates a database created by a Freeze map
+or evictor. It accomplishes this by comparing the "old" Slice definitions
+(i.e., the ones that describe the current contents of the database) with the 
+"new" Slice definitions, and making whatever modifications are necessary to 
+ensure that the transformed database is compatible with the new definitions.
+Full documentation for transformdb is available online at: 
+.br
+"http://doc.zeroc.com/display/Ice/Using+transformdb".
+
+.SH OPTIONS
+
+.TP
+.BR \-h ", " \-\-help\fR
+.br
+Displays a help message.
+
+.TP
+.BR \-v ", " \-\-version\fR
+Displays the Ice version.
+
+.TP
+.BR \-DNAME\fR
+.br
+Defines the preprocessor symbol NAME.
+
+.TP
+.BR \-DNAME=DEF\fR
+.br 
+Defines the preprocessor symbol NAME with the value DEF.
+
+.TP
+.BR \-UNAME\fR
+.br
+Undefines the preprocessor symbol NAME.
+
+.TP
+.BR \-IDIR\fR
+.br
+Add the directory DIR to the search path for #include directives.
+
+.TP
+.BR \-E\fR
+.br
+Print the preprocessor output on stdout.
+
+.TP
+.BR \-\-output-dir " " DIR\fR
+.br
+Place the generated files into directory DIR.
+
+.TP
+.BR \-d ", " \-\-debug\fR
+.br
+Print debug information showing the operation of the Slice parser.
+
+.TP
+.BR \-\-ice\fR
+.br
+Permit use of the normally reserved prefix Ice for identifiers. Use this
+option only when compiling the source code for the Ice run time.
+
+.TP
+.BR \-\-underscore\fR
+.br
+Permit use of underscores in Slice identifiers.
+
+.TP
+.BR \-\-old " " SLICE\fR
+.TP
+.BR \-\-new " " SLICE\fR
+.br
+Loads the old or new Slice definitions contained in the file SLICE. These
+options may be specified multiple times if several files must be loaded. 
+However, it is the user's responsibility to ensure that duplicate definitions
+do not occur (which is possible when two files are loaded that share a common
+include file). One strategy for avoiding duplicate definitions is to load a
+single Slice file that contains only #include statements for each of the Slice
+files to be loaded. No duplication is possible in this case if the included
+files use include guards correctly.
+
+.TP
+.BR \-\-include-old " " DIR\fR
+.TP
+.BR \-\-include-new " " DIR\fR
+.br
+Adds the directory DIR to the set of include paths for the old or new Slice
+definitions.
+
+.TP
+.BR \-\-key " " TYPE[,TYPE]\fR
+.TP
+.BR \-\-value " " TYPE[,TYPE]\fR
+.br
+Specifies the Slice type(s) of the database key and value. If the type does
+not change, then the type only needs to be specified once. Otherwise, the old
+type is specified first, followed by a comma and the new type. For example,
+the option --key int,string indicates that the database key is migrating from
+int to string. On the other hand, the option --key int,int indicates that the
+key type does not change, and could be given simply as --key int. Type changes
+are restricted to those allowed by the compatibility rules, but custom
+migration provides additional flexibility.
+
+.TP
+.BR \-e\fR
+.br
+Indicates that a Freeze evictor database is being migrated. As a convenience,
+this option automatically sets the database key and value types to those
+appropriate for the Freeze evictor, and therefore the --key and --value
+options are not necessary. Specifically, the key type of a Freeze evictor
+database is Ice::Identity, and the value type is Freeze::ObjectRecord. The
+latter is defined in the Slice file Freeze/EvictorStorage.ice; however, this
+file does not need to be loaded into your old and new Slice definitions.
+
+.TP
+.BR \-i\fR
+.br
+Requests that transformdb ignore type changes that violate the compatibility
+rules. If this option is not specified, transformdb fails immediately if such
+a violation occurs. With this option, a warning is displayed but transformdb
+continues the requested action. The -i option can be specified in analysis or
+automatic migration modes.
+
+.TP
+.BR \-p\fR
+During migration, this option requests that transformdb purge object instances
+whose type is no longer found in the new Slice definitions.
+
+.TP
+.BR \-c\fR
+.br
+Use catastrophic recovery on the old Berkeley DB database environment prior to
+migration.
+
+.TP
+.BR \-w\fR
+.br
+Suppress duplicate warnings during migration. This option is especially useful
+to minimize diagnostic messages when transformdb would otherwise emit the same
+warning many times, such as when it detects the same issue in every record of
+a database.
+
+.SH SEE ALSO
+
+.BR dumpdb (1)

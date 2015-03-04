@@ -1,0 +1,16 @@
+#
+# The client reads this property to create the reference to the
+# "Initial" object in the server.
+#
+Initial.Proxy=initial:default -h localhost -p 10000
+
+#
+# Warn about connection exceptions
+#
+Ice.Warn.Connections=1
+
+#
+# When using Ice for .NET Compact Framework, we need to specify
+# the assembly so that Ice can locate classes and exceptions.
+#
+Ice.FactoryAssemblies=client

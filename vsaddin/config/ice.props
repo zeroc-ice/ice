@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">  
+
+    <PropertyGroup Condition="!Exists('$(IceSourceHome)')">
+        <IceHome>$(Registry:HKEY_LOCAL_MACHINE\Software\ZeroC\Ice 3.5.1@InstallDir)</IceHome>
+        <IceInclude>$(IceHome)\include</IceInclude>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="!Exists('$(IceSourceHome)') And '$(Platform)' == 'Win32' And '$(PlatformToolset)' == 'v100'">
+        <IceLib>$(IceHome)\lib</IceLib>
+        <IceBin>$(IceHome)\bin</IceBin>
+    </PropertyGroup>
+    
+    <PropertyGroup Condition="!Exists('$(IceSourceHome)') And '$(Platform)' != 'Win32' And '$(PlatformToolset)' == 'v100'">
+        <IceLib>$(IceHome)\lib\$(Platform)</IceLib>
+        <IceBin>$(IceHome)\bin\$(Platform)</IceBin>
+    </PropertyGroup>
+    
+    <PropertyGroup Condition="!Exists('$(IceSourceHome)') And '$(Platform)' == 'Win32' And '$(PlatformToolset)' == 'v110'">
+        <IceLib>$(IceHome)\lib\vc110</IceLib>
+        <IceBin>$(IceHome)\bin\vc110</IceBin>
+    </PropertyGroup>
+    
+    <PropertyGroup Condition="!Exists('$(IceSourceHome)') And '$(Platform)' != 'Win32' And '$(PlatformToolset)' == 'v110'">
+        <IceLib>$(IceHome)\lib\vc110\$(Platform)</IceLib>
+        <IceBin>$(IceHome)\bin\vc110\$(Platform)</IceBin>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="Exists('$(IceSourceHome)')">
+        <IceHome>$(IceSourceHome)</IceHome>
+        <IceInclude>$(IceSourceHome)\cpp\include</IceInclude>
+        <IceLib>$(IceSourceHome)\cpp\lib</IceLib>
+        <IceBin>$(IceSourceHome)\cpp\bin</IceBin>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <BuildMacro Include="IceHome">
+            <Value>$(IceHome)</Value>
+            <EnvironmentVariable>true</EnvironmentVariable>
+        </BuildMacro>
+        <BuildMacro Include="IceInclude">
+            <Value>$(IceInclude)</Value>
+            <EnvironmentVariable>true</EnvironmentVariable>
+        </BuildMacro>
+        <BuildMacro Include="IceLib">
+            <Value>$(IceLib)</Value>
+            <EnvironmentVariable>true</EnvironmentVariable>
+        </BuildMacro>
+        <BuildMacro Include="IceBin">
+            <Value>$(IceBin)</Value>
+            <EnvironmentVariable>true</EnvironmentVariable>
+        </BuildMacro>
+    </ItemGroup>
+
+    <PropertyGroup>
+        <IncludePath>$(IceInclude);$(IncludePath)</IncludePath>
+        <LibraryPath>$(IceLib);$(LibraryPath)</LibraryPath> 
+        <ExecutablePath>$(IceBin);$(ExecutablePath)</ExecutablePath>
+    </PropertyGroup>
+</Project>

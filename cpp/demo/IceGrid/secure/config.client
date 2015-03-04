@@ -1,0 +1,10 @@
+#
+# The IceGrid locator proxy.
+#
+Ice.Default.Locator=DemoIceGrid/Locator:tcp -t 10000 -h localhost -p 4061:tcp -t 10000 -h localhost -p 14061
+
+#
+# Trace properties.
+#
+#Ice.Trace.Network=1
+#Ice.Trace.Locator=1

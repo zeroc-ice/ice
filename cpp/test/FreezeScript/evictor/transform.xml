@@ -1,0 +1,26 @@
+<transformdb>
+
+    <database key="::Ice::Identity" value="Object">
+	<record/>
+    </database>
+
+<!--
+    <database key="::Ice::Identity" value="::Freeze::ObjectRecord">
+	<record/>
+    </database>
+-->
+
+    
+    <!-- enum ::Test::E -->
+    <transform type="::Test::E"/>
+    
+    <!-- class ::Test::MainObject -->
+    <transform type="::Test::MainObject">
+	<!-- NOTICE: renamed has been removed -->
+        <!-- NOTICE: newname has been added -->
+        <set target="new.newname" value="old.renamed"/>
+    </transform>
+    
+    <!-- class ::Test::RenamedFacetObject -->
+    <transform type="::Test::RenamedFacetObject" rename="::Test::FacetObject"/>
+</transformdb>

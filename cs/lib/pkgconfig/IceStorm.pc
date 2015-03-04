@@ -1,0 +1,10 @@
+version = 3.5.1
+mono_root = /usr
+
+name = IceStorm
+
+Name: ${name}
+Description: IceStorm run-time support
+Version: ${version}
+Libs: -r:${mono_root}/lib/mono/${name}/${name}.dll
+Requires: Ice = ${version}

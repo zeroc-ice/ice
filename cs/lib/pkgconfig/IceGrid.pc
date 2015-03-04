@@ -1,0 +1,10 @@
+version = 3.5.1
+mono_root = /usr
+
+name = IceGrid
+
+Name: ${name}
+Description: IceGrid run-time support
+Version: ${version}
+Libs: -r:${mono_root}/lib/mono/${name}/${name}.dll
+Requires: Ice = ${version}

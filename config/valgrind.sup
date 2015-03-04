@@ -1,0 +1,34 @@
+{
+   getifaddrs
+   Memcheck:Param
+   socketcall.sendto(msg)
+   fun:sendto
+   fun:getifaddrs
+}
+{
+   BerkeleyDB pwrite64 uninitialized bytes
+   Memcheck:Param
+   pwrite64(buf)
+   obj:*libpthread*.so
+   fun:__os_io
+}
+{
+   BerkeleyDB pwrite64 uninitialized bytes
+   Memcheck:Param
+   pwrite64(buf)
+   obj:*ld*.so
+   fun:__os_io
+}
+
+{
+   BerkeleyDB __log_putr conditional
+   Memcheck:Cond
+   fun:__log_putr
+   fun:__log_put
+}
+{
+   pthread
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_allocate_tls
+}

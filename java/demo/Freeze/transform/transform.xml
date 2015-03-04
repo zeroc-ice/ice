@@ -1,0 +1,13 @@
+
+<transformdb>
+
+    <database name="contacts" key="string" value="::Demo::ContactData,::Demo::NewContactData">
+        <record>
+           <set target="newvalue.phoneNumber"
+            value="oldvalue.phoneNumber"/>
+           <set target="newvalue.emailAddress"
+            value="oldkey + '@gmail.com'"/>
+        </record>
+    </database>
+    
+</transformdb>

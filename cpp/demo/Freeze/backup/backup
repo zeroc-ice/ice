@@ -1,0 +1,79 @@
+#!/bin/sh
+# **********************************************************************
+#
+# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# If you use a db53 RPM installation, the db utilities are
+# named db53_xxx
+#
+db="db"
+if `command -v db53_hotbackup > /dev/null 2>&1`; then db="db53"; fi
+
+#
+# If you use a db5.3 DEB installation, the db utilities are
+# named db5.3_xxx.
+#
+if `command -v db5.3_hotbackup > /dev/null 2>&1`; then db="db5.3"; fi
+
+case $1 in
+  "full" | "incremental") echo "Performing $1 backup"
+
+          echo "====== Checkpoint ======"
+          ${db}_checkpoint -1 -h db
+    
+          if [ $1 = "full" ]
+          then
+             if [ -d hotbackup ]
+             then
+                 echo "====== Preserve (move) previous hotbackup directory ======"               
+                 if [ -d hotbackup.1 ]
+                 then
+                    \rm -fr hotbackup.1
+                 fi
+                 \mv hotbackup hotbackup.1
+             fi
+           
+             echo "====== Retrieve list of old logs ======"
+             oldLogs=`${db}_archive -h db`
+             
+             echo "====== Run ${db}_hotbackup ======"
+             ${db}_hotbackup -b hotbackup -v -D -h db
+             status=$?
+             if [ $status != 0 ]; then exit $status ; fi
+
+             echo "===== Remove old logs ====="
+             for i in $oldLogs
+             do
+                \rm db/logs/$i
+                echo "db/logs/$i deleted"
+             done
+          fi
+          
+          if [ $1 = "incremental" ]
+          then
+              if [ -d hotbackup ]
+              then
+                 echo "====== Preserve (copy) previous hotbackup directory ======"               
+                 if [ -d hotbackup.1 ]
+                 then
+                    \rm -fr hotbackup.1
+                 fi
+                 \cp -R hotbackup hotbackup.1
+              fi
+
+              echo "====== Run ${db}_hotbackup -u (log archival) ======"
+              ${db}_hotbackup -u -b hotbackup -v -D -h db
+              status=$?
+              if [ $status != 0 ]; then exit $status ; fi
+          fi          
+
+          ;;
+  *) echo "Usage: $0 {full|incremental}"
+     exit 1 ;;
+esac

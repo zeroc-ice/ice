@@ -1,0 +1,20 @@
+#
+# The server creates one single object adapter with the name
+# "Nrvo". The following line sets the endpoints for this
+# adapter.
+#
+Nrvo.Endpoints=default -h localhost -p 10000
+
+#
+# Warn about connection exceptions
+#
+Ice.Warn.Connections=1
+
+#
+# SSL Configuration
+#
+Ice.Plugin.IceSSL=IceSSL:createIceSSL
+IceSSL.DefaultDir=../../../../certs
+IceSSL.CertAuthFile=cacert.pem
+IceSSL.CertFile=s_rsa1024_pub.pem
+IceSSL.KeyFile=s_rsa1024_priv.pem

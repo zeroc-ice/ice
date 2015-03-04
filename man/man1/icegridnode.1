@@ -1,0 +1,73 @@
+.TH icegridnode 1
+
+.SH NAME
+
+icegridnode - The IceGrid node server.
+
+.SH SYNOPSIS
+
+icegridnode [options]
+
+.SH DESCRIPTION
+
+An IceGrid node is a process that activates, monitors, and deactivates
+registered server processes. You can run any number of nodes in a domain, but
+typically there is one node per host. A node must be running on each host on
+which servers are activated automatically, and nodes cannot run without an 
+IceGrid registry. The IceGrid node server is implemented by the icegridnode
+executable. If you wish to run a registry and node in one process, 
+icegridnode is the executable you must use. Full documentation for icegridnode
+is available online at: 
+.br
+"http://doc.zeroc.com/display/Ice/icegridnode".
+
+.SH OPTIONS
+
+.TP
+.BR \-h ", " \-\-help\fR
+.br
+Displays help message.
+
+.TP
+.BR \-v ", " \-\-version\fR
+Displays the Ice version.
+
+.TP
+.BR \-\-daemon\fR
+.br
+Run as a daemon.
+
+.TP
+.BR \-\-pidfile " " FILE
+.br
+Write process ID into FILE.
+
+.TP
+.BR \-\-noclose\fR
+.br
+Do not close open file descriptors.
+
+.TP
+.BR \-\-nochdir\fR
+.br
+Do not change the current working directory.
+
+.TP
+.BR \-\-nowarn\fR
+.br
+Do not print security warnings.
+
+.TP
+.BR \-\-readonly\fR
+.br
+Start the collocated master registry in read-only mode.
+
+.TP
+.BR \-\-deploy " " DESCRIPTOR " " [TARGET1 " " [TARGET2 " " ...]]\fR
+.br
+Add or update descriptor in file DESCRIPTOR, with optional targets.
+
+.SH SEE ALSO
+
+.BR icegridadmin (1),
+.BR icegridregistry (1)

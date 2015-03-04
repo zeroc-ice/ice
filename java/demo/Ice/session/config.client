@@ -1,0 +1,10 @@
+#
+# The client reads this property to create the reference to the
+# "SessionFactory" object in the server.
+#
+SessionFactory.Proxy=SessionFactory:default -h localhost -p 10000
+
+#
+# Warn about connection exceptions
+#
+Ice.Warn.Connections=1

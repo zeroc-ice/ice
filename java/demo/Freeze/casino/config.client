@@ -1,0 +1,5 @@
+#
+# The client reads this property to create the reference to the
+# "bank" object in the server.
+#
+Bank.Proxy=bank/Montecito:default -h localhost -p 10000
