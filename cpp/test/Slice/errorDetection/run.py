@@ -44,9 +44,9 @@ for file in files:
     
     lines1 = stderr.readlines()
     lines2 = open(os.path.join(os.getcwd(), regex1.sub(".err", file)), "r").readlines()
-#    if len(lines1) != len(lines2):
-#        print("failed!")
-#        sys.exit(1)
+    if len(lines1) != len(lines2):
+        print("failed!")
+        sys.exit(1)
     
     regex2 = re.compile("^.*(?=" + file + ")")
     i = 0
@@ -58,8 +58,6 @@ for file in files:
             line1 = regex2.sub("", lines1[i].decode("utf-8")).strip()
             line2 = regex2.sub("", lines2[i]).strip()
         if line1 != line2:
-            print line1
-            print line2
             print("failed!")
             sys.exit(1)
         i = i + 1
