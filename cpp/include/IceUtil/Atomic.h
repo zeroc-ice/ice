@@ -54,7 +54,11 @@ typedef std::atomic<int> Atomic;
 // volatile here is required by InterlockedExchangeXXX
 // family functions.
 //
+#  if defined(__MINGW32__)
+typedef volatile long int ATOMIC_T;
+#  else
 typedef volatile unsigned int ATOMIC_T;
+#  endif
 #else
 typedef int ATOMIC_T;
 #endif
@@ -95,7 +99,11 @@ public:
     inline int fetch_sub(int value)
     {
 #if defined(_WIN32)
+#  if defined(__MINGW32__)
+        return InterlockedExchangeAdd(&_ref, -value);
+#  else
         return InterlockedExchangeSubtract(&_ref, value);
+#endif
 #elif defined(ICE_HAS_GCC_BUILTINS)
         return __sync_fetch_and_sub(&_ref, value);
 #else
