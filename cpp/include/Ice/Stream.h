@@ -130,8 +130,7 @@ public:
         readObject(new ReadObjectCallbackI<T>(v));
     }
 
-    Int
-    readEnum(Int maxValue)
+    virtual Int readEnum(Int maxValue)
     {
         if(getEncoding() == Encoding_1_0)
         {
@@ -268,8 +267,7 @@ public:
         writeObject(ObjectPtr(v.get()));
     }
 
-    void
-    writeEnum(Int v, Int maxValue)
+    virtual void writeEnum(Int v, Int maxValue)
     {
         if(getEncoding() == Encoding_1_0)
         {
