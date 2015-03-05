@@ -16,6 +16,8 @@
 #include <Slice/PHPUtil.h>
 #include <Ice/SlicedData.h>
 
+#include <limits>
+
 using namespace std;
 using namespace IcePHP;
 using namespace IceUtil;
@@ -756,7 +758,7 @@ IcePHP::PrimitiveInfo::validate(zval* zv TSRMLS_DC)
         }
         if(Z_TYPE_P(zv) == IS_DOUBLE)
         {
-            double val = val = Z_DVAL_P(zv);
+            double val = Z_DVAL_P(zv);
             return val <= numeric_limits<float>::max() && val >= -numeric_limits<float>::max();
         }
         break;
