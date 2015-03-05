@@ -1064,8 +1064,6 @@ public final class Network
             dfltBufSize = 128 * 1024;
         }
 
-        System.err.println("YYY");
-
         //
         // Get property for buffer size.
         //
