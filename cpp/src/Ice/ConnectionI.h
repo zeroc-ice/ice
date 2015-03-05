@@ -230,6 +230,8 @@ public:
     virtual Ice::Int timeout() const; // From Connection.
     virtual ConnectionInfoPtr getInfo() const; // From Connection
 
+    virtual void setBufferSize(Ice::Int rcvSize, Ice::Int sndSize); // From Connection
+
     void exception(const LocalException&);
 
     void dispatch(const StartCallbackPtr&, const std::vector<OutgoingMessage>&, Byte, Int, Int,

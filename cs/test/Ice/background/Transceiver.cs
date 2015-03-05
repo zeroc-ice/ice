@@ -225,6 +225,11 @@ internal class Transceiver : IceInternal.Transceiver
         _transceiver.checkSendSize(buf);
     }
 
+    public void setBufferSize(int rcvSize, int sndSize)
+    {
+        _transceiver.setBufferSize(rcvSize, sndSize);
+    }
+
     public void destroy()
     {
         _transceiver.destroy();

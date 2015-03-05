@@ -61,6 +61,7 @@ public:
     virtual std::string toDetailedString() const;
     virtual Ice::ConnectionInfoPtr getInfo() const;
     virtual void checkSendSize(const Buffer&);
+    virtual void setBufferSize(int rcvSize, int sndSize);
 
     int effectivePort() const;
 
@@ -72,7 +73,7 @@ private:
 
     virtual ~UdpTransceiver();
 
-    void setBufSize();
+    void setBufSize(int, int);
 
 #ifdef ICE_OS_WINRT
     bool checkIfErrorOrCompleted(SocketOperation, Windows::Foundation::IAsyncInfo^);

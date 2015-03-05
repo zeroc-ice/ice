@@ -287,7 +287,7 @@ public final class ConnectionI extends IceInternal.EventHandler
         // is sill only called every (timeout / 2) period.
         //
         if(acm.heartbeat == ACMHeartbeat.HeartbeatAlways ||
-           (acm.heartbeat != ACMHeartbeat.HeartbeatOff && _writeStream.isEmpty() && 
+           (acm.heartbeat != ACMHeartbeat.HeartbeatOff && _writeStream.isEmpty() &&
             now >= (_acmLastActivity + acm.timeout / 4)))
         {
             if(acm.heartbeat != ACMHeartbeat.HeartbeatOnInvocation || _dispatchCount > 0)
@@ -354,11 +354,11 @@ public final class ConnectionI extends IceInternal.EventHandler
         _transceiver.checkSendSize(os.getBuffer());
 
         //
-        // Notify the request that it's cancelable with this connection. 
+        // Notify the request that it's cancelable with this connection.
         // This will throw if the request is canceled.
         //
         out.cancelable(this);
-        
+
         int requestId = 0;
         if(response)
         {
@@ -638,7 +638,7 @@ public final class ConnectionI extends IceInternal.EventHandler
 
     private Ice.AsyncResult begin_flushBatchRequestsInternal(IceInternal.CallbackBase cb)
     {
-        IceInternal.ConnectionFlushBatch result = 
+        IceInternal.ConnectionFlushBatch result =
             new IceInternal.ConnectionFlushBatch(this, _communicator, _instance, __flushBatchRequests_name, cb);
         result.invoke();
         return result;
@@ -647,7 +647,7 @@ public final class ConnectionI extends IceInternal.EventHandler
     @Override
     public void end_flushBatchRequests(AsyncResult ir)
     {
-        IceInternal.ConnectionFlushBatch r = 
+        IceInternal.ConnectionFlushBatch r =
             IceInternal.ConnectionFlushBatch.check(ir, this, __flushBatchRequests_name);
         r.__wait();
     }
@@ -672,7 +672,7 @@ public final class ConnectionI extends IceInternal.EventHandler
         }
 
         //
-        // Notify the request that it's cancelable with this connection. 
+        // Notify the request that it's cancelable with this connection.
         // This will throw if the request is canceled.
         //
         outAsync.cancelable(this);
@@ -1626,6 +1626,17 @@ public final class ConnectionI extends IceInternal.EventHandler
     }
 
     @Override
+    public synchronized void setBufferSize(int rcvSize, int sndSize)
+    {
+        if(_state >= StateClosed)
+        {
+            throw (Ice.LocalException) _exception.fillInStackTrace();
+        }
+        _transceiver.setBufferSize(rcvSize, sndSize);
+        _info = null; // Invalidate the cached connection info
+    }
+
+    @Override
     public String _toString()
     {
         return _desc; // No mutex lock, _desc is immutable.
@@ -1637,7 +1648,7 @@ public final class ConnectionI extends IceInternal.EventHandler
     }
 
     public ConnectionI(Communicator communicator, IceInternal.Instance instance, IceInternal.ACMMonitor monitor,
-                       IceInternal.Transceiver transceiver, IceInternal.Connector connector, 
+                       IceInternal.Transceiver transceiver, IceInternal.Connector connector,
                        IceInternal.EndpointI endpoint, ObjectAdapterI adapter)
     {
         _communicator = communicator;
@@ -1901,7 +1912,7 @@ public final class ConnectionI extends IceInternal.EventHandler
                     {
                         return;
                     }
-                    
+
                     //
                     // Don't need to close now for connections so only close the transceiver
                     // if the selector request it.
@@ -1979,7 +1990,7 @@ public final class ConnectionI extends IceInternal.EventHandler
                      _exception instanceof ForcedCloseConnectionException ||
                      _exception instanceof ConnectionTimeoutException ||
                      _exception instanceof CommunicatorDestroyedException ||
-                     _exception instanceof ObjectAdapterDeactivatedException || 
+                     _exception instanceof ObjectAdapterDeactivatedException ||
                      (_exception instanceof ConnectionLostException && _state >= StateClosing)))
                 {
                     _observer.failed(_exception.ice_name());
@@ -3129,7 +3140,7 @@ public final class ConnectionI extends IceInternal.EventHandler
 
     private int _nextRequestId;
 
-    private java.util.Map<Integer, IceInternal.OutgoingAsync> _asyncRequests = 
+    private java.util.Map<Integer, IceInternal.OutgoingAsync> _asyncRequests =
         new java.util.HashMap<Integer, IceInternal.OutgoingAsync>();
 
     private LocalException _exception;

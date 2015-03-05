@@ -107,6 +107,8 @@ IceInternal::TcpTransceiver::getInfo() const
 {
     Ice::TCPConnectionInfoPtr info = new Ice::TCPConnectionInfo();
     fdToAddressAndPort(_stream->fd(), info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
+    info->rcvSize = getRecvBufferSize(_stream->fd());
+    info->sndSize = getSendBufferSize(_stream->fd());
     return info;
 }
 
@@ -115,8 +117,14 @@ IceInternal::TcpTransceiver::checkSendSize(const Buffer&)
 {
 }
 
+void
+IceInternal::TcpTransceiver::setBufferSize(int rcvSize, int sndSize)
+{
+    _stream->setBufferSize(rcvSize, sndSize);
+}
+
 IceInternal::TcpTransceiver::TcpTransceiver(const ProtocolInstancePtr& instance, const StreamSocketPtr& stream) :
-    _instance(instance), 
+    _instance(instance),
     _stream(stream)
 {
 }

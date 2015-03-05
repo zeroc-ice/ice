@@ -48,6 +48,20 @@ local class ConnectionInfo
      *
      **/
     string connectionId;
+
+    /**
+     *
+     * The connection buffer receive size.
+     *
+     **/
+    int rcvSize;
+
+    /**
+     *
+     * The connection buffer send size.
+     *
+     **/
+    int sndSize;
 };
 
 local interface Connection;
@@ -266,6 +280,17 @@ local interface Connection
      *
      **/
     ["cpp:const"] ConnectionInfo getInfo();
+
+
+    /**
+     *
+     * Set the connectiion buffer receive/send size.
+     *
+     * @rcvSize The connection receive buffer size.
+     * @sndSize The connection send buffer size.
+     *
+     **/
+    void setBufferSize(int rcvSize, int sndSize);
 };
 
 /**

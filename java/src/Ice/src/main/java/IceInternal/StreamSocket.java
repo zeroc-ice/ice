@@ -79,6 +79,11 @@ public class StreamSocket
         }
     }
 
+    public void setBufferSize(int rcvSize, int sndSize)
+    {
+        Network.setTcpBufSize(_fd, rcvSize, sndSize, _instance);
+    }
+
     public int connect(Buffer readBuffer, Buffer writeBuffer)
     {
         if(_state == StateNeedConnect)

@@ -96,12 +96,19 @@ namespace IceInternal
                 EndPoint remoteEndpoint = Network.getRemoteAddress(_stream.fd());
                 info.remoteAddress = Network.endpointAddressToString(remoteEndpoint);
                 info.remotePort = Network.endpointPort(remoteEndpoint);
+                info.rcvSize = Network.getRecvBufferSize(_stream.fd());
+                info.sndSize = Network.getSendBufferSize(_stream.fd());
             }
             return info;
         }
 
         public void checkSendSize(Buffer buf)
         {
+        }
+
+        public void setBufferSize(int rcvSize, int sndSize)
+        {
+            _stream.setBufferSize(rcvSize, sndSize);
         }
 
         public override string ToString()

@@ -35,6 +35,7 @@ public:
     virtual Ice::ConnectionInfoPtr getInfo() const;
     virtual IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&, bool&);
     virtual void checkSendSize(const IceInternal::Buffer&);
+    virtual void setBufferSize(int rcvSize, int sndSize);
 
     IceInternal::TransceiverPtr delegate() const { return _transceiver; }
 

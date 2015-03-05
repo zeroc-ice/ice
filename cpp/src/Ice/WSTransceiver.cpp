@@ -810,6 +810,8 @@ IceInternal::WSTransceiver::getInfo() const
     info->localPort = di->localPort;
     info->remoteAddress = di->remoteAddress;
     info->remotePort = di->remotePort;
+    info->rcvSize = di->rcvSize;
+    info->sndSize = di->sndSize;
     info->headers = _parser->getHeaders();
     return info;
 }
@@ -818,6 +820,12 @@ void
 IceInternal::WSTransceiver::checkSendSize(const Buffer& buf)
 {
     _delegate->checkSendSize(buf);
+}
+
+void
+IceInternal::WSTransceiver::setBufferSize(int rcvSize, int sndSize)
+{
+    _delegate->setBufferSize(rcvSize, sndSize);
 }
 
 IceInternal::WSTransceiver::WSTransceiver(const ProtocolInstancePtr& instance, const TransceiverPtr& del,

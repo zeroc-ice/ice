@@ -146,7 +146,10 @@ infoAllTests(id<ICECommunicator> communicator)
 
     tprintf("testing connection information... ");
     {
-        ICEIPConnectionInfo* info = (ICEIPConnectionInfo*)[[base ice_getConnection] getInfo];
+        id<ICEConnection> connection = [base ice_getConnection];
+        [connection setBufferSize:1024 sndSize:2048];
+
+        ICEIPConnectionInfo* info = (ICEIPConnectionInfo*)[connection getInfo];
         test([info isKindOfClass:[ICEIPConnectionInfo class]]);
         test(!info.incoming);
         test([info.adapterName isEqualToString:@""]);
@@ -157,6 +160,8 @@ infoAllTests(id<ICECommunicator> communicator)
             test([info.remoteAddress isEqualToString:defaultHost]);
             test([info.localAddress isEqualToString:defaultHost]);
         }
+        test(info.rcvSize == 1024);
+        test(info.sndSize == 2048);
 
         ICEContext* ctx = [testIntf getConnectionInfoAsContext];
         test([[ctx objectForKey:@"incoming"] isEqualToString:@"true"]);
@@ -181,7 +186,10 @@ infoAllTests(id<ICECommunicator> communicator)
             test([ctx objectForKey:@"ws.Sec-WebSocket-Key"] != nil);
         }
 
-        info = (ICEIPConnectionInfo*)[[[base ice_datagram] ice_getConnection] getInfo];
+        connection = [[base ice_datagram] ice_getConnection];
+        [connection setBufferSize:2048 sndSize:1024];
+
+        info = (ICEIPConnectionInfo*)[connection getInfo];
         test([info isKindOfClass:[ICEIPConnectionInfo class]]);
         test(!info.incoming);
         test([info.adapterName isEqualToString:@""]);
@@ -192,6 +200,8 @@ infoAllTests(id<ICECommunicator> communicator)
             test([info.remoteAddress isEqualToString:defaultHost]);
             test([info.localAddress isEqualToString:defaultHost]);
         }
+        test(info.rcvSize == 2048);
+        test(info.sndSize == 1024);
     }
     tprintf("ok\n");
 

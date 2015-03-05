@@ -710,6 +710,34 @@ connectionGetEndpoint(ConnectionObject* self)
     }
 }
 
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+connectionSetBufferSize(ConnectionObject* self, PyObject* args)
+{
+    int rcvSize;
+    int sndSize;
+    if(!PyArg_ParseTuple(args, STRCAST("ii"), &rcvSize, &sndSize))
+    {
+        return 0;
+    }
+
+    assert(self->connection);
+    try
+    {
+        (*self->connection)->setBufferSize(rcvSize, sndSize);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyMethodDef ConnectionMethods[] =
 {
     { STRCAST("close"), reinterpret_cast<PyCFunction>(connectionClose), METH_VARARGS,
@@ -742,6 +770,8 @@ static PyMethodDef ConnectionMethods[] =
         PyDoc_STR(STRCAST("getInfo() -> Ice.ConnectionInfo")) },
     { STRCAST("getEndpoint"), reinterpret_cast<PyCFunction>(connectionGetEndpoint), METH_NOARGS,
         PyDoc_STR(STRCAST("getEndpoint() -> Ice.Endpoint")) },
+    { STRCAST("setBufferSize"), reinterpret_cast<PyCFunction>(connectionSetBufferSize), METH_VARARGS,
+        PyDoc_STR(STRCAST("setBufferSize(int, int) -> None")) },
     { 0, 0 } /* sentinel */
 };
 

@@ -26,21 +26,23 @@ namespace IceInternal
     {
         public StreamSocket(ProtocolInstance instance, NetworkProxy proxy, EndPoint addr, EndPoint sourceAddr)
         {
+            _instance = instance;
             _proxy = proxy;
             _addr = addr;
             _sourceAddr = sourceAddr;
             _fd = Network.createSocket(false, (_proxy != null ? _proxy.getAddress() : _addr).AddressFamily);
             _state = StateNeedConnect;
 
-            init(instance);
+            init();
         }
 
         public StreamSocket(ProtocolInstance instance, Socket fd)
         {
+            _instance = instance;
             _fd = fd;
             _state = StateConnected;
             _desc = IceInternal.Network.fdToString(_fd);
-            init(instance);
+            init();
         }
 
 #if !SILVERLIGHT
@@ -122,6 +124,11 @@ namespace IceInternal
         public int getRecvPacketSize(int length)
         {
             return _maxRecvPacketSize > 0 ? System.Math.Min(length, _maxRecvPacketSize) : length;
+        }
+
+        public void setBufferSize(int rcvSize, int sndSize)
+        {
+            Network.setTcpBufSize(_fd, rcvSize, sndSize, _instance);
         }
 
         public int read(Buffer buf)
@@ -553,12 +560,12 @@ namespace IceInternal
         }
 #endif
 
-        private void init(ProtocolInstance instance)
+        private void init()
         {
 #if !SILVERLIGHT
             Network.setBlock(_fd, false);
 #endif
-            Network.setTcpBufSize(_fd, instance);
+            Network.setTcpBufSize(_fd, _instance);
 
 #if ICE_SOCKET_ASYNC_API
             _readEventArgs = new SocketAsyncEventArgs();
@@ -575,7 +582,7 @@ namespace IceInternal
             }
             else if(!String.IsNullOrEmpty(policy))
             {
-                instance.logger().warning("Ignoring invalid Ice.ClientAccessPolicyProtocol value `" + policy + "'");
+                _instance.logger().warning("Ignoring invalid Ice.ClientAccessPolicyProtocol value `" + policy + "'");
             }
 #  endif
 #endif
@@ -604,6 +611,7 @@ namespace IceInternal
             }
         }
 
+        private readonly ProtocolInstance _instance;
         private readonly IceInternal.NetworkProxy _proxy;
         private readonly EndPoint _addr;
         private readonly EndPoint _sourceAddr;

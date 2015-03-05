@@ -303,6 +303,32 @@ ZEND_METHOD(Ice_Connection, getInfo)
     }
 }
 
+ZEND_METHOD(Ice_Connection, setBufferSize)
+{
+    Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    zval* r;
+    zval* s;
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("zz"), &r, &s TSRMLS_CC) != SUCCESS)
+    {
+        RETURN_NULL();
+    }
+
+    int rcvSize = static_cast<int>(Z_LVAL_P(r));
+    int sndSize = static_cast<int>(Z_LVAL_P(s));
+
+    try
+    {
+        _this->setBufferSize(rcvSize, sndSize);
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
+}
+
 #ifdef _WIN32
 extern "C"
 #endif
@@ -389,6 +415,7 @@ static zend_function_entry _connectionClassMethods[] =
     ZEND_ME(Ice_Connection, timeout, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Connection, toString, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Connection, getInfo, NULL, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, setBufferSize, NULL, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };
 
@@ -650,6 +677,8 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p TSRMLS_DC
 
     add_property_bool(zv, STRCAST("incoming"), p->incoming ? 1 : 0);
     add_property_string(zv, STRCAST("adapterName"), const_cast<char*>(p->adapterName.c_str()), 1);
+    add_property_long(zv, STRCAST("rcvSize"), static_cast<long>(p->rcvSize));
+    add_property_long(zv, STRCAST("sndSize"), static_cast<long>(p->sndSize));
 
     Wrapper<Ice::ConnectionInfoPtr>* obj = Wrapper<Ice::ConnectionInfoPtr>::extract(zv TSRMLS_CC);
     assert(obj);

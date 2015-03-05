@@ -334,7 +334,7 @@ var ConnectionI = Class({
         // called every (timeout / 2) period.
         //
         if(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatAlways ||
-            (acm.heartbeat != Ice.ACMHeartbeat.HeartbeatOff && this._writeStream.isEmpty() && 
+            (acm.heartbeat != Ice.ACMHeartbeat.HeartbeatOff && this._writeStream.isEmpty() &&
              now >= (this._acmLastActivity + acm.timeout / 4)))
         {
             if(acm.heartbeat != Ice.ACMHeartbeat.HeartbeatOnInvocation || this._dispatchCount > 0)
@@ -1350,6 +1350,14 @@ var ConnectionI = Class({
         info.adapterName = this._adapter !== null ? this._adapter.getName() : "";
         info.incoming = this._incoming;
         return info;
+    },
+    setBufferSize: function(rcvSize, sndSize)
+    {
+        if(this._state >= StateClosed)
+        {
+            throw this._exception;
+        }
+        this._transceiver.setBufferSize(rcvSize, sndSize);
     },
     exception: function(ex)
     {

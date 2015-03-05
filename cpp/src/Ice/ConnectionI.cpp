@@ -115,7 +115,7 @@ class FinishCall : public DispatchWorkItem
 {
 public:
 
-    FinishCall(const Ice::ConnectionIPtr& connection, bool close) : 
+    FinishCall(const Ice::ConnectionIPtr& connection, bool close) :
         DispatchWorkItem(connection), _connection(connection), _close(close)
     {
     }
@@ -127,7 +127,7 @@ public:
     }
 
 private:
-    
+
     const ConnectionIPtr _connection;
     const bool _close;
 };
@@ -712,10 +712,10 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncPtr& out, bool compress, b
     _transceiver->checkSendSize(*os);
 
     //
-    // Notify the request that it's cancelable with this connection. 
+    // Notify the request that it's cancelable with this connection.
     // This will throw if the request is canceled.
     //
-    out->cancelable(this); 
+    out->cancelable(this);
 
     Int requestId = 0;
     if(response)
@@ -847,7 +847,7 @@ Ice::ConnectionI::finishBatchRequest(BasicStream* os, bool compress)
             {
                 flush = true;
             }
-            
+
             //
             // Throw memory limit exception if the first message added causes us to
             // go over limit. Otherwise put aside the marshalled message that caused
@@ -1026,16 +1026,16 @@ Ice::ConnectionI::begin_flushBatchRequests(const IceInternal::Function<void (con
 #else
     assert(false); // Ice not built with C++11 support.
     return 0;
-#endif    
+#endif
 }
 
 AsyncResultPtr
 Ice::ConnectionI::__begin_flushBatchRequests(const CallbackBasePtr& cb, const LocalObjectPtr& cookie)
 {
-    ConnectionFlushBatchPtr result = new ConnectionFlushBatch(this, 
-                                                              _communicator, 
-                                                              _instance, 
-                                                              __flushBatchRequests_name, 
+    ConnectionFlushBatchPtr result = new ConnectionFlushBatch(this,
+                                                              _communicator,
+                                                              _instance,
+                                                              __flushBatchRequests_name,
                                                               cb,
                                                               cookie);
     result->invoke();
@@ -1134,10 +1134,10 @@ Ice::ConnectionI::flushAsyncBatchRequests(const OutgoingAsyncBasePtr& outAsync)
     }
 
     //
-    // Notify the request that it's cancelable with this connection. 
+    // Notify the request that it's cancelable with this connection.
     // This will throw if the request is canceled.
     //
-    outAsync->cancelable(this); 
+    outAsync->cancelable(this);
 
     //
     // Fill in the number of requests in the batch.
@@ -1383,7 +1383,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, con
     {
         return; // The request has already been or will be shortly notified of the failure.
     }
-    
+
     for(deque<OutgoingMessage>::iterator o = _sendStreams.begin(); o != _sendStreams.end(); ++o)
     {
         if(o->outAsync.get() == outAsync.get())
@@ -1401,7 +1401,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, con
                     _asyncRequests.erase(o->requestId);
                 }
             }
-            
+
             if(dynamic_cast<const Ice::ConnectionTimeoutException*>(&ex))
             {
                 setState(StateClosed, ex);
@@ -1429,7 +1429,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, con
             return;
         }
     }
-        
+
     OutgoingAsyncPtr o = OutgoingAsyncPtr::dynamicCast(outAsync);
     if(o)
     {
@@ -1444,7 +1444,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, con
                 else
                 {
                     _asyncRequests.erase(_asyncRequestsHint);
-                    _asyncRequestsHint = _asyncRequests.end(); 
+                    _asyncRequestsHint = _asyncRequests.end();
                     if(outAsync->completed(ex))
                     {
                         outAsync->invokeCompletedAsync();
@@ -1453,7 +1453,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, con
                 return;
             }
         }
-        
+
         for(map<Int, OutgoingAsyncPtr>::iterator p = _asyncRequests.begin(); p != _asyncRequests.end(); ++p)
         {
             if(p->second.get() == o.get())
@@ -2377,6 +2377,18 @@ Ice::ConnectionI::getInfo() const
         _exception->ice_throw();
     }
     return initConnectionInfo();
+}
+
+void
+Ice::ConnectionI::setBufferSize(Ice::Int rcvSize, Ice::Int sndSize)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    if(_state >= StateClosed)
+    {
+        _exception->ice_throw();
+    }
+    _transceiver->setBufferSize(rcvSize, sndSize);
+    _info = 0; // Invalidate the cached connection info
 }
 
 void

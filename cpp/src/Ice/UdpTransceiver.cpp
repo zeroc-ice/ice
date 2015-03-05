@@ -853,6 +853,9 @@ IceInternal::UdpTransceiver::getInfo() const
         fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
     }
 
+    info->rcvSize = _rcvSize;
+    info->sndSize = _sndSize;
+
     if(isAddressValid(_mcastAddr))
     {
         addrToAddressAndPort(_mcastAddr, info->mcastAddress, info->mcastPort);
@@ -876,6 +879,12 @@ IceInternal::UdpTransceiver::checkSendSize(const Buffer& buf)
     {
         throw DatagramLimitException(__FILE__, __LINE__);
     }
+}
+
+void
+IceInternal::UdpTransceiver::setBufferSize(int rcvSize, int sndSize)
+{
+    setBufSize(rcvSize, sndSize);
 }
 
 int
@@ -909,7 +918,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
 #endif
 {
     _fd = createSocket(true, _addr);
-    setBufSize();
+    setBufSize(-1, -1);
     setBlock(_fd, false);
 
 #ifndef ICE_OS_WINRT
@@ -982,7 +991,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const UdpEndpointIPtr& endpoint, con
 #endif
 {
     _fd = createServerSocket(true, _addr, instance->protocolSupport());
-    setBufSize();
+    setBufSize(-1, -1);
     setBlock(_fd, false);
 
 #ifndef ICE_OS_WINRT
@@ -1009,7 +1018,7 @@ IceInternal::UdpTransceiver::~UdpTransceiver()
 // Set UDP receive and send buffer sizes.
 //
 void
-IceInternal::UdpTransceiver::setBufSize()
+IceInternal::UdpTransceiver::setBufSize(int rcvSize, int sndSize)
 {
     assert(_fd != INVALID_SOCKET);
 
@@ -1020,6 +1029,7 @@ IceInternal::UdpTransceiver::setBufSize()
         string prop;
         int* addr;
         int dfltSize;
+        int sizeRequested;
         if(i == 0)
         {
             isSnd = false;
@@ -1027,6 +1037,7 @@ IceInternal::UdpTransceiver::setBufSize()
             prop = "Ice.UDP.RcvSize";
             addr = &_rcvSize;
             dfltSize = getRecvBufferSize(_fd);
+            sizeRequested = rcvSize;
         }
         else
         {
@@ -1035,6 +1046,7 @@ IceInternal::UdpTransceiver::setBufSize()
             prop = "Ice.UDP.SndSize";
             addr = &_sndSize;
             dfltSize = getSendBufferSize(_fd);
+            sizeRequested = sndSize;
         }
 
         if(dfltSize <= 0)
@@ -1044,9 +1056,15 @@ IceInternal::UdpTransceiver::setBufSize()
         *addr = dfltSize;
 
         //
-        // Get property for buffer size and check for sanity.
+        // Get property for buffer size if size not passed in.
         //
-        Int sizeRequested = _instance->properties()->getPropertyAsIntWithDefault(prop, dfltSize);
+        if(sizeRequested == -1)
+        {
+            sizeRequested = _instance->properties()->getPropertyAsIntWithDefault(prop, dfltSize);
+        }
+        //
+        // Check for sanity.
+        //
         if(sizeRequested < (_udpOverhead + headerSize))
         {
             Warning out(_instance->logger());

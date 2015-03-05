@@ -741,6 +741,10 @@ namespace IceInternal
                     }
                 }
             }
+
+            info.rcvSize = Network.getRecvBufferSize(_fd);
+            info.sndSize = Network.getSendBufferSize(_fd);
+
 #if !SILVERLIGHT
             if(_mcastAddr != null)
             {
@@ -762,6 +766,11 @@ namespace IceInternal
             {
                 throw new Ice.DatagramLimitException();
             }
+        }
+
+        public void setBufferSize(int rcvSize, int sndSize)
+        {
+            setBufSize(rcvSize, sndSize);
         }
 
         public override string ToString()
@@ -856,7 +865,7 @@ namespace IceInternal
             try
             {
                 _fd = Network.createSocket(true, _addr.AddressFamily);
-                setBufSize();
+                setBufSize(-1, -1);
 #if !SILVERLIGHT
                 Network.setBlock(_fd, false);
                 if(AssemblyUtil.osx_)
@@ -912,7 +921,7 @@ namespace IceInternal
 #endif
 
                 _fd = Network.createServerSocket(true, _addr.AddressFamily, instance.protocolSupport());
-                setBufSize();
+                setBufSize(-1, -1);
 #if !SILVERLIGHT
                 Network.setBlock(_fd, false);
 #endif
@@ -934,7 +943,7 @@ namespace IceInternal
             }
         }
 
-        private void setBufSize()
+        private void setBufSize(int rcvSize, int sndSize)
         {
             Debug.Assert(_fd != null);
 
@@ -944,12 +953,14 @@ namespace IceInternal
                 string direction;
                 string prop;
                 int dfltSize;
+                int sizeRequested;
                 if(i == 0)
                 {
                     isSnd = false;
                     direction = "receive";
                     prop = "Ice.UDP.RcvSize";
                     dfltSize = Network.getRecvBufferSize(_fd);
+                    sizeRequested = rcvSize;
                     _rcvSize = dfltSize;
                 }
                 else
@@ -958,13 +969,20 @@ namespace IceInternal
                     direction = "send";
                     prop = "Ice.UDP.SndSize";
                     dfltSize = Network.getSendBufferSize(_fd);
+                    sizeRequested = sndSize;
                     _sndSize = dfltSize;
                 }
 
                 //
-                // Get property for buffer size and check for sanity.
+                // Get property for buffer size if size not passed in.
                 //
-                int sizeRequested = _instance.properties().getPropertyAsIntWithDefault(prop, dfltSize);
+                if(sizeRequested == -1)
+                {
+                    sizeRequested = _instance.properties().getPropertyAsIntWithDefault(prop, dfltSize);
+                }
+                //
+                // Check for sanity.
+                //
                 if(sizeRequested < (_udpOverhead + IceInternal.Protocol.headerSize))
                 {
                     _instance.logger().warning("Invalid " + prop + " value of " + sizeRequested + " adjusted to " +

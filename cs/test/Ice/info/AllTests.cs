@@ -178,7 +178,10 @@ public class AllTests : TestCommon.TestApp
         Write("testing connection information... ");
         Flush();
         {
-            Ice.IPConnectionInfo info = (Ice.IPConnectionInfo)@base.ice_getConnection().getInfo();
+            Ice.Connection connection = @base.ice_getConnection();
+            connection.setBufferSize(1024, 2048);
+
+            Ice.IPConnectionInfo info = (Ice.IPConnectionInfo)connection.getInfo();
             test(!info.incoming);
             test(info.adapterName.Length == 0);
             test(info.remotePort == 12010);
@@ -192,6 +195,8 @@ public class AllTests : TestCommon.TestApp
 #endif
                 test(info.remoteAddress.Equals(defaultHost));
             }
+            test(info.rcvSize == 1024);
+            test(info.sndSize == 2048);
 
             Dictionary<string, string> ctx = testIntf.getConnectionInfoAsContext();
             test(ctx["incoming"].Equals("true"));
@@ -218,7 +223,10 @@ public class AllTests : TestCommon.TestApp
                 test(ctx["ws.Sec-WebSocket-Key"] != null);
             }
 
-            info = (Ice.IPConnectionInfo)@base.ice_datagram().ice_getConnection().getInfo();
+            connection = @base.ice_datagram().ice_getConnection();
+            connection.setBufferSize(2048, 1024);
+
+            info = (Ice.IPConnectionInfo)connection.getInfo();
             test(!info.incoming);
             test(info.adapterName.Length == 0);
             test(info.localPort > 0);
@@ -231,6 +239,8 @@ public class AllTests : TestCommon.TestApp
                 test(info.localAddress.Equals(defaultHost));
 #endif
             }
+            test(info.rcvSize == 2048);
+            test(info.sndSize == 1024);
         }
         WriteLine("ok");
 

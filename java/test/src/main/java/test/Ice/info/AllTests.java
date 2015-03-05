@@ -149,7 +149,10 @@ public class AllTests
         out.print("testing connection information... ");
         out.flush();
         {
-            Ice.IPConnectionInfo info = (Ice.IPConnectionInfo)base.ice_getConnection().getInfo();
+            Ice.Connection connection = base.ice_getConnection();
+            connection.setBufferSize(1024, 2048);
+
+            Ice.IPConnectionInfo info = (Ice.IPConnectionInfo)connection.getInfo();
             test(!info.incoming);
             test(info.adapterName.length() == 0);
             test(info.localPort > 0);
@@ -159,6 +162,8 @@ public class AllTests
                 test(info.remoteAddress.equals(defaultHost));
                 test(info.localAddress.equals(defaultHost));
             }
+            test(info.rcvSize == 1024);
+            test(info.sndSize == 2048);
 
             java.util.Map<String, String> ctx = testIntf.getConnectionInfoAsContext();
             test(ctx.get("incoming").equals("true"));
@@ -184,7 +189,10 @@ public class AllTests
                 test(ctx.get("ws.Sec-WebSocket-Key") != null);
             }
 
-            info = (Ice.IPConnectionInfo)base.ice_datagram().ice_getConnection().getInfo();
+            connection = base.ice_datagram().ice_getConnection();
+            connection.setBufferSize(2048, 1024);
+
+            info = (Ice.IPConnectionInfo)connection.getInfo();
             test(!info.incoming);
             test(info.adapterName.length() == 0);
             test(info.localPort > 0);
@@ -194,6 +202,8 @@ public class AllTests
                 test(info.remoteAddress.equals(defaultHost));
                 test(info.localAddress.equals(defaultHost));
             }
+            test(info.rcvSize == 2048);
+            test(info.sndSize == 1024);
         }
         out.println("ok");
 

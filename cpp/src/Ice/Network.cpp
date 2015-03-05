@@ -1647,50 +1647,59 @@ IceInternal::setTcpBufSize(SOCKET fd, const ProtocolInstancePtr& instance)
 #else
     const int dfltBufSize = 0;
 #endif
-    Int sizeRequested = instance->properties()->getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
-    if(sizeRequested > 0)
+    Int rcvSize = instance->properties()->getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
+    Int sndSize = instance->properties()->getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
+
+    setTcpBufSize(fd, rcvSize, sndSize, instance);
+}
+
+void
+IceInternal::setTcpBufSize(SOCKET fd, int rcvSize, int sndSize, const ProtocolInstancePtr& instance)
+{
+    assert(fd != INVALID_SOCKET);
+
+    if(rcvSize > 0)
     {
         //
         // Try to set the buffer size. The kernel will silently adjust
         // the size to an acceptable value. Then read the size back to
         // get the size that was actually set.
         //
-        setRecvBufferSize(fd, sizeRequested);
+        setRecvBufferSize(fd, rcvSize);
         int size = getRecvBufferSize(fd);
-        if(size > 0 && size < sizeRequested)
+        if(size > 0 && size < rcvSize)
         {
             // Warn if the size that was set is less than the requested size and
             // we have not already warned.
             BufSizeWarnInfo winfo = instance->getBufSizeWarn(TCPEndpointType);
-            if(!winfo.rcvWarn || sizeRequested != winfo.rcvSize)
+            if(!winfo.rcvWarn || rcvSize != winfo.rcvSize)
             {
                 Ice::Warning out(instance->logger());
-                out << "TCP receive buffer size: requested size of " << sizeRequested << " adjusted to " << size;
-                instance->setRcvBufSizeWarn(TCPEndpointType, sizeRequested);
+                out << "TCP receive buffer size: requested size of " << rcvSize << " adjusted to " << size;
+                instance->setRcvBufSizeWarn(TCPEndpointType, rcvSize);
             }
         }
     }
 
-    sizeRequested = instance->properties()->getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
-    if(sizeRequested > 0)
+    if(sndSize > 0)
     {
         //
         // Try to set the buffer size. The kernel will silently adjust
         // the size to an acceptable value. Then read the size back to
         // get the size that was actually set.
         //
-        setSendBufferSize(fd, sizeRequested);
+        setSendBufferSize(fd, sndSize);
         int size = getSendBufferSize(fd);
-        if(size > 0 && size < sizeRequested)
+        if(size > 0 && size < sndSize)
         {
             // Warn if the size that was set is less than the requested size and
             // we have not already warned.
             BufSizeWarnInfo winfo = instance->getBufSizeWarn(TCPEndpointType);
-            if(!winfo.sndWarn || sizeRequested != winfo.sndSize)
+            if(!winfo.sndWarn || sndSize != winfo.sndSize)
             {
                 Ice::Warning out(instance->logger());
-                out << "TCP send buffer size: requested size of " << sizeRequested << " adjusted to " << size;
-                instance->setSndBufSizeWarn(TCPEndpointType, sizeRequested);
+                out << "TCP send buffer size: requested size of " << sndSize << " adjusted to " << size;
+                instance->setSndBufSizeWarn(TCPEndpointType, sndSize);
             }
         }
     }

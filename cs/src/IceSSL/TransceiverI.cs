@@ -309,6 +309,11 @@ namespace IceSSL
         {
         }
 
+        public void setBufferSize(int rcvSize, int sndSize)
+        {
+            _stream.setBufferSize(rcvSize, sndSize);
+        }
+
         public override string ToString()
         {
             return _stream.ToString();
@@ -387,6 +392,8 @@ namespace IceSSL
                     info.remoteAddress = remoteEndpoint.Address.ToString();
                     info.remotePort = remoteEndpoint.Port;
                 }
+                info.rcvSize = IceInternal.Network.getRecvBufferSize(_stream.fd());
+                info.sndSize = IceInternal.Network.getSendBufferSize(_stream.fd());
             }
             if(_sslStream != null)
             {
@@ -540,9 +547,9 @@ namespace IceSSL
 
         private X509Certificate selectCertificate(
             object sender,
-            string targetHost, 
-            X509CertificateCollection localCertificates, 
-            X509Certificate remoteCertificate, 
+            string targetHost,
+            X509CertificateCollection localCertificates,
+            X509Certificate remoteCertificate,
             string[] acceptableIssuers)
         {
             X509Certificate2Collection certs = _instance.engine().certs();
@@ -629,7 +636,7 @@ namespace IceSSL
                     int errorCount = _chain.ChainStatus.Length;
                     foreach(X509ChainStatus status in _chain.ChainStatus)
                     {
-                        if(status.Status == X509ChainStatusFlags.UntrustedRoot && 
+                        if(status.Status == X509ChainStatusFlags.UntrustedRoot &&
                            _instance.engine().caCerts() != null && valid)
                         {
                             //

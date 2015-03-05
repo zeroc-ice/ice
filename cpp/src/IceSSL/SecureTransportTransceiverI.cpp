@@ -197,7 +197,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
 
         if((err = SSLSetConnection(_ssl, reinterpret_cast<SSLConnectionRef>(this))))
         {
-            throw SecurityException(__FILE__, __LINE__, "IceSSL: setting SSL connection failed\n" + 
+            throw SecurityException(__FILE__, __LINE__, "IceSSL: setting SSL connection failed\n" +
                                     errorToString(err));
         }
     }
@@ -489,9 +489,15 @@ IceSSL::TransceiverI::checkSendSize(const IceInternal::Buffer&)
 {
 }
 
-IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, 
-                                   const IceInternal::StreamSocketPtr& stream, 
-                                   const string& hostOrAdapterName, 
+void
+IceSSL::TransceiverI::setBufferSize(int rcvSize, int sndSize)
+{
+    _stream->setBufferSize(rcvSize, sndSize);
+}
+
+IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance,
+                                   const IceInternal::StreamSocketPtr& stream,
+                                   const string& hostOrAdapterName,
                                    bool incoming) :
     _instance(instance),
     _engine(SecureTransportEnginePtr::dynamicCast(instance->engine())),
@@ -519,8 +525,10 @@ NativeConnectionInfoPtr
 IceSSL::TransceiverI::getNativeConnectionInfo() const
 {
     NativeConnectionInfoPtr info = new NativeConnectionInfo();
-    IceInternal::fdToAddressAndPort(_stream->fd(), info->localAddress, info->localPort, info->remoteAddress, 
+    IceInternal::fdToAddressAndPort(_stream->fd(), info->localAddress, info->localPort, info->remoteAddress,
                                     info->remotePort);
+    info->rcvSize = IceInternal::getRecvBufferSize(_stream->fd());
+    info->sndSize = IceInternal::getSendBufferSize(_stream->fd());
 
     if(_ssl)
     {

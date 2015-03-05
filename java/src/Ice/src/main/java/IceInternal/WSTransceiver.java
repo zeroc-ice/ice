@@ -484,6 +484,8 @@ final class WSTransceiver implements Transceiver
         info.localPort = di.localPort;
         info.remoteAddress = di.remoteAddress;
         info.remotePort = di.remotePort;
+        info.rcvSize = di.rcvSize;
+        info.sndSize = di.sndSize;
         info.headers = _parser.getHeaders();
         return info;
     }
@@ -492,6 +494,12 @@ final class WSTransceiver implements Transceiver
     public void checkSendSize(Buffer buf)
     {
         _delegate.checkSendSize(buf);
+    }
+
+    @Override
+    public void setBufferSize(int rcvSize, int sndSize)
+    {
+        _delegate.setBufferSize(rcvSize, sndSize);
     }
 
     WSTransceiver(ProtocolInstance instance, Transceiver del, String host, int port, String resource)

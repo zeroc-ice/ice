@@ -284,10 +284,16 @@ var TcpTransceiver = Ice.Class({
         info.localPort = this._fd.localPort;
         info.remoteAddress = this._fd.remoteAddress;
         info.remotePort = this._fd.remotePort;
+        info.rcvSize = -1;
+        info.sndSize = this._maxSendPacketSize;
         return info;
     },
     checkSendSize: function(stream)
     {
+    },
+    setBufferSize: function(rcvSize, sndSize)
+    {
+        this._maxSendPacketSize = sndSize;
     },
     toString: function()
     {

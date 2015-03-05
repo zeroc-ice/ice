@@ -537,6 +537,12 @@ IceSSL::TransceiverI::checkSendSize(const IceInternal::Buffer&)
 {
 }
 
+void
+IceSSL::TransceiverI::setBufferSize(int rcvSize, int sndSize)
+{
+    _stream->setBufferSize(rcvSize, sndSize);
+}
+
 IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, const IceInternal::StreamSocketPtr& stream,
                                    const string& hostOrAdapterName, bool incoming) :
     _instance(instance),
@@ -557,8 +563,10 @@ NativeConnectionInfoPtr
 IceSSL::TransceiverI::getNativeConnectionInfo() const
 {
     NativeConnectionInfoPtr info = new NativeConnectionInfo();
-    IceInternal::fdToAddressAndPort(_stream->fd(), info->localAddress, info->localPort, info->remoteAddress, 
+    IceInternal::fdToAddressAndPort(_stream->fd(), info->localAddress, info->localPort, info->remoteAddress,
                                     info->remotePort);
+    info->rcvSize = IceInternal::getRecvBufferSize(_stream->fd());
+    info->sndSize = IceInternal::getSendBufferSize(_stream->fd());
 
     if(_ssl != 0)
     {

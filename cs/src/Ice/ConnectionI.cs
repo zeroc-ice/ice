@@ -17,7 +17,7 @@ namespace Ice
     using System.Threading;
     using Ice.Instrumentation;
 
-    public sealed class ConnectionI : 
+    public sealed class ConnectionI :
         IceInternal.EventHandler, IceInternal.ResponseHandler, IceInternal.CancellationHandler, Connection
     {
         public interface StartCallback
@@ -338,7 +338,7 @@ namespace Ice
                 // called every (timeout / 2) period.
                 //
                 if(acm.heartbeat == ACMHeartbeat.HeartbeatAlways ||
-                   (acm.heartbeat != ACMHeartbeat.HeartbeatOff && _writeStream.isEmpty() && 
+                   (acm.heartbeat != ACMHeartbeat.HeartbeatOff && _writeStream.isEmpty() &&
                     now >= (_acmLastActivity + acm.timeout / 4)))
                 {
                     if(acm.heartbeat != ACMHeartbeat.HeartbeatOnInvocation || _dispatchCount > 0)
@@ -409,7 +409,7 @@ namespace Ice
                 _transceiver.checkSendSize(os.getBuffer());
 
                 //
-                // Notify the request that it's cancelable with this connection. 
+                // Notify the request that it's cancelable with this connection.
                 // This will throw if the request is canceled.
                 //
                 og.cancelable(this);
@@ -671,7 +671,7 @@ namespace Ice
 
         public void end_flushBatchRequests(AsyncResult r)
         {
-            IceInternal.ConnectionFlushBatch outAsync = 
+            IceInternal.ConnectionFlushBatch outAsync =
                 IceInternal.ConnectionFlushBatch.check(r, this, __flushBatchRequests_name);
             outAsync.wait();
         }
@@ -680,7 +680,7 @@ namespace Ice
 
         private AsyncResult begin_flushBatchRequestsInternal(AsyncCallback cb, object cookie)
         {
-            IceInternal.ConnectionFlushBatch result = 
+            IceInternal.ConnectionFlushBatch result =
                 new IceInternal.ConnectionFlushBatch(this, _communicator, _instance, __flushBatchRequests_name, cookie);
             if(cb != null)
             {
@@ -711,7 +711,7 @@ namespace Ice
                 }
 
                 //
-                // Notify the request that it's cancelable with this connection. 
+                // Notify the request that it's cancelable with this connection.
                 // This will throw if the request is canceled.
                 //
                 outAsync.cancelable(this);
@@ -742,7 +742,7 @@ namespace Ice
                     Debug.Assert(_exception != null);
                     throw _exception;
                 }
-                
+
                 //
                 // Reset the batch stream.
                 //
@@ -826,7 +826,7 @@ namespace Ice
             //
             // NOTE: This isn't called from a thread pool thread.
             //
-            
+
             lock(this)
             {
                 if(_state >= StateClosed)
@@ -1625,7 +1625,7 @@ namespace Ice
                         s.Append("\n");
                         s.Append(_exception);
                     }
-                    
+
                     _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
                 }
             }
@@ -1763,6 +1763,19 @@ namespace Ice
                     throw _exception;
                 }
                 return initConnectionInfo();
+            }
+        }
+
+        public void setBufferSize(int rcvSize, int sndSize)
+        {
+            lock(this)
+            {
+                if(_state >= StateClosed)
+                {
+                    throw _exception;
+                }
+                _transceiver.setBufferSize(rcvSize, sndSize);
+                _info = null; // Invalidate the cached connection info
             }
         }
 

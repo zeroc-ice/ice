@@ -257,6 +257,12 @@ final class TransceiverI implements IceInternal.Transceiver
     }
 
     @Override
+    public void setBufferSize(int rcvSize, int sndSize)
+    {
+        _stream.setBufferSize(rcvSize, sndSize);
+    }
+
+    @Override
     public void checkSendSize(IceInternal.Buffer buf)
     {
     }
@@ -305,6 +311,9 @@ final class TransceiverI implements IceInternal.Transceiver
                 info.remoteAddress = socket.getInetAddress().getHostAddress();
                 info.remotePort = socket.getPort();
             }
+
+            info.rcvSize = IceInternal.Network.getRecvBufferSize(_stream.fd());
+            info.sndSize = IceInternal.Network.getSendBufferSize(_stream.fd());
 
             SSLSession session = _engine.getSession();
             info.cipher = session.getCipherSuite();
@@ -516,7 +525,7 @@ final class TransceiverI implements IceInternal.Transceiver
         {
             throw new Ice.ConnectionLostException(ex);
         }
-        
+
         if(_netOutput.hasRemaining())
         {
             _netOutput.compact();

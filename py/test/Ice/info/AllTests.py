@@ -132,13 +132,18 @@ def allTests(communicator):
     sys.stdout.write("testing connection information... ")
     sys.stdout.flush()
 
-    info = base.ice_getConnection().getInfo()
+    connection = base.ice_getConnection()
+    connection.setBufferSize(1024, 2048)
+
+    info = connection.getInfo()
     test(not info.incoming)
     test(len(info.adapterName) == 0)
     test(info.remotePort == 12010)
     if defaultHost == '127.0.0.1':
         test(info.remoteAddress == defaultHost)
         test(info.localAddress == defaultHost)
+    test(info.rcvSize == 1024)
+    test(info.sndSize == 2048)
 
     ctx = testIntf.getConnectionInfoAsContext()
     test(ctx["incoming"] == "true")

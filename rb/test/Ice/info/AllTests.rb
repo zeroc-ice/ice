@@ -80,7 +80,10 @@ def allTests(communicator)
     print "testing connection information..."
     STDOUT.flush
 
-    info = base.ice_getConnection().getInfo()
+    connection = base.ice_getConnection()
+    connection.setBufferSize(1024, 2048)
+
+    info = connection.getInfo()
     test(!info.incoming)
     test(info.adapterName.length == 0)
     test(info.remotePort == 12010)
@@ -88,6 +91,8 @@ def allTests(communicator)
         test(info.remoteAddress == defaultHost)
         test(info.localAddress == defaultHost)
     end
+    test(info.rcvSize == 1024)
+    test(info.sndSize == 2048)
 
     ctx = testIntf.getConnectionInfoAsContext()
     test(ctx["incoming"] == "true")

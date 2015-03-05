@@ -151,7 +151,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing connection information... " << flush;
     {
-        Ice::IPConnectionInfoPtr info = Ice::IPConnectionInfoPtr::dynamicCast(base->ice_getConnection()->getInfo());
+        Ice::ConnectionPtr connection = base->ice_getConnection();
+        connection->setBufferSize(1024, 2048);
+
+        Ice::IPConnectionInfoPtr info = Ice::IPConnectionInfoPtr::dynamicCast(connection->getInfo());
         test(info);
         test(!info->incoming);
         test(info->adapterName.empty());
@@ -162,6 +165,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(info->remoteAddress == defaultHost);
             test(info->localAddress == defaultHost);
         }
+        test(info->rcvSize = 1024);
+        test(info->sndSize = 2048);
 
         ostringstream os;
 
@@ -194,7 +199,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(ctx.find("ws.Sec-WebSocket-Key") != ctx.end());
         }
 
-        info = Ice::IPConnectionInfoPtr::dynamicCast(base->ice_datagram()->ice_getConnection()->getInfo());
+        connection = base->ice_datagram()->ice_getConnection();
+        connection->setBufferSize(2048, 1024);
+
+        info = Ice::IPConnectionInfoPtr::dynamicCast(connection->getInfo());
         test(!info->incoming);
         test(info->adapterName.empty());
         test(info->localPort > 0);
@@ -204,6 +212,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(info->remoteAddress == defaultHost);
             test(info->localAddress == defaultHost);
         }
+        test(info->rcvSize = 2048);
+        test(info->sndSize = 1024);
     }
     cout << "ok" << endl;
 

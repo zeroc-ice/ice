@@ -635,6 +635,8 @@ namespace IceInternal
             info.localPort = di.localPort;
             info.remoteAddress = di.remoteAddress;
             info.remotePort = di.remotePort;
+            info.rcvSize = di.rcvSize;
+            info.sndSize = di.sndSize;
             info.headers = _parser.getHeaders();
             return info;
         }
@@ -642,6 +644,11 @@ namespace IceInternal
         public void checkSendSize(Buffer buf)
         {
             _delegate.checkSendSize(buf);
+        }
+
+        public void setBufferSize(int rcvSize, int sndSize)
+        {
+            _delegate.setBufferSize(rcvSize, sndSize);
         }
 
         public override string ToString()

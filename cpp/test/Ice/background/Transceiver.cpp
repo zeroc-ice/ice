@@ -58,7 +58,7 @@ Transceiver::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& wr
     return IceInternal::SocketOperationNone;
 }
 
-IceInternal::SocketOperation 
+IceInternal::SocketOperation
 Transceiver::closing(bool initiator, const Ice::LocalException& ex)
 {
     return _transceiver->closing(initiator, ex);
@@ -158,7 +158,7 @@ Transceiver::startRead(IceInternal::Buffer& buf)
             {
                 available = requested;
             }
-            
+
             memcpy(buf.i, _readBufferPos, available);
             _readBufferPos += available;
             buf.i += available;
@@ -199,7 +199,7 @@ Transceiver::finishRead(IceInternal::Buffer& buf, bool& hasMoreData)
                 {
                     available = requested;
                 }
-            
+
                 memcpy(buf.i, _readBufferPos, available);
                 _readBufferPos += available;
                 buf.i += available;
@@ -241,6 +241,12 @@ void
 Transceiver::checkSendSize(const IceInternal::Buffer& buf)
 {
     _transceiver->checkSendSize(buf);
+}
+
+void
+Transceiver::setBufferSize(int rcvSize, int sndSize)
+{
+    _transceiver->setBufferSize(rcvSize, sndSize);
 }
 
 //

@@ -293,11 +293,17 @@ var WSTransceiver = Ice.Class({
         info.localPort = -1;
         info.remoteAddress = this._addr.host;
         info.remotePort = this._addr.port;
+        info.rcvSize = -1;
+        info.sndSize = this._maxSendPacketSize;
         info.headers = {};
         return info;
     },
     checkSendSize: function(stream)
     {
+    },
+    setBUfferSze: function(rcvSize, sndSize)
+    {
+        this._maxSendPacketSize = sndSize;
     },
     toString: function()
     {

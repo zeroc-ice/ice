@@ -240,6 +240,7 @@ ICE_API void setPort(Address&, int);
 
 ICE_API bool isMulticast(const Address&);
 ICE_API void setTcpBufSize(SOCKET, const ProtocolInstancePtr&);
+ICE_API void setTcpBufSize(SOCKET, int, int, const ProtocolInstancePtr&);
 
 ICE_API void setBlock(SOCKET, bool);
 ICE_API void setSendBufferSize(SOCKET, int);

@@ -219,6 +219,23 @@ IceRuby_Connection_getEndpoint(VALUE self)
     ICE_RUBY_CATCH
     return Qnil;
 }
+extern "C"
+VALUE
+IceRuby_Connection_setBufferSize(VALUE self, VALUE r, VALUE s)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
+        assert(p);
+
+        int rcvSize = static_cast<int>(getInteger(r));
+        int sndSize = static_cast<int>(getInteger(s));
+
+        (*p)->setBufferSize(rcvSize, sndSize);
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
 
 extern "C"
 VALUE
@@ -331,6 +348,8 @@ IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
     }
     rb_ivar_set(info, rb_intern("@incoming"), p->incoming ? Qtrue : Qfalse);
     rb_ivar_set(info, rb_intern("@adapterName"), createString(p->adapterName));
+    rb_ivar_set(info, rb_intern("@rcvSize"), INT2FIX(p->rcvSize));
+    rb_ivar_set(info, rb_intern("@sndSize"), INT2FIX(p->sndSize));
     return info;
 }
 
@@ -353,6 +372,7 @@ IceRuby::initConnection(VALUE iceModule)
     rb_define_method(_connectionClass, "timeout", CAST_METHOD(IceRuby_Connection_timeout), 0);
     rb_define_method(_connectionClass, "getInfo", CAST_METHOD(IceRuby_Connection_getInfo), 0);
     rb_define_method(_connectionClass, "getEndpoint", CAST_METHOD(IceRuby_Connection_getEndpoint), 0);
+    rb_define_method(_connectionClass, "setBufferSize", CAST_METHOD(IceRuby_Connection_setBufferSize), 2);
     rb_define_method(_connectionClass, "toString", CAST_METHOD(IceRuby_Connection_toString), 0);
     rb_define_method(_connectionClass, "to_s", CAST_METHOD(IceRuby_Connection_toString), 0);
     rb_define_method(_connectionClass, "inspect", CAST_METHOD(IceRuby_Connection_toString), 0);
@@ -369,6 +389,8 @@ IceRuby::initConnection(VALUE iceModule)
     //
     rb_define_attr(_connectionInfoClass, "incoming", 1, 0);
     rb_define_attr(_connectionInfoClass, "adapterName", 1, 0);
+    rb_define_attr(_connectionInfoClass, "rcvSize", 1, 0);
+    rb_define_attr(_connectionInfoClass, "sndSize", 1, 0);
 
     //
     // IPConnectionInfo

@@ -53,6 +53,7 @@ namespace IceInternal
         string toDetailedString();
         Ice.ConnectionInfo getInfo();
         void checkSendSize(Buffer buf);
+        void setBufferSize(int rcvSize, int sndSize);
     }
 
 }

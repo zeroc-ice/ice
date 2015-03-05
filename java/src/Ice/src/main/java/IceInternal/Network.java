@@ -1000,52 +1000,57 @@ public final class Network
             dfltBufSize = 128 * 1024;
         }
 
-        System.err.println("XXX");
+        int rcvSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
+        int sndSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
 
-        int sizeRequested = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
-        if(sizeRequested > 0)
+        setTcpBufSize(socket, rcvSize, sndSize, instance);
+    }
+
+    public static void
+    setTcpBufSize(java.nio.channels.SocketChannel socket, int rcvSize, int sndSize, ProtocolInstance instance)
+    {
+        if(rcvSize > 0)
         {
             //
             // Try to set the buffer size. The kernel will silently adjust
             // the size to an acceptable value. Then read the size back to
             // get the size that was actually set.
             //
-            setRecvBufferSize(socket, sizeRequested);
+            setRecvBufferSize(socket, rcvSize);
             int size = getRecvBufferSize(socket);
-            //if(size < sizeRequested)
+            if(size < rcvSize)
             {
                 // Warn if the size that was set is less than the requested size and
                 // we have not already warned.
                 BufSizeWarnInfo winfo = instance.getBufSizeWarn(Ice.TCPEndpointType.value);
-                if(!winfo.rcvWarn || sizeRequested != winfo.rcvSize)
+                if(!winfo.rcvWarn || rcvSize != winfo.rcvSize)
                 {
-                    instance.logger().warning("TCP receive buffer size: requested size of " + sizeRequested +
+                    instance.logger().warning("TCP receive buffer size: requested size of " + rcvSize +
                                               " adjusted to " + size);
-                    instance.setRcvBufSizeWarn(Ice.TCPEndpointType.value, sizeRequested);
+                    instance.setRcvBufSizeWarn(Ice.TCPEndpointType.value, rcvSize);
                 }
             }
         }
 
-        sizeRequested = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
-        if(sizeRequested > 0)
+        if(sndSize > 0)
         {
             //
             // Try to set the buffer size. The kernel will silently adjust
             // the size to an acceptable value. Then read the size back to
             // get the size that was actually set.
             //
-            setSendBufferSize(socket, sizeRequested);
+            setSendBufferSize(socket, sndSize);
             int size = getSendBufferSize(socket);
-            //if(size < sizeRequested)
+            if(size < sndSize)
             {
                 // Warn if the size that was set is less than the requested size and
                 // we have not already warned.
                 BufSizeWarnInfo winfo = instance.getBufSizeWarn(Ice.TCPEndpointType.value);
-                if(!winfo.sndWarn || sizeRequested != winfo.sndSize)
+                if(!winfo.sndWarn || sndSize != winfo.sndSize)
                 {
-                    instance.logger().warning("TCP send buffer size: requested size of " + sizeRequested +
+                    instance.logger().warning("TCP send buffer size: requested size of " + sndSize +
                                               " adjusted to " + size);
-                    instance.setSndBufSizeWarn(Ice.TCPEndpointType.value, sizeRequested);
+                    instance.setSndBufSizeWarn(Ice.TCPEndpointType.value, sndSize);
                 }
             }
         }
@@ -1077,7 +1082,7 @@ public final class Network
             //
             setRecvBufferSize(socket, sizeRequested);
             int size = getRecvBufferSize(socket);
-            //if(size < sizeRequested)
+            if(size < sizeRequested)
             {
                 // Warn if the size that was set is less than the requested size and
                 // we have not already warned.

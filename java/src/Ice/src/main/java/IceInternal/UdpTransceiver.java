@@ -315,6 +315,8 @@ final class UdpTransceiver implements Transceiver
                     info.remotePort = socket.getPort();
                 }
             }
+            info.rcvSize = Network.getRecvBufferSize(_fd);
+            info.sndSize = Network.getSendBufferSize(_fd);
         }
         if(_mcastAddr != null)
         {
@@ -338,6 +340,12 @@ final class UdpTransceiver implements Transceiver
         }
     }
 
+    @Override
+    public void setBufferSize(int rcvSize, int sndSize)
+    {
+        setBufSize(rcvSize, sndSize);
+    }
+
     public final int effectivePort()
     {
         return _addr.getPort();
@@ -356,7 +364,7 @@ final class UdpTransceiver implements Transceiver
         try
         {
             _fd = Network.createUdpSocket(_addr);
-            setBufSize();
+            setBufSize(-1, -1);
             Network.setBlock(_fd, false);
             //
             // NOTE: setting the multicast interface before performing the
@@ -393,7 +401,7 @@ final class UdpTransceiver implements Transceiver
         {
             _addr = Network.getAddressForServer(host, port, instance.protocolSupport(), instance.preferIPv6());
             _fd = Network.createUdpSocket(_addr);
-            setBufSize();
+            setBufSize(-1, -1);
             Network.setBlock(_fd, false);
         }
         catch(Ice.LocalException ex)
@@ -403,7 +411,7 @@ final class UdpTransceiver implements Transceiver
         }
     }
 
-    private synchronized void setBufSize()
+    private synchronized void setBufSize(int rcvSize, int sndSize)
     {
         assert(_fd != null);
 
@@ -413,12 +421,14 @@ final class UdpTransceiver implements Transceiver
             String direction;
             String prop;
             int dfltSize;
+            int sizeRequested;
             if(i == 0)
             {
                 isSnd = false;
                 direction = "receive";
                 prop = "Ice.UDP.RcvSize";
                 dfltSize = Network.getRecvBufferSize(_fd);
+                sizeRequested = rcvSize;
                 _rcvSize = dfltSize;
             }
             else
@@ -427,13 +437,20 @@ final class UdpTransceiver implements Transceiver
                 direction = "send";
                 prop = "Ice.UDP.SndSize";
                 dfltSize = Network.getSendBufferSize(_fd);
+                sizeRequested = sndSize;
                 _sndSize = dfltSize;
             }
 
             //
-            // Get property for buffer size and check for sanity.
+            // Get property for buffer size if size not passed in.
             //
-            int sizeRequested = _instance.properties().getPropertyAsIntWithDefault(prop, dfltSize);
+            if(sizeRequested == -1)
+            {
+                sizeRequested = _instance.properties().getPropertyAsIntWithDefault(prop, dfltSize);
+            }
+            //
+            // Check for sanity.
+            //
             if(sizeRequested < (_udpOverhead + IceInternal.Protocol.headerSize))
             {
                 _instance.logger().warning("Invalid " + prop + " value of " + sizeRequested + " adjusted to " +

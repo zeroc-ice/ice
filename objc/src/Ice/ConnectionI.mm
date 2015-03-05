@@ -29,6 +29,8 @@
         self->incoming = connectionInfo->incoming;
         self->adapterName = [[NSString alloc] initWithUTF8String:connectionInfo->adapterName.c_str()];
         self->connectionId = [[NSString alloc] initWithUTF8String:connectionInfo->connectionId.c_str()];
+        self->rcvSize = connectionInfo->rcvSize;
+        self->sndSize = connectionInfo->sndSize;
     }
     return self;
 }
@@ -367,6 +369,23 @@ private:
         @throw nsex;
     }
     return nil;
+}
+
+-(void) setBufferSize:(int)rcvSize sndSize:(int)sndSize
+{
+    NSException* nsex = nil;
+    try
+    {
+        CONNECTION->setBufferSize(rcvSize, sndSize);
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    if(nsex != nil)
+    {
+        @throw nsex;
+    }
 }
 
 -(ICEEndpoint*) getEndpoint

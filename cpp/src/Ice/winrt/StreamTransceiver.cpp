@@ -303,6 +303,8 @@ IceInternal::StreamTransceiver::getInfo() const
         info = new Ice::TCPConnectionInfo();
     }
     fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
+    info->rcvSize = getRecvBufferSize(_fd);
+    info->sndSize = getSendBufferSize(_fd);
     return info;
 }
 
@@ -310,6 +312,12 @@ void
 IceInternal::StreamTransceiver::checkSendSize(const Buffer&)
 {
 }
+
+ void
+ IceInternal::StreamTransceiver::setBufferSize(int rcvSize, int sndSize)
+ {
+    setTcpBufSize(_fd, rcvSize, sndSize, _instance);
+ }
 
 IceInternal::StreamTransceiver::StreamTransceiver(const ProtocolInstancePtr& instance, SOCKET fd, bool connected) :
     NativeInfo(fd),
@@ -322,8 +330,7 @@ IceInternal::StreamTransceiver::StreamTransceiver(const ProtocolInstancePtr& ins
     _reader = ref new DataReader(streamSocket->InputStream);
     _reader->InputStreamOptions = InputStreamOptions::Partial;
 
-    Ice::PropertiesPtr properties = instance->properties();
-    setTcpBufSize(_fd, properties, _instance->logger());
+    setTcpBufSize(_fd, _instance);
 
     _maxSendPacketSize = streamSocket->Control->OutboundBufferSizeInBytes / 2;
     if(_maxSendPacketSize < 512)
@@ -331,7 +338,7 @@ IceInternal::StreamTransceiver::StreamTransceiver(const ProtocolInstancePtr& ins
         _maxSendPacketSize = 0;
     }
 
-    _maxReceivePacketSize = properties->getPropertyAsIntWithDefault("Ice.TCP.RcvSize", 128 * 1024);
+    _maxReceivePacketSize = instance->properties()->getPropertyAsIntWithDefault("Ice.TCP.RcvSize", 128 * 1024);
 }
 
 IceInternal::StreamTransceiver::~StreamTransceiver()

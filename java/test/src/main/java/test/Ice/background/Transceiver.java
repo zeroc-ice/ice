@@ -179,6 +179,12 @@ final class Transceiver implements IceInternal.Transceiver
         _transceiver.checkSendSize(buf);
     }
 
+    @Override
+    public void setBufferSize(int rcvSize, int sndSize)
+    {
+        _transceiver.setBufferSize(rcvSize, sndSize);
+    }
+
     public IceInternal.Transceiver
     delegate()
     {

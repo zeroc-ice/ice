@@ -18,6 +18,7 @@ StreamSocket::StreamSocket(const ProtocolInstancePtr& instance,
                            const Address& addr,
                            const Address& sourceAddr) :
     NativeInfo(createSocket(false, proxy ? proxy->getAddress() : addr)),
+    _instance(instance),
     _proxy(proxy),
     _addr(addr),
     _sourceAddr(sourceAddr),
@@ -27,7 +28,7 @@ StreamSocket::StreamSocket(const ProtocolInstancePtr& instance,
     _write(SocketOperationWrite)
 #endif
 {
-    init(instance);
+    init();
 #ifndef ICE_USE_IOCP
     if(doConnect(_fd, _proxy ? _proxy->getAddress() : _addr, sourceAddr))
     {
@@ -39,13 +40,14 @@ StreamSocket::StreamSocket(const ProtocolInstancePtr& instance,
 
 StreamSocket::StreamSocket(const ProtocolInstancePtr& instance, SOCKET fd) :
     NativeInfo(fd),
+    _instance(instance),
     _state(StateConnected)
 #ifdef ICE_USE_IOCP
     , _read(SocketOperationRead),
     _write(SocketOperationWrite)
 #endif
 {
-    init(instance);
+    init();
     _desc = fdToString(fd);
 }
 
@@ -124,6 +126,12 @@ StreamSocket::getRecvPacketSize(size_t length)
 #else
     return length;
 #endif
+}
+
+void
+StreamSocket::setBufferSize(int rcvSize, int sndSize)
+{
+    setTcpBufSize(_fd, rcvSize, sndSize, _instance);
 }
 
 SocketOperation
@@ -486,10 +494,10 @@ StreamSocket::toString() const
 }
 
 void
-StreamSocket::init(const ProtocolInstancePtr& instance)
+StreamSocket::init()
 {
     setBlock(_fd, false);
-    setTcpBufSize(_fd, instance);
+    setTcpBufSize(_fd, _instance);
 
 #ifdef ICE_USE_IOCP
     //

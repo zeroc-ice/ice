@@ -121,7 +121,10 @@ function allTests($communicator)
         $ipConnectionInfoClass = $NS ? "Ice\\IPConnectionInfo" : "Ice_IPConnectionInfo";
         $wsConnectionInfoClass = $NS ? "Ice\\WSConnectionInfo" : "Ice_WSConnectionInfo";
 
-        $info = $base->ice_getConnection()->getInfo();
+        $connection = $base->ice_getConnection();
+        $connection->setBufferSize(1024, 2048);
+
+        $info = $connection->getInfo();
         test($info instanceof $ipConnectionInfoClass);
         test(!$info->incoming);
         test(strlen($info->adapterName) == 0);
@@ -131,6 +134,8 @@ function allTests($communicator)
             test($info->remoteAddress == $defaultHost);
             test($info->localAddress == $defaultHost);
         }
+        test($info->rcvSize == 1024);
+        test($info->sndSize == 2048);
 
         $ctx = $testIntf->getConnectionInfoAsContext();
         test($ctx["incoming"] == "true");

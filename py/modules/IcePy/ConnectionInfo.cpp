@@ -73,6 +73,24 @@ connectionInfoGetAdapterName(ConnectionInfoObject* self)
 extern "C"
 #endif
 static PyObject*
+connectionInfoGetRcvSize(ConnectionInfoObject* self)
+{
+    return PyLong_FromLong((*self->connectionInfo)->rcvSize);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+connectionInfoGetSndSize(ConnectionInfoObject* self)
+{
+    return PyLong_FromLong((*self->connectionInfo)->sndSize);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 ipConnectionInfoGetLocalAddress(ConnectionInfoObject* self)
 {
     Ice::IPConnectionInfoPtr info = Ice::IPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
@@ -167,6 +185,10 @@ static PyGetSetDef ConnectionInfoGetters[] =
         PyDoc_STR(STRCAST("whether connection is incoming")), 0 },
     { STRCAST("adapterName"), reinterpret_cast<getter>(connectionInfoGetAdapterName), 0,
         PyDoc_STR(STRCAST("adapter associated the connection")), 0 },
+    { STRCAST("rcvSize"), reinterpret_cast<getter>(connectionInfoGetRcvSize), 0,
+        PyDoc_STR(STRCAST("receive buffer size")), 0 },
+    { STRCAST("sndSize"), reinterpret_cast<getter>(connectionInfoGetSndSize), 0,
+        PyDoc_STR(STRCAST("send buffer size")), 0 },
     { 0, 0 } /* sentinel */
 };
 
