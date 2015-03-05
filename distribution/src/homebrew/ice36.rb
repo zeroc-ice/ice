@@ -6,15 +6,16 @@ class Ice36 < Formula
   url 'http://dev.vpn.zeroc.com/share/Ice-3.6.0.tar.gz'
   #sha1 'dcab7e14b3e42fa95af58f7e804f6fd9a17cb6b2'
 
-  option 'with-java', 'Compile with Java support.'
-  option 'without-java7', 'Compile without Java 7 support.'
+  option 'with-java-8', 'Compile with Java 8 support.'
+  option 'without-java', 'Compile without Java support.'
+
+  if build.with? "java-8"
+    depends_on :java => "1.8"
+  elsif build.with? "java"
+    depends_on :java => "1.7"
+  end
 
   depends_on 'mcpp'
-
-  #
-  # This formula uses the berkeley-db53 tap. When merged into the
-  # main ice formula it should vendor berkeleydb.
-  #
   depends_on 'berkeley-db53'
 
   def install
@@ -28,7 +29,7 @@ class Ice36 < Formula
         s.sub! /install:/, "dontinstall:"
     end
 
-    if not (build.with? "java" or build.with? "java7")
+    if not (build.with? "java" or build.with? "java-8")
       inreplace "cpp/src/slice2java/Makefile" do |s|
           s.sub! /install:/, "dontinstall:"
       end
@@ -48,7 +49,7 @@ class Ice36 < Formula
       embedded_runpath_prefix=#{prefix}
       USR_DIR_INSTALL=yes
       OPTIMIZE=yes
-      DB_HOME='/usr/local/opt/berkeley-db53/'
+      DB_HOME=#{HOMEBREW_PREFIX}/opt/berkeley-db53
     ]
     #DB_HOME=#{libexec}
     # Setting this gets rid of the optimization level and the arch flags.
@@ -63,7 +64,7 @@ class Ice36 < Formula
       system "make", "install", *args
     end
 
-    if (build.with? "java" or build.with? "java7")
+    if (build.with? "java" or build.with? "java-8")
         cd "java" do
           system "make", "install", *args
         end
@@ -97,6 +98,11 @@ class Ice36 < Formula
 
       However, you can also accomplish this on a script-by-script basis
       or via .htaccess if you so desire...
-      EOS
+
+      If you installed with java support the IceGrid GUI app bundles
+      were installed.
+
+      Run `brew linkapps ice36` to symlink these to /Applications.
+    EOS
   end
 end
