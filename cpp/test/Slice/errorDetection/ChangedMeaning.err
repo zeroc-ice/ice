@@ -23,5 +23,3 @@ ChangedMeaning.ice:205: `A' has changed meaning
 ChangedMeaning.ice:213: redefinition of operation `x' as data member `x'
 ChangedMeaning.ice:225: exception member `X' differs only in capitalization from exception member `x'
 ChangedMeaning.ice:225: `X' has changed meaning
-
-
