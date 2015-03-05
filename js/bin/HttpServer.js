@@ -7,19 +7,19 @@
 //
 // **********************************************************************
 
-var http = require("http");
-var https = require("https");
-var url = require("url");
-var crypto = require("crypto");
-var fs = require("fs");
-var path = require("path");
+var crypto    = require("crypto");
+var fs        = require("fs");
+var http      = require("http");
 var httpProxy = require("http-proxy");
+var https     = require("https");
+var path      = require("path");
+var url       = require("url");
 
 function isdir(p)
 {
     try
     {
-        return fs.statSync(path.join(p)).isDirectory(); 
+        return fs.statSync(path.join(p)).isDirectory();
     }
     catch(e)
     {
@@ -36,7 +36,7 @@ function Init()
         ico: "image/x-icon",
         js: "text/javascript",
     };
-    
+
     var demoDist = !isdir(path.join(__dirname, "..", "lib"));
 
     //
@@ -47,7 +47,7 @@ function Init()
                     "/lib/Glacier2.js", "/lib/Glacier2.min.js",
                     "/lib/IceStorm.js", "/lib/IceStorm.min.js",
                     "/lib/IceGrid.js", "/lib/IceGrid.min.js",];
-                    
+
     var libraryMaps = libraries.map(
         function(f)
         {
@@ -308,7 +308,7 @@ function Init()
         httpsServer.listen(9090, this._host);
         console.log("listening on ports 8080 (http) and 9090 (https)...");
     };
-    
+
     new HttpServer("0.0.0.0", [8080, 9090]).start();
 }
 
