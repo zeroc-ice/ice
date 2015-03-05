@@ -14,10 +14,7 @@ include $(top_srcdir)/config/Make.rules
 SUBDIRS		= config src include
 
 ifneq ($(MAKECMDGOALS),install)
-    SUBDIRS		:= $(SUBDIRS) test
-    ifneq ($(GEMBUILD),yes)
-        SUBDIRS		:= $(SUBDIRS) demo
-    endif
+    SUBDIRS		:= $(SUBDIRS) test demo
 endif
 
 INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir)$(cpp11libdirsuffix) $(install_includedir) \

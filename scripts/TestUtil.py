@@ -1696,6 +1696,8 @@ def createConfig(path, lines, enc=None):
 
 def getCppBinDir(lang = None):
     binDir = os.path.join(getIceDir("cpp"), "bin")
+    if isMINGW() and x64:
+        binDir = os.path.join(binDir, "x64")
     if iceHome:
         if lang == None:
             lang = getDefaultMapping()
@@ -1713,7 +1715,10 @@ def getCppBinDir(lang = None):
     return binDir
 
 def getSliceTranslator(lang = "cpp"):
-    return os.path.join((iceHome if iceHome else getIceDir("cpp")) , "bin", "slice2%s" % lang)
+    if iceHome:
+        return os.path.join(iceHome, "bin", "slice2%s" % lang)
+    else:
+        return os.path.join(getCppBinDir(), ("slice2%s" % lang))
 
 def getCppLibDir(lang = None):
     if isWin32():

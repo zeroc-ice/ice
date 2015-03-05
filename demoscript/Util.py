@@ -249,6 +249,8 @@ def configurePaths():
         sys.stdout.write("]\n")
 
     binDir = os.path.join(getIceDir("cpp"), "bin")
+    if isMINGW() and x64:
+        binDir = os.path.join(binDir, "x64")
 
     # Always add the bin directory to the PATH, it contains executable
     # which might not be in the compiler/arch bin sub-directory.
@@ -368,6 +370,13 @@ def isBinDist():
 
 def isWin32():
     return sys.platform == "win32"
+
+def isMINGW():
+    if not isWin32():
+        return False
+    # Ruby Installer DEVKIT sets the RI_DEVKIT environment variable,
+    # we check for this variable to detect the Ruby MINGW environment.
+    return "RI_DEVKIT" in os.environ
 
 def isCompactFramework():
     return isWin32() and ("COMPACT" in os.environ and os.environ["COMPACT"] == "yes")
