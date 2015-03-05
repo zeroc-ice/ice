@@ -50,6 +50,7 @@ tests = [
     ("Ice/slicing/exceptions", ["core"]),
     ("Ice/slicing/objects", ["core"]),
     ("Ice/timeout", ["core"]),
+    ("Ice/number", ["once"]),
     ("Glacier2/router", ["service"]),
     ]
 

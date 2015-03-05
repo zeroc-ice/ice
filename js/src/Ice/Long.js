@@ -17,6 +17,15 @@ var Ice = require("../Ice/Class").Ice;
 var Long = Ice.Class({
     __init__: function(high, low)
     {
+        if(low < 0 || low > Long.MAX_UINT32)
+        {
+            throw new RangeError("Low word must be between 0 and 0xFFFFFFFF");
+        }
+        if(high < 0 || high > Long.MAX_UINT32)
+        {
+            throw new RangeError("High word must be between 0 and 0xFFFFFFFF");
+        }
+        
         this.high = high;
         this.low = low;
     },
@@ -42,24 +51,22 @@ var Long = Ice.Class({
     },
     toNumber: function()
     {
+
         if((this.high & Long.SIGN_MASK) !== 0)
         {
-            var low = ~this.low;
-            var high = ~this.high;
-            if(low < 0xFFFFFFFF)
+            if(this.high === Long.MAX_UINT32 && this.low !== 0)
             {
-                low += 1;
+                return -(~this.low + 1);
             }
-            else
+ 
+            var high = ~this.high + 1;
+
+            if(high > Long.HIGH_MAX)
             {
-                low = 0;
-                high += 1;
-                if(high > Long.HIGH_MAX)
-                {
-                    return Number.NEGATIVE_INFINITY;
-                }
+                return Number.NEGATIVE_INFINITY;
             }
-            return -1 * (high * Long.HIGH_MASK) + low;
+
+            return -1 * (high * Long.HIGH_MASK) + this.low;
         }
         else
         {
@@ -71,6 +78,11 @@ var Long = Ice.Class({
         }
     }
 });
+
+//
+// 2^32
+// 
+Long.MAX_UINT32 = 0xFFFFFFFF;
 
 //
 // (high & SIGN_MASK) != 0 denotes a negative number;

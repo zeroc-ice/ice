@@ -28,7 +28,7 @@ module.exports = function(gulp) {
         "Ice/exceptionsBidir", "Ice/facets", "Ice/facetsBidir", "Ice/hold", "Ice/inheritance",
         "Ice/inheritanceBidir", "Ice/location", "Ice/objects", "Ice/operations", "Ice/operationsBidir",
         "Ice/optional", "Ice/optionalBidir", "Ice/promise", "Ice/properties", "Ice/proxy", "Ice/retry",
-        "Ice/slicing/exceptions", "Ice/slicing/objects", "Ice/timeout", "Glacier2/router"],
+        "Ice/slicing/exceptions", "Ice/slicing/objects", "Ice/timeout", "Ice/number", "Glacier2/router"],
         demo: ["Ice/hello", "Ice/throughput", "Ice/minimal", "Ice/latency", "Ice/bidir", "Glacier2/chat",
         "ChatDemo"]
     };
