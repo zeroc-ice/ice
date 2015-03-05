@@ -31,17 +31,17 @@ apply from: "$rootProject.projectDir/gradle/library.gradle"
 // to the buildSrc gradle file.
 task installSlicePlugin(type: Copy) {
     from "${rootProject.projectDir}/buildSrc/build/libs/buildSrc.jar"
-    into "${DESTDIR}${prefix}/lib"
+    into "${DESTDIR}${jarDir}"
     rename { "ice-gradle-plugin-${project.version}.jar" }
 }
 task installSlicePluginSources(type: Copy) {
     from "${rootProject.projectDir}/buildSrc/build/libs/buildSrc-source.jar"
-    into "${DESTDIR}${prefix}/lib"
+    into "${DESTDIR}${jarDir}"
     rename { "ice-gradle-plugin-${project.version}-source.jar" }
 }
 task installSlicePluginPom(type: Copy) {
     from "${rootProject.projectDir}/buildSrc/buildSrc.pom"
-    into "${DESTDIR}${prefix}/lib"
+    into "${DESTDIR}${jarDir}"
     rename { "ice-gradle-plugin-${project.version}.pom" }
 }
 install.dependsOn(installSlicePlugin)

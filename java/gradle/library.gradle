@@ -44,5 +44,5 @@ task install(type: Copy, dependsOn: jarSources, overwrite: true) {
 	from "${pomName}"
     from "${libDir}/${jar.archiveName}"
     from "${libDir}/${project.name}-${project.version}-source.jar"
-    into "${DESTDIR}${prefix}/lib"
+    into "${DESTDIR}${jarDir}"
 }

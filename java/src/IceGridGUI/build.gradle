@@ -138,7 +138,7 @@ if(macosx)
 
     task copyBundle(type: Copy, dependsOn: bundleapp) {
         from "${libDir}/${appName}.app"
-        into "${DESTDIR}${prefix}/bin/${appName}.app"
+        into "${DESTDIR}${binDir}/${appName}.app"
     }
 }
 
@@ -149,7 +149,7 @@ clean {
 
 task copyJars(type: Copy, dependsOn: updateManifest) {
     from new File("${libDir}/${jarName}")
-    into "${DESTDIR}${prefix}/lib"
+    into "${DESTDIR}${jarDir}"
 }
 
 task install(dependsOn: copyJars)

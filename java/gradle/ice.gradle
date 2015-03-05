@@ -41,13 +41,23 @@ if (System.properties['os.name'].toLowerCase().contains('windows')) {
     }
 }
 
-// Set the install prefix to defaults if not already set
+
 if (prefix == null || prefix.length() == 0) {
+    // If the prefix isn't set use these default locations.
     if (isWindows) {
         prefix = "C:\\Ice-${project.version}"
     } else {
         prefix = "/opt/Ice-${project.version}"
     }
+}
+
+// Installation location for jar/pom & executables.
+if (prefix.startsWith("/usr") || prefix.startsWith("/usr/local")) {
+    ext.jarDir = prefix + "/share/java"
+    ext.binDir = prefix + "/bin"
+} else {
+    ext.jarDir = prefix + "/lib"
+    ext.binDir = prefix + "/bin"
 }
 
 // First check if ICE_HOME is set and it points at a valid installation
