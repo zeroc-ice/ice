@@ -553,8 +553,8 @@ setState(State.Disconnected);
 
 function formatDate(timestamp)
 {
-    var d = new Date();
-    d.setTime(timestamp);
+    var d = new Date(0);
+    d.setUTCMilliseconds(timestamp);
     return d.toLocaleTimeString().trim();
 }
 

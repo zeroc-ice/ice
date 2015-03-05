@@ -341,9 +341,9 @@ var Buffer = Ice.Class({
             throw new Error(__BufferUnderflowException__);
         }
         var v = new Long();
-        v.low = this.v.getInt32(this._position, true);
+        v.low = this.v.getUint32(this._position, true);
         this._position += 4;
-        v.high = this.v.getInt32(this._position, true);
+        v.high = this.v.getUint32(this._position, true);
         this._position += 4;
         return v;
     },
