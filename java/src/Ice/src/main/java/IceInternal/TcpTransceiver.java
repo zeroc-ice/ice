@@ -89,8 +89,11 @@ final class TcpTransceiver implements Transceiver
                 info.remoteAddress = socket.getInetAddress().getHostAddress();
                 info.remotePort = socket.getPort();
             }
-            info.rcvSize = Network.getRecvBufferSize(_stream.fd());
-            info.sndSize = Network.getSendBufferSize(_stream.fd());
+            if(!socket.isClosed())
+            {
+                info.rcvSize = Network.getRecvBufferSize(_stream.fd());
+                info.sndSize = Network.getSendBufferSize(_stream.fd());
+            }
         }
         return info;
     }

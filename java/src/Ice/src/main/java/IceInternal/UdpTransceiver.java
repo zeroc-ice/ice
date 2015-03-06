@@ -315,8 +315,11 @@ final class UdpTransceiver implements Transceiver
                     info.remotePort = socket.getPort();
                 }
             }
-            info.rcvSize = Network.getRecvBufferSize(_fd);
-            info.sndSize = Network.getSendBufferSize(_fd);
+            if(!socket.isClosed())
+            {
+                info.rcvSize = Network.getRecvBufferSize(_fd);
+                info.sndSize = Network.getSendBufferSize(_fd);
+            }
         }
         if(_mcastAddr != null)
         {

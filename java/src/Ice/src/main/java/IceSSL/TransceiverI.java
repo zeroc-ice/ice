@@ -312,8 +312,11 @@ final class TransceiverI implements IceInternal.Transceiver
                 info.remotePort = socket.getPort();
             }
 
-            info.rcvSize = IceInternal.Network.getRecvBufferSize(_stream.fd());
-            info.sndSize = IceInternal.Network.getSendBufferSize(_stream.fd());
+            if(!socket.isClosed())
+            {
+                info.rcvSize = IceInternal.Network.getRecvBufferSize(_stream.fd());
+                info.sndSize = IceInternal.Network.getSendBufferSize(_stream.fd());
+            }
 
             SSLSession session = _engine.getSession();
             info.cipher = session.getCipherSuite();
