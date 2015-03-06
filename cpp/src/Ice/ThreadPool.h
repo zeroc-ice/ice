@@ -165,6 +165,9 @@ private:
     bool _ioCompleted;
 #if !defined(ICE_USE_IOCP) && !defined(ICE_OS_WINRT)
     bool _leader;
+#else
+    DWORD _count;
+    int _error;
 #endif
     friend class ThreadPool;
 };    

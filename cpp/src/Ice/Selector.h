@@ -92,7 +92,7 @@ public:
     void update(EventHandler*, SocketOperation, SocketOperation);
     void finish(EventHandler*);
 
-    EventHandler* getNextHandler(SocketOperation&, int);
+    EventHandler* getNextHandler(SocketOperation&, DWORD&, int&, int);
 
     HANDLE getIOCPHandle() { return _handle; } 
     
