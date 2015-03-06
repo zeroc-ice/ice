@@ -134,7 +134,6 @@ ifneq ($(embedded_runpath_prefix),)
    runpath_libdir	:= $(embedded_runpath_prefix)/$(libsubdir)
 endif
 
-CPPFLAGS		=
 ICECPPFLAGS		= -I$(slicedir)
 SLICE2PYFLAGS		= $(ICECPPFLAGS)
 LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)

@@ -247,7 +247,6 @@ public:
     ServerInstanceHelper(const ServerInstanceDescriptor&, const Resolver&, bool);
     ServerInstanceHelper(const ServerDescriptorPtr&, const Resolver&, bool);
     
-    void operator=(const ServerInstanceHelper&);
     bool operator==(const ServerInstanceHelper&) const;
     bool operator!=(const ServerInstanceHelper&) const;
 
@@ -265,7 +264,7 @@ private:
 
     void init(const ServerDescriptorPtr&, const Resolver&, bool);
 
-    const ServerInstanceDescriptor _def;
+    ServerInstanceDescriptor _def;
     std::string _id;
     ServerInstanceDescriptor _instance;
 

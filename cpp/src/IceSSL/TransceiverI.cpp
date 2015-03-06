@@ -25,6 +25,11 @@
 #include <openssl/err.h>
 #include <openssl/bio.h>
 
+// Ignore OS X OpenSSL deprecation warnings
+#ifdef __APPLE__
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace IceSSL;
