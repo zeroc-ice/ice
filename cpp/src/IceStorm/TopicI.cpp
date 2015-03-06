@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <IceUtil/DisableWarnings.h>
-#include <Freeze/Freeze.h>
 #include <IceStorm/TopicI.h>
 #include <IceStorm/Instance.h>
 #include <IceStorm/Subscriber.h>
@@ -361,6 +360,7 @@ TopicImpl::TopicImpl(
     const Ice::Identity& id,
     const SubscriberRecordSeq& subscribers) :
     _instance(instance),
+    _connection(Freeze::createConnection(instance->communicator(), instance->serviceName())),
     _name(name),
     _id(id),
     _destroyed(false)
@@ -573,19 +573,18 @@ TopicImpl::subscribeAndGetPublisher(const QoS& qos, const Ice::ObjectPrx& obj)
     {
         try
         {
-            ConnectionPtr connection = Freeze::createConnection(_instance->communicator(), _instance->serviceName());
-            TransactionHolder txn(connection);
+            TransactionHolder txn(_connection);
 
             SubscriberRecordKey key;
             key.topic = _id;
             key.id = subscriber->id();
 
-            SubscriberMap subscriberMap(connection, subscriberDbName);
+            SubscriberMap subscriberMap(_connection, subscriberDbName);
             subscriberMap.put(SubscriberMap::value_type(key, record));
 
-            llu = getLLU(connection);
+            llu = getLLU(_connection);
             llu.iteration++;
-            putLLU(connection, llu);
+            putLLU(_connection, llu);
 
             txn.commit();
             break;
@@ -696,19 +695,18 @@ TopicImpl::link(const TopicPrx& topic, Ice::Int cost)
     {
         try
         {
-            ConnectionPtr connection = Freeze::createConnection(_instance->communicator(), _instance->serviceName());
-            TransactionHolder txn(connection);
+            TransactionHolder txn(_connection);
 
             SubscriberRecordKey key;
             key.topic = _id;
             key.id = id;
 
-            SubscriberMap subscriberMap(connection, subscriberDbName);
+            SubscriberMap subscriberMap(_connection, subscriberDbName);
             subscriberMap.put(SubscriberMap::value_type(key, record));
 
-            llu = getLLU(connection);
+            llu = getLLU(_connection);
             llu.iteration++;
-            putLLU(connection, llu);
+            putLLU(_connection, llu);
 
             txn.commit();
             break;
@@ -1119,18 +1117,17 @@ TopicImpl::observerAddSubscriber(const LogUpdate& llu, const SubscriberRecord& r
     {
         try
         {
-            ConnectionPtr connection = Freeze::createConnection(_instance->communicator(), _instance->serviceName());
-            TransactionHolder txn(connection);
+            TransactionHolder txn(_connection);
 
             SubscriberRecordKey key;
             key.topic = _id;
             key.id = subscriber->id();
 
-            SubscriberMap subscriberMap(connection, subscriberDbName);
+            SubscriberMap subscriberMap(_connection, subscriberDbName);
             subscriberMap.put(SubscriberMap::value_type(key, record));
 
             // Update the LLU.
-            putLLU(connection, llu);
+            putLLU(_connection, llu);
 
             txn.commit();
             break;
@@ -1187,8 +1184,7 @@ TopicImpl::observerRemoveSubscriber(const LogUpdate& llu, const Ice::IdentitySeq
     {
         try
         {
-            ConnectionPtr connection = Freeze::createConnection(_instance->communicator(), _instance->serviceName());
-            TransactionHolder txn(connection);
+            TransactionHolder txn(_connection);
 
             for(Ice::IdentitySeq::const_iterator id = ids.begin(); id != ids.end(); ++id)
             {
@@ -1196,10 +1192,10 @@ TopicImpl::observerRemoveSubscriber(const LogUpdate& llu, const Ice::IdentitySeq
                 key.topic = _id;
                 key.id = *id;
 
-                SubscriberMap subscriberMap(connection, subscriberDbName);
+                SubscriberMap subscriberMap(_connection, subscriberDbName);
                 subscriberMap.erase(key);
             }
-            putLLU(connection, llu);
+            putLLU(_connection, llu);
             txn.commit();
             break;
         }
@@ -1280,11 +1276,10 @@ TopicImpl::destroyInternal(const LogUpdate& origLLU, bool master)
     {
         try
         {
-            ConnectionPtr connection = Freeze::createConnection(_instance->communicator(), _instance->serviceName());
-            TransactionHolder txn(connection);
+            TransactionHolder txn(_connection);
 
             // Erase all subscriber records and the topic record.
-            SubscriberMap subscriberMap(connection, subscriberDbName);
+            SubscriberMap subscriberMap(_connection, subscriberDbName);
 
             IceStorm::SubscriberRecordKey key;
             key.topic = _id;
@@ -1297,14 +1292,14 @@ TopicImpl::destroyInternal(const LogUpdate& origLLU, bool master)
             // Update the LLU.
             if(master)
             {
-                llu = getLLU(connection);
+                llu = getLLU(_connection);
                 llu.iteration++;
             }
             else
             {
                 llu = origLLU;
             }
-            putLLU(connection, llu);
+            putLLU(_connection, llu);
 
             txn.commit();
             break;
@@ -1361,8 +1356,7 @@ TopicImpl::removeSubscribers(const Ice::IdentitySeq& ids)
     {
         try
         {
-            ConnectionPtr connection = Freeze::createConnection(_instance->communicator(), _instance->serviceName());
-            TransactionHolder txn(connection);
+            TransactionHolder txn(_connection);
 
             for(Ice::IdentitySeq::const_iterator id = ids.begin(); id != ids.end(); ++id)
             {
@@ -1370,13 +1364,13 @@ TopicImpl::removeSubscribers(const Ice::IdentitySeq& ids)
                 key.topic = _id;
                 key.id = *id;
 
-                SubscriberMap subscriberMap(connection, subscriberDbName);
+                SubscriberMap subscriberMap(_connection, subscriberDbName);
                 subscriberMap.erase(key);
             }
 
-            llu = getLLU(connection);
+            llu = getLLU(_connection);
             llu.iteration++;
-            putLLU(connection, llu);
+            putLLU(_connection, llu);
 
             txn.commit();
             break;

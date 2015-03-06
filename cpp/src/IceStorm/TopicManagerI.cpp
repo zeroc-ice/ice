@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <IceUtil/DisableWarnings.h>
-#include <Freeze/Freeze.h>
 #include <IceStorm/TopicManagerI.h>
 #include <IceStorm/TopicI.h>
 #include <IceStorm/TraceLevels.h>
@@ -294,7 +293,8 @@ nameToIdentity(const InstancePtr& instance, const string& name)
 }
 
 TopicManagerImpl::TopicManagerImpl(const InstancePtr& instance) :
-    _instance(instance)
+    _instance(instance),
+    _connection(Freeze::createConnection(instance->communicator(), instance->serviceName()))
 {
     try
     {
@@ -321,14 +321,14 @@ TopicManagerImpl::TopicManagerImpl(const InstancePtr& instance) :
             _sync = _instance->nodeAdapter()->addWithUUID(_syncImpl);
         }
 
-        ConnectionPtr connection = Freeze::createConnection(_instance->communicator(), _instance->serviceName());
+        
 
         // Ensure that the llu counter is present in the log.
         LogUpdate empty = {0, 0};
-        putLLU(connection, empty);
+        putLLU(_connection, empty);
 
         // Recreate each of the topics.
-        SubscriberMap subscriberMap(connection, subscriberDbName);
+        SubscriberMap subscriberMap(_connection, subscriberDbName);
         SubscriberMap::const_iterator p = subscriberMap.begin();
         while(p != subscriberMap.end())
         {
@@ -387,8 +387,7 @@ TopicManagerImpl::create(const string& name)
     {
         try
         {
-            ConnectionPtr connection = Freeze::createConnection(_instance->communicator(), _instance->serviceName());
-            TransactionHolder txn(connection);
+            TransactionHolder txn(_connection);
 
             SubscriberRecordKey key;
             key.topic = id;
@@ -396,12 +395,12 @@ TopicManagerImpl::create(const string& name)
             rec.link = false;
             rec.cost = 0;
 
-            SubscriberMap subscriberMap(connection, subscriberDbName);
+            SubscriberMap subscriberMap(_connection, subscriberDbName);
             subscriberMap.put(SubscriberMap::value_type(key, rec));
 
-            llu = getLLU(connection);
+            llu = getLLU(_connection);
             llu.iteration++;
-            putLLU(connection, llu);
+            putLLU(_connection, llu);
 
             txn.commit();
             break;
@@ -490,12 +489,11 @@ TopicManagerImpl::observerInit(const LogUpdate& llu, const TopicContentSeq& cont
     {
         try
         {
-            ConnectionPtr connection = Freeze::createConnection(_instance->communicator(), _instance->serviceName());
-            TransactionHolder txn(connection);
+            TransactionHolder txn(_connection);
 
-            putLLU(connection, llu);
+            putLLU(_connection, llu);
 
-            SubscriberMap subscriberMap(connection, subscriberDbName);
+            SubscriberMap subscriberMap(_connection, subscriberDbName);
             subscriberMap.clear();
 
             for(TopicContentSeq::const_iterator p = content.begin(); p != content.end(); ++p)
@@ -593,8 +591,7 @@ TopicManagerImpl::observerCreateTopic(const LogUpdate& llu, const string& name)
     {
         try
         {
-            ConnectionPtr connection = Freeze::createConnection(_instance->communicator(), _instance->serviceName());
-            TransactionHolder txn(connection);
+            TransactionHolder txn(_connection);
 
             SubscriberRecordKey key;
             key.topic = id;
@@ -602,14 +599,14 @@ TopicManagerImpl::observerCreateTopic(const LogUpdate& llu, const string& name)
             rec.link = false;
             rec.cost = 0;
 
-            SubscriberMap subscriberMap(connection, subscriberDbName);
+            SubscriberMap subscriberMap(_connection, subscriberDbName);
             if(subscriberMap.find(key) != subscriberMap.end())
             {
                 throw ObserverInconsistencyException("topic exists: " + name);
             }
             subscriberMap.put(SubscriberMap::value_type(key, rec));
 
-            putLLU(connection, llu);
+            putLLU(_connection, llu);
 
             txn.commit();
             break;
@@ -685,8 +682,6 @@ TopicManagerImpl::getContent(LogUpdate& llu, TopicContentSeq& content)
         reap(); 
     }
 
-    ConnectionPtr connection = Freeze::createConnection(_instance->communicator(), _instance->serviceName());
-
     for(;;)
     {
         try
@@ -697,7 +692,7 @@ TopicManagerImpl::getContent(LogUpdate& llu, TopicContentSeq& content)
                 TopicContent rec = p->second->getContent();
                 content.push_back(rec);
             }
-            llu = getLLU(connection);
+            llu = getLLU(_connection);
             break;
         }
         catch(const DeadlockException&)
@@ -714,13 +709,11 @@ TopicManagerImpl::getContent(LogUpdate& llu, TopicContentSeq& content)
 LogUpdate
 TopicManagerImpl::getLastLogUpdate() const
 {
-    ConnectionPtr connection = Freeze::createConnection(_instance->communicator(), _instance->serviceName());
-
     for(;;)
     {
         try
         {
-            return getLLU(connection);
+            return getLLU(_connection);
         }
         catch(const DeadlockException&)
         {
@@ -771,15 +764,14 @@ TopicManagerImpl::initMaster(const set<GroupNodeInfo>& slaves, const LogUpdate& 
         {
             content.clear();
 
-            ConnectionPtr connection = Freeze::createConnection(_instance->communicator(), _instance->serviceName());
-            TransactionHolder txn(connection);
+            TransactionHolder txn(_connection);
 
             for(map<string, TopicImplPtr>::const_iterator p = _topics.begin(); p != _topics.end(); ++p)
             {
                 TopicContent rec = p->second->getContent();
                 content.push_back(rec);
             }
-            putLLU(connection, llu);
+            putLLU(_connection, llu);
             txn.commit();
             break;
         }

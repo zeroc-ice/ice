@@ -14,6 +14,7 @@
 #include <IceStorm/Election.h>
 #include <IceStorm/Instrumentation.h>
 #include <Ice/ObserverHelper.h>
+#include <Freeze/Freeze.h>
 #include <list>
 
 namespace IceStorm
@@ -77,6 +78,7 @@ private:
     //
     const Ice::ObjectPrx _publisherReplicaProxy;
     const InstancePtr _instance;
+    const Freeze::ConnectionPtr _connection;
     const std::string _name; // The topic name
     const Ice::Identity _id; // The topic identity
     const std::string _envName;

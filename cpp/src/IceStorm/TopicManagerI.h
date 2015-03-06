@@ -16,6 +16,8 @@
 #include <IceStorm/Election.h>
 #include <IceStorm/Instrumentation.h>
 
+#include <Freeze/Freeze.h>
+
 #include <IceUtil/RecMutex.h>
 
 namespace IceStorm
@@ -80,6 +82,7 @@ private:
                           const IceStorm::SubscriberRecordSeq& = IceStorm::SubscriberRecordSeq());
 
     const InstancePtr _instance;
+    const Freeze::ConnectionPtr _connection;
 
     std::map<std::string, TopicImplPtr> _topics;
 
