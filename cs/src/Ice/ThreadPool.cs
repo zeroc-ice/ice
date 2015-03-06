@@ -389,11 +389,8 @@ namespace IceInternal
             try
             {
                 Debug.Assert(!_destroyed);
-                if(_workItems.Count == 0)
-                {
-                    _m.Notify();
-                }
                 _workItems.Enqueue(workItem);
+                _m.Notify();
 
                 //
                 // If this is a dynamic thread pool which can still grow and if all threads are
