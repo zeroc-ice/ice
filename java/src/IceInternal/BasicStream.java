@@ -62,7 +62,7 @@ public class BasicStream
         _unlimited = unlimited;
 
         _startSeq = -1;
-        _sizePos = -1;
+        _sizeStack = null;
     }
 
     //
@@ -155,9 +155,9 @@ public class BasicStream
         other._minSeqSize = _minSeqSize;
         _minSeqSize = tmpMinSeqSize;
 
-        int tmpSizePos = other._sizePos;
-        other._sizePos = _sizePos;
-        _sizePos = tmpSizePos;
+        java.util.Deque<Integer> tmpSizeStack = other._sizeStack;
+        other._sizeStack = _sizeStack;
+        _sizeStack = tmpSizeStack;
     }
 
     public void
@@ -715,16 +715,20 @@ public class BasicStream
     public void
     startSize()
     {
-        _sizePos = _buf.b.position();
+        if(_sizeStack == null)
+        {
+            _sizeStack = new java.util.ArrayDeque<Integer>();
+        }
+        _sizeStack.push(_buf.b.position());
         writeInt(0); // Placeholder for 32-bit size
     }
 
     public void
     endSize()
     {
-        assert(_sizePos >= 0);
-        rewriteInt(_buf.b.position() - _sizePos - 4, _sizePos);
-        _sizePos = -1;
+        assert(!_sizeStack.isEmpty());
+        int sizePos = _sizeStack.pop();
+        rewriteInt(_buf.b.position() - sizePos - 4, sizePos);
     }
 
     public void
@@ -2779,6 +2783,7 @@ public class BasicStream
     private Object _closure;
     private byte[] _stringBytes; // Reusable array for reading strings.
     private char[] _stringChars; // Reusable array for reading strings.
+    private java.util.Deque<Integer> _sizeStack;
 
     private enum SliceType { NoSlice, ObjectSlice, ExceptionSlice }
 
@@ -4617,8 +4622,6 @@ public class BasicStream
 
     private int _startSeq;
     private int _minSeqSize;
-
-    private int _sizePos;
 
     private static final int OPTIONAL_END_MARKER            = 0xFF;
 

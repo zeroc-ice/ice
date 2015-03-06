@@ -136,7 +136,7 @@ namespace IceInternal
             _unlimited = unlimited;
 
             _startSeq = -1;
-            _sizePos = -1;
+            _sizeStack = null;
         }
 
         //
@@ -223,9 +223,9 @@ namespace IceInternal
             other._minSeqSize = _minSeqSize;
             _minSeqSize = tmpMinSeqSize;
 
-            int tmpSizePos = other._sizePos;
-            other._sizePos = _sizePos;
-            _sizePos = tmpSizePos;
+            Stack<int> tmpSizeStack = other._sizeStack;
+            other._sizeStack = _sizeStack;
+            _sizeStack = tmpSizeStack;
         }
 
         public void resetEncaps()
@@ -733,15 +733,19 @@ namespace IceInternal
 
         public void startSize()
         {
-            _sizePos = _buf.b.position();
+            if(_sizeStack == null)
+            {
+                _sizeStack = new Stack<int>();
+            }
+            _sizeStack.Push(_buf.b.position());
             writeInt(0); // Placeholder for 32-bit size
         }
 
         public void endSize()
         {
-            Debug.Assert(_sizePos >= 0);
-            rewriteInt(_buf.b.position() - _sizePos - 4, _sizePos);
-            _sizePos = -1;
+            Debug.Assert(_sizeStack.Count > 0);
+            int sizePos = _sizeStack.Pop();
+            rewriteInt(_buf.b.position() - sizePos - 4, sizePos);
         }
 
         public void writeBlob(byte[] v)
@@ -3582,6 +3586,7 @@ namespace IceInternal
         private Buffer _buf;
         private object _closure;
         private byte[] _stringBytes; // Reusable array for reading strings.
+        private Stack<int> _sizeStack;
 
         private enum SliceType { NoSlice, ObjectSlice, ExceptionSlice }
 
@@ -5409,8 +5414,6 @@ namespace IceInternal
 
         private int _startSeq;
         private int _minSeqSize;
-
-        private int _sizePos;
 
         private const byte OPTIONAL_END_MARKER           = 0xFF;
 
