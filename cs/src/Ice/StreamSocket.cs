@@ -574,7 +574,7 @@ namespace IceInternal
             _writeEventArgs = new SocketAsyncEventArgs();
             _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
 #  if SILVERLIGHT
-            String policy = instance.properties().getProperty("Ice.ClientAccessPolicyProtocol");
+            String policy = _instance.properties().getProperty("Ice.ClientAccessPolicyProtocol");
             if(policy.Equals("Http"))
             {
                 _readEventArgs.SocketClientAccessPolicyProtocol = SocketClientAccessPolicyProtocol.Http;
