@@ -144,21 +144,21 @@
             failCB,
             function(ex)
             {
-                test(ex instanceof Ice.MarshalException);
+                test(ex instanceof RangeError);
                 return prx.opShortIntLong(0, 0, new Ice.Long(0xFFFFFFFF + 1, 0));
             }
         ).then(
             failCB,
             function(ex)
             {
-                test(ex instanceof Ice.MarshalException);
+                test(ex instanceof RangeError);
                 return prx.opShortIntLong(0, 0, new Ice.Long(0, -1));
             }
         ).then(
             failCB,
             function(ex)
             {
-                test(ex instanceof Ice.MarshalException);
+                test(ex instanceof RangeError);
                 return prx.opShortIntLong(Number.NaN, 0, new Ice.Long(0, 0));
             }
         ).then(
