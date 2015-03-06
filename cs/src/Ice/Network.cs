@@ -459,7 +459,10 @@ namespace IceInternal
         public static Socket createServerSocket(bool udp, AddressFamily family, int protocol)
         {
             Socket socket = createSocket(udp, family);
-#  if !COMPACT && !UNITY && !__MonoCS__ && !SILVERLIGHT
+#  if !COMPACT && !UNITY && !__MonoCS__ && !SILVERLIGHT && !DOTNET3_5
+            //
+            // The IPv6Only enumerator was added in .NET 4.
+            //
             if(family == AddressFamily.InterNetworkV6 && protocol != EnableIPv4)
             {
                 try
