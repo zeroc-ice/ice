@@ -18,11 +18,8 @@
 using namespace std;
 using namespace Slice;
 
-namespace
-{
-
 string
-normalizePath(const string& path)
+Slice::normalizePath(const string& path)
 {
     string result = path;
 
@@ -78,8 +75,6 @@ normalizePath(const string& path)
     return result;
 }
 
-}
-
 string
 Slice::fullPath(const string& path)
 {
@@ -93,51 +88,7 @@ Slice::fullPath(const string& path)
         }
     }
 
-    result = normalizePath(result);
-
-#ifdef _WIN32
-    return result;
-#else
-
-    string::size_type beg = 0;
-    string::size_type next;
-    do
-    {
-        string subpath;
-        next = result.find('/', beg + 1);
-        if(next == string::npos)
-        {
-            subpath = result;
-        }
-        else
-        {
-            subpath = result.substr(0, next);
-        }
-
-        char buf[PATH_MAX + 1];
-        int len = static_cast<int>(readlink(subpath.c_str(), buf, sizeof(buf)));
-        if(len > 0)
-        {
-            buf[len] = '\0';
-            string linkpath = buf;
-            if(!IceUtilInternal::isAbsolutePath(linkpath)) // Path relative to the location of the link
-            {
-                string::size_type pos = subpath.rfind('/');
-                assert(pos != string::npos);
-                linkpath = subpath.substr(0, pos + 1) + linkpath;
-            }
-            result = normalizePath(linkpath) + (next != string::npos ? result.substr(next) : string());
-            beg = 0;
-            next = 0;
-        }
-        else
-        {
-            beg = next;
-        }
-    }
-    while(next != string::npos);
-    return result;
-#endif
+    return normalizePath(result);
 }
 
 string
