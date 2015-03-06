@@ -89,30 +89,35 @@ final class ThreadPoolWorkQueue extends EventHandler
             throw new Ice.CommunicatorDestroyedException();
         }
         _workItems.add(item);
-        postMessage();
+        if(_workItems.size() == 1)
+        {
+            postMessage();
+        }
     }
 
     public void
     message(ThreadPoolCurrent current)
     {
-        java.nio.ByteBuffer buf = java.nio.ByteBuffer.allocate(1);
-        try
-        {
-            buf.rewind();
-            int ret = _fdIntrRead.read(buf);
-            assert(ret > 0);
-        }
-        catch(java.io.IOException ex)
-        {
-            throw new Ice.SocketException(ex);
-        }
-
         ThreadPoolWorkItem workItem = null;
         synchronized(this)
         {
             if(!_workItems.isEmpty())
             {
                 workItem = _workItems.removeFirst();
+                if(_workItems.isEmpty())
+                {
+                    java.nio.ByteBuffer buf = java.nio.ByteBuffer.allocate(1);
+                    try
+                    {
+                        buf.rewind();
+                        int ret = _fdIntrRead.read(buf);
+                        assert(ret > 0);
+                    }
+                    catch(java.io.IOException ex)
+                    {
+                        throw new Ice.SocketException(ex);
+                    }
+                }
             }
             else
             {

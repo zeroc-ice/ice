@@ -297,31 +297,21 @@ final class TransceiverI implements IceInternal.Transceiver
                 _netInput.flip();
                 SSLEngineResult result = _engine.unwrap(_netInput, _appInput);
                 _netInput.compact();
-                switch(result.getStatus())
+
+                Status status = result.getStatus();
+                if(status == Status.CLOSED)
                 {
-                case BUFFER_OVERFLOW:
-                {
-                    assert(false);
-                    break;
+                    throw new Ice.ConnectionLostException(); 
                 }
-                case BUFFER_UNDERFLOW:
+                // Android API 21 SSLEngine doesn't report underflow, so look at the absence of
+                // network data and application data to signal a network read.
+                else if(status == Status.BUFFER_UNDERFLOW || (_appInput.position() == 0 && _netInput.position() == 0))
                 {
-                    int status = readNonBlocking();
-                    if(status != IceInternal.SocketOperation.None)
+                    if(readNonBlocking() == IceInternal.SocketOperation.Read)
                     {
-                        assert(status == IceInternal.SocketOperation.Read);
                         return false;
                     }
                     continue;
-                }
-                case CLOSED:
-                {
-                    throw new Ice.ConnectionLostException();
-                }
-                case OK:
-                {
-                    break;
-                }
                 }
 
                 pos = buf.b.position();
@@ -338,16 +328,30 @@ final class TransceiverI implements IceInternal.Transceiver
                     _stats.bytesReceived(type(), buf.b.position() - pos);
                 }
             }
+
+            // If there is no more application data, do one further read to ensure
+            // that the SSLEngine has no buffered data (Android R21 and greater only).
+            if(_appInput.position() == 0)
+            {
+                _netInput.flip();
+                _engine.unwrap(_netInput, _appInput);
+                _netInput.compact();
+
+                // Don't check the status here since we may have already filled
+                // the buffer with a complete request which must be processed.
+            }
         }
         catch(SSLException ex)
         {
             throw new Ice.SecurityException("IceSSL: error during read", ex);
         }
 
+
         //
         // Return a boolean to indicate whether more data is available.
         //
-        moreData.value = _netInput.position() > 0;
+        moreData.value = _netInput.position() > 0 || _appInput.position() > 0;
+
         return true;
     }
 
@@ -534,6 +538,11 @@ final class TransceiverI implements IceInternal.Transceiver
                 }
                 case NEED_UNWRAP:
                 {
+                    if(_netInput.position() == 0 && readNonBlocking() == IceInternal.SocketOperation.Read)
+                    {
+                        return IceInternal.SocketOperation.Read;
+                    }
+                    
                     //
                     // The engine needs more data. We might already have enough data in
                     // the _netInput buffer to satisfy the engine. If not, the engine
@@ -867,9 +876,8 @@ final class TransceiverI implements IceInternal.Transceiver
                 // Copy directly into the destination buffer's backing array.
                 //
                 byte[] arr = buf.array();
-                int offset = buf.arrayOffset() + buf.position();
-                _appInput.get(arr, offset, bytesAvailable);
-                buf.position(offset + bytesAvailable);
+                _appInput.get(arr, buf.arrayOffset() + buf.position(), bytesAvailable);
+                buf.position(buf.position() + bytesAvailable);
             }
             else if(_appInput.hasArray())
             {
@@ -877,9 +885,8 @@ final class TransceiverI implements IceInternal.Transceiver
                 // Copy directly from the source buffer's backing array.
                 //
                 byte[] arr = _appInput.array();
-                int offset = _appInput.arrayOffset() + _appInput.position();
-                buf.put(arr, offset, bytesAvailable);
-                _appInput.position(offset + bytesAvailable);
+                buf.put(arr, _appInput.arrayOffset() + _appInput.position(), bytesAvailable);
+                _appInput.position(_appInput.position() + bytesAvailable);
             }
             else
             {
