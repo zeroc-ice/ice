@@ -160,8 +160,8 @@ infoAllTests(id<ICECommunicator> communicator)
             test([info.remoteAddress isEqualToString:defaultHost]);
             test([info.localAddress isEqualToString:defaultHost]);
         }
-        test(info.rcvSize == 1024);
-        test(info.sndSize == 2048);
+        test(info.rcvSize >= 1024);
+        test(info.sndSize >= 2048);
 
         ICEContext* ctx = [testIntf getConnectionInfoAsContext];
         test([[ctx objectForKey:@"incoming"] isEqualToString:@"true"]);
@@ -200,8 +200,8 @@ infoAllTests(id<ICECommunicator> communicator)
             test([info.remoteAddress isEqualToString:defaultHost]);
             test([info.localAddress isEqualToString:defaultHost]);
         }
-        test(info.rcvSize == 2048);
-        test(info.sndSize == 1024);
+        test(info.rcvSize >= 2048);
+        test(info.sndSize >= 1024);
     }
     tprintf("ok\n");
 

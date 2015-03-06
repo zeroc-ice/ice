@@ -195,8 +195,8 @@ public class AllTests : TestCommon.TestApp
 #endif
                 test(info.remoteAddress.Equals(defaultHost));
             }
-            test(info.rcvSize == 1024);
-            test(info.sndSize == 2048);
+            test(info.rcvSize >= 1024);
+            test(info.sndSize >= 2048);
 
             Dictionary<string, string> ctx = testIntf.getConnectionInfoAsContext();
             test(ctx["incoming"].Equals("true"));
@@ -239,8 +239,8 @@ public class AllTests : TestCommon.TestApp
                 test(info.localAddress.Equals(defaultHost));
 #endif
             }
-            test(info.rcvSize == 2048);
-            test(info.sndSize == 1024);
+            test(info.rcvSize >= 2048);
+            test(info.sndSize >= 1024);
         }
         WriteLine("ok");
 

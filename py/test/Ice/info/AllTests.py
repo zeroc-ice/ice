@@ -142,8 +142,8 @@ def allTests(communicator):
     if defaultHost == '127.0.0.1':
         test(info.remoteAddress == defaultHost)
         test(info.localAddress == defaultHost)
-    test(info.rcvSize == 1024)
-    test(info.sndSize == 2048)
+    test(info.rcvSize >= 1024)
+    test(info.sndSize >= 2048)
 
     ctx = testIntf.getConnectionInfoAsContext()
     test(ctx["incoming"] == "true")

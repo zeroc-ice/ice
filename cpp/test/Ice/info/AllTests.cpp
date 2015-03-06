@@ -165,8 +165,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(info->remoteAddress == defaultHost);
             test(info->localAddress == defaultHost);
         }
-        test(info->rcvSize = 1024);
-        test(info->sndSize = 2048);
+        test(info->rcvSize >= 1024);
+        test(info->sndSize >= 2048);
 
         ostringstream os;
 
@@ -212,8 +212,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(info->remoteAddress == defaultHost);
             test(info->localAddress == defaultHost);
         }
-        test(info->rcvSize = 2048);
-        test(info->sndSize = 1024);
+        test(info->rcvSize >= 2048);
+        test(info->sndSize >= 1024);
     }
     cout << "ok" << endl;
 

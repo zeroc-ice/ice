@@ -162,8 +162,8 @@ public class AllTests
                 test(info.remoteAddress.equals(defaultHost));
                 test(info.localAddress.equals(defaultHost));
             }
-            test(info.rcvSize == 1024);
-            test(info.sndSize == 2048);
+            test(info.rcvSize >= 1024);
+            test(info.sndSize >= 2048);
 
             java.util.Map<String, String> ctx = testIntf.getConnectionInfoAsContext();
             test(ctx.get("incoming").equals("true"));
@@ -202,8 +202,8 @@ public class AllTests
                 test(info.remoteAddress.equals(defaultHost));
                 test(info.localAddress.equals(defaultHost));
             }
-            test(info.rcvSize == 2048);
-            test(info.sndSize == 1024);
+            test(info.rcvSize >= 2048);
+            test(info.sndSize >= 1024);
         }
         out.println("ok");
 
