@@ -275,13 +275,15 @@ Freeze::SharedDbEnv::removeSharedMapDb(const string& dbName)
 }
 
 
-void Freeze::SharedDbEnv::__incRef()
+void 
+Freeze::SharedDbEnv::__incRef()
 {
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(refCountMutex);
     _refCount++;
 }
 
-void Freeze::SharedDbEnv::__decRef()
+void
+Freeze::SharedDbEnv::__decRef()
 {
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(refCountMutex);
     if(--_refCount == 0)

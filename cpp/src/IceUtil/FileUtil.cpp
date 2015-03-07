@@ -498,6 +498,7 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) :
 IceUtilInternal::FileLock::~FileLock()
 {
     assert(_fd > -1);
+    ::close(_fd);
     unlink(_path);
 }
 
