@@ -1068,7 +1068,7 @@ def getCommandLine(exe, config, options = "", interpreterOptions = ""):
         output.write("ruby")
         if interpreterOptions:
             output.write(" " + interpreterOptions)
-        output.write(' "%s" ' % exe)   
+        output.write(' "%s" ' % exe)
     elif config.silverlight and config.lang == "cs" and config.type == "client":
         xap = "obj/sl/%s.xap" % os.path.basename(os.getcwd())
         if os.environ.get("PROCESSOR_ARCHITECTURE") == "AMD64" or os.environ.get("PROCESSOR_ARCHITEW6432") == "":
@@ -1750,9 +1750,15 @@ def getJavaLibraryPath():
         else:
             return "-Djava.library.path=/usr/local/opt/berkeley-db53/lib "
     elif isRhel() or isSles():
-        return "-Djava.library.path=%s " % ("/usr/lib64" if x64 else "/usr/lib")
+        libpath = ("/usr/lib64" if x64 else "/usr/lib")
+        if "LD_LIBRARY_PATH" in os.environ:
+            libpath = os.environ["LD_LIBRARY_PATH"] + ":" + libpath
+        return "-Djava.library.path=%s " % libpath
     elif isUbuntu():
-        return "-Djava.library.path=%s " % ("/usr/lib/x86_64-linux-gnu" if x64 else "/usr/lib/i386-linux-gnu")
+        libpath = ("/usr/lib/x86_64-linux-gnu" if x64 else "/usr/lib/i386-linux-gnu")
+        if "LD_LIBRARY_PATH" in os.environ:
+            libpath = os.environ["LD_LIBRARY_PATH"] + ":" + libpath
+        return "-Djava.library.path=%s " % libpath
     return None
 
 def getServiceDir():
@@ -1771,7 +1777,7 @@ def getTestEnv(lang, testdir):
     #
     # Jar files from the source of binary distribution
     #
-    iceJARs = ["ice", "glacier2", "freeze", "icebox", "icestorm", "icegrid", "icepatch2", "icediscovery", 
+    iceJARs = ["ice", "glacier2", "freeze", "icebox", "icestorm", "icegrid", "icepatch2", "icediscovery",
                "icelocatordiscovery"]
     jarSuffix = "-" + iceVersion + ".jar"
 
