@@ -798,9 +798,15 @@ def getJavaLibraryPath():
         elif thirdPartyHome:
             return "-Djava.library.path=%s " % os.path.join(thirdPartyHome, "lib")
     elif isRhel() or isSles():
-        return "-Djava.library.path=%s " % ("/usr/lib64" if x64 else "/usr/lib")
+        libpath = ("/usr/lib64" if x64 else "/usr/lib")
+        if "LD_LIBRARY_PATH" in os.environ:
+            libpath = os.environ["LD_LIBRARY_PATH"] + ":" + libpath
+        return "-Djava.library.path=%s " % libpath
     elif isUbuntu():
-        return "-Djava.library.path=%s " % ("/usr/lib/x86_64-linux-gnu" if x64 else "/usr/lib/i386-linux-gnu")
+        libpath = ("/usr/lib/x86_64-linux-gnu" if x64 else "/usr/lib/i386-linux-gnu")
+        if "LD_LIBRARY_PATH" in os.environ:
+            libpath = os.environ["LD_LIBRARY_PATH"] + ":" + libpath
+        return "-Djava.library.path=%s " % libpath
     return None
 
 def addLdPath(libpath):
