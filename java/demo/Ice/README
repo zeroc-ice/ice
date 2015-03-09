@@ -1,10 +1,5 @@
 Demos in this directory:
 
-- applet
-
-  An unsigned applet that demonstrates how to use Asynchronous Method
-  Invocation (AMI) in a graphical client.
-
 - async
 
   This demo illustrates the use of Asynchronous Method Invocation

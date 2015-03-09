@@ -42,7 +42,7 @@ project(':testController').projectDir = new File('test/controller')
 
 // Map of dir->subdir for each of the demos.
 def demos = [
-	'Ice' : ['applet', 'async', 'bidir', 'callback', 'hello', 'invoke',
+	'Ice' : ['async', 'bidir', 'callback', 'hello', 'invoke',
 		 	 'interrupt', 'latency', 'minimal', 'multicast', 'nested',
 		 	 'plugin', 'properties', 'serialize','session', 'swing',
 		 	 'throughput', 'value', 'optional','context'],
