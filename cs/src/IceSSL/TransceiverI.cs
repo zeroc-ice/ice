@@ -43,7 +43,7 @@ namespace IceSSL
                     if(_proxy != null)
                     {
                         _state = StateProxyConnectRequest; // Send proxy connect request
-                        return IceInternal.SocketOperation.Write; 
+                        return IceInternal.SocketOperation.Write;
                     }
 
                     _state = StateAuthenticatePending;
@@ -261,11 +261,11 @@ namespace IceSSL
             }
         }
 
-        public bool startWrite(IceInternal.Buffer buf, IceInternal.AsyncCallback callback, object state, 
+        public bool startWrite(IceInternal.Buffer buf, IceInternal.AsyncCallback callback, object state,
                                out bool completed)
         {
             Debug.Assert(_fd != null);
-            
+
             if(_state < StateConnected)
             {
                 completed = false;
@@ -307,12 +307,12 @@ namespace IceSSL
                 _writeCallback = callback;
                 if(_stream != null)
                 {
-                    _writeResult = _stream.BeginWrite(buf.b.rawBytes(), buf.b.position(), packetSize, writeCompleted, 
+                    _writeResult = _stream.BeginWrite(buf.b.rawBytes(), buf.b.position(), packetSize, writeCompleted,
                                                       state);
                 }
                 else
                 {
-                    _writeResult = _fd.BeginSend(buf.b.rawBytes(), buf.b.position(), packetSize, SocketFlags.None, 
+                    _writeResult = _fd.BeginSend(buf.b.rawBytes(), buf.b.position(), packetSize, SocketFlags.None,
                                                  writeCompleted, state);
                 }
                 completed = packetSize == buf.b.remaining();
@@ -353,9 +353,9 @@ namespace IceSSL
                     buf.b.position(buf.size()); // Assume all the data was sent for at-most-once semantics.
                 }
                 _writeResult = null;
-                return; 
+                return;
             }
-            
+
             if(_state < StateConnected && _state != StateProxyConnectRequest)
             {
                 return;
@@ -572,7 +572,7 @@ namespace IceSSL
                     }
 
                     _writeResult = _stream.BeginAuthenticateAsServer(cert, _verifyPeer > 1, _instance.protocols(),
-                                                                     _instance.checkCRL() > 0, 
+                                                                     _instance.checkCRL() > 0,
                                                                      delegate(IAsyncResult result)
                                                                      {
                                                                          if(!result.CompletedSynchronously)
@@ -740,15 +740,7 @@ namespace IceSSL
                     int errorCount = chain.ChainStatus.Length;
                     foreach(X509ChainStatus status in chain.ChainStatus)
                     {
-                        if((certificate.Subject == certificate.Issuer) &&
-                           (status.Status == X509ChainStatusFlags.UntrustedRoot))
-                        {
-                            //
-                            // Untrusted root for self-signed certificate is OK.
-                            //
-                            --errorCount;
-                        }
-                        else if(status.Status == X509ChainStatusFlags.Revoked)
+                        if(status.Status == X509ChainStatusFlags.Revoked)
                         {
                             if(_instance.checkCRL() > 0)
                             {
@@ -857,7 +849,7 @@ namespace IceSSL
         private const int StateNeedConnect = 0;
         private const int StateConnectPending = 1;
         private const int StateProxyConnectRequest = 2;
-        private const int StateProxyConnectRequestPending = 3; 
+        private const int StateProxyConnectRequestPending = 3;
         private const int StateNeedAuthenticate = 4;
         private const int StateAuthenticatePending = 5;
         private const int StateConnected = 6;
