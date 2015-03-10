@@ -222,7 +222,7 @@ def usage():
     print(r"                              is C:\proguard")
     print("")
     print(r"  --php-home=<path>           PHP source location, default location")
-    print(r"                              is C:\php-5.6.4")
+    print(r"                              is C:\php-5.6.6")
     print("")
     print(r"  --php-bin-home=<path>       PHP binaries location, default location")
     print(r"                              is C:\Program Files (x86)\PHP")
@@ -281,8 +281,8 @@ try:
     opts, args = getopt.getopt(sys.argv[1:], "", ["help", "verbose", "php-home=", "php-bin-home=",
                                                   "skip-build", "skip-installer", "filter-languages=", 
                                                   "filter-compilers=", "filter-archs=","filter-confs=", 
-                                                  "filter-profiles=", "filter-languages=", "filter-compilers=", 
-                                                  "filter-archs=", "filter-confs=", "filter-profiles=", "sign-tool=", 
+                                                  "filter-profiles=", "filter-languages=", "rfilter-compilers=", 
+                                                  "rfilter-archs=", "rfilter-confs=", "rfilter-profiles=", "sign-tool=", 
                                                   "cert-file=", "cert-password=", "key-file=", "jar-keystore=", 
                                                   "jar-keystore-password="])
 except getopt.GetoptError as e:
@@ -349,8 +349,6 @@ demoArchive = os.path.join(iceBuildHome, "Ice-%s-demos.zip" % version)
 distFiles = os.path.join(iceBuildHome, "distfiles-%s" % version)
 
 iceInstallerFile = os.path.join(distFiles, "src", "windows" , "Ice.aip")
-pdbsInstallerFile = os.path.join(distFiles, "src", "windows" , "PDBs.aip")
-sdksInstallerFile = os.path.join(distFiles, "src", "windows" , "SDKs.aip")
 
 thirdPartyHome = getThirdpartyHome(version)
 if thirdPartyHome is None:
@@ -575,10 +573,10 @@ if not skipBuild:
 
                     if lang == "php":
                         if phpHome is None:
-                            if not os.path.exists(r"C:\php-5.6.4"):
+                            if not os.path.exists(r"C:\php-5.6.6"):
                                 print("PHP source distribution not found")
                                 sys.exit(1)
-                            phpHome = r"C:\php-5.6.4"
+                            phpHome = r"C:\php-5.6.6"
 
                         if phpBinHome is None:
                             if not os.path.exists(r"C:\Program Files (x86)\PHP"):
@@ -660,7 +658,7 @@ if not skipBuild:
 #
 # Filter files, list of files that must not be included.
 #
-filterFiles = ["slice36d.dll", "slice36d.pdb", "sliced.lib"]
+filterFiles = ["slice36d.dll", "slice36d.pdb", "sliced.lib", "slice2js.exe", "slice2py.exe", "slice2rb.exe"]
 
 if not os.path.exists(os.path.join(iceBuildHome, "installer")):
     os.makedirs(os.path.join(iceBuildHome, "installer"))
@@ -668,18 +666,15 @@ if not os.path.exists(os.path.join(iceBuildHome, "installer")):
 os.chdir(os.path.join(iceBuildHome, "installer"))
 
 installerDir = os.path.join(iceBuildHome, "installer", "Ice-%s" % version)
-pdbinstallerDir = os.path.join(iceBuildHome, "installer", "Ice-%s-PDBs" % version)
-installerdSrcDir = os.path.join(iceBuildHome, "installer", "Ice-%s-src" % version)
+installerSrcDir = os.path.join(iceBuildHome, "installer", "Ice-%s-src" % version)
 installerDemoDir = os.path.join(iceBuildHome, "installer", "Ice-%s-demos" % version)
-
 sdkInstallerDir = os.path.join(iceBuildHome, "installer", "sdk", "Ice-%s" % version)
-sdkInstallerDemoDir = os.path.join(iceBuildHome, "installer", "sdk", "Ice-%s-demos" % version)
 
-if not os.path.exists(installerdSrcDir):
-    sys.stdout.write("extracting %s to %s... " % (os.path.basename(sourceArchive), installerdSrcDir))
+if not os.path.exists(installerSrcDir):
+    sys.stdout.write("extracting %s to %s... " % (os.path.basename(sourceArchive), installerSrcDir))
     sys.stdout.flush()
     zipfile.ZipFile(sourceArchive).extractall()
-    shutil.move(installerDir, installerdSrcDir)
+    shutil.move(installerDir, installerSrcDir)
     print("ok")
 
 if not os.path.exists(installerDemoDir):
@@ -691,36 +686,9 @@ if not os.path.exists(installerDemoDir):
 if not os.path.exists(os.path.join(iceBuildHome, "installer", "sdk")):
     os.makedirs(os.path.join(iceBuildHome, "installer", "sdk"))
 
-os.chdir(os.path.join(iceBuildHome, "installer", "sdk"))
-
-if not os.path.exists(sdkInstallerDemoDir):
-    sys.stdout.write("extracting %s to %s... " % (os.path.basename(demoArchive), sdkInstallerDemoDir))
-    sys.stdout.flush()
-    zipfile.ZipFile(demoArchive).extractall()
-    print("ok")
-
-for d in [installerDir, pdbinstallerDir, sdkInstallerDir]:
+for d in [installerDir, sdkInstallerDir]:
     if not os.path.exists(d):
         os.makedirs(d)
-
-
-#
-# Remove non winrt demos from demo distribution
-#
-for root, dirnames, filenames in os.walk(sdkInstallerDemoDir):
-    for f in filenames:
-        if ((f.endswith(".sln") and f in ["demo-winrt.sln"]) or
-            (os.path.join(root, f).find("winrt\\") != -1)):
-            continue
-        os.remove(os.path.join(root, f))
-    for d in dirnames:
-        if ((d == "Ice" and os.path.join(root, d).find("cpp\\Ice") != -1) or
-            (os.path.join(root, d).find("cpp\\Ice\\winrt") != -1) or
-            (d == "Glacier2" and os.path.join(root, d).find("cpp\\Glacier2") != -1) or
-            (os.path.join(root, d).find("cpp\\Glacier2\\winrt") != -1) or 
-            (d == "cpp")):
-            continue
-        shutil.rmtree(os.path.join(root, d))
 
 for arch in ["x86", "amd64", "arm"]:
     for compiler in ["VC120"]:
@@ -743,16 +711,6 @@ for arch in ["x86", "amd64", "arm"]:
                         targetFile = relPath(installDir, sdkInstallerDir, os.path.join(root, f))
                         copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
 
-#
-# Remove winrt demos from demo distribution
-#
-for root, dirnames, filenames in os.walk(installerDemoDir):
-    for f in filenames:
-        if f in ["demo-winrt-8.1.sln"]:
-            os.remove(os.path.join(root, f))
-    for d in dirnames:
-        if d == "winrt":
-            shutil.rmtree(os.path.join(root, d))
 
 for arch in ["x86", "amd64"]:
     for compiler in ["VC110", "VC120"]:
@@ -774,9 +732,6 @@ for arch in ["x86", "amd64"]:
                             #
                             if f == "icegridgui.jar":
                                 targetFile = targetFile.replace(os.path.join(installerDir, "lib"), os.path.join(installerDir, "bin"))
-
-                            if targetFile.endswith(".pdb"):
-                                targetFile = targetFile.replace(installerDir, pdbinstallerDir)
 
                             if copyIfModified(os.path.join(root, f), targetFile, verbose = verbose):
                                 if f == "icegridgui.jar":
@@ -801,8 +756,6 @@ for arch in ["x86", "amd64"]:
                             if f in filterFiles or filterDebugFiles(f) or f in mainDistOnly:
                                 continue
                             targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                            if targetFile.endswith(".pdb"):
-                                targetFile = targetFile.replace(installerDir, pdbinstallerDir)
                             copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
 
             if compiler == "VC120" and arch == "amd64" and conf == "release":
@@ -812,8 +765,6 @@ for arch in ["x86", "amd64"]:
                             if f in filterFiles or f in mainDistOnly:
                                 continue
                             targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                            if targetFile.endswith(".pdb"):
-                                targetFile = targetFile.replace(installerDir, pdbinstallerDir)
                             copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
 
             if compiler == "VC120" and arch == "amd64" and conf == "debug":
@@ -823,8 +774,6 @@ for arch in ["x86", "amd64"]:
                             if f in filterFiles or filterDebugFiles(f) or f in mainDistOnly:
                                 continue
                             targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                            if targetFile.endswith(".pdb"):
-                                targetFile = targetFile.replace(installerDir, pdbinstallerDir)
                             copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
 
             #
@@ -841,8 +790,6 @@ for arch in ["x86", "amd64"]:
                             targetFile = relPath(installDir, installerDir, os.path.join(root, f))
                             targetFile = os.path.join(os.path.dirname(targetFile), "vc110",
                                                         os.path.basename(targetFile))
-                            if targetFile.endswith(".pdb"):
-                                targetFile = targetFile.replace(installerDir, pdbinstallerDir)
                             copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
                 #
                 # VC110 php & vsaddin
@@ -854,8 +801,6 @@ for arch in ["x86", "amd64"]:
                                 if f in filterFiles or f in mainDistOnly:
                                     continue
                                 targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                                if targetFile.endswith(".pdb"):
-                                    targetFile = targetFile.replace(installerDir, pdbinstallerDir)
                                 copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
             #
             # VC110 amd64 binaries and libaries
@@ -871,8 +816,6 @@ for arch in ["x86", "amd64"]:
                             targetFile = relPath(installDir, installerDir, os.path.join(root, f))
                             targetFile = os.path.join(os.path.dirname(os.path.dirname(targetFile)), "vc110", "x64", \
                                                         os.path.basename(targetFile))
-                            if targetFile.endswith(".pdb"):
-                                targetFile = targetFile.replace(installerDir, pdbinstallerDir)
                             copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
 
 #
@@ -901,8 +844,6 @@ for root, dirnames, filenames in os.walk(thirdPartyHome):
             targetFile.find("mingw/")):
             continue
         if os.path.splitext(f)[1] in [".exe", ".dll", ".jar", ".pdb"]:
-            if targetFile.endswith(".pdb"):
-                targetFile = targetFile.replace(installerDir, pdbinstallerDir)
             copyIfModified(os.path.join(root, f), targetFile, verbose = verbose)
 
 copyIfModified(os.path.join(thirdPartyHome, "config", "openssl.cnf"),
@@ -951,31 +892,13 @@ if not skipInstaller:
 
 
     #
-    # Build the Ice WinRT SDKs installer.
-    #
-    command = "\"%s\" /rebuild %s" % (advancedInstaller, sdksInstallerFile)
-    executeCommand(command, env)
-    sign(os.path.join(os.path.dirname(iceInstallerFile), "SDKs.msi"), "Ice WinRT SDKs %s" % version)
-    shutil.move(os.path.join(os.path.dirname(iceInstallerFile), "SDKs.msi"), \
-                                os.path.join(iceBuildHome, "Ice-WinRT-SDKs-%s.msi" % version))
-
-    #
     # Build the Ice main installer.
     #    
     command = "\"%s\" /rebuild %s" % (advancedInstaller, iceInstallerFile)
     executeCommand(command, env)
-    sign(os.path.join(os.path.dirname(iceInstallerFile), "Ice.msi"), "Ice %s" % version)
-    shutil.move(os.path.join(os.path.dirname(iceInstallerFile), "Ice.msi"), \
-                                os.path.join(iceBuildHome, "Ice-%s.msi" % version))
 
-    #
-    # Build the Ice PDBs installer.
-    #
-    command = "\"%s\" /rebuild %s" % (advancedInstaller, pdbsInstallerFile)
-    executeCommand(command, env)
-
-    sign(os.path.join(os.path.dirname(iceInstallerFile), "PDBs.msi"), "Ice PDBs %s" % version)
-    shutil.move(os.path.join(os.path.dirname(iceInstallerFile), "PDBs.msi"), \
-                                os.path.join(iceBuildHome, "Ice-PDBs-%s.msi" % version))
+    sign(os.path.join(os.path.dirname(iceInstallerFile), ("Ice-%s.exe" % version)), "Ice %s" % version)
+    sign(os.path.join(os.path.dirname(iceInstallerFile), ("Ice-%s.msi" % version)), "Ice %s" % version)
+    sign(os.path.join(os.path.dirname(iceInstallerFile), ("Ice-%s-WebInstaller.exe" % version)), "Ice %s Web Installer" % version)
 
     remove(tmpCertFile)
