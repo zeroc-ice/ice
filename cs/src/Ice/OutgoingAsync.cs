@@ -16,20 +16,6 @@ namespace IceInternal
 
     public class OutgoingAsyncBase : AsyncResultI
     {
-        public virtual bool send(Ice.ConnectionI connection, bool compress, bool response, out Ice.AsyncCallback cb)
-        {
-            Debug.Assert(false); // This should be overriden if this object is used with a request handler
-            cb = null;
-            return false; 
-        }
-
-        public virtual bool invokeCollocated(CollocatedRequestHandler handler, out Ice.AsyncCallback cb)
-        {
-            Debug.Assert(false); // This should be overriden if this object is used with a request handler
-            cb = null;
-            return false;
-        }
-
         public virtual Ice.AsyncCallback sent()
         {
             return sent(true);
@@ -40,9 +26,10 @@ namespace IceInternal
             return finished(ex);
         }
 
-        public virtual void retryException(Ice.Exception ex)
+        public virtual Ice.AsyncCallback completed()
         {
-            Debug.Assert(false);
+            Debug.Assert(false); // Must be implemented by classes that handle responses
+            return null;
         }
 
         public void attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt, int requestId)
@@ -74,6 +61,11 @@ namespace IceInternal
         public IceInternal.BasicStream getOs()
         {
             return os_;
+        }
+
+        public virtual IceInternal.BasicStream getIs()
+        {
+            return null; // Must be implemented by classes that handle responses
         }
 
         protected OutgoingAsyncBase(Ice.Communicator com, Instance instance, string op, object cookie) :
@@ -122,12 +114,16 @@ namespace IceInternal
     // correct notified of failures and make sure the retry task is
     // correctly canceled when the invocation completes.
     //
-    public class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
+    public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
     {
         public static ProxyOutgoingAsyncBase check(Ice.AsyncResult r, Ice.ObjectPrx prx, string operation)
         {
             return ProxyOutgoingAsyncBase.check<ProxyOutgoingAsyncBase>(r, prx, operation);
         }
+
+        public abstract bool invokeRemote(Ice.ConnectionI con, bool compress, bool resp, out Ice.AsyncCallback cb);
+
+        public abstract bool invokeCollocated(CollocatedRequestHandler handler, out Ice.AsyncCallback cb);
 
         public override Ice.ObjectPrx getProxy()
         {
@@ -169,7 +165,7 @@ namespace IceInternal
             }
         }
 
-        public override void retryException(Ice.Exception ex)
+        public void retryException(Ice.Exception ex)
         {
             try
             {
@@ -179,7 +175,7 @@ namespace IceInternal
                 // require could end up waiting for the flush of the
                 // connection to be done.
                 //
-                handleRetryException(ex);
+                proxy_.updateRequestHandler__(handler_, null); // Clear request handler and always retry.
                 instance_.retryQueue().add(this, 0);
             }
             catch(Ice.Exception exc)
@@ -317,9 +313,9 @@ namespace IceInternal
                         }
                         return; // We're done!
                     }
-                    catch(RetryException ex)
+                    catch(RetryException)
                     {
-                        handleRetryException(ex.get());
+                        proxy_.updateRequestHandler__(handler_, null); // Clear request handler and always retry.
                     }
                     catch(Ice.Exception ex)
                     {
@@ -347,8 +343,8 @@ namespace IceInternal
                 //
                 // If called from the user thread we re-throw, the exception
                 // will be catch by the caller and abort() will be called.
-                // 
-                if(userThread) 
+                //
+                if(userThread)
                 {
                     throw ex;
                 }
@@ -391,11 +387,6 @@ namespace IceInternal
             return base.finished(ok);
         }
 
-        protected virtual void handleRetryException(Ice.Exception exc)
-        {
-            proxy_.setRequestHandler__(handler_, null); // Clear request handler and always retry.
-        }
-
         protected virtual int handleException(Ice.Exception exc)
         {
             return proxy_.handleException__(exc, handler_, mode_, _sent, ref _cnt);
@@ -415,7 +406,7 @@ namespace IceInternal
         {
             return ProxyOutgoingAsyncBase.check<OutgoingAsync>(r, prx, operation);
         }
-        
+
         public OutgoingAsync(Ice.ObjectPrx prx, string operation, object cookie) :
             base((Ice.ObjectPrxHelperBase)prx, operation, cookie)
         {
@@ -457,31 +448,7 @@ namespace IceInternal
                 case Reference.Mode.ModeBatchOneway:
                 case Reference.Mode.ModeBatchDatagram:
                 {
-                    while(true)
-                    {
-                        try
-                        {
-                            handler_ = proxy_.getRequestHandler__();
-                            handler_.prepareBatchRequest(os_);
-                            break;
-                        }
-                        catch(RetryException)
-                        {
-                            // Clear request handler and retry.
-                            proxy_.setRequestHandler__(handler_, null);
-                        }
-                        catch(Ice.LocalException ex)
-                        {
-                            if(observer_ != null)
-                            {
-                                observer_.failed(ex.ice_name());
-                            }
-                            // Clear request handler
-                            proxy_.setRequestHandler__(handler_, null);
-                            handler_ = null;
-                            throw ex;
-                        }
-                    }
+                    proxy_.getBatchRequestQueue__().prepareBatchRequest(os_);
                     break;
                 }
             }
@@ -539,10 +506,10 @@ namespace IceInternal
             return sent(!proxy_.ice_isTwoway()); // done = true if not a two-way proxy (no response expected)
         }
 
-        public override bool send(Ice.ConnectionI con, bool compress, bool response, out Ice.AsyncCallback sentCB)
+        public override bool invokeRemote(Ice.ConnectionI con, bool compress, bool resp, out Ice.AsyncCallback sentCB)
         {
             cachedConnection_ = con;
-            return con.sendAsyncRequest(this, compress, response, out sentCB);
+            return con.sendAsyncRequest(this, compress, resp, 0, out sentCB);
         }
 
         public override bool invokeCollocated(CollocatedRequestHandler handler, out Ice.AsyncCallback sentCB)
@@ -553,7 +520,7 @@ namespace IceInternal
                 // Disable caching by marking the streams as cached!
                 state_ |= StateCachedBuffers;
             }
-            return handler.invokeAsyncRequest(this, _synchronous, out sentCB);
+            return handler.invokeAsyncRequest(this, 0, _synchronous, out sentCB);
         }
 
         public override void abort(Ice.Exception ex)
@@ -561,15 +528,7 @@ namespace IceInternal
             Reference.Mode mode = proxy_.reference__().getMode();
             if(mode == Reference.Mode.ModeBatchOneway || mode == Reference.Mode.ModeBatchDatagram)
             {
-                if(handler_ != null)
-                {
-                    //
-                    // If we didn't finish a batch oneway or datagram request, we
-                    // must notify the connection about that we give up ownership
-                    // of the batch stream.
-                    //
-                    handler_.abortBatchRequest();
-                }
+                proxy_.getBatchRequestQueue__().abortBatchRequest(os_);
             }
 
             base.abort(ex);
@@ -580,12 +539,9 @@ namespace IceInternal
             Reference.Mode mode = proxy_.reference__().getMode();
             if(mode == Reference.Mode.ModeBatchOneway || mode == Reference.Mode.ModeBatchDatagram)
             {
-                if(handler_ != null)
-                {
-                    sentSynchronously_ = true;
-                    handler_.finishBatchRequest(os_);
-                    finished(true);
-                }
+                sentSynchronously_ = true;
+                proxy_.getBatchRequestQueue__().finishBatchRequest(os_, proxy_, getOperation());
+                finished(true);
                 return; // Don't call sent/completed callback for batch AMI requests
             }
 
@@ -597,7 +553,7 @@ namespace IceInternal
             invokeImpl(true); // userThread = true
         }
 
-        public Ice.AsyncCallback completed()
+        override public Ice.AsyncCallback completed()
         {
             Debug.Assert(_is != null); // _is has been initialized prior to this call
 
@@ -800,7 +756,7 @@ namespace IceInternal
             return _is.readEncaps(out encoding);
         }
 
-        public BasicStream getIs()
+        override public BasicStream getIs()
         {
             // _is can already be initialized if the invocation is retried
             if(_is == null)
@@ -873,7 +829,7 @@ namespace IceInternal
             }
             return AsyncResultI.check<CommunicatorFlushBatch>(r, operation);
         }
-        
+
         public CommunicatorFlushBatch(Ice.Communicator communicator, Instance instance, string op, object cookie) :
             base(communicator, instance, op, cookie)
         {
@@ -897,8 +853,17 @@ namespace IceInternal
 
             try
             {
-                Ice.AsyncCallback sentCB;
-                con.flushAsyncBatchRequests(new FlushBatch(this), out sentCB);
+                Ice.AsyncCallback sentCB = null;
+                FlushBatch flush = new FlushBatch(this);
+                int batchRequestNum = con.getBatchRequestQueue().swap(flush.getOs());
+                if(batchRequestNum == 0)
+                {
+                    flush.sent();
+                }
+                else
+                {
+                    con.sendAsyncRequest(flush, false, false, batchRequestNum, out sentCB);
+                }
                 Debug.Assert(sentCB == null);
             }
             catch(Ice.LocalException ex)
@@ -960,7 +925,7 @@ namespace IceInternal
                 _outAsync.doCheck(false);
                 return null;
             }
-            
+
             public override Ice.AsyncCallback completed(Ice.Exception ex)
             {
                 if(childObserver_ != null)
@@ -972,7 +937,7 @@ namespace IceInternal
                 _outAsync.doCheck(false);
                 return null;
             }
-            
+
             protected override Ice.Instrumentation.InvocationObserver getObserver()
             {
                 return _outAsync.getObserver();
@@ -1013,14 +978,35 @@ namespace IceInternal
         {
             try
             {
+                int batchRequestNum = _connection.getBatchRequestQueue().swap(os_);
+
+                bool isSent = false;
                 Ice.AsyncCallback sentCB;
-                if(_connection.flushAsyncBatchRequests(this, out sentCB))
+                if(batchRequestNum == 0)
+                {
+                    isSent = true;
+                    sentCB = sent();
+                }
+                else
+                {
+                    isSent = _connection.sendAsyncRequest(this, false, false, batchRequestNum, out sentCB);
+                }
+
+                if(isSent)
                 {
                     sentSynchronously_ = true;
                     if(sentCB != null)
                     {
                         invokeSent(sentCB);
                     }
+                }
+            }
+            catch(RetryException ex)
+            {
+                Ice.AsyncCallback cb = completed(ex.get());
+                if(cb != null)
+                {
+                    invokeCompletedAsync(cb);
                 }
             }
             catch(Ice.Exception ex)
@@ -1043,21 +1029,32 @@ namespace IceInternal
             return ProxyOutgoingAsyncBase.check<ProxyFlushBatch>(r, prx, operation);
         }
 
-        public ProxyFlushBatch(Ice.ObjectPrxHelperBase prx, string operation, object cookie) : 
+        public ProxyFlushBatch(Ice.ObjectPrxHelperBase prx, string operation, object cookie) :
             base(prx, operation, cookie)
         {
             observer_ = ObserverHelper.get(prx, operation);
+            _batchRequestNum = prx.getBatchRequestQueue__().swap(os_);
         }
 
-        public override bool send(Ice.ConnectionI con, bool compress, bool response, out Ice.AsyncCallback sentCB)
+        public override bool invokeRemote(Ice.ConnectionI con, bool compress, bool resp, out Ice.AsyncCallback sentCB)
         {
+            if(_batchRequestNum == 0)
+            {
+                sentCB = sent();
+                return true;
+            }
             cachedConnection_ = con;
-            return con.flushAsyncBatchRequests(this, out sentCB);
+            return con.sendAsyncRequest(this, compress, false, _batchRequestNum, out sentCB);
         }
 
         public override bool invokeCollocated(CollocatedRequestHandler handler, out Ice.AsyncCallback sentCB)
         {
-            return handler.invokeAsyncBatchRequests(this, out sentCB);
+            if(_batchRequestNum == 0)
+            {
+                sentCB = sent();
+                return true;
+            }
+            return handler.invokeAsyncRequest(this, _batchRequestNum, false, out sentCB);
         }
 
         public void invoke()
@@ -1066,17 +1063,7 @@ namespace IceInternal
             invokeImpl(true); // userThread = true
         }
 
-        protected override void handleRetryException(Ice.Exception exc)
-        {
-            proxy_.setRequestHandler__(handler_, null); // Clear request handler
-            throw exc; // No retries, we want to notify the user of potentially lost batch requests
-        }
-
-        protected override int handleException(Ice.Exception exc)
-        {
-            proxy_.setRequestHandler__(handler_, null); // Clear request handler
-            throw exc; // No retries, we want to notify the user of potentially lost batch requests
-        }
+        private int _batchRequestNum;
     }
 
     public class ProxyGetConnection : ProxyOutgoingAsyncBase, Ice.AsyncResult<Ice.Callback_Object_ice_getConnection>
@@ -1086,7 +1073,7 @@ namespace IceInternal
             return ProxyOutgoingAsyncBase.check<ProxyGetConnection>(r, prx, operation);
         }
 
-        public ProxyGetConnection(Ice.ObjectPrxHelperBase prx, string operation, 
+        public ProxyGetConnection(Ice.ObjectPrxHelperBase prx, string operation,
                                   ProxyTwowayCallback<Ice.Callback_Object_ice_getConnection> cb, object cookie) :
             base(prx, operation, cookie)
         {
@@ -1094,7 +1081,7 @@ namespace IceInternal
             _completed = cb;
         }
 
-        public override bool send(Ice.ConnectionI con, bool compress, bool response, out Ice.AsyncCallback sentCB)
+        public override bool invokeRemote(Ice.ConnectionI con, bool compress, bool resp, out Ice.AsyncCallback sentCB)
         {
             sentCB = null;
             cachedConnection_ = con;
@@ -1128,7 +1115,7 @@ namespace IceInternal
             return this;
         }
 
-        virtual public Ice.AsyncResult<Ice.Callback_Object_ice_getConnection> 
+        virtual public Ice.AsyncResult<Ice.Callback_Object_ice_getConnection>
         whenCompleted(Ice.Callback_Object_ice_getConnection cb, Ice.ExceptionCallback excb)
         {
             if(cb == null && excb == null)
@@ -1256,8 +1243,8 @@ namespace IceInternal
 
         override protected Ice.AsyncCallback getCompletedCallback()
         {
-            return (Ice.AsyncResult result) => 
-            { 
+            return (Ice.AsyncResult result) =>
+            {
                 try
                 {
                     IceInternal.OutgoingAsync outAsync__ = (IceInternal.OutgoingAsync)result;

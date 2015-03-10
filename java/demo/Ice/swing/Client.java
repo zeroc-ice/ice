@@ -460,6 +460,13 @@ public class Client extends JFrame
             prx = prx.ice_invocationTimeout(timeout);
         }
         _helloPrx = Demo.HelloPrxHelper.uncheckedCast(prx);
+
+        //
+        // The batch requests associated to the proxy are lost when we
+        // update the proxy.
+        //
+        _flush.setEnabled(false);
+
         _status.setText("Ready");
     }
 
@@ -583,7 +590,12 @@ public class Client extends JFrame
 
     private void flush()
     {
-        _communicator.begin_flushBatchRequests(new Ice.Callback_Communicator_flushBatchRequests()
+        if(_helloPrx == null)
+        {
+            return;
+        }
+
+        _helloPrx.begin_ice_flushBatchRequests(new Ice.Callback_Object_ice_flushBatchRequests()
             {
                 @Override
                 public void exception(final Ice.LocalException ex)

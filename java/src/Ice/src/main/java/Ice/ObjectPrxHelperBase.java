@@ -2273,75 +2273,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final Connection
     ice_getConnection()
     {
-        final InvocationObserver observer = IceInternal.ObserverHelper.get(this, "ice_getConnection");
-        int cnt = 0;
-        if(Thread.interrupted())
-        {
-            throw new Ice.OperationInterruptedException(); 
-        }
-        try
-        {
-            while(true)
-            {
-                IceInternal.RequestHandler handler = null;
-                try
-                {
-                    handler = __getRequestHandler();
-                    try
-                    {
-                        // Wait for the connection to be established.
-                        return handler.waitForConnection();
-                    }
-                    catch(InterruptedException e)
-                    {
-                        throw new Ice.OperationInterruptedException();
-                    }
-                }
-                catch(RetryException e)
-                {
-                    // Clear request handler and retry.
-                    __setRequestHandler(handler, null);
-                }
-                catch(Ice.Exception ex)
-                {
-                    try
-                    {
-                        Ice.Holder<Integer> interval = new Ice.Holder<Integer>();
-                        cnt = __handleException(ex, handler, OperationMode.Idempotent, false, interval, cnt);
-                        if(observer != null)
-                        {
-                            observer.retried();
-                        }
-                        if(interval.value > 0)
-                        {
-                            try
-                            {
-                                Thread.sleep(interval.value);
-                            }
-                            catch(InterruptedException ex1)
-                            {
-                                throw new Ice.OperationInterruptedException();
-                            }
-                        }
-                    }
-                    catch(Ice.Exception exc)
-                    {
-                        if(observer != null)
-                        {
-                            observer.failed(exc.ice_name());
-                        }
-                        throw exc;
-                    }
-                }
-            }
-        }
-        finally
-        {
-            if(observer != null)
-            {
-                observer.detach();
-            }
-        }
+        return end_ice_getConnection(begin_ice_getConnection());
     }
 
     /**
@@ -2632,7 +2564,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     __handleException(Exception ex, IceInternal.RequestHandler handler, OperationMode mode, boolean sent,
                       Holder<Integer> interval, int cnt)
     {
-        __setRequestHandler(handler, null); // Clear the request handler
+        __updateRequestHandler(handler, null); // Clear the request handler
 
         //
         // We only retry local exception, system exceptions aren't retried.
@@ -2741,7 +2673,6 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final IceInternal.RequestHandler
     __getRequestHandler()
     {
-        IceInternal.RequestHandler handler;
         if(_reference.getCacheConnection())
         {
             synchronized(this)
@@ -2750,19 +2681,40 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                 {
                     return _requestHandler;
                 }
-                handler = _reference.getInstance().requestHandlerFactory().getRequestHandler(_reference, this);
-                _requestHandler = handler;
             }
         }
-        else
+        return _reference.getRequestHandler(this);
+    }
+
+    synchronized public final IceInternal.BatchRequestQueue
+    __getBatchRequestQueue()
+    {
+        if(_batchRequestQueue == null)
         {
-            handler = _reference.getInstance().requestHandlerFactory().getRequestHandler(_reference, this);
+            _batchRequestQueue = _reference.getBatchRequestQueue();
         }
-        return handler.connect(this);
+        return _batchRequestQueue;
+    }
+
+    public IceInternal.RequestHandler
+    __setRequestHandler(IceInternal.RequestHandler handler)
+    {
+        if(_reference.getCacheConnection())
+        {
+            synchronized(this)
+            {
+                if(_requestHandler == null)
+                {
+                    _requestHandler = handler;
+                }
+                return _requestHandler;
+            }
+        }
+        return handler;
     }
 
     public void
-    __setRequestHandler(IceInternal.RequestHandler previous, IceInternal.RequestHandler handler)
+    __updateRequestHandler(IceInternal.RequestHandler previous, IceInternal.RequestHandler handler)
     {
         if(_reference.getCacheConnection() && previous != null)
         {
@@ -3036,6 +2988,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
 
     private transient IceInternal.Reference _reference;
     private transient IceInternal.RequestHandler _requestHandler;
+    private transient IceInternal.BatchRequestQueue _batchRequestQueue;
     private transient List<StreamCacheEntry> _streamCache;
     public static final long serialVersionUID = 0L;
 }

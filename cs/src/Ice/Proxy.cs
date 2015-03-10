@@ -818,11 +818,11 @@ namespace Ice
             }
         }
 
-        private AsyncResult<Callback_Object_ice_isA> begin_ice_isA(string id, 
+        private AsyncResult<Callback_Object_ice_isA> begin_ice_isA(string id,
                                                                    Dictionary<string, string> context__,
                                                                    bool explicitCtx__,
                                                                    bool synchronous__,
-                                                                   Ice.AsyncCallback cb__, 
+                                                                   Ice.AsyncCallback cb__,
                                                                    object cookie__)
         {
             checkAsyncTwowayOnly__(__ice_isA_name);
@@ -2065,54 +2065,7 @@ namespace Ice
         /// collocated object.</exception>
         public Connection ice_getConnection()
         {
-            InvocationObserver observer = IceInternal.ObserverHelper.get(this, "ice_getConnection");
-            int cnt = 0;
-            try
-            {
-                while(true)
-                {
-                    IceInternal.RequestHandler handler = null;
-                    try
-                    {
-                        handler = getRequestHandler__();
-                        return handler.waitForConnection();
-                    }
-                    catch(IceInternal.RetryException)
-                    {
-                        setRequestHandler__(handler, null); // Clear request handler and retry.
-                    }
-                    catch(Ice.Exception ex)
-                    {
-                        try
-                        {
-                            int interval = handleException__(ex, handler, OperationMode.Idempotent, false, ref cnt);
-                            if(observer != null)
-                            {
-                                observer.retried();
-                            }
-                            if(interval > 0)
-                            {
-                                System.Threading.Thread.Sleep(interval);
-                            }
-                        }
-                        catch(Ice.Exception exc)
-                        {
-                            if(observer != null)
-                            {
-                                observer.failed(exc.ice_name());
-                            }
-                            throw exc;
-                        }
-                    }
-                }
-            }
-            finally
-            {
-                if(observer != null)
-                {
-                    observer.detach();
-                }
-            }
+            return end_ice_getConnection(begin_ice_getConnection());
         }
 
         public AsyncResult<Callback_Object_ice_getConnection> begin_ice_getConnection()
@@ -2129,7 +2082,7 @@ namespace Ice
 
         public Connection end_ice_getConnection(Ice.AsyncResult r)
         {
-            IceInternal.ProxyGetConnection outAsync = 
+            IceInternal.ProxyGetConnection outAsync =
                 IceInternal.ProxyGetConnection.check(r, this, __ice_getConnection_name);
             outAsync.wait();
             return ice_getCachedConnection();
@@ -2138,9 +2091,9 @@ namespace Ice
         private AsyncResult<Callback_Object_ice_getConnection> begin_ice_getConnectionInternal(Ice.AsyncCallback cb,
                                                                                                object cookie)
         {
-            IceInternal.ProxyGetConnection result = new IceInternal.ProxyGetConnection(this, 
-                                                                                       __ice_getConnection_name, 
-                                                                                       ice_getConnection_completed__, 
+            IceInternal.ProxyGetConnection result = new IceInternal.ProxyGetConnection(this,
+                                                                                       __ice_getConnection_name,
+                                                                                       ice_getConnection_completed__,
                                                                                        cookie);
             if(cb != null)
             {
@@ -2228,8 +2181,8 @@ namespace Ice
 
         public AsyncResult begin_ice_flushBatchRequests(Ice.AsyncCallback cb, object cookie)
         {
-            IceInternal.ProxyFlushBatch result = new IceInternal.ProxyFlushBatch(this, 
-                                                                                 __ice_flushBatchRequests_name, 
+            IceInternal.ProxyFlushBatch result = new IceInternal.ProxyFlushBatch(this,
+                                                                                 __ice_flushBatchRequests_name,
                                                                                  cookie);
             if(cb != null)
             {
@@ -2248,7 +2201,7 @@ namespace Ice
 
         public void end_ice_flushBatchRequests(Ice.AsyncResult r)
         {
-            IceInternal.ProxyFlushBatch outAsync = 
+            IceInternal.ProxyFlushBatch outAsync =
                 IceInternal.ProxyFlushBatch.check(r, this, __ice_flushBatchRequests_name);
             outAsync.wait();
         }
@@ -2319,7 +2272,7 @@ namespace Ice
         public int handleException__(Exception ex, IceInternal.RequestHandler handler, OperationMode mode, bool sent,
                                      ref int cnt)
         {
-            setRequestHandler__(handler, null); // Clear the request handler
+            updateRequestHandler__(handler, null); // Clear the request handler
 
             //
             // We only retry local exception, system exceptions aren't retried.
@@ -2423,7 +2376,6 @@ namespace Ice
 
         public IceInternal.RequestHandler getRequestHandler__()
         {
-            IceInternal.RequestHandler handler;
             if(_reference.getCacheConnection())
             {
                 lock(this)
@@ -2432,18 +2384,42 @@ namespace Ice
                     {
                         return _requestHandler;
                     }
-                    handler = _reference.getInstance().requestHandlerFactory().getRequestHandler(_reference, this);
-                    _requestHandler = handler;
                 }
             }
-            else
-            {
-                handler = _reference.getInstance().requestHandlerFactory().getRequestHandler(_reference, this);
-            }
-            return handler.connect(this);
+            return _reference.getRequestHandler(this);
         }
 
-        public void setRequestHandler__(IceInternal.RequestHandler previous, IceInternal.RequestHandler handler)
+        public IceInternal.BatchRequestQueue
+        getBatchRequestQueue__()
+        {
+            lock(this)
+            {
+                if(_batchRequestQueue == null)
+                {
+                    _batchRequestQueue = _reference.getBatchRequestQueue();
+                }
+                return _batchRequestQueue;
+            }
+        }
+
+        public IceInternal.RequestHandler
+        setRequestHandler__(IceInternal.RequestHandler handler)
+        {
+            if(_reference.getCacheConnection())
+            {
+                lock(this)
+                {
+                    if(_requestHandler == null)
+                    {
+                        _requestHandler = handler;
+                    }
+                    return _requestHandler;
+                }
+            }
+            return handler;
+        }
+
+        public void updateRequestHandler__(IceInternal.RequestHandler previous, IceInternal.RequestHandler handler)
         {
             if(_reference.getCacheConnection() && previous != null)
             {
@@ -2489,6 +2465,7 @@ namespace Ice
 
         private IceInternal.Reference _reference;
         private IceInternal.RequestHandler _requestHandler;
+        private IceInternal.BatchRequestQueue _batchRequestQueue;
         private struct StreamCacheEntry
         {
             public IceInternal.BasicStream iss;
@@ -2621,7 +2598,7 @@ namespace Ice
         }
 
 
-	/// <summary>
+        /// <summary>
         /// Returns the Slice type id of the interface or class associated
         /// with this proxy class.
         /// </summary>

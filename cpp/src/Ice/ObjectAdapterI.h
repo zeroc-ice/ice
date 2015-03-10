@@ -84,10 +84,10 @@ public:
 
     virtual EndpointSeq getEndpoints() const;
     virtual EndpointSeq getPublishedEndpoints() const;
-    
+
     bool isLocal(const ObjectPrx&) const;
 
-    void flushAsyncBatchRequests(const IceInternal::CommunicatorFlushBatchPtr&);
+    void flushAsyncBatchRequests(const IceInternal::CommunicatorFlushBatchAsyncPtr&);
 
     void updateConnectionObservers();
     void updateThreadObservers();
@@ -102,12 +102,12 @@ public:
 
 private:
 
-    ObjectAdapterI(const IceInternal::InstancePtr&, const CommunicatorPtr&, 
+    ObjectAdapterI(const IceInternal::InstancePtr&, const CommunicatorPtr&,
                    const IceInternal::ObjectAdapterFactoryPtr&, const std::string&, bool);
     virtual ~ObjectAdapterI();
     void initialize(const RouterPrx&);
     friend class IceInternal::ObjectAdapterFactory;
-    
+
     ObjectPrx newProxy(const Identity&, const std::string&) const;
     ObjectPrx newDirectProxy(const Identity&, const std::string&) const;
     ObjectPrx newIndirectProxy(const Identity&, const std::string&, const std::string&) const;

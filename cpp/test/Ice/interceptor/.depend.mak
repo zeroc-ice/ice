@@ -52,6 +52,7 @@ Client.obj: \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
+    "$(includedir)\Ice\BatchRequestQueueF.h" \
     "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
     "$(includedir)\Ice\ConnectionF.h" \
@@ -74,6 +75,7 @@ Client.obj: \
     "$(includedir)\Ice\FactoryTable.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "$(includedir)\Ice\Dispatcher.h" \
+    "$(includedir)\Ice\BatchRequestInterceptor.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Ice\GCObject.h" \
@@ -182,6 +184,7 @@ InterceptorI.obj: \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
+    "$(includedir)\Ice\BatchRequestQueueF.h" \
     "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
     "$(includedir)\Ice\ConnectionF.h" \
@@ -204,6 +207,7 @@ InterceptorI.obj: \
     "$(includedir)\Ice\FactoryTable.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "$(includedir)\Ice\Dispatcher.h" \
+    "$(includedir)\Ice\BatchRequestInterceptor.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Ice\GCObject.h" \
@@ -311,6 +315,7 @@ AMDInterceptorI.obj: \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
+    "$(includedir)\Ice\BatchRequestQueueF.h" \
     "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
     "$(includedir)\Ice\ConnectionF.h" \
@@ -333,6 +338,7 @@ AMDInterceptorI.obj: \
     "$(includedir)\Ice\FactoryTable.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "$(includedir)\Ice\Dispatcher.h" \
+    "$(includedir)\Ice\BatchRequestInterceptor.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Ice\GCObject.h" \
@@ -437,6 +443,7 @@ MyObjectI.obj: \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
+    "$(includedir)\Ice\BatchRequestQueueF.h" \
     "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
     "$(includedir)\Ice\ConnectionF.h" \
@@ -459,6 +466,7 @@ MyObjectI.obj: \
     "$(includedir)\Ice\FactoryTable.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "$(includedir)\Ice\Dispatcher.h" \
+    "$(includedir)\Ice\BatchRequestInterceptor.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Ice\GCObject.h" \
@@ -552,6 +560,7 @@ Test.obj: \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
+    "$(includedir)\Ice\BatchRequestQueueF.h" \
     "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\IceUtil\Monitor.h" \
     "$(includedir)\IceUtil\Cond.h" \
@@ -644,6 +653,7 @@ TestI.obj: \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
+    "$(includedir)\Ice\BatchRequestQueueF.h" \
     "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
     "$(includedir)\Ice\ConnectionF.h" \
@@ -666,6 +676,7 @@ TestI.obj: \
     "$(includedir)\Ice\FactoryTable.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "$(includedir)\Ice\Dispatcher.h" \
+    "$(includedir)\Ice\BatchRequestInterceptor.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Ice\GCObject.h" \

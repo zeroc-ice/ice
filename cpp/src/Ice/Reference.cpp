@@ -24,6 +24,8 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/HashUtil.h>
+#include <Ice/RequestHandlerFactory.h>
+#include <Ice/ConnectionRequestHandler.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Random.h>
@@ -143,7 +145,7 @@ IceInternal::Reference::changeInvocationTimeout(int invocationTimeout) const
     r->_invocationTimeout = invocationTimeout;
     return r;
 }
- 
+
 ReferencePtr
 IceInternal::Reference::changeEncoding(const Ice::EncodingVersion& encoding) const
 {
@@ -155,7 +157,7 @@ IceInternal::Reference::changeEncoding(const Ice::EncodingVersion& encoding) con
     r->_encoding = encoding;
     return r;
 }
- 
+
 ReferencePtr
 IceInternal::Reference::changeCompress(bool newCompress) const
 {
@@ -315,7 +317,7 @@ IceInternal::Reference::toString() const
     // Always print the encoding version to ensure a stringified proxy
     // will convert back to a proxy with the same encoding with
     // stringToProxy (and won't use Ice.Default.EncodingVersion).
-    // 
+    //
     s << " -e " << _encoding;
 
     return s.str();
@@ -365,7 +367,7 @@ IceInternal::Reference::operator==(const Reference& r) const
         return false;
     }
 
-    if(_encoding != r._encoding) 
+    if(_encoding != r._encoding)
     {
         return false;
     }
@@ -460,25 +462,25 @@ IceInternal::Reference::operator<(const Reference& r) const
     {
         return true;
     }
-    else if(r._protocol < _protocol) 
+    else if(r._protocol < _protocol)
     {
         return false;
     }
 
-    if(_encoding < r._encoding) 
+    if(_encoding < r._encoding)
     {
         return true;
     }
-    else if(r._encoding < _encoding) 
+    else if(r._encoding < _encoding)
     {
         return false;
     }
 
-    if(_invocationTimeout < r._invocationTimeout) 
+    if(_invocationTimeout < r._invocationTimeout)
     {
         return true;
     }
-    else if(r._invocationTimeout < _invocationTimeout) 
+    else if(r._invocationTimeout < _invocationTimeout)
     {
         return false;
     }
@@ -508,10 +510,10 @@ public:
     }
 };
 
-IceInternal::Reference::Reference(const InstancePtr& instance, 
-                                  const CommunicatorPtr& communicator, 
+IceInternal::Reference::Reference(const InstancePtr& instance,
+                                  const CommunicatorPtr& communicator,
                                   const Identity& id,
-                                  const string& facet, 
+                                  const string& facet,
                                   Mode mode,
                                   bool secure,
                                   const ProtocolVersion& protocol,
@@ -576,10 +578,10 @@ IceInternal::Reference::hashInit() const
 
 IceUtil::Shared* IceInternal::upCast(IceInternal::FixedReference* p) { return p; }
 
-IceInternal::FixedReference::FixedReference(const InstancePtr& instance, 
-                                            const CommunicatorPtr& communicator, 
+IceInternal::FixedReference::FixedReference(const InstancePtr& instance,
+                                            const CommunicatorPtr& communicator,
                                             const Identity& id,
-                                            const string& facet, 
+                                            const string& facet,
                                             Mode mode,
                                             bool secure,
                                             const EncodingVersion& encoding,
@@ -750,75 +752,76 @@ IceInternal::FixedReference::toProperty(const string&) const
     return PropertyDict(); // To keep the compiler from complaining.
 }
 
-void
-IceInternal::FixedReference::getConnection(const GetConnectionCallbackPtr& callback) const
+RequestHandlerPtr
+IceInternal::FixedReference::getRequestHandler(const Ice::ObjectPrx& proxy) const
 {
-    try
+    switch(getMode())
     {
-        switch(getMode())
-        {
-        case Reference::ModeTwoway:
-        case Reference::ModeOneway:
-        case Reference::ModeBatchOneway:
-        {
-            if(_fixedConnection->endpoint()->datagram())
-            {
-                throw NoEndpointException(__FILE__, __LINE__, "");
-            }
-            break;
-        }
-
-        case Reference::ModeDatagram:
-        case Reference::ModeBatchDatagram:
-        {
-            if(!_fixedConnection->endpoint()->datagram())
-            {
-                throw NoEndpointException(__FILE__, __LINE__, "");
-            }
-            break;
-        }
-        }
-
-        //
-        // If a secure connection is requested or secure overrides is set,
-        // check if the connection is secure.
-        //
-        bool secure;
-        DefaultsAndOverridesPtr defaultsAndOverrides = getInstance()->defaultsAndOverrides();
-        if(defaultsAndOverrides->overrideSecure)
-        {
-            secure = defaultsAndOverrides->overrideSecureValue;
-        }
-        else
-        {
-            secure = getSecure();
-        }
-        if(secure && !_fixedConnection->endpoint()->secure())
+    case Reference::ModeTwoway:
+    case Reference::ModeOneway:
+    case Reference::ModeBatchOneway:
+    {
+        if(_fixedConnection->endpoint()->datagram())
         {
             throw NoEndpointException(__FILE__, __LINE__, "");
         }
+        break;
+    }
 
-        _fixedConnection->throwException(); // Throw in case our connection is already destroyed.
-        
-        bool compress;
-        if(defaultsAndOverrides->overrideCompress)
-        {
-            compress = defaultsAndOverrides->overrideCompressValue;
-        }
-        else if(_overrideCompress)
-        {
-            compress = _compress;
-        }
-        else
-        {
-            compress = _fixedConnection->endpoint()->compress();
-        }
-        callback->setConnection(_fixedConnection, compress);
-    }
-    catch(const Ice::LocalException& ex)
+    case Reference::ModeDatagram:
+    case Reference::ModeBatchDatagram:
     {
-        callback->setException(ex);
+        if(!_fixedConnection->endpoint()->datagram())
+        {
+            throw NoEndpointException(__FILE__, __LINE__, "");
+        }
+        break;
     }
+    }
+
+    //
+    // If a secure connection is requested or secure overrides is set,
+    // check if the connection is secure.
+    //
+    bool secure;
+    DefaultsAndOverridesPtr defaultsAndOverrides = getInstance()->defaultsAndOverrides();
+    if(defaultsAndOverrides->overrideSecure)
+    {
+        secure = defaultsAndOverrides->overrideSecureValue;
+    }
+    else
+    {
+        secure = getSecure();
+    }
+    if(secure && !_fixedConnection->endpoint()->secure())
+    {
+        throw NoEndpointException(__FILE__, __LINE__, "");
+    }
+
+    _fixedConnection->throwException(); // Throw in case our connection is already destroyed.
+
+    bool compress;
+    if(defaultsAndOverrides->overrideCompress)
+    {
+        compress = defaultsAndOverrides->overrideCompressValue;
+    }
+    else if(_overrideCompress)
+    {
+        compress = _compress;
+    }
+    else
+    {
+        compress = _fixedConnection->endpoint()->compress();
+    }
+
+    ReferencePtr ref = const_cast<FixedReference*>(this);
+    return proxy->__setRequestHandler(new ConnectionRequestHandler(ref, _fixedConnection, compress));
+}
+
+BatchRequestQueuePtr
+IceInternal::FixedReference::getBatchRequestQueue() const
+{
+    return _fixedConnection->getBatchRequestQueue();
 }
 
 bool
@@ -857,7 +860,7 @@ IceInternal::FixedReference::operator<(const Reference& r) const
     {
         return false;
     }
-    
+
     const FixedReference* rhs = dynamic_cast<const FixedReference*>(&r);
     if(!rhs)
     {
@@ -881,12 +884,12 @@ IceInternal::FixedReference::FixedReference(const FixedReference& r) :
 
 IceUtil::Shared* IceInternal::upCast(IceInternal::RoutableReference* p) { return p; }
 
-IceInternal::RoutableReference::RoutableReference(const InstancePtr& instance, 
+IceInternal::RoutableReference::RoutableReference(const InstancePtr& instance,
                                                   const CommunicatorPtr& communicator,
-                                                  const Identity& id, 
+                                                  const Identity& id,
                                                   const string& facet,
-                                                  Mode mode, 
-                                                  bool secure, 
+                                                  Mode mode,
+                                                  bool secure,
                                                   const ProtocolVersion& protocol,
                                                   const EncodingVersion& encoding,
                                                   const vector<EndpointIPtr>& endpoints,
@@ -895,7 +898,7 @@ IceInternal::RoutableReference::RoutableReference(const InstancePtr& instance,
                                                   const RouterInfoPtr& routerInfo,
                                                   bool collocationOptimized,
                                                   bool cacheConnection,
-                                                  bool preferSecure, 
+                                                  bool preferSecure,
                                                   EndpointSelectionType endpointSelection,
                                                   int locatorCacheTimeout,
                                                   int invocationTimeout,
@@ -1501,6 +1504,18 @@ IceInternal::RoutableReference::clone() const
     return new RoutableReference(*this);
 }
 
+RequestHandlerPtr
+IceInternal::RoutableReference::getRequestHandler(const Ice::ObjectPrx& proxy) const
+{
+    return getInstance()->requestHandlerFactory()->getRequestHandler(const_cast<RoutableReference*>(this), proxy);
+}
+
+BatchRequestQueuePtr
+IceInternal::RoutableReference::getBatchRequestQueue() const
+{
+    return new BatchRequestQueue(getInstance(), getMode() == Reference::ModeBatchDatagram);
+}
+
 void
 IceInternal::RoutableReference::getConnection(const GetConnectionCallbackPtr& callback) const
 {
@@ -1650,7 +1665,7 @@ IceInternal::RoutableReference::getConnectionNoRouterInfo(const GetConnectionCal
         createConnection(_endpoints, callback);
         return;
     }
-    
+
     if(_locatorInfo)
     {
         RoutableReference* self = const_cast<RoutableReference*>(this);
@@ -1685,7 +1700,7 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
 
             virtual void
             setConnection(const Ice::ConnectionIPtr& connection, bool compress)
-            { 
+            {
                 //
                 // If we have a router, set the object adapter for this router
                 // (if any) to the new connection, so that callbacks from the
@@ -1703,7 +1718,7 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
             {
                 _callback->setException(ex);
             }
-            
+
             CB1(const RouterInfoPtr& routerInfo, const GetConnectionCallbackPtr& callback) :
                 _routerInfo(routerInfo), _callback(callback)
             {
@@ -1750,21 +1765,21 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
                 {
                     _exception.reset(ex.ice_clone());
                 }
-                
+
                 if(++_i == _endpoints.size())
                 {
                     _callback->setException(*_exception.get());
                     return;
                 }
-                
+
                 const bool more = _i != _endpoints.size() - 1;
                 vector<EndpointIPtr> endpoint;
                 endpoint.push_back(_endpoints[_i]);
-                
+
                 OutgoingConnectionFactoryPtr factory = _reference->getInstance()->outgoingConnectionFactory();
                 factory->create(endpoint, more, _reference->getEndpointSelection(), this);
             }
-            
+
             CB2(const RoutableReferencePtr& reference, const vector<EndpointIPtr>& endpoints,
                 const GetConnectionCallbackPtr& callback) :
                 _reference(reference),

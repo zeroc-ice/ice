@@ -60,6 +60,13 @@ function updateProxy()
         proxy = proxy.ice_batchOneway().ice_secure(true);
     }
     helloPrx = Demo.HelloPrx.uncheckedCast(proxy);
+
+    //
+    // The batch requests associated to the proxy are lost when we
+    // update the proxy.
+    //
+    batch = 0;
+    $("#flush").addClass("disabled").off("click");
 }
 
 //
@@ -84,7 +91,7 @@ function flush()
 {
     batch = 0;
     setState(State.FlushBatchRequests);
-    return communicator.flushBatchRequests();
+    return helloPrx.ice_flushBatchRequests();
 }
 
 //

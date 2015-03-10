@@ -28,12 +28,6 @@ ConnectionRequestHandler::ConnectionRequestHandler(const ReferencePtr& reference
 }
 
 RequestHandlerPtr
-ConnectionRequestHandler::connect(const Ice::ObjectPrx&)
-{
-    return this;
-}
-
-RequestHandlerPtr
 ConnectionRequestHandler::update(const RequestHandlerPtr& previousHandler, const RequestHandlerPtr& newHandler)
 {
     assert(previousHandler);
@@ -60,34 +54,16 @@ ConnectionRequestHandler::update(const RequestHandlerPtr& previousHandler, const
     return this;
 }
 
-void
-ConnectionRequestHandler::prepareBatchRequest(BasicStream* out)
-{
-    _connection->prepareBatchRequest(out);
-}
-
-void
-ConnectionRequestHandler::finishBatchRequest(BasicStream* out)
-{
-    _connection->finishBatchRequest(out, _compress);
-}
-
-void
-ConnectionRequestHandler::abortBatchRequest()
-{
-    _connection->abortBatchRequest();
-}
-
 bool
-ConnectionRequestHandler::sendRequest(OutgoingBase* out)
+ConnectionRequestHandler::sendRequest(ProxyOutgoingBase* out)
 {
-    return out->send(_connection, _compress, _response) && !_response; // Finished if sent and no response
+    return out->invokeRemote(_connection, _compress, _response) && !_response; // Finished if sent and no response
 }
 
 AsyncStatus
-ConnectionRequestHandler::sendAsyncRequest(const OutgoingAsyncBasePtr& out)
+ConnectionRequestHandler::sendAsyncRequest(const ProxyOutgoingAsyncBasePtr& out)
 {
-    return out->send(_connection, _compress, _response);
+    return out->invokeRemote(_connection, _compress, _response);
 }
 
 void

@@ -35,6 +35,10 @@
             {
                 cl = prx;
                 return Test.MyDerivedClassPrx.checkedCast(cl);
+            },
+            function(ex)
+            {
+                console.log(ex);
             }
         ).then(
             function(prx)

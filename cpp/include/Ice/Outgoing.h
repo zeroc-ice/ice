@@ -40,12 +40,10 @@ class ICE_API OutgoingBase : private IceUtil::noncopyable
 public:
 
     virtual ~OutgoingBase() { }
- 
-    virtual bool send(const Ice::ConnectionIPtr&, bool, bool) = 0;
-    virtual void invokeCollocated(CollocatedRequestHandler*) = 0;
 
     virtual void sent() = 0;
     virtual void completed(const Ice::Exception&) = 0;
+    virtual void completed(BasicStream&) = 0;
     virtual void retryException(const Ice::Exception&) = 0;
 
     BasicStream* os() { return &_os; }
@@ -64,7 +62,7 @@ public:
 
 protected:
 
-    OutgoingBase(Instance*, const std::string&);
+    OutgoingBase(Instance*);
 
     BasicStream _os;
     IceUtil::UniquePtr<Ice::Exception> _exception;
@@ -75,23 +73,60 @@ protected:
     IceUtil::Monitor<IceUtil::Mutex> _monitor;
 };
 
-class ICE_API Outgoing : public OutgoingBase
+class ICE_API ProxyOutgoingBase : public OutgoingBase
+{
+public:
+
+    ProxyOutgoingBase(IceProxy::Ice::Object*, Ice::OperationMode);
+    ~ProxyOutgoingBase();
+
+    virtual bool invokeRemote(const Ice::ConnectionIPtr&, bool, bool) = 0;
+    virtual void invokeCollocated(CollocatedRequestHandler*) = 0;
+
+    virtual void sent();
+    virtual void completed(const Ice::Exception&);
+    virtual void completed(BasicStream&);
+    virtual void retryException(const Ice::Exception&);
+
+protected:
+
+    bool invokeImpl(); // Returns true if ok, false if user exception.
+
+    //
+    // Optimization. The request handler and the reference may not be
+    // deleted while a stack-allocated Outgoing still holds it.
+    //
+    IceProxy::Ice::Object* _proxy;
+    Ice::OperationMode _mode;
+    RequestHandlerPtr _handler;
+    IceUtil::Time _invocationTimeoutDeadline;
+
+    enum
+    {
+        StateUnsent,
+        StateInProgress,
+        StateRetry,
+        StateOK,
+        StateUserException,
+        StateLocalException,
+        StateFailed
+    } _state;
+};
+
+class ICE_API Outgoing : public ProxyOutgoingBase
 {
 public:
 
     Outgoing(IceProxy::Ice::Object*, const std::string&, Ice::OperationMode, const Ice::Context*);
     ~Outgoing();
 
-    virtual bool send(const Ice::ConnectionIPtr&, bool, bool);
+    virtual bool invokeRemote(const Ice::ConnectionIPtr&, bool, bool);
     virtual void invokeCollocated(CollocatedRequestHandler*);
-
-    virtual void sent();
-    virtual void completed(const Ice::Exception&);
-    virtual void retryException(const Ice::Exception&);
 
     bool invoke(); // Returns true if ok, false if user exception.
     void abort(const Ice::LocalException&);
-    void completed(BasicStream&);
+
+    virtual void completed(BasicStream&);
 
     // Inlined for speed optimization.
     BasicStream* startReadParams()
@@ -137,7 +172,7 @@ public:
         }
     }
 
-    bool hasResponse() 
+    bool hasResponse()
     {
         return !_is.b.empty();
     }
@@ -146,49 +181,42 @@ public:
 
 private:
 
-    //
-    // Optimization. The request handler and the reference may not be
-    // deleted while a stack-allocated Outgoing still holds it.
-    //
-    IceProxy::Ice::Object* _proxy;
-    Ice::OperationMode _mode;
-    RequestHandlerPtr _handler;
-    IceUtil::Time _invocationTimeoutDeadline;
-
-    enum
-    {
-        StateUnsent,
-        StateInProgress,
-        StateRetry,
-        StateOK,
-        StateUserException,
-        StateLocalException,
-        StateFailed
-    } _state;
-
     Ice::EncodingVersion _encoding;
     BasicStream _is;
+    const std::string& _operation;
 };
 
-class FlushBatch : public OutgoingBase
+class ProxyFlushBatch : public ProxyOutgoingBase
 {
 public:
 
-    FlushBatch(IceProxy::Ice::Object*, const std::string&);
-    FlushBatch(Ice::ConnectionI*, Instance*, const std::string&);
-    
+    ProxyFlushBatch(IceProxy::Ice::Object*, const std::string&);
+
+    virtual bool invokeRemote(const Ice::ConnectionIPtr&, bool, bool);
+    virtual void invokeCollocated(CollocatedRequestHandler*);
+
     void invoke();
 
-    virtual bool send(const Ice::ConnectionIPtr&, bool, bool);
-    virtual void invokeCollocated(CollocatedRequestHandler*);
+private:
+
+    int _batchRequestNum;
+};
+
+class ConnectionFlushBatch : public OutgoingBase
+{
+public:
+
+    ConnectionFlushBatch(Ice::ConnectionI*, Instance*, const std::string&);
+
+    void invoke();
 
     virtual void sent();
     virtual void completed(const Ice::Exception&);
+    virtual void completed(BasicStream&);
     virtual void retryException(const Ice::Exception&);
 
 private:
 
-    IceProxy::Ice::Object* _proxy;
     Ice::ConnectionI* _connection;
 };
 

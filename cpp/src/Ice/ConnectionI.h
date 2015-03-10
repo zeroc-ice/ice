@@ -36,6 +36,7 @@
 #include <Ice/Dispatcher.h>
 #include <Ice/ObserverHelper.h>
 #include <Ice/ConnectionAsync.h>
+#include <Ice/BatchRequestQueueF.h>
 #include <Ice/ACM.h>
 
 #include <deque>
@@ -166,12 +167,10 @@ public:
 
     void monitor(const IceUtil::Time&, const IceInternal::ACMConfig&);
 
-    bool sendRequest(IceInternal::Outgoing*, bool, bool);
-    IceInternal::AsyncStatus sendAsyncRequest(const IceInternal::OutgoingAsyncPtr&, bool, bool);
+    bool sendRequest(IceInternal::OutgoingBase*, bool, bool, int);
+    IceInternal::AsyncStatus sendAsyncRequest(const IceInternal::OutgoingAsyncBasePtr&, bool, bool, int);
 
-    void prepareBatchRequest(IceInternal::BasicStream*);
-    void finishBatchRequest(IceInternal::BasicStream*, bool);
-    void abortBatchRequest();
+    IceInternal::BatchRequestQueuePtr getBatchRequestQueue() const;
 
     virtual void flushBatchRequests(); // From Connection.
 
@@ -185,9 +184,6 @@ public:
         const ::IceInternal::Function<void (bool)>& = ::IceInternal::Function<void (bool)>());
 
     virtual void end_flushBatchRequests(const AsyncResultPtr&);
-
-    bool flushBatchRequests(IceInternal::OutgoingBase*);
-    IceInternal::AsyncStatus flushAsyncBatchRequests(const IceInternal::OutgoingAsyncBasePtr&);
 
     virtual void setCallback(const ConnectionCallbackPtr&);
     virtual void setACM(const IceUtil::Optional<int>&,
@@ -235,7 +231,8 @@ public:
     void exception(const LocalException&);
 
     void dispatch(const StartCallbackPtr&, const std::vector<OutgoingMessage>&, Byte, Int, Int,
-                  const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&, const IceInternal::OutgoingAsyncPtr&,
+                  const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&,
+                  const IceInternal::OutgoingAsyncBasePtr&,
                   const ConnectionCallbackPtr&, IceInternal::BasicStream&);
     void finish(bool);
 
@@ -280,7 +277,7 @@ private:
 #endif
     IceInternal::SocketOperation parseMessage(IceInternal::BasicStream&, Int&, Int&, Byte&,
                                               IceInternal::ServantManagerPtr&, ObjectAdapterPtr&,
-                                              IceInternal::OutgoingAsyncPtr&, ConnectionCallbackPtr&, int&);
+                                              IceInternal::OutgoingAsyncBasePtr&, ConnectionCallbackPtr&, int&);
     void invokeAll(IceInternal::BasicStream&, Int, Int, Byte,
                    const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&);
 
@@ -333,21 +330,16 @@ private:
 
     Int _nextRequestId;
 
-    std::map<Int, IceInternal::Outgoing*> _requests;
-    std::map<Int, IceInternal::Outgoing*>::iterator _requestsHint;
+    std::map<Int, IceInternal::OutgoingBase*> _requests;
+    std::map<Int, IceInternal::OutgoingBase*>::iterator _requestsHint;
 
-    std::map<Int, IceInternal::OutgoingAsyncPtr> _asyncRequests;
-    std::map<Int, IceInternal::OutgoingAsyncPtr>::iterator _asyncRequestsHint;
+    std::map<Int, IceInternal::OutgoingAsyncBasePtr> _asyncRequests;
+    std::map<Int, IceInternal::OutgoingAsyncBasePtr>::iterator _asyncRequestsHint;
 
     IceUtil::UniquePtr<LocalException> _exception;
 
     const size_t _messageSizeMax;
-    const size_t _batchAutoFlushSize;
-    IceInternal::BasicStream _batchStream;
-    bool _batchStreamInUse;
-    int _batchRequestNum;
-    bool _batchRequestCompress;
-    size_t _batchMarker;
+    IceInternal::BatchRequestQueuePtr _batchRequestQueue;
 
     std::deque<OutgoingMessage> _sendStreams;
 

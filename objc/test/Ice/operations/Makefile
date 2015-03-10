@@ -23,7 +23,8 @@ COBJS		= Client.o \
               TwowaysNewAMI.o \
               Oneways.o \
               OnewaysNewAMI.o \
-              BatchOneways.o
+              BatchOneways.o \
+		      BatchOnewaysAMI.o
 
 SOBJS		= TestI.o \
 			  Server.o
@@ -35,7 +36,8 @@ COLOBJS		= Collocated.o \
               TwowaysNewAMI.o \
               Oneways.o \
               OnewaysNewAMI.o \
-              BatchOneways.o
+              BatchOneways.o \
+		      BatchOnewaysAMI.o
 
 OBJS		= $(COBJS) \
 			  $(SOBJS) \

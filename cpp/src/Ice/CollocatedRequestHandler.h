@@ -43,15 +43,10 @@ public:
     CollocatedRequestHandler(const ReferencePtr&, const Ice::ObjectAdapterPtr&);
     virtual ~CollocatedRequestHandler();
 
-    virtual RequestHandlerPtr connect(const Ice::ObjectPrx&);
     virtual RequestHandlerPtr update(const RequestHandlerPtr&, const RequestHandlerPtr&);
 
-    virtual void prepareBatchRequest(BasicStream*);
-    virtual void finishBatchRequest(BasicStream*);
-    virtual void abortBatchRequest();
-
-    virtual bool sendRequest(OutgoingBase*);
-    virtual AsyncStatus sendAsyncRequest(const OutgoingAsyncBasePtr&);
+    virtual bool sendRequest(ProxyOutgoingBase*);
+    virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&);
 
     virtual void requestCanceled(OutgoingBase*, const Ice::LocalException&);
     virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, const Ice::LocalException&);
@@ -66,15 +61,13 @@ public:
     virtual Ice::ConnectionIPtr getConnection();
     virtual Ice::ConnectionIPtr waitForConnection();
 
-    void invokeRequest(Outgoing*);
-    AsyncStatus invokeAsyncRequest(OutgoingAsync*);
-    void invokeBatchRequests(OutgoingBase*);
-    AsyncStatus invokeAsyncBatchRequests(OutgoingAsyncBase*);
+    void invokeRequest(OutgoingBase*, int);
+    AsyncStatus invokeAsyncRequest(OutgoingAsyncBase*, int);
 
     bool sent(OutgoingBase*);
     bool sentAsync(OutgoingAsyncBase*);
 
-    void invokeAll(BasicStream*, Ice::Int, Ice::Int, bool);
+    void invokeAll(BasicStream*, Ice::Int, Ice::Int);
 
 private:
 
@@ -84,20 +77,14 @@ private:
     const bool _dispatcher;
     const Ice::LoggerPtr _logger;
     const TraceLevelsPtr _traceLevels;
-    const size_t _batchAutoFlushSize;
 
     int _requestId;
 
     std::map<OutgoingBase*, Ice::Int> _sendRequests;
     std::map<OutgoingAsyncBasePtr, Ice::Int> _sendAsyncRequests;
 
-    std::map<Ice::Int, Outgoing*> _requests;
-    std::map<Ice::Int, OutgoingAsyncPtr> _asyncRequests;
-
-    bool _batchStreamInUse;
-    int _batchRequestNum;
-    BasicStream _batchStream;
-    size_t _batchMarker;
+    std::map<Ice::Int, OutgoingBase*> _requests;
+    std::map<Ice::Int, OutgoingAsyncBasePtr> _asyncRequests;
 };
 typedef IceUtil::Handle<CollocatedRequestHandler> CollocatedRequestHandlerPtr;
 

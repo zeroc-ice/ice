@@ -726,7 +726,16 @@ public class AllTests
 
             configuration.initializeSocketStatus(IceInternal.SocketOperation.Write);
             background.ice_getCachedConnection().close(true);
-            background.ice_ping();
+
+            try
+            {
+                background.ice_ping();
+            }
+            catch(Ice.LocalException ex)
+            {
+                test(false); // Something's wrong with retries.
+            }
+
             configuration.initializeSocketStatus(IceInternal.SocketOperation.None);
 
             ctl.initializeException(true);
@@ -932,16 +941,6 @@ public class AllTests
         //
         // First send small requests to test without auto-flushing.
         //
-        backgroundBatchOneway.ice_ping();
-        backgroundBatchOneway.ice_getConnection().close(false);
-        try
-        {
-            backgroundBatchOneway.ice_ping();
-            test(false);
-        }
-        catch(Ice.CloseConnectionException ex)
-        {
-        }
         ctl.holdAdapter();
         backgroundBatchOneway.op();
         backgroundBatchOneway.op();
@@ -949,20 +948,11 @@ public class AllTests
         backgroundBatchOneway.op();
         ctl.resumeAdapter();
         backgroundBatchOneway.ice_flushBatchRequests();
+        backgroundBatchOneway.ice_getConnection().close(false);
 
         //
         // Send bigger requests to test with auto-flushing.
         //
-        backgroundBatchOneway.ice_ping();
-        backgroundBatchOneway.ice_getConnection().close(false);
-        try
-        {
-            backgroundBatchOneway.ice_ping();
-            test(false);
-        }
-        catch(Ice.CloseConnectionException ex)
-        {
-        }
         ctl.holdAdapter();
         backgroundBatchOneway.opWithPayload(seq);
         backgroundBatchOneway.opWithPayload(seq);
@@ -970,21 +960,11 @@ public class AllTests
         backgroundBatchOneway.opWithPayload(seq);
         ctl.resumeAdapter();
         backgroundBatchOneway.ice_flushBatchRequests();
+        backgroundBatchOneway.ice_getConnection().close(false);
 
         //
         // Then try the same thing with async flush.
         //
-
-        backgroundBatchOneway.ice_ping();
-        backgroundBatchOneway.ice_getConnection().close(false);
-        try
-        {
-            backgroundBatchOneway.ice_ping();
-            test(false);
-        }
-        catch(Ice.CloseConnectionException ex)
-        {
-        }
         ctl.holdAdapter();
         backgroundBatchOneway.op();
         backgroundBatchOneway.op();
@@ -994,16 +974,6 @@ public class AllTests
         backgroundBatchOneway.begin_ice_flushBatchRequests();
         backgroundBatchOneway.ice_getConnection().close(false);
 
-        backgroundBatchOneway.ice_ping();
-        backgroundBatchOneway.ice_getConnection().close(false);
-        try
-        {
-            backgroundBatchOneway.ice_ping();
-            test(false);
-        }
-        catch(Ice.CloseConnectionException ex)
-        {
-        }
         ctl.holdAdapter();
         backgroundBatchOneway.opWithPayload(seq);
         backgroundBatchOneway.opWithPayload(seq);
@@ -1011,15 +981,6 @@ public class AllTests
         backgroundBatchOneway.opWithPayload(seq);
         ctl.resumeAdapter();
         r = backgroundBatchOneway.begin_ice_flushBatchRequests();
-        //
-        // We can't close the connection before ensuring all the batches
-        // have been sent since with auto-flushing the close connection
-        // message might be sent once the first call opWithPayload is sent
-        // and before the flushBatchRequests (this would therefore result
-        // in the flush to report a CloseConnectionException). Instead we
-        // wait for the first flush to complete.
-        //
-        //backgroundBatchOneway.ice_getConnection().close(false);
         backgroundBatchOneway.end_ice_flushBatchRequests(r);
         backgroundBatchOneway.ice_getConnection().close(false);
     }

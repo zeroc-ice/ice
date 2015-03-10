@@ -42,28 +42,20 @@
                 {
                     bs1[i] = 0;
                 }
-                bs2 = Ice.Buffer.createNative(new Array(99 * 1024));
-                for(i = 0; i < bs2.length; ++i)
-                {
-                    bs2[i] = 0;
-                }
-
-                return prx.opByteSOneway(bs1);
-            }
-        ).then(
-            function()
-            {
-                return prx.opByteSOneway(bs2);
-            }
-        ).then(
-            function()
-            {
                 return prx.opByteSOnewayCallCount();
             }
         ).then(
             function(count)
             {
                 batch = prx.ice_batchOneway();
+                return batch.ice_getConnection();
+            }
+        ).then(
+            function()
+            {
+                test(batch.ice_flushBatchRequests().isCompleted()); // Empty flush
+                test(batch.ice_flushBatchRequests().isSent()); // Empty flush
+                test(batch.ice_flushBatchRequests().sentSynchronously()); // Empty flush
 
                 var all = [];
                 for(var i = 0; i < 30; ++i)
@@ -92,16 +84,6 @@
                             }
                         };
                         return wait(0);
-                    }
-                ).then(
-                    function()
-                    {
-                        return batch.ice_getConnection();
-                    }
-                ).then(
-                    function(con)
-                    {
-                        return con.flushBatchRequests();
                     }
                 ).then(
                     function()

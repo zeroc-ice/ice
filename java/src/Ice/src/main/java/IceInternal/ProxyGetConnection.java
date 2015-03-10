@@ -31,7 +31,7 @@ public class ProxyGetConnection extends ProxyOutgoingAsyncBase
     }
 
     @Override
-    public int send(Ice.ConnectionI connection, boolean compress, boolean response)
+    public int invokeRemote(Ice.ConnectionI connection, boolean compress, boolean response)
         throws RetryException
     {
         _cachedConnection = connection;

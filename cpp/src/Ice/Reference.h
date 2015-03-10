@@ -20,6 +20,8 @@
 #include <Ice/RouterInfoF.h>
 #include <Ice/LocatorInfoF.h>
 #include <Ice/ConnectionIF.h>
+#include <Ice/RequestHandlerF.h>
+#include <Ice/BatchRequestQueue.h>
 #include <Ice/SharedContext.h>
 #include <Ice/Identity.h>
 #include <Ice/Protocol.h>
@@ -37,7 +39,7 @@ public:
     class GetConnectionCallback : virtual public IceUtil::Shared
     {
     public:
-        
+
         virtual void setConnection(const Ice::ConnectionIPtr&, bool) = 0;
         virtual void setException(const Ice::LocalException&) = 0;
     };
@@ -103,7 +105,7 @@ public:
 
     virtual ReferencePtr changeTimeout(int) const = 0;
     virtual ReferencePtr changeConnectionId(const std::string&) const = 0;
-    
+
     int hash() const; // Conceptually const.
 
     //
@@ -130,7 +132,8 @@ public:
     //
     // Get a suitable connection for this reference.
     //
-    virtual void getConnection(const GetConnectionCallbackPtr&) const = 0;
+    virtual RequestHandlerPtr getRequestHandler(const Ice::ObjectPrx&) const = 0;
+    virtual BatchRequestQueuePtr getBatchRequestQueue() const = 0;
 
     virtual bool operator==(const Reference&) const;
     virtual bool operator!=(const Reference&) const;
@@ -205,7 +208,8 @@ public:
     virtual std::string toString() const;
     virtual Ice::PropertyDict toProperty(const std::string&) const;
 
-    virtual void getConnection(const GetConnectionCallbackPtr&) const;
+    virtual RequestHandlerPtr getRequestHandler(const Ice::ObjectPrx&) const;
+    virtual BatchRequestQueuePtr getBatchRequestQueue() const;
 
     virtual bool operator==(const Reference&) const;
     virtual bool operator!=(const Reference&) const;
@@ -226,7 +230,7 @@ public:
 
     RoutableReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const std::string&, Mode,
                       bool, const Ice::ProtocolVersion&, const Ice::EncodingVersion&, const std::vector<EndpointIPtr>&,
-                      const std::string&, const LocatorInfoPtr&, const RouterInfoPtr&, bool, bool, bool, 
+                      const std::string&, const LocatorInfoPtr&, const RouterInfoPtr&, bool, bool, bool,
                       Ice::EndpointSelectionType, int, int, const Ice::Context&);
 
     virtual std::vector<EndpointIPtr> getEndpoints() const;
@@ -268,8 +272,11 @@ public:
 
     virtual ReferencePtr clone() const;
 
-    virtual void getConnection(const GetConnectionCallbackPtr&) const;
-    virtual void getConnectionNoRouterInfo(const GetConnectionCallbackPtr&) const;
+    virtual RequestHandlerPtr getRequestHandler(const Ice::ObjectPrx&) const;
+    virtual BatchRequestQueuePtr getBatchRequestQueue() const;
+
+    void getConnection(const GetConnectionCallbackPtr&) const;
+    void getConnectionNoRouterInfo(const GetConnectionCallbackPtr&) const;
 
     void createConnection(const std::vector<EndpointIPtr>&, const GetConnectionCallbackPtr&) const;
     void applyOverrides(std::vector<EndpointIPtr>&) const;
@@ -283,7 +290,7 @@ protected:
     virtual int hashInit() const;
 
 private:
-    
+
     std::vector<EndpointIPtr> _endpoints; // Empty if indirect proxy.
     std::string _adapterId; // Empty if direct proxy.
 

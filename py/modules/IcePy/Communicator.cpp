@@ -12,6 +12,7 @@
 #endif
 #include <IceUtil/DisableWarnings.h>
 #include <Communicator.h>
+#include <BatchRequestInterceptor.h>
 #include <ImplicitContext.h>
 #include <Logger.h>
 #include <ObjectAdapter.h>
@@ -145,6 +146,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         PyObjectHandle properties = PyObject_GetAttrString(initData, STRCAST("properties"));
         PyObjectHandle logger = PyObject_GetAttrString(initData, STRCAST("logger"));
         PyObjectHandle threadHook = PyObject_GetAttrString(initData, STRCAST("threadHook"));
+        PyObjectHandle batchRequestInterceptor = PyObject_GetAttrString(initData, STRCAST("batchRequestInterceptor"));
         PyErr_Clear(); // PyObject_GetAttrString sets an error on failure.
 
         if(properties.get() && properties.get() != Py_None)
@@ -165,6 +167,11 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         if(threadHook.get() && threadHook.get() != Py_None)
         {
             data.threadHook = new ThreadHook(threadHook.get());
+        }
+
+        if(batchRequestInterceptor.get() && batchRequestInterceptor.get() != Py_None)
+        {
+            data.batchRequestInterceptor = new BatchRequestInterceptor(batchRequestInterceptor.get());
         }
     }
 
@@ -224,7 +231,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         setPythonException(ex);
         return -1;
     }
-    
+
     //
     // Replace the contents of the given argument list with the filtered arguments.
     //
@@ -387,7 +394,7 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
                     AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
                     done = (*self->shutdownMonitor).timedWait(IceUtil::Time::milliSeconds(timeout));
                 }
-                
+
                 if(!done)
                 {
                     PyRETURN_FALSE;
@@ -831,7 +838,7 @@ communicatorCreateAdmin(CommunicatorObject* self, PyObject* args)
     {
         proxy = (*self->communicator)->createAdmin(oa, identity);
         assert(proxy);
-        
+
         return createProxy(proxy, *self->communicator);
     }
     catch(const Ice::Exception& ex)
@@ -995,7 +1002,7 @@ communicatorFindAllAdminFacets(CommunicatorObject* self)
 
     for(Ice::FacetMap::const_iterator p = facetMap.begin(); p != facetMap.end(); ++p)
     {
-        
+
         PyObjectHandle obj = plainObject;
 
         ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(p->second);
@@ -1011,7 +1018,7 @@ communicatorFindAllAdminFacets(CommunicatorObject* self)
                 obj = createNativePropertiesAdmin(props);
             }
         }
-        
+
         if(PyDict_SetItemString(result.get(), const_cast<char*>(p->first.c_str()), obj.get()) < 0)
         {
             return 0;
@@ -1239,7 +1246,7 @@ static PyObject*
 communicatorGetImplicitContext(CommunicatorObject* self)
 {
     Ice::ImplicitContextPtr implicitContext = (*self->communicator)->getImplicitContext();
-    
+
     if(implicitContext == 0)
     {
         Py_INCREF(Py_None);

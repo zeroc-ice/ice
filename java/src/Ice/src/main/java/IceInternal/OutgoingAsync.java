@@ -65,31 +65,7 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
             case Reference.ModeBatchOneway:
             case Reference.ModeBatchDatagram:
             {
-                while(true)
-                {
-                    try
-                    {
-                        _handler = _proxy.__getRequestHandler();
-                        _handler.prepareBatchRequest(_os);
-                        break;
-                    }
-                    catch(RetryException ex)
-                    {
-                        // Clear request handler and retry.
-                        _proxy.__setRequestHandler(_handler, null);
-                    }
-                    catch(Ice.LocalException ex)
-                    {
-                        if(_observer != null)
-                        {
-                            _observer.failed(ex.ice_name());
-                        }
-                        // Clear request handler
-                        _proxy.__setRequestHandler(_handler, null);
-                        _handler = null;
-                        throw ex;
-                    }
-                }
+                _proxy.__getBatchRequestQueue().prepareBatchRequest(_os);
                 break;
             }
         }
@@ -149,10 +125,10 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
     }
 
     @Override
-    public int send(Ice.ConnectionI connection, boolean compress, boolean response) throws RetryException
+    public int invokeRemote(Ice.ConnectionI connection, boolean compress, boolean response) throws RetryException
     {
         _cachedConnection = connection;
-        return connection.sendAsyncRequest(this, compress, response);
+        return connection.sendAsyncRequest(this, compress, response, 0);
     }
 
     @Override
@@ -164,7 +140,7 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
             // Disable caching by marking the streams as cached!
             _state |= StateCachedBuffers;
         }
-        return handler.invokeAsyncRequest(this, _synchronous);
+        return handler.invokeAsyncRequest(this, 0, _synchronous);
     }
 
     @Override
@@ -173,15 +149,12 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
         int mode = _proxy.__reference().getMode();
         if(mode == Reference.ModeBatchOneway || mode == Reference.ModeBatchDatagram)
         {
-            if(_handler != null)
-            {
-                //
-                // If we didn't finish a batch oneway or datagram request, we
-                // must notify the connection about that we give up ownership
-                // of the batch stream.
-                //
-                _handler.abortBatchRequest();
-            }
+            //
+            // If we didn't finish a batch oneway or datagram request, we
+            // must notify the connection about that we give up ownership
+            // of the batch stream.
+            //
+            _proxy.__getBatchRequestQueue().abortBatchRequest(_os);
         }
 
         super.abort(ex);
@@ -192,23 +165,25 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
         int mode = _proxy.__reference().getMode();
         if(mode == Reference.ModeBatchOneway || mode == Reference.ModeBatchDatagram)
         {
-            if(_handler != null)
-            {
-                _sentSynchronously = true;
-                _handler.finishBatchRequest(_os);
-                finished(true);
-            }
-            return; // Don't call sent/completed callback for batch AMI requests
+            //
+            // NOTE: we don't call sent/completed callbacks for batch AMI requests
+            //
+            _sentSynchronously = true;
+            _proxy.__getBatchRequestQueue().finishBatchRequest(_os, _proxy, getOperation());
+            finished(true);
         }
-
-        //
-        // NOTE: invokeImpl doesn't throw so this can be called from the
-        // try block with the catch block calling abort() in case of an
-        // exception.
-        //
-        invokeImpl(true); // userThread = true
+        else
+        {
+            //
+            // NOTE: invokeImpl doesn't throw so this can be called from the
+            // try block with the catch block calling abort() in case of an
+            // exception.
+            //
+            invokeImpl(true); // userThread = true
+        }
     }
 
+    @Override
     public final boolean completed(BasicStream is)
     {
         //
@@ -218,14 +193,14 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
         //
 
         assert(_proxy.ice_isTwoway()); // Can only be called for twoways.
-        
+
         if(_childObserver != null)
         {
             _childObserver.reply(is.size() - Protocol.headerSize - 4);
             _childObserver.detach();
             _childObserver = null;
         }
-        
+
         byte replyStatus;
         try
         {
@@ -236,14 +211,14 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
             }
             _is.swap(is);
             replyStatus = _is.readByte();
-            
+
             switch(replyStatus)
             {
             case ReplyStatus.replyOK:
             {
                 break;
             }
-            
+
             case ReplyStatus.replyUserException:
             {
                 if(_observer != null)
@@ -252,14 +227,14 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
                 }
                 break;
             }
-            
+
             case ReplyStatus.replyObjectNotExist:
             case ReplyStatus.replyFacetNotExist:
             case ReplyStatus.replyOperationNotExist:
             {
                 Ice.Identity id = new Ice.Identity();
                 id.__read(_is);
-                
+
                 //
                 // For compatibility with the old FacetPath.
                 //
@@ -277,9 +252,9 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
                 {
                     facet = "";
                 }
-                
+
                 String operation = _is.readString();
-                
+
                 Ice.RequestFailedException ex = null;
                 switch(replyStatus)
                 {

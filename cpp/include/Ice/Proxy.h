@@ -21,6 +21,7 @@
 #include <Ice/ObjectF.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/ReferenceF.h>
+#include <Ice/BatchRequestQueueF.h>
 #include <Ice/AsyncResult.h>
 //#include <Ice/RouterF.h> // Can't include RouterF.h here, otherwise we have cyclic includes
 //#include <Ice/LocatorF.h> // Can't include RouterF.h here, otherwise we have cyclic includes
@@ -844,7 +845,9 @@ public:
     void __end(const ::Ice::AsyncResultPtr&, const std::string&) const;
 
     ::IceInternal::RequestHandlerPtr __getRequestHandler();
-    void __setRequestHandler(const ::IceInternal::RequestHandlerPtr&, const ::IceInternal::RequestHandlerPtr&);
+    ::IceInternal::BatchRequestQueuePtr __getBatchRequestQueue();
+    ::IceInternal::RequestHandlerPtr __setRequestHandler(const ::IceInternal::RequestHandlerPtr&);
+    void __updateRequestHandler(const ::IceInternal::RequestHandlerPtr&, const ::IceInternal::RequestHandlerPtr&);
 
 protected:
 
@@ -977,6 +980,7 @@ private:
 
     ::IceInternal::ReferencePtr _reference;
     ::IceInternal::RequestHandlerPtr _requestHandler;
+    ::IceInternal::BatchRequestQueuePtr _batchRequestQueue;
     IceUtil::Mutex _mutex;
 };
 

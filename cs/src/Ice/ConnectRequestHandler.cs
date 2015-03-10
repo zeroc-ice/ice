@@ -18,60 +18,31 @@ namespace IceInternal
 {
     public class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCallback, RouterInfo.AddProxyCallback
     {
-        private class Request
-        {
-            internal Request(BasicStream os)
-            {
-                this.os = new BasicStream(os.instance(), Ice.Util.currentProtocolEncoding);
-                this.os.swap(os);
-            }
-
-            internal Request(OutgoingAsyncBase outAsync)
-            {
-                this.outAsync = outAsync;
-            }
-
-            internal OutgoingAsyncBase outAsync = null;
-            internal BasicStream os = null;
-            internal Ice.AsyncCallback sentCallback = null;
-        }
-
         public RequestHandler connect(Ice.ObjectPrxHelperBase proxy)
         {
-            //
-            // Initiate the connection if connect() is called by the proxy that
-            // created the handler.
-            //
-            if(Object.ReferenceEquals(proxy, _proxy) && _connect)
+            lock(this)
             {
-                _connect = false; // Call getConnection only once
-                _reference.getConnection(this);
-            }
-
-            try
-            {
-                lock(this)
+                try
                 {
                     if(!initialized())
                     {
                         _proxies.Add(proxy);
-                        return this;
                     }
                 }
-            }
-            catch(Ice.LocalException ex)
-            {
-                throw ex;
-            }
+                catch(Ice.LocalException ex)
+                {
+                    //
+                    // Only throw if the connection didn't get established. If
+                    // it died after being established, we allow the caller to
+                    // retry the connection establishment by not throwing here.
+                    //
+                    if(_connection == null)
+                    {
+                        throw ex;
+                    }
+                }
 
-            if(_connectionRequestHandler != null)
-            {
-                proxy.setRequestHandler__(this, _connectionRequestHandler);
-                return _connectionRequestHandler;
-            }
-            else
-            {
-                return this;                
+                return proxy.setRequestHandler__(_requestHandler);
             }
         }
 
@@ -80,64 +51,7 @@ namespace IceInternal
             return previousHandler == this ? newHandler : this;
         }
 
-        public void prepareBatchRequest(BasicStream os)
-        {
-            lock(this)
-            {
-                while(_batchRequestInProgress)
-                {
-                    System.Threading.Monitor.Wait(this);
-                }
-
-                if(!initialized())
-                {
-                    _batchRequestInProgress = true;
-                    _batchStream.swap(os);
-                    return;
-                }
-            }
-            _connection.prepareBatchRequest(os);
-        }
-
-        public void finishBatchRequest(BasicStream os)
-        {
-            lock(this)
-            {
-                if(!initialized()) // This can't throw until _batchRequestInProgress = false
-                {
-                    Debug.Assert(_batchRequestInProgress);
-                    _batchRequestInProgress = false;
-                    System.Threading.Monitor.PulseAll(this);
-
-                    _batchStream.swap(os);
-
-                    _requests.AddLast(new Request(_batchStream));
-                    return;
-                }
-            }
-            _connection.finishBatchRequest(os, _compress);
-        }
-
-        public void abortBatchRequest()
-        {
-            lock(this)
-            {
-                if(!initialized()) // This can't throw until _batchRequestInProgress = false
-                {
-                    Debug.Assert(_batchRequestInProgress);
-                    _batchRequestInProgress = false;
-                    System.Threading.Monitor.PulseAll(this);
-
-                    BasicStream dummy = new BasicStream(_reference.getInstance(), Ice.Util.currentProtocolEncoding);
-                    _batchStream.swap(dummy);
-
-                    return;
-                }
-            }
-            _connection.abortBatchRequest();
-        }
-
-        public bool sendAsyncRequest(OutgoingAsyncBase outAsync, out Ice.AsyncCallback sentCallback)
+        public bool sendAsyncRequest(ProxyOutgoingAsyncBase outAsync, out Ice.AsyncCallback sentCallback)
         {
             lock(this)
             {
@@ -150,7 +64,7 @@ namespace IceInternal
                 {
                     if(!initialized())
                     {
-                        _requests.AddLast(new Request(outAsync));
+                        _requests.AddLast(outAsync);
                         sentCallback = null;
                         return false;
                     }
@@ -160,7 +74,7 @@ namespace IceInternal
                     throw new RetryException(ex);
                 }
             }
-            return outAsync.send(_connection, _compress, _response, out sentCallback);
+            return outAsync.invokeRemote(_connection, _compress, _response, out sentCallback);
         }
 
         public void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
@@ -174,11 +88,10 @@ namespace IceInternal
 
                 if(!initialized())
                 {
-                    LinkedListNode<Request> p = _requests.First;
+                    LinkedListNode<ProxyOutgoingAsyncBase> p = _requests.First;
                     while(p != null)
                     {
-                        Request request = p.Value;
-                        if(request.outAsync == outAsync)
+                        if(p.Value == outAsync)
                         {
                             _requests.Remove(p);
                             Ice.AsyncCallback cb = outAsync.completed(ex);
@@ -213,25 +126,6 @@ namespace IceInternal
                 {
                     return _connection;
                 }
-            }
-        }
-
-        public Ice.ConnectionI waitForConnection()
-        {
-            lock(this)
-            {
-                if(_exception != null)
-                {
-                    throw new RetryException(_exception);
-                }
-                //
-                // Wait for the connection establishment to complete or fail.
-                //
-                while(!_initialized && _exception == null)
-                {
-                    System.Threading.Monitor.Wait(this);
-                }
-                return getConnection();
             }
         }
 
@@ -288,15 +182,12 @@ namespace IceInternal
                     // Ignore
                 }
 
-                foreach(Request request in _requests)
+                foreach(ProxyOutgoingAsyncBase outAsync in _requests)
                 {
-                    if(request.outAsync != null)
+                    Ice.AsyncCallback cb = outAsync.completed(_exception);
+                    if(cb != null)
                     {
-                        Ice.AsyncCallback cb = request.outAsync.completed(_exception);
-                        if(cb != null)
-                        {
-                            request.outAsync.invokeCompletedAsync(cb);
-                        }
+                        outAsync.invokeCompletedAsync(cb);
                     }
                 }
                 _requests.Clear();
@@ -319,13 +210,11 @@ namespace IceInternal
         public ConnectRequestHandler(Reference @ref, Ice.ObjectPrx proxy)
         {
             _reference = @ref;
-            _connect = true;
             _response = _reference.getMode() == Reference.Mode.ModeTwoway;
             _proxy = (Ice.ObjectPrxHelperBase)proxy;
             _initialized = false;
             _flushing = false;
-            _batchRequestInProgress = false;
-            _batchStream = new BasicStream(@ref.getInstance(), Ice.Util.currentProtocolEncoding);
+            _requestHandler = this;
         }
 
         private bool initialized()
@@ -359,11 +248,6 @@ namespace IceInternal
             {
                 Debug.Assert(_connection != null && !_initialized);
 
-                while(_batchRequestInProgress)
-                {
-                    System.Threading.Monitor.Wait(this);
-                }
-
                 //
                 // We set the _flushing flag to true to prevent any additional queuing. Callers
                 // might block for a little while as the queued requests are being sent but this
@@ -372,64 +256,40 @@ namespace IceInternal
                 _flushing = true;
             }
 
-            LinkedListNode<Request> p = _requests.First; // _requests is immutable when _flushing = true
             Ice.LocalException exception = null;
-            while(p != null)
+            foreach(ProxyOutgoingAsyncBase outAsync in _requests)
             {
-                Request request = p.Value;
                 try
                 {
-                    if(request.os != null)
+                    Ice.AsyncCallback sentCallback = null;
+                    if(outAsync.invokeRemote(_connection, _compress, _response, out sentCallback))
                     {
-                        BasicStream os = new BasicStream(request.os.instance(), Ice.Util.currentProtocolEncoding);
-                        _connection.prepareBatchRequest(os);
-                        try
+                        if(sentCallback != null)
                         {
-                            request.os.pos(0);
-                            os.writeBlob(request.os.readBlob(request.os.size()));
-                        }
-                        catch(Ice.LocalException)
-                        {
-                            _connection.abortBatchRequest();
-                            throw;
-                        }
-                        _connection.finishBatchRequest(os, _compress);
-                    }
-                    else if(request.outAsync.send(_connection, _compress, _response, out request.sentCallback))
-                    {
-                        if(request.sentCallback != null)
-                        {
-                            request.outAsync.invokeSentAsync(request.sentCallback);
+                            outAsync.invokeSentAsync(sentCallback);
                         }
                     }
                 }
                 catch(RetryException ex)
                 {
                     exception = ex.get();
-                    try
-                    {
-                        // Remove the request handler before retrying.
-                        _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
-                    }
-                    catch(Ice.CommunicatorDestroyedException)
-                    {
-                        // Ignore
-                    }
-                    request.outAsync.retryException(ex.get());
+
+                    // Remove the request handler before retrying.
+                    _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
+
+                    outAsync.retryException(ex.get());
                 }
                 catch(Ice.LocalException ex)
                 {
                     exception = ex;
-                    Ice.AsyncCallback cb = request.outAsync.completed(ex);
+                    Ice.AsyncCallback cb = outAsync.completed(ex);
                     if(cb != null)
                     {
-                        request.outAsync.invokeCompletedAsync(cb);
+                        outAsync.invokeCompletedAsync(cb);
                     }
                 }
-                LinkedListNode<Request> tmp = p;
-                p = p.Next;
-                _requests.Remove(tmp);
             }
+            _requests.Clear();
 
             //
             // If we aren't caching the connection, don't bother creating a
@@ -439,10 +299,10 @@ namespace IceInternal
             //
             if(_reference.getCacheConnection() && exception == null)
             {
-                _connectionRequestHandler = new ConnectionRequestHandler(_reference, _connection, _compress);
+                _requestHandler = new ConnectionRequestHandler(_reference, _connection, _compress);
                 foreach(Ice.ObjectPrxHelperBase prx in _proxies)
                 {
-                    prx.setRequestHandler__(this, _connectionRequestHandler);
+                    prx.updateRequestHandler__(this, _requestHandler);
                 }
             }
 
@@ -452,18 +312,13 @@ namespace IceInternal
                 _exception = exception;
                 _initialized = _exception == null;
                 _flushing = false;
-                try
-                {
-                    //
-                    // Only remove once all the requests are flushed to
-                    // guarantee serialization.
-                    //
-                    _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
-                }
-                catch(Ice.CommunicatorDestroyedException)
-                {
-                    // Ignore
-                }
+
+                //
+                // Only remove once all the requests are flushed to
+                // guarantee serialization.
+                //
+                _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
+
                 _proxies.Clear();
                 _proxy = null; // Break cyclic reference count.
                 System.Threading.Monitor.PulseAll(this);
@@ -471,7 +326,6 @@ namespace IceInternal
         }
 
         private Reference _reference;
-        private bool _connect;
         private bool _response;
 
         private Ice.ObjectPrxHelperBase _proxy;
@@ -483,10 +337,7 @@ namespace IceInternal
         private bool _initialized;
         private bool _flushing;
 
-        private LinkedList<Request> _requests = new LinkedList<Request>();
-        private bool _batchRequestInProgress;
-        private BasicStream _batchStream;
-
-        private RequestHandler _connectionRequestHandler;
+        private LinkedList<ProxyOutgoingAsyncBase> _requests = new LinkedList<ProxyOutgoingAsyncBase>();
+        private RequestHandler _requestHandler;
     }
 }

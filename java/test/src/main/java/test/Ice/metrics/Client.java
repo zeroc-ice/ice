@@ -43,6 +43,7 @@ public class Client extends test.Util.Application
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.MessageSizeMax", "50000");
         initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
+
         initData.observer = _observer;
         return initData;
     }

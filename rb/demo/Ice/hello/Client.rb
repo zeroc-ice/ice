@@ -96,7 +96,8 @@ class Client < Ice::Application
                         batchDatagram.sayHello(delay)
                     end
                 elsif c == 'f'
-                    Ice::Application::communicator().flushBatchRequests()
+                    batchOneway.flushBatchRequests()
+                    batchDatagram.flushBatchRequests()
                 elsif c == 'T'
                     if timeout == -1
                         timeout = 2000

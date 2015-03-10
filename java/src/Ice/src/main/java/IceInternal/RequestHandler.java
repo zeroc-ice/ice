@@ -11,20 +11,12 @@ package IceInternal;
 
 public interface RequestHandler extends CancellationHandler
 {
-    RequestHandler connect(Ice.ObjectPrxHelperBase proxy);
     RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler);
 
-    void prepareBatchRequest(BasicStream out)
-        throws RetryException;
-    void finishBatchRequest(BasicStream out);
-    void abortBatchRequest();
-
-    int sendAsyncRequest(OutgoingAsyncBase out)
+    int sendAsyncRequest(ProxyOutgoingAsyncBase out)
         throws RetryException;
 
     Reference getReference();
 
     Ice.ConnectionI getConnection();
-    Ice.ConnectionI waitForConnection()
-        throws InterruptedException, RetryException;
 }

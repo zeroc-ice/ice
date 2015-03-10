@@ -96,20 +96,14 @@ namespace IceInternal
 
         public BasicStream startWriteParams__(Ice.FormatType format)
         {
-            if(response_)
+            if(!response_)
             {
-                Debug.Assert(os_.size() == Protocol.headerSize + 4); // Reply status position.
-                os_.writeByte((byte)0);
-                os_.startWriteEncaps(current_.encoding, format);
+                throw new Ice.MarshalException("can't marshal out parameters for oneway dispatch");
             }
 
-            //
-            // We still return the stream even if no response is expected. The
-            // servant code might still write some out parameters if for
-            // example a method with out parameters somehow and erroneously
-            // invoked as oneway (or if the invocation is invoked on a
-            // blobject and the blobject erroneously writes a response).
-            //
+            Debug.Assert(os_.size() == Protocol.headerSize + 4); // Reply status position.
+            os_.writeByte((byte)0);
+            os_.startWriteEncaps(current_.encoding, format);
             return os_;
         }
 

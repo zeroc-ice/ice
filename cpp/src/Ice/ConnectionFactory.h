@@ -66,7 +66,7 @@ public:
                 const CreateConnectionCallbackPtr&);
     void setRouterInfo(const RouterInfoPtr&);
     void removeAdapter(const Ice::ObjectAdapterPtr&);
-    void flushAsyncBatchRequests(const CommunicatorFlushBatchPtr&);
+    void flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr&);
 
 private:
 
@@ -177,7 +177,7 @@ public:
 
     EndpointIPtr endpoint() const;
     std::list<Ice::ConnectionIPtr> connections() const;
-    void flushAsyncBatchRequests(const CommunicatorFlushBatchPtr&);
+    void flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr&);
 
     //
     // Operations from EventHandler

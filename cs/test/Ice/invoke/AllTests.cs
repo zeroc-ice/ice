@@ -59,7 +59,7 @@ public class AllTests : TestCommon.TestApp
 
         private bool _called;
     }
-    
+
     private class Callback
     {
         public Callback(Ice.Communicator communicator, bool useCookie)
@@ -201,6 +201,7 @@ public class AllTests : TestCommon.TestApp
         Ice.ObjectPrx baseProxy = communicator.stringToProxy("test:default -p 12010");
         Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
         Test.MyClassPrx oneway = Test.MyClassPrxHelper.uncheckedCast(cl.ice_oneway());
+        Test.MyClassPrx batchOneway = Test.MyClassPrxHelper.uncheckedCast(cl.ice_batchOneway());
 
         Write("testing ice_invoke... ");
         Flush();
@@ -211,6 +212,12 @@ public class AllTests : TestCommon.TestApp
             {
                 test(false);
             }
+
+            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out outEncaps));
+            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out outEncaps));
+            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out outEncaps));
+            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out outEncaps));
+            batchOneway.ice_flushBatchRequests();
 
             Ice.OutputStream outS = Ice.Util.createOutputStream(communicator);
             outS.startEncapsulation();

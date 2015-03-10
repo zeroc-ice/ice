@@ -221,13 +221,6 @@ BOOL _returnsData;
     [super dealloc];
 }
 
--(void) finalize
-{
-    ASYNCRESULT->__decRef();
-    asyncResult__ = 0;
-    [super finalize];
-}
-
 +(ICEAsyncResult*) asyncResultWithAsyncResult__:(const Ice::AsyncResultPtr&)arg
 {
     return [self asyncResultWithAsyncResult__:arg operation:nil proxy:nil];
@@ -349,13 +342,6 @@ BOOL _returnsData;
     objectPrx__ = 0;
     [communicator__ release];
     [super dealloc];
-}
-
--(void) finalize
-{
-    OBJECTPRX->__decRef();
-    objectPrx__ = 0;
-    [super finalize];
 }
 
 +(ICEObjectPrx*) objectPrxWithObjectPrx__:(const Ice::ObjectPrx&)arg

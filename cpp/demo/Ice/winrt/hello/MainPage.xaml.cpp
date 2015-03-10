@@ -125,6 +125,13 @@ hello::MainPage::updateProxy()
         prx = prx->ice_invocationTimeout(static_cast<int>(timeout->Value * 1000));
     }
     _helloPrx = Demo::HelloPrx::uncheckedCast(prx);
+
+    //
+    // The batch requests associated to the proxy are lost when we
+    // update the proxy.
+    //
+    flush->IsEnabled = false;
+
     print("Ready.");
 }
 
@@ -172,7 +179,7 @@ hello::MainPage::hello_Click(Platform::Object^ sender, Windows::UI::Xaml::Routed
                                                     Ice::ConnectionPtr con = _helloPrx->ice_getCachedConnection();
                                                     if(con)
                                                     {
-                                                        Ice::IPConnectionInfoPtr info = 
+                                                        Ice::IPConnectionInfoPtr info =
                                                             Ice::IPConnectionInfoPtr::dynamicCast(con->getInfo());
                                                         if(info)
                                                         {
@@ -195,7 +202,7 @@ hello::MainPage::hello_Click(Platform::Object^ sender, Windows::UI::Xaml::Routed
                                                     print("Ready.");
                                                 }
                                             });
-            
+
             if(!result->sentSynchronously())
             {
                 print("Sending request");
@@ -264,19 +271,24 @@ void hello::MainPage::shutdown_Click(Platform::Object^ sender, Windows::UI::Xaml
 
 void hello::MainPage::flush_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
+    if(!_helloPrx)
+    {
+        return;
+    }
+
     try
     {
         flush->IsEnabled = false;
-        _communicator->begin_flushBatchRequests([=](const Ice::Exception& ex)
-                                                    {
-                                                        ostringstream os;
-                                                        os << ex;
-                                                        print(os.str());
-                                                    },
+        _helloPrx->begin_ice_flushBatchRequests([=](const Ice::Exception& ex)
+                                                {
+                                                    ostringstream os;
+                                                    os << ex;
+                                                    print(os.str());
+                                                },
                                                 [=](bool)
-                                                    {
-                                                        print("Flushed batch requests.");
-                                                    });
+                                                {
+                                                    print("Flushed batch requests.");
+                                                });
     }
     catch(const Ice::Exception& ex)
     {
@@ -286,19 +298,19 @@ void hello::MainPage::flush_Click(Platform::Object^ sender, Windows::UI::Xaml::R
     }
 }
 
-void 
+void
 MainPage::mode_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e)
 {
     updateProxy();
 }
 
-void 
+void
 MainPage::timeout_ValueChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::Primitives::RangeBaseValueChangedEventArgs^ e)
 {
     updateProxy();
 }
 
-void 
+void
 MainPage::hostname_TextChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::TextChangedEventArgs^ e)
 {
     if (hostname->Text->Length() == 0 && !useDiscovery->IsChecked->Value)
@@ -336,5 +348,3 @@ MainPage::print(const std::string& message)
 {
     output->Text = ref new String(IceUtil::stringToWstring(message).c_str());
 }
-
-

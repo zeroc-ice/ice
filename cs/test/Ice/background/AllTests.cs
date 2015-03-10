@@ -779,16 +779,6 @@ public class AllTests
         //
         // First send small requests to test without auto-flushing.
         //
-        backgroundBatchOneway.ice_ping();
-        closeConnection(backgroundBatchOneway);
-        try
-        {
-            backgroundBatchOneway.ice_ping();
-            test(false);
-        }
-        catch(Ice.CloseConnectionException)
-        {
-        }
         ctl.holdAdapter();
         backgroundBatchOneway.op();
         backgroundBatchOneway.op();
@@ -800,16 +790,6 @@ public class AllTests
         //
         // Send bigger requests to test with auto-flushing.
         //
-        backgroundBatchOneway.ice_ping();
-        closeConnection(backgroundBatchOneway);
-        try
-        {
-            backgroundBatchOneway.ice_ping();
-            test(false);
-        }
-        catch(Ice.CloseConnectionException)
-        {
-        }
         ctl.holdAdapter();
         backgroundBatchOneway.opWithPayload(seq);
         backgroundBatchOneway.opWithPayload(seq);
@@ -822,16 +802,6 @@ public class AllTests
         // Then try the same thing with async flush.
         //
 
-        backgroundBatchOneway.ice_ping();
-        closeConnection(backgroundBatchOneway);
-        try
-        {
-            backgroundBatchOneway.ice_ping();
-            test(false);
-        }
-        catch(Ice.CloseConnectionException)
-        {
-        }
         ctl.holdAdapter();
         backgroundBatchOneway.op();
         backgroundBatchOneway.op();
@@ -841,16 +811,6 @@ public class AllTests
         backgroundBatchOneway.begin_ice_flushBatchRequests();
         closeConnection(backgroundBatchOneway);
 
-        backgroundBatchOneway.ice_ping();
-        closeConnection(backgroundBatchOneway);
-        try
-        {
-            backgroundBatchOneway.ice_ping();
-            test(false);
-        }
-        catch(Ice.CloseConnectionException)
-        {
-        }
         ctl.holdAdapter();
         backgroundBatchOneway.opWithPayload(seq);
         backgroundBatchOneway.opWithPayload(seq);
@@ -1084,9 +1044,9 @@ public class AllTests
         Ice.AsyncResult r2 = background.begin_op().whenCompleted(cb2.response, cb2.noException).whenSent(cb2.sent);
         test(!r2.sentSynchronously() && !r2.isSent());
 
-        test(!backgroundOneway.begin_opWithPayload(seq).whenCompleted(cbWP.noResponse, 
+        test(!backgroundOneway.begin_opWithPayload(seq).whenCompleted(cbWP.noResponse,
                                                                       cbWP.noException).sentSynchronously());
-        test(!backgroundOneway.begin_opWithPayload(seq).whenCompleted(cbWP.noResponse, 
+        test(!backgroundOneway.begin_opWithPayload(seq).whenCompleted(cbWP.noResponse,
                                                                       cbWP.noException).sentSynchronously());
 
         test(!cb.checkResponse(false));

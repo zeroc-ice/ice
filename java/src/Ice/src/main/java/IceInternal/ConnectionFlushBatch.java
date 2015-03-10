@@ -41,28 +41,38 @@ public class ConnectionFlushBatch extends OutgoingAsyncBase
     {
         return _connection;
     }
-    
+
     public void invoke()
     {
         try
         {
+            final int batchRequestNum = _connection.getBatchRequestQueue().swap(_os);
+
             int status;
-            if(_instance.queueRequests())
+            if(batchRequestNum == 0)
+            {
+                status = IceInternal.AsyncStatus.Sent;
+                if(sent())
+                {
+                    status |= IceInternal.AsyncStatus.InvokeSentCallback;
+                }
+            }
+            else if(_instance.queueRequests())
             {
                 status = _instance.getQueueExecutor().executeNoThrow(new Callable<Integer>()
                 {
                     @Override
-                    public Integer call()
+                    public Integer call() throws RetryException
                     {
-                        return _connection.flushAsyncBatchRequests(ConnectionFlushBatch.this);
+                        return _connection.sendAsyncRequest(ConnectionFlushBatch.this, false, false, batchRequestNum);
                     }
                 });
             }
             else
             {
-                status = _connection.flushAsyncBatchRequests(this);
+                status = _connection.sendAsyncRequest(this, false, false, batchRequestNum);
             }
-            
+
             if((status & AsyncStatus.Sent) > 0)
             {
                 _sentSynchronously = true;
@@ -70,6 +80,13 @@ public class ConnectionFlushBatch extends OutgoingAsyncBase
                 {
                     invokeSent();
                 }
+            }
+        }
+        catch(RetryException ex)
+        {
+            if(completed(ex.get()))
+            {
+                invokeCompletedAsync();
             }
         }
         catch(Ice.Exception ex)

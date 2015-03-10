@@ -32,6 +32,28 @@
             }
         };
 
+        var getConnectionBatchProxy = function(proxy, connectionId)
+        {
+            if(!connectionId)
+            {
+                connectionId = "";
+            }
+            var p = proxy;
+            return p.ice_connectionId(connectionId).ice_getConnection().then(
+                function(c)
+                {
+                    p = p.constructor.uncheckedCast(c.createProxy(proxy.ice_getIdentity())).ice_batchOneway();
+                    return p.ice_getConnection();
+                }
+            ).then(
+                function(c)
+                {
+                    test(p.ice_getCachedConnection() === c)
+                    return p;
+                }
+            );
+        }
+
         var result = null;
         var p = Test.TestIntfPrx.uncheckedCast(communicator.stringToProxy("test:default -p 12010"));
         var testController =
@@ -84,13 +106,15 @@
                     function(count)
                     {
                         test(count === 0);
-                        b1 = p.ice_batchOneway();
-                        test(b1.opBatch().completed());
-                        test(b1.opBatch().completed());
-                        return b1.ice_getConnection().then(function(connection)
-                                                           {
-                                                               return connection.flushBatchRequests();
-                                                           });
+                        return getConnectionBatchProxy(p).then(
+                            function(prx)
+                            {
+                                b1 = prx;
+                                connection = b1.ice_getCachedConnection();
+                                test(b1.opBatch().completed());
+                                test(b1.opBatch().completed());
+                                return connection.flushBatchRequests();
+                            });
                     }
                 ).then(
                     function(r1)
@@ -160,16 +184,16 @@
                         // AsyncResult exception - 2 connections
                         //
                         test(batchCount === 0);
-                        b1 = p.ice_batchOneway();
-                        b2 = p.ice_connectionId("2").ice_batchOneway();
-                        return b1.ice_getConnection().then(
-                            function()
+                        return getConnectionBatchProxy(p).then(
+                            function(prx)
                             {
-                                return b2.ice_getConnection();
+                                b1 = prx;
+                                return getConnectionBatchProxy(p, "2");
                             }
                         ).then( // Ensure connection is established.
-                            function()
+                            function(prx)
                             {
+                                b2 = prx;
                                 b1.opBatch();
                                 b1.opBatch();
                                 b2.opBatch();
@@ -196,16 +220,16 @@
                         // Exceptions should not be reported.
                         //
                         test(batchCount === 0);
-                        b1 = p.ice_batchOneway();
-                        b2 = p.ice_connectionId("2").ice_batchOneway();
-                        return b1.ice_getConnection().then(
-                            function()
+                        return getConnectionBatchProxy(p).then(
+                            function(prx)
                             {
-                                return b2.ice_getConnection();
+                                b1 = prx;
+                                return getConnectionBatchProxy(p, "2");
                             }
                         ).then( // Ensure connection is established.
-                            function()
+                            function(prx)
                             {
+                                b2 = prx;
                                 b1.opBatch();
                                 b2.opBatch();
                                 b1.ice_getCachedConnection().close(false);
@@ -231,16 +255,16 @@
                         // Exceptions should not be reported.
                         //
                         test(batchCount === 0);
-                        b1 = p.ice_batchOneway();
-                        b2 = p.ice_connectionId("2").ice_batchOneway();
-                        return b1.ice_getConnection().then(
-                            function()
+                        return getConnectionBatchProxy(p).then(
+                            function(prx)
                             {
-                                return b2.ice_getConnection();
+                                b1 = prx;
+                                return getConnectionBatchProxy(p, "2");
                             }
                         ).then( // Ensure connection is established.
-                            function()
+                            function(prx)
                             {
+                                b2 = prx;
                                 b1.opBatch();
                                 b2.opBatch();
                                 b1.ice_getCachedConnection().close(false);

@@ -53,28 +53,7 @@ private:
 };
 typedef IceUtil::Handle<Callback> CallbackPtr;
 
-class Callback_ByteSOneway1 : public IceUtil::Shared
-{
-    CallbackPtr _cb;
-
-public:
-
-    Callback_ByteSOneway1(const CallbackPtr& cb) : _cb(cb)
-    {
-    }
-
-    void response()
-    {
-        _cb->called();
-    }
-
-    void exception(const ::Ice::Exception&)
-    {
-        test(false);
-    }
-};
-
-class Callback_ByteSOneway3 : public IceUtil::Shared
+class Callback_ByteSOneway : public IceUtil::Shared
 {
 public:
 
@@ -115,57 +94,48 @@ void
 batchOnewaysAMI(const Test::MyClassPrx& p)
 {
     const Test::ByteS bs1(10  * 1024);
-    const Test::ByteS bs2(99  * 1024);
-    const Test::ByteS bs3(100  * 1024);
-    
-    CallbackPtr cb = new Callback();
-    p->begin_opByteSOneway(bs1, Test::newCallback_MyClass_opByteSOneway(new Callback_ByteSOneway1(cb),
-        &Callback_ByteSOneway1::response, &Callback_ByteSOneway1::exception));
-    cb->check();
-
-    p->begin_opByteSOneway(bs2, Test::newCallback_MyClass_opByteSOneway(new Callback_ByteSOneway1(cb),
-        &Callback_ByteSOneway1::response, &Callback_ByteSOneway1::exception));
-    cb->check();
 
     Test::MyClassPrx batch = Test::MyClassPrx::uncheckedCast(p->ice_batchOneway());
-    batch->end_ice_flushBatchRequests(batch->begin_ice_flushBatchRequests());
+    batch->end_ice_flushBatchRequests(batch->begin_ice_flushBatchRequests()); // Empty flush
 
-    int i;
+    test(batch->begin_ice_flushBatchRequests()->isSent()); // Empty flush
+    test(batch->begin_ice_flushBatchRequests()->isCompleted()); // Empty flush
+    test(batch->begin_ice_flushBatchRequests()->sentSynchronously()); // Empty flush
 
-    for(i = 0 ; i < 30 ; ++i)
+    for(int i = 0 ; i < 30 ; ++i)
     {
-        p->begin_opByteSOneway(bs1, Test::newCallback_MyClass_opByteSOneway(new Callback_ByteSOneway3(), 
-                                                                            &Callback_ByteSOneway3::response, 
-                                                                            &Callback_ByteSOneway3::exception));
+        batch->begin_opByteSOneway(bs1, Test::newCallback_MyClass_opByteSOneway(new Callback_ByteSOneway(),
+                                                                                &Callback_ByteSOneway::response,
+                                                                                &Callback_ByteSOneway::exception));
     }
-    
+
+    int count = 0;
+    while(count < 27) // 3 * 9 requests auto-flushed.
+    {
+        count += p->opByteSOnewayCallCount();
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
+    }
+
     if(batch->ice_getConnection())
     {
-        batch->ice_getConnection()->end_flushBatchRequests(batch->ice_getConnection()->begin_flushBatchRequests());
-
+        Test::MyClassPrx batch1 = Test::MyClassPrx::uncheckedCast(p->ice_batchOneway());
         Test::MyClassPrx batch2 = Test::MyClassPrx::uncheckedCast(p->ice_batchOneway());
 
-        batch->begin_ice_ping();
-        batch2->begin_ice_ping();
-        batch->end_ice_flushBatchRequests(batch->begin_ice_flushBatchRequests());
-        batch->ice_getConnection()->close(false);
-        batch->begin_ice_ping();
-        batch2->begin_ice_ping();
+        batch1->end_ice_ping(batch1->begin_ice_ping());
+        batch2->end_ice_ping(batch2->begin_ice_ping());
+        batch1->end_ice_flushBatchRequests(batch1->begin_ice_flushBatchRequests());
+        batch1->ice_getConnection()->close(false);
+        batch1->end_ice_ping(batch1->begin_ice_ping());
+        batch2->end_ice_ping(batch2->begin_ice_ping());
 
-        batch->ice_getConnection();
+        batch1->ice_getConnection();
         batch2->ice_getConnection();
 
-        batch->begin_ice_ping();
-        batch->ice_getConnection()->close(false);
+        batch1->end_ice_ping(batch1->begin_ice_ping());
+        batch1->ice_getConnection()->close(false);
 
-        batch->begin_ice_ping(Ice::newCallback_Object_ice_ping(new Callback_ping(cb), &Callback_ping::response, &Callback_ping::exception));
-        cb->check();
-
-        batch2->begin_ice_ping(Ice::newCallback_Object_ice_ping(new Callback_ping(cb), &Callback_ping::response, &Callback_ping::exception));
-        cb->check();
-
-        batch->begin_ice_ping();
-        batch2->begin_ice_ping();
+        batch1->end_ice_ping(batch1->begin_ice_ping());
+        batch2->end_ice_ping(batch2->begin_ice_ping());
     }
 
     Ice::Identity identity;

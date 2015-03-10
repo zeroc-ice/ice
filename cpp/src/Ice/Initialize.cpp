@@ -194,8 +194,8 @@ inline void checkIceVersion(Int version)
     {
         throw VersionMismatchException(__FILE__, __LINE__);
     }
-    
-#   endif    
+
+#   endif
 #endif
 }
 
@@ -381,21 +381,47 @@ Ice::newDispatcher(const ::std::function<void (const DispatcherCallPtr&, const C
     class Cpp11Dispatcher : public Dispatcher
     {
     public:
-        
+
         Cpp11Dispatcher(const ::std::function<void (const DispatcherCallPtr&, const ConnectionPtr)>& cb) :
             _cb(cb)
         {
         }
-        
+
         virtual void dispatch(const DispatcherCallPtr& call, const ConnectionPtr& conn)
         {
             _cb(call, conn);
         }
-        
+
     private:
         const ::std::function<void (const DispatcherCallPtr&, const ConnectionPtr)> _cb;
     };
 
     return new Cpp11Dispatcher(cb);
+}
+#endif
+
+#ifdef ICE_CPP11
+Ice::BatchRequestInterceptorPtr
+Ice::newBatchRequestInterceptor(const ::std::function<void (const BatchRequest&, int, int)>& cb)
+{
+    class Cpp11BatchRequestInterceptor : public BatchRequestInterceptor
+    {
+    public:
+
+        Cpp11BatchRequestInterceptor(const ::std::function<void (const BatchRequest&, int, int)>& cb) :
+            _cb(cb)
+        {
+        }
+
+        virtual void enqueue(const BatchRequest& request, int count, int size)
+        {
+            _cb(request, count, size);
+        }
+
+    private:
+        const ::std::function<void (const BatchRequest&, int, int)> _cb;
+    };
+
+    return new Cpp11BatchRequestInterceptor(cb);
 }
 #endif

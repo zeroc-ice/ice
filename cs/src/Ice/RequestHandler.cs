@@ -19,18 +19,12 @@ namespace IceInternal
 
     public interface RequestHandler : CancellationHandler
     {
-        RequestHandler connect(Ice.ObjectPrxHelperBase proxy);
         RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler);
 
-        void prepareBatchRequest(BasicStream @out);
-        void finishBatchRequest(BasicStream @out);
-        void abortBatchRequest();
-
-        bool sendAsyncRequest(OutgoingAsyncBase @out, out Ice.AsyncCallback cb);
+        bool sendAsyncRequest(ProxyOutgoingAsyncBase @out, out Ice.AsyncCallback cb);
 
         Reference getReference();
 
         Ice.ConnectionI getConnection();
-        Ice.ConnectionI waitForConnection();
     }
 }

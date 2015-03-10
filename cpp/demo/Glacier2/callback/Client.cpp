@@ -163,7 +163,7 @@ CallbackClient::runWithSession(int argc, char*[])
         }
         else if(c == 'f')
         {
-            communicator()->flushBatchRequests();
+            batchOneway->ice_flushBatchRequests();
         }
         else if(c == 'v')
         {

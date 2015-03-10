@@ -279,11 +279,11 @@ Ice::CommunicatorI::__begin_flushBatchRequests(const IceInternal::CallbackBasePt
     // This callback object receives the results of all invocations
     // of Connection::begin_flushBatchRequests.
     //
-    CommunicatorFlushBatchPtr result = new CommunicatorFlushBatch(this, 
-                                                                  _instance, 
-                                                                  __flushBatchRequests_name, 
-                                                                  cb, 
-                                                                  cookie);
+    CommunicatorFlushBatchAsyncPtr result = new CommunicatorFlushBatchAsync(this,
+                                                                            _instance,
+                                                                            __flushBatchRequests_name,
+                                                                            cb,
+                                                                            cookie);
 
     connectionFactory->flushAsyncBatchRequests(result);
     adapterFactory->flushAsyncBatchRequests(result);

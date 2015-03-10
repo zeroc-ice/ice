@@ -24,29 +24,13 @@ public class QueueRequestHandler implements RequestHandler
     }
 
     @Override
-    public RequestHandler 
-    connect(final Ice.ObjectPrxHelperBase proxy)
-    {
-        _executor.executeNoThrow(new Callable<Void>()
-        {
-            @Override
-            public Void call()
-            {
-                _delegate.connect(proxy);
-                return null;
-            }
-        });
-        return this;
-    }
-    
-    @Override
-    public RequestHandler 
+    public RequestHandler
     update(RequestHandler previousHandler, RequestHandler newHandler)
     {
         //
         // Only update to new handler if the previous handler matches this one.
         //
-        if(previousHandler == this)
+        if(previousHandler == this || previousHandler == _delegate)
         {
             if(newHandler != null)
             {
@@ -59,55 +43,10 @@ public class QueueRequestHandler implements RequestHandler
         }
         return this;
     }
-    
-    @Override
-    public void
-    prepareBatchRequest(final BasicStream out) throws RetryException
-    {
-        _executor.execute(new Callable<Void>()
-        {
-            @Override
-            public Void call() throws RetryException
-            {
-                _delegate.prepareBatchRequest(out);
-                return null;
-            }
-        });
-    }
-
-    @Override
-    public void
-    finishBatchRequest(final BasicStream out)
-    {
-        _executor.executeNoThrow(new Callable<Void>()
-        {
-            @Override
-            public Void call() throws RetryException
-            {
-                _delegate.finishBatchRequest(out);
-                return null;
-            }
-        });
-    }
-
-    @Override
-    public void
-    abortBatchRequest()
-    {
-        _executor.executeNoThrow(new Callable<Void>()
-        {
-            @Override
-            public Void call()
-            {
-                _delegate.abortBatchRequest();
-                return null;
-            }
-        });
-    }
 
     @Override
     public int
-    sendAsyncRequest(final OutgoingAsyncBase out) throws RetryException
+    sendAsyncRequest(final ProxyOutgoingAsyncBase out) throws RetryException
     {
         return _executor.execute(new Callable<Integer>()
         {
@@ -148,14 +87,6 @@ public class QueueRequestHandler implements RequestHandler
         return _delegate.getConnection();
     }
 
-    @Override
-    public ConnectionI
-    waitForConnection()
-        throws InterruptedException, RetryException
-    {
-        return _delegate.waitForConnection();
-    }
-    
     private final RequestHandler _delegate;
     private final QueueExecutorService _executor;
 }

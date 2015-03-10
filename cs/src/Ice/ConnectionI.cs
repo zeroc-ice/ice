@@ -370,7 +370,7 @@ namespace Ice
                         setState(StateClosed, new ConnectionTimeoutException());
                     }
                     else if(acm.close != ACMClose.CloseOnInvocation &&
-                            _dispatchCount == 0 && _batchStream.isEmpty()  &&
+                            _dispatchCount == 0 && _batchRequestQueue.isEmpty()  &&
                             _asyncRequests.Count == 0)
                     {
                         //
@@ -382,8 +382,8 @@ namespace Ice
             }
         }
 
-        public bool sendAsyncRequest(IceInternal.OutgoingAsync og, bool compress, bool response,
-                                     out Ice.AsyncCallback sentCallback)
+        public bool sendAsyncRequest(IceInternal.OutgoingAsyncBase og, bool compress, bool response,
+                                     int batchRequestNum, out Ice.AsyncCallback sentCallback)
         {
             IceInternal.BasicStream os = og.getOs();
 
@@ -433,6 +433,11 @@ namespace Ice
                     os.pos(IceInternal.Protocol.headerSize);
                     os.writeInt(requestId);
                 }
+                else if(batchRequestNum > 0)
+                {
+                    os.pos(IceInternal.Protocol.headerSize);
+                    os.writeInt(batchRequestNum);
+                }
 
                 og.attachRemoteObserver(initConnectionInfo(), _endpoint, requestId);
 
@@ -461,197 +466,9 @@ namespace Ice
             }
         }
 
-        public void prepareBatchRequest(IceInternal.BasicStream os)
+        public IceInternal.BatchRequestQueue getBatchRequestQueue()
         {
-            lock(this)
-            {
-                //
-                // Wait if flushing is currently in progress.
-                //
-                while(_batchStreamInUse && _exception == null)
-                {
-                    System.Threading.Monitor.Wait(this);
-                }
-
-                if(_exception != null)
-                {
-                    //
-                    // If there were no batch requests queued when the connection failed, we can safely
-                    // retry with a new connection. Otherwise, we must throw to notify the caller that
-                    // some previous batch requests were not sent.
-                    //
-                    if(_batchStream.isEmpty())
-                    {
-                        throw new IceInternal.RetryException(_exception);
-                    }
-                    else
-                    {
-                        throw _exception;
-                    }
-                }
-
-                Debug.Assert(_state > StateNotValidated);
-                Debug.Assert(_state < StateClosing);
-
-                if(_batchStream.isEmpty())
-                {
-                    try
-                    {
-                        _batchStream.writeBlob(IceInternal.Protocol.requestBatchHdr);
-                    }
-                    catch(LocalException ex)
-                    {
-                        setState(StateClosed, ex);
-                        throw;
-                    }
-                }
-
-                _batchStreamInUse = true;
-                _batchMarker = _batchStream.size();
-                _batchStream.swap(os);
-
-                //
-                // The batch stream now belongs to the caller, until
-                // finishBatchRequest() or abortBatchRequest() is called.
-                //
-            }
-        }
-
-        public void finishBatchRequest(IceInternal.BasicStream os, bool compress)
-        {
-            try
-            {
-                lock(this)
-                {
-                    //
-                    // Get the batch stream back.
-                    //
-                    _batchStream.swap(os);
-
-                    if(_exception != null)
-                    {
-                        return;
-                    }
-
-                    bool flush = false;
-                    if(_batchAutoFlushSize > 0)
-                    {
-                        if(_batchStream.size() > _batchAutoFlushSize)
-                        {
-                            flush = true;
-                        }
-
-                        //
-                        // Throw memory limit exception if the first message added causes us to
-                        // go over limit. Otherwise put aside the marshalled message that caused
-                        // limit to be exceeded and rollback stream to the marker.
-                        //
-                        try
-                        {
-                            _transceiver.checkSendSize(_batchStream.getBuffer());
-                        }
-                        catch(LocalException)
-                        {
-                            if(_batchRequestNum > 0)
-                            {
-                                flush = true;
-                            }
-                            else
-                            {
-                                throw;
-                            }
-                        }
-                    }
-
-                    if(flush)
-                    {
-                        //
-                        // Temporarily save the last request.
-                        //
-                        int requestSize = _batchStream.size() - _batchMarker;
-                        byte[] lastRequest = new byte[requestSize];
-                        Buffer.BlockCopy(_batchStream.getBuffer().b.rawBytes(), _batchMarker, lastRequest, 0,
-                                         requestSize);
-                        _batchStream.resize(_batchMarker, false);
-
-                        //
-                        // Send the batch stream without the last request.
-                        //
-                        try
-                        {
-                            //
-                            // Fill in the number of requests in the batch.
-                            //
-                            _batchStream.pos(IceInternal.Protocol.headerSize);
-                            _batchStream.writeInt(_batchRequestNum);
-
-                            OutgoingMessage message = new OutgoingMessage(_batchStream, _batchRequestCompress, true);
-                            sendMessage(message);
-                        }
-                        catch(LocalException ex)
-                        {
-                            setState(StateClosed, ex);
-                            Debug.Assert(_exception != null);
-                            throw _exception;
-                        }
-
-                        //
-                        // Reset the batch stream.
-                        //
-                        _batchStream = new IceInternal.BasicStream(_instance, Util.currentProtocolEncoding);
-                        _batchRequestNum = 0;
-                        _batchRequestCompress = false;
-                        _batchMarker = 0;
-
-                        //
-                        // Start a new batch with the last message that caused us to go over the limit.
-                        //
-                        _batchStream.writeBlob(IceInternal.Protocol.requestBatchHdr);
-                        _batchStream.writeBlob(lastRequest);
-                    }
-
-                    //
-                    // Increment the number of requests in the batch.
-                    //
-                    ++_batchRequestNum;
-
-                    //
-                    // We compress the whole batch if there is at least one compressed
-                    // message.
-                    //
-                    if(compress)
-                    {
-                        _batchRequestCompress = true;
-                    }
-
-                    //
-                    // Notify about the batch stream not being in use anymore.
-                    //
-                    Debug.Assert(_batchStreamInUse);
-                    _batchStreamInUse = false;
-                    System.Threading.Monitor.PulseAll(this);
-                }
-            }
-            catch(LocalException)
-            {
-                abortBatchRequest();
-                throw;
-            }
-        }
-
-        public void abortBatchRequest()
-        {
-            lock(this)
-            {
-                _batchStream = new IceInternal.BasicStream(_instance, Util.currentProtocolEncoding);
-                _batchRequestNum = 0;
-                _batchRequestCompress = false;
-                _batchMarker = 0;
-
-                Debug.Assert(_batchStreamInUse);
-                _batchStreamInUse = false;
-                System.Threading.Monitor.PulseAll(this);
-            }
+            return _batchRequestQueue;
         }
 
         public void flushBatchRequests()
@@ -688,70 +505,6 @@ namespace Ice
             }
             result.invoke();
             return result;
-        }
-
-        public bool flushAsyncBatchRequests(IceInternal.OutgoingAsyncBase outAsync, out Ice.AsyncCallback sentCallback)
-        {
-            lock(this)
-            {
-                while(_batchStreamInUse && _exception == null)
-                {
-                    System.Threading.Monitor.Wait(this);
-                }
-
-                if(_exception != null)
-                {
-                    throw _exception;
-                }
-
-                if(_batchRequestNum == 0)
-                {
-                    sentCallback = outAsync.sent();
-                    return true;
-                }
-
-                //
-                // Notify the request that it's cancelable with this connection.
-                // This will throw if the request is canceled.
-                //
-                outAsync.cancelable(this);
-
-                //
-                // Fill in the number of requests in the batch.
-                //
-                _batchStream.pos(IceInternal.Protocol.headerSize);
-                _batchStream.writeInt(_batchRequestNum);
-
-                _batchStream.swap(outAsync.getOs());
-
-                outAsync.attachRemoteObserver(initConnectionInfo(), _endpoint, 0);
-
-                //
-                // Send the batch stream.
-                //
-                bool sent;
-                try
-                {
-                    OutgoingMessage message = new OutgoingMessage(outAsync, outAsync.getOs(), _batchRequestCompress, 0);
-                    sent = sendMessage(message);
-                    sentCallback = message.sentCallback;
-                }
-                catch(LocalException ex)
-                {
-                    setState(StateClosed, ex);
-                    Debug.Assert(_exception != null);
-                    throw _exception;
-                }
-
-                //
-                // Reset the batch stream.
-                //
-                _batchStream = new IceInternal.BasicStream(_instance, Util.currentProtocolEncoding);
-                _batchRequestNum = 0;
-                _batchRequestCompress = false;
-                _batchMarker = 0;
-                return sent;
-            }
         }
 
         public void setCallback(ConnectionCallback callback)
@@ -872,10 +625,9 @@ namespace Ice
 
                 if(outAsync is IceInternal.OutgoingAsync)
                 {
-                    IceInternal.OutgoingAsync o = (IceInternal.OutgoingAsync)outAsync;
-                    foreach(KeyValuePair<int, IceInternal.OutgoingAsync> kvp in _asyncRequests)
+                    foreach(KeyValuePair<int, IceInternal.OutgoingAsyncBase> kvp in _asyncRequests)
                     {
-                        if(kvp.Value == o)
+                        if(kvp.Value == outAsync)
                         {
                             if(ex is Ice.ConnectionTimeoutException)
                             {
@@ -1682,7 +1434,7 @@ namespace Ice
                 _sendStreams.Clear();
             }
 
-            foreach(IceInternal.OutgoingAsync o in _asyncRequests.Values)
+            foreach(IceInternal.OutgoingAsyncBase o in _asyncRequests.Values)
             {
                 Ice.AsyncCallback cb = o.completed(_exception);
                 if(cb != null)
@@ -1831,12 +1583,7 @@ namespace Ice
             }
             _nextRequestId = 1;
             _messageSizeMax = adapter != null ? adapter.messageSizeMax() : instance.messageSizeMax();
-            _batchAutoFlushSize = instance.batchAutoFlushSize();
-            _batchStream = new IceInternal.BasicStream(instance, Util.currentProtocolEncoding);
-            _batchStreamInUse = false;
-            _batchRequestNum = 0;
-            _batchRequestCompress = false;
-            _batchMarker = 0;
+            _batchRequestQueue = new IceInternal.BatchRequestQueue(instance, _endpoint.datagram());
             _readStream = new IceInternal.BasicStream(instance, Util.currentProtocolEncoding);
             _readHeader = false;
             _readStreamPos = -1;
@@ -2036,6 +1783,7 @@ namespace Ice
                         return;
                     }
 
+                    _batchRequestQueue.destroy(_exception);
                     _threadPool.finish(this);
                     _transceiver.close();
                     break;
@@ -2594,7 +2342,7 @@ namespace Ice
             public byte compress;
             public IceInternal.ServantManager servantManager;
             public ObjectAdapter adapter;
-            public IceInternal.OutgoingAsync outAsync;
+            public IceInternal.OutgoingAsyncBase outAsync;
             public Ice.AsyncCallback completedCallback;
             public ConnectionCallback heartbeatCallback;
             public int messageDispatchCount;
@@ -2720,7 +2468,7 @@ namespace Ice
                     {
                         IceInternal.TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
                         info.requestId = info.stream.readInt();
-                        IceInternal.OutgoingAsync outAsync = null;
+                        IceInternal.OutgoingAsyncBase outAsync = null;
                         if(_asyncRequests.TryGetValue(info.requestId, out outAsync))
                         {
                             _asyncRequests.Remove(info.requestId);
@@ -3192,18 +2940,13 @@ namespace Ice
 
         private int _nextRequestId;
 
-        private Dictionary<int, IceInternal.OutgoingAsync> _asyncRequests =
-            new Dictionary<int, IceInternal.OutgoingAsync>();
+        private Dictionary<int, IceInternal.OutgoingAsyncBase> _asyncRequests =
+            new Dictionary<int, IceInternal.OutgoingAsyncBase>();
 
         private LocalException _exception;
 
         private readonly int _messageSizeMax;
-        private readonly int _batchAutoFlushSize;
-        private IceInternal.BasicStream _batchStream;
-        private bool _batchStreamInUse;
-        private int _batchRequestNum;
-        private bool _batchRequestCompress;
-        private int _batchMarker;
+        private IceInternal.BatchRequestQueue _batchRequestQueue;
 
         private LinkedList<OutgoingMessage> _sendStreams = new LinkedList<OutgoingMessage>();
 

@@ -78,7 +78,7 @@ public class Client
             menu();
 
             string line = null;
-            do 
+            do
             {
                 try
                 {
@@ -125,7 +125,8 @@ public class Client
                     }
                     else if(line.Equals("f"))
                     {
-                        communicator().flushBatchRequests();
+                        batchOneway.ice_flushBatchRequests();
+                        batchDatagram.ice_flushBatchRequests();
                     }
                     else if(line.Equals("T"))
                     {
@@ -137,11 +138,11 @@ public class Client
                         {
                             timeout = -1;
                         }
-                        
+
                         twoway = (HelloPrx)twoway.ice_invocationTimeout(timeout);
                         oneway = (HelloPrx)oneway.ice_invocationTimeout(timeout);
                         batchOneway = (HelloPrx)batchOneway.ice_invocationTimeout(timeout);
-                        
+
                         if(timeout == -1)
                         {
                             Console.WriteLine("timeout is now switched off");
@@ -161,7 +162,7 @@ public class Client
                         {
                             delay = 0;
                         }
-                        
+
                         if(delay == 0)
                         {
                             Console.WriteLine("server delay is now deactivated");
@@ -214,7 +215,7 @@ public class Client
                 }
             }
             while (!line.Equals("x"));
-            
+
             return 0;
         }
 

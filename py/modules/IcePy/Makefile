@@ -10,12 +10,13 @@
 top_srcdir	= ../..
 
 LIBFILENAME     = $(call mkpylibfilename,IcePy,$(VERSION))
-SONAME          = $(call mkpysoname,IcePy,$(SOVERSION))  
+SONAME          = $(call mkpysoname,IcePy,$(SOVERSION))
 LIBNAME		= $(call mkpylibname,IcePy)
 
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
-OBJS		= Communicator.o \
+OBJS		= BatchRequestInterceptor.o \
+	      Communicator.o \
 		  Connection.o \
 		  ConnectionInfo.o \
 		  Current.o \

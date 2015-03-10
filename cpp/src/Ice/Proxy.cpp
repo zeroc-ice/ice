@@ -14,7 +14,6 @@
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Outgoing.h>
 #include <Ice/OutgoingAsync.h>
-#include <Ice/RequestHandlerFactory.h>
 #include <Ice/Reference.h>
 #include <Ice/EndpointI.h>
 #include <Ice/Instance.h>
@@ -1359,7 +1358,7 @@ IceProxy::Ice::Object::ice_getConnection()
         }
         catch(const IceInternal::RetryException&)
         {
-            __setRequestHandler(handler, 0); // Clear request handler and retry.
+            __updateRequestHandler(handler, 0); // Clear request handler and retry.
         }
         catch(const Exception& ex)
         {
@@ -1430,7 +1429,7 @@ IceProxy::Ice::Object::ice_getCachedConnection() const
 void
 IceProxy::Ice::Object::ice_flushBatchRequests()
 {
-    FlushBatch og(this, ice_flushBatchRequests_name);
+    ProxyFlushBatch og(this, ice_flushBatchRequests_name);
     og.invoke();
 }
 
@@ -1438,7 +1437,7 @@ IceProxy::Ice::Object::ice_flushBatchRequests()
 IceProxy::Ice::Object::begin_ice_flushBatchRequestsInternal(const ::IceInternal::CallbackBasePtr& del,
                                                             const ::Ice::LocalObjectPtr& cookie)
 {
-    ProxyFlushBatchPtr result = new ProxyFlushBatch(this, ice_flushBatchRequests_name, del, cookie);
+    ProxyFlushBatchAsyncPtr result = new ProxyFlushBatchAsync(this, ice_flushBatchRequests_name, del, cookie);
     try
     {
         result->invoke();
@@ -1478,7 +1477,7 @@ IceProxy::Ice::Object::__handleException(const Exception& ex,
                                          bool sent,
                                          int& cnt)
 {
-    __setRequestHandler(handler, 0); // Clear the request handler
+    __updateRequestHandler(handler, 0); // Clear the request handler
 
     //
     // We only retry local exception, system exceptions aren't retried.
@@ -1624,19 +1623,39 @@ IceProxy::Ice::Object::__getRequestHandler()
         {
             return _requestHandler;
         }
-        handler = _reference->getInstance()->requestHandlerFactory()->getRequestHandler(_reference, this);
-        _requestHandler = handler;
     }
-    else
+    return _reference->getRequestHandler(this);
+}
+
+IceInternal::BatchRequestQueuePtr
+IceProxy::Ice::Object::__getBatchRequestQueue()
+{
+    IceUtil::Mutex::Lock sync(_mutex);
+    if(!_batchRequestQueue)
     {
-        handler = _reference->getInstance()->requestHandlerFactory()->getRequestHandler(_reference, this);
+        _batchRequestQueue = _reference->getBatchRequestQueue();
     }
-    return handler->connect(this);
+    return _batchRequestQueue;
+}
+
+::IceInternal::RequestHandlerPtr
+IceProxy::Ice::Object::__setRequestHandler(const ::IceInternal::RequestHandlerPtr& handler)
+{
+    if(_reference->getCacheConnection())
+    {
+        IceUtil::Mutex::Lock sync(_mutex);
+        if(!_requestHandler)
+        {
+            _requestHandler = handler;
+        }
+        return _requestHandler;
+    }
+    return handler;
 }
 
 void
-IceProxy::Ice::Object::__setRequestHandler(const ::IceInternal::RequestHandlerPtr& previous,
-                                           const ::IceInternal::RequestHandlerPtr& handler)
+IceProxy::Ice::Object::__updateRequestHandler(const ::IceInternal::RequestHandlerPtr& previous,
+                                              const ::IceInternal::RequestHandlerPtr& handler)
 {
     if(_reference->getCacheConnection() && previous)
     {

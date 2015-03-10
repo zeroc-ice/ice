@@ -43,12 +43,12 @@ namespace IceInternal
             return secure_;
         }
 
-        public Ice.ProtocolVersion getProtocol() 
+        public Ice.ProtocolVersion getProtocol()
         {
             return protocol_;
         }
 
-        public Ice.EncodingVersion getEncoding() 
+        public Ice.EncodingVersion getEncoding()
         {
             return encoding_;
         }
@@ -336,25 +336,25 @@ namespace IceInternal
                 s.Append(" -t");
                 break;
             }
-            
+
             case Mode.ModeOneway:
             {
                 s.Append(" -o");
                 break;
             }
-            
+
             case Mode.ModeBatchOneway:
             {
                 s.Append(" -O");
                 break;
             }
-            
+
             case Mode.ModeDatagram:
             {
                 s.Append(" -d");
                 break;
             }
-            
+
             case Mode.ModeBatchDatagram:
             {
                 s.Append(" -D");
@@ -383,7 +383,7 @@ namespace IceInternal
             // Always print the encoding version to ensure a stringified proxy
             // will convert back to a proxy with the same encoding with
             // stringToProxy (and won't use Ice.Default.EncodingVersion).
-            // 
+            //
             s.Append(" -e ");
             s.Append(Ice.Util.encodingVersionToString(encoding_));
 
@@ -394,7 +394,9 @@ namespace IceInternal
 
         public abstract Dictionary<string, string> toProperty(string prefix);
 
-        public abstract void getConnection(GetConnectionCallback callback);
+        public abstract RequestHandler getRequestHandler(Ice.ObjectPrxHelperBase proxy);
+
+        public abstract BatchRequestQueue getBatchRequestQueue();
 
         public override bool Equals(object obj)
         {
@@ -664,74 +666,75 @@ namespace IceInternal
             throw new Ice.FixedProxyException();
         }
 
-        public override void getConnection(GetConnectionCallback callback)
+        public override RequestHandler getRequestHandler(Ice.ObjectPrxHelperBase proxy)
         {
-            try
+            switch(getMode())
             {
-                switch(getMode())
-                {
-                case Reference.Mode.ModeTwoway:
-                case Reference.Mode.ModeOneway:
-                case Reference.Mode.ModeBatchOneway:
-                {
-                    if(_fixedConnection.endpoint().datagram())
-                    {
-                        throw new Ice.NoEndpointException("");
-                    }
-                    break;
-                }
-                
-                case Reference.Mode.ModeDatagram:
-                case Reference.Mode.ModeBatchDatagram:
-                {
-                    if(!_fixedConnection.endpoint().datagram())
-                    {
-                        throw new Ice.NoEndpointException("");
-                    }
-                    break;
-                }
-                }
-
-                //
-                // If a secure connection is requested or secure overrides is set,
-                // check if the connection is secure.
-                //
-                bool secure;
-                DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
-                if(defaultsAndOverrides.overrideSecure)
-                {
-                    secure = defaultsAndOverrides.overrideSecureValue;
-                }
-                else
-                {
-                    secure = getSecure();
-                }
-                if(secure && !_fixedConnection.endpoint().secure())
+            case Reference.Mode.ModeTwoway:
+            case Reference.Mode.ModeOneway:
+            case Reference.Mode.ModeBatchOneway:
+            {
+                if(_fixedConnection.endpoint().datagram())
                 {
                     throw new Ice.NoEndpointException("");
                 }
-
-                _fixedConnection.throwException(); // Throw in case our connection is already destroyed.
-
-                bool compress;
-                if(defaultsAndOverrides.overrideCompress)
-                {
-                    compress = defaultsAndOverrides.overrideCompressValue;
-                }
-                else if(overrideCompress_)
-                {
-                    compress = compress_;
-                }
-                else
-                {
-                    compress = _fixedConnection.endpoint().compress();
-                }
-                callback.setConnection(_fixedConnection, compress);
+                break;
             }
-            catch(Ice.LocalException ex)
+
+            case Reference.Mode.ModeDatagram:
+            case Reference.Mode.ModeBatchDatagram:
             {
-                callback.setException(ex);
+                if(!_fixedConnection.endpoint().datagram())
+                {
+                    throw new Ice.NoEndpointException("");
+                }
+                break;
             }
+            }
+
+            //
+            // If a secure connection is requested or secure overrides is set,
+            // check if the connection is secure.
+            //
+            bool secure;
+            DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
+            if(defaultsAndOverrides.overrideSecure)
+            {
+                secure = defaultsAndOverrides.overrideSecureValue;
+            }
+            else
+            {
+                secure = getSecure();
+            }
+            if(secure && !_fixedConnection.endpoint().secure())
+            {
+                throw new Ice.NoEndpointException("");
+            }
+
+            _fixedConnection.throwException(); // Throw in case our connection is already destroyed.
+
+            bool compress;
+            if(defaultsAndOverrides.overrideCompress)
+            {
+                compress = defaultsAndOverrides.overrideCompressValue;
+            }
+            else if(overrideCompress_)
+            {
+                compress = compress_;
+            }
+            else
+            {
+                compress = _fixedConnection.endpoint().compress();
+            }
+
+            return ((Ice.ObjectPrxHelperBase)proxy).setRequestHandler__(new ConnectionRequestHandler(this,
+                                                                                                     _fixedConnection,
+                                                                                                     compress));
+        }
+
+        public override BatchRequestQueue getBatchRequestQueue()
+        {
+            return _fixedConnection.getBatchRequestQueue();
         }
 
         public override bool Equals(object obj)
@@ -770,7 +773,7 @@ namespace IceInternal
         {
             return _endpoints;
         }
-        
+
         public override string getAdapterId()
         {
             return _adapterId;
@@ -867,7 +870,7 @@ namespace IceInternal
             }
             RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
             r._adapterId = newAdapterId;
-            r._endpoints = _emptyEndpoints; 
+            r._endpoints = _emptyEndpoints;
             return r;
         }
 
@@ -937,7 +940,7 @@ namespace IceInternal
             RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
             r._endpointSelection = newType;
             return r;
-        }       
+        }
 
         public override Reference changeLocatorCacheTimeout(int newTimeout)
         {
@@ -1049,7 +1052,7 @@ namespace IceInternal
             else if(_adapterId.Length > 0)
             {
                 s.Append(" @ ");
-                
+
                 //
                 // If the encoded adapter id string contains characters which
                 // the reference parser uses as separators, then we enclose
@@ -1105,7 +1108,7 @@ namespace IceInternal
 
             return properties;
         }
-        
+
         //
         // If we override Equals, we must also override GetHashCode.
         //
@@ -1223,7 +1226,17 @@ namespace IceInternal
             private GetConnectionCallback _cb;
         }
 
-        public override void getConnection(GetConnectionCallback callback)
+        public override RequestHandler getRequestHandler(Ice.ObjectPrxHelperBase proxy)
+        {
+            return getInstance().requestHandlerFactory().getRequestHandler(this, proxy);
+        }
+
+        public override BatchRequestQueue getBatchRequestQueue()
+        {
+            return new BatchRequestQueue(getInstance(), getMode() == Reference.Mode.ModeBatchDatagram);
+        }
+
+        public void getConnection(GetConnectionCallback callback)
         {
             if(_routerInfo != null)
             {
@@ -1411,7 +1424,7 @@ namespace IceInternal
                     endpoints.Add(allEndpoints[i]);
                 }
             }
-            
+
             //
             // Filter out endpoints according to the mode of the reference.
             //
@@ -1591,7 +1604,7 @@ namespace IceInternal
                 // Get an existing connection or create one if there's no
                 // existing connection to one of the given endpoints.
                 //
-                factory.create(endpoints, false, getEndpointSelection(), 
+                factory.create(endpoints, false, getEndpointSelection(),
                                new CreateConnectionCallback(this, null, callback));
             }
             else
@@ -1650,7 +1663,7 @@ namespace IceInternal
 
             private bool _preferSecure;
         }
-        
+
         private static EndpointComparator _preferNonSecureEndpointComparator = new EndpointComparator(false);
         private static EndpointComparator _preferSecureEndpointComparator = new EndpointComparator(true);
         private static EndpointI[] _emptyEndpoints = new EndpointI[0];

@@ -125,6 +125,7 @@ invokeAllTests(id<ICECommunicator> communicator)
     test(cl);
 
     id<TestInvokeMyClassPrx> onewayCl = [cl ice_oneway];
+    id<TestInvokeMyClassPrx> batchOneway = [cl ice_batchOneway];
 
     tprintf("testing ice_invoke... ");
 
@@ -135,6 +136,12 @@ invokeAllTests(id<ICECommunicator> communicator)
         {
             test(NO);
         }
+
+        test([batchOneway ice_invoke:@"opOneway" mode:ICENormal inEncaps:inEncaps outEncaps:&outEncaps]);
+        test([batchOneway ice_invoke:@"opOneway" mode:ICENormal inEncaps:inEncaps outEncaps:&outEncaps]);
+        test([batchOneway ice_invoke:@"opOneway" mode:ICENormal inEncaps:inEncaps outEncaps:&outEncaps]);
+        test([batchOneway ice_invoke:@"opOneway" mode:ICENormal inEncaps:inEncaps outEncaps:&outEncaps]);
+        [batchOneway ice_flushBatchRequests];
 
         id<ICEOutputStream> outS = [ICEUtil createOutputStream:communicator];
         [outS startEncapsulation];

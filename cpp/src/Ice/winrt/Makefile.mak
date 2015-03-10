@@ -18,6 +18,7 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\Base64.obj \
 		  $(ARCH)\$(CONFIG)\Buffer.obj \
 		  $(ARCH)\$(CONFIG)\BasicStream.obj \
+		  $(ARCH)\$(CONFIG)\BatchRequestQueue.obj \
 		  $(ARCH)\$(CONFIG)\BuiltinSequences.obj \
 		  $(ARCH)\$(CONFIG)\CommunicatorI.obj \
 		  $(ARCH)\$(CONFIG)\Communicator.obj \

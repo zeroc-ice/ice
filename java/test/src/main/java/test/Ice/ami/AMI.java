@@ -1818,7 +1818,7 @@ public class AMI
                 TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
                 b1.opBatch();
                 b1.ice_getConnection().close(false);
-                final FlushExCallback cb = new FlushExCallback();
+                final FlushCallback cb = new FlushCallback();
                 Ice.AsyncResult r = b1.begin_ice_flushBatchRequests(
                     new Ice.Callback()
                     {
@@ -1835,9 +1835,9 @@ public class AMI
                         }
                     });
                 cb.check();
-                test(!r.isSent());
+                test(r.isSent());
                 test(r.isCompleted());
-                test(p.opBatchCount() == 0);
+                test(p.waitForBatch(1));
             }
 
             {
@@ -1877,9 +1877,10 @@ public class AMI
                 //
                 test(p.opBatchCount() == 0);
                 TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                b1.ice_getConnection();
                 b1.opBatch();
                 b1.ice_getConnection().close(false);
-                final FlushExCallback cb = new FlushExCallback();
+                final FlushCallback cb = new FlushCallback();
                 Ice.AsyncResult r = b1.begin_ice_flushBatchRequests(
                     new Ice.Callback_Object_ice_flushBatchRequests()
                     {
@@ -1896,9 +1897,9 @@ public class AMI
                         }
                     });
                 cb.check();
-                test(!r.isSent());
+                test(r.isSent());
                 test(r.isCompleted());
-                test(p.opBatchCount() == 0);
+                test(p.waitForBatch(1));
             }
         }
         out.println("ok");
@@ -1913,7 +1914,8 @@ public class AMI
                     // AsyncResult.
                     //
                     test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(p.ice_getConnection().createProxy(
+                                                                         p.ice_getIdentity()).ice_batchOneway());
                     b1.opBatch();
                     b1.opBatch();
                     final FlushCallback cb = new FlushCallback();
@@ -1943,7 +1945,8 @@ public class AMI
                     // AsyncResult exception.
                     //
                     test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(p.ice_getConnection().createProxy(
+                                                                         p.ice_getIdentity()).ice_batchOneway());
                     b1.opBatch();
                     b1.ice_getConnection().close(false);
                     final FlushExCallback cb = new FlushExCallback();
@@ -1973,7 +1976,8 @@ public class AMI
                     // Type-safe.
                     //
                     test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(p.ice_getConnection().createProxy(
+                                                                         p.ice_getIdentity()).ice_batchOneway());
                     b1.opBatch();
                     b1.opBatch();
                     final FlushCallback cb = new FlushCallback();
@@ -2003,7 +2007,8 @@ public class AMI
                     // Type-safe exception.
                     //
                     test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(p.ice_getConnection().createProxy(
+                                                                         p.ice_getIdentity()).ice_batchOneway());
                     b1.opBatch();
                     b1.ice_getConnection().close(false);
                     final FlushExCallback cb = new FlushExCallback();
@@ -2038,7 +2043,8 @@ public class AMI
                     // AsyncResult - 1 connection.
                     //
                     test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(p.ice_getConnection().createProxy(
+                                                                         p.ice_getIdentity()).ice_batchOneway());
                     b1.opBatch();
                     b1.opBatch();
                     final FlushCallback cb = new FlushCallback();
@@ -2068,7 +2074,8 @@ public class AMI
                     // AsyncResult exception - 1 connection.
                     //
                     test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(p.ice_getConnection().createProxy(
+                                                                         p.ice_getIdentity()).ice_batchOneway());
                     b1.opBatch();
                     b1.ice_getConnection().close(false);
                     final FlushCallback cb = new FlushCallback();
@@ -2098,8 +2105,10 @@ public class AMI
                     // AsyncResult - 2 connections.
                     //
                     test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                    TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
+                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(
+                        p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
+                    TestIntfPrx b2 = TestIntfPrxHelper.uncheckedCast(
+                        p.ice_connectionId("2").ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b1.opBatch();
@@ -2135,8 +2144,10 @@ public class AMI
                     // Exceptions should not be reported.
                     //
                     test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                    TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
+                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(
+                        p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
+                    TestIntfPrx b2 = TestIntfPrxHelper.uncheckedCast(
+                        p.ice_connectionId("2").ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b2.opBatch();
@@ -2170,8 +2181,10 @@ public class AMI
                     // The sent callback should be invoked even if all connections fail.
                     //
                     test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                    TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
+                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(
+                        p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
+                    TestIntfPrx b2 = TestIntfPrxHelper.uncheckedCast(
+                        p.ice_connectionId("2").ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b2.opBatch();
@@ -2204,7 +2217,8 @@ public class AMI
                     // Type-safe - 1 connection.
                     //
                     test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(
+                        p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
                     b1.opBatch();
                     b1.opBatch();
                     final FlushCallback cb = new FlushCallback();
@@ -2234,7 +2248,8 @@ public class AMI
                     // Type-safe exception - 1 connection.
                     //
                     test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(
+                        p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
                     b1.opBatch();
                     b1.ice_getConnection().close(false);
                     final FlushCallback cb = new FlushCallback();
@@ -2264,8 +2279,10 @@ public class AMI
                     // 2 connections.
                     //
                     test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                    TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
+                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(
+                        p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
+                    TestIntfPrx b2 = TestIntfPrxHelper.uncheckedCast(
+                        p.ice_connectionId("2").ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b1.opBatch();
@@ -2301,8 +2318,10 @@ public class AMI
                     // Exceptions should not be reported.
                     //
                     test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                    TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
+                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(
+                        p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
+                    TestIntfPrx b2 = TestIntfPrxHelper.uncheckedCast(
+                        p.ice_connectionId("2").ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b2.opBatch();
@@ -2336,8 +2355,10 @@ public class AMI
                     // The sent callback should be invoked even if all connections fail.
                     //
                     test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                    TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
+                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(
+                        p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
+                    TestIntfPrx b2 = TestIntfPrxHelper.uncheckedCast(
+                        p.ice_connectionId("2").ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b2.opBatch();

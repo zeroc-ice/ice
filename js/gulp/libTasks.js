@@ -200,8 +200,6 @@ module.exports = function(gulp) {
     return {
         buildTasks : libs.map(minLibTask),
         cleanTasks: libs.map(libCleanTask),
-        watchTasks: libs.map(libCleanTask)
+        watchTasks: libs.map(libWatchTask)
     };
 };
-
-

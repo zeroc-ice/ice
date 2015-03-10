@@ -29,21 +29,36 @@ var RequestHandlerFactory = Ice.Class({
     },
     getRequestHandler: function(ref, proxy)
     {
+        var connect = false;
+        var handler;
         if(ref.getCacheConnection())
         {
-            var handler = this._handlers.get(ref);
-            if(handler)
+            handler = this._handlers.get(ref);
+            if(!handler)
             {
-                return handler;
+                handler = new ConnectRequestHandler(ref, proxy);
+                this._handlers.set(ref, handler);
+                connect = true;
             }
-            handler = new ConnectRequestHandler(ref, proxy);
-            this._handlers.set(ref, handler);
-            return handler;
         }
         else
         {
-            return new ConnectRequestHandler(ref, proxy);
+            connect = true;
+            handler = new ConnectRequestHandler(ref, proxy);
         }
+
+        if(connect)
+        {
+            ref.getConnection().then(function(connection, compress)
+                                     {
+                                         handler.setConnection(connection, compress);
+                                     },
+                                     function(ex)
+                                     {
+                                         handler.setException(ex);
+                                     });
+        }
+        return proxy.__setRequestHandler(handler);
     },
     removeRequestHandler: function(ref, handler)
     {

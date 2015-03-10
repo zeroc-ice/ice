@@ -22,6 +22,7 @@
 #include <Ice/BuiltinSequences.h>
 #include <Ice/Version.h>
 #include <Ice/Plugin.h>
+#include <Ice/BatchRequestInterceptor.h>
 
 namespace Ice
 {
@@ -86,6 +87,7 @@ struct InitializationData
     ThreadNotificationPtr threadHook;
     DispatcherPtr dispatcher;
     CompactIdResolverPtr compactIdResolver;
+    BatchRequestInterceptorPtr batchRequestInterceptor;
 };
 
 ICE_API CommunicatorPtr initialize(int&, char*[], const InitializationData& = InitializationData(),
@@ -94,7 +96,7 @@ ICE_API CommunicatorPtr initialize(int&, char*[], const InitializationData& = In
 ICE_API CommunicatorPtr initialize(Ice::StringSeq&, const InitializationData& = InitializationData(),
                                    Int = ICE_INT_VERSION);
 
-ICE_API CommunicatorPtr initialize(const InitializationData& = InitializationData(), 
+ICE_API CommunicatorPtr initialize(const InitializationData& = InitializationData(),
                                    Int = ICE_INT_VERSION);
 
 
@@ -111,7 +113,7 @@ ICE_API InputStreamPtr createInputStream(const CommunicatorPtr&,
 ICE_API InputStreamPtr wrapInputStream(const CommunicatorPtr&,
                                        const ::std::pair< const Ice::Byte*, const Ice::Byte*>&);
 ICE_API InputStreamPtr wrapInputStream(const CommunicatorPtr&,
-                                       const ::std::pair< const Ice::Byte*, const Ice::Byte*>&, 
+                                       const ::std::pair< const Ice::Byte*, const Ice::Byte*>&,
                                        const EncodingVersion&);
 
 ICE_API OutputStreamPtr createOutputStream(const CommunicatorPtr&);

@@ -14,6 +14,7 @@
 #include <IceUtil/Mutex.h>
 
 #include <Ice/RequestHandlerF.h>
+#include <Ice/ConnectRequestHandlerF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/InstanceF.h>
@@ -26,14 +27,14 @@ class RequestHandlerFactory : public IceUtil::Shared, private IceUtil::Mutex
 public:
 
     RequestHandlerFactory(const InstancePtr&);
-    
-    RequestHandlerPtr getRequestHandler(const ReferencePtr&, const Ice::ObjectPrx&);
+
+    RequestHandlerPtr getRequestHandler(const RoutableReferencePtr&, const Ice::ObjectPrx&);
     void removeRequestHandler(const ReferencePtr&, const RequestHandlerPtr&);
 
 private:
 
     const InstancePtr _instance;
-    std::map<ReferencePtr, RequestHandlerPtr> _handlers;
+    std::map<ReferencePtr, ConnectRequestHandlerPtr> _handlers;
 };
 
 }

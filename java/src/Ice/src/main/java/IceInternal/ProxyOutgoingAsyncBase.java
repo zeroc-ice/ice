@@ -30,6 +30,10 @@ public abstract class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
         }
     }
 
+    public abstract int invokeRemote(Ice.ConnectionI con, boolean compress, boolean response) throws RetryException;
+
+    public abstract int invokeCollocated(CollocatedRequestHandler handler);
+
     @Override
     public Ice.ObjectPrx getProxy()
     {
@@ -45,7 +49,7 @@ public abstract class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
             _childObserver.detach();
             _childObserver = null;
         }
-        
+
         //
         // NOTE: at this point, synchronization isn't needed, no other threads should be
         // calling on the callback.
@@ -66,7 +70,6 @@ public abstract class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
         }
     }
 
-    @Override
     public void retryException(Ice.Exception ex)
     {
         try
@@ -77,7 +80,7 @@ public abstract class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
             // require could end up waiting for the flush of the
             // connection to be done.
             //
-            handleRetryException(ex);
+            _proxy.__updateRequestHandler(_handler, null); // Clear request handler and always retry.
             _instance.retryQueue().add(this, 0);
         }
         catch(Ice.Exception exc)
@@ -93,7 +96,7 @@ public abstract class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
     {
         invokeImpl(false);
     }
-    
+
     public void cancelable(final CancellationHandler handler)
     {
         if(_proxy.__reference().getInvocationTimeout() == -2 && _cachedConnection != null)
@@ -114,7 +117,7 @@ public abstract class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
         }
         super.cancelable(handler);
     }
-    
+
     public void abort(Ice.Exception ex)
     {
         assert(_childObserver == null);
@@ -141,7 +144,7 @@ public abstract class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
         _cnt = 0;
         _sent = false;
     }
-    
+
     protected ProxyOutgoingAsyncBase(Ice.ObjectPrxHelperBase prx, String op, CallbackBase delegate, BasicStream os)
     {
         super(prx.ice_getCommunicator(), prx.__reference().getInstance(), op, delegate, os);
@@ -162,7 +165,7 @@ public abstract class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
         }
         return r;
     }
-    
+
     protected void invokeImpl(boolean userThread)
     {
         try
@@ -196,6 +199,7 @@ public abstract class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
                 try
                 {
                     _sent = false;
+                    _handler = null;
                     _handler = _proxy.__getRequestHandler();
                     int status = _handler.sendAsyncRequest(this);
                     if((status & AsyncStatus.Sent) > 0)
@@ -220,7 +224,7 @@ public abstract class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
                 }
                 catch(RetryException ex)
                 {
-                    handleRetryException(ex.get());
+                    _proxy.__updateRequestHandler(_handler, null); // Clear request handler and always retry.
                 }
                 catch(Ice.Exception ex)
                 {
@@ -248,8 +252,8 @@ public abstract class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
             //
             // If called from the user thread we re-throw, the exception
             // will be catch by the caller and abort() will be called.
-            // 
-            if(userThread) 
+            //
+            if(userThread)
             {
                 throw ex;
             }
@@ -297,18 +301,13 @@ public abstract class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
         return super.finished(ok);
     }
 
-    protected void handleRetryException(Ice.Exception exc)
-    {
-        _proxy.__setRequestHandler(_handler, null); // Clear request handler and always retry.
-    }
-    
     protected int handleException(Ice.Exception exc)
     {
         Ice.Holder<Integer> interval = new Ice.Holder<Integer>();
         _cnt = _proxy.__handleException(exc, _handler, _mode, _sent, interval, _cnt);
         return interval.value;
     }
-    
+
     final protected Ice.ObjectPrxHelperBase _proxy;
     protected RequestHandler _handler;
     protected Ice.OperationMode _mode;

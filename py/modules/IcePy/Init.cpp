@@ -10,6 +10,7 @@
 #ifdef _WIN32
 #   include <IceUtil/Config.h>
 #endif
+#include <BatchRequestInterceptor.h>
 #include <Communicator.h>
 #include <Connection.h>
 #include <ConnectionInfo.h>
@@ -179,6 +180,10 @@ initIcePy(void)
         INIT_RETURN;
     }
     if(!initPropertiesAdmin(module))
+    {
+        INIT_RETURN;
+    }
+    if(!initBatchRequest(module))
     {
         INIT_RETURN;
     }

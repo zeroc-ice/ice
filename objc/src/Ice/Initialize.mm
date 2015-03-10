@@ -13,6 +13,7 @@
 #import <StreamI.h>
 #import <LoggerI.h>
 #import <DispatcherI.h>
+#import <BatchRequestInterceptorI.h>
 #import <Util.h>
 #import <VersionI.h>
 #import <LocalObjectI.h>
@@ -149,6 +150,11 @@ private:
     Ice::InitializationData data;
     data.properties = [(ICEProperties*)properties properties];
     data.logger = [ICELogger loggerWithLogger:logger];
+    if(batchRequestInterceptor)
+    {
+        data.batchRequestInterceptor = [ICEBatchRequestInterceptor
+                                           batchRequestInterceptorWithBatchRequestInterceptor:batchRequestInterceptor];
+    }
     if(dispatcher)
     {
         data.dispatcher = [ICEDispatcher dispatcherWithDispatcher:dispatcher];
@@ -163,9 +169,10 @@ private:
 @synthesize properties;
 @synthesize logger;
 @synthesize dispatcher;
+@synthesize batchRequestInterceptor;
 @synthesize prefixTable__;
 
--(id) init:(id<ICEProperties>)props logger:(id<ICELogger>)log dispatcher:(void(^)(id<ICEDispatcherCall>, 
+-(id) init:(id<ICEProperties>)props logger:(id<ICELogger>)log dispatcher:(void(^)(id<ICEDispatcherCall>,
                                                                                   id<ICEConnection>))d;
 {
     self = [super init];

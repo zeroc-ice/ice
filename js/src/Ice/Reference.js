@@ -12,6 +12,7 @@ Ice.__M.require(module,
     [
         "../Ice/Class",
         "../Ice/ArrayUtil",
+        "../Ice/BatchRequestQueue",
         "../Ice/Debug",
         "../Ice/HashMap",
         "../Ice/HashUtil",
@@ -27,11 +28,13 @@ Ice.__M.require(module,
         "../Ice/Locator",
         "../Ice/LocalException",
         "../Ice/Version",
-        "../Ice/PropertyNames"
+        "../Ice/PropertyNames",
+        "../Ice/ConnectionRequestHandler",
     ]);
 
 var ArrayUtil = Ice.ArrayUtil;
 var Debug = Ice.Debug;
+var BatchRequestQueue = Ice.BatchRequestQueue;
 var HashMap = Ice.HashMap;
 var HashUtil = Ice.HashUtil;
 var OpaqueEndpointI = Ice.OpaqueEndpointI;
@@ -45,6 +48,7 @@ var Identity = Ice.Identity;
 var RouterPrx = Ice.RouterPrx;
 var LocatorPrx = Ice.LocatorPrx;
 var PropertyNames = Ice.PropertyNames;
+var ConnectionRequestHandler = Ice.ConnectionRequestHandler;
 
 var Class = Ice.Class;
 
@@ -840,22 +844,22 @@ var ReferenceFactory = Class({
         // Create new reference
         //
         return new RoutableReference(this._instance,
-                                        this._communicator,
-                                        ident,
-                                        facet,
-                                        mode,
-                                        secure,
-                                        protocol,
-                                        encoding,
-                                        endpoints,
-                                        adapterId,
-                                        locatorInfo,
-                                        routerInfo,
-                                        cacheConnection,
-                                        preferSecure,
-                                        endpointSelection,
-                                        locatorCacheTimeout,
-                                        invocationTimeout);
+                                     this._communicator,
+                                     ident,
+                                     facet,
+                                     mode,
+                                     secure,
+                                     protocol,
+                                     encoding,
+                                     endpoints,
+                                     adapterId,
+                                     locatorInfo,
+                                     routerInfo,
+                                     cacheConnection,
+                                     preferSecure,
+                                     endpointSelection,
+                                     locatorCacheTimeout,
+                                     invocationTimeout);
     }
 });
 
@@ -1339,7 +1343,12 @@ var Reference = Class({
         Debug.assert(false);
         return null;
     },
-    getConnection: function()
+    getRequestHandler: function(proxy)
+    {
+        // Abstract
+        Debug.assert(false);
+    },
+    getBatchRequestQueue: function()
     {
         // Abstract
         Debug.assert(false);
@@ -1447,7 +1456,7 @@ var FixedReference = Class(Reference, {
     },
     getCacheConnection: function()
     {
-        return false;
+        return true;
     },
     getPreferSecure: function()
     {
@@ -1532,7 +1541,7 @@ var FixedReference = Class(Reference, {
         this.copyMembers(r);
         return r;
     },
-    getConnectionInternal: function(compress)
+    getRequestHandler: function(proxy)
     {
         switch(this.getMode())
         {
@@ -1579,34 +1588,25 @@ var FixedReference = Class(Reference, {
 
         this._fixedConnection.throwException(); // Throw in case our connection is already destroyed.
 
+        var compress;
         if(defaultsAndOverrides.overrideCompress)
         {
-            compress.value = defaultsAndOverrides.overrideCompressValue;
+            compress = defaultsAndOverrides.overrideCompressValue;
         }
         else if(this._overrideCompress)
         {
-            compress.value = this._compress;
+            compress = this._compress;
         }
         else
         {
-            compress.value = this._fixedConnection.endpoint().compress();
+            compress = this._fixedConnection.endpoint().compress();
         }
-        return this._fixedConnection;
+
+        return proxy.__setRequestHandler(new ConnectionRequestHandler(this, this._fixedConnection, compress));
     },
-    getConnection: function()
+    getBatchRequestQueue: function()
     {
-        var promise = new Promise(); // success callback receives (connection, compress)
-        try
-        {
-            var compress = { 'value': false };
-            var connection = this.getConnectionInternal(compress);
-            promise.succeed(connection, compress.value);
-        }
-        catch(ex)
-        {
-            promise.fail(ex);
-        }
-        return promise;
+        return this._fixedConnection.getBatchRequestQueue();
     },
     equals: function(rhs)
     {
@@ -2024,6 +2024,14 @@ var RoutableReference = Class(Reference, {
             return false;
         }
         return true;
+    },
+    getRequestHandler: function(proxy)
+    {
+        return this._instance.requestHandlerFactory().getRequestHandler(this, proxy);
+    },
+    getBatchRequestQueue: function()
+    {
+        return new BatchRequestQueue(this._instance, this._mode === RefMode.ModeBatchDatagram);
     },
     getConnection: function()
     {

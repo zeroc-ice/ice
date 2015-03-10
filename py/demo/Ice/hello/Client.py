@@ -76,7 +76,8 @@ class Client(Ice.Application):
                     else:
                         batchDatagram.sayHello(delay)
                 elif c == 'f':
-                    self.communicator().flushBatchRequests()
+                    batchOneway.ice_flushBatchRequests()
+                    batchDatagram.ice_flushBatchRequests()
                 elif c == 'T':
                     if timeout == -1:
                         timeout = 2000

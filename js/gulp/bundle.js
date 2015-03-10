@@ -279,7 +279,14 @@ function bundle(args)
                     {
                         var depend = {file: file, depends:[]};
                         d.depends.push(depend);
-                        Parser.transverse(esprima.parse(file.contents.toString()), depend, args.srcDir);
+                        try
+                        {
+                            Parser.transverse(esprima.parse(file.contents.toString()), depend, args.srcDir);
+                        }
+                        catch(e)
+                        {
+                            throw new Error(file.path + ": " + e.toString());
+                        }
                     });
 
                 d.depends = d.expand().sort();

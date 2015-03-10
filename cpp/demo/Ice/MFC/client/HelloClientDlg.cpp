@@ -131,7 +131,7 @@ CHelloClientDlg::CHelloClientDlg(CWnd* pParent /*=NULL*/) : CDialog(CHelloClient
     CallbackPtr cb = new Callback(this);
     _sayHelloCallback = newCallback_Hello_sayHello(cb, &Callback::response, &Callback::exception, &Callback::sent);
     _shutdownCallback = newCallback_Hello_shutdown(cb, &Callback::response, &Callback::exception);
-    _flushCallback = Ice::newCallback_Communicator_flushBatchRequests(cb, &Callback::exception, &Callback::flushSent);
+    _flushCallback = Ice::newCallback_Object_ice_flushBatchRequests(cb, &Callback::exception, &Callback::flushSent);
 }
 
 void
@@ -341,9 +341,13 @@ CHelloClientDlg::OnShutdown()
 void
 CHelloClientDlg::OnFlush()
 {
+    if(!_helloPrx)
+    {
+        return;
+    }
     try
     {
-        _communicator->begin_flushBatchRequests(_flushCallback);
+        _helloPrx->begin_ice_flushBatchRequests(_flushCallback);
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -455,6 +459,12 @@ CHelloClientDlg::updateProxy()
     }
 
     _helloPrx = Demo::HelloPrx::uncheckedCast(prx);
+
+    //
+    // The batch requests associated to the proxy are lost when we
+    // update the proxy.
+    //
+    _flush->EnableWindow(FALSE);
 }
 
 BOOL

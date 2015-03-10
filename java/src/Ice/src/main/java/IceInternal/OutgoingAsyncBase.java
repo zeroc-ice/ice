@@ -16,31 +16,20 @@ package IceInternal;
 //
 public abstract class OutgoingAsyncBase extends IceInternal.AsyncResultI
 {
-    public int send(Ice.ConnectionI connection, boolean compress, boolean response) throws RetryException
-    {
-        assert(false); // This should be overriden if this object is used with a request handler
-        return AsyncStatus.Queued; 
-    }
-
-    public int invokeCollocated(CollocatedRequestHandler handler)
-    {
-        assert(false); // This should be overriden if this object is used with a request handler
-        return AsyncStatus.Queued; 
-    }
-
     public boolean sent()
     {
         return sent(true);
     }
 
+    public boolean completed(BasicStream is)
+    {
+        assert(false); // Must be implemented by classes that handle responses
+        return false;
+    }
+
     public boolean completed(Ice.Exception ex)
     {
         return finished(ex);
-    }
-
-    public void retryException(Ice.Exception ex)
-    {
-        assert(false);
     }
 
     public final void attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt, int requestId)
@@ -55,7 +44,7 @@ public abstract class OutgoingAsyncBase extends IceInternal.AsyncResultI
             }
         }
     }
-    
+
     public final void attachCollocatedObserver(Ice.ObjectAdapter adapter, int requestId)
     {
         if(_observer != null)

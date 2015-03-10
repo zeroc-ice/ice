@@ -161,7 +161,7 @@ public class Client
                 }
                 else if(line.Equals("f"))
                 {
-                    communicator().flushBatchRequests();
+                    batchOneway.ice_flushBatchRequests();
                 }
                 else if(line.Equals("v"))
                 {

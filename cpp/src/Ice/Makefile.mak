@@ -62,6 +62,7 @@ OBJS	       =  .\Acceptor.obj \
 		  .\AsyncResult.obj \
 		  .\Base64.obj \
 		  .\BasicStream.obj \
+		  .\BatchRequestQueue.obj \
 		  .\Buffer.obj \
 		  .\CollocatedRequestHandler.obj \
 		  .\CommunicatorI.obj \

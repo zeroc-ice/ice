@@ -29,9 +29,9 @@ class ProxyOutgoingAsyncBase;
 ICE_API IceUtil::Shared* upCast(ProxyOutgoingAsyncBase*);
 typedef IceInternal::Handle<ProxyOutgoingAsyncBase> ProxyOutgoingAsyncBasePtr;
 
-class CommunicatorFlushBatch;
-ICE_API IceUtil::Shared* upCast(CommunicatorFlushBatch*);
-typedef IceInternal::Handle<CommunicatorFlushBatch> CommunicatorFlushBatchPtr;
+class CommunicatorFlushBatchAsync;
+ICE_API IceUtil::Shared* upCast(CommunicatorFlushBatchAsync*);
+typedef IceInternal::Handle<CommunicatorFlushBatchAsync> CommunicatorFlushBatchAsyncPtr;
 
 }
 

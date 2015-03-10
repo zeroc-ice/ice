@@ -88,6 +88,13 @@ namespace hello
                 {
                     proxy = proxy.ice_invocationTimeout(_timeout);
                 }
+
+                //
+                // The batch requests associated to the proxy are lost when we
+                // update the proxy.
+                //
+                btnFlush.IsEnabled = false;
+
                 _helloPrx = HelloPrxHelper.uncheckedCast(proxy);
             }
             catch (System.Exception ex)
@@ -190,7 +197,11 @@ namespace hello
 
         private void btnFlushClick(object sender, RoutedEventArgs e)
         {
-            _communicator.begin_flushBatchRequests().whenCompleted(
+            if(_helloPrx == null)
+            {
+                return;
+            }
+            _helloPrx.begin_ice_flushBatchRequests().whenCompleted(
                 (Ice.Exception ex) =>
                 {
                     txtOutput.Text = ex.ToString();

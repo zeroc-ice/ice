@@ -75,21 +75,15 @@ var IncomingAsync = Ice.Class({
     },
     __startWriteParams: function(format)
     {
-        if(this._response)
+        if(!this._response)
         {
-            Debug.assert(this._os.size == Protocol.headerSize + 4); // Reply status position.
-            Debug.assert(this._current.encoding !== null); // Encoding for reply is known.
-            this._os.writeByte(0);
-            this._os.startWriteEncaps(this._current.encoding, format);
+            throw new Ice.MarshalException("can't marshal out parameters for oneway dispatch");
         }
 
-        //
-        // We still return the stream even if no response is expected. The
-        // servant code might still write some out parameters if for
-        // example a method with out parameters somehow and erroneously
-        // invoked as oneway (or if the invocation is invoked on a
-        // blobject and the blobject erroneously writes a response).
-        //
+        Debug.assert(this._os.size == Protocol.headerSize + 4); // Reply status position.
+        Debug.assert(this._current.encoding !== null); // Encoding for reply is known.
+        this._os.writeByte(0);
+        this._os.startWriteEncaps(this._current.encoding, format);
         return this._os;
     },
     __endWriteParams: function(ok)

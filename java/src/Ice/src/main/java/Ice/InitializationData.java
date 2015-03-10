@@ -83,4 +83,9 @@ public final class InitializationData implements Cloneable
      * The compact type ID resolver.
      **/
     public CompactIdResolver compactIdResolver;
+
+    /**
+     * The batch request interceptor.
+     **/
+    public BatchRequestInterceptor batchRequestInterceptor;
 }

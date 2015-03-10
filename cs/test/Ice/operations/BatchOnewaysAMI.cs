@@ -56,37 +56,17 @@ class BatchOnewaysAMI
     internal static void batchOneways(Test.MyClassPrx p)
     {
         byte[] bs1 = new byte[10  * 1024];
-        byte[] bs2 = new byte[99  * 1024];
-
-        Callback cb = new Callback();
-        p.begin_opByteSOneway(bs1).whenCompleted(
-            () =>
-            {
-                cb.called();
-            },
-            (Ice.Exception ex) =>
-            {
-                test(false);
-            });
-        cb.check();
-
-        p.begin_opByteSOneway(bs2).whenCompleted(
-            () =>
-            {
-                cb.called();
-            },
-            (Ice.Exception ex) =>
-            {
-                test(false);
-            });
-        cb.check();
 
         Test.MyClassPrx batch = Test.MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
         batch.end_ice_flushBatchRequests(batch.begin_ice_flushBatchRequests());
 
+        test(batch.begin_ice_flushBatchRequests().isSent());
+        test(batch.begin_ice_flushBatchRequests().isCompleted_());
+        test(batch.begin_ice_flushBatchRequests().sentSynchronously());
+
         for(int i = 0 ; i < 30 ; ++i)
         {
-            p.begin_opByteSOneway(bs1).whenCompleted(
+            batch.begin_opByteSOneway(bs1).whenCompleted(
                 () =>
                 {
                 },
@@ -96,44 +76,32 @@ class BatchOnewaysAMI
                 });
         }
 
+        int count = 0;
+        while(count < 27) // 3 * 9 requests auto-flushed.
+        {
+            count += p.opByteSOnewayCallCount();
+            System.Threading.Thread.Sleep(10);
+        }
+
         if(batch.ice_getConnection() != null)
         {
-            batch.ice_getConnection().end_flushBatchRequests(batch.ice_getConnection().begin_flushBatchRequests());
-
+            Test.MyClassPrx batch1 = Test.MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
             Test.MyClassPrx batch2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
 
-            batch.begin_ice_ping();
+            batch1.begin_ice_ping();
             batch2.begin_ice_ping();
-            batch.end_ice_flushBatchRequests(batch.begin_ice_flushBatchRequests());
-            batch.ice_getConnection().close(false);
-            batch.begin_ice_ping();
+            batch1.end_ice_flushBatchRequests(batch1.begin_ice_flushBatchRequests());
+            batch1.ice_getConnection().close(false);
+            batch1.begin_ice_ping();
             batch2.begin_ice_ping();
 
-            batch.ice_getConnection();
+            batch1.ice_getConnection();
             batch2.ice_getConnection();
 
-            batch.begin_ice_ping();
-            batch.ice_getConnection().close(false);
-            batch.begin_ice_ping().whenCompleted(
-                () =>
-                {
-                    test(false);
-                },
-                (Ice.Exception ex) =>
-                {
-                    test(ex is Ice.CloseConnectionException);
-                });
-            batch2.begin_ice_ping().whenCompleted(
-                () =>
-                {
-                    test(false);
-                },
-                (Ice.Exception ex) =>
-                {
-                    test(ex is Ice.CloseConnectionException);
-                });
+            batch1.begin_ice_ping();
+            batch1.ice_getConnection().close(false);
 
-            batch.begin_ice_ping();
+            batch1.begin_ice_ping();
             batch2.begin_ice_ping();
         }
 

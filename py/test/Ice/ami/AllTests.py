@@ -694,12 +694,12 @@ def allTests(communicator, collocated):
         b1 = p.ice_batchOneway()
         b1.opBatch()
         b1.ice_getConnection().close(False)
-        cb = FlushExCallback()
+        cb = FlushCallback()
         r = b1.begin_ice_flushBatchRequests(cb.exception, cb.sent)
         cb.check()
-        test(not r.isSent())
+        test(r.isSent())
         test(r.isCompleted())
-        test(p.opBatchCount() == 0)
+        test(p.waitForBatch(1))
 
         #
         # Exception with cookie.
@@ -708,10 +708,10 @@ def allTests(communicator, collocated):
         b1 = p.ice_batchOneway()
         b1.opBatch()
         b1.ice_getConnection().close(False)
-        cb = FlushExCallback(cookie)
+        cb = FlushCallback(cookie)
         r = b1.begin_ice_flushBatchRequests(lambda ex: cb.exceptionWC(ex, cookie), lambda ss: cb.sentWC(ss, cookie))
         cb.check()
-        test(p.opBatchCount() == 0)
+        test(p.waitForBatch(1))
 
     print("ok")
 
@@ -725,7 +725,7 @@ def allTests(communicator, collocated):
         # Without cookie.
         #
         test(p.opBatchCount() == 0)
-        b1 = p.ice_batchOneway()
+        b1 = Test.TestIntfPrx.uncheckedCast(p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway())
         b1.opBatch()
         b1.opBatch()
         cb = FlushCallback()
@@ -739,7 +739,7 @@ def allTests(communicator, collocated):
         # With cookie.
         #
         test(p.opBatchCount() == 0)
-        b1 = p.ice_batchOneway()
+        b1 = Test.TestIntfPrx.uncheckedCast(p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway())
         b1.opBatch()
         b1.opBatch()
         cb = FlushCallback(cookie)
@@ -752,7 +752,7 @@ def allTests(communicator, collocated):
         # Exception without cookie.
         #
         test(p.opBatchCount() == 0)
-        b1 = p.ice_batchOneway()
+        b1 = Test.TestIntfPrx.uncheckedCast(p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway())
         b1.opBatch()
         b1.ice_getConnection().close(False)
         cb = FlushExCallback()
@@ -766,7 +766,7 @@ def allTests(communicator, collocated):
         # Exception with cookie.
         #
         test(p.opBatchCount() == 0)
-        b1 = p.ice_batchOneway()
+        b1 = Test.TestIntfPrx.uncheckedCast(p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway())
         b1.opBatch()
         b1.ice_getConnection().close(False)
         cb = FlushExCallback(cookie)
@@ -784,7 +784,7 @@ def allTests(communicator, collocated):
         # 1 connection.
         #
         test(p.opBatchCount() == 0)
-        b1 = p.ice_batchOneway()
+        b1 = Test.TestIntfPrx.uncheckedCast(p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway())
         b1.opBatch()
         b1.opBatch()
         cb = FlushCallback()
@@ -798,7 +798,7 @@ def allTests(communicator, collocated):
         # 1 connection.
         #
         test(p.opBatchCount() == 0)
-        b1 = p.ice_batchOneway()
+        b1 = Test.TestIntfPrx.uncheckedCast(p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway())
         b1.opBatch()
         b1.ice_getConnection().close(False)
         cb = FlushCallback()
@@ -812,8 +812,9 @@ def allTests(communicator, collocated):
         # 2 connections.
         #
         test(p.opBatchCount() == 0)
-        b1 = p.ice_batchOneway()
-        b2 = p.ice_connectionId("2").ice_batchOneway()
+        b1 = Test.TestIntfPrx.uncheckedCast(p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway())
+        b2 = Test.TestIntfPrx.uncheckedCast(p.ice_connectionId("2").ice_getConnection().createProxy(
+            p.ice_getIdentity()).ice_batchOneway())
         b2.ice_getConnection() # Ensure connection is established.
         b1.opBatch()
         b1.opBatch()
@@ -833,8 +834,9 @@ def allTests(communicator, collocated):
         # Exceptions should not be reported.
         #
         test(p.opBatchCount() == 0)
-        b1 = p.ice_batchOneway()
-        b2 = p.ice_connectionId("2").ice_batchOneway()
+        b1 = Test.TestIntfPrx.uncheckedCast(p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway())
+        b2 = Test.TestIntfPrx.uncheckedCast(p.ice_connectionId("2").ice_getConnection().createProxy(
+            p.ice_getIdentity()).ice_batchOneway())
         b2.ice_getConnection() # Ensure connection is established.
         b1.opBatch()
         b2.opBatch()
@@ -852,8 +854,9 @@ def allTests(communicator, collocated):
         # The sent callback should be invoked even if all connections fail.
         #
         test(p.opBatchCount() == 0)
-        b1 = p.ice_batchOneway()
-        b2 = p.ice_connectionId("2").ice_batchOneway()
+        b1 = Test.TestIntfPrx.uncheckedCast(p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway())
+        b2 = Test.TestIntfPrx.uncheckedCast(p.ice_connectionId("2").ice_getConnection().createProxy(
+            p.ice_getIdentity()).ice_batchOneway())
         b2.ice_getConnection() # Ensure connection is established.
         b1.opBatch()
         b2.opBatch()
@@ -978,7 +981,7 @@ def allTests(communicator, collocated):
     test(r.getCommunicator() == communicator)
     test(r.getProxy() == None) # Expected
     communicator.end_flushBatchRequests(r)
-    
+
     if(p.ice_getConnection()):
         r1 = None;
         r2 = None;
@@ -988,15 +991,15 @@ def allTests(communicator, collocated):
             seq = ''.join(b)
         else:
             b = [random.randint(0, 255) for x in range(0, 10024)]
-            seq = bytes(b) 
-            
+            seq = bytes(b)
+
         testController.holdAdapter()
 
         for x in range(0, 200): # 2MB
             r = p.begin_opWithPayload(seq)
-        
+
         test(not r.isSent())
-        
+
         r1 = p.begin_ice_ping()
         r2 = p.begin_ice_id()
         r1.cancel()
@@ -1012,7 +1015,7 @@ def allTests(communicator, collocated):
             test(false)
         except(Ice.InvocationCanceledException):
             pass
-        
+
         testController.resumeAdapter()
         p.ice_ping()
         test(not r1.isSent() and r1.isCompleted())

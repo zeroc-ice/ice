@@ -56,7 +56,8 @@ OBJC_OBJS	= DispatchInterceptor.o \
 		  	  Request.o \
 			  $(SLICE_OBJS)
 
-OBJCXX_OBJS	= CommunicatorI.o \
+OBJCXX_OBJS	= BatchRequestInterceptor.o \
+			  CommunicatorI.o \
 			  ConnectionI.o \
 			  CurrentI.o \
 			  EndpointI.o \

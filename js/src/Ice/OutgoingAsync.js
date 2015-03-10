@@ -59,10 +59,6 @@ var OutgoingAsyncBase = Ice.Class(AsyncResult, {
     __completedEx: function(ex)
     {
         this.__markFinishedEx(ex);
-    },
-    __retryException: function(ex)
-    {
-        Debug.assert(false);
     }
 });
 
@@ -80,7 +76,7 @@ var ProxyOutgoingAsyncBase = Ice.Class(OutgoingAsyncBase, {
         }
         else
         {
-            AsyncResult.call(this); 
+            AsyncResult.call(this);
         }
     },
     __completedEx: function(ex)
@@ -98,7 +94,7 @@ var ProxyOutgoingAsyncBase = Ice.Class(OutgoingAsyncBase, {
     {
         try
         {
-            this.__handleRetryException(ex.inner);
+            this._proxy.__updateRequestHandler(this._handler, null); // Clear request handler and always retry.
             this._instance.retryQueue().add(this, 0);
         }
         catch(ex)
@@ -125,14 +121,14 @@ var ProxyOutgoingAsyncBase = Ice.Class(OutgoingAsyncBase, {
                 {
                     var self = this;
                     this._timeoutToken = this._instance.timer().schedule(
-                        function() 
-                        { 
+                        function()
+                        {
                             self.__cancel(new Ice.InvocationTimeoutException());
-                        }, 
+                        },
                         invocationTimeout);
                 }
             }
-            
+
             while(true)
             {
                 try
@@ -153,7 +149,8 @@ var ProxyOutgoingAsyncBase = Ice.Class(OutgoingAsyncBase, {
                 {
                     if(ex instanceof RetryException)
                     {
-                        this.__handleRetryException(ex.inner);
+                        // Clear request handler and always retry
+                        this._proxy.__updateRequestHandler(this._handler, null);
                     }
                     else
                     {
@@ -191,10 +188,6 @@ var ProxyOutgoingAsyncBase = Ice.Class(OutgoingAsyncBase, {
             this._instance.timer().cancel(this._timeoutToken);
         }
         OutgoingAsyncBase.prototype.__markFinishedEx.call(this, ex);
-    },
-    __handleRetryException: function(ex)
-    {
-        this._proxy.__setRequestHandler(this._handler, null); // Clear request handler and always retry.
     },
     __handleException: function(ex)
     {
@@ -234,28 +227,7 @@ var OutgoingAsync = Ice.Class(ProxyOutgoingAsyncBase, {
 
         if(this._proxy.ice_isBatchOneway() || this._proxy.ice_isBatchDatagram())
         {
-            while(true)
-            {
-                try
-                {
-                    this._handler = this._proxy.__getRequestHandler();
-                    this._handler.prepareBatchRequest(this._os);
-                    break;
-                }
-                catch(ex)
-                {
-                    if(ex instanceof RetryException)
-                    {
-                        this._proxy.__setRequestHandler(this._handler, null); // Clear request handler and retry.
-                    }
-                    else
-                    {
-                        this._proxy.__setRequestHandler(this._handler, null); // Clear request handler
-                        this._handler = null;
-                        throw ex;
-                    }
-                }
-            }
+            this._proxy.__getBatchRequestQueue().prepareBatchRequest(this._os);
         }
         else
         {
@@ -317,18 +289,15 @@ var OutgoingAsync = Ice.Class(ProxyOutgoingAsyncBase, {
     {
         this.__markSent(!this._proxy.ice_isTwoway());
     },
-    __send: function(connection, compress, response)
+    __invokeRemote: function(connection, compress, response)
     {
-        return connection.sendAsyncRequest(this, compress, response);
+        return connection.sendAsyncRequest(this, compress, response, 0);
     },
     __abort: function(ex)
     {
         if(this._proxy.ice_isBatchOneway() || this._proxy.ice_isBatchDatagram())
         {
-            if(this._handler !== null)
-            {
-                this._handler.abortBatchRequest();
-            }
+            this._proxy.__getBatchRequestQueue().abortBatchRequest(this._os);
         }
         ProxyOutgoingAsyncBase.prototype.__abort.call(this, ex);
     },
@@ -336,13 +305,10 @@ var OutgoingAsync = Ice.Class(ProxyOutgoingAsyncBase, {
     {
         if(this._proxy.ice_isBatchOneway() || this._proxy.ice_isBatchDatagram())
         {
-            if(this._handler !== null)
-            {
-                this._sentSynchronously = true;
-                this._handler.finishBatchRequest(this._os);
-                this.__markFinished(true);
-                return;
-            }
+            this._sentSynchronously = true;
+            this._proxy.__getBatchRequestQueue().finishBatchRequest(this._os, this._proxy, this._operation);
+            this.__markFinished(true);
+            return;
         }
 
         //
@@ -551,32 +517,28 @@ var OutgoingAsync = Ice.Class(ProxyOutgoingAsyncBase, {
             }
         }
     },
-});    
+});
 OutgoingAsync._emptyContext = new HashMap();
 
 var ProxyFlushBatch = Ice.Class(ProxyOutgoingAsyncBase, {
     __init__ : function(prx, operation)
     {
         ProxyOutgoingAsyncBase.call(this, prx, operation);
+        this._batchRequestNum = prx.__getBatchRequestQueue().swap(this._os);
     },
-    __send: function(connection, compress, response)
+    __invokeRemote: function(connection, compress, response)
     {
-        return connection.flushAsyncBatchRequests(this);
+        if(this._batchRequestNum === 0)
+        {
+            this.__sent();
+            return AsyncStatus.Sent;
+        }
+        return connection.sendAsyncRequest(this, compress, response, this._batchRequestNum);
     },
     __invoke: function()
     {
         Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(this._proxy.__reference().getProtocol()));
         this.__invokeImpl(true); // userThread = true
-    },
-    __handleRetryException: function(exc)
-    {
-        this._proxy.__setRequestHandler(this._handler, null); // Clear request handler
-        throw exc; // No retries, we want to notify the user of potentially lost batch requests
-    },
-    __handleException: function(exc)
-    {
-        this._proxy.__setRequestHandler(this._handler, null); // Clear request handler
-        throw exc; // No retries, we want to notify the user of potentially lost batch requests
     },
 });
 
@@ -585,10 +547,10 @@ var ProxyGetConnection = Ice.Class(ProxyOutgoingAsyncBase, {
     {
         ProxyOutgoingAsyncBase.call(this, prx, operation);
     },
-    __send: function(connection, compress, response)
+    __invokeRemote: function(connection, compress, response)
     {
-        this.__markFinished(true, 
-                            function(r) 
+        this.__markFinished(true,
+                            function(r)
                             {
                                 r.succeed(connection);
                             });
@@ -609,7 +571,18 @@ var ConnectionFlushBatch = Ice.Class(OutgoingAsyncBase, {
     {
         try
         {
-            var status = this._connection.flushAsyncBatchRequests(this);
+            var batchRequestNum = this._connection.getBatchRequestQueue().swap(this._os);
+            var status;
+            if(batchRequestNum === 0)
+            {
+                this.__sent();
+                status = AsyncStatus.Sent;
+            }
+            else
+            {
+                status = this._connection.sendAsyncRequest(this, false, false, batchRequestNum);
+            }
+
             if((status & AsyncStatus.Sent) > 0)
             {
                 this._sentSynchronously = true;

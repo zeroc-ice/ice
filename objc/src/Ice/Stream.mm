@@ -1507,15 +1507,6 @@ private:
     [super dealloc];
 }
 
--(void) finalize
-{
-    if(objectWriters_)
-    {
-        delete objectWriters_;
-    }
-    [super finalize];
-}
-
 // @protocol ICEOutputStream methods
 
 -(id<ICECommunicator>) communicator

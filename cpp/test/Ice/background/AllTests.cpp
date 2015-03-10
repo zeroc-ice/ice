@@ -62,18 +62,18 @@ class OpAMICallback : public IceUtil::Shared
 {
 public:
 
-    void 
+    void
     response()
     {
         _response.called();
     }
 
-    void 
+    void
     responseNoOp()
     {
     }
 
-    void 
+    void
     noResponse()
     {
         test(false);
@@ -330,11 +330,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         background->begin_op();
         background->ice_getCachedConnection()->close(true);
         background->begin_op();
-        
+
         vector<Ice::AsyncResultPtr> results;
         OpAMICallbackPtr cb = new OpAMICallback();
-        Callback_Background_opPtr callback = newCallback_Background_op(cb, 
-                                                                       &OpAMICallback::responseNoOp, 
+        Callback_Background_opPtr callback = newCallback_Background_op(cb,
+                                                                       &OpAMICallback::responseNoOp,
                                                                        &OpAMICallback::noException);
         for(int i = 0; i < 10000; ++i)
         {
@@ -408,7 +408,7 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrx& b
         {
         }
         test(r->isCompleted());
-        
+
         OpAMICallbackPtr cbEx = new OpAMICallback();
         r = prx->begin_op(Test::newCallback_Background_op(cbEx, &OpAMICallback::exception));
         test(!r->sentSynchronously());
@@ -491,7 +491,7 @@ initializeTests(const ConfigurationPtr& configuration,
 #endif
         }
         BackgroundPrx prx = (i == 1 || i == 3) ? background : background->ice_oneway();
-        
+
         try
         {
             prx->op();
@@ -805,7 +805,7 @@ validationTests(const ConfigurationPtr& configuration,
     test(!r->sentSynchronously() && !r2->sentSynchronously());
     test(!r->isCompleted() && !r2->isCompleted());
     ctl->resumeAdapter();
-    background->end_op(r);    
+    background->end_op(r);
     background->end_op(r2);
     test(r->isCompleted() && r2->isCompleted());
 
@@ -875,16 +875,6 @@ validationTests(const ConfigurationPtr& configuration,
     //
     // First send small requests to test without auto-flushing.
     //
-    backgroundBatchOneway->ice_ping();
-    backgroundBatchOneway->ice_getConnection()->close(false);
-    try
-    {
-        backgroundBatchOneway->ice_ping();
-        test(false);
-    }
-    catch(const Ice::CloseConnectionException&)
-    {
-    }
     ctl->holdAdapter();
     backgroundBatchOneway->op();
     backgroundBatchOneway->op();
@@ -904,16 +894,6 @@ validationTests(const ConfigurationPtr& configuration,
     //
     // Send bigger requests to test with auto-flushing.
     //
-    backgroundBatchOneway->ice_ping();
-    backgroundBatchOneway->ice_getConnection()->close(false);
-    try
-    {
-        backgroundBatchOneway->ice_ping();
-        test(false);
-    }
-    catch(const Ice::CloseConnectionException&)
-    {
-    }
     ctl->holdAdapter();
     backgroundBatchOneway->opWithPayload(seq);
     backgroundBatchOneway->opWithPayload(seq);
@@ -934,16 +914,6 @@ validationTests(const ConfigurationPtr& configuration,
     // Then try the same thing with async flush.
     //
 
-    backgroundBatchOneway->ice_ping();
-    backgroundBatchOneway->ice_getConnection()->close(false);
-    try
-    {
-        backgroundBatchOneway->ice_ping();
-        test(false);
-    }
-    catch(const Ice::CloseConnectionException&)
-    {
-    }
     ctl->holdAdapter();
     backgroundBatchOneway->op();
     backgroundBatchOneway->op();
@@ -953,16 +923,6 @@ validationTests(const ConfigurationPtr& configuration,
     backgroundBatchOneway->begin_ice_flushBatchRequests();
     backgroundBatchOneway->ice_getConnection()->close(false);
 
-    backgroundBatchOneway->ice_ping();
-    backgroundBatchOneway->ice_getConnection()->close(false);
-    try
-    {
-        backgroundBatchOneway->ice_ping();
-        test(false);
-    }
-    catch(const Ice::CloseConnectionException&)
-    {
-    }
     ctl->holdAdapter();
     backgroundBatchOneway->opWithPayload(seq);
     backgroundBatchOneway->opWithPayload(seq);
@@ -1042,7 +1002,7 @@ readWriteTests(const ConfigurationPtr& configuration,
     {
         configuration->readException(0);
     }
-        
+
     background->ice_ping();
     configuration->readReady(false); // Required in C# to make sure beginRead() doesn't throw too soon.
     configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
@@ -1198,8 +1158,8 @@ readWriteTests(const ConfigurationPtr& configuration,
         *p = static_cast<Ice::Byte>(IceUtilInternal::random(255));
     }
     OpAMICallbackPtr cb = new OpAMICallback();
-    Callback_Background_opWithPayloadPtr callbackWP = newCallback_Background_opWithPayload(cb, 
-                                                                                           &OpAMICallback::noResponse, 
+    Callback_Background_opWithPayloadPtr callbackWP = newCallback_Background_opWithPayload(cb,
+                                                                                           &OpAMICallback::noResponse,
                                                                                            &OpAMICallback::noException);
 
     // Fill up the receive and send buffers
@@ -1211,14 +1171,14 @@ readWriteTests(const ConfigurationPtr& configuration,
     Callback_Background_opPtr callback;
     cb = new OpAMICallback();
     Ice::AsyncResultPtr r1 = background->begin_op(newCallback_Background_op(cb,
-                                                                            &OpAMICallback::response, 
+                                                                            &OpAMICallback::response,
                                                                             &OpAMICallback::noException,
                                                                             &OpAMICallback::sent));
     test(!r1->sentSynchronously() && !r1->isSent());
 
     OpAMICallbackPtr cb2 = new OpAMICallback();
     Ice::AsyncResultPtr r2 = background->begin_op(newCallback_Background_op(cb2,
-                                                                            &OpAMICallback::response, 
+                                                                            &OpAMICallback::response,
                                                                             &OpAMICallback::noException,
                                                                             &OpAMICallback::sent));
     test(!r2->sentSynchronously() && !r2->isSent());

@@ -21,10 +21,6 @@ var ConnectionRequestHandler = Ice.Class({
         this._connection = connection;
         this._compress = compress;
     },
-    connect : function()
-    {
-        return this;
-    },
     update: function(previousHandler, newHandler)
     {
         try
@@ -49,21 +45,9 @@ var ConnectionRequestHandler = Ice.Class({
         }
         return this;
     },
-    prepareBatchRequest: function(out)
-    {
-        this._connection.prepareBatchRequest(out);
-    },
-    finishBatchRequest: function(out)
-    {
-        this._connection.finishBatchRequest(out, this._compress);
-    },
-    abortBatchRequest: function()
-    {
-        this._connection.abortBatchRequest();
-    },
     sendAsyncRequest: function(out)
     {
-        return out.__send(this._connection, this._compress, this._response);
+        return out.__invokeRemote(this._connection, this._compress, this._response);
     },
     asyncRequestCanceled: function(out)
     {

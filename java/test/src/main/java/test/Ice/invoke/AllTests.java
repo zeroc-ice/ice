@@ -239,6 +239,7 @@ public class AllTests
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         MyClassPrx cl = MyClassPrxHelper.checkedCast(base);
         MyClassPrx oneway = MyClassPrxHelper.uncheckedCast(cl.ice_oneway());
+        MyClassPrx batchOneway = MyClassPrxHelper.uncheckedCast(cl.ice_batchOneway());
 
         out.print("testing ice_invoke... ");
         out.flush();
@@ -248,6 +249,12 @@ public class AllTests
             {
                 test(false);
             }
+
+            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, null));
+            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, null));
+            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, null));
+            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, null));
+            batchOneway.ice_flushBatchRequests();
 
             Ice.OutputStream outS = Ice.Util.createOutputStream(communicator);
             outS.startEncapsulation();

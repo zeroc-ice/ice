@@ -25,6 +25,8 @@ SRCS		= Acceptor.cs \
 		  AsyncResult.cs \
 		  Base64.cs \
 		  BasicStream.cs \
+		  BatchRequestInterceptor.cs \
+		  BatchRequestQueue.cs \
 		  Buffer.cs \
 		  ByteBuffer.cs \
 		  CollectionBase.cs \

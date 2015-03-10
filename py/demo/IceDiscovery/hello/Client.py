@@ -38,7 +38,7 @@ class Client(Ice.Application):
 
         #
         # Create a well-known proxy for the `hello' Ice object. A well-known proxy
-        # only includes the Ice object identity. It's resolved using the Ice locator 
+        # only includes the Ice object identity. It's resolved using the Ice locator
         # implementation.
         #
         twoway = Demo.HelloPrx.checkedCast(\
@@ -81,7 +81,8 @@ class Client(Ice.Application):
                     else:
                         batchDatagram.sayHello(delay)
                 elif c == 'f':
-                    self.communicator().flushBatchRequests()
+                    batchOneway.ice_flushBatchRequests()
+                    batchDatagram.ice_flushBatchRequests()
                 elif c == 'T':
                     if timeout == -1:
                         timeout = 2000

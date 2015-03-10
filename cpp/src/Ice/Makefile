@@ -60,6 +60,7 @@ OBJS	= Acceptor.o \
 	 	  AsyncResult.o \
 		  Base64.o \
 		  BasicStream.o \
+		  BatchRequestQueue.o \
 		  Buffer.o \
 		  CollocatedRequestHandler.o \
 		  CommunicatorI.o \

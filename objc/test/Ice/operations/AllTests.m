@@ -48,5 +48,11 @@ operationsAllTests(id<ICECommunicator> communicator)
     batchOneways(derived);
     tprintf("ok\n");
 
+    tprintf("testing batch oneway operations with AMI... ");
+    void batchOnewaysAMI(id<TestOperationsMyClassPrx>);
+    batchOnewaysAMI(cl);
+    batchOnewaysAMI(derived);
+    tprintf("ok\n");
+
     return cl;
 }

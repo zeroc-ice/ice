@@ -266,7 +266,7 @@ IceInternal::OutgoingConnectionFactory::removeAdapter(const ObjectAdapterPtr& ad
 }
 
 void
-IceInternal::OutgoingConnectionFactory::flushAsyncBatchRequests(const CommunicatorFlushBatchPtr& outAsync)
+IceInternal::OutgoingConnectionFactory::flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr& outAsync)
 {
     list<ConnectionIPtr> c;
 
@@ -1191,7 +1191,7 @@ IceInternal::IncomingConnectionFactory::connections() const
 }
 
 void
-IceInternal::IncomingConnectionFactory::flushAsyncBatchRequests(const CommunicatorFlushBatchPtr& outAsync)
+IceInternal::IncomingConnectionFactory::flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr& outAsync)
 {
     list<ConnectionIPtr> c = connections(); // connections() is synchronized, so no need to synchronize here.
 
@@ -1556,10 +1556,10 @@ IceInternal::IncomingConnectionFactory::setState(State state)
             if(_acceptor)
             {
                 //
-                // If possible, close the acceptor now to prevent new connections from 
+                // If possible, close the acceptor now to prevent new connections from
                 // being accepted while we are deactivating. This is especially useful
                 // if there are no more threads in the thread pool available to dispatch
-                // the finish() call. Not all selector implementations do support this 
+                // the finish() call. Not all selector implementations do support this
                 // however.
                 //
                 if(_adapter->getThreadPool()->finish(this, true))
@@ -1640,4 +1640,3 @@ IceInternal::IncomingConnectionFactory::closeAcceptor()
 
     _acceptor->close();
 }
-

@@ -12,14 +12,7 @@ package IceInternal;
 public class ConnectionRequestHandler implements RequestHandler
 {
     @Override
-    public RequestHandler 
-    connect(Ice.ObjectPrxHelperBase proxy)
-    {
-        return this;
-    }
-    
-    @Override
-    public RequestHandler 
+    public RequestHandler
     update(RequestHandler previousHandler, RequestHandler newHandler)
     {
         try
@@ -44,34 +37,12 @@ public class ConnectionRequestHandler implements RequestHandler
         }
         return this;
     }
-    
+
     @Override
-    public void
-    prepareBatchRequest(BasicStream out)
+    public int sendAsyncRequest(ProxyOutgoingAsyncBase out)
         throws RetryException
     {
-        _connection.prepareBatchRequest(out);
-    }
-
-    @Override
-    public void
-    finishBatchRequest(BasicStream out)
-    {
-        _connection.finishBatchRequest(out, _compress);
-    }
-
-    @Override
-    public void
-    abortBatchRequest()
-    {
-        _connection.abortBatchRequest();
-    }
-
-    @Override
-    public int sendAsyncRequest(OutgoingAsyncBase out)
-        throws RetryException
-    {
-        return out.send(_connection, _compress, _response);
+        return out.invokeRemote(_connection, _compress, _response);
     }
 
     @Override
@@ -95,14 +66,7 @@ public class ConnectionRequestHandler implements RequestHandler
         return _connection;
     }
 
-    @Override
-    public Ice.ConnectionI
-    waitForConnection()
-    {
-        return _connection;
-    }
-
-    public ConnectionRequestHandler(Reference ref, Ice.ConnectionI connection, boolean compress) 
+    public ConnectionRequestHandler(Reference ref, Ice.ConnectionI connection, boolean compress)
     {
         _reference = ref;
         _response = _reference.getMode() == Reference.ModeTwoway;

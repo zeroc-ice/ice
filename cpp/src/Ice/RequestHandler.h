@@ -32,6 +32,7 @@ namespace IceInternal
 class BasicStream;
 
 class OutgoingBase;
+class ProxyOutgoingBase;
 
 //
 // An exception wrapper, which is used to notify that the request
@@ -63,15 +64,10 @@ class RequestHandler : public CancellationHandler
 {
 public:
 
-    virtual RequestHandlerPtr connect(const Ice::ObjectPrx&) = 0;
     virtual RequestHandlerPtr update(const RequestHandlerPtr&, const RequestHandlerPtr&) = 0;
 
-    virtual void prepareBatchRequest(BasicStream*) = 0;
-    virtual void finishBatchRequest(BasicStream*) = 0;
-    virtual void abortBatchRequest() = 0;
-
-    virtual bool sendRequest(OutgoingBase*) = 0;
-    virtual AsyncStatus sendAsyncRequest(const OutgoingAsyncBasePtr&) = 0;
+    virtual bool sendRequest(ProxyOutgoingBase*) = 0;
+    virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&) = 0;
 
     const ReferencePtr& getReference() const { return _reference; } // Inlined for performances.
 

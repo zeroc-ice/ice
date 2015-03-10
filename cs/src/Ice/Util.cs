@@ -108,6 +108,11 @@ namespace Ice
         /// The compact type ID resolver.
         /// </summary>
         public CompactIdResolver compactIdResolver;
+
+        /// <summary>
+        /// The batch request interceptor.
+        /// </summary>
+        public BatchRequestInterceptor batchRequestInterceptor;
     }
 
     /// <summary>
@@ -467,7 +472,7 @@ namespace Ice
         }
 
         /// <summary>
-        /// Wraps encoded data with an input stream for dynamic invocation and dispatch. 
+        /// Wraps encoded data with an input stream for dynamic invocation and dispatch.
         /// The stream uses the communicator's default encoding version.
         /// </summary>
         /// <param name="communicator">The communicator for the stream.</param>
@@ -479,7 +484,7 @@ namespace Ice
         }
 
         /// <summary>
-        /// Wraps encoded data with an input stream for dynamic invocation and dispatch. 
+        /// Wraps encoded data with an input stream for dynamic invocation and dispatch.
         /// The stream uses the given encoding version.
         /// </summary>
         /// <param name="communicator">The communicator for the stream.</param>

@@ -222,8 +222,11 @@ namespace Ice.wpf.client
 
         private void flush_Click(object sender, RoutedEventArgs e)
         {
-            Ice.AsyncResult r = _communicator.begin_flushBatchRequests();
-            r.whenCompleted(handleException);
+            if(_helloPrx == null)
+            {
+                return;
+            }
+            _helloPrx.begin_ice_flushBatchRequests().whenCompleted(handleException);
 
             flush.IsEnabled = false;
             status.Content = "Flushed batch requests";
@@ -247,6 +250,13 @@ namespace Ice.wpf.client
             {
                 prx = prx.ice_invocationTimeout(timeout);
             }
+
+            //
+            // The batch requests associated to the proxy are lost when we
+            // update the proxy.
+            //
+            flush.IsEnabled = false;
+
             _helloPrx = Demo.HelloPrxHelper.uncheckedCast(prx);
         }
 
@@ -272,6 +282,10 @@ namespace Ice.wpf.client
 
         private void modeSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (flush != null)
+            {
+                flush.IsEnabled = false;
+            }
             _helloPrx = null;
         }
 

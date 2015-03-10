@@ -105,7 +105,7 @@ class Client(Glacier2.Application):
                         context["_ovrd"] = override
                     batchOneway.initiateCallback(onewayR, context)
                 elif c == 'f':
-                    self.communicator().flushBatchRequests()
+                    batchOneway.ice_flushBatchRequests()
                 elif c == 'v':
                     if len(override) == 0:
                         override = "some_value"

@@ -210,75 +210,81 @@ public class FixedReference extends Reference
     }
 
     @Override
-    public void
-    getConnection(GetConnectionCallback callback)
+    public RequestHandler
+    getRequestHandler(Ice.ObjectPrxHelperBase proxy)
     {
-        try
+        switch(getMode())
         {
-            switch(getMode())
-            {
-                case Reference.ModeTwoway:
-                case Reference.ModeOneway:
-                case Reference.ModeBatchOneway:
-                {
-                    if(_fixedConnection.endpoint().datagram())
-                    {
-                        throw new Ice.NoEndpointException("");
-                    }
-                    break;
-                }
-
-                case Reference.ModeDatagram:
-                case Reference.ModeBatchDatagram:
-                {
-                    if(!_fixedConnection.endpoint().datagram())
-                    {
-                        throw new Ice.NoEndpointException("");
-                    }
-                    break;
-                }
-            }
-
-            //
-            // If a secure connection is requested or secure overrides is set,
-            // check if the connection is secure.
-            //
-            boolean secure;
-            DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
-            if(defaultsAndOverrides.overrideSecure)
-            {
-                secure = defaultsAndOverrides.overrideSecureValue;
-            }
-            else
-            {
-                secure = getSecure();
-            }
-            if(secure && !_fixedConnection.endpoint().secure())
+        case Reference.ModeTwoway:
+        case Reference.ModeOneway:
+        case Reference.ModeBatchOneway:
+        {
+            if(_fixedConnection.endpoint().datagram())
             {
                 throw new Ice.NoEndpointException("");
             }
-
-            _fixedConnection.throwException(); // Throw in case our connection is already destroyed.
-
-            boolean compress;
-            if(defaultsAndOverrides.overrideCompress)
-            {
-                compress = defaultsAndOverrides.overrideCompressValue;
-            }
-            else if(_overrideCompress)
-            {
-                compress = _compress;
-            }
-            else
-            {
-                compress = _fixedConnection.endpoint().compress();
-            }
-            callback.setConnection(_fixedConnection, compress);
+            break;
         }
-        catch(Ice.LocalException ex)
+
+        case Reference.ModeDatagram:
+        case Reference.ModeBatchDatagram:
         {
-            callback.setException(ex);
+            if(!_fixedConnection.endpoint().datagram())
+            {
+                throw new Ice.NoEndpointException("");
+            }
+            break;
         }
+        }
+
+        //
+        // If a secure connection is requested or secure overrides is set,
+        // check if the connection is secure.
+        //
+        boolean secure;
+        DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
+        if(defaultsAndOverrides.overrideSecure)
+        {
+            secure = defaultsAndOverrides.overrideSecureValue;
+        }
+        else
+        {
+            secure = getSecure();
+        }
+        if(secure && !_fixedConnection.endpoint().secure())
+        {
+            throw new Ice.NoEndpointException("");
+        }
+
+        _fixedConnection.throwException(); // Throw in case our connection is already destroyed.
+
+        boolean compress;
+        if(defaultsAndOverrides.overrideCompress)
+        {
+            compress = defaultsAndOverrides.overrideCompressValue;
+        }
+        else if(_overrideCompress)
+        {
+            compress = _compress;
+        }
+        else
+        {
+            compress = _fixedConnection.endpoint().compress();
+        }
+
+        RequestHandler handler = new ConnectionRequestHandler(this, _fixedConnection, compress);
+        if(getInstance().queueRequests())
+        {
+            handler = new QueueRequestHandler(getInstance(), handler);
+        }
+        return proxy.__setRequestHandler(handler);
+    }
+
+    @Override
+    public BatchRequestQueue
+    getBatchRequestQueue()
+    {
+        return _fixedConnection.getBatchRequestQueue();
     }
 
     @Override

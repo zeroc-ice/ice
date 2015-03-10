@@ -11,6 +11,7 @@ package IceInternal;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.concurrent.Callable;
 
 public final class RequestHandlerFactory
 {
@@ -19,19 +20,20 @@ public final class RequestHandlerFactory
         _instance = instance;
     }
 
-    public RequestHandler 
-    getRequestHandler(Reference ref, Ice.ObjectPrxHelperBase proxy)
+    public RequestHandler
+    getRequestHandler(final RoutableReference ref, Ice.ObjectPrxHelperBase proxy)
     {
         if(ref.getCollocationOptimized())
         {
             Ice.ObjectAdapter adapter = _instance.objectAdapterFactory().findObjectAdapter(proxy);
             if(adapter != null)
             {
-                return new CollocatedRequestHandler(ref, adapter);
+                return proxy.__setRequestHandler(new CollocatedRequestHandler(ref, adapter));
             }
         }
 
-        RequestHandler handler;
+        ConnectRequestHandler handler = null;
+        boolean connect = false;
         if(ref.getCacheConnection())
         {
             synchronized(this)
@@ -41,25 +43,40 @@ public final class RequestHandlerFactory
                 {
                     handler = new ConnectRequestHandler(ref, proxy);
                     _handlers.put(ref, handler);
+                    connect = true;
                 }
             }
         }
         else
         {
             handler = new ConnectRequestHandler(ref, proxy);
+            connect = true;
         }
 
-        if(_instance.queueRequests())
+        if(connect)
         {
-            return new QueueRequestHandler(_instance, handler);
+            if(_instance.queueRequests())
+            {
+                final ConnectRequestHandler h = handler;
+                _instance.getQueueExecutor().executeNoThrow(new Callable<Void>()
+                                                            {
+                                                                @Override
+                                                                public Void call()
+                                                                {
+                                                                    ref.getConnection(h);
+                                                                    return null;
+                                                                }
+                                                            });
+            }
+            else
+            {
+                ref.getConnection(handler);
+            }
         }
-        else
-        {
-            return handler;
-        }
+        return proxy.__setRequestHandler(handler.connect(proxy));
     }
 
-    void 
+    void
     removeRequestHandler(Reference ref, RequestHandler handler)
     {
         if(ref.getCacheConnection())
@@ -75,5 +92,5 @@ public final class RequestHandlerFactory
     }
 
     private final Instance _instance;
-    private final Map<Reference, RequestHandler> _handlers = new HashMap<Reference, RequestHandler>();
+    private final Map<Reference, ConnectRequestHandler> _handlers = new HashMap<Reference, ConnectRequestHandler>();
 }

@@ -49,9 +49,9 @@ public class CommunicatorFlushBatch extends IceInternal.AsyncResultI
         {
             public FlushBatch()
             {
-                super(CommunicatorFlushBatch.this.getCommunicator(), 
-                      CommunicatorFlushBatch.this._instance, 
-                      CommunicatorFlushBatch.this.getOperation(), 
+                super(CommunicatorFlushBatch.this.getCommunicator(),
+                      CommunicatorFlushBatch.this._instance,
+                      CommunicatorFlushBatch.this.getOperation(),
                       null);
             }
 
@@ -81,7 +81,7 @@ public class CommunicatorFlushBatch extends IceInternal.AsyncResultI
                 return false;
             }
 
-            @Override 
+            @Override
             protected Ice.Instrumentation.InvocationObserver getObserver()
             {
                 return CommunicatorFlushBatch.this._observer;
@@ -95,21 +95,33 @@ public class CommunicatorFlushBatch extends IceInternal.AsyncResultI
 
         try
         {
-            if(_instance.queueRequests())
+            final FlushBatch flushBatch = new FlushBatch();
+            final int batchRequestNum = con.getBatchRequestQueue().swap(flushBatch.getOs());
+            if(batchRequestNum == 0)
             {
-                _instance.getQueueExecutor().executeNoThrow(new Callable<Integer>()
+                flushBatch.sent();
+            }
+            else if(_instance.queueRequests())
+            {
+                _instance.getQueueExecutor().executeNoThrow(new Callable<Void>()
                 {
                     @Override
-                    public Integer call()
+                    public Void call() throws RetryException
                     {
-                        return con.flushAsyncBatchRequests(new FlushBatch());
+                        con.sendAsyncRequest(flushBatch, false, false, batchRequestNum);
+                        return null;
                     }
                 });
             }
             else
             {
-                con.flushAsyncBatchRequests(new FlushBatch());
+                con.sendAsyncRequest(flushBatch, false, false, batchRequestNum);
             }
+        }
+        catch(RetryException ex)
+        {
+            doCheck(false);
+            throw ex.get();
         }
         catch(Ice.LocalException ex)
         {

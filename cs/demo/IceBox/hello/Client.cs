@@ -39,7 +39,7 @@ public class Client
                 "x: exit\n" +
                 "?: help\n");
         }
-        
+
         public override int run(string[] args)
         {
             if(args.Length > 0)
@@ -68,13 +68,13 @@ public class Client
             HelloPrx batchOneway = HelloPrxHelper.uncheckedCast(twoway.ice_batchOneway());
             HelloPrx datagram = HelloPrxHelper.uncheckedCast(twoway.ice_datagram());
             HelloPrx batchDatagram = HelloPrxHelper.uncheckedCast(twoway.ice_batchDatagram());
-            
+
             bool secure = false;
-            
+
             menu();
-            
+
             string line = null;
-            do 
+            do
             {
                 try
                 {
@@ -121,7 +121,8 @@ public class Client
                     }
                     else if(line.Equals("f"))
                     {
-                        communicator().flushBatchRequests();
+                        batchOneway.ice_flushBatchRequests();
+                        batchDatagram.ice_flushBatchRequests();
                     }
                     else if(_haveSSL && line.Equals("S"))
                     {
@@ -132,7 +133,7 @@ public class Client
                         batchOneway = HelloPrxHelper.uncheckedCast(batchOneway.ice_secure(secure));
                         datagram = HelloPrxHelper.uncheckedCast(datagram.ice_secure(secure));
                         batchDatagram = HelloPrxHelper.uncheckedCast(batchDatagram.ice_secure(secure));
-                        
+
                         if(secure)
                         {
                             Console.WriteLine("secure mode is now on");
@@ -162,7 +163,7 @@ public class Client
                 }
             }
             while (!line.Equals("x"));
-            
+
             return 0;
         }
 

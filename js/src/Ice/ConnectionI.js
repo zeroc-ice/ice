@@ -26,12 +26,14 @@ Ice.__M.require(module,
         "../Ice/TraceUtil",
         "../Ice/Version",
         "../Ice/Exception",
-        "../Ice/LocalException"
+        "../Ice/LocalException",
+        "../Ice/BatchRequestQueue",
     ]);
 
 var AsyncStatus = Ice.AsyncStatus;
 var AsyncResultBase = Ice.AsyncResultBase;
 var BasicStream = Ice.BasicStream;
+var BatchRequestQueue = Ice.BatchRequestQueue;
 var ConnectionFlushBatch = Ice.ConnectionFlushBatch;
 var Debug = Ice.Debug;
 var ExUtil = Ice.ExUtil;
@@ -100,12 +102,7 @@ var ConnectionI = Class({
         this._acmLastActivity = this._monitor !== null && this._monitor.getACM().timeout > 0 ? Date.now() : -1;
         this._nextRequestId = 1;
         this._messageSizeMax = adapter ? adapter.messageSizeMax() : instance.messageSizeMax();
-        this._batchAutoFlushSize = instance.batchAutoFlushSize();
-        this._batchStream = new BasicStream(instance, Protocol.currentProtocolEncoding);
-        this._batchStreamInUse = false;
-        this._batchRequestNum = 0;
-        this._batchRequestCompress = false;
-        this._batchMarker = 0;
+        this._batchRequestQueue = new BatchRequestQueue(instance, endpoint.datagram());
 
         this._sendStreams = [];
 
@@ -366,7 +363,7 @@ var ConnectionI = Class({
                 this.setState(StateClosed, new Ice.ConnectionTimeoutException());
             }
             else if(acm.close != Ice.ACMClose.CloseOnInvocation &&
-                    this._dispatchCount === 0 && this._batchStream.isEmpty() && this._asyncRequests.size === 0)
+                    this._dispatchCount === 0 && this._batchRequestQueue.isEmpty() && this._asyncRequests.size === 0)
             {
                 //
                 // The connection is idle, close it.
@@ -375,7 +372,7 @@ var ConnectionI = Class({
             }
         }
     },
-    sendAsyncRequest: function(out, compress, response)
+    sendAsyncRequest: function(out, compress, response, batchRequestNum)
     {
         var requestId = 0;
         var os = out.__os();
@@ -423,6 +420,11 @@ var ConnectionI = Class({
             os.pos = Protocol.headerSize;
             os.writeInt(requestId);
         }
+        else if(batchRequestNum > 0)
+        {
+            os.pos = Protocol.headerSize;
+            os.writeInt(batchRequestNum);
+        }
 
         var status;
         try
@@ -453,252 +455,15 @@ var ConnectionI = Class({
 
         return status;
     },
-    prepareBatchRequest: function(os)
+    getBatchRequestQueue: function()
     {
-        if(this._exception !== null)
-        {
-            //
-            // If there were no batch requests queued when the connection failed, we can safely
-            // retry with a new connection. Otherwise, we must throw to notify the caller that
-            // some previous batch requests were not sent.
-            //
-            if(this._batchStream.isEmpty())
-            {
-                throw new RetryException(this._exception);
-            }
-            else
-            {
-                throw this._exception;
-            }
-        }
-
-        Debug.assert(this._state > StateNotValidated);
-        Debug.assert(this._state < StateClosing);
-
-        if(this._batchStream.isEmpty())
-        {
-            try
-            {
-                this._batchStream.writeBlob(Protocol.requestBatchHdr);
-            }
-            catch(ex)
-            {
-                if(ex instanceof Ice.LocalException)
-                {
-                    this.setState(StateClosed, ex);
-                }
-                throw ex;
-            }
-        }
-
-        this._batchStreamInUse = true;
-        this._batchMarker = this._batchStream.size;
-        this._batchStream.swap(os);
-
-        //
-        // The batch stream now belongs to the caller, until
-        // finishBatchRequest() or abortBatchRequest() is called.
-        //
-    },
-    finishBatchRequest: function(os, compress)
-    {
-        try
-        {
-            //
-            // Get the batch stream back.
-            //
-            this._batchStream.swap(os);
-
-            if(this._exception !== null)
-            {
-                return;
-            }
-
-            var flush = false;
-            if(this._batchAutoFlushSize > 0)
-            {
-                if(this._batchStream.size > this._batchAutoFlushSize)
-                {
-                    flush = true;
-                }
-
-                //
-                // Throw memory limit exception if the first message added causes us to go over
-                // limit. Otherwise put aside the marshalled message that caused limit to be
-                // exceeded and rollback stream to the marker.
-                try
-                {
-                    this._transceiver.checkSendSize(this._batchStream.buffer);
-                }
-                catch(ex)
-                {
-                    if(ex instanceof Ice.LocalException)
-                    {
-                        if(this._batchRequestNum > 0)
-                        {
-                            flush = true;
-                        }
-                        else
-                        {
-                            throw ex;
-                        }
-                    }
-                    else
-                    {
-                        throw ex;
-                    }
-                }
-            }
-
-            if(flush)
-            {
-                //
-                // Temporarily save the last request.
-                //
-                var sz = this._batchStream.size - this._batchMarker;
-                this._batchStream.pos = this._batchMarker;
-                var lastRequest = this._batchStream.readBlob(sz);
-                this._batchStream.resize(this._batchMarker, false);
-
-                try
-                {
-                    //
-                    // Fill in the number of requests in the batch.
-                    //
-                    this._batchStream.pos = Protocol.headerSize;
-                    this._batchStream.writeInt(this._batchRequestNum);
-
-                    this.sendMessage(OutgoingMessage.createForStream(this._batchStream, this._batchRequestCompress,
-                                                                     true));
-                }
-                catch(ex)
-                {
-                    if(ex instanceof Ice.LocalException)
-                    {
-                        this.setState(StateClosed, ex);
-                        Debug.assert(this._exception !== null);
-                        throw this._exception;
-                    }
-                    else
-                    {
-                        throw ex;
-                    }
-                }
-
-                //
-                // Reset the batch stream.
-                //
-                this._batchStream = new BasicStream(this._instance, Protocol.currentProtocolEncoding);
-                this._batchRequestNum = 0;
-                this._batchRequestCompress = false;
-                this._batchMarker = 0;
-
-                //
-                // Start a new batch with the last message that caused us to go over the limit.
-                //
-                this._batchStream.writeBlob(Protocol.requestBatchHdr);
-                this._batchStream.writeBlob(lastRequest);
-            }
-
-            //
-            // Increment the number of requests in the batch.
-            //
-            ++this._batchRequestNum;
-
-            //
-            // We compress the whole batch if there is at least one compressed
-            // message.
-            //
-            if(compress)
-            {
-                this._batchRequestCompress = true;
-            }
-
-            //
-            // The batch stream is not in use anymore.
-            //
-            Debug.assert(this._batchStreamInUse);
-            this._batchStreamInUse = false;
-        }
-        catch(ex)
-        {
-            if(ex instanceof Ice.LocalException)
-            {
-                this.abortBatchRequest();
-            }
-            throw ex;
-        }
-    },
-    abortBatchRequest: function()
-    {
-        this._batchStream = new BasicStream(this._instance, Protocol.currentProtocolEncoding);
-        this._batchRequestNum = 0;
-        this._batchRequestCompress = false;
-        this._batchMarker = 0;
-
-        Debug.assert(this._batchStreamInUse);
-        this._batchStreamInUse = false;
+        return this._batchRequestQueue;
     },
     flushBatchRequests: function()
     {
         var result = new ConnectionFlushBatch(this, this._communicator, "flushBatchRequests");
         result.__invoke();
         return result;
-    },
-    flushAsyncBatchRequests: function(outAsync)
-    {
-        if(this._exception !== null)
-        {
-            throw this._exception;
-        }
-
-        var status;
-        if(this._batchRequestNum === 0)
-        {
-            outAsync.__sent();
-            return AsyncStatus.Sent;
-        }
-
-        //
-        // Notify the request that it's cancelable with this connection.
-        // This will throw if the request is canceled.
-        //
-        outAsync.__cancelable(this);
-
-        //
-        // Fill in the number of requests in the batch.
-        //
-        this._batchStream.pos = Protocol.headerSize;
-        this._batchStream.writeInt(this._batchRequestNum);
-
-        this._batchStream.swap(outAsync.__os());
-
-        try
-        {
-            status = this.sendMessage(OutgoingMessage.create(outAsync, outAsync.__os(), this._batchRequestCompress, 0));
-        }
-        catch(ex)
-        {
-            if(ex instanceof Ice.LocalException)
-            {
-                this.setState(StateClosed, ex);
-                Debug.assert(this._exception !== null);
-                throw this._exception;
-            }
-            else
-            {
-                throw ex;
-            }
-        }
-
-        //
-        // Reset the batch stream.
-        //
-        this._batchStream = new BasicStream(this._instance, Protocol.currentProtocolEncoding);
-        this._batchRequestNum = 0;
-        this._batchRequestCompress = false;
-        this._batchMarker = 0;
-        return status;
     },
     setCallback: function(callback)
     {
@@ -1543,6 +1308,7 @@ var ConnectionI = Class({
                 {
                     return;
                 }
+                this._batchRequestQueue.destroy(this._exception);
                 this._transceiver.unregister();
                 break;
             }

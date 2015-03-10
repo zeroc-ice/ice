@@ -28,19 +28,28 @@ public class ProxyFlushBatch extends ProxyOutgoingAsyncBase
     {
         super(prx, operation, callback);
         _observer = ObserverHelper.get(prx, operation);
+        _batchRequestNum = prx.__getBatchRequestQueue().swap(_os);
     }
 
     @Override
-    public int send(Ice.ConnectionI connection, boolean compress, boolean response)
+    public int invokeRemote(Ice.ConnectionI connection, boolean compress, boolean response) throws RetryException
     {
+        if(_batchRequestNum == 0)
+        {
+            return sent() ? AsyncStatus.Sent | AsyncStatus.InvokeSentCallback : AsyncStatus.Sent;
+        }
         _cachedConnection = connection;
-        return connection.flushAsyncBatchRequests(this);
+        return connection.sendAsyncRequest(this, compress, false, _batchRequestNum);
     }
 
     @Override
     public int invokeCollocated(CollocatedRequestHandler handler)
     {
-        return handler.invokeAsyncBatchRequests(this);
+        if(_batchRequestNum == 0)
+        {
+            return sent() ? AsyncStatus.Sent | AsyncStatus.InvokeSentCallback : AsyncStatus.Sent;
+        }
+        return handler.invokeAsyncRequest(this, _batchRequestNum, false);
     }
 
     public void invoke()
@@ -48,18 +57,6 @@ public class ProxyFlushBatch extends ProxyOutgoingAsyncBase
         Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(_proxy.__reference().getProtocol()));
         invokeImpl(true); // userThread = true
     }
-    
-    @Override
-    protected void handleRetryException(Ice.Exception exc)
-    {
-        _proxy.__setRequestHandler(_handler, null); // Clear request handler
-        throw exc; // No retries, we want to notify the user of potentially lost batch requests
-    }
-    
-    @Override
-    protected int handleException(Ice.Exception exc)
-    {
-        _proxy.__setRequestHandler(_handler, null); // Clear request handler
-        throw exc; // No retries, we want to notify the user of potentially lost batch requests
-    }
+
+    protected int _batchRequestNum;
 }

@@ -32,16 +32,9 @@ class ICE_API OutgoingAsyncBase : public Ice::AsyncResult
 {
 public:
 
-    //
-    // Those methods must be overriden if the invocation is sent
-    // through a request handler.
-    //
-    virtual AsyncStatus send(const Ice::ConnectionIPtr&, bool, bool) { assert(false); return AsyncStatusQueued; }
-    virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*) { assert(false); return AsyncStatusQueued; }
-
     virtual bool sent();
     virtual bool completed(const Ice::Exception&);
-    virtual void retryException(const Ice::Exception&);
+    virtual bool completed();
 
     // Those methods are public when called from an OutgoingAsyncBase reference.
     using Ice::AsyncResult::cancelable;
@@ -55,7 +48,7 @@ public:
         const Ice::Int size = static_cast<Ice::Int>(_os.b.size() - headerSize - 4);
         _childObserver.attach(getObserver().getRemoteObserver(c, endpt, requestId, size));
     }
-    
+
     void attachCollocatedObserver(const Ice::ObjectAdapterPtr& adapter, Ice::Int requestId)
     {
         const Ice::Int size = static_cast<Ice::Int>(_os.b.size() - headerSize - 4);
@@ -67,9 +60,11 @@ public:
         return &_os;
     }
 
+    virtual BasicStream* getIs();
+
 protected:
 
-    OutgoingAsyncBase(const Ice::CommunicatorPtr&, const InstancePtr&, const std::string&, const CallbackBasePtr&, 
+    OutgoingAsyncBase(const Ice::CommunicatorPtr&, const InstancePtr&, const std::string&, const CallbackBasePtr&,
                       const Ice::LocalObjectPtr&);
 
     bool sent(bool);
@@ -90,11 +85,14 @@ class ICE_API ProxyOutgoingAsyncBase : public OutgoingAsyncBase, protected IceUt
 {
 public:
 
+    virtual AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool) = 0;
+    virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*) = 0;
+
     virtual Ice::ObjectPrx getProxy() const;
 
     using OutgoingAsyncBase::sent;
     virtual bool completed(const Ice::Exception&);
-    virtual void retryException(const Ice::Exception&);
+    void retryException(const Ice::Exception&);
     virtual void cancelable(const CancellationHandlerPtr&);
 
     void retry();
@@ -102,7 +100,7 @@ public:
 
 protected:
 
-    ProxyOutgoingAsyncBase(const Ice::ObjectPrx&, const std::string&, const CallbackBasePtr&, 
+    ProxyOutgoingAsyncBase(const Ice::ObjectPrx&, const std::string&, const CallbackBasePtr&,
                            const Ice::LocalObjectPtr&);
 
     void invokeImpl(bool);
@@ -111,8 +109,7 @@ protected:
     bool finished(const Ice::Exception&);
     bool finished(bool);
 
-    virtual void handleRetryException(const Ice::Exception&);
-    virtual int handleException(const Ice::Exception&);
+    int handleException(const Ice::Exception&);
     virtual void runTimerTask();
 
     const Ice::ObjectPrx _proxy;
@@ -138,14 +135,15 @@ public:
 
     virtual bool sent();
 
-    virtual AsyncStatus send(const Ice::ConnectionIPtr&, bool, bool);
+    virtual AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool);
     virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*);
+
+    using ProxyOutgoingAsyncBase::completed;
+    virtual bool completed();
 
     void abort(const Ice::Exception&);
 
     void invoke();
-    using ProxyOutgoingAsyncBase::completed;
-    bool completed();
 
     BasicStream* startWriteParams(Ice::FormatType format)
     {
@@ -172,7 +170,7 @@ public:
         }
     }
 
-    BasicStream* getIs()
+    virtual BasicStream* getIs()
     {
         return &_is;
     }
@@ -185,23 +183,22 @@ private:
 //
 // Class for handling the proxy's begin_ice_flushBatchRequest request.
 //
-class ICE_API ProxyFlushBatch : public ProxyOutgoingAsyncBase
+class ICE_API ProxyFlushBatchAsync : public ProxyOutgoingAsyncBase
 {
 public:
 
-    ProxyFlushBatch(const Ice::ObjectPrx&, const std::string&, const CallbackBasePtr&, const Ice::LocalObjectPtr&);
+    ProxyFlushBatchAsync(const Ice::ObjectPrx&, const std::string&, const CallbackBasePtr&, const Ice::LocalObjectPtr&);
 
-    virtual AsyncStatus send(const Ice::ConnectionIPtr&, bool, bool);
+    virtual AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool);
     virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*);
 
     void invoke();
 
 private:
 
-    virtual void handleRetryException(const Ice::Exception&);
-    virtual int handleException(const Ice::Exception&);
+    int _batchRequestNum;
 };
-typedef IceUtil::Handle<ProxyFlushBatch> ProxyFlushBatchPtr;
+typedef IceUtil::Handle<ProxyFlushBatchAsync> ProxyFlushBatchAsyncPtr;
 
 //
 // Class for handling the proxy's begin_ice_getConnection request.
@@ -212,7 +209,7 @@ public:
 
     ProxyGetConnection(const Ice::ObjectPrx&, const std::string&, const CallbackBasePtr&, const Ice::LocalObjectPtr&);
 
-    virtual AsyncStatus send(const Ice::ConnectionIPtr&, bool, bool);
+    virtual AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool);
     virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*);
 
     void invoke();
@@ -222,13 +219,13 @@ typedef IceUtil::Handle<ProxyGetConnection> ProxyGetConnectionPtr;
 //
 // Class for handling Ice::Connection::begin_flushBatchRequests
 //
-class ICE_API ConnectionFlushBatch : public OutgoingAsyncBase
+class ICE_API ConnectionFlushBatchAsync : public OutgoingAsyncBase
 {
 public:
 
-    ConnectionFlushBatch(const Ice::ConnectionIPtr&, const Ice::CommunicatorPtr&, const InstancePtr&,
-                         const std::string&, const CallbackBasePtr&, const Ice::LocalObjectPtr&);
-    
+    ConnectionFlushBatchAsync(const Ice::ConnectionIPtr&, const Ice::CommunicatorPtr&, const InstancePtr&,
+                              const std::string&, const CallbackBasePtr&, const Ice::LocalObjectPtr&);
+
     virtual Ice::ConnectionPtr getConnection() const;
 
     void invoke();
@@ -237,17 +234,17 @@ private:
 
     const Ice::ConnectionIPtr _connection;
 };
-typedef IceUtil::Handle<ConnectionFlushBatch> ConnectionFlushBatchPtr;
+typedef IceUtil::Handle<ConnectionFlushBatchAsync> ConnectionFlushBatchAsyncPtr;
 
 //
 // Class for handling Ice::Communicator::begin_flushBatchRequests
 //
-class ICE_API CommunicatorFlushBatch : public Ice::AsyncResult
+class ICE_API CommunicatorFlushBatchAsync : public Ice::AsyncResult
 {
 public:
 
-    CommunicatorFlushBatch(const Ice::CommunicatorPtr&, const InstancePtr&, const std::string&,
-                           const CallbackBasePtr&, const Ice::LocalObjectPtr&);
+    CommunicatorFlushBatchAsync(const Ice::CommunicatorPtr&, const InstancePtr&, const std::string&,
+                                const CallbackBasePtr&, const Ice::LocalObjectPtr&);
 
     void flushConnection(const Ice::ConnectionIPtr&);
     void ready();

@@ -62,42 +62,13 @@ class BatchOnewaysAMI
     static void batchOneways(MyClassPrx p, PrintWriter out)
     {
         final byte[] bs1 = new byte[10 * 1024];
-        final byte[] bs2 = new byte[99 * 1024];
-
-        final Callback cb = new Callback();
-        p.begin_opByteSOneway(bs1, new Callback_MyClass_opByteSOneway()
-        {
-            @Override
-            public void exception(LocalException ex)
-            {
-                test(false);
-            }
-
-            @Override
-            public void response()
-            {
-                cb.called();
-            }
-        });
-        cb.check();
-        p.begin_opByteSOneway(bs2, new Callback_MyClass_opByteSOneway()
-        {
-            @Override
-            public void exception(LocalException ex)
-            {
-                test(false);
-            }
-
-            @Override
-            public void response()
-            {
-                cb.called();
-            }
-        });
-        cb.check();
 
         MyClassPrx batch = MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
-        batch.end_ice_flushBatchRequests(batch.begin_ice_flushBatchRequests());
+        batch.end_ice_flushBatchRequests(batch.begin_ice_flushBatchRequests()); // Empty flush
+
+        test(batch.begin_ice_flushBatchRequests().isCompleted()); // Empty flush
+        test(batch.begin_ice_flushBatchRequests().isSent()); // Empty flush
+        test(batch.begin_ice_flushBatchRequests().sentSynchronously()); // Empty flush
 
         for(int i = 0; i < 30; ++i)
         {
@@ -116,10 +87,21 @@ class BatchOnewaysAMI
             });
         }
 
+        int count = 0;
+        while(count < 27) // 3 * 9 requests auto-flushed.
+        {
+            count += p.opByteSOnewayCallCount();
+            try
+            {
+                Thread.sleep(10);
+            }
+            catch(InterruptedException ex)
+            {
+            }
+        }
+
         if(batch.ice_getConnection() != null)
         {
-            batch.ice_getConnection().end_flushBatchRequests(batch.ice_getConnection().begin_flushBatchRequests());
-
             MyClassPrx batch2 = MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
 
             batch.begin_ice_ping();
@@ -134,44 +116,8 @@ class BatchOnewaysAMI
 
             batch.begin_ice_ping();
             batch.ice_getConnection().close(false);
-            batch.begin_ice_ping(new Ice.Callback_Object_ice_ping()
-            {
-
-                @Override
-                public void response()
-                {
-                    test(false);
-                }
-
-                @Override
-                public void exception(LocalException ex)
-                {
-                    test(ex instanceof Ice.CloseConnectionException);
-                    cb.called();
-                }
-
-            });
-            cb.check();
-            batch2.begin_ice_ping(new Ice.Callback_Object_ice_ping()
-            {
-
-                @Override
-                public void response()
-                {
-                    test(false);
-                }
-
-                @Override
-                public void exception(LocalException ex)
-                {
-                    test(ex instanceof Ice.CloseConnectionException);
-                    cb.called();
-                }
-
-            });
-            cb.check();
-            batch.begin_ice_ping();
-            batch2.begin_ice_ping();
+            batch.begin_ice_ping().throwLocalException();
+            batch2.begin_ice_ping().throwLocalException();
         }
 
         Ice.Identity identity = new Ice.Identity();

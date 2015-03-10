@@ -84,28 +84,30 @@ IceInternal::IncomingBase::__adopt(IncomingBase& other)
     other._responseHandler = 0;
 }
 
-BasicStream* 
+BasicStream*
 IncomingBase::__startWriteParams(FormatType format)
 {
-    if(_response)
+    if(!_response)
     {
-        assert(_os.b.size() == headerSize + 4); // Reply status position.
-        assert(_current.encoding >= Ice::Encoding_1_0); // Encoding for reply is known.
-        _os.write(static_cast<Ice::Byte>(0));
-        _os.startWriteEncaps(_current.encoding, format);
+        throw MarshalException(__FILE__, __LINE__, "can't marshal out parameters for oneway dispatch");
     }
-    
+
+    assert(_os.b.size() == headerSize + 4); // Reply status position.
+    assert(_current.encoding >= Ice::Encoding_1_0); // Encoding for reply is known.
+    _os.write(static_cast<Ice::Byte>(0));
+    _os.startWriteEncaps(_current.encoding, format);
+
     //
     // We still return the stream even if no response is expected. The
     // servant code might still write some out parameters if for
     // example a method with out parameters somehow and erroneously
-    // invoked as oneway (or if the invocation is invoked on a 
+    // invoked as oneway (or if the invocation is invoked on a
     // blobject and the blobject erroneously writes a response).
     //
     return &_os;
 }
 
-void 
+void
 IncomingBase::__endWriteParams(bool ok)
 {
     if(!ok)
@@ -120,7 +122,7 @@ IncomingBase::__endWriteParams(bool ok)
     }
 }
 
-void 
+void
 IncomingBase::__writeEmptyParams()
 {
     if(_response)
@@ -132,7 +134,7 @@ IncomingBase::__writeEmptyParams()
     }
 }
 
-void 
+void
 IncomingBase::__writeParamEncaps(const Byte* v, Ice::Int sz, bool ok)
 {
     if(!ok)
@@ -156,7 +158,7 @@ IncomingBase::__writeParamEncaps(const Byte* v, Ice::Int sz, bool ok)
     }
 }
 
-void 
+void
 IncomingBase::__writeUserException(const Ice::UserException& ex, Ice::FormatType format)
 {
     ::IceInternal::BasicStream* __os = __startWriteParams(format);
@@ -479,7 +481,7 @@ IceInternal::IncomingBase::__handleException(bool amd)
 }
 
 
-IceInternal::Incoming::Incoming(Instance* instance, ResponseHandler* responseHandler, Ice::Connection* connection, 
+IceInternal::Incoming::Incoming(Instance* instance, ResponseHandler* responseHandler, Ice::Connection* connection,
                                 const ObjectAdapterPtr& adapter, bool response, Byte compress, Int requestId) :
     IncomingBase(instance, responseHandler, connection, adapter, response, compress, requestId),
     _inParamPos(0)
@@ -490,7 +492,7 @@ IceInternal::Incoming::Incoming(Instance* instance, ResponseHandler* responseHan
     if(response)
     {
         _os.writeBlob(replyHdr, sizeof(replyHdr));
-        
+
         //
         // Add the request ID.
         //
@@ -603,10 +605,10 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
 
     const CommunicatorObserverPtr& obsv = _is->instance()->initializationData().observer;
     if(obsv)
-    { 
+    {
         // Read the parameter encapsulation size.
         Ice::Int sz;
-        _is->read(sz); 
+        _is->read(sz);
         _is->i -= 4;
 
         _observer.attach(obsv->getDispatchObserver(_current, static_cast<Int>(_is->i - start + sz)));
@@ -684,7 +686,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
             // to indicate async dispatch.
             //
             if(_servant->__dispatch(*this, _current) == DispatchAsync)
-            {            
+            {
                 return;
             }
 
@@ -699,7 +701,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
             // Skip the input parameters, this is required for reading
             // the next batch request if dispatching batch requests.
             //
-            _is->skipEncaps(); 
+            _is->skipEncaps();
 
             if(servantManager && servantManager->hasServant(_current.id))
             {

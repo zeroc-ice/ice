@@ -16,11 +16,6 @@ namespace IceInternal
 {
     public class ConnectionRequestHandler : RequestHandler
     {
-        public RequestHandler connect(Ice.ObjectPrxHelperBase proxy)
-        {
-            return this;
-        }
-
         public RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler)
         {
             try
@@ -46,24 +41,9 @@ namespace IceInternal
             return this;
         }
 
-        public void prepareBatchRequest(BasicStream @out)
+        public bool sendAsyncRequest(ProxyOutgoingAsyncBase outAsync, out Ice.AsyncCallback sentCallback)
         {
-            _connection.prepareBatchRequest(@out);
-        }
-
-        public void finishBatchRequest(BasicStream @out)
-        {
-            _connection.finishBatchRequest(@out, _compress);
-        }
-
-        public void abortBatchRequest()
-        {
-            _connection.abortBatchRequest();
-        }
-        
-        public bool sendAsyncRequest(OutgoingAsyncBase outAsync, out Ice.AsyncCallback sentCallback)
-        {
-            return outAsync.send(_connection, _compress, _response, out sentCallback);
+            return outAsync.invokeRemote(_connection, _compress, _response, out sentCallback);
         }
 
         public void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
@@ -77,11 +57,6 @@ namespace IceInternal
         }
 
         public Ice.ConnectionI getConnection()
-        {
-            return _connection;
-        }
-
-        public Ice.ConnectionI waitForConnection()
         {
             return _connection;
         }

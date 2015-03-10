@@ -24,20 +24,29 @@ ICE_API @protocol ICEDispatcherCall <NSObject>
 -(void) run;
 @end
 
+ICE_API @protocol ICEBatchRequest <NSObject>
+-(void) enqueue;
+-(int) getSize;
+-(NSString*) getOperation;
+-(id<ICEObjectPrx>) getProxy;
+@end
+
 ICE_API @interface ICEInitializationData : NSObject
 {
 @private
     id<ICEProperties> properties;
     id<ICELogger> logger;
     void(^dispatcher)(id<ICEDispatcherCall>, id<ICEConnection>);
+    void(^batchRequestInterceptor)(id<ICEBatchRequest>, int, int);
     NSDictionary* prefixTable__;
 }
 @property(retain, nonatomic) id<ICEProperties> properties;
 @property(retain, nonatomic) id<ICELogger> logger;
 @property(copy, nonatomic) void(^dispatcher)(id<ICEDispatcherCall>, id<ICEConnection>);
+@property(copy, nonatomic) void(^batchRequestInterceptor)(id<ICEBatchRequest>, int, int);
 @property(retain, nonatomic) NSDictionary* prefixTable__;
 
--(id) init:(id<ICEProperties>)properties logger:(id<ICELogger>)logger 
+-(id) init:(id<ICEProperties>)properties logger:(id<ICELogger>)logger
      dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d;
 +(id) initializationData;
 +(id) initializationData:(id<ICEProperties>)properties logger:(id<ICELogger>)logger

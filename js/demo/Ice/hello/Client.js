@@ -6,7 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
-    
+
 var Ice = require("zeroc-icejs").Ice;
 var Demo = require("./Hello").Demo;
 
@@ -29,7 +29,7 @@ function menu()
 
 var communicator;
 Ice.Promise.try(
-    function() 
+    function()
     {
         communicator = Ice.initialize(process.argv);
         var proxy = communicator.stringToProxy("hello:default -p 10000").ice_twoway().ice_secure(false);
@@ -53,7 +53,7 @@ Ice.Promise.try(
                         loop.succeed();
                         return;
                     }
-                    
+
                     if(key == "t")
                     {
                         return twoway.sayHello(delay);
@@ -68,7 +68,7 @@ Ice.Promise.try(
                     }
                     else if(key == "f")
                     {
-                        return communicator.flushBatchRequests();
+                        return batchOneway.ice_flushBatchRequests();
                     }
                     else if(key == "T")
                     {
@@ -138,7 +138,7 @@ Ice.Promise.try(
                 //
                 process.stdin.resume();
                 var promise = new Ice.Promise().succeed();
-                process.stdin.on("data", 
+                process.stdin.on("data",
                                  function(buffer)
                                  {
                                      process.stdin.pause();
@@ -147,9 +147,9 @@ Ice.Promise.try(
                                      data.forEach(function(key)
                                                   {
                                                       promise = promise.then(
-                                                          function() 
-                                                          { 
-                                                              return processKey(key); 
+                                                          function()
+                                                          {
+                                                              return processKey(key);
                                                           }
                                                       ).exception(
                                                           function(ex)
@@ -158,7 +158,7 @@ Ice.Promise.try(
                                                           });
                                                   });
                                      // Once we're done, print the prompt
-                                     promise.then(function() 
+                                     promise.then(function()
                                                   {
                                                       if(!loop.completed())
                                                       {

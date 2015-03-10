@@ -473,7 +473,7 @@ var ObjectPrx = Ice.Class({
     },
     __handleException: function(ex, handler, mode, sent, sleep, cnt)
     {
-        this.__setRequestHandler(handler, null); // Clear the request handler
+        this.__updateRequestHandler(handler, null); // Clear the request handler
 
         //
         // We only retry local exception, system exceptions aren't retried.
@@ -531,23 +531,36 @@ var ObjectPrx = Ice.Class({
     },
     __getRequestHandler: function()
     {
-        var handler;
         if(this._reference.getCacheConnection())
         {
-            if(this._requestHandler !== null)
+            if(this._requestHandler)
             {
                 return this._requestHandler;
             }
-            handler = this._reference.getInstance().requestHandlerFactory().getRequestHandler(this._reference, this);
-            this._requestHandler = handler;
         }
-        else
-        {
-            handler = this._reference.getInstance().requestHandlerFactory().getRequestHandler(this._reference, this);
-        }
-        return handler.connect(this);
+        return this._reference.getRequestHandler(this);
     },
-    __setRequestHandler: function(previous, handler)
+    __getBatchRequestQueue: function()
+    {
+        if(!this._batchRequestQueue)
+        {
+            this._batchRequestQueue = this._reference.getBatchRequestQueue();
+        }
+        return this._batchRequestQueue;
+    },
+    __setRequestHandler: function(handler)
+    {
+        if(this._reference.getCacheConnection())
+        {
+            if(!this._requestHandler)
+            {
+                this._requestHandler = handler;
+            }
+            return this._requestHandler;
+        }
+        return handler;
+    },
+    __updateRequestHandler: function(previous, handler)
     {
         if(this._reference.getCacheConnection() && previous !== null)
         {

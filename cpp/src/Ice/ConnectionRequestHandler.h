@@ -23,15 +23,10 @@ public:
 
     ConnectionRequestHandler(const ReferencePtr&, const Ice::ConnectionIPtr&, bool);
 
-    virtual RequestHandlerPtr connect(const Ice::ObjectPrx&);
     virtual RequestHandlerPtr update(const RequestHandlerPtr&, const RequestHandlerPtr&);
 
-    virtual void prepareBatchRequest(BasicStream*);
-    virtual void finishBatchRequest(BasicStream*);
-    virtual void abortBatchRequest();
-
-    virtual bool sendRequest(OutgoingBase*);
-    virtual AsyncStatus sendAsyncRequest(const OutgoingAsyncBasePtr&);
+    virtual bool sendRequest(ProxyOutgoingBase*);
+    virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&);
 
     virtual void requestCanceled(OutgoingBase*, const Ice::LocalException&);
     virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, const Ice::LocalException&);

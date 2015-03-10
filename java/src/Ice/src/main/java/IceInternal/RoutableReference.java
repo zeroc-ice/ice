@@ -496,6 +496,19 @@ public class RoutableReference extends Reference
     }
 
     @Override
+    public RequestHandler
+    getRequestHandler(Ice.ObjectPrxHelperBase proxy)
+    {
+        return getInstance().requestHandlerFactory().getRequestHandler(this, proxy);
+    }
+
+    @Override
+    public BatchRequestQueue
+    getBatchRequestQueue()
+    {
+        return new BatchRequestQueue(getInstance(), getMode() == Reference.ModeBatchDatagram);
+    }
+
     public void
     getConnection(final GetConnectionCallback callback)
     {

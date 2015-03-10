@@ -16,136 +16,41 @@ import java.util.concurrent.Callable;
 public class ConnectRequestHandler
     implements RequestHandler, Reference.GetConnectionCallback, RouterInfo.AddProxyCallback
 {
-    static private class Request
-    {
-        Request(BasicStream os)
-        {
-            this.os = new BasicStream(os.instance(), Protocol.currentProtocolEncoding);
-            this.os.swap(os);
-        }
-
-        Request(OutgoingAsyncBase out)
-        {
-            this.outAsync = out;
-        }
-
-        OutgoingAsyncBase outAsync = null;
-        BasicStream os = null;
-    }
-
-    @Override
-    public RequestHandler 
+    synchronized public RequestHandler
     connect(Ice.ObjectPrxHelperBase proxy)
     {
-        //
-        // Initiate the connection if connect() is called by the proxy that
-        // created the handler.
-        //
-        if(proxy == _proxy && _connect)
-        {
-            _connect = false; // Call getConnection only once
-            _reference.getConnection(this);
-        }
-
         try
         {
-            synchronized(this)
+            if(!initialized())
             {
-                if(!initialized())
-                {
-                    _proxies.add(proxy);
-                    return this;
-                }
+                _proxies.add(proxy);
             }
         }
         catch(Ice.LocalException ex)
         {
-            throw ex;
+            //
+            // Only throw if the connection didn't get established. If
+            // it died after being established, we allow the caller to
+            // retry the connection establishment by not throwing here.
+            //
+            if(_connection == null)
+            {
+                throw ex;
+            }
         }
-        
-        if(_connectionRequestHandler != null)
-        {
-            proxy.__setRequestHandler(this, _connectionRequestHandler);
-            return _connectionRequestHandler;
-        }
-        else
-        {
-            return this;
-        }
+        return _requestHandler;
     }
 
     @Override
-    public RequestHandler 
+    public RequestHandler
     update(RequestHandler previousHandler, RequestHandler newHandler)
     {
         return previousHandler == this ? newHandler : this;
     }
 
     @Override
-    public void
-    prepareBatchRequest(BasicStream os)
-        throws RetryException
-    {
-        synchronized(this)
-        {
-            waitBatchRequestInProgress();
-
-            if(!initialized())
-            {
-                _batchRequestInProgress = true;
-                _batchStream.swap(os);
-                return;
-            }
-        }
-
-        _connection.prepareBatchRequest(os);
-    }
-
-    @Override
-    public void
-    finishBatchRequest(BasicStream os)
-    {
-        synchronized(this)
-        {
-            if(!initialized()) // This can't throw until _batchRequestInProgress = false
-            {
-                assert(_batchRequestInProgress);
-                _batchRequestInProgress = false;
-                notifyAll();
-
-                _batchStream.swap(os);
-
-                _requests.add(new Request(_batchStream));
-                return;
-            }
-        }
-        _connection.finishBatchRequest(os, _compress);
-    }
-
-    @Override
-    public void
-    abortBatchRequest()
-    {
-        synchronized(this)
-        {
-            if(!initialized()) // This can't throw until _batchRequestInProgress = false
-            {
-                assert(_batchRequestInProgress);
-                _batchRequestInProgress = false;
-                notifyAll();
-
-                BasicStream dummy = new BasicStream(_reference.getInstance(), Protocol.currentProtocolEncoding);
-                _batchStream.swap(dummy);
-
-                return;
-            }
-        }
-        _connection.abortBatchRequest();
-    }
-
-    @Override
     public int
-    sendAsyncRequest(OutgoingAsyncBase out)
+    sendAsyncRequest(ProxyOutgoingAsyncBase out)
         throws RetryException
     {
         synchronized(this)
@@ -159,7 +64,7 @@ public class ConnectRequestHandler
             {
                 if(!initialized())
                 {
-                    _requests.add(new Request(out));
+                    _requests.add(out);
                     return AsyncStatus.Queued;
                 }
             }
@@ -168,7 +73,7 @@ public class ConnectRequestHandler
                 throw new RetryException(ex);
             }
         }
-        return out.send(_connection, _compress, _response);
+        return out.invokeRemote(_connection, _compress, _response);
     }
 
     @Override
@@ -184,11 +89,11 @@ public class ConnectRequestHandler
 
             if(!initialized())
             {
-                java.util.Iterator<Request> it = _requests.iterator();
+                java.util.Iterator<ProxyOutgoingAsyncBase> it = _requests.iterator();
                 while(it.hasNext())
                 {
-                    Request request = it.next();
-                    if(request.outAsync == outAsync)
+                    OutgoingAsyncBase request = it.next();
+                    if(request == outAsync)
                     {
                         it.remove();
                         if(outAsync.completed(ex))
@@ -223,26 +128,6 @@ public class ConnectRequestHandler
         {
             return _connection;
         }
-    }
-
-    @Override
-    synchronized public
-    ConnectionI waitForConnection()
-        throws InterruptedException, RetryException
-    {
-        if(_exception != null)
-        {
-            throw new RetryException(_exception);
-        }
-
-        //
-        // Wait for the connection establishment to complete or fail.
-        //
-        while(!_initialized && _exception == null)
-        {
-            wait();
-        }
-        return getConnection();
     }
 
     //
@@ -300,14 +185,11 @@ public class ConnectRequestHandler
             // Ignore
         }
 
-        for(Request request : _requests)
+        for(OutgoingAsyncBase outAsync : _requests)
         {
-            if(request.outAsync != null)
+            if(outAsync.completed(_exception))
             {
-                if(request.outAsync.completed(_exception))
-                {
-                    request.outAsync.invokeCompletedAsync();
-                }
+                outAsync.invokeCompletedAsync();
             }
         }
         _requests.clear();
@@ -332,13 +214,19 @@ public class ConnectRequestHandler
     ConnectRequestHandler(Reference ref, Ice.ObjectPrxHelperBase proxy)
     {
         _reference = ref;
-        _connect = true;
         _response = _reference.getMode() == Reference.ModeTwoway;
         _proxy = (Ice.ObjectPrxHelperBase)proxy;
         _initialized = false;
         _flushing = false;
-        _batchRequestInProgress = false;
-        _batchStream = new BasicStream(ref.getInstance(), Protocol.currentProtocolEncoding);
+
+        if(_reference.getInstance().queueRequests())
+        {
+            _requestHandler = new QueueRequestHandler(_reference.getInstance(), this);
+        }
+        else
+        {
+            _requestHandler = this;
+        }
     }
 
     private boolean
@@ -415,7 +303,6 @@ public class ConnectRequestHandler
         synchronized(this)
         {
             assert(_connection != null && !_initialized);
-            waitBatchRequestInProgress();
 
             //
             // We set the _flushing flag to true to prevent any additional queuing. Callers
@@ -425,61 +312,34 @@ public class ConnectRequestHandler
             _flushing = true;
         }
 
-        java.util.Iterator<Request> p = _requests.iterator(); // _requests is immutable when _flushing = true
         Ice.LocalException exception = null;
-        while(p.hasNext())
+        for(ProxyOutgoingAsyncBase outAsync : _requests)
         {
-            Request request = p.next();
             try
             {
-                if(request.os != null)
+                if((outAsync.invokeRemote(_connection, _compress, _response) & AsyncStatus.InvokeSentCallback) > 0)
                 {
-                    BasicStream os = new BasicStream(request.os.instance(), Protocol.currentProtocolEncoding);
-                    _connection.prepareBatchRequest(os);
-                    try
-                    {
-                        request.os.pos(0);
-                        os.writeBlob(request.os.readBlob(request.os.size()));
-                    }
-                    catch(Ice.LocalException ex)
-                    {
-                        _connection.abortBatchRequest();
-                        throw ex;
-                    }
-                    _connection.finishBatchRequest(os, _compress);
-                }
-                else if((request.outAsync.send(_connection, _compress, _response) & AsyncStatus.InvokeSentCallback) > 0)
-                {
-                    request.outAsync.invokeSentAsync();
+                    outAsync.invokeSentAsync();
                 }
             }
             catch(RetryException ex)
             {
                 exception = ex.get();
-                try
-                {
-                    // Remove the request handler before retrying.
-                    _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
-                }
-                catch(Ice.CommunicatorDestroyedException exc)
-                {
-                    // Ignore
-                }
-                if(request.outAsync != null)
-                {
-                    request.outAsync.retryException(ex.get());
-                }
+
+                // Remove the request handler before retrying.
+                _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
+                outAsync.retryException(ex.get());
             }
             catch(Ice.LocalException ex)
             {
                 exception = ex;
-                if(request.outAsync != null && request.outAsync.completed(ex))
+                if(outAsync.completed(ex))
                 {
-                    request.outAsync.invokeCompletedAsync();
+                    outAsync.invokeCompletedAsync();
                 }
             }
-            p.remove();
         }
+        _requests.clear();
 
         //
         // If we aren't caching the connection, don't bother creating a
@@ -489,10 +349,14 @@ public class ConnectRequestHandler
         //
         if(_reference.getCacheConnection() && exception == null)
         {
-            _connectionRequestHandler = new ConnectionRequestHandler(_reference, _connection, _compress);
+            _requestHandler = new ConnectionRequestHandler(_reference, _connection, _compress);
+            if(_reference.getInstance().queueRequests())
+            {
+                _requestHandler = new QueueRequestHandler(_reference.getInstance(), _requestHandler);
+            }
             for(Ice.ObjectPrxHelperBase proxy : _proxies)
             {
-                proxy.__setRequestHandler(this, _connectionRequestHandler);
+                proxy.__updateRequestHandler(this, _requestHandler);
             }
         }
 
@@ -502,56 +366,22 @@ public class ConnectRequestHandler
             _exception = exception;
             _initialized = _exception == null;
             _flushing = false;
-            try
-            {
-                //
-                // Only remove once all the requests are flushed to
-                // guarantee serialization.
-                //
-                _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
-            }
-            catch(Ice.CommunicatorDestroyedException ex)
-            {
-                // Ignore
-            }
+
+            //
+            // Only remove once all the requests are flushed to
+            // guarantee serialization.
+            //
+            _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
+
             _proxies.clear();
             _proxy = null; // Break cyclic reference count.
             notifyAll();
         }
     }
 
-    private void
-    waitBatchRequestInProgress()
-    {
-        //
-        // This is similar to a mutex lock in that the stream is
-        // only "locked" while the request is in progress.
-        //
-        boolean interrupted = false;
-        while(_batchRequestInProgress)
-        {
-            try
-            {
-                wait();
-            }
-            catch(InterruptedException ex)
-            {
-                interrupted = true;
-            }
-        }
-        //
-        // Restore the interrupted flag if we were interrupted.
-        //
-        if(interrupted)
-        {
-            Thread.currentThread().interrupt();
-        }
-    }
-
     private final Reference _reference;
-    private boolean _connect;
     private boolean _response;
-    
+
     private Ice.ObjectPrxHelperBase _proxy;
     private java.util.Set<Ice.ObjectPrxHelperBase> _proxies = new java.util.HashSet<Ice.ObjectPrxHelperBase>();
 
@@ -561,9 +391,6 @@ public class ConnectRequestHandler
     private boolean _initialized;
     private boolean _flushing;
 
-    private java.util.List<Request> _requests = new java.util.LinkedList<Request>();
-    private boolean _batchRequestInProgress;
-    private BasicStream _batchStream;
-    
-    private RequestHandler _connectionRequestHandler;
+    private java.util.List<ProxyOutgoingAsyncBase> _requests = new java.util.LinkedList<ProxyOutgoingAsyncBase>();
+    private RequestHandler _requestHandler;
 }

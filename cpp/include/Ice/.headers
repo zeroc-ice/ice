@@ -4,6 +4,8 @@ SDK_HEADERS = \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\AsyncResult.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\AsyncResultF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\BasicStream.h \
+ $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\BatchRequestInterceptor.h \
+ $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\BatchRequestQueueF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Buffer.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\BuiltinSequences.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Communicator.h \

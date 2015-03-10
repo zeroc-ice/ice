@@ -112,7 +112,8 @@ HelloClient::run(int argc, char* argv[])
             }
             else if(c == 'f')
             {
-                communicator()->flushBatchRequests();
+                batchOneway->ice_flushBatchRequests();
+                batchDatagram->ice_flushBatchRequests();
             }
             else if(c == 'T')
             {

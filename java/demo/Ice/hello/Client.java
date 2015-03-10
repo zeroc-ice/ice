@@ -132,7 +132,8 @@ public class Client extends Ice.Application
                 }
                 else if(line.equals("f"))
                 {
-                    communicator().flushBatchRequests();
+                    batchOneway.ice_flushBatchRequests();
+                    batchDatagram.ice_flushBatchRequests();
                 }
                 else if(line.equals("T"))
                 {
@@ -237,4 +238,3 @@ public class Client extends Ice.Application
         System.exit(status);
     }
 }
-

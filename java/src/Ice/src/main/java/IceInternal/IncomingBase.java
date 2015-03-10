@@ -93,21 +93,15 @@ class IncomingBase
     public BasicStream
     __startWriteParams(Ice.FormatType format)
     {
-        if(_response)
+        if(!_response)
         {
-            assert(_os.size() == Protocol.headerSize + 4); // Reply status position.
-            assert(_current.encoding != null); // Encoding for reply is known.
-            _os.writeByte((byte)0);
-            _os.startWriteEncaps(_current.encoding, format);
+            throw new Ice.MarshalException("can't marshal out parameters for oneway dispatch");
         }
 
-        //
-        // We still return the stream even if no response is expected. The
-        // servant code might still write some out parameters if for
-        // example a method with out parameters somehow and erroneously
-        // invoked as oneway (or if the invocation is invoked on a
-        // blobject and the blobject erroneously writes a response).
-        //
+        assert(_os.size() == Protocol.headerSize + 4); // Reply status position.
+        assert(_current.encoding != null); // Encoding for reply is known.
+        _os.writeByte((byte)0);
+        _os.startWriteEncaps(_current.encoding, format);
         return _os;
     }
 
@@ -119,14 +113,13 @@ class IncomingBase
             _observer.userException();
         }
 
-        if(_response)
-        {
-            int save = _os.pos();
-            _os.pos(Protocol.headerSize + 4); // Reply status position.
-            _os.writeByte(ok ? ReplyStatus.replyOK : ReplyStatus.replyUserException);
-            _os.pos(save);
-            _os.endWriteEncaps();
-        }
+        assert(_response);
+
+        int save = _os.pos();
+        _os.pos(Protocol.headerSize + 4); // Reply status position.
+        _os.writeByte(ok ? ReplyStatus.replyOK : ReplyStatus.replyUserException);
+        _os.pos(save);
+        _os.endWriteEncaps();
     }
 
     public void

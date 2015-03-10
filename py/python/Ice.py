@@ -501,6 +501,39 @@ define the start and stop methods.'''
 to terminate.'''
         pass
 
+class BatchRequest(object):
+    '''Base class for batch request interceptor. A subclass must
+define the enqueue method.'''
+    def __init__(self, size, operation, proxy):
+        self._size = size
+        self._operation = operation
+        self._proxy = proxy
+
+    def getSize():
+        return self._size
+
+    def getOperation():
+        return self._operation
+
+    def getProxy():
+        return self._proxy
+
+    def enqueue():
+        '''Call enqueue from the batch request interceptor enqueue
+implementation to confirm the batching a this request.'''
+        pass
+
+class BatchRequestInterceptor(object):
+    '''Base class for batch request interceptor. A subclass must
+define the enqueue method.'''
+
+    def __init__(self):
+        pass
+
+    def enqueue(request, queueCount, queueSize):
+        '''Invoked when a request is batched.'''
+        pass
+
 #
 # Initialization data.
 #
@@ -518,8 +551,8 @@ threadHook: An object that implements ThreadNotification.
     def __init__(self):
         self.properties = None
         self.logger = None
-        #self.stats = None # Stats not currently supported in Python.
         self.threadHook = None
+        self.batchRequestInterceptor = None
 
 #
 # Communicator wrapper.
@@ -630,7 +663,7 @@ class CommunicatorI(Communicator):
 
     def createAdmin(self, adminAdapter, adminIdentity):
         return self._impl.createAdmin(adminAdapter, adminIdentity)
-    
+
     def getAdmin(self):
         return self._impl.getAdmin()
 
@@ -780,7 +813,7 @@ class ObjectAdapterI(ObjectAdapter):
 
     def getLocator(self):
         return self._impl.getLocator()
-    
+
     def refreshPublishedEndpoints(self):
         self._impl.refreshPublishedEndpoints()
 
@@ -931,7 +964,7 @@ class ImplicitContextI(ImplicitContext):
     def remove(self, key):
         return self._impl.remove(key)
 
-    
+
 #
 # Its not possible to block in a python signal handler since this
 # blocks the main thread from doing further work. As such we queue the
@@ -1151,10 +1184,10 @@ value is an integer representing the exit status.
         #
         # Set _ctrlCHandler to 0 only once communicator.destroy() has
         # completed.
-        # 
+        #
         Application._ctrlCHandler.destroy()
         Application._ctrlCHandler = None
-        
+
         return status
 
     def doMain(self, args, initData):
@@ -1166,7 +1199,7 @@ value is an integer representing the exit status.
         except:
             getProcessLogger().error(traceback.format_exc())
             status = 1
-        
+
         #
         # Don't want any new interrupt and at this point (post-run),
         # it would not make sense to release a held signal to run
@@ -1196,7 +1229,7 @@ value is an integer representing the exit status.
             except:
                 getProcessLogger().error(traceback.format_exc())
                 status = 1
-            Application._communicator = None        
+            Application._communicator = None
         return status
 
     def run(self, args):

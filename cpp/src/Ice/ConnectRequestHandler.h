@@ -12,14 +12,14 @@
 
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Mutex.h>
+#include <IceUtil/UniquePtr.h>
 
+#include <Ice/ConnectRequestHandlerF.h>
 #include <Ice/RequestHandler.h>
 #include <Ice/Reference.h>
 #include <Ice/RouterInfo.h>
 #include <Ice/ProxyF.h>
 #include <Ice/BasicStream.h>
-
-#include <IceUtil/UniquePtr.h>
 
 #include <deque>
 #include <set>
@@ -37,15 +37,11 @@ public:
     ConnectRequestHandler(const ReferencePtr&, const Ice::ObjectPrx&);
     virtual ~ConnectRequestHandler();
 
-    virtual RequestHandlerPtr connect(const Ice::ObjectPrx&);
+    RequestHandlerPtr connect(const Ice::ObjectPrx&);
     virtual RequestHandlerPtr update(const RequestHandlerPtr&, const RequestHandlerPtr&);
 
-    virtual void prepareBatchRequest(BasicStream*);
-    virtual void finishBatchRequest(BasicStream*);
-    virtual void abortBatchRequest();
-
-    virtual bool sendRequest(OutgoingBase*);
-    virtual AsyncStatus sendAsyncRequest(const OutgoingAsyncBasePtr&);
+    virtual bool sendRequest(ProxyOutgoingBase*);
+    virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&);
 
     virtual void requestCanceled(OutgoingBase*, const Ice::LocalException&);
     virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, const Ice::LocalException&);
@@ -65,16 +61,14 @@ private:
 
     struct Request
     {
-        Request() : out(0), os(0)
+        Request() : out(0)
         {
         }
 
-        OutgoingBase* out;
-        OutgoingAsyncBasePtr outAsync;
-        BasicStream* os;
+        ProxyOutgoingBase* out;
+        ProxyOutgoingAsyncBasePtr outAsync;
     };
 
-    bool _connect;
     Ice::ObjectPrx _proxy;
     std::set<Ice::ObjectPrx> _proxies;
 
@@ -85,12 +79,9 @@ private:
     bool _flushing;
 
     std::deque<Request> _requests;
-    bool _batchRequestInProgress;
-    BasicStream _batchStream;
 
-    RequestHandlerPtr _connectionRequestHandler;
+    RequestHandlerPtr _requestHandler;
 };
-typedef IceUtil::Handle<ConnectRequestHandler> ConnectRequestHandlerPtr;
 
 }
 

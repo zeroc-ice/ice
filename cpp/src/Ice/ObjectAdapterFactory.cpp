@@ -27,7 +27,7 @@ IceInternal::ObjectAdapterFactory::shutdown()
 
     {
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-        
+
         //
         // Ignore shutdown requests if the object adapter factory has
         // already been shut down.
@@ -36,15 +36,15 @@ IceInternal::ObjectAdapterFactory::shutdown()
         {
             return;
         }
-        
+
         adapters = _adapters;
-        
+
         _instance = 0;
         _communicator = 0;
-        
+
         notifyAll();
     }
-    
+
     //
     // Deactivate outside the thread synchronization, to avoid
     // deadlocks.
@@ -59,7 +59,7 @@ IceInternal::ObjectAdapterFactory::waitForShutdown()
 
     {
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-        
+
         //
         // First we wait for the shutdown of the factory itself.
         //
@@ -167,7 +167,7 @@ IceInternal::ObjectAdapterFactory::findObjectAdapter(const ObjectPrx& proxy)
         {
             return 0;
         }
-        
+
         adapters = _adapters;
     }
 
@@ -211,7 +211,7 @@ IceInternal::ObjectAdapterFactory::removeObjectAdapter(const ObjectAdapterPtr& a
 }
 
 void
-IceInternal::ObjectAdapterFactory::flushAsyncBatchRequests(const CommunicatorFlushBatchPtr& outAsync) const
+IceInternal::ObjectAdapterFactory::flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr& outAsync) const
 {
     list<ObjectAdapterIPtr> adapters;
     {

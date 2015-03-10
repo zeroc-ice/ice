@@ -33,7 +33,7 @@ public:
     ::Ice::ObjectAdapterPtr createObjectAdapter(const std::string&, const Ice::RouterPrx&);
     ::Ice::ObjectAdapterPtr findObjectAdapter(const ::Ice::ObjectPrx&);
     void removeObjectAdapter(const ::Ice::ObjectAdapterPtr&);
-    void flushAsyncBatchRequests(const CommunicatorFlushBatchPtr&) const;
+    void flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr&) const;
 
 private:
 

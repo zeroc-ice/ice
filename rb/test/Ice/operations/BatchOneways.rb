@@ -9,21 +9,10 @@
 
 def batchOneways(p)
     bs1 = "\0" * (10 * 1024);
-    bs2 = "\0" * (99 * 1024);
-
-    begin
-        p.opByteSOneway(bs1)
-    rescue Ice::MemoryLimitException
-        test(false)
-    end
-
-    begin
-        p.opByteSOneway(bs2)
-    rescue Ice::MemoryLimitException
-        test(false)
-    end
 
     batch = Test::MyClassPrx::uncheckedCast(p.ice_batchOneway())
+
+    batch.ice_flushBatchRequests() # Empty flush
 
     p.opByteSOnewayCallCount() # Reset the call count
 
@@ -53,17 +42,6 @@ def batchOneways(p)
 
     batch.ice_ping()
     batch.ice_getConnection().close(false)
-    begin
-        batch.ice_ping()
-        test(false)
-    rescue Ice::CloseConnectionException
-    end
-
-    begin
-        batch2.ice_ping()
-        test(false)
-    rescue Ice::CloseConnectionException
-    end
 
     batch.ice_ping()
     batch2.ice_ping()

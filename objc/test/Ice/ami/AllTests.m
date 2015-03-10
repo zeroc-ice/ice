@@ -564,13 +564,11 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
             id<TestAMITestIntfPrx> b1 = [p ice_batchOneway];
             [b1 opBatch];
             [[b1 ice_getConnection] close:false];
-            TestAMICallback* cb = [TestAMICallback create];
-            id<ICEAsyncResult> r = [b1 begin_ice_flushBatchRequests:^(ICEException* ex) { [cb called]; }
-                                                            sent:^(BOOL sentSynchronously) { test(NO); }];
-            [cb check];
-            test(![r isSent]);
+            id<ICEAsyncResult> r = [b1 begin_ice_flushBatchRequests];
+            [b1 end_ice_flushBatchRequests:r];
+            test([r isSent]);
             test([r isCompleted]);
-            test([p opBatchCount] == 0);
+            test([p waitForBatch:1]);
         }
     }
     tprintf("ok\n");
@@ -581,11 +579,16 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
         {
             {
                 test([p opBatchCount] == 0);
-                id<TestAMITestIntfPrx> b1 = [p ice_batchOneway];
+                id<TestAMITestIntfPrx> b1 = [[TestAMITestIntfPrx
+                                                uncheckedCast:[[p ice_getConnection]
+                                                                  createProxy:[p ice_getIdentity]]] ice_batchOneway];
                 [b1 opBatch];
                 [b1 opBatch];
                 TestAMICallback* cb = [TestAMICallback create];
-                id<ICEAsyncResult> r = [[b1 ice_getConnection] begin_flushBatchRequests:^(ICEException* ex) { test(NO); }
+                id<ICEAsyncResult> r = [[b1 ice_getConnection] begin_flushBatchRequests:^(ICEException* ex)
+                                                               {
+                                                                   test(NO);
+                                                               }
                                                                 sent:^(BOOL sentSynchronously) { [cb called]; }];
                 [cb check];
                 test([r isSent]);
@@ -596,13 +599,15 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
             if([p ice_getConnection])
             {
                 test([p opBatchCount] == 0);
-                TestAMITestIntfPrx* b1 = [p ice_batchOneway];
+                id<TestAMITestIntfPrx> b1 = [[TestAMITestIntfPrx
+                                                uncheckedCast:[[p ice_getConnection]
+                                                                  createProxy:[p ice_getIdentity]]] ice_batchOneway];
                 [b1 opBatch];
                 [[b1 ice_getConnection] close:false];
                 TestAMICallback* cb = [TestAMICallback create];
                 id<ICEAsyncResult> r = [[b1 ice_getConnection] begin_flushBatchRequests:
                                                                 ^(ICEException* ex) { [cb called]; }
-                sent:^(BOOL sentSynchronously) { test(NO); }];
+                                                        sent:^(BOOL sentSynchronously) { test(NO); }];
                 [cb check];
                 test(![r isSent]);
                 test([r isCompleted]);
@@ -616,7 +621,9 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
         {
             {
                 test([p opBatchCount] == 0);
-                id<TestAMITestIntfPrx> b1 = [p ice_batchOneway];
+                id<TestAMITestIntfPrx> b1 = [[TestAMITestIntfPrx
+                                                uncheckedCast:[[p ice_getConnection]
+                                                                  createProxy:[p ice_getIdentity]]] ice_batchOneway];
                 [b1 opBatch];
                 [b1 opBatch];
                 TestAMICallback* cb = [TestAMICallback create];
@@ -631,7 +638,9 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
             if([p ice_getConnection])
             {
                 test([p opBatchCount] == 0);
-                TestAMITestIntfPrx* b1 = [p ice_batchOneway];
+                id<TestAMITestIntfPrx> b1 = [[TestAMITestIntfPrx
+                                                uncheckedCast:[[p ice_getConnection]
+                                                                  createProxy:[p ice_getIdentity]]] ice_batchOneway];
                 [b1 opBatch];
                 [[b1 ice_getConnection] close:false];
                 TestAMICallback* cb = [TestAMICallback create];

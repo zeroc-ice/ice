@@ -14,7 +14,8 @@ DLLNAME		= $(top_srcdir)\python\IcePy$(PYLIBSUFFIX).pyd
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
-OBJS		= .\Communicator.obj \
+OBJS		= .\BatchRequestInterceptor.obj \
+		  .\Communicator.obj \
 		  .\Connection.obj \
 		  .\ConnectionInfo.obj \
 		  .\Current.obj \

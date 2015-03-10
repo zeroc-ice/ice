@@ -19,47 +19,53 @@ namespace IceInternal
             _instance = instance;
         }
 
-        public RequestHandler 
-        getRequestHandler(Reference rf, Ice.ObjectPrxHelperBase proxy)
+        public RequestHandler
+        getRequestHandler(RoutableReference rf, Ice.ObjectPrxHelperBase proxy)
         {
             if(rf.getCollocationOptimized())
             {
                 Ice.ObjectAdapter adapter = _instance.objectAdapterFactory().findObjectAdapter(proxy);
                 if(adapter != null)
                 {
-                    return new CollocatedRequestHandler(rf, adapter);
+                    return proxy.setRequestHandler__(new CollocatedRequestHandler(rf, adapter));
                 }
             }
-            
+
+            bool connect = false;
+            ConnectRequestHandler handler;
             if(rf.getCacheConnection())
             {
                 lock(this)
                 {
-                    RequestHandler handler;
-                    if(_handlers.TryGetValue(rf, out handler))
+                    if(!_handlers.TryGetValue(rf, out handler))
                     {
-                        return handler;
+                        handler = new ConnectRequestHandler(rf, proxy);
+                        _handlers.Add(rf, handler);
+                        connect = true;
                     }
-                    
-                    handler = new ConnectRequestHandler(rf, proxy);
-                    _handlers.Add(rf, handler);
-                    return handler;
                 }
             }
             else
             {
-                return new ConnectRequestHandler(rf, proxy);
+                handler = new ConnectRequestHandler(rf, proxy);
+                connect = true;
             }
+
+            if(connect)
+            {
+                rf.getConnection(handler);
+            }
+            return proxy.setRequestHandler__(handler.connect(proxy));
         }
-        
-        internal void 
+
+        internal void
         removeRequestHandler(Reference rf, RequestHandler handler)
         {
             if(rf.getCacheConnection())
             {
                 lock(this)
                 {
-                    RequestHandler h;
+                    ConnectRequestHandler h;
                     if(_handlers.TryGetValue(rf, out h) && h == handler)
                     {
                         _handlers.Remove(rf);
@@ -67,8 +73,9 @@ namespace IceInternal
                 }
             }
         }
-        
+
         readonly Instance _instance;
-        readonly Dictionary<Reference, RequestHandler> _handlers = new Dictionary<Reference, RequestHandler>();
+        readonly Dictionary<Reference, ConnectRequestHandler> _handlers =
+            new Dictionary<Reference, ConnectRequestHandler>();
     }
 }

@@ -22,49 +22,57 @@ RequestHandlerFactory::RequestHandlerFactory(const InstancePtr& instance) : _ins
 {
 }
 
-RequestHandlerPtr 
-IceInternal::RequestHandlerFactory::getRequestHandler(const ReferencePtr& ref, const Ice::ObjectPrx& proxy)
+RequestHandlerPtr
+IceInternal::RequestHandlerFactory::getRequestHandler(const RoutableReferencePtr& ref, const Ice::ObjectPrx& proxy)
 {
     if(ref->getCollocationOptimized())
     {
         Ice::ObjectAdapterPtr adapter = _instance->objectAdapterFactory()->findObjectAdapter(proxy);
         if(adapter)
         {
-            return new CollocatedRequestHandler(ref, adapter);
+            return proxy->__setRequestHandler(new CollocatedRequestHandler(ref, adapter));
         }
     }
 
+    ConnectRequestHandlerPtr handler;
+    bool connect = false;
     if(ref->getCacheConnection())
     {
         Lock sync(*this);
-        
-        map<ReferencePtr, RequestHandlerPtr>::iterator p = _handlers.find(ref);
-        if(p != _handlers.end())
+        map<ReferencePtr, ConnectRequestHandlerPtr>::iterator p = _handlers.find(ref);
+        if(p == _handlers.end())
         {
-            return p->second;
+            handler = new ConnectRequestHandler(ref, proxy);
+            _handlers.insert(make_pair(ref, handler));
+            connect = true;
         }
-        
-        RequestHandlerPtr handler = new ConnectRequestHandler(ref, proxy);
-        _handlers.insert(make_pair(ref, handler));
-        return handler;
+        else
+        {
+            handler = p->second;
+        }
     }
     else
     {
-        return new ConnectRequestHandler(ref, proxy);
+        handler = new ConnectRequestHandler(ref, proxy);
+        connect = true;
     }
+    if(connect)
+    {
+        ref->getConnection(handler.get());
+    }
+    return proxy->__setRequestHandler(handler->connect(proxy));
 }
 
-void 
+void
 IceInternal::RequestHandlerFactory::removeRequestHandler(const ReferencePtr& ref, const RequestHandlerPtr& handler)
 {
     if(ref->getCacheConnection())
     {
         Lock sync(*this);
-        map<ReferencePtr, RequestHandlerPtr>::iterator p = _handlers.find(ref);
+        map<ReferencePtr, ConnectRequestHandlerPtr>::iterator p = _handlers.find(ref);
         if(p != _handlers.end() && p->second.get() == handler.get())
         {
             _handlers.erase(p);
         }
     }
 }
-

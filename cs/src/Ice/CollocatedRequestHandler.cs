@@ -34,16 +34,7 @@ namespace IceInternal
 
             _logger = _reference.getInstance().initializationData().logger; // Cached for better performance.
             _traceLevels = _reference.getInstance().traceLevels(); // Cached for better performance.
-            _batchAutoFlushSize = @ref.getInstance().batchAutoFlushSize();
             _requestId = 0;
-            _batchStreamInUse = false;
-            _batchRequestNum = 0;
-            _batchStream = new BasicStream(@ref.getInstance(), Ice.Util.currentProtocolEncoding);
-        }
-
-        public RequestHandler connect(Ice.ObjectPrxHelperBase proxy)
-        {
-            return this;
         }
 
         public RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler)
@@ -51,108 +42,7 @@ namespace IceInternal
             return previousHandler == this ? newHandler : this;
         }
 
-        public void
-        prepareBatchRequest(BasicStream os)
-        {
-            lock(this)
-            {
-                while(_batchStreamInUse)
-                {
-                    Monitor.Wait(this);
-                }
-
-                if(_batchStream.isEmpty())
-                {
-                    try
-                    {
-                        _batchStream.writeBlob(Protocol.requestBatchHdr);
-                    }
-                    catch(Ice.LocalException ex)
-                    {
-                        throw ex;
-                    }
-                }
-
-                _batchStreamInUse = true;
-                _batchMarker = _batchStream.size();
-                _batchStream.swap(os);
-            }
-        }
-
-        public void finishBatchRequest(BasicStream os)
-        {
-            try
-            {
-                lock(this)
-                {
-                    _batchStream.swap(os);
-
-                    if(_batchAutoFlushSize > 0 && (_batchStream.size() > _batchAutoFlushSize))
-                    {
-                        //
-                        // Temporarily save the last request.
-                        //
-                        byte[] lastRequest = new byte[_batchStream.size() - _batchMarker];
-                        Buffer buffer = _batchStream.getBuffer();
-                        buffer.b.position(_batchMarker);
-                        buffer.b.get(lastRequest);
-                        _batchStream.resize(_batchMarker, false);
-
-                        int invokeNum = _batchRequestNum;
-                        BasicStream stream = new BasicStream(_reference.getInstance(),
-                                                             Ice.Util.currentProtocolEncoding);
-                        stream.swap(_batchStream);
-
-                        _adapter.getThreadPool().dispatch(() =>
-                        {
-                            invokeAll(stream, 0, invokeNum, true);
-                        }, null);
-
-                        //
-                        // Reset the batch.
-                        //
-                        _batchRequestNum = 0;
-                        _batchMarker = 0;
-
-                        //
-                        // Start a new batch with the last message that caused us to go over the limit.
-                        //
-                        _batchStream.writeBlob(Protocol.requestBatchHdr);
-                        _batchStream.writeBlob(lastRequest);
-                    }
-
-                    //
-                    // Increment the number of requests in the batch.
-                    //
-                    Debug.Assert(_batchStreamInUse);
-                    ++_batchRequestNum;
-                    _batchStreamInUse = false;
-                    Monitor.PulseAll(this);
-                }
-            }
-            catch(Ice.LocalException ex)
-            {
-                abortBatchRequest();
-                throw ex;
-            }
-        }
-
-        public void abortBatchRequest()
-        {
-            lock(this)
-            {
-                BasicStream dummy = new BasicStream(_reference.getInstance(), Ice.Util.currentProtocolEncoding);
-                _batchStream.swap(dummy);
-                _batchRequestNum = 0;
-                _batchMarker = 0;
-
-                Debug.Assert(_batchStreamInUse);
-                _batchStreamInUse = false;
-                Monitor.PulseAll(this);
-            }
-        }
-
-        public bool sendAsyncRequest(OutgoingAsyncBase outAsync, out Ice.AsyncCallback sentCallback)
+        public bool sendAsyncRequest(ProxyOutgoingAsyncBase outAsync, out Ice.AsyncCallback sentCallback)
         {
             return outAsync.invokeCollocated(this, out sentCallback);
         }
@@ -180,7 +70,7 @@ namespace IceInternal
                 {
                     OutgoingAsync o = (OutgoingAsync)outAsync;
                     Debug.Assert(o != null);
-                    foreach(KeyValuePair<int, OutgoingAsync> e in _asyncRequests)
+                    foreach(KeyValuePair<int, OutgoingAsyncBase> e in _asyncRequests)
                     {
                         if(e.Value == o)
                         {
@@ -200,7 +90,7 @@ namespace IceInternal
         public void sendResponse(int requestId, BasicStream os, byte status, bool amd)
         {
             Ice.AsyncCallback cb = null;
-            OutgoingAsync outAsync;
+            OutgoingAsyncBase outAsync;
             lock(this)
             {
                 Debug.Assert(_response);
@@ -268,13 +158,8 @@ namespace IceInternal
             return null;
         }
 
-        public Ice.ConnectionI
-        waitForConnection()
-        {
-            return null;
-        }
-
-        public bool invokeAsyncRequest(OutgoingAsync outAsync, bool synchronous, out Ice.AsyncCallback sentCallback)
+        public bool invokeAsyncRequest(OutgoingAsyncBase outAsync, int batchRequestNum, bool synchronous,
+                                       out Ice.AsyncCallback sentCallback)
         {
             int requestId = 0;
             {
@@ -287,6 +172,7 @@ namespace IceInternal
                         requestId = ++_requestId;
                         _asyncRequests.Add(requestId, outAsync);
                     }
+
                     _sendAsyncRequests.Add(outAsync, requestId);
                 }
             }
@@ -305,7 +191,7 @@ namespace IceInternal
                     {
                         if(sentAsync(outAsync))
                         {
-                            invokeAll(outAsync.getOs(), requestId, 1, false);
+                            invokeAll(outAsync.getOs(), requestId, batchRequestNum);
                         }
                     }, null);
                 }
@@ -315,7 +201,7 @@ namespace IceInternal
                     {
                         if(sentAsync(outAsync))
                         {
-                            invokeAll(outAsync.getOs(), requestId, 1, false);
+                            invokeAll(outAsync.getOs(), requestId, batchRequestNum);
                         }
                     }, null);
                 }
@@ -323,7 +209,7 @@ namespace IceInternal
                 {
                     if(sentAsync(outAsync))
                     {
-                        invokeAll(outAsync.getOs(), requestId, 1, false);
+                        invokeAll(outAsync.getOs(), requestId, batchRequestNum);
                     }
                 }
                 sentCallback = null;
@@ -334,65 +220,13 @@ namespace IceInternal
                 {
                     if(sentAsync(outAsync))
                     {
-                        invokeAll(outAsync.getOs(), requestId, 1, false);
+                        invokeAll(outAsync.getOs(), requestId, batchRequestNum);
                     }
                 }, null);
                 sentCallback = null;
             }
             return false;
         }
-
-        public bool invokeAsyncBatchRequests(OutgoingAsyncBase outAsync, out Ice.AsyncCallback sentCallback)
-        {
-            int invokeNum;
-            lock(this)
-            {
-                while(_batchStreamInUse)
-                {
-                    Monitor.Wait(this);
-                }
-
-                invokeNum = _batchRequestNum;
-                if(_batchRequestNum > 0)
-                {
-                    outAsync.cancelable(this); // This will throw if the request is canceled
-
-                    _sendAsyncRequests.Add(outAsync, 0);
-
-                    Debug.Assert(!_batchStream.isEmpty());
-                    _batchStream.swap(outAsync.getOs());
-
-                    //
-                    // Reset the batch stream.
-                    //
-                    BasicStream dummy = new BasicStream(_reference.getInstance(), Ice.Util.currentProtocolEncoding);
-                    _batchStream.swap(dummy);
-                    _batchRequestNum = 0;
-                    _batchMarker = 0;
-                }
-            }
-
-            outAsync.attachCollocatedObserver(_adapter, 0);
-
-            if(invokeNum > 0)
-            {
-                _adapter.getThreadPool().dispatch(() =>
-                {
-                    if(sentAsync(outAsync))
-                    {
-                        invokeAll(outAsync.getOs(), 0, invokeNum, true);
-                    }
-                }, null);
-                sentCallback = null;
-                return false;
-            }
-            else
-            {
-                sentCallback = outAsync.sent();
-                return true;
-            }
-        }
-
 
         private bool sentAsync(OutgoingAsyncBase outAsync)
         {
@@ -412,9 +246,9 @@ namespace IceInternal
             return true;
         }
 
-        private void invokeAll(BasicStream os, int requestId, int invokeNum, bool batch)
+        private void invokeAll(BasicStream os, int requestId, int batchRequestNum)
         {
-            if(batch)
+            if(batchRequestNum > 0)
             {
                 os.pos(Protocol.requestBatchHdr.Length);
             }
@@ -430,13 +264,14 @@ namespace IceInternal
                 {
                     fillInValue(os, Protocol.headerSize, requestId);
                 }
-                else if(batch)
+                else if(batchRequestNum > 0)
                 {
-                    fillInValue(os, Protocol.headerSize, invokeNum);
+                    fillInValue(os, Protocol.headerSize, batchRequestNum);
                 }
                 TraceUtil.traceSend(os, _logger, _traceLevels);
             }
 
+            int invokeNum = batchRequestNum > 0 ? batchRequestNum : 1;
             ServantManager servantManager = _adapter.getServantManager();
             try
             {
@@ -472,7 +307,7 @@ namespace IceInternal
                 return; // Ignore exception for oneway messages.
             }
 
-            OutgoingAsync outAsync;
+            OutgoingAsyncBase outAsync;
             Ice.AsyncCallback cb = null;
             lock(this)
             {
@@ -502,16 +337,10 @@ namespace IceInternal
         private readonly Ice.ObjectAdapterI _adapter;
         private readonly Ice.Logger _logger;
         private readonly TraceLevels _traceLevels;
-        private readonly int _batchAutoFlushSize;
 
         private int _requestId;
 
         private Dictionary<OutgoingAsyncBase, int> _sendAsyncRequests = new Dictionary<OutgoingAsyncBase, int>();
-        private Dictionary<int, OutgoingAsync> _asyncRequests = new Dictionary<int, OutgoingAsync>();
-
-        private BasicStream _batchStream;
-        private bool _batchStreamInUse;
-        private int _batchRequestNum;
-        private int _batchMarker;
+        private Dictionary<int, OutgoingAsyncBase> _asyncRequests = new Dictionary<int, OutgoingAsyncBase>();
     }
 }

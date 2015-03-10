@@ -2,14 +2,14 @@
     "modules": [
         "Ice", "IceMX", "IceSSL"],
     "slice":[
-        "Ice/BuiltinSequences.ice", 
-        "Ice/Connection.ice", 
-        "Ice/ConnectionF.ice", 
-        "Ice/Current.ice", 
+        "Ice/BuiltinSequences.ice",
+        "Ice/Connection.ice",
+        "Ice/ConnectionF.ice",
+        "Ice/Current.ice",
         "Ice/Endpoint.ice",
-        "Ice/EndpointF.ice", 
+        "Ice/EndpointF.ice",
         "Ice/EndpointTypes.ice",
-        "Ice/Identity.ice", 
+        "Ice/Identity.ice",
         "Ice/LocalException.ice",
         "Ice/Locator.ice",
         "Ice/Metrics.ice",
@@ -18,10 +18,10 @@
         "Ice/ProcessF.ice",
         "Ice/PropertiesAdmin.ice",
         "Ice/Router.ice",
-        "Ice/SliceChecksumDict.ice", 
+        "Ice/SliceChecksumDict.ice",
         "Ice/Version.ice",
         "IceSSL/EndpointInfo.ice"],
-    
+
     "common": [
         "ACM.js",
         "Address.js",
@@ -31,6 +31,7 @@
         "AsyncStatus.js",
         "Base64.js",
         "BasicStream.js",
+        "BatchRequestQueue.js",
         "Class.js",
         "Communicator.js",
         "CompactIdRegistry.js",
@@ -98,7 +99,7 @@
         "UUID.js",
         "WSEndpoint.js",
         "WSEndpointFactory.js"],
-    
+
     "node":[
         "Buffer.js",
         "Debug.js",
@@ -106,7 +107,7 @@
         "ModuleRegistry.js",
         "TcpTransceiver.js",
         "TimerUtil.js"],
-    
+
     "browser":[
         "browser/Buffer.js",
         "browser/Debug.js",
