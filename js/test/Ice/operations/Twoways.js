@@ -1488,13 +1488,13 @@
         ).then(
             function()
             {
-                d = Test.MyDerivedClassPrx.uncheckedCast(prx);
-                s = new Test.MyStruct1();
+                var d = Test.MyDerivedClassPrx.uncheckedCast(prx);
+                var s = new Test.MyStruct1();
                 s.tesT = "Test.MyStruct1.s";
                 s.myClass = null;
                 s.myStruct1 = "Test.MyStruct1.myStruct1";
                 
-                c = new Test.MyClass1();
+                var c = new Test.MyClass1();
                 c.tesT = "Test.MyClass1.testT";
                 c.myClass = null;
                 c.myClass1 = "Test.MyClass1.myClass1";
@@ -1521,25 +1521,25 @@
                         test(arguments[0][0] == 0xFF);
                         test(arguments[1][0] == 0x7FFF);
                         test(arguments[2][0] == 0x7FFFFFFF);
-                        l = arguments[3][0];
+                        var l = arguments[3][0];
                         test(l.high == 0x7FFFFFFF && l.low == 0xFFFFFFFF);
                         test(arguments[4][0] == 1.0);
                         test(arguments[5][0] == 1.0);
                         test(arguments[6][0] == "opString1");
-                        test(arguments[7][0].length == 0);
-                        test(arguments[8][0].size == 0);
-                        test(arguments[9][0].length == 0);
-                        test(arguments[10][0].size == 0);
+                        test(arguments[7][0].length === 0);
+                        test(arguments[8][0].size === 0);
+                        test(arguments[9][0].length === 0);
+                        test(arguments[10][0].size === 0);
                         
                         s = arguments[11][0];
-                        test(s.tesT == "Test.MyStruct1.s")
-                        test(s.myClass == null)
-                        test(s.myStruct1 == "Test.MyStruct1.myStruct1")
+                        test(s.tesT == "Test.MyStruct1.s");
+                        test(s.myClass === null);
+                        test(s.myStruct1 == "Test.MyStruct1.myStruct1");
                         
                         c = arguments[12][0];
-                        test(c.tesT == "Test.MyClass1.testT")
-                        test(c.myClass == null)
-                        test(c.myClass1 == "Test.MyClass1.myClass1")
+                        test(c.tesT == "Test.MyClass1.testT");
+                        test(c.myClass === null);
+                        test(c.myClass1 == "Test.MyClass1.myClass1");
                     });
             }
         ).then(

@@ -166,33 +166,33 @@
                 out.write("testing default constructor... ");
 
                 var v2 = new Test.StructNoDefaults();
-                test(v2.bo == false);
-                test(v2.b == 0);
-                test(v2.s == 0);
-                test(v2.i == 0);
-                test(v2.l == 0);
-                test(v2.f == 0.0);
-                test(v2.d == 0.0);
-                test(v2.str == "");
+                test(v2.bo === false);
+                test(v2.b === 0);
+                test(v2.s === 0);
+                test(v2.i === 0);
+                test(v2.l === 0);
+                test(v2.f === 0.0);
+                test(v2.d === 0.0);
+                test(v2.str === "");
                 test(v2.c1 == Test.Color.red);
-                test(v2.bs == null);
-                test(v2.is == null);
-                test(v2.st != null && v2.st instanceof Test.InnerStruct);
-                test(v2.dict == null);
+                test(v2.bs === null);
+                test(v2.is === null);
+                test(v2.st !== null && v2.st instanceof Test.InnerStruct);
+                test(v2.dict === null);
 
                 var e = new Test.ExceptionNoDefaults();
-                test(e.str == "");
+                test(e.str === "");
                 test(e.c1 == Test.Color.red);
-                test(e.bs == null);
-                test(e.st != null && e.st instanceof Test.InnerStruct);
-                test(e.dict == null);
+                test(e.bs === null);
+                test(e.st !== null && e.st instanceof Test.InnerStruct);
+                test(e.dict === null);
 
                 var cl = new Test.ClassNoDefaults();
-                test(cl.str == "");
+                test(cl.str === "");
                 test(cl.c1 == Test.Color.red);
-                test(cl.bs == null);
-                test(cl.st != null && cl.st instanceof Test.InnerStruct);
-                test(cl.dict == null);
+                test(cl.bs === null);
+                test(cl.st !== null && cl.st instanceof Test.InnerStruct);
+                test(cl.dict === null);
 
                 out.writeLine("ok");
             }

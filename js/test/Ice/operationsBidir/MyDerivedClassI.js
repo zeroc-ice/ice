@@ -481,7 +481,7 @@
         
         opMyStruct1: function(value, current)
         {
-            return value
+            return value;
         }
         
     });

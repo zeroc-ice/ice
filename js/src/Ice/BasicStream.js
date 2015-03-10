@@ -2899,11 +2899,11 @@ var defineBuiltinHelper = function(write, read, sz, format, min, max)
         readOpt: function(is, tag) { return is.readOptValue(tag, format, read); },
     };
     
-    if(min !== undefined && max != undefined)
+    if(min !== undefined && max !== undefined)
     {
         helper.validate = function(v) {
             return v >= min && v <= max;
-        }
+        };
     }
     defineProperty(helper, "minWireSize", {
         get: function() { return sz; }
@@ -2956,7 +2956,7 @@ Ice.LongHelper.validate = function(v)
     //
     return v.low >= MIN_UINT32_VALUE && v.low <= MAX_UINT32_VALUE && 
            v.high >= MIN_UINT32_VALUE && v.high <= MAX_UINT32_VALUE;
-}
+};
 
 Ice.StringHelper = defineBuiltinHelper(stream.writeString, stream.readString, 1, Ice.OptionalFormat.VSize);
 

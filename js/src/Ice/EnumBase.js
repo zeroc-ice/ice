@@ -128,7 +128,7 @@ Slice.defineEnum = function(enumerators)
         {
             os.writeEnum(firstEnum);
         }
-    }
+    };
     type.__read = function(is)
     {
         return is.readEnum(type);
@@ -142,7 +142,7 @@ Slice.defineEnum = function(enumerators)
                 type.__write(os, v);
             }
         }
-    }
+    };
     type.__readOpt = function(is, tag)
     {
         return is.readOptEnum(tag, type);
