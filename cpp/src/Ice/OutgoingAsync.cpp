@@ -837,7 +837,7 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con)
 
     try
     {
-        IceUtil::Handle<FlushBatch> flushBatch = new FlushBatch(this, _instance, _observer);
+        OutgoingAsyncBasePtr flushBatch = new FlushBatch(this, _instance, _observer);
         int batchRequestNum = con->getBatchRequestQueue()->swap(flushBatch->getOs());
         if(batchRequestNum == 0)
         {
