@@ -1338,7 +1338,7 @@ ServerI::checkUpdate(const InternalServerDescriptorPtr& desc, bool noRestart, co
         }
         return true;
     }
-    
+
     InternalServerDescriptorPtr d = _load ? _load->getInternalServerDescriptor() : _desc;
     if(!descriptorUpdated(d, desc))
     {
@@ -1406,7 +1406,7 @@ ServerI::destroy(const AMD_Node_destroyServerPtr& amdCB, const string& uuid, int
         }
         _stop = new StopCommand(this, _node->getTimer(), _deactivationTimeout);
     }
-    
+
     if(!_destroy)
     {
         //
@@ -3215,11 +3215,11 @@ ServerI::getProperties(const InternalServerDescriptorPtr& desc)
                     p->second.push_back(createProperty("Ice.Default.Locator", locator));
                 }
 
-                string discoveryPlugin = properties->getProperty("Ice.Plugin.IceGridDiscovery");
+                string discoveryPlugin = properties->getProperty("Ice.Plugin.IceLocatorDiscovery");
                 if(!discoveryPlugin.empty())
                 {
-                    p->second.push_back(createProperty("Ice.Plugin.IceGridDiscovery", discoveryPlugin));
-                    p->second.push_back(createProperty("IceGridDiscovery.InstanceName", _node->getInstanceName()));
+                    p->second.push_back(createProperty("Ice.Plugin.IceLocatorDiscovery", discoveryPlugin));
+                    p->second.push_back(createProperty("IceLocatorDiscovery.InstanceName", _node->getInstanceName()));
                 }
             }
 

@@ -114,9 +114,9 @@ print("running with Ice.Default.Locator set")
 properties = ' --Ice.PrintAdapterReady --Ice.StdErr= --Ice.StdOut='
 runDemo(properties, '')
 
-print("running with IceGridDiscovery")
-discovery = ' --Ice.Plugin.IceGridDiscovery=IceGrid:createIceGridDiscovery' + \
-            ' --IceGridDiscovery.InstanceName=ReplicationDemoIceGrid' + \
+print("running with IceLocatorDiscovery")
+discovery = ' --Ice.Plugin.IceLocatorDiscovery=IceLocatorDiscovery:createIceLocatorDiscovery' + \
+            ' --IceLocatorDiscovery.InstanceName=ReplicationDemoIceGrid' + \
             ' --Ice.Default.Locator='
 properties = ' --Ice.PrintAdapterReady --Ice.StdErr= --Ice.StdOut= --Ice.Default.Locator='
 runDemo(properties + discovery, discovery)

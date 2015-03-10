@@ -39,13 +39,13 @@ class Request : public IceUtil::Shared
 {
 public:
 
-    Request(LocatorI* locator, 
+    Request(LocatorI* locator,
             const string& operation,
-            Ice::OperationMode mode, 
-            const pair<const Ice::Byte*, const Ice::Byte*>& inParams, 
+            Ice::OperationMode mode,
+            const pair<const Ice::Byte*, const Ice::Byte*>& inParams,
             const Ice::Context& ctx,
             const Ice::AMD_Object_ice_invokePtr& amdCB) :
-        _locator(locator), 
+        _locator(locator),
         _operation(operation),
         _mode(mode),
         _context(ctx),
@@ -68,6 +68,7 @@ protected:
     const Ice::AMD_Object_ice_invokePtr _amdCB;
 
     Ice::LocatorPrx _locatorPrx;
+    IceUtil::UniquePtr<Ice::Exception> _exception;
 };
 typedef IceUtil::Handle<Request> RequestPtr;
 
@@ -134,7 +135,7 @@ const ::std::string IceGrid_Locator_ids[3] =
 class VoidLocatorI : public Ice::Locator
 {
 public:
-    
+
     virtual void
     findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& amdCB,
                          const Ice::Identity&,
@@ -142,7 +143,7 @@ public:
     {
         amdCB->ice_response(0);
     }
-    
+
     virtual void
     findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& amdCB,
                           const string&,
@@ -150,7 +151,7 @@ public:
     {
         amdCB->ice_response(0);
     }
-    
+
     virtual Ice::LocatorRegistryPrx
     getRegistry(const Ice::Current&) const
     {
@@ -264,9 +265,17 @@ PluginI::destroy()
 void
 Request::invoke(const Ice::LocatorPrx& l)
 {
-    _locatorPrx = l;
-    l->begin_ice_invoke(_operation, _mode, _inParams, _context,
-                        Ice::newCallback_Object_ice_invoke(this, &Request::response, &Request::exception));
+    if(l != _locatorPrx)
+    {
+        _locatorPrx = l;
+        l->begin_ice_invoke(_operation, _mode, _inParams, _context,
+                            Ice::newCallback_Object_ice_invoke(this, &Request::response, &Request::exception));
+    }
+    else
+    {
+        assert(_exception.get()); // Don't retry if the proxy didn't change
+        _amdCB->ice_exception(*_exception.get());
+    }
 }
 
 void
@@ -292,6 +301,7 @@ Request::exception(const Ice::Exception& ex)
     }
     catch(const Ice::Exception&)
     {
+        _exception.reset(ex.ice_clone());
         _locator->invoke(_locatorPrx, this); // Retry with new locator proxy
     }
 }

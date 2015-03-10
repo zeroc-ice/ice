@@ -8,7 +8,7 @@ Ice.Default.Locator=ReplicationDemoIceGrid/Locator:default -h localhost -p 12000
 # property above and un-comment the two properties below. The discovery
 # plugin uses multicast to discover IceGrid.
 #
-#Ice.Plugin.IceLocatorDiscovery=IceLocatorDiscovery:createIceLocatorDiscoveryy
+#Ice.Plugin.IceLocatorDiscovery=IceLocatorDiscovery:createIceLocatorDiscovery
 #IceGrid.InstanceName=ReplicationDemoIceGrid
 
 #
