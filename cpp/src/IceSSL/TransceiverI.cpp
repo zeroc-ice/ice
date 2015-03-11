@@ -247,14 +247,25 @@ IceSSL::TransceiverI::initialize()
         if(_instance->networkTraceLevel() >= 2)
         {
             Trace out(_logger, _instance->networkTraceCategory());
-
-            struct sockaddr_storage localAddr;
-            IceInternal::fdToLocalAddress(_fd, localAddr);
-
-            out << "failed to establish ssl connection\n"
-                    << "local address: " << IceInternal::addrToString(localAddr) << "\n"
-                    << "remote address: " << IceInternal::addrToString(_connectAddr) << "\n"
-                    << ex;
+            out << "failed to establish ssl connection\n";
+            if(_incoming)
+            {
+                out << IceInternal::fdToString(_fd) << "\n" << ex;
+            }
+            else
+            {
+#ifndef _WIN32
+                //
+                // The local address is only accessible with connected sockets on Windows.
+                //
+                struct sockaddr_storage localAddr;
+                IceInternal::fdToLocalAddress(_fd, localAddr);
+                out << "local address: " << IceInternal::addrToString(localAddr) << "\n";
+#else
+                out << "local address: <not available>\n";
+#endif
+                out << "remote address: " << IceInternal::addrToString(_connectAddr) << "\n" << ex;
+            }
         }
         throw;
     }
@@ -638,7 +649,6 @@ IceSSL::TransceiverI::startWrite(IceInternal::Buffer& buf)
     if(_state < StateConnected)
     {
         IceInternal::doConnectAsync(_fd, _connectAddr, _write);
-        _desc = IceInternal::fdToString(_fd);
         return false;
     }
 

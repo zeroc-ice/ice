@@ -68,14 +68,19 @@ IceInternal::TcpTransceiver::initialize()
         {
             if(_traceLevels->network >= 2)
             {
+                Trace out(_logger, _traceLevels->networkCat);
+                out << "failed to establish tcp connection\n";
+#ifndef _WIN32
+                //
+                // The local address is only accessible with connected sockets on Windows.
+                //
                 struct sockaddr_storage localAddr;
                 fdToLocalAddress(_fd, localAddr);
-                
-                Trace out(_logger, _traceLevels->networkCat);
-                out << "failed to establish tcp connection\n"
-                    << "local address: " << addrToString(localAddr) << "\n"
-                    << "remote address: " << addrToString(_connectAddr) << "\n"
-                    << ex;
+                out << "local address: " << addrToString(localAddr) << "\n";
+#else
+                out << "local address: <not available>\n";
+#endif
+                out << "remote address: " << addrToString(_connectAddr) << "\n" << ex;
             }
             throw;
         }
@@ -289,7 +294,6 @@ IceInternal::TcpTransceiver::startWrite(Buffer& buf)
     if(_state < StateConnected)
     {
         doConnectAsync(_fd, _connectAddr, _write);
-        _desc = fdToString(_fd);
         return false;
     }
 
