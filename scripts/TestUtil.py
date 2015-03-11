@@ -603,7 +603,9 @@ def run(tests, root = False):
             # Now expand out the tests. We run only tcp for most cross tests.
             for c in crossLang:
                 a = "--cross=%s --protocol=tcp %s" % (c, arg)
-                expanded.append([ ( "%s/test/%s" % (lang, test), a, []) for test in crossTests])
+                for test in crossTests:
+                    name = "%s/test/%s" % (lang, test)
+                    expanded.append([(name, a, testConfig(name, tests))])
 
                 # Add ssl & compress for the operations test.
                 if ((compact or mono or silverlight) and c == "cs") or (c == "js"): # Don't add the ssl tests.
@@ -638,6 +640,12 @@ def run(tests, root = False):
 
 if not isWin32():
     mono = True
+
+def testConfig(name, tests):
+    for i in tests:
+        if i[0] == name:
+            return i[1]
+    return []
 
 def getIceDir(subdir = None, testdir = None):
     #
