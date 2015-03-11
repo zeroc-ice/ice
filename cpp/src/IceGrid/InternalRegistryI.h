@@ -68,6 +68,8 @@ private:
     ReplicaSessionManager& _session;
     int _nodeSessionTimeout;
     int _replicaSessionTimeout;
+    bool _requireNodeCertCN;
+    bool _requireReplicaCertCN;
 };
     
 };

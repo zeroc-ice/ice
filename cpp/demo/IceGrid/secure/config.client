@@ -1,7 +1,7 @@
 #
 # The IceGrid locator proxy.
 #
-Ice.Default.Locator=DemoIceGrid/Locator:tcp -p 4061
+Ice.Default.Locator=DemoIceGrid/Locator:tcp -p 4061:tcp -p 14061
 
 #
 # Trace properties.

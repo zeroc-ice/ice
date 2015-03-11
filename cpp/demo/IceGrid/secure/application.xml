@@ -20,8 +20,9 @@
       <property name="IceSSL.DefaultDir" value="certs"/>
 
       <property name="Ice.Admin.Endpoints" value="ssl -h 127.0.0.1"/>
-      <property name="IceSSL.TrustOnly.Client" value="CN=IceGrid Registry"/>
-      <property name="IceSSL.TrustOnly.Server.Ice.Admin" value="CN=IceGrid Node"/>
+      <property name="IceSSL.TrustOnly.Client" value="CN=Master;CN=Slave"/>
+      <property name="IceSSL.TrustOnly.Client" value="CN=Master;CN=Slave"/>
+      <property name="IceSSL.TrustOnly.Server.Ice.Admin" value="CN=Node"/>
     </properties>
 
     <node name="Node">

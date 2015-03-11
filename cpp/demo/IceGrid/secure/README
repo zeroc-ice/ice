@@ -31,9 +31,10 @@ so you might as well use a certificate without a password and rely on
 the filesystem permissions to restrict access to the certificate.
 
 Once the certificates are generated, you can start the IceGrid
-registry, node, and Glacier2 router:
+registries, node, and Glacier2 router:
 
-$ icegridregistry --Ice.Config=config.registry
+$ icegridregistry --Ice.Config=config.master
+$ icegridregistry --Ice.Config=config.slave
 $ icegridnode --Ice.Config=config.node
 $ glacier2router --Ice.Config=config.glacier2
 

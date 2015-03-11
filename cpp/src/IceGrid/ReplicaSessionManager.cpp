@@ -500,6 +500,14 @@ ReplicaSessionManager::createSession(InternalRegistryPrx& registry, IceUtil::Tim
         }
         exception.reset(ex.ice_clone());
     }
+    catch(const PermissionDeniedException& ex)
+    {
+        if(_traceLevels)
+        {
+            _traceLevels->logger->error("connection to the the registry `" + _name + "' was denied:\n" + ex.reason);
+        }
+        exception.reset(ex.ice_clone());
+    }
     catch(const Ice::Exception& ex)
     {
         exception.reset(ex.ice_clone());
