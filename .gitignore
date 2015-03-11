@@ -56,9 +56,7 @@ vcproj
 .metadata
 # VIM swap file
 *.swp
-server.keychain
-client.keychain
-.fl????????
+.keychain
 
 cpp/demo/ipch
 cpp/demo/Debug
@@ -71,8 +69,8 @@ js/bower_components
 js/npm-debug.log
 
 # OS X Keychain
-
 *.keychain
+.fl????????
 
 .depend
 

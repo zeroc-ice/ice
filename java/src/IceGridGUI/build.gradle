@@ -84,11 +84,11 @@ if (hasJavaFx) {
 }
 
 task proguardJar(type: proguard.gradle.ProGuardTask, dependsOn: jar) {
-	injars configurations.compile.resolve(), filter: '!META-INF/**'
-	injars "${projectDir}/build/libs/${tmpJarName}"
-	outjars "${libDir}/${jarName}"
-	libraryjars libJars
-	configuration 'icegridgui.pro'
+    injars configurations.compile.resolve(), filter: '!META-INF/**'
+    injars "${projectDir}/build/libs/${tmpJarName}"
+    outjars "${libDir}/${jarName}"
+    libraryjars libJars
+    configuration 'icegridgui.pro'
 }
 task updateManifest(dependsOn: proguardJar) << {
     if (hasJavaFx) {

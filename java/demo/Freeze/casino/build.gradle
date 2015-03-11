@@ -8,31 +8,37 @@
 // **********************************************************************
 
 slice {
-	java {
-		include = ["${projectDir}", "${sliceDir}"]
-		srcDir = '.'
-	}
+    java {
+        include = ["${projectDir}", "${sliceDir}"]
+        srcDir = '.'
+    }
 }
 
 sourceSets {
-	main {
-		java {
-			srcDir '.'
-		}
-	}
+    main {
+        java {
+            srcDir '.'
+        }
+    }
 }
 
 dependencies {
-	compile localDependency("ice")
-	compile localDependency("freeze")
-	if (!useLocalOnly) {
-		runtime "org.apache.tools:bzip2:1.0"
-	}
+    compile localDependency("ice")
+    compile localDependency("freeze")
+    if (!useLocalOnly) {
+        runtime "org.apache.tools:bzip2:1.0"
+    }
 }
 
 dependencies {
-	compile files(dbJar)
+    compile files(dbJar)
 }
+
+
+clean {
+    delete fileTree(dir: 'db', excludes:['.gitignore', 'DB_CONFIG'])
+}
+
 
 // Don't create the default jar.
 jar.enabled = false

@@ -8,45 +8,49 @@
 // **********************************************************************
 
 slice {
-	java {
-		include = ["${projectDir}", "${sliceDir}"]
-		srcDir = '.'
-	}
-	freezej {
-		files = [file("FilesystemDB.ice"),
-				 file("${sliceDir}/Ice/Identity.ice")]
-		include = ["${projectDir}", "${sliceDir}"]
-		args = "--ice"
-		dict {
-			IdentityFileEntryMap {
-				javaType = "FilesystemDB.IdentityFileEntryMap"
-				key = "Ice::Identity"
-				value = "FilesystemDB::FileEntry"
-			}
-			IdentityDirectoryEntryMap {
-				javaType = "FilesystemDB.IdentityDirectoryEntryMap"
-				key="Ice::Identity"
+    java {
+        include = ["${projectDir}", "${sliceDir}"]
+        srcDir = '.'
+    }
+    freezej {
+        files = [file("FilesystemDB.ice"),
+                 file("${sliceDir}/Ice/Identity.ice")]
+        include = ["${projectDir}", "${sliceDir}"]
+        args = "--ice"
+        dict {
+            IdentityFileEntryMap {
+                javaType = "FilesystemDB.IdentityFileEntryMap"
+                key = "Ice::Identity"
+                value = "FilesystemDB::FileEntry"
+            }
+            IdentityDirectoryEntryMap {
+                javaType = "FilesystemDB.IdentityDirectoryEntryMap"
+                key="Ice::Identity"
                 value="FilesystemDB::DirectoryEntry"
-			}
-		}
-	}
+            }
+        }
+    }
 }
 
 sourceSets {
-	main {
-		java {
-			srcDir '.'
-		}
-	}
+    main {
+        java {
+            srcDir '.'
+        }
+    }
 }
 
 dependencies {
-	compile localDependency("ice")
-	compile localDependency("freeze")
-	compile files(dbJar)
-	if (!useLocalOnly) {
-		runtime "org.apache.tools:bzip2:1.0"
-	}
+    compile localDependency("ice")
+    compile localDependency("freeze")
+    compile files(dbJar)
+    if (!useLocalOnly) {
+        runtime "org.apache.tools:bzip2:1.0"
+    }
+}
+
+clean {
+    delete fileTree(dir: 'db', excludes:['.gitignore', 'DB_CONFIG'])
 }
 
 // Don't create the default jar.

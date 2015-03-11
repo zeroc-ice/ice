@@ -8,39 +8,43 @@
 // **********************************************************************
 
 slice {
-	java {
-		include = ["${projectDir}", "${sliceDir}"]
-		srcDir = '.'
-	}
-	freezej {
-		files = [file("${sliceDir}/Ice/BuiltinSequences.ice"),
-		         file("Library.ice")]
-		args = "--ice"
-		dict {
-			StringIsbnSeqDict {
-				javaType = "StringIsbnSeqDict"
-				key = "string"
-				value = "Ice::StringSeq"
-			}
-		}
-	}
+    java {
+        include = ["${projectDir}", "${sliceDir}"]
+        srcDir = '.'
+    }
+    freezej {
+        files = [file("${sliceDir}/Ice/BuiltinSequences.ice"),
+                 file("Library.ice")]
+        args = "--ice"
+        dict {
+            StringIsbnSeqDict {
+                javaType = "StringIsbnSeqDict"
+                key = "string"
+                value = "Ice::StringSeq"
+            }
+        }
+    }
 }
 
 sourceSets {
-	main {
-		java {
-			srcDir '.'
-		}
-	}
+    main {
+        java {
+            srcDir '.'
+        }
+    }
 }
 
 dependencies {
-	compile localDependency("ice")
-	compile localDependency("freeze")
-	compile files(dbJar)
-	if (!useLocalOnly) {
-		runtime "org.apache.tools:bzip2:1.0"
-	}
+    compile localDependency("ice")
+    compile localDependency("freeze")
+    compile files(dbJar)
+    if (!useLocalOnly) {
+        runtime "org.apache.tools:bzip2:1.0"
+    }
+}
+
+clean {
+    delete fileTree(dir: 'db', excludes:['.gitignore', 'DB_CONFIG'])
 }
 
 // Don't create the default jar.

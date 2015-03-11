@@ -8,39 +8,39 @@
 // **********************************************************************
 
 subprojects {
-	project.version = iceVersion
-	project.group = "com.zeroc"
+    project.version = iceVersion
+    project.group = "com.zeroc"
 
-	apply plugin: 'java'
-	apply plugin: 'idea'
-	apply from: "$rootProject.projectDir/gradle/ice.gradle"
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    apply from: "$rootProject.projectDir/gradle/ice.gradle"
 
-	repositories {
-		if (distJarDir != null) {
-			flatDir {
-		        name "local"
-		        dirs distJarDir
-		    }
-	    }
-	    maven {
-	        url 'https://repo.zeroc.com/nexus/content/repositories/thirdparty'
-	    }
+    repositories {
+        if (distJarDir != null) {
+            flatDir {
+                name "local"
+                dirs distJarDir
+            }
+        }
+        maven {
+            url 'https://repo.zeroc.com/nexus/content/repositories/thirdparty'
+        }
     }
 
     jar {
-	    manifest {
-	        attributes("Built-By": "ZeroC, Inc.")
-	    }
-	}
+        manifest {
+            attributes("Built-By": "ZeroC, Inc.")
+        }
+    }
 
-	tasks.withType(JavaCompile) {
+    tasks.withType(JavaCompile) {
         options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation" << "-Xlint:-options"
     }
 
-	idea.module {
-		excludeDirs -= file(buildDir)
-		buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
-	}
+    idea.module {
+        excludeDirs -= file(buildDir)
+        buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
+    }
 }
 
 apply from: "$rootProject.projectDir/demo/Ice/build.gradle"
@@ -54,5 +54,5 @@ apply from: "$rootProject.projectDir/demo/Manual/build.gradle"
 // the version of gradle needed to build Ice.
 //
 task wrapper(type: Wrapper) {
-	gradleVersion = "2.3"
+    gradleVersion = "2.3"
 }

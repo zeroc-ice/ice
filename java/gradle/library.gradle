@@ -11,7 +11,7 @@ apply plugin: 'maven'
 
 def pomName = "${libDir}/${project.name}-${project.version}.pom"
 task writeNewPom {
-	outputs.file file(pomName)
+    outputs.file file(pomName)
 } << {
     pom {
         project {
@@ -41,7 +41,7 @@ clean {
 }
 
 task install(type: Copy, dependsOn: jarSources, overwrite: true) {
-	from "${pomName}"
+    from "${pomName}"
     from "${libDir}/${jar.archiveName}"
     from "${libDir}/${project.name}-${project.version}-source.jar"
     into "${DESTDIR}${jarDir}"

@@ -12,7 +12,7 @@ targetCompatibility = iceTargetCompatibility
 
 slice {
     java {
-    	include = ["${sliceDir}"]
+        include = ["${sliceDir}"]
         args = "--ice"
         files = fileTree(dir: "$sliceDir/IceDiscovery", includes:['*.ice'], excludes:["*F.ice"])
     }

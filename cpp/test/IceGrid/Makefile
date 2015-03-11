@@ -12,7 +12,18 @@ top_srcdir	= ../..
 include $(top_srcdir)/config/Make.rules
 
 
-SUBDIRS		= simple deployer session update noRestartUpdate activation replicaGroup allocation replication distribution admin
+SUBDIRS		= simple \
+		  deployer \
+		  session \
+		  update \
+		  noRestartUpdate \
+		  activation \
+		  replicaGroup \
+		  allocation \
+		  replication \
+		  distribution \
+		  admin \
+		  fileLock
 
 
 .PHONY: $(EVERYTHING) $(SUBDIRS)

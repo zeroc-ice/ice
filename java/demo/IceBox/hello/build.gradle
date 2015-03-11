@@ -8,23 +8,23 @@
 // **********************************************************************
 
 slice {
-	java {
-		include = ["${projectDir}", "${sliceDir}"]
-		srcDir = '.'
-	}
+    java {
+        include = ["${projectDir}", "${sliceDir}"]
+        srcDir = '.'
+    }
 }
 
 sourceSets {
-	main {
-		java {
-			srcDir '.'
-		}
-	}
+    main {
+        java {
+            srcDir '.'
+        }
+    }
 }
 
 dependencies {
-	compile localDependency("ice")
-	compile localDependency("icebox")
+    compile localDependency("ice")
+    compile localDependency("icebox")
     if (!useLocalOnly) {
         runtime "org.apache.tools:bzip2:1.0"
     }
@@ -36,10 +36,10 @@ jar.enabled = false
 demoJar("client")
 
 task serverJar(type: Jar) {
-	version = ""
+    version = ""
     baseName = "server"
     from(sourceSets.main.output) {
-    	include "**"
+        include "**"
     }
 }
 
@@ -50,5 +50,5 @@ serverJar {
 }
 
 artifacts {
-	archives serverJar;
+    archives serverJar;
 }

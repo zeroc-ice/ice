@@ -49,6 +49,9 @@ endif
 #
 CXXLIBS		=
 
+clean::
+	rm -f *.keychain *.fl*
+
 #
 # If embedded_runpath is not set to yes we do not add
 # an rpath dir.

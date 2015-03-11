@@ -8,25 +8,25 @@
 // **********************************************************************
 
 slice {
-	java {
-		include = ["${projectDir}", "${sliceDir}"]
-		srcDir = '.'
-	}
+    java {
+        include = ["${projectDir}", "${sliceDir}"]
+        srcDir = '.'
+    }
 }
 
 sourceSets {
-	main {
-		java {
-			srcDir '.'
-		}
-	}
+    main {
+        java {
+            srcDir '.'
+        }
+    }
 }
 
 dependencies {
-	compile localDependency("ice")
-	if (!useLocalOnly) {
-		runtime "org.apache.tools:bzip2:1.0"
-	}
+    compile localDependency("ice")
+    if (!useLocalOnly) {
+        runtime "org.apache.tools:bzip2:1.0"
+    }
 }
 
 // Don't create the default jar.

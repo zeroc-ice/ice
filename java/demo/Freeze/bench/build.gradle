@@ -8,73 +8,77 @@
 // **********************************************************************
 
 slice {
-	java {
-		include = ["${projectDir}", "${sliceDir}"]
-		srcDir = '.'
-	}
-	freezej {
-		files = [file("Test.ice")]
-		include = ["${sliceDir}"]
-		args = "--ice"
-		dict {
-			IntIntMap {
-				javaType = "Demo.IntIntMap"
-				key = "int"
-				value = "int"
-			}
-			IndexedIntIntMap {
-				javaType = "Demo.IndexedIntIntMap"
-				key = "int"
-				value = "int"
-				index = [[:]]
-			}
-			Struct1Struct2Map {
-				javaType = "Demo.Struct1Struct2Map"
-				key = "Demo::Struct1"
-				value = "Demo::Struct2"
-			}
-			Struct1Class1Map {
-				javaType = "Demo.Struct1Class1Map"
-				key = "Demo::Struct1"
-				value = "Demo::Class1"
-			}
-			Struct1ObjectMap {
-				javaType = "Demo.Struct1ObjectMap"
-				key = "Demo::Struct1"
-				value = "Object"
-			}
-			IndexedStruct1Struct2Map {
-				javaType = "Demo.IndexedStruct1Struct2Map"
-				key = "Demo::Struct1"
-				value = "Demo::Struct2"
-				index = [[ member: 's', case: 'false'],
-						 [ member: 's1']]
-			}
-			IndexedStruct1Class1Map {
-				javaType = "Demo.IndexedStruct1Class1Map"
-				key = "Demo::Struct1"
-				value = "Demo::Class1"
-				index = [[ member: 's', case: 'true']]
-			}
-		}
-	}
+    java {
+        include = ["${projectDir}", "${sliceDir}"]
+        srcDir = '.'
+    }
+    freezej {
+        files = [file("Test.ice")]
+        include = ["${sliceDir}"]
+        args = "--ice"
+        dict {
+            IntIntMap {
+                javaType = "Demo.IntIntMap"
+                key = "int"
+                value = "int"
+            }
+            IndexedIntIntMap {
+                javaType = "Demo.IndexedIntIntMap"
+                key = "int"
+                value = "int"
+                index = [[:]]
+            }
+            Struct1Struct2Map {
+                javaType = "Demo.Struct1Struct2Map"
+                key = "Demo::Struct1"
+                value = "Demo::Struct2"
+            }
+            Struct1Class1Map {
+                javaType = "Demo.Struct1Class1Map"
+                key = "Demo::Struct1"
+                value = "Demo::Class1"
+            }
+            Struct1ObjectMap {
+                javaType = "Demo.Struct1ObjectMap"
+                key = "Demo::Struct1"
+                value = "Object"
+            }
+            IndexedStruct1Struct2Map {
+                javaType = "Demo.IndexedStruct1Struct2Map"
+                key = "Demo::Struct1"
+                value = "Demo::Struct2"
+                index = [[ member: 's', case: 'false'],
+                         [ member: 's1']]
+            }
+            IndexedStruct1Class1Map {
+                javaType = "Demo.IndexedStruct1Class1Map"
+                key = "Demo::Struct1"
+                value = "Demo::Class1"
+                index = [[ member: 's', case: 'true']]
+            }
+        }
+    }
 }
 
 sourceSets {
-	main {
-		java {
-			srcDir '.'
-		}
-	}
+    main {
+        java {
+            srcDir '.'
+        }
+    }
 }
 
 dependencies {
-	compile localDependency("ice")
-	compile localDependency("freeze")
-	compile files(dbJar)
-	if (!useLocalOnly) {
-		runtime "org.apache.tools:bzip2:1.0"
-	}
+    compile localDependency("ice")
+    compile localDependency("freeze")
+    compile files(dbJar)
+    if (!useLocalOnly) {
+        runtime "org.apache.tools:bzip2:1.0"
+    }
+}
+
+clean {
+    delete fileTree(dir: 'db', excludes:['.gitignore', 'DB_CONFIG'])
 }
 
 // Don't create the default jar.

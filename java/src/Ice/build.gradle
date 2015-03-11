@@ -17,10 +17,10 @@ slice {
             files = [file("$sliceDir/Ice/BuiltinSequences.ice")]
         }
         nostream {
-        	include = ["${sliceDir}"]
+            include = ["${sliceDir}"]
             args = "--ice"
             files = fileTree(dir: "$sliceDir", includes:['Ice/*.ice', 'IceSSL/*.ice'],
-            	excludes:['Ice/*F.ice', 'Ice/BuiltinSequences.ice'])
+                excludes:['Ice/*F.ice', 'Ice/BuiltinSequences.ice'])
         }
     }
 }

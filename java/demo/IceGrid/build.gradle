@@ -1,35 +1,54 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
 ['icebox', 'simple'].each {
- 	def name = it
-	project(":demoIceGrid${it.capitalize()}") {
-		slice {
-			java {
-				include = ["${projectDir}", "${sliceDir}"]
-				srcDir = '.'
-			}
-		}
+    def name = it
+    project(":demoIceGrid${it.capitalize()}") {
+        slice {
+            java {
+                include = ["${projectDir}", "${sliceDir}"]
+                srcDir = '.'
+            }
+        }
 
-		sourceSets {
-			main {
-				java {
-					srcDir '.'
-				}
-			}
-		}
+        sourceSets {
+            main {
+                java {
+                    srcDir '.'
+                }
+            }
+        }
 
-		dependencies {
-			compile localDependency("ice")
-			compile localDependency("icebox")
-			compile localDependency("icegrid")
-			compile localDependency("icelocatordiscovery")
-			if (!useLocalOnly) {
-				runtime "org.apache.tools:bzip2:1.0"
-			}
-		}
+        dependencies {
+            compile localDependency("ice")
+            compile localDependency("icebox")
+            compile localDependency("icegrid")
+            compile localDependency("icelocatordiscovery")
+            if (!useLocalOnly) {
+                runtime "org.apache.tools:bzip2:1.0"
+            }
+        }
 
-		// Don't create the default jar.
-		jar.enabled = false
+        task makeDbDirs << {
+            file('db/registry').mkdirs()
+            file('db/node').mkdirs()
+        }
+        compileJava.dependsOn(makeDbDirs)
 
-		demoJar("client")
-		demoJar("server")
-	}
+        clean {
+            delete 'db'
+        }
+
+        // Don't create the default jar.
+        jar.enabled = false
+
+        demoJar("client")
+        demoJar("server")
+    }
 }
