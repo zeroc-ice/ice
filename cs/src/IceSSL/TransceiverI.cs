@@ -651,15 +651,7 @@ namespace IceSSL
                     int errorCount = chain.ChainStatus.Length;
                     foreach(X509ChainStatus status in chain.ChainStatus)
                     {
-                        if((certificate.Subject == certificate.Issuer) &&
-                           (status.Status == X509ChainStatusFlags.UntrustedRoot))
-                        {
-                            //
-                            // Untrusted root for self-signed certificate is OK.
-                            //
-                            --errorCount;
-                        }
-                        else if(status.Status == X509ChainStatusFlags.Revoked)
+                        if(status.Status == X509ChainStatusFlags.Revoked)
                         {
                             if(_instance.checkCRL() > 0)
                             {
