@@ -350,13 +350,13 @@ Requires: php53%{?_isa}
 Requires: php5%{?_isa}
 %endif
 %if "%{dist}" == ".el6"
-Requires: php%{?_isa}
+Requires: php-common%{?_isa}
 %endif
 %if "%{dist}" == ".el7"
-Requires: php%{?_isa}
+Requires: php-common%{?_isa}
 %endif
 %if "%{dist}" == ".amzn1"
-Requires: php%{?_isa} < 5.4
+Requires: php-common%{?_isa} < 5.4
 %endif
 %description -n php-ice
 The Ice run time for PHP.
