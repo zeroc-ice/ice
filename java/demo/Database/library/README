@@ -101,10 +101,9 @@ Running the demo with Glacier2
 ------------------------------
 
 The demo also supports a Glacier2 deployment. You will need to edit
-config.client and uncomment these configuration parameters:
+config.client and uncomment this configuration property:
 
 #Ice.Default.Router=DemoGlacier2/router:ssl -p 4064 -h 127.0.0.1
-#Ice.RetryIntervals=-1
 
 To run the demo using Glacier2, first start the server:
 
