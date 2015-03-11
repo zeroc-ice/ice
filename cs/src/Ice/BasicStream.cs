@@ -1050,6 +1050,15 @@ namespace IceInternal
             _buf.b.putShort(v);
         }
 
+        public virtual void writeShort(short v, int end)
+        {
+            if(v < 0 || v >= end)
+            {
+                throw new Ice.MarshalException("enumerator out of range");
+            }
+            writeShort(v);
+        }
+
         public virtual void writeShortSeq(short[] v)
         {
             if(v == null)
@@ -1134,6 +1143,16 @@ namespace IceInternal
             }
         }
 
+        public virtual short readShort(int end)
+        {
+            short v = readShort();
+            if(v < 0 || v >= end)
+            {
+                throw new Ice.MarshalException("enumerator out of range");
+            }
+            return v;
+        }
+
         public virtual short[] readShortSeq()
         {
             try
@@ -1197,6 +1216,15 @@ namespace IceInternal
         {
             expand(4);
             _buf.b.putInt(v);
+        }
+
+        public virtual void writeInt(int v, int end)
+        {
+            if(v < 0 || v >= end)
+            {
+                throw new Ice.MarshalException("enumerator out of range");
+            }
+            writeInt(v);
         }
 
         public virtual void writeIntSeq(int[] v)
@@ -1281,6 +1309,16 @@ namespace IceInternal
             {
                 throw new Ice.UnmarshalOutOfBoundsException(ex);
             }
+        }
+
+        public virtual int readInt(int end)
+        {
+            int v = readInt();
+            if(v < 0 || v >= end)
+            {
+                throw new Ice.MarshalException("enumerator out of range");
+            }
+            return v;
         }
 
         public virtual int[] readIntSeq()
