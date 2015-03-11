@@ -2354,8 +2354,17 @@ namespace Ice.VisualStudio
             {
                 string iceHome = getIceHome();
                 string binDir = getCsBinDir(project);
+                string sliceCompiler = Util.slice2cs;
                 ComponentList components = Util.getIceDotNetComponents(project);
-                String version = Builder.getSliceCompilerVersion(project, Util.slice2cs);
+
+                if(isSilverlightProject(project))
+                {
+                    iceHome = getIceSlHome();
+                    sliceCompiler = Util.slice2sl;
+                    components = Util.getIceSilverlightComponents(project);
+                }
+
+                String version = Builder.getSliceCompilerVersion(project, sliceCompiler);
 
                 string[] tokens = version.Split('.');
                 //

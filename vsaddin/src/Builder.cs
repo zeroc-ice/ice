@@ -1582,8 +1582,15 @@ namespace Ice.VisualStudio
         
         public static string getSliceCompilerVersion(Project project, string sliceCompiler)
         {
+            string iceHome = Util.getIceHome();
+            if(Util.isSilverlightProject(project))
+            {
+                iceHome = Util.getIceSlHome();
+            }
+            sliceCompiler = Path.Combine(iceHome, Path.Combine("bin", sliceCompiler));
+
             System.Diagnostics.Process process = new System.Diagnostics.Process();
-            process.StartInfo.FileName = Path.Combine(Util.getIceHome(), "bin\\" +  sliceCompiler);
+            process.StartInfo.FileName = sliceCompiler;
             process.StartInfo.Arguments = "-v";
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.UseShellExecute = false;
@@ -2509,7 +2516,7 @@ namespace Ice.VisualStudio
             bool standardError = true;
             if(Util.isSilverlightProject(project))
             {
-                string version = getSliceCompilerVersion(project, sliceCompiler);
+                string version = getSliceCompilerVersion(project, Util.slice2sl);
                 List<String> tokens = new List<string>(version.Split(new char[]{'.'}, 
                                                                      StringSplitOptions.RemoveEmptyEntries));
                                                                      
