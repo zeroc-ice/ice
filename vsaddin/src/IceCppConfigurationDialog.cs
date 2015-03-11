@@ -17,6 +17,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Globalization;
 using EnvDTE;
+using Microsoft.VisualStudio.VCProjectEngine;
 
 namespace Ice.VisualStudio
 {
@@ -43,6 +44,8 @@ namespace Ice.VisualStudio
             {
                 this.Text = "Ice Configuration - Project: " + _project.Name;
                 bool enabled = Util.isSliceBuilderEnabled(project);
+                VCConfiguration conf =  Util.getActiveVCConfiguration(project);
+                _staticLib = conf.ConfigurationType == ConfigurationTypes.typeStaticLibrary;
                 setEnabled(enabled);
                 chkEnableBuilder.Checked = enabled;
                 load();
@@ -247,15 +250,15 @@ namespace Ice.VisualStudio
             includePathView.setEnabled(enabled);
 
             extraCompilerOptions.setEnabled(enabled);
-
-            chkFreeze.Enabled = enabled;
-            chkGlacier2.Enabled = enabled;
-            chkIceBox.Enabled = enabled;
-            chkIceGrid.Enabled = enabled;
-            chkIcePatch2.Enabled = enabled;
-            chkIceSSL.Enabled = enabled;
-            chkIceStorm.Enabled = enabled;
             txtDllExportSymbol.Enabled = enabled;
+
+            chkFreeze.Enabled = _staticLib ? false : enabled;
+            chkGlacier2.Enabled = _staticLib ? false : enabled;
+            chkIceBox.Enabled = _staticLib ? false : enabled;
+            chkIceGrid.Enabled = _staticLib ? false : enabled;
+            chkIcePatch2.Enabled = _staticLib ? false : enabled;
+            chkIceSSL.Enabled = _staticLib ? false : enabled;
+            chkIceStorm.Enabled = _staticLib ? false : enabled;
         }
         
         private void formClosing(object sender, FormClosingEventArgs e)
@@ -659,34 +662,37 @@ namespace Ice.VisualStudio
                 return true;
             }
 
-            // Ice libraries
-            if(chkFreeze.Checked != Util.hasIceCppLib(_project, "Freeze"))
+            if(!_staticLib)
             {
-                return true;
-            }
-            if(chkGlacier2.Checked != Util.hasIceCppLib(_project, "Glacier2"))
-            {
-                return true;
-            }
-            if(chkIceBox.Checked != Util.hasIceCppLib(_project, "IceBox"))
-            {
-                return true;
-            }
-            if(chkIceGrid.Checked != Util.hasIceCppLib(_project, "IceGrid"))
-            {
-                return true;
-            }
-            if(chkIcePatch2.Checked != Util.hasIceCppLib(_project, "IcePatch2"))
-            {
-                return true;
-            }
-            if(chkIceSSL.Checked != Util.hasIceCppLib(_project, "IceSSL"))
-            {
-                return true;
-            }
-            if(chkIceStorm.Checked != Util.hasIceCppLib(_project, "IceStorm"))
-            {
-                return true;
+                // Ice libraries
+                if(chkFreeze.Checked != Util.hasIceCppLib(_project, "Freeze"))
+                {
+                    return true;
+                }
+                if(chkGlacier2.Checked != Util.hasIceCppLib(_project, "Glacier2"))
+                {
+                    return true;
+                }
+                if(chkIceBox.Checked != Util.hasIceCppLib(_project, "IceBox"))
+                {
+                    return true;
+                }
+                if(chkIceGrid.Checked != Util.hasIceCppLib(_project, "IceGrid"))
+                {
+                    return true;
+                }
+                if(chkIcePatch2.Checked != Util.hasIceCppLib(_project, "IcePatch2"))
+                {
+                    return true;
+                }
+                if(chkIceSSL.Checked != Util.hasIceCppLib(_project, "IceSSL"))
+                {
+                    return true;
+                }
+                if(chkIceStorm.Checked != Util.hasIceCppLib(_project, "IceStorm"))
+                {
+                    return true;
+                }
             }
             return false;
         }
@@ -706,6 +712,7 @@ namespace Ice.VisualStudio
 
         private bool _initialized;
         private Project _project;
+        private bool _staticLib = false;
         private bool _changed = false;
     }
 }
