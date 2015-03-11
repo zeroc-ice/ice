@@ -15,7 +15,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "l
 
 import BuildUtils, FixUtil
 
-version = "3.6.0"
+iceVersion = "3.6.0"
 
 #
 # Substitute development PublicKeyToken by release PublicKeyToken in Silverlight projects
@@ -362,10 +362,10 @@ class PhpInterpreter(Interpreter):
 class Platform:
 
     def __init__(self, distDir):
-        self._iceHome = BuildUtils.getIceHome(version)
-        self._archive = os.path.join(distDir, "Ice-%s.tar.gz" % version)
-        self._demoArchive = os.path.join(distDir, "Ice-%s-demos.tar.gz" % version)
-        self._demoScriptsArchive = os.path.join(distDir, "Ice-%s-demo-scripts.tar.gz" % version)
+        self._iceHome = BuildUtils.getIceHome(iceVersion)
+        self._archive = os.path.join(distDir, "Ice-%s.tar.gz" % iceVersion)
+        self._demoArchive = os.path.join(distDir, "Ice-%s-demos.tar.gz" % iceVersion)
+        self._demoScriptsArchive = os.path.join(distDir, "Ice-%s-demo-scripts.tar.gz" % iceVersion)
         self._buildDir = os.path.abspath(os.path.join(distDir, "build"))
         self._verbose = False
         self._languages = []
@@ -390,7 +390,7 @@ class Platform:
         self._npmSetup = False
         self._bowerContent = None
         self._bowerSetup = False
-    
+
     def setupNPM(self):
         if not self._npmSetup:
             p = subprocess.Popen("npm config get registry", shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -403,7 +403,7 @@ class Platform:
 
     def restoreNpm(self):
         if self._npmSetup:
-            if self._npmRegistry == "https://registry.npmjs.org/": 
+            if self._npmRegistry == "https://registry.npmjs.org/":
                 runCommand("npm config delete registry", self._verbose)
             else:
                 runCommand("npm config set registry %s" % self._npmRegistry, self._verbose)
@@ -471,7 +471,7 @@ class Platform:
         # Check paths are valid
         #
         if not self._iceHome:
-            print("Can't find an Ice " + version + " binary distribution, either set ICE_HOME or " +
+            print("Can't find an Ice " + iceVersion + " binary distribution, either set ICE_HOME or " +
                   "use --ice-home to specify the path of the binary distribution")
             sys.exit(1)
         elif self._iceHome and not os.path.exists(self._iceHome):
@@ -691,7 +691,7 @@ class Platform:
 
     def iceHome(self):
         return self._iceHome
-    
+
     def is64(self, arch):
         return arch == "x64" or arch == "sparcv9"
 
@@ -961,7 +961,7 @@ class Platform:
 
         if lang == "java":
             commands.append("%s :test:assemble" % ("gradlew" if self.isWindows() else "./gradlew"))
-        if lang == "js":            
+        if lang == "js":
             commands = ["npm cache clean && bower cache clean && npm install && " +
                         "npm install zeroc-icejs && npm install zeroc-slice2js && npm run gulp:build"]
         else:
@@ -1022,7 +1022,7 @@ class Platform:
         if self._verbose:
             print(command)
         spawnAndWatch(command, env, lambda line: results.filter(line))
-        
+
         if lang == "js":
             self.restoreNpm()
             self.restoreBower()
@@ -1144,7 +1144,7 @@ class Platform:
         if self._verbose:
             print(command)
         spawnAndWatch(command, env, lambda line: results.filter(line))
-        
+
         if lang == "js":
             self.restoreNpm()
             self.restoreBower()
@@ -1202,8 +1202,8 @@ class Darwin(Platform):
     def __init__(self, distDir):
         Platform.__init__(self, distDir)
 
-        def getJavaHome(version):
-            jvmDirs = glob.glob("/Library/Java/JavaVirtualMachines/jdk%s.*" % version)
+        def getJavaHome(iceVersion):
+            jvmDirs = glob.glob("/Library/Java/JavaVirtualMachines/jdk%s.*" % iceVersion)
             if len(jvmDirs) == 0:
                 return None
             for jvm in jvmDirs[::-1]:
@@ -1310,12 +1310,12 @@ class Linux(Platform):
             jvmDir = None
             arch = self.getDefaultArchitecture()
             if self.isUbuntu():
-                minorVersion = version.split('.')[1]
+                minorVersion = iceVersion.split('.')[1]
                 jvmDir = "/usr/lib/jvm/java-%s-openjdk-%s" % (minorVersion, "amd64" if arch == "x64" else "i386")
                 if not os.path.exists(jvmDir):
                     jvmDir = "/usr/lib/jvm/java-%s-oracle" % (minorVersion)
             else:
-                jvmDir = "/usr/%s/jvm/java-%s.0" % ("lib64" if self.isSles() and arch == "x64" else "lib", version)
+                jvmDir = "/usr/%s/jvm/java-%s.0" % ("lib64" if self.isSles() and arch == "x64" else "lib", iceVersion)
             return None if not os.path.exists(jvmDir) else jvmDir
 
         self._supportedInterpreters = {
@@ -1377,9 +1377,9 @@ class Windows(Platform):
 
     def __init__(self, distDir):
         Platform.__init__(self, distDir)
-        self._archive = os.path.join(distDir, "Ice-%s.zip" % version)
-        self._demoArchive = os.path.join(distDir, "Ice-%s-demos.zip" % version)
-        self._demoScriptsArchive = os.path.join(distDir, "Ice-%s-demo-scripts.zip" % version)
+        self._archive = os.path.join(distDir, "Ice-%s.zip" % iceVersion)
+        self._demoArchive = os.path.join(distDir, "Ice-%s-demos.zip" % iceVersion)
+        self._demoScriptsArchive = os.path.join(distDir, "Ice-%s-demo-scripts.zip" % iceVersion)
 
         defaultArch = self.getDefaultArchitecture()
         self._supportedInterpreters = {
@@ -1486,7 +1486,7 @@ class Windows(Platform):
     def getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist):
         env = Platform.getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist)
         if (lang == "cs" or lang == "vb") and not self.is64(arch):
-            p = os.path.join(BuildUtils.getIceHome(version), "bin")
+            p = os.path.join(BuildUtils.getIceHome(iceVersion), "bin")
             if compiler == "VC110":
                 p = os.path.join(p, "vc110")
             p = os.path.join(p, "x64")
@@ -1621,11 +1621,11 @@ for o, a in opts:
         startDemos = a
     elif o == "--service":
         serviceTesting = True
-        
+
 if serviceTesting:
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
     import testservice
-    
+
     testservice.run(platformObj)
     sys.exit(0)
 
@@ -1720,7 +1720,7 @@ platformObj.run(startTests, startDemos)
 def cleanup():
     platformObj.restoreNpm()
     platformObj.restoreBower()
-    
+
 atexit.register(cleanup)
 
 output.close()

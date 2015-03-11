@@ -12,13 +12,12 @@ import os, sys, shutil, glob, fnmatch, string, re
 from stat import *
 
 #
-# NOTE: See lib/DistUtils.py for default third-party locations and 
+# NOTE: See lib/DistUtils.py for default third-party locations and
 # languages to be built on each platform.
 #
 
-version = "@ver@"
-if version[0] == "@":
-    version = "3.6.0"
+iceVersion = "3.6.0"
+
 distDir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(os.path.join(distDir, "lib"))
 import DistUtils
@@ -67,41 +66,41 @@ else:
     quiet = ""
 
 #
-# Ensure the script is being run from the dist-@ver@ directory.
+# Ensure the script is being run from the dist directory.
 #
 cwd = os.getcwd()
 if not os.path.exists(os.path.join(distDir, "src", "windows", "LICENSE.rtf")):
-    print sys.argv[0] + ": you must run makebindist.py from the dist-" + version + " directory created by makedist.py"
+    print sys.argv[0] + ": you must run makebindist.py from the dist-" + iceVersion + " directory created by makedist.py"
     sys.exit(1)
 
-print "Building Ice " + version
+print "Building Ice " + iceVersion
 
 #
 # Ensure that the source archive or directory exists and create the build directory.
 #
-buildRootDir = os.path.join(distDir, "..", os.path.join("build-py-" + version))
-srcDir = os.path.join(buildRootDir, "Ice-" + version + "-src")
+buildRootDir = os.path.join(distDir, "..", os.path.join("build-py-" + iceVersion))
+srcDir = os.path.join(buildRootDir, "Ice-" + iceVersion + "-src")
 
 if forceclean or not os.path.exists(srcDir):
     if os.path.exists(buildRootDir):
-        print "Removing previous build from " + os.path.join("build-py-" + version) + "...",
+        print "Removing previous build from " + os.path.join("build-py-" + iceVersion) + "...",
         sys.stdout.flush()
         shutil.rmtree(buildRootDir)
         print "ok"
     os.mkdir(buildRootDir)
 
-    if not os.path.exists(os.path.join(cwd, "Ice-" + version + ".tar.gz")):
-        print sys.argv[0] + ": cannot find " + os.path.join(cwd, "Ice-" + version + ".tar.gz")
+    if not os.path.exists(os.path.join(cwd, "Ice-" + iceVersion + ".tar.gz")):
+        print sys.argv[0] + ": cannot find " + os.path.join(cwd, "Ice-" + iceVersion + ".tar.gz")
         sys.exit(1)
-        
-    print "Unpacking ./Ice-" + version + ".tar.gz ...",
+
+    print "Unpacking ./Ice-" + iceVersion + ".tar.gz ...",
     sys.stdout.flush()
     os.chdir(buildRootDir)
-    if os.system("gunzip -c " + os.path.join(cwd, "Ice-" + version + ".tar.gz") + " | tar x" + quiet + "f -"):
-        print sys.argv[0] + ": failed to unpack ./Ice-" + version + ".tar.gz"
+    if os.system("gunzip -c " + os.path.join(cwd, "Ice-" + iceVersion + ".tar.gz") + " | tar x" + quiet + "f -"):
+        print sys.argv[0] + ": failed to unpack ./Ice-" + iceVersion + ".tar.gz"
         sys.exit(1)
-    os.rename("Ice-" + version, srcDir)
-    
+    os.rename("Ice-" + iceVersion, srcDir)
+
     os.chdir(cwd)
     print "ok"
 
@@ -129,7 +128,7 @@ if forceclean or not os.path.exists(srcDir):
     print
 
 os.chdir(buildRootDir)
-#thirdPartyPackage = "ThirdParty-Sources-" + version
+#thirdPartyPackage = "ThirdParty-Sources-" + iceVersion
 thirdPartyPackage = "ThirdParty-Sources-3.6b"
 downloadUrl = "http://www.zeroc.com/download/Ice/3.6/"
 
@@ -165,7 +164,7 @@ os.chdir(cwd)
 #
 # Extract all the relevant pieces from the source tree into the pyDir.
 #
-pyDir = os.path.join(buildRootDir, "Ice-" + version + "-py")
+pyDir = os.path.join(buildRootDir, "Ice-" + iceVersion + "-py")
 pyDirExt = os.path.join(pyDir, "src")
 pyDirLib = os.path.join(pyDir, "lib")
 if os.path.exists(pyDir):
@@ -226,7 +225,7 @@ if os.system("python setup.py sdist") != 0:
     os.chdir(cwd)
     sys.exit(1)
 os.chdir(cwd)
-pyFile = os.path.join("dist", "zeroc-ice-" + version + ".tar.gz")
+pyFile = os.path.join("dist", "zeroc-ice-" + iceVersion + ".tar.gz")
 DistUtils.copy(os.path.join(pyDir, pyFile), ".", verbose)
 
 print

@@ -26,9 +26,9 @@ Getting Started with Ice on Windows
 -----------------------------------
 
 Please visit the 'Using the Windows Binary Distribution' section in
-the Ice @ver@ release notes: 
+the Ice 3.6.0 release notes:
 
-https://doc.zeroc.com/display/Rel/Ice+@ver@+Release+Notes
+https://doc.zeroc.com/display/Rel/Ice+3.6.0+Release+Notes
 
 
 Documentation
@@ -36,13 +36,13 @@ Documentation
 
 The full documentation for Ice is available online:
 
-https://doc.zeroc.com/display/Rel/Ice+@majorver@.@minorver@+Manual
+https://doc.zeroc.com/display/Rel/Ice+3.6+Manual
 
 
 Source Code
 -----------
 
-The source distributions of Ice and all third-party packages included 
+The source distributions of Ice and all third-party packages included
 in this binary distribution can be downloaded at no cost from:
 
 https://www.zeroc.com/download.html
@@ -51,10 +51,10 @@ https://www.zeroc.com/download.html
 OpenSSL
 -------
 
-This Ice release uses OpenSSL in a very limited fashion, as described 
-in the Ice @ver@ release notes: 
+This Ice release uses OpenSSL in a very limited fashion, as described
+in the Ice 3.6.0 release notes:
 
-https://doc.zeroc.com/display/Rel/Ice+@ver@+Release+Notes
+https://doc.zeroc.com/display/Rel/Ice+3.6.0+Release+Notes
 
 
 Acknowledgments

@@ -1,31 +1,31 @@
-usr/share/java/ant-ice-@ver@.jar usr/share/java/ant-ice.jar
-usr/share/java/ant-ice-@ver@-source.jar usr/share/java/ant-ice-source.jar
+usr/share/java/ant-ice-3.6.0.jar usr/share/java/ant-ice.jar
+usr/share/java/ant-ice-3.6.0-source.jar usr/share/java/ant-ice-source.jar
 
-usr/share/java/ice-gradle-plugin-@ver@.jar usr/share/java/ice-gradle-plugin.jar
-usr/share/java/ice-gradle-plugin-@ver@-source.jar usr/share/java/ice-gradle-plugin-source.jar
+usr/share/java/ice-gradle-plugin-3.6.0.jar usr/share/java/ice-gradle-plugin.jar
+usr/share/java/ice-gradle-plugin-3.6.0-source.jar usr/share/java/ice-gradle-plugin-source.jar
 
-usr/share/java/freeze-@ver@.jar usr/share/java/freeze.jar
-usr/share/java/freeze-@ver@-source.jar usr/share/java/freeze-source.jar
+usr/share/java/freeze-3.6.0.jar usr/share/java/freeze.jar
+usr/share/java/freeze-3.6.0-source.jar usr/share/java/freeze-source.jar
 
-usr/share/java/glacier2-@ver@.jar usr/share/java/glacier2.jar
-usr/share/java/glacier2-@ver@-source.jar usr/share/java/glacier2-source.jar
+usr/share/java/glacier2-3.6.0.jar usr/share/java/glacier2.jar
+usr/share/java/glacier2-3.6.0-source.jar usr/share/java/glacier2-source.jar
 
-usr/share/java/ice-@ver@.jar usr/share/java/ice.jar
-usr/share/java/ice-@ver@-source.jar usr/share/java/ice-source.jar
+usr/share/java/ice-3.6.0.jar usr/share/java/ice.jar
+usr/share/java/ice-3.6.0-source.jar usr/share/java/ice-source.jar
 
-usr/share/java/icebox-@ver@.jar usr/share/java/icebox.jar
-usr/share/java/icebox-@ver@-source.jar usr/share/java/icebox-source.jar
+usr/share/java/icebox-3.6.0.jar usr/share/java/icebox.jar
+usr/share/java/icebox-3.6.0-source.jar usr/share/java/icebox-source.jar
 
-usr/share/java/icediscovery-@ver@.jar usr/share/java/icediscovery.jar
-usr/share/java/icediscovery-@ver@-source.jar usr/share/java/icediscovery-source.jar
+usr/share/java/icediscovery-3.6.0.jar usr/share/java/icediscovery.jar
+usr/share/java/icediscovery-3.6.0-source.jar usr/share/java/icediscovery-source.jar
 
-usr/share/java/icegrid-@ver@.jar usr/share/java/icegrid.jar
-usr/share/java/icegrid-@ver@-source.jar usr/share/java/icegrid-source.jar
+usr/share/java/icegrid-3.6.0.jar usr/share/java/icegrid.jar
+usr/share/java/icegrid-3.6.0-source.jar usr/share/java/icegrid-source.jar
 
-usr/share/java/icepatch2-@ver@.jar usr/share/java/icepatch2.jar
-usr/share/java/icepatch2-@ver@-source.jar usr/share/java/icepatch2-source.jar
+usr/share/java/icepatch2-3.6.0.jar usr/share/java/icepatch2.jar
+usr/share/java/icepatch2-3.6.0-source.jar usr/share/java/icepatch2-source.jar
 
-usr/share/java/icestorm-@ver@.jar usr/share/java/icestorm.jar
-usr/share/java/icestorm-@ver@-source.jar usr/share/java/icestorm-source.jar
+usr/share/java/icestorm-3.6.0.jar usr/share/java/icestorm.jar
+usr/share/java/icestorm-3.6.0-source.jar usr/share/java/icestorm-source.jar
 
 /usr/share/doc/libzeroc-ice-java-dev/copyright /usr/share/doc/libzeroc-ice-java-dev/ICE_LICENSE

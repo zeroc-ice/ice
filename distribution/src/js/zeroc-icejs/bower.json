@@ -1,6 +1,6 @@
 {
   "name": "zeroc-icejs",
-  "version": "@jsonver@",
+  "version": "3.6.0",
   "description": "Ice for JavaScript runtime",
   "author": "Zeroc, Inc.",
   "homepage": "https://www.zeroc.com",

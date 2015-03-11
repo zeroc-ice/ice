@@ -1,6 +1,6 @@
 {
   "name": "gulp-zeroc-slice2js",
-  "version": "@jsonver@",
+  "version": "3.6.0",
   "description": "Gulp plugin to compile Slice files to JavaScript",
   "main": "index.js",
   "author": "Zeroc, Inc.",
@@ -14,7 +14,7 @@
     "IceJS"
   ],
   "dependencies": {
-    "zeroc-slice2js": "^@jsonver@",
+    "zeroc-slice2js": "^3.6.0",
     "gulp-util": "^3.0.2",
     "through2": "^0.6.3"
   }

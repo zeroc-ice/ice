@@ -116,9 +116,9 @@ global jarKeystore
 global jarKeystorePassword
 
 def sign(f, name = None):
-    command = [signTool, 
-               "sign", 
-               "/f" , certFile, 
+    command = [signTool,
+               "sign",
+               "/f" , certFile,
                "/p", certPassword,
                "/t", "http://timestamp.verisign.com/scripts/timstamp.dll"]
     if name != None:
@@ -137,7 +137,7 @@ def signJar(filepath):
                           "password": jarKeystorePassword,
                           "filepath": filepath}, True)
 
-def _handle_error(fn, path, excinfo):  
+def _handle_error(fn, path, excinfo):
     print("error removing %s" % path)
     os.chmod(path, stat.S_IWRITE)
     fn(path)
@@ -171,7 +171,7 @@ def executeCommand(command, env, verbose = True):
     if p:
         while(True):
             c = p.stdout.read(1)
-            
+
             if not c:
                 if p.poll() is not None:
                     break
@@ -180,9 +180,9 @@ def executeCommand(command, env, verbose = True):
 
             if type(c) != str:
                 c = c.decode()
-            
+
             sys.stdout.write(c)
-        
+
         if p.poll() != 0:
             #
             # Command failed
@@ -247,7 +247,7 @@ def usage():
     print(r"  --key-file=<path>           Key file used to sign the .NET Assemblies")
     print("")
 
-version = "3.6.0"
+iceVersion = "3.6.0"
 verbose = False
 
 args = None
@@ -279,11 +279,11 @@ jarKeystorePassword = None
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", ["help", "verbose", "php-home=", "php-bin-home=",
-                                                  "skip-build", "skip-installer", "filter-languages=", 
-                                                  "filter-compilers=", "filter-archs=","filter-confs=", 
-                                                  "filter-profiles=", "filter-languages=", "rfilter-compilers=", 
-                                                  "rfilter-archs=", "rfilter-confs=", "rfilter-profiles=", "sign-tool=", 
-                                                  "cert-file=", "cert-password=", "key-file=", "jar-keystore=", 
+                                                  "skip-build", "skip-installer", "filter-languages=",
+                                                  "filter-compilers=", "filter-archs=","filter-confs=",
+                                                  "filter-profiles=", "filter-languages=", "rfilter-compilers=",
+                                                  "rfilter-archs=", "rfilter-confs=", "rfilter-profiles=", "sign-tool=",
+                                                  "cert-file=", "cert-password=", "key-file=", "jar-keystore=",
                                                   "jar-keystore-password="])
 except getopt.GetoptError as e:
     print("Error %s " % e)
@@ -343,20 +343,20 @@ for o, a in opts:
 
 basePath = os.path.abspath(os.path.dirname(__file__))
 iceBuildHome = os.path.abspath(os.path.join(basePath, "..", ".."))
-sourceArchive = os.path.join(iceBuildHome, "Ice-%s.zip" % version)
-demoArchive = os.path.join(iceBuildHome, "Ice-%s-demos.zip" % version)
+sourceArchive = os.path.join(iceBuildHome, "Ice-%s.zip" % iceVersion)
+demoArchive = os.path.join(iceBuildHome, "Ice-%s-demos.zip" % iceVersion)
 
-distFiles = os.path.join(iceBuildHome, "distfiles-%s" % version)
+distFiles = os.path.join(iceBuildHome, "distfiles-%s" % iceVersion)
 
 iceInstallerFile = os.path.join(distFiles, "src", "windows" , "Ice.aip")
 
-thirdPartyHome = getThirdpartyHome(version)
+thirdPartyHome = getThirdpartyHome(iceVersion)
 if thirdPartyHome is None:
-    print("Cannot detect Ice %s ThirdParty installation" % version)
+    print("Cannot detect Ice %s ThirdParty installation" % iceVersion)
     sys.exit(1)
 
 if not signTool:
-    signToolDefaultPath = "c:\\Program Files (x86)\\Microsoft SDKs\Windows\\v7.1A\Bin\\signtool.exe" 
+    signToolDefaultPath = "c:\\Program Files (x86)\\Microsoft SDKs\Windows\\v7.1A\Bin\\signtool.exe"
     if os.path.exists(signToolDefaultPath):
         signTool = signToolDefaultPath
 else:
@@ -379,7 +379,7 @@ if not certFile:
 else:
     if not os.path.isabs(certFile):
         certFile = os.path.abspath(os.path.join(os.getcwd(), certFile))
-        
+
 if certFile is None:
     print("You need to specify the sign certificate using --cert-file option")
     sys.exit(1)
@@ -401,7 +401,7 @@ if not keyFile:
 else:
     if not os.path.isabs(keyFile):
         keyFile = os.path.abspath(os.path.join(os.getcwd(), keyFile))
-        
+
 if keyFile is None:
     print("You need to specify the key file to sign assemblies using --key-file option")
     sys.exit(1)
@@ -409,7 +409,7 @@ if keyFile is None:
 if not os.path.exists(keyFile):
     print("Key file `%s' not found")
     sys.exit(1)
-    
+
 if not jarKeystore:
     if os.path.exists("c:\\release\\jarsigner\\keystore.jks"):
         jarKeystore = "c:\\release\\jarsigner\\keystore.jks"
@@ -418,7 +418,7 @@ if not jarKeystore:
 else:
     if not os.path.isabs(jarKeystore):
         jarKeystore = os.path.abspath(os.path.join(os.getcwd(), jarKeystore))
-        
+
 if jarKeystore is None:
     print("You need to specify the JAR keystore using --jar-keystore option")
     sys.exit(1)
@@ -430,7 +430,7 @@ if not os.path.exists(jarKeystore):
 if jarKeystorePassword is None:
     print("You need to set the JAR keystore password using --jar-keystore-password option")
     sys.exit(1)
-    
+
 if phpHome:
     if not os.path.isabs(phpHome):
         phpHome = os.path.abspath(os.path.join(os.getcwd(), phpHome))
@@ -461,9 +461,9 @@ if not os.path.exists(demoArchive):
     print("Couldn't find %s in %s" % (os.path.basename(demoArchive), os.path.dirname(demoArchive)))
     sys.exit(1)
 
-    
+
 #
-# Windows build configurations by Compiler Arch 
+# Windows build configurations by Compiler Arch
 #
 global builds
 global buildCompilers
@@ -472,14 +472,14 @@ buildCompilers = ["VC110", "VC120"]
 builds = {
     "VC110": {
         "x86": {
-            "release": ["cpp", "php", "vsaddin"], 
+            "release": ["cpp", "php", "vsaddin"],
             "debug": ["cpp"]},
         "amd64": {
-            "release": ["cpp"], 
+            "release": ["cpp"],
             "debug": ["cpp"]}},
     "VC120": {
         "x86": {
-            "release": ["cpp", "java", "cs", "vsaddin"], 
+            "release": ["cpp", "java", "cs", "vsaddin"],
             "debug": ["cpp"]},
         "amd64": {
             "release": ["cpp"],
@@ -487,9 +487,9 @@ builds = {
         "arm": {
             "release": ["cpp"],
             "debug": ["cpp"],}}}
-            
+
 if not skipBuild:
-    
+
     for compiler in buildCompilers:
 
         if filterCompilers and compiler not in filterCompilers:
@@ -497,18 +497,18 @@ if not skipBuild:
 
         if rFilterCompilers and compiler in rFilterCompilers:
             continue
-        
+
         vcvars = getVcVarsAll(compiler)
 
         if vcvars is None:
             print("Compiler %s not found" % compiler)
             sys.exit(1)
-    
+
         for arch in ["x86", "amd64", "arm"]:
-            
+
             if not arch in builds[compiler]:
                 continue
-            
+
             if filterArchs and arch not in filterArchs:
                 continue
 
@@ -516,10 +516,10 @@ if not skipBuild:
                 continue
 
             for conf in ["release", "debug"]:
-                
+
                 if not conf in builds[compiler][arch]:
                     continue
-        
+
                 if filterConfs and conf not in filterConfs:
                     continue
 
@@ -533,8 +533,8 @@ if not skipBuild:
 
                 os.chdir(buildDir)
 
-                sourceDir = os.path.join(buildDir, "Ice-%s-src" % version)
-                installDir = os.path.join(buildDir, "Ice-%s" % version)
+                sourceDir = os.path.join(buildDir, "Ice-%s-src" % iceVersion)
+                installDir = os.path.join(buildDir, "Ice-%s" % iceVersion)
                 if not os.path.exists(sourceDir):
                     sys.stdout.write("extracting %s to %s... " % (os.path.basename(sourceArchive), sourceDir))
                     sys.stdout.flush()
@@ -593,7 +593,7 @@ if not skipBuild:
                             env["VS"] = "VS2012"
                         elif compiler == "VC120":
                             env["VS"] = "VS2013"
-                            
+
                     #
                     # Uset the release key to sign .NET assemblies.
                     #
@@ -603,7 +603,7 @@ if not skipBuild:
                     os.chdir(os.path.join(sourceDir, lang))
 
                     command = "\"%s\" %s  && nmake /f Makefile.mak install prefix=\"%s\"" % (vcvars, arch, installDir)
-                    
+
                     if lang not in ["java"]:
                         rules = "Make.rules.mak"
                         if lang == "cs":
@@ -665,10 +665,10 @@ if not os.path.exists(os.path.join(iceBuildHome, "installer")):
 
 os.chdir(os.path.join(iceBuildHome, "installer"))
 
-installerDir = os.path.join(iceBuildHome, "installer", "Ice-%s" % version)
-installerSrcDir = os.path.join(iceBuildHome, "installer", "Ice-%s-src" % version)
-installerDemoDir = os.path.join(iceBuildHome, "installer", "Ice-%s-demos" % version)
-sdkInstallerDir = os.path.join(iceBuildHome, "installer", "sdk", "Ice-%s" % version)
+installerDir = os.path.join(iceBuildHome, "installer", "Ice-%s" % iceVersion)
+installerSrcDir = os.path.join(iceBuildHome, "installer", "Ice-%s-src" % iceVersion)
+installerDemoDir = os.path.join(iceBuildHome, "installer", "Ice-%s-demos" % iceVersion)
+sdkInstallerDir = os.path.join(iceBuildHome, "installer", "sdk", "Ice-%s" % iceVersion)
 
 if not os.path.exists(installerSrcDir):
     sys.stdout.write("extracting %s to %s... " % (os.path.basename(sourceArchive), installerSrcDir))
@@ -695,14 +695,14 @@ for arch in ["x86", "amd64", "arm"]:
         for conf in ["release", "debug"]:
 
             buildDir = os.path.join(iceBuildHome, "build-%s-%s-%s" % (arch, compiler, conf))
-            sourceDir = os.path.join(buildDir, "Ice-%s-src" % version)
-            installDir = os.path.join(buildDir, "Ice-%s" % version)
+            sourceDir = os.path.join(buildDir, "Ice-%s-src" % iceVersion)
+            installDir = os.path.join(buildDir, "Ice-%s" % iceVersion)
 
             for root, dirnames, filenames in os.walk(os.path.join(installDir, "SDKs")):
                 for f in filenames:
                     if f in filterFiles:
                         continue
-                    
+
                     #
                     # Only copy libraries and PDBs from non main build, the rest of the files are the same
                     # for all builds so we just use the ones from the main build.
@@ -717,8 +717,8 @@ for arch in ["x86", "amd64"]:
         for conf in ["release", "debug"]:
 
             buildDir = os.path.join(iceBuildHome, "build-%s-%s-%s" % (arch, compiler, conf))
-            sourceDir = os.path.join(buildDir, "Ice-%s-src" % version)
-            installDir = os.path.join(buildDir, "Ice-%s" % version)
+            sourceDir = os.path.join(buildDir, "Ice-%s-src" % iceVersion)
+            installDir = os.path.join(buildDir, "Ice-%s" % iceVersion)
 
             if compiler == "VC120" and arch == "x86" and conf == "release":
                 for d in ["Assemblies", "bin", "config", "include", "lib", "slice", "vsaddin"]:
@@ -837,8 +837,8 @@ for root, dirnames, filenames in os.walk(thirdPartyHome):
         #
         # exclude mingw and vc100 files
         #
-        if (f.endswith("_vc100.dll") or 
-            f.endswith("_vc100.pdb") or 
+        if (f.endswith("_vc100.dll") or
+            f.endswith("_vc100.pdb") or
             f.endswith("_mingw.dll") or
             targetFile.find("vc100/") or
             targetFile.find("mingw/")):
@@ -873,14 +873,14 @@ if not skipInstaller:
         print("Advanced Installer executable not found in %s" % advancedInstaller)
         sys.exit(1)
 
-    env = os.environ.copy()    
+    env = os.environ.copy()
     env["ICE_BUILD_HOME"] = iceBuildHome
 
     paths = os.path.join(iceBuildHome, "installer", "paths.xml")
     f = open(os.path.join(iceBuildHome, "installer", "paths.xml"), "w")
     f.write(pathVariables)
     f.close()
-    
+
     tmpCertFile = os.path.join(os.path.dirname(iceInstallerFile), os.path.basename(certFile))
     copy(certFile, tmpCertFile)
 
@@ -893,12 +893,12 @@ if not skipInstaller:
 
     #
     # Build the Ice main installer.
-    #    
+    #
     command = "\"%s\" /rebuild %s" % (advancedInstaller, iceInstallerFile)
     executeCommand(command, env)
 
-    sign(os.path.join(os.path.dirname(iceInstallerFile), ("Ice-%s.exe" % version)), "Ice %s" % version)
-    sign(os.path.join(os.path.dirname(iceInstallerFile), ("Ice-%s.msi" % version)), "Ice %s" % version)
-    sign(os.path.join(os.path.dirname(iceInstallerFile), ("Ice-%s-WebInstaller.exe" % version)), "Ice %s Web Installer" % version)
+    sign(os.path.join(os.path.dirname(iceInstallerFile), ("Ice-%s.exe" % iceVersion)), "Ice %s" % iceVersion)
+    sign(os.path.join(os.path.dirname(iceInstallerFile), ("Ice-%s.msi" % iceVersion)), "Ice %s" % iceVersion)
+    sign(os.path.join(os.path.dirname(iceInstallerFile), ("Ice-%s-WebInstaller.exe" % iceVersion)), "Ice %s Web Installer" % iceVersion)
 
     remove(tmpCertFile)

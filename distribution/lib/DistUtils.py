@@ -11,6 +11,8 @@
 import os, sys, shutil, glob, fnmatch, string, re, fileinput, time, subprocess
 from stat import *
 
+iceVersion = "3.6.0"
+
 def runCommand(cmd, verbose = False):
     if verbose:
         print(cmd)
@@ -34,7 +36,7 @@ bzip2 = { \
 }
 
 berkeleydb = { \
-    'Darwin' : '/Library/Developer/Ice-@ver@-ThirdParty', \
+    'Darwin' : '/Library/Developer/Ice-' + iceVersion + '-ThirdParty', \
     'SunOS'  : '/opt/db', \
 }
 
@@ -50,7 +52,7 @@ iconv = {\
 
 mcpp = {
     'SunOS' : '/opt/mcpp', \
-    'Darwin' : '/Library/Developer/Ice-@ver@-ThirdParty'
+    'Darwin' : '/Library/Developer/Ice-' + iceVersion + '-ThirdParty'
 }
 
 openssl = { \
@@ -800,7 +802,7 @@ class Darwin(Platform):
 
         print("Fixing python location")
         move(buildDir + '/python', buildDir + '/../python')
-        runCommand("install_name_tool -rpath %s/lib /Library/Developer/Ice-@ver@/lib %s/../python/IcePy.so" %
+        runCommand("install_name_tool -rpath %s/lib /Library/Developer/Ice-" + iceVersion + "/lib %s/../python/IcePy.so" %
                     (buildDir, buildDir))
         print("ok")
 
@@ -809,8 +811,8 @@ class Darwin(Platform):
         print("ok")
 
         print("Fixing Freeze RPATH")
-        for name in ["lib/libFreeze.@ver@.dylib", "bin/transformdb", "bin/dumpdb"]:
-            runCommand("install_name_tool -delete_rpath /Library/Developer/Ice-@ver@-ThirdParty/lib %s/%s" % (buildDir, name))
+        for name in ["lib/libFreeze." + iceVersion + ".dylib", "bin/transformdb", "bin/dumpdb"]:
+            runCommand("install_name_tool -delete_rpath /Library/Developer/Ice-" + iceVersion + "-ThirdParty/lib %s/%s" % (buildDir, name))
 
     def createArchive(self, cwd, buildRootDir, distDir, version, quiet):
 
@@ -827,34 +829,34 @@ class Darwin(Platform):
             shutil.rmtree(packagesDir)
         os.mkdir(packagesDir)
 
-        iceRootDir = "%s/Ice-@ver@" % buildRootDir
+        iceRootDir = ("%s/Ice-" + iceVersion) % buildRootDir
         for name in ["freeze", "glacier2", "ice", "icebox", "icediscovery", "icegrid", "icepatch2", "icestorm", "ice-gradle-plugin", "ant-ice"]:
             runCommand("cd %s/lib && rm -f %s.jar" % (iceRootDir, name))
-            runCommand("cd %s/lib && ln -s %s-%s.jar %s.jar" % (iceRootDir, name, "@ver@", name))
+            runCommand("cd %s/lib && ln -s %s-%s.jar %s.jar" % (iceRootDir, name, iceVersion, name))
 
         for name in ["freeze", "glacier2", "ice", "icebox", "icediscovery", "icegrid", "icepatch2", "icestorm"]:
             runCommand("cd %s/lib && rm -f %s.jar" % (iceRootDir, name))
-            runCommand("cd %s/lib && ln -s %s-%s-source.jar %s-source.jar" % (iceRootDir, name, "@ver@", name))
+            runCommand("cd %s/lib && ln -s %s-%s-source.jar %s-source.jar" % (iceRootDir, name, iceVersion, name))
 
         package = "com.zeroc.ice"
-        packageRoot = os.path.join(buildRootDir, "Ice-@ver@")
-        packageInstallLocation = "/Library/Developer/Ice-@ver@"
+        packageRoot = os.path.join(buildRootDir, "Ice-" + iceVersion)
+        packageInstallLocation = "/Library/Developer/Ice-" + iceVersion
 
-        runCommand("pkgbuild --root %s --identifier=%s --install-location=%s --version @ver@ %s/%s.pkg" %
+        runCommand("pkgbuild --root %s --identifier=%s --install-location=%s --version " + iceVersion + " %s/%s.pkg" %
                   (packageRoot, package, packageInstallLocation, packagesDir, package))
 
         package = "com.zeroc.icepython"
         packageRoot = os.path.join(buildRootDir, "python")
         packageInstallLocation = "/Library/Python/2.7/site-packages"
 
-        runCommand("pkgbuild --root %s --identifier=%s --install-location=%s --version @ver@ %s/%s.pkg" %
+        runCommand("pkgbuild --root %s --identifier=%s --install-location=%s --version " + iceVersion + " %s/%s.pkg" %
                   (packageRoot, package, packageInstallLocation, packagesDir, package))
 
         package = "com.zeroc.icegridadmin"
         packageRoot = os.path.join(buildRootDir, "IceGrid Admin.app")
         packageInstallLocation = "/Applications/IceGrid Admin.app"
 
-        runCommand("pkgbuild --root \"%s\" --identifier=%s --install-location=\"%s\" --version @ver@ %s/%s.pkg" %
+        runCommand("pkgbuild --root \"%s\" --identifier=%s --install-location=\"%s\" --version " + iceVersion + " %s/%s.pkg" %
                   (packageRoot, package, packageInstallLocation, packagesDir, package))
 
 
@@ -863,7 +865,7 @@ class Darwin(Platform):
         scripts = os.path.join(distDir, "src", "mac", "Ice", "scripts")
 
 
-        runCommand("productbuild --distribution=%s --resources=%s --scripts=%s --package-path=%s %s/Ice-@ver@.pkg" %
+        runCommand("productbuild --distribution=%s --resources=%s --scripts=%s --package-path=%s %s/Ice-" + iceVersion + ".pkg" %
                   (distribution, resources, scripts, packagesDir, installerDir))
 
 

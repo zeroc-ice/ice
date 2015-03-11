@@ -12,11 +12,11 @@ import os, sys, shutil, glob, fnmatch, string, re
 from stat import *
 
 #
-# NOTE: See lib/DistUtils.py for default third-party locations and 
+# NOTE: See lib/DistUtils.py for default third-party locations and
 # languages to be built on each platform.
 #
 
-version = "@ver@"
+iceVersion = "3.6.0"
 distDir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(os.path.join(distDir, "lib"))
 import DistUtils
@@ -103,29 +103,29 @@ else:
     quiet = ""
 
 #
-# Ensure the script is being run from the dist-@ver@ directory.
+# Ensure the script is being run from the dist directory.
 #
 cwd = os.getcwd()
 if not os.path.exists(os.path.join(distDir, "src", "windows", "LICENSE.rtf")):
-    print sys.argv[0] + ": you must run makebindist.py from the dist-" + version + " directory created by makedist.py"
+    print sys.argv[0] + ": you must run makebindist.py from the dist-" + iceVersion + " directory created by makedist.py"
     sys.exit(1)
 
-print "Building Ice " + version + " binary distribution (" + platform.getPackageName("Ice", version) + ".tar.gz)"
+print "Building Ice " + iceVersion + " binary distribution (" + platform.getPackageName("Ice", iceVersion) + ".tar.gz)"
 print "Using the following third party libraries:"
 if not platform.checkAndPrintThirdParties():
     print "error: some required third party dependencies were not found"
     sys.exit(1)
-    
+
 #
 # Ensure that the source archive or directory exists and create the build directory.
 #
-buildRootDir = os.path.join(distDir, "..", os.path.join("build-" + platform.pkgPlatform + "-" + version))
-srcDir = os.path.join(buildRootDir, "Ice-" + version + "-src")
-buildDir = os.path.join(buildRootDir, "Ice-" + version)
+buildRootDir = os.path.join(distDir, "..", os.path.join("build-" + platform.pkgPlatform + "-" + iceVersion))
+srcDir = os.path.join(buildRootDir, "Ice-" + iceVersion + "-src")
+buildDir = os.path.join(buildRootDir, "Ice-" + iceVersion)
 
 if forceclean or not os.path.exists(srcDir) or not os.path.exists(buildDir):
     if os.path.exists(buildRootDir):
-        print "Removing previous build from " + os.path.join("build-" + platform.pkgPlatform + "-" + version) + "...",
+        print "Removing previous build from " + os.path.join("build-" + platform.pkgPlatform + "-" + iceVersion) + "...",
         sys.stdout.flush()
         shutil.rmtree(buildRootDir)
         print "ok"
@@ -134,39 +134,39 @@ if forceclean or not os.path.exists(srcDir) or not os.path.exists(buildDir):
     #
     # If we can't find the source archive in the current directory, ask its location
     #
-    if not os.path.exists(os.path.join(cwd, "Ice-" + version + ".tar.gz")):
+    if not os.path.exists(os.path.join(cwd, "Ice-" + iceVersion + ".tar.gz")):
         print
-        src = raw_input("Couldn't find Ice-" + version + ".tar.gz in current directory, please specify\n" + \
+        src = raw_input("Couldn't find Ice-" + iceVersion + ".tar.gz in current directory, please specify\n" + \
                         "where to download or copy the source distribution or hit enter to \n" + \
-                        "download it from sun:/share/srcdists/" + version + ": ")
+                        "download it from sun:/share/srcdists/" + iceVersion + ": ")
         if src == "":
-            src = "sun:/share/srcdists/" + version + "/Ice-" + version + ".tar.gz"
-        elif not src.endswith("Ice-" + version + ".tar.gz"):
-            src = os.path.join(src, "Ice-" + version + ".tar.gz")
+            src = "sun:/share/srcdists/" + iceVersion + "/Ice-" + iceVersion + ".tar.gz"
+        elif not src.endswith("Ice-" + iceVersion + ".tar.gz"):
+            src = os.path.join(src, "Ice-" + iceVersion + ".tar.gz")
 
         if os.system("scp " + src + " ."):
             print sys.argv[0] + ": couldn't copy " + src
             sys.exit(1)
-        
-    print "Unpacking ./Ice-" + version + ".tar.gz ...",
+
+    print "Unpacking ./Ice-" + iceVersion + ".tar.gz ...",
     sys.stdout.flush()
     os.chdir(buildRootDir)
-    if os.system("gunzip -c " + os.path.join(cwd, "Ice-" + version + ".tar.gz") + " | tar x" + quiet + "f -"):
-        print sys.argv[0] + ": failed to unpack ./Ice-" + version + ".tar.gz"
+    if os.system("gunzip -c " + os.path.join(cwd, "Ice-" + iceVersion + ".tar.gz") + " | tar x" + quiet + "f -"):
+        print sys.argv[0] + ": failed to unpack ./Ice-" + iceVersion + ".tar.gz"
         sys.exit(1)
-    os.rename("Ice-" + version, srcDir)
-    
+    os.rename("Ice-" + iceVersion, srcDir)
+
     if "cpp-64" in buildLanguages:
-        if os.system("gunzip -c " + os.path.join(cwd, "Ice-" + version + ".tar.gz") + " | tar x" + quiet + "f -"):
-            print sys.argv[0] + ": failed to unpack ./Ice-" + version + ".tar.gz"
+        if os.system("gunzip -c " + os.path.join(cwd, "Ice-" + iceVersion + ".tar.gz") + " | tar x" + quiet + "f -"):
+            print sys.argv[0] + ": failed to unpack ./Ice-" + iceVersion + ".tar.gz"
             sys.exit(1)
-        os.rename("Ice-" + version, srcDir + "-64")
+        os.rename("Ice-" + iceVersion, srcDir + "-64")
 
     if "cpp-11" in buildLanguages:
-        if os.system("gunzip -c " + os.path.join(cwd, "Ice-" + version + ".tar.gz") + " | tar x" + quiet + "f -"):
-            print sys.argv[0] + ": failed to unpack ./Ice-" + version + ".tar.gz"
+        if os.system("gunzip -c " + os.path.join(cwd, "Ice-" + iceVersion + ".tar.gz") + " | tar x" + quiet + "f -"):
+            print sys.argv[0] + ": failed to unpack ./Ice-" + iceVersion + ".tar.gz"
             sys.exit(1)
-        os.rename("Ice-" + version, srcDir + "-11")
+        os.rename("Ice-" + iceVersion, srcDir + "-11")
 
     os.chdir(cwd)
     print "ok"
@@ -188,7 +188,7 @@ for l in buildLanguages:
     else:
         os.chdir(os.path.join(srcDir, l))
 
-    makeOptions = platform.getMakeOptions() + " " + platform.getMakeEnvs(version, l) + " prefix=" + buildDir
+    makeOptions = platform.getMakeOptions() + " " + platform.getMakeEnvs(iceVersion, l) + " prefix=" + buildDir
 
     if l == "java":
         buildCmd = (platform.getJavaEnv() + " " + make + " " + " prefix=" + buildDir +
@@ -218,7 +218,7 @@ if os.path.exists(os.path.join(buildDir, "doc")):
 print "Copying third party dependencies..."
 sys.stdout.flush()
 platform.copyThirdPartyDependencies(buildDir)
-platform.completeDistribution(buildDir, version)
+platform.completeDistribution(buildDir, iceVersion)
 
 #
 # Copy platform specific files (README, SOURCES, etc)
@@ -231,8 +231,8 @@ print "ok"
 
 #
 # Everything should be clean now, we can create the binary distribution archive
-# 
-platform.createArchive(cwd, buildRootDir, distDir, version, quiet)
+#
+platform.createArchive(cwd, buildRootDir, distDir, iceVersion, quiet)
 
 #
 # Done.

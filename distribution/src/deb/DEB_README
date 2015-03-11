@@ -41,7 +41,7 @@ After installing the GPG key, we must add the repository to your
 system apt sources:
 
   $ cd /etc/apt/sources.list.d
-  $ sudo wget https://zeroc.com/download/Ice/@mmver@/ubuntu/ice@mmver@-trusty.list
+  $ sudo wget https://zeroc.com/download/Ice/3.6/ubuntu/ice3.6-trusty.list
   $ sudo apt-get update
 
 
@@ -78,18 +78,18 @@ the simplest is to use the webupd8team ppa repository:
 4. Building the Ice packages
 ======================================================================
 
-Install the Ice @ver@ source distribution:
+Install the Ice 3.6.0 source distribution:
 
-  $ mkdir ~/zeroc-ice@mmver@
-  $ cd ~/zeroc-ice@mmver@
-  $ apt-get source zeroc-ice@mmver@
+  $ mkdir ~/zeroc-ice3.6
+  $ cd ~/zeroc-ice3.6
+  $ apt-get source zeroc-ice3.6
 
-Change the working directory to zeroc-ice@mmver@-@ver@:
+Change the working directory to zeroc-ice3.6-3.6.0:
 
-  $ cd zeroc-ice@mmver@-@ver@
+  $ cd zeroc-ice3.6-3.6.0
 
 Now you're ready to build Ice packages:
 
   $ dpkg-buildpackage -us -uc
 
-When finished, the .deb files will be in the zeroc-ice@mmver@ directory.
+When finished, the .deb files will be in the zeroc-ice3.6 directory.

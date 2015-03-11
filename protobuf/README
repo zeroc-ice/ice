@@ -4,7 +4,7 @@ integrate Google Protocol Buffers with Ice.
 Included are demos written in C++, Java and Python. The demos were
 tested with:
 
-  - Ice 3.5.0
+  - Ice 3.6.0
   - Google Protocol Buffers 2.5.0
 
 Please see the READMEs in the specific language directories for

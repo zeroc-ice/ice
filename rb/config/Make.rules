@@ -42,7 +42,7 @@ embedded_runpath ?= yes
 
 #
 # If you have not built Ice for C++ from the cpp subdirectory or if
-# you have installed the Ice @ver@ for C++ development kit in a
+# you have installed the Ice for C++ development kit in a
 # non-standard location, set the ICE_HOME to the installation directory.
 #
 #ICE_HOME	= C:\Program Files\ZeroC\Ice-$(VERSION)

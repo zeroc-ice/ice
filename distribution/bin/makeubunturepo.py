@@ -10,45 +10,48 @@
 
 import os, sys, fnmatch, re, getopt, atexit, shutil, subprocess, threading, getpass
 
+iceVersion = "3.6.0"
+debVersion = "3.6.0"
+mmVersion = "3.6"
 
 i386Packages = [
-    "libzeroc-freeze@debmmver@_@debver@-1000_i386.deb",
-    "libzeroc-ice@debmmver@_@debver@-1000_i386.deb",
-    "libzeroc-ice-dev_@debver@-1000_i386.deb",
-    "libzeroc-ice-java_@debver@-1000_i386.deb",
-    "libzeroc-icestorm@debmmver@_@debver@-1000_i386.deb",
-    "php5-zeroc-ice_@debver@-1000_i386.deb",
-    "php5-zeroc-ice-dev_@debver@-1000_i386.deb",
-    "zeroc-glacier2_@debver@-1000_i386.deb",
-    "zeroc-ice@debmmver@_@debver@-1000_i386.changes",
-    "zeroc-icebox_@debver@-1000_i386.deb",
-    "zeroc-icegrid_@debver@-1000_i386.deb",
-    "zeroc-icepatch2_@debver@-1000_i386.deb",
-    "zeroc-ice-utils_@debver@-1000_i386.deb"]
+    "libzeroc-freeze" + mmVersion + "_" + debVersion + "-1000_i386.deb",
+    "libzeroc-ice" + mmVersion + "_" + debVersion + "-1000_i386.deb",
+    "libzeroc-ice-dev_" + debVersion + "-1000_i386.deb",
+    "libzeroc-ice-java_" + debVersion + "-1000_i386.deb",
+    "libzeroc-icestorm" + mmVersion + "_" + debVersion + "-1000_i386.deb",
+    "php5-zeroc-ice_" + debVersion + "-1000_i386.deb",
+    "php5-zeroc-ice-dev_" + debVersion + "-1000_i386.deb",
+    "zeroc-glacier2_" + debVersion + "-1000_i386.deb",
+    "zeroc-ice" + mmVersion + "_" + debVersion + "-1000_i386.changes",
+    "zeroc-icebox_" + debVersion + "-1000_i386.deb",
+    "zeroc-icegrid_" + debVersion + "-1000_i386.deb",
+    "zeroc-icepatch2_" + debVersion + "-1000_i386.deb",
+    "zeroc-ice-utils_" + debVersion + "-1000_i386.deb"]
 
 amd64Packages = [
-    "libzeroc-freeze@debmmver@_@debver@-1000_amd64.deb",
-    "libzeroc-ice@debmmver@_@debver@-1000_amd64.deb",
-    "libzeroc-ice-dev_@debver@-1000_amd64.deb",
-    "libzeroc-ice-java_@debver@-1000_amd64.deb",
-    "libzeroc-icestorm@debmmver@_@debver@-1000_amd64.deb",
-    "php5-zeroc-ice_@debver@-1000_amd64.deb",
-    "php5-zeroc-ice-dev_@debver@-1000_amd64.deb",
-    "zeroc-glacier2_@debver@-1000_amd64.deb",
-    "zeroc-ice@debmmver@_@debver@-1000_amd64.changes",
-    "zeroc-icebox_@debver@-1000_amd64.deb",
-    "zeroc-icegrid_@debver@-1000_amd64.deb",
-    "zeroc-icepatch2_@debver@-1000_amd64.deb",
-    "zeroc-ice-utils_@debver@-1000_amd64.deb"]
+    "libzeroc-freeze" + mmVersion + "_" + debVersion + "-1000_amd64.deb",
+    "libzeroc-ice" + mmVersion + "_" + debVersion + "-1000_amd64.deb",
+    "libzeroc-ice-dev_" + debVersion + "-1000_amd64.deb",
+    "libzeroc-ice-java_" + debVersion + "-1000_amd64.deb",
+    "libzeroc-icestorm" + mmVersion + "_" + debVersion + "-1000_amd64.deb",
+    "php5-zeroc-ice_" + debVersion + "-1000_amd64.deb",
+    "php5-zeroc-ice-dev_" + debVersion + "-1000_amd64.deb",
+    "zeroc-glacier2_" + debVersion + "-1000_amd64.deb",
+    "zeroc-ice" + mmVersion + "_" + debVersion + "-1000_amd64.changes",
+    "zeroc-icebox_" + debVersion + "-1000_amd64.deb",
+    "zeroc-icegrid_" + debVersion + "-1000_amd64.deb",
+    "zeroc-icepatch2_" + debVersion + "-1000_amd64.deb",
+    "zeroc-ice-utils_" + debVersion + "-1000_amd64.deb"]
 
 noarchPackages = [
-    "zeroc-ice@debmmver@_@debver@-1000.debian.tar.gz",
-    "zeroc-ice@debmmver@_@debver@-1000.dsc",
-    "zeroc-ice@debmmver@_@debver@.orig.tar.gz",
-    "zeroc-ice-utils-java_@debver@-1000_all.deb",
-    "zeroc-ice-slice_@debver@-1000_all.deb",
-    "zeroc-ice-all-runtime_@debver@-1000_all.deb",
-    "zeroc-ice-all-dev_@debver@-1000_all.deb"]
+    "zeroc-ice" + mmVersion + "_" + debVersion + "-1000.debian.tar.gz",
+    "zeroc-ice" + mmVersion + "_" + debVersion + "-1000.dsc",
+    "zeroc-ice" + mmVersion + "_" + debVersion + ".orig.tar.gz",
+    "zeroc-ice-utils-java_" + debVersion + "-1000_all.deb",
+    "zeroc-ice-slice_" + debVersion + "-1000_all.deb",
+    "zeroc-ice-all-runtime_" + debVersion + "-1000_all.deb",
+    "zeroc-ice-all-dev_" + debVersion + "-1000_all.deb"]
 
 
 def runCommand(cmd, verbose = False):
@@ -96,7 +99,7 @@ repoLayout = [
     "dists/%(codename)s/main/binary-i386",
     "dists/%(codename)s/main/source",
     "dists/%(codename)s/main/binary-amd64",
-    "pool/%(codename)s/main/i/ice@debmmver@"]
+    "pool/%(codename)s/main/i/ice" + mmVersion]
 
 buildCommand = """
 %(sshCommand)s %(sshUser)s@%(sshBuildHost)s 'rm -rf %(buildDir)s && mkdir %(buildDir)s' && \\
@@ -104,7 +107,7 @@ buildCommand = """
 %(scpCommand)s %(sourceDist)s %(sshUser)s@%(sshBuildHost)s:/home/%(sshUser)s/%(buildDir)s && \\
 %(scpCommand)s %(keystore)s %(sshUser)s@%(sshBuildHost)s:/home/%(sshUser)s/%(buildDir)s/keystore.jks && \\
 %(sshCommand)s %(sshUser)s@%(sshBuildHost)s \\
-    'cd %(buildDir)s && tar zxf %(distFiles)s && SIGNJARS=yes JARSIGNER_KEYSTORE=/home/%(sshUser)s/%(buildDir)s/keystore.jks JARSIGNER_KEYSTORE_PASSWORD="%(storepass)s" python distfiles-@ver@/bin/makeubuntupackages.py -b %(codename)s -d . > build-log.txt 2>&1 && rm /home/%(sshUser)s/%(buildDir)s/keystore.jks'
+    'cd %(buildDir)s && tar zxf %(distFiles)s && SIGNJARS=yes JARSIGNER_KEYSTORE=/home/%(sshUser)s/%(buildDir)s/keystore.jks JARSIGNER_KEYSTORE_PASSWORD="%(storepass)s" python distfiles-' + iceVersion + '/bin/makeubuntupackages.py -b %(codename)s -d . > build-log.txt 2>&1 && rm /home/%(sshUser)s/%(buildDir)s/keystore.jks'
 """
 
 class Builder(threading.Thread):
@@ -123,9 +126,9 @@ class Builder(threading.Thread):
 # Default values
 #
 codename = "trusty"
-sourceDist = "zeroc-ice@debmmver@_@debver@.orig.tar.gz"
-distFiles = "distfiles-@ver@.tar.gz"
-signKey = "A62B38F8" if "@ver@".endswith("b") else "53A473EE"
+sourceDist = "zeroc-ice" + mmVersion + "_" + debVersion + ".orig.tar.gz"
+distFiles = "distfiles-" + iceVersion + ".tar.gz"
+signKey = "A62B38F8" if iceVersion.endswith("b") else "53A473EE"
 sshKey = None
 sshUser = os.environ.get('USER')
 i386BuildHost = None
@@ -164,7 +167,7 @@ def usage():
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", ["help", "ssh-key=", "ssh-user=", "i386-build-host=",
-                                                  "amd64-build-host=", "build-dir=", "codename=", "skip-build", 
+                                                  "amd64-build-host=", "build-dir=", "codename=", "skip-build",
                                                   "jarsigner-keystore=", "verbose"])
 except getopt.GetoptError as e:
     print("Error %s " % e)
@@ -184,7 +187,7 @@ for o, a in opts:
     elif o == "--ssh-user":
         sshUser = a
     elif o == "--i386-build-host":
-        i386BuildHost = a        
+        i386BuildHost = a
     elif o == "--amd64-build-host":
         amd64BuildHost = a
     elif o == "--build-dir":
@@ -219,11 +222,11 @@ if not skipBuild:
 
     buildThreads = []
     for host in buildHosts:
-        thread = Builder(buildCommand % {"sshCommand": sshCommand, 
+        thread = Builder(buildCommand % {"sshCommand": sshCommand,
                                          "scpCommand": scpCommand,
-                                         "sshUser": sshUser, 
-                                         "sshBuildHost": host, 
-                                         "buildDir": buildDir, 
+                                         "sshUser": sshUser,
+                                         "sshBuildHost": host,
+                                         "buildDir": buildDir,
                                          "signKey": signKey,
                                          "codename": codename,
                                          "distFiles": distFiles,
@@ -236,7 +239,7 @@ if not skipBuild:
 
     for thread in buildThreads:
         thread.join()
-    
+
 runCommand("mkdir -p ubuntu", verbose)
 
 for d in repoLayout:
@@ -245,7 +248,7 @@ for d in repoLayout:
 for host in [i386BuildHost, amd64BuildHost]:
     packages = i386Packages + noarchPackages if host == i386BuildHost else amd64Packages
     for package in packages:
-        runCommand("cd ubuntu && %(scpCommand)s %(sshUser)s@%(sshBuildHost)s:/home/%(sshUser)s/%(buildDir)s/%(codename)s/%(package)s pool/%(codename)s/main/i/ice@debmmver@/" % 
+        runCommand("cd ubuntu && %(scpCommand)s %(sshUser)s@%(sshBuildHost)s:/home/%(sshUser)s/%(buildDir)s/%(codename)s/%(package)s pool/%(codename)s/main/i/ice" + mmVersion + "/" %
                 {"scpCommand": scpCommand,
                  "sshUser": sshUser,
                  "sshBuildHost": host,
@@ -256,7 +259,7 @@ for host in [i386BuildHost, amd64BuildHost]:
 #
 # Sign the source package
 #
-for command in ["cd ubuntu && echo \"y\" | debsign -k %(signKey)s pool/%(codename)s/main/i/ice@debmmver@/zeroc-ice@debmmver@_@debver@-1000.dsc"]:
+for command in ["cd ubuntu && echo \"y\" | debsign -k %(signKey)s pool/%(codename)s/main/i/ice" + mmVersion + "/zeroc-ice" + mmVersion + "_" + debVersion + "-1000.dsc"]:
     runCommand(command % {"signKey": signKey, "codename": codename}, verbose)
 
 f = open('ubuntu/aptftp.conf', 'w')
@@ -274,8 +277,8 @@ runCommand("cd ubuntu && apt-ftparchive release -c=aptftp.conf dists/%(codename)
 #
 # Sign changes and release files
 #
-for command in ["cd ubuntu && echo \"y\" | debsign -k %(signKey)s pool/%(codename)s/main/i/ice@debmmver@/zeroc-ice@debmmver@_@debver@-1000_i386.changes",
-                "cd ubuntu && echo \"y\" | debsign -k %(signKey)s pool/%(codename)s/main/i/ice@debmmver@/zeroc-ice@debmmver@_@debver@-1000_amd64.changes",
+for command in ["cd ubuntu && echo \"y\" | debsign -k %(signKey)s pool/%(codename)s/main/i/ice" + mmVersion + "/zeroc-ice" + mmVersion + "_" + debVersion + "-1000_i386.changes",
+                "cd ubuntu && echo \"y\" | debsign -k %(signKey)s pool/%(codename)s/main/i/ice" + mmVersion + "/zeroc-ice" + mmVersion + "_" + debVersion + "-1000_amd64.changes",
                 "cd ubuntu && gpg --yes -u %(signKey)s -bao dists/%(codename)s/Release.gpg dists/%(codename)s/Release"]:
     runCommand(command % {"signKey": signKey, "codename": codename}, verbose)
 

@@ -46,7 +46,7 @@ CPP11_LIB_NAMES = 	libFreeze \
 	libIceStormService \
 	libIceUtil
 
-VERSION = @ver@
+VERSION = 3.6.0
 
 ARTIFACT_NAMES = freeze \
 	glacier2 \
@@ -88,7 +88,7 @@ override_dh_auto_install:
 override_dh_install: icebox_install
 	mkdir -p $(DESTDIR)$(prefix)/share/java
 	mv $(DESTDIR)$(prefix)/lib/*.jar $(DESTDIR)$(prefix)/share/java
-	
+
 	#
 	# Sign JAR files
 	#
@@ -98,7 +98,7 @@ override_dh_install: icebox_install
 		jarsigner -keystore $(JARSIGNER_KEYSTORE) -storepass "$(JARSIGNER_KEYSTORE_PASSWORD)" \
 			$(DESTDIR)/usr/share/java/icegridgui.jar zeroc.com -tsa http://timestamp.digicert.com > /dev/null ; \
         fi
-	
+
 	#
 	# Install Maven artifact
 	#
@@ -110,7 +110,7 @@ override_dh_install: icebox_install
 		cd $(DESTDIR)/$(prefix)/share/maven-repo/com/zeroc/$$name/$(VERSION) && ln -s ../../../../../java/$$name-$(VERSION).jar . ; \
 		cd $(DESTDIR)/$(prefix)/share/maven-repo/com/zeroc/$$name/$(VERSION) && ln -s ../../../../../java/$$name-$(VERSION)-source.jar . ; \
 	done ;
-	
+
 	mkdir -p $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH)/c++11
 
 	#
@@ -152,7 +152,7 @@ override_dh_install: icebox_install
 	# Continue with regular dh_install
 	#
 	dh_install
-	
+
 	#
 	# Copy package readme
 	#
@@ -161,7 +161,7 @@ override_dh_install: icebox_install
 		mkdir -p $(DESTDIR)$(prefix)/share/doc/$$name ; \
 		cp debian/README.Linux $(DESTDIR)$(prefix)/share/doc/$$name/README ; \
 	done ;
-	
+
 	cp debian/JGOODIES_LICENSE $(DESTDIR)$(prefix)/share/doc/zeroc-ice-utils-java/JGOODIES_LICENSE
 
 override_dh_clean:

@@ -45,7 +45,7 @@ The value for %dist should be ".sles11", ".el6", ".el7" or ".amzn1".
 2. The RPM package build directory
 ======================================================================
 
-The RPM package build directory is /usr/src/packages on SLES. For 
+The RPM package build directory is /usr/src/packages on SLES. For
 RHEL 6, RHEL 7, and Amazon Linux, create and use ~/rpmbuild. In this
 document we refer to the package directory symbolically as
 <rpm-package>.
@@ -61,14 +61,14 @@ directory to be able to create RPMs as a non-root user.
 You will need three files in order to create a source RPM for Ice:
 
  - the ice.spec file (the RPM specification file)
- - the Ice-@ver@.tar.gz file (the main Ice source distribution)
- - the Ice-rpmbuild-@ver@.tar.gz (additional files for the RPM
+ - the Ice-3.6.0.tar.gz file (the main Ice source distribution)
+ - the Ice-rpmbuild-3.6.0.tar.gz (additional files for the RPM
    distribution)
 
 These files can be extracted from an existing Ice source RPM by
 installing it:
 
-$ rpm -i ice-@ver@-1.src.rpm
+$ rpm -i ice-3.6.0-1.src.rpm
 
 You can find the ice.spec file in the <rpm-package>/SPECS directory,
 while the .tar.gz files are in the <rpm-package>/SOURCES directory.
@@ -76,7 +76,7 @@ while the .tar.gz files are in the <rpm-package>/SOURCES directory.
 If you prefer not to install the Ice source RPM, you can extract the
 contents of the file using the following command:
 
-$ rpm2cpio ice-@ver@-1.src.rpm | cpio -idmv
+$ rpm2cpio ice-3.6.0-1.src.rpm | cpio -idmv
 
 The ice.spec file defines a number of build requirements that must be
 installed on your system in order to build the source RPM. These
@@ -122,7 +122,7 @@ The source RPM is created in <rpm-package>/SRPMS.
 
 To create binary RPMs for Ice, you must first install the source RPM:
 
-$ rpm -i ice-@ver@-1.src.rpm
+$ rpm -i ice-3.6.0-1.src.rpm
 
 If you have not already done so, install the RPM prerequisites listed
 in step 3 above. The following additional steps are also necessary:

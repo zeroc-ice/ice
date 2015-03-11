@@ -37,6 +37,9 @@ except getopt.GetoptError:
     usage()
     sys.exit(1)
 
+iceVersion = "3.6.0"
+debVersion = "3.6.0"
+mmVersion = "3.6"
 
 verbose = 0
 buildDir = None
@@ -68,9 +71,9 @@ if distributionDir == None:
 
 buildpackageOps = ("-k%s" % keyid) if keyid != None else "-us -uc"
 
-sourceDir = "zeroc-ice@debmmver@-@debver@"
-distFile = "zeroc-ice@debmmver@_@debver@.orig.tar.gz"
-distFiles = "distfiles-@ver@.tar.gz"
+sourceDir = "zeroc-ice" + mmVersion + "-" + debVersion
+distFile = "zeroc-ice" + mmVersion + "_" + debVersion + ".orig.tar.gz"
+distFiles = "distfiles-" + iceVersion + ".tar.gz"
 
 buildDir = os.path.abspath(os.path.join(os.getcwd(), buildDir))
 sourceDir = os.path.abspath(os.path.join(buildDir, sourceDir))
@@ -107,10 +110,10 @@ runCommand("tar zxf %s " % (distFile), verbose)
 shutil.copy(distFile, buildDir)
 
 os.chdir(sourceDir)
-runCommand("tar zxf %s distfiles-@ver@/src/deb/debian --strip-components 3" % distFiles, verbose)
+runCommand("tar zxf %s distfiles-" + iceVersion + "/src/deb/debian --strip-components 3" % distFiles, verbose)
 os.chdir(os.path.join(sourceDir, "debian"))
-runCommand("tar zxf %s distfiles-@ver@/src/unix/README.Linux --strip-components 3" % distFiles, verbose)
-runCommand("tar zxf %s distfiles-@ver@/src/unix/JGOODIES_LICENSE --strip-components 3" % distFiles, verbose)
+runCommand("tar zxf %s distfiles-" + iceVersion + "/src/unix/README.Linux --strip-components 3" % distFiles, verbose)
+runCommand("tar zxf %s distfiles-" + iceVersion + "/src/unix/JGOODIES_LICENSE --strip-components 3" % distFiles, verbose)
 
 os.chdir(sourceDir)
 runCommand("dpkg-buildpackage %s -j8" % buildpackageOps, verbose)

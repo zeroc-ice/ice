@@ -5,8 +5,8 @@
         <Version>12.0</Version>
     </HostApplication>
     <Addin>
-        <FriendlyName>Ice-@ver@ Visual Studio Add-in</FriendlyName>
-        <Description>Ice-@ver@ Visual Studio Add-in for Visual Studio 2013</Description>
+        <FriendlyName>Ice 3.6.0 Visual Studio Add-in</FriendlyName>
+        <Description>Ice 3.6.0 Visual Studio Add-in for Visual Studio 2013</Description>
         <AboutBoxDetails>The Ice Visual Studio Add-in integrates Ice projects into the Visual Studio IDE. 
 The add-in supports C++, .NET, and Silverlight projects. 
 To know more about Ice visit ZeroC website at https://www.zeroc.com</AboutBoxDetails>

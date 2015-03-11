@@ -36,8 +36,6 @@ if len(args) != 1:
     usage()
     sys.exit(1)
 
-
-
 version = args[0]
 
 ice_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -80,11 +78,8 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "rpm", 
                              ("%define dotnetpolicyversion ([0-9]*\.[0-9]*)",
                               FixUtil.majorVersion(version) + "." + FixUtil.minorVersion(version))])
 
-FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "common", "README.DEMOS.txt"),
-                            [("Ice-" + FixUtil.vpatMatch, version)])
-
-FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "windows", "docs", "thirdparty", "README.txt"),
-                            [("Ice " + FixUtil.vpatMatch, version)])
+for f in FixUtil.find("*README*"):
+    FixUtil.fileMatchAndReplace(f, [("Ice[ \-\+]" + FixUtil.vpatMatch, version)], False)
 
 FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "common", "gradle.properties"),
                             [("iceVersion[\t\s]*= " + FixUtil.vpatMatch, version)])
@@ -92,14 +87,99 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "common
 FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "common", "gradle.properties.android"),
                             [("iceVersion[\t\s]*= " + FixUtil.vpatMatch, version)])
 
-FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "bin", "testicedist.py"),
-                            [("version[\t\s]*= \"" + FixUtil.vpatMatch + "\"", version)])
-
-FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "bin", "makemsi.py"),
-                            [("version[\t\s]*= \"" + FixUtil.vpatMatch + "\"", version)])
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "rpm", "icegridregistry.conf"),
+                            [("Ice-" + FixUtil.vpatMatch, version)])
 
 for f in FixUtil.find("*.py"):
-    FixUtil.fileMatchAndReplace(f, [("iceVersion[\t\s]*= '" + FixUtil.vpatMatch, version)], False)
+    FixUtil.fileMatchAndReplace(f, [("iceVersion[\t\s]*= ['\"]" + FixUtil.vpatMatch, version)], False)
+
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "rpm", "RPM_README"),
+                            [("ice-" + FixUtil.vpatMatch, version)], False)
+
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "rpm", "RPM_README"),
+                            [("Ice-rpmbuild-" + FixUtil.vpatMatch, version)], False)
+
+for pkg in ["ice", "gradle-plugin", "glacier2", "freeze", "icebox", "icediscovery", "icegrid", "icestorm", "icepatch2"]:
+    FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "deb", "debian", "libzeroc-ice-java.install"),
+                            [(pkg + "[-/]" + FixUtil.vpatMatch, version)], False)
+    FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "deb", "debian", "libzeroc-ice-java.links"),
+                            [(pkg + "-" + FixUtil.vpatMatch, version)], False)
+
+for f in ["zeroc-icegrid.install", "zeroc-ice-slice.install", "zeroc-ice-utils-java.install",
+          "zeroc-icegrid.icegridregistry.conf"]:
+    FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "deb", "debian", f),
+                            [("Ice-" + FixUtil.vpatMatch, version)])
+
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "deb", "debian", "rules"),
+                            [("VERSION[\t\s]*= " + FixUtil.vpatMatch, version)])
+
+jsonMatch = "([0-9]+\.[0-9]+\.[0-9]+(-beta.0)?)"
+for t in ["package.json", "bower.json"]:
+    for f in FixUtil.find(t):
+        FixUtil.fileMatchAndReplace(f, [("\"version\":[\t\s]\"" + jsonMatch, FixUtil.jsonVersion(version))], False)
+        FixUtil.fileMatchAndReplace(f, [("\"zeroc-slice2js\":[\t\s]\"\^" + jsonMatch, FixUtil.jsonVersion(version))], False)
+        FixUtil.fileMatchAndReplace(f, [("\"gulp-zeroc-slice2js\":[\t\s]\"\^" + jsonMatch, FixUtil.jsonVersion(version))], False)
+        FixUtil.fileMatchAndReplace(f, [("\"zeroc-icejs\":[\t\s]\"~" + jsonMatch, FixUtil.jsonVersion(version))], False)
+        FixUtil.fileMatchAndReplace(f, [("\"zeroc-icejs\":[\t\s]\"\^" + jsonMatch, FixUtil.jsonVersion(version))], False)
+
+mmver = FixUtil.majorVersion(version) + "." + FixUtil.minorVersion(version) + FixUtil.betaVersion(version)
+mmverMatch = "([0-9]+\.[0-9b]+)"
+
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "deb", "DEB_README"),
+                                         [("ice" + mmverMatch, mmver)])
+
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "deb", "DEB_README"),
+                                         [("Ice/" + mmverMatch + "/", mmver)])
+
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "deb", "DEB_README"),
+                                         [("ice[0-9]+\.[0-9b]+-" + FixUtil.vpatMatch, version)])
+
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "deb", "DEB_README"),
+                            [("VERSION[\t\s]*= " + FixUtil.vpatMatch, version)])
+
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "deb", "debian", "libzeroc-freeze3.6.links"),
+                            [("freeze" + mmverMatch, mmver)])
+
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "deb", "debian", "libzeroc-ice3.6.links"),
+                            [("ice" + mmverMatch, mmver)])
+
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "deb", "debian", "libzeroc-icestorm3.6.links"),
+                            [("icestorm" + mmverMatch, mmver)])
+
+nbmmver = FixUtil.majorVersion(version) + "." + FixUtil.minorVersion(version)
+nbmmverMatch = "([0-9]+\.[0-9]+)"
+
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "unix", "README.Darwin"),
+                            [("Ice\+" + nbmmverMatch + "\+Manual", nbmmver)])
+
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "unix", "README.Linux"),
+                            [("Ice\+" + nbmmverMatch + "\+Manual", nbmmver)])
+
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "windows", "docs", "main", "README.txt"),
+                            [("Ice\+" + nbmmverMatch + "\+Manual", nbmmver)])
+
+debVersion = FixUtil.majorVersion(version) + "." + FixUtil.minorVersion(version) + "."
+if FixUtil.patchVersion(version) != "51":
+    debVersion += FixUtil.patchVersion(version)
+else:
+    debVersion += "0"
+
+for f in ["makeubuntupackages.py", "makeubunturepo.py"]:
+    FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "bin", f),
+                                [("mmVersion[\t\s]*= \"" + nbmmverMatch, nbmmver)])
+    FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "bin", f),
+                                [("debVersion[\t\s]*= \"" + FixUtil.vpatMatch, debVersion)])
+
+
+#
+# Miscelaneous source distribution files
+#
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "CHANGES"), [("Ice\+" + FixUtil.vpatMatch, version)])
+
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "README"), [("Ice[ \+]" + FixUtil.vpatMatch, version)])
+
+for f in FixUtil.find("*.AddIn"):
+    FixUtil.fileMatchAndReplace(f, [("Ice " + FixUtil.vpatMatch, version)])
 
 #
 # Demo config files and scripts
@@ -111,10 +191,10 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "demoscript", "Util.py"),
                             [("/opt/Ice-([0-9]+\.[0-9]+)", FixUtil.shortVersion(version))])
 
 for f in FixUtil.find("config.icebox"):
-    FixUtil.fileMatchAndReplace(f, [("IceStormService,([0-9]+b?)", FixUtil.soVersion(version))])
+    FixUtil.fileMatchAndReplace(f, [("IceStormService,([0-9]+b?)", FixUtil.soVersion(version))], False)
 
 for f in FixUtil.find("expect.py"):
-    FixUtil.fileMatchAndReplace(f, [("IceStormService,([0-9]+b?)", FixUtil.soVersion(version))])
+    FixUtil.fileMatchAndReplace(f, [("IceStormService,([0-9]+b?)", FixUtil.soVersion(version))], False)
 
 for f in FixUtil.find("config*"):
     FixUtil.fileMatchAndReplace(f, [("Version=*([0-9]*\.[0-9]*\.[0-9]*).0", newVersion)], False)
@@ -173,7 +253,7 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_home, "demo", "IceGrid", "customLoa
 
 for f in FixUtil.find("*.vcxproj"):
     FixUtil.fileMatchAndReplace(f, [("Ice\\\\([0-9]+\.[0-9])", FixUtil.shortVersion(version)),
-                                    ("Ice, Version=([0-9]+\.[0-9]+)", FixUtil.shortVersion(version))])
+                                    ("Ice, Version=([0-9]+\.[0-9]+)", FixUtil.shortVersion(version))], False)
 
 for f in FixUtil.find("*.rc"):
     FixUtil.fileMatchAndReplace(f,
@@ -182,7 +262,7 @@ for f in FixUtil.find("*.rc"):
                                  ("INTERNALNAME \"[^0-9]*2?([0-9][0-9]b?)d?", FixUtil.soVersion(version)),
                                  ("ORIGINALFILENAME \"[^0-9]*2?([0-9][0-9]b?)d?\.dll", FixUtil.soVersion(version)),
                                  ("FILEVERSION ([0-9]+,[0-9]+,[0-9]+)", FixUtil.commaVersion(version)),
-                                 ("PRODUCTVERSION ([0-9]+,[0-9]+,[0-9]+)", FixUtil.commaVersion(version))])
+                                 ("PRODUCTVERSION ([0-9]+,[0-9]+,[0-9]+)", FixUtil.commaVersion(version))], False)
 
 #
 # Java specific files
@@ -197,8 +277,12 @@ FixUtil.fileMatchAndReplace(os.path.join(icej_home, "buildSrc", "build.gradle"),
 FixUtil.fileMatchAndReplace(os.path.join(icej_home, "src", "Ice", "src", "main", "java", "Ice", "Util.java"),
                             [("return \"" + FixUtil.vpatMatch +"\".*A=major", version),
                              ("return ([0-9]*).*AA=major", FixUtil.intVersion(version))])
+
 FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "java", "bin", "icegridgui.deb"),
                             [("IceGridGUI-" + FixUtil.vpatMatch, version)])
+
+FixUtil.fileMatchAndReplace(os.path.join(icej_home, "demo", "Database", "library", "README"),
+                            [("ice-" + FixUtil.vpatMatch, version)])
 
 #
 # Android Files
@@ -210,7 +294,7 @@ for f in FixUtil.find("*.iml"):
     FixUtil.fileMatchAndReplace(f,
                                 [("version=\"" + FixUtil.vpatMatch + "\"", version),
                                  ("name=\"ice-" + FixUtil.vpatMatch + "\"", version),
-                                 ("name=\"glacier2-" + FixUtil.vpatMatch + "\"", version)])
+                                 ("name=\"glacier2-" + FixUtil.vpatMatch + "\"", version)], False)
 #
 # JavaScript specific files
 #
@@ -237,7 +321,7 @@ FixUtil.fileMatchAndReplace(os.path.join(icecs_home, "src", "IceBox", "Makefile.
 for f in FixUtil.find("AssemblyInfo*.cs"):
     if f.find("generate") < 0 and f.find("ConsoleApplication") < 0:
         FixUtil.fileMatchAndReplace(f, [("AssemblyVersion\(\"" + FixUtil.vpatMatch + "\"", newVersion),
-                                        ("AssemblyFileVersion\(\"" + FixUtil.vpatMatch + "\"", newVersion)])
+                                        ("AssemblyFileVersion\(\"" + FixUtil.vpatMatch + "\"", newVersion)], False)
 
 for f in FixUtil.find("*.pc"):
     FixUtil.fileMatchAndReplace(f, [("[\t\s]*version[\t\s]*=[\t\s]* " + FixUtil.vpatMatch, newVersion)], False)
@@ -266,4 +350,4 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "vsaddin", "config", "Ice.prop
 # man pages
 for f in FixUtil.find(["*.1"]):
     FixUtil.fileMatchAndReplace(f, [("/Ice([0-9]+[0-9]+)/", FixUtil.majorVersion(version) + FixUtil.minorVersion(version))], False)
-    
+

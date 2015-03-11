@@ -1,6 +1,6 @@
 {
   "name": "zeroc-icejs-demos",
-  "version": "@jsonver@",
+  "version": "3.6.0",
   "description": "Sample programs for Ice (Internet Communications Engine)",
   "author": "ZeroC, Inc. <info@zeroc.com>",
   "homepage": "https://www.zeroc.com",
@@ -18,9 +18,9 @@
     "gulp-newer": "^0.5.0",
     "gulp-open": "^0.3.1",
     "gulp-uglify": "^1.0.2",
-    "gulp-zeroc-slice2js": "^@jsonver@",
+    "gulp-zeroc-slice2js": "^3.6.0",
     "http-proxy": "^1.8.1",
-    "zeroc-icejs": "^@jsonver@",
+    "zeroc-icejs": "^3.6.0",
     "vinyl-paths": "^1.0.0"
   },
   "scripts": {
