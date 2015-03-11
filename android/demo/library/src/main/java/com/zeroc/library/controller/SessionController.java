@@ -34,8 +34,7 @@ public class SessionController
             _timeout = timeout; // seconds.
         }
 
-        synchronized public void
-        run()
+        synchronized public void run()
         {
             while(!_terminated)
             {
@@ -62,8 +61,7 @@ public class SessionController
             }
         }
 
-        synchronized private void
-        terminate()
+        synchronized private void terminate()
         {
             _terminated = true;
             notify();

@@ -47,49 +47,12 @@ public class LoginController
         }
     }
 
-    public LoginController(Resources resources, final String hostname, final boolean secure, final boolean glacier2,
-                           Listener listener)
+    public LoginController(final Resources resources, final String hostname, final boolean secure,
+                           final boolean glacier2, Listener listener)
     {
         _handler = new Handler();
         _loginListener = listener;
         _loginListener.onLoginInProgress();
-
-        Ice.InitializationData initData = new Ice.InitializationData();
-
-        initData.properties = Ice.Util.createProperties();
-        if(glacier2)
-        {
-            initData.properties.setProperty("Ice.RetryIntervals", "-1");
-            initData.properties.setProperty("Ice.ACM.Timeout", "0");
-        }
-        initData.properties.setProperty("Ice.Trace.Network", "0");
-
-        if(secure)
-        {
-            initData.properties.setProperty("IceSSL.Trace.Security", "0");
-            initData.properties.setProperty("IceSSL.TruststoreType", "BKS");
-            initData.properties.setProperty("IceSSL.Password", "password");
-            initData.properties.setProperty("Ice.InitPlugins", "0");
-            initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
-
-            // SDK versions < 21 only support TLSv1 with SSLEngine.
-            if(Build.VERSION.SDK_INT < 21)
-            {
-                initData.properties.setProperty("IceSSL.Protocols", "tls1_0");
-            }
-
-            java.io.InputStream certStream;
-            certStream = resources.openRawResource(R.raw.client);
-            _communicator = Ice.Util.initialize(initData);
-
-            IceSSL.Plugin plugin = (IceSSL.Plugin)_communicator.getPluginManager().getPlugin("IceSSL");
-            plugin.setTruststoreStream(certStream);
-            _communicator.getPluginManager().initializePlugins();
-        }
-        else
-        {
-            _communicator = Ice.Util.initialize(initData);
-        }
 
         new Thread(new Runnable()
         {
@@ -98,6 +61,53 @@ public class LoginController
                 try
                 {
                     long refreshTimeout;
+
+                    Ice.InitializationData initData = new Ice.InitializationData();
+
+                    initData.dispatcher = new Ice.Dispatcher()
+                    {
+                        @Override
+                        public void
+                        dispatch(Runnable runnable, Ice.Connection connection)
+                        {
+                            _handler.post(runnable);
+                        }
+                    };
+
+                    initData.properties = Ice.Util.createProperties();
+                    if(glacier2)
+                    {
+                        initData.properties.setProperty("Ice.RetryIntervals", "-1");
+                    }
+                    initData.properties.setProperty("Ice.Trace.Network", "0");
+
+                    if(secure)
+                    {
+                        initData.properties.setProperty("IceSSL.Trace.Security", "0");
+                        initData.properties.setProperty("IceSSL.TruststoreType", "BKS");
+                        initData.properties.setProperty("IceSSL.Password", "password");
+                        initData.properties.setProperty("Ice.InitPlugins", "0");
+                        initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
+
+                        // SDK versions < 21 only support TLSv1 with SSLEngine.
+                        if(Build.VERSION.SDK_INT < 21)
+                        {
+                            initData.properties.setProperty("IceSSL.Protocols", "tls1_0");
+                        }
+
+                        java.io.InputStream certStream;
+                        certStream = resources.openRawResource(R.raw.client);
+                        _communicator = Ice.Util.initialize(initData);
+
+                        IceSSL.Plugin plugin = (IceSSL.Plugin)_communicator.getPluginManager().getPlugin("IceSSL");
+                        plugin.setTruststoreStream(certStream);
+                        _communicator.getPluginManager().initializePlugins();
+                    }
+                    else
+                    {
+                        _communicator = Ice.Util.initialize(initData);
+                    }
+
                     SessionAdapter session = null;
 
                     if(glacier2)
@@ -122,12 +132,14 @@ public class LoginController
                             postLoginFailure("Glacier2 proxy is invalid.");
                             return;
                         }
+
                         Glacier2.SessionPrx glacier2session = router.createSession("dummy", "none");
 
-                        final Demo.Glacier2SessionPrx sess = Demo.Glacier2SessionPrxHelper
-                                .uncheckedCast(glacier2session);
+                        final Demo.Glacier2SessionPrx sess =
+                            Demo.Glacier2SessionPrxHelper.uncheckedCast(glacier2session);
                         final Demo.LibraryPrx library = sess.getLibrary();
                         refreshTimeout = (router.getSessionTimeout() * 1000) / 2;
+
                         session = new SessionAdapter()
                         {
                             public void destroy()
@@ -173,6 +185,7 @@ public class LoginController
                         final Demo.SessionPrx sess = factory.create();
                         final Demo.LibraryPrx library = sess.getLibrary();
                         refreshTimeout = (factory.getSessionTimeout() * 1000) / 2;
+
                         session = new SessionAdapter()
                         {
                             public void destroy()

@@ -194,7 +194,7 @@ public class ChatService extends Service implements com.zeroc.chat.service.Servi
 
     synchronized public String getSessionError()
     {
-        return _session.getError();
+        return _session != null ? _session.getError() : "";
     }
 
     synchronized private void postLoginFailure(final String loginError)

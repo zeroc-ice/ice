@@ -77,6 +77,17 @@ public class HelloApp extends Application
                 try
                 {
                     Ice.InitializationData initData = new Ice.InitializationData();
+
+                    initData.dispatcher = new Ice.Dispatcher()
+                    {
+                        @Override
+                        public void
+                        dispatch(Runnable runnable, Ice.Connection connection)
+                        {
+                            _uiHandler.post(runnable);
+                        }
+                    };
+
                     initData.properties = Ice.Util.createProperties();
                     initData.properties.setProperty("Ice.Trace.Network", "3");
 

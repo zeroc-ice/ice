@@ -9,6 +9,8 @@
 
 package Ice;
 
+import java.util.concurrent.Callable;
+
 public final class ConnectionI extends IceInternal.EventHandler
     implements Connection, IceInternal.ResponseHandler, IceInternal.CancellationHandler
 {
@@ -1154,6 +1156,8 @@ public final class ConnectionI extends IceInternal.EventHandler
         //
         if(dispatchedCount > 0)
         {
+            boolean queueShutdown = false;
+
             synchronized(this)
             {
                 _dispatchCount -= dispatchedCount;
@@ -1167,21 +1171,59 @@ public final class ConnectionI extends IceInternal.EventHandler
                     //
                     if(_state == StateClosing)
                     {
-                        try
+                        if(_instance.queueRequests())
                         {
-                            initiateShutdown();
+                            //
+                            // We can't call initiateShutdown() from this thread in certain
+                            // situations (such as in Android).
+                            //
+                            queueShutdown = true;
                         }
-                        catch(Ice.LocalException ex)
+                        else
                         {
-                            setState(StateClosed, ex);
+                            try
+                            {
+                                initiateShutdown();
+                            }
+                            catch(Ice.LocalException ex)
+                            {
+                                setState(StateClosed, ex);
+                            }
                         }
                     }
                     else if(_state == StateFinished)
                     {
                         reap();
                     }
-                    notifyAll();
+                    if(!queueShutdown)
+                    {
+                        notifyAll();
+                    }
                 }
+            }
+
+            if(queueShutdown)
+            {
+                _instance.getQueueExecutor().executeNoThrow(new Callable<Void>()
+                {
+                    @Override
+                    public Void call() throws Exception
+                    {
+                        synchronized(ConnectionI.this)
+                        {
+                            try
+                            {
+                                initiateShutdown();
+                            }
+                            catch(Ice.LocalException ex)
+                            {
+                                setState(StateClosed, ex);
+                            }
+                            ConnectionI.this.notifyAll();
+                        }
+                        return null;
+                    }
+                });
             }
         }
     }

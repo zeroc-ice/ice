@@ -15,7 +15,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.RejectedExecutionException;
 
-final class QueueExecutorService
+public final class QueueExecutorService
 {
     QueueExecutorService(ExecutorService executor)
     {
@@ -30,7 +30,7 @@ final class QueueExecutorService
         });
     }
 
-    <T> T executeNoThrow(Callable<T> callable)
+    public <T> T executeNoThrow(Callable<T> callable)
     {
         try
         {
@@ -43,7 +43,7 @@ final class QueueExecutorService
         }
     }
 
-    <T> T execute(Callable<T> callable)
+    public <T> T execute(Callable<T> callable)
         throws RetryException
     {
         if(_thread == Thread.currentThread())
