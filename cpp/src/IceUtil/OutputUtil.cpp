@@ -114,7 +114,8 @@ IceUtilInternal::OutputBase::isOpen()
 void
 IceUtilInternal::OutputBase::print(const char* s)
 {
-    for(unsigned int i = 0; i < strlen(s); ++i)
+    size_t len = strlen(s);
+    for(unsigned int i = 0; i < len; ++i)
     {
         if(s[i] == '\n')
         {
@@ -125,7 +126,6 @@ IceUtilInternal::OutputBase::print(const char* s)
             ++_pos;
         }
     }
-
     _out << s;
 }
 
