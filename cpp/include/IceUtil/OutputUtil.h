@@ -37,17 +37,17 @@ public:
 
     OutputBase();
     OutputBase(std::ostream&);
-    OutputBase(const char*);
+    OutputBase(const std::string&);
     virtual ~OutputBase();
 
     void setIndent(int); // What is the indent level?
     void setUseTab(bool); // Should we output tabs?
 
-    void open(const char*); // Open output stream.
+    void open(const std::string&); // Open output stream.
     void close(); // Close output stream.
     bool isOpen(); // Is a file stream open?
 
-    virtual void print(const char*); // Print a string.
+    virtual void print(const std::string&); // Print a string.
 
     void inc(); // Increment indentation level.
     void dec(); // Decrement indentation level.
@@ -96,10 +96,7 @@ public:
     Output(std::ostream&);
     Output(const char*);
 
-    virtual void print(const char*); // Print a string.
-
-    void setBeginBlock(const char *); // what do we use at block starts?
-    void setEndBlock(const char *);   // what do we use the block end?
+    virtual void print(const std::string&); // Print a string.
 
     void sb(); // Start a block.
     void eb(); // End a block.
@@ -120,7 +117,7 @@ operator<<(Output& out, const T& val)
 {
     std::ostringstream s;
     s << val;
-    out.print(s.str().c_str());
+    out.print(s.str());
     return out;
 }
 
@@ -217,7 +214,7 @@ public:
     XMLOutput(std::ostream&);
     XMLOutput(const char*);
 
-    virtual void print(const char*); // Print a string.
+    virtual void print(const std::string&); // Print a string.
 
     virtual void newline(); // Print newline.
 
@@ -248,7 +245,7 @@ operator<<(XMLOutput& out, const T& val)
 {
     std::ostringstream s;
     s << val;
-    out.print(s.str().c_str());
+    out.print(s.str());
     return out;
 }
 
