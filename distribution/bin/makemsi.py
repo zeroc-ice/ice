@@ -461,7 +461,6 @@ if not os.path.exists(demoArchive):
     print("Couldn't find %s in %s" % (os.path.basename(demoArchive), os.path.dirname(demoArchive)))
     sys.exit(1)
 
-
 #
 # Windows build configurations by Compiler Arch
 #
@@ -887,18 +886,28 @@ if not skipInstaller:
     #
     # Load path vars
     #
-    command = "\"%s\" /loadpathvars %s" % (advancedInstaller, paths)
-    executeCommand(command, env)
-
+    executeCommand("\"%s\" /loadpathvars %s" % (advancedInstaller, paths), env)
 
     #
-    # Build the Ice main installer.
+    # Build the installers
     #
-    command = "\"%s\" /rebuild %s" % (advancedInstaller, iceInstallerFile)
-    executeCommand(command, env)
+    executeCommand("\"%s\" /rebuild %s -buildslist offline" % (advancedInstaller, iceInstallerFile), env)
+    executeCommand("\"%s\" /build %s -buildslist web" % (advancedInstaller, iceInstallerFile), env)
 
-    sign(os.path.join(os.path.dirname(iceInstallerFile), ("Ice-%s.exe" % iceVersion)), "Ice %s" % iceVersion)
-    sign(os.path.join(os.path.dirname(iceInstallerFile), ("Ice-%s.msi" % iceVersion)), "Ice %s" % iceVersion)
-    sign(os.path.join(os.path.dirname(iceInstallerFile), ("Ice-%s-WebInstaller.exe" % iceVersion)), "Ice %s Web Installer" % iceVersion)
+    #
+    # Sign the installer files
+    #
+    for item in [("Ice-%s-WebInstaller.exe" % iceVersion, "Ice %s Web Installer" % iceVersion),
+                 ("Ice-%s-WebInstaller.msi" % iceVersion, "Ice %s Web Installer" % iceVersion),
+                 ("Ice-%s.exe" % iceVersion, "Ice %s Installer" % iceVersion),
+                 ("Ice-%s.msi" % iceVersion, "Ice %s Installer" % iceVersion),
+                 ("ice.cab", "ice.cab"),
+                 ("demos.cab", "demos.cab"),
+                 ("Microsoft_VC120_CRT_x86.cab", "Microsoft_VC120_CRT_x86.cab"),
+                 ("pdbs.cab", "pdbs.cab"),
+                 ("vs2012addin.cab", "vs2012addin.cab"),
+                 ("vs2013addin.cab", "vs2013addin.cab"),
+                 ("winrt.cab", "winrt.cab")]:
+        sign(os.path.join(os.path.dirname(iceInstallerFile), item[0]), item[1])
 
     remove(tmpCertFile)
